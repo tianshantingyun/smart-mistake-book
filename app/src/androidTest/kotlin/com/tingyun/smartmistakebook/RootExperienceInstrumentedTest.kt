@@ -32,8 +32,10 @@ class RootExperienceInstrumentedTest {
 
     @Before
     fun seedCuratedFixtureExplicitlyForUiScenarios() {
+        DestructiveDeviceTestGuard.requireExplicitOptIn()
         runBlocking {
             val application = composeRule.activity.application as SmartMistakeBookApplication
+            application.studyDatabase.clearAllData()
             // D-M M1：curated 内容改由**测试源集**的夹具直写库文件（生产 fixture 系统已退场）。
             seedAppStudyFacts(
                 context = application,
@@ -206,11 +208,11 @@ class RootExperienceInstrumentedTest {
         composeRule.onNodeWithTag("capability_base_url").performTextInput("https://example.com")
         composeRule.onNodeWithTag("capability_api_key").performTextInput("test-secret-not-real")
         composeRule.onNodeWithTag("capability_save").performScrollTo().performClick()
-        waitForText("配置已安全保存在本机")
+        waitForText("配置已保存在本机")
 
         navigateBackAndWait("root_profile")
-        waitForText("模型配置已保存")
-        composeRule.onAllNodesWithText("请完成能力测试", substring = true)
+        waitForText("配置已保存")
+        composeRule.onAllNodesWithText("请测试模型", substring = true)
             .assertCountEquals(1)
 
         composeRule.onNodeWithTag("profile_capability_setting").performClick()
@@ -220,7 +222,7 @@ class RootExperienceInstrumentedTest {
         composeRule.onNodeWithTag("capability_clear_confirm").performClick()
         waitForText("本机配置与密钥已清除。")
         navigateBackAndWait("root_profile")
-        waitForText("配置大模型 API")
+        waitForText("设置模型服务")
     }
 
     @Test
@@ -259,16 +261,8 @@ class RootExperienceInstrumentedTest {
             application.capabilities.tutorTeachingEnabled,
         )
         waitForTag("root_review")
-        composeRule.onNodeWithTag("review_start_button").performClick()
-        waitForTag("review_session_root")
-        waitForTag("review_choice_A")
-
-        composeRule.onNodeWithTag("review_reveal_answer").performClick()
-        waitForTag("review_explanation")
-        navigateBackAndWait("root_review")
-        waitForText("继续今日复习")
-        composeRule.onNodeWithTag("review_start_button").performClick()
-        waitForTag("review_session_root")
+        composeRule.onNodeWithTag("review_start_button").performScrollTo().performClick()
+        waitForTag("review_self_report_root")
         waitForTag("review_choice_A")
         val beforeSubmit = application.studyRepository.snapshot.value.review
         val expectedOrdinal = beforeSubmit.currentOrdinal + 1
@@ -278,8 +272,9 @@ class RootExperienceInstrumentedTest {
             expectedOrdinal < queueSize,
         )
 
-        composeRule.onNodeWithTag("review_choice_A").performClick()
-        composeRule.onNodeWithTag("review_submit_answer").performClick()
+        composeRule.onNodeWithTag("review_choice_A").performScrollTo().performClick()
+        composeRule.onNodeWithTag("review_key_good").performScrollTo().performClick()
+        waitForTag("review_self_report_receipt")
         waitForTag("review_next_item")
         composeRule.waitUntil(timeoutMillis = 20_000) {
             application.studyRepository.snapshot.value.review.currentOrdinal == expectedOrdinal
@@ -288,7 +283,7 @@ class RootExperienceInstrumentedTest {
         navigateBackAndWait("root_review")
         waitForText("继续今日复习")
         composeRule.onNodeWithTag("review_start_button").performClick()
-        waitForTag("review_session_root")
+        waitForTag("review_self_report_root")
         waitForText("第 ${expectedOrdinal + 1} / $queueSize 题")
         navigateBackAndWait("root_review")
     }
@@ -351,7 +346,9 @@ class RootExperienceInstrumentedTest {
             composeRule.onRoot().printToString(maxDepth = 8).let { tree ->
                 System.err.println("waitForTag('$tag') timed out; semantics tree:" + "\n" + tree)
             }
-            throw timeout
+            val application = composeRule.activity.application as SmartMistakeBookApplication
+            throw AssertionError("Waiting for $tag; review=${application.studyRepository.snapshot.value.review}\n" +
+                composeRule.onRoot(useUnmergedTree = true).printToString(), timeout)
         }
     }
 

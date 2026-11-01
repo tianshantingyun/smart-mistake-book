@@ -13,11 +13,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.FilterChip
+import com.tingyun.smartmistakebook.core.ui.ClaudeFilterChip as FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -153,7 +154,7 @@ internal fun ReminderScreen(
                 )
                 if (suggestedMinute != null) {
                     Text(
-                        "数据显示你 ${formatReminderTime(suggestedMinute)} 前后复习效果最好，可参考调整",
+                        "根据近期记录，建议在 ${formatReminderTime(suggestedMinute)} 前后复习，可自行调整",
                         style = MaterialTheme.typography.bodySmall,
                         color = InkSecondary,
                     )
@@ -191,7 +192,7 @@ internal fun ReminderScreen(
         )
         Text("选一个符合日常节奏的时间，也可以自定义。", color = InkSecondary)
         Text(
-            "到点提醒由系统投递，省电模式下可能略有延迟。",
+            "提醒由系统发送，省电模式下可能延迟。",
             modifier = Modifier.padding(top = 2.dp),
             color = InkSecondary,
             style = MaterialTheme.typography.labelSmall,
@@ -242,7 +243,7 @@ internal fun ReminderScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 10.dp)
-                .height(48.dp)
+                .heightIn(min = 48.dp)
                 .testTag("reminder_custom_time"),
         ) {
             Text("自定义时间")
@@ -259,7 +260,7 @@ internal fun ReminderScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp)
-                    .height(48.dp)
+                    .heightIn(min = 48.dp)
                     .testTag("reminder_open_system_settings"),
             ) {
                 Text("打开系统通知设置")
@@ -276,7 +277,7 @@ internal fun ReminderScreen(
 
         PaperDivider(Modifier.padding(vertical = 18.dp))
         Text(
-            "提醒只负责叫你回来：今日题单仍由本机学习记录和遗忘曲线决定。锁屏不会显示具体错题，也不会因为提醒而后台调用大模型。",
+            "提醒不会改变复习安排。锁屏不显示具体题目，也不会在后台调用模型。",
             color = InkSecondary,
             style = MaterialTheme.typography.bodyMedium,
         )

@@ -575,7 +575,7 @@ object FsrsParameterOptimizer {
      * no long-run retention signal. A sample qualifies when it has a prior
      * review at least one calendar day earlier.
      */
-    internal fun predictableSampleCount(samples: List<ReviewSample>): Int {
+    fun predictableSampleCount(samples: List<ReviewSample>): Int {
         // 与 evaluate/optimize 同一口径：讲题判定行不算"可预测样本"，避免它们
         // 抬高解锁拟合的样本量门槛。
         val fittable = fittableReviewSamples(samples)

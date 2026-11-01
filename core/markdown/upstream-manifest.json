@@ -1,0 +1,85 @@
+{
+  "artifact": "com.halilibo.compose-richtext:richtext-commonmark-android:0.17.0",
+  "source_jar_sha256": "bdad623ea201e475fb91a1fc16ffdb8dd96d4078b75dc69e477bc719af639452",
+  "files": [
+    {
+      "source": "commonMain/com/halilibo/richtext/markdown/Markdown.kt",
+      "path": "core/markdown/src/main/java/com/halilibo/richtext/markdown/Markdown.kt",
+      "upstream_sha256": "b9cf3addd73b61ef8265251e30cea0172b24f4ac240de03ff3141a1478ce2262",
+      "android_only_adapter": true
+    },
+    {
+      "source": "commonMain/com/halilibo/richtext/markdown/MarkdownParseOptions.kt",
+      "path": "core/markdown/src/main/java/com/halilibo/richtext/markdown/MarkdownParseOptions.kt",
+      "upstream_sha256": "1246c9a1b64a6862a828f358f372872e114978f6edd5571f47c8b0b20561a0f6",
+      "android_only_adapter": false
+    },
+    {
+      "source": "commonMain/com/halilibo/richtext/markdown/MarkdownRichText.kt",
+      "path": "core/markdown/src/main/java/com/halilibo/richtext/markdown/MarkdownRichText.kt",
+      "upstream_sha256": "4bce9481c3c2ee26c89f9a19d2571e840ee16f2ec11102157b0c790225161cc2",
+      "android_only_adapter": false
+    },
+    {
+      "source": "commonMain/com/halilibo/richtext/markdown/RenderTable.kt",
+      "path": "core/markdown/src/main/java/com/halilibo/richtext/markdown/RenderTable.kt",
+      "upstream_sha256": "23b0eda19c483b6c3cff9648340008212150b0b7c254f8a827b013324cc712eb",
+      "android_only_adapter": false
+    },
+    {
+      "source": "commonMain/com/halilibo/richtext/markdown/TraverseUtils.kt",
+      "path": "core/markdown/src/main/java/com/halilibo/richtext/markdown/TraverseUtils.kt",
+      "upstream_sha256": "f335af29e38507afca8d8da03e6f26bf2d79c035eaa24fe7610a6f2145b3f1b0",
+      "android_only_adapter": false
+    },
+    {
+      "source": "commonMain/com/halilibo/richtext/markdown/node/AstNode.kt",
+      "path": "core/markdown/src/main/java/com/halilibo/richtext/markdown/node/AstNode.kt",
+      "upstream_sha256": "0f71786515df9ea761d87a443134092e48348972d579b5b7186af07017bb0815",
+      "android_only_adapter": false
+    },
+    {
+      "source": "commonMain/com/halilibo/richtext/markdown/node/AstNodeLinks.kt",
+      "path": "core/markdown/src/main/java/com/halilibo/richtext/markdown/node/AstNodeLinks.kt",
+      "upstream_sha256": "906efa565db6a9c40c2ab5637c377cd87a2cd7e37f43b2d3b8872f2180d5492b",
+      "android_only_adapter": false
+    },
+    {
+      "source": "commonMain/com/halilibo/richtext/markdown/node/AstNodeType.kt",
+      "path": "core/markdown/src/main/java/com/halilibo/richtext/markdown/node/AstNodeType.kt",
+      "upstream_sha256": "18a4e543cdd7ba3c28fdd34de35a8282bde2cb7f7a717130f75ef55a43280f71",
+      "android_only_adapter": false
+    },
+    {
+      "source": "commonMain/com/halilibo/richtext/markdown/node/AstStrikethrough.kt",
+      "path": "core/markdown/src/main/java/com/halilibo/richtext/markdown/node/AstStrikethrough.kt",
+      "upstream_sha256": "9675c84ec4ab141fe2f6ed8b4d352a9e0d1c682778755ea32f234716d367b5fe",
+      "android_only_adapter": false
+    },
+    {
+      "source": "commonMain/com/halilibo/richtext/markdown/node/AstTable.kt",
+      "path": "core/markdown/src/main/java/com/halilibo/richtext/markdown/node/AstTable.kt",
+      "upstream_sha256": "3294c67c5d988970794fa4c4bea5af7a595adfdaeace63591de1b3166afd6c2b",
+      "android_only_adapter": false
+    },
+    {
+      "source": "androidMain/com/halilibo/richtext/markdown/HtmlBlock.kt",
+      "path": "core/markdown/src/main/java/com/halilibo/richtext/markdown/HtmlBlock.kt",
+      "upstream_sha256": "f6bca622b9aaf78aca748df851e60575d6ae762288dd811ebff95dc62bf08edf",
+      "android_only_adapter": true
+    },
+    {
+      "source": "androidMain/com/halilibo/richtext/markdown/RemoteImage.kt",
+      "path": "core/markdown/src/main/java/com/halilibo/richtext/markdown/RemoteImage.kt",
+      "upstream_sha256": "3204ff5bb402678c99986077f9ae82ee5b61c6f4f6cf95bc3c1d62925fca5ddf",
+      "android_only_adapter": true
+    },
+    {
+      "source": "androidMain/com/halilibo/richtext/markdown/AstNodeConvert.kt",
+      "path": "core/markdown/src/main/java/com/halilibo/richtext/markdown/AstNodeConvert.kt",
+      "upstream_sha256": "398825e3b1abf60581dc325a2bf642b40f78f1657f1da070e4f66777b5069d98",
+      "android_only_adapter": true,
+      "trailing_blank_line_normalized": true
+    }
+  ]
+}

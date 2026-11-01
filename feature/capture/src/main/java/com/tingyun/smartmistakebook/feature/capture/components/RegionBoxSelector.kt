@@ -1,5 +1,8 @@
 package com.tingyun.smartmistakebook.feature.capture
 
+import com.tingyun.smartmistakebook.core.ui.claudeDismissOnEscape
+
+import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -35,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
-import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
@@ -126,6 +128,7 @@ internal fun RegionBoxSelectorDialog(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color(0xE6121412))
+                .claudeDismissOnEscape(onDismiss = onDismiss)
                 .padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
@@ -302,7 +305,7 @@ internal fun RegionBoxSelectorDialog(
             }
             Text(
                 text = "框会按题目在页面上的阅读顺序编号",
-                color = InkMuted,
+                color = InkSecondary,
                 style = MaterialTheme.typography.labelSmall,
             )
         }

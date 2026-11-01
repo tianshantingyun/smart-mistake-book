@@ -121,7 +121,7 @@ class ExportPdfWorker(
                 app = app,
                 repository = repository,
                 exportId = request.exportId,
-                failureMessage = "学习数据还没准备好，这次导出没有开始。请稍后重新导出。",
+                failureMessage = "学习数据尚未就绪，未开始导出。请稍后重试。",
                 draftId = request.editedDraftId,
             )
         }

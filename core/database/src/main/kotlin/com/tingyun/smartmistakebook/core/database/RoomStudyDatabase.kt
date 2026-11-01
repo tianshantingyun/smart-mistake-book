@@ -2157,6 +2157,17 @@ internal class RoomStudyDatabase(
         return database.tutorVisualDao().findSnapshot(snapshotId)?.toRecord()
     }
 
+    override suspend fun readLatestLiveTutorVisualSnapshot(
+        programId: String,
+    ): TutorVisualSnapshotRecord? {
+        require(programId.isNotBlank()) { "A visual program id must not be blank" }
+        // LIVE 谓词与 promoted_at DESC 的口径在 DAO 侧（findLatestLiveSnapshot），端口层
+        // 不再复制一份"什么算最近"——恢复读侧与迁移/对账读同一个 SQL 事实源。
+        return database.tutorVisualDao()
+            .findLatestLiveSnapshot(programId, TutorVisualStatus.LIVE)
+            ?.toRecord()
+    }
+
     override suspend fun readTutorMessageVisual(
         messageId: String,
         ordinal: Int,

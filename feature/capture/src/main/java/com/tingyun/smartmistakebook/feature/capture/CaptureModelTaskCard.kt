@@ -1,12 +1,13 @@
 package com.tingyun.smartmistakebook.feature.capture
 
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,7 +32,6 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.requiresModelSettings
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
-import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
@@ -62,7 +62,7 @@ internal fun CaptureModelTaskCard(
     val needsAttention = failed || cancelled || splitError != null
     val succeeded = activeSnapshot?.status == ModelTaskStatus.SUCCEEDED
     val accent = when {
-        needsAttention -> ErrorWarm
+        needsAttention -> ErrorText
         succeeded -> JadeActive
         else -> InkSecondary
     }
@@ -104,7 +104,7 @@ internal fun CaptureModelTaskCard(
         Text(
             text = when {
                 splitError != null -> splitError
-                splitInProgress -> "正在把这一页里的题目分别整理，原图已经保留。"
+                splitInProgress -> "正在拆分本页题目，原图已保存。"
                 else -> modelPipelineDetail(snapshot, parseSnapshot)
             },
             modifier = Modifier.padding(top = 8.dp),
@@ -113,7 +113,7 @@ internal fun CaptureModelTaskCard(
         )
         if (assessmentDecision == CaptureAssessmentDecision.NEED_MORE_IMAGE) {
             Text(
-                text = "题目内容还没拍全。继续补拍下一页，已保存的页面不会丢失。",
+                text = "题目拍摄不完整，请补拍后续页面。已保存的页面将保留。",
                 modifier = Modifier.padding(top = 8.dp),
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
@@ -149,7 +149,7 @@ internal fun CaptureModelTaskCard(
             !splitInProgress
         ) {
             Text(
-                text = "这一页里有多道题。可以让应用自动按题拆开，也可以自己在图上框出每道题的范围。",
+                text = "这一页有多道题。可自动拆分，也可在图上框选。",
                 modifier = Modifier.padding(top = 8.dp),
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
@@ -163,7 +163,7 @@ internal fun CaptureModelTaskCard(
                     onClick = onAutoSplit,
                     modifier = Modifier
                         .weight(1f)
-                        .height(46.dp)
+                        .heightIn(min = 48.dp)
                         .testTag("capture_split_auto_button"),
                 )
                 OutlineActionChip(
@@ -171,7 +171,7 @@ internal fun CaptureModelTaskCard(
                     onClick = onManualSplit,
                     modifier = Modifier
                         .weight(1f)
-                        .height(46.dp)
+                        .heightIn(min = 48.dp)
                         .testTag("capture_split_manual_button"),
                 )
             }
@@ -253,23 +253,23 @@ internal fun captureModelTaskTitle(
         ?.assessment
         ?.decision
     return when {
-        parseStatus == ModelTaskStatus.CANCELLED -> "这道题暂时没准备好"
+        parseStatus == ModelTaskStatus.CANCELLED -> "整理已停止"
         parseStatus == ModelTaskStatus.SUCCEEDED && parseSnapshot.provider?.isDemo == true ->
-            "需要连接模型"
+            "请先设置模型"
         parseStatus == ModelTaskStatus.SUCCEEDED -> "题面已准备好"
         parseStatus == ModelTaskStatus.RETRYABLE_FAILURE ||
-            parseStatus == ModelTaskStatus.PERMANENT_FAILURE -> "这道题暂时没准备好"
-        parseSnapshot != null -> "正在准备这道题"
-        assessmentStatus == ModelTaskStatus.CANCELLED -> "这道题暂时没准备好"
-        snapshot == null -> "正在准备这道题"
+            parseStatus == ModelTaskStatus.PERMANENT_FAILURE -> "整理未完成"
+        parseSnapshot != null -> "正在整理题目"
+        assessmentStatus == ModelTaskStatus.CANCELLED -> "整理已停止"
+        snapshot == null -> "正在整理题目"
         assessmentStatus == ModelTaskStatus.SUCCEEDED && snapshot.provider?.isDemo == true ->
-            "需要连接模型"
+            "请先设置模型"
         assessmentStatus == ModelTaskStatus.SUCCEEDED &&
             assessmentDecision == CaptureAssessmentDecision.SPLIT -> "正在整理这一页"
-        assessmentStatus == ModelTaskStatus.SUCCEEDED -> "正在准备这道题"
+        assessmentStatus == ModelTaskStatus.SUCCEEDED -> "正在整理题目"
         assessmentStatus == ModelTaskStatus.RETRYABLE_FAILURE ||
-            assessmentStatus == ModelTaskStatus.PERMANENT_FAILURE -> "这道题暂时没准备好"
-        else -> "正在准备这道题"
+            assessmentStatus == ModelTaskStatus.PERMANENT_FAILURE -> "整理未完成"
+        else -> "正在整理题目"
     }
 }
 
@@ -294,68 +294,68 @@ internal fun modelPipelineDetail(
 ): String {
     if (parseSnapshot != null) {
         if (parseSnapshot.status == ModelTaskStatus.CANCELLED) {
-            return "处理已停止，原图已经保存，可以重新处理。"
+            return "处理已停止，原图已保存。可重新整理。"
         }
         if (
             parseSnapshot.provider?.isDemo == true &&
             parseSnapshot.status == ModelTaskStatus.SUCCEEDED
         ) {
-            return "原图已经保存，连接模型后可以继续。"
+            return "原图已保存，设置模型后可继续。"
         }
         if (parseSnapshot.status == ModelTaskStatus.SUCCEEDED) return "题面已经准备好。"
         if (parseSnapshot.status == ModelTaskStatus.RETRYABLE_FAILURE) {
             return if (captureModelRecoveryAction(snapshot, parseSnapshot) ==
                 CaptureModelRecoveryAction.OPEN_SETTINGS
             ) {
-                "原图已经保存，检查模型设置后可以继续。"
+                "原图已保存，请检查模型设置后继续。"
             } else {
-                "这次没有完成，原图已经保存，可以重试。"
+                "整理未完成，原图已保存。请重试。"
             }
         }
         if (parseSnapshot.status == ModelTaskStatus.PERMANENT_FAILURE) {
             return if (captureModelRecoveryAction(snapshot, parseSnapshot) ==
                 CaptureModelRecoveryAction.OPEN_SETTINGS
             ) {
-                "原图已经保存，检查模型设置后可以继续。"
+                "原图已保存，请检查模型设置后继续。"
             } else {
-                "这次没有完成，原图已经保存，可以重新处理。"
+                "整理未完成，原图已保存。可重新整理。"
             }
         }
-        return "原图已经保存，完成后会显示题面。"
+        return "原图已保存，整理完成后会显示题面。"
     }
-    if (snapshot == null) return "原图已经保存，可以稍后回来继续。"
+    if (snapshot == null) return "原图已保存，可稍后继续。"
     if (snapshot.status == ModelTaskStatus.CANCELLED) {
-        return "处理已停止，原图已经保存，可以重新处理。"
+        return "处理已停止，原图已保存。可重新整理。"
     }
     if (snapshot.provider?.isDemo == true && snapshot.status == ModelTaskStatus.SUCCEEDED) {
-        return "原图已经保存，连接模型后可以继续。"
+        return "原图已保存，设置模型后可继续。"
     }
     if (snapshot.status == ModelTaskStatus.RETRYABLE_FAILURE) {
         return if (captureModelRecoveryAction(snapshot, parseSnapshot) ==
             CaptureModelRecoveryAction.OPEN_SETTINGS
         ) {
-            "原图已经保存，检查模型设置后可以继续。"
+            "原图已保存，请检查模型设置后继续。"
         } else {
-            "这次没有完成，原图已经保存，可以重试。"
+            "整理未完成，原图已保存。请重试。"
         }
     }
     if (snapshot.status == ModelTaskStatus.PERMANENT_FAILURE) {
         return if (captureModelRecoveryAction(snapshot, parseSnapshot) ==
             CaptureModelRecoveryAction.OPEN_SETTINGS
         ) {
-            "原图已经保存，检查模型设置后可以继续。"
+            "原图已保存，请检查模型设置后继续。"
         } else {
-            "这次没有完成，原图已经保存，可以重新处理。"
+            "整理未完成，原图已保存。可重新整理。"
         }
     }
     val assessment = (snapshot.output as? CaptureAssessmentOutput)?.assessment
     return when {
-        assessment == null -> "原图已经保存，完成后会显示题面。"
+        assessment == null -> "原图已保存，整理完成后会显示题面。"
         assessment.decision == CaptureAssessmentDecision.PASS ->
             "题目范围清楚，正在准备题面。"
         assessment.decision == CaptureAssessmentDecision.SPLIT ->
-            "正在把这一页里的题目分别整理，原图已经保留。"
+            "正在拆分本页题目，原图已保存。"
         assessment.issues.isNotEmpty() -> assessment.issues.first().message
-        else -> "原图已经保存，完成后会显示题面。"
+        else -> "原图已保存，整理完成后会显示题面。"
     }
 }

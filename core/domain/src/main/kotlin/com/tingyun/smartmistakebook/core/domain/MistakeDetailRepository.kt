@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.domain
 
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
+import com.tingyun.smartmistakebook.core.model.VisualRole
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -69,6 +70,37 @@ interface MistakeDetailRepository {
 
     /** 归档条目摘要（id+标题）：错题本"已移出"入口的展示与恢复。 */
     fun observeArchived(): Flow<List<ArchivedMistakeRef>> = flowOf(emptyList())
+
+    /**
+     * 详情页是否有**用户显式重绘**能力（4E WG-06 T3）。
+     *
+     * 默认 false：只读替身/未接线的装配不会显示一个点了没反应的按钮。生产装配接上
+     * `ExplicitRedrawService` 后才为 true。
+     */
+    fun supportsExplicitRedraw(): Boolean = false
+
+    /**
+     * 观察一条题面修订上最近一次显式重绘的状态（排队/进行中/失败可重试/成功/已取代）。
+     *
+     * 只读：观察本身不建行、不派发。默认 [ExplicitRedrawState.Idle]（没有台账可看）。
+     */
+    fun observeExplicitRedraw(problemRevisionId: String): Flow<ExplicitRedrawState> =
+        flowOf(ExplicitRedrawState.Idle)
+
+    /**
+     * 用户在详情页发起一次显式重绘（4E WG-06 T3）。
+     *
+     * 命令携带 `problemRevisionId/expectedRevisionId/role/reason`：
+     * - 只有 `expectedRevisionId` 仍是条目当前指向的题面时才接受（current-revision CAS）；
+     * - 作业身份复用 `clean_redraw_task`（确定性 taskId + 尝试上限 + 预算父操作）；
+     * - 强制路径跳过分类轮，TEXT_ONLY 不会把这次用户动作变成"不需要图"；
+     * - 真正派发只在这次调用之后发生（打开/展开/旋转详情页不会调用它）。
+     *
+     * 默认 [ExplicitRedrawRequestResult.NotSupported]：没有接线就不假装接受了请求。
+     */
+    suspend fun requestExplicitRedraw(
+        command: ExplicitRedrawCommand,
+    ): ExplicitRedrawRequestResult = ExplicitRedrawRequestResult.NotSupported
 }
 
 data class ArchivedMistakeRef(
@@ -346,4 +378,136 @@ sealed interface ReviseMistakeProblemResult {
 
     /** This repository cannot write revisions (e.g. a read-only test double). */
     data object NotSupported : ReviseMistakeProblemResult
+}
+
+// ---------------------------------------------------------------------------
+// 4E WG-06 T3：详情页的用户显式重绘（命令 / 状态 / 结果）
+// ---------------------------------------------------------------------------
+
+/**
+ * 一次用户显式重绘命令（4E WG-06 T3）。
+ *
+ * [problemRevisionId] 是要重绘的题面修订；[expectedRevisionId] 是调用方以为的**当前**修订
+ * （current-revision CAS 的期望值）。两者不同 = 详情页看到的是旧版，命令不执行。
+ *
+ * [role] 是这次要产出的视觉角色。T3 只实现 `CLEAN_IMAGE`（干净题面）；其它角色由服务
+ * 明确拒绝，不静默改写成另一种图。
+ *
+ * [reason] 是用户动作的理由（审计/诊断用），不参与作业身份——同一修订、同一源图的重试
+ * 不会因为理由文字不同而变成另一次付费作业。
+ */
+data class ExplicitRedrawCommand(
+    val problemRevisionId: String,
+    val expectedRevisionId: String,
+    val reason: String,
+    val role: VisualRole = VisualRole.CLEAN_IMAGE,
+) {
+    init {
+        require(problemRevisionId.isNotBlank()) {
+            "An explicit redraw problem revision id must not be blank"
+        }
+        require(expectedRevisionId.isNotBlank()) {
+            "An explicit redraw expected revision id must not be blank"
+        }
+        require(reason.isNotBlank()) { "An explicit redraw needs a reason" }
+        require(reason.length <= MAX_EXPLICIT_REDRAW_REASON_CHARS) {
+            "An explicit redraw reason must be at most $MAX_EXPLICIT_REDRAW_REASON_CHARS chars"
+        }
+        require(reason.none { it.isISOControl() && it != '\n' }) {
+            "An explicit redraw reason must not carry control characters"
+        }
+    }
+
+    private companion object {
+        /** 与 `FigureGenerationPolicy.MAX_REASON_CHARS` 同量级：诊断文本不是日志倾倒口。 */
+        const val MAX_EXPLICIT_REDRAW_REASON_CHARS = 500
+    }
+}
+
+/** 详情页显式重绘的可见阶段（持久状态映射自 `clean_redraw_task`）。 */
+enum class ExplicitRedrawPhase {
+    /** 这一版题面还没有用户请求过重绘。 */
+    IDLE,
+
+    /** 已入队/已领取尝试：`PENDING`（含进程重启后等待对账的行）。 */
+    RUNNING,
+
+    /** 最近一次尝试失败；[ExplicitRedrawState.canRetry] 表示尝试额度是否还有。 */
+    FAILED,
+
+    /** 作业完成（含"分类判定纯文字题"不适用于强制路径——显式重绘成功即有产物）。 */
+    SUCCEEDED,
+
+    /** 不再有可挂目标（题面已被新修订取代 / 源图已不是那一张）：不挂、不再付费。 */
+    SUPERSEDED,
+}
+
+/** 失败原因（持久 `last_failure_code` 的稳定映射；未知码不猜测，归入 UNKNOWN）。 */
+enum class ExplicitRedrawFailureReason {
+    SOURCE_UNREADABLE,
+    REDRAW_FAILED,
+    ATTACH_FAILED,
+    UNKNOWN,
+}
+
+/**
+ * 一条题面修订上最近一次显式重绘的可观察状态。
+ *
+ * 不变量：`failureReason`/`canRetry` 只对 [ExplicitRedrawPhase.FAILED] 成立；`taskId` 只有
+ * 在确实有作业行（非 [ExplicitRedrawPhase.IDLE]）时才非空。
+ */
+data class ExplicitRedrawState(
+    val phase: ExplicitRedrawPhase,
+    val taskId: String? = null,
+    val attemptCount: Int = 0,
+    val failureReason: ExplicitRedrawFailureReason? = null,
+    val canRetry: Boolean = false,
+    val updatedAtEpochMillis: Long = 0,
+) {
+    init {
+        require(attemptCount >= 0) { "An explicit redraw attempt count must not be negative" }
+        require(updatedAtEpochMillis >= 0) {
+            "An explicit redraw update time must not be negative"
+        }
+        require(taskId != null || phase == ExplicitRedrawPhase.IDLE) {
+            "An explicit redraw state must carry its task id"
+        }
+        require(taskId == null || taskId.isNotBlank()) {
+            "An explicit redraw task id must not be blank"
+        }
+        require((failureReason != null) == (phase == ExplicitRedrawPhase.FAILED)) {
+            "Only a failed explicit redraw state may carry a failure reason"
+        }
+        require(!canRetry || phase == ExplicitRedrawPhase.FAILED) {
+            "Only a failed explicit redraw state may be retryable"
+        }
+    }
+
+    companion object {
+        val Idle: ExplicitRedrawState = ExplicitRedrawState(phase = ExplicitRedrawPhase.IDLE)
+    }
+}
+
+/** 一次显式重绘请求的结果（命令层，不是作业终态；作业终态见 [ExplicitRedrawState]）。 */
+sealed interface ExplicitRedrawRequestResult {
+    /** 已建立/复用持久作业身份，并已把这一轮交给后台执行。 */
+    data class Accepted(val state: ExplicitRedrawState) : ExplicitRedrawRequestResult
+
+    /** 这一版题面的同一请求已有终态（成功过的不会重复付费；SUPERSEDED 不再重试）。 */
+    data class AlreadySettled(val state: ExplicitRedrawState) : ExplicitRedrawRequestResult
+
+    /** 调用方看到的不是当前题面（条目已指向新修订）：不建行、不派发。 */
+    data object NotCurrentRevision : ExplicitRedrawRequestResult
+
+    /** 这一版题面没有可用的源图（原题照片/源证据/已有干净图都不在）：不建行、不派发。 */
+    data object NoSource : ExplicitRedrawRequestResult
+
+    /** 当前构建不能出网/没配模型：不建行、不派发（没有尝试过就没有欠账）。 */
+    data object Unavailable : ExplicitRedrawRequestResult
+
+    /** 命令本身不被支持（例如非 CLEAN_IMAGE 角色）；[reason] 是稳定码，不面向上网。 */
+    data class Rejected(val reason: String) : ExplicitRedrawRequestResult
+
+    /** 当前装配没有重绘服务（详情页据此不显示入口）。 */
+    data object NotSupported : ExplicitRedrawRequestResult
 }

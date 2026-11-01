@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.role
@@ -49,6 +50,8 @@ internal fun ReviewChoiceRow(
     onSelect: (String) -> Unit,
     testTag: String = "review_choice_${choice.id}",
 ) {
+    val badgeStyle = MaterialTheme.typography.labelLarge
+    val badgeSize = with(LocalDensity.current) { badgeStyle.lineHeight.toDp() + 8.dp }.coerceAtLeast(30.dp)
     val isSelected = selectedChoice == choice.id
     val isSubmitted = submittedChoice != null
     val isSubmittedSelection = submittedChoice == choice.id
@@ -92,7 +95,7 @@ internal fun ReviewChoiceRow(
     ) {
         Box(
             modifier = Modifier
-                .size(30.dp)
+                .size(badgeSize)
                 .clip(CircleShape)
                 .border(1.dp, outlineColor, CircleShape),
             contentAlignment = Alignment.Center,
@@ -101,6 +104,7 @@ internal fun ReviewChoiceRow(
                 text = choice.id,
                 color = SmartColors.Ink,
                 fontWeight = FontWeight.SemiBold,
+                style = badgeStyle,
             )
         }
         Spacer(Modifier.width(12.dp))

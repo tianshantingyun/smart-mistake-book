@@ -71,8 +71,8 @@ internal fun knowledgeQuizLoadPath(
 
 /**
  * 知识点复习会话的一个展示单元（spec dual-review-entry §3.3/§3.4）：负责"当前知识点"
- * 从取题到判答回写的状态机。整个队列以 [KnowledgeReviewSessionPlan] 注入，当前索引与
- * 作答判决持久化在 SavedStateHandle。模型取题与掌握度回写都经回调注入（对齐
+ * 从取题到判答回写的状态机。整个有序队列、当前索引与作答判决持久化在 SavedStateHandle，
+ * 重建时不把旧作答套到新计划的同一索引。模型取题与掌握度回写都经回调注入（对齐
  * ReviewSessionViewModel/CapturedReviewSessionViewModel），本类不持有任何
  * repository/gateway，纯 JVM 可测。
  *
@@ -84,19 +84,24 @@ internal fun knowledgeQuizLoadPath(
  */
 internal class KnowledgeReviewSessionViewModel(
     private val savedStateHandle: SavedStateHandle,
-    private val plan: KnowledgeReviewSessionPlan,
+    plan: KnowledgeReviewSessionPlan,
 ) : ViewModel() {
+    private val sessionQueue = restoreSessionQueue(plan)
+
+    /** 缺少/损坏身份快照时不能把旧选择、判决配到新队列，也不能自动重新出题。 */
+    val sessionRestoreFailed: Boolean = sessionQueue == null
+
     internal var currentIndex: Int by mutableStateOf(
-        savedStateHandle.get<Int>(CURRENT_INDEX_KEY) ?: 0,
+        restoredCurrentIndex(),
     )
         private set
 
     /** 当前展示的知识点；队列走完后为 null。 */
     val currentEntry: KnowledgeReviewQueueEntry?
-        get() = plan.queue.getOrNull(currentIndex)
+        get() = sessionQueue?.getOrNull(currentIndex)
 
     val queueSize: Int
-        get() = plan.queue.size
+        get() = sessionQueue?.size ?: 0
 
     /**
      * 当前知识点这次的题面（内存态；库内真值由 app 层按 `(会话, 知识点)` 的呈现快照保存，
@@ -134,14 +139,14 @@ internal class KnowledgeReviewSessionViewModel(
      * 按钮文案由 [completed] 区分（"完成" vs "下一知识点"）。
      */
     val canContinue: Boolean
-        get() = plan.queue.isNotEmpty() &&
+        get() = currentEntry != null &&
             submitStatus == KnowledgeQuizSubmitStatus.RECORDED
 
-    /** 会话是否已全部完成（末位知识点也已回写）。 */
+    /** 末项已回写，或已前进至队尾（包括跳过末项）；跳过不伪造作答判决。 */
     val completed: Boolean
-        get() = plan.queue.isNotEmpty() &&
-            submitStatus == KnowledgeQuizSubmitStatus.RECORDED &&
-            isLastIndex(currentIndex)
+        get() = queueSize > 0 &&
+            (currentIndex >= queueSize ||
+                submitStatus == KnowledgeQuizSubmitStatus.RECORDED && isLastIndex(currentIndex))
 
     fun select(choiceId: String) {
         if (submittedChoice != null) return
@@ -303,6 +308,13 @@ internal class KnowledgeReviewSessionViewModel(
         "knowledge-quiz-review:$sessionStartedAtEpochMillis"
 
     /**
+     * 本会话的写入标识（`knowledge-quiz-review:<会话起点>`）。答键改正要用它定位**本会话**
+     * 那条被拒观察行——题面/选项按会话重新生成，`itemId` 是常量，不能跨会话挑旧观察行。
+     */
+    internal val conversationId: String
+        get() = knowledgeQuizConversationId()
+
+    /**
      * 本次作答的提交身份（AUD-01）：**会话分量 + 题面 + 选项**。
      *
      * - 同一会话、同一题面、同一选项 → 恒同 id：同一次重试是同一笔证据（下游按身份幂等，
@@ -318,7 +330,7 @@ internal class KnowledgeReviewSessionViewModel(
 
     /** 进入下一知识点；若当前是末位则标记会话完成（Screen 负责返回首页）。 */
     fun continueToNext() {
-        if (!canContinue && !completed) return
+        if (!canContinue) return
         advance()
     }
 
@@ -349,7 +361,54 @@ internal class KnowledgeReviewSessionViewModel(
         updateSubmitStatus(KnowledgeQuizSubmitStatus.IDLE)
     }
 
-    private fun isLastIndex(index: Int): Boolean = index == plan.queue.size - 1
+    private fun isLastIndex(index: Int): Boolean = index == queueSize - 1
+
+    private fun restoreSessionQueue(plan: KnowledgeReviewSessionPlan): List<KnowledgeReviewQueueEntry>? {
+        if (savedStateHandle.contains(SESSION_QUEUE_KEY)) {
+            return runCatching {
+                val fields = savedStateHandle.get<ArrayList<String>>(SESSION_QUEUE_KEY)
+                    ?: error("Missing session queue")
+                require(fields.size % QUEUE_ENTRY_FIELD_COUNT == 0)
+                KnowledgeReviewSessionPlan(
+                    fields.chunked(QUEUE_ENTRY_FIELD_COUNT).map { values ->
+                        KnowledgeReviewQueueEntry(
+                            knowledgeNodeId = values[0],
+                            subject = values[1],
+                            displayName = values[2],
+                            masteryScore = values[3].takeIf(String::isNotEmpty)?.toDouble(),
+                            lastEvidenceAtEpochMillis = values[4].takeIf(String::isNotEmpty)?.toLong(),
+                        )
+                    },
+                ).queue
+            }.getOrNull()
+        }
+        // 旧版只存索引/判决，没有足够信息证明它属于今天新排的哪个知识点。
+        if (savedStateHandle.contains(CURRENT_INDEX_KEY) ||
+            NODE_STATE_KEYS.any(savedStateHandle::contains)
+        ) {
+            return null
+        }
+        savedStateHandle[SESSION_QUEUE_KEY] = ArrayList<String>().apply {
+            plan.queue.forEach { entry ->
+                add(entry.knowledgeNodeId)
+                add(entry.subject)
+                add(entry.displayName)
+                add(entry.masteryScore?.toString().orEmpty())
+                add(entry.lastEvidenceAtEpochMillis?.toString().orEmpty())
+            }
+        }
+        return plan.queue.toList()
+    }
+
+    private fun restoredCurrentIndex(): Int {
+        val savedIndex = savedStateHandle.get<Int>(CURRENT_INDEX_KEY) ?: 0
+        val index = savedIndex.coerceIn(0, queueSize)
+        if (sessionRestoreFailed || index != savedIndex || index == queueSize) {
+            NODE_STATE_KEYS.forEach { savedStateHandle.remove<Any>(it) }
+        }
+        savedStateHandle[CURRENT_INDEX_KEY] = index
+        return index
+    }
 
     private fun updateLoadStatus(status: KnowledgeQuizLoadStatus) {
         loadStatus = status
@@ -419,11 +478,20 @@ internal class KnowledgeReviewSessionViewModel(
 
     internal companion object {
         const val CURRENT_INDEX_KEY = "kq_current_index"
+        const val SESSION_QUEUE_KEY = "kq_session_queue_v1"
         const val SESSION_STARTED_AT_KEY = "kq_session_started_at"
         const val LOAD_STATUS_KEY = "kq_load_status"
         const val SELECTED_CHOICE_KEY = "kq_selected_choice"
         const val SUBMITTED_CHOICE_KEY = "kq_submitted_choice"
         const val SUBMIT_STATUS_KEY = "kq_submit_status"
         const val FEEDBACK_RESULT_KEY = "kq_feedback_result"
+        private const val QUEUE_ENTRY_FIELD_COUNT = 5
+        private val NODE_STATE_KEYS = listOf(
+            LOAD_STATUS_KEY,
+            SELECTED_CHOICE_KEY,
+            SUBMITTED_CHOICE_KEY,
+            SUBMIT_STATUS_KEY,
+            FEEDBACK_RESULT_KEY,
+        )
     }
 }

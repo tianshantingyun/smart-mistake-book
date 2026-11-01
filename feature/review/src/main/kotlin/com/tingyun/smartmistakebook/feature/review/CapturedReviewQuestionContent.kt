@@ -1,6 +1,9 @@
 package com.tingyun.smartmistakebook.feature.review
 
+import com.tingyun.smartmistakebook.core.ui.claudeDismissOnEscape
+
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,7 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +32,7 @@ import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.model.VisualRole
 import com.tingyun.smartmistakebook.core.ui.BoundedLocalImage
 import com.tingyun.smartmistakebook.core.ui.LocalImageLoadState
+import com.tingyun.smartmistakebook.core.ui.LocalImageViewer
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
 import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.StructuredContentRenderer
@@ -52,18 +56,20 @@ internal fun CapturedReviewQuestionContent(entry: StudyCatalogEntry, state: Mist
         it.role != VisualRole.CLEAN_IMAGE.name && it.role != VisualRole.TUTOR_EXPLANATION.name
     }
     var showOriginal by rememberSaveable(entry.entryId, entry.problemRevisionId) { mutableStateOf(false) }
+    var viewingOriginalIndex by rememberSaveable(entry.entryId, entry.problemRevisionId) { mutableStateOf<Int?>(null) }
+    val closeOriginals = { viewingOriginalIndex = null; showOriginal = false }
     if (assets.isNotEmpty()) {
-        TextButton(onClick = { showOriginal = true }, modifier = Modifier.testTag("captured_review_source_open")) {
+        TextButton(onClick = { viewingOriginalIndex = null; showOriginal = true }, modifier = Modifier.testTag("captured_review_source_open")) {
             Text("查看原图（${assets.size} 页）")
         }
     } else if (ready != null) {
         Text("这道题的原图暂不可用。", color = SmartColors.InkSecondary)
     }
     if (showOriginal) {
-        Dialog(onDismissRequest = { showOriginal = false }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-            Surface(modifier = Modifier.fillMaxSize(), color = SmartColors.Paper) {
+        Dialog(onDismissRequest = closeOriginals, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+            Surface(modifier = Modifier.fillMaxSize().claudeDismissOnEscape(onDismiss = closeOriginals), color = SmartColors.Paper) {
                 Column(Modifier.fillMaxSize().padding(12.dp)) {
-                    TextButton(onClick = { showOriginal = false }) { Text("关闭原图") }
+                    TextButton(onClick = closeOriginals) { Text("关闭原图") }
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         assets.forEachIndexed { index, asset ->
@@ -71,7 +77,7 @@ internal fun CapturedReviewQuestionContent(entry: StudyCatalogEntry, state: Mist
                             var failed by remember(uri) { mutableStateOf(uri == null) }
                             Text("原图 ${index + 1} / ${assets.size}")
                             if (uri != null) BoundedLocalImage(uri, "复习原图 ${index + 1}", expanded = true,
-                                modifier = Modifier.fillMaxWidth(), onLoadStateChange = {
+                                modifier = Modifier.fillMaxWidth().clickable { viewingOriginalIndex = index }, onLoadStateChange = {
                                     failed = it == LocalImageLoadState.UNAVAILABLE
                                 })
                             if (failed) Text("这一页原图无法读取，其他内容仍可查看。", color = SmartColors.ErrorText)
@@ -79,6 +85,11 @@ internal fun CapturedReviewQuestionContent(entry: StudyCatalogEntry, state: Mist
                     }
                 }
             }
+        }
+        viewingOriginalIndex?.let { index ->
+            val uri = (assets.getOrNull(index)?.location as? MistakeSourceLocation.Available)?.localUri
+            if (uri != null) LocalImageViewer(uri, "复习原图 ${index + 1} / ${assets.size}",
+                onDismiss = { viewingOriginalIndex = null })
         }
     }
 }

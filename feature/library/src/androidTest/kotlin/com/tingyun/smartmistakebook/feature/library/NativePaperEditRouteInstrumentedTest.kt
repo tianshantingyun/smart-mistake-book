@@ -47,7 +47,7 @@ import org.junit.runner.RunWith
  * - 原生编辑路由（加载 / 改文字 / 空白 fail-closed / 无可编辑题面）；
  * - 未编辑确认与正常批量导出同一份快照（逐位不变）；
  * - 编辑后换指纹、但来源题面文档指纹不变；
- * - 「导出成果」与错题详情的两个原生入口（入口只交出装配处提供的来源，不凭记录猜题）。
+ * - 「已导出的文件」与错题详情的两个原生入口（入口只交出装配处提供的来源，不凭记录猜题）。
  */
 @RunWith(AndroidJUnit4::class)
 class NativePaperEditRouteInstrumentedTest {

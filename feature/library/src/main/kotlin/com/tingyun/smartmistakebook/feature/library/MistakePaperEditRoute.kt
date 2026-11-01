@@ -1,9 +1,13 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import androidx.compose.foundation.layout.heightIn
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,9 +17,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,15 +40,15 @@ import com.tingyun.smartmistakebook.core.export.MistakePdfBlock
 import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
 import com.tingyun.smartmistakebook.core.export.MistakePdfPaperQuestion
 import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
-import com.tingyun.smartmistakebook.core.ui.ErrorWarm
+import com.tingyun.smartmistakebook.core.model.VisualRole
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.Outline
-import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
-import com.tingyun.smartmistakebook.core.ui.RootPageColumn
+import com.tingyun.smartmistakebook.core.ui.ReferenceEditorPage
+import com.tingyun.smartmistakebook.core.ui.InlineActionButton
 import kotlinx.coroutines.CancellationException
 
 /**
@@ -113,7 +117,11 @@ fun MistakePaperEditRoute(
         }
     }
 
-    RootPageColumn(modifier = modifier.testTag("native_paper_edit_screen")) {
+    val referenceImages = edit?.questions.orEmpty().flatMap { question ->
+        listOfNotNull(question.cleanImageLocalUri) + question.blocks.filterIsInstance<MistakePdfBlock.Image>()
+            .filter { it.role != VisualRole.TUTOR_EXPLANATION.name }.map { it.localUri }
+    }.distinct()
+    ReferenceEditorPage(modifier = modifier.testTag("native_paper_edit_screen"), imageUris = referenceImages) {
         NativePaperEditHeader(onBack)
         Spacer(Modifier.height(8.dp))
         val current = edit
@@ -128,7 +136,7 @@ fun MistakePaperEditRoute(
                 Text(
                     text = "没有可编辑的卷面：所选题目暂时不能导出（缺少完整题面或原图）。",
                     modifier = Modifier.testTag("native_paper_edit_unavailable"),
-                    color = ErrorWarm,
+                    color = ErrorText,
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(Modifier.height(10.dp))
@@ -147,7 +155,7 @@ fun MistakePaperEditRoute(
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = "编辑不会写回错题本里的题目；确认后按所选格式重新生成文件。",
+                    text = "仅修改这份卷面，不影响错题本；确认后重新生成文件。",
                     modifier = Modifier.testTag("native_paper_edit_notice"),
                     color = InkSecondary,
                     style = MaterialTheme.typography.bodySmall,
@@ -188,7 +196,7 @@ fun MistakePaperEditRoute(
 
                 if (current.removedQuestions.isNotEmpty()) {
                     Text(
-                        text = "已删除的题（可以加回）",
+                        text = "已移出卷面的题（可加回）",
                         modifier = Modifier.testTag("native_paper_edit_removed"),
                         color = Ink,
                         style = MaterialTheme.typography.labelLarge,
@@ -209,7 +217,7 @@ fun MistakePaperEditRoute(
                     Text(
                         text = "有必填文字被清空，填上后才能导出。",
                         modifier = Modifier.testTag("native_paper_edit_blank_warning"),
-                        color = ErrorWarm,
+                        color = ErrorText,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -217,7 +225,7 @@ fun MistakePaperEditRoute(
                     Text(
                         text = text,
                         modifier = Modifier.testTag("native_paper_edit_message"),
-                        color = ErrorWarm,
+                        color = ErrorText,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -288,7 +296,7 @@ private fun NativePaperEditHeader(onBack: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(58.dp),
+            .heightIn(min = 58.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(
@@ -313,6 +321,7 @@ private fun NativePaperEditHeader(onBack: () -> Unit) {
 }
 
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 private fun NativePaperQuestionEditor(
     index: Int,
     question: MistakePdfPaperQuestion,
@@ -334,32 +343,33 @@ private fun NativePaperQuestionEditor(
             .testTag("native_paper_edit_question_${question.entryId}"),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Row(
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+            itemVerticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
                 text = "第 ${index + 1} 题",
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.fillMaxWidth(),
                 color = Ink,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Medium,
             )
-            OutlineActionChip(
+            InlineActionButton(
                 text = "上移",
                 onClick = { onMove(-1) },
                 enabled = canMoveUp,
                 modifier = Modifier.testTag("native_paper_edit_up_${question.entryId}"),
             )
-            OutlineActionChip(
+            InlineActionButton(
                 text = "下移",
                 onClick = { onMove(1) },
                 enabled = canMoveDown,
                 modifier = Modifier.testTag("native_paper_edit_down_${question.entryId}"),
             )
-            OutlineActionChip(
-                text = "删除",
+            InlineActionButton(
+                text = "移出",
                 onClick = onRemove,
                 enabled = canRemove,
                 modifier = Modifier.testTag("native_paper_edit_remove_${question.entryId}"),
@@ -441,7 +451,7 @@ private fun NativePaperQuestionEditor(
                 Text(
                     text = "文字已改：原图可能不再匹配，本版保留原图，不会自动重画。",
                     modifier = Modifier.padding(10.dp),
-                    color = ErrorWarm,
+                    color = ErrorText,
                     style = MaterialTheme.typography.bodySmall,
                 )
             }

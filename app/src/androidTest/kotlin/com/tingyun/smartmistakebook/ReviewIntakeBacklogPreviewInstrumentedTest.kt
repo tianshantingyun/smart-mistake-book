@@ -41,7 +41,7 @@ class ReviewIntakeBacklogPreviewInstrumentedTest {
         composeRule.onNodeWithTag("review_intake_backlog_preview").assertExists()
         // preview(45, 100s, 900s budget): slice = 300s, 300/100 = 3/day,
         // 45/3 = 15 days.
-        composeRule.onNodeWithText("还有 45 道新题待学：每天约 3 题，约 15 天覆盖")
+        composeRule.onNodeWithText("还有 45 道新题待学：每天约 3 题，约 15 天安排完")
             .assertExists()
     }
 

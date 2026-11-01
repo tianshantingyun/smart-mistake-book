@@ -378,7 +378,15 @@ internal class TutorConversationViewModel(
         request: AgentPendingRequest,
         decision: AgentPendingRequestDecision,
     ) {
-        viewModelScope.launch { pendingRequestCoordinator.decide(request, decision) }
+        if (request.requestId in _uiState.value.decidingPendingRequestIds) return
+        updateState { it.copy(decidingPendingRequestIds = it.decidingPendingRequestIds + request.requestId) }
+        viewModelScope.launch {
+            try {
+                pendingRequestCoordinator.decide(request, decision)
+            } finally {
+                updateState { it.copy(decidingPendingRequestIds = it.decidingPendingRequestIds - request.requestId) }
+            }
+        }
     }
 
     // ---- 导出 sheet（B3-3）：表单与勾选的状态都在这里，界面只发动作 ----
@@ -409,7 +417,8 @@ internal class TutorConversationViewModel(
         if (entryId.isBlank()) return
         updateState { state ->
             state.exportSheet?.let { sheet ->
-                state.copy(exportSheet = tutorExportSheetWithCandidateToggled(sheet, entryId, selected))
+                if (sheet.editLoading) state else
+                    state.copy(exportSheet = tutorExportSheetWithCandidateToggled(sheet, entryId, selected))
             } ?: state
         }
     }
@@ -491,11 +500,11 @@ internal class TutorConversationViewModel(
                 when {
                     current == null -> state
                     // 读取期间学生改了版式：这次读取的卷面不再是当前选择，清掉加载态让他重试。
-                    current.layout != sheet.layout -> state.copy(
+                    current.layout != sheet.layout || current.selectedEntryIds != sheet.selectedEntryIds -> state.copy(
                         exportSheet = current.copy(
                             editLoading = false,
                             paperEdit = null,
-                            editMessage = "版式已改，请重新点「编辑卷面」。",
+                            editMessage = "选题或版式已改，请重新点「编辑卷面」。",
                         ),
                     )
                     else -> state.copy(

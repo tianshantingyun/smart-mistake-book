@@ -74,7 +74,7 @@ class CapabilityScreenInstrumentedTest {
         composeRule.onNodeWithTag("capability_direct_connection_notice").assertExists()
         composeRule.onNodeWithTag("capability_secret_notice").assertExists()
         composeRule.onNodeWithText(
-            "能力测试只使用内置合成样例，不发送真实题目或学习记录。",
+            "测试仅发送内置样例，不发送你的题目或学习记录。",
         ).assertExists()
         captureCurrentScreen()
 
@@ -101,7 +101,7 @@ class CapabilityScreenInstrumentedTest {
         composeRule.onNodeWithText("正在保存").assertExists()
 
         store.saveResult.complete(ModelConfigurationMutationResult.Success(initial))
-        composeRule.onNodeWithText("配置已安全保存在本机；请继续测试图片与讲解能力。")
+        composeRule.onNodeWithText("配置已保存在本机，请继续测试模型。")
             .performScrollTo()
             .assertExists()
         composeRule.onNodeWithTag("capability_save").performScrollTo().assertIsNotEnabled()

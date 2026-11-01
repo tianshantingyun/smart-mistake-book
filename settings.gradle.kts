@@ -24,6 +24,7 @@ include(
     ":core:data",
     ":core:export",
     ":core:ui",
+    ":core:markdown",
     ":feature:capture",
     ":feature:review",
     ":feature:tutor",

@@ -361,4 +361,11 @@ private fun BatchImportPageEntity.toRecord() = BatchImportPageRecord(
     splitAfterStatus = splitAfterStatus,
 )
 
-private fun BatchImportJobWithPages.toRecord() = job.toRecord(pages)
+private fun BatchImportJobWithPages.toRecord() = job.toRecord(pages.map { it.page }).copy(
+    pages = pages.sortedBy { it.page.pageIndex }.map { outcome ->
+        outcome.page.toRecord().copy(
+            resultDraftStatus = outcome.draftStatuses.singleOrNull(),
+            savedEntryId = outcome.savedEntryIds.singleOrNull(),
+        )
+    },
+)

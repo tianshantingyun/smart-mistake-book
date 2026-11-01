@@ -21,9 +21,9 @@ import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -51,6 +51,12 @@ import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.TutorReplyMarkdown
+import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
+import com.tingyun.smartmistakebook.core.ui.Paper
+import com.tingyun.smartmistakebook.core.ui.InkSecondary
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.text.style.TextOverflow
 
 /**
  * 智能体栏的**公开入口**（一条交互面的外层壳）：App 层只认这一个名字，内部一律走
@@ -174,7 +180,9 @@ internal fun TutorPageHeader(
                 text = "讲题",
                 modifier = Modifier.weight(1f),
                 color = Ink,
-                style = MaterialTheme.typography.headlineLarge,
+                style = ClaudeLayout.HeaderText,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
             if (onOpenHistory != null) {
                 IconButton(
@@ -184,7 +192,8 @@ internal fun TutorPageHeader(
                     Icon(
                         imageVector = Icons.Outlined.History,
                         contentDescription = "讲题历史",
-                        tint = Ink,
+                        tint = InkSecondary,
+                        modifier = Modifier.size(20.dp),
                     )
                 }
             }
@@ -192,10 +201,10 @@ internal fun TutorPageHeader(
                 onClick = onOpenCapabilitySettings,
                 modifier = Modifier.testTag("tutor_capability_settings_button"),
             ) {
-                Icon(Icons.Outlined.Tune, contentDescription = "讲题能力设置", tint = Ink)
+                Icon(Icons.Outlined.Tune, contentDescription = "讲题能力设置", tint = InkSecondary, modifier = Modifier.size(20.dp))
             }
         }
-        PaperDivider(Modifier.padding(top = 8.dp, bottom = 14.dp))
+        PaperDivider()
     }
 }
 
@@ -206,28 +215,18 @@ internal fun TutorPageHeader(
  */
 @Composable
 internal fun TutorPrompt(text: String, modifier: Modifier = Modifier) {
-    Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(JadeSoft),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.AutoStories,
-                contentDescription = "智能讲题助手",
-                modifier = Modifier.size(21.dp),
-                tint = JadeActive,
-            )
+    Column(modifier = modifier.fillMaxWidth().padding(start = ClaudeLayout.AssistantInset),
+        verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Box(Modifier.size(20.dp).clip(RoundedCornerShape(6.dp)).background(JadeActive),
+                contentAlignment = Alignment.Center) {
+                Icon(Icons.Outlined.AutoStories, "智能讲题助手", Modifier.size(14.dp), tint = Paper)
+            }
+            Text("讲题助手", color = Ink, style = ClaudeLayout.ControlText)
         }
         TutorReplyMarkdown(
             markdown = text,
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 10.dp)
-                .border(1.dp, Divider, RoundedCornerShape(8.dp))
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

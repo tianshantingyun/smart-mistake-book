@@ -84,7 +84,8 @@ class TutorMessageActionsTest {
     fun theCardCopyTellsTheStudentWhatTheClickWillDo() {
         val save = pendingRequestCopy(AgentPendingRequestKind.SAVE_TO_NOTEBOOK)
         assertTrue(save.title.contains("错题本"))
-        assertTrue(save.detail.contains("点了才会存"))
+        assertTrue(save.detail.contains("前往错题本"))
+        assertFalse(save.detail.contains("会存"))
 
         // 工具拼写与动作拼写是同一件事，学生的文案必须同一条。
         assertEquals(save, pendingRequestCopy(AgentPendingRequestKind.NOTEBOOK_WRITE))
@@ -107,7 +108,7 @@ class TutorMessageActionsTest {
         assertTrue(exportCopy.detail.contains("开始导出"))
         // 未接线的复习计划仍如实说"这一版点了不会…"（不装作能执行）。
         assertTrue(
-            pendingRequestCopy(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN).detail.contains("不会改动计划"),
+            pendingRequestCopy(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN).detail.contains("不会修改计划"),
         )
     }
 

@@ -158,7 +158,7 @@ class TutorExportSheetTest {
         )
         // P2-4：非默认的边距/图形缩放/块顺序也要进摘要（"图小一点"这类提议不许悄悄消失）。
         assertEquals(
-            "练习卷 · 双栏 · 字号大 · 含答案 · 边距 60pt · 图 80% · 块序 段落→选择题",
+            "练习卷 · 双栏 · 字号大 · 含答案 · 边距 60pt · 图 80% · 内容顺序 段落→选择题",
             exportLayoutSummary(
                 MistakePdfLayout(
                     templateId = MistakePdfLayout.TEMPLATE_PRACTICE_SHEET,
@@ -181,11 +181,11 @@ class TutorExportSheetTest {
         // 不承诺文字解析，也不谎称整块都会跳过（有讲解图时会真的排出来）。
         val notice = requireNotNull(exportSkipNotice(MistakePdfLayout(includeSolution = true)))
         assertEquals(
-            "解析区只排讲解过程图：没有讲解图的题会跳过解析区；文字解析暂不提供。",
+            "解析区仅包含讲解图；没有讲解图的题将跳过此区，暂不支持文字解析。",
             notice,
         )
-        assertTrue(notice.contains("讲解过程图"))
-        assertTrue(notice.contains("文字解析暂不提供"))
+        assertTrue(notice.contains("仅包含讲解图"))
+        assertTrue(notice.contains("暂不支持文字解析"))
     }
 
     @Test
@@ -200,7 +200,7 @@ class TutorExportSheetTest {
         // 6B-1：选了 Word 才提示能力边界；PDF 沿用既有版式，没有额外提示。
         assertNull(exportFormatNotice(MistakeExportFormat.PDF))
         val notice = requireNotNull(exportFormatNotice(MistakeExportFormat.DOCX))
-        assertTrue(notice.contains("图形以文字说明呈现"))
+        assertTrue(notice.contains("文字说明代替图形"))
         assertTrue(notice.contains("作答空白区"))
         assertTrue(notice.contains("打印"))
     }

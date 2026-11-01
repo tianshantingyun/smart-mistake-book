@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,12 +25,13 @@ import androidx.compose.material.icons.outlined.HourglassTop
 import androidx.compose.material.icons.outlined.ImageSearch
 import androidx.compose.material.icons.outlined.PictureAsPdf
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tingyun.smartmistakebook.core.domain.BatchImportJob
+import com.tingyun.smartmistakebook.core.domain.BatchImportDraftState
 import com.tingyun.smartmistakebook.core.domain.BatchImportPage
 import com.tingyun.smartmistakebook.core.domain.BatchImportPageStatus
 import com.tingyun.smartmistakebook.core.domain.BatchImportRepository
@@ -70,6 +73,7 @@ fun BatchImportRoute(
     repository: BatchImportRepository,
     onOpenDraft: (String) -> Unit,
     onSplitReady: (String) -> Unit = {},
+    onOpenSavedEntry: (String) -> Unit = {},
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -77,6 +81,22 @@ fun BatchImportRoute(
     val scope = rememberCoroutineScope()
     var message by remember { mutableStateOf<String?>(null) }
     var isOrganizing by remember { mutableStateOf(false) }
+    // KD-42：整卷录入在 job 落库之前被杀 → 列表里什么都没有。staging 目录里那批没人认领的页面
+    // 是唯一剩下的证据，入口据此如实说一句「上次导入未完成」。
+    //
+    // 读一次就够：答案只会在「冒出新的任务」（重导成功、或老任务重新认领页面）或「会话被回收」
+    // 时改变，所以按最新任务 id 刷新。读失败按「没有提示」处理——界面宁可少说一句，也不能靠猜
+    // 说学生的上次导入被中断了。
+    var interruptedImport by remember { mutableStateOf(false) }
+    LaunchedEffect(jobs.firstOrNull()?.jobId) {
+        interruptedImport = try {
+            repository.hasInterruptedBatchImport()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            false
+        }
+    }
     fun launchAction(action: suspend () -> Unit) {
         scope.launch {
             try {
@@ -92,7 +112,7 @@ fun BatchImportRoute(
         ActivityResultContracts.PickMultipleVisualMedia(MAX_BATCH_IMPORT_PAGES),
     ) { selected ->
         if (selected.size < 2) {
-            message = "请至少选择 2 张试卷照片；单张题目仍用普通录入。"
+            message = "请选择至少 2 张照片。单张图片请使用普通录入。"
             return@rememberLauncherForActivityResult
         }
         message = null
@@ -137,6 +157,7 @@ fun BatchImportRoute(
     BatchImportContent(
         job = latestJob,
         message = message,
+        interruptedImport = interruptedImport,
         onChoosePhotos = {
             picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         },
@@ -162,13 +183,14 @@ fun BatchImportRoute(
                 } catch (_: BatchOrganizationUnavailableException) {
                     message = "请先在“我的”里配置模型服务，再整理相邻页面。"
                 } catch (_: Exception) {
-                    message = "这次还没有全部分好，页面都已保留，可以稍后继续。"
+                    message = "分题尚未完成，所有页面已保留，可稍后继续。"
                 } finally {
                     isOrganizing = false
                 }
             }
         },
         onOpenDraft = onOpenDraft,
+        onOpenSavedEntry = onOpenSavedEntry,
         onBack = onBack,
         modifier = modifier,
     )
@@ -178,6 +200,9 @@ fun BatchImportRoute(
 internal fun BatchImportContent(
     job: BatchImportJob?,
     message: String?,
+    // KD-42：存在未被任何任务认领的 staging 会话（上次导入在 job 落库之前被杀）。
+    // 只有为真时才出现中断提示，读口见 BatchImportRepository.hasInterruptedBatchImport()。
+    interruptedImport: Boolean = false,
     onChoosePhotos: () -> Unit,
     onChoosePdf: () -> Unit,
     onPause: (String) -> Unit,
@@ -188,32 +213,37 @@ internal fun BatchImportContent(
     isOrganizing: Boolean = false,
     onOrganize: (String) -> Unit = {},
     onOpenDraft: (String) -> Unit,
+    onOpenSavedEntry: (String) -> Unit = {},
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     RootPageLazyColumn(
         modifier = modifier.testTag("batch_import_root"),
-        contentPadding = PaddingValues(horizontal = 26.dp, vertical = 0.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
     ) {
         item("header") {
             BatchImportHeader(onBack)
             Text(
-                text = "选择多张照片，或选择一份 PDF。系统按页保存，某一页失败不会影响其他页。",
+                text = "选择多张照片或一份 PDF。逐页保存，单页失败不影响其他页。",
                 color = SmartColors.InkSecondary,
                 style = MaterialTheme.typography.bodyMedium,
             )
+            if (interruptedImport) {
+                Spacer(Modifier.height(12.dp))
+                BatchImportInterruptedNotice()
+            }
             Spacer(Modifier.height(14.dp))
             PrimaryActionButton(
                 text = when {
                     job == null -> "选择多张照片"
                     job.status == BatchImportStatus.COMPLETED && job.failedCount == 0 ->
                         "再选一组照片"
-                    else -> "完成当前这组后再选择"
+                    else -> "请先完成本次导入"
                 },
                 onClick = onChoosePhotos,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .heightIn(min = 52.dp)
                     .testTag("batch_import_choose"),
                 icon = Icons.Outlined.ImageSearch,
                 enabled = job == null ||
@@ -225,7 +255,7 @@ internal fun BatchImportContent(
                     job == null -> "导入整份 PDF"
                     job.status == BatchImportStatus.COMPLETED && job.failedCount == 0 ->
                         "再导入一份 PDF"
-                    else -> "完成当前任务后再导入 PDF"
+                    else -> "请先完成本次导入"
                 },
                 onClick = onChoosePdf,
                 modifier = Modifier
@@ -238,7 +268,7 @@ internal fun BatchImportContent(
             )
             message?.let {
                 Spacer(Modifier.height(8.dp))
-                Text(it, color = SmartColors.ErrorWarm, style = MaterialTheme.typography.bodySmall)
+                Text(it, color = SmartColors.ErrorText, style = MaterialTheme.typography.bodySmall)
             }
             Spacer(Modifier.height(16.dp))
         }
@@ -285,11 +315,51 @@ internal fun BatchImportContent(
                         onRetry = { onRetry(job.jobId, page.pageIndex) },
                         onSkip = { onSkip(job.jobId, page.pageIndex) },
                         onOpenDraft = onOpenDraft,
+                        onOpenSavedEntry = onOpenSavedEntry,
                     )
                 }
             }
         }
         item("footer") { Spacer(Modifier.height(24.dp)) }
+    }
+}
+
+/**
+ * KD-42 的中断提示：整卷录入在 job 落库之前被杀时，列表里既没有任务也没有失败页，学生看到的是
+ * 「什么都没发生」；这条提示把那批仍在 staging 里的页面如实说出来，并指向旁边既有的「选择多张
+ * 照片 / 导入整份 PDF」——重导即可。
+ *
+ * 归因边界：判据是 staging 里有没有**未被任何任务认领**的会话（见 [BatchImportRepository.hasInterruptedBatchImport] 与
+ * `AndroidBatchImportSourceStaging.hasOrphanedSessions`），所以它不随 60 分钟宽限自行出现或消失：
+ * 会话被新任务认领、或被启动对账（超宽限）回收之前，这句提示就一直成立。
+ */
+@Composable
+private fun BatchImportInterruptedNotice() {
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag("batch_import_interrupted"),
+        color = SmartColors.ErrorWarm.copy(alpha = 0.10f),
+        shape = RoundedCornerShape(10.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            SmartColors.ErrorWarm.copy(alpha = 0.45f),
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(
+                text = "上次导入未完成",
+                color = SmartColors.Ink,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                text = "上次选择的页面未保存成功，请重新选择照片或 PDF。",
+                color = SmartColors.InkSecondary,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
 }
 
@@ -310,7 +380,7 @@ private fun BatchOrganizationCard(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
-                text = if (isOrganizing) "正在分好每一道题" else "自动分好题目",
+                text = if (isOrganizing) "正在拆分题目" else "自动拆分题目",
                 color = SmartColors.Ink,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
@@ -319,7 +389,7 @@ private fun BatchOrganizationCard(
                 text = when {
                     isOrganizing -> "正在按页面顺序整理，可以离开本页，原页面不会丢失。"
                     else ->
-                        "自动识别跨页题目，之后会按一道道题显示，不需要手工合并。" +
+                        "自动识别跨页题目，并整理为单独的题。" +
                             "整理会直接交给已配置模型，不再逐次询问。"
                 },
                 color = SmartColors.InkSecondary,
@@ -367,7 +437,7 @@ private fun BatchSplitReadyCard(
                 style = MaterialTheme.typography.bodySmall,
             )
             PrimaryActionButton(
-                text = "去勾选录入",
+                text = "选择要录入的题",
                 onClick = onOpen,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -381,7 +451,7 @@ private fun BatchSplitReadyCard(
 @Composable
 private fun BatchImportHeader(onBack: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().height(58.dp),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 58.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = onBack, modifier = Modifier.size(48.dp)) {
@@ -451,14 +521,19 @@ private fun BatchImportPageRow(
     onRetry: () -> Unit,
     onSkip: () -> Unit,
     onOpenDraft: (String) -> Unit,
+    onOpenSavedEntry: (String) -> Unit,
 ) {
-    val readyDraft = page.draftId
-    val clickable = readyDraft != null
+    val readyDraft = page.draftId.takeIf { page.draftState == BatchImportDraftState.EDITING }
+    val savedEntry = page.savedEntryId.takeIf { page.draftState == BatchImportDraftState.COMMITTED }
+    val clickable = readyDraft != null || savedEntry != null
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 68.dp)
-            .clickable(enabled = clickable) { readyDraft?.let(onOpenDraft) }
+            .clickable(enabled = clickable) {
+                if (savedEntry != null) onOpenSavedEntry(savedEntry)
+                else readyDraft?.let(onOpenDraft)
+            }
             .padding(horizontal = 6.dp, vertical = 10.dp)
             .testTag("batch_import_page_${page.pageIndex}"),
         verticalAlignment = Alignment.CenterVertically,
@@ -489,14 +564,14 @@ private fun BatchImportPageRow(
                 fontWeight = FontWeight.SemiBold,
             )
             Text(
-                text = if (continuesPrevious) {
+                text = if (continuesPrevious && page.draftState == BatchImportDraftState.EDITING) {
                     "已和上一页放在同一道题里"
                 } else {
-                    batchImportPageLabel(page.status)
+                    batchImportPageLabel(page)
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = if (page.status == BatchImportPageStatus.FAILED) {
-                    SmartColors.ErrorWarm
+                    SmartColors.ErrorText
                 } else {
                     SmartColors.InkSecondary
                 },
@@ -509,7 +584,7 @@ private fun BatchImportPageRow(
                 OutlineActionChip("跳过", onSkip)
                 OutlineActionChip("重试", onRetry)
             }
-            readyDraft != null -> Icon(
+            clickable -> Icon(
                 Icons.AutoMirrored.Outlined.KeyboardArrowRight,
                 contentDescription = "打开这道题",
                 tint = SmartColors.InkSecondary,
@@ -526,7 +601,7 @@ private fun BatchImportEmpty() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Text("还没有开始录入整卷", style = MaterialTheme.typography.titleMedium)
+        Text("尚未录入整卷", style = MaterialTheme.typography.titleMedium)
         Text("可选择多张照片，也可直接选择 PDF。", color = SmartColors.InkSecondary)
     }
 }
@@ -552,6 +627,16 @@ internal fun batchImportPageLabel(status: BatchImportPageStatus): String = when 
     BatchImportPageStatus.FAILED -> "这一页没有保存"
     BatchImportPageStatus.SKIPPED -> "已跳过"
 }
+
+internal fun batchImportPageLabel(page: BatchImportPage): String =
+    if (page.status != BatchImportPageStatus.READY) {
+        batchImportPageLabel(page.status)
+    } else when (page.draftState) {
+        BatchImportDraftState.EDITING -> "已保存，点此继续"
+        BatchImportDraftState.COMMITTED -> if (page.savedEntryId != null) "已存入错题本，查看题目" else "已保存"
+        BatchImportDraftState.REMOVED -> "已移除"
+        BatchImportDraftState.UNAVAILABLE, null -> "这道题暂时无法打开"
+    }
 
 internal fun batchImportSummaryLine(job: BatchImportJob): String = buildList {
     add("已保存 ${job.readyCount} 页")

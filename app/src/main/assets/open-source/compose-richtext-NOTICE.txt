@@ -1,0 +1,9 @@
+Compose Richtext CommonMark Android presentation module
+Upstream: Halil Ozercan and contributors
+Source: com.halilibo.compose-richtext:richtext-commonmark-android:0.17.0
+https://github.com/halilozercan/compose-richtext/tree/v0.17.0
+Licensed under the Apache License, Version 2.0. See compose-richtext-LICENSE.txt.
+
+Modified for this application: Android-only expect/actual adaptation and an optional
+native code-block rendering callback. The pinned CommonMark parser and AST conversion
+are retained. Modified source files carry modification notices.

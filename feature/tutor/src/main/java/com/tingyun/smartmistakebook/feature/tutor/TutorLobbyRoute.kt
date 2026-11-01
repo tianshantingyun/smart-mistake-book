@@ -200,11 +200,6 @@ internal fun TutorLobbyRoute(
                         onOpenCapabilitySettings = onOpenCapabilitySettings,
                         onOpenHistory = onOpenHistory,
                     )
-                    // 交互模式（D-Q9）：这条会话现在按哪种形态答复，以及换过去的那一下。
-                    TutorInteractionModeSwitch(
-                        mode = state.interactionMode,
-                        onSwitch = viewModel::onSwitchInteractionMode,
-                    )
                 },
                 composerPlaceholder = "输入题目、困惑，或说你现在想做什么",
                 liveAnswerTestTag = "tutor_lobby_streaming_reply",
@@ -256,6 +251,12 @@ internal fun TutorLobbyRoute(
                         null
                     },
                     attachmentCount = state.pendingImages.size,
+                    tools = {
+                        TutorInteractionModeSwitch(
+                            mode = state.interactionMode,
+                            onSwitch = viewModel::onSwitchInteractionMode,
+                        )
+                    },
                 )
             },
             // 发送路径上的错误与输入框同一个常驻块：学生正在这里按，就在这里告诉他。
@@ -371,6 +372,7 @@ internal fun TutorLobbyRoute(
                         request = request,
                         modifier = Modifier.padding(top = 12.dp),
                         enabled = !state.hasActiveTask,
+                        busy = request.requestId in state.decidingPendingRequestIds,
                         onDecide = { decision -> viewModel.onDecidePendingRequest(request, decision) },
                     )
                 }
@@ -465,21 +467,21 @@ internal fun TutorLobbyRoute(
  */
 internal fun lobbyFailureReasonText(code: ModelFailureCode?): String? = when (code) {
     null -> null
-    ModelFailureCode.MODEL_NOT_CONFIGURED -> "当前还没有可用的模型配置，去设置里配好再发。"
+    ModelFailureCode.MODEL_NOT_CONFIGURED -> "请先在模型设置中完成配置，再发送。"
     ModelFailureCode.AUTHENTICATION_FAILED -> "API Key 可能已失效，检查后重新发送。"
     ModelFailureCode.PROVIDER_CAPABILITY_MISSING ->
-        "当前模型不支持这项对话能力，换一个模型或重新做一次能力测试。"
-    ModelFailureCode.EGRESS_AUTHORIZATION_REQUIRED -> "这次发送还没有得到授权，重新发送即可。"
+        "当前模型不支持这项功能，请更换模型或重新测试。"
+    ModelFailureCode.EGRESS_AUTHORIZATION_REQUIRED -> "请重新点击发送，确认本次发送内容。"
     ModelFailureCode.EGRESS_AUTHORIZATION_INVALID ->
-        "这次发送的授权已经失效（例如隔了很久才重试），重新发送会重新授权。"
+        "本次发送确认已过期，请重新点击发送。"
     ModelFailureCode.NETWORK_UNAVAILABLE -> "网络暂时不可用，可以稍后再试。"
     ModelFailureCode.SERVICE_UNAVAILABLE -> "模型服务暂时不可用，可以稍后再试。"
-    ModelFailureCode.TIMEOUT -> "模型响应超时，可以再发一次。"
+    ModelFailureCode.TIMEOUT -> "模型回复超时，请重试。"
     ModelFailureCode.RATE_LIMITED -> "请求太频繁，稍等片刻再发。"
-    ModelFailureCode.INVALID_RESPONSE -> "模型这次返回的内容无法使用，可以再发一次。"
-    ModelFailureCode.INCOMPLETE_OUTPUT -> "模型这次没写完就停了，再发一次通常会好。"
+    ModelFailureCode.INVALID_RESPONSE -> "这次回复无法使用，请重试。"
+    ModelFailureCode.INCOMPLETE_OUTPUT -> "回复未完成，请重试。"
     ModelFailureCode.PROVIDER_REJECTED_INPUT ->
-        "上游拒绝了这次请求；带图时通常是图太多或太大，去掉一张或换小一点的图再发。"
+        "模型服务拒绝了请求。可减少文字或缩小图片后重试。"
     ModelFailureCode.UNKNOWN -> null
 }
 

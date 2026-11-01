@@ -14,7 +14,7 @@ import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -62,8 +62,8 @@ sealed interface PageState {
 
     /** The device is offline; local data stays available. */
     data class Offline(
-        val title: String = "当前连接不上网络",
-        val supportingText: String? = "这个功能需要联网。本机已有数据不受影响。",
+        val title: String = "无法连接网络",
+        val supportingText: String? = "此功能需要联网，本机数据仍可使用。",
         val retryLabel: String = "重试",
         val onRetry: (() -> Unit)? = null,
     ) : PageState
@@ -162,11 +162,7 @@ fun PageStateFrame(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (icon == null) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(42.dp),
-                color = JadeActive,
-                trackColor = Track,
-            )
+            ClaudeLoadingPlaceholder()
         } else {
             Icon(
                 imageVector = icon,

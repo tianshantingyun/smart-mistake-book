@@ -157,20 +157,35 @@ class MistakeExportJobRunner(
         request: MistakeExportJobRequest,
         input: MistakePdfExportInput,
         displayName: String,
-    ): MistakeExportJobOutcome = when (request.format) {
-        MistakeExportFormat.PDF -> {
-            val prepared = renderPdf(input)
-            check(prepared.verifyIntegrity()) { "Prepared PDF failed integrity verification" }
-            MistakeExportJobOutcome.Rendered(displayName = displayName, prepared = prepared)
-        }
-        MistakeExportFormat.DOCX -> {
-            val renderDocx = renderDocx
-                ?: return MistakeExportJobOutcome.Failed(
-                    "这次导出没有准备好 Word 生成器，请稍后重新导出。",
+    ): MistakeExportJobOutcome {
+        // 4E WG-07：请求了解析区且真的有讲解图时，计划器会把解析图排进去并从 skipped 里
+        // 移除 SOLUTION_SECTION；结果通知必须读同一个事实，不能继续说"解析区已跳过"。
+        // 批量导出同理：合并输入里有讲解图就说明解析区确实排了图。
+        val solutionSectionRendered =
+            input.layout.includeSolution && input.solutionImages.isNotEmpty()
+        return when (request.format) {
+            MistakeExportFormat.PDF -> {
+                val prepared = renderPdf(input)
+                check(prepared.verifyIntegrity()) { "Prepared PDF failed integrity verification" }
+                MistakeExportJobOutcome.Rendered(
+                    displayName = displayName,
+                    prepared = prepared,
+                    solutionSectionRendered = solutionSectionRendered,
                 )
-            val prepared = renderDocx(input)
-            check(prepared.verifyIntegrity()) { "Prepared Word artifact failed integrity verification" }
-            MistakeExportJobOutcome.RenderedDocx(displayName = displayName, prepared = prepared)
+            }
+            MistakeExportFormat.DOCX -> {
+                val renderDocx = renderDocx
+                    ?: return MistakeExportJobOutcome.Failed(
+                        "这次导出没有准备好 Word 生成器，请稍后重新导出。",
+                    )
+                val prepared = renderDocx(input)
+                check(prepared.verifyIntegrity()) { "Prepared Word artifact failed integrity verification" }
+                MistakeExportJobOutcome.RenderedDocx(
+                    displayName = displayName,
+                    prepared = prepared,
+                    solutionSectionRendered = solutionSectionRendered,
+                )
+            }
         }
     }
 }
@@ -241,12 +256,16 @@ sealed interface MistakeExportJobOutcome {
     data class Rendered(
         val displayName: String,
         val prepared: PreparedMistakePdf,
+        /** 解析区是否真的排入了讲解图（与 `PdfPlan.skipped` 同一判据，供完成通知如实说话）。 */
+        val solutionSectionRendered: Boolean = false,
     ) : MistakeExportJobOutcome
 
     /** 6B-1：Word 交付的渲染结果（与 [Rendered] 同构，产物类型不同）。 */
     data class RenderedDocx(
         val displayName: String,
         val prepared: PreparedMistakeDocx,
+        /** 解析区是否真的排入了讲解图（DOCX 与 PDF 共用同一份输入过滤）。 */
+        val solutionSectionRendered: Boolean = false,
     ) : MistakeExportJobOutcome
 
     data class Blocked(val message: String) : MistakeExportJobOutcome

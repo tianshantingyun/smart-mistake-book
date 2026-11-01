@@ -2,8 +2,11 @@ package com.tingyun.smartmistakebook
 
 import android.app.Application
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Parcel
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -15,14 +18,21 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.doubleClick
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
@@ -67,6 +77,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
+import java.io.File
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -297,7 +308,7 @@ class ReviewSelfReportDeviceUiInstrumentedTest {
 
         composeRule.onNodeWithTag("review_self_report_status")
             .performScrollTo()
-            .assertTextContains("自评没有写入成功", substring = true)
+            .assertTextContains("暂时无法确认记录结果", substring = true)
         // 提交中断后只允许原判定键重试：换键会制造与已落库那笔矛盾的 attempt。
         composeRule.onNodeWithTag("review_key_good").assertIsEnabled()
         composeRule.onNodeWithTag("review_key_hard").assertIsNotEnabled()
@@ -334,7 +345,7 @@ class ReviewSelfReportDeviceUiInstrumentedTest {
         waitForTag("review_undo_reattempt_notice")
         composeRule.onNodeWithTag("review_undo_reattempt_notice")
             .performScrollTo()
-            .assertTextContains("第 2 次响应", substring = true)
+            .assertTextContains("第 2 次作答", substring = true)
         composeRule.runOnIdle {
             assertEquals(0, rewound?.currentOrdinal)
             assertEquals(
@@ -375,6 +386,43 @@ class ReviewSelfReportDeviceUiInstrumentedTest {
         return state
     }
 
+    @Test
+    fun doubleFontKeepsAllThreeKeysReachableWithRealTouchAndOneStoredAttempt() {
+        val owner = newOwnerState()
+        setReviewContent(owner, fontScale = 2f, viewportWidth = 320.dp)
+        waitForTag("review_self_report_root")
+        chooseCorrectOption()
+        val tags = listOf("review_key_good", "review_key_hard", "review_key_again")
+        composeRule.onNodeWithTag("review_self_report_keys").performScrollTo()
+        tags.forEach { composeRule.onNodeWithTag(it).assertIsDisplayed() }
+        val bounds = tags.map { composeRule.onNodeWithTag(it).fetchSemanticsNode().boundsInRoot }
+        val minimum = 48 * context.resources.displayMetrics.density
+        bounds.forEach { assertTrue("Each real key must retain its 48dp target: $it",
+            it.width >= minimum - 1 && it.height >= minimum - 1) }
+        bounds.forEachIndexed { index, a ->
+            bounds.drop(index + 1).forEach { b ->
+                assertTrue("Review keys must not overlap: $a, $b", !a.overlaps(b))
+            }
+        }
+        val supporting = composeRule.onNodeWithText("费力但想起来了", useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+        assertTrue("The explanation must read across the page rather than form a tall column: $supporting",
+            supporting.width > supporting.height)
+        val directory = requireNotNull(context.getExternalFilesDir("ui-completion")).apply { mkdirs() }
+        val screenshot = requireNotNull(androidx.test.platform.app.InstrumentationRegistry
+            .getInstrumentation().uiAutomation.takeScreenshot())
+        try {
+            File(directory, "review-three-keys-320-font2.png").outputStream().use {
+                check(screenshot.compress(Bitmap.CompressFormat.PNG, 100, it))
+            }
+        } finally {
+            screenshot.recycle()
+        }
+        composeRule.onNodeWithTag("review_key_good").performTouchInput { click() }
+        waitForTag("review_self_report_receipt")
+        assertEquals(1, runBlocking { selfReportSamples() }.size)
+    }
+
     private fun setReviewContent(
         owner: State<ReviewUiOwner?>,
         onSubmit: suspend (StudySelfReportedReviewSubmission) -> StudySelfReportedReviewResult =
@@ -383,15 +431,20 @@ class ReviewSelfReportDeviceUiInstrumentedTest {
             { request -> repository.undoReviewSelfReport(request) },
         onContinue: (StudyReviewAdvanceResult) -> Unit = {},
         onSessionRewound: (StudyReviewSessionProgress) -> Unit = {},
+        fontScale: Float? = null,
+        viewportWidth: Dp? = null,
     ) {
         composeRule.setContent {
             val currentOwner = requireNotNull(owner.value)
+            val density = LocalDensity.current
             key(currentOwner) {
                 CompositionLocalProvider(
                     LocalLifecycleOwner provides currentOwner,
                     LocalViewModelStoreOwner provides currentOwner,
                     LocalSavedStateRegistryOwner provides currentOwner,
+                    LocalDensity provides Density(density.density, fontScale ?: density.fontScale),
                 ) {
+                    Box(if (viewportWidth != null) Modifier.width(viewportWidth) else Modifier) {
                     SmartMistakeBookTheme {
                         ReviewSessionScreen(
                             onBack = {},
@@ -412,6 +465,7 @@ class ReviewSelfReportDeviceUiInstrumentedTest {
                             reviewStateVersion = started.stateVersion,
                             onSessionRewound = onSessionRewound,
                         )
+                    }
                     }
                 }
             }

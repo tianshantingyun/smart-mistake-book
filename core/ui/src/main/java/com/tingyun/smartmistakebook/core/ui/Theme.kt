@@ -15,9 +15,9 @@ import androidx.compose.ui.unit.sp
 
 /** The single, paper-like palette used by the visual references. */
 object SmartColors {
-    val Paper = Color(0xFFFBF7F5)
-    val Ink = Color(0xFF17272E)
-    val InkSecondary = Color(0xFF4D5E69)
+    val Paper = Color(0xFFF7F6F2)
+    val Ink = Color(0xFF151515)
+    val InkSecondary = Color(0xFF525252)
     val InkMuted = Color(0xFF87919B)
     val Jade = Color(0xFF23704A)
     val JadeDark = Color(0xFF286647)
@@ -28,7 +28,10 @@ object SmartColors {
     val Outline = Color(0xFFC8CED1)
     val Track = Color(0xFFE2E0DE)
     val ErrorWarm = Color(0xFFE36F27)
+    val ErrorText = Color(0xFFA23E24)
     val OnJade = Color(0xFFFFFDFC)
+    val ContentSurface = Color.White
+    val SubtleSurface = Color(0xFFF0EFEC)
 }
 
 val Paper = SmartColors.Paper
@@ -44,15 +47,17 @@ val Divider = SmartColors.Divider
 val Outline = SmartColors.Outline
 val Track = SmartColors.Track
 val ErrorWarm = SmartColors.ErrorWarm
+val ErrorText = SmartColors.ErrorText
 val OnJade = SmartColors.OnJade
+val ContentSurface = SmartColors.ContentSurface
+val SubtleSurface = SmartColors.SubtleSurface
 
 object SmartDimens {
-    val ContentHorizontalPadding = 26.dp
-    val BottomBarHeight = 84.dp
+    val ContentHorizontalPadding = 16.dp
     val MinimumTouchTarget = 48.dp
-    val CallToActionRadius = 10.dp
-    val SurfaceRadius = 8.dp
-    val ChipRadius = 6.dp
+    val CallToActionRadius = 12.dp
+    val SurfaceRadius = 12.dp
+    val ChipRadius = 8.dp
     val MaximumContentWidth = 600.dp
 }
 
@@ -80,20 +85,20 @@ val SmartTypography = Typography(
     headlineSmall = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 24.sp,
-        lineHeight = 32.sp,
+        fontSize = 20.sp,
+        lineHeight = 26.sp,
     ),
     titleLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 22.sp,
-        lineHeight = 30.sp,
+        fontSize = 20.sp,
+        lineHeight = 26.sp,
     ),
     titleMedium = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 18.sp,
-        lineHeight = 26.sp,
+        fontSize = 16.sp,
+        lineHeight = 22.sp,
     ),
     titleSmall = TextStyle(
         fontFamily = FontFamily.SansSerif,
@@ -104,8 +109,8 @@ val SmartTypography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 17.sp,
-        lineHeight = 28.sp,
+        fontSize = 15.sp,
+        lineHeight = 22.sp,
     ),
     bodyMedium = TextStyle(
         fontFamily = FontFamily.SansSerif,
@@ -116,20 +121,20 @@ val SmartTypography = Typography(
     bodySmall = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 13.sp,
-        lineHeight = 20.sp,
+        fontSize = 14.sp,
+        lineHeight = 22.sp,
     ),
     labelLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 16.sp,
-        lineHeight = 22.sp,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
     ),
     labelMedium = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Medium,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
+        fontSize = 12.sp,
+        lineHeight = 18.sp,
     ),
     labelSmall = TextStyle(
         fontFamily = FontFamily.SansSerif,
@@ -160,12 +165,19 @@ private val SmartLightColorScheme = lightColorScheme(
     onTertiary = Ink,
     background = Paper,
     onBackground = Ink,
-    surface = Paper,
+    surface = ContentSurface,
     onSurface = Ink,
-    surfaceVariant = JadeSoft,
+    surfaceVariant = SubtleSurface,
     onSurfaceVariant = InkSecondary,
-    error = ErrorWarm,
+    surfaceContainerLowest = ContentSurface,
+    surfaceContainerLow = Paper,
+    surfaceContainer = SubtleSurface,
+    surfaceContainerHigh = ContentSurface,
+    surfaceContainerHighest = SubtleSurface,
+    error = ErrorText,
     onError = OnJade,
+    errorContainer = Color(0xFFFBEAE4),
+    onErrorContainer = ErrorText,
     outline = Outline,
     outlineVariant = Divider,
     scrim = Ink,
@@ -173,10 +185,12 @@ private val SmartLightColorScheme = lightColorScheme(
 
 @Composable
 fun SmartMistakeBookTheme(content: @Composable () -> Unit) {
+    ClaudeMotionTheme {
     MaterialTheme(
         colorScheme = SmartLightColorScheme,
         typography = SmartTypography,
         shapes = SmartShapes,
         content = content,
     )
+    }
 }

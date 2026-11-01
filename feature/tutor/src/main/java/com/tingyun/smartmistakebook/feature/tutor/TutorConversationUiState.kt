@@ -70,6 +70,8 @@ internal data class TutorConversationUiState(
      * 进程死亡后重建的是同一张卡。
      */
     val pendingRequestCards: List<AgentPendingRequest> = emptyList(),
+    /** A card stays busy until its real action and persisted decision finish. */
+    val decidingPendingRequestIds: Set<String> = emptySet(),
     /** 最近一次裁决的结果一句话（学生看得见的交代；也是回喂模型的那句话）。 */
     val pendingRequestDetail: String? = null,
     /**

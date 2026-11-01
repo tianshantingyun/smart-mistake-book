@@ -99,7 +99,7 @@ class BatchImportInstrumentedTest {
         }
 
         composeRule.onNodeWithText(
-            "自动识别跨页题目，之后会按一道道题显示，不需要手工合并。" +
+            "自动识别跨页题目，并整理为单独的题。" +
                 "整理会直接交给已配置模型，不再逐次询问。",
         ).assertExists()
         composeRule.onNodeWithText("开始分题").performClick()

@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.capture
 
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -23,9 +24,9 @@ import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
+import com.tingyun.smartmistakebook.core.ui.ClaudeFilterChip as FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.CaptureSourcePage
 import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
-import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
@@ -59,7 +59,7 @@ internal fun WorkspaceSaveErrorCard(
             .padding(12.dp)
             .testTag("capture_workspace_save_error"),
     ) {
-        Text(message, color = ErrorWarm, style = MaterialTheme.typography.bodySmall)
+        Text(message, color = ErrorText, style = MaterialTheme.typography.bodySmall)
         OutlineActionChip(
             text = if (saving) "正在重试…" else "重新保存",
             onClick = onRetry,
@@ -129,29 +129,8 @@ internal fun ReplacementStatusCard(
 
 @Composable
 internal fun CaptureTopBar(title: String, onBack: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = onBack,
-            modifier = Modifier
-                .size(48.dp)
-                .testTag("capture_back_button"),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "返回",
-                tint = Ink,
-            )
-        }
-        Text(
-            text = title,
-            modifier = Modifier.padding(start = 4.dp),
-            color = Ink,
-            style = MaterialTheme.typography.headlineLarge,
-        )
-    }
+    com.tingyun.smartmistakebook.core.ui.ClaudePageHeader(title, onBack = onBack,
+        backModifier = Modifier.testTag("capture_back_button"))
 }
 
 @Composable
@@ -213,7 +192,7 @@ internal fun CaptureSourcePageBar(
         Text(
             text = "跨页题按顺序补拍；每一页原图都会保留。",
             modifier = Modifier.padding(top = 4.dp),
-            color = InkMuted,
+            color = InkSecondary,
             style = MaterialTheme.typography.bodySmall,
         )
     }
@@ -281,7 +260,7 @@ internal fun CaptureEntryModeChooser(
             Text(
                 text = "整卷的多张照片或一份 PDF 从这里进；每一页都会保留。",
                 modifier = Modifier.padding(top = 6.dp),
-                color = InkMuted,
+                color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -299,7 +278,7 @@ internal fun CaptureEntryModeChooser(
             Text(
                 text = "没有照片也能建题：直接敲题面，确认后存入错题本。",
                 modifier = Modifier.padding(top = 6.dp),
-                color = InkMuted,
+                color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -324,7 +303,7 @@ internal fun CaptureModelSetupBlock(
     ) {
         Text(
             text = if (modelConfigured) {
-                "模型已配置，还差一步能力测试；通过后拍照题图就会交给模型整理"
+                "模型配置已保存。测试通过后，可将题图交给模型整理。"
             } else {
                 "配置好模型后，拍照题图才会交给模型整理"
             },
@@ -332,7 +311,7 @@ internal fun CaptureModelSetupBlock(
             style = MaterialTheme.typography.bodyMedium,
         )
         OutlineActionChip(
-            text = if (modelConfigured) "去完成能力测试" else "去设置",
+            text = if (modelConfigured) "测试模型" else "去设置",
             onClick = onOpenSettings,
             modifier = Modifier.testTag("capture_model_setup_settings"),
         )
@@ -528,7 +507,7 @@ internal fun CaptureResumeStateCard(
             .fillMaxWidth()
             .border(
                 width = 1.dp,
-                color = if (isBusy) Outline else ErrorWarm,
+                color = if (isBusy) Outline else ErrorText,
                 shape = RoundedCornerShape(8.dp),
             )
             .padding(16.dp)

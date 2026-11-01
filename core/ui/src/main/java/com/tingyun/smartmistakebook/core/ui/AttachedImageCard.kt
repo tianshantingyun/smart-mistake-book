@@ -1,6 +1,6 @@
 package com.tingyun.smartmistakebook.core.ui
 
-import androidx.compose.animation.AnimatedVisibility
+import com.tingyun.smartmistakebook.core.ui.ClaudeDisclosure as AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -20,7 +21,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -90,12 +91,12 @@ internal fun attachedImageRenderState(
 internal const val ATTACHED_IMAGE_REGENERATE_LABEL: String = "重新生成"
 
 /**
- * 折叠行上的状态提示：未就绪在折叠态就能看见，不必展开才发现少了一张图。
+ * 折叠行上的状态提示：暂不可用在折叠态就能看见，不必展开才发现少了一张图。
  */
 internal fun attachedImageStatusHint(state: AttachedImageRenderState): String? = when (state) {
     AttachedImageRenderState.Generating -> "生成中"
     is AttachedImageRenderState.Ready -> null
-    is AttachedImageRenderState.Failed -> "未就绪"
+    is AttachedImageRenderState.Failed -> "暂不可用"
 }
 
 /** 这张图当前是否应提供显式“重新生成”。损坏/缺源不盲目重生成。 */
@@ -153,6 +154,7 @@ fun AttachedImageCard(
     onRegenerate: (() -> Unit)? = null,
 ) {
     var expanded by rememberSaveable(image.imageId) { mutableStateOf(false) }
+    var viewing by rememberSaveable(image.imageId, state) { mutableStateOf(false) }
     var localLoadState by remember(image.imageId, state) { mutableStateOf(LocalImageLoadState.LOADING) }
     // A URI resolving successfully does not guarantee that its bytes can still be decoded.
     val displayState = if (state is AttachedImageRenderState.Ready &&
@@ -182,6 +184,7 @@ fun AttachedImageCard(
                     expanded = !expanded
                 }
                 .fillMaxWidth()
+                .defaultMinSize(minHeight = 48.dp)
                 .padding(vertical = 2.dp),
         ) {
             Icon(
@@ -196,7 +199,7 @@ fun AttachedImageCard(
                     statusHint?.let { append(" · ").append(it) }
                 },
                 color = InkSecondary,
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.weight(1f).padding(horizontal = 6.dp),
             )
             Icon(
@@ -208,17 +211,18 @@ fun AttachedImageCard(
         }
         AnimatedVisibility(
             visible = expanded,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
         ) {
             when (displayState) {
-                is AttachedImageRenderState.Ready -> BoundedLocalImage(
+                is AttachedImageRenderState.Ready -> Column {
+                    BoundedLocalImage(
                     imageUri = displayState.localUri,
                     contentDescription = accessibilityText,
                     expanded = expanded,
                     modifier = Modifier.fillMaxWidth(),
                     onLoadStateChange = { localLoadState = it },
-                )
+                    )
+                    InlineActionButton("查看大图", { viewing = true })
+                }
 
                 AttachedImageRenderState.Generating -> Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -230,7 +234,7 @@ fun AttachedImageCard(
                     )
                     Text(
                         text = "图正在生成，稍候…",
-                        color = InkMuted,
+                        color = InkSecondary,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(start = 8.dp),
                     )
@@ -241,7 +245,7 @@ fun AttachedImageCard(
                 ) {
                     Text(
                         text = attachedImageFailureMessage(displayState),
-                        color = InkMuted,
+                        color = InkSecondary,
                         style = MaterialTheme.typography.bodySmall,
                     )
                     if (accessibilityText.isNotBlank()) {
@@ -255,7 +259,7 @@ fun AttachedImageCard(
                     displayState.detail?.takeIf { it.isNotBlank() }?.let { detail ->
                         Text(
                             text = detail,
-                            color = InkMuted,
+                            color = InkSecondary,
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier.padding(top = 2.dp),
                         )
@@ -283,6 +287,9 @@ fun AttachedImageCard(
             }
         }
     }
+    if (viewing && state is AttachedImageRenderState.Ready) {
+        LocalImageViewer(state.localUri, accessibilityText, { viewing = false })
+    }
 }
 
 /**
@@ -299,6 +306,7 @@ fun GeneratedFigureCard(
     modifier: Modifier = Modifier,
 ) {
     var expanded by rememberSaveable(assetId) { mutableStateOf(false) }
+    var viewing by rememberSaveable(assetId, state) { mutableStateOf(false) }
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -308,6 +316,7 @@ fun GeneratedFigureCard(
             modifier = Modifier
                 .clickable { expanded = !expanded }
                 .fillMaxWidth()
+                .defaultMinSize(minHeight = 48.dp)
                 .padding(vertical = 2.dp),
         ) {
             Icon(
@@ -331,32 +340,36 @@ fun GeneratedFigureCard(
         }
         AnimatedVisibility(
             visible = expanded,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
         ) {
             when (state) {
-                is AttachedImageRenderState.Ready -> BoundedLocalImage(
+                is AttachedImageRenderState.Ready -> Column {
+                    BoundedLocalImage(
                     imageUri = state.localUri,
                     contentDescription = "本轮生成的配图",
                     expanded = expanded,
                     modifier = Modifier.fillMaxWidth(),
-                )
+                    )
+                    InlineActionButton("查看大图", { viewing = true })
+                }
 
                 AttachedImageRenderState.Generating -> Text(
                     text = "配图正在读取…",
-                    color = InkMuted,
+                    color = InkSecondary,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(vertical = 8.dp),
                 )
 
                 is AttachedImageRenderState.Failed -> Text(
                     text = "配图暂不可用。",
-                    color = InkMuted,
+                    color = InkSecondary,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(vertical = 8.dp),
                 )
             }
         }
+    }
+    if (viewing && state is AttachedImageRenderState.Ready) {
+        LocalImageViewer(state.localUri, "本轮生成的配图", { viewing = false })
     }
 }
 
@@ -390,7 +403,7 @@ internal class GeneratedFigureAssetCache(
 /**
  * Renders a reply's [images] as a stack of foldable figure cards, resolving each
  * intent to its local URI asynchronously. The text reply renders immediately and
- * the figures fill in (or show a readable "未就绪" state) without blocking.
+ * the figures fill in (or show a readable "暂不可用" state) without blocking.
  *
  * WG-05 / KD-58：
  * - [resolve] 是 **cache-only**：打开/展开/旋转只读本地资产；

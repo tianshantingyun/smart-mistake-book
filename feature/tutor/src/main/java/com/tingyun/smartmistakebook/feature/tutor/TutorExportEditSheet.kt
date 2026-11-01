@@ -1,5 +1,9 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.claudeDismissOnEscape
+import com.tingyun.smartmistakebook.core.ui.claudeModalEntrance
+
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +19,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +35,6 @@ import com.tingyun.smartmistakebook.core.export.MistakePdfBlock
 import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
 import com.tingyun.smartmistakebook.core.export.MistakePdfPaperQuestion
 import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
-import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.Outline
@@ -73,13 +76,14 @@ internal fun TutorExportEditSheet(
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().claudeDismissOnEscape(onDismiss = onDismiss),
             contentAlignment = Alignment.BottomCenter,
         ) {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 700.dp)
+                    .claudeModalEntrance()
                     .testTag("tutor_export_edit_sheet"),
                 color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp),
@@ -105,7 +109,7 @@ internal fun TutorExportEditSheet(
                         style = MaterialTheme.typography.bodySmall,
                     )
                     Text(
-                        text = "只改这份卷面，不改错题本里的题目；确认后重新生成文件。" +
+                        text = "仅修改这份卷面，不影响错题本；确认后重新生成文件。" +
                             exportFormatNotice(format)?.let { "\n$it" }.orEmpty(),
                         modifier = Modifier.testTag("tutor_export_edit_notice"),
                         color = InkSecondary,
@@ -131,8 +135,8 @@ internal fun TutorExportEditSheet(
                                 .testTag("tutor_export_edit_ai_instruction"),
                         )
                         Text(
-                            text = "只改这份卷面副本：模型只能删题、加回已删除的题、调序、" +
-                                "改文字；改备注还需版式打开「含备注」。不能改图，也不会写回错题本。",
+                            text = "AI 仅能移出题目、加回已移出的题、调整顺序和" +
+                                "修改文字。修改备注需开启「含备注」。不能改图，也不影响错题本。",
                             modifier = Modifier.testTag("tutor_export_edit_ai_hint"),
                             color = InkSecondary,
                             style = MaterialTheme.typography.bodySmall,
@@ -150,7 +154,7 @@ internal fun TutorExportEditSheet(
                         Text(
                             text = message,
                             modifier = Modifier.testTag("tutor_export_edit_ai_message"),
-                            color = if (modelEditMessageIsError) ErrorWarm else InkSecondary,
+                            color = if (modelEditMessageIsError) ErrorText else InkSecondary,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -195,7 +199,7 @@ internal fun TutorExportEditSheet(
 
                     if (edit.removedQuestions.isNotEmpty()) {
                         Text(
-                            text = "已删除的题（可以加回）",
+                            text = "已移出卷面的题（可加回）",
                             color = Ink,
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Medium,
@@ -215,7 +219,7 @@ internal fun TutorExportEditSheet(
                         Text(
                             text = "有必填文字被清空，填上后才能导出。",
                             modifier = Modifier.testTag("tutor_export_edit_blank_warning"),
-                            color = ErrorWarm,
+                            color = ErrorText,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -293,7 +297,7 @@ private fun PaperQuestionEditor(
                 modifier = Modifier.testTag("tutor_export_edit_down_${question.entryId}"),
             )
             OutlineActionChip(
-                text = "删除",
+                text = "移出",
                 onClick = onRemove,
                 enabled = canRemove,
                 modifier = Modifier.testTag("tutor_export_edit_remove_${question.entryId}"),
@@ -369,7 +373,7 @@ private fun PaperQuestionEditor(
                 modifier = Modifier.testTag(
                     "tutor_export_edit_figure_review_${question.entryId}",
                 ),
-                color = ErrorWarm,
+                color = ErrorText,
                 style = MaterialTheme.typography.bodySmall,
             )
         }

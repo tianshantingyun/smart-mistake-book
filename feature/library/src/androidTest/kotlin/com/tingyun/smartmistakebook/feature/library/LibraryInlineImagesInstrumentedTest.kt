@@ -7,6 +7,8 @@ import android.graphics.Paint
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollToIndexAction
@@ -39,6 +41,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +51,131 @@ class LibraryInlineImagesInstrumentedTest {
     @get:Rule val compose = createComposeRule()
     private val files = mutableListOf<File>()
 
-    @After fun removeFixtures() { files.forEach { it.delete() } }
+    @Test fun theCardIdentifiesTheQuestionBeforeThePictureAndKeepsThePictureActionBesideItsLabel() {
+        show(PictureRepository(detail(listOf(asset("heading-order")))))
+        compose.onNodeWithTag("library_item_entry").performScrollTo()
+        awaitPicture()
+        val title = compose.onNodeWithText("函数最值", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        val image = compose.onNodeWithContentDescription(PICTURE, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        val origin = compose.onNodeWithText("原图 · 数学", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        val zoom = compose.onNodeWithContentDescription("放大$PICTURE").fetchSemanticsNode().boundsInRoot
+        assertTrue("The title must identify the card before the picture", title.bottom <= image.top)
+        assertTrue("The source label must sit above its picture", origin.bottom <= image.top)
+        assertTrue("The source and its action belong to the same row", origin.top < zoom.bottom && zoom.top < origin.bottom)
+        compose.onNodeWithText("求函数最值。", useUnmergedTree = true).assertDoesNotExist()
+    }
+
+    @Test fun anAuthoritativeEmptyCountDoesNotOfferExportOrSuggestClearingANonexistentFilter() {
+        compose.setContent {
+            SmartMistakeBookTheme {
+                LibraryRoute(listOf(entry()), catalogRepository = SinglePageCatalog(reportedTotal = 0),
+                    onCapture = {}, onExportVisible = {}, onOpenExportResults = {}, onOpenItem = {})
+            }
+        }
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("暂无错题").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("library_export_visible").assertDoesNotExist()
+        compose.onNodeWithTag("library_clear_filters").assertDoesNotExist()
+        compose.onNodeWithText("当前筛选下没有错题").assertDoesNotExist()
+        compose.onNodeWithTag("library_capture_button").assertIsDisplayed()
+    }
+
+    @Test fun aFailedFirstPageShowsAnErrorRatherThanAnEmptyLibraryAndRetryLoadsTheQuestion() {
+        val catalog = SinglePageCatalog(failFirstLoad = true)
+        compose.setContent {
+            SmartMistakeBookTheme {
+                LibraryRoute(listOf(entry()), catalogRepository = catalog,
+                    onCapture = {}, onExportVisible = {}, onOpenExportResults = {}, onOpenItem = {})
+            }
+        }
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithText("错题加载失败").fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithText("暂无错题").assertDoesNotExist()
+        compose.onNodeWithText("当前筛选下没有错题").assertDoesNotExist()
+        compose.onNodeWithText("test-private-error").assertDoesNotExist()
+        compose.onNodeWithTag("page_state_action").performClick()
+        compose.waitUntil(5_000) {
+            compose.onAllNodes(hasTestTag("library_item_entry")).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithTag("library_item_entry").assertIsDisplayed()
+        compose.runOnIdle { assertEquals(2, catalog.loadAttempts) }
+    }
+
+    @Test fun loadingPicturesIsNotAnImageFailureAndAConfirmedTextQuestionRemovesThePlaceholder() {
+        val state = kotlinx.coroutines.flow.MutableStateFlow<MistakeDetailState>(MistakeDetailState.Loading)
+        val repository = object : MistakeDetailRepository by PictureRepository(detail(emptyList())) {
+            override fun observe(errorBookEntryId: String) = state
+        }
+        show(repository)
+        compose.onNodeWithText("正在加载题图…", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("求函数最值。", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("题图暂时无法显示").assertDoesNotExist()
+        compose.runOnIdle { state.value = detail(emptyList()) }
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithText("正在加载题图…").fetchSemanticsNodes().isEmpty()
+        }
+        compose.onNodeWithText("求函数最值。", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("题图暂时无法显示").assertDoesNotExist()
+    }
+
+    @After fun removeFixtures() {
+        ImageReadBudgetProvider.clear()
+        files.forEach { it.delete() }
+    }
+
+    @Test fun oneQuestionWithTwelveLongPagesOnlyDecodesVisiblePagesAndCanReachTheLast() {
+        val pages = (1..12).map { page ->
+            val source = asset("budget-$page", width = 100, height = 3000)
+            val file = File(java.net.URI((source.location as MistakeSourceLocation.Available).localUri))
+            source.copy(location = MistakeSourceLocation.Available(ImageReadBudgetProvider.register(source.sourceAssetId, file)))
+        }
+        show(PictureRepository(detail(pages)))
+        compose.onNodeWithContentDescription(PICTURE, useUnmergedTree = true).performScrollTo()
+        compose.waitUntil(10_000) {
+            compose.onAllNodes(hasContentDescription("放大$PICTURE"))
+                .fetchSemanticsNodes().singleOrNull()?.config
+                ?.contains(androidx.compose.ui.semantics.SemanticsProperties.Disabled) == false
+        }
+        compose.runOnIdle {
+            assertTrue("Offscreen pages were decoded: ${ImageReadBudgetProvider.openedIds()}",
+                ImageReadBudgetProvider.openedIds().size <= 3)
+        }
+        val last = "函数最值，第12张题图"
+        compose.onNodeWithContentDescription(last, useUnmergedTree = true).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithContentDescription("放大$last").performScrollTo()
+        compose.waitUntil(10_000) { "budget-12" in ImageReadBudgetProvider.openedIds() }
+        compose.onNodeWithContentDescription("放大$last").assertIsEnabled().performClick()
+        compose.onNodeWithText("原图 · $last").assertIsDisplayed()
+        compose.onNodeWithContentDescription("关闭图片查看").performClick()
+    }
+
+    @Test fun zoomActionDoesNotOpenTheQuestionOrToggleItsFavorite() {
+        val repository = PictureRepository(detail(listOf(asset("zoom"))))
+        val opened = mutableListOf<String>()
+        show(repository, onOpen = opened::add)
+        compose.onNodeWithTag("library_item_entry").performScrollTo()
+        awaitPicture()
+        compose.onNodeWithContentDescription("放大$PICTURE").performClick()
+        compose.waitUntil(5_000) {
+            compose.onAllNodes(hasTestTag("image_viewer_resolution")).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.onNodeWithText("原图 · $PICTURE").assertIsDisplayed()
+        compose.onNodeWithContentDescription("放大图片").performClick()
+        compose.onNodeWithTag("image_viewer_scale").assertTextContains("125%")
+        compose.onNodeWithContentDescription("关闭图片查看").performClick()
+        compose.runOnIdle { assertEquals(emptyList<String>(), opened); assertEquals(0, repository.favorites) }
+        compose.onNodeWithContentDescription(PICTURE, useUnmergedTree = true).performClick()
+        compose.runOnIdle { assertEquals(listOf("entry"), opened); assertEquals(1, repository.reads) }
+    }
+
+    @Test fun zoomingARedrawnQuestionKeepsItsActualSourceRole() {
+        show(PictureRepository(detail(listOf(asset("redrawn-zoom", role = CLEAN_IMAGE_SOURCE_ROLE)))))
+        compose.onNodeWithTag("library_item_entry").performScrollTo()
+        awaitPicture()
+        compose.onNodeWithContentDescription("放大$PICTURE").performClick()
+        compose.onNodeWithText("重绘 · $PICTURE").assertIsDisplayed()
+        compose.onNodeWithText("原图 · $PICTURE").assertDoesNotExist()
+    }
 
     @Test fun listShowsTheSavedPictureWithoutOpeningDetailAndFavoriteRemainsIndependent() {
         val repository = PictureRepository(detail(listOf(asset("photo"))))
@@ -175,7 +302,7 @@ class LibraryInlineImagesInstrumentedTest {
         compose.onNodeWithText(manual.problemMarkdown, useUnmergedTree = true).assertIsDisplayed()
     }
 
-    private fun show(repository: PictureRepository, paging: Boolean = false, onOpen: (String) -> Unit = {}) {
+    private fun show(repository: MistakeDetailRepository, paging: Boolean = false, onOpen: (String) -> Unit = {}) {
         compose.setContent {
             SmartMistakeBookTheme {
                 LibraryRoute(listOf(entry()), catalogRepository = if (paging) SinglePageCatalog() else null,
@@ -190,9 +317,10 @@ class LibraryInlineImagesInstrumentedTest {
     }
 
     private fun asset(id: String, role: String = "PRIMARY", color: Int = Color.WHITE,
+                      width: Int = 800, height: Int = 360,
                       lines: List<String> = listOf("1. 已知函数 f(x) = x² - 4x + 5，", "求函数的最小值及对应的 x。", "请写出计算过程。")): MistakeSourceAsset {
         val file = File.createTempFile("inline-$id-", ".png", InstrumentationRegistry.getInstrumentation().targetContext.cacheDir).also(files::add)
-        val bitmap = Bitmap.createBitmap(800, 360, Bitmap.Config.ARGB_8888)
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         bitmap.eraseColor(color)
         if (color == Color.WHITE) {
             val canvas = Canvas(bitmap)
@@ -201,7 +329,7 @@ class LibraryInlineImagesInstrumentedTest {
         }
         file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }; bitmap.recycle()
         val sha = MessageDigest.getInstance("SHA-256").digest(file.readBytes()).joinToString("") { "%02x".format(it) }
-        return MistakeSourceAsset(role, id, sha, "image/png", file.length(), 800, 360, "CAMERA", 1L,
+        return MistakeSourceAsset(role, id, sha, "image/png", file.length(), width, height, "CAMERA", 1L,
             MistakeSourceLocation.Available(file.toURI().toASCIIString()))
     }
 
@@ -241,14 +369,20 @@ class LibraryInlineImagesInstrumentedTest {
         }
     }
 
-    private class SinglePageCatalog : LibraryCatalogRepository {
+    private class SinglePageCatalog(private val failFirstLoad: Boolean = false, private val reportedTotal: Int = 1) : LibraryCatalogRepository {
+        var loadAttempts = 0
+            private set
         private val item = LibraryCatalogItem("entry", "函数最值", "求函数最值。", "MATH", emptyList(), emptyList(),
             "learning", 1L, 1L, nextReviewAtEpochMillis = null, retrievability = null)
         override fun pagingSource(query: LibraryQuery) = object : PagingSource<Int, LibraryCatalogItem>() {
-            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, LibraryCatalogItem> = LoadResult.Page(listOf(item), null, null)
+            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, LibraryCatalogItem> {
+                loadAttempts += 1
+                return if (failFirstLoad && loadAttempts == 1) LoadResult.Error(IllegalStateException("test-private-error"))
+                    else LoadResult.Page(listOf(item), null, null)
+            }
             override fun getRefreshKey(state: PagingState<Int, LibraryCatalogItem>): Int? = null
         }
-        override suspend fun totalCount(query: LibraryQuery) = 1
+        override suspend fun totalCount(query: LibraryQuery) = reportedTotal
         override suspend fun query(query: LibraryQuery, offset: Int, limit: Int) = LibraryCatalogPage(listOf(item).drop(offset).take(limit), 1, offset, limit)
         override suspend fun facets(query: LibraryQuery, facet: LibraryFacetKind) = emptyList<LibraryFacetCount>()
     }

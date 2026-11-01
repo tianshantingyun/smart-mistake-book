@@ -9,6 +9,8 @@ import androidx.room3.Relation
 import androidx.room3.Transaction
 import com.tingyun.smartmistakebook.core.database.entity.BatchImportJobEntity
 import com.tingyun.smartmistakebook.core.database.entity.BatchImportPageEntity
+import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftEntity
+import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftCommitReceiptEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -249,18 +251,22 @@ internal interface BatchImportDao {
 
     /**
      * Whether the staged source behind [sourceUri] must survive. A READY page counts as
-     * retaining while its split stage is still PENDING: the split attempt stores that uri
-     * as the review page's source image, so dropping it early would leave a review screen
-     * whose original photo cannot be opened.
+     * retaining while its split stage is still PENDING. A preparing or ready split job
+     * also retains it after that stage settles: the review screen still opens this URI.
      */
     @Query(
         """
-        SELECT COUNT(*) FROM batch_import_page
-        WHERE source_uri = :sourceUri
-          AND (
-              status IN ('QUEUED', 'IMPORTING', 'FAILED')
-              OR (status = 'READY' AND split_after_status = 'PENDING')
-          )
+        SELECT (
+            SELECT COUNT(*) FROM batch_import_page
+            WHERE source_uri = :sourceUri
+              AND (
+                  status IN ('QUEUED', 'IMPORTING', 'FAILED')
+                  OR (status = 'READY' AND split_after_status = 'PENDING')
+              )
+        ) + (
+            SELECT COUNT(*) FROM split_import_job
+            WHERE source_uri = :sourceUri AND status IN ('PREPARING', 'READY')
+        )
         """,
     )
     suspend fun countRetainedSourceUri(sourceUri: String): Int
@@ -272,6 +278,26 @@ internal data class BatchImportJobWithPages(
     @Relation(
         parentColumns = ["job_id"],
         entityColumns = ["job_id"],
+        entity = BatchImportPageEntity::class,
     )
-    val pages: List<BatchImportPageEntity>,
+    val pages: List<BatchImportPageWithDraftOutcome>,
+)
+
+internal data class BatchImportPageWithDraftOutcome(
+    @Embedded
+    val page: BatchImportPageEntity,
+    @Relation(
+        parentColumns = ["result_draft_id"],
+        entityColumns = ["draft_id"],
+        entity = ProblemDraftEntity::class,
+        projection = ["status"],
+    )
+    val draftStatuses: List<String>,
+    @Relation(
+        parentColumns = ["result_draft_id"],
+        entityColumns = ["draft_id"],
+        entity = ProblemDraftCommitReceiptEntity::class,
+        projection = ["error_book_entry_id"],
+    )
+    val savedEntryIds: List<String>,
 )

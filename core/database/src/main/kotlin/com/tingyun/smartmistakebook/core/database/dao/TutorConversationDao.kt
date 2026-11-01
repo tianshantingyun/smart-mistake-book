@@ -21,6 +21,8 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
 import com.tingyun.smartmistakebook.core.database.TutorMessageSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.requireBoundQuestionPair
+import com.tingyun.smartmistakebook.core.model.decodeTutorTurnToolTrace
+import com.tingyun.smartmistakebook.core.model.visualRole
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -97,6 +99,7 @@ internal abstract class TutorConversationDao {
                     messageId = row.messageId,
                     sourceAssetId = row.sourceAssetId,
                     ordinal = row.ordinal,
+                    role = row.role,
                 )
             }
         }
@@ -413,15 +416,7 @@ internal abstract class TutorConversationDao {
             )
         val entity = command.toEntity(ordinal)
         if (insertMessage(entity) != -1L) {
-            insertMessageSourceAssetRows(
-                command.sourceImageAssetIds.mapIndexed { index, assetId ->
-                    TutorMessageSourceAssetEntity(
-                        messageId = command.messageId,
-                        sourceAssetId = assetId,
-                        ordinal = index,
-                    )
-                },
-            )
+            insertMessageSourceAssetRows(assistantFigureLinks(command))
             touchConversation(
                 conversationId = command.conversationId,
                 ordinal = ordinal,
@@ -446,16 +441,37 @@ internal abstract class TutorConversationDao {
         }
         // 重放分支同样补引用（INSERT OR IGNORE，幂等）：上次写到"消息已入、引用未入"时进程
         // 死掉的话，重放是唯一会把引用补上的时机；缺了它，那张已付费的图会在宽限期后被回收。
-        insertMessageSourceAssetRows(
-            command.sourceImageAssetIds.mapIndexed { index, assetId ->
-                TutorMessageSourceAssetEntity(
-                    messageId = command.messageId,
-                    sourceAssetId = assetId,
-                    ordinal = index,
-                )
-            },
-        )
+        insertMessageSourceAssetRows(assistantFigureLinks(command))
         return existing.toRecord()
+    }
+
+    /**
+     * 助手消息的配图引用行：角色来自**同一次写入的工具痕迹**，不是第二份调用方声明。
+     *
+     * 消灭的失败：保存/导出只能看到"这张图属于这条消息"，却不知道它是干净题面还是讲解图，
+     * 于是讲解图会随题目区一起导出。痕迹里一条 `GENERATE_FIGURE` 自带 figureId 与 kind，
+     * 这里按 [visualRole] 单源映射；没有痕迹/痕迹里没有这张图 = 角色未知（NULL，不猜）。
+     */
+    private fun assistantFigureLinks(
+        command: AppendTutorAssistantMessageDatabaseCommand,
+    ): List<TutorMessageSourceAssetEntity> {
+        val rolesByAsset = decodeTutorTurnToolTrace(command.toolTraceJson)
+            ?.entries
+            ?.mapNotNull { entry ->
+                val figure = entry.figure ?: return@mapNotNull null
+                val figureId = figure.figureId ?: return@mapNotNull null
+                figureId to figure.kind.visualRole().name
+            }
+            ?.toMap()
+            .orEmpty()
+        return command.sourceImageAssetIds.mapIndexed { index, assetId ->
+            TutorMessageSourceAssetEntity(
+                messageId = command.messageId,
+                sourceAssetId = assetId,
+                ordinal = index,
+                role = rolesByAsset[assetId],
+            )
+        }
     }
 
     @Transaction

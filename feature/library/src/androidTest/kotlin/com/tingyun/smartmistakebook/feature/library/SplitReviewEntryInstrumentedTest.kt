@@ -1,5 +1,17 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.isToggleable
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.click
+
 import android.graphics.Bitmap
 import android.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -35,6 +47,39 @@ import org.junit.Test
  * job as a tappable card.
  */
 class SplitReviewEntryInstrumentedTest {
+    @Test fun theFullSourcePageCanBeZoomedWithoutChangingQuestionSelection() {
+        val file = writeTwoTonePageFile()
+        val repository = FakeSplitImportRepository(listOf(jobSummary("split:source-zoom", ordinalBase = 1)
+            .copy(sourceUri = file.toURI().toString())))
+        composeRule.setContent { SmartMistakeBookTheme {
+            SplitImportReviewRoute(repository, initialJobId = "split:source-zoom", onOpenDraft = {}, onFinished = {})
+        } }
+        composeRule.waitUntil(5_000) {
+            composeRule.onAllNodesWithContentDescription("整卷原图").fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithContentDescription("整卷原图").assertIsDisplayed().performClick()
+        composeRule.waitUntil(5_000) {
+            composeRule.onAllNodesWithTag("image_viewer_resolution").fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithContentDescription("放大图片").performClick()
+        composeRule.onNodeWithTag("image_viewer_scale").assertTextContains("125%")
+        composeRule.onNodeWithContentDescription("关闭图片查看").performClick()
+        composeRule.onNodeWithText("1/1").assertExists()
+        composeRule.runOnIdle { assertEquals(0, repository.selectionCalls) }
+    }
+    @Test fun tappingQuestionTextChangesThePublishedSelectionOnce() {
+        val repository = FakeSplitImportRepository(listOf(jobSummary("split:row-click", ordinalBase = 1)))
+        composeRule.setContent { SmartMistakeBookTheme {
+            SplitImportReviewRoute(repository, initialJobId = "split:row-click", onOpenDraft = {}, onFinished = {})
+        } }
+        val row = composeRule.onNode(hasAnyAncestor(hasTestTag("split_question_1")) and isToggleable(), useUnmergedTree = true)
+        row.assertIsOn()
+        composeRule.onNodeWithText("第 1 题", useUnmergedTree = true).performTouchInput { click(center) }
+        composeRule.waitUntil(5_000) { repository.selectionCalls == 1 }
+        row.assertIsOff()
+        composeRule.onNodeWithText("0/1").assertExists()
+        composeRule.runOnIdle { assertEquals(1 to false, repository.lastSelection) }
+    }
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -246,6 +291,10 @@ private class FakeSplitImportRepository(
     jobs: List<SplitImportJobSummary>,
 ) : SplitImportRepository {
     private val jobs = MutableStateFlow(jobs)
+    var selectionCalls = 0
+        private set
+    var lastSelection: Pair<Int, Boolean>? = null
+        private set
 
     override fun observeActiveImports(): Flow<List<SplitImportJobSummary>> = this.jobs
 
@@ -257,7 +306,18 @@ private class FakeSplitImportRepository(
         questionOrdinal: Int,
         selected: Boolean,
         occurredAtEpochMillis: Long,
-    ): Boolean = true
+    ): Boolean {
+        val target = jobs.value.firstOrNull { it.jobId == jobId } ?: return false
+        if (target.questions.none { it.questionOrdinal == questionOrdinal }) return false
+        jobs.value = jobs.value.map { job ->
+            if (job.jobId != jobId) job else job.copy(questions = job.questions.map { question ->
+                if (question.questionOrdinal == questionOrdinal) question.copy(selected = selected) else question
+            })
+        }
+        selectionCalls += 1
+        lastSelection = questionOrdinal to selected
+        return true
+    }
 
     override suspend fun markConfirmed(
         jobId: String,

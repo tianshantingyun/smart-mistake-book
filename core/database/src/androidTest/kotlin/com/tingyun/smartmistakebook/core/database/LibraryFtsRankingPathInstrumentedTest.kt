@@ -454,6 +454,8 @@ class LibraryFtsRankingPathInstrumentedTest {
         val masteryId: String? = null,
         val createdFromEpochMillis: Long? = null,
         val createdToEpochMillis: Long? = null,
+        /** C11 收藏（v67）：与 live builder 的 `favoriteOnly` 同口径（默认关）。 */
+        val favoriteOnly: Boolean = false,
     )
 
     private data class EquivalenceCase(
@@ -536,6 +538,7 @@ class LibraryFtsRankingPathInstrumentedTest {
         createdToEpochMillis = filters.createdToEpochMillis,
         sort = sort,
         tokens = tokens,
+        favoriteOnly = filters.favoriteOnly,
         limit = FIRST_SCREEN_LIMIT,
         offset = offset,
     ).sql
@@ -565,6 +568,7 @@ class LibraryFtsRankingPathInstrumentedTest {
             if (filters.createdToEpochMillis != null) {
                 append("\n  AND catalog.created_at_epoch_millis <= ?")
             }
+            if (filters.favoriteOnly) append("\n  AND catalog.is_favorite = 1")
         }
         val ranking = StringBuilder()
         listOf(

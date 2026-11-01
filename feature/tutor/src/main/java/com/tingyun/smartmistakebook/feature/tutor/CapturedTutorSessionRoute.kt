@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,12 +20,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.LibraryAddCheck
 import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material3.AlertDialog
+import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -46,8 +47,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
+import com.tingyun.smartmistakebook.core.ui.LocalImageViewer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestRepository
@@ -98,12 +98,10 @@ import com.tingyun.smartmistakebook.core.model.AppFailureCode
 import com.tingyun.smartmistakebook.core.model.isModelEgressApprovalFresh
 import com.tingyun.smartmistakebook.core.model.requiresModelSettings
 import com.tingyun.smartmistakebook.core.ui.BoundedLocalImage
-import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
-import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.LocalImageLoadState
 import com.tingyun.smartmistakebook.core.ui.LocalModeLine
 import com.tingyun.smartmistakebook.core.ui.Outline
@@ -226,7 +224,7 @@ fun CapturedTutorSessionRoute(
                     },
                     modifier = Modifier.testTag("captured_tutor_end_confirm"),
                 ) {
-                    Text("结束且不保存", color = ErrorWarm)
+                    Text("结束且不保存", color = ErrorText)
                 }
             },
             dismissButton = {
@@ -318,7 +316,7 @@ private fun CapturedTutorSessionContent(
                         onBack = onBack,
                     )
                 },
-                composerPlaceholder = "这道题还没有打开",
+                composerPlaceholder = "尚未打开题目",
                 liveAnswerTestTag = "captured_tutor_non_ready_reply",
             ),
             composer = {
@@ -330,7 +328,7 @@ private fun CapturedTutorSessionContent(
                         providerReady = true,
                         questionNotReady = true,
                     ).block(),
-                    placeholder = "这道题还没有打开",
+                    placeholder = "尚未打开题目",
                     reasonTestTag = "captured_tutor_non_ready_reason",
                 )
             },
@@ -510,7 +508,7 @@ internal fun ReadyCapturedSession(
                     onBack = onBack,
                 )
             },
-            composerPlaceholder = "问这道题，或说出你卡住的步骤",
+            composerPlaceholder = "输入问题或需要讲解的步骤",
             autoStartFirstTurn = true,
             // A4 执行路径 ① 的锚：这条交互面锚着**本次拍照**——模型申请"加入错题本"时那张卡
             // 执行的就是"把这次拍照的草稿存进错题本"（生产里唯一给得出这个 id 的入口）。
@@ -571,7 +569,7 @@ internal fun ReadyCapturedSession(
                     Text(
                         text = message.message,
                         modifier = Modifier.testTag("captured_tutor_save_error"),
-                        color = ErrorWarm,
+                        color = ErrorText,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -595,7 +593,7 @@ internal fun ReadyCapturedSession(
                     Text(
                         text = message.message,
                         modifier = Modifier.testTag("captured_tutor_end_error"),
-                        color = ErrorWarm,
+                        color = ErrorText,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -635,7 +633,7 @@ private fun InlineSourceImage(
         if (loadState == LocalImageLoadState.UNAVAILABLE) {
             Text(
                 text = "原图暂时打不开",
-                color = InkMuted,
+                color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -647,34 +645,7 @@ private fun SourceImageFullscreenDialog(
     imageUri: String,
     onDismiss: () -> Unit,
 ) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        var loadState by remember { mutableStateOf(LocalImageLoadState.LOADING) }
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable(onClick = onDismiss),
-        ) {
-            BoundedLocalImage(
-                imageUri = imageUri,
-                contentDescription = "拍题原图",
-                expanded = true,
-                onLoadStateChange = { loadState = it },
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .testTag("captured_tutor_source_image_full"),
-            )
-            if (loadState == LocalImageLoadState.UNAVAILABLE) {
-                Text(
-                    text = "原图暂时打不开",
-                    color = Color.White,
-                    modifier = Modifier.align(Alignment.Center),
-                )
-            }
-        }
-    }
+    LocalImageViewer(imageUri, "拍题原图", onDismiss = onDismiss)
 }
 
 @Composable

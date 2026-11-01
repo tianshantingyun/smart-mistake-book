@@ -568,8 +568,8 @@ digest = SHA-256(  "smbk-selection-v1\n"
 
 ## 附录 A · 类别 → 表（机器可读，唯一数据源）
 
-> **历史版本**：本附录是 schema 66 的机器清单（84 表 / 90 边），已被 §9 的 v2（schema 69）取代；
-> 保留为研究证据，实施不得据此写代码。当前清单以 §9.11 的 `6c2-plan-v2` 块为准。
+> **历史版本**：本附录是 schema 66 的机器清单（84 表 / 90 边），已被 §9 的 v2（schema 69）与
+> v3（schema 70）取代；保留为研究证据，实施不得据此写代码。当前清单以 §9.11 的 `6c2-plan-v3` 块为准。
 
 > 本块由自检脚本解析（`<!-- 6c2-plan:begin -->` 标记内）。改动只改这里，
 > 然后重跑附录 E 的校验——脚本会把「文档」与「Room schema 导出的真实 FK 图」逐条对拍。
@@ -1427,29 +1427,29 @@ manifest 的 `selection` 块 v2：
 > v2 的合法 mask（9/13/15）都含 IMAGES，因此 `assetPolicy` 只能是 `INCLUDED`；`ABSENT`（无图子集）属
 > §6.1-⑤ 未决，不在本清单，也不是 6C-2 的已实现能力。
 
-`closureDigest` 算法（定稿 v2）：
+`closureDigest` 算法（定稿 v3）：
 
 ```
-digest = SHA-256( "smbk-selection-v2\n"
-                + "closureVersion=2\n"
+digest = SHA-256( "smbk-selection-v3\n"
+                + "closureVersion=3\n"
                 + "categories=" + categories.sorted().joinToString(",") + "\n"
                 + "assetPolicy=" + assetPolicy + "\n"
                 + rowCounts.keys.sorted().joinToString("") { "$it=${rowCounts[it]}\n" } )
 ```
 
-空库、全选、`assetPolicy=INCLUDED` 的 golden（86 表全 0）：
+空库、全选、`assetPolicy=INCLUDED` 的 golden（90 表全 0）：
 
 ```
 categories=IMAGES,ISSUE_BOOK,MASTERY,SESSIONS
-SHA-256 = d6ec73ac07e596a11ff97ac292cf01a41e0f962659a2b542a6d8a15c56a5dad6
+SHA-256 = 451c806c06b7492b913b457395ac2b8bcab939fbe06bf81601c57246cfe9e470
 ```
 
 裁定不改变这个 golden：空库里派生表也是 0 行（③ 已裁恒裁+重建）；①/② 只决定 mask=8/0 是否可创建
 （已裁拒绝），不改变算法。`closureDigest` 不是权威判据，权威始终是包内库实测（沿用
 `SmbkArchiveCodec.kt:66-72` 的立场）；它只用于同构对拍与第三方重裁的粗筛。
 
-`rowCounts` 必须覆盖全部 86 表，包括值为 0 的表；漏键会让摘要不可比。split 表（`model_task*`、
-`figure_generation_*`）的计数是**行级筛选后**的实际行数，不是类别表总数。
+`rowCounts` 必须覆盖全部 90 表，包括值为 0 的表；漏键会让摘要不可比。split 表（`model_task*`、
+`figure_generation_*`、`tutor_visual_*`）的计数是**行级筛选后**的实际行数，不是类别表总数。
 
 ### 9.8 §7 用例（执行状态已按批次 18 回写）
 
@@ -1643,23 +1643,31 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
 10. **三项裁定（2026-10-23 已裁）**：mask 8/0 拒绝与派生恒裁+恢复后重建已是用户裁定后的实施事实
     （§9.9），不再是“先按 a 实现”的默认；其余未决项照旧不得默认。
 
-### 9.11 机器可读清单 v2
+### 9.11 机器可读清单 v3
 
-> 解析标记：`<!-- 6c2-plan-v2:begin -->` / `<!-- 6c2-plan-v2:end -->`。旧的 `6c2-plan` 标记仍是
-> schema 66 历史块，当前实现只读 v2。`closureVersion=2` 与本块同源；`identityHash` 必须等于
-> `69.json` 的 `database.identityHash`。
+> 解析标记：`<!-- 6c2-plan-v3:begin -->` / `<!-- 6c2-plan-v3:end -->`。旧的 `6c2-plan-v2`（schema 69）
+> 内容已就地升为 v3；`6c2-plan`（schema 66）标记保留为历史块，当前实现只读 v3。`closureVersion=3`
+> 与本块同源；`identityHash` 必须等于 `71.json` 的 `database.identityHash`。
 > 2026-10-24 回写：本块已由批次 18 实施为 `SmbkSelectionPlan.kt`，`SmbkSelectionPlanTest`（
 > `plan data matches the section 9_11 machine block field for field`）断言两处逐字段同源——改本块即改
 > 代码契约。`maskPolicy`/`derivedPolicy` 已按 2026-10-23 裁定回写；`openMasks` 键名与 0/8 两项是测试
 > 解析契约保留，其 `state` 已由设计期 `OPEN` 改为 `REJECTED`。
+> 2026-10-29 批次 30 / D-01 回写：schema 70 新增视觉四表后同步升 v3——86→90 表、78→82 裁剪项、
+> ISSUE_BOOK 30→31、SESSIONS 6→7、SPLIT 5→7、软引用 20→21、`closureVersion` 2→3；新增
+> `visualRowFilter`（snapshot/program 的行级保留规则）。
+> 2026-10-29 批次 32 回写：schema 71 只把 `renderer_version` / `font_manifest_version` 并入
+> `tutor_visual_snapshot` 的唯一键（`VisualSnapshotIdentityMigration_70_71`，DROP 旧三列键 +
+> CREATE 新五列键），不增删表/视图/FK。因此 **表清单、SPLIT、软引用、闭包、`closureVersion` 均不变**，
+> 只有 `schemaVersion` 70→71 与 `identityHash` 换成 KSP 生成值（`714c0ecb…`，与 `71.json`、
+> `StudyDatabase_Impl.kt` 的 `RoomOpenDelegate` 同值，不得估算）。
 
-<!-- 6c2-plan-v2:begin -->
+<!-- 6c2-plan-v3:begin -->
 ```json
 {
-  "closureVersion": 2,
-  "schemaVersion": 69,
-  "identityHash": "6633b7c2fe223041c4a2927203853f4f",
-  "note": "v2（schema 69）：84 张旧表类别不变；新增 figure_generation_operation/attempt 为行级 split 家族；闭包规则见 §9.3，行级规则见 §9.5。",
+  "closureVersion": 3,
+  "schemaVersion": 71,
+  "identityHash": "714c0ecb85ee5edf74f0013740148138",
+  "note": "v3（schema 71）：备份清单与 schema 70 相同（90 表/2 视图/82 裁剪项/21 软引用/SPLIT 7），71 只把 renderer_version 与 font_manifest_version 并入 tutor_visual_snapshot 唯一键；identityHash 取 KSP 生成值。闭包规则见 §9.3，行级规则见 §9.5。",
   "categories": {
     "ISSUE_BOOK": {
       "bit": 1,
@@ -1675,6 +1683,7 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
         "problem_organization_receipt",
         "practice_unit_knowledge_binding",
         "problem_revision_source_asset",
+        "problem_revision_visual",
         "problem_draft",
         "problem_draft_source_asset",
         "problem_draft_revision",
@@ -1744,6 +1753,7 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
       "tables": [
         "tutor_conversation",
         "tutor_message",
+        "tutor_message_visual",
         "tutor_message_source_asset",
         "agent_pending_request",
         "tutor_answer_exposure",
@@ -1776,7 +1786,9 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "model_task",
     "model_task_operation",
     "figure_generation_attempt",
-    "figure_generation_operation"
+    "figure_generation_operation",
+    "tutor_visual_snapshot",
+    "tutor_visual_program"
   ],
   "modelTaskKindCategory": {
     "CAPTURE_ASSESS": "ISSUE_BOOK",
@@ -1928,9 +1940,9 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     }
   ],
   "assetPinRule": {
-    "definition": "keptAssets = 四张根引用表在存活行上的资产 ∪ 存活 attempt 的 output_asset_id",
-    "sites": 5,
-    "requirement": "实现 6C-2 前必须把 attempt.output_asset_id 并入 findUnreferencedCanonicalAssets / readReferencedCanonicalAssets（T5），否则 I5 会漏收被 attempt 钉住的图",
+    "definition": "keptAssets = 四张根引用表在存活行上的资产 ∪ 存活 attempt 的 output_asset_id ∪ 保留视觉快照的 preview_asset_id",
+    "sites": 6,
+    "requirement": "实现 6C-2 前必须把 attempt.output_asset_id 与 tutor_visual_snapshot.preview_asset_id 并入 findUnreferencedCanonicalAssets / readReferencedCanonicalAssets（T5 / D-01），否则 I5 会漏收被 attempt 或视觉预览钉住的图",
     "canonicalRowPolicy": "IMAGES 选中时 canonical_source_asset 整表保留（v2 语义）；包内文件只含 keptAssets，未引用行随包保留但不带文件，恢复后由既有孤儿回收处理"
   },
   "softReferences": [
@@ -2106,6 +2118,14 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
       "kind": "always",
       "check": "none",
       "strength": "informational"
+    },
+    {
+      "table": "tutor_visual_program",
+      "column": "basis_revision_id",
+      "targetTable": "problem_revision",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
     }
   ],
   "opaqueColumns": [
@@ -2136,6 +2156,10 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     }
   ],
   "trimOrder": [
+    "tutor_message_visual",
+    "problem_revision_visual",
+    "tutor_visual_snapshot",
+    "tutor_visual_program",
     "tutor_message_source_asset",
     "tutor_message",
     "split_import_question",
@@ -2250,19 +2274,34 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "note": "已裁并实施（批次 18 记录 §1.2-③，即 §6.1-③ 的 a+c）：恒裁（全选也裁两张派生表，AndroidBackupRepository 对所有 mask 调用裁剪器）+ 恢复完成后按科后台重建（RestoreIndexRebuild 按科 rebuildKnowledgeSearchIndex，失败保留标记 PARTIAL_FAILURE）。不改变类别/FK/软引用/顺序规则；全选包不再与 v2 字节等价"
   },
   "digest": {
-    "algorithm": "sha256( \"smbk-selection-v2\\n\" + \"closureVersion=2\\n\" + \"categories=\" + categories.sorted().joinToString(\",\") + \"\\n\" + \"assetPolicy=\" + assetPolicy + \"\\n\" + rowCounts.keys.sorted().joinToString(\"\"){ \"$it=${rowCounts[it]}\\n\" } )",
+    "algorithm": "sha256( \"smbk-selection-v3\n\" + \"closureVersion=3\n\" + \"categories=\" + categories.sorted().joinToString(\",\") + \"\n\" + \"assetPolicy=\" + assetPolicy + \"\n\" + rowCounts.keys.sorted().joinToString(\"\"){ \"$it=${rowCounts[it]}\n\" } )",
     "rowCountsSource": "裁剪后快照的逐表 COUNT(*)；split 表按行级筛选后的行数",
-    "trimmedTableCount": "删除行数 > 0 的表数（不含 FTS rebuild）；v2 上限 78",
+    "trimmedTableCount": "删除行数 > 0 的表数（不含 FTS rebuild）；v3 上限 82",
     "goldenEmptyFull": {
       "mask": 15,
       "assetPolicy": "INCLUDED",
-      "sha256": "d6ec73ac07e596a11ff97ac292cf01a41e0f962659a2b542a6d8a15c56a5dad6",
-      "note": "69 schema、空库、全选；rowCounts 为全部 86 表=0；派生表恒裁（裁定③）下也是 0 行，该向量不受裁定影响；SmbkSelectionPlanTest 以此为 golden 断言"
+      "sha256": "451c806c06b7492b913b457395ac2b8bcab939fbe06bf81601c57246cfe9e470",
+      "note": "71 schema、空库、全选；rowCounts 为全部 90 表=0；派生表恒裁（裁定③）下也是 0 行，该向量不受裁定影响；SmbkSelectionPlanTest 以此为 golden 断言"
     }
+  },
+  "visualRowFilter": {
+    "appliesTo": [
+      "tutor_visual_snapshot",
+      "tutor_visual_program"
+    ],
+    "when": "仅真子集（任一类别未勾选）；mask=15 全选时整表保留、不做行级筛选",
+    "prepass": "同一事务内、任何 DELETE 之前物化 kept_snapshot / kept_program 两张临时表",
+    "steps": [
+      "S_keep = 存活 tutor_message_visual.current_snapshot_id（SESSIONS 选中）∪ 存活 problem_revision_visual.snapshot_id（ISSUE_BOOK 选中）∪ checkpoint_kind='INITIAL' 的快照",
+      "P_keep = 存活 tutor_message_visual.program_id ∪ 存活 problem_revision_visual.program_id ∪ S_keep 引用的 program_id（硬 FK RESTRICT 闭包）",
+      "DELETE tutor_visual_snapshot WHERE snapshot_id ∉ S_keep；再 DELETE tutor_visual_program WHERE program_id ∉ P_keep",
+      "保留快照的 preview_asset_id 并入 TRIMMED 资产 pin（第六类引用站点）"
+    ],
+    "note": "删除顺序 link/题面 → snapshot → program（子先父）；INITIAL 快照是重建基线，裁掉则初始版本永久丢失"
   }
 }
 ```
-<!-- 6c2-plan-v2:end -->
+<!-- 6c2-plan-v3:end -->
 
 ### 9.12 复跑与校验（本轮实际执行）
 
