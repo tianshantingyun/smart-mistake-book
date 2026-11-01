@@ -716,3 +716,64 @@ PYTHONPATH=tools python tools/kb_coverage/alignment.py --check            # 308/
 ```
 
 **批次31A 终版结算（文书员，2026-11-01 10:50）**：**v25 adopted**（09:24；判据 1–3 过、判据 4 NOT_RUN；stateAfter 65,019/157）；**v26 failed**（39 子面 → 2 材料；promote 已落盘 28 文件，dense step1 被他线编译阻塞，其余全 NOT_RUN）；**ask 记 v26 已回滚，但截至 10:50 实测未回滚——release/staging 仍 v26（159/65,021），故本行只写"failed、回滚未成立"**；**v27 blocked**（无对象，UNVERIFIED）。审计第 2 版 **done / 来源不可发布**。回归 902/OK、金标 2/2、超集守卫缺失；八门 **7/8**（`judgment_drift` 518 红）。验收 v1.4 **F13 红 / F14 红 / F15 只读数 52.2677% / F16 严格口径红（35 条例外，2 条待复核）⇒ 不达标**。最高下一步（未执行）：**先把 v26 回滚到 v25 并逐字核验，再谈任何 v26/后续版本**；回滚后再清 518、F13/F14、F16 与来源元数据。
+
+## 21. 批次31A 终版追加：v25 adopted / v26 adopted / v27 failed（回滚未成立）+ 验收 v1.4（2026-11-01 13:45）
+
+> **只追加**：§19/§20 原文未改；本节记录 §20 之后的 v27 落盘、失败与验收复算。与 §20 冲突时以本节为准（时点更晚）。数字来源：`build/agent-batch31a/{v25-final.md,v26-final.md,v27.log,v27-touched-files.txt,v27-full.log,audit.md,gates-run-1331.stdout.txt,consistency.txt}` + 本会话 13:39–13:45 实跑。追加前备份：`build/agent-batch31a/backup/kb-outstanding-work-2026-09-20.pre-append-1345.md`（sha256 `e30b8836…`）。
+
+**当前身份（13:45 实跑）**：HEAD `f0512a47…`；origin/main `d72dbebc…`（`origin/main...HEAD` = `22 0`）；porcelain **写报告前 773（270 M + 503 ??）→ 写报告后 774（271 M + 503 ??）**；release=staging=**v27**（manifest `859a8116…`/27/`e685f52388883199`、v2-25 `93269182…`/159、材料 **64,928**、别名 **41,029**、主包 `f77303e6…`、`.vec a7418ad4…`、`.vec.json 9acc5720…`）。
+
+| 项 | 状态 | 读数与证据 |
+| --- | --- | --- |
+| **v25（A 层 22 子面回放）** | **adopted（09:24）** | 22 子面 → MATERIAL 3/SKIP 15/NOT_FOUND 4；设备融合 **117/129**、MRR **0.7239018…**、24 章 **0/24/0**、零漂移 **0/0**；判据 4 NOT_RUN；stateAfter `25/7e4102b6…`、v2-25 `89693752…`/157、65,019；已被 v26 覆盖 |
+| **v26（A 层 39 子面扩展）** | **adopted（v26-final.md）** | 39 子面 → MATERIAL 2/SKIP 4/NOT_FOUND 33；v2-25 159；材料 **65,021**；设备 **117/129**、MRR **0.7239018…**、24 章 **0/24/0**、零漂移 **0/0**、bootstrap delta **0.0**/CI **[0,0]**/p **1.0**；stateAfter `26/aea886e4…`、主包 `96246c78…`、别名 40,841、`.vec 70329115…` |
+| **v27（材料卫生）** | **failed；ask 记 failed-rolled-back，实测 rolled-back 未成立** | ① 87 组/180 材料/93 退休；② 127/127 FIXED；③ 205 候选/141 APPLIED/64 REJECTED；④ 926 候选/153 ACCEPTED（T 87+C 66）/730 REJECTED；材料 65,021→**64,928**、别名 40,841→**41,029**；promote real exit0/28 文件/28/28；**dense_export exit1（int8_docs 0.998950899<0.999）**、**dense step1 被他线 `TutorVisualPreviewRenderer.kt:254` 阻塞**、dense step2–8 NOT_RUN；**JVM 1463/6 failed**；**py_suite 902/1 failed（test_i04 锚点 `bio-kb-chromatin-chromosome-same-substance` 被 v27 去重退休）**；pin_check `PIN_OK=False`（硬编码 44121 vs 实际 44,309）；`judgment_drift 517`。**回滚未执行**：release/staging 仍 v27；回滚源 `backup-v27/{staging,alias,judgments}` 已逐字复核为 v26（聚合 `9e7d3e13…`、`5e8ed8ba…`、`634b5e75…`），目标值见批报 §13.3 |
+| **只读审计** | **done（第 3 版，13:06）** | 49 sourceId/206 行/64,930 材料；`sourceUri` 207 处占位；生产门 `-RequireProductionReady` EXIT=1；权利门 EXIT=1（schema 4）；edition 16/49；`title==sourceId` 27/49；wusan 4/4；Python 29/29、Kotlin 44 例 43 PASS/1 FAIL；v25/v26/v27 内容层未见金标定向注入（153/153 别名材料派生、141/141 title 前缀、正文 sha 未变），**范围层 39 节点含 9 个金标 expectedSlug、8 条 title 机械残片 ⇒ “与金标完全无关”不成立** |
+| **回归** | **JVM 1463/6 failed；py_suite 902/1 failed；金标 2/2；超集守卫缺失** | `build/v27-full.log:69`；`gates/py_suite.log:792-803`；`v27-full-xml/...GoldenRetrievalJvmTest.xml` tests=2/failures=0；`FusedRecallSupersetTest.kt` 不在树内 |
+| **门** | **6/8 rc=0、red=1** | 绿：promote_dry(0；version→28)、slice(0)、asset(0)、alignment(0)、transcripts(0)、judgment_fp(0)；红：kb_checks(1；`judgment_drift 517`)、py_suite(1；test_i04) |
+| **验收 v1.4：F13** | **红（双口径均≠0）** | v27 键 **1 组/2 材料/1 多余**（`ext-phy-0ba0a43cf3-015`/`ext-phy-477ad6128f-022`，`摩擦力不一定是阻力`，未进 dedupe CSV）；严格键 **10 组/20/10**（9 组标点/空格变体 + 上述 1 组） |
+| **验收 v1.4：F14** | **口径分歧** | v27 键 **0**（`short<=8` 0、`same_title` 0）；严格键 **124**（均为 title+句末标点，如 `…直线上` vs `…直线上。`）；v27 ② 只修 `≤8` 字，未覆盖此类 |
+| **验收 v1.4：F15** | **只读数** | **34,080/64,928 = 52.4889%**（>24 字 20,588 ∪ 含标点 30,744 = 30,848）；v26 33,985/65,021 = 52.2677%；ask 未设阈值 |
+| **验收 v1.4：F16** | **来源 PASS / 子串 2 条例外** | 37,749 行 = 37,649 标题 + 188 例外 + 0 未匹配；153 条 v27 T/C 全部带 `source_slug`；`alias==query` 0；`alias==expectedSlug` 1（`人船模型`）；`exception_not_title` 100；`strict_substr_of_query` **2**（`实验室制取氢氧化铝`、`二项式系数最大的项`，均批16 T/C，非 v27 新增） |
+| **A 层边界** | **重申，不重开** | v25 22 子面（3/15/4）；v26 39 新子面（2/4/33）；不重开 60,512 SEAL、235 选修、46/16 PARTIAL、238 薄料全量、51 仅误区、22 v24/v25 子面；v27 是卫生批，不新增节点（3,280）、不改阈值/金标/判官 |
+| **一致性** | **0 PASS / 3 FAIL** | C01 HEAD `f0512a47` ≠ 基线 `147c4b9f`；C02 装置新测 `35ef09ce…` 不存在；C03 写面漂移（v27 manifest/25 sidecar/主包/`.vec`/`.vec.json`/`model-manifest`/4 判定表/2 别名表/`DenseRecallRerankerTest.kt`/`DenseRecallAssembly.kt`/资产目录越界）；porcelain 773（写前） |
+| **提交** | **未提交** | HEAD `f0512a47`；origin/main `d72dbebc`（`22 0`）；本文件与批报只追加；未 commit/push |
+
+**批次31A 终版残留（按阻塞程度）**：
+
+1. **v27 未回滚（最高）**：release/staging 仍 v27（27/64,928/41,029/`a7418ad4…`）；回滚到 **v26**（不是 HEAD v24；`git checkout` 会回滚过头）；回滚源 `backup-v27/{staging,alias,judgments}` 已逐字复核，目标 manifest `370b0979…`/26/`aea886e4…`、主包 `96246c78…`、v2-25 `93269182…`/159、65,021、别名 40,841、`.vec 70329115…`；exam exemptions 2 条指纹无逐字备份（回滚源缺口）。
+2. **v27 failed/无判读**：dense step2–8、设备/JVM 四路、零漂移、bootstrap 全 NOT_RUN；promote 先于门红落盘；不得写“v27 测负/通过”。
+3. **v27 去重退休锚点材料**：`bio-kb-chromatin-chromosome-same-substance` 在 `v27-retired-json/`，`test_i04` 因此红；回滚即恢复。
+4. **F13 残组**：v27 键 1 组/1 多余；严格键 10 组/10 多余；F13 不达标。
+5. **F14 口径分歧**：v27 键 0；严格键 124；v1.5 冻结归一后再判。
+6. **F16 子串 2 条例外**（批16 T/C，非 v27 新增）。
+7. **`judgment_drift` 517 未归因**。
+8. **dense export 未过门**（int8_docs 0.998950899<0.999）+ **pin_check 硬编码 44121 过期**（实际 44,309）。
+9. **来源元数据缺口**（49/49 占位 URI、生产门红、权利门 schema 4 不可运行、16/49 edition、27/49 title==sourceId、4/4 wusan）。
+10. **一致性 0/3；porcelain 773（写前）；超集守卫缺失；未提交**。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD; git rev-list --left-right --count origin/main...HEAD   # f0512a47…；22 0
+git status --porcelain | wc -l; git status --porcelain | cut -c1-2 | sort | uniq -c   # 写报告前 773 = 270 M + 503 ??
+python -I -X utf8 -c "import json;d=json.load(open('core/data/src/main/resources/knowledge/moe-2025-update-manifest.json',encoding='utf-8'));print(d['version'],d['contentVersion'])"  # 27 e685f523…
+sed -n '2,5p' build/agent-batch31a/v26-device/device-metrics.txt          # 117/129；MRR 0.7239018…
+grep -n -E "promote_real|dense_export|dense_step1|dense_step2_4|dense_step5_6|dense_step7_8|repin" build/agent-batch31a/v27.log | tail -10
+grep -n -E "FAILED|tests completed" build/v27-full.log | tail -8          # 1463 / 6 failed
+grep -n -E "FAIL:|AssertionError|Ran 902|FAILED" build/agent-batch31a/gates/py_suite.log | tail -8
+python -I -X utf8 build/agent-batch31a/scripts/f13_f16_repro.py           # F13 10/20/10；F14 124；F15 52.4889%；F16 2 子串
+python tools/ci/run_kb_checks.py                                          # rc=1；judgment_drift 517
+python -m unittest discover -s tools/tests -t tools                       # 902 / 1 failed
+python tools/kb_build/promote.py --dry-run                                # rc=0；version→28
+./gradlew :core:data:testDebugUnitTest --tests "*GoldenRetrievalJvmTest*" --console=plain   # XML tests=2 failures=0
+```
+
+**批次31A 终版结算（文书员，2026-11-01 13:45）**：**v25 adopted**（22 子面 3/15/4；117/129；65,019/157）；**v26 adopted**（39 子面 2/4/33；117/129；65,021/159；bootstrap 0/[0,0]/1.0）；**v27 failed**（卫生四组已落盘并 promote，但 dense_export int8_docs 0.998950899<0.999、JVM 6 红、py_suite 锚点被去重退休、pin 过期、judgment_drift 517；**ask 记 rolled-back，实测未回滚——release/staging 仍 v27**）。审计第 3 版 **done / 来源不可发布**。回归 **JVM 1463/6、py_suite 902/1、金标 2/2、超集守卫缺失**；八门 **6/8**（kb_checks 517、py_suite test_i04 红）。验收 v1.4：**F13 红（1/10 组）、F14 口径分歧（0/124）、F15 只读数 52.4889%、F16 来源 PASS / 子串 2 条例外**。最高下一步（未执行）：**先把 v27 回滚到 v26 并逐字核验，再谈 v28**；回滚后再清 517、F13/F14 口径、F16 两条例外与来源元数据。
+
+**记账（本节写入时点）**：写报告后 porcelain **774（271 M + 503 ??）**；本节写入后计数见下一行收尾复跑。本节只追加 docs，未触碰 KB 数据面。
+
+**收尾复跑（13:45）**：porcelain **775（272 `M` + 503 `??`）**；两份 docs 均 `M`（`docs/kb-batch31a-2026-11-01.md` `cbdc5ae8…`、`docs/kb-outstanding-work-2026-09-20.md` `c106c448…`）；本节与批报均为纯追加（`git diff --numstat` = `57/0` 与 `298/0`）；未改 KB 数据面。
+
+**§21.1 更正（13:52）**：§21 表中 v27 行“pin_check `PIN_OK=False`（硬编码 44121 vs 实际 44,309）”不变；但回滚源需精确：`DenseRecallAssembly.kt` v26 `c654d988…` = HEAD 可作源；`model-manifest.json` v26 `b3896531…` ≠ HEAD `af3fbcb5…`（**内容源缺口**）；`DenseRecallRerankerTest.kt` v27 pre `8a7026c2…` ≠ HEAD/`pin-pre-sha.txt` `c45add86…`（**pre 口径冲突**，v27 相对 HEAD 改动 0）。回滚时不得用 HEAD 覆盖后两件；须从 v26 快照/构建产物取回并逐字核验。批报 §13.12/§13.13 已补登。
