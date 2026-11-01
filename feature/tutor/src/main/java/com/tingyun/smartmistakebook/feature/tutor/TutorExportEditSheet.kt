@@ -73,6 +73,9 @@ internal fun TutorExportEditSheet(
     onBack: () -> Unit,
     onConfirm: (MistakePaperDraft) -> Unit,
     onDismiss: () -> Unit,
+    includeDetailedAnswers: Boolean = false,
+    onDetailedAnswersChange: ((Boolean) -> Unit)? = null,
+    onPrepareDetailedAnswers: ((MistakePaperDraft) -> Unit)? = null,
 ) {
     Dialog(
         onDismissRequest = onDismiss,
@@ -228,9 +231,10 @@ internal fun TutorExportEditSheet(
                     }
 
                     Spacer(Modifier.height(2.dp))
+                    if (onDetailedAnswersChange != null && onPrepareDetailedAnswers != null) TutorDetailedAnswersChoice(includeDetailedAnswers, onDetailedAnswersChange)
                     PrimaryActionButton(
-                        text = "确认导出（${edit.questions.size} 题）",
-                        onClick = { onConfirm(edit.toDraft()) },
+                        text = if (includeDetailedAnswers) "准备答案并预览（${edit.questions.size} 题）" else "确认导出（${edit.questions.size} 题）",
+                        onClick = { if (includeDetailedAnswers && onPrepareDetailedAnswers != null) onPrepareDetailedAnswers(edit.toDraft()) else onConfirm(edit.toDraft()) },
                         // 模型改卷在途时不允许抢跑：否则会导出改到一半之前的副本。
                         enabled = !edit.hasBlankText && !modelEditBusy,
                         modifier = Modifier

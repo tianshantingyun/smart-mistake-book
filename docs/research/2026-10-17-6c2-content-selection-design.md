@@ -93,7 +93,7 @@ FK 抓不到这些列，但它们是真实的引用（删了目标就会留下�
 
 `model_task` 家族是特殊的行级分裂（一张表两种归属），按各 kind 输入的 `subjectId` 定宿主
 （**一手证据**，见附录 F）：`CAPTURE_ASSESS`/`CAPTURE_PARSE` = draftId → 错题本；
-`PROBLEM_CLASSIFY`/`PROBLEM_RELATE`/`MISTAKE_EDIT` = problemRevisionId → 错题本；
+`PROBLEM_CLASSIFY`/`PROBLEM_RELATE`/`MISTAKE_EDIT`/`MISTAKE_SOLUTION` = problemRevisionId → 错题本；
 `IMAGE_PIPELINE_CLASSIFY` = `subjectIdOverride ?: sourceAssetId` → 资产域（生产者是采集/重绘）；
 `TUTOR_LOBBY` = conversationId、`TUTOR_PLAN`/`TUTOR_RESPOND` = `tutor-conv:captured:<会话>`、
 `LEARNING_SUMMARIZE` = sessionId → 会话；`KNOWLEDGE_QUIZ` = 知识点域 → 掌握库。
@@ -842,7 +842,7 @@ WHERE task_kind IN ('CAPTURE_ASSESS','CAPTURE_PARSE')
 
 -- 整理类：宿主是题面修订
 SELECT task_id, task_kind, subject_id FROM model_task
-WHERE task_kind IN ('PROBLEM_CLASSIFY','PROBLEM_RELATE','MISTAKE_EDIT')
+WHERE task_kind IN ('PROBLEM_CLASSIFY','PROBLEM_RELATE','MISTAKE_EDIT','MISTAKE_SOLUTION')
   AND NOT EXISTS (SELECT 1 FROM problem_revision r WHERE r.revision_id = subject_id);
 
 -- 图像分类类：宿主是源图资产（subjectIdOverride 有值时另说，实施时按真机采样钉死）
@@ -1658,9 +1658,9 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
 ```json
 {
   "closureVersion": 2,
-  "schemaVersion": 71,
-  "identityHash": "cd4e6e1e2f9dc6378a51c2e47c45f390",
-  "note": "v2 (schema 71): durable detailed_solution_manifest and detailed_solution are ISSUE_BOOK facts; frozen paper and solutions remain backed up.",
+  "schemaVersion": 72,
+  "identityHash": "cd7a792ae31a46e939651e0e2bfd986c",
+  "note": "v2 (schema 72): paired export groups are ISSUE_BOOK facts; records carry group identity and artifact role.",
   "categories": {
     "ISSUE_BOOK": {
       "bit": 1,
@@ -1672,6 +1672,7 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
         "error_book_entry",
         "mistake_edit_job",
         "detailed_solution_manifest",
+        "mistake_export_group",
         "detailed_solution",
         "problem_relation",
         "problem_classification_binding",
@@ -2142,7 +2143,6 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     }
   ],
   "trimOrder": [
-    "detailed_solution_manifest",
     "detailed_solution",
     "mistake_edit_job",
     "tutor_message_source_asset",
@@ -2172,6 +2172,8 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "student_model_prediction",
     "model_task_event",
     "mistake_export_record",
+    "mistake_export_group",
+    "detailed_solution_manifest",
     "llm_teaching_advisory",
     "library_search_outbox",
     "library_search_content",
@@ -2261,12 +2263,12 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
   "digest": {
     "algorithm": "sha256( \"smbk-selection-v2\\n\" + \"closureVersion=2\\n\" + \"categories=\" + categories.sorted().joinToString(\",\") + \"\\n\" + \"assetPolicy=\" + assetPolicy + \"\\n\" + rowCounts.keys.sorted().joinToString(\"\"){ \"$it=${rowCounts[it]}\\n\" } )",
     "rowCountsSource": "裁剪后快照的逐表 COUNT(*)；split 表按行级筛选后的行数",
-    "trimmedTableCount": "number of tables with deleted rows, excluding FTS rebuild; maximum 81",
+    "trimmedTableCount": "number of tables with deleted rows, excluding FTS rebuild; maximum 82",
     "goldenEmptyFull": {
       "mask": 15,
       "assetPolicy": "INCLUDED",
-      "sha256": "28c52c844bd9c6a7c47cf142f6cf3b864e0767a91b547bdf5a723eb06598deea",
-      "note": "schema 71; 89 tables; empty full selection"
+      "sha256": "22bb99524f5ae46607768a24a410e06ef28b1b80fd5999883a43f908f8607a41",
+      "note": "schema 72; 90 tables; empty full selection"
     }
   }
 }

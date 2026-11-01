@@ -74,6 +74,7 @@ class MistakePaperDraftStore(
     fun restoreFrozenPaper(manifest: com.tingyun.smartmistakebook.core.model.FrozenAnswerManifest): MistakePaperDraft {
         val draft = requireNotNull(decodeSnapshot(manifest.paperSnapshot)) { "Frozen paper snapshot cannot be decoded" }
         require(draft.input.inputSha256 == manifest.inputSha256 && draft.input.layout == manifest.layout && draft.frozenQuestions == manifest.questions)
+        verifyFrozenPaperQuestions(draft)
         return draft
     }
     fun write(draftId: String, draft: MistakePaperDraft) {

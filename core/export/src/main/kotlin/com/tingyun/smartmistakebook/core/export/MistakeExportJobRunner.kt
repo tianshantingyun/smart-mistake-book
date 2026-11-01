@@ -35,6 +35,8 @@ class MistakeExportJobRunner(
      * 编辑请求在没有它时**如实失败**，绝不悄悄回退成"按条目重新读一遍"（那会丢掉学生的编辑）。
      */
     private val readPaperDraft: (suspend (String) -> MistakePaperDraft?)? = null,
+    private val readGroupPaper: (suspend (String, String) -> MistakePaperDraft?)? = null,
+    private val readDetailedAnswers: (suspend (MistakeExportJobRequest.DetailedAnswers) -> DetailedAnswerExportInput?)? = null,
 ) {
 
     suspend fun run(request: MistakeExportJobRequest): MistakeExportJobOutcome = try {
@@ -42,6 +44,7 @@ class MistakeExportJobRunner(
             is MistakeExportJobRequest.Single -> runSingle(request)
             is MistakeExportJobRequest.Batch -> runBatch(request)
             is MistakeExportJobRequest.Edited -> runEdited(request)
+            is MistakeExportJobRequest.DetailedAnswers -> runDetailedAnswers(request)
         }
     } catch (cancelled: CancellationException) {
         throw cancelled
@@ -54,6 +57,7 @@ class MistakeExportJobRunner(
                     batchExportFailureMessage(failure.failure, request.format)
                 is MistakeExportJobRequest.Edited ->
                     editedPaperFailureMessage(failure.failure, request.format)
+                is MistakeExportJobRequest.DetailedAnswers -> exportFailureMessage(failure.failure, request.format)
             },
         )
     } catch (_: Exception) {
@@ -132,14 +136,12 @@ class MistakeExportJobRunner(
     private suspend fun runEdited(
         request: MistakeExportJobRequest.Edited,
     ): MistakeExportJobOutcome {
-        val read = readPaperDraft
-            ?: return MistakeExportJobOutcome.Failed(
-                "这次导出没有准备好卷面草稿，请重新编辑后再导出。",
-            )
-        val draft = read(request.draftId)
+        val draft = if (request.groupId != null) readGroupPaper?.invoke(request.groupId, requireNotNull(request.manifestSha256))
+            else readPaperDraft?.invoke(request.draftId)
             ?: return MistakeExportJobOutcome.Failed(
                 "这份编辑后的卷面没有保存下来，请重新编辑后再导出。",
             )
+        if (draft == null) return MistakeExportJobOutcome.Failed("冻结的题目卷无法读取，请重新准备")
         if (draft.input.layout != request.layout) {
             return MistakeExportJobOutcome.Failed(
                 "这份卷面的版式已经变了，请重新编辑后再导出。",
@@ -153,6 +155,14 @@ class MistakeExportJobRunner(
         return render(request = request, input = draft.input, displayName = displayName)
     }
 
+    private suspend fun runDetailedAnswers(request: MistakeExportJobRequest.DetailedAnswers): MistakeExportJobOutcome {
+        val input = readDetailedAnswers?.invoke(request) ?: return MistakeExportJobOutcome.Blocked("答案尚未完整准备或预览确认已失效，请返回预览")
+        require(input.format == request.format && input.layout == request.layout)
+        require(com.tingyun.smartmistakebook.core.model.DetailedSolutionCodec.manifestSha256(input.manifest) == request.manifestSha256)
+        require(com.tingyun.smartmistakebook.core.model.DetailedSolutionCodec.solutionsSha256(input.manifest, input.documents) == request.solutionsSha256)
+        return render(request, input.toNativeInput(), "详细答案-${input.documents.size}题.${request.format.fileExtension}")
+    }
+
     private fun render(
         request: MistakeExportJobRequest,
         input: MistakePdfExportInput,
@@ -162,7 +172,7 @@ class MistakeExportJobRunner(
         // 移除 SOLUTION_SECTION；结果通知必须读同一个事实，不能继续说"解析区已跳过"。
         // 批量导出同理：合并输入里有讲解图就说明解析区确实排了图。
         val solutionSectionRendered =
-            input.layout.includeSolution && input.solutionImages.isNotEmpty()
+            input.artifactRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS || input.layout.includeSolution && input.solutionImages.isNotEmpty()
         return when (request.format) {
             MistakeExportFormat.PDF -> {
                 val prepared = renderPdf(input)
@@ -243,10 +253,28 @@ sealed interface MistakeExportJobRequest {
         val draftId: String,
         override val layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
         override val format: MistakeExportFormat = MistakeExportFormat.PDF,
+        val groupId: String? = null,
+        val manifestSha256: String? = null,
     ) : MistakeExportJobRequest {
         init {
             require(layout.validate().isEmpty()) { "Invalid export layout: ${layout.validate()}" }
             require(draftId.isNotBlank()) { "An edited export needs a paper draft id" }
+            require((groupId == null) == (manifestSha256 == null))
+            require(manifestSha256 == null || manifestSha256.matches(Regex("[a-f0-9]{64}")))
+        }
+    }
+
+    data class DetailedAnswers(
+        override val exportId: String,
+        val groupId: String,
+        val manifestSha256: String,
+        val solutionsSha256: String,
+        override val format: MistakeExportFormat,
+        override val layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
+    ) : MistakeExportJobRequest {
+        init {
+            require(exportId.isNotBlank() && groupId.isNotBlank() && layout.validate().isEmpty())
+            require(listOf(manifestSha256, solutionsSha256).all { it.matches(Regex("[a-f0-9]{64}")) })
         }
     }
 }

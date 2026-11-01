@@ -27,6 +27,8 @@ internal interface DetailedSolutionDao {
         WHERE l.problem_revision_id = :revisionId AND c.source_asset_id = :assetId AND c.content_sha256 = :sha
         AND c.byte_size = :bytes AND c.width = :width AND c.height = :height""")
     suspend fun sourceMatches(revisionId: String, assetId: String, sha: String, bytes: Long, width: Int, height: Int): Int
+    @Query("SELECT COUNT(*) FROM problem_revision_source_asset WHERE problem_revision_id = :revisionId AND source_asset_id = :assetId AND role = :role")
+    suspend fun figureRoleMatches(revisionId: String, assetId: String, role: String): Int
 }
 
 internal fun PersistedAnswerManifest.toEntity() = DetailedSolutionManifestEntity(manifestId, manifest.paperDraftId,
@@ -75,7 +77,10 @@ internal class RoomDetailedSolutionStore(
         val dao = database.detailedSolutionDao()
         require(dao.revisionBelongs(question.entryId, question.basis.revisionId) == 1) { "Frozen question revision is not part of this entry" }
         question.sourceImages.forEach { source -> require(dao.sourceMatches(question.basis.revisionId, source.assetId, source.sha256, source.byteSize, source.width, source.height) >= 1) { "Frozen source is not an admitted revision asset" } }
-        require(question.figures.all { ref -> question.sourceImages.any { it.assetId == ref.assetId && it.sha256 == ref.contentSha256 } })
+        require(question.figures.all { ref ->
+            question.sourceImages.any { it.assetId == ref.assetId && it.sha256 == ref.contentSha256 } &&
+                dao.figureRoleMatches(question.basis.revisionId, ref.assetId, ref.role.name) >= 1
+        }) { "Frozen figure role does not match the revision asset" }
     }
 
     override suspend fun readAnswerManifest(manifestId: String) = database.detailedSolutionDao().manifest(manifestId)?.toRecord()

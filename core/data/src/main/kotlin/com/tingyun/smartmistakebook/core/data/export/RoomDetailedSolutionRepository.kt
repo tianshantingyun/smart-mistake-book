@@ -33,6 +33,8 @@ class RoomDetailedSolutionRepository internal constructor(
 ) : DetailedSolutionRepository {
     private val locks = ConcurrentHashMap<String, Mutex>()
     private val activeManifests = ConcurrentHashMap<String, FrozenAnswerManifest>()
+    private data class ReadyDisplay(val documentSha256: String, val uris: Map<String, String>)
+    private val readyDisplays = ConcurrentHashMap<String, ReadyDisplay>()
 
     override suspend fun freeze(manifest: FrozenAnswerManifest): String = withContext(Dispatchers.IO) {
         manifest.questions.forEach { verifySources(it) }
@@ -49,22 +51,29 @@ class RoomDetailedSolutionRepository internal constructor(
 
     override suspend fun read(manifestId: String): DetailedSolutionPreparation? = withContext(Dispatchers.IO) {
         val record = database.readAnswerManifest(manifestId) ?: return@withContext null
-        assemble(record, record.manifest.questions.mapNotNull { database.readDetailedSolution(detailedSolutionId(it.basis)) })
+        assemble(record, record.manifest.questions.mapNotNull { database.readDetailedSolution(detailedSolutionId(it.basis)) }, freshIntegrityCheck = true)
     }
 
-    private suspend fun assemble(record: PersistedAnswerManifest, rows: List<PersistedDetailedSolution>): DetailedSolutionPreparation {
+    private suspend fun assemble(record: PersistedAnswerManifest, rows: List<PersistedDetailedSolution>, freshIntegrityCheck: Boolean = false): DetailedSolutionPreparation {
         val byId = rows.associateBy { it.solutionId }
         val items = record.manifest.questions.map { question ->
             val row = byId[detailedSolutionId(question.basis)]
             if (row == null) DetailedSolutionItemState(question.ordinal, question.basis, DetailedSolutionPreparationStatus.QUEUED)
             else {
-                val valid = row.status == DetailedSolutionPreparationStatus.READY && try {
-                    require(database.verifyDetailedSolutionFigures(row.solutionId)); verifyPrepared(row); true
+                val documentSha = row.document?.let(DetailedSolutionCodec::documentSha256)
+                val cached = if (freshIntegrityCheck) null else readyDisplays[row.solutionId]?.takeIf { it.documentSha256 == documentSha }
+                var uris = cached?.uris.orEmpty()
+                val valid = row.status == DetailedSolutionPreparationStatus.READY && (cached != null || try {
+                    require(database.verifyDetailedSolutionFigures(row.solutionId)); verifyPrepared(row)
+                    uris = row.figures.associate { ref -> ref.assetId to assets.localUri(requireNotNull(database.readCanonicalSourceAsset(ref.assetId))) }
+                    readyDisplays[row.solutionId] = ReadyDisplay(requireNotNull(documentSha), uris)
+                    true
                 } catch (cancelled: CancellationException) { throw cancelled } catch (_: Exception) { false }
+                )
                 val status = if (row.status == DetailedSolutionPreparationStatus.READY && !valid) DetailedSolutionPreparationStatus.FAILED else row.status
                 DetailedSolutionItemState(question.ordinal, question.basis, status, if (valid) row.document else null,
                     if (row.status == DetailedSolutionPreparationStatus.READY && !valid) "答案或配图已失效，请重新准备" else row.message,
-                    if (valid) row.figures.associate { ref -> ref.assetId to assets.localUri(requireNotNull(database.readCanonicalSourceAsset(ref.assetId))) } else emptyMap())
+                    if (valid) uris else emptyMap())
             }
         }
         val complete = items.all { it.status == DetailedSolutionPreparationStatus.READY && it.document != null }
@@ -232,10 +241,10 @@ class RoomDetailedSolutionRepository internal constructor(
     }
 
     companion object {
-        fun create(context: Context, database: StudyDatabasePort, tasks: ModelTaskRepository, coordinator: FigureGenerationCoordinator,
-            configurationStore: ModelConfigurationStore, networkRequestsAllowed: Boolean): RoomDetailedSolutionRepository {
+        fun create(context: Context, database: StudyDatabasePort, tasks: ModelTaskRepository, coordinator: FigureGenerationCoordinator?,
+            configurationStore: ModelConfigurationStore?, networkRequestsAllowed: Boolean): RoomDetailedSolutionRepository {
             val vault = AndroidCanonicalAssetVault(context.applicationContext)
-            return RoomDetailedSolutionRepository(database, tasks, coordinator, object : MistakeEditAssetAccess {
+            return RoomDetailedSolutionRepository(database, tasks, coordinator ?: com.tingyun.smartmistakebook.core.data.visual.FigureGenerationCoordinationFactory.unavailable, object : MistakeEditAssetAccess {
                 override fun verifiedBytes(asset: CanonicalSourceAssetRecord) = vault.resolve(asset).readBytes()
                 override fun localUri(asset: CanonicalSourceAssetRecord) = vault.resolve(asset).toURI().toString()
                 override suspend fun persist(artifact: FigureArtifact.ImageAsset, attemptId: String, at: Long): CanonicalSourceAssetRecord {
@@ -244,7 +253,7 @@ class RoomDetailedSolutionRepository internal constructor(
                     return vault.persistCleanImageBytes(artifact.imageBytes(), artifact.mimeType, "DETAILED_SOLUTION", at,
                         GeneratedFigureProvenance(artifact.modelId ?: "unknown", id, artifact.purpose.name), id)
                 }
-            }, { openGuardedFigureImageBackend(configurationStore, networkRequestsAllowed)?.use { FigureGenerationCapabilities.IMAGE_MODEL_ONLY } ?: FigureGenerationCapabilities.NONE })
+            }, { configurationStore?.let { openGuardedFigureImageBackend(it, networkRequestsAllowed) }?.use { FigureGenerationCapabilities.IMAGE_MODEL_ONLY } ?: FigureGenerationCapabilities.NONE })
         }
     }
 }

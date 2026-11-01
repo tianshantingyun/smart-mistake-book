@@ -78,10 +78,11 @@ internal class RoomStudyDatabase(
     override suspend fun attachDetailedSolutionFigure(solutionId: String, expectedVersion: Long, blockId: String, attemptId: String, asset: CanonicalSourceAssetRecord, atEpochMillis: Long) = detailedSolutions.attachDetailedSolutionFigure(solutionId, expectedVersion, blockId, attemptId, asset, atEpochMillis)
     override suspend fun verifyDetailedSolutionFigures(solutionId: String) = detailedSolutions.verifyDetailedSolutionFigures(solutionId)
     override suspend fun latestMistakeEditJob(basis: EditBasis): PersistedMistakeEditJob? =
-        database.mistakeEditJobDao().latest(basis.entryId, basis.revisionId, basis.draftSha256)?.toRecord()
+        database.mistakeEditJobDao().latest(basis.entryId, basis.revisionId, basis.draftSha256)?.let { readMistakeEditJob(it.operationId) }
     override suspend fun createMistakeEditJob(job: PersistedMistakeEditJob): PersistedMistakeEditJob = database.withWriteTransaction {
         val dao = database.mistakeEditJobDao()
-        dao.read(job.operationId)?.toRecord()?.let { existing ->
+        dao.read(job.operationId)?.let { row ->
+            val existing = requireNotNull(readMistakeEditJob(row.operationId)) { "这条修改记录已损坏，请调整修改要求后重新提交" }
             require(ModelTaskLogicalOperationFingerprint.of(existing.request) == ModelTaskLogicalOperationFingerprint.of(job.request))
             return@withWriteTransaction existing
         }
@@ -91,18 +92,58 @@ internal class RoomStudyDatabase(
         job
     }
 
-    override suspend fun readMistakeEditJob(operationId: String): PersistedMistakeEditJob? =
-        database.mistakeEditJobDao().read(operationId)?.toRecord()
+    override suspend fun readMistakeEditJob(operationId: String): PersistedMistakeEditJob? = database.withWriteTransaction {
+        val dao = database.mistakeEditJobDao()
+        val row = dao.read(operationId) ?: return@withWriteTransaction null
+        try { row.toRecord() }
+        catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+        catch (_: Exception) {
+            try {
+                val base = row.copy(status = "FAILED", outputSnapshot = null, figuresSnapshot = "[]").toRecord()
+                require(base.committedRevisionId == null)
+                val output = requireNotNull(dao.completedOutput(base.request.requestId, ModelTaskFingerprint.of(base.request)))
+                    .let { com.tingyun.smartmistakebook.core.model.ModelTaskCodec.decodeOutput(it) as com.tingyun.smartmistakebook.core.model.MistakeEditOutput }
+                require(output.basis == base.input.basis)
+                output.suggestion.requireMatches(base.input)
+                val changes = output.suggestion.changes.filterIsInstance<MistakeEditChange.ReplaceFigure>()
+                val refs = changes.mapNotNull { change ->
+                    val purpose = change.proposal.purpose ?: return@mapNotNull null
+                    dao.recoverFigure(mistakeEditFigureOperationId(base.operationId, change.blockId), base.input.basis.revisionId,
+                        mistakeEditFigureBasis(ModelTaskFingerprint.of(base.request), output, change.blockId), purpose.name,
+                        FigureGenerationPolicyVersion.VALUE)?.let { StoredFigureReference(change.blockId, it.assetId, it.contentSha256, editFigureRole(purpose)) }
+                }
+                val status = when (output.suggestion.decision) {
+                    com.tingyun.smartmistakebook.core.model.MistakeEditDecision.NO_CHANGE -> MistakeEditJobStatus.NO_CHANGE
+                    com.tingyun.smartmistakebook.core.model.MistakeEditDecision.NEED_SOURCE -> MistakeEditJobStatus.NEED_SOURCE
+                    com.tingyun.smartmistakebook.core.model.MistakeEditDecision.UNAVAILABLE -> MistakeEditJobStatus.UNAVAILABLE
+                    com.tingyun.smartmistakebook.core.model.MistakeEditDecision.SUGGEST_CHANGES -> if (refs.size == changes.size) MistakeEditJobStatus.READY else MistakeEditJobStatus.FAILED
+                }
+                val recovered = base.copy(output = output, figures = refs, status = status, stateVersion = base.stateVersion + 1,
+                    message = "已从完成记录恢复修改建议，已生成的图片不会重复生成")
+                dao.requireFigureAuthority(recovered)
+                check(dao.repairSnapshots(operationId, row.stateVersion, status.name,
+                    com.tingyun.smartmistakebook.core.model.ModelTaskCodec.encodeOutput(output),
+                    com.tingyun.smartmistakebook.core.model.StoredFigureReferenceCodec.encode(refs), requireNotNull(recovered.message)) == 1)
+                return@withWriteTransaction recovered
+            } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+            catch (_: Exception) { /* An unverifiable row must not block recovery of other jobs. */ }
+            dao.quarantine(operationId, row.stateVersion, "修改记录损坏，请重新提交修改要求")
+            val failed = dao.read(operationId)
+            runCatching { failed?.toRecord() }.getOrNull()
+        }
+    }
 
     override fun observeMistakeEditJob(operationId: String): Flow<PersistedMistakeEditJob?> =
-        database.mistakeEditJobDao().observe(operationId).map { it?.toRecord() }
+        database.mistakeEditJobDao().observe(operationId).map { row ->
+            row?.let { runCatching { it.toRecord() }.getOrNull() ?: readMistakeEditJob(operationId) }
+        }
 
     override suspend fun transitionMistakeEditJob(next: PersistedMistakeEditJob): Boolean = database.withWriteTransaction {
         val dao = database.mistakeEditJobDao()
         val previous = dao.read(next.operationId)?.toRecord() ?: return@withWriteTransaction false
         if (previous.stateVersion + 1 != next.stateVersion) return@withWriteTransaction false
         previous.requireSuccessor(next)
-        require(next.figures == previous.figures) { "Only audited asset attachment may add a figure" }
+        require(next.figures == previous.figures || next.generation == previous.generation + 1 && next.figures.all { it in previous.figures }) { "Only audited asset attachment may add a figure" }
         dao.requireFigureAuthority(next)
         if (next.status in setOf(MistakeEditJobStatus.REQUESTING, MistakeEditJobStatus.GENERATING_FIGURES, MistakeEditJobStatus.READY, MistakeEditJobStatus.ADOPTED)) {
             if (dao.currentBasis(next.input.basis.entryId, next.input.basis.revisionId) != 1) return@withWriteTransaction false
@@ -113,7 +154,17 @@ internal class RoomStudyDatabase(
 
     override suspend fun readPendingMistakeEditJobs(afterOperationId: String?, limit: Int): List<PersistedMistakeEditJob> {
         require(limit in 1..64)
-        return database.mistakeEditJobDao().pending(afterOperationId, limit).map { it.toRecord() }
+        val result = mutableListOf<PersistedMistakeEditJob>()
+        var cursor = afterOperationId
+        while (result.size < limit) {
+            val remaining = limit - result.size
+            val rows = database.mistakeEditJobDao().pending(cursor, remaining)
+            if (rows.isEmpty()) break
+            rows.forEach { row -> readMistakeEditJob(row.operationId)?.takeIf { it.status in setOf(MistakeEditJobStatus.QUEUED, MistakeEditJobStatus.REQUESTING, MistakeEditJobStatus.GENERATING_FIGURES) }?.let(result::add) }
+            cursor = rows.last().operationId
+            if (rows.size < remaining) break
+        }
+        return result
     }
 
     override suspend fun isMistakeEditBasisCurrent(basis: EditBasis): Boolean =
@@ -1375,6 +1426,12 @@ internal class RoomStudyDatabase(
     override suspend fun createMistakeExportRecord(
         command: CreateMistakeExportRecordCommand,
     ): MistakeExportRecordRow = database.mistakeExportRecordDao().createRunning(command)
+
+    override suspend fun createMistakeExportGroup(record: MistakeExportGroupRecord) = database.mistakeExportRecordDao().createGroup(record)
+    override suspend fun readMistakeExportGroup(groupId: String) = database.mistakeExportRecordDao().readGroup(groupId)
+    override fun observeMistakeExportGroups(limit: Int) = database.mistakeExportRecordDao().observeGroups(limit)
+    override suspend fun confirmMistakeAnswerPreview(groupId: String, approval: com.tingyun.smartmistakebook.core.model.AnswerPreviewApproval) = database.mistakeExportRecordDao().confirmPreview(groupId, approval)
+    override suspend fun startGroupedMistakeExport(command: StartGroupedMistakeExportCommand) = database.mistakeExportRecordDao().startGrouped(command)
 
     override suspend fun completeMistakeExportRecord(
         command: CompleteMistakeExportRecordCommand,

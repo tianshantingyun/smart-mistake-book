@@ -107,6 +107,8 @@ internal fun TutorLobbyRoute(
     /** 6B-2：编辑态确认后的落点（装配处落盘草稿 + 入队后台重渲染）。 */
     onStartEditedExport: (MistakePaperDraft, MistakeExportFormat) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
+    onPrepareDetailedAnswers: ((MistakeExportFormat, MistakePdfLayout, List<String>) -> Unit)? = null,
+    onPrepareEditedDetailedAnswers: ((MistakePaperDraft, MistakeExportFormat) -> Unit)? = null,
 ) {
     // 这条交互面长在哪一栏（K1 的判别列）：会话行按它写，一张配置对象说了算——
     // ViewModel 建会话行时读它（下面的 factory），屏幕的配置也带它，两处不会漂。
@@ -427,6 +429,13 @@ internal fun TutorLobbyRoute(
     // 本地留痕，学生在其中改完勾完点「开始导出」——那时才真的入队后台导出。
     state.exportSheet?.let { sheet ->
         TutorExportSheet(
+            onDetailedAnswersChange = if (onPrepareDetailedAnswers != null) viewModel::onExportDetailedAnswersChange else null,
+            onPrepareDetailedAnswers = onPrepareDetailedAnswers?.let { prepare -> { format, layout, entryIds ->
+                viewModel.onExportSheetDismiss(); prepare(format, layout, entryIds)
+            } },
+            onPrepareEditedDetailedAnswers = onPrepareEditedDetailedAnswers?.let { prepare -> { draft ->
+                viewModel.onExportSheetDismiss(); prepare(draft, sheet.format)
+            } },
             state = sheet,
             catalogEntries = catalogEntries,
             onLayoutChange = viewModel::onExportLayoutChange,

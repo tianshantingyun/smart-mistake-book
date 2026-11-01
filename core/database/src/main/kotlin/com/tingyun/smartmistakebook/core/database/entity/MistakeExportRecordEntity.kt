@@ -3,6 +3,8 @@ package com.tingyun.smartmistakebook.core.database.entity
 import androidx.room3.ColumnInfo
 import androidx.room3.Entity
 import androidx.room3.PrimaryKey
+import androidx.room3.ForeignKey
+import androidx.room3.Index
 
 /**
  * 一次 A4 导出（单题 / 当前筛选）的持久记录（阶段 4A 批 4 · L7，schema 60→61）。
@@ -29,7 +31,8 @@ import androidx.room3.PrimaryKey
  * 记录表只承载"结果"。将来若要"重新导出"，应从触发点重新收集当时的筛选条件，而不是重放旧键
  * （旧键指向的版本可能已经不是学生看到的那一版）。
  */
-@Entity(tableName = "mistake_export_record")
+@Entity(tableName = "mistake_export_record", foreignKeys = [ForeignKey(entity = MistakeExportGroupEntity::class,
+    parentColumns = ["group_id"], childColumns = ["group_id"], onDelete = ForeignKey.RESTRICT)], indices = [Index("group_id")])
 internal data class MistakeExportRecordEntity(
     @PrimaryKey
     @ColumnInfo(name = "export_id")
@@ -50,4 +53,22 @@ internal data class MistakeExportRecordEntity(
     val createdAtEpochMillis: Long,
     @ColumnInfo(name = "finished_at_epoch_millis")
     val finishedAtEpochMillis: Long? = null,
+    @ColumnInfo(name = "group_id") val groupId: String? = null,
+    @ColumnInfo(name = "artifact_role", defaultValue = "'QUESTIONS'") val artifactRole: String = "QUESTIONS",
+)
+
+@Entity(tableName = "mistake_export_group", foreignKeys = [ForeignKey(entity = DetailedSolutionManifestEntity::class,
+    parentColumns = ["manifest_id"], childColumns = ["manifest_id"], onDelete = ForeignKey.RESTRICT)], indices = [Index("manifest_id")])
+internal data class MistakeExportGroupEntity(
+    @PrimaryKey @ColumnInfo(name = "group_id") val groupId: String,
+    @ColumnInfo(name = "manifest_id") val manifestId: String,
+    @ColumnInfo(name = "manifest_sha256") val manifestSha256: String,
+    @ColumnInfo(name = "format_token") val formatToken: String,
+    @ColumnInfo(name = "requested_answers") val requestedAnswers: Boolean,
+    @ColumnInfo(name = "questions_export_id") val questionsExportId: String?,
+    @ColumnInfo(name = "answers_export_id") val answersExportId: String?,
+    @ColumnInfo(name = "preview_sha256") val previewSha256: String?,
+    @ColumnInfo(name = "solutions_sha256") val solutionsSha256: String?,
+    @ColumnInfo(name = "state_version") val stateVersion: Long,
+    @ColumnInfo(name = "created_at_epoch_millis") val createdAtEpochMillis: Long,
 )

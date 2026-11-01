@@ -10,6 +10,8 @@ import com.tingyun.smartmistakebook.core.ui.claudeModalEntrance
 
 import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.background
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -77,6 +79,7 @@ internal data class TutorExportSheetState(
     val selectedEntryIds: Set<String>,
     /** 交付格式（6B-1）：默认 PDF = 既有入口与旧状态的行为不变。 */
     val format: MistakeExportFormat = MistakeExportFormat.PDF,
+    val includeDetailedAnswers: Boolean = false,
     /**
      * 6B-2：选题后进入编辑态的卷面（null = 仍在选题/版式表单）。
      *
@@ -321,10 +324,16 @@ internal fun TutorExportSheet(
     onEditWithModel: () -> Unit,
     /** 编辑态确认：拿已定稿草稿走后台重渲染（而不是按条目重新读一遍）。 */
     onConfirmEdited: (MistakePaperDraft) -> Unit,
+    onDetailedAnswersChange: ((Boolean) -> Unit)? = null,
+    onPrepareDetailedAnswers: ((MistakeExportFormat, MistakePdfLayout, List<String>) -> Unit)? = null,
+    onPrepareEditedDetailedAnswers: ((MistakePaperDraft) -> Unit)? = null,
 ) {
     // 编辑态与选题表格是同一张 sheet 的两步；编辑态里不再渲染勾选表单。
     state.paperEdit?.let { edit ->
         TutorExportEditSheet(
+            includeDetailedAnswers = state.includeDetailedAnswers,
+            onDetailedAnswersChange = onDetailedAnswersChange,
+            onPrepareDetailedAnswers = onPrepareEditedDetailedAnswers,
             edit = edit,
             format = state.format,
             onMove = onEditMove,
@@ -608,9 +617,10 @@ internal fun TutorExportSheet(
                             .fillMaxWidth()
                             .testTag("tutor_export_sheet_edit"),
                     )
+                    if (onDetailedAnswersChange != null && onPrepareDetailedAnswers != null) TutorDetailedAnswersChoice(state.includeDetailedAnswers, onDetailedAnswersChange)
                     OutlineActionChip(
-                        text = "不编辑，直接导出",
-                        onClick = { onConfirm(state.format, state.layout, selectedIds) },
+                        text = if (state.includeDetailedAnswers) "不编辑，准备答案并预览" else "不编辑，直接导出",
+                        onClick = { if (state.includeDetailedAnswers && onPrepareDetailedAnswers != null) onPrepareDetailedAnswers(state.format, state.layout, selectedIds) else onConfirm(state.format, state.layout, selectedIds) },
                         enabled = selectedIds.isNotEmpty(),
                         modifier = Modifier.testTag("tutor_export_sheet_confirm"),
                     )
@@ -642,6 +652,17 @@ internal fun TutorExportSheet(
             onDismiss = { pickerOpen = false },
             testTagPrefix = "tutor_export_sheet_picker",
         )
+    }
+}
+
+@Composable
+internal fun TutorDetailedAnswersChoice(checked: Boolean, onChange: (Boolean) -> Unit) {
+    Row(Modifier.fillMaxWidth().toggleable(checked, role = Role.Checkbox, onValueChange = onChange), verticalAlignment = Alignment.CenterVertically) {
+        Checkbox(checked, null)
+        Column(Modifier.weight(1f)) {
+            Text("另存一份详细答案", color = Ink, style = MaterialTheme.typography.bodyMedium)
+            Text("补全缺失解答，预览确认后分别导出。", color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+        }
     }
 }
 

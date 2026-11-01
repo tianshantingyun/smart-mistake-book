@@ -106,6 +106,8 @@ fun MistakeExportHubRoute(
     /** 6B-2：非 null 且来源非空时显示「编辑卷面」入口；回调原样交出来源 id。 */
     onEditPaper: ((List<String>) -> Unit)? = null,
     modifier: Modifier = Modifier,
+    groups: List<com.tingyun.smartmistakebook.core.domain.MistakeExportGroup> = emptyList(),
+    onOpenAnswerGroup: ((String) -> Unit)? = null,
 ) {
     val context = LocalContext.current
     val pdfExporter = remember(context) { MistakePdfExporter(context) }
@@ -198,7 +200,27 @@ fun MistakeExportHubRoute(
             )
             Spacer(Modifier.height(10.dp))
         }
-        if (records.isEmpty()) {
+        val pendingGroups = groups.distinctBy { it.manifestId }.filter { group ->
+            listOf(group.questionsExportId, group.answersExportId).any { id -> id == null || records.none { it.exportId == id && it.status == MistakeExportStatus.SUCCEEDED } }
+        }
+        if (onOpenAnswerGroup != null) pendingGroups.forEach { group ->
+            Surface(color = com.tingyun.smartmistakebook.core.ui.SmartColors.LearningSurface,
+                shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("题目与详细答案 · ${group.format.studentLabel}", style = MaterialTheme.typography.titleSmall, color = Ink)
+                    fun status(id: String?): String = when (records.firstOrNull { it.exportId == id }?.status) {
+                        MistakeExportStatus.SUCCEEDED -> "已导出"
+                        MistakeExportStatus.RUNNING -> "正在导出"
+                        MistakeExportStatus.FAILED -> "导出失败"
+                        null -> if (id == null) "待导出" else "文件记录已清理"
+                    }
+                    Text("题目：${status(group.questionsExportId)} · 详细答案：${status(group.answersExportId)}", style = MaterialTheme.typography.bodySmall, color = InkSecondary)
+                    com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton({ onOpenAnswerGroup(group.groupId) }) { Text("查看答案进度与预览") }
+                }
+            }
+            Spacer(Modifier.height(12.dp))
+        }
+        if (records.isEmpty() && pendingGroups.isEmpty()) {
             Text(
                 text = "暂无导出文件。可从错题详情或错题本列表导出，完成后在这里查看。",
                 modifier = Modifier.testTag("mistake_export_hub_empty"),
@@ -425,6 +447,8 @@ private fun ExportRecordRow(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
+            if (record.groupId != null) Text(if (record.artifactRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS) "详细答案文件" else "题目文件",
+                color = InkSecondary, style = MaterialTheme.typography.labelSmall)
             Spacer(Modifier.height(4.dp))
             Text(
                 text = "${formatExportTime(record.createdAtEpochMillis)} · ${record.statusLabel(format)}",

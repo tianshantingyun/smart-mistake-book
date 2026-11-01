@@ -8,6 +8,18 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 internal interface MistakeEditJobDao {
+    @Query("UPDATE mistake_edit_job SET status = :status, output_snapshot = :output, figures_snapshot = :figures, message = :message, state_version = state_version + 1 WHERE operation_id = :id AND state_version = :version AND committed_revision_id IS NULL")
+    suspend fun repairSnapshots(id: String, version: Long, status: String, output: String, figures: String, message: String): Int
+
+    @Query("""SELECT c.source_asset_id AS assetId, c.content_sha256 AS contentSha256
+        FROM figure_generation_attempt a JOIN figure_generation_operation o ON o.operation_id = a.operation_id
+        JOIN canonical_source_asset c ON c.source_asset_id = a.output_asset_id
+        WHERE o.operation_id = :operationId AND o.source_kind = 'PROBLEM_REVISION' AND o.source_id = :revisionId
+        AND o.basis_fingerprint = :basis AND o.purpose = :purpose AND o.policy_version = :policy AND a.status = 'SUCCEEDED'
+        ORDER BY a.attempt_ordinal DESC LIMIT 1""")
+    suspend fun recoverFigure(operationId: String, revisionId: String, basis: String, purpose: String, policy: String): RecoveredEditFigure?
+    @Query("UPDATE mistake_edit_job SET status = 'FAILED', output_snapshot = NULL, figures_snapshot = '[]', message = :message, state_version = state_version + 1 WHERE operation_id = :id AND state_version = :version AND committed_revision_id IS NULL")
+    suspend fun quarantine(id: String, version: Long, message: String): Int
     @Query("SELECT * FROM mistake_edit_job WHERE entry_id = :entryId AND basis_revision_id = :revisionId AND draft_sha256 = :sha AND committed_revision_id IS NULL ORDER BY created_at_epoch_millis DESC, operation_id DESC LIMIT 1")
     suspend fun latest(entryId: String, revisionId: String, sha: String): MistakeEditJobEntity?
     @Query("SELECT question_document_snapshot FROM problem_revision WHERE revision_id = :revisionId")
@@ -57,6 +69,8 @@ internal interface MistakeEditJobDao {
     @Query("UPDATE mistake_edit_job SET committed_revision_id = :revisionId, state_version = state_version + 1, updated_at_epoch_millis = :at WHERE operation_id = :operationId AND state_version = :version AND status = 'ADOPTED' AND committed_revision_id IS NULL")
     suspend fun consume(operationId: String, version: Long, revisionId: String, at: Long): Int
 }
+
+internal data class RecoveredEditFigure(val assetId: String, val contentSha256: String)
 
 internal fun PersistedMistakeEditJob.toEntity(): MistakeEditJobEntity = MistakeEditJobEntity(
     operationId, input.basis.entryId, input.basis.revisionId, input.basis.draftSha256,

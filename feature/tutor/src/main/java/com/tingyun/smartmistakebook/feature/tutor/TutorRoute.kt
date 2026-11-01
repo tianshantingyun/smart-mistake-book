@@ -116,6 +116,8 @@ fun TutorRoute(
     /** 6B-2：编辑态确认后的落点（装配处落盘草稿 + 入队后台重渲染）。 */
     onStartEditedExport: (MistakePaperDraft, MistakeExportFormat) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
+    onPrepareDetailedAnswers: ((MistakeExportFormat, MistakePdfLayout, List<String>) -> Unit)? = null,
+    onPrepareEditedDetailedAnswers: ((MistakePaperDraft, MistakeExportFormat) -> Unit)? = null,
 ) {
     TutorLobbyRoute(
         onCapture = onCapture,
@@ -139,6 +141,8 @@ fun TutorRoute(
         readExportPaperEdit = readExportPaperEdit,
         paperEditAssistant = paperEditAssistant,
         onStartEditedExport = onStartEditedExport,
+        onPrepareDetailedAnswers = onPrepareDetailedAnswers,
+        onPrepareEditedDetailedAnswers = onPrepareEditedDetailedAnswers,
         modifier = modifier,
     )
 }

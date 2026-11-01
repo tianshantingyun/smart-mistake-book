@@ -24,11 +24,11 @@ class PrepareDetailedSolutionsWorker(context: Context, params: WorkerParameters)
 
     companion object {
         const val MANIFEST_ID = "answer_manifest_id"
-        fun enqueue(context: Context, manifestId: String) {
+        fun enqueue(context: Context, manifestId: String, replace: Boolean = false) {
             val request = OneTimeWorkRequestBuilder<PrepareDetailedSolutionsWorker>()
                 .setInputData(Data.Builder().putString(MANIFEST_ID, manifestId).build())
                 .addTag("detailed-solutions").build()
-            WorkManager.getInstance(context.applicationContext).enqueueUniqueWork("detailed-solutions:$manifestId", ExistingWorkPolicy.KEEP, request)
+            WorkManager.getInstance(context.applicationContext).enqueueUniqueWork("detailed-solutions:$manifestId", if (replace) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.KEEP, request)
         }
     }
 }

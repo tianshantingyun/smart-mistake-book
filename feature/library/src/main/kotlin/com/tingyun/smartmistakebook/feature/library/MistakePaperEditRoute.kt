@@ -80,6 +80,7 @@ fun MistakePaperEditRoute(
     onBack: () -> Unit,
     onExport: (MistakePaperDraft, MistakeExportFormat) -> Unit,
     modifier: Modifier = Modifier,
+    onPrepareDetailedAnswers: ((MistakePaperDraft, MistakeExportFormat) -> Unit)? = null,
 ) {
     val latestLoadPaper by rememberUpdatedState(loadPaper)
     val latestOnExport by rememberUpdatedState(onExport)
@@ -258,6 +259,12 @@ fun MistakePaperEditRoute(
     if (formatSheetOpen && editedPaper != null) {
         // 原生格式入口（PRD-04）原样复用：默认 PDF、可选 Word、可取消；取消不入队。
         MistakeExportFormatSheet(
+            onPrepareDetailedAnswers = onPrepareDetailedAnswers?.let { prepare -> { format ->
+                when (val result = confirmNativePaperEdit(editedPaper)) {
+                    is NativePaperEditConfirm.Ready -> { formatSheetOpen = false; prepare(result.draft, format) }
+                    NativePaperEditConfirm.BlankText -> message = "有必填文字被清空，填上后才能导出。"
+                }
+            } },
             subtitle = "重新生成编辑后的卷面（${editedPaper.questions.size} 题）",
             onDismiss = { formatSheetOpen = false },
             onConfirm = { format ->

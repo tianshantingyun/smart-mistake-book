@@ -569,6 +569,11 @@ private suspend fun <T> auditWrite(block: suspend () -> T): T? =
  * 不读预算；数据库端口不可用时（测试替身/旧库）默认实现"做不到"，生成路径不受影响。
  */
 object FigureGenerationCoordinationFactory {
+    val unavailable: FigureGenerationCoordinator = object : FigureGenerationCoordinator {
+        override suspend fun generate(request: FigureGenerationRequest, proposal: FigureGenerationProposal) = FigureGenerationOutcome(
+            request.operationId, request.purpose, proposal.method, FigureGenerationStatus.UNAVAILABLE,
+            diagnostics = "当前没有可用的绘图能力，请检查模型设置")
+    }
     fun create(
         database: StudyDatabasePort,
         configurationStore: ModelConfigurationStore,

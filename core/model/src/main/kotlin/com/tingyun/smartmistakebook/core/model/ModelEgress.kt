@@ -593,7 +593,7 @@ object ModelEgressPolicy {
                 if (!provider.supports(request.input.kind) || !provider.supportsStructuredOutput ||
                     (request.input.requestsImageBytes && !provider.supportsImageInput)) {
                     throw ModelEgressAuthorizationException(ModelFailureCode.PROVIDER_CAPABILITY_MISSING,
-                        "当前模型尚未验证这项修改能力，请到设置重新测试")
+                        "当前模型尚未验证这项能力，请到设置重新测试")
                 }
                 if (!request.agentConsentGranted) {
                     throw ModelEgressAuthorizationException(ModelFailureCode.EGRESS_AUTHORIZATION_REQUIRED,

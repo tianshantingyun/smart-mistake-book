@@ -24,6 +24,11 @@ internal object OpenAiDetailedSolutionProtocol {
         GENERATE 必须明确 method、purpose、fidelity；没有真实能力不得伪造可用的图。
         共享生图规则：${input.figureGenerationPromptBody ?: "当前没有可执行生图能力，请使用文字和公式完成答案。"}
         题面：${json.encodeToString(QuestionDocument.serializer(), input.question.document)}
+        配图与题面块的对应：${buildJsonArray { input.question.figures.forEach { ref ->
+            val index = input.question.sourceImages.indexOfFirst { it.assetId == ref.assetId && it.sha256 == ref.contentSha256 }
+            require(index >= 0)
+            add(buildJsonObject { put("block", ref.blockId); put("image", "image-${index + 1}") })
+        } }}
         图片：共 ${input.question.sourceImages.size} 张，依宿主提供顺序理解，不能替换为远程链接。
     """.trimIndent()
 

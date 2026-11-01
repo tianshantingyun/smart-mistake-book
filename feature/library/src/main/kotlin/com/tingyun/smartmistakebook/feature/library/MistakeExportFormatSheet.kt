@@ -6,6 +6,10 @@ import com.tingyun.smartmistakebook.core.ui.claudeModalEntrance
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.Checkbox
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
@@ -69,16 +73,18 @@ fun MistakeExportFormatSheet(
     onConfirm: (MistakeExportFormat) -> Unit,
     subtitle: String? = null,
     modifier: Modifier = Modifier,
+    onPrepareDetailedAnswers: ((MistakeExportFormat) -> Unit)? = null,
 ) {
     var selectedToken by rememberSaveable { mutableStateOf(MistakeExportFormat.PDF.token) }
     val selected = mistakeExportFormatSelection(selectedToken)
+    var detailedAnswers by rememberSaveable { mutableStateOf(false) }
     com.tingyun.smartmistakebook.core.ui.WorkspaceSheet(
         title = "选择导出格式", onDismiss = onDismiss, subtitle = subtitle,
         modifier = modifier.testTag("mistake_export_format_sheet"),
         titleModifier = Modifier.testTag("mistake_export_format_title"),
         subtitleModifier = Modifier.testTag("mistake_export_format_subtitle"),
         actions = {
-            PrimaryActionButton("开始导出", onClick = { onConfirm(selected) },
+            PrimaryActionButton(if (detailedAnswers) "准备答案并预览" else "开始导出", onClick = { if (detailedAnswers && onPrepareDetailedAnswers != null) onPrepareDetailedAnswers(selected) else onConfirm(selected) },
                 modifier = Modifier.fillMaxWidth().testTag("mistake_export_format_confirm"))
             com.tingyun.smartmistakebook.core.ui.ClaudeTextButton(onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth().testTag("mistake_export_format_cancel")) { Text("取消") }
@@ -100,7 +106,14 @@ fun MistakeExportFormatSheet(
             Text(mistakeExportFormatDocxNotice, Modifier.testTag("mistake_export_format_docx_notice"),
                 color = InkSecondary, style = MaterialTheme.typography.bodySmall)
         }
-        Text("导出内容默认不含答案区；这里只选择文件格式，不改动版式。",
+        if (onPrepareDetailedAnswers != null) Row(Modifier.fillMaxWidth().toggleable(detailedAnswers, role = Role.Checkbox, onValueChange = { detailedAnswers = it }), verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(detailedAnswers, null)
+            Column {
+                Text("另存一份详细答案", style = MaterialTheme.typography.bodyMedium, color = Ink)
+                Text("复用完整解答，补全缺失部分，预览后导出。", style = MaterialTheme.typography.bodySmall, color = InkSecondary)
+            }
+        }
+        Text(if (onPrepareDetailedAnswers == null) "导出内容默认不含答案区；这里只选择文件格式，不改动版式。" else "题目与答案分别生成文件，默认只导出题目。",
             Modifier.testTag("mistake_export_format_answer_note"),
             color = InkSecondary, style = MaterialTheme.typography.bodySmall)
     }

@@ -52,7 +52,7 @@ data class PersistedMistakeEditJob(
             require(status in setOf(MistakeEditJobStatus.FAILED, MistakeEditJobStatus.CANCELLED, MistakeEditJobStatus.UNAVAILABLE, MistakeEditJobStatus.NEED_SOURCE))
             require(next.status == MistakeEditJobStatus.QUEUED)
             if (output?.suggestion?.decision == MistakeEditDecision.SUGGEST_CHANGES) {
-                require(next.request == request && next.output == output && next.figures == figures)
+                require(next.request == request && next.output == output && next.figures.all { it in figures })
             } else require(next.output == null && next.figures.isEmpty())
             return
         }

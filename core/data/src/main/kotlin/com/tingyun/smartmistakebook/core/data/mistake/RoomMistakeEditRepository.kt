@@ -103,11 +103,19 @@ class RoomMistakeEditRepository internal constructor(
         val job = requireNotNull(database.readMistakeEditJob(operationId))
         require(database.isMistakeEditBasisCurrent(job.input.basis)) { "题目版本已更新" }
         val reuseOutput = job.output?.suggestion?.decision == MistakeEditDecision.SUGGEST_CHANGES
-        if (reuseOutput) verifyFiles(job)
+        job.input.sourceImages.forEach { grant ->
+            val asset = requireNotNull(database.readCanonicalSourceAsset(grant.assetId))
+            require(asset.contentSha256 == grant.sha256 && asset.byteSize == grant.byteSize && asset.width == grant.width && asset.height == grant.height)
+            assets.verifiedBytes(asset)
+        }
+        val intactFigures = job.figures.filter { ref ->
+            try { val asset = requireNotNull(database.readCanonicalSourceAsset(ref.assetId)); require(asset.contentSha256 == ref.contentSha256); assets.verifiedBytes(asset); true }
+            catch (cancelled: CancellationException) { throw cancelled } catch (_: Exception) { false }
+        }
         val generation = job.generation + 1
         val next = job.copy(generation = generation, stateVersion = job.stateVersion + 1, status = MistakeEditJobStatus.QUEUED,
             request = if (reuseOutput) job.request else ModelTaskRequest(requestId = "$operationId.$generation", input = job.input.copy(figureGenerationPromptBody = promptBody()), occurredAtEpochMillis = clock(), agentConsentGranted = agentConsentGranted),
-            output = if (reuseOutput) job.output else null, figures = if (reuseOutput) job.figures else emptyList(),
+            output = if (reuseOutput) job.output else null, figures = if (reuseOutput) intactFigures else emptyList(),
             message = "等待修改", updatedAtEpochMillis = maxOf(clock(), job.updatedAtEpochMillis))
         if (database.transitionMistakeEditJob(next)) start(operationId, recovery = false)
     }
@@ -234,10 +242,10 @@ class RoomMistakeEditRepository internal constructor(
     companion object {
         private val PENDING = setOf(MistakeEditJobStatus.QUEUED, MistakeEditJobStatus.REQUESTING, MistakeEditJobStatus.GENERATING_FIGURES)
 
-        fun create(context: Context, database: StudyDatabasePort, tasks: ModelTaskRepository, coordinator: FigureGenerationCoordinator,
-            configurationStore: ModelConfigurationStore, networkRequestsAllowed: Boolean, applicationScope: CoroutineScope): RoomMistakeEditRepository {
+        fun create(context: Context, database: StudyDatabasePort, tasks: ModelTaskRepository, coordinator: FigureGenerationCoordinator?,
+            configurationStore: ModelConfigurationStore?, networkRequestsAllowed: Boolean, applicationScope: CoroutineScope): RoomMistakeEditRepository {
             val vault = AndroidCanonicalAssetVault(context.applicationContext)
-            return RoomMistakeEditRepository(database, tasks, coordinator, object : MistakeEditAssetAccess {
+            return RoomMistakeEditRepository(database, tasks, coordinator ?: com.tingyun.smartmistakebook.core.data.visual.FigureGenerationCoordinationFactory.unavailable, object : MistakeEditAssetAccess {
                 override fun verifiedBytes(asset: CanonicalSourceAssetRecord) = vault.resolve(asset).readBytes()
                 override fun localUri(asset: CanonicalSourceAssetRecord) = vault.resolve(asset).toURI().toString()
                 override suspend fun persist(artifact: FigureArtifact.ImageAsset, attemptId: String, at: Long): CanonicalSourceAssetRecord {
@@ -247,7 +255,7 @@ class RoomMistakeEditRepository internal constructor(
                         GeneratedFigureProvenance(artifact.modelId ?: "unknown", id, artifact.purpose.name), id)
                 }
             }, figureCapabilities = {
-                openGuardedFigureImageBackend(configurationStore, networkRequestsAllowed)?.use { FigureGenerationCapabilities.IMAGE_MODEL_ONLY }
+                configurationStore?.let { openGuardedFigureImageBackend(it, networkRequestsAllowed) }?.use { FigureGenerationCapabilities.IMAGE_MODEL_ONLY }
                     ?: FigureGenerationCapabilities.NONE
             }, scope = applicationScope)
         }

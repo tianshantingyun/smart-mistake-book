@@ -6,6 +6,14 @@ import kotlinx.serialization.json.Json
 
 const val DETAILED_SOLUTION_PROTOCOL_VERSION = "detailed-solution-v1"
 
+data class AnswerPreviewApproval(val manifestSha256: String, val solutionsSha256: String, val format: MistakeExportFormat) {
+    init { require(listOf(manifestSha256, solutionsSha256).all { it.matches(Regex("[a-f0-9]{64}")) }) }
+    fun fingerprint(): String = figureSha256Hex(("answer-preview-v1\n$manifestSha256\n$solutionsSha256\n${format.token}").toByteArray(Charsets.UTF_8))
+}
+
+fun approvalMatches(approval: AnswerPreviewApproval?, manifestSha256: String, solutionsSha256: String, format: MistakeExportFormat): Boolean =
+    approval == AnswerPreviewApproval(manifestSha256, solutionsSha256, format)
+
 @Serializable
 data class SolutionBasis(val revisionId: String, val questionSha256: String) {
     init { require(revisionId.isNotBlank() && revisionId.length <= 256); require(questionSha256.matches(Regex("[a-f0-9]{64}"))) }
