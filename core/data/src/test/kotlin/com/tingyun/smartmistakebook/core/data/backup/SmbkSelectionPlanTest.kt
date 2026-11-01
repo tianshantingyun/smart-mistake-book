@@ -21,10 +21,10 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 /**
- * **6C-2 schema 71 机器清单的同源契约**。
+ * **6C-2 schema 72 机器清单的同源契约**。
  *
  * 三份事实互相钉住：
- * 1. `71.json`（Room 导出物）：90 表 / 2 视图 / 100 条 FK 边；
+ * 1. `72.json`（Room 导出物）：91 表 / 2 视图 / 102 条 FK 边；
  * 2. 设计 §9.11 的 `<!-- 6c2-plan-v3:begin -->` 机器块（唯一数据源）；
  * 3. [SmbkSelectionPlan]（实施读的那份数据）。
  *
@@ -38,19 +38,19 @@ import java.nio.file.Paths
  */
 class SmbkSelectionPlanTest {
 
-    // ---- 1. schema 71 的事实 ----
+    // ---- 1. schema 72 的事实 ----
 
     @Test
-    fun `schema 71 exports 90 tables 2 views and 100 foreign keys matching the plan identity`() {
-        assertEquals("schema 版本", 71, database.int("version"))
+    fun `schema 72 exports 91 tables 2 views and 102 foreign keys matching the plan identity`() {
+        assertEquals("schema 版本", 72, database.int("version"))
         assertEquals(SmbkSelectionPlan.SCHEMA_VERSION, database.int("version"))
         assertEquals(SmbkSelectionPlan.IDENTITY_HASH, database.string("identityHash"))
-        assertEquals("Room entity 数", 90, entities.size)
+        assertEquals("Room entity 数", 91, entities.size)
         assertEquals("视图数", 2, schemaViews.size)
-        assertEquals("FK 边数", 100, fkEdges.size)
+        assertEquals("FK 边数", 102, fkEdges.size)
 
         assertEquals("视图不参与裁剪但清单必须列出", schemaViews, SmbkSelectionPlan.views)
-        assertEquals("90 表 = 类别 74 + ALWAYS 7 + DERIVED 2 + SPLIT 7", 90, SmbkSelectionPlan.allTables.size)
+        assertEquals("91 表 = 类别 74 + ALWAYS 7 + DERIVED 3 + SPLIT 7", 91, SmbkSelectionPlan.allTables.size)
     }
 
     // ---- 2. 每表恰好归类一次 ----
@@ -61,11 +61,11 @@ class SmbkSelectionPlanTest {
         val classified = userTables + SmbkSelectionPlan.alwaysTables +
             SmbkSelectionPlan.derivedTables + SmbkSelectionPlan.splitTables
 
-        assertEquals("归类总数", 90, classified.size)
+        assertEquals("归类总数", 91, classified.size)
         assertEquals("不允许一张表落在两个桶里", classified.size, classified.toSet().size)
         assertEquals("归类集合必须与 71.json 的表集合相等", schemaTables.toSet(), classified.toSet())
-        assertEquals("rowCounts 键集合 = 90 表", schemaTables.toSet(), SmbkSelectionPlan.rowCountKeys)
-        assertEquals(90, SmbkSelectionPlan.rowCountKeys.size)
+        assertEquals("rowCounts 键集合 = 91 表", schemaTables.toSet(), SmbkSelectionPlan.rowCountKeys)
+        assertEquals(91, SmbkSelectionPlan.rowCountKeys.size)
 
         assertEquals(
             mapOf(
@@ -77,7 +77,7 @@ class SmbkSelectionPlanTest {
             SmbkSelectionPlan.categoryTables.mapValues { it.value.size },
         )
         assertEquals(7, SmbkSelectionPlan.alwaysTables.size)
-        assertEquals(2, SmbkSelectionPlan.derivedTables.size)
+        assertEquals(3, SmbkSelectionPlan.derivedTables.size)
         assertEquals(7, SmbkSelectionPlan.splitTables.size)
 
         schemaTables.forEach { table ->
@@ -98,9 +98,9 @@ class SmbkSelectionPlanTest {
     // ---- 3. 裁剪顺序 ----
 
     @Test
-    fun `trim order covers exactly 82 tables and is a child before parent topological order`() {
+    fun `trim order covers exactly 83 tables and is a child before parent topological order`() {
         val order = SmbkSelectionPlan.trimOrder
-        assertEquals("82 = 90 − 7 ALWAYS − 1 FTS", 82, order.size)
+        assertEquals("83 = 91 − 7 ALWAYS − 1 FTS", 83, order.size)
         assertEquals("裁剪顺序不允许重复", order.size, order.toSet().size)
 
         val expectedTables = SmbkSelectionPlan.allTables.toSet() -
@@ -170,7 +170,7 @@ class SmbkSelectionPlanTest {
     // ---- 5. 软引用 ----
 
     @Test
-    fun `twenty one soft references resolve against schema 71 and never shadow a hard foreign key`() {
+    fun `twenty one soft references resolve against schema 72 and never shadow a hard foreign key`() {
         val refs = SmbkSelectionPlan.softReferences
         assertEquals("v3 软引用 21 条", 21, refs.size)
         assertEquals("同一 (table,column) 不能列两次", 21, refs.map { it.table to it.column }.toSet().size)
@@ -381,7 +381,7 @@ class SmbkSelectionPlanTest {
     @Test
     fun `empty full selection digest matches the published golden`() {
         val rowCounts = SmbkSelectionPlan.rowCountKeys.associateWith { 0L }
-        assertEquals("rowCounts 必须覆盖 90 表", 90, rowCounts.size)
+        assertEquals("rowCounts 必须覆盖 91 表", 91, rowCounts.size)
 
         val digest = SmbkSelectionPlan.closureDigest(
             categories = SmbkSelectionCategory.entries.toSet(),
@@ -404,7 +404,7 @@ class SmbkSelectionPlanTest {
     }
 
     @Test
-    fun `digest refuses row counts that do not cover all 90 tables`() {
+    fun `digest refuses row counts that do not cover all 91 tables`() {
         val complete = SmbkSelectionPlan.rowCountKeys.associateWith { 0L }
 
         val missing = assertThrows(IllegalArgumentException::class.java) {
@@ -562,7 +562,7 @@ class SmbkSelectionPlanTest {
     }
 
     private val schemaDatabase: JsonObject by lazy {
-        Json.parseToJsonElement(Files.readString(repoFile(SCHEMA_71_PATH)))
+        Json.parseToJsonElement(Files.readString(repoFile(SCHEMA_72_PATH)))
             .jsonObject.getValue("database").jsonObject
     }
 
@@ -607,13 +607,13 @@ class SmbkSelectionPlanTest {
     private companion object {
         const val GRADLE_ROOT_MARKER = "settings.gradle.kts"
         const val PARENT_SEGMENT = "." + "."
-        const val SCHEMA_71_PATH =
-            "core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/71.json"
+        const val SCHEMA_72_PATH =
+            "core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/72.json"
         const val DESIGN_PATH = "docs/research/2026-10-17-6c2-content-selection-design.md"
 
         /** §9.7 空库、全选、assetPolicy=INCLUDED 的 golden。 */
         const val GOLDEN_EMPTY_FULL_DIGEST =
-            "451c806c06b7492b913b457395ac2b8bcab939fbe06bf81601c57246cfe9e470"
+            "ee9a1b4d3f0ea7ed44eeec773f459df9d55c5df3abda32a69c62f7fdfac6b006"
 
         val MACHINE_BLOCK = Regex(
             "<!-- 6c2-plan-v3:begin -->\\s*```json\\s*(\\{.*?})\\s*```\\s*<!-- 6c2-plan-v3:end -->",

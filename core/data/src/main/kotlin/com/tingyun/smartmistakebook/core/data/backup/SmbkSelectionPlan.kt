@@ -40,21 +40,21 @@ import java.security.MessageDigest
  */
 object SmbkSelectionPlan {
 
-    /** 机器块 `schemaVersion`，同时是 `71.json` 的 `database.version`。 */
-    const val SCHEMA_VERSION: Int = 71
+    /** 机器块 `schemaVersion`，同时是 `72.json` 的 `database.version`（2026-11-02 批次 39 收口同步：他线 knowledge_search_material_feature 迁移 71→72）。 */
+    const val SCHEMA_VERSION: Int = 72
 
     /**
-     * 机器块 `identityHash`，必须与 `71.json` 的 `database.identityHash` 相等。
-     * 只能取 KSP 构建产物（`StudyDatabase_Impl.kt` 的 `RoomOpenDelegate` 与 `71.json` 同值），
+     * 机器块 `identityHash`，必须与 `72.json` 的 `database.identityHash` 相等。
+     * 只能取 KSP 构建产物（`StudyDatabase_Impl.kt` 的 `RoomOpenDelegate` 与 `72.json` 同值），
      * 不得估算或手写。
      */
-    const val IDENTITY_HASH: String = "714c0ecb85ee5edf74f0013740148138"
+    const val IDENTITY_HASH: String = "aa5e8e8e6536e0c1f3adcda6867814cb"
 
     /** 规则表版本；只在规则表变化时 bump，不是 schemaVersion 的别名。 */
-    const val CLOSURE_VERSION: Int = 3
+    const val CLOSURE_VERSION: Int = 4
 
     /** digest 前缀，与 closureVersion=3 绑定。 */
-    const val CLOSURE_DIGEST_PREFIX: String = "smbk-selection-v3"
+    const val CLOSURE_DIGEST_PREFIX: String = "smbk-selection-v4"
 
     /** 四项用户类别全选。 */
     const val FULL_MASK: Int = 15
@@ -171,9 +171,10 @@ object SmbkSelectionPlan {
         "content_install_state",
     )
 
-    /** 2 张派生索引表：恒裁，恢复完成后按科重建（本批裁定 ③）。 */
+    /** 3 张派生索引表：恒裁，恢复完成后按科重建（本批裁定 ③；schema 72 增 knowledge_search_material_feature）。 */
     val derivedTables: List<String> = listOf(
         "knowledge_search_feature",
+        "knowledge_search_material_feature",
         "knowledge_search_index_state",
     )
 
@@ -242,6 +243,7 @@ object SmbkSelectionPlan {
         "learner_chat_evidence",
         "knowledge_search_index_state",
         "knowledge_search_feature",
+        "knowledge_search_material_feature",
         "knowledge_research_review_source",
         "knowledge_research_review_bundle",
         "knowledge_grounding_resolution",
@@ -543,20 +545,20 @@ object SmbkSelectionPlan {
 
     init {
         require(allTables.size == allTables.toSet().size) { "表被重复归类：$allTables" }
-        require(allTables.size == 90) { "schema 71 应有 90 张表，实际 ${allTables.size}" }
-        require(views.size == 2) { "schema 71 应有 2 个视图，实际 ${views.size}" }
+        require(allTables.size == 91) { "schema 72 应有 91 张表，实际 ${allTables.size}" }
+        require(views.size == 2) { "schema 72 应有 2 个视图，实际 ${views.size}" }
         require(categoryTables[SmbkSelectionCategory.ISSUE_BOOK]?.size == 31) { "ISSUE_BOOK 应为 31 张表" }
         require(categoryTables[SmbkSelectionCategory.MASTERY]?.size == 35) { "MASTERY 应为 35 张表" }
         require(categoryTables[SmbkSelectionCategory.SESSIONS]?.size == 7) { "SESSIONS 应为 7 张表" }
         require(categoryTables[SmbkSelectionCategory.IMAGES]?.size == 1) { "IMAGES 应为 1 张表" }
         require(alwaysTables.size == 7) { "ALWAYS 应为 7 张表" }
-        require(derivedTables.size == 2) { "DERIVED 应为 2 张表" }
+        require(derivedTables.size == 3) { "DERIVED 应为 3 张表" }
         require(splitTables.size == 7) { "SPLIT 应为 7 张表" }
-        require(trimOrder.size == 82) { "裁剪顺序应为 82 项，实际 ${trimOrder.size}" }
+        require(trimOrder.size == 83) { "裁剪顺序应为 83 项，实际 ${trimOrder.size}" }
         require(trimOrder.size == trimOrder.toSet().size) { "裁剪顺序有重复项" }
         require(
             trimOrder.toSet() == allTables.toSet() - alwaysTables.toSet() - rebuildTables.toSet(),
-        ) { "裁剪顺序必须恰好覆盖 90 表 − ALWAYS − FTS" }
+        ) { "裁剪顺序必须恰好覆盖 91 表 − ALWAYS − FTS" }
         require(derivedTables.all { it in trimOrder }) { "派生表按本批裁定必须恒裁" }
         require(expectedClosure.size == 5) { "类别闭包应为 5 条边" }
         require(softReferences.size == 21) { "软引用应为 21 条" }

@@ -716,6 +716,7 @@ digest = SHA-256(  "smbk-selection-v1\n"
     "mistake_export_record", "llm_teaching_advisory", "library_search_outbox",
     "library_search_content", "learning_sequence", "learner_problem_memory_state",
     "learner_chat_evidence", "knowledge_search_index_state", "knowledge_search_feature",
+    "knowledge_search_material_feature",
     "knowledge_research_review_source", "knowledge_research_review_bundle",
     "knowledge_grounding_resolution", "knowledge_grounding_request",
     "independent_correct_observation", "learner_knowledge_mastery_state",
@@ -1664,10 +1665,10 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
 <!-- 6c2-plan-v3:begin -->
 ```json
 {
-  "closureVersion": 3,
-  "schemaVersion": 71,
-  "identityHash": "714c0ecb85ee5edf74f0013740148138",
-  "note": "v3（schema 71）：备份清单与 schema 70 相同（90 表/2 视图/82 裁剪项/21 软引用/SPLIT 7），71 只把 renderer_version 与 font_manifest_version 并入 tutor_visual_snapshot 唯一键；identityHash 取 KSP 生成值。闭包规则见 §9.3，行级规则见 §9.5。",
+  "closureVersion": 4,
+  "schemaVersion": 72,
+  "identityHash": "aa5e8e8e6536e0c1f3adcda6867814cb",
+  "note": "v4（schema 72）：在 v3（71）基础上新增派生索引表 knowledge_search_material_feature（他线 71→72 knowledge 迁移），清单为 91 表/2 视图/83 裁剪项/21 软引用/SPLIT 7、FK 102 条；派生表恒裁并恢复后按科重建。identityHash 取 KSP 生成值（72.json 与 StudyDatabase_Impl 同值）。闭包规则见 §9.3，行级规则见 §9.5。",
   "categories": {
     "ISSUE_BOOK": {
       "bit": 1,
@@ -1779,6 +1780,7 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
   ],
   "derivedTables": [
     "knowledge_search_feature",
+    "knowledge_search_material_feature",
     "knowledge_search_index_state"
   ],
   "splitTables": [
@@ -2195,6 +2197,7 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "learner_chat_evidence",
     "knowledge_search_index_state",
     "knowledge_search_feature",
+    "knowledge_search_material_feature",
     "knowledge_research_review_source",
     "knowledge_research_review_bundle",
     "knowledge_grounding_resolution",
