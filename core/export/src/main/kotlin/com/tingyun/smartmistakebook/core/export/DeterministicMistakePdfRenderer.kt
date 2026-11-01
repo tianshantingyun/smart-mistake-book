@@ -41,7 +41,7 @@ internal object DeterministicMistakePdfRenderer {
             }
             input.blocks
                 .filterIsInstance<MistakePdfBlock.Image>()
-                .filterNot { block -> block.role == VisualRole.TUTOR_EXPLANATION.name }
+                .filterNot { block -> input.artifactRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.QUESTIONS && block.role == VisualRole.TUTOR_EXPLANATION.name }
                 .forEach { block -> add(block.localUri) }
         }.distinct().associateWith { uri ->
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }

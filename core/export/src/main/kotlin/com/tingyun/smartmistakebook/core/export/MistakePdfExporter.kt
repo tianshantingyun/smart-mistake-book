@@ -108,6 +108,10 @@ data class PreparedMistakePdfToken(
 
 /** Creates one immutable prepared artifact under cache/mistake_pdf_exports. */
 class MistakePdfExporter(context: Context) {
+    fun prepareDetailedAnswers(input: DetailedAnswerExportInput): PreparedMistakePdf {
+        require(input.format == com.tingyun.smartmistakebook.core.model.MistakeExportFormat.PDF)
+        return prepare(input.toNativeInput())
+    }
     private val exportDirectory = File(context.applicationContext.cacheDir, EXPORT_DIRECTORY)
     private val store = PreparedPdfStore(exportDirectory)
 

@@ -57,6 +57,10 @@ data class PreparedMistakeDocx internal constructor(
  * 锁与清理口径复用 core:export 既有实现（[ExportRootLock] / [MistakePdfExportLimits]）。
  */
 class MistakeDocxExporter(context: Context) {
+    fun prepareDetailedAnswers(input: DetailedAnswerExportInput): PreparedMistakeDocx {
+        require(input.format == com.tingyun.smartmistakebook.core.model.MistakeExportFormat.DOCX)
+        return prepare(input.toNativeInput())
+    }
     private val exportDirectory = File(context.applicationContext.cacheDir, EXPORT_DIRECTORY)
     private val store = DocxArtifactStore(exportDirectory)
 

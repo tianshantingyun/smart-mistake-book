@@ -311,7 +311,7 @@ Invoke-SmbGradle -TaskArguments @(':feature:library:testDebugUnitTest', ':core:u
 **修改：** `core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/ModelTasks.kt`、`core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/ModelEgress.kt`、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiModelTaskAdapters.kt`、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGateway.kt`、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/ModelCapabilityTester.kt`、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/RoomModelTaskRepository.kt`、`core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/ModelConfigurationStore.kt`、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/settings/DataStoreModelConfigurationStore.kt`；新增任务种类 `MISTAKE_SOLUTION`，不借用带学习证据写入的 `TUTOR_EVALUATE`。
 
 - [ ] 失败用例：旧 revision、修改后的条件、缺最终答案、缺步骤、任意远程图 URI、超预算文档拒绝；相同题面完整文档可复用；来源声明/正确性声明不能由模型自行升级；旧 JSON golden 不变。
-- [ ] 定义并严格解析以下文档。`steps` 是现有 `QuestionDocument`，仅允许可展示的解题内容，经结构化 sanitizer；`StoredFigureReference` 复用 T4 的资产身份。来源、basis 与核对状态由宿主依据请求和已保存事实填充，wire 输出不允许自行指定这些宿主字段。
+- [x] 定义并严格解析以下文档。`steps` 是现有 `QuestionDocument`，仅允许可展示的解题内容，经结构化 sanitizer；`StoredFigureReference` 复用 T4 的资产身份。来源、basis 与核对状态由宿主依据请求和已保存事实填充，wire 输出不允许自行指定这些宿主字段。
 
 ```kotlin
 data class SolutionBasis(val revisionId: String, val questionSha256: String)
@@ -339,8 +339,8 @@ fun canReuseSolution(document: DetailedSolutionDocument, target: SolutionBasis):
 }
 ```
 
-- [ ] 生成提示词请求面向用户的步骤、最终答案、必要公式和配图 proposal，不索取内部隐式思维链。不产生学习掌握证据。配置核对能力可返回独立核对事实；无事实时保留 `UNVERIFIED`，预览勾选不能改它。
-- [ ] 新任务覆盖序列化、Provider 能力、停止、恢复、预算和外发授权；完整输出才准备答案配图，图仍走统一协调器。截断/格式错误不形成可导出成功文档。
+- [x] 生成提示词请求面向用户的步骤、最终答案、必要公式和配图 proposal，不索取内部隐式思维链。不产生学习掌握证据。配置核对能力可返回独立核对事实；无事实时保留 `UNVERIFIED`，预览勾选不能改它。
+- [x] 新任务覆盖序列化、Provider 能力、停止、恢复、预算和外发授权；完整输出才准备答案配图，图仍走统一协调器。截断/格式错误不形成可导出成功文档。
 - [ ] 测试通过后提交 `feat(model): 增加面向导出的结构化详细解答`。
 
 ```powershell
@@ -363,7 +363,7 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 **修改：** T7 新建的 `core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/DetailedSolution.kt`（冻结 manifest DTO，仅引用 core:model 类型）、`core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePaperDraftStore.kt`、`core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt`；`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/StudyDatabase.kt`、`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/StudyDatabasePort.kt`、`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/RoomStudyDatabase.kt`；备份清单/恢复验证与 `app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookApplication.kt`。
 
 - [ ] 编写持久失败用例：缺答案仅补缺项；已有有效项零模型请求；后台重开不重复付费；修改条件失效而只重排仍可复用逐题解答；预览所见与稍后 worker 读取一致；历史版本不偷读当前答案。
-- [ ] 按点击「准备答案并预览」时的状态保存不可变卷面，并保留每个导出题号到精确 revision 和最终导出内容的映射。`sourceInputSha256` 不能替代改写后 `inputSha256`；为每题计算最终题干、条件、选项与图事实的 `questionSha256`，不把备注、页边距和题序混入逐题语义身份。
+- [x] 按点击「准备答案并预览」时的状态保存不可变卷面，并保留每个导出题号到精确 revision 和最终导出内容的映射。`sourceInputSha256` 不能替代改写后 `inputSha256`；为每题计算最终题干、条件、选项与图事实的 `questionSha256`，不把备注、页边距和题序混入逐题语义身份。
 
 ```kotlin
 data class FrozenExportQuestion(
@@ -379,9 +379,9 @@ data class FrozenAnswerManifest(
 // 实现以 canonical 编码进行 SHA 校验，不用字符串拼接 title 当身份。
 ```
 
-- [ ] 迁移 70→71 在已列出的 entity/DAO/port 文件中建立 `detailed_solution_manifest` 与 `detailed_solution`。前表保存完整冻结 manifest JSON（含最终题面/题序/版式/资产身份）、摘要、创建时间与准备状态；不只存短期缓存路径。后表按 `revisionId + questionSha256 + 解答协议版本` 唯一。记录模型 request id、请求/文档 JSON、内容摘要、来源、核对事实、状态和时间。状态为 `QUEUED/RUNNING/READY/CANCELLED/FAILED/STALE`；文档只有完整且摘要/图资产验证通过才进入 READY。
-- [ ] `PrepareDetailedSolutionsWorker` 的 WorkManager Data 只放 manifest 标识，不塞题面、图片或答案全文；从数据库读取并校验冻结 manifest，先复用，后补缺。活动 manifest 和被引用资产不能被普通缓存 TTL 清理；旧 paper draft 文件只是可重建缓存。增加“删除草稿缓存后进程重开仍能准备/交付相同卷面”的设备用例，备份/还原保留完整 manifest 内容。所有模型调用经过已有仓储与预算；手动停止立即持久化，重试不重新生成已完成项。源库当前版本向前推进时，已冻结卷面仍是明确的第 N 版，预览显示版次；卷面草稿自身被改写则使对应 manifest 和预览确认失效，不自动换成新版本。
-- [ ] 准备状态逐题可见。任一题仍缺完整答案时，不能把不完整答案卷标成完整成果；题目文件仍可独立保存，答案可单独重试。重排/删除只重建整卷和预览身份，不重新付费生成未变题面的解答。
+- [x] 迁移 70→71 在已列出的 entity/DAO/port 文件中建立 `detailed_solution_manifest` 与 `detailed_solution`。前表保存完整冻结 manifest JSON（含最终题面/题序/版式/资产身份）、摘要、创建时间与准备状态；不只存短期缓存路径。后表按 `revisionId + questionSha256 + 解答协议版本` 唯一。记录模型 request id、请求/文档 JSON、内容摘要、来源、核对事实、状态和时间。状态为 `QUEUED/RUNNING/READY/CANCELLED/FAILED/STALE`；文档只有完整且摘要/图资产验证通过才进入 READY。
+- [x] `PrepareDetailedSolutionsWorker` 的 WorkManager Data 只放 manifest 标识，不塞题面、图片或答案全文；从数据库读取并校验冻结 manifest，先复用，后补缺。活动 manifest 和被引用资产不能被普通缓存 TTL 清理；旧 paper draft 文件只是可重建缓存。增加“删除草稿缓存后进程重开仍能准备/交付相同卷面”的设备用例，备份/还原保留完整 manifest 内容。所有模型调用经过已有仓储与预算；手动停止立即持久化，重试不重新生成已完成项。源库当前版本向前推进时，已冻结卷面仍是明确的第 N 版，预览显示版次；卷面草稿自身被改写则使对应 manifest 和预览确认失效，不自动换成新版本。
+- [x] 准备状态逐题可见。任一题仍缺完整答案时，不能把不完整答案卷标成完整成果；题目文件仍可独立保存，答案可单独重试。重排/删除只重建整卷和预览身份，不重新付费生成未变题面的解答。
 - [ ] 核对备份新表、还原完整性、资产引用及进程重启；Room 生成 `core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/71.json`（生成路径纳入本批许可）后提交 `feat(export): 持久准备和复用精确题面的详细答案`。
 
 ```powershell
@@ -399,7 +399,7 @@ Invoke-SmbGradle -TaskArguments @(':core:data:testDebugUnitTest', ':core:databas
 **修改：** `core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/MistakeExportFormat.kt`（共享产物角色）、`core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfEligibility.kt`、`core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPagePlanner.kt`、`core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DeterministicMistakePdfRenderer.kt`、`core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExporter.kt`、`core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakeDocxExporter.kt`、`core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExportCopy.kt`。
 
 - [ ] 先写失败用例：三步文字/长公式/多页答案实际存在于文件；答案文件不重复题面全文；题号与 manifest 一致；图角色正确；正文/格式/版式任一变更使答案缓存键变化；原题目输出 golden 不变。
-- [ ] 新输入将 `FrozenAnswerManifest` 与按其基准排序的 `DetailedSolutionDocument` 列表合并，校验无缺项/重复/错版。映射成共享原生排版的标题、题号、段落、公式和允许图块，题目与答案使用不同产物角色。
+- [x] 新输入将 `FrozenAnswerManifest` 与按其基准排序的 `DetailedSolutionDocument` 列表合并，校验无缺项/重复/错版。映射成共享原生排版的标题、题号、段落、公式和允许图块，题目与答案使用不同产物角色。
 
 ```kotlin
 // 此枚举放在 core:model/MistakeExportFormat.kt，domain/database 不依赖 core:export。
@@ -414,8 +414,8 @@ data class DetailedAnswerExportInput(
 // 复用现有字形、分页、文件发布与 reopenVerified，不用 includeSolution 开关冒充文字解析。
 ```
 
-- [ ] 题目旧入口继续沿用原指纹；新答案入口以版本化 canonical 编码包含 `DETAILED_ANSWERS`、manifest SHA、答案文档/图 SHA、格式及版式。图片不从用户任意 URI 读取，只解析已授权资产并复核摘要。
-- [ ] PDF 完整分页显示步骤和公式，保持题号；Word 保留现有“图形用文字说明”的真实限制，同时完整保留步骤、最终答案与公式。复用 shared block 逻辑时增加产物上下文，避免题目区域的角色过滤把答案讲解图/文字静默丢弃；不得让答案图进入题目卷。
+- [x] 题目旧入口继续沿用原指纹；新答案入口以版本化 canonical 编码包含 `DETAILED_ANSWERS`、manifest SHA、答案文档/图 SHA、格式及版式。图片不从用户任意 URI 读取，只解析已授权资产并复核摘要。
+- [x] PDF 完整分页显示步骤和公式，保持题号；Word 保留现有“图形用文字说明”的真实限制，同时完整保留步骤、最终答案与公式。复用 shared block 逻辑时增加产物上下文，避免题目区域的角色过滤把答案讲解图/文字静默丢弃；不得让答案图进入题目卷。
 - [ ] 真设备渲染并重开 PDF，逐页检查；解压 DOCX 检查文档 XML 含全部步骤/题号，验证损坏文件不进入成功状态。通过后提交 `feat(export): 独立渲染完整详细答案文档`。
 
 ```powershell
