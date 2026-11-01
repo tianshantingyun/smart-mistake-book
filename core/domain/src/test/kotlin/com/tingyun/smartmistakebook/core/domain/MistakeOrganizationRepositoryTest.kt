@@ -9,20 +9,6 @@ import org.junit.Test
 
 class MistakeOrganizationRepositoryTest {
     @Test
-    fun catalogSelectionsKeepStableIdentityAndShareTheSelectionBudget() {
-        val a = com.tingyun.smartmistakebook.core.model.KnowledgeNodeSelection("math-scalar", "math-v1")
-        val b = com.tingyun.smartmistakebook.core.model.KnowledgeNodeSelection("physics-scalar", "physics-v1")
-        val selection = ProblemOrganizationSelection(emptySet(), emptySet(), knowledgeSelections = setOf(a, b))
-        assertEquals(setOf(a, b), selection.knowledgeSelections)
-        assertTrue(runCatching {
-            ProblemOrganizationSelection((0 until 31).toSet(), emptySet(), knowledgeSelections = setOf(a, b))
-        }.isFailure)
-        assertTrue(runCatching {
-            ProblemOrganizationSelection(emptySet(), emptySet(), knowledgeSelections = setOf(a, a.copy(taxonomyVersion = "v2")))
-        }.isFailure)
-    }
-
-    @Test
     fun automaticAndUserCorrectionAuthoritiesRemainDistinctFromLegacyConfirmation() {
         assertEquals("LOCAL_POLICY_ACCEPTED", BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED.name)
         assertEquals("USER_CORRECTED", BindingAcceptanceSource.USER_CORRECTED.name)

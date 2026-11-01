@@ -53,9 +53,6 @@ data class ModelCapabilityVerification(
      * (Route A stays off until a fresh probe proves tools support).
      */
     val supportsFunctionCalling: Boolean = false,
-    /** False for old verifications until a fresh synthetic edit patch passes strict parsing. */
-    val supportsMistakeEdit: Boolean = false,
-    val supportsDetailedSolution: Boolean = false,
     val testedAtEpochMillis: Long,
     /** Persisted start order for concurrent tests of this exact configuration generation. */
     val testStartSequence: Long = 0L,
@@ -78,8 +75,6 @@ data class ModelCapabilityVerification(
             "supportsImageInput=$supportsImageInput, " +
             "supportsStructuredOutput=$supportsStructuredOutput, " +
             "supportsFunctionCalling=$supportsFunctionCalling, " +
-            "supportsMistakeEdit=$supportsMistakeEdit, " +
-            "supportsDetailedSolution=$supportsDetailedSolution, " +
             "testedAtEpochMillis=$testedAtEpochMillis, " +
             "testStartSequence=$testStartSequence" +
             ")"

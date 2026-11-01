@@ -102,8 +102,6 @@ import com.tingyun.smartmistakebook.feature.library.LibraryExportCandidates
 import com.tingyun.smartmistakebook.feature.library.LibraryRoute
 import com.tingyun.smartmistakebook.feature.library.MAX_LIBRARY_BATCH_EXPORT_QUESTIONS
 import com.tingyun.smartmistakebook.feature.library.MistakeExportFormatSheet
-import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
-import kotlinx.coroutines.flow.collect
 import com.tingyun.smartmistakebook.feature.library.MistakeExportHubRoute
 import com.tingyun.smartmistakebook.feature.library.MistakeDetailRoute
 import com.tingyun.smartmistakebook.feature.library.MistakePaperEditRoute
@@ -323,58 +321,6 @@ internal fun SmartMistakeBookRoot(
     // 反推；讲题 sheet 的导出版式是学生定制的、不随 id 带过来，故清空而不冒充。
     // 存成编码串：rememberSaveable 的默认 Saver 对 List 的实现类型并不稳定，String 一定可存。
     var lastPaperEditEntryIdsRaw by rememberSaveable { mutableStateOf("") }
-    var pendingAnswerGroupId by rememberSaveable { mutableStateOf<String?>(null) }
-    var answerGroup by remember { mutableStateOf<com.tingyun.smartmistakebook.core.domain.MistakeExportGroup?>(null) }
-    var answerPreparation by remember { mutableStateOf<com.tingyun.smartmistakebook.core.domain.DetailedSolutionPreparation?>(null) }
-    var answerBusy by remember { mutableStateOf(false) }
-    var answerMessage by remember { mutableStateOf<String?>(null) }
-    LaunchedEffect(pendingAnswerGroupId) {
-        answerGroup = null
-        answerPreparation = null
-        val id = pendingAnswerGroupId ?: return@LaunchedEffect
-        try {
-            val group = application.mistakeExportRepository.readGroup(id)
-            if (group == null) {
-                answerMessage = "这份导出记录已不可用，请返回重新选择题目。"
-                return@LaunchedEffect
-            }
-            answerGroup = group
-            val solutions = application.detailedSolutionRepository
-            if (solutions == null) answerMessage = "详细答案暂时无法读取，请稍后重新打开。"
-            else solutions.observe(group.manifestId).collect {
-                answerPreparation = it
-                if (it == null) answerMessage = "这份答案准备记录已不可用，请返回重新选择题目。"
-            }
-        } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
-        catch (_: Exception) { answerMessage = "这份答案暂时无法读取，请返回后重新准备。" }
-    }
-
-    fun beginDetailedAnswers(format: MistakeExportFormat, loadDraft: suspend () -> com.tingyun.smartmistakebook.core.export.MistakePaperDraft) {
-        if (answerBusy) return
-        answerBusy = true
-        pendingExportNotice = "正在冻结卷面并准备详细答案…"
-        navController.navigate(Routes.ExportResults) { launchSingleTop = true }
-        applicationUiScope.launch {
-            try {
-                pendingAnswerGroupId = application.prepareDetailedAnswerExport(loadDraft(), format)
-                pendingExportNotice = null
-                answerMessage = null
-            } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
-            catch (failure: Exception) { pendingExportNotice = failure.message ?: "答案准备未能开始，题目仍可单独导出。" }
-            finally { answerBusy = false }
-        }
-    }
-
-    fun answerAction(action: suspend () -> Unit) {
-        if (answerBusy) return
-        answerBusy = true
-        applicationUiScope.launch {
-            try { action(); answerMessage = null }
-            catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
-            catch (failure: Exception) { answerMessage = failure.message ?: "操作未完成，请重试" }
-            finally { answerBusy = false }
-        }
-    }
     val lastPaperEditEntryIds = remember(lastPaperEditEntryIdsRaw) {
         decodeMistakePaperEditEntryIds(lastPaperEditEntryIdsRaw)
     }
@@ -391,8 +337,6 @@ internal fun SmartMistakeBookRoot(
     }.collectAsStateWithLifecycle(initialValue = 0)
     val exportRecords by application.mistakeExportRepository.observeRecords()
         .collectAsStateWithLifecycle(initialValue = emptyList<MistakeExportRecord>())
-    val exportGroups by application.mistakeExportRepository.observeGroups()
-        .collectAsStateWithLifecycle(initialValue = emptyList<com.tingyun.smartmistakebook.core.domain.MistakeExportGroup>())
     val reviewOpenRequest by reviewOpenRequests.collectAsStateWithLifecycle()
     val exportOpenRequest by exportOpenRequests.collectAsStateWithLifecycle()
     // A7（4C）：系统分享的待接收请求。MainActivity 投递一次，这里取走并清空（消费语义），
@@ -650,14 +594,6 @@ internal fun SmartMistakeBookRoot(
                     readExportPaperEdit = { entryIds, layout ->
                         application.buildMistakePaperEdit(entryIds, layout)
                     },
-                    onPrepareDetailedAnswers = { format, layout, entryIds ->
-                        lastPaperEditEntryIdsRaw = ""
-                        beginDetailedAnswers(format) { requireNotNull(application.buildMistakePaperEdit(entryIds, layout)) { "没有可导出的完整题面" }.toDraft() }
-                    },
-                    onPrepareEditedDetailedAnswers = { draft, format ->
-                        lastPaperEditEntryIdsRaw = ""
-                        beginDetailedAnswers(format) { draft }
-                    },
                     onStartEditedExport = { draft, format ->
                         // 编辑 sheet 不把来源题 id 交出来：宁可收起「编辑卷面」入口，
                         // 也不拿上一次别的来源冒充这一份（T6 的"不猜来源"）。
@@ -745,14 +681,6 @@ internal fun SmartMistakeBookRoot(
                     // 历史重开也接同一条编辑落点（行为一致）。
                     readExportPaperEdit = { entryIds, layout ->
                         application.buildMistakePaperEdit(entryIds, layout)
-                    },
-                    onPrepareDetailedAnswers = { format, layout, entryIds ->
-                        lastPaperEditEntryIdsRaw = ""
-                        beginDetailedAnswers(format) { requireNotNull(application.buildMistakePaperEdit(entryIds, layout)) { "没有可导出的完整题面" }.toDraft() }
-                    },
-                    onPrepareEditedDetailedAnswers = { draft, format ->
-                        lastPaperEditEntryIdsRaw = ""
-                        beginDetailedAnswers(format) { draft }
                     },
                     onStartEditedExport = { draft, format ->
                         // 编辑 sheet 不把来源题 id 交出来：宁可收起「编辑卷面」入口，
@@ -1205,8 +1133,6 @@ internal fun SmartMistakeBookRoot(
             }
             composable(Routes.ExportResults) {
                 MistakeExportHubRoute(
-                    groups = exportGroups,
-                    onOpenAnswerGroup = { pendingAnswerGroupId = it; answerMessage = null },
                     records = exportRecords,
                     notice = pendingExportNotice,
                     onDismissNotice = { pendingExportNotice = null },
@@ -1238,7 +1164,6 @@ internal fun SmartMistakeBookRoot(
                     decodeMistakePaperEditEntryIds(rawEntryIds)
                 }
                 MistakePaperEditRoute(
-                    onPrepareDetailedAnswers = { draft, format -> beginDetailedAnswers(format) { draft } },
                     entryIds = requestedEntryIds,
                     // 与 worker 读题面同一条只读口径；默认版式 = 原生导出入口的版式。
                     loadPaper = { entryIds ->
@@ -1338,12 +1263,9 @@ internal fun SmartMistakeBookRoot(
             }
             composable(Routes.MistakeDetail) { entry ->
                 MistakeDetailRoute(
-                    agentEdits = application.mistakeEditRepository,
-                    modelEgressAllowed = baseCapabilities.networkRequestsAllowed,
                     errorBookEntryId = entry.arguments?.getString("itemId").orEmpty(),
                     repository = application.mistakeDetailRepository,
                     organizationRepository = application.mistakeOrganizationRepository,
-                    knowledgeCatalog = application.knowledgeCatalogRepository,
                     modelTasks = application.modelTaskRepository,
                     profile = experience.profile,
                     catalogEntries = experience.catalog,
@@ -1486,24 +1408,6 @@ internal fun SmartMistakeBookRoot(
     // 确认才把格式原样随任务交给 worker，并跳「导出成果」看后台进度。
     pendingExportTarget?.let { target ->
         MistakeExportFormatSheet(
-            onPrepareDetailedAnswers = { format ->
-                pendingExportTarget = null
-                lastPaperEditEntryIdsRaw = when (target) {
-                    is PendingExportTarget.Single -> encodeMistakePaperEditEntryIds(listOf(target.key.entryId))
-                    is PendingExportTarget.Batch -> encodeMistakePaperEditEntryIds(target.entryIds)
-                }
-                beginDetailedAnswers(format) {
-                    when (target) {
-                        is PendingExportTarget.Single -> {
-                            val state = application.mistakeDetailRepository.readExact(target.key)
-                            val eligible = com.tingyun.smartmistakebook.core.export.MistakePdfEligibility.check(state)
-                            require(eligible is com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityResult.Eligible) { "这一版题面暂时不能导出，请检查内容" }
-                            com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit.fromInputs(listOf(eligible.input)).toDraft()
-                        }
-                        is PendingExportTarget.Batch -> requireNotNull(application.buildMistakePaperEdit(target.entryIds, MistakePdfLayout.DEFAULT)) { "没有可导出的完整题面" }.toDraft()
-                    }
-                }
-            },
             subtitle = when (target) {
                 is PendingExportTarget.Single -> "导出这一道错题"
                 is PendingExportTarget.Batch ->
@@ -1531,24 +1435,6 @@ internal fun SmartMistakeBookRoot(
                 }
             },
         )
-    }
-    pendingAnswerGroupId?.let { id ->
-        com.tingyun.smartmistakebook.feature.library.DetailedAnswerPreviewSheet(answerGroup, answerPreparation, answerBusy, answerMessage,
-            onDismiss = { pendingAnswerGroupId = null },
-            onConfirm = { approval -> answerAction {
-                application.startGroupedExports(id, includeAnswers = true, approval = approval, retryFailed = true)
-                pendingAnswerGroupId = null
-                navController.navigate(Routes.ExportResults) { launchSingleTop = true }
-            } },
-            onSaveQuestions = { answerAction {
-                application.startGroupedExports(id, includeAnswers = false, retryFailed = true)
-                pendingAnswerGroupId = null
-                navController.navigate(Routes.ExportResults) { launchSingleTop = true }
-            } },
-            onRetry = { answerAction { application.retryDetailedAnswerPreparation(id) } },
-            onStop = { answerAction { answerGroup?.let { application.detailedSolutionRepository?.cancel(it.manifestId) } } },
-            onChangeFormat = { format -> answerAction { pendingAnswerGroupId = application.changeDetailedAnswerFormat(id, format) } },
-            onOpenSettings = { pendingAnswerGroupId = null; navController.navigate(Routes.Capability) { launchSingleTop = true } })
     }
 }
 
@@ -1615,7 +1501,7 @@ private fun SmartBottomBar(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(com.tingyun.smartmistakebook.core.ui.ContentSurface),
+            .background(Paper),
     ) {
         PaperDivider()
         Row(

@@ -1,8 +1,5 @@
 package com.tingyun.smartmistakebook.core.model
 
-@kotlinx.serialization.Serializable
-enum class MistakeExportArtifactRole { QUESTIONS, DETAILED_ANSWERS }
-
 /**
  * 错题导出的交付格式（6B-1）。
  *

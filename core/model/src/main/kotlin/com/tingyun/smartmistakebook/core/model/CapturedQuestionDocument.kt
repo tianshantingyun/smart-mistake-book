@@ -27,8 +27,6 @@ data class CapturedQuestionDocument(
      */
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val figureReferences: List<CapturedFigureReference> = emptyList(),
-    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
-    val storedFigureReferences: List<StoredFigureReference> = emptyList(),
 ) {
     companion object {
         const val CURRENT_SCHEMA_VERSION = 1
@@ -237,7 +235,6 @@ enum class CapturedQuestionIssueCode {
     EMPTY_QUESTION,
     /** WG-02：图形引用超出文档预算（形状/绑定校验在 [CapturedFigureReference] 构造层）。 */
     FIGURE_REFERENCE_BUDGET_EXCEEDED,
-    INVALID_STORED_FIGURE_REFERENCE,
 }
 
 data class CapturedQuestionIssue(
@@ -267,11 +264,6 @@ object CapturedQuestionDocumentValidator {
             add(CapturedQuestionIssue(CapturedQuestionIssueCode.FIGURE_REFERENCE_BUDGET_EXCEEDED))
         }
 
-        if (value.storedFigureReferences.size > 32 ||
-            value.storedFigureReferences.map { it.blockId }.distinct().size != value.storedFigureReferences.size ||
-            value.storedFigureReferences.any { it.blockId !in blockIds }) {
-            add(CapturedQuestionIssue(CapturedQuestionIssueCode.INVALID_STORED_FIGURE_REFERENCE))
-        }
         value.blockEvidence.forEach { evidence ->
             // A8（用户转写合法化）：**用户自己敲进去的**题面没有源图，`source_asset_id` 空是
             // 诚实的形态（不是"丢了一张图"）。**只按 provenance 放行**——OCR/模型/导入结构

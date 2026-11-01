@@ -874,11 +874,6 @@ private suspend fun <T> auditWrite(block: suspend () -> T): T? =
  * 不读预算；数据库端口不可用时（测试替身/旧库）默认实现"做不到"，生成路径不受影响。
  */
 object FigureGenerationCoordinationFactory {
-    val unavailable: FigureGenerationCoordinator = object : FigureGenerationCoordinator {
-        override suspend fun generate(request: FigureGenerationRequest, proposal: FigureGenerationProposal) = FigureGenerationOutcome(
-            request.operationId, request.purpose, proposal.method, FigureGenerationStatus.UNAVAILABLE,
-            diagnostics = "当前没有可用的绘图能力，请检查模型设置")
-    }
     /**
      * 生产装配口。**JS 的两个参数默认 null**：生产继续走 UNAVAILABLE，能力快照/广告面
      * 一字不动；测试或后续批次可显式注入引擎与帧输入（不经过任何可变全局开关）。

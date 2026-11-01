@@ -15,11 +15,6 @@ import kotlinx.coroutines.flow.flowOf
  * 存在"的凭据）。
  */
 interface ExportRecordPort {
-    suspend fun createMistakeExportGroup(record: com.tingyun.smartmistakebook.core.database.MistakeExportGroupRecord): com.tingyun.smartmistakebook.core.database.MistakeExportGroupRecord = throw UnsupportedOperationException("Export groups are unavailable")
-    suspend fun readMistakeExportGroup(groupId: String): com.tingyun.smartmistakebook.core.database.MistakeExportGroupRecord? = null
-    fun observeMistakeExportGroups(limit: Int): Flow<List<com.tingyun.smartmistakebook.core.database.MistakeExportGroupRecord>> = flowOf(emptyList())
-    suspend fun confirmMistakeAnswerPreview(groupId: String, approval: com.tingyun.smartmistakebook.core.model.AnswerPreviewApproval): Boolean = false
-    suspend fun startGroupedMistakeExport(command: com.tingyun.smartmistakebook.core.database.StartGroupedMistakeExportCommand): MistakeExportRecordRow? = null
     /** 入队一行 RUNNING；同一 `export_id` 重放返回已存在的行（幂等）。 */
     suspend fun createMistakeExportRecord(
         command: CreateMistakeExportRecordCommand,

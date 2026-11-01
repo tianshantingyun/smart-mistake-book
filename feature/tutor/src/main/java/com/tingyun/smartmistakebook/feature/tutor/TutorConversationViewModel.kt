@@ -407,10 +407,6 @@ internal class TutorConversationViewModel(
         }
     }
 
-    fun onExportDetailedAnswersChange(include: Boolean) {
-        updateState { state -> state.exportSheet?.let { sheet -> state.copy(exportSheet = sheet.copy(includeDetailedAnswers = include)) } ?: state }
-    }
-
     /**
      * 学生在 sheet 里勾/取消一道候选题（含「从错题本再选」选中的条目）。
      *

@@ -91,37 +91,6 @@ class DataStoreModelConfigurationStoreTest {
         }
     }
 
-    @Test
-    fun editCapabilitySurvivesReopenAndCredentialChangesInvalidateIt() = runBlocking {
-        val base = ApplicationProvider.getApplicationContext<Context>()
-        val root = File(base.cacheDir, "model-store-edit-tests/${UUID.randomUUID()}")
-        val context = IsolatedStorageContext(base, root)
-        val firstJob = SupervisorJob()
-        val first = DataStoreModelConfigurationStore(context, CoroutineScope(firstJob + Dispatchers.IO), clock = { 300_000L })
-        try {
-            assertTrue(first.saveWithKey("edit-test-secret") is ModelConfigurationMutationResult.Success)
-            val config = first.configuration.first()
-            val started = first.beginCapabilityTest(config) as com.tingyun.smartmistakebook.core.domain.ModelCapabilityTestStartResult.Started
-            val verification = com.tingyun.smartmistakebook.core.domain.ModelCapabilityVerification(
-                provider = config.provider, baseUrl = config.baseUrl, modelId = config.modelId,
-                configurationVersion = config.configurationVersion, configurationUpdatedAtEpochMillis = config.updatedAtEpochMillis,
-                supportsImageInput = true, supportsStructuredOutput = true, supportsMistakeEdit = true,
-                testedAtEpochMillis = 300_001, testStartSequence = started.sequence)
-            assertEquals(com.tingyun.smartmistakebook.core.domain.ModelCapabilityVerificationWriteResult.SAVED, first.recordCapabilityVerification(verification))
-            firstJob.cancelAndJoin()
-            val secondJob = SupervisorJob()
-            val second = DataStoreModelConfigurationStore(context, CoroutineScope(secondJob + Dispatchers.IO), clock = { 400_000L })
-            try {
-                assertTrue(requireNotNull(second.configuration.first().capabilityVerification).supportsMistakeEdit)
-                assertTrue(second.saveWithKey("changed-edit-test-secret") is ModelConfigurationMutationResult.Success)
-                assertEquals(null, second.configuration.first().capabilityVerification)
-            } finally { secondJob.cancelAndJoin() }
-        } finally {
-            firstJob.cancelAndJoin()
-            root.deleteRecursively()
-        }
-    }
-
     private suspend fun DataStoreModelConfigurationStore.saveWithKey(
         value: String,
     ): ModelConfigurationMutationResult {

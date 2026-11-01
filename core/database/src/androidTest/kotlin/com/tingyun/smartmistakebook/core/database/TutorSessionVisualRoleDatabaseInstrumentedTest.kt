@@ -28,14 +28,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationOperationCommand
-import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationAttemptCommand
-import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationAttemptCommand
-import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
 
 /**
  * 4E WG-06 T2a：讲题会话「保存到错题本」时，**本会话助手消息的视觉引用**必须与提交回执
- * 在同一个事务里复制到 `problem_revision_source_asset`，且角色来自可信生成审计。
+ * 在同一个事务里复制到 `problem_revision_source_asset`，且角色来自生成痕迹里的 kind。
  *
  * 这些用例钉住四个用户可见后果：
  * 1. 保存后详情/导出能看到本轮生成的干净题面图与讲解图，且两者角色不混；
@@ -60,7 +56,7 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
     }
 
     @Test
-    fun savingCopiesAssistantFigureRolesFromSuccessfulGenerationAudit() = runBlocking {
+    fun savingCopiesAssistantFigureRolesFromTheToolTrace() = runBlocking {
         seedConfirmedTutorSession()
         val clean = generatedAsset("figure-clean", "c")
         val explanation = generatedAsset("figure-explain", "d")
@@ -68,8 +64,6 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
         store.registerCanonicalSourceAsset(clean)
         store.registerCanonicalSourceAsset(explanation)
         store.registerCanonicalSourceAsset(studentPhoto)
-        admitFigure("figure-clean", "request-1", "SOURCE_RECONSTRUCTION")
-        admitFigure("figure-explain", "request-1", "EXPLANATION")
 
         store.appendTutorStudentMessage(
             AppendTutorStudentMessageDatabaseCommand(
@@ -100,7 +94,7 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
             ),
         )
 
-        // 消息链从成功审计取得角色，保存事务复制的是同一份事实。
+        // 消息链先各自带上角色（T2a 的 trace kind→role），保存事务复制的是同一份事实。
         assertEquals(
             "CLEAN_IMAGE",
             store.readTutorMessageSourceAssets(listOf("assistant-1"))
@@ -226,8 +220,6 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
         // content_sha256 唯一，INSERT OR IGNORE 会把这张图静默丢掉，后续消息引用行触发 FK 失败。
         val clean = generatedAsset("figure-kept", "b")
         store.registerCanonicalSourceAsset(clean)
-        // Reusing a paid image keeps its original generation operation, even in a later model turn.
-        admitFigure("figure-kept", "request-before-cache", "SOURCE_RECONSTRUCTION")
         store.appendTutorAssistantMessage(
             AppendTutorAssistantMessageDatabaseCommand(
                 conversationId = CONVERSATION_ID,
@@ -266,21 +258,6 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
             "消息引用随会话级联删除",
             store.readTutorMessageSourceAssets(listOf("assistant-kept")).isEmpty(),
         )
-    }
-
-    private suspend fun admitFigure(assetId: String, requestId: String, purpose: String) {
-        val operationId = "trusted:$assetId"
-        val attemptId = "$operationId:attempt-1"
-        assertTrue(store.beginFigureGenerationOperation(BeginFigureGenerationOperationCommand(
-            operationId, "local-learner", "TUTOR_MESSAGE", requestId, "a".repeat(64),
-            purpose, FigureGenerationPolicy.POLICY_VERSION, "PENDING", 1_500,
-        )))
-        assertTrue(store.beginFigureGenerationAttempt(BeginFigureGenerationAttemptCommand(
-            attemptId, operationId, 1, "IMAGE_MODEL", "RUNNING", null, "b".repeat(64), "reservation:$assetId", 1_500,
-        )))
-        assertTrue(store.finishFigureGenerationAttempt(FinishFigureGenerationAttemptCommand(
-            attemptId, "SUCCEEDED", assetId, null, 1_600,
-        )))
     }
 
     private suspend fun seedConfirmedTutorSession() {
@@ -390,7 +367,6 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
                                 kind = kind,
                                 figureId = figureId,
                                 generatedNow = true,
-                                operationId = "trusted:$figureId",
                             ),
                         )
                     },

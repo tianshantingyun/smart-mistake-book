@@ -118,8 +118,6 @@ interface StudyDatabasePort : AutoCloseable, ModelTaskDatabasePort,
     CleanRedrawTaskPort,
     FigureGenerationAuditPort,
     FigureGenerationRecorderPort,
-    com.tingyun.smartmistakebook.core.database.port.MistakeEditJobPort,
-    com.tingyun.smartmistakebook.core.database.port.DetailedSolutionPort,
     KnowledgeSearchIndexRebuildPort,
     TutorVisualPort {
 

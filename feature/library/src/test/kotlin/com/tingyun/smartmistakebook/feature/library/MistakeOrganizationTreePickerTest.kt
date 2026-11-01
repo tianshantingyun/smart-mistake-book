@@ -10,24 +10,6 @@ import org.junit.Test
 
 class MistakeOrganizationTreePickerTest {
     @Test
-    fun catalogCorrectionsAreNotFlattenedIntoSameNamedModelOrFreeTextLabels() {
-        val confirmed = com.tingyun.smartmistakebook.core.domain.ConfirmedMistakeOrganization(classifications = listOf(
-            com.tingyun.smartmistakebook.core.domain.ConfirmedProblemClassification(ClassificationDimension.KNOWLEDGE, "catalog:math-id", "共同名称", "m1", "MATH"),
-            com.tingyun.smartmistakebook.core.domain.ConfirmedProblemClassification(ClassificationDimension.KNOWLEDGE, "catalog:physics-id", "共同名称", "p1", "PHYSICS"),
-        ))
-        val plan = com.tingyun.smartmistakebook.core.model.ProblemOrganizationPlan(
-            summaryMarkdown = "分类", reviewPriorityMarkdown = "复习", targetedEvidenceLabels = emptyList(),
-            classifications = listOf(com.tingyun.smartmistakebook.core.model.ProblemClassificationSuggestion(
-                ClassificationDimension.KNOWLEDGE, "共同名称", "模型建议", 0.9)), relations = emptyList(),
-        )
-        assertTrue(confirmedClassificationIndexes(plan, confirmed).isEmpty())
-        assertTrue(unmappedConfirmedClassifications(plan, confirmed).isEmpty())
-        val restored = confirmedCatalogHits(confirmed)
-        assertEquals(setOf("math-id", "physics-id"), restored.map { it.node.nodeId }.toSet())
-        assertEquals(setOf("MATH", "PHYSICS"), restored.map { it.subject }.toSet())
-    }
-
-    @Test
     fun pickedKnowledgeOptionJoinsTheSelectionAsAUserClassification() {
         val pick = pickOrganizationTreeOption(
             existing = listOf(

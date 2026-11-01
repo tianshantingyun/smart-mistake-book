@@ -124,14 +124,6 @@ object ModelTaskCompletionValidator {
         request: ModelTaskRequest,
         output: ModelTaskOutput,
     ): List<ModelTaskCompletionIssue> = when (val input = request.input) {
-        is DetailedSolutionInput -> if (output is DetailedSolutionOutput && output.document.basis == input.question.basis &&
-            output.document.origin == SolutionOrigin.MODEL && output.document.verification == SolutionVerification.UNVERIFIED) {
-            emptyList()
-        } else listOf(typeMismatch())
-        is MistakeEditInput -> if (output is MistakeEditOutput && output.basis == input.basis &&
-            runCatching { output.suggestion.requireMatches(input) }.isSuccess) {
-            emptyList()
-        } else listOf(typeMismatch())
         is TutorDebriefInput -> if (output is TutorDebriefOutput && output.sessionId == input.sessionId) {
             emptyList()
         } else {

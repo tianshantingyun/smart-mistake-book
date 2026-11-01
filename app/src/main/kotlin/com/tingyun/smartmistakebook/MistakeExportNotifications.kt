@@ -69,12 +69,11 @@ internal class MistakeExportNotifications(
         displayName: String,
         skippedNotice: String? = null,
         format: MistakeExportFormat = MistakeExportFormat.PDF,
-        artifactRole: com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole = com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.QUESTIONS,
     ) {
         post(
             exportId = exportId,
             // 6B-1：Word 交付没有"打印"这一步（打印适配器只认 PDF），文案按格式如实分叉。
-            title = if (artifactRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS) "${format.studentLabel} 详细答案已导出" else when (format) {
+            title = when (format) {
                 MistakeExportFormat.PDF -> "A4 导出已完成"
                 MistakeExportFormat.DOCX -> "Word 导出已完成"
             },
@@ -93,10 +92,10 @@ internal class MistakeExportNotifications(
         )
     }
 
-    fun postFailed(exportId: String, failureMessage: String, artifactRole: com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole = com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.QUESTIONS) {
+    fun postFailed(exportId: String, failureMessage: String) {
         post(
             exportId = exportId,
-            title = if (artifactRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS) "详细答案未导出" else "这次导出没有完成",
+            title = "这次导出没有完成",
             text = failureMessage,
         )
     }

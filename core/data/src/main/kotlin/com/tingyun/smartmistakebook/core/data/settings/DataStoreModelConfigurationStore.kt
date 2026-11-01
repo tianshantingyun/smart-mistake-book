@@ -527,8 +527,6 @@ internal class StoreDelegate(
             supportsImageInput = imageInput,
             supportsStructuredOutput = structuredOutput,
             supportsFunctionCalling = functionCalling,
-            supportsMistakeEdit = this[VERIFIED_MISTAKE_EDIT] ?: false,
-            supportsDetailedSolution = this[VERIFIED_DETAILED_SOLUTION] ?: false,
             testedAtEpochMillis = testedAt,
             testStartSequence = testStartSequence,
         )
@@ -546,8 +544,6 @@ internal class StoreDelegate(
         this[VERIFIED_IMAGE_INPUT] = verification.supportsImageInput
         this[VERIFIED_STRUCTURED_OUTPUT] = verification.supportsStructuredOutput
         this[VERIFIED_FUNCTION_CALLING] = verification.supportsFunctionCalling
-        this[VERIFIED_MISTAKE_EDIT] = verification.supportsMistakeEdit
-        this[VERIFIED_DETAILED_SOLUTION] = verification.supportsDetailedSolution
         this[VERIFIED_TESTED_AT] = verification.testedAtEpochMillis
         this[VERIFIED_TEST_START_SEQUENCE] = verification.testStartSequence
     }
@@ -561,8 +557,6 @@ internal class StoreDelegate(
         remove(VERIFIED_IMAGE_INPUT)
         remove(VERIFIED_STRUCTURED_OUTPUT)
         remove(VERIFIED_FUNCTION_CALLING)
-        remove(VERIFIED_MISTAKE_EDIT)
-        remove(VERIFIED_DETAILED_SOLUTION)
         remove(VERIFIED_TESTED_AT)
         remove(VERIFIED_TEST_START_SEQUENCE)
     }
@@ -714,8 +708,6 @@ internal class StoreDelegate(
         val VERIFIED_IMAGE_INPUT = booleanPreferencesKey("verified_image_input")
         val VERIFIED_STRUCTURED_OUTPUT = booleanPreferencesKey("verified_structured_output")
         val VERIFIED_FUNCTION_CALLING = booleanPreferencesKey("verified_function_calling")
-        val VERIFIED_MISTAKE_EDIT = booleanPreferencesKey("verified_mistake_edit_v1")
-        val VERIFIED_DETAILED_SOLUTION = booleanPreferencesKey("verified_detailed_solution_v1")
         val VERIFIED_TESTED_AT = longPreferencesKey("verified_tested_at_epoch_millis")
         val VERIFIED_TEST_START_SEQUENCE =
             longPreferencesKey("verified_test_start_sequence")

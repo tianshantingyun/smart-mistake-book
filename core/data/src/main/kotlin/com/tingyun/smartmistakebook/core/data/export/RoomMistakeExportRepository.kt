@@ -16,12 +16,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import com.tingyun.smartmistakebook.core.database.MistakeExportGroupRecord
-import com.tingyun.smartmistakebook.core.database.StartGroupedMistakeExportCommand
-import com.tingyun.smartmistakebook.core.domain.MistakeExportGroup
-import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
-import com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole
-import com.tingyun.smartmistakebook.core.model.AnswerPreviewApproval
 
 /**
  * 导出记录（L7）的 Room 实现。
@@ -36,17 +30,6 @@ internal class RoomMistakeExportRepository(
     private val database: StudyDatabasePort,
     private val retentionLimit: Int = MAX_MISTAKE_EXPORT_RECORDS,
 ) : MistakeExportRepository {
-    override suspend fun createGroup(groupId: String, manifestId: String, manifestSha256: String, format: MistakeExportFormat, atEpochMillis: Long): MistakeExportGroup = withContext(Dispatchers.IO) {
-        database.createMistakeExportGroup(MistakeExportGroupRecord(groupId, manifestId, manifestSha256, format.token, createdAtEpochMillis = atEpochMillis)).toDomain()
-    }
-    override suspend fun readGroup(groupId: String): MistakeExportGroup? = database.readMistakeExportGroup(groupId)?.toDomain()
-    override fun observeGroups(limit: Int): Flow<List<MistakeExportGroup>> = database.observeMistakeExportGroups(limit).map { rows -> rows.map { it.toDomain() } }
-    override suspend fun confirmAnswerPreview(groupId: String, approval: AnswerPreviewApproval): Boolean = withContext(Dispatchers.IO) {
-        database.confirmMistakeAnswerPreview(groupId, approval)
-    }
-    override suspend fun recordGroupedStarted(groupId: String, artifactRole: MistakeExportArtifactRole, atEpochMillis: Long, retryFailed: Boolean): MistakeExportRecord? = withContext(Dispatchers.IO) {
-        database.startGroupedMistakeExport(StartGroupedMistakeExportCommand(groupId, artifactRole.name, "export-${java.util.UUID.randomUUID()}", atEpochMillis, retryFailed))?.toDomain()
-    }
 
     override fun observeRecords(): Flow<List<MistakeExportRecord>> =
         database.observeMistakeExportRecords(retentionLimit).map { rows ->
@@ -155,10 +138,4 @@ internal fun MistakeExportRecordRow.toDomain(): MistakeExportRecord = MistakeExp
     failureMessage = failureMessage,
     createdAtEpochMillis = createdAtEpochMillis,
     finishedAtEpochMillis = finishedAtEpochMillis,
-    groupId = groupId,
-    artifactRole = MistakeExportArtifactRole.valueOf(artifactRole),
 )
-
-private fun MistakeExportGroupRecord.toDomain() = MistakeExportGroup(groupId, manifestId, manifestSha256,
-    requireNotNull(MistakeExportFormat.fromToken(formatToken)), requestedAnswers, questionsExportId, answersExportId,
-    previewSha256, solutionsSha256, createdAtEpochMillis)

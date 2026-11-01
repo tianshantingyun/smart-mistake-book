@@ -47,7 +47,6 @@ class TutorMistakePickerUiInstrumentedTest {
         assertEquals(0, picks.size)
         assertEquals(0, dismissals)
         UiAuditEvidence.capture("picker-cleared")
-        captureTutorFullUiEvidence("tutor-picker.png", compose::waitForIdle)
         compose.onNodeWithTag("audit_picker_item_two").performClick()
         assertEquals(listOf(entries[1]), picks)
         compose.onNodeWithTag("audit_picker_cancel").performClick()

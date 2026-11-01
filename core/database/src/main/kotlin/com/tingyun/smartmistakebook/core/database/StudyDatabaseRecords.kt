@@ -506,8 +506,6 @@ data class ConfirmProblemOrganizationCommand(
      * 它是"本轮考虑过什么"的记录，不是"写了什么"的载荷；重确认/幂等重放不得因此变成冲突。
      */
     val classificationCandidates: List<ProblemClassificationCandidateRecord> = emptyList(),
-    /** Explicit user picks; re-resolved against the live reviewed catalog inside the write transaction. */
-    val knowledgeSelections: Set<com.tingyun.smartmistakebook.core.model.KnowledgeNodeSelection> = emptySet(),
 )
 
 /**

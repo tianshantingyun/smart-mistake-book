@@ -42,7 +42,6 @@ data class ReviseCommittedProblemCommand(
     val questionDocumentSnapshot: String,
     val contentFingerprint: String,
     val revisedAtEpochMillis: Long,
-    val adoptedEditOperationIds: Set<String> = emptySet(),
 ) {
     init {
         // The id becomes a LIKE prefix, so it must not carry wildcard characters.
@@ -63,7 +62,6 @@ data class ReviseCommittedProblemCommand(
         }
         require(contentFingerprint.length == 64) { "contentFingerprint must be sha256" }
         require(revisedAtEpochMillis >= 0) { "revisedAtEpochMillis must not be negative" }
-        require(adoptedEditOperationIds.size <= 32 && adoptedEditOperationIds.all { it.startsWith("mistake-edit:") && it.length <= 128 })
     }
 
     companion object {

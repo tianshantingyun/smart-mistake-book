@@ -15,8 +15,6 @@ data class MistakeExportRecordRow(
     val failureMessage: String?,
     val createdAtEpochMillis: Long,
     val finishedAtEpochMillis: Long?,
-    val groupId: String? = null,
-    val artifactRole: String = "QUESTIONS",
 )
 
 /**
@@ -28,25 +26,7 @@ data class CreateMistakeExportRecordCommand(
     val exportId: String,
     val kind: String,
     val createdAtEpochMillis: Long,
-    val groupId: String? = null,
-    val artifactRole: String = "QUESTIONS",
 )
-
-data class MistakeExportGroupRecord(
-    val groupId: String,
-    val manifestId: String,
-    val manifestSha256: String,
-    val formatToken: String,
-    val requestedAnswers: Boolean = true,
-    val questionsExportId: String? = null,
-    val answersExportId: String? = null,
-    val previewSha256: String? = null,
-    val solutionsSha256: String? = null,
-    val stateVersion: Long = 0,
-    val createdAtEpochMillis: Long,
-)
-
-data class StartGroupedMistakeExportCommand(val groupId: String, val artifactRole: String, val proposedExportId: String, val atEpochMillis: Long, val retryFailed: Boolean = false)
 
 /** 写回成功终态：文件名 + 产物钥匙。只对 RUNNING 行生效（终态不回头）。 */
 data class CompleteMistakeExportRecordCommand(

@@ -75,7 +75,6 @@ import kotlinx.coroutines.launch
 internal fun MistakeOrganizationSection(
     key: MistakeRevisionKey,
     organizationRepository: MistakeOrganizationRepository,
-    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository? = null,
     modelTasks: ModelTaskRepository,
     profile: StudyProfileOverview,
     catalogEntries: List<StudyCatalogEntry> = emptyList(),
@@ -509,9 +508,9 @@ internal fun MistakeOrganizationSection(
         is MistakeOrganizationSurfaceState.ExecutionFailed -> {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(10.dp),
                 color = JadeSoft.copy(alpha = 0.35f),
-                shadowElevation = 1.dp,
+                border = BorderStroke(1.dp, Outline),
             ) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(state.message, color = InkSecondary)
@@ -567,7 +566,6 @@ internal fun MistakeOrganizationSection(
                 output = output,
                 confirmed = confirmed,
                 organizationRepository = organizationRepository,
-                knowledgeCatalog = knowledgeCatalog,
                 onConfirmed = {
                     correctionVisible = false
                     message = "已保存分类修改"
@@ -591,7 +589,6 @@ internal fun MistakeOrganizationSection(
                 output = output,
                 confirmed = confirmed,
                 organizationRepository = organizationRepository,
-                knowledgeCatalog = knowledgeCatalog,
                 onConfirmed = {
                     correctionVisible = false
                     message = "已保存分类修改"
@@ -635,7 +632,6 @@ private fun OrganizationCorrectionPanel(
     output: ProblemOrganizationOutput?,
     confirmed: ConfirmedMistakeOrganization,
     organizationRepository: MistakeOrganizationRepository,
-    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository? = null,
     onConfirmed: () -> Unit,
     onFailure: (String) -> Unit,
 ) {
@@ -653,7 +649,6 @@ private fun OrganizationCorrectionPanel(
             output = checkNotNull(output),
             confirmed = confirmed,
             organizationRepository = organizationRepository,
-                knowledgeCatalog = knowledgeCatalog,
             onConfirmed = onConfirmed,
             onFailure = onFailure,
         )
@@ -723,9 +718,9 @@ private fun OrganizationApplying() {
 private fun IncompleteOrganizationCard(onRetry: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("mistake_organization_incomplete"),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(10.dp),
         color = JadeSoft.copy(alpha = 0.35f),
-        shadowElevation = 1.dp,
+        border = BorderStroke(1.dp, Outline),
     ) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("暂未整理完整", color = Ink, fontWeight = FontWeight.SemiBold)
@@ -742,9 +737,9 @@ private fun IncompleteOrganizationCard(onRetry: () -> Unit) {
 private fun OrganizationApplyFailure(message: String, onRetry: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("mistake_organization_apply_failure"),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(10.dp),
         color = JadeSoft.copy(alpha = 0.35f),
-        shadowElevation = 1.dp,
+        border = BorderStroke(1.dp, Outline),
     ) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(message, color = InkSecondary)
@@ -771,9 +766,9 @@ private fun ConfirmedOrganizationSummary(
     if (contentClassifications.isEmpty() && contentRelations.isEmpty()) return
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("mistake_organization_confirmed"),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(10.dp),
         color = JadeSoft.copy(alpha = 0.5f),
-        shadowElevation = 1.dp,
+        border = BorderStroke(1.dp, Outline),
     ) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("已整理", color = Ink, fontWeight = FontWeight.SemiBold)
@@ -824,9 +819,9 @@ private fun ConfirmedOrganizationSummary(
                         )
                     Surface(
                         modifier = rowModifier,
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(8.dp),
                         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
-                        shadowElevation = 1.dp,
+                        border = BorderStroke(1.dp, Outline),
                     ) {
                         Column(
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -883,8 +878,8 @@ private fun OrganizationRunning(message: String?) {
 private fun ModelUnavailable(onOpenModelSettings: () -> Unit) {
     Surface(
         color = JadeSoft.copy(alpha = 0.35f),
-        shape = RoundedCornerShape(20.dp),
-        shadowElevation = 1.dp,
+        shape = RoundedCornerShape(10.dp),
+        border = BorderStroke(1.dp, Outline),
     ) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("配置大模型后，才能自动整理板块、知识点和相关题目。", color = InkSecondary)
@@ -912,8 +907,8 @@ private fun KnowledgePreparingCard(availability: KnowledgeBaseAvailability) {
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("mistake_organization_knowledge_preparing"),
         color = JadeSoft.copy(alpha = 0.35f),
-        shape = RoundedCornerShape(20.dp),
-        shadowElevation = 1.dp,
+        shape = RoundedCornerShape(10.dp),
+        border = BorderStroke(1.dp, Outline),
     ) {
         Row(
             modifier = Modifier.padding(14.dp),
@@ -939,8 +934,8 @@ private fun ModelCapabilityFailure(
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("mistake_organization_capability_failure"),
         color = JadeSoft.copy(alpha = 0.35f),
-        shape = RoundedCornerShape(20.dp),
-        shadowElevation = 1.dp,
+        shape = RoundedCornerShape(10.dp),
+        border = BorderStroke(1.dp, Outline),
     ) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("暂时无法读取模型配置", color = InkSecondary)
@@ -978,9 +973,9 @@ private fun OrganizationConsentCard(
         modifier = Modifier.fillMaxWidth().testTag(
             if (isPaused) "mistake_organization_paused" else "mistake_organization_consent",
         ),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(10.dp),
         color = JadeSoft.copy(alpha = 0.35f),
-        shadowElevation = 1.dp,
+        border = BorderStroke(1.dp, Outline),
     ) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
             Text(

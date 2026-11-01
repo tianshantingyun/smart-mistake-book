@@ -112,7 +112,6 @@ interface OrganizationWritePort {
         updatedAtEpochMillis: Long,
     ): Int
 
-    /** Catalog identities are validated transactionally; manual cross-subject links never change problem.subject. */
     suspend fun confirmProblemOrganization(
         command: ConfirmProblemOrganizationCommand,
         /**
