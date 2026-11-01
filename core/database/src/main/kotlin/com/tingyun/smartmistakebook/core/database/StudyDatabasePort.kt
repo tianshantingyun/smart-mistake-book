@@ -118,6 +118,7 @@ interface StudyDatabasePort : AutoCloseable, ModelTaskDatabasePort,
     FigureGenerationAuditPort,
     FigureGenerationRecorderPort,
     com.tingyun.smartmistakebook.core.database.port.MistakeEditJobPort,
+    com.tingyun.smartmistakebook.core.database.port.DetailedSolutionPort,
     KnowledgeSearchIndexRebuildPort {
 
     /** Diagnostic: the SQLite PRAGMA user_version of the opened database. */

@@ -24,7 +24,7 @@ import java.nio.file.Paths
  * **6C-2 schema 69 机器清单的同源契约**。
  *
  * 三份事实互相钉住：
- * 1. `70.json`（Room 导出物）：87 表 / 2 视图 / 95 条 FK 边；
+ * 1. `71.json`（Room 导出物）：89 表 / 2 视图 / 96 条 FK 边；
  * 2. 设计 §9.11 的 `<!-- 6c2-plan-v2:begin -->` 机器块（唯一数据源）；
  * 3. [SmbkSelectionPlan]（实施读的那份数据）。
  *
@@ -48,16 +48,16 @@ class SmbkSelectionPlanTest {
     }
 
     @Test
-    fun `schema 69 exports 87 tables 2 views and 95 foreign keys matching the plan identity`() {
-        assertEquals("schema 版本", 70, database.int("version"))
+    fun `schema 69 exports 89 tables 2 views and 96 foreign keys matching the plan identity`() {
+        assertEquals("schema 版本", 71, database.int("version"))
         assertEquals(SmbkSelectionPlan.SCHEMA_VERSION, database.int("version"))
         assertEquals(SmbkSelectionPlan.IDENTITY_HASH, database.string("identityHash"))
-        assertEquals("Room entity 数", 87, entities.size)
+        assertEquals("Room entity 数", 89, entities.size)
         assertEquals("视图数", 2, schemaViews.size)
-        assertEquals("FK 边数", 95, fkEdges.size)
+        assertEquals("FK 边数", 96, fkEdges.size)
 
         assertEquals("视图不参与裁剪但清单必须列出", schemaViews, SmbkSelectionPlan.views)
-        assertEquals("87 表 = 类别 73 + ALWAYS 7 + DERIVED 2 + SPLIT 5", 87, SmbkSelectionPlan.allTables.size)
+        assertEquals("89 表 = 类别 75 + ALWAYS 7 + DERIVED 2 + SPLIT 5", 89, SmbkSelectionPlan.allTables.size)
     }
 
     // ---- 2. 每表恰好归类一次 ----
@@ -68,15 +68,15 @@ class SmbkSelectionPlanTest {
         val classified = userTables + SmbkSelectionPlan.alwaysTables +
             SmbkSelectionPlan.derivedTables + SmbkSelectionPlan.splitTables
 
-        assertEquals("归类总数", 87, classified.size)
+        assertEquals("归类总数", 89, classified.size)
         assertEquals("不允许一张表落在两个桶里", classified.size, classified.toSet().size)
-        assertEquals("归类集合必须与 70.json 的表集合相等", schemaTables.toSet(), classified.toSet())
-        assertEquals("rowCounts 键集合 = 87 表", schemaTables.toSet(), SmbkSelectionPlan.rowCountKeys)
-        assertEquals(87, SmbkSelectionPlan.rowCountKeys.size)
+        assertEquals("归类集合必须与 71.json 的表集合相等", schemaTables.toSet(), classified.toSet())
+        assertEquals("rowCounts 键集合 = 89 表", schemaTables.toSet(), SmbkSelectionPlan.rowCountKeys)
+        assertEquals(89, SmbkSelectionPlan.rowCountKeys.size)
 
         assertEquals(
             mapOf(
-                SmbkSelectionCategory.ISSUE_BOOK to 31,
+                SmbkSelectionCategory.ISSUE_BOOK to 33,
                 SmbkSelectionCategory.MASTERY to 35,
                 SmbkSelectionCategory.SESSIONS to 6,
                 SmbkSelectionCategory.IMAGES to 1,
@@ -105,9 +105,9 @@ class SmbkSelectionPlanTest {
     // ---- 3. 裁剪顺序 ----
 
     @Test
-    fun `trim order covers exactly 79 tables and is a child before parent topological order`() {
+    fun `trim order covers exactly 81 tables and is a child before parent topological order`() {
         val order = SmbkSelectionPlan.trimOrder
-        assertEquals("79 = 87 − 7 ALWAYS − 1 FTS", 79, order.size)
+        assertEquals("81 = 89 − 7 ALWAYS − 1 FTS", 81, order.size)
         assertEquals("裁剪顺序不允许重复", order.size, order.toSet().size)
 
         val expectedTables = SmbkSelectionPlan.allTables.toSet() -
@@ -147,7 +147,7 @@ class SmbkSelectionPlanTest {
             SmbkClosureEdge(SmbkSelectionCategory.SESSIONS, SmbkSelectionCategory.ISSUE_BOOK),
             SmbkClosureEdge(SmbkSelectionCategory.SESSIONS, SmbkSelectionCategory.IMAGES),
         )
-        assertEquals("从 70.json FK 边折叠出的类别闭包", expected, folded)
+        assertEquals("从 71.json FK 边折叠出的类别闭包", expected, folded)
         assertEquals("机器块的 5 条边", expected, SmbkSelectionPlan.expectedClosure.toSet())
         assertEquals(5, folded.size)
     }
@@ -200,10 +200,10 @@ class SmbkSelectionPlanTest {
         }.toSet()
 
         refs.forEach { ref ->
-            assertTrue("软引用源表不存在于 70.json：${ref.table}", ref.table in schemaTables)
+            assertTrue("软引用源表不存在于 71.json：${ref.table}", ref.table in schemaTables)
             if (!ref.virtual) {
                 assertTrue(
-                    "软引用源列不存在于 70.json：${ref.table}.${ref.column}",
+                    "软引用源列不存在于 71.json：${ref.table}.${ref.column}",
                     ref.column in columnsByTable.getValue(ref.table),
                 )
                 assertFalse(
@@ -381,7 +381,7 @@ class SmbkSelectionPlanTest {
     @Test
     fun `empty full selection digest matches the published golden`() {
         val rowCounts = SmbkSelectionPlan.rowCountKeys.associateWith { 0L }
-        assertEquals("rowCounts 必须覆盖 87 表", 87, rowCounts.size)
+        assertEquals("rowCounts 必须覆盖 89 表", 89, rowCounts.size)
 
         val digest = SmbkSelectionPlan.closureDigest(
             categories = SmbkSelectionCategory.entries.toSet(),
@@ -404,7 +404,7 @@ class SmbkSelectionPlanTest {
     }
 
     @Test
-    fun `digest refuses row counts that do not cover all 87 tables`() {
+    fun `digest refuses row counts that do not cover all 89 tables`() {
         val complete = SmbkSelectionPlan.rowCountKeys.associateWith { 0L }
 
         val missing = assertThrows(IllegalArgumentException::class.java) {
@@ -608,12 +608,12 @@ class SmbkSelectionPlanTest {
         const val GRADLE_ROOT_MARKER = "settings.gradle.kts"
         const val PARENT_SEGMENT = "." + "."
         const val CURRENT_SCHEMA_PATH =
-            "core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/70.json"
+            "core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/71.json"
         const val DESIGN_PATH = "docs/research/2026-10-17-6c2-content-selection-design.md"
 
         /** §9.7 空库、全选、assetPolicy=INCLUDED 的 golden。 */
         const val GOLDEN_EMPTY_FULL_DIGEST =
-            "7ec5fb0b0b2c9a056d4b3aa0c129abafa55514f5adab8d5d99ed6bd94fa8a875"
+            "28c52c844bd9c6a7c47cf142f6cf3b864e0767a91b547bdf5a723eb06598deea"
 
         val MACHINE_BLOCK = Regex(
             "<!-- 6c2-plan-v2:begin -->\\s*```json\\s*(\\{.*?})\\s*```\\s*<!-- 6c2-plan-v2:end -->",

@@ -196,6 +196,11 @@ object MistakePdfEligibility {
                     )
                 },
                 userNote = state.detail.userNote?.let(::safeInlineText)?.takeIf(String::isNotBlank),
+                sourceRevisionId = identity.problemRevisionId,
+                sourceImages = sourceAssets.filter { asset ->
+                    asset.location is MistakeSourceLocation.Available && (storedReferences.values.any { it.assetId == asset.sourceAssetId && it.role != VisualRole.TUTOR_EXPLANATION } || asset.sourceAssetId == questionImage?.sourceAssetId)
+                }.distinctBy { it.sourceAssetId }.map { asset -> com.tingyun.smartmistakebook.core.model.ModelEgressAssetGrant(asset.sourceAssetId,
+                    asset.contentSha256, asset.byteSize, asset.width, asset.height) },
                 questionDocumentSha256 = documentFingerprint,
                 inputSha256 = exportFingerprint(
                     "mistake-export-v3",
@@ -367,6 +372,9 @@ class MistakePdfExportInput internal constructor(
     val layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
     /** 条目备注（includeNote 时才进渲染）；入口已做安全内联化。 */
     val userNote: String? = null,
+    val sourceRevisionId: String? = null,
+    val sourceImages: List<com.tingyun.smartmistakebook.core.model.ModelEgressAssetGrant> = emptyList(),
+    val artifactRole: com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole = com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.QUESTIONS,
 ) {
     init {
         val violations = layout.validate()

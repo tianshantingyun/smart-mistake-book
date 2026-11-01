@@ -66,6 +66,17 @@ internal class RoomStudyDatabase(
     private val searchIndexCompleteness: KnowledgeSearchIndexCompleteness =
         KnowledgeSearchIndexCompleteness(),
 ) : StudyDatabasePort, MistakeRevisionWritePort {
+    private val detailedSolutions = com.tingyun.smartmistakebook.core.database.dao.RoomDetailedSolutionStore(database) { upsertCanonicalSourceAssetRow(it) }
+    override suspend fun freezeAnswerManifest(record: com.tingyun.smartmistakebook.core.database.port.PersistedAnswerManifest) = detailedSolutions.freezeAnswerManifest(record)
+    override suspend fun readAnswerManifest(manifestId: String) = detailedSolutions.readAnswerManifest(manifestId)
+    override fun observeAnswerManifest(manifestId: String) = detailedSolutions.observeAnswerManifest(manifestId)
+    override suspend fun updateAnswerManifest(manifestId: String, expectedVersion: Long, status: com.tingyun.smartmistakebook.core.model.DetailedSolutionPreparationStatus, atEpochMillis: Long) = detailedSolutions.updateAnswerManifest(manifestId, expectedVersion, status, atEpochMillis)
+    override suspend fun createDetailedSolution(record: com.tingyun.smartmistakebook.core.database.port.PersistedDetailedSolution) = detailedSolutions.createDetailedSolution(record)
+    override suspend fun readDetailedSolution(solutionId: String) = detailedSolutions.readDetailedSolution(solutionId)
+    override fun observeDetailedSolutions(solutionIds: List<String>) = detailedSolutions.observeDetailedSolutions(solutionIds)
+    override suspend fun updateDetailedSolution(record: com.tingyun.smartmistakebook.core.database.port.PersistedDetailedSolution) = detailedSolutions.updateDetailedSolution(record)
+    override suspend fun attachDetailedSolutionFigure(solutionId: String, expectedVersion: Long, blockId: String, attemptId: String, asset: CanonicalSourceAssetRecord, atEpochMillis: Long) = detailedSolutions.attachDetailedSolutionFigure(solutionId, expectedVersion, blockId, attemptId, asset, atEpochMillis)
+    override suspend fun verifyDetailedSolutionFigures(solutionId: String) = detailedSolutions.verifyDetailedSolutionFigures(solutionId)
     override suspend fun latestMistakeEditJob(basis: EditBasis): PersistedMistakeEditJob? =
         database.mistakeEditJobDao().latest(basis.entryId, basis.revisionId, basis.draftSha256)?.toRecord()
     override suspend fun createMistakeEditJob(job: PersistedMistakeEditJob): PersistedMistakeEditJob = database.withWriteTransaction {

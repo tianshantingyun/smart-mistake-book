@@ -1658,9 +1658,9 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
 ```json
 {
   "closureVersion": 2,
-  "schemaVersion": 70,
-  "identityHash": "3f525f9ab7fd71316ebc380597eb6c34",
-  "note": "v2 (schema 70): adds durable mistake_edit_job to ISSUE_BOOK; generation audit and model-task budgets remain authoritative.",
+  "schemaVersion": 71,
+  "identityHash": "cd4e6e1e2f9dc6378a51c2e47c45f390",
+  "note": "v2 (schema 71): durable detailed_solution_manifest and detailed_solution are ISSUE_BOOK facts; frozen paper and solutions remain backed up.",
   "categories": {
     "ISSUE_BOOK": {
       "bit": 1,
@@ -1671,6 +1671,8 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
         "practice_unit",
         "error_book_entry",
         "mistake_edit_job",
+        "detailed_solution_manifest",
+        "detailed_solution",
         "problem_relation",
         "problem_classification_binding",
         "problem_classification_candidate",
@@ -1793,7 +1795,8 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "TUTOR_EVALUATE": "SESSIONS",
     "LEARNING_SUMMARIZE": "SESSIONS",
     "REVIEW_RERANK": "MASTERY",
-    "KNOWLEDGE_QUIZ": "MASTERY"
+    "KNOWLEDGE_QUIZ": "MASTERY",
+    "MISTAKE_SOLUTION": "ISSUE_BOOK"
   },
   "modelTaskRowFilter": {
     "appliesTo": [
@@ -2139,6 +2142,8 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     }
   ],
   "trimOrder": [
+    "detailed_solution_manifest",
+    "detailed_solution",
     "mistake_edit_job",
     "tutor_message_source_asset",
     "tutor_message",
@@ -2256,12 +2261,12 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
   "digest": {
     "algorithm": "sha256( \"smbk-selection-v2\\n\" + \"closureVersion=2\\n\" + \"categories=\" + categories.sorted().joinToString(\",\") + \"\\n\" + \"assetPolicy=\" + assetPolicy + \"\\n\" + rowCounts.keys.sorted().joinToString(\"\"){ \"$it=${rowCounts[it]}\\n\" } )",
     "rowCountsSource": "裁剪后快照的逐表 COUNT(*)；split 表按行级筛选后的行数",
-    "trimmedTableCount": "number of tables with deleted rows, excluding FTS rebuild; maximum 79",
+    "trimmedTableCount": "number of tables with deleted rows, excluding FTS rebuild; maximum 81",
     "goldenEmptyFull": {
       "mask": 15,
       "assetPolicy": "INCLUDED",
-      "sha256": "7ec5fb0b0b2c9a056d4b3aa0c129abafa55514f5adab8d5d99ed6bd94fa8a875",
-      "note": "schema 70; 87 tables; empty full selection"
+      "sha256": "28c52c844bd9c6a7c47cf142f6cf3b864e0767a91b547bdf5a723eb06598deea",
+      "note": "schema 71; 89 tables; empty full selection"
     }
   }
 }

@@ -204,6 +204,8 @@ class SmartMistakeBookApplication : Application() {
         private set
     var mistakeEditRepository: com.tingyun.smartmistakebook.core.domain.MistakeEditRepository? = null
         private set
+    var detailedSolutionRepository: com.tingyun.smartmistakebook.core.domain.DetailedSolutionRepository? = null
+        private set
 
     lateinit var tutorInteractionRepository: TutorInteractionRepository
         private set
@@ -515,6 +517,8 @@ class SmartMistakeBookApplication : Application() {
                     this, database, modelTaskRepository, figureGenerationCoordinator, editConfigurationStore,
                     capabilities.networkRequestsAllowed, applicationScope)
                 applicationScope.launch { mistakeEditRepository?.resumePendingJobs(capabilities.networkRequestsAllowed) }
+                detailedSolutionRepository = com.tingyun.smartmistakebook.core.data.export.RoomDetailedSolutionRepository.create(
+                    this, database, modelTaskRepository, figureGenerationCoordinator, editConfigurationStore, capabilities.networkRequestsAllowed)
             }
             captureRepository = CaptureWorkflowRepositoryFactory.create(
                 context = this,
