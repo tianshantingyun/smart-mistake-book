@@ -662,3 +662,57 @@ grep -c -e 6475d53e0f-005 -e d9379ea17f-009 tools/kb_coverage/tables/material_ju
 ```
 
 **批次31A 结算（文书员，2026-11-01）**：三个内容版本候选**全部 blocked**，但三者性质不同——v25 是**实测不可归因**（MISS 账本与配额臂逐字节同）且 release 已回滚、staging 与 `extraction_state` 未回滚；v26 **从未发生**（只作为 promote dry-run 的目标版本号出现，其内容就是 v25）；v27 **树内不存在**（无产物、不可裁定）。审计 **done** 且按"来源可发布"口径**不通过**。回归两套件绿（902 / 2）、八门 **7/8**（`judgment_drift` 518 红）、超集守卫**缺失**。验收 v1.4 **F13 红 / F14 红 / F15 仅读数 52.26% / F16 严格口径红（2 条例外）⇒ 不达标**。下一步顺序（未执行）：复位 staging 到 v24 → 回滚 `extraction_state` 3 行与 `KnowledgePort` KDoc → 单独归因 518 → 建近重复去重工具清 F13/F14 → 复核 F16 两条例外 → 再谈 v26。
+
+## 20. 批次31A 终版追加：v25 adopted / v26 failed（回滚未成立）/ v27 blocked（2026-11-01 10:50）
+
+> **只追加**：§19 原文未改；本节记录 §19 之后的 v25 回放、v26 扩展与失败、以及当前树状态。与 §19 冲突时以本节为准，理由见各行时点。数字来源：`build/agent-batch31a/{v25-final.md,v25.log,v25-device/,v26-extract.md,v26.log,v26-touched-files.txt,audit.md,consistency.txt,gates/}` + 本会话 10:39–10:50 实跑。追加前备份：`build/agent-batch31a/backup/kb-outstanding-work-2026-09-20.pre-append-1050.md`（sha256 `3f53c0b9…`）。
+
+**当前身份（10:50 实跑）**：HEAD/origin/main 均 `a0641bb7…`（0/0）；porcelain **738**（234 `M` + 504 `??`；本节追加后 **740 = 236 `M` + 504 `??`**）；release=staging=**v26**（manifest `370b0979…`/26/`aea886e42b36dcb2`、v2-25 `93269182…`/**159**、材料 **65,021**、主包 `96246c78…`、`.vec 70329115…`、金标 `eabef102…`）；MATH `634b5e75…`/44,428、PHYSICS `41d4ca9c…`/38,087、extraction_state `19008d07…`/10,487。
+
+| 项 | 状态 | 读数与证据 |
+|---|---|---|
+| **v25（A 层 3 材料回放）** | **adopted（09:24；stateAfter=v25）** | 判据 1–3 通过：设备融合 **117/129 = 0.9069767441860465**（=v24 基线，非增益）、MRR **0.7239018087855298**、24 章 fused/lexical **lower 0 / equal 24 / higher 0**、零漂移两路 **symdiff 0/0**；判据 4 bootstrap **NOT_RUN**（无 `retrieval_significance` 产物，不得写"无显著差异"）。stateAfter：manifest `0deea0c7…`/25/`7e4102b6…`、v2-25 `89693752…`/**157**、材料 **65,019**、节点 3,280、未绑/悬空 0、四节点绑定 33/3/14/3、release==staging 28/28。**该 stateAfter 已被 09:38 的 v26 promote 覆盖，不是当前树**。证据 `v25-final.md`、`v25-device/{device-metrics.txt,dual-route-ab.json,converge-zero-drift.json}` |
+| **v26（A 层扩展 39 子面）** | **failed（成立）；rolled-back（ask 记，实测未成立）** | 39 子面 → **MATERIAL 2 / SKIP 4 / NOT_FOUND 33**（`a184aa1618-007/-009`，均 MATH）；materialize +2 → v2-25 **159**；promote real **exit 0**、28 文件、release==staging **28/28**、`version=26 / aea886e4…`；**dense step1 exit 1** 被非 v26 未跟踪文件阻塞（`VisualChainTestSeams.kt:22` KDoc `*/`，09:41 机械修复；`TutorVisualPreviewRenderer.kt:254` 类型不匹配，10:05 文件已更新（mtime））；dense step2–8/repin/设备/JVM 四路/零漂移/bootstrap **全 NOT_RUN**。预注册 §3 要求门红停在 promote 前，实际 promote 先落盘（09:38:33）后 dense 失败（09:38:58）⇒ 无有效读数。**回滚未执行**：截至 10:50 release/staging 仍 v26，无回滚日志；回滚目标是 **v25**（不是 HEAD v24），目标值见 `docs/research/2026-11-01-kb-v26-a-layer-expanded-prereg.md` §4.2；v25 逐字备份未找到（`backup-v25-dense` 实测为 v24/9664896a；v25 APK 内含 v25 资产但未验证为回滚源） |
+| **v27** | **blocked（无对象；UNVERIFIED）** | 树内仍无 `moe-2025-teaching-support-v2-27*` / `version=27` / contentVersion 27 产物；审计第 2 版同结论。不得附任何读数 |
+| **只读审计** | **done（第 2 版，09:52，404 行；不通过"来源可发布"）** | ask 的 **38** 个 sourceId 不可复现；HEAD 49/205/65,018、WORKTREE 49/**206**/**65,023**（含 2020 侧车；2025 侧车 65,021）；`sourceUri` **100% 占位**（49/49、206/206、65,023/65,023）；生产门 `-RequireProductionReady` **EXIT=1**；权利门 **EXIT=1**（schema 4 不支持）；edition 不一致 **16/49**；`title==sourceId` **27/49**；wusan publisher 4/4 缩写；v25+v26 五条新料**未发现金标定向改动**（目标不在 128 `expectedSlug`、不在任何 golden query/chapter；主包/别名/金标/判官零改） |
+| **回归** | **902 / OK + 金标 2/2 + 超集守卫缺失** | `python -m unittest discover -s tools/tests -t tools` → **Ran 902 tests in 343.373s / OK**；`GoldenRetrievalJvmTest` → BUILD SUCCESSFUL、XML **tests=2 failures=0**（10:45；只证题面/产物完整性，不证 117/129）；`FusedRecallSupersetTest` → **No tests found**、EXIT=1（文件不在树内，`RetrievalBenchmark.kt:482` 仍 pre）⇒ 超集/配额实验无 JVM 守卫 |
+| **门** | **7/8 rc=0、red=1** | 绿：`py_suite`(902)、`promote_dry`(0；**version→27**、零写盘)、`slice`(235/118,848；MATERIAL 37,965/SKIP 80,883/NEW 358)、`asset`(10/10；44,121)、`alignment`(308/138/73/142，须 `PYTHONPATH=tools`)、`transcripts`(1205/1205)、`judgment_fp`(**135,092** 行/186,635 键/0)。红：`kb_checks` **rc=1**，`judgment_drift` **518**（content 335 + boundary 183）；该门不在 promote 硬门内；批30 绿、31A 07:26 转红、本会话 10:39 仍 518，**成因未归因（UNVERIFIED），不得写"31A 引入"** |
+| **验收 v1.4：F13** | **红** | 去重后近重复 **96 组 / 199 材料 / 额外对 103**（≠0）；组内 content 逐字相同 **96/96**；同节点 94、跨节点 2；1 个 content 哈希跨 2 节点。payload 级去重已 0，但工具键含 `chunk_id`，捕不到"同载荷跨 slug"这 96 组 |
+| **验收 v1.4：F14** | **红** | 退化摘要 **251**（同题 140、`≤8` 字 127、交集 16）≠0 |
+| **验收 v1.4：F15** | **只读数（ask 未设阈值）** | 合规 **33,985 / 65,021 = 52.2677%**（>24 字 20,770 ∪ 含标点 30,932 = 31,036）；v25 基线（65,019）**33,983 / 52.2663%**。§19 的 53.373% 中文标点口径未写明集合，本会话四种集合重算均未复现，不采用 |
+| **验收 v1.4：F16** | **严格口径红（35 条例外）** | **37,561 行 = 37,526 材料标题 + 35 登记例外 + 0 未匹配**；`alias == query` **0**；`alias == expectedSlug` **1**（`人船模型`，节点名变体）；35 例外中 0 条是材料标题、**2 条为 golden query 严格子串**（`实验室制取氢氧化铝`、`二项式系数最大的项`）；别名 `len>24` 0、含问号 0 |
+| **A 层边界** | **重申，不重开** | **60,512 块 SEAL**（point **1,053.333<1,500**、Wilson lower **326.901<800**、genuine 5/5）；选修 **235** 单列；PARTIAL 46 行 / 16 KEEP。v25 回放 = 22 子面 → MATERIAL 3/SKIP 15/NOT_FOUND 4；v26 扩展 = **39 新子面** → MATERIAL 2/SKIP 4/NOT_FOUND 33；均**不重开** 16 KEEP PARTIAL、238 薄料全量、51 仅误区节点；不建点（3,280）、不改别名（40,841）、不改主包（96246c78）、不重打 `.vec`、判官/金标零改 ⇒ **定向抽取 ≠ 重开封层** |
+| **一致性** | **0 PASS / 3 FAIL** | 10:29 快照：C01 HEAD 失配（基线 `147c4b9f` vs 当前 `a0641bb7`）、C02 装置新测 `35ef09ce…` 不存在、C03 写面漂移（manifest/v2-25/MATH/PHYSICS/`DenseRecallRerankerTest.kt`/`FusedRecallSupersetTest.kt`/资产目录越界）；porcelain 738。未放宽判据 |
+| **提交** | **未提交** | HEAD `a0641bb7`；KB 5 个写面 `M` + 他线脏项；本文件与批报只追加；未 commit/push |
+
+**批次31A 终版残留（按阻塞程度）**：
+
+1. **v26 未回滚（最高）**：release/staging 仍 v26（26/159/65,021）；必须恢复到 **v25**（不是 HEAD v24；`git checkout` 会回滚过头），目标值 manifest `0deea0c7…`/25/`7e4102b6…`、v2-25 `89693752…`/157、65,019、MATH `4e0102a4…`/44,426、PHYSICS `41d4ca9c…`/38,087、extraction_state `db141dd7…`/10,487；v25 逐字备份未找到，回滚源 UNVERIFIED。
+2. **v25 adopted 基线不在当前树**：v25 stateAfter 只在 `v25-final.md`、`v25.log`、v25 APK；被 v26 promote 覆盖。
+3. **v26 failed/无判读**：dense step2–8、设备/JVM 四路、零漂移、bootstrap 全 NOT_RUN；promote 先于门红落盘；不得写"v26 测负/通过"。
+4. **`judgment_drift` 518 未归因**（content 335 + boundary 183）。
+5. **F13/F14 未达标**（96 组/103 额外对；退化摘要 251）。
+6. **F16 两条例外需复核**（均为 golden query 严格子串且非材料标题）。
+7. **来源元数据缺口**（49/49 占位 URI、生产门红、权利门 schema 4 不可运行、16/49 edition、27/49 title==sourceId、4 条 wusan publisher 缩写）。
+8. **超集守卫缺失**；金标判官 2/2 绿只证题面/产物完整性。
+9. **一致性 0/3**；登记表与工作树对不上。
+10. **未提交**（HEAD `a0641bb7`；738 项脏）。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD; git rev-list --left-right --count origin/main...HEAD   # a0641bb7…；0 0
+git status --porcelain | wc -l; git status --porcelain | cut -c1-2 | sort | uniq -c   # 738 = 234 M + 504 ??
+python -I -X utf8 -c "import json;d=json.load(open('core/data/src/main/resources/knowledge/moe-2025-update-manifest.json',encoding='utf-8'));print(d['version'],d['contentVersion'])"  # 26 aea886e4…
+sed -n '2,5p' build/agent-batch31a/v25-device/device-metrics.txt           # 117/129；MRR 0.7239018…
+grep -n -E "promote_real|dense_step1|dense_step2_4|dense_step5_6|dense_step7|dense_step8|repin" build/agent-batch31a/v26.log | tail -10  # promote exit0 / dense step1 FAILED / 其余 NOT_RUN
+python tools/ci/run_kb_checks.py                                          # rc=1；judgment_drift 518
+python -m unittest discover -s tools/tests -t tools                       # Ran 902 in 343.373s / OK
+python tools/kb_build/promote.py --dry-run                                # rc=0；version→27；零写盘
+PYTHONPATH=tools python tools/kb_coverage/alignment.py --check            # 308/138/73/142
+./gradlew :core:data:testDebugUnitTest --tests "*GoldenRetrievalJvmTest*" --console=plain -q   # EXIT=0；XML tests=2 failures=0
+./gradlew :core:data:testDebugUnitTest --tests "*FusedRecallSupersetTest*" --console=plain     # No tests found；EXIT=1
+```
+
+**批次31A 终版结算（文书员，2026-11-01 10:50）**：**v25 adopted**（09:24；判据 1–3 过、判据 4 NOT_RUN；stateAfter 65,019/157）；**v26 failed**（39 子面 → 2 材料；promote 已落盘 28 文件，dense step1 被他线编译阻塞，其余全 NOT_RUN）；**ask 记 v26 已回滚，但截至 10:50 实测未回滚——release/staging 仍 v26（159/65,021），故本行只写"failed、回滚未成立"**；**v27 blocked**（无对象，UNVERIFIED）。审计第 2 版 **done / 来源不可发布**。回归 902/OK、金标 2/2、超集守卫缺失；八门 **7/8**（`judgment_drift` 518 红）。验收 v1.4 **F13 红 / F14 红 / F15 只读数 52.2677% / F16 严格口径红（35 条例外，2 条待复核）⇒ 不达标**。最高下一步（未执行）：**先把 v26 回滚到 v25 并逐字核验，再谈任何 v26/后续版本**；回滚后再清 518、F13/F14、F16 与来源元数据。
