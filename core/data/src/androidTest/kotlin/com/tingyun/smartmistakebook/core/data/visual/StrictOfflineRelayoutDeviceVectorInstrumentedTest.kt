@@ -10,6 +10,7 @@ import com.tingyun.smartmistakebook.core.database.AppendTutorAssistantMessageDat
 import com.tingyun.smartmistakebook.core.database.CreateTutorConversationDatabaseCommand
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
+import com.tingyun.smartmistakebook.core.database.TutorVisualIdentity
 import com.tingyun.smartmistakebook.core.database.TutorVisualStatus
 import com.tingyun.smartmistakebook.core.domain.VisualContentMeasureBatch
 import com.tingyun.smartmistakebook.core.domain.VisualContentMeasureResult
@@ -216,9 +217,25 @@ class StrictOfflineRelayoutDeviceVectorInstrumentedTest {
             val programRow = requireNotNull(reopened.readTutorVisualProgram(snapshotRow.programId)) {
                 "the persisted program row must survive a real reopen"
             }
-            assertEquals(
-                "持久 program 行的 id 与快照引用一致",
+            // 批次 39 复核修正（A 类夹具缺陷）：链身份与持久行身份是**两套派生空间**——
+            // 协调器 Program 产物 id 是视觉链身份（visual:<operationId>:<sha16>），持久层
+            // program 行 id 是内容六字段派生（visual-program-<64hex>）。原断言把两者划等号
+            // 结构性不可能成立；X-03 语义要钉的是"持久行身份由内容派生、重开无新源码入口"。
+            assertNotEquals(
+                "链身份与持久行身份不得划等号（两套派生空间）",
                 chainProgramId,
+                programRow.programId,
+            )
+            assertEquals(
+                "持久 program 行 id 必须由内容六字段派生（无新源码入口）",
+                TutorVisualIdentity.deriveProgramId(
+                    sourceJs = programRow.sourceJs,
+                    initialStateJson = programRow.initialStateJson,
+                    basisFingerprint = programRow.basisFingerprint,
+                    apiVersion = programRow.apiVersion,
+                    sdkVersion = programRow.sdkVersion,
+                    role = programRow.role,
+                ),
                 programRow.programId,
             )
             // 类型边界：PersistedVisualProgram 只能由持久行字段构造（无"新源码"入口）。
