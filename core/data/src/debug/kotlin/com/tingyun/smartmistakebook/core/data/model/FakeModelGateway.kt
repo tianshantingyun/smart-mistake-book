@@ -84,6 +84,7 @@ class FakeModelGateway(
     }
 
     private fun outputFor(request: ModelTaskRequest) = when (val input = request.input) {
+        is com.tingyun.smartmistakebook.core.model.DetailedSolutionInput -> error("The capture-only demo provider cannot prepare detailed answers")
         is com.tingyun.smartmistakebook.core.model.MistakeEditInput ->
             com.tingyun.smartmistakebook.core.model.MistakeEditOutput(input.basis,
                 com.tingyun.smartmistakebook.core.model.MistakeEditSuggestion("这只是修改流程演示", input.targetBlockIds.take(1).map { id ->

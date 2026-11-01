@@ -64,6 +64,7 @@ internal class OpenAiCompatibleModelCapabilityTester(
                 val protocol = protocolFor(credential.configuration.protocol)
 
                 var supportsMistakeEdit = false
+                var supportsDetailedSolution = false
                 val structured = runProbe(
                     baseUrl = credential.configuration.baseUrl,
                     modelId = credential.configuration.modelId,
@@ -73,6 +74,7 @@ internal class OpenAiCompatibleModelCapabilityTester(
                     accepts = { wire, body ->
                         val accepted = acceptsStructuredOutput(wire, body)
                         supportsMistakeEdit = accepted && acceptsMistakeEditPatch(wire, body)
+                        supportsDetailedSolution = accepted && acceptsDetailedSolution(wire, body)
                         accepted
                     },
                 )
@@ -129,6 +131,7 @@ internal class OpenAiCompatibleModelCapabilityTester(
                     supportsStructuredOutput = structured == ProbeOutcome.PASSED,
                     supportsFunctionCalling = functionCalling,
                     supportsMistakeEdit = supportsMistakeEdit,
+                    supportsDetailedSolution = supportsDetailedSolution,
                     testedAtEpochMillis = clock().coerceAtLeast(1L),
                     testStartSequence = testStartSequence,
                 )
@@ -275,6 +278,16 @@ internal class OpenAiCompatibleModelCapabilityTester(
         )
         val result = OpenAiMistakeEditProtocol.parse(patch, input, "synthetic-probe")
         (result.suggestion.changes.singleOrNull() as? com.tingyun.smartmistakebook.core.model.MistakeEditChange.ReplaceBlock)?.block == block.copy(markdown = "x^2")
+    }.getOrDefault(false)
+
+    private fun acceptsDetailedSolution(protocol: ModelWireProtocol, body: String): Boolean = runCatching {
+        val text = protocol.probeResponseText(body) ?: return false
+        val payload = JSON.parseToJsonElement(text).jsonObject["detailedSolution"] as? kotlinx.serialization.json.JsonObject ?: return false
+        val document = com.tingyun.smartmistakebook.core.model.QuestionDocument("probe", "Arithmetic", listOf(com.tingyun.smartmistakebook.core.model.ContentBlock.Paragraph("stem", "1+1=?")))
+        val basis = com.tingyun.smartmistakebook.core.model.SolutionBasis("probe-revision", com.tingyun.smartmistakebook.core.model.solutionQuestionSha256(document, emptyList()))
+        val input = com.tingyun.smartmistakebook.core.model.DetailedSolutionInput(com.tingyun.smartmistakebook.core.model.FrozenExportQuestion(1, "probe-entry", basis, document))
+        OpenAiDetailedSolutionProtocol.parse(payload, input, "capability-probe")
+        true
     }.getOrDefault(false)
 
     /** 图片探测通过 = 回复正文就是合成图里的四字符码。 */

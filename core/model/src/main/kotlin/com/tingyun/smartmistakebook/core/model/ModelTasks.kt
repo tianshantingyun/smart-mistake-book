@@ -23,6 +23,7 @@ enum class ModelTaskKind {
     IMAGE_PIPELINE_CLASSIFY,
     KNOWLEDGE_QUIZ,
     MISTAKE_EDIT,
+    MISTAKE_SOLUTION,
 }
 
 @Serializable
@@ -811,6 +812,10 @@ object ModelTaskLogicalOperationFingerprint {
         buildString {
             append(input.kind.name)
             append('\n')
+            if (input is DetailedSolutionInput) {
+                append(solutionLogicalOperationPayload(input))
+                return@buildString
+            }
             append(
                 logicalOperationJson.encodeToString(
                     ModelTaskInput.serializer(),

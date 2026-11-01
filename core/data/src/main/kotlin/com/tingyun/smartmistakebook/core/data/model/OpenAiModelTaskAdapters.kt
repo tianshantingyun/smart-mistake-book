@@ -10,6 +10,7 @@ import com.tingyun.smartmistakebook.core.model.KnowledgeQuizInput
 import com.tingyun.smartmistakebook.core.model.KnowledgeQuizOutput
 import com.tingyun.smartmistakebook.core.model.KnowledgeQuizChoice
 import com.tingyun.smartmistakebook.core.model.MistakeEditInput
+import com.tingyun.smartmistakebook.core.model.DetailedSolutionInput
 import com.tingyun.smartmistakebook.core.model.ModelTaskInput
 import com.tingyun.smartmistakebook.core.model.ModelTaskOutput
 import com.tingyun.smartmistakebook.core.model.ProblemOrganizationInput
@@ -43,6 +44,7 @@ internal object OpenAiModelTaskAdapters {
     private val json = Json { ignoreUnknownKeys = true; isLenient = false }
 
     fun prompt(input: ModelTaskInput): String = when (input) {
+        is DetailedSolutionInput -> OpenAiDetailedSolutionProtocol.prompt(input)
         is MistakeEditInput -> OpenAiMistakeEditProtocol.prompt(input)
         is CaptureAssessmentInput -> assessmentPrompt(input)
         is CaptureParseInput -> PARSE_PROMPT
@@ -60,6 +62,7 @@ internal object OpenAiModelTaskAdapters {
         input: ModelTaskInput,
         modelVersion: String,
     ): ModelTaskOutput = when (input) {
+        is DetailedSolutionInput -> OpenAiDetailedSolutionProtocol.parse(payload, input, modelVersion)
         is MistakeEditInput -> OpenAiMistakeEditProtocol.parse(payload, input, modelVersion)
         is CaptureAssessmentInput -> CaptureAssessmentOutput(
             assessment = payload.toAssessment(modelVersion),

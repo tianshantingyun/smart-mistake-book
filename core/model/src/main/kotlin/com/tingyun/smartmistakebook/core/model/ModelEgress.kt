@@ -84,6 +84,7 @@ object ModelPromptPolicyVersions {
     const val LEARNING_SUMMARIZE = "learning-summarize-v1-tutor-debrief"
     const val PROBLEM_ORGANIZATION = "problem-organization-v4-atomic"
     const val MISTAKE_EDIT = "mistake-edit-v1-host-bound-patches"
+    const val MISTAKE_SOLUTION = "detailed-solution-v1"
     const val KNOWLEDGE_QUIZ = "knowledge-quiz-v1-boundary-anchored"
 
     fun currentFor(kind: ModelTaskKind): String? = when (kind) {
@@ -97,6 +98,7 @@ object ModelPromptPolicyVersions {
         ModelTaskKind.LEARNING_SUMMARIZE -> LEARNING_SUMMARIZE
         ModelTaskKind.PROBLEM_CLASSIFY -> PROBLEM_ORGANIZATION
         ModelTaskKind.MISTAKE_EDIT -> MISTAKE_EDIT
+        ModelTaskKind.MISTAKE_SOLUTION -> MISTAKE_SOLUTION
         ModelTaskKind.KNOWLEDGE_QUIZ -> KNOWLEDGE_QUIZ
         ModelTaskKind.PROBLEM_RELATE,
         ModelTaskKind.TUTOR_EVALUATE,
@@ -587,8 +589,8 @@ object ModelEgressPolicy {
         -> ModelGatewayExecution(request, ModelExecutionPermit.LocalOnly)
 
         ModelExecutionLocation.EXTERNAL_PROVIDER -> {
-            if (request.input is MistakeEditInput) {
-                if (!provider.supports(ModelTaskKind.MISTAKE_EDIT) || !provider.supportsStructuredOutput ||
+            if (request.input is MistakeEditInput || request.input is DetailedSolutionInput) {
+                if (!provider.supports(request.input.kind) || !provider.supportsStructuredOutput ||
                     (request.input.requestsImageBytes && !provider.supportsImageInput)) {
                     throw ModelEgressAuthorizationException(ModelFailureCode.PROVIDER_CAPABILITY_MISSING,
                         "当前模型尚未验证这项修改能力，请到设置重新测试")
