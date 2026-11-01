@@ -5,7 +5,9 @@ package com.tingyun.smartmistakebook.core.database.port
  * [FigureGenerationAuditPort]：那个端口刻意没有插入/预留入口，保证"启动时不再花钱"。
  *
  * 本端口只做三类事：建立 operation（PENDING）并推进到 RUNNING、落 operation/attempt 终态、
- * 回填产物。它**不含状态机**（状态词由 core:data 的 coordinator 决定）、**不含预算判定**：
+ * 回填产物；本地方法（JS）的 attempt 建行是第四类——它没有远程预留，序号由持久层在同一个
+ * 写事务里分配（见 [beginLocalFigureGenerationAttempt]）。它**不含状态机**（状态词由 core:data
+ * 的 coordinator 决定）、**不含预算判定**：
  * `reserved_remote_dispatches` / `used_remote_dispatches` / `final_answer_reserved` 是审计镜像，
  * 真正拦截派发的计数仍只由 `model_task_operation.dispatch_count` 与
  * `clean_redraw_task.attempt_count` 持有。读这两列当预算会双重计费。
@@ -40,6 +42,22 @@ interface FigureGenerationRecorderPort {
     suspend fun beginFigureGenerationAttempt(
         command: BeginFigureGenerationAttemptCommand,
     ): Boolean = false
+
+    /**
+     * 建立一次**本地方法**（JS）尝试：没有远程预留，`reservation_id` 为 NULL。
+     *
+     * 序号必须由持久层在**同一个写事务**里分配：调用方给定序号（恒定 0/-1 或
+     * `MAX(ordinal)+1`）都会与账本预留序号或并发的本地重试撞
+     * `(operation_id, attempt_ordinal)` 唯一索引；`insertAttempt` 是 ABORT、recorder 吞异常，
+     * 结果是一行审计被静默丢掉。实现的本地序号取**负数区间**（-1、-2、…），与账本
+     * `dispatchCount`/`attemptCount` 恒为正的远程序号不相交，两种方法混用同一 operation
+     * 时也不会互相挤掉。
+     *
+     * 默认"做不到"（null）：测试替身与无库装配没有这张台账；如实回 null，不假装记上。
+     */
+    suspend fun beginLocalFigureGenerationAttempt(
+        command: BeginLocalFigureGenerationAttemptCommand,
+    ): FigureGenerationAttemptIdentity? = null
 
     /** 落尝试终态与有界诊断；`output_asset_id` 在成功时尚不知道，由入口落盘后回填。 */
     suspend fun finishFigureGenerationAttempt(
@@ -79,7 +97,7 @@ data class FinishFigureGenerationOperationCommand(
     val updatedAtEpochMillis: Long,
 )
 
-/** 建立一次 `RUNNING` 尝试。 */
+/** 建立一次 `RUNNING` 尝试。`reservationId` 可空：本地方法没有远程预留。 */
 data class BeginFigureGenerationAttemptCommand(
     val attemptId: String,
     val operationId: String,
@@ -88,7 +106,7 @@ data class BeginFigureGenerationAttemptCommand(
     val status: String,
     val sourceSha256: String?,
     val inputFingerprint: String,
-    val reservationId: String,
+    val reservationId: String?,
     val startedAtEpochMillis: Long,
 )
 
@@ -99,4 +117,23 @@ data class FinishFigureGenerationAttemptCommand(
     val outputAssetId: String?,
     val diagnostics: String?,
     val endedAtEpochMillis: Long,
+)
+
+/**
+ * 建立一次**本地方法**尝试。刻意不含 `attemptId`/`attemptOrdinal`/`reservationId`：
+ * 身份由持久层在同一事务里分配（本地序号是负数区间），预留为空。
+ */
+data class BeginLocalFigureGenerationAttemptCommand(
+    val operationId: String,
+    val method: String,
+    val status: String,
+    val sourceSha256: String?,
+    val inputFingerprint: String,
+    val startedAtEpochMillis: Long,
+)
+
+/** 持久层分配的尝试身份（本地方法用；`attemptId` 与 `attemptOrdinal` 同源）。 */
+data class FigureGenerationAttemptIdentity(
+    val attemptId: String,
+    val attemptOrdinal: Int,
 )

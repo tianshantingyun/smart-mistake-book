@@ -417,8 +417,15 @@ fun tutorToolRefusalText(errorKind: String): String = when {
     // A1 生图的两条结果码（本地产生，见 RoomTutorToolRunner.generateFigure）。
     errorKind == "figure_unavailable" -> "当前没有可用的生图通道，没有生成"
     errorKind == "figure_failed" -> "这次配图没有生成成功"
+    // A-02（批次 34 落门，批次 35 补渲染）：JS 方法在本构建没有执行通道——轮次层与
+    // 执行器层两道门共用的结果码。学生侧与"通道不可用"同族，但如实说缺的是本地绘图
+    // 执行通道（不是模型通道）；"没有生成"与 figure_unavailable 同措辞，不假装试过。
+    errorKind == FIGURE_METHOD_UNAVAILABLE_KIND -> "本机没有接通本地绘图通道，没有生成"
     else -> "没有完成"
 }
+
+/** JS 方法在本构建没有执行通道的结果码（与 `RoomModelTaskToolRounds` 的同名字面量一致）。 */
+private const val FIGURE_METHOD_UNAVAILABLE_KIND = "figure_method_unavailable"
 
 private const val REJECTED_REASON_PREFIX = "rejected:"
 

@@ -1,0 +1,416 @@
+--------- beginning of main
+10-29 22:52:21.797  2043  2043 D CarrierServiceBindHelper: Receive action: android.intent.action.PACKAGE_REMOVED
+--------- beginning of system
+10-29 22:52:21.874  1596  2336 I ActivityManager: Start proc 3325:com.android.externalstorage/u0a7 for content provider com.android.externalstorage/.ExternalStorageProvider
+10-29 22:52:21.878  1596  2334 I ActivityManager: Killing 2197:com.android.exchange/u0a30 (adj 15): empty for 19155s
+10-29 22:52:21.878  1282  1282 E lowmemorykiller: Error writing /proc/2197/oom_score_adj; errno=22
+10-29 22:52:21.934  2529  2529 W ContextImpl: Calling a method in the system process without a qualified user: android.app.ContextImpl.startService:1221 android.content.ContextWrapper.startService:581 android.content.ContextWrapper.startService:581 com.android.keychain.KeyChainBroadcastReceiver.onReceive:12 android.app.ActivityThread.handleReceiver:2725 
+10-29 22:52:21.934  1893  3340 D VoicemailCleanupService: Cleaning up data for package: com.tingyun.smartmistakebook.offline
+10-29 22:52:21.942  3325  3325 W System  : ClassLoader referenced unknown path: /system/priv-app/ExternalStorageProvider/lib/x86_64
+10-29 22:52:21.955  3325  3325 D ExternalStorage: After updating volumes, found 1 active roots
+10-29 22:52:21.966  1596  1751 I ActivityManager: Killing 2321:com.android.providers.calendar/u0a1 (adj 13): empty for 19120s
+10-29 22:52:22.036  3282  3298 D Documents: Update found 6 roots in 415ms
+10-29 22:52:22.038  3282  3320 D Documents: Update found 6 roots in 258ms
+10-29 22:52:22.040  3282  3342 D Documents: Update found 6 roots in 78ms
+10-29 22:52:26.906  3345  3345 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 22:52:26.906  3345  3345 D AndroidRuntime: CheckJNI is OFF
+10-29 22:52:26.913  3345  3345 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+10-29 22:52:26.923  3345  3345 E memtrack: Couldn't load memtrack module (No such file or directory)
+10-29 22:52:26.923  3345  3345 E android.os.Debug: failed to load memtrack module: -2
+10-29 22:52:26.923  3345  3345 I Radio-JNI: register_android_hardware_Radio DONE
+10-29 22:52:26.926  3345  3345 D AndroidRuntime: Calling main entry com.android.commands.pm.Pm
+10-29 22:52:26.936  2634  2772 D DefContainer: Copying /data/local/tmp/app-strictOffline-debug.apk to base.apk
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #171
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #174
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #177
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #180
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #183
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #186
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #189
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #193
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #196
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #199
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #202
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #206
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #209
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #212
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #215
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #218
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #221
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #224
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #227
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #230
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #233
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #236
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #239
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #242
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #245
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #248
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #251
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #254
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #257
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #260
+10-29 22:52:27.140  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #263
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #527
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #530
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #533
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #536
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #539
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #542
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #545
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #549
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #552
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #555
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #558
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #562
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #565
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #568
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #571
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #574
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #577
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #580
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #583
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #586
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #589
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #592
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #595
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #598
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #601
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #604
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #607
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #610
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #613
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #616
+10-29 22:52:27.142  1596  1620 W PackageParser: Unknown element under <application>: uses-native-library at /data/app/vmdl871222196.tmp/base.apk Binary XML file line #619
+10-29 22:52:28.226  1596  1620 I PackageManager.DexOptimizer: Running dexopt (dex2oat) on: /data/app/vmdl871222196.tmp/base.apk pkg=com.tingyun.smartmistakebook.offline isa=x86_64 vmSafeMode=false debuggable=true oatDir = /data/app/vmdl871222196.tmp/oat
+10-29 22:52:28.244  3355  3355 W dex2oat : Unexpected CPU variant for X86 using defaults: x86_64
+10-29 22:52:28.244  3355  3355 I dex2oat : /system/bin/dex2oat --debuggable
+10-29 22:52:28.839  3355  3355 I dex2oat : Large app, accepted running with swap.
+10-29 22:52:28.856  3355  3355 W dex2oat : Before Android 4.1, method int androidx.appcompat.widget.DropDownListView.lookForSelectablePosition(int, boolean) would have incorrectly overridden the package-private method in android.widget.ListView
+10-29 22:52:28.857  3355  3355 W dex2oat : Before Android 4.1, method int androidx.appcompat.widget.MenuPopupWindow$MenuDropDownListView.lookForSelectablePosition(int, boolean) would have incorrectly overridden the package-private method in android.widget.ListView
+10-29 22:52:29.556  3355  3358 W dex2oat : Before Android 4.1, method android.graphics.PorterDuffColorFilter androidx.vectordrawable.graphics.drawable.VectorDrawableCompat.updateTintFilter(android.graphics.PorterDuffColorFilter, android.content.res.ColorStateList, android.graphics.PorterDuff$Mode) would have incorrectly overridden the package-private method in android.graphics.drawable.Drawable
+10-29 22:52:35.738  3355  3358 I dex2oat : Method exceeds compiler instruction limit: 21194 in java.lang.Object com.tingyun.smartmistakebook.core.database.StudyDatabase_Impl$createOpenDelegate$_openDelegate$1.onValidateSchema2(androidx.sqlite.SQLiteConnection, kotlin.coroutines.Continuation)
+10-29 22:52:35.738  3355  3358 I dex2oat : Method exceeds compiler instruction limit: 21194 in java.lang.Object com.tingyun.smartmistakebook.core.database.StudyDatabase_Impl$createOpenDelegate$_openDelegate$1.onValidateSchema2(androidx.sqlite.SQLiteConnection, kotlin.coroutines.Continuation)
+10-29 22:52:35.739  3355  3358 I dex2oat : Method exceeds compiler instruction limit: 24598 in java.lang.Object com.tingyun.smartmistakebook.core.database.StudyDatabase_Impl$createOpenDelegate$_openDelegate$1.onValidateSchema3(androidx.sqlite.SQLiteConnection, kotlin.coroutines.Continuation)
+10-29 22:52:35.739  3355  3358 I dex2oat : Method exceeds compiler instruction limit: 24598 in java.lang.Object com.tingyun.smartmistakebook.core.database.StudyDatabase_Impl$createOpenDelegate$_openDelegate$1.onValidateSchema3(androidx.sqlite.SQLiteConnection, kotlin.coroutines.Continuation)
+10-29 22:52:35.739  3355  3358 I dex2oat : Method exceeds compiler instruction limit: 19388 in java.lang.Object com.tingyun.smartmistakebook.core.database.StudyDatabase_Impl$createOpenDelegate$_openDelegate$1.onValidateSchema4(androidx.sqlite.SQLiteConnection, kotlin.coroutines.Continuation)
+10-29 22:52:35.739  3355  3358 I dex2oat : Method exceeds compiler instruction limit: 19388 in java.lang.Object com.tingyun.smartmistakebook.core.database.StudyDatabase_Impl$createOpenDelegate$_openDelegate$1.onValidateSchema4(androidx.sqlite.SQLiteConnection, kotlin.coroutines.Continuation)
+10-29 22:52:35.761  3355  3358 I dex2oat : Method exceeds compiler instruction limit: 25328 in java.lang.Object com.tingyun.smartmistakebook.core.database.StudyDatabase_Impl$createOpenDelegate$_openDelegate$1.onValidateSchema(androidx.sqlite.SQLiteConnection, kotlin.coroutines.Continuation)
+10-29 22:52:35.761  3355  3358 I dex2oat : Method exceeds compiler instruction limit: 25328 in java.lang.Object com.tingyun.smartmistakebook.core.database.StudyDatabase_Impl$createOpenDelegate$_openDelegate$1.onValidateSchema(androidx.sqlite.SQLiteConnection, kotlin.coroutines.Continuation)
+10-29 22:52:41.340  3355  3355 I dex2oat : dex2oat took 13.095s (threads: 4) arena alloc=9MB java alloc=76MB native alloc=117MB free=6MB swap=240MB
+10-29 22:52:44.188  1596  1620 W PackageManager: Package com.tingyun.smartmistakebook.offline desires unavailable shared library androidx.window.extensions; ignoring!
+10-29 22:52:44.188  1596  1620 W PackageManager: Package com.tingyun.smartmistakebook.offline desires unavailable shared library androidx.window.sidecar; ignoring!
+10-29 22:52:44.234  1596  1620 W PackageManager: Unknown permission android.permission.POST_NOTIFICATIONS in package com.tingyun.smartmistakebook.offline
+10-29 22:52:44.234  1596  1620 W PackageManager: Unknown permission android.permission.FOREGROUND_SERVICE in package com.tingyun.smartmistakebook.offline
+10-29 22:52:44.234  1596  1620 W PackageManager: Unknown permission android.permission.FOREGROUND_SERVICE_DATA_SYNC in package com.tingyun.smartmistakebook.offline
+10-29 22:52:44.246  1596  1620 W Settings: Setting install_non_market_apps has moved from android.provider.Settings.Global to android.provider.Settings.Secure, returning read-only value.
+10-29 22:52:44.246  1596  1620 I art     : Starting a blocking GC Explicit
+10-29 22:52:44.266  1596  1620 I art     : Explicit concurrent mark sweep GC freed 27350(1826KB) AllocSpace objects, 10(428KB) LOS objects, 33% free, 6MB/10MB, paused 203us total 19.975ms
+10-29 22:52:44.278  1596  1631 I InputReader: Reconfiguring input devices.  changes=0x00000010
+10-29 22:52:44.286  1596  1596 V KeyValueBackupJob: Scheduling k/v pass in 243 minutes
+10-29 22:52:44.311  3282  3361 D Documents: Update found 6 roots in 35ms
+10-29 22:52:44.317  2043  2043 D CarrierServiceBindHelper: Receive action: android.intent.action.PACKAGE_ADDED
+10-29 22:52:44.346  2043  2043 D CarrierServiceBindHelper: mHandler: 3
+10-29 22:52:44.346  2043  2043 D CarrierConfigLoader: mHandler: 9 phoneId: 0
+10-29 22:52:44.361  3345  3345 I art     : System.exit called, status: 0
+10-29 22:52:44.361  3345  3345 I AndroidRuntime: VM exiting with result code 0.
+10-29 22:52:44.367  1596  1609 W VoiceInteractionManagerService: no available voice recognition services found for user 0
+10-29 22:53:00.077  1284  1323 D hwcomposer: hw_composer sent 32 syncs in 60s
+10-29 22:53:30.812  3366  3366 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 0 <<<<<<
+10-29 22:53:30.814  3366  3366 D AndroidRuntime: CheckJNI is OFF
+10-29 22:53:30.831  3366  3366 D ICU     : No timezone override file found: /data/misc/zoneinfo/current/icu/icu_tzdata.dat
+10-29 22:53:30.881  3366  3366 E memtrack: Couldn't load memtrack module (No such file or directory)
+10-29 22:53:30.881  3366  3366 E android.os.Debug: failed to load memtrack module: -2
+10-29 22:53:30.882  3366  3366 I Radio-JNI: register_android_hardware_Radio DONE
+10-29 22:53:30.889  3366  3366 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+10-29 22:53:30.896  1596  1733 I ActivityManager: START u0 {flg=0x10000000 cmp=com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity} from uid 0 on display 0
+10-29 22:53:30.994  3375  3375 I art     : Late-enabling -Xcheck:jni
+10-29 22:53:31.008  1596  1799 I ActivityManager: Start proc 3375:com.tingyun.smartmistakebook.offline/u0a57 for activity com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity
+10-29 22:53:31.152  1284  1322 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8294400
+10-29 22:53:31.198  2497  2569 D EGL_emulation: eglMakeCurrent: 0x7ffccd68d400: ver 2 0 (tinfo 0x7ffccd691060)
+10-29 22:53:31.200  2497  2569 E Surface : getSlotFromBufferLocked: unknown buffer: 0x7ffccd68e3a0
+10-29 22:53:31.204  3375  3375 D WM-WrkMgrInitializer: Initializing WorkManager with default configuration.
+10-29 22:53:31.215  3375  3375 D WM-PackageManagerHelper: androidx.work.impl.background.systemjob.SystemJobService enabled
+10-29 22:53:31.215  3375  3375 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+10-29 22:53:31.218  3375  3388 D WM-ForceStopRunnable: The default process name was not specified.
+10-29 22:53:31.218  3375  3388 D WM-ForceStopRunnable: Performing cleanup operations.
+10-29 22:53:31.274  3375  3388 D WM-ForceStopRunnable: Application was force-stopped, rescheduling.
+10-29 22:53:31.311  3375  3375 I art     : Note: end time exceeds epoch: 
+10-29 22:53:31.317  3375  3393 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemalarm.RescheduleReceiver
+10-29 22:53:31.335  3375  3375 I art     : Note: end time exceeds epoch: 
+10-29 22:53:31.464  3375  3388 D WM-SystemJobScheduler: Scheduling work ID 58842d1b-96a6-4900-aa5a-77d54bec9ae7Job ID 0
+10-29 22:53:31.465  3375  3375 D StrictMode: StrictMode policy violation; ~duration=200 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=65567 violation=2
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1263)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:67)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.doAccess(File.java:281)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.exists(File.java:361)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.createFilesDirLocked(ContextImpl.java:418)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.getNoBackupFilesDir(ContextImpl.java:451)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.content.ContextWrapper.getNoBackupFilesDir(ContextWrapper.java:208)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.getJournalDir(RestoreRecoveryCoordinator.kt:32)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.detectPendingRestores(RestoreRecoveryCoordinator.kt:39)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:204)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1013)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:4707)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.-wrap1(ActivityThread.java)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1405)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Looper.loop(Looper.java:148)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:5417)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
+10-29 22:53:31.465  3375  3375 D StrictMode: StrictMode policy violation; ~duration=200 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=65567 violation=2
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1263)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at libcore.io.BlockGuardOs.stat(BlockGuardOs.java:292)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.isFile(File.java:537)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.detectPendingRestores$lambda$0(RestoreRecoveryCoordinator.kt:40)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator$$ExternalSyntheticLambda0.accept(D8$$SyntheticClass:0)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.listFiles(File.java:823)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.detectPendingRestores(RestoreRecoveryCoordinator.kt:39)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:204)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1013)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:4707)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.-wrap1(ActivityThread.java)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1405)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Looper.loop(Looper.java:148)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:5417)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
+10-29 22:53:31.465  3375  3375 D StrictMode: StrictMode policy violation; ~duration=199 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=65567 violation=2
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1263)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:67)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.doAccess(File.java:281)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.exists(File.java:361)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.createFilesDirLocked(ContextImpl.java:418)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.getCacheDir(ContextImpl.java:503)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.content.ContextWrapper.getCacheDir(ContextWrapper.java:233)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:366)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1013)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:4707)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.-wrap1(ActivityThread.java)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1405)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Looper.loop(Looper.java:148)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:5417)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
+10-29 22:53:31.465  3375  3375 D StrictMode: StrictMode policy violation; ~duration=199 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=65567 violation=2
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1263)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:67)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.doAccess(File.java:281)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.exists(File.java:361)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.createFilesDirLocked(ContextImpl.java:418)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.getFilesDir(ContextImpl.java:441)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.content.ContextWrapper.getFilesDir(ContextWrapper.java:203)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:369)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1013)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:4707)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.-wrap1(ActivityThread.java)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1405)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Looper.loop(Looper.java:148)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:5417)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
+10-29 22:53:31.465  3375  3375 D StrictMode: StrictMode policy violation; ~duration=199 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=65567 violation=2
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1263)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:67)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.doAccess(File.java:281)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.exists(File.java:361)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.createFilesDirLocked(ContextImpl.java:418)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.getCacheDir(ContextImpl.java:503)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.content.ContextWrapper.getCacheDir(ContextWrapper.java:233)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:377)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1013)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:4707)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.-wrap1(ActivityThread.java)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1405)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Looper.loop(Looper.java:148)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:5417)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
+10-29 22:53:31.465  3375  3375 D StrictMode: StrictMode policy violation; ~duration=199 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=65567 violation=2
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1263)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:67)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.doAccess(File.java:281)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.exists(File.java:361)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.createFilesDirLocked(ContextImpl.java:418)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.getNoBackupFilesDir(ContextImpl.java:451)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.content.ContextWrapper.getNoBackupFilesDir(ContextWrapper.java:208)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:381)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1013)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:4707)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.-wrap1(ActivityThread.java)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1405)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Looper.loop(Looper.java:148)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:5417)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
+10-29 22:53:31.465  3375  3375 D StrictMode: StrictMode policy violation; ~duration=89 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=65567 violation=2
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1263)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:67)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.doAccess(File.java:281)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.exists(File.java:361)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.createFilesDirLocked(ContextImpl.java:418)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.getFilesDir(ContextImpl.java:441)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.content.ContextWrapper.getFilesDir(ContextWrapper.java:203)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.capture.AndroidBatchImportSourceStaging.<init>(BatchImportSourceStaging.kt:79)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.capture.AndroidBatchImportSourceStaging.<init>(BatchImportSourceStaging.kt:70)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.tutor.RoomLobbyMessageImageIntake.<init>(RoomLobbyMessageImageIntake.kt:33)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.tutor.LobbyMessageImageIntakeFactory.create(RoomLobbyMessageImageIntake.kt:135)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:414)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1013)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:4707)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.-wrap1(ActivityThread.java)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1405)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Looper.loop(Looper.java:148)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:5417)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
+10-29 22:53:31.465  3375  3375 D StrictMode: StrictMode policy violation; ~duration=88 ms: android.os.StrictMode$StrictModeDiskReadViolation: policy=65567 violation=2
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1263)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:67)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.doAccess(File.java:281)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.io.File.exists(File.java:361)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.createFilesDirLocked(ContextImpl.java:418)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ContextImpl.getFilesDir(ContextImpl.java:441)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.content.ContextWrapper.getFilesDir(ContextWrapper.java:203)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.capture.AndroidBatchImportSourceStaging.<init>(BatchImportSourceStaging.kt:83)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.capture.AndroidBatchImportSourceStaging.<init>(BatchImportSourceStaging.kt:70)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.tutor.RoomLobbyMessageImageIntake.<init>(RoomLobbyMessageImageIntake.kt:33)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.tutor.LobbyMessageImageIntakeFactory.create(RoomLobbyMessageImageIntake.kt:135)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:414)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1013)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:4707)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.-wrap1(ActivityThread.java)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1405)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:102)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.os.Looper.loop(Looper.java:148)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:5417)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
+10-29 22:53:31.465  3375  3375 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
+10-29 22:53:31.466  3375  3388 D WM-SystemJobScheduler: Scheduling work ID 58842d1b-96a6-4900-aa5a-77d54bec9ae7Job ID 1
+10-29 22:53:31.469  3375  3388 D WM-GreedyScheduler: Starting tracking for 58842d1b-96a6-4900-aa5a-77d54bec9ae7
+10-29 22:53:31.474  3375  3388 D WM-SystemJobScheduler: Scheduling work ID 1dfec8ed-248d-40e0-8aa2-f93ad44ac5b6Job ID 2
+10-29 22:53:31.476  3375  3388 D WM-SystemJobScheduler: Scheduling work ID 1dfec8ed-248d-40e0-8aa2-f93ad44ac5b6Job ID 3
+10-29 22:53:31.478  3375  3388 D WM-GreedyScheduler: Starting work for 1dfec8ed-248d-40e0-8aa2-f93ad44ac5b6
+10-29 22:53:31.478  3375  3388 D WM-GreedyScheduler: Starting tracking for 58842d1b-96a6-4900-aa5a-77d54bec9ae7
+10-29 22:53:31.481  3375  3388 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=1dfec8ed-248d-40e0-8aa2-f93ad44ac5b6, generation=0)
+10-29 22:53:31.485  3375  3388 D WM-ConstraintTracker: BatteryNotLowTracker: initial state = true
+10-29 22:53:31.485  3375  3388 D WM-BrdcstRcvrCnstrntTrc: BatteryNotLowTracker: registering receiver
+10-29 22:53:31.488  3375  3388 D WM-PackageManagerHelper: androidx.work.impl.background.systemalarm.RescheduleReceiver enabled
+10-29 22:53:31.489  3375  3388 D WM-GreedyScheduler: Constraints met: Scheduling work ID WorkGenerationalId(workSpecId=58842d1b-96a6-4900-aa5a-77d54bec9ae7, generation=0)
+10-29 22:53:31.491  3375  3388 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=58842d1b-96a6-4900-aa5a-77d54bec9ae7, generation=0)
+10-29 22:53:31.614  3375  3385 I art     : Background sticky concurrent mark sweep GC freed 6943(638KB) AllocSpace objects, 0(0B) LOS objects, 0% free, 10MB/10MB, paused 26.458ms total 57.177ms
+10-29 22:53:31.621  1284  2036 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+10-29 22:53:31.621  3375  3408 D OpenGLRenderer: Use EGL_SWAP_BEHAVIOR_PRESERVED: true
+10-29 22:53:31.664  1834  1834 W PathParser: Points are too far apart 4.030360828967057
+10-29 22:53:31.664  1834  1834 W PathParser: Points are too far apart 4.030360538880159
+10-29 22:53:31.672  1834  1834 W PathParser: Points are too far apart 4.030360828967057
+10-29 22:53:31.672  1834  1834 W PathParser: Points are too far apart 4.030360538880159
+10-29 22:53:31.690  3375  3375 D         : HostConnection::get() New Host Connection established 0x7ffcc969c5e0, tid 3375
+10-29 22:53:31.690  1834  1834 W PathParser: Points are too far apart 4.030360828967057
+10-29 22:53:31.690  1834  1834 W PathParser: Points are too far apart 4.030360538880159
+10-29 22:53:31.695  3375  3375 D WM-WorkerWrapper: Starting work for com.tingyun.smartmistakebook.BatchImportDriverWorker
+10-29 22:53:31.696  3375  3375 D WM-WorkerWrapper: Starting work for androidx.work.impl.workers.ConstraintTrackingWorker
+10-29 22:53:31.708  1834  1834 W PathParser: Points are too far apart 4.030360828967057
+10-29 22:53:31.708  1834  1834 W PathParser: Points are too far apart 4.030360538880159
+10-29 22:53:31.710  3375  3410 D WM-ConstraintTrkngWrkr: Constraints met for delegate com.tingyun.smartmistakebook.OrphanAssetGcWorker
+10-29 22:53:31.732  1834  1834 W PathParser: Points are too far apart 4.030360828967057
+10-29 22:53:31.732  1834  1834 W PathParser: Points are too far apart 4.030360538880159
+10-29 22:53:31.750  1834  1834 W PathParser: Points are too far apart 4.030360828967057
+10-29 22:53:31.750  1834  1834 W PathParser: Points are too far apart 4.030360538880159
+10-29 22:53:32.045  3375  3385 W art     : Suspending all threads took: 9.099ms
+10-29 22:53:32.050  3375  3385 I art     : Background sticky concurrent mark sweep GC freed 27543(1299KB) AllocSpace objects, 0(0B) LOS objects, 0% free, 26MB/26MB, paused 10.471ms total 20.057ms
+10-29 22:53:32.164  3375  3408 D         : HostConnection::get() New Host Connection established 0x7ffcae170300, tid 3408
+10-29 22:53:32.166  3375  3408 I OpenGLRenderer: Initialized EGL, version 1.4
+10-29 22:53:32.168  3375  3408 D EGL_emulation: eglCreateContext: 0x7ffcadedbb40: maj 2 min 0 rcv 2
+10-29 22:53:32.169  3375  3408 D EGL_emulation: eglMakeCurrent: 0x7ffcadedbb40: ver 2 0 (tinfo 0x7ffcadf8f820)
+10-29 22:53:32.174  3375  3408 D EGL_emulation: eglMakeCurrent: 0x7ffcadedbb40: ver 2 0 (tinfo 0x7ffcadf8f820)
+10-29 22:53:32.193  3375  3392 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=1dfec8ed-248d-40e0-8aa2-f93ad44ac5b6, tags={ com.tingyun.smartmistakebook.BatchImportDriverWorker,batch-import-driver } ]
+10-29 22:53:32.600  1596  1615 I ActivityManager: Displayed com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity: +1s611ms
+10-29 22:53:32.601  3366  3366 D AndroidRuntime: Shutting down VM
+10-29 22:53:32.610  3375  3375 D WM-Processor: Processor 1dfec8ed-248d-40e0-8aa2-f93ad44ac5b6 executed; reschedule = false
+10-29 22:53:32.617  3375  3392 D WM-GreedyScheduler: Cancelling work ID 1dfec8ed-248d-40e0-8aa2-f93ad44ac5b6
+10-29 22:53:32.623  3375  3375 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=58842d1b-96a6-4900-aa5a-77d54bec9ae7, generation=0)
+10-29 22:53:32.624  3375  3375 D WM-SystemJobService: Job is already being executed by SystemJobService: WorkGenerationalId(workSpecId=58842d1b-96a6-4900-aa5a-77d54bec9ae7, generation=0)
+10-29 22:53:32.627  3375  3393 D WM-Processor: Work WorkGenerationalId(workSpecId=58842d1b-96a6-4900-aa5a-77d54bec9ae7, generation=0) is already enqueued for processing
+10-29 22:53:32.628  3375  3393 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=58842d1b-96a6-4900-aa5a-77d54bec9ae7, tags={ com.tingyun.smartmistakebook.OrphanAssetGcWorker,orphan-asset-gc } ]
+10-29 22:53:32.658  3375  3375 D WM-Processor: Processor 58842d1b-96a6-4900-aa5a-77d54bec9ae7 executed; reschedule = false
+10-29 22:53:32.658  3375  3375 D WM-GreedyScheduler: Stopping tracking for WorkGenerationalId(workSpecId=58842d1b-96a6-4900-aa5a-77d54bec9ae7, generation=0)
+10-29 22:53:32.659  3375  3375 D WM-SystemJobService: 58842d1b-96a6-4900-aa5a-77d54bec9ae7 executed on JobScheduler
+10-29 22:53:32.660  3375  3393 D WM-PackageManagerHelper: androidx.work.impl.background.systemalarm.RescheduleReceiver disabled
+10-29 22:53:32.662  3375  3393 D WM-GreedyScheduler: Cancelling work ID 58842d1b-96a6-4900-aa5a-77d54bec9ae7
+10-29 22:53:32.663  3375  3393 D WM-BrdcstRcvrCnstrntTrc: BatteryNotLowTracker: unregistering receiver
+10-29 22:53:41.260  1596  1631 I InputReader: Reconfiguring input devices.  changes=0x00000010
+10-29 22:53:41.263  3282  3415 D Documents: Update found 6 roots in 3ms
+10-29 22:53:45.888  3375  3402 D KnowledgeInstall: packs fully parsed in 14064 ms (2 packs)
+10-29 22:53:45.947  3375  3403 D KnowledgeIndexRebuild: rebuild subject=CHINESE nodes=3 features=136 deleteChunks=0 insertChunks=1 tookMs=40
+10-29 22:53:46.039  3375  3399 D KnowledgeIndexRebuild: rebuild subject=MATH nodes=4 features=209 deleteChunks=0 insertChunks=1 tookMs=91
+10-29 22:53:46.066  3375  3399 D KnowledgeIndexRebuild: rebuild subject=ENGLISH nodes=3 features=140 deleteChunks=0 insertChunks=1 tookMs=27
+10-29 22:53:46.138  3375  3396 D KnowledgeIndexRebuild: rebuild subject=POLITICS nodes=3 features=158 deleteChunks=0 insertChunks=1 tookMs=71
+10-29 22:53:46.201  3375  3385 I art     : Background partial concurrent mark sweep GC freed 174879(11MB) AllocSpace objects, 1(4MB) LOS objects, 2% free, 145MB/149MB, paused 363us total 109.161ms
+10-29 22:53:46.266  3375  3399 D KnowledgeIndexRebuild: rebuild subject=HISTORY nodes=3 features=169 deleteChunks=0 insertChunks=1 tookMs=127
+10-29 22:53:46.292  3375  3401 D KnowledgeIndexRebuild: rebuild subject=GEOGRAPHY nodes=3 features=140 deleteChunks=0 insertChunks=1 tookMs=26
+10-29 22:53:46.335  3375  3395 D KnowledgeIndexRebuild: rebuild subject=PHYSICS nodes=3 features=164 deleteChunks=0 insertChunks=1 tookMs=43
+10-29 22:53:46.453  3375  3400 D KnowledgeIndexRebuild: rebuild subject=CHEMISTRY nodes=3 features=167 deleteChunks=0 insertChunks=1 tookMs=117
+10-29 22:53:46.516  3375  3385 I art     : Background partial concurrent mark sweep GC freed 48026(6MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 146MB/150MB, paused 273us total 167.077ms
+10-29 22:53:46.540  3375  3395 D KnowledgeIndexRebuild: rebuild subject=BIOLOGY nodes=3 features=176 deleteChunks=0 insertChunks=1 tookMs=87
+10-29 22:53:47.674  3375  3385 I art     : Background partial concurrent mark sweep GC freed 807535(33MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 151MB/155MB, paused 609us total 111.033ms
+10-29 22:53:48.051  3375  3385 I art     : Background partial concurrent mark sweep GC freed 992594(40MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 152MB/156MB, paused 592us total 115.144ms
+10-29 22:53:48.861  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1088935(44MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 153MB/157MB, paused 998us total 116.077ms
+10-29 22:53:49.309  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1162469(48MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 153MB/157MB, paused 805us total 107.141ms
+10-29 22:53:50.171  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1199695(50MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 156MB/160MB, paused 786us total 109.006ms
+10-29 22:53:50.561  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1117775(47MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 154MB/158MB, paused 815us total 103.156ms
+10-29 22:53:51.063  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1128489(47MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 154MB/158MB, paused 981us total 117.897ms
+10-29 22:53:51.583  3375  3385 I art     : Background partial concurrent mark sweep GC freed 796762(33MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 152MB/156MB, paused 1.016ms total 132.383ms
+10-29 22:53:51.979  3375  3385 I art     : Background partial concurrent mark sweep GC freed 982643(41MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 152MB/156MB, paused 584us total 102.289ms
+10-29 22:53:52.324  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1081195(44MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 154MB/158MB, paused 1.045ms total 112.541ms
+10-29 22:53:52.687  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1147026(47MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 153MB/157MB, paused 615us total 112.880ms
+10-29 22:53:53.166  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1154416(48MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 153MB/157MB, paused 941us total 105.919ms
+10-29 22:53:53.496  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1119145(46MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 156MB/160MB, paused 851us total 107.757ms
+10-29 22:53:54.025  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1009024(41MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 155MB/159MB, paused 952us total 100.099ms
+10-29 22:53:54.614  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1103120(46MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 153MB/157MB, paused 1.017ms total 125.265ms
+10-29 22:53:55.141  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1047280(44MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 155MB/159MB, paused 1.810ms total 120.091ms
+10-29 22:53:55.579  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1162791(49MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 153MB/157MB, paused 1.411ms total 116.124ms
+10-29 22:53:56.039  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1096572(45MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 154MB/158MB, paused 890us total 104.621ms
+10-29 22:53:56.428  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1056672(44MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 153MB/157MB, paused 1.090ms total 102.440ms
+10-29 22:53:56.724  3375  3385 I art     : Background partial concurrent mark sweep GC freed 806830(34MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 153MB/157MB, paused 778us total 121.386ms
+10-29 22:53:57.149  3375  3385 I art     : Background partial concurrent mark sweep GC freed 963124(40MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 153MB/157MB, paused 709us total 113.536ms
+10-29 22:53:57.496  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1076212(44MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 155MB/159MB, paused 728us total 107.169ms
+10-29 22:53:57.972  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1044878(43MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 154MB/158MB, paused 893us total 103.840ms
+10-29 22:53:58.416  3375  3385 I art     : Background partial concurrent mark sweep GC freed 981670(41MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 154MB/158MB, paused 1.010ms total 104.470ms
+10-29 22:53:58.851  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1011875(42MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 155MB/159MB, paused 900us total 105.489ms
+10-29 22:53:59.275  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1013366(42MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 155MB/159MB, paused 1.074ms total 105.034ms
+10-29 22:53:59.731  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1045748(43MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 154MB/158MB, paused 890us total 101.285ms
+10-29 22:54:00.093  1284  1323 D hwcomposer: hw_composer sent 67 syncs in 60s
+10-29 22:54:00.125  3375  3385 I art     : Background partial concurrent mark sweep GC freed 925845(38MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 154MB/158MB, paused 766us total 106.596ms
+10-29 22:54:00.535  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1026486(43MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 154MB/158MB, paused 958us total 109.862ms
+10-29 22:54:01.864  3375  3385 I art     : Background partial concurrent mark sweep GC freed 823655(34MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 153MB/157MB, paused 806us total 114.417ms
+10-29 22:54:02.203  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1005704(42MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 153MB/157MB, paused 814us total 111.427ms
+10-29 22:54:02.466  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1217669(50MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 154MB/158MB, paused 748us total 108.665ms
+10-29 22:54:02.899  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1076895(44MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 155MB/159MB, paused 850us total 108.469ms
+10-29 22:54:03.423  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1135970(47MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 156MB/160MB, paused 1.515ms total 103.427ms
+10-29 22:54:04.330  3375  3385 I art     : Background partial concurrent mark sweep GC freed 1085440(45MB) AllocSpace objects, 0(0B) LOS objects, 2% free, 155MB/159MB, paused 1.102ms total 105.276ms

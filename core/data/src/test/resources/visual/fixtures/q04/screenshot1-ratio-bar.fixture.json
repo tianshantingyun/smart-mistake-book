@@ -1,0 +1,50 @@
+{
+  "name": "screenshot1-ratio-bar",
+  "category": "截图 1 比例条",
+  "planSource": "docs/superpowers/plans/2026-10-18-flexible-js-drawing-implementation.md:159（3:1/1:1 精确比例、标签可读，非截图图片）",
+  "viewport": { "widthDu": 360, "heightDu": 240 },
+  "scene": {
+    "schemaVersion": 1,
+    "sceneId": "q04-screenshot1-ratio-bar",
+    "revision": 1,
+    "viewBox": { "x": 0, "y": 0, "width": 360, "height": 240 },
+    "background": "#ffffff",
+    "paths": [
+      { "id": "bar-a", "commands": [["M", 20, 20], ["L", 110, 20], ["L", 110, 40], ["L", 20, 40], ["Z"]] },
+      { "id": "bar-b", "commands": [["M", 20, 60], ["L", 50, 60], ["L", 50, 80], ["L", 20, 80], ["Z"]] },
+      { "id": "bar-c", "commands": [["M", 20, 120], ["L", 65, 120], ["L", 65, 140], ["L", 20, 140], ["Z"]] },
+      { "id": "bar-d", "commands": [["M", 20, 160], ["L", 65, 160], ["L", 65, 180], ["L", 20, 180], ["Z"]] }
+    ],
+    "root": {
+      "type": "group",
+      "children": [
+        { "type": "path", "pathId": "bar-a", "fill": "#26354a" },
+        { "type": "path", "pathId": "bar-b", "fill": "#26354a" },
+        { "type": "path", "pathId": "bar-c", "fill": "#336699" },
+        { "type": "path", "pathId": "bar-d", "fill": "#336699" },
+        { "type": "label", "contentId": "lbl-ratio-31", "anchor": { "x": 125, "y": 40 }, "hAlign": "left", "vAlign": "top", "color": "#26354a" },
+        { "type": "label", "contentId": "lbl-ratio-11", "anchor": { "x": 125, "y": 140 }, "hAlign": "left", "vAlign": "top", "color": "#26354a" }
+      ]
+    },
+    "controls": [],
+    "hitRegions": []
+  },
+  "metrics": [
+    { "contentId": "lbl-ratio-31", "widthDu": 24, "heightDu": 12, "baselineDu": 9, "fontSizeSp": 16, "digest": "q04-s1-ratio-31" },
+    { "contentId": "lbl-ratio-11", "widthDu": 24, "heightDu": 12, "baselineDu": 9, "fontSizeSp": 16, "digest": "q04-s1-ratio-11" }
+  ],
+  "labels": {
+    "lbl-ratio-31": "3 : 1",
+    "lbl-ratio-11": "1 : 1"
+  },
+  "subject": {
+    "kind": "ratio-bar",
+    "bars": [
+      { "pathIndex": 0, "leftDu": 20, "rightDu": 110, "topDu": 20, "bottomDu": 40 },
+      { "pathIndex": 1, "leftDu": 20, "rightDu": 50, "topDu": 60, "bottomDu": 80 },
+      { "pathIndex": 2, "leftDu": 20, "rightDu": 65, "topDu": 120, "bottomDu": 140 },
+      { "pathIndex": 3, "leftDu": 20, "rightDu": 65, "topDu": 160, "bottomDu": 180 }
+    ],
+    "expect": { "ratioAOverB": 3.0, "ratioCOverD": 1.0, "barHeightDu": 20, "leftEdgeDu": 20 }
+  }
+}

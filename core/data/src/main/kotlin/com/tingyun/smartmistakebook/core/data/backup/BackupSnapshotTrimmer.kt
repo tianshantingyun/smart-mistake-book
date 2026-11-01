@@ -23,7 +23,7 @@ data class TrimAssetReference(
 )
 
 /**
- * 裁剪报告。所有表计数都按 [SmbkSelectionPlan.allTables] 的 86 个键给出（0 也写），
+ * 裁剪报告。所有表计数都按 [SmbkSelectionPlan.allTables] 的 90 个键给出（0 也写），
  * 可直接作为 v3 manifest 的 `rowCounts` 来源；`trimmedTableCount` 只数**实际删除了行**的表
  * （不含 FTS rebuild），与 §9.7 的 digest 口径一致。
  */
@@ -59,8 +59,8 @@ data class TrimReport(
  * 0/8 与不自洽组合在打开文件之前就抛 `IllegalArgumentException`，不做静默补齐。
  * 全选（15）仍会裁掉两张派生索引并重建 FTS（本批裁定 ③ 的 a+c），用户类别一行不动。
  *
- * I5 的范围说明：本类能证明的是**库内资产闭合**（五站点引用集合 = 四根 + attempt 产物钉住
- * 的集合，且每一条都能在 `canonical_source_asset` 解析到行）。包内文件是否存在、字节数/SHA
+ * I5 的范围说明：本类能证明的是**库内资产闭合**（六站点引用集合 = 四根 + attempt 产物 +
+ * 视觉快照预览钉住的集合，且每一条都能在 `canonical_source_asset` 解析到行）。包内文件是否存在、字节数/SHA
  * 是否一致由 T4 的 `resolveReferencedAssetFiles` 与 `SmbkArchiveCodec.create` 用同一份
  * 引用集合核对；裁剪器没有资产目录，不能假装已经检查过文件。
  */
@@ -75,7 +75,7 @@ class BackupSnapshotTrimmer(
     private val vacuumWorkingSpaceBytes: Long = 10L * 1024L * 1024L,
 ) {
     /**
-     * I4 的 15 条 `no-new-dangling` 检查。每条返回**悬空源行主键**；pre/post 两次取集合，
+     * I4 的 16 条 `no-new-dangling` 检查。每条返回**悬空源行主键**；pre/post 两次取集合，
      * 断言 `D_post ⊆ D_pre`（只允许减少，不允许裁剪制造新悬空）。
      *
      * 两处口径说明：
@@ -214,6 +214,7 @@ class BackupSnapshotTrimmer(
             assertNoUnknownTaskKinds(database, mask)
             if (mask != SmbkSelectionPlan.FULL_MASK) {
                 prepareFigureFilter(database, mask, categories)
+                prepareVisualFilter(database, mask, categories)
             }
 
             val changes = linkedMapOf<String, Long>()
@@ -277,7 +278,7 @@ class BackupSnapshotTrimmer(
         )
         if (identityHash != SmbkSelectionPlan.IDENTITY_HASH) {
             fail(
-                "room_master_table 身份哈希与 schema 69 不符：" +
+                "room_master_table 身份哈希与 schema ${SmbkSelectionPlan.SCHEMA_VERSION} 不符：" +
                     "expected=${SmbkSelectionPlan.IDENTITY_HASH} actual=$identityHash",
             )
         }
@@ -569,6 +570,28 @@ class BackupSnapshotTrimmer(
                     changes = changes,
                 )
             }
+            "tutor_visual_snapshot" -> if (mask != SmbkSelectionPlan.FULL_MASK) {
+                deleteWhere(
+                    database = database,
+                    table = table,
+                    sql = "DELETE FROM ${quoteIdentifier(table)} " +
+                        "WHERE snapshot_id NOT IN " +
+                        "(SELECT snapshot_id FROM smbk_kept_snapshot)",
+                    args = emptyList(),
+                    changes = changes,
+                )
+            }
+            "tutor_visual_program" -> if (mask != SmbkSelectionPlan.FULL_MASK) {
+                deleteWhere(
+                    database = database,
+                    table = table,
+                    sql = "DELETE FROM ${quoteIdentifier(table)} " +
+                        "WHERE program_id NOT IN " +
+                        "(SELECT program_id FROM smbk_kept_program)",
+                    args = emptyList(),
+                    changes = changes,
+                )
+            }
             else -> fail("SmbkSelectionPlan 中出现未实现的 split 表：$table")
         }
     }
@@ -717,6 +740,52 @@ class BackupSnapshotTrimmer(
                     unknownOperations.take(5).joinToString("、"),
             )
         }
+    }
+
+    /**
+     * 视觉两表的行级预扫（设计 §2.7.1；批次 30 / D-01）。必须在任何 DELETE 之前调用：
+     * 保留集合要看**删除前**的 link/题面引用，删除后再算就只剩幸存者，无法区分"本来就没被引用"。
+     *
+     * - snapshot 保留 ⟺ 仍被存活的 `tutor_message_visual`（SESSIONS 选中）或
+     *   `problem_revision_visual`（ISSUE_BOOK 选中）引用，或 `checkpoint_kind='INITIAL'`
+     *   （初始快照是重建基线，裁掉则"初始版本"永久丢失）；
+     * - program 保留 ⟺ 被上述存活 link/题面引用，**或** 被任一保留快照引用。
+     *   后一半是硬 FK 闭包：`tutor_visual_snapshot.program_id` 是 RESTRICT，只保留 snapshot
+     *   却删掉它的 program 会让 `foreign_key_check` 直接失败。
+     */
+    private fun prepareVisualFilter(
+        database: SQLiteDatabase,
+        mask: Int,
+        selected: Set<SmbkSelectionCategory>,
+    ) {
+        if (mask == SmbkSelectionPlan.FULL_MASK) return
+        database.execSQL("CREATE TEMP TABLE smbk_kept_snapshot(snapshot_id TEXT PRIMARY KEY)")
+        database.execSQL("CREATE TEMP TABLE smbk_kept_program(program_id TEXT PRIMARY KEY)")
+
+        val issueFlag = if (SmbkSelectionCategory.ISSUE_BOOK in selected) "1" else "0"
+        val sessionsFlag = if (SmbkSelectionCategory.SESSIONS in selected) "1" else "0"
+
+        database.execSQL(
+            """
+            INSERT OR IGNORE INTO smbk_kept_snapshot(snapshot_id)
+            SELECT current_snapshot_id FROM tutor_message_visual WHERE CAST(? AS INTEGER) = 1
+            UNION SELECT snapshot_id FROM problem_revision_visual WHERE CAST(? AS INTEGER) = 1
+            UNION SELECT snapshot_id FROM tutor_visual_snapshot
+                  WHERE checkpoint_kind = 'INITIAL'
+            """.trimIndent(),
+            arrayOf<Any?>(sessionsFlag, issueFlag),
+        )
+
+        database.execSQL(
+            """
+            INSERT OR IGNORE INTO smbk_kept_program(program_id)
+            SELECT program_id FROM tutor_message_visual WHERE CAST(? AS INTEGER) = 1
+            UNION SELECT program_id FROM problem_revision_visual WHERE CAST(? AS INTEGER) = 1
+            UNION SELECT program_id FROM tutor_visual_snapshot
+                  WHERE snapshot_id IN (SELECT snapshot_id FROM smbk_kept_snapshot)
+            """.trimIndent(),
+            arrayOf<Any?>(sessionsFlag, issueFlag),
+        )
     }
 
     private fun assertNoUnknownTaskKinds(database: SQLiteDatabase, mask: Int) {
@@ -1206,6 +1275,17 @@ class BackupSnapshotTrimmer(
                 """.trimIndent(),
                 emptyList(),
             ),
+            SoftReferenceCheck(
+                "tutor_visual_program.basis_revision_id",
+                """
+                SELECT program_id FROM tutor_visual_program
+                WHERE basis_revision_id IS NOT NULL
+                  AND NOT EXISTS (
+                    SELECT 1 FROM problem_revision AS revision
+                    WHERE revision.revision_id = tutor_visual_program.basis_revision_id)
+                """.trimIndent(),
+                emptyList(),
+            ),
         )
     }
 
@@ -1234,22 +1314,34 @@ class BackupSnapshotTrimmer(
             UNION SELECT source_asset_id FROM tutor_message_source_asset
             UNION SELECT output_asset_id FROM figure_generation_attempt
                   WHERE output_asset_id IS NOT NULL
+            UNION SELECT preview_asset_id FROM tutor_visual_snapshot
+                  WHERE preview_asset_id IS NOT NULL
         """.trimIndent()
 
+        /**
+         * 真子集（TRIMMED）的 pin 集合：kept 引用表（R）+ attempt 产物 + 保留快照的预览。
+         *
+         * `tutor_visual_snapshot.preview_asset_id` 是第六类引用站点（批次 30/D-01）。本 SQL 在
+         * 删除之后求值，因此 `tutor_visual_snapshot` 里剩下的正是被存活 link/题面引用或
+         * `checkpoint_kind='INITIAL'` 保留的行；它们的预览字节必须随包，否则恢复后图空。
+         */
         val TRIMMED_ASSET_PINS_SQL = """
             SELECT asset_id FROM smbk_kept_asset
             UNION SELECT output_asset_id FROM figure_generation_attempt
                   WHERE output_asset_id IS NOT NULL
+            UNION SELECT preview_asset_id FROM tutor_visual_snapshot
+                  WHERE preview_asset_id IS NOT NULL
         """.trimIndent()
 
         /**
-         * 生产 `findUnreferencedCanonicalAssets` 的五站点补集。裁剪器用它反查
+         * 生产 `findUnreferencedCanonicalAssets` 的六站点补集（批次 30/D-01 起由五类扩到六类，
+         * 新增 `tutor_visual_snapshot.preview_asset_id`）。裁剪器用它反查
          * "库自己认为被引用的资产"，再与 §9.5 的 pin 集合对拍。
          *
          * 批次 19 T2-5（I5 单源化）：这份 SQL 不再手写第二遍——由
          * [CanonicalAssetReferenceSites.UNREFERENCED_PREDICATE_SQL]（与清理认领同一处定义）
-         * 取反对偶生成：`WHERE NOT (五个 NOT EXISTS)` ≡ 五个 `EXISTS` 的析取，
-         * 语义逐位不变。将来新增第六类引用形态只改共享谓词，两侧同变。
+         * 取反对偶生成：`WHERE NOT (六个 NOT EXISTS)` ≡ 六个 `EXISTS` 的析取。
+         * 将来新增引用形态只改共享谓词，两侧同变。
          */
         val FIVE_SITE_ASSET_IDS_SQL: String =
             "SELECT asset.source_asset_id FROM canonical_source_asset AS asset " +

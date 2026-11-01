@@ -1,6 +1,8 @@
 package com.tingyun.smartmistakebook.core.data.model
 
 import com.tingyun.smartmistakebook.core.model.ContentBlock
+import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
+import com.tingyun.smartmistakebook.core.model.FigureImageOperation
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.RelatedProblemCandidate
 import com.tingyun.smartmistakebook.core.model.SubjectKind
@@ -446,6 +448,62 @@ class TutorToolRoundGateTest {
         )
 
         assertEquals(3, outcomes.single().resultCount)
+    }
+
+    @Test
+    fun `a javascript figure call never reaches the image generator`() = runBlocking {
+        // A-02 的 fail-closed 臂 + 非空转对照臂：
+        // - JS 调用在契约层合法（method=JS + 独立 program），但本构建没有 JS 执行通道，
+        //   轮次层必须拒它，**不得**落进图像生成器（那是一次真实付费出网 + 假痕迹）；
+        // - 同一夹具下的 IMAGE_MODEL 调用照旧触达执行器（证明 ran 这个观测器会计数，
+        //   否则"0 触达"的断言可能只是观测失灵）。
+        val jsCall = TutorToolCall(
+            tool = TutorToolName.GENERATE_FIGURE,
+            rationale = "图形是这道题的理解关键",
+            figureKind = TutorFigureKind.GENERATE_PROCESS,
+            figureDescription = "用程序画数轴",
+            figureMethod = FigureGenerationMethod.JS,
+            figureProgram = "renderScene({ kind: 'number-line' });",
+        )
+        val imageModelCall = TutorToolCall(
+            tool = TutorToolName.GENERATE_FIGURE,
+            rationale = "图形是这道题的理解关键",
+            figureKind = TutorFigureKind.GENERATE_PROCESS,
+            figureDescription = "画一条数轴",
+            figureMethod = FigureGenerationMethod.IMAGE_MODEL,
+            figureImageOperation = FigureImageOperation.GENERATE,
+            figureImagePrompt = "画一条数轴，标出导数为正、负的区间。",
+        )
+        val ran = mutableListOf<TutorToolName>()
+        val runTool: suspend (TutorToolCall, Boolean) -> TutorToolExecution = { call, _ ->
+            ran += call.tool
+            ok(call.tool)
+        }
+        val authorized = tutorToolAuthorization(
+            intentDecision(intent = TutorMessageIntent.CURRENT_QUESTION_HELP),
+            TUTOR_TOOL_DECLARATIONS,
+        ).allowedTools
+
+        val jsOutcomes = tutorToolRoundOutcomes(
+            calls = listOf(jsCall),
+            authorizedTools = authorized,
+            disclosedKnowledgeCodes = disclosed,
+            runTool = runTool,
+            consumeExtendedResult = {},
+        )
+        assertFalse("JS 在本构建没有执行通道，必须 fail-closed", jsOutcomes.single().outcome.ok)
+        assertEquals(FIGURE_METHOD_UNAVAILABLE, jsOutcomes.single().outcome.errorKind)
+        assertTrue("JS 不得触达图像生成器", ran.isEmpty())
+
+        val imageOutcomes = tutorToolRoundOutcomes(
+            calls = listOf(imageModelCall),
+            authorizedTools = authorized,
+            disclosedKnowledgeCodes = disclosed,
+            runTool = runTool,
+            consumeExtendedResult = {},
+        )
+        assertTrue("IMAGE_MODEL 不受 JS 门影响", imageOutcomes.single().outcome.ok)
+        assertEquals(listOf(TutorToolName.GENERATE_FIGURE), ran)
     }
 
     @Test

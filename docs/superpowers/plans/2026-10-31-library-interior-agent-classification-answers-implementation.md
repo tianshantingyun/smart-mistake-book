@@ -237,7 +237,7 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 **新增：**
 
 - `core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/mistake/RoomMistakeEditRepository.kt`：模型建议、绘图与作业状态编排。
-- `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/MistakeEditMigration_69_70.kt`。
+- `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/LibraryInteriorMigration_71_72.kt`。
 - `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/entity/MistakeEditJobEntity.kt`。
 - `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/dao/MistakeEditJobDao.kt`。
 - `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/port/MistakeEditJobPort.kt`。
@@ -355,7 +355,7 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 **新增：**
 
 - `core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/export/RoomDetailedSolutionRepository.kt`。
-- `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/DetailedSolutionMigration_70_71.kt`。
+- `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/LibraryInteriorMigration_71_72.kt`。
 - `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/entity/DetailedSolutionEntity.kt`。
 - `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/dao/DetailedSolutionDao.kt`。
 - `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/port/DetailedSolutionPort.kt`。
@@ -429,7 +429,7 @@ Invoke-SmbGradle -TaskArguments @(':core:export:testDebugUnitTest', ':core:expor
 
 **新增：**
 
-- `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/MistakeExportGroupMigration_71_72.kt`。
+- `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/LibraryInteriorMigration_71_72.kt`。
 - `feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/DetailedAnswerPreviewSheet.kt`。
 - `app/src/test/kotlin/com/tingyun/smartmistakebook/DetailedAnswerExportWiringTest.kt`。
 - `feature/library/src/androidTest/kotlin/com/tingyun/smartmistakebook/feature/library/DetailedAnswerPreviewInstrumentedTest.kt`。
@@ -589,3 +589,15 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 - 已关闭 T1 留下的两项图角色失败：助手消息角色按成功生成审计及规范资产建立，工具痕迹文字不作为权威。`TutorSessionVisualRoleDatabaseInstrumentedTest` 的 4 项设备检查全部通过，原第一项更名为 `savingCopiesAssistantFigureRolesFromSuccessfulGenerationAudit`；原图不重复、未知旧图不猜角色、跨轮复用的缓存图仍能正确保存、删除会话保留已存题图。
 - 证据位于已授权目录 `.jez/artifacts/library-interior-implementation-2026-10-31/`，含构建日志、原生 XML/截图、数据库摘要、实际 PDF 与最终 APK。
 - 按用户“测试不用这么严谨”的要求，本轮不继续扩展完整设备/字体/多窗口/迁移矩阵。真实 Provider 的成功改图与详细答案生成、答案 PDF 的真设备完整多页验收，以及 JS 隔离运行库准入未执行；不得将这些写成已验收。上述未勾选测试项保留供后续专项验证，不代表仍有待接线的按钮或占位实现。
+
+### 推送合并前的主分支整合（2026-11-01）
+
+用户授权推送合并后，已同步主分支 `f0512a47`。主分支已正式使用视觉快照迁移 69→70→71，因此原实施分支的三份迁移不再注册，统一收敛为 `LibraryInteriorMigration_71_72.kt`。该新增路径和替换方案已获用户弹窗授权。
+
+当前迁移链为主分支原有 69→70→71，再通过一次 71→72 创建错题修改作业、详细答案准备和双文件导出表；此前 T5/T8/T10 中的分段迁移编号只作为原基线实施记录。70/71 的 Room schema 与主分支逐字节一致；72 由整合后的 Room 实体重新生成，包含 94 表、2 视图、106 条外键，identityHash 为 `7afd54457052b5bd0f1a6c6a97f32238`。
+
+主分支视觉快照、隔离渲染能力、备份中对快照及 INITIAL 基线的保留规则完整保留。本次新增两种模型任务与四张功能表并入同一备份清单，closureVersion 升至 4；当前机器块见备份设计 §9.13，历史 v2 块保留作追溯。允许的选择仍为 9/13/15，0/8 仍被拒绝。
+
+已执行真实 SQLite 的 71→72 迁移检查：所有实体列和索引与 Room 导出结构一致，外键检查 0 个问题，已有规范图资产记录保留。原生编译和备份清单检查的最终结果见同一证据目录内 `merge-main-verification.log` 与 `merge-migration-verification.json`。不操作主检出目录的未提交工作。
+
+合并前最终检查：`merge-final-app-compile.log` 为 `BUILD SUCCESSFUL in 5s`。目标备份单测未能运行：主分支已有的 `ModelWireProtocolSourceJsFidelityTest.kt` 引用了尚不存在的载体常量，`VisualDrawOpsParserTest.kt` 仍按旧 String 返回类型调用已改为 typed result 的接口。两份测试及 parser 与 origin/main 逐字节相同；此阻塞单独记录在 `merge-baseline-test-block.json`，不将其记为通过，不扩展本次合并范围修理他线测试。

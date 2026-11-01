@@ -136,6 +136,19 @@ object VisualExecutionBudget {
 
     /** 画布边长（du）。 */
     const val MAX_CANVAS_EDGE_DU: Int = 4096
+
+    /**
+     * 场景节点 / 树深 / 路径命令 / 命中区上限（契约 §4 表；批次 27 T1 供 SceneV1 编译器
+     * 与 DrawOps 原生校验器引用）。**JS 资产内是同值镜像**（`visual-compiler.js` 文件头），
+     * 改预算必须两端同改——JVM 负向矩阵与 Node 测试台（tools/visual_compiler）各自钉住。
+     */
+    const val MAX_SCENE_NODES: Int = 256
+
+    const val MAX_SCENE_TREE_DEPTH: Int = 8
+
+    const val MAX_PATH_COMMANDS: Int = 4096
+
+    const val MAX_HIT_REGIONS: Int = 128
 }
 
 /**
@@ -217,19 +230,33 @@ data class VisualMeasuredContent(
 /** 执行结果：成功渲染，或有界拒绝。不设"部分成功/截断"形态（契约 §4：超限不截断成"正确图"）。 */
 sealed interface VisualExecutionResult {
     /**
-     * 渲染成功：经实现校验的场景 JSON（批次二类型化 SceneV1/RenderScene DTO 与 compiler
-     * 落地前，payload 以有界字符串过端口）+ 本事务冻结的 contentId 集合。
+     * 渲染成功：经实现校验的场景 JSON + 编译产出的 DrawOps 指令序列（批次 27 T1；契约
+     * §3.2 第 4 步"原生严格校验、共享 compiler 编译，原子提交"）+ 本事务冻结的 contentId 集合。
+     *
+     * [drawCommandsJson] 是 DrawOps V1 文本（词表见 `visual-compiler.js` 文件头 / R1 §3.2）；
+     * 宿主校验器（core:data VisualDrawOpsValidator）已按与编译器同一套不变量复验后才会
+     * 出现在这里。可空并默认 null：fake/旧形态构造点（core:domain 契约 fake、队列测试）
+     * 不承担编译语义；真实引擎的 Rendered 必携带非空值。
      */
     data class Rendered(
         val sceneJson: String,
         val sceneSchemaVersion: Int,
         val contentIds: Set<String>,
+        val drawCommandsJson: String? = null,
+        val drawSchemaVersion: Int = 1,
     ) : VisualExecutionResult {
         init {
             require(sceneJson.isNotEmpty()) { "A rendered scene needs its payload" }
             require(sceneSchemaVersion >= 1) { "A scene schema version starts at 1" }
             require(figureUsageUtf8Bytes(sceneJson) <= VisualExecutionBudget.MAX_TRANSACTION_JSON_BYTES) {
                 "A rendered scene exceeds the transaction JSON budget"
+            }
+            require(drawSchemaVersion >= 1) { "A draw schema version starts at 1" }
+            require(
+                drawCommandsJson == null ||
+                    figureUsageUtf8Bytes(drawCommandsJson) <= VisualExecutionBudget.MAX_TRANSACTION_JSON_BYTES,
+            ) {
+                "A rendered draw command sequence exceeds the transaction JSON budget"
             }
         }
     }

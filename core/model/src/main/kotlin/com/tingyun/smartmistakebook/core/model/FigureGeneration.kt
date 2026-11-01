@@ -327,6 +327,29 @@ data class FigureGenerationRequest(
      * coordinator 按 operationId + 源图 sha + imagePrompt 派生（见 [figureBasisFingerprint]）。
      */
     val basisFingerprint: String? = null,
+    /**
+     * 用户明确本地重试（4E.2 P-12②）。仅当用户对**同一逻辑操作**显式触发重试时为 true，
+     * 且宿主必须复用同一 [operationId]——重试承继同一操作身份与预算，不复制新操作；
+     * 不同 operationId 的"重试"是新逻辑操作，不得带此位。默认 false 对既有生产构造点
+     * 逐位零变化。
+     *
+     * 只被 JS 本地路径消费（熔断的恒等物是 program 摘要，只存在于 JS 引擎；没有生产 true
+     * 调用点时，看门狗硬杀/引擎崩溃后的同 program 重发永远 PROGRAM_FUSED，熔断从保护变
+     * 死锁）。IMAGE_MODEL 的重试预算由持久账本管理，远程路径**不读**该字段——此位不产生
+     * 任何 policy/预算豁免。
+     */
+    val explicitUserRetry: Boolean = false,
+    /**
+     * X-02：宿主冻结的**源证据基准**（[VisualSourceBasis]：subject/revision、canonical
+     * 引用/SHA、允许披露范围）。null = 旧调用，策略门不介入（逐位零变化）。
+     *
+     * 非空时策略门做两件事（contract §3.1）：把基准的 canonical 引用/SHA 与
+     * [FigureSourceEvidence] 的实际字节绑定核对（错图/SHA 变化 fail-closed）；未授权披露
+     * 原图（`allowsImageDisclosure = false`）时拒绝任何会把源图字节送出网的 IMAGE_MODEL
+     * 派发（授权不足）。"已发送"的证据不走本字段——那是 [FigureGenerationOutcome.sourceSeen]，
+     * 只在源图字节真的出网后由派发路径产出。
+     */
+    val visualSourceBasis: VisualSourceBasis? = null,
 ) {
     init {
         require(operationId.isNotBlank()) { "A figure operation id must not be blank" }
@@ -534,7 +557,13 @@ enum class FigureGenerationStatus {
     /** 源证据不足，需先准备（未执行后端）。 */
     NEED_SOURCE,
 
-    /** 没有可用方法/能力（未执行后端）。 */
+    /**
+     * 没有可用方法/能力（未执行后端）。JS 本地路径的**设施类失败**也落这里（M-04/P-11，
+     * 2026-10-30）：引擎已关、宿主度量设施失败、或引擎失败原因不可归属（诊断带
+     * `[UNATTRIBUTED]` 前缀）。共同语义：不是"程序错了去修"、不是"有产物可等"，而是
+     * "本机执行设施此刻不可用/不可判定"——不回喂修 program。具体是哪一类凭诊断前缀
+     * 区分（`ENGINE_CLOSED: …` vs `INVALID_PROGRAM: [UNATTRIBUTED] …`），原文保留在诊断里。
+     */
     UNAVAILABLE,
 
     /** 请求/proposal 不合法（未预留、未执行后端）。 */
@@ -563,12 +592,25 @@ data class FigureGenerationOutcome(
      * `figure_generation_attempt.output_asset_id`；它只是审计身份，不是预算句柄。
      */
     val attemptId: String? = null,
+    /**
+     * X-02："源图字节真的随这次派发出网了"的记录（[VisualSourceSeenRecord]）。
+     *
+     * 只在派发路径真实把源图字节送出网之后存在（与账本 used=1 的记账点同一语义；发送后
+     * 失败也如实保留——字节出网是事实，与产物成败无关）；没带源字节的派发为 null，不得
+     * 冒充"模型已看图"。持久孪生 = attempt 行的 `reservation_id` + `source_sha256`，
+     * 台账没写成（[attemptId] 为 null）时协调器不产出本记录。
+     */
+    val sourceSeen: VisualSourceSeenRecord? = null,
 ) {
     init {
         require(operationId.isNotBlank()) { "A figure outcome needs an operation id" }
         require(attemptId == null || attemptId.isNotBlank()) {
             "A figure outcome attempt id must be null or non-blank"
         }
+        require(
+            sourceSeen == null ||
+                (attemptId != null && sourceSeen.sourceSeenDispatchId == attemptId),
+        ) { "A source seen record must reference this outcome's attempt" }
         require(
             (artifact == null) ||
                 (status == FigureGenerationStatus.GENERATED || status == FigureGenerationStatus.CACHED),
@@ -626,6 +668,39 @@ fun figureBasisFingerprint(
         append('|').append(operationId)
         append('|').append(sourceSha256 ?: "-")
         append('|').append(imagePrompt ?: "-")
+    }
+    return figureSha256Hex(canonical.toByteArray(StandardCharsets.UTF_8))
+}
+
+/**
+ * JS 方法**冻结输入**的稳定指纹（4E WG-08 audit 的 `basis_fingerprint`；A-08）。
+ *
+ * 口径：`sha256("figure-basis-v1-js|operationId|sourceSha|sha256(program)")`（缺省段用 `-`）。
+ *
+ * **它消灭的具体失败**：JS proposal 按 policy 必须 `imagePrompt == null`，而
+ * [figureBasisFingerprint] 的规范化串只含 `imagePrompt`——同一操作下两个**不同的** JS
+ * program 会得到同一个 `input_fingerprint`，attempt 表再也无法回答"这次尝试的输入变过没有"，
+ * 也会让 A-08"两个不同 program 不得同指纹"直接不成立。这里把 program 的字节哈希放进
+ * 规范化串（源码即输入），其余段与图像方法保持同一口径。
+ *
+ * 与 [figureBasisFingerprint] 一样：带 operationId 但**不带 method**；同一操作重试命中同一值。
+ */
+fun figureJsBasisFingerprint(
+    operationId: String,
+    sourceSha256: String?,
+    program: String,
+): String {
+    require(operationId.isNotBlank()) { "A figure basis needs an operation id" }
+    require(sourceSha256 == null || sourceSha256.length == SHA_256_HEX_CHARS) {
+        "A figure basis source sha must be SHA-256"
+    }
+    require(program.isNotEmpty()) { "A JS figure basis needs its program" }
+    val programSha = figureSha256Hex(program.toByteArray(StandardCharsets.UTF_8))
+    val canonical = buildString {
+        append("figure-basis-v1-js")
+        append('|').append(operationId)
+        append('|').append(sourceSha256 ?: "-")
+        append('|').append(programSha)
     }
     return figureSha256Hex(canonical.toByteArray(StandardCharsets.UTF_8))
 }

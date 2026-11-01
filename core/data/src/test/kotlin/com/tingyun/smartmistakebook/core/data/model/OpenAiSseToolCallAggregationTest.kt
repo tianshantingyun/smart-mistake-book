@@ -357,6 +357,101 @@ class OpenAiSseToolCallAggregationTest {
         }
     }
 
+    /**
+     * A-10 逐阈值边界（批次 36）：**恰在** 512 KiB 预算线上的参数必须放行——既有用例只钉了
+     * "超线拒"（+16 字节），没钉"恰在线上收得下"。负载是纯 ASCII，字符数 == 字节数。
+     */
+    @Test
+    fun streamedToolArgumentsAtExactlyThe512KiBBudgetAreAdmitted() {
+        // 脚手架（`{"rationale":"` + `"}`）恰 16 字节：负载填 512 KiB − 16 使 arguments 全串恰等于预算。
+        val arguments = "{\"rationale\":\"" +
+            "x".repeat(MAX_TOOL_CALL_PAYLOAD_UTF8_BYTES - 16) +
+            "\"}"
+        check(arguments.toByteArray(Charsets.UTF_8).size == MAX_TOOL_CALL_PAYLOAD_UTF8_BYTES)
+
+        val raw = sse(
+            toolFrame(index = 0, id = "call_a", name = "LOOKUP", arguments = arguments),
+            finishFrame("tool_calls"),
+        )
+
+        val call = firstCall(OpenAiSse.reconstructedChatCompletion(raw))
+        assertEquals("恰在预算线上的参数必须逐字保留", arguments, call.function().string("arguments"))
+    }
+
+    /** 同一边界的另一半：恰 +1 字节即拒（不是"明显超线才拒"）。 */
+    @Test
+    fun streamedToolArgumentsOneBytePastThe512KiBBudgetAreRejected() {
+        val arguments = "{\"rationale\":\"" +
+            "x".repeat(MAX_TOOL_CALL_PAYLOAD_UTF8_BYTES - 16 + 1) +
+            "\"}"
+        check(arguments.toByteArray(Charsets.UTF_8).size == MAX_TOOL_CALL_PAYLOAD_UTF8_BYTES + 1)
+
+        val raw = sse(
+            toolFrame(index = 0, id = "call_a", name = "LOOKUP", arguments = arguments),
+            finishFrame("tool_calls"),
+        )
+
+        assertThrows(ModelTextBudgetExceededException::class.java) {
+            OpenAiSse.reconstructedChatCompletion(raw)
+        }
+    }
+
+    /** 非流式降级路径的**精确**边界：恰在线上放行、+1 字节拒（防"只有流式路径有精确门"）。 */
+    @Test
+    fun nonStreamingToolPayloadExactBoundariesMatchTheStreamedGate() {
+        val atBudget = "{\"rationale\":\"" +
+            "x".repeat(MAX_TOOL_CALL_PAYLOAD_UTF8_BYTES - 16) +
+            "\"}"
+        val onePast = "{\"rationale\":\"" +
+            "x".repeat(MAX_TOOL_CALL_PAYLOAD_UTF8_BYTES - 16 + 1) +
+            "\"}"
+        check(atBudget.toByteArray(Charsets.UTF_8).size == MAX_TOOL_CALL_PAYLOAD_UTF8_BYTES)
+        check(onePast.toByteArray(Charsets.UTF_8).size == MAX_TOOL_CALL_PAYLOAD_UTF8_BYTES + 1)
+
+        fun bodyOf(arguments: String): String = Json.encodeToString(
+            buildJsonObject {
+                put(
+                    "choices",
+                    buildJsonArray {
+                        add(
+                            buildJsonObject {
+                                put(
+                                    "message",
+                                    buildJsonObject {
+                                        put("content", JsonNull)
+                                        put(
+                                            "tool_calls",
+                                            buildJsonArray {
+                                                add(
+                                                    buildJsonObject {
+                                                        put("id", "call_a")
+                                                        put("type", "function")
+                                                        put(
+                                                            "function",
+                                                            buildJsonObject {
+                                                                put("name", "LOOKUP")
+                                                                put("arguments", arguments)
+                                                            },
+                                                        )
+                                                    },
+                                                )
+                                            },
+                                        )
+                                    },
+                                )
+                            },
+                        )
+                    },
+                )
+            },
+        )
+
+        OpenAiSse.requireToolCallPayloadBudget(bodyOf(atBudget))
+        assertThrows(ModelTextBudgetExceededException::class.java) {
+            OpenAiSse.requireToolCallPayloadBudget(bodyOf(onePast))
+        }
+    }
+
     @Test
     fun anIncrementalBudgetObserverAbortsAsSoonAsTheCapIsCrossed() {
         val budget = OpenAiSse.StreamedToolCallBudget()

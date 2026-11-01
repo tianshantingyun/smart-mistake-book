@@ -198,14 +198,21 @@ data class TutorToolCall(
      */
     val figureDescription: String? = null,
     /**
-     * 4E WG-04b：模型选择的生图**方法**（wire 键 `method`）。本波次只有
-     * [FigureGenerationMethod.IMAGE_MODEL] 真实接通；JS 运行库未过门，出现即拒。
+     * 模型选择的生图**方法**（wire 键 `method`）。A-02 起**契约层**同时接受
+     * [FigureGenerationMethod.IMAGE_MODEL] 与 [FigureGenerationMethod.JS]——两条解析路由
+     * 对同一选择必须给出同形结果，而不是"先收下再按图像方法执行"。
+     *
+     * 接受 ≠ 可执行：是否真能执行由下游决定（`FigureGenerationPolicy` 的
+     * `availableMethods` 门 + 执行器）。JS 执行器尚未接线到工具环时，执行侧必须继续
+     * fail-closed，不得把 JS 调用落进图像生成器。
      * 省略 = 旧调用（只有 kind/description），适配层按真实可用方法构造显式 proposal。
      */
     val figureMethod: FigureGenerationMethod? = null,
     /**
-     * JS 方法的完整源码（wire 键 `program`）。JS 未接通时该载荷**一律拒绝**：既不执行，
-     * 也不把它当普通文本收下。形状先保留，供 WG-04 后续波次复用同一 [TutorToolCall]。
+     * JS 方法的完整源码（wire 键 `program`，UTF-8 ≤
+     * [FigureGenerationPolicy.MAX_PROGRAM_UTF8_BYTES]）。它只作为**独立字段**存在：
+     * 不从 description/imagePrompt 二次提取，也不得与图像载荷同时出现（两者互斥）。
+     * 非 JS 方法携带 program 一律拒——不是"先收下再忽略"。
      */
     val figureProgram: String? = null,
     /** IMAGE_MODEL 内部的图像操作（wire 键 `imageOperation`）：EDIT/GENERATE。 */
@@ -340,22 +347,46 @@ data class TutorToolCall(
             require(figureDescription.none(Char::isISOControl)) {
                 "A GENERATE_FIGURE description must not carry control characters"
             }
-            // 4E WG-04b：JS 运行库未过门 → program 一律拒绝（不是"先收下再忽略"）。
-            require(figureProgram == null) {
-                "The JS program carrier is unavailable in this build; do not send program"
-            }
-            require(figureMethod == null || figureMethod == FigureGenerationMethod.IMAGE_MODEL) {
-                "Only IMAGE_MODEL is available for GENERATE_FIGURE in this build"
-            }
             val operation = figureImageOperation
             val imagePrompt = figureImagePrompt
-            // 新载荷必须成对：只有操作没有提示词，或只有提示词没有操作，都是不完整的选择。
-            require((operation == null) == (imagePrompt == null)) {
-                "An imageOperation must be paired with an imagePrompt"
-            }
-            if (figureMethod != null) {
-                require(operation != null && imagePrompt != null) {
-                    "IMAGE_MODEL must state both imageOperation and imagePrompt"
+            when (figureMethod) {
+                // A-02：JS 只在**独立字段**里带完整 program 时成立；图像载荷与 program 互斥
+                // （同一份 proposal 不能被两种方法各读一半）。
+                FigureGenerationMethod.JS -> {
+                    val program = requireNotNull(figureProgram) {
+                        "A JS GENERATE_FIGURE call must carry a complete program"
+                    }
+                    require(program.isNotBlank()) {
+                        "A JS GENERATE_FIGURE program must not be blank"
+                    }
+                    require(
+                        figureUsageUtf8Bytes(program) <= FigureGenerationPolicy.MAX_PROGRAM_UTF8_BYTES,
+                    ) {
+                        "A JS program must be at most " +
+                            "${FigureGenerationPolicy.MAX_PROGRAM_UTF8_BYTES} UTF-8 bytes"
+                    }
+                    require(operation == null && imagePrompt == null) {
+                        "A JS GENERATE_FIGURE call must not carry an imageOperation or imagePrompt"
+                    }
+                }
+
+                // IMAGE_MODEL 与旧调用（method 省略）形状不变：program 一律拒，操作与提示词
+                // 必须成对（显式选择方法时两者都必填）。
+                FigureGenerationMethod.IMAGE_MODEL,
+                null,
+                -> {
+                    require(figureProgram == null) {
+                        "The JS program carrier is only valid for method=JS"
+                    }
+                    // 新载荷必须成对：只有操作没有提示词，或只有提示词没有操作，都是不完整的选择。
+                    require((operation == null) == (imagePrompt == null)) {
+                        "An imageOperation must be paired with an imagePrompt"
+                    }
+                    if (figureMethod != null) {
+                        require(operation != null && imagePrompt != null) {
+                            "IMAGE_MODEL must state both imageOperation and imagePrompt"
+                        }
+                    }
                 }
             }
             imagePrompt?.let { prompt ->
@@ -385,23 +416,29 @@ data class TutorToolCall(
     }
 
     /**
-     * 这次调用对应的统一 proposal（4E WG-04b）。
+     * 这次调用对应的统一 proposal（4E WG-04b / A-02）。
      *
-     * 旧调用（只有 kind/description）也会得到一个**显式** `method=IMAGE_MODEL` 的 proposal：
-     * 本机唯一真实接通的方法，且由宿主适配层补上，不让下游再猜一次。JS 永远不会出现在这里
-     * （构造器已拒）；返回 null 仅当不是生图工具。
+     * 两种方法产出**同一种** proposal，载荷按方法互斥：
+     * - `IMAGE_MODEL`（含旧调用只有 kind/description 的形态）：带 imageOperation/imagePrompt，
+     *   旧调用由 kind 补默认；不带 program。
+     * - `JS`：只带 program；imageOperation/imagePrompt 恒为 null（构造器已保证它们没被携带）。
+     *
+     * 返回 null 仅当不是生图工具或缺 kind。
      */
     fun toFigureGenerationProposal(): FigureGenerationProposal? {
         if (tool != TutorToolName.GENERATE_FIGURE) return null
         val kind = figureKind ?: return null
+        val method = figureMethod ?: FigureGenerationMethod.IMAGE_MODEL
+        val js = method == FigureGenerationMethod.JS
         return FigureGenerationProposal(
             policyVersion = FigureGenerationPolicyVersion.VALUE,
             decision = FigureGenerationDecision.GENERATE,
             purpose = kind.figureGenerationPurpose(),
-            method = figureMethod ?: FigureGenerationMethod.IMAGE_MODEL,
+            method = method,
             reason = rationale,
-            imageOperation = figureImageOperation ?: kind.defaultImageOperation(),
-            imagePrompt = figureImagePrompt ?: figureDescription,
+            imageOperation = if (js) null else (figureImageOperation ?: kind.defaultImageOperation()),
+            imagePrompt = if (js) null else (figureImagePrompt ?: figureDescription),
+            program = if (js) figureProgram else null,
         )
     }
 

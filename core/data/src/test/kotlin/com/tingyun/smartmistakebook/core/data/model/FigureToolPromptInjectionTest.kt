@@ -142,23 +142,47 @@ class FigureToolPromptInjectionTest {
         assertFalse("JS 不在 availableMethods 里：${prompt.body}", prompt.body.contains("JS"))
     }
 
+    /**
+     * A-04（批次 35）**语义翻转登记**：原用例 `theToolAssemblyStillRefusesToAdvertiseJs`
+     * 断言"工具正文装配遇 JS 能力集合即抛"（4E.1 波次 1 fail-closed）。清单 A-04 判据明文
+     * "去掉 JS fail-closed"，该失败被消灭——按判据翻转为正向：JS 显式进入能力集合时工具
+     * 正文组装成功并注入 JS 静态程序契约段与按方法的工具参数指令。这不是放宽断言：
+     * 负向保留在 [theTutorToolAssemblyDeclaresTheDurableBudgetAndOnlyImageModel]
+     * （默认 IMAGE_MODEL_ONLY 正文不出现 JS）与 [theFigureRulesNeverAdvertiseJsWhileTheRuntimeIsUnavailable]
+     * （生产路径的注入块不出现 JS/QuickJS/program）。
+     */
     @Test
-    fun theToolAssemblyStillRefusesToAdvertiseJs() {
-        val rejected = runCatching {
-            FigurePromptAssembler.assembleForTutorTool(
-                budget = FigureGenerationBudget(),
-                capabilities = FigureGenerationCapabilities(
-                    availableMethods = setOf(
-                        FigureGenerationMethod.JS,
-                        FigureGenerationMethod.IMAGE_MODEL,
-                    ),
-                    supportsImageEditing = true,
-                    supportsImageGeneration = true,
+    fun aJavascriptToolCapabilityAssemblesWithTheStaticContract() {
+        val prompt = FigurePromptAssembler.assembleForTutorTool(
+            budget = FigureGenerationBudget(),
+            capabilities = FigureGenerationCapabilities(
+                availableMethods = setOf(
+                    FigureGenerationMethod.JS,
+                    FigureGenerationMethod.IMAGE_MODEL,
                 ),
+                supportsImageEditing = true,
+                supportsImageGeneration = true,
+            ),
+        )
+
+        assertEquals(
+            listOf(FigureGenerationMethod.JS, FigureGenerationMethod.IMAGE_MODEL),
+            prompt.availableMethods,
+        )
+        assertTrue(
+            "JS 可用时工具正文必须注入静态程序契约段：${prompt.body}",
+            prompt.body.contains("## JS 静态程序契约（本机执行）"),
+        )
+        assertTrue(
+            "JS 可用时工具正文必须给出 method=JS 的工具参数指令：${prompt.body}",
+            prompt.body.contains("选择 JS 时，在工具参数里给出 method=JS"),
+        )
+        listOf("reduce", "form", "controls").forEach { token ->
+            assertFalse(
+                "工具正文不得出现交互面字面量 $token：${prompt.body}",
+                prompt.body.contains(token),
             )
         }
-
-        assertTrue(rejected.exceptionOrNull() is IllegalArgumentException)
     }
 
     @Test

@@ -75,6 +75,55 @@ class CurrentStateGreenTest(ConsistencyTestBase):
         self.assertEqual({}, problems)
 
 
+class CrlfCheckoutRegressionTest(ConsistencyTestBase):
+    """KB25-01：Windows 检出把 alias 字段内的 `\\n` 一起转成 `\\r\\n`。
+
+    事实：`git show HEAD:tools/kb_build/tables/alias_map.csv` 是 **0 个 CRLF**、
+    37553 行，对 3245 个点逐节点双向比对 **0 差异**——表（git 对象）与包本就
+    逐字相等。工作区 `i/lf w/crlf`（`* text=auto` + core.autocrlf=true）才是
+    差异来源，所以既不是"表缺 4 行"，也不是"比对口径过期"；修在**读表入口**
+    （`tables.read_rows` 的行尾归一化）。以下两条钉住这个入口的两个方向。
+    """
+
+    def _to_lf(self, directory: Path) -> None:
+        path = directory / "alias_map.csv"
+        path.write_bytes(path.read_bytes().replace(b"\r\n", b"\n"))
+
+    def _to_crlf(self, directory: Path) -> None:
+        path = directory / "alias_map.csv"
+        data = path.read_bytes()
+        self.assertNotIn(b"\r", data, "归一化后仍有裸 CR，测试前提变了")
+        path.write_bytes(data.replace(b"\n", b"\r\n"))
+
+    def test_crlf_checkout_does_not_split_aliases_from_pack(self):
+        d = self._tables_copy("crlf")
+        self._to_lf(d)
+        lf = cpc.check_table_consistency(self.pack, self.manifest, d)
+        self.assertEqual({}, {k: v for k, v in lf.items() if v}, "LF 副本本就应与包一致")
+        self._to_crlf(d)
+        result = cpc.check_table_consistency(self.pack, self.manifest, d)
+        self.assertEqual({}, {k: v for k, v in result.items() if v},
+                         f"CRLF 检出被误判成表↔包不一致（alias_map）：{result['alias_map'][:2]}")
+
+    def test_crlf_checkout_still_flags_a_missing_alias_row(self):
+        d = self._tables_copy("crlf-drop")
+        self._to_lf(d)
+        row = self._rows(d, "alias_map.csv")[0]
+        self.assertGreaterEqual(self._drop_row(d, "alias_map.csv", row), 1)
+        self._to_crlf(d)
+        result = cpc.check_table_consistency(self.pack, self.manifest, d)
+        self.assertTrue(any(row["slug"] in p for p in result["alias_map"]),
+                        "行尾归一化把真实缺行也吞掉了")
+
+    def test_read_rows_normalizes_embedded_crlf(self):
+        """`tables.read_rows` 是 build.py/gate.py 的读表入口，也必须是同一口径。"""
+        tmp = Path(tempfile.mkdtemp(prefix="kb-readrows-", dir=pack_io.REPO / "build"))
+        self.addCleanup(shutil.rmtree, tmp, ignore_errors=True)
+        (tmp / "x.csv").write_bytes(
+            'subject,slug,alias\nBIOLOGY,甲,"运输\r\n方向"\n'.encode("utf-8"))
+        self.assertEqual("运输\n方向", tables.read_rows(tmp, "x.csv")[0]["alias"])
+
+
 class RowDeletionTurnsRedTest(ConsistencyTestBase):
     """验收：任一表删一行 → 一致性检查红。"""
 

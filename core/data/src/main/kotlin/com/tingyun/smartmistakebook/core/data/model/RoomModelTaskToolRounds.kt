@@ -50,6 +50,19 @@ internal suspend fun tutorToolRoundOutcomes(
                     errorKind = "not_authorized",
                 ),
             )
+            // A-02：`method=JS` 在**契约层**已可表达（两条解析路由同形），但本构建还没有把
+            // JS 执行器接进工具环。若不在这里 fail-closed，这次调用会落进图像生成器——一次
+            // 真实的远程付费派发 + 一条 method=IMAGE_MODEL 的假痕迹。执行器
+            // （`RoomTutorToolRunner.generateFigure`）另有同一道门作第二道防线，直调
+            // `runTraced` 的调用者也进不了图像生成器。执行器接线后，两支改为路由到 JS 分支。
+            isJavascriptFigureCall(call) -> TutorToolExecution(
+                TutorToolOutcome(
+                    tool = call.tool,
+                    ok = false,
+                    summaryMarkdown = JS_FIGURE_UNAVAILABLE_SUMMARY,
+                    errorKind = FIGURE_METHOD_UNAVAILABLE,
+                ),
+            )
             // 无披露集 = **没有可写目标**（K2a）：大厅/无题轮没有代号通道，写工具在这里
             // 如实说"没得写"，而不是报错（报错会让模型下一轮换着法再试，白烧派遣预算）。
             // 非空白名单里对不上的代号仍走结构性拒——那是协议错误（编造 id），不是空范围。
@@ -94,8 +107,28 @@ private fun usesDisclosedKnowledgeCode(call: TutorToolCall): Boolean = when (cal
     else -> false
 }
 
+/**
+ * 这次生图调用声明的方法是不是本构建**还没有执行通道**的 JS（A-02）。
+ *
+ * JS 在契约层合法（`TutorToolCall` 接受 method=JS + 独立 program），但执行器尚未接线；
+ * 轮次层据此 fail-closed，而不是让下游把它当成 IMAGE_MODEL 出网。
+ */
+private fun isJavascriptFigureCall(call: TutorToolCall): Boolean =
+    call.tool == TutorToolName.GENERATE_FIGURE &&
+        call.figureMethod == com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.JS
+
 /** MASTERY_UPDATE 的代号不在本会话已披露集合：协议层结构性拒（不是门控语义拒）。 */
 internal const val INVALID_KNOWLEDGE_CODE = "invalid_knowledge_code"
+
+/** JS 方法在契约层合法、但本构建没有执行通道：工具环 fail-closed 的行码（A-02）。 */
+internal const val FIGURE_METHOD_UNAVAILABLE = "figure_method_unavailable"
+
+/**
+ * JS 方法 fail-closed 时给模型的那句话。轮次层与执行器层**共用同一个常量**：两道门
+ * 必须说同一句话，否则模型会把其中一处当成可重试的失败、换着法再申请。
+ */
+internal const val JS_FIGURE_UNAVAILABLE_SUMMARY =
+    "本机没有可用的 JS 执行通道，未生成配图；不要反复申请。"
 
 /**
  * 写工具在**没有可写目标**时给模型的那句话（K2a / spec §3.1）：ok=true、不报错。

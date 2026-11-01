@@ -647,7 +647,7 @@ python build/agent-batch19/a1/zero_drift.py
 ### 10.5 E 组（边界与移交）——逐条登记终态，不挡验收
 
 - **E1** A 层 60,512 封层（批 14 预注册裁量）/ 选修 235 单列（无源）/ 84 空点撤回 / 91 容量历史关闭 / 3 条金标-绑定冲突接受为边界——**维持登记**。
-- **E2** 182 拆分提案（50 REJECT / 132 DEFER）、114 重开提案、402 同键分类 = AI 预裁完成，**用户复核开放中**；复核结果走后续维护版本——**维持登记**。
+- **E2** 182 拆分提案（50 REJECT / 132 DEFER）、114 重开提案、402 同键分类 = **已由主控委托终裁（2026-10-29/30，`zcode-principal(delegated-by-user)`；用户 2026-10-29「不需要我来复核，你直接判断」）**：182 = REJECT 50 维持 / DEFER 132 NOT_APPLIED（ACT_NOW 0）；114 = REOPEN_NOW 68 / NOT_APPLIED 46；402 = KEEP_ALL 402 / DUPLICATE 0。逐条去向与执行触发见 `docs/research/2026-10-29-kb-final-adjudications.md` 与 `build/agent-batch25/adjudication/114-402-final.csv`。
 - **E3** 验收后增强臂：dense-union 并集臂（结构上限 ≈119/129，待跨线施工）；**标题向量臂已于批次20 clean 重测收束**——同代装置出数 118/129、同路零漂移 PASS/PASS，预注册 §2 规则②否决（数学选必二第四章·数列 10/11→9/11 严格更低），裁定 adopted=false、逐字回滚 21/21，stateAfter = v20 + `0536d0d1…`（`build/agent-batch20/title-final-r20.md`；预注册 §7.11）；系统性别名扩充不针对金标定向——**登记为验收后维护/增强项**。
 - **E4** 等和线检索词汇缺口（内容不缺：23 别名 / 32 块材料挂对节点；dense 全科 336）+「灯被两绳吊」实例材料缺失（力的分解）——**维持登记**；补料列维护项（薄料 3 条评估见 `knowledge-production/coverage-final-review-2026-10-25.md`「薄料 3 条 thinAssessment」：07/26 已 UPGRADE、23 缺「电路元器件识别」半边现成料，只评估未写入）。
 
@@ -704,7 +704,7 @@ python build/agent-batch19/a1/zero_drift.py
 - **D1**：八门 rc=0；`ProductionLexicalLegExportTest` 钉值未漂（`102 / 0.7906976744186046 / 0.6206718346253232`），`DenseRecallRerankerTest` 等 4 类定向绿；**全库单测未重跑**（不得由定向测试推出全库绿）。
 - **D2**：v21 身份见 §11.1；`DenseRecallAssembly.kt:108` 常量 `79a22270…`；`DenseRecallRerankerTest.kt` 候选总数 1,075→1,074（实测重钉）；判官/金标/镜像本批零改（JVM 判官保留既存 ` M`：batch13→14 注释，sha 未变）。
 - **D3**：本 §11 + 批报 `docs/kb-batch22-2026-10-26.md` + 预注册 §7.10 + 判据刷新节；复算命令见批报 §9。
-- **E1/E2**：维持登记（A 层封层 / 选修 235 / 84 空点 / 91 容量 / 3 条冲突；182/114/402 用户复核开放中）。
+- **E1/E2**：维持登记（A 层封层 / 选修 235 / 84 空点 / 91 容量 / 3 条冲突；182/114/402 已于 2026-10-29/30 由主控委托终裁，见 `docs/research/2026-10-29-kb-final-adjudications.md`）。
 - **E3**：dense-union 并集臂批次21 **终裁不采纳、已逐字回滚**（`docs/kb-batch21-2026-10-26.md:280-285`）；标题向量臂批次20 已收束；**v21 内容更新不属于增强臂**，不得用本批非劣口径替代机制臂的严格更高。
 - **E4**：`等和线` 别名结果 = 新增 2 条（节点 23→25 含主名），单点四路仍 `absent`、只报不判；32 块材料不变；剩余 4 条候选不写入/不测量/不判读；薄料行 23 仍 KEEP、本批零写（批报 §3/§8）。
 
@@ -796,3 +796,34 @@ cat build/agent-batch23/device/zero-drift.json
 ```
 
 **未跑声明**：本文书轮只实跑了 `retest_r1_batch23.py` 与只读 `git status`/文件读取；**未重跑** Gradle、`am instrument`、JVM 判官、零漂移脚本或八门。定向测试读数来自批次产物 `batch23-targeted.end.txt` / `batch23-targeted.log`，不能当作本文书轮实跑。
+
+## 13. 批次27 状态（v23 blocked；不追加 v23 后基线）
+
+> 本节只追加不改写 §1–§12。判据增补见 `docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md` **§F.5（v1.2，2026-10-31）**；批报 = `docs/kb-batch27-2026-10-31.md`。
+
+- **v23 = blocked，未产生、未采纳**：41 行 `SKIP→MATERIAL` 已写入运行时五片，但六字段 41/41 仍空，`materialize` 41 条非法 type 拒绝落盘；建点 34/35（缺 `MATH/抽屉原理`），别名 +0。按 ask“若采纳才追加 v23 后基线”，**本批不追加**；验收基线仍为 **v21**（manifest `9f9e99ceec47cf8c` / 主包 `a7192484…` / `.vec 79a22270…`）与 **A1 117/129 = 0.9069767441860465**。
+- **门的状态**：守卫、alias_map、promote dry-run（RC=0、零写盘）、`py_suite` 902/902 归绿；但 `kb_checks` judgment_drift **418**（194 content + 183 boundary + 41 missing）与 `slice` RC=1（41 行六字段）仍在，`overall red=1`。不得称八门归绿。
+- **v1.2 增补**：F6 首启导入 **≤60 s → NOT_MET**（186,574 ms / 256,398 ms）；F7 截断安全 **JVM 11/11 PASS，设备端 UNVERIFIED**。因此 v1.2 **未全部达标**；F1–F5 的 v1.1 PARTIAL 状态不变。
+- **独立成果（不改变上述结论）**：R3/R4 安全截断（11/11）、升级演练（计数幂等 + 损坏包拒装）、遥测聚合（11/11 + 真实 logcat 14 事件）、API23/34 回归（各 4/4）。证据与复算命令见批报 §5–§10。
+
+## 14. 批次28 状态（v23 adopted；验收基线刷新为 v23）
+
+> 本节只追加不改写 §1–§13。依据：`build/agent-batch28/v23-final.md`、`build/agent-batch28/rebuild-report.md`、`build/agent-batch28/consistency.txt`、`build/agent-batch28/gates/summary.txt`；批报 = `docs/kb-batch28-2026-10-31.md`。
+
+- **v23 = adopted=true**：四条预注册判据全部通过（融合 Recall@5 **117/129 = 0.9069767441860465**，与 A1 相同；24 章 **0 lower / 0 higher / 24 eq**；同路零漂移 **PASS/PASS**，lexical symdiff 0 / fused symdiff 0；bootstrap CI 上界 ≥0），**未回滚**（`v23-final.md:7,18-23,149-152`）。
+- **物化与建点**：41 行 `SKIP→MATERIAL` 的六字段 **41/41 落料**（`MATERIAL_six_all_empty 41→0`、`MATERIAL_type_empty 41→0`、`changed_rows=41`）；建点 **35/35**；材料 **64,973→65,014（+41）**、节点 **3,245→3,280（+35）**、额外别名 **+6**、别名总量 **40,839**、`retired 1,222`（`build/agent-batch28/materialize.log:2,69`；`rebuild-report.md:17-27,34-42`）。
+- **新基线（stateAfter）**：manifest **v23 / `868a177d1de4f97a`**；主包 **`051141e2…` / 4,538,271 B**；`.vec` **`bbcae9ec…` / 26,085,873 B / 44,119 vectors**；release == staging **28/28**（`consistency.txt` G02–G06；`v23-final.md:11,32-54`）。
+- **门**：八门 **8/8 rc=0、overall red=0**；批次27 仍红的 `kb_checks` / `slice` / `py_suite` 本批全绿；设备仪器化 `OK (1 test)`、JVM `BUILD SUCCESSFUL`（`gates/summary.txt`；`v23/device-test-result.txt`；`v23/step5_run_jvm.log`）。判据/阈值/判官/金标未改；v23 基线常量按 adopted 结果登记，不是放宽门槛。
+- **F6**：v23 本轮首启全量 **127,014 ms**（`v23/device-logcat.txt:1609`），仍 **>60 s ⇒ NOT_MET**；F7 仍为 JVM 11/11 PASS、设备端 UNVERIFIED。因此 **v1.2 未全部达标**，不得写成“性能已达标”。
+- **词面观测**：101/129（A1 102/129，数列章 6/11 vs 7/11）；预注册只对融合设门槛，该 −1 记录为观测，不构成回滚依据（`v23-final.md:28`）。
+
+## 15. 批次29 状态（F6 达成；内容包仍 v23，不刷新内容基线）
+
+> 本节只追加不改写 §1–§14。依据：`build/agent-batch29/`（`baseline/identity.md`、`gates/summary.txt`、`consistency.txt`）、`build/f6-retest-20261031/`、`docs/kb-batch29-2026-10-31.md`。
+
+- **F6 = MET（绿）**：导入路径优化后，三次同口径冷装（同 APK `2c9227b6…` / 同 `emulator-5584` / API 34 / 同 v23 内容包）`install finished in` **47,504 / 51,775 / 51,646 ms**，中位 51,646、最大 51,775，**三次全部 ≤60 s**（`build/f6-retest-20261031/run{1,2,3}/install-finished.txt`）。四科索引段 88,913 → 5,436–5,928 ms（−93.3% ~ −93.9%）。
+- **内容基线不变**：APK 内主包 `051141e2…`、`.vec` `bbcae9ec…`、manifest `14fe7b3a…`、25 sidecar 与 §14 v23 登记逐字相同（本文书轮 `unzip -p | sha256sum`）；本批只改导入期代码，不改包/材料/别名/判定表。
+- **等价性**：`KnowledgeSearchFeatureImportEquivalenceTest` 在真 SQLite 三臂对拍（逐行 / 批量 VALUES / 批量+索引后置+pragma）：3,733 节点、547,582 特征行、129 条金标查询，内容指纹 `d4f2d318…` 三臂相同、命中序列逐条相同、`integrity_check=ok`、索引补建后与 Room schema 同义；本文书轮 `--rerun-tasks` 重跑 **1 test / 0 failures**（BUILD SUCCESSFUL 2m20s）。
+- **门与一致性**：八门 **8/8 rc=0、red=0**（`py_suite Ran 902 / OK`）；一致性 **14 门 12 PASS / 2 FAIL**——C13（提交态复算不出他线判官路径注的登记 sha）与 C14（F6 改动未提交 + 同一路径注）均**原样登记、未改期望值**；提交后需复跑。
+- **回归**：`core:data` JVM **1,360 tests / 0 failures**（159 XML，含 `GoldenRetrievalJvmTest` 2/2）；设备三次冷装 + 冷启 `TotalTime 2,970 / 2,829 / 3,014 ms`。**未跑**：`am instrument`、设备端检索指标、快路径、真机。
+- **边界**：F6 最大读数距门槛仅 **8,225 ms（13.7%）**；装置为 emulator；解析（20.7–21.2 s）与残差（20.8–25.2 s）成为新主段；崩溃窗口与 pragma 恢复失败分支未做故障注入。F7 状态不变（JVM 11/11 PASS，设备端 UNVERIFIED），故 **v1.2 仍不能称全绿**。

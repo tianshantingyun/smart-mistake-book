@@ -4,6 +4,13 @@ plugins {
     alias(libs.plugins.androidx.baselineprofile)
 }
 
+// R-04（release/R8 变体上跑隔离往返）：AGP 的 `testBuildType` 是**模块级**开关，
+// 直接写死 "release" 会把日常设备轨（assembleStrictOfflineDebugAndroidTest，14 套件基线）
+// 一起改向。这里用 Gradle 属性门，默认 "debug" = 与 AGP 默认行为一致、零影响；
+// 只有显式 `-Psmbk.testBuildType=release` 才切到 release 测试轨。
+// 消灭的具体失败：为了跑两例 release 往返而不得不改全局测试变体，导致日常 debug 轨被顺手改道。
+val r04TestBuildType = providers.gradleProperty("smbk.testBuildType").orNull ?: "debug"
+
 android {
     namespace = "com.tingyun.smartmistakebook"
     compileSdk = 37
@@ -54,6 +61,9 @@ android {
         }
     }
 
+    // 默认 "debug"（AGP 默认值，日常设备轨零变化）；R-04 实验用 -Psmbk.testBuildType=release。
+    testBuildType = r04TestBuildType
+
     buildTypes {
         create("benchmark") {
             matchingFallbacks += listOf("release")
@@ -82,6 +92,10 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // R-04：只在 `-Psmbk.testBuildType=release` 时被消费（AGP 语义 = "test code
+            // 被处理以套用主代码同一混淆"）。规则只作用于 androidTest 的 test dex，
+            // 不削弱主包混淆面；不引入任何关闭混淆的指令（那会取消本实验要考的场景）。
+            testProguardFiles("r04-test-keep.pro")
         }
     }
 

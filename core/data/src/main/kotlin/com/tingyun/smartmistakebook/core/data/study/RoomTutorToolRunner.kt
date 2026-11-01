@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.database.CommitProblemDraftCommand
 import com.tingyun.smartmistakebook.core.database.CommitTutorSessionCommand
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeSearchFeatureExtractor
+import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialRecord
 import com.tingyun.smartmistakebook.core.database.MAX_KNOWLEDGE_RECALL_CANDIDATES
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.LibraryCatalogRow
@@ -12,6 +13,8 @@ import com.tingyun.smartmistakebook.core.database.port.MasteryAggregateRecord
 import com.tingyun.smartmistakebook.core.database.port.SubjectMasteryRecord
 import com.tingyun.smartmistakebook.core.database.TutorMessageRecord
 import com.tingyun.smartmistakebook.core.database.TutorTurnResponseRecord
+import com.tingyun.smartmistakebook.core.data.model.FIGURE_METHOD_UNAVAILABLE
+import com.tingyun.smartmistakebook.core.data.model.JS_FIGURE_UNAVAILABLE_SUMMARY
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureGenerator
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureRequest
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureResult
@@ -40,6 +43,7 @@ import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
 import com.tingyun.smartmistakebook.core.model.defaultImageOperation
 import com.tingyun.smartmistakebook.core.model.figureGenerationPurpose
+import com.tingyun.smartmistakebook.core.model.visualRole
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.isReady
 import kotlinx.coroutines.CancellationException
@@ -68,6 +72,105 @@ private const val MASTERY_FOCUS_RESOLUTION_LIMIT = 24
  * list as if it were complete — the failure the note exists to prevent.
  */
 private const val TRUNCATION_NOTE_RESERVE_CHARS = 240
+
+/** 可作为安全截断点的句界：句号与分号（R4 的范围/区分句以它们收尾）。 */
+private const val SAFE_SENTENCE_BOUNDARIES = "。；"
+
+/**
+ * 截断 markdown 文本到 [limit] 个字符，但**不制造错误的语义**
+ * （`docs/research/2026-10-26-kb-usage-surface-audit.md` R3/R4）：
+ *
+ * 1. 切口落在数学公式（`$$...$$`、`$...$`、`\(...\)`、`\[...\]`）内部时，退到公式起点，
+ *    整段公式下沉——模型看到的公式要么完整，要么不出现（R3：切断 `$...$` 会把语法损坏的
+ *    数学表达式交给模型）。
+ * 2. 否则退到 [limit] 之前、且不在任何公式内部的最后一个句号/分号，保留完整句子，半句
+ *    整句下沉（R4：`take(80)` 把范围/区分句切成半句，模型无法判断边界）。
+ * 3. 两者都没有安全点（例：公式从第 0 个字符开始）时原样回退 `take(limit)`，保持旧行为。
+ *
+ * 纯函数：不改写、不 trim、不加省略号——结果形态仍由调用方的预算常量决定。
+ */
+internal fun safeTruncateMarkdown(text: String, limit: Int): String {
+    if (limit <= 0) return ""
+    if (text.length <= limit) return text
+    val spans = mathSpans(text)
+    val enclosing = spans.firstOrNull { limit > it.first && limit < it.last + 1 }
+    if (enclosing != null) {
+        val formulaStart = enclosing.first
+        // 公式从第 0 个字符开始（前面没有任何可展示前缀）：没有安全点，回退旧行为。
+        if (formulaStart <= 0) return text.take(limit)
+        return text.substring(0, formulaStart)
+    }
+    val sentenceEnd = (limit - 1 downTo 0).firstOrNull { index ->
+        text[index] in SAFE_SENTENCE_BOUNDARIES && spans.none { index in it }
+    }
+    return if (sentenceEnd != null) text.substring(0, sentenceEnd + 1) else text.take(limit)
+}
+
+/**
+ * 把 `\r\n` / `\r` / `\n` 各归一成**一个半角空格**，其余字符不动。
+ *
+ * KNOWLEDGE_READ 要求每节点恰好一条物理行（12% 的材料正文含真实换行）；必须先归一、再走
+ * [safeTruncateMarkdown]，否则 120 字的切口会把换行留在行内。
+ */
+private fun flattenLineBreaks(text: String): String =
+    text.replace("\r\n", " ").replace('\r', ' ').replace('\n', ' ')
+
+/** [text] 里所有数学公式的区间（`start until endExclusive`），未闭合的公式延伸到文本末尾。 */
+private fun mathSpans(text: String): List<IntRange> {
+    val spans = ArrayList<IntRange>()
+    var index = 0
+    while (index < text.length) {
+        val open: String
+        val close: String
+        when {
+            text.startsWith("$$", index) -> {
+                open = "$$"
+                close = "$$"
+            }
+            text[index] == '$' && !text.isEscapedAt(index) -> {
+                open = "$"
+                close = "$"
+            }
+            text.startsWith("\\(", index) && !text.isEscapedAt(index) -> {
+                open = "\\("
+                close = "\\)"
+            }
+            text.startsWith("\\[", index) && !text.isEscapedAt(index) -> {
+                open = "\\["
+                close = "\\]"
+            }
+            else -> {
+                index++
+                continue
+            }
+        }
+        val closeAt = text.indexOfUnescaped(close, index + open.length)
+        val endExclusive = if (closeAt < 0) text.length else closeAt + close.length
+        spans += index until endExclusive
+        index = endExclusive
+    }
+    return spans
+}
+
+/** [index] 前面的反斜杠个数为奇数 = 该字符被转义（`\$` 不是公式定界符）。 */
+private fun String.isEscapedAt(index: Int): Boolean {
+    var backslashes = 0
+    var cursor = index - 1
+    while (cursor >= 0 && this[cursor] == '\\') {
+        backslashes++
+        cursor--
+    }
+    return backslashes % 2 == 1
+}
+
+private fun String.indexOfUnescaped(needle: String, from: Int): Int {
+    var index = from
+    while (index <= length - needle.length) {
+        if (startsWith(needle, index) && !isEscapedAt(index)) return index
+        index++
+    }
+    return -1
+}
 
 /**
  * 一次工具执行的本地结果：**模型可见的**那半（[outcome]）与**只在本地用的**那半（[resultCount]）。
@@ -184,8 +287,8 @@ internal class RoomTutorToolRunner(
         val roundDisclosesQuestionCandidates: Boolean = false,
         /**
          * 会话代号注册表（单一代号通道，D5）：
-         * - KNOWLEDGE_READ 对新发现节点追加披露（分配/复用代号），输出只给代号+名称+摘要，
-         *   原始 id 不进结果文本；
+         * - KNOWLEDGE_READ 对新发现节点追加披露（分配/复用代号），输出只给代号+名称+边界+
+         *   材料《标题》与正文节选，原始 id 不进结果文本；
          * - MASTERY_UPDATE 的 `terms[0]` 是代号，由此解析回原始 id 后才进门（anchor_class
          *   按角色机械确立，非 CONFIRMED 的权重减半在写入时施加）。
          * null = 直调/无会话（大厅）：KNOWLEDGE_READ 无代号可发（回退序号形态），
@@ -277,7 +380,9 @@ internal class RoomTutorToolRunner(
         )
 
     /**
-     * 读知识点（KNOWLEDGE_READ）：检索 → 返回**代号 + 名称 + 边界前 80 字 + 绑定材料摘要**。
+     * 读知识点（KNOWLEDGE_READ）：检索 → 返回**代号 + 名称 + 边界（≤80 字）+ 绑定材料
+     * 《标题》与正文节选（≤120 字）**。整条结果按 [TutorToolOutcome.MAX_TOOL_RESULT_CHARS]
+     * 逐行裁剪；预算不足时先缩节选、缩不下才丢行，并注明裁剪计数。
      *
      * 路由 = **A2：金标/设备融合臂同构的 B512 融合**（`limit = MAX_KNOWLEDGE_RECALL_CANDIDATES`
      * + 原始题面给稠密腿，`RoomKnowledgeBaseStore` 在 512 候选域内重排），**查询后立刻
@@ -294,8 +399,8 @@ internal class RoomTutorToolRunner(
      * 单一代号通道（D5，关审计断链 E-03）：此前只回"名字+边界"，模型没有任何渠道拿到可写入的
      * 知识点标识，MASTERY_UPDATE 因此在聊天路径结构性不可达。现在每个返回节点都带本会话代号
      * （新发现节点在此**追加披露**——注册表分配 K(n+1) 起的新码，仓库把追加集写回下一轮输入
-     * 的映射表），原始 id 不进结果文本。材料摘要让模型"知道这个知识点讲什么"而不必再发一轮
-     * 查询，单条预算内（总结果仍受 2k 轮工具结果预算约束）。
+     * 的映射表），原始 id 不进结果文本。材料《标题》与正文节选让模型"知道这个知识点讲什么"
+     * 而不必再发一轮查询，单条预算内（总结果仍受 2k 轮工具结果预算约束）。
      */
     private suspend fun knowledgeRead(
         subject: String,
@@ -341,8 +446,15 @@ internal class RoomTutorToolRunner(
             )
         }
         val registry = context.knowledgeCodeRegistry
-        val materialSummaries = nodeMaterialSummaries(subject, nodes)
-        val lines = nodes.mapIndexed { index, node ->
+        val materials = nodeMaterialRecords(subject, nodes)
+        val header = if (registry != null) {
+            "知识点候选 ${nodes.size} 个（代号 K1..Kn 本会话有效，写掌握度时 terms 填代号）："
+        } else {
+            "知识点候选 ${nodes.size} 个："
+        }
+        val body = BudgetedLines(TutorToolOutcome.MAX_TOOL_RESULT_CHARS - TRUNCATION_NOTE_RESERVE_CHARS)
+        body.add(header)
+        nodes.forEachIndexed { index, node ->
             val code = registry?.assign(
                 TutorKnowledgeCode(
                     knowledgeNodeId = node.knowledgeNodeId,
@@ -351,22 +463,31 @@ internal class RoomTutorToolRunner(
                 ),
             )
             val marker = code ?: "${index + 1}"
-            val boundary = node.boundaryMarkdown?.take(80)
-            val material = materialSummaries[node.knowledgeNodeId]
-                ?.let { "｜材料：${it.take(KNOWLEDGE_READ_MATERIAL_DIGEST_CHARS)}" }
-                ?: "｜$KNOWLEDGE_READ_NO_MATERIAL_MARKER"
-            "$marker. ${node.displayName}${boundary?.let { "：$it" } ?: ""}$material"
-        }
-        val header = if (registry != null) {
-            "知识点候选 ${nodes.size} 个（代号 K1..Kn 本会话有效，写掌握度时 terms 填代号）："
-        } else {
-            "知识点候选 ${nodes.size} 个："
+            val boundary = node.boundaryMarkdown?.let { safeTruncateMarkdown(flattenLineBreaks(it), 80) }
+            val prefix = "$marker. ${node.displayName}${boundary?.let { "：$it" } ?: ""}"
+            val material = materials[node.knowledgeNodeId]
+            if (material == null) {
+                body.add("$prefix｜$KNOWLEDGE_READ_NO_MATERIAL_MARKER")
+            } else {
+                // 标题原样（不截断、不改写）；只让正文节选参与预算收缩。
+                body.addWithTrimmableExcerpt(
+                    skeleton = "$prefix｜材料《${material.title}》",
+                    excerpt = safeTruncateMarkdown(
+                        flattenLineBreaks(material.contentMarkdown),
+                        KNOWLEDGE_READ_MATERIAL_EXCERPT_CHARS,
+                    ),
+                    maxExcerptChars = KNOWLEDGE_READ_MATERIAL_EXCERPT_CHARS,
+                )
+            }
         }
         return TutorToolExecution(
             outcome = TutorToolOutcome(
                 tool = TutorToolName.KNOWLEDGE_READ,
                 ok = true,
-                summaryMarkdown = "$header\n${lines.joinToString("\n")}",
+                summaryMarkdown = body.render(
+                    truncationNote = "已截断：${body.droppedCount} 项未显示，" +
+                        "${body.trimmedCount} 行节选缩短。",
+                ),
             ),
             resultCount = nodes.size,
         )
@@ -374,18 +495,18 @@ internal class RoomTutorToolRunner(
 
     /**
      * 每个节点取一条**教学优先序**（`role` → `material_type` → `title` → `material_id`）下的
-     * 最佳材料摘要，供 KNOWLEDGE_READ 结果内联；无绑定材料的节点不出现在返回值里，由渲染侧
-     * 输出显式标记。只读 summary 字段（材料全文走教学参考/材料卷通道），保持 2k 预算内。
+     * 最佳材料；无绑定材料的节点不出现在返回值里，由渲染侧输出显式标记。选择语义零改
+     * （仍走 `readBestKnowledgeTeachingMaterialPerNode`），本函数只负责把 record 交给渲染。
      */
-    private suspend fun nodeMaterialSummaries(
+    private suspend fun nodeMaterialRecords(
         subject: String,
         nodes: List<KnowledgeNodeSeedRecord>,
-    ): Map<String, String> {
+    ): Map<String, KnowledgeTeachingMaterialRecord> {
         val nodeIds = nodes.mapTo(linkedSetOf()) { it.knowledgeNodeId }
         return port.readBestKnowledgeTeachingMaterialPerNode(
             subject = subject,
             knowledgeNodeIds = nodeIds,
-        ).mapValues { (_, material) -> material.summaryMarkdown }
+        )
     }
 
     private companion object {
@@ -396,7 +517,9 @@ internal class RoomTutorToolRunner(
          * 512 个候选绝不进结果文本（单工具结果仍受 2k 预算约束）。
          */
         const val KNOWLEDGE_READ_NODE_LIMIT = 5
-        const val KNOWLEDGE_READ_MATERIAL_DIGEST_CHARS = 60
+
+        /** 正文节选的字符上限；预算不足时只在 [1, 该值] 内继续缩短（标题原样不动）。 */
+        const val KNOWLEDGE_READ_MATERIAL_EXCERPT_CHARS = 120
 
         /** 无绑定材料节点的显式标记：材料段不得静默省略（"无材料"与"未取到"必须可区分）。 */
         const val KNOWLEDGE_READ_NO_MATERIAL_MARKER = "（该节点无材料）"
@@ -786,6 +909,8 @@ internal class RoomTutorToolRunner(
         private var usedChars = 0
         var droppedCount = 0
             private set
+        var trimmedCount = 0
+            private set
 
         fun add(line: String) {
             val cost = line.length + 1
@@ -797,9 +922,34 @@ internal class RoomTutorToolRunner(
             usedChars += cost
         }
 
+        /**
+         * 预算不足时先缩短 [excerpt]（仍走 [safeTruncateMarkdown]，不切坏公式/半句），
+         * 缩不下才整行丢弃；两种裁剪都计数。
+         *
+         * 消灭的失败：整行丢弃会让模型把被丢的节点当成"不存在"（静默缺失）。所以优先保住
+         * `skeleton`（节点存在、绑的是哪份材料），只让正文节选让步。
+         */
+        fun addWithTrimmableExcerpt(skeleton: String, excerpt: String, maxExcerptChars: Int) {
+            val full = skeleton + excerpt
+            if (usedChars + full.length + 1 <= budgetChars) {
+                lines += full
+                usedChars += full.length + 1
+                return
+            }
+            val available = budgetChars - usedChars - skeleton.length - 1
+            if (available >= 1) {
+                val shortened = safeTruncateMarkdown(excerpt, minOf(maxExcerptChars, available))
+                lines += skeleton + shortened
+                usedChars += skeleton.length + shortened.length + 1
+                trimmedCount += 1
+            } else {
+                droppedCount += 1
+            }
+        }
+
         fun render(truncationNote: String): String = buildString {
             append(lines.joinToString("\n"))
-            if (droppedCount > 0) {
+            if (droppedCount + trimmedCount > 0) {
                 append('\n')
                 append(truncationNote)
             }
@@ -943,6 +1093,20 @@ internal class RoomTutorToolRunner(
      * 下一轮换着法再试），通道缺失或生成失败才回错误结果。
      */
     private suspend fun generateFigure(call: TutorToolCall, context: Context): TutorToolExecution {
+        // A-02 第二道门（执行器层）：本构建没有 JS 执行通道，method=JS 一律 fail-closed。
+        // 生产唯一调用点已过轮次层同名门；这道门保护直调 `runTraced` 的调用者（测试、
+        // 未来接线），否则 JS 会落进图像生成器 = 一次真实远程 IMAGE_MODEL 派发 +
+        // 一条 method=IMAGE_MODEL 的假痕迹。
+        if (call.figureMethod == FigureGenerationMethod.JS) {
+            return TutorToolExecution(
+                TutorToolOutcome(
+                    tool = call.tool,
+                    ok = false,
+                    summaryMarkdown = JS_FIGURE_UNAVAILABLE_SUMMARY,
+                    errorKind = FIGURE_METHOD_UNAVAILABLE,
+                ),
+            )
+        }
         // TutorToolCall.init 已强制 GENERATE_FIGURE 必带 kind + description；此处按
         // "宁拒不猜"防御：缺字段时不生成而不是默认一种图。
         val kind = requireNotNull(call.figureKind) {
@@ -952,7 +1116,8 @@ internal class RoomTutorToolRunner(
             "GENERATE_FIGURE description is contract-enforced"
         }
         // 4E WG-04b：模型显式选择的图像操作；旧调用按 kind 取旧默认（REDRAW→EDIT、
-        // PROCESS→GENERATE）。kind 只映射 purpose，方法在本构建恒为 IMAGE_MODEL。
+        // PROCESS→GENERATE）。kind 只映射 purpose；能走到这里的调用方法恒为 IMAGE_MODEL
+        // （上面的 A-02 门已把 JS 拦下）。
         val operation = call.figureImageOperation ?: kind.defaultImageOperation()
         val purpose = kind.figureGenerationPurpose()
         val generator = figureGenerator
@@ -1043,14 +1208,15 @@ internal class RoomTutorToolRunner(
             TutorFigureResult(figureId = null, status = TutorFigureStatus.FAILED)
         }
         // A2：REDRAW 的图若落在一道**已保存**的题上（会话有 commit receipt），补一条
-        // CLEAN_IMAGE 引用——这是"题重绘 → problem_revision_source_asset"那条去向，导出取图
-        // （B6）按它就能看见这张重绘；未保存的会话没有 revision，跳过（消息引用仍然成立）。
+        // 视觉引用（角色由 kind 单源派生 = CLEAN_IMAGE）——这是"题重绘 →
+        // problem_revision_source_asset"那条去向，导出取图（B6）按它就能看见这张重绘；
+        // 未保存的会话没有 revision，跳过（消息引用仍然成立）。
         if (
             result.status == TutorFigureStatus.GENERATED &&
             kind == TutorFigureKind.REDRAW_PROBLEM &&
             result.figureId != null
         ) {
-            attachGeneratedRedrawToRevision(context, result.figureId)
+            attachGeneratedRedrawToRevision(context, result.figureId, kind)
         }
         // 4E WG-04b：痕迹记录**实际执行**的方法/用途/逻辑操作与终态；旧行（null）由
         // TutorToolFigureTrace 的默认值保持逐字不变。
@@ -1142,20 +1308,30 @@ internal class RoomTutorToolRunner(
     }
 
     /**
-     * A2：把这次重绘登记到当前会话已提交的题面修订上（role=CLEAN_IMAGE）。
+     * A2：把这次重绘登记的图挂到当前会话已提交的题面修订上（角色由 trace kind 单源派生）。
      *
      * 使用场景很窄：会话**已经保存**（commit receipt 在）之后学生继续让智能体重绘题面——那
      * 张图应当和采集链的重绘一样被导出取图看见。没有 receipt（绝大多数：讲完才保存）或
      * 引用写入失败时**什么都不做**：附加引用是"最好也有"，绝不能把已经成功、已经付费的
      * 生成结果改判成失败。
+     *
+     * 挂接口在事务里做 current-revision CAS：题面已被改版时返回 false，晚到图不污染新题面。
      */
-    private suspend fun attachGeneratedRedrawToRevision(context: Context, figureId: String) {
+    private suspend fun attachGeneratedRedrawToRevision(
+        context: Context,
+        figureId: String,
+        kind: TutorFigureKind,
+    ) {
         val sessionId = context.tutorSessionId?.takeIf(String::isNotBlank) ?: return
         try {
             val revisionId = port.readTutorSession(sessionId)?.commitReceipt?.problemRevisionId
                 ?: return
             val record = port.readCanonicalSourceAsset(figureId) ?: return
-            port.attachCleanRedrawAsset(revisionId = revisionId, asset = record)
+            port.attachCleanRedrawAsset(
+                revisionId = revisionId,
+                asset = record,
+                role = kind.visualRole().name,
+            )
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (_: Exception) {

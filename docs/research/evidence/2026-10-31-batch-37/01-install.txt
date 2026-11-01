@@ -1,0 +1,12 @@
+== 2026-10-30T06:52:18+08:00 clean install ==
+-- uninstall old packages:
+Success
+Success
+-- logcat -c:
+cleared
+-- install -r -t (batch-35 green-bound APK, sha256 1593b25ae33d10dc64f0c8bd179620eca4d87a6f83aa3342334666da42773dab):
+app/build/outputs/apk/strictOffline/debug/app-strictOffline-debug.apk: 1 file pushed, 0 skipped. 38.0 MB/s (199839655 bytes in 5.015s)
+Performing Push Install
+	pkg: /data/local/tmp/app-strictOffline-debug.apk
+Success
+INSTALL_EXIT=0

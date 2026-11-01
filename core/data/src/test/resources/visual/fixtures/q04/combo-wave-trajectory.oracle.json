@@ -1,0 +1,372 @@
+{
+  "name": "combo-wave-trajectory",
+  "note": "独立渲染结构预期：波形=151 采样点+中线闭合（超越函数顶点由学科 oracle 按叠加函数重算，此处不转录坐标）；菱形采样点与 label 位置由声明参数独立推导",
+  "drawSchemaVersion": 1,
+  "viewBox": {
+    "x": 0,
+    "y": 0,
+    "w": 360,
+    "h": 240
+  },
+  "background": "#ffffff",
+  "hitRegionCount": 0,
+  "opSequence": [
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "path",
+    "label",
+    "label"
+  ],
+  "stats": {
+    "nodes": 9,
+    "pathCommands": 179,
+    "labels": 2,
+    "ops": 8
+  },
+  "ops": [
+    {
+      "kind": "path",
+      "fill": "#33669966",
+      "stroke": null,
+      "alpha": 1,
+      "codes": [
+        "M",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "L",
+        "Z"
+      ],
+      "commands": null,
+      "note": "transcendental vertices are owned by the subject oracle, not duplicated here"
+    },
+    {
+      "kind": "path",
+      "fill": "#c0392b",
+      "stroke": null,
+      "alpha": 1,
+      "commands": [
+        [
+          "M",
+          57,
+          60
+        ],
+        [
+          "L",
+          60,
+          57
+        ],
+        [
+          "L",
+          63,
+          60
+        ],
+        [
+          "L",
+          60,
+          63
+        ],
+        [
+          "Z"
+        ]
+      ]
+    },
+    {
+      "kind": "path",
+      "fill": "#c0392b",
+      "stroke": null,
+      "alpha": 1,
+      "commands": [
+        [
+          "M",
+          87,
+          92
+        ],
+        [
+          "L",
+          90,
+          89
+        ],
+        [
+          "L",
+          93,
+          92
+        ],
+        [
+          "L",
+          90,
+          95
+        ],
+        [
+          "Z"
+        ]
+      ]
+    },
+    {
+      "kind": "path",
+      "fill": "#c0392b",
+      "stroke": null,
+      "alpha": 1,
+      "commands": [
+        [
+          "M",
+          117,
+          108
+        ],
+        [
+          "L",
+          120,
+          105
+        ],
+        [
+          "L",
+          123,
+          108
+        ],
+        [
+          "L",
+          120,
+          111
+        ],
+        [
+          "Z"
+        ]
+      ]
+    },
+    {
+      "kind": "path",
+      "fill": "#c0392b",
+      "stroke": null,
+      "alpha": 1,
+      "commands": [
+        [
+          "M",
+          147,
+          108
+        ],
+        [
+          "L",
+          150,
+          105
+        ],
+        [
+          "L",
+          153,
+          108
+        ],
+        [
+          "L",
+          150,
+          111
+        ],
+        [
+          "Z"
+        ]
+      ]
+    },
+    {
+      "kind": "path",
+      "fill": "#c0392b",
+      "stroke": null,
+      "alpha": 1,
+      "commands": [
+        [
+          "M",
+          177,
+          92
+        ],
+        [
+          "L",
+          180,
+          89
+        ],
+        [
+          "L",
+          183,
+          92
+        ],
+        [
+          "L",
+          180,
+          95
+        ],
+        [
+          "Z"
+        ]
+      ]
+    },
+    {
+      "kind": "label",
+      "contentId": "lbl-wave",
+      "x": 20,
+      "y": 33,
+      "rotationDeg": 0,
+      "hAlign": "left",
+      "vAlign": "top",
+      "color": "#26354a",
+      "alpha": 1
+    },
+    {
+      "kind": "label",
+      "contentId": "lbl-traj",
+      "x": 200,
+      "y": 129,
+      "rotationDeg": 0,
+      "hAlign": "left",
+      "vAlign": "top",
+      "color": "#26354a",
+      "alpha": 1
+    }
+  ]
+}

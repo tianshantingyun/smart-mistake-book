@@ -342,8 +342,8 @@ class RoomTutorToolRunnerTest {
 
     @Test
     fun `knowledgeReadReturnsCodesBoundaryAndMaterialDigestAndAppendsDisclosure`() = runBlocking {
-        // D5 读侧：KNOWLEDGE_READ 返回代号+名称+边界前 80 字+绑定材料摘要；新发现节点
-        // 追加披露（K2）；原始 id 不进结果文本（模型没有产生 id 的渠道）。
+        // D5 读侧：KNOWLEDGE_READ 返回代号+名称+边界（≤80 字）+材料《标题》与正文节选
+        // （≤120 字）；新发现节点追加披露（K2）；原始 id 不进结果文本（模型没有产生 id 的渠道）。
         val port = FakeStudyDatabasePort()
         val nodeA = knowledgeNode("kc-a", "函数单调性", "MATH").copy(
             boundaryMarkdown = "讨论函数在区间上的增减性；不含导数应用题。",
@@ -373,7 +373,7 @@ class RoomTutorToolRunnerTest {
         assertTrue("已披露节点保持原码: $text", text.contains("K1. 函数单调性"))
         assertTrue("新发现节点追加披露: $text", text.contains("K2. 导数与切线"))
         assertTrue("边界前 80 字进结果: $text", text.contains("讨论函数在区间上的增减性"))
-        assertTrue("绑定材料摘要进结果: $text", text.contains("材料："))
+        assertTrue("绑定材料的《标题》与正文节选进结果: $text", text.contains("｜材料《方法模型：单调性解析》正文。"))
         assertFalse("原始 id 不进结果文本: $text", text.contains("kc-a") || text.contains("kc-b"))
         assertEquals(setOf("K1", "K2"), registry.disclosedCodes())
         assertEquals("K2", registry.codeFor("kc-b"))
@@ -1285,7 +1285,7 @@ class RoomTutorToolRunnerTest {
             stableCode = "mat-$nodeId",
             subject = "MATH",
             materialType = "METHOD_MODEL",
-            title = "方法模型：${nodeId}",
+            title = "方法模型：单调性解析",
             summaryMarkdown = "该材料讲解对应知识点的核心方法与典型误区。",
             applicabilityMarkdown = "适用于该知识点的讲题。",
             contentMarkdown = "正文。",

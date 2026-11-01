@@ -57,6 +57,10 @@ import java.util.Base64
  * - 账本拒绝 → 到达假后端的图像 HTTP 请求 = **0**（未经 coordinator 授予的图像调用不存在）；
  * - 账本授予 → 恰好 **1** 个请求，且路径/授权头与预留一致。
  *
+ * 批次 38 / D-06 补第四臂（离线打开旧消息）：`resolveOne` 的 cache-only 读取
+ * （miss / 完好命中 / 损坏副本）必须 **0 HTTP 且 0 账本调用**——读本地不进计费面，
+ * 缺副本也不会被"好心"地自动联网生成。
+ *
  * 授予臂同时是拒绝臂的**非空转对照**：计数器在允许出网时确实会计到 1（否则"=0"可能是观测本身
  * 失灵的假绿）。任何入口重新出现直调通道、或 coordinator 退化为"先 POST 后预留"，都会让对应
  * 断言翻红。fake 后端成功不等于真实 Provider 质量通过（无 key，照旧 UNVERIFIED）。
@@ -275,6 +279,94 @@ class FigureHttpTransportBypassObservationTest {
     }
 
     // -----------------------------------------------------------------
+    // 入口四：离线打开旧消息（AttachedImageGenerator.resolveOne，cache-only）
+    //
+    // D-06（批次 38）：既有用例全在**显式生成臂**（重生成/保存净化/讲题工具），没有一条在
+    // HTTP 层钉住"打开历史消息的 cache-only resolve 不出网、不预留、不记账"。
+    //
+    // 消灭的失败：一旦有人在 resolve 路径上接自动生图（把 NOT_GENERATED 的 miss 悄悄变成
+    // 一次 POST），用户只是翻旧消息就会被扣一次生成额度——真金白银的账，而用户没有点过
+    // 任何"生成"按钮。三例把这条门同时钉在两处：假后端计数器（0 HTTP）与账本调用记录
+    // （0 预留——[WiringLedger] 刻意用 granted=true：哪怕预算充足，打开消息也必须一次都
+    // 不来问账本）。
+    // -----------------------------------------------------------------
+
+    @Test
+    fun `opening an old message without a local copy stays offline with zero reservations`() = runBlocking {
+        val ledger = WiringLedger(granted = true)
+        val generator = attachedGenerator(productionShapedCoordinator(ledger))
+
+        val resolution = generator.resolveOne(processImage)
+
+        assertTrue(resolution is AttachedImageResolution.Unavailable)
+        assertEquals(
+            AttachedImageUnavailableReason.NOT_GENERATED,
+            (resolution as AttachedImageResolution.Unavailable).reason,
+        )
+        assertEquals(
+            "打开旧消息（cache miss）不得产生任何图像 HTTP",
+            0,
+            server.requestCount,
+        )
+        assertTrue(
+            "打开旧消息不得触账本（0 预留/0 计费）：${ledger.events}",
+            ledger.events.isEmpty(),
+        )
+    }
+
+    @Test
+    fun `opening an old message with an intact local copy stays offline with zero reservations`() = runBlocking {
+        val ledger = WiringLedger(granted = true)
+        val generator = attachedGenerator(
+            productionShapedCoordinator(ledger),
+            lookupExisting = { figureId -> asset(sourceAssetId = figureId) },
+        )
+
+        val resolution = generator.resolveOne(processImage)
+
+        assertTrue(
+            "命中完好副本必须回 Ready（读本地是免费的）：$resolution",
+            resolution is AttachedImageResolution.Ready,
+        )
+        assertEquals(
+            "打开旧消息（cache hit）不得产生任何图像 HTTP",
+            0,
+            server.requestCount,
+        )
+        assertTrue(
+            "读本地副本不得触账本：${ledger.events}",
+            ledger.events.isEmpty(),
+        )
+    }
+
+    @Test
+    fun `opening an old message with a damaged local copy stays offline with zero reservations`() = runBlocking {
+        val ledger = WiringLedger(granted = true)
+        val generator = attachedGenerator(
+            productionShapedCoordinator(ledger),
+            lookupExisting = { figureId -> asset(sourceAssetId = figureId) },
+            isIntact = { false },
+        )
+
+        val resolution = generator.resolveOne(processImage)
+
+        assertTrue(resolution is AttachedImageResolution.Unavailable)
+        assertEquals(
+            AttachedImageUnavailableReason.DAMAGED,
+            (resolution as AttachedImageResolution.Unavailable).reason,
+        )
+        assertEquals(
+            "打开旧消息（副本损坏）不得产生任何图像 HTTP",
+            0,
+            server.requestCount,
+        )
+        assertTrue(
+            "损坏副本只回可读原因，不得触账本：${ledger.events}",
+            ledger.events.isEmpty(),
+        )
+    }
+
+    // -----------------------------------------------------------------
 
     /** 真实通道工厂：与生产 `GuardedEditsChannelFactory` 同形，端点指向 MockWebServer。 */
     private inner class MockServerChannelFactory : ConfiguredCleanImageGenerator.ChannelFactory {
@@ -327,9 +419,11 @@ class FigureHttpTransportBypassObservationTest {
     /** 入口三显式注入生产协调器：后端 = 真实通道（与 app 装配同形，只换端点）。 */
     private fun attachedGenerator(
         coordinator: DefaultFigureGenerationCoordinator,
+        lookupExisting: suspend (String) -> CanonicalSourceAssetRecord? = { null },
+        isIntact: (CanonicalSourceAssetRecord) -> Boolean = { true },
     ): AttachedImageGenerator = AttachedImageGenerator(
-        lookupExisting = { null },
-        isIntact = { true },
+        lookupExisting = lookupExisting,
+        isIntact = isIntact,
         persist = { _, _, _, _, figureId, _ -> asset(sourceAssetId = figureId) },
         resolveCurrentSheetBytes = { null },
         uriFor = { "file://${it.relativePath}" },

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 70,
-    "identityHash": "3f525f9ab7fd71316ebc380597eb6c34",
+    "identityHash": "11a8a701bae767a8a3c5bc810e4743a4",
     "entities": [
       {
         "tableName": "problem",
@@ -9781,62 +9781,263 @@
         ]
       },
       {
-        "tableName": "mistake_edit_job",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`operation_id` TEXT NOT NULL, `entry_id` TEXT NOT NULL, `basis_revision_id` TEXT NOT NULL, `draft_sha256` TEXT NOT NULL, `semantic_fingerprint` TEXT NOT NULL, `request_id` TEXT NOT NULL, `request_snapshot` TEXT NOT NULL, `request_fingerprint` TEXT NOT NULL, `generation` INTEGER NOT NULL, `status` TEXT NOT NULL, `state_version` INTEGER NOT NULL, `output_snapshot` TEXT, `figures_snapshot` TEXT NOT NULL, `message` TEXT, `created_at_epoch_millis` INTEGER NOT NULL, `updated_at_epoch_millis` INTEGER NOT NULL, `committed_revision_id` TEXT, PRIMARY KEY(`operation_id`), FOREIGN KEY(`entry_id`) REFERENCES `error_book_entry`(`entry_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`basis_revision_id`) REFERENCES `problem_revision`(`revision_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`committed_revision_id`) REFERENCES `problem_revision`(`revision_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "tableName": "tutor_visual_program",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`program_id` TEXT NOT NULL, `learner_id` TEXT NOT NULL, `role` TEXT NOT NULL, `source_sha256` TEXT NOT NULL, `source_js` TEXT NOT NULL, `initial_state_json` TEXT NOT NULL, `initial_state_sha256` TEXT NOT NULL, `api_version` INTEGER NOT NULL, `sdk_version` TEXT NOT NULL, `basis_revision_id` TEXT, `basis_fingerprint` TEXT NOT NULL, `request_snapshot` TEXT, `created_at_epoch_millis` INTEGER NOT NULL, PRIMARY KEY(`program_id`))",
         "fields": [
           {
-            "fieldPath": "operationId",
-            "columnName": "operation_id",
+            "fieldPath": "programId",
+            "columnName": "program_id",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "entryId",
-            "columnName": "entry_id",
+            "fieldPath": "learnerId",
+            "columnName": "learner_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "role",
+            "columnName": "role",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceSha256",
+            "columnName": "source_sha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceJs",
+            "columnName": "source_js",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "initialStateJson",
+            "columnName": "initial_state_json",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "initialStateSha256",
+            "columnName": "initial_state_sha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "apiVersion",
+            "columnName": "api_version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sdkVersion",
+            "columnName": "sdk_version",
             "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "basisRevisionId",
             "columnName": "basis_revision_id",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
-            "fieldPath": "draftSha256",
-            "columnName": "draft_sha256",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "semanticFingerprint",
-            "columnName": "semantic_fingerprint",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "requestId",
-            "columnName": "request_id",
+            "fieldPath": "basisFingerprint",
+            "columnName": "basis_fingerprint",
             "affinity": "TEXT",
             "notNull": true
           },
           {
             "fieldPath": "requestSnapshot",
             "columnName": "request_snapshot",
-            "affinity": "TEXT",
-            "notNull": true
+            "affinity": "TEXT"
           },
           {
-            "fieldPath": "requestFingerprint",
-            "columnName": "request_fingerprint",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "generation",
-            "columnName": "generation",
+            "fieldPath": "createdAtEpochMillis",
+            "columnName": "created_at_epoch_millis",
             "affinity": "INTEGER",
             "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "program_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_tutor_visual_program_learner_id_created_at_epoch_millis",
+            "unique": false,
+            "columnNames": [
+              "learner_id",
+              "created_at_epoch_millis"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tutor_visual_program_learner_id_created_at_epoch_millis` ON `${TABLE_NAME}` (`learner_id`, `created_at_epoch_millis`)"
+          },
+          {
+            "name": "index_tutor_visual_program_basis_revision_id",
+            "unique": false,
+            "columnNames": [
+              "basis_revision_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tutor_visual_program_basis_revision_id` ON `${TABLE_NAME}` (`basis_revision_id`)"
+          },
+          {
+            "name": "index_tutor_visual_program_source_sha256",
+            "unique": false,
+            "columnNames": [
+              "source_sha256"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tutor_visual_program_source_sha256` ON `${TABLE_NAME}` (`source_sha256`)"
+          }
+        ]
+      },
+      {
+        "tableName": "tutor_visual_snapshot",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`snapshot_id` TEXT NOT NULL, `program_id` TEXT NOT NULL, `state_json` TEXT NOT NULL, `state_sha256` TEXT NOT NULL, `scene_schema_version` INTEGER NOT NULL, `scene_json` TEXT NOT NULL, `scene_sha256` TEXT NOT NULL, `render_schema_version` INTEGER NOT NULL, `draw_commands_json` TEXT NOT NULL, `draw_commands_sha256` TEXT NOT NULL, `content_ids_json` TEXT NOT NULL, `viewport_width_du` INTEGER NOT NULL, `viewport_height_du` INTEGER NOT NULL, `font_scale_milli` INTEGER NOT NULL, `theme` TEXT NOT NULL, `time_ms` INTEGER NOT NULL, `seed` INTEGER NOT NULL, `runtime_version` TEXT NOT NULL, `compiler_version` TEXT NOT NULL, `renderer_version` TEXT NOT NULL, `font_manifest_version` TEXT NOT NULL, `question_verification_status` TEXT NOT NULL, `preview_asset_id` TEXT, `status` TEXT NOT NULL, `owner_request_id` TEXT, `checkpoint_kind` TEXT, `created_at_epoch_millis` INTEGER NOT NULL, `promoted_at_epoch_millis` INTEGER, PRIMARY KEY(`snapshot_id`), FOREIGN KEY(`program_id`) REFERENCES `tutor_visual_program`(`program_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`preview_asset_id`) REFERENCES `canonical_source_asset`(`source_asset_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "snapshotId",
+            "columnName": "snapshot_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "programId",
+            "columnName": "program_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stateJson",
+            "columnName": "state_json",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stateSha256",
+            "columnName": "state_sha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sceneSchemaVersion",
+            "columnName": "scene_schema_version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sceneJson",
+            "columnName": "scene_json",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sceneSha256",
+            "columnName": "scene_sha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "renderSchemaVersion",
+            "columnName": "render_schema_version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "drawCommandsJson",
+            "columnName": "draw_commands_json",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "drawCommandsSha256",
+            "columnName": "draw_commands_sha256",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentIdsJson",
+            "columnName": "content_ids_json",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "viewportWidthDu",
+            "columnName": "viewport_width_du",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "viewportHeightDu",
+            "columnName": "viewport_height_du",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fontScaleMilli",
+            "columnName": "font_scale_milli",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "theme",
+            "columnName": "theme",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timeMs",
+            "columnName": "time_ms",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seed",
+            "columnName": "seed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "runtimeVersion",
+            "columnName": "runtime_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "compilerVersion",
+            "columnName": "compiler_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rendererVersion",
+            "columnName": "renderer_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fontManifestVersion",
+            "columnName": "font_manifest_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "questionVerificationStatus",
+            "columnName": "question_verification_status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "previewAssetId",
+            "columnName": "preview_asset_id",
+            "affinity": "TEXT"
           },
           {
             "fieldPath": "status",
@@ -9845,25 +10046,142 @@
             "notNull": true
           },
           {
-            "fieldPath": "stateVersion",
-            "columnName": "state_version",
+            "fieldPath": "ownerRequestId",
+            "columnName": "owner_request_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "checkpointKind",
+            "columnName": "checkpoint_kind",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAtEpochMillis",
+            "columnName": "created_at_epoch_millis",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "outputSnapshot",
-            "columnName": "output_snapshot",
-            "affinity": "TEXT"
+            "fieldPath": "promotedAtEpochMillis",
+            "columnName": "promoted_at_epoch_millis",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "snapshot_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_tutor_visual_snapshot_program_id_state_sha256_draw_commands_sha256",
+            "unique": true,
+            "columnNames": [
+              "program_id",
+              "state_sha256",
+              "draw_commands_sha256"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_tutor_visual_snapshot_program_id_state_sha256_draw_commands_sha256` ON `${TABLE_NAME}` (`program_id`, `state_sha256`, `draw_commands_sha256`)"
           },
           {
-            "fieldPath": "figuresSnapshot",
-            "columnName": "figures_snapshot",
+            "name": "index_tutor_visual_snapshot_program_id_promoted_at_epoch_millis",
+            "unique": false,
+            "columnNames": [
+              "program_id",
+              "promoted_at_epoch_millis"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tutor_visual_snapshot_program_id_promoted_at_epoch_millis` ON `${TABLE_NAME}` (`program_id`, `promoted_at_epoch_millis`)"
+          },
+          {
+            "name": "index_tutor_visual_snapshot_preview_asset_id",
+            "unique": false,
+            "columnNames": [
+              "preview_asset_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tutor_visual_snapshot_preview_asset_id` ON `${TABLE_NAME}` (`preview_asset_id`)"
+          },
+          {
+            "name": "index_tutor_visual_snapshot_status_created_at_epoch_millis",
+            "unique": false,
+            "columnNames": [
+              "status",
+              "created_at_epoch_millis"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tutor_visual_snapshot_status_created_at_epoch_millis` ON `${TABLE_NAME}` (`status`, `created_at_epoch_millis`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "tutor_visual_program",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "program_id"
+            ],
+            "referencedColumns": [
+              "program_id"
+            ]
+          },
+          {
+            "table": "canonical_source_asset",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "preview_asset_id"
+            ],
+            "referencedColumns": [
+              "source_asset_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "tutor_message_visual",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`message_id` TEXT NOT NULL, `ordinal` INTEGER NOT NULL, `program_id` TEXT NOT NULL, `current_snapshot_id` TEXT NOT NULL, `revision` INTEGER NOT NULL, `ui_state_json` TEXT, `form_digest` TEXT, `created_at_epoch_millis` INTEGER NOT NULL, `updated_at_epoch_millis` INTEGER NOT NULL, PRIMARY KEY(`message_id`, `ordinal`), FOREIGN KEY(`message_id`) REFERENCES `tutor_message`(`message_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`program_id`) REFERENCES `tutor_visual_program`(`program_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`current_snapshot_id`) REFERENCES `tutor_visual_snapshot`(`snapshot_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "messageId",
+            "columnName": "message_id",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "message",
-            "columnName": "message",
+            "fieldPath": "ordinal",
+            "columnName": "ordinal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "programId",
+            "columnName": "program_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currentSnapshotId",
+            "columnName": "current_snapshot_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "revision",
+            "columnName": "revision",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uiStateJson",
+            "columnName": "ui_state_json",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "formDigest",
+            "columnName": "form_digest",
             "affinity": "TEXT"
           },
           {
@@ -9877,90 +10195,173 @@
             "columnName": "updated_at_epoch_millis",
             "affinity": "INTEGER",
             "notNull": true
-          },
-          {
-            "fieldPath": "committedRevisionId",
-            "columnName": "committed_revision_id",
-            "affinity": "TEXT"
           }
         ],
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "operation_id"
+            "message_id",
+            "ordinal"
           ]
         },
         "indices": [
           {
-            "name": "index_mistake_edit_job_entry_id",
+            "name": "index_tutor_message_visual_program_id",
             "unique": false,
             "columnNames": [
-              "entry_id"
+              "program_id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_mistake_edit_job_entry_id` ON `${TABLE_NAME}` (`entry_id`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tutor_message_visual_program_id` ON `${TABLE_NAME}` (`program_id`)"
           },
           {
-            "name": "index_mistake_edit_job_basis_revision_id",
+            "name": "index_tutor_message_visual_current_snapshot_id",
             "unique": false,
             "columnNames": [
-              "basis_revision_id"
+              "current_snapshot_id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_mistake_edit_job_basis_revision_id` ON `${TABLE_NAME}` (`basis_revision_id`)"
-          },
-          {
-            "name": "index_mistake_edit_job_committed_revision_id",
-            "unique": false,
-            "columnNames": [
-              "committed_revision_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_mistake_edit_job_committed_revision_id` ON `${TABLE_NAME}` (`committed_revision_id`)"
-          },
-          {
-            "name": "index_mistake_edit_job_status_operation_id",
-            "unique": false,
-            "columnNames": [
-              "status",
-              "operation_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_mistake_edit_job_status_operation_id` ON `${TABLE_NAME}` (`status`, `operation_id`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tutor_message_visual_current_snapshot_id` ON `${TABLE_NAME}` (`current_snapshot_id`)"
           }
         ],
         "foreignKeys": [
           {
-            "table": "error_book_entry",
+            "table": "tutor_message",
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "entry_id"
+              "message_id"
             ],
             "referencedColumns": [
-              "entry_id"
+              "message_id"
             ]
           },
+          {
+            "table": "tutor_visual_program",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "program_id"
+            ],
+            "referencedColumns": [
+              "program_id"
+            ]
+          },
+          {
+            "table": "tutor_visual_snapshot",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "current_snapshot_id"
+            ],
+            "referencedColumns": [
+              "snapshot_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "problem_revision_visual",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`problem_revision_id` TEXT NOT NULL, `role` TEXT NOT NULL, `ordinal` INTEGER NOT NULL DEFAULT 0, `program_id` TEXT NOT NULL, `snapshot_id` TEXT NOT NULL, `created_at_epoch_millis` INTEGER NOT NULL, PRIMARY KEY(`problem_revision_id`, `role`, `ordinal`), FOREIGN KEY(`problem_revision_id`) REFERENCES `problem_revision`(`revision_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`program_id`) REFERENCES `tutor_visual_program`(`program_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`snapshot_id`) REFERENCES `tutor_visual_snapshot`(`snapshot_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "problemRevisionId",
+            "columnName": "problem_revision_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "role",
+            "columnName": "role",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "ordinal",
+            "columnName": "ordinal",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "programId",
+            "columnName": "program_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "snapshotId",
+            "columnName": "snapshot_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAtEpochMillis",
+            "columnName": "created_at_epoch_millis",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "problem_revision_id",
+            "role",
+            "ordinal"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_problem_revision_visual_program_id",
+            "unique": false,
+            "columnNames": [
+              "program_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_problem_revision_visual_program_id` ON `${TABLE_NAME}` (`program_id`)"
+          },
+          {
+            "name": "index_problem_revision_visual_snapshot_id",
+            "unique": false,
+            "columnNames": [
+              "snapshot_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_problem_revision_visual_snapshot_id` ON `${TABLE_NAME}` (`snapshot_id`)"
+          }
+        ],
+        "foreignKeys": [
           {
             "table": "problem_revision",
             "onDelete": "RESTRICT",
             "onUpdate": "NO ACTION",
             "columns": [
-              "basis_revision_id"
+              "problem_revision_id"
             ],
             "referencedColumns": [
               "revision_id"
             ]
           },
           {
-            "table": "problem_revision",
+            "table": "tutor_visual_program",
             "onDelete": "RESTRICT",
             "onUpdate": "NO ACTION",
             "columns": [
-              "committed_revision_id"
+              "program_id"
             ],
             "referencedColumns": [
-              "revision_id"
+              "program_id"
+            ]
+          },
+          {
+            "table": "tutor_visual_snapshot",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "snapshot_id"
+            ],
+            "referencedColumns": [
+              "snapshot_id"
             ]
           }
         ]
@@ -9978,7 +10379,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3f525f9ab7fd71316ebc380597eb6c34')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '11a8a701bae767a8a3c5bc810e4743a4')"
     ]
   }
 }

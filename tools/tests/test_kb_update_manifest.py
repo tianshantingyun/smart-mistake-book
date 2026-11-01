@@ -335,7 +335,10 @@ class RealArtifactsTest(unittest.TestCase):
         # point_merge 并点）→ 仍 196（量源同上，对成品包实跑 backfill 实测）。
         # 2026-10-20 批次13 promote v17 后重钉：196 → 283（+87 = 3 残点删除 + 84 行零材料
         # 新点「空点撤回」记删；point_delete.csv 现 283 行数据、回填逐一对上；量源同上）。
-        self.assertEqual(283, kinds.get(um.KIND_DELETE, 0))
+        # 2026-10-31 批次27 v23 重钉：本批建点配材的 34 个节点不再属于「空点撤回」，
+        # point_delete.csv 对应撤销 34 行 → 283 − 34 = 249（量源 = 对成品包实跑
+        # um.backfill_from_tables 与本用例 round-1 失败信息 `283 != 249`；表数据行同为 249）。
+        self.assertEqual(249, kinds.get(um.KIND_DELETE, 0))
 
     def test_backfilled_entries_pass_shape_check(self):
         doc = um.empty(self.pack["packId"])

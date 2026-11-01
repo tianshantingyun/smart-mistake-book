@@ -408,6 +408,12 @@ internal class RoomKnowledgeContentReconciler(
             packPrefixEnd = packPrefixEnd,
             pageFirstStableCodes = pages.map { it.first().stableCode },
         )
+        // 整包建一次校验索引：逐材料调用 `problemWith` 时它每次都会为 3,600+ 节点重建
+        // `nodesById`（剖析实测 64,973 条材料这一段 33,650 ms，占 planMaterials 的 86%）。
+        // 索引只依赖本循环不变量（acceptedNodes / teachingSources），判定结果逐条不变。
+        val validationNodesById = acceptedNodes.associateBy(KnowledgeNodeSeedRecord::knowledgeNodeId)
+        val validationSourcesById =
+            command.teachingSources.associateBy(KnowledgeSourceSeedRecord::sourceId)
         for (segment in segments) {
             val rows = dao.readMaterialsInStableCodeRange(
                 fromStableCode = segment.fromStableCode,
@@ -426,8 +432,8 @@ internal class RoomKnowledgeContentReconciler(
                     val problem = KnowledgeTeachingMaterialContract.problemWith(
                         material = material,
                         bindings = ownBindings.filter { it.knowledgeNodeId in acceptedNodeIds },
-                        nodes = acceptedNodes,
-                        sources = command.teachingSources,
+                        nodesById = validationNodesById,
+                        sourcesById = validationSourcesById,
                     )
                     if (problem != null) {
                         skipped += "material:${material.materialId}: $problem"

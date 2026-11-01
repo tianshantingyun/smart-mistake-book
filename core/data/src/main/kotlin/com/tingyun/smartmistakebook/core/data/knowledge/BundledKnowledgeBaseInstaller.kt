@@ -29,6 +29,10 @@ object BundledKnowledgeBaseInstaller {
 
     suspend fun install(database: StudyDatabasePort) = installMutex.withLock {
         val installStartedAt = System.nanoTime()
+        // F6（性能剖析 2026-10-31）：上次导入若在「二级索引暂时移除」窗口内崩溃，
+        // 这里先按 Room schema 的 DDL 补建（幂等；索引已在时是 O(1) 元数据检查）。
+        // 放在快路径判定之前，所以下次启动无论走全量还是新路径都能自愈。
+        database.ensureKnowledgeSearchFeatureIndexes()
         // 快路径（D13/R4a）：manifest 是 111KB 小文件，单独解析、不触发整包解析；
         // 先对进度戳——记录行的 packId 即按 manifest.packId 查询（DAO `WHERE pack_id = ?`），
         // contentVersion 一致 ⟺ 上一次调和完整跑完且随包内容未变（WP2/R1 前提：
@@ -49,9 +53,16 @@ object BundledKnowledgeBaseInstaller {
             )
             return@withLock
         }
-        BundledKnowledgePackResources.load().forEach { pack ->
-            pack.validate()
-            reconcile(database, pack, manifest?.takeIf { it.packId == pack.packId })
+        // F6：解析放在调优/索引窗口**之外**——解析只读 CPU、不写库；若解析失败，
+        // 既有索引原样保留，不会因为先 drop 再 OOM 而白付一次索引重建。
+        val packs = BundledKnowledgePackResources.load()
+        database.withKnowledgeImportTuning {
+            database.withDeferredKnowledgeSearchFeatureIndexes {
+                packs.forEach { pack ->
+                    pack.validate()
+                    reconcile(database, pack, manifest?.takeIf { it.packId == pack.packId })
+                }
+            }
         }
         android.util.Log.d(
             "KnowledgeInstall",

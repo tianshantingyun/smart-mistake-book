@@ -14,7 +14,15 @@ package com.tingyun.smartmistakebook.core.model
  * - 没有持久父操作/显式已知预算不足时仍出网。这里在预留之前就拒绝，与 core:domain 的
  *   `RemoteModelDispatchLedger` 的 durable 判定形成两道门（策略门 + 账本门）。
  *   预算未预读（`remainingRemoteDispatches == null`）时策略门放行，由账本做真门；
- *   账本拒绝会把真实已派发次数回给诊断（KD-60）。
+ *   账本拒绝会把真实已派发次数回给诊断（KD-60）。**预算门只对 IMAGE_MODEL 生效**：
+ *   JS 在本地引擎执行、不占远程派发，不得被远程余额拒掉。
+ * - 宿主显式传了 basis 指纹、却与 proposal 方法的真实输入摘要冲突（A-08 入口侧约束：
+ *   program 摘要是权威）。audit 的 `basis_fingerprint` 必须能回答"这次尝试的输入变过没有"，
+ *   冲突时静默采信显式值等于把宿主 bug 写进审计证据——这里按方法一致复核，冲突即拒。
+ * - 冻结的 [VisualSourceBasis]（X-02 源证据基准）与实际出网字节脱钩：基准未授权披露原图
+ *   （allowsImageDisclosure = false）时，任何会把源图字节送出网的 IMAGE_MODEL 派发一律
+ *   拒绝（授权不足）；基准的 canonical 引用/SHA 与实际源证据不一致（错图/SHA 变化）
+ *   fail-closed。basis = null 的旧调用不介入，逐位零变化。
  *
  * 只做校验，不做路由：它不按 purpose 选 method，也不替入口改选。
  */
@@ -140,7 +148,13 @@ object FigureGenerationPolicy {
                 "GENERATE 必须回显宿主用途",
             )
         }
-        if (!request.budget.allowsOneRemoteDispatch()) {
+        // 预算门只约束**远程**派发：JS 在本地引擎执行，不占远程预算（视觉契约"JS 本地执行
+        // 不占远程派发"）。把同一道门也压在 JS 上，会让零余额的纯本地渲染被
+        // BUDGET_INSUFFICIENT 拒掉——本地方法替远程预算买单，正是契约禁止的错配。
+        if (
+            method == FigureGenerationMethod.IMAGE_MODEL &&
+            !request.budget.allowsOneRemoteDispatch()
+        ) {
             return reject(
                 FigureGenerationRejectionCode.BUDGET_INSUFFICIENT,
                 "剩余远程派发预算不足以再执行一次生图" +
@@ -176,11 +190,40 @@ object FigureGenerationPolicy {
                 "proposal 的保真档低于宿主目标（$proposedFidelity < ${request.target.fidelity}）",
             )
         }
-        return when (method) {
+        val payloadCheck = when (method) {
             FigureGenerationMethod.JS -> validateJsProposal(request, proposal)
             FigureGenerationMethod.IMAGE_MODEL -> validateImageModelProposal(request, proposal)
         }
+        if (payloadCheck is FigureGenerationValidation.Rejected) {
+            return payloadCheck
+        }
+        // A-08 入口侧约束在载荷校验之后追加：program/imagePrompt 的非空不变量已由
+        // 载荷校验建立，这里只做"显式 basis == 方法一致摘要"的复核。
+        return validateBasisFingerprint(request, proposal, method)
     }
+
+    /**
+     * Q-02（批次 38，2026-11-01 主会话预裁）：PIXEL_CLEANUP 的 purpose→target **有效位**映射。
+     *
+     * 该用途的语义由枚举与提示词双面钉死（[FigureGenerationPurpose.PIXEL_CLEANUP] =
+     * "保留原像素的编辑/去污"；prompt 用途段明文"不得把重新绘制称为像素修复"），不存在
+     * 合法"可重绘"语义分支；因此 PIXEL_CLEANUP 的原像素保真要求一律成立，等于宿主显式
+     * 位 ∨ purpose 映射，**不接受宿主声明降级**。
+     *
+     * 它消灭的具体失败：净化入口把 target 位传成 `requiresPixelFidelity=false`
+     * （`ConfiguredCleanImageGenerator` 旧值），而 policy 的两道 pixel 门只看宿主位——
+     * 一旦广告 JS，一个 purpose=PIXEL_CLEANUP、target 位=false 的请求即可让 JS proposal
+     * 逃过像素门。映射收进 policy 后，同一请求无论宿主传什么都不可能放行 JS；IMAGE 侧
+     * 仍按原语义要求 EDIT + supportsPixelEditing（生产净化链不变）。
+     *
+     * 边界：这是 target 语义规整，**不是用途→方法路由**——它不替入口选 method，只把
+     * "该用途必然要求原像素保真"钉成校验输入，与本文件头"不按 purpose 选 method"一致。
+     */
+    private fun effectiveRequiresPixelFidelity(
+        request: FigureGenerationRequest,
+    ): Boolean =
+        request.target.requiresPixelFidelity ||
+            request.purpose == FigureGenerationPurpose.PIXEL_CLEANUP
 
     private fun validateJsProposal(
         request: FigureGenerationRequest,
@@ -213,6 +256,20 @@ object FigureGenerationPolicy {
             return reject(
                 FigureGenerationRejectionCode.TARGET_UNSATISFIABLE,
                 "目标要求参数交互，但本机 JS 运行库不支持交互",
+            )
+        }
+        // Q-01（批次 35）：与 IMAGE 分支的 pixel 门恰成镜像、但方向相反——参数交互 JS
+        // **能给**（按能力位查），原像素保真 JS **结构上给不了**：参数化重绘从 canvas 指令
+        // 重建画面，从不触原像素，任何能力位都改变不了这一点。所以这道门无条件拒，不看
+        // 能力位；放行一个 requiresPixelFidelity=true 目标的 JS proposal，就是让 JS 冒充
+        // 它兑现不了的保真承诺。
+        // Q-02（批次 38，主会话预裁）：pixel 保真要求取**有效位**（宿主显式位 ∨ PIXEL_CLEANUP
+        // 映射）——只看宿主位时，入口把 PIXEL_CLEANUP 的 target 位传成 false 就等于这道门
+        // 不存在（`ConfiguredCleanImageGenerator` 的旧值正是如此）。
+        if (effectiveRequiresPixelFidelity(request)) {
+            return reject(
+                FigureGenerationRejectionCode.TARGET_UNSATISFIABLE,
+                "目标要求原像素保真，JS 参数化重绘不能冒充完成",
             )
         }
         return FigureGenerationValidation.Accepted
@@ -289,19 +346,99 @@ object FigureGenerationPolicy {
                 }
             }
         }
+        // X-02 源证据门（契约 §3.1"允许披露范围"）：冻结基准与实际出网字节绑定。
+        // 顺序在能力/源字节门之后——授权不足与错图/SHA 变化是比"能力缺失"更具体的失败，
+        // 诊断优先报前者；basis = null 的旧调用整段跳过（逐位零变化）。
+        request.visualSourceBasis?.let { basis ->
+            if (sourceBytes != null && !basis.allowsImageDisclosure) {
+                return reject(
+                    FigureGenerationRejectionCode.SOURCE_DISCLOSURE_UNAUTHORIZED,
+                    "源图字节将随派发出网，但冻结的源证据基准未授权披露原图（allowsImageDisclosure=false）",
+                )
+            }
+            val sourceAssetId = request.source?.assetId
+            if (
+                sourceAssetId != null &&
+                basis.canonicalAssetId != null &&
+                sourceAssetId != basis.canonicalAssetId
+            ) {
+                return reject(
+                    FigureGenerationRejectionCode.SOURCE_EVIDENCE_MISMATCH,
+                    "源图资产（$sourceAssetId）与冻结基准的 canonical 引用" +
+                        "（${basis.canonicalAssetId}）不一致（错图）",
+                )
+            }
+            val frozenSha = basis.contentSha256
+            if (frozenSha != null && sourceBytes != null && frozenSha != figureSha256Hex(sourceBytes)) {
+                return reject(
+                    FigureGenerationRejectionCode.SOURCE_EVIDENCE_MISMATCH,
+                    "源图字节与冻结基准的 SHA 不一致（错图或 SHA 变化）",
+                )
+            }
+        }
         if (request.target.requiresParametricInteraction) {
             return reject(
                 FigureGenerationRejectionCode.TARGET_UNSATISFIABLE,
                 "目标要求参数交互，图像模型方法不能冒充完成",
             )
         }
+        // Q-02（批次 38）：同 JS 分支，pixel 保真门取**有效位**——PIXEL_CLEANUP 用途无条件
+        // 要求原像素保真，只能走支持该能力的 EDIT（生产净化链=EDIT+IMAGE_MODEL_ONLY
+        // [supportsPixelEditing=true]，不受影响；GENERATE 冒充清理被拒）。
         if (
-            request.target.requiresPixelFidelity &&
+            effectiveRequiresPixelFidelity(request) &&
             (operation != FigureImageOperation.EDIT || !request.capabilities.supportsPixelEditing)
         ) {
             return reject(
                 FigureGenerationRejectionCode.TARGET_UNSATISFIABLE,
                 "目标要求原像素保真，只能用支持该能力的图像编辑",
+            )
+        }
+        return FigureGenerationValidation.Accepted
+    }
+
+    /**
+     * A-08 入口侧约束：**program 摘要是权威；宿主显式 basis 必须过方法一致复核；冲突 fail-closed**。
+     *
+     * 消灭的具体失败：三入口显式传的是 IMAGE 语义 basis（[figureBasisFingerprint]，imagePrompt
+     * 进规范化串），而 coordinator 对显式值无条件采信（`basisFingerprint ?: 推导`）。一旦
+     * method=JS 的 proposal 到达带 IMAGE 语义显式 basis 的 request（A-02 工具环接线后的默认形态），
+     * 两个不同的 program 就共享同一 `input_fingerprint`，"两个不同 program 不得同指纹"从入口侧复活。
+     * 这里在放行前按 proposal 的真实方法重算摘要（JS → program 字节哈希；IMAGE_MODEL → imagePrompt），
+     * 与显式值不一致即拒绝，不静默覆盖、不静默重算——冲突说明宿主算错了指纹，第一次就拒比写脏审计好。
+     *
+     * 源段口径与三入口的构造一致：取 [FigureSourceEvidence.contentSha256]（三入口都以
+     * `figureSha256Hex(bytes)` 派生它）。显式值为 null = 旧调用（A-12 兼容口径），本门不介入，
+     * coordinator 照旧自行推导。
+     */
+    private fun validateBasisFingerprint(
+        request: FigureGenerationRequest,
+        proposal: FigureGenerationProposal,
+        method: FigureGenerationMethod,
+    ): FigureGenerationValidation {
+        val declared = request.basisFingerprint ?: return FigureGenerationValidation.Accepted
+        val expected = when (method) {
+            FigureGenerationMethod.JS -> figureJsBasisFingerprint(
+                operationId = request.operationId,
+                sourceSha256 = request.source?.contentSha256,
+                program = requireNotNull(proposal.program) {
+                    "payload validation accepted a JS proposal without a program"
+                },
+            )
+
+            FigureGenerationMethod.IMAGE_MODEL -> figureBasisFingerprint(
+                operationId = request.operationId,
+                sourceSha256 = request.source?.contentSha256,
+                imagePrompt = requireNotNull(proposal.imagePrompt) {
+                    "payload validation accepted an IMAGE_MODEL proposal without an imagePrompt"
+                },
+            )
+        }
+        if (declared != expected) {
+            return reject(
+                FigureGenerationRejectionCode.BASIS_FINGERPRINT_MISMATCH,
+                "宿主显式 basis 指纹与 ${method.name} 方法的输入摘要不一致" +
+                    "（program 摘要是权威，冲突值不得写进审计）",
             )
         }
         return FigureGenerationValidation.Accepted
@@ -342,6 +479,35 @@ object FigureGenerationPolicy {
     ): FigureGenerationValidation = FigureGenerationValidation.Rejected(code, message)
 }
 
+/**
+ * 4E.2 A-10 的**本地 JS / 最终图**预算常量（视觉契约 §7.1"每个逻辑操作……累计接收源码≤128KiB、
+ * 新布局尝试≤6、累计 JS 阶段墙钟≤10s"与"单逻辑操作最多提交两份最终图"）。
+ *
+ * 与 [ModelTaskRemoteDispatchPolicy] 的分工：那里管**远程**派发的持久账本（≤6 次、讲题留终答）；
+ * 这里管账本**挡不住**的三类无界面——JS 本地执行不占远程派发（零付费路径），没有这组常量时：
+ * - 失败尝试可无限重试，每次 ≤ [MAX_PROGRAM_UTF8_BYTES] 但累计无界（账本的 6 次上限管不到
+ *   JS，6 × 64 KiB = 384 KiB 也照样烧）；
+ * - 引擎只有单事务期限（服务侧 1500 ms），跨尝试的挂死-重建循环可以无限烧墙钟；
+ * - 同一逻辑操作可以反复产出第 3 份最终图（IMAGE_MODEL 有派发账本间接挡，JS 完全没有门）。
+ *
+ * 常量只放数值与语义；**执行点在协调器**（唯一能看见"同一 operationId 的多次尝试"的位置，
+ * `DefaultFigureGenerationCoordinator` 的 per-operation 累计器）。策略校验
+ * [FigureGenerationPolicy.validate] 是无状态纯函数，不承载累计预算。
+ */
+object FigureGenerationLocalJsBudget {
+    /** 单逻辑操作累计接收（含失败尝试）的 JS 源码 UTF-8 预算。恰好在预算内放行，+1 字节拒。 */
+    const val MAX_CUMULATIVE_SOURCE_UTF8_BYTES: Int = 128 * 1_024
+
+    /** 单逻辑操作的 JS 源码布局尝试上限（每次真实进引擎的尝试计 1，含失败）。第 7 次拒。 */
+    const val MAX_LAYOUT_ATTEMPTS: Int = 6
+
+    /** 单逻辑操作累计 JS 阶段墙钟（宿主侧实测 `engine.execute` 前后耗时之和）。 */
+    const val MAX_CUMULATIVE_WALL_CLOCK_MILLIS: Long = 10_000L
+
+    /** 单逻辑操作最多产出（提交）的最终图份数。第 3 份拒，两种方法合计计数。 */
+    const val MAX_FINAL_FIGURES_PER_OPERATION: Int = 2
+}
+
 /** policy 校验结论。[Accepted] 仍不代表预算/预留已落实——那是 ledger 的门。 */
 sealed interface FigureGenerationValidation {
     data object Accepted : FigureGenerationValidation
@@ -364,10 +530,13 @@ enum class FigureGenerationRejectionCode {
     IMAGE_OPERATION_UNAVAILABLE,
     SOURCE_REQUIRED,
     SOURCE_EVIDENCE_MISMATCH,
+    /** X-02：冻结的源证据基准未授权披露原图，但本次派发会把源图字节送出网。 */
+    SOURCE_DISCLOSURE_UNAUTHORIZED,
     TARGET_UNSATISFIABLE,
     TARGET_DOWNGRADED,
     CONSTRAINT_DROPPED,
     CONSTRAINT_BUDGET_EXCEEDED,
     BUDGET_INSUFFICIENT,
     DISPATCH_UNBOUND,
+    BASIS_FINGERPRINT_MISMATCH,
 }

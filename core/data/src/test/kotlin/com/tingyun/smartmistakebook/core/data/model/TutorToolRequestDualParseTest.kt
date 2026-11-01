@@ -7,10 +7,16 @@ import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
 import com.tingyun.smartmistakebook.core.model.TutorMessageIntent
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
+import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.put
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -220,6 +226,111 @@ class TutorToolRequestDualParseTest {
         assertEquals(com.tingyun.smartmistakebook.core.model.TutorFigureKind.REDRAW_PROBLEM, routeBCall.figureKind)
         assertEquals("重绘题面去手写", routeBCall.figureDescription)
         assertEquals("两路由必须解析出同一个 TutorToolCall", routeBCall, routeACall)
+    }
+
+    // ---- KD-30：MASTERY_READ 的扩展结果预算（extendedResult）两路由同名同义 ----
+
+    /** Route B：json_object 信封里的 `toolRequests[]`。null = 模型没带这个键。 */
+    private fun masteryReadRouteBCall(extendedResult: Boolean?): TutorToolCall {
+        val payload = buildJsonObject {
+            put(
+                "intentDecision",
+                buildJsonObject {
+                    put("intent", "CURRENT_QUESTION_HELP")
+                    put("confidence", 0.9)
+                    put("explicitActionRequest", false)
+                    put("memoryPreference", "UNCHANGED")
+                    put("requestedLocalCapability", "NONE")
+                    put("lookupTerms", buildJsonArray { })
+                },
+            )
+            put(
+                "toolRequests",
+                buildJsonArray {
+                    add(
+                        buildJsonObject {
+                            put("tool", "MASTERY_READ")
+                            put("terms", buildJsonArray { add(JsonPrimitive("K1")) })
+                            put("rationale", "读取更完整的掌握情况")
+                            extendedResult?.let { put("extendedResult", it) }
+                        },
+                    )
+                },
+            )
+        }
+        val output = OpenAiModelTaskAdapters.parse(payload, respondInput(), "test-model-v1")
+        return (output as TutorToolRequestsOutput).calls.single()
+    }
+
+    /** Route A：原生 `assistant.tool_calls`（arguments 是 JSON 字符串）。null = 没带这个键。 */
+    private fun masteryReadRouteACall(extendedResult: Boolean?): TutorToolCall {
+        val arguments = buildJsonObject {
+            put("terms", buildJsonArray { add(JsonPrimitive("K1")) })
+            put("rationale", "读取更完整的掌握情况")
+            extendedResult?.let { put("extendedResult", it) }
+        }
+        val envelope = buildJsonObject {
+            put(
+                "choices",
+                buildJsonArray {
+                    add(
+                        buildJsonObject {
+                            put(
+                                "message",
+                                buildJsonObject {
+                                    put("role", "assistant")
+                                    put("content", JsonNull)
+                                    put(
+                                        "tool_calls",
+                                        buildJsonArray {
+                                            add(
+                                                buildJsonObject {
+                                                    put("id", "call_mastery")
+                                                    put("type", "function")
+                                                    put(
+                                                        "function",
+                                                        buildJsonObject {
+                                                            put("name", "MASTERY_READ")
+                                                            put("arguments", arguments.toString())
+                                                        },
+                                                    )
+                                                },
+                                            )
+                                        },
+                                    )
+                                },
+                            )
+                        },
+                    )
+                },
+            )
+        }
+        val output = OpenAiModelProtocol.parseResponse(
+            responseBody = envelope.toString(),
+            input = respondInput(),
+            modelVersion = "test-model-v1",
+        )
+        return (output as TutorToolRequestsOutput).calls.single()
+    }
+
+    @Test
+    fun masteryReadExtendedResultParsesIdenticallyOnBothRoutes() {
+        // KD-30：MASTERY_READ 的扩展预算（extendedResult=true）在 Route B 信封与 Route A
+        // 原生 tool_calls 上必须同名同义——native 路由漏解析时，模型申请的扩展预算被静默
+        // 丢弃（RoomTutorToolRunner 的 budget 分支不触发），而两条路由各自单看都"能跑"。
+        val routeBWithBudget = masteryReadRouteBCall(extendedResult = true)
+        val routeAWithBudget = masteryReadRouteACall(extendedResult = true)
+
+        assertTrue("原生路由必须保留模型申请的扩展预算", routeAWithBudget.extendedResult)
+        assertTrue("信封路由必须保留模型申请的扩展预算", routeBWithBudget.extendedResult)
+        assertEquals("两路由必须解析出同一个 TutorToolCall", routeBWithBudget, routeAWithBudget)
+
+        // 缺省同义：两路由都没带这个键 → 都按 false（基础预算），且仍逐字相同。
+        val routeBDefault = masteryReadRouteBCall(extendedResult = null)
+        val routeADefault = masteryReadRouteACall(extendedResult = null)
+        assertEquals(false, routeBDefault.extendedResult)
+        assertEquals(false, routeADefault.extendedResult)
+        assertEquals(routeBDefault, routeADefault)
     }
 
     @Test(expected = IllegalArgumentException::class)

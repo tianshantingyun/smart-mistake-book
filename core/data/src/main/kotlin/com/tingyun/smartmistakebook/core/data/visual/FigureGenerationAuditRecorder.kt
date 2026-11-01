@@ -37,6 +37,26 @@ internal interface FigureGenerationAuditRecorder {
     /** 建立尝试（`RUNNING`）；只能在拿到 reservation 之后调用。 */
     suspend fun beginAttempt(attempt: FigureGenerationAuditAttempt): Boolean
 
+    /**
+     * 建立一次**本地方法**（JS）尝试（`RUNNING`）。**没有**预留：JS 在本地引擎执行，
+     * 不占远程派发；实现必须把 `reservation_id` 落 NULL，序号由持久层在同一个写事务里
+     * 分配（负数区间，与账本远程序号不相交）。
+     *
+     * 返回落库的尝试行（含持久层分配的序号），供协调器回填 attemptId 与终态；
+     * 没有可写台账（Noop/旧装配/写失败）时返回 null——此时生成照旧继续（审计是证据，
+     * 不是业务判据），只是这次尝试不进台账。
+     *
+     * 默认实现返回 null 而非"假装记上"：签名为空实现保留是因为测试替身可能只关心
+     * 远程方法。**真实记录器必须覆盖**，否则 JS 尝试会无声地不进台账。
+     */
+    suspend fun beginLocalAttempt(
+        operationId: String,
+        method: FigureGenerationMethod,
+        inputFingerprint: String,
+        sourceSha256: String?,
+        startedAtEpochMillis: Long,
+    ): FigureGenerationAuditAttempt? = null
+
     /** 落尝试终态；`outputAssetId` 成功时为 null（由入口落盘后回填）。 */
     suspend fun finishAttempt(
         attemptId: String,
@@ -73,6 +93,14 @@ internal interface FigureGenerationAuditRecorder {
         ): Boolean = false
 
         override suspend fun beginAttempt(attempt: FigureGenerationAuditAttempt): Boolean = false
+
+        override suspend fun beginLocalAttempt(
+            operationId: String,
+            method: FigureGenerationMethod,
+            inputFingerprint: String,
+            sourceSha256: String?,
+            startedAtEpochMillis: Long,
+        ): FigureGenerationAuditAttempt? = null
 
         override suspend fun finishAttempt(
             attemptId: String,
@@ -112,7 +140,8 @@ internal data class FigureGenerationAuditAttempt(
     val operationId: String,
     val attemptOrdinal: Int,
     val method: FigureGenerationMethod,
-    val reservationId: String,
+    /** 远程预留句柄；本地方法（JS）没有预留，为 null。 */
+    val reservationId: String?,
     val inputFingerprint: String,
     val sourceSha256: String?,
     val startedAtEpochMillis: Long,

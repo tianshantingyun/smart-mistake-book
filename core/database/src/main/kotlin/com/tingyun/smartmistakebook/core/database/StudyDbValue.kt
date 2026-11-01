@@ -48,6 +48,14 @@ object StudyDbValue {
          * 也是"额度账"里可数的行（次数/时间/模型/用途）。TEXT 常量值，零 schema。
          */
         const val GENERATED_FIGURE = "GENERATED_FIGURE"
+
+        /**
+         * D-04（批次 38）：本机视觉快照的预览 PNG（`tutor_visual_snapshot.preview_asset_id`
+         * 的引用目标，canonical 引用面的**第六类站点**）。它是本地渲染器确定性绘出的画面：
+         * 不出网、无 AI 隐式标识（provenance 为空）、内容寻址（sha 派生 id 与文件名）幂等
+         * ——同一快照重绘出同字节 → 同一行，不重复登记。TEXT 常量值，零 schema。
+         */
+        const val LOCAL_VISUAL_PREVIEW = "LOCAL_VISUAL_PREVIEW"
     }
 
     object BatchImportStatus {

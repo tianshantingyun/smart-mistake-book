@@ -309,3 +309,110 @@ git status --porcelain -- <§5.1 的 7 个 tracked 文件>
 ---
 
 > 预注册结束。执行轮只追加 §7 结果节，不改 §1–§6。
+
+---
+
+## 7. 执行轮结果（2026-10-27 追加）
+
+> 追加时点：2026-10-27（+08:00），工作树 HEAD `d783ae846526b2da3fbe0a041a3695bf23188820`。**§1–§6 一字未动**；本节只追加结果、证据与登记状态。
+>
+> 证据口径：F1–F5 是**批次23 冻结读数**（未重新检索、未重新排序），本轮以同一镜像重跑复算脚本复现；真 Room 与设备读数注明命令与落盘文件；未跑项显式写 `NOT_RUN` / `UNVERIFIED`。
+
+### 7.1 F1–F5（冻结读数）
+
+**复算命令（本轮实跑，只读）**：
+
+```text
+python "C:/Users/听云/AppData/Local/Temp/retest_r1_batch23.py"
+# exit=0；输出与 build/agent-batch23/usage-r1/retest-r1.log 逐行一致
+```
+
+| # | 判据 | §3.1 基线 | 执行轮读数 | 冻结阈值 | 判定 | 证据 |
+|---|---|---:|---:|---:|---|---|
+| F1 | 每节点材料覆盖 | 46.67%（301/645） | **100.00%（645/645）**（Python 与逐字 SQL 同值） | ≥90% | **PASS** | `retest-r1.log:4,6` |
+| F2 | 期望节点有材料 | 50.39%（65/129） | **90.70%（117/129）**（Python 与 SQL 同值） | ≥90% | **PASS**（= 算术上限） | `retest-r1.log:8` |
+| F3 | 误区槽位占比 | 76.12%（491/645） | **1.24%（8/645）** | ≤20% | **PASS** | `retest-r1.log:10-11` |
+| F4 | 无材料节点显式标注 | 无标注 | 金标 0/0（空真）；单测夹具证明 `｜（该节点无材料）` | 全部标注 | **PASS**（依赖夹具） | `retest-r1.log:13`；`UsageMaterialAllocationTest.kt:181-221`；`KnowledgeReadRecallBudgetTest.kt:195-241` |
+| F5 | 材料条数 / 渲染长度 | 5/查询、名义 2k | **5/查询（129/129）**；chars **660 / 743 / 838**（max 41.9% of 2,000） | 5 / ≤2,000 chars | **PASS（字符口径）** | `retest-r1.log:15-17` |
+
+关键口径（与 §3 一致，未改）：
+
+- F1 分母是 645 个**有绑定材料**的金标节点行；本轮 645/645 获材料，故“未选中”= 0。
+- F2 = 117/129 = 90.70%，恰为检索召回上限（12 条 MISS 的期望节点不在 top-5）；117 条命中查询全部拿到材料，余量 0.70pp。
+- F3 选中分布 `CONCEPT_EXPLANATION 563 / METHOD_MODEL 74 / MISCONCEPTION_GUIDE 8`；这只证明冻结教学序生效，不证明语义最相关（KB23-R1-13 仍 open）。
+- F4 金标上为空真（`no_material_rows=0`），通过依据是单测夹具，不是 0/0。
+- F5 的 2k 是**字符**：UTF-8 max **2,267 B > 2,000 B**，属 R5 契约侧未关闭（KB23-R1-10），不得写成“2k 字节通过”。
+- SQL ↔ Python 镜像对拍：`checked_sql_rows 645 / mismatch_queries 0 / mismatch_nodes 0`（`retest-r1.log:20`）。这证明新 SQL 与 runner 镜像逐节点选材一致，**不等于**真 Room 执行已验证（由 §7.2 单独覆盖）。
+
+### 7.2 真 Room 验证（passed）
+
+预注册 §1.1 第 8 项的真实 Room 仪器化验证已落地并通过：
+
+- **测试类**：`com.tingyun.smartmistakebook.core.data.knowledge.TeachingMaterialAllocationInstrumentedTest`
+  （`core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/TeachingMaterialAllocationInstrumentedTest.kt`，4 个 `@Test`）。
+- **实际模块与预注册的差异**：预注册写的是 `core/database` 的 `KnowledgeTeachingMaterialPerNodeQueryInstrumentedTest.kt`；实际测试住在 `core:data`，因为随包安装器 `BundledKnowledgeBaseInstaller` 与内容包加载器都在 `core:data`，`core:database` 不反向依赖它（`build/agent-batch24/room-test-design.md:29-40`）。为不改 §1–§6，此处只登记差异，不回写冻结写面。
+- **命令（本轮实跑）**：
+
+```text
+adb -s emulator-5584 logcat -c
+adb -s emulator-5584 shell am instrument -w \
+  -e class com.tingyun.smartmistakebook.core.data.knowledge.TeachingMaterialAllocationInstrumentedTest \
+  com.tingyun.smartmistakebook.core.data.test/androidx.test.runner.AndroidJUnitRunner
+```
+
+```text
+com.tingyun.smartmistakebook.core.data.knowledge.TeachingMaterialAllocationInstrumentedTest:....
+Time: 2.229
+OK (4 tests)
+AM_INSTRUMENT_RC=0
+```
+
+- **logcat（同轮）**：`TestRunner: run started: 4 tests` → 四个方法逐个 `started/finished` → `TestRunner: run finished: 4 tests, 0 failed, 0 ignored`。未出现失败断言。
+- **四个用例**：`typePriorityCoversEveryTeachingRankBoundary`、`multiNodeQueryReturnsEachNodesOwnBestMaterial`、`rolePriorityOutranksTypePriorityOnEveryQueryShape`、`zeroMaterialAndFiltersAreDeterministic`。覆盖教学序 7 档边界、每节点各自最佳（含跨节点共享材料但角色不同）、角色优先于类型、零材料/空集/RETIRED/科目过滤。
+- **落盘旁证**：`build/agent-batch24/device/teaching-material-allocation-result.txt`（`OK (4 tests)`、`am_instrument_shell_rc=0`）；`build/agent-batch24/device/teaching-material-allocation-logcat.txt`（`run finished: 4 tests, 0 failed, 0 ignored`）。
+- **测试文件状态**：当前 `??`（未跟踪），提交时必须列入显式文件清单；不得声称“已随 R1 提交”。
+
+### 7.3 设备无回归（检索）
+
+设备轨与 §4.1 的三个门一致，均未变化：
+
+| 读数 | 批次23 设备读数 | 基线 | 证据 |
+|---|---:|---:|---|
+| 设备融合 Recall@5 | **117/129 = 0.9069767441860465** | 同值 | `build/agent-batch23/device/device-metrics.txt:3` |
+| 设备融合 MRR | **0.7322997416020672** | 同值 | 同文件 `:5` |
+| 设备词面 Recall@5 | **102/129 = 0.7906976744186046** | 同值 | 同文件 `:33` |
+| 设备词面 MRR | **0.6206718346253232** | 同值 | 同文件 `:35` |
+| 同路零漂移 | lexical symdiff **0**；fused symdiff **0**；`zeroDriftBothRoutes=true` | 0/0 | `build/agent-batch23/device/step6_zero_drift.log`；`zero-drift.json:10,33,1026` |
+
+**口径**：设备为 `emulator-5584`（AVD `kb_test_device`，`sys.boot_completed=1`），不是真机；这些读数是批次23 已落盘产物，本轮未重跑检索。跨路 symdiff 15 是设计内差异（fused 12 vs lexical 27），不属于同路零漂移失败。
+
+### 7.4 登记状态更新（PARTIAL 口径）
+
+| ID | 本轮回写状态 | 依据 / 边界 |
+|---|---|---|
+| KB23-R1-02 真实 Room 仪器化测试 | **关闭** | §7.2：真 Room 4/4 通过；测试文件未跟踪，须入显式提交清单 |
+| KB23-R1-03 独立红测轮日志 | **保留 UNVERIFIED** | 旧实现已被新实现替换，当前工作树无法重建旧实现；不把测试文件 mtime 或“先写测试”的时序当成红跑证据 |
+| KB23-R1-06 预注册 §7 | **关闭（本轮回写）** | 本节即 §7；§1–§6 零改动 |
+| KB23-R1-15 真机 / API 23 | **仍 open（NOT_RUN）** | 见 §7.5：本轮设备是 API 34，未见 API 23 运行 |
+| KB23-R1-16 生产遥测 | **仍 open（观测交接）** | 见 §7.6：R1 未新增日志/指标，F1–F5 不是生产遥测 |
+
+本轮只更新上述五项；其余登记（KB23-R1-01、04、05、07–14、17–20）未在本节重新裁定。R1 实现已随 `8bb79efd` 入库（`git show --stat 8bb79efd`），但 `docs/kb-batch23-2026-10-26.md` §9 的“未提交”表述早于该提交，台账状态以其后续收口为准。
+
+### 7.5 API 23 段（KB23-R1-15）
+
+- 新 SQL 为“相关子查询 + `LIMIT 1`”，避开窗口函数，目标是在 `minSdk = 23` 的 framework SQLite 上可用（§1.3）。
+- **本轮设备是 API 34**：`emulator-5584` 的 `ro.build.version.sdk=34`；本机现有 AVD 镜像为 android-34 / android-36，未见 android-23 镜像。
+- 因此 API 23 运行时**未跑**（`NOT_RUN`）。§7.2 的真 Room 通过是 **API 34 + x86_64 emulator** 结果，不能外推为 API 23 兼容性证明；KB23-R1-15 保持 open。
+- 同样不覆盖真机：本轮仍是 emulator，不是真实设备。
+
+### 7.6 观测交接（KB23-R1-16）
+
+- R1 未新增任何日志或指标；生产侧仍无法计数“材料覆盖率 / 空材料率 / 检索延迟分布 / 版本分布”（`docs/kb-batch23-2026-10-26.md` §8；`build/agent-batch23/obs-audit.md`）。
+- F1–F5 是**离线镜像 + 逐字 SQL** 读数，不是生产遥测；设备 logcat 的标签计数也不代表真实学生分布。
+- 观测缺口 G1–G6 交接至观测/指标线；KB23-R1-16 保持 open，不在本批关闭。
+
+### 7.7 收口判定
+
+- **通过**：F1–F5 全部达到冻结阈值；真 Room 4/4；设备检索 117/129、MRR 0.7322997416020672、同路零漂移 0；§1–§6 零改动。
+- **仍 PARTIAL，不称全绿**：KB23-R1-03 保留 `UNVERIFIED`（无法重建红跑）、KB23-R1-15 API 23 未跑、KB23-R1-16 生产遥测缺失；R2–R6（KB23-R1-07…11）仍 open。
+- **关闭条件剩余项**：API 23 / 真机冒烟（15）、观测/指标交接（16）；03 若要求红跑证据，须在可重建的旧实现上另跑并落盘，不能用事后推断替代。

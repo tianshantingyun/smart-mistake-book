@@ -46,6 +46,32 @@ object KnowledgeTeachingMaterialContract {
         sources: List<KnowledgeSourceSeedRecord>,
     ) {
         if (materials.isEmpty() && bindings.isEmpty()) return
+        validate(
+            materials = materials,
+            bindings = bindings,
+            nodesById = nodes.associateBy(KnowledgeNodeSeedRecord::knowledgeNodeId),
+            sourcesById = sources.associateBy(KnowledgeSourceSeedRecord::sourceId),
+        )
+    }
+
+    /**
+     * 与 [validate] **逐字相同**的校验主体，只是节点/来源索引由调用方提供。
+     *
+     * 消灭的失败（2026-10-31 剖析）：逐材料调用的 [problemWith] 走 [validate]，而 [validate]
+     * 每次都会为 3,600+ 节点重建 `nodesById`。整包 6.5 万材料 = 2.3 亿次 map 写入，
+     * 设备实测这一段 **33,650 ms**（`planMaterials` 39,246 ms 的 86%）。索引只依赖
+     * `acceptedNodes` / `teachingSources`，两者在整个循环里不变，所以可以整包建一次。
+     *
+     * 等价性不是"应该一样"而是可判定的：`associateBy` 是纯函数，同一个列表在同一循环内
+     * 产出的 map 逐项相同；循环体只读这两个 map，从不改它们。结果（跳过理由、计数、写出的行）
+     * 因此逐字节不变。
+     */
+    private fun validate(
+        materials: List<KnowledgeTeachingMaterialRecord>,
+        bindings: List<KnowledgeTeachingMaterialNodeBindingRecord>,
+        nodesById: Map<String, KnowledgeNodeSeedRecord>,
+        sourcesById: Map<String, KnowledgeSourceSeedRecord>,
+    ) {
         requireValid(materials.isNotEmpty()) {
             "Knowledge teaching-material bindings require imported materials"
         }
@@ -71,8 +97,6 @@ object KnowledgeTeachingMaterialContract {
         ) { "A teaching material may bind to a knowledge point only once" }
 
         val materialsById = materials.associateBy(KnowledgeTeachingMaterialRecord::materialId)
-        val nodesById = nodes.associateBy(KnowledgeNodeSeedRecord::knowledgeNodeId)
-        val sourcesById = sources.associateBy(KnowledgeSourceSeedRecord::sourceId)
         val bindingsByMaterial = bindings.groupBy(
             KnowledgeTeachingMaterialNodeBindingRecord::materialId,
         )
@@ -154,6 +178,19 @@ object KnowledgeTeachingMaterialContract {
         sources: List<KnowledgeSourceSeedRecord>,
     ): String? = runCatching {
         validate(listOf(material), bindings, nodes, sources)
+    }.exceptionOrNull()?.message
+
+    /**
+     * 与四参重载**逐字相同**的判定，但节点/来源索引由调用方整包建一次后传入
+     * （见私有 [validate] 的 KDoc：剖析实测每次重建 3,600+ 节点的索引占逐材料校验的绝大部分）。
+     */
+    internal fun problemWith(
+        material: KnowledgeTeachingMaterialRecord,
+        bindings: List<KnowledgeTeachingMaterialNodeBindingRecord>,
+        nodesById: Map<String, KnowledgeNodeSeedRecord>,
+        sourcesById: Map<String, KnowledgeSourceSeedRecord>,
+    ): String? = runCatching {
+        validate(listOf(material), bindings, nodesById, sourcesById)
     }.exceptionOrNull()?.message
 
     /**
@@ -242,8 +279,25 @@ object KnowledgeTeachingMaterialContract {
 }
 
 object KnowledgeTeachingMaterialFingerprint {
+    /** 字段分隔符：改前 `joinToString("\u001F")` 的同一个字符，喂给 digest 的字节相同。 */
+    private const val FIELD_SEPARATOR = 0x1F.toByte()
+
+    private val HEX_DIGITS = "0123456789ABCDEF".toCharArray()
+
+    /**
+     * 材料内容指纹：11 个字段以 U+001F 连接后的 UTF-8 的 SHA-256，大写十六进制（64 字符）。
+     *
+     * **2026-10-31 剖析后的实现替换（输出逐字节不变）**：改前每次调用先 `joinToString`
+     * 把整份正文再复制一遍，再用 `"%02X".format(...)` 逐字节格式化 32 次。设备实测这段
+     * 在侧车解析（`recordMap` 合计 ≈16s）与逐材料校验（≈12.5s）里都是主体。
+     * - 摘要值：同一串字节按同样顺序喂给同一个 SHA-256，**digest 逐字节相同**；
+     * - 编码：查表产出 2 位大写十六进制，与 `%02X` 对 0..255 的输出逐字符相同
+     *   （契约正则 `[A-F0-9]{64}` 与随包里既有的 64,973 条指纹本身就是这条串的判据：
+     *   任何一位不同都会让校验拒绝整条材料，`BundledContentReconciliationInstrumentedTest`
+     *   的 `skippedCount==0` 会立即变红）。
+     */
     fun expected(material: KnowledgeTeachingMaterialRecord): String {
-        val payload = listOf(
+        val fields = listOf(
             material.subject,
             material.materialType,
             material.title,
@@ -255,9 +309,19 @@ object KnowledgeTeachingMaterialFingerprint {
             material.sourceId,
             material.sourceLocator,
             material.reviewedAtEpochMillis.toString(),
-        ).joinToString("\u001F")
-        return MessageDigest.getInstance("SHA-256")
-            .digest(payload.toByteArray(StandardCharsets.UTF_8))
-            .joinToString("") { byte -> "%02X".format(byte.toInt() and 0xff) }
+        )
+        val digest = MessageDigest.getInstance("SHA-256")
+        fields.forEachIndexed { index, field ->
+            if (index > 0) digest.update(FIELD_SEPARATOR)
+            digest.update(field.toByteArray(StandardCharsets.UTF_8))
+        }
+        val bytes = digest.digest()
+        val hex = CharArray(bytes.size * 2)
+        for (index in bytes.indices) {
+            val value = bytes[index].toInt() and 0xff
+            hex[index * 2] = HEX_DIGITS[value ushr 4]
+            hex[index * 2 + 1] = HEX_DIGITS[value and 0x0f]
+        }
+        return String(hex)
     }
 }

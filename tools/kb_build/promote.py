@@ -11,6 +11,8 @@
     → 台账 schema 2 压平 + 一跳到底 + 单调 version
     → 全绿才逐文件落盘成品（先写临时文件再原子替换，台账**最后**写）
     → 落盘后复算内容戳与落账值核对（不一致即 PromoteError）
+    → 写后自检：成品主包字节 == 本次写出；镜像同步后 staging 主包 sha == release 主包 sha
+      （KB25-01：任一不等即 PromoteError，不静默返回）
 
 任何一环不绿：不写盘、exit 1。内容戳（contentVersion）与版本号（version）
 只在落盘这一刻刷新（原子戳）：手术工具写 staging 不刷戳，
@@ -29,6 +31,7 @@ version 单调性：新 version = max(staging 台账, 成品台账) + 1——
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -42,6 +45,49 @@ from kb_build import check_pack_contract, gate, pack_io, roundtrip, update_manif
 
 class PromoteError(Exception):
     pass
+
+
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def _assert_release_matches(release: Path, expected_sha: str) -> str:
+    """写后自检：成品主包字节必须等于本次写出的字节。
+
+    只比 contentVersion 不够——内容戳是语义哈希，成品包被改成另一份**内容相同**
+    的序列化时它不会变（KB25-01 改的是别名，语义哈希同样会变，但这里选字节级，
+    更严且与打包/分发口径一致）。
+    """
+    actual = _sha256_file(release / pack_io.PACK_NAME)
+    if actual != expected_sha:
+        raise PromoteError(
+            f"写后自检失败：成品主包 sha {actual} ≠ 本次写出 {expected_sha}"
+            f"（{release / pack_io.PACK_NAME}）")
+    return actual
+
+
+def _assert_pack_sync(root: Path, release: Path) -> str:
+    """永久不变量：staging 主包 sha == release 主包 sha。
+
+    KB25-01（2026-10-29）：promote 落盘主包 `1db011e1…` 后，成品目录被一个
+    未登记的写入者改成 `e5dc3303…`（少一条 `AABB×aabb` 别名），staging 仍是
+    `1db011e1…`，而当时没有任何门把两侧钉在一起。本断言在 promote 返回前重新
+    读两侧字节；不一致抛 PromoteError，不静默。
+
+    与 `tools/ci/check_pack_sync.py` 的分工：本断言只在写盘那一刻成立，外部
+    工具负责打包后 / 任何会话写成品后的独立复核。
+    """
+    release_sha = _sha256_file(release / pack_io.PACK_NAME)
+    staging_sha = _sha256_file(root / pack_io.PACK_NAME)
+    if staging_sha != release_sha:
+        raise PromoteError(
+            f"staging/release 主包不一致：staging {staging_sha} ≠ release {release_sha}"
+            f"（{root / pack_io.PACK_NAME} vs {release / pack_io.PACK_NAME}）")
+    return release_sha
 
 
 def run_checks(root: Path, release: Path) -> dict:
@@ -156,6 +202,8 @@ def promote(root: Path | None = None, release: Path | None = None,
     finally:
         pack_io.reset_directory()
     promoted, new_version, rewrites = _build_promoted_manifest(root, release, pack, sidecars)
+    expected_pack_sha = hashlib.sha256(
+        pack_io.serialize(pack).encode("utf-8")).hexdigest()
 
     release.mkdir(parents=True, exist_ok=True)
     # 落盘顺序：pack → sidecar → 索引 → 台账（最后）。台账携带内容戳，
@@ -174,6 +222,10 @@ def promote(root: Path | None = None, release: Path | None = None,
         raise PromoteError(
             f"落盘自检失败：成品复算戳 {recomputed} ≠ 落账 {promoted['contentVersion']}")
 
+    # 写后字节级自检：成品主包必须就是本次写出的那份（先于镜像同步，
+    # 免得把被改写的成品复制进 staging、把两边"洗成一致"）。
+    _assert_release_matches(release, expected_pack_sha)
+
     # 晋升后同步镜像：staging 回到与成品一致的状态，下一轮手术从新基线出发
     # （否则 staging 里还躺着晋升前的旧台账，链式形态会一直滞留在工作区）。
     for name in [pack_io.PACK_NAME] + [p.name for p in sidecar_paths] \
@@ -183,10 +235,14 @@ def promote(root: Path | None = None, release: Path | None = None,
         shutil.copy2(src, tmp)
         os.replace(tmp, root / name)
 
+    # 永久不变量：返回前 staging 主包 == release 主包（KB25-01 收口）
+    pack_sha = _assert_pack_sync(root, release)
+
     result["written"] = len(sidecar_paths) + 3  # pack + 卷 + 索引 + 台账
     result["contentVersion"] = promoted["contentVersion"]
     result["version"] = new_version
     result["flattened"] = rewrites
+    result["packSha256"] = pack_sha
     return 0, result
 
 
@@ -226,6 +282,7 @@ def main(argv: list[str] | None = None) -> int:
             if code == 0 and not args.dry_run:
                 print(f"\n已晋升 {result['written']} 个文件 → {pack_io.release_dir()}")
                 print(f"  内容戳 → {result['contentVersion']}")
+                print(f"  主包 sha256 → {result['packSha256']}（staging == release 已对拍）")
                 print(f"  version → {result['version']}（压平 {result['flattened']} 条链）")
             elif code == 0:
                 print(f"\n（dry-run：门全绿，未写盘；将写入 version "

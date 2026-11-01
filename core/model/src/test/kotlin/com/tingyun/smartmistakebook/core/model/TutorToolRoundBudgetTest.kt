@@ -93,6 +93,76 @@ class TutorToolRoundBudgetTest {
         assertEquals("failed", budgeted.last().errorKind)
     }
 
+    /**
+     * 渲染 v2 之后，KNOWLEDGE_READ 的单条结果可以长到单工具上限（2k，见
+     * `docs/research/2026-10-31-kb-knowledge-read-render-v2-prereg.md` §1.1/§2.1）。它和另外
+     * 两条各自可到 2k 的结果同轮时，轮总额仍必须是 4k：第一条按序放行，第二条缩节选并**说出**
+     * 被截断，第三条替换成"未随请求发送"的说明而不是消失。
+     *
+     * 这条锁的是 v2 与轮预算的相互作用：单条变长后，"三条各 2k"不再是假想，4k 轮门必须在
+     * 真实形态上仍然成立，且替换/截断的注记格式与既有契约共用同一组常量。
+     */
+    @Test
+    fun aRenderV2KnowledgeReadSharesTheRoundWithTwoOtherResultsInOrder() {
+        val knowledgeRead = renderV2KnowledgeReadAtSingleToolCap()
+        assertEquals(
+            "渲染 v2 的 KNOWLEDGE_READ 单条结果应恰好用满单工具上限",
+            TutorToolOutcome.MAX_TOOL_RESULT_CHARS,
+            knowledgeRead.length,
+        )
+        val notebookRead = "错题本匹配 6 条：".let { prefix ->
+            prefix + "题".repeat(TutorToolOutcome.MAX_TOOL_RESULT_CHARS - prefix.length)
+        }
+        val masteryRead = "掌握情况（科目 MATH，按最弱优先）：".let { prefix ->
+            prefix + "点".repeat(TutorToolOutcome.MAX_TOOL_RESULT_CHARS - prefix.length)
+        }
+
+        val round = tutorToolRoundResult(
+            roundOrdinal = 1,
+            outcomes = listOf(
+                toolOutcome(TutorToolName.KNOWLEDGE_READ, knowledgeRead),
+                toolOutcome(TutorToolName.NOTEBOOK_READ, notebookRead),
+                toolOutcome(TutorToolName.MASTERY_READ, masteryRead),
+            ),
+            extendedResultUsed = false,
+        )
+        val budgeted = round.outcomes
+
+        // 三条都在：被压缩的说明自己是谁，不能被静默抹掉。
+        assertEquals(3, budgeted.size)
+
+        // 第一条（渲染 v2 的 KNOWLEDGE_READ）在 4k 里放得下：原样通过，不因"它自己用满了 2k"被缩。
+        assertEquals(TutorToolName.KNOWLEDGE_READ, budgeted[0].tool)
+        assertEquals(knowledgeRead, budgeted[0].summaryMarkdown)
+
+        // 第二条放不下整条：保留可用前缀，并以既有截断注记结尾（注记格式 = 契约常量）。
+        assertEquals(TutorToolName.NOTEBOOK_READ, budgeted[1].tool)
+        assertTrue(
+            "截断必须保留可用前缀：${budgeted[1].summaryMarkdown.take(32)}",
+            budgeted[1].summaryMarkdown.startsWith("错题本匹配 6 条："),
+        )
+        assertTrue(
+            "截断必须命名：${budgeted[1].summaryMarkdown.takeLast(32)}",
+            budgeted[1].summaryMarkdown.endsWith(TRUNCATED_OUTCOME_NOTE),
+        )
+        assertTrue(
+            "第二条确实被压缩了：${budgeted[1].summaryMarkdown.length}",
+            budgeted[1].summaryMarkdown.length < notebookRead.length,
+        )
+
+        // 第三条完全放不下：替换成未发送说明（不是空串、不是消失），执行结论不变。
+        assertEquals(DROPPED_OUTCOME_SUMMARY, budgeted[2].summaryMarkdown)
+        assertEquals(TutorToolName.MASTERY_READ, budgeted[2].tool)
+        assertEquals(true, budgeted[2].ok)
+
+        // 轮总额仍受 4k 门约束（与既有用例同一口径：每条之间按 1 个换行计）。
+        val total = budgeted.sumOf { it.summaryMarkdown.length } + budgeted.size - 1
+        assertTrue(
+            "round total $total exceeds the round budget",
+            total <= TutorToolRoundResult.MAX_TOOL_ROUND_RESULT_CHARS,
+        )
+    }
+
     @Test
     fun truncationKeepsAUsablePrefixAndNamesTheTruncation() {
         val outcomes = listOf(
@@ -146,6 +216,40 @@ class TutorToolRoundBudgetTest {
         )
         assertEquals(5_000, extendedRound.outcomes.first().summaryMarkdown.length)
     }
+
+    /**
+     * 按渲染 v2 冻结的行语法拼一条 KNOWLEDGE_READ 结果（预注册 §1.1）：
+     * `<marker>. <displayName>[：<boundary>]｜材料《<materialTitle>》<bodyExcerpt>`，每节点
+     * 恰好一条物理行。段长取契约内的极值/上限（名称 24、边界 80、标题 183、节选 ≤120），
+     * 使整条恰好 [TutorToolOutcome.MAX_TOOL_RESULT_CHARS] 字符——轮预算看到的是渲染**之后**
+     * 的单条结果，这正是 v2 带来的新尺寸。
+     *
+     * 取的是**结果契约**的 2k 上限（预注册 §2.1），不是当前渲染器的 1,760 body 预算（§2.2 还
+     * 另留 240 字给截断注记）：轮预算必须按"单条最多 2k"成立，渲染器内部预留多保守都不改变
+     * 它收到的最坏单条尺寸。
+     */
+    private fun renderV2KnowledgeReadAtSingleToolCap(): String {
+        val header = "知识点候选 5 个（代号 K1..Kn 本会话有效，写掌握度时 terms 填代号）："
+        val displayName = "知".repeat(24)
+        val boundary = "边".repeat(80)
+        val materialTitle = "题".repeat(183)
+        // 5 行 = 4×(4+24+1+80+4+183+1+93) + (297+95) = 1,952；加 header 43、5 个换行 = 2,000。
+        val excerptLengths = listOf(93, 93, 93, 93, 95)
+        return buildString {
+            append(header)
+            excerptLengths.forEachIndexed { index, excerptLength ->
+                append('\n')
+                append("K${index + 1}. $displayName：$boundary｜材料《$materialTitle》")
+                append("节".repeat(excerptLength))
+            }
+        }
+    }
+
+    private fun toolOutcome(tool: TutorToolName, summary: String) = TutorToolOutcome(
+        tool = tool,
+        ok = true,
+        summaryMarkdown = summary,
+    )
 
     private fun outcome(summary: String) = TutorToolOutcome(
         tool = TutorToolName.MASTERY_READ,

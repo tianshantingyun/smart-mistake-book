@@ -16,9 +16,12 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationPurpose
  * 宿主的真实能力/用途/预算；正文、能力上下文与预算声明不可能各自漂移。
  *
  * 两条硬纪律：
- * - **不广告不存在的 JS**：本波次（4E.1 波次 1）没有 QuickJS 运行库与 SDK 契约。
- *   `availableMethods` 含 JS 时本函数**拒绝组装**（fail-closed），而不是凭空写一段
- *   program schema 让模型产出无法执行的源码。JS 过门后由 WG-04 扩展这里。
+ * - **能力按真实集合注入（A-04，批次 35）**：`availableMethods` 含 JS 时注入"JS 静态程序
+ *   契约"段（程序形状 + visualSdk 签名 + 最小样例；绝不出现 reduce/form/controls 交互面
+ *   字面量——契约 `docs/current/visual-generation-contract.md` §3.2"未启用的控件/事件/模式
+ *   在模型能力上下文中不广告，解析与执行也同时拒绝"）；不含 JS 时正文与 A-04 之前
+ *   **逐字节相同**（生产三入口仍硬编码 `IMAGE_MODEL_ONLY`，`availableMethods` 接通是
+ *   "全门绿后"最后一步）。空方法集合仍拒绝组装。
  * - 正文中的源图/OCR/题干内容一律是**数据**，不能改变宿主规则、授权或预算（注入防御）。
  *
  * 同一正文接入讲题/转写/净化判定：各入口调用本对象，只改变注入的 purpose/budget/
@@ -30,20 +33,20 @@ object FigurePromptAssembler {
     /**
      * 组装当前请求的判定上下文。
      *
-     * @throws IllegalArgumentException 当 [capabilities] 广告了本波次未实现的 JS 方法。
+     * @throws IllegalArgumentException 当 [capabilities.availableMethods] 为空
+     *   （没有任何真实可用方法时不得组装）。
      */
     fun assemble(
         purpose: FigureGenerationPurpose,
         capabilities: FigureGenerationCapabilities,
         budget: FigureGenerationBudget,
     ): FigureGenerationPrompt {
-        require(FigureGenerationMethod.JS !in capabilities.availableMethods) {
-            "The JS runtime contract is not implemented in this wave; do not advertise JS"
-        }
         require(capabilities.availableMethods.isNotEmpty()) {
             "A figure prompt needs at least one real available method"
         }
         val methods = capabilities.availableMethods.sortedBy { it.ordinal }
+        val jsAdvertised = FigureGenerationMethod.JS in capabilities.availableMethods
+        val imageAdvertised = FigureGenerationMethod.IMAGE_MODEL in capabilities.availableMethods
         val body = buildString {
             appendLine(METHOD_SECTION_HEADER)
             appendLine(methods.joinToString(separator = "、") { it.promptLabel() })
@@ -59,6 +62,11 @@ object FigurePromptAssembler {
             appendLine(methodCapabilities(capabilities))
             appendLine("这些是偏好，不是禁令；不得按业务入口或 purpose 固定方法。")
             appendLine("只使用宿主实际声明为可用的方法；未列出的方法在本机不可用，不得假装或输出其载荷。")
+            if (jsAdvertised) {
+                appendLine()
+                appendLine(JS_STATIC_CONTRACT_TITLE)
+                appendLine(jsStaticContract())
+            }
             appendLine()
             appendLine("## 源证据与授权")
             appendLine(sourceAccess(capabilities))
@@ -67,11 +75,24 @@ object FigurePromptAssembler {
             appendLine("## 预算")
             appendLine(budgetGuidance(budget))
             appendLine("每次外部模型派发、换方法和重试都沿用原逻辑操作预算；余额不足时停止并保留可用成果。")
-            appendLine("本波次只有图像模型方法；生成/编辑各占一次远程派发。")
+            appendLine(
+                when {
+                    // A-04：预算段按真实方法分支——广告了 JS 却写"本波次只有图像模型方法"
+                    // 是广告-正文漂移；JS 本机执行不占远程派发（契约 §7）。
+                    !jsAdvertised -> "本波次只有图像模型方法；生成/编辑各占一次远程派发。"
+                    imageAdvertised -> "图像生成/编辑各占一次远程派发；结构化程序在本机执行，不占远程派发。"
+                    else -> "结构化程序在本机执行，不占远程派发。"
+                },
+            )
             appendLine()
             appendLine("## 输出与验收")
-            appendLine("选择 IMAGE_MODEL 就返回 EDIT 或 GENERATE 及具体 imagePrompt，说明应画什么、保留什么和禁止改变什么。")
-            appendLine("两种方法完成后都要满足相同的业务目标：正确、清楚、标注完整、与源题等价或与讲解目标一致。")
+            if (jsAdvertised) {
+                appendLine("选择 JS 就返回 method=JS 与独立 program 字段（不得把程序塞进 description）。")
+            }
+            if (imageAdvertised) {
+                appendLine("选择 IMAGE_MODEL 就返回 EDIT 或 GENERATE 及具体 imagePrompt，说明应画什么、保留什么和禁止改变什么。")
+                appendLine("两种方法完成后都要满足相同的业务目标：正确、清楚、标注完整、与源题等价或与讲解目标一致。")
+            }
             appendLine("运行成功或返回图片不等于内容正确；不通过验收时保留原图/上一有效成果并说明，不得静默降低质量目标。")
             appendLine("表单、选择框、输入和提交保留原生控件，不要画成不能交互的截图。")
             appendLine("不得输出文件路径、外部图片URL、数据库写指令或未声明的主机调用。")
@@ -94,8 +115,9 @@ object FigurePromptAssembler {
      * 工具一次声明覆盖两种 kind（重绘题面 / 生成过程图），kind **只映射用途**，不映射方法。
      * 因此这里按 [purposes] 逐个渲染用途指导，绝不为不同 kind 写死后端。
      *
-     * 只广告真实接通的方法：默认 `IMAGE_MODEL_ONLY`；传入含 JS 的能力会在装配期 fail-closed，
-     * 与 [assemble] 同一条纪律。
+     * 只广告真实接通的方法：默认 `IMAGE_MODEL_ONLY`（正文与 A-04 之前**逐字节相同**）；
+     * 显式传入含 JS 的能力集合时按 [assemble] 同一规则注入 JS 静态程序契约段与按方法的
+     * 工具参数指令（program 只进独立字段）。
      */
     fun assembleForTutorTool(
         budget: FigureGenerationBudget,
@@ -105,9 +127,6 @@ object FigurePromptAssembler {
             FigureGenerationPurpose.EXPLANATION,
         ),
     ): FigureGenerationPrompt {
-        require(FigureGenerationMethod.JS !in capabilities.availableMethods) {
-            "The JS runtime contract is not implemented in this wave; do not advertise JS"
-        }
         require(capabilities.availableMethods.isNotEmpty()) {
             "A figure prompt needs at least one real available method"
         }
@@ -115,6 +134,8 @@ object FigurePromptAssembler {
             "A tutor figure prompt needs a non-duplicated purpose list"
         }
         val methods = capabilities.availableMethods.sortedBy { it.ordinal }
+        val jsAdvertised = FigureGenerationMethod.JS in capabilities.availableMethods
+        val imageAdvertised = FigureGenerationMethod.IMAGE_MODEL in capabilities.availableMethods
         val body = buildString {
             appendLine("[生图工具的统一判定规则：这里只有一份决策正文，工具规范不得另写一套]")
             appendLine(METHOD_SECTION_HEADER)
@@ -135,11 +156,22 @@ object FigurePromptAssembler {
             appendLine(methodCapabilities(capabilities))
             appendLine("这些是偏好，不是禁令；不得按 kind 或用途固定方法。")
             appendLine("只使用宿主实际声明为可用的方法；未列出的方法在本机不可用，不得假装或输出其载荷。")
-            appendLine("选择 IMAGE_MODEL 时，在工具参数里给出 method=IMAGE_MODEL、" +
-                "imageOperation=EDIT|GENERATE 与具体 imagePrompt；旧参数 kind/description 仍必须给出" +
-                "（kind 只表示用途）。")
-            appendLine("EDIT 使用宿主已授权的当前题源图；GENERATE 只按 imagePrompt 生成。不得输出文件路径、" +
-                "外部图片URL、数据库写指令或未声明的主机调用。")
+            if (imageAdvertised) {
+                appendLine("选择 IMAGE_MODEL 时，在工具参数里给出 method=IMAGE_MODEL、" +
+                    "imageOperation=EDIT|GENERATE 与具体 imagePrompt；旧参数 kind/description 仍必须给出" +
+                    "（kind 只表示用途）。")
+                appendLine("EDIT 使用宿主已授权的当前题源图；GENERATE 只按 imagePrompt 生成。不得输出文件路径、" +
+                    "外部图片URL、数据库写指令或未声明的主机调用。")
+            } else {
+                appendLine("不得输出文件路径、外部图片URL、数据库写指令或未声明的主机调用。")
+            }
+            if (jsAdvertised) {
+                appendLine("选择 JS 时，在工具参数里给出 method=JS 与 program 字段的完整结构化程序" +
+                    "（不得把程序塞进 description；kind/description 仍必须给出）。")
+                appendLine()
+                appendLine(JS_STATIC_CONTRACT_TITLE)
+                appendLine(jsStaticContract())
+            }
             appendLine()
             appendLine("## 源证据与授权")
             appendLine(sourceAccess(capabilities))
@@ -148,7 +180,14 @@ object FigurePromptAssembler {
             appendLine("## 预算")
             appendLine(budgetGuidance(budget))
             appendLine("每次外部模型派发、换方法和重试都沿用原逻辑操作预算；余额不足时停止并保留可用成果。")
-            appendLine("图像生成/编辑各占一次远程派发；工具轮与图像派发共享同一份 durable 预算。")
+            appendLine(
+                when {
+                    !jsAdvertised -> "图像生成/编辑各占一次远程派发；工具轮与图像派发共享同一份 durable 预算。"
+                    imageAdvertised -> "图像生成/编辑各占一次远程派发；工具轮与图像派发共享同一份 durable 预算。" +
+                        "结构化程序在本机执行，不占远程派发。"
+                    else -> "结构化程序在本机执行，不占远程派发。"
+                },
+            )
             appendLine()
             appendLine("## 输出与验收")
             appendLine("运行成功或返回图片不等于内容正确；不通过验收时保留原图/上一有效成果并说明，不得静默降低质量目标。")
@@ -188,6 +227,64 @@ object FigurePromptAssembler {
     private const val METHOD_SECTION_HEADER =
         "你有一个统一的生图能力。当前可用方法（宿主声明，缺省不支持的不得声称可用）："
 
+    private const val JS_STATIC_CONTRACT_TITLE = "## JS 静态程序契约（本机执行）"
+
+    /**
+     * A-04：prompt 注入的 SDK 原语签名清单（判据"含 SDK 签名"）。
+     *
+     * **与 `core/data/src/main/resources/visual/visual-sdk.js` 的 `visualSdk` 成员逐名一致**——
+     * 单测 [FigurePromptCapabilityInjectionTest.sdkSignaturesStayInLockstepWithTheVisualSdkAsset]
+     * 对拍资产文本，漂移即红。V1 把签名写成 Kotlin 常量而不做运行时资源派生：prompt 是
+     * 版本化正文（[FigureGenerationPolicyVersion]），随资产静默漂移反而破坏"改动必回写契约"
+     * 的纪律（R1 §2.2 裁定；带资源读取的运行时派生留待 L3 装配批）。
+     */
+    internal val JS_SDK_SIGNATURES: List<String> = listOf(
+        "visualSdk.circle(cx, cy, r)",
+        "visualSdk.arc(cx, cy, r, a0, a1)",
+        "visualSdk.arrow(x1, y1, x2, y2, o)",
+        "visualSdk.axis(o)（o={x0, y0, x1, y1, ticks?, tickLength?}）",
+        "visualSdk.polyline(points)",
+        "visualSdk.random()",
+    )
+
+    /**
+     * 最小样例（判据"含样例"）：数轴 + 圆，SDK 原语直取、≤15 行；**不含任何交互面**
+     * （契约 §3.2 静态程序只需 prepare/render；场景对象不含未启用的可选键）。形状与
+     * `QuickJsVisualExecutionEngineInstrumentedTest` 的设备夹具同构（render 返回 SceneV1、
+     * path 节点按 pathId 引用 paths 定义）。
+     */
+    private val JS_STATIC_SAMPLE: String = """
+        const visual = {
+          prepare: function (input) { return []; },
+          render: function (input, metrics) {
+            var axis = visualSdk.axis({ x0: 24, y0: 180, x1: 300, y1: 180, ticks: 4 });
+            var dot = visualSdk.circle(160, 84, 26);
+            return { schemaVersion: 1, sceneId: 'fig', revision: input.revision,
+                     viewBox: { x: 0, y: 0, width: input.viewport.widthDu,
+                                height: input.viewport.heightDu },
+                     paths: [{ id: 'axis', commands: axis }, { id: 'dot', commands: dot }],
+                     root: { type: 'group', children: [
+                       { type: 'path', pathId: 'axis', stroke: '#26354a' },
+                       { type: 'path', pathId: 'dot', stroke: '#26354a' } ] } };
+          },
+        };
+    """.trimIndent()
+
+    private fun jsStaticContract(): String = buildString {
+        appendLine("程序形状：const visual = { prepare(input), render(input, metrics) }；" +
+            "静态程序只需这两个函数，本机不执行交互面。")
+        appendLine("prepare(input) 返回内容度量请求的数组（纯几何图返回 []；含文字/公式时返回 " +
+            "[{ kind: 'text', payload: '...' }]，宿主原生度量后以 metrics 回给 render）。" +
+            "render(input, metrics) 返回 SceneV1 场景对象：schemaVersion=1、sceneId、" +
+            "revision=input.revision、viewBox={x,y,width,height}（width/height 取 input.viewport 的 " +
+            "widthDu/heightDu）、paths=[{ id, commands }]、root（group/path/label 节点树，" +
+            "path 节点用 pathId 引用 paths 里的定义）。")
+        appendLine("SDK 原语（globalThis.visualSdk，冻结只读，都返回 M/L/C/Z 路径命令数组）：" +
+            JS_SDK_SIGNATURES.joinToString(separator = "、"))
+        appendLine("最小样例（数轴 + 圆）：")
+        appendLine(JS_STATIC_SAMPLE)
+    }
+
     private fun FigureGenerationMethod.promptLabel(): String = when (this) {
         FigureGenerationMethod.JS -> "JS（结构化程序绘图）"
         FigureGenerationMethod.IMAGE_MODEL -> "IMAGE_MODEL（图像模型编辑/生成）"
@@ -206,19 +303,33 @@ object FigurePromptAssembler {
             "目标：保留原像素结构的清理/去污（去手写、阴影、折痕）；不得改写、增删或重新排版印刷内容，也不得把重新绘制称为像素修复。"
     }
 
+    /**
+     * 能力段按真实方法集合逐方法渲染（A-04）：JS 广告时补 JS 能力行（静态后端 +
+     * 参数交互位如实取 [FigureGenerationCapabilities.supportsParametricInteraction]，与
+     * IMAGE 行同源）；IMAGE 未广告时不渲染 IMAGE 行（不再出现"对不可用方法的指令"）。
+     */
     private fun methodCapabilities(capabilities: FigureGenerationCapabilities): String = buildString {
-        append("IMAGE_MODEL：")
-        val operations = buildList {
-            if (capabilities.supportsImageEditing) add("EDIT（有源图编辑）")
-            if (capabilities.supportsImageGeneration) add("GENERATE（文生图）")
+        if (FigureGenerationMethod.JS in capabilities.availableMethods) {
+            append("JS：本机结构化程序绘图（静态后端：prepare(input) + render(input, metrics)）；参数交互=")
+            append(if (capabilities.supportsParametricInteraction) "支持" else "不支持")
+            if (FigureGenerationMethod.IMAGE_MODEL in capabilities.availableMethods) {
+                append('\n')
+            }
         }
-        append(if (operations.isEmpty()) "不可用" else operations.joinToString("、"))
-        append("；原像素保真=")
-        append(if (capabilities.supportsPixelEditing) "支持" else "不支持")
-        append("；参数交互=")
-        append(if (capabilities.supportsParametricInteraction) "支持" else "不支持")
-        append("；分层合成=")
-        append(if (capabilities.supportsLayerComposition) "支持" else "不支持")
+        if (FigureGenerationMethod.IMAGE_MODEL in capabilities.availableMethods) {
+            append("IMAGE_MODEL：")
+            val operations = buildList {
+                if (capabilities.supportsImageEditing) add("EDIT（有源图编辑）")
+                if (capabilities.supportsImageGeneration) add("GENERATE（文生图）")
+            }
+            append(if (operations.isEmpty()) "不可用" else operations.joinToString("、"))
+            append("；原像素保真=")
+            append(if (capabilities.supportsPixelEditing) "支持" else "不支持")
+            append("；参数交互=")
+            append(if (capabilities.supportsParametricInteraction) "支持" else "不支持")
+            append("；分层合成=")
+            append(if (capabilities.supportsLayerComposition) "支持" else "不支持")
+        }
     }
 
     private fun sourceAccess(capabilities: FigureGenerationCapabilities): String = buildString {

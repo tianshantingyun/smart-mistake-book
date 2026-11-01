@@ -1,0 +1,55 @@
+{
+  "name": "screenshot5-force-diagram",
+  "category": "截图 5 受力图",
+  "planSource": "docs/superpowers/plans/2026-10-18-flexible-js-drawing-implementation.md:163（方向遵循物理条件；横箭头误导不能照搬，摩擦/气压合力按实际标注）",
+  "viewport": { "widthDu": 360, "heightDu": 240 },
+  "scene": {
+    "schemaVersion": 1,
+    "sceneId": "q04-screenshot5-force-diagram",
+    "revision": 1,
+    "viewBox": { "x": 0, "y": 0, "width": 360, "height": 240 },
+    "background": "#ffffff",
+    "paths": [
+      { "id": "block", "commands": [["M", 140, 90], ["L", 200, 90], ["L", 200, 150], ["L", 140, 150], ["Z"]] },
+      { "id": "arrow-g", "commands": [["M", 168, 120], ["L", 172, 120], ["L", 172, 170], ["L", 168, 170], ["Z"], ["M", 165, 170], ["L", 170, 180], ["L", 175, 170], ["Z"]] },
+      { "id": "arrow-n", "commands": [["M", 168, 120], ["L", 172, 120], ["L", 172, 70], ["L", 168, 70], ["Z"], ["M", 165, 70], ["L", 170, 60], ["L", 175, 70], ["Z"]] },
+      { "id": "arrow-f", "commands": [["M", 190, 158], ["L", 130, 158], ["L", 130, 162], ["L", 190, 162], ["Z"], ["M", 140, 155], ["L", 130, 160], ["L", 140, 165], ["Z"]] },
+      { "id": "ground", "commands": [["M", 100, 190], ["L", 260, 190]] }
+    ],
+    "root": {
+      "type": "group",
+      "children": [
+        { "type": "path", "pathId": "block", "fill": "#dddddd", "stroke": { "width": 1 } },
+        { "type": "path", "pathId": "arrow-g", "fill": "#c0392b" },
+        { "type": "path", "pathId": "arrow-n", "fill": "#2e86de" },
+        { "type": "path", "pathId": "arrow-f", "fill": "#7f8c8d" },
+        { "type": "path", "pathId": "ground", "fill": "#26354a", "stroke": { "width": 2 } },
+        { "type": "label", "contentId": "lbl-g", "anchor": { "x": 180, "y": 172 }, "hAlign": "left", "vAlign": "top", "color": "#c0392b" },
+        { "type": "label", "contentId": "lbl-n", "anchor": { "x": 180, "y": 62 }, "hAlign": "left", "vAlign": "top", "color": "#2e86de" },
+        { "type": "label", "contentId": "lbl-f", "anchor": { "x": 115, "y": 165 }, "hAlign": "left", "vAlign": "top", "color": "#7f8c8d" }
+      ]
+    },
+    "controls": [],
+    "hitRegions": []
+  },
+  "metrics": [
+    { "contentId": "lbl-g", "widthDu": 10, "heightDu": 12, "baselineDu": 9, "fontSizeSp": 16, "digest": "q04-s5-g" },
+    { "contentId": "lbl-n", "widthDu": 10, "heightDu": 12, "baselineDu": 9, "fontSizeSp": 16, "digest": "q04-s5-n" },
+    { "contentId": "lbl-f", "widthDu": 10, "heightDu": 12, "baselineDu": 9, "fontSizeSp": 16, "digest": "q04-s5-f" }
+  ],
+  "labels": {
+    "lbl-g": "G",
+    "lbl-n": "N",
+    "lbl-f": "f"
+  },
+  "subject": {
+    "kind": "force-diagram",
+    "arrows": [
+      { "pathIndex": 1, "name": "G", "tailDu": [170, 120], "tipDu": [170, 180], "expectUnit": [0.0, 1.0] },
+      { "pathIndex": 2, "name": "N", "tailDu": [170, 120], "tipDu": [170, 60], "expectUnit": [0.0, -1.0] },
+      { "pathIndex": 3, "name": "f", "tailDu": [190, 160], "tipDu": [130, 160], "expectUnit": [-1.0, 0.0] }
+    ],
+    "motionTendency": [1.0, 0.0],
+    "expect": { "tolerance": 1e-9, "frictionOpposesMotion": true }
+  }
+}

@@ -528,6 +528,178 @@ AUD-17 校准结果互相替代。
 
 执行证据：批次 24 E-01/E-01b（隔离 6/6）、E-02（引擎 20/20）是设备行为证据，不改变算法输入；记录员本轮未运行 Gradle。
 
+### 3.35 批次 25 · 零 bump 判据登记（2026-10-27）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions 全部未动；本批唯一协议面变更是 `VisualJsWire.PROTOCOL_VERSION` 1→2（KD-76 warm-up/ready，非算法版本串）
+
+> 依据：批次 25 计划 §1、批次记录 `docs/research/2026-10-27-batch-25-record.md` §1.3/§2.5、`docs/current/visual-generation-contract.md:72`、`docs/known-defects.md` KD-76。本批不 bump 任何算法版本串。
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | 维持 **69** | 零 schema：本批零 DB 改动 |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546-547` 未动；JS 不广告，工具面/提示词零改动 |
+| `ReviewPlannerV2.VERSION` | 未 bump | 本批未改排程 |
+| `LearningCoreVersions.*` | 全部未 bump | 选择器/投影/证据/账本无版本串变更 |
+| `VisualJsWire.PROTOCOL_VERSION` | **1→2（wire 协议面，非算法版本）** | AIDL 新增 `isReady()`（KD-76 warm-up/ready，批次 25 T2，`VisualJsProtocol.kt:35`）；两端同 APK 发布、旧/新组合在握手处 fail-closed 解绑（既有语义）；不改变任何算法输入/输出语义 |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（沿用裁定，本批零构建脚本改动） |
+
+零 bump 判据（逐条）：
+
+1. T1 只补竞态交错用例与措辞改正（行为本体 `aabae781` 已定），零算法面。
+2. T2 warm-up/ready 是进程连接层状态机（服务 ready 门 + 客户端 loading 语义），不进投影/排程/打分/校准输入；`PROTOCOL_VERSION` 1→2 是传输面版本，不是算法版本串。
+3. T3 队列只改客户端请求调度（排队/合并/背压），单帧执行语义与预算不变。
+4. T4/T5/T6 为清单/台账/登记，零生产算法面。
+5. 后续若把 ready 预算、队列容量或 watchdog 预算写进算法口径（如影响生成质量分类），必须重新评估登记（当前无）。
+
+执行证据：设备 E-01（隔离 11/12 + Race 2/2）、E-03（引擎 20/20 @ 16KB×x86_64）是设备行为证据，不改变算法输入；记录员本轮未运行 Gradle。
+
+### 3.36 批次 26 · 零 bump 判据登记（2026-10-27）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions 全部未动；`VisualJsWire.PROTOCOL_VERSION` 维持 2，本批零协议面变更
+
+> 依据：批次 26 计划 §1/§2、批次记录 `docs/research/2026-10-27-batch-26-record.md` §1.3/§2/§3、基线 `docs/research/2026-10-27-batch-26-baseline.md` §1。本批不 bump 任何算法版本串。
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | 维持 **69** | 零 schema：本批零 DB 改动 |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546-547` 未动；JS 不广告，工具面/提示词零改动 |
+| `ReviewPlannerV2.VERSION` | 未 bump | 本批未改排程 |
+| `LearningCoreVersions.*` | 全部未 bump | 选择器/投影/证据/账本无版本串变更 |
+| `VisualJsWire.PROTOCOL_VERSION` | 维持 **2**（本批零协议面变更） | 批次 25 T2 已升 2（isReady），本批 T1 只新增仪器化测试用例，不触 wire 面 |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（`python tools/ci/check_dependency_pins.py` exit 0，记录员复跑同值；沿用裁定，本批零构建脚本改动） |
+
+零 bump 判据（逐条）：
+
+1. T1 只新增仪器化计时用例（androidTest 测试面，断言引用既有 `SERVICE_HARD_DEADLINE_MILLIS` 的相对形式），零生产算法面。
+2. T4 为评测工具面（`tools/split_golden/` 门脚本/导出器/文档），不进任何生成/打分/校准路径；门阈值 0.9/0.05 沿 stage1「立项自定」，非算法版本串。
+3. 锁文件轨零改动（T0 判定窗口不可行，分支 B 只登记）；T5 为清单/台账登记，零生产算法面。
+4. 设备轨 E-01…E-05 是行为证据；KD-66 关闭是缺陷台账状态变化，不涉算法版本。
+5. 后续若把 ready 预算、队列容量或 watchdog 预算写进算法口径（如影响生成质量分类），必须重新评估登记（当前无）。
+
+执行证据：设备 E-01（隔离 13/13 + Race 2/2）、E-02（KD-66 门三轮独立绿）、E-03（KD-76 ③④⑤ PARTIAL）是设备行为证据，不改变算法输入；记录员本轮未运行 Gradle。
+
+### 3.37 批次 27 · 零 bump 判据登记（2026-10-27）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions 全部未动；`VisualJsWire.PROTOCOL_VERSION` 维持 2——结果信封新增 `drawCommandsJson`/`drawSchemaVersion` 为加法字段（读取侧 `optString`/`optInt` 兜底兼容旧信封，不升协议版本）
+
+> 依据：批次 27 计划 §1/§2、批次记录 `docs/research/2026-10-27-batch-27-record.md` §1/§3、基线 `docs/research/2026-10-27-batch-27-baseline.md` §1。本批不 bump 任何既有算法版本串。
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | 维持 **69** | 零 schema：本批零 DB 改动 |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546-547` 未动；JS 不广告，工具面/提示词/能力快照零改动（T1 footprint 核实） |
+| `ReviewPlannerV2.VERSION` | 未 bump | 本批未改排程 |
+| `LearningCoreVersions.*` | 全部未 bump | 选择器/投影/证据/账本无版本串变更 |
+| `VisualJsWire.PROTOCOL_VERSION` | 维持 **2** | T4：结果信封加 `drawCommandsJson`/`drawSchemaVersion` 为**加法变更**，读取侧 `optString`/`optInt` 缺省 null/1 兼容旧信封，握手门不涉加法字段（批次 25 已升 2） |
+| **DrawOps V1（新增产物面版本）** | `drawSchemaVersion = 1`（首版钉定） | T1 新增的绘制指令序列版本串——属**新增**版本面（非既有串 bump）：词表=save/concat/restore+clip/path/label 六 op、Q→C 精确提升、弧按 κ 拆 ≤90° 三次段；误差算法随 SDK/编译器版本固定（契约 §5"误差算法随 SDK 版本固定"的落点） |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（沿用裁定，本批零构建脚本改动；引擎/AAR 终止语义不变） |
+
+零 bump 判据（逐条）：
+
+1. T1 编译器为场景 JSON→DrawOps 的纯计算（契约 §3.2 第三上下文），无模型/生成/打分口径变更；`drawSchemaVersion=1` 是新产物面的首版钉定，不是对既有版本串的 bump。
+2. T2 度量器为既有 `VisualContentMeasurer` 端口实现替换（Unwired fail-closed 桩→真实度量），度量数字来自 `Paint.measureText`/core:model 既有共享 lowering，端口五字段零改动；math 解析/预算失败按契约降级为可读文本（非占位），无算法口径变更。
+3. T3 深冻结为执行面硬化（注入图冻结 + `Object.freeze(Object)` 防重绑），不改任何输入/输出语义与判定边界。
+4. T4 队列"取消不 abandon 在飞"为主会话裁定的并发语义定稿，非算法面；§64 phase/软期限两开口项列主会话待裁，定谳前不写断言、不加字段。
+5. 后续若把编译器误差算法（κ 分段）、度量环境指纹或 DrawOps 词表升级写进算法口径，必须重新评估登记（`drawSchemaVersion`/SDK 版本即为其载体，当前 1）。
+
+执行证据：Node 测试台 89/89 passed EXIT=0（批次记录员复跑 `node tools/visual_compiler/run_tests.mjs`，含修复环后 +5 原型链负向）；设备 E-01…E-05 是行为证据；单测门第 3 轮/强门第 2 轮 exit=0 为工单给定，记录员未运行 Gradle。
+
+### 3.38 批次 28 · 零 bump 判据登记（2026-10-28）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions / `VisualJsWire.PROTOCOL_VERSION`=2 / `drawSchemaVersion`=1 全部未动
+
+> 依据：批次 28 计划 §1/§2、批次记录 `docs/research/2026-10-28-batch-28-record.md` §1/§3、基线 `docs/research/2026-10-28-batch-28-baseline.md` §1。本批不 bump 任何既有算法版本串；painter 是**消费方**，不新增版本面。
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | 维持 **69** | 本批零 DB 改动（T2/T3/T4 均不触持久化；R2 排序把四表 v70+ 归批次 30） |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546-547` 未动；JS 不广告、工具面/提示词/能力快照零改动 |
+| `ReviewPlannerV2.VERSION` | 未 bump | 本批未改排程 |
+| `LearningCoreVersions.*` | 全部未 bump | 无选择器/投影/证据/账本版本串变更 |
+| `VisualJsWire.PROTOCOL_VERSION` | 维持 **2** | 本批零协议面改动（painter 只消费 `drawCommandsJson`；E-01/E-02 设备证据在同版本上取得） |
+| `drawSchemaVersion`（DrawOps V1） | 维持 **1** | painter 按 R1 设计消费同一 V1 词表；**不升版**（无词表增删）；KD-78 的四缺口属 V1.1 收口建议，未落地前不动词表 |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（本批零构建脚本改动） |
+
+零 bump 判据（逐条）：
+
+1. T2 painter 为 DrawOps V1 → Canvas 的纯回放映射（矩阵列序/颜色/alpha/clip/label），无模型、生成、打分口径变更；`PAINTER_*` 码族是运行期 fail-closed 诊断面，不改任何输入/输出语义与算法边界。
+2. T1 设备复跑与两处先红后绿（编译器 dot alpha 期望 1.0→0.5、painter 夹具 `bitmapPxPerDu`）均为**测试层**更正：前者按契约 :98/编译器/Node 台四源证据把期望改回契约值（delta 仍 0.0、非放宽），后者只改夹具位图尺寸与回放比例解耦（默认值不变）；产品源与算法零改动。
+3. 修复环 F1（dash 缓冲按 `dash.size` 精确装配 + 形状门前置）为回放实现缺陷修复，不改词表与算法口径；KD-78 ①②③④ 均维持"生成侧放行、painter fail-closed"，未改契约条文。
+4. 后续若把 KD-78 任一缺口收口（stroke color 字段 / dash 形状门 / 8 位色语义 / flags 指纹）落地，必须按词表升级重新评估登记（`drawSchemaVersion` 即为载体，当前 1）。
+
+执行证据：Node 测试台 89/89 passed EXIT=0（批次记录员本轮复跑 `node tools/visual_compiler/run_tests.mjs`，EXIT=0）；设备 E-01…E-05 为行为证据；单测门第 1 轮/修复环复跑/强门第 1 轮 exit=0 为工单给定，记录员未运行 Gradle。
+
+### 3.39 批次 29 · 零 bump 判据登记（2026-10-28）：DB schema 69 / 请求 schema 18 / ReviewPlannerV2 / LearningCoreVersions / `VisualJsWire.PROTOCOL_VERSION`=2 / `drawSchemaVersion`=1 全部未动
+
+> 依据：批次 29 计划 §1/§2（`.zcode/plans/plan-2026-10-28-batch-29-pdf-replay-kd78.md:11-30`）、批次记录 `docs/research/2026-10-28-batch-29-record.md` §1/§3、基线 `docs/research/2026-10-28-batch-29-baseline.md` §1。本批不 bump 任何既有版本串；PDF 回放与一致门是**消费方/仪器**，painter 与解析器是回放实现，均不新增持久化或协议版本面。
+
+| 项 | 值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | 维持 **69** | 本批零 DB 改动（T2/T3/T4/T5 均不触持久化；批次 30 的 D-01 四表才取 70+） |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546` 未动；JS 不广告、工具面/提示词/能力快照零改动 |
+| `ReviewPlannerV2.VERSION` | 未 bump | 未改排程 |
+| `LearningCoreVersions.*` | 全部未 bump | 无选择器/投影/证据/账本版本串变更 |
+| `VisualJsWire.PROTOCOL_VERSION` | 维持 **2** | T5 只改度量指纹内容与两侧 Paint 装配，未改 AIDL/信封字段；设备轨在协议 2 上取得 |
+| `drawSchemaVersion`（DrawOps V1） | 维持 **1** | 见下"零 bump 判据"第 3 条：本批是**约束收紧 + 语义定谳**，未增删 op/字段/词表，wire 形态不变；计划 §1 亦未授权升版 |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（零构建脚本改动） |
+
+零 bump 判据（逐条）：
+
+1. **T2 解析器重构**（结构解析下沉到 `VisualDrawOpsParser`、`VisualDrawOpsValidator` 转薄委托、`serialize` 固定键序）：接受/拒绝的**词表与预算**不变，只把同一份实现的两个入口统一；新增 `DRAWOPS_SCHEMA_VERSION`/`DRAWOPS_MISSING_FIELD`/`DRAWOPS_MISSING_COMMANDS`/`DRAWOPS_UNKNOWN_OP`/`DRAWOPS_UNKNOWN_FIELD` 是**诊断码面**，不改输入/输出语义。canonical 文本形态是"同一文档的确定性写法"，不是新 schema。
+2. **T3 PDF 回放 + T4 一致性门**：纯消费方与新测试仪器。`PAINTER_PDF_PAGE_BOUNDS`/`PAINTER_PDF_IO` 属运行期有码异常族（与既有 `PAINTER_*` 同型）；一致门阈值/IoU/容差只存在于 `androidTest`，**不进产品版本面**。
+3. **T5 DrawOps V1.1 语义（唯一需要说明的一项）**：生成侧新增"拒 stroke-only""dash 偶数且 ≥2"两条门，8 位色 alpha 从"被覆盖"改为 `floor(colorA × op.alpha)` 乘法，度量指纹加 `paintFlags`——**结果是可接受文档集合收紧、部分旧文档从"静默错画/回放兜底拒"变为"生成侧有码拒"**；但 wire 词表（op 集合、字段名、数值域）零增删，引擎 `Rendered`/AIDL 信封字段不变，因此按计划 §1 维持 `drawSchemaVersion=1`。这是本批登记的一处**语义收紧不升版**风险：若外部生产者仍在发 stroke-only/奇数 dash，将收到 `PAINTER_STROKE_WITHOUT_FILL`/`PAINTER_DASH_ODD`（fail-closed，不静默）；若未来需要同时接受两种语义，必须升版并按本表重新登记。
+4. **flags 指纹**：`VisualMeasureEnvironment.paintFlags` 是 app 侧**运行环境身份**字段，不持久化进 Room、不进 wire；其常量值仍为 0（批次 29 修复轮把"平台默认即 0"改为"显式装配 0"，常量未变）。
+5. **JS 不广告、真实 Provider 未调用**：无模型/提示词/评分口径变更。
+
+执行证据：Node 测试台 `94 passed, 0 failed` EXIT=0（批次记录员本轮实跑 `node tools/visual_compiler/run_tests.mjs`）；仓内 JVM 结果 XML 实测 core 69 例（13+15+6+35）与 app 16 例均 0 失败（只读产物，记录员未复跑 Gradle）；设备轨为行为证据（修复后绿轮 UNVERIFIED）；单测门第 2 轮/修复环复跑/强门第 1 轮 exit=0 为工单给定。
+
+### 3.40 批次 30 · `STUDY_DATABASE_VERSION` 69 → 70（视觉持久化四表）；请求 schema 18 / `drawSchemaVersion` 1 / `PROTOCOL_VERSION` 2 维持
+
+> 依据：批次 30 计划 §1 任务 3（`.zcode/plans/plan-2026-10-29-batch-30-device-persist-fixes.md:19`）、R1 设计 `docs/research/2026-10-29-visual-persistence-design.md` §2/§2.8（DDL 草案）、T2 落码、批次记录 `docs/research/2026-10-29-batch-30-record.md` §3.2、基线 `docs/research/2026-10-29-batch-30-baseline.md` §1。
+
+| 项 | 旧值 → 新值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | **69 → 70** | `StudyDatabase.kt:139`；v69→70 为**纯非破坏**迁移：只 `CREATE TABLE`/`CREATE INDEX`（4 表 + 11 索引），零 `ALTER`/`UPDATE`/回填，旧行零改动；新表升级后为空（不伪造历史快照） |
+| 四表 | 新增 | `tutor_visual_program` / `tutor_visual_snapshot` / `tutor_message_visual` / `problem_revision_visual`（`TutorVisualEntities.kt`、`VisualSnapshotMigration_69_70.kt`） |
+| 备份机器清单 | **86 表 / 78 裁剪项 / 20 软引用 / SPLIT 5 / CLOSURE 2 → 90 / 82 / 21 / 7 / 3** | `SmbkSelectionPlan.kt:40/43/46/538/546/547/554`；identityHash 随 70.json 变为 `11a8a701bae767a8a3c5bc810e4743a4` |
+| 资产引用站点 | **5 类 → 6 类** | `CanonicalAssetReferenceSites.kt:14/52-53` 新增 `tutor_visual_snapshot.preview_asset_id`；孤儿清理与备份裁剪两侧同变 |
+| 请求 schema | 维持 **18** | `ModelTasks.kt:546`；设计 C8：`TutorVisualContext` 已在 18 携带源码/state，只有把 visual 引用真正塞进模型请求时才 bump |
+| `drawSchemaVersion`（DrawOps V1） | 维持 **1** | 本批 T6 只收紧解析严格度（serialize 同门/元数门/重复键），wire 词表零增删 |
+| `VisualJsWire.PROTOCOL_VERSION` | 维持 **2** | 未改 AIDL/信封字段 |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（零构建文件改动） |
+
+**bump 判据（逐条）**：
+
+1. **为什么必须 bump**：新增 4 张持久化表并进入备份/恢复/资产引用面；按本清单 §1 纪律 2"动 Room schema → bump + 非破坏迁移 + 导出新 JSON"，不 bump 会让既有 v69 库在 Room 身份校验处被拒。
+2. **为什么是非破坏**：迁移常量 15 条 `execSQL` 全为 `CREATE TABLE/INDEX`；`FullMigrationMatrixInstrumentedTest` 1..70 设备 **`OK (15 tests)`**（E-07）；69→70 带数据用例设备 **1/2 红**，根因是测试断言（`sqlite_master` 的 DDL 已无 `IF NOT EXISTS`），迁移本体与 UNIQUE 三列键实际正确；现树断言已修（`startsWith` + 三列 `contains`），**未复跑**。
+3. **为什么请求 schema 不 bump**：本批不改 `TutorVisualContext` 的 wire 形态；visual 引用尚未进入模型请求。设计 C8 明确"无条件 bump 会让旧请求指纹与 encodeDefaults 语义无谓变更"。
+4. **为什么 `drawSchemaVersion` 不 bump**：T6 的"serialize 回喂同一 parse""路径元数门""重复键拒绝"是**解析严格度**，不是词表变更；契约 §4 已写"严格拒绝重复键"，本批只是让实现追平契约。
+5. **70.json**：由 KSP 构建产物生成（378,885 B / version=70 / identityHash `11a8…` / 90 entities），**当前未被 git 跟踪**；同目录 `70.json.NOT_EXPORTED.md` 是 T2 早期占位说明，已与盘上产物矛盾，提交前必须删除或改写。schema 身份只能由 KSP 生成，**禁止手工伪造**（`ExportedSchemaContractTest` 纪律）。
+
+**测试证据**：设备 `FullMigrationMatrixInstrumentedTest` `OK (15)`、`TutorVisualCommitInstrumentedTest` `OK (8)`、`TutorVisualCommitRepositoryInstrumentedTest` `OK (3)`（E-07）；`TutorVisualSnapshotMigration_69_70InstrumentedTest` 设备 1 红为 A 类测试断言（现树已修，绿轮 UNVERIFIED）；JVM `TutorVisualSchemaContractTest` 8 例、`TutorVisualIdentityTest` 5 例**未跑**（本批禁 Gradle）。
+
+**archive 是否已落**：本轮非投影变更，不涉及 `projection_archive`；schema 旧值以 `69.json`（已跟踪）为归档。
+
+### 3.41 批次 32 · `STUDY_DATABASE_VERSION` 70 → 71（快照唯一键并入渲染器/字体清单版本）；请求 schema 18 / `drawSchemaVersion` 1 / `PROTOCOL_VERSION` 2 维持
+
+> 依据：批次 32 计划 `.zcode/plans/plan-2026-10-29-batch-32-parity-schema71.md:18-21`、R2 `docs/research/2026-10-29-schema-generation-flow.md` §0/§2–§3、T3/T4 落码、批次记录 `docs/research/2026-10-29-batch-32-record.md` §3.3/§3.4。**记录步零 Gradle/零设备/零 git 写**；设备读数只复读 `build/device-track-batch32/` 既有日志。
+
+| 项 | 旧值 → 新值 | 说明 |
+|---|---|---|
+| `STUDY_DATABASE_VERSION` | **70 → 71** | `StudyDatabase.kt:139`；迁移 `VisualSnapshotIdentityMigration_70_71.kt` 注册于 `:411`；v70→71 **只碰索引**：`DROP INDEX` 旧三列唯一键 + `CREATE UNIQUE INDEX` 五列键，零 `ALTER`/`UPDATE`/回填，旧行零改动 |
+| 快照唯一键 | **`(program_id, state_sha256, draw_commands_sha256)` → 五列 + `renderer_version, font_manifest_version`** | 实体 `TutorVisualEntities.kt:132-155`；派生 `TutorVisualIdentity.deriveSnapshotId` 五参五段长度前缀（`:89-113`）；查重 `TutorVisualDao.findSnapshotByContent` 五列 WHERE（`:82-101`）——三处必须同源 |
+| `identityHash` | `11a8a701bae767a8a3c5bc810e4743a4` → **`714c0ecb85ee5edf74f0013740148138`** | 只由 KSP 生成；`71.json` / `StudyDatabase_Impl.kt:264` `RoomOpenDelegate(71, "714c…", …)` / `SmbkSelectionPlan.kt:51` 三处逐字同值（记录员实读） |
+| 备份机器清单 | **数字不变**：90 表 / 2 视图 / 100 FK 边 / 82 裁剪项 / 21 软引用 / SPLIT 7 / `CLOSURE_VERSION` 3 | 只换索引，不增删表/列/FK/视图；`SmbkSelectionPlan.kt:44` `SCHEMA_VERSION=71`、`:54` `CLOSURE_VERSION=3` |
+| 请求 schema | 维持 **18** | 本批不改 `TutorVisualContext` wire 形态，visual 引用仍未进入模型请求 |
+| `drawSchemaVersion`（DrawOps V1） | 维持 **1** | 本批只改一致门（androidTest）与持久化索引，wire 词表零增删 |
+| `VisualJsWire.PROTOCOL_VERSION` | 维持 **2** | 未改 AIDL/信封字段 |
+| AAR / stdlib | 不变 | quickjs-kt-android 1.0.15、kotlin-stdlib 2.3.21（零构建脚本改动） |
+
+**bump 判据（逐条）**：
+
+1. **为什么必须 bump**：唯一键/索引形状改变会改变 Room 的 schema 身份与 `room_master_table` 校验；不 bump 会让 v70 库在升级/打开时被拒（`Migration didn't properly handle` 或 identity mismatch）。
+2. **为什么是非破坏**：迁移只有两条 `execSQL`（DROP 旧索引 + CREATE 新索引），无 `ALTER`/`UPDATE`、无表重建、无存量回填；两列 v70 已存在；新键是旧键的**严格超集** ⇒ 存量行不可能冲突。设备 `70→71` 专用 `OK (3 tests)`（E-04，11:19）与 `1→71` 矩阵 `OK (15 tests)`（E-05，11:19–11:26）。
+3. **为什么 `identityHash` 不能手写/反算**：R2 §1.3 从 room3-compiler 3.0.0 字节码还原公式后对 `70.json` 跑 192 组参数组合，0 命中；JSON 是编译器模型的有损投影。真值只来自一次带 KSP 的构建；`71.json` 378,961 B / mtime 10:13。
+4. **为什么请求 schema 不 bump**：本批不改 `TutorVisualContext` 的 wire 形态；无条件 bump 会让旧请求指纹无谓漂移。
+5. **为什么 `drawSchemaVersion` 不 bump**：一致门阈值/断言只存在于 `androidTest`，不进产品版本面；DrawOps wire 词表未动。
+6. **备份清单为什么"数字不变"**：记录员 python 实跑 70↔71 结构 diff：90 entities、表名集合相同，只有 `tutor_visual_snapshot` 的索引从三列变五列；`fields`/`foreignKeys`/`createSql`/2 视图全同。S=71 清单门实跑 `RESULT=PASS`/`EXIT=0`（90/90/90、双向差集空、version/hash 同源）。
+
+**测试证据**：设备 `BackupRestoreInstrumentedTest` `OK (34)`（E-06，11:26，S=71 判据）、`TutorVisualSnapshotIdentityMigration_70_71InstrumentedTest` `OK (3)`（E-04）、`FullMigrationMatrixInstrumentedTest` `OK (15)`（E-05）。JVM XML 旁证（`build/`，非仓内命令日志）：`SmbkSelectionPlanTest` 12/0、`TutorVisualIdentityTest` 6/0、`TutorVisualSchemaContractTest` 9/0、`KernelWave0SchemaContractTest` 8/0，mtime 12:36–12:38。**源边界**：设备 APK 构建于 11:14–11:17，现树 12:26–12:28 另有 11 个源文件改动；备份/迁移套件的设备绿只对 11:14 源成立，当前树复跑 UNVERIFIED（批次记录 §4.4）。
+
+**archive 是否已落**：本轮是**索引变更**，不涉及投影输出；schema 旧值以已跟踪的 `70.json` 为归档（`version=70` / identityHash `11a8…` / 90 实体），新值 `71.json` 提交时必须纳入。
+
 ## 4. 谁在什么时候写这一行
 
 - **每次 bump 的同一个提交里**（不是事后补）：改常量/公式的那次改动，连同本表的行一起提交；

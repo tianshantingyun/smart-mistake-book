@@ -64,7 +64,7 @@
 
 ## 4. KD-74 覆盖（四类 + T1 + 产物身份）
 
-| KD-74 要求（`docs/known-defects.md:2744` 条目，`:2750` Fix direction） | E-ID | 状态 | 备注 |
+| KD-74 要求（`docs/known-defects.md` KD-74 条目；落盘时点 `:2744` 条目 / `:2750` Fix direction，批次 24/25 插入后漂移至 `:2774` 条目 / `:2780` Fix direction——2026-10-27 批次 25 T5 台账同步时实读复核） | E-ID | 状态 | 备注 |
 |---|---|---|---|
 | 每条命令的 `am instrument` summary / `INSTRUMENTATION_CODE` | E-01…E-09 | 有 | 每个 step §3/§4 均含 summary 与 `INSTRUMENTATION_CODE` |
 | logcat 12 类签名全量 grep（含 0 命中） | E-08（E-01…E-07 各自记录） | **有（17/17）** | 旧 `signature-matrix.txt` 只覆盖 13 个文件；E-08 补齐 01d/01e/06d/06e，2 条命中均为测试前 GMS/Primes 系统组件 |

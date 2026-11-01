@@ -34,6 +34,7 @@ import com.tingyun.smartmistakebook.core.database.port.SplitImportPort
 import com.tingyun.smartmistakebook.core.database.port.TutorAnswerExposurePort
 import com.tingyun.smartmistakebook.core.database.port.TutorReadPort
 import com.tingyun.smartmistakebook.core.database.port.TutorSessionPort
+import com.tingyun.smartmistakebook.core.database.port.TutorVisualPort
 import com.tingyun.smartmistakebook.core.database.port.TutorWritePort
 import com.tingyun.smartmistakebook.core.model.ImmutablePayloadConflict
 import com.tingyun.smartmistakebook.core.model.KnowledgeSearchIndexRebuildPort
@@ -119,7 +120,8 @@ interface StudyDatabasePort : AutoCloseable, ModelTaskDatabasePort,
     FigureGenerationRecorderPort,
     com.tingyun.smartmistakebook.core.database.port.MistakeEditJobPort,
     com.tingyun.smartmistakebook.core.database.port.DetailedSolutionPort,
-    KnowledgeSearchIndexRebuildPort {
+    KnowledgeSearchIndexRebuildPort,
+    TutorVisualPort {
 
     /** Diagnostic: the SQLite PRAGMA user_version of the opened database. */
     suspend fun readDatabaseVersion(): Int = 0

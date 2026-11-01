@@ -1,0 +1,36 @@
+{
+  "name": "screenshot1-ratio-bar",
+  "note": "独立渲染结构预期：几何/位置由 fixture 声明参数独立推导（label 公式 x=anchor−w·hFrac; y=anchor−h·vFrac+baseline），不转录编译器输出",
+  "drawSchemaVersion": 1,
+  "viewBox": { "x": 0, "y": 0, "w": 360, "h": 240 },
+  "background": "#ffffff",
+  "hitRegionCount": 0,
+  "opSequence": ["path", "path", "path", "path", "label", "label"],
+  "stats": { "nodes": 7, "pathCommands": 20, "labels": 2, "ops": 6 },
+  "ops": [
+    {
+      "kind": "path", "fill": "#26354a", "stroke": null, "alpha": 1,
+      "commands": [["M", 20, 20], ["L", 110, 20], ["L", 110, 40], ["L", 20, 40], ["Z"]]
+    },
+    {
+      "kind": "path", "fill": "#26354a", "stroke": null, "alpha": 1,
+      "commands": [["M", 20, 60], ["L", 50, 60], ["L", 50, 80], ["L", 20, 80], ["Z"]]
+    },
+    {
+      "kind": "path", "fill": "#336699", "stroke": null, "alpha": 1,
+      "commands": [["M", 20, 120], ["L", 65, 120], ["L", 65, 140], ["L", 20, 140], ["Z"]]
+    },
+    {
+      "kind": "path", "fill": "#336699", "stroke": null, "alpha": 1,
+      "commands": [["M", 20, 160], ["L", 65, 160], ["L", 65, 180], ["L", 20, 180], ["Z"]]
+    },
+    {
+      "kind": "label", "contentId": "lbl-ratio-31", "x": 125, "y": 49, "rotationDeg": 0,
+      "hAlign": "left", "vAlign": "top", "color": "#26354a", "alpha": 1
+    },
+    {
+      "kind": "label", "contentId": "lbl-ratio-11", "x": 125, "y": 149, "rotationDeg": 0,
+      "hAlign": "left", "vAlign": "top", "color": "#26354a", "alpha": 1
+    }
+  ]
+}

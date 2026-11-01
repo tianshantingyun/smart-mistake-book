@@ -19,7 +19,11 @@ internal object DenseTestFixtures {
 
     fun text(path: String): String = bytes(path).decodeToString()
 
-    fun lines(path: String): List<String> = text(path).split('\n')
+    // 行级剥掉 '\r'：fixture blob 在仓里是 LF，但 `core.autocrlf=true` + `.gitattributes`
+    // 无 `*.txt` 条目时，Windows checkout 的工作树副本是 CRLF，`split('\n')` 会在每行尾残留
+    // '\r'。Float/Double.parseFloat 容忍尾随空白而 Integer.parseInt 不容忍（DenseVectorAssetTest
+    // 的 expectedBytes 与 DenseRecallRerankerTest 的 [candidate] 计数都炸过 NFE），故在行级统一处理。
+    fun lines(path: String): List<String> = text(path).split('\n').map { it.removeSuffix("\r") }
 
     /** 制表符分隔 + `#` 注释；返回每个数据行的列。 */
     fun rows(path: String): List<List<String>> = lines(path)

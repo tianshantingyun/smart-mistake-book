@@ -11,11 +11,16 @@ import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -24,11 +29,16 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * 4E WG-04b：`GENERATE_FIGURE` 的 method/imageOperation/imagePrompt 在**两条路由**
+ * 4E WG-04b / A-02 / A-03：`GENERATE_FIGURE` 的
+ * method/program/imageOperation/imagePrompt 在**两条路由**
  * （Route A 原生 tool_calls / Route B json_object 信封）上逐字同义（T3）。
  *
  * 消灭的具体失败（KD-30 的同类）：原生 schema 广告了新字段、但 Route A 解析不读，
  * 或只有 Route B 读——某种 provider 上模型的选择被静默丢弃，而两侧单看都"能跑"。
+ *
+ * A-02/A-03 之后 JS 是**契约层**可表达的合法选择：两路必须解析出同形的
+ * `TutorToolCall`（含独立字段 `program`）。负向（缺 program、夹带图像载荷、program 越界、
+ * program 出现在别的工具上、未知键）一并保留，一条都不放宽。
  */
 class TutorFigureMethodDualParseTest {
 
@@ -67,14 +77,17 @@ class TutorFigureMethodDualParseTest {
     }
 
     /** Route B：json_object 信封里的 toolRequests[0]。 */
-    private fun routeBCall(arguments: JsonObject): TutorToolCall {
+    private fun routeBCall(
+        arguments: JsonObject,
+        tool: String = "GENERATE_FIGURE",
+    ): TutorToolCall {
         val payload = intentDecision().toMutableMap().apply {
             put(
                 "toolRequests",
                 buildJsonArray {
                     add(
                         buildJsonObject {
-                            put("tool", "GENERATE_FIGURE")
+                            put("tool", tool)
                             arguments.forEach { (key, value) -> put(key, value) }
                         },
                     )
@@ -90,7 +103,10 @@ class TutorFigureMethodDualParseTest {
     }
 
     /** Route A：原生 assistant.tool_calls（arguments 是 JSON 字符串）。 */
-    private fun routeACall(arguments: JsonObject): TutorToolCall {
+    private fun routeACall(
+        arguments: JsonObject,
+        tool: String = "GENERATE_FIGURE",
+    ): TutorToolCall {
         val envelope = buildJsonObject {
             put(
                 "choices",
@@ -112,7 +128,7 @@ class TutorFigureMethodDualParseTest {
                                                     put(
                                                         "function",
                                                         buildJsonObject {
-                                                            put("name", "GENERATE_FIGURE")
+                                                            put("name", tool)
                                                             put("arguments", arguments.toString())
                                                         },
                                                     )
@@ -205,20 +221,138 @@ class TutorFigureMethodDualParseTest {
     }
 
     @Test
-    fun jsMethodIsRejectedOnBothRoutes() {
-        // JS 运行库未过门：两条路由都必须拒绝，而不是"先收下再说"。
+    fun jsMethodParsesIdenticallyOnBothRoutesWithItsProgram() {
+        // A-02（X-04 正向）：JS 在**两条路由**上都可表达，且 program 逐字节相同。
+        // 夹带 \r\n、反斜杠、中文与 emoji，防止某一路做了转义/换行归一。
+        val program = "renderScene({\r\n  title: '数轴\\\\标注',\r\n  label: \"导数区间 📐\"\r\n});"
         val arguments = figureArguments(
             method = "JS",
-            operation = "GENERATE",
-            prompt = "draw",
-            program = "const visual = {};",
+            operation = null,
+            prompt = null,
+            program = program,
         )
 
-        val routeB = runCatching { routeBCall(arguments) }
-        val routeA = runCatching { routeACall(arguments) }
+        val routeB = routeBCall(arguments)
+        val routeA = routeACall(arguments)
 
-        assertTrue("Route B 必须拒绝 JS：${routeB.exceptionOrNull()}", routeB.exceptionOrNull() is IllegalArgumentException)
-        assertTrue("Route A 必须拒绝 JS：${routeA.exceptionOrNull()}", routeA.exceptionOrNull() is IllegalArgumentException)
+        assertEquals("两路由必须解析出同一个 TutorToolCall", routeB, routeA)
+        assertEquals(FigureGenerationMethod.JS, routeA.figureMethod)
+        assertEquals(program, routeA.figureProgram)
+        assertNull(routeA.figureImageOperation)
+        assertNull(routeA.figureImagePrompt)
+
+        val proposalB = requireNotNull(routeB.toFigureGenerationProposal())
+        val proposalA = requireNotNull(routeA.toFigureGenerationProposal())
+        assertEquals(proposalB, proposalA)
+        assertEquals(FigureGenerationMethod.JS, proposalA.method)
+        assertEquals(program, proposalA.program)
+        // 两路结果同形：JS proposal 不带任何图像载荷。
+        assertNull(proposalA.imageOperation)
+        assertNull(proposalA.imagePrompt)
+
+        // Route A 的 strict schema 会把**全部属性**都输出（不适用的一律 null）。
+        // 这条证明"provider 按广告的 schema 产出的 JS arguments"在两条路由上都解析成同一个
+        // 调用——研究复核里"手造 arguments 不能证明 native 路可执行"的缺口由它补上。
+        val strictShape = JsonObject(
+            arguments + ("imageOperation" to JsonNull) + ("imagePrompt" to JsonNull),
+        )
+        assertEquals(routeB, routeBCall(strictShape))
+        assertEquals(routeA, routeACall(strictShape))
+    }
+
+    @Test
+    fun anImageModelCallWithAnExplicitNullProgramParsesLikeTheLegacyShape() {
+        // 旧请求（没有 program 字段）与新 schema 下的 `program: null` 必须逐字同义。
+        val legacy = figureArguments()
+        val withNullProgram = JsonObject(legacy + ("program" to JsonNull))
+
+        assertEquals(routeBCall(legacy), routeBCall(withNullProgram))
+        assertEquals(routeACall(legacy), routeACall(withNullProgram))
+    }
+
+    @Test
+    fun jsWithoutAProgramIsRejectedOnBothRoutes() {
+        // 保留的负向（X-04）：JS 的源码只能走独立字段 program，缺失即拒。
+        val arguments = figureArguments(method = "JS", operation = null, prompt = null, program = null)
+
+        assertTrue(
+            runCatching { routeBCall(arguments) }.exceptionOrNull() is IllegalArgumentException,
+        )
+        assertTrue(
+            runCatching { routeACall(arguments) }.exceptionOrNull() is IllegalArgumentException,
+        )
+    }
+
+    @Test
+    fun javascriptInTheDescriptionIsNotAProgram() {
+        // 负向：把源码塞进 description 不算 program——不猜文本、不二次提取。
+        val arguments = figureArguments(
+            method = "JS",
+            operation = null,
+            prompt = null,
+            program = null,
+            description = "renderScene({ kind: 'number-line' });",
+        )
+
+        assertTrue(
+            runCatching { routeBCall(arguments) }.exceptionOrNull() is IllegalArgumentException,
+        )
+        assertTrue(
+            runCatching { routeACall(arguments) }.exceptionOrNull() is IllegalArgumentException,
+        )
+    }
+
+    @Test
+    fun jsWithAnImagePromptIsRejectedOnBothRoutes() {
+        // 保留的负向（X-04）：两种方法的载荷互斥；JS 不得夹带图像提示词。
+        val arguments = figureArguments(
+            method = "JS",
+            operation = null,
+            prompt = "画一条数轴",
+            program = "renderScene({});",
+        )
+
+        assertTrue(
+            runCatching { routeBCall(arguments) }.exceptionOrNull() is IllegalArgumentException,
+        )
+        assertTrue(
+            runCatching { routeACall(arguments) }.exceptionOrNull() is IllegalArgumentException,
+        )
+    }
+
+    @Test
+    fun aProgramOverSixtyFourKibibytesIsRejectedOnBothRoutes() {
+        // 预算按 UTF-8 字节（ASCII 1:1）：64 KiB + 1 B 必须拒。
+        val overBudget = "x".repeat(
+            com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy.MAX_PROGRAM_UTF8_BYTES + 1,
+        )
+        val arguments = figureArguments(method = "JS", operation = null, prompt = null, program = overBudget)
+
+        assertTrue(
+            runCatching { routeBCall(arguments) }.exceptionOrNull() is IllegalArgumentException,
+        )
+        assertTrue(
+            runCatching { routeACall(arguments) }.exceptionOrNull() is IllegalArgumentException,
+        )
+    }
+
+    @Test
+    fun aProgramOutsideGenerateFigureIsRejectedOnBothRoutes() {
+        // 负向：program 只属于 GENERATE_FIGURE，别的工具带它就是未知载荷。
+        val arguments = buildJsonObject {
+            put("terms", buildJsonArray { add(JsonPrimitive("单调性")) })
+            put("rationale", "学生问到单调性")
+            put("program", "renderScene({});")
+        }
+
+        assertTrue(
+            runCatching { routeBCall(arguments, tool = "KNOWLEDGE_READ") }
+                .exceptionOrNull() is IllegalArgumentException,
+        )
+        assertTrue(
+            runCatching { routeACall(arguments, tool = "KNOWLEDGE_READ") }
+                .exceptionOrNull() is IllegalArgumentException,
+        )
     }
 
     @Test
@@ -253,6 +387,7 @@ class TutorFigureMethodDualParseTest {
 
     @Test
     fun theNativeSchemaAdvertisesOnlyImageModelAndTheNewPayloadFields() {
+        // 生产默认（不传 figureMethods）：广告面与本批之前逐字节相同——零广告改动。
         val body = OpenAiModelProtocol.requestBody(
             modelId = "test-model",
             input = respondInput(),
@@ -264,6 +399,10 @@ class TutorFigureMethodDualParseTest {
         assertTrue("schema 必须声明 method", figureBlock.contains("\"method\""))
         assertTrue("method 只能广告 IMAGE_MODEL", figureBlock.contains("\"IMAGE_MODEL\""))
         assertFalse("JS 不得出现在工具声明里：$figureBlock", figureBlock.contains("\"JS\""))
+        assertFalse(
+            "生产默认不得广告 JS 的 program 载体：$figureBlock",
+            figureBlock.contains("\"program\""),
+        )
         assertTrue("schema 必须声明 imageOperation", figureBlock.contains("\"imageOperation\""))
         assertTrue(figureBlock.contains("\"EDIT\""))
         assertTrue(figureBlock.contains("\"GENERATE\""))
@@ -273,6 +412,82 @@ class TutorFigureMethodDualParseTest {
         assertTrue(figureBlock.contains("\"kind\""))
         assertTrue(figureBlock.contains("\"description\""))
         assertFalse(figureBlock.contains("\"direction\""))
+        // strict 口径：required 恰好覆盖全部 properties。
+        assertStrictRequiredCoversEveryProperty(figureParameters(body))
+    }
+
+    @Test
+    fun theNativeSchemaCanAdvertiseJavascriptWithProgramAsAnIndependentField() {
+        // A-03：能力集合显式含 JS 时，schema 必须**能**同时广告两方法，且 JS 的载荷是
+        // 独立字段 `program`；图像字段改为可空——否则 strict schema 里 JS 调用结构性地
+        // 产不出合法 arguments（这正是研究复核指出的 A-03 缺口）。
+        val body = OpenAiModelProtocol.requestBody(
+            modelId = "test-model",
+            input = respondInput(),
+            images = emptyList(),
+            enableNativeTools = true,
+            figureMethods = setOf(FigureGenerationMethod.IMAGE_MODEL, FigureGenerationMethod.JS),
+        )
+        val params = figureParameters(body)
+        val properties = params["properties"]!!.jsonObject
+        val figureBlock = functionBlock(body, "GENERATE_FIGURE")
+
+        assertEquals(
+            "method.enum 必须同时广告两方法",
+            listOf("IMAGE_MODEL", "JS"),
+            enumValues(properties["method"]!!.jsonObject),
+        )
+        assertTrue("program 必须是独立属性", "program" in properties)
+        assertFalse(
+            "program 不得被塞进 description 蒙混",
+            params["properties"]!!.jsonObject["description"]!!
+                .jsonObject["description"]!!
+                .jsonPrimitive.content.contains("program"),
+        )
+        assertEquals(
+            "JS 调用必须能表达\"不带图像操作\"",
+            listOf("string", "null"),
+            typeUnion(properties["imageOperation"]!!.jsonObject),
+        )
+        assertEquals(
+            "JS 调用必须能表达\"不带图像提示词\"",
+            listOf("string", "null"),
+            typeUnion(properties["imagePrompt"]!!.jsonObject),
+        )
+        assertEquals(
+            "program 同样可空（IMAGE_MODEL 调用不填）",
+            listOf("string", "null"),
+            typeUnion(properties["program"]!!.jsonObject),
+        )
+        assertTrue(figureBlock.contains("\"JS\""))
+        assertEquals(JsonPrimitive(false), params["additionalProperties"])
+        assertStrictRequiredCoversEveryProperty(params)
+    }
+
+    private fun figureParameters(body: String): JsonObject {
+        val root = Json.parseToJsonElement(body).jsonObject
+        return root["tools"]!!.jsonArray
+            .map { it.jsonObject }
+            .single {
+                it["function"]!!.jsonObject["name"]!!.jsonPrimitive.content == "GENERATE_FIGURE"
+            }
+            .let { it["function"]!!.jsonObject["parameters"]!!.jsonObject }
+    }
+
+    private fun enumValues(schema: JsonObject): List<String> =
+        schema["enum"]!!.jsonArray.map { it.jsonPrimitive.content }
+
+    private fun typeUnion(schema: JsonObject): List<String> =
+        schema["type"]!!.jsonArray.map { it.jsonPrimitive.content }
+
+    private fun assertStrictRequiredCoversEveryProperty(params: JsonObject) {
+        val properties = params["properties"]!!.jsonObject.keys.sorted()
+        val required = params["required"]!!.jsonArray.map { it.jsonPrimitive.content }.sorted()
+        assertEquals(
+            "strict schema 的 required 必须恰好覆盖 properties（additionalProperties=false）",
+            properties,
+            required,
+        )
     }
 
     private fun functionBlock(body: String, name: String): String {

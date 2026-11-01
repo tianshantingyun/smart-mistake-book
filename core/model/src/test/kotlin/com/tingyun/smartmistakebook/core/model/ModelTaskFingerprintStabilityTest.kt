@@ -1179,4 +1179,157 @@ class ModelTaskFingerprintStabilityTest {
             ModelTaskLogicalOperationFingerprint.of(withBucket),
         )
     }
+
+    // ---- schema 18：有界视觉上下文（TutorVisualContext，4E WG-04b；批次 38 A-12 扩测）----
+
+    /**
+     * 批次 36 R2 §2.5 的四类扩测按本套件的"每载体四例"惯例落位（批次 36 的 golden 载体
+     * `ModelTaskVisualContextGoldenTest` 7 例与本族互补、不重复：这里钉 golden 没钉的
+     * 三个面——**跨 schema 版本**的逻辑指纹稳定（v17↔v18）、Plan 半边的反假稳定、
+     * legacy 行携带真载体的 fail-closed 拒绝（`ModelTasks` 构造守卫此前零测试））。
+     * 既有 42 例未动一字。
+     */
+
+    /** Plan 半边夹具（visualContext 扩测专用；字段与 Respond 同为 schema 18 载体）。命名取
+     * `visualPlanInput`：本套件**已有**同名 `planInput`（schema 13 工具环夹具，:625）——
+     * 重名使两处定义与全部调用点 `Conflicting overloads`（门禁第 1 轮本文件报错的根因），
+     * 故新夹具改名区分；既有夹具及其调用点一字未动。 */
+    private fun visualPlanInput() = TutorPlanInput(
+        sessionId = "session-stable-plan",
+        draftRevisionNumber = 1,
+        subject = "数学",
+        questionDocument = QuestionDocument(
+            id = "question-plan-stable",
+            blocks = listOf(ContentBlock.Paragraph("stem", "求函数的单调区间")),
+        ),
+        relevantLearningEvidence = emptyList(),
+        projectionIsCurrent = true,
+    )
+
+    private fun visualContext() = TutorVisualContext(
+        capabilityVersion = FigureGenerationPolicyVersion.VALUE,
+        sourceJs = "const visual = { draw: true };",
+        stateJson = "{\"step\":2}",
+        diagnostics = "上一份程序在 render 阶段被截断",
+    )
+
+    @Test
+    fun visualContextCarrierKeepsTheOperationFingerprintStableAcrossSchemaVersions() {
+        // v17 行当年按"没有 visualContext 键"算（@EncodeDefault(NEVER)：null 不落键）：
+        // 同一逻辑输入在 v17/v18 下 Plan/Respond 两半的逻辑指纹都必须不变——投影链一旦
+        // 给 null 载体落键或加 strip，全部存库逻辑指纹就地漂移。
+        val v17Respond = ModelTaskRequest(
+            schemaVersion = ModelTaskRequest.IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION,
+            requestId = "respond:v17-visual",
+            input = respondInput(),
+            occurredAtEpochMillis = 1_000,
+        )
+        val v18Respond = ModelTaskRequest(
+            schemaVersion = ModelTaskRequest.CURRENT_SCHEMA_VERSION,
+            requestId = "respond:v18-visual",
+            input = respondInput(),
+            occurredAtEpochMillis = 1_000,
+        )
+        val v17Plan = v17Respond.copy(requestId = "plan:v17-visual", input = visualPlanInput())
+        val v18Plan = v18Respond.copy(requestId = "plan:v18-visual", input = visualPlanInput())
+
+        assertEquals(
+            ModelTaskLogicalOperationFingerprint.of(v17Respond.input),
+            ModelTaskLogicalOperationFingerprint.of(v18Respond.input),
+        )
+        assertEquals(
+            ModelTaskLogicalOperationFingerprint.of(v17Plan.input),
+            ModelTaskLogicalOperationFingerprint.of(v18Plan.input),
+        )
+    }
+
+    @Test
+    fun aRowWrittenBeforeTheVisualContextCarrierStillValidatesAfterUpgrade() {
+        // bf8be888 的教训（第四次同一条）在本载体的复钉：v17 行的编码里没有 visualContext
+        // 键，升级后读回该行重算两条指纹必须与存库值一致，否则 toSnapshot 直接抛完整性异常。
+        val legacyRespondJson = ModelTaskCodec.encodeRequest(
+            ModelTaskRequest(
+                schemaVersion = ModelTaskRequest.IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION,
+                requestId = "respond:legacy-visual-row",
+                input = respondInput(),
+                occurredAtEpochMillis = 1_000,
+            ),
+        )
+        val legacyPlanJson = ModelTaskCodec.encodeRequest(
+            ModelTaskRequest(
+                schemaVersion = ModelTaskRequest.IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION,
+                requestId = "plan:legacy-visual-row",
+                input = visualPlanInput(),
+                occurredAtEpochMillis = 1_000,
+            ),
+        )
+        assertFalse(
+            "null context 不得落键（v17 行形状，Respond）：$legacyRespondJson",
+            legacyRespondJson.contains("\"visualContext\""),
+        )
+        assertFalse(
+            "null context 不得落键（v17 行形状，Plan）：$legacyPlanJson",
+            legacyPlanJson.contains("\"visualContext\""),
+        )
+        val decodedRespond = ModelTaskCodec.decodeRequest(legacyRespondJson)
+        val decodedPlan = ModelTaskCodec.decodeRequest(legacyPlanJson)
+
+        assertEquals(
+            ModelTaskRequest.IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION,
+            decodedRespond.schemaVersion,
+        )
+        assertEquals(sha256Hex(legacyRespondJson), ModelTaskFingerprint.of(decodedRespond))
+        assertEquals(
+            sha256Hex("${decodedRespond.input.kind.name}\n${legacyInputJson(decodedRespond.input)}"),
+            ModelTaskLogicalOperationFingerprint.of(decodedRespond.input),
+        )
+        assertEquals(sha256Hex(legacyPlanJson), ModelTaskFingerprint.of(decodedPlan))
+        assertEquals(
+            sha256Hex("${decodedPlan.input.kind.name}\n${legacyPlanInputJson(decodedPlan.input)}"),
+            ModelTaskLogicalOperationFingerprint.of(decodedPlan.input),
+        )
+    }
+
+    @Test
+    fun aRealVisualContextStillChangesTheOperationFingerprint() {
+        // 反向要求（含 golden 没钉的 Plan 半边）：strip 只抹平空载体，真带了上一份程序/
+        // state/诊断就是另一次输入——否则"换了程序重发"的修复回合会重放命中旧请求。
+        val respondWithContext = respondInput().copy(visualContext = visualContext())
+        val planWithContext = visualPlanInput().copy(visualContext = visualContext())
+
+        assertNotEquals(
+            ModelTaskLogicalOperationFingerprint.of(respondInput()),
+            ModelTaskLogicalOperationFingerprint.of(respondWithContext),
+        )
+        assertNotEquals(
+            ModelTaskLogicalOperationFingerprint.of(visualPlanInput()),
+            ModelTaskLogicalOperationFingerprint.of(planWithContext),
+        )
+    }
+
+    @Test
+    fun aLegacySchemaRequestCannotCarryAVisualContext() {
+        // fail-closed 半边（构造守卫 ModelTasks "Legacy tutor requests cannot carry a
+        // visual context" 此前零测试）：v17 行不允许带真载体——旧 schema 语义不得被
+        // 新载荷静默污染，两半各拒一次。
+        val rejectedRespond = runCatching {
+            ModelTaskRequest(
+                schemaVersion = ModelTaskRequest.IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION,
+                requestId = "respond:legacy-with-visual",
+                input = respondInput().copy(visualContext = visualContext()),
+                occurredAtEpochMillis = 1_000,
+            )
+        }
+        val rejectedPlan = runCatching {
+            ModelTaskRequest(
+                schemaVersion = ModelTaskRequest.IMAGE_CLASSIFY_SOURCE_SHA_SCHEMA_VERSION,
+                requestId = "plan:legacy-with-visual",
+                input = visualPlanInput().copy(visualContext = visualContext()),
+                occurredAtEpochMillis = 1_000,
+            )
+        }
+
+        assertTrue(rejectedRespond.isFailure)
+        assertTrue(rejectedPlan.isFailure)
+    }
 }

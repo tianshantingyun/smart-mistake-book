@@ -1,0 +1,245 @@
+package com.tingyun.smartmistakebook.core.data.visual
+
+import com.tingyun.smartmistakebook.core.database.TutorVisualCheckpointBudget
+import com.tingyun.smartmistakebook.core.database.TutorVisualCheckpointKind
+import com.tingyun.smartmistakebook.core.database.TutorVisualStatus
+import com.tingyun.smartmistakebook.core.model.figureUsageUtf8Bytes
+
+/**
+ * 一个既有快照行在保留决策中的**最小投影**（不依赖 Room entity，JVM 门可直接构造）。
+ *
+ * [kind] 的取值来自 `core/database` 的 [TutorVisualCheckpointKind]（`INITIAL`/`LATEST`；
+ * `null` = 可回收中间态）——**不在这里另立一套字面量**：写侧（T3 的 D-02 提交）与保留
+ * 策略必须共用同一个来源，否则拼错一次就会让"初始基线"退化成可淘汰的中间态。
+ *
+ * [status] 来自 `core/database` 的 [TutorVisualStatus]。批次 31 起它是**独立的淘汰轴**：
+ * `LIVE` = 用户已经看到过的图，即使当前没有 link/题面指针固定它，也不作为"可回收派生缓存"
+ * 删除（`kind` 只表达 checkpoint 角色，与是否可见是两件事）。投影缺这一列时，LIVE 的未固定
+ * 行会静默进入淘汰候选——这正是本次补上的原因。
+ *
+ * **未知 kind（既非 INITIAL 也非 LATEST 的非空字符串）按 fail-closed 处理**：不淘汰。
+ * 宁可让坏数据占着预算并照常拒绝提交，也不把一条含义不明的行当成"可以删"。
+ *
+ * @param pinned = 被 `tutor_message_visual.current_snapshot_id` 或
+ *   `problem_revision_visual.snapshot_id` 引用（导出冻结集属 `core/export` 热区，本批不做，
+ *   由 T3 接导出时补入参）。
+ * @param storedBytes = [visualCheckpointStoredBytes] 的计量口径（state+scene+draw commands
+ *   的 UTF-8 字节和；契约 §8.1）。
+ */
+internal data class VisualCheckpointRow(
+    val snapshotId: String,
+    val kind: String?,
+    val status: String,
+    val pinned: Boolean,
+    val storedBytes: Long,
+) {
+    init {
+        require(snapshotId.isNotBlank()) { "A checkpoint row needs a snapshot id" }
+        require(status.isNotBlank()) { "A checkpoint row needs its status" }
+        require(storedBytes >= 0L) { "Checkpoint stored bytes must not be negative" }
+    }
+}
+
+/**
+ * checkpoint 保留/配额策略（契约 §8.1 的两个数字）。
+ *
+ * 本批的语义是**提交门**，不是淘汰器：超限先扣除"未固定且可淘汰"的行，仍超限 →
+ * [VisualCheckpointPlan.Rejected]（本次不提交并说明），**不通过删用户事实腾空间**。
+ * 实际的 DELETE/GC 落点在 T3 的写入事务与既有 orphan GC，见 [VisualCheckpointRetention]。
+ */
+internal data class VisualCheckpointRetentionPolicy(
+    /** 每 program 的可回收派生缓存上限（契约 §8.1：4 MiB）。 */
+    val perProgramBudgetBytes: Long = TutorVisualCheckpointBudget.PER_PROGRAM_BYTES,
+    /** 全局可回收视觉缓存上限（契约 §8.1：32 MiB）。 */
+    val globalBudgetBytes: Long = TutorVisualCheckpointBudget.GLOBAL_BYTES,
+) {
+    init {
+        require(perProgramBudgetBytes > 0L) { "The per-program budget must be positive" }
+        require(globalBudgetBytes > 0L) { "The global budget must be positive" }
+    }
+
+    companion object {
+        val CURRENT: VisualCheckpointRetentionPolicy = VisualCheckpointRetentionPolicy()
+    }
+}
+
+/** 拒绝提交的有码原因（调用方 T3 把它映射成自己的有界拒绝类型/可读说明）。 */
+internal enum class VisualCheckpointRejection(val code: String) {
+    PER_PROGRAM_BUDGET("VISUAL_CHECKPOINT_PER_PROGRAM_BUDGET"),
+    GLOBAL_BUDGET("VISUAL_CHECKPOINT_GLOBAL_BUDGET"),
+    DISK_FULL("VISUAL_CHECKPOINT_DISK_FULL"),
+}
+
+/** 保留决策结果：可提交（附 demote/淘汰清单）或拒绝提交（有界原因）。 */
+internal sealed interface VisualCheckpointPlan {
+    /**
+     * @param incomingKind 新 checkpoint 的 `checkpoint_kind`（首个 = INITIAL，之后 = LATEST）。
+     * @param demoteToIntermediate 旧 `LATEST` 行（标记只有一个，新 checkpoint 接手）；被固定的
+     *   旧 LATEST 也在内——它只是不再是最新标记，行仍因 pinned 保留。**可淘汰的旧 LATEST
+     *   同时也出现在 [evictUnpinnedSnapshotIds] 里**：先清标记、再删行是幂等且正确的，
+     *   命令层不再禁止两个清单重叠（`CommitTutorTurnWithVisualCommand` 的注释）。
+     * @param evictUnpinnedSnapshotIds 可回收的未固定行（`null` kind 或旧 LATEST，且仍为
+     *   STAGING；LIVE 永不入列）。
+     *   **本轨不执行删除**：由 T3 在同一写入事务（`commitTutorTurnWithVisual` 与
+     *   `stageTutorVisualSnapshot`）或既有 GC 里落地，且淘汰集必须在提交时重查
+     *   （pin/status/owner 租约都是并发可变的）。因此这里的候选**可能被 SQL 拒绝删除**
+     *   （pin/status/租约任一不符）；事务内重判会以实际留存的字节重新判预算并可能回滚。
+     * @param retainedBytesAfterEviction 扣除淘汰候选后本 program 仍保留的字节数
+     *   （INITIAL + pinned + 未知 kind + 本行）。**不包含 SQL 层因租约拒绝删除的行**——那
+     *   部分由写入事务的重判兜底。
+     */
+    data class Retained(
+        val incomingKind: String,
+        val demoteToIntermediate: List<String>,
+        val evictUnpinnedSnapshotIds: List<String>,
+        val retainedBytesAfterEviction: Long,
+    ) : VisualCheckpointPlan
+
+    data class Rejected(
+        val reason: VisualCheckpointRejection,
+        val diagnostic: String,
+    ) : VisualCheckpointPlan
+}
+
+/**
+ * **checkpoint 初始+最新两份 + 配额拒提交**的纯策略（批次 30 T4 / D-03 半场）。
+ *
+ * **它消灭的具体失败**：见 `VisualCheckpointRetentionTest` 文件头——"保留两份"此前只是散文，
+ * 没有可执行口径，导致要么缓存无限长、要么在配额压力下删掉被消息/题目固定的快照。
+ *
+ * 规则（契约 §8.1 原文的落码）：
+ * 1. 新 checkpoint 的 kind：本 program 没有 `INITIAL` 行 → [TutorVisualCheckpointKind.INITIAL]；
+ *    否则 [TutorVisualCheckpointKind.LATEST]（`INITIAL` 行永不改写）；
+ * 2. **可淘汰 = 未被固定、仍为 STAGING、且（`kind == null` 或 `LATEST`）**；被固定的事实
+ *    （消息当前指针、保存题引用）一律保留；`INITIAL` 永不淘汰；**LIVE 永不淘汰**——它是
+ *    用户已经看到过的图，不是"没人引用的缓存"；未知 kind / 未知 status 一律 fail-closed 保留；
+ * 3. 预算按**淘汰后**的保留字节数判定（per-program），全局按"全局总量 − 本 program 淘汰量
+ *    + 本行"判定；仍超限 → 拒绝提交；
+ * 4. 磁盘可用空间不足（本行字节 > 可用字节）→ 拒绝提交，**不删任何用户事实**。
+ *
+ * 规则 2 中 LIVE 的收紧是批次 31 的裁定：`kind` 只表达 checkpoint 角色，与"用户是否已经
+ * 看到这张图"是两条轴。把 LIVE 的未固定行当缓存删掉，等于让用户已见的图无声消失；在配额
+ * 压力下正确的行为是**拒绝本次提交并说明**，而不是删历史事实。代价是 LIVE 中间态会占用
+ * 预算（fail-closed 的已知代价），由调用方的有界拒绝暴露出来。
+ *
+ * **与写入方的边界（批次 30 复核修复后已接线；批次 32 事务内重判 + stage 同口径）**：
+ * - 本对象**只判定**，不触 DB、不删行、不改 status；`demote`/`evict` 的 SQL 由
+ *   `TutorVisualCommitRepository.planCheckpoint` + `TutorVisualPort.commitTutorTurnWithVisual`
+ *   在同一事务里执行（`UPDATE … checkpoint_kind` 与淘汰删除在事务内，且淘汰 SQL 重查
+ *   pin/kind/status/owner 租约）。`stageSnapshot` 消费同一份 plan 的**淘汰集**（不带 demote：
+ *   新行仍是 STAGING，不能抢旧 LATEST 的角色），使事务内按全量字节重判的口径与这里的
+ *   "淘汰后净值"一致。
+ * - 仓储层在**写库前**调用本函数：`stageSnapshot` / `commitAssistantTurnWithVisual` 都用
+ *   [nextCheckpointKind] 决定落库 kind，并用 `plan(...)` 做磁盘/配额门；
+ *   [VisualCheckpointPlan.Rejected] 映射成 `TutorVisualCommitRejectedException`
+ *   （含 `PER_PROGRAM_BUDGET` / `GLOBAL_BUDGET`）。两边字节口径一致
+ *   （`utf8Size(state)+utf8Size(scene)+utf8Size(draw)`；SQL 侧 `length(CAST(x AS BLOB))`）。
+ * - **事务前的预算判定只是快速预检，不是最终门**：淘汰候选可能因并发 pin/租约被 SQL 拒绝
+ *   删除，两个并发提交也可能各自读到旧总量。写入事务在执行完 demote/evict 后会用
+ *   `TutorVisualDao.programCheckpointStoredBytes` / `totalCheckpointStoredBytes` **重读并重判**，
+ *   超限即回滚（批次 32）。因此同一份规则在两层执行，但最终裁决权在事务内。
+ * - `pinned` 的"导出冻结集"（E-01）属 `core/export` 热区，本批不做，接导出时补入参；
+ * - demote/evict 的 SQL 在提交事务内执行，且淘汰 SQL 会**重查** `status`（只删 STAGING）；
+ *   策略判定与 SQL 的双重过滤是同一条规则的两层，不是两套口径。
+ */
+internal object VisualCheckpointRetention {
+
+    /** 拒绝原因的上界（有界诊断，不把内部集合回显）。 */
+    const val MAX_DIAGNOSTIC_CHARS: Int = 240
+
+    /** 下一条 checkpoint 的 kind（首个 LIVE 提交 = INITIAL，之后 = LATEST）。 */
+    fun nextCheckpointKind(existing: List<VisualCheckpointRow>): String =
+        if (existing.any { it.kind == TutorVisualCheckpointKind.INITIAL }) {
+            TutorVisualCheckpointKind.LATEST
+        } else {
+            TutorVisualCheckpointKind.INITIAL
+        }
+
+    /**
+     * @param existing 本 program 的全部既有快照行（含 STAGING 与 LIVE；`pinned` 由调用方
+     *   在同事务内按 link/题面引用计算）。
+     * @param availableDiskBytes 注入的可用空间（测试可注 0/边界；同 `BackupSnapshotTrimmer`
+     *   的 `usableSpace` 注入口形态）。
+     * @param globalStoredBytes 全库视觉快照字节总量，**必须包含** [existing] 的字节和。
+     */
+    fun plan(
+        incomingSnapshotId: String,
+        incomingStoredBytes: Long,
+        existing: List<VisualCheckpointRow>,
+        availableDiskBytes: Long,
+        globalStoredBytes: Long,
+        policy: VisualCheckpointRetentionPolicy = VisualCheckpointRetentionPolicy.CURRENT,
+    ): VisualCheckpointPlan {
+        require(incomingSnapshotId.isNotBlank()) { "An incoming checkpoint needs a snapshot id" }
+        require(incomingStoredBytes >= 0L) { "Incoming checkpoint bytes must not be negative" }
+        require(availableDiskBytes >= 0L) { "Available disk bytes must not be negative" }
+        require(globalStoredBytes >= 0L) { "Global stored bytes must not be negative" }
+        val existingIds = existing.map { it.snapshotId }
+        require(existingIds.size == existingIds.toSet().size) { "Duplicate checkpoint snapshot ids" }
+        require(incomingSnapshotId !in existingIds) {
+            "Incoming checkpoint ${incomingSnapshotId.take(64)} already exists"
+        }
+        val existingBytes = existing.sumOf { it.storedBytes }
+        require(globalStoredBytes >= existingBytes) {
+            "Global stored bytes $globalStoredBytes do not cover this program's $existingBytes"
+        }
+
+        val evictable = existing.filter { row ->
+            !row.pinned &&
+                // 正向条件而非 `!= LIVE`：未知 status 与未知 kind 一样 fail-closed 保留。
+                row.status == TutorVisualStatus.STAGING &&
+                (row.kind == null || row.kind == TutorVisualCheckpointKind.LATEST)
+        }
+        val evictableBytes = evictable.sumOf { it.storedBytes }
+        val retainedBytes = existingBytes - evictableBytes + incomingStoredBytes
+
+        if (incomingStoredBytes > availableDiskBytes) {
+            return rejected(
+                VisualCheckpointRejection.DISK_FULL,
+                "needs $incomingStoredBytes bytes but only $availableDiskBytes are available",
+            )
+        }
+        if (retainedBytes > policy.perProgramBudgetBytes) {
+            return rejected(
+                VisualCheckpointRejection.PER_PROGRAM_BUDGET,
+                "retained $retainedBytes bytes after evicting unpinned rows exceeds " +
+                    "the per-program budget ${policy.perProgramBudgetBytes}",
+            )
+        }
+        val globalAfter = globalStoredBytes - evictableBytes + incomingStoredBytes
+        if (globalAfter > policy.globalBudgetBytes) {
+            return rejected(
+                VisualCheckpointRejection.GLOBAL_BUDGET,
+                "global $globalAfter bytes after local eviction exceeds the budget ${policy.globalBudgetBytes}",
+            )
+        }
+        return VisualCheckpointPlan.Retained(
+            incomingKind = nextCheckpointKind(existing),
+            demoteToIntermediate = existing
+                .filter { it.kind == TutorVisualCheckpointKind.LATEST }
+                .map { it.snapshotId },
+            evictUnpinnedSnapshotIds = evictable.map { it.snapshotId },
+            retainedBytesAfterEviction = retainedBytes,
+        )
+    }
+
+    private fun rejected(reason: VisualCheckpointRejection, detail: String): VisualCheckpointPlan.Rejected =
+        VisualCheckpointPlan.Rejected(
+            reason = reason,
+            diagnostic = "${reason.code}: $detail".take(MAX_DIAGNOSTIC_CHARS),
+        )
+}
+
+/**
+ * checkpoint 的计量口径（契约 §8.1）：`draw_commands_json + state_json + scene_json` 的
+ * UTF-8 字节和。**它消灭的具体失败**：各写入方用字符串长度（UTF-16 code units）或平台默认
+ * 编码估算，中文/emoji 场景下与真实落盘字节差一截，配额门形同虚设。
+ */
+internal fun visualCheckpointStoredBytes(
+    stateJson: String,
+    sceneJson: String,
+    drawCommandsJson: String,
+): Long =
+    figureUsageUtf8Bytes(stateJson).toLong() +
+        figureUsageUtf8Bytes(sceneJson).toLong() +
+        figureUsageUtf8Bytes(drawCommandsJson).toLong()

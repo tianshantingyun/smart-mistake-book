@@ -25,14 +25,21 @@ import com.tingyun.smartmistakebook.core.domain.VisualExecutionRejection
  *    （bellard QuickJS `JS_ThrowOutOfMemory` → `JS_ThrowInternalError(ctx, "out of memory")`）。
  *    不认裸 `out of memory`、不认 `RangeError: out of memory`；`string too long` /
  *    `stack overflow` 明确不是堆上限（R3 §2.3/§5.4）。
- * 3. **消息丢失哨兵 + 堆证据**：`null` / `"null"` / `Invalid evaluation handle: -1` 只说明
+ * 3. **SceneV1 编译器/SDK 类型化错误面**（批次 27 T1）：消息携带 `SCENE_<族>_<码>` 令牌
+ *    （`visual-compiler.js` 的 SceneCompileError 与 `visual-sdk.js` 的 SceneSdkError，
+ *    错误面见 R1 §3.4）→ [VisualJsFailureKind.INVALID_SCENE]。任务书裁定：非法场景
+ *    fail-closed 为类型化拒绝，**不进 INVALID_PROGRAM 泛化**。已知边界与伪造 OOM 同型：
+ *    程序可以故意抛含该令牌的错误换一个拒绝类别（两者都是程序侧有界拒绝、同走回喂诊断，
+ *    无越权面）；compile 第三上下文无用户代码，该相的 SCENE_* 令牌必出自编译器本身。
+ *    编译器诊断文案刻意避开 "not defined"（那会被第 4 条归 SANDBOX_VIOLATION）。
+ * 4. **消息丢失哨兵 + 堆证据**：`null` / `"null"` / `Invalid evaluation handle: -1` 只说明
  *    "错误对象丢失"，不能单独当 OOM（`throw null`、`unhandled Promise.reject(null)` 同形）。
  *    只有同时满足 `mallocSize >= 90% mallocLimit` 才归属 [VisualJsFailureKind.MEMORY_LIMIT]。
  *    **该比值是尚未校准的主证据**（R2 §2：未锚定的夹具在 OOM 后、读快照前会被 GC 回收，
  *    E-02 读到 177216 而非上限），因此这类归因带
  *    [VisualJsCalibration.PENDING_CALIBRATION]，诊断追加
  *    [PENDING_CALIBRATION_DIAGNOSTIC_MARKER]；阈值与判据本身不变。
- * 4. **兜底**：丢失哨兵但堆不接近上限 → [VisualJsFailureKind.UNATTRIBUTED]；其余 →
+ * 5. **兜底**：丢失哨兵但堆不接近上限 → [VisualJsFailureKind.UNATTRIBUTED]；其余 →
  *    [VisualJsFailureKind.INVALID_PROGRAM]。
  *
  * **对外枚举不变（批次 22 T2 裁定）**：[VisualExecutionRejection] 不新增 `UNKNOWN`。
@@ -68,6 +75,12 @@ internal enum class VisualJsFailureKind {
 
     /** 沙箱违规（引用不存在的全局）。 */
     SANDBOX_VIOLATION,
+
+    /**
+     * SceneV1 编译器/SDK 类型化错误面（批次 27 T1）：场景非法或 SDK 参数违规，
+     * 按任务书裁定折 [VisualExecutionRejection.INVALID_SCENE]，不进 INVALID_PROGRAM 泛化。
+     */
+    INVALID_SCENE,
 
     /** 消息丢失且没有堆证据：引擎失败但原因不可归属（R3 的 `UNKNOWN`）。 */
     UNATTRIBUTED,
@@ -118,6 +131,7 @@ internal data class VisualJsFailure(
             VisualJsFailureKind.COOPERATIVE_TIMEOUT -> VisualExecutionRejection.PHASE_TIMEOUT
             VisualJsFailureKind.MEMORY_LIMIT -> VisualExecutionRejection.MEMORY_LIMIT
             VisualJsFailureKind.SANDBOX_VIOLATION -> VisualExecutionRejection.SANDBOX_VIOLATION
+            VisualJsFailureKind.INVALID_SCENE -> VisualExecutionRejection.INVALID_SCENE
             VisualJsFailureKind.UNATTRIBUTED -> VisualExecutionRejection.INVALID_PROGRAM
             VisualJsFailureKind.INVALID_PROGRAM -> VisualExecutionRejection.INVALID_PROGRAM
         }
@@ -125,6 +139,16 @@ internal data class VisualJsFailure(
 
 /** 不可归属失败的诊断前缀；跨进程映射与设备断言都只认这个常量值。 */
 internal const val UNATTRIBUTED_DIAGNOSTIC_PREFIX: String = "[UNATTRIBUTED]"
+
+/**
+ * SceneV1 编译器/SDK 类型化错误的识别令牌（批次 27 T1）。`visual-compiler.js` 的
+ * SceneCompileError 与 `visual-sdk.js` 的 SceneSdkError 消息都以 `SCENE_<族>_<码>` 开头
+ * （经 QuickJS Error.toString 变形为 `SceneCompileError: SCENE_…`），故按"含令牌"匹配而非
+ * 严格前缀——错误名在不同 quickjs-kt 形态下的前缀呈现不做假设。码族清单与编译器/SDK
+ * 资产头注一一对应，改码族必须同步本正则。
+ */
+internal val SCENE_ERROR_CODE_PATTERN: Regex =
+    Regex("""\bSCENE_(PARSE|FIELD|NODE|PATH|STYLE|REF|MATRIX|BUDGET|SDK)_[A-Z0-9_]+""")
 
 /**
  * "消息丢失哨兵"判定（R3 §6.2/§6.3）。`null` 消息、Kotlin 对 JS `null` 的 `"null"` 合成，
@@ -159,11 +183,14 @@ internal fun classifyVisualJsFailure(
         error is QuickJsInterruptedException -> VisualJsFailureKind.COOPERATIVE_TIMEOUT
         // 2) 只认引擎生成的 Error 名前缀；程序伪造的 RangeError/裸字符串不命中。
         lowered.startsWith("internalerror: out of memory") -> VisualJsFailureKind.MEMORY_LIMIT
+        // 3) SceneV1 编译器/SDK 类型化错误面（先于 "not defined"：编译器诊断可能含
+        //    "no definition in scene.paths" 字样，不得被沙箱分支截走）。
+        SCENE_ERROR_CODE_PATTERN.containsMatchIn(normalized) -> VisualJsFailureKind.INVALID_SCENE
         lowered.contains("not defined") -> VisualJsFailureKind.SANDBOX_VIOLATION
-        // 3) 消息丢失 + 堆证据；两个条件必须同时成立（throw null 与真 OOM 的唯一分界）。
+        // 4) 消息丢失 + 堆证据；两个条件必须同时成立（throw null 与真 OOM 的唯一分界）。
         lostMessage && heap?.isNearLimit() == true -> VisualJsFailureKind.MEMORY_LIMIT
         lostMessage -> VisualJsFailureKind.UNATTRIBUTED
-        // 4) 已知程序错误（含 string too long / stack overflow / TypeError）。
+        // 5) 已知程序错误（含 string too long / stack overflow / TypeError）。
         else -> VisualJsFailureKind.INVALID_PROGRAM
     }
     // 比值是主证据的分支（丢失哨兵 + 堆接近上限）在设备上尚未校准成功，显式标注；
@@ -193,6 +220,9 @@ internal fun classifyVisualJsFailure(
         VisualJsFailureKind.SANDBOX_VIOLATION ->
             "global is absent in phase $phaseName " +
                 "(the sandbox has no IO/network/host objects): ${normalized.take(120)}"
+
+        VisualJsFailureKind.INVALID_SCENE ->
+            "scene rejected in phase $phaseName: ${normalized.take(160)}"
 
         VisualJsFailureKind.UNATTRIBUTED ->
             "$UNATTRIBUTED_DIAGNOSTIC_PREFIX phase $phaseName failed with a message-less " +

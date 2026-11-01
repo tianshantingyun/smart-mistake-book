@@ -126,6 +126,13 @@ internal object DatabaseContractValidator {
         // validateSourceAsset 里的同一条注记）。白名单保留是为了 `known()` 的取值面完整、
         // 以及将来若把生成图接入草稿写入口时不再漏值。
         StudyDbValue.SourceAssetType.GENERATED_FIGURE,
+        // D-04（批次 38）：视觉快照预览 PNG（`tutor_visual_snapshot.preview_asset_id` 的
+        // 引用目标，canonical 引用面第六类站点）。与 GENERATED_FIGURE 同一写入边界——经
+        // `registerCanonicalSourceAsset`（core:data 的 `TutorVisualPreviewAssetPersister`）
+        // 落库，**不经过本验证器的 `validateSourceAsset`**；白名单取值只为 `known()` 的
+        // 取值面完整。它虽也是内容寻址（sha id/文件名），路径不变量恰好满足，但预览同样
+        // 不走草稿写入口。
+        StudyDbValue.SourceAssetType.LOCAL_VISUAL_PREVIEW,
     )
     fun validateCreateProblemDraft(command: CreateProblemDraftCommand) {
         // A8：空源创建只允许手动建题形态（用户转写）。照片链的创建仍必须带页 0 资产。
