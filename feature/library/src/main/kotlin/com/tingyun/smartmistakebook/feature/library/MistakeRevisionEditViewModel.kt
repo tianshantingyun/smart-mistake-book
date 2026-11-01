@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
+import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionChangeKind
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionDiff
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionReceipt
@@ -23,6 +24,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
+import com.tingyun.smartmistakebook.core.domain.MistakeEditRepository
+import com.tingyun.smartmistakebook.core.domain.MistakeEditRequest
+import com.tingyun.smartmistakebook.core.domain.MistakeEditJob
+import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
+import com.tingyun.smartmistakebook.core.model.EditBasis
+import com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus
+import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint
+import com.tingyun.smartmistakebook.core.model.applyPreparedMistakeEdit
 
 enum class RevisionEditBlockKind {
     STEM,
@@ -69,6 +80,12 @@ data class MistakeRevisionEditUiState(
     val invalidationSummary: String? = null,
     /** True when a tutoring conversation is anchored to the revision being edited. */
     val hasInProgressOldConversation: Boolean = false,
+    val source: MistakeSourceSet = MistakeSourceSet.Missing,
+    val agentJob: MistakeEditJob? = null,
+    val agentBefore: CapturedQuestionDocument? = null,
+    val agentPreview: CapturedQuestionDocument? = null,
+    val adoptedFigureUris: Map<String, String> = emptyMap(),
+    val figureBlockUris: Map<String, String> = emptyMap(),
 )
 
 /**
@@ -79,11 +96,85 @@ data class MistakeRevisionEditUiState(
 class MistakeRevisionEditViewModel(
     private val entryId: String,
     private val repository: MistakeDetailRepository,
+    private val agentEdits: MistakeEditRepository? = null,
+    private val modelEgressAllowed: Boolean = false,
 ) : ViewModel() {
     private val _state = MutableStateFlow(MistakeRevisionEditUiState(entryId = entryId))
     val state: StateFlow<MistakeRevisionEditUiState> = _state.asStateFlow()
 
     private var baselineDocument: CapturedQuestionDocument? = null
+    private var draftTemplate: CapturedQuestionDocument? = null
+    private var problemId: String? = null
+    private var adoptedEditIds = emptySet<String>()
+    private var agentObserver: Job? = null
+
+    fun requestAgentEdit(targetBlockIds: Set<String>, instruction: String, sourceAssetIds: Set<String>, editTitle: Boolean) {
+        val edits = agentEdits ?: return
+        val draft = currentDocument() ?: return
+        val revision = baselineRevisionId ?: return
+        val problem = problemId ?: return
+        viewModelScope.launch {
+            try {
+                val id = edits.requestEdit(MistakeEditRequest(MistakeRevisionKey(entryId, problem, revision), draft,
+                    targetBlockIds, instruction, sourceAssetIds, editTitle), modelEgressAllowed)
+                _state.update { it.copy(agentBefore = draft, agentPreview = null, message = null) }
+                observeAgent(id, draft)
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (failure: Exception) { _state.update { it.copy(message = failure.message ?: "未能发起修改，请检查模型设置") } }
+        }
+    }
+
+    private fun observeAgent(id: String, requestedDraft: CapturedQuestionDocument) {
+        val edits = agentEdits ?: return
+        agentObserver?.cancel()
+        agentObserver = viewModelScope.launch {
+            edits.observe(id).collect { job ->
+                _state.update { it.copy(agentJob = job) }
+                if (job?.status == MistakeEditJobStatus.READY) {
+                    val current = currentDocument() ?: return@collect
+                    val basis = EditBasis(entryId, baselineRevisionId ?: return@collect, CapturedQuestionDocumentFingerprint.of(current))
+                    val ready = edits.readySuggestion(id, basis) ?: return@collect
+                    _state.update { it.copy(agentJob = ready, agentBefore = ready.sourceDraft ?: requestedDraft, agentPreview = ready.preparedDraft) }
+                }
+            }
+        }
+    }
+
+    fun adoptAgentEdit() {
+        val edits = agentEdits ?: return
+        val id = _state.value.agentJob?.operationId ?: return
+        viewModelScope.launch {
+            val current = currentDocument() ?: return@launch
+            val basis = EditBasis(entryId, baselineRevisionId ?: return@launch, CapturedQuestionDocumentFingerprint.of(current))
+            val ready = edits.readySuggestion(id, basis) ?: return@launch
+            if (!edits.markAdopted(id, basis)) return@launch
+            // Recheck after suspension: text typed while validating the result always wins.
+            if (currentDocument()?.let(CapturedQuestionDocumentFingerprint::of) != basis.draftSha256) {
+                _state.update { it.copy(message = "题面已修改，请重新提出修改请求") }; return@launch
+            }
+            val preview = _state.value.agentPreview ?: return@launch
+            draftTemplate = preview
+            adoptedEditIds = adoptedEditIds + id
+            _state.update { it.copy(title = preview.document.title.orEmpty(), blocks = preview.document.blocks.map { block ->
+                block.toDraft().copy(readOnly = preview.storedFigureReferences.any { ref -> ref.blockId == block.id })
+            }, figureBlockUris = it.figureBlockUris + ready.figures.mapNotNull { ref -> ready.figureUris[ref.assetId]?.let { uri -> ref.blockId to uri } }.toMap(),
+                adoptedFigureUris = it.adoptedFigureUris + ready.figureUris, agentPreview = null,
+                message = "已采用修改，请保存题面") }
+            recomputeDiff()
+        }
+    }
+
+    fun cancelAgentEdit() { _state.value.agentJob?.operationId?.let { id -> viewModelScope.launch { agentEdits?.cancel(id) } } }
+
+    fun retryAgentEdit() {
+        val edits = agentEdits ?: return
+        val id = _state.value.agentJob?.operationId ?: return
+        viewModelScope.launch {
+            try { edits.retry(id, modelEgressAllowed) }
+            catch (cancelled: CancellationException) { throw cancelled }
+            catch (failure: Exception) { _state.update { it.copy(message = failure.message ?: "暂时无法重试") } }
+        }
+    }
     private var baselineTitle: String = ""
     private var baselineRevisionId: String? = null
     private var baselineRevisionNumber: Int = 0
@@ -163,6 +254,9 @@ class MistakeRevisionEditViewModel(
             val loadedTitle = loaded.questionDocument.document.title
                 ?.takeIf(String::isNotBlank) ?: detail.identity.title
             baselineDocument = loaded.questionDocument
+            draftTemplate = null
+            adoptedEditIds = emptySet()
+            problemId = detail.identity.problemId
             baselineTitle = loadedTitle
             baselineRevisionId = detail.identity.problemRevisionId
             baselineRevisionNumber = detail.identity.revisionNumber
@@ -173,6 +267,7 @@ class MistakeRevisionEditViewModel(
                     entryId = detail.identity.errorBookEntryId,
                     title = draftTitle,
                     blocks = draftBlocks,
+                    source = detail.source,
                     conflict = null,
                     message = "已重新载入第 ${detail.identity.revisionNumber} 版，请核对差异后再保存。",
                     savedRevisionNumber = null,
@@ -208,6 +303,7 @@ class MistakeRevisionEditViewModel(
                         questionDocument = document,
                         revisedAtEpochMillis = System.currentTimeMillis(),
                         title = current.title.trim().takeIf(String::isNotEmpty),
+                        adoptedEditOperationIds = adoptedEditIds,
                     ),
                 )
             } catch (failure: Exception) {
@@ -223,6 +319,8 @@ class MistakeRevisionEditViewModel(
                 is ReviseMistakeProblemResult.Saved -> {
                     val receipt = result.receipt
                     baselineDocument = document
+                    draftTemplate = null
+                    adoptedEditIds = emptySet()
                     baselineTitle = receipt.title
                     baselineRevisionId = receipt.problemRevisionId
                     baselineRevisionNumber = receipt.revisionNumber
@@ -279,7 +377,7 @@ class MistakeRevisionEditViewModel(
                     _state.update {
                         it.copy(
                             saving = false,
-                            message = "这次保存与之前使用的命令不一致，未写入任何内容。请重新保存。",
+                            message = "保存信息已变化，本次未保存。请重新保存。",
                         )
                     }
                 }
@@ -305,7 +403,7 @@ class MistakeRevisionEditViewModel(
                     _state.update {
                         it.copy(
                             saving = false,
-                            message = "当前版本不支持修改题面，未写入任何内容。",
+                            message = "当前版本暂不支持修改题面，本次未保存。",
                         )
                     }
                 }
@@ -331,6 +429,9 @@ class MistakeRevisionEditViewModel(
             val initialTitle = document.document.title?.takeIf(String::isNotBlank)
                 ?: detail.identity.title
             baselineDocument = document
+            draftTemplate = null
+            adoptedEditIds = emptySet()
+            problemId = detail.identity.problemId
             baselineTitle = initialTitle
             baselineRevisionId = detail.identity.problemRevisionId
             baselineRevisionNumber = detail.identity.revisionNumber
@@ -341,7 +442,17 @@ class MistakeRevisionEditViewModel(
                     unavailableReason = null,
                     entryId = detail.identity.errorBookEntryId,
                     title = initialTitle,
-                    blocks = document.document.blocks.map { block -> block.toDraft() },
+                    blocks = document.document.blocks.map { block -> block.toDraft().copy(readOnly = document.storedFigureReferences.any { ref -> ref.blockId == block.id }) },
+                    source = detail.source,
+                    agentJob = null,
+                    agentPreview = null,
+                    agentBefore = null,
+                    adoptedFigureUris = emptyMap(),
+                    figureBlockUris = document.storedFigureReferences.mapNotNull { ref ->
+                        (detail.source as? MistakeSourceSet.Present)?.assets?.singleOrNull { it.sourceAssetId == ref.assetId && it.contentSha256 == ref.contentSha256 }
+                            ?.location?.let { (it as? com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation.Available)?.localUri }
+                            ?.let { uri -> ref.blockId to uri }
+                    }.toMap(),
                     message = null,
                     conflict = null,
                     savedRevisionNumber = null,
@@ -353,12 +464,20 @@ class MistakeRevisionEditViewModel(
                 )
             }
             recomputeDiff()
+            currentDocument()?.let { recoverAgentEdit(it) }
         }
     }
 
     private suspend fun readReadyState(): MistakeDetailState.Ready? {
         val state = repository.observe(entryId).first { it != MistakeDetailState.Loading }
         return state as? MistakeDetailState.Ready
+    }
+
+    private suspend fun recoverAgentEdit(document: CapturedQuestionDocument) {
+        val basis = EditBasis(entryId, baselineRevisionId ?: return, CapturedQuestionDocumentFingerprint.of(document))
+        val latest = agentEdits?.latestForBasis(basis) ?: return
+        _state.update { it.copy(agentBefore = document) }
+        observeAgent(latest.operationId, document)
     }
 
     private fun updateBlock(
@@ -407,7 +526,7 @@ class MistakeRevisionEditViewModel(
     }
 
     private fun currentDocument(): CapturedQuestionDocument? {
-        val baseline = baselineDocument ?: return null
+        val baseline = draftTemplate ?: baselineDocument ?: return null
         val current = _state.value
         val originalById = baseline.document.blocks.associateBy(ContentBlock::id)
         val blocks = current.blocks.mapNotNull { draft ->
@@ -479,8 +598,10 @@ class MistakeRevisionEditViewModel(
         fun factory(
             entryId: String,
             repository: MistakeDetailRepository,
+            agentEdits: MistakeEditRepository? = null,
+            modelEgressAllowed: Boolean = false,
         ): ViewModelProvider.Factory = viewModelFactory {
-            initializer { MistakeRevisionEditViewModel(entryId, repository) }
+            initializer { MistakeRevisionEditViewModel(entryId, repository, agentEdits, modelEgressAllowed) }
         }
     }
 }

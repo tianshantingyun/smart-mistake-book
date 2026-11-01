@@ -70,7 +70,7 @@ internal object DocxMistakeRenderer {
         // WG-07：解析区角色的图块不进题目区（与 PDF 计划器同一过滤；资格层也不会产出这种块）。
         val blocks = orderedBlocks(input.blocks, input.layout)
             .filterNot { block ->
-                block is MistakePdfBlock.Image && block.role == VisualRole.TUTOR_EXPLANATION.name
+                input.artifactRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.QUESTIONS && block is MistakePdfBlock.Image && block.role == VisualRole.TUTOR_EXPLANATION.name
             }
         val images = embeddedImages(input, blocks)
         val documentXml = documentXml(input, blocks, images)

@@ -8,6 +8,8 @@ import androidx.room3.OnConflictStrategy
 import androidx.room3.Query
 import androidx.room3.Transaction
 import androidx.room3.Upsert
+import androidx.room3.RawQuery
+import androidx.room3.RoomRawQuery
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeNodeEntity
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeNodeSourceBindingEntity
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeSearchFeatureEntity
@@ -33,6 +35,17 @@ internal data class KnowledgeRecallCandidateRow(
     val matchCount: Int,
 )
 
+internal data class KnowledgeCatalogRow(
+    @Embedded val node: KnowledgeNodeEntity,
+    val matchCount: Int,
+    val sortName: String,
+    val matchedSnippet: String,
+)
+
+internal data class KnowledgeCatalogPhraseRow(
+    val name: String, val displayName: String, val aliases: String,
+)
+
 /**
  * 3E 全库扫描行：活跃知识点 → 在册绑定题（CHAR(31) 连接）+ 可出题材料组。
  *
@@ -50,6 +63,28 @@ internal data class FullLibraryScanRow(
 
 @Dao
 internal interface ProblemOrganizationDao {
+    @RawQuery
+    suspend fun readKnowledgeCatalogPage(query: RoomRawQuery): List<KnowledgeCatalogRow>
+
+    @Query("""
+        SELECT canonical_name AS name, display_name AS displayName, aliases_text AS aliases
+        FROM knowledge_node
+        WHERE verification_status IN ('CURATED', 'SOURCE_GROUNDED', 'USER_CONFIRMED')
+          AND status = 'ACTIVE' AND TRIM(taxonomy_version) != ''
+        ORDER BY knowledge_node_id
+    """)
+    suspend fun readKnowledgeCatalogPhrases(): List<KnowledgeCatalogPhraseRow>
+
+    // All five tables affect eligibility, displayed content, or the parent path.
+    @Query("""
+        SELECT (SELECT COUNT(*) FROM knowledge_node)
+             + (SELECT COUNT(*) FROM knowledge_teaching_material)
+             + (SELECT COUNT(*) FROM knowledge_teaching_material_node_binding)
+             + (SELECT COUNT(*) FROM knowledge_source)
+             + (SELECT COUNT(*) FROM content_install_state)
+    """)
+    fun observeKnowledgeCatalogChanges(): Flow<Long>
+
     @Query(
         """
         SELECT
@@ -75,6 +110,9 @@ internal interface ProblemOrganizationDao {
         """,
     )
     fun observeReviewedKnowledgeCoverage(): Flow<List<ReviewedKnowledgeCoverageRow>>
+
+    @Query("SELECT COUNT(*) FROM error_book_entry WHERE problem_id = :problemId AND current_revision_id = :revisionId AND status = 'ACTIVE'")
+    suspend fun currentCatalogTargetCount(problemId: String, revisionId: String): Int
 
     @Query(
         """

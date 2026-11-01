@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.feature.review
 
 import androidx.compose.foundation.background
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -15,10 +16,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.role
@@ -31,6 +35,8 @@ import androidx.compose.ui.unit.sp
 import com.tingyun.smartmistakebook.core.model.TutorChoice
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
 import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.ClaudeMotion
+import com.tingyun.smartmistakebook.core.ui.LocalClaudeMotionEnabled
 
 /**
  * 复习选择题的选项行——错题复习与知识点复习共用（spec dual-review-entry §3.3）。
@@ -49,17 +55,28 @@ internal fun ReviewChoiceRow(
     onSelect: (String) -> Unit,
     testTag: String = "review_choice_${choice.id}",
 ) {
+    val badgeStyle = MaterialTheme.typography.labelLarge
+    val badgeSize = with(LocalDensity.current) { badgeStyle.lineHeight.toDp() + 8.dp }.coerceAtLeast(30.dp)
     val isSelected = selectedChoice == choice.id
     val isSubmitted = submittedChoice != null
     val isSubmittedSelection = submittedChoice == choice.id
-    val outlineColor = when {
+    val outlineColor = choiceColor(when {
         isSubmittedSelection && isCorrect -> SmartColors.Jade
         isSubmittedSelection -> SmartColors.ErrorWarm
         isSelected -> SmartColors.Jade
-        else -> SmartColors.Outline
+        else -> SmartColors.Divider
+    }, "review-choice-outline")
+    val backgroundColor = choiceColor(when {
+        isSubmittedSelection && !isCorrect -> SmartColors.ErrorWarm.copy(alpha = .08f)
+        isSelected -> SmartColors.JadeSoft
+        else -> SmartColors.SubtleSurface
+    }, "review-choice-fill")
+    val badgeColor = when {
+        isSubmittedSelection && !isCorrect -> SmartColors.ErrorText
+        isSelected -> SmartColors.Jade
+        else -> SmartColors.ContentSurface
     }
-    val backgroundColor = if (isSelected) SmartColors.JadeSoft else SmartColors.Paper
-    val shape = RoundedCornerShape(8.dp)
+    val shape = RoundedCornerShape(16.dp)
     val stateLabel = when {
         isSubmittedSelection && isCorrect -> "已提交，回答正确"
         isSubmittedSelection -> "已提交，需要修正"
@@ -75,7 +92,7 @@ internal fun ReviewChoiceRow(
             .fillMaxWidth()
             .clip(shape)
             .background(backgroundColor)
-            .border(1.dp, outlineColor, shape)
+            .border(if (isSelected) 2.dp else 1.dp, outlineColor, shape)
             .clickable(
                 enabled = enabled && !isSubmitted,
                 role = Role.RadioButton,
@@ -92,15 +109,17 @@ internal fun ReviewChoiceRow(
     ) {
         Box(
             modifier = Modifier
-                .size(30.dp)
+                .size(badgeSize)
                 .clip(CircleShape)
+                .background(badgeColor)
                 .border(1.dp, outlineColor, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = choice.id,
-                color = SmartColors.Ink,
+                color = if (isSelected || isSubmittedSelection && !isCorrect) SmartColors.OnJade else SmartColors.Ink,
                 fontWeight = FontWeight.SemiBold,
+                style = badgeStyle,
             )
         }
         Spacer(Modifier.width(12.dp))
@@ -111,4 +130,11 @@ internal fun ReviewChoiceRow(
             style = MaterialTheme.typography.bodyLarge.copy(lineHeight = 25.sp),
         )
     }
+}
+
+@Composable
+private fun choiceColor(target: Color, label: String): Color {
+    if (!LocalClaudeMotionEnabled.current) return target
+    val color by animateColorAsState(target, ClaudeMotion.spec(true), label = label)
+    return color
 }

@@ -1,13 +1,10 @@
 package com.tingyun.smartmistakebook.feature.capture
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material3.Icon
@@ -24,8 +21,6 @@ import com.tingyun.smartmistakebook.core.model.WritingLayer
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
-import com.tingyun.smartmistakebook.core.ui.JadeSoft
-import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.StructuredContentRenderer
 
 @Composable
@@ -40,12 +35,9 @@ internal fun CaptureDocumentPreviewCard(
         .sortedBy { it.key.ordinal }
         .joinToString(" · ") { (layer, count) -> "${layer.label()} $count" }
 
-    Column(
+    CapturePanel(
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, Outline, RoundedCornerShape(8.dp))
-            .background(JadeSoft.copy(alpha = 0.24f), RoundedCornerShape(8.dp))
-            .padding(14.dp)
             .testTag("capture_document_preview"),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {

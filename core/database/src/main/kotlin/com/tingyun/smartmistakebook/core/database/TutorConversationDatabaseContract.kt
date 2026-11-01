@@ -182,6 +182,9 @@ data class TutorMessageSourceAssetRecord(
     val messageId: String,
     val sourceAssetId: String,
     val ordinal: Int,
+    /** Null preserves unknown metadata on pre-migration attachments. */
+    val role: String? = null,
+    val basisRevisionId: String? = null,
 )
 
 data class AppendTutorAssistantMessageDatabaseCommand(

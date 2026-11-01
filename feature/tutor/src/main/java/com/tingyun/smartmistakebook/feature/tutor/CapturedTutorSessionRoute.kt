@@ -1,6 +1,10 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
-import androidx.compose.foundation.BorderStroke
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.SubtleSurface
+import com.tingyun.smartmistakebook.core.ui.Paper
+
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,12 +23,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.LibraryAddCheck
 import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material3.AlertDialog
+import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -46,8 +50,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
+import com.tingyun.smartmistakebook.core.ui.LocalImageViewer
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestRepository
@@ -98,15 +101,11 @@ import com.tingyun.smartmistakebook.core.model.AppFailureCode
 import com.tingyun.smartmistakebook.core.model.isModelEgressApprovalFresh
 import com.tingyun.smartmistakebook.core.model.requiresModelSettings
 import com.tingyun.smartmistakebook.core.ui.BoundedLocalImage
-import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
-import com.tingyun.smartmistakebook.core.ui.JadeSoft
-import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.LocalImageLoadState
 import com.tingyun.smartmistakebook.core.ui.LocalModeLine
-import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
@@ -226,7 +225,7 @@ fun CapturedTutorSessionRoute(
                     },
                     modifier = Modifier.testTag("captured_tutor_end_confirm"),
                 ) {
-                    Text("结束且不保存", color = ErrorWarm)
+                    Text("结束且不保存", color = ErrorText)
                 }
             },
             dismissButton = {
@@ -237,7 +236,7 @@ fun CapturedTutorSessionRoute(
                     Text("继续讲题", color = JadeActive)
                 }
             },
-            containerColor = com.tingyun.smartmistakebook.core.ui.Paper,
+            containerColor = Paper,
         )
     }
 }
@@ -318,7 +317,7 @@ private fun CapturedTutorSessionContent(
                         onBack = onBack,
                     )
                 },
-                composerPlaceholder = "这道题还没有打开",
+                composerPlaceholder = "尚未打开题目",
                 liveAnswerTestTag = "captured_tutor_non_ready_reply",
             ),
             composer = {
@@ -330,7 +329,7 @@ private fun CapturedTutorSessionContent(
                         providerReady = true,
                         questionNotReady = true,
                     ).block(),
-                    placeholder = "这道题还没有打开",
+                    placeholder = "尚未打开题目",
                     reasonTestTag = "captured_tutor_non_ready_reason",
                 )
             },
@@ -510,68 +509,72 @@ internal fun ReadyCapturedSession(
                     onBack = onBack,
                 )
             },
-            composerPlaceholder = "问这道题，或说出你卡住的步骤",
+            composerPlaceholder = "输入问题或需要讲解的步骤",
             autoStartFirstTurn = true,
             // A4 执行路径 ① 的锚：这条交互面锚着**本次拍照**——模型申请"加入错题本"时那张卡
             // 执行的就是"把这次拍照的草稿存进错题本"（生产里唯一给得出这个 id 的入口）。
             captureSessionId = session.sessionId,
             leadingContent = {
-                LocalModeLine(text = tutorSessionStatusLine(session))
-                SectionHeader(
-                    title = session.title,
-                    modifier = Modifier.padding(top = 10.dp),
-                    action = if (session.disposition == TutorSessionDisposition.ENDED_WITHOUT_SAVE) {
-                        null
-                    } else {
-                        {
-                            OutlineActionChip(
-                                text = if (longTermWritesBlocked) {
-                                    "本次不记录"
-                                } else {
-                                    tutorSessionSaveLabel(
-                                        session.isSaved,
-                                        saveInProgress,
-                                        saveError != null,
+                WorkspacePanel {
+                    Column {
+                        LocalModeLine(text = tutorSessionStatusLine(session))
+                        SectionHeader(
+                            title = session.title,
+                            modifier = Modifier.padding(top = 10.dp),
+                            action = if (session.disposition == TutorSessionDisposition.ENDED_WITHOUT_SAVE) {
+                                null
+                            } else {
+                                {
+                                    OutlineActionChip(
+                                        text = if (longTermWritesBlocked) {
+                                            "本次不记录"
+                                        } else {
+                                            tutorSessionSaveLabel(
+                                                session.isSaved,
+                                                saveInProgress,
+                                                saveError != null,
+                                            )
+                                        },
+                                        onClick = { onSave(session) },
+                                        enabled = session.disposition == TutorSessionDisposition.ACTIVE &&
+                                            !saveInProgress && !endInProgress && !longTermWritesBlocked,
+                                        icon = Icons.Outlined.LibraryAddCheck,
+                                        contentDescription = when {
+                                            longTermWritesBlocked -> "本次不会存入错题本"
+                                            session.isSaved -> "本题已存入错题本"
+                                            else -> "将本题存入错题本"
+                                        },
+                                        modifier = Modifier.testTag("captured_tutor_save"),
                                     )
-                                },
-                                onClick = { onSave(session) },
-                                enabled = session.disposition == TutorSessionDisposition.ACTIVE &&
-                                    !saveInProgress && !endInProgress && !longTermWritesBlocked,
-                                icon = Icons.Outlined.LibraryAddCheck,
-                                contentDescription = when {
-                                    longTermWritesBlocked -> "本次不会存入错题本"
-                                    session.isSaved -> "本题已存入错题本"
-                                    else -> "将本题存入错题本"
-                                },
-                                modifier = Modifier.testTag("captured_tutor_save"),
-                            )
-                        }
-                    },
-                )
-                Text(
-                    text = session.subject.studentSubjectLabel(),
-                    modifier = Modifier.padding(top = 4.dp),
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                Spacer(Modifier.height(14.dp))
-                StructuredContentRenderer(
-                    document = session.questionDocument.document,
-                    choicesEnabled = false,
-                )
-                InlineSourceImage(
-                    imageUri = session.sourceImageUri,
-                    onClick = { sourceExpanded = true },
-                    modifier = Modifier.padding(top = 14.dp),
-                )
-                if (session.isEndedWithoutSave) EndedTutorSessionNotice()
+                                }
+                            },
+                        )
+                        Text(
+                            text = session.subject.studentSubjectLabel(),
+                            modifier = Modifier.padding(top = 4.dp),
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Spacer(Modifier.height(14.dp))
+                        StructuredContentRenderer(
+                            document = session.questionDocument.document,
+                            choicesEnabled = false,
+                        )
+                        InlineSourceImage(
+                            imageUri = session.sourceImageUri,
+                            onClick = { sourceExpanded = true },
+                            modifier = Modifier.padding(top = 14.dp),
+                        )
+                        if (session.isEndedWithoutSave) EndedTutorSessionNotice()
+                    }
+                }
             },
             trailingContent = {
                 saveError?.let { message ->
                     Text(
                         text = message.message,
                         modifier = Modifier.testTag("captured_tutor_save_error"),
-                        color = ErrorWarm,
+                        color = ErrorText,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -595,7 +598,7 @@ internal fun ReadyCapturedSession(
                     Text(
                         text = message.message,
                         modifier = Modifier.testTag("captured_tutor_end_error"),
-                        color = ErrorWarm,
+                        color = ErrorText,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -628,14 +631,14 @@ private fun InlineSourceImage(
             onLoadStateChange = { loadState = it },
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(16.dp))
                 .clickable(onClick = onClick)
                 .testTag("captured_tutor_source_image"),
         )
         if (loadState == LocalImageLoadState.UNAVAILABLE) {
             Text(
                 text = "原图暂时打不开",
-                color = InkMuted,
+                color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -647,34 +650,7 @@ private fun SourceImageFullscreenDialog(
     imageUri: String,
     onDismiss: () -> Unit,
 ) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        var loadState by remember { mutableStateOf(LocalImageLoadState.LOADING) }
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clickable(onClick = onDismiss),
-        ) {
-            BoundedLocalImage(
-                imageUri = imageUri,
-                contentDescription = "拍题原图",
-                expanded = true,
-                onLoadStateChange = { loadState = it },
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .testTag("captured_tutor_source_image_full"),
-            )
-            if (loadState == LocalImageLoadState.UNAVAILABLE) {
-                Text(
-                    text = "原图暂时打不开",
-                    color = Color.White,
-                    modifier = Modifier.align(Alignment.Center),
-                )
-            }
-        }
-    }
+    LocalImageViewer(imageUri, "拍题原图", onDismiss = onDismiss)
 }
 
 @Composable
@@ -683,12 +659,11 @@ private fun EndedTutorSessionNotice() {
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 18.dp),
-        color = JadeSoft.copy(alpha = 0.45f),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Outline),
+        color = SubtleSurface,
+        shape = RoundedCornerShape(16.dp),
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Text(

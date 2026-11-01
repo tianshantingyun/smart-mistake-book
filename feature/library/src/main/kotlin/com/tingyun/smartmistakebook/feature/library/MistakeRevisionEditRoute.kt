@@ -1,5 +1,10 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+
+import androidx.compose.foundation.layout.heightIn
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -13,16 +18,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material3.AlertDialog
+import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,7 +48,8 @@ import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
-import com.tingyun.smartmistakebook.core.ui.RootPageColumn
+import com.tingyun.smartmistakebook.core.ui.ReferenceEditorPage
+import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 
 /**
@@ -58,13 +64,22 @@ fun MistakeRevisionEditRoute(
     onBack: () -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
+    agentEdits: com.tingyun.smartmistakebook.core.domain.MistakeEditRepository? = null,
+    modelEgressAllowed: Boolean = false,
+    onOpenModelSettings: (() -> Unit)? = null,
 ) {
     val viewModel: MistakeRevisionEditViewModel = viewModel(
         key = "mistake-revision-edit:$entryId",
-        factory = MistakeRevisionEditViewModel.factory(entryId, repository),
+        factory = MistakeRevisionEditViewModel.factory(entryId, repository, agentEdits, modelEgressAllowed),
     )
     val state by viewModel.state.collectAsStateWithLifecycle()
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
+    var agentSheetOpen by rememberSaveable { mutableStateOf(false) }
+    if (agentSheetOpen) MistakeAgentEditSheet(state, { agentSheetOpen = false }, viewModel::requestAgentEdit,
+        viewModel::adoptAgentEdit, viewModel::cancelAgentEdit, viewModel::retryAgentEdit, onOpenModelSettings)
+    LaunchedEffect(state.agentJob?.status) {
+        if (state.agentJob?.status == com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.ADOPTED) agentSheetOpen = false
+    }
     LaunchedEffect(Unit) { viewModel.onEditorOpened() }
 
     fun leave() {
@@ -72,33 +87,26 @@ fun MistakeRevisionEditRoute(
     }
     BackHandler { leave() }
 
-    RootPageColumn(
+    ReferenceEditorPage(
         modifier = modifier.testTag("mistake_revision_edit_screen"),
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(58.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(
-                onClick = { leave() },
-                modifier = Modifier
-                    .size(48.dp)
-                    .testTag("mistake_revision_edit_back"),
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = "返回详情",
-                    tint = Ink,
+        imageUris = if (state.loading || state.unavailableReason != null) emptyList() else
+            state.source.detailAssets().question.mapNotNull { (it.location as? MistakeSourceLocation.Available)?.localUri },
+        actions = if (state.loading || state.unavailableReason != null) null else ({
+            if (state.savedRevisionNumber != null && !state.dirty) {
+                OutlinedButton(onDone, Modifier.fillMaxWidth().testTag("mistake_revision_edit_done")) { Text("完成，返回详情") }
+            } else {
+                PrimaryActionButton(
+                    text = if (state.saving) "保存中…" else "保存修改",
+                    onClick = viewModel::save,
+                    enabled = !state.saving && state.dirty && state.conflict == null,
+                    modifier = Modifier.fillMaxWidth().testTag("mistake_revision_edit_save"),
+                    contentDescription = "保存为新的题面版本",
                 )
             }
-            Text(
-                text = "修改这道题",
-                color = Ink,
-                style = MaterialTheme.typography.headlineSmall,
-            )
-        }
+        }),
+    ) {
+        ClaudePageHeader("修改这道题", onBack = { leave() },
+            backModifier = Modifier.testTag("mistake_revision_edit_back"), backLabel = "返回详情")
         Spacer(Modifier.height(8.dp))
         state.unavailableReason?.let { reason ->
             Text(
@@ -107,7 +115,7 @@ fun MistakeRevisionEditRoute(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.testTag("mistake_revision_edit_unavailable"),
             )
-            return@RootPageColumn
+            return@ReferenceEditorPage
         }
         if (state.loading) {
             Column(
@@ -121,130 +129,148 @@ fun MistakeRevisionEditRoute(
                 Spacer(Modifier.height(10.dp))
                 Text("正在读取当前题面…", color = InkSecondary)
             }
-            return@RootPageColumn
+            return@ReferenceEditorPage
         }
 
         if (state.hasInProgressOldConversation) {
             RevisionNotice(
-                text = "这道题有一轮绑定当前版本的讲解。保存后，旧讲解与草稿会保留在旧版本里，" +
+                text = "这道题已有讲解。保存修改后，原讲解和草稿会留在旧版，" +
                     "不会带入新版本；新版讲解需要重新开始。",
                 tag = "mistake_revision_edit_old_session_notice",
             )
             Spacer(Modifier.height(10.dp))
         }
 
-        OutlinedTextField(
-            value = state.title,
-            onValueChange = viewModel::onTitleChanged,
-            label = { Text("标题") },
-            singleLine = true,
-            enabled = !state.saving,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("mistake_revision_edit_title"),
-        )
-
-        state.blocks.forEachIndexed { index, block ->
+        if (agentEdits != null) {
+            com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton({ agentSheetOpen = true }, Modifier.fillMaxWidth(), enabled = !state.saving) {
+                Text(if (state.agentJob?.status in setOf(com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.QUEUED,
+                    com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.REQUESTING,
+                    com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.GENERATING_FIGURES)) "查看智能体修改进度" else "让智能体修改文字或配图",
+                    color = com.tingyun.smartmistakebook.core.ui.SmartColors.LearningAccent)
+            }
             Spacer(Modifier.height(14.dp))
-            when (block.kind) {
-                RevisionEditBlockKind.STEM -> OutlinedTextField(
-                    value = block.text,
-                    onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
-                    label = { Text("题干") },
-                    minLines = 3,
-                    maxLines = 12,
+        }
+        MistakeSectionCard("题目内容", headerColor = com.tingyun.smartmistakebook.core.ui.SmartColors.ReadingSurface) {
+            Column {
+                OutlinedTextField(
+                    value = state.title,
+                    onValueChange = viewModel::onTitleChanged,
+                    label = { Text("标题") },
+                    singleLine = true,
                     enabled = !state.saving,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .testTag("mistake_revision_edit_block_$index"),
+                        .testTag("mistake_revision_edit_title"),
                 )
-                RevisionEditBlockKind.FORMULA -> {
-                    OutlinedTextField(
-                        value = block.text,
-                        onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
-                        label = { Text("公式 LaTeX") },
-                        enabled = !state.saving,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("mistake_revision_edit_formula_$index"),
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = block.secondaryText,
-                        onValueChange = { viewModel.onBlockSecondaryChanged(block.id, it) },
-                        label = { Text("公式的文字说明") },
-                        enabled = !state.saving,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("mistake_revision_edit_formula_alt_$index"),
-                    )
-                }
-                RevisionEditBlockKind.CHOICE -> {
-                    OutlinedTextField(
-                        value = block.text,
-                        onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
-                        label = { Text("选项题干") },
-                        minLines = 2,
-                        enabled = !state.saving,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("mistake_revision_edit_choices_prompt_$index"),
-                    )
-                    block.choices.forEachIndexed { choiceIndex, choice ->
-                        Spacer(Modifier.height(8.dp))
-                        OutlinedTextField(
-                            value = choice.markdown,
-                            onValueChange = {
-                                viewModel.onChoiceChanged(block.id, choiceIndex, it)
-                            },
-                            label = { Text("选项 ${choiceLabel(choiceIndex)}") },
+
+                state.blocks.forEachIndexed { index, block ->
+                    if (index == 0) Spacer(Modifier.height(14.dp))
+                    else com.tingyun.smartmistakebook.core.ui.PaperDivider(Modifier.padding(vertical = 16.dp))
+                    if (block.readOnly && block.kind != RevisionEditBlockKind.UNKNOWN) {
+                        state.figureBlockUris[block.id]?.let { uri ->
+                            com.tingyun.smartmistakebook.core.ui.BoundedLocalImage(uri, "题目配图", expanded = true, modifier = Modifier.fillMaxWidth())
+                        } ?: Text("这张配图暂时无法读取", color = InkSecondary)
+                        if (agentEdits != null) com.tingyun.smartmistakebook.core.ui.ClaudeTextButton({ agentSheetOpen = true }) { Text("让智能体修改配图") }
+                    } else when (block.kind) {
+                        RevisionEditBlockKind.STEM -> OutlinedTextField(
+                            value = block.text,
+                            onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
+                            label = { Text("题干") },
+                            minLines = 3,
+                            maxLines = 12,
                             enabled = !state.saving,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .testTag(
-                                    "mistake_revision_edit_choice_${block.id}_$choiceIndex",
-                                ),
+                                .testTag("mistake_revision_edit_block_$index"),
+                        )
+                        RevisionEditBlockKind.FORMULA -> {
+                            OutlinedTextField(
+                                value = block.text,
+                                onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
+                                label = { Text("公式 LaTeX") },
+                                enabled = !state.saving,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("mistake_revision_edit_formula_$index"),
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = block.secondaryText,
+                                onValueChange = { viewModel.onBlockSecondaryChanged(block.id, it) },
+                                label = { Text("公式的文字说明") },
+                                enabled = !state.saving,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("mistake_revision_edit_formula_alt_$index"),
+                            )
+                        }
+                        RevisionEditBlockKind.CHOICE -> {
+                            OutlinedTextField(
+                                value = block.text,
+                                onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
+                                label = { Text("选项题干") },
+                                minLines = 2,
+                                enabled = !state.saving,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("mistake_revision_edit_choices_prompt_$index"),
+                            )
+                            block.choices.forEachIndexed { choiceIndex, choice ->
+                                Spacer(Modifier.height(8.dp))
+                                OutlinedTextField(
+                                    value = choice.markdown,
+                                    onValueChange = {
+                                        viewModel.onChoiceChanged(block.id, choiceIndex, it)
+                                    },
+                                    label = { Text("选项 ${choiceLabel(choiceIndex)}") },
+                                    enabled = !state.saving,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .testTag(
+                                            "mistake_revision_edit_choice_${block.id}_$choiceIndex",
+                                        ),
+                                )
+                            }
+                        }
+                        RevisionEditBlockKind.FIGURE -> {
+                            OutlinedTextField(
+                                value = block.secondaryText,
+                                onValueChange = { viewModel.onBlockSecondaryChanged(block.id, it) },
+                                label = { Text("图形标题") },
+                                enabled = !state.saving,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("mistake_revision_edit_figure_title_$index"),
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = block.text,
+                                onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
+                                label = { Text("图形的文字含义") },
+                                minLines = 2,
+                                enabled = !state.saving,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("mistake_revision_edit_figure_alt_$index"),
+                            )
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = "可在此修改文字说明。需要调整图形时，请使用智能体修改。",
+                                color = InkSecondary,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.testTag("mistake_revision_edit_figure_notice_$index"),
+                            )
+                        }
+                        RevisionEditBlockKind.UNKNOWN -> Text(
+                            text = "暂不支持编辑的内容会保留原样。",
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
                         )
                     }
                 }
-                RevisionEditBlockKind.FIGURE -> {
-                    OutlinedTextField(
-                        value = block.secondaryText,
-                        onValueChange = { viewModel.onBlockSecondaryChanged(block.id, it) },
-                        label = { Text("图形标题") },
-                        enabled = !state.saving,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("mistake_revision_edit_figure_title_$index"),
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = block.text,
-                        onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
-                        label = { Text("图形的文字含义") },
-                        minLines = 2,
-                        enabled = !state.saving,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("mistake_revision_edit_figure_alt_$index"),
-                    )
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        text = "图形本身不在这里重画。需要新图时走统一生图（本批未接）；" +
-                            "旧版图形与解析保留在旧版本，不会被新版覆盖。",
-                        color = InkSecondary,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.testTag("mistake_revision_edit_figure_notice_$index"),
-                    )
-                }
-                RevisionEditBlockKind.UNKNOWN -> Text(
-                    text = "未识别的内容块保持原样，不在这里修改。",
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                )
+
             }
         }
-
         Spacer(Modifier.height(18.dp))
         SectionHeader("将保存的修改")
         Spacer(Modifier.height(8.dp))
@@ -252,9 +278,10 @@ fun MistakeRevisionEditRoute(
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag("mistake_revision_edit_diff"),
-            shape = RoundedCornerShape(10.dp),
-            color = JadeSoft.copy(alpha = 0.35f),
-            border = BorderStroke(1.dp, Outline),
+            shape = RoundedCornerShape(16.dp),
+            color = com.tingyun.smartmistakebook.core.ui.SmartColors.SubtleSurface,
+            border = androidx.compose.foundation.BorderStroke(1.dp, com.tingyun.smartmistakebook.core.ui.SmartColors.Divider),
+            shadowElevation = 0.dp,
         ) {
             Column(
                 modifier = Modifier.padding(14.dp),
@@ -265,29 +292,14 @@ fun MistakeRevisionEditRoute(
                         text = if (state.savedRevisionNumber != null) {
                             "已保存为第 ${state.savedRevisionNumber} 版。"
                         } else {
-                            "还没有修改。"
+                            "暂无修改。"
                         },
                         color = InkSecondary,
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 } else {
                     state.diff.forEach { row ->
-                        Text(
-                            text = row.label,
-                            color = Ink,
-                            fontWeight = FontWeight.SemiBold,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                        Text(
-                            text = "修改前：${row.before?.takeIf(String::isNotBlank) ?: "（无）"}",
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                        Text(
-                            text = "修改后：${row.after?.takeIf(String::isNotBlank) ?: "（无）"}",
-                            color = Ink,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
+                        com.tingyun.smartmistakebook.core.ui.ClaudeRevisionDiff(row.label, row.before, row.after)
                     }
                 }
             }
@@ -299,7 +311,7 @@ fun MistakeRevisionEditRoute(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("mistake_revision_edit_conflict"),
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(20.dp),
                 color = MaterialTheme.colorScheme.errorContainer,
             ) {
                 Column(Modifier.padding(14.dp)) {
@@ -338,34 +350,14 @@ fun MistakeRevisionEditRoute(
             )
         }
 
-        Spacer(Modifier.height(16.dp))
-        PrimaryActionButton(
-            text = if (state.saving) "保存中…" else "保存修改",
-            onClick = viewModel::save,
-            enabled = !state.saving && state.dirty && state.conflict == null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("mistake_revision_edit_save"),
-            contentDescription = "保存为新的题面版本",
-        )
-        if (state.savedRevisionNumber != null) {
-            Spacer(Modifier.height(8.dp))
-            OutlinedButton(
-                onClick = onDone,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("mistake_revision_edit_done"),
-            ) {
-                Text("完成，返回详情")
-            }
-        }
         Spacer(Modifier.height(24.dp))
     }
 
     if (confirmDiscard) {
         AlertDialog(
             onDismissRequest = { confirmDiscard = false },
-            title = { Text("放弃还没保存的修改？") },
+            dangerConfirm = true,
+            title = { Text("放弃未保存的修改？") },
             text = { Text("这道题的已保存版本不会受影响；只有这次尚未保存的修改会丢失。") },
             confirmButton = {
                 TextButton(
@@ -389,9 +381,9 @@ private fun RevisionNotice(text: String, tag: String) {
         modifier = Modifier
             .fillMaxWidth()
             .testTag(tag),
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(20.dp),
         color = JadeSoft.copy(alpha = 0.45f),
-        border = BorderStroke(1.dp, Outline),
+        shadowElevation = 1.dp,
     ) {
         Text(
             text = text,

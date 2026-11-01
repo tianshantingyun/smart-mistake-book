@@ -5,7 +5,9 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.assertTextEquals
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.domain.MistakeDetail
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailIdentity
@@ -66,6 +68,35 @@ class MistakeNoteAndArchiveInstrumentedTest {
         composeRule.onNodeWithText("移出").performClick()
         composeRule.waitForIdle()
         assertTrue(repository.archivedCallCount > 0)
+    }
+
+    @Test
+    fun savedNoteUpdatesTheBodyAndTheNextEditorWithoutLeavingThePage() {
+        val repository = FakeMistakeDetailRepository()
+        val state = readyState(archived = false).let {
+            it.copy(detail = it.detail.copy(userNote = "旧备注"))
+        }
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                MistakeDetailContent(
+                    state = state,
+                    onBack = {},
+                    onExport = {},
+                    repository = repository,
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("mistake_detail_note").performScrollTo()
+        composeRule.onNodeWithText("编辑").performClick()
+        composeRule.onNodeWithTag("mistake_detail_note_input").performTextReplacement("  新备注  ")
+        composeRule.onNodeWithTag("mistake_detail_note_save").performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText("新备注").assertExists()
+        composeRule.onNodeWithText("旧备注").assertDoesNotExist()
+        composeRule.onNodeWithText("编辑").performClick()
+        composeRule.onNodeWithTag("mistake_detail_note_input").assertTextEquals("新备注")
     }
 
     @Test

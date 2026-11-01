@@ -5,6 +5,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.border
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -72,21 +74,23 @@ fun AiReplyRichMarkdown(
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Normal,
                         fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        color = Color(0xFFE5E5E5),
+                        lineHeight = 20.sp,
                     ),
                     wordWrap = true,
                     modifier = Modifier
                         .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = RoundedCornerShape(6.dp),
-                        ),
+                            color = Color(0xFF0D0D0C),
+                            shape = RoundedCornerShape(12.dp),
+                        ).border(1.dp, Color(0xFF262626), RoundedCornerShape(12.dp)),
                 ),
             ),
         ) {
             Markdown(
-                markdown,
-                MarkdownParseOptions(autolink = false),
-                { /* fail-closed：no-op，链接惰性 */ },
+                content = markdown,
+                markdownParseOptions = MarkdownParseOptions(autolink = false),
+                onLinkClicked = { /* fail-closed：no-op，链接惰性 */ },
+                codeBlockContent = { literal, language -> ClaudeCodeBlock(literal, language) },
             )
         }
     }

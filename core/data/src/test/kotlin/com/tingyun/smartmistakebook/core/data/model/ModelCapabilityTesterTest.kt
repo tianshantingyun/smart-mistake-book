@@ -29,6 +29,21 @@ import org.junit.Test
 
 class ModelCapabilityTesterTest {
     @Test
+    fun mistakeEditIsAdvertisedOnlyAfterItsSyntheticPatchIsValidated() = runBlocking {
+        for (validPatch in listOf(false, true)) {
+            val store = FakeConfigurationStore(configuration())
+            val tester = OpenAiCompatibleModelCapabilityTester(store, transport = modelTransport { request ->
+                if ("image_url" in request.body) ModelHttpResponse(200, envelope("Q7M2"))
+                else ModelHttpResponse(200, envelope(if (validPatch)
+                    """{"capability_check":"SMART_MISTAKE_BOOK_STRUCTURED_V1","mistakeEdit":{"summaryMarkdown":"文字修改","changes":[{"type":"paragraph","target":"block-1","markdown":"x^2"}]}}"""
+                else """{"capability_check":"SMART_MISTAKE_BOOK_STRUCTURED_V1"}"""))
+            }, probeTimeoutMillis = 1_000L)
+            val result = tester.testSavedConfiguration() as ModelCapabilityTestResult.Completed
+            assertEquals(validPatch, result.verification.supportsMistakeEdit)
+        }
+    }
+
+    @Test
     fun userTriggeredTestUsesTwoSyntheticProbesAndPersistsBothResults() = runBlocking {
         val store = FakeConfigurationStore(configuration())
         val requestBodies = mutableListOf<String>()

@@ -29,9 +29,9 @@ class CaptureModelTaskUiPolicyTest {
     fun cancelledAssessmentEndsHonestlyWithoutForcingManualEntry() {
         val assessment = cancelledSnapshot(assessmentRequest())
 
-        assertEquals("这道题暂时没准备好", captureModelTaskTitle(assessment, null))
+        assertEquals("整理已停止", captureModelTaskTitle(assessment, null))
         assertEquals(
-            "处理已停止，原图已经保存，可以重新处理。",
+            "处理已停止，原图已保存。可重新整理。",
             modelPipelineDetail(assessment, null),
         )
         assertEquals(
@@ -45,9 +45,9 @@ class CaptureModelTaskUiPolicyTest {
         val assessment = waitingSnapshot(assessmentRequest())
         val parse = cancelledSnapshot(parseRequest())
 
-        assertEquals("这道题暂时没准备好", captureModelTaskTitle(assessment, parse))
+        assertEquals("整理已停止", captureModelTaskTitle(assessment, parse))
         assertEquals(
-            "处理已停止，原图已经保存，可以重新处理。",
+            "处理已停止，原图已保存。可重新整理。",
             modelPipelineDetail(assessment, parse),
         )
     }
@@ -146,14 +146,14 @@ class CaptureModelTaskUiPolicyTest {
 
         assertEquals(CaptureModelRecoveryAction.NONE, captureModelRecoveryAction(split, null))
         assertEquals("正在整理这一页", captureModelTaskTitle(split, null))
-        assertTrue(modelPipelineDetail(split, null).contains("分别整理"))
+        assertTrue(modelPipelineDetail(split, null).contains("拆分"))
     }
 
     @Test
     fun pendingWorkUsesOneCalmOutcomeMessage() {
-        assertEquals("正在准备这道题", captureModelTaskTitle(null, null))
+        assertEquals("正在整理题目", captureModelTaskTitle(null, null))
         assertEquals(
-            "原图已经保存，可以稍后回来继续。",
+            "原图已保存，可稍后继续。",
             modelPipelineDetail(null, null),
         )
     }

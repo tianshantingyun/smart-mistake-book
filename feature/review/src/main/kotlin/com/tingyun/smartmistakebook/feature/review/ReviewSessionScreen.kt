@@ -1,6 +1,6 @@
 package com.tingyun.smartmistakebook.feature.review
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,24 +9,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -36,7 +29,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.tingyun.smartmistakebook.core.domain.ReviewSelfReportKey
 import com.tingyun.smartmistakebook.core.domain.ReviewStoredAnswer
 import com.tingyun.smartmistakebook.core.domain.StudyAnswerRevealRequest
 import com.tingyun.smartmistakebook.core.domain.StudyAnswerRevealResult
@@ -64,9 +56,10 @@ import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
 import com.tingyun.smartmistakebook.core.model.TutorChoiceEvaluation
 import com.tingyun.smartmistakebook.core.model.VerifiedTeachingArtifact
 import com.tingyun.smartmistakebook.core.model.reviewRetryError
-import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.SmartColors
@@ -249,67 +242,62 @@ private fun ReviewSessionContent(
     ) {
         SessionHeader(onBack = onBack, subject = artifact.subject)
         Spacer(Modifier.height(10.dp))
-        LinearProgressIndicator(
-            progress = { safeQueuePosition.toFloat() / safeQueueSize.toFloat() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(5.dp),
-            color = SmartColors.Jade,
-            trackColor = SmartColors.Track,
-        )
-        Spacer(Modifier.height(12.dp))
-        Text(
-            text = "第 $safeQueuePosition / $safeQueueSize 题",
-            color = SmartColors.InkSecondary,
-            style = MaterialTheme.typography.labelMedium,
+        ReviewSessionProgress(
+            label = "第 $safeQueuePosition / $safeQueueSize 题",
+            progress = safeQueuePosition.toFloat() / safeQueueSize.toFloat(),
         )
         // 先重教、再练（spec §2.16）：leech 卡在这里停住，不露出题干。学员确认后才继续，
         // 于是"重教"不是一段可以划过去的说明，而是进入本次作答的必经步骤。
         val opening = reTeachOpening
         if (opening != null && !sessionViewModel.reTeachAcknowledged) {
-            PaperDivider(Modifier.padding(vertical = 18.dp))
+            Spacer(Modifier.height(16.dp))
             ReTeachOpeningCard(
                 opening = opening,
                 onAcknowledge = sessionViewModel::acknowledgeReTeach,
             )
             return@RootPageColumn
         }
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        SectionHeader(title = artifact.title)
-        Spacer(Modifier.height(12.dp))
-        Text(
-            text = reviewAdaptationMessage(profile),
-            style = MaterialTheme.typography.bodyMedium,
-            color = SmartColors.InkSecondary,
-        )
-        // 前置补救（spec §2.9）：紧邻题干呈现，但**不拦作答**——题干、选项、提交按钮照常可用。
-        val remediation = prerequisiteRemediation
-        if (remediation != null) {
-            Spacer(Modifier.height(12.dp))
-            PrerequisiteRemediationCard(remediation = remediation)
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column {
+                SectionHeader(title = artifact.title)
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = reviewAdaptationMessage(profile),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = SmartColors.InkSecondary,
+                )
+                // 前置补救（spec §2.9）：紧邻题干呈现，但**不拦作答**——题干、选项、提交按钮照常可用。
+                val remediation = prerequisiteRemediation
+                if (remediation != null) {
+                    Spacer(Modifier.height(12.dp))
+                    PrerequisiteRemediationCard(remediation = remediation)
+                }
+                Spacer(Modifier.height(16.dp))
+                SafeMarkdownText(
+                    markdown = assessmentItem.stemMarkdown,
+                    color = SmartColors.Ink,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = 19.sp,
+                        lineHeight = 30.sp,
+                    ),
+                )
+                Spacer(Modifier.height(20.dp))
+                assessmentItem.choices.forEach { choice ->
+                    ReviewChoiceRow(
+                        choice = choice,
+                        isCorrect = assessmentItem.evaluateChoice(choice.id).isCorrect,
+                        selectedChoice = selectedChoice,
+                        submittedChoice = submittedChoice,
+                        enabled = sessionViewModel.submissionStatus == ReviewSubmissionStatus.IDLE &&
+                            sessionViewModel.revealStatus != ReviewRevealStatus.RECORDING,
+                        onSelect = { choiceId -> sessionViewModel.select(assessmentItem, choiceId) },
+                    )
+                    Spacer(Modifier.height(10.dp))
+                }
+            }
         }
         Spacer(Modifier.height(16.dp))
-        SafeMarkdownText(
-            markdown = assessmentItem.stemMarkdown,
-            color = SmartColors.Ink,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                fontSize = 19.sp,
-                lineHeight = 30.sp,
-            ),
-        )
-        Spacer(Modifier.height(20.dp))
-        assessmentItem.choices.forEach { choice ->
-            ReviewChoiceRow(
-                choice = choice,
-                isCorrect = assessmentItem.evaluateChoice(choice.id).isCorrect,
-                selectedChoice = selectedChoice,
-                submittedChoice = submittedChoice,
-                enabled = sessionViewModel.submissionStatus == ReviewSubmissionStatus.IDLE &&
-                    sessionViewModel.revealStatus != ReviewRevealStatus.RECORDING,
-                onSelect = { choiceId -> sessionViewModel.select(assessmentItem, choiceId) },
-            )
-            Spacer(Modifier.height(10.dp))
-        }
         if (submittedChoice == null) {
             PrimaryActionButton(
                 text = when (sessionViewModel.submissionStatus) {
@@ -352,7 +340,7 @@ private fun ReviewSessionContent(
         } else if (sessionViewModel.submissionStatus == ReviewSubmissionStatus.FAILED) {
             Text(
                 text = reviewRetryError(ReviewRetryReason.SUBMISSION_RECORDING).message,
-                color = SmartColors.ErrorWarm,
+                color = SmartColors.ErrorText,
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -362,7 +350,7 @@ private fun ReviewSessionContent(
             )
             Spacer(Modifier.height(10.dp))
         }
-        androidx.compose.material3.TextButton(
+        com.tingyun.smartmistakebook.core.ui.ClaudeTextButton(
             onClick = {
                 sessionViewModel.requestReveal(
                     assessmentItem = assessmentItem,
@@ -388,7 +376,7 @@ private fun ReviewSessionContent(
         if (sessionViewModel.revealStatus == ReviewRevealStatus.FAILED) {
             Text(
                 text = reviewRetryError(ReviewRetryReason.REVEAL_RECORDING).message,
-                color = SmartColors.ErrorWarm,
+                color = SmartColors.ErrorText,
                 style = MaterialTheme.typography.bodySmall,
             )
         }
@@ -397,7 +385,7 @@ private fun ReviewSessionContent(
             Spacer(Modifier.height(10.dp))
         }
         if (reviewSubmissionResult != null) {
-            androidx.compose.material3.TextButton(
+            com.tingyun.smartmistakebook.core.ui.ClaudeTextButton(
                 onClick = { onContinue(reviewSubmissionResult) },
                 modifier = Modifier.testTag("review_next_item"),
             ) {
@@ -490,76 +478,71 @@ private fun ReviewSelfReportSessionContent(
     RootPageColumn(modifier = modifier.testTag("review_self_report_root")) {
         SessionHeader(onBack = onBack, subject = artifact.subject)
         Spacer(Modifier.height(10.dp))
-        LinearProgressIndicator(
-            progress = { safeQueuePosition.toFloat() / safeQueueSize.toFloat() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(5.dp),
-            color = SmartColors.Jade,
-            trackColor = SmartColors.Track,
-        )
-        Spacer(Modifier.height(12.dp))
-        Text(
-            text = "第 $safeQueuePosition / $safeQueueSize 题",
-            color = SmartColors.InkSecondary,
-            style = MaterialTheme.typography.labelMedium,
+        ReviewSessionProgress(
+            label = "第 $safeQueuePosition / $safeQueueSize 题",
+            progress = safeQueuePosition.toFloat() / safeQueueSize.toFloat(),
         )
         val opening = reTeachOpening
         if (opening != null && !selectionViewModel.reTeachAcknowledged) {
-            PaperDivider(Modifier.padding(vertical = 18.dp))
+            Spacer(Modifier.height(16.dp))
             ReTeachOpeningCard(
                 opening = opening,
                 onAcknowledge = selectionViewModel::acknowledgeReTeach,
             )
             return@RootPageColumn
         }
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        SectionHeader(title = artifact.title)
-        Spacer(Modifier.height(12.dp))
-        Text(
-            text = "先按自己的思路作答，再按你的真实感受选一个键；本题不依赖模型判定。",
-            style = MaterialTheme.typography.bodyMedium,
-            color = SmartColors.InkSecondary,
-        )
-        val remediation = prerequisiteRemediation
-        if (remediation != null) {
-            Spacer(Modifier.height(12.dp))
-            PrerequisiteRemediationCard(remediation = remediation)
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column {
+                SectionHeader(title = artifact.title)
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = "先独立作答，再按回忆情况自评；无需模型判分。",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = SmartColors.InkSecondary,
+                )
+                val remediation = prerequisiteRemediation
+                if (remediation != null) {
+                    Spacer(Modifier.height(12.dp))
+                    PrerequisiteRemediationCard(remediation = remediation)
+                }
+                Spacer(Modifier.height(16.dp))
+                if (assessmentItem != null) {
+                    SafeMarkdownText(
+                        markdown = assessmentItem.stemMarkdown,
+                        color = SmartColors.Ink,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontSize = 19.sp,
+                            lineHeight = 30.sp,
+                        ),
+                    )
+                    Spacer(Modifier.height(20.dp))
+                    assessmentItem.choices.forEach { choice ->
+                        ReviewChoiceRow(
+                            choice = choice,
+                            isCorrect = assessmentItem.evaluateChoice(choice.id).isCorrect,
+                            selectedChoice = selectedChoice,
+                            submittedChoice = recorded?.let { selectionViewModel.submittedChoiceFor(assessmentItem) },
+                            enabled = recorded == null &&
+                                selfReportViewModel.status != SelfReportStatus.RECORDING,
+                            onSelect = { choiceId -> selectionViewModel.select(assessmentItem, choiceId) },
+                        )
+                        Spacer(Modifier.height(10.dp))
+                    }
+                } else {
+                    SafeMarkdownText(
+                        markdown = artifact.problemMarkdown,
+                        color = SmartColors.Ink,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontSize = 19.sp,
+                            lineHeight = 30.sp,
+                        ),
+                    )
+                    Spacer(Modifier.height(16.dp))
+                }
+            }
         }
         Spacer(Modifier.height(16.dp))
-        if (assessmentItem != null) {
-            SafeMarkdownText(
-                markdown = assessmentItem.stemMarkdown,
-                color = SmartColors.Ink,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 19.sp,
-                    lineHeight = 30.sp,
-                ),
-            )
-            Spacer(Modifier.height(20.dp))
-            assessmentItem.choices.forEach { choice ->
-                ReviewChoiceRow(
-                    choice = choice,
-                    isCorrect = assessmentItem.evaluateChoice(choice.id).isCorrect,
-                    selectedChoice = selectedChoice,
-                    submittedChoice = recorded?.let { selectionViewModel.submittedChoiceFor(assessmentItem) },
-                    enabled = recorded == null &&
-                        selfReportViewModel.status != SelfReportStatus.RECORDING,
-                    onSelect = { choiceId -> selectionViewModel.select(assessmentItem, choiceId) },
-                )
-                Spacer(Modifier.height(10.dp))
-            }
-        } else {
-            SafeMarkdownText(
-                markdown = artifact.problemMarkdown,
-                color = SmartColors.Ink,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 19.sp,
-                    lineHeight = 30.sp,
-                ),
-            )
-            Spacer(Modifier.height(16.dp))
-        }
         ReviewSelfReportKeys(
             selected = selfReportViewModel.selectedKey,
             enabled = recorded == null &&
@@ -587,7 +570,7 @@ private fun ReviewSelfReportSessionContent(
         if (assessmentItem != null && selectedChoice == null && recorded == null) {
             Spacer(Modifier.height(6.dp))
             Text(
-                text = "先选择一个答案，再按三键自评。",
+                text = "先选择答案，再进行自评。",
                 style = MaterialTheme.typography.bodySmall,
                 color = SmartColors.InkSecondary,
                 modifier = Modifier.testTag("review_self_report_need_choice"),
@@ -605,9 +588,9 @@ private fun ReviewSelfReportSessionContent(
             if (objectiveFeedback != null) {
                 Text(
                     text = if (objectiveFeedback) {
-                        "本机核对：选择正确（本次证据仍按你的自评记录）"
+                        "本机核对：选择正确。复习结果仍按你的自评记录。"
                     } else {
-                        "本机核对：选择不正确（本次证据仍按你的自评记录）"
+                        "本机核对：选择不正确。复习结果仍按你的自评记录。"
                     },
                     style = MaterialTheme.typography.bodyMedium,
                     color = SmartColors.InkSecondary,
@@ -619,9 +602,9 @@ private fun ReviewSelfReportSessionContent(
             if (revealWriteFailed) {
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    text = "已存答案的曝光记录没有写下来；撤销后重评可能被当成未看过答案。",
+                    text = "未能确认答案查看记录；撤销后重答，可能被误记为未看过答案。",
                     style = MaterialTheme.typography.bodySmall,
-                    color = SmartColors.ErrorWarm,
+                    color = SmartColors.ErrorText,
                     modifier = Modifier.testTag("review_reveal_write_failed"),
                 )
             }
@@ -661,8 +644,8 @@ private fun ReviewSelfReportSessionContent(
         } else if (selfReportViewModel.undoStatus == SelfReportUndoStatus.UNDONE) {
             Spacer(Modifier.height(10.dp))
             Text(
-                text = "已回到本题。曝光/看过答案的事实仍保留；重新作答会记为第 " +
-                    "${selfReportViewModel.currentAttemptOrdinal()} 次响应。",
+                text = "已回到本题，看过答案的记录仍保留。重新作答计为第 " +
+                    "${selfReportViewModel.currentAttemptOrdinal()} 次作答。",
                 style = MaterialTheme.typography.bodySmall,
                 color = SmartColors.InkSecondary,
                 modifier = Modifier.testTag("review_undo_reattempt_notice"),
@@ -713,39 +696,43 @@ private fun ReviewSessionPretestTutorRoute(
     RootPageColumn(modifier = modifier.testTag("review_session_root")) {
         SessionHeader(onBack = onBack)
         Spacer(Modifier.height(12.dp))
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        Text(
-            text = "这道题需要先试做再由讲解判定——去讲题里完成首次作答。",
-            modifier = Modifier.testTag("review_pretest_tutor_hint"),
-            color = SmartColors.InkSecondary,
-            style = MaterialTheme.typography.bodyLarge,
-        )
-        Spacer(Modifier.height(20.dp))
-        PrimaryActionButton(
-            text = "去讲题判定",
-            onClick = onRequestTutorPretest,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .testTag("review_pretest_tutor_button"),
-        )
-        // KD-36：结算没有形成判定 / 没有写成功时不再是无声的——在这里说清楚，
-        // 并给一个"重新判定"的显式出口（"再讲一次"仍是上面那个入口）。
-        settlementNotice?.let { notice ->
-            Spacer(Modifier.height(14.dp))
-            Text(
-                text = notice.message,
-                modifier = Modifier.testTag("review_pretest_settlement_notice"),
-                color = SmartColors.ErrorWarm,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            onRetrySettlement?.let { retry ->
-                Spacer(Modifier.height(4.dp))
-                TextButton(
-                    onClick = retry,
-                    modifier = Modifier.testTag("review_pretest_settlement_retry"),
-                ) {
-                    Text(notice.retryLabel, color = SmartColors.JadeActive)
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column {
+                Text(
+                    text = "请先独立试做，再到讲题页完成检查。",
+                    modifier = Modifier.testTag("review_pretest_tutor_hint"),
+                    color = SmartColors.InkSecondary,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                Spacer(Modifier.height(20.dp))
+                PrimaryActionButton(
+                    text = "去讲题判定",
+                    onClick = onRequestTutorPretest,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 52.dp)
+                        .testTag("review_pretest_tutor_button"),
+                )
+                // KD-36：结算没有形成判定 / 没有写成功时不再是无声的——在这里说清楚，
+                // 并给一个"重新判定"的显式出口（"再讲一次"仍是上面那个入口）。
+                settlementNotice?.let { notice ->
+                    Spacer(Modifier.height(14.dp))
+                    Text(
+                        text = notice.message,
+                        modifier = Modifier.testTag("review_pretest_settlement_notice"),
+                        color = SmartColors.ErrorText,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    onRetrySettlement?.let { retry ->
+                        Spacer(Modifier.height(4.dp))
+                        TextButton(
+                            onClick = retry,
+                            modifier = Modifier.testTag("review_pretest_settlement_retry"),
+                        ) {
+                            Text(notice.retryLabel, color = SmartColors.JadeActive)
+                        }
+                    }
                 }
             }
         }
@@ -757,56 +744,40 @@ private fun ReviewSessionUnavailable(
     reason: TutorCapabilityBlockReason,
     onBack: () -> Unit,
     modifier: Modifier,
-) {    RootPageColumn(modifier = modifier.testTag("review_session_root")) {
+) {
+    RootPageColumn(modifier = modifier.testTag("review_session_root")) {
         SessionHeader(onBack = onBack)
         Spacer(Modifier.height(12.dp))
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        Text(
-            text = when (reason) {
-                TutorCapabilityBlockReason.TUTOR_DISABLED_BY_BUILD -> "当前版本未启用交互式复习。"
-                TutorCapabilityBlockReason.NO_VERIFIED_TEACHING_ARTIFACT -> "当前题目暂时无法复习。"
-                TutorCapabilityBlockReason.NO_ASSESSMENT_ITEM -> "当前复习内容没有可作答的问题。"
-            },
-            modifier = Modifier.testTag("review_session_unavailable"),
-            color = SmartColors.InkSecondary,
-            style = MaterialTheme.typography.bodyLarge,
-        )
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Text(
+                text = when (reason) {
+                    TutorCapabilityBlockReason.TUTOR_DISABLED_BY_BUILD -> "当前版本未启用交互式复习。"
+                    TutorCapabilityBlockReason.NO_VERIFIED_TEACHING_ARTIFACT -> "当前题目暂时无法复习。"
+                    TutorCapabilityBlockReason.NO_ASSESSMENT_ITEM -> "当前复习内容没有可作答的问题。"
+                },
+                modifier = Modifier.testTag("review_session_unavailable"),
+                color = SmartColors.InkSecondary,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        }
     }
 }
 
 @Composable
 private fun SessionHeader(onBack: () -> Unit, subject: String = "GENERAL") {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = onBack,
-            modifier = Modifier.testTag("review_session_back"),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "返回复习首页",
-                tint = SmartColors.Ink,
+    ClaudePageHeader(
+        title = "复习中",
+        onBack = onBack,
+        backModifier = Modifier.testTag("review_session_back"),
+        backLabel = "返回复习首页",
+        actions = {
+            SubjectIcon(
+                subject = runCatching { SubjectKind.valueOf(subject) }.getOrDefault(SubjectKind.GENERAL),
+                modifier = Modifier.size(32.dp),
             )
-        }
-        Spacer(Modifier.width(4.dp))
-        Column(Modifier.weight(1f)) {
-            Text(
-                text = "复习中",
-                color = SmartColors.Ink,
-                fontSize = 28.sp,
-                lineHeight = 36.sp,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-        SubjectIcon(
-            subject = runCatching { SubjectKind.valueOf(subject) }
-                .getOrDefault(SubjectKind.GENERAL),
-            contentDescription = subject,
-            modifier = Modifier.size(42.dp),
-        )
-    }
+        },
+    )
 }
 
 @Composable
@@ -818,17 +789,14 @@ private fun RecordedAttemptFeedback(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("review_explanation"),
-        color = if (correct) SmartColors.JadeSoft else SmartColors.Paper,
-        shape = RoundedCornerShape(8.dp),
-        border = androidx.compose.foundation.BorderStroke(
-            1.dp,
-            if (correct) SmartColors.Jade else SmartColors.ErrorWarm,
-        ),
+        color = if (correct) SmartColors.JadeSoft else SmartColors.ErrorWarm.copy(alpha = 0.08f),
+        shape = RoundedCornerShape(20.dp),
+
     ) {
         Column(Modifier.padding(16.dp)) {
             Text(
                 text = if (correct) "选择正确" else "这次选择还差一步",
-                color = if (correct) SmartColors.JadeDark else SmartColors.ErrorWarm,
+                color = if (correct) SmartColors.JadeDark else SmartColors.ErrorText,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium,
             )
@@ -852,9 +820,9 @@ private fun ReTeachOpeningCard(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("review_reteach_opening"),
-        color = SmartColors.JadeSoft,
-        shape = RoundedCornerShape(8.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Jade),
+        color = SmartColors.ContentSurface,
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 1.dp,
     ) {
         Column(Modifier.padding(16.dp)) {
             Text(
@@ -903,19 +871,19 @@ private fun PrerequisiteRemediationCard(remediation: PrerequisiteRemediation) {
             .fillMaxWidth()
             .testTag("review_prereq_remediation"),
         color = SmartColors.JadeSoft.copy(alpha = 0.45f),
-        shape = RoundedCornerShape(8.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Outline),
+        shape = RoundedCornerShape(20.dp),
+
     ) {
         Column(Modifier.padding(16.dp)) {
             Text(
-                text = "先补前置：${remediation.prerequisiteName}",
+                text = "相关基础：${remediation.prerequisiteName}",
                 color = SmartColors.Ink,
                 style = MaterialTheme.typography.titleSmall,
                 modifier = Modifier.testTag("review_prereq_name"),
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                text = "这道题用得上它。看完再作答也行，直接作答也行。",
+                text = "这道题会用到它。可先复习，也可直接作答。",
                 color = SmartColors.InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -942,9 +910,9 @@ private fun AnswerExplanation(explanation: String) {
         modifier = Modifier
             .fillMaxWidth()
             .testTag("review_explanation"),
-        color = SmartColors.JadeSoft,
-        shape = RoundedCornerShape(8.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Jade),
+        color = SmartColors.ContentSurface,
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 1.dp,
     ) {
         Column(Modifier.padding(16.dp)) {
             Text(

@@ -150,7 +150,7 @@ internal object MistakePdfPagePlanner {
                 }
                 add(spacer(typography))
             }
-            orderedBlocks(questionAreaBlocks(input.blocks), layout).forEach { block ->
+            orderedBlocks(if (input.artifactRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS) input.blocks else questionAreaBlocks(input.blocks), layout).forEach { block ->
                 when (block) {
                     is MistakePdfBlock.Image -> {
                         val size = cleanImageSizes[block.localUri]

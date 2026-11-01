@@ -1,11 +1,17 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.RowScope
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,17 +19,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AutoStories
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -49,8 +54,11 @@ import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.Jade
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
-import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.TutorReplyMarkdown
+import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
+import com.tingyun.smartmistakebook.core.ui.InkSecondary
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.heightIn
 
 /**
  * 智能体栏的**公开入口**（一条交互面的外层壳）：App 层只认这一个名字，内部一律走
@@ -108,6 +116,8 @@ fun TutorRoute(
     /** 6B-2：编辑态确认后的落点（装配处落盘草稿 + 入队后台重渲染）。 */
     onStartEditedExport: (MistakePaperDraft, MistakeExportFormat) -> Unit = { _, _ -> },
     modifier: Modifier = Modifier,
+    onPrepareDetailedAnswers: ((MistakeExportFormat, MistakePdfLayout, List<String>) -> Unit)? = null,
+    onPrepareEditedDetailedAnswers: ((MistakePaperDraft, MistakeExportFormat) -> Unit)? = null,
 ) {
     TutorLobbyRoute(
         onCapture = onCapture,
@@ -131,6 +141,8 @@ fun TutorRoute(
         readExportPaperEdit = readExportPaperEdit,
         paperEditAssistant = paperEditAssistant,
         onStartEditedExport = onStartEditedExport,
+        onPrepareDetailedAnswers = onPrepareDetailedAnswers,
+        onPrepareEditedDetailedAnswers = onPrepareEditedDetailedAnswers,
         modifier = modifier,
     )
 }
@@ -150,52 +162,44 @@ internal fun TutorPageHeader(
     /** 由别的页面推进来时（错题详情、历史、拍照流程）给一个返回；大厅这种标签根页传 null。 */
     onBack: (() -> Unit)? = null,
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (onBack != null) {
-                IconButton(
-                    onClick = onBack,
-                    modifier = Modifier
-                        .size(48.dp)
-                        .testTag("tutor_page_back"),
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "返回",
-                        tint = Ink,
-                    )
-                }
-                Spacer(Modifier.size(4.dp))
-            }
-            Text(
-                text = "讲题",
-                modifier = Modifier.weight(1f),
-                color = Ink,
-                style = MaterialTheme.typography.headlineLarge,
-            )
-            if (onOpenHistory != null) {
-                IconButton(
-                    onClick = onOpenHistory,
-                    modifier = Modifier.testTag("tutor_history_button"),
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.History,
-                        contentDescription = "讲题历史",
-                        tint = Ink,
-                    )
-                }
-            }
+    val rootHeader = onBack == null
+    val iconTint = if (rootHeader) SmartColors.HeaderInk else InkSecondary
+    val iconColors = IconButtonDefaults.iconButtonColors(
+        containerColor = Color.Transparent,
+        contentColor = iconTint,
+    )
+    val actions: @Composable RowScope.() -> Unit = {
+        if (onOpenHistory != null) {
             IconButton(
-                onClick = onOpenCapabilitySettings,
-                modifier = Modifier.testTag("tutor_capability_settings_button"),
+                onClick = onOpenHistory,
+                modifier = Modifier.testTag("tutor_history_button"),
+                colors = iconColors,
             ) {
-                Icon(Icons.Outlined.Tune, contentDescription = "讲题能力设置", tint = Ink)
+                Icon(
+                    imageVector = Icons.Outlined.History,
+                    contentDescription = "讲题历史",
+                    tint = iconTint,
+                    modifier = Modifier.size(20.dp),
+                )
             }
         }
-        PaperDivider(Modifier.padding(top = 8.dp, bottom = 14.dp))
+        IconButton(
+            onClick = onOpenCapabilitySettings,
+            modifier = Modifier.testTag("tutor_capability_settings_button"),
+            colors = iconColors,
+        ) {
+            Icon(Icons.Outlined.Tune, contentDescription = "讲题能力设置", tint = iconTint, modifier = Modifier.size(20.dp))
+        }
+    }
+    if (rootHeader) {
+        WorkspacePageHeader(
+            title = "讲题", modifier = Modifier.padding(vertical = 8.dp), actions = actions,
+        )
+    } else {
+        ClaudePageHeader(
+            title = "讲题", onBack = onBack,
+            backModifier = Modifier.testTag("tutor_page_back"), actions = actions,
+        )
     }
 }
 
@@ -206,28 +210,18 @@ internal fun TutorPageHeader(
  */
 @Composable
 internal fun TutorPrompt(text: String, modifier: Modifier = Modifier) {
-    Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-        Box(
-            modifier = Modifier
-                .size(36.dp)
-                .clip(CircleShape)
-                .background(JadeSoft),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.AutoStories,
-                contentDescription = "智能讲题助手",
-                modifier = Modifier.size(21.dp),
-                tint = JadeActive,
-            )
+    Column(modifier = modifier.fillMaxWidth().padding(start = ClaudeLayout.AssistantInset),
+        verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Box(Modifier.size(24.dp).clip(RoundedCornerShape(8.dp)).background(JadeSoft),
+                contentAlignment = Alignment.Center) {
+                Icon(Icons.Outlined.AutoStories, "智能讲题助手", Modifier.size(15.dp), tint = JadeActive)
+            }
+            Text("讲题助手", color = Ink, style = ClaudeLayout.ControlText)
         }
         TutorReplyMarkdown(
             markdown = text,
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 10.dp)
-                .border(1.dp, Divider, RoundedCornerShape(8.dp))
-                .padding(horizontal = 12.dp, vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }
@@ -295,13 +289,13 @@ internal fun TutorComposer(
                         .testTag("tutor_send_button"),
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Send,
+                        imageVector = Icons.AutoMirrored.Outlined.Send,
                         contentDescription = "提交输入",
                         tint = if (value.isBlank()) InkMuted else Jade,
                     )
                 }
             },
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(20.dp),
         )
     }
 }

@@ -64,7 +64,7 @@ internal class ReviewReminderPlatform(
         val notification = NotificationCompat.Builder(applicationContext, REVIEW_REMINDER_CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("今天的复习已准备好")
-            .setContentText("有 $pendingCount 道题待复习，点这里开始。")
+            .setContentText("有 $pendingCount 道题待复习，点击开始。")
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setAutoCancel(true)

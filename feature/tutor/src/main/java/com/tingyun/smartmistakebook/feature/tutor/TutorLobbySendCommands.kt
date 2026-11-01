@@ -199,7 +199,7 @@ internal class TutorLobbySendCommands(
                         message = if (state.providerLoadFailed) {
                             "暂时读不到模型配置，请检查后再试。"
                         } else {
-                            "当前模型还不能处理对话，请先完成模型配置和能力测试。"
+                            "请先配置并测试模型，再开始对话。"
                         },
                         dataPreserved = true,
                         primaryAction = ActionType.OPEN_SETTINGS,

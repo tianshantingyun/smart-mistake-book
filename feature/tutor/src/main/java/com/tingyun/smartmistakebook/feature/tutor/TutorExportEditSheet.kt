@@ -1,21 +1,29 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
-import androidx.compose.foundation.BorderStroke
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.Paper
+
+import com.tingyun.smartmistakebook.core.ui.claudeDismissOnEscape
+import com.tingyun.smartmistakebook.core.ui.claudeModalEntrance
+
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,10 +39,8 @@ import com.tingyun.smartmistakebook.core.export.MistakePdfBlock
 import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
 import com.tingyun.smartmistakebook.core.export.MistakePdfPaperQuestion
 import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
-import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 
@@ -67,35 +73,39 @@ internal fun TutorExportEditSheet(
     onBack: () -> Unit,
     onConfirm: (MistakePaperDraft) -> Unit,
     onDismiss: () -> Unit,
+    includeDetailedAnswers: Boolean = false,
+    onDetailedAnswersChange: ((Boolean) -> Unit)? = null,
+    onPrepareDetailedAnswers: ((MistakePaperDraft) -> Unit)? = null,
 ) {
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().imePadding().padding(top = 24.dp).claudeDismissOnEscape(onDismiss = onDismiss),
             contentAlignment = Alignment.BottomCenter,
         ) {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 700.dp)
+                    .claudeModalEntrance()
                     .testTag("tutor_export_edit_sheet"),
-                color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp),
-                border = BorderStroke(1.dp, Outline),
+                color = Paper,
+                shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
+                shadowElevation = 4.dp,
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                        .padding(horizontal = 20.dp, vertical = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
                         text = "编辑卷面",
                         color = Ink,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
@@ -105,7 +115,7 @@ internal fun TutorExportEditSheet(
                         style = MaterialTheme.typography.bodySmall,
                     )
                     Text(
-                        text = "只改这份卷面，不改错题本里的题目；确认后重新生成文件。" +
+                        text = "仅修改这份卷面，不影响错题本；确认后重新生成文件。" +
                             exportFormatNotice(format)?.let { "\n$it" }.orEmpty(),
                         modifier = Modifier.testTag("tutor_export_edit_notice"),
                         color = InkSecondary,
@@ -131,8 +141,8 @@ internal fun TutorExportEditSheet(
                                 .testTag("tutor_export_edit_ai_instruction"),
                         )
                         Text(
-                            text = "只改这份卷面副本：模型只能删题、加回已删除的题、调序、" +
-                                "改文字；改备注还需版式打开「含备注」。不能改图，也不会写回错题本。",
+                            text = "AI 仅能移出题目、加回已移出的题、调整顺序和" +
+                                "修改文字。修改备注需开启「含备注」。不能改图，也不影响错题本。",
                             modifier = Modifier.testTag("tutor_export_edit_ai_hint"),
                             color = InkSecondary,
                             style = MaterialTheme.typography.bodySmall,
@@ -150,7 +160,7 @@ internal fun TutorExportEditSheet(
                         Text(
                             text = message,
                             modifier = Modifier.testTag("tutor_export_edit_ai_message"),
-                            color = if (modelEditMessageIsError) ErrorWarm else InkSecondary,
+                            color = if (modelEditMessageIsError) ErrorText else InkSecondary,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -195,7 +205,7 @@ internal fun TutorExportEditSheet(
 
                     if (edit.removedQuestions.isNotEmpty()) {
                         Text(
-                            text = "已删除的题（可以加回）",
+                            text = "已移出卷面的题（可加回）",
                             color = Ink,
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Medium,
@@ -215,15 +225,16 @@ internal fun TutorExportEditSheet(
                         Text(
                             text = "有必填文字被清空，填上后才能导出。",
                             modifier = Modifier.testTag("tutor_export_edit_blank_warning"),
-                            color = ErrorWarm,
+                            color = ErrorText,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
 
                     Spacer(Modifier.height(2.dp))
+                    if (onDetailedAnswersChange != null && onPrepareDetailedAnswers != null) TutorDetailedAnswersChoice(includeDetailedAnswers, onDetailedAnswersChange)
                     PrimaryActionButton(
-                        text = "确认导出（${edit.questions.size} 题）",
-                        onClick = { onConfirm(edit.toDraft()) },
+                        text = if (includeDetailedAnswers) "准备答案并预览（${edit.questions.size} 题）" else "确认导出（${edit.questions.size} 题）",
+                        onClick = { if (includeDetailedAnswers && onPrepareDetailedAnswers != null) onPrepareDetailedAnswers(edit.toDraft()) else onConfirm(edit.toDraft()) },
                         // 模型改卷在途时不允许抢跑：否则会导出改到一半之前的副本。
                         enabled = !edit.hasBlankText && !modelEditBusy,
                         modifier = Modifier
@@ -247,6 +258,7 @@ internal fun TutorExportEditSheet(
 }
 
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 private fun PaperQuestionEditor(
     index: Int,
     question: MistakePdfPaperQuestion,
@@ -262,24 +274,19 @@ private fun PaperQuestionEditor(
     includeNote: Boolean,
     onNoteChange: (String) -> Unit,
 ) {
-    Column(
+    WorkspacePanel(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("tutor_export_edit_question_${question.entryId}"),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Row(
+        Text(
+            text = "第 ${index + 1} 题",
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Text(
-                text = "第 ${index + 1} 题",
-                modifier = Modifier.weight(1f),
-                color = Ink,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Medium,
-            )
+            color = Ink,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.Medium,
+        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             OutlineActionChip(
                 text = "上移",
                 onClick = { onMove(-1) },
@@ -293,7 +300,7 @@ private fun PaperQuestionEditor(
                 modifier = Modifier.testTag("tutor_export_edit_down_${question.entryId}"),
             )
             OutlineActionChip(
-                text = "删除",
+                text = "移出",
                 onClick = onRemove,
                 enabled = canRemove,
                 modifier = Modifier.testTag("tutor_export_edit_remove_${question.entryId}"),
@@ -369,7 +376,7 @@ private fun PaperQuestionEditor(
                 modifier = Modifier.testTag(
                     "tutor_export_edit_figure_review_${question.entryId}",
                 ),
-                color = ErrorWarm,
+                color = ErrorText,
                 style = MaterialTheme.typography.bodySmall,
             )
         }

@@ -1,6 +1,8 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
-import androidx.compose.foundation.BorderStroke
+import com.tingyun.smartmistakebook.core.ui.ContentSurface
+
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,7 +28,6 @@ import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
-import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
 
@@ -37,13 +38,12 @@ internal fun TutorStoredChoiceFeedback(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = JadeSoft.copy(alpha = 0.28f),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Outline),
+        color = JadeSoft,
+        shape = RoundedCornerShape(16.dp),
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
                 text = "你选择了",
@@ -64,7 +64,7 @@ internal fun TutorStoredChoiceFeedback(
                 } else {
                     "这里暴露了关键分叉"
                 },
-                color = if (response.selectionWasCorrect == true) JadeActive else ErrorWarm,
+                color = if (response.selectionWasCorrect == true) JadeActive else ErrorText,
                 style = MaterialTheme.typography.labelLarge,
             )
             SafeMarkdownText(
@@ -225,12 +225,12 @@ internal fun TutorModelStatusCard(
         modifier = modifier
             .fillMaxWidth()
             .testTag("captured_tutor_model_status"),
-        color = JadeSoft.copy(alpha = 0.45f),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Outline),
+        color = ContentSurface,
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 1.dp,
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(title, color = Ink, style = MaterialTheme.typography.titleMedium)

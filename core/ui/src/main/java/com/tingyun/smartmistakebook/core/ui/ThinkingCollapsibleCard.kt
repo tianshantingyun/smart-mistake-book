@@ -1,21 +1,26 @@
 package com.tingyun.smartmistakebook.core.ui
 
-import androidx.compose.animation.AnimatedVisibility
+import com.tingyun.smartmistakebook.core.ui.ClaudeDisclosure as AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -59,28 +65,27 @@ fun ThinkingCollapsibleCard(
     }
     val thinkingBody = thinkingMarkdown?.takeIf { it.isNotBlank() }
     Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp))
+            .background(SubtleSurface),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 // B2：折叠头是**按钮**，不是一段能点的文字——读屏要能听到"按钮"、能听到
                 // 展开/收起的状态、能听到点下去会发生什么。视觉一动不动（学生看不出差别）。
-                .clickable(
-                    role = Role.Button,
+                .claudeInteractiveRow(
+                    onClick = { expanded = !expanded },
                     onClickLabel = if (expanded) "收起思考过程" else "展开思考过程",
-                ) { expanded = !expanded }
+                )
                 .semantics { stateDescription = if (expanded) "已展开" else "已收起" }
                 .fillMaxWidth()
-                .padding(vertical = 2.dp),
+                .defaultMinSize(minHeight = SmartDimens.MinimumTouchTarget)
+                .padding(horizontal = 14.dp, vertical = 2.dp),
         ) {
             if (thinking) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(12.dp),
-                    strokeWidth = 1.5.dp,
-                    color = color,
-                )
+                ClaudeQuietDots()
+            } else {
+                Box(Modifier.size(6.dp).background(JadeActive, CircleShape))
             }
             Text(
                 text = if (thinking) {
@@ -91,11 +96,12 @@ fun ThinkingCollapsibleCard(
                     "已思考"
                 },
                 color = color,
-                style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.padding(horizontal = 6.dp),
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
             )
+            if (thinkingBody != null) ClaudeCopyButton(thinkingBody)
             Icon(
-                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                imageVector = if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
                 contentDescription = if (expanded) "收起思考过程" else "展开思考过程",
                 tint = color,
                 modifier = Modifier.size(16.dp),
@@ -103,17 +109,18 @@ fun ThinkingCollapsibleCard(
         }
         AnimatedVisibility(
             visible = expanded && thinkingBody != null,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
         ) {
+            Column {
+            PaperDivider(color = Divider)
             SafeMarkdownText(
                 markdown = thinkingBody.orEmpty(),
-                style = MaterialTheme.typography.bodySmall,
-                color = InkMuted,
+                style = MaterialTheme.typography.bodyMedium,
+                color = InkSecondary,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 2.dp, end = 2.dp),
+                    .padding(14.dp),
             )
+            }
         }
     }
 }

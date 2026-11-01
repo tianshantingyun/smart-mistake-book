@@ -3,7 +3,11 @@ package com.tingyun.smartmistakebook.feature.review
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -11,10 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.ButtonDefaults
+import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,7 +27,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -37,6 +44,7 @@ import com.tingyun.smartmistakebook.core.domain.StudySelfReportedReviewResult
 import com.tingyun.smartmistakebook.core.domain.StudySelfReportedReviewSubmission
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
 import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -154,7 +162,7 @@ internal fun selfReportRecordedMessage(
         "SELF_REPORTED_STUCK" -> "自评没想起来"
         else -> "自评"
     }
-    return "已记录：$judgement。证据口径：$evidence。"
+    return "已记录：$judgement。$evidence。"
 }
 
 /** 状态行文案（提交中断、撤销失败、撤销回执）。RECORDED/IDLE 由回执行单独承担。 */
@@ -164,20 +172,20 @@ internal fun selfReportStatusMessage(
     undoReceipt: ReviewUndoReceipt?,
 ): String? = when {
     undoStatus == SelfReportUndoStatus.RECORDING -> "正在撤销本次作答…"
-    undoStatus == SelfReportUndoStatus.FAILED -> "撤销没有写入成功，请重试；本次作答仍然有效。"
+    undoStatus == SelfReportUndoStatus.FAILED -> "暂时无法确认撤销结果，请重试。"
     undoStatus == SelfReportUndoStatus.UNDONE -> when {
-        undoReceipt == null -> "已撤销这次作答，会话已回到本题，可以重新作答。"
-        undoReceipt.created -> "已撤销这次作答（回执 ${undoReceipt.correctionId}）。" +
-            "会话已回到本题，可以重新作答。"
-        else -> "这次撤销此前已经生效（回执 ${undoReceipt.correctionId}），不会重复回退；" +
+        undoReceipt == null -> "已撤销，可以重新作答。"
+        undoReceipt.created -> "已撤销。" +
+            "可以重新作答。"
+        else -> "这次作答已撤销，不会重复撤销。" +
             "可以重新作答。"
     }
     status == SelfReportStatus.RECORDING -> "正在记录本次自评…"
-    status == SelfReportStatus.FAILED -> "自评没有写入成功，请重试（重复提交只生效一次）。"
+    status == SelfReportStatus.FAILED -> "暂时无法确认记录结果，请重试；不会重复记录。"
     else -> null
 }
 
-/** 已存答案的可用性：null 是"未知"，不能伪装成"没有可信答案"的断言。 */
+/** 已保存的答案的可用性：null 是"未知"，不能伪装成"没有可信答案"的断言。 */
 internal enum class StoredAnswerAvailability {
     TRUSTED,
     UNTRUSTED,
@@ -709,19 +717,16 @@ internal fun ReviewSelfReportKeys(
     /** 有已持久化但未拿到回执的提交：只有原判定键保持可点（用同一 request id 重试）。 */
     pendingSubmit: Boolean = false,
 ) {
-    Column(modifier = modifier.testTag("review_self_report_keys")) {
-        Text(
-            text = "这次回忆得怎么样？",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = SmartColors.Ink,
-        )
-        Spacer(Modifier.height(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            ReviewSelfReportKey.values().forEach { key ->
+    WorkspacePanel(modifier = modifier.testTag("review_self_report_keys")) {
+        Column {
+            Text(
+                text = "这次回忆得怎么样？",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = SmartColors.Ink,
+            )
+            Spacer(Modifier.height(8.dp))
+            val renderKey: @Composable (ReviewSelfReportKey, Modifier) -> Unit = { key, keyModifier ->
                 val copy = selfReportKeyPresentation(key)
                 SelfReportKeyButton(
                     label = copy.label,
@@ -739,16 +744,30 @@ internal fun ReviewSelfReportKeys(
                         pendingSubmit = pendingSubmit,
                     ),
                     onClick = { onSelect(key) },
-                    modifier = Modifier.weight(1f),
+                    modifier = keyModifier,
                 )
             }
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                // Preserve readable explanations at large fonts instead of making three tall text columns.
+                val needsFullRows = maxWidth < 80.dp * LocalDensity.current.fontScale * 3 + 16.dp
+                if (needsFullRows) {
+                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ReviewSelfReportKey.entries.forEach { renderKey(it, Modifier.fillMaxWidth()) }
+                    }
+                } else {
+                    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ReviewSelfReportKey.entries.forEach { renderKey(it, Modifier.weight(1f).fillMaxHeight()) }
+                    }
+                }
+            }
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = "按实际回忆情况选择。「卡顿」表示想起来了，但较费力。",
+                style = MaterialTheme.typography.bodySmall,
+                color = SmartColors.InkSecondary,
+            )
         }
-        Spacer(Modifier.height(6.dp))
-        Text(
-            text = "自评只记录你自己的判断，不会伪称机器判对；卡顿不是错。",
-            style = MaterialTheme.typography.bodySmall,
-            color = SmartColors.InkSecondary,
-        )
     }
 }
 
@@ -759,12 +778,14 @@ internal fun ReviewSelfReportReceipt(
     modifier: Modifier = Modifier,
 ) {
     val result = recorded ?: return
-    Text(
-        text = selfReportRecordedMessage(key = result.key, evidenceReason = result.evidenceReason),
-        style = MaterialTheme.typography.bodyMedium,
-        color = SmartColors.JadeDark,
-        modifier = modifier.testTag("review_self_report_receipt"),
-    )
+    Surface(color = SmartColors.JadeSoft, shape = RoundedCornerShape(16.dp)) {
+        Text(
+            text = selfReportRecordedMessage(key = result.key, evidenceReason = result.evidenceReason),
+            style = MaterialTheme.typography.bodyMedium,
+            color = SmartColors.JadeDark,
+            modifier = modifier.fillMaxWidth().padding(14.dp).testTag("review_self_report_receipt"),
+        )
+    }
 }
 
 @Composable
@@ -781,12 +802,18 @@ private fun SelfReportKeyButton(
         onClick = onClick,
         enabled = enabled,
         modifier = modifier
-            .height(64.dp)
+            .heightIn(min = 64.dp)
             .testTag(tag),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = if (selected) SmartColors.JadeSoft else SmartColors.SubtleSurface,
+            contentColor = SmartColors.Ink,
+            disabledContainerColor = SmartColors.SubtleSurface,
+            disabledContentColor = SmartColors.InkMuted,
+        ),
         border = BorderStroke(
             width = if (selected) 2.dp else 1.dp,
-            color = if (selected) SmartColors.JadeDark else SmartColors.Track,
+            color = if (selected) SmartColors.JadeDark else SmartColors.Divider,
         ),
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -800,6 +827,7 @@ private fun SelfReportKeyButton(
                 text = supporting,
                 style = MaterialTheme.typography.bodySmall,
                 color = SmartColors.InkSecondary,
+                textAlign = TextAlign.Center,
             )
         }
     }
@@ -816,35 +844,39 @@ internal fun ReviewStoredAnswerPanel(
     storedAnswer: ReviewStoredAnswer?,
     visible: Boolean,
     modifier: Modifier = Modifier,
-    revealLabel: String = "看已存答案与解析",
+    revealLabel: String = "查看已保存的答案与解析",
     onRequestReveal: (() -> Unit)? = null,
 ) {
     if (storedAnswer == null) return
     if (!storedAnswer.isTrusted) {
-        Text(
-            text = "这道题没有可信的已存答案：可以继续自评、跳过，或去讲题里请求讲解。",
-            style = MaterialTheme.typography.bodyMedium,
-            color = SmartColors.InkSecondary,
-            modifier = modifier.testTag("review_stored_answer_unavailable"),
-        )
-        // 没有答案键不等于没有已存解析：有解析就如实展示，并标明它不是答案键。
-        storedAnswer.explanationMarkdown
-            ?.takeIf { it.isNotBlank() }
-            ?.let { explanation ->
-                Spacer(Modifier.height(8.dp))
+        WorkspacePanel {
+            Column {
                 Text(
-                    text = "已存解析（不是可信答案键）",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = SmartColors.InkSecondary,
-                )
-                Spacer(Modifier.height(4.dp))
-                SafeMarkdownText(
-                    markdown = explanation,
-                    color = SmartColors.Ink,
+                    text = "暂无已确认的答案。你仍可自评、跳过，或到讲题页寻求讲解。",
                     style = MaterialTheme.typography.bodyMedium,
+                    color = SmartColors.InkSecondary,
+                    modifier = modifier.testTag("review_stored_answer_unavailable"),
                 )
+                // 没有答案键不等于没有已存解析：有解析就如实展示，并标明它不是答案键。
+                storedAnswer.explanationMarkdown
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { explanation ->
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = "已保存的解析（答案尚未确认）",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = SmartColors.InkSecondary,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        SafeMarkdownText(
+                            markdown = explanation,
+                            color = SmartColors.Ink,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
             }
+        }
         return
     }
     if (!visible) {
@@ -862,12 +894,13 @@ internal fun ReviewStoredAnswerPanel(
         modifier = modifier
             .fillMaxWidth()
             .testTag("review_stored_answer"),
-        color = SmartColors.JadeSoft.copy(alpha = 0.4f),
-        shape = RoundedCornerShape(10.dp),
+        color = SmartColors.ContentSurface,
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 1.dp,
     ) {
         Column(Modifier.padding(14.dp)) {
             Text(
-                text = "已存答案",
+                text = "已保存的答案",
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
                 color = SmartColors.JadeDark,
@@ -913,7 +946,7 @@ internal fun ReviewSelfReportStatusLine(
         color = if (status == SelfReportStatus.FAILED ||
             undoStatus == SelfReportUndoStatus.FAILED
         ) {
-            SmartColors.ErrorWarm
+            SmartColors.ErrorText
         } else {
             SmartColors.InkSecondary
         },

@@ -1,9 +1,9 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,16 +13,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequest
 import com.tingyun.smartmistakebook.core.domain.agentPendingRequestExportPayloadIsLegacy
 import com.tingyun.smartmistakebook.core.domain.tutorLocalActionExportProposal
+import com.tingyun.smartmistakebook.core.domain.tutorLocalActionContext
+import com.tingyun.smartmistakebook.core.domain.tutorLocalActionTarget
+import com.tingyun.smartmistakebook.core.domain.TutorLocalActionTarget
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestDecision
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestKind
-import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
+import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 
 /**
  * 确认卡（A4 / 插眼 5）：**本地动作的确认**——学生点了才会执行。
@@ -36,49 +43,57 @@ import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
  * 同一张卡，裁决后行落终态（不在界面上留一份会漂的状态）。
  */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 internal fun TutorPendingRequestCard(
     request: AgentPendingRequest,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    busy: Boolean = false,
     onDecide: (AgentPendingRequestDecision) -> Unit,
     testTagPrefix: String = "tutor_pending_request",
 ) {
     val copy = pendingRequestCopy(request.kind, request.payloadJson)
+    val canDecide = enabled && !busy
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .testTag(testTagPrefix),
-        color = JadeActive.copy(alpha = 0.06f),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, JadeActive.copy(alpha = 0.32f)),
+        color = SmartColors.PendingSurface,
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 1.dp,
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
                 text = copy.title,
-                color = Ink,
-                style = MaterialTheme.typography.titleSmall,
+                color = SmartColors.PendingAccent,
+                style = MaterialTheme.typography.titleMedium,
             )
             Text(
                 text = copy.detail,
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlineActionChip(
+            if (busy) Text("正在处理这次请求…", color = InkSecondary,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.testTag("${testTagPrefix}_busy")
+                    .semantics { liveRegion = LiveRegionMode.Polite })
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp),
+                maxItemsInEachRow = if (LocalDensity.current.fontScale > 1.3f) 1 else 2) {
+                PrimaryActionButton(
                     text = copy.acceptLabel,
-                    onClick = { if (enabled) onDecide(AgentPendingRequestDecision.ACCEPT) },
-                    enabled = enabled,
+                    onClick = { if (canDecide) onDecide(AgentPendingRequestDecision.ACCEPT) },
+                    enabled = canDecide,
                     modifier = Modifier
                         .weight(1f)
                         .testTag("${testTagPrefix}_accept"),
                 )
                 OutlineActionChip(
                     text = TUTOR_PENDING_DECLINE_LABEL,
-                    onClick = { if (enabled) onDecide(AgentPendingRequestDecision.DECLINE) },
-                    enabled = enabled,
+                    onClick = { if (canDecide) onDecide(AgentPendingRequestDecision.DECLINE) },
+                    enabled = canDecide,
                     modifier = Modifier
                         .weight(1f)
                         .testTag("${testTagPrefix}_decline"),
@@ -88,7 +103,7 @@ internal fun TutorPendingRequestCard(
     }
 }
 
-internal const val TUTOR_PENDING_DECLINE_LABEL = "先不用"
+internal const val TUTOR_PENDING_DECLINE_LABEL = "暂不处理"
 
 /** 一张确认卡的两句文案：它要做什么、做了之后落到哪。 */
 internal data class TutorPendingRequestCopy(
@@ -110,11 +125,17 @@ internal fun pendingRequestCopy(
 ): TutorPendingRequestCopy = when (kind) {
     AgentPendingRequestKind.NOTEBOOK_WRITE,
     AgentPendingRequestKind.SAVE_TO_NOTEBOOK,
-    -> TutorPendingRequestCopy(
-        title = "把这一轮的内容加入错题本？",
-        detail = "点了才会存：这一轮附上的图片会进入录入，稍后在错题本里就能看到。",
-        acceptLabel = "加入错题本",
-    )
+    -> tutorLocalActionContext(payloadJson ?: "{}").let { context ->
+      when (tutorLocalActionTarget(kind, context)) {
+        TutorLocalActionTarget.SAVE_CAPTURE_DRAFT -> TutorPendingRequestCopy(
+            "把这次拍照的题加入错题本？", "确认后保存这次拍照的草稿。", "加入错题本")
+        TutorLocalActionTarget.INTAKE_ATTACHED_IMAGES -> TutorPendingRequestCopy(
+            "录入这一轮附上的图片？", "确认后把附图加入录入队列，整理完成后可在错题本查看。", "加入录入")
+        else -> if (context.libraryProblemId != null) TutorPendingRequestCopy(
+            "查看错题本里的这道题？", "这道题已在错题本中，确认后打开它的详情。", "打开这道题")
+        else TutorPendingRequestCopy("打开错题本？", "确认后前往错题本查看已有题目。", "打开错题本")
+      }
+    }
     AgentPendingRequestKind.OPEN_PROBLEM -> TutorPendingRequestCopy(
         title = "打开这道题？",
         detail = "去错题本里看这道题的详情。",
@@ -144,7 +165,7 @@ internal fun pendingRequestCopy(
     // 文案与执行端的 notWiredYetDetail 同一口径：明说"还不能自动做"，不假装改过计划。
     AgentPendingRequestKind.ADD_TO_REVIEW_PLAN -> TutorPendingRequestCopy(
         title = "把这题放进复习计划？",
-        detail = "这一步现在还不能自动做：复习计划的调整还没接通，点了不会改动计划。",
+        detail = "暂不支持自动调整复习计划，本次不会修改计划。",
         acceptLabel = "知道了",
     )
 }

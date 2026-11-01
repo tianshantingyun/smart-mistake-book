@@ -93,7 +93,7 @@ FK 抓不到这些列，但它们是真实的引用（删了目标就会留下�
 
 `model_task` 家族是特殊的行级分裂（一张表两种归属），按各 kind 输入的 `subjectId` 定宿主
 （**一手证据**，见附录 F）：`CAPTURE_ASSESS`/`CAPTURE_PARSE` = draftId → 错题本；
-`PROBLEM_CLASSIFY`/`PROBLEM_RELATE` = problemRevisionId → 错题本；
+`PROBLEM_CLASSIFY`/`PROBLEM_RELATE`/`MISTAKE_EDIT`/`MISTAKE_SOLUTION` = problemRevisionId → 错题本；
 `IMAGE_PIPELINE_CLASSIFY` = `subjectIdOverride ?: sourceAssetId` → 资产域（生产者是采集/重绘）；
 `TUTOR_LOBBY` = conversationId、`TUTOR_PLAN`/`TUTOR_RESPOND` = `tutor-conv:captured:<会话>`、
 `LEARNING_SUMMARIZE` = sessionId → 会话；`KNOWLEDGE_QUIZ` = 知识点域 → 掌握库。
@@ -645,6 +645,7 @@ digest = SHA-256(  "smbk-selection-v1\n"
     "CAPTURE_ASSESS": "ISSUE_BOOK",
     "CAPTURE_PARSE": "ISSUE_BOOK",
     "PROBLEM_CLASSIFY": "ISSUE_BOOK",
+    "MISTAKE_EDIT": "ISSUE_BOOK",
     "PROBLEM_RELATE": "ISSUE_BOOK",
     "IMAGE_PIPELINE_CLASSIFY": "ISSUE_BOOK",
     "TUTOR_PLAN": "SESSIONS",
@@ -841,7 +842,7 @@ WHERE task_kind IN ('CAPTURE_ASSESS','CAPTURE_PARSE')
 
 -- 整理类：宿主是题面修订
 SELECT task_id, task_kind, subject_id FROM model_task
-WHERE task_kind IN ('PROBLEM_CLASSIFY','PROBLEM_RELATE')
+WHERE task_kind IN ('PROBLEM_CLASSIFY','PROBLEM_RELATE','MISTAKE_EDIT','MISTAKE_SOLUTION')
   AND NOT EXISTS (SELECT 1 FROM problem_revision r WHERE r.revision_id = subject_id);
 
 -- 图像分类类：宿主是源图资产（subjectIdOverride 有值时另说，实施时按真机采样钉死）
@@ -957,7 +958,7 @@ PRAGMA integrity_check;                                    -- 期望 'ok'
 
 | # | 脚本 | 命令 | 断言 |
 | --- | --- | --- | --- |
-| 1 | `check_selection_plan.py` | `python .zcode/tmp/check_selection_plan.py --doc docs/research/2026-10-17-6c2-content-selection-design.md --list-selections` | 84 表覆盖唯一；FK 推导的闭包 == `expectedClosure`；`trimOrder` 覆盖 76 张且是合法拓扑序；软引用清单的表/列/目标存在；`model_task` 分派覆盖 12 个 kind；枚举合法组合 |
+| 1 | `check_selection_plan.py` | `python .zcode/tmp/check_selection_plan.py --doc docs/research/2026-10-17-6c2-content-selection-design.md --list-selections` | 84 表覆盖唯一；FK 推导的闭包 == `expectedClosure`；`trimOrder` 覆盖 76 张且是合法拓扑序；软引用清单的表/列/目标存在；`model_task` 分派覆盖 13 个 kind；枚举合法组合 |
 | 2 | `dryrun_trim.py` | `python .zcode/tmp/dryrun_trim.py` | 用 schema 真实 DDL 建内存库 + 一表一行种子，5 组合法组合全部裁净（`foreign_key_check` 空、勾选表留 1 行、未勾选表 0 行、FTS 无孤儿 docid）；非法组合 `{错题本}` 被 FK 挡下（反证） |
 | 3 | `probe_fts_rebuild.py` / `probe_free_pages.py` | 同名命令 | FTS4 外部内容表 `rebuild` 在显式事务内可用/可回滚；DELETE 后哨兵文本仍在文件里、VACUUM 后消失 |
 
@@ -1646,7 +1647,7 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
 ### 9.11 机器可读清单 v2
 
 > 解析标记：`<!-- 6c2-plan-v2:begin -->` / `<!-- 6c2-plan-v2:end -->`。旧的 `6c2-plan` 标记仍是
-> schema 66 历史块，当前实现只读 v2。`closureVersion=2` 与本块同源；`identityHash` 必须等于
+> schema 66 历史块，v2 保留作历史记录；合并后的当前实现读取 §9.13 的 v4。`closureVersion=2` 与本块同源；`identityHash` 必须等于
 > `69.json` 的 `database.identityHash`。
 > 2026-10-24 回写：本块已由批次 18 实施为 `SmbkSelectionPlan.kt`，`SmbkSelectionPlanTest`（
 > `plan data matches the section 9_11 machine block field for field`）断言两处逐字段同源——改本块即改
@@ -1657,9 +1658,9 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
 ```json
 {
   "closureVersion": 2,
-  "schemaVersion": 69,
-  "identityHash": "6633b7c2fe223041c4a2927203853f4f",
-  "note": "v2（schema 69）：84 张旧表类别不变；新增 figure_generation_operation/attempt 为行级 split 家族；闭包规则见 §9.3，行级规则见 §9.5。",
+  "schemaVersion": 72,
+  "identityHash": "cd7a792ae31a46e939651e0e2bfd986c",
+  "note": "v2 (schema 72): paired export groups are ISSUE_BOOK facts; records carry group identity and artifact role.",
   "categories": {
     "ISSUE_BOOK": {
       "bit": 1,
@@ -1669,6 +1670,10 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
         "problem_revision",
         "practice_unit",
         "error_book_entry",
+        "mistake_edit_job",
+        "detailed_solution_manifest",
+        "mistake_export_group",
+        "detailed_solution",
         "problem_relation",
         "problem_classification_binding",
         "problem_classification_candidate",
@@ -1782,6 +1787,7 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "CAPTURE_ASSESS": "ISSUE_BOOK",
     "CAPTURE_PARSE": "ISSUE_BOOK",
     "PROBLEM_CLASSIFY": "ISSUE_BOOK",
+    "MISTAKE_EDIT": "ISSUE_BOOK",
     "PROBLEM_RELATE": "ISSUE_BOOK",
     "IMAGE_PIPELINE_CLASSIFY": "ISSUE_BOOK",
     "TUTOR_PLAN": "SESSIONS",
@@ -1790,7 +1796,8 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "TUTOR_EVALUATE": "SESSIONS",
     "LEARNING_SUMMARIZE": "SESSIONS",
     "REVIEW_RERANK": "MASTERY",
-    "KNOWLEDGE_QUIZ": "MASTERY"
+    "KNOWLEDGE_QUIZ": "MASTERY",
+    "MISTAKE_SOLUTION": "ISSUE_BOOK"
   },
   "modelTaskRowFilter": {
     "appliesTo": [
@@ -2136,6 +2143,8 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     }
   ],
   "trimOrder": [
+    "detailed_solution",
+    "mistake_edit_job",
     "tutor_message_source_asset",
     "tutor_message",
     "split_import_question",
@@ -2163,6 +2172,8 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "student_model_prediction",
     "model_task_event",
     "mistake_export_record",
+    "mistake_export_group",
+    "detailed_solution_manifest",
     "llm_teaching_advisory",
     "library_search_outbox",
     "library_search_content",
@@ -2252,12 +2263,12 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
   "digest": {
     "algorithm": "sha256( \"smbk-selection-v2\\n\" + \"closureVersion=2\\n\" + \"categories=\" + categories.sorted().joinToString(\",\") + \"\\n\" + \"assetPolicy=\" + assetPolicy + \"\\n\" + rowCounts.keys.sorted().joinToString(\"\"){ \"$it=${rowCounts[it]}\\n\" } )",
     "rowCountsSource": "裁剪后快照的逐表 COUNT(*)；split 表按行级筛选后的行数",
-    "trimmedTableCount": "删除行数 > 0 的表数（不含 FTS rebuild）；v2 上限 78",
+    "trimmedTableCount": "number of tables with deleted rows, excluding FTS rebuild; maximum 82",
     "goldenEmptyFull": {
       "mask": 15,
       "assetPolicy": "INCLUDED",
-      "sha256": "d6ec73ac07e596a11ff97ac292cf01a41e0f962659a2b542a6d8a15c56a5dad6",
-      "note": "69 schema、空库、全选；rowCounts 为全部 86 表=0；派生表恒裁（裁定③）下也是 0 行，该向量不受裁定影响；SmbkSelectionPlanTest 以此为 golden 断言"
+      "sha256": "22bb99524f5ae46607768a24a410e06ef28b1b80fd5999883a43f908f8607a41",
+      "note": "schema 72; 90 tables; empty full selection"
     }
   }
 }
@@ -2288,3 +2299,720 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
 复跑方式（下一批实施时建议落到 `tools/backup/`）：读取 `69.json` 与
 `<!-- 6c2-plan-v2:begin -->` 内的 JSON；按 #2 做集合相等，按 #3 从 `foreignKeys` 折叠闭包，按 #4 做
 拓扑排序校验，按 #7 复算摘要。任何一项差异都说明“文档规则”与“schema 69”漂开，必须先改清单再写代码。
+
+
+## 9.13 合并主分支后的 schema 72 / closure v4（2026-11-01）
+
+本节为当前实现权威，取代前面的 v2 历史机器块。包含主分支的视觉快照保留规则、94 张表、106 条外键和本次新增的 4 张内页功能表；允许的选择仍为 9/13/15，0/8 仍拒绝。新增任务种类后规则版本升至 4，旧规则不冒充当前结构。
+
+<!-- 6c2-plan-v4:begin -->
+```json
+{
+  "closureVersion": 4,
+  "schemaVersion": 72,
+  "identityHash": "7afd54457052b5bd0f1a6c6a97f32238",
+  "note": "合并主分支视觉快照与错题内页后的当前规则；保留已发布 70/71 schema，统一 71→72 迁移。",
+  "categories": {
+    "ISSUE_BOOK": {
+      "bit": 1,
+      "label": "错题本",
+      "tables": [
+        "problem",
+        "problem_revision",
+        "practice_unit",
+        "error_book_entry",
+        "mistake_edit_job",
+        "detailed_solution_manifest",
+        "detailed_solution",
+        "mistake_export_group",
+        "problem_relation",
+        "problem_classification_binding",
+        "problem_classification_candidate",
+        "problem_organization_receipt",
+        "practice_unit_knowledge_binding",
+        "problem_revision_source_asset",
+        "problem_revision_visual",
+        "problem_draft",
+        "problem_draft_source_asset",
+        "problem_draft_revision",
+        "problem_draft_edit_snapshot",
+        "problem_draft_commit_receipt",
+        "batch_import_job",
+        "batch_import_page",
+        "split_import_job",
+        "split_import_question",
+        "clean_redraw_task",
+        "library_search_content",
+        "library_search_fts",
+        "library_search_outbox",
+        "knowledge_grounding_request",
+        "knowledge_grounding_resolution",
+        "knowledge_research_review_bundle",
+        "knowledge_research_review_source",
+        "mistake_export_record",
+        "binding_audit_sample",
+        "llm_teaching_advisory"
+      ]
+    },
+    "MASTERY": {
+      "bit": 2,
+      "label": "掌握库",
+      "tables": [
+        "assessment_item_snapshot",
+        "assessment_event",
+        "assessment_evidence_snapshot",
+        "assessment_evidence_attribution",
+        "assessment_presentation",
+        "assessment_answer_reveal_event",
+        "answer_reveal_outcome",
+        "attempt_submission",
+        "attempt_event",
+        "attempt_correction",
+        "binding_change_event",
+        "learning_sequence",
+        "projection_outbox",
+        "learner_projection_snapshot",
+        "projection_archive",
+        "learner_problem_memory_state",
+        "learner_knowledge_mastery_state",
+        "independent_correct_observation",
+        "applied_attempt_record",
+        "applied_correction_record",
+        "applied_answer_reveal_record",
+        "applied_tutor_answer_exposure_record",
+        "presentation_projection_state",
+        "review_plan",
+        "active_review_plan_slot",
+        "review_queue_item",
+        "review_queue_knowledge_node",
+        "review_queue_reason",
+        "review_session",
+        "review_session_revision",
+        "review_session_advance_receipt",
+        "review_log",
+        "student_model_prediction",
+        "prediction_outcome",
+        "learner_chat_evidence"
+      ]
+    },
+    "SESSIONS": {
+      "bit": 4,
+      "label": "会话",
+      "tables": [
+        "tutor_conversation",
+        "tutor_message",
+        "tutor_message_visual",
+        "tutor_message_source_asset",
+        "agent_pending_request",
+        "tutor_answer_exposure",
+        "tutor_answer_exposure_outcome"
+      ]
+    },
+    "IMAGES": {
+      "bit": 8,
+      "label": "图片",
+      "tables": [
+        "canonical_source_asset"
+      ]
+    }
+  },
+  "alwaysTables": [
+    "knowledge_node",
+    "knowledge_source",
+    "knowledge_node_source_binding",
+    "knowledge_node_relation",
+    "knowledge_teaching_material",
+    "knowledge_teaching_material_node_binding",
+    "content_install_state"
+  ],
+  "derivedTables": [
+    "knowledge_search_feature",
+    "knowledge_search_index_state"
+  ],
+  "splitTables": [
+    "model_task_event",
+    "model_task",
+    "model_task_operation",
+    "figure_generation_attempt",
+    "figure_generation_operation",
+    "tutor_visual_snapshot",
+    "tutor_visual_program"
+  ],
+  "modelTaskKindCategory": {
+    "CAPTURE_ASSESS": "ISSUE_BOOK",
+    "CAPTURE_PARSE": "ISSUE_BOOK",
+    "PROBLEM_CLASSIFY": "ISSUE_BOOK",
+    "PROBLEM_RELATE": "ISSUE_BOOK",
+    "MISTAKE_EDIT": "ISSUE_BOOK",
+    "MISTAKE_SOLUTION": "ISSUE_BOOK",
+    "IMAGE_PIPELINE_CLASSIFY": "ISSUE_BOOK",
+    "TUTOR_PLAN": "SESSIONS",
+    "TUTOR_RESPOND": "SESSIONS",
+    "TUTOR_LOBBY": "SESSIONS",
+    "TUTOR_EVALUATE": "SESSIONS",
+    "LEARNING_SUMMARIZE": "SESSIONS",
+    "REVIEW_RERANK": "MASTERY",
+    "KNOWLEDGE_QUIZ": "MASTERY"
+  },
+  "modelTaskRowFilter": {
+    "appliesTo": [
+      "model_task_event",
+      "model_task",
+      "model_task_operation"
+    ],
+    "deletedKinds": "modelTaskKindCategory 中类别未被选中的 kind 集合（全选时为空）",
+    "steps": [
+      "DELETE model_task_event WHERE task_id IN (SELECT task_id FROM model_task WHERE task_kind IN :deleted_kinds)",
+      "DELETE model_task WHERE task_kind IN :deleted_kinds",
+      "DELETE model_task_operation WHERE task_kind IN :deleted_kinds"
+    ],
+    "unknownKind": "真子集遇映射外的 kind → fail-closed；全选保留",
+    "note": "三处共用同一 kind 集合；model_task 是 model_task_operation 的子，删除顺序 event→task→operation"
+  },
+  "figureOperationSourceKindCategory": {
+    "TUTOR_MESSAGE": "SESSIONS",
+    "PROBLEM_REVISION": "ISSUE_BOOK",
+    "CLEAN_REDRAW": "ISSUE_BOOK",
+    "CAPTURE_PARSE": "ISSUE_BOOK"
+  },
+  "figureSourceIdSemantics": {
+    "TUTOR_MESSAGE": "T1b 在飞：TutorFigureGenerator 写 parentOperationId ?: operationId；AttachedImageGenerator 写 parentRequestId；coordinator 旧调用回退写 parent.requestId。不是统一的 tutor_message 行主键，不能按 source_id 反查消息行",
+    "PROBLEM_REVISION": "保留：意图是 problem_revision.revision_id；生产无写入者，未验证",
+    "CLEAN_REDRAW": "T1b 在飞：父为 CleanRedrawTask 时写 taskId；父为 ModelTask 时写 parent.requestId。不是统一的行主键",
+    "CAPTURE_PARSE": "保留：意图是采集解析的草稿/作业 id；生产无写入者，未验证"
+  },
+  "figureRowFilter": {
+    "appliesTo": [
+      "figure_generation_attempt",
+      "figure_generation_operation"
+    ],
+    "when": "仅真子集（任一类别未勾选）；mask=15 全选时整表保留、不做行级筛选",
+    "prepass": "同一事务内、任何 DELETE 之前物化 kept_asset / kept_operation / kept_attempt 三张临时表",
+    "steps": [
+      "R = 存活根引用表指向的资产（problem_revision_source_asset / problem_draft_source_asset / problem_draft.source_asset_id 当 ISSUE_BOOK 选中；tutor_message_source_asset 当 SESSIONS 选中）",
+      "O_seed = 类别被选中的 operation（source_kind 按 figureOperationSourceKindCategory）+ 存活 clean_redraw_task.operation_id 指向的 operation",
+      "O_ref = 产出资产属于 R 的 attempt 所属 operation（被删会话/题目域仍因共享图保留）",
+      "O_keep = O_seed ∪ O_ref",
+      "A_keep = operation_id ∈ O_keep 的全部 attempt ∪ output_asset_id ∈ R 的 attempt",
+      "P = R ∪ A_keep 的非空 output_asset_id（第五个资产引用站点；I5 与 readReferencedCanonicalAssets 必须同源）",
+      "DELETE figure_generation_attempt WHERE attempt_id ∉ A_keep；再 DELETE figure_generation_operation WHERE operation_id ∉ O_keep"
+    ],
+    "unknownSourceKind": "真子集：未知 kind 且不在 O_keep → fail-closed；已被共享产物/clean_redraw 引用拉入 O_keep 的 → 保留；全选保留；新增 kind 必须 bump closureVersion",
+    "methodPolicy": "method 不参与筛选；JS 行只作为数据保留，恢复/导出/查看均不执行 JS",
+    "sharedOutput": "同一资产可被多条根引用与多次 attempt 产出（content_sha256 唯一、去重），不得假设 1:1"
+  },
+  "rebuildTables": [
+    "detailed_solution",
+    "mistake_edit_job",
+    "tutor_message_visual",
+    "problem_revision_visual",
+    "tutor_visual_snapshot",
+    "tutor_visual_program",
+    "tutor_message_source_asset",
+    "tutor_message",
+    "split_import_question",
+    "split_import_job",
+    "review_session_advance_receipt",
+    "review_session_revision",
+    "review_session",
+    "review_queue_reason",
+    "review_queue_knowledge_node",
+    "review_queue_item",
+    "review_log",
+    "projection_outbox",
+    "projection_archive",
+    "problem_revision_source_asset",
+    "problem_relation",
+    "problem_organization_receipt",
+    "problem_draft_source_asset",
+    "problem_draft_edit_snapshot",
+    "problem_draft_revision",
+    "problem_draft_commit_receipt",
+    "problem_classification_candidate",
+    "problem_classification_binding",
+    "presentation_projection_state",
+    "prediction_outcome",
+    "student_model_prediction",
+    "model_task_event",
+    "mistake_export_record",
+    "mistake_export_group",
+    "detailed_solution_manifest",
+    "llm_teaching_advisory",
+    "library_search_outbox",
+    "library_search_content",
+    "learning_sequence",
+    "learner_problem_memory_state",
+    "learner_chat_evidence",
+    "knowledge_search_index_state",
+    "knowledge_search_feature",
+    "knowledge_research_review_source",
+    "knowledge_research_review_bundle",
+    "knowledge_grounding_resolution",
+    "knowledge_grounding_request",
+    "independent_correct_observation",
+    "learner_knowledge_mastery_state",
+    "error_book_entry",
+    "clean_redraw_task",
+    "binding_change_event",
+    "binding_audit_sample",
+    "batch_import_page",
+    "problem_draft",
+    "figure_generation_attempt",
+    "figure_generation_operation",
+    "canonical_source_asset",
+    "batch_import_job",
+    "assessment_presentation",
+    "assessment_evidence_attribution",
+    "practice_unit_knowledge_binding",
+    "assessment_event",
+    "assessment_item_snapshot",
+    "applied_tutor_answer_exposure_record",
+    "tutor_answer_exposure_outcome",
+    "tutor_answer_exposure",
+    "model_task",
+    "model_task_operation",
+    "applied_correction_record",
+    "attempt_correction",
+    "applied_attempt_record",
+    "attempt_event",
+    "attempt_submission",
+    "applied_answer_reveal_record",
+    "learner_projection_snapshot",
+    "answer_reveal_outcome",
+    "assessment_answer_reveal_event",
+    "assessment_evidence_snapshot",
+    "practice_unit",
+    "problem_revision",
+    "problem",
+    "agent_pending_request",
+    "tutor_conversation",
+    "active_review_plan_slot",
+    "review_plan"
+  ],
+  "expectedClosure": [
+    [
+      "ISSUE_BOOK",
+      "IMAGES"
+    ],
+    [
+      "MASTERY",
+      "ISSUE_BOOK"
+    ],
+    [
+      "MASTERY",
+      "SESSIONS"
+    ],
+    [
+      "SESSIONS",
+      "ISSUE_BOOK"
+    ],
+    [
+      "SESSIONS",
+      "IMAGES"
+    ]
+  ],
+  "rowLevelEdges": [
+    {
+      "child": "model_task_event",
+      "parent": "model_task",
+      "column": "task_id",
+      "kind": "split-family-intra",
+      "onDelete": "RESTRICT",
+      "note": "同一 task_kind 谓词三级删除的最深一级"
+    },
+    {
+      "child": "model_task",
+      "parent": "model_task_operation",
+      "column": "operation_fingerprint",
+      "kind": "split-family-intra",
+      "onDelete": "RESTRICT",
+      "note": "同一 task_kind 谓词；operation 是 task 的父，删除顺序 task→operation"
+    },
+    {
+      "child": "tutor_answer_exposure",
+      "parent": "model_task",
+      "column": "model_task_request_id",
+      "kind": "cross-family-to-split",
+      "onDelete": "RESTRICT",
+      "note": "SESSIONS 表硬 FK 到 split 的 model_task；正常 kind 为 TUTOR_*（SESSIONS），kind 谓词删同一集合；异常 kind 由 I1 兜底"
+    },
+    {
+      "child": "figure_generation_attempt",
+      "parent": "figure_generation_operation",
+      "column": "operation_id",
+      "kind": "split-family-intra",
+      "onDelete": "RESTRICT"
+    },
+    {
+      "child": "figure_generation_attempt",
+      "parent": "canonical_source_asset",
+      "column": "output_asset_id",
+      "kind": "attempt-output-pin",
+      "onDelete": "RESTRICT",
+      "note": "行级边；attempt 行类别 ∈ {ISSUE_BOOK,SESSIONS}，两者都已蕴含 IMAGES，故不新增类别闭包"
+    }
+  ],
+  "assetRoots": [
+    {
+      "table": "problem_revision_source_asset",
+      "column": "source_asset_id",
+      "category": "ISSUE_BOOK"
+    },
+    {
+      "table": "problem_draft_source_asset",
+      "column": "source_asset_id",
+      "category": "ISSUE_BOOK"
+    },
+    {
+      "table": "problem_draft",
+      "column": "source_asset_id",
+      "category": "ISSUE_BOOK"
+    },
+    {
+      "table": "tutor_message_source_asset",
+      "column": "source_asset_id",
+      "category": "SESSIONS"
+    }
+  ],
+  "assetPinRule": {
+    "definition": "keptAssets = 四张根引用表在存活行上的资产 ∪ 存活 attempt 的 output_asset_id",
+    "sites": 5,
+    "requirement": "实现 6C-2 前必须把 attempt.output_asset_id 并入 findUnreferencedCanonicalAssets / readReferencedCanonicalAssets（T5），否则 I5 会漏收被 attempt 钉住的图",
+    "canonicalRowPolicy": "IMAGES 选中时 canonical_source_asset 整表保留（v2 语义）；包内文件只含 keptAssets，未引用行随包保留但不带文件，恢复后由既有孤儿回收处理"
+  },
+  "softReferences": [
+    {
+      "table": "model_task",
+      "column": "subject_id",
+      "targetTable": "*by-task-kind*",
+      "kind": "by-kind",
+      "check": "no-new-dangling",
+      "strength": "weak-host-hint",
+      "checkDetail": "host existence only for non-terminal statuses; terminal rows may dangle"
+    },
+    {
+      "table": "model_task_operation",
+      "column": "subject_id",
+      "targetTable": "*by-task-kind*",
+      "kind": "by-kind",
+      "check": "no-new-dangling",
+      "strength": "weak-host-hint",
+      "checkDetail": "kind known only; host existence not required (ledger outlives host)"
+    },
+    {
+      "table": "tutor_conversation",
+      "column": "capture_draft_id",
+      "targetTable": "problem_draft",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "tutor_conversation",
+      "column": "anchor_practice_unit_id",
+      "targetTable": "practice_unit",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "tutor_conversation",
+      "column": "anchor_problem_revision_id",
+      "targetTable": "problem_revision",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "tutor_conversation",
+      "column": "anchor_id",
+      "targetTable": "*by-anchor-kind*",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "tutor_message",
+      "column": "bound_problem_id",
+      "targetTable": "problem",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "tutor_message",
+      "column": "bound_problem_revision_id",
+      "targetTable": "problem_revision",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "tutor_message_source_asset",
+      "column": "basis_revision_id",
+      "targetTable": "problem_revision",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "learner_chat_evidence",
+      "column": "conversation_id",
+      "targetTable": "tutor_conversation",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "binding_change_event",
+      "column": "practice_unit_id",
+      "targetTable": "practice_unit",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "student_model_prediction",
+      "column": "practice_unit_id",
+      "targetTable": "practice_unit",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "review_log",
+      "column": "card_id",
+      "targetTable": "practice_unit",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "clean_redraw_task",
+      "column": "subject_id",
+      "targetTable": "problem_draft",
+      "kind": "same-category",
+      "check": "no-new-dangling",
+      "strength": "weak-host-hint"
+    },
+    {
+      "table": "clean_redraw_task",
+      "column": "operation_id",
+      "targetTable": "figure_generation_operation",
+      "kind": "split-family",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    },
+    {
+      "table": "figure_generation_operation",
+      "column": "source_id",
+      "targetTable": "*by-source-kind*",
+      "kind": "split-family",
+      "check": "informational",
+      "strength": "weak-host-hint"
+    },
+    {
+      "table": "library_search_fts",
+      "column": "docid",
+      "targetTable": "library_search_content",
+      "kind": "same-category",
+      "check": "rebuild-consistency",
+      "strength": "informational",
+      "virtual": true
+    },
+    {
+      "table": "learner_chat_evidence",
+      "column": "knowledge_node_id",
+      "targetTable": "knowledge_node",
+      "kind": "always",
+      "check": "none",
+      "strength": "informational"
+    },
+    {
+      "table": "llm_teaching_advisory",
+      "column": "knowledge_node_id",
+      "targetTable": "knowledge_node",
+      "kind": "always",
+      "check": "none",
+      "strength": "informational"
+    },
+    {
+      "table": "student_model_prediction",
+      "column": "knowledge_node_id",
+      "targetTable": "knowledge_node",
+      "kind": "always",
+      "check": "none",
+      "strength": "informational"
+    },
+    {
+      "table": "tutor_visual_program",
+      "column": "basis_revision_id",
+      "targetTable": "problem_revision",
+      "kind": "cross-category",
+      "check": "no-new-dangling",
+      "strength": "strong"
+    }
+  ],
+  "opaqueColumns": [
+    {
+      "table": "figure_generation_attempt",
+      "column": "reservation_id",
+      "reason": "账本授予句柄（figure-dispatch:<sha> / clean-redraw-dispatch:<task>:<n>），不是行主键；无目标列可引用"
+    },
+    {
+      "table": "review_queue_item",
+      "column": "item_family_id",
+      "reason": "前缀+practice_unit_id 的家族令牌，不是行引用（旧 v1 清单把它列成空 target，v2 移除）"
+    },
+    {
+      "table": "tutor_conversation",
+      "column": "anchor_revision_id",
+      "reason": "anchor 键空间的一部分（questionDocumentId:draftRevisionNumber），由 anchor_id/anchor_kind 承载行引用"
+    },
+    {
+      "table": "figure_generation_operation",
+      "column": "basis_fingerprint",
+      "reason": "冻结输入的哈希，不是行引用"
+    },
+    {
+      "table": "figure_generation_attempt",
+      "column": "input_fingerprint",
+      "reason": "请求逻辑指纹，不是行引用"
+    }
+  ],
+  "trimOrder": [
+    "detailed_solution",
+    "mistake_edit_job",
+    "tutor_message_visual",
+    "problem_revision_visual",
+    "tutor_visual_snapshot",
+    "tutor_visual_program",
+    "tutor_message_source_asset",
+    "tutor_message",
+    "split_import_question",
+    "split_import_job",
+    "review_session_advance_receipt",
+    "review_session_revision",
+    "review_session",
+    "review_queue_reason",
+    "review_queue_knowledge_node",
+    "review_queue_item",
+    "review_log",
+    "projection_outbox",
+    "projection_archive",
+    "problem_revision_source_asset",
+    "problem_relation",
+    "problem_organization_receipt",
+    "problem_draft_source_asset",
+    "problem_draft_edit_snapshot",
+    "problem_draft_revision",
+    "problem_draft_commit_receipt",
+    "problem_classification_candidate",
+    "problem_classification_binding",
+    "presentation_projection_state",
+    "prediction_outcome",
+    "student_model_prediction",
+    "model_task_event",
+    "mistake_export_record",
+    "mistake_export_group",
+    "detailed_solution_manifest",
+    "llm_teaching_advisory",
+    "library_search_outbox",
+    "library_search_content",
+    "learning_sequence",
+    "learner_problem_memory_state",
+    "learner_chat_evidence",
+    "knowledge_search_index_state",
+    "knowledge_search_feature",
+    "knowledge_research_review_source",
+    "knowledge_research_review_bundle",
+    "knowledge_grounding_resolution",
+    "knowledge_grounding_request",
+    "independent_correct_observation",
+    "learner_knowledge_mastery_state",
+    "error_book_entry",
+    "clean_redraw_task",
+    "binding_change_event",
+    "binding_audit_sample",
+    "batch_import_page",
+    "problem_draft",
+    "figure_generation_attempt",
+    "figure_generation_operation",
+    "canonical_source_asset",
+    "batch_import_job",
+    "assessment_presentation",
+    "assessment_evidence_attribution",
+    "practice_unit_knowledge_binding",
+    "assessment_event",
+    "assessment_item_snapshot",
+    "applied_tutor_answer_exposure_record",
+    "tutor_answer_exposure_outcome",
+    "tutor_answer_exposure",
+    "model_task",
+    "model_task_operation",
+    "applied_correction_record",
+    "attempt_correction",
+    "applied_attempt_record",
+    "attempt_event",
+    "attempt_submission",
+    "applied_answer_reveal_record",
+    "learner_projection_snapshot",
+    "answer_reveal_outcome",
+    "assessment_answer_reveal_event",
+    "assessment_evidence_snapshot",
+    "practice_unit",
+    "problem_revision",
+    "problem",
+    "agent_pending_request",
+    "tutor_conversation",
+    "active_review_plan_slot",
+    "review_plan"
+  ],
+  "maskPolicy": {
+    "closedMasks": [
+      15,
+      13,
+      9
+    ],
+    "openMasks": [
+      {
+        "mask": 8,
+        "decision": "IMAGES_ONLY",
+        "state": "REJECTED",
+        "note": "2026-10-23 用户裁定不提供（批次 18 记录 §1.2-①）：产物恢复后资产无引用者，孤儿回收会清掉；UI 不可达、仓储拒绝，不静默补齐"
+      },
+      {
+        "mask": 0,
+        "decision": "EMPTY_SELECTION",
+        "state": "REJECTED",
+        "note": "2026-10-23 用户裁定禁止（批次 18 记录 §1.2-②）：产物是重置包（仅知识层+设置）；UI 不可达、仓储拒绝"
+      }
+    ],
+    "unknownMask": "REJECT",
+    "closingRule": "子类别隐含父类别；不静默补齐、不静默缩水；create() 只接受自洽选择",
+    "note": "openMasks 键名与 0/8 两项是 SmbkSelectionPlanTest 的解析契约（断言该数组恰好列出 0/8 且均不可创建）；state 已按 2026-10-23 裁定由设计期 OPEN 改为 REJECTED，允许集合 = closedMasks = allowedMasks = {9,13,15}"
+  },
+  "derivedPolicy": {
+    "decision": "TRIM_AND_REBUILD_AFTER_RESTORE",
+    "decidedAt": "2026-10-23",
+    "options": [
+      "ALWAYS_TRIM",
+      "KEEP_ON_FULL_SELECTION",
+      "TRIM_AND_REBUILD_AFTER_RESTORE"
+    ],
+    "note": "已裁并实施（批次 18 记录 §1.2-③，即 §6.1-③ 的 a+c）：恒裁（全选也裁两张派生表，AndroidBackupRepository 对所有 mask 调用裁剪器）+ 恢复完成后按科后台重建（RestoreIndexRebuild 按科 rebuildKnowledgeSearchIndex，失败保留标记 PARTIAL_FAILURE）。不改变类别/FK/软引用/顺序规则；全选包不再与 v2 字节等价"
+  },
+  "digest": {
+    "algorithm": "sha256(smbk-selection-v4 + closureVersion=4 + sorted categories + assetPolicy + sorted rowCounts); encoding and newlines follow SmbkSelectionPlan.closureDigest",
+    "emptyFullSelectionGolden": "d1ce4492494a0c13e32a7c372e6cab4bb25dcdd72c258c8e8ffe2acbabcee8c5"
+  },
+  "visualRowFilter": {
+    "tables": [
+      "tutor_visual_snapshot",
+      "tutor_visual_program"
+    ],
+    "rule": "保留存活消息/题面链接引用的快照及其 program，同时保留同 program 的 INITIAL 基线。"
+  }
+}
+```
+<!-- 6c2-plan-v4:end -->

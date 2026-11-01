@@ -11,7 +11,7 @@ class LearningMasterySubtitleTest {
     @Test
     fun `empty profile explains that learning history is automatic`() {
         assertEquals(
-            "做过题后，这里会自动形成你的学习情况",
+            "完成作答后，可在这里查看学习情况",
             learningMasterySubtitle(StudyProfileOverview()),
         )
     }

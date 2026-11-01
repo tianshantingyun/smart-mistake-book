@@ -68,7 +68,7 @@ class LibraryBatchExportEntryInstrumentedTest {
         }
 
         composeRule.onNodeWithTag("library_export_visible").assertDoesNotExist()
-        // 「导出成果」是常驻入口（通知未授权时的退化落点），空库也必须在。
+        // 「已导出的文件」是常驻入口（通知未授权时的退化落点），空库也必须在。
         composeRule.onNodeWithTag("library_export_results").performClick()
         composeRule.runOnIdle { assertEquals(true, exportResultsOpened) }
     }

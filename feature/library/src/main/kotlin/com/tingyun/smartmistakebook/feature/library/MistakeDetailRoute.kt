@@ -1,11 +1,16 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -19,20 +24,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Chat
-import androidx.compose.material.icons.outlined.Image
 import androidx.compose.material.icons.outlined.PictureAsPdf
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
+import com.tingyun.smartmistakebook.core.ui.ClaudeButton as Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -45,8 +49,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawCommand
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawFailureReason
@@ -97,6 +104,7 @@ fun MistakeDetailRoute(
     errorBookEntryId: String,
     repository: MistakeDetailRepository,
     organizationRepository: MistakeOrganizationRepository,
+    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository? = null,
     modelTasks: ModelTaskRepository,
     profile: StudyProfileOverview,
     catalogEntries: List<StudyCatalogEntry>,
@@ -113,6 +121,8 @@ fun MistakeDetailRoute(
     /** 知识能力就绪位（D-Q3）：未就绪时智能整理如实说"准备中"，不发起、也不误报模型未配置。 */
     knowledgeBaseAvailability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
     modifier: Modifier = Modifier,
+    agentEdits: com.tingyun.smartmistakebook.core.domain.MistakeEditRepository? = null,
+    modelEgressAllowed: Boolean = false,
 ) {
     var selectedRevisionId by rememberSaveable(errorBookEntryId) {
         mutableStateOf<String?>(null)
@@ -126,6 +136,9 @@ fun MistakeDetailRoute(
         MistakeRevisionEditRoute(
             entryId = errorBookEntryId,
             repository = repository,
+            agentEdits = agentEdits,
+            modelEgressAllowed = modelEgressAllowed,
+            onOpenModelSettings = onOpenModelSettings,
             onBack = {
                 editing = false
                 // A save may have succeeded even if the learner used the back arrow instead of
@@ -134,7 +147,7 @@ fun MistakeDetailRoute(
             },
             onDone = {
                 editing = false
-                savedRevisionNotice = "已保存题面修改；复习、导出和再次打开都会使用当前版本。"
+                savedRevisionNotice = "修改已保存，之后的复习和导出将使用当前题面。"
                 refreshToken += 1
             },
             modifier = modifier,
@@ -178,6 +191,7 @@ fun MistakeDetailRoute(
         onTutor = onTutor,
         repository = repository,
         organizationRepository = organizationRepository,
+                knowledgeCatalog = knowledgeCatalog,
         modelTasks = modelTasks,
         profile = profile,
         catalogEntries = catalogEntries,
@@ -204,6 +218,7 @@ internal fun MistakeDetailContent(
     onTutor: (MistakeRevisionKey) -> Unit = {},
     repository: MistakeDetailRepository? = null,
     organizationRepository: MistakeOrganizationRepository? = null,
+    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository? = null,
     modelTasks: ModelTaskRepository? = null,
     profile: StudyProfileOverview = StudyProfileOverview(),
     catalogEntries: List<StudyCatalogEntry> = emptyList(),
@@ -261,6 +276,7 @@ internal fun MistakeDetailContent(
                 onBack = onBack,
                 repository = repository,
                 organizationRepository = organizationRepository,
+                knowledgeCatalog = knowledgeCatalog,
                 modelTasks = modelTasks,
                 profile = profile,
                 catalogEntries = catalogEntries,
@@ -320,31 +336,8 @@ private fun HistoricalRevisionRecovery(
 
 @Composable
 private fun MistakeDetailHeader(onBack: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 58.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = onBack,
-            modifier = Modifier
-                .size(48.dp)
-                .testTag("mistake_detail_back"),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "返回",
-                tint = Ink,
-            )
-        }
-        Spacer(Modifier.size(4.dp))
-        Text(
-            text = "错题详情",
-            color = Ink,
-            style = MaterialTheme.typography.headlineSmall,
-        )
-    }
+    ClaudePageHeader("错题详情", onBack = onBack,
+        backModifier = Modifier.testTag("mistake_detail_back"))
 }
 
 @Composable
@@ -378,6 +371,7 @@ private fun ReadyDetail(
     onBack: () -> Unit,
     repository: MistakeDetailRepository?,
     organizationRepository: MistakeOrganizationRepository?,
+    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository?,
     modelTasks: ModelTaskRepository?,
     profile: StudyProfileOverview,
     catalogEntries: List<StudyCatalogEntry>,
@@ -415,7 +409,7 @@ private fun ReadyDetail(
             ) {
                 Column(Modifier.padding(14.dp)) {
                     Text(
-                        "你正在查看旧题面。讲题、复习和重新整理只使用当前版本，避免把过期内容写进学习记录。",
+                        "这是旧版题面，仅供查看。讲题、复习和整理使用当前版本。",
                         color = InkSecondary,
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -443,47 +437,57 @@ private fun ReadyDetail(
                 contentDescription = "继续或开始讲解这道错题",
             )
         }
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        SectionHeader("题面")
-        Spacer(Modifier.height(12.dp))
-        StructuredContentRenderer(
-            document = state.questionDocument.document,
-            choicesEnabled = false,
-        )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        if (!isViewingHistoricalRevision && onEdit != null) {
-            InlineActionButton("修改这道题", onEdit, Modifier.testTag("mistake_detail_edit"))
-        }
-        InlineActionButton(
-            text = if (isViewingHistoricalRevision) "导出这一版 A4" else "导出 A4",
-            onClick = onExport,
-            modifier = Modifier.testTag("mistake_detail_export_a4"),
-        )
-        // 6B-2：当前版本可进入卷面编辑（只改导出文档副本）；历史版本只读，不提供入口。
-        if (!isViewingHistoricalRevision && onEditPaper != null) {
-            Spacer(Modifier.height(8.dp))
-            InlineActionButton(
-                text = "编辑卷面",
-                onClick = onEditPaper,
-                modifier = Modifier.testTag("mistake_detail_edit_paper"),
+        Spacer(Modifier.height(16.dp))
+        MistakeSectionCard("题面", modifier = Modifier.testTag("mistake_detail_question_module"),
+            headerColor = SmartColors.ReadingSurface) {
+            StructuredContentRenderer(
+                document = state.questionDocument.document.let { document ->
+                    if (document.title?.trim() == state.detail.identity.title.trim()) document.copy(title = null)
+                    else document
+                },
+                choicesEnabled = false,
+                storedFigures = state.questionDocument.storedFigureReferences,
+                figureUri = { ref ->
+                    (state.detail.source as? com.tingyun.smartmistakebook.core.domain.MistakeSourceSet.Present)?.assets
+                        ?.singleOrNull { it.sourceAssetId == ref.assetId && it.contentSha256 == ref.contentSha256 }
+                        ?.location?.let { (it as? MistakeSourceLocation.Available)?.localUri }
+                },
             )
-        }
-        }
-        // 4E WG-06 T3：用户显式重绘只对当前版本开放；历史版本只读（旧修订的结果已 SUPERSEDED）。
-        if (!isViewingHistoricalRevision && repository != null && repository.supportsExplicitRedraw()) {
-            Spacer(Modifier.height(8.dp))
-            ExplicitRedrawSection(
-                revisionId = state.detail.identity.problemRevisionId,
-                repository = repository,
-            )
+            PaperDivider()
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (!isViewingHistoricalRevision && onEdit != null) {
+                    InlineActionButton("修改这道题", onEdit, Modifier.testTag("mistake_detail_edit"))
+                }
+                InlineActionButton(
+                    text = if (isViewingHistoricalRevision) "导出这一版 A4" else "导出 A4",
+                    onClick = onExport,
+                    modifier = Modifier.testTag("mistake_detail_export_a4"),
+                )
+                // 6B-2：当前版本可进入卷面编辑（只改导出文档副本）；历史版本只读，不提供入口。
+                if (!isViewingHistoricalRevision && onEditPaper != null) {
+                    InlineActionButton(
+                        text = "编辑卷面",
+                        onClick = onEditPaper,
+                        modifier = Modifier.testTag("mistake_detail_edit_paper"),
+                    )
+                }
+            }
+            // 4E WG-06 T3：用户显式重绘只对当前版本开放；历史版本只读（旧修订的结果已 SUPERSEDED）。
+            if (!isViewingHistoricalRevision && repository != null && repository.supportsExplicitRedraw()) {
+                Spacer(Modifier.height(8.dp))
+                ExplicitRedrawSection(
+                    revisionId = state.detail.identity.problemRevisionId,
+                    repository = repository,
+                )
+            }
         }
         SourceSection(
             source = state.detail.source,
-            revisionId = state.detail.identity.problemRevisionId,
             isHistorical = isViewingHistoricalRevision,
         )
         if (!isViewingHistoricalRevision && repository != null) {
+            Spacer(Modifier.height(16.dp))
             MistakeUserNoteCard(
                 entryId = state.detail.identity.errorBookEntryId,
                 note = state.detail.userNote,
@@ -503,15 +507,22 @@ private fun ReadyDetail(
                 )
             }
         }
-        // 讲解图属于解析区：默认折叠，绝不混进上面的题目图片区（4E WG-06 T2b）。
+        // 讲解图在独立模块直接呈现，不混进题目图片区。
         ExplanationSourceSection(
             source = state.detail.source,
-            revisionId = state.detail.identity.problemRevisionId,
         )
+        if (!isViewingHistoricalRevision && organizationRepository != null && knowledgeCatalog != null) {
+            ManualCatalogCorrectionAction(
+                key = checkNotNull(state.exportRevisionKeyOrNull()), subject = state.detail.identity.subject,
+                organizationRepository = organizationRepository, catalog = knowledgeCatalog,
+                available = knowledgeBaseAvailability is KnowledgeBaseAvailability.Ready,
+            )
+        }
         if (!isViewingHistoricalRevision && organizationRepository != null && modelTasks != null) {
             MistakeOrganizationSection(
                 key = checkNotNull(state.exportRevisionKeyOrNull()),
                 organizationRepository = organizationRepository,
+                knowledgeCatalog = knowledgeCatalog,
                 modelTasks = modelTasks,
                 profile = profile,
                 catalogEntries = catalogEntries,
@@ -665,7 +676,7 @@ internal fun explicitRedrawResultMessage(result: ExplicitRedrawRequestResult): S
             "这道题没有可用的原图，暂时不能重绘。"
 
         ExplicitRedrawRequestResult.Unavailable ->
-            "还没有可用的模型配置，先在设置里配置模型后再重绘。"
+            "请在模型设置中完成配置后重绘。"
 
         is ExplicitRedrawRequestResult.Rejected ->
             "重绘请求未被接受（${result.reason}）。"
@@ -684,30 +695,22 @@ private fun MistakeUserNoteCard(
     var saving by remember { mutableStateOf(false) }
     var message by rememberSaveable(entryId) { mutableStateOf<String?>(null) }
 
-    Surface(
+    MistakeSectionCard(
+        title = "错因 / 备注",
         modifier = Modifier
             .fillMaxWidth()
             .testTag("mistake_detail_note"),
-        shape = RoundedCornerShape(10.dp),
-        color = JadeSoft.copy(alpha = 0.28f),
-        border = BorderStroke(1.dp, Outline),
-    ) {
-        Column(Modifier.padding(14.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    "错因 / 备注",
-                    color = Ink,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.weight(1f),
-                )
-                TextButton(enabled = !saving, onClick = {
-                    editing = !editing
-                    draft = savedNote.orEmpty()
-                    message = null
-                }) {
-                    Text(if (editing) "取消" else if (savedNote.isNullOrBlank()) "添加" else "编辑")
-                }
+        action = {
+            TextButton(enabled = !saving, onClick = {
+                editing = !editing
+                draft = savedNote.orEmpty()
+                message = null
+            }) {
+                Text(if (editing) "取消" else if (savedNote.isNullOrBlank()) "添加" else "编辑")
             }
+        },
+    ) {
+        Column {
             if (editing) {
                 OutlinedTextField(
                     value = draft,
@@ -757,7 +760,7 @@ private fun MistakeUserNoteCard(
                 )
             } else {
                 Text(
-                    text = "还没有备注。写下错因，下次复习时一眼想起。",
+                    text = "暂无备注，可记录错因或解题要点。",
                     color = InkSecondary,
                     style = MaterialTheme.typography.bodySmall,
                 )
@@ -923,7 +926,6 @@ private fun LegacyDetail(detail: MistakeDetail) {
         IdentityBlock(detail.identity, status = "早期保存的题目")
         SourceSection(
             source = detail.source,
-            revisionId = detail.identity.problemRevisionId,
         )
         PaperDivider(Modifier.padding(vertical = 18.dp))
         SectionHeader("题面文本")
@@ -961,7 +963,6 @@ private fun LegacyDetail(detail: MistakeDetail) {
         )
         ExplanationSourceSection(
             source = detail.source,
-            revisionId = detail.identity.problemRevisionId,
         )
         Spacer(Modifier.height(24.dp))
     }
@@ -1002,11 +1003,11 @@ private fun NotFoundDetail() {
         Text(
             text = "未找到这道题",
             color = Ink,
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.titleMedium,
         )
         Spacer(Modifier.height(10.dp))
         Text(
-            text = "这条记录不在当前错题本中；若它已被归档，可在错题本首页的「已移出的题」里恢复。",
+            text = "这道题不在错题本中。若已移出，可到「已移出的题」中恢复。",
             color = InkSecondary,
             style = MaterialTheme.typography.bodyMedium,
         )
@@ -1021,14 +1022,14 @@ private fun IdentityBlock(
     Text(
         text = identity.title,
         color = Ink,
-        style = MaterialTheme.typography.headlineMedium,
-        fontWeight = FontWeight.Bold,
+        style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp, lineHeight = 32.sp),
+        fontWeight = FontWeight.SemiBold,
     )
     Spacer(Modifier.height(8.dp))
     Text(
         text = "${identity.subject.studentSubjectLabel()} · 第 ${identity.revisionNumber} 版 · $status",
         color = InkSecondary,
-        style = MaterialTheme.typography.bodyMedium,
+        style = MaterialTheme.typography.bodySmall,
     )
 }
 
@@ -1038,55 +1039,30 @@ private fun RevisionHistorySection(
     viewedRevisionId: String,
     onSelectRevision: (MistakeRevisionSummary) -> Unit,
 ) {
-    if (history.isEmpty()) return
+    if (history.size <= 1) return
     val ordered = remember(history) { history.sortedByDescending(MistakeRevisionSummary::revisionNumber) }
     val viewed = ordered.firstOrNull { it.problemRevisionId == viewedRevisionId } ?: return
     var expanded by rememberSaveable(viewedRevisionId, ordered.size) { mutableStateOf(false) }
 
-    Spacer(Modifier.height(18.dp))
-    SectionHeader(
-        title = "题面版本",
-        action = if (ordered.size > 1) {
-            {
-                OutlineActionChip(
-                    text = if (expanded) "收起" else "查看 ${ordered.size} 个版本",
+    Spacer(Modifier.height(12.dp))
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag("mistake_revision_summary"),
+        shape = RoundedCornerShape(14.dp),
+        color = SmartColors.SubtleSurface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Divider),
+    ) {
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text("题面版本", Modifier.weight(1f), color = InkSecondary,
+                    style = MaterialTheme.typography.labelLarge)
+                if (ordered.size > 1) TextButton(
                     onClick = { expanded = !expanded },
                     modifier = Modifier.testTag("mistake_revision_history_toggle"),
-                    selected = expanded,
-                )
+                ) { Text(if (expanded) "收起" else "查看 ${ordered.size} 个版本") }
             }
-        } else {
-            null
-        },
-    )
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp)
-            .testTag("mistake_revision_summary"),
-        shape = RoundedCornerShape(10.dp),
-        color = JadeSoft.copy(alpha = 0.4f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Outline),
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
-        ) {
-            Text(
-                text = "正在查看第 ${viewed.revisionNumber} 版${if (viewed.isCurrent) " · 当前" else " · 历史只读"}",
-                color = Ink,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = if (ordered.size == 1) {
-                    "当前只有 1 个已保存题面版本"
-                } else {
-                    "共保留 ${ordered.size} 个已保存版本，旧版不会被后续修改覆盖"
-                },
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-            )
+            Text("正在查看第 ${viewed.revisionNumber} 版${if (viewed.isCurrent) " · 当前" else " · 历史只读"}",
+                color = Ink, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
         }
     }
     if (expanded) {
@@ -1148,93 +1124,55 @@ private fun formatRevisionTime(epochMillis: Long): String {
 private const val REVISION_TIME_PATTERN = "yyyy年M月d日 HH:mm"
 
 @Composable
-private fun SourceSection(
-    source: MistakeSourceSet,
-    revisionId: String,
-    isHistorical: Boolean = false,
-) {
-    // 题目区只拿题目资产；讲解图走下方独立的折叠讲解区，绝不混进题面图片。
-    val assets = source.detailAssets().question
-    if (assets.isEmpty()) return
+private fun SourceSection(source: MistakeSourceSet, isHistorical: Boolean = false) {
+    SourceAssetSection(source.detailAssets().question, isHistorical = isHistorical)
+}
 
-    var expanded by rememberSaveable(revisionId) { mutableStateOf(false) }
-    Spacer(Modifier.height(18.dp))
-    SectionHeader(
-        title = "原图",
-        action = {
-            OutlineActionChip(
-                text = if (expanded) "收起原图" else sourceToggleLabel(assets.size),
-                onClick = { expanded = !expanded },
-                modifier = Modifier.testTag("mistake_detail_source_toggle"),
-                icon = Icons.Outlined.Image,
-                selected = expanded,
-            )
-        },
-    )
-    if (expanded) {
+@Composable
+private fun ExplanationSourceSection(source: MistakeSourceSet) {
+    SourceAssetSection(source.detailAssets().explanation, isExplanation = true)
+}
+
+/** Pictures stay visible in their own role section; only decoding follows the viewport. */
+@Composable
+private fun SourceAssetSection(
+    assets: List<MistakeSourceAsset>,
+    isHistorical: Boolean = false,
+    isExplanation: Boolean = false,
+) {
+    if (assets.isEmpty()) return
+    val title = if (isExplanation) "讲解图" else "原图"
+    val tag = if (isExplanation) "mistake_detail_explanation" else "mistake_detail_source"
+    Spacer(Modifier.height(16.dp))
+    MistakeSectionCard(
+        title = if (assets.size > 1) "$title · ${assets.size} 张" else title,
+        modifier = Modifier.testTag("${tag}_section"),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+        headerColor = if (isExplanation) SmartColors.LearningSurface else SmartColors.ReadingSurface,
+    ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 10.dp)
-                .testTag("mistake_detail_source_content"),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            Modifier.fillMaxWidth().testTag("${tag}_content"),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             assets.forEachIndexed { index, asset ->
-                SourceAssetPreview(
-                    asset = asset,
-                    position = index + 1,
-                    total = assets.size,
-                    isHistorical = isHistorical,
-                )
+                SourceAssetPreview(asset, index + 1, assets.size, isHistorical, isExplanation)
             }
         }
     }
 }
 
-/**
- * 讲解图折叠区（4E WG-06 T2b）。讲题工具产出的过程图是解析材料，不是题目本身：
- * 默认收起，只有学生主动展开才出现；题目区永远不会渲染这些资产。
- */
-@Composable
-private fun ExplanationSourceSection(
-    source: MistakeSourceSet,
-    revisionId: String,
-) {
-    val assets = source.detailAssets().explanation
-    if (assets.isEmpty()) return
-
-    var expanded by rememberSaveable(revisionId) { mutableStateOf(false) }
-    Spacer(Modifier.height(18.dp))
-    SectionHeader(
-        title = "讲解图",
-        action = {
-            OutlineActionChip(
-                text = if (expanded) "收起讲解图" else explanationToggleLabel(assets.size),
-                onClick = { expanded = !expanded },
-                modifier = Modifier.testTag("mistake_detail_explanation_toggle"),
-                icon = Icons.Outlined.Image,
-                selected = expanded,
-            )
-        },
-    )
-    if (expanded) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 10.dp)
-                .testTag("mistake_detail_explanation_content"),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            assets.forEachIndexed { index, asset ->
-                SourceAssetPreview(
-                    asset = asset,
-                    position = index + 1,
-                    total = assets.size,
-                    isExplanation = true,
-                )
-            }
-        }
-    }
+internal fun sourceAssetDisplayTitle(
+    role: String,
+    position: Int,
+    total: Int,
+    isHistorical: Boolean,
+    isExplanation: Boolean,
+): String = when {
+    isExplanation -> if (total == 1) "讲解图" else "讲解图 $position / $total"
+    role == CLEAN_IMAGE_SOURCE_ROLE && isHistorical -> "旧版重绘（仅历史题面）"
+    role == CLEAN_IMAGE_SOURCE_ROLE -> "重绘"
+    total == 1 -> "原图"
+    else -> "原图 $position / $total"
 }
 
 @Composable
@@ -1245,73 +1183,69 @@ private fun SourceAssetPreview(
     isHistorical: Boolean = false,
     isExplanation: Boolean = false,
 ) {
-    val availableLocation = asset.location as? MistakeSourceLocation.Available
-    val imageUri = availableLocation?.localUri
-    var imageExpanded by rememberSaveable(asset.sourceAssetId) { mutableStateOf(false) }
+    val imageUri = (asset.location as? MistakeSourceLocation.Available)?.localUri
+    val title = sourceAssetDisplayTitle(asset.role, position, total, isHistorical, isExplanation)
+    val tag = "${if (isExplanation) "mistake_detail_explanation_asset" else "mistake_detail_source_asset"}_$position"
     var viewing by rememberSaveable(asset.sourceAssetId, imageUri) { mutableStateOf(false) }
-    var loadState by remember(imageUri) {
-        mutableStateOf(
-            if (imageUri == null) LocalImageLoadState.UNAVAILABLE else LocalImageLoadState.LOADING,
-        )
+    var inViewport by remember(asset.sourceAssetId, imageUri) { mutableStateOf(false) }
+    var loadState by remember(asset.sourceAssetId, imageUri) {
+        mutableStateOf(if (imageUri == null) LocalImageLoadState.UNAVAILABLE else LocalImageLoadState.LOADING)
     }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .border(1.dp, Outline, RoundedCornerShape(8.dp))
-            .background(JadeSoft.copy(alpha = 0.18f), RoundedCornerShape(8.dp))
-            .clickable(enabled = loadState == LocalImageLoadState.AVAILABLE) {
-                imageExpanded = !imageExpanded
-            }
-            .padding(12.dp)
-            .testTag(
-                "${if (isExplanation) "mistake_detail_explanation_asset" else "mistake_detail_source_asset"}_$position",
-            ),
-    ) {
-        Text(
-            text = when {
-                isExplanation -> if (total == 1) "讲解图" else "讲解图 $position / $total"
-                asset.role == CLEAN_IMAGE_SOURCE_ROLE && isHistorical -> "旧版重绘（仅历史题面）"
-                asset.role == CLEAN_IMAGE_SOURCE_ROLE -> "重绘"
-                total == 1 -> "原图"
-                else -> "原图 $position / $total"
-            },
-            color = Ink,
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.SemiBold,
-        )
+    val showAssetHeading = total > 1 || asset.role == CLEAN_IMAGE_SOURCE_ROLE
+    @Composable
+    fun ViewAction(modifier: Modifier = Modifier) {
         if (imageUri != null) {
-            BoundedLocalImage(
-                imageUri = imageUri,
-                contentDescription = when {
-                    isExplanation -> if (total == 1) "讲解图" else "讲解图 $position"
-                    total == 1 -> "错题原图"
-                    else -> "错题原图 $position"
-                },
-                expanded = imageExpanded,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp),
-                onLoadStateChange = { loadState = it },
-            )
-        }
-        Text(
-            text = sourceStatusText(
-                hasLocalLocation = imageUri != null,
-                loadState = loadState,
-                expanded = imageExpanded,
-            ),
-            modifier = Modifier.padding(top = 8.dp),
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodySmall,
-        )
-        if (imageUri != null && loadState == LocalImageLoadState.AVAILABLE) {
-            InlineActionButton("查看大图", { viewing = true })
+            InlineActionButton("查看大图", { viewing = true }, modifier.testTag("${tag}_view"),
+                enabled = loadState == LocalImageLoadState.AVAILABLE)
         }
     }
-    if (viewing && imageUri != null) {
-        LocalImageViewer(imageUri, if (isExplanation) "讲解图 $position" else "错题原图 $position", { viewing = false })
+    Column(Modifier.fillMaxWidth().padding(bottom = 12.dp).testTag(tag)) {
+        if (showAssetHeading) {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(title, Modifier.weight(1f), color = Ink,
+                    style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                ViewAction()
+            }
+        }
+        if (imageUri != null && loadState != LocalImageLoadState.UNAVAILABLE) {
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val imageHeight = (maxWidth * (asset.height.toFloat() / asset.width.coerceAtLeast(1))).coerceAtLeast(80.dp)
+                // Keep natural full-width geometry while releasing offscreen sampled bitmaps.
+                Box(Modifier.fillMaxWidth().height(imageHeight).testTag("${tag}_image")
+                    .onGloballyPositioned { coordinates ->
+                        val visible = coordinates.boundsInWindow()
+                        inViewport = visible.width > 0f && visible.height > 0f
+                    }) {
+                    if (inViewport) {
+                        BoundedLocalImage(
+                            imageUri = imageUri,
+                            contentDescription = title,
+                            expanded = true,
+                            expandedMaxHeight = imageHeight,
+                            modifier = Modifier.fillMaxSize().clickable(
+                                enabled = loadState == LocalImageLoadState.AVAILABLE,
+                            ) { viewing = true },
+                            onLoadStateChange = { loadState = it },
+                        )
+                    }
+                }
+            }
+        }
+        if (!showAssetHeading && imageUri != null) {
+            Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.End) {
+                ViewAction()
+            }
+        }
+        sourceStatusText(imageUri != null, loadState)?.let { status ->
+            Text(status, Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+        }
     }
+    if (viewing && imageUri != null) LocalImageViewer(imageUri, title, { viewing = false })
 }
 
 /** 持久角色值来自 [VisualRole] 单源；保留别名给列表缩略图与既有测试。 */
@@ -1365,23 +1299,9 @@ internal fun MistakeSourceSet.displayAssets(): List<MistakeSourceAsset> = when (
 internal fun sourceStatusText(
     hasLocalLocation: Boolean,
     loadState: LocalImageLoadState,
-    expanded: Boolean,
-): String = when {
-    !hasLocalLocation -> "原图记录存在，但本机文件当前不可用。"
-    loadState == LocalImageLoadState.LOADING -> "正在打开本机原图…"
-    loadState == LocalImageLoadState.UNAVAILABLE -> "原图文件暂时打不开。"
-    expanded -> "点击图片区域收起"
-    else -> "点击图片区域放大查看"
-}
-
-private fun sourceToggleLabel(assetCount: Int): String = if (assetCount == 1) {
-    "查看原图"
-} else {
-    "查看原图（$assetCount）"
-}
-
-private fun explanationToggleLabel(assetCount: Int): String = if (assetCount == 1) {
-    "查看讲解图"
-} else {
-    "查看讲解图（$assetCount）"
+): String? = when {
+    !hasLocalLocation -> "图片文件暂时无法读取。"
+    loadState == LocalImageLoadState.LOADING -> "正在加载图片…"
+    loadState == LocalImageLoadState.UNAVAILABLE -> "图片暂时无法显示。"
+    else -> null
 }

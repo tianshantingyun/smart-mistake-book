@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,7 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -26,7 +27,6 @@ import com.tingyun.smartmistakebook.core.model.TutorMoveType
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
 import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
-import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.GeneratedFiguresSection
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
@@ -222,7 +222,7 @@ internal fun TutorTurnContent(
                 } else {
                     "这个选择暴露了一个关键分叉"
                 },
-                color = if (submittedResponse.selectionWasCorrect == true) JadeActive else ErrorWarm,
+                color = if (submittedResponse.selectionWasCorrect == true) JadeActive else ErrorText,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -279,7 +279,7 @@ internal fun TutorTurnContent(
         interactionError?.let { message ->
             Text(
                 text = message,
-                color = ErrorWarm,
+                color = ErrorText,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.testTag("captured_tutor_interaction_error"),
             )
@@ -315,7 +315,7 @@ internal fun TutorChoiceFeedbackContent(
             } else {
                 "这个选择暴露了一个关键分叉"
             },
-            color = if (response.selectionWasCorrect == true) JadeActive else ErrorWarm,
+            color = if (response.selectionWasCorrect == true) JadeActive else ErrorText,
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.SemiBold,
         )
@@ -371,7 +371,7 @@ internal fun TutorChoiceFeedbackContent(
         interactionError?.let { message ->
             Text(
                 text = message,
-                color = ErrorWarm,
+                color = ErrorText,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.testTag("captured_tutor_interaction_error"),
             )

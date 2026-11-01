@@ -1,5 +1,11 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,7 +24,7 @@ import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,6 +33,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
+import com.tingyun.smartmistakebook.core.ui.LocalImageViewer
+import com.tingyun.smartmistakebook.core.ui.ContentSurface
+import com.tingyun.smartmistakebook.core.ui.SubtleSurface
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -88,44 +98,16 @@ fun SplitImportReviewRoute(
 
     RootPageLazyColumn(modifier = modifier.testTag("split_review_list")) {
         item(key = "split_review_header") {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(onClick = onFinished) {
-                    Icon(
-                        Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "返回",
-                        tint = Ink,
-                    )
-                }
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        "录入整份题目",
-                        color = Ink,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        "切分完成，勾选要录入的题目",
-                        color = InkSecondary,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                if (reviewableJob != null) {
-                    Text(
-                        text = "${reviewableJob.questions.filter { it.selected }.size}/" +
-                            "${reviewableJob.questions.size}",
-                        color = JadeActive,
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.testTag("split_review_count"),
-                    )
-                }
-            }
-            PaperDivider()
+            ClaudePageHeader("录入整份题目", onBack = onFinished, actions = {
+                if (reviewableJob != null) Text(
+                    text = "${reviewableJob.questions.filter { it.selected }.size}/${reviewableJob.questions.size}",
+                    color = JadeActive, style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.testTag("split_review_count"),
+                )
+            })
+            Text("切分完成，勾选要录入的题目", color = InkSecondary,
+                style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp))
+            Spacer(Modifier.height(4.dp))
         }
         if (reviewableJob == null) {
             item(key = "split_review_empty") {
@@ -210,7 +192,7 @@ fun SplitImportReviewRoute(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .heightIn(min = 56.dp)
                     .testTag("split_review_confirm"),
             )
             Spacer(Modifier.height(12.dp))
@@ -236,18 +218,19 @@ private fun SplitQuestionCard(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("split_question_$ordinal"),
-        shape = RoundedCornerShape(10.dp),
-        color = if (selected) JadeSoft.copy(alpha = 0.28f) else Color(0xFFF7F5F0),
+        shape = RoundedCornerShape(20.dp),
+        color = if (selected) JadeSoft.copy(alpha = 0.28f) else ContentSurface,
     ) {
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(10.dp))
+                .clip(RoundedCornerShape(20.dp))
+                .toggleable(selected, role = Role.Checkbox, onValueChange = { onToggle() })
                 .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Checkbox(
                 checked = selected,
-                onCheckedChange = { onToggle() },
+                onCheckedChange = null,
                 modifier = Modifier.testTag("split_question_check_$ordinal"),
             )
             Spacer(Modifier.width(10.dp))
@@ -274,14 +257,10 @@ private fun SplitQuestionCard(
                     )
                 }
             }
-            Icon(
-                imageVector = if (saved) {
-                    Icons.Outlined.CheckCircle
-                } else {
-                    Icons.AutoMirrored.Outlined.KeyboardArrowRight
-                },
+            if (saved) Icon(
+                imageVector = Icons.Outlined.CheckCircle,
                 contentDescription = null,
-                tint = if (saved) JadeActive else InkSecondary,
+                tint = JadeActive,
                 modifier = Modifier.size(18.dp),
             )
         }
@@ -292,12 +271,13 @@ private fun SplitQuestionCard(
 private fun SplitSourceImage(
     sourceUri: String,
 ) {
+    var viewing by rememberSaveable(sourceUri) { mutableStateOf(false) }
     androidx.compose.material3.Surface(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("split_review_source_image"),
-        shape = RoundedCornerShape(10.dp),
-        color = Color(0xFFF7F5F0),
+        shape = RoundedCornerShape(20.dp),
+        color = ContentSurface,
     ) {
         Column(Modifier.padding(12.dp)) {
             Text(
@@ -310,10 +290,11 @@ private fun SplitSourceImage(
                 imageUri = sourceUri,
                 contentDescription = "整卷原图",
                 expanded = false,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().clickable(onClickLabel = "查看整卷原图") { viewing = true },
             )
         }
     }
+    if (viewing) LocalImageViewer(sourceUri, "整卷原图", onDismiss = { viewing = false })
 }
 
 @Composable
@@ -325,8 +306,8 @@ private fun SplitRegionThumb(
         modifier = Modifier
             .size(width = 72.dp, height = 96.dp)
             .testTag("split_question_thumb_${question.questionOrdinal}"),
-        shape = RoundedCornerShape(8.dp),
-        color = Color(0xFFEFEDE6),
+        shape = RoundedCornerShape(12.dp),
+        color = SubtleSurface,
     ) {
         Box(Modifier.fillMaxSize()) {
             com.tingyun.smartmistakebook.core.ui.BoundedLocalImage(

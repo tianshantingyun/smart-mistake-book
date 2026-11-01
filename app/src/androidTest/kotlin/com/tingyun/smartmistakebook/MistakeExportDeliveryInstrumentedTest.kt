@@ -42,7 +42,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * 「导出成果」入口的交付接线（阶段 4A 批 4 · L7）用**真 exporter 产出的 PDF** 走既有交付链：
+ * 「已导出的文件」入口的交付接线（阶段 4A 批 4 · L7）用**真 exporter 产出的 PDF** 走既有交付链：
  * 保存必须是 `ACTION_CREATE_DOCUMENT`、分享必须是 `ACTION_SEND` 的 chooser（`MistakePdfDeliveryIntents`
  * 的两个入口）；打印的布局回调必须由既有 `PreparedPdfPrintAdapter` 给出真实页数。
  *

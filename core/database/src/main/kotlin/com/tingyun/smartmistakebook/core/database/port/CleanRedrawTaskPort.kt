@@ -4,6 +4,8 @@ import com.tingyun.smartmistakebook.core.database.ClaimCleanRedrawTaskAttemptCom
 import com.tingyun.smartmistakebook.core.database.CleanRedrawTaskRecord
 import com.tingyun.smartmistakebook.core.database.CreateCleanRedrawTaskCommand
 import com.tingyun.smartmistakebook.core.database.FinishCleanRedrawTaskCommand
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 /**
  * 净化作业台账（AUD-09，schema 65→66）的持久化端口。
@@ -70,4 +72,51 @@ interface CleanRedrawTaskPort {
      * 挂接写入本身就按它拦，这里的读口供调用方在付费之前先判）。
      */
     suspend fun isCurrentProblemRevision(revisionId: String): Boolean = false
+
+    /**
+     * 一条题面修订上最近一次净化/显式重绘作业（按建立时刻倒序）。
+     *
+     * [operationIdPrefix] 非空时只匹配带此前缀的 `operation_id`（显式重绘用
+     * `explicit-redraw-op:`，见 `explicitRedrawOperationId`）；null = 不筛操作类型。
+     * 默认"没有"（null）：测试替身与无库装配不会假装看过台账。
+     */
+    suspend fun readLatestCleanRedrawTask(
+        revisionId: String,
+        operationIdPrefix: String? = null,
+    ): CleanRedrawTaskRecord? = null
+
+    /**
+     * 与 [readLatestCleanRedrawTask] 同口径的观察口（详情页"进行中/失败/可重试"要用它，
+     * 而不是轮询）。默认空流 = 没有台账可看。
+     */
+    fun observeLatestCleanRedrawTask(
+        revisionId: String,
+        operationIdPrefix: String? = null,
+    ): Flow<CleanRedrawTaskRecord?> = flowOf(null)
+
+    /**
+     * 一条题面修订上已登记的视觉资产（角色 + 规范资产 id + 内容 sha），显式重绘据此选源图。
+     *
+     * 只返回引用存在的资产；修订不存在/没有视觉引用都返回空表（调用方按"没有可用源图"处理，
+     * 不把空表读成一次成功）。默认空表：测试替身与无库装配不会伪造源图。
+     */
+    suspend fun readRevisionImageSources(problemRevisionId: String): List<RevisionImageSource> =
+        emptyList()
+}
+
+/** 题面修订上的一条视觉引用（显式重绘选源图用；不携带文件路径，读字节仍走 vault）。 */
+data class RevisionImageSource(
+    val role: String,
+    val sourceAssetId: String,
+    val contentSha256: String,
+) {
+    init {
+        require(role.isNotBlank()) { "A revision image source role must not be blank" }
+        require(sourceAssetId.isNotBlank()) {
+            "A revision image source asset id must not be blank"
+        }
+        require(contentSha256.length == 64) {
+            "A revision image source sha must be sha256"
+        }
+    }
 }

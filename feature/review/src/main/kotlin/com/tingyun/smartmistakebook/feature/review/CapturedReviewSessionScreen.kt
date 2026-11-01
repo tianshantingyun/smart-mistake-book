@@ -1,6 +1,9 @@
 package com.tingyun.smartmistakebook.feature.review
 
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,37 +12,28 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tingyun.smartmistakebook.core.domain.ReviewStoredAnswer
 import com.tingyun.smartmistakebook.core.domain.StudyAnswerRevealRequest
 import com.tingyun.smartmistakebook.core.domain.StudyAnswerRevealResult
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionStatus
-import com.tingyun.smartmistakebook.core.ui.LocalModeLine
-import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
-import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.studentSubjectLabel
@@ -174,46 +168,33 @@ fun CapturedReviewSessionScreen(
         }
     }
     RootPageColumn(modifier = modifier.testTag("captured_review_session_root")) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(
-                onClick = onBack,
-                modifier = Modifier.testTag("captured_review_back"),
-            ) {
-                Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "返回今日复习")
-            }
-            Text(
-                text = "今日复习",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = SmartColors.Ink,
-            )
-            Spacer(Modifier.weight(1f))
-            Text(
-                text = entry.subject.studentSubjectLabel(),
-                style = MaterialTheme.typography.labelLarge,
-                color = SmartColors.InkSecondary,
-            )
-        }
-        Spacer(Modifier.height(10.dp))
-        LinearProgressIndicator(
-            progress = { safeQueuePosition.toFloat() / safeQueueSize.toFloat() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(5.dp),
-            color = SmartColors.Jade,
-            trackColor = SmartColors.Track,
+        ClaudePageHeader(
+            title = "今日复习",
+            onBack = onBack,
+            backModifier = Modifier.testTag("captured_review_back"),
+            backLabel = "返回今日复习",
+            actions = {
+                Text(entry.subject.studentSubjectLabel(), style = MaterialTheme.typography.labelLarge,
+                    color = SmartColors.InkSecondary)
+            },
         )
-        Spacer(Modifier.height(12.dp))
-        LocalModeLine(text = "第 $safeQueuePosition / $safeQueueSize 题 · 复做你保存的原题")
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        SectionHeader(title = entry.title)
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(10.dp))
+        ReviewSessionProgress(
+            label = "第 $safeQueuePosition / $safeQueueSize 题 · 重做已保存的原题",
+            progress = safeQueuePosition.toFloat() / safeQueueSize.toFloat(),
+        )
+        Spacer(Modifier.height(16.dp))
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f, fill = false)
-                .verticalScroll(problemScrollState),
+                .clip(RoundedCornerShape(20.dp))
+                .background(SmartColors.ContentSurface)
+                .verticalScroll(problemScrollState)
+                .padding(16.dp),
         ) {
+            SectionHeader(title = entry.title)
+            Spacer(Modifier.height(12.dp))
             CapturedReviewQuestionContent(entry, questionState)
         }
         Spacer(Modifier.height(24.dp))
@@ -264,9 +245,9 @@ fun CapturedReviewSessionScreen(
                 if (revealWriteFailed) {
                     Spacer(Modifier.height(6.dp))
                     Text(
-                        text = "已存答案的曝光记录没有写下来；撤销后重评可能被当成未看过答案。",
+                        text = "未能确认答案查看记录；撤销后重答，可能被误记为未看过答案。",
                         style = MaterialTheme.typography.bodySmall,
-                        color = SmartColors.ErrorWarm,
+                        color = SmartColors.ErrorText,
                         modifier = Modifier.testTag("review_reveal_write_failed"),
                     )
                 }
@@ -332,8 +313,8 @@ fun CapturedReviewSessionScreen(
                 if (selfReportViewModel.undoStatus == SelfReportUndoStatus.UNDONE) {
                     Spacer(Modifier.height(10.dp))
                     Text(
-                        text = "已回到本题。曝光/看过答案的事实仍保留；重新作答会记为第 " +
-                            "${selfReportViewModel.currentAttemptOrdinal()} 次响应。",
+                        text = "已回到本题，看过答案的记录仍保留。重新作答计为第 " +
+                            "${selfReportViewModel.currentAttemptOrdinal()} 次作答。",
                         style = MaterialTheme.typography.bodySmall,
                         color = SmartColors.InkSecondary,
                         modifier = Modifier.testTag("review_undo_reattempt_notice"),
@@ -363,7 +344,7 @@ fun CapturedReviewSessionScreen(
                 onClick = onOpenTutorJudge,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .heightIn(min = 52.dp)
                     .testTag("captured_review_tutor_judged_button"),
                 contentDescription = "去讲题里完成这道题的检查",
             )
@@ -384,7 +365,7 @@ fun CapturedReviewSessionScreen(
                 text = notice.message,
                 modifier = Modifier.testTag("captured_review_settlement_notice"),
                 style = MaterialTheme.typography.bodyMedium,
-                color = SmartColors.ErrorWarm,
+                color = SmartColors.ErrorText,
             )
             onRetrySettlement?.let { retry ->
                 Spacer(Modifier.height(4.dp))

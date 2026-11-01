@@ -37,6 +37,13 @@ enum class BatchImportSplitStatus {
     SETTLED,
 }
 
+enum class BatchImportDraftState {
+    EDITING,
+    COMMITTED,
+    REMOVED,
+    UNAVAILABLE,
+}
+
 data class BatchImportPage(
     val pageIndex: Int,
     val status: BatchImportPageStatus,
@@ -51,6 +58,9 @@ data class BatchImportPage(
      * already READY, so PENDING is the only trace that it never finished.
      */
     val splitStatus: BatchImportSplitStatus = BatchImportSplitStatus.PENDING,
+    val draftState: BatchImportDraftState? =
+        if (draftId != null) BatchImportDraftState.EDITING else null,
+    val savedEntryId: String? = null,
 ) {
     init {
         require(pageIndex >= 0) { "Batch page index must not be negative" }
@@ -65,6 +75,13 @@ data class BatchImportPage(
         }
         require((status == BatchImportPageStatus.FAILED) == (failureCode != null)) {
             "Only a failed batch page may expose a failure code"
+        }
+        require((status == BatchImportPageStatus.READY) == (draftState != null)) {
+            "Only a ready batch page may expose a draft state"
+        }
+        require(savedEntryId == null ||
+            (savedEntryId.isNotBlank() && draftState == BatchImportDraftState.COMMITTED)) {
+            "Only a committed batch draft may expose a saved entry"
         }
     }
 }
@@ -105,6 +122,8 @@ data class BatchImportJob(
         get() = pages.zipWithNext().count { (page, following) ->
             page.status == BatchImportPageStatus.READY &&
                 following.status == BatchImportPageStatus.READY &&
+                page.draftState == BatchImportDraftState.EDITING &&
+                following.draftState == BatchImportDraftState.EDITING &&
                 (
                     page.boundaryAfterStatus == BatchImportBoundaryStatus.PENDING ||
                         page.boundaryAfterStatus == BatchImportBoundaryStatus.CHECKING ||
@@ -154,6 +173,22 @@ data class CreatePdfImportRequest(
 
 interface BatchImportRepository {
     fun observeBatchImports(): Flow<List<BatchImportJob>>
+
+    /**
+     * True when the last batch import stopped before it became durable: its pages are still
+     * staged on disk and no job claims them, so [observeBatchImports] shows nothing at all even
+     * though the student did start something (KD-42).
+     *
+     * The signal is the unreclaimed staging session itself — no schema records "an import is in
+     * progress". It turns false as soon as a job claims those pages (a re-import, or the
+     * interrupted import resuming), and the session is deleted — making this false — by the same
+     * startup reconciliation that reclaims staging past its 60-minute orphan grace period. A
+     * session younger than that grace period therefore still reports true: the interruption is
+     * known the moment nothing claims the session, and the first hour is when re-importing is
+     * still the student's next move. Intake screens use it to show
+     * "上次导入被中断，可重导", and only while such a session exists.
+     */
+    suspend fun hasInterruptedBatchImport(): Boolean
 
     suspend fun createBatchImport(request: CreateBatchImportRequest): BatchImportJob
 

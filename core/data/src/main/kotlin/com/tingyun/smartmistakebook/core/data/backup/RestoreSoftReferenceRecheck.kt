@@ -2,6 +2,10 @@ package com.tingyun.smartmistakebook.core.data.backup
 
 import android.database.sqlite.SQLiteDatabase
 import java.io.File
+import com.tingyun.smartmistakebook.core.model.*
+import com.tingyun.smartmistakebook.core.database.port.PersistedMistakeEditJob
+import com.tingyun.smartmistakebook.core.database.port.PersistedDetailedSolution
+import kotlinx.serialization.json.*
 
 /**
  * 恢复侧 S3 软引用重查（6C-2 设计 §3.2-S3，口径按 §9.4.3 的收窄；批次 19 T2-4）。
@@ -133,7 +137,8 @@ internal object RestoreSoftReferenceRecheck {
      * 查询失败（库打不开/读不出）抛 [BackupRestoreException]——恢复被拒绝而不是放行。
      */
     fun recheck(stagedDatabaseFile: File, mask: Int?): List<String> {
-        if (mask == null || mask == SmbkSelectionPlan.FULL_MASK) return emptyList()
+        val editViolations = recheckEditJobs(stagedDatabaseFile) + recheckDetailedSolutions(stagedDatabaseFile)
+        if (editViolations.isNotEmpty() || mask == null || mask == SmbkSelectionPlan.FULL_MASK) return editViolations
         val path = stagedDatabaseFile.absolutePath
         val observed = try {
             SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY).use { database ->
@@ -193,6 +198,137 @@ internal object RestoreSoftReferenceRecheck {
         }
         return violationsFor(mask, observed)
     }
+
+    /** JSON identities and generated-asset admission survive selective backup as one unit. */
+    private fun recheckEditJobs(file: File): List<String> = try {
+        SQLiteDatabase.openDatabase(file.absolutePath, null, SQLiteDatabase.OPEN_READONLY).use { db ->
+            if (!tableExists(db, "mistake_edit_job")) return emptyList()
+            db.rawQuery("SELECT * FROM mistake_edit_job ORDER BY operation_id", null).use { cursor ->
+                while (cursor.moveToNext()) {
+                    fun str(name: String): String = cursor.getString(cursor.getColumnIndexOrThrow(name))
+                    fun nullable(name: String): String? = cursor.getColumnIndexOrThrow(name).let { if (cursor.isNull(it)) null else cursor.getString(it) }
+                    fun number(name: String): Long = cursor.getLong(cursor.getColumnIndexOrThrow(name))
+                    val request = ModelTaskCodec.decodeRequest(str("request_snapshot"))
+                    val output = nullable("output_snapshot")?.let { ModelTaskCodec.decodeOutput(it) as MistakeEditOutput }
+                    val job = PersistedMistakeEditJob(str("operation_id"), request, number("generation").toInt(), number("state_version"),
+                        MistakeEditJobStatus.valueOf(str("status")), output, StoredFigureReferenceCodec.decode(str("figures_snapshot")),
+                        nullable("message"), number("created_at_epoch_millis"), number("updated_at_epoch_millis"), nullable("committed_revision_id"))
+                    require(request.requestId == str("request_id") && ModelTaskFingerprint.of(request) == str("request_fingerprint"))
+                    require(ModelTaskLogicalOperationFingerprint.of(request) == str("semantic_fingerprint"))
+                    require(job.input.basis == EditBasis(str("entry_id"), str("basis_revision_id"), str("draft_sha256")))
+                    if (output != null) {
+                        db.rawQuery("SELECT output_snapshot FROM model_task WHERE request_id = ? AND request_fingerprint = ? AND status = 'SUCCEEDED'",
+                            arrayOf(request.requestId, ModelTaskFingerprint.of(request))).use { task ->
+                            require(task.moveToFirst() && ModelTaskCodec.decodeOutput(task.getString(0)) == output)
+                        }
+                    }
+                    job.figures.forEach { ref ->
+                        val change = requireNotNull(output).suggestion.changes.filterIsInstance<MistakeEditChange.ReplaceFigure>().single { it.blockId == ref.blockId }
+                        db.rawQuery("""SELECT COUNT(*) FROM figure_generation_attempt a
+                            JOIN figure_generation_operation o ON o.operation_id = a.operation_id
+                            JOIN canonical_source_asset c ON c.source_asset_id = a.output_asset_id
+                            WHERE o.operation_id = ? AND o.source_kind = 'PROBLEM_REVISION' AND o.source_id = ?
+                            AND o.basis_fingerprint = ? AND o.purpose = ? AND o.policy_version = ? AND a.status = 'SUCCEEDED'
+                            AND c.source_asset_id = ? AND c.content_sha256 = ?""", arrayOf(
+                            mistakeEditFigureOperationId(job.operationId, ref.blockId), job.input.basis.revisionId,
+                            mistakeEditFigureBasis(ModelTaskFingerprint.of(request), output, ref.blockId), requireNotNull(change.proposal.purpose).name,
+                            FigureGenerationPolicyVersion.VALUE, ref.assetId, ref.contentSha256)).use { proof ->
+                            require(proof.moveToFirst() && proof.getInt(0) == 1)
+                        }
+                    }
+                }
+            }
+            emptyList()
+        }
+    } catch (_: Exception) { listOf("智能体修改记录或配图来源不完整，无法恢复此备份") }
+
+    private fun recheckDetailedSolutions(file: File): List<String> = try {
+        SQLiteDatabase.openDatabase(file.absolutePath, null, SQLiteDatabase.OPEN_READONLY).use { db ->
+            if (!tableExists(db, "detailed_solution_manifest")) return emptyList()
+            val json = Json { ignoreUnknownKeys = false }
+            db.rawQuery("SELECT * FROM detailed_solution_manifest", null).use { cursor ->
+                while (cursor.moveToNext()) {
+                    fun text(name: String): String = cursor.getString(cursor.getColumnIndexOrThrow(name))
+                    val manifest = DetailedSolutionCodec.decodeManifest(text("manifest_snapshot"))
+                    val sha = DetailedSolutionCodec.manifestSha256(manifest)
+                    require(sha == text("manifest_sha256") && text("manifest_id") == "answer-manifest:$sha")
+                    require(manifest.inputSha256 == text("input_sha256") && manifest.paperDraftId == text("paper_draft_id"))
+                    DetailedSolutionPreparationStatus.valueOf(text("status"))
+                    val paper = json.parseToJsonElement(manifest.paperSnapshot).jsonObject
+                    require(paper["version"]?.jsonPrimitive?.intOrNull == 1)
+                    val input = requireNotNull(paper["input"]).jsonObject
+                    require(input["inputSha256"]?.jsonPrimitive?.content == manifest.inputSha256)
+                    require(json.decodeFromJsonElement(MistakePdfLayout.serializer(), requireNotNull(input["layout"])) == manifest.layout)
+                    require(json.decodeFromJsonElement(kotlinx.serialization.serializer<List<FrozenExportQuestion>>(), requireNotNull(paper["frozenQuestions"])) == manifest.questions)
+                    manifest.questions.forEach { question ->
+                        db.rawQuery("SELECT COUNT(*) FROM problem_revision r JOIN error_book_entry e ON e.problem_id = r.problem_id WHERE r.revision_id = ? AND e.entry_id = ?",
+                            arrayOf(question.basis.revisionId, question.entryId)).use { proof -> require(proof.moveToFirst() && proof.getInt(0) == 1) }
+                        question.sourceImages.forEach { grant ->
+                            db.rawQuery("""SELECT COUNT(*) FROM canonical_source_asset c JOIN problem_revision_source_asset l ON l.source_asset_id = c.source_asset_id
+                                WHERE l.problem_revision_id = ? AND c.source_asset_id = ? AND c.content_sha256 = ? AND c.byte_size = ? AND c.width = ? AND c.height = ?""",
+                                arrayOf(question.basis.revisionId, grant.assetId, grant.sha256, grant.byteSize.toString(), grant.width.toString(), grant.height.toString()))
+                                .use { proof -> require(proof.moveToFirst() && proof.getInt(0) >= 1) }
+                        }
+                        question.figures.forEach { ref ->
+                            require(question.sourceImages.any { it.assetId == ref.assetId && it.sha256 == ref.contentSha256 })
+                            db.rawQuery("SELECT COUNT(*) FROM problem_revision_source_asset WHERE problem_revision_id = ? AND source_asset_id = ? AND role = ?",
+                                arrayOf(question.basis.revisionId, ref.assetId, ref.role.name))
+                                .use { proof -> require(proof.moveToFirst() && proof.getInt(0) >= 1) }
+                        }
+                    }
+                }
+            }
+            db.rawQuery("SELECT * FROM detailed_solution", null).use { cursor ->
+                while (cursor.moveToNext()) {
+                    fun text(name: String): String = cursor.getString(cursor.getColumnIndexOrThrow(name))
+                    fun nullable(name: String): String? = cursor.getColumnIndexOrThrow(name).let { if (cursor.isNull(it)) null else cursor.getString(it) }
+                    fun number(name: String) = cursor.getLong(cursor.getColumnIndexOrThrow(name))
+                    val request = ModelTaskCodec.decodeRequest(text("request_snapshot"))
+                    val output = nullable("output_snapshot")?.let { ModelTaskCodec.decodeOutput(it) as DetailedSolutionOutput }
+                    val record = PersistedDetailedSolution(text("solution_id"), request, number("generation").toInt(), number("state_version"),
+                        DetailedSolutionPreparationStatus.valueOf(text("status")), output, StoredFigureReferenceCodec.decode(text("figures_snapshot")), nullable("message"),
+                        number("created_at_epoch_millis"), number("updated_at_epoch_millis"))
+                    require(record.basis == SolutionBasis(text("revision_id"), text("question_sha256")) && text("protocol_version") == DETAILED_SOLUTION_PROTOCOL_VERSION)
+                    require(request.requestId == text("request_id") && ModelTaskFingerprint.of(request) == text("request_fingerprint"))
+                    require(record.document?.let(DetailedSolutionCodec::encodeDocument) == nullable("document_snapshot"))
+                    require(record.document?.let(DetailedSolutionCodec::documentSha256) == nullable("document_sha256"))
+                    require(record.document?.origin?.name == nullable("origin") && record.document?.verification?.name == nullable("verification"))
+                    if (output != null) db.rawQuery("SELECT output_snapshot FROM model_task WHERE request_id = ? AND request_fingerprint = ? AND status = 'SUCCEEDED'",
+                        arrayOf(request.requestId, ModelTaskFingerprint.of(request))).use { task -> require(task.moveToFirst() && ModelTaskCodec.decodeOutput(task.getString(0)) == output) }
+                    record.figures.forEach { ref ->
+                        db.rawQuery("""SELECT COUNT(*) FROM figure_generation_attempt a JOIN figure_generation_operation o ON o.operation_id = a.operation_id
+                            JOIN canonical_source_asset c ON c.source_asset_id = a.output_asset_id
+                            WHERE o.operation_id = ? AND o.source_kind = 'PROBLEM_REVISION' AND o.source_id = ? AND o.basis_fingerprint = ?
+                            AND o.purpose = 'EXPLANATION' AND o.policy_version = ? AND a.status = 'SUCCEEDED' AND c.source_asset_id = ? AND c.content_sha256 = ?""",
+                            arrayOf(detailedSolutionFigureOperationId(record.solutionId, ref.blockId), record.basis.revisionId,
+                                detailedSolutionFigureBasis(request, requireNotNull(output), ref.blockId), FigureGenerationPolicyVersion.VALUE, ref.assetId, ref.contentSha256))
+                            .use { proof -> require(proof.moveToFirst() && proof.getInt(0) == 1) }
+                    }
+                }
+            }
+            if (tableExists(db, "mistake_export_group")) db.rawQuery("SELECT * FROM mistake_export_group", null).use { cursor ->
+                while (cursor.moveToNext()) {
+                    fun text(name: String): String = cursor.getString(cursor.getColumnIndexOrThrow(name))
+                    fun nullable(name: String): String? = cursor.getColumnIndexOrThrow(name).let { if (cursor.isNull(it)) null else cursor.getString(it) }
+                    val format = requireNotNull(MistakeExportFormat.fromToken(text("format_token")))
+                    val manifestSha = text("manifest_sha256")
+                    db.rawQuery("SELECT manifest_sha256 FROM detailed_solution_manifest WHERE manifest_id = ?", arrayOf(text("manifest_id")))
+                        .use { proof -> require(proof.moveToFirst() && proof.getString(0) == manifestSha) }
+                    nullable("preview_sha256")?.let { sha -> require(AnswerPreviewApproval(manifestSha, requireNotNull(nullable("solutions_sha256")), format).fingerprint() == sha) }
+                    listOf("questions_export_id" to MistakeExportArtifactRole.QUESTIONS, "answers_export_id" to MistakeExportArtifactRole.DETAILED_ANSWERS).forEach { (column, role) ->
+                        nullable(column)?.let { exportId -> db.rawQuery("SELECT group_id, artifact_role FROM mistake_export_record WHERE export_id = ?", arrayOf(exportId)).use { proof ->
+                            if (proof.moveToFirst()) require(proof.getString(0) == text("group_id") && proof.getString(1) == role.name)
+                        } }
+                    }
+                }
+                db.rawQuery("SELECT artifact_role, group_id FROM mistake_export_record", null).use { rows -> while (rows.moveToNext()) {
+                    val role = MistakeExportArtifactRole.valueOf(rows.getString(0))
+                    require(role != MistakeExportArtifactRole.DETAILED_ANSWERS || !rows.isNull(1))
+                } }
+            }
+            emptyList()
+        }
+    } catch (_: Exception) { listOf("详细答案、冻结卷面或导出分组记录不完整，无法恢复此备份") }
 
     private fun sample(kinds: Map<String, List<String>>, kind: String): String =
         kinds.getValue(kind).firstOrNull() ?: kind

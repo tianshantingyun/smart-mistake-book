@@ -454,6 +454,7 @@ class LibraryFtsRankingPathInstrumentedTest {
         val masteryId: String? = null,
         val createdFromEpochMillis: Long? = null,
         val createdToEpochMillis: Long? = null,
+        val favoriteOnly: Boolean = false,
     )
 
     private data class EquivalenceCase(
@@ -565,6 +566,7 @@ class LibraryFtsRankingPathInstrumentedTest {
             if (filters.createdToEpochMillis != null) {
                 append("\n  AND catalog.created_at_epoch_millis <= ?")
             }
+            if (filters.favoriteOnly) append("\n  AND catalog.is_favorite = 1")
         }
         val ranking = StringBuilder()
         listOf(

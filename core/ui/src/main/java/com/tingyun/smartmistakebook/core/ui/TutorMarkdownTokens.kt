@@ -25,10 +25,9 @@ object TutorMarkdownTokens {
         lineHeight = 25.6.sp,
     )
 
-    /** 行内 `**加粗**`：加粗字重 + JadeSoft 半透明底。 */
+    /** 行内 `**加粗**`：依靠字重区分重点，保留长段落的阅读底色。 */
     val strong: SpanStyle = SpanStyle(
-        fontWeight = FontWeight.ExtraBold,
-        background = JadeSoft.copy(alpha = 0.25f),
+        fontWeight = FontWeight.Bold,
     )
 
     /** 行内 `*强调*`：斜体。 */

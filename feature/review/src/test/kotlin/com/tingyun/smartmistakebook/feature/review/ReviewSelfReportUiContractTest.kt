@@ -153,16 +153,16 @@ class ReviewSelfReportUiContractTest {
             receipt,
         )
         assertNotNullText(undone, "已撤销")
-        assertNotNullText(undone, receipt.correctionId)
+        assertNotNullText(undone, "可以重新作答")
 
         val replayed = selfReportStatusMessage(
             SelfReportStatus.IDLE,
             SelfReportUndoStatus.UNDONE,
             receipt.copy(created = false),
         )
-        assertNotNullText(replayed, "此前已经生效")
-        assertNotNullText(replayed, "不会重复回退")
-        assertNotNullText(replayed, receipt.correctionId)
+        assertNotNullText(replayed, "已撤销")
+        assertNotNullText(replayed, "不会重复撤销")
+        assertNotNullText(replayed, "可以重新作答")
     }
 
     @Test

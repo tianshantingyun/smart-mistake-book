@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.ErrorOutline
@@ -14,11 +16,13 @@ import androidx.compose.material.icons.outlined.Inbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -62,8 +66,8 @@ sealed interface PageState {
 
     /** The device is offline; local data stays available. */
     data class Offline(
-        val title: String = "当前连接不上网络",
-        val supportingText: String? = "这个功能需要联网。本机已有数据不受影响。",
+        val title: String = "无法连接网络",
+        val supportingText: String? = "此功能需要联网，本机数据仍可使用。",
         val retryLabel: String = "重试",
         val onRetry: (() -> Unit)? = null,
     ) : PageState
@@ -153,7 +157,9 @@ fun PageStateFrame(
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 160.dp)
-            .padding(vertical = 24.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(ContentSurface)
+            .padding(horizontal = 24.dp, vertical = 24.dp)
             .semantics(mergeDescendants = true) {
                 liveRegion = LiveRegionMode.Polite
                 contentDescription = announcement
@@ -162,11 +168,7 @@ fun PageStateFrame(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (icon == null) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(42.dp),
-                color = JadeActive,
-                trackColor = Track,
-            )
+            ClaudeLoadingPlaceholder()
         } else {
             Icon(
                 imageVector = icon,
@@ -181,6 +183,7 @@ fun PageStateFrame(
             color = Ink,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center,
         )
         if (supportingText != null) {
             Spacer(Modifier.height(6.dp))
@@ -188,6 +191,7 @@ fun PageStateFrame(
                 text = supportingText,
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
             )
         }
         if (actionLabel != null && onAction != null) {

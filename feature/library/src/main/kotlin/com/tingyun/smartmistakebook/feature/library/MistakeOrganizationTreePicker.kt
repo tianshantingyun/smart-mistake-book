@@ -1,6 +1,8 @@
 package com.tingyun.smartmistakebook.feature.library
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.selection.selectable
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,12 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
+import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,14 +40,8 @@ import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.Outline
 
-/**
- * 「从知识树选择」：把 `observeOrganizationOptions` 给出的已审目录选项并入本次修改。
- *
- * 消灭的失败：改前只有离线自由文本编辑器能改分类（`MistakeOfflineCorrectionEditor`，
- * 本轮删除）——学生要么接受模型的分类，要么自己**手打**一个名字；手打的字符串与已审
- * 知识树没有任何关系，也无法复现目录里的既有标签。这里换成从知识树点选既有选项，
- * 选中的名字照常并入 `confirm(requestId, selection)` 的 selection 集合
- * （[UserProblemClassification] 以 displayName 为权威，与模型建议同一条落库路径）。
+/** Legacy name-based picker helpers remain compatible with callers without a catalog dependency.
+ * Production uses KnowledgeCatalogPickerSheet and keeps reviewed node identities end to end.
  */
 
 /** 一次知识树选择的结果：加入后的集合，或不能加入的原因（界面据此给提示）。 */
@@ -226,9 +222,9 @@ private fun OrganizationTreeOptionRow(
             .fillMaxWidth()
             .clickable(enabled = !selected, onClick = onClick)
             .testTag(testTag),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(12.dp),
         color = if (selected) JadeSoft.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, Outline),
+        shadowElevation = 1.dp,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -253,3 +249,118 @@ private fun OrganizationTreeOptionRow(
 
 private const val MAX_TREE_QUERY_CHARS = 40
 private val TREE_PICKER_MAX_HEIGHT = 360.dp
+
+@Composable
+internal fun KnowledgeCatalogPickerSheet(
+    catalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository,
+    subject: String,
+    initialSelection: List<com.tingyun.smartmistakebook.core.model.CatalogHit>,
+    available: Boolean,
+    selectionLimit: Int,
+    onDone: (List<com.tingyun.smartmistakebook.core.model.CatalogHit>) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    val vm = remember(catalog) { KnowledgeCatalogViewModel(catalog, initialSelection, available, selectionLimit, scope) }
+    val state by vm.state.collectAsStateWithLifecycle()
+    val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    androidx.compose.runtime.LaunchedEffect(state.query) { listState.scrollToItem(0) }
+    androidx.compose.runtime.LaunchedEffect(available) { vm.setAvailable(available) }
+    com.tingyun.smartmistakebook.core.ui.WorkspaceSheet(
+        title = "选择知识点",
+        modifier = Modifier.testTag("knowledge_catalog_sheet"),
+        subtitle = "全知识库 · 当前题目：${catalogSubjectLabel(subject)} · 可跨学科关联",
+        onDismiss = onDismiss,
+        actions = {
+            com.tingyun.smartmistakebook.core.ui.ClaudeButton(
+                onClick = { keyboard?.hide(); onDone(state.selected) },
+                modifier = Modifier.fillMaxWidth().testTag("mistake_tree_done"),
+            ) { Text("完成 · 已选 ${state.selected.size}") }
+            Text("完成后返回分类草稿，保存修改才会生效", color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+        },
+    ) {
+        OutlinedTextField(
+            value = state.query, onValueChange = vm::setQuery,
+            label = { Text("搜索知识点、关键词或整句话") },
+            modifier = Modifier.fillMaxWidth().testTag("mistake_tree_query"),
+            maxLines = 3,
+        )
+        val keywords = remember(state.hits) { state.hits.flatMap { it.keywords }.distinct().take(12) }
+        if (keywords.isNotEmpty()) androidx.compose.foundation.lazy.LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            items(keywords) { word ->
+                androidx.compose.material3.AssistChip(onClick = { vm.setQuery(word) }, label = { Text(word) })
+            }
+        }
+        if (state.selected.isNotEmpty()) {
+            Text("已选知识点", color = Ink, style = MaterialTheme.typography.labelLarge)
+            androidx.compose.foundation.lazy.LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                items(state.selected, key = { it.node.nodeId }) { hit ->
+                    androidx.compose.material3.InputChip(
+                        selected = true, onClick = { vm.toggle(hit) },
+                        label = { Text("${if (hit.subject.isBlank()) "" else catalogSubjectLabel(hit.subject) + " · "}${hit.name} ×") },
+                        modifier = Modifier.testTag("catalog_selected_${hit.node.nodeId}"),
+                    )
+                }
+            }
+        }
+        state.notice?.let { Text(it, color = InkSecondary, style = MaterialTheme.typography.bodySmall) }
+        if (!state.available) Text("知识目录正在准备，就绪后会自动显示", color = InkSecondary)
+        else if (state.loading) {
+            androidx.compose.material3.LinearProgressIndicator(Modifier.fillMaxWidth().testTag("catalog_loading"))
+            Text("正在读取知识目录", color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+        } else {
+            state.error?.let { error ->
+                Text(error, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("catalog_error"))
+                TextButton(onClick = { if (state.hits.isEmpty()) vm.retry() else vm.loadNext() }) { Text("重试") }
+            }
+            if (state.hits.isEmpty() && state.error == null) {
+                Text(if (state.query.isBlank()) "知识目录暂时没有可选项" else "没有找到匹配内容，可以缩短句子或换个关键词", color = InkSecondary, modifier = Modifier.testTag("mistake_tree_empty"))
+                if (state.query.isNotBlank()) TextButton(onClick = { vm.setQuery("") }) { Text("浏览全部知识点") }
+            }
+            val groupedHits = remember(state.hits) { state.hits.groupBy { it.subject to it.chapterPath }.values.flatten() }
+            LazyColumn(Modifier.fillMaxWidth().heightIn(max = 380.dp).testTag("mistake_tree_list"), state = listState, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                groupedHits.forEachIndexed { index, hit ->
+                    val group = "${catalogSubjectLabel(hit.subject)} · ${hit.chapterPath.joinToString(" / ").ifEmpty { "未分章节" }}"
+                    val previous = groupedHits.getOrNull(index - 1)
+                    if (previous == null || previous.subject != hit.subject || previous.chapterPath != hit.chapterPath) {
+                        item(key = "header:${hit.node.nodeId}") { TreeGroupHeader(group) }
+                    }
+                    item(key = hit.node.nodeId) {
+                        val selected = state.selected.any { it.node.nodeId == hit.node.nodeId }
+                        Surface(
+                            Modifier.fillMaxWidth().selectable(selected, role = androidx.compose.ui.semantics.Role.Checkbox, onClick = { vm.toggle(hit) }).testTag("mistake_tree_knowledge_${hit.node.nodeId}"),
+                            color = if (selected) JadeSoft else MaterialTheme.colorScheme.surface,
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, if (selected) MaterialTheme.colorScheme.primary else Outline),
+                        ) {
+                            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(hit.name, Modifier.weight(1f), color = Ink, style = MaterialTheme.typography.titleSmall)
+                                    androidx.compose.material3.Checkbox(selected, onCheckedChange = null)
+                                }
+                                if (hit.snippet.isNotBlank()) Text(hit.snippet, color = InkSecondary, style = MaterialTheme.typography.bodySmall, maxLines = 3, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                            }
+                        }
+                    }
+                }
+                if (state.next != null) item(key = "load-next") {
+                    TextButton(onClick = vm::loadNext, enabled = !state.loadingNext, modifier = Modifier.fillMaxWidth().testTag("catalog_load_next")) { Text(if (state.loadingNext) "正在加载" else "加载更多") }
+                }
+            }
+        }
+    }
+}
+
+internal fun catalogSubjectLabel(subject: String): String = when (subject) {
+    "MATH" -> "数学"
+    "PHYSICS" -> "物理"
+    "CHEMISTRY" -> "化学"
+    "BIOLOGY" -> "生物"
+    "CHINESE" -> "语文"
+    "ENGLISH" -> "英语"
+    "HISTORY" -> "历史"
+    "GEOGRAPHY" -> "地理"
+    "POLITICS" -> "政治"
+    else -> subject.ifBlank { "未指定学科" }
+}

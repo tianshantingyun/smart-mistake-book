@@ -27,12 +27,14 @@ class MistakePaperDraft internal constructor(
     val edited: Boolean,
     val questionCount: Int,
     val sourceInputSha256: String,
+    val frozenQuestions: List<com.tingyun.smartmistakebook.core.model.FrozenExportQuestion> = emptyList(),
 ) {
     init {
         require(questionCount >= 1) { "A paper draft needs at least one question" }
         require(sourceInputSha256.matches(SHA_256)) { "Source fingerprint is invalid" }
         require(input.inputSha256.matches(SHA_256)) { "Input fingerprint is invalid" }
         require(input.blocks.isNotEmpty()) { "A paper draft needs blocks to render" }
+        require(frozenQuestions.isEmpty() || frozenQuestions.size == questionCount && frozenQuestions.map { it.ordinal } == (1..questionCount).toList())
         if (!edited) {
             require(input.inputSha256 == sourceInputSha256) {
                 "An unedited draft must keep the source input fingerprint"
@@ -60,6 +62,21 @@ class MistakePaperDraft internal constructor(
 class MistakePaperDraftStore(
     private val directory: File,
 ) {
+    fun encodeSnapshot(draft: MistakePaperDraft): String = JSON.encodeToString(draft.toFileDto()).also {
+        require(it.toByteArray(StandardCharsets.UTF_8).size <= MAX_DRAFT_BYTES)
+    }
+
+    fun decodeSnapshot(snapshot: String): MistakePaperDraft? = runCatching {
+        require(snapshot.toByteArray(StandardCharsets.UTF_8).size <= MAX_DRAFT_BYTES)
+        JSON.decodeFromString<PaperDraftFileDto>(snapshot).toModelOrNull()
+    }.getOrNull()
+
+    fun restoreFrozenPaper(manifest: com.tingyun.smartmistakebook.core.model.FrozenAnswerManifest): MistakePaperDraft {
+        val draft = requireNotNull(decodeSnapshot(manifest.paperSnapshot)) { "Frozen paper snapshot cannot be decoded" }
+        require(draft.input.inputSha256 == manifest.inputSha256 && draft.input.layout == manifest.layout && draft.frozenQuestions == manifest.questions)
+        verifyFrozenPaperQuestions(draft)
+        return draft
+    }
     fun write(draftId: String, draft: MistakePaperDraft) {
         if (!directory.exists() && !directory.mkdirs()) {
             throw IOException("Cannot create the paper draft directory")
@@ -140,6 +157,7 @@ class MistakePaperDraftStore(
         questionCount = questionCount,
         sourceInputSha256 = sourceInputSha256,
         input = input.toDto(),
+        frozenQuestions = frozenQuestions,
     )
 
     private fun PaperDraftFileDto.toModelOrNull(): MistakePaperDraft? {
@@ -155,6 +173,7 @@ class MistakePaperDraftStore(
                 edited = edited,
                 questionCount = questionCount,
                 sourceInputSha256 = sourceInputSha256,
+                frozenQuestions = frozenQuestions,
             )
         }.getOrNull()
     }
@@ -310,6 +329,8 @@ private data class PaperDraftFileDto(
     val questionCount: Int,
     val sourceInputSha256: String,
     val input: PaperInputDto,
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val frozenQuestions: List<com.tingyun.smartmistakebook.core.model.FrozenExportQuestion> = emptyList(),
 )
 
 @Serializable

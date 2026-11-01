@@ -1,6 +1,6 @@
 package com.tingyun.smartmistakebook.core.ui
 
-import androidx.compose.animation.AnimatedVisibility
+import com.tingyun.smartmistakebook.core.ui.ClaudeDisclosure as AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -10,11 +10,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -67,11 +68,11 @@ fun TutorToolTraceLine(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(
-                    enabled = expandable,
-                    role = Role.Button,
+                .defaultMinSize(minHeight = if (expandable) SmartDimens.MinimumTouchTarget else 24.dp)
+                .then(if (expandable) Modifier.claudeInteractiveRow(
+                    onClick = { expanded = !expanded },
                     onClickLabel = if (expanded) "收起查阅明细" else "展开查阅明细",
-                ) { expanded = !expanded }
+                ) else Modifier)
                 .semantics {
                     if (expandable) {
                         stateDescription = if (expanded) "明细已展开" else "明细已收起"
@@ -82,12 +83,12 @@ fun TutorToolTraceLine(
             Text(
                 text = shown.headline,
                 color = InkSecondary,
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
             )
             if (expandable) {
                 Icon(
-                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    imageVector = if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
                     contentDescription = null,
                     tint = InkSecondary,
                     modifier = Modifier
@@ -98,29 +99,27 @@ fun TutorToolTraceLine(
         }
         AnimatedVisibility(
             visible = expanded && expandable,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 shown.rows.forEach { row ->
                     Text(
                         text = row.text,
-                        color = InkMuted,
-                        style = MaterialTheme.typography.labelSmall,
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                     row.detail?.let { detail ->
                         Text(
                             text = detail,
-                            color = InkMuted,
-                            style = MaterialTheme.typography.labelSmall,
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }
                 shown.omittedNote?.let { note ->
                     Text(
                         text = note,
-                        color = InkMuted,
-                        style = MaterialTheme.typography.labelSmall,
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                 }
             }

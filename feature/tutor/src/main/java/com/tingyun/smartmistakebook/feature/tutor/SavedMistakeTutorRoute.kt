@@ -1,6 +1,8 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
-import androidx.compose.foundation.BorderStroke
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.ContentSurface
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -55,9 +57,7 @@ import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
 import com.tingyun.smartmistakebook.core.model.TutorTeachingReference
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.Ink
-import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.LocalModeLine
-import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.StructuredContentRenderer
 import com.tingyun.smartmistakebook.core.ui.studentSubjectLabel
@@ -201,7 +201,7 @@ fun SavedMistakeTutorRoute(
                             onBack = onBack,
                         )
                     },
-                    composerPlaceholder = "这道题还没有打开",
+                    composerPlaceholder = "尚未打开题目",
                     liveAnswerTestTag = "saved_mistake_non_ready_reply",
                 ),
                 composer = {
@@ -213,7 +213,7 @@ fun SavedMistakeTutorRoute(
                             providerReady = true,
                             questionNotReady = true,
                         ).block(),
-                        placeholder = "这道题还没有打开",
+                        placeholder = "尚未打开题目",
                         reasonTestTag = "saved_mistake_non_ready_reason",
                     )
                 },
@@ -262,7 +262,7 @@ fun SavedMistakeTutorRoute(
                         onBack = onBack,
                     )
                 },
-                composerPlaceholder = "这道题还没有打开",
+                composerPlaceholder = "尚未打开题目",
                 liveAnswerTestTag = "saved_mistake_non_ready_reply",
             ),
             composer = {
@@ -274,7 +274,7 @@ fun SavedMistakeTutorRoute(
                         providerReady = true,
                         questionNotReady = true,
                     ).block(),
-                    placeholder = "这道题还没有打开",
+                    placeholder = "尚未打开题目",
                     reasonTestTag = "saved_mistake_non_ready_reason",
                 )
             },
@@ -296,7 +296,7 @@ fun SavedMistakeTutorRoute(
                     )
                     MistakeDetailState.NotFound -> TutorQuestionUnavailable(
                         title = "没有找到这道错题",
-                        detail = "它可能已归档、删除或切换到了新的修订。",
+                        detail = "题目可能已移出、删除或更新，请返回错题本查看。",
                         onRetry = onBack,
                     )
                     is MistakeDetailState.Ready -> Unit
@@ -496,7 +496,7 @@ internal fun SavedMistakeTutorContent(
                     onBack = onBack,
                 )
             },
-            composerPlaceholder = "问这道题，或说出你卡住的步骤",
+            composerPlaceholder = "输入问题或需要讲解的步骤",
             // 这一条**不自动开首轮**（与拍照入口相反）：错题本这条路的合同是"入库后不自动讲题、
             // 由学生显式发起"（`docs/product-information-architecture.md` §错题本、
             // `docs/m1-exhaustive-product-contract.md` 的"自动开始讲题"一栏）。学生进来看到的是
@@ -511,19 +511,23 @@ internal fun SavedMistakeTutorContent(
             leadingContent = {
                 // A1：进入即新会话，不再接管上一次。文案跟着改——旧文案承诺"再次打开会接着
                 // 上次讲题"，而那正是被删掉的行为。
-                LocalModeLine("已存入错题本 · 这一轮从这道题开始")
-                SectionHeader(question.title, modifier = Modifier.padding(top = 10.dp))
-                Text(
-                    text = question.subject.studentSubjectLabel(),
-                    modifier = Modifier.padding(top = 4.dp),
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                Spacer(Modifier.height(14.dp))
-                StructuredContentRenderer(
-                    document = question.questionDocument.document,
-                    choicesEnabled = false,
-                )
+                WorkspacePanel {
+                    Column {
+                        LocalModeLine("已存入错题本 · 这一轮从这道题开始")
+                        SectionHeader(question.title, modifier = Modifier.padding(top = 10.dp))
+                        Text(
+                            text = question.subject.studentSubjectLabel(),
+                            modifier = Modifier.padding(top = 4.dp),
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Spacer(Modifier.height(14.dp))
+                        StructuredContentRenderer(
+                            document = question.questionDocument.document,
+                            choicesEnabled = false,
+                        )
+                    }
+                }
                 learningMemory?.let { memory ->
                     TutorQuestionMemoryCard(
                         memory = memory,
@@ -611,13 +615,13 @@ internal fun TutorQuestionMemoryCard(
         modifier = modifier
             .fillMaxWidth()
             .testTag("saved_mistake_learning_memory"),
-        color = JadeSoft.copy(alpha = 0.34f),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Outline),
+        color = ContentSurface,
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 1.dp,
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
                 text = "这道题的学习记忆",

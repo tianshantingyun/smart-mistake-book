@@ -124,12 +124,12 @@ class LibraryCatalogTest {
         )
 
         assertEquals(LibraryEmptyState.CATALOG_EMPTY, newLibrary)
-        assertEquals("还没有错题", newLibrary?.title)
-        assertEquals("录入第一道错题：拍照、相册或整卷/PDF 都可以，整理好后会出现在这里。", newLibrary?.supportingText)
+        assertEquals("暂无错题", newLibrary?.title)
+        assertEquals("可通过拍照、相册或整卷/PDF录入错题。", newLibrary?.supportingText)
         assertEquals(LibraryEmptyState.FILTERED_EMPTY, filteredResults)
         assertEquals("当前筛选下没有错题", filteredResults?.title)
         assertEquals(LibraryEmptyState.SEARCH_EMPTY, searchResults)
-        assertEquals("没找到相关内容", searchResults?.title)
+        assertEquals("未找到相关题目", searchResults?.title)
         assertNull(
             resolveLibraryEmptyState(
                 totalMistakeCount = mistakes.size,
@@ -153,6 +153,20 @@ class LibraryCatalogTest {
             masteredResult.mapTo(mutableSetOf(), LibraryMistake::id),
         )
         assertEquals("已掌握", MasteryState.MASTERED.label)
+    }
+
+    @Test
+    fun anActiveSearchInAnEmptyCatalogStillOffersSearchRecovery() {
+        assertEquals(LibraryEmptyState.SEARCH_EMPTY, resolveLibraryEmptyState(
+            totalMistakeCount = 0, visibleMistakeCount = 0, hasActiveSearch = true,
+        ))
+    }
+
+    @Test
+    fun anActiveFilterInAnEmptyCatalogDoesNotHideTheFilterControls() {
+        assertEquals(LibraryEmptyState.FILTERED_EMPTY, resolveLibraryEmptyState(
+            totalMistakeCount = 0, visibleMistakeCount = 0, hasActiveSearch = false, hasActiveFilters = true,
+        ))
     }
 
     @Test
@@ -278,7 +292,7 @@ class LibraryCatalogTest {
             assertTrue(legacyCatalog.filter(placeholder, LibrarySelections()).isEmpty())
         }
         assertEquals("数学", entry.contentPath)
-        assertEquals("暂无学习记录", entry.mastery.label)
+        assertEquals("待评估", entry.mastery.label)
         assertTrue(legacyCatalog.optionsFor(LibraryFacet.CHAPTER).isEmpty())
     }
 

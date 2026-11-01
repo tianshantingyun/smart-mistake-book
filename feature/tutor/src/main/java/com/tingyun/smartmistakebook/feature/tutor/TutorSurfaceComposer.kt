@@ -1,17 +1,27 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.ui.Alignment
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.tingyun.smartmistakebook.core.ui.ErrorWarm
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
+import com.tingyun.smartmistakebook.core.ui.InlineActionButton
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 
 /**
  * 输入区不能发送时的原因与出口（A5）。
@@ -86,7 +96,7 @@ internal fun TutorComposerAvailability.block(): TutorComposerBlock? = when {
     )
 
     !providerReady -> TutorComposerBlock(
-        reason = "当前模型还不能处理对话，先完成模型配置和能力测试。",
+        reason = "请先配置并测试模型，再开始对话。",
         action = OPEN_SETTINGS_ACTION,
     )
 
@@ -122,6 +132,7 @@ internal const val TUTOR_RESUME_TURN_LABEL = "继续回复"
  * 三个入口共用；不能发送的原因与出口由 [block] 给，输入框本身不消失。
  */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 internal fun TutorSurfaceComposer(
     value: String,
     onValueChange: (String) -> Unit,
@@ -131,32 +142,14 @@ internal fun TutorSurfaceComposer(
     block: TutorComposerBlock? = null,
     onAction: (TutorComposerAction) -> Unit = {},
     actionTestTags: (TutorComposerActionKind) -> String = { "tutor_composer_action" },
-    placeholder: String = "问这道题，或说出你卡住的步骤",
+    placeholder: String = "输入问题或需要讲解的步骤",
     onOpenAttachMenu: (() -> Unit)? = null,
     attachmentPreview: (@Composable () -> Unit)? = null,
     attachmentCount: Int = 0,
     reasonTestTag: String = "tutor_composer_block_reason",
+    tools: (@Composable () -> Unit)? = null,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        block?.let { blocked ->
-            Text(
-                text = blocked.reason,
-                modifier = Modifier
-                    .padding(bottom = 6.dp)
-                    .testTag(reasonTestTag),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-            )
-            blocked.action?.let { action ->
-                OutlineActionChip(
-                    text = action.label,
-                    onClick = { onAction(action) },
-                    modifier = Modifier
-                        .padding(bottom = 6.dp)
-                        .testTag(actionTestTags(action.kind)),
-                )
-            }
-        }
         TutorChatComposer(
             value = value,
             // 输入框只在"这一轮已经没有对象可发"时才不可输入（会话已结束）；其余阻断都只是
@@ -171,7 +164,27 @@ internal fun TutorSurfaceComposer(
             attachmentCount = attachmentCount,
             // 有阻断就发不出去：发送键变灰，原因与出口在上面那块里。
             sendBlocked = block != null,
+            tools = tools,
         )
+        block?.let { blocked ->
+            BoxWithConstraints(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+              val stacked = maxWidth < 320.dp || LocalDensity.current.fontScale > 1.3f
+              Surface(color = SmartColors.SubtleSurface, shape = MaterialTheme.shapes.medium) {
+              FlowRow(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
+                maxItemsInEachRow = if (stacked) 1 else 2,
+                horizontalArrangement = Arrangement.Start,
+                verticalArrangement = Arrangement.spacedBy(4.dp), itemVerticalAlignment = Alignment.CenterVertically) {
+                Text(blocked.reason, Modifier.weight(1f).testTag(reasonTestTag),
+                    color = InkSecondary, style = ClaudeLayout.ControlText)
+                blocked.action?.let { action ->
+                    TextButton(onClick = { onAction(action) }, modifier = Modifier.testTag(actionTestTags(action.kind))) {
+                        Text(action.label, style = ClaudeLayout.ControlText, color = SmartColors.JadeDark)
+                    }
+                }
+              }
+              }
+            }
+        }
     }
 }
 
@@ -187,7 +200,7 @@ internal fun TutorSurfaceStartError(
         modifier = modifier
             .fillMaxWidth()
             .testTag(testTag),
-        color = ErrorWarm,
-        style = MaterialTheme.typography.bodySmall,
+        color = ErrorText,
+        style = MaterialTheme.typography.bodyMedium,
     )
 }

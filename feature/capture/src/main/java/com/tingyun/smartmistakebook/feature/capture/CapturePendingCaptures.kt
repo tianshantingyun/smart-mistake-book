@@ -1,8 +1,8 @@
 package com.tingyun.smartmistakebook.feature.capture
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,12 +17,12 @@ import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.WarningAmber
-import androidx.compose.material3.AlertDialog
+import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,12 +36,14 @@ import com.tingyun.smartmistakebook.core.domain.PendingCaptureItem
 import com.tingyun.smartmistakebook.core.domain.PendingCaptureStage
 import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
-import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
-import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.SectionHeader
+import com.tingyun.smartmistakebook.core.ui.ScreenStatePanel
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.claudeInteractiveRow
+import com.tingyun.smartmistakebook.core.ui.studentSubjectLabel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -124,12 +126,12 @@ internal fun pendingCaptureStageLabel(
     PendingCaptureStage.RECAPTURE_REQUIRED -> "关键内容看不清，请重新拍摄"
     PendingCaptureStage.MODEL_WORKING -> "正在整理题目，可稍后再来"
     PendingCaptureStage.RETRY_OR_MANUAL -> "上次没有完成，点此继续"
-    PendingCaptureStage.MANUAL_REVIEW_REQUIRED -> "题面还没整理完整，点此继续"
+    PendingCaptureStage.MANUAL_REVIEW_REQUIRED -> "题面待补全，继续编辑"
     PendingCaptureStage.READY_TO_REVIEW -> "题面已整理，可继续"
     PendingCaptureStage.READY_TO_CONTINUE -> if (hasSourceImage) {
         "已保存原图，点此继续"
     } else {
-        "还没存入错题本，点此继续"
+        "尚未存入错题本，继续处理"
     }
 }
 
@@ -148,8 +150,8 @@ internal fun CapturePendingCapturesSection(
             modifier = Modifier.padding(top = 18.dp),
         )
         Text(
-            text = "还没存入错题本的题会先留在这里；存入后自动移出。",
-            color = InkMuted,
+            text = "未完成录入的题保存在这里，存入错题本后自动移出。",
+            color = InkSecondary,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp),
         )
@@ -163,6 +165,7 @@ internal fun CapturePendingCapturesSection(
             )
             Spacer(Modifier.height(6.dp))
             items.forEach { item ->
+                Spacer(Modifier.height(10.dp))
                 PendingCaptureRow(
                     item = item,
                     discardEnabled = !discardInProgress,
@@ -197,16 +200,15 @@ private fun PendingCaptureSummaryCard(
         modifier = modifier
             .fillMaxWidth()
             .testTag("capture_pending_summary"),
-        shape = RoundedCornerShape(10.dp),
-        color = JadeSoft.copy(alpha = 0.45f),
-        border = BorderStroke(1.dp, Outline),
+        shape = RoundedCornerShape(16.dp),
+        color = JadeSoft,
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
-                text = "${summary.total} 道临时题记录保留在本机",
+                text = "共 ${summary.total} 道待处理题，保存在本机",
                 color = Ink,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
@@ -234,30 +236,35 @@ private fun PendingCaptureRow(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("capture_pending_${item.draftId}"),
-        shape = RoundedCornerShape(10.dp),
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.dp, Outline),
+        shape = RoundedCornerShape(20.dp),
+        color = SmartColors.ContentSurface,
+        shadowElevation = 1.dp,
     ) {
         Column {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = 68.dp)
-                    .clickable(onClick = onClick)
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                    .claudeInteractiveRow(onClick = onClick, shape = RoundedCornerShape(20.dp))
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    imageVector = when {
-                        needsAttention -> Icons.Outlined.WarningAmber
-                        item.stage == PendingCaptureStage.TUTOR_SESSION_READY ->
-                            Icons.AutoMirrored.Outlined.Chat
-                        else -> Icons.Outlined.Schedule
-                    },
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = if (needsAttention) ErrorWarm else JadeActive,
-                )
+                Surface(shape = RoundedCornerShape(14.dp),
+                    color = if (needsAttention) ErrorWarm.copy(alpha = .10f) else JadeSoft) {
+                    Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = when {
+                                needsAttention -> Icons.Outlined.WarningAmber
+                                item.stage == PendingCaptureStage.TUTOR_SESSION_READY ->
+                                    Icons.AutoMirrored.Outlined.Chat
+                                else -> Icons.Outlined.Schedule
+                            },
+                            contentDescription = null,
+                            modifier = Modifier.size(22.dp),
+                            tint = if (needsAttention) ErrorWarm else JadeActive,
+                        )
+                    }
+                }
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -269,7 +276,7 @@ private fun PendingCaptureRow(
                         color = Ink,
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
@@ -277,18 +284,18 @@ private fun PendingCaptureRow(
                             item.stage,
                             hasSourceImage = item.hasSourceImage,
                         ),
-                        color = if (needsAttention) ErrorWarm else InkSecondary,
+                        color = if (needsAttention) ErrorText else InkSecondary,
                         style = MaterialTheme.typography.bodySmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = listOfNotNull(
-                            item.subject,
+                            item.subject?.studentSubjectLabel(),
                             pendingCaptureOriginLabel(item.origin),
                             formatPendingTime(item.updatedAtEpochMillis),
                         ).joinToString(" · "),
-                        color = InkMuted,
+                        color = InkSecondary,
                         style = MaterialTheme.typography.labelSmall,
                     )
                 }
@@ -313,7 +320,7 @@ private fun PendingCaptureRow(
                     enabled = discardEnabled,
                     modifier = Modifier.testTag("capture_pending_discard_${item.draftId}"),
                 ) {
-                    Text("不再保留", color = ErrorWarm)
+                    Text("移出待处理", color = ErrorText)
                 }
             }
         }
@@ -322,17 +329,9 @@ private fun PendingCaptureRow(
 
 @Composable
 private fun PendingCaptureEmpty() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 28.dp)
-            .testTag("capture_pending_empty"),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        Text("没有待处理题目", color = Ink, style = MaterialTheme.typography.titleMedium)
-        Text("新拍的题会先安全保存在本机，再出现在这里。", color = InkSecondary)
-    }
+    ScreenStatePanel(icon = Icons.Outlined.Schedule, title = "暂无待处理题目",
+        supportingText = "未完成录入的题会显示在这里。",
+        modifier = Modifier.padding(top = 12.dp).testTag("capture_pending_empty"))
 }
 
 @Composable
@@ -344,11 +343,11 @@ internal fun PendingCaptureDiscardDialog(
 ) {
     AlertDialog(
         onDismissRequest = { if (!inProgress) onDismiss() },
-        title = { Text("不再保留这道题？") },
+        title = { Text("移出待处理列表？") },
         text = {
             Text(
-                text = "「${item.title}」会从待处理列表移除，也不会存入错题本。" +
-                    "本机原图和记录会按原样保留到后续清理。",
+                text = "「${item.title}」将移出待处理列表，不会加入错题本。" +
+                    "原图和记录仍保留在本机。",
             )
         },
         confirmButton = {
@@ -356,7 +355,7 @@ internal fun PendingCaptureDiscardDialog(
                 onClick = onConfirm,
                 enabled = !inProgress,
                 modifier = Modifier.testTag("capture_pending_discard_confirm"),
-            ) { Text("不再保留", color = ErrorWarm) }
+            ) { Text("移出待处理", color = ErrorText) }
         },
         dismissButton = {
             TextButton(

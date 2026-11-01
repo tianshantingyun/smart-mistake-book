@@ -17,7 +17,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * 「导出成果」入口（L7）的界面：三态如实、动作只在成功行出现、文件被清理时失败要关闭而非静默。
+ * 「已导出的文件」入口（L7）的界面：三态如实、动作只在成功行出现、文件被清理时失败要关闭而非静默。
  *
  * 真实产物的分享/保存走既有交付链的仪器化覆盖在 app 侧（`MistakeExportDeliveryInstrumentedTest`，
  * 用真 exporter 产出的 PDF 断言 SEND / CREATE_DOCUMENT 意图），这里用假记录钉界面分流。

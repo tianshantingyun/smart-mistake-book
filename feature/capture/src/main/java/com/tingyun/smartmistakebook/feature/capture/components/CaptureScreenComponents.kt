@@ -1,20 +1,27 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+
 package com.tingyun.smartmistakebook.feature.capture
 
-import androidx.compose.foundation.background
+import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.FolderOpen
@@ -22,28 +29,38 @@ import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
+import com.tingyun.smartmistakebook.core.ui.ClaudeFilterChip as FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.CaptureSourcePage
 import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
-import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeButton
+import com.tingyun.smartmistakebook.core.ui.ClaudeCard
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 
 @Composable
 internal fun WorkspaceSaveErrorCard(
@@ -52,14 +69,13 @@ internal fun WorkspaceSaveErrorCard(
     onRetry: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
+    CapturePanel(
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, ErrorWarm, RoundedCornerShape(8.dp))
-            .padding(12.dp)
+            .border(1.dp, ErrorText.copy(alpha = .25f), RoundedCornerShape(20.dp))
             .testTag("capture_workspace_save_error"),
     ) {
-        Text(message, color = ErrorWarm, style = MaterialTheme.typography.bodySmall)
+        Text(message, color = ErrorText, style = MaterialTheme.typography.bodySmall)
         OutlineActionChip(
             text = if (saving) "正在重试…" else "重新保存",
             onClick = onRetry,
@@ -79,12 +95,9 @@ internal fun ReplacementStatusCard(
     onKeepCurrent: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
+    CapturePanel(
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, if (error == null) Outline else ErrorWarm, RoundedCornerShape(8.dp))
-            .background(JadeSoft.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
-            .padding(14.dp)
             .testTag("capture_replacement_status"),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
@@ -111,7 +124,7 @@ internal fun ReplacementStatusCard(
             )
         }
         if (!isReplacing && error != null) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlineActionChip(
                     text = "重试替换",
                     onClick = onRetry,
@@ -129,29 +142,8 @@ internal fun ReplacementStatusCard(
 
 @Composable
 internal fun CaptureTopBar(title: String, onBack: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = onBack,
-            modifier = Modifier
-                .size(48.dp)
-                .testTag("capture_back_button"),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "返回",
-                tint = Ink,
-            )
-        }
-        Text(
-            text = title,
-            modifier = Modifier.padding(start = 4.dp),
-            color = Ink,
-            style = MaterialTheme.typography.headlineLarge,
-        )
-    }
+    com.tingyun.smartmistakebook.core.ui.ClaudePageHeader(title, onBack = onBack,
+        backModifier = Modifier.testTag("capture_back_button"))
 }
 
 @Composable
@@ -213,7 +205,7 @@ internal fun CaptureSourcePageBar(
         Text(
             text = "跨页题按顺序补拍；每一页原图都会保留。",
             modifier = Modifier.padding(top = 4.dp),
-            color = InkMuted,
+            color = InkSecondary,
             style = MaterialTheme.typography.bodySmall,
         )
     }
@@ -248,60 +240,100 @@ internal fun CaptureEntryModeChooser(
             .fillMaxWidth()
             .testTag("capture_mode_chooser"),
     ) {
-        PrimaryActionButton(
+        CaptureModeOption(
             text = "拍照",
+            supportingText = "拍摄一道完整题目，可继续补拍下一页",
             onClick = onTakePicture,
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag("capture_take_picture_button"),
             icon = Icons.Outlined.PhotoCamera,
+            primary = true,
             contentDescription = "使用系统相机拍摄题目并整理",
         )
-        OutlineActionChip(
+        CaptureModeOption(
             text = "相册",
+            supportingText = "从已保存的照片中选择题图",
             onClick = onPickPhoto,
             modifier = Modifier
                 .padding(top = 10.dp)
                 .fillMaxWidth()
                 .testTag("capture_pick_photo_button"),
             icon = Icons.Outlined.PhotoLibrary,
+            iconSurface = SmartColors.LearningSurface,
+            iconTint = SmartColors.LearningAccent,
             contentDescription = "使用系统照片选择器选择题目图片并整理",
         )
         if (onOpenFiles != null) {
-            OutlineActionChip(
+            CaptureModeOption(
                 text = "整卷/PDF",
+                supportingText = "导入整卷照片或一份 PDF，按页整理",
                 onClick = onOpenFiles,
                 modifier = Modifier
                     .padding(top = 10.dp)
                     .fillMaxWidth()
                     .testTag("capture_mode_files"),
                 icon = Icons.Outlined.FolderOpen,
+                iconSurface = SmartColors.ReadingSurface,
+                iconTint = SmartColors.ReadingAccent,
                 contentDescription = "选择整卷的多张照片或一份 PDF 并逐页整理",
-            )
-            Text(
-                text = "整卷的多张照片或一份 PDF 从这里进；每一页都会保留。",
-                modifier = Modifier.padding(top = 6.dp),
-                color = InkMuted,
-                style = MaterialTheme.typography.bodySmall,
             )
         }
         if (onStartManual != null) {
-            OutlineActionChip(
+            CaptureModeOption(
                 text = "手动建题",
+                supportingText = "直接输入题面，确认后存入错题本",
                 onClick = onStartManual,
                 modifier = Modifier
                     .padding(top = 10.dp)
                     .fillMaxWidth()
                     .testTag("capture_mode_manual"),
-                icon = Icons.Outlined.CheckCircle,
+                icon = Icons.Outlined.EditNote,
                 contentDescription = "没有照片也能建题：直接输入题面并存入错题本",
             )
-            Text(
-                text = "没有照片也能建题：直接敲题面，确认后存入错题本。",
-                modifier = Modifier.padding(top = 6.dp),
-                color = InkMuted,
-                style = MaterialTheme.typography.bodySmall,
-            )
+        }
+    }
+}
+
+@Composable
+private fun CaptureModeOption(
+    text: String,
+    supportingText: String,
+    onClick: () -> Unit,
+    icon: ImageVector,
+    contentDescription: String,
+    modifier: Modifier = Modifier,
+    primary: Boolean = false,
+    iconSurface: Color = JadeSoft,
+    iconTint: Color = JadeActive,
+) {
+    val foreground = if (primary) SmartColors.OnJade else Ink
+    @Composable fun Content() {
+        Row(Modifier.fillMaxWidth().defaultMinSize(minHeight = 44.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Surface(shape = RoundedCornerShape(14.dp),
+                color = if (primary) SmartColors.OnJade.copy(alpha = .12f) else iconSurface) {
+                Box(Modifier.size(44.dp), contentAlignment = Alignment.Center) {
+                    Icon(icon, null, Modifier.size(22.dp), tint = if (primary) foreground else iconTint)
+                }
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(text, color = foreground, style = if (primary) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleMedium)
+                Text(supportingText, color = if (primary) SmartColors.OnJade else InkSecondary,
+                    style = MaterialTheme.typography.bodySmall)
+            }
+            Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, Modifier.size(18.dp), tint = foreground)
+        }
+    }
+    val target = modifier.fillMaxWidth().semantics { this.contentDescription = contentDescription }
+    if (primary) {
+        ClaudeButton(onClick, target, shape = RoundedCornerShape(18.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = SmartColors.Forest, contentColor = SmartColors.OnJade),
+            contentPadding = PaddingValues(20.dp)) { Content() }
+    } else {
+        ClaudeCard(onClick, target, shape = RoundedCornerShape(18.dp), bordered = true, elevation = 0.dp) {
+            Box(Modifier.padding(16.dp)) { Content() }
         }
     }
 }
@@ -313,18 +345,15 @@ internal fun CaptureModelSetupBlock(
     /** 已保存过配置（只差能力测试）时给出下一步的准确指引。 */
     modelConfigured: Boolean = false,
 ) {
-    Column(
+    CapturePanel(
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, Outline, RoundedCornerShape(8.dp))
-            .background(JadeSoft.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
-            .padding(14.dp)
             .testTag("capture_model_setup_block"),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Text(
             text = if (modelConfigured) {
-                "模型已配置，还差一步能力测试；通过后拍照题图就会交给模型整理"
+                "模型配置已保存。测试通过后，可将题图交给模型整理。"
             } else {
                 "配置好模型后，拍照题图才会交给模型整理"
             },
@@ -332,7 +361,7 @@ internal fun CaptureModelSetupBlock(
             style = MaterialTheme.typography.bodyMedium,
         )
         OutlineActionChip(
-            text = if (modelConfigured) "去完成能力测试" else "去设置",
+            text = if (modelConfigured) "测试模型" else "去设置",
             onClick = onOpenSettings,
             modifier = Modifier.testTag("capture_model_setup_settings"),
         )
@@ -357,12 +386,10 @@ internal fun AwaitingCorrectionCard(
     isImporting: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    Column(
+    CapturePanel(
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, ErrorWarm, RoundedCornerShape(8.dp))
-            .background(JadeSoft.copy(alpha = 0.35f), RoundedCornerShape(8.dp))
-            .padding(16.dp)
+            .border(1.dp, ErrorText.copy(alpha = .25f), RoundedCornerShape(20.dp))
             .testTag("capture_pending_correction"),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -391,17 +418,17 @@ internal fun AwaitingCorrectionCard(
             style = MaterialTheme.typography.bodyMedium,
         )
 
-        Row(
+        FlowRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 14.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             OutlineActionChip(
                 text = "重新拍摄",
                 onClick = onRetake,
                 modifier = Modifier
-                    .weight(1f)
                     .testTag("capture_retake_button"),
                 icon = Icons.Outlined.PhotoCamera,
                 enabled = !isImporting,
@@ -410,7 +437,6 @@ internal fun AwaitingCorrectionCard(
                 text = "另选照片",
                 onClick = onPickAnother,
                 modifier = Modifier
-                    .weight(1f)
                     .testTag("capture_pick_another_button"),
                 icon = Icons.Outlined.PhotoLibrary,
                 enabled = !isImporting,
@@ -436,11 +462,9 @@ internal fun CaptureCommittedCard(
     onCaptureAnother: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column(
+    CapturePanel(
         modifier = modifier
             .fillMaxWidth()
-            .background(JadeSoft.copy(alpha = 0.55f), RoundedCornerShape(8.dp))
-            .padding(16.dp)
             .testTag("capture_committed"),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -492,26 +516,26 @@ internal fun CaptureCommittedCard(
 
 @Composable
 internal fun CaptureError(message: String, modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .border(1.dp, ErrorWarm, RoundedCornerShape(8.dp))
-            .padding(12.dp)
-            .testTag("capture_error"),
-        verticalAlignment = Alignment.Top,
-    ) {
-        Icon(
-            imageVector = Icons.Outlined.ErrorOutline,
-            contentDescription = null,
-            modifier = Modifier.size(22.dp),
-            tint = ErrorWarm,
-        )
-        Text(
-            text = message,
-            modifier = Modifier.padding(start = 8.dp),
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodySmall,
-        )
+    WorkspacePanel(modifier = modifier.fillMaxWidth()
+        .border(1.dp, ErrorText.copy(alpha = .25f), RoundedCornerShape(20.dp))
+        .testTag("capture_error")) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top,
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.ErrorOutline,
+                contentDescription = null,
+                modifier = Modifier.size(22.dp),
+                tint = ErrorWarm,
+            )
+            Text(
+                text = message,
+                modifier = Modifier.padding(start = 8.dp),
+                color = ErrorText,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
 }
 
@@ -523,15 +547,14 @@ internal fun CaptureResumeStateCard(
 ) {
     val isBusy = state == CaptureResumeLoadState.LOADING ||
         state == CaptureResumeLoadState.REDIRECTING
-    Column(
+    CapturePanel(
         modifier = modifier
             .fillMaxWidth()
             .border(
                 width = 1.dp,
-                color = if (isBusy) Outline else ErrorWarm,
-                shape = RoundedCornerShape(8.dp),
+                color = if (isBusy) Outline else ErrorText.copy(alpha = .25f),
+                shape = RoundedCornerShape(20.dp),
             )
-            .padding(16.dp)
             .testTag("capture_resume_${state.name.lowercase()}"),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {

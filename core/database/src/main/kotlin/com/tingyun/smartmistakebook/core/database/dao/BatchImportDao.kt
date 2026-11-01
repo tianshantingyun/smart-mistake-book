@@ -9,6 +9,8 @@ import androidx.room3.Relation
 import androidx.room3.Transaction
 import com.tingyun.smartmistakebook.core.database.entity.BatchImportJobEntity
 import com.tingyun.smartmistakebook.core.database.entity.BatchImportPageEntity
+import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftEntity
+import com.tingyun.smartmistakebook.core.database.entity.ProblemDraftCommitReceiptEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -272,6 +274,26 @@ internal data class BatchImportJobWithPages(
     @Relation(
         parentColumns = ["job_id"],
         entityColumns = ["job_id"],
+        entity = BatchImportPageEntity::class,
     )
-    val pages: List<BatchImportPageEntity>,
+    val pages: List<BatchImportPageWithDraftOutcome>,
+)
+
+internal data class BatchImportPageWithDraftOutcome(
+    @Embedded
+    val page: BatchImportPageEntity,
+    @Relation(
+        parentColumns = ["result_draft_id"],
+        entityColumns = ["draft_id"],
+        entity = ProblemDraftEntity::class,
+        projection = ["status"],
+    )
+    val draftStatuses: List<String>,
+    @Relation(
+        parentColumns = ["result_draft_id"],
+        entityColumns = ["draft_id"],
+        entity = ProblemDraftCommitReceiptEntity::class,
+        projection = ["error_book_entry_id"],
+    )
+    val savedEntryIds: List<String>,
 )

@@ -76,6 +76,8 @@ fun StructuredContentRenderer(
     selectedChoices: Map<String, String> = emptyMap(),
     choicesEnabled: Boolean = true,
     onChoiceSelected: (groupId: String, choiceId: String) -> Unit = { _, _ -> },
+    storedFigures: List<com.tingyun.smartmistakebook.core.model.StoredFigureReference> = emptyList(),
+    figureUri: (com.tingyun.smartmistakebook.core.model.StoredFigureReference) -> String? = { null },
 ) {
     // Sanitization is bounded; avoiding the raw document as a remember key also avoids a deep
     // data-class equality walk over an attacker-sized list during recomposition.
@@ -94,6 +96,13 @@ fun StructuredContentRenderer(
         }
         safeDocument.blocks.forEach { block ->
             key(block.id) {
+                val storedFigure = storedFigures.singleOrNull { it.blockId == block.id }
+                if (storedFigure != null) {
+                    val uri = figureUri(storedFigure)
+                    if (uri != null) BoundedLocalImage(imageUri = uri, contentDescription = "题目配图", expanded = true, modifier = Modifier.fillMaxWidth())
+                    else Text("配图暂时无法读取", color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+                }
+                if (storedFigure == null) {
                 when (block) {
                     is ContentBlock.Paragraph -> SafeMarkdownText(
                         markdown = block.markdown,
@@ -111,6 +120,7 @@ fun StructuredContentRenderer(
 
                     is ContentBlock.Figure -> FigureBlock(block)
                     is ContentBlock.Unknown -> Unit // Sanitizer always removes this branch.
+                }
                 }
             }
         }

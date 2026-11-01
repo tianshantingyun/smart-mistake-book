@@ -121,6 +121,7 @@ class TutorConversationScreenInstrumentedTest : CapturedTutorSessionTestBase() {
         composeRule.onNodeWithTag(TUTOR_CAPABILITY_DIRECTORY_TAG).assertExists()
         composeRule.onNodeWithTag("tutor_capability_explain").assertExists()
         composeRule.onNodeWithTag("tutor_capability_capture").assertExists()
+        captureTutorFullUiEvidence("tutor-lobby.png", composeRule::waitForIdle)
     }
 
     // ---- A3：计划阶段也有流 ----
@@ -272,7 +273,7 @@ class TutorConversationScreenInstrumentedTest : CapturedTutorSessionTestBase() {
             status = planStatus,
             stateVersion = 1,
             stage = ModelTaskStage.PREPARING,
-            userMessage = "正在准备这道题的讲解",
+            userMessage = "正在整理题目的讲解",
             attemptCount = 1,
             provider = provider,
             // 成功态必须带输出（`ModelTaskSnapshot` 的构造期不变量）。
