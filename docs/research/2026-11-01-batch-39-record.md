@@ -321,3 +321,10 @@ git log --oneline -6                                 # 684adb6e/f0512a47/a0641bb
   3. **V-01=4/4**：④ 腿经 test-only seam（`VisualChainTestSeams`，grep 门 + R-04 keep 义务登记在案）补上设备证据（首轮 code 0 + 复跑 OK (4 tests)）；生产装配另计。
   4. **isolation 三窗未收敛**：D 归因暂时接受（T4 机制反证=6 处 volatile 打点、kill 计数高方差），**批次 40 设备窗必须低负载复跑到 15/15；仍红则 T4-reverted 控制轮强制**。X-03 红例=A 类夹具缺陷，修复+复跑归批次 40。
 - **台账回填**：known-defects KD-76 前更正块 + 清单附录 J（上方两笔已提交）。
+
+### 10.1 merge 尝试与 revert 裁定（2026-11-01，主会话）
+
+- 推送时发现本地与 origin/main 分叉（远端 22 笔=codex/ui-green-pages PR#12：内页整合/导出/知识星图/配色重设计，12:32 合并）。本地在飞续作 mtime 14:06 晚于 PR——按更新续作做了快照提交（cf448a97）+ merge（863a33dd，75 冲突取 ours）。
+- **合并树语义级联**：远端 PR 功能文件（MasteryVisuals/智能体编辑/星图/详细答案预览等）依赖 PR 世代符号，本地续作已重构该层——缺 10 符号（agentJob/agentPreview/pressedScale/LearningSurface/Forest/adoptedFigureUris/storedFigureReferences 等），其中状态面符号（agentJob 等）属另一会话的功能逻辑，映射深度不可控。
+- **裁定：revert 合并（bf81d8f6，前向撤销非 reset）**——本线回到门禁绿（revert 后六 UI/feature 模块编译 0 错、单测门 11 模块 exit=0、强门 exit=0）；PR#12 仍在 origin/main，跨世代整合交回 UI 会话（其已在远端做过同型整合 4baa77b8）。暂存区卷入的 UI 会话在飞内容随 revert 从 index 撤销，工作树保留。
+- **重放门槛**：UI 会话完成整合后，本线后续批次在整合树上重放本批全部落码（V-01④ seam/D-04 渲染器/KD-76 seam 等均为新文件+非冲突面，预计重放成本低）。
