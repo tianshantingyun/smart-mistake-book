@@ -610,3 +610,55 @@ tail -12 build/agent-batch30/consistency.txt                # 3 门 2 PASS / 1 F
 ```
 
 **批次30 收口结算（主循环，2026-11-01）**：**配额臂测负关闭**（设备 114/129 回归 3 条 → 6 文件逐字回滚；救援配额在本融合口径下为负向，与批次18/21 并集结论一致）；**v25（A 层定向抽取 3 材料）不可判读回滚**（读数被配额臂污染；抽取证据留 `build/agent-batch30/a-layer-extract.md` 待干净重测）；**正向遗留入库**（升级逻辑用例 +85 行、DenseTestFixtures CRLF 修复、验收 v1.3 数值修正）；最终态 **v24/9664896a + 96246c78 + .vec 70329115**，渲染 v2 与 v24 为当前基线、检索 117/129。配额臂重开条件：仅当新的缺腿归一化口径或槽位策略有独立预注册与外部依据（禁金标调参）。
+
+## 19. 批次31A v25/v26/v27 blocked + 只读审计 done + 验收 v1.4（2026-11-01）
+
+> 数字来源：`build/agent-batch31a/`（`baseline/identity.md`、`audit.md`、`gates/summary.txt`、`gates/*.log`、`gates/judgment_drift_{release,detail}.json`、`consistency.txt`、`source_table.md`、`sample10.md`、`scripts/`）＋ `build/agent-batch30/{v25.log,v24/,v25/,quota/}` ＋ `build/kb-staging/` ＋ `docs/kb-batch31a-2026-11-01.md`；本文书轮只读复算（sha256、F13–F16 全量计数、八门逐门复跑中 8/8、`Ran 902`、金标判官 XML）。基线：批内证据 HEAD **`147c4b9f`**（origin 同步 0/0）；文书时 HEAD **`2eca3578`**（origin/main 仍 `147c4b9f`，ahead **5**，均为 4e.2 视觉线提交，未触 KB 表/包/判官；落笔后该线再前进 1 个至 `b95451c9`，HEAD 以当场 `git rev-parse` 为准）。porcelain：748（05:59）→ 746（07:04）→ 749（07:25）→ **715（224 `M` + 491 `??`，文书时）**。**本行不改变 §18 的终态：v23/v24 采纳仍成立，release 仍 v24/9664896a；新增事实是 staging 仍是 v25、`judgment_drift` 转红。**
+
+| 项 | 状态 | 读数与证据 |
+|---|---|---|
+| **v25（A 层 3 材料）** | **blocked（未采纳；release 已回滚，staging 未回滚）** | release 回 v24：manifest `24/9664896aeba22e86`、主包 `96246c78…`、`.vec 70329115…`、v2-25 `d132dd68…`/154；三条 v25 材料 id 在判定表 0 命中。blocked 依据：设备 fused MISS 账本 `9074bf7e…` 与配额臂**逐字节同**（lexical 同 `d6fd7290…`；v24 自身 `327e7b29…`），读数不可归因；配额判读同时为红（114/129、24 章 lower 4、fused 零漂移 5）。**残留**：`build/kb-staging` = v25（v2-25 `a1400dd1…`/157、manifest `02f94acf…`/25）；`extraction_state.csv` 3 行 `EXTRACTED`（`6475d53e0f-005`、`d9379ea17f-009`、`e14aad82a5-233`，`2026-11-01 00:50:45`）与判定表互斥。A 层 3 条材料仅存在于 `build/` |
+| **v26** | **blocked（未发起；树内无产物）** | 唯一出现形态：`promote.py --dry-run` 的**目标版本号**（`gates/promote_dry.log:34-36`「version→26，压平 0 条」「dry-run：门全绿，未写盘」）。无 `-26` 侧车 / 无 `version=26` manifest / 无 contentVersion=26。阻塞条件：①其内容即被判 blocked 的 staging v25（157 材料）；②`judgment_drift` 518 红（该门**不在** promote 硬门内，`tools/ci/run_kb_checks.py:47-50`，故 dry-run 绿≠可晋升）。**属"未发生"，非实测负向** |
+| **v27** | **blocked（不存在可采纳对象；UNVERIFIED）** | 树内 `moe-2025-teaching-support-v2-27*` / `version=27` / contentVersion 27 全空；`build/` 内 `v27` 命中为无关字符串。不得附任何读数。附核查（读作 KB 批次 25/26/27）：`a3b8a534`/`a7d41f45`/`d1bacec5` 均未改金标/判官/`alias_map.csv` 内容；批次25 S3 别名材料派生但实测判负已回滚 |
+| **只读审计** | **done（不通过"来源可发布"口径）** | 来源 **49** 个 `sourceId` / **205** 行 / **65,018** 材料（ask 的 38 无法复现）；字段枚举 0 越界；`sourceUri` **100% 占位**（49/49、205/205、65,018/65,018；生成器 `tools/kb_coverage/materialize.py:93`、`tools/kb_build/new_content.py:110`）；`-RequireProductionReady` **EXIT=1**（九科四类证据全缺）；权利门 **EXIT=1**（schema 4 不支持）；edition 不一致 **16/49**（抽查 4/10）；`title==sourceId` **27/49**；wusan publisher 4/4 为品牌缩写。v25 未发现金标定向改动（主包 `96246c78…` 两边同、别名 40,841 逐项等、3 条新料材料派生且目标不在 129 `expectedSlug`） |
+| **回归** | **7/8 门绿 + 两套件绿 + 一条守卫缺失** | `py_suite` **Ran 902 / OK**（批内 297.981s；文书轮复跑 311.660s，两次同数同结论）；`GoldenRetrievalJvmTest` **2/0**（文书轮实跑，XML 07:44）；**`FusedRecallSupersetTest` 不在树内**（`./gradlew --tests "*FusedRecallSupersetTest*"` → `No tests found`，EXIT=1；登记 post sha `35ef09ce…` 不可复算；`RetrievalBenchmark.kt:482` 仍 pre `8c2a2ef0…`）⇒ 审计时那条 2/3 红是随文件消失而非修好 |
+| **门** | **7/8 rc=0、red=1** | 绿：`py_suite`(902)、`promote_dry`(0，version→26 零写盘)、`slice`(235 文件/118,848 块；MATERIAL 37,965/SKIP 80,883/NEW 358；不过 0)、`asset`(10/10；44,121 vectors)、`alignment`(308/138/73/142，**须 `PYTHONPATH=tools`**)、`transcripts`(1205/1205)、`judgment_fp`(135,087 行/186,635 键/0 问题)。红：`kb_checks` **rc=1**，`judgment_drift` **518**（content **335** + boundary **183**；missing 0/duplicate 0/orphan_ext 658 含 skip 657）。该门批30 04:48 为绿（`build/agent-batch30/gates/kb_checks.log:36`）、31A 07:26 转红、文书轮复跑同 518；两时点间有 `2bb4582a`（v24 采纳）与 `147c4b9f`（收口，只动 5 个非 KB 表文件），**成因未逐条归因（UNVERIFIED），不得写作"31A 引入"**（31A 全程只读） |
+| **验收 v1.4：F13** | **红** | 去重后近重复 **96 组 / 199 材料 / 额外对 103**（≠0）；组内 `content` 逐字相同 **96/96**；同节点 94、跨节点 2；1 个 content 哈希跨 2 节点。payload 级去重已为 0（`dedupe_judged_materials --dry-run`「去重 0 行」），但其键含 `chunk_id`，捕不到"同载荷跨 slug"这 96 组；树内无近重复去重工具、本批未写盘 |
+| **验收 v1.4：F14** | **红** | 退化摘要 **251**（同题 140、`≤8` 字 127、交集 16）≠0 |
+| **验收 v1.4：F15** | **只读数（ask 未设阈值）** | title 合规 **33,980 / 65,016 = 52.2641%**（违规并集 31,036 = >24 字 20,770 ∪ 含标点 30,932）；仅中文标点口径 **34,701/65,016 = 53.373%** |
+| **验收 v1.4：F16** | **严格口径红（35 条例外）** | **37,561 行 = 37,526 材料标题 + 35 登记例外 + 0 未匹配**；`alias == golden query` **0**；`alias == expectedSlug` **1**（`人船模型`，节点 `name="“人船模型”"`，属自身名变体，非题干反推）；35 例外中 0 条是材料标题、**2 条为 golden query 严格子串**（`实验室制取氢氧化铝`、`二项式系数最大的项`，理由指批次16 正文）；别名 `len>24` 0、含问号 0 |
+| **A 层边界** | **重申，不重开** | **60,512 块 SEAL**（point 1,053.3<1,500、Wilson lower 326.9<800、genuine 5/5）；选修 **235** 单列；PARTIAL **46** 行（**16 KEEP**、UPGRADE 26、WAIVE 1，另 3 行 `finalReview=null`）。定向抽取 = 22 具名子面召回（16 KEEP PARTIAL + 3 薄料 + 3 边界）→ **MATERIAL 3 / SKIP 15 / NOT_FOUND 4**，不改 `finalReview`、不建点、不重判块池 ⇒ **抽取 ≠ 重开封层**。本批额外不做：去重/改 title/改 summary/改别名/补 URI/修 drift/动 state |
+| **一致性** | **批内 1 PASS / 2 FAIL；文书轮 0/3** | 07:25（HEAD `147c4b9f`）：C01 PASS、C02 FAIL（装置新测 `35ef09ce…` absent、`??` 缺失）、C03 FAIL（`DenseRecallRerankerTest.kt` 登记 `M` 实测 clean、`FusedRecallSupersetTest.kt` 登记 `??` 实测不存在）。07:47（HEAD `2eca3578`）：C01 亦 FAIL（`origin_sync 0 5`）。两次均未放宽判据 |
+| **提交** | **未提交** | 本批只写 `build/agent-batch31a/*` 与 `docs/kb-batch31a-2026-11-01.md` + 本行；KB 数据/代码/门判据零改动；HEAD 的 5 个新提交（`283c0898`…`fbab0b67`）属 4e.2 线 |
+
+**批次31A 残留（按阻塞程度）**：
+
+1. **staging=v25 / release=v24 并存**：任何 promote 会把 v25 换号成 v26（dry-run 已报 `version→26`）；按 v24 口径的构建会被 v25 内容污染。晋升前必须复位 staging。
+2. **`extraction_state.csv` 3 行 EXTRACTED 残留**：与判定表"这 3 块未判 MATERIAL"互斥，可能让后续 materialize 按 state 跳过。
+3. **`judgment_drift` 518 未归因**：content 335 + boundary 183；批30 绿不可从提交态复现；promote 不读该门，易被 dry-run 绿掩盖。
+4. **超集守卫缺失**：`FusedRecallSupersetTest.kt` 不存在、镜像仍 pre；配额/超集类实验当前无 JVM 守卫。
+5. **F13/F14 未达标**：96 组/103 额外对、退化摘要 251；且无近重复去重工具。
+6. **F16 两条例外需复核**：`实验室制取氢氧化铝`、`二项式系数最大的项` 是 golden query 子串且非材料标题。
+7. **来源元数据缺口**：49/49 占位 `sourceUri`、生产门红、权利门对 schema 4 不可运行、16/49 edition 不一致、27/49 `title==sourceId`、4 条 wusan publisher 缩写。
+8. **`KnowledgePort.kt` KDoc 悬空引用**：仍指向已回滚的 `DenseRecallOrdering.withRescueSlot`（仅注释，不报编译错）。
+9. **HEAD 漂移**：批内 `147c4b9f` → 文书时 `2eca3578`（ahead 5）；批内 C01 快照不代表当前态。
+10. **未提交**：本批证据与文书均未提交、未推送。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD; git rev-list --left-right --count origin/main...HEAD   # 2eca3578…；0 5（批内 147c4b9f 0 0）
+git status --porcelain | wc -l; git status --porcelain | cut -c1-2 | sort | uniq -c   # 715 = 224 M + 491 ??
+python -I -X utf8 -c "import json;d=json.load(open('build/kb-staging/moe-2025-update-manifest.json',encoding='utf-8'));print(d['version'],d['contentVersion'])"  # 25 e57db8806ec4e2ae
+sha256sum build/agent-batch30/{quota,v25}/device-fused-misses.txt        # 两文件同 9074bf7e…
+python tools/ci/run_kb_checks.py                                         # rc=1；judgment_drift 518
+python -m unittest discover -s tools/tests -t tools                      # Ran 902 / OK
+python tools/kb_build/promote.py --dry-run                               # rc=0；version→26；未写盘
+PYTHONPATH=tools python tools/kb_coverage/alignment.py --check           # 308/138/73/142
+./gradlew :core:data:testDebugUnitTest --tests "*GoldenRetrievalJvmTest*" --console=plain -q   # EXIT=0；XML tests=2 failures=0
+./gradlew :core:data:testDebugUnitTest --tests "*FusedRecallSupersetTest*" --console=plain     # No tests found；EXIT=1
+grep -c -e 6475d53e0f-005 -e d9379ea17f-009 tools/kb_coverage/tables/material_judgments/MATH.csv   # 0（状态表仍残留，见 git diff）
+```
+
+**批次31A 结算（文书员，2026-11-01）**：三个内容版本候选**全部 blocked**，但三者性质不同——v25 是**实测不可归因**（MISS 账本与配额臂逐字节同）且 release 已回滚、staging 与 `extraction_state` 未回滚；v26 **从未发生**（只作为 promote dry-run 的目标版本号出现，其内容就是 v25）；v27 **树内不存在**（无产物、不可裁定）。审计 **done** 且按"来源可发布"口径**不通过**。回归两套件绿（902 / 2）、八门 **7/8**（`judgment_drift` 518 红）、超集守卫**缺失**。验收 v1.4 **F13 红 / F14 红 / F15 仅读数 52.26% / F16 严格口径红（2 条例外）⇒ 不达标**。下一步顺序（未执行）：复位 staging 到 v24 → 回滚 `extraction_state` 3 行与 `KnowledgePort` KDoc → 单独归因 518 → 建近重复去重工具清 F13/F14 → 复核 F16 两条例外 → 再谈 v26。
