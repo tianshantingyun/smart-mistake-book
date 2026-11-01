@@ -421,11 +421,18 @@ fun tutorToolRefusalText(errorKind: String): String = when {
     // 执行器层两道门共用的结果码。学生侧与"通道不可用"同族，但如实说缺的是本地绘图
     // 执行通道（不是模型通道）；"没有生成"与 figure_unavailable 同措辞，不假装试过。
     errorKind == FIGURE_METHOD_UNAVAILABLE_KIND -> "本机没有接通本地绘图通道，没有生成"
+    // P-11（批次 35）：本地绘图引擎失败且原因不可归属（runner 收到的诊断带 [UNATTRIBUTED]
+    // 前缀）。学生侧如实说引擎这次出了故障（不是通道缺失、也不暗示绘图程序有错）；
+    // "没有生成"与 figure_unavailable 同措辞，不假装试过。
+    errorKind == FIGURE_ENGINE_UNATTRIBUTED_KIND -> "本机绘图引擎这次出了故障，没有生成"
     else -> "没有完成"
 }
 
 /** JS 方法在本构建没有执行通道的结果码（与 `RoomModelTaskToolRounds` 的同名字面量一致）。 */
 private const val FIGURE_METHOD_UNAVAILABLE_KIND = "figure_method_unavailable"
+
+/** 本地绘图引擎失败且原因不可归属的结果码（与 `RoomTutorToolRunner` 的同名字面量一致）。 */
+private const val FIGURE_ENGINE_UNATTRIBUTED_KIND = "figure_engine_unattributed"
 
 private const val REJECTED_REASON_PREFIX = "rejected:"
 

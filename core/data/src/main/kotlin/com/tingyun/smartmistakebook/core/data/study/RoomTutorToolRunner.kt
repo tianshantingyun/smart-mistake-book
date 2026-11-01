@@ -15,6 +15,7 @@ import com.tingyun.smartmistakebook.core.database.TutorMessageRecord
 import com.tingyun.smartmistakebook.core.database.TutorTurnResponseRecord
 import com.tingyun.smartmistakebook.core.data.model.FIGURE_METHOD_UNAVAILABLE
 import com.tingyun.smartmistakebook.core.data.model.JS_FIGURE_UNAVAILABLE_SUMMARY
+import com.tingyun.smartmistakebook.core.data.visual.UNATTRIBUTED_DIAGNOSTIC_PREFIX
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureGenerator
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureRequest
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureResult
@@ -1253,16 +1254,37 @@ internal class RoomTutorToolRunner(
                 figure = figureTrace,
             )
 
-            TutorFigureStatus.UNAVAILABLE -> TutorToolExecution(
-                outcome = TutorToolOutcome(
-                    tool = call.tool,
-                    ok = false,
-                    summaryMarkdown = "本机没有可用的生图通道（未配置可用的图像模型），" +
-                        "未生成配图；不要反复申请。",
-                    errorKind = FIGURE_UNAVAILABLE,
-                ),
-                figure = figureTrace,
-            )
+            TutorFigureStatus.UNAVAILABLE -> {
+                // P-11 runner 半边（批次 35 R2 设计 §2.3）：诊断带 [UNATTRIBUTED] 前缀 =
+                // 本地绘图引擎失败且原因不可归属（协调器已折设施类 UNAVAILABLE，有界诊断
+                // 形如 "INVALID_PROGRAM: [UNATTRIBUTED] …"，见 boundedRejection）。它既不是
+                // "程序错"也不是"通道未配置"：单独成码回喂（适配层失败形态只给
+                // `[失败 <errorKind>]`），模型不会把设施故障当程序错去修 program（R3 §6.6
+                // 退化口径从登记变生效），记录半也不谎称"未配置图像模型"。前缀常量同源
+                // 复用（core:data internal），不另造字面量。本构建 JS 未接线（A-02 两道门），
+                // 生产暂不可达——与执行器层 A-02 第二道门同型，保护直调 runTraced 的调用者
+                // 与 X-01 接线后的生产路径。
+                val engineUnattributed =
+                    result.diagnostics?.contains(UNATTRIBUTED_DIAGNOSTIC_PREFIX) == true
+                TutorToolExecution(
+                    outcome = TutorToolOutcome(
+                        tool = call.tool,
+                        ok = false,
+                        summaryMarkdown = if (engineUnattributed) {
+                            FIGURE_ENGINE_UNATTRIBUTED_SUMMARY
+                        } else {
+                            "本机没有可用的生图通道（未配置可用的图像模型），" +
+                                "未生成配图；不要反复申请。"
+                        },
+                        errorKind = if (engineUnattributed) {
+                            FIGURE_ENGINE_UNATTRIBUTED
+                        } else {
+                            FIGURE_UNAVAILABLE
+                        },
+                    ),
+                    figure = figureTrace,
+                )
+            }
 
             // 生成器判定源图不足（例如缝核对失败后的 NEED_SOURCE）：没有出网、没有产物，
             // 结果按 K2a 的"本轮不生成"形态回给模型，但痕迹如实记录终态。
@@ -1719,6 +1741,23 @@ private const val FIGURE_UNAVAILABLE = "figure_unavailable"
 
 /** A1 生图：通道在但这次没成（出网/解码/落盘失败）。 */
 private const val FIGURE_FAILED = "figure_failed"
+
+/**
+ * P-11（批次 35 R2 设计 §2.3）：生图引擎失败且**原因不可归属**（诊断带 [UNATTRIBUTED] 前缀，
+ * 协调器折设施类 UNAVAILABLE）的稳定结果码。单独成码的失败指认：混进
+ * [FIGURE_UNAVAILABLE] 会回喂"通道未配置"（假话），混进 [FIGURE_FAILED] 会让模型去修
+ * 一个没有错的 program（R3 §6.6）——两条退化口径都由这一码消灭。学生侧渲染在
+ * `tutorToolRefusalText`（core/model，同名字面量一致）。
+ */
+private const val FIGURE_ENGINE_UNATTRIBUTED = "figure_engine_unattributed"
+
+/**
+ * [FIGURE_ENGINE_UNATTRIBUTED] 的结果句（outcome 的本地记录半；模型侧失败形态只看
+ * `[失败 <errorKind>]`，见 OpenAiModelTaskAdapters 的工具结果渲染）。口径：不声称通道
+ * 缺失、不暗示程序有错、与 [FIGURE_UNAVAILABLE] 同收"未生成配图；不要反复申请"。
+ */
+private const val FIGURE_ENGINE_UNATTRIBUTED_SUMMARY =
+    "本机绘图引擎这次失败且原因无法定位（不是绘图程序的问题），未生成配图；不要反复申请。"
 
 /**
  * 咨询工具的**稳定键**（D-M M7 的 upsert 半边）：作用域 + 目标 ⇒ 恒定的 source_id，

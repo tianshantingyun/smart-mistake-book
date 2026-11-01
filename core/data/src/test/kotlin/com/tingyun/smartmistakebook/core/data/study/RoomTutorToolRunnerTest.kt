@@ -25,6 +25,7 @@ import com.tingyun.smartmistakebook.core.data.model.TutorFigureGenerator
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureRequest
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureResult
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureStatus
+import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.TutorFigureKind
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
@@ -1812,6 +1813,38 @@ class RoomTutorToolRunnerTest {
 
         assertFalse(outcome.ok)
         assertEquals("figure_unavailable", outcome.errorKind)
+    }
+
+    /**
+     * P-11 runner 半边（批次 35 R2 设计 §2.3）：协调器把不可归属的引擎失败折设施类
+     * UNAVAILABLE，有界诊断形如 "INVALID_PROGRAM: [UNATTRIBUTED] …"（保留断言与
+     * FigureGenerationCoordinatorTest 同形；字面量是跨进程契约，前缀常量漂移时本用例立红）。
+     * runner 不得把它混进 figure_unavailable（"未配置图像模型"是假话）、也不得混进
+     * figure_failed（诱导模型修 program）——单独成码回喂；痕迹终态仍如实记 UNAVAILABLE。
+     */
+    @Test
+    fun generateFigureReportsAnUnattributedEngineFailureAsItsOwnErrorKind() = runBlocking {
+        val port = FigureDraftPort(problemDraftRecord("draft-figure-ua"))
+        port.tutorSessions[TUTOR_SESSION_ID] = tutorSessionRecord("draft-figure-ua")
+        val runner = figureRunner(port) { _ ->
+            TutorFigureResult(
+                figureId = null,
+                status = TutorFigureStatus.UNAVAILABLE,
+                diagnostics = "INVALID_PROGRAM: [UNATTRIBUTED] phase render failed with a " +
+                    "message-less engine error (raw=null, mallocSize=1000000, mallocLimit=16777216)",
+            )
+        }
+
+        val execution = runner.runTraced(figureCall(), sessionContext())
+
+        assertFalse(execution.outcome.ok)
+        assertEquals("figure_engine_unattributed", execution.outcome.errorKind)
+        assertEquals(
+            "本机绘图引擎这次失败且原因无法定位（不是绘图程序的问题），" +
+                "未生成配图；不要反复申请。",
+            execution.outcome.summaryMarkdown,
+        )
+        assertEquals(FigureGenerationStatus.UNAVAILABLE, execution.figure?.status)
     }
 
     // ---- 4B 批 2 A2：生图事实进痕迹 + 已保存题面的 CLEAN_IMAGE 附加引用 ----
