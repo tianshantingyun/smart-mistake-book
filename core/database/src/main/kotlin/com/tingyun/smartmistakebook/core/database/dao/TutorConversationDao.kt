@@ -21,6 +21,7 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
 import com.tingyun.smartmistakebook.core.database.TutorMessageSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.requireBoundQuestionPair
+import com.tingyun.smartmistakebook.core.model.decodeTutorTurnToolTrace
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -85,6 +86,45 @@ internal abstract class TutorConversationDao {
     protected abstract suspend fun findMessageSourceAssets(
         messageIds: List<String>,
     ): List<TutorMessageSourceAssetEntity>
+
+    @Query("""
+        SELECT DISTINCT CASE o.purpose
+            WHEN 'SOURCE_TRANSCRIPTION' THEN 'CLEAN_IMAGE'
+            WHEN 'SOURCE_RECONSTRUCTION' THEN 'CLEAN_IMAGE'
+            WHEN 'PIXEL_CLEANUP' THEN 'CLEAN_IMAGE'
+            WHEN 'EXPLANATION' THEN 'TUTOR_EXPLANATION'
+            WHEN 'ILLUSTRATION' THEN 'TUTOR_EXPLANATION'
+        END
+        FROM figure_generation_attempt a
+        JOIN figure_generation_operation o ON o.operation_id = a.operation_id
+        JOIN canonical_source_asset c ON c.source_asset_id = a.output_asset_id
+        WHERE o.source_kind = 'TUTOR_MESSAGE' AND (o.source_id = :requestId OR o.operation_id = :operationId)
+          AND a.status = 'SUCCEEDED' AND c.source_asset_id = :assetId
+          AND c.source_type = 'GENERATED_FIGURE'
+          AND o.purpose IN ('SOURCE_TRANSCRIPTION', 'SOURCE_RECONSTRUCTION', 'PIXEL_CLEANUP', 'EXPLANATION', 'ILLUSTRATION')
+        """)
+    protected abstract suspend fun admittedFigureRoles(requestId: String?, assetId: String, operationId: String?): List<String>
+
+    private suspend fun assistantFigureLinks(
+        command: AppendTutorAssistantMessageDatabaseCommand,
+    ): List<TutorMessageSourceAssetEntity> {
+        val basisRevisionId = findConversation(command.conversationId)?.anchorProblemRevisionId
+        val trace = decodeTutorTurnToolTrace(command.toolTraceJson)
+        return command.sourceImageAssetIds.mapIndexed { index, assetId ->
+            // Only attached successful generation records establish a role. A tool trace is display data.
+            // A cached result keeps its original operation; its trace id is only a lookup hint, never role authority.
+            val operationId = trace?.entries?.filter { it.ok && it.figure?.figureId == assetId }
+                ?.mapNotNull { it.figure?.operationId }?.distinct()?.singleOrNull()
+            val role = admittedFigureRoles(command.logicalOperationId, assetId, operationId).singleOrNull()
+            TutorMessageSourceAssetEntity(
+                messageId = command.messageId,
+                sourceAssetId = assetId,
+                ordinal = index,
+                role = role,
+                basisRevisionId = basisRevisionId.takeIf { role != null },
+            )
+        }
+    }
 
     open suspend fun readMessageSourceAssets(
         messageIds: List<String>,
@@ -415,15 +455,7 @@ internal abstract class TutorConversationDao {
             )
         val entity = command.toEntity(ordinal)
         if (insertMessage(entity) != -1L) {
-            insertMessageSourceAssetRows(
-                command.sourceImageAssetIds.mapIndexed { index, assetId ->
-                    TutorMessageSourceAssetEntity(
-                        messageId = command.messageId,
-                        sourceAssetId = assetId,
-                        ordinal = index,
-                    )
-                },
-            )
+            insertMessageSourceAssetRows(assistantFigureLinks(command))
             touchConversation(
                 conversationId = command.conversationId,
                 ordinal = ordinal,
@@ -448,15 +480,7 @@ internal abstract class TutorConversationDao {
         }
         // 重放分支同样补引用（INSERT OR IGNORE，幂等）：上次写到"消息已入、引用未入"时进程
         // 死掉的话，重放是唯一会把引用补上的时机；缺了它，那张已付费的图会在宽限期后被回收。
-        insertMessageSourceAssetRows(
-            command.sourceImageAssetIds.mapIndexed { index, assetId ->
-                TutorMessageSourceAssetEntity(
-                    messageId = command.messageId,
-                    sourceAssetId = assetId,
-                    ordinal = index,
-                )
-            },
-        )
+        insertMessageSourceAssetRows(assistantFigureLinks(command))
         return existing.toRecord()
     }
 

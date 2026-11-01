@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
 import com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus
+import com.tingyun.smartmistakebook.core.model.ReadableMathText
 import com.tingyun.smartmistakebook.core.ui.*
 
 @Composable
@@ -50,7 +51,11 @@ internal fun MistakeAgentEditSheet(
             Text("修改范围 · 已选 ${targets.size}/32 项", style = MaterialTheme.typography.labelLarge, color = InkSecondary)
             AgentEditCheckRow("标题", editTitle) { editTitle = !editTitle }
             state.blocks.filter { it.kind != RevisionEditBlockKind.UNKNOWN }.forEachIndexed { index, block ->
-                AgentEditCheckRow("${index + 1}. ${block.text.take(55).ifBlank { "配图或公式" }}", block.id in targets, enabled = block.id in targets || targets.size < 32) {
+                val preview = remember(block.text, block.kind) {
+                    (if (block.kind == RevisionEditBlockKind.FORMULA) ReadableMathText.formula(block.text)
+                    else ReadableMathText.inlineMarkdown(block.text)).take(55).ifBlank { "配图或公式" }
+                }
+                AgentEditCheckRow("${index + 1}. $preview", block.id in targets, enabled = block.id in targets || targets.size < 32) {
                     targets = if (block.id in targets) targets - block.id else targets + block.id
                 }
             }
@@ -59,8 +64,19 @@ internal fun MistakeAgentEditSheet(
             if (sourceAssets.isNotEmpty()) {
                 Text("参考图片 · 修改配图时请选择对应源图", style = MaterialTheme.typography.labelMedium, color = InkSecondary)
                 sourceAssets.forEachIndexed { index, asset ->
-                    AgentEditCheckRow("图片 ${index + 1}", asset.sourceAssetId in sources, enabled = asset.sourceAssetId in sources || sources.size < 8) {
-                        sources = if (asset.sourceAssetId in sources) sources - asset.sourceAssetId else sources + asset.sourceAssetId
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        val label = when (asset.role) {
+                            "QUESTION_SOURCE", "SOURCE_EVIDENCE" -> "原题图片"
+                            "CLEAN_IMAGE" -> "整理后的题图"
+                            "QUESTION_DIAGRAM" -> "题目配图"
+                            "TUTOR_EXPLANATION" -> "讲解配图"
+                            else -> "参考图片"
+                        }
+                        AgentEditCheckRow("图片 ${index + 1} · $label", asset.sourceAssetId in sources, enabled = asset.sourceAssetId in sources || sources.size < 8) {
+                            sources = if (asset.sourceAssetId in sources) sources - asset.sourceAssetId else sources + asset.sourceAssetId
+                        }
+                        BoundedLocalImage((asset.location as MistakeSourceLocation.Available).localUri, "图片 ${index + 1} · $label",
+                            expanded = true, expandedMaxHeight = 180.dp, modifier = Modifier.fillMaxWidth())
                     }
                 }
             }
@@ -92,7 +108,12 @@ internal fun MistakeAgentEditSheet(
                 val document = if (after) state.agentPreview else state.agentBefore
                 document?.let {
                     StructuredContentRenderer(it.document, choicesEnabled = false, storedFigures = it.storedFigureReferences,
-                        figureUri = { ref -> state.agentJob?.figureUris?.get(ref.assetId) ?: state.adoptedFigureUris[ref.assetId] })
+                        figureUri = { ref ->
+                            state.agentJob?.figureUris?.get(ref.assetId) ?: state.adoptedFigureUris[ref.assetId] ?:
+                                ((state.source as? MistakeSourceSet.Present)?.assets?.singleOrNull { asset ->
+                                    asset.sourceAssetId == ref.assetId && asset.contentSha256 == ref.contentSha256 && asset.role == ref.role.name
+                                }?.location as? MistakeSourceLocation.Available)?.localUri
+                        })
                 }
             }
         }

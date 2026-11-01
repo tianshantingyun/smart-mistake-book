@@ -91,6 +91,19 @@ fun MistakeRevisionEditRoute(
         modifier = modifier.testTag("mistake_revision_edit_screen"),
         imageUris = if (state.loading || state.unavailableReason != null) emptyList() else
             state.source.detailAssets().question.mapNotNull { (it.location as? MistakeSourceLocation.Available)?.localUri },
+        actions = if (state.loading || state.unavailableReason != null) null else ({
+            if (state.savedRevisionNumber != null && !state.dirty) {
+                OutlinedButton(onDone, Modifier.fillMaxWidth().testTag("mistake_revision_edit_done")) { Text("完成，返回详情") }
+            } else {
+                PrimaryActionButton(
+                    text = if (state.saving) "保存中…" else "保存修改",
+                    onClick = viewModel::save,
+                    enabled = !state.saving && state.dirty && state.conflict == null,
+                    modifier = Modifier.fillMaxWidth().testTag("mistake_revision_edit_save"),
+                    contentDescription = "保存为新的题面版本",
+                )
+            }
+        }),
     ) {
         ClaudePageHeader("修改这道题", onBack = { leave() },
             backModifier = Modifier.testTag("mistake_revision_edit_back"), backLabel = "返回详情")
@@ -337,27 +350,6 @@ fun MistakeRevisionEditRoute(
             )
         }
 
-        Spacer(Modifier.height(16.dp))
-        PrimaryActionButton(
-            text = if (state.saving) "保存中…" else "保存修改",
-            onClick = viewModel::save,
-            enabled = !state.saving && state.dirty && state.conflict == null,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("mistake_revision_edit_save"),
-            contentDescription = "保存为新的题面版本",
-        )
-        if (state.savedRevisionNumber != null) {
-            Spacer(Modifier.height(8.dp))
-            OutlinedButton(
-                onClick = onDone,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("mistake_revision_edit_done"),
-            ) {
-                Text("完成，返回详情")
-            }
-        }
         Spacer(Modifier.height(24.dp))
     }
 

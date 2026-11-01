@@ -1039,7 +1039,7 @@ private fun RevisionHistorySection(
     viewedRevisionId: String,
     onSelectRevision: (MistakeRevisionSummary) -> Unit,
 ) {
-    if (history.isEmpty()) return
+    if (history.size <= 1) return
     val ordered = remember(history) { history.sortedByDescending(MistakeRevisionSummary::revisionNumber) }
     val viewed = ordered.firstOrNull { it.problemRevisionId == viewedRevisionId } ?: return
     var expanded by rememberSaveable(viewedRevisionId, ordered.size) { mutableStateOf(false) }
@@ -1063,9 +1063,6 @@ private fun RevisionHistorySection(
             }
             Text("正在查看第 ${viewed.revisionNumber} 版${if (viewed.isCurrent) " · 当前" else " · 历史只读"}",
                 color = Ink, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-            Text(if (ordered.size == 1) "当前只有 1 个已保存题面版本"
-                else "共保留 ${ordered.size} 个已保存版本，旧版不会被后续修改覆盖",
-                color = InkSecondary, style = MaterialTheme.typography.bodySmall)
         }
     }
     if (expanded) {
