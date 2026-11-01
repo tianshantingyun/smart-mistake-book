@@ -93,6 +93,10 @@ object MistakeRevisionDiff {
             }
         }
         // 只有“确实要生成新 revision”时才提示旧答案不再沿用：空差异保存会走 Unchanged，
+        if (previousDocument.storedFigureReferences != nextDocument.storedFigureReferences) {
+            add(MistakeRevisionChange(MistakeRevisionChangeKind.FIGURE, "配图",
+                "${previousDocument.storedFigureReferences.size} 张配图", "${nextDocument.storedFigureReferences.size} 张配图（已更新）"))
+        }
         // 原 revision（含 answerSpec）不会被替换，提前显示 ANSWER 行反而制造假变更。
         if (previousHadAnswerSpec && isNotEmpty()) {
             add(

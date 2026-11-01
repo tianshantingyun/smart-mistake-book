@@ -2,6 +2,8 @@ package com.tingyun.smartmistakebook.core.data.backup
 
 import android.database.sqlite.SQLiteDatabase
 import java.io.File
+import com.tingyun.smartmistakebook.core.model.*
+import com.tingyun.smartmistakebook.core.database.port.PersistedMistakeEditJob
 
 /**
  * 恢复侧 S3 软引用重查（6C-2 设计 §3.2-S3，口径按 §9.4.3 的收窄；批次 19 T2-4）。
@@ -133,7 +135,8 @@ internal object RestoreSoftReferenceRecheck {
      * 查询失败（库打不开/读不出）抛 [BackupRestoreException]——恢复被拒绝而不是放行。
      */
     fun recheck(stagedDatabaseFile: File, mask: Int?): List<String> {
-        if (mask == null || mask == SmbkSelectionPlan.FULL_MASK) return emptyList()
+        val editViolations = recheckEditJobs(stagedDatabaseFile)
+        if (editViolations.isNotEmpty() || mask == null || mask == SmbkSelectionPlan.FULL_MASK) return editViolations
         val path = stagedDatabaseFile.absolutePath
         val observed = try {
             SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY).use { database ->
@@ -193,6 +196,49 @@ internal object RestoreSoftReferenceRecheck {
         }
         return violationsFor(mask, observed)
     }
+
+    /** JSON identities and generated-asset admission survive selective backup as one unit. */
+    private fun recheckEditJobs(file: File): List<String> = try {
+        SQLiteDatabase.openDatabase(file.absolutePath, null, SQLiteDatabase.OPEN_READONLY).use { db ->
+            if (!tableExists(db, "mistake_edit_job")) return emptyList()
+            db.rawQuery("SELECT * FROM mistake_edit_job ORDER BY operation_id", null).use { cursor ->
+                while (cursor.moveToNext()) {
+                    fun str(name: String): String = cursor.getString(cursor.getColumnIndexOrThrow(name))
+                    fun nullable(name: String): String? = cursor.getColumnIndexOrThrow(name).let { if (cursor.isNull(it)) null else cursor.getString(it) }
+                    fun number(name: String): Long = cursor.getLong(cursor.getColumnIndexOrThrow(name))
+                    val request = ModelTaskCodec.decodeRequest(str("request_snapshot"))
+                    val output = nullable("output_snapshot")?.let { ModelTaskCodec.decodeOutput(it) as MistakeEditOutput }
+                    val job = PersistedMistakeEditJob(str("operation_id"), request, number("generation").toInt(), number("state_version"),
+                        MistakeEditJobStatus.valueOf(str("status")), output, StoredFigureReferenceCodec.decode(str("figures_snapshot")),
+                        nullable("message"), number("created_at_epoch_millis"), number("updated_at_epoch_millis"), nullable("committed_revision_id"))
+                    require(request.requestId == str("request_id") && ModelTaskFingerprint.of(request) == str("request_fingerprint"))
+                    require(ModelTaskLogicalOperationFingerprint.of(request) == str("semantic_fingerprint"))
+                    require(job.input.basis == EditBasis(str("entry_id"), str("basis_revision_id"), str("draft_sha256")))
+                    if (output != null) {
+                        db.rawQuery("SELECT output_snapshot FROM model_task WHERE request_id = ? AND request_fingerprint = ? AND status = 'SUCCEEDED'",
+                            arrayOf(request.requestId, ModelTaskFingerprint.of(request))).use { task ->
+                            require(task.moveToFirst() && ModelTaskCodec.decodeOutput(task.getString(0)) == output)
+                        }
+                    }
+                    job.figures.forEach { ref ->
+                        val change = requireNotNull(output).suggestion.changes.filterIsInstance<MistakeEditChange.ReplaceFigure>().single { it.blockId == ref.blockId }
+                        db.rawQuery("""SELECT COUNT(*) FROM figure_generation_attempt a
+                            JOIN figure_generation_operation o ON o.operation_id = a.operation_id
+                            JOIN canonical_source_asset c ON c.source_asset_id = a.output_asset_id
+                            WHERE o.operation_id = ? AND o.source_kind = 'PROBLEM_REVISION' AND o.source_id = ?
+                            AND o.basis_fingerprint = ? AND o.purpose = ? AND o.policy_version = ? AND a.status = 'SUCCEEDED'
+                            AND c.source_asset_id = ? AND c.content_sha256 = ?""", arrayOf(
+                            mistakeEditFigureOperationId(job.operationId, ref.blockId), job.input.basis.revisionId,
+                            mistakeEditFigureBasis(ModelTaskFingerprint.of(request), output, ref.blockId), requireNotNull(change.proposal.purpose).name,
+                            FigureGenerationPolicyVersion.VALUE, ref.assetId, ref.contentSha256)).use { proof ->
+                            require(proof.moveToFirst() && proof.getInt(0) == 1)
+                        }
+                    }
+                }
+            }
+            emptyList()
+        }
+    } catch (_: Exception) { listOf("智能体修改记录或配图来源不完整，无法恢复此备份") }
 
     private fun sample(kinds: Map<String, List<String>>, kind: String): String =
         kinds.getValue(kind).firstOrNull() ?: kind

@@ -145,6 +145,11 @@ data class MistakeEditOutput(val basis: EditBasis, val suggestion: MistakeEditSu
     init { modelVersion.requireSafeModelText("Edit model version", 200, false) }
 }
 
+enum class MistakeEditJobStatus {
+    QUEUED, REQUESTING, GENERATING_FIGURES, READY, NO_CHANGE, NEED_SOURCE, UNAVAILABLE,
+    ADOPTED, FAILED, CANCELLED, SUPERSEDED,
+}
+
 private val UNSAFE_EDIT_TEXT = Regex("""(?i)(https?|file|content|javascript|data|mailto|tel|sms):|[a-z][a-z0-9+.-]*://|<\s*/?\s*(script|iframe|img|style|svg|object|embed|link|meta)\b|```|!\[|\[[^\]]+\]\([^)]+\)""")
 
 fun requireEditText(text: String, maxChars: Int) {
@@ -152,4 +157,71 @@ fun requireEditText(text: String, maxChars: Int) {
     require(!UNSAFE_EDIT_TEXT.containsMatchIn(text)) {
         "Edit text cannot embed a URI, image, active HTML or executable code"
     }
+}
+
+
+/** Runtime capability wording can change on explicit retry without granting a new paid-call budget. */
+fun MistakeEditInput.logicalEditInput(): MistakeEditInput = copy(
+    instruction = normalizeEditInstruction(instruction), targetBlockIds = targetBlockIds.toSortedSet(),
+    sourceImages = sourceImages.sortedBy { it.assetId }, figureGenerationPromptBody = null,
+)
+
+private fun editTupleSha(parts: List<String>): String {
+    val bytes = ByteArrayOutputStream()
+    DataOutputStream(bytes).use { stream -> parts.forEach { part ->
+        val encoded = part.toByteArray(Charsets.UTF_8); stream.writeInt(encoded.size); stream.write(encoded)
+    } }
+    return figureSha256Hex(bytes.toByteArray())
+}
+
+fun mistakeEditJobId(input: MistakeEditInput): String {
+    val target = editTupleSha(listOf(input.editTitle.toString()) + input.targetBlockIds.sorted())
+    val sources = input.sourceImages.sortedBy { it.assetId }.flatMap { listOf(it.assetId, it.sha256, it.byteSize.toString(), it.width.toString(), it.height.toString()) }
+    return "mistake-edit:" + editOperationKey(input.basis, target, sources.takeIf { it.isNotEmpty() }?.let(::editTupleSha), input.instruction)
+}
+
+fun mistakeEditFigureOperationId(jobId: String, blockId: String): String = "$jobId.figure.${editTupleSha(listOf(blockId)).take(24)}"
+fun mistakeEditFigureBasis(requestFingerprint: String, output: MistakeEditOutput, blockId: String): String =
+    editTupleSha(listOf(requestFingerprint, figureSha256Hex(ModelTaskCodec.encodeOutput(output).toByteArray(Charsets.UTF_8)), blockId))
+fun mistakeEditFigureAssetId(attemptId: String): String = "mistake-edit-asset:${editTupleSha(listOf(attemptId))}"
+
+fun editFigureRole(purpose: FigureGenerationPurpose): VisualRole = when (purpose) {
+    FigureGenerationPurpose.EXPLANATION, FigureGenerationPurpose.ILLUSTRATION -> VisualRole.TUTOR_EXPLANATION
+    else -> VisualRole.CLEAN_IMAGE
+}
+
+object StoredFigureReferenceCodec {
+    private val json = kotlinx.serialization.json.Json { encodeDefaults = true; ignoreUnknownKeys = false }
+    private val serializer = kotlinx.serialization.builtins.ListSerializer(StoredFigureReference.serializer())
+    fun encode(value: List<StoredFigureReference>): String { require(value.size <= 32); return json.encodeToString(serializer, value) }
+    fun decode(value: String): List<StoredFigureReference> {
+        require(value.length <= 128_000)
+        return json.decodeFromString(serializer, value).also { refs ->
+            require(refs.size <= 32 && refs.map { it.blockId }.distinct().size == refs.size)
+        }
+    }
+}
+
+/** Applies a fully prepared host suggestion to a new immutable value; never writes a revision. */
+fun applyPreparedMistakeEdit(input: MistakeEditInput, output: MistakeEditOutput, figures: List<StoredFigureReference>): CapturedQuestionDocument {
+    require(output.basis == input.basis && output.suggestion.decision == MistakeEditDecision.SUGGEST_CHANGES)
+    output.suggestion.requireMatches(input)
+    val changes = output.suggestion.changes.associateBy { it.blockId }
+    val figureChanges = output.suggestion.changes.filterIsInstance<MistakeEditChange.ReplaceFigure>()
+    require(figures.map { it.blockId }.toSet() == figureChanges.map { it.blockId }.toSet() && figures.size == figureChanges.size) {
+        "All requested figures must be prepared before adopting text and images together"
+    }
+    figureChanges.forEach { change -> require(figures.single { it.blockId == change.blockId }.role == editFigureRole(requireNotNull(change.proposal.purpose))) }
+    val blocks = input.draft.document.blocks.map { old -> when (val change = changes[old.id]) {
+        is MistakeEditChange.ReplaceBlock -> change.block
+        is MistakeEditChange.ReplaceFigure -> ContentBlock.Paragraph(old.id, if (change.proposal.purpose in setOf(FigureGenerationPurpose.EXPLANATION, FigureGenerationPurpose.ILLUSTRATION)) "讲解配图" else "题目配图")
+        null -> old
+    } }
+    val result = input.draft.copy(document = input.draft.document.copy(title = output.suggestion.title ?: input.draft.document.title, blocks = blocks),
+        blockEvidence = input.draft.blockEvidence.map { evidence -> if (evidence.blockId !in changes) evidence else evidence.copy(
+            provenance = if (evidence.sourceAssetId.isBlank()) QuestionBlockProvenance.USER_TRANSCRIPTION else QuestionBlockProvenance.USER_CORRECTION,
+            reviewStatus = QuestionBlockReviewStatus.USER_CONFIRMED, confidence = null, producerVersion = output.modelVersion,
+        ) }, storedFigureReferences = input.draft.storedFigureReferences.filterNot { it.blockId in changes } + figures)
+    require(CapturedQuestionDocumentValidator.validateForCommit(result).isEmpty()) { "Prepared edit is not a valid confirmed draft" }
+    return result
 }

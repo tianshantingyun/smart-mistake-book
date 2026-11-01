@@ -187,9 +187,16 @@ internal class RoomMistakeDetailRepository(
                 listOf("TITLE_TOO_LONG"),
             )
         }
-        val document = command.questionDocument.copy(
+        var document = command.questionDocument.copy(
             document = command.questionDocument.document.copy(title = resolvedTitle),
         )
+        if (document.storedFigureReferences.isNotEmpty()) {
+            val previous = recordReader.read(command.entryId)?.takeIf { it.problemRevisionId == command.expectedRevisionId }
+                ?.questionDocumentSnapshot?.let { CapturedQuestionDocumentCodec.decode(it) }
+            if (previous != null && previous != document) {
+                document = document.copy(storedFigureReferences = document.storedFigureReferences.filterNot { it in previous.storedFigureReferences })
+            }
+        }
         val issues = CapturedQuestionDocumentValidator.validateForCommit(document)
         if (issues.isNotEmpty()) {
             return@withContext ReviseMistakeProblemResult.InvalidDocument(
@@ -226,6 +233,7 @@ internal class RoomMistakeDetailRepository(
                 questionDocumentSnapshot = snapshot,
                 contentFingerprint = fingerprint,
                 revisedAtEpochMillis = command.revisedAtEpochMillis,
+                adoptedEditOperationIds = command.adoptedEditOperationIds,
             ),
         )
         result.toDomainResult(resolvedTitle)
@@ -313,6 +321,9 @@ internal class RoomMistakeDetailRepository(
             append(command.expectedRevisionNumber).append('\n')
             append(contentFingerprint).append('\n')
             append(resolvedTitle)
+            if (command.adoptedEditOperationIds.isNotEmpty()) {
+                append('\n').append(command.adoptedEditOperationIds.sorted().joinToString("\n"))
+            }
         }
         val digest = MessageDigest.getInstance("SHA-256")
             .digest(payload.toByteArray(StandardCharsets.UTF_8))

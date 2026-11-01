@@ -131,7 +131,7 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorConversationEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAssetEntity
 
-internal const val STUDY_DATABASE_VERSION = 69
+internal const val STUDY_DATABASE_VERSION = 70
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -229,11 +229,13 @@ internal object SplitImportLedgerStrings {
         CleanRedrawTaskEntity::class,
         FigureGenerationOperationEntity::class,
         FigureGenerationAttemptEntity::class,
+        com.tingyun.smartmistakebook.core.database.entity.MistakeEditJobEntity::class,
     ],
     version = STUDY_DATABASE_VERSION,
     exportSchema = true,
 )
 internal abstract class StudyDatabase : RoomDatabase() {
+    abstract fun mistakeEditJobDao(): com.tingyun.smartmistakebook.core.database.dao.MistakeEditJobDao
     abstract fun problemDao(): ProblemDao
 
     abstract fun practiceUnitAssessmentDao(): PracticeUnitAssessmentDao
@@ -394,6 +396,7 @@ object StudyDatabaseFactory {
             FAVORITE_AND_MANUAL_DRAFT_MIGRATION_66_67,
             ANSWER_KEY_CORRECTION_MIGRATION_67_68,
             FIGURE_GENERATION_MIGRATION_68_69,
+            MISTAKE_EDIT_MIGRATION_69_70,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

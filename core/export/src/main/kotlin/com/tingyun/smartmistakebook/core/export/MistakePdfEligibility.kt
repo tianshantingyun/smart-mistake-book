@@ -76,7 +76,15 @@ object MistakePdfEligibility {
         state: MistakeDetailState.Ready,
         layout: MistakePdfLayout,
     ): MistakePdfEligibilityResult {
+        val storedReferences = state.questionDocument.storedFigureReferences.associateBy { it.blockId }
+        val sourceAssets = (state.detail.source as? MistakeSourceSet.Present)?.assets.orEmpty()
+        val storedAssets = storedReferences.mapValues { (_, ref) -> sourceAssets.singleOrNull {
+            it.sourceAssetId == ref.assetId && it.contentSha256 == ref.contentSha256 && it.role == ref.role.name && it.location is MistakeSourceLocation.Available
+        } }
         val reasons = buildSet {
+            if (storedAssets.any { (id, asset) -> asset == null && (layout.includeSolution || storedReferences.getValue(id).role != VisualRole.TUTOR_EXPLANATION) }) {
+                add(MistakePdfIneligibility.CORRUPT_CONTENT)
+            }
             if (
                 CapturedQuestionDocumentValidator
                     .validateForCommit(state.questionDocument)
@@ -116,7 +124,13 @@ object MistakePdfEligibility {
 
         val identity = state.detail.identity
         val document = state.questionDocument
-        val blocks = document.document.blocks.map { block ->
+        val blocks = document.document.blocks.mapNotNull { block ->
+            storedReferences[block.id]?.let { ref ->
+                if (ref.role == VisualRole.TUTOR_EXPLANATION) return@mapNotNull null
+                val asset = requireNotNull(storedAssets[block.id])
+                return@mapNotNull MistakePdfBlock.Image(block.id, (asset.location as MistakeSourceLocation.Available).localUri,
+                    "题目配图", asset.contentSha256, asset.byteSize, asset.role)
+            }
             when (block) {
                 is ContentBlock.Paragraph -> MistakePdfBlock.Paragraph(
                     id = block.id,
@@ -152,7 +166,8 @@ object MistakePdfEligibility {
         }
         val documentFingerprint = CapturedQuestionDocumentFingerprint.of(document)
         // 同一份资产记录同时给出 URI 与完整性字段（KD-55）：渲染前按它复核文件字节。
-        val questionImage = questionImageAsset(state.detail.source)
+        val remainingAssets = sourceAssets.filterNot { asset -> storedReferences.values.any { it.assetId == asset.sourceAssetId } }
+        val questionImage = questionImageAsset(if (remainingAssets.isEmpty()) MistakeSourceSet.Missing else MistakeSourceSet.Present(remainingAssets))
         val availableQuestionUri =
             (questionImage?.location as? MistakeSourceLocation.Available)?.localUri
         // 解析区只收 TUTOR_EXPLANATION，且只在学生请求解析区时才进导出输入（WG-07）。

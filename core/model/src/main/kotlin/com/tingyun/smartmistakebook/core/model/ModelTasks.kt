@@ -812,7 +812,10 @@ object ModelTaskLogicalOperationFingerprint {
             append(input.kind.name)
             append('\n')
             append(
-                logicalOperationJson.encodeToString(ModelTaskInput.serializer(), input)
+                logicalOperationJson.encodeToString(
+                    ModelTaskInput.serializer(),
+                    (input as? MistakeEditInput)?.logicalEditInput() ?: input,
+                )
                     .withoutEmptyPageComparison(input)
                     .withoutEmptyToolCarrier(input)
                     .withoutEmptyLobbyImageRefs(input)

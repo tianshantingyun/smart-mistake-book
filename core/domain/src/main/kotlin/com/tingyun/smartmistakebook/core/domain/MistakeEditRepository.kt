@@ -15,7 +15,7 @@ data class MistakeEditRequest(
     val editTitle: Boolean = false,
 )
 
-enum class MistakeEditJobStatus { QUEUED, REQUESTING, GENERATING_FIGURES, READY, NO_CHANGE, NEED_SOURCE, UNAVAILABLE, ADOPTED, FAILED, CANCELLED, SUPERSEDED }
+typealias MistakeEditJobStatus = com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus
 
 data class MistakeEditJob(
     val operationId: String,
@@ -24,6 +24,9 @@ data class MistakeEditJob(
     val output: MistakeEditOutput? = null,
     val figures: List<StoredFigureReference> = emptyList(),
     val message: String? = null,
+    val figureUris: Map<String, String> = emptyMap(),
+    val sourceDraft: CapturedQuestionDocument? = null,
+    val preparedDraft: CapturedQuestionDocument? = null,
 )
 
 /** Preparation is durable; adopting a suggestion changes only the edit draft, never a problem revision. */
@@ -34,4 +37,7 @@ interface MistakeEditRepository {
     suspend fun readySuggestion(operationId: String, currentBasis: EditBasis): MistakeEditJob?
     suspend fun cancel(operationId: String)
     suspend fun markAdopted(operationId: String, currentBasis: EditBasis): Boolean
+    suspend fun retry(operationId: String, agentConsentGranted: Boolean)
+    suspend fun resumePendingJobs(agentConsentGranted: Boolean)
+    suspend fun latestForBasis(basis: EditBasis): MistakeEditJob?
 }

@@ -1658,9 +1658,9 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
 ```json
 {
   "closureVersion": 2,
-  "schemaVersion": 69,
-  "identityHash": "6633b7c2fe223041c4a2927203853f4f",
-  "note": "v2（schema 69）：84 张旧表类别不变；新增 figure_generation_operation/attempt 为行级 split 家族；闭包规则见 §9.3，行级规则见 §9.5。",
+  "schemaVersion": 70,
+  "identityHash": "3f525f9ab7fd71316ebc380597eb6c34",
+  "note": "v2 (schema 70): adds durable mistake_edit_job to ISSUE_BOOK; generation audit and model-task budgets remain authoritative.",
   "categories": {
     "ISSUE_BOOK": {
       "bit": 1,
@@ -1670,6 +1670,7 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
         "problem_revision",
         "practice_unit",
         "error_book_entry",
+        "mistake_edit_job",
         "problem_relation",
         "problem_classification_binding",
         "problem_classification_candidate",
@@ -2138,6 +2139,7 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     }
   ],
   "trimOrder": [
+    "mistake_edit_job",
     "tutor_message_source_asset",
     "tutor_message",
     "split_import_question",
@@ -2254,12 +2256,12 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
   "digest": {
     "algorithm": "sha256( \"smbk-selection-v2\\n\" + \"closureVersion=2\\n\" + \"categories=\" + categories.sorted().joinToString(\",\") + \"\\n\" + \"assetPolicy=\" + assetPolicy + \"\\n\" + rowCounts.keys.sorted().joinToString(\"\"){ \"$it=${rowCounts[it]}\\n\" } )",
     "rowCountsSource": "裁剪后快照的逐表 COUNT(*)；split 表按行级筛选后的行数",
-    "trimmedTableCount": "删除行数 > 0 的表数（不含 FTS rebuild）；v2 上限 78",
+    "trimmedTableCount": "number of tables with deleted rows, excluding FTS rebuild; maximum 79",
     "goldenEmptyFull": {
       "mask": 15,
       "assetPolicy": "INCLUDED",
-      "sha256": "d6ec73ac07e596a11ff97ac292cf01a41e0f962659a2b542a6d8a15c56a5dad6",
-      "note": "69 schema、空库、全选；rowCounts 为全部 86 表=0；派生表恒裁（裁定③）下也是 0 行，该向量不受裁定影响；SmbkSelectionPlanTest 以此为 golden 断言"
+      "sha256": "7ec5fb0b0b2c9a056d4b3aa0c129abafa55514f5adab8d5d99ed6bd94fa8a875",
+      "note": "schema 70; 87 tables; empty full selection"
     }
   }
 }

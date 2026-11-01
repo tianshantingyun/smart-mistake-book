@@ -289,6 +289,7 @@ data class ReviseMistakeProblemCommand(
     val questionDocument: CapturedQuestionDocument,
     val revisedAtEpochMillis: Long,
     val title: String? = null,
+    val adoptedEditOperationIds: Set<String> = emptySet(),
 ) {
     init {
         require(commandId.matches(COMMAND_ID_PATTERN)) {
@@ -298,6 +299,7 @@ data class ReviseMistakeProblemCommand(
         require(expectedRevisionId.isNotBlank()) { "Expected revision id must not be blank" }
         require(expectedRevisionNumber > 0) { "Expected revision number must be positive" }
         require(revisedAtEpochMillis >= 0) { "Revision time must not be negative" }
+        require(adoptedEditOperationIds.size <= 32 && adoptedEditOperationIds.all { it.startsWith("mistake-edit:") && it.length <= 128 })
     }
 
     private companion object {
