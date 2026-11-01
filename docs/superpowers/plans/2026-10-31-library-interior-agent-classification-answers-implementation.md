@@ -25,11 +25,13 @@
 | C · 详细答案 | T7–T10 | 正确复用或补全解答，PDF/Word 形成单独可验证的答案文件 |
 | 共享收口 | T0、T11 | 接续已有修改，按 A 布局统一原生交互与验证 |
 
-文档阶段已完成；用户已于实施启动弹窗授权计划列明的 42 个新源码/测试文件、3 个生成 schema 及实施证据目录。现按任务记录实际实施进度。所有进入网关或持久 JSON 的新 DTO 使用 kotlinx.serialization；默认空字段遵循旧指纹兼容规则。下文“新增”是未来的源码、迁移和测试文件清单，尚未创建；执行前逐批弹窗列出新增路径并取得用户同意。不得把两份文档的路径授权扩大为任意源码路径授权。修改已存在的文件在获准执行任务后按任务范围进行。
+文档阶段已完成；用户已于实施启动弹窗授权计划列明的 42 个新源码/测试文件、3 个生成 schema 及实施证据目录。现按任务记录实际实施进度。所有进入网关或持久 JSON 的新 DTO 使用 kotlinx.serialization；默认空字段遵循旧指纹兼容规则。清单内已获准路径直接实施，不重复询问；清单外新增路径仍须弹窗取得同意。不得把两份文档的路径授权扩大为任意源码路径授权。修改已存在的文件在获准执行任务后按任务范围进行。
 
 既有未提交文件必须保留：`core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/ClaudeDialog.kt`、`core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/WorkspaceSheet.kt`、`feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeDetailRoute.kt`、`feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeRevisionEditRoute.kt`、`feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeExportFormatSheet.kt`。不能用 checkout/reset 清理它们，也不能在文档提交中夹带这些代码。
 
 迁移按本基线顺序使用 69→70、70→71、71→72。若执行时版本已变化，先重新核对并修订本计划的迁移编号，再编写迁移；禁止覆盖同名迁移或跳过迁移链。
+
+2026-11-01 执行调整：用户要求以完成改造为主，测试无需过度严谨。保留必要编译及少量关键流程检查，不再逐批扩展全面测试矩阵；设备、长时及完整视觉验收留到功能接齐后统一处理。未执行的测试项保留未勾选，不将编译通过写成原生流程已验证。
 
 ## 2. 文件组织与执行命令
 
@@ -243,8 +245,8 @@ Invoke-SmbGradle -TaskArguments @(':core:model:test', ':core:domain:test', ':cor
 **修改：** `core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/StudyDatabase.kt`、`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/StudyDatabasePort.kt`、`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/RoomStudyDatabase.kt`、`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/port/MistakeRevisionWritePort.kt`、`core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/dao/MistakeDetailDao.kt`；`core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/MistakeDetailRepository.kt`；`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/mistake/RoomMistakeDetailRepository.kt`；`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/visual/DefaultFigureGenerationCoordinator.kt` 的来源/审计关联；`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/backup/SmbkSelectionPlan.kt`、`core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/backup/AndroidBackupRepository.kt` 的新表清单与恢复验证。
 
 - [ ] 写失败用例：作业重开恢复；同一次点击不重复出网；不同指令不误复用；取消/晚到结果不采用；图和文字一起采用；保存冲突后原图/原题不变；新版本只挂经验证资产，重试不重复挂图。
-- [ ] 迁移 69→70 新建 `mistake_edit_job`，主键 operation id，保存 entry/revision/draft/target/source/instruction 摘要、模型 request id、请求与建议 JSON、状态和时间。状态集合与 T4 领域类型一致：`QUEUED/REQUESTING/GENERATING_FIGURES/READY/NO_CHANGE/NEED_SOURCE/UNAVAILABLE/ADOPTED/FAILED/CANCELLED/SUPERSEDED`，状态推进用数据库条件更新；作业存在不等于已采用，非修改结果不可采用。使用应用级作用域收集模型执行，离开页面不等于用户取消。启动恢复只调度已授权的未完成作业，READY 和非修改结果不重新生成；T6 应用装配注册恢复入口。生成资产写入既有资产存储，不创建 UI 临时 URI 权威。
-- [ ] 经 `ModelTaskRepository` 发起修改任务，绘图统一调用 `FigureGenerationCoordinator.generate(request, proposal)`。合法 JS proposal 在当前未装配状态返回不可用；不得直接调用 QuickJS、在主进程执行脚本、默认改为远程生图或重复建一套后端选择器。引用 `docs/current/figure-generation-prompt-policy.md` 与 `docs/current/visual-generation-contract.md`；仅在既有视觉专项通过共享场景验证、原生渲染及隔离引擎装配后，统一开放 JS 能力。
+- [x] 迁移 69→70 新建 `mistake_edit_job`，主键 operation id，保存 entry/revision/draft/target/source/instruction 摘要、模型 request id、请求与建议 JSON、状态和时间。状态集合与 T4 领域类型一致：`QUEUED/REQUESTING/GENERATING_FIGURES/READY/NO_CHANGE/NEED_SOURCE/UNAVAILABLE/ADOPTED/FAILED/CANCELLED/SUPERSEDED`，状态推进用数据库条件更新；作业存在不等于已采用，非修改结果不可采用。使用应用级作用域收集模型执行，离开页面不等于用户取消。启动恢复只调度已授权的未完成作业，READY 和非修改结果不重新生成；T6 应用装配注册恢复入口。生成资产写入既有资产存储，不创建 UI 临时 URI 权威。
+- [x] 经 `ModelTaskRepository` 发起修改任务，绘图统一调用 `FigureGenerationCoordinator.generate(request, proposal)`。合法 JS proposal 在当前未装配状态返回不可用；不得直接调用 QuickJS、在主进程执行脚本、默认改为远程生图或重复建一套后端选择器。引用 `docs/current/figure-generation-prompt-policy.md` 与 `docs/current/visual-generation-contract.md`；仅在既有视觉专项通过共享场景验证、原生渲染及隔离引擎装配后，统一开放 JS 能力。
 
 ```kotlin
 fun isEditBasisCurrent(proposed: EditBasis, current: EditBasis): Boolean = proposed == current
@@ -255,7 +257,7 @@ fun isEditBasisCurrent(proposed: EditBasis, current: EditBasis): Boolean = propo
 }
 ```
 
-- [ ] 新 `StoredFigureReference` 按 `blockId` 解析，新增修订命令带已采用资产选择；事务复核资产存在、SHA、目标块、角色及该作业的来源与准入记录。不能仅因构造出一个 DTO 就允许挂入任意既有资产。题面、文字证据、图引用指纹同时更新；保持原始拍照证据只读，不能复制旧版生成图冒充新图。详情、结构化渲染和导出解析同一引用。
+- [x] 新 `StoredFigureReference` 按 `blockId` 解析，新增修订命令带已采用资产选择；事务复核资产存在、SHA、目标块、角色及该作业的来源与准入记录。不能仅因构造出一个 DTO 就允许挂入任意既有资产。题面、文字证据、图引用指纹同时更新；保持原始拍照证据只读，不能复制旧版生成图冒充新图。详情、结构化渲染和导出解析同一引用。
 - [ ] 恢复先核对 canonical 请求、持久资产和题面身份，损坏建议标失败；进程重启不自动重跑已付费成功的生成。无在飞依赖的弃用资产交给既有清理机制；不得删除历史题目的有效资产。迁移使用 Room 导出 schema 70，禁止手写 schema JSON。
 - [ ] 通过事务/迁移/备份回归后提交 `feat(library): 接通可恢复的题图修改与修订保存`。
 
@@ -274,7 +276,7 @@ Invoke-SmbGradle -TaskArguments @(':core:data:testDebugUnitTest', ':core:databas
 **修改：** `feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeRevisionEditViewModel.kt`、`feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeRevisionEditRoute.kt`、`feature/library/src/main/kotlin/com/tingyun/smartmistakebook/feature/library/MistakeDetailRoute.kt`；`core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/StructuredContentRenderer.kt`；`app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookApplication.kt`、`app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt`。
 
 - [ ] 失败用例覆盖：采用前草稿未变；关闭建议仍在编辑页；采用标脏但未改正式版本；保存后重开显示新图；手动输入与晚到建议冲突不丢草稿；多图选择只修改指定块。
-- [ ] VM 增加 `requestAgentEdit(targetBlockId, instruction)`、`adoptAgentEdit(operationId)`、`cancelAgentEdit(operationId)`，采用前重新比较 `EditBasis`，对建议逐项合法性校验成功后一次更新当前草稿。已有 `save()` 仍是唯一题目修订提交动作。
+- [x] VM 增加 `requestAgentEdit(targetBlockId, instruction)`、`adoptAgentEdit(operationId)`、`cancelAgentEdit(operationId)`，采用前重新比较 `EditBasis`，对建议逐项合法性校验成功后一次更新当前草稿。已有 `save()` 仍是唯一题目修订提交动作。
 
 ```kotlin
 // 函数定义属于 MistakeRevisionEditViewModel；采用入口不能调用 reviseProblem。
@@ -286,8 +288,8 @@ fun adoptAgentEdit(operationId: String) {
 // 通过后更新草稿/dirty；冲突时只更新 conflict，不触碰现有 title、blocks 或图资产选择。
 ```
 
-- [ ] 原生入口使用蓝色弱强调，不替换手动表单。明确当前修改的是题面草稿而非导出副本。进度从持久作业观察，按钮只在合法状态可用；失败提供原有设置/重试/返回编辑出口，不伪造成功动效。
-- [ ] 应用级装配真实 `RoomMistakeEditRepository`、模型仓储和统一协调器。缺模型/图能力显示准确不可用状态；真库加受控 Provider 测试打通提出建议→真实资产→采用→保存→详情/导出，不能只用 fixture 证明生产接线。
+- [x] 原生入口使用蓝色弱强调，不替换手动表单。明确当前修改的是题面草稿而非导出副本。进度从持久作业观察，按钮只在合法状态可用；失败提供原有设置/重试/返回编辑出口，不伪造成功动效。
+- [x] 应用级装配真实 `RoomMistakeEditRepository`、模型仓储和统一协调器。缺模型/图能力显示准确不可用状态；真库加受控 Provider 测试打通提出建议→真实资产→采用→保存→详情/导出，不能只用 fixture 证明生产接线。
 - [ ] 通过后提交 `feat(ui): 在题面编辑中接通智能体代修改`。
 
 ```powershell

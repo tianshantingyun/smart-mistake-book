@@ -202,6 +202,8 @@ class SmartMistakeBookApplication : Application() {
 
     lateinit var modelTaskRepository: ModelTaskRepository
         private set
+    var mistakeEditRepository: com.tingyun.smartmistakebook.core.domain.MistakeEditRepository? = null
+        private set
 
     lateinit var tutorInteractionRepository: TutorInteractionRepository
         private set
@@ -507,6 +509,13 @@ class SmartMistakeBookApplication : Application() {
                     }
                 },
             )
+            val editConfigurationStore = modelConfigurationStore
+            if (editConfigurationStore != null && figureGenerationCoordinator != null) {
+                mistakeEditRepository = com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeEditRepository.create(
+                    this, database, modelTaskRepository, figureGenerationCoordinator, editConfigurationStore,
+                    capabilities.networkRequestsAllowed, applicationScope)
+                applicationScope.launch { mistakeEditRepository?.resumePendingJobs(capabilities.networkRequestsAllowed) }
+            }
             captureRepository = CaptureWorkflowRepositoryFactory.create(
                 context = this,
                 database = database,

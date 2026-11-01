@@ -1263,6 +1263,8 @@ internal fun SmartMistakeBookRoot(
             }
             composable(Routes.MistakeDetail) { entry ->
                 MistakeDetailRoute(
+                    agentEdits = application.mistakeEditRepository,
+                    modelEgressAllowed = baseCapabilities.networkRequestsAllowed,
                     errorBookEntryId = entry.arguments?.getString("itemId").orEmpty(),
                     repository = application.mistakeDetailRepository,
                     organizationRepository = application.mistakeOrganizationRepository,

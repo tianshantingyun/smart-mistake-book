@@ -121,6 +121,8 @@ fun MistakeDetailRoute(
     /** 知识能力就绪位（D-Q3）：未就绪时智能整理如实说"准备中"，不发起、也不误报模型未配置。 */
     knowledgeBaseAvailability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
     modifier: Modifier = Modifier,
+    agentEdits: com.tingyun.smartmistakebook.core.domain.MistakeEditRepository? = null,
+    modelEgressAllowed: Boolean = false,
 ) {
     var selectedRevisionId by rememberSaveable(errorBookEntryId) {
         mutableStateOf<String?>(null)
@@ -134,6 +136,9 @@ fun MistakeDetailRoute(
         MistakeRevisionEditRoute(
             entryId = errorBookEntryId,
             repository = repository,
+            agentEdits = agentEdits,
+            modelEgressAllowed = modelEgressAllowed,
+            onOpenModelSettings = onOpenModelSettings,
             onBack = {
                 editing = false
                 // A save may have succeeded even if the learner used the back arrow instead of
@@ -441,6 +446,12 @@ private fun ReadyDetail(
                     else document
                 },
                 choicesEnabled = false,
+                storedFigures = state.questionDocument.storedFigureReferences,
+                figureUri = { ref ->
+                    (state.detail.source as? com.tingyun.smartmistakebook.core.domain.MistakeSourceSet.Present)?.assets
+                        ?.singleOrNull { it.sourceAssetId == ref.assetId && it.contentSha256 == ref.contentSha256 }
+                        ?.location?.let { (it as? MistakeSourceLocation.Available)?.localUri }
+                },
             )
             PaperDivider()
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp),

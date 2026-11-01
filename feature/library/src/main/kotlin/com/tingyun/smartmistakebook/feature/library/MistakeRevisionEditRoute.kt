@@ -64,13 +64,22 @@ fun MistakeRevisionEditRoute(
     onBack: () -> Unit,
     onDone: () -> Unit,
     modifier: Modifier = Modifier,
+    agentEdits: com.tingyun.smartmistakebook.core.domain.MistakeEditRepository? = null,
+    modelEgressAllowed: Boolean = false,
+    onOpenModelSettings: (() -> Unit)? = null,
 ) {
     val viewModel: MistakeRevisionEditViewModel = viewModel(
         key = "mistake-revision-edit:$entryId",
-        factory = MistakeRevisionEditViewModel.factory(entryId, repository),
+        factory = MistakeRevisionEditViewModel.factory(entryId, repository, agentEdits, modelEgressAllowed),
     )
     val state by viewModel.state.collectAsStateWithLifecycle()
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
+    var agentSheetOpen by rememberSaveable { mutableStateOf(false) }
+    if (agentSheetOpen) MistakeAgentEditSheet(state, { agentSheetOpen = false }, viewModel::requestAgentEdit,
+        viewModel::adoptAgentEdit, viewModel::cancelAgentEdit, viewModel::retryAgentEdit, onOpenModelSettings)
+    LaunchedEffect(state.agentJob?.status) {
+        if (state.agentJob?.status == com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.ADOPTED) agentSheetOpen = false
+    }
     LaunchedEffect(Unit) { viewModel.onEditorOpened() }
 
     fun leave() {
@@ -119,6 +128,15 @@ fun MistakeRevisionEditRoute(
             Spacer(Modifier.height(10.dp))
         }
 
+        if (agentEdits != null) {
+            com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton({ agentSheetOpen = true }, Modifier.fillMaxWidth(), enabled = !state.saving) {
+                Text(if (state.agentJob?.status in setOf(com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.QUEUED,
+                    com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.REQUESTING,
+                    com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.GENERATING_FIGURES)) "查看智能体修改进度" else "让智能体修改文字或配图",
+                    color = com.tingyun.smartmistakebook.core.ui.SmartColors.LearningAccent)
+            }
+            Spacer(Modifier.height(14.dp))
+        }
         MistakeSectionCard("题目内容", headerColor = com.tingyun.smartmistakebook.core.ui.SmartColors.ReadingSurface) {
             Column {
                 OutlinedTextField(
@@ -135,7 +153,12 @@ fun MistakeRevisionEditRoute(
                 state.blocks.forEachIndexed { index, block ->
                     if (index == 0) Spacer(Modifier.height(14.dp))
                     else com.tingyun.smartmistakebook.core.ui.PaperDivider(Modifier.padding(vertical = 16.dp))
-                    when (block.kind) {
+                    if (block.readOnly && block.kind != RevisionEditBlockKind.UNKNOWN) {
+                        state.figureBlockUris[block.id]?.let { uri ->
+                            com.tingyun.smartmistakebook.core.ui.BoundedLocalImage(uri, "题目配图", expanded = true, modifier = Modifier.fillMaxWidth())
+                        } ?: Text("这张配图暂时无法读取", color = InkSecondary)
+                        if (agentEdits != null) com.tingyun.smartmistakebook.core.ui.ClaudeTextButton({ agentSheetOpen = true }) { Text("让智能体修改配图") }
+                    } else when (block.kind) {
                         RevisionEditBlockKind.STEM -> OutlinedTextField(
                             value = block.text,
                             onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
@@ -219,8 +242,7 @@ fun MistakeRevisionEditRoute(
                             )
                             Spacer(Modifier.height(8.dp))
                             Text(
-                                text = "这里只能修改图形的文字说明，不能重画图形。" +
-                                    "旧版图形与解析保留在旧版本，不会被新版覆盖。",
+                                text = "可在此修改文字说明。需要调整图形时，请使用智能体修改。",
                                 color = InkSecondary,
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.testTag("mistake_revision_edit_figure_notice_$index"),
