@@ -31,6 +31,7 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationSourceKind
 import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
 import com.tingyun.smartmistakebook.core.model.FigureGenerationValidation
 import com.tingyun.smartmistakebook.core.model.FigureImageOperation
+import com.tingyun.smartmistakebook.core.model.VisualSourceSeenRecord
 import com.tingyun.smartmistakebook.core.model.figureBasisFingerprint
 import com.tingyun.smartmistakebook.core.model.figureJsBasisFingerprint
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
@@ -539,6 +540,22 @@ class DefaultFigureGenerationCoordinator internal constructor(
         }
         // 从这里开始真的可能在线上花掉一次派发：即使后面失败/取消，used 也如实记 1。
         state.markDispatched()
+        // X-02："源图字节真的随这次派发出网了"的记录与账本 used=1 同点生效。持久孪生 =
+        // attempt 行（reservation_id + source_sha256）；台账没写成（无 attemptId）时不产出
+        // ——没有可指向的持久 attempt，就没有"已发送"证据。没带源字节的派发恒为 null，
+        // 不得冒充"模型已看图"（契约 :39"同批准备不冒充已发送"）。
+        val sourceSeen = if (sourceBytes != null) {
+            state.attemptId?.let { attemptId ->
+                VisualSourceSeenRecord(
+                    sourceSeenDispatchId = attemptId,
+                    contentSha256 = requireNotNull(sourceSha) {
+                        "source bytes present without their digest"
+                    },
+                )
+            }
+        } else {
+            null
+        }
         val generated = try {
             when (imageOperation) {
                 FigureImageOperation.EDIT -> {
@@ -580,6 +597,8 @@ class DefaultFigureGenerationCoordinator internal constructor(
                 status = FigureGenerationStatus.FAILED,
                 diagnostics = diagnostics,
                 attemptId = state.attemptId,
+                // 发送后失败也如实保留：字节出网是事实，与产物成败无关。
+                sourceSeen = sourceSeen,
             )
         }
         val artifact = FigureArtifact.ImageAsset(
@@ -600,6 +619,7 @@ class DefaultFigureGenerationCoordinator internal constructor(
             status = FigureGenerationStatus.GENERATED,
             artifact = artifact,
             attemptId = state.attemptId,
+            sourceSeen = sourceSeen,
         )
     }
 
@@ -792,6 +812,7 @@ class DefaultFigureGenerationCoordinator internal constructor(
         artifact: FigureArtifact? = null,
         diagnostics: String? = null,
         attemptId: String? = null,
+        sourceSeen: VisualSourceSeenRecord? = null,
     ): FigureGenerationOutcome = FigureGenerationOutcome(
         operationId = request.operationId,
         purpose = request.purpose,
@@ -800,6 +821,7 @@ class DefaultFigureGenerationCoordinator internal constructor(
         artifact = artifact,
         diagnostics = diagnostics?.take(FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS),
         attemptId = attemptId,
+        sourceSeen = sourceSeen,
     )
 
     private fun boundedFailure(failure: Exception): String =
