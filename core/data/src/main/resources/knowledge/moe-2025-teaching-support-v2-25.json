@@ -145,6 +145,22 @@
    "licenseExpression": null,
    "licenseUri": null,
    "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+  },
+  {
+   "sourceId": "desktop-src-d719f687b2:physics",
+   "subject": "PHYSICS",
+   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "title": "桌面教辅资料 · 2027版高中《53知识清单》彩色版（物理）",
+   "publisher": "教辅汇编（桌面原始资料）",
+   "edition": "2026/2027版",
+   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "licenseStatus": "REFERENCE_ONLY",
+   "contentFingerprint": "1963F172F893093E0432DA4513E81CB5AAFC4B8D9B4AF469D30EB69A5EF95801",
+   "importedAtEpochMillis": 1790769112451,
+   "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
+   "licenseExpression": null,
+   "licenseUri": null,
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
   }
  ],
  "materials": [
@@ -3686,6 +3702,121 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:必备实验仪器的原理及使用",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-d9379ea17f-009",
+   "subject": "MATH",
+   "type": "METHOD_MODEL",
+   "title": "三角函数模型实际应用的两条路径",
+   "summaryMarkdown": "三角函数模型的实际应用分两类：已知函数模型时用性质求解，或把实际问题抽象建模后求解。",
+   "applicabilityMarkdown": "遇到简谐运动、潮汐、气温变化等周期现象的实际问题时使用。",
+   "contentMarkdown": "三角函数模型在实际应用中体现在两个方面：一是已知函数模型，利用三角函数的有关性质解决问题，关键是准确理解自变量的意义以及自变量与函数之间的对应法则；二是把实际问题抽象转化成数学问题，建立三角函数模型，再利用三角函数的有关知识解决问题，关键是建模。",
+   "boundaryMarkdown": "两条路径的前提不同：题目已给出函数模型时不能再自行建模，否则会改动题目给定的解析式；自行建模时自变量的实际意义要先界定清楚，不能默认取全体实数。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/【1】2026高考数学 一轮复习讲义三角函数专题/高考数学  一轮复习讲义 -  函数y＝A sin (ωx＋φ)的图象与性质.docx（块 d9379ea17f-009）",
+   "reviewedAtEpochMillis": 1793492864382,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-d9379ea17f-009",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角函数的图象与性质",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-6475d53e0f-005",
+   "subject": "MATH",
+   "type": "METHOD_MODEL",
+   "title": "向量方法解决几何与物理问题",
+   "summaryMarkdown": "用向量解决平面几何问题分三步：向量化、向量运算、结果翻译回几何；物理中速度与力都可视为向量。",
+   "applicabilityMarkdown": "用向量方法处理平面几何中的长度、夹角、全等与相似问题，或分析速度、力的合成问题时使用。",
+   "contentMarkdown": "用向量方法解决平面几何问题的“三部曲”：先建立平面几何与向量的联系，用向量表示问题中涉及的几何元素，把平面几何问题转化为向量问题；再通过向量运算研究几何元素之间的关系，如距离、夹角等；最后把运算结果“翻译”成几何关系。物理中速度、力都是向量，都可以转化为向量问题，力的合成与分解符合平行四边形法则。",
+   "boundaryMarkdown": "第三步不能省：只算出向量结果而不翻译回几何关系，等于没有回答几何问题；基底或坐标系选得不合适会使运算量激增，物理情境中的向量还要保留方向，不能当作普通数量处理。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高三数学一轮复习备考题型归纳讲义/资料/第27讲：平面向量的数量积及平面向量的应用（知识梳理+题型总结）（教师版）.docx（块 6475d53e0f-005）",
+   "reviewedAtEpochMillis": 1793492864382,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-6475d53e0f-005",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:平面向量的坐标运算",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-phy-e14aad82a5-233",
+   "subject": "PHYSICS",
+   "type": "METHOD_MODEL",
+   "title": "用多用电表判断电路故障",
+   "summaryMarkdown": "用电压挡逐段测量，由示数为零、等于电源电压或小于电源电压判断断路与短路位置；电阻挡必须断电测量。",
+   "applicabilityMarkdown": "闭合开关后电表无示数、灯泡不亮，需要定位断路或短路位置时使用。",
+   "contentMarkdown": "用多用电表电压挡判断电路故障可分三种情况：若电表读数为零，说明与电表并联的路段之外有断路，或该并联路段完全短路；若电表示数等于电源电压，说明与电表并联的电路间有断路，而该并联路段之外的电路无断路；若电表有示数且小于电源电压，说明与电表并联的电路之外无断路，且该并联路段内正常或不完全短路。用电流挡判断时必须先确认电流最大值不超过量程；用电阻挡检测时必须确认电路无电压，并将待测元件与电路断开，若测得电阻无穷大则元件断路（二极管除外）。",
+   "boundaryMarkdown": "电阻挡不能带电测量，否则会损坏电表；电压挡判断的前提是电表并联在被测路段两端，串联或量程选错都会得到错误结论；二极管具有单向导电性，不能用“电阻无穷大即断路”一概而论。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-d719f687b2:physics",
+   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（物理） / 2027版高中《53知识清单》彩色版（物理）/2027高中知识清单物理.pdf（块 e14aad82a5-233）",
+   "reviewedAtEpochMillis": 1793492864382,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-phy-e14aad82a5-233",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:必备实验仪器的原理及使用",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-a184aa1618-007",
+   "subject": "MATH",
+   "type": "METHOD_MODEL",
+   "title": "含参集合关系求参数的三步法",
+   "summaryMarkdown": "先判两集合的包含关系，再看含参集合能否为空集，最后把包含关系转化为方程（组）或不等式（组）求解。",
+   "applicabilityMarkdown": "已知集合间的关系求参数、且集合中含参数时使用。",
+   "contentMarkdown": "利用集合间的关系求参数分三步：第一步，弄清两个集合之间的关系，谁是谁的子集；第二步，看集合中是否含有参数，若集合中含参数，应考虑参数使该集合为空集的情形；第三步，将集合间的包含关系转化为方程（组）或不等式（组），求出相关参数的值或取值范围，常借助数形结合的思想，用数轴解答。",
+   "boundaryMarkdown": "含参集合可能为空集，漏掉空集情形会漏解；把包含关系转化为不等式（组）时还要单独检验端点能否取到。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习知识清单（全国通用）/2026版/专题01 集合与常用逻辑用语（知识清单）（教师版）.docx（块 a184aa1618-007）",
+   "reviewedAtEpochMillis": 1793497068857,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-a184aa1618-007",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:忽视-漏-空集致错",
+     "role": "PRIMARY"
+    }
+   ]
+  },
+  {
+   "slug": "ext-mat-a184aa1618-009",
+   "subject": "MATH",
+   "type": "METHOD_MODEL",
+   "title": "充分必要条件求参数的两点方法",
+   "summaryMarkdown": "把充分、必要条件转化为集合间的包含关系求参数，并注意端点值的检验与取舍。",
+   "applicabilityMarkdown": "已知充分条件、必要条件或充要条件，求参数范围时使用。",
+   "contentMarkdown": "利用充分必要条件求参数有两点：一是巧用转化法，把充分条件、必要条件转化为集合之间的关系，再根据集合之间的关系列出关于参数的不等式（组）求解；二是端点取值需谨慎，求参数范围时要注意边界或区间端点值的检验，从而确定取舍。",
+   "boundaryMarkdown": "转化前先分清“谁推出谁”，条件方向写反会得到相反的包含关系；端点值是否可取必须单独检验，不能直接并入区间。",
+   "derivationKind": "REVIEWED_SYNTHESIS",
+   "sourceId": "desktop-src-e35c96096a:math",
+   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习知识清单（全国通用）/2026版/专题01 集合与常用逻辑用语（知识清单）（教师版）.docx（块 a184aa1618-009）",
+   "reviewedAtEpochMillis": 1793497068857,
+   "contentAttribute": "AI_SYNTHESIZED",
+   "contentProvider": "moe-2025-four-subjects-v1",
+   "contentId": "ext-mat-a184aa1618-009",
+   "bindings": [
+    {
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:充分性与必要性位置颠倒理解错误致错",
      "role": "PRIMARY"
     }
    ]
