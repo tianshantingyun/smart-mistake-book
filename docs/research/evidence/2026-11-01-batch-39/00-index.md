@@ -4,7 +4,7 @@
 - 计划：`.zcode/plans/plan-2026-11-01-batch-39-wiring-calibration.md`
 - 工作树 HEAD：`a0641bb7392f380b5716afe95dd3c371dd0c7670`（T2/T3/T4 落码以未提交态在树，工作树开工 737 条）
 - 证据目录：`docs/research/evidence/2026-11-01-batch-39/`
-- 本目录体积：**10** 个 `.md` / 内容 **57104 B（55.7 KiB）**（`du -sk` = 68 KiB；全 `docs/research/evidence` = 1482 KiB < 8 MiB 预算；上限 16 个/512 KiB）——初稿"9 个 / 40956 B（52 KiB）"只计 9 个 step 文件、漏计索引自身，落盘员复核更正（§9，R4 §3.2 命令实测，终测含 §4.1/§9 增补）
+- 本目录体积：**16** 个 `.md` / 内容 **125523 B（122.6 KiB）**（`du -sk` = 149 KiB；全 `docs/research/evidence` = 1422 KiB < 8 MiB 预算；上限 16 个/512 KiB，**恰达文件数上限**）——10 个为批次 39 正轮（§1–§10），6 个为收尾轮 E-09…E-14（§11，step09–step14）；第 2 轮复核修复（§13）后重测（原 104215 B 为第 1 轮修复后读数）
 - 规范版本：`docs/research/2026-10-26-device-evidence-convention.md` v1
 
 ## 1. 环境
@@ -86,10 +86,10 @@
 
 ```text
 0 hits: secrets / 0 hits: credential assignments / 0 hits: emails / 0 hits: home paths
-10 个 .md / 57104 B（含索引）；git check-ignore 不命中（exit=1，.md 直存 evidence 目录）
+16 个 .md / 125523 B（第 2 轮复核修复后重测；含索引与收尾轮 E-09…E-14）；git check-ignore 不命中（exit=1，.md 直存 evidence 目录）
 ```
 
-（初稿行"9 个 .md / 40956 B"为扫描时只含 step 文件的读数；落盘员复核按 §4.4 全部四条命令重实跑，0 命中维持。）
+（初稿行"9 个 .md / 40956 B"为扫描时只含 step 文件的读数；落盘员复核按 §4.4 全部四条命令重实跑，0 命中维持。2026-11-02 收尾轮 §12 落盘后再次全目录重跑四条命令，仍 0 命中；体积字段同步为 16 个/104215 B。）
 
 - [x] 每个 E-file 有 `sanitized` 字段且扫描 0 命中
 - [x] 全部证据为 `.md` 且在 `docs/research/evidence/` 下；`build/` 路径只出现在 raw-log 字段
@@ -102,6 +102,7 @@
 - [ ] `docs/known-defects.md` KD-76/KD-82 Progress 由主会话按本索引回填（KD-76 维持 open，见 E-08）——落盘员复核时点：KD-76 尾块=台账维护员 T13（`:2913`，登记"seam 本体未落 0 命中"，早于 T4 落码，被 E-08 推进）；KD-82 尾块=批次 38（`:3179`）；主会话按本索引的回填未发生
 - 本索引为映射权威；本轨零 git 写、零热区编辑、仅 assemble* 构建（E-01）。
 - （第 1 轮复核修复 2026-11-01）上条 KD-76 seam 漂移的台账本体回填已由本轮落（`known-defects.md` KD-76 批次 39 复核修复 Progress 块 + 清单 I.2/I.5 时点更正注记，见 §10.3）；记录文件（`2026-11-01-batch-39-record.md`）仍不存在，记录回链仍归记录员/主会话。
+- （2026-11-02 收尾轮落盘员实读）`docs/research/2026-11-01-batch-39-record.md` **现已存在**（66143 B，mtime 2026-11-01 16:36），但 `grep` 无 `E-09…E-14` / `step09-tail…step14-tail` 命中——它是正轮记录（10 个 .md 口径），尚未回填收尾轮；收尾轮 E-ID 回链仍归记录员/主会话。
 
 ## 8. 落盘时点树态登记（与执行时点的差异，均他线所为、本轨零编辑）
 
@@ -147,3 +148,71 @@
 **§10.4 发现 5（X-03 夹具断言）**：归因链本轮逐处独立复核成立——夹具输入 `TutorVisualProgramInput` 六字段无 id（`StrictOfflineRelayoutDeviceVectorInstrumentedTest.kt:165-173`）；仓储落库 id=`TutorVisualIdentity.deriveProgramId` 六内容字段长度前缀 sha256（core/database `TutorVisualIdentity.kt:34-63`，`visual-program-<64hex>`）；断言 `:219-223` 把协调器派生式 `visual:{operationId}:{sha16}`（`DefaultFigureGenerationCoordinator.kt:843-848`）与之划等号，结构性不可能成立；`:216-218` requireNotNull 通过已证"快照引用与持久行 id 一致"，该断言冗余。step02 §5 失败原文 expected/actual 两值与两派生式逐字符同形。**处置：不动夹具**——批次已把"修复+复跑"作为同一欠账指定归落码批（§4.1 #9/§5.2："修复后按新增用例重跑"），本轮零 Gradle 零设备，单落修复半会使已记录的 0/1 红窗（step02 §5、E-06 逐字节同红）与树脱钩；欠账维持 ⛔，由落码批修复+复跑同窗完成。
 
 **本节改动文件**：`00-index.md`（§4.1 #1/#3 行内更正、§7 一条追加、本节）、`docs/known-defects.md`（KD-76 增复核修复 Progress 块）、`docs/research/2026-10-26-batch-24-4e2-admission-checklist.md`（D-04 行注记 + I.2/I.5 注记）。known-defects.md 与清单为他线 M 共享脏文件，本轮改动均为追加式注记，未动他线既有行。
+
+## 11. 批次 39 收尾轮设备轨（2026-11-02）
+
+本批收尾轮由设备验证轨追加：HEAD `f10a1e4e`；设备 `emulator-5562`（AVD `test_device`，API 34，x86_64，page size 4096）；只跑 `am instrument`（零 `connectedAndroidTest`）；零 git 写。开窗 worktree 514 M/??，收口 510。
+
+| E-ID | 步骤 | 门/KD | 判定 | 证据 |
+|---|---|---|---|---|
+| E-09 | 重建重装 + keep/schema 一致门 + 四包 sha + asset/dex 门 | 源快照/APK 身份门 | PASS（窗 W2） | `step09-tail-rebuild-install-gates.md:1` |
+| E-10 | X-03 设备复跑（A 类类型夹具修正后） | X-03 向量门 | **PASS**：`OK (1 test)`、code0=1、9 类签名 0、三处 0 派发 witness 无条件执行 | `step10-tail-x03-rerun.md:1` |
+| E-11 | isolation 沉降窗 + T4-reverted 控制轮 | 强门 15/15 / T4 判别 | **FAIL**：基线 8/15 红、kill=11；控制 10/15 红、kill=13，但两窗红集仅 7 例交集、控制构建身份不可证 ⇒ **T4 未排除**；两窗均非低负载（峰值 4.79/5.49） | `step11-tail-isolation-and-t4-control.md:1` |
+| E-12 | 28 套件底册（26 套件本窗 + x03/isolation 复用） | 不回退门 | **PARTIAL（窗 W3 作废）**：24 套件绿/177 例；总 236、红 26、通过 210（原"绿 177/红 26"漏计红套件内通过的 33 例）；backup 8、c4 8、rowcounts 2 红（B+D）；24 绿只作运行观测 | `step12-tail-suites.md:1` |
+| E-13 | KD-76 冷启动连接阶段校准 | KD-76（open） | **FAIL / UNVERIFIED**：G1 红（20 轮中 11 失败），有效 n=9；**主口径 M=S-bind+S-warmup p95=9813 ms > 5000 → FAIL**（旧用例只对 S-warmup 单段施门，其 "G2 PASS" 口径错误） | `step13-tail-kd76-calibration.md:1` |
+| E-14 | 源快照门与阻塞登记 | 源快照门 | **FAIL（窗 W3 作废）**：172 行/29 路径变动（本轨 1 + 他线 28）；W2 通过 | `step14-tail-snapshot-and-blockers.md:1` |
+
+收尾轮结论：X-03 关闭欠账已清（设备绿）；isolation 强门未过，**T4 未被排除**（控制轮不可证伪、红集不可比）；KD-76 预注册样本未达成且**主口径 M p95=9813 ms FAIL**；DB 版本相关三套件红例为他线 transient schema-72 与构建窗口叠加，待他线静止后重建复跑。本轨未改热区、未提交、未运行 `connectedAndroidTest`。（第 2 轮复核修复更正：原"T4 被排除"撤回，见 §12.2/§13。）
+
+## 12. 收尾轮三结论（2026-11-02 落盘员复核：X-03 / isolation / KD-76）
+
+复核口径：本节由证据落盘员追加，只复核已落盘 raw-log 与 step 文件；**本 ask 未重跑 Gradle、未重跑设备用例、未做 git 写**。raw-log 全量在 `build/device-track-batch39-tail/`（本机，不入仓），下表命令为本 ask 实跑。
+
+### 12.1 X-03：PASS → 建议关闭该欠账
+
+- 判定：`OK (1 test)`、`Time: 5.112`、`INSTRUMENTATION_CODE: -1`；code 0 计数 1、非零 code 计数 0、9 类崩溃签名全 0（`step10-tail-x03-rerun.md:10`、`:62`–`:68`）。
+- 本 ask 复核命令与结果：`grep -nE 'OK \(|Tests run|INSTRUMENTATION_CODE' build/device-track-batch39-tail/suite-x03.log` → `20:OK (1 test)`、`23:INSTRUMENTATION_CODE: -1`；`cat x03-crash-signatures.txt` → 9 行全 0。
+- 三处 0 派发断言在单 `@Test` 内无条件执行，位置 `StrictOfflineRelayoutDeviceVectorInstrumentedTest.kt:337-341 / :342-347 / :348-356`（`step10-tail-x03-rerun.md:74`–`:76`）；本 ask 实读该文件对应区间，三处 `assertEquals` 结构一致。
+- 结论：设备绿成立，**建议主会话关闭 X-03 欠账**；首跑红已归因 A 类夹具（`Integer(300) != Long(300)`，`step10-tail-x03-rerun.md:37`–`:57`），非产品回归。
+
+### 12.2 isolation：FAIL → 不关闭；T4 未排除，D 也不能单独归因
+
+- 判定：沉降窗 `Tests run: 15, Failures: 8`、code0=7、非零 code=8、watchdog hard kill=11（计划任务 2 的 `≤6`），`step11-tail-isolation-and-t4-control.md:47`、`:51`；红例集合 8 例见 `:58`–`:65`。本窗不是低负载窗：窗内 loadavg 0.62→4.79，P1/P3 未按定义记录（`:29`–`:35`、§5.2）。
+- 本 ask 复核命令与结果：`grep -nE 'Tests run|INSTRUMENTATION_CODE' suite-isolation.log suite-isolation-control.log` → 基线 `658:Tests run: 15,  Failures: 8`、控制 `756:Tests run: 15,  Failures: 10`；`grep -c 'watchdog hard deadline' suite-isolation-logcat.txt` → 11，控制窗 → 13。
+- 首例归因：`HARD_DEADLINE_EXCEEDED / visual_js worker died: binder died`，断言位 `VisualJsIsolationInstrumentedTest.kt:485`，产品 watchdog `VisualJsService.kt:525-528`（1500 ms），预算常量 `VisualExecutionEngine.kt:126`（本 ask 实读为 `SERVICE_HARD_DEADLINE_MILLIS = 1500L`）；`step11-tail-isolation-and-t4-control.md:71`–`:77`。
+- **T4 判别（第 2 轮复核更正，原"控制轮更差 ⇒ T4 排除"撤回）**：
+  - 控制轮基线 sha 文件 `control-baseline-engine.sha256` 记的是**基线**源文件 sha（`f0786242…`），不是回退后 sha；`build-control.log` 全文无 revert/写点记录（`grep -niE 'revert|timestamps|control'` = 0），"控制包 = 去掉 6 处写点"没有原始证据。
+  - 两窗 APK 身份：基线 app `f97f2972…`/appTest `3c222fca…`（00:55 安装）vs 控制 app `4c1508c1…`/appTest `b4242b7d…`（01:13 安装）——**app 与 appTest 都不同**；原写基线 `fe9452aa…` 是 01:26 才构建的还原包，晚于本窗。
+  - 红集：基线 8 例、控制 10 例，**仅 7 例交集**；控制新增 3 个 AIDL-wire 用例，基线红的 `aHungWorker…` 在控制转绿。聚合 8 vs 10 不是"同一组用例更差重跑"，不能排除 T4。
+- 结论：**强门维持 FAIL，T4 与 D 均未隔离**；不得改 `SERVICE_HARD_DEADLINE_MILLIS` 或放宽断言，需他线静止、loadavg ≤1.0 的长窗复跑，并按逐方法配对重做 T4 判别（`:120`、§5）。
+
+### 12.3 KD-76：FAIL / UNVERIFIED → 维持 open
+
+- 判定：`Tests run: 1, Failures: 1`，G1 红 11/20 轮，有效样本 n=9 < 预注册 20（`step13-tail-kd76-calibration.md:10`、`:47`、`:53`–`:58`）。
+- 本 ask 复核命令与结果：`grep -nE 'Tests run|FAILURES' suite-kd76-calibration.log` → `88:FAILURES!!!`、`89:Tests run: 1,  Failures: 1`；logcat `Kd76Calibration` 行 → `S-warmup n=9 min=209 p50=520 p90=1319 p95=1319 max=1319`、`G2: S-warmup p95=1319 ms vs gate=5000 ms => PASS`（`suite-kd76-calibration-logcat.txt:3363`、`:3415`）。
+- **主口径复算（第 2 轮复核）**：预注册主口径是 `M = S-bind + S-warmup`（bind 请求→ready，`2026-11-01-kd76-timing-calibration.md:132`），逐轮求和后取 p95。9 个有效轮 M sorted=`[1474,1511,1571,1777,1821,2125,2199,2960,9813]`，**M.p95=9813 ms > 5000 ms → 主口径 FAIL**；S-warmup 单段 1319 ms 只是分量，raw log 的 "G2 PASS" 是旧用例口径错误（E-13 §4.1）。
+- 分布（n=9，nearest-rank ceil）：S-bind p50 1362 / p95 9229；S-warmup p95 1319；S-total p50 2588 / p95 11467（`step13-tail-kd76-calibration.md:65`–`:73`）。
+- 归因：窗内设备 loadavg 2.66→11.25（本窗直接证据）；原引用的 02:21 构建/01:57–02:59 源变动不在本窗内，不能作因果证据 → **D 是与高负载一致的推断**（`:80`–`:86`、§5）。
+- 执行条件偏差：本用例是单个 instrumentation 进程 20 轮、无 reboot、热页缓存，**不是**主口径要求的 reboot 冷启动轮（E-13 §1）；数字系统性偏小。
+- 结论：**主口径 FAIL，且 9 样本的 S-warmup PASS 不可用于关闭 KD-76**（`:76`）；KD-76 维持 **open**，需按 reboot 冷启动轮重跑。29.5 s 链 S3 **门未取得**（isolation 红例 #1 失败在预热断言，hard+500 门未执行）、S4 无计时点，**不得声称实测**（`:89`–`:97`）。
+
+### 12.4 目录口径
+
+本收尾轮不新开 `2026-11-01-batch-39-tail/` 证据目录：R4 §2.1/§2.2 要求目录名为 `<YYYY-MM-DD>-batch-<NN>` 且每批恰好一个 `00-index.md`，故 E-09…E-14 作为同一批次收尾轮落在本目录并由 §11/§12 索引；`build/device-track-batch39-tail/` 仅是本机 raw-log 路径（R4 §2.4）。本目录 `.md` 数已达 R4 §3.1 的 16 个上限，后续新增须先裁定归档方式，不得静默删旧证据。
+
+## 13. 第 2 轮复核修复（2026-11-02；零 Gradle/零设备/零 git 写）
+
+本节由复核修复轮追加。只修口径、判据与证据，不重写 raw log，不改变原始运行结果：
+
+1. **KD-76 主口径**：G2 改为 `M = S-bind + S-warmup`（逐轮求和后取 p95）；9 个有效样本 M p95=9813 ms > 5000 → **主口径 FAIL**。旧用例/旧 raw log 的 "S-warmup p95=1319 => PASS" 作废（E-13 §4.1）。
+2. **KD-76 报告守卫**：预注册样本未达成或 G1 红时不打印 PASS/FAIL，只打印 `NOT EVALUABLE`（用例 `buildReport`）。
+3. **KD-76 执行条件偏差**：单 instrumentation 进程 20 轮、无 reboot、热页缓存 ≠ 主口径的 reboot 冷启动轮；已登记（E-13 §1）。
+4. **S3 门**：`aHungWorker…` 基线窗红在预热断言，hard+500 门未执行 → S3 只能"名义值、门未取得"（E-13 §6、E-14 §4）。
+5. **isolation 两窗身份**：基线 app `f97f2972…`/appTest `3c222fca…`，控制 app `4c1508c1…`/appTest `b4242b7d…`；原基线 `fe9452aa…` 是 01:26 的还原包，晚于本窗（E-11 §5.1）。
+6. **T4 判别撤回**：控制构建无回退证据、两窗红集仅 7 例交集 → T4 未排除，D 也不能单独归因（E-11 §3/§5、E-14 §4）。
+7. **低负载表述**：开窗瞬间 0.34 不等于窗内低负载；窗内峰值 4.79/5.49，P1/P3 未按定义记录（E-11 §1/§5.2）。
+8. **E-12 计数与窗作废**：总 236 = 红 26 + 通过 210（原"绿 177/红 26"漏计红套件内通过的 33 例）；24 绿在 W3，只作运行观测（E-12 §2/§7）。
+9. **p10 签名**：p10 窗 1 条 `death was not confirmed`，严格按"9 类签名 0"不满足，属已披露的就地放宽（E-12 §5）。
+10. **awk 字段**：T1 §3.3 的 `$3` 应为 `$2`，且比较符必须是 `< 0`（失败码 -2；日志另有 15 个 `1` 开始码，`$2 != 0` 会得 23 条假红）；否则 8 红时输出为空会假绿（E-11 §5.5）。
+11. **kill 门槛**：计划"≤6"与 attribution A3 的冲突按"待主会话裁定"记录（E-11 §5.6）。
+12. **schema 71/72**：现树 `StudyDatabase.kt:140`=72、`72.json` 未跟踪；`S=71` 门只校验 71.json；本轮实跑 `S=72` 门 FAIL（91 表、ONLY_JSON=`knowledge_search_material_feature`、hash `aa5e8e8e…`），与集成轨转述的明细不同（E-09 §8）。
