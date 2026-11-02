@@ -5,11 +5,13 @@ import android.os.Build
 import android.os.PowerManager
 import android.os.Process
 import android.os.SystemClock
+import android.provider.Settings
 import android.system.Os
 import android.system.OsConstants
 import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionBudget
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionRequest
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionResult
@@ -23,6 +25,8 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
+import org.junit.Assume
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
@@ -90,6 +94,13 @@ import java.util.concurrent.CopyOnWriteArrayList
  *   重启），且逐样本落盘；单次运行内 20 轮的分布不能冒充该形状。
  * - 第 1 轮若偶然复用暖进程，段值会偏小——这是已知**乐观偏差**窗口（假绿方向，不掩盖
  *   真失败）；它被限定在 1/20 样本，且热页缓存本身已让全部样本系统性偏小。
+ *
+ * **单轮入口（批次 41 / WS3 item 18）**：`readRoundFromInstrumentationArg` 走
+ * `-e smb.kd76.round 1..20`，一次 instrumentation 进程只跑一轮，并复用同一 `runOneRound`
+ * （形状/单调/窗口断言不漂移）。冷启动前提（每轮前 reboot 或 force-stop）由外部
+ * `tools/ci/run_kd76_rounds.sh` 保证，跨轮聚合由 `tools/ci/summarize_kd76.py` 完成。
+ * 上文的"单进程 20 轮只作冷进程+热页缓存观测"限制只约束整批入口；主口径样本必须来自
+ * 20 次独立 `am instrument`。
  *
  * **anti-flaky 检查表逐条落点**（R2 §5）：
  * - A1 归因先行 → 非 `Rendered` 先记 FAIL（不读任何时长）；只有 `Rendered` 轮才进入
@@ -248,6 +259,109 @@ class VisualJsConnectStageCalibrationInstrumentedTest {
         )
     }
 
+    /**
+     * 单轮入口（批次 41 / WS3 item 18）：`am instrument -e smb.kd76.round N` 一次只跑**一轮**。
+     *
+     * **它消灭的具体失败**（批次 40 复核发现 #6）：校准套件原本只有"单进程 20 轮"一个入口，
+     * 设备轨无法按主口径形状（每轮一次独立 `am instrument`、冷启动前提由外部 reboot
+     * 保证）取样，只能拿单进程 20 轮冒充，或每轮重跑整个 20 轮套件（约 20× 成本）。
+     * 本入口把"一轮 = 一次 instrumentation 进程"落成可执行事实；`tools/ci/run_kd76_rounds.sh`
+     * 负责 reboot/force-stop、安装不变、逐轮传参并收集 XML，
+     * `tools/ci/summarize_kd76.py` 才做跨轮聚合。
+     *
+     * 边界：
+     * - 参数缺失 → JUnit assumption skip（整套件/IDE 直跑不产生假红，也不会偷偷跑 20 轮）；
+     * - 参数存在但不在 1..[CALIBRATION_ROUNDS] → 硬失败（配置错误不得静默降级为默认轮次）；
+     * - 本方法**不 reboot、不重试、不聚合**：冷启动前提由外部脚本保证，G1/G2 判词归汇总脚本。
+     * - 机器行前缀 `KD76_` 由脚本从 logcat 收进 XML 的 `<system-out>`；即使本轮失败也先落行，
+     *   再抛断言（证据先行，R2 A5）。
+     */
+    @Test
+    fun readRoundFromInstrumentationArg() = runBlocking {
+        val rawRound = InstrumentationRegistry.getArguments().getString(KD76_ROUND_ARG)
+        Assume.assumeTrue(
+            "$KD76_ROUND_ARG not supplied; run tools/ci/run_kd76_rounds.sh so that each round " +
+                "is one independent am instrument execution (a single-process 20-round run is " +
+                "not the main-criterion shape)",
+            !rawRound.isNullOrBlank(),
+        )
+        val round = rawRound!!.trim().toIntOrNull()
+        if (round == null || round !in 1..CALIBRATION_ROUNDS) {
+            throw AssertionError(
+                "$KD76_ROUND_ARG must be an integer in 1..$CALIBRATION_ROUNDS, got '$rawRound'",
+            )
+        }
+
+        // A10：预注册先于任何计时（与整批入口同一套常量/估计量/门）。
+        assertPreRegistration()
+        val metadata = captureMetadata()
+        assertMetadataComplete(metadata)
+
+        // 证据先行：轮次身份（含 bootCount）先落盘，再把唯一一轮交给与整批入口共用的
+        // runOneRound —— 两条入口的轮次形状断言因此不会漂移。
+        emit(
+            listOf(
+                "KD76_ROUND round=$round totalRounds=$CALIBRATION_ROUNDS " +
+                    "bootCount=${bootCount()} elapsedRealtimeMillis=${SystemClock.elapsedRealtime()}",
+                "KD76_META round=$round apkSha256=${metadata.apkSha256} " +
+                    "fingerprint=${metadata.fingerprint} sdk=${metadata.sdkInt} " +
+                    "abis=${metadata.abis} pageSize=${metadata.pageSizeBytes} " +
+                    "versionName=${metadata.versionName}",
+            ),
+        )
+
+        val roundId = String.format(Locale.US, "R%02d", round)
+        val outcome = try {
+            runOneRound(roundId)
+        } catch (invalid: Throwable) {
+            // INVALID（seam/夹具/时间戳形状缺陷）不是删失样本：记一行后原样抛出，
+            // 汇总脚本见到 INVALID 即判 G1 红并拒绝出判词。
+            emit(
+                listOf(
+                    "KD76_SAMPLE round=$round status=INVALID reason=" +
+                        singleLine(invalid.message ?: invalid.javaClass.name),
+                ),
+            )
+            throw invalid
+        }
+
+        when (outcome) {
+            is RoundOutcome.Sample -> {
+                val stages = outcome.stages
+                emit(
+                    listOf(
+                        "KD76_SAMPLE round=$round status=SAMPLE bind=${stages.bindMillis} " +
+                            "warmup=${stages.warmUpMillis} readyGap=${stages.readyGapMillis} " +
+                            "firstByte=${stages.firstByteMillis} total=${stages.totalMillis} " +
+                            "generation=${outcome.generation} " +
+                            "loadBefore=${formatDecimal(outcome.loadBefore)} " +
+                            "loadAfter=${formatDecimal(outcome.loadAfter)} " +
+                            "bindRequestedAt=${outcome.timestamps.bindRequestedAtMillis} " +
+                            "bindConnectedAt=${outcome.timestamps.bindConnectedAtMillis} " +
+                            "readyAt=${outcome.timestamps.readyAtMillis} " +
+                            "executeAcceptedAt=${outcome.timestamps.executeAcceptedAtMillis} " +
+                            "firstByteAt=${outcome.timestamps.firstByteAtMillis}",
+                    ),
+                )
+            }
+            is RoundOutcome.Failed -> {
+                // A5：失败轮是删失观测（值 ≥ 预算），不是缺失值；先落行再让本轮红。
+                emit(
+                    listOf(
+                        "KD76_SAMPLE round=$round status=FAIL " +
+                            "censoredLowerBoundMillis=${outcome.censoredLowerBoundMillis} " +
+                            "reason=${singleLine(outcome.reason)}",
+                    ),
+                )
+                fail(
+                    "G1 red: round $round failed (${outcome.reason}); each failed round is a " +
+                        "censored sample, not a missing value, and must be attributed before " +
+                        "any p95 reading (R2 §2.5/§3.3)",
+                )
+            }
+        }
+    }
+
     // ---------------------------------------------------------------- 批次/轮次
 
     private suspend fun runBatch(name: String): BatchOutcome {
@@ -395,6 +509,7 @@ class VisualJsConnectStageCalibrationInstrumentedTest {
                 roundId = roundId,
                 generation = generation,
                 stages = stages,
+                timestamps = timestamps,
                 loadBefore = loadBefore,
                 loadAfter = loadAfter,
             )
@@ -672,19 +787,24 @@ class VisualJsConnectStageCalibrationInstrumentedTest {
         lines += "  " + formatStats("S-firstByte", samples) { it.firstByteMillis }
         lines += "  " + formatStats("S-total", samples) { it.totalMillis }
 
-        // 判词守卫：预注册样本未达成或 G1 已红时**不得打印 PASS/FAIL 判词**——否则报告层
-        // 会把 n=9 的 1319 ms 写成"G2 PASS"，下游证据再引用它就成了被放大的阈值。
+        // 判词守卫：单一事实源在 Kd76ReportVerdict（批次 41 / WS3 item 20）。本文件只提供
+        // 原始值并渲染判词，不再保留第二套 PASS/NOT EVALUABLE 判定——两份 if 会漂移，
+        // 批次 39 的 n=9/1319 ms 被印成 "G2 PASS" 正是这样发生的。
         val g1Red = batchA.failures.isNotEmpty() || batchB.failures.isNotEmpty()
-        val preRegistered = samples.size == CALIBRATION_ROUNDS && !g1Red
         if (samples.isNotEmpty()) {
             val mergedMain = samples.map { it.stages.bindMillis + it.stages.warmUpMillis }.stats()
             val mergedWarmUp = samples.map { it.stages.warmUpMillis }.stats()
-            if (preRegistered) {
-                lines += "G2 (main criterion M): p95=${mergedMain.p95} ms vs gate=" +
-                    "$READY_GATE_MILLIS ms => " +
-                    if (mergedMain.p95 <= READY_GATE_MILLIS) "PASS" else "FAIL (must not be relaxed)"
-                lines += "G2 context: S-warmup component p95=${mergedWarmUp.p95} ms " +
-                    "(component only; not a gate)"
+            val decision = Kd76ReportVerdict.decide(
+                sampleCount = samples.size,
+                g1Red = g1Red,
+                p95Millis = mergedMain.p95,
+            )
+            lines += decision.verdictLine()
+            lines += "G2 context: n=${samples.size}/$CALIBRATION_ROUNDS, " +
+                "failed=${batchA.failures.size + batchB.failures.size}, g1Red=$g1Red; " +
+                "S-warmup component p95=${mergedWarmUp.p95} ms " +
+                "(component only; not a gate)"
+            if (decision.verdict != Kd76ReportVerdict.Verdict.NOT_EVALUABLE) {
                 lines += "G3: M max=${mergedMain.max} ms (round=" +
                     samples.maxByOrNull { it.stages.bindMillis + it.stages.warmUpMillis }?.roundId +
                     "); " +
@@ -694,13 +814,16 @@ class VisualJsConnectStageCalibrationInstrumentedTest {
                         "max ≤ gate"
                     }
             } else {
-                lines += "G2: NOT EVALUABLE — pre-registration unmet: n=${samples.size}/" +
-                    "$CALIBRATION_ROUNDS, pre-registered rounds failed=${batchA.failures.size + batchB.failures.size}" +
-                    " (G1 red=$g1Red). For information only, M p95=${mergedMain.p95} ms vs " +
-                    "gate=$READY_GATE_MILLIS ms, but NO pass/fail verdict may be derived from a " +
-                    "sample that lost rounds to failures (R2 §2.5/§3.1)."
+                lines += "G2 context: M p95=${mergedMain.p95} ms is reported for information only; " +
+                    "no verdict may be derived from a sample that lost rounds to failures or " +
+                    "did not meet pre-registration (R2 §2.5/§3.1)"
             }
         } else {
+            lines += Kd76ReportVerdict.decide(
+                sampleCount = 0,
+                g1Red = g1Red,
+                p95Millis = null,
+            ).verdictLine()
             lines += "G2/G3: no successful rounds — nothing to report; G1 must be red"
         }
 
@@ -816,6 +939,25 @@ class VisualJsConnectStageCalibrationInstrumentedTest {
 
     private fun formatDecimal(value: Double): String = String.format(Locale.US, "%.2f", value)
 
+    /**
+     * `Settings.Global.BOOT_COUNT`（API 24+）——单轮入口的轮次身份。
+     *
+     * 它消灭的具体失败：汇总脚本仅凭 `round=N` 无法区分"20 次 reboot 后的 20 轮"与
+     * "同一 boot 内跑了 20 次 force-stop"；bootCount 让后者在证据里现形（force-stop
+     * 模式 20 轮 bootCount 相同是预期，reboot 模式必须 20 个不同值）。读不到时记 -1，
+     * 不把"不可读"当"同一次 boot"。
+     */
+    private fun bootCount(): Int =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Settings.Global.getInt(context.contentResolver, Settings.Global.BOOT_COUNT, -1)
+        } else {
+            -1
+        }
+
+    /** 机器行必须单行：异常消息里的换行会破坏 logcat/XML 行解析。 */
+    private fun singleLine(text: String): String =
+        text.replace('\r', ' ').replace('\n', '|').replace(Regex("\\s+"), " ").trim()
+
     // ---------------------------------------------------------------- 夹具/数据
 
     private fun pureGeometryRequest() = VisualExecutionRequest(
@@ -855,6 +997,8 @@ class VisualJsConnectStageCalibrationInstrumentedTest {
             override val roundId: String,
             val generation: Long,
             val stages: StageDurations,
+            /** 原始五点时间戳（`SystemClock.uptimeMillis`）：让证据可从 XML 独立复算四段。 */
+            val timestamps: ConnectStageTimestamps,
             val loadBefore: Double,
             val loadAfter: Double,
         ) : RoundOutcome()
@@ -894,6 +1038,12 @@ class VisualJsConnectStageCalibrationInstrumentedTest {
 
     private companion object {
         const val TAG = "Kd76Calibration"
+
+        /**
+         * 单轮入口的 instrumentation 参数名（批次 41 / WS3 item 18）：
+         * `-e smb.kd76.round N`，N ∈ 1..[CALIBRATION_ROUNDS]。
+         */
+        const val KD76_ROUND_ARG = "smb.kd76.round"
 
         /**
          * 估计量名：evidence 必须打印口径（R2 §2.3 #1）；只写"p95=xxx"无法判断是
