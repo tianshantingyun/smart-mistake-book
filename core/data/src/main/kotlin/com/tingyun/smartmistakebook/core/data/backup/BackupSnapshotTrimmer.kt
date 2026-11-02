@@ -23,7 +23,7 @@ data class TrimAssetReference(
 )
 
 /**
- * 裁剪报告。所有表计数都按 [SmbkSelectionPlan.allTables] 的 90 个键给出（0 也写），
+ * 裁剪报告。所有表计数都按 [SmbkSelectionPlan.allTables] 的 92 个键给出（0 也写），
  * 可直接作为 v3 manifest 的 `rowCounts` 来源；`trimmedTableCount` 只数**实际删除了行**的表
  * （不含 FTS rebuild），与 §9.7 的 digest 口径一致。
  */
@@ -269,6 +269,12 @@ class BackupSnapshotTrimmer(
             fail(
                 "快照 schema=${database.version}，裁剪器只支持 schema=" +
                     SmbkSelectionPlan.SCHEMA_VERSION,
+            )
+        }
+        if (SmbkSelectionPlan.identityHashPending) {
+            fail(
+                "schema ${SmbkSelectionPlan.SCHEMA_VERSION} 的 identityHash 尚未由 KSP 生成回填" +
+                    "（当前为 ${SmbkSelectionPlan.IDENTITY_HASH_PENDING}）；拒绝按占位值裁剪",
             )
         }
         val identityHash = querySingleString(

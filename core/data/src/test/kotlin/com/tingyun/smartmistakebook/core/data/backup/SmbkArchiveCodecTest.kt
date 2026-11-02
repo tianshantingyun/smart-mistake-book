@@ -1391,7 +1391,7 @@ class SmbkArchiveCodecTest {
         reviewReminderMinutesAfterMidnight = 18 * 60 + 30,
     )
 
-    /** `rowCounts` 的 90 表全零底稿（manifest 摘要必须覆盖全部表，0 也写）。 */
+    /** `rowCounts` 的 92 表全零底稿（manifest 摘要必须覆盖全部表，0 也写）。 */
     private fun emptyRowCounts(): Map<String, Long> =
         SmbkSelectionPlan.rowCountKeys.associateWith { 0L }
 

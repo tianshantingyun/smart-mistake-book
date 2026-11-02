@@ -3,21 +3,31 @@ package com.tingyun.smartmistakebook.core.data.backup
 import java.security.MessageDigest
 
 /**
- * 6C-2 内容选择备份的 **schema 71 机器清单**（v3）。
+ * 6C-2 内容选择备份的 **schema 73 机器清单**（v5）。
  *
  * 唯一数据源：`docs/research/2026-10-17-6c2-content-selection-design.md` §9.11 的
  * `<!-- 6c2-plan-v3:begin -->` 机器块；表/视图/FK 的事实源是 Room 导出物
- * `core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/71.json`
- * （`database.version=71`、`identityHash=714c0ecb…`）。本文件不新增规则：类别、闭包、
+ * `core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/73.json`
+ * （`database.version=73`；`identityHash` 只能取 KSP 生成值）。本文件不新增规则：类别、闭包、
  * 裁剪顺序、软引用、资产根、kind 谓词全部逐项对应机器块，`SmbkSelectionPlanTest`
- * 反向解析机器块与 `71.json` 断言两处同源。
+ * 反向解析机器块与 `73.json` 断言两处同源。
  *
- * schema 71 相对 70 只把 `renderer_version` / `font_manifest_version` 并入
- * `tutor_visual_snapshot` 的唯一键（`VisualSnapshotIdentityMigration_70_71`），不增删表/视图/FK，
- * 因此类别、SPLIT、软引用、闭包与 90 表清单全部不变；`identityHash` 随索引变化而变。
+ * schema 73 是 **rebase 到 71 的 92 表**：71 的 90 表 + 错因两表
+ * `error_cause_observation` / `error_cause_binding`（批次 40 / WS2）。KB 32B 已按
+ * 「L2 不可判→回滚」删除 `knowledge_search_material_feature` 与 71→72 迁移，本清单**不再包含**
+ * 该表（`72.json` 作为无迁移链引用的 orphan 保留，不删不改）。两表都归 MASTERY：错因绑定
+ * learner + attempt，是掌握证据的一部分；外键只落在既有的 MASTERY→ISSUE_BOOK 边上，
+ * 不新增类别闭包边。
  *
- * 90 张表的归属（每表恰好一次）：
- * - [SmbkSelectionCategory] 四类：31 + 35 + 7 + 1；
+ * **identityHash 回填状态（已回填）**：主会话 2026-11-02 复核轮裁定 rebase 到 71 后，
+ * `73.json`（92 表）由门禁 KSP 构建（`:core:database:kspDebugKotlin`）重新生成；本常量
+ * 已回填为该导出物的 `database.identityHash`（`1d086050204a0da1ed6b6e3299dd9733`），
+ * 与 `StudyDatabase_Impl.kt` 的 `RoomOpenDelegate(73, …)` 同值。哨兵
+ * [IDENTITY_HASH_PENDING] 与 [identityHashPending] 保留给下一次 schema bump 的构建门；
+ * 当前 `identityHashPending == false`。
+ *
+ * 92 张表的归属（每表恰好一次）：
+ * - [SmbkSelectionCategory] 四类：31 + 37 + 7 + 1；
  * - [alwaysTables] 7 张恒随包；
  * - [derivedTables] 2 张派生索引（本批裁定恒裁，恢复完成后按科后台重建）；
  * - [splitTables] 7 张按行筛选（`model_task*` 按 `task_kind`，`figure_generation_*` 按来源类别 +
@@ -40,21 +50,27 @@ import java.security.MessageDigest
  */
 object SmbkSelectionPlan {
 
-    /** 机器块 `schemaVersion`，同时是 `72.json` 的 `database.version`（2026-11-02 批次 39 收口同步：他线 knowledge_search_material_feature 迁移 71→72）。 */
-    const val SCHEMA_VERSION: Int = 72
+    /** 机器块 `schemaVersion`，同时是 `73.json` 的 `database.version`（批次 40 / WS2 错因两表）。 */
+    const val SCHEMA_VERSION: Int = 73
+
+    /** `IDENTITY_HASH` 的未回填哨兵；不是合法 SHA-256，读取方必须显式拒绝。 */
+    const val IDENTITY_HASH_PENDING: String = "PENDING_KSP_REBASE_73_92_TABLES"
 
     /**
-     * 机器块 `identityHash`，必须与 `72.json` 的 `database.identityHash` 相等。
-     * 只能取 KSP 构建产物（`StudyDatabase_Impl.kt` 的 `RoomOpenDelegate` 与 `72.json` 同值），
-     * 不得估算或手写。
+     * 机器块 `identityHash`，必须与 rebased `73.json`（92 表）的 `database.identityHash` 相等。
+     * 取自 KSP 构建产物（`StudyDatabase_Impl.kt` 的 `RoomOpenDelegate(73, …)` 与 `73.json` 同值），
+     * 不是估算：`1d086050204a0da1ed6b6e3299dd9733`（2026-11-02 13:35 KSP 生成）。
      */
-    const val IDENTITY_HASH: String = "aa5e8e8e6536e0c1f3adcda6867814cb"
+    const val IDENTITY_HASH: String = "1d086050204a0da1ed6b6e3299dd9733"
 
-    /** 规则表版本；只在规则表变化时 bump，不是 schemaVersion 的别名。 */
-    const val CLOSURE_VERSION: Int = 4
+    /** 当前 identityHash 是否尚未由 KSP 生成回填。 */
+    val identityHashPending: Boolean get() = IDENTITY_HASH == IDENTITY_HASH_PENDING
 
-    /** digest 前缀，与 closureVersion=3 绑定。 */
-    const val CLOSURE_DIGEST_PREFIX: String = "smbk-selection-v4"
+    /** 规则表版本；只在规则表变化时 bump，不是 schemaVersion 的别名（本批表集合变化 → 4→5）。 */
+    const val CLOSURE_VERSION: Int = 5
+
+    /** digest 前缀，与 closureVersion=5 绑定。 */
+    const val CLOSURE_DIGEST_PREFIX: String = "smbk-selection-v5"
 
     /** 四项用户类别全选。 */
     const val FULL_MASK: Int = 15
@@ -145,6 +161,9 @@ object SmbkSelectionPlan {
             "student_model_prediction",
             "prediction_outcome",
             "learner_chat_evidence",
+            // 批次 40 / WS2（schema 73）：错因追加式证据 + 现行标签。
+            "error_cause_observation",
+            "error_cause_binding",
         ),
         SmbkSelectionCategory.SESSIONS to listOf(
             "tutor_conversation",
@@ -171,10 +190,9 @@ object SmbkSelectionPlan {
         "content_install_state",
     )
 
-    /** 3 张派生索引表：恒裁，恢复完成后按科重建（本批裁定 ③；schema 72 增 knowledge_search_material_feature）。 */
+    /** 2 张派生索引表：恒裁，恢复完成后按科重建（本批裁定 ③；L2 的 knowledge_search_material_feature 已随 KB 32B 回滚）。 */
     val derivedTables: List<String> = listOf(
         "knowledge_search_feature",
-        "knowledge_search_material_feature",
         "knowledge_search_index_state",
     )
 
@@ -192,16 +210,16 @@ object SmbkSelectionPlan {
     /** FTS 外部内容表：不删行，删除结束后 `INSERT INTO …('rebuild')`。 */
     val rebuildTables: List<String> = listOf("library_search_fts")
 
-    /** 90 张表（类别 74 + ALWAYS 7 + DERIVED 2 + SPLIT 7），也是 rowCounts 的键集合。 */
+    /** 92 张表（类别 76 + ALWAYS 7 + DERIVED 2 + SPLIT 7），也是 rowCounts 的键集合。 */
     val allTables: List<String> =
         categoryTables.values.flatten() + alwaysTables + derivedTables + splitTables
 
-    /** `rowCounts` 必须覆盖的 90 个键（值为 0 也写）。 */
+    /** `rowCounts` 必须覆盖的 92 个键（值为 0 也写）。 */
     val rowCountKeys: Set<String> = allTables.toSet()
 
     /**
-     * 82 项裁剪顺序（子表先于父表）。= 90 − 7 ALWAYS − 1 `library_search_fts`；
-     * 派生表在列（本批恒裁）。逐边拓扑合法性由测试按 `71.json` 的真实 FK 图校验。
+     * 84 项裁剪顺序（子表先于父表）。= 92 − 7 ALWAYS − 1 `library_search_fts`；
+     * 派生表在列（本批恒裁）。逐边拓扑合法性由测试按 `73.json` 的真实 FK 图校验。
      */
     val trimOrder: List<String> = listOf(
         "tutor_message_visual",
@@ -243,7 +261,6 @@ object SmbkSelectionPlan {
         "learner_chat_evidence",
         "knowledge_search_index_state",
         "knowledge_search_feature",
-        "knowledge_search_material_feature",
         "knowledge_research_review_source",
         "knowledge_research_review_bundle",
         "knowledge_grounding_resolution",
@@ -273,6 +290,9 @@ object SmbkSelectionPlan {
         "applied_correction_record",
         "attempt_correction",
         "applied_attempt_record",
+        // 错因 binding 引用 observation，必须更早裁；两者都引用 attempt_event/practice_unit/题面修订。
+        "error_cause_binding",
+        "error_cause_observation",
         "attempt_event",
         "attempt_submission",
         "applied_answer_reveal_record",
@@ -524,6 +544,10 @@ object SmbkSelectionPlan {
         "LEARNING_SUMMARIZE" to SmbkSelectionCategory.SESSIONS,
         "REVIEW_RERANK" to SmbkSelectionCategory.MASTERY,
         "KNOWLEDGE_QUIZ" to SmbkSelectionCategory.MASTERY,
+        // 6B-3 改卷（批次 40 / WS4）：会话侧动作，卷面可以从题重新导出，不属于学生的源事实。
+        // 未加这一行时，恢复侧 RestoreSoftReferenceRecheck 会把它判成"映射外"直接拒包。
+        // 73.json 的机器块由 WS2 单写者重建；本批只同步这一条类别归属。
+        "PAPER_EDIT" to SmbkSelectionCategory.SESSIONS,
     )
 
     /** `figure_generation_operation.source_kind` → 类别；`source_id` 不反查宿主行。 */
@@ -545,20 +569,20 @@ object SmbkSelectionPlan {
 
     init {
         require(allTables.size == allTables.toSet().size) { "表被重复归类：$allTables" }
-        require(allTables.size == 91) { "schema 72 应有 91 张表，实际 ${allTables.size}" }
-        require(views.size == 2) { "schema 72 应有 2 个视图，实际 ${views.size}" }
+        require(allTables.size == 92) { "schema 73（rebased）应有 92 张表，实际 ${allTables.size}" }
+        require(views.size == 2) { "schema 73 应有 2 个视图，实际 ${views.size}" }
         require(categoryTables[SmbkSelectionCategory.ISSUE_BOOK]?.size == 31) { "ISSUE_BOOK 应为 31 张表" }
-        require(categoryTables[SmbkSelectionCategory.MASTERY]?.size == 35) { "MASTERY 应为 35 张表" }
+        require(categoryTables[SmbkSelectionCategory.MASTERY]?.size == 37) { "MASTERY 应为 37 张表" }
         require(categoryTables[SmbkSelectionCategory.SESSIONS]?.size == 7) { "SESSIONS 应为 7 张表" }
         require(categoryTables[SmbkSelectionCategory.IMAGES]?.size == 1) { "IMAGES 应为 1 张表" }
         require(alwaysTables.size == 7) { "ALWAYS 应为 7 张表" }
-        require(derivedTables.size == 3) { "DERIVED 应为 3 张表" }
+        require(derivedTables.size == 2) { "DERIVED 应为 2 张表" }
         require(splitTables.size == 7) { "SPLIT 应为 7 张表" }
-        require(trimOrder.size == 83) { "裁剪顺序应为 83 项，实际 ${trimOrder.size}" }
+        require(trimOrder.size == 84) { "裁剪顺序应为 84 项，实际 ${trimOrder.size}" }
         require(trimOrder.size == trimOrder.toSet().size) { "裁剪顺序有重复项" }
         require(
             trimOrder.toSet() == allTables.toSet() - alwaysTables.toSet() - rebuildTables.toSet(),
-        ) { "裁剪顺序必须恰好覆盖 91 表 − ALWAYS − FTS" }
+        ) { "裁剪顺序必须恰好覆盖 92 表 − ALWAYS − FTS" }
         require(derivedTables.all { it in trimOrder }) { "派生表按本批裁定必须恒裁" }
         require(expectedClosure.size == 5) { "类别闭包应为 5 条边" }
         require(softReferences.size == 21) { "软引用应为 21 条" }
@@ -569,7 +593,7 @@ object SmbkSelectionPlan {
         require(allowedMasks == setOf(9, 13, 15)) { "本批只允许 9/13/15" }
     }
 
-    /** 表 → 归属桶；未知表返回 null（调用方对 `71.json` 漂移 fail-closed）。 */
+    /** 表 → 归属桶；未知表返回 null（调用方对 `73.json` 漂移 fail-closed）。 */
     fun bucketOf(table: String): SmbkTableBucket? = tableBucketIndex[table]
 
     /** 用户类别表的类别；ALWAYS/DERIVED/SPLIT 或未知表返回 null。 */
@@ -630,14 +654,14 @@ object SmbkSelectionPlan {
     }
 
     /**
-     * §9.7 的 v3 digest：
+     * §9.7 的 v5 digest：
      * ```
-     * sha256("smbk-selection-v3\n" + "closureVersion=3\n"
+     * sha256("smbk-selection-v5\n" + "closureVersion=5\n"
      *      + "categories=" + sorted.joinToString(",") + "\n"
      *      + "assetPolicy=" + assetPolicy + "\n"
      *      + rowCounts.keys.sorted().joinToString("") { "$it=${rowCounts[it]}\n" })
      * ```
-     * [rowCounts] 必须恰好覆盖 90 个键（漏键/多键会抛出，避免摘要不可比）。
+     * [rowCounts] 必须恰好覆盖 92 个键（漏键/多键会抛出，避免摘要不可比）。
      */
     fun closureDigest(
         categories: Collection<SmbkSelectionCategory>,
@@ -647,7 +671,7 @@ object SmbkSelectionPlan {
         require(rowCounts.keys == rowCountKeys) {
             val missing = (rowCountKeys - rowCounts.keys).sorted()
             val extra = (rowCounts.keys - rowCountKeys).sorted()
-            "rowCounts 必须覆盖 90 张表：missing=$missing extra=$extra"
+            "rowCounts 必须覆盖 92 张表：missing=$missing extra=$extra"
         }
         val categoryNames = categories.map { it.name }.distinct().sorted()
         val payload = buildString {

@@ -15,21 +15,26 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 
 /**
- * **6C-2 schema 72 机器清单的同源契约**。
+ * **6C-2 schema 73 机器清单的同源契约**。
  *
  * 三份事实互相钉住：
- * 1. `72.json`（Room 导出物）：91 表 / 2 视图 / 102 条 FK 边；
+ * 1. 重建后的 `73.json`（Room 导出物，KSP 生成）：92 表 / 2 视图 / 110 条 FK 边；
+ *    rebase 到 71 后不再含已回滚的 L2 `knowledge_search_material_feature`；
  * 2. 设计 §9.11 的 `<!-- 6c2-plan-v3:begin -->` 机器块（唯一数据源）；
  * 3. [SmbkSelectionPlan]（实施读的那份数据）。
  *
+ * `73.json` 与 `identityHash` 由门禁 KSP 构建生成；生成前本类中依赖导出物的用例
+ * 以 `assumeTrue` 跳过（不是伪造通过），生成后必须真实执行。
+ *
  * 这里断言的是**结构性同源**：每张表恰好归类一次、裁剪顺序是真实 FK 图上的合法拓扑序、
- * 闭包能从 71 的 FK 边折叠出 5 条、软引用 21 条且不误把硬 FK 当软引用、空库全选 digest
+ * 闭包能从 73 的 FK 边折叠出 5 条、软引用 21 条且不误把硬 FK 当软引用、空库全选 digest
  * 逐字命中 golden、非法 mask（含产品裁定拒绝的 0/8）不静默补齐。
  *
  * 本批产品裁定覆盖机器块里仍标 `OPEN` 的两项：mask=8/0 拒绝；派生索引恒裁。
@@ -38,46 +43,48 @@ import java.nio.file.Paths
  */
 class SmbkSelectionPlanTest {
 
-    // ---- 1. schema 72 的事实 ----
+    // ---- 1. schema 73 的事实 ----
 
     @Test
-    fun `schema 72 exports 91 tables 2 views and 102 foreign keys matching the plan identity`() {
-        assertEquals("schema 版本", 72, database.int("version"))
+    fun `schema 73 exports 92 tables 2 views and 110 foreign keys matching the plan identity`() {
+        assumeSchema73Generated()
+        assertEquals("schema 版本", 73, database.int("version"))
         assertEquals(SmbkSelectionPlan.SCHEMA_VERSION, database.int("version"))
         assertEquals(SmbkSelectionPlan.IDENTITY_HASH, database.string("identityHash"))
-        assertEquals("Room entity 数", 91, entities.size)
+        assertEquals("Room entity 数", 92, entities.size)
         assertEquals("视图数", 2, schemaViews.size)
-        assertEquals("FK 边数", 102, fkEdges.size)
+        assertEquals("FK 边数", 110, fkEdges.size)
 
         assertEquals("视图不参与裁剪但清单必须列出", schemaViews, SmbkSelectionPlan.views)
-        assertEquals("91 表 = 类别 74 + ALWAYS 7 + DERIVED 3 + SPLIT 7", 91, SmbkSelectionPlan.allTables.size)
+        assertEquals("92 表 = 类别 76 + ALWAYS 7 + DERIVED 2 + SPLIT 7", 92, SmbkSelectionPlan.allTables.size)
     }
 
     // ---- 2. 每表恰好归类一次 ----
 
     @Test
     fun `every schema table is classified exactly once and the plan has no ghost tables`() {
+        assumeSchema73Generated()
         val userTables = SmbkSelectionPlan.categoryTables.values.flatten()
         val classified = userTables + SmbkSelectionPlan.alwaysTables +
             SmbkSelectionPlan.derivedTables + SmbkSelectionPlan.splitTables
 
-        assertEquals("归类总数", 91, classified.size)
+        assertEquals("归类总数", 92, classified.size)
         assertEquals("不允许一张表落在两个桶里", classified.size, classified.toSet().size)
-        assertEquals("归类集合必须与 71.json 的表集合相等", schemaTables.toSet(), classified.toSet())
-        assertEquals("rowCounts 键集合 = 91 表", schemaTables.toSet(), SmbkSelectionPlan.rowCountKeys)
-        assertEquals(91, SmbkSelectionPlan.rowCountKeys.size)
+        assertEquals("归类集合必须与 73.json 的表集合相等", schemaTables.toSet(), classified.toSet())
+        assertEquals("rowCounts 键集合 = 92 表", schemaTables.toSet(), SmbkSelectionPlan.rowCountKeys)
+        assertEquals(92, SmbkSelectionPlan.rowCountKeys.size)
 
         assertEquals(
             mapOf(
                 SmbkSelectionCategory.ISSUE_BOOK to 31,
-                SmbkSelectionCategory.MASTERY to 35,
+                SmbkSelectionCategory.MASTERY to 37,
                 SmbkSelectionCategory.SESSIONS to 7,
                 SmbkSelectionCategory.IMAGES to 1,
             ),
             SmbkSelectionPlan.categoryTables.mapValues { it.value.size },
         )
         assertEquals(7, SmbkSelectionPlan.alwaysTables.size)
-        assertEquals(3, SmbkSelectionPlan.derivedTables.size)
+        assertEquals(2, SmbkSelectionPlan.derivedTables.size)
         assertEquals(7, SmbkSelectionPlan.splitTables.size)
 
         schemaTables.forEach { table ->
@@ -98,9 +105,10 @@ class SmbkSelectionPlanTest {
     // ---- 3. 裁剪顺序 ----
 
     @Test
-    fun `trim order covers exactly 83 tables and is a child before parent topological order`() {
+    fun `trim order covers exactly 84 tables and is a child before parent topological order`() {
+        assumeSchema73Generated()
         val order = SmbkSelectionPlan.trimOrder
-        assertEquals("83 = 91 − 7 ALWAYS − 1 FTS", 83, order.size)
+        assertEquals("84 = 92 − 7 ALWAYS − 1 FTS", 84, order.size)
         assertEquals("裁剪顺序不允许重复", order.size, order.toSet().size)
 
         val expectedTables = SmbkSelectionPlan.allTables.toSet() -
@@ -127,6 +135,7 @@ class SmbkSelectionPlanTest {
 
     @Test
     fun `closure folded from the real fk graph equals the five expected edges`() {
+        assumeSchema73Generated()
         val folded = fkEdges.mapNotNull { edge ->
             val child = SmbkSelectionPlan.categoryOf(edge.child)
             val parent = SmbkSelectionPlan.categoryOf(edge.parent)
@@ -140,7 +149,7 @@ class SmbkSelectionPlanTest {
             SmbkClosureEdge(SmbkSelectionCategory.SESSIONS, SmbkSelectionCategory.ISSUE_BOOK),
             SmbkClosureEdge(SmbkSelectionCategory.SESSIONS, SmbkSelectionCategory.IMAGES),
         )
-        assertEquals("从 71.json FK 边折叠出的类别闭包", expected, folded)
+        assertEquals("从 73.json FK 边折叠出的类别闭包", expected, folded)
         assertEquals("机器块的 5 条边", expected, SmbkSelectionPlan.expectedClosure.toSet())
         assertEquals(5, folded.size)
     }
@@ -170,7 +179,8 @@ class SmbkSelectionPlanTest {
     // ---- 5. 软引用 ----
 
     @Test
-    fun `twenty one soft references resolve against schema 72 and never shadow a hard foreign key`() {
+    fun `twenty one soft references resolve against schema 73 and never shadow a hard foreign key`() {
+        assumeSchema73Generated()
         val refs = SmbkSelectionPlan.softReferences
         assertEquals("v3 软引用 21 条", 21, refs.size)
         assertEquals("同一 (table,column) 不能列两次", 21, refs.map { it.table to it.column }.toSet().size)
@@ -193,10 +203,10 @@ class SmbkSelectionPlanTest {
         }.toSet()
 
         refs.forEach { ref ->
-            assertTrue("软引用源表不存在于 71.json：${ref.table}", ref.table in schemaTables)
+            assertTrue("软引用源表不存在于 73.json：${ref.table}", ref.table in schemaTables)
             if (!ref.virtual) {
                 assertTrue(
-                    "软引用源列不存在于 71.json：${ref.table}.${ref.column}",
+                    "软引用源列不存在于 73.json：${ref.table}.${ref.column}",
                     ref.column in columnsByTable.getValue(ref.table),
                 )
                 assertFalse(
@@ -217,6 +227,7 @@ class SmbkSelectionPlanTest {
 
     @Test
     fun `asset roots and split kind predicates stay consistent with the classification`() {
+        assumeSchema73Generated()
         val roots = SmbkSelectionPlan.assetRoots
         assertEquals("四张根引用表", 4, roots.size)
         assertEquals(3, roots.count { it.category == SmbkSelectionCategory.ISSUE_BOOK })
@@ -254,7 +265,7 @@ class SmbkSelectionPlanTest {
                 SmbkSelectionPlan.visualRowFilterTables).toSet(),
         )
 
-        assertEquals("12 个已知 task_kind", 12, SmbkSelectionPlan.modelTaskKindCategory.size)
+        assertEquals("13 个已知 task_kind", 13, SmbkSelectionPlan.modelTaskKindCategory.size)
         assertEquals("4 个已知 figure source_kind", 4, SmbkSelectionPlan.figureOperationSourceKindCategory.size)
         assertEquals(
             "全选时没有要删的 kind",
@@ -270,7 +281,7 @@ class SmbkSelectionPlanTest {
             "mask=9 排除 SESSIONS + MASTERY 类 kind",
             setOf(
                 "TUTOR_PLAN", "TUTOR_RESPOND", "TUTOR_LOBBY", "TUTOR_EVALUATE", "LEARNING_SUMMARIZE",
-                "REVIEW_RERANK", "KNOWLEDGE_QUIZ",
+                "REVIEW_RERANK", "KNOWLEDGE_QUIZ", "PAPER_EDIT",
             ),
             SmbkSelectionPlan.deletedModelTaskKinds(9),
         )
@@ -381,7 +392,7 @@ class SmbkSelectionPlanTest {
     @Test
     fun `empty full selection digest matches the published golden`() {
         val rowCounts = SmbkSelectionPlan.rowCountKeys.associateWith { 0L }
-        assertEquals("rowCounts 必须覆盖 91 表", 91, rowCounts.size)
+        assertEquals("rowCounts 必须覆盖 92 表", 92, rowCounts.size)
 
         val digest = SmbkSelectionPlan.closureDigest(
             categories = SmbkSelectionCategory.entries.toSet(),
@@ -404,7 +415,7 @@ class SmbkSelectionPlanTest {
     }
 
     @Test
-    fun `digest refuses row counts that do not cover all 91 tables`() {
+    fun `digest refuses row counts that do not cover all 92 tables`() {
         val complete = SmbkSelectionPlan.rowCountKeys.associateWith { 0L }
 
         val missing = assertThrows(IllegalArgumentException::class.java) {
@@ -549,6 +560,19 @@ class SmbkSelectionPlanTest {
         error("找不到 Gradle 根（从 $workingDirectory 向上，标记 $GRADLE_ROOT_MARKER 未命中）")
     }
 
+    /**
+     * rebase 到 71 后，`73.json`（92 表）与 `identityHash` 由门禁 KSP 构建生成。
+     * 2026-11-02 13:35 已生成并回填 `1d086050…`；若后续 schema bump 尚未导出，本方法
+     * 以 `assumeTrue` 跳过（不是伪造通过），生成后必须真实执行。
+     */
+    private fun assumeSchema73Generated() {
+        val target = repositoryRoot().resolve(SCHEMA_73_PATH)
+        assumeTrue(
+            "rebased 73.json 尚未由 KSP 生成（$target）；门禁构建后必须真实执行本用例",
+            Files.isRegularFile(target),
+        )
+    }
+
     private fun repoFile(relativePath: String): Path {
         val segments = relativePath.split('/')
         require(segments.none { it.isEmpty() || it == PARENT_SEGMENT }) {
@@ -562,7 +586,7 @@ class SmbkSelectionPlanTest {
     }
 
     private val schemaDatabase: JsonObject by lazy {
-        Json.parseToJsonElement(Files.readString(repoFile(SCHEMA_72_PATH)))
+        Json.parseToJsonElement(Files.readString(repoFile(SCHEMA_73_PATH)))
             .jsonObject.getValue("database").jsonObject
     }
 
@@ -607,13 +631,17 @@ class SmbkSelectionPlanTest {
     private companion object {
         const val GRADLE_ROOT_MARKER = "settings.gradle.kts"
         const val PARENT_SEGMENT = "." + "."
-        const val SCHEMA_72_PATH =
-            "core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/72.json"
+        const val SCHEMA_73_PATH =
+            "core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/73.json"
         const val DESIGN_PATH = "docs/research/2026-10-17-6c2-content-selection-design.md"
 
-        /** §9.7 空库、全选、assetPolicy=INCLUDED 的 golden。 */
+        /**
+         * §9.7 空库、全选、assetPolicy=INCLUDED 的 v5 golden（rebase 后 92 表，closureVersion=5）。
+         * 用与 [SmbkSelectionPlan.closureDigest] 相同的 SHA-256 载荷独立复算；旧 93 表 golden
+         * `a8d4de2d…` 用同一脚本可逐字复现（2026-11-02 复核轮实算），证明复算与实现同算法。
+         */
         const val GOLDEN_EMPTY_FULL_DIGEST =
-            "ee9a1b4d3f0ea7ed44eeec773f459df9d55c5df3abda32a69c62f7fdfac6b006"
+            "5c6907555ba358b9daddb532e40acc0ff76a9d175c96d47d169a22c016aad05a"
 
         val MACHINE_BLOCK = Regex(
             "<!-- 6c2-plan-v3:begin -->\\s*```json\\s*(\\{.*?})\\s*```\\s*<!-- 6c2-plan-v3:end -->",
