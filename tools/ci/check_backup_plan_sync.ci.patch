@@ -1,0 +1,14 @@
+--- a/.github/workflows/android-check.yml
++++ b/.github/workflows/android-check.yml
+@@ -67,6 +67,11 @@
+         run: python3 tools/ci/run_kb_checks.py
+       - name: Room schema drift check
+         run: git diff --exit-code -- core/database/schemas
++      - name: Backup selection plan four-way sync gate
++        # 批次 41 / WS1 item 7：SmbkSelectionPlan.kt / 设计件 §9.11 机器块 /
++        # SmbkSelectionPlanTest golden / 73.json 任一处漂移都会静默通过旧门。
++        # 纯 Python、只读、无 Gradle、无设备；缺文件或无法解析时 exit 2。
++        run: python3 tools/ci/check_backup_plan_sync.py
+       - name: Dependency lockfile manifest and coverage gate
+         # KD-72：DEFAULT 模式对"project 完全没有锁"放行，且 `dependencies` 报告任务
+         # 生成的锁缺 test/androidTest/runtime。脚本在锁尚未落地时只提示；一旦有第一个
