@@ -37,7 +37,10 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.json.JSONObject
 import java.io.IOException
@@ -95,9 +98,50 @@ import java.util.concurrent.CopyOnWriteArrayList
  *
  * 本文件不调用 `QuickJs.close()` 的挂死路径：issue #240 由服务 watchdog 直接 SIGKILL，
  * 测试只观察 binder death 与新进程行为。
+ *
+ * ## 批次 41：整套件低负载门与 OFF/ON 配对臂
+ *
+ * 批次 40 只能写"单臂 15/15 绿"（`evidence/2026-11-02-batch-40/step04-isolation.md` §4）：
+ * 没有低负载窗、没有配对、T4 控制轮未做。本类现在**默认不跑**，除非 shell 侧门注入
+ * `-e smb.lowload.gate PASS`：
+ *
+ * ```
+ * tools/ci/run_isolation_pair.sh --serial emulator-5584
+ * # 它先 calibrate 地板，每轮每臂跑前/跑后门，再执行：
+ * adb shell am instrument -r -w --no-window-animation \
+ *   -e class com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest \
+ *   -e smb.lowload.gate PASS -e smb.lowload.reason ... -e smb.t4.arm OFF|ON \
+ *   com.tingyun.smartmistakebook.test/androidx.test.runner.AndroidJUnitRunner
+ * ```
+ *
+ * - 门不满足（未传 / INVALID / instrumentation 自证探针越界）→ 每条用例经
+ *   [IsolationGate.require] 的 `Assume` 跳过，runner 报 `-4`；**跳过不算通过**，
+ *   `tools/ci/isolation_pair_report.py` 把该 run 判 INVALID → `UNCONVERGED`。
+ * - `-e smb.t4.arm ON` 注册 [T4SeamProbeRule]（用例边界 + 时间戳读取）；`OFF` 不注册。
+ *   这只是**测试侧**开关：生产代码 6 处 T4 打点仍在，不是"去 T4 控制轮"——控制轮
+ *   必须由 `tools/ci/t4_control_marker.py` 的引擎 sha 标记证明。
  */
 @RunWith(AndroidJUnit4::class)
 class VisualJsIsolationInstrumentedTest {
+
+    /**
+     * OFF/ON 配对臂的测试侧钩子（批次 41 / WS4 item 26）。仅在
+     * `-e smb.t4.arm ON` 时活动；不改变任何生产路径。
+     */
+    private val t4SeamProbeRule = T4SeamProbeRule()
+
+    /** JUnit 要求 `@Rule` 字段公开；用 [TestRule] 类型暴露，内部实现保持 internal。 */
+    @get:Rule
+    val t4SeamProbe: TestRule = t4SeamProbeRule
+
+    /**
+     * 整套件低负载门（批次 41 / WS4 item 25）。每条用例前执行；结果在进程内缓存。
+     * 未通过时用 `Assume` 跳过——`-4` 在配对报告里单列为 SKIP，绝不折算成 PASS。
+     */
+    @Before
+    fun lowLoadGate() {
+        IsolationGate.require()
+    }
 
     private val context: Context
         get() = ApplicationProvider.getApplicationContext<Context>()
@@ -117,7 +161,11 @@ class VisualJsIsolationInstrumentedTest {
         VisualJsServiceHarness(context).also { harnesses.add(it) }
 
     private fun client(): VisualJsClientEngine =
-        VisualJsClientEngine(context).also { clients.add(it) }
+        VisualJsClientEngine(context).also {
+            clients.add(it)
+            // 批次 41：只有 ON 臂才注册钩子（OFF 臂零观测、零时间戳读取）。
+            t4SeamProbeRule.register(it)
+        }
 
     @Test
     fun workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater() = runBlocking {
