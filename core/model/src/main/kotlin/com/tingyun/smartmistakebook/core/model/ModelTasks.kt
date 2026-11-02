@@ -22,6 +22,13 @@ enum class ModelTaskKind {
     LEARNING_SUMMARIZE,
     IMAGE_PIPELINE_CLASSIFY,
     KNOWLEDGE_QUIZ,
+
+    /**
+     * 6B-3 自然语言改卷（批次 40 / WS4）：独立根操作，不复用 TUTOR_RESPOND 工具环。
+     * 名字是持久契约——它进 `model_task.task_kind`、备份包与逻辑操作指纹；改名会让历史行的
+     * 操作指纹失配。golden 测试钉住 `name == "PAPER_EDIT"`。
+     */
+    PAPER_EDIT,
 }
 
 @Serializable
@@ -162,10 +169,11 @@ sealed interface ModelTaskInput {
     val subjectId: String
 
     /**
-     * True for rounds whose on-device content (photos or the tutor question/visual)
-     * may egress to the configured provider under global Settings consent, without a
-     * per-item egress manifest. Deliberately false for TUTOR_LOBBY (its own bounded
-     * disclosure route) and the confirmed-document organization/summarize routes.
+     * True for rounds whose on-device content (photos, the tutor question/visual, or the
+     * bounded paper-edit snapshot) may egress to the configured provider under global Settings
+     * consent, without a per-item egress manifest. Deliberately false for TUTOR_LOBBY (its own
+     * bounded disclosure route), the confirmed-document organization/summarize routes, and the
+     * legacy kinds without a production manifest-free dispatch point.
      * Computed, never serialized.
      */
     val isAgentConsentEligible: Boolean
@@ -478,6 +486,9 @@ data class ModelTaskRequest(
             schemaVersion >= TUTOR_VISUAL_CONTEXT_SCHEMA_VERSION ||
                 ((planInput?.visualContext == null) && (respondInput?.visualContext == null)),
         ) { "Legacy tutor requests cannot carry a visual context" }
+        require(
+            schemaVersion >= PAPER_EDIT_SCHEMA_VERSION || input !is PaperEditInput,
+        ) { "Legacy model task requests cannot carry a paper edit input" }
         require(requestId.isNotBlank()) { "Model task request id must not be blank" }
         require(requestId.length <= MAX_ID_CHARS) { "Model task request id exceeds budget" }
         require(input.subjectId.isNotBlank()) { "Model task subject id must not be blank" }
@@ -544,7 +555,16 @@ data class ModelTaskRequest(
          * null never lands a key, so schema-17 rows keep their exact encoding and fingerprints.
          */
         const val TUTOR_VISUAL_CONTEXT_SCHEMA_VERSION = 18
-        const val CURRENT_SCHEMA_VERSION = TUTOR_VISUAL_CONTEXT_SCHEMA_VERSION
+        /**
+         * Schema at which a request may carry [PaperEditInput] (6B-3 / WS4).
+         *
+         * This is a **shape declaration**, not a field-level migration: the new task is a new
+         * sealed subtype, so no existing input encodes differently and no fingerprint strip is
+         * needed for old rows. The guard below is the anchor for "a schema-18 request can never
+         * carry a paper edit".
+         */
+        const val PAPER_EDIT_SCHEMA_VERSION = 19
+        const val CURRENT_SCHEMA_VERSION = PAPER_EDIT_SCHEMA_VERSION
         const val MAX_ID_CHARS = 256
     }
 }

@@ -9,9 +9,12 @@ package com.tingyun.smartmistakebook.core.model
  *   所以网关把它归到**可重试**的 `INCOMPLETE_OUTPUT`；
  * - 那里是"这条输出没有按契约说话"——同一条请求重发多半逐字复现，归不可重试的 `INVALID_RESPONSE`。
  *
- * 抛点只有 [String.requireSafeModelText] 的超预算分支：解析期能按预算收敛的**短标签**字段
- * （动作标签 / 知识点标签 / 锚点词）已在解析器里截断，走到这里的是正文级文本（`messageMarkdown`、
- * `solutionMarkdown`、`openingMarkdown`…）——它们不能靠截断收敛，只能让这一轮重来。
+ * 抛点有两处，都是"这一次输出超了预算、重发可能换一份更短的"：
+ * - [String.requireSafeModelText] 的超预算分支：解析期能按预算收敛的**短标签**字段
+ *   （动作标签 / 知识点标签 / 锚点词）已在解析器里截断，走到这里的是正文级文本
+ *   （`messageMarkdown`、`solutionMarkdown`、`openingMarkdown`…）——它们不能靠截断收敛，
+ *   只能让这一轮重来；
+ * - [PaperEditOutput] 的命令 JSON 超过 `PaperEditCommandParser.MAX_PAYLOAD_CHARS`（6B-3）。
  *
  * 该函数也用于**本地构造**的文本（id、清单字段…），那些抛点发生在请求构造期、不会经过网关的
  * 响应解析出口；网关侧只在响应解析路径上把本类型映射成可重试失败。
