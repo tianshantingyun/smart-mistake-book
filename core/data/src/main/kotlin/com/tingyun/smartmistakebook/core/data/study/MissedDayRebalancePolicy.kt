@@ -21,6 +21,10 @@ object MissedDayRebalancePolicy {
      * @param itemCap 当日剩余名额上限（null = 只受 `baseBudgetSeconds` 折算容量约束）。
      *   **消灭的具体失败**：考试通道已占用当日预算时，再平衡若仍按整份预算取题，
      *   两条通道会把同一天排成 1.5× 以上；调用方必须传入考试取题后剩下的名额。
+     * @param excludedPracticeUnitIds 已被其他通道排进今天的题（考试通道）。
+     *   **消灭的具体失败**：先取题后再在合并处求交集——重复题白占一个名额，合并计数
+     *   只剩"交集"这个数字，真正可用的名额却被浪费（R1 §2.3 C9-①）。去重必须发生在
+     *   取题**之前**：本题在积压里不再参与 0.85 窗筛选、不再占 `itemCap`。
      */
     fun plan(
         backlog: List<ReviewCapacityFacts>,
@@ -29,6 +33,7 @@ object MissedDayRebalancePolicy {
         remainingStudyDays: Int,
         growthCap: Double = ReviewCapacityPolicy.MAX_DAILY_GROWTH,
         itemCap: Int? = null,
+        excludedPracticeUnitIds: Set<String> = emptySet(),
     ): RebalancePlan {
         require(baseBudgetSeconds > 0) { "Time budget must be positive" }
         require(p50DurationSeconds > 0) { "Median duration must be positive" }
@@ -37,7 +42,11 @@ object MissedDayRebalancePolicy {
             "Daily growth cap must be greater than one"
         }
         require(itemCap == null || itemCap >= 0) { "Item cap must not be negative" }
-        if (backlog.isEmpty()) {
+        require(backlog.map(ReviewCapacityFacts::practiceUnitId).distinct().size == backlog.size) {
+            "Backlog practice units must be unique"
+        }
+        val candidates = backlog.filterNot { it.practiceUnitId in excludedPracticeUnitIds }
+        if (candidates.isEmpty()) {
             return RebalancePlan(
                 dailyTake = 0,
                 dailyBudgetSeconds = baseBudgetSeconds,
@@ -52,7 +61,7 @@ object MissedDayRebalancePolicy {
             budgetSeconds = baseBudgetSeconds,
             p50DurationSeconds = p50DurationSeconds,
         )
-        val backlogDays = backlog.size.toDouble() / normalCapacity
+        val backlogDays = candidates.size.toDouble() / normalCapacity
         val required = ReviewCapacityPolicy.requiredGrowthMultiplier(
             backlogDays = backlogDays,
             remainingStudyDays = remainingStudyDays,
@@ -77,7 +86,7 @@ object MissedDayRebalancePolicy {
         }
         // 只拉"已用掉 ≥85% 间隔"的题：刚复习过的强题不提前，避免无谓的稳定性损失
         // （FSRS 的稳定性增益随 R 降低而增大；提前做会把增益白白花掉）。
-        val eligible = backlog
+        val eligible = candidates
             .filter { it.elapsedFraction >= ReviewCapacityPolicy.REBALANCE_MIN_ELAPSED_FRACTION }
             .sortedWith(
                 compareByDescending<ReviewCapacityFacts> { it.elapsedFraction }
@@ -93,7 +102,7 @@ object MissedDayRebalancePolicy {
             growthMultiplier = allowed,
             picked = picked,
             eligibleCount = eligible.size,
-            ineligibleCount = backlog.size - eligible.size,
+            ineligibleCount = candidates.size - eligible.size,
         )
     }
 }

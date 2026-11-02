@@ -119,6 +119,9 @@ data class ExamQuotaPlan(
         require(quota >= 0) { "Quota must not be negative" }
         require(deficitCount >= 0) { "Deficit count must not be negative" }
         require(unmetCount >= 0) { "Unmet count must not be negative" }
+        require(picked.size <= quota) {
+            "Picked items must not exceed the granted quota"
+        }
         require(picked.size + unmetCount == deficitCount) {
             "Picked items and unmet count must account for every deficit"
         }

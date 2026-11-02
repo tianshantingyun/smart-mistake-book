@@ -194,6 +194,60 @@ object ReviewCapacityPolicy {
     }
 
     /**
+     * 多科共享同一份当日容量时的**分科名额**分配（R1 §4.2，Anki 的"根总量 + 子配额"语义）。
+     *
+     * 规则（三条，全部可测）：
+     * 1. 顺序：`(距考天数 asc, 缺口 desc, subjectId asc)`——全序，结果与输入顺序无关；
+     * 2. 取用：`cap_i = min(demand_i, remaining)`，`remaining -= cap_i`；
+     * 3. 不设保底：应取 > 0 但名额已用完的科得到 0，由调用方如实报 `starved`。
+     *
+     * **为什么选"按科配额"而不是"全局优先队列"**：全局队列按题目优先级交错出队，
+     * 只能回答"今天做哪几道"，回答不了"这一科今天分到几个名额"——而预览与排程两侧都需要
+     * 逐科读数（WS1 item 3），且 Anki 的 `LimitTreeMap` 正是"根总量 + 每子牌组 cap"两层
+     * （R1 C1）。平铺成 `cap_i` 已经足够表达本仓的 subject（本仓没有 deck 树）。
+     *
+     * **消灭的具体失败**：按应取数等比切分（[allocateByDayWeights]）对紧迫度盲——容量 6、
+     * 数学明天考（应取 6）、物理 14 天后考（应取 5）时切成 [3,3]，明天就考的科只拿到一半
+     * 名额，而 13 天后还有机会的科占用了今天的名额（R1 §4.3 的反例）。
+     */
+    fun allocateSubjectCaps(
+        subjectIds: List<String>,
+        demands: List<Int>,
+        daysUntilExam: List<Int>,
+        deficits: List<Int>,
+        capacity: Int,
+    ): List<Int> {
+        require(capacity >= 0) { "Daily capacity must not be negative" }
+        require(subjectIds.size == demands.size && demands.size == daysUntilExam.size &&
+            daysUntilExam.size == deficits.size
+        ) {
+            "Subject ids, demands, exam days and deficits must have the same size"
+        }
+        require(demands.all { it >= 0 }) { "Subject demands must not be negative" }
+        require(deficits.all { it >= 0 }) { "Subject deficits must not be negative" }
+        require(daysUntilExam.all { it >= 1 }) { "Days until exam must be at least one" }
+        require(subjectIds.distinct().size == subjectIds.size) {
+            "Subject ids must be unique"
+        }
+        if (subjectIds.isEmpty() || capacity == 0) return List(subjectIds.size) { 0 }
+
+        val order = subjectIds.indices.sortedWith(
+            compareBy<Int> { daysUntilExam[it] }
+                .thenByDescending { deficits[it] }
+                .thenBy { subjectIds[it] },
+        )
+        val granted = IntArray(subjectIds.size)
+        var remaining = capacity
+        order.forEach { index ->
+            if (remaining == 0) return@forEach
+            val take = min(demands[index], remaining)
+            granted[index] = take
+            remaining -= take
+        }
+        return granted.toList()
+    }
+
+    /**
      * F9：给定积压折合的"正常日"数 `b` 与成长上限 `g`，清账所需天数
      * `ceil(b / (g − 1))`。`b == 0 → 0`；`g <= 1` 抛错（不允许"越追越多"）。
      */

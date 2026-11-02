@@ -368,6 +368,11 @@ internal class StudyReviewPlannerService(
             localDayEpochDay = todayEpochDay,
             baseBudgetSeconds = reviewTimeBudgetSeconds,
         )
+        // 考试爬坡已经把今天的预算抬到 effectiveBudgetSeconds；门面不得在它之上再乘一次
+        // 1.5（会到基准的 2.25×）。爬坡生效时把"今天的绝对上限"显式传进去；无爬坡时传
+        // null，保留 F9 的 1.5× 积压成长。
+        val growthCeilingBudgetSeconds =
+            effectiveBudgetSeconds.takeIf { it > reviewTimeBudgetSeconds }
         val subjectByPracticeUnit = mistakes.associate { it.practiceUnitId to it.subject }
         val capacityPreview = ReviewCapacityPreviewReader(
             forgettingCurve = ForgettingCurve(decay = planningDecay),
@@ -383,6 +388,7 @@ internal class StudyReviewPlannerService(
             p50DurationSeconds = p50DurationSeconds,
             rebalanceEnabled = rebalanceEnabled,
             remainingStudyDays = remainingStudyDays,
+            growthCeilingBudgetSeconds = growthCeilingBudgetSeconds,
         )
         val intakeBacklog = mistakes
             .sortedBy(MistakeRecord::practiceUnitId)
