@@ -40,6 +40,13 @@
   同样 0 分题行）导出同形（sha `02cec6f0…`）。该值同样只对这份导出成立（0 分题行 ≠
   设备切分能力）。证据
   `docs/research/evidence/2026-11-02-batch-40/step-aud08-gate-device72.md`。
+- **2026-11-03 批次 41 复算（阈值零改动）**：金标 sha `f9e92c47…` × 4C 存量导出 sha
+  `9b49b0c4…` → ① **4/7 = 0.5714 < 0.9**、③ **0/16 = 0.0000 ≤ 0.05** → **FAIL（exit 1）**，
+  门后自动化继续不启用。本次同时落盘报告 `build/split-eval/gate-report-batch41.json`、
+  证据 `docs/research/evidence/2026-11-03-batch-41/step-aud08-gate-recompute.md` 与逐页裁定
+  `docs/research/evidence/2026-11-03-batch-41/rulings/20261102T143319Z-4c83a01e.json`
+  （`validate_rulings.py` R1–R9 PASS）。与批次 40 同输入裁定内容级一致（判词/几何/差异全同；
+  仅 `decidedAtUtc` 与工具 sha 属运行身份）。**不得为让门变绿改阈值/口径/分母/金标。**
 
 ## 1. 五类指标的门说明（逐类：分母 / 阈值 / 样本量 / 统计区间 / 严重度）
 
@@ -132,6 +139,9 @@ G0–G5 是**数据集标签来源等级**。`evidenceGrade` 是自由文本，C
 - **v1 = G2 但 `recomputable=false`**：冻结产物没有逐页 `labelers` 记录，"两名标注员独立一致"
   无法从产物复算（哪两个标注员、什么模型/提示词版本、是否真的互不可见——全部 UNVERIFIED）。
   C2 只能证明字符串没被改过。v1 冻结字节不可改，**升级 = 新文件 v2 + 新旁车**。
+  人工层的结构化字段、模型标注显式规则与双人复核流程见
+  [`docs/research/2026-11-03-aud08-human-gold-protocol.md`](../../docs/research/2026-11-03-aud08-human-gold-protocol.md)
+  （协议落盘；无标注员执行，人工金标正确率仍 UNVERIFIED）。
 - `evidenceGradeLevel` 是 v2 根级必填字段；C7 逐级检查上表字段。**不可机检项**
   （互不可见、专家资质真伪、held-out 是否真的未参与调参）不假装已检：G5 的
   `heldOutUnusedForTuning` 是**自证字段**，须在记录中单列 UNVERIFIED。
@@ -167,6 +177,38 @@ G0–G5 是**数据集标签来源等级**。`evidenceGrade` 是自由文本，C
   [--page-map <map.json>]`（只读 DB、同快照同 sha、页名三级解析并逐页标 `nameSource`；
   v2 额外写 `producer`/`db.userVersion`/`job`/`integrity`/`boxesSha256`/`snapshot.mode`）。
 - 工具链总览：`README.md`。
+
+### 3.1 逐页裁定统计（2026-11-03 批次 41）
+
+逐页裁定不是"再算一遍门值"，而是把每页的判词、几何摘要与差异数值固化下来（`rulings.py`）。
+当前仓内三份裁定（均 `gate.state=FAIL`，`validate_rulings.py` 全 PASS）：
+
+| 运行 | 应用导出 sha | 输入 | 判词统计（7 页） | 说明 |
+|---|---|---|---|---|
+| 批次 40 `20261101T234146Z-2318b8db` | `9b49b0c4…` | 4C 存量导出（无 `source` 块） | CONSISTENT 4 / INCONSISTENT_COUNT 3 / 其余 0 | 基线 |
+| 批次 40 `20261101T234207Z-76aba6d0` | `fa0ba8ae…` | emulator-5562，schema 72，split 表 0 行 | MISSING_IN_APP 7 | **0 页导出 ≠ 设备切分能力**；只说明该库没有可导出的分题行 |
+| 批次 41 `20261102T143319Z-4c83a01e` | `9b49b0c4…` | 同基线输入，当前工具 | CONSISTENT 4 / INCONSISTENT_COUNT 3 / 其余 0 | 复算；与基线**内容级一致**（仅时间戳/工具 sha 为运行身份） |
+
+批次 41 逐页（`--rulings-out` 产物）：
+
+| file | 主判词 | 金标题数 | 应用框数 | countVerdict | IoU≥0.5 题数 | 切残题数 |
+|---|---:|---:|---:|---|---:|---:|
+| IMG20260810003928.jpg | CONSISTENT | 4 | 4 | CONSISTENT | 4 | 0 |
+| IMG20260810004304.jpg | CONSISTENT | 1 | 0 | CONSISTENT | 0 | 0 |
+| IMG20260810004353.jpg | INCONSISTENT_COUNT | 2 | 0 | INCONSISTENT_COUNT | 0 | 0 |
+| IMG20260810005605.jpg | INCONSISTENT_COUNT | 2 | 0 | INCONSISTENT_COUNT | 0 | 0 |
+| IMG20260810010349.jpg | CONSISTENT | 4 | 4 | CONSISTENT | 3 | 0 |
+| IMG20260810011126.jpg | INCONSISTENT_COUNT | 2 | 0 | INCONSISTENT_COUNT | 0 | 0 |
+| IMG20260810011800.jpg | CONSISTENT | 1 | 0 | CONSISTENT | 0 | 0 |
+
+读法（引用时必须带口径）：
+
+- 两张单题页（`…4304`、`…1800`）应用 0 框但 ① 记**一致**——单题页"不拆分"即期望
+  （口径 v2）；而逐页主判词按"页面存在 + 0 框"记 `CONSISTENT`，两者不矛盾。
+- `…0349` 页题数一致但 1 题 IoU 0.4751 < 0.5：① 记一致，②（只度量）记 3/4——
+  "题数一致"不等于"边界合格"。
+- 三页多题页应用 0 框（漏拆）是 ① 0.5714 的唯一来源；切残 0/16，硬红线未触发。
+- 7 页样本的 Wilson 区间极宽（① 0.2505–0.8418），**不得**把逐页统计外推为总体准确率。
 
 ## 4. 门红时的安全口径（KD-76 先例）
 
