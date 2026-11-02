@@ -409,3 +409,36 @@
 - 台账：`docs/known-defects.md`（KD-75/76/80/83）、`docs/REFACTOR-MASTER-LINE.md:4-5`、`docs/agent-first-refactor-decisions-2026-09-23.md:3766`、`docs/research/2026-10-26-batch-24-4e2-admission-checklist.md` 附录 N。
 - 原始日志（gitignored，不作关闭证据）：`build/batch41-unit.log`、`batch41-strong*.log`、`batch41-unit-postfix*.log`、`batch41-strong-postfix*.log`、`build/device-track-batch41/`、`build/ws4-isolation/`、`build/evidence-batch41-p13/`。
 - 本文件不替代主会话裁定：KD-75 设备面可记绿（绑定 `0e906482…`）但 `core/export` 未接；KD-76 维持 open（无 20 轮 M）；isolation **UNCONVERGED / NOT PASSED**，禁止“T4 排除”；KD-83 维持 open；schema 73 设备门只对本轮 APK/源快照成立。
+
+## 9. 主会话收口（2026-11-03，本段为收口权威）
+
+### 9.1 主会话实跑门禁（本轮，非转录）
+
+| 门 | 命令 | 结果 | 归因 |
+|---|---|---|---|
+| 单测门 | 12 模块 `testDebugUnitTest --continue`（`build/main-session-gate-batch41-unit.log`） | **exit=1**；仅 3 例红：KB 词面 `ProductionLexicalLegExportTest` / `Stage1LexicalLabTest` / `Stage2LexicalScoresExportTest` | `core:database` 236/0（`ExportedSchemaContractTest` 4/4，F4 已在 P17 修）；**本批产品面 0 新红** |
+| 强门 | 四模块 + 两 flavor app androidTest 编译 **逐任务 `--rerun`** + `:app:assembleLocalFirstDebug`（`build/main-session-gate-batch41-strong.log`） | **exit=0**（BUILD SUCCESSFUL in 2m35s） | 真实重编（非 UP-TO-DATE），修复环后结果成立 |
+| 备份四方门 | `python -I tools/ci/check_backup_plan_sync.py`（记录 §3.4 实跑） | exit=0 | 73/92 表/84 trim/closure 5/hash 一致 |
+| AUD-08 | `check_split_gate.py`（记录 §3.4 实跑） | exit=1（0.5714 < 0.9） | FAIL 维持，阈值零改动 |
+
+### 9.2 提交（20 笔，逐块 `git diff --cached --name-only` 核对；已推送 `62522930..7d853f20`）
+
+`0a9eefee`/`3af8e89b` WS1 容量主码+测试 → `75b89ad7`/`7f152792` closure-4 兼容+测试 → `b200ffac` 备份四方门 → `1a3dac2a` WS6 错因链 → `364ee025` KD-75 设备用例 → `68f0828d` KD-76 单轮+判词 → `6f6cc35e` KD-76 工具 → `9855d496`/`62112106` isolation 工具+测试 → `6244488c`/`f3a4fcf7` WS7 端口+golden → `b7bbe65f` AUD-08 → `677f69e3`/`2847880a` 研究 R1–R9 → `7eb0f9c6`/`35279a9e` 设备证据 → `2bda2d1e` 记录/基线/schema 契约修复 → `7d853f20` 台账回填（F5 更正）。
+
+- 未提交他线 M（`ReviewReminderCoordinator`、dense/KB 测试、UI 热区）；锁文件/`.mimosa`/tmp 未入。
+- 推送成功：远端 = `7d853f20`。
+
+### 9.3 复核发现处置（29 条中未修的高/中项，移交批次 42）
+
+- **F7（高，未修）**：`isolation_pair_report.py` 对 OFF 臂缺失方法不判 SKIP/UNKNOWN，可假绿 `PAIRED_RED_SET_IDENTICAL`。**在修好前不得以该报告作配对通过证据。**
+- **F8（高，未修）**：`run_isolation_pair.sh` 两臂同一 COMPONENT；`t4_control_marker.py` 只比源码树不比已安装 APK。**“T4 排除”仍禁止。**
+- **F10/F11（中，未修）**：`summarize_kd76` 空 per-round sha 整轮剔除、bootCount 无门；旧单进程 20 轮入口仍在、`Kd76ReportVerdict` 接受 `requiredSamples/gateMillis` 覆盖 → 主口径判词仍可能被伪造。
+- **F12（中，未修）**：`ReviewCapacityPreviewReader` 在 rebalance=null 时 `rebalanceBacklogCount` 归 0、`totalGranted` 只算考试通道。
+- **F14（低）/F13（低）/F20（流程）/F21（并发瑕疵）**：记录保留，不关闭。
+- 已修：F4（schema 契约隐藏目录）、F1（计数口径入记录）、F5（台账更正回填）、F19（12 文件口径）。
+
+### 9.4 收口裁定
+
+- 本批交付成立：容量配额/去重/爬坡、closure-4 兼容读侧、四方防漂移门、错因端到端、KD-75 设备 10/10、KD-76 单轮入口与判词单一事实源、isolation 工具（缺陷未修）、WS7 端口/golden、AUD-08、9 研究、设备证据 17 件。
+- 维持 open：KD-75（`core/export` 零接线）、KD-76（无 20 轮 M）、KD-83（closure v4 真实包未验）、isolation UNCONVERGED、KD-72 锁窗口、R-04 Keeper。
+- 批次 42 首项 = F7/F8/F10/F11/F12 修复 + 热区清空后的产品接线。
