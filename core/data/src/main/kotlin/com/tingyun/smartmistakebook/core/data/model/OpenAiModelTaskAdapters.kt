@@ -11,6 +11,11 @@ import com.tingyun.smartmistakebook.core.model.KnowledgeQuizOutput
 import com.tingyun.smartmistakebook.core.model.KnowledgeQuizChoice
 import com.tingyun.smartmistakebook.core.model.ModelTaskInput
 import com.tingyun.smartmistakebook.core.model.ModelTaskOutput
+import com.tingyun.smartmistakebook.core.model.ModelTextBudgetExceededException
+import com.tingyun.smartmistakebook.core.model.PaperEditCommandParser
+import com.tingyun.smartmistakebook.core.model.PaperEditInput
+import com.tingyun.smartmistakebook.core.model.PaperEditOutput
+import com.tingyun.smartmistakebook.core.model.PaperEditParseResult
 import com.tingyun.smartmistakebook.core.model.ProblemOrganizationInput
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot
@@ -72,6 +77,8 @@ internal object OpenAiModelTaskAdapters {
         is TutorRespondInput -> tutorRespondPrompt(input)
         is KnowledgeQuizInput -> knowledgeQuizPrompt(input)
         is ProblemOrganizationInput -> OpenAiProblemOrganizationProtocol.prompt(input)
+        // 6B-3：提示词正文在 core:data/model 的单一入口；白名单从 PaperEditCommand.TYPES 生成。
+        is PaperEditInput -> PaperEditPrompt.build(input)
     }
 
     fun parse(
@@ -107,6 +114,23 @@ internal object OpenAiModelTaskAdapters {
             input,
             modelVersion,
         )
+        // 6B-3：网关先做**同一把**白名单解析器的形状门，再交给 applier；这样任务不会在账本里
+        // 成功、而学生看到"改卷失败"。超预算走可重试出口（KD-38 同口径），形状错误不可重试。
+        is PaperEditInput -> {
+            val commandsJson = payload.toString()
+            if (commandsJson.length > PaperEditCommandParser.MAX_PAYLOAD_CHARS) {
+                throw ModelTextBudgetExceededException(
+                    "Paper edit commands exceed the ${PaperEditCommandParser.MAX_PAYLOAD_CHARS}-character budget",
+                )
+            }
+            when (val parsed = PaperEditCommandParser.parse(commandsJson)) {
+                is PaperEditParseResult.Parsed -> PaperEditOutput(
+                    commandsJson = commandsJson,
+                    modelVersion = modelVersion,
+                )
+                is PaperEditParseResult.Rejected -> throw InvalidModelResponseException(parsed.reason)
+            }
+        }
     }
 
     /**
