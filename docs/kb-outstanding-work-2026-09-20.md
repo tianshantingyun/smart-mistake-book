@@ -866,3 +866,45 @@ cat build/agent-batch32a/gates/summary.txt                                 # ove
 ```
 
 **§23 记账**：本文件为纯追加（写前 835 行）；未改 §19–§22；未改 KB 数据/包/判定表/别名表/来源字段/门判据/Kotlin 代码；未 commit/push。
+
+## 24. 批次32B 材料卫生（去重/摘要/标题/sourceUri）+ 薄料选修 + L2/L3 blocked + v28 blocked + 验收 v1.5 F20–F24（2026-11-02 10:05 追加）
+
+> **只追加**：§19–§23 原文未改；本节接 §23 之后追加。追加前备份：`build/agent-batch32b/backup/kb-outstanding-work.pre-append-20261102.md`（868 行，sha256 `0dd3b318bbc0e9d055bc260f4c222c2a5d0ffd3424fcd3cc386ba8fa4ef3edf7`）。数字来源：`docs/kb-batch32b-2026-11-02.md`、`build/agent-batch32b/{v28.log,gates/summary.txt,evidence/verify.txt,calibration/kappa.json,rewrite/evidence/verify.txt}`、`build/agent-batch31c/{plan.json,dedupe-clusters.csv,dedupe-pairs.csv,retire-list.csv}`、`docs/research/2026-11-02-kb-l2-material-features-prereg.md`；本会话 09:30–10:05 实跑八门中的 6 门、来源两门、去重复算与包计数。
+
+| 批次 | 主题 | 结论 | 门 | 验收 v1.5 | 残留 |
+|---|---|---|---|---|---|
+| **32B** | 材料卫生（去重/摘要/标题/sourceUri）+ 薄料选修登记 + L2/L3 + v28 | **去重 written**：65,021→**64,839（−182）**；节点 3,280；候选对 **369**；簇 **209**（195×2/11×3/2×4/1×8；174 簇有退休、18 仅 SKIP）；退休 182 / SKIP 26 / 受保护成员 58；锚点 **0 误伤、10/10 在位**。**摘要 127/127**（退化 127→0）。**标题 205 = 153 APPLIED / 49 NOOP / 3 REVERTED**；205 集合规 **202/205=98.54%**。**sourceUri 49 源 = A1/B4/C44**；来源行 **206**（A1+B4+C201）；**26 sidecar+1 manifest**。**薄料 THIN 433**（118/113/128/74；恰 1 条 238）；选修 235 `NO_SOURCE`；主线 publishedCOVERED **392/426**。**κ 0.6247**（n=480；正 360/硬负 120；CI[0.5510,0.6969]）。**L2 blocked**（17 件已写、241 JVM/1 真库；设备/零漂移/导入/71→72 真迁移 NOT_RUN）。**L3 blocked**（无对象）。**v28 blocked**：已写 `version=32`，release==staging 30/30、八门 8/8、7 类 JVM 17/0/0，但 F24 红 + 融合 119→113、chapterMin 0.5→0.0 + 设备/零漂移/导入未跑 | **8/8 rc=0**（`gates/summary.txt`；本会话复跑 kb_checks/py_suite(937 OK)/promote_dry/asset/alignment/judgment_fp 全 0）；**来源生产门 `-RequireProductionReady` EXIT=1**；**来源权利门 EXIT=1**（`Unsupported teaching-material schema 4`） | **F20 部分**：锚点 0 误伤 ✓；同规则复跑仍 **1 条拟退休**（`ext-che-2728b2ed9a-016`→`ext-che-4f82967fc2-009`，节点「纯净物」）+ 20 SKIP；精确 title+summary 仍 15 组/21 条多余（多为实体/锚点保护 SKIP 簇）。**F21 达标**：退化摘要 0/64,839。**F22 未达 100%**：202/205；1 条 APPLIED 仍含 `^`（`ext-mat-1a1cc76f2d-032`）；2 条按设计回退（40/27 字）；1 条 slug 不存在。**F23 点估计通过、稳定性未证**：0.6247≥0.61，但 CI 下界 0.551<0.61，`POSITIVE_REPRODUCTION_LOW`。**F24 未达标（红）** | v28 version 32 **未采纳/未 commit**；F24 九科四类证据全缺；来源权利门对 schema 4 不可运行；F20 1 条残留；F22 1 条 LaTeX；κ 稳定性未证；L2 17 件未回滚且读判缺失；L3 无对象；**32A L1 判官被改→115/129 不可比**（设备判官 post `ce7ef8e2…` vs 现行 `9fae203f…`；`RetrievalBenchmark` post `8134553a…` vs 现行 `8c2a2ef0…`；`KnowledgeSearchBm25.kt` 等 4 件 ABSENT）；v28 融合回退未裁定；`.vec.json` 旧差被 `6b7de846…` 取代；标题全包合规仅 68.31% |
+
+**逐项证据（本会话实跑/实读）**：
+
+1. **去重**：`build/agent-batch31c/plan.json` counts = materials 65,021 / nodes 3,280 / pairs 369 / clusters 209 / retire 182 / skip 26 / anchors 10 / alias_protected 35,515；`dedupe-clusters.csv` 209 行（195/11/2/1）；`retire-list.csv` 182 行（CHEMISTRY 78 / PHYSICS 54 / MATH 48 / BIOLOGY 2；protected=true 0）。本会话在重建 65,021 包上复跑同一规则得 **209/369/182/26**，逐数一致；在当前 64,839 包上复跑得 **1 拟退休 + 20 SKIP + 156 对 + 38 簇**。
+2. **摘要/标题**：`rewrite/evidence/verify.txt`：`[2] degenerate summaries: 0`、`[6] summaries landed 127/127`、`[5] titles rows=205 applied_landed=153/153 reverted=3 noop=49`、`[8] 205-set still >24 (by design): 2`。本会话包内逐 slug 复核：摘要 127/127、标题 APPLIED 153/153 落盘；退化摘要 0；205 集合规 202/205；全包 44,289/64,839。
+3. **sourceUri**：`scripts/fix_sourceuri.py --dry-run` → `targets=49 A=1 B=4 C=44`；release/staging 均 `files_changed=0 sources_changed=0 seen=49`。包内 `sources[]` 命中 206 行（A1/B4/C201）；形状 0 违规；改动 25×2025 + 1×2020 sidecar + manifest。
+4. **薄料/选修**：`knowledge-production/kb-coverage-alignment-2026-v2.json`：thinNodes 433（materialCount 1:238 / 2:195）；electiveTerminal total 235 / NO_SOURCE / 16 COVERED / 30 PARTIAL / 189 NOT_COVERED / 46 有主线落点；publishedCounts 主线 392/426、THIN 8，全部 publishedCOVERED 392、THIN 9、NO_SOURCE 235；rowAnnotations 243。A 层：60,512 SEAL + 2 轮 5 MATERIAL + NOT_FOUND 37（4/33/0）。
+5. **κ**：`calibration/kappa.json`：n 480、hardNegatives **120**（ask 写 12，与 `items.jsonl` 的 kind 分布不符）、primary κ 0.6247272727、po 0.8208333、bootstrap CI [0.551002,0.696870]、double A–C 0.751295 / B–C 0.625、order 480/480、decision `RUBRIC_NOT_REJECTED_AT_G2`、warning `POSITIVE_REPRODUCTION_LOW`、readonlyOk true。模型双标（G2），非人工 IAA。
+6. **L2**：预注册 §7：编译门 2/2 exit 0；`:core:database:testDebugUnitTest` 241 tests/0 fail；MaterialFeatureScale 65,021 材料 / 3,280 节点 / **209,236 材料行** / 1,424 ms；真库用例 1/1 7.255 s；`FullMigrationMatrix` 13/15 后手动停止（1→72 >40 min）；设备判读/零漂移/60 s 导入/71→72 真迁移/DB 计数 **NOT_RUN/UNVERIFIED**；镜像 `RetrievalBenchmark.kt` 未改 ⇒ 零漂移不可判。schema 72 已跟踪，工作树 sha `a49452df…`。
+7. **L3**：本会话 `grep -rn "queryType|query_type|线索表|CONCEPT_QUERY|METHOD_QUERY" core tools docs/research/2026-11-02*` 无命中；无预注册/代码/对照。
+8. **v28**：`v28.log`：version 32 / contentVersion 9a582f233bd7ce98；release==staging 30/30；dense 词面 101/129、dense 104/129、融合 113/129（MRR 0.7237726098）、端侧模拟 113/129；JVM 7 类 17/0/0；`gates/summary.txt` 8/8 rc=0。阻塞：F24 EXIT=1（本会话复跑）、融合 119→113/chapterMin 0.5→0.0、设备/零漂移/导入 NOT_RUN、权利门 schema 4 EXIT=1。
+
+**批次32B 结算（文书员，2026-11-02 10:05）**：**卫生三件已写入**（去重 65,021→64,839；摘要 127/127、退化 0；sourceUri 49 源/206 行/26 sidecar+manifest；标题 205 行 153/49/3）。**薄料选修登记已写入**（THIN 433、选修 235 NO_SOURCE、主线 392/426）。**校准 κ=0.6247 点估计过 0.61，但 CI 下界 0.551<0.61、稳定性未证**。**v28 已写 version 32 但 blocked**（F24 红 + 融合 119→113/chapterMin 0.5→0.0 + 设备/零漂移/导入未跑），**未采纳/未 commit**。**L2 blocked**（17 件已写、读判缺失）；**L3 blocked**（无对象）。**验收 v1.5 F20–F24 未达标**（F21 绿；F20 部分；F22 未达 100%；F23 点估计过/稳定性未证；F24 红）。**32A L1 登记**：L1 读数所用设备判官 post `ce7ef8e2…`、`RetrievalBenchmark` post `8134553a…`，现行已回滚为 `9fae203f…`/`8c2a2ef0…` ⇒ **115/129 不可比、不可由当前树复现**。最高下一步（未执行）：① 裁定 v28 采纳/回滚（回滚逐文件，禁整树 checkout）；② 补 F24 九科来源证据或明确降级发布口径；③ 处理 F20 1 条残留与 F22 1 条 LaTeX；④ L2 改镜像后跑双路/零漂移/冷装/真迁移；⑤ L3 另立预注册。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD; git rev-list --left-right --count origin/main...HEAD      # a3f367df…；0 0
+python -I -X utf8 -c "import json;d=json.load(open('core/data/src/main/resources/knowledge/moe-2025-update-manifest.json',encoding='utf-8'));print(d['version'],d['contentVersion'])"   # 32 9a582f233bd7ce98
+python tools/ci/run_kb_checks.py ; echo "EXIT=$?"                            # EXIT=0
+PYTHONPATH=tools python -m unittest discover -s tools/tests -t tools          # Ran 937 tests … OK
+python tools/kb_build/promote.py --dry-run                                    # EXIT=0；version→33
+python tools/dense_build/check_asset.py ; echo "EXIT=$?"                      # EXIT=0
+PYTHONPATH=tools python -X utf8 -m kb_coverage.alignment --check ; echo "EXIT=$?"   # EXIT=0
+python tools/kb_coverage/verify_judgment_fp.py ; echo "EXIT=$?"               # EXIT=0
+pwsh -NoProfile -File tools/audit-knowledge-source-register.ps1 -ProjectRoot "D:\smart mistake book" -RequireProductionReady ; echo "EXIT=$?"   # EXIT=1
+pwsh -NoProfile -File tools/audit-knowledge-source-rights.ps1 -ProjectRoot "D:\smart mistake book" ; echo "EXIT=$?"                              # EXIT=1（schema 4）
+python -I -X utf8 -c "import json;d=json.load(open('build/agent-batch32b/calibration/kappa.json',encoding='utf-8'));print(d['n'],d['hardNegatives'],d['primary']['kappa'],d['primary']['ci95_bootstrap']['ci95'],d['decision']['status'])"
+cat build/agent-batch32b/gates/summary.txt                                    # overall red=0
+cat build/agent-batch32b/v28/identity-final.txt                               # version 32 / 64839
+```
+
+**§24 记账**：本文件为纯追加（写前 868 行）；未改 §19–§23；未改 KB 数据/包/判定表/别名表/来源字段/门判据/Kotlin 代码；未 commit/push。本会话复核副作用：`build/agent-batch31c/` 去重产物按原 plan 与重建包恢复（209/369/182 一致）；`calibration/report.md` 由 `kappa.json` 重渲染。两者均为 gitignored 证据。
