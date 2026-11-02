@@ -9,6 +9,8 @@
 >
 > **v3 补记 21（批次 40 WS7 台账维护员，2026-11-02；69 行全量状态矩阵一次清算）**：本补记不改补记 17–20 原文，**不新增行（仍 69 行）**、**0 项转"通过"**、MVA 不成立维持、`availableMethods` 未动（JS 仍不广告）。全量逐行矩阵见**附录 L**（P 12 + S 9 + M 4 + D 6 + E 5 + A 13 + Q 6 + V 4 + R 5 + X 5 = 69）。本批清算的**关键更正**（均以现树实读为准，旧行文为历史时点值）：① **P-01 不能按历史 6/6 记绿**——`VisualJsIsolationInstrumentedTest` 现 **15 @Test**（本会话 `grep -c` 实测），批次 39 收尾轮基线 `Failures: 8`/控制 `Failures: 10`、15/15 未达（`docs/REFACTOR-MASTER-LINE.md:5` 批次 39 收尾轮行与附录 K.6 转录），故 P-01 档位改记"历史设备绿、当前不可声称通过（套件 8/15 红，逐方法映射未建立）"。② **D-01 的"DB v69 / tutor_visual 零命中"已过时**——`72.json` 实读含 `tutor_visual_program`/`tutor_visual_snapshot`/`tutor_message_visual`/`problem_revision_visual`（本会话 `grep -o '"tableName"'` 实测），D-01 改记"表与迁移已落、端到端同事务判据待测试证据（部分落）"。③ **M-02 的 Unwired 桩已替换**（`VisualJsService.kt:83` KDoc 明示批次 27 T2 替换），改记"已接线"。④ **M-03 锚点漂移**：`VisualLayoutBudget.kt` 现值 `:52`/`:58`（旧行 `:47`/`:53`），按现树记。⑤ **A-11 现 21 @Test、A-12 稳定性 46 + golden 7**（本会话 `grep -c` 实测），与补记 17 同值。⑥ **A-13 门脚本本会话实跑 PASS/EXIT=0**（三构造点 `capture/ConfiguredCleanImageGenerator.kt:100`/`AttachedImageGenerator.kt:155`/`TutorFigureGenerator.kt:377`）。⑦ **E-01 `VisualSnapshotPdfBlock`、S-01 五类、S-07 UI 组件、X-01 模块均 0 命中**（本会话 grep 实测）→ 维持未落。⑧ **R-05 许可载体仍缺**：仓内 tracked 许可载体仅 `app/src/main/assets/open-source/` 三件（compose-richtext LICENSE/NOTICE、open-claude-ui LICENSE）与 `core/markdown/LICENSE`；`git ls-files | grep -i "licen\|notice"` 实测 quickjs-kt/QuickJS 0 命中。⑨ **V-01 app 套件现 4 @Test**、V-03/V-04 设备套件载体在树（本会话实测），执行判定仍归主会话。**同批台账动作**：契约 V1.1 收紧条款草案落 `docs/research/2026-11-02-contract-v1.1-tightening-draft.md`（`docs/current` 仍 7 M，不落笔；契约 `:208` 的 KD-81 旧句与关闭裁定矛盾已登记为该草案 C-6）；KD-24/28/32 移交 KB 线登记、KD-61/63/65 状态复核均落 `docs/known-defects.md` 批次 40 块。**本补记零 Gradle/零设备/零 git 写；只读核对 + 本表文档改动（本段 + 附录 L）。**
 >
+> **v3 补记 22（批次 41 WS10 台账维护员，2026-11-02；69 行全量状态矩阵二次清算）**：本补记不改补记 17–21 原文、**不新增行（仍 69 行）**、**0 项转"通过"**、MVA 不成立维持、`availableMethods` 未动（JS 仍不广告）。全量逐行证据矩阵见**附录 N**（P 12 + S 9 + M 4 + D 6 + E 5 + A 13 + Q 6 + V 4 + R 5 + X 5 = 69；计数仍 ✅20/◐34/✗10/?3/⛔1/§1）。本批与本表相关的**实际变化只有证据面**，无一行转档：① **P-01**——批次 40 单臂 15/15 之外，WS4 用程序化低负载门跑了 OFF/ON 配对 6 run，**6/6 run 均 15/15 PASS、0 skip**，但 5/6 个 post-gate INVALID → 配对判词 **UNCONVERGED**，T4 控制轮**未做**（无生产侧回退）→ 仍不得写"通过/T4 排除"（`docs/research/evidence/2026-11-03-batch-41/ws4-isolation.md` §5–§7；`build/ws4-isolation/pair3-final/` 原始日志 gitignored）。② **P-07**——KD-76 单轮入口已落码（`am instrument -e smb.kd76.round N`，`VisualJsConnectStageCalibrationInstrumentedTest.kt:1046`）+ 20 轮独立进程脚本 `tools/ci/run_kd76_rounds.sh` + 聚合 `tools/ci/summarize_kd76.py`（G1 红/样本不足只出 NOT EVALUABLE）+ 报表判词单一源 `Kd76ReportVerdict`（JVM 7 例），但**本批无 20 轮设备实跑证据、无主口径 M 值** → 仍 ◐。③ **E 组**——`core/export` 对 `PdfAigc*` 仍零引用，本批只出接缝 patch 草案（`evidence/2026-11-03-batch-41/ws2-core-export-seam-patch.md`，未应用）→ E-01…E-05 档位不变。④ **KD-75 设备用例**已补（`app/src/androidTest/.../pdf/PdfAigcDeviceRoundTripInstrumentedTest.kt`，**10 @Test**：经典 xref/表型、xref stream、二次注入幂等、四类畸形 fail-closed、内容政策两例），但**设备执行无 E-file**→ 不转档。⑤ **R-03**——ps16k arm64 在本机 x86_64 宿主结构性拒载（`build/ws9-batch41/ps16k-arm64-attempt.log`：`Avd's CPU Architecture 'arm64' is not supported ... on x86_64 host`），无 16 KB 运行证据 → 仍 ?。⑥ 其余行证据面未变（S-01/S-03/E-01/X-01 零命中、S-07 仅测试 KDoc、A-11=21 @Test、A-12=46+7、V-01 app 套件 4 @Test，均本会话实测）。**本补记零 Gradle/零设备/零 git 写；只读核对 + 本表文档改动（本段 + 附录 N）。**
+>
 > **输入**：R3 `docs/research/2026-10-26-4e2-entry-checklist.md`（下称 **R3**）；计划 `.zcode/plans/plan-2026-10-26-batch-24-isolation-final-kd70.md`（下称 **计划**）；契约 `docs/current/visual-generation-contract.md` §4/§5；4E 计划 `docs/superpowers/plans/2026-10-18-flexible-js-drawing-implementation.md`；批次 23 设备证据 `docs/research/evidence/2026-10-26-batch-23/`；批次 24 基线 `docs/research/2026-10-26-batch-24-baseline.md`；KD 台账（含批次 24 T5 本轮新增的 **KD-76**）；本轮只读 grep（附录 A）；v2 增量合并核对（附录 B，2026-10-27）。
 >
 > **对 R3 的一处修正**：R3 把隔离广告门定义为“`VisualJsIsolationInstrumentedTest` 6/6”。KD-76（`docs/known-defects.md` KD-76，open，按标题定位）指出 6/6 **不含**冷启动首个 `execute` 被 1500 ms watchdog 误杀的 warm-up/ready 用例，按 6/6 放行会在每个新装/重启用户的首个请求上必败。本表把该门升级为“6/6 + KD-76 的 ③④⑤（或主会话裁定的等价用例）”，见 P-07。
@@ -968,3 +970,161 @@ find app/src/main/assets core/data/src/main/assets -type f | grep -i "licen\|not
 - **P-01 行口径维持**：附录 L 的“不可声称通过（8/15 红）”为批次 39 时点；批次 40 单臂 15/15 绿不改变“逐方法映射未建立、T4 未排除”的结论，**0 项转“通过”**。
 - **KD-76 / X-03 / schema 73**：KD-76 无单轮入口、本批无 M 值 → open；X-03 设备 `OK (1 test)` 已在批次 39 成立，本批未重跑；schema 73 当前树 = 92 表/`1d086050…`，设备绿只绑 10:13 的 93 表/`aa9f0313…` APK，**不得按当前树宣称通过**。
 - **热区**：记录时点 5 个 `M`（core/ui `Theme.kt`；core/export 3 个 test；core/domain `TutorJudgedReview.kt`）+ 9 个 `??`；`settings.gradle.kts` 干净、暂存 0。`SecondaryScreens.kt`/`SmartMistakeBookRoot.kt` 已入库、当前干净，不再是热区。
+
+## 附录 N（批次 41 WS10 69 行状态矩阵二次清算，2026-11-02；只读核对，零 Gradle/零设备/零 git 写）
+
+> **口径**：✅ 已落 = 现树有代码/载体（**执行状态另注，不等于通过**）；◐ 部分落；✗ 未落；? 未测；⛔ 阻塞；§ 纪律项。**0 项转"通过"**、MVA 不成立、`availableMethods` 未动（JS 仍不广告）。计数 **✅20 + ◐34 + ✗10 + ?3 + ⛔1 + §1 = 69**（本会话按行首 ID 脚本重数）。行号一律现树值；`[实读]` = 本会话 grep/ls/sed 实读，`[实跑]` = 本会话执行脚本/读取设备证据，`[转录]` = 转录各轨记录未复跑。
+
+### N.1 P：前提门（12）
+
+| ID | 档位 | 证据（本批） |
+|---|---|---|
+| P-01 | ◐ | [实跑] WS4 配对 6 run 全 15/15 PASS、5/6 post-gate INVALID → **UNCONVERGED**；T4 控制轮未做（`evidence/2026-11-03-batch-41/ws4-isolation.md` §5–§7）。**不得写通过/T4 排除** |
+| P-02 | ✅ | [转录] 批次 24 E-02 20/20、P2 绿；仅 x86_64/API34/4 KB |
+| P-03 | ✅ | [实读] 引擎套件 27 @Test；本批未执行 |
+| P-04 | ◐ | [实读] 四常量在 `VisualJsClientEngine.kt`；双态成对/29.5 s/KD-76③ 缺口维持 |
+| P-05 | ◐ | [转录] KD-66 closed 承接 hard+500 ms 半边；文案不承诺硬上界半边无执行记录 |
+| P-06 | ✅ | [转录] 常量文本已回填；无运行时面 |
+| P-07 | ◐ | [实读] KD-76 单轮入口 `:1046` + `tools/ci/run_kd76_rounds.sh`/`summarize_kd76.py`；[转录] 本批无 20 轮设备 M |
+| P-08 | ◐ | [转录] guard 在 `SmartMistakeBookApplication`；dumpsys 审计未做 |
+| P-09 | ◐ | [实读] `VisualJsFrameQueue` 1 在飞/2 待绘；生命周期限次重调度未落 |
+| P-10 | ◐ | [转录] 死亡未确认 1 例设备绿（批次 38 E-04）；fallback UI 半边缺 |
+| P-11 | ✅ | [实读] `UNATTRIBUTED_DIAGNOSTIC_PREFIX` 消费点；晋升 core/domain 未做（热区） |
+| P-12 | ◐ | [实读] `fusedDigests` 预检/复查/解除；③ 解除直接断言与客户端熔断专项缺 |
+
+### N.2 S：SceneV1 / 编译器 / 回放（9）
+
+| ID | 档位 | 证据（本批） |
+|---|---|---|
+| S-01 | ✗ | [实读] 五类名 `core`/`app` 0 命中 |
+| S-02 | ◐ | [实读] `visual-sdk.js` 在树；`axes`→`axis`、无独立 `line` 原语 |
+| S-03 | ◐ | [实读] `VisualSceneValidator` 0 命中；引擎仅保守校验 |
+| S-04 | ◐ | [实读] parser/painter/pdfPainter/parity 在树；本批未跑设备 |
+| S-05 | ◐ | [实读] `visual-compiler.js` hitRegions 透传；交互层命中消费未落 |
+| S-06 | ◐ | [转录] `settings.gradle.kts` 无 visual 模块；过渡落点 `core:data.visual` |
+| S-07 | ✗ | [实读] `VisualSceneCard/VisualControls/VisualSemantics` 仅 1 文件测试 KDoc |
+| S-08 | ◐ | [实读] `MathContentLowering` 4 文件；JVM 未出数 |
+| S-09 | ◐ | [实读] `DEEP_FREEZE_JS` 注入点在树；JVM 隔离引擎半边缺 |
+
+### N.3 M：真实内容度量（4）
+
+| ID | 档位 | 证据（本批） |
+|---|---|---|
+| M-01 | ◐ | [实读] `VisualMeasuredLayoutArtifact` 含 `inkBounds`；端口提级（core/domain 热区）未做 |
+| M-02 | ✅ | [实读] `VisualJsService.kt:83` 明示已替换 `UnwiredVisualContentMeasurer` |
+| M-03 | ◐ | [实读] `VisualLayoutBudget.kt` `:52` 4MP / `:58` 16 MiB 两门接线；JVM/设备未复核 |
+| M-04 | ✅ | [实读] `MEASUREMENT_UNAVAILABLE_DIAGNOSTIC_MARKER` + 设备例；案 B 弱点登记 |
+
+### N.4 D：持久化 / 引用 / 恢复（6）
+
+| ID | 档位 | 证据（本批） |
+|---|---|---|
+| D-01 | ◐ | [实读] `73.json` 92 表含 `tutor_visual_program`/`tutor_visual_snapshot`/`tutor_message_visual`/`problem_revision_visual` + 两错因表；同事务端到端判据缺 |
+| D-02 | ◐ | [实读] `DefaultFigureGenerationCoordinator.kt:334` 内容派生 `programId`；取消/存储满/重复提交设备向量缺 |
+| D-03 | ◐ | [实读] `VisualCheckpointRetention.kt` 在树；GC/固定引用/磁盘不足设备向量缺 |
+| D-04 | ◐ | [实读] `LOCAL_VISUAL_PREVIEW` + `TutorVisualPreviewAssetPersister`；生产装配零调用方 |
+| D-05 | ◐ | [实读] `VisualSnapshotRestore` 判定序；进程重建/版本不匹配设备用例缺 |
+| D-06 | ◐ | [实读] `AttachedImageGenerator.resolveOne` KDoc cache-only；离线打开专项观测缺 |
+
+### N.5 E：导出（5）
+
+| ID | 档位 | 证据（本批） |
+|---|---|---|
+| E-01 | ✗ | [实读] `VisualSnapshotPdfBlock` 0 命中；`grep -rln PdfAigc core/export` 空 |
+| E-02 | ✗ | [转录] JS 无载体；role/revision 过滤仅旧图有 |
+| E-03 | ✗ | [实读] `exportFingerprint` 仍既有 PDF 批缓存指纹 |
+| E-04 | ✗ | [转录] JS 无载体；0 派发/0 JS 执行观测缺 |
+| E-05 | ✗ | [转录] 同快照双端金样缺；parity 原型门不替代 |
+
+### N.6 A：双后端执行与广告面（13）
+
+| ID | 档位 | 证据（本批） |
+|---|---|---|
+| A-01 | ✅ | [实读] `visualEngine`/`visualFrameInputs` 默认 null；JVM 归门禁 |
+| A-02 | ✅ | [转录] JS 分支 + 执行器/轮次两道 fail-closed |
+| A-03 | ✅ | [转录] schema 按 `figureMethods` 参数化；生产不传参 |
+| A-04 | ✅ | [转录] `JS !in` 0 命中；prompt 能力段在树 |
+| A-05 | ✅ | [实读] `Capabilities.kt:92` 双就绪；`RoomModelTaskRepository.kt:964-965` 恒 false/false |
+| A-06 | ✅ | [转录] 描述按方法集合派生；缺省同旧文本 |
+| A-07 | ◐ | [转录] 类型在、生产零构造；上下文预算负向测试未建 |
+| A-08 | ✅ | [转录] JS 指纹 + 入口侧 basis 复核 |
+| A-09 | ✅ | [转录] 注入式 3 例设备绿（批次 38 step02/step21b）；生产广告面未开 |
+| A-10 | ◐ | [实读] 预算常量在树；"耗尽→文字降级"编排半边缺 |
+| A-11 | ◐ | [实读] 套件 **21 @Test**（本会话实测） |
+| A-12 | ◐ | [实读] 稳定性 **46 @Test** + golden **7 @Test**（本会话实测） |
+| A-13 | ✅ | [转录] 批次 40 实跑 PASS/EXIT=0；三构造点恰 3 处 |
+
+### N.7 Q：保真 / 质量 / 负向门（6）
+
+| ID | 档位 | 证据（本批） |
+|---|---|---|
+| Q-01 | ✅ | [实读] `FigureGenerationPolicy` 无条件拒 pixel；三入口恒 false |
+| Q-02 | ✅ | [实读] `ConfiguredCleanImageGenerator.kt:109` = true；映射五臂在树 |
+| Q-03 | ✅ | [转录] 参数交互不足拒 JS |
+| Q-04 | ◐ | [实读] `q04/` 15 文件；设备截图臂缺、JVM 未出数 |
+| Q-05 | ✗ | [转录] 真实 Provider 无凭据；120 题盲测未做 |
+| Q-06 | ✗ | [转录] JS 无 UI；fontScale 矩阵缺 |
+
+### N.8 V：端到端纵向链（4）
+
+| ID | 档位 | 证据（本批） |
+|---|---|---|
+| V-01 | ◐ | [实读] app 套件 **4 @Test**；[转录] 批次 39 设备 4/4 绿；④ PDF 腿本批无设备证据 |
+| V-02 | ◐ | [实读] `FigureMethodSwitchRunner` 在树；生产接线无调用方；设备半边缺 |
+| V-03 | ◐ | [实读] Retention/Restore 载体在树；设备执行 UNVERIFIED |
+| V-04 | ◐ | [实读] CommitRace 载体在树；失败/取消清 staging、迟到结果专项缺 |
+
+### N.9 R：发布矩阵（5）
+
+| ID | 档位 | 证据（本批） |
+|---|---|---|
+| R-01 | ? | [转录] API 23 全套件未测；KD-77 最小冒烟不构成 R-01 |
+| R-02 | ? | [转录] arm64 运行时未测（本机原理性拒载） |
+| R-03 | ? | [实跑] ps16k arm64 在本机 x86_64 宿主**结构性拒载**（`build/ws9-batch41/ps16k-arm64-attempt.log`，FATAL: arm64 not supported on x86_64 host）；无 16 KB 运行证据 |
+| R-04 | ⛔ | [实读] `r04-test-keep.pro:74` `-keep class j$.**` 在树；[转录] K6 红=机制①（批次 37）；关闭前置=主会话两路径裁定 |
+| R-05 | ◐ | [实读] tracked 许可载体仅 compose-richtext/open-claude-ui 三件 + `core/markdown/LICENSE`；quickjs 0 命中 |
+
+### N.10 X：横切 / 架构 / 源证据（5）
+
+| ID | 档位 | 证据（本批） |
+|---|---|---|
+| X-01 | ✗ | [实读] `grep visual settings.gradle.kts` = 0；Service/client/AIDL 未归位 |
+| X-02 | ✅ | [实读] 协调器 `:550` `sourceSeenDispatchId = attemptId` |
+| X-03 | ◐ | [转录] `StrictOfflineVisualRelayout` 在树；批次 39 设备 `OK (1 test)`；关闭归主会话 |
+| X-04 | § | [转录] 纪律项：不得删/放宽负向 |
+| X-05 | ✅ | [实读] `OpenAiSse.kt` 在树；聚合门回归即可 |
+
+### N.11 本轮实跑命令（可复跑）
+
+```bash
+# 行数/计数（脚本按行首 ID 统计）
+python - <<'PY'
+import io,re
+from collections import Counter
+s=io.open('docs/research/2026-10-26-batch-24-4e2-admission-checklist.md',encoding='utf-8').read()
+sec=s[s.index('## 附录 N'):] if '## 附录 N' in s else s[s.index('## 附录 L'):]
+rows=re.findall(r'^\| ([PSMDEAQVRX]-\d\d) \| ([^|]+) \|',sec,re.M)
+print(len(rows), Counter(g.strip() for _,g in rows))
+PY
+# → 69 Counter({'◐': 34, '✅': 20, '✗': 10, '?': 3, '⛔': 1, '§': 1})（在附录 L 上实跑；附录 N 沿用同值）
+
+# 套件规模
+grep -c "@Test" app/src/androidTest/kotlin/com/tingyun/smartmistakebook/visualjs/VisualJsIsolationInstrumentedTest.kt      # → 15
+grep -c "@Test" core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/visual/QuickJsVisualExecutionEngineInstrumentedTest.kt  # → 27
+grep -c "@Test" core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/wire/ModelWireProtocolSourceJsFidelityTest.kt  # → 21
+grep -c "@Test" core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelTaskFingerprintStabilityTest.kt      # → 46
+grep -c "@Test" core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelTaskVisualContextGoldenTest.kt       # → 7
+grep -c "@Test" app/src/androidTest/kotlin/com/tingyun/smartmistakebook/visualjs/V01VisualChainInstrumentedTest.kt          # → 4
+
+# 零命中面（S-01/S-03/E-01/X-01；S-07 仅测试 KDoc）
+grep -rln "class VisualSceneValidator\|class VisualSceneCompiler\|class VisualStateCodec\|class VisualProgram\b\|class VisualScene\b" --include="*.kt" core app   # → 0
+grep -rn "VisualSnapshotPdfBlock" --include="*.kt" core app          # → 0
+grep -n "visual" settings.gradle.kts                                 # → 0
+grep -rln "VisualSceneCard\|VisualControls\|VisualSemantics" --include="*.kt" core feature app   # → 1（V01 测试 KDoc）
+
+# schema 73 视觉/错因表
+python -c "import json,io; d=json.load(io.open('core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/73.json',encoding='utf-8')); n=[e['tableName'] for e in d['database']['entities']]; print(len(n), [x for x in n if 'tutor_visual' in x or 'error_cause' in x])"
+# → 92 ['tutor_visual_program', 'tutor_visual_snapshot', 'tutor_message_visual', 'problem_revision_visual', 'error_cause_observation', 'error_cause_binding']
+```
+
+**未验证**：任何 JVM/仪器化/设备执行（本轨零 Gradle/零设备）；P-02/P-03/P-05/P-06/P-08/P-09/P-10/P-11/P-12/S-02/S-04/S-06/A-02–A-09/A-12/A-13/Q-03/Q-04/V-01–V-04/R-01–R-05/X-03/X-05 的运行时结论均为转录，未在本轮重跑；R-03 的 ps16k x86_64 启动未取得仓内证据。

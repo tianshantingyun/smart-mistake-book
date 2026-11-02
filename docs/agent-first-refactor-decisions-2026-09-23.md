@@ -3761,3 +3761,29 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **门禁/设备边界**：设备结果只绑 10:13 四包 APK；schema 设备绿是 93 表/`aa9f0313…` 口径，当前 92 表树未重跑 §46/§47；KD-75 设备用例不在树、`core/export` 零接线 → open；KD-76 无单轮入口、本批无 M 值 → open；isolation 单臂 15/15、A3 不符、无 T4 控制轮 → 不得写通过；KD-71 G1/G2/G3/G5 满足、G4 未做 → 仅建议条件式关闭；28 套件 237 例 27 绿、p09 1 红；AUD-08 门值 FAIL 维持。
 - **记录员实跑更正**：`tools/tests/test_split_gate.py` 在 `PYTHONUTF8=1` 与 `env -u PYTHONUTF8` 两种跑法下均 **61 passed**（子进程调用 `:1047` 显式 `encoding="utf-8"`），复核第 2 轮“GBK 22 failed”不适用于当前树；当前单测 XML 静态扫描 530 个/4085 tests/3 failures，3 红均为 `core/data/.../knowledge/` KB 词面测试，归 KB 线。
 - **不同步断言**：本收口不替代主会话关闭裁定；KD-75/76/isolation 维持 open/不得通过；`docs/current` 7 M 未清，契约正文仍未改；热区提交仍禁止。
+
+
+## 批次 41 复核修复 + 剩余推进批——契约 V1.1 P0 接缝 + 容量/备份/KD-76 判据裁定（2026-11-02）
+
+> 依据：计划 `.zcode/plans/plan-2026-11-03-batch-41.md`（§2 WS1–WS10）、批次 41 基线 `docs/research/2026-11-03-batch-41-baseline.md`（D1–D6）、批次 40 记录 §8/§9、本批证据 `docs/research/evidence/2026-11-03-batch-41/`（WS2/WS4/WS6/AUD-08/研究交叉复核）、契约 P0 草案 `docs/research/2026-11-03-contract-v1.1-p0-seams.md`。**本轨（WS10）零 Gradle/零设备/零 git 写；JVM/设备结论以各轨证据为准。**
+
+### 裁定内容
+
+- **契约 V1.1 P0 接缝只出草案、不落正文（item 58）**：`docs/current` 本轮实跑仍 **7 条 M**，契约正文零改动。三段落点冻结：**C-1** 新增于 §9 `:212` 之后（`availableMethods` 加 JS 的前提 = 准入清单 69 行全过 + MVA-JS-STATIC + 设备证据绑定当前源快照/APK sha；六广告面同源同批；半步不构成广告）；**C-6** 替换 `:208` 段尾 KD-81 旧句（身份 = db + `-wal`，`-shm` 显式排除；导出前后各取一次，db/-wal 变化先于写盘拒绝；身份只证字节一致、不证读事务快照）；**C-10** 替换 `:182` 整段（DB 73 / 92 表 / trim 84 / closure 5 / `1d086050…`、请求 schema 19；`identityHash` 只由 KSP 生成回填、禁手写；旧版本 JSON 跑门必失败；版本被占用时后到者重编号并重跑 KSP）。并入时必须同批改契约、准入清单、KD 台账、MASTER-LINE 与本节，**不得只改一侧**。
+- **准入清单二次清算（item 59）**：附录 N 仍 **69 行**，计数 ✅20/◐34/✗10/?3/⛔1/§1，**0 项转"通过"**、MVA 不成立、`availableMethods` 未动。P-01 的批次 41 证据 = 6 个配对 run 全 15/15 PASS 但 **5/6 个 post-gate INVALID → UNCONVERGED**、T4 控制轮未做，故仍不得写"通过/T4 排除"；P-07 的 KD-76 单轮入口与报表工具已落码，但本批无 20 轮设备样本、无 M 值，仍 ◐。
+- **closure 4→5 旧包兼容读侧（WS1 item 5；新开 KD-83）**：读侧按包**自称**的 `closureVersion` 选择冻结规则表，支持窗口 **N-1 = {4,5}**；closure ≤3（无不可变规则表）与 ≥6（规则未知）明确拒绝并给可读原因，不猜测。新增表（`error_cause_observation`/`error_cause_binding`）在载荷中必须为 0；被删表（`knowledge_search_material_feature`）声明或实测非 0 即整包拒绝，**不以 0 补齐静默丢行**。v4 规则数值取自 closure 4 时点源码（91 键 / 83 裁剪 / `smbk-selection-v4`），不按 v5 重算。**边界**：兼容读侧只解决"旧 v3 包不可恢复"；JVM 三例（`SmbkArchiveCodecTest`）执行状态 UNVERIFIED，KD-83 保持 open。
+- **复习容量：单日容量只有一份（WS1 items 1–3）**：多科考试通道共享同一 `dailyCapacity`，超容量时按"距考天数升序、缺口降序"分逐科名额；去重发生在取题**之前**（考试已取题排除出再平衡候选），`deduplicatedCount` 因此恒 0、保留为回归哨兵；预览必须报逐科 `granted/demand/unmet` 与总量，并区分基础日容量与 1.5× 成长上限。**二次放大禁令**：调用方已把爬坡后预算传入时，必须同时传 `growthCeilingBudgetSeconds`，否则会到基准的 2.25×。**边界**：全部为 JVM 载体，执行 UNVERIFIED；生产接线（`ReviewPlannerV2.VERSION`、设置/预算持久化）仍在热区。
+- **KD-76 单轮入口与诚实报表（WS3 items 18–22）**：校准入口改为 `am instrument -e smb.kd76.round N`（一轮一进程），20 轮由 `run_kd76_rounds.sh` 逐轮 `am instrument` 采样（reboot/force-stop 两种形状，逐轮落 XML），`summarize_kd76.py` 只读逐轮 XML 并要求 1..20 各一份；**G1 红、样本不足、APK/设备指纹不一致一律 NOT EVALUABLE，绝不输出 PASS 判词**。`Kd76ReportVerdict` 为报表判词单一事实源（门 = `READY_TIMEOUT/2` = 5000 ms，样本 20）。29.5 s 只按 S1–S4 预算分段报告，禁止单例端到端拼接。**边界**：本批无设备 20 轮样本，主口径 M 不存在；生产 `READY_TIMEOUT_MILLIS=10_000L` 未改；KD-76 保持 open。
+- **isolation 结论口径（WS4）**：只有在低负载窗内、OFF/ON 配对成立时才可谈 T4 因果；本轮 6 run 全 15/15 PASS 但窗口 5/6 INVALID，判词 **UNCONVERGED**；T4 控制轮未做（无生产侧回退），**禁止写"T4 排除"**，15/15 只作窗内样本。
+- **防漂移门（WS1 item 8）**：四方一致性（`SmbkSelectionPlan.kt` / 设计件 §9.11 机器块 / `SmbkSelectionPlanTest` golden / `73.json`）脚本化，缺文件 exit 2、不静默通过；closure 4 冻结表也纳入同一脚本。本轮实跑 **PASS/EXIT=0**、自测 **4 passed**。CI 只出 patch 草案（`check_backup_plan_sync.ci.patch`），**本批不改进 CI 配置**。
+
+### 边界（不得越界 / 仍待裁定 / UNVERIFIED）
+
+- **契约正文零改动**：`docs/current` 7 条 M 未清；C-1/C-6/C-10 只在 `docs/research/2026-11-03-contract-v1.1-p0-seams.md`。
+- **不代裁关闭**：KD-75（设备用例 10 @Test 在树、无设备执行；`core/export` 零接线）、KD-76（无 M）、KD-83（JVM 未跑）、R-04（K6 红）均不关闭；X-03/isolation 不写"T4 排除"。
+- **UNVERIFIED**：任何 Gradle 编译/单测/androidTest/设备执行；WS5 schema 73 设备复现、WS7 6B-3、WS9 ps16k x86_64 无仓内证据；`SmbkArchiveCodecTest`/`Kd76ReportVerdictTest`/`ErrorCauseChainTest`/`ReviewCapacity*Test` 执行状态。Python 侧仅本轮实跑：`check_backup_plan_sync.py` PASS/EXIT=0、`tools/tests/test_backup_plan_sync.py` 4 passed、`tools/tests/{test_summarize_kd76,test_kd76_chain_segments,test_lowload_gate,test_isolation_pair_report,test_t4_control_marker,test_check_eval_label_leakage}.py` 合计 57 passed。
+- **不做**：JS 广告（`availableMethods` 未动）；`core/export` 实改（只 patch 草案）；CI 配置改动；schema 版本改动（本批仍 73）；任何 git 写。
+
+### 批次 41 设备证据更正（2026-11-03 主会话收口）
+
+上文「KD-75 设备用例在树、无设备执行」「WS5 schema 73 设备复现 UNVERIFIED」为文档先于设备执行的时点陈述；后续 E-41-D02/D03 已实测：schema 73 矩阵 16/16、备份 34/34、trimmer 10/10、rowCounts 2/2、错因 3/3、drill 6；KD-75 设备往返 10/10（APK `0e906482…`，pypdf 独立读回 7 文件）。**KD-75 仍 open**（`core/export` 零接线），KD-76/isolation 结论不变。裁决以 E 文件与批次 41 记录 §4 为准。

@@ -2901,6 +2901,8 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 
 **记录回链（2026-11-02 批次 40 记录员；只读；状态保持 open）.** 批次记录 `docs/research/2026-11-02-batch-40-record.md` §3.1/§8 #5：本批 7 个 main 文件 + 6 个测试文件在树，源 `@Test` **48**（Table 8，非 47），JVM 往返前缀保留；但设备用例不在树（`grep PdfAigc app/src/androidTest core/data/src/androidTest core/export/src` 无输出）、`core/export` 对注入器零引用、`PdfAigcReader` 非独立读者、pypdf/PyMuPDF 4/4 无落盘日志。E-40-02a **BLOCKED**、D45-1 FAIL、D45-2..D45-9 未执行；KD-75 维持 open。
 
+**Progress（2026-11-02 批次 41 WS2；载体落树 + 接缝草案；只读核对，零 Gradle/零设备/零 git 写；状态保持 open）.** ① **设备往返用例已落树**：`app/src/androidTest/kotlin/com/tingyun/smartmistakebook/pdf/PdfAigcDeviceRoundTripInstrumentedTest.kt`（505 行 / **10 @Test**，本会话 `grep -c` 实测）覆盖计划 WS2 items 11–15——`pdfDocumentChineseTwoPagePdfSurvivesInjectionAndOpensInPlatformRenderer`、`classicXrefTablePdfSurvivesInjection…`、`xrefStreamPdfSurvivesInjection…`、`secondInjectionWithSameMetadataKeepsOneInfoAndBytePrefix`、四类畸形（header / missing startxref / malformed xref table / encrypted）各一例且断言 typed error + no output、`modelParsedTextForcesAigcLabelling`（含模型解析文本必须打标）、`userOnlyContentStaysUnlabelled`（负向）。**但本批无设备执行证据**：`docs/research/evidence/2026-11-03-batch-41/` 无 PDF 设备 E-file，`grep -rl PdfAigcDeviceRoundTrip` 在 `docs/research/evidence/` 只命中批次 40 的历史"不存在"记录与 WS2 接缝草案；该文件仅在同批 WS4 的 `:app:assembleStrictOfflineDebugAndroidTest` 编译中被带上（`build/ws4-isolation/build-androidtest.log`，且曾因 KDoc 嵌套注释 `Unclosed comment` 编译红、经主会话裁定 A 做字符级注释修复后 exit=0，`evidence/2026-11-03-batch-41/ws4-isolation.md` §4）。**编译通过 ≠ 设备通过**，D45-2..D45-9 仍无判定。② **`core/export` 仍零接线**：`grep -rln PdfAigc core/export` 无输出（本会话实读）；本批只出产品接缝 patch 草案 `docs/research/evidence/2026-11-03-batch-41/ws2-core-export-seam-patch.md`（接缝位置 = `MistakePdfExporter.prepare` 的 render→大小→pageCount→digest→publish 之间；判据含 `PreparedMistakePdf.verifyIntegrity()` 后注入、缓存键/指纹升版、打印部分页 `writeSubset` 重绘丢元数据的处置），**未应用、非可 `git apply` 补丁**。③ **独立读者仍缺**：`PdfAigcReader` 自述非独立读者；设备侧 `PdfRenderer` 是平台读者但未执行。④ 关闭条件原文不变（设备独立读者读回 `/AIGC`、纯用户内容读不到、旧缓存指纹升版、显式图注逐位不变、日志按 R4 落盘）；**本条保持 open，不得把"用例在树/编译过"读成设备通过**。
+
 ---
 
 ## KD-76 (open, 2026-10-26 批次 24 T5 登记（研究复核高危项）；高) · 隔离门 6/6 不含 warm-up/ready：冷启动首个 execute 仍可能被 1500 ms watchdog 误杀，按现判据可在首个用户请求必败时放行 JS 广告
@@ -2980,6 +2982,18 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 **Progress（2026-11-02 批次 40 WS8 §49 KD-76 诚实复跑；只读核对 + E-40-03 回链；状态保持 open，BLOCKED）.** 主口径门在树：`VisualJsConnectStageCalibrationInstrumentedTest.kt:546-552` 显式断言 `READY_TIMEOUT_MILLIS / 2 == 5_000L`，报告层守卫在 `n<20` 或 G1 红时打印 `NOT EVALUABLE`（不误印 PASS）。但该用例是**单 `@Test` × 20 轮 / 单进程**：`grep -nE "getArguments|kd76Rounds|BOOT_COUNT|reboot"` 只命中 KDoc（`:86/87/89/142`），无 instrumentation 单轮入口、无 reboot 逐样本；`CALIBRATION_ROUNDS=20`、`BATCH_SIZE=10`（`:912-913`）。本批**无主口径 M 值**，不得引用批次 39 的 9813 ms。E-40-03 verdict = **BLOCKED**；`计划 §49` 的“n=20 真冷启动 + P1–P4 程序化低负载门”未达成。本轮不落码、不关闭。
 
 **记录回链（2026-11-02 批次 40 记录员；只读；状态保持 open，设备验证前 JS 不广告）.** 批次记录 `docs/research/2026-11-02-batch-40-record.md` §3.8/§8 #6：本批无主口径 M 值——校准套件仍是单 `@Test`×20 轮/单进程（`CALIBRATION_ROUNDS=20`、`BATCH_SIZE=10`），无 `getArguments`/`kd76Rounds`/`reboot`；`PASS` 只在 `preRegistered` 分支打印，运行时负控未做（UNVERIFIED）。主口径门仍 `READY_TIMEOUT/2=5000 ms`，生产 `READY_TIMEOUT_MILLIS=10_000L` 未改；不得引用批次 39 的 9813 ms。E-40-03 **BLOCKED**。
+
+**Progress（2026-11-02 批次 41 WS3 items 18–22；单轮入口与诚实报表工具落树；只读核对 + Python 自测，零 Gradle/零设备/零 git 写；状态保持 open）.** 批次 40 的两个结构性缺口（单进程 20 轮冒充主口径；报表在 G1 红/样本不足时仍印 PASS）本批以"入口 + 聚合 + 单一判词源"三件落码，但**本批无 20 轮设备实跑、无主口径 M 值**：
+
+- **单轮入口（item 18）**：`VisualJsConnectStageCalibrationInstrumentedTest.kt:1046` 定义 `KD76_ROUND_ARG = "smb.kd76.round"`，`:263` KDoc 明示一次 instrumentation 进程只跑一轮（`-e smb.kd76.round N`，N ∈ 1..`CALIBRATION_ROUNDS`），复用同一 `runOneRound`；`grep -n "smb.kd76"` 本会话实测命中测试文件 4 处 + 脚本 1 处（不再是批次 40 的 0 命中）。
+- **20 轮独立进程编排（item 19）**：`tools/ci/run_kd76_rounds.sh`（352 行）逐轮一次 `am instrument`，轮间 `reboot`（主口径冷启动形状）或 `force-stop`，逐轮落 `round-NN.xml`；把 `am instrument -w` 输出 + logcat `KD76_*` 机器行包成 JUnit-XML 形状，`<system-out>` 保留原始证据；脚本**不聚合、不出判词**。
+- **诚实报表（item 20）**：`app/src/main/.../visualjs/Kd76ReportVerdict.kt`（112 行）为判词单一事实源——门 = `READY_TIMEOUT_MILLIS / 2` = **5000 ms**（派生、无放宽参数），预注册样本 **20**；`sampleCount < 20`、`g1Red`、无 p95 任一成立 → `NOT_EVALUABLE`，其 `verdictLine` **不包含 PASS 字样**。JVM 载体 `app/src/test/.../Kd76ReportVerdictTest.kt`（**7 @Test**，本会话 `grep -c` 实测），**执行 UNVERIFIED**。
+- **聚合（item 21）**：`tools/ci/summarize_kd76.py`（493 行）只读逐轮 XML，要求 `round` 1..20 各恰好一份；缺轮/重复/`<failure>`/`<error>`/无 SAMPLE 行/跨 APK sha 或设备指纹不一致 → NOT EVALUABLE；统计口径 nearest-rank。
+- **29.5 s 分段（item 22）**：`tools/ci/kd76_chain_segments.py`（257 行）从生产常量读四段预算并断言和 == 29 500 ms，只按 S1–S4 分段报数，C3/C4 无分布输入时写 UNVERIFIED；禁止单例端到端拼接。
+- **Python 自测（本会话实跑）**：`python -I -m pytest tools/tests/test_summarize_kd76.py tools/tests/test_kd76_chain_segments.py tools/tests/test_lowload_gate.py tools/tests/test_isolation_pair_report.py tools/tests/test_t4_control_marker.py tools/tests/test_check_eval_label_leakage.py -q` → **57 passed**（含本条两套件）。
+- **仍未达成**：20 轮设备样本 / 主口径 M / P1–P4 程序化低负载门 / G1/G2 设备判词均**不在本批证据目录**；生产 `READY_TIMEOUT_MILLIS=10_000L` 零改动；不得引用批次 39 的 9813 ms。**本条保持 open，设备验证前 JS 不广告。**
+
+**Progress（2026-11-02 批次 41 WS4 isolation 配对；设备证据回填；只读转录 `docs/research/evidence/2026-11-03-batch-41/ws4-isolation.md`；状态口径不变）.** 本块只登记与 KD-76 关闭前置相关的 isolation 结论，不改判据：设备 `emulator-5584`（AVD `kb_test_device`，API 34/x86_64/4096）、同一 APK（app `665cd5e0…`、androidTest `3d621283…`）、源快照 1278 文件前后 diff=0；OFF/ON 配对 **k=3、6 个 run 全部 15/15 PASS、0 skip、0 FAIL/ERROR**；但每个 run 前后 5 min 低负载门有 **5/6 个 post-gate INVALID**（busy_max/ctxt p95/la p95 越界）→ 配对判词 **UNCONVERGED**（`isolation_pair_report.py` `REPORT_EXIT=1`）。T4 控制轮**未做**（无生产侧回退，`t4_control_marker.py` 只有工具/单测），故 **T4 与 D 均未隔离，禁止写"T4 排除"**；15/15 只作窗内样本，不构成 P-01 通过，也不构成 KD-76 校准的设备绿绑定。**close 前置（主口径 p95 ≤ 5 s、真冷启动、n ≥ 10 + 29.5 s 分段）不变。**
 
 ## KD-77 (closed 2026-10-31（批次 37 T5 证据入仓 + 关闭裁决，主会话裁定计划 §1.5）；2026-10-27 登记（API 23 冒烟评估；中）；2026-10-29 批次 32 T6 标题回改：android-23 镜像已装盘，旧包冒烟 logcat 未落仓、修复后 APK 未跑) · API 23 运行时未验证：修复后 APK 未在 API 23 完成装机/冷启动/最小冒烟
 
@@ -3171,6 +3185,18 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 - **80-C4**：`BackupVisualReferenceInstrumentedTest` `OK (5 tests)`（E-02 §3；raw `step05-c4-visual.log` 本会话实读）。
 - **结论**：四条回链与证据文件逐条一致 → **KD-80 关闭维持（closed 2026-10-29 批次 34；2026-10-30 批次 35 复核确认）**。本块只读证据回链，不构成新执行证据；已知边界沿用批次 34（设备源快照 find 集合当时不含 `core/model/src`，判据文档已由复核修复轮更正为含 `core/model/src` 的 973 文件口径，见 E-01 §8 与批次 34 判据 `:284/:302/:310`）。
 
+**Progress（2026-11-02 批次 41 WS1 item 8 防漂移门；只读核对 + 实跑脚本；关闭维持）.** 本条本体（schema 70 落地后清单停在 69 的 fail-closed）已关闭，但批次 40 记录 §8 指出该**漂移类别**已出现三次（`SmbkSelectionPlan.kt`、设计件 §9.11 机器块、`SmbkSelectionPlanTest` golden、`73.json` 任一处单独改动，其余三处仍能各自"自洽"）。本批新增 `tools/ci/check_backup_plan_sync.py`，把四方钉在一起，并把 closure 4 的冻结规则表（91 键 / 83 裁剪 / `smbk-selection-v4` / v4 摘要 golden）也纳入同一门——这消灭的是"有人顺手把 v4 快照同步成新 schema"与"清单/JSON 单边漂移"两类复发路径，**不重开 KD-80，也不替代设备证据**。本会话实跑：
+
+```text
+python -I tools/ci/check_backup_plan_sync.py
+→ 全项 OK；PASS 四方一致（code / §9.11 / golden / 73.json）；EXIT=0
+   closureVersion 5、schema 73、identityHash 1d086050204a0da1ed6b6e3299dd9733、92 表、trim 84
+python -I -m pytest tools/tests/test_backup_plan_sync.py -q
+→ 4 passed
+```
+
+退出码语义：0 = 全一致；1 = 读到但有不一致；2 = 缺文件/无法解析（`不当作通过`）。**边界**：脚本只证明静态四方同源，不证明运行时 schema、迁移或设备备份行为；CI 挂载仍只是草案 `tools/ci/check_backup_plan_sync.ci.patch`，**本批未改 CI 配置**；`SmbkSelectionPlanTest` 的 JVM 执行未在本轨发生（UNVERIFIED）。
+
 ## KD-81 (closed 2026-10-30 批次 35（按主会话裁定：内容身份 = db+wal，`-shm` 显式排除——它是只读导出会重建/改写的共享内存索引，纳入即制造假漂移；T5b 在树、37 项回归绿）；2026-10-29 批次 32 T6 登记（AUD-08 溯源缺口；中）；批次 34 工具侧 `source.snapshot` 覆盖 db+wal) · 切分评估快照的 `source.db.sha256` 只覆盖主库字节、不含 `-wal`/`-shm`：同一主库 + 不同 WAL 会得到不同导出却报同一快照身份
 
 **Symptom（读码 + 受控实验复读，2026-10-29）.** `tools/split_golden/export_split_eval.py:72-73` 的 `_sha256(path) = hashlib.sha256(path.read_bytes()).hexdigest()` 与 `:221-222` 的 `source.db = {file, sha256, bytes}` 只读主库文件；全文 `grep -in "wal"` = **0 命中**。设备库默认 WAL 模式，未 checkpoint 的已提交行只在 `-wal` 内。受控实验（`tools/split_golden/README.md:86-89`）：两个快照主库 sha 同为 `946b896c…`，带 WAL 导出 1 页 2 框、无 WAL 导出 0 页。**本轨对批次 31 设备快照复跑（sha256/stat 实跑）**：`tmp/aud08-db-5562/smart-mistake-book.db` = `eb4d327147afa075ce28d143be5bc5aaf791eb59d202ca3ce8697b6351d8f4dc`（12,775,424 B，mtime 2026-10-29 05:26:18），`-wal` = `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`（**0 B**，mtime 05:38:47），`-shm` = `fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb`（32,768 B，mtime 08:26:14）——三件 mtime 不同（不是同一时刻取），WAL 为空。
@@ -3245,3 +3271,18 @@ smart-mistake-book.db-shm 32768 2026-10-29 08:26:14.163243400 +0800
 
 **Progress（2026-11-01 批次 38；实跑证据；open 维持但残余半边已落码）.** imagePrompt 残余半边已对齐：`OpenAiModelProtocol.kt:561` maxLength 改 `MAX_IMAGE_PROMPT_UTF8_BYTES / 4`（=1024 码点，最坏 4B/码点=4096B 恰含本地门上界；"schema 合法⇒必过本地门"恒成立），本地 4096 字节门三执行点零改动（收紧非放宽）；`ProgramSchemaMaxLengthAlignmentTest` 扩至 7 例钉 1024 与 4B 恰边界。**JVM 实跑 UNVERIFIED（本轨禁 Gradle）**——关闭判定归主会话门禁出数；整条 KD-82 关闭还需广告解冻批对 imagePrompt 的最终裁定（①/②）。
 
+
+
+## KD-83 (open, 2026-11-02 批次 41 WS1 item 5 登记；中) · closure 4→5 旧备份包不可恢复：读侧把 `closureVersion` 当"必须等于本机常量"硬等值，合法 v4 包在第一道门被拒
+
+**Symptom（读码 + 批次 40 复核发现 #16）.** `SmbkArchiveCodec.readableSelection` 原实现为 `if (record.closureVersion != SmbkSelectionPlan.CLOSURE_VERSION) return SelectionRead.Invalid(...)`：本机 closure 5（schema 73）时，一份 closure 4（schema 72、91 表、`smbk-selection-v4`）的**合法**旧包，即使 rowCounts/摘要/裁剪数全部自洽，也在解包 Phase 1 被硬拒。设计文档"旧包永远可读"只覆盖**无 selection 块**的 v1/v2 包（`docs/research/2026-10-17-6c2-content-selection-design.md` §6），v3 起必须带 selection，因此 v3/closure-4 包在升级后**永久不可恢复**。批次 40 记录 §8 #16 已登记为用户可见后果并留待产品裁定（"接受并写升级说明，或加兼容读侧"）。
+
+**Impact.** 中（用户可见、数据可恢复性）：升级到 schema 73 后，用户在旧版本导出的内容选择包（closure 4）无法恢复；失败发生在交换前（原库不动），但用户没有可执行的自救路径（不能要求用户回退 App 重导出）。
+
+**Fix direction（本批已落码，读侧兼容）.** 把"用哪张表解释 rowCounts/digest"变成数据：新增 `ClosureRuleTables`（`core/data/src/main/kotlin/.../backup/ClosureRuleTables.kt`），冻结 closure 4/5 两套不可变规则（键集合、裁剪上限、摘要前缀、相对上一版的新增/删除表），读侧按**包自称的** `closureVersion` 选表校验，绝不按当前 v5 规则重算。支持窗口 **N-1 = {4, 5}**：`≤3` 没有不可变规则表（无法按当时算法重算摘要）、`≥6` 规则未知，两者都明确拒绝并提示升级/重导出。恢复投影（`SmbkSelectionProjection`）把旧包声明键空间归一到当前 92 键：新增表按 **0 行**补齐；被删表从投影移除，且**声明或实测非 0 即整包拒绝**（不以 0 补齐静默丢行）。v4 数值逐字取自 closure 4 时点源码（`git show 70509247:.../SmbkSelectionPlan.kt`），不是估算。
+
+**验收判据（未运行）.** ① closure 4 包在 v4 规则下通过校验并投影到 92 键（新增表 0 行）；② 用 v5 算法计算摘要的"伪 v4 包"必须被拒；③ v4 包声明 v5 键空间、或 `closureVersion ∈ {3,6}` 必须给出可读拒绝；④ 恢复侧按声明键空间逐表 COUNT 对拍，新增表非 0、被删表非 0 均拒绝；⑤ 真实 v4 包在设备上恢复成功且行数对账（本项无设备证据前不得关闭）。
+
+**Progress（2026-11-02 批次 41 WS1 items 5–7；只读核对，零 Gradle/零设备/零 git 写；状态保持 open）.** 落码：① `ClosureRuleTables.kt`（170 行）——`v5` 从 `SmbkSelectionPlan` 常量派生、`v4` 冻结 91 键 / trim 83 / `smbk-selection-v4`，init 断言 v4 增量 == `{+error_cause_observation, +error_cause_binding, -knowledge_search_material_feature}`；② `SmbkArchiveCodec.kt` 读侧改为 `ClosureRuleTables.of(record.closureVersion) ?: 可读拒绝`，摘要用 `ClosureRuleTables.digest(rule, …)`，新增 `unpackDetailed` 返回 `UnpackOutcome(validation, projection)`（公开 `unpack` 行为不变）；③ `AndroidBackupRepository.kt` Phase 2c.1 改按投影对账：声明键空间逐键精确对拍（缺键不 `?: 0` 兜底）、新增表实测必须 0、被删表声明与实测必须 0，违例抛 `BackupRestoreException`；④ JVM 载体 `SmbkArchiveCodecTest` 三例在树（本会话 `grep` 实测）：`closure 4 archive validates under the frozen v4 rule table and projects to 92 keys`（`:1486`）、`closure 4 archive is rejected when its digest was computed with the v5 algorithm`（`:1528`）、`closure 4 archive with the v5 key space or unsupported closures is rejected`（`:1570`）；⑤ 四方门 `tools/ci/check_backup_plan_sync.py` 同时校验 v4 冻结值（本会话实跑 PASS/EXIT=0，含 `v4: 91 keys and delta` 与 v4 空库全选摘要 golden）。**执行状态 UNVERIFIED**：JVM 三例、`SmbkSelectionPlanTest`、设备恢复均未在本轨运行（禁 Gradle/零设备）；**不得把"用例在树 + 静态门 PASS"读成已关闭**。**边界**：closure ≤3 仍不可恢复（无冻结规则，明确拒绝并提示重导出）；旧包恢复只解决"能读"，不改变新包的写侧格式（closure 5 / schema 73 不变）。
+
+**记录回链（2026-11-03 批次 41 主会话收口；状态保持 open）.** E-41-D03（`docs/research/evidence/2026-11-03-batch-41/step03-kd75-pdf-roundtrip.md`）实测设备往返 **10/10 PASS**：`pdfDocumentChineseTwoPage…`、`classicXrefTable…`、`xrefStream…`、`secondInjection…` 同进程 `OK (6 tests)`；四类畸形逐方法独立进程 4×`OK (1 test)`；内容政策正负各一 PASS；app androidTest APK `0e906482a0a98d1e4b9f5bb56a3262a80a32d9f6404b80495289b22cec4e3aca`（宿主=设备），pypdf 独立读回 7 文件全部符合。**关闭条件仍未满足**：`grep -rln PdfAigc core/export/src` 无输出（产品链零接线）、真实导出→注入→独立读者全链未验证；KD-75 维持 open。
