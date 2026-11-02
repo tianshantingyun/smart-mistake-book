@@ -1,6 +1,8 @@
 package com.tingyun.smartmistakebook.core.database
 
 import android.content.Context
+import androidx.room3.executeSQL
+import androidx.room3.useWriterConnection
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.database.port.ErrorCauseAppendResult
@@ -139,6 +141,200 @@ class ErrorCauseLedgerInstrumentedTest {
                 ErrorCauseWriteResult.APPLIED,
                 store.retractActiveBinding(retraction, "binding-1", 8_000),
             )
+        }
+    }
+
+    /**
+     * 批次 41 / WS6 item 39：候选 / 被拒 / ACTIVE 唯一 / 撤销后 active 为空。
+     *
+     * 与上一条用例的分工：上一条证明"能写的三种迁移"，本条只钉读侧可见性与活键释放——
+     * 候选不是现行标签；被拒不半升、不留 binding；撤销后读侧与全表都没有 ACTIVE，
+     * 且活键被释放，后续标签能正常落账。
+     */
+    @Test
+    fun candidateRejectedAndRetractedStatesLeaveNoActiveLabelBehind() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        StudyDatabaseFactory.openInMemory(context).use { store ->
+            seedContentChain(store)
+            val scope = ErrorCauseScope(
+                learnerId = "learner-1",
+                practiceUnitId = UNIT_ID,
+                problemRevisionId = REVISION_ID,
+            )
+            val dao = store.database.errorCauseDao()
+
+            // 候选可以独立存在，但读侧不得把它当现行标签
+            val candidate = observation(scope, "candidate-1", ErrorCause.CONCEPTUAL)
+            assertEquals(ErrorCauseAppendResult.INSERTED, store.appendObservation(candidate))
+            assertNull("候选不得被读成现行标签", store.readActiveBinding(scope))
+            assertEquals(0, dao.activeBindingTotal())
+            assertEquals(
+                ErrorCauseObservationStatus.PROPOSED.name,
+                dao.findObservation(candidate.observationId)?.status,
+            )
+
+            val booking = binding(scope, "binding-accepted", candidate.observationId)
+            assertEquals(
+                ErrorCauseWriteResult.APPLIED,
+                store.acceptObservationAndActivateBinding(
+                    booking,
+                    5_000,
+                    ErrorCauseDecisionSource.USER,
+                ),
+            )
+            assertEquals(booking, store.readActiveBinding(scope))
+            assertEquals(1, dao.activeBindingTotal())
+
+            // 被拒：同 scope 第二条候选撞 active_key 唯一性；binding 不留行、observation 不半升
+            val rejected = observation(scope, "candidate-2", ErrorCause.MISIDENTIFICATION)
+            assertEquals(ErrorCauseAppendResult.INSERTED, store.appendObservation(rejected))
+            assertEquals(
+                "同一 scope 不能有第二条 ACTIVE（active_key 唯一）",
+                ErrorCauseWriteResult.CONFLICT,
+                store.acceptObservationAndActivateBinding(
+                    binding(
+                        scope,
+                        "binding-rejected",
+                        rejected.observationId,
+                        cause = ErrorCause.MISIDENTIFICATION,
+                    ),
+                    6_000,
+                    ErrorCauseDecisionSource.USER,
+                ),
+            )
+            assertEquals("被拒的 binding 不得留下行", 0, dao.bindingCount("binding-rejected"))
+            assertEquals(
+                "被拒的 observation 必须留在 PROPOSED",
+                ErrorCauseObservationStatus.PROPOSED.name,
+                dao.findObservation(rejected.observationId)?.status,
+            )
+            assertEquals(1, dao.activeBindingTotal())
+            assertEquals("binding-accepted", store.readActiveBinding(scope)?.bindingId)
+
+            // 撤销：读侧为空、全表无 ACTIVE、活键腾空，撤回行保留
+            val retraction = observation(
+                scope = scope,
+                observationId = "retraction-active",
+                cause = ErrorCause.CONCEPTUAL,
+                status = ErrorCauseObservationStatus.RETRACTED,
+                supersedes = candidate.observationId,
+            )
+            assertEquals(
+                ErrorCauseWriteResult.APPLIED,
+                store.retractActiveBinding(retraction, "binding-accepted", 7_000),
+            )
+            assertNull("撤销后 readActiveBinding 必须为空", store.readActiveBinding(scope))
+            assertEquals("撤销后不得再有 ACTIVE", 0, dao.activeBindingTotal())
+            val voided = dao.findBinding("binding-accepted")!!
+            assertEquals(ErrorCauseBindingState.VOIDED.name, voided.state)
+            assertNull("撤销必须腾出 active_key", voided.activeKey)
+            assertEquals(7_000L, voided.endedAtEpochMillis)
+            assertNotNull("撤回 observation 必须保留（不删除）", dao.findObservation("retraction-active"))
+            assertEquals(
+                "撤销不得连带删除/升级被拒候选",
+                ErrorCauseObservationStatus.PROPOSED.name,
+                dao.findObservation(rejected.observationId)?.status,
+            )
+
+            // 活键确实被释放：同一被拒候选现在可以落账，且仍只有一条 ACTIVE
+            assertEquals(
+                ErrorCauseWriteResult.APPLIED,
+                store.acceptObservationAndActivateBinding(
+                    binding(
+                        scope,
+                        "binding-after-retract",
+                        rejected.observationId,
+                        cause = ErrorCause.MISIDENTIFICATION,
+                    ),
+                    8_000,
+                    ErrorCauseDecisionSource.USER,
+                ),
+            )
+            assertEquals(1, dao.activeBindingTotal())
+            assertEquals("binding-after-retract", store.readActiveBinding(scope)?.bindingId)
+        }
+    }
+
+    /**
+     * 批次 41 / WS6 item 40：撤销不留半行。
+     *
+     * 上一条用例的 rollback 段证明的是改判路径；本用例专钉**撤回**路径：让事务第二步
+     * （binding ACTIVE→VOIDED）在真 SQLite 上失败，断言第一步（插入 RETRACTED observation）
+     * 一起回滚，binding 仍是 ACTIVE 且活键仍在。失败用测试侧触发器注入，不改生产代码。
+     *
+     * 为什么必须真库：JVM 假端口没有事务，"先写后失败"的回滚只能由 Room + SQLite 证明。
+     */
+    @Test
+    fun aFailingVoidRollsBackTheRetractionRowAndKeepsTheBindingActive() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        StudyDatabaseFactory.openInMemory(context).use { store ->
+            seedContentChain(store)
+            val scope = ErrorCauseScope(
+                learnerId = "learner-1",
+                practiceUnitId = UNIT_ID,
+                problemRevisionId = REVISION_ID,
+            )
+            val dao = store.database.errorCauseDao()
+            val candidate = observation(scope, "candidate-rollback", ErrorCause.CONCEPTUAL)
+            store.appendObservation(candidate)
+            assertEquals(
+                ErrorCauseWriteResult.APPLIED,
+                store.acceptObservationAndActivateBinding(
+                    binding(scope, "binding-rollback", candidate.observationId),
+                    5_000,
+                    ErrorCauseDecisionSource.USER,
+                ),
+            )
+
+            // 注入：只拦 ACTIVE→VOIDED 这一步；第一步的 RETRACTED 行已经写入事务。
+            store.database.useWriterConnection { connection ->
+                connection.executeSQL(
+                    """
+                    CREATE TRIGGER fail_error_cause_void
+                    BEFORE UPDATE OF state ON error_cause_binding
+                    WHEN NEW.state = 'VOIDED'
+                    BEGIN
+                        SELECT RAISE(ABORT, 'injected void failure');
+                    END
+                    """.trimIndent(),
+                )
+            }
+
+            val retraction = observation(
+                scope = scope,
+                observationId = "retraction-rollback",
+                cause = ErrorCause.CONCEPTUAL,
+                status = ErrorCauseObservationStatus.RETRACTED,
+                supersedes = candidate.observationId,
+            )
+            val failure = runCatching {
+                store.retractActiveBinding(retraction, "binding-rollback", 9_000)
+            }
+            assertTrue("被注入的第二步失败必须抛出，不能静默 APPLIED", failure.isFailure)
+
+            assertNull(
+                "撤回 observation 必须随事务回滚，不能留下半行",
+                dao.findObservation("retraction-rollback"),
+            )
+            val activeAfterRollback = store.readActiveBinding(scope)
+            assertNotNull("binding 必须回滚为 ACTIVE", activeAfterRollback)
+            assertEquals("binding-rollback", activeAfterRollback!!.bindingId)
+            assertEquals(1, dao.activeBindingTotal())
+            val row = dao.findBinding("binding-rollback")!!
+            assertEquals(ErrorCauseBindingState.ACTIVE.name, row.state)
+            assertNotNull("活键必须回滚", row.activeKey)
+            assertNull("结束时间必须回滚", row.endedAtEpochMillis)
+
+            // 移除注入后同一撤回必须成功：失败只来自注入，不是数据/编码问题。
+            store.database.useWriterConnection { connection ->
+                connection.executeSQL("DROP TRIGGER fail_error_cause_void")
+            }
+            assertEquals(
+                ErrorCauseWriteResult.APPLIED,
+                store.retractActiveBinding(retraction, "binding-rollback", 9_000),
+            )
+            assertNull(store.readActiveBinding(scope))
+            assertEquals(0, dao.activeBindingTotal())
         }
     }
 

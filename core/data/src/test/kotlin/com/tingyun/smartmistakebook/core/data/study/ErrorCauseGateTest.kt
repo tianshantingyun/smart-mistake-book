@@ -109,6 +109,26 @@ class ErrorCauseGateTest {
         )
     }
 
+    @Test
+    fun `self report is a hard rule, not a tunable threshold`() {
+        // 把置信/佐证都放到最松（0.0 / 1 条）也不能让自评通道进来自动落账：
+        // 这条门是硬规则，不是"调参就能打开"的阈值（门缺口兜底用例）。
+        val loosest = ErrorCauseGate(
+            ErrorCauseGateState(
+                certified = true,
+                minConfidence = 0.0,
+                minCorroboration = 1,
+            ),
+        )
+        assertFalse(
+            loosest.mayAutoBook(
+                candidate(channel = ErrorCauseChannel.SELF_REPORT, confidence = 1.0),
+                corroborationCount = 100,
+                retractedRecently = false,
+            ),
+        )
+    }
+
     private fun candidate(
         cause: ErrorCause = ErrorCause.CONCEPTUAL,
         detail: ErrorCauseDetail? = ErrorCauseDetail.CONCEPT_RULE_INVALID,
