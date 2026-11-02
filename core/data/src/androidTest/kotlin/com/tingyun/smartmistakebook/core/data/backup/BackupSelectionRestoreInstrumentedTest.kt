@@ -203,6 +203,63 @@ class BackupSelectionRestoreInstrumentedTest {
         }
     }
 
+    /**
+     * WS1 item 5：closure 4（schema 72）旧包的**恢复**兼容读侧。
+     *
+     * 修复前：读侧要求 `closureVersion == 5`，一份 91 键、v4 摘要自洽的旧包在 Phase 1 即被拒。
+     * 修复后：按声明版本用冻结的 v4 规则表校验；恢复成功后经 72→73 迁移，旧行保留、
+     * 新增的错因两表为空（迁移只建空表）。
+     */
+    @Test
+    fun closureFourArchiveRestoresWithAddedTablesEmptyAndNoRowLoss() = runBlocking {
+        // 1) 当前构建产出一份合法包，复用它的 zip 骨架（settings/assets 形状与生产一致）。
+        val live = openSeededDatabase()
+        val archive = createArchive(live, BackupSelection.of(issueBookAndImages()))
+        live.close()
+
+        // 2) 用导出的 schema 72 造旧载荷，放一行知识层数据（v4/v5 共享表）。
+        val legacyName = "legacy72-${System.nanoTime()}"
+        context.deleteDatabase(legacyName)
+        try {
+            createDatabaseFromExportedSchema(context, legacyName, version = 72)
+            val legacyFile = context.getDatabasePath(legacyName)
+            SQLiteDatabase.openDatabase(
+                legacyFile.absolutePath,
+                null,
+                SQLiteDatabase.OPEN_READWRITE,
+            ).use { db ->
+                db.execSQL(
+                    "INSERT INTO knowledge_node(" +
+                        "knowledge_node_id, stable_code, subject, display_name, " +
+                        "taxonomy_version, created_at_epoch_millis) VALUES(?,?,?,?,?,?)",
+                    arrayOf<Any>("node-legacy", "KN-LEGACY", "MATH", "旧知识点", "v1", 1_000L),
+                )
+                db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)", null).use { it.moveToFirst() }
+            }
+            val v4Counts = countTables(legacyFile, ClosureRuleTables.v4.rowCountKeys)
+            assertEquals("v4 声明的是 91 键", 91, v4Counts.size)
+            assertEquals("夹具必须真的写入一行旧数据", 1L, v4Counts.getValue("knowledge_node"))
+
+            val repacked = repackAsClosure4(archive, legacyFile, v4Counts)
+            val receipt = restore(repacked)
+            assertEquals("旧包必须恢复成功并按 v4 回执 mask", 15, receipt.selection?.mask)
+
+            // 迁移在下次开库时发生：先开一次让 72→73 跑完，再核对形状。
+            StudyDatabaseFactory.open(context, databaseName).close()
+            val restoredFile = context.getDatabasePath(databaseName)
+            assertEquals("共享表旧行不得丢", 1L, rowCount(restoredFile, "knowledge_node"))
+            assertEquals(
+                "新增表必须由迁移建空，不得回填",
+                0L,
+                rowCount(restoredFile, "error_cause_observation"),
+            )
+            assertEquals(0L, rowCount(restoredFile, "error_cause_binding"))
+            assertEquals("派生索引恒裁", 0L, rowCount(restoredFile, "knowledge_search_feature"))
+        } finally {
+            context.deleteDatabase(legacyName)
+        }
+    }
+
     @Test
     fun invalidDigestRowCountsAndClosureVersionAreRejectedBeforeSwapAndLiveDataStays() = runBlocking {
         val database = openSeededDatabase()
@@ -841,6 +898,109 @@ class BackupSelectionRestoreInstrumentedTest {
         } finally {
             staging.deleteRecursively()
         }
+    }
+
+    /** 读旧载荷的逐表计数（表不存在按 0）——v4 的 91 键声明必须与它逐表相等。 */
+    private fun countTables(databaseFile: File, tables: Set<String>): Map<String, Long> =
+        SQLiteDatabase.openDatabase(
+            databaseFile.absolutePath,
+            null,
+            SQLiteDatabase.OPEN_READONLY,
+        ).use { database ->
+            val existing = mutableSetOf<String>()
+            database.rawQuery("SELECT name FROM sqlite_master WHERE type = 'table'", null).use { cursor ->
+                while (cursor.moveToNext()) existing += cursor.getString(0)
+            }
+            tables.sorted().associateWith { table ->
+                if (table !in existing) {
+                    0L
+                } else {
+                    val quoted = "\"" + table.replace("\"", "\"\"") + "\""
+                    database.rawQuery("SELECT COUNT(*) FROM $quoted", null).use { cursor ->
+                        cursor.moveToFirst()
+                        cursor.getLong(0)
+                    }
+                }
+            }
+        }
+
+    /**
+     * 把一份合法 v5 包改写成 closure 4 / schema 72 的旧包：换载荷库、按 v4 键空间与
+     * v4 摘要重写 selection、更新 database 条目的摘要与大小。
+     */
+    private fun repackAsClosure4(
+        archive: ByteArray,
+        legacyDatabase: File,
+        rowCounts: Map<String, Long>,
+    ): ByteArray {
+        val categories = SmbkSelectionPlan.categoriesOf(SmbkSelectionPlan.FULL_MASK)
+        val manifest = JSONObject(manifestJson(archive))
+        manifest.put("databaseSchemaVersion", 72)
+        val counts = JSONObject()
+        rowCounts.forEach { (table, count) -> counts.put(table, count) }
+        manifest.put(
+            "selection",
+            JSONObject().apply {
+                put("schemaVersion", 2)
+                put("categoryMask", SmbkSelectionPlan.FULL_MASK)
+                put("categories", JSONArray(categories.map { it.name }))
+                put("assetPolicy", SmbkSelectionPlan.ASSET_POLICY_INCLUDED)
+                put("closureVersion", ClosureRuleTables.v4.closureVersion)
+                put("rowCounts", counts)
+                put("trimmedTableCount", 0)
+                put(
+                    "closureDigest",
+                    ClosureRuleTables.digest(
+                        rule = ClosureRuleTables.v4,
+                        categories = categories,
+                        assetPolicy = SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+                        rowCounts = rowCounts,
+                    ),
+                )
+            },
+        )
+        val entries = LinkedHashMap<String, ByteArray>()
+        ZipInputStream(ByteArrayInputStream(archive)).use { zip ->
+            while (true) {
+                val entry = zip.nextEntry ?: break
+                entries[entry.name] = zip.readBytes()
+                zip.closeEntry()
+            }
+        }
+        val databaseBytes = legacyDatabase.readBytes()
+        val files = manifest.getJSONArray("files")
+        val checksums = StringBuilder()
+        for (index in 0 until files.length()) {
+            val record = files.getJSONObject(index)
+            if (record.getString("path") == SmbkArchiveCodec.DATABASE_ENTRY) {
+                record.put("sha256", sha256Hex(databaseBytes))
+                record.put("byteSize", databaseBytes.size.toLong())
+            }
+            if (checksums.isNotEmpty()) checksums.append('\n')
+            checksums.append(record.getString("sha256")).append(" *").append(record.getString("path"))
+        }
+        val output = ByteArrayOutputStream()
+        ZipOutputStream(output).use { zip ->
+            zip.putNextEntry(ZipEntry(SmbkArchiveCodec.MANIFEST_ENTRY))
+            zip.write(manifest.toString().toByteArray(Charsets.UTF_8))
+            zip.closeEntry()
+            zip.putNextEntry(ZipEntry(SmbkArchiveCodec.DATABASE_ENTRY))
+            zip.write(databaseBytes)
+            zip.closeEntry()
+            entries.filterKeys {
+                it != SmbkArchiveCodec.MANIFEST_ENTRY &&
+                    it != SmbkArchiveCodec.DATABASE_ENTRY &&
+                    it != "checksums.sha256"
+            }.forEach { (name, bytes) ->
+                zip.putNextEntry(ZipEntry(name))
+                zip.write(bytes)
+                zip.closeEntry()
+            }
+            zip.putNextEntry(ZipEntry("checksums.sha256"))
+            zip.write(checksums.toString().toByteArray(Charsets.UTF_8))
+            zip.closeEntry()
+        }
+        return output.toByteArray()
     }
 
     private fun sha256Hex(bytes: ByteArray): String =

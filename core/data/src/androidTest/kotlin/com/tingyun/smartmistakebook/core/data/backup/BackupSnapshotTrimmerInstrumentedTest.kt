@@ -324,6 +324,46 @@ class BackupSnapshotTrimmerInstrumentedTest {
         }
     }
 
+    /**
+     * WS1 item 6：schema 73 的 `identityHash` 不匹配必须 fail-closed。
+     *
+     * **消灭的具体失败**：快照被别的 schema 版本/别的构建写过，表名看起来一样、列却可能
+     * 已经漂移；裁剪器按表名删行会成功，产出一份"结构不对但看起来完成"的包。修复前只有
+     * 表存在性检查，身份哈希读出来却从不与清单对拍。
+     */
+    @Test
+    fun schema73IdentityHashMismatchFailsClosedBeforeAnyTrim() {
+        withSeededSnapshot { _, _, path, _ ->
+            SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READWRITE).use { db ->
+                db.execSQL(
+                    "UPDATE room_master_table SET identity_hash = ? WHERE id = 42",
+                    arrayOf<Any?>("not-the-schema-73-identity"),
+                )
+                val rewritten = db.rawQuery(
+                    "SELECT identity_hash FROM room_master_table WHERE id = 42",
+                    null,
+                ).use { cursor ->
+                    cursor.moveToFirst() && cursor.getString(0) == "not-the-schema-73-identity"
+                }
+                assertTrue("夹具必须真的改写了 room_master_table.identity_hash", rewritten)
+            }
+            val file = File(path)
+            val before = file.readBytes()
+
+            val failure = assertThrows(BackupSnapshotTrimException::class.java) {
+                BackupSnapshotTrimmer().trim(file, 9)
+            }
+            assertTrue(
+                "拒因必须点名身份哈希：${failure.message}",
+                failure.message.orEmpty().contains("身份哈希"),
+            )
+            assertTrue(
+                "身份不符必须在任何裁剪之前失败，快照一个字节都不改",
+                before.contentEquals(file.readBytes()),
+            )
+        }
+    }
+
     @Test
     fun spacePreflightFailureLeavesTheSnapshotUntouched() {
         withSeededSnapshot { _, _, path, _ ->

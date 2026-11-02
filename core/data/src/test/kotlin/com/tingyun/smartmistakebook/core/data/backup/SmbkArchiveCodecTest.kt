@@ -1475,6 +1475,175 @@ class SmbkArchiveCodecTest {
         return output.toByteArray()
     }
 
+    /**
+     * closure 4（schema 72）旧包的兼容读侧（WS1 item 5 / R2 §3–§5）。
+     *
+     * 修复前：`readableSelection` 第一道就要求 `closureVersion == 5`，v4 包永远不可恢复。
+     * 修复后：按声明版本取冻结的 v4 规则表校验（91 键 / 83 裁剪 / v4 摘要），并给出
+     * 恢复投影——新增的错因两表按 0 补齐、被删的 material_feature 从声明键空间移除。
+     */
+    @Test
+    fun `closure 4 archive validates under the frozen v4 rule table and projects to 92 keys`() {
+        val database = tempFile("database.sqlite", "database-content")
+        val archive = ByteArrayOutputStream()
+        SmbkArchiveCodec.create(
+            archive = archive,
+            database = database,
+            assets = emptyList(),
+            referencedAssets = emptyList(),
+            databaseSchemaVersion = 72,
+            problemCount = 0,
+            createdAtEpochMillis = 12_000L,
+            selection = selectionFixture(mask = 15, rowCounts = emptyRowCounts(), trimmedTableCount = 0),
+        )
+        val v4 = v4SelectionFixture(mask = 15, rowCounts = v4EmptyRowCounts())
+        val rewritten = rewriteManifest(archive.toByteArray()) { manifest ->
+            manifest.copy(selection = v4)
+        }
+
+        val destination = unpackDestination("smbk-v4-compat")
+        val outcome = SmbkArchiveCodec.unpackDetailed(ByteArrayInputStream(rewritten), destination)
+        assertTrue(
+            "closure 4 旧包必须可读：${(outcome.validation as? BackupValidation.Invalid)?.reason}",
+            outcome.validation is BackupValidation.Valid,
+        )
+        val projection = requireNotNull(outcome.projection) { "v4 包必须给出恢复投影" }
+        assertEquals(4, projection.declaredClosureVersion)
+        assertEquals("v4 声明 91 键（92 − 错因两表 + material_feature）", 91, projection.declaredRowCounts.size)
+        assertEquals(
+            "投影后覆盖当前 92 键",
+            SmbkSelectionPlan.rowCountKeys,
+            projection.normalizedRowCounts.keys,
+        )
+        assertEquals(0L, projection.normalizedRowCounts["error_cause_observation"])
+        assertEquals(0L, projection.normalizedRowCounts["error_cause_binding"])
+        assertTrue(
+            "被删表不得留在归一化键空间里",
+            "knowledge_search_material_feature" !in projection.normalizedRowCounts,
+        )
+        assertEquals(0L, projection.declaredRowCounts.getValue("knowledge_search_material_feature"))
+    }
+
+    @Test
+    fun `closure 4 archive is rejected when its digest was computed with the v5 algorithm`() {
+        val archive = ByteArrayOutputStream()
+        SmbkArchiveCodec.create(
+            archive = archive,
+            database = tempFile("database.sqlite", "database-content"),
+            assets = emptyList(),
+            referencedAssets = emptyList(),
+            databaseSchemaVersion = 72,
+            problemCount = 0,
+            createdAtEpochMillis = 12_000L,
+            selection = selectionFixture(mask = 15, rowCounts = emptyRowCounts(), trimmedTableCount = 0),
+        )
+        val rowCounts = v4EmptyRowCounts()
+        val categories = SmbkSelectionPlan.categoriesOf(15)
+        // 用 v5 的前缀/closureVersion 对 v4 键集合重算：两份规则不可互换。
+        val v5AlgorithmOnV4Keys = SmbkClosureRule(
+            closureVersion = 5,
+            digestPrefix = "smbk-selection-v5",
+            rowCountKeys = rowCounts.keys,
+            trimOrderSize = 83,
+            addedTables = emptySet(),
+            droppedTables = emptySet(),
+        )
+        val wrongDigest = ClosureRuleTables.digest(
+            rule = v5AlgorithmOnV4Keys,
+            categories = categories,
+            assetPolicy = SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+            rowCounts = rowCounts,
+        )
+        val rewritten = rewriteManifest(archive.toByteArray()) { manifest ->
+            manifest.copy(
+                selection = v4SelectionFixture(15, rowCounts).copy(closureDigest = wrongDigest),
+            )
+        }
+        val validation = SmbkArchiveCodec.validate(ByteArrayInputStream(rewritten))
+        assertTrue(validation is BackupValidation.Invalid)
+        assertTrue(
+            (validation as BackupValidation.Invalid).reason.contains("closureDigest"),
+        )
+    }
+
+    @Test
+    fun `closure 4 archive with the v5 key space or unsupported closures is rejected`() {
+        val archive = ByteArrayOutputStream()
+        SmbkArchiveCodec.create(
+            archive = archive,
+            database = tempFile("database.sqlite", "database-content"),
+            assets = emptyList(),
+            referencedAssets = emptyList(),
+            databaseSchemaVersion = 72,
+            problemCount = 0,
+            createdAtEpochMillis = 12_000L,
+            selection = selectionFixture(mask = 15, rowCounts = emptyRowCounts(), trimmedTableCount = 0),
+        )
+        val base = v4SelectionFixture(mask = 15, rowCounts = v4EmptyRowCounts())
+        val cases = listOf(
+            // 键集合门在摘要/投影校验之前：92 键的 v4 声明必须按"91 表"拒绝。
+            "rowCounts" to base.copy(rowCounts = emptyRowCounts(), closureDigest = "0".repeat(64)),
+            "closureVersion" to base.copy(closureVersion = 3),
+            "closureVersion" to base.copy(closureVersion = 6),
+            "knowledge_search_material_feature" to base.copy(
+                rowCounts = base.rowCounts.toMutableMap().apply {
+                    put("knowledge_search_material_feature", 1L)
+                },
+            ),
+            "trimmedTableCount" to base.copy(trimmedTableCount = 84),
+        )
+        cases.forEach { (marker, selection) ->
+            val rewritten = rewriteManifest(archive.toByteArray()) { manifest ->
+                manifest.copy(selection = selection)
+            }
+            val validation = SmbkArchiveCodec.validate(ByteArrayInputStream(rewritten))
+            assertTrue("$marker 必须被拒绝：$validation", validation is BackupValidation.Invalid)
+            val reason = (validation as BackupValidation.Invalid).reason
+            assertTrue("$marker 拒因必须指向内容选择：$reason", reason.contains("备份内容选择"))
+            assertTrue("$marker 拒因必须点名字段：$reason", reason.contains(marker))
+        }
+    }
+
+    private fun rewriteManifest(
+        archiveBytes: ByteArray,
+        transform: (SmbkManifest) -> SmbkManifest,
+    ): ByteArray {
+        val json = Json { ignoreUnknownKeys = false; encodeDefaults = true }
+        val manifest = json.decodeFromString(SmbkManifest.serializer(), manifestText(archiveBytes))
+        return rewriteEntry(
+            archiveBytes,
+            "manifest.json",
+            json.encodeToString(SmbkManifest.serializer(), transform(manifest)),
+        )
+    }
+
+    private fun v4EmptyRowCounts(): Map<String, Long> =
+        ClosureRuleTables.v4.rowCountKeys.associateWith { 0L }
+
+    /** closure 4 的 selection 夹具：91 键 + v4 摘要（不得用当前 v5 算法重算）。 */
+    private fun v4SelectionFixture(
+        mask: Int,
+        rowCounts: Map<String, Long>,
+        trimmedTableCount: Int = 0,
+    ): SmbkSelectionRecord {
+        val categories = SmbkSelectionPlan.categoriesOf(mask)
+        return SmbkSelectionRecord(
+            schemaVersion = SmbkSelectionRecord.CURRENT_SCHEMA_VERSION,
+            categoryMask = mask,
+            categories = categories.map { it.name },
+            assetPolicy = SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+            closureVersion = ClosureRuleTables.v4.closureVersion,
+            closureDigest = ClosureRuleTables.digest(
+                rule = ClosureRuleTables.v4,
+                categories = categories,
+                assetPolicy = SmbkSelectionPlan.ASSET_POLICY_INCLUDED,
+                rowCounts = rowCounts,
+            ),
+            rowCounts = rowCounts,
+            trimmedTableCount = trimmedTableCount,
+        )
+    }
+
     private fun unpackDestination(prefix: String): File {
         val destination = File.createTempFile(prefix, "").apply {
             delete()
