@@ -1011,6 +1011,28 @@ class RoomBackedStudyExperienceRepository(
     }
 
 
+    /**
+     * KD-68 数据侧只读预览（批次 40 WS3 item 22）：考试缺口/再平衡/不可调度新题
+     * 三个计数一次算清。不写计划、不改今日队列；UI 消费仍待 feature 热区空出。
+     *
+     * 未放进 `StudyExperienceRepository` 接口：接口在 core/domain 热区，本批只落
+     * `core/data` 生产入口，避免热区改动。
+     */
+    suspend fun reviewCapacityPreview(
+        rebalanceEnabled: Boolean = false,
+        remainingStudyDays: Int = 0,
+    ): ReviewCapacityPreview = runOperation {
+        val projection = currentLearnerSnapshot()
+        val planningContext = plannerService.planningContext(projection)
+        plannerService.reviewCapacityPreview(
+            mistakes = latestMistakes,
+            learnerSnapshot = projection,
+            planningContext = planningContext,
+            rebalanceEnabled = rebalanceEnabled,
+            remainingStudyDays = remainingStudyDays,
+        )
+    }
+
     override fun close() {
         observationJobs.cancel()
         knowledgeNodeInvalidationJob.cancel()
