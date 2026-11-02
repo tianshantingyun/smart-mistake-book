@@ -908,3 +908,15 @@ cat build/agent-batch32b/v28/identity-final.txt                               # 
 ```
 
 **§24 记账**：本文件为纯追加（写前 868 行）；未改 §19–§23；未改 KB 数据/包/判定表/别名表/来源字段/门判据/Kotlin 代码；未 commit/push。本会话复核副作用：`build/agent-batch31c/` 去重产物按原 plan 与重建包恢复（209/369/182 一致）；`calibration/report.md` 由 `kappa.json` 重渲染。两者均为 gitignored 证据。
+
+### §24.1 批次32B 结案裁定（2026-11-02 10:50 +0800，取代 §24 的「工作树=32」状态）
+
+- **v28 否决**：融合 119→113、chapterMin 0.5→0.0（「24 章不劣」+主集回退）、F24 来源生产门红、设备/零漂移/导入 NOT_RUN ⇒ 不构成可采纳证据。
+- **L2 不可判**：镜像未同代（`RetrievalBenchmark.kt` 仍 `8c2a2ef0…`）、设备/迁移/导入全 NOT_RUN；**L3 无对象**。
+- **回滚（逐文件，禁整树 checkout）**：包面 28 件 `restored=28`；代码面 `restored=27` + `deleted=5`（L2 三源 + 两单测 + 一 androidTest）。备份 `build/agent-batch32b/rollback-backup/`；脚本 `build/agent-batch32b/scripts/rollback_32b_unadopted.py`。
+- **恢复后身份**：manifest **26 / `aea886e42b36dcb2`** / retired 1,222；dense `packSha256=96246c78…` == 主包 sha、44,121 向量（回滚前为「v32 manifest + v26 主包 + v26 dense」嵌合体）。
+- **staging 拆除**：候选 27 件留存 `build/agent-batch32b/candidate-v32-staging/`，staging 恢复 v26（`staging_restored=27`）；`promote --dry-run` 由 version→33 变为 **→27**。
+- **八门复核**：8/8 rc=0，`HEAD=922a1f7d`。
+- **编译门 UNVERIFIED**：`:core:database:compileDebugKotlin` 红点全在他线在飞 `RoomStudyDatabase.kt:2410-2457` 的 `errorCauseDao`（4e.2 线 DAO 未写出），不在本批回滚面；不得据此声称编译通过。
+- **候选来源（未提交）**：`materialize.py`、`new_content.py`、4 个 `material_judgments` CSV（RETIRED 182）、`fix_sourceuri.py`、`rewrite/`、去重脚本。下一波把去重/摘要/标题拆三臂单变量复测。
+- **32A L1**：读数所用判官为改动版（post `ce7ef8e2…`），现树 `9fae203f…`；115/129 **不可比、不可复现**，臂已回滚。
