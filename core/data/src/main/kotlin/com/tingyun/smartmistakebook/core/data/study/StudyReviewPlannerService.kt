@@ -11,6 +11,7 @@ import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.domain.AlgorithmConstants
 import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
 import com.tingyun.smartmistakebook.core.domain.FULL_LIBRARY_SCAN_DAILY_CAP
+import com.tingyun.smartmistakebook.core.domain.ForgettingCurve
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewCandidate
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueEntry
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
@@ -326,6 +327,74 @@ internal class StudyReviewPlannerService(
         }
     }
 
+
+    /**
+     * KD-68 同族的**数据侧**诚实预览（批次 40 WS3 item 22）：考试缺口、再平衡
+     * 可拉/不可拉题数，以及既有 `intakeUnschedulableCount`，一次算清供读面消费。
+     *
+     * 只读：不写计划、不改当日引入集合、不改变 `ReviewPlannerV2.VERSION` 的输出。
+     * 预算与排程同口径（先过 [examCapacityBudgetSeconds] 的考试扩容），R 由同一
+     * `ForgettingCurve` + 同一 `planningDecay` 现算；考试按科目各自的最近考试日过滤，
+     * 不跨科串味（R3 §3.2 口径问题 2）。
+     *
+     * 挂到 `StudyExperienceSnapshot`（core/domain 热区）与 `feature/review` 消费仍是
+     * 非热窗口后的接线项；本方法先把数据源做成可调用、可测试的生产入口。
+     */
+    internal suspend fun reviewCapacityPreview(
+        mistakes: List<MistakeRecord>,
+        learnerSnapshot: LearnerSnapshot,
+        planningContext: PlanningContext,
+        baseRetention: Double = ReviewCapacityPolicy.BASE_TARGET_RETENTION,
+        p50DurationSeconds: Int = LogDurationModel.TIER_BASELINE_MEDIUM_SECONDS,
+        rebalanceEnabled: Boolean = false,
+        remainingStudyDays: Int = 0,
+    ): ReviewCapacityPreview {
+        val todayEpochDay = planningContext.localDate.toEpochDay()
+        val exams = readExams()
+        val examEpochDayBySubject = exams
+            .filter { (it.examEpochDay - todayEpochDay) in 1..ReviewCapacityPolicy.EXAM_WINDOW_DAYS }
+            .groupBy(ExamCalendarEntry::subject)
+            .mapValues { (_, entries) -> entries.minOf(ExamCalendarEntry::examEpochDay) }
+        // 考试日的 R 取学习时区当日结束时刻（同一天任何时刻考试都不会比它更晚）。
+        val examAtEpochMillisBySubject = examEpochDayBySubject.mapValues { (_, examDay) ->
+            LocalDate.ofEpochDay(examDay)
+                .plusDays(1)
+                .atStartOfDay(studyZoneId)
+                .toInstant()
+                .toEpochMilli() - 1
+        }
+        val effectiveBudgetSeconds = examCapacityBudgetSeconds(
+            exams = exams,
+            localDayEpochDay = todayEpochDay,
+            baseBudgetSeconds = reviewTimeBudgetSeconds,
+        )
+        val subjectByPracticeUnit = mistakes.associate { it.practiceUnitId to it.subject }
+        val capacityPreview = ReviewCapacityPreviewReader(
+            forgettingCurve = ForgettingCurve(decay = planningDecay),
+        ).preview(
+            memoryStates = learnerSnapshot.problemMemoryStates,
+            subjectByPracticeUnit = subjectByPracticeUnit,
+            nowEpochMillis = planningContext.planningAtEpochMillis,
+            todayEpochDay = todayEpochDay,
+            examEpochDayBySubject = examEpochDayBySubject,
+            examAtEpochMillisBySubject = examAtEpochMillisBySubject,
+            baseRetention = baseRetention,
+            baseBudgetSeconds = effectiveBudgetSeconds,
+            p50DurationSeconds = p50DurationSeconds,
+            rebalanceEnabled = rebalanceEnabled,
+            remainingStudyDays = remainingStudyDays,
+        )
+        val intakeBacklog = mistakes
+            .sortedBy(MistakeRecord::practiceUnitId)
+            .distinctBy(MistakeRecord::practiceUnitId)
+            .filter { learnerSnapshot.problemMemoryStates[it.practiceUnitId] == null }
+        val intakeUnschedulableCount = intakeUnschedulableCount(
+            intakeBacklog = intakeBacklog,
+            learnerSnapshot = learnerSnapshot,
+            planningContext = planningContext,
+        )
+        return capacityPreview.copy(intakeUnschedulableCount = intakeUnschedulableCount)
+    }
 
     suspend fun currentReviewPlan(
         planningContext: PlanningContext,
