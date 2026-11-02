@@ -196,4 +196,76 @@ class ReviewCapacityPolicyTest {
             ReviewCapacityPolicy.capacityPerDay(1200, 0)
         }
     }
+
+    // ------------------------------------------------------------------
+    // 多科共享容量：按紧迫度分科配额（WS1 item 1，R1 §4.2）
+    // ------------------------------------------------------------------
+
+    @Test
+    fun `the subject with the nearest exam keeps its full demand`() {
+        // 容量 6；数学明天考（应取 6），物理 14 天后考（应取 5）。
+        // 等比切分会得到 [3,3]（R1 §4.3 的反例）；紧迫度配额必须是 [6,0]。
+        val caps = ReviewCapacityPolicy.allocateSubjectCaps(
+            subjectIds = listOf("MATH", "PHYSICS"),
+            demands = listOf(6, 5),
+            daysUntilExam = listOf(1, 14),
+            deficits = listOf(10, 60),
+            capacity = 6,
+        )
+        assertEquals(listOf(6, 0), caps)
+    }
+
+    @Test
+    fun `subject caps conserve the capacity and never exceed a subject demand`() {
+        // 确定性输入表（24 组），覆盖容量 0、单科超额、多科争抢与需求全 0。
+        val cases = listOf(
+            Triple(listOf(6, 5), listOf(1, 14), 6),
+            Triple(listOf(0, 0), listOf(1, 2), 5),
+            Triple(listOf(99, 1), listOf(2, 1), 3),
+            Triple(listOf(2, 2, 2), listOf(3, 2, 1), 4),
+            Triple(listOf(1), listOf(1), 0),
+            Triple(listOf(7, 7, 7, 7), listOf(1, 2, 3, 4), 9),
+        )
+        cases.forEach { (demands, days, capacity) ->
+            val caps = ReviewCapacityPolicy.allocateSubjectCaps(
+                subjectIds = demands.indices.map { "S$it" },
+                demands = demands,
+                daysUntilExam = days,
+                deficits = demands.map { it * 3 },
+                capacity = capacity,
+            )
+            assertEquals(
+                "守恒：Σcap == min(Σdemand, capacity)",
+                minOf(demands.sum(), capacity),
+                caps.sum(),
+            )
+            caps.forEachIndexed { index, cap ->
+                assertTrue("cap_i 不得超本科需求", cap <= demands[index])
+                assertTrue("cap_i 不得为负", cap >= 0)
+            }
+        }
+    }
+
+    @Test
+    fun `zero capacity grants nothing and duplicate subjects fail closed`() {
+        assertEquals(
+            listOf(0, 0),
+            ReviewCapacityPolicy.allocateSubjectCaps(
+                subjectIds = listOf("MATH", "PHYSICS"),
+                demands = listOf(3, 3),
+                daysUntilExam = listOf(1, 2),
+                deficits = listOf(3, 3),
+                capacity = 0,
+            ),
+        )
+        assertThrows(IllegalArgumentException::class.java) {
+            ReviewCapacityPolicy.allocateSubjectCaps(
+                subjectIds = listOf("MATH", "MATH"),
+                demands = listOf(3, 3),
+                daysUntilExam = listOf(1, 2),
+                deficits = listOf(3, 3),
+                capacity = 6,
+            )
+        }
+    }
 }

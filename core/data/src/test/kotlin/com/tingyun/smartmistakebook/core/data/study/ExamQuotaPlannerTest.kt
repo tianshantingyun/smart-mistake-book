@@ -163,6 +163,27 @@ class ExamQuotaPlannerTest {
     }
 
     @Test
+    fun `a shared subject quota caps the plan and never over-picks`() {
+        val facts = (1..60).map { index ->
+            fact("unit-$index", atExam = 0.50, nextReviewAt = TODAY * DAY + index)
+        }
+        val plan = ExamQuotaPlanner.plan(
+            facts = facts,
+            examEpochDay = TODAY + 7,
+            todayEpochDay = TODAY,
+            baseRetention = 0.90,
+            budgetSeconds = 1200,
+            p50DurationSeconds = 180,
+            quotaCap = 2,
+        )
+        assertEquals("本科今天只分到 2 个共享名额", 2, plan.quota)
+        assertEquals(2, plan.picked.size)
+        assertTrue(plan.picked.size <= plan.quota)
+        assertEquals(58, plan.unmetCount)
+        assertEquals(plan.deficitCount, plan.picked.size + plan.unmetCount)
+    }
+
+    @Test
     fun `invalid budget or duration fails closed`() {
         assertThrows(IllegalArgumentException::class.java) {
             ExamQuotaPlanner.plan(

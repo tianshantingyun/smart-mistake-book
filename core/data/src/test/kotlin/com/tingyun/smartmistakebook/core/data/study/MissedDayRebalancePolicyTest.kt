@@ -95,6 +95,25 @@ class MissedDayRebalancePolicyTest {
     }
 
     @Test
+    fun `exam-picked units are excluded before the eligible window and the item cap`() {
+        val plan = MissedDayRebalancePolicy.plan(
+            backlog = facts(8),
+            baseBudgetSeconds = 1200,
+            p50DurationSeconds = 180,
+            remainingStudyDays = 7,
+            itemCap = 4,
+            excludedPracticeUnitIds = setOf("unit-1", "unit-2"),
+        )
+        assertEquals("2 道考试已排的题不再进入积压池", 6, plan.eligibleCount)
+        assertEquals(4, plan.picked.size)
+        assertEquals(0, plan.ineligibleCount)
+        assertTrue(
+            "再平衡不得重复取考试已排的题",
+            plan.picked.none { it.practiceUnitId in setOf("unit-1", "unit-2") },
+        )
+    }
+
+    @Test
     fun `invalid growth cap fails closed instead of chasing forever`() {
         assertThrows(IllegalArgumentException::class.java) {
             MissedDayRebalancePolicy.plan(

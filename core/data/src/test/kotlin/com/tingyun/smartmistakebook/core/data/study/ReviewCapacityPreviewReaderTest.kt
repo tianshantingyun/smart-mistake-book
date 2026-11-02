@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.domain.ForgettingCurve
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -85,7 +86,44 @@ class ReviewCapacityPreviewReaderTest {
         )
         assertEquals(8, preview.rebalanceBacklogCount)
         assertEquals(0, preview.rebalanceIneligibleCount)
-        assertEquals(2, preview.deduplicatedCount)
+        assertEquals("去重前置后交集恒为空", 0, preview.deduplicatedCount)
+        assertEquals(2, preview.totalGranted)
+        assertEquals(1, preview.subjects.size)
+        assertEquals(0, preview.subjects.single().unmet)
+    }
+
+    @Test
+    fun `multi-subject preview reports per-subject grants and a total within capacity`() {
+        val mathUnits = (1..8).map { "MATH-$it" }
+        val physicsUnits = (1..112).map { "PHYSICS-$it" }
+        val units = mathUnits + physicsUnits
+        val memories = units.associate { unit ->
+            unit to memory(unit, lastReviewedAt = 90 * DAY, stabilityDays = 10.0)
+        }
+        val preview = reader.preview(
+            memoryStates = memories,
+            subjectByPracticeUnit = units.associateWith { it.substringBefore('-') },
+            nowEpochMillis = 100 * DAY,
+            todayEpochDay = TODAY,
+            examEpochDayBySubject = mapOf(
+                "MATH" to TODAY + 1,
+                "PHYSICS" to TODAY + 14,
+            ),
+            baseBudgetSeconds = 1800, // 10 slots
+            p50DurationSeconds = 180,
+            growthCeilingBudgetSeconds = 1800,
+        )
+        assertEquals(2, preview.examSubjectsInWindow)
+        assertEquals(10, preview.dailyCapacity)
+        assertEquals(10, preview.maxDailyCapacity)
+        assertEquals("明天就考的科拿满应取数", 8, preview.subjects.first { it.subjectId == "MATH" }.granted)
+        assertEquals("14 天后考的科只拿剩余名额", 2, preview.subjects.first { it.subjectId == "PHYSICS" }.granted)
+        assertEquals(preview.subjects.sumOf(SubjectCapacity::granted), preview.totalGranted)
+        assertTrue("逐科之和不得超当日容量", preview.totalGranted <= preview.dailyCapacity)
+        assertTrue(
+            "物理按今天名额考前做不完，必须如实报告",
+            !preview.subjects.first { it.subjectId == "PHYSICS" }.feasibleBeforeExam,
+        )
     }
 
     @Test
