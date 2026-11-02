@@ -38,6 +38,13 @@ import com.tingyun.smartmistakebook.core.model.ModelPromptPolicyVersions
 import com.tingyun.smartmistakebook.core.model.ModelProviderProtocol
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
+import com.tingyun.smartmistakebook.core.model.PaperEditBlockKind
+import com.tingyun.smartmistakebook.core.model.PaperEditBlockSnapshot
+import com.tingyun.smartmistakebook.core.model.PaperEditCommandParser
+import com.tingyun.smartmistakebook.core.model.PaperEditInput
+import com.tingyun.smartmistakebook.core.model.PaperEditOutput
+import com.tingyun.smartmistakebook.core.model.PaperEditParseResult
+import com.tingyun.smartmistakebook.core.model.PaperEditQuestionSnapshot
 import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
 import com.tingyun.smartmistakebook.core.model.QuestionBlockReviewStatus
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
@@ -143,6 +150,8 @@ class OpenAiCompatibleModelGatewayTest {
         assertTrue(capabilities.supports(ModelTaskKind.TUTOR_RESPOND))
         assertTrue(capabilities.supports(ModelTaskKind.TUTOR_LOBBY))
         assertTrue(capabilities.supports(ModelTaskKind.PROBLEM_CLASSIFY))
+        // 6B-3 改卷是结构化输出的纯文本任务；不广告它，全局同意路径永远授权不通过。
+        assertTrue(capabilities.supports(ModelTaskKind.PAPER_EDIT))
         assertFalse(capabilities.supports(ModelTaskKind.CAPTURE_ASSESS))
         assertFalse(capabilities.supportsImageInput)
         assertTrue(capabilities.supportsStructuredOutput)
@@ -777,6 +786,159 @@ class OpenAiCompatibleModelGatewayTest {
 
         assertEquals(ModelFailureCode.INCOMPLETE_OUTPUT, failed.failure.code)
         assertTrue(failed.failure.retryable)
+    }
+
+    @Test
+    fun paperEditRunsUnderGlobalConsentAndReturnsWhitelistedCommands() = runBlocking {
+        var sentBody = ""
+        var assetOpened = false
+        val gateway = OpenAiCompatibleModelGateway(
+            configurationStore = FakeConfigurationStore(CONFIGURATION),
+            assetSource = assetSource { _, _ ->
+                assetOpened = true
+                asset()
+            },
+            transport = modelTransport { request ->
+                sentBody = request.body
+                ModelHttpResponse(200, envelope(paperEditPayload()))
+            },
+            clock = { AUTHORIZATION_NOW },
+        )
+
+        val events = gateway.execute(authorizedPaperEdit(gateway)).toList()
+        val output = (events.last() as ModelGatewayEvent.Completed).output as PaperEditOutput
+
+        assertFalse("改卷不携带图片字节，不得打开资产源", assetOpened)
+        assertTrue(
+            "网关返回的必须是已经过白名单解析器的命令 JSON",
+            PaperEditCommandParser.parse(output.commandsJson) is PaperEditParseResult.Parsed,
+        )
+        assertTrue(sentBody.contains("把第 1 题标题改短"))
+        assertTrue(sentBody.contains("entry-a"))
+        assertFalse(sentBody.contains("data:image"))
+    }
+
+    @Test
+    fun paperEditShapeErrorIsPermanentInvalidResponse() = runBlocking {
+        val gateway = OpenAiCompatibleModelGateway(
+            configurationStore = FakeConfigurationStore(CONFIGURATION),
+            assetSource = assetSource { _, _ -> asset() },
+            transport = modelTransport { _ ->
+                ModelHttpResponse(
+                    200,
+                    envelope("""{"commands":[{"type":"replace_image","entryId":"entry-a"}]}"""),
+                )
+            },
+            clock = { AUTHORIZATION_NOW },
+        )
+
+        val failed = gateway.execute(authorizedPaperEdit(gateway)).toList().last()
+            as ModelGatewayEvent.Failed
+
+        assertEquals(ModelFailureCode.INVALID_RESPONSE, failed.failure.code)
+        assertFalse("形状错误重发会逐字复现，不得标可重试", failed.failure.retryable)
+    }
+
+    @Test
+    fun paperEditOverBudgetOutputIsRetryableIncompleteOutput() = runBlocking {
+        val hugeText = "x".repeat(PaperEditCommandParser.MAX_PAYLOAD_CHARS + 1)
+        val gateway = OpenAiCompatibleModelGateway(
+            configurationStore = FakeConfigurationStore(CONFIGURATION),
+            assetSource = assetSource { _, _ -> asset() },
+            transport = modelTransport { _ ->
+                ModelHttpResponse(
+                    200,
+                    envelope(paperEditPayload(text = hugeText)),
+                )
+            },
+            clock = { AUTHORIZATION_NOW },
+        )
+
+        val failed = gateway.execute(authorizedPaperEdit(gateway)).toList().last()
+            as ModelGatewayEvent.Failed
+
+        assertEquals(ModelFailureCode.INCOMPLETE_OUTPUT, failed.failure.code)
+        assertTrue("超预算换一份更短的输出可能成功", failed.failure.retryable)
+    }
+
+    @Test
+    fun paperEditShapeFailureCaptureKeepsItsTaskKindAndTheRawProviderBody() = runBlocking {
+        // 批次 41 / WS7 项 44（M-04 分类面）：新 kind 的失败必须落进**既有**诊断缝，带着
+        // PAPER_EDIT 的任务归属与上游原文。消灭的失败：改卷失败在设备侧只剩一句"内容不可用"，
+        // 无法判断是模型塞了 replace_image、还是信封形状漂移——与 KD-38 同一种不可归因。
+        val captured = mutableListOf<ModelCallFailureRecord>()
+        ModelCallFailureDiagnostics.sink = { captured += it }
+        try {
+            val gateway = OpenAiCompatibleModelGateway(
+                configurationStore = FakeConfigurationStore(CONFIGURATION),
+                assetSource = assetSource { _, _ -> asset() },
+                transport = modelTransport { _ ->
+                    ModelHttpResponse(
+                        200,
+                        envelope("""{"commands":[{"type":"replace_image","entryId":"entry-a"}]}"""),
+                    )
+                },
+                clock = { AUTHORIZATION_NOW },
+            )
+
+            val failed = gateway.execute(authorizedPaperEdit(gateway)).toList().last()
+                as ModelGatewayEvent.Failed
+
+            assertEquals(ModelFailureCode.INVALID_RESPONSE, failed.failure.code)
+            val record = captured.single()
+            assertEquals(ModelTaskKind.PAPER_EDIT, record.taskKind)
+            assertEquals(ModelFailureCode.INVALID_RESPONSE, record.failureCode)
+            assertFalse("形状错误重发会逐字复现", record.retryable)
+            assertEquals(200, record.httpStatus)
+            assertTrue(
+                "诊断必须留下上游原文：${record.rawResponse}",
+                record.rawResponse!!.contains("replace_image"),
+            )
+            assertEquals(
+                InvalidModelResponseException::class.java.name,
+                record.exceptionClass,
+            )
+        } finally {
+            ModelCallFailureDiagnostics.sink = null
+        }
+    }
+
+    @Test
+    fun paperEditOverBudgetCaptureKeepsTheRetryableBudgetFailure() = runBlocking {
+        // 超预算与形状错误在诊断面上必须可区分：前者可重试、异常类是文本预算越界；后者不可重试、
+        // 异常类是形状错误。两者失败码同属 INCOMPLETE_OUTPUT 家族，记录里靠 exceptionClass 分开
+        // ——混成一类会让"换一份更短的输出"这条出口在设备侧看不出来（KD-38 的另一半）。
+        val captured = mutableListOf<ModelCallFailureRecord>()
+        ModelCallFailureDiagnostics.sink = { captured += it }
+        try {
+            val hugeText = "x".repeat(PaperEditCommandParser.MAX_PAYLOAD_CHARS + 1)
+            val gateway = OpenAiCompatibleModelGateway(
+                configurationStore = FakeConfigurationStore(CONFIGURATION),
+                assetSource = assetSource { _, _ -> asset() },
+                transport = modelTransport { _ ->
+                    ModelHttpResponse(200, envelope(paperEditPayload(text = hugeText)))
+                },
+                clock = { AUTHORIZATION_NOW },
+            )
+
+            val failed = gateway.execute(authorizedPaperEdit(gateway)).toList().last()
+                as ModelGatewayEvent.Failed
+
+            assertEquals(ModelFailureCode.INCOMPLETE_OUTPUT, failed.failure.code)
+            assertTrue(failed.failure.retryable)
+            val record = captured.single()
+            assertEquals(ModelTaskKind.PAPER_EDIT, record.taskKind)
+            assertEquals(ModelFailureCode.INCOMPLETE_OUTPUT, record.failureCode)
+            assertTrue("超预算换一份更短的输出可能成功", record.retryable)
+            assertEquals(200, record.httpStatus)
+            assertTrue(record.rawResponse!!.contains(hugeText))
+            assertEquals(
+                "com.tingyun.smartmistakebook.core.model.ModelTextBudgetExceededException",
+                record.exceptionClass,
+            )
+        } finally {
+            ModelCallFailureDiagnostics.sink = null
+        }
     }
 
     @Test
@@ -2195,6 +2357,63 @@ class OpenAiCompatibleModelGatewayTest {
             )
             put("messageMarkdown", "先看导数的符号。")
             put("solutionRevealed", false)
+        },
+    )
+
+    /** 6B-3 改卷走全局同意通道：没有逐次清单（与生产 `isAgentConsentEligible=true` 同形）。 */
+    private suspend fun authorizedPaperEdit(
+        gateway: OpenAiCompatibleModelGateway,
+    ): ModelGatewayExecution {
+        val request = ModelTaskRequest(
+            requestId = "paper-edit-request",
+            input = paperEditInput(),
+            occurredAtEpochMillis = REQUEST_OCCURRED_AT,
+            agentConsentGranted = true,
+            egressManifest = null,
+        )
+        return ModelEgressPolicy.authorize(request, gateway.capabilities(), AUTHORIZATION_NOW)
+    }
+
+    private fun paperEditInput() = PaperEditInput(
+        paperId = "paper-1",
+        revision = 3,
+        instruction = "把第 1 题标题改短",
+        questions = listOf(
+            PaperEditQuestionSnapshot(
+                entryId = "entry-a",
+                title = "二次函数综合题",
+                blocks = listOf(
+                    PaperEditBlockSnapshot(
+                        blockId = "stem-entry-a",
+                        kind = PaperEditBlockKind.PARAGRAPH,
+                        text = "求函数的单调区间",
+                    ),
+                ),
+            ),
+        ),
+    )
+
+    private fun paperEditPayload(text: String? = null): String = Json.encodeToString(
+        buildJsonObject {
+            put(
+                "commands",
+                buildJsonArray {
+                    add(
+                        buildJsonObject {
+                            if (text == null) {
+                                put("type", "set_question_title")
+                                put("entryId", "entry-a")
+                                put("title", "短一点的标题")
+                            } else {
+                                put("type", "set_block_text")
+                                put("entryId", "entry-a")
+                                put("blockId", "stem-entry-a")
+                                put("text", text)
+                            }
+                        },
+                    )
+                },
+            )
         },
     )
 
