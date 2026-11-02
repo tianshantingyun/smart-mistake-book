@@ -556,7 +556,7 @@ internal object SmbkArchiveCodec {
                         }
                     }
                 }
-                finalizeValidation(manifestText, checksumText, settingsText, digests, sizes)
+                finalizeValidation(manifestText, checksumText, settingsText, digests, sizes).validation
             }
         } catch (failure: ArchiveIntegrityException) {
             BackupValidation.Invalid(failure.message.orEmpty())
@@ -580,7 +580,17 @@ internal object SmbkArchiveCodec {
         archive: InputStream,
         destinationDir: File,
         limits: SmbkResourceLimits = SmbkResourceLimits.DEFAULT,
-    ): BackupValidation {
+    ): BackupValidation = unpackDetailed(archive, destinationDir, limits).validation
+
+    /**
+     * [unpack] 的完整结果：校验结论 + 旧规则包的恢复投影（现行 closure 5 为 identity）。
+     * 恢复仓储用它做"按声明版本键空间"的行数对账；公开的 [unpack] 只丢投影，行为不变。
+     */
+    internal fun unpackDetailed(
+        archive: InputStream,
+        destinationDir: File,
+        limits: SmbkResourceLimits = SmbkResourceLimits.DEFAULT,
+    ): UnpackOutcome {
         require(destinationDir.isDirectory || destinationDir.mkdirs()) {
             "Cannot create backup staging directory"
         }
@@ -638,18 +648,31 @@ internal object SmbkArchiveCodec {
                         }
                     }
                 }
-                finalizeValidation(manifestText, checksumText, settingsText, digests, sizes)
+                val finalized = finalizeValidation(
+                    manifestText,
+                    checksumText,
+                    settingsText,
+                    digests,
+                    sizes,
+                )
+                UnpackOutcome(finalized.validation, finalized.projection)
             }
         } catch (failure: ArchiveIntegrityException) {
             cleanupStaging()
-            BackupValidation.Invalid(failure.message.orEmpty())
+            UnpackOutcome(BackupValidation.Invalid(failure.message.orEmpty()), null)
         } catch (failure: Exception) {
             cleanupStaging()
-            BackupValidation.Invalid("备份解包失败：${failure.message.orEmpty()}")
+            UnpackOutcome(BackupValidation.Invalid("备份解包失败：${failure.message.orEmpty()}"), null)
         } finally {
             File(destinationDir, ".archive.tmp").delete()
         }
     }
+
+    /** [unpackDetailed] 的返回：公开校验结论 + 内部恢复投影。 */
+    internal data class UnpackOutcome(
+        val validation: BackupValidation,
+        val projection: SmbkSelectionProjection?,
+    )
 
     // ------------------------------------------------------------------
     // Shared verification pipeline
@@ -1026,35 +1049,37 @@ internal object SmbkArchiveCodec {
         settingsText: String?,
         stagedDigests: Map<String, String>,
         stagedSizes: Map<String, Long>,
-    ): BackupValidation {
-        val text = manifestText ?: return BackupValidation.Invalid("缺少 manifest.json")
+    ): FinalizedValidation {
+        fun invalid(reason: String) = FinalizedValidation(BackupValidation.Invalid(reason), null)
+        val text = manifestText ?: return invalid("缺少 manifest.json")
         if (text.length > SmbkResourceLimits.DEFAULT.maxManifestChars) {
-            return BackupValidation.Invalid("manifest 内容过长")
+            return invalid("manifest 内容过长")
         }
         val parsed = try {
             json.decodeFromString(SmbkManifest.serializer(), text)
         } catch (failure: Exception) {
-            return BackupValidation.Invalid("manifest 解析失败：${failure.message.orEmpty()}")
+            return invalid("manifest 解析失败：${failure.message.orEmpty()}")
         }
         if (parsed.formatVersion > SmbkManifest.FORMAT_VERSION) {
-            return BackupValidation.Invalid("备份格式版本过新，暂不支持恢复")
+            return invalid("备份格式版本过新，暂不支持恢复")
         }
         if (parsed.formatVersion < SmbkManifest.MIN_READABLE_FORMAT_VERSION) {
-            return BackupValidation.Invalid("备份格式版本过旧，暂不支持恢复")
+            return invalid("备份格式版本过旧，暂不支持恢复")
         }
         if (parsed.hashAlgorithm != "SHA-256") {
-            return BackupValidation.Invalid("不支持的校验算法")
+            return invalid("不支持的校验算法")
         }
         // 6C-2（T5）：selection 块的**严格读侧闸门**。v1/v2 包没有这个键，读作 null = 全量
         // （旧语义）；formatVersion>=3 的包**必须**带 selection（设计 §3.2-S1），缺失时
         // 不能猜成全量——那会把一份被剥掉选择块的子集/残缺包按全量恢复并清空本机数据。
-        // 只要清单带了 selection，它就必须与本机规则表版本完全自洽。这里在解包/恢复的
-        // Phase 1 就拒绝——仍在交换之前，原库一个字节都不动。
-        // 声明 vs 包内库实测（未勾选类别 0 行、92 表逐表行数）在恢复的 Phase 2b 之后另行核对。
+        // 只要清单带了 selection，它就必须与**它自称的**规则表版本完全自洽；closure 4 的
+        // 旧包按冻结的 v4 规则校验（WS1 item 5），不按 v5 重算。
+        // 声明 vs 包内库实测在恢复的 Phase 2c.1 按同一投影核对。
         val declaredSelection = parsed.selection
+        var selectionProjection: SmbkSelectionProjection? = null
         val selectionSummary = if (declaredSelection == null) {
             if (parsed.formatVersion >= SmbkSelectionRecord.INTRODUCED_FORMAT_VERSION) {
-                return BackupValidation.Invalid(
+                return invalid(
                     "备份格式版本=${parsed.formatVersion} 缺少内容选择块（selection）：" +
                         "v3 起必须声明备份内容，无法确认这份包带了哪些类别，恢复被拒绝",
                 )
@@ -1062,13 +1087,16 @@ internal object SmbkArchiveCodec {
             null
         } else {
             when (val checked = readableSelection(declaredSelection, parsed.formatVersion)) {
-                is SelectionRead.Valid -> checked.summary
-                is SelectionRead.Invalid -> return BackupValidation.Invalid(checked.reason)
+                is SelectionRead.Valid -> {
+                    selectionProjection = checked.projection
+                    checked.summary
+                }
+                is SelectionRead.Invalid -> return invalid(checked.reason)
             }
         }
         val expectedPaths = parsed.files.map { it.path }.toSet()
         if (expectedPaths != stagedSizes.keys) {
-            return BackupValidation.Invalid("备份文件列表与内容不一致")
+            return invalid("备份文件列表与内容不一致")
         }
         val checksums = mutableMapOf<String, String>()
         checksumText.orEmpty().lineSequence().forEach { line ->
@@ -1079,10 +1107,10 @@ internal object SmbkArchiveCodec {
             }
         }
         if (checksumText == null || checksums.isEmpty()) {
-            return BackupValidation.Invalid("缺少 checksums.sha256")
+            return invalid("缺少 checksums.sha256")
         }
         if (checksums != parsed.files.associate { it.path to it.sha256 }) {
-            return BackupValidation.Invalid("checksums.sha256 与 manifest 不一致")
+            return invalid("checksums.sha256 与 manifest 不一致")
         }
         val settingsProblem = settingsRejection(
             declaredHasSettings = parsed.hasSettings,
@@ -1091,48 +1119,55 @@ internal object SmbkArchiveCodec {
             stagedDigests = stagedDigests,
         )
         if (settingsProblem != null) {
-            return BackupValidation.Invalid(settingsProblem)
+            return invalid(settingsProblem)
         }
         // AUD-05：包声明的引用集合必须逐条在包内（缺图在交换前就拒绝，不给"恢复到一半
         // 才发现图没了"的机会）。旧包没有这张清单，默认空表——不因此改变旧包的既有行为。
         val missingReferencedAssets = parsed.referencedAssets
             .filterNot { path -> path in stagedSizes.keys }
         if (missingReferencedAssets.isNotEmpty()) {
-            return BackupValidation.Invalid(
-                "备份引用的题图缺失：${missingReferencedAssets.joinToString(separator = "、")}",
-            )
+            return invalid("备份引用的题图缺失：${missingReferencedAssets.joinToString(separator = "、")}")
         }
         parsed.files.forEach { record ->
-            val size = stagedSizes[record.path]
-                ?: return BackupValidation.Invalid("缺少 ${record.path}")
+            val size = stagedSizes[record.path] ?: return invalid("缺少 ${record.path}")
             if (size != record.byteSize) {
-                return BackupValidation.Invalid("${record.path} 大小不一致")
+                return invalid("${record.path} 大小不一致")
             }
             if (stagedDigests[record.path] != record.sha256) {
-                return BackupValidation.Invalid("${record.path} 校验失败")
+                return invalid("${record.path} 校验失败")
             }
         }
-        return BackupValidation.Valid(
-            manifest = BackupManifestSummary(
-                formatVersion = parsed.formatVersion,
-                databaseSchemaVersion = parsed.databaseSchemaVersion,
-                createdAtEpochMillis = parsed.createdAtEpochMillis,
-                problemCount = parsed.problemCount,
-                assetCount = parsed.assetCount,
-                fileCount = parsed.files.size,
-                appVersionName = parsed.appVersionName,
-                appVersionCode = parsed.appVersionCode,
-                contentVersion = parsed.contentVersion,
-                hasSettings = parsed.hasSettings,
-                selection = selectionSummary,
-                // 恢复侧 Phase 2c.1 用它和包内库逐表 COUNT 对拍（mask=15 也要对）。
-                // v1/v2 没有 selection 块 → null（全量语义，不做行数对拍）。
-                selectionRowCounts = declaredSelection?.rowCounts,
+        return FinalizedValidation(
+            BackupValidation.Valid(
+                manifest = BackupManifestSummary(
+                    formatVersion = parsed.formatVersion,
+                    databaseSchemaVersion = parsed.databaseSchemaVersion,
+                    createdAtEpochMillis = parsed.createdAtEpochMillis,
+                    problemCount = parsed.problemCount,
+                    assetCount = parsed.assetCount,
+                    fileCount = parsed.files.size,
+                    appVersionName = parsed.appVersionName,
+                    appVersionCode = parsed.appVersionCode,
+                    contentVersion = parsed.contentVersion,
+                    hasSettings = parsed.hasSettings,
+                    selection = selectionSummary,
+                    // 恢复侧 Phase 2c.1 用它和包内库逐表 COUNT 对拍（mask=15 也要对）。
+                    // v1/v2 没有 selection 块 → null（全量语义，不做行数对拍）。
+                    // 旧规则包保留**原始声明键空间**；归一化在 SmbkSelectionProjection 里。
+                    selectionRowCounts = declaredSelection?.rowCounts,
+                ),
+                checkedFileCount = parsed.files.size,
+                totalBytes = parsed.files.sumOf { it.byteSize },
             ),
-            checkedFileCount = parsed.files.size,
-            totalBytes = parsed.files.sumOf { it.byteSize },
+            selectionProjection,
         )
     }
+
+    /** [finalizeValidation] 的结果：校验结论 + 旧规则包的恢复投影（现行包为 identity）。 */
+    private data class FinalizedValidation(
+        val validation: BackupValidation,
+        val projection: SmbkSelectionProjection?,
+    )
 
     /**
      * 读侧的 selection 判定（T5）。**所有**字段都在交换前判定：格式版本、记录版本、
@@ -1159,12 +1194,15 @@ internal object SmbkArchiveCodec {
                     "本机只读 ${SmbkSelectionRecord.CURRENT_SCHEMA_VERSION}",
             )
         }
-        if (record.closureVersion != SmbkSelectionPlan.CLOSURE_VERSION) {
-            return SelectionRead.Invalid(
+        // 规则表按包**自称的** closureVersion 选（WS1 item 5）：closure 4 的旧包用冻结的
+        // v4 规则校验，而不是被"必须等于本机 5"在第一道门硬拒。不认识 → 可读拒绝。
+        val rule = ClosureRuleTables.of(record.closureVersion)
+            ?: return SelectionRead.Invalid(
                 "备份内容选择的 closureVersion=${record.closureVersion} 不受支持，" +
-                    "本机规则表为 ${SmbkSelectionPlan.CLOSURE_VERSION}",
+                    "本机支持 ${ClosureRuleTables.v4.closureVersion}/" +
+                    "${ClosureRuleTables.v5.closureVersion}（closure ≤3 无不可变规则表，" +
+                    "≥6 请升级 App）",
             )
-        }
         if (record.categoryMask !in SmbkSelectionPlan.allowedMasks) {
             return SelectionRead.Invalid(
                 "备份内容选择的 mask=${record.categoryMask} 不被允许；" +
@@ -1192,24 +1230,37 @@ internal object SmbkArchiveCodec {
                     "本机只读 ${SmbkSelectionPlan.ASSET_POLICY_INCLUDED}",
             )
         }
-        if (record.rowCounts.keys != SmbkSelectionPlan.rowCountKeys) {
-            val missing = (SmbkSelectionPlan.rowCountKeys - record.rowCounts.keys).sorted()
-            val extra = (record.rowCounts.keys - SmbkSelectionPlan.rowCountKeys).sorted()
+        if (record.rowCounts.keys != rule.rowCountKeys) {
+            val missing = (rule.rowCountKeys - record.rowCounts.keys).sorted()
+            val extra = (record.rowCounts.keys - rule.rowCountKeys).sorted()
             return SelectionRead.Invalid(
-                "备份内容选择的 rowCounts 必须覆盖 92 表：missing=$missing extra=$extra",
+                "备份内容选择的 rowCounts 必须覆盖 ${rule.rowCountKeys.size} 表" +
+                    "（closure ${rule.closureVersion}）：missing=$missing extra=$extra",
             )
         }
         if (record.rowCounts.values.any { count -> count < 0L }) {
             return SelectionRead.Invalid("备份内容选择的 rowCounts 含负数")
         }
-        if (record.trimmedTableCount !in 0..SmbkSelectionPlan.trimOrder.size) {
+        // 被删表必须"验空后丢弃"（R2 §4.1 / D3）：声明非 0 说明包里仍带着本版不认识的
+        // 用户数据，按 0 补齐等于静默丢行——整包拒绝。
+        rule.droppedTables.forEach { table ->
+            val declared = record.rowCounts.getValue(table)
+            if (declared != 0L) {
+                return SelectionRead.Invalid(
+                    "备份内容选择声明已废弃表 $table 有 $declared 行；closure " +
+                        "${rule.closureVersion} 不再包含该表，为防静默丢行整包拒绝",
+                )
+            }
+        }
+        if (record.trimmedTableCount !in 0..rule.trimOrderSize) {
             return SelectionRead.Invalid(
                 "备份内容选择的 trimmedTableCount=${record.trimmedTableCount} 越界 " +
-                    "(0..${SmbkSelectionPlan.trimOrder.size})",
+                    "(0..${rule.trimOrderSize}，closure ${rule.closureVersion})",
             )
         }
         val recomputed = runCatching {
-            SmbkSelectionPlan.closureDigest(
+            ClosureRuleTables.digest(
+                rule = rule,
                 categories = SmbkSelectionPlan.categoriesOf(record.categoryMask),
                 assetPolicy = record.assetPolicy,
                 rowCounts = record.rowCounts,
@@ -1225,6 +1276,25 @@ internal object SmbkArchiveCodec {
                     "declared=${record.closureDigest} recomputed=$recomputed",
             )
         }
+        // 恢复投影：新增表按 0 行补齐、被删表从声明键空间移除（只用于恢复侧对账）。
+        val projection = if (rule.addedTables.isEmpty() && rule.droppedTables.isEmpty()) {
+            SmbkSelectionProjection.identity(record.rowCounts, record.closureVersion)
+        } else {
+            val normalized = LinkedHashMap<String, Long>(
+                rule.rowCountKeys.size - rule.droppedTables.size + rule.addedTables.size,
+            )
+            record.rowCounts.forEach { (table, count) ->
+                if (table !in rule.droppedTables) normalized[table] = count
+            }
+            rule.addedTables.forEach { table -> normalized[table] = 0L }
+            SmbkSelectionProjection(
+                declaredClosureVersion = record.closureVersion,
+                addedTables = rule.addedTables,
+                droppedTables = rule.droppedTables,
+                declaredRowCounts = record.rowCounts,
+                normalizedRowCounts = normalized,
+            )
+        }
         return SelectionRead.Valid(
             // assetPolicy = manifest 声明值（批次 19 T2-2）：能走到这里的一定已过
             // 「只读 INCLUDED」的闸门；照抄声明值而不是写死常量，让摘要与清单同源。
@@ -1233,12 +1303,16 @@ internal object SmbkArchiveCodec {
                 categories = fromMask,
                 assetPolicy = record.assetPolicy,
             ),
+            projection,
         )
     }
 
     /** [readableSelection] 的判定结果；[Invalid] 携带可读拒因。 */
     private sealed interface SelectionRead {
-        data class Valid(val summary: BackupSelectionSummary) : SelectionRead
+        data class Valid(
+            val summary: BackupSelectionSummary,
+            val projection: SmbkSelectionProjection,
+        ) : SelectionRead
 
         data class Invalid(val reason: String) : SelectionRead
     }
