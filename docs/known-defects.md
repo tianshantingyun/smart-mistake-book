@@ -947,6 +947,8 @@ dense 兜底议题结构性消灭，词面侧不再以去截断方式修——v2
 **重开条件不变**（原文三条一字不动）。复算口径与命令的完整记录见
 `docs/kb-vector-topic-decision.md` §7 附录 A.1。
 
+**批次 40 WS7 移交登记（2026-11-02；本线只读核对，零代码/零 Gradle/零设备/零 git 写）.** 本条按计划任务 41 移交 **KB 线**承接，本线不再做词面侧修改。现树复核（本会话实跑）：`KnowledgeSearchFeatureExtractor.kt:15` `MAX_SEARCH_FRAGMENTS = 16`、`:22` KDoc 明示 v1 为当前生产形状，v2 去截断未回流；dense 兜底面在 `core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/dense/`（`DenseFusion.kt`/`DenseRecallAssembly.kt` 等在树）——与"归宿=同层 dense 兜底"一致。移交边界：① 关闭/重开判据原文三条一字不动（本条目 `Reopen condition` 段）；② 评测须用 `GoldenRetrievalInstrumentedTest` + `GoldenRetrievalJvmTest` 零漂移；③ 本线不建第二套词面实验、不改 `INDEX_VERSION`、不动索引锚点换血语义。KB 线受理时在自身记录登记受理批号与评测窗口；未受理前本条维持 open。
+
 ## KD-25 (fixed 2026-09-24) · 20k 基准的两条墙钟腿把单个离群样本当 p95——档 2 三轮误红，run2 双离群"排首样本"也救不了
 
 **Symptom.** `KnowledgeContextRetrievalInstrumentedTest#largeSubjectRecallRemainsBoundedOnRoom`
@@ -1097,6 +1099,8 @@ sha256"一行（同一张 `chapter_map.csv` 本地绿 / CI 红——读数必须
 **Reopen condition.** 上述两处 HEAD 缺件（`core:export` 的 `kotlinx.serialization`、`core:database` 的 `RevisionImageSource`）修好后，CI `check` job 应转绿；若届时 commit-back 仍不写回，
 说明还有第三条红未归因——按 `gh run view <id> --json jobs` 的步骤级结论重新归因，不要猜。
 
+**Progress（2026-11-02 批次 40 WS6 item 38 CI 红诊断；`gh run view` 只读 + 仓库核对；零 Gradle/零设备/零 git 写；状态保持 open）.** 最新 main push run **`41351379815`**（HEAD `a3f367df`）仍 **failure**，但红因已换代：`check` job 的 `Knowledge build toolchain tests`、`Knowledge pack gate and table-pack consistency`、`Room schema drift check`、`Dependency lockfile manifest and coverage gate` 均 **success**（`Dependency lockfiles are up to date` 无跟踪锁 → skip），唯一红步是 `Unit tests` → `:core:export:testDebugUnitTest` 的 `MistakePdfPlannerGoldenTest` 两例（`AssertionError` at `:36` / `:64`）。根因是 **HEAD 实现已去掉题面选项行的 `[已选]` 后缀、HEAD 测试仍期望旧文本/旧摘要**；工作树已有 UV-10 重登记（两条期望改无后缀、摘要改 `2ba874cc…` / `d9f928e1…`）但**未提交**，且 `core/export` 是热区。`instrumented` job 同时红在三处：`:core:database:compileDebugKotlin` 的 `RoomStudyDatabase.kt:2160 'readLatestLiveTutorVisualSnapshot' overrides nothing`（HEAD `TutorVisualPort.kt` 无该方法；工作树 +15 行端口方法未提交）；`feature:capture` 1 例（`CaptureModelTaskCardInstrumentedTest.incompleteQuestionOnlyOffersAppendWithoutDiscardingSavedPages`，`assertExists` 找不到 `已保存的页面不会丢失`）；`feature:tutor` 5 例（toolbar `first()` vs `null`、fenced code 字面量、摘要 `过程图 · 受力示意 · 未就绪` 不可见、`editor_source_reference` 不可见、键盘布局 5 s 超时）。两处 HEAD 不一致的修复都在禁改热区（`core/export`、`core/database`）且只存在于工作树，本轨**零产品代码落码**；`docs/status.md` 继续冻结于 2026-10-24 手工重生成。转绿最小路径（提交端口方法 → 提交 golden 重登记 → UI 线处理 6 例 → 等 CI 写回）与逐例证据见 `docs/research/2026-11-02-kd27-ci-red-diagnosis.md`。**不得**把 commit-back 的 `if: success()` 改成 `always()` 来掩盖红。
+
 ## KD-28 (open, 2026-09-28 判为**接受边界**) · `kb_build` 的 9 科白名单仍抄两份（`KnowledgeBaseImportContract` 与 `SubjectKind` 各一份）
 
 **Symptom.** 2026-09-21 架构审计 P7/R5-3 点名：`core/database/.../KnowledgeBaseImportContract.kt:17-23`
@@ -1108,6 +1112,8 @@ sha256"一行（同一张 `chapter_map.csv` 本地绿 / CI 红——读数必须
 收益（消除一份暂未漂移的重复）不抵代价。
 **Reopen condition.** 出现第五科、或白名单需要按科放行（例如整科下架/按科开关）时，收敛到
 `SubjectKind` 必须做；届时两份清单的**漂移**就是判据（先证漂移，再改）。
+
+**批次 40 WS7 移交登记（2026-11-02；本线只读核对，零改动）.** 按计划任务 41 移交 **KB 线**。现树复核：`core/database/.../KnowledgeBaseImportContract.kt:31` `private val subjects = setOf(` 仍在；`core/model/.../SubjectKind.kt:4-15` 仍为 9 值枚举——两份清单仍并存，本轮未见漂移证据。移交判据沿用 2026-09-28 裁定（接受边界，不收敛）：仅当出现第五科或需要按科放行（整科下架/按科开关）时，由 KB 线先证漂移再收敛到 `SubjectKind`。本线不改该文件（core/database 他线在飞）。
 
 ## KD-29 (open, 2026-09-28 登记) · AI 生成合成内容标识未落：材料与展示层没有"AI 整理"标识
 
@@ -1283,6 +1289,8 @@ Dalvik Heap Alloc 峰 25,670 KB（走查报 19,116 KB 系读错列，独立核�
 
 **Reopen condition.** 再次出现 OOM/知识包横幅时按本条继续；或触及裁剪/重绘路径的整幅解码
 （①）与采样路径的设备用例（②）时——补齐①②后本条可结。
+
+**批次 40 WS7 移交登记（2026-11-02；本线只读核对，零改动）.** 按计划任务 41 移交 **KB 线**（知识包安装与批量导入内存面）。条目内已固定的未达项不变：① crop/persist 采样口径已与 import 共用（2026-10-14 B2 块）；② 采样设备用例与 >2048 源图的分辨率语义影响仍缺；③ 安装窗口堆采样无留存件；④ 失败重试重付全量解析（有意取舍）；⑤ 行为差异（长边 ≤2048 等）已登记；⑥ 跨段退役断言缺。移交边界：关闭条件原文"再次出现 OOM/知识包横幅时按本条继续；或触及裁剪/重绘路径的整幅解码（①）与采样路径的设备用例（②）时——补齐①②后本条可结"不变；本线不跑设备 OOM 复现、不改 `AndroidCanonicalAssetVault`。KB 线受理后按自身评测窗口回填。
 
 ## KD-33 (fixed 2026-10-13，提交 `e3de72f8`；OpenAI Chat Completions 协议族；2026-10-14 三协议族补齐见补记) · 推理型模型在 CAPTURE_ASSESS 上高概率 TIMEOUT/INVALID_RESPONSE
 
@@ -2508,6 +2516,8 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
    未跑项：本轨未执行任何 Gradle 测试（门禁轨 P5/P6/P7 跑单测/androidTest 编译/设备）；设备端
    D1 换机演练将首次以真实 collector 在飞的状态走恢复全链。
 
+**批次 40 WS7 状态复核（2026-11-02；低危清仓判断=不清仓，维持 open；只读核对，零 Gradle/零设备）.** 现树实跑 `grep -rn withWriteAdmission --include=*.kt core app feature`（排除 test/androidTest）→ 生产调用点 **3 处**：`AndroidBackupRepository.kt:167`（清理孤立题图）、`RoomCaptureWorkflowRepository.kt:186`（采集写入口）、`FigureGenerationReconciler.kt:82`（图生成僵尸对账，较批次 17 新增 1 处）——写门覆盖面比批次 17 扩大，但复习调度/知识写入/掌握度/导出/提醒仍是 DAO 直写，KD-62③ 的旁路面未闭合。关闭条件不变（非门控写入口在关库前被硬性排空或证明不可达）。判定：**维持 open（low）**；不构成新红，也不满足清仓。
+
 ## KD-62 (fixed ①+② 2026-10-21（批次 16 T7；RoomBackupCheckpointValidationTest 5/0、BackupTempArtifactCleanupTest 2/0；③ 保留 KD-61）；2026-10-20 登记（批次 15 收尾复核；low）) · 备份回退与清理残余：checkpoint 结果行被忽略、成包临时库无启动清理、写门只覆盖两仓库
 
 **Symptom（读码）.** ① 旧回退的 `checkpointForBackup` 消费 `wal_checkpoint(TRUNCATE)` 结果行后不校验是否真的完成
@@ -2548,6 +2558,8 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 
 **Reopen condition.** 出现「全清数据后每次启动重跑派生索引重建」类现象时按本条处置；修复后以崩溃注入或顺序断言关闭。
 
+**批次 40 WS7 状态复核（2026-11-02；低危清仓判断=不清仓，维持 open；只读核对）.** 现树实读：① `AndroidBackupRepository.deleteAllNonDatabaseFiles` 内 `RestoreIndexRebuildMarker.FILE_NAME` 过滤仍在**第 10 步**（`AndroidBackupRepository.kt:1037`，段首注释 `:1030-1033`），且 `deleteAllNonDatabaseFiles` 在写门 `endRestore` 之后调用——"库已删、标记未删"窗口未消除；② `RestoreSoftReferenceRecheck.kt:191-192` 的 `finally` 仍无条件删除 `$path-wal`/`$path-shm`，且无防御性语义注释。关闭条件（崩溃注入或顺序断言）未取得。修复方向原文不变（标记删除提前到不可逆段，或消费标记时校验库非空/版本匹配；finally 注明防御性清理）。判定：**维持 open（low）**。
+
 ## KD-64 (fixed 2026-10-26 批次 21 T1 域层修复 + 设备复验 3/3) · NewIntroductionPolicy 全超尺寸死锁分支 granted slice 可为负 → IllegalArgumentException，3E 排计划在「全部候选时长 > 当日时间预算」配置下崩溃
 
 **Symptom（设备实跑 + 源码推导）.** 批次 20 T10 设备用例 `StudyReviewPlanner3EScanInstrumentedTest`（真 Room 种子库直跑 `StudyReviewPlannerService.createReviewPlan`）2/3 红：`java.lang.IllegalArgumentException: Granted slice must not be negative`，栈 `NewIntroductionPolicy$IntakeDecision.<init>(NewIntroductionPolicy.kt:68)` ← `decide(:151)` ← `StudyReviewPlannerService.createReviewPlan(:435)`。机制（基线 §8.3 读码证明）：`NewIntroductionPolicy.kt:68` `require(grantedSliceSeconds >= 0)`；`:154` 附近 `grantedSliceSeconds = effectiveSlice - remaining`；全超尺寸死锁分支（`:122-129`）中 sliceBudget = topDuration.coerceAtMost(timeBudgetSeconds) 而 capBudget = topDuration 无上界（`:52-53` 仅 require>0）——全部候选 `estimatedDurationSeconds > timeBudgetSeconds` 时全数 deferred、remaining 停在 timeBudget > effectiveSlice → granted < 0。具体触发例：timeBudget=300、单候选 duration=600 → granted = effectiveSlice−300 < 0。JVM 对照 `StudyReviewPlannerExamWindowTest` 6/0/0 绿 = 该形状 JVM 未覆盖。两文件均 git 干净（HEAD 态），非本批引入。
@@ -2569,6 +2581,8 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 **Fix direction.** 改 KDoc 使其与集合成员一致（说明 purpose 在白名单内、另有取值校验拒绝模型回填）；不改行为。
 
 **Reopen condition.** 若后续改动把 purpose 值校验放松或白名单语义变化时按本条重审。
+
+**批次 40 WS7 状态复核（2026-11-02；低危清仓判断=不清仓，维持 open；只读核对）.** 现树实读：`OpenAiModelResponseParsers.kt:297` KDoc 仍写 `policyVersion` 与 `purpose` **故意不在白名单里**；`:300-308` `FIGURE_GENERATION_WIRE_KEYS` 实含 `"purpose"`；`:321-323` 另有 `wirePurpose != SOURCE_TRANSCRIPTION` 即抛的值校验——注释与集合成员仍不符，行为仍 fail-closed。最小修法（归后续触碰该文件的批次，行为零改动）：把 `:297` 句改为"`policyVersion` 不在白名单；`purpose` 在白名单内但另有取值校验拒绝模型回填"。本线只改 docs，不改 KDoc（core/data 他线 M 面）。判定：**维持 open（low）**；纯文档性，不阻断任何门。
 
 ## KD-66 (closed 2026-10-27（批次 26 关闭：hard+500 ms 设备门三轮独立绿 E-01/E-02 + 记录回链，批次 26 记录 §3.5/§4）；2026-10-26 登记（批次 21 T3/复核发现 #1/#13/#21；高）) · QuickJS issue #240 使引擎硬期限不能返回：`execute()` 永不返回、`close()` 卡死、`inFlight` 不复位
 
@@ -2666,6 +2680,10 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 - **复核发现 #9 补测（2026-10-26）**：新增 `StudySnapshotIntakeUnschedulableTest`（`core/data/src/test/.../study/`）——不再只测 policy/mappers/overview，而是用假库 + 真 `RoomBackedStudyExperienceRepository` 走 `StudySnapshotBuilder.build` → `StudyReviewPlannerService.intakeUnschedulableCount`：两道 EASY（模型档 90 s）+ 一道 HARD（300 s），日预算 120 s；FIFO 只引入第一道 EASY，第二道 EASY 因切片用完顺延（**可调度**），只有 HARD 计入 `intakeUnschedulableCount`。实测 `review.scheduledPracticeUnitIds == ["unit-easy-1"]`、`intakeBacklogCount == 2`、`intakeUnschedulableCount == 1`。同一 `tmp/verify_batch23_t3.py`：红（HEAD 源 unresolved `intakeUnschedulableCount`）→ 绿（`StudySnapshotIntakeUnschedulableTest` `OK (1 test)`，既有 19/3/2 与旧金样全绿）。**"与 planner 同一口径"现在有执行证据，不再只是读码结论。**
 - **仍未闭合（本条保持 open 的剩余条件）**：`feature/review` 仍是他线热区——`ReviewRoute.kt:529` 仍调 `preview`、`:558` 仍是固定 `900`，`intakeUnschedulableCount`/`previewSchedulability` 在生产 main/feature/app 仍零消费者；`ReviewIntakeBacklogPreviewInstrumentedTest` 尚未覆盖"全超预算项显示为不可调度/专项会话"。Reopen condition 不变。
 - **残余（批次 23 复核 #11/#19/#20，低）**：① `IntakeDecision.unschedulableCount` 的 KDoc 写"count over [deferred]"，实现是 `ordered.count { ... }`（全部候选）；今日枚举可证明两者等价（非 allOversized 分支 cap ≤ effectiveSlice/2 < budget；allOversized 分支 sliceBudget ≤ budget 且 cap=topDuration，任一超预算候选都过不了 `duration <= remaining`），但契约文字与实现口径不一致，改发放守卫时会触发 `init` 的 `<= deferred.size` require。② `previewSchedulability.beyondHorizonCount` 只在三个用例中被断言为 0（`NewIntroductionPolicyTest.kt:245/:285/:323`），没有把积压推到 `MAX_SIMULATED_DAYS` 之外产生非零值的用例。③ 快照每次构建会多一次 `readExams()` + 全积压难度档批量读（`StudySnapshotBuilder.kt:91` → `StudyReviewPlannerService.kt:308/:314`），与同一轮 `createReviewPlan` 的读取重复；空积压短路，非空时是额外的 DB 读（未做基准，静态风险）。
+- **Progress（2026-11-02 批次 40 WS3 item 22，core/data；非 Gradle、非设备）.** 数据侧再补一个**同族出口**，仍不改默认计划：
+  - `ReviewCapacityPreviewReader`（`core/data/.../study/ReviewCapacityPreviewReader.kt`）用同一 `ForgettingCurve` + 同一 decay 现算 R(t_now) 与 R(examDay)，把考试缺口、再平衡可拉/不可拉、考试通道与积压通道的重复计数收成 `ReviewCapacityPreview`；考试日取**当日结束时刻**（保守值）。
+  - `StudyReviewPlannerService.reviewCapacityPreview(...)` 走同一份考试表与 `examCapacityBudgetSeconds` 预算，按科目各自的最近考试日过滤（修 R3 §3.2 的跨科串味口径），并把既有 `intakeUnschedulableCount` 一起返回；`RoomBackedStudyExperienceRepository.reviewCapacityPreview(...)` 是生产可调用入口（未改 `StudyExperienceRepository` 接口——接口在 core/domain 热区）。
+  - **仍未闭合**：`StudyExperienceSnapshot`/`StudyReviewOverview` 字段与 `feature/review` 消费仍在 core/domain / feature 热区；本批只落数据源与用例（见 `ReviewCapacityPreviewReaderTest` / `StudyReviewPlannerServiceCapacityPreviewTest`），不声称 UI 承诺已改口。KD-68 保持 open。
 
 **Fix direction.** feature/review 热区空出后，把 `ReviewRoute` 的积压预览改为 `previewSchedulability(...)`（或至少 `previewBacklog(...)`）并消费 `intakeUnschedulableCount`/`unschedulableCount`（文案区分"可日引入"与"需专项会话"）；`StudySnapshotBuilder.intakeBacklogCount` 与计划器已同口径（批次 23 T3）；保留 `preview` 仅作兼容/测试。
 
@@ -2724,6 +2742,8 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 
 **Reopen condition.** 设备用例以 `MEMORY_LIMIT`（或经裁定的等价判据）转绿，且 `memoryUsage`/诊断证据落盘后关闭。
 
+**Progress（2026-11-02 批次 40 WS8 §50 isolation 回归观察；只读核对 + E-40-04 回链；不改变本条关闭状态）.** `VisualJsIsolationInstrumentedTest` 在 10:13 四包 APK 上单臂 **15/15 绿**（`OK (15 tests)`，Time 60.848），但**低负载门未程序化**：测试内无 `loadavg` / `p50` / `p95` / `1800` / `6000` / `8000` 断言（`grep` 0 命中），只有单臂一轮；A3 逐方法分布与判据集合不符（`theClientRebuildsOnceAfterADeath…` 出现 **2 次** watchdog kill，在集合外；`aHungWorker` 另有 terminate）；无 OFF/ON 配对红集、无字节可核 T4-reverted 控制轮。E-40-04 verdict = **PARTIAL**；不得写“通过 / T4 已排除”。本条（KD-66）的关闭依据仍是批次 24 E-02 的 hard+500 ms 三轮，不受本批影响；isolation 的批次 40 缺口按 E-40-04 跟踪，待主会话裁定 A3 判据口径。
+
 ## KD-71 (open, 2026-10-26 登记（批次 21 T3 复核发现 #22；低）) · `QuickJsVisualExecutionEngine` close/execute 竞态：closed 检查与 `currentTransaction.set` 之间的窗口
 
 **Symptom（读码，登记时）.** `execute()` 先 `closed.get()` 检查，再 `inFlight.compareAndSet`，之后才 `currentTransaction.set(transaction)`（`QuickJsVisualExecutionEngine.kt:152-158`）；`close()` 只 `currentTransaction.get()?.forceAbandon()`（`:203-207`）。并发 close 恰好落在窗口内会读到 null，不强弃；随后 execute 仍会创建 QuickJs 并执行/返回成功，与"关闭后 execute 立即回 ENGINE_CLOSED"的终端语义不完全一致。
@@ -2754,6 +2774,12 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 **Progress（2026-10-29 批次 33 T6 状态核对；只读，零 Gradle/零设备/零 git 写；状态保持 open）.** 本批 T6 时点**无新增 KD-71 证据**：`docs/research/evidence/2026-10-29-batch-33/` 不存在（`ls` = `No such file or directory`），设备轨在 T6 之后串行执行，本块不能代替它。既有本机 JUnit 旁证仍在：`core/data/build/test-results/testDebugUnitTest/TEST-com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineJvmTest.xml` mtime **2026-10-29 12:38:58**、`tests="3" skipped="0" failures="0" errors="0"`（含 `close landing between the closed precheck and registration still rejects the execution`），属 build/ 旁证、非仓内命令日志、命令归属 UNVERIFIED。**本条保持 open**：Reopen condition 要求新源上设备侧两条并发用例 + 32 轮压测；本批设备轨若包含该套件以其结果为准，T6 不预判。
 
 **记录回链（2026-10-29 批次 33 记录员；只读；状态保持 open）.** 本批设备轨 14 套件（`docs/research/evidence/2026-10-29-batch-33/`，10 份）**不含** `QuickJsVisualExecutionEngineInstrumentedTest`；现树 `QuickJsVisualExecutionEngine.kt` 与 `QuickJsVisualExecutionEngineJvmTest.kt` 对 HEAD 零 diff（`git status --porcelain` 为空）。Reopen condition（新源上设备侧两条并发用例 + 32 轮压测）仍未满足；本条保持 open。记录见 `docs/research/2026-10-29-batch-33-record.md` §7 #14。
+
+**Progress（2026-11-02 批次 40 WS6 item 36；只读哈希核对 + R8 判据落文；零 Gradle/零设备/零 git 写；状态保持 open）.** R8 复核结论（`docs/research/2026-11-02-kd71-race-review.md`）：修复已在树且形态完整（单锁登记 / 强弃 / Dekker 双查 / 结果线性化 / 有界等待）；批次 39 E-04 的源快照与现树一致。本轮回跑 `sha256sum` 三文件 = **`7e6135be…6311a08b5`**（引擎）/ **`6597f20f…4462bf5022`**（仪器化）/ **`8b23975f…4d0968e822e5`**（JVM），与 `build/device-track-batch39/src-sha-before.txt:356,212,581` 及 `src-sha-final.txt` 同值；`wc -l build/device-track-batch39/src-snapshot.diff` = **0**；`grep -c '@Test'`：引擎仪器化 **27**、JVM **3**。据此 **G1（源绑定）成立**，但 G2/G3/G5 的批次 40 设备复跑未执行、G6 未落盘，故**不关闭**。关闭判据与证据模板见 `docs/research/2026-11-02-kd71-closeout-criteria.md`（G1–G6；含同一 APK 连跑 3 次、逐例 `STATUS_CODE 0`、27 例计数、FATAL/ANR 0）。关闭文案不得写"close 返回即无 JS 在执行"（#240 归 KD-66）；close 返回后仍可能交付 close 前已判定的 `Rendered` 是**已接受语义**。
+
+**记录回链（2026-11-02 批次 40 记录员；只读；状态保持 open，建议条件式关闭）.** 批次记录 `docs/research/2026-11-02-batch-40-record.md` §3.6/§8 汇总 E-40-06：G2/G3/G5 设备复跑已完成（3×`OK (27 tests)`），G1 三文件哈希与批次 39 快照同值；G4 未做。**本条不无条件关闭**；关闭文案须写“模拟器口径 / G4 未做（红向敏感性未实证）/ #240 上游仍 open / close 返回不代表无 JS 在执行”。证据绑定 10:13 APK，不绑定当前树。
+
+**Progress（2026-11-02 批次 40 WS6 item 36 设备核销；只读核对 + E-40-06 回链；状态保持 open，建议条件式关闭）.** 批次 40 设备轨已在 10:13 四包 APK（data test sha `34e3435d…3179`）上完成 G2/G3/G5：`QuickJsVisualExecutionEngineInstrumentedTest` **3×`OK (27 tests)`**（每轮 code0=27、codeNeg=0；7.830/7.906/7.864 s），logcat 九类签名全 0，`close()` 幂等绿（`build/device-track-batch40/suites/suite-engine{,-2,-3}.log`；`docs/research/evidence/2026-11-02-batch-40/step06-kd71-closeout.md` §G2–G3/G5）。G1 三文件哈希 `7e6135be…` / `6597f20f…` / `8b23975f…` 与批次 39 快照同值且 `git status` 为空。因此上块（批次 40 WS6 item 36）里“G2/G3/G5 的批次 40 设备复跑未执行”是**落笔时点值，已被 E-40-06 取代**。仍缺 **G4（变异/回退红向敏感性）**，故本条不能无条件关闭；关闭文案必须写“模拟器口径 / G4 未做 / #240 上游仍 open / close 返回不代表无 JS 在执行”。证据绑定 10:13 APK，不绑定当前树（当前树已 rebase 到 73/92 表并接线，KSP 已生成 `73.json`、hash `1d086050…`；见 E-40-07）。
 
 ## KD-72 (open, 2026-10-26 复核返修 #5/#10 登记；中) · dependency locking 已配置但仓库无已跟踪锁文件：DEFAULT 模式下锁门未生效，且已生成的锁与 HEAD/提交面不一致
 
@@ -2795,6 +2821,10 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 
 **Progress（2026-11-01 批次 39 台账维护员 T11 锁窗口复核；只读，零 Gradle/零设备/零 git 写；状态保持 open）.** 本批计划任务 11 只要求复核窗口、不做动作（硬约束"锁文件不提交"）。W1–W7 主机可跑面全部实跑（核对见准入清单附录 I.4，命令与批次 36 T6 同口径）：**W1 六文件 6/6 不干净**（`settings.gradle.kts`、`core/ui/build.gradle.kts`、`feature/tutor/build.gradle.kts`、`core/export/build.gradle.kts`、`.gitignore` 均 M，`core/markdown/build.gradle.kts` 为 `??`）；**W2 树未收口**（`git status --porcelain | wc -l` = **722** = 494 `??` + 228 ` M`，他线在飞）；**W3 暂存无锁**（`git diff --cached --name-only | wc -l` = 0）；**W4 跟踪锁 0**（`git ls-files '*lockfile'` = 0）、git 可见未跟踪条目 **13**、盘上 `*.lockfile` **14**（`core/markdown/gradle.lockfile` 折叠在 `?? core/markdown/` 内）；**W5 `:benchmark` 缺锁**（`ls benchmark/gradle.lockfile` = `No such file or directory`）；**W6 负控从未执行**（需 Gradle 解析期红，本轨禁跑）；**W7 Gradle 未跑**。J4 前半两门实跑 exit 0：`check_lockfiles.py`（明点 13 个未跟踪锁不能原样提交 + `:benchmark` 缺锁）、`check_dependency_pins.py`（quickjs 1.0.15 / stdlib 2.3.21）。→ **分支 B 维持（干净树重生成锁的窗口不满足），零动作，本条保持 open**；13 条 git 可见未跟踪锁不得 `git add`。
 
+**Progress（2026-11-02 批次 40 WS6 item 34 锁窗口重判；只读 + 门脚本复跑；零 Gradle/零 git 写；状态保持 open）.** 本轮实测：`git status --porcelain | wc -l` = **564**（**131 M + 433 ??**）；暂存 0；`git ls-files '*lockfile'` = 0；git 可见未跟踪锁 **14**（含 `settings-gradle.lockfile`；`core/markdown` 已入库，不再折叠）；盘上 `*.lockfile` **14**；`benchmark/gradle.lockfile` 不存在。**W1 由历次 6/6 脏收敛为 1/6 脏**——仅 `.gitignore` 为 ` M`；`settings.gradle.kts`、`core/ui/build.gradle.kts`、`feature/tutor/build.gradle.kts`、`core/export/build.gradle.kts`、`core/markdown/build.gradle.kts` 的 `git status --porcelain` 均无输出。W2/W5/W6/W7 仍不满足；`python -I tools/ci/check_lockfiles.py` exit 0（仍提示 13 个未跟踪 `gradle.lockfile` + `:benchmark` 缺锁）、`python -I tools/ci/check_dependency_pins.py` exit 0（quickjs 1.0.15 / stdlib 2.3.21）。**分支 B 维持，零动作**；最小等待清单 = 树收口（564→可提交）、`.gitignore` 所有者确认、`:benchmark` 锁、负控、Gradle 轨、Keeper D4 排序——见 `docs/research/2026-11-02-kd72-lock-window.md`。14 个未跟踪锁一律不得 `git add`。
+
+**记录回链（2026-11-02 批次 40 记录员；只读；状态保持 open）.** 批次记录 `docs/research/2026-11-02-batch-40-record.md` §3.6/§5 P18：W1 由 6/6 收敛到 **1/6**（仅 `.gitignore`），W2 564 条、W3 暂存 0、W4 跟踪 0/盘上 14/git 可见 14、W5 `:benchmark` 缺锁、W6 负控未做、W7 Gradle 未跑 → 分支 B 维持，零动作；14 个未跟踪锁不得 `git add`。最小等待清单见 `docs/research/2026-11-02-kd72-lock-window.md`。
+
 ## KD-73 (open, 2026-10-26 复核返修 #11 登记；中) · 运行时 kotlin-stdlib 强制降回 2.3.21：字节码/API 兼容证据只覆盖 quickjs AAR，不是全解析图
 
 **Symptom（读码 + 研究文档）.** `build.gradle.kts:47-57` 用 `eachDependency + useVersion` 把全项目运行时 `kotlin-stdlib` 从 quickjs-kt-android 1.0.15 POM 要求的 2.4.10 压回编译期 2.3.21；`gradle/libs.versions.toml:52-60` 记录该选择。R2 `docs/research/2026-10-26-dependency-governance.md` §3.1 的 88 条成员引用扫描只覆盖该 AAR（加上缓存内 78 POM/54 module 的样本），**不是完整解析图的 API 兼容证明**；文档 §3.4 自己列明运行期降级可能以 `NoSuchMethodError`/`NoClassDefFoundError` 暴露，且元数据 `mv=[2,4,0]` 的向前兼容官方口径是 preferably/mostly。本批没有新的构建/设备/R8 证据；`check_dependency_pins.py` 只校验解析版本，不校验 API 兼容性；`useVersion` 是软覆盖（strict 约束仍可赢，届时门会红）。
@@ -2827,6 +2857,10 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 
 **Progress（2026-11-01 批次 38 台账轨状态滚动；只读核对 + 门脚本复跑，零 Gradle/零设备/零 git 写；状态保持 open）.** 本批无新增全解析图扫描/升级动作；台账轨（计划任务 24，`.zcode/plans/plan-2026-11-01-batch-38-triple.md` §1 G.24）复跑在树可复跑载体：`python -I tools/ci/check_stdlib_compat.py` → 尾行 `OK: 0 unresolved stdlib member references across 23847 unique kotlin/* refs (329 artifacts; 11 coordinates unscanned)`、**EXIT=0**（与批次 36 T6 / 批次 37 T5 记值 23,847 / 329 / 0 逐值一致；脚本另打印 4 个 unscannable class entries 与 metadata leg 非 2.3.21 声明坐标清单，均为信息级不进判定——`io.github.dokar3:quickjs-kt-android:1.0.15` 仍为全图唯一声明 stdlib 2.4.10 的坐标）。自测本轮未重跑（批次 37 T5 已录 `Ran 18 tests … OK`）。**Reopen condition 的"设备/R8 冒烟无 stdlib 归因崩溃"半边仍未做**（批次 38 零设备执行；R-04 K6 设备红属 desugar/keep 面非 stdlib 面，批次 35 块口径沿用）。**本条保持 open**。
 
+**Progress（2026-11-02 批次 40 WS6 item 35 台账回链 + 证据固化；门脚本复跑 + 自测；零 Gradle/零设备/零 git 写；状态保持 open）.** 在树可复跑载体复跑：`python -I tools/ci/check_stdlib_compat.py` → 尾行 `OK: 0 unresolved stdlib member references across 23847 unique kotlin/* refs (329 artifacts; 11 coordinates unscanned)`、**EXIT=0**；图 = **340 坐标 / 13 个盘上未跟踪锁**（脚本打印 `NOTE: lockfiles are untracked working-tree artifacts; the graph follows them, not HEAD`），与批次 36/37/38 的 **23,847 / 329 / 0** 逐值一致；`io.github.dokar3:quickjs-kt-android:1.0.15` 仍为 metadata 腿唯一声明 stdlib 2.4.10 的坐标。自测：`PYTHONPATH=tools python -I -m unittest discover -s tools/tests -p "test_check_stdlib_compat.py" -t tools` → `Ran 18 tests in 0.023s` `OK`（**本轮实跑**）。证据落盘 `docs/research/evidence/2026-11-02-batch-40/step01-kd73-stdlib-compat.md`（E-WS6-01；含 11 个无缓存坐标、4 个无 `classes.jar` 的 lifecycle AAR、解析图非 HEAD 的边界）。**静态半边（unresolved=0）可复跑成立；Reopen condition 的"设备/R8 冒烟无 stdlib 归因崩溃"半边仍未做 → 本条保持 open。**
+
+**记录回链（2026-11-02 批次 40 记录员；只读；状态保持 open）.** 批次记录 `docs/research/2026-11-02-batch-40-record.md` §3.6/§5 P19：`python -I tools/ci/check_stdlib_compat.py` 静态门 **0 unresolved / 23847 refs / 329 artifacts**、18 自测 OK；Reopen condition 的“设备/R8 冒烟无 stdlib 归因崩溃”半边仍未做，故不关闭。证据 `docs/research/evidence/2026-11-02-batch-40/step01-kd73-stdlib-compat.md`。
+
 ## KD-74 (closed 2026-10-26（批次 24 T3）；2026-10-26 复核返修 #6 登记；中) · 批次 22 设备结论（16KB 3/3、R8 三变体冒烟、备份/迁移）无日志落盘
 
 **Symptom（只读文件系统）.** 任务书设备轨声称 16KB 3/3 全绿、R8 internal/benchmark/release 冒烟零崩溃、备份/迁移抽验全绿，但仓库内没有对应设备日志/结果：`find` 2026-10-26 08:00 之后无 device 日志（`build/device-track-batch21` 是上一批）；只能确认 `app/build/outputs/apk/strictOffline/{internal,benchmark,release}/*.apk`（09:34/09:35/09:43）与 mapping 产物存在。`NativeLibraryPageSizeInstrumentedTest.kt` 确有 3 个 `@Test`，但"在盘"不等于"设备已跑"。
@@ -2840,6 +2874,7 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 **Progress（2026-10-26 批次 24 T3，台账收口；只读核对 + 文档回链）.** 三条件齐备，**本条关闭**：① 记录回链——`docs/research/2026-10-26-batch-23-record.md` §4（`:176-202`）为每个设备数字给出 E-ID + `path:line`，§4 末（`:202`）已补记 "KD-74 closed"，§8 第二块（`:408-415`）给出主会话裁定；② 证据文件——`docs/research/evidence/2026-10-26-batch-23/00-index.md` 与 15 个 `.md`（E-00…E-09，含 E-01b…E-01e）在盘，`git ls-files docs/research/evidence/ | wc -l` = 15；③ 主会话等价裁定——记录 §8 `:415` 裁定 `llvm-readobj --program-headers` 与 `llvm-readelf -l` 字段级等价，接受为 E-09 证据。C1/C2/C3 覆盖见 `00-index.md` §4；C4/C5 见同文件 §7 回链检查；C6 由记录 §4 末补记满足。**关闭不等于设备门全绿**：T1 仍 1/5 红（abandon 结构性缺陷，E-01b/E-01c）、KD-70 P2 仍红（E-02）、arm64 16KB 运行时未执行（**三者均为批次 23 时点状态；批次 24 复跑已更新前两项**：T1 abandon 红已由批次 24 E-01/E-01b 转绿——两代 debug APK 各 6/6，`docs/research/evidence/2026-10-26-batch-24/step01-visualjs-isolation.md:124`、`step01b-visualjs-isolation-rerun.md:102`；KD-70 P2 红已由批次 24 E-02 转绿——20/20，`step02-quickjs-oom.md:141`，且 KD-70 已于 2026-10-27 由主会话裁定关闭（记录 §9 `:403`）；arm64 16KB 运行时至批次 25 台账同步时仍未执行）；分别由 KD-66/KD-70 与 16KB 启用门继续跟踪（KD-70 关闭后，arm64/16KB 覆盖缺口按裁定由准入清单 P-02/R-03 与 R4 `docs/research/2026-10-27-arm64-16kb-coverage.md` 跟踪）。证据路径：`research/evidence/2026-10-26-batch-23/00-index.md`（E-01…E-09）。
 
 **Reopen condition.** 上述四类结论各有可复跑命令与落盘结果，且 T1 修复后的设备复跑结果一并落盘后关闭。
+
 
 ## KD-75 (open, 2026-10-26 批次 23 T4 登记；高) · PDF 导出无文档级隐式标识：官方 PDF 载体是 Info 字典 `/AIGC`，当前只剩逐图显式图注；且"仅 AI 图"写入判据漏掉模型解析文本
 
@@ -2861,6 +2896,10 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 **验收判据（未运行）.** JVM：合成经典 xref 夹具（有/无 `/Info`、有 `/ID`、已存在 `/AIGC`、`/Encrypt`、`/Linearized`、坏 trailer）+ 注入后 `readAigc` 读回 + 原 Info 键保留 + 幂等 + fail-closed。仪器化：真实 `DeterministicMistakePdfRenderer` 产物 → `PreparedMistakePdf.verifyIntegrity()` → `PdfRenderer` 页数一致 → 读回 `Label/ContentProducer/ProduceID` → 负向（纯 `QUESTION_DIAGRAM`/用户文本且无模型解析文本 → 读不到 `/AIGC`）。独立读者至少一次（测试 APK 内 pdfbox-android 或外部 pypdf/PyMuPDF），不得只靠自写读回器自证。设备 PDFium 接受增量段（R1 U3）必须闭环。另见 R1 §5。
 
 **Reopen condition.** 含 AI 图或含 `MODEL_DOCUMENT_PARSE` 文本的导出 PDF 能在设备上被独立读者读回正确 `/AIGC`，纯用户内容 PDF 读不到；旧缓存指纹已升版且无旧无标识产物；显式图注逐位不变（或按 R1 判据登记差异）；设备日志落盘（按 R4 规范）后关闭。**不得以"法规未要求 PDF 隐式标识"关单**——20258A §6.3 明文有 PDF 方法（R1 §1.3.1）。
+
+**Progress（2026-11-02 批次 40 WS1/WS8；只读核对 + E-40-02a 回链；状态保持 open）.** 本批落码（未提交）新增 `core/data/.../pdf/PdfAigcInjector.kt` 与 `PdfAigcReader.kt`，JVM 往返 `PdfAigcRoundTripTest` 断言注入后 `source` 字节前缀完整保留（`assertArrayEquals(source, output[0..source.size))`）且二次注入幂等；09:38 六个 XML 合计 `tests=48 / failures=0`（`TableInjection` 8 例；WS8 旧记 47 为计数误差）。但**验收判据未达成**：① `grep -rln PdfAigc app/src/androidTest core/data/src/androidTest core/export/src/androidTest` 无输出 → 设备往返用例不在树；② `grep -rln PdfAigc core/export/src` 无输出 → `core/export` 对注入器零接线；③ `PdfAigcContentPolicy` 仅被测试调用；④ JVM 往返的读回器 `PdfAigcReader` 自述“不是独立读者”，不能自证 PDF 未被破坏。E-40-02a 判 **BLOCKED**，D45-1 FAIL、D45-2..D45-9 未执行。`core/export` 是计划 §2 热区（禁改），设备用例与独立读者属 WS8 设备轨；本轮不落码、不关闭。
+
+**记录回链（2026-11-02 批次 40 记录员；只读；状态保持 open）.** 批次记录 `docs/research/2026-11-02-batch-40-record.md` §3.1/§8 #5：本批 7 个 main 文件 + 6 个测试文件在树，源 `@Test` **48**（Table 8，非 47），JVM 往返前缀保留；但设备用例不在树（`grep PdfAigc app/src/androidTest core/data/src/androidTest core/export/src` 无输出）、`core/export` 对注入器零引用、`PdfAigcReader` 非独立读者、pypdf/PyMuPDF 4/4 无落盘日志。E-40-02a **BLOCKED**、D45-1 FAIL、D45-2..D45-9 未执行；KD-75 维持 open。
 
 ---
 
@@ -2937,6 +2976,10 @@ fail-closed 且旧方法 0 调用、生产源码无未带 dispatch 的 channel �
 
 
 **Progress（2026-11-02 批次 39 收尾轮主会话裁定；更正上块两处；状态 open 维持且"校准未通过"）.** ① 上块"设备校准用例 androidTest 0 引用/无数据可出"已被同批 T2 落码推进：用例现树在（`VisualJsConnectStageCalibrationInstrumentedTest`，5 处 seam 引用），设备已跑 20 轮（有效 9、G1 红 11）；② **主口径按预注册复算为红**：M=逐轮(S-bind+S-warmup)，sorted=[1474,1511,1571,1777,1821,2125,2199,2960,9813]，p95=9813ms > 5000ms 门——"S-warmup p95=1319 PASS" 只是分量报告，不得引用为门通过；③ isolation 15/15 **未达成**（基线 8 红/控制 10 红），且 T4 控制轮不可证伪（控制包 sha 记录的是基线 sha、两窗红例仅 7 例交集）→ D 归因不成立为结论，复跑须带程序化低负载门与逐方法配对；④ 本条剩余关闭条件不变：主口径 p95 ≤ 5s（真冷启动、n≥10）+ 29.5s 链分段实测。
+
+**Progress（2026-11-02 批次 40 WS8 §49 KD-76 诚实复跑；只读核对 + E-40-03 回链；状态保持 open，BLOCKED）.** 主口径门在树：`VisualJsConnectStageCalibrationInstrumentedTest.kt:546-552` 显式断言 `READY_TIMEOUT_MILLIS / 2 == 5_000L`，报告层守卫在 `n<20` 或 G1 红时打印 `NOT EVALUABLE`（不误印 PASS）。但该用例是**单 `@Test` × 20 轮 / 单进程**：`grep -nE "getArguments|kd76Rounds|BOOT_COUNT|reboot"` 只命中 KDoc（`:86/87/89/142`），无 instrumentation 单轮入口、无 reboot 逐样本；`CALIBRATION_ROUNDS=20`、`BATCH_SIZE=10`（`:912-913`）。本批**无主口径 M 值**，不得引用批次 39 的 9813 ms。E-40-03 verdict = **BLOCKED**；`计划 §49` 的“n=20 真冷启动 + P1–P4 程序化低负载门”未达成。本轮不落码、不关闭。
+
+**记录回链（2026-11-02 批次 40 记录员；只读；状态保持 open，设备验证前 JS 不广告）.** 批次记录 `docs/research/2026-11-02-batch-40-record.md` §3.8/§8 #6：本批无主口径 M 值——校准套件仍是单 `@Test`×20 轮/单进程（`CALIBRATION_ROUNDS=20`、`BATCH_SIZE=10`），无 `getArguments`/`kd76Rounds`/`reboot`；`PASS` 只在 `preRegistered` 分支打印，运行时负控未做（UNVERIFIED）。主口径门仍 `READY_TIMEOUT/2=5000 ms`，生产 `READY_TIMEOUT_MILLIS=10_000L` 未改；不得引用批次 39 的 9813 ms。E-40-03 **BLOCKED**。
 
 ## KD-77 (closed 2026-10-31（批次 37 T5 证据入仓 + 关闭裁决，主会话裁定计划 §1.5）；2026-10-27 登记（API 23 冒烟评估；中）；2026-10-29 批次 32 T6 标题回改：android-23 镜像已装盘，旧包冒烟 logcat 未落仓、修复后 APK 未跑) · API 23 运行时未验证：修复后 APK 未在 API 23 完成装机/冷启动/最小冒烟
 
