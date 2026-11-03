@@ -1,4 +1,4 @@
-package com.tingyun.smartmistakebook.core.data.pdf
+package com.tingyun.smartmistakebook.core.model.pdf
 
 import java.io.ByteArrayOutputStream
 import java.util.Locale
