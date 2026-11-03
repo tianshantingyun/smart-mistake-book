@@ -133,11 +133,20 @@ internal class ReviewCapacityPreviewReader(
             examSubjectsInWindow = inWindowExams.size,
             examDeficitCount = plan.examDeficitCount,
             examUnmetCount = plan.examUnmetCount,
+            // F12：rebalance=null 时 0 不是"积压为 0"，而是"没有规划"。用显式态区分，
+            // 读面不会把关闭/无剩余名额误读成"没有积压"。
             rebalanceBacklogCount = if (plan.rebalance == null) 0 else facts.size,
             rebalanceIneligibleCount = plan.rebalance?.ineligibleCount ?: 0,
+            rebalanceState = if (plan.rebalance == null) {
+                RebalancePlanningState.NOT_PLANNED
+            } else {
+                RebalancePlanningState.PLANNED
+            },
+            rebalanceGranted = plan.rebalance?.picked?.size ?: 0,
             deduplicatedCount = plan.deduplicatedCount,
             subjects = plan.subjectReadouts,
-            totalGranted = plan.examPicked.size,
+            // F12：总量必须包含再平衡（due-review）通道，而不是只数考试通道。
+            totalGranted = plan.totalPickedCount,
             dailyCapacity = plan.dailyCapacity,
             maxDailyCapacity = plan.maxDailyCapacity,
         )
@@ -149,14 +158,25 @@ internal class ReviewCapacityPreviewReader(
 }
 
 /**
+ * 再平衡（due-review / 积压追赶）通道的规划状态。
+ *
+ * `NOT_PLANNED` 时 [ReviewCapacityPreview.rebalanceBacklogCount] 的 0 **不表示**
+ * "没有积压"，只表示这条通道没有参与本轮规划（关闭，或考试通道占满了当日名额）。
+ */
+enum class RebalancePlanningState { NOT_PLANNED, PLANNED }
+
+/**
  * KD-68 同族的只读预览事实。所有计数都是"数据侧真相"，不是 UI 文案承诺：
  * - [examUnmetCount]：窗口内缺口题超出单日容量的部分（今天做不完）；
  * - [rebalanceIneligibleCount]：积压里还没进入 0.85 安全提前窗、本轮不拉的题；
+ * - [rebalanceState]：再平衡通道是否被规划；`NOT_PLANNED` 时 backlog=0 不是事实读数；
+ * - [rebalanceGranted]：再平衡通道实际取出的题数（`RebalancePlan.picked.size`）；
  * - [intakeUnschedulableCount]：沿用既有 `intakeUnschedulableCount` 口径
  *   （时长超过整日预算、每日引入永远装不下的新题）；
  * - [deduplicatedCount]：考试与再平衡同时命中的题数（去重前置后恒为 0，保留字段作回归哨兵）；
- * - [subjects] / [totalGranted]：逐科名额与考试通道总量；[dailyCapacity] /
- *   [maxDailyCapacity] 是两个可比的上限（基础日容量 / 1.5× 成长上限）。
+ * - [subjects]：逐科考试名额；[totalGranted] 是**两条通道**的去重总量
+ *   （`subjects.sumOf{granted} + rebalanceGranted`，去重前置所以无交集）；
+ *   [dailyCapacity] / [maxDailyCapacity] 是两个可比的上限（基础日容量 / 1.5× 成长上限）。
  */
 data class ReviewCapacityPreview(
     val examSubjectsInWindow: Int = 0,
@@ -164,6 +184,8 @@ data class ReviewCapacityPreview(
     val examUnmetCount: Int = 0,
     val rebalanceBacklogCount: Int = 0,
     val rebalanceIneligibleCount: Int = 0,
+    val rebalanceState: RebalancePlanningState = RebalancePlanningState.NOT_PLANNED,
+    val rebalanceGranted: Int = 0,
     val deduplicatedCount: Int = 0,
     val intakeUnschedulableCount: Int = 0,
     val subjects: List<SubjectCapacity> = emptyList(),
@@ -183,20 +205,32 @@ data class ReviewCapacityPreview(
         require(rebalanceIneligibleCount <= rebalanceBacklogCount) {
             "Ineligible backlog must be a subset of the backlog count"
         }
+        require(rebalanceGranted >= 0) { "Rebalance grant count must not be negative" }
         require(deduplicatedCount >= 0) { "Deduplicated count must not be negative" }
         require(intakeUnschedulableCount >= 0) { "Intake unschedulable count must not be negative" }
         require(dailyCapacity >= 0) { "Daily capacity must not be negative" }
         require(maxDailyCapacity >= dailyCapacity) {
             "Max daily capacity must not be below the base daily capacity"
         }
-        require(totalGranted == subjects.sumOf(SubjectCapacity::granted)) {
-            "Total granted must equal the sum of the per-subject grants"
+        require(totalGranted == subjects.sumOf(SubjectCapacity::granted) + rebalanceGranted) {
+            "Total granted must equal exam grants plus the rebalance channel"
         }
         require(totalGranted <= maxDailyCapacity) {
             "Preview total must not exceed the growth ceiling"
         }
+        // NOT_PLANNED 是"没有规划"，不能同时声称有积压或取题。
+        require(
+            rebalanceState == RebalancePlanningState.PLANNED ||
+                (rebalanceGranted == 0 && rebalanceBacklogCount == 0),
+        ) {
+            "A not-planned rebalance channel must not report backlog or grants"
+        }
+        require(rebalanceGranted <= rebalanceBacklogCount) {
+            "Rebalance grants must come from the reported backlog"
+        }
         // 有考试取题时，考试通道只允许占基础日容量；再平衡另用剩余名额（≤ 上限）。
-        require(subjects.isEmpty() || totalGranted <= dailyCapacity) {
+        // 总量可以超过 dailyCapacity（成长上限），但考试通道本身不能。
+        require(subjects.isEmpty() || subjects.sumOf(SubjectCapacity::granted) <= dailyCapacity) {
             "Exam-channel preview total must fit the shared daily capacity"
         }
     }

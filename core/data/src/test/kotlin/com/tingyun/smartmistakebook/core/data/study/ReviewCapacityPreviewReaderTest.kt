@@ -65,6 +65,10 @@ class ReviewCapacityPreviewReaderTest {
         assertEquals(8, preview.examDeficitCount)
         assertEquals("容量 6/日，ceil(8/7)=2 → 未满足 6", 6, preview.examUnmetCount)
         assertEquals(0, preview.rebalanceBacklogCount)
+        // F12：关闭再平衡时 backlog=0 是"未规划"，不是"没有积压"。
+        assertEquals(RebalancePlanningState.NOT_PLANNED, preview.rebalanceState)
+        assertEquals(0, preview.rebalanceGranted)
+        assertEquals(2, preview.totalGranted)
         assertEquals(0, preview.intakeUnschedulableCount)
     }
 
@@ -87,7 +91,15 @@ class ReviewCapacityPreviewReaderTest {
         assertEquals(8, preview.rebalanceBacklogCount)
         assertEquals(0, preview.rebalanceIneligibleCount)
         assertEquals("去重前置后交集恒为空", 0, preview.deduplicatedCount)
-        assertEquals(2, preview.totalGranted)
+        assertEquals(RebalancePlanningState.PLANNED, preview.rebalanceState)
+        assertEquals("考试 2 + 再平衡 4：总量必须计入再平衡通道", 4, preview.rebalanceGranted)
+        assertEquals(6, preview.totalGranted)
+        assertEquals(
+            "总量 = 逐科考试名额 + 再平衡名额",
+            preview.subjects.sumOf(SubjectCapacity::granted) + preview.rebalanceGranted,
+            preview.totalGranted,
+        )
+        assertTrue("再平衡可用到 1.5× 成长上限", preview.totalGranted <= preview.maxDailyCapacity)
         assertEquals(1, preview.subjects.size)
         assertEquals(0, preview.subjects.single().unmet)
     }
