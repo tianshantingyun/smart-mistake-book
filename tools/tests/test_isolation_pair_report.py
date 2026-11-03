@@ -39,10 +39,12 @@ def _status(method: str, code: int, stream: str = ".") -> str:
     )
 
 
-def _log(codes: dict[str, int], failed_stream: str = "java.lang.AssertionError: boom") -> str:
+def _log(codes: dict[str, int], failed_stream: str = "java.lang.AssertionError: boom",
+         methods: list[str] | None = None) -> str:
     """按 runner 的真实块形状生成日志：失败块 stack 在 test= 之前。"""
-    chunks = ["INSTRUMENTATION_STATUS: numtests=%d\n" % len(METHODS)]
-    for method in METHODS:
+    methods = METHODS if methods is None else methods
+    chunks = ["INSTRUMENTATION_STATUS: numtests=%d\n" % len(methods)]
+    for method in methods:
         code = codes[method]
         chunks.append(_status(method, 1, stream=""))
         if code == 0:
@@ -54,14 +56,14 @@ def _log(codes: dict[str, int], failed_stream: str = "java.lang.AssertionError: 
                 "INSTRUMENTATION_STATUS: stack=" + failed_stream + "\n"
                 + _status(method, code, stream="")
             )
-    chunks.append("INSTRUMENTATION_RESULT: stream=\n\nTime: 61.0\nOK (%d tests)\n" % len(METHODS))
+    chunks.append("INSTRUMENTATION_RESULT: stream=\n\nTime: 61.0\nOK (%d tests)\n" % len(methods))
     return "".join(chunks)
 
 
 def _run(arm: str, round_no: int, codes: dict[str, int], window: str = "PASS",
-         logcat: str | None = None) -> R.RunInput:
+         logcat: str | None = None, methods: list[str] | None = None) -> R.RunInput:
     return R.RunInput(arm=arm, round_no=round_no, window=window,
-                      instrument=_log(codes), logcat=logcat or "")
+                      instrument=_log(codes, methods=methods), logcat=logcat or "")
 
 
 ALL_GREEN = {method: 0 for method in METHODS}
@@ -92,7 +94,11 @@ class PairingTest(unittest.TestCase):
         for round_no in (1, 2, 3):
             runs.append(_run("OFF", round_no, BETA_RED))
             runs.append(_run("ON", round_no, BETA_RED))
-        report = R.build_report(runs, off_arm_production_t4="test-side-only")
+        report = R.build_report(
+            runs,
+            off_arm_production_t4="test-side-only",
+            expected_methods=METHODS,
+        )
         self.assertEqual("PAIRED_RED_SET_IDENTICAL", report["verdict"])
         self.assertEqual(3, report["rounds_per_arm"])
         self.assertTrue(report["paired"])
@@ -102,7 +108,11 @@ class PairingTest(unittest.TestCase):
         for round_no in (1, 2, 3):
             runs.append(_run("OFF", round_no, BETA_RED, window="INVALID"))
             runs.append(_run("ON", round_no, BETA_RED))
-        report = R.build_report(runs, off_arm_production_t4="test-side-only")
+        report = R.build_report(
+            runs,
+            off_arm_production_t4="test-side-only",
+            expected_methods=METHODS,
+        )
         self.assertEqual("UNCONVERGED", report["verdict"])
         self.assertIn("window_not_pass", report["reasons"])
 
@@ -112,7 +122,11 @@ class PairingTest(unittest.TestCase):
             codes = BETA_RED if round_no != 2 else ALL_GREEN
             runs.append(_run("OFF", round_no, codes))
             runs.append(_run("ON", round_no, BETA_RED))
-        report = R.build_report(runs, off_arm_production_t4="test-side-only")
+        report = R.build_report(
+            runs,
+            off_arm_production_t4="test-side-only",
+            expected_methods=METHODS,
+        )
         self.assertEqual("UNCONVERGED", report["verdict"])
         self.assertIn("arm_unstable", report["reasons"])
 
@@ -121,7 +135,11 @@ class PairingTest(unittest.TestCase):
         for round_no in (1, 2, 3):
             runs.append(_run("OFF", round_no, ALL_GREEN))
             runs.append(_run("ON", round_no, BETA_RED))
-        report = R.build_report(runs, off_arm_production_t4="test-side-only")
+        report = R.build_report(
+            runs,
+            off_arm_production_t4="test-side-only",
+            expected_methods=METHODS,
+        )
         self.assertEqual("PAIRED_RED_SET_DIVERGES_T4_UNVERIFIED", report["verdict"])
         self.assertIn("off_arm_not_t4_removed", report["reasons"])
 
@@ -130,7 +148,11 @@ class PairingTest(unittest.TestCase):
         for round_no in (1, 2, 3, 4):
             runs.append(_run("OFF", round_no, ALL_GREEN))
             runs.append(_run("ON", round_no, BETA_RED))
-        report = R.build_report(runs, off_arm_production_t4="removed")
+        report = R.build_report(
+            runs,
+            off_arm_production_t4="removed",
+            expected_methods=METHODS,
+        )
         self.assertEqual("T4_CAUSAL", report["verdict"])
         # R5 §5.3：单方法每臂 k=4 完美分离的精确 Fisher p = 2/C(8,4) = 0.0286；
         # McNemar 在 k=4 时只有 0.125，不足以支撑因果——两条统计量分别记录。
@@ -143,9 +165,80 @@ class PairingTest(unittest.TestCase):
         for round_no in (1, 2, 3):
             runs.append(_run("OFF", round_no, skipped))
             runs.append(_run("ON", round_no, ALL_GREEN))
-        report = R.build_report(runs, off_arm_production_t4="test-side-only")
+        report = R.build_report(
+            runs,
+            off_arm_production_t4="test-side-only",
+            expected_methods=METHODS,
+        )
         self.assertEqual("UNCONVERGED", report["verdict"])
         self.assertIn("skipped_or_unknown", report["reasons"])
+
+    def test_method_missing_from_off_arm_is_not_identical(self) -> None:
+        """F7 假绿：OFF 臂少跑 3 个方法时，缺失方法不能被当成"两侧都没红"。"""
+        on_methods = METHODS + ["mDelta", "mEpsilon", "mZeta"]
+        on_codes = {**BETA_RED, "mDelta": 0, "mEpsilon": 0, "mZeta": 0}
+        runs = []
+        for round_no in (1, 2, 3):
+            runs.append(_run("OFF", round_no, BETA_RED, methods=METHODS))
+            runs.append(_run("ON", round_no, on_codes, methods=on_methods))
+        report = R.build_report(
+            runs,
+            off_arm_production_t4="test-side-only",
+            expected_methods=METHODS,
+        )
+
+        self.assertEqual("UNCONVERGED", report["verdict"], report)
+        self.assertNotEqual("PAIRED_RED_SET_IDENTICAL", report["verdict"])
+        self.assertIn("method_missing", report["reasons"], report)
+        missing = report["missing_methods"]["OFF"]
+        self.assertEqual(["mDelta", "mEpsilon", "mZeta"], missing)
+        # 缺失方法在报告向量里必须是 UNKNOWN，不得省略成"没有这一行"。
+        for method in missing:
+            self.assertEqual("UNKNOWN", report["arms"]["OFF"]["1"][method])
+
+    def test_both_arms_with_empty_logs_are_not_paired(self) -> None:
+        """两臂都只产生空日志（`OK (0 tests)`）时，不得因"两臂都没红"判 IDENTICAL。"""
+        runs = []
+        for round_no in (1, 2, 3):
+            runs.append(_run("OFF", round_no, {}, methods=[]))
+            runs.append(_run("ON", round_no, {}, methods=[]))
+        report = R.build_report(
+            runs,
+            off_arm_production_t4="test-side-only",
+            expected_methods=METHODS,
+        )
+        self.assertEqual("UNCONVERGED", report["verdict"], report)
+        self.assertNotEqual("PAIRED_RED_SET_IDENTICAL", report["verdict"])
+        self.assertIn("no_observed_methods", report["reasons"], report)
+
+    def test_both_arms_missing_the_same_expected_methods_are_not_paired(self) -> None:
+        """两臂同时只跑同一子集（共同缺 12 个方法）时，缺失仍必须让配对不成立。"""
+        expected = METHODS + [f"mMissing{i}" for i in range(12)]
+        runs = []
+        for round_no in (1, 2, 3):
+            runs.append(_run("OFF", round_no, BETA_RED, methods=METHODS))
+            runs.append(_run("ON", round_no, BETA_RED, methods=METHODS))
+        report = R.build_report(
+            runs,
+            off_arm_production_t4="test-side-only",
+            expected_methods=expected,
+        )
+        self.assertEqual("UNCONVERGED", report["verdict"], report)
+        self.assertNotEqual("PAIRED_RED_SET_IDENTICAL", report["verdict"])
+        self.assertIn("method_missing", report["reasons"], report)
+        self.assertEqual(12, len(report["missing_methods"]["OFF"]))
+        self.assertEqual(12, len(report["missing_methods"]["ON"]))
+
+    def test_report_without_expected_universe_refuses_to_pair(self) -> None:
+        """没有期望方法清单时，配对门必须 fail-closed：观察到的并集不能自证完整。"""
+        runs = []
+        for round_no in (1, 2, 3):
+            runs.append(_run("OFF", round_no, BETA_RED))
+            runs.append(_run("ON", round_no, BETA_RED))
+        report = R.build_report(runs, off_arm_production_t4="test-side-only")
+        self.assertEqual("UNCONVERGED", report["verdict"], report)
+        self.assertFalse(report["paired"])
+        self.assertIn("expected_methods_missing", report["reasons"], report)
 
     def test_gate_ungated_line_overrides_declared_window(self) -> None:
         logcat = "I/SMB_LOWLOAD_GATE: SMB_LOWLOAD_GATE: verdict=UNGATED reason=busy_p95"

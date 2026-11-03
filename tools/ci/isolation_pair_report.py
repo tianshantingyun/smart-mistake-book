@@ -13,7 +13,12 @@ watchdog kill（`step04-isolation.md` §2）——在负载敏感量上要求精
 1. 顺序扫描 `am instrument -r` 原始流（失败块 `stack=` 在 `test=` 之前，用
    "最近一个 test=" 回填会把失败算到下一个用例头上——那本身就是一次假红集）；
 2. 每臂每轮得到 `方法 -> {PASS, FAIL, ERROR, SKIP, UNKNOWN}` 向量；
-3. 臂内 k 轮向量逐项相同才叫 `STABLE`，否则 `UNCONVERGED`；
+3. 臂内 k 轮向量逐项相同才叫 `STABLE`，否则 `UNCONVERGED`；一臂缺失的方法先补
+   `UNKNOWN` 并记 `method_missing`——两侧没跑同一组方法时配对不成立（F7）；
+   **期望方法清单（`--expected-methods`）是配对的前提**：没有清单时观察到的并集
+   不能自证完整——两臂同时漏跑同一批方法（包括两边都只产生空日志、`OK (0 tests)`）
+   会看起来"两侧都跑过且都没红"。缺清单直接 fail-closed
+   （`expected_methods_missing`），观察集为空记 `no_observed_methods`。
 4. 两臂所有轮次的窗口都必须 PASS（或 logcat 明确 `GATED`），否则 `UNCONVERGED`；
 5. 配对成立后：向量相同 → `PAIRED_RED_SET_IDENTICAL`（**不等于**"T4 排除"）；
    向量不同且 OFF 臂**生产侧** T4 已移除、k≥4、该方法的精确 Fisher p<0.05 →
@@ -256,7 +261,8 @@ def _effective_window(run: RunInput) -> tuple[str, list[str]]:
     return (PASS if not reasons else "INVALID"), reasons
 
 
-def build_report(runs: list[RunInput], off_arm_production_t4: str) -> dict:
+def build_report(runs: list[RunInput], off_arm_production_t4: str,
+                 expected_methods: list[str] | None = None) -> dict:
     reasons: list[str] = []
     arms = _arm_rounds(runs)
     off = arms.get("OFF", {})
@@ -279,11 +285,43 @@ def build_report(runs: list[RunInput], off_arm_production_t4: str) -> dict:
         reasons.append("rounds_short")
 
     vectors: dict[str, dict[int, dict[str, str]]] = {}
-    unstable: list[str] = []
     for arm_name, rounds in arms.items():
         vectors[arm_name] = {}
         for round_no, run in rounds.items():
             vectors[arm_name][round_no] = parse_instrument_log(run.instrument)
+
+    # F7：一臂少跑/漏报的方法必须是 UNKNOWN，不能"在向量里不存在 → 两侧都没红"。
+    # 缺失是**配对不成立**的证据：两侧没有跑同一组方法，红集不可比。
+    #
+    # 只取观察并集不足以发现"两臂同时漏跑同一批"：需要的是一份**期望清单**。
+    # 清单缺失时配对门 fail-closed——没有清单，"两侧都没红"可能只是"两侧都没跑"。
+    observed_methods = sorted({
+        method
+        for arm_vectors in vectors.values()
+        for vector in arm_vectors.values()
+        for method in vector
+    })
+    expected = sorted({method.strip() for method in (expected_methods or []) if method.strip()})
+    if not expected:
+        reasons.append("expected_methods_missing")
+    if not observed_methods:
+        reasons.append("no_observed_methods")
+    universe = sorted(set(expected) | set(observed_methods))
+    missing_methods: dict[str, list[str]] = {}
+    for arm_name, rounds in vectors.items():
+        arm_missing: list[str] = []
+        for vector in rounds.values():
+            for method in universe:
+                if method not in vector:
+                    vector[method] = UNKNOWN
+                    if method not in arm_missing:
+                        arm_missing.append(method)
+        missing_methods[arm_name] = arm_missing
+    if any(missing_methods.values()):
+        reasons.append("method_missing")
+
+    unstable: list[str] = []
+    for arm_name, rounds in arms.items():
         ordered = [vectors[arm_name][round_no] for round_no in sorted(vectors[arm_name])]
         if len(ordered) >= 2:
             methods = sorted({method for vector in ordered for method in vector})
@@ -314,6 +352,9 @@ def build_report(runs: list[RunInput], off_arm_production_t4: str) -> dict:
         "rounds_per_arm": rounds_per_arm,
         "windows": windows,
         "arms": {},
+        "missing_methods": missing_methods,
+        "expected_methods": expected,
+        "observed_methods": observed_methods,
         "kill_attribution": {},
         "kill_invariants": {},
         "mcnemar_p": None,
@@ -453,6 +494,9 @@ def render_markdown(report: dict) -> str:
         f"- rounds_per_arm: {report['rounds_per_arm']}",
         f"- off_arm_production_t4: `{report['off_arm_production_t4']}`",
         f"- reasons: {', '.join(report['reasons']) or '-'}",
+        f"- missing_methods: {report.get('missing_methods', {})}",
+        f"- expected_methods: {len(report.get('expected_methods', []))}",
+        f"- observed_methods: {len(report.get('observed_methods', []))}",
         f"- mcnemar_p: {report['mcnemar_p']}",
         "",
         "## 逐臂红集（FAIL/ERROR 为红；SKIP/UNKNOWN 单列，不算通过）",
@@ -485,12 +529,20 @@ def main(argv=None) -> int:
     parser.add_argument("--off-arm-production-t4", default="test-side-only",
                         choices=["test-side-only", "removed", "absent"],
                         help="OFF 臂是否在生产侧移除了 T4 的 6 处写点")
+    parser.add_argument("--expected-methods", required=True,
+                        help="期望方法清单（每行一个）；缺失即 fail-closed，"
+                             "防止两臂同时漏跑仍判 IDENTICAL")
     parser.add_argument("--out", help="JSON report path")
     parser.add_argument("--md", help="Markdown report path")
     args = parser.parse_args(argv)
 
     try:
         runs = [parse_run_spec(spec) for spec in args.run]
+        expected_methods = [
+            line.strip()
+            for line in Path(args.expected_methods).read_text(encoding="utf-8").splitlines()
+            if line.strip() and not line.strip().startswith("#")
+        ]
     except (OSError, ValueError) as failure:
         print(f"isolation_pair_report: {failure}", file=sys.stderr)
         return 2
@@ -498,7 +550,7 @@ def main(argv=None) -> int:
         print("isolation_pair_report: no --run inputs", file=sys.stderr)
         return 2
 
-    report = build_report(runs, args.off_arm_production_t4)
+    report = build_report(runs, args.off_arm_production_t4, expected_methods)
     payload = json.dumps(report, ensure_ascii=False, indent=2)
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
