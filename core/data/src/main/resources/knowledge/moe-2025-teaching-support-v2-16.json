@@ -5,34 +5,34 @@
   {
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "subject": "CHEMISTRY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料(3)",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "D45C35EA10D42D32A8A0A578557911B78B313C048345E31D7AB2381426DFFAA0",
    "importedAtEpochMillis": 1789732926467,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-d8b718d85a:biology",
    "subject": "BIOLOGY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料(4)",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "35F0C03E99DD5E9D9DB8814B589AAB6804DCE7A5B4A35BC2E6DA76A4311544B7",
    "importedAtEpochMillis": 1789733218691,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   }
  ],
  "materials": [
@@ -768,52 +768,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属冶炼",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-42dee98d13-014",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "金属的防护方法（第03讲 电解池、金属的腐蚀与防护）",
-   "summaryMarkdown": "金属防护可改变材料组成、覆盖保护层或采用电化学防护。",
-   "applicabilityMarkdown": "PRIMARY：适用场景为判断金属防护方法及解释防腐原理。",
-   "contentMarkdown": "改变金属材料的组成：在金属中添加其他金属或非金属制成合金，如把铬、镍加入普通钢制成不锈钢。\\n覆盖保护层：涂油脂油漆、覆盖搪瓷塑料、电镀、形成致密四氧化三铁薄膜、铝的阳极氧化钝化、离子注入或表面渗镀等。\\n电化学防护：牺牲阳极法(原电池原理)与外加电流法(电解原理)，外加电流法的保护效果大于牺牲阳极法。",
-   "boundaryMarkdown": "覆盖保护层须致密并把金属制品与周围物质隔开；电化学防护须正确选择电极。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第03讲 电解池、金属的腐蚀与防护（复习讲义）（湖南专用）（学生版）.docx（块 42dee98d13-014）",
-   "reviewedAtEpochMillis": 1790875653147,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-42dee98d13-014",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的防护",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-b029665b2c-001",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "电解与电解池的概念及构成（第03讲 电解池、金属的腐蚀与防护）",
-   "summaryMarkdown": "电解池把电能转化为化学能，由阴阳极和电解质形成闭合回路。",
-   "applicabilityMarkdown": "PRIMARY：适用场景为判断电解池的构成与两极反应类型。",
-   "contentMarkdown": "电解：使电流通过电解质溶液(或熔融的电解质)而在阴、阳两极引起氧化还原反应的过程，电能转化为化学能。\\n电解池：把电能转化为化学能的装置；构成包括与直流电源相连的两个电极、电解质溶液(或熔融的电解质)和闭合回路。\\n与电源正极相连的是阳极、发生氧化反应；与电源负极相连的是阴极、发生还原反应；离子到达电极失去或获得电子称为放电。",
-   "boundaryMarkdown": "电解池须外接直流电源；阴阳极名称由所连电源极性决定。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第03讲 电解池、金属的腐蚀与防护（复习讲义）（湖南专用）（教师版）.docx（块 b029665b2c-001）",
-   "reviewedAtEpochMillis": 1790875653147,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-b029665b2c-001",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电解池",
      "role": "PRIMARY"
     }
    ]

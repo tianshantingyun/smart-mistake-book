@@ -187,6 +187,207 @@ class KnowledgeBaseImportContractTest {
         )
     }
 
+    // ---- B4（2026-11-03）：来源 URI 三分类与契约门。N=负例，P=正例。 ----
+    // 用例编号与 docs/research/2026-11-02-kb-b33-b4-sourceuri-prereg.md §2.5 一一对应。
+
+    @Test
+    fun rejectsPlaceholderHostForPublicOfficialSource() {
+        // N1：占位域对 PUBLIC_OFFICIAL 同样拒收（不因状态宽松而放行）。
+        val pack = validPack()
+        expectViolation("placeholder host") {
+            KnowledgeBaseImportContract.validate(
+                pack.sources.map {
+                    it.copy(sourceUri = "https://www.example.edu/material")
+                },
+                pack.nodes,
+                pack.bindings,
+            )
+        }
+    }
+
+    @Test
+    fun rejectsPlaceholderHostForReferenceOnlySource() {
+        // N1：REFERENCE_ONLY 的占位域同样拒收。
+        val pack = validPack()
+        expectViolation("placeholder host") {
+            KnowledgeBaseImportContract.validate(
+                pack.sources.map {
+                    it.copy(
+                        sourceUri = "https://www.example.edu/material",
+                        licenseStatus = KnowledgeSourceLicenseStatus.REFERENCE_ONLY.name,
+                    )
+                },
+                pack.nodes,
+                pack.bindings,
+            )
+        }
+    }
+
+    @Test
+    fun rejectsLicensedSourceWithoutAnyUri() {
+        // N2：URI 必填只对 LICENSED——所以 LICENSED 少了 URI 必须拒收。
+        val pack = validPack()
+        expectViolation("source.sourceUri") {
+            KnowledgeBaseImportContract.validate(
+                pack.sources.map {
+                    it.copy(
+                        sourceUri = null,
+                        licenseStatus = KnowledgeSourceLicenseStatus.LICENSED.name,
+                    )
+                },
+                pack.nodes,
+                pack.bindings,
+            )
+        }
+    }
+
+    @Test
+    fun rejectsPublicOfficialSourceWithoutTheCitationTriplet() {
+        // N3：PUBLIC_OFFICIAL + null URI 时，三元组的 yearOrEdition 缺失即拒收。
+        val pack = validPack()
+        expectViolation("source.edition") {
+            KnowledgeBaseImportContract.validate(
+                pack.sources.map { it.copy(sourceUri = null, edition = null) },
+                pack.nodes,
+                pack.bindings,
+            )
+        }
+    }
+
+    @Test
+    fun rejectsReferenceOnlySourceWithoutTheCitationTriplet() {
+        // N4：REFERENCE_ONLY + null URI 时，三元组的 issuer 缺失即拒收。
+        val pack = validPack()
+        expectViolation("source.publisher") {
+            KnowledgeBaseImportContract.validate(
+                pack.sources.map {
+                    it.copy(
+                        sourceUri = null,
+                        publisher = null,
+                        licenseStatus = KnowledgeSourceLicenseStatus.REFERENCE_ONLY.name,
+                        attributionText = "仅参考、独立重写，不保存原文。",
+                    )
+                },
+                pack.nodes,
+                pack.bindings,
+            )
+        }
+    }
+
+    @Test
+    fun rejectsPlaceholderStatusThatStillCarriesAUri() {
+        // N5：UNVERIFIED_PLACEHOLDER 是唯一显式占位类，它必须 null——不许用 URI 伪装。
+        val pack = validPack()
+        expectViolation("source.sourceUri") {
+            KnowledgeBaseImportContract.validate(
+                pack.sources.map {
+                    it.copy(
+                        sourceUri = "https://www.moe.gov.cn/placeholder-cannot-carry-uri",
+                        licenseStatus =
+                            KnowledgeSourceLicenseStatus.UNVERIFIED_PLACEHOLDER.name,
+                        attributionText = "来源不明（占位）：仅参考、独立重写。",
+                    )
+                },
+                pack.nodes,
+                pack.bindings,
+            )
+        }
+    }
+
+    @Test
+    fun rejectsEmptyLicenseStatus() {
+        // 空 license：licenseStatus 必须非空且在枚举内。
+        val pack = validPack()
+        expectViolation("source.licenseStatus") {
+            KnowledgeBaseImportContract.validate(
+                pack.sources.map { it.copy(licenseStatus = "") },
+                pack.nodes,
+                pack.bindings,
+            )
+        }
+    }
+
+    @Test
+    fun rejectsPlaceholderSourceWithoutTheAttributionMarker() {
+        // 占位类必须写明「来源不明（占位）」，否则类型上看不出它是占位。
+        val pack = validPack()
+        expectViolation("source.attributionText") {
+            KnowledgeBaseImportContract.validate(
+                pack.sources.map {
+                    it.copy(
+                        sourceUri = null,
+                        licenseStatus =
+                            KnowledgeSourceLicenseStatus.UNVERIFIED_PLACEHOLDER.name,
+                        attributionText = "结构化总结，非原文。",
+                    )
+                },
+                pack.nodes,
+                pack.bindings,
+            )
+        }
+    }
+
+    @Test
+    fun acceptsRealOfficialUriWithPublicOfficialStatus() {
+        // P1：A 类——真实 MOE URI + PUBLIC_OFFICIAL。
+        val pack = validPack()
+        KnowledgeBaseImportContract.validate(pack.sources, pack.nodes, pack.bindings)
+    }
+
+    @Test
+    fun acceptsPlaceholderStatusWithNullUriAndTriplet() {
+        // P2：B 类——null + UNVERIFIED_PLACEHOLDER + 三元组 + marker。
+        val pack = validPack()
+        KnowledgeBaseImportContract.validate(
+            pack.sources.map {
+                it.copy(
+                    sourceUri = null,
+                    licenseStatus = KnowledgeSourceLicenseStatus.UNVERIFIED_PLACEHOLDER.name,
+                    attributionText = "来源不明（占位）：结构化总结，仅参考、独立重写，不保存原文。",
+                )
+            },
+            pack.nodes,
+            pack.bindings,
+        )
+    }
+
+    @Test
+    fun acceptsReferenceOnlyWithNullUriAndTriplet() {
+        // P3：C 类——null + REFERENCE_ONLY + 三元组 + 复用口径。
+        val pack = validPack()
+        KnowledgeBaseImportContract.validate(
+            pack.sources.map {
+                it.copy(
+                    sourceUri = null,
+                    licenseStatus = KnowledgeSourceLicenseStatus.REFERENCE_ONLY.name,
+                    attributionText = "结构化总结，非原文；仅参考、独立重写，不保存原文。",
+                )
+            },
+            pack.nodes,
+            pack.bindings,
+        )
+    }
+
+    @Test
+    fun acceptsLicensedSourceWithRealHttpsUri() {
+        // LICENSED 仍然需要 URI，但不再要求它是"公开官方"域名，只要可核实的 HTTPS。
+        val pack = validPack()
+        KnowledgeBaseImportContract.validate(
+            pack.sources.map {
+                it.copy(
+                    licenseStatus = KnowledgeSourceLicenseStatus.LICENSED.name,
+                    contentUsePolicy =
+                        KnowledgeSourceContentUsePolicy.ADAPTATION_ALLOWED.name,
+                    licenseExpression = "CC-BY-NC-SA-4.0",
+                    licenseUri = "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+                    attributionText = "示例课程资料，依 CC BY-NC-SA 4.0 改编。",
+                )
+            },
+            pack.nodes,
+            pack.bindings,
+        )
+    }
+
     private fun expectViolation(messagePart: String, block: () -> Unit) {
         val thrown = runCatching(block).exceptionOrNull()
         assertTrue(thrown is DatabaseContractViolationException)
@@ -201,7 +402,7 @@ class KnowledgeBaseImportContractTest {
             title = "普通高中数学课程标准",
             publisher = "教育部",
             edition = "2020年修订",
-            sourceUri = "https://example.edu/curriculum.pdf",
+            sourceUri = "https://www.moe.gov.cn/srcsite/A26/s8001/202006/W020200603315372317586.zip",
             licenseStatus = KnowledgeSourceLicenseStatus.PUBLIC_OFFICIAL.name,
             contentFingerprint = "A".repeat(64),
             importedAtEpochMillis = 1_000,

@@ -321,6 +321,9 @@ private fun KnowledgeSourceType.researchPriority(): Int = when (this) {
     KnowledgeSourceType.TEXTBOOK -> 1
     KnowledgeSourceType.AUTHORIZED_EDUCATION_MATERIAL -> 2
     KnowledgeSourceType.MANUAL_RESEARCH -> 3
+    // 来源身份未核实的占位类：排在最后。它从未通过 `normalize`（会把未核实声明降级为
+    // MANUAL_RESEARCH），这里给出优先级只是让 `when` 对新增枚举保持穷尽。
+    KnowledgeSourceType.UNVERIFIED_PLACEHOLDER -> 4
 }
 
 private fun canonicalKnowledgeResearchUri(raw: String): String {

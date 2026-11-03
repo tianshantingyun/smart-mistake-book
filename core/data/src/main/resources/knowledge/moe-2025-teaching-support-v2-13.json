@@ -5,98 +5,98 @@
   {
    "sourceId": "desktop-src-48689b61de:physics",
    "subject": "PHYSICS",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料(1)",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "76E45DFAA54E87666698DBFB15E71C331C3C7336A9F486CD7BD1E6E4FE13483D",
    "importedAtEpochMillis": 1789739786865,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "subject": "CHEMISTRY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料(3)",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "D45C35EA10D42D32A8A0A578557911B78B313C048345E31D7AB2381426DFFAA0",
    "importedAtEpochMillis": 1789732926467,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-7b2647b433:chemistry",
    "subject": "CHEMISTRY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 27版五三",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "25ACA917ED65BEC02141841019A23530CB07CA7F2004AF86BAF310C50D2B4D38",
    "importedAtEpochMillis": 1789739807250,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-7b2647b433:math",
    "subject": "MATH",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 27版五三",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "1959862E778D2A1D7D2EE9090A0A63B43B58107476639538E7E8AC1B178E0645",
    "importedAtEpochMillis": 1789743702720,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-7b2647b433:physics",
    "subject": "PHYSICS",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 27版五三",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "F83BAF108E49BAA3F0129CF8C6CCA6E7A107B6BE0DAD86FF2EE1409CF4C40DF1",
    "importedAtEpochMillis": 1789739800974,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-7b2647b433:biology",
    "subject": "BIOLOGY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 27版五三",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "4B8F903AC2C5A9739CDCC344BA479B913BC40B09177389C4BFCF34FCEECA5001",
    "importedAtEpochMillis": 1789733219373,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   }
  ],
  "materials": [
@@ -10451,29 +10451,6 @@
    ]
   },
   {
-   "slug": "ext-phy-895e882223-003",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "动量守恒定律的内容与三种适用条件",
-   "summaryMarkdown": "系统不受外力或所受外力的矢量和为零时总动量保持不变，适用条件分理想守恒、近似守恒和某一方向守恒三种情形。",
-   "applicabilityMarkdown": "PRIMARY：判断给定过程能否使用动量守恒定律，以及选取守恒方向时使用",
-   "contentMarkdown": "内容：如果一个系统不受外力，或者所受外力的矢量和为0，这个系统的总动量保持不变。\\n理想守恒：不受外力或所受外力的合力为零。\\n近似守恒：系统内各物体间相互作用的内力远大于它所受到的外力，如碰撞、爆炸等过程。\\n某一方向守恒：系统动量不守恒，但在某一方向上不受外力或所受外力的合力为零，则系统在这一方向上动量守恒。",
-   "boundaryMarkdown": "动量守恒的条件是外力的矢量和为零（或可忽略），与系统内各物体是否有加速度无关；不能与机械能守恒的条件混用。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/教师用书配套课件/第七章　动量守恒定律/第七章　第34课时　动量守恒定律.pptx（块 895e882223-003）",
-   "reviewedAtEpochMillis": 1790875653147,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-895e882223-003",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动量守恒定律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-895e882223-007",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -10975,29 +10952,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:定义-物体具有保持原来匀速直线运动状态或静止状态的性质-质量是惯性的唯一量度",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-1bbb2dfb90-013",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "牛顿第二定律的内容与表达式",
-   "summaryMarkdown": "物体加速度的大小跟它受到的作用力成正比、跟它的质量成反比，加速度的方向跟作用力的方向相同，表达式F＝ma。",
-   "applicabilityMarkdown": "PRIMARY：已知受力求加速度或由加速度反推合力时使用",
-   "contentMarkdown": "内容：物体加速度的大小跟它受到的作用力成正比，跟它的质量成反比，加速度的方向跟作用力的方向相同。\\n表达式：F＝ma。",
-   "boundaryMarkdown": "式中F是物体所受外力的合力；加速度的方向与合力方向一致而与速度方向无关，加速度减小不代表速度减小。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/教师用书配套课件/第三章　运动和力的关系/第三章　第11课时　牛顿第一定律　牛顿第二定律.pptx（块 1bbb2dfb90-013）",
-   "reviewedAtEpochMillis": 1790875653147,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-1bbb2dfb90-013",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:牛顿第二定律",
      "role": "PRIMARY"
     }
    ]
@@ -34757,29 +34711,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:煤的综合利用",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-f9fefe7500-002",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "原电池电极反应式的书写要点",
-   "summaryMarkdown": "书写电极反应式必须考虑介质环境对得失电子后存在形式的影响，并由两极反应式相加得到总反应式时先使转移电子数相等。",
-   "applicabilityMarkdown": "PRIMARY：书写陌生原电池的电极反应式、或检查所写产物在给定介质中能否稳定存在时使用。",
-   "contentMarkdown": "一般电极反应式的书写：先判断两极上发生氧化还是还原，再按介质环境写出对应产物。\\n介质环境决定存在形式：碱性溶液中不可能有 CO2、H+ 生成，酸性溶液中不可能有 NH3、OH- 生成。\\n由两极反应式相加得总反应式时，应先调整化学计量数使两式中转移电子数目相等，再将两式相加。",
-   "boundaryMarkdown": "只适用于两极产物按介质稳定存在的情形；熔融盐、固态电解质等特殊介质须按题目给出的导电离子环境另行判断。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-7b2647b433:chemistry",
-   "sourceLocator": "桌面资料 27版五三 / 27版五三/53模拟B版（2027版）/2027版.5·3B版.新教材.化学.新高考版.高三.全一册_学生用书全一册/一、本书配套电子教参/专题七化学反应与电能/讲解册PPT/7_专题七　化学反应与电能.pptx（块 f9fefe7500-002）",
-   "reviewedAtEpochMillis": 1790875653147,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-f9fefe7500-002",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电极反应式",
      "role": "PRIMARY"
     }
    ]

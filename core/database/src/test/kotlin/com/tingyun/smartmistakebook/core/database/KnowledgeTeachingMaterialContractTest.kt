@@ -228,7 +228,7 @@ class KnowledgeTeachingMaterialContractTest {
         title = "教学参考资料",
         publisher = "示例出版社",
         edition = "2026",
-        sourceUri = "https://example.org/reference",
+        sourceUri = "https://www.pep.com.cn/reference",
         licenseStatus = KnowledgeSourceLicenseStatus.REFERENCE_ONLY.name,
         contentFingerprint = "A".repeat(64),
         importedAtEpochMillis = 1,

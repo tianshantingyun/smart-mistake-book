@@ -34,6 +34,38 @@ object KnowledgeBaseImportContract {
     private val contentUsePolicies =
         enumValues<KnowledgeSourceContentUsePolicy>().map { it.name }.toSet()
 
+    /**
+     * 占位域（RFC 2606 / RFC 6761 的保留名 + 回环地址）。命中即拒收。
+     *
+     * 它消灭的具体失败：包里出现 `example.edu` 这类**不可能被任何人核实**的来源，
+     * 而类型/状态全都合法，审阅者无从分辨"真实来源"与"为了过门而编的域名"。
+     * 2026-11-03 的裁定要求对**任何出现的 URI** 生效（`source.sourceUri`、`source.licenseUri`、
+     * 以及主包经 `toSource` 合成出来的源），不因 `licenseStatus` 宽松而放行。
+     */
+    private val placeholderHosts = setOf(
+        "example.com",
+        "example.net",
+        "example.org",
+        "example.edu",
+        "localhost",
+        "127.0.0.1",
+        "0.0.0.0",
+        "::1",
+    )
+    private val placeholderSuffixes = listOf(
+        ".invalid",
+        ".test",
+        ".local",
+        ".localhost",
+        ".example",
+    )
+
+    /** 占位类的 attribution 必须写明的字样（与内容包的落盘口径一致）。 */
+    private const val PLACEHOLDER_MARKER = "来源不明（占位）"
+
+    /** `REFERENCE_ONLY` 且无 URI 时，attribution 必须写明的复用口径。 */
+    private const val REFERENCE_ONLY_MARKER = "仅参考、独立重写"
+
     fun validate(
         sources: List<KnowledgeSourceSeedRecord>,
         nodes: List<KnowledgeNodeSeedRecord>,
@@ -252,14 +284,62 @@ object KnowledgeBaseImportContract {
         }
     }
 
+    /**
+     * 来源 URI 的语义门（2026-11-03 裁定）：
+     *
+     * 1. **URI 必填只对 `LICENSED`**。曾经的 `uriRequired = licenseStatus != LICENSED`
+     *    逼着 `PUBLIC_OFFICIAL` / `REFERENCE_ONLY` 也交一个 URL——内容侧于是填了假域名，
+     *    契约反而成了伪造的推手。
+     * 2. **占位域对任何出现的 URI 生效**（含 `licenseUri`，见 [validateHttpsUri]），
+     *    不因状态宽松而放行。
+     * 3. **URI 为 null 时必须有三元组**：`issuer = publisher`、`title`（[validateSource] 已保证
+     *    非空）、`yearOrEdition = edition`。把"来源身份"从 URL 换成可核实的机构+文件名+版次，
+     *    缺一即拒收——杜撰 URL 不再是唯一出路。
+     * 4. `UNVERIFIED_PLACEHOLDER` 必须 null 且带显式标记；`REFERENCE_ONLY` 无 URI 时
+     *    必须写明"仅参考、独立重写"。
+     */
     private fun validateSourceUri(source: KnowledgeSourceSeedRecord) {
         val uriText = source.sourceUri
-        val uriRequired = source.licenseStatus != KnowledgeSourceLicenseStatus.LICENSED.name
-        requireImport(!uriRequired || uriText != null) {
-            "Public and reference-only knowledge sources need a source URI"
+        val licensed = source.licenseStatus == KnowledgeSourceLicenseStatus.LICENSED.name
+        val placeholder =
+            source.licenseStatus == KnowledgeSourceLicenseStatus.UNVERIFIED_PLACEHOLDER.name
+        if (uriText == null) {
+            requireImport(!licensed) {
+                "source.sourceUri is required for source.licenseStatus LICENSED"
+            }
+        } else {
+            requireImport(!placeholder) {
+                "source.sourceUri must be null for source.licenseStatus UNVERIFIED_PLACEHOLDER"
+            }
+            validateHttpsUri(uriText, "source.sourceUri")
         }
-        if (uriText == null) return
-        validateHttpsUri(uriText, "source.sourceUri")
+        if (uriText == null) {
+            text(source.publisher.orEmpty(), "source.publisher", 500)
+            text(source.edition.orEmpty(), "source.edition", 500)
+        }
+        when (source.licenseStatus) {
+            KnowledgeSourceLicenseStatus.UNVERIFIED_PLACEHOLDER.name -> {
+                requireImport(
+                    source.contentUsePolicy ==
+                        KnowledgeSourceContentUsePolicy.REVIEWED_SYNTHESIS_ONLY.name,
+                ) {
+                    "Placeholder knowledge sources permit reviewed synthesis only"
+                }
+                requireImport(
+                    source.attributionText.orEmpty().contains(PLACEHOLDER_MARKER),
+                ) {
+                    "source.attributionText must mark a placeholder source as $PLACEHOLDER_MARKER"
+                }
+            }
+
+            KnowledgeSourceLicenseStatus.REFERENCE_ONLY.name -> if (uriText == null) {
+                requireImport(
+                    source.attributionText.orEmpty().contains(REFERENCE_ONLY_MARKER),
+                ) {
+                    "source.attributionText must state $REFERENCE_ONLY_MARKER when source.sourceUri is null"
+                }
+            }
+        }
     }
 
     private fun validateHttpsUri(uriText: String, fieldName: String) {
@@ -275,6 +355,24 @@ object KnowledgeBaseImportContract {
                 uri.rawUserInfo == null &&
                 uri.rawFragment == null,
         ) { "$fieldName must be an absolute HTTPS URI without credentials or fragments" }
+        requireImport(!isPlaceholderHost(uri.host.orEmpty())) {
+            "$fieldName must not use a placeholder host '${uri.host}'"
+        }
+    }
+
+    /**
+     * 占位域判定：`host` 小写、去尾点后，等于精确项、是精确项的子域，或以保留后缀结尾。
+     *
+     * 子域也拒收是因为占位域名常被写成 `www.example.edu`——只查精确等值会放过内容包里
+     * 实际出现的那种形态（N1 用例即 `https://www.example.edu/material`）。
+     * IPv6 的 `uri.host` 带方括号（`[::1]`），先去括号再比对。
+     */
+    private fun isPlaceholderHost(rawHost: String): Boolean {
+        val host = rawHost.trim('[', ']').lowercase(Locale.ROOT).trimEnd('.')
+        if (host.isEmpty()) return false
+        if (host in placeholderHosts) return true
+        if (placeholderHosts.any { host.endsWith(".$it") }) return true
+        return placeholderSuffixes.any(host::endsWith)
     }
 
     private fun validateTopicHierarchyIsAcyclic(

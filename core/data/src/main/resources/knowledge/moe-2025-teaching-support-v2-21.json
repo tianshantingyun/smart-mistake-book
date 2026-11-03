@@ -5,98 +5,98 @@
   {
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "subject": "CHEMISTRY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料(3)",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "D45C35EA10D42D32A8A0A578557911B78B313C048345E31D7AB2381426DFFAA0",
    "importedAtEpochMillis": 1789732926467,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-d8b718d85a:biology",
    "subject": "BIOLOGY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料(4)",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "35F0C03E99DD5E9D9DB8814B589AAB6804DCE7A5B4A35BC2E6DA76A4311544B7",
    "importedAtEpochMillis": 1789733218691,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-e35c96096a:math",
    "subject": "MATH",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "DA44D7822E4E91D760B228E72495E4CE137101298124C0695FF0474FDFBE032B",
    "importedAtEpochMillis": 1789669590286,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-7a6607b645:chemistry",
    "subject": "CHEMISTRY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2027版高中《53知识清单》彩色版（化学）",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "FCBD32DF1E57786946421FFD6CF0AC1A8B4122CA2F66A64C5859E79FDC3DF15E",
    "importedAtEpochMillis": 1790769112439,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-76de8fd161:math",
    "subject": "MATH",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2027版高中《53知识清单》彩色版（数学）",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "5FB0932C8184EB19CB09B3EAE9BF1BC4021912F103CEA8EF72DD2DA4465CEA99",
    "importedAtEpochMillis": 1790769112445,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-d719f687b2:physics",
    "subject": "PHYSICS",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2027版高中《53知识清单》彩色版（物理）",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "1963F172F893093E0432DA4513E81CB5AAFC4B8D9B4AF469D30EB69A5EF95801",
    "importedAtEpochMillis": 1790769112451,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   }
  ],
  "materials": [
@@ -9025,29 +9025,6 @@
    ]
   },
   {
-   "slug": "ext-mat-f720be0b99-002",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "由线面垂直证线线垂直的两个结论（§7.5·灵活应用）",
-   "summaryMarkdown": "直线垂直于平面则垂直于面内任一直线；两平行线之一垂直于平面，则另一条也垂直于该平面。",
-   "applicabilityMarkdown": "PRIMARY：证明两条直线（含异面）垂直时。",
-   "contentMarkdown": "1. 若一条直线垂直于一个平面，则它垂直于这个平面内的任何一条直线——证明线线垂直的一个重要方法。\\n2. 若两条平行线中的一条垂直于一个平面，则另一条也垂直于这个平面。",
-   "boundaryMarkdown": "结论2以两线平行为前提；用结论1时要先找到过其中一线的合适平面。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/大一轮精准复习/第七章 §7.5　空间直线、平面的垂直.docx（块 f720be0b99-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-f720be0b99-002",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:证明线线垂直的方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-f720be0b99-002b",
    "subject": "MATH",
    "type": "METHOD_MODEL",
@@ -10451,29 +10428,6 @@
    ]
   },
   {
-   "slug": "ext-mat-fcc8a57b01-002",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "幂函数图象的三条性质（大一轮§2.6·幂函数的性质）",
-   "summaryMarkdown": "α<0 时在 (0，＋∞) 上递减且图象逼近坐标轴；图象不过第四象限、与坐标轴仅交于原点或不相交；两个幂函数图象最多三个公共点.",
-   "applicabilityMarkdown": "PRIMARY：判断幂函数图象的位置、分析多个幂函数图象的交点个数时.",
-   "contentMarkdown": "**三条性质**：①当 α<0 时，幂函数在区间 (0，＋∞) 上单调递减；在第一象限内，当 x 从右边趋向原点时，图象在 y 轴右方无限逼近 y 轴正半轴，当 x 趋于＋∞ 时，图象在 x 轴上方无限逼近 x 轴正半轴。\\n②任何幂函数的图象与坐标轴仅相交于原点，或不相交；任何幂函数的图象都不过第四象限。\\n③任何两个幂函数的图象最多有三个公共点——除 (1，1)、(0，0)、(－1，1)、(－1，－1) 外，其他任何一点都不是两个幂函数的公共点。",
-   "boundaryMarkdown": "性质针对 y＝xᵃ 的图象形态；公共点结论只适用于“两个幂函数之间”，且公共点只可能取上述四类坐标。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/大一轮精准复习/第二章 §2.6　二次函数与幂函数.docx（块 fcc8a57b01-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-fcc8a57b01-002",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-fcc8a57b01-002b",
    "subject": "MATH",
    "type": "CONCEPT_EXPLANATION",
@@ -10515,29 +10469,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:幂函数的图象与性质",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-fcc8a57b01-003b",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "比较幂值大小的方法（大一轮§2.6·题型一思维升华）",
-   "summaryMarkdown": "比较幂值大小必须结合幂值特点选择适当的函数，借助其单调性进行比较.",
-   "applicabilityMarkdown": "PRIMARY：比较两个幂值（幂式）大小时.",
-   "contentMarkdown": "**方法**：在比较幂值的大小时，必须结合幂值的特点，选择适当的函数，借助其单调性进行比较。\\n**操作要点**：先比较两个幂式的底数与指数的异同，再把它们看作同一个适当函数的两个函数值，用该函数的单调性定大小。",
-   "boundaryMarkdown": "关键在“选对函数”：底数相同用指数函数的单调性、指数相同用幂函数的单调性，其余情形需借助中间量分界。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/大一轮精准复习/第二章 §2.6　二次函数与幂函数.docx（块 fcc8a57b01-003）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-fcc8a57b01-003b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:指对幂比较大小的常用方法",
      "role": "PRIMARY"
     }
    ]
@@ -11624,29 +11555,6 @@
    ]
   },
   {
-   "slug": "ext-mat-0c56ae6c1b-002b",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "双曲线右支点的焦半径最小值（§8.7 常用结论）",
-   "summaryMarkdown": "若P是双曲线右支上一点，F1、F2为左、右焦点，则|PF1|min＝a＋c，|PF2|min＝c－a。",
-   "applicabilityMarkdown": "PRIMARY：求双曲线右支上点到焦点的距离的最小值、或判断焦半径取值范围时。",
-   "contentMarkdown": "若P是双曲线右支上一点，F1、F2分别为双曲线的左、右焦点，则|PF1|min＝a＋c，|PF2|min＝c－a。",
-   "boundaryMarkdown": "结论针对P在右支上；P在左支上时两最小值在对应位置互换，用时先确认支别。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/大一轮精准复习/第八章 §8.7　双曲线.docx（块 0c56ae6c1b-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-0c56ae6c1b-002b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:双曲线焦半径公式",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-0c56ae6c1b-002c",
    "subject": "MATH",
    "type": "CONCEPT_EXPLANATION",
@@ -12102,29 +12010,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-e1fe22cdc1-002c",
-   "subject": "MATH",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "等比数列求和须讨论公比q＝1（§6.3 解题时关注三个关键点）",
-   "summaryMarkdown": "运用等比数列前n项和公式时必须注意对q＝1与q≠1分类讨论，防止因忽略q＝1的情形导致解题失误。",
-   "applicabilityMarkdown": "PRIMARY：求和或由和式求参数时，等比数列公比q未明确的情形。",
-   "contentMarkdown": "在运用等比数列的前n项和公式时，必须注意对q＝1与q≠1分类讨论，防止因忽略q＝1这一特殊情形而导致解题失误。",
-   "boundaryMarkdown": "q＝1时Sn＝na1，不能套用q≠1的求和公式（分母为零）；分类讨论要显式写出q＝1的结论。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/大一轮精准复习/第六章 §6.3　等比数列.docx（块 e1fe22cdc1-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-e1fe22cdc1-002c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的前n项和",
      "role": "PRIMARY"
     }
    ]
@@ -14039,29 +13924,6 @@
    ]
   },
   {
-   "slug": "ext-mat-d6fcc88eb2-003c",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "用已知向量表示某一向量的三个关键点（§7.6 思维升华）",
-   "summaryMarkdown": "表示目标向量要紧扣图形、理解加减与数乘的几何意义，并善用三角形法则与平行四边形法则。",
-   "applicabilityMarkdown": "PRIMARY：立体几何中用已知向量表示未知向量、求系数和时。",
-   "contentMarkdown": "①要结合图形，以图形为指导是解题的关键。\\n②要正确理解向量加法、减法与数乘运算的几何意义。\\n③在立体几何中，三角形法则、平行四边形法则仍然成立。",
-   "boundaryMarkdown": "表示路径可能不唯一，但化简后须得到同一基底下的唯一结果；按首尾相接的方向取向量，避免方向取反。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/教师用书Word版文档/第七章 §7.6　空间向量的概念与运算.docx（块 d6fcc88eb2-003）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-d6fcc88eb2-003c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:空间向量的线性运算",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-d6fcc88eb2-006",
    "subject": "MATH",
    "type": "METHOD_MODEL",
@@ -14195,52 +14057,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:导数的几何意义",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-8584aa4303-002b",
-   "subject": "MATH",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "“在点处”的切线与“过点处”的切线须区分（§3.1 明确两点不同）",
-   "summaryMarkdown": "在点处的切线，该点一定是切点且切线有且仅有一条；过点处的切线，该点不一定是切点且切线至少有一条。",
-   "applicabilityMarkdown": "PRIMARY：题目出现“在点处的切线”或“过点处的切线”，需要设切点列方程时。",
-   "contentMarkdown": "在点处的切线：该点一定是切点，切线有且仅有一条。\\n过点处的切线：该点不一定是切点，切线至少有一条，需设切点(x0，f(x0))再解方程。",
-   "boundaryMarkdown": "“过点”求切线时不能把已知点直接当切点代入f′(x)；切线条数由方程解的个数决定，可能不止一条。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/教师用书Word版文档/第三章 §3.1　导数的概念及其意义、导数的运算.docx（块 8584aa4303-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-8584aa4303-002b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:曲线-过-某点的切线问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-8584aa4303-002c",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "奇偶函数与周期函数的求导结论（§3.1 巧记两个常用结论(1)）",
-   "summaryMarkdown": "奇函数的导数是偶函数，偶函数的导数是奇函数；周期函数的导数还是周期函数。",
-   "applicabilityMarkdown": "PRIMARY：已知f(x)的奇偶性或周期性，要判断f′(x)的性质或求导数值时。",
-   "contentMarkdown": "奇函数的导数是偶函数，偶函数的导数是奇函数。\\n周期函数的导数还是周期函数。",
-   "boundaryMarkdown": "结论对可导函数成立；求导不改变周期性但会交换奇偶性，记忆与使用都要注意方向。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/教师用书Word版文档/第三章 §3.1　导数的概念及其意义、导数的运算.docx（块 8584aa4303-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-8584aa4303-002c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数奇偶性的几个重要结论",
      "role": "PRIMARY"
     }
    ]
@@ -15580,29 +15396,6 @@
    ]
   },
   {
-   "slug": "ext-mat-bf2f5a0640-001",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "向量共线定理（§5.1 平面向量的概念及线性运算）",
-   "summaryMarkdown": "给出非零向量与另一向量共线的充要条件。",
-   "applicabilityMarkdown": "PRIMARY：判断两向量共线、由共线条件求参数时使用。",
-   "contentMarkdown": "向量a（a≠0）与b共线的充要条件是：存在唯一一个实数λ，使b=λa。",
-   "boundaryMarkdown": "结论以a≠0为前提；b=0时取λ=0，共线关系成立但不能由此断定方向。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/教师用书Word版文档/第五章 §5.1　平面向量的概念及线性运算.docx（块 bf2f5a0640-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-bf2f5a0640-001",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:向量共线定理",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-bf2f5a0640-001b",
    "subject": "MATH",
    "type": "CONCEPT_EXPLANATION",
@@ -16035,29 +15828,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两点间的距离公式",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-7745ddfaf5-001b",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "点到直线的距离公式（§8.2 三种距离公式）",
-   "summaryMarkdown": "点P(x0，y0)到直线l：Ax+By+C=0的距离为d=|Ax0+By0+C|/√(A²+B²)。",
-   "applicabilityMarkdown": "PRIMARY：计算点到直线的距离、或用距离条件求参数时。",
-   "contentMarkdown": "点P(x0，y0)到直线l：Ax+By+C=0的距离为d=|Ax0+By0+C|/√(A²+B²)。",
-   "boundaryMarkdown": "使用前把直线方程化为一般式；分子带绝对值、分母为A²+B²的算术平方根。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/教师用书Word版文档/第八章 §8.2　两条直线的位置关系.docx（块 7745ddfaf5-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-7745ddfaf5-001b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:点到直线的距离",
      "role": "PRIMARY"
     }
    ]
@@ -16569,52 +16339,6 @@
    ]
   },
   {
-   "slug": "ext-mat-57e5aabddb-003",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "等比数列判定的两个关键点（§6.3 解题时关注三个关键点）",
-   "summaryMarkdown": "由an+1=qan（q≠0）不能立即断言等比，还要验证a1≠0；q≠0且q≠1时Sn=k-k·qn(k≠0)是成等比的充要条件。",
-   "applicabilityMarkdown": "PRIMARY：判断（证明）数列为等比数列时。",
-   "contentMarkdown": "①由an+1=qan（q≠0）并不能立即断言{an}为等比数列，还要验证a1≠0。\\n②当q≠0且q≠1时，Sn=k-k·qn（k≠0）是{an}成等比数列的充要条件。",
-   "boundaryMarkdown": "下结论前先验证首项非零；用Sn形式判定时须限定q≠0且q≠1。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/教师用书Word版文档/第六章 §6.3　等比数列.docx（块 57e5aabddb-003）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-57e5aabddb-003",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的判断与证明方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-57e5aabddb-003b",
-   "subject": "MATH",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "等比数列求和须讨论公比q=1（§6.3 解题时关注三个关键点）",
-   "summaryMarkdown": "运用等比数列前n项和公式时必须对q=1与q≠1分类讨论，防止忽略q=1这一特殊情形。",
-   "applicabilityMarkdown": "PRIMARY：求等比数列前n项和、含参等比数列求和时。",
-   "contentMarkdown": "在运用等比数列的前n项和公式时，必须注意对q=1与q≠1分类讨论，防止因忽略q=1这一特殊情形而导致解题失误。",
-   "boundaryMarkdown": "q=1时Sn=na1，不能用q≠1的求和公式；含参等比数列要先讨论q。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/教师用书Word版文档/第六章 §6.3　等比数列.docx（块 57e5aabddb-003）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-57e5aabddb-003b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等比数列的前n项和",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-57e5aabddb-007",
    "subject": "MATH",
    "type": "CONCEPT_EXPLANATION",
@@ -17075,29 +16799,6 @@
    ]
   },
   {
-   "slug": "ext-mat-37276ea8cf-002",
-   "subject": "MATH",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "弧度制与扇形公式的三个易误点（§4.1 谨防三个易误点）",
-   "summaryMarkdown": "角度与弧度换算用π rad=180°且同一式子不可混用；扇形公式中角必须是弧度；由符号定终边不要漏坐标轴。",
-   "applicabilityMarkdown": "PRIMARY：角度与弧度互化、使用扇形弧长与面积公式、由符号判断终边时。",
-   "contentMarkdown": "①角度与弧度换算的关键是π rad=180°，在同一个式子中，采用的度量制度必须一致，不可混用。\\n②利用扇形弧长和面积公式解题时，要注意角的单位必须是弧度。\\n③已知三角函数值的符号确定角的终边位置，不要遗漏终边在坐标轴上的情况。",
-   "boundaryMarkdown": "公式中的角一律用弧度；判断终边位置要覆盖象限角与轴线角。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/教师用书Word版文档/第四章 §4.1　任意角和弧度制、三角函数的概念.docx（块 37276ea8cf-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-37276ea8cf-002",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:任意角与弧度制",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-37276ea8cf-005",
    "subject": "MATH",
    "type": "METHOD_MODEL",
@@ -17139,29 +16840,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角函数的定义",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-37276ea8cf-006b",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "由两个三角函数值的符号定终边位置（§4.1·思维升华）",
-   "summaryMarkdown": "已知sinα、cosα、tanα中任意两个的符号，分别确定终边的可能位置，取交集即得终边所在位置。",
-   "applicabilityMarkdown": "PRIMARY：已知两个三角函数值（式）的符号（如sinα·cosα<0且cosα-sinα<0），判断角所在象限时。",
-   "contentMarkdown": "1. 已知一角三角函数值（sin α、cos α、tan α）中任意两个的符号，可分别确定出角的终边所在的可能位置。\\n2. 二者的交集即为该角的终边位置。",
-   "boundaryMarkdown": "必须用满两个符号条件联合定位；只知一个符号只能排除部分象限，得不到唯一结论。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/基础版/教师用书Word版文档/第四章 §4.1　任意角和弧度制、三角函数的概念.docx（块 37276ea8cf-006）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-37276ea8cf-006b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:象限角的判断与角的终边关系",
      "role": "PRIMARY"
     }
    ]
@@ -18363,29 +18041,6 @@
    ]
   },
   {
-   "slug": "ext-mat-d3d4105702-001c",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "基本不等式的两个常用变形（§1.4·灵活应用两个基本不等式的变形公式）",
-   "summaryMarkdown": "同号两数的比之和不小于2；正数还有均值不等式链：调和平均≤几何平均≤算术平均≤平方平均。",
-   "applicabilityMarkdown": "PRIMARY：把基本不等式变形使用（比的和最小、用均值不等式链比较大小）时。",
-   "contentMarkdown": "1. a/b+b/a≥2（a、b同号，当且仅当a=b时等号成立）。\\n2. 均值不等式链：2/(1/a+1/b)≤√(ab)≤(a+b)/2≤√((a²+b²)/2)（a>0、b>0，当且仅当a=b时等号成立）。",
-   "boundaryMarkdown": "第一条要求两数同号；链中各号都在两数为正时成立，整链不能跨条件使用。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/学生用书Word版文档/大一轮复习讲义/第一章　§1.4　基本不等式.docx（块 d3d4105702-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-d3d4105702-001c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:均值不等式链",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-df313ce801-001",
    "subject": "MATH",
    "type": "CONCEPT_EXPLANATION",
@@ -18984,29 +18639,6 @@
    ]
   },
   {
-   "slug": "ext-mat-d526615395-002c",
-   "subject": "MATH",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "零向量不能作基向量（§7.6·易误点2）",
-   "summaryMarkdown": "0 与任意非零向量共线、与任意两个非零向量共面，故 0 不能作为基向量。",
-   "applicabilityMarkdown": "PRIMARY：选取基底、处理共线共面关系时。",
-   "contentMarkdown": "由于 0 与任意一个非零向量共线，与任意两个非零向量共面，故 0 不能作为基向量；选择基底时每个基向量都必须非零。",
-   "boundaryMarkdown": "讨论共线、共面关系时先排除零向量，否则方向、夹角等概念退化。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/学生用书Word版文档/大一轮复习讲义/第七章　§7.6　空间向量的概念与运算.docx（块 d526615395-002）",
-   "reviewedAtEpochMillis": 1792418197154,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-d526615395-002c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:平面向量基本定理",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-d526615395-002d",
    "subject": "MATH",
    "type": "CONCEPT_EXPLANATION",
@@ -19025,29 +18657,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线的方向向量和平面的法向量",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-7c2c113f0b-001",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "异面直线所成角的向量公式（§7.7·1）",
-   "summaryMarkdown": "方向向量 u、v：cosθ＝|cos〈u，v〉|；θ 取锐角或直角。",
-   "applicabilityMarkdown": "PRIMARY：用方向向量求异面直线所成角时。",
-   "contentMarkdown": "若异面直线 l1、l2 所成的角为 θ，其方向向量分别是 u、v，则 cosθ＝|cos〈u，v〉|＝|u·v|/(|u|·|v|)。",
-   "boundaryMarkdown": "必须加绝对值，因为向量夹角可能为钝角；所成角 θ 的取值范围是 (0°，90°]。块内公式右端被留空，按标准形式补全。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/学生用书Word版文档/大一轮复习讲义/第七章　§7.7　向量法求空间角.docx（块 7c2c113f0b-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-7c2c113f0b-001",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:用向量法求异面直线所成角的一般步骤",
      "role": "PRIMARY"
     }
    ]
@@ -19140,52 +18749,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:点到平面的距离",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-db91eb7286-002",
-   "subject": "MATH",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "「在点处」与「过点处」切线的区别（§3.1·明确两点不同）",
-   "summaryMarkdown": "在点处的切线该点必是切点、切线唯一；过点处的切线该点不一定是切点，切线至少一条。",
-   "applicabilityMarkdown": "PRIMARY：求切线方程、题面出现「在点」「过点」两种问法时。",
-   "contentMarkdown": "1. 在点处的切线：该点一定是切点，切线有且仅有一条。\\n2. 过点处的切线：该点不一定是切点，切线至少有一条（可能多条，需设切点坐标逐一求解）。",
-   "boundaryMarkdown": "审题先分清「在」与「过」；「过点」问题要设切点坐标联立曲线方程解出全部切点。块内例1为题目未纳入材料。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/学生用书Word版文档/大一轮复习讲义/第三章　§3.1　导数的概念及其意义、导数的运算.docx（块 db91eb7286-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-db91eb7286-002",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:曲线-在-某点处的切线问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-db91eb7286-002b",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "求导保持奇偶性与周期性（§3.1·巧记结论1）",
-   "summaryMarkdown": "奇函数的导数是偶函数，偶函数的导数是奇函数；周期函数的导数还是周期函数。",
-   "applicabilityMarkdown": "PRIMARY：已知 f 的奇偶性、周期性判断 f′ 的性质时。",
-   "contentMarkdown": "常用结论：奇函数的导数是偶函数，偶函数的导数是奇函数；周期函数的导数还是周期函数。",
-   "boundaryMarkdown": "前提是可导；反向不成立——f′ 为偶函数时 f 未必是奇函数（可能相差常数）。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/学生用书Word版文档/大一轮复习讲义/第三章　§3.1　导数的概念及其意义、导数的运算.docx（块 db91eb7286-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-db91eb7286-002b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:导函数与原函数的对称性",
      "role": "PRIMARY"
     }
    ]
@@ -19720,29 +19283,6 @@
    ]
   },
   {
-   "slug": "ext-mat-1de6d41461-002",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "零点的三条相关性质（§2.12·谨记三个相关性质）",
-   "summaryMarkdown": "单调函数至多一个零点、零点不是“点”而是实数解、相邻零点间函数值同号、过零点可能变号也可能不变号。",
-   "applicabilityMarkdown": "PRIMARY：判断零点个数、分析零点间的符号、处理零点存在问题、比较零点大小时。",
-   "contentMarkdown": "1. 若连续不断的函数 f(x) 在定义域上是单调函数，则 f(x) 至多有一个零点；函数的零点不是一个“点”，而是方程 f(x)＝0 的实数解。\\n2. 图象连续不断的函数，其相邻两个零点之间的所有函数值保持同号。\\n3. 连续不断的函数图象通过零点时，函数值可能变号，也可能不变号。",
-   "boundaryMarkdown": "都要求图象连续不断；“至多一个”不是“恰好一个”；过零点未必变号，不能由经过零点推出变号。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/学生用书Word版文档/大一轮复习讲义/第二章　§2.12　函数的零点与方程的解.docx（块 1de6d41461-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-1de6d41461-002",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:零点个数与所在区间的判断方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-1de6d41461-002b",
    "subject": "MATH",
    "type": "MISCONCEPTION_GUIDE",
@@ -20065,52 +19605,6 @@
    ]
   },
   {
-   "slug": "ext-mat-dab5ef8f92-002b",
-   "subject": "MATH",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "求奇函数解析式勿漏 x＝0 的情形（§2.3·易误点1）",
-   "summaryMarkdown": "求奇函数的解析式时忽略 x＝0 会造成解析式缺失；奇函数要么在 x＝0 处没有定义，要么 f(0)＝0。",
-   "applicabilityMarkdown": "PRIMARY：由一半区间的解析式求奇函数在整个定义域上的解析式时。",
-   "contentMarkdown": "求奇函数的解析式时，忽略 x＝0 会造成解析式缺失。\\n规律：奇函数要么在 x＝0 处没有定义，要么在 x＝0 处的函数值为 0，即 f(0)＝0——分区间写解析式时要把 x＝0 这一段单独补上。",
-   "boundaryMarkdown": "只适用于定义域含 x＝0 的奇函数；原函数在 0 处无定义时不必补 0 点，先确认定义域是否含 0。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/学生用书Word版文档/大一轮复习讲义/第二章　§2.3　函数的奇偶性.docx（块 dab5ef8f92-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-dab5ef8f92-002b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的奇偶性",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-dab5ef8f92-002c",
-   "subject": "MATH",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "奇偶性与单调性结合题勿忘定义域（§2.3·易误点2）",
-   "summaryMarkdown": "解奇偶性与单调性相结合的题目时，不要忽视自变量的取值在定义域内这一隐含条件。",
-   "applicabilityMarkdown": "PRIMARY：利用奇偶性把函数值比较或不等式转化后求自变量范围时。",
-   "contentMarkdown": "解函数的奇偶性与单调性相结合的题目时，不要忽视自变量的取值在定义域内这一隐含条件。\\n做法：用奇偶性与单调性把条件转化为关于自变量的不等式（或方程）时，所得结果必须再与函数的定义域取交集。",
-   "boundaryMarkdown": "忽略定义域会把域外的解混入答案；适用于一切用单调性脱去函数符号的题目。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/学生用书Word版文档/大一轮复习讲义/第二章　§2.3　函数的奇偶性.docx（块 dab5ef8f92-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-dab5ef8f92-002c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的奇偶性",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-dab5ef8f92-002d",
    "subject": "MATH",
    "type": "MISCONCEPTION_GUIDE",
@@ -20221,75 +19715,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:函数的奇偶性-周期性-对称性关系",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-fede32ba38-001",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "解抽象函数不等式的两步（§2.5·题型一思维升华）",
-   "summaryMarkdown": "先把不等式转化为 f(g(x))>f(h(x))，再利用单调性脱去函数符号，得到具体不等式（组）。",
-   "applicabilityMarkdown": "PRIMARY：解含抽象函数符号的不等式时。",
-   "contentMarkdown": "解抽象函数不等式：先把不等式转化为 f(g(x))>f(h(x)) 的形式，利用单调性把不等式的函数符号“f”脱掉，得到具体的不等式（组）。\\n要点：脱符号时注意单调性方向（递增不改号、递减改号），并保证 g(x)、h(x) 都在定义域内。",
-   "boundaryMarkdown": "前提是 f 的单调性已知或可推出；方向或定义域任一处疏忽都会致错。块内例1、跟踪训练1为题目未纳入材料。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/学生用书Word版文档/大一轮复习讲义/第二章　§2.5　函数性质的综合应用.docx（块 fede32ba38-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-fede32ba38-001",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:利用奇偶性与单调性解不等式",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-fede32ba38-001b",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "比较抽象函数值大小的方法（§2.5·题型一思维升华）",
-   "summaryMarkdown": "用奇偶性把不在同一单调区间上的自变量转化到同一单调区间，再用单调性比较函数值大小。",
-   "applicabilityMarkdown": "PRIMARY：比较两个自变量不在同一单调区间上的函数值时。",
-   "contentMarkdown": "比较大小：利用奇偶性把不在同一单调区间上的两个或多个自变量的函数值转化到同一单调区间上，进而利用其单调性比较大小。\\n步骤：①用奇偶性（或周期性）把自变量变号或平移，落到已知单调性的同一区间；②由单调性把函数值大小关系转化为自变量的大小关系。",
-   "boundaryMarkdown": "转化时所用性质须成立且自变量仍落在定义域内；先确定单调区间再比较，否则结论可能相反。块内例2为题目未纳入材料。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/学生用书Word版文档/大一轮复习讲义/第二章　§2.5　函数性质的综合应用.docx（块 fede32ba38-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-fede32ba38-001b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:比较函数值的大小-先将自变量转化到同一个单调区间内-然后利用函数的单调性解决",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-fede32ba38-003",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "函数四大性质综合题的解题思路（§2.5·思维升华）",
-   "summaryMarkdown": "借助奇偶性、对称性和周期性确定另一区间上的单调性，实现区间转换，再用单调性解决问题。",
-   "applicabilityMarkdown": "PRIMARY：奇偶性、对称性、周期性、单调性综合的客观题（比较大小、求值、零点等）时。",
-   "contentMarkdown": "函数的奇偶性、对称性、周期性和单调性是函数的四大性质，常综合在一起命题：解题时往往需要借助函数的奇偶性、对称性和周期性来确定另一区间上的单调性，即实现区间的转换，再利用单调性解决相关问题。",
-   "boundaryMarkdown": "区间转换时每个性质的条件都要用足、方向一致；块内跟踪训练4为题目未纳入材料。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/学生用书Word版文档/大一轮复习讲义/第二章　§2.5　函数性质的综合应用.docx（块 fede32ba38-003）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-fede32ba38-003",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:抽象函数的性质综合",
      "role": "PRIMARY"
     }
    ]
@@ -24182,29 +23607,6 @@
    ]
   },
   {
-   "slug": "ext-mat-7450b50adb-003",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "线面垂直的两个重要结论与三种垂直关系的转化（§7.5）",
-   "summaryMarkdown": "两平行线中一条垂直于某平面的另一条也垂直；线面垂直可推线线垂直；线线、线面、面面垂直可相互转化。",
-   "applicabilityMarkdown": "PRIMARY：证明垂直关系、需要在三种垂直关系之间作转化时。",
-   "contentMarkdown": "①若两平行线中的一条垂直于一个平面，则另一条也垂直于这个平面。\\n②若一条直线垂直于一个平面，则它垂直于这个平面内的任何一条直线（证明线线垂直的一个重要方法）。\\n③线线垂直、线面垂直、面面垂直可以相互转化：线线垂直⇒线面垂直⇒面面垂直，反向由面面垂直的性质得线面垂直、再得线线垂直。",
-   "boundaryMarkdown": "每一步转化都要回到判定定理或性质定理的条件（如线线垂直须两条相交直线），不能只凭图形直观看；反向转化用性质定理。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/教师用书Word版文档/第七章　§7.5　空间直线、平面的垂直.docx（块 7450b50adb-003）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-7450b50adb-003",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:垂直关系之间的转化",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-6dceaef5e8-002",
    "subject": "MATH",
    "type": "CONCEPT_EXPLANATION",
@@ -25815,29 +25217,6 @@
    ]
   },
   {
-   "slug": "ext-mat-4788416d8c-001b",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "点到直线的距离公式（§8.2 三种距离公式）",
-   "summaryMarkdown": "点P(x0，y0)到直线Ax＋By＋C＝0的距离公式。",
-   "applicabilityMarkdown": "PRIMARY：求点到直线距离、判断直线与圆的位置关系时使用。",
-   "contentMarkdown": "点P(x0，y0)到直线l：Ax＋By＋C＝0的距离d＝|Ax0＋By0＋C|/√(A²＋B²)。",
-   "boundaryMarkdown": "使用前把直线方程化为一般式；分子带绝对值、分母为A²＋B²的算术平方根。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/教师用书Word版文档/第八章　§8.2　两条直线的位置关系.docx（块 4788416d8c-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-4788416d8c-001b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:点到直线的距离",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-4788416d8c-001c",
    "subject": "MATH",
    "type": "CONCEPT_EXPLANATION",
@@ -26431,29 +25810,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:蒙日圆",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-b74b04fd74-001",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "数列与函数的关系（§6.1 数列的概念·知识梳理）",
-   "summaryMarkdown": "数列是从正整数集N*（或它的有限子集）到实数集R的函数：自变量是序号n、函数值是第n项an，记为an＝f(n)。",
-   "applicabilityMarkdown": "PRIMARY：用函数观点理解数列、把单调性、最值等问题转化为函数问题（定义域取正整数）处理时。",
-   "contentMarkdown": "数列{an}是从正整数集N*（或它的有限子集{1，2，…，n}）到实数集R的函数：其自变量是序号n，对应的函数值是数列的第n项an，记为an＝f(n)。",
-   "boundaryMarkdown": "定义域为正整数集N*或其有限子集{1，2，…，n}；用函数观点处理时自变量只取正整数，不能延拓为连续自变量。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/教师用书Word版文档/第六章　§6.1　数列的概念.docx（块 b74b04fd74-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-b74b04fd74-001",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列的概念",
      "role": "PRIMARY"
     }
    ]
@@ -27305,29 +26661,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:两角和差公式的易错点",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-23e7e0ec80-002",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "升幂、降幂公式（§4.4 熟记常用的部分三角公式）",
-   "summaryMarkdown": "升幂：1－cos α＝2sin²(α/2)、1＋cos α＝2cos²(α/2)、1±sin α＝(sin(α/2)±cos(α/2))²；降幂：sin²α＝(1－cos 2α)/2等。",
-   "applicabilityMarkdown": "PRIMARY：需要把一次式升幂去根号、或把平方项降幂以实现化简、求周期与最值时。",
-   "contentMarkdown": "1. 升幂：1－cos α＝2sin²(α/2)；1＋cos α＝2cos²(α/2)。\\n2. 升幂：1±sin α＝(sin(α/2)±cos(α/2))²。\\n3. 降幂：sin²α＝(1－cos 2α)/2；cos²α＝(1＋cos 2α)/2；tan²α＝(1－cos 2α)/(1＋cos 2α)。",
-   "boundaryMarkdown": "升幂用于去根号（开方前先判符号），降幂用于降次（常用于求周期）；含(1＋cos 2α)的分母不能为零。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年大一轮复习讲义数学课件讲义练习/提高版/教师用书Word版文档/第四章　§4.4　简单的三角恒等变换.docx（块 23e7e0ec80-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-23e7e0ec80-002",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:降幂公式与升幂公式",
      "role": "PRIMARY"
     }
    ]
@@ -29725,29 +29058,6 @@
    ]
   },
   {
-   "slug": "ext-mat-bca4697995-030",
-   "subject": "MATH",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "数列应用题（文化/实际背景）的四个易错点（第24讲·易错点总结）",
-   "summaryMarkdown": "背景题不纠结术语、单位要统一、递推模型首项要重新对应、求期数等结果要按实际意义取整。",
-   "applicabilityMarkdown": "PRIMARY：解文化典籍、实际应用背景的数列题，或设问要求“最少需 n 期”等实际取值时。",
-   "contentMarkdown": "1. 文化题背景干扰：古代典籍中的术语（如衰分、少广）无需纠结字面意思，重点找变化规律（如递减、按比例）。\\n2. 实际应用单位换算：年利率/月利率、年增长率/季度增长率需统一（例：年利率 6% 按月计息即月利率 0.5%）。\\n3. 递推模型首项定义：斐波那契数列中若题干给“第 1 月 0 对、第 2 月 1 对”，递推式不变但首项要重新对应。\\n4. 结果实际意义：求“最少需要 n 期还款”时 n 需取整数（如算得 23.4 应取 24）。",
-   "boundaryMarkdown": "四条分别对应背景干扰、单位、首项与取整；取整只在设问指向实际量（期数、人数等）时适用，不能对纯数学数列题取整。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高三数学一轮复习备考题型归纳讲义/资料/第24讲：数列的综合应用（知识梳理+题型总结）（教师版）.docx（块 bca4697995-030）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-bca4697995-030",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列新定义与新情景问题的解题策略",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-bca4697995-040",
    "subject": "MATH",
    "type": "METHOD_MODEL",
@@ -29766,29 +29076,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数列新定义与新情景问题的解题策略",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-3c2623876b-010",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "向量与数量的本质区别（第25讲·明确本质区别）",
-   "summaryMarkdown": "数量只有大小、可以比较大小；向量有大小和方向、不能直接比较大小（只能比较模），运算须按向量法则。",
-   "applicabilityMarkdown": "PRIMARY：辨析向量与数量的性质、判断“向量能否比大小”“能否按数值运算”时。",
-   "contentMarkdown": "1. 数量仅含大小，可以比较大小；向量含大小和方向，不能直接比较大小，只能比较其模的大小。\\n2. 向量的运算（如加法、数乘）遵循向量法则，不是单纯的数值运算。",
-   "boundaryMarkdown": "“向量不能比大小”指向量本身；其模是数量、可以比较大小，不要把两者混为一谈。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高三数学一轮复习备考题型归纳讲义/资料/第25讲：平面向量的概念及其线性运算（知识梳理+题型总结（学生版）.docx（块 3c2623876b-010）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-3c2623876b-010",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:平面向量的概念",
      "role": "PRIMARY"
     }
    ]
@@ -29835,29 +29122,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:忽视零向量",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-bb4895ddb1-012",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "数量积解题四步流程（第27讲·通用解题步骤）",
-   "summaryMarkdown": "数量积题按四步走：条件分析→方法选择（定义法/坐标法/极化恒等式/转化法）→计算执行→结果验证。",
-   "applicabilityMarkdown": "PRIMARY：解平面向量数量积（求模长、夹角、垂直等）问题、需要选择解题方法时。",
-   "contentMarkdown": "1. 条件分析：识别关键信息——有模长/夹角匹配定义法，含可建系图形匹配坐标法，有中点/对称结构匹配极化恒等式，有线性关系匹配转化法。\\n2. 方法选择：优先用坐标法（适配多数场景），再按条件特征灵活切换，避免方法冗余。\\n3. 计算执行：代入公式时关注符号细节（如钝角情形数量积为负、第三象限坐标的正负性），展开运算律不遗漏项。\\n4. 结果验证：用数量积几何意义验证——正数是锐角或同向，负数是钝角或反向，零是垂直或含零向量。",
-   "boundaryMarkdown": "四步流程针对数量积为主的向量题；方法选择以图形与条件特征为准，验证步骤不可省。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高三数学一轮复习备考题型归纳讲义/资料/第27讲：平面向量的数量积及平面向量的应用（知识梳理+题型总结）（学生版）.docx（块 bb4895ddb1-012）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-bb4895ddb1-012",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:数量积综合应用的解题方法",
      "role": "PRIMARY"
     }
    ]
@@ -29927,29 +29191,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:平面向量的数量积",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-e9197d3a74-017",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "复数概念题的通用解题流程（第28讲·四步流程）",
-   "summaryMarkdown": "复数概念题四步：先化简为标准形式，再定位考点（概念/相等共轭/几何意义），列关系或用性质，最后按概念要求验证。",
-   "applicabilityMarkdown": "PRIMARY：处理复数的基本概念、相等与共轭、几何意义等概念类问题时。",
-   "contentMarkdown": "1. 化简优先：无论何种题型，先将复数化为标准形式，避免非标准形式导致概念混淆。\\n2. 定位考点：判断考查“基本概念”“复数相等/共轭”还是“几何意义”，匹配对应步骤。\\n3. 列关系/用性质：复数相等列方程（组）、套用模长公式或共轭性质，每步紧扣概念本质。\\n4. 验证检查：核对概念要求——纯虚数需验证虚部不为 0，模长需验证非负。",
-   "boundaryMarkdown": "流程适用于复数概念类题；标准形式是判断前提，验证环节针对各概念自身的约束（如纯虚数双条件）。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高三数学一轮复习备考题型归纳讲义/资料/第28讲：复数（知识梳理+题型总结）（学生版）.docx（块 e9197d3a74-017）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-e9197d3a74-017",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:复数的概念",
      "role": "PRIMARY"
     }
    ]
@@ -34941,29 +34182,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:等差数列前n项和最值问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-b3337aed08-002b",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "前 n 项和为二次式形式的等差数列判据（§6.2 ·教师版）",
-   "summaryMarkdown": "{an} 是等差数列 ⇔ Sn＝An²＋Bn（A、B 为常数）。",
-   "applicabilityMarkdown": "PRIMARY：由 Sn 的结构判断数列是否为等差数列、或由 Sn 求 an 时。",
-   "contentMarkdown": "1. 数列 {an} 是等差数列 ⇔ Sn＝An²＋Bn（A，B 为常数）。\\n2. 注意 A 可以为 0：d＝0 时 Sn 为一次函数，仍属此类。",
-   "boundaryMarkdown": "判据以“常数项为 0”为要点；给定 Sn＝An²＋Bn＋C（C≠0）时不能直接判等差，须先扣去 C 再检验。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮备考·学霸培优练习（新高考通用）/资料/第六章 §6.2　等差数列（教师版）.docx（块 b3337aed08-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-b3337aed08-002b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:前n项和公式法-为常数为等差数列",
      "role": "PRIMARY"
     }
    ]
@@ -46009,52 +45227,6 @@
    ]
   },
   {
-   "slug": "ext-mat-f5fb6496aa-009",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "互斥事件与对立事件的概念与判别（第04讲 随机事件 频率与概率·教师版 题型3 方法技巧）",
-   "summaryMarkdown": "互斥事件是不可能同时发生的事件，但也可以同时不发生；对立事件是特殊的互斥事件——不可能都不发生、有且仅有一个发生；判别用定义。",
-   "applicabilityMarkdown": "PRIMARY：判断两个事件是互斥、对立，还是既不互斥也不对立时。",
-   "contentMarkdown": "1. 互斥事件是不可能同时发生的事件，但也可以同时不发生。\\n2. 对立事件是特殊的互斥事件，特殊在对立的两个事件不可能都不发生，即有且仅有一个发生。\\n3. 判别互斥、对立一般用定义：不可能同时发生的两个事件为互斥事件；两个事件若有且仅有一个发生，则互为对立事件——对立事件一定是互斥事件。",
-   "boundaryMarkdown": "互斥不等于对立：不能同时发生但可以都不发生的只是互斥；判断时回到两个事件是否必有一个发生，这是区分的关键。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习讲义+练习+课件（新教材新高考）/2026版/第十章 计数原理、概率、随机变量及其分布/第04讲 随机事件、频率与概率（复习讲义）（全国通用）（教师版）.docx（块 f5fb6496aa-009）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-f5fb6496aa-009",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:互斥事件与对立事件",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-f5fb6496aa-012",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "求复杂互斥事件概率的直接法与间接法（第04讲 随机事件 频率与概率·教师版 题型4 方法技巧）",
-   "summaryMarkdown": "直接法把所求事件概率分解为彼此互斥事件的概率之和；间接法先求对立事件的概率再用P(A)=1−P(对立)，至多、至少型首选间接法。",
-   "applicabilityMarkdown": "PRIMARY：求至少、至多或多种互斥情形之一发生的复杂事件概率时。",
-   "contentMarkdown": "1. 直接法：将所求事件的概率分解为一些彼此互斥的事件的概率的和，运用互斥事件的概率求和公式计算。\\n2. 间接法：先求此事件的对立事件的概率，再用 $P(A)=1-P(\\bar A)$，即运用逆向思维（正难则反）。\\n3. 特别是「至多」「至少」型题目，用间接法求解就显得较简便。",
-   "boundaryMarkdown": "间接法要求能明确写出所求事件的对立事件；用直接法分解时各情形必须彼此互斥，否则加法公式不适用。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习讲义+练习+课件（新教材新高考）/2026版/第十章 计数原理、概率、随机变量及其分布/第04讲 随机事件、频率与概率（复习讲义）（全国通用）（教师版）.docx（块 f5fb6496aa-012）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-f5fb6496aa-012",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:概率的基本性质",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-2a298112a3-005",
    "subject": "MATH",
    "type": "CONCEPT_EXPLANATION",
@@ -46142,29 +45314,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:概率的基本性质",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-c05b9c9542-005",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "古典概型的两个特征（第05讲 古典概型·教师版 题型1 方法技巧）",
-   "summaryMarkdown": "古典概型要同时满足有限性（样本点只有有限个）与等可能性（每个样本点发生的可能性相等）。",
-   "applicabilityMarkdown": "PRIMARY：判断一个试验是否为古典概型时。",
-   "contentMarkdown": "1. 有限性：样本空间的样本点只有有限个。\\n2. 等可能性：每个样本点发生的可能性相等。\\n3. 同时满足以上两条的试验才是古典概型；判断时两条要逐一检验。",
-   "boundaryMarkdown": "只满足有限性不满足等可能性（如射击环数），或样本点无限多的试验，都不是古典概型。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学一轮复习讲义+练习+课件（新教材新高考）/2026版/第十章 计数原理、概率、随机变量及其分布/第05讲 古典概型与概率的基本性质（复习讲义）（全国通用）（教师版）.docx（块 c05b9c9542-005）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-c05b9c9542-005",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:古典概型",
      "role": "PRIMARY"
     }
    ]
@@ -49408,29 +48557,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:由三角函数的性质求参数",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-bb4397fecb-002",
-   "subject": "MATH",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "三角平方差公式（第16讲 三角恒等变换·常用公式）",
-   "summaryMarkdown": "sin²α－sin²β＝sin(α＋β)sin(α－β)；cos²α－sin²β＝cos(α＋β)cos(α－β)。",
-   "applicabilityMarkdown": "PRIMARY：化简正弦、余弦的平方差，或把乘积与平方差互相转化时。",
-   "contentMarkdown": "1. sin²α－sin²β＝sin(α＋β)sin(α－β)。\\n2. cos²α－sin²β＝cos(α＋β)cos(α－β)。",
-   "boundaryMarkdown": "两式分别是正弦、余弦平方差的因式分解；注意第二式左边是 cos²α 减 sin²β（两个角不统一），使用时先核对式子形状。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-e35c96096a:math",
-   "sourceLocator": "桌面资料 2026年新高考资料 / 2026年新高考资料/一轮复习/2026年高考数学大一轮复习核心题型讲义+培优点专项突破练习（新高考版）/资料/第16讲 三角恒等变换（知识清单+8必考题型）（教师版）.docx（块 bb4397fecb-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-bb4397fecb-002",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:正弦平方差与正切恒等式",
      "role": "PRIMARY"
     }
    ]
@@ -63389,29 +62515,6 @@
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-mat-289deb9ecd-354",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角函数值的符号规律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-mat-289deb9ecd-361",
-   "subject": "MATH",
-   "type": "METHOD_MODEL",
-   "title": "sinθ−cosθ 符号的判断方法（53知识清单·数学 必修一 5.2 方法技巧）",
-   "summaryMarkdown": "由终边与直线 y=x 的位置关系判断 sinθ−cosθ 的符号。",
-   "applicabilityMarkdown": "PRIMARY：需要判断 sinθ−cosθ 的正负、或与 0 比较大小时。",
-   "contentMarkdown": "由三角函数的定义知：当 θ 的终边落在直线 y=x 上时 sinθ=cosθ，即 sinθ−cosθ=0；当 θ 的终边落在直线 y=x 的上半平面区域内时 sinθ>cosθ，即 sinθ−cosθ>0；落在下半平面区域内时 sinθ<cosθ，即 sinθ−cosθ<0。",
-   "boundaryMarkdown": "判断依据是终边相对直线 y=x 的位置（分界线上为零）；用平方关系求值时要用该符号取舍开方结果。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-76de8fd161:math",
-   "sourceLocator": "桌面资料 2027版高中《53知识清单》彩色版（数学） / 2027版高中《53知识清单》彩色版（数学）/【2027】53高中知识清单高中数学必修+选择性必修.pdf（块 289deb9ecd-361）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-mat-289deb9ecd-361",
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:三角函数值的符号规律",

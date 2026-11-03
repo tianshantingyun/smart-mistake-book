@@ -126,7 +126,7 @@ class ReviewedKnowledgePackContractTest {
             title = "经审校的函数知识目录",
             publisher = "授权教研机构",
             edition = null,
-            sourceUri = "https://example.edu/math/function-index",
+            sourceUri = "https://www.moe.gov.cn/math/function-index",
             licenseStatus = KnowledgeSourceLicenseStatus.REFERENCE_ONLY.name,
             contentFingerprint = "A".repeat(64),
             importedAtEpochMillis = 1_500,
