@@ -3114,6 +3114,22 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 禁止；所有拒绝都不静默补齐、不静默缩水。上述裁定取代设计件 §9.9/机器块中仍标 `OPEN` 的 `openMasks` 与
 `derivedPolicy`（设计件回写仍为文档债，见批次记录 §5.2/§6.1）。
 
+### 2026-11-03 批次 42 重裁（①/② 被用户重裁，③ 维持）
+
+> 本小节是**新裁定**，不是对上面 2026-10-23 记录的事后改写；旧记录保留为历史。
+
+1. **仅图片（mask=8）改为允许，但必须有题面/源证据**：包内 `problem_revision_source_asset` 必须存在
+   role ∈ {`QUESTION_SOURCE`, `SOURCE_EVIDENCE`} 的链接；链接行与其 `problem_revision` → `problem`
+   父行随包保留（RESTRICT FK 要求），只为证据资产收字节。纯 `CLEAN_IMAGE` 组合在裁剪器预扫阶段
+   fail-closed（`SmbkSelectionPlan.requireImageEvidence`），不产出「恢复完就蒸发」的图片包。
+2. **空选择（mask=0）改为允许 = 仅身份/设置包**：恢复侧识别 mask=0 后只应用 `settings.json`，
+   **不关闭/交换数据库**，因此不删除本机内容、不要求重启（`restartRequired=false`）。旧“重置包”语义废止。
+3. **派生索引恒裁、恢复后按科重建维持不变**（2026-10-23 的 a+c）。
+4. 允许集合 = 闭包自洽的全部 mask **{0,8,9,13,15}**；1–7、10–12、14 仍拒绝且不静默补齐。
+   `SmbkSelectionPlan.allowedMasks`、`SmbkArchiveCodec` 读写闸门、`BackupSelection.ALLOWED_MASKS`、
+   UI 勾选/文案、设计件 §9.9/§9.11 同批同步；四方位门 `python -I tools/ci/check_backup_plan_sync.py`
+   本轮实跑 exit=0。
+
 ### 本批结果（增量）
 
 - **6C-2 域/机器清单（T1/T2）**：新 `BackupSelection` 四类别位、5 条闭包、`requireCreatable` 只接受 9/13/15；
@@ -3787,3 +3803,23 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 ### 批次 41 设备证据更正（2026-11-03 主会话收口）
 
 上文「KD-75 设备用例在树、无设备执行」「WS5 schema 73 设备复现 UNVERIFIED」为文档先于设备执行的时点陈述；后续 E-41-D02/D03 已实测：schema 73 矩阵 16/16、备份 34/34、trimmer 10/10、rowCounts 2/2、错因 3/3、drill 6；KD-75 设备往返 10/10（APK `0e906482…`，pypdf 独立读回 7 文件）。**KD-75 仍 open**（`core/export` 零接线），KD-76/isolation 结论不变。裁决以 E 文件与批次 41 记录 §4 为准。
+
+
+## 批次 42 契约 V1.1 P0 可应用 patch + 准入清单三次清算 + AUD-08 抽样与门红线（2026-11-03）
+
+> 依据：计划 `.zcode/plans/plan-2026-11-04-batch-42.md` §2 WS9 71–75、批次 42 基线 `docs/research/2026-11-04-batch-42-baseline.md`、批次 41 记录 §9.3、协议 `docs/research/2026-11-03-aud08-human-gold-protocol.md`、GATE.md §0/§5、本批各轨证据 `docs/research/evidence/2026-11-04-batch-42/`（WS2–WS8）。**本轨（WS9）零 Gradle/零设备/零 git 写；设备与门禁数字均为其他轨证据的只读转录。**
+
+### 裁定内容
+
+- **契约 V1.1 P0 只出可应用 patch、不落正文（item 71）**：`docs/current` 本轮实跑仍 **7 条 M**，`visual-generation-contract.md` 本身干净。产出 `docs/research/2026-11-04-contract-v1.1-p0-applicable.patch`（2 hunks，+4/−2）——C-1 在 §9 一般门段后新增"JS 广告单向前置"（69 行全过 + MVA + 设备证据绑当前源快照/APK sha；六广告面同源同批；半步不构成广告）；C-6 替换 `:208` 段尾 KD-81 旧句（身份 = 主库 + `-wal`，`-shm` 显式排除；导出前后各取一次，期间变化先于写盘拒绝；身份只证字节一致、不证读事务快照）；C-10 替换 `:182` 整段（DB 73 / 92 表 / trim 84 / closure 5 / `1d086050…`、请求 19；`identityHash` 只由 KSP 生成回填、禁手写；旧版本 JSON 跑门必失败；同号顺延）。**`git apply --check` exit=0**（可应用），但**本批不应用**；并入时必须同批改契约、准入清单、KD 台账、MASTER-LINE 与本记录（批次 41 WS10 §5 的同一约束）。
+- **准入清单三次清算（item 72）**：附录 O 仍 **69 行**，计数 **✅20/◐35/✗10/?2/⛔1/§1**（本会话脚本重数、与附录 N 的 ID 集合逐项相同）。**唯一档位变化是 R-03 ?→◐**：WS8 在 `ps16k_x86_64` 实测 `PAGE_SIZE=16384`，且 OCR 路径 `nativeloader: Load …/lib/x86_64/libmlkit_google_ocr_pipeline.so … : ok` + `OCR process succeeded` 证明真实装载随包 native 库；**arm64 仍 BLOCKED**（无设备/宿主）→ 不转 ✅。**0 项转"通过"**、MVA 不成立、`availableMethods` 未动。证据面刷新但不转档：P-01（WS4 六 run 15 例全 `-4`、UNCONVERGED、T4 控制轮无 OFF 产物）、P-07（KD-76 单批 n=20、`M.p95=1889`，但 A6 两批/C4/产品进程未满足 → open）、D-04（WS7 默认关闭注入点，生产 commit 调用点不存在 → 仍 BLOCKED）、E-03（`mistake-export-v3` 未升版，AIGC 靠策略代际哨兵）、R-04（Keeper 配置层可执行、K1–K6 未跑）。
+- **AUD-08 人工金标抽样计划（item 73）**：`docs/research/2026-11-04-aud08-human-gold-sampling-plan.md`——抽样框 = 仓外 155 张 jpg；复用 v1 `sampleRule` 的步长 6 系统抽样，**本会话复算得 24 页（≥20）**，且 v1 的 7 张金标页在框中的下标 `0/6/12/48/84/108/132` 全为 6 的倍数，证明 7 页是该 24 页的子集；24 页逐页 `sha256` 冻结；`dev 16 / acceptance 8` 由 `sha256(文件名)` 升序确定性切分（8 张 acceptance 中 5 张非 v1 页）。**与 v1 的关键差别**：不一致页**不排除**，全部进 v2 并按协议 S4/S5 裁定（消掉 24→7 的幸存者偏差）。**人工标注未执行**（无标注员）→ S0/S2–S7 与 G3/G4/G5 产物均不存在，人工金标正确率 UNVERIFIED/BLOCKED。
+- **门值复算维持 FAIL + 自动决策红线（item 74）**：`python -I tools/split_golden/check_split_gate.py` 本轮实跑 **exit=1**：① `4/7 = 0.5714 < 0.9`、③ `0/16 = 0.0000 ≤ 0.05`，② `7/16 = 0.4375`（只度量）；金标冻结校验 PASS、证据等级 **G2**、`hardRedLines.fragmentedQuestions = 0/0 满足`。阈值/口径/分母/金标零改动。**自动决策红线固定为 `gate.passed && hardRedLines.fragmentedQuestions.satisfied`，并由 4C③ 产品裁定开启**；理由：题级 n≥20 时 `1/n ≤ 0.05`，1 道切残会通过 ③ 的闭边界；24 页计划预计题级 n≈55，冲突必然触发。即使门绿，held-out 未做、等级仅 G2、样本不可外推、无 4C③ 四项仍各自阻断。证据 `docs/research/evidence/2026-11-04-batch-42/step-aud08-gate-recompute-b42.md`、报告 `build/ws9-batch42/gate-report-batch42.json`、裁定 `…/rulings/20261103T044703Z-10c61be3.json`（`validate_rulings.py` PASS）。
+- **台账回写（item 75）**：本行 + `docs/REFACTOR-MASTER-LINE.md` 批次 42 WS9 行 + 准入清单 v3 补记 23/附录 O。
+
+### 边界（不得越界 / 仍待裁定 / UNVERIFIED）
+
+- **契约正文零改动**：C-1/C-6/C-10 只在 patch 文件；`docs/current` 7 条 M 未清。
+- **不代裁关闭**：KD-75（设备/独立读者/`MODEL_DOCUMENT_PARSE` 判据全 UNVERIFIED）、KD-76（单批 n=20 不足以满足 A6；C4 未测）、R-04（K1–K6 未跑）、isolation（UNCONVERGED，禁写"T4 排除"）均不关闭；KD-83 的关闭以 WS5 证据为准，不在本轨。
+- **UNVERIFIED**：本轨未跑任何 Gradle/仪器化/设备；P-01/P-07/R-03/R-04 的运行时数字全部转录；人工金标抽样计划未执行；`git apply` 只做 `--check`，未应用。
+- **不做**：JS 广告（`availableMethods` 未动）；改阈值（0.9/0.05）；改金标 v1；改 schema 73；任何 git 写。

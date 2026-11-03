@@ -1665,10 +1665,10 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
 <!-- 6c2-plan-v3:begin -->
 ```json
 {
-  "closureVersion": 4,
-  "schemaVersion": 72,
-  "identityHash": "aa5e8e8e6536e0c1f3adcda6867814cb",
-  "note": "v4（schema 72）：在 v3（71）基础上新增派生索引表 knowledge_search_material_feature（他线 71→72 knowledge 迁移），清单为 91 表/2 视图/83 裁剪项/21 软引用/SPLIT 7、FK 102 条；派生表恒裁并恢复后按科重建。identityHash 取 KSP 生成值（72.json 与 StudyDatabase_Impl 同值）。闭包规则见 §9.3，行级规则见 §9.5。",
+  "closureVersion": 5,
+  "schemaVersion": 73,
+  "identityHash": "1d086050204a0da1ed6b6e3299dd9733",
+  "note": "v5（schema 73）：在 v4（72）基础上新增错因账本两表 error_cause_observation / error_cause_binding（批次 40/41，rebase 到 71 后 73 = 90 + 2 = 92 表），L2 派生表 knowledge_search_material_feature 已随 KB 回滚删除；清单为 92 表/2 视图/84 裁剪项/21 软引用/SPLIT 7、FK 110 条；派生表恒裁并恢复后按科重建。identityHash 取 KSP 生成值（73.json 与 StudyDatabase_Impl 同值）。闭包规则见 §9.3，行级规则见 §9.5。",
   "categories": {
     "ISSUE_BOOK": {
       "bit": 1,
@@ -1745,7 +1745,9 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
         "review_log",
         "student_model_prediction",
         "prediction_outcome",
-        "learner_chat_evidence"
+        "learner_chat_evidence",
+        "error_cause_observation",
+        "error_cause_binding"
       ]
     },
     "SESSIONS": {
@@ -1780,7 +1782,6 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
   ],
   "derivedTables": [
     "knowledge_search_feature",
-    "knowledge_search_material_feature",
     "knowledge_search_index_state"
   ],
   "splitTables": [
@@ -1804,7 +1805,8 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "TUTOR_EVALUATE": "SESSIONS",
     "LEARNING_SUMMARIZE": "SESSIONS",
     "REVIEW_RERANK": "MASTERY",
-    "KNOWLEDGE_QUIZ": "MASTERY"
+    "KNOWLEDGE_QUIZ": "MASTERY",
+    "PAPER_EDIT": "SESSIONS"
   },
   "modelTaskRowFilter": {
     "appliesTo": [
@@ -2197,7 +2199,6 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "learner_chat_evidence",
     "knowledge_search_index_state",
     "knowledge_search_feature",
-    "knowledge_search_material_feature",
     "knowledge_research_review_source",
     "knowledge_research_review_bundle",
     "knowledge_grounding_resolution",
@@ -2227,6 +2228,8 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "applied_correction_record",
     "attempt_correction",
     "applied_attempt_record",
+    "error_cause_binding",
+    "error_cause_observation",
     "attempt_event",
     "attempt_submission",
     "applied_answer_reveal_record",
@@ -2244,9 +2247,9 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
   ],
   "maskPolicy": {
     "closedMasks": [
-      15,
+      9,
       13,
-      9
+      15
     ],
     "openMasks": [
       {
@@ -2277,14 +2280,14 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "note": "已裁并实施（批次 18 记录 §1.2-③，即 §6.1-③ 的 a+c）：恒裁（全选也裁两张派生表，AndroidBackupRepository 对所有 mask 调用裁剪器）+ 恢复完成后按科后台重建（RestoreIndexRebuild 按科 rebuildKnowledgeSearchIndex，失败保留标记 PARTIAL_FAILURE）。不改变类别/FK/软引用/顺序规则；全选包不再与 v2 字节等价"
   },
   "digest": {
-    "algorithm": "sha256( \"smbk-selection-v3\n\" + \"closureVersion=3\n\" + \"categories=\" + categories.sorted().joinToString(\",\") + \"\n\" + \"assetPolicy=\" + assetPolicy + \"\n\" + rowCounts.keys.sorted().joinToString(\"\"){ \"$it=${rowCounts[it]}\n\" } )",
+    "algorithm": "sha256( \"smbk-selection-v5\n\" + \"closureVersion=5\n\" + \"categories=\" + categories.sorted().joinToString(\",\") + \"\n\" + \"assetPolicy=\" + assetPolicy + \"\n\" + rowCounts.keys.sorted().joinToString(\"\"){ \"$it=${rowCounts[it]}\n\" } )",
     "rowCountsSource": "裁剪后快照的逐表 COUNT(*)；split 表按行级筛选后的行数",
-    "trimmedTableCount": "删除行数 > 0 的表数（不含 FTS rebuild）；v3 上限 82",
+    "trimmedTableCount": "删除行数 > 0 的表数（不含 FTS rebuild）；v5 上限 84",
     "goldenEmptyFull": {
       "mask": 15,
       "assetPolicy": "INCLUDED",
-      "sha256": "451c806c06b7492b913b457395ac2b8bcab939fbe06bf81601c57246cfe9e470",
-      "note": "71 schema、空库、全选；rowCounts 为全部 90 表=0；派生表恒裁（裁定③）下也是 0 行，该向量不受裁定影响；SmbkSelectionPlanTest 以此为 golden 断言"
+      "sha256": "5c6907555ba358b9daddb532e40acc0ff76a9d175c96d47d169a22c016aad05a",
+      "note": "73 schema、空库、全选；rowCounts 为全部 92 表=0；派生表恒裁（裁定③）下也是 0 行，该向量不受裁定影响；SmbkSelectionPlanTest 同值"
     }
   },
   "visualRowFilter": {
