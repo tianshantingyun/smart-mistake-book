@@ -227,7 +227,7 @@ class KnowledgeGroundingResolutionInstrumentedTest {
         title = "经审校的函数知识目录",
         publisher = "授权教研机构",
         edition = null,
-        sourceUri = "https://example.edu/math/function-index",
+        sourceUri = "https://github.com/tianshantingyun/smart-mistake-book/fixtures/math/function-index",
         licenseStatus = KnowledgeSourceLicenseStatus.REFERENCE_ONLY.name,
         contentFingerprint = if (sourceId == SOURCE_ID) "D".repeat(64) else "E".repeat(64),
         importedAtEpochMillis = importedAtEpochMillis,

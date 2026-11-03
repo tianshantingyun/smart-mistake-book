@@ -598,7 +598,7 @@ class TeachingMaterialAllocationInstrumentedTest {
             title = "教学材料分配夹具来源($subject)",
             publisher = null,
             edition = null,
-            sourceUri = "https://example.org/teaching-allocation/${subject.lowercase()}",
+            sourceUri = "https://github.com/tianshantingyun/smart-mistake-book/fixtures/teaching-allocation-${subject.lowercase()}",
             licenseStatus = KnowledgeSourceLicenseStatus.PUBLIC_OFFICIAL.name,
             contentFingerprint = sha256Hex("teaching-allocation-source:$subject"),
             importedAtEpochMillis = SOURCE_IMPORTED_AT,
