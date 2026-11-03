@@ -27,6 +27,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Assume
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
@@ -95,12 +96,16 @@ import java.util.concurrent.CopyOnWriteArrayList
  * - 第 1 轮若偶然复用暖进程，段值会偏小——这是已知**乐观偏差**窗口（假绿方向，不掩盖
  *   真失败）；它被限定在 1/20 样本，且热页缓存本身已让全部样本系统性偏小。
  *
+ * **旧单进程 20 轮入口已物理阻断（批次 42 / WS1 item 7，F11）**：整批入口已改名
+ * `legacyColdStart…` 并加 `@Ignore`，函数体第一句仍是硬失败——即使有人去掉
+ * `@Ignore` 或用方法过滤直接调用，也无法再产出 `G2: PASS`。主口径只允许走
+ * `readRoundFromInstrumentationArg`。
+ *
  * **单轮入口（批次 41 / WS3 item 18）**：`readRoundFromInstrumentationArg` 走
  * `-e smb.kd76.round 1..20`，一次 instrumentation 进程只跑一轮，并复用同一 `runOneRound`
  * （形状/单调/窗口断言不漂移）。冷启动前提（每轮前 reboot 或 force-stop）由外部
  * `tools/ci/run_kd76_rounds.sh` 保证，跨轮聚合由 `tools/ci/summarize_kd76.py` 完成。
- * 上文的"单进程 20 轮只作冷进程+热页缓存观测"限制只约束整批入口；主口径样本必须来自
- * 20 次独立 `am instrument`。
+ * 旧整批入口的限制现在只作为历史说明保留；主口径样本必须来自 20 次独立 `am instrument`。
  *
  * **anti-flaky 检查表逐条落点**（R2 §5）：
  * - A1 归因先行 → 非 `Rendered` 先记 FAIL（不读任何时长）；只有 `Rendered` 轮才进入
@@ -141,8 +146,20 @@ class VisualJsConnectStageCalibrationInstrumentedTest {
         engines.clear()
     }
 
+    @Suppress("UNREACHABLE_CODE")
+    @Ignore(
+        "legacy single-process 20-round entry (F11): it cannot prove per-round reboots and " +
+            "must never emit G2 PASS; use readRoundFromInstrumentationArg + " +
+            "tools/ci/run_kd76_rounds.sh (one am instrument per round)",
+    )
     @Test
-    fun coldStartConnectStagesMeetTheReadyHalfBudgetAcrossTwoBatches() = runBlocking {
+    fun legacyColdStartConnectStagesMeetTheReadyHalfBudgetAcrossTwoBatches() = runBlocking {
+        // 物理阻断（F11）：@Ignore 之外再留一道硬失败，防止去掉注解/方法过滤直调后
+        // 旧入口重新产出 PASS。重定向到单轮入口。
+        throw AssertionError(
+            "legacy single-process 20-round entry is blocked (F11); run one round per " +
+                "am instrument via readRoundFromInstrumentationArg + tools/ci/run_kd76_rounds.sh",
+        )
         // A10：预注册先于任何计时。
         assertPreRegistration()
 

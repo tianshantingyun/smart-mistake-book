@@ -69,41 +69,41 @@ object Kd76ReportVerdict {
     /**
      * 由原始值判定；不读环境、不读时间、不做重试。
      *
+     * 阈值不是参数：`requiredSamples` / `gateMillis` 曾被允许由调用方覆盖，任何一次
+     * 传值都能把预注册放宽（F11）。现在样本量与门**只**来自本对象的常量，调用方
+     * 无法通过签名放宽。
+     *
      * @param sampleCount 成功轮数（失败轮是删失样本，不计入分子；n<20 即样本不足）。
      * @param g1Red 是否出现任一轮 FAIL/INVALID（G1 硬门；G1 红时 G2 绿也不算过）。
      * @param p95Millis 主口径 `M = S-bind + S-warmup` 的 nearest-rank p95；无样本时 null。
-     * @param requiredSamples 预注册样本量（默认 [REQUIRED_SAMPLES]；只为测试显式传入）。
-     * @param gateMillis 门（默认 [GATE_MILLIS]；生产调用不得传更宽的值）。
      */
     fun decide(
         sampleCount: Int,
         g1Red: Boolean,
         p95Millis: Long?,
-        requiredSamples: Int = REQUIRED_SAMPLES,
-        gateMillis: Long = GATE_MILLIS,
     ): Decision {
         val reasons = mutableListOf<String>()
         if (g1Red) reasons += REASON_G1_RED
-        if (sampleCount < requiredSamples) reasons += REASON_SAMPLE_SHORT
+        if (sampleCount < REQUIRED_SAMPLES) reasons += REASON_SAMPLE_SHORT
         if (p95Millis == null) reasons += REASON_NO_P95
         if (reasons.isNotEmpty()) {
             return Decision(
                 verdict = Verdict.NOT_EVALUABLE,
                 reasons = reasons,
                 sampleCount = sampleCount,
-                gateMillis = gateMillis,
+                gateMillis = GATE_MILLIS,
                 p95Millis = p95Millis,
             )
         }
         val p95 = p95Millis!!
-        return if (p95 <= gateMillis) {
-            Decision(Verdict.PASS, emptyList(), sampleCount, gateMillis, p95)
+        return if (p95 <= GATE_MILLIS) {
+            Decision(Verdict.PASS, emptyList(), sampleCount, GATE_MILLIS, p95)
         } else {
             Decision(
                 verdict = Verdict.FAIL,
                 reasons = listOf(REASON_P95_OVER_GATE),
                 sampleCount = sampleCount,
-                gateMillis = gateMillis,
+                gateMillis = GATE_MILLIS,
                 p95Millis = p95,
             )
         }

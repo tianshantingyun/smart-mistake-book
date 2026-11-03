@@ -12,11 +12,17 @@
 人工读日志，就会出现三种已知失败：
 
 1. **把单进程 20 轮当 20 个独立样本**：本脚本只读逐轮 XML，`round` 必须是 1..20
-   各恰好一份；缺轮/重复一律 NOT EVALUABLE。
+   各恰好一份；缺轮/重复一律 NOT EVALUABLE。每轮还必须有 `bootCount` 且 20 个值
+   互不相同（证明每轮来自一次新 boot），缺失/重复同样 NOT EVALUABLE。
 2. **G1 红被 p95 吸收**：任一轮 `status=FAIL`/`INVALID`、XML 带 `<failure>`/`<error>`、
    或某轮没有 SAMPLE 行，都直接 NOT EVALUABLE——**绝不输出 PASS 判词**。
 3. **跨快照/跨设备合并**：20 轮的 `apkSha256` 或设备指纹不一致时 NOT EVALUABLE
-   （设备绿必须绑定同一源快照 + 同一 APK sha）。
+   （设备绿必须绑定同一源快照 + 同一 APK sha）；某一轮没记 sha 时该轮标 INVALID
+   并计入 n，绝不从集合里剔除。
+4. **同一 boot 重复 / 假 reboot**：`KD76_ENV` 的宿主 `bootIdBefore/bootIdAfter`
+   必须每轮非空、轮前轮后相同、20 轮互不相同；缺失/变化/重复一律该轮 INVALID 或
+   整批 NOT EVALUABLE。app `bootCount` 只作交叉核对；`mode=force-stop` 不是主口径。
+   测量前 `:visual_js` 已存在（`pidWorker` 非空）同样不是冷启动。
 
 ## 统计口径（R2 `docs/research/2026-11-01-kd76-stats.md` §2.1/§2.3/§3）
 
@@ -48,7 +54,7 @@ import math
 import re
 import sys
 import xml.etree.ElementTree as ET
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 
 MAIN_ROUNDS = 20
@@ -60,9 +66,17 @@ SAMPLE_LINE = re.compile(
 )
 META_LINE = re.compile(r"KD76_META\s+round=(\d+)\b(.*)$", re.MULTILINE)
 ROUND_LINE = re.compile(r"KD76_ROUND\s+round=(\d+)\b(.*)$", re.MULTILINE)
+# 宿主侧轮次身份：run_kd76_rounds.sh 在 am instrument 前后各读一次
+# /proc/sys/kernel/random/boot_id，并记录 host boot_count / pidof / mode。
+ENV_LINE = re.compile(r"KD76_ENV\s+round=(\d+)\b(.*)$", re.MULTILINE)
 APK_SHA = re.compile(r"\bapkSha256=([0-9a-fA-F]{64})\b")
 FINGERPRINT = re.compile(r"\bfingerprint=(\S+)")
 BOOT_COUNT = re.compile(r"\bbootCount=(-?\d+)")
+BOOT_ID_BEFORE = re.compile(r"\bbootIdBefore=(\S+)")
+BOOT_ID_AFTER = re.compile(r"\bbootIdAfter=(\S+)")
+HOST_BOOT_COUNT = re.compile(r"\bhostBootCount=(-?\d+)")
+MODE_FIELD = re.compile(r"\bmode=([A-Za-z][A-Za-z-]*)")
+PID_WORKER = re.compile(r"\bpidWorker=(\S*)")
 INT_FIELD = r"\b{name}=(-?\d+)\b"
 
 
@@ -82,6 +96,12 @@ class RoundRow:
     apk_sha256: str = ""
     fingerprint: str = ""
     boot_count: int | None = None
+    # 宿主侧 boot 证明（KD76_ENV）：app 读不到 /proc boot_id，宿主通道是主证明。
+    boot_id_before: str = ""
+    boot_id_after: str = ""
+    host_boot_count: int | None = None
+    mode: str = ""
+    pid_worker: str = ""
     source: str = ""
     xml_failed: bool = False
 
@@ -105,6 +125,8 @@ class Report:
     apk_sha256: str = ""
     fingerprints: list[str] = field(default_factory=list)
     boot_counts: list[int] = field(default_factory=list)
+    boot_ids: list[str] = field(default_factory=list)
+    modes: list[str] = field(default_factory=list)
     rounds: list[dict[str, object]] = field(default_factory=list)
 
 
@@ -181,6 +203,24 @@ def parse_round_file(source: Path) -> tuple[RoundRow | None, list[str]]:
         if boot_match:
             boot_by_round[int(match.group(1))] = int(boot_match.group(1))
 
+    # 宿主 KD76_ENV：缺行时全部字段为空，由 aggregate 判该轮 INVALID。
+    env_by_round: dict[int, tuple[str, str, int | None, str, str]] = {}
+    for match in ENV_LINE.finditer(text):
+        round_no = int(match.group(1))
+        payload = match.group(2)
+        before = BOOT_ID_BEFORE.search(payload)
+        after = BOOT_ID_AFTER.search(payload)
+        host_boot = HOST_BOOT_COUNT.search(payload)
+        mode = MODE_FIELD.search(payload)
+        worker = PID_WORKER.search(payload)
+        env_by_round[round_no] = (
+            before.group(1) if before else "",
+            after.group(1) if after else "",
+            int(host_boot.group(1)) if host_boot else None,
+            mode.group(1) if mode else "",
+            worker.group(1) if worker else "",
+        )
+
     rows: dict[int, RoundRow] = {}
     for match in SAMPLE_LINE.finditer(text):
         round_no = int(match.group(1))
@@ -189,6 +229,9 @@ def parse_round_file(source: Path) -> tuple[RoundRow | None, list[str]]:
         sha, fingerprint, boot = meta.get(round_no, ("", "", boot_by_round.get(round_no)))
         if boot is None:
             boot = boot_by_round.get(round_no)
+        boot_before, boot_after, host_boot, mode, pid_worker = env_by_round.get(
+            round_no, ("", "", None, "", "")
+        )
 
         if status == "SAMPLE":
             bind = _int_field(payload, "bind")
@@ -204,6 +247,11 @@ def parse_round_file(source: Path) -> tuple[RoundRow | None, list[str]]:
                     apk_sha256=sha,
                     fingerprint=fingerprint,
                     boot_count=boot,
+                    boot_id_before=boot_before,
+                    boot_id_after=boot_after,
+                    host_boot_count=host_boot,
+                    mode=mode,
+                    pid_worker=pid_worker,
                     source=source.name,
                     xml_failed=xml_failed,
                 )
@@ -219,6 +267,11 @@ def parse_round_file(source: Path) -> tuple[RoundRow | None, list[str]]:
                     apk_sha256=sha,
                     fingerprint=fingerprint,
                     boot_count=boot,
+                    boot_id_before=boot_before,
+                    boot_id_after=boot_after,
+                    host_boot_count=host_boot,
+                    mode=mode,
+                    pid_worker=pid_worker,
                     source=source.name,
                     xml_failed=xml_failed,
                 )
@@ -234,6 +287,11 @@ def parse_round_file(source: Path) -> tuple[RoundRow | None, list[str]]:
                 apk_sha256=sha,
                 fingerprint=fingerprint,
                 boot_count=boot,
+                boot_id_before=boot_before,
+                boot_id_after=boot_after,
+                host_boot_count=host_boot,
+                mode=mode,
+                pid_worker=pid_worker,
                 source=source.name,
                 xml_failed=xml_failed,
             )
@@ -248,6 +306,11 @@ def parse_round_file(source: Path) -> tuple[RoundRow | None, list[str]]:
                 apk_sha256=sha,
                 fingerprint=fingerprint,
                 boot_count=boot,
+                boot_id_before=boot_before,
+                boot_id_after=boot_after,
+                host_boot_count=host_boot,
+                mode=mode,
+                pid_worker=pid_worker,
                 source=source.name,
                 xml_failed=xml_failed,
             )
@@ -332,7 +395,89 @@ def aggregate(paths: list[Path]) -> Report:
     for round_no in sorted(by_round):
         # 同一轮的重复证据若完全一致，仍按重复处理（上面的 reasons 已判 NOT EVALUABLE）；
         # 这里只保留一条，便于报告展示。
-        selected.append(by_round[round_no][0])
+        row = by_round[round_no][0]
+        # F10：per-round APK sha 是这一轮的设备身份。缺失时**不得**从 sha 集合里剔除后
+        # 让其余轮投票出一个"一致 sha"——那会把 19 轮 PASS 当成 20 轮 PASS。把该轮标
+        # INVALID 并保留在样本统计里（n 因此 < 20）。
+        if row.status == "SAMPLE" and not row.apk_sha256:
+            row = replace(
+                row,
+                status="INVALID",
+                reason="missing per-round apkSha256",
+            )
+        selected.append(row)
+
+    # F10 后继：宿主 boot_id 是"每轮一次新 boot"的主证明（app 读不到 /proc，宿主
+    # 通道是唯一主口径）。缺失、轮中变化、测量前 worker 已存在都不是可剔除的字段，
+    # 而是该轮 INVALID——保留槽位、n 减 1，绝不由其余轮代表。
+    missing_host_boot: list[int] = []
+    changed_host_boot: list[int] = []
+    hot_worker: list[int] = []
+    extra_reasons: dict[int, list[str]] = {}
+    for row in selected:
+        if not row.boot_id_before or not row.boot_id_after:
+            missing_host_boot.append(row.round)
+            extra_reasons.setdefault(row.round, []).append(
+                "missing host boot_id (boot proof)"
+            )
+        elif row.boot_id_before != row.boot_id_after:
+            changed_host_boot.append(row.round)
+            extra_reasons.setdefault(row.round, []).append(
+                f"host boot_id changed during round {row.round} "
+                f"({row.boot_id_before} != {row.boot_id_after})"
+            )
+        if row.pid_worker:
+            hot_worker.append(row.round)
+            extra_reasons.setdefault(row.round, []).append(
+                f"hot worker process already running before measurement "
+                f"(pidWorker={row.pid_worker}; not a cold start)"
+            )
+    if extra_reasons:
+        selected = [
+            replace(row, status="INVALID", reason="; ".join(extra_reasons[row.round]))
+            if row.round in extra_reasons
+            else row
+            for row in selected
+        ]
+
+    if missing_host_boot:
+        reasons.append(
+            f"rounds without host boot_id: {sorted(missing_host_boot)} "
+            "(each round must prove its boot identity from the host)"
+        )
+
+    host_boot_ids = sorted(
+        row.boot_id_before for row in selected if row.boot_id_before
+    )
+    repeated_host_boot = sorted(
+        {value for value in host_boot_ids if host_boot_ids.count(value) > 1}
+    )
+    if repeated_host_boot:
+        reasons.append(
+            f"repeated host boot_id across rounds: {repeated_host_boot} "
+            "(rounds must come from distinct reboots, not one boot repeated)"
+        )
+
+    modes = sorted({row.mode for row in selected if row.mode})
+    non_reboot_modes = [mode for mode in modes if mode != "reboot"]
+    if non_reboot_modes:
+        reasons.append(
+            f"mode={','.join(non_reboot_modes)} is not reboot; "
+            "the 20-round cold-start criterion requires per-round reboot"
+        )
+
+    host_count_mismatches = [
+        f"round {row.round}: app bootCount={row.boot_count} != host bootCount={row.host_boot_count}"
+        for row in selected
+        if row.boot_count is not None
+        and row.host_boot_count is not None
+        and row.boot_count != row.host_boot_count
+    ]
+    if host_count_mismatches:
+        reasons.append(
+            "host bootCount does not match app bootCount: "
+            + "; ".join(host_count_mismatches)
+        )
 
     present = {row.round for row in selected}
     expected = set(range(1, MAIN_ROUNDS + 1))
@@ -362,11 +507,28 @@ def aggregate(paths: list[Path]) -> Report:
 
     shas = sorted({row.apk_sha256 for row in selected if row.apk_sha256})
     fingerprints = sorted({row.fingerprint for row in selected if row.fingerprint})
-    boot_counts = sorted({row.boot_count for row in selected if row.boot_count is not None})
+    boot_counts = sorted(row.boot_count for row in selected if row.boot_count is not None)
     if len(shas) > 1:
         reasons.append(f"mixed APK sha256 across rounds: {shas}")
     elif not shas:
         reasons.append("no apkSha256 recorded by any round (device green must bind an APK sha)")
+
+    # F10：bootCount 门。20 轮主口径要求每轮来自一次新 boot（reboot 模式）；缺失或重复
+    # 都无法证明"20 次独立冷启动"，不能只看 sampleCount==20。
+    boot_missing = [row.round for row in selected if row.boot_count is None]
+    if boot_missing:
+        reasons.append(
+            f"rounds without bootCount: {boot_missing} "
+            "(each round must prove its boot identity)"
+        )
+    repeated_boots = sorted({
+        value for value in boot_counts if boot_counts.count(value) > 1
+    })
+    if repeated_boots:
+        reasons.append(
+            f"repeated bootCount across rounds: {repeated_boots} "
+            "(rounds must come from distinct boots, not one process/boot repeated)"
+        )
     if len(fingerprints) > 1:
         reasons.append(f"mixed device fingerprints across rounds: {fingerprints}")
     elif not fingerprints:
@@ -383,6 +545,8 @@ def aggregate(paths: list[Path]) -> Report:
         apk_sha256=shas[0] if len(shas) == 1 else "",
         fingerprints=fingerprints,
         boot_counts=boot_counts,
+        boot_ids=host_boot_ids,
+        modes=modes,
         rounds=[asdict(row) for row in selected],
     )
 
@@ -414,6 +578,11 @@ def render_text(report: Report) -> str:
         lines.append(f"device fingerprint(s): {', '.join(report.fingerprints)}")
     if report.boot_counts:
         lines.append(f"bootCount(s): {report.boot_counts}")
+    if report.boot_ids:
+        unique = len(set(report.boot_ids))
+        lines.append(f"host boot_id(s): n={len(report.boot_ids)} unique={unique}")
+    if report.modes:
+        lines.append(f"mode(s): {report.modes}")
 
     if report.evaluable:
         stats = report.stats
@@ -438,7 +607,7 @@ def render_text(report: Report) -> str:
 
     snapshot_ok = not any(
         "mixed APK" in reason or "mixed device" in reason or "no apkSha256" in reason
-        or "no device fingerprint" in reason
+        or "no device fingerprint" in reason or "bootCount" in reason
         for reason in report.reasons
     )
     lines.append(

@@ -30,6 +30,27 @@ class Kd76ReportVerdictTest {
     }
 
     @Test
+    fun `thresholds cannot be overridden through the api`() {
+        // F11：旧签名带 requiredSamples/gateMillis 默认参数，任何调用方都能放宽预注册。
+        // 现在 decide 只有 3 个入参，阈值只能来自本对象的常量。
+        val decideMethods = Kd76ReportVerdict::class.java.declaredMethods
+            .filter { it.name == "decide" }
+        assertEquals("decide must have exactly one overload", 1, decideMethods.size)
+        assertEquals(
+            "decide must not accept threshold overrides",
+            3,
+            decideMethods.single().parameterCount,
+        )
+        val decision = Kd76ReportVerdict.decide(
+            sampleCount = Kd76ReportVerdict.REQUIRED_SAMPLES,
+            g1Red = false,
+            p95Millis = Kd76ReportVerdict.GATE_MILLIS,
+        )
+        assertEquals(Kd76ReportVerdict.GATE_MILLIS, decision.gateMillis)
+        assertEquals(Kd76ReportVerdict.Verdict.PASS, decision.verdict)
+    }
+
+    @Test
     fun `g1 red is not evaluable and never renders pass`() {
         val decision = Kd76ReportVerdict.decide(
             sampleCount = Kd76ReportVerdict.REQUIRED_SAMPLES,

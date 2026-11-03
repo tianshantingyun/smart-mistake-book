@@ -15,8 +15,12 @@
 #     输出 + logcat 中的 `KD76_*` 机器行包成 JUnit-XML 形状的 round-NN.xml；
 #     `<system-out>` 是原始证据，不重写、不补造。
 #   - reboot 模式用于主口径；force-stop 模式等价于"冷应用进程 + 冷/热 OS 页缓存"，
-#     两者在证据里由 `KD76_ROUND ... bootCount=` 区分（force-stop 模式 20 轮 bootCount
-#     相同；reboot 模式应得到 20 个不同值）。
+#     两者在证据里由 `KD76_ENV ... mode=` 区分（force-stop 模式 20 轮 boot_id 相同；
+#     reboot 模式必须得到 20 个不同的宿主 boot_id）。
+#   - 每轮在 `am instrument` 前后各读一次宿主 `/proc/sys/kernel/random/boot_id`；
+#     缺失/重复/轮中变化/测量前 :visual_js 已存在 → 该轮 INVALID（不补轮）。
+#   - `--first-round` 用于两批 10+10：批 A 1..10、批 B 11..20，全局轮号唯一；
+#     合并只合并原始样本，不合并两批 p95。
 #   - 只操作 `--serial` 指定的设备；不做 git 写；不改 APK（`--apk/--test-apk` 仅在
 #     开跑前安装一次）。
 #
@@ -34,6 +38,7 @@ set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ROUNDS=20
+FIRST_ROUND=1
 MODE="reboot"
 SERIAL="${ANDROID_SERIAL:-}"
 OUT_DIR=""
@@ -66,6 +71,7 @@ while [ $# -gt 0 ]; do
     --serial) SERIAL="${2:-}"; shift 2 ;;
     --mode) MODE="${2:-}"; shift 2 ;;
     --rounds) ROUNDS="${2:-}"; shift 2 ;;
+    --first-round) FIRST_ROUND="${2:-}"; shift 2 ;;
     --out) OUT_DIR="${2:-}"; shift 2 ;;
     --apk) APK="${2:-}"; shift 2 ;;
     --test-apk) TEST_APK="${2:-}"; shift 2 ;;
@@ -90,6 +96,14 @@ case "$ROUNDS" in
   ''|*[!0-9]*) die "--rounds must be an integer, got '$ROUNDS'" ;;
 esac
 [ "$ROUNDS" -ge 1 ] && [ "$ROUNDS" -le 20 ] || die "--rounds must be in 1..20, got $ROUNDS"
+case "$FIRST_ROUND" in
+  ''|*[!0-9]*) die "--first-round must be an integer, got '$FIRST_ROUND'" ;;
+esac
+# 两批 10+10 合并时批 A 用 1..10、批 B 用 11..20；全局轮号必须仍在 1..20 内，
+# 否则汇总脚本会判 unexpected round ids。
+[ "$FIRST_ROUND" -ge 1 ] && [ $((FIRST_ROUND + ROUNDS - 1)) -le 20 ] \
+  || die "--first-round=$FIRST_ROUND with --rounds=$ROUNDS exceeds the 1..20 main-criterion range"
+LAST_ROUND=$((FIRST_ROUND + ROUNDS - 1))
 [ -n "$COMPONENT" ] || COMPONENT="${TARGET_PACKAGE}.test/androidx.test.runner.AndroidJUnitRunner"
 
 # ---------------------------------------------------------------- adb 解析
@@ -147,6 +161,24 @@ GIT_DIRTY="$(git -C "$REPO_ROOT" status --porcelain 2>/dev/null | wc -l | tr -d 
 GIT_DIRTY="${GIT_DIRTY:-unknown}"
 STARTED_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
+# 宿主侧 APK sha 是设备绿的身份锚：app 自报的 sha 可能缺行，汇总不能只信 app。
+host_sha256() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | awk '{print $1}'
+  elif command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 "$1" | awk '{print $1}'
+  else
+    printf 'unknown'
+  fi
+}
+TARGET_APK_SHA="<already-installed>"
+TEST_APK_SHA="<already-installed>"
+if [ -n "$APK" ]; then TARGET_APK_SHA="$(host_sha256 "$APK")"; fi
+if [ -n "$TEST_APK" ]; then TEST_APK_SHA="$(host_sha256 "$TEST_APK")"; fi
+
+BOOT_IDS_FILE="$OUT_DIR/boot-ids.txt"
+: >"$BOOT_IDS_FILE"
+
 cat >"$OUT_DIR/manifest.txt" <<EOF
 kd76-run
 mode=$MODE
@@ -156,6 +188,11 @@ component=$COMPONENT
 testClass=$TEST_CLASS
 testMethod=$TEST_METHOD
 rounds=$ROUNDS
+firstRound=$FIRST_ROUND
+lastRound=$LAST_ROUND
+preregisteredN=20
+estimator=nearest-rank
+gateMillis=5000
 settleSeconds=$SETTLE_SECONDS
 startedUtc=$STARTED_UTC
 deviceModel=$DEVICE_MODEL
@@ -165,6 +202,8 @@ sourceHead=$GIT_HEAD
 sourceDirtyPaths=$GIT_DIRTY
 targetApk=${APK:-<already-installed>}
 testApk=${TEST_APK:-<already-installed>}
+targetApkSha256=$TARGET_APK_SHA
+testApkSha256=$TEST_APK_SHA
 note=am instrument does not emit JUnit XML; round-NN.xml is a faithful wrapper around the raw am output + KD76_* logcat lines
 EOF
 
@@ -214,6 +253,44 @@ wait_for_boot() {
   return 1
 }
 
+# 宿主侧轮次身份。boot_id 是"本次 boot"的内核 UUID（proc_random, 0444）；
+# app 读不到 /proc，宿主 adb 是主证明。bootCount 是 app Settings.Global 的交叉核对。
+read_boot_id() {
+  adb_s shell cat /proc/sys/kernel/random/boot_id 2>/dev/null | tr -d '\r\n'
+}
+read_host_boot_count() {
+  adb_s shell settings get global boot_count 2>/dev/null | tr -d '\r\n'
+}
+read_pid() {
+  adb_s shell pidof "$1" 2>/dev/null | tr -d '\r\n'
+}
+read_apps_frozen() {
+  adb_s shell dumpsys activity 2>/dev/null | tr -d '\r' \
+    | grep -m1 'Apps frozen:' | sed 's/.*Apps frozen:[[:space:]]*//' || true
+}
+
+# 轮次因宿主身份缺陷（boot_id 不可读/重复/轮中变化、worker 已热）作废时，
+# 仍写一份 XML 并明确标 INVALID——不是"缺文件"，也不补一轮凑 20。
+write_invalid_round() {
+  local round="$1" message="$2" env_line="$3"
+  local xml="$OUT_DIR/round-$(printf '%02d' "$round").xml"
+  {
+    printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>'
+    printf '<testsuite name="%s" tests="1" failures="1" errors="0" skipped="0" time="0">\n' \
+      "$(xml_attr "$TEST_CLASS")"
+    printf '  <testcase classname="%s" name="%s" time="0">\n' \
+      "$(xml_attr "$TEST_CLASS")" "$(xml_attr "$TEST_METHOD")"
+    printf '    <system-out><![CDATA[\n'
+    xml_cdata "$env_line"
+    printf '\nKD76_SAMPLE round=%s status=INVALID reason=%s\n' \
+      "$round" "$(printf '%s' "$message" | tr '\n' ' ')"
+    printf '\n]]></system-out>\n'
+    printf '    <failure message="%s">%s</failure>\n' \
+      "$(xml_attr "$message")" "$(xml_cdata "$message")"
+    printf '  </testcase>\n</testsuite>\n'
+  } >"$xml"
+}
+
 prepare_round() {
   if [ "$MODE" = "reboot" ]; then
     adb_s reboot >/dev/null 2>&1 || return 1
@@ -235,6 +312,36 @@ run_round() {
   local raw="$OUT_DIR/round-$(printf '%02d' "$round").am.txt"
   local xml="$OUT_DIR/round-$(printf '%02d' "$round").xml"
   local load_before load_after duration start_ts end_ts
+  local boot_before boot_after host_boot pid_target pid_worker apps_frozen
+  local boot_error="" env_line=""
+
+  # 轮前身份：reboot 模式必须拿到宿主 boot_id，且与之前所有轮不同；测量前
+  # :visual_js 必须不存在（否则测到的是热进程/解冻，不是冷启动）。
+  boot_before="$(read_boot_id)"
+  host_boot="$(read_host_boot_count)"
+  pid_target="$(read_pid "$TARGET_PACKAGE")"
+  pid_worker="$(read_pid "${TARGET_PACKAGE}:visual_js")"
+  apps_frozen="$(read_apps_frozen)"
+
+  if [ "$MODE" = "reboot" ]; then
+    if [ -z "$boot_before" ]; then
+      boot_error="host boot_id is unreadable before round $round"
+    elif grep -Fxq -- "$boot_before" "$BOOT_IDS_FILE"; then
+      boot_error="host boot_id repeated before round $round: $boot_before (same boot as an earlier round)"
+    fi
+  fi
+  if [ -n "$pid_worker" ]; then
+    boot_error="${boot_error:+$boot_error; }hot :visual_js worker already running before round $round (pid $pid_worker)"
+  fi
+  if [ -n "$boot_error" ]; then
+    env_line="KD76_ENV round=$round mode=$MODE bootIdBefore=$boot_before bootIdAfter= hostBootCount=$host_boot pidTarget=$pid_target pidWorker=$pid_worker appsFrozen=$apps_frozen"
+    write_invalid_round "$round" "$boot_error" "$env_line"
+    log "round $round INVALID: $boot_error"
+    return 1
+  fi
+  if [ -n "$boot_before" ]; then
+    printf '%s\n' "$boot_before" >>"$BOOT_IDS_FILE"
+  fi
 
   load_before="$(adb_s shell cat /proc/loadavg 2>/dev/null | tr -d '\r' || true)"
   adb_s logcat -c >/dev/null 2>&1 || true
@@ -254,6 +361,7 @@ run_round() {
   end_ts="$(date +%s)"
   duration=$((end_ts - start_ts))
   load_after="$(adb_s shell cat /proc/loadavg 2>/dev/null | tr -d '\r' || true)"
+  boot_after="$(read_boot_id)"
 
   # logd 是异步落 buffer；instrumentation 进程退出后给一次短暂 flush，避免把
   # "本轮有样本" 误判成 "没抓到 KD76_SAMPLE"（sleep 在轮次计时之外，不影响段值）。
@@ -265,7 +373,14 @@ run_round() {
   sample_line="$(printf '%s\n' "$kd_lines" | grep -E "KD76_SAMPLE round=${round} status=SAMPLE" | tail -n 1 || true)"
 
   local failures=0 failure_message=""
-  if [ "$rc" -ne 0 ]; then
+  if [ "$MODE" = "reboot" ] && [ "$boot_after" != "$boot_before" ]; then
+    # 轮中重启/掉线重连会重置 uptimeMillis；该轮的段值不可比，标 INVALID。
+    # 追加在原始 KD76_SAMPLE 之后，汇总按 round 取最后一行（INVALID 生效）。
+    kd_lines="${kd_lines}
+KD76_SAMPLE round=$round status=INVALID reason=host boot_id changed during round $round ($boot_before != $boot_after)"
+    failures=1
+    failure_message="host boot_id changed during round $round ($boot_before != $boot_after)"
+  elif [ "$rc" -ne 0 ]; then
     failures=1
     failure_message="am instrument exited $rc (timeout or transport failure)"
   elif grep -q 'FAILURES!!!' "$raw" 2>/dev/null; then
@@ -289,7 +404,7 @@ run_round() {
     printf '  <testcase classname="%s" name="%s" time="%s">\n' \
       "$(xml_attr "$TEST_CLASS")" "$(xml_attr "$TEST_METHOD")" "$duration"
     printf '    <system-out><![CDATA[\n'
-    xml_cdata "KD76_ENV round=$round mode=$MODE loadBefore=$(printf '%s' "$load_before" | tr -s ' ' '_') loadAfter=$(printf '%s' "$load_after" | tr -s ' ' '_')"
+    xml_cdata "KD76_ENV round=$round mode=$MODE bootIdBefore=$boot_before bootIdAfter=$boot_after hostBootCount=$host_boot pidTarget=$pid_target pidWorker=$pid_worker appsFrozen=$(printf '%s' "$apps_frozen" | tr -s ' ' '_') loadBefore=$(printf '%s' "$load_before" | tr -s ' ' '_') loadAfter=$(printf '%s' "$load_after" | tr -s ' ' '_')"
     printf '\n'
     printf '%s\n' "$kd_lines"
     printf '%s\n' '--- am instrument output ---'
@@ -313,8 +428,8 @@ run_round() {
 # ---------------------------------------------------------------- 主循环
 
 FAILED=0
-for round in $(seq 1 "$ROUNDS"); do
-  log "round $round/$ROUNDS: preparing ($MODE)"
+for round in $(seq "$FIRST_ROUND" "$LAST_ROUND"); do
+  log "round $round (${FIRST_ROUND}..${LAST_ROUND}): preparing ($MODE)"
   if ! prepare_round; then
     log "round $round: device preparation failed (boot/force-stop timeout)"
     # 仍然写一份失败 XML，让汇总脚本看到"该轮没有样本"，而不是静默缺文件。
@@ -338,10 +453,12 @@ EOF
 done
 
 FINISHED_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+BOOT_IDS_CSV="$(tr '\n' ',' <"$BOOT_IDS_FILE" | sed 's/,$//')"
 {
   printf 'finishedUtc=%s\n' "$FINISHED_UTC"
   printf 'failedRounds=%s\n' "$FAILED"
   printf 'roundsRequested=%s\n' "$ROUNDS"
+  printf 'bootIds=%s\n' "$BOOT_IDS_CSV"
 } >>"$OUT_DIR/manifest.txt"
 
 log "done: $((ROUNDS - FAILED))/$ROUNDS rounds passed; evidence in $OUT_DIR"
