@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import contextlib
 import io
+import json
 import sys
 import tempfile
 import unittest
@@ -297,6 +298,108 @@ class SummarizeKd76Test(unittest.TestCase):
         self.assertEqual(2, code)
         self.assertIn("DOCTYPE/ENTITY is not allowed", text)
         self.assertNotIn("PASS", text)
+
+    def test_duplicate_sample_lines_for_same_round_are_not_merged(self) -> None:
+        """同一轮两条 KD76_SAMPLE（先 FAIL 后 SAMPLE）不得由后者覆盖前者。
+
+        当前实现按 round 建 dict；后出现的 SAMPLE 会覆盖先出现的 FAIL，G1 理由随之
+        消失——这是"重跑/追加一行即可洗掉失败轮"的假绿。
+        """
+        with tempfile.TemporaryDirectory() as temp:
+            run = Path(temp) / "run"
+            self._write_run(run)
+            text = round_xml(20).replace(
+                "KD76_SAMPLE round=20 status=SAMPLE",
+                "KD76_SAMPLE round=20 status=FAIL censoredLowerBoundMillis=15000 "
+                "reason=late failure\nKD76_SAMPLE round=20 status=SAMPLE",
+                1,
+            )
+            (run / "round-20.xml").write_text(text, encoding="utf-8")
+            code, text = self._run(run)
+        self.assertEqual(2, code)
+        self.assertIn("NOT EVALUABLE", text)
+        self.assertIn("2 KD76_SAMPLE", text)
+        self.assertNotIn("PASS", text)
+
+    def test_identical_duplicate_sample_lines_are_one_sample(self) -> None:
+        """同一轮**逐字相同**的重复行（Log.i + println 双写）仍是一条样本。
+
+        批次 43 A6 实跑的 XML 每轮都有 2 条相同 `KD76_SAMPLE`（`emit()` 同时写
+        Log.i 与 System.out，两条都进 `<system-out>`）。内容完全相同不可能"后者
+        覆盖先前的失败"，按 2 条判 NOT EVALUABLE 是误报；只有内容不同的重复
+        （上一条用例：先 FAIL 后 SAMPLE）才必须拒绝。
+        """
+        with tempfile.TemporaryDirectory() as temp:
+            run = Path(temp) / "run"
+            self._write_run(run)
+            path = run / "round-20.xml"
+            text = path.read_text(encoding="utf-8")
+            line = next(l for l in text.splitlines() if "KD76_SAMPLE" in l)
+            path.write_text(text.replace(line, f"{line}\n{line}", 1), encoding="utf-8")
+            code, text = self._run(run)
+        self.assertEqual(0, code, text)
+        self.assertIn("G2: PASS", text)
+        self.assertIn("n=20/20", text)
+
+    def test_total_mismatch_is_invalid_and_counted(self) -> None:
+        """`total != bind+warmup+readyGap+firstByte` 的行不得被当成合法样本。"""
+        with tempfile.TemporaryDirectory() as temp:
+            run = Path(temp) / "run"
+            self._write_run(run)
+            text = (run / "round-05.xml").read_text(encoding="utf-8").replace(
+                "total=303", "total=999", 1
+            )
+            (run / "round-05.xml").write_text(text, encoding="utf-8")
+            code, text = self._run(run)
+        self.assertEqual(2, code)
+        self.assertIn("n=19/20", text)
+        self.assertIn("total(999) != bind(100) + warmup(200)", text)
+        self.assertNotIn("PASS", text)
+
+    def test_sample_missing_a_timing_field_is_invalid_and_counted(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            run = Path(temp) / "run"
+            self._write_run(run)
+            text = (run / "round-06.xml").read_text(encoding="utf-8").replace(
+                " warmup=200", "", 1
+            )
+            (run / "round-06.xml").write_text(text, encoding="utf-8")
+            code, text = self._run(run)
+        self.assertEqual(2, code)
+        self.assertIn("n=19/20", text)
+        self.assertIn("missing one of bind/warmup", text)
+        self.assertNotIn("PASS", text)
+
+    def test_unexpected_round_id_is_not_evaluable(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            run = Path(temp) / "run"
+            self._write_run(run)
+            (run / "round-21.xml").write_text(round_xml(21), encoding="utf-8")
+            code, text = self._run(run)
+        self.assertEqual(2, code)
+        self.assertIn("unexpected round ids: [21]", text)
+        self.assertNotIn("PASS", text)
+
+    def test_empty_input_directory_exits_two(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            run = Path(temp) / "run"
+            run.mkdir()
+            code, text = self._run(run)
+        self.assertEqual(2, code)
+        self.assertNotIn("G2: PASS", text)
+
+    def test_json_output_never_claims_pass_when_not_evaluable(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            run = Path(temp) / "run"
+            self._write_run(run)
+            (run / "round-07.xml").unlink()
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+                code = S.main([str(run), "--json"])
+            report = json.loads(out.getvalue())
+        self.assertEqual(2, code)
+        self.assertEqual("NOT_EVALUABLE", report["verdict"])
+        self.assertFalse(report["evaluable"])
 
     def test_nearest_rank_estimator_is_pinned(self) -> None:
         # 与 androidTest 的 assertPreRegistration 同一固定向量（R2 §2.3 #5）。

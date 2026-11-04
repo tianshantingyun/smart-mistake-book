@@ -222,10 +222,21 @@ def parse_round_file(source: Path) -> tuple[RoundRow | None, list[str]]:
         )
 
     rows: dict[int, RoundRow] = {}
+    sample_counts: dict[int, int] = {}
+    # 同一轮里逐字相同的 (status, payload) 是同一观测：androidTest 的 `emit()` 同时写
+    # Log.i 与 System.out，两条都会进 `<system-out>`。只折叠**完全相同**的行；内容不同
+    # 的重复（先 FAIL 后 SAMPLE）仍逐条计入，下面的防假绿检查照常拒绝。
+    seen_samples: dict[int, set[tuple[str, str]]] = {}
     for match in SAMPLE_LINE.finditer(text):
         round_no = int(match.group(1))
         status = match.group(2)
         payload = match.group(3)
+        sample_key = (status, payload.strip())
+        seen = seen_samples.setdefault(round_no, set())
+        if sample_key in seen:
+            continue
+        seen.add(sample_key)
+        sample_counts[round_no] = sample_counts.get(round_no, 0) + 1
         sha, fingerprint, boot = meta.get(round_no, ("", "", boot_by_round.get(round_no)))
         if boot is None:
             boot = boot_by_round.get(round_no)
@@ -318,6 +329,15 @@ def parse_round_file(source: Path) -> tuple[RoundRow | None, list[str]]:
     if not rows:
         problems.append(f"{source.name}: no KD76_SAMPLE line in <system-out>")
         return None, problems
+    # 同一轮出现多条**内容不同**的终态行时，dict 的"后者覆盖前者"会让后来追加的 SAMPLE
+    # 洗掉先前的 FAIL（重跑/拼接日志即可制造假绿）。每轮只允许一条终态行；内容不同的重复
+    # 一律记问题。逐字相同的重复（Log.i + System.out 双写）已在上面的 `seen_samples` 折叠。
+    for round_no, count in sorted(sample_counts.items()):
+        if count > 1:
+            problems.append(
+                f"{source.name}: round {round_no} has {count} KD76_SAMPLE lines "
+                "(one terminal sample per round; a later line must not overwrite an earlier failure)"
+            )
     if len(rows) > 1:
         problems.append(
             f"{source.name}: {len(rows)} distinct rounds in one file "
