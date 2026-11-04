@@ -5,6 +5,7 @@
     "atomicNodes": 3280,
     "canonicalVectors": 3280,
     "includeTopics": false,
+    "layoutSha256": "1aa8142e381d1b2b40b2ba3d5eec2783e5781830321613fcb78fff7f61e9d75c",
     "layoutSource": "spec §2.2；与离线臂 stage2_common.build_vector_layout 同序",
     "nodeScore": "max over the node's vectors (canonicalName + aliases) cosine",
     "vectorCount": 44121

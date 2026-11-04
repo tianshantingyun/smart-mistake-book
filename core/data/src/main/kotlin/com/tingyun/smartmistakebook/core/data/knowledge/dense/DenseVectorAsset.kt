@@ -64,6 +64,21 @@ internal class DenseVectorAsset private constructor(
         return scores
     }
 
+    /**
+     * 逐向量行的 node_id（同节点连续，长度 = [count]）。供布局门核对**行序与每节点向量条数**，
+     * 不参与运行期评分。
+     *
+     * 它消灭的失败：本类此前只暴露"唯一节点 id + 段边界"，测试无法重建 44,121 行的行序，
+     * 于是旁车 `corpus.layoutSha256` 与 `.vec` 行序/包布局三者漂移时，Kotlin 侧没有任何 seam 能发现。
+     */
+    fun rowNodeIds(): List<String> {
+        val rows = ArrayList<String>(count)
+        for (node in nodeIdAt.indices) {
+            for (row in nodeStart[node] until nodeEnd[node]) rows.add(nodeIdAt[node])
+        }
+        return rows
+    }
+
     companion object {
         const val MAGIC = "SMBV"
         const val VERSION = 1

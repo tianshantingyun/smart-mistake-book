@@ -223,6 +223,7 @@ def main():
         corpus=dict(atomicNodes=len(node_ids), canonicalVectors=sum(1 for r in rows if r["kind"] == "canonical"),
                     aliasVectors=sum(1 for r in rows if r["kind"] == "alias"),
                     vectorCount=len(surfaces), includeTopics=False,
+                    layoutSha256=D.layout_sha256(rows),
                     nodeScore="max over the node's vectors (canonicalName + aliases) cosine",
                     layoutSource="spec §2.2；与离线臂 stage2_common.build_vector_layout 同序"),
         model=dict(
