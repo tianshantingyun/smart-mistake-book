@@ -156,6 +156,37 @@ class MistakePdfEligibilityTest {
         assertEquals(1_024L, input.cleanImageByteSize)
     }
 
+    /**
+     * F7：旧库同一 revision 多张 CLEAN_IMAGE 时，导出必须用**最新**那张（与详情/重绘源
+     * 的"当前干净题面"同一判据）；否则用户重绘成功后 PDF/DOCX 仍是旧图。
+     */
+    @Test
+    fun theNewestCleanRedrawIsExportedWhenLegacyRowsAccumulated() {
+        val older = sourceAsset(
+            role = CLEAN_IMAGE_SOURCE_ROLE,
+            sourceAssetId = "clean-old",
+            uri = "file:///clean-old.png",
+        ).copy(createdAtEpochMillis = 1_000L)
+        val newer = sourceAsset(
+            role = CLEAN_IMAGE_SOURCE_ROLE,
+            sourceAssetId = "clean-new",
+            uri = "file:///clean-new.png",
+        ).copy(
+            createdAtEpochMillis = 2_000L,
+            contentSha256 = "b".repeat(64),
+        )
+        val state = readyState(
+            blocks = listOf(ContentBlock.Paragraph("stem", "题目")),
+            source = MistakeSourceSet.Present(listOf(older, newer)),
+        )
+
+        val input = (MistakePdfEligibility.check(state) as MistakePdfEligibilityResult.Eligible)
+            .input
+
+        assertEquals("file:///clean-new.png", input.cleanImageLocalUri)
+        assertEquals("b".repeat(64), input.cleanImageSha256)
+    }
+
     /** B6 回退分支：没有重绘图时按现状——结构化图块照常渲染，原图不导出。 */
     @Test
     fun withoutRedrawOnlyTheStructuredFigureIsExported() {
@@ -287,6 +318,75 @@ class MistakePdfEligibilityTest {
         assertEquals(fingerprintOf(first, layout), fingerprintOf(second, layout))
     }
 
+    // ------------------------------------------- KD-75 C2：模型解析文本事实
+
+    @Test
+    fun `model parsed evidence sets the model text flag`() {
+        val state = readyState(
+            blocks = listOf(ContentBlock.Paragraph("stem", "模型解析出的题干")),
+            provenance = QuestionBlockProvenance.MODEL_DOCUMENT_PARSE,
+        )
+
+        assertTrue(eligibleInput(state).hasModelParsedText)
+    }
+
+    @Test
+    fun `pure user document keeps the model text flag false`() {
+        val state = readyState(blocks = listOf(ContentBlock.Paragraph("stem", "用户自己敲的题干")))
+
+        assertFalse(eligibleInput(state).hasModelParsedText)
+    }
+
+    /**
+     * 边界（R1 §2.4）：用户只改了**部分**块时，未被改写的块仍是 `MODEL_DOCUMENT_PARSE`，
+     * 文档必须打标。逐块全改后不再有该 provenance 属有意保守的反向边界（另由判据层用例钉死）。
+     */
+    @Test
+    fun `partially corrected document still counts as model parsed text`() {
+        val state = readyState(
+            blocks = listOf(
+                ContentBlock.Paragraph("kept", "模型原文"),
+                ContentBlock.Paragraph("edited", "用户改写的文字"),
+            ),
+        )
+        val mixed = state.copy(
+            questionDocument = state.questionDocument.copy(
+                blockEvidence = listOf(
+                    state.questionDocument.blockEvidence[0].copy(
+                        provenance = QuestionBlockProvenance.MODEL_DOCUMENT_PARSE,
+                        producerVersion = "model-test-1",
+                    ),
+                    state.questionDocument.blockEvidence[1].copy(
+                        provenance = QuestionBlockProvenance.USER_CORRECTION,
+                    ),
+                ),
+            ),
+        )
+
+        assertTrue(eligibleInput(mixed).hasModelParsedText)
+    }
+
+    /**
+     * 消灭的失败：将来有人把文档指纹改成"只对 blocks 取摘要"，模型文本题与纯用户题的缓存键
+     * 相撞，互相复用对方产物（一个漏标、一个多标）。
+     */
+    @Test
+    fun `provenance change rewrites the export cache key`() {
+        val user = readyState(blocks = listOf(ContentBlock.Paragraph("stem", "同一段文字")))
+        val model = user.copy(
+            questionDocument = user.questionDocument.copy(
+                blockEvidence = user.questionDocument.blockEvidence.map { evidence ->
+                    evidence.copy(
+                        provenance = QuestionBlockProvenance.MODEL_DOCUMENT_PARSE,
+                        producerVersion = "model-test-1",
+                    )
+                },
+            ),
+        )
+
+        assertNotEquals(fingerprintOf(user), fingerprintOf(model))
+    }
+
     private fun eligibleInput(
         state: MistakeDetailState.Ready,
         layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
@@ -320,6 +420,7 @@ class MistakePdfEligibilityTest {
         reviewStatus: QuestionBlockReviewStatus = QuestionBlockReviewStatus.USER_CONFIRMED,
         source: MistakeSourceSet = MistakeSourceSet.Missing,
         userNote: String? = null,
+        provenance: QuestionBlockProvenance = QuestionBlockProvenance.USER_CORRECTION,
     ): MistakeDetailState.Ready = MistakeDetailState.Ready(
         detail = detail(source = source, userNote = userNote),
         questionDocument = CapturedQuestionDocument(
@@ -334,8 +435,16 @@ class MistakePdfEligibilityTest {
                     sourceAssetId = "source-1",
                     sourceRegion = NormalizedSourceRegion(0.0, 0.0, 1.0, 1.0),
                     writingLayer = WritingLayer.PRINTED,
-                    provenance = QuestionBlockProvenance.USER_CORRECTION,
+                    provenance = provenance,
                     reviewStatus = reviewStatus,
+                    // 非用户来源缺 producerVersion 会被 validateForCommit 拒绝（合法状态也未变）。
+                    producerVersion = if (provenance == QuestionBlockProvenance.USER_CORRECTION ||
+                        provenance == QuestionBlockProvenance.USER_TRANSCRIPTION
+                    ) {
+                        null
+                    } else {
+                        "model-test-1"
+                    },
                 )
             },
         ),

@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.export
 
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.VisualRole
+import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcContentPolicy
 import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcMetadata
 import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcReader
 import java.io.ByteArrayOutputStream
@@ -93,6 +94,14 @@ class MistakePdfExporterAigcJvmTest {
         assertFalse(input().paintsAiGeneratedImage())
     }
 
+    @Test
+    fun `policy generation is consistent across sentinel fingerprint and policy`() {
+        // 三方必须同时升版：改判据只升一处，旧的无标包就能在 TTL 内被复用（KD-75 reopen condition）。
+        assertEquals(2, PdfAigcContentPolicy.GENERATION)
+        assertEquals(".aigc-policy-gen-2", MistakePdfExporter.AIGC_POLICY_SENTINEL)
+        assertEquals("mistake-export-v4-aigc-gen-2", exportFingerprintPolicyTag())
+    }
+
     // ---------------------------------------------------------------- labelPdfInPlace
 
     @Test
@@ -131,6 +140,33 @@ class MistakePdfExporterAigcJvmTest {
         assertEquals(null, PdfAigcReader.readLatestAigc(file.readBytes()))
     }
 
+    /**
+     * KD-75 C2 的正向：**没有任何图**、只有模型解析文本的输入也必须打标，
+     * 且与 AI 图走同一个 `labelPdfInPlace` 注入点（同一份元数据、同一次增量更新）。
+     */
+    @Test
+    fun `labelPdfInPlace labels model parsed text without any image`() {
+        val original = minimalPdf()
+        val file = temporaryFile(original)
+        val input = input(hasModelParsedText = true)
+
+        assertFalse("the fixture must not carry any AI image", input.paintsAiGeneratedImage())
+        labelPdfInPlace(file, input)
+
+        val labeled = file.readBytes()
+        assertArrayEquals(
+            "model text must use the same append-only update as AI images",
+            original,
+            labeled.copyOfRange(0, original.size),
+        )
+        val readBackValue = PdfAigcReader.readLatestAigc(labeled)
+        assertNotNull("model parsed text alone must carry /AIGC", readBackValue)
+        val readBack = readBackValue!!
+        assertEquals(PdfAigcMetadata.LABEL_AI_GENERATED, readBack.label)
+        assertEquals(input.inputSha256, readBack.produceId)
+        assertEquals(1, PdfAigcReader.readLatestAigcKeyCount(labeled))
+    }
+
     @Test
     fun `labelPdfInPlace fails closed without touching the file when injection is rejected`() {
         val original = "not a pdf".toByteArray(Charsets.US_ASCII)
@@ -158,6 +194,7 @@ class MistakePdfExporterAigcJvmTest {
         cleanImageLocalUri: String? = null,
         questionImageRole: String? = null,
         solutionImages: List<MistakePdfExportImage> = emptyList(),
+        hasModelParsedText: Boolean = false,
         layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
     ): MistakePdfExportInput = MistakePdfExportInput(
         errorBookEntryId = "entry",
@@ -170,6 +207,7 @@ class MistakePdfExporterAigcJvmTest {
         documentTitle = null,
         blocks = blocks,
         questionDocumentSha256 = sha,
+        hasModelParsedText = hasModelParsedText,
         inputSha256 = inputSha256,
         cleanImageLocalUri = cleanImageLocalUri,
         questionImageRole = questionImageRole,

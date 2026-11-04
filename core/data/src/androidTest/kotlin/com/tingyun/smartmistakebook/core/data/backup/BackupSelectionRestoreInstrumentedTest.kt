@@ -244,8 +244,22 @@ class BackupSelectionRestoreInstrumentedTest {
             val receipt = restore(repacked)
             assertEquals("旧包必须恢复成功并按 v4 回执 mask", 15, receipt.selection?.mask)
 
-            // 迁移在下次开库时发生：先开一次让 72→73 跑完，再核对形状。
-            StudyDatabaseFactory.open(context, databaseName).close()
+            // 迁移在下次开库时发生，但 Room 是**懒开库**：只 `open().close()` 不发起任何
+            // 查询，72→73 的 onUpgrade 根本不会跑——随后对原始文件断言新表会以
+            // `no such table: error_cause_observation` 报红（`ws10-device-full.md` §1.2 根因；
+            // 批次 42 记录 §6.2 的测试装置缺陷）。这里发起一次 DAO 读强制开库（与
+            // `BackupV4PackRestoreInstrumentedTest` 同形），并断言迁移确实落到 73，
+            // 避免"半迁移库"被误读成产品缺陷。
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            try {
+                assertEquals(
+                    "重开后必须已迁移到 73（DAO 侧可读）",
+                    73,
+                    migrated.readDatabaseVersion(),
+                )
+            } finally {
+                migrated.close()
+            }
             val restoredFile = context.getDatabasePath(databaseName)
             assertEquals("共享表旧行不得丢", 1L, rowCount(restoredFile, "knowledge_node"))
             assertEquals(
