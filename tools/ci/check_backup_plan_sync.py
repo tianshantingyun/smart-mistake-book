@@ -18,6 +18,11 @@ KD-80 类漂移已经出现过三次：`SmbkSelectionPlan.kt`、设计件 §9.11
 `knowledge_search_material_feature`（91 键）、裁剪上限 83、v4 摘要 golden 固定。
 这条消灭"有人顺手把 v4 快照同步成新 schema"的漂移。
 
+并消费 `tools/backup_fixtures/v4/` 的**冻结夹具字节**（WS7 S11）：三份包的
+`sha256` 必须同时等于 sidecar 与 golden，golden 的键集合/摘要/行数/载荷字节由本脚本
+独立复算。这条消灭"重打包夹具或重算 golden 不会被任何门抓住"的漂移（批次 42 记录
+§5 S11 的残余风险）。夹具字节被篡改导致 zip 载荷不可读时按"读到但不一致"记 exit 1。
+
 ## 退出码
 
 - 0：全部一致；
@@ -40,6 +45,7 @@ import hashlib
 import json
 import re
 import sys
+import zipfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -58,6 +64,18 @@ MACHINE_BLOCK = re.compile(
 # closure 4（schema 72）、空库、全选（mask=15）、assetPolicy=INCLUDED 的 v4 golden。
 # 由本脚本同算法独立复算：91 键全 0 + `smbk-selection-v4` 前缀 + closureVersion=4。
 GOLDEN_V4_EMPTY_FULL = "ee9a1b4d3f0ea7ed44eeec773f459df9d55c5df3abda32a69c62f7fdfac6b006"
+
+# v4 冻结夹具（WS5 item 42–47）。门消费其字节/sidecar/golden：重打包、重算摘要或
+# 只改 golden 都会被抓住（批次 42 记录 §5 S11 的残余风险）。
+FIXTURE_DIR = "tools/backup_fixtures/v4"
+GOLDEN_V4_PATH = FIXTURE_DIR + "/v4-pack.golden.json"
+FIXTURE_PACKS = (
+    "closure4-schema72-mask15.smbk",
+    "forged-count.smbk",
+    "dropped-nonempty.smbk",
+)
+# closure 4 冻结夹具的 schema 版本（`smbk-selection-v4` 时点的真实 schema）。
+SCHEMA_V4 = 72
 
 
 class ParseError(Exception):
@@ -197,7 +215,11 @@ def evaluate(repo: Path = REPO) -> dict:
         "test": repo / TEST_PATH,
         "schema": repo / SCHEMA_PATH,
         "design": repo / DESIGN_PATH,
+        "v4_golden": repo / GOLDEN_V4_PATH,
     }
+    for name in FIXTURE_PACKS:
+        paths[f"fixture:{name}"] = repo / FIXTURE_DIR / name
+        paths[f"fixture:{name}.sha256"] = repo / FIXTURE_DIR / f"{name}.sha256"
     missing = [str(path) for path in paths.values() if not path.is_file()]
     if missing:
         record("files", False, "缺文件：" + "、".join(missing))
@@ -305,6 +327,70 @@ def evaluate(repo: Path = REPO) -> dict:
                            {table: 0 for table in v4_tables})
     record("v4: empty-full digest golden", v4_recomputed == GOLDEN_V4_EMPTY_FULL,
            f"recomputed={v4_recomputed} pinned={GOLDEN_V4_EMPTY_FULL}")
+
+    # ---- 6. v4 冻结夹具（字节 / sidecar / golden 同源） ----
+    golden_v4 = json.loads(paths["v4_golden"].read_text(encoding="utf-8"))
+    negative = golden_v4.get("negative", {})
+    fixture_mismatches: list[str] = []
+    for name in FIXTURE_PACKS:
+        data = (repo / FIXTURE_DIR / name).read_bytes()
+        actual = hashlib.sha256(data).hexdigest()
+        pinned = (repo / FIXTURE_DIR / f"{name}.sha256").read_text(encoding="utf-8").strip()
+        declared = golden_v4 if name == golden_v4.get("fixture") else negative.get(name, {})
+        expected_sha = declared.get("packSha256")
+        expected_bytes = declared.get("packBytes")
+        if actual != pinned or expected_sha != actual or expected_bytes != len(data):
+            fixture_mismatches.append(
+                f"{name}: bytes={len(data)}/{expected_bytes} "
+                f"sha={actual[:12]} sidecar={pinned[:12]} golden={(expected_sha or '-')[:12]}"
+            )
+    record("v4 fixture: bytes == golden == sidecar", not fixture_mismatches,
+           "；".join(fixture_mismatches) or "3 夹具字节与 sidecar/golden 逐位一致")
+
+    golden_categories = sorted(
+        name for name, (bit, _) in plan["enum"].items() if plan["fullMask"] & bit
+    )
+    record("v4 fixture golden: declared shape matches frozen rule",
+           golden_v4["closureVersion"] == rules["closureVersion"]
+           and golden_v4["digestPrefix"] == rules["digestPrefix"]
+           and golden_v4["schemaVersion"] == SCHEMA_V4
+           and golden_v4["categoryMask"] == plan["fullMask"]
+           and sorted(golden_v4["categories"]) == golden_categories
+           and golden_v4["assetPolicy"] == plan["assetPolicy"]
+           and set(golden_v4["rowCountKeys"]) == set(golden_v4["rowCounts"]) == v4_tables,
+           f"closure={golden_v4['closureVersion']} prefix={golden_v4['digestPrefix']} "
+           f"schema={golden_v4['schemaVersion']} mask={golden_v4['categoryMask']} "
+           f"keys={len(golden_v4['rowCountKeys'])}")
+
+    golden_digest = digest(golden_v4["digestPrefix"], golden_v4["closureVersion"],
+                           list(plan["enum"]), golden_v4["assetPolicy"],
+                           golden_v4["rowCounts"])
+    record("v4 fixture golden: closureDigest recomputed from rowCounts",
+           golden_digest == golden_v4["closureDigest"],
+           f"recomputed={golden_digest} golden={golden_v4['closureDigest']}")
+
+    compact_counts = json.dumps(
+        {table: golden_v4["rowCounts"][table] for table in sorted(golden_v4["rowCounts"])},
+        ensure_ascii=False, separators=(",", ":"),
+    ).encode("utf-8")
+    record("v4 fixture golden: rowCountsSha256 recomputed",
+           hashlib.sha256(compact_counts).hexdigest() == golden_v4["rowCountsSha256"],
+           f"recomputed={hashlib.sha256(compact_counts).hexdigest()[:12]} "
+           f"golden={golden_v4['rowCountsSha256'][:12]}")
+
+    try:
+        with zipfile.ZipFile(repo / FIXTURE_DIR / golden_v4["fixture"]) as archive:
+            payload = archive.read("database.sqlite")
+    except (zipfile.BadZipFile, KeyError, OSError) as error:
+        # 夹具字节已被篡改/重打包到不可解析：这是"读到但不一致"（exit 1），不得抛栈。
+        record("v4 fixture: payload database bytes == golden", False,
+               f"payload unreadable: {error}")
+    else:
+        record("v4 fixture: payload database bytes == golden",
+               hashlib.sha256(payload).hexdigest() == golden_v4["databaseSha256"]
+               and len(payload) == golden_v4["databaseBytes"],
+               f"payload={len(payload)}B/{golden_v4['databaseBytes']}B "
+               f"sha={hashlib.sha256(payload).hexdigest()[:12]}")
 
     failed = [check for check in checks if not check["ok"]]
     return {"ok": not failed, "checks": checks, "failed": failed}
