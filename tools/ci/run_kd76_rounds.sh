@@ -21,6 +21,13 @@
 #     缺失/重复/轮中变化/测量前 :visual_js 已存在 → 该轮 INVALID（不补轮）。
 #   - `--first-round` 用于两批 10+10：批 A 1..10、批 B 11..20，全局轮号唯一；
 #     合并只合并原始样本，不合并两批 p95。
+#   - A6（批次 43 / WS2 item 11）：`--batch-id A|B --run-id <nonce> --a6-plan <file>`
+#     打开"同构建两次独立"证据面——manifest 增 `batchId/runId/a6PlanSha256/
+#     installedAppSha256/installedTestSha256/deviceGenerationId/installGenerationId/
+#     逐文件哈希`，每轮 `KD76_ENV` 增 `roundStartedUtc/roundFinishedUtc/screenAwake/
+#     pidWorkerAfter/warmupFinishedCount/warmupFailedCount/la1/nproc`，并在批末写
+#     `manifest.sha256`。判词仍只由 `summarize_kd76.py`（每批）与
+#     `kd76_a6_verify.py`（两批合取）给出，本脚本不判词。
 #   - 只操作 `--serial` 指定的设备；不做 git 写；不改 APK（`--apk/--test-apk` 仅在
 #     开跑前安装一次）。
 #
@@ -30,6 +37,8 @@
 #   tools/ci/run_kd76_rounds.sh --serial emulator-5584 \
 #       --apk app/build/outputs/apk/offline/debug/app-offline-debug.apk \
 #       --test-apk app/build/outputs/apk/androidTest/offline/debug/app-offline-debug-androidTest.apk
+#   tools/ci/run_kd76_rounds.sh --serial emulator-5584 --batch-id A --run-id a1b2c3 \
+#       --a6-plan build/kd76-runs/a6/a6-plan.txt --out build/kd76-runs/a6/batchA
 #
 # 退出码：0 = 全部 20 轮 instrumentation 通过且每轮都落到 SAMPLE 行；
 #         1 = 有轮失败/缺样本行；2 = 用法或设备/包前置条件不满足（没有"通过"可言）。
@@ -51,6 +60,11 @@ TEST_METHOD="readRoundFromInstrumentationArg"
 SETTLE_SECONDS=0
 BOOT_TIMEOUT_SECONDS=360
 ROUND_TIMEOUT_SECONDS=300
+BATCH_ID=""
+RUN_ID=""
+A6_PLAN=""
+IDENTITY_JSON=""
+PYTHON_BIN="${PYTHON:-python}"
 
 usage() {
   # 头部注释块结束于首个非 `#` 行；写死行号会在注释增删后把 shell 代码当"用法"打印出来。
@@ -82,10 +96,27 @@ while [ $# -gt 0 ]; do
     --settle-seconds) SETTLE_SECONDS="${2:-}"; shift 2 ;;
     --boot-timeout-seconds) BOOT_TIMEOUT_SECONDS="${2:-}"; shift 2 ;;
     --round-timeout-seconds) ROUND_TIMEOUT_SECONDS="${2:-}"; shift 2 ;;
+    --batch-id) BATCH_ID="${2:-}"; shift 2 ;;
+    --run-id) RUN_ID="${2:-}"; shift 2 ;;
+    --a6-plan) A6_PLAN="${2:-}"; shift 2 ;;
+    --identity-json) IDENTITY_JSON="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) die "unknown argument: $1 (use --help)" ;;
   esac
 done
+
+A6_MODE=0
+if [ -n "$BATCH_ID" ] || [ -n "$RUN_ID" ] || [ -n "$A6_PLAN" ]; then
+  A6_MODE=1
+  [ -n "$BATCH_ID" ] || die "--batch-id is required when any A6 flag is used"
+  case "$BATCH_ID" in A|B) ;; *) die "--batch-id must be A or B, got '$BATCH_ID'" ;; esac
+  [ -n "$RUN_ID" ] || die "--run-id is required in A6 mode (two batches must be distinguishable)"
+  [ -f "$A6_PLAN" ] || die "--a6-plan not found: $A6_PLAN"
+  # 预注册轮号：A6 的每批都必须完整 1..20（10+10 不是 A6）。
+  [ "$ROUNDS" -eq 20 ] && [ "$FIRST_ROUND" -eq 1 ] \
+    || die "A6 mode requires --rounds 20 --first-round 1 (got $ROUNDS/$FIRST_ROUND)"
+  [ "$MODE" = "reboot" ] || die "A6 mode requires --mode reboot"
+fi
 
 [ -n "$SERIAL" ] || die "--serial (or ANDROID_SERIAL) is required; refusing to guess a device"
 case "$MODE" in
@@ -176,6 +207,58 @@ TEST_APK_SHA="<already-installed>"
 if [ -n "$APK" ]; then TARGET_APK_SHA="$(host_sha256 "$APK")"; fi
 if [ -n "$TEST_APK" ]; then TEST_APK_SHA="$(host_sha256 "$TEST_APK")"; fi
 
+# A6 身份面：只信宿主拉包算出的已安装 sha 与设备/安装代际（协议 §3.1–§3.3）。
+# 非 A6 运行不产出这些字段；A6 运行缺任何一项都不得静默继续。
+DEVICE_NPROC="$(adb_s shell nproc 2>/dev/null | tr -d '\r')"
+AVD_NAME="NA"
+EMULATOR_INSTANCE="NA"
+INSTALLED_APP_SHA=""
+INSTALLED_TEST_SHA=""
+DEVICE_GENERATION_ID=""
+INSTALL_GENERATION_ID=""
+FIRST_INSTALL_TIME=""
+LAST_UPDATE_TIME=""
+A6_PLAN_SHA=""
+if [ "$A6_MODE" -eq 1 ]; then
+  A6_PLAN_SHA="$(host_sha256 "$A6_PLAN")"
+  [ "$A6_PLAN_SHA" != "unknown" ] || die "cannot hash --a6-plan (no sha256sum/shasum)"
+  if [ -z "$IDENTITY_JSON" ]; then
+    IDENTITY_JSON="$OUT_DIR/identity.json"
+    "$PYTHON_BIN" -I "$REPO_ROOT/tools/ci/kd76_identity.py" \
+      --serial "$SERIAL" --app-package "$TARGET_PACKAGE" \
+      --test-package "${TARGET_PACKAGE}.test" \
+      --work-dir "$OUT_DIR/identity" --json >"$IDENTITY_JSON" \
+      || die "identity collection failed (see $OUT_DIR/identity.json.stderr); refusing to run A6 without installed/device identity"
+  fi
+  [ -s "$IDENTITY_JSON" ] || die "identity json is empty: $IDENTITY_JSON"
+  json_field() {
+    "$PYTHON_BIN" -I - "$IDENTITY_JSON" "$1" <<'PY'
+import json, sys
+with open(sys.argv[1], encoding="utf-8") as handle:
+    print(json.load(handle).get(sys.argv[2], ""))
+PY
+  }
+  INSTALLED_APP_SHA="$(json_field installedAppSha256)"
+  INSTALLED_TEST_SHA="$(json_field installedTestSha256)"
+  DEVICE_GENERATION_ID="$(json_field deviceGenerationId)"
+  INSTALL_GENERATION_ID="$(json_field installGenerationId)"
+  FIRST_INSTALL_TIME="$(json_field appFirstInstallTime)"
+  LAST_UPDATE_TIME="$(json_field appLastUpdateTime)"
+  AVD_NAME="$(json_field avdName)"
+  EMULATOR_INSTANCE="$(json_field emulatorInstanceId)"
+  for pair in "installedAppSha256:$INSTALLED_APP_SHA" "installedTestSha256:$INSTALLED_TEST_SHA" \
+              "deviceGenerationId:$DEVICE_GENERATION_ID" "installGenerationId:$INSTALL_GENERATION_ID"; do
+    [ -n "${pair#*:}" ] || die "identity json missing ${pair%%:*}"
+  done
+  # 安装后（--apk）再拉一次 sha：安装产物与已安装字节必须一致，否则这一批绑错构建。
+  if [ -n "$APK" ] && [ "$TARGET_APK_SHA" != "$INSTALLED_APP_SHA" ]; then
+    die "installed app sha $INSTALLED_APP_SHA != --apk $TARGET_APK_SHA (install did not take effect)"
+  fi
+  if [ -n "$TEST_APK" ] && [ "$TEST_APK_SHA" != "$INSTALLED_TEST_SHA" ]; then
+    die "installed test sha $INSTALLED_TEST_SHA != --test-apk $TEST_APK_SHA (install did not take effect)"
+  fi
+fi
+
 BOOT_IDS_FILE="$OUT_DIR/boot-ids.txt"
 : >"$BOOT_IDS_FILE"
 
@@ -204,6 +287,20 @@ targetApk=${APK:-<already-installed>}
 testApk=${TEST_APK:-<already-installed>}
 targetApkSha256=$TARGET_APK_SHA
 testApkSha256=$TEST_APK_SHA
+batchId=${BATCH_ID:-<none>}
+runId=${RUN_ID:-<none>}
+a6Plan=${A6_PLAN:-<none>}
+a6PlanSha256=${A6_PLAN_SHA:-<none>}
+installedAppSha256=${INSTALLED_APP_SHA:-<none>}
+installedTestSha256=${INSTALLED_TEST_SHA:-<none>}
+deviceGenerationId=${DEVICE_GENERATION_ID:-<none>}
+installGenerationId=${INSTALL_GENERATION_ID:-<none>}
+firstInstallTime=${FIRST_INSTALL_TIME:-<none>}
+lastUpdateTime=${LAST_UPDATE_TIME:-<none>}
+deviceNproc=${DEVICE_NPROC:-<unknown>}
+avdName=$AVD_NAME
+emulatorInstanceId=$EMULATOR_INSTANCE
+replacementCount=0
 note=am instrument does not emit JUnit XML; round-NN.xml is a faithful wrapper around the raw am output + KD76_* logcat lines
 EOF
 
@@ -313,6 +410,8 @@ run_round() {
   local xml="$OUT_DIR/round-$(printf '%02d' "$round").xml"
   local load_before load_after duration start_ts end_ts
   local boot_before boot_after host_boot pid_target pid_worker apps_frozen
+  local pid_worker_after round_started_utc round_finished_utc screen_awake la1
+  local warmup_finished_count warmup_failed_count
   local boot_error="" env_line=""
 
   # 轮前身份：reboot 模式必须拿到宿主 boot_id，且与之前所有轮不同；测量前
@@ -345,6 +444,15 @@ run_round() {
 
   load_before="$(adb_s shell cat /proc/loadavg 2>/dev/null | tr -d '\r' || true)"
   adb_s logcat -c >/dev/null 2>&1 || true
+  # 协议 §3.5：轮前检查与测量之间的竞态——清空 logcat 之后再读一次 :visual_js。
+  pid_worker_after="$(read_pid "${TARGET_PACKAGE}:visual_js")"
+  if [ -n "$pid_worker_after" ]; then
+    env_line="KD76_ENV round=$round mode=$MODE bootIdBefore=$boot_before bootIdAfter= hostBootCount=$host_boot pidTarget=$pid_target pidWorker=$pid_worker pidWorkerAfter=${pid_worker_after:-} batchId=${BATCH_ID:-<none>} runId=${RUN_ID:-<none>}"
+    write_invalid_round "$round" "hot :visual_js worker appeared after logcat reset before round $round (pid $pid_worker_after)" "$env_line"
+    log "round $round INVALID: worker appeared after logcat reset (pid $pid_worker_after)"
+    return 1
+  fi
+  round_started_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   start_ts="$(date +%s)"
 
   local cmd=("$ADB_BIN" -s "$SERIAL" shell am instrument -w
@@ -359,6 +467,7 @@ run_round() {
   fi
   local rc=$?
   end_ts="$(date +%s)"
+  round_finished_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   duration=$((end_ts - start_ts))
   load_after="$(adb_s shell cat /proc/loadavg 2>/dev/null | tr -d '\r' || true)"
   boot_after="$(read_boot_id)"
@@ -367,10 +476,18 @@ run_round() {
   # "本轮有样本" 误判成 "没抓到 KD76_SAMPLE"（sleep 在轮次计时之外，不影响段值）。
   sleep 0.5
   local kd_lines
-  kd_lines="$(adb_s logcat -d -v brief 2>/dev/null | tr -d '\r' | grep -E 'KD76_(ROUND|META|SAMPLE)' || true)"
+  kd_lines="$(adb_s logcat -d -v brief 2>/dev/null | tr -d '\r' | grep -E 'KD76_(ROUND|META|SAMPLE)|visual_js warm-up (finished|failed)' || true)"
   # logcat 可能把同一行重复（多 buffer/多 tag），保留原始顺序，汇总脚本按 round 取唯一行。
   local sample_line
   sample_line="$(printf '%s\n' "$kd_lines" | grep -E "KD76_SAMPLE round=${round} status=SAMPLE" | tail -n 1 || true)"
+  # 协议 §3.5：worker 生命周期见证。成功轮必须恰好 1 条 finished、0 条 failed；
+  # 0 条说明 warm-up 从未发生（测到的不是 ready 后的首个请求），>1 条说明中途重建。
+  local warmup_finished_count warmup_failed_count
+  warmup_finished_count="$(printf '%s\n' "$kd_lines" | grep -c 'visual_js warm-up finished' || true)"
+  warmup_failed_count="$(printf '%s\n' "$kd_lines" | grep -c 'visual_js warm-up failed' || true)"
+  local screen_awake la1
+  screen_awake="$(adb_s shell dumpsys power 2>/dev/null | tr -d '\r' | grep -m1 'mWakefulness=' | sed 's/.*mWakefulness=//' || true)"
+  la1="$(printf '%s' "$load_before" | awk '{print $1}')"
 
   local failures=0 failure_message=""
   if [ "$MODE" = "reboot" ] && [ "$boot_after" != "$boot_before" ]; then
@@ -395,6 +512,12 @@ KD76_SAMPLE round=$round status=INVALID reason=host boot_id changed during round
   elif [ -z "$sample_line" ]; then
     failures=1
     failure_message="instrumentation passed but no KD76_SAMPLE status=SAMPLE line was found in logcat"
+  elif [ "$warmup_finished_count" -ne 1 ]; then
+    failures=1
+    failure_message="expected exactly one 'visual_js warm-up finished' witness, got $warmup_finished_count (worker never ready or restarted)"
+  elif [ "$warmup_failed_count" -ne 0 ]; then
+    failures=1
+    failure_message="$warmup_failed_count 'visual_js warm-up failed' line(s); the worker never reached ready"
   fi
 
   {
@@ -404,7 +527,7 @@ KD76_SAMPLE round=$round status=INVALID reason=host boot_id changed during round
     printf '  <testcase classname="%s" name="%s" time="%s">\n' \
       "$(xml_attr "$TEST_CLASS")" "$(xml_attr "$TEST_METHOD")" "$duration"
     printf '    <system-out><![CDATA[\n'
-    xml_cdata "KD76_ENV round=$round mode=$MODE bootIdBefore=$boot_before bootIdAfter=$boot_after hostBootCount=$host_boot pidTarget=$pid_target pidWorker=$pid_worker appsFrozen=$(printf '%s' "$apps_frozen" | tr -s ' ' '_') loadBefore=$(printf '%s' "$load_before" | tr -s ' ' '_') loadAfter=$(printf '%s' "$load_after" | tr -s ' ' '_')"
+    xml_cdata "KD76_ENV round=$round mode=$MODE bootIdBefore=$boot_before bootIdAfter=$boot_after hostBootCount=$host_boot pidTarget=$pid_target pidWorker=$pid_worker pidWorkerAfter=${pid_worker_after:-} appsFrozen=$(printf '%s' "$apps_frozen" | tr -s ' ' '_') loadBefore=$(printf '%s' "$load_before" | tr -s ' ' '_') loadAfter=$(printf '%s' "$load_after" | tr -s ' ' '_') batchId=${BATCH_ID:-<none>} runId=${RUN_ID:-<none>} roundStartedUtc=$round_started_utc roundFinishedUtc=$round_finished_utc screenAwake=$screen_awake warmupFinishedCount=$warmup_finished_count warmupFailedCount=$warmup_failed_count la1=$la1 nproc=${DEVICE_NPROC:-<unknown>}"
     printf '\n'
     printf '%s\n' "$kd_lines"
     printf '%s\n' '--- am instrument output ---'
@@ -459,7 +582,20 @@ BOOT_IDS_CSV="$(tr '\n' ',' <"$BOOT_IDS_FILE" | sed 's/,$//')"
   printf 'failedRounds=%s\n' "$FAILED"
   printf 'roundsRequested=%s\n' "$ROUNDS"
   printf 'bootIds=%s\n' "$BOOT_IDS_CSV"
+  # 逐文件哈希链（协议 §3.6）：汇总端/composer 重算；只防"无意改坏/局部改"，
+  # 防不了全量重造（协议 §7.2）。
+  for file in "$OUT_DIR"/round-*.xml; do
+    [ -f "$file" ] || continue
+    printf 'roundFileSha256.%s=%s\n' "$(basename "$file")" "$(host_sha256 "$file")"
+  done
+  for file in "$OUT_DIR"/round-*.am.txt; do
+    [ -f "$file" ] || continue
+    printf 'amFileSha256.%s=%s\n' "$(basename "$file")" "$(host_sha256 "$file")"
+  done
 } >>"$OUT_DIR/manifest.txt"
+
+# manifest 自身哈希：抄进批次记录/外部日志才算外部锚（同目录内自洽不算）。
+host_sha256 "$OUT_DIR/manifest.txt" >"$OUT_DIR/manifest.sha256"
 
 log "done: $((ROUNDS - FAILED))/$ROUNDS rounds passed; evidence in $OUT_DIR"
 log "next: python -I tools/ci/summarize_kd76.py '$OUT_DIR'"

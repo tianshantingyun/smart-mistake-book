@@ -1,0 +1,114 @@
+{
+  "version": 1,
+  "class": "com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest",
+  "source": "docs/research/2026-11-05-isolation-selfwitness.md §5 (floor 由源码常量推导；item 22 实跑后保留推导式)",
+  "floor_sum_ms": 44450,
+  "cpu_delta_min_ms": 1,
+  "methods": [
+    {
+      "method": "workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater",
+      "floor_ms": 1750,
+      "require_effects": ["workerUid != myUid", "protocolVersion equal", "RESULT_OK/scene-1", "RESULT_REJECTED/INVALID_PROGRAM", "RESULT_OK"],
+      "forbid": [],
+      "source_line": 171
+    },
+    {
+      "method": "anUnattributedEngineFailureKeepsItsPrefixAcrossTheAidlWire",
+      "floor_ms": 0,
+      "require_effects": ["RESULT_REJECTED/INVALID_PROGRAM", "diagnostics starts with [UNATTRIBUTED]", "AIDL diagnostics == envelope diagnostics"],
+      "forbid": [],
+      "source_line": 228
+    },
+    {
+      "method": "aStaleGenerationIsRejectedAndAStaleTerminateIsANoOp",
+      "floor_ms": 200,
+      "require_effects": ["STATUS_STALE_GENERATION", "stale terminate no-op (generation unchanged)", "live execute RESULT_OK"],
+      "forbid": [],
+      "source_line": 265
+    },
+    {
+      "method": "theWatchdogKillsAHungWorkerAndAFreshGenerationHasNoBusyState",
+      "floor_ms": 1400,
+      "require_effects": ["deathSignal completes within 6 s", "hung outcome != RESULT_OK", "fresh process RESULT_OK"],
+      "forbid": ["missing_watchdog_kill"],
+      "source_line": 293
+    },
+    {
+      "method": "theClientRebuildsAtMostOnceAfterConfirmedAbandons",
+      "floor_ms": 0,
+      "require_effects": ["connectionCount 1->2", "two abandons confirmed", "third connectForTest false"],
+      "forbid": ["only_one_terminate"],
+      "source_line": 341
+    },
+    {
+      "method": "aColdStartAttachBeyondTheOldConnectBudgetStillRendersTheFirstProgram",
+      "floor_ms": 7500,
+      "require_effects": ["first execute Rendered", "connectionCount == 1"],
+      "forbid": [],
+      "source_line": 376
+    },
+    {
+      "method": "theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy",
+      "floor_ms": 1400,
+      "require_effects": ["HARD_DEADLINE_EXCEEDED", "generation changed", "PROGRAM_FUSED", "Rendered", "second death", "connectionCount == 2", "final ENGINE_CLOSED"],
+      "forbid": [],
+      "source_line": 391
+    },
+    {
+      "method": "anExplicitRetryOfAnInjectedFusedProgramRendersAndReleasesTheFuse",
+      "floor_ms": 0,
+      "require_effects": ["PROGRAM_FUSED", "Rendered", "Rendered"],
+      "forbid": ["watchdog_kill"],
+      "source_line": 471
+    },
+    {
+      "method": "aHungWorkerReleasesTheCallerWithinHardPlus500ms",
+      "floor_ms": 1400,
+      "require_effects": ["Rejected/HARD_DEADLINE_EXCEEDED", "diagnostics contains died", "elapsed <= 2000", "connectionCount == 2", "fresh Rendered"],
+      "forbid": [],
+      "source_line": 527
+    },
+    {
+      "method": "aMalformedCallerRequestIsRejectedWithoutTakingTheFlightSlot",
+      "floor_ms": 0,
+      "require_effects": ["three STATUS_BAD_REQUEST", "final RESULT_OK"],
+      "forbid": ["watchdog_kill"],
+      "source_line": 599
+    },
+    {
+      "method": "anOverBudgetRequestEnvelopeIsRejectedByTheBoundedRead",
+      "floor_ms": 0,
+      "require_effects": ["INPUT_OVER_BUDGET", "then RESULT_OK"],
+      "forbid": [],
+      "source_line": 647
+    },
+    {
+      "method": "aSecondConcurrentRequestIsRejectedBusyWhileTheFirstIsInFlight",
+      "floor_ms": 1400,
+      "require_effects": ["first STATUS_ACCEPTED", "second STATUS_BUSY", "death within 6 s"],
+      "forbid": ["missing_watchdog_kill"],
+      "source_line": 677
+    },
+    {
+      "method": "anExecuteAcquiredDuringWarmUpIsRefusedBoundedlyAndNeverWatchdogKilled",
+      "floor_ms": 0,
+      "require_effects": ["first acquire bounded", "worker alive after ready", "then RESULT_OK"],
+      "forbid": ["watchdog_kill"],
+      "source_line": 719
+    },
+    {
+      "method": "aFirstConnectTimeoutFailsHonestlyAndTheNextExecuteRetriesWithoutLatching",
+      "floor_ms": 29000,
+      "require_effects": ["two Rejected/ENGINE_CLOSED", "diagnostics contains loading", "unavailable false twice", "connectionCount == 0"],
+      "forbid": [],
+      "source_line": 753
+    },
+    {
+      "method": "aReadyTimeoutFailsHonestlyWithoutLatchingAndTheNextExecuteRebinds",
+      "floor_ms": 400,
+      "require_effects": ["ENGINE_CLOSED with not ready/loading", "connectionCount 1->2", "unavailable false"],
+      "forbid": ["watchdog_kill", "real_visual_js_ready_log"],
+      "source_line": 796
+    }
+  ]
+}
