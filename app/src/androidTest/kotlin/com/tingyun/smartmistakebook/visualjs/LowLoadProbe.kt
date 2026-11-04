@@ -61,7 +61,20 @@ internal object LowLoadProbe {
     /** 无地板时的绝对下限：R5 建议的 `max(3 × floor, 30 ms)` 在无 floor 时的替代。 */
     const val ABSOLUTE_P95_LIMIT_MS: Double = 30.0
 
-    /** 探针窗口内本进程 CPU 占比上限（单核语义；超过即视为本进程已被压满）。 */
+    /**
+     * 探针窗口内本进程 CPU 占**整机容量**的上限（分数，不是"单核的倍数"）。
+     *
+     * 2026-11-05（批次 43 / WS3 item 20）修正语义，分数 0.80 本身不变：
+     * `/proc/self/stat` 的 `utime+stime` 是**进程内所有线程之和**（`:156-165`），
+     * 原公式 `ownCpuMs > 0.80 * windowMs` 把"1 个核的 80%"当成整机上限，于是
+     * - 5566（2 核、空闲）实测 own=2260 ms / 窗口 2299 ms = **0.98 核** →
+     *   被判 `own_cpu_busy`，而同一读数的 jitter p95 只有 **2.62 ms**（完全空闲）；
+     * - 5562（4 核、有争用）实测 8970/7938 = **1.13 核**（占 4 核的 28%）。
+     *
+     * 判据的原始意图（见 [LowLoadProbe] KDoc）是"本进程是否把机器压满"；对一个
+     * 多线程进程，唯一有意义的产能分母是 `windowMs * processors`。外部负载的判定权
+     * 仍只在 `tools/ci/lowload_gate.py`（instrumentation 读不到 `/proc/stat`）。
+     */
     const val OWN_CPU_LIMIT_FRACTION: Double = 0.80
 
     data class Reading(
@@ -127,10 +140,12 @@ internal object LowLoadProbe {
         val thermal = thermalStatus(context)
 
         val selfRatio = p95 / maxOf(p50, 1.0)
+        val processors = Runtime.getRuntime().availableProcessors().coerceAtLeast(1)
+        val cpuCapacityMs = windowMs * processors
         val reason = when {
             cpuBefore == null || cpuAfter == null -> "own_cpu_unreadable"
             windowMs <= 0L -> "probe_window_invalid"
-            ownCpuMs > OWN_CPU_LIMIT_FRACTION * windowMs -> "own_cpu_busy"
+            ownCpuMs > OWN_CPU_LIMIT_FRACTION * cpuCapacityMs -> "own_cpu_busy"
             lowMemory -> "low_memory"
             floorMillis != null ->
                 if (p95 > maxOf(3.0 * floorMillis, ABSOLUTE_P95_LIMIT_MS)) "jitter_p95_over_3x_floor" else null
@@ -140,7 +155,7 @@ internal object LowLoadProbe {
         }
 
         return Reading(
-            processors = Runtime.getRuntime().availableProcessors(),
+            processors = processors,
             jitterP50Ms = p50,
             jitterP95Ms = p95,
             jitterMaxMs = max,
@@ -183,6 +198,22 @@ internal object LowLoadProbe {
 }
 
 /**
+ * 一次门前置判定的完整结果（批次 43 / WS3 item 19）。
+ *
+ * **它消灭的具体失败**：批次 41/42 的 `-4` 只有一行 `verdict=UNGATED reason=…`，看不出
+ * 这个结论是"刚测出来的"还是"15 例共用一次缓存"。[reused] 把进程级缓存
+ * （`LowLoadProbe.kt` 的 `cached` / `cachedDecision`）变成可数的字段：一臂 15 行里
+ * `reused=false` 只应有 1 行。
+ */
+internal data class GateDecision(
+    val failure: String?,
+    val shellGate: String?,
+    val shellReason: String,
+    val reused: Boolean,
+    val reading: LowLoadProbe.Reading?,
+)
+
+/**
  * 套件级门前置（每条用例前执行；结果缓存，避免 15 次重复探针）。
  *
  * 见 [LowLoadProbe] 的 fail-closed 语义。`smb.lowload.gate` 由
@@ -198,39 +229,51 @@ internal object IsolationGate {
     private var cached: LowLoadProbe.Reading? = null
 
     @Volatile
-    private var cachedFailure: String? = null
+    private var cachedDecision: GateDecision? = null
 
     fun require() {
         IsolationRuntime.ensureDeclared()
-        val failure = failure()
+        val decision = decision()
+        // L1：无条件写在 Assume 之前——"有 gate 行"= require() 真的进去了。
+        IsolationWitness.recordGate(decision)
+        val failure = decision.failure
         if (failure != null) {
             Log.w(LowLoadProbe.TAG, "SMB_LOWLOAD_GATE: verdict=UNGATED reason=$failure")
         }
         Assume.assumeTrue("SMB_LOWLOAD_GATE UNGATED: $failure", failure == null)
     }
 
-    private fun failure(): String? {
-        cachedFailure?.let { return it }
+    private fun decision(): GateDecision {
+        cachedDecision?.let { return it.copy(reused = true) }
         return synchronized(this) {
-            cachedFailure ?: run {
+            cachedDecision ?: run {
                 val arguments = InstrumentationRegistry.getArguments()
                 val shellGate = arguments.getString(ARG_GATE)?.trim()?.uppercase(Locale.ROOT)
                 val shellReason = arguments.getString(ARG_REASON).orEmpty()
+                var reading: LowLoadProbe.Reading? = null
                 val failure = when {
                     shellGate.isNullOrEmpty() ->
                         "no_shell_side_verdict;run_tools/ci/run_isolation_pair.sh"
                     shellGate != "PASS" -> "shell_side_$shellGate:$shellReason"
                     else -> {
-                        val reading = cached ?: LowLoadProbe.measure().also {
+                        val measured = cached ?: LowLoadProbe.measure().also {
                             cached = it
                             val verdict = if (it.gated) "GATED" else "UNGATED"
                             Log.i(LowLoadProbe.TAG, "SMB_LOWLOAD_GATE: verdict=$verdict " + it.fields())
                         }
-                        if (reading.gated) null else "instrumentation_self_probe:${reading.reason}"
+                        reading = measured
+                        if (measured.gated) null else "instrumentation_self_probe:${measured.reason}"
                     }
                 }
-                cachedFailure = failure
-                failure
+                val decision = GateDecision(
+                    failure = failure,
+                    shellGate = shellGate,
+                    shellReason = shellReason,
+                    reused = false,
+                    reading = reading,
+                )
+                cachedDecision = decision
+                decision
             }
         }
     }

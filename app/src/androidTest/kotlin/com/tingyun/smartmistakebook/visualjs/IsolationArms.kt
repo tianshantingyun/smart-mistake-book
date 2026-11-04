@@ -96,12 +96,19 @@ internal class T4SeamProbeRule : TestRule {
         override fun evaluate() {
             // 规则包住 @Before，必须在读 arm 之前先声明（见 ensureDeclared）。
             val hooks = IsolationRuntime.ensureDeclared().testSideHooks
+            // 批次 43 / WS3 item 19：witness 在**两臂**都写（它只观察、不参与 T4 语义）。
+            // currentMethod 是 15 个用例体拼方法名的唯一来源（Description），
+            // 与 tools/ci/visual_js_isolation_methods.txt 互为校验。
+            IsolationWitness.currentMethod = description.methodName
+            IsolationWitness.ruleBegin(description.methodName)
             if (hooks) {
                 Log.i(TAG, "SMB_T4_HOOK: begin method=${description.methodName}")
             }
             try {
                 base.evaluate()
             } finally {
+                IsolationWitness.ruleEnd(description.methodName)
+                IsolationWitness.currentMethod = null
                 if (hooks) {
                     engines.forEach { engine ->
                         val stamps = runCatching { engine.connectStageTimestampsForTest() }.getOrNull()

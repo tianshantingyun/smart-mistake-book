@@ -28,16 +28,17 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
+import org.junit.AfterClass
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -168,7 +169,7 @@ class VisualJsIsolationInstrumentedTest {
         }
 
     @Test
-    fun workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater() = runBlocking {
+    fun workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater() = witnessBody {
         val harness = harness()
         val service = harness.connect()
         // 批次 25 T2（KD-76）：真实 execute 前等 warm-up ready；ready 前服务回 SHUTTING_DOWN。
@@ -225,7 +226,7 @@ class VisualJsIsolationInstrumentedTest {
      * 同步 core:data 分类器与本断言。
      */
     @Test
-    fun anUnattributedEngineFailureKeepsItsPrefixAcrossTheAidlWire() = runBlocking {
+    fun anUnattributedEngineFailureKeepsItsPrefixAcrossTheAidlWire() = witnessBody {
         val harness = harness()
         val service = harness.connect()
         assertTrue("the worker never became ready (warm-up failed or hung)", harness.awaitReady())
@@ -262,7 +263,7 @@ class VisualJsIsolationInstrumentedTest {
     }
 
     @Test
-    fun aStaleGenerationIsRejectedAndAStaleTerminateIsANoOp() = runBlocking {
+    fun aStaleGenerationIsRejectedAndAStaleTerminateIsANoOp() = witnessBody {
         val harness = harness()
         val service = harness.connect()
         // 批次 25 T2：ready 门在 generation 核对之前——ready 前的 execute 回 SHUTTING_DOWN
@@ -290,7 +291,7 @@ class VisualJsIsolationInstrumentedTest {
     }
 
     @Test
-    fun theWatchdogKillsAHungWorkerAndAFreshGenerationHasNoBusyState() = runBlocking {
+    fun theWatchdogKillsAHungWorkerAndAFreshGenerationHasNoBusyState() = witnessBody {
         val first = harness()
         val service = first.connect()
         // 批次 25 T2：warm 服务上的挂死负控（KD-76 ④）——ready 完成后 1500 ms 硬杀不变。
@@ -338,7 +339,7 @@ class VisualJsIsolationInstrumentedTest {
     }
 
     @Test
-    fun theClientRebuildsAtMostOnceAfterConfirmedAbandons() = runBlocking {
+    fun theClientRebuildsAtMostOnceAfterConfirmedAbandons() = witnessBody {
         val engine = client()
 
         assertTrue("initial connect failed", engine.connectForTest())
@@ -373,7 +374,7 @@ class VisualJsIsolationInstrumentedTest {
      * 必须成功"这一用户可见结果；断言的是行为，不是超时常量本身。
      */
     @Test
-    fun aColdStartAttachBeyondTheOldConnectBudgetStillRendersTheFirstProgram() = runBlocking {
+    fun aColdStartAttachBeyondTheOldConnectBudgetStillRendersTheFirstProgram() = witnessBody {
         val delayed = DelayedAttachContext(context, COLD_START_ATTACH_DELAY_MILLIS)
         val engine = VisualJsClientEngine(delayed).also { clients.add(it) }
 
@@ -388,7 +389,7 @@ class VisualJsIsolationInstrumentedTest {
     }
 
     @Test
-    fun theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy() = runBlocking {
+    fun theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy() = witnessBody {
         val engine = client()
 
         assertTrue("initial connect failed", engine.connectForTest())
@@ -468,7 +469,7 @@ class VisualJsIsolationInstrumentedTest {
      * 保持原样（批次 35 判据 §1.4）；本例计入隔离套件（判据预期 14→15）。
      */
     @Test
-    fun anExplicitRetryOfAnInjectedFusedProgramRendersAndReleasesTheFuse() = runBlocking {
+    fun anExplicitRetryOfAnInjectedFusedProgramRendersAndReleasesTheFuse() = witnessBody {
         val engine = client()
         assertTrue("initial connect failed", engine.connectForTest())
 
@@ -524,7 +525,7 @@ class VisualJsIsolationInstrumentedTest {
      * 两轮独立绿证据归设备轨（关闭判据 = 用例绿 + known-defects 记录回链，计划 §2）。
      */
     @Test
-    fun aHungWorkerReleasesTheCallerWithinHardPlus500ms() = runBlocking {
+    fun aHungWorkerReleasesTheCallerWithinHardPlus500ms() = witnessBody {
         val engine = client()
         assertTrue("initial connect failed", engine.connectForTest())
 
@@ -596,7 +597,7 @@ class VisualJsIsolationInstrumentedTest {
      * ——后续合法请求必须照常执行。
      */
     @Test
-    fun aMalformedCallerRequestIsRejectedWithoutTakingTheFlightSlot() = runBlocking {
+    fun aMalformedCallerRequestIsRejectedWithoutTakingTheFlightSlot() = witnessBody {
         val harness = harness()
         val service = harness.connect()
         // 批次 25 T2：末尾的合法 execute 需要 warm-up ready（畸形参数检查在 ready 门之前，
@@ -644,7 +645,7 @@ class VisualJsIsolationInstrumentedTest {
      * （`INPUT_OVER_BUDGET`），不先无界读入再拒绝；worker 仍可用。
      */
     @Test
-    fun anOverBudgetRequestEnvelopeIsRejectedByTheBoundedRead() = runBlocking {
+    fun anOverBudgetRequestEnvelopeIsRejectedByTheBoundedRead() = witnessBody {
         val harness = harness()
         val service = harness.connect()
         // 批次 25 T2：超预算信封的有界读拒绝在 ready 门之后才发生——先等 warm-up。
@@ -674,7 +675,7 @@ class VisualJsIsolationInstrumentedTest {
      * issue-240 形状的自旋至少持续到 1500 ms watchdog SIGKILL；BUSY 分支不依赖时序。
      */
     @Test
-    fun aSecondConcurrentRequestIsRejectedBusyWhileTheFirstIsInFlight() = runBlocking {
+    fun aSecondConcurrentRequestIsRejectedBusyWhileTheFirstIsInFlight() = witnessBody {
         val harness = harness()
         val service = harness.connect()
         // 批次 25 T2：单在飞 BUSY 检查在 ready 门之后——ready 前 execute 回 SHUTTING_DOWN。
@@ -716,7 +717,7 @@ class VisualJsIsolationInstrumentedTest {
      * 同一 worker 必须可用（warm-up 窗口没有任何 watchdog 误杀痕迹）。
      */
     @Test
-    fun anExecuteAcquiredDuringWarmUpIsRefusedBoundedlyAndNeverWatchdogKilled() = runBlocking {
+    fun anExecuteAcquiredDuringWarmUpIsRefusedBoundedlyAndNeverWatchdogKilled() = witnessBody {
         val harness = harness()
         val service = harness.connect()
         val generation = 404L
@@ -750,7 +751,7 @@ class VisualJsIsolationInstrumentedTest {
      * 有界重试的语义落点；生命周期限次属 P-04）。旧实现一次失败即永久 unavailable。
      */
     @Test
-    fun aFirstConnectTimeoutFailsHonestlyAndTheNextExecuteRetriesWithoutLatching() = runBlocking {
+    fun aFirstConnectTimeoutFailsHonestlyAndTheNextExecuteRetriesWithoutLatching() = witnessBody {
         val delayed = DelayedAttachContext(context, CONNECT_TIMEOUT_DELAY_MILLIS)
         val engine = VisualJsClientEngine(delayed).also { clients.add(it) }
 
@@ -793,7 +794,7 @@ class VisualJsIsolationInstrumentedTest {
      * （isBinderAlive 翻假），不触发 fail-closed。
      */
     @Test
-    fun aReadyTimeoutFailsHonestlyWithoutLatchingAndTheNextExecuteRebinds() = runBlocking {
+    fun aReadyTimeoutFailsHonestlyWithoutLatchingAndTheNextExecuteRebinds() = witnessBody {
         val faked = NotReadyWorkerContext(context)
         val engine = VisualJsClientEngine(faked).also { clients.add(it) }
         engine.readyTimeoutOverrideForTest = 250L
@@ -908,7 +909,26 @@ class VisualJsIsolationInstrumentedTest {
         ) = Unit
     }
 
-    private companion object {
+    companion object {
+        /**
+         * 批次 43 / WS3 item 19：witness 的 suite 边界。
+         *
+         * `@BeforeClass`/`@AfterClass` 是唯一能包住"整个套件"的 JUnit 钩子；suite_start
+         * 里写 APK 身份与 canary，suite_end 写行数。二者都不参与用例结论（写入失败只记
+         * `WITNESS_UNAVAILABLE`，不把套件变红——那会把"证据缺失"伪装成"产品失败"）。
+         */
+        @BeforeClass
+        @JvmStatic
+        fun openIsolationWitness() {
+            IsolationWitness.beginSuite()
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun closeIsolationWitness() {
+            IsolationWitness.endSuite()
+        }
+
         /**
          * P-11：丢失哨兵形状（`throw null`，堆远离 16 MiB 上限）——跨进程前缀保留用例的
          * 程序。分类形状与引擎侧 P4 用例的 THROW_NULL_SOURCE 同源。
