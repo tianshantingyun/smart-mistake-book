@@ -11,6 +11,7 @@ import com.tingyun.smartmistakebook.core.model.FigureSchema
 import com.tingyun.smartmistakebook.core.model.SafeInlineMarkdown
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.VisualRole
+import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcContentPolicy
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 
@@ -151,6 +152,11 @@ object MistakePdfEligibility {
             }
         }
         val documentFingerprint = CapturedQuestionDocumentFingerprint.of(document)
+        // KD-75 C2：模型解析文本的可判定来源就是块证据的 provenance（生产唯一写入点
+        // `OpenAiModelResponseParsers.kt:261`）。这里的布尔是**输入级事实**，不在块映射里逐块塞。
+        val hasModelParsedText = PdfAigcContentPolicy.hasModelParsedText(
+            document.blockEvidence.map { evidence -> evidence.provenance.name },
+        )
         // 同一份资产记录同时给出 URI 与完整性字段（KD-55）：渲染前按它复核文件字节。
         val questionImage = questionImageAsset(state.detail.source)
         val availableQuestionUri =
@@ -181,9 +187,10 @@ object MistakePdfEligibility {
                     )
                 },
                 userNote = state.detail.userNote?.let(::safeInlineText)?.takeIf(String::isNotBlank),
+                hasModelParsedText = hasModelParsedText,
                 questionDocumentSha256 = documentFingerprint,
                 inputSha256 = exportFingerprint(
-                    "mistake-export-v3",
+                    exportFingerprintPolicyTag(),
                     identity.errorBookEntryId,
                     identity.problemId,
                     identity.problemRevisionId,
@@ -348,6 +355,14 @@ class MistakePdfExportInput internal constructor(
      * 由资格层填充。解析区是独立成区的图块（题目区之后），不是题目图。
      */
     val solutionImages: List<MistakePdfExportImage> = emptyList(),
+    /**
+     * 文档块证据里出现过 `MODEL_DOCUMENT_PARSE`（KD-75 C2；资格层用
+     * [PdfAigcContentPolicy.hasModelParsedText] 从 `blockEvidence` 派生）。
+     *
+     * **必填、无默认值**：本类的构造点全部在 `core:export` 内，必填让每个构造点（含测试夹具）
+     * 在编译期表态；给默认 `false` 会让将来新增的构造点静默漏标——那正是本字段要消灭的失败。
+     */
+    val hasModelParsedText: Boolean,
     /** 版式参数；默认 = 参数化前的固定版式（见 [MistakePdfLayout.DEFAULT]）。 */
     val layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
     /** 条目备注（includeNote 时才进渲染）；入口已做安全内联化。 */
@@ -434,6 +449,16 @@ data class MistakePdfChoice(
 internal fun ByteArray.toHex(): String = joinToString(separator = "") { byte ->
     "%02x".format(byte)
 }
+
+/**
+ * 单题导出缓存键的**策略前缀**：字面版本表达"本代与上一代键空间不相交"，`aigc-gen-N`
+ * 表达打标判据/注入行为的世代（源自 [PdfAigcContentPolicy.GENERATION]）。
+ *
+ * 消灭的失败：只改判据、不升键 → 旧的无 `/AIGC` 产物在 TTL 内仍被 `prepare` 原样复用
+ * （KD-75 的 reopen condition 明写"旧缓存指纹已升版且无旧无标识产物"）。
+ */
+internal fun exportFingerprintPolicyTag(): String =
+    "mistake-export-v4-aigc-gen-${PdfAigcContentPolicy.GENERATION}"
 
 internal fun exportFingerprint(vararg values: String): String {
     val digest = MessageDigest.getInstance("SHA-256")

@@ -170,6 +170,7 @@ class MistakePaperDraftStore(
         documentTitle = documentTitle,
         blocks = blocks.map { block -> block.toDto() },
         questionDocumentSha256 = questionDocumentSha256,
+        hasModelParsedText = hasModelParsedText,
         inputSha256 = inputSha256,
         maxPages = maxPages,
         maxRenderedLines = maxRenderedLines,
@@ -195,6 +196,7 @@ class MistakePaperDraftStore(
             documentTitle = documentTitle,
             blocks = blocks.map { block -> block.toModel() },
             questionDocumentSha256 = questionDocumentSha256,
+            hasModelParsedText = hasModelParsedText,
             inputSha256 = inputSha256,
             maxPages = maxPages,
             maxRenderedLines = maxRenderedLines,
@@ -224,7 +226,13 @@ class MistakePaperDraftStore(
     )
 
     private companion object {
-        const val FORMAT_VERSION = 1
+        /**
+         * 2 = KD-75 C2：`PaperInputDto` 新增必填 `hasModelParsedText`。
+         *
+         * 旧 v1 草稿**显式拒绝**（而不是靠"缺键 → 默认 false"隐式降级）——否则含模型解析
+         * 文本的旧草稿会被重新导出成无 `/AIGC` 的 PDF，且没有任何一处会报错。
+         */
+        const val FORMAT_VERSION = 2
         const val DRAFT_SUFFIX = ".draft"
         const val MAX_DRAFT_BYTES = 8L * 1024L * 1024L
         const val DRAFT_TTL_MILLIS = 48L * 60L * 60L * 1000L
@@ -324,6 +332,11 @@ private data class PaperInputDto(
     val documentTitle: String? = null,
     val blocks: List<PaperBlockDto>,
     val questionDocumentSha256: String,
+    /**
+     * 模型解析文本事实（KD-75 C2）。**无默认值**：旧草稿（FORMAT_VERSION 1）靠版本门拒绝，
+     * 不靠"缺键 → 默认 false"静默降级（那会把含模型文本的旧草稿重新导出成无标 PDF）。
+     */
+    val hasModelParsedText: Boolean,
     val inputSha256: String,
     val maxPages: Int,
     val maxRenderedLines: Int,

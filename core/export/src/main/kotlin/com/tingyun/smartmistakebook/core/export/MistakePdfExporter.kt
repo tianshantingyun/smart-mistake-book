@@ -195,8 +195,11 @@ class MistakePdfExporter(context: Context) {
          * 打标策略代际哨兵（R1 §4.3）。判据或注入器行为一变就必须换名：
          * 升级后第一次 `prepare`/`reopenVerified` 会一次性删掉上一代已发布产物，
          * 消灭的失败是"旧的无 `/AIGC` 包在 TTL 内仍能被分享/打印"。
+         *
+         * 名字从 [PdfAigcContentPolicy.GENERATION] 派生：升判据就升代际，两处不会漂开。
          */
-        internal const val AIGC_POLICY_SENTINEL = ".aigc-policy-gen-1"
+        internal val AIGC_POLICY_SENTINEL =
+            ".aigc-policy-gen-${PdfAigcContentPolicy.GENERATION}"
     }
 }
 
@@ -226,14 +229,16 @@ internal fun MistakePdfExportInput.paintsAiGeneratedImage(): Boolean {
  * 失败一律 fail-closed：抛 [MistakePdfExportException]，pending 目录由 `prepare` 的
  * finally 删除，不产出无标记文件。
  *
- * `hasModelParsedText = false` 是本代输入的硬事实（`MistakePdfExportInput` 不携带
- * block provenance，R1 §3.3）；补 (b) 判据时必须同时改 [MistakePdfExporter.AIGC_POLICY_SENTINEL]
- * 的代际名（R1 §4.5）。
+ * [MistakePdfExportInput.hasModelParsedText] 由资格层从 `blockEvidence` 派生（KD-75 C2）：
+ * 只要文档里出现过 `MODEL_DOCUMENT_PARSE` 就打标，与 AI 图**共用这一次** [PdfAigcContentPolicy.shouldLabel]
+ * 调用——不另起第二条注入分支（否则字节顺序/摘要/原子性会各自演化）。
+ * 判据代际见 `MistakePdfExporter.AIGC_POLICY_SENTINEL`：
+ * 改判据或写入范围必须同时升 [PdfAigcContentPolicy.GENERATION]。
  */
 internal fun labelPdfInPlace(file: File, input: MistakePdfExportInput) {
     if (!PdfAigcContentPolicy.shouldLabel(
             hasAiGeneratedImage = input.paintsAiGeneratedImage(),
-            hasModelParsedText = false,
+            hasModelParsedText = input.hasModelParsedText,
         )
     ) {
         return

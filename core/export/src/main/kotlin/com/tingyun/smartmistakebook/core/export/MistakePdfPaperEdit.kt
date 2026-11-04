@@ -229,6 +229,8 @@ class MistakePdfPaperEdit private constructor(
             blocks = blocks,
             // 来源题面文档指纹保持不变：卷面编辑不产生新的题面 revision（5B 才做修订编辑）。
             questionDocumentSha256 = sourceInput.questionDocumentSha256,
+            // KD-75 C2：卷面编辑只改块序列，不改变内容出处——模型解析文本事实随来源快照透传。
+            hasModelParsedText = sourceInput.hasModelParsedText,
             inputSha256 = fingerprint,
             maxPages = sourceInput.maxPages,
             maxRenderedLines = sourceInput.maxRenderedLines,
