@@ -534,3 +534,45 @@ first [(1, 27), (2, 28)]  last [(77, 125), (78, 126)]
 - 台账：`docs/known-defects.md`（KD-75 `:2879/:2910`、KD-76 `:2916/:3010/:3012`、KD-83 `:3292`、KD-84 `:3306`、KD-85 `:3318`）；`docs/REFACTOR-MASTER-LINE.md:7-8`；`docs/agent-first-refactor-decisions-2026-09-23.md:3828`。
 - 上一批：`docs/research/2026-11-04-batch-42-record.md` §9.2/§9.3/§9.5；`docs/research/evidence/2026-11-04-batch-42/00-index.md`（APK/夹具对照口径）。
 - 本文件不替代主会话裁定：**KD-75 closed（PDF 链 + `MODEL_DOCUMENT_PARSE` 口径；C8→KD-84、改卷→KD-85）**；**KD-76 open（A6 NOT EVALUABLE、item 13 BLOCKED、C4 无 ms）**；**isolation UNCONVERGED / 不写因果 / 15 例真执行但窗 INVALID**；**AUD-08 FAIL 维持（0.5714 < 0.9）**；**6C-2 行为未漂移、item 63 BLOCKED**；**p09 未收敛**；**发版就绪不成立**（HEAD 不可编译 + 生产签名 + arm64 + 质量门）。
+
+## 9. 主会话收口（2026-11-04，本段为收口权威）
+
+### 9.1 主会话实跑门禁（本轮，非转录）
+
+| 门 | 命令 | 结果 |
+|---|---|---|
+| 单测门 | 12 模块 `testDebugUnitTest --continue`（`build/main-session-gate-batch43-unit.log`） | **exit=1**；8 例红全部在 KB/dense 线（`DenseAssetProvenanceTest` 2、`DenseLayoutIdentityTest` 4、`DenseRecallRerankerTest` 1、`ProductionLexicalLegExportTest` 1），他线正在替换 dense 资产；本批产品面 0 新红 |
+| 强门 | 四模块 + 两 flavor app androidTest 编译逐任务 `--rerun` + `:app:assembleLocalFirstDebug`（`build/main-session-gate-batch43-strong.log`） | **exit=0（真实重编）** |
+| 备份四方门 | `python -I tools/ci/check_backup_plan_sync.py` | PASS（批次 42 收口值；批次 43 已加 v4 golden 消费） |
+
+### 9.2 热区残留回滚（S3 收口）
+
+批次 42 回滚时遗漏的 6C-2 残留仍在工作树：`core/domain/BackupRepository.kt`（KDoc 说 0/8 可创建）、`app/.../SecondaryScreens.kt`（0/8 解锁 UI/文案）、`core/ui/Theme.kt`（PR#12 兼容别名，已无引用）。三者均**反向应用 diff 还原到 HEAD**，工作树 `git diff --numstat` 为 0。行为面仍为 `ALLOWED_MASKS={9,13,15}`；`SixC2RulingInvariantTest` 已随本批提交钉住该裁定。
+
+### 9.3 S8 更正（HEAD 不可编译不成立）
+
+记录 S8 称 HEAD `0fef9436` 不可编译、需先提交 3 文件；本轮在 HEAD 树上实跑 `:core:data:compileDebugKotlin`（单测门前置）与强门均成功，`KnowledgeQuizTasks.kt` 为 `core/model` 下已跟踪文件、无未提交 diff。**S8 为时点误判**，不按“需先提交 3 文件”处理。
+
+### 9.4 S4 裁定（KD-76 A6 样本口径）
+
+- **以预注册 `docs/research/2026-11-01-kd76-stats.md:268` 为准**：两批各 10 轮、合并 n=20；**不得**把批次 43 的 2×20 当作 A6 通过，也不得把 19+10+7 等失败轮次相加成 n。
+- 失败轮按删失计入 n 上限，`NOT EVALUABLE` 输出保持；KD-76 维持 open。
+- 计划 item 11/12/14/15 的“2×20 各自判词”作废，后续按 10+10 执行。
+
+### 9.5 S12/S13 裁定（低负载门）
+
+- `LowLoadProbe` 把分母从单核改为整机负载是**放宽**，必须在该工具 KDoc 与证据里写明；它不能单独认证“低负载窗”，外部仍以 shell 侧 loadavg 门为准。
+- 本机地板 0.475 > 绝对上限 0.30 → 本机不能判 PASS；**不改门**，换机或另行裁定 nproc 伸缩前，isolation 只能记“15 例真实执行 + witness 齐全”，不得写因果/T4 排除。
+
+### 9.6 本批提交（15 笔，已推送前核对暂存区）
+
+KD-76 A6 工具/身份/汇总 → A6 驱动 + witness 检查器 → isolation witness 代码 → KD-75 C2 导出三处升版 → KD-75/6C-2 用例 → 四方门 v4 golden + 研究 R1–R4 → R5/R6/基线/发版门/WS6 → 证据 1/2/3 + 记录 → 本文。热区文件不入提交。
+
+### 9.7 收口裁定
+
+- **KD-75 关闭（范围收窄）**：仅覆盖 PDF 链 + `MODEL_DOCUMENT_PARSE` provenance 与 AI 图；DOCX 无 `/AIGC` 机制、自然语言改卷文本另立 KD-85，不得写成“模型生成内容全覆盖”。
+- **KD-76 维持 open**（A6 未达、C4 未测）。
+- **isolation 不定案**：15 例真实执行但窗 INVALID，禁写通过/T4 排除。
+- **p09 未收敛**（flaky vs 确定性两轨相反），不单边裁定。
+- **发版不成立**：版本门/签名/arm64/质量门四项硬阻塞。
+- **AUD-08 FAIL 维持**（0.5714）。
