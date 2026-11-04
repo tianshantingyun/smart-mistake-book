@@ -3823,3 +3823,29 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **不代裁关闭**：KD-75（设备/独立读者/`MODEL_DOCUMENT_PARSE` 判据全 UNVERIFIED）、KD-76（单批 n=20 不足以满足 A6；C4 未测）、R-04（K1–K6 未跑）、isolation（UNCONVERGED，禁写"T4 排除"）均不关闭；KD-83 的关闭以 WS5 证据为准，不在本轨。
 - **UNVERIFIED**：本轨未跑任何 Gradle/仪器化/设备；P-01/P-07/R-03/R-04 的运行时数字全部转录；人工金标抽样计划未执行；`git apply` 只做 `--check`，未应用。
 - **不做**：JS 广告（`availableMethods` 未动）；改阈值（0.9/0.05）；改金标 v1；改 schema 73；任何 git 写。
+
+
+## 批次 43 契约 P0 冲突清单 + 计划收尾盘点 + KD 全量审计（2026-11-04）
+
+> 依据：计划 `.zcode/plans/plan-2026-11-05-batch-43.md` §2 WS6 45–50（自述 74、**实列 78**，本记录按 78 对账）、R5 `docs/research/2026-11-05-contract-merge-protocol.md`、R6 `docs/research/2026-11-05-plan-closure.md`、`docs/known-defects.md` 机器解析、本批证据 `docs/research/evidence/2026-11-05-batch-43/`（WS2/WS3/WS4/WS5）。**本轨（WS6）零 Gradle/零设备/零 git 写；设备与门禁数字均为其他轨证据的只读转录。**
+
+### 裁定内容
+
+- **契约 P0 本批不落正文，出逐文件冲突清单（项 45）**：`docs/current` 本轮实跑仍 **7 条 M**（暂存 0，99+/5−），前件「清空」不成立。但 patch 目标 `visual-generation-contract.md` **干净**且 `git apply --check` **exit=0**——7 M 与 patch 目标**不相交**；批次 42 记录「7 M → 并入 BLOCKED」的文本层表述**更正为**：阻塞是计划 §4「`docs/current` 热区禁改」的纪律，不是冲突。冲突清单落 `docs/research/2026-11-05-contract-p0-conflict-list.json`（schema `contract-p0-conflict-list/1`，8 条）：**A 类 2**（README、implementation-status，add-only）、**B 类 3**（architecture-contract「coordinator planned」已被 `core/domain/FigureGenerationCoordinator.kt` 推翻；data-schema 写 68/18 而现树 73/19；model-task-contracts 的 planned 措辞过时）、**C 类 3**（product-contract −2、release-gates −2 改写当前行为/门语义；vgc add/add，保留 main 版）。只读干跑 `git merge-tree`：25 处冲突 / 7 文件，`docs/current` 面只有 vgc。**任何 C 类并入前必须有主会话裁定记录**；README 层 2 六行无提交来源，合并/checkout 前必须先单独提交。
+- **计划收尾盘点以 R6 为准（项 46）**：`2026-11-05-plan-closure.md`（407 行，当前未跟踪）已在工作树，74 行 = 9+7+34+12+6+6，判定 **可做 30 / 热区 26 / 外部阻塞 17 / 已关闭 1**。本线**不新增第二份盘点**——两份账必然漂移；本文件只补它未覆盖的 KD 审计与批次 44 残余输入。
+- **KD 全量审计（项 49）**：84 条标题（含本批新开 KD-84），**open 17 / closed 67**。逐条处置见 `docs/research/2026-11-05-ws6-contract-plan-closeout.md` §4.2。要点：
+  - **KD-75 关闭维持**（WS1 于本批关闭）：代码载体本轮实读核对存在（`MistakePdfEligibility.kt:157` 派生、`MistakePdfExporter.kt:241` 使用、`PdfAigcContentPolicy.kt:30` `GENERATION=2`、`:46` 判据、`MistakePdfEligibility.kt:460-461` 指纹代际）；但**证据缺口登记**——批次 43 证据目录**无 WS1 E 文件**，三份命名 PDF 产物全仓 `find` 未命中。不重开（代码载体与台账内实跑自述可指认），缺口由证据轨补件。
+  - **KD-76 维持 open**：WS2 两批各 n=19/20、各有一轮产品可见红（`HARD_DEADLINE_EXCEEDED`），A6 判 **NOT EVALUABLE**（`ws2-kd76-a6.md:129,160`）；两批不得相加成 n=40，也不得因「两批都跑了」写成 A6 满足。
+  - **KD-84 新开**（`:3304`）：部分页打印 `MistakePdfDelivery.writeSubset`（`:146`/`:215`）逐页重绘丢文档级 `/AIGC`。这是 KD-75 Fix direction 允许的「明确登记」但**必须有条目承接**，否则关闭后该用户可见后果无处记账。二选一出口：重注入或取消部分页打印；须独立读者读回。
+  - **KD-28/29/82 维持**「接受边界 / 不排期」判定，**标题不改**：把 `open` 改成 `closed` 是改台账语义（open = 仍未修），须主会话一次裁定用词，WS6 不单方面改。
+  - **DOCX `docProps/custom.xml` 不新开**：虽同样「另立条目」，但本批无任何代码或设备载体，开了只有标题没有证据；登记在 KD-75 关闭边界，待合规线做 DOCX 导出时再开。
+- **批次 44 不造第二份草案（项 50）**：`.zcode/plans/plan-2026-11-05-batch-44-acceptance.md` 已在树且干净（96 行，1000 项验收替代机制）。本线只补它缺的**残余项输入**：R6 §9.5 的 26 项（4E 设备向量 8 / 4E 数据侧 5 / 4E 许可入仓 1 / PRD·5B·5b 复验 11 / 6C 文档 1）+ KD-61/63/65/71/73 五条小修。热区 26 项与外部阻塞 17 项**不进批次 44**——它们不是排期问题。
+
+### 边界（不得越界 / 仍待裁定 / UNVERIFIED）
+
+- **`docs/current` 零字节改动**：契约正文仍 7 M；patch 未应用、7 M 未合并；本线只做 `--check` 与只读 `merge-tree`。
+- **热区零改动**：`core/domain`、`core/ui`、`feature/*`、`docs/current`、`settings.gradle.kts`、Application/Root 本线均未触碰。
+- **不代裁关闭**：KD-76（A6 NOT EVALUABLE）、KD-67/68（热区）、KD-72（配置面）维持；isolation 不写「T4 排除」；KD-75 的关闭不由本节背书，只做载体核对与缺口登记。
+- **UNVERIFIED**：KD-75 的设备 `OK (7 tests)` 与 pypdf 三份读回（台账内自述，仓内无 E 文件）；`:core:model:test` 644 例 / `:core:export` 172 例（未复跑）；patch 对分支版的 `hunk #2 FAILED`（转录 R5 E11，本轮未跑）；67 条已关闭 KD 的关闭质量（只解析标题，未重判）。
+- **不做**：任何 `git apply`/`merge`/`add`/`commit`；改 schema 73；动 `availableMethods`；改 KD 标题用词；改阈值或金标。
+
