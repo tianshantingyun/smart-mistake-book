@@ -15,10 +15,29 @@
 4. `test` XML 的 failures/errors 必须为 0，tests 不能为 0；
 5. `review` JSON 必须有 `reviewer` + `run_id` + 与当前台账一致的 `ledger_sha256`，
    且 reviewer 不得在 `authors` 里；`verdict` 必须是 PASS/FAIL/BLOCKED/UNVERIFIED；
+   批次 46 起还要求 `checks[]` 非空、至少一条 `ledger_row` 命中当前行、至少一条证据
+   check 能从磁盘复算，且 `evidence_sha256` 覆盖并匹配台账证据；
 6. `summary` / 批次 `record` 类 Markdown 不得作为证据；
 7. `CMD:` 行含 `<...>` 占位（类名未展开、不可复跑）的日志不算运行记录；
 8. 设备 JSON 自带 `verdict`/`counts` 判词时必须为 PASS 且确有执行；
 9. 报告记录被审计树的 HEAD 与 dirty 路径数，便于把证据绑到源快照。
+
+## 批次 46 修复环（findings 1–3）
+
+旧实现只用 `any(e.kind == "review")` 统计 `pass_with_review`，从不打开
+`checks[]`，于是“旧 run 复核换绑新台账 sha”“同一套件 check 复制给 7 行”
+都能把计数刷到 888。现在 `_check_review` 调用
+`acceptance_review.validate_review()` 逐项复算证据字节与可判定字段：
+
+- `checks` 必须非空，且至少有一条 `ledger_row` 命中当前行（id/verdict/line/sha）；
+- 至少一条证据 check 能从磁盘重算出相同值（sha256 / XML counts / cmd EXIT /
+  device serial 等）；
+- `evidence_sha256` 必须覆盖台账证据并逐文件匹配；
+- `run_id` 必须带 ISO 时间戳；若 JSON 声明了 `ledger_batch`，`run_id` 里的批次号
+  不得早于它（防“旧 batch44 复核换绑 batch46 台账”）。
+
+`pass_with_review` 只数**校验通过**的复核；有 token 但校验失败的进入
+`pass_with_invalid_review`，并在 `--require-complete` 下阻断。
 
 ## 用法
 
@@ -26,7 +45,7 @@
     python -I tools/ci/acceptance_report.py --ledger <fixture> --partial
 
 退出码：0 无违规且无 FAIL 行；1 有违规或 state=FAIL；2 台账不可读/参数错误。
-`--require-complete` 额外把 UNVERIFIED/BLOCKED 视为阻断。
+`--require-complete` 额外把 UNVERIFIED/BLOCKED 与无效复核视为阻断。
 """
 
 from __future__ import annotations
@@ -38,11 +57,13 @@ import re
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
+from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import acceptance_model as M  # noqa: E402
+import acceptance_review as R  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_LEDGER = ROOT / "docs" / "acceptance" / "ledger.md"
@@ -58,6 +79,8 @@ SUMMARY_RE = re.compile(r"(?i)(summary|摘要|汇总|复盘)")
 RECORD_RE = re.compile(r"(?i)(record|记录)")
 UNVERIFIED_RE = re.compile(r"(?i)(UNVERIFIED|未验证|NOT EVALUATED|不可判定)")
 PLACEHOLDER_RE = re.compile(r"<[^<>\n]{1,120}>")
+# 同一组非 ledger_row checks 被 ≥N 行 PASS 共用，就不再具备行级判别力。
+REUSE_WARN_THRESHOLD = 5
 
 
 def _rel(path: Path, root: Path) -> str:
@@ -158,18 +181,32 @@ def _check_test(evidence: M.Evidence, path: Path, row: M.Row, out: list[dict]) -
                     "detail": f"{evidence.target}: skipped={skipped}/{tests}"})
 
 
+def _batch_of(text: str | None) -> int | None:
+    match = re.search(r"batch[-_]?(\d+)", str(text or ""), re.I)
+    return int(match.group(1)) if match else None
+
+
+RUN_TS_RE = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})")
+
+
 def _check_review(evidence: M.Evidence, path: Path, row: M.Row, out: list[dict],
-                  ledger_sha: str | None = None) -> None:
+                  ledger_sha: str | None = None, root: Path | None = None,
+                  row_dirs: list[Path] | None = None,
+                  index: dict[str, list[Path]] | None = None,
+                  context: dict | None = None) -> dict:
+    """复核 JSON 的字段 + 内容校验。返回 {valid, fingerprint, run_id, errors}。"""
+    result = {"valid": False, "fingerprint": None, "run_id": None, "errors": []}
+    start = len(out)
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         out.append({"id": row.row_id, "code": "REVIEW_INVALID",
                     "detail": f"{evidence.target}: {exc}"})
-        return
+        return result
     if not isinstance(data, dict):
         out.append({"id": row.row_id, "code": "REVIEW_INVALID",
                     "detail": f"{evidence.target}: not an object"})
-        return
+        return result
     for key in ("reviewer", "run_id", "ledger_sha256"):
         if not data.get(key):
             out.append({"id": row.row_id, "code": "REVIEW_MISSING_FIELD",
@@ -181,6 +218,9 @@ def _check_review(evidence: M.Evidence, path: Path, row: M.Row, out: list[dict],
     if not isinstance(verdict, str) or verdict.strip().upper() not in M.VERDICTS:
         out.append({"id": row.row_id, "code": "REVIEW_VERDICT_INVALID",
                     "detail": f"{evidence.target}: verdict={verdict!r}"})
+    if isinstance(verdict, str) and verdict.strip().upper() != row.verdict:
+        out.append({"id": row.row_id, "code": "REVIEW_VERDICT_MISMATCH",
+                    "detail": f"{evidence.target}: review={verdict!r} ledger={row.verdict}"})
     declared_sha = data.get("ledger_sha256")
     if declared_sha and not re.fullmatch(r"[0-9a-fA-F]{64}", str(declared_sha)):
         out.append({"id": row.row_id, "code": "REVIEW_INVALID",
@@ -197,6 +237,48 @@ def _check_review(evidence: M.Evidence, path: Path, row: M.Row, out: list[dict],
     if data.get("self_review") is True:
         out.append({"id": row.row_id, "code": "REVIEW_SELF",
                     "detail": f"{evidence.target}: self_review=true"})
+
+    # 批次 46 修复 finding 1：run_id 自带批次号不得早于复核声明的台账批次。
+    # 旧复核换绑新 sha 的典型形态是 run_id 仍为 batch44、ledger_sha 却是 batch46。
+    run_id = data.get("run_id")
+    result["run_id"] = str(run_id) if run_id else None
+    if run_id and not RUN_TS_RE.search(str(run_id)):
+        out.append({"id": row.row_id, "code": "REVIEW_RUN_ID_FORMAT",
+                    "detail": f"{evidence.target}: run_id 缺 ISO 时间戳: {run_id!r}"})
+    ledger_batch = data.get("ledger_batch")
+    run_batch = _batch_of(str(run_id) if run_id else "")
+    if ledger_batch is not None and run_batch is not None:
+        try:
+            if int(ledger_batch) > run_batch:
+                out.append({"id": row.row_id, "code": "REVIEW_RUN_PREDATES_LEDGER",
+                            "detail": f"{evidence.target}: run batch={run_batch} < "
+                                      f"ledger batch={ledger_batch}"})
+        except (TypeError, ValueError):
+            out.append({"id": row.row_id, "code": "REVIEW_INVALID",
+                        "detail": f"{evidence.target}: ledger_batch={ledger_batch!r}"})
+
+    checks = data.get("checks")
+    if not isinstance(checks, list) or not checks:
+        out.append({"id": row.row_id, "code": "REVIEW_MISSING_CHECKS",
+                    "detail": f"{evidence.target}: checks 为空"})
+    else:
+        # 去掉 ledger_row 后的 check 指纹：行级判据应随行变化。逐字节相同的
+        # 指纹意味着这份“行级复核”只是同一套件结论的复制（finding 3）。
+        payload = [json.dumps(c, ensure_ascii=False, sort_keys=True)
+                   for c in checks
+                   if isinstance(c, dict)
+                   and (c.get("name") or c.get("check")) != "ledger_row"]
+        result["fingerprint"] = hashlib.sha256("\n".join(payload).encode("utf-8")).hexdigest()
+
+    root = root or Path(".")
+    validated = R.validate_review(
+        data, row, ledger_sha or "", root, list(row_dirs or []), index, context or {})
+    for error in validated["errors"]:
+        out.append({"id": row.row_id, "code": "REVIEW_CHECK_FAILED",
+                    "detail": f"{evidence.target}: {error}"})
+    result["errors"] = validated["errors"]
+    result["valid"] = (len(out) == start) and not validated["errors"]
+    return result
 
 
 def _check_device(evidence: M.Evidence, path: Path, row: M.Row, out: list[dict]) -> None:
@@ -275,9 +357,30 @@ def evaluate(ledger: str | Path, repo_root: str | Path, partial: bool = False) -
 
     warnings: list[dict] = []
     root = Path(repo_root)
+    index = R.basename_index(root)
     counts = {verdict: 0 for verdict in M.VERDICTS}
     for row in rows:
         counts[row.verdict] = counts.get(row.verdict, 0) + 1
+    by_id = {row.row_id: row for row in rows}
+
+    # direct_recount 类 check 声明的是全局计数；先在循环前算好，复核时可比对。
+    review_dir = root / "docs" / "acceptance" / "verdicts" / "rows"
+    row_json_count = len(list(review_dir.glob("*.json"))) if review_dir.is_dir() else 0
+    pass_missing_json = 0
+    for row in rows:
+        if row.verdict != "PASS":
+            continue
+        reviews = [e for e in row.evidence() if e.kind == "review"]
+        if not reviews or any(not M.resolve(root, e.target).exists() for e in reviews):
+            pass_missing_json += 1
+    context = {
+        "pass_count": counts.get("PASS", 0),
+        "row_json_count": row_json_count,
+        "pass_missing_json": pass_missing_json,
+    }
+
+    review_states: dict[str, list[dict]] = {}
+    for row in rows:
         if row.verdict != "PASS":
             for evidence in row.evidence():
                 if not M.resolve(root, evidence.target).exists():
@@ -303,6 +406,8 @@ def evaluate(ledger: str | Path, repo_root: str | Path, partial: bool = False) -
             violations.append({"id": row.row_id, "code": "PLACEHOLDER_METHOD",
                                "detail": row.method})
 
+        row_dirs = [M.resolve(root, e.target).parent for e in evidence_items]
+        states: list[dict] = []
         for evidence in evidence_items:
             path = M.resolve(root, evidence.target)
             if not path.exists():
@@ -314,10 +419,52 @@ def evaluate(ledger: str | Path, repo_root: str | Path, partial: bool = False) -
             elif evidence.kind == "test":
                 _check_test(evidence, path, row, violations)
             elif evidence.kind == "review":
-                _check_review(evidence, path, row, violations, ledger_sha)
+                states.append(_check_review(evidence, path, row, violations, ledger_sha,
+                                            root, row_dirs, index, context))
             elif evidence.kind == "device":
                 _check_device(evidence, path, row, violations)
             # file/hash 只要求存在；sha256 校验由证据哈希清单负责。
+        review_states[row.row_id] = states
+
+    valid_review_ids = {
+        row_id for row_id, states in review_states.items()
+        if states and all(state["valid"] for state in states)
+    }
+    token_review_ids = set(review_states)
+    invalid_review_ids = token_review_ids - valid_review_ids
+    fingerprints = Counter(
+        state["fingerprint"]
+        for row_id in sorted(valid_review_ids)
+        for state in review_states[row_id]
+        if state["fingerprint"]
+    )
+    shared_groups = {fingerprint: count for fingerprint, count in fingerprints.items()
+                     if count >= REUSE_WARN_THRESHOLD}
+    for fingerprint, count in sorted(shared_groups.items(),
+                                     key=lambda item: (-item[1], item[0])):
+        warnings.append({
+            "id": "", "code": "REVIEW_CHECKS_SHARED",
+            "detail": f"同一组非 ledger_row checks 被 {count} 行 PASS 共用 "
+                      f"(fp={fingerprint[:12]})；行级判别力不成立",
+        })
+    row_specific_ids = {
+        row_id for row_id in valid_review_ids
+        if all(state["fingerprint"] and fingerprints[state["fingerprint"]] == 1
+               for state in review_states[row_id])
+    }
+    evidence_batches: Counter[str] = Counter()
+    for row_id in valid_review_ids:
+        for evidence in by_id[row_id].evidence():
+            if evidence.kind == "review":
+                continue
+            match = re.search(r"batch[-_]?(\d+)", evidence.target, re.I)
+            evidence_batches[match.group(1) if match else "unlabeled"] += 1
+    review_errors = [
+        {"id": row_id, "errors": state["errors"]}
+        for row_id in sorted(invalid_review_ids)
+        for state in review_states[row_id]
+        if state["errors"]
+    ]
 
     unverified = counts.get("UNVERIFIED", 0)
     failed = counts.get("FAIL", 0)
@@ -345,15 +492,23 @@ def evaluate(ledger: str | Path, repo_root: str | Path, partial: bool = False) -
             1 for row in rows
             if row.verdict == "PASS" and len(row.independent_kinds()) >= 2
         ),
-        # DoD §1.5 把独立复核列为 PASS 前提；这两个计数让缺口可度量，而不是隐形。
-        "pass_with_review": sum(
-            1 for row in rows
-            if row.verdict == "PASS" and any(e.kind == "review" for e in row.evidence())
-        ),
+        # DoD §1.5 把独立复核列为 PASS 前提。批次 46 修复：只有逐项复算通过、
+        # 且 checks 非空、绑当前台账 sha 的复核才计入；token 存在但校验失败
+        # 的单独计数，不再被 888 这个数字掩盖。
+        "pass_with_review": len(valid_review_ids),
         "pass_without_review": sum(
             1 for row in rows
             if row.verdict == "PASS" and not any(e.kind == "review" for e in row.evidence())
         ),
+        "pass_with_invalid_review": len(invalid_review_ids),
+        "pass_with_row_specific_review": len(row_specific_ids),
+        "review_shared_check_groups": [
+            {"fingerprint": fingerprint, "rows": count}
+            for fingerprint, count in sorted(shared_groups.items(),
+                                             key=lambda item: (-item[1], item[0]))
+        ],
+        "review_evidence_batches": dict(sorted(evidence_batches.items())),
+        "review_validation_errors": review_errors,
         "unverified": unverified,
         "acceptance_complete": acceptance_complete,
         "violations": violations,
@@ -371,7 +526,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--partial", action="store_true",
                         help="测试用：不要求 1200 行完整 ID 集合")
     parser.add_argument("--require-complete", action="store_true",
-                        help="终裁门：仍有 UNVERIFIED 或 FAIL 时 exit 1")
+                        help="终裁门：仍有 UNVERIFIED/FAIL/BLOCKED 或无效复核时 exit 1")
     args = parser.parse_args(argv)
 
     ledger = Path(args.ledger)
@@ -394,6 +549,24 @@ def main(argv: list[str] | None = None) -> int:
         report["violations"].append({
             "id": "", "code": "PASS_WITHOUT_REVIEW",
             "detail": f"{report['pass_without_review']} 个 PASS 行没有 review 证据",
+        })
+        report["ok"] = False
+        report["exit_code"] = 1
+    if args.require_complete and report["pass_with_invalid_review"]:
+        # 批次 46 修复 finding 2：review 文件存在不再等于复核成立。
+        report["violations"].append({
+            "id": "", "code": "PASS_REVIEW_INVALID",
+            "detail": f"{report['pass_with_invalid_review']} 个 PASS 行的 review "
+                      f"未通过逐项复算",
+        })
+        report["ok"] = False
+        report["exit_code"] = 1
+    if args.require_complete and report["review_shared_check_groups"]:
+        # 批次 46 修复 finding 3：同一组 checks 复制给多行，只证明套件跑过。
+        report["violations"].append({
+            "id": "", "code": "REVIEW_CHECKS_SHARED",
+            "detail": f"{len(report['review_shared_check_groups'])} 组非 ledger_row "
+                      f"checks 被 ≥{REUSE_WARN_THRESHOLD} 行共用，行级判别力不成立",
         })
         report["ok"] = False
         report["exit_code"] = 1

@@ -122,7 +122,7 @@ class AcceptanceLintTest(unittest.TestCase):
             self.assertIn("DUPLICATE_ID", {v["code"] for v in data["violations"]})
 
     def test_strict_warnings_blocks_evidence_reuse(self) -> None:
-        """共享证据的告警在严格模式下必须阻断（当前 29 条 EVIDENCE_REUSED 只告警）。"""
+        """共享证据默认即阻断；--warn-only 只用于诊断（批次 46 finding 6）。"""
         with tempfile.TemporaryDirectory() as td:
             tmp = Path(td)
             (tmp / "build").mkdir()
@@ -134,18 +134,20 @@ class AcceptanceLintTest(unittest.TestCase):
             ledger = tmp / "ledger.md"
             ledger.write_text(HEADER + rows, encoding="utf-8")
             proc, data = _run(tmp, ledger)
-            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
-            self.assertTrue(data["warnings"])
-            proc, data = _run(tmp, ledger, "--strict-warnings")
             self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+            self.assertTrue(data["warnings"])
             self.assertIn("EVIDENCE_REUSED",
                           {v["code"] for v in data["violations"]})
+            proc, data = _run(tmp, ledger, "--warn-only")
+            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            self.assertEqual(data["violations"], [])
+            self.assertTrue(data["warnings"])
 
     def test_evidence_shared_by_five_rows_warns(self) -> None:
-        """同一证据被 5 行 PASS 共用时就必须告警（批次 45 复核 finding 9）。
+        """同一证据被 5 行 PASS 共用即阻断（批次 46 finding 6）。
 
-        旧阈值 `count > 10` 让 GATE 域“每证据恰好 10 行”的复用永远不告警；
-        D0/FIX 的 5–7 行复用同样不可见，于是 `warnings=0` 被误读成“独立性强”。
+        旧阈值 `count > 10` 让 GATE 域“每证据恰好 10 行”的复用永远不可见；
+        批次 46 起默认把 ≥5 行复用升级为违规，只有 --warn-only 才保留告警。
         """
         with tempfile.TemporaryDirectory() as td:
             tmp = Path(td)
@@ -158,7 +160,9 @@ class AcceptanceLintTest(unittest.TestCase):
             ledger = tmp / "ledger.md"
             ledger.write_text(HEADER + rows, encoding="utf-8")
             proc, data = _run(tmp, ledger)
-            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+            self.assertEqual([v["code"] for v in data["violations"]],
+                             ["EVIDENCE_REUSED"])
             self.assertEqual([w["code"] for w in data["warnings"]],
                              ["EVIDENCE_REUSED"])
             self.assertEqual(len(data["reuse"]), 1)

@@ -22,7 +22,8 @@
 | `SELF_REVIEW` | review JSON 的 reviewer 在 authors 内或 self_review=true |
 | `DUPLICATE_ID` | 同 ID 出现多次 |
 
-退出码：0 无违规；1 有违规；2 台账不可读。
+退出码：0 无违规；1 有违规（含默认升级的 `EVIDENCE_REUSED`）；2 台账不可读。
+`--warn-only` 只用于诊断，保留告警但 exit 0；CI 不得使用。
 """
 
 from __future__ import annotations
@@ -77,7 +78,7 @@ def _lint_test_xml(path: Path, row: M.Row, out: list[dict]) -> None:
 
 
 def lint(ledger: str | Path, repo_root: str | Path, partial: bool = False,
-         strict_warnings: bool = False) -> dict:
+         strict_warnings: bool = False, warn_only: bool = False) -> dict:
     ledger_path = Path(ledger)
     rows, issues = M.parse_ledger(ledger_path)
     violations: list[dict] = [
@@ -148,11 +149,13 @@ def lint(ledger: str | Path, repo_root: str | Path, partial: bool = False,
         if count >= REUSE_WARN_THRESHOLD:
             warnings.append({"id": "", "code": "EVIDENCE_REUSED",
                              "detail": f"{target} 被 {count} 行 PASS 共用，需确认独立性"})
-    if strict_warnings:
-        # 同一证据被大量 PASS 行共用时，“2 类独立证据”只是名义成立；
-        # CI 用严格模式把这条告警升级为门禁失败（批次 44 复核 finding 14）。
+    # 批次 46 修复 finding 6：旧实现只在 --strict-warnings 下把复用告警升级为
+    # 违规，普通模式 exit 0 会让 144 条 EVIDENCE_REUSED 被当成“无违规”。
+    # 现在默认即阻断；只有显式 --warn-only（诊断用）才保留 exit 0。
+    escalate = strict_warnings or not warn_only
+    if escalate:
         violations.extend({"id": item["id"], "code": item["code"],
-                           "detail": item["detail"]} for item in warnings)
+                           "detail": item["detail"], "escalated": True} for item in warnings)
 
     return {
         "ledger": ledger_path.as_posix(),
@@ -164,6 +167,7 @@ def lint(ledger: str | Path, repo_root: str | Path, partial: bool = False,
         "reuse": [{"target": target, "count": count}
                   for target, count in reuse.most_common()],
         "reuse_warn_threshold": REUSE_WARN_THRESHOLD,
+        "warn_only": warn_only,
         "ok": not violations,
         "exit_code": 0 if not violations else 1,
     }
@@ -176,11 +180,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out")
     parser.add_argument("--partial", action="store_true")
     parser.add_argument("--strict-warnings", action="store_true",
-                        help="把 EVIDENCE_REUSED 等告警升级为违规（CI 用）")
+                        help="（默认已开启）把 EVIDENCE_REUSED 告警升级为违规")
+    parser.add_argument("--warn-only", action="store_true",
+                        help="诊断用：只告警不阻断；CI 不得使用")
     args = parser.parse_args(argv)
     try:
         report = lint(args.ledger, args.repo_root, partial=args.partial,
-                      strict_warnings=args.strict_warnings)
+                      strict_warnings=args.strict_warnings, warn_only=args.warn_only)
     except M.LedgerError as exc:
         print(f"LEDGER_ERROR: {exc}", file=sys.stderr)
         return 2

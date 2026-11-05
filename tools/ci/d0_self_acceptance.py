@@ -327,9 +327,12 @@ def group_report(rec: Recorder, tmp: Path) -> None:
 
 
 def group_lint(rec: Recorder, tmp: Path) -> None:
-    proc = rec.run("real_ledger", ["tools/ci/acceptance_lint.py", "--ledger", str(LEDGER)], 0)
+    # 批次 46 修复 finding 6：真台账有 144 条 EVIDENCE_REUSED，默认必须阻断；
+    # 旧断言把 exit 0 当成“反作弊面干净”，正是该 finding 指出的掩盖。
+    proc = rec.run("real_ledger", ["tools/ci/acceptance_lint.py", "--ledger", str(LEDGER)], 1)
     data = json.loads(proc.stdout)
-    rec.ok("real_zero_violations", data.get("violations") == [] and data.get("ok") is True)
+    rec.ok("real_reuse_blocks",
+           "EVIDENCE_REUSED" in _codes(data) and data.get("ok") is False)
 
     root = tmp / "cases"
     (root / "logs").mkdir(parents=True, exist_ok=True)
@@ -374,11 +377,17 @@ def group_lint(rec: Recorder, tmp: Path) -> None:
         _ledger_row(f"D0-{index:03d}", "D0", "PASS", "cmd:logs/ok.log")
         for index in range(1, 12))
     reuse_ledger = _write(tmp / "lint-reuse.md", _ledger(reuse_rows))
-    proc = rec.run("reuse_warning", [
+    proc = rec.run("reuse_blocks", [
         "tools/ci/acceptance_lint.py", "--ledger", str(reuse_ledger),
-        "--repo-root", str(root), "--partial"], 0)
+        "--repo-root", str(root), "--partial"], 1)
     data = json.loads(proc.stdout)
-    rec.ok("reuse_warned", bool(data.get("warnings")) and data.get("violations") == [])
+    rec.ok("reuse_blocked", bool(data.get("warnings"))
+           and "EVIDENCE_REUSED" in _codes(data))
+    proc = rec.run("reuse_warn_only", [
+        "tools/ci/acceptance_lint.py", "--ledger", str(reuse_ledger),
+        "--repo-root", str(root), "--partial", "--warn-only"], 0)
+    data = json.loads(proc.stdout)
+    rec.ok("reuse_warn_only", bool(data.get("warnings")) and data.get("violations") == [])
     proc = rec.run("strict_warnings", [
         "tools/ci/acceptance_lint.py", "--ledger", str(reuse_ledger),
         "--repo-root", str(root), "--partial", "--strict-warnings"], 1)
@@ -390,11 +399,15 @@ def group_lint(rec: Recorder, tmp: Path) -> None:
 
 def group_trace(rec: Recorder, tmp: Path) -> None:
     out = tmp / "trace-real.json"
+    # 批次 46：真台账的 exit 不是常量。gaps 清零后 trace 合法地 exit 0；
+    # 断言改为“exit 与 gaps 一致”的性质，而不是把历史红状态写成期望值。
     proc = rec.run("real_ledger", ["tools/ci/trace_requirements.py", "--ledger", str(LEDGER),
-                                   "--out", str(out)], 1)
+                                   "--out", str(out)], 0)
     data = json.loads(out.read_text(encoding="utf-8"))
     rec.ok("real_rows_1200", data.get("total") == 1200)
-    rec.ok("real_gaps_visible", bool(data.get("gaps")))
+    rec.ok("real_gaps_consistent",
+           (proc.returncode == 0) == (not data.get("gaps")),
+           f"rc={proc.returncode} gaps={len(data.get('gaps') or [])}")
     rec.ok("d0_rows_traced", all(any(row["id"] == f"D0-{i:03d}" for row in data["rows"])
                                  for i in range(1, 101)))
 
@@ -433,7 +446,7 @@ def group_trace(rec: Recorder, tmp: Path) -> None:
 
     second = tmp / "trace-real-2.json"
     rec.run("real_ledger_again", ["tools/ci/trace_requirements.py", "--ledger", str(LEDGER),
-                                  "--out", str(second)], 1)
+                                  "--out", str(second)], 0)
     again = json.loads(second.read_text(encoding="utf-8"))
     rec.ok("json_stable", (again.get("total"), len(again.get("gaps", [])))
            == (data.get("total"), len(data.get("gaps", []))))
@@ -698,6 +711,43 @@ def _read(relative: str) -> str:
     return (ROOT / relative).read_text(encoding="utf-8", errors="replace")
 
 
+def _schema_ok(value: object, schema: dict) -> bool:
+    """JSON Schema 子集校验（type/required/pattern/minLength/enum/items/minItems）。
+
+    不引入第三方依赖；覆盖 verdict.schema.json 实际使用的关键字。
+    """
+    import re as _re
+
+    expected = schema.get("type")
+    types = {
+        "object": dict, "array": list, "string": str,
+        "integer": int, "boolean": bool,
+    }
+    if expected in types and not isinstance(value, types[expected]):
+        return False
+    if expected == "string":
+        if "minLength" in schema and len(value) < int(schema["minLength"]):
+            return False
+        if "pattern" in schema and not _re.search(schema["pattern"], value):
+            return False
+        if "enum" in schema and value not in schema["enum"]:
+            return False
+    if expected == "array":
+        if "minItems" in schema and len(value) < int(schema["minItems"]):
+            return False
+        item_schema = schema.get("items")
+        if isinstance(item_schema, dict) and not all(_schema_ok(v, item_schema) for v in value):
+            return False
+    if expected == "object":
+        for key in schema.get("required", []):
+            if key not in value:
+                return False
+        for key, sub in (schema.get("properties") or {}).items():
+            if key in value and not _schema_ok(value[key], sub):
+                return False
+    return True
+
+
 def group_docs(rec: Recorder, section: str, tmp: Path) -> None:
     dod = _read("docs/acceptance/dod.md")
     runbook = _read("docs/acceptance/runbook.md")
@@ -717,13 +767,55 @@ def group_docs(rec: Recorder, section: str, tmp: Path) -> None:
     elif section == "verdicts":
         verdict_dir = ROOT / "docs" / "acceptance" / "verdicts"
         template = json.loads((verdict_dir / "_template.json").read_text(encoding="utf-8"))
-        real = [path for path in verdict_dir.glob("*.json") if not path.name.startswith("_")]
         rec.ok("dir_and_readme", verdict_dir.is_dir() and "reviewer" in verdict_readme)
         rec.ok("template_fields", {"run_id", "ledger_sha256", "evidence_sha256",
                                    "reviewer", "authors"} <= set(template))
-        rec.ok("no_real_verdict_json", len(real) == 0, f"json={len(real)}")
-        rec.ok("no_verdict_schema", not list(verdict_dir.glob("*.schema.json")))
-        rec.note("real_verdict_json", len(real))
+        # 批次 46：真实 verdict JSON 是交付物，不再断言“必须不存在”。
+        # 断言改为 DoD §1.5 的性质：每个 PASS 行有行级 JSON，且字段可复核。
+        row_dir = verdict_dir / "rows"
+        row_files = sorted(row_dir.glob("*.json")) if row_dir.is_dir() else []
+        ledger_rows, _ = M.parse_ledger(LEDGER)
+        pass_ids = [row.row_id for row in ledger_rows if row.verdict == "PASS"]
+        missing = [row_id for row_id in pass_ids if not (row_dir / f"{row_id}.json").exists()]
+        rec.ok("pass_rows_have_verdict_json", not missing,
+               f"pass={len(pass_ids)} json={len(row_files)} missing={len(missing)}")
+        parsed: list[dict] = []
+        invalid: list[str] = []
+        for path in row_files:
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as exc:
+                invalid.append(f"{path.name}: {exc}")
+                continue
+            if isinstance(data, dict):
+                parsed.append(data)
+            else:
+                invalid.append(f"{path.name}: not an object")
+        rec.ok("verdict_json_parses", not invalid, f"invalid={len(invalid)}")
+        rec.ok("verdict_run_id_present",
+               bool(parsed) and all(isinstance(d.get("run_id"), str) and d["run_id"].strip()
+                                    for d in parsed))
+        rec.ok("verdict_reviewer_not_author",
+               bool(parsed) and all(d.get("reviewer") not in (d.get("authors") or [])
+                                    for d in parsed))
+        rec.ok("verdict_evidence_sha256",
+               bool(parsed) and all(
+                   isinstance(d.get("evidence_sha256"), dict) and d["evidence_sha256"]
+                   and all(t.split(":", 1)[1].split("#", 1)[0] in d["evidence_sha256"]
+                           for t in (d.get("evidence") or []) if ":" in t)
+                   for d in parsed))
+        ledger_sha = M.ledger_sha256(LEDGER)
+        rec.ok("verdict_ledger_sha_bound",
+               bool(parsed) and all(str(d.get("ledger_sha256", "")).lower() == ledger_sha
+                                    for d in parsed))
+        schema_path = verdict_dir / "verdict.schema.json"
+        rec.ok("verdict_schema_present", schema_path.is_file())
+        schema_ok = False
+        if schema_path.is_file():
+            schema = json.loads(schema_path.read_text(encoding="utf-8"))
+            schema_ok = bool(parsed) and all(_schema_ok(d, schema) for d in parsed)
+        rec.ok("verdict_schema_valid", schema_ok)
+        rec.note("real_verdict_json", len(parsed))
         rec.note("verdict_schema_files", len(list(verdict_dir.glob("*.schema.json"))))
     elif section == "patch":
         apply_proc = subprocess.run(["git", "apply", "--check", "tools/ci/acceptance_ci.patch"],
@@ -762,11 +854,12 @@ def group_docs(rec: Recorder, section: str, tmp: Path) -> None:
         }
         for name, condition in checks.items():
             rec.ok(f"protocol_{name}", condition)
-        # D0-081 要求“冲突时保留双方判词”。两份协议文件都没有这条规则；这里
-        # 断言的是**观察到的缺失**，台账按失败登记，不把缺失写成通过。
-        present = ("冲突" in dod or "冲突" in runbook or "冲突" in verdict_readme)
+        # D0-081 要求“冲突时保留双方判词”。批次 46 把规则写进 runbook，并把
+        # 断言从“任意出现冲突二字”改成固定锚点：只有规则原文在协议里才算通过。
+        conflict_rule = "冲突时保留双方判词"
+        present = conflict_rule in runbook or conflict_rule in dod or conflict_rule in verdict_readme
         rec.note("conflict_rule_present", present)
-        rec.ok("protocol_conflict_rule_absent", present is False)
+        rec.ok("protocol_conflict_rule_present", present is True)
     elif section == "forgery":
         checks = {
             "self_review": "reviewer 不得给自己签字" in dod,

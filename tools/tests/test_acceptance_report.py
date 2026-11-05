@@ -199,6 +199,145 @@ class AcceptanceReportTest(unittest.TestCase):
             self.assertIn("REVIEW_MISSING_FIELD",
                           {v["code"] for v in data["violations"]})
 
+    def _review_fixture(self, tmp: Path, *, xml_tests: int = 2,
+                        run_id: str | None = None, ledger_batch: int | None = None,
+                        checks: list[dict] | None = None) -> tuple[Path, Path]:
+        """构造一份字段齐全、checks 可复算的行级复核夹具。"""
+        import hashlib
+        log = tmp / "build" / "x.log"
+        log.parent.mkdir(parents=True, exist_ok=True)
+        log.write_text("EXIT=0\n", encoding="utf-8")
+        xml = _write_xml(tmp, "build/x.xml", tests=xml_tests)
+        ledger = tmp / "ledger.md"
+        ledger.write_text(
+            HEADER + _row("D0-001", "PASS",
+                          "cmd:build/x.log#exit=0; test:build/x.xml; review:build/review.json"),
+            encoding="utf-8")
+        ledger_sha = hashlib.sha256(ledger.read_bytes()).hexdigest()
+        review_checks = checks if checks is not None else [
+            {"name": "ledger_row", "source": "ledger.md",
+             "value": f"id=D0-001; verdict=PASS; line=3; ledger_sha256={ledger_sha}"},
+            {"name": "xml_aggregate", "source": "build/x.xml",
+             "value": f"tests={xml_tests}; failures=0; errors=0; skipped=0; "
+                      f"sha256={hashlib.sha256(xml.read_bytes()).hexdigest()}"},
+            {"name": "cmd_exit", "source": "build/x.log",
+             "value": "exit_markers=[0]; "
+                      f"sha256={hashlib.sha256(log.read_bytes()).hexdigest()}"},
+        ]
+        review = {
+            "id": "D0-001", "verdict": "PASS",
+            "run_id": run_id or "2026-11-05T00:00:00Z-batch46-review",
+            "reviewer": "reviewer-indep", "authors": ["author-a"],
+            "ledger_sha256": ledger_sha,
+            "evidence": ["cmd:build/x.log", "test:build/x.xml"],
+            "evidence_sha256": {
+                "build/x.log": hashlib.sha256(log.read_bytes()).hexdigest(),
+                "build/x.xml": hashlib.sha256(xml.read_bytes()).hexdigest(),
+            },
+            "checks": review_checks,
+            "basis": "fixture",
+        }
+        if ledger_batch is not None:
+            review["ledger_batch"] = ledger_batch
+        (tmp / "build" / "review.json").write_text(
+            json.dumps(review), encoding="utf-8")
+        return tmp, ledger
+
+    def test_review_with_recomputable_checks_counts(self) -> None:
+        """字段齐全且 checks 可复算的复核才计入 pass_with_review。"""
+        with tempfile.TemporaryDirectory() as td:
+            tmp, ledger = self._review_fixture(Path(td))
+            proc, data = _run(tmp, ledger, "--require-complete")
+            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            self.assertEqual(data["pass_with_review"], 1)
+            self.assertEqual(data["pass_with_invalid_review"], 0)
+
+    def test_review_check_mismatch_is_invalid(self) -> None:
+        """checks 声明的 XML tests 与磁盘不符时必须判无效（finding 2）。"""
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            (tmp / "build").mkdir()
+            (tmp / "build" / "x.log").write_text("EXIT=0\n", encoding="utf-8")
+            xml = _write_xml(tmp, "build/x.xml", tests=2)
+            ledger = tmp / "ledger.md"
+            ledger.write_text(
+                HEADER + _row("D0-001", "PASS",
+                              "cmd:build/x.log#exit=0; test:build/x.xml; review:build/review.json"),
+                encoding="utf-8")
+            import hashlib
+            ledger_sha = hashlib.sha256(ledger.read_bytes()).hexdigest()
+            review = {
+                "id": "D0-001", "verdict": "PASS",
+                "run_id": "2026-11-05T00:00:00Z-batch46-review",
+                "reviewer": "r", "authors": ["a"], "ledger_sha256": ledger_sha,
+                "evidence": ["cmd:build/x.log", "test:build/x.xml"],
+                "evidence_sha256": {
+                    "build/x.log": hashlib.sha256((tmp / "build/x.log").read_bytes()).hexdigest(),
+                    "build/x.xml": hashlib.sha256(xml.read_bytes()).hexdigest(),
+                },
+                "checks": [
+                    {"name": "ledger_row", "source": "ledger.md",
+                     "value": f"id=D0-001; verdict=PASS; line=3; ledger_sha256={ledger_sha}"},
+                    {"name": "xml_aggregate", "source": "build/x.xml",
+                     "value": "tests=99; failures=0; errors=0; skipped=0"},
+                ],
+                "basis": "fixture",
+            }
+            (tmp / "build" / "review.json").write_text(
+                json.dumps(review), encoding="utf-8")
+            proc, data = _run(tmp, ledger, "--require-complete")
+            self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+            self.assertIn("REVIEW_CHECK_FAILED",
+                          {v["code"] for v in data["violations"]})
+            self.assertEqual(data["pass_with_invalid_review"], 1)
+            self.assertIn("PASS_REVIEW_INVALID",
+                          {v["code"] for v in data["violations"]})
+
+    def test_review_old_batch_run_id_is_flagged(self) -> None:
+        """run_id batch44 却声明 ledger_batch=46 时必须阻断（finding 1）。"""
+        with tempfile.TemporaryDirectory() as td:
+            tmp, ledger = self._review_fixture(
+                Path(td), run_id="2026-11-04T13:00:00Z-batch44-c-domain",
+                ledger_batch=46)
+            proc, data = _run(tmp, ledger, "--require-complete")
+            self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+            self.assertIn("REVIEW_RUN_PREDATES_LEDGER",
+                          {v["code"] for v in data["violations"]})
+
+    def test_review_without_checks_is_invalid(self) -> None:
+        """只有字段、没有 checks 的复核不算行级复核。"""
+        with tempfile.TemporaryDirectory() as td:
+            tmp, ledger = self._review_fixture(Path(td), checks=[])
+            proc, data = _run(tmp, ledger, "--require-complete")
+            self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+            self.assertIn("REVIEW_MISSING_CHECKS",
+                          {v["code"] for v in data["violations"]})
+            self.assertEqual(data["pass_with_review"], 0)
+
+    def test_review_rejects_doctype_xml(self) -> None:
+        """XML 证据含 DOCTYPE/ENTITY 时必须在解析前拒绝（安全约束）。"""
+        with tempfile.TemporaryDirectory() as td:
+            tmp, ledger = self._review_fixture(Path(td))
+            (tmp / "build" / "x.xml").write_text(
+                '<?xml version="1.0"?>\n<!DOCTYPE testsuite [<!ENTITY x "y">]>\n'
+                '<testsuite tests="2" failures="0" errors="0" skipped="0"/>\n',
+                encoding="utf-8")
+            # 重新按新 XML 字节写 evidence_sha256 + xml check，避免先被 sha 拦下。
+            import hashlib
+            review_path = tmp / "build" / "review.json"
+            review = json.loads(review_path.read_text(encoding="utf-8"))
+            review["evidence_sha256"]["build/x.xml"] = hashlib.sha256(
+                (tmp / "build/x.xml").read_bytes()).hexdigest()
+            review["checks"][1]["value"] = "tests=2; failures=0; errors=0; skipped=0"
+            review_path.write_text(json.dumps(review), encoding="utf-8")
+            proc, data = _run(tmp, ledger, "--require-complete")
+            self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+            self.assertIn("REVIEW_CHECK_FAILED",
+                          {v["code"] for v in data["violations"]})
+            details = [v["detail"] for v in data["violations"]
+                       if v["code"] == "REVIEW_CHECK_FAILED"]
+            self.assertTrue(any("DOCTYPE/ENTITY rejected" in d for d in details), details)
+
     def test_review_ledger_sha_must_match_ledger(self) -> None:
         """复核 JSON 的 ledger_sha256 必须等于被复核台账的 sha（防伪造复核）。"""
         with tempfile.TemporaryDirectory() as td:
