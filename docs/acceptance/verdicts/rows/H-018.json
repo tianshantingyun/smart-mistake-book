@@ -1,37 +1,37 @@
 {
   "id": "H-018",
-  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-h",
-  "reviewer": "batch46-line-reviewer-H",
-  "authors": [
-    "batch45-evidence-producer-H"
-  ],
   "verdict": "FAIL",
-  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "run_id": "2026-11-06T00:00:00Z-batch47-h-domain-fail-repair",
+  "reviewer": "batch47-h-domain-repair-reviewer",
+  "authors": [
+    "batch47-h-domain-fixer"
+  ],
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
   "evidence": [
-    "cmd:docs/research/evidence/2026-11-06-batch-46/h-domain/h-018-b46.log",
+    "cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log",
     "file:docs/known-defects.md",
     "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt"
   ],
   "evidence_sha256": {
-    "docs/research/evidence/2026-11-06-batch-46/h-domain/h-018-b46.log": "6c9067c34e31e0c10bdf27df56aad2d13b16b436a5405e6337b20a46e0da2548",
-    "docs/known-defects.md": "bc82e1f4804d0fc9af9c6b5d43ae9b23dcc2b827fa15ddfcb891c9af5ae9c6a5",
+    "docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log": "a47f4cd73c4c55fa8f875df77f7210fb39ad0c6d8e4fd011789441527a4d8b0f",
+    "docs/known-defects.md": "17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796",
     "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt": "dca6437922213c285335fce7320c9fe36a6aa58d9eecd26cfb1fa5bf7b82f441"
   },
   "checks": [
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=H-018; verdict=FAIL; line=779; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+      "value": "id=H-018; verdict=FAIL; line=779; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
     },
     {
       "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-46/h-domain/h-018-b46.log",
-      "value": "exit_markers=[1]; cmd=python -I tools/ci/h_compliance_gate.py --only H-018; sha256=6c9067c34e31e0c10bdf27df56aad2d13b16b436a5405e6337b20a46e0da2548"
+      "source": "docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log",
+      "value": "exit_markers=[1]; cmd=python -I tools/ci/h_compliance_gate.py --only H-018; sha256=a47f4cd73c4c55fa8f875df77f7210fb39ad0c6d8e4fd011789441527a4d8b0f"
     },
     {
       "name": "file_sha256",
       "source": "docs/known-defects.md",
-      "value": "sha256=bc82e1f4804d0fc9af9c6b5d43ae9b23dcc2b827fa15ddfcb891c9af5ae9c6a5"
+      "value": "sha256=17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796"
     },
     {
       "name": "file_sha256",
@@ -39,29 +39,29 @@
       "value": "sha256=dca6437922213c285335fce7320c9fe36a6aa58d9eecd26cfb1fa5bf7b82f441"
     },
     {
-      "name": "cmd_exit",
-      "source": "docs/acceptance/evidence/H/logs/h-018.log",
-      "value": "exit_markers=[1]; cmd=n/a; sha256=49923fda9edad64ac8da240d990b93fa14d458f65ea4e5e53a88385d3443a570"
-    },
-    {
       "name": "contradiction",
       "source": "docs/acceptance/ledger.md",
-      "value": "python -I tools/ci/h_compliance_gate.py --only H-018；FAIL：DOCX 无文档级 /AIGC、KD-84 部分页丢标、KD-85 模型改卷漏标"
+      "value": "python -I tools/ci/h_compliance_gate.py --only H-018；FAIL：DOCX 无文档级 /AIGC、KD-85 模型改卷漏标（KD-84 已修，见 H-061）——缺口仍真实存在，保留 FAIL 不洗绿"
     }
   ],
-  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "ledger_batch": 46,
+  "basis": "批次 47 H 域修复后机械复算：三分量缺口中 KD-84 已修（KD-84 closed + H-061 转 PASS），剩余 DOCX 无文档级 /AIGC（DocxMistakeRenderer/MinimalDocxWriter 无 docProps 部件，runbook FIX-T07）与 KD-85 模型改卷漏标（置位点在 feature/tutor 热区，FIX-T05）；门禁 --only H-018 复跑 EXIT=1，保留 FAIL。ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737。",
+  "notes": "保留 FAIL，不洗绿：两个剩余缺口均非本批可闭合（热区/跨线载体选型）。缺陷单与复跑命令见 docs/research/evidence/2026-11-06-batch-47/h-domain/fix-tickets-h47.md。本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "adversarial": {
+    "attempted": true,
+    "result": "gap-reconfirmed"
+  },
+  "review_scope": "single-ledger-row",
   "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
+  "ledger_batch": 47,
+  "verified_at": "2026-11-06T00:00:00Z",
   "independence": {
     "reviewer_role_only": true,
     "independent_agent": false,
     "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
   },
   "evidence_freshness": {
-    "current_batch_files": 1,
-    "archived_files": 2,
+    "current_batch_files": 3,
+    "archived_files": 0,
     "basis": "bytes-on-disk"
   },
   "checks_scope": "row-specific"

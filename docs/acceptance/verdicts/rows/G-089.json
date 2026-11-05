@@ -1,56 +1,94 @@
 {
   "id": "G-089",
-  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-g",
-  "reviewer": "batch46-line-reviewer-G",
+  "run_id": "2026-11-05T15:42:03Z-batch47-g089-repair",
+  "reviewer": "independent-reviewer:g-domain-batch47",
   "authors": [
-    "batch45-evidence-producer-G"
+    "batch47-g-fail-fixer"
   ],
-  "verdict": "FAIL",
-  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "self_review": false,
+  "verdict": "PASS",
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_line": "docs/acceptance/ledger.md#G-089",
+  "check": "Gradle 依赖校验元数据",
+  "method": "cmd: python -I tools/ci/g_security_gate.py --topic plaintext_deps （断言 G-089）; cmd: ./gradlew --dependency-verification strict --no-configuration-cache --no-parallel --console=plain :app:assembleStrictOfflineDebug （批次47 先红后绿：修复前红基线见 docs/acceptance/evidence/G/logs/g-089-red-baseline.log）",
   "evidence": [
-    "file:docs/known-defects.md",
-    "file:app/build.gradle.kts"
+    "cmd:docs/acceptance/evidence/G/logs/g-089-verification-metadata.log",
+    "cmd:docs/acceptance/evidence/G/logs/g-089-gradle-verify.log",
+    "cmd:docs/acceptance/evidence/G/logs/g-089-red-baseline.log",
+    "test:docs/acceptance/evidence/G/tests/g-089-verification-metadata.xml",
+    "file:gradle/verification-metadata.xml"
   ],
   "evidence_sha256": {
-    "docs/known-defects.md": "bc82e1f4804d0fc9af9c6b5d43ae9b23dcc2b827fa15ddfcb891c9af5ae9c6a5",
-    "app/build.gradle.kts": "1bcc02473d885dc5015249e7ed8af28f8c383d495862a0712b03a66fec65d719"
+    "gradle/verification-metadata.xml": "03efb87f59ba4ecd08701581345a0243cf34ac06d7196b41fc96695e86747990",
+    "docs/acceptance/evidence/G/logs/g-089-verification-metadata.log": "6b55fb27d01dd063d147579c26c040e0a1de12eb4c270a2b4093282036cf82f8",
+    "docs/acceptance/evidence/G/logs/g-089-gradle-verify.log": "ef5c76b28d5f1e3cde9c87496146f44033a104712b7a618111b782f8da7b6c68",
+    "docs/acceptance/evidence/G/logs/g-089-red-baseline.log": "8b9cec3c50199e31e78c695ae797f861167570859a2d165cebf969e9a88408c6",
+    "docs/acceptance/evidence/G/tests/g-089-verification-metadata.xml": "8928f6efd981abc159bd1483fa7a43593ea40080bc69c192fe77284b4ddf6177"
   },
   "checks": [
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=G-089; verdict=FAIL; line=760; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+      "value": "id=G-089; verdict=PASS; line=760; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
     },
     {
       "name": "file_sha256",
-      "source": "docs/known-defects.md",
-      "value": "sha256=bc82e1f4804d0fc9af9c6b5d43ae9b23dcc2b827fa15ddfcb891c9af5ae9c6a5"
+      "source": "gradle/verification-metadata.xml",
+      "value": "sha256=03efb87f59ba4ecd08701581345a0243cf34ac06d7196b41fc96695e86747990; bytes=425560"
     },
     {
       "name": "file_sha256",
-      "source": "app/build.gradle.kts",
-      "value": "sha256=1bcc02473d885dc5015249e7ed8af28f8c383d495862a0712b03a66fec65d719"
+      "source": "docs/acceptance/evidence/G/logs/g-089-verification-metadata.log",
+      "value": "sha256=6b55fb27d01dd063d147579c26c040e0a1de12eb4c270a2b4093282036cf82f8"
     },
     {
-      "name": "contradiction",
-      "source": "docs/acceptance/ledger.md",
-      "value": "FAIL: gradle/verification-metadata.xml 不存在，Gradle 依赖校验未启用；缺陷单见 docs/research/2026-11-06-batch-46-record.md §4"
+      "name": "cmd_log_exit",
+      "source": "docs/acceptance/evidence/G/logs/g-089-verification-metadata.log",
+      "value": "EXIT=0"
+    },
+    {
+      "name": "file_sha256",
+      "source": "docs/acceptance/evidence/G/logs/g-089-gradle-verify.log",
+      "value": "sha256=ef5c76b28d5f1e3cde9c87496146f44033a104712b7a618111b782f8da7b6c68"
+    },
+    {
+      "name": "cmd_log_exit",
+      "source": "docs/acceptance/evidence/G/logs/g-089-gradle-verify.log",
+      "value": "EXIT=0"
+    },
+    {
+      "name": "cmd_log_exit",
+      "source": "docs/acceptance/evidence/G/logs/g-089-red-baseline.log",
+      "value": "exit_markers=[0,1]"
+    },
+    {
+      "name": "junit_counts",
+      "source": "docs/acceptance/evidence/G/tests/g-089-verification-metadata.xml",
+      "value": "tests=4; failures=0; errors=0; skipped=0"
     }
   ],
-  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "ledger_batch": 46,
+  "basis": "批次 47 先红后绿修复（reviewer=independent-reviewer:g-domain-batch47，同一会话脚本复算，非第二人/第二模型）。红基线（g-089-red-baseline.log，exit_markers=[0,1]）：gradle/verification-metadata.xml 缺失（test -f rc=1）；旧 gate 的存在性断言 chk_g088 是死代码、未注册进 CHECKS，--topic plaintext_deps 在文件缺失时仍 EXIT=0（总退出码掩盖缺失，这就是本行此前只有 file: 证据、无 cmd 证据的原因）；首次 strict 校验 5 构件失败（kotlinx-coroutines-bom/core-jvm 1.10.2、symbol-processing-aa-embeddable 2.3.10）。绿证据：./gradlew --write-verification-metadata sha256 两轮（help 全图 939 组件 + assembleStrictOfflineDebug 补录 KSP detachedConfiguration4）生成 425,560 B 清单（942 组件）；随后 strict 校验 :app:assembleStrictOfflineDebug 与 :core:database:kspDebugKotlin --rerun-tasks 均 BUILD SUCCESSFUL（g-089-gradle-verify.log，EXIT=0）；gate 断言 G-089 PASS components=942 verify_metadata=true（g-089-verification-metadata.log）；新增 4 例回归测试全绿（tools/tests/test_g_security_gate.py::TestGDependencyVerification）。台账行由 FAIL 改 PASS 依据的是上述新证据，非改判词。",
+  "notes": "修复范围：gradle/verification-metadata.xml（新文件，未跟踪，待主会话入库）、tools/ci/g_security_gate.py（chk_g088 死代码改为已注册的 chk_g089）、tools/tests/test_g_security_gate.py（新增 TestGDependencyVerification 4 例）、台账 G-089 行、本 JSON、5 份证据文件。不碰热区、不引依赖。残留风险：strict 校验已覆盖 strictOfflineDebug 主链与 KSP detached 配置；release/benchmark/androidTest/unitTest 等其他配置若解析到未入清单的构件会按 Gradle 默认 strict 失败，届时用 --write-verification-metadata sha256 复跑该任务补录（build.gradle.kts 中批次 22 '暂不启用全量 verification-metadata' 的注释已与本文件现状不符，未改该注释，留主会话裁定）。",
+  "ledger_batch": 47,
   "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
+  "verified_at": "2026-11-05T15:42:03Z",
   "independence": {
     "reviewer_role_only": true,
     "independent_agent": false,
     "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 2,
-    "basis": "bytes-on-disk"
-  },
-  "checks_scope": "row-specific"
+  "checks_scope": "row-specific",
+  "red_to_green": {
+    "red": [
+      "test -f gradle/verification-metadata.xml rc=1",
+      "gate topic plaintext_deps EXIT=0（G-089 断言死代码，静默绿）",
+      "gradle strict 首验 5 构件失败 EXIT=1"
+    ],
+    "green": [
+      "gate topic plaintext_deps G-089 PASS EXIT=0",
+      "gradle strict assembleStrictOfflineDebug EXIT=0",
+      "gradle strict kspDebugKotlin --rerun-tasks EXIT=0",
+      "pytest TestGDependencyVerification 4/4"
+    ]
+  }
 }

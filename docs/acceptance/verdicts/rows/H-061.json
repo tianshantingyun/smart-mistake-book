@@ -1,59 +1,78 @@
 {
   "id": "H-061",
-  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-h",
-  "reviewer": "batch46-line-reviewer-H",
+  "verdict": "PASS",
+  "run_id": "2026-11-06T00:00:00Z-batch47-h-domain-fail-repair",
+  "reviewer": "batch47-h-domain-repair-reviewer",
   "authors": [
-    "batch45-evidence-producer-H"
+    "batch47-h-domain-fixer"
   ],
-  "verdict": "FAIL",
-  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
   "evidence": [
-    "cmd:docs/research/evidence/2026-11-06-batch-46/h-domain/h-061-b46.log",
-    "file:docs/known-defects.md"
+    "cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-gate-b47.log",
+    "test:docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-connected-green.xml",
+    "cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-pypdf-b47.log",
+    "file:docs/research/evidence/2026-11-06-batch-47/h-domain/print-subset-relabeled.pdf"
   ],
   "evidence_sha256": {
-    "docs/research/evidence/2026-11-06-batch-46/h-domain/h-061-b46.log": "6e3db0f8870c93a6fff61db7d2d583563ae3ed4a2ee397c676cdc78adfe76259",
-    "docs/known-defects.md": "bc82e1f4804d0fc9af9c6b5d43ae9b23dcc2b827fa15ddfcb891c9af5ae9c6a5"
+    "docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-gate-b47.log": "71fdc8e33e2cb92120ec488ab01fe3404626982cc3ee3bd1b21a2944c53aa659",
+    "docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-connected-green.xml": "7242550a7354e4f281543d930ab611e99c4fd8920a901b43057dff34c9b41e1a",
+    "docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-pypdf-b47.log": "c66c9d946f8b00eabad4820722a8a8c7ca72de44024d41c647b50a25bdd11eb1",
+    "docs/research/evidence/2026-11-06-batch-47/h-domain/print-subset-relabeled.pdf": "e4c176f0f605d7d1b5f3c4ed291cd2c1c248cf91e60c22cfd0dd9d5f618d4eac"
   },
   "checks": [
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=H-061; verdict=FAIL; line=822; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+      "value": "id=H-061; verdict=PASS; line=822; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
     },
     {
       "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-46/h-domain/h-061-b46.log",
-      "value": "exit_markers=[1]; cmd=python -I tools/ci/h_compliance_gate.py --only H-061; sha256=6e3db0f8870c93a6fff61db7d2d583563ae3ed4a2ee397c676cdc78adfe76259"
+      "source": "docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-gate-b47.log",
+      "value": "exit_markers=[0]; cmd=python -I tools/ci/h_compliance_gate.py --only H-061; sha256=71fdc8e33e2cb92120ec488ab01fe3404626982cc3ee3bd1b21a2944c53aa659"
+    },
+    {
+      "name": "xml_aggregate",
+      "source": "docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-connected-green.xml",
+      "value": "tests=1; failures=0; errors=0; skipped=0; sha256=7242550a7354e4f281543d930ab611e99c4fd8920a901b43057dff34c9b41e1a"
+    },
+    {
+      "name": "xml_testcase",
+      "source": "docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-connected-green.xml",
+      "value": "testcases=1; first=wholePrintAndPartialPrintBothKeepTheDocumentLevelAigcEntry; all_present=True"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-pypdf-b47.log",
+      "value": "exit_markers=[0]; cmd=python -I -c \"import sys,pypdf; …\" print-prepared-labeled.pdf / print-subset-relabeled.pdf; sha256=c66c9d946f8b00eabad4820722a8a8c7ca72de44024d41c647b50a25bdd11eb1"
     },
     {
       "name": "file_sha256",
-      "source": "docs/known-defects.md",
-      "value": "sha256=bc82e1f4804d0fc9af9c6b5d43ae9b23dcc2b827fa15ddfcb891c9af5ae9c6a5"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/acceptance/evidence/H/logs/h-061.log",
-      "value": "exit_markers=[1]; cmd=n/a; sha256=592106b28946b8e65b34d49c4d8ad383d57a3551ea1652ec385d5cd8383de6dd"
+      "source": "docs/research/evidence/2026-11-06-batch-47/h-domain/print-subset-relabeled.pdf",
+      "value": "sha256=e4c176f0f605d7d1b5f3c4ed291cd2c1c248cf91e60c22cfd0dd9d5f618d4eac"
     },
     {
       "name": "contradiction",
       "source": "docs/acceptance/ledger.md",
-      "value": "python -I tools/ci/h_compliance_gate.py --only H-061；FAIL：KD-84 open，writeSubset 逐页重绘丢文档级 /AIGC"
+      "value": "ledger 行声称部分页打印子集保留文档级 /AIGC；h-061-pypdf-b47.log 显示 prepared(4 页) 与 subset(1 页) 的 /AIGC 同 ProduceID（等于设备 cache 目录名=输入指纹）、Label=1，与声称一致（无矛盾）"
     }
   ],
-  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "ledger_batch": 46,
+  "basis": "机械复算 + 先红后绿修复复核：KD-84 修复（MistakePdfDelivery.relabelSubset 读 prepared 同一份 /AIGC JSON 重注入子集）后，设备用例 wholePrintAndPartialPrintBothKeepTheDocumentLevelAigcEntry 先红（h-061-red-b47.log，AssertionError partial-page print must keep the document-level /AIGC）后绿（h-061-connected-green.xml tests=1 failures=0；同 APK am instrument 全类 OK (7 tests)）；宿主 pypdf 6.16.2 独立读回 prepared(4 页)/subset(1 页) 的 /AIGC 均 Label=1 且 ProduceID 一致并等于设备 cache 目录名（=prepared.inputSha256）。ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737。",
+  "notes": "判 FAIL→PASS 依据的是本轮新证据（设备红绿轮 + 独立读者读回），不是改判据或删断言。残余边界：KD-85（模型改卷文本）不在本行判据内仍 open；本复核是机械复算，不构成第二人/第二模型的独立语义复核。共享工作树并发提示：ledger 正被他线同步编辑，sha 以主会话收口重绑为准。",
+  "adversarial": {
+    "attempted": true,
+    "result": "recomputed-no-mismatch"
+  },
+  "review_scope": "single-ledger-row",
   "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
+  "ledger_batch": 47,
+  "verified_at": "2026-11-06T00:00:00Z",
   "independence": {
     "reviewer_role_only": true,
     "independent_agent": false,
     "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
   },
   "evidence_freshness": {
-    "current_batch_files": 1,
+    "current_batch_files": 3,
     "archived_files": 1,
     "basis": "bytes-on-disk"
   },

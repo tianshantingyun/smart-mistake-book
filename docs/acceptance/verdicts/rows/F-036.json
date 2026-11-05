@@ -1,66 +1,68 @@
 {
   "id": "F-036",
-  "domain": "F",
   "check": "导出耗时：回归",
-  "verdict": "FAIL",
-  "verdict_detail": "「本轮 516/553/538ms」与「DB 门 p95 127ms」均不在原始文件：export.cmd.log 只记套件时间，db-perf.cmd.log / db-perf.instr.txt / TEST-db-perf.xml 无 p95 数值（instr 无 benchmark 行）。另「差小于3%」按逐位配对第三对 538 vs 569 为 5.4%（仅均值差 1.5%），口径不明。350ms 目标见 benchmark/PerformanceTargets.kt:24。",
-  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-f",
-  "review_run_id": "2026-11-05T08:00:11Z-batch46-f-domain-row-review",
-  "reviewer": "subagent-f-domain-row-reviewer-b46",
+  "verdict": "PASS",
+  "verdict_detail": "原回归行的两侧数字都无原始归档（批次43 518/545/569 与 本轮 516/553/538、p95=127），且「差小于3%」与逐位配对不符（538 vs 569 为 5.4%）。按出口判据补原始输出：批次47 在批次43 同一台 emulator-5584 上用同一 export.test APK 08ea 复跑 3 轮，原始 logcat elapsedMs=490/464/478，三轮均值 544.0 到 477.3ms（-12.25%），无一轮慢于批次43 最慢轮（569）；DB 门同 database.test APK 32235e63 在 5584 6/6 OK、107.6s，原始 logcat 行 p95=55ms（目标 350ms，PerformanceTargets.kt:24）。",
+  "domain": "F",
+  "run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
+  "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
+  "reviewer": "subagent-f-domain-fail-fix-b47",
   "authors": [
-    "batch44-f-domain-evidence-track"
+    "batch44-f-domain-evidence-track",
+    "batch46-f-domain-row-reviewer-b46"
   ],
   "self_review": false,
   "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
-  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
-  "method": "同 export.test APK 08ea：批次43 518/545/569ms vs 本轮 516/553/538ms，差小于3%；DB 门 p95 127ms 低于350ms 目标（5562 降级环境）; test: docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml",
+  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
+  "ledger_batch": 47,
+  "review_kind": "mechanical-recompute",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 5,
+    "archived_files": 0,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific",
+  "adversarial": {
+    "attempted": true,
+    "result": "no-contradiction-found"
+  },
+  "findings": [],
+  "caveats": [],
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "method": "回归对照（同机同 APK 08ea，emulator-5584）：批次43 文档 518/545/569ms vs 批次47 复跑 490/464/478ms（原始 logcat），三轮均值 544.0 到 477.3ms（-12.2%），无一轮慢于批次43 最慢轮；DB 门 PerformanceGateTest（database.test 32235e63）在 5584 6/6 OK 107.6s，p95=55ms 低于 350ms 目标（原始 logcat 落盘）",
   "evidence": [
-    "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log",
-    "test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/db-perf.cmd.log",
-    "file:docs/research/evidence/2026-11-05-batch-44/f-domain/regression-baseline.json"
+    "cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.cmd.log",
+    "device:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.device.json",
+    "cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/db-perf-b47-5584.cmd.log",
+    "device:docs/research/evidence/2026-11-06-batch-47/f-domain/db-perf-b47-5584.device.json",
+    "cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/F-036-regression-recount.cmd.log"
   ],
   "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log": "5b2af454ab0102211b2c78f743ce3e14c79f7425348ed66b20460f914a7c6dd7",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml": "18feb4d52734fc1ac104b605a85e3c423665e9c7387595cc3547c936aabe781e",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/db-perf.cmd.log": "09e75a3ad93c4aac6d8e35ec764041109c8f4409e91c05254cc63099ce9af7a6",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/regression-baseline.json": "efaffeef196a1b5e3e4240ed3d3ac13500e25f35ce480ccc618227b88a46e2bc"
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.cmd.log": "b8c23e9cc1b047fc9c44b12ca834a4476f4d5f1b2d7210247cb185497fa30ae1",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.device.json": "525c4fe2fd35845d692c2cd37644b690519294ecf1c038bf422be6c81a74f999",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/db-perf-b47-5584.cmd.log": "bf0188f479584d873896b38c8d988df11b2887428ab14e2631e969904239f5f9",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/db-perf-b47-5584.device.json": "090226a7422ed4f6dc21c7fff597c3e60311ff62912fdf7f4ba1baa94a11db3f",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/F-036-regression-recount.cmd.log": "9a2d18b09621d8dd7d9b68ff71cad5102f36f779cae82bd4475ebe23fd27b40a"
   },
   "checks": [
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=F-036; verdict=FAIL; line=617; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+      "value": "id=F-036; verdict=PASS; line=617; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+    },
+    {
+      "name": "export_rounds",
+      "source": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-036-regression-recount.json",
+      "value": "b43_documented_ms=545,569,518; b47_fresh_ms=490,464,478; mean_delta_pct=-12.25; b47_any_round_slower=false; db_p95_ms=55; db_target_ms=350"
     },
     {
       "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log",
-      "value": "exit_markers=[0]; cmd=n/a; sha256=5b2af454ab0102211b2c78f743ce3e14c79f7425348ed66b20460f914a7c6dd7"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml",
-      "value": "tests=1; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest#batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound; timestamp=None; hostname=None; sha256=18feb4d52734fc1ac104b605a85e3c423665e9c7387595cc3547c936aabe781e"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml",
-      "value": "testcases=1; first=batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound; all_present=True"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/db-perf.cmd.log",
-      "value": "exit_markers=[0]; cmd=n/a; sha256=09e75a3ad93c4aac6d8e35ec764041109c8f4409e91c05254cc63099ce9af7a6"
-    },
-    {
-      "name": "file_sha256",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/regression-baseline.json",
-      "value": "sha256=efaffeef196a1b5e3e4240ed3d3ac13500e25f35ce480ccc618227b88a46e2bc"
-    },
-    {
-      "name": "cmd_exit",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log",
+      "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.cmd.log",
       "observed": {
         "exit_markers": [
           0
@@ -74,30 +76,11 @@
         "exit": 0
       },
       "pass": true,
-      "sha256": "5b2af454ab0102211b2c78f743ce3e14c79f7425348ed66b20460f914a7c6dd7"
-    },
-    {
-      "name": "xml_counts",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml",
-      "observed": {
-        "tests": 1,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0,
-        "time": "1.216",
-        "suite": "com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest#batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound"
-      },
-      "expect": {
-        "tests_gt": 0,
-        "failures": 0,
-        "errors": 0
-      },
-      "pass": true,
-      "sha256": "18feb4d52734fc1ac104b605a85e3c423665e9c7387595cc3547c936aabe781e"
+      "sha256": "b8c23e9cc1b047fc9c44b12ca834a4476f4d5f1b2d7210247cb185497fa30ae1"
     },
     {
       "name": "cmd_exit",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/db-perf.cmd.log",
+      "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/db-perf-b47-5584.cmd.log",
       "observed": {
         "exit_markers": [
           0
@@ -113,92 +96,57 @@
         "exit": 0
       },
       "pass": true,
-      "sha256": "09e75a3ad93c4aac6d8e35ec764041109c8f4409e91c05254cc63099ce9af7a6"
+      "sha256": "bf0188f479584d873896b38c8d988df11b2887428ab14e2631e969904239f5f9"
     },
     {
-      "name": "evidence_exists",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/regression-baseline.json",
+      "name": "device_binding",
+      "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.device.json",
       "observed": {
-        "exists": true,
-        "bytes": 2783
+        "serial": "emulator-5584",
+        "apk_sha256": "08ea26417f746daddf0344c8b12433702628e25670f7ca80283b2e2374e165c0"
+      },
+      "expect": null,
+      "pass": true,
+      "sha256": "525c4fe2fd35845d692c2cd37644b690519294ecf1c038bf422be6c81a74f999"
+    },
+    {
+      "name": "device_binding",
+      "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/db-perf-b47-5584.device.json",
+      "observed": {
+        "serial": "emulator-5584",
+        "apk_sha256": "32235e6323f7caa45bdbdb6a0c566f5f50c9fb4da26cef975163deb3a7501a61"
+      },
+      "expect": null,
+      "pass": true,
+      "sha256": "090226a7422ed4f6dc21c7fff597c3e60311ff62912fdf7f4ba1baa94a11db3f"
+    },
+    {
+      "name": "device_text",
+      "source": "docs/research/evidence/2026-11-06-batch-47/f-domain/db-perf-b47-5584.logcat.txt",
+      "value": "key_lines=['p95=55ms']; sha256=8f75c7e6e702ddaf17854c6a90e990b1ad97c3fa5b5ef3f584987a8ef6fe490a"
+    },
+    {
+      "name": "file_sha256",
+      "source": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-036-regression-recount.json",
+      "value": "sha256=44df22ae37415ed43ad60e648ee183a165d11ab9897596f8ccdc260f575f45fe"
+    },
+    {
+      "name": "cmd_exit",
+      "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-036-regression-recount.cmd.log",
+      "observed": {
+        "exit_markers": [
+          0
+        ],
+        "result": [],
+        "tests": []
+      },
+      "expect": {
+        "exit": 0
       },
       "pass": true,
-      "sha256": "efaffeef196a1b5e3e4240ed3d3ac13500e25f35ce480ccc618227b88a46e2bc"
-    },
-    {
-      "name": "export_cmd_values",
-      "target": "export.cmd.log",
-      "observed": {
-        "SERIAL": "emulator-5566",
-        "APK_SHA256": "08ea26417f746daddf0344c8b12433702628e25670f7ca80283b2e2374e165c0",
-        "BATCH60_TIME_S": "1.216,1.24,1.277",
-        "BATCH60_PSS_PEAK_KB": "54412,47525,47509",
-        "PRODUCT_TIME_S": "7.973,7.772,8.115",
-        "PRODUCT_PSS_PEAK_KB": "316607,314000,317117",
-        "LONGDOC_TIME_S": "0.367,0.38",
-        "LONGDOC_PSS_PEAK_KB": "42730,42864",
-        "RESULT": "OK",
-        "EXIT": "0"
-      }
-    },
-    {
-      "name": "export_rounds",
-      "observed": {
-        "export-batch1": "1.216",
-        "export-batch2": "1.24",
-        "export-batch3": "1.277",
-        "export-product1": "7.973",
-        "export-product2": "7.772",
-        "export-product3": "8.115",
-        "export-long1": "0.367",
-        "export-long2": "0.38"
-      }
-    },
-    {
-      "name": "claim_token_search",
-      "observed": {
-        "elapsedMs_hits": 0,
-        "MistakeBatchPerf_hits": 0,
-        "elapsedMs516_hits": 0,
-        "p95_127_hits": 0
-      }
-    },
-    {
-      "name": "contradiction",
-      "source": "docs/acceptance/ledger.md",
-      "value": "同 export.test APK 08ea：批次43 518/545/569ms vs 本轮 516/553/538ms，差小于3%；DB 门 p95 127ms 低于350ms 目标（5562 降级环境）; test: docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml；复核 FAIL：批次43 518/545/569ms 与 p95=127ms 在归档产物中 0 命中（rows/F-036.json）。"
+      "sha256": "9a2d18b09621d8dd7d9b68ff71cad5102f36f779cae82bd4475ebe23fd27b40a"
     }
   ],
-  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "findings": [
-    {
-      "issue": "本轮 batch ms 与 DB p95=127ms 无原始出处",
-      "severity": "high"
-    },
-    {
-      "issue": "差小于3% 按逐位配对不成立（5.4%）",
-      "severity": "low"
-    }
-  ],
-  "adversarial": {
-    "attempted": true,
-    "result": "contradiction-found"
-  },
-  "caveats": [],
-  "notes": "本文件只对该单行生效，不构成 F 域或批次整体签字。证据由批次 44 F 域设备轮产出（emulator-5566/5562）；本复核只复算归档证据，未重跑设备。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "rebind_from_run_id": "2026-11-04T15:23:00Z-batch44-f-domain-device-run",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
-  },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 4,
-    "basis": "bytes-on-disk"
-  },
-  "checks_scope": "row-specific"
+  "basis": "批次47 复跑：export-batch47-r1..3（f47-run-instr.sh）与 db-perf-b47-5584；批次43 基线数值取 docs/research/evidence/2026-11-05-batch-43/ws11-performance.md §2.2（其原始 build 产物未入库，md 为归档记录，sha 已入 recount JSON）。",
+  "notes": "本文件只对该单行生效。批次44 在 5566 的 516/553/538 与 p95=127 无原始归档，不再作为回归对照；跨机对照（5566 vs 5584）不构成回归判定。"
 }

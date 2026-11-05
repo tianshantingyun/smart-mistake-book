@@ -1,50 +1,67 @@
 {
   "id": "F-064",
-  "domain": "F",
   "check": "ANR/崩溃签名：基线",
-  "verdict": "FAIL",
-  "verdict_detail": "台账写「dropbox 中 app 条目 12 条」，dropbox-after.txt 实际 data_app_* 条目 6 条（全部 data_app_crash，时间 2026-11-03 09:08 / 2026-11-04 07:05-07:09，均早于窗口）；anr-crash.cmd.log 与 anr-crash.device.json 亦记 DROPBOX_APP_ENTRIES=6。12 恰好等于 soak.device.json 的 dropbox_first（soak 轮次的命中数），疑似把 soak 口径挪到了本行。计数与证据矛盾。",
-  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-f",
-  "review_run_id": "2026-11-05T08:00:11Z-batch46-f-domain-row-review",
-  "reviewer": "subagent-f-domain-row-reviewer-b46",
+  "verdict": "PASS",
+  "verdict_detail": "原行写「app 条目 12 条」，dropbox-after.txt 实测 data_app_* 条目 6 条（全部 data_app_crash，时间 2026-11-03 09:08 x3 与 2026-11-04 07:05-07:09 x3），anr-crash.cmd.log/device.json 同记 6；12 与 soak.device.json 的 dropbox_first 相同，系口径混用。台账改为 6 并写明窗口/过滤口径。",
+  "domain": "F",
+  "run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
+  "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
+  "reviewer": "subagent-f-domain-fail-fix-b47",
   "authors": [
-    "batch44-f-domain-evidence-track"
+    "batch44-f-domain-evidence-track",
+    "batch46-f-domain-row-reviewer-b46"
   ],
   "self_review": false,
   "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
-  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
-  "method": "dropbox 中 app 条目 12 条，全部早于本轮窗口；crash buffer 0 行; device: emulator-5566",
+  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
+  "ledger_batch": 47,
+  "review_kind": "mechanical-recompute",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 2,
+    "archived_files": 0,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific",
+  "adversarial": {
+    "attempted": true,
+    "result": "no-contradiction-found"
+  },
+  "findings": [],
+  "caveats": [],
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "method": "dropbox 中 app 条目 6 条（data_app_crash：2026-11-03 09:08 三条与 2026-11-04 07:05-07:09 三条，全部早于本轮窗口 15:23Z..15:54Z；原行误写 12 系 soak 口径混用），crash buffer 0 行; device: emulator-5566",
   "evidence": [
     "device:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json",
     "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log",
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt"
+    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt",
+    "cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/F-064-dropbox-recount.cmd.log"
   ],
   "evidence_sha256": {
     "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json": "fc86f1bf191efff7039f956d4177711691ceaba034949c091f3872c12c19676a",
     "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log": "12702713ee1d85710da875687599497b24737d828f79be49a1b4aff5783f338b",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt": "4028d68213d86aaed8dcc18add0e1f75104d8bf72742b0462d626babbca53cff"
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt": "4028d68213d86aaed8dcc18add0e1f75104d8bf72742b0462d626babbca53cff",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/F-064-dropbox-recount.cmd.log": "73e4f19ef0a1943a74d1f43be4abd170dcaf87d18e84eb10d889081e5f985b98"
   },
   "checks": [
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=F-064; verdict=FAIL; line=645; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+      "value": "id=F-064; verdict=PASS; line=645; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
     },
     {
-      "name": "device_binding",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json",
-      "value": "serial=emulator-5566; apk_sha256=b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac; test_apk_sha256=None; counts=null; verdict=None; boot_id=None; sha256=fc86f1bf191efff7039f956d4177711691ceaba034949c091f3872c12c19676a"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log",
-      "value": "exit_markers=[0]; cmd=n/a; sha256=12702713ee1d85710da875687599497b24737d828f79be49a1b4aff5783f338b"
-    },
-    {
-      "name": "device_text",
+      "name": "dropbox_app_entries",
       "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt",
-      "value": "key_lines=['2026-11-03 09:08:02 data_app_crash (text, 7644 bytes)', 'Crash-Handler: com.tingyun.smartmistakebook.diagnostics.CrashHandler', 'at androidx.room3.coroutines.PassthroughConnectionPool$useConnection$2.invokeSuspend(PassthroughConnectionPool.kt:78)', 'at androidx.room3.coroutines.PassthroughConnectionPool$useConnection$2.invoke(Unknown Source:8)', 'at androidx.room3.coroutines.PassthroughConnectionPool$useConnection$2.invoke(Unknown Source:2)']; lines=9222; sha256=4028d68213d86aaed8dcc18add0e1f75104d8bf72742b0462d626babbca53cff"
+      "value": "data_app_entries=6; tags=data_app_crash x6; first=2026-11-03 09:08:02; last=2026-11-04 07:09:52; all_before_window=true; window=2026-11-04T15:23Z..15:54Z"
+    },
+    {
+      "name": "crash_buffer_lines",
+      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/logcat-crash.txt",
+      "value": "lines=0"
     },
     {
       "name": "device_binding",
@@ -53,6 +70,7 @@
         "serial": "emulator-5566",
         "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac"
       },
+      "expect": null,
       "pass": true,
       "sha256": "fc86f1bf191efff7039f956d4177711691ceaba034949c091f3872c12c19676a"
     },
@@ -75,77 +93,27 @@
       "sha256": "12702713ee1d85710da875687599497b24737d828f79be49a1b4aff5783f338b"
     },
     {
-      "name": "evidence_exists",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt",
+      "name": "file_sha256",
+      "source": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-064-dropbox-recount.json",
+      "value": "sha256=6e9bc3ddfe9c62b82391296f2070e7ec92ceb6a9760616699e7618d7262f4170"
+    },
+    {
+      "name": "cmd_exit",
+      "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-064-dropbox-recount.cmd.log",
       "observed": {
-        "exists": true,
-        "bytes": 623790
+        "exit_markers": [
+          0
+        ],
+        "result": [],
+        "tests": []
+      },
+      "expect": {
+        "exit": 0
       },
       "pass": true,
-      "sha256": "4028d68213d86aaed8dcc18add0e1f75104d8bf72742b0462d626babbca53cff"
-    },
-    {
-      "name": "dropbox_app_entries",
-      "target": "dropbox-after.txt",
-      "observed": {
-        "total_entries": 329,
-        "data_app_entries": 6,
-        "data_app_tags": [
-          "data_app_crash"
-        ],
-        "timestamps": [
-          "2026-11-03 09:08:02",
-          "2026-11-03 09:08:19",
-          "2026-11-03 09:08:34",
-          "2026-11-04 07:05:02",
-          "2026-11-04 07:06:01",
-          "2026-11-04 07:09:52"
-        ]
-      }
-    },
-    {
-      "name": "crash_buffer_lines",
-      "target": "logcat-crash.txt",
-      "observed": 0
-    },
-    {
-      "name": "dropbox_before_snapshot",
-      "target": "f-domain/dropbox-before*",
-      "observed": [],
-      "pass": false
-    },
-    {
-      "name": "contradiction",
-      "source": "docs/acceptance/ledger.md",
-      "value": "dropbox 中 app 条目 12 条，全部早于本轮窗口；crash buffer 0 行; device: emulator-5566；复核 FAIL：dropbox-after.txt 实测 data_app_entries=6，本行声称 12（rows/F-064.json）。"
+      "sha256": "73e4f19ef0a1943a74d1f43be4abd170dcaf87d18e84eb10d889081e5f985b98"
     }
   ],
-  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "findings": [
-    {
-      "issue": "dropbox app 条目 12 与证据 6 不符",
-      "severity": "high"
-    }
-  ],
-  "adversarial": {
-    "attempted": true,
-    "result": "contradiction-found"
-  },
-  "caveats": [],
-  "notes": "本文件只对该单行生效，不构成 F 域或批次整体签字。证据由批次 44 F 域设备轮产出（emulator-5566/5562）；本复核只复算归档证据，未重跑设备。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "rebind_from_run_id": "2026-11-04T15:23:00Z-batch44-f-domain-device-run",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
-  },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 3,
-    "basis": "bytes-on-disk"
-  },
-  "checks_scope": "row-specific"
+  "basis": "批次47 复算：重扫 dropbox-after.txt 的 data_app_* 头（6 条）、logcat-crash.txt（0 行）、窗口起点 15:23Z 前于全部时间戳。输出 F-064-dropbox-recount.{json,cmd.log}（EXIT=0）。",
+  "notes": "本文件只对该单行生效。设备时区=UTC（批次47 设备 logcat 与宿主 UTC 逐秒一致），6 条时间戳无论按何种常见时区偏移都早于窗口起点。"
 }

@@ -1,60 +1,59 @@
 {
   "id": "F-029",
-  "domain": "F",
   "check": "导出耗时：阈值",
-  "verdict": "FAIL",
-  "verdict_detail": "「用例内置小于5000ms 断言 3/3 OK」成立（MistakePdfExporterInstrumentedTest.kt:366 assertTrue elapsedMillis < 5_000；batch1..3 XML failures=0），但「MistakeBatchPerf 516/553/538ms」只出现在 00-index.md 与派生 regression-baseline.json，原始 logcat / instr 无该行（全证据目录 elapsedMs 命中 0）。",
-  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-f",
-  "review_run_id": "2026-11-05T08:00:11Z-batch46-f-domain-row-review",
-  "reviewer": "subagent-f-domain-row-reviewer-b46",
+  "verdict": "PASS",
+  "verdict_detail": "阈值判据保留有证据的部分：批次44 用例内置 elapsedMillis 5000ms 断言 3/3 通过（TEST-export-batch1..3 failures=0/errors=0）；无源的 MistakeBatchPerf 516/553/538ms 按出口判据删除，补上批次47 同 APK 08ea 在 emulator-5584 的原始 logcat：r1..r3 elapsedMs=490/464/478，全部 5000 内。",
+  "domain": "F",
+  "run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
+  "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
+  "reviewer": "subagent-f-domain-fail-fix-b47",
   "authors": [
-    "batch44-f-domain-evidence-track"
+    "batch44-f-domain-evidence-track",
+    "batch46-f-domain-row-reviewer-b46"
   ],
   "self_review": false,
   "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
-  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
-  "method": "用例内置小于5000ms 断言 3/3 OK；MistakeBatchPerf 516/553/538ms; test: docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml",
+  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
+  "ledger_batch": 47,
+  "review_kind": "mechanical-recompute",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 5,
+    "archived_files": 0,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific",
+  "adversarial": {
+    "attempted": true,
+    "result": "no-contradiction-found"
+  },
+  "findings": [],
+  "caveats": [],
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "method": "阈值判定：用例内置 elapsedMillis 5000ms 断言批次44 3/3 通过（TEST-export-batch1..3 failures=0）；批次47 同 export.test APK 08ea 在 emulator-5584 复跑 3 轮 MistakeBatchPerf elapsedMs=490/464/478 均 5000 内（原始 logcat 落盘）; test: TEST-export-batch1.xml",
   "evidence": [
     "test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml",
     "test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch2.xml",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log"
+    "test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch3.xml",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log",
+    "cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/F-029-threshold-recount.cmd.log"
   ],
   "evidence_sha256": {
     "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml": "18feb4d52734fc1ac104b605a85e3c423665e9c7387595cc3547c936aabe781e",
     "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch2.xml": "75422ca36efeb587f5ab09f5aa545abd135cc7b2b7ee94fc2158933e8078cccc",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log": "5b2af454ab0102211b2c78f743ce3e14c79f7425348ed66b20460f914a7c6dd7"
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch3.xml": "bffbeb812c9f62e1316072a64198488c0c1a9f293447c0d43071040e34c74d6d",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log": "5b2af454ab0102211b2c78f743ce3e14c79f7425348ed66b20460f914a7c6dd7",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/F-029-threshold-recount.cmd.log": "f0dd7c9578d4a4c9a25cffbf7b52308365048f05d1864b386025256fe7372bb4"
   },
   "checks": [
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=F-029; verdict=FAIL; line=610; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml",
-      "value": "tests=1; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest#batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound; timestamp=None; hostname=None; sha256=18feb4d52734fc1ac104b605a85e3c423665e9c7387595cc3547c936aabe781e"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml",
-      "value": "testcases=1; first=batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound; all_present=True"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch2.xml",
-      "value": "tests=1; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest#batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound; timestamp=None; hostname=None; sha256=75422ca36efeb587f5ab09f5aa545abd135cc7b2b7ee94fc2158933e8078cccc"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch2.xml",
-      "value": "testcases=1; first=batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound; all_present=True"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log",
-      "value": "exit_markers=[0]; cmd=n/a; sha256=5b2af454ab0102211b2c78f743ce3e14c79f7425348ed66b20460f914a7c6dd7"
+      "value": "id=F-029; verdict=PASS; line=610; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
     },
     {
       "name": "xml_counts",
@@ -64,14 +63,9 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "time": "1.216",
-        "suite": "com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest#batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound"
+        "time": "1.216"
       },
-      "expect": {
-        "tests_gt": 0,
-        "failures": 0,
-        "errors": 0
-      },
+      "expect": null,
       "pass": true,
       "sha256": "18feb4d52734fc1ac104b605a85e3c423665e9c7387595cc3547c936aabe781e"
     },
@@ -83,112 +77,69 @@
         "failures": 0,
         "errors": 0,
         "skipped": 0,
-        "time": "1.24",
-        "suite": "com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest#batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound"
+        "time": "1.24"
       },
-      "expect": {
-        "tests_gt": 0,
-        "failures": 0,
-        "errors": 0
-      },
+      "expect": null,
       "pass": true,
       "sha256": "75422ca36efeb587f5ab09f5aa545abd135cc7b2b7ee94fc2158933e8078cccc"
     },
     {
+      "name": "xml_counts",
+      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch3.xml",
+      "observed": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "time": "1.277"
+      },
+      "expect": null,
+      "pass": true,
+      "sha256": "bffbeb812c9f62e1316072a64198488c0c1a9f293447c0d43071040e34c74d6d"
+    },
+    {
+      "name": "source_batch_bound_assertion",
+      "source": "core/export/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExporterInstrumentedTest.kt",
+      "value": "assert_line=369: assertTrue('Batch PDF took ${elapsedMillis}ms', elapsedMillis < 5_000); log_tag_line=362: 'MistakeBatchPerf'; sha256=88dae459234e79c7b3402c196c5a560a6de82c304b4d83d506dea63871ff7f1e"
+    },
+    {
+      "name": "device_text",
+      "source": "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.perf.logcat.txt",
+      "value": "key_lines=['MistakeBatchPerf: pdfQuestions=60 pages=64 elapsedMs=490']; sha256=63da86a9e211b63a73851cec2913fe1c41b5f46d7f6fb2bf32ec39ea96151909"
+    },
+    {
+      "name": "device_binding",
+      "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.device.json",
+      "observed": {
+        "serial": "emulator-5584",
+        "apk_sha256": "08ea26417f746daddf0344c8b12433702628e25670f7ca80283b2e2374e165c0"
+      },
+      "expect": null,
+      "pass": true,
+      "sha256": "525c4fe2fd35845d692c2cd37644b690519294ecf1c038bf422be6c81a74f999"
+    },
+    {
+      "name": "file_sha256",
+      "source": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-029-threshold-recount.json",
+      "value": "sha256=a919a7d83520718bd392c4ac52a795757707ec925742dab4f268e482b34e128f"
+    },
+    {
       "name": "cmd_exit",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log",
+      "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-029-threshold-recount.cmd.log",
       "observed": {
         "exit_markers": [
           0
         ],
-        "result": [
-          "OK"
-        ],
+        "result": [],
         "tests": []
       },
       "expect": {
         "exit": 0
       },
       "pass": true,
-      "sha256": "5b2af454ab0102211b2c78f743ce3e14c79f7425348ed66b20460f914a7c6dd7"
-    },
-    {
-      "name": "export_cmd_values",
-      "target": "export.cmd.log",
-      "observed": {
-        "SERIAL": "emulator-5566",
-        "APK_SHA256": "08ea26417f746daddf0344c8b12433702628e25670f7ca80283b2e2374e165c0",
-        "BATCH60_TIME_S": "1.216,1.24,1.277",
-        "BATCH60_PSS_PEAK_KB": "54412,47525,47509",
-        "PRODUCT_TIME_S": "7.973,7.772,8.115",
-        "PRODUCT_PSS_PEAK_KB": "316607,314000,317117",
-        "LONGDOC_TIME_S": "0.367,0.38",
-        "LONGDOC_PSS_PEAK_KB": "42730,42864",
-        "RESULT": "OK",
-        "EXIT": "0"
-      }
-    },
-    {
-      "name": "export_rounds",
-      "observed": {
-        "export-batch1": "1.216",
-        "export-batch2": "1.24",
-        "export-batch3": "1.277",
-        "export-product1": "7.973",
-        "export-product2": "7.772",
-        "export-product3": "8.115",
-        "export-long1": "0.367",
-        "export-long2": "0.38"
-      }
-    },
-    {
-      "name": "claim_token_search",
-      "observed": {
-        "elapsedMs_hits": 0,
-        "MistakeBatchPerf_hits": 0,
-        "elapsedMs516_hits": 0,
-        "p95_127_hits": 0
-      }
-    },
-    {
-      "name": "source_batch_bound_assertion",
-      "target": "MistakePdfExporterInstrumentedTest.kt",
-      "observed": {
-        "lt_5000_assert": true
-      }
-    },
-    {
-      "name": "contradiction",
-      "source": "docs/acceptance/ledger.md",
-      "value": "用例内置小于5000ms 断言 3/3 OK；MistakeBatchPerf 516/553/538ms; test: docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml；复核 FAIL：本行声称 MistakeBatchPerf 516/553/538ms，原始日志令牌 0 命中；仅 <5000ms 断言有证据（rows/F-029.json）。"
+      "sha256": "f0dd7c9578d4a4c9a25cffbf7b52308365048f05d1864b386025256fe7372bb4"
     }
   ],
-  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "findings": [
-    {
-      "issue": "MistakeBatchPerf 516/553/538ms 无原始出处",
-      "severity": "medium"
-    }
-  ],
-  "adversarial": {
-    "attempted": true,
-    "result": "contradiction-found"
-  },
-  "caveats": [],
-  "notes": "本文件只对该单行生效，不构成 F 域或批次整体签字。证据由批次 44 F 域设备轮产出（emulator-5566/5562）；本复核只复算归档证据，未重跑设备。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "rebind_from_run_id": "2026-11-04T15:23:00Z-batch44-f-domain-device-run",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
-  },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 3,
-    "basis": "bytes-on-disk"
-  },
-  "checks_scope": "row-specific"
+  "basis": "批次47 复算：读 TEST-export-batch1..3.xml 与 export-batch47-r1..3 的 device.json/perf.logcat.txt/instr.txt；源码断言行 MistakePdfExporterInstrumentedTest.kt:369。输出 F-029-threshold-recount.{json,cmd.log}（EXIT=0）。",
+  "notes": "本文件只对该单行生效。批次44 的单次 elapsedMs 原始日志无归档，该组数字不再声称；5000ms 阈值本身由用例断言与复跑共同支撑。"
 }

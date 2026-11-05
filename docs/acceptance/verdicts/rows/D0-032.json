@@ -6,7 +6,7 @@
   "authors": [
     "batch45-evidence-producer-D0"
   ],
-  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
   "evidence": [
     "cmd:docs/research/evidence/2026-11-06-batch-46/d0-self/verdicts.txt",
     "test:docs/research/evidence/2026-11-06-batch-46/gate/d0-self-pytest.xml"
@@ -19,7 +19,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=D0-032; verdict=PASS; line=63; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+      "value": "id=D0-032; verdict=PASS; line=63; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
     },
     {
       "name": "cmd_log",

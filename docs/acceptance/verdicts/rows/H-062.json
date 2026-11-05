@@ -1,60 +1,67 @@
 {
   "id": "H-062",
-  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-h",
-  "reviewer": "batch46-line-reviewer-H",
-  "authors": [
-    "batch45-evidence-producer-H"
-  ],
   "verdict": "FAIL",
-  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "run_id": "2026-11-06T00:00:00Z-batch47-h-domain-fail-repair",
+  "reviewer": "batch47-h-domain-repair-reviewer",
+  "authors": [
+    "batch47-h-domain-fixer"
+  ],
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
   "evidence": [
-    "cmd:docs/research/evidence/2026-11-06-batch-46/h-domain/h-062-b46.log",
-    "file:docs/known-defects.md"
+    "cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-062-b47.log",
+    "file:docs/known-defects.md",
+    "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt"
   ],
   "evidence_sha256": {
-    "docs/research/evidence/2026-11-06-batch-46/h-domain/h-062-b46.log": "6166ff3529b8d468bc73b9e9c69282e9d15ac2c672da1c534149e86dbf006e53",
-    "docs/known-defects.md": "bc82e1f4804d0fc9af9c6b5d43ae9b23dcc2b827fa15ddfcb891c9af5ae9c6a5"
+    "docs/research/evidence/2026-11-06-batch-47/h-domain/h-062-b47.log": "4f111aca60eb561f716e8859f3e03435a4c1079f341a4769d89af135286a0ed5",
+    "docs/known-defects.md": "17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796",
+    "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt": "be7819ec4500fbbc37fde65a61f787bf7355de78d015e00c888e1ddf00b029a2"
   },
   "checks": [
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=H-062; verdict=FAIL; line=823; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+      "value": "id=H-062; verdict=FAIL; line=823; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
     },
     {
       "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-46/h-domain/h-062-b46.log",
-      "value": "exit_markers=[1]; cmd=python -I tools/ci/h_compliance_gate.py --only H-062; sha256=6166ff3529b8d468bc73b9e9c69282e9d15ac2c672da1c534149e86dbf006e53"
+      "source": "docs/research/evidence/2026-11-06-batch-47/h-domain/h-062-b47.log",
+      "value": "exit_markers=[1]; cmd=python -I tools/ci/h_compliance_gate.py --only H-062; sha256=4f111aca60eb561f716e8859f3e03435a4c1079f341a4769d89af135286a0ed5"
     },
     {
       "name": "file_sha256",
       "source": "docs/known-defects.md",
-      "value": "sha256=bc82e1f4804d0fc9af9c6b5d43ae9b23dcc2b827fa15ddfcb891c9af5ae9c6a5"
+      "value": "sha256=17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796"
     },
     {
-      "name": "cmd_exit",
-      "source": "docs/acceptance/evidence/H/logs/h-062.log",
-      "value": "exit_markers=[1]; cmd=n/a; sha256=e7649fe393df1301a4e99ef7080dfc71406a7412fb62aa4be0a3d87b97360e60"
+      "name": "file_sha256",
+      "source": "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt",
+      "value": "sha256=be7819ec4500fbbc37fde65a61f787bf7355de78d015e00c888e1ddf00b029a2"
     },
     {
       "name": "contradiction",
       "source": "docs/acceptance/ledger.md",
-      "value": "python -I tools/ci/h_compliance_gate.py --only H-062；FAIL：KD-85 open，模型改卷文本未纳入 /AIGC"
+      "value": "python -I tools/ci/h_compliance_gate.py --only H-062；FAIL：KD-85 open，置位点在 feature/tutor 热区需主会话授权——KD-85 Progress（批次 47）与 gate 复跑 EXIT=1 证实缺口仍在，保留 FAIL 不洗绿"
     }
   ],
-  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "ledger_batch": 46,
+  "basis": "批次 47 机械复算：MistakePdfPaperEdit.toDraft() 仍纯透传 hasModelParsedText（KD-85 open），修复落点 TutorPaperEditApplier.apply 属 feature/tutor 热区禁改；门禁 --only H-062 复跑 EXIT=1，保留 FAIL。ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737。",
+  "notes": "保留 FAIL，不洗绿：出口=主会话授权热区后按 KD-85 方案 ① 落 modelTextApplied 置位（runbook FIX-T05）。门禁已加防漂移条件（KD-85 closed + 置位落码同时成立才允许转绿）。本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "adversarial": {
+    "attempted": true,
+    "result": "gap-reconfirmed"
+  },
+  "review_scope": "single-ledger-row",
   "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
+  "ledger_batch": 47,
+  "verified_at": "2026-11-06T00:00:00Z",
   "independence": {
     "reviewer_role_only": true,
     "independent_agent": false,
     "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
   },
   "evidence_freshness": {
-    "current_batch_files": 1,
-    "archived_files": 1,
+    "current_batch_files": 3,
+    "archived_files": 0,
     "basis": "bytes-on-disk"
   },
   "checks_scope": "row-specific"

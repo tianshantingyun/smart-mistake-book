@@ -1,12 +1,12 @@
 {
   "id": "I-001",
   "verdict": "PASS",
-  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-i",
-  "reviewer": "batch46-line-reviewer-I",
+  "run_id": "2026-11-06T12:00:00Z-batch47-line-review-i",
+  "reviewer": "batch47-line-reviewer-I",
   "authors": [
     "batch45-evidence-producer-I"
   ],
-  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
   "evidence": [
     "device:docs/research/evidence/2026-11-05-batch-44/i-domain/base-library.device.json",
     "cmd:docs/research/evidence/2026-11-05-batch-44/i-domain/base-library.log",
@@ -33,7 +33,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=I-001; verdict=PASS; line=852; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+      "value": "id=I-001; verdict=PASS; line=852; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
     },
     {
       "name": "device_binding",
@@ -84,10 +84,30 @@
       "name": "xml_testcase",
       "source": "docs/research/evidence/2026-11-05-batch-44/i-domain/unit-a11y-tools.xml",
       "value": "testcases=15; first=test_cli_exit_codes; all_present=True"
+    },
+    {
+      "name": "device_text",
+      "source": "docs/research/evidence/2026-11-05-batch-44/i-domain/base-library.xml",
+      "value": "key_lines=['resource-id=\"root_library\"', 'text=\"搜索题目、板块或知识点\"']; sha256=db424d9e776f64d8d1a3b08575d0fc2285ed77738d6e7c2d05354a5db4fb86f3"
+    },
+    {
+      "name": "device_text",
+      "source": "docs/research/evidence/2026-11-05-batch-44/i-domain/base-review.xml",
+      "value": "key_lines=['resource-id=\"root_review\"', 'text=\"今日复习\"']; sha256=62ff03f5c2f9ea8527842f0612063e1db765106b4b5921bec3f2ad509faeb64e"
+    },
+    {
+      "name": "device_text",
+      "source": "docs/research/evidence/2026-11-05-batch-44/i-domain/base-profile.xml",
+      "value": "key_lines=['resource-id=\"root_profile\"', 'text=\"模型设置\"']; sha256=a56fe74224662264bbd7e341d4801a6d7a0f41e021d5680ac42d71566eca17a9"
+    },
+    {
+      "name": "device_text",
+      "source": "docs/research/evidence/2026-11-05-batch-44/i-domain/base-tutor.xml",
+      "value": "key_lines=['resource-id=\"root_tutor\"', 'text=\"今天想学点什么？\"']; sha256=ab77fbac9d2d3c5c3e1bb56fc10e65c3a2f40a3b2d215683e9ae1258e5cac52f"
     }
   ],
-  "basis": "机械复算（reviewer=batch46-line-reviewer-I，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 I-001 并复算 ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "basis": "机械复算（reviewer=batch46-line-reviewer-I，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 I-001 并复算 ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。 批次47 WS2 行级判别力修复：本行不再依赖与其他行逐字节相同的 checks，新增只属于本行的 device_text/xml_testcase 复算；仍为同一会话机械复算，不是第二个人/第二模型的语义复核。 批次47 I 域复算修复（2026-11-06，I 域复核细化员）：本行 device_text checks 原值以 \"]\" 结尾、缺尾分号，acceptance_review.check_one 的 key_lines 正则（key_lines=\\[.*?\\];）不匹配，gate 复算空转（变异探针实测错值放行）；现按 gate 语义在 value 尾部补 \"; sha256=<源文件实际 sha256>\"，使 key_lines 与字节一致性均可被 gate 真复算。修复仅改 checks[].value 与本说明，不改 verdict/evidence/evidence_sha256。",
+  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次47 WS2 行级判别力修复：本行不再依赖与其他行逐字节相同的 checks，新增只属于本行的 device_text/xml_testcase 复算；仍为同一会话机械复算，不是第二个人/第二模型的语义复核。 批次47 I 域复算修复（2026-11-06，I 域复核细化员）：本行 device_text checks 原值以 \"]\" 结尾、缺尾分号，acceptance_review.check_one 的 key_lines 正则（key_lines=\\[.*?\\];）不匹配，gate 复算空转（变异探针实测错值放行）；现按 gate 语义在 value 尾部补 \"; sha256=<源文件实际 sha256>\"，使 key_lines 与字节一致性均可被 gate 真复算。修复仅改 checks[].value 与本说明，不改 verdict/evidence/evidence_sha256。",
   "adversarial": {
     "attempted": true,
     "result": "recomputed-no-mismatch"
@@ -95,7 +115,7 @@
   "review_scope": "single-ledger-row",
   "ledger_batch": 46,
   "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
+  "verified_at": "2026-11-06T12:00:00Z",
   "independence": {
     "reviewer_role_only": true,
     "independent_agent": false,
@@ -106,5 +126,5 @@
     "archived_files": 9,
     "basis": "bytes-on-disk"
   },
-  "checks_scope": "shared-suite"
+  "checks_scope": "row-specific"
 }
