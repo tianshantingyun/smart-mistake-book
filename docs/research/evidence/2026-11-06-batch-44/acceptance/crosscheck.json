@@ -1,0 +1,3907 @@
+{
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "e139b03e8b9a005af73d658333f7721907b7e6976718106934c00e096a3eb675",
+  "total": 1200,
+  "parse_issues": [],
+  "verdict_counts": {
+    "UNVERIFIED": 436,
+    "PASS": 670,
+    "BLOCKED": 73,
+    "FAIL": 21
+  },
+  "domain_counts": {
+    "D0": {
+      "UNVERIFIED": 100
+    },
+    "A": {
+      "PASS": 66,
+      "UNVERIFIED": 23,
+      "BLOCKED": 1
+    },
+    "B": {
+      "PASS": 88,
+      "UNVERIFIED": 2
+    },
+    "C": {
+      "PASS": 77,
+      "UNVERIFIED": 12,
+      "FAIL": 1
+    },
+    "D": {
+      "PASS": 81,
+      "BLOCKED": 9
+    },
+    "E": {
+      "PASS": 80,
+      "UNVERIFIED": 10
+    },
+    "F": {
+      "PASS": 56,
+      "UNVERIFIED": 22,
+      "BLOCKED": 10,
+      "FAIL": 2
+    },
+    "G": {
+      "PASS": 82,
+      "UNVERIFIED": 6,
+      "BLOCKED": 2
+    },
+    "H": {
+      "PASS": 66,
+      "BLOCKED": 12,
+      "FAIL": 5,
+      "UNVERIFIED": 7
+    },
+    "I": {
+      "PASS": 53,
+      "UNVERIFIED": 32,
+      "BLOCKED": 5
+    },
+    "J": {
+      "FAIL": 13,
+      "UNVERIFIED": 22,
+      "PASS": 21,
+      "BLOCKED": 34
+    },
+    "FIX": {
+      "UNVERIFIED": 100
+    },
+    "GATE": {
+      "UNVERIFIED": 100
+    }
+  },
+  "gap_classification_raw": {
+    "MISSING_TEST_PATH": {
+      "parser-artifact": 65
+    },
+    "PASS_WITHOUT_TEST_LANDING": {
+      "parser-artifact": 16,
+      "real-gap": 44
+    },
+    "MISSING_TOOL_PATH": {
+      "parser-artifact": 75
+    },
+    "MISSING_EVIDENCE_PATH": {
+      "real-gap": 50
+    },
+    "DEVICE_EVIDENCE_MISSING": {
+      "real-gap": 10
+    }
+  },
+  "gaps": [
+    {
+      "id": "D-001",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditPromptGoldenTest.kt#theNoteLayoutPromptMatchesItsVersionedGoldenByteForByte",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-002",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditPromptGoldenTest.kt#theNoNoteLayoutPromptMatchesItsVersionedGoldenByteForByte",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-003",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditPromptGoldenTest.kt#theGoldenVersionIsTheOnePersistedForPaperEdit",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-004",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditTasksTest.kt#promptPolicyVersionIsPinned",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-005",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditAdapterTest.kt#promptListsEveryWhitelistedCommandFromTheParser",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-006",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditAdapterTest.kt#promptOmitsSetNoteWhenTheLayoutHasNoNoteArea",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-007",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/TutorMoveLabelBudgetPromptTest.kt#thePlanPromptDeclaresTheMoveLabelBudget",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-008",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/TutorMoveLabelBudgetPromptTest.kt#theRespondPromptDeclaresTheMoveLabelBudget；另证 bothTutorPromptVersionsWereBumpedWithTheDeclaration",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-009",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/TutorConversationPromptTest.kt#consecutiveTurnsShareAStablePrefixSoUpstreamCachingCanHit；另证 theVariablePerTurnNoteNeverBreaksTheStablePrefix",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-010",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorVisualContextFingerprintTest.kt#theRequestSchemaIsNineteenAfterThePaperEditKind",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-011",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditTasksTest.kt#aSchemaEighteenRequestCannotCarryAPaperEditInput",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-012",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditTasksTest.kt#paperEditRequestAndOutputRoundTripAtSchemaNineteen",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-013",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditAdapterTest.kt#aSchemaNineteenRequestCannotBeDecodedUnderTheLegacySchema",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-014",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditTasksTest.kt#paperEditKindNameAndWireDiscriminatorsArePinned",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-015",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorVisualContextFingerprintTest.kt#anEmptyContextKeepsTheEncodingAndTheOperationFingerprintUnchanged",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-016",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorVisualContextFingerprintTest.kt#aLegacySchemaRowCannotCarryAVisualContext",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-017",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ProgramSchemaMaxLengthAlignmentTest.kt#theWorstCaseFourByteProgramAtTheAdvertisedBoundPassesBothGates",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-018",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ProgramSchemaMaxLengthAlignmentTest.kt#aProgramPastTheAdvertisedBoundIsRejectedFailClosedWithTheByteCount",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-019",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#paperEditShapeErrorIsPermanentInvalidResponse",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-020",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#truncatedCompletionIsRetryableIncompleteOutputNotInvalidResponse",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-021",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#truncatedTutorStreamFailsAsIncompleteOutputAfterItsContentArrived",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-022",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#http401And403MapToAuthenticationFailureWithoutRetrying",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-023",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#http429MapsToRateLimitedFailureThroughTheGatewayExecutionPath",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-024",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#http5xxMapsToRetryableServiceFailureThroughTheGatewayExecutionPath",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-025",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#connectionFailureMapsToNetworkUnavailableAndTimeoutMapsToTimeout",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-026",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#providerRejectionCaptureCarriesTheErrorBodyAndStatusButNoException",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-027",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ModelCallFailureRecordLogDisciplineTest.kt#toStringNeverEchoesTheRawResponseOrStudentText；另证 OpenAiCompatibleModelGatewayTest#aBrokenCaptureSeamNeverChangesTheProductOutcome",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-028",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelTextSurrogateTruncationTest.kt#aBudgetBoundaryInsideAnEmojiDropsTheWholePairInsteadOfLeavingHalfACharacter",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-029",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelTextSurrogateTruncationTest.kt#aPairEndingExactlyAtTheBudgetBoundaryIsKeptWhole",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-030",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelTextSurrogateTruncationTest.kt#everyBudgetAcrossMixedTextStaysWithinBudgetAndIsAPrefix",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-031",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/EgressImageBudgetTest.kt#aSmallJpegGoesOutExactlyAsStored",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-032",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/EgressImageBudgetTest.kt#aTwelveMegapixelPhotoIsDownscaled；另证 downscalingKeepsTheAspectRatioAndTheLongEdgeBudget",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-033",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelEgressTest.kt#preparedRequestBudgetRejectsAnOversizedMultiPageTotal",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-034",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelEgressTest.kt#preparedRequestBudgetFailsClosedWhenBase64ArithmeticWouldOverflow",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-035",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorToolRoundBudgetTest.kt#theRoundTotalIsCappedEvenWhenEachOutcomeIsWithinItsOwnBudget；另证 whatDoesNotFitSaysSoInsteadOfSilentlyDisappearing",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-036",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#aTutorBodyBeyondItsTextBudgetIsRetryableInsteadOfPermanentlyFailed",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-037",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelEgressTest.kt#externalProviderCannotRunWithoutStudentApproval",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-038",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelEgressTest.kt#exactCaptureApprovalAuthorizesOnlyTheBoundExternalProviderAndAsset",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-039",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelEgressTest.kt#providerConfigurationChangeInvalidatesAnExistingApproval",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-040",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelEgressTest.kt#captureApprovalRejectsAnyUndisclosedExtraDataClass",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-041",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelEgressTest.kt#lobbyApprovalOneMillisecondOlderThanTheMessageIsRejected",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-042",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelEgressTest.kt#anImageBearingRespondRoundNeedsAnImageCapableProvider；另证 aTextOnlyRespondRoundStillRunsOnATextOnlyProvider",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-043",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelEgressTest.kt#aLobbyMessageMayCarryEarlierImagesOnlyWithinItsGrantedScope",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-044",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#mockWebServerReceivesAuthorizedImageThroughRealEnqueuePath",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-045",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/TutorE2EProtocolTest.kt#egressManifestMatchesExactlyWhatIsSent_lobby",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-046",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelTasksTest.kt#remoteDispatchBudgetAllowsUpToTheConfiguredLimitOnly",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-047",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorToolAuthorizationTest.kt#masteryUpdateNotAllowedWhenUndeclaredEvenUnderCurrentQuestion",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-048",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorToolAuthorizationTest.kt#ambiguousIntentNeverAuthorizesTools；另证 lowConfidenceIntentIsNotRouteEligible",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-049",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/TutorToolRoundGateTest.kt#a fabricated code is structurally refused and never reaches the runner",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-050",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/TutorToolRoundGateTest.kt#a figure call reaches the runner only under the current-question intent；另证 a javascript figure call never reaches the image generator",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-051",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ModelStreamSelectionTest.kt#aNativeToolRoundFallsBackToNonStreamingWhenTheProtocolCannotAggregateToolCalls；另证 nonToolRoundsKeepTheirExistingStreamingPolicy",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-052",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiSseToolCallAggregationTest.kt#conflictingIdsForTheSameIndexFailClosed；另证 conflictingNamesForTheSameIndexFailClosed",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-053",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiSseToolCallAggregationTest.kt#streamedToolArgumentsAtExactlyThe512KiBBudgetAreAdmitted；另证 streamedToolArgumentsOneBytePastThe512KiBBudgetAreRejected",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-054",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorToolCarrierValidationTest.kt#lobbyAcceptsDeclaredReadTools；另证 lobbyRejectsDuplicateOrRoundWithoutDeclarations",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-055",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditCommandParserTest.kt#everyWhitelistedCommandParsesWithItsDeclaredFields",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-056",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditCommandParserTest.kt#anUnknownCommandTypeIsRejectedInsteadOfIgnored",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-057",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditCommandParserTest.kt#anExtraFieldSuchAsAnImageUriRejectsTheWholeCommand",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-058",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditCommandParserTest.kt#codeFencesAndFreeTextAreNotMasqueradedIntoCommands",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-059",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditCommandParserTest.kt#theRootShapeIsExactlyTheCommandsObject",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-060",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditCommandParserTest.kt#zeroAndHugeMoveOffsetsAreRejected；另证 blankRequiredTextIsRejectedButBlankBlockTextAndNoteAreLeftToTheApplier",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-061",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditTasksTest.kt#duplicateEntryAndBlockIdsAreRejected",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-062",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditCommandParserTest.kt#payloadSizeAndCommandCountAreBounded",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-063",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditModelPortTest.kt#aCancelledTaskIsReportedAsCancellationNotAsSuccess；另证 anEmptyFlowFailsClosedRatherThanReportingNoChanges、aFlowThatEndsWithoutATerminalStateFailsClosed",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-064",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/KnowledgeQuizProtocolTest.kt#inputRoundTripsThroughTheModelTaskCodec",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-065",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/KnowledgeQuizProtocolTest.kt#outputValidationRequiresAChoiceThatMatchesTheCorrectId",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-066",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/KnowledgeQuizProtocolTest.kt#inputRejectsBlankKnowledgeNodeId",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-067",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/KnowledgeQuizWireTest.kt#parsesQuestionChoicesAndCorrectId",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-068",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/KnowledgeQuizWireTest.kt#rejectsUnexpectedTopLevelKeys",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-069",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/KnowledgeQuizWireTest.kt#rejectsACorrectChoiceIdThatIsNotPresent",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-070",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/KnowledgeQuizProtocolMockWebServerTest.kt#requestBodyCarriesTheMaterialAndItsBoundaryAnchor",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-071",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/KnowledgeQuizProtocolMockWebServerTest.kt#realHttpRoundTripParsesTheQuizReplyIntoKnowledgeQuizOutput",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-072",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/KnowledgeQuizProtocolMockWebServerTest.kt#quizReplyWhoseCorrectIdIsAbsentIsRejectedBeforeTheUiCanSeeSuccess",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-073",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelFailureRecoveryTest.kt#resendingIsOfferedExactlyWhereAFreshDispatchCanSucceed",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-074",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelFailureRecoveryTest.kt#capabilityAndPayloadFailuresNeverOfferAResend",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-075",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelFailureRecoveryTest.kt#onlyMissingOrStaleEgressApprovalRequestsRenewal",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-076",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiModelTransportCancellationTest.kt#cancellingTheCoroutineCancelsTheHttpCall",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-077",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiModelTransportCancellationTest.kt#cancellingTheCoroutineCancelsTheSseCall",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-078",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditModelPortTest.kt#retriesOfTheSameEditShareOneLogicalOperationWhileNewRequestsDoNot",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-079",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditModelPortTest.kt#aFlowThatEndsWithoutATerminalStateFailsClosed",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-080",
+      "code": "MISSING_TEST_PATH",
+      "detail": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#credentialRotatedDuringEndpointPreparationFailsClosedBeforeEnqueue",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "D-081",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: test: core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelTasksTest.kt#taskSnapshotRejectsFingerprintFromAnotherRequest；另证 successfulTaskRequiresOutput",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-001",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-002",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-003",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-004",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-005",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-006",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-007",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-009",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-010",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-011",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-012",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-013",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-014",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-015",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-016",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-017",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-019",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-020",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-021",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-022",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-023",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-026",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-027",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-028",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-029",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-030",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-031",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-032",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-033",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-034",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-035",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-037",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-038",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-044",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-045",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-046",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-047",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-048",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-049",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-050",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-054",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-055",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-056",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-057",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-058",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-059",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-060",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-064",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-065",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-067",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-068",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-069",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-070",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-071",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-072",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-073",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-074",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-078",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-079",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-082",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-083",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-084",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-085",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-086",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-087",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "H-088",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "I-001",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label base-library --nav nav_library --root-tag root_library --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-002",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 talkback --label talkback-review --root-tag root_review --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-003",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "I-004",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "I-006",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label base-tutor --nav nav_tutor --root-tag root_tutor --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-008",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "I-010",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label base-library --nav nav_library --root-tag root_library --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-011",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label base-review --root-tag root_review --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-012",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "I-013",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "I-015",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label base-profile --nav nav_profile --root-tag root_profile --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-016",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label base-tutor --nav nav_tutor --root-tag root_tutor --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-017",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label empty-library --nav nav_library --root-tag root_library --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-019",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_audit.py theme --source core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/Theme.kt",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-020",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label dark-library --nav nav_library --root-tag root_library --night yes --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-021",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "I-022",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "I-024",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_audit.py theme --source core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/Theme.kt",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-026",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_audit.py theme --source core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/Theme.kt",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-028",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label font2-library --nav nav_library --root-tag root_library --font-scale 2.0 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-029",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label font2-library --nav nav_library --root-tag root_library --font-scale 2.0 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-031",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label font2-review --root-tag root_review --font-scale 2.0 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-033",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label font2-library --nav nav_library --root-tag root_library --font-scale 2.0 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-034",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label dark-font2-review --root-tag root_review --night yes --font-scale 2.0 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-035",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label font2-review --root-tag root_review --font-scale 2.0 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-037",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label dark-library --nav nav_library --root-tag root_library --night yes --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-038",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label dark-review --root-tag root_review --night yes --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-040",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label dark-font2-review --root-tag root_review --night yes --font-scale 2.0 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-042",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label dark-review --root-tag root_review --night yes --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-044",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label dark-review --root-tag root_review --night yes --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-046",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 focus --label focus-library --nav nav_library --root-tag root_library --presses 8 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-047",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 focus --label focus-library --nav nav_library --root-tag root_library --presses 8 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-048",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "I-049",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 focus --label focus-library --nav nav_library --root-tag root_library --presses 8 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-051",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 focus --label focus-library --nav nav_library --root-tag root_library --presses 8 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-052",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 focus --label focus-library --nav nav_library --root-tag root_library --presses 8 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-053",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 focus --label focus-library --nav nav_library --root-tag root_library --presses 8 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-055",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label empty-review --root-tag root_review --expect-text 还没有可复习的题 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-056",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/am_instrument_recorder.py --serial emulator-5584 --package com.tingyun.smartmistakebook.localfirst.test --class com.tingyun.smartmistakebook.Prd06EmptyLibraryCaptureCtaInstrumentedTest --arg smb_allow_data_reset=true --label i-empty-library --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-057",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 focus --label focus-library --nav nav_library --root-tag root_library --presses 8 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-058",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label empty-library --nav nav_library --root-tag root_library --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-060",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label empty-review --root-tag root_review --expect-text 还没有可复习的题 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-062",
+      "code": "MISSING_TOOL_PATH",
+      "detail": "-m",
+      "verdict": "PASS",
+      "class": "parser-artifact"
+    },
+    {
+      "id": "I-064",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 keyboard --label keyboard-search --nav nav_library --field library_search_field --text abc --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-065",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 keyboard --label keyboard-search --nav nav_library --field library_search_field --text abc --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-067",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 keyboard --label keyboard-search --nav nav_library --field library_search_field --text abc --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-069",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 keyboard --label keyboard-search --nav nav_library --field library_search_field --text abc --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-071",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_audit.py dump --serial emulator-5584 --out docs/research/evidence/2026-11-05-batch-44/i-domain/dump-smoke.xml",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-073",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label landscape-library-nav --nav nav_library --root-tag root_library --wm-size 2400x1080 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-074",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label landscape-review --root-tag root_review --wm-size 2400x1080 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-076",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label landscape-review --root-tag root_review --wm-size 2400x1080 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-078",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label landscape-library-nav --nav nav_library --root-tag root_library --wm-size 2400x1080 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "I-080",
+      "code": "PASS_WITHOUT_TEST_LANDING",
+      "detail": "方法/证据无 test/device 落点: python -I tools/ci/a11y_probe.py --serial emulator-5584 capture --label landscape-review --root-tag root_review --wm-size 2400x1080 --out-dir docs/research/evidence/2026-11-05-batch-44/i-domain",
+      "verdict": "PASS",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-004",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-009",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-014",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-019",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-024",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-029",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-034",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-039",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-044",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-049",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-054",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-059",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-064",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-069",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-074",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-079",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-084",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-089",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-094",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "FIX-099",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/FIX-review.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-001",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-A-independent.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-002",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-A-adversarial.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-003",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-A-main.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-005",
+      "code": "DEVICE_EVIDENCE_MISSING",
+      "detail": "方法声明设备执行，但无 device 证据",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-011",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-B-independent.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-012",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-B-adversarial.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-013",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-B-main.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-015",
+      "code": "DEVICE_EVIDENCE_MISSING",
+      "detail": "方法声明设备执行，但无 device 证据",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-021",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-C-independent.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-022",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-C-adversarial.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-023",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-C-main.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-025",
+      "code": "DEVICE_EVIDENCE_MISSING",
+      "detail": "方法声明设备执行，但无 device 证据",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-031",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-D-independent.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-032",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-D-adversarial.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-033",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-D-main.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-035",
+      "code": "DEVICE_EVIDENCE_MISSING",
+      "detail": "方法声明设备执行，但无 device 证据",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-041",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-E-independent.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-042",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-E-adversarial.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-043",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-E-main.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-045",
+      "code": "DEVICE_EVIDENCE_MISSING",
+      "detail": "方法声明设备执行，但无 device 证据",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-051",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-F-independent.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-052",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-F-adversarial.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-053",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-F-main.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-055",
+      "code": "DEVICE_EVIDENCE_MISSING",
+      "detail": "方法声明设备执行，但无 device 证据",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-061",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-G-independent.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-062",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-G-adversarial.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-063",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-G-main.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-065",
+      "code": "DEVICE_EVIDENCE_MISSING",
+      "detail": "方法声明设备执行，但无 device 证据",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-071",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-H-independent.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-072",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-H-adversarial.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-073",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-H-main.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-075",
+      "code": "DEVICE_EVIDENCE_MISSING",
+      "detail": "方法声明设备执行，但无 device 证据",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-081",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-I-independent.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-082",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-I-adversarial.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-083",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-I-main.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-085",
+      "code": "DEVICE_EVIDENCE_MISSING",
+      "detail": "方法声明设备执行，但无 device 证据",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-091",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-J-independent.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-092",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-J-adversarial.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-093",
+      "code": "MISSING_EVIDENCE_PATH",
+      "detail": "docs/acceptance/verdicts/GATE-J-main.json",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    },
+    {
+      "id": "GATE-095",
+      "code": "DEVICE_EVIDENCE_MISSING",
+      "detail": "方法声明设备执行，但无 device 证据",
+      "verdict": "UNVERIFIED",
+      "class": "real-gap"
+    }
+  ],
+  "normalized_gap_counts": {
+    "PASS_WITHOUT_TEST_LANDING": {
+      "PASS": 44
+    },
+    "MISSING_EVIDENCE_PATH": {
+      "UNVERIFIED": 57
+    },
+    "DEVICE_EVIDENCE_MISSING": {
+      "UNVERIFIED": 10
+    }
+  },
+  "normalized_gap_rows": 111,
+  "normalized_gaps": [
+    {
+      "id": "I-001",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-002",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-006",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-010",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-011",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-015",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-016",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-017",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-019",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-020",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-024",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-026",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-028",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-029",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-031",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-033",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-034",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-035",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-037",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-038",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-040",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-042",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-044",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-046",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-047",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-049",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-051",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-052",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-053",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-055",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-056",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-057",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-058",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-060",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-064",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-065",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-067",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-069",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-071",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-073",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-074",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-076",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-078",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "I-080",
+      "verdict": "PASS",
+      "gaps": [
+        "PASS_WITHOUT_TEST_LANDING"
+      ]
+    },
+    {
+      "id": "J-008",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "J-018",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "J-026",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "J-036",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "J-053",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "J-063",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "J-071",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-004",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-009",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-014",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-019",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-024",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-029",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-034",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-039",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-044",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-049",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-054",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-059",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-064",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-069",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-074",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-079",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-084",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-089",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-094",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "FIX-099",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-001",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-002",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-003",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-005",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "DEVICE_EVIDENCE_MISSING"
+      ]
+    },
+    {
+      "id": "GATE-011",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-012",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-013",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-015",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "DEVICE_EVIDENCE_MISSING"
+      ]
+    },
+    {
+      "id": "GATE-021",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-022",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-023",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-025",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "DEVICE_EVIDENCE_MISSING"
+      ]
+    },
+    {
+      "id": "GATE-031",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-032",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-033",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-035",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "DEVICE_EVIDENCE_MISSING"
+      ]
+    },
+    {
+      "id": "GATE-041",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-042",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-043",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-045",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "DEVICE_EVIDENCE_MISSING"
+      ]
+    },
+    {
+      "id": "GATE-051",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-052",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-053",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-055",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "DEVICE_EVIDENCE_MISSING"
+      ]
+    },
+    {
+      "id": "GATE-061",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-062",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-063",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-065",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "DEVICE_EVIDENCE_MISSING"
+      ]
+    },
+    {
+      "id": "GATE-071",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-072",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-073",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-075",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "DEVICE_EVIDENCE_MISSING"
+      ]
+    },
+    {
+      "id": "GATE-081",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-082",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-083",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-085",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "DEVICE_EVIDENCE_MISSING"
+      ]
+    },
+    {
+      "id": "GATE-091",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-092",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-093",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "MISSING_EVIDENCE_PATH"
+      ]
+    },
+    {
+      "id": "GATE-095",
+      "verdict": "UNVERIFIED",
+      "gaps": [
+        "DEVICE_EVIDENCE_MISSING"
+      ]
+    }
+  ],
+  "review_evidence_tokens": 0,
+  "bindings": {
+    "D0-001": "ledger@e139b03e",
+    "D0-002": "ledger@e139b03e",
+    "D0-003": "ledger@e139b03e",
+    "D0-004": "ledger@e139b03e",
+    "D0-005": "ledger@e139b03e",
+    "D0-006": "ledger@e139b03e",
+    "D0-007": "ledger@e139b03e",
+    "D0-008": "ledger@e139b03e",
+    "D0-009": "ledger@e139b03e",
+    "D0-010": "ledger@e139b03e",
+    "D0-011": "ledger@e139b03e",
+    "D0-012": "ledger@e139b03e",
+    "D0-013": "ledger@e139b03e",
+    "D0-014": "ledger@e139b03e",
+    "D0-015": "ledger@e139b03e",
+    "D0-016": "ledger@e139b03e",
+    "D0-017": "ledger@e139b03e",
+    "D0-018": "ledger@e139b03e",
+    "D0-019": "ledger@e139b03e",
+    "D0-020": "ledger@e139b03e",
+    "D0-021": "ledger@e139b03e",
+    "D0-022": "ledger@e139b03e",
+    "D0-023": "ledger@e139b03e",
+    "D0-024": "ledger@e139b03e",
+    "D0-025": "ledger@e139b03e",
+    "D0-026": "ledger@e139b03e",
+    "D0-027": "ledger@e139b03e",
+    "D0-028": "ledger@e139b03e",
+    "D0-029": "ledger@e139b03e",
+    "D0-030": "ledger@e139b03e",
+    "D0-031": "ledger@e139b03e",
+    "D0-032": "ledger@e139b03e",
+    "D0-033": "ledger@e139b03e",
+    "D0-034": "ledger@e139b03e",
+    "D0-035": "ledger@e139b03e",
+    "D0-036": "ledger@e139b03e",
+    "D0-037": "ledger@e139b03e",
+    "D0-038": "ledger@e139b03e",
+    "D0-039": "ledger@e139b03e",
+    "D0-040": "ledger@e139b03e",
+    "D0-041": "ledger@e139b03e",
+    "D0-042": "ledger@e139b03e",
+    "D0-043": "ledger@e139b03e",
+    "D0-044": "ledger@e139b03e",
+    "D0-045": "ledger@e139b03e",
+    "D0-046": "ledger@e139b03e",
+    "D0-047": "ledger@e139b03e",
+    "D0-048": "ledger@e139b03e",
+    "D0-049": "ledger@e139b03e",
+    "D0-050": "ledger@e139b03e",
+    "D0-051": "ledger@e139b03e",
+    "D0-052": "ledger@e139b03e",
+    "D0-053": "ledger@e139b03e",
+    "D0-054": "ledger@e139b03e",
+    "D0-055": "ledger@e139b03e",
+    "D0-056": "ledger@e139b03e",
+    "D0-057": "ledger@e139b03e",
+    "D0-058": "ledger@e139b03e",
+    "D0-059": "ledger@e139b03e",
+    "D0-060": "ledger@e139b03e",
+    "D0-061": "ledger@e139b03e",
+    "D0-062": "ledger@e139b03e",
+    "D0-063": "ledger@e139b03e",
+    "D0-064": "ledger@e139b03e",
+    "D0-065": "ledger@e139b03e",
+    "D0-066": "ledger@e139b03e",
+    "D0-067": "ledger@e139b03e",
+    "D0-068": "ledger@e139b03e",
+    "D0-069": "ledger@e139b03e",
+    "D0-070": "ledger@e139b03e",
+    "D0-071": "ledger@e139b03e",
+    "D0-072": "ledger@e139b03e",
+    "D0-073": "ledger@e139b03e",
+    "D0-074": "ledger@e139b03e",
+    "D0-075": "ledger@e139b03e",
+    "D0-076": "ledger@e139b03e",
+    "D0-077": "ledger@e139b03e",
+    "D0-078": "ledger@e139b03e",
+    "D0-079": "ledger@e139b03e",
+    "D0-080": "ledger@e139b03e",
+    "D0-081": "ledger@e139b03e",
+    "D0-082": "ledger@e139b03e",
+    "D0-083": "ledger@e139b03e",
+    "D0-084": "ledger@e139b03e",
+    "D0-085": "ledger@e139b03e",
+    "D0-086": "ledger@e139b03e",
+    "D0-087": "ledger@e139b03e",
+    "D0-088": "ledger@e139b03e",
+    "D0-089": "ledger@e139b03e",
+    "D0-090": "ledger@e139b03e",
+    "D0-091": "ledger@e139b03e",
+    "D0-092": "ledger@e139b03e",
+    "D0-093": "ledger@e139b03e",
+    "D0-094": "ledger@e139b03e",
+    "D0-095": "ledger@e139b03e",
+    "D0-096": "ledger@e139b03e",
+    "D0-097": "ledger@e139b03e",
+    "D0-098": "ledger@e139b03e",
+    "D0-099": "ledger@e139b03e",
+    "D0-100": "ledger@e139b03e",
+    "A-001": "emulator-5584@2026-11-04T08:51:05Z#boot=5a34f877",
+    "A-002": "emulator-5584@2026-11-04T08:51:05Z#boot=5a34f877",
+    "A-003": "emulator-5584@2026-11-04T08:51:05Z#boot=5a34f877",
+    "A-004": "emulator-5584@2026-11-04T08:51:20Z#boot=5a34f877",
+    "A-005": "ledger@e139b03e",
+    "A-006": "ledger@e139b03e",
+    "A-007": "ledger@e139b03e",
+    "A-008": "ledger@e139b03e",
+    "A-009": "ledger@e139b03e",
+    "A-010": "emulator-5584@2026-11-04T08:52:19Z#boot=5a34f877",
+    "A-011": "emulator-5584@2026-11-04T08:52:19Z#boot=5a34f877",
+    "A-012": "emulator-5584@2026-11-04T08:52:19Z#boot=5a34f877",
+    "A-013": "emulator-5584@2026-11-04T08:52:19Z#boot=5a34f877",
+    "A-014": "ledger@e139b03e",
+    "A-015": "ledger@e139b03e",
+    "A-016": "ledger@e139b03e",
+    "A-017": "ledger@e139b03e",
+    "A-018": "ledger@e139b03e",
+    "A-019": "emulator-5584@2026-11-04T08:53:15Z#boot=5a34f877",
+    "A-020": "emulator-5584@2026-11-04T08:53:15Z#boot=5a34f877",
+    "A-021": "emulator-5584@2026-11-04T08:53:15Z#boot=5a34f877",
+    "A-022": "emulator-5584@2026-11-04T08:52:19Z#boot=5a34f877",
+    "A-023": "ledger@e139b03e",
+    "A-024": "ledger@e139b03e",
+    "A-025": "emulator-5584@2026-11-04T08:53:15Z#boot=5a34f877",
+    "A-026": "ledger@e139b03e",
+    "A-027": "ledger@e139b03e",
+    "A-028": "emulator-5584@2026-11-04T08:53:43Z#boot=5a34f877",
+    "A-029": "emulator-5584@2026-11-04T09:59:11Z#boot=5a34f877",
+    "A-030": "emulator-5584@2026-11-04T09:59:11Z#boot=5a34f877",
+    "A-031": "ledger@e139b03e",
+    "A-032": "ledger@e139b03e",
+    "A-033": "ledger@e139b03e",
+    "A-034": "ledger@e139b03e",
+    "A-035": "ledger@e139b03e",
+    "A-036": "ledger@e139b03e",
+    "A-037": "emulator-5584@2026-11-04T08:51:40Z#boot=5a34f877",
+    "A-038": "emulator-5584@2026-11-04T10:45:34Z#boot=5a34f877",
+    "A-039": "emulator-5584@2026-11-04T08:54:22Z#boot=5a34f877",
+    "A-040": "ledger@e139b03e",
+    "A-041": "ledger@e139b03e",
+    "A-042": "emulator-5584@2026-11-04T10:46:07Z#boot=5a34f877",
+    "A-043": "ledger@e139b03e",
+    "A-044": "emulator-5584@2026-11-04T08:54:22Z#boot=5a34f877",
+    "A-045": "ledger@e139b03e",
+    "A-046": "emulator-5584@2026-11-04T08:54:51Z#boot=5a34f877",
+    "A-047": "emulator-5584@2026-11-04T08:54:51Z#boot=5a34f877",
+    "A-048": "ledger@e139b03e",
+    "A-049": "ledger@e139b03e",
+    "A-050": "emulator-5584@2026-11-04T10:29:51Z#boot=5a34f877",
+    "A-051": "ledger@e139b03e",
+    "A-052": "ledger@e139b03e",
+    "A-053": "ledger@e139b03e",
+    "A-054": "ledger@e139b03e",
+    "A-055": "emulator-5584@2026-11-04T08:55:10Z#boot=5a34f877",
+    "A-056": "emulator-5584@2026-11-04T08:55:10Z#boot=5a34f877",
+    "A-057": "emulator-5584@2026-11-04T08:55:10Z#boot=5a34f877",
+    "A-058": "ledger@e139b03e",
+    "A-059": "ledger@e139b03e",
+    "A-060": "ledger@e139b03e",
+    "A-061": "ledger@e139b03e",
+    "A-062": "ledger@e139b03e",
+    "A-063": "ledger@e139b03e",
+    "A-064": "emulator-5584@2026-11-04T08:55:23Z#boot=5a34f877",
+    "A-065": "ledger@e139b03e",
+    "A-066": "ledger@e139b03e",
+    "A-067": "emulator-5584@2026-11-04T08:55:23Z#boot=5a34f877",
+    "A-068": "ledger@e139b03e",
+    "A-069": "ledger@e139b03e",
+    "A-070": "ledger@e139b03e",
+    "A-071": "ledger@e139b03e",
+    "A-072": "ledger@e139b03e",
+    "A-073": "emulator-5584@2026-11-04T08:55:33Z#boot=5a34f877",
+    "A-074": "ledger@e139b03e",
+    "A-075": "ledger@e139b03e",
+    "A-076": "ledger@e139b03e",
+    "A-077": "ledger@e139b03e",
+    "A-078": "ledger@e139b03e",
+    "A-079": "ledger@e139b03e",
+    "A-080": "emulator-5584@2026-11-04T08:55:33Z#boot=5a34f877",
+    "A-081": "ledger@e139b03e",
+    "A-082": "emulator-5584@2026-11-04T08:56:21Z#boot=5a34f877",
+    "A-083": "emulator-5584@2026-11-04T08:56:21Z#boot=5a34f877",
+    "A-084": "emulator-5584@2026-11-04T08:56:51Z#boot=5a34f877",
+    "A-085": "emulator-5584@2026-11-04T08:56:21Z#boot=5a34f877",
+    "A-086": "ledger@e139b03e",
+    "A-087": "ledger@e139b03e",
+    "A-088": "emulator-5584@2026-11-04T08:56:51Z#boot=5a34f877",
+    "A-089": "emulator-5584@2026-11-04T08:56:51Z#boot=5a34f877",
+    "A-090": "ledger@e139b03e",
+    "B-001": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-002": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-003": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-004": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-005": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-006": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-007": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-008": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-009": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-010": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-011": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-012": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-013": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-014": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-015": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-016": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-017": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-018": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-019": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-020": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-021": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-022": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-023": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-024": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-025": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-026": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-027": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-028": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-029": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-030": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-031": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-032": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-033": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-034": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-035": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-036": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-037": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-038": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-039": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-040": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-041": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-042": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-043": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-044": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-045": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-046": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-047": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-048": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-049": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-050": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-051": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-052": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-053": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-054": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-055": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-056": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-057": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-058": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-059": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-060": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-061": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-062": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-063": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-064": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-065": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-066": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-067": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-068": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-069": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-070": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-071": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-072": "emulator-5562@2026-11-04T12:46:48Z#boot=a702449b",
+    "B-073": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-074": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-075": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-076": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-077": "ledger@e139b03e",
+    "B-078": "ledger@e139b03e",
+    "B-079": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-080": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-081": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-082": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-083": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-084": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-085": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-086": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-087": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-088": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-089": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "B-090": "emulator-5566@2026-11-04T11:44:55Z#boot=d8f39d06",
+    "C-001": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-002": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-003": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-004": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-005": "ledger@e139b03e",
+    "C-006": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-007": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-008": "ledger@e139b03e",
+    "C-009": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-010": "ledger@e139b03e",
+    "C-011": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-012": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-013": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-014": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-015": "ledger@e139b03e",
+    "C-016": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-017": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-018": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-019": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-020": "ledger@e139b03e",
+    "C-021": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-022": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-023": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-024": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-025": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-026": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-027": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-028": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-029": "emulator-5584@2026-11-04T13:13:43Z#boot=5a34f877",
+    "C-030": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-031": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-032": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-033": "emulator-5584@2026-11-04T13:16:11Z#boot=5a34f877",
+    "C-034": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-035": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-036": "emulator-5584@2026-11-04T13:13:43Z#boot=5a34f877",
+    "C-037": "emulator-5584@2026-11-04T13:13:43Z#boot=5a34f877",
+    "C-038": "emulator-5584@2026-11-04T13:13:43Z#boot=5a34f877",
+    "C-039": "emulator-5584@2026-11-04T13:13:43Z#boot=5a34f877",
+    "C-040": "emulator-5584@2026-11-04T13:13:43Z#boot=5a34f877",
+    "C-041": "emulator-5584@2026-11-04T13:15:06Z#boot=5a34f877",
+    "C-042": "emulator-5584@2026-11-04T13:34:37Z#boot=5a34f877",
+    "C-043": "emulator-5584@2026-11-04T13:34:37Z#boot=5a34f877",
+    "C-044": "emulator-5584@2026-11-04T13:16:15Z#boot=5a34f877",
+    "C-045": "ledger@e139b03e",
+    "C-046": "emulator-5584@2026-11-04T13:38:52Z#boot=5a34f877",
+    "C-047": "emulator-5584@2026-11-04T13:38:52Z#boot=5a34f877",
+    "C-048": "emulator-5584@2026-11-04T13:38:52Z#boot=5a34f877",
+    "C-049": "emulator-5584@2026-11-04T13:38:52Z#boot=5a34f877",
+    "C-050": "emulator-5584@2026-11-04T13:38:52Z#boot=5a34f877",
+    "C-051": "emulator-5584@2026-11-04T13:38:52Z#boot=5a34f877",
+    "C-052": "emulator-5584@2026-11-04T13:38:52Z#boot=5a34f877",
+    "C-053": "emulator-5584@2026-11-04T13:38:52Z#boot=5a34f877",
+    "C-054": "emulator-5584@2026-11-04T13:38:52Z#boot=5a34f877",
+    "C-055": "emulator-5584@2026-11-04T13:38:52Z#boot=5a34f877",
+    "C-056": "emulator-5584@2026-11-04T13:14:04Z#boot=5a34f877",
+    "C-057": "emulator-5584@2026-11-04T13:14:04Z#boot=5a34f877",
+    "C-058": "emulator-5584@2026-11-04T13:14:04Z#boot=5a34f877",
+    "C-059": "emulator-5584@2026-11-04T13:14:04Z#boot=5a34f877",
+    "C-060": "emulator-5584@2026-11-04T13:14:04Z#boot=5a34f877",
+    "C-061": "emulator-5584@2026-11-04T13:14:08Z#boot=5a34f877",
+    "C-062": "emulator-5584@2026-11-04T13:34:33Z#boot=5a34f877",
+    "C-063": "emulator-5584@2026-11-04T13:32:26Z#boot=5a34f877",
+    "C-064": "emulator-5584@2026-11-04T13:34:37Z#boot=5a34f877",
+    "C-065": "emulator-5584@2026-11-04T13:32:54Z#boot=5a34f877",
+    "C-066": "ledger@e139b03e",
+    "C-067": "ledger@e139b03e",
+    "C-068": "ledger@e139b03e",
+    "C-069": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-070": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-071": "ledger@e139b03e",
+    "C-072": "emulator-5584@2026-11-04T13:32:22Z#boot=5a34f877",
+    "C-073": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-074": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-075": "emulator-5584@2026-11-04T13:13:43Z#boot=5a34f877",
+    "C-076": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-077": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-078": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-079": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-080": "emulator-5584@2026-11-04T13:13:43Z#boot=5a34f877",
+    "C-081": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-082": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-083": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-084": "emulator-5584@2026-11-04T13:13:43Z#boot=5a34f877",
+    "C-085": "emulator-5584@2026-11-04T13:13:39Z#boot=5a34f877",
+    "C-086": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "C-087": "emulator-5584@2026-11-04T13:13:43Z#boot=5a34f877",
+    "C-088": "emulator-5584@2026-11-04T13:13:43Z#boot=5a34f877",
+    "C-089": "ledger@e139b03e",
+    "C-090": "emulator-5584@2026-11-04T13:13:19Z#boot=5a34f877",
+    "D-001": "ledger@e139b03e",
+    "D-002": "ledger@e139b03e",
+    "D-003": "ledger@e139b03e",
+    "D-004": "ledger@e139b03e",
+    "D-005": "ledger@e139b03e",
+    "D-006": "ledger@e139b03e",
+    "D-007": "ledger@e139b03e",
+    "D-008": "ledger@e139b03e",
+    "D-009": "ledger@e139b03e",
+    "D-010": "ledger@e139b03e",
+    "D-011": "ledger@e139b03e",
+    "D-012": "ledger@e139b03e",
+    "D-013": "ledger@e139b03e",
+    "D-014": "ledger@e139b03e",
+    "D-015": "ledger@e139b03e",
+    "D-016": "ledger@e139b03e",
+    "D-017": "ledger@e139b03e",
+    "D-018": "ledger@e139b03e",
+    "D-019": "ledger@e139b03e",
+    "D-020": "ledger@e139b03e",
+    "D-021": "ledger@e139b03e",
+    "D-022": "ledger@e139b03e",
+    "D-023": "ledger@e139b03e",
+    "D-024": "ledger@e139b03e",
+    "D-025": "ledger@e139b03e",
+    "D-026": "ledger@e139b03e",
+    "D-027": "ledger@e139b03e",
+    "D-028": "ledger@e139b03e",
+    "D-029": "ledger@e139b03e",
+    "D-030": "ledger@e139b03e",
+    "D-031": "ledger@e139b03e",
+    "D-032": "ledger@e139b03e",
+    "D-033": "ledger@e139b03e",
+    "D-034": "ledger@e139b03e",
+    "D-035": "ledger@e139b03e",
+    "D-036": "ledger@e139b03e",
+    "D-037": "ledger@e139b03e",
+    "D-038": "ledger@e139b03e",
+    "D-039": "ledger@e139b03e",
+    "D-040": "ledger@e139b03e",
+    "D-041": "ledger@e139b03e",
+    "D-042": "ledger@e139b03e",
+    "D-043": "ledger@e139b03e",
+    "D-044": "ledger@e139b03e",
+    "D-045": "ledger@e139b03e",
+    "D-046": "ledger@e139b03e",
+    "D-047": "ledger@e139b03e",
+    "D-048": "ledger@e139b03e",
+    "D-049": "ledger@e139b03e",
+    "D-050": "ledger@e139b03e",
+    "D-051": "ledger@e139b03e",
+    "D-052": "ledger@e139b03e",
+    "D-053": "ledger@e139b03e",
+    "D-054": "ledger@e139b03e",
+    "D-055": "ledger@e139b03e",
+    "D-056": "ledger@e139b03e",
+    "D-057": "ledger@e139b03e",
+    "D-058": "ledger@e139b03e",
+    "D-059": "ledger@e139b03e",
+    "D-060": "ledger@e139b03e",
+    "D-061": "ledger@e139b03e",
+    "D-062": "ledger@e139b03e",
+    "D-063": "ledger@e139b03e",
+    "D-064": "ledger@e139b03e",
+    "D-065": "ledger@e139b03e",
+    "D-066": "ledger@e139b03e",
+    "D-067": "ledger@e139b03e",
+    "D-068": "ledger@e139b03e",
+    "D-069": "ledger@e139b03e",
+    "D-070": "ledger@e139b03e",
+    "D-071": "ledger@e139b03e",
+    "D-072": "ledger@e139b03e",
+    "D-073": "ledger@e139b03e",
+    "D-074": "ledger@e139b03e",
+    "D-075": "ledger@e139b03e",
+    "D-076": "ledger@e139b03e",
+    "D-077": "ledger@e139b03e",
+    "D-078": "ledger@e139b03e",
+    "D-079": "ledger@e139b03e",
+    "D-080": "ledger@e139b03e",
+    "D-081": "ledger@e139b03e",
+    "D-082": "ledger@e139b03e",
+    "D-083": "ledger@e139b03e",
+    "D-084": "ledger@e139b03e",
+    "D-085": "ledger@e139b03e",
+    "D-086": "ledger@e139b03e",
+    "D-087": "ledger@e139b03e",
+    "D-088": "ledger@e139b03e",
+    "D-089": "ledger@e139b03e",
+    "D-090": "ledger@e139b03e",
+    "E-001": "ledger@e139b03e",
+    "E-002": "ledger@e139b03e",
+    "E-003": "ledger@e139b03e",
+    "E-004": "ledger@e139b03e",
+    "E-005": "ledger@e139b03e",
+    "E-006": "ledger@e139b03e",
+    "E-007": "ledger@e139b03e",
+    "E-008": "ledger@e139b03e",
+    "E-009": "ledger@e139b03e",
+    "E-010": "ledger@e139b03e",
+    "E-011": "ledger@e139b03e",
+    "E-012": "ledger@e139b03e",
+    "E-013": "ledger@e139b03e",
+    "E-014": "ledger@e139b03e",
+    "E-015": "ledger@e139b03e",
+    "E-016": "ledger@e139b03e",
+    "E-017": "ledger@e139b03e",
+    "E-018": "ledger@e139b03e",
+    "E-019": "ledger@e139b03e",
+    "E-020": "ledger@e139b03e",
+    "E-021": "ledger@e139b03e",
+    "E-022": "ledger@e139b03e",
+    "E-023": "ledger@e139b03e",
+    "E-024": "ledger@e139b03e",
+    "E-025": "ledger@e139b03e",
+    "E-026": "ledger@e139b03e",
+    "E-027": "ledger@e139b03e",
+    "E-028": "ledger@e139b03e",
+    "E-029": "ledger@e139b03e",
+    "E-030": "ledger@e139b03e",
+    "E-031": "ledger@e139b03e",
+    "E-032": "ledger@e139b03e",
+    "E-033": "ledger@e139b03e",
+    "E-034": "ledger@e139b03e",
+    "E-035": "ledger@e139b03e",
+    "E-036": "ledger@e139b03e",
+    "E-037": "ledger@e139b03e",
+    "E-038": "ledger@e139b03e",
+    "E-039": "ledger@e139b03e",
+    "E-040": "ledger@e139b03e",
+    "E-041": "ledger@e139b03e",
+    "E-042": "ledger@e139b03e",
+    "E-043": "ledger@e139b03e",
+    "E-044": "ledger@e139b03e",
+    "E-045": "ledger@e139b03e",
+    "E-046": "ledger@e139b03e",
+    "E-047": "ledger@e139b03e",
+    "E-048": "ledger@e139b03e",
+    "E-049": "ledger@e139b03e",
+    "E-050": "ledger@e139b03e",
+    "E-051": "ledger@e139b03e",
+    "E-052": "ledger@e139b03e",
+    "E-053": "ledger@e139b03e",
+    "E-054": "ledger@e139b03e",
+    "E-055": "ledger@e139b03e",
+    "E-056": "ledger@e139b03e",
+    "E-057": "ledger@e139b03e",
+    "E-058": "ledger@e139b03e",
+    "E-059": "ledger@e139b03e",
+    "E-060": "ledger@e139b03e",
+    "E-061": "ledger@e139b03e",
+    "E-062": "ledger@e139b03e",
+    "E-063": "ledger@e139b03e",
+    "E-064": "ledger@e139b03e",
+    "E-065": "ledger@e139b03e",
+    "E-066": "ledger@e139b03e",
+    "E-067": "ledger@e139b03e",
+    "E-068": "ledger@e139b03e",
+    "E-069": "ledger@e139b03e",
+    "E-070": "ledger@e139b03e",
+    "E-071": "ledger@e139b03e",
+    "E-072": "ledger@e139b03e",
+    "E-073": "ledger@e139b03e",
+    "E-074": "ledger@e139b03e",
+    "E-075": "ledger@e139b03e",
+    "E-076": "ledger@e139b03e",
+    "E-077": "ledger@e139b03e",
+    "E-078": "ledger@e139b03e",
+    "E-079": "ledger@e139b03e",
+    "E-080": "ledger@e139b03e",
+    "E-081": "ledger@e139b03e",
+    "E-082": "ledger@e139b03e",
+    "E-083": "ledger@e139b03e",
+    "E-084": "ledger@e139b03e",
+    "E-085": "ledger@e139b03e",
+    "E-086": "ledger@e139b03e",
+    "E-087": "ledger@e139b03e",
+    "E-088": "ledger@e139b03e",
+    "E-089": "ledger@e139b03e",
+    "E-090": "ledger@e139b03e",
+    "F-001": "ledger@e139b03e",
+    "F-002": "ledger@e139b03e",
+    "F-003": "ledger@e139b03e",
+    "F-004": "ledger@e139b03e",
+    "F-005": "ledger@e139b03e",
+    "F-006": "ledger@e139b03e",
+    "F-007": "ledger@e139b03e",
+    "F-008": "ledger@e139b03e",
+    "F-009": "ledger@e139b03e",
+    "F-010": "ledger@e139b03e",
+    "F-011": "ledger@e139b03e",
+    "F-012": "ledger@e139b03e",
+    "F-013": "ledger@e139b03e",
+    "F-014": "ledger@e139b03e",
+    "F-015": "ledger@e139b03e",
+    "F-016": "ledger@e139b03e",
+    "F-017": "ledger@e139b03e",
+    "F-018": "ledger@e139b03e",
+    "F-019": "ledger@e139b03e",
+    "F-020": "ledger@e139b03e",
+    "F-021": "ledger@e139b03e",
+    "F-022": "ledger@e139b03e",
+    "F-023": "ledger@e139b03e",
+    "F-024": "ledger@e139b03e",
+    "F-025": "ledger@e139b03e",
+    "F-026": "ledger@e139b03e",
+    "F-027": "ledger@e139b03e",
+    "F-028": "ledger@e139b03e",
+    "F-029": "ledger@e139b03e",
+    "F-030": "ledger@e139b03e",
+    "F-031": "ledger@e139b03e",
+    "F-032": "ledger@e139b03e",
+    "F-033": "ledger@e139b03e",
+    "F-034": "ledger@e139b03e",
+    "F-035": "ledger@e139b03e",
+    "F-036": "ledger@e139b03e",
+    "F-037": "ledger@e139b03e",
+    "F-038": "ledger@e139b03e",
+    "F-039": "ledger@e139b03e",
+    "F-040": "ledger@e139b03e",
+    "F-041": "ledger@e139b03e",
+    "F-042": "ledger@e139b03e",
+    "F-043": "ledger@e139b03e",
+    "F-044": "ledger@e139b03e",
+    "F-045": "ledger@e139b03e",
+    "F-046": "ledger@e139b03e",
+    "F-047": "ledger@e139b03e",
+    "F-048": "ledger@e139b03e",
+    "F-049": "ledger@e139b03e",
+    "F-050": "ledger@e139b03e",
+    "F-051": "ledger@e139b03e",
+    "F-052": "ledger@e139b03e",
+    "F-053": "ledger@e139b03e",
+    "F-054": "ledger@e139b03e",
+    "F-055": "ledger@e139b03e",
+    "F-056": "ledger@e139b03e",
+    "F-057": "ledger@e139b03e",
+    "F-058": "ledger@e139b03e",
+    "F-059": "ledger@e139b03e",
+    "F-060": "ledger@e139b03e",
+    "F-061": "ledger@e139b03e",
+    "F-062": "ledger@e139b03e",
+    "F-063": "ledger@e139b03e",
+    "F-064": "ledger@e139b03e",
+    "F-065": "ledger@e139b03e",
+    "F-066": "ledger@e139b03e",
+    "F-067": "ledger@e139b03e",
+    "F-068": "ledger@e139b03e",
+    "F-069": "ledger@e139b03e",
+    "F-070": "ledger@e139b03e",
+    "F-071": "ledger@e139b03e",
+    "F-072": "ledger@e139b03e",
+    "F-073": "ledger@e139b03e",
+    "F-074": "ledger@e139b03e",
+    "F-075": "ledger@e139b03e",
+    "F-076": "ledger@e139b03e",
+    "F-077": "ledger@e139b03e",
+    "F-078": "ledger@e139b03e",
+    "F-079": "ledger@e139b03e",
+    "F-080": "ledger@e139b03e",
+    "F-081": "ledger@e139b03e",
+    "F-082": "ledger@e139b03e",
+    "F-083": "ledger@e139b03e",
+    "F-084": "ledger@e139b03e",
+    "F-085": "ledger@e139b03e",
+    "F-086": "ledger@e139b03e",
+    "F-087": "ledger@e139b03e",
+    "F-088": "ledger@e139b03e",
+    "F-089": "ledger@e139b03e",
+    "F-090": "ledger@e139b03e",
+    "G-001": "ledger@e139b03e",
+    "G-002": "ledger@e139b03e",
+    "G-003": "ledger@e139b03e",
+    "G-004": "ledger@e139b03e",
+    "G-005": "ledger@e139b03e",
+    "G-006": "ledger@e139b03e",
+    "G-007": "ledger@e139b03e",
+    "G-008": "ledger@e139b03e",
+    "G-009": "ledger@e139b03e",
+    "G-010": "ledger@e139b03e",
+    "G-011": "ledger@e139b03e",
+    "G-012": "ledger@e139b03e",
+    "G-013": "ledger@e139b03e",
+    "G-014": "ledger@e139b03e",
+    "G-015": "ledger@e139b03e",
+    "G-016": "ledger@e139b03e",
+    "G-017": "ledger@e139b03e",
+    "G-018": "ledger@e139b03e",
+    "G-019": "ledger@e139b03e",
+    "G-020": "ledger@e139b03e",
+    "G-021": "ledger@e139b03e",
+    "G-022": "ledger@e139b03e",
+    "G-023": "ledger@e139b03e",
+    "G-024": "ledger@e139b03e",
+    "G-025": "ledger@e139b03e",
+    "G-026": "ledger@e139b03e",
+    "G-027": "ledger@e139b03e",
+    "G-028": "ledger@e139b03e",
+    "G-029": "ledger@e139b03e",
+    "G-030": "ledger@e139b03e",
+    "G-031": "ledger@e139b03e",
+    "G-032": "ledger@e139b03e",
+    "G-033": "ledger@e139b03e",
+    "G-034": "ledger@e139b03e",
+    "G-035": "ledger@e139b03e",
+    "G-036": "ledger@e139b03e",
+    "G-037": "ledger@e139b03e",
+    "G-038": "ledger@e139b03e",
+    "G-039": "ledger@e139b03e",
+    "G-040": "ledger@e139b03e",
+    "G-041": "ledger@e139b03e",
+    "G-042": "ledger@e139b03e",
+    "G-043": "ledger@e139b03e",
+    "G-044": "ledger@e139b03e",
+    "G-045": "ledger@e139b03e",
+    "G-046": "ledger@e139b03e",
+    "G-047": "ledger@e139b03e",
+    "G-048": "ledger@e139b03e",
+    "G-049": "ledger@e139b03e",
+    "G-050": "ledger@e139b03e",
+    "G-051": "ledger@e139b03e",
+    "G-052": "ledger@e139b03e",
+    "G-053": "ledger@e139b03e",
+    "G-054": "ledger@e139b03e",
+    "G-055": "ledger@e139b03e",
+    "G-056": "ledger@e139b03e",
+    "G-057": "ledger@e139b03e",
+    "G-058": "ledger@e139b03e",
+    "G-059": "ledger@e139b03e",
+    "G-060": "ledger@e139b03e",
+    "G-061": "ledger@e139b03e",
+    "G-062": "ledger@e139b03e",
+    "G-063": "ledger@e139b03e",
+    "G-064": "ledger@e139b03e",
+    "G-065": "ledger@e139b03e",
+    "G-066": "ledger@e139b03e",
+    "G-067": "ledger@e139b03e",
+    "G-068": "ledger@e139b03e",
+    "G-069": "ledger@e139b03e",
+    "G-070": "ledger@e139b03e",
+    "G-071": "ledger@e139b03e",
+    "G-072": "ledger@e139b03e",
+    "G-073": "ledger@e139b03e",
+    "G-074": "ledger@e139b03e",
+    "G-075": "ledger@e139b03e",
+    "G-076": "ledger@e139b03e",
+    "G-077": "ledger@e139b03e",
+    "G-078": "ledger@e139b03e",
+    "G-079": "ledger@e139b03e",
+    "G-080": "ledger@e139b03e",
+    "G-081": "ledger@e139b03e",
+    "G-082": "ledger@e139b03e",
+    "G-083": "ledger@e139b03e",
+    "G-084": "ledger@e139b03e",
+    "G-085": "ledger@e139b03e",
+    "G-086": "ledger@e139b03e",
+    "G-087": "ledger@e139b03e",
+    "G-088": "ledger@e139b03e",
+    "G-089": "ledger@e139b03e",
+    "G-090": "ledger@e139b03e",
+    "H-001": "ledger@e139b03e",
+    "H-002": "ledger@e139b03e",
+    "H-003": "ledger@e139b03e",
+    "H-004": "ledger@e139b03e",
+    "H-005": "ledger@e139b03e",
+    "H-006": "ledger@e139b03e",
+    "H-007": "ledger@e139b03e",
+    "H-008": "ledger@e139b03e",
+    "H-009": "ledger@e139b03e",
+    "H-010": "ledger@e139b03e",
+    "H-011": "ledger@e139b03e",
+    "H-012": "ledger@e139b03e",
+    "H-013": "ledger@e139b03e",
+    "H-014": "ledger@e139b03e",
+    "H-015": "ledger@e139b03e",
+    "H-016": "ledger@e139b03e",
+    "H-017": "ledger@e139b03e",
+    "H-018": "ledger@e139b03e",
+    "H-019": "ledger@e139b03e",
+    "H-020": "ledger@e139b03e",
+    "H-021": "ledger@e139b03e",
+    "H-022": "ledger@e139b03e",
+    "H-023": "ledger@e139b03e",
+    "H-024": "ledger@e139b03e",
+    "H-025": "ledger@e139b03e",
+    "H-026": "ledger@e139b03e",
+    "H-027": "ledger@e139b03e",
+    "H-028": "ledger@e139b03e",
+    "H-029": "ledger@e139b03e",
+    "H-030": "ledger@e139b03e",
+    "H-031": "ledger@e139b03e",
+    "H-032": "ledger@e139b03e",
+    "H-033": "ledger@e139b03e",
+    "H-034": "ledger@e139b03e",
+    "H-035": "ledger@e139b03e",
+    "H-036": "ledger@e139b03e",
+    "H-037": "ledger@e139b03e",
+    "H-038": "ledger@e139b03e",
+    "H-039": "ledger@e139b03e",
+    "H-040": "ledger@e139b03e",
+    "H-041": "ledger@e139b03e",
+    "H-042": "ledger@e139b03e",
+    "H-043": "ledger@e139b03e",
+    "H-044": "ledger@e139b03e",
+    "H-045": "ledger@e139b03e",
+    "H-046": "ledger@e139b03e",
+    "H-047": "ledger@e139b03e",
+    "H-048": "ledger@e139b03e",
+    "H-049": "ledger@e139b03e",
+    "H-050": "ledger@e139b03e",
+    "H-051": "ledger@e139b03e",
+    "H-052": "ledger@e139b03e",
+    "H-053": "ledger@e139b03e",
+    "H-054": "ledger@e139b03e",
+    "H-055": "ledger@e139b03e",
+    "H-056": "ledger@e139b03e",
+    "H-057": "ledger@e139b03e",
+    "H-058": "ledger@e139b03e",
+    "H-059": "ledger@e139b03e",
+    "H-060": "ledger@e139b03e",
+    "H-061": "ledger@e139b03e",
+    "H-062": "ledger@e139b03e",
+    "H-063": "ledger@e139b03e",
+    "H-064": "ledger@e139b03e",
+    "H-065": "ledger@e139b03e",
+    "H-066": "ledger@e139b03e",
+    "H-067": "ledger@e139b03e",
+    "H-068": "ledger@e139b03e",
+    "H-069": "ledger@e139b03e",
+    "H-070": "ledger@e139b03e",
+    "H-071": "ledger@e139b03e",
+    "H-072": "ledger@e139b03e",
+    "H-073": "ledger@e139b03e",
+    "H-074": "ledger@e139b03e",
+    "H-075": "ledger@e139b03e",
+    "H-076": "ledger@e139b03e",
+    "H-077": "ledger@e139b03e",
+    "H-078": "ledger@e139b03e",
+    "H-079": "ledger@e139b03e",
+    "H-080": "ledger@e139b03e",
+    "H-081": "ledger@e139b03e",
+    "H-082": "ledger@e139b03e",
+    "H-083": "ledger@e139b03e",
+    "H-084": "ledger@e139b03e",
+    "H-085": "ledger@e139b03e",
+    "H-086": "ledger@e139b03e",
+    "H-087": "ledger@e139b03e",
+    "H-088": "ledger@e139b03e",
+    "H-089": "ledger@e139b03e",
+    "H-090": "ledger@e139b03e",
+    "I-001": "ledger@e139b03e",
+    "I-002": "ledger@e139b03e",
+    "I-003": "ledger@e139b03e",
+    "I-004": "ledger@e139b03e",
+    "I-005": "ledger@e139b03e",
+    "I-006": "ledger@e139b03e",
+    "I-007": "ledger@e139b03e",
+    "I-008": "ledger@e139b03e",
+    "I-009": "ledger@e139b03e",
+    "I-010": "ledger@e139b03e",
+    "I-011": "ledger@e139b03e",
+    "I-012": "ledger@e139b03e",
+    "I-013": "ledger@e139b03e",
+    "I-014": "ledger@e139b03e",
+    "I-015": "ledger@e139b03e",
+    "I-016": "ledger@e139b03e",
+    "I-017": "ledger@e139b03e",
+    "I-018": "ledger@e139b03e",
+    "I-019": "ledger@e139b03e",
+    "I-020": "ledger@e139b03e",
+    "I-021": "ledger@e139b03e",
+    "I-022": "ledger@e139b03e",
+    "I-023": "ledger@e139b03e",
+    "I-024": "ledger@e139b03e",
+    "I-025": "ledger@e139b03e",
+    "I-026": "ledger@e139b03e",
+    "I-027": "ledger@e139b03e",
+    "I-028": "ledger@e139b03e",
+    "I-029": "ledger@e139b03e",
+    "I-030": "ledger@e139b03e",
+    "I-031": "ledger@e139b03e",
+    "I-032": "ledger@e139b03e",
+    "I-033": "ledger@e139b03e",
+    "I-034": "ledger@e139b03e",
+    "I-035": "ledger@e139b03e",
+    "I-036": "ledger@e139b03e",
+    "I-037": "ledger@e139b03e",
+    "I-038": "ledger@e139b03e",
+    "I-039": "ledger@e139b03e",
+    "I-040": "ledger@e139b03e",
+    "I-041": "ledger@e139b03e",
+    "I-042": "ledger@e139b03e",
+    "I-043": "ledger@e139b03e",
+    "I-044": "ledger@e139b03e",
+    "I-045": "ledger@e139b03e",
+    "I-046": "ledger@e139b03e",
+    "I-047": "ledger@e139b03e",
+    "I-048": "ledger@e139b03e",
+    "I-049": "ledger@e139b03e",
+    "I-050": "ledger@e139b03e",
+    "I-051": "ledger@e139b03e",
+    "I-052": "ledger@e139b03e",
+    "I-053": "ledger@e139b03e",
+    "I-054": "ledger@e139b03e",
+    "I-055": "ledger@e139b03e",
+    "I-056": "emulator-5584@2026-11-04T19:07:00Z#boot=831e5d06",
+    "I-057": "ledger@e139b03e",
+    "I-058": "ledger@e139b03e",
+    "I-059": "ledger@e139b03e",
+    "I-060": "ledger@e139b03e",
+    "I-061": "ledger@e139b03e",
+    "I-062": "ledger@e139b03e",
+    "I-063": "ledger@e139b03e",
+    "I-064": "ledger@e139b03e",
+    "I-065": "ledger@e139b03e",
+    "I-066": "ledger@e139b03e",
+    "I-067": "ledger@e139b03e",
+    "I-068": "ledger@e139b03e",
+    "I-069": "ledger@e139b03e",
+    "I-070": "ledger@e139b03e",
+    "I-071": "ledger@e139b03e",
+    "I-072": "ledger@e139b03e",
+    "I-073": "ledger@e139b03e",
+    "I-074": "ledger@e139b03e",
+    "I-075": "ledger@e139b03e",
+    "I-076": "ledger@e139b03e",
+    "I-077": "ledger@e139b03e",
+    "I-078": "ledger@e139b03e",
+    "I-079": "ledger@e139b03e",
+    "I-080": "ledger@e139b03e",
+    "I-081": "ledger@e139b03e",
+    "I-082": "ledger@e139b03e",
+    "I-083": "ledger@e139b03e",
+    "I-084": "ledger@e139b03e",
+    "I-085": "ledger@e139b03e",
+    "I-086": "ledger@e139b03e",
+    "I-087": "ledger@e139b03e",
+    "I-088": "ledger@e139b03e",
+    "I-089": "ledger@e139b03e",
+    "I-090": "ledger@e139b03e",
+    "J-001": "ledger@e139b03e",
+    "J-002": "ledger@e139b03e",
+    "J-003": "ledger@e139b03e",
+    "J-004": "ledger@e139b03e",
+    "J-005": "ledger@e139b03e",
+    "J-006": "ledger@e139b03e",
+    "J-007": "ledger@e139b03e",
+    "J-008": "ledger@e139b03e",
+    "J-009": "ledger@e139b03e",
+    "J-010": "ledger@e139b03e",
+    "J-011": "ledger@e139b03e",
+    "J-012": "ledger@e139b03e",
+    "J-013": "ledger@e139b03e",
+    "J-014": "ledger@e139b03e",
+    "J-015": "ledger@e139b03e",
+    "J-016": "ledger@e139b03e",
+    "J-017": "ledger@e139b03e",
+    "J-018": "ledger@e139b03e",
+    "J-019": "ledger@e139b03e",
+    "J-020": "ledger@e139b03e",
+    "J-021": "ledger@e139b03e",
+    "J-022": "ledger@e139b03e",
+    "J-023": "ledger@e139b03e",
+    "J-024": "ledger@e139b03e",
+    "J-025": "ledger@e139b03e",
+    "J-026": "ledger@e139b03e",
+    "J-027": "ledger@e139b03e",
+    "J-028": "ledger@e139b03e",
+    "J-029": "ledger@e139b03e",
+    "J-030": "ledger@e139b03e",
+    "J-031": "ledger@e139b03e",
+    "J-032": "ledger@e139b03e",
+    "J-033": "ledger@e139b03e",
+    "J-034": "ledger@e139b03e",
+    "J-035": "ledger@e139b03e",
+    "J-036": "ledger@e139b03e",
+    "J-037": "ledger@e139b03e",
+    "J-038": "ledger@e139b03e",
+    "J-039": "ledger@e139b03e",
+    "J-040": "ledger@e139b03e",
+    "J-041": "ledger@e139b03e",
+    "J-042": "ledger@e139b03e",
+    "J-043": "ledger@e139b03e",
+    "J-044": "ledger@e139b03e",
+    "J-045": "ledger@e139b03e",
+    "J-046": "ledger@e139b03e",
+    "J-047": "ledger@e139b03e",
+    "J-048": "ledger@e139b03e",
+    "J-049": "ledger@e139b03e",
+    "J-050": "ledger@e139b03e",
+    "J-051": "ledger@e139b03e",
+    "J-052": "ledger@e139b03e",
+    "J-053": "ledger@e139b03e",
+    "J-054": "ledger@e139b03e",
+    "J-055": "ledger@e139b03e",
+    "J-056": "ledger@e139b03e",
+    "J-057": "ledger@e139b03e",
+    "J-058": "ledger@e139b03e",
+    "J-059": "ledger@e139b03e",
+    "J-060": "ledger@e139b03e",
+    "J-061": "ledger@e139b03e",
+    "J-062": "ledger@e139b03e",
+    "J-063": "ledger@e139b03e",
+    "J-064": "ledger@e139b03e",
+    "J-065": "ledger@e139b03e",
+    "J-066": "ledger@e139b03e",
+    "J-067": "ledger@e139b03e",
+    "J-068": "ledger@e139b03e",
+    "J-069": "ledger@e139b03e",
+    "J-070": "ledger@e139b03e",
+    "J-071": "ledger@e139b03e",
+    "J-072": "ledger@e139b03e",
+    "J-073": "ledger@e139b03e",
+    "J-074": "ledger@e139b03e",
+    "J-075": "ledger@e139b03e",
+    "J-076": "ledger@e139b03e",
+    "J-077": "ledger@e139b03e",
+    "J-078": "ledger@e139b03e",
+    "J-079": "ledger@e139b03e",
+    "J-080": "ledger@e139b03e",
+    "J-081": "ledger@e139b03e",
+    "J-082": "ledger@e139b03e",
+    "J-083": "ledger@e139b03e",
+    "J-084": "ledger@e139b03e",
+    "J-085": "ledger@e139b03e",
+    "J-086": "ledger@e139b03e",
+    "J-087": "ledger@e139b03e",
+    "J-088": "ledger@e139b03e",
+    "J-089": "ledger@e139b03e",
+    "J-090": "ledger@e139b03e",
+    "FIX-001": "ledger@e139b03e",
+    "FIX-002": "ledger@e139b03e",
+    "FIX-003": "ledger@e139b03e",
+    "FIX-004": "ledger@e139b03e",
+    "FIX-005": "ledger@e139b03e",
+    "FIX-006": "ledger@e139b03e",
+    "FIX-007": "ledger@e139b03e",
+    "FIX-008": "ledger@e139b03e",
+    "FIX-009": "ledger@e139b03e",
+    "FIX-010": "ledger@e139b03e",
+    "FIX-011": "ledger@e139b03e",
+    "FIX-012": "ledger@e139b03e",
+    "FIX-013": "ledger@e139b03e",
+    "FIX-014": "ledger@e139b03e",
+    "FIX-015": "ledger@e139b03e",
+    "FIX-016": "ledger@e139b03e",
+    "FIX-017": "ledger@e139b03e",
+    "FIX-018": "ledger@e139b03e",
+    "FIX-019": "ledger@e139b03e",
+    "FIX-020": "ledger@e139b03e",
+    "FIX-021": "ledger@e139b03e",
+    "FIX-022": "ledger@e139b03e",
+    "FIX-023": "ledger@e139b03e",
+    "FIX-024": "ledger@e139b03e",
+    "FIX-025": "ledger@e139b03e",
+    "FIX-026": "ledger@e139b03e",
+    "FIX-027": "ledger@e139b03e",
+    "FIX-028": "ledger@e139b03e",
+    "FIX-029": "ledger@e139b03e",
+    "FIX-030": "ledger@e139b03e",
+    "FIX-031": "ledger@e139b03e",
+    "FIX-032": "ledger@e139b03e",
+    "FIX-033": "ledger@e139b03e",
+    "FIX-034": "ledger@e139b03e",
+    "FIX-035": "ledger@e139b03e",
+    "FIX-036": "ledger@e139b03e",
+    "FIX-037": "ledger@e139b03e",
+    "FIX-038": "ledger@e139b03e",
+    "FIX-039": "ledger@e139b03e",
+    "FIX-040": "ledger@e139b03e",
+    "FIX-041": "ledger@e139b03e",
+    "FIX-042": "ledger@e139b03e",
+    "FIX-043": "ledger@e139b03e",
+    "FIX-044": "ledger@e139b03e",
+    "FIX-045": "ledger@e139b03e",
+    "FIX-046": "ledger@e139b03e",
+    "FIX-047": "ledger@e139b03e",
+    "FIX-048": "ledger@e139b03e",
+    "FIX-049": "ledger@e139b03e",
+    "FIX-050": "ledger@e139b03e",
+    "FIX-051": "ledger@e139b03e",
+    "FIX-052": "ledger@e139b03e",
+    "FIX-053": "ledger@e139b03e",
+    "FIX-054": "ledger@e139b03e",
+    "FIX-055": "ledger@e139b03e",
+    "FIX-056": "ledger@e139b03e",
+    "FIX-057": "ledger@e139b03e",
+    "FIX-058": "ledger@e139b03e",
+    "FIX-059": "ledger@e139b03e",
+    "FIX-060": "ledger@e139b03e",
+    "FIX-061": "ledger@e139b03e",
+    "FIX-062": "ledger@e139b03e",
+    "FIX-063": "ledger@e139b03e",
+    "FIX-064": "ledger@e139b03e",
+    "FIX-065": "ledger@e139b03e",
+    "FIX-066": "ledger@e139b03e",
+    "FIX-067": "ledger@e139b03e",
+    "FIX-068": "ledger@e139b03e",
+    "FIX-069": "ledger@e139b03e",
+    "FIX-070": "ledger@e139b03e",
+    "FIX-071": "ledger@e139b03e",
+    "FIX-072": "ledger@e139b03e",
+    "FIX-073": "ledger@e139b03e",
+    "FIX-074": "ledger@e139b03e",
+    "FIX-075": "ledger@e139b03e",
+    "FIX-076": "ledger@e139b03e",
+    "FIX-077": "ledger@e139b03e",
+    "FIX-078": "ledger@e139b03e",
+    "FIX-079": "ledger@e139b03e",
+    "FIX-080": "ledger@e139b03e",
+    "FIX-081": "ledger@e139b03e",
+    "FIX-082": "ledger@e139b03e",
+    "FIX-083": "ledger@e139b03e",
+    "FIX-084": "ledger@e139b03e",
+    "FIX-085": "ledger@e139b03e",
+    "FIX-086": "ledger@e139b03e",
+    "FIX-087": "ledger@e139b03e",
+    "FIX-088": "ledger@e139b03e",
+    "FIX-089": "ledger@e139b03e",
+    "FIX-090": "ledger@e139b03e",
+    "FIX-091": "ledger@e139b03e",
+    "FIX-092": "ledger@e139b03e",
+    "FIX-093": "ledger@e139b03e",
+    "FIX-094": "ledger@e139b03e",
+    "FIX-095": "ledger@e139b03e",
+    "FIX-096": "ledger@e139b03e",
+    "FIX-097": "ledger@e139b03e",
+    "FIX-098": "ledger@e139b03e",
+    "FIX-099": "ledger@e139b03e",
+    "FIX-100": "ledger@e139b03e",
+    "GATE-001": "ledger@e139b03e",
+    "GATE-002": "ledger@e139b03e",
+    "GATE-003": "ledger@e139b03e",
+    "GATE-004": "ledger@e139b03e",
+    "GATE-005": "ledger@e139b03e",
+    "GATE-006": "ledger@e139b03e",
+    "GATE-007": "ledger@e139b03e",
+    "GATE-008": "ledger@e139b03e",
+    "GATE-009": "ledger@e139b03e",
+    "GATE-010": "ledger@e139b03e",
+    "GATE-011": "ledger@e139b03e",
+    "GATE-012": "ledger@e139b03e",
+    "GATE-013": "ledger@e139b03e",
+    "GATE-014": "ledger@e139b03e",
+    "GATE-015": "ledger@e139b03e",
+    "GATE-016": "ledger@e139b03e",
+    "GATE-017": "ledger@e139b03e",
+    "GATE-018": "ledger@e139b03e",
+    "GATE-019": "ledger@e139b03e",
+    "GATE-020": "ledger@e139b03e",
+    "GATE-021": "ledger@e139b03e",
+    "GATE-022": "ledger@e139b03e",
+    "GATE-023": "ledger@e139b03e",
+    "GATE-024": "ledger@e139b03e",
+    "GATE-025": "ledger@e139b03e",
+    "GATE-026": "ledger@e139b03e",
+    "GATE-027": "ledger@e139b03e",
+    "GATE-028": "ledger@e139b03e",
+    "GATE-029": "ledger@e139b03e",
+    "GATE-030": "ledger@e139b03e",
+    "GATE-031": "ledger@e139b03e",
+    "GATE-032": "ledger@e139b03e",
+    "GATE-033": "ledger@e139b03e",
+    "GATE-034": "ledger@e139b03e",
+    "GATE-035": "ledger@e139b03e",
+    "GATE-036": "ledger@e139b03e",
+    "GATE-037": "ledger@e139b03e",
+    "GATE-038": "ledger@e139b03e",
+    "GATE-039": "ledger@e139b03e",
+    "GATE-040": "ledger@e139b03e",
+    "GATE-041": "ledger@e139b03e",
+    "GATE-042": "ledger@e139b03e",
+    "GATE-043": "ledger@e139b03e",
+    "GATE-044": "ledger@e139b03e",
+    "GATE-045": "ledger@e139b03e",
+    "GATE-046": "ledger@e139b03e",
+    "GATE-047": "ledger@e139b03e",
+    "GATE-048": "ledger@e139b03e",
+    "GATE-049": "ledger@e139b03e",
+    "GATE-050": "ledger@e139b03e",
+    "GATE-051": "ledger@e139b03e",
+    "GATE-052": "ledger@e139b03e",
+    "GATE-053": "ledger@e139b03e",
+    "GATE-054": "ledger@e139b03e",
+    "GATE-055": "ledger@e139b03e",
+    "GATE-056": "ledger@e139b03e",
+    "GATE-057": "ledger@e139b03e",
+    "GATE-058": "ledger@e139b03e",
+    "GATE-059": "ledger@e139b03e",
+    "GATE-060": "ledger@e139b03e",
+    "GATE-061": "ledger@e139b03e",
+    "GATE-062": "ledger@e139b03e",
+    "GATE-063": "ledger@e139b03e",
+    "GATE-064": "ledger@e139b03e",
+    "GATE-065": "ledger@e139b03e",
+    "GATE-066": "ledger@e139b03e",
+    "GATE-067": "ledger@e139b03e",
+    "GATE-068": "ledger@e139b03e",
+    "GATE-069": "ledger@e139b03e",
+    "GATE-070": "ledger@e139b03e",
+    "GATE-071": "ledger@e139b03e",
+    "GATE-072": "ledger@e139b03e",
+    "GATE-073": "ledger@e139b03e",
+    "GATE-074": "ledger@e139b03e",
+    "GATE-075": "ledger@e139b03e",
+    "GATE-076": "ledger@e139b03e",
+    "GATE-077": "ledger@e139b03e",
+    "GATE-078": "ledger@e139b03e",
+    "GATE-079": "ledger@e139b03e",
+    "GATE-080": "ledger@e139b03e",
+    "GATE-081": "ledger@e139b03e",
+    "GATE-082": "ledger@e139b03e",
+    "GATE-083": "ledger@e139b03e",
+    "GATE-084": "ledger@e139b03e",
+    "GATE-085": "ledger@e139b03e",
+    "GATE-086": "ledger@e139b03e",
+    "GATE-087": "ledger@e139b03e",
+    "GATE-088": "ledger@e139b03e",
+    "GATE-089": "ledger@e139b03e",
+    "GATE-090": "ledger@e139b03e",
+    "GATE-091": "ledger@e139b03e",
+    "GATE-092": "ledger@e139b03e",
+    "GATE-093": "ledger@e139b03e",
+    "GATE-094": "ledger@e139b03e",
+    "GATE-095": "ledger@e139b03e",
+    "GATE-096": "ledger@e139b03e",
+    "GATE-097": "ledger@e139b03e",
+    "GATE-098": "ledger@e139b03e",
+    "GATE-099": "ledger@e139b03e",
+    "GATE-100": "ledger@e139b03e"
+  }
+}

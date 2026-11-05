@@ -1,0 +1,16 @@
+{
+  "ok": false,
+  "reason": "THRESHOLD_EXCEEDED",
+  "mae": 0.40806703317901233,
+  "changed_ratio": 0.003657793209876543,
+  "changed_pixels": 9481,
+  "pixels": 2592000,
+  "thresholds": {
+    "max_mae": 1.0,
+    "max_changed_ratio": 0.001
+  },
+  "baseline": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-light.png",
+  "baseline_sha256": "bceb07164929e9f3c573c8aac5748ef337706a68d1b2d360b05bca70d32532ea",
+  "current": "docs/research/evidence/2026-11-06-batch-44/device-track/probes/home-light.png",
+  "current_sha256": "c714aebb4b733fa4098648053f368c0ba0ccb02731027200fd9249d0abcd19ab"
+}

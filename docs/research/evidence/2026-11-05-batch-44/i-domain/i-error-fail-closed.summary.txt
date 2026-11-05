@@ -1,0 +1,2 @@
+tests=5 evaluated=0 failures=0 errors=0 ignored_or_assumed=5
+VERDICT FAIL: skipped=5（跳过不计通过）

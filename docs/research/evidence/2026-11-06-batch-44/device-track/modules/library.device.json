@@ -1,0 +1,19 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+  "apk_sha256": "f534b0dd8aeabeeeec633bcbb9d24a62efe900eb75fdbcce199b979d58f7f7de",
+  "test_apk_sha256": "330c97fccc7227c123f3c2f641870752ed34e1acfa74104434bba67f0c6bec65",
+  "package": "com.tingyun.smartmistakebook.feature.library.test",
+  "runner": "androidx.test.runner.AndroidJUnitRunner",
+  "class_filter": "com.tingyun.smartmistakebook.feature.library.BatchImportInstrumentedTest,com.tingyun.smartmistakebook.feature.library.BatchImportInterruptedNoticeInstrumentedTest,com.tingyun.smartmistakebook.feature.library.BatchImportOutcomeInstrumentedTest,com.tingyun.smartmistakebook.feature.library.LibraryAdaptiveActionsInstrumentedTest,com.tingyun.smartmistakebook.feature.library.LibraryBatchExportEntryInstrumentedTest,com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest,com.tingyun.smartmistakebook.feature.library.LibraryLayoutInstrumentedTest,com.tingyun.smartmistakebook.feature.library.LibraryPendingTasksEntryInstrumentedTest,com.tingyun.smartmistakebook.feature.library.LibraryRepositoryInstrumentedTest,com.tingyun.smartmistakebook.feature.library.LibraryScrollPerformanceInstrumentedTest,com.tingyun.smartmistakebook.feature.library.LibraryStatePresentationInstrumentedTest,com.tingyun.smartmistakebook.feature.library.MistakeDetailExplicitRedrawInstrumentedTest,com.tingyun.smartmistakebook.feature.library.MistakeDetailRoleSectionsInstrumentedTest,com.tingyun.smartmistakebook.feature.library.MistakeExportFormatSheetInstrumentedTest,com.tingyun.smartmistakebook.feature.library.MistakeExportHubInstrumentedTest,com.tingyun.smartmistakebook.feature.library.MistakeExportInstrumentedTest,com.tingyun.smartmistakebook.feature.library.MistakeNoteAndArchiveInstrumentedTest,com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest,com.tingyun.smartmistakebook.feature.library.MistakeRelationAndRevisionInstrumentedTest,com.tingyun.smartmistakebook.feature.library.MistakeSectionCardInstrumentedTest,com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest,com.tingyun.smartmistakebook.feature.library.SplitImportReviewCommitFlowInstrumentedTest,com.tingyun.smartmistakebook.feature.library.SplitReviewEntryInstrumentedTest",
+  "counts": {
+    "tests": 109,
+    "evaluated": 109,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "verdict": "FAIL",
+  "reason": "failures=1 errors=0",
+  "recorded_at": "2026-11-04T21:26:12Z"
+}

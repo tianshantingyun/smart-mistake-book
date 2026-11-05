@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="talkback-runtime" tests="1" failures="1" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T21:46:59Z">
+  <testcase classname="com.tingyun.smartmistakebook.TalkBackRuntimeInstrumentedTest" name="talkBackTraversalActivatesTheRealLibraryDestination" time="0">
+    <failure message="instrumentation failure">java.lang.IllegalStateException: The opt-in emulator hardware driver did not acknowledge 1
+</failure>
+  </testcase>
+</testsuite>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="data" tests="94" failures="1" errors="0" skipped="6" hostname="emulator-5584" timestamp="2026-11-04T21:01:42Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupCreateWriteGateInstrumentedTest" name="independentSnapshotDoesNotHoldTheRoomWriteConnectionOrQueueWrites" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupCreateWriteGateInstrumentedTest" name="legacyFallbackKeepsTheFullWriterBarrier" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="deleteAllDataClearsThePendingRestoreIndexRebuildMarker" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="fullRestoreLeavesDerivedSearchIndexEmptyAndMarksItForRebuild" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="processDeathBetweenDatabaseAndAssetSwapSkeleton" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="processDeathAfterSwapBeforeVerifySkeleton" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="startupRecoveryCleansPreSwapInterruptionWithoutTouchingLiveData" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="youngOrphanIsDeferredUntilItAgesPastTheGraceWindow" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="preSwapValidationFailureRejectsCorruptDatabaseAndKeepsLiveData" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="firstLaunchFailureAfterCommittedSwapSkeleton" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="cleanupNeverUnlinksAnAssetThatBecameReferencedAfterTheCandidateRead" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="backupClosureIncludesGenerationAttemptOutputs" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="restoreIsRejectedWhenAGenerationAttemptOutputAssetIsMissing" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="checksumMismatchIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="settingsSurviveBackupAndRestoreRoundTrip" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="startupRecoveryRollsBackGenerationAfterInterruptedSwap" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="restoringAV1ArchiveWithoutSettingsKeepsLocalSettingsUntouched" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="schema68ArchiveRestoresAndMigratesToCurrentVersion" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="oldSchemaArchiveMigratesOnRestore" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="databaseEntryAboveItsOwnBudgetIsRejectedByBothPaths" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="restoreIsRejectedWhenTheArchivedDatabaseReferencesAMissingAsset" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="databaseEntryUsesItsOwnBudgetOnBothValidateAndUnpack" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="zipBombCompressionRatioIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="totalDecompressionOversizeIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="truncatedArchiveIsRejectedByValidateAndRestore" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="deleteAllDataRemovesTheModelApiKeyKeystoreAlias" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="duplicateConcurrentRestoreRequestsAreRejectedIdempotently" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="reRegisteringTheSameImageRefreshesTheCleanupTimestamp" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="generationAttemptOutputsArePinnedAgainstOrphanCleanup" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="tooManyEntriesAreRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="backupCreatedWhileACaptureIsRegisteredKeepsTheArchiveReferenceClosed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="orphanCanonicalAssetIsRemovedWithoutTouchingReferencedAssets" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="backupDeleteAndRestoreRoundTripPreservesCatalog" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="failedGenerationAttemptWithoutAProductDoesNotPinItsSourceAsset" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="singleEntryOversizeIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest" name="settingsWriteFailureIsReportedAsPartialWithoutRollingBackTheRestoredDatabase" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreLifecycleInstrumentedTest" name="corruptArchiveFailsBeforeTheSwapWithoutClosingTheLiveDatabase" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreLifecycleInstrumentedTest" name="restoreNotifiesRestartBeforeClosingThePoolAndRestoredDataStaysReadable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRestoreLifecycleInstrumentedTest" name="closedRoomPoolFailsMainThreadQueriesWithConnectionPoolIsClosed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRowCountsCoverageInstrumentedTest" name="everyRowCountMatchesThePackagedAndRestoredDatabaseByName" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRowCountsCoverageInstrumentedTest" name="manifestRowCountsEnumerateTheNinetyThreeSchemaTablesByName" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionCreateInstrumentedTest" name="subsetSelectionWritesTrimReportCountsIntoTheManifest" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionCreateInstrumentedTest" name="nonCreatableSelectionsAreRejectedBeforeAnySnapshotOrArchiveByte" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionCreateInstrumentedTest" name="fullSelectionAlsoTrimsDerivedIndexRowsButKeepsUserCategories" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionRestoreInstrumentedTest" name="rebuildFailureKeepsMarkerAndDoesNotRollBackTheRestoredDatabase" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionRestoreInstrumentedTest" name="closureFourArchiveRestoresWithAddedTablesEmptyAndNoRowLoss" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionRestoreInstrumentedTest" name="fullSelectionPackageAlsoTrimsDerivedRowsAndRestoreKeepsThemEmpty" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionRestoreInstrumentedTest" name="thirdPartyRepackagedSubsetWithUnselectedTaskKindRowsIsRejectedBeforeSwap" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionRestoreInstrumentedTest" name="legacyV2ArchiveWithoutSelectionRestoresAsFullAndTrimsDerivedIndex" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionRestoreInstrumentedTest" name="invalidDigestRowCountsAndClosureVersionAreRejectedBeforeSwapAndLiveDataStays" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionRestoreInstrumentedTest" name="subsetThirteenRestoreKeepsSessionsAndStillTrimsDerivedIndex" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionRestoreInstrumentedTest" name="subsetNineRestoreReportsSelectionTrimsDerivedIndexAndRebuildsAfterReopen" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionRestoreInstrumentedTest" name="fullSelectionWithRowCountsThatDisagreeWithTheStagedDatabaseIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionRestoreInstrumentedTest" name="thirdPartyRepackagedSubsetWithUnreferencedFigureOperationIsRejectedBeforeSwap" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionRestoreInstrumentedTest" name="declaredSubsetThatStillContainsUnselectedRowsIsRejectedByMeasuredData" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSnapshotTrimmerInstrumentedTest" name="fullSelectionAllowsUnknownTablesWhileSubsetStillRejectsThem" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSnapshotTrimmerInstrumentedTest" name="schema73IdentityHashMismatchFailsClosedBeforeAnyTrim" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSnapshotTrimmerInstrumentedTest" name="spacePreflightFailureLeavesTheSnapshotUntouched" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSnapshotTrimmerInstrumentedTest" name="mask15KeepsAllUserCategoriesButAlwaysTrimsDerivedIndexes" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSnapshotTrimmerInstrumentedTest" name="mask9TrimsSessionsAndMasteryButKeepsSharedFigureOperation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSnapshotTrimmerInstrumentedTest" name="subsetTrimVacuumsWhenFreePagesRemainEvenWithNoRowsDeleted" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSnapshotTrimmerInstrumentedTest" name="trimmingWithTheSameMaskTwiceIsIdempotentAndDoesNotVacuumAgain" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSnapshotTrimmerInstrumentedTest" name="mask13KeepsSessionsAndDeletesOnlyMasteryAndDerivedTables" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSnapshotTrimmerInstrumentedTest" name="schemaRoomMasterTableAndSqliteSequenceAreUntouched" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSnapshotTrimmerInstrumentedTest" name="invalidMasksAreRejectedBeforeTheSnapshotIsTouched" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupV4PackRestoreInstrumentedTest" name="frozenV4PackRestoresToSchema73WithEmptyNewTablesAndNoRowLoss" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupV4PackRestoreInstrumentedTest" name="droppedTableWithRowsAndPayloadFlipAreRejectedBeforeSwap" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupV4PackRestoreInstrumentedTest" name="selfConsistentForgedRowCountIsRejectedByMeasuredCountsAndLiveDataStays" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupVisualReferenceInstrumentedTest" name="repackedArchiveMissingPreviewAssetBytesIsRejectedBeforeSwap" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupVisualReferenceInstrumentedTest" name="subsetNineKeepsRevisionPinsAndInitialBaselinesOnly" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupVisualReferenceInstrumentedTest" name="archiveAndRestoredDatabaseAgreeOnVisualRowIdentity" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupVisualReferenceInstrumentedTest" name="createArchiveFailsWhenReferencedPreviewBytesAreMissing" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupVisualReferenceInstrumentedTest" name="fullSelectionRoundTripPreservesAllVisualRowsAndReferences" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupVisualReferenceInstrumentedTest" name="previewAssetRidesWithProgramAndSnapshotThroughArchiveAndRestore" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupVisualReferenceInstrumentedTest" name="repackagedArchiveWhoseLinkPointsAtAMissingSnapshotIsRejectedBeforeSwap" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupVisualReferenceInstrumentedTest" name="subsetThirteenKeepsMessageLinksButTrimsUnreferencedStaging" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.CaptureBackupWriteGateInstrumentedTest" name="captureWriteQueuesWhileBackupSnapshotRunsAndSucceedsAfterwards" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest" name="restoreFromHandoffAfterProcessDeath" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest" name="corruptedSelectionStopsBeforeSwapLeavingNoHalfDatabase" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest" name="killProcessHandoffStagesArchiveThenDies" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest" name="fullMaskFifteenMigrationDrillRoundTripsEveryTableAndSettings" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest" name="subsetMaskThirteenMigrationDrillKeepsSessionsAndSettings" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest" name="subsetMaskNineMigrationDrillDropsSessionsAndRebuildsBothSubjects" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.RestoreBackgroundQuiesceInstrumentedTest" name="aFailingQuiesceAbortsTheRestoreBeforeThePoolCloses" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.RestoreBackgroundQuiesceInstrumentedTest" name="backgroundQuiesceRunsInsideTheCloseWindowBeforeThePoolCloses" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportInterruptedStagingInstrumentedTest" name="interruptedStagingIsVisibleUntilAnImportClaimsItOrReconciliationReclaimsIt" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="failedSourceIsRetainedUntilThePageIsSkipped" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="explicitOrganizationMergesOnlyAModelConfirmedContinuation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="pdfIsPrivatelyRenderedByPageAndUsesTheExistingRecoverablePipeline" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="splitRecognitionSkipsExternalEgressWithoutAConfiguredModelAndImportsEveryPage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="externalContentUrisAreStagedBeforeTheDurableJobAndSurviveRebuild" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="stagingRejectsContentAboveTheCanonicalVaultInputLimit" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="splitRecognitionDegradesWhenTheModelIsUnavailableAndEveryPageStillImports" time="0">
+    <failure message="instrumentation failure">android.database.SQLException: Error code: 21, message: connection is closed
+</failure>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="concurrentRequestReplayKeepsOnlyTheCommittedStagingSession" time="0">
+  </testcase>
+</testsuite>

@@ -1,0 +1,2 @@
+tests=8 evaluated=8 failures=1 errors=0 ignored_or_assumed=0
+VERDICT FAIL: failures=1 errors=0

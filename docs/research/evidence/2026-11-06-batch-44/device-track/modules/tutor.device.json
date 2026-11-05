@@ -1,0 +1,19 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+  "apk_sha256": "f534b0dd8aeabeeeec633bcbb9d24a62efe900eb75fdbcce199b979d58f7f7de",
+  "test_apk_sha256": "817a8b4122b5b13a4cf2414bde539df2412ac9d119f8c4135ff0156649253c2a",
+  "package": "com.tingyun.smartmistakebook.feature.tutor.test",
+  "runner": "androidx.test.runner.AndroidJUnitRunner",
+  "class_filter": "com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSourceViewerInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.ClaudeControlsExpansionInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.ClaudeInteractionCoverageInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.ClaudeLayoutInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.ClaudeMarkdownSlotInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.ClaudeMotionInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.LocalImageUiInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.LocalImageViewerInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.LongImageBudgetInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.ReferenceEditorLayoutInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.SavedMistakeTutorRouteInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.SharedUiLayoutInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.TutorCommandRecompositionInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.TutorComposerInteractionInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.TutorComposerNoticeLayoutInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.TutorConversationScreenInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.TutorHistoryInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.TutorImeCommitIntegrationInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.TutorKeyboardLayoutInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.TutorLobbyScrollInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.TutorLongReplyScrollInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.TutorMistakePickerUiInstrumentedTest,com.tingyun.smartmistakebook.feature.tutor.TutorPlanReplayRetryInstrumentedTest",
+  "counts": {
+    "tests": 122,
+    "evaluated": 122,
+    "failures": 2,
+    "errors": 0,
+    "skipped": 0
+  },
+  "verdict": "FAIL",
+  "reason": "failures=2 errors=0",
+  "recorded_at": "2026-11-04T21:34:52Z"
+}

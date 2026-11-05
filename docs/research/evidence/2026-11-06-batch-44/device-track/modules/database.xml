@@ -1,0 +1,641 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="database" tests="319" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T21:22:26Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AgentPendingRequestInstrumentedTest" name="aContradictingDecisionIsRefusedInsteadOfRewritingHistory" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AgentPendingRequestInstrumentedTest" name="aRequestForAConversationThatNeverHangedIsRefused" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AgentPendingRequestInstrumentedTest" name="pendingCardsAreObservablePerArea" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AgentPendingRequestInstrumentedTest" name="resolvedCardsReadBackNewestFirstWithTheirTrace" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AgentPendingRequestInstrumentedTest" name="deletingTheConversationTakesItsCardsWithIt" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AgentPendingRequestInstrumentedTest" name="theSameRequestHangsExactlyOnce" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AgentPendingRequestInstrumentedTest" name="decidingSettlesTheCardWithItsTraceAndRepeatingTheSameDecisionIsIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AgentPendingRequestInstrumentedTest" name="aSecondPayloadOnTheSameRequestIdNeverOverwritesTheHangingCard" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AgentPendingRequestInstrumentedTest" name="aPendingRequestMustBeSettledIntoATerminalStatus" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AssessmentItemVerificationStatusInstrumentedTest" name="casUpgradesOnlyTheVerificationStatusColumn" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AssessmentItemVerificationStatusInstrumentedTest" name="aStaleExpectedStatusIsANoOp" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AssessmentItemVerificationStatusInstrumentedTest" name="aMissingRowIsNeverCreated" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AssessmentItemVerificationStatusInstrumentedTest" name="onlyUnknownCanBeUpgradedThroughTheCasPort" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AssessmentItemVerificationStatusInstrumentedTest" name="concurrentCasWritersHaveExactlyOneWinner" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AttemptResponseMigrationInstrumentedTest" name="versionFourteenAttemptRemainsV2AndDoesNotGuessAResponse" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.AttemptResponseMigrationInstrumentedTest" name="versionFourteenSolutionRevealDoesNotFabricateTutorExposure" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.BatchImportDatabaseInstrumentedTest" name="continuousCollectorNeverSeesACompletedJobWithAnActivePage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.BatchImportDatabaseInstrumentedTest" name="batchPagesPauseRecoverAndSettleIndependently" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.BatchImportDatabaseInstrumentedTest" name="pauseDuringTheLastPageStillSettlesAsCompleted" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.BatchImportDatabaseInstrumentedTest" name="versionTenDatabaseMigratesAndAcceptsBatchJobs" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.BatchImportDatabaseInstrumentedTest" name="failedPageRetryResumesCompletedAndPausedJobsInTheSameWrite" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.BatchImportDatabaseInstrumentedTest" name="retryAndSettlementRaceCannotLeaveCompletedWithQueuedWork" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.BatchImportSplitStateMigrationInstrumentedTest" name="versionFortySevenMigratesSplitStageAndGrandfathersOldPages" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.BindingAuditSampleInstrumentedTest" name="concurrentRecordsNeverExceedTheQuota" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.BindingAuditSampleInstrumentedTest" name="reviewSettlesOnceAndPendingRowsCarryNoVerdict" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.BindingAuditSampleInstrumentedTest" name="quotaCapsEachSubjectWeekAndIsIndependentAcrossSubjectsAndWeeks" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ChatEvidenceOutboxBackfillMigrationInstrumentedTest" name="v40OrphanEvidenceBackfillsOutboxRowsAndContinuesAllocation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ChatEvidenceOutboxBackfillMigrationInstrumentedTest" name="v40FreshDatabaseMigratesWithoutBackfillRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ErrorCauseLedgerInstrumentedTest" name="appendAcceptRetractAndSupersedeKeepOneActiveRow" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ErrorCauseLedgerInstrumentedTest" name="aFailingVoidRollsBackTheRetractionRowAndKeepsTheBindingActive" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ErrorCauseLedgerInstrumentedTest" name="candidateRejectedAndRetractedStatesLeaveNoActiveLabelBehind" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FavoriteAndManualDraftMigrationInstrumentedTest" name="favoriteFilterAndRowWriteAgreeOnBothQueryChains" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FavoriteAndManualDraftMigrationInstrumentedTest" name="favoriteColumnAndNullableDraftSourceMigrateWithRowsIntactAndIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="cleanRedrawTaskTableIsCreatedEmptyWithoutTouchingStoredRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="kf30AcceptedConfidenceColumnIsAddedLeavingLegacyRowsNullAndIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="projectionArchiveStoresSnapshotJsonAndSchemaDdl" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="figureGenerationLedgerIsCreatedWithoutTouchingV68RowsAndIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="mistakeExportRecordTableIsCreatedEmptyWithoutTouchingStoredRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="libraryCatalogMemoryIndexIsCreatedWithoutTouchingStoredRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="kf32CreatesBindingChangeEventTableWithoutTouchingExistingRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="reviewPlanFingerprintMergeKeepsExistingPlanAndQueueRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="bindingAuditSampleTableIsCreatedEmptyWithoutTouchingStoredRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="m5DropKeepsMemoryRowsAndRemovesConsumptionTable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="chatEvidenceCorrectionTargetIsAddedToV67RowsWithoutRewritingThem" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="libraryCatalogRebuildReadsRevisionTitleWithoutTouchingStoredRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="m1DropRemovesLegacyFixtureProjectionTablesAndKeepsRealRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="everyExportedSchemaVersionMigratesToCurrentWithoutDestructiveFallback" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="errorCauseTablesAreCreatedEmptyWhileV72RowsSurvive" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest" name="kf5bClassificationCandidatesTableIsAddedLeavingExistingRowsIntactAndIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KernelWave2MigrationInstrumentedTest" name="reviewLogStateIsBackfilledFromPreviousRatingAndDayGap" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportInstrumentedTest" name="unreviewedResearchCannotReachRoom" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportInstrumentedTest" name="reviewedGapCanReuseExistingSubjectParentAndSource" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseMigrationInstrumentedTest" name="versionSeventeenKnowledgeNodeBecomesACompatibleTopicNode" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeContentLifecycleMigrationInstrumentedTest" name="versionFortyFiveRowsBecomeActiveAndStateTableStartsEmpty" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeContentReconciliationInstrumentedTest" name="aUserConfirmedNodeIsNeverDowngradedByReconciliation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeContentReconciliationInstrumentedTest" name="aMergedNodeCarriesItsSuccessorRedirect" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeContentReconciliationInstrumentedTest" name="aBrokenObjectIsSkippedWithoutBlockingTheRest" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeContentReconciliationInstrumentedTest" name="aNodeMissingFromThePackIsRetiredRatherThanDeleted" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeContentReconciliationInstrumentedTest" name="bulkDeletesChunkPastTheSqliteVariableCapOnLargePacks" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeContentReconciliationInstrumentedTest" name="firstReconciliationInsertsAndSecondIsIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeContentReconciliationInstrumentedTest" name="renamingANodeUpdatesInPlaceAndKeepsItsIdentity" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeGroundingMigrationInstrumentedTest" name="versionNineteenAddsAnEmptyAuditedResolutionTable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeGroundingMigrationInstrumentedTest" name="versionTwentyOneAddsAndLazilyBackfillsTheKnowledgeSearchIndex" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeGroundingMigrationInstrumentedTest" name="versionEighteenAddsAnEmptyPendingResearchQueue" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeGroundingMigrationInstrumentedTest" name="versionTwentyThreeAddsTheSubjectScopedRelationLookupIndex" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeGroundingMigrationInstrumentedTest" name="versionTwentyAddsAnEmptyReviewedKnowledgeRelationTable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeGroundingQueueInstrumentedTest" name="replayIsIdempotentAndConflictingPayloadIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeGroundingQueueInstrumentedTest" name="pendingSummariesGroupRepeatedQuestionsByStableGap" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeGroundingResolutionInstrumentedTest" name="reviewedAtomicImportClosesGapAndExactReplayStaysIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeResearchReviewInstrumentedTest" name="maximumPendingPageUsesTwoBoundedQueriesWithinTheReadBudget" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeResearchReviewInstrumentedTest" name="reviewDecisionIsAtomicIdempotentAndCannotBeRewritten" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeResearchReviewInstrumentedTest" name="versionTwentyFourAddsAnEmptyDurableResearchReviewQueue" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeResearchReviewInstrumentedTest" name="pendingBundleSurvivesExactReplayAndRejectsPayloadConflict" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexCompletenessInstrumentedTest" name="unreviewedFeatureRowsCannotInflateTheIndexedCountPastTheReviewedCount" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexCompletenessInstrumentedTest" name="contentInstallInvalidatesTheVerifiedCompleteClaimBeforeTheNextRecall" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexCompletenessInstrumentedTest" name="firstColdRecallRunsTheGateAndLaterRecallsIssueNoVerificationQueries" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexCompletenessInstrumentedTest" name="contentInstallKeepsNewNodesImmediatelyRecallable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexCompletenessInstrumentedTest" name="missingInvalidationWireCanaryHidesTheNewlyConfirmedNode" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexCompletenessInstrumentedTest" name="userConfirmedKnowledgeNodeIsImmediatelyRecallableAfterConfirmation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexCompletenessInstrumentedTest" name="installInvalidationWireCanaryLeavesTheStaleClaimInPlace" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexInstallInstrumentedTest" name="renamingANodeRebuildsFeaturesAtInstallAndKeepsTheAnchorCurrent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexInstallInstrumentedTest" name="contentInstallBuildsTheSearchIndexBeforeAnyRecall" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexRebuildChunkingInstrumentedTest" name="aPartialRebuildUnderACurrentAnchorIsRepairedByTheReadPath" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexRebuildChunkingInstrumentedTest" name="aColdRebuildOfALargeSubjectIsSplitIntoSeveralWriteChunks" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexRebuildChunkingInstrumentedTest" name="cancellingAtAChunkBoundaryLeavesNoAnchorAndARerunConverges" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexRebuildChunkingInstrumentedTest" name="aWarmRebuildDeletesAndRewritesInSeveralChunks" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexStateMigrationInstrumentedTest" name="v50UpgradeCreatesEmptyAnchorTableAndRebuildTruncatedIndexOnFirstRecall" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeSourceReuseRightsMigrationInstrumentedTest" name="versionTwentySevenPreservesSourcesAsSynthesisOnlyUntilReuseIsProven" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialMigrationInstrumentedTest" name="versionTwentyFiveAddsEmptyTeachingSupportWithoutCreatingPracticeItems" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LegacyProjectionUpgradeDrillInstrumentedTest" name="anExistingDatabaseWithAV11ProjectionIsArchivedBeforeTheLedgerIsReplayed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryCatalogPagingInstrumentedTest" name="fiftyThousandRowsPageSearchAndFacetCountsInSql" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryCatalogPagingInstrumentedTest" name="createdRangeFilterNarrowsCatalogFtsCountsAndFacets" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryCatalogScalePerformanceInstrumentedTest" name="catalogPagePlanAndLatency" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryCatalogScalePerformanceInstrumentedTest" name="catalogCountPlanAndLatency" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryCatalogScalePerformanceInstrumentedTest" name="catalogFacetsPlanAndLatency" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryCatalogTwoValueSortInstrumentedTest" name="recentlyUpdatedIsTheDefaultAndOrdersByUpdateTime" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryCatalogTwoValueSortInstrumentedTest" name="masteryFacetStillCountsTheFixture" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryCatalogTwoValueSortInstrumentedTest" name="recentlyCreatedOrdersByCreationTime" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryCatalogTwoValueSortInstrumentedTest" name="recentlyCreatedOrdersByCreationTimeOnTheFtsPathToo" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsCountPathInstrumentedTest" name="boundedCountStaysWithinBudgetAndWideCountIsRecorded" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsCountPathInstrumentedTest" name="countAndFacetsMatchPreChangeSqlAcrossFilterMatrix" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsCountPathInstrumentedTest" name="deviceSqliteBaselineIsRecorded" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsCountPathInstrumentedTest" name="ftsScanDrivesTheJoinForEveryRewrittenQuery" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsCountPathInstrumentedTest" name="wideMatchFacetDistributionIsNonDegenerate" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsCountPathScale50kInstrumentedTest" name="fixtureCoversAllThreeHitTiers" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsCountPathScale50kInstrumentedTest" name="boundedCountStaysWithinBudgetAndWideCountsAreRecorded" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsCountPathScale50kInstrumentedTest" name="ftsDrivesTheJoinOnThe50kFixture" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsRankingPathInstrumentedTest" name="concurrentThousandHitPagesAreRecorded" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsRankingPathInstrumentedTest" name="userScaleAndThousandHitTiersStayWithinBudget" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsRankingPathInstrumentedTest" name="pageOrderMatchesPreChangeSqlAcrossTiersAndSorts" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsRankingPathInstrumentedTest" name="tiedKeysAndColumnWeightsKeepTheExactPreChangeOrder" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsRankingPathInstrumentedTest" name="rankingPlanUsesMaterializedHitSetsNotRowProbes" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsRankingPathScale50kInstrumentedTest" name="rankingPlanKeepsMaterializedHitSetsOnThe50kFixture" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsRankingPathScale50kInstrumentedTest" name="fixtureCoversAllHitTiers" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibraryFtsRankingPathScale50kInstrumentedTest" name="narrowTierPagesStayWithinBudgetAndWideTiersAreRecorded" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibrarySearchMigrationInstrumentedTest" name="migratedDatabaseMatchesExportedSchemaSqliteMaster" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibrarySearchMigrationInstrumentedTest" name="versionThirtyOneMigratesToSearchProjectionAndMatchesCjkQueries" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.LibrarySearchMigrationInstrumentedTest" name="incrementalDrainIndexesNewRevisionWithoutFullRebuild" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MasteryOverviewInstrumentedTest" name="aNegativeAttemptCountsOnceThroughItsAttribution" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MasteryOverviewInstrumentedTest" name="oneNodeCountsItsActiveBoundQuestionsOnce" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MasteryOverviewInstrumentedTest" name="modelEvidenceAggregatesSplitAcceptedFromRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MasteryOverviewInstrumentedTest" name="theReviewableNodeCountExcludesUnreviewedCandidates" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MasteryOverviewInstrumentedTest" name="independentCorrectObservationsFeedTheAggregate" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MasteryOverviewInstrumentedTest" name="subjectMasteryIsNodeGraindAndScopedToTheSubject" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MasteryReadAggregateScaleInstrumentedTest" name="focusedMasteryReadPlanAndLatency" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MasterySchedulingMigrationInstrumentedTest" name="v35ToV36ConvertsDifficultyAndKeepsRowsReadable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MasterySchedulingMigrationInstrumentedTest" name="v33ChainStructurallyMatchesExportedCurrentSchema" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MasterySchedulingMigrationInstrumentedTest" name="pseudoKnowledgeBindingSatisfiesAttributionForeignKeysOnDevice" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MistakeDetailDatabaseInstrumentedTest" name="exactRevisionStaysPinnedAcrossCurrentHeadUpdateAndOwnsItsSources" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MistakeDetailDatabaseInstrumentedTest" name="currentBatchReadsOneHundredPrintSnapshotsWithinInteractiveBudget" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MistakeDetailDatabaseInstrumentedTest" name="catalogAndDirectoryReadRevisionTitleWhilePracticeUnitTitleStaysLegacy" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MistakeExportRecordInstrumentedTest" name="runningRecordSettlesOnceAndTheRetentionLimitDropsOnlyTheOldest" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MistakeExportRecordInstrumentedTest" name="staleRunningRecordsAreReconciledWithoutTouchingFreshOrSettledRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MistakeMemoryProjectionInstrumentedTest" name="activeEntryWithoutProjectionMemoryKeepsItsRow" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MistakeMemoryProjectionInstrumentedTest" name="findMistakeBySourceKeyExposesProjectionMemoryState" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MistakeMemoryProjectionInstrumentedTest" name="observeMistakesExposesProjectionMemoryState" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ModelTaskDatabaseInstrumentedTest" name="sameTutorResponseLogicalOperationAllowsANewAuthorizedEnvelopeInTheSameSlot" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ModelTaskDatabaseInstrumentedTest" name="versionThreeDatabaseMigratesWithoutDroppingExistingSchema" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ModelTaskDatabaseInstrumentedTest" name="theSameTutorPlanRequestIdWithANewTimestampIsStrictlyRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ModelTaskDatabaseInstrumentedTest" name="sameTutorResponsePayloadAndRequestIdWithDifferentTimestampsJoinsExistingTask" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ModelTaskDatabaseInstrumentedTest" name="versionFifteenMigrationAggregatesExistingEnvelopeDispatchCountsByLogicalOperation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ModelTaskDatabaseInstrumentedTest" name="recentSubjectObservationIsBoundedAndReturnedOldestToNewest" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ModelTaskDatabaseInstrumentedTest" name="differentTutorResponsePayloadForSameSlotThrowsImmutableConflict" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ModelTaskDatabaseInstrumentedTest" name="sameRequestIdRejectsDifferentPayload" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ModelTaskDatabaseInstrumentedTest" name="taskCreationAndTransitionsAreIdempotentVersionedAndObservable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ModelTaskDatabaseInstrumentedTest" name="logicalOperationDispatchReservationAtomicallyRejectsEnvelopesBeyondTheBudget" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ModelTaskRecentIndexMigrationInstrumentedTest" name="versionTwentySixAddsAnIndexForBoundedRecentConversationRecovery" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.PerformanceGateTest" name="concurrentSearchPerformance" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.PerformanceGateTest" name="chineseSearchPerformance" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.PerformanceGateTest" name="facetQueryPerformance" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.PerformanceGateTest" name="searchPerformance10kItems" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.PerformanceGateTest" name="explainQueryPlanNoFullTableScan" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.PerformanceGateTest" name="firstScreenPerformance" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.PredictionAuditMigrationInstrumentedTest" name="versionThirtyTwoMigratesToPredictionAuditAndRoundTripsRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.PredictionAuditMigrationInstrumentedTest" name="migratedDatabaseMatchesExportedSchemaThirtyThreeSqliteMaster" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDaoActiveMistakesPerformanceInstrumentedTest" name="fiveThousandActiveMistakesPlanAndLatency" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDaoAggregationEquivalenceInstrumentedTest" name="rewrittenAggregationMatchesThePreS17QueryColumnByColumn" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="tutorSessionPinsConfirmedRevisionUntilExplicitIdempotentCommit" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="captureReplacementIsAtomicIdempotentAndRejectsConflicts" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="exactRepeatedCaptureReusesOneMistakeAndKeepsEverySourceImage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="endingTutorSessionIsIdempotentAndMutuallyExclusiveWithSaving" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="savingAndEndingTutorSessionShareOneTransactionalBarrier" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="exportedVersionTwoSchemaMigratesToCaptureSchemaWithoutDestructiveFallback" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="exactCaptureReusesLegacyMistakeWhoseOldFingerprintIncludedImageEvidence" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="pendingCaptureBatchKeepsDraftTasksIsolatedAndUsesBoundedCompleteOrdering" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="userRevisionWinsOverLateOcrAndCommitIsAtomicAndIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="mistakeDetailReadsCurrentMultiBlockSnapshotAndCanonicalSourceMetadata" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="captureSplitIsAtomicIdempotentAndKeepsIndependentDrafts" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="pendingCaptureQuerySortsNewestJoinsTutorSessionAndDropsCommittedDraft" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="exportedVersionFourSchemaMigratesToTutorSessions" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="persistentDraftAndCommitReceiptSurviveReopen" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="sourceBundleAppendIsOrderedIdempotentAndCommittedWithEveryPage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="captureRequestFingerprintPersistsAndRejectsAChangedReplayBinding" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftDatabaseInstrumentedTest" name="captureSplitRollsBackEveryChildWhenOneCanonicalAssetConflicts" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftEditWorkspaceDatabaseInstrumentedTest" name="libraryConfirmationIsAtomicAndExactReceiptReplaysWithoutWorkspace" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftEditWorkspaceDatabaseInstrumentedTest" name="olderWorkspaceIdentityCannotConfirmAReplacementWorkspace" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftEditWorkspaceDatabaseInstrumentedTest" name="libraryConfirmationRollsBackRevisionWhenCommitFails" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftEditWorkspaceDatabaseInstrumentedTest" name="pendingCaptureFlowRefreshesWhenWorkspaceChanges" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftEditWorkspaceDatabaseInstrumentedTest" name="tutorConfirmationRejectsOldIdentityAndExactSessionReplaysWithoutWorkspace" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftEditWorkspaceDatabaseInstrumentedTest" name="oneHundredSavesDoNotAdvanceDraftHeadAndSamePayloadReplayIsIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftEditWorkspaceDatabaseInstrumentedTest" name="concurrentDifferentPayloadsConflictWhileWinnerReplayIsIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftEditWorkspaceDatabaseInstrumentedTest" name="migrationFromFivePreservesDraftAndWorkspaceSurvivesRestart" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemDraftEditWorkspaceDatabaseInstrumentedTest" name="corruptPayloadAndStaleBasisFailClosed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="currentAcceptanceSourcesAreWhitelistedButLegacyAndUnknownWritesFailClosed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="confirmationIsAtomicObservableAndIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="userConfirmationPromotesAModelCandidateNodeWithoutConflictingOnItsPayload" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="reclassificationRetainsBindingsReferencedByLearningEvidence" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="deprecatedRelationKindIsRejectedForNewOrganizationWrites" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="versionSevenMigratesAndAcceptsOrganizationFacts" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="automaticAuthorityCannotReplaceUserCorrectionEvenWithANewerTimestamp" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="sameCommandIdWithDifferentPayloadFailsClosed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="relationReplacementMustBeRequestedExplicitly" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="classificationBindingsPersistTheRecordedAcceptanceConfidence" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="delayedOlderConfirmationCannotRollBackANewerCorrection" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="newerConfirmationReplacesOldOrganizationForTheSameRevision" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="userCorrectionReusesLegacyAutomaticKnowledgeNodeIdentity" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="relationMergeAddsNewFactsWithoutDeletingExistingOnes" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="invalidTargetRollsBackEveryFormalFact" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemOrganizationDatabaseInstrumentedTest" name="reconfirmingTheSameBindingIdentityRefreshesItIntoTheCurrentSet" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemRevisionEditDatabaseInstrumentedTest" name="roleAwareAttachmentRecordsTheGivenRoleOnTheCurrentRevision" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemRevisionEditDatabaseInstrumentedTest" name="retriedCommandReturnsTheExistingReceiptAndNeverWritesTwice" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemRevisionEditDatabaseInstrumentedTest" name="concurrentEditsAcceptOnlyTheCorrectExpectedRevision" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemRevisionEditDatabaseInstrumentedTest" name="revisionEditSurvivesProcessStyleCloseAndReopen" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemRevisionEditDatabaseInstrumentedTest" name="machineCheckableQuestionEditStopsReusingTheOldAnswerBasis" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemRevisionEditDatabaseInstrumentedTest" name="editAppendsImmutableRevisionAndInvalidatesOnlyTheOldBasis" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemRevisionEditDatabaseInstrumentedTest" name="textRevisionOnlyCarriesSourcePhotosAndSourceEvidence" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProblemRevisionEditDatabaseInstrumentedTest" name="reattachingACleanRedrawReplacesThePreviousCurrentImage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProjectionRollbackDrillInstrumentedTest" name="aRestoreTimeBeforeTheArchiveIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProjectionRollbackDrillInstrumentedTest" name="anArchiveWithDriftedSchemaDdlIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProjectionRollbackDrillInstrumentedTest" name="restoringACrossVersionArchiveIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProjectionRollbackDrillInstrumentedTest" name="anArchiveWithACheckpointAheadOfTheLedgerIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProjectionRollbackDrillInstrumentedTest" name="theRealDrainerArchivesTheDisplacedProjectionAndRestoreReturnsItBitForBit" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProjectionRollbackDrillInstrumentedTest" name="aMalformedArchiveJsonIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProjectionRollbackDrillInstrumentedTest" name="aTargetEarlierThanAnExistingPresentationFactIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProjectionRollbackDrillInstrumentedTest" name="restoringWithoutAnyArchiveIsRejectedAndWritesNothing" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ProjectionRollbackDrillInstrumentedTest" name="anArchiveWhosePayloadCarriesAnotherVersionIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.PseudoUnclassifiedBucketInstrumentedTest" name="theBucketNodeIsEnsuredIdempotentlyAndStaysOutOfTheRecallSurface" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ReviewUndoTransactionInstrumentedTest" name="incrementalProjectionStopsAndFullReplayExcludesTheVoidedAttempt" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ReviewUndoTransactionInstrumentedTest" name="voidRewindsSessionMarksReviewLogIneligibleAndSurvivesReplay" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ReviewUndoTransactionInstrumentedTest" name="undoRejectsAnAttemptThatIsNotTheLastAdvance" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ReviewUndoTransactionInstrumentedTest" name="reanswerAfterUndoKeepsThePreRevealExposureAndIsNotIndependent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ReviewedKnowledgePackInstrumentedTest" name="unapprovedResearchPackCannotChangeKnowledgeOrCloseTheGap" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ReviewedKnowledgePackInstrumentedTest" name="reviewedPackClosesGapAndExactReplayIsIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ReviewedKnowledgePackInstrumentedTest" name="approvedResearchPackAppliesOnceAndCannotBeReplaced" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ReviewedKnowledgePackInstrumentedTest" name="laterResolutionFailureRollsBackPackAndEarlierResolution" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.RoomImportDdlCompatibilityInstrumentedTest" name="ensureAfterSimulatedCrashWindowRepairsMissingIndex" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.RoomImportDdlCompatibilityInstrumentedTest" name="ensureFeatureIndexesIsIdempotentAcrossThreeCalls" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.RoomImportDdlCompatibilityInstrumentedTest" name="ddlRunsInsideWriteTransaction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.RoomImportDdlCompatibilityInstrumentedTest" name="ensureFeatureIndexesSucceedsWhenIndexesAlreadyExist" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.RoomImportDdlCompatibilityInstrumentedTest" name="legacyNoOpDdlBranchIsBypassedBySqliteMasterGating" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.RoomImportDdlCompatibilityInstrumentedTest" name="deferredWindowRestoresIndexesWhenBlockThrows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.RoomImportDdlCompatibilityInstrumentedTest" name="concurrentEnsureCallsAfterCrashWindowConvergeWithoutError" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.RoomImportDdlCompatibilityInstrumentedTest" name="deferredWindowDropsThenRestoresBothIndexes" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.SchemaDumpInstrumentedTest" name="dumpCurrentSchemaShape" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="mistakeProjectionRoundTripsDurationAndOnlyExactCurrentKnowledgeBindings" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="observeReviewPlanForSessionReturnsOwningAggregate" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="recordReviewAttemptRollsBackAttemptWhenAdvanceFails" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="onlyTheCaptureTimeMayDifferWhenTheSameSnapshotIdIsRewritten" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="fixtureSeedingIsIdempotentForeignKeysAndStudyDayBoundaryRejectBadInputs" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="legacyRevealAssessmentEventIsReconciledExactlyOnceBeforeTheNextResponse" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="attemptAdvanceProofRequiresCanonicalAttemptAndUsesSnapshotPracticeUnit" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="directAdvanceRejectsAttemptWrittenOutsideReviewTransaction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="fullReplayCommitPersistsCorrectionAndAnswerRevealWindows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="persistentDatabaseReopensWithLosslessLedgerSnapshotAndCompletedSession" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="correctionForcesFullReplayAndRejectsIncompatibleLaterResponseCorrection" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="reviewBundleKeepsFrozenQueueHistoryAndCurrentSlotConsistent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="recordReviewAttemptRejectsAttemptPreviouslyWrittenOutsideReviewTransaction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="revealIsUniqueRetryableAndCanonicalizesLaterResponsesFromDatabaseOrder" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="concurrentSessionCreationAllowsOnlyOneActiveSessionPerLearner" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="shrinkingProjectionCommitDeletesVanishedRowsAndKeepsUnchangedRowsBitIdentical" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="attemptReplayRequiresExactSubmittedResponseBeforeRevealCanonicalization" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="onlyTheExactLocalReviewSelfReportContractMayPersistWithoutAttributions" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="localModelJudgedContractMayPersistWithoutAttributionsAndNearMatchesAreRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="reviewAdvanceCasAndReceiptCommitTogetherUnderCompetition" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="presentationAuthorityOutlivesBoundedAppliedEventAuditWindows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="retryDoesNotConsumeSequenceAndSequencesArePerLearner" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="projectionCommitUsesExactPrefixHeadAndStateVersionCas" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="legacyMultipleActiveSessionsFailClosedWithoutAdvancingEither" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="reviewRetryReusesTheSnapshotRowWrittenBeforeARolledBackAdvance" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="recordReviewAttemptExactReplayIsIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="answerRevealFactsAreReadableByPresentationBeforeSubmission" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="recordReviewAttemptCommitsAttemptAndAdvanceAtomically" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="completedReviewDaysAreDistinctOrderedAndRemainContinuousAcrossZones" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="loadLearningLedgerReadsAcrossChunkBoundariesWithTheSamePrefixAndFingerprints" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.StudyDatabaseInstrumentedTest" name="concurrentWritesAllocateOneGapFreeSequencePerLearner" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorAssistantMessageFigureLinkInstrumentedTest" name="assistantMessageAndFigureReferenceAreWrittenTogether" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorAssistantMessageFigureLinkInstrumentedTest" name="studentMessageReplayWithAnAllocatedOrdinalIsIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorConversationMigrationInstrumentedTest" name="deletedConversationRemovesMessagesButKeepsAnchorProblemAndLibrary" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorConversationMigrationInstrumentedTest" name="archivedConversationKeepsAnchorProblemAndMessagesIntact" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorConversationMigrationInstrumentedTest" name="versionTwentyNineAddsLibraryCatalogViewWithoutDestructiveFallback" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorConversationMigrationInstrumentedTest" name="versionThirtyMigratesToCurrentWithDraftColumn" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorConversationMigrationInstrumentedTest" name="savedDraftSurvivesReopenAndClearRemovesIt" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorConversationMigrationInstrumentedTest" name="versionTwentyEightMigratesToConversationAndMessageTables" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorInteractionDatabaseInstrumentedTest" name="respondExposureBeforeTheSucceededTaskTimestampIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorInteractionDatabaseInstrumentedTest" name="revealFirstThenChoiceEnrichesTheSameTurnWithoutLosingRevealOrTimestamps" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorInteractionDatabaseInstrumentedTest" name="versionElevenChoiceRowMigratesWithoutLoss" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorInteractionDatabaseInstrumentedTest" name="concurrentAnchorAndVisibilityRaceMaterializesOneLedgerOutcome" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorInteractionDatabaseInstrumentedTest" name="versionNineDatabaseMigratesAndAcceptsTutorInteractions" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorInteractionDatabaseInstrumentedTest" name="moveFirstThenChoiceEnrichesTheSameTurnAndStillRejectsChoiceConflicts" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorInteractionDatabaseInstrumentedTest" name="choiceMoveAndRevealAreDurableIdempotentAndImmutable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorInteractionDatabaseInstrumentedTest" name="unsavedVisibleAnswerReconcilesExactlyOnceAndRejectsConflictingReanchor" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorInteractionDatabaseInstrumentedTest" name="actionOnlyMovesAndRevealsAreDurableIdempotentAndIdentityBound" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorInteractionDatabaseInstrumentedTest" name="twoRespondRepliesInSameTurnUseExactRequestAndDoNotFabricateTurnResponse" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorInteractionDatabaseInstrumentedTest" name="revealRequestDoesNotMaterializeUntilVisibleAndVisibleExposureIsIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorInteractionDatabaseInstrumentedTest" name="versionThirteenMigrationBackfillsOnlyExistingChoicesWithApproximateTime" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorMessageImageMigrationInstrumentedTest" name="versionFortyFourMigratesToMessageImageLinks" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorSessionVisualRoleDatabaseInstrumentedTest" name="savingCopiesAssistantFigureRolesFromTheToolTrace" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorSessionVisualRoleDatabaseInstrumentedTest" name="legacyMessageLinksWithoutARoleAreSkippedInsteadOfGuessed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorSessionVisualRoleDatabaseInstrumentedTest" name="savingDoesNotDuplicateAnAssetThatIsAlreadyQuestionSource" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorSessionVisualRoleDatabaseInstrumentedTest" name="deletingTheTutorConversationKeepsTheCommittedRevisionLinks" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorSessionVisualRoleReopenInstrumentedTest" name="committedTutorFiguresSurviveProcessStyleCloseAndReopen" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualCommitInstrumentedTest" name="reconcilerDeletesOnlyStaleUnreferencedStagingSnapshots" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualCommitInstrumentedTest" name="sceneDigestThatDoesNotMatchItsContentIsRejectedBeforeAnyWrite" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualCommitInstrumentedTest" name="stagingLeaseAndPointerCasUseChangedRowCounts" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualCommitInstrumentedTest" name="sameMessageOrdinalPointingAtAnotherSnapshotIsAConflictNotADuplicate" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualCommitInstrumentedTest" name="assistantBodyTraceAndVisualLinkCommitInOneTransaction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualCommitInstrumentedTest" name="snapshotIdThatIsNotDerivedFromContentIsRejectedBeforeAnyWrite" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualCommitInstrumentedTest" name="failedMessageWriteRollsBackProgramSnapshotAndLink" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualCommitInstrumentedTest" name="programIdThatIsNotDerivedFromContentIsRejectedBeforeAnyWrite" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualCommitInstrumentedTest" name="duplicateSubmissionReusesTheLiveSnapshotWithoutNewRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualCommitInstrumentedTest" name="snapshotDigestThatDoesNotMatchItsContentIsRejectedBeforeAnyWrite" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualCommitInstrumentedTest" name="drawCommandsDigestThatDoesNotMatchItsContentIsRejectedBeforeAnyWrite" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualCommitInstrumentedTest" name="sameDerivedProgramIdWithDifferentNonHashedPayloadIsAConflict" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualSavedProblemRetentionInstrumentedTest" name="deletingTheConversationKeepsTheSavedProblemVisual" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualSavedProblemRetentionInstrumentedTest" name="reconciliationKeepsARevisionPinnedStagingSnapshot" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualSnapshotIdentityMigration_70_71InstrumentedTest" name="indexShapeAssertionsCanFailOnWrongColumnOrderNonUniqueAndMissingIndex" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualSnapshotIdentityMigration_70_71InstrumentedTest" name="v70SnapshotRowSurvivesMigrationAndTheContentKeyBecomesFiveColumns" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualSnapshotIdentityMigration_70_71InstrumentedTest" name="bumpedRendererVersionCreatesASecondSnapshotInsteadOfReusingTheV70Row" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualSnapshotMigration_69_70InstrumentedTest" name="visualTablesAreCreatedEmptyWithoutTouchingV69RowsAndIdempotent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualSnapshotMigration_69_70InstrumentedTest" name="onlyLiveSnapshotsCanBeLinkedAndCasUsesChangedRowCounts" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualSnapshotMigration_69_70InstrumentedTest" name="indexShapeAssertionsCanFailOnWrongColumnOrderAndNonUniqueIndex" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualSnapshotMigration_69_70InstrumentedTest" name="indexExpectationsStayInSyncWithTheMigrationDdlConstants" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualStructureGatesInstrumentedTest" name="commitTransactionExecutesDemoteAndEvict" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualStructureGatesInstrumentedTest" name="repositoryPlanRetainsAStagingIntermediateOnlyBecauseItIsPinned" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualStructureGatesInstrumentedTest" name="messageLinkRejectsForeignKeyProgramAndStagingSnapshots" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualStructureGatesInstrumentedTest" name="evictionDeletesOnlyUnpinnedStagingIntermediates" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.TutorVisualStructureGatesInstrumentedTest" name="revisionPinRejectsStagingAndForeignKeyProgramButAcceptsSameProgramLive" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.VersionFifteenMigrationInstrumentedTest" name="versionSixteenMigratesToCurrentWithoutDestructiveFallback" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.VersionFifteenMigrationInstrumentedTest" name="versionFifteenMigratesToCurrentWithoutDestructiveFallback" time="0">
+  </testcase>
+</testsuite>

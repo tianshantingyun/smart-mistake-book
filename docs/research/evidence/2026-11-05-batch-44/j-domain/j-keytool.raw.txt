@@ -1,0 +1,25 @@
+签名者 #1:
+
+证书 #1：
+所有者: CN=ZCode Release Smoke, OU=local, O=local, L=local, ST=local, C=CN
+发布者: CN=ZCode Release Smoke, OU=local, O=local, L=local, ST=local, C=CN
+序列号: cb12fbb3fff94b68
+生效时间: Wed Sep 30 00:12:34 CST 2026, 失效时间: Fri Oct 30 00:12:34 CST 2026
+证书指纹:
+	 SHA1: 9B:C3:17:5F:0C:35:BD:69:D3:84:32:5C:07:86:AC:7E:FC:F9:2A:27
+	 SHA256: A9:E7:6C:AD:95:AF:11:D0:EA:CE:DA:67:3B:00:2E:A6:18:70:2D:43:94:BF:23:49:D4:57:9C:86:F3:3B:27:01
+签名算法名称: SHA384withRSA
+主体公共密钥算法: 2048 位 RSA 密钥
+版本: 3
+
+扩展: 
+
+#1: ObjectId: 2.5.29.14 Criticality=false
+SubjectKeyIdentifier [
+KeyIdentifier [
+0000: F6 E7 54 94 E7 D5 7E 56   73 8D A5 1C 5A 82 95 D3  ..T....Vs...Z...
+0010: 49 62 52 43                                        IbRC
+]
+]
+
+

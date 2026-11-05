@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "reason": "",
+  "mae": 0.0,
+  "changed_ratio": 0.0,
+  "changed_pixels": 0,
+  "pixels": 2592000,
+  "thresholds": {
+    "max_mae": 1.0,
+    "max_changed_ratio": 0.0005
+  },
+  "baseline": "docs/research/evidence/2026-11-06-batch-44/device-track/probes/home-immersive-a.png",
+  "baseline_sha256": "6e4074f4c3df0caf45776b0cbc8a790406dbb2470e5b27c0b5d48a1a05fa6221",
+  "current": "docs/research/evidence/2026-11-06-batch-44/device-track/probes/home-immersive-b.png",
+  "current_sha256": "6e4074f4c3df0caf45776b0cbc8a790406dbb2470e5b27c0b5d48a1a05fa6221"
+}

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="capture" tests="44" failures="1" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T21:31:53Z">
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureCommittedReceiptCardInstrumentedTest" name="reusedEntryCardSaysItReusedTheExistingProblem" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureCommittedReceiptCardInstrumentedTest" name="newEntryCardSaysItIsANewEntry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureCorrectionFormInstrumentedTest" name="optionalEditorStillAllowsStudentCorrectionsBeforeAtomicCommit" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureCorrectionFormInstrumentedTest" name="retryOnlyStateFreezesEditsButKeepsTheCommitReplayAvailable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureCorrectionFormInstrumentedTest" name="tutorIntentSavesAWaitingQuestionWithoutPromisingTeachingOrLibrarySave" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureCorrectionFormInstrumentedTest" name="unavailableSourcePreviewKeepsCommitGateClosed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureCorrectionFormInstrumentedTest" name="unusableCandidateNeverAsksTheStudentToSupplyTranscription" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureCorrectionFormInstrumentedTest" name="editedStructuredProjectionUsesStudentFacingCorrectionCopy" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureCorrectionFormInstrumentedTest" name="expandedEditorCannotBypassAnUnusableCandidate" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureCorrectionFormInstrumentedTest" name="usableCandidateKeepsCorrectionsBehindAnOptionalEditAction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureCorrectionFormInstrumentedTest" name="usableCandidateCommitsWithoutTypingOrASeparateConfirmationToggle" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureDocumentPreviewCardInstrumentedTest" name="structuredCandidateShowsBlocksAndWritingLayerBoundary" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureModelSetupBlockInstrumentedTest" name="setupBlockNamesConfigurationAndOpensModelSettings" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureModelTaskCardInstrumentedTest" name="demoProviderRoutesToModelSettingsWithoutManualEntry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureModelTaskCardInstrumentedTest" name="cancelledTaskOffersRestartWithoutPushingManualEntry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureModelTaskCardInstrumentedTest" name="splitChoiceActionsKeepFortyEightDpTargetsAtDoubleFontScale" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureModelTaskCardInstrumentedTest" name="multipleQuestionsAreOrganizedWithoutAskingForManualCropping" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureModelTaskCardInstrumentedTest" name="temporaryParseFailureInvokesOnlyTheParseRetry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureModelTaskCardInstrumentedTest" name="missingModelShowsOnlySettingsRecovery" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureModelTaskCardInstrumentedTest" name="incompleteQuestionOnlyOffersAppendWithoutDiscardingSavedPages" time="0">
+    <failure message="instrumentation failure">java.lang.AssertionError: Failed: assertExists.
+</failure>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CapturePendingCapturesInstrumentedTest" name="entryStateWithoutPendingItemsShowsACalmEmptyMessage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CapturePendingCapturesInstrumentedTest" name="failedDiscardIsReportedInsteadOfPretendingSuccess" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CapturePendingCapturesInstrumentedTest" name="discardingAPendingItemGoesThroughTheRevisionCasAndSaysWhatHappened" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CapturePendingCapturesInstrumentedTest" name="entryStateShowsEveryPendingStageTruthfullyAndOpensTheDraft" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CapturePendingCapturesInstrumentedTest" name="aSingleCaptureDraftParkedBeforeTutoringOpensItsDraft" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CapturePendingCapturesInstrumentedTest" name="tutorReadyPendingItemOpensItsWaitingTutorSession" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureScreenInstrumentedTest" name="manualTranscriptionResumeShowsEditableFormWithoutSourceImage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureScreenInstrumentedTest" name="freshLibraryCaptureScreenComposesAllThreeModesAndOpensTheFileStep" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureScreenInstrumentedTest" name="freshTutorCaptureScreenComposesEntryModeChooser" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureScreenModelGateInstrumentedTest" name="capableProviderShowsTheModelCard" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureScreenModelGateInstrumentedTest" name="buildWithoutModelEgressOffersManualEntryInsteadOfADeadEnd" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureScreenStateRestorationTest" name="resumedDraftStateSurvivesConfigurationChange" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureShareAuthorizationInstrumentedTest" name="aNonRetryableFailureKeepsTheGrantUntilTheCallerExplicitlyAbandonsIt" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureShareAuthorizationInstrumentedTest" name="anImportFailureIsReportedAsImportFailedAndKeepsTheGrant" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureShareAuthorizationInstrumentedTest" name="aDeniedReadGrantIsReportedAsAuthorizationExpiredNotUnreadable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureShareAuthorizationInstrumentedTest" name="aRetryableFailureKeepsTheGrantAndTheSameFileCanBeRetriedSuccessfully" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureShareIntakeRouteInstrumentedTest" name="abandoningTheFailedShareReleasesTheReadGrant" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureShareIntakeRouteInstrumentedTest" name="aTransientFailureCanBeRetriedAndSucceedsWhileTheGrantIsValid" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureShareIntakeRouteInstrumentedTest" name="aDeniedReadGrantShowsExpiredInsteadOfUnreadable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureShareIntakeRouteInstrumentedTest" name="aRestoredShareExpiresAtTheDeadlineInsteadOfStayingRetryableForever" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureSourceImagePreviewInstrumentedTest" name="unreadableSourceIsReportedToTheParentGate" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureStructuredDocumentEditorInstrumentedTest" name="editsLeavesWithoutFlatteningFormulaChoicesOrFigure" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureTouchTargetsInstrumentedTest" name="topBarBackButtonMeetsFortyEightDpTarget" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.capture.CaptureTouchTargetsInstrumentedTest" name="everyEntryModeMeetsFortyEightDpTarget" time="0">
+  </testcase>
+</testsuite>

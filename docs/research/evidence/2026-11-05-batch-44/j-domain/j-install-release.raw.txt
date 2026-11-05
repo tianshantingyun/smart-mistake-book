@@ -1,0 +1,3 @@
+Performing Streamed Install
+adb.exe: failed to install app/build/outputs/apk/strictOffline/release/app-strictOffline-release.apk: Failure [INSTALL_FAILED_UPDATE_INCOMPATIBLE: Existing package com.tingyun.smartmistakebook.offline signatures do not match newer version; ignoring!]
+

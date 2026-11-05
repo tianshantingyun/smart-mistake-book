@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="tutor" tests="122" failures="2" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T21:34:52Z">
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="conversationFrameFollowsTheTailUntilTheStudentScrollsUpAndSendForcesItBack" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="expiredSendingAuthorizationReturnsToTheExistingScopeDisclosure" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="longAnswerExposureWaitsForTheReplyBottomAndRecordsOnlyOnce" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="savedEntryKeepsTheComposerVisibleOutsideTheLongConversationList" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="restoredByokFailureWithChangedConfigurationRequestsConsentThenContinuesExactAction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="restoredPendingReplyAutoResumesAndExecutesItsExactRequestOnce" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="cancelledReplyNeverOffersAConflictingRetry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="cachedTeachingRemainsVisibleWhenTheCurrentProviderIsUnavailable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="capturedEntryKeepsTheComposerVisibleOutsideTheLongConversationList" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="cancelledExposureWriteIsRetriedByTheRestartedCollector" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="recoveredPendingLocalNoEgressPlanResumesWithoutARecoveryDisclosure" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="retryableReplyRetriesTheExactPersistedRequest" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="answerExposureWaitsUntilItsExactReplyIsVisibleAndUsesTheVisibleTimeOnce" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="blockedLongTermWritesKeepTheRequestedAnswerVisibleWithoutExposureWrites" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="restoredFreeTextAnswerExposureRecordsItsExactTurnOnceWithoutChoiceEvidence" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="localNoEgressFirstStartNeverShowsAnExternalProviderDisclosure" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="authenticationFailureOpensModelSettingsAndNeverOffersAConflictingRetry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionExposureInstrumentedTest" name="restartingAfterRecreationCarriesExactStudentWordsWithStableRequestIdentity" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="aPickedLibraryQuestionBecomesTheRoundsAnchorAndClearsAfterSending" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="generatedTurnKeepsAnswerHiddenAndUsesContextualNextMoves" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="leavingImmediatelyAfterRevealRequestDoesNotRecordAnUnseenExposure" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="tutorEmptyStateOffersRealConversationCaptureAndInPageQuestionPicker" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="endedSessionShowsTerminalStateAndNoLongerOffersMutations" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="temporarySessionWaitsForRealTeachingAndOffersAnExplicitOptionalSave" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="pendingChoiceStaysLockedAfterTheWriteReturnsUntilTheResponseFlowEmits" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="explanationOnlyTurnDoesNotInventAChoiceAndKeepsDirectTeachingActions" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="generatedTurnKeepsTheUncertaintyEscapeSeparateFromGradedChoices" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="theSessionOffersTheImageEntryOnlyWhenAnIntakeIsWired" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="generatedTurnOffersAContextualMoveAfterTheChoiceIsPersisted" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="aRejectedSendKeepsTheAttachedQuestionSoTheStudentDoesNotLoseIt" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="aFailedChoiceWriteUnlocksTheOptionAndShowsTheVisibleError" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="freeTextReplyPreservesExactMessageRestoresLocallyAndDoesNotWriteLearningEvidence" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="aReplyAboutAnExplicitlyAttachedQuestionShowsThatQuestionAboveTheBubble" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="diagnosticManualRevealWaitsForTheSuccessfulReplyBottomBeforeRecordingExposure" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="advancingToAnotherTurnResetsTheLocalChoiceState" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="pendingChoiceDoesNotRemainLockedAfterSavedStateRestoration" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="uncertaintyEscapeKeepsOriginalChoicesUsableAfterTheHintSucceeds" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="savedMistakeShowsExactQuestionLearningMemoryWithoutOpeningAnotherPage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="generatedTurnDoubleTapSubmitsTheChoiceOnlyOnceWhileFeedbackIsPending" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="uncertaintyEscapeKeepsOriginalChoicesUsableAfterFailureAndRetry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="aStudentTextTurnIsPersistedBeforeDispatchSoTheLocalAnchorCheckCanSeeIt" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="explanationOnlyRouteRestoresPersistedActionsWithoutExecutingAnotherTurn" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="theLibraryPickerEntryAppearsOnlyWhenAReaderIsWired" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="explanationOnlyTurnWithNoUsefulMovesDoesNotRenderAnEmptyActionBar" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="aDeclarationThatIsNotInTheRoundMenuShowsNoBadge" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="aFailedLibraryReadTellsTheStudentInsteadOfAttachingNothing" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="explanationOnlyActionsRestoreFromPersistedResponse" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSessionInstrumentedTest" name="explanationOnlyRoutePersistsActionsWithTheCurrentQuestionIdentity" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.CapturedTutorSourceViewerInstrumentedTest" name="capturedSessionUsesTheSameReadOnlyZoomAndReturnsToItsSource" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeControlsExpansionInstrumentedTest" name="persistentFieldLabelDoesNotReplaceTheEditableTextOrDispatchChangesOnOpen" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeControlsExpansionInstrumentedTest" name="largeTextSegmentsRetainTheirNamesAndOnlyDispatchAChangedChoice" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeControlsExpansionInstrumentedTest" name="longDialogKeepsItsRealConfirmAndCancelActionsReachable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeControlsExpansionInstrumentedTest" name="accessiblePaneResizeKeepsTheSameDraftAndClampsBothSides" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeInteractionCoverageInstrumentedTest" name="aFocusedPrimaryButtonHasAVisibleContrastingIndicator" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeInteractionCoverageInstrumentedTest" name="rtlOverflowPreservesHomeEndAndASingleTabEntryAtDoubleFontScale" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeInteractionCoverageInstrumentedTest" name="choiceChipsExposeSelectionWhileOrdinaryActionsStayOrdinary" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeInteractionCoverageInstrumentedTest" name="escapeCannotBypassANonDismissibleConfirmation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeInteractionCoverageInstrumentedTest" name="processingARealConfirmationDisablesBothDecisions" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeInteractionCoverageInstrumentedTest" name="escapeDismissesAConfirmationWithoutExecutingItsConfirmAction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeInteractionCoverageInstrumentedTest" name="wrappedProtocolLabelsShareTheTrackHeightAndItsBottomRemainsClickable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeInteractionCoverageInstrumentedTest" name="localAttachmentNameOverflowHintAndViewerIdentityStayVisible" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeInteractionCoverageInstrumentedTest" name="exportOptionsWrapAtLargeFontAndPreparationLocksThePicker" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeInteractionCoverageInstrumentedTest" name="tabEntersOnlyTheSelectedSegmentAndArrowsMoveItsFocus" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeInteractionCoverageInstrumentedTest" name="imageDialogEscapeReturnsKeyboardFocusToItsActualTrigger" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeInteractionCoverageInstrumentedTest" name="keyboardFocusIsVisibleEvenWhenTheSegmentWasAlreadySelected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeLayoutInstrumentedTest" name="composerToolsSitBelowTheFullWidthWritingArea" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeLayoutInstrumentedTest" name="theModeSelectorOpensAChoiceAndOnlyChangesWhenADifferentModeIsChosen" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeMarkdownSlotInstrumentedTest" name="listAndQuoteCodeUseTheSameToolbarWithoutASecondParser" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeMarkdownSlotInstrumentedTest" name="fencedCodeShowsItsLanguageAndCopiesTheUntrimmedParserLiteral" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeMarkdownSlotInstrumentedTest" name="headingsListsAndTableCellsKeepTheOriginalRichTextPath" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeMarkdownSlotInstrumentedTest" name="htmlAndRemoteImageStillFallBackBeforeTheRichTextAdapter" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeMotionInstrumentedTest" name="loadingSkeletonFollowsTheRealStateAndDoesNotShowAFalseEmptyOrProgressValue" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeMotionInstrumentedTest" name="reducedMotionRemovesDisclosureImmediatelyAndKeepsTheDraft" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ClaudeMotionInstrumentedTest" name="changingTheSystemAnimationScaleUpdatesTheActiveThemeWithoutRestarting" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.LocalImageUiInstrumentedTest" name="changingUriHidesThePreviousImageWhileTheNextReadIsBlocked" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.LocalImageUiInstrumentedTest" name="explicitlyReopeningCanRetryARepairedLocalFileAtTheSameUri" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.LocalImageUiInstrumentedTest" name="aReadyButUndecodableImageShowsItsSummaryWithoutRegenerating" time="0">
+    <failure message="instrumentation failure">java.lang.AssertionError: Assert failed: The component with Text + InputText + EditableText contains '过程图 · 受力示意 · 未就绪' (ignoreCase: false) is not displayed!
+</failure>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.LocalImageUiInstrumentedTest" name="changingRegionOfTheSameUriCannotShowThePreviousCrop" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.LocalImageUiInstrumentedTest" name="aLateReadCannotReplaceTheLatestImage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.LocalImageViewerInstrumentedTest" name="changingTheImageResetsItsZoom" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.LocalImageViewerInstrumentedTest" name="directionButtonsCanRevealAnEdgeWithoutDragging" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.LocalImageViewerInstrumentedTest" name="missingBytesProduceAReadableLocalFailure" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.LocalImageViewerInstrumentedTest" name="doubleTapPanAndRegionChangeKeepTheCurrentImageBounded" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.LocalImageViewerInstrumentedTest" name="zoomResetAndDismissAreAvailableWithoutAGesture" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.LongImageBudgetInstrumentedTest" name="repeatedLongPagesStayBoundedAndExposeTheirActualPreviewResolution" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.ReferenceEditorLayoutInstrumentedTest" name="movingBetweenWideAndNarrowKeepsTheSameEditorDraft" time="0">
+    <failure message="instrumentation failure">java.lang.AssertionError: Assert failed: The component with TestTag = 'editor_source_reference' is not displayed!
+</failure>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.SavedMistakeTutorRouteInstrumentedTest" name="theEndOfferRoundBelongsToThisEntryAndHangsNoCard" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.SavedMistakeTutorRouteInstrumentedTest" name="theLibraryPickerEntryReachesTheSessionPanelOnTheSavedMistakePage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.SavedMistakeTutorRouteInstrumentedTest" name="modelRequestedFigureIsResolvedAndRenderedOnTheSavedMistakePage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.SavedMistakeTutorRouteInstrumentedTest" name="theFrameWithoutAPlanStillOffersTheAttachEntryAndARealStartAction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.SavedMistakeTutorRouteInstrumentedTest" name="confirmingTheSaveOfferRunsARealLocalActionOnTheSavedMistakePage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.SharedUiLayoutInstrumentedTest" name="largeTextKeepsSectionActionsReachable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.SharedUiLayoutInstrumentedTest" name="thinkingDetailsKeepAnAccessibleToggle" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorCommandRecompositionInstrumentedTest" name="aPlanThatFinishesAfterCompositionCanPersistAChoice" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorCommandRecompositionInstrumentedTest" name="retryUsesTheObservedAttemptInsteadOfTheFirstComposition" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorComposerInteractionInstrumentedTest" name="aComposingCandidateIsNotSentAsACommand" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorComposerInteractionInstrumentedTest" name="imageOnlyMessageStillUsesTheExistingSendCallback" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorComposerInteractionInstrumentedTest" name="aCommittedCandidateCanSendBeforeTheNextRecomposition" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorComposerNoticeLayoutInstrumentedTest" name="ordinaryPhoneWidthKeepsTheReasonBesideItsAction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorComposerNoticeLayoutInstrumentedTest" name="narrowLargeTypeStacksTheActionWithoutClippingOrSending" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorConversationScreenInstrumentedTest" name="theAgentEntryRendersTheSameSurfaceWithTheCapabilityDirectoryAsItsEmptyState" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorConversationScreenInstrumentedTest" name="theCaptureEntryRendersTheSameConversationSurface" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorConversationScreenInstrumentedTest" name="theComposerStaysVisibleWhenTheConversationEnded" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorConversationScreenInstrumentedTest" name="theComposerIsReadyWithoutAReasonOnceTheTeachingHasArrived" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorConversationScreenInstrumentedTest" name="thePlanPhaseStreamsItsTextThroughTheSameLiveChannel" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorConversationScreenInstrumentedTest" name="theSavedMistakeEntryRendersTheSameConversationSurface" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorConversationScreenInstrumentedTest" name="theComposerStaysVisibleWhileThePlanIsStillBeingPrepared" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorConversationScreenInstrumentedTest" name="theComposerStaysVisibleWhenThePlanFailed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorConversationScreenInstrumentedTest" name="theComposerStaysVisibleWhileTheModelIsNotReady" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorHistoryInstrumentedTest" name="deleteAsksForConfirmationAndOnlyRemovesTheSelectedConversation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorHistoryInstrumentedTest" name="cancelKeepsTheConversationInHistory" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorImeCommitIntegrationInstrumentedTest" name="theSessionDispatchesTheJustCommittedBodyWithoutWaitingForAFrame" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorKeyboardLayoutInstrumentedTest" name="largeTextFourLinesAndAttachmentKeepActionsAboveTheRealKeyboard" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorLobbyScrollInstrumentedTest" name="aStudentWhoScrolledUpIsNotYankedBackByANewReply" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorLobbyScrollInstrumentedTest" name="aReplyArrivingInTheLobbyBringsTheNewestMessageIntoView" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorLongReplyScrollInstrumentedTest" name="anInitialTallReplyReachesItsActualTail" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorLongReplyScrollInstrumentedTest" name="streamingDoesNotStealReadingWithinOneTallReply" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorLongReplyScrollInstrumentedTest" name="aNewConversationStartsAtTheBeginningOfItsWelcome" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorMistakePickerUiInstrumentedTest" name="clearingAnEmptySearchRestoresCandidatesWithoutPickingOrDismissing" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorMistakePickerUiInstrumentedTest" name="longCandidateMetadataWrapsInsteadOfClippingToOneLine" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorPlanReplayRetryInstrumentedTest" name="aRetriedPlanFailureGetsANewIdentityAndANewTaskRow" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.tutor.TutorPlanReplayRetryInstrumentedTest" name="aRefusedRetryShowsAVisibleFailureAndKeepsTheRetryOutlet" time="0">
+  </testcase>
+</testsuite>

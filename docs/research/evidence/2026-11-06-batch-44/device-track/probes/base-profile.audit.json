@@ -1,0 +1,18 @@
+{
+  "clickable": 9,
+  "contrast": {
+    "measured": 0,
+    "min_ratio": null,
+    "pairs": [],
+    "reason": "no colors input",
+    "status": "UNVERIFIED",
+    "threshold": 4.5
+  },
+  "density_dpi": 420,
+  "min_dp": 48.0,
+  "nodes": 50,
+  "ok": false,
+  "structural_ok": true,
+  "violation_codes": [],
+  "violations": []
+}

@@ -1,0 +1,378 @@
+Activity Resolver Table:
+  Full MIME Types:
+      application/pdf:
+        baba0e2 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity filter f0d0730
+          Action: "android.intent.action.SEND"
+          Category: "android.intent.category.DEFAULT"
+          StaticType: "image"
+          StaticType: "application/pdf"
+          mPriority=0, mOrder=0, mHasStaticPartialTypes=true, mHasDynamicPartialTypes=false
+        baba0e2 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity filter fdcdfa9
+          Action: "android.intent.action.SEND_MULTIPLE"
+          Category: "android.intent.category.DEFAULT"
+          StaticType: "image"
+          StaticType: "application/pdf"
+          mPriority=0, mOrder=0, mHasStaticPartialTypes=true, mHasDynamicPartialTypes=false
+      image/*:
+        baba0e2 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity filter f0d0730
+          Action: "android.intent.action.SEND"
+          Category: "android.intent.category.DEFAULT"
+          StaticType: "image"
+          StaticType: "application/pdf"
+          mPriority=0, mOrder=0, mHasStaticPartialTypes=true, mHasDynamicPartialTypes=false
+        baba0e2 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity filter fdcdfa9
+          Action: "android.intent.action.SEND_MULTIPLE"
+          Category: "android.intent.category.DEFAULT"
+          StaticType: "image"
+          StaticType: "application/pdf"
+          mPriority=0, mOrder=0, mHasStaticPartialTypes=true, mHasDynamicPartialTypes=false
+
+  Base MIME Types:
+      application:
+        baba0e2 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity filter f0d0730
+          Action: "android.intent.action.SEND"
+          Category: "android.intent.category.DEFAULT"
+          StaticType: "image"
+          StaticType: "application/pdf"
+          mPriority=0, mOrder=0, mHasStaticPartialTypes=true, mHasDynamicPartialTypes=false
+        baba0e2 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity filter fdcdfa9
+          Action: "android.intent.action.SEND_MULTIPLE"
+          Category: "android.intent.category.DEFAULT"
+          StaticType: "image"
+          StaticType: "application/pdf"
+          mPriority=0, mOrder=0, mHasStaticPartialTypes=true, mHasDynamicPartialTypes=false
+
+  Wild MIME Types:
+      image:
+        baba0e2 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity filter f0d0730
+          Action: "android.intent.action.SEND"
+          Category: "android.intent.category.DEFAULT"
+          StaticType: "image"
+          StaticType: "application/pdf"
+          mPriority=0, mOrder=0, mHasStaticPartialTypes=true, mHasDynamicPartialTypes=false
+        baba0e2 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity filter fdcdfa9
+          Action: "android.intent.action.SEND_MULTIPLE"
+          Category: "android.intent.category.DEFAULT"
+          StaticType: "image"
+          StaticType: "application/pdf"
+          mPriority=0, mOrder=0, mHasStaticPartialTypes=true, mHasDynamicPartialTypes=false
+
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        baba0e2 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity filter 3e48c73
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+
+  MIME Typed Actions:
+      android.intent.action.SEND:
+        baba0e2 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity filter f0d0730
+          Action: "android.intent.action.SEND"
+          Category: "android.intent.category.DEFAULT"
+          StaticType: "image"
+          StaticType: "application/pdf"
+          mPriority=0, mOrder=0, mHasStaticPartialTypes=true, mHasDynamicPartialTypes=false
+      android.intent.action.SEND_MULTIPLE:
+        baba0e2 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.MainActivity filter fdcdfa9
+          Action: "android.intent.action.SEND_MULTIPLE"
+          Category: "android.intent.category.DEFAULT"
+          StaticType: "image"
+          StaticType: "application/pdf"
+          mPriority=0, mOrder=0, mHasStaticPartialTypes=true, mHasDynamicPartialTypes=false
+
+Receiver Resolver Table:
+  Non-Data Actions:
+      android.intent.action.BATTERY_OKAY:
+        b1424f4 com.tingyun.smartmistakebook.offline/androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy filter 38e441d
+          Action: "android.intent.action.BATTERY_OKAY"
+          Action: "android.intent.action.BATTERY_LOW"
+      android.intent.action.ACTION_POWER_DISCONNECTED:
+        b6f006 com.tingyun.smartmistakebook.offline/androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy filter 5aa36c7
+          Action: "android.intent.action.ACTION_POWER_DISCONNECTED"
+          Action: "android.intent.action.ACTION_POWER_CONNECTED"
+      androidx.profileinstaller.action.SAVE_PROFILE:
+        c119778 com.tingyun.smartmistakebook.offline/androidx.profileinstaller.ProfileInstallReceiver filter 485fb7
+          Action: "androidx.profileinstaller.action.SAVE_PROFILE"
+      android.intent.action.DEVICE_STORAGE_LOW:
+        7c20692 com.tingyun.smartmistakebook.offline/androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy filter 2897863
+          Action: "android.intent.action.DEVICE_STORAGE_LOW"
+          Action: "android.intent.action.DEVICE_STORAGE_OK"
+      android.net.conn.CONNECTIVITY_CHANGE:
+        6c89c60 com.tingyun.smartmistakebook.offline/androidx.work.impl.background.systemalarm.ConstraintProxy$NetworkStateProxy filter 5500519
+          Action: "android.net.conn.CONNECTIVITY_CHANGE"
+      android.intent.action.DEVICE_STORAGE_OK:
+        7c20692 com.tingyun.smartmistakebook.offline/androidx.work.impl.background.systemalarm.ConstraintProxy$StorageNotLowProxy filter 2897863
+          Action: "android.intent.action.DEVICE_STORAGE_LOW"
+          Action: "android.intent.action.DEVICE_STORAGE_OK"
+      com.google.android.play.core.assetpacks.receiver.ACTION_SESSION_UPDATE:
+        b7e8c48 com.tingyun.smartmistakebook.offline/com.google.android.play.core.assetpacks.SessionStateBroadcastReceiver filter b4fdae1
+          Action: "com.google.android.play.core.assetpacks.receiver.ACTION_SESSION_UPDATE"
+      com.tingyun.smartmistakebook.TEST_SEED_MODEL_CONFIG:
+        2e6e92e com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.TestSeedModelConfigReceiver filter ef17ccf
+          Action: "com.tingyun.smartmistakebook.TEST_SEED_MODEL_CONFIG"
+      androidx.profileinstaller.action.INSTALL_PROFILE:
+        c119778 com.tingyun.smartmistakebook.offline/androidx.profileinstaller.ProfileInstallReceiver filter e743e51
+          Action: "androidx.profileinstaller.action.INSTALL_PROFILE"
+      android.intent.action.BATTERY_LOW:
+        b1424f4 com.tingyun.smartmistakebook.offline/androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryNotLowProxy filter 38e441d
+          Action: "android.intent.action.BATTERY_OKAY"
+          Action: "android.intent.action.BATTERY_LOW"
+      android.intent.action.TIMEZONE_CHANGED:
+        7c6a3a com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.ReviewReminderReceiver filter 3316eb
+          Action: "android.intent.action.TIMEZONE_CHANGED"
+          Action: "android.intent.action.TIME_SET"
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+        ef5f9de com.tingyun.smartmistakebook.offline/androidx.work.impl.background.systemalarm.RescheduleReceiver filter 9137bf
+          Action: "android.intent.action.TIMEZONE_CHANGED"
+          Action: "android.intent.action.TIME_SET"
+          Action: "android.intent.action.BOOT_COMPLETED"
+      android.intent.action.TIME_SET:
+        7c6a3a com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.ReviewReminderReceiver filter 3316eb
+          Action: "android.intent.action.TIMEZONE_CHANGED"
+          Action: "android.intent.action.TIME_SET"
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+        ef5f9de com.tingyun.smartmistakebook.offline/androidx.work.impl.background.systemalarm.RescheduleReceiver filter 9137bf
+          Action: "android.intent.action.TIMEZONE_CHANGED"
+          Action: "android.intent.action.TIME_SET"
+          Action: "android.intent.action.BOOT_COMPLETED"
+      androidx.profileinstaller.action.SKIP_FILE:
+        c119778 com.tingyun.smartmistakebook.offline/androidx.profileinstaller.ProfileInstallReceiver filter 62166b6
+          Action: "androidx.profileinstaller.action.SKIP_FILE"
+      androidx.profileinstaller.action.BENCHMARK_OPERATION:
+        c119778 com.tingyun.smartmistakebook.offline/androidx.profileinstaller.ProfileInstallReceiver filter a84b324
+          Action: "androidx.profileinstaller.action.BENCHMARK_OPERATION"
+      android.intent.action.BOOT_COMPLETED:
+        7c6a3a com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.ReviewReminderReceiver filter 3316eb
+          Action: "android.intent.action.TIMEZONE_CHANGED"
+          Action: "android.intent.action.TIME_SET"
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+        ef5f9de com.tingyun.smartmistakebook.offline/androidx.work.impl.background.systemalarm.RescheduleReceiver filter 9137bf
+          Action: "android.intent.action.TIMEZONE_CHANGED"
+          Action: "android.intent.action.TIME_SET"
+          Action: "android.intent.action.BOOT_COMPLETED"
+      android.intent.action.ACTION_POWER_CONNECTED:
+        b6f006 com.tingyun.smartmistakebook.offline/androidx.work.impl.background.systemalarm.ConstraintProxy$BatteryChargingProxy filter 5aa36c7
+          Action: "android.intent.action.ACTION_POWER_DISCONNECTED"
+          Action: "android.intent.action.ACTION_POWER_CONNECTED"
+      com.tingyun.smartmistakebook.TEST_CAPTURE_MODEL_FAILURES:
+        7f3665c com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.TestCaptureModelFailuresReceiver filter 2facd65
+          Action: "com.tingyun.smartmistakebook.TEST_CAPTURE_MODEL_FAILURES"
+      androidx.work.diagnostics.REQUEST_DIAGNOSTICS:
+        ae3d5ea com.tingyun.smartmistakebook.offline/androidx.work.impl.diagnostics.DiagnosticsReceiver filter b2b90db
+          Action: "androidx.work.diagnostics.REQUEST_DIAGNOSTICS"
+      android.intent.action.MY_PACKAGE_REPLACED:
+        7c6a3a com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.ReviewReminderReceiver filter 3316eb
+          Action: "android.intent.action.TIMEZONE_CHANGED"
+          Action: "android.intent.action.TIME_SET"
+          Action: "android.intent.action.BOOT_COMPLETED"
+          Action: "android.intent.action.MY_PACKAGE_REPLACED"
+      androidx.work.impl.background.systemalarm.UpdateProxies:
+        98b1e8c com.tingyun.smartmistakebook.offline/androidx.work.impl.background.systemalarm.ConstraintProxyUpdateReceiver filter fd2d9d5
+          Action: "androidx.work.impl.background.systemalarm.UpdateProxies"
+
+Domain verification status:
+
+Permissions:
+  Permission [com.tingyun.smartmistakebook.offline.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION] (ed7def5):
+    sourcePackage=com.tingyun.smartmistakebook.offline
+    uid=10193 gids=[] type=0 prot=signature
+    perm=PermissionInfo{7b6402a com.tingyun.smartmistakebook.offline.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION}
+    flags=0x0
+
+Registered ContentProviders:
+  com.tingyun.smartmistakebook.offline/com.google.mlkit.common.internal.MlKitInitProvider:
+    Provider{aa24e1b com.tingyun.smartmistakebook.offline/com.google.mlkit.common.internal.MlKitInitProvider}
+  com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.core.export.MistakePdfFileProvider:
+    Provider{6805d91 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.core.export.MistakePdfFileProvider}
+  com.tingyun.smartmistakebook.offline/androidx.startup.InitializationProvider:
+    Provider{5034f6 com.tingyun.smartmistakebook.offline/androidx.startup.InitializationProvider}
+  com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.core.export.MistakeDocxFileProvider:
+    Provider{e8db0f7 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.core.export.MistakeDocxFileProvider}
+  com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.core.data.capture.BatchImportFileProvider:
+    Provider{449cb64 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.core.data.capture.BatchImportFileProvider}
+  com.tingyun.smartmistakebook.offline/androidx.core.content.FileProvider:
+    Provider{2bc41cd com.tingyun.smartmistakebook.offline/androidx.core.content.FileProvider}
+
+ContentProvider Authorities:
+  [com.tingyun.smartmistakebook.offline.mistake-docx-exports]:
+    Provider{e8db0f7 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.core.export.MistakeDocxFileProvider}
+      applicationInfo=ApplicationInfo{e56c48a com.tingyun.smartmistakebook.offline}
+  [com.tingyun.smartmistakebook.offline.capture.fileprovider]:
+    Provider{2bc41cd com.tingyun.smartmistakebook.offline/androidx.core.content.FileProvider}
+      applicationInfo=ApplicationInfo{78feafb com.tingyun.smartmistakebook.offline}
+  [com.tingyun.smartmistakebook.offline.batch-import.fileprovider]:
+    Provider{449cb64 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.core.data.capture.BatchImportFileProvider}
+      applicationInfo=ApplicationInfo{b01b718 com.tingyun.smartmistakebook.offline}
+  [com.tingyun.smartmistakebook.offline.androidx-startup]:
+    Provider{5034f6 com.tingyun.smartmistakebook.offline/androidx.startup.InitializationProvider}
+      applicationInfo=ApplicationInfo{a147571 com.tingyun.smartmistakebook.offline}
+  [com.tingyun.smartmistakebook.offline.mistake-pdf-exports]:
+    Provider{6805d91 com.tingyun.smartmistakebook.offline/com.tingyun.smartmistakebook.core.export.MistakePdfFileProvider}
+      applicationInfo=ApplicationInfo{ce49f56 com.tingyun.smartmistakebook.offline}
+  [com.tingyun.smartmistakebook.offline.mlkitinitprovider]:
+    Provider{aa24e1b com.tingyun.smartmistakebook.offline/com.google.mlkit.common.internal.MlKitInitProvider}
+      applicationInfo=ApplicationInfo{8683bd7 com.tingyun.smartmistakebook.offline}
+
+Key Set Manager:
+  [com.tingyun.smartmistakebook.offline]
+      Signing KeySets: 56
+
+Packages:
+  Package [com.tingyun.smartmistakebook.offline] (f3eca71):
+    appId=10193
+    pkg=Package{42122fc com.tingyun.smartmistakebook.offline}
+    codePath=/data/app/~~ekoJQvDNLtC02_RK03dX3A==/com.tingyun.smartmistakebook.offline-h0ZEmXojUUvqI_ZWfAC_Hw==
+    resourcePath=/data/app/~~ekoJQvDNLtC02_RK03dX3A==/com.tingyun.smartmistakebook.offline-h0ZEmXojUUvqI_ZWfAC_Hw==
+    legacyNativeLibraryDir=/data/app/~~ekoJQvDNLtC02_RK03dX3A==/com.tingyun.smartmistakebook.offline-h0ZEmXojUUvqI_ZWfAC_Hw==/lib
+    extractNativeLibs=false
+    primaryCpuAbi=x86_64
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=2 minSdk=23 targetSdk=36
+    minExtensionVersions=[]
+    versionName=0.2.0-offline
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=2
+    flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PARTIALLY_DIRECT_BOOT_AWARE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    dataDir=/data/user/0/com.tingyun.smartmistakebook.offline
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    usesOptionalLibraries:
+      androidx.window.extensions
+      androidx.window.sidecar
+    usesOptionalNativeLibraries:
+      libOpenCL.so
+      libOpenCL-car.so
+      libOpenCL-pixel.so
+      libvndksupport.so
+      libcdsprpc.so
+      libedgetpu_util.so
+      libedgetpu_litert.so
+      libneuron_sys_util.mtk.so
+      libneuronusdk_adapter.mtk.so
+      libneuronusdk_adapter.9.mtk.so
+      libneuron_adapter_mgvi.so
+      libapuwareutils_v2.mtk.so
+      libapuwareutils.mtk.so
+      libapuwareapusys_v2.mtk.so
+      libmvpuop_mtk_nn.mtk.so
+      libmvpuop_mtk_cv.mtk.so
+      libmvpu_runtime_pub.mtk.so
+      libmvpu_engine_pub.mtk.so
+      libmvpu_pattern_pub.mtk.so
+      libmvpuop25_mtk_nn.mtk.so
+      libmvpuop25_mtk_cv.mtk.so
+      libmvpu_runtime_25_pub.mtk.so
+      libmvpu_engine_25_pub.mtk.so
+      libmvpu_pattern_25_pub.mtk.so
+      libmvpu_config.mtk.so
+      libmvpup30_mtk_nn.mtk.so
+      libmvpup30_mtk_cv.mtk.so
+      libmvpu_runtime_30.mtk.so
+      libmvpu_engine_30.mtk.so
+      libmvpu_pattern_30.mtk.so
+      libmvpuop30_mtk_nn.mtk.so
+      libOpenCL.so
+      libOpenCL-car.so
+      libOpenCL-pixel.so
+      libvndksupport.so
+      libcdsprpc.so
+      libedgetpu_util.so
+      libedgetpu_litert.so
+      libneuron_sys_util.mtk.so
+      libneuronusdk_adapter.mtk.so
+      libneuronusdk_adapter.9.mtk.so
+      libneuron_adapter_mgvi.so
+      libapuwareutils_v2.mtk.so
+      libapuwareutils.mtk.so
+      libapuwareapusys_v2.mtk.so
+      libmvpuop_mtk_nn.mtk.so
+      libmvpuop_mtk_cv.mtk.so
+      libmvpu_runtime_pub.mtk.so
+      libmvpu_engine_pub.mtk.so
+      libmvpu_pattern_pub.mtk.so
+      libmvpuop25_mtk_nn.mtk.so
+      libmvpuop25_mtk_cv.mtk.so
+      libmvpu_runtime_25_pub.mtk.so
+      libmvpu_engine_25_pub.mtk.so
+      libmvpu_pattern_25_pub.mtk.so
+      libmvpu_config.mtk.so
+      libmvpup30_mtk_nn.mtk.so
+      libmvpup30_mtk_cv.mtk.so
+      libmvpu_runtime_30.mtk.so
+      libmvpu_engine_30.mtk.so
+      libmvpu_pattern_30.mtk.so
+      libmvpuop30_mtk_nn.mtk.so
+    usesLibraryFiles:
+      /system_ext/framework/androidx.window.extensions.jar
+      /system_ext/framework/androidx.window.sidecar.jar
+    timeStamp=2026-11-04 19:45:28
+    lastUpdateTime=2026-11-04 19:45:28
+    installerPackageName=null
+    installerPackageUid=-1
+    initiatingPackageName=com.android.shell
+    originatingPackageName=null
+    packageSource=1
+    appMetadataFilePath=null
+    signatures=PackageSignatures{5acdd85 version:2, signatures:[b5264c58], past signatures:[]}
+    installPermissionsFixed=true
+    pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]
+    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PARTIALLY_DIRECT_BOOT_AWARE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    apexModuleName=null
+    declared permissions:
+      com.tingyun.smartmistakebook.offline.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: prot=signature
+    requested permissions:
+      android.permission.POST_NOTIFICATIONS
+      android.permission.RECEIVE_BOOT_COMPLETED
+      android.permission.FOREGROUND_SERVICE
+      android.permission.FOREGROUND_SERVICE_DATA_SYNC
+      android.permission.WAKE_LOCK
+      com.tingyun.smartmistakebook.offline.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+    install permissions:
+      android.permission.FOREGROUND_SERVICE: granted=true
+      android.permission.RECEIVE_BOOT_COMPLETED: granted=true
+      com.tingyun.smartmistakebook.offline.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: granted=true
+      android.permission.FOREGROUND_SERVICE_DATA_SYNC: granted=true
+      android.permission.WAKE_LOCK: granted=true
+    User 0: ceDataInode=344627 installed=true hidden=false suspended=false distractionFlags=0 stopped=true notLaunched=true enabled=0 instant=false virtual=false
+      installReason=0
+      firstInstallTime=2026-11-04 19:45:28
+      uninstallReason=0
+      overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /data/resource-cache/com.android.systemui-neutral-xIrr.frro
+        /data/resource-cache/com.android.systemui-accent-s0k5.frro
+        /data/resource-cache/com.android.systemui-dynamic-1F59.frro
+      legacy overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+      runtime permissions:
+        android.permission.POST_NOTIFICATIONS: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+
+Queries:
+  system apps queryable: false
+  queries via forceQueryable:
+  queries via package name:
+  queries via component:
+    com.google.android.settings.intelligence:
+      com.tingyun.smartmistakebook.offline
+    com.google.android.apps.photos:
+      com.tingyun.smartmistakebook.offline
+    com.google.android.apps.maps:
+      com.tingyun.smartmistakebook.offline
+  queryable via interaction:
+    User 0:
+  queryable via uses-library:
+
+Dexopt state:
+  [com.tingyun.smartmistakebook.offline]
+    path: /data/app/~~ekoJQvDNLtC02_RK03dX3A==/com.tingyun.smartmistakebook.offline-h0ZEmXojUUvqI_ZWfAC_Hw==/base.apk
+      x86_64: [status=run-from-apk] [reason=unknown] [primary-abi]
+        [location is error]
+
+Compiler stats:
+  [com.tingyun.smartmistakebook.offline]
+    (No recorded stats)

@@ -1,0 +1,24 @@
+{
+  "action": "capture",
+  "apk_sha256": "f534b0dd8aeabeeeec633bcbb9d24a62efe900eb75fdbcce199b979d58f7f7de",
+  "boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+  "checks": [
+    "tapped nav_library",
+    "root tag present: root_library"
+  ],
+  "clickable": 16,
+  "contrast": "UNVERIFIED",
+  "density_dpi": 420,
+  "failures": [],
+  "finished_at": "2026-11-04T21:37:34Z",
+  "label": "base-library",
+  "nodes": 84,
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "sdk": "34",
+  "serial": "emulator-5584",
+  "started_at": "2026-11-04T21:37:34Z",
+  "state": {},
+  "structural_ok": true,
+  "verdict": "PASS",
+  "violation_codes": []
+}

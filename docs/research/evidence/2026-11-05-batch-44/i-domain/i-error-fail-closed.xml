@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="i-error-fail-closed" tests="5" failures="0" errors="0" skipped="5" hostname="emulator-5584" timestamp="2026-11-04T18:41:49Z">
+  <testcase classname="com.tingyun.smartmistakebook.RootTutorFailClosedInstrumentedTest" name="readyQuestionIsRemovedDuringLoadingAndErrorThenRecovers" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootTutorFailClosedInstrumentedTest" name="savedCapturedQuestionOffersOnlyTheTutorJudgedReview" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootTutorFailClosedInstrumentedTest" name="emptyStudySnapshotShowsTheTrueNewUserLibraryAndReviewStates" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootTutorFailClosedInstrumentedTest" name="delayedArtifactCannotPairWithNewerPracticeUnitOrSubmission" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootTutorFailClosedInstrumentedTest" name="revealedExplanationAndRequestIdentityDoNotLeakIntoNextPracticeUnit" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+</testsuite>

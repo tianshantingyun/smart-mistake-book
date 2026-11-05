@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="smoke-root" tests="10" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T20:47:19Z">
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="libraryItemOpensRepositoryBackedDetailAndReturnsToCatalog" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="librarySummariesExposeReadableMathInsteadOfFormulaSource" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="fourBottomDestinationsExposeTheirOwnRootContent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="profileOpensStudentLearningMasteryWithoutKnowledgeBaseInternals" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="savedCredentialsImmediatelyUpdateTheProfileWithoutClaimingAConnectionProbe" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="reviewDoesNotExposeAnyCaptureShortcut" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="savedMistakeTutorKeepsStableBottomNavigationWithoutLeavingTheQuestion" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="settingsPagesShowOnlyCapabilitiesThatExistNow" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="tutorStartsFromAUserProvidedQuestionWithoutBuiltInCalibration" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="submittedReviewItemIsAlreadyAdvancedWhenUserLeavesBeforeNext" time="0">
+  </testcase>
+</testsuite>

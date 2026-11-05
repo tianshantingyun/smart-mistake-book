@@ -1,0 +1,13 @@
+{
+  "file": "docs/research/evidence/2026-11-06-batch-44/device-track/probes/home-immersive-b.png",
+  "sha256": "6e4074f4c3df0caf45776b0cbc8a790406dbb2470e5b27c0b5d48a1a05fa6221",
+  "serial": "emulator-5584",
+  "apk_sha256": "f534b0dd8aeabeeeec633bcbb9d24a62efe900eb75fdbcce199b979d58f7f7de",
+  "captured_at": "2026-11-04T21:44:44.939464+00:00",
+  "command": [
+    "adb",
+    "exec-out",
+    "screencap",
+    "-p"
+  ]
+}

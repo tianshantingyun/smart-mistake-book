@@ -1,0 +1,71 @@
+{
+  "action": "focus",
+  "apk_sha256": "f534b0dd8aeabeeeec633bcbb9d24a62efe900eb75fdbcce199b979d58f7f7de",
+  "boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+  "checks": [
+    "tapped nav_library",
+    "focus labels: ['导出 导出当前 5 道', '已导出 查看已导出的文件', '录入', '恒温下，密闭容器中的反应 N₂O₄(g) ⇌ 2NO₂(g) 已达到平衡。 瞬间将容器体积压缩为原来的一半。只考虑体积突变后的浓 收藏 用浓度商判断平衡移动 待评估 化学 用浓度商判断平衡移动', '搜索题目、板块或知识点', '筛选']"
+  ],
+  "density_dpi": 420,
+  "distinct": [
+    "导出 导出当前 5 道",
+    "已导出 查看已导出的文件",
+    "录入",
+    "恒温下，密闭容器中的反应 N₂O₄(g) ⇌ 2NO₂(g) 已达到平衡。 瞬间将容器体积压缩为原来的一半。只考虑体积突变后的浓 收藏 用浓度商判断平衡移动 待评估 化学 用浓度商判断平衡移动",
+    "搜索题目、板块或知识点",
+    "筛选"
+  ],
+  "failures": [],
+  "finished_at": "2026-11-04T21:42:29Z",
+  "label": "focus-library",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "presses": 6,
+  "sdk": "34",
+  "sequence": [
+    {
+      "bounds": "[624,84][833,210]",
+      "class": "android.view.View",
+      "focused": true,
+      "label": "已导出 查看已导出的文件",
+      "press": 1
+    },
+    {
+      "bounds": "[844,84][1038,210]",
+      "class": "android.view.View",
+      "focused": true,
+      "label": "录入",
+      "press": 2
+    },
+    {
+      "bounds": "[42,274][1038,421]",
+      "class": "android.widget.EditText",
+      "focused": true,
+      "label": "搜索题目、板块或知识点",
+      "press": 3
+    },
+    {
+      "bounds": "[662,432][876,558]",
+      "class": "android.view.View",
+      "focused": true,
+      "label": "筛选",
+      "press": 4
+    },
+    {
+      "bounds": "[876,432][1038,558]",
+      "class": "android.view.View",
+      "focused": true,
+      "label": "导出 导出当前 5 道",
+      "press": 5
+    },
+    {
+      "bounds": "[42,579][1038,1027]",
+      "class": "android.view.View",
+      "focused": true,
+      "label": "恒温下，密闭容器中的反应 N₂O₄(g) ⇌ 2NO₂(g) 已达到平衡。 瞬间将容器体积压缩为原来的一半。只考虑体积突变后的浓 收藏 用浓度商判断平衡移动 待评估 化学 用浓度商判断平衡移动",
+      "press": 6
+    }
+  ],
+  "serial": "emulator-5584",
+  "started_at": "2026-11-04T21:42:29Z",
+  "verdict": "PASS"
+}

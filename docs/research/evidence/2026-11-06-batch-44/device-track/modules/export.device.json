@@ -1,0 +1,19 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+  "apk_sha256": "f534b0dd8aeabeeeec633bcbb9d24a62efe900eb75fdbcce199b979d58f7f7de",
+  "test_apk_sha256": "08ea26417f746daddf0344c8b12433702628e25670f7ca80283b2e2374e165c0",
+  "package": "com.tingyun.smartmistakebook.core.export.test",
+  "runner": "androidx.test.runner.AndroidJUnitRunner",
+  "class_filter": "com.tingyun.smartmistakebook.core.export.MistakeExportVisualRoleInstrumentedTest,com.tingyun.smartmistakebook.core.export.MistakePdfCleanImageExportInstrumentedTest,com.tingyun.smartmistakebook.core.export.MistakePdfDeliveryRegressionInstrumentedTest,com.tingyun.smartmistakebook.core.export.MistakePdfExporterAigcInstrumentedTest,com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest,com.tingyun.smartmistakebook.core.export.MistakePdfLayoutTemplatesInstrumentedTest,com.tingyun.smartmistakebook.core.export.MistakePdfMissingSourceInstrumentedTest",
+  "counts": {
+    "tests": 30,
+    "evaluated": 30,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "verdict": "PASS",
+  "reason": "all passed",
+  "recorded_at": "2026-11-04T21:22:31Z"
+}

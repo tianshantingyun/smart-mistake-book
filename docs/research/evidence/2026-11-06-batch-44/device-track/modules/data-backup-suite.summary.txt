@@ -1,0 +1,2 @@
+tests=85 evaluated=84 failures=0 errors=0 ignored_or_assumed=1
+VERDICT FAIL: skipped=1（跳过不计通过）

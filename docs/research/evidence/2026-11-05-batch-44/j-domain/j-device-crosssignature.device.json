@@ -1,0 +1,21 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+  "apk_sha256": "724ce71834c227db79266149267d52c1b55a23d3cbceb2b93ce3930cba342b44",
+  "apk_path": "app/build/outputs/apk/strictOffline/release/app-strictOffline-release.apk",
+  "debug_apk_sha256": "97ee82a1b22c5fd9dce8b057ffec508622c5a3c0dcde3ada39d01acd8296f341",
+  "package": "com.tingyun.smartmistakebook.offline",
+  "observations": {
+    "pre_install_versionCode": 2,
+    "pre_install_versionName": "0.2.0-offline",
+    "pre_install_debuggable": true,
+    "release_install_result": "Failure [INSTALL_FAILED_UPDATE_INCOMPATIBLE: Existing package com.tingyun.smartmistakebook.offline signatures do not match newer version; ignoring!]",
+    "adb_install_exit_code": 1,
+    "post_install_versionCode": 2,
+    "post_install_versionName": "0.2.0-offline",
+    "post_install_debuggable": true,
+    "package_removed_after_probe": true
+  },
+  "failures": [],
+  "notes": "跨签名覆盖必须失败：release APK 与设备上的 debug APK 证书不同，安装被拒且设备状态未变。本机 adb 37.0.1 对这次失败返回 exit 1（批次 43 研究件记录过 exit 0）；因此判据取输出行与事后 dumpsys，不把 exit code 当唯一判词。探针后已卸载本包。"
+}

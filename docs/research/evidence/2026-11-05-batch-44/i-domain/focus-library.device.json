@@ -1,0 +1,87 @@
+{
+  "action": "focus",
+  "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac",
+  "boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+  "checks": [
+    "tapped nav_library",
+    "focus labels: ['# T7本地线题目新拍题目 求 f(x)=x-2x 的单调区间。 收藏 T7本地线题目新拍题目 待评估 综合 T7本地线题目新拍题目', '复习', '导出 导出当前 1 道', '已导出 查看已导出的文件', '录入', '搜索题目、板块或知识点', '收藏 T7本地线题目新拍题目', '筛选']"
+  ],
+  "density_dpi": 420,
+  "distinct": [
+    "# T7本地线题目新拍题目 求 f(x)=x-2x 的单调区间。 收藏 T7本地线题目新拍题目 待评估 综合 T7本地线题目新拍题目",
+    "复习",
+    "导出 导出当前 1 道",
+    "已导出 查看已导出的文件",
+    "录入",
+    "搜索题目、板块或知识点",
+    "收藏 T7本地线题目新拍题目",
+    "筛选"
+  ],
+  "failures": [],
+  "finished_at": "2026-11-04T19:03:21Z",
+  "label": "focus-library",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "presses": 8,
+  "sdk": "34",
+  "sequence": [
+    {
+      "bounds": "[624,84][833,210]",
+      "class": "android.view.View",
+      "focused": true,
+      "label": "已导出 查看已导出的文件",
+      "press": 1
+    },
+    {
+      "bounds": "[844,84][1038,210]",
+      "class": "android.view.View",
+      "focused": true,
+      "label": "录入",
+      "press": 2
+    },
+    {
+      "bounds": "[42,274][1038,421]",
+      "class": "android.widget.EditText",
+      "focused": true,
+      "label": "搜索题目、板块或知识点",
+      "press": 3
+    },
+    {
+      "bounds": "[662,432][876,558]",
+      "class": "android.view.View",
+      "focused": true,
+      "label": "筛选",
+      "press": 4
+    },
+    {
+      "bounds": "[876,432][1038,558]",
+      "class": "android.view.View",
+      "focused": true,
+      "label": "导出 导出当前 1 道",
+      "press": 5
+    },
+    {
+      "bounds": "[42,579][1038,901]",
+      "class": "android.view.View",
+      "focused": true,
+      "label": "# T7本地线题目新拍题目 求 f(x)=x-2x 的单调区间。 收藏 T7本地线题目新拍题目 待评估 综合 T7本地线题目新拍题目",
+      "press": 6
+    },
+    {
+      "bounds": "[880,611][1006,737]",
+      "class": "android.view.View",
+      "focused": true,
+      "label": "收藏 T7本地线题目新拍题目",
+      "press": 7
+    },
+    {
+      "bounds": "[21,2158][280,2326]",
+      "class": "android.view.View",
+      "focused": true,
+      "label": "复习",
+      "press": 8
+    }
+  ],
+  "serial": "emulator-5584",
+  "started_at": "2026-11-04T19:03:21Z",
+  "verdict": "PASS"
+}

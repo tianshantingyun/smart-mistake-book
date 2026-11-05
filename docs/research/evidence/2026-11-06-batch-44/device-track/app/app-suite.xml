@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="app-suite" tests="144" failures="2" errors="0" skipped="17" hostname="emulator-5584" timestamp="2026-11-04T20:55:33Z">
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="emptyAndImagesOnlySelectionsStayUnreachable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="uncheckingSessionsCascadesMasterySoTheResultIsNine" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="createPassesTheSelectedCategoriesToTheRepository" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="restoreConfirmationNamesThePackageAndWhatWillBeCleared" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="checkingMasteryFromNinePullsSessionsBackIn" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="zeroEightAndUnclosedSelectionsNeverReachTheRepository" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="checkingACategoryPullsInItsDependencies" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="uncheckingMasteryLeavesIssueBookSessionsImages" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="fromThirteenUncheckingSessionsAlsoLeavesNine" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="restoreReceiptNamesTheSelectedCategories" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="defaultSelectionIsEverythingAndCreationReceivesMaskFifteen" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest" name="clearingHasItsOwnProgressCopyAndLocksTheWholeForm" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest" name="testResultIsRemovedAsSoonAsTheSavedFormIsEdited" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest" name="syntheticTestRunsOnlyAfterTapAndShowsTheByokBoundary" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest" name="protocolPickerShowsTheSavedProtocolAndSavesTheSelection" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest" name="savingLocksTheWholeFormUntilTheSubmittedKeyIsHandled" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest" name="cancellingTheClearConfirmationKeepsTheConfiguration" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CaptureEntryNavigationInstrumentedTest" name="libraryEntryOpensTheSingleCaptureEntryAndTheFileStep" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CaptureEntryNavigationInstrumentedTest" name="tutorEntryOpensTheSameCaptureEntryWithItsOwnModes" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CaptureShareIntakeInstrumentedTest" name="severalImagesAreHandedToTheExistingBatchPipelineAndPreCopiesAreCleaned" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CaptureShareIntakeInstrumentedTest" name="aSharedImageIsStagedIntoTheOwnedCaptureCache" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CaptureShareIntakeInstrumentedTest" name="aBadImageIsRejectedAndLeavesNoStagedBytesBehind" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CaptureShareIntakeInstrumentedTest" name="pdfBytesAreHandedToTheExistingPdfPipeline" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CaptureShareIntakeInstrumentedTest" name="anUnreadableUriIsRejectedWithoutThrowing" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CaptureShareIntakeInstrumentedTest" name="anImageAboveTheByteBudgetIsRejectedBeforeStaging" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CaptureShareIntakeInstrumentedTest" name="theManifestRegistersTheAppForSingleAndMultipleImageAndPdfShares" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CaptureShareIntakeInstrumentedTest" name="nonPdfBytesWithPdfMimeAreRejectedBeforeThePipeline" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapturedReviewDocumentInstrumentedTest" name="aPreviousQuestionsDetailCannotSupplyThisQuestionsImages" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapturedReviewDocumentInstrumentedTest" name="unavailableOriginalsAreExplainedWithoutHidingTheFormalQuestion" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapturedReviewDocumentInstrumentedTest" name="zoomingTheSecondOriginalReturnsToItsExistingPlaceInThePageList" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapturedReviewDocumentInstrumentedTest" name="formalContentAndEveryOriginalPageCanBeReadWithoutStartingTutor" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.DualReviewEntryInstrumentedTest" name="completedMistakeReviewKeepsTheKnowledgeEntryWhenKnowledgeRemains" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.DualReviewEntryInstrumentedTest" name="zeroOrUnloadedKnowledgeCountDoesNotShowTheEntry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.DualReviewEntryInstrumentedTest" name="computedKnowledgeCountShowsClickableEntry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ExportPdfDriverInstrumentedTest" name="theBuiltRequestIsExpeditedAndDegradesInsteadOfDropping" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.KnowledgeReviewSessionInstrumentedTest" name="savedStateParcelRoundTripRestoresTheOriginalNodeAndChoiceWithAnEmptyNewPlan" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.KnowledgeReviewSessionInstrumentedTest" name="loadFailureShowsRetryThatCanRecover" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.KnowledgeReviewSessionInstrumentedTest" name="skippingTheOnlyNodeShowsAFinishActionWithoutRecordingAVerdict" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.KnowledgeReviewSessionInstrumentedTest" name="singleNodeSessionLoadsQuizzesAnswersAndFinishes" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.LearningMasteryScreenInstrumentedTest" name="learningHistoryIsGroupedForStudentsWithoutKnowledgeBaseInternals" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.LocalTaskLineDeviceInstrumentedTest" name="nativeDocxExportProducesARealWordArtifactOnDevice" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.LocalTaskLineDeviceInstrumentedTest" name="manualCreateCommitsToTheRealLibraryReopensVisibleAndStaysModelFree" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.MistakeExportBackgroundInstrumentedTest" name="exportIsStillRunningWhenThePageIsLeftAndCompletesAfterTheGateOpens" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.MistakeExportBackgroundInstrumentedTest" name="exportCompletesAfterTheDetailingPageIsLeftAndStaysRetrievable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.MistakeExportBackgroundInstrumentedTest" name="theNotificationDeepLinkIntentReachesTheResultsHub" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.MistakeExportDeliveryInstrumentedTest" name="printActionGoesThroughTheExistingAdapterWithoutCrashing" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.MistakeExportDeliveryInstrumentedTest" name="saveAndShareGoThroughTheExistingDeliveryIntents" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.MistakeExportNotificationsInstrumentedTest" name="withoutPermissionNothingIsPostedAndNothingThrows" time="0">
+    <failure message="instrumentation failure">java.lang.IllegalStateException: 拒绝态用例必须在启动前由外部执行 pm revoke，并传 -e smb_notifications_denied=true
+</failure>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.MistakeExportNotificationsInstrumentedTest" name="grantedPermissionPostsBothTerminalStatesWithADeepLink" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.MistakeTutorNavigationInstrumentedTest" name="tutorRouteRoundTripsEveryExactIdentityAsUriArguments" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.NativeUiAdoptionInstrumentedTest" name="allFourDestinationsAndSettingsRemainReachable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.Prd06EmptyLibraryCaptureCtaInstrumentedTest" name="emptyLibraryCtaReachesTheLibraryManualEntryWithoutAModelDispatch" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.Prd08TutorDraftRecreationInstrumentedTest" name="recreationRestoresTheDraftWithoutSendingOrWritingItBack" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewContinuityInstrumentedTest" name="learningDataShowsTheSameContinuityWithoutAnotherCheckInControl" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewContinuityInstrumentedTest" name="completedReviewShowsAnAutomaticPlainLanguageContinuityRecord" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewIntakeBacklogPreviewInstrumentedTest" name="nonEmptyBacklogShowsTheCoveragePreview" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewIntakeBacklogPreviewInstrumentedTest" name="emptyBacklogHidesThePreview" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewPrerequisiteRemediationInstrumentedTest" name="anOrdinaryCardShowsNoRemediation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewPrerequisiteRemediationInstrumentedTest" name="theRemediationSitsBesideTheQuestionWithoutBlockingTheAttempt" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewReTeachOpeningInstrumentedTest" name="aLeechedCardHidesTheQuestionUntilTheMaterialIsAcknowledged" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewReTeachOpeningInstrumentedTest" name="anOrdinaryCardGoesStraightToTheQuestion" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewReminderInstrumentedTest" name="reminderPreferenceIsUsableAndNotificationIntentReturnsToReview" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewReminderPlatformInstrumentedTest" name="firedReminderPostsPrivateGenericNotificationWithContentIntent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="doubleTapOnAKeySubmitsExactlyOneAttempt" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="interruptedSubmissionRetriesTheSameRequestAndWritesOnce" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="undoThenReevaluateUsesTheRewoundVersionAndAdvancesAgain" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="rotationKeepsTheRecordedReceiptAndUndoAction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="hardKeyRecordsEffortfulRecallAsPositiveEvidence" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="goodKeyRecordsTheSelfReportAndShowsTheStoredAnswerWithoutAModel" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="againKeyRecordsAMissAsNegativeEvidence" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="doubleFontKeepsAllThreeKeysReachableWithRealTouchAndOneStoredAttempt" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="libraryItemOpensRepositoryBackedDetailAndReturnsToCatalog" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="librarySummariesExposeReadableMathInsteadOfFormulaSource" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="fourBottomDestinationsExposeTheirOwnRootContent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="profileOpensStudentLearningMasteryWithoutKnowledgeBaseInternals" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="savedCredentialsImmediatelyUpdateTheProfileWithoutClaimingAConnectionProbe" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="reviewDoesNotExposeAnyCaptureShortcut" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="savedMistakeTutorKeepsStableBottomNavigationWithoutLeavingTheQuestion" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="settingsPagesShowOnlyCapabilitiesThatExistNow" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="tutorStartsFromAUserProvidedQuestionWithoutBuiltInCalibration" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootExperienceInstrumentedTest" name="submittedReviewItemIsAlreadyAdvancedWhenUserLeavesBeforeNext" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootTutorFailClosedInstrumentedTest" name="readyQuestionIsRemovedDuringLoadingAndErrorThenRecovers" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootTutorFailClosedInstrumentedTest" name="savedCapturedQuestionOffersOnlyTheTutorJudgedReview" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootTutorFailClosedInstrumentedTest" name="emptyStudySnapshotShowsTheTrueNewUserLibraryAndReviewStates" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootTutorFailClosedInstrumentedTest" name="delayedArtifactCannotPairWithNewerPracticeUnitOrSubmission" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootTutorFailClosedInstrumentedTest" name="revealedExplanationAndRequestIdentityDoNotLeakIntoNextPracticeUnit" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.RootVisualCaptureInstrumentedTest" name="captureAllFourCurrentRootDestinations" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SchedulingSettingsInstrumentedTest" name="retentionSliderRightEdgeStoresAValueTheDomainAccepts" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SchedulingSettingsInstrumentedTest" name="addingAndRemovingAnExamCallsTheStore" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SchedulingSettingsInstrumentedTest" name="schedulingSettingsExposeRetentionSliderWithoutTheRemovedFsrsSwitch" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SharedCaptureEntryInstrumentedTest" name="aRetryableShareFailureCanBeRetriedAndSucceeds" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SharedCaptureEntryInstrumentedTest" name="aShareOfMoreThanThirtyFilesIsRejectedByTheCountGate" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SharedCaptureEntryInstrumentedTest" name="aSharedImageLandsAsAnEditableCaptureDraft" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SharedCaptureEntryInstrumentedTest" name="aSharedFileThatIsNotAnImageIsRejectedWithoutCreatingADraft" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SharedCaptureEntryInstrumentedTest" name="aSharedImageAboveTheByteBudgetIsRejectedByTheSizeGate" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SharedCaptureEntryInstrumentedTest" name="severalSharedImagesStartTheExistingBatchImport" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SourceCalibrationSectionInstrumentedTest" name="explainsWhatToDoWhenNoSourceHasEverBeenReported" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SourceCalibrationSectionInstrumentedTest" name="listsEachSourceWithPairsAndTheModelJudgedFittingExclusion" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.StorageOperationLifecycleInstrumentedTest" name="aRunningOperationSurvivesActivityRecreationExactlyOnce" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.StorageOperationLifecycleInstrumentedTest" name="anInterruptedProcessDoesNotRestoreAPhantomBusyOperation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.UserVisibleRecoveryInstrumentedTest" name="editsToAnExistingConfigurationSurviveTheInitialLoadingFrameAfterRecreation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.UserVisibleRecoveryInstrumentedTest" name="masteryEmptyActionOpensTheMistakeLibrary" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.UserVisibleRecoveryInstrumentedTest" name="unsavedModelConfigurationSurvivesActivityRecreation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.pdf.PdfAigcDeviceRoundTripInstrumentedTest" name="xrefStreamPdfSurvivesInjectionAndOpensInPlatformRenderer" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.pdf.PdfAigcDeviceRoundTripInstrumentedTest" name="malformedHeaderIsRejectedWithTypedErrorAndNoOutput" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.pdf.PdfAigcDeviceRoundTripInstrumentedTest" name="modelParsedTextForcesAigcLabelling" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.pdf.PdfAigcDeviceRoundTripInstrumentedTest" name="missingStartXrefIsRejectedWithTypedErrorAndNoOutput" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.pdf.PdfAigcDeviceRoundTripInstrumentedTest" name="userOnlyContentStaysUnlabelled" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.pdf.PdfAigcDeviceRoundTripInstrumentedTest" name="encryptedPdfIsRejectedWithTypedErrorAndNoOutput" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.pdf.PdfAigcDeviceRoundTripInstrumentedTest" name="pdfDocumentChineseTwoPagePdfSurvivesInjectionAndOpensInPlatformRenderer" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.pdf.PdfAigcDeviceRoundTripInstrumentedTest" name="secondInjectionWithSameMetadataKeepsOneInfoAndBytePrefix" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.pdf.PdfAigcDeviceRoundTripInstrumentedTest" name="malformedXrefTableIsRejectedWithTypedErrorAndNoOutput" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.pdf.PdfAigcDeviceRoundTripInstrumentedTest" name="classicXrefTablePdfSurvivesInjectionAndOpensInPlatformRenderer" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.V01VisualChainInstrumentedTest" name="theFrozenDrawCommandsCommitAndSurviveARealReopenRenderedByTheIsolatedEngine" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.V01VisualChainInstrumentedTest" name="aJsProposalThroughTheCoordinatorRendersWithZeroRemoteDispatchWitnesses" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.V01VisualChainInstrumentedTest" name="theProductionAssemblyWithoutAnInjectedEngineKeepsJsUnavailableWithoutAuditRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.V01VisualChainInstrumentedTest" name="theRestoredChainWritesAPdfThroughTheTestSeamAndKeepsThePreviewReference" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsAdvertiseThenExecuteInstrumentedTest" name="anAdvertisedJsSnapshotRendersThroughTheCoordinatorWithZeroRemoteDispatchWitnesses" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsAdvertiseThenExecuteInstrumentedTest" name="theProductionAssemblyWithoutAnInjectedEngineKeepsTheAdvertisedJsUnavailable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsAdvertiseThenExecuteInstrumentedTest" name="theDefaultImageModelOnlySnapshotRefusesTheJsProposalAtPolicyWithoutExecuting" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsClientFrameQueueDeviceInstrumentedTest" name="aFourthDistinctProgramIsRejectedBusyAndLatestWinsKeepsFifoOrderWhileOneFrameIsInFlight" time="0">
+    <failure message="instrumentation failure">java.lang.AssertionError: the fourth distinct program must be rejected by the client queue, got Rendered(sceneJson={&quot;schemaVersion&quot;:1,&quot;sceneId&quot;:&quot;scene-D&quot;,&quot;revision&quot;:1,&quot;viewBox&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;width&quot;:360,&quot;height&quot;:240},&quot;paths&quot;:[],&quot;root&quot;:{&quot;type&quot;:&quot;group&quot;,&quot;children&quot;:[]}}, sceneSchemaVersion=1, contentIds=[], drawCommandsJson={&quot;drawSchemaVersion&quot;:1,&quot;viewBox&quot;:{&quot;x&quot;:0,&quot;y&quot;:0,&quot;w&quot;:360,&quot;h&quot;:240},&quot;background&quot;:null,&quot;ops&quot;:[],&quot;hitRegions&quot;:[],&quot;stats&quot;:{&quot;nodes&quot;:1,&quot;pathCommands&quot;:0,&quot;labels&quot;:0,&quot;ops&quot;:0}}, drawSchemaVersion=1)
+</failure>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsConnectStageCalibrationInstrumentedTest" name="readRoundFromInstrumentationArg" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsConnectStageCalibrationInstrumentedTest" name="legacyColdStartConnectStagesMeetTheReadyHalfBudgetAcrossTwoBatches" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsDeathUnconfirmedFailClosedInstrumentedTest" name="aWorkerDeathThatIsNeverConfirmedFailsClosedWithinItsBudgetAndNeverBindsAgain" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsHandshakeRaceInstrumentedTest" name="aDeathDuringTheRebuildHandshakeSpendsTheRebuildBudgetExactlyOnce" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsHandshakeRaceInstrumentedTest" name="markDeadWinningTheHandshakeRaceIsNeverPublishedAsConnected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="aHungWorkerReleasesTheCallerWithinHardPlus500ms" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="theClientRebuildsAtMostOnceAfterConfirmedAbandons" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="aReadyTimeoutFailsHonestlyWithoutLatchingAndTheNextExecuteRebinds" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="anOverBudgetRequestEnvelopeIsRejectedByTheBoundedRead" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="anUnattributedEngineFailureKeepsItsPrefixAcrossTheAidlWire" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="aMalformedCallerRequestIsRejectedWithoutTakingTheFlightSlot" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="aStaleGenerationIsRejectedAndAStaleTerminateIsANoOp" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="aFirstConnectTimeoutFailsHonestlyAndTheNextExecuteRetriesWithoutLatching" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="aSecondConcurrentRequestIsRejectedBusyWhileTheFirstIsInFlight" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="anExecuteAcquiredDuringWarmUpIsRefusedBoundedlyAndNeverWatchdogKilled" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="theWatchdogKillsAHungWorkerAndAFreshGenerationHasNoBusyState" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="anExplicitRetryOfAnInjectedFusedProgramRendersAndReleasesTheFuse" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest" name="aColdStartAttachBeyondTheOldConnectBudgetStillRendersTheFirstProgram" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualJsReconnectBudgetInstrumentedTest" name="aRebuildAttachBeyondTheReconnectBudgetFailsAsLoadingWithoutLatchingAndRetriesStayAllowed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualMeasureReplayPaintFlagsInstrumentedTest" name="theMeasuringPaintAndTheReplayTextPaintShareTheFingerprintedFlags" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualMeasureReplayPaintFlagsInstrumentedTest" name="aFingerprintThatDisagreesWithTheActualPaintFailsClosed" time="0">
+  </testcase>
+</testsuite>

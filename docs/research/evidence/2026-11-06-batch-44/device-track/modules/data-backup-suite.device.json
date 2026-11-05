@@ -1,0 +1,19 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+  "apk_sha256": "f534b0dd8aeabeeeec633bcbb9d24a62efe900eb75fdbcce199b979d58f7f7de",
+  "test_apk_sha256": "611903803bbdcc83936e9ba567db733edbc1726f0cfc7e4fe160fffda27d9454",
+  "package": "com.tingyun.smartmistakebook.core.data.test",
+  "runner": "androidx.test.runner.AndroidJUnitRunner",
+  "class_filter": "com.tingyun.smartmistakebook.core.data.backup.BackupCreateWriteGateInstrumentedTest,com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest,com.tingyun.smartmistakebook.core.data.backup.BackupRestoreLifecycleInstrumentedTest,com.tingyun.smartmistakebook.core.data.backup.BackupRowCountsCoverageInstrumentedTest,com.tingyun.smartmistakebook.core.data.backup.BackupSelectionCreateInstrumentedTest,com.tingyun.smartmistakebook.core.data.backup.BackupSelectionRestoreInstrumentedTest,com.tingyun.smartmistakebook.core.data.backup.BackupSnapshotTrimmerInstrumentedTest,com.tingyun.smartmistakebook.core.data.backup.BackupV4PackRestoreInstrumentedTest,com.tingyun.smartmistakebook.core.data.backup.BackupVisualReferenceInstrumentedTest,com.tingyun.smartmistakebook.core.data.backup.CaptureBackupWriteGateInstrumentedTest,com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest,com.tingyun.smartmistakebook.core.data.backup.RestoreBackgroundQuiesceInstrumentedTest",
+  "counts": {
+    "tests": 85,
+    "evaluated": 84,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "verdict": "FAIL",
+  "reason": "skipped=1（跳过不计通过）",
+  "recorded_at": "2026-11-04T21:51:29Z"
+}

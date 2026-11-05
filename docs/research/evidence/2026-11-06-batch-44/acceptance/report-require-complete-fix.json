@@ -1,0 +1,539 @@
+{
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "02ba530745ed928c139943a6c3a3ece48ae0f0b3d1c32031b8000e38de397e65",
+  "head": "542b9bbac49081aca808c616a5dc538965d1767e",
+  "dirty_paths": 4393,
+  "total": 1200,
+  "counts": {
+    "PASS": 668,
+    "FAIL": 21,
+    "BLOCKED": 73,
+    "UNVERIFIED": 438
+  },
+  "state": "FAIL",
+  "pass_with_two_kinds": 668,
+  "pass_with_review": 0,
+  "pass_without_review": 668,
+  "unverified": 438,
+  "acceptance_complete": false,
+  "violations": [
+    {
+      "id": "E-001",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-002",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-003",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-003",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-004",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-005",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-005",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-006",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-006",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-008",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-009",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-010",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-010",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-011",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-011",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-012",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-012",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-012",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-013",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-014",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-015",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-017",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-018",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-019",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-019",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-020",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-020",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-021",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-021",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-022",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-022",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-023",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-024",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-026",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-027",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-028",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-029",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-030",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-031",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-032",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-033",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-035",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-036",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-037",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-038",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-039",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-040",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-040",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-041",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-042",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-044",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-045",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-045",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-046",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-047",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-048",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-049",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-050",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-051",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-053",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-054",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-055",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-056",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-057",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-058",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-059",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-060",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-062",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-063",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-064",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-065",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-066",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-067",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-068",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-069",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-071",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-072",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-073",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-073",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-074",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-075",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-076",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-077",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-078",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-080",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-081",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-081",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-082",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-082",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-083",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-083",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-084",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-084",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-085",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-085",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-087",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "E-088",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-089",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-089",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log: CMD: java -cp <probe out + module classes + kotlin-stdlib> EDomainProbe"
+    },
+    {
+      "id": "E-090",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log: CMD: ./gradlew --offline -q :core:domain:test --tests <E-domain classes incl StudyDayMathTest>"
+    },
+    {
+      "id": "E-090",
+      "code": "PLACEHOLDER_CMD",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log: CMD: ./gradlew --offline -q :core:data:testDebugUnitTest --tests <E-domain study classes>"
+    },
+    {
+      "id": "",
+      "code": "NOT_ACCEPTANCE_COMPLETE",
+      "detail": "UNVERIFIED=438 FAIL=21 BLOCKED=73"
+    },
+    {
+      "id": "",
+      "code": "PASS_WITHOUT_REVIEW",
+      "detail": "668 个 PASS 行没有 review 证据"
+    }
+  ],
+  "warnings": [],
+  "ok": false,
+  "exit_code": 1
+}
