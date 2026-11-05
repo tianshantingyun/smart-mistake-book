@@ -1,0 +1,22 @@
+GROUP trace
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group trace
+CHECK real_ledger EXPECTED=1 ACTUAL=1 OK
+CHECK real_rows_1200 EXPECTED=1 ACTUAL=1 OK
+CHECK real_gaps_visible EXPECTED=1 ACTUAL=1 OK
+CHECK d0_rows_traced EXPECTED=1 ACTUAL=1 OK
+CHECK case_clean EXPECTED=0 ACTUAL=0 OK
+CHECK clean_no_gaps EXPECTED=1 ACTUAL=1 OK
+CHECK case_missing_test EXPECTED=1 ACTUAL=1 OK
+CHECK caught_missing_test EXPECTED=1 ACTUAL=1 OK
+CHECK case_placeholder EXPECTED=1 ACTUAL=1 OK
+CHECK caught_placeholder EXPECTED=1 ACTUAL=1 OK
+CHECK case_no_landing EXPECTED=1 ACTUAL=1 OK
+CHECK caught_no_landing EXPECTED=1 ACTUAL=1 OK
+CHECK case_device_missing EXPECTED=1 ACTUAL=1 OK
+CHECK caught_device_missing EXPECTED=1 ACTUAL=1 OK
+CHECK case_evidence_missing EXPECTED=1 ACTUAL=1 OK
+CHECK caught_evidence_missing EXPECTED=1 ACTUAL=1 OK
+CHECK real_ledger_again EXPECTED=1 ACTUAL=1 OK
+CHECK json_stable EXPECTED=1 ACTUAL=1 OK
+CHECKS=18 FAILURES=0
+EXIT=0

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:58:38.456Z" hostname="TIANSHAN" time="0.013">
+  <properties/>
+  <testcase name="quota is capped by the daily capacity and the excess is reported honestly" classname="com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest" time="0.008"/>
+  <testcase name="study-day weights shrink the denominator without changing the window" classname="com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest" time="0.002"/>
+  <testcase name="only items below the exam target count as deficits" classname="com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest" time="0.001"/>
+  <testcase name="outside the fourteen-day window produces zero output" classname="com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest" time="0.0"/>
+  <testcase name="a shared subject quota caps the plan and never over-picks" classname="com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest" time="0.001"/>
+  <testcase name="deficit ordering is deterministic by deficit then exam risk then due time then id" classname="com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest" time="0.0"/>
+  <testcase name="invalid budget or duration fails closed" classname="com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest" time="0.001"/>
+  <testcase name="in-window target retention follows the fourteen-day ramp" classname="com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

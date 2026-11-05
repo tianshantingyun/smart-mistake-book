@@ -1,0 +1,11 @@
+GROUP docs-protocol
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group docs --section protocol
+CHECK protocol_sign_fields EXPECTED=1 ACTUAL=1 OK
+CHECK protocol_sha_binding EXPECTED=1 ACTUAL=1 OK
+CHECK protocol_non_forgeable EXPECTED=1 ACTUAL=1 OK
+CHECK protocol_double_sign EXPECTED=1 ACTUAL=1 OK
+CHECK protocol_archive_path EXPECTED=1 ACTUAL=1 OK
+OBSERVED conflict_rule_present=False
+CHECK protocol_conflict_rule_absent EXPECTED=1 ACTUAL=1 OK
+CHECKS=6 FAILURES=0
+EXIT=0

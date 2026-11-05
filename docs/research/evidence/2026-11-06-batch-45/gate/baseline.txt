@@ -1,0 +1,9 @@
+=== GATE baseline 2026-11-05T10:08:40+08:00 ===
+HEAD 87604198feeef198d5dba7343b8c4692c5e8f937
+ledger_sha256 788641a6e8adadd5c9ed08ccdddb7ea613786e1f74f8a644806953175f85b7b1
+python 3.13.14
+List of devices attached
+emulator-5562	device
+emulator-5584	device
+
+EXIT=0

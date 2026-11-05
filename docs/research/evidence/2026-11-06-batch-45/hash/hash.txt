@@ -1,0 +1,22 @@
+GROUP hash
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group hash
+CHECK generate EXPECTED=0 ACTUAL=0 OK
+CHECK self_hash_64hex EXPECTED=1 ACTUAL=1 OK
+OBSERVED fixture_self_sha256=d2c677cf02bdd542dbd7531a736741ff84009b4832c2bc9c1d99f24878d9c40c
+CHECK verify_clean EXPECTED=0 ACTUAL=0 OK
+CHECK verify_changed EXPECTED=1 ACTUAL=1 OK
+CHECK caught_mismatch EXPECTED=1 ACTUAL=1 OK
+CHECK verify_missing EXPECTED=1 ACTUAL=1 OK
+CHECK caught_missing_file EXPECTED=1 ACTUAL=1 OK
+CHECK verify_unlisted EXPECTED=1 ACTUAL=1 OK
+CHECK caught_unlisted EXPECTED=1 ACTUAL=1 OK
+CHECK evidence_generate EXPECTED=0 ACTUAL=0 OK
+CHECK evidence_self_hash_matches EXPECTED=1 ACTUAL=1 OK
+OBSERVED manifest_self_sha256=0c7c189cadd16042f57d269d4461ccdae582000a9dae4dfa0d6d725fa21e372c
+CHECK manifest_nonempty EXPECTED=1 ACTUAL=1 OK lines=48
+CHECK evidence_verify EXPECTED=0 ACTUAL=0 OK
+CHECK manifest_paths_posix EXPECTED=1 ACTUAL=1 OK
+CHECK manifest_no_secrets EXPECTED=1 ACTUAL=1 OK
+OBSERVED manifest_files=48
+CHECKS=15 FAILURES=0
+EXIT=0

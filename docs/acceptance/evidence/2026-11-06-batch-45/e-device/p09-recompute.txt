@@ -1,0 +1,15 @@
+LOGDIR=D:\smart mistake book\docs\research\evidence\2026-11-06-batch-45\ws7
+SESSIONDIR=D:\smart mistake book\docs\research\evidence\2026-11-06-batch-45\e-device
+ws7/run1: kills->rebuild deltas(ms)=[2071]
+ws7/run1: n=1 slow_region=1 fast_region=0 first=2071 window=1300
+ws7/run2: kills->rebuild deltas(ms)=[1890]
+ws7/run2: n=1 slow_region=1 fast_region=0 first=1890 window=1300
+ws7/run3: kills->rebuild deltas(ms)=[1861]
+ws7/run3: n=1 slow_region=1 fast_region=0 first=1861 window=1300
+session/verify-run1: kills->rebuild deltas(ms)=[]
+session/verify-run1: NO DELTA (no kill->warm-up pair in log)
+session/verify-run2: kills->rebuild deltas(ms)=[2794]
+session/verify-run2: n=1 slow_region=1 fast_region=0 first=2794 window=1300
+session/verify-run3: kills->rebuild deltas(ms)=[2666]
+session/verify-run3: n=1 slow_region=1 fast_region=0 first=2666 window=1300
+P09_RECOMPUTE=OK

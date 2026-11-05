@@ -1,0 +1,6 @@
+installed device APK (pulled then deleted; 198047139 bytes)
+path=/data/app/.../com.tingyun.smartmistakebook.core.database.test.../base.apk
+sha256=32235e6323f7caa45bdbdb6a0c566f5f50c9fb4da26cef975163deb3a7501a61
+local=core/database/build/outputs/apk/androidTest/debug/database-debug-androidTest.apk
+local_sha256=32235e6323f7caa45bdbdb6a0c566f5f50c9fb4da26cef975163deb3a7501a61
+match=yes

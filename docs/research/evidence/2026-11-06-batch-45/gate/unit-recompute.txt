@@ -1,0 +1,20 @@
+=== GATE 单测逐例机械复算（来源 build/test-results 下三套 JUnit XML）===
+cmd: python -X utf8 -I -c 求和脚本（脚本逐字见 00-gate-index.md 附录 A）
+app                      files=  29 tests=  156 failures=0 errors=0 ignored=0
+core/data                files= 194 tests= 1647 failures=0 errors=0 ignored=0
+core/database            files=  50 tests=  248 failures=0 errors=0 ignored=0
+core/domain              files=  89 tests=  708 failures=0 errors=0 ignored=0
+core/export              files=  16 tests=  172 failures=0 errors=0 ignored=0
+core/model               files=  64 tests=  644 failures=0 errors=0 ignored=0
+core/ui                  files=  11 tests=   52 failures=0 errors=0 ignored=0
+feature/capture          files=  24 tests=  148 failures=0 errors=0 ignored=0
+feature/library          files=  14 tests=   73 failures=0 errors=0 ignored=0
+feature/profile          files=   3 tests=    6 failures=0 errors=0 ignored=0
+feature/review           files=   9 tests=   72 failures=0 errors=0 ignored=0
+feature/tutor            files=  32 tests=  258 failures=0 errors=0 ignored=0
+TOTAL modules=12 files=535 tests=4184 failures=0 errors=0 ignored=0
+core/markdown: NO-SOURCE (Gradle 日志逐字)
+unparsable= 0
+xml_mtime_utc min= 2026-11-05T02:12:32Z max= 2026-11-05T02:31:32Z
+now_utc= 2026-11-05T02:37:57Z
+EXIT=0

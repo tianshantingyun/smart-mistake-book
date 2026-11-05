@@ -1,0 +1,881 @@
+--------- beginning of main
+11-05 05:19:15.472 29731 29731 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-05 05:19:15.474 29731 29731 I AndroidRuntime: Using default boot image
+11-05 05:19:15.474 29731 29731 I AndroidRuntime: Leaving lock profiling enabled
+11-05 05:19:15.479 29731 29731 I app_process: Core platform API reporting enabled, enforcing=false
+11-05 05:19:15.489 29731 29731 I app_process: Using CollectorTypeCC GC.
+11-05 05:19:15.634 29731 29731 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-05 05:19:15.641 29731 29731 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-05 05:19:15.642 29731 29731 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+11-05 05:19:15.646 29731 29731 W app_process: Unexpected CPU variant for x86: x86_64.
+11-05 05:19:15.646 29731 29731 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-05 05:19:15.671 29731 29731 W libc    : Access denied finding property "ro.product.name_for_attestation"
+11-05 05:19:15.674 29731 29731 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+11-05 05:19:15.674 29731 29731 W libc    : Access denied finding property "ro.product.model_for_attestation"
+11-05 05:19:15.660 29731 29731 W main    : type=1400 audit(0.0:77): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-05 05:19:15.675 29731 29731 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-05 05:19:15.672 29731 29731 W main    : type=1400 audit(0.0:78): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-05 05:19:15.672 29731 29731 W main    : type=1400 audit(0.0:79): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-05 05:19:15.686 29731 29731 D UiAutomationConnection: Created on user UserHandle{0}
+--------- beginning of system
+11-05 05:19:15.690 18285 19732 I ActivityManager: Force stopping com.tingyun.smartmistakebook.localfirst appid=10245 user=0: start instr
+11-05 05:19:15.696 18285 19732 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10245; state: DISABLED
+11-05 05:19:15.697 18285 18327 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10245; state: ENABLED
+11-05 05:19:15.699 18285 18303 W Looper  : Drained
+11-05 05:19:15.700 18285 18375 D CompatibilityChangeReporter: Compat change id reported: 265195908; UID 10245; state: ENABLED
+11-05 05:19:15.718 18214 18214 D Zygote  : Forked child process 29745
+11-05 05:19:15.718 18285 18327 I ActivityManager: Start proc 29745:com.tingyun.smartmistakebook.localfirst/u0a245 for added application com.tingyun.smartmistakebook.localfirst
+11-05 05:19:15.767 29745 29745 I book.localfirst: Late-enabling -Xcheck:jni
+11-05 05:19:15.837 29745 29745 W book.localfirst: Suspending all threads took: 11.703ms
+11-05 05:19:15.838 29745 29745 I book.localfirst: Using CollectorTypeCC GC.
+11-05 05:19:15.838 29745 29745 W book.localfirst: Unexpected CPU variant for x86: x86_64.
+11-05 05:19:15.838 29745 29745 W book.localfirst: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-05 05:19:15.959   451   459 I adbd    : jdwp connection from 29745
+11-05 05:19:16.072 29745 29745 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10245; state: ENABLED
+11-05 05:19:16.073 29745 29745 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 10245; state: ENABLED
+11-05 05:19:16.116 18285 19732 D CompatibilityChangeReporter: Compat change id reported: 170503758; UID 10245; state: ENABLED
+11-05 05:19:16.119 29745 29745 W ActivityThread: Package uses different ABI(s) than its instrumentation: package[com.tingyun.smartmistakebook.localfirst]: x86_64, null instrumentation[com.tingyun.smartmistakebook.localfirst.test]: null, null
+11-05 05:19:16.125 29745 29745 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-05 05:19:16.125 29745 29745 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+11-05 05:19:16.126 29745 29745 W ziparchive: Unable to open '/data/app/~~myGL6UJF-JEXaCMuDC-pug==/com.tingyun.smartmistakebook.localfirst.test-JLQ0gn99xd4tbl-DjGI-Kw==/base.dm': No such file or directory
+11-05 05:19:16.126 29745 29745 W ziparchive: Unable to open '/data/app/~~myGL6UJF-JEXaCMuDC-pug==/com.tingyun.smartmistakebook.localfirst.test-JLQ0gn99xd4tbl-DjGI-Kw==/base.dm': No such file or directory
+11-05 05:19:16.178 29745 29745 W ziparchive: Unable to open '/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.dm': No such file or directory
+11-05 05:19:16.178 29745 29745 W ziparchive: Unable to open '/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.dm': No such file or directory
+11-05 05:19:16.719 29745 29745 D nativeloader: Configuring clns-6 for other apk /data/app/~~myGL6UJF-JEXaCMuDC-pug==/com.tingyun.smartmistakebook.localfirst.test-JLQ0gn99xd4tbl-DjGI-Kw==/base.apk:/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~myGL6UJF-JEXaCMuDC-pug==/com.tingyun.smartmistakebook.localfirst.test-JLQ0gn99xd4tbl-DjGI-Kw==/lib/x86_64:/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/lib/x86_64:/data/app/~~myGL6UJF-JEXaCMuDC-pug==/com.tingyun.smartmistakebook.localfirst.test-JLQ0gn99xd4tbl-DjGI-Kw==/base.apk!/lib/x86_64:/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.tingyun.smartmistakebook.localfirst
+11-05 05:19:16.720 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a63aa37 com.android.cts.priv.ctsshim/10175} BLOCKED
+11-05 05:19:16.721 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7d66ba4 com.google.android.youtube/10139} BLOCKED
+11-05 05:19:16.721 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{feffd0d com.android.internal.display.cutout.emulation.corner/10022} BLOCKED
+11-05 05:19:16.721 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d56e4c2 com.android.internal.display.cutout.emulation.double/10051} BLOCKED
+11-05 05:19:16.721 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{8e09e10 com.google.android.googlequicksearchbox/10132} BLOCKED
+11-05 05:19:16.721 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{82c5d09 com.google.android.onetimeinitializer/10125} BLOCKED
+11-05 05:19:16.721 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d328b0e com.google.android.ext.shared/10100} BLOCKED
+11-05 05:19:16.721 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{fb7a92f com.android.internal.systemui.navbar.gestural_wide_back/10027} BLOCKED
+11-05 05:19:16.721 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{198b3c com.android.virtualmachine.res/10189} BLOCKED
+11-05 05:19:16.721 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{fb4c0c5 com.google.android.federatedcompute/10178} BLOCKED
+11-05 05:19:16.721 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{b6dfc51 com.tingyun.smartmistakebook.offline.test/10233} BLOCKED
+11-05 05:19:16.721 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{104a1a com.android.managedprovisioning.auto_generated_rro_product__/10021} BLOCKED
+11-05 05:19:16.721 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{79fa94b com.android.carrierconfig.auto_generated_rro_vendor__/10075} BLOCKED
+11-05 05:19:16.722 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f921f28 com.android.systemui.emulation.pixel_3_xl/10036} BLOCKED
+11-05 05:19:16.722 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7a5a441 com.android.systemui.emulation.pixel_4_xl/10059} BLOCKED
+11-05 05:19:16.724 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{4d8ede6 com.android.systemui.emulation.pixel_fold/10006} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ebd8f27 com.android.simappdialog.auto_generated_rro_product__/10031} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{77e05d4 com.android.htmlviewer/10115} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{c67437d com.google.android.health.connect.backuprestore/10187} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e360272 com.android.systemui.auto_generated_rro_product__/10029} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7e9f6c3 com.google.android.apps.messaging/10131} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{59fab40 com.google.android.soundpicker/10137} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ea99a79 com.google.android.marvin.talkbackoverlay/10080} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{dddd3be com.google.android.configupdater/10130} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{eb3c1f com.android.internal.emulation.pixel_3a_xl/10044} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f743b6c com.android.internal.emulation.pixel_6_pro/10015} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{206535 com.android.internal.emulation.pixel_7_pro/10002} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{89f6dca com.android.internal.emulation.pixel_8_pro/10058} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{3917b3b com.android.internal.emulation.pixel_3a/10056} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{31fa258 com.android.internal.emulation.pixel_4a/10008} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{fff1fb1 com.android.internal.emulation.pixel_6a/10020} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f2e9c96 com.android.internal.emulation.pixel_7a/10034} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{33505ed com.google.android.overlay.googlewebview/10049} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7afec22 com.google.android.hotspot2.osulogin/10184} BLOCKED
+11-05 05:19:16.725 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{42616b3 com.android.simappdialog/10112} BLOCKED
+11-05 05:19:16.726 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{946470 com.android.internal.display.cutout.emulation.hole/10073} BLOCKED
+11-05 05:19:16.726 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{46913e9 com.android.internal.display.cutout.emulation.tall/10065} BLOCKED
+11-05 05:19:16.727 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{8b3579c com.android.internal.systemui.navbar.threebutton/10068} BLOCKED
+11-05 05:19:16.736 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{92b5bea com.tingyun.smartmistakebook.core.data.test/10247} BLOCKED
+11-05 05:19:16.737 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7b605a5 com.android.camera2/10142} BLOCKED
+11-05 05:19:16.737 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e57f16c com.tingyun.smartmistakebook.core.database.test/10241} BLOCKED
+11-05 05:19:16.737 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d6dd7a com.android.systemui.auto_generated_rro_vendor__/10079} BLOCKED
+11-05 05:19:16.737 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{953a92b com.google.android.deskclock/10153} BLOCKED
+11-05 05:19:16.738 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{86c5188 com.android.internal.systemui.navbar.twobutton/10017} BLOCKED
+11-05 05:19:16.738 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e265721 com.google.android.as/10127} BLOCKED
+11-05 05:19:16.738 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{9655746 com.google.android.gm/10146} BLOCKED
+11-05 05:19:16.738 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{6e1ad07 com.android.internal.systemui.navbar.gestural_extra_wide_back/10045} BLOCKED
+11-05 05:19:16.738 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{b38fe34 com.android.systemui.emulation.pixel_3/10023} BLOCKED
+11-05 05:19:16.738 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{4f0445d com.android.systemui.emulation.pixel_4/10037} BLOCKED
+11-05 05:19:16.738 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{881c9a0 com.android.systemui.emulation.pixel_5/10071} BLOCKED
+11-05 05:19:16.738 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{c71c959 com.android.systemui.emulation.pixel_6/10074} BLOCKED
+11-05 05:19:16.739 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ba2091e com.android.systemui.emulation.pixel_7/10072} BLOCKED
+11-05 05:19:16.739 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{df935ff com.android.systemui.emulation.pixel_8/10070} BLOCKED
+11-05 05:19:16.742 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{3c9dfcc com.android.nfc.auto_generated_rro_product__/10028} BLOCKED
+11-05 05:19:16.742 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{961992a com.android.printspooler/10108} BLOCKED
+11-05 05:19:16.742 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{bb5331b com.android.emergency.auto_generated_rro_product__/10041} BLOCKED
+11-05 05:19:16.742 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{39b2cb8 com.google.android.connectivity.resources.goldfish.overlay/10076} BLOCKED
+11-05 05:19:16.742 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f024a91 com.android.dreams.basic/10103} BLOCKED
+11-05 05:19:16.742 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{3d81df6 com.google.android.networkstack.tethering.emulator/10019} BLOCKED
+11-05 05:19:16.742 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e69e5f7 com.android.providers.settings.auto_generated_rro_product__/10001} BLOCKED
+11-05 05:19:16.742 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{b325c64 com.google.android.as.oss/10120} BLOCKED
+11-05 05:19:16.742 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{5effecd com.android.traceur.auto_generated_rro_product__/10003} BLOCKED
+11-05 05:19:16.742 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{6602382 com.google.android.devicelockcontroller/10173} BLOCKED
+11-05 05:19:16.742 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a4cea93 com.google.android.dialer/10129} BLOCKED
+11-05 05:19:16.742 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{2eadad0 com.android.internal.emulation.pixel_3/10046} BLOCKED
+11-05 05:19:16.743 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{98abac9 com.android.internal.emulation.pixel_4/10057} BLOCKED
+11-05 05:19:16.743 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{570f5ce com.android.internal.emulation.pixel_5/10009} BLOCKED
+11-05 05:19:16.744 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7519cef com.android.internal.emulation.pixel_6/10038} BLOCKED
+11-05 05:19:16.744 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{b6ad3fc com.android.internal.emulation.pixel_7/10067} BLOCKED
+11-05 05:19:16.744 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{9fb3a85 com.android.internal.emulation.pixel_8/10039} BLOCKED
+11-05 05:19:16.744 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{3aaa0da com.google.android.captiveportallogin/10113} BLOCKED
+11-05 05:19:16.744 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f45190b com.android.musicfx/10088} BLOCKED
+11-05 05:19:16.744 29745 29745 V GraphicsEnvironment: Currently set values for:
+11-05 05:19:16.744 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{5b11fde com.google.android.apps.docs/10154} BLOCKED
+11-05 05:19:16.744 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{cced896 com.google.android.apps.maps/10152} BLOCKED
+11-05 05:19:16.744 29745 29745 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-05 05:19:16.744 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{78f33e8 com.google.android.modulemetadata/10147} BLOCKED
+11-05 05:19:16.744 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{739fa01 com.google.android.markup/10134} BLOCKED
+11-05 05:19:16.744 29745 29745 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-05 05:19:16.744 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ba1f0a6 com.android.providers.settings.auto_generated_rro_vendor__/10077} BLOCKED
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{1aa3ae7 com.google.android.webview/10133} BLOCKED
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{917a694 com.google.android.rkpdapp/10188} BLOCKED
+11-05 05:19:16.745 29745 29745 V GraphicsEnvironment: ANGLE GameManagerService for com.tingyun.smartmistakebook.localfirst: false
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e4b353d com.google.android.contacts/10155} BLOCKED
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a6c7132 com.android.server.telecom.auto_generated_rro_product__/10035} BLOCKED
+11-05 05:19:16.745 29745 29745 V GraphicsEnvironment: com.tingyun.smartmistakebook.localfirst is not listed in per-application setting
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{9559e83 com.google.android.overlay.googleconfig/10055} BLOCKED
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{c129800 com.android.chrome/10149} BLOCKED
+11-05 05:19:16.745 29745 29745 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e3ae839 com.android.bips.auto_generated_rro_product__/10032} BLOCKED
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{6ec6e7e com.google.android.apps.customization.pixel/10143} BLOCKED
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d09342c com.google.android.tag/10083} BLOCKED
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d8cef5 com.google.android.overlay.permissioncontroller/10030} BLOCKED
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{48b6492 com.google.android.partnersetup/10124} BLOCKED
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{1dcf48a com.google.android.apps.wallpaper.nexus/10141} BLOCKED
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a525afb com.google.android.apps.nexuslauncher/10169} BLOCKED
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{5eb6718 com.google.android.nearby.halfsheet/10182} BLOCKED
+11-05 05:19:16.745 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{3346571 com.android.theme.font.notoserifsource/10066} BLOCKED
+11-05 05:19:16.746 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a9dcf56 com.google.android.safetycenter.resources/10190} BLOCKED
+11-05 05:19:16.765 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ce1abd7 com.android.internal.display.cutout.emulation.waterfall/10040} BLOCKED
+11-05 05:19:16.765 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{dbbdcc4 com.android.internal.systemui.navbar.transparent/10026} BLOCKED
+11-05 05:19:16.772 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{9d8e7ad com.google.android.connectivity.resources/10181} BLOCKED
+11-05 05:19:16.773 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{4bf8ae2 com.android.providers.contacts.auto_generated_rro_product__/10016} BLOCKED
+11-05 05:19:16.773 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{eab2e73 com.google.android.feedback/10163} BLOCKED
+11-05 05:19:16.773 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{6fc0130 com.google.android.printservice.recommendation/10109} BLOCKED
+11-05 05:19:16.774 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{cc951a9 com.google.android.apps.photos/10140} BLOCKED
+11-05 05:19:16.774 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{773e9ca com.google.android.calendar/10145} BLOCKED
+11-05 05:19:16.774 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a4f732e com.google.android.documentsui/10098} BLOCKED
+11-05 05:19:16.774 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{c803ecf com.android.systemui.emulation.pixel_3a_xl/10018} BLOCKED
+11-05 05:19:16.775 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{8d8005c com.android.systemui.emulation.pixel_6_pro/10063} BLOCKED
+11-05 05:19:16.775 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{73c5f65 com.android.systemui.emulation.pixel_7_pro/10060} BLOCKED
+11-05 05:19:16.775 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{6e3943a com.android.systemui.emulation.pixel_8_pro/10012} BLOCKED
+11-05 05:19:16.775 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{4ebf8eb com.google.mainline.telemetry/10151} BLOCKED
+11-05 05:19:16.775 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f12c648 com.android.carrierconfig.auto_generated_rro_product__/10064} BLOCKED
+11-05 05:19:16.775 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{1eb9e9f com.tingyun.smartmistakebook.offline/10249} BLOCKED
+11-05 05:19:16.775 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7188ce1 com.android.providers.partnerbookmarks/10101} BLOCKED
+11-05 05:19:16.775 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{766ba06 com.android.wallpaper.livepicker/10091} BLOCKED
+11-05 05:19:16.775 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a0f38c7 com.android.providers.telephony.auto_generated_rro_product__/10062} BLOCKED
+11-05 05:19:16.775 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{cb1fef4 com.android.phone.auto_generated_rro_vendor__/10078} BLOCKED
+11-05 05:19:16.775 29745 29745 W ziparchive: Unable to open '/data/app/~~myGL6UJF-JEXaCMuDC-pug==/com.tingyun.smartmistakebook.localfirst.test-JLQ0gn99xd4tbl-DjGI-Kw==/base.dm': No such file or directory
+11-05 05:19:16.775 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{830161d com.google.mainline.adservices/10136} BLOCKED
+11-05 05:19:16.775 29745 29745 W ziparchive: Unable to open '/data/app/~~myGL6UJF-JEXaCMuDC-pug==/com.tingyun.smartmistakebook.localfirst.test-JLQ0gn99xd4tbl-DjGI-Kw==/base.dm': No such file or directory
+11-05 05:19:16.775 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{aa47092 com.android.imsserviceentitlement/10117} BLOCKED
+11-05 05:19:16.776 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{53c9a63 com.google.android.healthconnect.controller/10186} BLOCKED
+11-05 05:19:16.776 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d6a1660 com.android.internal.emulation.pixel_2_xl/10013} BLOCKED
+11-05 05:19:16.784 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{73cf719 com.android.internal.emulation.pixel_3_xl/10053} BLOCKED
+11-05 05:19:16.784 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e9503de com.android.internal.emulation.pixel_4_xl/10047} BLOCKED
+11-05 05:19:16.784 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{85479bf com.android.internal.emulation.pixel_fold/10004} BLOCKED
+11-05 05:19:16.784 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{1ca388c com.android.bookmarkprovider/10114} BLOCKED
+11-05 05:19:16.784 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{89cebd5 com.google.android.overlay.pixelconfigcommon/10011} BLOCKED
+11-05 05:19:16.784 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{6697fea com.android.systemui.accessibility.accessibilitymenu.auto_generated_rro_product__/10050} BLOCKED
+11-05 05:19:16.784 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{8e0f2db com.android.systemui.emulation.pixel_3a/10010} BLOCKED
+11-05 05:19:16.785 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{2285178 com.android.systemui.emulation.pixel_4a/10000} BLOCKED
+11-05 05:19:16.785 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ecd7051 com.android.systemui.emulation.pixel_6a/10042} BLOCKED
+11-05 05:19:16.785 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{557b0b6 com.android.systemui.emulation.pixel_7a/10014} BLOCKED
+11-05 05:19:16.785 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f1e1b7 com.google.android.settings.intelligence/10118} BLOCKED
+11-05 05:19:16.785 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{57b8e15 com.google.android.projection.gearhead/10123} BLOCKED
+11-05 05:19:16.785 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{44d0d24 com.google.android.uwb.resources/10180} BLOCKED
+11-05 05:19:16.785 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{424152a com.android.cts.ctsshim/10176} BLOCKED
+11-05 05:19:16.785 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ca7c08d com.google.android.wifi.resources/10183} BLOCKED
+11-05 05:19:16.785 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a262242 com.google.android.wifi.dialog/10185} BLOCKED
+11-05 05:19:16.785 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{1b8e253 com.google.android.apps.wallpaper/10162} BLOCKED
+11-05 05:19:16.785 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{fdfd790 com.google.android.odad/10122} BLOCKED
+11-05 05:19:16.791 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f5cd889 com.android.settings.auto_generated_rro_product__/10025} BLOCKED
+11-05 05:19:16.791 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{778208e com.android.internal.systemui.navbar.gestural/10048} BLOCKED
+11-05 05:19:16.791 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{3e550af com.google.android.apps.youtube.music/10156} BLOCKED
+11-05 05:19:16.791 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d92dcbc com.android.bluetoothmidiservice/10107} BLOCKED
+11-05 05:19:16.791 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{c317445 com.android.storagemanager.auto_generated_rro_product__/10024} BLOCKED
+11-05 05:19:16.791 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{4d9b79a com.google.android.cellbroadcastreceiver/10174} BLOCKED
+11-05 05:19:16.792 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{1c048cb com.android.phone.auto_generated_rro_product__/10061} BLOCKED
+11-05 05:19:16.792 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d0f08a8 android.auto_generated_rro_product__/10069} BLOCKED
+11-05 05:19:16.792 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{dfa0fc1 com.android.internal.systemui.navbar.gestural_narrow_back/10052} BLOCKED
+11-05 05:19:16.792 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f080319 com.tingyun.smartmistakebook.core.export.test/10196} BLOCKED
+11-05 05:19:16.792 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{48bb366 com.google.android.inputmethod.latin/10144} BLOCKED
+11-05 05:19:16.792 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{708a6a7 android.auto_generated_rro_vendor__/10081} BLOCKED
+11-05 05:19:16.792 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{da00754 com.google.android.apps.restore/10119} BLOCKED
+11-05 05:19:16.812 29745 29745 W ziparchive: Unable to open '/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.dm': No such file or directory
+11-05 05:19:16.812 29745 29745 W ziparchive: Unable to open '/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.dm': No such file or directory
+11-05 05:19:16.867 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:17.306 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a63aa37 com.android.cts.priv.ctsshim/10175} BLOCKED
+11-05 05:19:17.320 29745 29745 I book.localfirst: WaitForGcToComplete blocked ClassLinker on None for 13.849ms
+11-05 05:19:17.320 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7d66ba4 com.google.android.youtube/10139} BLOCKED
+11-05 05:19:17.320 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{feffd0d com.android.internal.display.cutout.emulation.corner/10022} BLOCKED
+11-05 05:19:17.320 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d56e4c2 com.android.internal.display.cutout.emulation.double/10051} BLOCKED
+11-05 05:19:17.320 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{8e09e10 com.google.android.googlequicksearchbox/10132} BLOCKED
+11-05 05:19:17.320 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{82c5d09 com.google.android.onetimeinitializer/10125} BLOCKED
+11-05 05:19:17.320 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d328b0e com.google.android.ext.shared/10100} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{fb7a92f com.android.internal.systemui.navbar.gestural_wide_back/10027} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{198b3c com.android.virtualmachine.res/10189} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{fb4c0c5 com.google.android.federatedcompute/10178} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{b6dfc51 com.tingyun.smartmistakebook.offline.test/10233} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{104a1a com.android.managedprovisioning.auto_generated_rro_product__/10021} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{79fa94b com.android.carrierconfig.auto_generated_rro_vendor__/10075} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f921f28 com.android.systemui.emulation.pixel_3_xl/10036} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7a5a441 com.android.systemui.emulation.pixel_4_xl/10059} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{4d8ede6 com.android.systemui.emulation.pixel_fold/10006} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ebd8f27 com.android.simappdialog.auto_generated_rro_product__/10031} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{77e05d4 com.android.htmlviewer/10115} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{c67437d com.google.android.health.connect.backuprestore/10187} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e360272 com.android.systemui.auto_generated_rro_product__/10029} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7e9f6c3 com.google.android.apps.messaging/10131} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{59fab40 com.google.android.soundpicker/10137} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ea99a79 com.google.android.marvin.talkbackoverlay/10080} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{dddd3be com.google.android.configupdater/10130} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{eb3c1f com.android.internal.emulation.pixel_3a_xl/10044} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f743b6c com.android.internal.emulation.pixel_6_pro/10015} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{206535 com.android.internal.emulation.pixel_7_pro/10002} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{89f6dca com.android.internal.emulation.pixel_8_pro/10058} BLOCKED
+11-05 05:19:17.321 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{3917b3b com.android.internal.emulation.pixel_3a/10056} BLOCKED
+11-05 05:19:17.322 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{31fa258 com.android.internal.emulation.pixel_4a/10008} BLOCKED
+11-05 05:19:17.322 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{fff1fb1 com.android.internal.emulation.pixel_6a/10020} BLOCKED
+11-05 05:19:17.322 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f2e9c96 com.android.internal.emulation.pixel_7a/10034} BLOCKED
+11-05 05:19:17.322 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{33505ed com.google.android.overlay.googlewebview/10049} BLOCKED
+11-05 05:19:17.322 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7afec22 com.google.android.hotspot2.osulogin/10184} BLOCKED
+11-05 05:19:17.322 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{42616b3 com.android.simappdialog/10112} BLOCKED
+11-05 05:19:17.322 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{946470 com.android.internal.display.cutout.emulation.hole/10073} BLOCKED
+11-05 05:19:17.325 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{46913e9 com.android.internal.display.cutout.emulation.tall/10065} BLOCKED
+11-05 05:19:17.325 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{8b3579c com.android.internal.systemui.navbar.threebutton/10068} BLOCKED
+11-05 05:19:17.325 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{92b5bea com.tingyun.smartmistakebook.core.data.test/10247} BLOCKED
+11-05 05:19:17.325 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7b605a5 com.android.camera2/10142} BLOCKED
+11-05 05:19:17.325 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e57f16c com.tingyun.smartmistakebook.core.database.test/10241} BLOCKED
+11-05 05:19:17.325 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d6dd7a com.android.systemui.auto_generated_rro_vendor__/10079} BLOCKED
+11-05 05:19:17.325 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{953a92b com.google.android.deskclock/10153} BLOCKED
+11-05 05:19:17.325 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{86c5188 com.android.internal.systemui.navbar.twobutton/10017} BLOCKED
+11-05 05:19:17.325 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e265721 com.google.android.as/10127} BLOCKED
+11-05 05:19:17.325 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{9655746 com.google.android.gm/10146} BLOCKED
+11-05 05:19:17.326 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{6e1ad07 com.android.internal.systemui.navbar.gestural_extra_wide_back/10045} BLOCKED
+11-05 05:19:17.326 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{b38fe34 com.android.systemui.emulation.pixel_3/10023} BLOCKED
+11-05 05:19:17.326 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{4f0445d com.android.systemui.emulation.pixel_4/10037} BLOCKED
+11-05 05:19:17.326 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{881c9a0 com.android.systemui.emulation.pixel_5/10071} BLOCKED
+11-05 05:19:17.326 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{c71c959 com.android.systemui.emulation.pixel_6/10074} BLOCKED
+11-05 05:19:17.326 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ba2091e com.android.systemui.emulation.pixel_7/10072} BLOCKED
+11-05 05:19:17.326 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{df935ff com.android.systemui.emulation.pixel_8/10070} BLOCKED
+11-05 05:19:17.326 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{3c9dfcc com.android.nfc.auto_generated_rro_product__/10028} BLOCKED
+11-05 05:19:17.326 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{961992a com.android.printspooler/10108} BLOCKED
+11-05 05:19:17.327 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{bb5331b com.android.emergency.auto_generated_rro_product__/10041} BLOCKED
+11-05 05:19:17.331 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{39b2cb8 com.google.android.connectivity.resources.goldfish.overlay/10076} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f024a91 com.android.dreams.basic/10103} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{3d81df6 com.google.android.networkstack.tethering.emulator/10019} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e69e5f7 com.android.providers.settings.auto_generated_rro_product__/10001} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{b325c64 com.google.android.as.oss/10120} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{5effecd com.android.traceur.auto_generated_rro_product__/10003} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{6602382 com.google.android.devicelockcontroller/10173} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a4cea93 com.google.android.dialer/10129} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{2eadad0 com.android.internal.emulation.pixel_3/10046} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{98abac9 com.android.internal.emulation.pixel_4/10057} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{570f5ce com.android.internal.emulation.pixel_5/10009} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7519cef com.android.internal.emulation.pixel_6/10038} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{b6ad3fc com.android.internal.emulation.pixel_7/10067} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{9fb3a85 com.android.internal.emulation.pixel_8/10039} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{3aaa0da com.google.android.captiveportallogin/10113} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f45190b com.android.musicfx/10088} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{5b11fde com.google.android.apps.docs/10154} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{cced896 com.google.android.apps.maps/10152} BLOCKED
+11-05 05:19:17.333 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{78f33e8 com.google.android.modulemetadata/10147} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{739fa01 com.google.android.markup/10134} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ba1f0a6 com.android.providers.settings.auto_generated_rro_vendor__/10077} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{1aa3ae7 com.google.android.webview/10133} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{917a694 com.google.android.rkpdapp/10188} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e4b353d com.google.android.contacts/10155} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a6c7132 com.android.server.telecom.auto_generated_rro_product__/10035} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{9559e83 com.google.android.overlay.googleconfig/10055} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{c129800 com.android.chrome/10149} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e3ae839 com.android.bips.auto_generated_rro_product__/10032} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{6ec6e7e com.google.android.apps.customization.pixel/10143} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d09342c com.google.android.tag/10083} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d8cef5 com.google.android.overlay.permissioncontroller/10030} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{48b6492 com.google.android.partnersetup/10124} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{1dcf48a com.google.android.apps.wallpaper.nexus/10141} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a525afb com.google.android.apps.nexuslauncher/10169} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{5eb6718 com.google.android.nearby.halfsheet/10182} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{3346571 com.android.theme.font.notoserifsource/10066} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a9dcf56 com.google.android.safetycenter.resources/10190} BLOCKED
+11-05 05:19:17.334 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ce1abd7 com.android.internal.display.cutout.emulation.waterfall/10040} BLOCKED
+11-05 05:19:17.336 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{dbbdcc4 com.android.internal.systemui.navbar.transparent/10026} BLOCKED
+11-05 05:19:17.336 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{9d8e7ad com.google.android.connectivity.resources/10181} BLOCKED
+11-05 05:19:17.336 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{4bf8ae2 com.android.providers.contacts.auto_generated_rro_product__/10016} BLOCKED
+11-05 05:19:17.336 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{eab2e73 com.google.android.feedback/10163} BLOCKED
+11-05 05:19:17.336 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{6fc0130 com.google.android.printservice.recommendation/10109} BLOCKED
+11-05 05:19:17.336 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{cc951a9 com.google.android.apps.photos/10140} BLOCKED
+11-05 05:19:17.336 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{773e9ca com.google.android.calendar/10145} BLOCKED
+11-05 05:19:17.336 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a4f732e com.google.android.documentsui/10098} BLOCKED
+11-05 05:19:17.336 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{c803ecf com.android.systemui.emulation.pixel_3a_xl/10018} BLOCKED
+11-05 05:19:17.336 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{8d8005c com.android.systemui.emulation.pixel_6_pro/10063} BLOCKED
+11-05 05:19:17.336 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{73c5f65 com.android.systemui.emulation.pixel_7_pro/10060} BLOCKED
+11-05 05:19:17.338 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{6e3943a com.android.systemui.emulation.pixel_8_pro/10012} BLOCKED
+11-05 05:19:17.341 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{4ebf8eb com.google.mainline.telemetry/10151} BLOCKED
+11-05 05:19:17.342 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f12c648 com.android.carrierconfig.auto_generated_rro_product__/10064} BLOCKED
+11-05 05:19:17.342 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{1eb9e9f com.tingyun.smartmistakebook.offline/10249} BLOCKED
+11-05 05:19:17.342 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{7188ce1 com.android.providers.partnerbookmarks/10101} BLOCKED
+11-05 05:19:17.342 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{766ba06 com.android.wallpaper.livepicker/10091} BLOCKED
+11-05 05:19:17.342 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a0f38c7 com.android.providers.telephony.auto_generated_rro_product__/10062} BLOCKED
+11-05 05:19:17.342 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{cb1fef4 com.android.phone.auto_generated_rro_vendor__/10078} BLOCKED
+11-05 05:19:17.342 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{830161d com.google.mainline.adservices/10136} BLOCKED
+11-05 05:19:17.342 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{aa47092 com.android.imsserviceentitlement/10117} BLOCKED
+11-05 05:19:17.343 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{53c9a63 com.google.android.healthconnect.controller/10186} BLOCKED
+11-05 05:19:17.352 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d6a1660 com.android.internal.emulation.pixel_2_xl/10013} BLOCKED
+11-05 05:19:17.352 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{73cf719 com.android.internal.emulation.pixel_3_xl/10053} BLOCKED
+11-05 05:19:17.352 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{e9503de com.android.internal.emulation.pixel_4_xl/10047} BLOCKED
+11-05 05:19:17.352 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{85479bf com.android.internal.emulation.pixel_fold/10004} BLOCKED
+11-05 05:19:17.352 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{1ca388c com.android.bookmarkprovider/10114} BLOCKED
+11-05 05:19:17.380 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{89cebd5 com.google.android.overlay.pixelconfigcommon/10011} BLOCKED
+11-05 05:19:17.380 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{6697fea com.android.systemui.accessibility.accessibilitymenu.auto_generated_rro_product__/10050} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{8e0f2db com.android.systemui.emulation.pixel_3a/10010} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{2285178 com.android.systemui.emulation.pixel_4a/10000} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ecd7051 com.android.systemui.emulation.pixel_6a/10042} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{557b0b6 com.android.systemui.emulation.pixel_7a/10014} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f1e1b7 com.google.android.settings.intelligence/10118} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{57b8e15 com.google.android.projection.gearhead/10123} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{44d0d24 com.google.android.uwb.resources/10180} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{424152a com.android.cts.ctsshim/10176} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{ca7c08d com.google.android.wifi.resources/10183} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{a262242 com.google.android.wifi.dialog/10185} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{1b8e253 com.google.android.apps.wallpaper/10162} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{fdfd790 com.google.android.odad/10122} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f5cd889 com.android.settings.auto_generated_rro_product__/10025} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{778208e com.android.internal.systemui.navbar.gestural/10048} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{3e550af com.google.android.apps.youtube.music/10156} BLOCKED
+11-05 05:19:17.381 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d92dcbc com.android.bluetoothmidiservice/10107} BLOCKED
+11-05 05:19:17.382 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{c317445 com.android.storagemanager.auto_generated_rro_product__/10024} BLOCKED
+11-05 05:19:17.382 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{4d9b79a com.google.android.cellbroadcastreceiver/10174} BLOCKED
+11-05 05:19:17.382 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{1c048cb com.android.phone.auto_generated_rro_product__/10061} BLOCKED
+11-05 05:19:17.382 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{d0f08a8 android.auto_generated_rro_product__/10069} BLOCKED
+11-05 05:19:17.382 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{dfa0fc1 com.android.internal.systemui.navbar.gestural_narrow_back/10052} BLOCKED
+11-05 05:19:17.382 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{f080319 com.tingyun.smartmistakebook.core.export.test/10196} BLOCKED
+11-05 05:19:17.382 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{48bb366 com.google.android.inputmethod.latin/10144} BLOCKED
+11-05 05:19:17.382 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{708a6a7 android.auto_generated_rro_vendor__/10081} BLOCKED
+11-05 05:19:17.383 18285 19732 I AppsFilter: interaction: PackageSetting{547ff6f com.tingyun.smartmistakebook.localfirst/10245} -> PackageSetting{da00754 com.google.android.apps.restore/10119} BLOCKED
+11-05 05:19:17.405 29745 29745 I AndroidJUnitRunner: newApplication com.tingyun.smartmistakebook.SmartMistakeBookApplication
+11-05 05:19:19.215 29745 29745 D WM-WrkMgrInitializer: Initializing WorkManager with default configuration.
+11-05 05:19:19.517 29745 29745 W book.localfirst: Accessing hidden field Ljava/util/Collections$SynchronizedCollection;->mutex:Ljava/lang/Object; (max-target-o, reflection, denied)
+11-05 05:19:19.520 29745 29745 W book.localfirst: Accessing hidden field Ljava/util/Collections$SynchronizedCollection;->c:Ljava/util/Collection; (unsupported, reflection, allowed)
+11-05 05:19:19.553 29745 29745 W book.localfirst: Accessing hidden method Ljava/util/Collections$SynchronizedSet;-><init>(Ljava/util/Set;Ljava/lang/Object;)V (max-target-o, reflection, denied)
+11-05 05:19:19.555 29745 29745 W book.localfirst: Accessing hidden method Ljava/util/Collections$SynchronizedCollection;-><init>(Ljava/util/Collection;Ljava/lang/Object;)V (max-target-o, reflection, denied)
+11-05 05:19:19.722 29745 29745 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+11-05 05:19:19.726 29745 29745 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+11-05 05:19:20.090 29745 29766 D WM-ForceStopRunnable: The default process name was not specified.
+11-05 05:19:20.091 29745 29766 D WM-ForceStopRunnable: Performing cleanup operations.
+11-05 05:19:20.091 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:20.358 29745 29766 D WM-SystemJobScheduler: Reconciling jobs
+11-05 05:19:20.457 29745 29766 D CompatibilityChangeReporter: Compat change id reported: 160794467; UID 10245; state: ENABLED
+11-05 05:19:20.458 29745 29766 D WM-ForceStopRunnable: Application was force-stopped, rescheduling.
+11-05 05:19:20.768 29745 29745 W book.localfirst: Verification of void androidx.collection.ScatterMap.<init>() took 123.446ms (129.61 bytecodes/s) (1600B approximate peak alloc)
+11-05 05:19:20.893 18285 18380 W CpuMonitorService: Current CPU frequency (5443494) is greater than maximum CPU frequency (2) for policy ID (0). Skipping CPU frequency policy
+11-05 05:19:20.893 18285 18380 W CpuMonitorService: Current CPU frequency (4360948) is greater than maximum CPU frequency (2) for policy ID (2). Skipping CPU frequency policy
+11-05 05:19:20.894 18285 18380 W CpuMonitorService: Current CPU frequency (5407924) is greater than maximum CPU frequency (2) for policy ID (3). Skipping CPU frequency policy
+11-05 05:19:21.200 29745 29745 I AndroidJUnitRunner: onCreate Bundle[mParcelledData.dataSize=372]
+11-05 05:19:21.205 29745 29745 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-05 05:19:21.207 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:21.339 29745 29745 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-05 05:19:21.340 29745 29769 D AndroidJUnitRunner: onStart is called.
+11-05 05:19:21.522 29745 29745 D CompatibilityChangeReporter: Compat change id reported: 3400644; UID 10245; state: ENABLED
+11-05 05:19:21.575 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:21.591 29745 29767 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemalarm.RescheduleReceiver
+11-05 05:19:21.772 18285 18384 D ActivityManager: freezing 24400 com.google.android.permissioncontroller
+11-05 05:19:23.035 18285 19732 W system_server: Long monitor contention with owner binder:18285_18 (19913) at boolean com.android.server.am.ActivityManagerService.unbindService(android.app.IServiceConnection)(ActivityManagerService.java:13426) waiters=0 in boolean com.android.server.am.ActivityManagerService.unbindService(android.app.IServiceConnection) for 115ms
+11-05 05:19:23.049 29745 29745 W book.localfirst: Verification of java.lang.Object com.tingyun.smartmistakebook.core.database.dao.ReviewDao_Impl.__fetchRelationshipreviewQueueReasonAscomTingyunSmartmistakebookCoreDatabaseEntityReviewQueueReasonEntity(androidx.sqlite.SQLiteConnection, androidx.collection.ArrayMap, kotlin.coroutines.Continuation) took 126.487ms (1747.21 bytecodes/s) (5736B approximate peak alloc)
+11-05 05:19:23.109 23455 23455 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-05 05:19:25.159 29745 29745 W book.localfirst: Verification of java.lang.Object androidx.room3.InvalidationTracker$createFlow$1.invokeSuspend(java.lang.Object) took 110.065ms (345.25 bytecodes/s) (2168B approximate peak alloc)
+11-05 05:19:25.603 29745 29771 W book.localfirst: JNI critical lock held for 33.700ms on Thread[4,tid=29771,Runnable,Thread*=0x7a0abb874c00,peer=0x13174200,"DefaultDispatcher-worker-1"]
+11-05 05:19:25.829 29745 29745 W book.localfirst: Verification of java.lang.Object com.tingyun.smartmistakebook.core.data.model.AndroidRestrictedModelAssetSource.open(com.tingyun.smartmistakebook.core.model.ModelGatewayExecution, java.lang.String, kotlin.coroutines.Continuation) took 137.211ms (3410.80 bytecodes/s) (14168B approximate peak alloc)
+11-05 05:19:26.107 29745 29745 W book.localfirst: Verification of com.tingyun.smartmistakebook.core.domain.FigureGenerationCoordinator com.tingyun.smartmistakebook.core.data.visual.FigureGenerationCoordinationFactory.create$default(com.tingyun.smartmistakebook.core.data.visual.FigureGenerationCoordinationFactory, com.tingyun.smartmistakebook.core.database.StudyDatabasePort, com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore, boolean, com.tingyun.smartmistakebook.core.domain.VisualExecutionEngine, com.tingyun.smartmistakebook.core.data.visual.VisualFrameInputs, int, java.lang.Object) took 244.451ms (65.45 bytecodes/s) (1840B approximate peak alloc)
+11-05 05:19:26.582 29745 29745 W book.localfirst: Verification of com.tingyun.smartmistakebook.core.data.visual.FigureGenerationAuditOperation com.tingyun.smartmistakebook.core.data.visual.DefaultFigureGenerationCoordinator.auditOperation(com.tingyun.smartmistakebook.core.model.FigureGenerationRequest, com.tingyun.smartmistakebook.core.model.FigureGenerationProposal, java.lang.String, long) took 266.583ms (757.74 bytecodes/s) (6816B approximate peak alloc)
+11-05 05:19:26.688 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:26.733 29745 29745 W book.localfirst: Verification of java.lang.Object com.tingyun.smartmistakebook.core.data.visual.DefaultFigureGenerationCoordinator.generateLocalJs(com.tingyun.smartmistakebook.core.model.FigureGenerationRequest, com.tingyun.smartmistakebook.core.model.FigureGenerationProposal, kotlin.coroutines.Continuation) took 142.303ms (11847.92 bytecodes/s) (33304B approximate peak alloc)
+11-05 05:19:26.974 29745 29745 W book.localfirst: Verification of kotlinx.coroutines.flow.Flow com.tingyun.smartmistakebook.core.data.capture.ExplicitRedrawService.observe(java.lang.String) took 108.737ms (496.61 bytecodes/s) (2480B approximate peak alloc)
+11-05 05:19:27.149 29745 29745 W book.localfirst: Verification of java.lang.Object com.tingyun.smartmistakebook.core.data.capture.ExplicitRedrawService.request(com.tingyun.smartmistakebook.core.domain.ExplicitRedrawCommand, kotlin.coroutines.Continuation) took 156.011ms (5063.74 bytecodes/s) (20448B approximate peak alloc)
+11-05 05:19:27.163 29745 29754 I book.localfirst: Background concurrent copying GC freed 67337(4450KB) AllocSpace objects, 13(260KB) LOS objects, 49% free, 4104KB/8208KB, paused 44.869ms,62us total 573.922ms
+11-05 05:19:27.728 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:27.990 29745 29745 W book.localfirst: Verification of java.lang.Object com.tingyun.smartmistakebook.core.data.library.RoomLibraryCatalogRepository.totalCount(com.tingyun.smartmistakebook.core.domain.LibraryQuery, kotlin.coroutines.Continuation) took 177.602ms (106.98 bytecodes/s) (1864B approximate peak alloc)
+11-05 05:19:28.328 29745 29745 W book.localfirst: Verification of java.lang.Object com.tingyun.smartmistakebook.core.data.splitimport.RoomSplitImportRepository.reconcileStuckJobs(long, kotlin.coroutines.Continuation) took 107.124ms (177.36 bytecodes/s) (1832B approximate peak alloc)
+11-05 05:19:28.358 29745 29775 W book.localfirst: Long monitor contention with owner DefaultDispatcher-worker-3 (29773) at android.database.sqlite.SQLiteConnection android.database.sqlite.SQLiteConnectionPool.waitForConnection(java.lang.String, int, android.os.CancellationSignal)(SQLiteConnectionPool.java:726) waiters=0 in android.database.sqlite.SQLiteConnection android.database.sqlite.SQLiteConnectionPool.waitForConnection(java.lang.String, int, android.os.CancellationSignal) for 137ms
+11-05 05:19:28.475 29745 29778 W book.localfirst: JNI critical lock held for 20.340ms on Thread[25,tid=29778,Runnable,Thread*=0x7a0abb87f2e0,peer=0x13706708,"DefaultDispatcher-worker-6"]
+11-05 05:19:28.601 29745 29745 W book.localfirst: Verification of void com.tingyun.smartmistakebook.ReviewReminderCoordinator.start() took 126.902ms (181.24 bytecodes/s) (2160B approximate peak alloc)
+11-05 05:19:28.605 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:29.191 29745 29745 W book.localfirst: Verification of java.lang.Object com.tingyun.smartmistakebook.core.data.backup.AndroidBackupRepository.doRestore(java.io.InputStream, com.tingyun.smartmistakebook.core.domain.BackupWriteGate$RestoreAdmission, kotlin.coroutines.Continuation) took 187.288ms (49613.27 bytecodes/s) (162736B approximate peak alloc)
+11-05 05:19:29.320 29745 29778 W book.localfirst: Accessing hidden method Landroid/database/sqlite/SQLiteDatabase;->getThreadSession()Landroid/database/sqlite/SQLiteSession; (unsupported, reflection, allowed)
+11-05 05:19:29.321 29745 29778 W book.localfirst: Accessing hidden method Landroid/database/sqlite/SQLiteSession;->beginTransaction(ILandroid/database/sqlite/SQLiteTransactionListener;ILandroid/os/CancellationSignal;)V (unsupported, reflection, allowed)
+11-05 05:19:29.777 18285 19732 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 10245. pid: 29745
+11-05 05:19:29.781 29745 29778 W book.localfirst: Verification of com.tingyun.smartmistakebook.core.data.backup.PendingRestoreIndexRebuild com.tingyun.smartmistakebook.core.data.backup.RestoreIndexRebuildMarker.read(android.content.Context) took 110.908ms (658.20 bytecodes/s) (3192B approximate peak alloc)
+11-05 05:19:29.891 29745 29745 D StrictMode: StrictMode policy violation; ~duration=8157 ms: android.os.strictmode.DiskReadViolation
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:74)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at libcore.io.ForwardingOs.access(ForwardingOs.java:128)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.app.ActivityThread$AndroidOs.access(ActivityThread.java:8054)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at java.io.UnixFileSystem.checkAccess(UnixFileSystem.java:313)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at java.io.File.exists(File.java:813)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:790)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:781)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.app.ContextImpl.getNoBackupFilesDir(ContextImpl.java:854)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.content.ContextWrapper.getNoBackupFilesDir(ContextWrapper.java:301)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.getJournalDir(RestoreRecoveryCoordinator.kt:32)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.detectPendingRestores(RestoreRecoveryCoordinator.kt:39)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:204)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at androidx.test.runner.MonitoringInstrumentation.callApplicationOnCreate(MonitoringInstrumentation.java:470)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-05 05:19:29.891 29745 29745 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-05 05:19:30.119 29745 29745 D StrictMode: StrictMode policy violation; ~duration=8157 ms: android.os.strictmode.DiskReadViolation
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at java.io.UnixFileSystem.list(UnixFileSystem.java:376)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at java.io.File.list(File.java:1129)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at java.io.File.listFiles(File.java:1293)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.detectPendingRestores(RestoreRecoveryCoordinator.kt:39)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:204)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at androidx.test.runner.MonitoringInstrumentation.callApplicationOnCreate(MonitoringInstrumentation.java:470)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-05 05:19:30.119 29745 29745 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-05 05:19:30.120 29745 29745 D StrictMode: StrictMode policy violation; ~duration=8157 ms: android.os.strictmode.DiskReadViolation
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at java.io.UnixFileSystem.getBooleanAttributes(UnixFileSystem.java:282)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at java.io.File.isFile(File.java:876)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.detectPendingRestores$lambda$0(RestoreRecoveryCoordinator.kt:40)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator$$ExternalSyntheticLambda0.accept(D8$$SyntheticClass:0)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at java.io.File.listFiles(File.java:1298)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.detectPendingRestores(RestoreRecoveryCoordinator.kt:39)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:204)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at androidx.test.runner.MonitoringInstrumentation.callApplicationOnCreate(MonitoringInstrumentation.java:470)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-05 05:19:30.120 29745 29745 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-05 05:19:30.224 29745 29745 D StrictMode: StrictMode policy violation; ~duration=8156 ms: android.os.strictmode.DiskReadViolation
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:74)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at libcore.io.ForwardingOs.access(ForwardingOs.java:128)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.app.ActivityThread$AndroidOs.access(ActivityThread.java:8054)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at java.io.UnixFileSystem.checkAccess(UnixFileSystem.java:313)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at java.io.File.exists(File.java:813)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:790)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.app.ContextImpl.ensurePrivateCacheDirExists(ContextImpl.java:786)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.app.ContextImpl.getCacheDir(ContextImpl.java:897)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.content.ContextWrapper.getCacheDir(ContextWrapper.java:326)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:366)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at androidx.test.runner.MonitoringInstrumentation.callApplicationOnCreate(MonitoringInstrumentation.java:470)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-05 05:19:30.224 29745 29745 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-05 05:19:30.247 29745 29745 D StrictMode: StrictMode policy violation; ~duration=8156 ms: android.os.strictmode.DiskReadViolation
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at java.io.UnixFileSystem.list(UnixFileSystem.java:376)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at java.io.File.list(File.java:1129)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at java.io.File.listFiles(File.java:1293)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:366)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at androidx.test.runner.MonitoringInstrumentation.callApplicationOnCreate(MonitoringInstrumentation.java:470)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-05 05:19:30.247 29745 29745 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-05 05:19:30.252 29745 29745 D StrictMode: StrictMode policy violation; ~duration=8156 ms: android.os.strictmode.DiskReadViolation
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:74)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at libcore.io.ForwardingOs.access(ForwardingOs.java:128)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.app.ActivityThread$AndroidOs.access(ActivityThread.java:8054)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at java.io.UnixFileSystem.checkAccess(UnixFileSystem.java:313)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at java.io.File.exists(File.java:813)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:790)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:781)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.app.ContextImpl.getFilesDir(ContextImpl.java:826)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.content.ContextWrapper.getFilesDir(ContextWrapper.java:286)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:369)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at androidx.test.runner.MonitoringInstrumentation.callApplicationOnCreate(MonitoringInstrumentation.java:470)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-05 05:19:30.252 29745 29745 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-05 05:19:30.267 29745 29745 D StrictMode: StrictMode policy violation; ~duration=8156 ms: android.os.strictmode.DiskReadViolation
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at java.io.UnixFileSystem.list(UnixFileSystem.java:376)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at java.io.File.list(File.java:1129)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at java.io.File.listFiles(File.java:1293)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:369)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at androidx.test.runner.MonitoringInstrumentation.callApplicationOnCreate(MonitoringInstrumentation.java:470)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-05 05:19:30.267 29745 29745 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-05 05:19:30.275 29745 29745 D StrictMode: StrictMode policy violation; ~duration=8156 ms: android.os.strictmode.DiskReadViolation
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:74)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at libcore.io.ForwardingOs.access(ForwardingOs.java:128)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.app.ActivityThread$AndroidOs.access(ActivityThread.java:8054)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at java.io.UnixFileSystem.checkAccess(UnixFileSystem.java:313)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at java.io.File.exists(File.java:813)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:790)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:781)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.app.ContextImpl.getDatabasesDir(ContextImpl.java:1050)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.app.ContextImpl.getDatabasePath(ContextImpl.java:1029)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.content.ContextWrapper.getDatabasePath(ContextWrapper.java:384)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.databaseDir(RestoreRecoveryCoordinator.kt:388)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:376)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at androidx.test.runner.MonitoringInstrumentation.callApplicationOnCreate(MonitoringInstrumentation.java:470)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-05 05:19:30.275 29745 29745 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-05 05:19:30.334 29745 29745 I Choreographer: Skipped 551 frames!  The application may be doing too much work on its main thread.
+11-05 05:19:30.343 29745 29766 D CompatibilityChangeReporter: Compat change id reported: 194532703; UID 10245; state: ENABLED
+11-05 05:19:30.343 29745 29766 D CompatibilityChangeReporter: Compat change id reported: 253665015; UID 10245; state: ENABLED
+11-05 05:19:30.344 29745 29766 D WM-SystemJobScheduler: Scheduling work ID 96190890-e3d4-454d-b2c4-b8702948fb09Job ID 86
+11-05 05:19:30.396 18285 19732 D CompatibilityChangeReporter: Compat change id reported: 253665015; UID 10245; state: ENABLED
+11-05 05:19:30.396 18285 19732 D CompatibilityChangeReporter: Compat change id reported: 194532703; UID 10245; state: ENABLED
+11-05 05:19:30.397 18285 18298 D CompatibilityChangeReporter: Compat change id reported: 161145287; UID 10245; state: ENABLED
+11-05 05:19:30.397 29745 29769 I InstrConnection: Could not send broadcast or register receiver (isolatedProcess?)
+11-05 05:19:30.655 18285 18343 W system_server: Long monitor contention with owner binder:18285_16 (19732) at void com.android.server.power.PowerManagerService.acquireWakeLockInternal(android.os.IBinder, int, int, java.lang.String, java.lang.String, android.os.WorkSource, java.lang.String, int, int, android.os.IWakeLockCallback)(PowerManagerService.java:1633) waiters=0 in void com.android.server.power.PowerManagerService.handleSandman(int) for 256ms
+11-05 05:19:30.655 29745 29769 W book.localfirst: Verification of org.junit.runners.model.RunnerBuilder androidx.test.internal.runner.TestRequestBuilder.getRunnerBuilder(boolean, long) took 235.452ms (84.94 bytecodes/s) (2016B approximate peak alloc)
+11-05 05:19:30.737 29745 29766 D WM-GreedyScheduler: Starting tracking for 96190890-e3d4-454d-b2c4-b8702948fb09
+11-05 05:19:30.815 29745 29745 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=96190890-e3d4-454d-b2c4-b8702948fb09, generation=0)
+11-05 05:19:30.930 29745 29766 D WM-SystemJobScheduler: Scheduling work ID cd66971c-b8fa-4772-8b3b-716b7f21c7a5Job ID 87
+11-05 05:19:30.990 29745 29745 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=cd66971c-b8fa-4772-8b3b-716b7f21c7a5, generation=0)
+11-05 05:19:30.991 29745 29766 D WM-GreedyScheduler: Starting work for cd66971c-b8fa-4772-8b3b-716b7f21c7a5
+11-05 05:19:31.020 29745 29766 D WM-GreedyScheduler: Starting tracking for 96190890-e3d4-454d-b2c4-b8702948fb09
+11-05 05:19:31.244 29745 29779 W book.localfirst: JNI critical lock held for 16.815ms on Thread[27,tid=29779,Runnable,Thread*=0x7a0abb83b630,peer=0x13706858,"DefaultDispatcher-worker-9"]
+11-05 05:19:31.404 29745 29766 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=96190890-e3d4-454d-b2c4-b8702948fb09, generation=0)
+11-05 05:19:31.526 29745 29766 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=cd66971c-b8fa-4772-8b3b-716b7f21c7a5, generation=0)
+11-05 05:19:31.686 29745 29766 D WM-Processor: Work WorkGenerationalId(workSpecId=cd66971c-b8fa-4772-8b3b-716b7f21c7a5, generation=0) is already enqueued for processing
+11-05 05:19:31.745 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:31.745 29745 29767 D CompatibilityChangeReporter: Compat change id reported: 263076149; UID 10245; state: ENABLED
+11-05 05:19:31.790 29745 29769 W book.localfirst: Long monitor contention with owner DefaultDispatcher-worker-4 (29774) at java.util.jar.Manifest java.util.jar.JarFile.getManifestFromReference()(JarFile.java:228) waiters=0 in java.util.zip.ZipEntry java.util.zip.ZipFile.getEntry(java.lang.String) for 502ms
+11-05 05:19:32.004 29745 29767 W book.localfirst: Verification of java.lang.Object androidx.work.CoroutineWorker.getForegroundInfo$suspendImpl(androidx.work.CoroutineWorker, kotlin.coroutines.Continuation) took 213.758ms (37.43 bytecodes/s) (1536B approximate peak alloc)
+11-05 05:19:32.093 29745 29769 I TestRunner: run started: 1 tests
+11-05 05:19:32.113 29745 29769 I TestRunner: started: aFourthDistinctProgramIsRejectedBusyAndLatestWinsKeepsFifoOrderWhileOneFrameIsInFlight(com.tingyun.smartmistakebook.visualjs.VisualJsClientFrameQueueDeviceInstrumentedTest)
+11-05 05:19:32.196 29745 29745 D WM-WorkerWrapper: Starting work for com.tingyun.smartmistakebook.OrphanAssetGcWorker
+11-05 05:19:32.309 29745 29774 W book.localfirst: Verification of kotlinx.serialization.json.JsonEncoder kotlinx.serialization.json.JsonElementSerializersKt.asJsonEncoder(kotlinx.serialization.encoding.Encoder) took 113.036ms (442.33 bytecodes/s) (2576B approximate peak alloc)
+11-05 05:19:32.334 29745 29766 D WM-ConstraintTracker: BatteryNotLowTracker: initial state = true
+11-05 05:19:32.335 29745 29766 D WM-BrdcstRcvrCnstrntTrc: BatteryNotLowTracker: registering receiver
+11-05 05:19:32.381 29745 29754 I book.localfirst: Background young concurrent copying GC freed 37810(2354KB) AllocSpace objects, 22(888KB) LOS objects, 0% free, 8455KB/8455KB, paused 6.573ms,50us total 635.448ms
+11-05 05:19:32.428 29745 29745 D WM-WorkerWrapper: Starting work for com.tingyun.smartmistakebook.BatchImportDriverWorker
+11-05 05:19:32.429 29745 29769 W TraceRunListener: Span name exceeds limits: VisualJsClientFrameQueueDeviceInstrumentedTest#aFourthDistinctProgramIsRejectedBusyAndLatestWinsKeepsFifoOrderWhileOneFrameIsInFlight
+11-05 05:19:32.543 18285 19732 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+11-05 05:19:32.543 18285 19732 D PackageManager: Clear ephemeral installer activity
+11-05 05:19:32.575 29745 29767 D WM-PackageManagerHelper: androidx.work.impl.background.systemalarm.RescheduleReceiver enabled
+11-05 05:19:32.590 29745 29776 W book.localfirst: Verification of java.lang.Object com.tingyun.smartmistakebook.core.data.backup.AndroidBackupRepository$cleanupOrphanAssets$2.invokeSuspend(java.lang.Object) took 204.667ms (899.02 bytecodes/s) (5368B approximate peak alloc)
+11-05 05:19:32.632 29745 29767 D WM-GreedyScheduler: Constraints met: Scheduling work ID WorkGenerationalId(workSpecId=96190890-e3d4-454d-b2c4-b8702948fb09, generation=0)
+11-05 05:19:32.818 29745 29768 D WM-Processor: Work WorkGenerationalId(workSpecId=96190890-e3d4-454d-b2c4-b8702948fb09, generation=0) is already enqueued for processing
+11-05 05:19:32.977 18285 19732 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 99009; state: DISABLED
+11-05 05:19:32.977 18285 18327 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10245; state: ENABLED
+11-05 05:19:32.988 18214 18214 D Zygote  : Forked child process 29784
+11-05 05:19:32.989 18285 18327 I ActivityManager: Start proc 29784:com.tingyun.smartmistakebook.localfirst:visual_js:com.tingyun.smartmistakebook.visualjs.VisualJsService/u0i9 for service {com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.visualjs.VisualJsService}
+11-05 05:19:33.010 29745 29774 W book.localfirst: Verification of kotlinx.serialization.json.JsonElement kotlinx.serialization.json.internal.JsonTreeReader.readDeepRecursive() took 334.759ms (65.72 bytecodes/s) (1864B approximate peak alloc)
+11-05 05:19:33.147 29784 29784 I VisualJsService: Late-enabling -Xcheck:jni
+11-05 05:19:33.211 29784 29784 W VisualJsService: Suspending all threads took: 60.539ms
+11-05 05:19:33.223 29745 29766 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=cd66971c-b8fa-4772-8b3b-716b7f21c7a5, tags={ com.tingyun.smartmistakebook.BatchImportDriverWorker,batch-import-driver } ]
+11-05 05:19:33.249 29745 29745 D WM-Processor: Processor cd66971c-b8fa-4772-8b3b-716b7f21c7a5 executed; reschedule = false
+11-05 05:19:33.249 29784 29784 I VisualJsService: Using CollectorTypeCC GC.
+11-05 05:19:33.250 29745 29745 D WM-SystemJobService: cd66971c-b8fa-4772-8b3b-716b7f21c7a5 executed on JobScheduler
+11-05 05:19:33.250 29784 29784 W VisualJsService: Unexpected CPU variant for x86: x86_64.
+11-05 05:19:33.250 29784 29784 W VisualJsService: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-05 05:19:33.250 29745 29766 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=96190890-e3d4-454d-b2c4-b8702948fb09, tags={ com.tingyun.smartmistakebook.OrphanAssetGcWorker,orphan-asset-gc } ]
+11-05 05:19:33.294 29745 29745 D WM-Processor: Processor 96190890-e3d4-454d-b2c4-b8702948fb09 executed; reschedule = false
+11-05 05:19:33.294 29745 29745 D WM-GreedyScheduler: Stopping tracking for WorkGenerationalId(workSpecId=96190890-e3d4-454d-b2c4-b8702948fb09, generation=0)
+11-05 05:19:33.295 29745 29745 D WM-SystemJobService: 96190890-e3d4-454d-b2c4-b8702948fb09 executed on JobScheduler
+11-05 05:19:33.302 29745 29766 D WM-GreedyScheduler: Cancelling work ID cd66971c-b8fa-4772-8b3b-716b7f21c7a5
+11-05 05:19:33.389   451   459 I adbd    : jdwp connection from 29784
+11-05 05:19:33.392 29745 29766 D WM-GreedyScheduler: Cancelling work ID 96190890-e3d4-454d-b2c4-b8702948fb09
+11-05 05:19:33.510 29784 29784 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 99009; state: ENABLED
+11-05 05:19:33.510 29745 29766 D WM-BrdcstRcvrCnstrntTrc: BatteryNotLowTracker: unregistering receiver
+11-05 05:19:33.511 29784 29784 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 99009; state: ENABLED
+11-05 05:19:33.572 18285 18349 I AppsFilter: interaction: PackageSetting{f080319 com.tingyun.smartmistakebook.core.export.test/10196} -> PackageSetting{f7dd2e2 com.tingyun.smartmistakebook.localfirst/10245} BLOCKED
+11-05 05:19:33.572 18285 18349 I AppsFilter: interaction: PackageSetting{1eb9e9f com.tingyun.smartmistakebook.offline/10249} -> PackageSetting{f7dd2e2 com.tingyun.smartmistakebook.localfirst/10245} BLOCKED
+11-05 05:19:33.572 18285 18349 I AppsFilter: interaction: PackageSetting{e57f16c com.tingyun.smartmistakebook.core.database.test/10241} -> PackageSetting{f7dd2e2 com.tingyun.smartmistakebook.localfirst/10245} BLOCKED
+11-05 05:19:33.572 18285 18349 I AppsFilter: interaction: PackageSetting{92b5bea com.tingyun.smartmistakebook.core.data.test/10247} -> PackageSetting{f7dd2e2 com.tingyun.smartmistakebook.localfirst/10245} BLOCKED
+11-05 05:19:33.572 18285 18349 I AppsFilter: interaction: PackageSetting{b6dfc51 com.tingyun.smartmistakebook.offline.test/10233} -> PackageSetting{f7dd2e2 com.tingyun.smartmistakebook.localfirst/10245} BLOCKED
+11-05 05:19:33.580 18285 19732 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+11-05 05:19:33.580 18285 19732 D PackageManager: Clear ephemeral installer activity
+11-05 05:19:33.593 29745 29768 D WM-PackageManagerHelper: androidx.work.impl.background.systemalarm.RescheduleReceiver disabled
+11-05 05:19:33.594 29784 29784 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-05 05:19:33.594 29784 29784 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+11-05 05:19:33.594 29784 29784 W ziparchive: Unable to open '/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.dm': No such file or directory
+11-05 05:19:33.594 18285 18375 D CompatibilityChangeReporter: Compat change id reported: 218533173; UID 10245; state: ENABLED
+11-05 05:19:33.595 29784 29784 W ziparchive: Unable to open '/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.dm': No such file or directory
+11-05 05:19:33.595 18285 18375 D CompatibilityChangeReporter: Compat change id reported: 262645982; UID 10245; state: ENABLED
+11-05 05:19:33.785 24129 24129 D CarrierSvcBindHelper: onPackageModified: com.tingyun.smartmistakebook.localfirst
+11-05 05:19:33.786 24129 24129 D CarrierSvcBindHelper: No carrier app for: 0
+11-05 05:19:33.786 18285 18395 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+11-05 05:19:33.955 29745 29754 W book.localfirst: Suspending all threads took: 118.157ms
+11-05 05:19:33.955 29745 29774 W book.localfirst: Verification of kotlinx.serialization.descriptors.SerialDescriptor kotlinx.serialization.internal.InlineClassDescriptorKt.InlinePrimitiveDescriptor(java.lang.String, kotlinx.serialization.KSerializer) took 166.648ms (150.02 bytecodes/s) (1864B approximate peak alloc)
+11-05 05:19:34.007 18285 18482 D ActivityManager: sync unfroze 24400 com.google.android.permissioncontroller for 6
+11-05 05:19:34.117 18498 18553 D StylusManager: Stylus InputDevice changed: 14 virtio_input_multi_touch_11
+11-05 05:19:34.235 18285 18482 W Looper  : Slow dispatch took 357ms android.perm h=android.os.Handler c=com.android.internal.infra.ServiceConnector$Impl$$ExternalSyntheticLambda2@9fb7b66 m=0
+11-05 05:19:34.254 18498 18498 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+11-05 05:19:34.265 24400 26589 I PermissionControllerServiceImpl: Updating user sensitive for uid 10245
+11-05 05:19:34.282 29745 29754 I book.localfirst: Background concurrent copying GC freed 11374(658KB) AllocSpace objects, 12(2304KB) LOS objects, 49% free, 7477KB/14MB, paused 18.501ms,119.305ms total 1.852s
+11-05 05:19:34.483 18498 18553 D StylusManager: Stylus InputDevice changed: 13 virtio_input_multi_touch_10
+11-05 05:19:34.539 24129 24318 D ImsResolver: maybeAddedImsService, packageName: com.tingyun.smartmistakebook.localfirst
+11-05 05:19:34.548 18498 18553 D StylusManager: Stylus InputDevice changed: 12 virtio_input_multi_touch_9
+11-05 05:19:34.612 18285 18349 I AppsFilter: interaction: PackageSetting{f080319 com.tingyun.smartmistakebook.core.export.test/10196} -> PackageSetting{30e3769 com.tingyun.smartmistakebook.localfirst/10245} BLOCKED
+11-05 05:19:34.613 18285 18349 I AppsFilter: interaction: PackageSetting{1eb9e9f com.tingyun.smartmistakebook.offline/10249} -> PackageSetting{30e3769 com.tingyun.smartmistakebook.localfirst/10245} BLOCKED
+11-05 05:19:34.653 29745 29772 D KnowledgeInstall: install finished in 4951 ms (fast path: content stamp matches, no parse, no reconcile)
+11-05 05:19:34.665 18285 18349 I AppsFilter: interaction: PackageSetting{e57f16c com.tingyun.smartmistakebook.core.database.test/10241} -> PackageSetting{30e3769 com.tingyun.smartmistakebook.localfirst/10245} BLOCKED
+11-05 05:19:34.665 18285 18349 I AppsFilter: interaction: PackageSetting{92b5bea com.tingyun.smartmistakebook.core.data.test/10247} -> PackageSetting{30e3769 com.tingyun.smartmistakebook.localfirst/10245} BLOCKED
+11-05 05:19:34.665 18285 18349 I AppsFilter: interaction: PackageSetting{b6dfc51 com.tingyun.smartmistakebook.offline.test/10233} -> PackageSetting{30e3769 com.tingyun.smartmistakebook.localfirst/10245} BLOCKED
+11-05 05:19:34.764 18285 18302 W Looper  : Slow dispatch took 213ms android.fg h=android.os.Handler c=<recycled PooledLambda@f86cf21> m=0
+11-05 05:19:34.803 18498 18553 D StylusManager: Stylus InputDevice changed: 6 virtio_input_multi_touch_3
+11-05 05:19:34.948 18498 18553 D StylusManager: Stylus InputDevice changed: 11 virtio_input_multi_touch_8
+11-05 05:19:34.949 18498 18553 W Looper  : Slow delivery took 1017ms SysUiBg h=android.hardware.input.InputManagerGlobal$InputDeviceListenerDelegate c=null m=3
+11-05 05:19:34.949 18498 18553 D StylusManager: Stylus InputDevice changed: 4 virtio_input_multi_touch_1
+11-05 05:19:34.949 18285 18302 W Looper  : Slow delivery took 226ms android.fg h=android.os.Handler c=<recycled PooledLambda@c404006> m=0
+11-05 05:19:34.949 18285 18302 W Looper  : Slow dispatch took 184ms android.fg h=android.os.Handler c=<recycled PooledLambda@c404006> m=0
+11-05 05:19:34.953 18498 18553 D StylusManager: Stylus InputDevice changed: 9 virtio_input_multi_touch_6
+11-05 05:19:34.954 18498 18553 D StylusManager: Stylus InputDevice changed: 8 virtio_input_multi_touch_5
+11-05 05:19:34.954 18498 18553 D StylusManager: Stylus InputDevice changed: 7 virtio_input_multi_touch_4
+11-05 05:19:34.989 23580 23580 I AiAiEcho: AppFetcherImpl onPackageChanged com.tingyun.smartmistakebook.localfirst.
+11-05 05:19:35.091 23580 29689 I AiAiEcho: AppIndexer Package:[com.tingyun.smartmistakebook.localfirst] UserProfile:[0] Enabled:[true].
+11-05 05:19:35.294 23580 29689 I AiAiEcho: AppFetcherImplV2 updateApps package:[com.tingyun.smartmistakebook.localfirst], userId:[0], reason:[package is updated.].
+11-05 05:19:35.295 18285 18302 W Looper  : Slow dispatch took 342ms android.fg h=android.os.Handler c=<recycled PooledLambda@128abfc> m=0
+11-05 05:19:35.697 18285 18302 W Looper  : Slow dispatch took 276ms android.fg h=android.os.Handler c=com.android.server.am.SameProcessApplicationThread$$ExternalSyntheticLambda1@6d7bae5 m=0
+11-05 05:19:35.697 18498 18553 D StylusManager: Stylus InputDevice changed: 5 virtio_input_multi_touch_2
+11-05 05:19:35.724 24129 24129 D CarrierSvcBindHelper: onPackageModified: com.tingyun.smartmistakebook.localfirst
+11-05 05:19:35.725 24129 24129 D CarrierSvcBindHelper: No carrier app for: 0
+11-05 05:19:35.752 18498 18498 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+11-05 05:19:36.070 18498 18553 W Looper  : Slow dispatch took 1115ms SysUiBg h=android.hardware.input.InputManagerGlobal$InputDeviceListenerDelegate c=null m=3
+11-05 05:19:36.163 18498 18553 D StylusManager: Stylus InputDevice changed: 10 virtio_input_multi_touch_7
+11-05 05:19:36.192 18285 18302 W Looper  : Slow dispatch took 274ms android.fg h=android.os.Handler c=com.android.server.am.SameProcessApplicationThread$$ExternalSyntheticLambda1@6ea89ba m=0
+11-05 05:19:36.247 18285 18285 W Looper  : Slow delivery took 405ms main h=android.app.ActivityThread$H c=android.app.LoadedApk$ReceiverDispatcher$Args$$ExternalSyntheticLambda0@7af806b m=0
+11-05 05:19:36.372 18285 18302 W Looper  : Slow dispatch took 112ms android.fg h=android.os.Handler c=com.android.server.am.SameProcessApplicationThread$$ExternalSyntheticLambda1@c9c77c8 m=0
+11-05 05:19:36.452 29745 29806 W book.localfirst: Verification of void androidx.profileinstaller.ProfileInstaller.<clinit>() took 665.772ms (22.53 bytecodes/s) (1736B approximate peak alloc)
+11-05 05:19:36.668 29745 29806 D ProfileInstaller: Installing profile for com.tingyun.smartmistakebook.localfirst
+11-05 05:19:37.128 18285 18302 W Looper  : Slow dispatch took 309ms android.fg h=android.os.Handler c=com.android.server.am.SameProcessApplicationThread$$ExternalSyntheticLambda1@cf991e3 m=0
+11-05 05:19:37.140 18285 19732 W ProcessStats: Tracking association SourceState{9771d57 system/1000 ImpBg #9108} whose proc state 6 is better than process ProcessState{c2dc9b0 com.google.android.gms.persistent/10128 pkg=com.google.android.gms} proc state 9 (196 skipped)
+11-05 05:19:37.345 24647 29808 I Fitness : OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package: flg=0x45000010 pkg=com.google.android.gms cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+11-05 05:19:37.369 18285 18285 W Looper  : Slow dispatch took 145ms main h=android.app.ActivityThread$H c=android.app.LoadedApk$ReceiverDispatcher$Args$$ExternalSyntheticLambda0@fa17a99 m=0
+11-05 05:19:37.482 18285 18302 W Looper  : Slow dispatch took 250ms android.fg h=android.os.Handler c=com.android.server.am.SameProcessApplicationThread$$ExternalSyntheticLambda1@672015e m=0
+11-05 05:19:37.510 18285 18362 D CompatibilityChangeReporter: Compat change id reported: 161252188; UID 10245; state: DISABLED
+11-05 05:19:37.592 18285 18482 W Looper  : Slow dispatch took 100ms android.perm h=android.os.Handler c=<recycled PooledLambda@f86cf21> m=0
+11-05 05:19:37.593 18285 18285 W Looper  : Drained
+11-05 05:19:37.593 18285 18285 W Looper  : Slow dispatch took 102ms main h=android.app.ActivityThread$H c=android.app.LoadedApk$ReceiverDispatcher$Args$$ExternalSyntheticLambda0@7cee3d1 m=0
+11-05 05:19:37.628 24400 26589 I PermissionControllerServiceImpl: Updating user sensitive for uid 10245
+11-05 05:19:37.765 18285 18285 W Looper  : Slow dispatch took 114ms main h=android.app.PropertyInvalidatedCache$AutoCorker$1 c=null m=0
+11-05 05:19:37.766 18285 18482 W Looper  : Slow dispatch took 148ms android.perm h=android.os.Handler c=runnable@9054137(com.android.server.appop.AppOpsCheckingServiceImpl@8a5b6a4,ModeCallback{3f78599 watchinguid=-1 flags=0x0 op=READ_WRITE_HEALTH_DATA from uid=1000 pid=18285},16,1001,com.android.mms.service) m=0
+11-05 05:19:37.767 18285 18302 W Looper  : Slow dispatch took 174ms android.fg h=android.os.Handler c=<recycled PooledLambda@c404006> m=0
+11-05 05:19:37.776 24129 24318 D ImsResolver: maybeAddedImsService, packageName: com.tingyun.smartmistakebook.localfirst
+11-05 05:19:37.822 18498 18553 W Looper  : Drained
+11-05 05:19:37.835 18285 18395 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+11-05 05:19:37.906 18498 18553 D StylusManager: Stylus InputDevice changed: 14 virtio_input_multi_touch_11
+11-05 05:19:37.906 18498 18553 D StylusManager: Stylus InputDevice changed: 13 virtio_input_multi_touch_10
+11-05 05:19:37.909 18498 18553 D StylusManager: Stylus InputDevice changed: 12 virtio_input_multi_touch_9
+11-05 05:19:37.965 18285 18302 W Looper  : Drained
+11-05 05:19:38.106 18285 18482 W Looper  : Slow dispatch took 140ms android.perm h=android.os.Handler c=<recycled PooledLambda@b4113d4> m=0
+11-05 05:19:38.106 24647 29808 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_CHANGED [CONTEXT service_id=17 ]
+11-05 05:19:38.110 18285 18302 W Looper  : Slow dispatch took 132ms android.fg h=android.os.Handler c=<recycled PooledLambda@da2a7ae> m=0
+11-05 05:19:38.121 18285 18302 W Looper  : Slow delivery took 204ms android.fg h=android.os.Handler c=<recycled PooledLambda@80a8324> m=0
+11-05 05:19:38.374 29784 29784 D nativeloader: Configuring clns-6 for other apk /data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/lib/x86_64:/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.tingyun.smartmistakebook.localfirst
+11-05 05:19:38.375 24647 25319 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-05 05:19:38.468 18498 18553 D StylusManager: Stylus InputDevice changed: 6 virtio_input_multi_touch_3
+11-05 05:19:38.475 24647 25319 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-05 05:19:38.574 18498 18553 D StylusManager: Stylus InputDevice changed: 11 virtio_input_multi_touch_8
+11-05 05:19:38.581 18498 18553 D StylusManager: Stylus InputDevice changed: 4 virtio_input_multi_touch_1
+11-05 05:19:38.581 24647 25319 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-05 05:19:38.596 18285 18844 W system_server: Long monitor contention with owner binder:18285_12 (19406) at android.content.ComponentName com.android.server.am.ActivityManagerService.startService(android.app.IApplicationThread, android.content.Intent, java.lang.String, boolean, java.lang.String, java.lang.String, int, boolean, int, java.lang.String, java.lang.String)(ActivityManagerService.java:13195) waiters=2 in int com.android.server.am.ActivityManagerService.bindServiceInstance(android.app.IApplicationThread, android.os.IBinder, android.content.Intent, java.lang.String, android.app.IServiceConnection, long, java.lang.String, boolean, int, java.lang.String, android.app.IApplicationThread, java.lang.String, int) for 108ms
+11-05 05:19:38.597 23455 23455 W gle.android.gms: Long monitor contention with owner GoogleApiHandler (23646) at android.os.Message android.os.MessageQueue.next()(MessageQueue.java:364) waiters=0 in boolean android.os.MessageQueue.enqueueMessage(android.os.Message, long) for 224ms
+11-05 05:19:38.607 18498 18553 D StylusManager: Stylus InputDevice changed: 9 virtio_input_multi_touch_6
+11-05 05:19:38.621 18498 18553 D StylusManager: Stylus InputDevice changed: 8 virtio_input_multi_touch_5
+11-05 05:19:38.676 24647 29808 I Fitness : OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package: flg=0x45000010 pkg=com.google.android.gms cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+11-05 05:19:38.676 18498 18553 D StylusManager: Stylus InputDevice changed: 7 virtio_input_multi_touch_4
+11-05 05:19:38.709 18498 18553 D StylusManager: Stylus InputDevice changed: 5 virtio_input_multi_touch_2
+11-05 05:19:39.228 29784 29784 W VisualJsService: Verification of com.tingyun.smartmistakebook.core.domain.MistakeOrganizationRepository com.tingyun.smartmistakebook.SmartMistakeBookApplication.getMistakeOrganizationRepository() took 355.593ms (33.75 bytecodes/s) (1696B approximate peak alloc)
+11-05 05:19:39.507 18498 18553 D StylusManager: Stylus InputDevice changed: 10 virtio_input_multi_touch_7
+11-05 05:19:39.604 18498 18553 W Looper  : Slow delivery took 1094ms SysUiBg h=android.hardware.input.InputManagerGlobal$InputDeviceListenerDelegate c=null m=3
+11-05 05:19:39.633 18285 20094 W system_server: Long monitor contention with owner binder:18285_12 (19406) at android.content.ComponentName com.android.server.am.ActivityManagerService.startService(android.app.IApplicationThread, android.content.Intent, java.lang.String, boolean, java.lang.String, java.lang.String, int, boolean, int, java.lang.String, java.lang.String)(ActivityManagerService.java:13195) waiters=3 in android.content.ComponentName com.android.server.am.ActivityManagerService.startService(android.app.IApplicationThread, android.content.Intent, java.lang.String, boolean, java.lang.String, java.lang.String, int, boolean, int, java.lang.String, java.lang.String) for 439ms
+11-05 05:19:39.655 18498 18553 W Looper  : Drained
+11-05 05:19:39.683 23580 23580 I AiAiEcho: AppFetcherImpl onPackageChanged com.tingyun.smartmistakebook.localfirst.
+11-05 05:19:39.848 23580 29804 I AiAiEcho: AppIndexer Package:[com.tingyun.smartmistakebook.localfirst] UserProfile:[0] Enabled:[true].
+11-05 05:19:39.848 23580 29804 I AiAiEcho: AppFetcherImplV2 updateApps package:[com.tingyun.smartmistakebook.localfirst], userId:[0], reason:[package is updated.].
+11-05 05:19:40.191 29784 29784 W VisualJsService: Verification of void com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate() took 682.761ms (2005.09 bytecodes/s) (43160B approximate peak alloc)
+11-05 05:19:40.343   187 29781 I keystore2: system/security/keystore2/src/watchdog.rs:319 - Watchdog thread idle -> terminating. Have a great day.
+11-05 05:19:40.402 29784 29784 W VisualJsService: Verification of void com.tingyun.smartmistakebook.SmartMistakeBookApplication.setTutorConversationRepository(com.tingyun.smartmistakebook.core.domain.TutorConversationRepository) took 141.281ms (56.62 bytecodes/s) (1504B approximate peak alloc)
+11-05 05:19:40.556 23455 24430 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=AppsCorpus serviceId=36
+11-05 05:19:40.632 23455 29312 W gle.android.gms: Long monitor contention with owner highpool[4] (24430) at void asab.run()(:com.google.android.gms@231818047@23.18.18 (190800-535401451):5) waiters=0 in void asab.run() for 174ms
+11-05 05:19:40.791 29784 29784 W VisualJsService: Verification of void com.tingyun.smartmistakebook.SmartMistakeBookApplication.startMistakeExportBatch(java.util.List, com.tingyun.smartmistakebook.core.model.MistakePdfLayout, com.tingyun.smartmistakebook.core.model.MistakeExportFormat) took 205.554ms (243.25 bytecodes/s) (2264B approximate peak alloc)
+11-05 05:19:41.120 29784 29784 W VisualJsService: Verification of void kotlinx.coroutines.JobSupport.access$continueCompleting(kotlinx.coroutines.JobSupport, kotlinx.coroutines.JobSupport$Finishing, kotlinx.coroutines.ChildHandleNode, java.lang.Object) took 268.641ms (14.89 bytecodes/s) (1352B approximate peak alloc)
+11-05 05:19:41.269 29784 29784 W VisualJsService: Verification of java.lang.Object kotlinx.coroutines.JobSupport.awaitSuspend(kotlin.coroutines.Continuation) took 127.567ms (423.31 bytecodes/s) (2464B approximate peak alloc)
+11-05 05:19:41.316 23455 26760 W Icing   : Failed to get Lockbox signed-in status: java.util.concurrent.TimeoutException: Timed out waiting for Task
+11-05 05:19:41.338 23455 26760 W Icing   : getSignedInAccountName: Falling back to default value
+11-05 05:19:41.346 23455 23455 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-05 05:19:41.346 23455 23455 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-05 05:19:41.809 18285 18844 W system_server: Long monitor contention with owner binder:18285_11 (19368) at android.content.ComponentName com.android.server.am.ActivityManagerService.startService(android.app.IApplicationThread, android.content.Intent, java.lang.String, boolean, java.lang.String, java.lang.String, int, boolean, int, java.lang.String, java.lang.String)(ActivityManagerService.java:13195) waiters=3 in void com.android.server.am.ActivityManagerService.publishService(android.os.IBinder, android.content.Intent, android.os.IBinder) for 451ms
+11-05 05:19:41.830 18285 18845 W system_server: Long monitor contention with owner binder:18285_11 (19368) at android.content.ComponentName com.android.server.am.ActivityManagerService.startService(android.app.IApplicationThread, android.content.Intent, java.lang.String, boolean, java.lang.String, java.lang.String, int, boolean, int, java.lang.String, java.lang.String)(ActivityManagerService.java:13195) waiters=4 in int com.android.server.am.ActivityManagerService.bindServiceInstance(android.app.IApplicationThread, android.os.IBinder, android.content.Intent, java.lang.String, android.app.IServiceConnection, long, java.lang.String, boolean, int, java.lang.String, android.app.IApplicationThread, java.lang.String, int) for 470ms
+11-05 05:19:41.905 23455 26760 W Icing   : Failed to get Lockbox signed-in status: java.util.concurrent.TimeoutException: Timed out waiting for Task
+11-05 05:19:41.905 23455 26760 W Icing   : getSignedInTimestampMs: Falling back to default value
+11-05 05:19:41.905 23455 26760 W Icing   : No valid account for uploading user actions
+11-05 05:19:41.920 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:42.022 24647 29808 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_CHANGED [CONTEXT service_id=17 ]
+11-05 05:19:42.098 24647 24680 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-05 05:19:42.212 29784 29784 W VisualJsService: Verification of kotlin.coroutines.CoroutineContext kotlin.coroutines.CoroutineContext$DefaultImpls.plus(kotlin.coroutines.CoroutineContext, kotlin.coroutines.CoroutineContext) took 100.144ms (229.67 bytecodes/s) (1960B approximate peak alloc)
+11-05 05:19:42.740 29784 29784 W VisualJsService: Verification of kotlin.coroutines.CoroutineContext$Element kotlin.coroutines.ContinuationInterceptor$DefaultImpls.get(kotlin.coroutines.ContinuationInterceptor, kotlin.coroutines.CoroutineContext$Key) took 196.681ms (264.39 bytecodes/s) (2360B approximate peak alloc)
+11-05 05:19:42.767 24647 25406 D TrafficStats: tagSocket(78) with statsTag=0x30000401, statsUid=10128
+11-05 05:19:42.798 24647 24680 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-05 05:19:42.833 24647 24680 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-05 05:19:42.890 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:43.353 29784 29784 W VisualJsService: Verification of kotlinx.coroutines.flow.Flow kotlinx.coroutines.flow.FlowKt.combineTransform(kotlinx.coroutines.flow.Flow, kotlinx.coroutines.flow.Flow, kotlinx.coroutines.flow.Flow, kotlinx.coroutines.flow.Flow, kotlinx.coroutines.flow.Flow, kotlin.jvm.functions.Function7) took 119.223ms (41.94 bytecodes/s) (1392B approximate peak alloc)
+11-05 05:19:43.573 23455 26760 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0
+11-05 05:19:43.573 29784 29784 W VisualJsService: Verification of kotlinx.coroutines.flow.Flow kotlinx.coroutines.flow.FlowKt.consumeAsFlow(kotlinx.coroutines.channels.ReceiveChannel) took 110.553ms (45.23 bytecodes/s) (1400B approximate peak alloc)
+11-05 05:19:43.864 24647 24647 W .gms.persistent: Long monitor contention with owner GoogleApiHandler (24699) at boolean abnp.d(abno, android.content.ServiceConnection, java.lang.String, java.util.concurrent.Executor)(:com.google.android.gms@231818047@23.18.18 (190800-535401451):15) waiters=0 in void abnq.onServiceConnected(android.content.ComponentName, android.os.IBinder) for 308ms
+11-05 05:19:44.017 23455 23832 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=null serviceId=30
+11-05 05:19:44.017 18285 19368 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 99009. pid: 29784
+11-05 05:19:44.109 23455 24036 W Icing   : No valid account for uploading user actions
+11-05 05:19:44.128 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:44.288 23455 24036 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0
+11-05 05:19:44.290 29784 29784 W SystemServiceRegistry: No service published for: virtualdevice
+11-05 05:19:44.825 23455 24036 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+11-05 05:19:44.914 23455 24036 I Icing   : Indexing done com.google.android.gms-apps
+11-05 05:19:44.950 23455 24036 I Icing   : Indexing com.google.android.gms-internal.3p:MobileApplication from com.google.android.gms
+11-05 05:19:44.991 23455 24036 I Icing   : Indexing done com.google.android.gms-internal.3p:MobileApplication
+11-05 05:19:45.020 23455 24036 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+11-05 05:19:45.053 23455 24036 I Icing   : Indexing done com.google.android.gms-apps
+11-05 05:19:45.068 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:45.126 23455 23463 I gle.android.gms: Background concurrent copying GC freed 234318(10MB) AllocSpace objects, 44(1840KB) LOS objects, 49% free, 11MB/23MB, paused 311us,50us total 297.138ms
+11-05 05:19:45.155 23455 23465 W System  : A resource failed to call CursorWrapperInner.close. 
+11-05 05:19:45.164 29784 29822 I VisualJsService: visual_js warm-up finished; worker ready for requests
+11-05 05:19:45.242 29784 29799 W VisualJsService: killing :visual_js worker: terminate(generation=-5049522694317871484) accepted
+11-05 05:19:45.245 18285 18532 I ActivityManager: Killing 29784:com.tingyun.smartmistakebook.localfirst:visual_js:com.tingyun.smartmistakebook.visualjs.VisualJsService/u0a245i9 (adj 0): isolated not needed
+11-05 05:19:45.248 29784 29799 I Process : Sending signal. PID: 29784 SIG: 9
+11-05 05:19:45.249 18285 18328 I libprocessgroup: Successfully killed process cgroup uid 99009 pid 29784 in 0ms
+11-05 05:19:45.249 18285 18302 W Looper  : Drained
+--------- beginning of kernel
+11-05 05:19:45.231     0     0 I binder  : undelivered transaction 1337814, process died.
+11-05 05:19:45.284 18214 18214 I Zygote  : Process 29784 exited due to signal 9 (Killed)
+11-05 05:19:45.284 18285 18303 D DisplayManagerService: Drop pending events for gone uid 99009
+11-05 05:19:45.286 18285 18333 E system_server: Cannot read thread CPU times for PID 18285
+11-05 05:19:45.386 18285 18544 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 99010; state: DISABLED
+11-05 05:19:45.386 18285 18327 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10245; state: ENABLED
+11-05 05:19:45.391 18214 18214 D Zygote  : Forked child process 29824
+11-05 05:19:45.391 18285 18327 I ActivityManager: Start proc 29824:com.tingyun.smartmistakebook.localfirst:visual_js:com.tingyun.smartmistakebook.visualjs.VisualJsService/u0i10 for service {com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.visualjs.VisualJsService}
+11-05 05:19:45.401 29824 29824 I VisualJsService: Late-enabling -Xcheck:jni
+11-05 05:19:45.452 29824 29824 W VisualJsService: Suspending all threads took: 20.062ms
+11-05 05:19:45.452 29824 29824 I VisualJsService: Using CollectorTypeCC GC.
+11-05 05:19:45.452 29824 29824 W VisualJsService: Unexpected CPU variant for x86: x86_64.
+11-05 05:19:45.452 29824 29824 W VisualJsService: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-05 05:19:45.552   451   459 I adbd    : jdwp connection from 29824
+11-05 05:19:45.561 18285 18544 D CompatibilityChangeReporter: Compat change id reported: 168419799; UID 10245; state: DISABLED
+11-05 05:19:45.561 18285 18544 D CompatibilityChangeReporter: Compat change id reported: 273564678; UID 10245; state: DISABLED
+11-05 05:19:45.571 18285 18544 D CompatibilityChangeReporter: Compat change id reported: 261072174; UID 10245; state: ENABLED
+11-05 05:19:45.580 29824 29824 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 99010; state: ENABLED
+11-05 05:19:45.581 29824 29824 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 99010; state: ENABLED
+11-05 05:19:45.623 29824 29824 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-05 05:19:45.623 29824 29824 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+11-05 05:19:45.625 29824 29824 W ziparchive: Unable to open '/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.dm': No such file or directory
+11-05 05:19:45.632 29824 29824 W ziparchive: Unable to open '/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.dm': No such file or directory
+11-05 05:19:46.086 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:46.244 29824 29824 D nativeloader: Configuring clns-6 for other apk /data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/lib/x86_64:/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.tingyun.smartmistakebook.localfirst
+11-05 05:19:46.561 18498 18553 D ControlsListingControllerImpl: Subscribing callback, service count: 0
+11-05 05:19:46.562 18498 18553 D ControlsListingControllerImpl: Unsubscribing callback
+11-05 05:19:46.587 18285 18544 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 99010. pid: 29824
+11-05 05:19:46.666 29824 29824 W SystemServiceRegistry: No service published for: virtualdevice
+11-05 05:19:46.845 29824 29841 W VisualJsService: Verification of java.lang.String com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngine.buildFrameInput(com.tingyun.smartmistakebook.core.domain.VisualExecutionRequest) took 122.088ms (1400.63 bytecodes/s) (3760B approximate peak alloc)
+11-05 05:19:47.290 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:47.835 29824 29841 W VisualJsService: Verification of void com.tingyun.smartmistakebook.visualjs.VisualMeasureEnvironment.<clinit>() took 113.569ms (79.25 bytecodes/s) (1552B approximate peak alloc)
+11-05 05:19:47.908 29824 29841 I VisualJsService: visual_js warm-up finished; worker ready for requests
+11-05 05:19:48.487 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:48.549 18285 20087 W ProcessStats: Tracking association SourceState{8e327f8 com.google.android.gms/10128 BFgs #9183} whose proc state 4 is better than process ProcessState{c2dc9b0 com.google.android.gms.persistent/10128 pkg=com.google.android.gms} proc state 9 (569 skipped)
+11-05 05:19:49.372 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:49.789 29824 29838 W VisualJsService: killing :visual_js worker: terminate(generation=6784683302287883234) accepted
+11-05 05:19:49.789 29824 29838 I Process : Sending signal. PID: 29824 SIG: 9
+11-05 05:19:49.793 18285 18544 I ActivityManager: Killing 29824:com.tingyun.smartmistakebook.localfirst:visual_js:com.tingyun.smartmistakebook.visualjs.VisualJsService/u0a245i10 (adj 0): isolated not needed
+11-05 05:19:49.794 18285 18328 I libprocessgroup: Successfully killed process cgroup uid 99010 pid 29824 in 0ms
+11-05 05:19:49.797 29745 29769 I TestRunner: finished: aFourthDistinctProgramIsRejectedBusyAndLatestWinsKeepsFifoOrderWhileOneFrameIsInFlight(com.tingyun.smartmistakebook.visualjs.VisualJsClientFrameQueueDeviceInstrumentedTest)
+11-05 05:19:49.916 29745 29769 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+11-05 05:19:49.943     0     0 I binder  : undelivered transaction 1338113, process died.
+11-05 05:19:50.016     0     0 I binder  : undelivered transaction 1338114, process died.
+11-05 05:19:50.139 18214 18214 I Zygote  : Process 29824 exited due to signal 9 (Killed)
+11-05 05:19:50.095     0     0 I binder  : undelivered transaction 1338115, process died.
+11-05 05:19:50.172 18285 18303 D DisplayManagerService: Drop pending events for gone uid 99010
+11-05 05:19:50.228 18285 18333 E system_server: Cannot read thread CPU times for PID 18285
+11-05 05:19:50.342 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:50.343 18285 18532 W system_server: Long monitor contention with owner binder:18285_19 (20087) at void com.android.server.am.ActivityManagerService$AppDeathRecipient.binderDied()(ActivityManagerService.java:1584) waiters=0 in void com.android.server.am.ActivityManagerService.finishInstrumentation(android.app.IApplicationThread, int, android.os.Bundle) for 170ms
+11-05 05:19:50.344 18285 18532 I ActivityManager: Force stopping com.tingyun.smartmistakebook.localfirst appid=10245 user=0: finished inst
+11-05 05:19:50.398 29731 29731 I app_process: System.exit called, status: 0
+11-05 05:19:50.413 29731 29731 I AndroidRuntime: VM exiting with result code 0.
+11-05 05:19:50.302     0     0 I binder  : 18285:18532 ioctl 400c620e 7a087f9ea930 returned -11
+11-05 05:19:50.365     0     0 I binder  : 18285:18532 ioctl 400c620e 7a087f9ea930 returned -11
+11-05 05:19:50.420 18285 18532 E ActivityManager: Unable to freeze binder for 29745: -11
+11-05 05:19:50.432 18285 18532 I ActivityManager: Killing 29745:com.tingyun.smartmistakebook.localfirst/u0a245 (adj 0): stop com.tingyun.smartmistakebook.localfirst due to finished inst
+11-05 05:19:50.500 18285 18303 D DisplayManagerService: Drop pending events for gone uid 10245
+11-05 05:19:50.532 18285 18326 E IPCThreadState: Binder transaction failure: 1338172/29189/-22
+11-05 05:19:50.536 18285 18326 W ActivityManager: Error shutting down UiAutomationConnection
+11-05 05:19:50.490     0     0 I binder  : 18326:18285 cannot find target node
+11-05 05:19:50.490     0     0 I binder  : 18285:18326 transaction async to 0:0 failed 1338172/29189/-22, size 88-0 line 3210
+11-05 05:19:50.509     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-05 05:19:50.533     0     0 I binder  : undelivered transaction 1338171, process died.
+11-05 05:19:50.592 18214 18214 I Zygote  : Process 29745 exited due to signal 9 (Killed)
+11-05 05:19:50.593 18285 18532 V ActivityManager: Got obituary of 29745:com.tingyun.smartmistakebook.localfirst
+11-05 05:19:51.486 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:19:51.451     0     0 I logd    : logdr: UID=2000 GID=2000 PID=29857 n tail=0 logMask=99 pid=0 start=0ns deadline=0ns

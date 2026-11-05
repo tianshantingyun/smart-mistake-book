@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" tests="23" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:54:58.340Z" hostname="TIANSHAN" time="0.114">
+  <properties/>
+  <testcase name="optimizer bounds match py-fsrs parameter validation ranges" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.0"/>
+  <testcase name="fittable samples keep real attempts and local checks but drop model verdicts and reveals" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.001"/>
+  <testcase name="persisted Review state makes a short gap eligible for a long range pair" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.0"/>
+  <testcase name="optimizer refuses to fit below the 400 predictable sample hard gate" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.013"/>
+  <testcase name="model judged positives still surface in source calibration" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.005"/>
+  <testcase name="loss responds to w20 perturbations on a fixed dataset" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.002"/>
+  <testcase name="optimizer crosses the gate exactly at 400 predictable samples" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.013"/>
+  <testcase name="replay emits only the sequence end pair for the last long range review" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.0"/>
+  <testcase name="replay returns null when no long range review exists" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.0"/>
+  <testcase name="harness reports finite losses for both models" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.007"/>
+  <testcase name="optimizer keeps defaults below the data floor" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.001"/>
+  <testcase name="legacy baseline skips same day repeats so both models score the same prediction pairs" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.0"/>
+  <testcase name="optimizer full fit improves or preserves the default log loss on learnable data" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.032"/>
+  <testcase name="optimizer reports insufficient data when no cross day prediction exists" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.0"/>
+  <testcase name="optimizer thresholds count predictable samples not raw rows" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.001"/>
+  <testcase name="easy bonus is pinned neutral and never fitted" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.013"/>
+  <testcase name="optimizer reports a finite validation loss under the hold out protocol" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.012"/>
+  <testcase name="model judged rows never feed the optimizer or the evaluation" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.001"/>
+  <testcase name="replay prefers the collected calendar day delta over a wall clock floor" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.0"/>
+  <testcase name="persisted Learning state overrides the elapsed heuristic in replay" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.0"/>
+  <testcase name="source calibration pairs subjective positives with the next real attempt" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.0"/>
+  <testcase name="w15 w16 unlock contract matches spec section 2_11b" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.0"/>
+  <testcase name="optimizer below the w15 w16 floor never fits those coefficients" classname="com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest" time="0.012"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

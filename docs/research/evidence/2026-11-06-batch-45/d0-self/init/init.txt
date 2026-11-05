@@ -1,0 +1,15 @@
+GROUP init
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group init
+CHECK write_fresh EXPECTED=0 ACTUAL=0 OK
+CHECK generated_1200 EXPECTED=1 ACTUAL=1 OK
+CHECK write_preserve EXPECTED=0 ACTUAL=0 OK
+CHECK preserved_verdict EXPECTED=1 ACTUAL=1 OK
+CHECK preserved_evidence EXPECTED=1 ACTUAL=1 OK
+CHECK write_idempotent EXPECTED=0 ACTUAL=0 OK
+CHECK idempotent_bytes EXPECTED=1 ACTUAL=1 OK
+CHECK check_drift EXPECTED=1 ACTUAL=1 OK
+CHECK drift_reported EXPECTED=1 ACTUAL=1 OK
+CHECK check_bad_verdict EXPECTED=1 ACTUAL=1 OK
+CHECK bad_verdict_reported EXPECTED=1 ACTUAL=1 OK
+CHECKS=11 FAILURES=0
+EXIT=0

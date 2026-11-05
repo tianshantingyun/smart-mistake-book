@@ -1,0 +1,21 @@
+p09 设备复核：本会话三次实跑（2026-11-05 13:2x +08）
+DEVICE: emulator-5562 / API 34 / x86_64 / boot_id=2d913fc3-97a5-4e63-a987-0628192a4f27
+APP_APK_SHA256: c5f5efd177825c67779ba230336095453cdc359db7a9735c7cbdc6c3f62b5ca9（设备侧 sha256sum == 本地 app/build/outputs/apk/localFirst/debug/app-localFirst-debug.apk）
+TEST_APK_SHA256: 8ad0ff903a39eaaf79e5d23ad0645359c41ff6012db82d8a3b8dd396033355be（设备侧 sha256sum == 本地 app-localFirst-debug-androidTest.apk）
+CLASS: com.tingyun.smartmistakebook.visualjs.VisualJsClientFrameQueueDeviceInstrumentedTest#aFourthDistinctProgramIsRejectedBusyAndLatestWinsKeepsFifoOrderWhileOneFrameIsInFlight
+CMD: adb -s emulator-5562 shell logcat -c
+     adb -s emulator-5562 shell am instrument -w -r -e class '<CLASS>' com.tingyun.smartmistakebook.localfirst.test/androidx.test.runner.AndroidJUnitRunner
+     adb -s emulator-5562 logcat -d -v threadtime
+RUN1: FAILURES!!!  Time: 16.755
+      java.lang.AssertionError: initial connect failed
+        at VisualJsClientFrameQueueDeviceInstrumentedTest.kt:109 (caller :107)
+      INSTRUMENTATION_STATUS_CODE: -2（用例失败；am 进程 exit=0，不得读成通过）
+      重建延迟：logcat 内无 kill->warm-up 配对（连接阶段即失败）
+RUN2: OK (1 test)  Time: 17.665
+      重建延迟 2794 ms（kill->其后第一条 warm-up，脚本复算）
+RUN3: OK (1 test)  Time: 17.823
+      重建延迟 2666 ms（同上）
+判定：1 红 / 2 绿。红样本落在 connect 阶段（p09 关注区），绿样本两次均 > 1300 ms 构造窗。
+→ p09 未收敛维持；不得写“已修/必绿”。
+原始件：verify-p09-run{1,2,3}.txt、verify-p09-run{1,2,3}-logcat.txt（本目录）
+复算脚本：docs/acceptance/evidence/2026-11-06-batch-45/e-device/p09_recompute.py（输出 p09-recompute.txt）

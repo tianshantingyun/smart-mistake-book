@@ -1,0 +1,24 @@
+CMD: python -I tools/ci/trace_requirements.py --ledger docs/acceptance/ledger.md
+{
+  "ledger": "docs/acceptance/ledger.md",
+  "total": 1200,
+  "domains": {
+    "D0": 100,
+    "A": 90,
+    "B": 90,
+    "C": 90,
+    "D": 90,
+    "E": 90,
+    "F": 90,
+    "G": 90,
+    "H": 90,
+    "I": 90,
+    "J": 90,
+    "FIX": 100,
+    "GATE": 100
+  },
+  "gaps": [],
+  "ok": true,
+  "exit_code": 0
+}
+EXIT=0

@@ -1,0 +1,426 @@
+{
+ "fresh": {
+  "FsrsScheduleMathTest": [
+   23,
+   0,
+   0,
+   0
+  ],
+  "FsrsProjectionBehaviorTest": [
+   7,
+   0,
+   0,
+   0
+  ],
+  "FsrsParameterRecoveryTest": [
+   1,
+   0,
+   0,
+   0
+  ],
+  "ForgettingCurveTest": [
+   4,
+   0,
+   0,
+   0
+  ],
+  "ReviewUndoReplayTest": [
+   6,
+   0,
+   0,
+   0
+  ],
+  "ReviewPlannerV2Test": [
+   27,
+   0,
+   0,
+   0
+  ],
+  "LearningProjectorTest": [
+   17,
+   0,
+   0,
+   0
+  ],
+  "StoredRatingBasisTest": [
+   5,
+   0,
+   0,
+   0
+  ],
+  "SchedulingEvaluationHarnessTest": [
+   23,
+   0,
+   0,
+   0
+  ],
+  "KnowledgeReviewQueueTest": [
+   22,
+   0,
+   0,
+   0
+  ],
+  "PlannedReasonCalibrationTest": [
+   3,
+   0,
+   0,
+   0
+  ],
+  "MasteryMemoryCardTest": [
+   8,
+   0,
+   0,
+   0
+  ],
+  "LongRangeSampleLedgerTest": [
+   7,
+   0,
+   0,
+   0
+  ],
+  "AttentionSignalTest": [
+   3,
+   0,
+   0,
+   0
+  ],
+  "StudyDayMathTest": [
+   5,
+   0,
+   0,
+   0
+  ],
+  "StudySchedulingCalibrationTest": [
+   4,
+   0,
+   0,
+   0
+  ],
+  "ReviewCapacitySchedulerTest": [
+   8,
+   0,
+   0,
+   0
+  ],
+  "ExamQuotaPlannerTest": [
+   8,
+   0,
+   0,
+   0
+  ],
+  "ReviewCapacityPolicyTest": [
+   15,
+   0,
+   0,
+   0
+  ],
+  "MasteryIntervalMappingTest": [
+   2,
+   0,
+   0,
+   0
+  ],
+  "ReviewLogStateTest": [
+   1,
+   0,
+   0,
+   0
+  ],
+  "StudyReviewPlannerExamWindowTest": [
+   6,
+   0,
+   0,
+   0
+  ],
+  "MissedDayRebalancePolicyTest": [
+   7,
+   0,
+   0,
+   0
+  ],
+  "ErrorCauseExtractorTest": [
+   11,
+   0,
+   0,
+   0
+  ],
+  "ErrorCauseGateTest": [
+   9,
+   0,
+   0,
+   0
+  ],
+  "ErrorCauseRetractorTest": [
+   9,
+   0,
+   0,
+   0
+  ],
+  "ErrorCauseChainTest": [
+   6,
+   0,
+   0,
+   0
+  ],
+  "AdaptiveSelectionAssemblerTest": [
+   12,
+   0,
+   0,
+   0
+  ],
+  "ReviewCapacityPreviewReaderTest": [
+   6,
+   0,
+   0,
+   0
+  ],
+  "StudyReviewPlannerServiceCapacityPreviewTest": [
+   4,
+   0,
+   0,
+   0
+  ],
+  "ReviewSelfReportContractTest": [
+   7,
+   0,
+   0,
+   0
+  ],
+  "TutorJudgedReviewSettlerTest": [
+   25,
+   0,
+   0,
+   0
+  ],
+  "LongRangeSampleLedgerReadTest": [
+   2,
+   0,
+   0,
+   0
+  ],
+  "ReadSideMasteryClosureTest": [
+   4,
+   0,
+   0,
+   0
+  ],
+  "LatestCorrectedKeyOrderTest": [
+   4,
+   0,
+   0,
+   0
+  ]
+ },
+ "evidence": {
+  "FsrsScheduleMathTest": [
+   23,
+   0,
+   0,
+   0
+  ],
+  "FsrsProjectionBehaviorTest": [
+   7,
+   0,
+   0,
+   0
+  ],
+  "FsrsParameterRecoveryTest": [
+   1,
+   0,
+   0,
+   0
+  ],
+  "ForgettingCurveTest": [
+   4,
+   0,
+   0,
+   0
+  ],
+  "ReviewUndoReplayTest": [
+   6,
+   0,
+   0,
+   0
+  ],
+  "ReviewPlannerV2Test": [
+   27,
+   0,
+   0,
+   0
+  ],
+  "LearningProjectorTest": [
+   17,
+   0,
+   0,
+   0
+  ],
+  "StoredRatingBasisTest": [
+   5,
+   0,
+   0,
+   0
+  ],
+  "SchedulingEvaluationHarnessTest": [
+   23,
+   0,
+   0,
+   0
+  ],
+  "KnowledgeReviewQueueTest": [
+   22,
+   0,
+   0,
+   0
+  ],
+  "PlannedReasonCalibrationTest": [
+   3,
+   0,
+   0,
+   0
+  ],
+  "MasteryMemoryCardTest": [
+   8,
+   0,
+   0,
+   0
+  ],
+  "LongRangeSampleLedgerTest": [
+   7,
+   0,
+   0,
+   0
+  ],
+  "AttentionSignalTest": [
+   3,
+   0,
+   0,
+   0
+  ],
+  "StudyDayMathTest": [
+   5,
+   0,
+   0,
+   0
+  ],
+  "StudySchedulingCalibrationTest": [
+   4,
+   0,
+   0,
+   0
+  ],
+  "ReviewCapacitySchedulerTest": [
+   8,
+   0,
+   0,
+   0
+  ],
+  "ExamQuotaPlannerTest": [
+   8,
+   0,
+   0,
+   0
+  ],
+  "ReviewCapacityPolicyTest": [
+   15,
+   0,
+   0,
+   0
+  ],
+  "MasteryIntervalMappingTest": [
+   2,
+   0,
+   0,
+   0
+  ],
+  "ReviewLogStateTest": [
+   1,
+   0,
+   0,
+   0
+  ],
+  "StudyReviewPlannerExamWindowTest": [
+   6,
+   0,
+   0,
+   0
+  ],
+  "MissedDayRebalancePolicyTest": [
+   7,
+   0,
+   0,
+   0
+  ],
+  "ErrorCauseExtractorTest": [
+   11,
+   0,
+   0,
+   0
+  ],
+  "ErrorCauseGateTest": [
+   9,
+   0,
+   0,
+   0
+  ],
+  "ErrorCauseRetractorTest": [
+   9,
+   0,
+   0,
+   0
+  ],
+  "ErrorCauseChainTest": [
+   6,
+   0,
+   0,
+   0
+  ],
+  "AdaptiveSelectionAssemblerTest": [
+   12,
+   0,
+   0,
+   0
+  ],
+  "ReviewCapacityPreviewReaderTest": [
+   6,
+   0,
+   0,
+   0
+  ],
+  "StudyReviewPlannerServiceCapacityPreviewTest": [
+   4,
+   0,
+   0,
+   0
+  ],
+  "ReviewSelfReportContractTest": [
+   7,
+   0,
+   0,
+   0
+  ],
+  "TutorJudgedReviewSettlerTest": [
+   25,
+   0,
+   0,
+   0
+  ],
+  "LongRangeSampleLedgerReadTest": [
+   2,
+   0,
+   0,
+   0
+  ],
+  "ReadSideMasteryClosureTest": [
+   4,
+   0,
+   0,
+   0
+  ],
+  "LatestCorrectedKeyOrderTest": [
+   4,
+   0,
+   0,
+   0
+  ]
+ }
+}

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.ui.NormalizedRegionToPixelCropTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:12:41.996Z" hostname="TIANSHAN" time="0.003">
+  <properties/>
+  <testcase name="aSubPixelRegionStillProducesAtLeastOnePixel" classname="com.tingyun.smartmistakebook.core.ui.NormalizedRegionToPixelCropTest" time="0.001"/>
+  <testcase name="nonFiniteRegionsFallBackToTheWholeImage" classname="com.tingyun.smartmistakebook.core.ui.NormalizedRegionToPixelCropTest" time="0.001"/>
+  <testcase name="partialRegionRoundsOutwardsToCoverTheWholeArea" classname="com.tingyun.smartmistakebook.core.ui.NormalizedRegionToPixelCropTest" time="0.0"/>
+  <testcase name="fractionsOutsideTheImageAreClampedToItsBounds" classname="com.tingyun.smartmistakebook.core.ui.NormalizedRegionToPixelCropTest" time="0.0"/>
+  <testcase name="halfPageRegionCropsTheLeftHalf" classname="com.tingyun.smartmistakebook.core.ui.NormalizedRegionToPixelCropTest" time="0.0"/>
+  <testcase name="degenerateImageSizesFallBackToTheWholeImage" classname="com.tingyun.smartmistakebook.core.ui.NormalizedRegionToPixelCropTest" time="0.0"/>
+  <testcase name="invertedOrEmptyRegionsFallBackToTheWholeImage" classname="com.tingyun.smartmistakebook.core.ui.NormalizedRegionToPixelCropTest" time="0.0"/>
+  <testcase name="anEmptyRegionFallsBackToTheWholeImage" classname="com.tingyun.smartmistakebook.core.ui.NormalizedRegionToPixelCropTest" time="0.0"/>
+  <testcase name="fullRegionKeepsTheWholeImage" classname="com.tingyun.smartmistakebook.core.ui.NormalizedRegionToPixelCropTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

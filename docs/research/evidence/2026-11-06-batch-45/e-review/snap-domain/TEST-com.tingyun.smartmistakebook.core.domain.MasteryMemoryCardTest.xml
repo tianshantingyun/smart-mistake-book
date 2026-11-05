@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:54:57.278Z" hostname="TIANSHAN" time="0.017">
+  <properties/>
+  <testcase name="a reveal lapses the knowledge card bound to the question" classname="com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest" time="0.002"/>
+  <testcase name="the memory criterion enforces the durability bar and current retention" classname="com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest" time="0.0"/>
+  <testcase name="the beta binomial point estimate and wilson bound follow the kf-10 table" classname="com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest" time="0.002"/>
+  <testcase name="prerequisite suppression blocks a durable dependent until the prerequisite recovers" classname="com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest" time="0.0"/>
+  <testcase name="a post reveal answer lapses the knowledge card once more without re-penalizing the reveal" classname="com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest" time="0.001"/>
+  <testcase name="a single binding card follows the fsrs trajectory and masters on day 26" classname="com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest" time="0.001"/>
+  <testcase name="a reveal without a knowledge card leaves no card for a never-answered knowledge point" classname="com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest" time="0.0"/>
+  <testcase name="two same day mistake bindings slow the card and it masters on day 70" classname="com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest" time="0.01"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

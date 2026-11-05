@@ -1,0 +1,4 @@
+CMD: python -I tools/ci/a6_plan.py validate --plan /tmp/ws7-a6/a6-plan-10.txt
+INPUT: copy of build/kd76-runs/a6b/a6-plan.txt with roundsPerBatch 20->10
+a6_plan: roundsPerBatch='10' expected '20'
+EXIT=2

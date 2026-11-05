@@ -1,0 +1,11 @@
+GROUP docs-dod
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group docs --section dod
+CHECK dod_main_path EXPECTED=1 ACTUAL=1 OK
+CHECK dod_failure_path EXPECTED=1 ACTUAL=1 OK
+CHECK dod_boundary EXPECTED=1 ACTUAL=1 OK
+CHECK dod_evidence EXPECTED=1 ACTUAL=1 OK
+CHECK dod_independent_review EXPECTED=1 ACTUAL=1 OK
+CHECK dod_adversarial EXPECTED=1 ACTUAL=1 OK
+CHECK dod_mapping EXPECTED=1 ACTUAL=1 OK
+CHECKS=7 FAILURES=0
+EXIT=0

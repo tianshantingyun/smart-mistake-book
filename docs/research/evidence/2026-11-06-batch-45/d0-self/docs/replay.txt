@@ -1,0 +1,12 @@
+GROUP docs-replay
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group docs --section replay
+CHECK fixture_41 EXPECTED=1 ACTUAL=1 OK
+CHECK report_41 EXPECTED=1 ACTUAL=1 OK
+CHECK lint_41 EXPECTED=1 ACTUAL=1 OK
+CHECK fixture_42 EXPECTED=1 ACTUAL=1 OK
+CHECK report_42 EXPECTED=1 ACTUAL=1 OK
+CHECK lint_42 EXPECTED=1 ACTUAL=1 OK
+CHECK runbook_documents EXPECTED=1 ACTUAL=1 OK
+CHECK thresholds_not_relaxed EXPECTED=1 ACTUAL=1 OK
+CHECKS=8 FAILURES=0
+EXIT=0

@@ -1,0 +1,9 @@
+source: docs/research/evidence/2026-11-06-batch-45/gate/acceptance-report.json
+cmd: python -X utf8 -I -c 提取脚本（逐字见 00-gate-index.md 附录 C）
+total= 1200
+通过= 882 失败= 30 外部阻塞= 144 未判定= 144
+state= FAIL exit_code= 1 violations= 0
+pass_with_two_kinds= 882 pass_with_review= 0 pass_without_review= 882
+ledger_sha256= bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686
+head= 87604198feeef198d5dba7343b8c4692c5e8f937 dirty_paths= 3935
+EXIT=0

@@ -1,0 +1,104 @@
+{
+  "relations": [
+    {
+      "name": "reflow_text",
+      "domain": "render",
+      "description": "文本换行/空白重排",
+      "ok": true,
+      "reason": "",
+      "counterexample": {}
+    },
+    {
+      "name": "theme_swap",
+      "domain": "render",
+      "description": "light/dark 切换",
+      "ok": true,
+      "reason": "",
+      "counterexample": {}
+    },
+    {
+      "name": "font_scale_reflow",
+      "domain": "render",
+      "description": "fontScale 1→2",
+      "ok": true,
+      "reason": "",
+      "counterexample": {}
+    },
+    {
+      "name": "append_item",
+      "domain": "export",
+      "description": "追加错题条目",
+      "ok": true,
+      "reason": "",
+      "counterexample": {}
+    },
+    {
+      "name": "normalize_whitespace",
+      "domain": "export",
+      "description": "空白规范化",
+      "ok": true,
+      "reason": "",
+      "counterexample": {}
+    },
+    {
+      "name": "deterministic_hash",
+      "domain": "export",
+      "description": "同输入再导出",
+      "ok": true,
+      "reason": "",
+      "counterexample": {}
+    },
+    {
+      "name": "duplicate_doc",
+      "domain": "retrieval",
+      "description": "追加同文重复文档",
+      "ok": true,
+      "reason": "",
+      "counterexample": {}
+    },
+    {
+      "name": "reorder_corpus",
+      "domain": "retrieval",
+      "description": "语料顺序反转",
+      "ok": true,
+      "reason": "",
+      "counterexample": {}
+    },
+    {
+      "name": "append_unrelated",
+      "domain": "retrieval",
+      "description": "追加无关文档",
+      "ok": true,
+      "reason": "",
+      "counterexample": {}
+    },
+    {
+      "name": "add_late_review",
+      "domain": "scheduling",
+      "description": "追加逾期复习",
+      "ok": true,
+      "reason": "",
+      "counterexample": {}
+    },
+    {
+      "name": "same_day_shift",
+      "domain": "scheduling",
+      "description": "同日时间平移",
+      "ok": true,
+      "reason": "",
+      "counterexample": {}
+    },
+    {
+      "name": "add_failure",
+      "domain": "scheduling",
+      "description": "追加一次失败",
+      "ok": true,
+      "reason": "",
+      "counterexample": {}
+    }
+  ],
+  "ok": true,
+  "exit_code": 0
+}
+
+EXIT=0

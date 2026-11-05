@@ -1,0 +1,2 @@
+-e smb.lowload.gate INVALID
+-e smb.lowload.reason la_ratio_max

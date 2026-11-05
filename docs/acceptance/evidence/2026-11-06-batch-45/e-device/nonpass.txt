@@ -1,0 +1,339 @@
+TOTAL=1200 COUNTS={'BLOCKED': 144, 'FAIL': 30, 'PASS': 882, 'UNVERIFIED': 144}
+DOMAIN TOTAL PASS FAIL BLOCKED UNVERIFIED
+A 90 65 0 1 24
+B 90 88 0 0 2
+C 90 77 1 0 12
+D 90 81 0 9 0
+D0 100 93 2 0 5
+E 90 80 0 0 10
+F 90 55 2 10 23
+FIX 100 32 0 68 0
+G 90 82 0 2 6
+GATE 100 89 7 3 1
+H 90 66 5 12 7
+I 90 53 0 5 32
+J 90 21 13 34 22
+
+## FAIL (30)
+D0-030	D0	逐项终裁 verdicts/：每个 PASS 有对应 verdict JSON
+D0-081	D0	终裁协议：冲突时保留双方判词
+C-065	C	退化降级：恢复文档回放必须留下墨水（restore 不是静默空转）
+F-055	F	长时 2h：基线
+F-057	F	长时 2h：超限
+H-018	H	AIGC 隐式：全部交付格式与打印子集都有文件级隐式标识
+H-052	H	免责声明：文案与 PDF 隐式标识现状一致
+H-061	H	导出水印：部分页打印子集保留文档级 /AIGC
+H-062	H	导出水印：模型改卷产生的文本导出时带 /AIGC
+H-066	H	错误文案：诊断包失败文案不拼接原始异常 message
+J-001	J	干净树前提：porcelain(-uall) 为 0
+J-002	J	产物 revision 等于 HEAD 且落后 0 提交
+J-020	J	release APK/AAB 使用生产钥匙
+J-021	J	签名指纹等于已登记发布指纹
+J-024	J	AAB 与 APK 使用同一签名身份
+J-025	J	AAB 证书有效期覆盖发布窗口
+J-027	J	文档契约一致：keystore.properties 与环境变量
+J-033	J	AAB 的 ABI 集合等于 abiFilters
+J-034	J	AAB 含 libquickjs.so
+J-041	J	负向：AAB 不含 32 位 .so
+J-048	J	versionCode 跨构建单调
+J-051	J	版本号生成或注入机制（非手改两行）
+J-052	J	回归：历史 AAB 与现 APK 的 vc 可比
+GATE-032	GATE	报告终态 exit 0（可签字）
+GATE-035	GATE	独立复核 pass_with_review 大于 0（DoD 1.5）
+GATE-038	GATE	CI 等价 report --require-complete exit 1（两项违规）
+GATE-042	GATE	CI 严格 lint exit 1（29 条证据复用告警升级）
+GATE-091	GATE	切分门 exit 1：countExactRate 4/7=0.5714 低于 0.9
+GATE-092	GATE	fragmentRate 0/16=0.0000 单条过 0.05，但门整体判红
+GATE-099	GATE	AUD-08 本批维持 FAIL，未转绿
+
+## BLOCKED (144)
+A-010	A	旅程「讲题」：主路径
+D-082	D	真实 Provider：端到端主路径（真实 key + 真实上游）
+D-083	D	真实 Provider：真实 401/429/5xx 失败报文与重试恢复
+D-084	D	真实 Provider：真实上下文/图片尺寸上限边界
+D-085	D	真实 Provider：真实网络取消（取消后上游不再计费/不落半条任务）
+D-086	D	真实 Provider：真实限流后的重试与账本计数
+D-087	D	真实 Provider：真实计费/配额账本与本地 6 次派遣的关系
+D-088	D	真实 Provider：真实失败报文诊断（含学生内容的原文只进受控缝隙）
+D-089	D	真实 Provider：证据绑定 run-id、APK sha 与密钥来源（不回显密钥）
+D-090	D	真实 Provider：BLOCKED 口径——无 key 时不得计为通过，只能登记 BLOCKED + runbook
+F-006	F	冷启动：arm64（BLOCKED）
+F-015	F	warm-up：arm64（BLOCKED）
+F-024	F	首帧：arm64（BLOCKED）
+F-033	F	导出耗时：arm64（BLOCKED）
+F-042	F	预览耗时：arm64（BLOCKED）
+F-051	F	内存峰值：arm64（BLOCKED）
+F-060	F	长时 2h：arm64（BLOCKED）
+F-069	F	ANR/崩溃签名：arm64（BLOCKED）
+F-078	F	进程死亡恢复：arm64（BLOCKED）
+F-087	F	后台限制/低电低存/多任务：arm64（BLOCKED）
+G-087	G	已知 CVE 比对
+G-088	G	锁文件覆盖（KD-72）
+H-008	H	AIGC 显式：讲题与配图界面显示“AI 生成”角标
+H-024	H	隐私政策：已发布隐私政策 URL 可公开访问
+H-025	H	隐私政策：文案引用的未成年人个人信息保护章节在隐私政策中存在
+H-036	H	data safety：Play Console data safety 表单已提交
+H-039	H	青少年：产品侧监护人同意机制存在并接线
+H-040	H	青少年：年龄确认 UI 存在
+H-041	H	青少年：设置页“家长须知”入口存在
+H-042	H	青少年：累计使用时长提醒与 22:00 至 6:00 静默时段开关存在
+H-043	H	青少年：隐私政策含未成年人个人信息专章
+H-051	H	免责声明：三档文案已嵌入应用关于页或首启弹窗
+H-053	H	免责声明：模型名称、备案号、上线编号占位符已回填
+H-081	H	i18n：英文商店详情与隐私政策本地化已产出
+I-007	I	TalkBack 语义：朗读文本内容回传需要外部硬件驱动，仓内无该驱动
+I-061	I	错误可读：启动失败、导出失败等错误态需故障注入或真实 Provider
+I-070	I	键盘：第三方中文输入法交互不在自动化范围
+I-075	I	横竖屏：负向——传感器旋转在无窗口模拟器不生效，因此未采用旋转设置冒充横屏
+I-079	I	横竖屏：真机传感器旋转与折叠屏形态需实机覆盖
+J-006	J	干净树构建阻塞与出口
+J-017	J	APK 路线 mapping 上传 Play Console
+J-019	J	生产签名四变量齐全
+J-035	J	运行时页大小为 16384
+J-037	J	arm64 模拟器或真机启动
+J-038	J	arm64 APK 安装与冷启
+J-039	J	arm64 运行时 16KB 与 native 装载
+J-042	J	arm64 设备证据绑定 serial/boot/apk sha
+J-043	J	宿主架构不支持 arm64 的阻塞登记
+J-055	J	同签名 vc N 到 N+1 升级
+J-056	J	升级后数据保留
+J-057	J	降级被 INSTALL_FAILED_VERSION_DOWNGRADE 拒绝
+J-061	J	成对产物阻塞与出口
+J-065	J	上一版可覆盖安装
+J-068	J	回滚证据：成对包与数据面
+J-069	J	回滚阻塞与出口
+J-073	J	商店图标 512x512
+J-074	J	特色图片 1024x500
+J-075	J	手机与平板截图
+J-076	J	简短与完整描述
+J-077	J	隐私政策 URL
+J-078	J	Data safety 表单映射
+J-079	J	AIGC 分发表单与说明材料
+J-080	J	内容分级与适龄定位
+J-081	J	商店素材 runbook 覆盖
+J-082	J	封闭测试轨道创建
+J-083	J	测试账号清单
+J-084	J	反馈渠道
+J-085	J	测试轮次与退出条件
+J-086	J	vc 递增上传
+J-087	J	Play App Signing 指纹登记
+J-088	J	16KB 上传警告清零
+J-089	J	版本说明与发布说明
+J-090	J	封闭测试 runbook 覆盖
+FIX-016	FIX	修复「部分页打印丢 AIGC」：红测试
+FIX-017	FIX	修复「部分页打印丢 AIGC」：绿修复
+FIX-018	FIX	修复「部分页打印丢 AIGC」：回归
+FIX-019	FIX	修复「部分页打印丢 AIGC」：证据
+FIX-021	FIX	修复「模型改卷文本漏标」：红测试
+FIX-022	FIX	修复「模型改卷文本漏标」：绿修复
+FIX-023	FIX	修复「模型改卷文本漏标」：回归
+FIX-024	FIX	修复「模型改卷文本漏标」：证据
+FIX-026	FIX	修复「恢复回放零面积夹具」：红测试
+FIX-027	FIX	修复「恢复回放零面积夹具」：绿修复
+FIX-028	FIX	修复「恢复回放零面积夹具」：回归
+FIX-029	FIX	修复「恢复回放零面积夹具」：证据
+FIX-031	FIX	修复「DOCX 无文档级 AIGC」：红测试
+FIX-032	FIX	修复「DOCX 无文档级 AIGC」：绿修复
+FIX-033	FIX	修复「DOCX 无文档级 AIGC」：回归
+FIX-034	FIX	修复「DOCX 无文档级 AIGC」：证据
+FIX-036	FIX	修复「真实 Provider」：红测试
+FIX-037	FIX	修复「真实 Provider」：绿修复
+FIX-038	FIX	修复「真实 Provider」：回归
+FIX-039	FIX	修复「真实 Provider」：证据
+FIX-041	FIX	修复「arm64 设备矩阵」：红测试
+FIX-042	FIX	修复「arm64 设备矩阵」：绿修复
+FIX-043	FIX	修复「arm64 设备矩阵」：回归
+FIX-044	FIX	修复「arm64 设备矩阵」：证据
+FIX-046	FIX	修复「生产签名与指纹」：红测试
+FIX-047	FIX	修复「生产签名与指纹」：绿修复
+FIX-048	FIX	修复「生产签名与指纹」：回归
+FIX-049	FIX	修复「生产签名与指纹」：证据
+FIX-051	FIX	修复「版本号单调与版本源」：红测试
+FIX-052	FIX	修复「版本号单调与版本源」：绿修复
+FIX-053	FIX	修复「版本号单调与版本源」：回归
+FIX-054	FIX	修复「版本号单调与版本源」：证据
+FIX-056	FIX	修复「AAB 16KB 与 ABI」：红测试
+FIX-057	FIX	修复「AAB 16KB 与 ABI」：绿修复
+FIX-058	FIX	修复「AAB 16KB 与 ABI」：回归
+FIX-059	FIX	修复「AAB 16KB 与 ABI」：证据
+FIX-061	FIX	修复「干净树与产物 revision」：红测试
+FIX-062	FIX	修复「干净树与产物 revision」：绿修复
+FIX-063	FIX	修复「干净树与产物 revision」：回归
+FIX-064	FIX	修复「干净树与产物 revision」：证据
+FIX-066	FIX	修复「商店素材与 Play 控制台」：红测试
+FIX-067	FIX	修复「商店素材与 Play 控制台」：绿修复
+FIX-068	FIX	修复「商店素材与 Play 控制台」：回归
+FIX-069	FIX	修复「商店素材与 Play 控制台」：证据
+FIX-071	FIX	修复「成对产物升级降级回滚」：红测试
+FIX-072	FIX	修复「成对产物升级降级回滚」：绿修复
+FIX-073	FIX	修复「成对产物升级降级回滚」：回归
+FIX-074	FIX	修复「成对产物升级降级回滚」：证据
+FIX-076	FIX	修复「青少年模式」：红测试
+FIX-077	FIX	修复「青少年模式」：绿修复
+FIX-078	FIX	修复「青少年模式」：回归
+FIX-079	FIX	修复「青少年模式」：证据
+FIX-081	FIX	修复「AIGC 显式角标」：红测试
+FIX-082	FIX	修复「AIGC 显式角标」：绿修复
+FIX-083	FIX	修复「AIGC 显式角标」：回归
+FIX-084	FIX	修复「AIGC 显式角标」：证据
+FIX-086	FIX	修复「隐私政策与备案」：红测试
+FIX-087	FIX	修复「隐私政策与备案」：绿修复
+FIX-088	FIX	修复「隐私政策与备案」：回归
+FIX-089	FIX	修复「隐私政策与备案」：证据
+FIX-091	FIX	修复「无障碍驱动与真机形态」：红测试
+FIX-092	FIX	修复「无障碍驱动与真机形态」：绿修复
+FIX-093	FIX	修复「无障碍驱动与真机形态」：回归
+FIX-094	FIX	修复「无障碍驱动与真机形态」：证据
+FIX-096	FIX	修复「供应链与台账协议门」：红测试
+FIX-097	FIX	修复「供应链与台账协议门」：绿修复
+FIX-098	FIX	修复「供应链与台账协议门」：回归
+FIX-099	FIX	修复「供应链与台账协议门」：证据
+GATE-096	GATE	人工金标 24 页已冻结，但人工标注未执行
+GATE-097	GATE	G3 / G4 / G5 人工金标产物不存在
+GATE-100	GATE	发版不成立（AUD-08 为 P0 红线之一）
+
+## UNVERIFIED (144)
+D0-031	D0	逐项终裁 verdicts/：verdict JSON 绑定 run-id
+D0-032	D0	逐项终裁 verdicts/：reviewer 与 authors 不相交
+D0-033	D0	逐项终裁 verdicts/：evidence 列表含 sha256
+D0-034	D0	逐项终裁 verdicts/：不可伪造字段（run_id/ledger_sha256）存在
+D0-035	D0	逐项终裁 verdicts/：JSON 可被 schema 校验
+A-003	A	旅程「拍照→分题→入库」：中断恢复
+A-005	A	旅程「拍照→分题→入库」：大数据
+A-006	A	旅程「拍照→分题→入库」：权限拒绝
+A-014	A	旅程「讲题」：大数据
+A-015	A	旅程「讲题」：权限拒绝
+A-023	A	旅程「复习三键」：大数据
+A-024	A	旅程「复习三键」：权限拒绝
+A-031	A	旅程「详情编辑」：空态
+A-032	A	旅程「详情编辑」：大数据
+A-033	A	旅程「详情编辑」：权限拒绝
+A-041	A	旅程「导出 PDF/DOCX」：大数据
+A-049	A	旅程「备份/恢复」：空态
+A-050	A	旅程「备份/恢复」：大数据
+A-051	A	旅程「备份/恢复」：权限拒绝
+A-058	A	旅程「知识库浏览」：空态
+A-059	A	旅程「知识库浏览」：大数据
+A-060	A	旅程「知识库浏览」：权限拒绝
+A-065	A	旅程「掌握度」：失败路径
+A-066	A	旅程「掌握度」：中断恢复
+A-068	A	旅程「掌握度」：大数据
+A-069	A	旅程「掌握度」：权限拒绝
+A-077	A	旅程「提醒」：大数据
+A-086	A	旅程「设置」：大数据
+A-087	A	旅程「设置」：权限拒绝
+B-077	B	备份 mask=13 状态=partial：UNVERIFIED 现有夹具只实例化 mask=9/15 的 partial 状态
+B-078	B	备份 mask=13 状态=corrupt：UNVERIFIED 现有 corrupt 夹具均为 mask=9/15
+C-005	C	SceneV1 绘制原语 Save：未闭合 save 必须拒绝（生成门与回放门同码）
+C-008	C	SceneV1 绘制原语 Concat：嵌套组 N·M 后乘合成且可逆（det≥1e-12）
+C-010	C	SceneV1 绘制原语 Concat：singular 与 composed-bounds 矩阵拒绝
+C-015	C	SceneV1 绘制原语 Clip：未知 fill rule 拒绝
+C-020	C	SceneV1 绘制原语 DrawPath：路径不以 M 开头或未知命令拒绝
+C-045	C	字体身份/版本：renderer/字体版本参与快照身份摘要
+C-066	C	未知字段拒绝：SCENE_FIELD_UNKNOWN（含 __proto__/constructor 污染键）
+C-067	C	未知节点类型拒绝：SCENE_NODE_TYPE（rect 不在 V1 词表）
+C-068	C	未知路径命令拒绝：非 M 开头/未知命令码
+C-071	C	预算 fail-closed：单事务累计像素 ≤4 MP、单 bitmap ≤16 MiB（4 MP 半边）
+C-088	C	hitRegions：屏幕回放不绘制命中区
+C-089	C	hitRegions：数量上限 128（129 拒绝）
+E-007	E	UNVERIFIED: FSRS 并发。无并发调用 FSRS 的用例；算法是纯函数、无共享可变状态，但并发关系未测
+E-016	E	UNVERIFIED: 容量总量并发。纯策略无共享状态，但无并发调用用例
+E-025	E	UNVERIFIED: 考试配额并发。纯函数无共享状态，但无并发调用用例
+E-034	E	UNVERIFIED: 欠账再平衡并发。纯函数无共享状态，但无并发调用用例
+E-043	E	UNVERIFIED: 掌握判定并发。投影器幂等性已测，但无并发投影用例
+E-052	E	UNVERIFIED: 错因候选并发。提取器无并发用例
+E-061	E	UNVERIFIED: 错因落账并发。JVM 用例用假端口，不模拟 SQL 事务；真 SQLite 事务由设备用例覆盖，本轮未跑设备
+E-070	E	UNVERIFIED: 错因撤销并发。无并发撤回用例；真事务由设备用例覆盖，本轮未跑
+E-079	E	UNVERIFIED: 排序稳定并发。无并发规划用例
+E-086	E	UNVERIFIED: DST 切换。StudyDayMathTest 仅用 America/New_York 冬季 EST 探针，无 2026-03-08 春季跳变用例
+F-002	F	冷启动：阈值
+F-009	F	冷启动：回归
+F-011	F	warm-up：阈值
+F-012	F	warm-up：超限
+F-018	F	warm-up：回归
+F-020	F	首帧：阈值
+F-027	F	首帧：回归
+F-038	F	预览耗时：阈值
+F-039	F	预览耗时：超限
+F-047	F	内存峰值：阈值
+F-048	F	内存峰值：超限
+F-050	F	内存峰值：设备
+F-054	F	内存峰值：回归
+F-056	F	长时 2h：阈值
+F-058	F	长时 2h：重复运行
+F-063	F	长时 2h：回归
+F-072	F	ANR/崩溃签名：回归
+F-074	F	进程死亡恢复：阈值
+F-081	F	进程死亡恢复：回归
+F-083	F	后台限制/低电低存/多任务：阈值
+F-084	F	后台限制/低电低存/多任务：超限
+F-085	F	后台限制/低电低存/多任务：重复运行
+F-090	F	后台限制/低电低存/多任务：回归
+G-016	G	崩溃与 ANR trace 不含密钥
+G-036	G	运行时真实外发（真实 Provider）
+G-072	G	对抗：构造穿越分享 URI
+G-080	G	配置页截图应为黑屏
+G-081	G	剪贴板是否带敏感标志（Android 13 预览策略）
+G-089	G	Gradle 依赖校验元数据
+H-063	H	导出水印：设备上字号、对比度、不遮挡经人工视觉复核
+H-075	H	i18n：界面文案已抽取为资源
+H-076	H	i18n：RTL 布局与文案已走查
+H-077	H	i18n：日期格式使用显式中文 Locale
+H-080	H	i18n：系统 locale 变更后的行为已验证
+H-089	H	中文排版：错误文案语感与信息密度经人工复核
+H-090	H	中文排版：设备字体回退、标点宽度与暗色可读性经走查
+I-005	I	TalkBack 语义：残余——朗读内容是否准确、语感是否自然
+I-009	I	TalkBack 语义：独立复核人对语义与朗读做对抗复核
+I-014	I	触摸目标 48dp：残余——目标间距、重叠与手势冲突不在语义树可判定范围
+I-018	I	触摸目标 48dp：独立复核人对目标尺寸做对抗复核
+I-023	I	对比度：残余——图片、公式、渲染图内文本的对比度
+I-025	I	对比度：截图逐像素对比不在本批，登记为未验证而非通过
+I-027	I	对比度：独立复核人对配色对与阈值做对抗复核
+I-030	I	字号 200%：负向——文本裁剪与溢出没有自动判定手段
+I-032	I	字号 200%：残余——截断、重叠与排版的视觉判断
+I-036	I	字号 200%：独立复核人对大字号布局做对抗复核
+I-039	I	暗色：负向——源码无 darkColorScheme/isSystemInDarkTheme（MATCHES=0），不能声明深色主题适配
+I-041	I	暗色：残余——夜间舒适度、色温与审美
+I-043	I	暗色：深色主题未实现属产品决策缺口，非外部阻塞，登记未验证
+I-045	I	暗色：独立复核人对昼夜两种设置做对抗复核
+I-050	I	焦点顺序：残余——TalkBack 滑动遍历顺序与键盘 TAB 顺序不同
+I-054	I	焦点顺序：独立复核人对顺序合理性做对抗复核
+I-059	I	空态可读：残余——空态文案的语感与安抚程度
+I-063	I	空态可读：独立复核人对空态与错误文案做对抗复核
+I-066	I	键盘：负向——中文无法经 adb input text 注入，工具以 exit 2 拒绝而非装作通过
+I-068	I	键盘：残余——输入法候选栏对内容的遮挡
+I-072	I	键盘：独立复核人对输入与提交行为做对抗复核
+I-077	I	横竖屏：残余——横屏布局的视觉平衡与信息密度
+I-081	I	横竖屏：独立复核人对横屏布局做对抗复核
+I-082	I	人工语感残余：TalkBack 朗读语速与断句
+I-083	I	人工语感残余：图标与插画的表意清晰度
+I-084	I	人工语感残余：动效的可感知性与眩晕风险
+I-085	I	人工语感残余：空态与错误文案的语气
+I-086	I	人工语感残余：颜色语义与文化适配
+I-087	I	人工语感残余：字号与行距的阅读舒适度
+I-088	I	人工语感残余：横屏信息密度的主观平衡
+I-089	I	人工语感残余：控件分组与朗读停顿
+I-090	I	人工语感残余：整体无障碍体验的验收意见
+J-003	J	干净树构建 release APK（Gradle 门禁阶段）
+J-007	J	构建确定性：两次 clean 构建字节一致
+J-008	J	独立复核：干净树面
+J-009	J	runbook 覆盖干净树构建
+J-016	J	AAB 内嵌 proguard.map 与 r8.json 存在
+J-018	J	独立复核：R8/mapping 面
+J-022	J	负向：缺签名变量时构建必须失败
+J-023	J	签名方案 v1 与 v2 覆盖 minSdk 23
+J-026	J	独立复核：签名/AAB 面
+J-036	J	独立复核：16KB/AAB 面
+J-044	J	arm64 结果不得跨设备外推
+J-045	J	arm64 runbook 覆盖
+J-049	J	负向：同 vc 不同构建必须被检出
+J-053	J	独立复核：版本号面
+J-054	J	版本 runbook 覆盖
+J-063	J	独立复核：升级/降级面
+J-064	J	回滚文档：可覆盖且迁移非破坏
+J-066	J	迁移非破坏（备份先行与迁移矩阵）
+J-067	J	负向：破坏性迁移不得发布
+J-070	J	回归：回滚演练
+J-071	J	独立复核：回滚面
+J-072	J	回滚 runbook 覆盖
+GATE-098	GATE	人工金标正确率未测（无标注即无正确率）

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" tests="32" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:12:51.480Z" hostname="TIANSHAN" time="0.023">
+  <properties/>
+  <testcase name="savedMistakeTutorRequestBindsExactQuestionDocumentWithoutSourceAssets" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="respondRequestCarriesReadToolDeclarations" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="sameSubjectGlobalMemoryIsBoundedAndPrioritizesCurrentConflicts" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.004"/>
+  <testcase name="visibleContextTellsTheModelTheLocallyJudgedCheckOutcome" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="externalAgentRequestsCarryConsentAndNoPerItemManifest" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="lobbyRequestCarriesTheSamePageToolDeclarations" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.001"/>
+  <testcase name="responseRequestCarriesTheAttachedImageIdsInSelectionOrder" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="modelCannotAuthorizeAnswerExposureWithoutTheStudentsExactRequest" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="textResponsePersistsExactCurrentQuestionContextWithItsOwnDisclosure" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.005"/>
+  <testcase name="photoQuestionWithKnowledgeHitsInjectsCandidateTeachingReferencesIntoPlanInput" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.003"/>
+  <testcase name="visibleContextNeverIncludesHiddenSolutionOrAlternateMethod" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="responseRequestIdentityChangesWhenTheAttachedImageChanges" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="exactQuestionMemoryIsBoundedAndExplainsWhyTheQuestionIsDue" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.002"/>
+  <testcase name="responseRequestIdentityChangesWhenTheStudentMessageChanges" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.001"/>
+  <testcase name="planRequestIdLengthPrefixesExactEarlierStudentMessages" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.002"/>
+  <testcase name="capturedQuestionReceivesOnlyBoundedSameSubjectGlobalMemoryBeforeClassification" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="classifiedQuestionStillReceivesBoundedSameSubjectGlobalMemory" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="respondRequestCarriesTheSameKnowledgeCodesAsPlan" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="anExplicitlyAttachedQuestionCarriesTheRoundWhileTheConversationIdentityStays" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="everyPersistedInFlightStatusRequiresAnExplicitTutorResumePath" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="aFailedKnowledgeLoadIsDisclosedInThePlanInput" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.001"/>
+  <testcase name="laterCycleSendsDeterministicSummaryAndExactStudentMessages" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.001"/>
+  <testcase name="theSameStudentMessageAboutAnotherQuestionIsADifferentRespondRequest" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="requestDisclosesOnlyQuestionRelatedKnowledgeUnderAgentConsent" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="aMistakeSavedFromACaptureSessionStillStartsANewConversationOnEntry" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="planRequestIdLengthPrefixesAdjacentTurnMarkdown" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="planRequestIdUsesStrongProviderConfigurationFingerprint" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="staleProjectionDoesNotPresentOldStrengthsAsMastered" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="requestIdIncludesPromptPolicyVersionSoChangedPromptsCannotReuseAnOldTask" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="planRequestDeclaresTheFullToolSurface" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="learningTimelineIsDisclosedAsBoundedRecencyInsteadOfRawTimestamps" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.0"/>
+  <testcase name="savedMistakeUsesTheExplicitSessionIdInsteadOfDerivingOneFromTheQuestion" classname="com.tingyun.smartmistakebook.feature.tutor.TutorModelTaskPolicyTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

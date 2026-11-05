@@ -1,0 +1,36 @@
+GROUP report
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group report
+CHECK good_exit EXPECTED=0 ACTUAL=0 OK
+CHECK good_two_kinds EXPECTED=1 ACTUAL=1 OK
+CHECK good_state EXPECTED=1 ACTUAL=1 OK
+CHECK json_ledger_sha EXPECTED=1 ACTUAL=1 OK
+CHECK stable_exit EXPECTED=0 ACTUAL=0 OK
+CHECK stable_counts EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_one_kind EXPECTED=1 ACTUAL=1 OK
+CHECK caught_one_kind EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_missing_path EXPECTED=1 ACTUAL=1 OK
+CHECK caught_missing_path EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_placeholder EXPECTED=1 ACTUAL=1 OK
+CHECK caught_placeholder EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_nonzero_exit EXPECTED=1 ACTUAL=1 OK
+CHECK caught_nonzero_exit EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_xml_failures EXPECTED=1 ACTUAL=1 OK
+CHECK caught_xml_failures EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_summary EXPECTED=1 ACTUAL=1 OK
+CHECK caught_summary EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_self_review EXPECTED=1 ACTUAL=1 OK
+CHECK caught_self_review EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_review_missing_field EXPECTED=1 ACTUAL=1 OK
+CHECK caught_review_missing EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_device_zero EXPECTED=1 ACTUAL=1 OK
+CHECK caught_device_zero EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_incomplete EXPECTED=1 ACTUAL=1 OK
+CHECK caught_incomplete EXPECTED=1 ACTUAL=1 OK
+CHECK full_missing_row EXPECTED=1 ACTUAL=1 OK
+CHECK caught_missing_row EXPECTED=1 ACTUAL=1 OK
+CHECK full_duplicate EXPECTED=1 ACTUAL=1 OK
+CHECK caught_duplicate EXPECTED=1 ACTUAL=1 OK
+CHECK full_bad_verdict EXPECTED=1 ACTUAL=1 OK
+CHECK caught_bad_verdict EXPECTED=1 ACTUAL=1 OK
+CHECKS=32 FAILURES=0
+EXIT=0

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.StorageRestoreFeedbackTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:00:57.790Z" hostname="TIANSHAN" time="0.051">
+  <properties/>
+  <testcase name="fullSelectionCopyStaysClean" classname="com.tingyun.smartmistakebook.StorageRestoreFeedbackTest" time="0.041"/>
+  <testcase name="receiptsStateTheAssetPolicyFromTheSelection" classname="com.tingyun.smartmistakebook.StorageRestoreFeedbackTest" time="0.008"/>
+  <testcase name="appliedSettingsDoNotCarryThePartialWriteWarning" classname="com.tingyun.smartmistakebook.StorageRestoreFeedbackTest" time="0.0"/>
+  <testcase name="genericRestoreFailureDoesNotEchoTheRawExceptionMessage" classname="com.tingyun.smartmistakebook.StorageRestoreFeedbackTest" time="0.001"/>
+  <testcase name="subsetCopyNamesBothIncludedAndExcludedCategories" classname="com.tingyun.smartmistakebook.StorageRestoreFeedbackTest" time="0.0"/>
+  <testcase name="aClosedDatabaseWithoutDetailsStillRequiresADataCheckAfterRestart" classname="com.tingyun.smartmistakebook.StorageRestoreFeedbackTest" time="0.0"/>
+  <testcase name="failedSettingsWriteSaysPartOfTheSettingsMayHaveChanged" classname="com.tingyun.smartmistakebook.StorageRestoreFeedbackTest" time="0.0"/>
+  <testcase name="incompleteRollbackDoesNotPromiseThatTheOriginalDataWasRestored" classname="com.tingyun.smartmistakebook.StorageRestoreFeedbackTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

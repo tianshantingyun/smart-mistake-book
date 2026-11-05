@@ -1,0 +1,18 @@
+GROUP screenshot
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group screenshot
+CHECK identical EXPECTED=0 ACTUAL=0 OK
+CHECK identical_pass EXPECTED=1 ACTUAL=1 OK
+CHECK changed EXPECTED=1 ACTUAL=1 OK
+CHECK changed_fails EXPECTED=1 ACTUAL=1 OK
+CHECK threshold_required EXPECTED=2 ACTUAL=2 OK
+CHECK identical EXPECTED=0 ACTUAL=0 OK
+CHECK hashes_in_report EXPECTED=1 ACTUAL=1 OK
+CHECK mae_computed EXPECTED=1 ACTUAL=1 OK
+CHECK rgb8_decoded EXPECTED=1 ACTUAL=1 OK
+CHECK size_mismatch EXPECTED=1 ACTUAL=1 OK
+CHECK size_mismatch_reason EXPECTED=1 ACTUAL=1 OK
+CHECK capture_sidecar_fields EXPECTED=1 ACTUAL=1 OK
+CHECK capture_sidecar_hash EXPECTED=1 ACTUAL=1 OK
+CHECK capture_serial_present EXPECTED=1 ACTUAL=1 OK
+CHECKS=14 FAILURES=0
+EXIT=0

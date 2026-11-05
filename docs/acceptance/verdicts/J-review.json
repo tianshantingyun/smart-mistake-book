@@ -1,0 +1,808 @@
+{
+  "id": "J-review",
+  "scope": "J",
+  "domain_verdict": "FAIL",
+  "verdict": "FAIL",
+  "self_review": false,
+  "domain_counts": {
+    "PASS": 21,
+    "FAIL": 13,
+    "BLOCKED": 34,
+    "UNVERIFIED": 22,
+    "total": 90
+  },
+  "verdict_scope": "domain",
+  "run_id": "2026-11-05T02:58:51Z-batch45-j-review",
+  "reviewed_at": "2026-11-05T02:58:51Z",
+  "reviewer": "independent-reviewer-j-domain-b45",
+  "reviewer_role": "独立复核：未参与批次 44 J 域证据生成；本轮只读台账/证据/产物，未改台账、未改工具、未改源码与热区、未跑 Gradle、未重放设备安装。",
+  "authors": [
+    "batch-44-j-domain-executor"
+  ],
+  "ledger_path": "docs/acceptance/ledger.md",
+  "ledger_sha256": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_sha256_note": "sha256sum 于 2026-11-05T02:57:44Z 与 02:58:51Z 两次一致。若主会话随后把 review token 写入台账，台账字节会变化，本字段必须在冻结台账后复测更新，否则 acceptance_report 会报 REVIEW_LEDGER_SHA_MISMATCH。",
+  "source_snapshot": {
+    "head": "87604198feeef198d5dba7343b8c4692c5e8f937",
+    "dirty_paths_uall": 3935,
+    "measured_by": "python -I tools/ci/j_release_verify.py identity --root . --apk ... --aab ... --mapping ... --gradle ... --metadata ..."
+  },
+  "artifact_identity": {
+    "release_apk": "app/build/outputs/apk/strictOffline/release/app-strictOffline-release.apk",
+    "release_apk_sha256": "724ce71834c227db79266149267d52c1b55a23d3cbceb2b93ce3930cba342b44",
+    "release_apk_bytes": 155816991,
+    "release_aab": "app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab",
+    "release_aab_sha256": "d073410529133c77374eb36097d6cea7e866126e81b822cb55ab7fa4c5d4bcdc",
+    "release_aab_bytes": 113438749,
+    "mapping_sha256": "c5b2d17080e2af0614886fd66f5a1fb304f3f2f4a6a244f654d5e00a83a5dc7e",
+    "mapping_lines": 893641
+  },
+  "sampled": {
+    "domain_rows": 90,
+    "reviewed": 37,
+    "ledger_pass_reviewed": 21,
+    "ledger_fail_reviewed": 13,
+    "ledger_blocked_reviewed": 3,
+    "ledger_unverified_reviewed": 0,
+    "not_reviewed": 53,
+    "not_reviewed_breakdown": "31 BLOCKED（Play Console / 成对产物 / arm64 等外部条件）+ 22 UNVERIFIED（单类证据或未执行）；本轮不逐条复核，也不改判。"
+  },
+  "rows": [
+    {
+      "id": "J-001",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "agreement": true,
+      "independent_check": "重跑 identity 未加 --require-clean：dirty_paths=3935，非 0；再加 --require-clean 复跑，REQUIRE_CLEAN_EXIT=1。",
+      "recomputed": {
+        "dirty_paths_uall": 3935,
+        "recorded_dirty_paths": 4248
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-identity.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-identity.xml"
+      ],
+      "notes": "记录值 4248 与本轮 3935 不同（工作树已变），但都远非 0，FAIL 成立。"
+    },
+    {
+      "id": "J-002",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "agreement": true,
+      "independent_check": "重跑 identity：APK revision faab17f58b01eab78d5c08a9f843b3af3df2fecf 是 commit，commits_behind_head=46（HEAD 87604198）；--require-head 复跑 REQUIRE_HEAD_EXIT=1。",
+      "recomputed": {
+        "apk_revision": "faab17f58b01eab78d5c08a9f843b3af3df2fecf",
+        "commits_behind_head": 46,
+        "recorded_commits_behind_head": 32
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-identity.log#exit=0",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-neg-head.log#exit=0"
+      ],
+      "notes": "落后提交数从 32 增到 46（HEAD 推进），结论不变：产物不绑定当前 HEAD。"
+    },
+    {
+      "id": "J-004",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "负控复跑：当前脏树 --require-clean → exit 1；产物落后 HEAD --require-head → exit 1；两次均被拒，符合 EXPECTED_REJECT=1 语义。",
+      "recomputed": {
+        "require_clean_exit": 1,
+        "require_head_exit": 1
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-neg-clean-tree.log#exit=0",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-neg-head.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-identity.xml"
+      ],
+      "notes": "负控在本轮真实变红，不是只看历史日志。"
+    },
+    {
+      "id": "J-005",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "重跑 identity：APK zip_integrity=null、AAB zip_integrity=null（ZIP 成员 CRC/中央目录均可读）；sha256 与记录一致。",
+      "recomputed": {
+        "apk_zip_integrity": null,
+        "aab_zip_integrity": null
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-identity.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-identity.xml"
+      ],
+      "notes": "ZIP 完整性只证明容器可读，不证明内容合格；内容合格另见 J-033/J-034。"
+    },
+    {
+      "id": "J-010",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "独立重算 mapping：sha256=c5b2d170…，行数 893641，第 1/2/3/6/7 行与 j-mapping-structure.log 逐字一致（compiler R8、9.3.16、min_api 23、pg_map_id f844e06c…、pg_map_hash 62117d80…）。",
+      "recomputed": {
+        "mapping_sha256": "c5b2d17080e2af0614886fd66f5a1fb304f3f2f4a6a244f654d5e00a83a5dc7e",
+        "mapping_lines": 893641,
+        "compiler_version": "9.3.16",
+        "min_api": 23,
+        "pg_map_id": "f844e06ce85e2333ce20d178074c3ad36f7dcd0b24994b805d448f11b50bced5",
+        "pg_map_hash": "62117d80af33ea9f070700df6f677756134079814d9450a307e3403c0a150402"
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-mapping-structure.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-mapping.xml"
+      ],
+      "notes": "机械复算与记录逐字一致。"
+    },
+    {
+      "id": "J-011",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "重跑 identity + 独立脚本解析 mapping：项目类 3569、项目改名 3557、项目墓碑 191；独立脚本对前 10 个项目改名类逐个在 dex 中查 L<混淆名>;，10/10 命中。",
+      "recomputed": {
+        "project_classes": 3569,
+        "project_renamed": 3557,
+        "project_removed": 191,
+        "independent_sample_hits": 10
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-identity.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-mapping.xml"
+      ],
+      "notes": "统计口径与 j-r8.log 一致（classes 10100 / renamed 9901 / removed 1168）。"
+    },
+    {
+      "id": "J-012",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "重跑 r8 → exit 0，负控 Lzzzzz9; 命中 0；独立脚本取项目改名前 10 类，逐个在 classes*.dex 原始字节中查 L<target>;，10/10 命中、0 缺失。",
+      "recomputed": {
+        "classes": 10100,
+        "renamed": 9901,
+        "removed": 1168,
+        "negative_control_hits": 0,
+        "independent_sample_misses": 0,
+        "dex_bytes": 9711572
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-r8.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-mapping.xml"
+      ],
+      "notes": "mapping 与 APK dex 的绑定由原始字节搜索成立，不依赖 retrace 的 exit code。"
+    },
+    {
+      "id": "J-013",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "重跑 r8keep（usage.txt + 三个 keep 类）→ exit 0，violations=[]。",
+      "recomputed": {
+        "classes": [
+          "androidx.work.impl.WorkDatabase_Impl",
+          "com.google.mlkit.common.internal.CommonComponentRegistrar",
+          "com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions"
+        ],
+        "violations": []
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-r8keep.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-mapping.xml"
+      ],
+      "notes": "KD-69 回归面无新增违规。"
+    },
+    {
+      "id": "J-014",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "用 retrace.bat 8.2.33 复跑：ds.v(SourceFile:1) → 还原为 com.tingyun.smartmistakebook.BackgroundWriterQuiesceKt$quiesceApplicationScopeWriters$1.java.lang.Object invokeSuspend(...)(BackgroundWriterQuiesce.kt)；错形状 at com.tingyun.smartmistakebook.ds.v(...) 原样返回，二者 exit 均为 0。",
+      "recomputed": {
+        "retrace_positive_exit": 0,
+        "retrace_positive_restored": true,
+        "retrace_bad_shape_exit": 0,
+        "retrace_bad_shape_restored": false
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-retrace-at.log#exit=0",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-retrace-bad.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-retrace.xml"
+      ],
+      "notes": "错形状也是 exit 0，所以判据必须看输出是否真的还原，本行即按此判。"
+    },
+    {
+      "id": "J-015",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "独立逐行解析 mapping：类块行 11268，其中 R8$$REMOVED$$CLASS$$ 墓碑 1168，保留 10100，与 r8 复跑的 classes=10100 一致。",
+      "recomputed": {
+        "class_block_lines": 11268,
+        "removed_tombstones": 1168,
+        "kept_classes": 10100
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-r8.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-mapping.xml"
+      ],
+      "notes": "墓碑被排除而不是被算进包内类数。"
+    },
+    {
+      "id": "J-020",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "agreement": true,
+      "independent_check": "apksigner 复跑：APK 证书 DN=CN=WS8 Ephemeral Local Only, OU=NotForRelease, O=Local, C=CN；keytool 复跑：AAB 证书 Owner=CN=ZCode Release Smoke；signing 复跑：RELEASE_* 4/4 缺失、tracked_keystores=[]。",
+      "recomputed": {
+        "apk_cert_dn": "CN=WS8 Ephemeral Local Only, OU=NotForRelease, O=Local, C=CN",
+        "aab_cert_owner": "CN=ZCode Release Smoke, OU=local, O=local, L=local, ST=local, C=CN",
+        "release_env_missing": 4,
+        "tracked_keystores": 0
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-signing.log#exit=0",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-apk-cert.log#exit=0",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-release-manifest.log#exit=0"
+      ],
+      "notes": "两张证书都不是生产身份；FAIL 成立。"
+    },
+    {
+      "id": "J-021",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "agreement": true,
+      "independent_check": "apksigner 复跑 APK 证书 SHA-256=9dc07e9f5ce9a409f38596ef89b39ec8ea561feb26d3c61dfbf1a958c6056e20；keytool 复跑 AAB 证书 SHA256=A9:E7:6C:AD:95:AF:11:D0:EA:CE:DA:67:3B:00:2E:A6:18:70:2D:43:94:BF:23:49:D4:57:9C:86:F3:3B:27:01；仓库内无已登记发布指纹（RELEASE.md 只写 keystore.properties 契约）。",
+      "recomputed": {
+        "apk_cert_sha256": "9dc07e9f5ce9a409f38596ef89b39ec8ea561feb26d3c61dfbf1a958c6056e20",
+        "aab_cert_sha256": "a9e76cad95af11d0eaceda673b002ea618702d4394bf2349d4579c86f33b2701",
+        "registered_fingerprint_present": false
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-apksigner.log#exit=0",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-keytool.log#exit=0"
+      ],
+      "notes": "没有“已登记发布指纹”可相等，且 APK/AAB 两者本身也不同；FAIL 成立。"
+    },
+    {
+      "id": "J-024",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "agreement": true,
+      "independent_check": "同一轮复算：APK 9dc07e9f…056e20 ≠ AAB a9e76cad…b2701；两个证书 DN 也不同。",
+      "recomputed": {
+        "apk_cert_sha256": "9dc07e9f5ce9a409f38596ef89b39ec8ea561feb26d3c61dfbf1a958c6056e20",
+        "aab_cert_sha256": "a9e76cad95af11d0eaceda673b002ea618702d4394bf2349d4579c86f33b2701",
+        "same_identity": false
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-keytool.log#exit=0",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-apksigner.log#exit=0"
+      ],
+      "notes": "APK/AAB 不同身份，跨签名覆盖会失败（同域 J-058 已实测）。"
+    },
+    {
+      "id": "J-025",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "agreement": true,
+      "independent_check": "keytool 复跑：AAB 证书生效 2026-09-30 00:12:34 CST、失效 2026-10-30 00:12:34 CST；复核日 2026-11-05，已过期 6 天。",
+      "recomputed": {
+        "valid_from": "2026-09-30T00:12:34+08:00",
+        "valid_to": "2026-10-30T00:12:34+08:00",
+        "expired": true
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-keytool.log#exit=0"
+      ],
+      "notes": "即使不考虑生产身份，AAB 证书本身已过期。"
+    },
+    {
+      "id": "J-027",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "agreement": true,
+      "independent_check": "signing 复跑：doc_mentions_keystore_properties=true、doc_mentions_env_contract=false；app/build.gradle.kts:125-150 只读 RELEASE_* 环境变量；RELEASE.md:20 让配置 keystore.properties。",
+      "recomputed": {
+        "doc_mentions_keystore_properties": true,
+        "doc_mentions_env_contract": false,
+        "build_reads_env_vars": true
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-signing.log#exit=0",
+        "file:app/build.gradle.kts"
+      ],
+      "notes": "文档契约与构建实际读取面不一致；FAIL 成立。"
+    },
+    {
+      "id": "J-028",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "官方 zipalign 复跑：zipalign.exe -c -P 16 -v 4 <release.apk> → exit 0，末行 Verification successful。",
+      "recomputed": {
+        "zipalign_exit": 0,
+        "last_line": "Verification successful"
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-zipalign.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-elf.xml"
+      ],
+      "notes": "官方工具与 j_release_verify 的 ZIP 解析互为独立证据。"
+    },
+    {
+      "id": "J-029",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "重跑 apk16k → exit 0，14 个 .so 全部 STORED、数据偏移 %16384=0、ELF 错误 0；另写独立 ELF 解析器复算：14 个 .so 的 PT_LOAD p_align 最小值均 ≥0x4000。",
+      "recomputed": {
+        "so_count": 14,
+        "stored_all": true,
+        "offset_mod_16384_all_zero": true,
+        "bad_align_count": 0
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-apk16k.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-elf.xml"
+      ],
+      "notes": "两条解析路径（工具 + 独立脚本）结论一致。"
+    },
+    {
+      "id": "J-030",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "独立 ELF 解析器复算：14 个 .so 全部含 PT_GNU_RELRO；RELRO 结束地址未整页时，没有 RW LOAD 与之共享页面（relro_shared=0）。",
+      "recomputed": {
+        "relro_libs": 14,
+        "relro_shared": 0
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-apk16k.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-elf.xml"
+      ],
+      "notes": "不是“无 RELRO 因而空过”：14/14 库都有 RELRO 段。"
+    },
+    {
+      "id": "J-031",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "重跑 apk16k --selftest → exit 0（ok=true）：把 lib/arm64-v8a/libLiteRt.so 的 3 个 PT_LOAD.p_align 改成 0x1000 后，同一检查器报 3 条错误。",
+      "recomputed": {
+        "patched_load_segments": 3,
+        "errors": 3
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-apk16k-selftest.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-elf.xml"
+      ],
+      "notes": "负控真实变红，证明 16KB 检查器有牙齿。"
+    },
+    {
+      "id": "J-032",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "重跑 aab16k：BundleConfig.pb 解析 alignment=2（PAGE_ALIGNMENT_16K）；与 j-bundletool-config.log 的 bundletool 输出（uncompressNativeLibraries alignment=PAGE_ALIGNMENT_16K）一致。",
+      "recomputed": {
+        "alignment": 2,
+        "source": "BundleConfig.pb + bundletool config"
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-bundletool-config.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-aab.xml"
+      ],
+      "notes": "声明正确不等于内容合格；同包仍因 ABI/缺库 FAIL（J-033/J-034/J-041）。"
+    },
+    {
+      "id": "J-033",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "agreement": true,
+      "independent_check": "重跑 aab16k → exit 1；独立 zipfile 列举 21 个 .so，ABI 集合=arm64-v8a, armeabi-v7a, x86, x86_64，与 abiFilters（arm64-v8a,x86_64）不等。",
+      "recomputed": {
+        "aab_abi_set": [
+          "arm64-v8a",
+          "armeabi-v7a",
+          "x86",
+          "x86_64"
+        ],
+        "abi_filters": [
+          "arm64-v8a",
+          "x86_64"
+        ],
+        "so_count": 21
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-aab16k.log#exit=1",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-bundletool-validate.log#exit=0"
+      ],
+      "notes": "bundletool validate 同包 exit 0，进一步证明 exit code 不能当判词。"
+    },
+    {
+      "id": "J-034",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "agreement": true,
+      "independent_check": "独立 zipfile 列举：AAB 内 21 个 .so 中无 libquickjs.so；重跑 aab16k 报 required native library missing: libquickjs.so。",
+      "recomputed": {
+        "native_libs": [
+          "libLiteRt.so",
+          "libLiteRtClGlAccelerator.so",
+          "libandroidx.graphics.path.so",
+          "libdatastore_shared_counter.so",
+          "liblitert_jni.so",
+          "libmlkit_google_ocr_pipeline.so"
+        ],
+        "libquickjs_present": false
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-aab16k.log#exit=1"
+      ],
+      "notes": "AAB 落后于当前 APK 内容（APK 14 个 .so 含 quickjs）。"
+    },
+    {
+      "id": "J-040",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "重跑 identity：APK so_abis=[arm64-v8a, x86_64]，无 32 位 ABI；负向判据（只含 64 位）成立。",
+      "recomputed": {
+        "apk_so_abis": [
+          "arm64-v8a",
+          "x86_64"
+        ]
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-identity.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-aab.xml"
+      ],
+      "notes": "只对 APK 成立；AAB 仍含 32 位（J-041 FAIL）。"
+    },
+    {
+      "id": "J-041",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "agreement": true,
+      "independent_check": "独立 zipfile 列举：base/lib/armeabi-v7a（6 个 .so）与 base/lib/x86（3 个 .so）存在，AAB 含 32 位。",
+      "recomputed": {
+        "armeabi_v7a_so": 6,
+        "x86_so": 3,
+        "contains_32bit": true
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-aab16k.log#exit=1",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-bundletool-validate.log#exit=0"
+      ],
+      "notes": "负向判据本应通过（AAB 不含 32 位），实际不成立。"
+    },
+    {
+      "id": "J-046",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "全树 grep（排除 build/ 与 .worktrees/）：versionCode/versionName 只出现在 app/build.gradle.kts:33-34（另 55/60 行是 versionNameSuffix）。",
+      "recomputed": {
+        "version_source": "app/build.gradle.kts:33-34"
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-version-source.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-version.xml"
+      ],
+      "notes": "“单一来源”成立，但正是手写两行，见 J-051。"
+    },
+    {
+      "id": "J-047",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "重跑 version → exit 0；aapt2 dump badging APK → versionCode=2、versionName=0.2.0-offline；gradle=2/0.2.0；AAB 记录 2/0.2.0-offline（j-bundletool-vc.raw.txt / vn.raw.txt）。",
+      "recomputed": {
+        "gradle": {
+          "versionCode": 2,
+          "versionName": "0.2.0"
+        },
+        "apk_aapt2": {
+          "versionCode": 2,
+          "versionName": "0.2.0-offline"
+        },
+        "metadata": {
+          "versionCode": 2,
+          "versionName": "0.2.0-offline"
+        }
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-version.log#exit=0",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-aapt2-badging.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-version.xml"
+      ],
+      "notes": "AAB 的 versionCode 未用 bundletool 重跑（宿主无 bundletool jar），取自同 sha 产物的记录原始输出；不影响本行“一致”结论。"
+    },
+    {
+      "id": "J-048",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "agreement": true,
+      "independent_check": "aapt2 复跑三份 APK：release、strictOffline debug、localFirst debug 的 versionCode 全为 2；AAB 记录 versionCode=2。四份产物同 vc，跨构建不单调。",
+      "recomputed": {
+        "release_apk_vc": 2,
+        "strict_offline_debug_vc": 2,
+        "localfirst_debug_vc": 2,
+        "aab_vc": 2
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-version-artifacts.log#exit=0"
+      ],
+      "notes": "三份 APK 为本轮 aapt2 实测；AAB 为记录值（同 sha，未重跑 bundletool）。"
+    },
+    {
+      "id": "J-050",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "重跑 version → exit 0；versionCode=2 落在 1..2100000000。",
+      "recomputed": {
+        "versionCode": 2,
+        "in_range": true
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-version.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-version.xml"
+      ],
+      "notes": "范围合法不等于可发布；见 J-048/J-051/J-052。"
+    },
+    {
+      "id": "J-051",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "agreement": true,
+      "independent_check": "全树 grep：主工程只有 app/build.gradle.kts:33-34 手写两行；无 -P 注入、无 properties/CI 版本源。四个 .worktrees 副本还分别停在 vc=1 与 vc=2，说明无统一生成器。",
+      "recomputed": {
+        "manual_lines": "app/build.gradle.kts:33-34",
+        "generator_present": false,
+        "worktree_divergence": "vc=1 in image-subsystem/split-large-files; vc=2 in kb-bench/kernel-readiness"
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-version-source.log#exit=0",
+        "file:app/build.gradle.kts"
+      ],
+      "notes": "“非手改两行”的判据不成立；FAIL 维持。"
+    },
+    {
+      "id": "J-052",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "agreement": true,
+      "independent_check": "产物 mtime：AAB 2026-09-30 02:34、release APK 2026-11-03 11:10、mapping 2026-11-03 11:09；两者 versionCode 都=2，历史 AAB 与现 APK 不构成可比较的递增对。",
+      "recomputed": {
+        "aab_mtime": "2026-09-30T02:34:20+08:00",
+        "apk_mtime": "2026-11-03T11:10:17+08:00",
+        "aab_vc": 2,
+        "apk_vc": 2
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-version-artifacts.log#exit=0",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-artifact-mtimes.log#exit=0"
+      ],
+      "notes": "AAB 还是旧构建（缺 quickjs、含 32 位），与现 APK 不可比。"
+    },
+    {
+      "id": "J-058",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "设备证据绑定复核：设备在线 emulator-5584；磁盘 APK sha=724ce718…342b44 与 device JSON apk_sha256 相等；debug APK 磁盘 sha=97ee82a1…f341 与 JSON debug_apk_sha256 相等；原始 log 记录 Failure [INSTALL_FAILED_UPDATE_INCOMPATIBLE]。",
+      "recomputed": {
+        "device_online": true,
+        "apk_sha_match": true,
+        "debug_apk_sha_match": true,
+        "failure_line_present": true
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-install-cross-signature.log#exit=0",
+        "device:docs/research/evidence/2026-11-05-batch-44/j-domain/j-device-crosssignature.device.json"
+      ],
+      "notes": "本轮未重放安装（会变更设备状态）；负向失败行与绑定哈希已机械复核。"
+    },
+    {
+      "id": "J-059",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "原始 log 同时含失败输出行、ADB_INSTALL_EXIT=1、PRE/POST dumpsys；判据不是只看 exit code。",
+      "recomputed": {
+        "failure_line_present": true,
+        "adb_install_exit": 1,
+        "pre_and_post_dumpsys_present": true
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-install-cross-signature.log#exit=0",
+        "device:docs/research/evidence/2026-11-05-batch-44/j-domain/j-device-crosssignature.device.json"
+      ],
+      "notes": "记录还保留“批次 43 同一失败曾 exit 0”的对照。"
+    },
+    {
+      "id": "J-060",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "现场 adb 复核：emulator-5584 的 /proc/sys/kernel/random/boot_id=831e5d06-7331-40d8-8cf4-406976b8a9c3，与 device JSON boot_id 完全一致；APK sha 与 JSON 一致。",
+      "recomputed": {
+        "live_boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+        "recorded_boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+        "apk_sha_match": true
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-device-probe.log#exit=0",
+        "device:docs/research/evidence/2026-11-05-batch-44/j-domain/j-device-crosssignature.device.json"
+      ],
+      "notes": "绑定三要素（serial/boot_id/apk sha）在本轮仍可复核。"
+    },
+    {
+      "id": "J-062",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "agreement": true,
+      "independent_check": "原始 log 的 PRE 与 POST 完全相同（versionCode=2、versionName=0.2.0-offline、DEBUGGABLE）；现场 pm path 为空，与 JSON package_removed_after_probe=true 一致（探针后已卸载）。",
+      "recomputed": {
+        "pre_post_identical": true,
+        "package_installed_now": false,
+        "package_removed_after_probe": true
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-install-cross-signature.log#exit=0",
+        "device:docs/research/evidence/2026-11-05-batch-44/j-domain/j-device-crosssignature.device.json"
+      ],
+      "notes": "“状态不变”由 PRE/POST 记录成立；现场只能复核到“包已被清理”，未重放安装。"
+    },
+    {
+      "id": "J-019",
+      "ledger_verdict": "BLOCKED",
+      "review_verdict": "BLOCKED",
+      "agreement": true,
+      "independent_check": "重跑 signing：env_present=[]、env_missing=RELEASE_KEY_ALIAS/RELEASE_KEY_PASSWORD/RELEASE_STORE_FILE/RELEASE_STORE_PASSWORD（4/4）、tracked_keystores=[]。",
+      "recomputed": {
+        "env_missing": [
+          "RELEASE_KEY_ALIAS",
+          "RELEASE_KEY_PASSWORD",
+          "RELEASE_STORE_FILE",
+          "RELEASE_STORE_PASSWORD"
+        ],
+        "tracked_keystores": 0
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-signing.log#exit=0",
+        "file:docs/acceptance/runbook.md"
+      ],
+      "notes": "外部条件缺失，出口 runbook §9.2；不是产品失败。"
+    },
+    {
+      "id": "J-035",
+      "ledger_verdict": "BLOCKED",
+      "review_verdict": "BLOCKED",
+      "agreement": true,
+      "independent_check": "现场 adb：emulator-5584 getconf PAGE_SIZE=4096、emulator-5562 记录亦为 4096；无 16384 设备。",
+      "recomputed": {
+        "pagesize_5584": 4096,
+        "pagesize_5562_recorded": 4096,
+        "device_16384_available": false
+      },
+      "evidence": [
+        "device:docs/research/evidence/2026-11-05-batch-44/j-domain/j-device-pagesize.device.json",
+        "file:docs/acceptance/runbook.md"
+      ],
+      "notes": "运行时 16KB 仍未验证，不得由静态 PASS 外推。"
+    },
+    {
+      "id": "J-043",
+      "ledger_verdict": "BLOCKED",
+      "review_verdict": "BLOCKED",
+      "agreement": true,
+      "independent_check": "现场 adb：两台设备均在线（emulator-5562/emulator-5584），5584 的 ro.product.cpu.abi=x86_64；记录中 5562 亦为 x86_64。宿主无 arm64 设备。",
+      "recomputed": {
+        "devices_online": [
+          "emulator-5562",
+          "emulator-5584"
+        ],
+        "abi_5584": "x86_64",
+        "abi_5562_recorded": "x86_64"
+      },
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-device-probe.log#exit=0",
+        "file:docs/acceptance/runbook.md"
+      ],
+      "notes": "arm64 阻塞登记成立。"
+    }
+  ],
+  "evidence": [
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-identity.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-neg-clean-tree.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-neg-head.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-mapping-structure.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-r8.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-r8keep.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-zipalign.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-apk16k.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-apk16k-selftest.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-aab16k.log#exit=1",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-bundletool-config.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-bundletool-validate.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-apksigner.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-keytool.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-signing.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-version.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-aapt2-badging.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-version-artifacts.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-version-source.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-artifact-mtimes.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-install-cross-signature.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/j-domain/j-device-probe.log#exit=0",
+    "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-aab.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-elf.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-identity.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-mapping.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-retrace.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-version.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit.xml",
+    "device:docs/research/evidence/2026-11-05-batch-44/j-domain/j-device-crosssignature.device.json",
+    "device:docs/research/evidence/2026-11-05-batch-44/j-domain/j-device-pagesize.device.json"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-identity.log": "ce0b34632709a2027e0d6603fcd94a0f864d75a958829c63faf441e259ac51da",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-neg-clean-tree.log": "e2d5b22f8a300ec7bbe8b1bc212ed29a6c7aeadae8c05d87b2d66246744ac166",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-neg-head.log": "e2d5b22f8a300ec7bbe8b1bc212ed29a6c7aeadae8c05d87b2d66246744ac166",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-mapping-structure.log": "b201d44c59b78c22df327815d224c62accef6ecf6f1cbda0210fa4c78fc1dfba",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-r8.log": "35d1e0bea815591513a415a25f80c4b5e01be7688d7686cf42db3294c26300e3",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-r8keep.log": "9b49a88391a9418aa8a46fb554452849c8e44ca835acf5d2f98efbfd0dd3722b",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-zipalign.log": "a6ac7035c729aa84c413a846f733cf9de441bbcc4c7459fa52b57f6a5cf157d1",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-apk16k.log": "3b186c8d6f23f47e6c361e136b08e98b20b579ae78fbe64492d45b244d0c6a5b",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-apk16k-selftest.log": "e8090305bede56119a4ca12201d417c17be73106b4ebf1f94978cc318d30b763",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-aab16k.log": "b73ddc83a6897ab3f11afbc8330addd94525dc6fd3a81d6b5d7e0cd67d958abc",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-bundletool-config.log": "79807067bcb9b2893af70db6ae7f45d97f57560eb85ffc80c892dfd84cd55499",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-bundletool-validate.log": "936dce181b47bbb3af6f196cfc5201fd254d97d120d754d17195186d2deaeb08",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-apksigner.log": "f12a3e4f691db98f357a43b67a87eb55fd847d0f109346212dfdcabd24d7e4c4",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-keytool.log": "1639e843bd152505021f322579c67e5bc8dcadef35ccbe95acd73eb52e8d4cef",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-signing.log": "c98059752ad6fd1f88c9ba87f9ccce4c463f508d7d30c2fb6aeb7b0988d1532c",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-version.log": "373b3f03eae9ac8fe49aedc10236c53d5fd61d9418d231029afd6c53e8717fc4",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-aapt2-badging.log": "34e4e6063486123b6ef1c5004e3cd1608c184be7e360c71c41d21300e02cd92d",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-version-artifacts.log": "e04849c7612ca5644e48f448b97ce2a1d241f491aae20def8c128e8e2d0c6c02",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-version-source.log": "a978ef908f18bf049f2723b04a3a13cdcafe9072bb5fcad343665579aa0f5976",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-artifact-mtimes.log": "3d36584d6edbcf3b24b77adc6cdd541bb4263cd7c5b92ad187b12502ea4838ea",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-install-cross-signature.log": "920935d2d617c5fb7dd380e7a258cdadd04a7aa25c8ad8ff44e8d7485c14b8d8",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-device-probe.log": "aa801feae55ea6d8d6dbb02047282045543b1d20db3f48c873c35c733e1d45fe",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-device-crosssignature.device.json": "d32aadcdd37640f8f947f866acbae3d21f9453cc000f7a693833901bfb211d18",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-device-pagesize.device.json": "3620759f1807159d300ca26f56afa58138820b352ea2328a34e78f450d48379d",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-aab.xml": "08ecd155201f9ab503e4b9059930c086941de6183918c80974a063342693ab57",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-elf.xml": "5dfc7d7cd25c2071f83ec28a9192942eee18feec402089b2141724652b74c6f1",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-identity.xml": "9a89e415c04f7c9de5b5ac935d62c5fb609f325e7e16ea121bd14b1e2872db1f",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-mapping.xml": "e8e1d044befdcc53dd06bfbc1b390c4d15916ef8a58f307869c10af87b144a62",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-retrace.xml": "86536a95a84585b7a6c39d89237659ef80ab71818b15190abdfcde49fd076f27",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit-version.xml": "c9f4f6f85066fa9429748ea8b912d4f3f2193cd78f4a21682cbbc048d83e45c3",
+    "docs/research/evidence/2026-11-05-batch-44/j-domain/j-unit.xml": "7980c080d9756054c56f67a00709d29c0f722960033d13b123fd965be3eacb74"
+  },
+  "adversarial": {
+    "attempted": true,
+    "result": "confirmed-negative-controls",
+    "detail": "四个负控在本轮真实变红：--require-clean=1、--require-head=1、apk16k --selftest 把 3 个 PT_LOAD.p_align 改成 0x1000 后报 3 条错误、aab16k 对旧 AAB exit 1（而 bundletool validate 同包 exit 0）。"
+  },
+  "findings": [
+    "J 域当前仍不可签：21 PASS 经独立复核成立，13 FAIL 全部复现，但不代表发布就绪。",
+    "J-001/J-002 的记录值已漂移：脏路径 4248→3935、落后提交 32→46；FAIL 结论不变，引用旧数字需注明时点。",
+    "AAB 是 2026-09-30 旧构建：ABI 4≠2、缺 libquickjs.so、证书 2026-10-30 已过期；它与 2026-11-03 的 APK 不同签名身份。",
+    "版本号只有 app/build.gradle.kts:33-34 两行手写，四份产物 vc 全为 2；无生成/注入机制。",
+    "J-047/J-048/J-052 中 AAB 的 versionCode 未在本轮重跑 bundletool（宿主未找到 bundletool jar），取自同 sha 产物的记录原始输出；三份 APK 为 aapt2 实测。"
+  ],
+  "notes": "本文件是 J 域独立复核，不是整体验收签字。领域裁定维持 FAIL；未复核的 53 行（31 BLOCKED + 22 UNVERIFIED）不得因本文件改判。若主会话把 review token 写入台账行，需在台账冻结后重算 ledger_sha256 并回填本文件，否则 report 会报 REVIEW_LEDGER_SHA_MISMATCH。抽样行、命令与复算值均见 rows。",
+  "independence": {
+    "reviewer_not_author": true,
+    "independence_verified": false,
+    "basis": "角色分离 + 对归档证据逐项机械复算；reviewer 未参与被复核证据的产出角色。",
+    "limitation": "reviewer 是角色标签，不是具名个人或第二模型；批次证据未记录生产者身份，无法证明跨模型独立。本复核只支持域级抽样结论，不构成台账行级 review 证据；report 的 pass_with_review 仍以行级 review token 为准。",
+    "verdict_ceiling": "UNVERIFIED (domain-level sample only)"
+  },
+  "ledger_sha256_at_review": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_sha256_current_after_fix": "887e3ba649eb17a70c0f6f7af8a657d606398a10925c6116818265387af689aa",
+  "ledger_binding_note": "本复核绑定修复前台账 bb25ef236056…；修复环只改了 35 行的 verdict/method（GATE-079 补证据、17 个 FIX 登记行改 BLOCKED、13 个 BLOCKED 补 runbook、4 个 D 行加脏树披露），未重跑本复核的抽样行。修复后台账为 887e3ba649eb…，因此本文件不得作为新台账的行级 review 证据；要转 PASS 必须在新台账上重跑。"
+}

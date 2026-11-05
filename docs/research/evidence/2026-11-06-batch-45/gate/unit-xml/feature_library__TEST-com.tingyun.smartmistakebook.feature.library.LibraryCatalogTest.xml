@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:12:47.960Z" hostname="TIANSHAN" time="0.095">
+  <properties/>
+  <testcase name="libraryTimeRangeTurnsPresetsIntoAbsoluteCreationBounds" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.01"/>
+  <testcase name="anActiveFilterInAnEmptyCatalogDoesNotHideTheFilterControls" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.001"/>
+  <testcase name="unfilteredCatalogReusesStableBackingList" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.001"/>
+  <testcase name="subjectAndChapterNarrowTheNextHierarchyLevel" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.007"/>
+  <testcase name="facetSwitchDoesNotRecomputeVisibleResults" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.059"/>
+  <testcase name="legacyMasteryLabelRestoresAsStableId" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.001"/>
+  <testcase name="emptyStateDistinguishesANewLibraryFromFilteredResults" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.001"/>
+  <testcase name="anActiveSearchInAnEmptyCatalogStillOffersSearchRecovery" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.0"/>
+  <testcase name="generalSubjectUsesTheSharedStudentLabel" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.001"/>
+  <testcase name="timeRangeAndSortAreUiStateAndClearableFilters" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.0"/>
+  <testcase name="missingClassificationDoesNotCreatePlaceholderFilters" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.007"/>
+  <testcase name="changingSubjectClearsDownstreamHierarchySelections" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.002"/>
+  <testcase name="userVisibleFacetsOnlyContainContentHierarchyMasteryAndFavorite" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.002"/>
+  <testcase name="favoriteFacetKeepsOnlyBookmarkedMistakesAndOnlyWhenBookmarked" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.001"/>
+  <testcase name="searchAndTypedMasteryFilterKeepExistingBehavior" classname="com.tingyun.smartmistakebook.feature.library.LibraryCatalogTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

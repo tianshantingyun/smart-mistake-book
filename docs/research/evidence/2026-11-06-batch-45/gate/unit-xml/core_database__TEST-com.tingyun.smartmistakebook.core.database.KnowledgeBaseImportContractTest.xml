@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" tests="23" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:13:54.732Z" hostname="TIANSHAN" time="0.024">
+  <properties/>
+  <testcase name="acceptsRealOfficialUriWithPublicOfficialStatus" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.012"/>
+  <testcase name="rejectsPlaceholderHostForReferenceOnlySource" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.001"/>
+  <testcase name="rejectsEmptyLicenseStatus" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.001"/>
+  <testcase name="acceptsReferenceOnlyWithNullUriAndTriplet" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.0"/>
+  <testcase name="rejectsCrossSubjectProvenance" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.001"/>
+  <testcase name="acceptsPlaceholderStatusWithNullUriAndTriplet" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.0"/>
+  <testcase name="acceptsIncrementalAtomicNodeUsingReviewedExistingParentAndSource" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.0"/>
+  <testcase name="rejectsDirectReuseFromReferenceOnlyMaterial" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.0"/>
+  <testcase name="rejectsPlaceholderSourceWithoutTheAttributionMarker" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.001"/>
+  <testcase name="rejectsUnreviewedProvenance" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.0"/>
+  <testcase name="acceptsReviewedSourceGroundedSameSubjectOntology" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.0"/>
+  <testcase name="rejectsAtomicKnowledgeOutsideItsParentsTaxonomy" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.001"/>
+  <testcase name="rejectsLicensedSourceWithoutAnyUri" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.0"/>
+  <testcase name="rejectsPlaceholderStatusThatStillCarriesAUri" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.0"/>
+  <testcase name="rejectsDirectReuseWithoutSpecificLicenseEvidenceAndAttribution" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.001"/>
+  <testcase name="rejectsUntraceablePublicSourceUri" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.0"/>
+  <testcase name="rejectsPublicOfficialSourceWithoutTheCitationTriplet" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.0"/>
+  <testcase name="rejectsModelCandidateEvenWhenItHasAProvenanceBinding" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.001"/>
+  <testcase name="rejectsNodeWithoutReviewedProvenance" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.0"/>
+  <testcase name="rejectsPlaceholderHostForPublicOfficialSource" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.001"/>
+  <testcase name="acceptsLicensedSourceWithRealHttpsUri" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.001"/>
+  <testcase name="rejectsReferenceOnlySourceWithoutTheCitationTriplet" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.001"/>
+  <testcase name="acceptsLicensedAdaptationWithAuditableReuseTerms" classname="com.tingyun.smartmistakebook.core.database.KnowledgeBaseImportContractTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

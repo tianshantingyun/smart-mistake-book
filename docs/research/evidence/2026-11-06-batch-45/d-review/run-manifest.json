@@ -1,0 +1,155 @@
+{
+  "schema": "smbk.acceptance.run/1",
+  "run_id": "2026-11-05T03:05:00Z-batch45-d-review",
+  "domain": "D",
+  "cwd": "D:/smart mistake book",
+  "head": "87604198feeef198d5dba7343b8c4692c5e8f937",
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "dirty_paths_uall": 3952,
+  "dirty_paths_note": "measured with git status --porcelain -uall at review write time; the shared worktree was observed changing between reads (batch-44 recorded 3753), so this is a snapshot, not a stable value",
+  "commands": [
+    {
+      "argv": ["gradlew", "-q", ":core:model:test",
+               "--tests", "com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest",
+               "--tests", "com.tingyun.smartmistakebook.core.model.ModelTasksTest",
+               "--tests", "com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest",
+               "--rerun", "--console=plain"],
+      "exit": 0,
+      "log": "docs/research/evidence/2026-11-06-batch-45/d-review/model-rerun.log"
+    },
+    {
+      "argv": ["gradlew", "-q", ":core:data:testDebugUnitTest",
+               "--tests", "com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest",
+               "--tests", "com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest",
+               "--tests", "com.tingyun.smartmistakebook.core.data.model.OpenAiModelTransportCancellationTest",
+               "--tests", "com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest",
+               "--tests", "com.tingyun.smartmistakebook.core.data.model.ModelCallFailureRecordLogDisciplineTest",
+               "--tests", "com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest",
+               "--rerun", "--console=plain"],
+      "exit": 0,
+      "log": "docs/research/evidence/2026-11-06-batch-45/d-review/data-rerun-all.log"
+    },
+    {
+      "argv": ["gradlew", "-q", ":core:model:test",
+               "--tests", "com.tingyun.smartmistakebook.core.model.NoSuchTestBatch45NegativeControl",
+               "--rerun", "--console=plain"],
+      "exit": 1,
+      "purpose": "negative control: a bogus filter must fail, proving the test task actually executes filters",
+      "log": "docs/research/evidence/2026-11-06-batch-45/d-review/negative-control.log"
+    }
+  ],
+  "targets": {
+    "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorVisualContextFingerprintTest.kt": {
+      "sha256": "3273a4dca97653131e80261654acb611d5a996761bed193c8a0922dd749c020b",
+      "kind": "source", "git_status": "M", "method_present_at_head": false
+    },
+    "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelTasksTest.kt": {
+      "sha256": "04a759af3267970b676736cdb4905d07953c4e401e1fe23969fdda032ec2c501",
+      "kind": "source", "git_status": "clean", "method_present_at_head": true
+    },
+    "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditCommandParserTest.kt": {
+      "sha256": "0155653e34321fb7946e4c38f3509284c51873ba25f4e0f869154408b35f1e17",
+      "kind": "source", "git_status": "clean", "method_present_at_head": true
+    },
+    "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditPromptGoldenTest.kt": {
+      "sha256": "e42913e91ccafe2705a9e9412b2800bb488f57b3941794bf176b41e80b323576",
+      "kind": "source", "git_status": "clean", "method_present_at_head": true
+    },
+    "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt": {
+      "sha256": "e76f722869a4a110f8d1b92f021e0a4253315ad0906bbbfed3e3736e6c2cb298",
+      "kind": "source", "git_status": "clean", "method_present_at_head": true
+    },
+    "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiModelTransportCancellationTest.kt": {
+      "sha256": "88f10345cb952c58112832dc0d863a355eea9318c456d55d8b3b9df03505aec9",
+      "kind": "source", "git_status": "clean", "method_present_at_head": true
+    },
+    "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ProgramSchemaMaxLengthAlignmentTest.kt": {
+      "sha256": "1356a10d0d61c85d2ca39a62615222c0dc9e1c1561207510f06355993cc8e83a",
+      "kind": "source", "git_status": "M", "method_present_at_head": true,
+      "note": "sampled method body is unchanged at HEAD, but another test in this class is red at HEAD (imagePrompt assertion 4096 vs advertised 1024)"
+    },
+    "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ModelCallFailureRecordLogDisciplineTest.kt": {
+      "sha256": "d29e49634d3520b04f653fcb66ff7420d7bc4d46fced9d469523533c7867a647",
+      "kind": "source", "git_status": "??", "method_present_at_head": false
+    },
+    "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/TutorToolRoundGateTest.kt": {
+      "sha256": "581186946409a93b80cc4e3f966b712899848da96a6d82d8ea18ec3e1141e0b9",
+      "kind": "source", "git_status": "clean", "method_present_at_head": true
+    },
+    "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest.xml": {
+      "sha256": "37e6fead8de592235e940ba7568e09bf39c5e8a27d63a175c19078a75a103cd3", "kind": "rerun_xml", "tests": 7, "failures": 0, "errors": 0, "skipped": 0
+    },
+    "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.model.ModelTasksTest.xml": {
+      "sha256": "0f18231e7d4527ac8669a76e3b04a9bdca9725e7a83c8df0b7aae4b9b6b0b32f", "kind": "rerun_xml", "tests": 33, "failures": 0, "errors": 0, "skipped": 0
+    },
+    "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest.xml": {
+      "sha256": "c8316c52889bcda103b35430f5c60bdfa298e4b188e947cb8beb9f588a6afdb3", "kind": "rerun_xml", "tests": 10, "failures": 0, "errors": 0, "skipped": 0
+    },
+    "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest.xml": {
+      "sha256": "dce3de8bd5c90530f7bddd24131a01702c0a84f568023bf23fbfab9906efbf6e", "kind": "rerun_xml", "tests": 3, "failures": 0, "errors": 0, "skipped": 0
+    },
+    "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest.xml": {
+      "sha256": "203876903529f5cce3229891c2e1fac7b9c6c60fe4ea72fae603fb230b8d6e73", "kind": "rerun_xml", "tests": 68, "failures": 0, "errors": 0, "skipped": 0
+    },
+    "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.OpenAiModelTransportCancellationTest.xml": {
+      "sha256": "967ddca3896583b65e3f214eadb557de0fd755b605da08bf1dd90d7312924fcc", "kind": "rerun_xml", "tests": 2, "failures": 0, "errors": 0, "skipped": 0
+    },
+    "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest.xml": {
+      "sha256": "085b6d01d27827b1f5843caf11b14eb3ebdf5cf259ef5a140c7a741b677fd9b3", "kind": "rerun_xml", "tests": 7, "failures": 0, "errors": 0, "skipped": 0
+    },
+    "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.ModelCallFailureRecordLogDisciplineTest.xml": {
+      "sha256": "d0dbfb5a9fc9d61226437193dc3699f8a134676413a1b51ff537bc552b440c04", "kind": "rerun_xml", "tests": 3, "failures": 0, "errors": 0, "skipped": 0
+    },
+    "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest.xml": {
+      "sha256": "7491cf6e4a4adc37acfe6d1dde97a274afe8c27967ceec7f83359172ae4d0349", "kind": "rerun_xml", "tests": 16, "failures": 0, "errors": 0, "skipped": 0
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest.xml": {
+      "sha256": "c870184cf0e48563e6c2bbefb67aa15b1e466f7e4d7df9ae95a10e8f588c2342", "kind": "batch44_xml"
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest.xml": {
+      "sha256": "5c40515d6258a78ce0117c7953f35ccff11616bdda23be1aa8f18ff4b3f714a5", "kind": "batch44_xml"
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest.xml": {
+      "sha256": "b9f27c1159f828bce863d66e0812c58066c82265137b7696fba6d5a9f0ae696a", "kind": "batch44_xml"
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest.xml": {
+      "sha256": "e89b3c566070693222f7456b02ef511277b79e750d59b584ca7404ff541806a9", "kind": "batch44_xml"
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.ModelCallFailureRecordLogDisciplineTest.xml": {
+      "sha256": "b427aeb60c87f4f46540b487ff9dff480d73113c1d01bd943887a5aac6ac342d", "kind": "batch44_xml"
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.model.ModelTasksTest.xml": {
+      "sha256": "b180833f3bf9ca4b2e05c2e04541b950764541bd3d165a8791a18a87ba2fd7ab", "kind": "batch44_xml"
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest.xml": {
+      "sha256": "fdf22cadb40a6f22258dab012d32b6e24d85c88243618c8e0915f092f99b177c", "kind": "batch44_xml"
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest.xml": {
+      "sha256": "e8dbce05b8d168f90128847e1c91a8d83cd764189c4bf2f4451c1dbab25de4c1", "kind": "batch44_xml"
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.OpenAiModelTransportCancellationTest.xml": {
+      "sha256": "550b812614173c52166c97c747a732531c3afa4f060acb39d4c69274cafef086", "kind": "batch44_xml"
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-prompt-paper.log": {
+      "sha256": "a599f3237afdb87d43da884693ee02cc0110afb71bc88db5cb45c75230e1397c", "kind": "batch44_cmd_log", "exit": 0
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/d-model-contracts.log": {
+      "sha256": "23c842ee38d7e8535c503bf1bde1b2af7a44084991760acd23ecdc59f4cbcd16", "kind": "batch44_cmd_log", "exit": 0
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-tools-quiz-cancel.log": {
+      "sha256": "6b4158645102582a6212dee2226704e447c1e614b7a4b8de3405c3eba8f395b4", "kind": "batch44_cmd_log", "exit": 0
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-gateway-egress.log": {
+      "sha256": "b3c2e70a3cacf6a2529f890757e897d629f2c7f18bc863ea89904f590dd316e4", "kind": "batch44_cmd_log", "exit": 0
+    },
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/d-model-tools-recovery.log": {
+      "sha256": "acaf716c6b52e2d0b70a573cbce0121ca6df2ad7e5a4b60bfc02265738d4774e", "kind": "batch44_cmd_log", "exit": 0
+    }
+  },
+  "artifacts": {
+    "docs/research/evidence/2026-11-06-batch-45/d-review/model-rerun.log": "4c19a1f997306ae6c3b995c98c0ef8383bb4534e50f313c9fd3609172b9873f8",
+    "docs/research/evidence/2026-11-06-batch-45/d-review/data-rerun-all.log": "4c19a1f997306ae6c3b995c98c0ef8383bb4534e50f313c9fd3609172b9873f8",
+    "docs/research/evidence/2026-11-06-batch-45/d-review/negative-control.log": "14f52940329f151dfaaf3a45e2c63443cb287938bd8e41ac5279e283d2506435"
+  }
+}
