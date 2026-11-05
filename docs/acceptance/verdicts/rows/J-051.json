@@ -1,0 +1,61 @@
+{
+  "id": "J-051",
+  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-j",
+  "reviewer": "batch46-line-reviewer-J",
+  "authors": [
+    "batch45-evidence-producer-J"
+  ],
+  "verdict": "FAIL",
+  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "evidence": [
+    "cmd:docs/research/evidence/2026-11-06-batch-46/j-domain/j-version.log",
+    "file:app/build.gradle.kts"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-06-batch-46/j-domain/j-version.log": "96e5f38403939d04007158fdc8bfd9f5a496da4c587c16a8d7202f7667f616df",
+    "app/build.gradle.kts": "1bcc02473d885dc5015249e7ed8af28f8c383d495862a0712b03a66fec65d719"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=J-051; verdict=FAIL; line=992; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/research/evidence/2026-11-06-batch-46/j-domain/j-version.log",
+      "value": "exit_markers=[0]; cmd=python -I tools/ci/j_release_verify.py version --gradle app/build.gradle.kts --metadata app/build/outputs/apk/strictOffline/release/output-metadata.json; sha256=96e5f38403939d04007158fdc8bfd9f5a496da4c587c16a8d7202f7667f616df"
+    },
+    {
+      "name": "file_sha256",
+      "source": "app/build.gradle.kts",
+      "value": "sha256=1bcc02473d885dc5015249e7ed8af28f8c383d495862a0712b03a66fec65d719"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/research/evidence/2026-11-05-batch-44/j-domain/j-version-source.log",
+      "value": "exit_markers=[0]; cmd=n/a; sha256=a978ef908f18bf049f2723b04a3a13cdcafe9072bb5fcad343665579aa0f5976"
+    },
+    {
+      "name": "contradiction",
+      "source": "docs/acceptance/ledger.md",
+      "value": "cmd: version 与 grep 全树版本源"
+    }
+  ],
+  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 1,
+    "archived_files": 1,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

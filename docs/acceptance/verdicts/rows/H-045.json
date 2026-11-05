@@ -1,0 +1,68 @@
+{
+  "id": "H-045",
+  "verdict": "PASS",
+  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-h",
+  "reviewer": "batch46-line-reviewer-H",
+  "authors": [
+    "batch45-evidence-producer-H"
+  ],
+  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "evidence": [
+    "cmd:docs/acceptance/evidence/H/logs/h-045.log",
+    "test:docs/acceptance/evidence/H/tests/h-minor.xml",
+    "file:core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/telemetry/TelemetryComplianceCriteriaTest.kt"
+  ],
+  "evidence_sha256": {
+    "docs/acceptance/evidence/H/logs/h-045.log": "d6bcc8e1aa751e0260b1c60e18e118b3119000d20eab46ad63f76e544f428e16",
+    "docs/acceptance/evidence/H/tests/h-minor.xml": "94313d3c0952d6a7fb29a2a60c872ad213c7d887ae3fb6c6395f7e34c1caf761",
+    "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/telemetry/TelemetryComplianceCriteriaTest.kt": "cd1f7bee1fe9c151bf62cc1290449cd632a5400ab91be6ba2818ec4ff3190130"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=H-045; verdict=PASS; line=806; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/acceptance/evidence/H/logs/h-045.log",
+      "value": "exit_markers=[0]; cmd=n/a; sha256=d6bcc8e1aa751e0260b1c60e18e118b3119000d20eab46ad63f76e544f428e16"
+    },
+    {
+      "name": "xml_aggregate",
+      "source": "docs/acceptance/evidence/H/tests/h-minor.xml",
+      "value": "tests=9; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T01:48:25.716050+08:00; hostname=tianshan; sha256=94313d3c0952d6a7fb29a2a60c872ad213c7d887ae3fb6c6395f7e34c1caf761"
+    },
+    {
+      "name": "xml_testcase",
+      "source": "docs/acceptance/evidence/H/tests/h-minor.xml",
+      "value": "testcases=9; first=test_h037_g7_ruling_is_recorded; all_present=True"
+    },
+    {
+      "name": "file_sha256",
+      "source": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/telemetry/TelemetryComplianceCriteriaTest.kt",
+      "value": "sha256=cd1f7bee1fe9c151bf62cc1290449cd632a5400ab91be6ba2818ec4ff3190130"
+    }
+  ],
+  "basis": "机械复算（reviewer=batch46-line-reviewer-H，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 H-045 并复算 ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "adversarial": {
+    "attempted": true,
+    "result": "recomputed-no-mismatch"
+  },
+  "review_scope": "single-ledger-row",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 0,
+    "archived_files": 3,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

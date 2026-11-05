@@ -1,0 +1,68 @@
+{
+  "id": "H-027",
+  "verdict": "PASS",
+  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-h",
+  "reviewer": "batch46-line-reviewer-H",
+  "authors": [
+    "batch45-evidence-producer-H"
+  ],
+  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "evidence": [
+    "cmd:docs/acceptance/evidence/H/logs/h-027.log",
+    "test:docs/acceptance/evidence/H/tests/h-privacy.xml",
+    "file:feature/profile/src/main/java/com/tingyun/smartmistakebook/feature/profile/ProfileRoute.kt"
+  ],
+  "evidence_sha256": {
+    "docs/acceptance/evidence/H/logs/h-027.log": "ce23377fb407222ed7e1104d52ae58ea7156f9e0efd5499fdfaf75427bcfb190",
+    "docs/acceptance/evidence/H/tests/h-privacy.xml": "a09a51dad6c9e0faa58c2b8a1a036e69fe23ba6e4d0c48a8ae3080f55a25bdf7",
+    "feature/profile/src/main/java/com/tingyun/smartmistakebook/feature/profile/ProfileRoute.kt": "7f47fe0c260b1ea9bf22b57089ed6a17b81caf301f8544ccd084e08a57f9011b"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=H-027; verdict=PASS; line=788; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/acceptance/evidence/H/logs/h-027.log",
+      "value": "exit_markers=[0]; cmd=n/a; sha256=ce23377fb407222ed7e1104d52ae58ea7156f9e0efd5499fdfaf75427bcfb190"
+    },
+    {
+      "name": "xml_aggregate",
+      "source": "docs/acceptance/evidence/H/tests/h-privacy.xml",
+      "value": "tests=9; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T01:48:24.020823+08:00; hostname=tianshan; sha256=a09a51dad6c9e0faa58c2b8a1a036e69fe23ba6e4d0c48a8ae3080f55a25bdf7"
+    },
+    {
+      "name": "xml_testcase",
+      "source": "docs/acceptance/evidence/H/tests/h-privacy.xml",
+      "value": "testcases=9; first=test_h019_data_flow_lists_what_never_leaves; all_present=True"
+    },
+    {
+      "name": "file_sha256",
+      "source": "feature/profile/src/main/java/com/tingyun/smartmistakebook/feature/profile/ProfileRoute.kt",
+      "value": "sha256=7f47fe0c260b1ea9bf22b57089ed6a17b81caf301f8544ccd084e08a57f9011b"
+    }
+  ],
+  "basis": "机械复算（reviewer=batch46-line-reviewer-H，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 H-027 并复算 ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "adversarial": {
+    "attempted": true,
+    "result": "recomputed-no-mismatch"
+  },
+  "review_scope": "single-ledger-row",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 0,
+    "archived_files": 3,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

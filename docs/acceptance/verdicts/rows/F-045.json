@@ -1,0 +1,145 @@
+{
+  "id": "F-045",
+  "domain": "F",
+  "check": "预览耗时：回归",
+  "verdict": "PASS",
+  "verdict_detail": "证据与行断言一致，复算值见 checks。",
+  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-f",
+  "review_run_id": "2026-11-05T08:00:11Z-batch46-f-domain-row-review",
+  "reviewer": "subagent-f-domain-row-reviewer-b46",
+  "authors": [
+    "batch44-f-domain-evidence-track"
+  ],
+  "self_review": false,
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
+  "method": "批次43 PDF preview 0.346-0.373s vs 本轮 0.332-0.378s；D-04 0.652/0.672 vs 0.581，data.test APK 不同; test: docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-preview-pdf1.xml",
+  "evidence": [
+    "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log",
+    "test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-preview-pdf1.xml",
+    "file:docs/research/evidence/2026-11-05-batch-44/f-domain/regression-baseline.json"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log": "e3df1f7fba8b4e131261f2f69340df4a18ebfc4f13f3bfee5171d578d756b75c",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-preview-pdf1.xml": "5a22d5995bc2622adcc8bd9eab8741832047c9078dd9152ce8a6489183968115",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/regression-baseline.json": "efaffeef196a1b5e3e4240ed3d3ac13500e25f35ce480ccc618227b88a46e2bc"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=F-045; verdict=PASS; line=626; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+    },
+    {
+      "name": "cmd_exit",
+      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log",
+      "observed": {
+        "exit_markers": [
+          0
+        ],
+        "result": [
+          "OK"
+        ],
+        "tests": []
+      },
+      "expect": {
+        "exit": 0
+      },
+      "pass": true,
+      "sha256": "e3df1f7fba8b4e131261f2f69340df4a18ebfc4f13f3bfee5171d578d756b75c"
+    },
+    {
+      "name": "xml_counts",
+      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-preview-pdf1.xml",
+      "observed": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "time": "0.359",
+        "suite": "com.tingyun.smartmistakebook.core.export.MistakePdfDeliveryRegressionInstrumentedTest#previewPageZeroKeepsA4SizeAndAspectUnderParameterizedLayouts"
+      },
+      "expect": {
+        "tests_gt": 0,
+        "failures": 0,
+        "errors": 0
+      },
+      "pass": true,
+      "sha256": "5a22d5995bc2622adcc8bd9eab8741832047c9078dd9152ce8a6489183968115"
+    },
+    {
+      "name": "evidence_exists",
+      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/regression-baseline.json",
+      "observed": {
+        "exists": true,
+        "bytes": 2783
+      },
+      "pass": true,
+      "sha256": "efaffeef196a1b5e3e4240ed3d3ac13500e25f35ce480ccc618227b88a46e2bc"
+    },
+    {
+      "name": "preview_cmd_values",
+      "target": "preview.cmd.log",
+      "observed": {
+        "SERIAL": "emulator-5566",
+        "APK_SHA256": "08ea26417f746daddf0344c8b12433702628e25670f7ca80283b2e2374e165c0",
+        "PDF_PREVIEW_TIME_S": "0.359,0.332,0.378",
+        "PDF_PREVIEW_PSS_PEAK_KB": "28417,41443,45113",
+        "VISUAL_PREVIEW_TIME_S": "0.581,0.581",
+        "VISUAL_PREVIEW_PSS_PEAK_KB": "65777,66257",
+        "RESULT": "OK",
+        "EXIT": "0"
+      }
+    },
+    {
+      "name": "baseline_preview",
+      "target": "regression-baseline.json",
+      "observed": {
+        "batch43_pdf": [
+          0.373,
+          0.364,
+          0.346
+        ],
+        "current_pdf": [
+          0.359,
+          0.332,
+          0.378
+        ],
+        "batch43_visual": [
+          0.652,
+          0.672
+        ],
+        "current_visual": [
+          0.581,
+          0.581
+        ]
+      }
+    }
+  ],
+  "basis": "机械复算（reviewer=subagent-f-domain-row-reviewer-b46，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 F-045 并复算 ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "findings": [],
+  "adversarial": {
+    "attempted": true,
+    "result": "no-contradiction-found"
+  },
+  "caveats": [
+    "regression-baseline.json 未记录 data.test APK sha，“data.test APK 不同”无法从该文件复核；两侧 preview 时间可复算。"
+  ],
+  "notes": "本文件只对该单行生效，不构成 F 域或批次整体签字。证据由批次 44 F 域设备轮产出（emulator-5566/5562）；本复核只复算归档证据，未重跑设备。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "rebind_from_run_id": "2026-11-04T15:23:00Z-batch44-f-domain-device-run",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 0,
+    "archived_files": 3,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

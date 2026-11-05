@@ -1,0 +1,56 @@
+{
+  "id": "I-034",
+  "verdict": "PASS",
+  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-i",
+  "reviewer": "batch46-line-reviewer-I",
+  "authors": [
+    "batch45-evidence-producer-I"
+  ],
+  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "evidence": [
+    "device:docs/research/evidence/2026-11-05-batch-44/i-domain/dark-font2-review.device.json",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/i-domain/dark-font2-review.log"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/dark-font2-review.device.json": "78f0df83fa2d33b8169be83ef6ec9da5d46ee79e5fe57bc779034de1795d4213",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/dark-font2-review.log": "ab5511a4c74ccb9aaf8c556734482e1945aa134ea73498fa7f9176c58d5df54d"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=I-034; verdict=PASS; line=885; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+    },
+    {
+      "name": "device_binding",
+      "source": "docs/research/evidence/2026-11-05-batch-44/i-domain/dark-font2-review.device.json",
+      "value": "serial=emulator-5584; apk_sha256=b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac; test_apk_sha256=None; counts=null; verdict=PASS; boot_id=831e5d06-7331-40d8-8cf4-406976b8a9c3; sha256=78f0df83fa2d33b8169be83ef6ec9da5d46ee79e5fe57bc779034de1795d4213"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/research/evidence/2026-11-05-batch-44/i-domain/dark-font2-review.log",
+      "value": "exit_markers=[0]; cmd=n/a; sha256=ab5511a4c74ccb9aaf8c556734482e1945aa134ea73498fa7f9176c58d5df54d"
+    }
+  ],
+  "basis": "机械复算（reviewer=batch46-line-reviewer-I，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 I-034 并复算 ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "adversarial": {
+    "attempted": true,
+    "result": "recomputed-no-mismatch"
+  },
+  "review_scope": "single-ledger-row",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 0,
+    "archived_files": 2,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "shared-suite"
+}

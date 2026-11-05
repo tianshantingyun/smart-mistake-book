@@ -1,0 +1,102 @@
+{
+  "id": "F-016",
+  "domain": "F",
+  "check": "warm-up：日志",
+  "verdict": "PASS",
+  "verdict_detail": "证据与行断言一致，复算值见 checks。",
+  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-f",
+  "review_run_id": "2026-11-05T08:00:11Z-batch46-f-domain-row-review",
+  "reviewer": "subagent-f-domain-row-reviewer-b46",
+  "authors": [
+    "batch44-f-domain-evidence-track"
+  ],
+  "self_review": false,
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
+  "method": "逐轮 am start -W 原始输出与 logcat Displayed; device: emulator-5566",
+  "evidence": [
+    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/startup-cold.txt",
+    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/logcat-displayed.txt",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-cold.txt": "75c07fdb6da14f9a363e2648fbf2f93039ae7c091f56836987772520ecf3e2a7",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/logcat-displayed.txt": "e0157dcc7bf4636fac47e33f8f14ee808e64aa8e54e833e2766b86d117c1ff14",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log": "d75e8ece4404113e4e795d878e5bb6aa0611c315588c3ac3855ab8e1fa1cfec0"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=F-016; verdict=PASS; line=597; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+    },
+    {
+      "name": "evidence_exists",
+      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-cold.txt",
+      "observed": {
+        "exists": true,
+        "bytes": 2044
+      },
+      "pass": true,
+      "sha256": "75c07fdb6da14f9a363e2648fbf2f93039ae7c091f56836987772520ecf3e2a7"
+    },
+    {
+      "name": "evidence_exists",
+      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/logcat-displayed.txt",
+      "observed": {
+        "exists": true,
+        "bytes": 1334
+      },
+      "pass": true,
+      "sha256": "e0157dcc7bf4636fac47e33f8f14ee808e64aa8e54e833e2766b86d117c1ff14"
+    },
+    {
+      "name": "cmd_exit",
+      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log",
+      "observed": {
+        "exit_markers": [
+          0
+        ],
+        "result": [],
+        "tests": []
+      },
+      "expect": {
+        "exit": 0
+      },
+      "pass": true,
+      "sha256": "d75e8ece4404113e4e795d878e5bb6aa0611c315588c3ac3855ab8e1fa1cfec0"
+    },
+    {
+      "name": "displayed_lines",
+      "target": "logcat-displayed.txt",
+      "observed": {
+        "Displayed": 8,
+        "gfxinfo_blocks": 7
+      }
+    }
+  ],
+  "basis": "机械复算（reviewer=subagent-f-domain-row-reviewer-b46，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 F-016 并复算 ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "findings": [],
+  "adversarial": {
+    "attempted": true,
+    "result": "no-contradiction-found"
+  },
+  "caveats": [],
+  "notes": "本文件只对该单行生效，不构成 F 域或批次整体签字。证据由批次 44 F 域设备轮产出（emulator-5566/5562）；本复核只复算归档证据，未重跑设备。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "rebind_from_run_id": "2026-11-04T15:23:00Z-batch44-f-domain-device-run",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 0,
+    "archived_files": 3,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

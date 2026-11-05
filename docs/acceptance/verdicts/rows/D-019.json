@@ -1,0 +1,128 @@
+{
+  "id": "D-019",
+  "verdict": "PASS",
+  "verdict_detail": "PASS_WORKTREE",
+  "machine_verdict": "PASS_WORKTREE",
+  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-d",
+  "reviewer": "复核 D 域行级",
+  "reviewer_id": "batch46-d-domain-row-reviewer",
+  "authors": [
+    "batch-44-d-domain-implementer"
+  ],
+  "self_review": false,
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
+  "reviewed_at_utc": "2026-11-05T08:05:09Z",
+  "scope": "A–I domain: signed PASS with machine_verdict=PASS_WORKTREE is allowed on a dirty tree; no PASS_HEAD claim",
+  "evidence": [
+    "test:docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest.xml",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-gateway-egress.log"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest.xml": "e89b3c566070693222f7456b02ef511277b79e750d59b584ca7404ff541806a9",
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-gateway-egress.log": "b3c2e70a3cacf6a2529f890757e897d629f2c7f18bc863ea89904f590dd316e4"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=D-019; verdict=PASS; line=420; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+    },
+    {
+      "check": "source_sha256",
+      "file": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt",
+      "exists": true,
+      "sha256": "e76f722869a4a110f8d1b92f021e0a4253315ad0906bbbfed3e3736e6c2cb298",
+      "head_blob_sha256": "e76f722869a4a110f8d1b92f021e0a4253315ad0906bbbfed3e3736e6c2cb298",
+      "sha256_equals_head_blob": true,
+      "head_present": true,
+      "git_status": "",
+      "git_status_clean": true,
+      "equals_head": true,
+      "primary_name_in_source": true,
+      "secondary_names_in_source": [],
+      "source_kind": "test_source_at_head"
+    },
+    {
+      "check": "xml_counts",
+      "file": "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest.xml",
+      "sha256": "e89b3c566070693222f7456b02ef511277b79e750d59b584ca7404ff541806a9",
+      "suite": "com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest",
+      "tests": 68,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "testcases_recounted": 68,
+      "tests_equals_testcases": true,
+      "testcase_classnames_match_suite": true,
+      "timestamp": "2026-11-04T14:24:36.519Z",
+      "doctype_or_entity_present": false,
+      "xml_precheck": "no DOCTYPE/ENTITY (byte-level)"
+    },
+    {
+      "check": "testcase_presence",
+      "xmls": [
+        "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest.xml"
+      ],
+      "primary": "paperEditShapeErrorIsPermanentInvalidResponse",
+      "primary_present": true,
+      "secondary": [],
+      "all_present": true
+    },
+    {
+      "check": "cmd_exit",
+      "file": "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-gateway-egress.log",
+      "sha256": "b3c2e70a3cacf6a2529f890757e897d629f2c7f18bc863ea89904f590dd316e4",
+      "token_exit_attr": 0,
+      "log_exit_markers": [
+        0
+      ],
+      "cmd_header_names_all_suites": true,
+      "started_utc": "2026-11-04T14:24:26Z",
+      "finished_utc": "2026-11-04T14:24:58Z",
+      "xml_timestamps_within_window": true
+    },
+    {
+      "check": "supplemental_fresh_rerun_batch45",
+      "entries": [
+        {
+          "file": "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest.xml",
+          "sha256": "203876903529f5cce3229891c2e1fac7b9c6c60fe4ea72fae603fb230b8d6e73",
+          "tests": 68,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "timestamp": "2026-11-05T03:04:40.934Z",
+          "primary_present_in_this_xml": true,
+          "secondary_present_in_this_xml": []
+        }
+      ],
+      "primary_present_any_fresh_xml": true,
+      "secondary_present_any_fresh_xml": [],
+      "all_methods_present": true,
+      "gradle_exit": 0,
+      "source_binding": "batch45 d-review evidence (committed)"
+    }
+  ],
+  "basis": "机械复算（reviewer=复核 D 域行级，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 D-019 并复算 ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "contradictions": [],
+  "notes": "未在本复核中重跑 Gradle（纪律：Gradle 只在串行门禁阶段）；checks 由归档 XML/CMD 日志/源文件哈希复算。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "method": "test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#paperEditShapeErrorIsPermanentInvalidResponse",
+  "check_text": "解析失败分类：改卷输出出现未知命令 replace_image 时映射 INVALID_RESPONSE 且不可重试",
+  "rebind_from_run_id": "2026-11-04T14:24:26Z@batch44-d-domain",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 0,
+    "archived_files": 2,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

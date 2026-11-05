@@ -1,0 +1,128 @@
+{
+  "id": "D-002",
+  "verdict": "PASS",
+  "verdict_detail": "PASS_WORKTREE",
+  "machine_verdict": "PASS_WORKTREE",
+  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-d",
+  "reviewer": "复核 D 域行级",
+  "reviewer_id": "batch46-d-domain-row-reviewer",
+  "authors": [
+    "batch-44-d-domain-implementer"
+  ],
+  "self_review": false,
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
+  "reviewed_at_utc": "2026-11-05T08:05:09Z",
+  "scope": "A–I domain: signed PASS with machine_verdict=PASS_WORKTREE is allowed on a dirty tree; no PASS_HEAD claim",
+  "evidence": [
+    "test:docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest.xml",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-prompt-paper.log"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest.xml": "c870184cf0e48563e6c2bbefb67aa15b1e466f7e4d7df9ae95a10e8f588c2342",
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-prompt-paper.log": "a599f3237afdb87d43da884693ee02cc0110afb71bc88db5cb45c75230e1397c"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=D-002; verdict=PASS; line=403; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+    },
+    {
+      "check": "source_sha256",
+      "file": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditPromptGoldenTest.kt",
+      "exists": true,
+      "sha256": "e42913e91ccafe2705a9e9412b2800bb488f57b3941794bf176b41e80b323576",
+      "head_blob_sha256": "e42913e91ccafe2705a9e9412b2800bb488f57b3941794bf176b41e80b323576",
+      "sha256_equals_head_blob": true,
+      "head_present": true,
+      "git_status": "",
+      "git_status_clean": true,
+      "equals_head": true,
+      "primary_name_in_source": true,
+      "secondary_names_in_source": [],
+      "source_kind": "test_source_at_head"
+    },
+    {
+      "check": "xml_counts",
+      "file": "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest.xml",
+      "sha256": "c870184cf0e48563e6c2bbefb67aa15b1e466f7e4d7df9ae95a10e8f588c2342",
+      "suite": "com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "testcases_recounted": 3,
+      "tests_equals_testcases": true,
+      "testcase_classnames_match_suite": true,
+      "timestamp": "2026-11-04T14:24:24.012Z",
+      "doctype_or_entity_present": false,
+      "xml_precheck": "no DOCTYPE/ENTITY (byte-level)"
+    },
+    {
+      "check": "testcase_presence",
+      "xmls": [
+        "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest.xml"
+      ],
+      "primary": "theNoNoteLayoutPromptMatchesItsVersionedGoldenByteForByte",
+      "primary_present": true,
+      "secondary": [],
+      "all_present": true
+    },
+    {
+      "check": "cmd_exit",
+      "file": "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-prompt-paper.log",
+      "sha256": "a599f3237afdb87d43da884693ee02cc0110afb71bc88db5cb45c75230e1397c",
+      "token_exit_attr": 0,
+      "log_exit_markers": [
+        0
+      ],
+      "cmd_header_names_all_suites": true,
+      "started_utc": "2026-11-04T14:24:12Z",
+      "finished_utc": "2026-11-04T14:24:26Z",
+      "xml_timestamps_within_window": true
+    },
+    {
+      "check": "supplemental_fresh_rerun_batch45",
+      "entries": [
+        {
+          "file": "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest.xml",
+          "sha256": "dce3de8bd5c90530f7bddd24131a01702c0a84f568023bf23fbfab9906efbf6e",
+          "tests": 3,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "timestamp": "2026-11-05T03:04:58.698Z",
+          "primary_present_in_this_xml": true,
+          "secondary_present_in_this_xml": []
+        }
+      ],
+      "primary_present_any_fresh_xml": true,
+      "secondary_present_any_fresh_xml": [],
+      "all_methods_present": true,
+      "gradle_exit": 0,
+      "source_binding": "batch45 d-review evidence (committed)"
+    }
+  ],
+  "basis": "机械复算（reviewer=复核 D 域行级，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 D-002 并复算 ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "contradictions": [],
+  "notes": "未在本复核中重跑 Gradle（纪律：Gradle 只在串行门禁阶段）；checks 由归档 XML/CMD 日志/源文件哈希复算。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "method": "test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditPromptGoldenTest.kt#theNoNoteLayoutPromptMatchesItsVersionedGoldenByteForByte",
+  "check_text": "prompt 版本/golden：paper-edit 无备注版式走第二份 golden，同样逐字节一致",
+  "rebind_from_run_id": "2026-11-04T14:24:12Z@batch44-d-domain",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 0,
+    "archived_files": 2,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

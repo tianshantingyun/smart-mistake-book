@@ -1,0 +1,89 @@
+{
+  "id": "G-071",
+  "verdict": "PASS",
+  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-g",
+  "reviewer": "independent-reviewer:g-domain-batch46-line",
+  "authors": [
+    "batch-44-g-evidence-group"
+  ],
+  "self_review": false,
+  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
+  "ledger_line": "docs/acceptance/ledger.md#G-071",
+  "check": "产品源码无外部存储写入（外部路径仅出现在测试夹具）",
+  "method": "cmd: python -I tools/ci/g_security_gate.py --topic fileexposure （断言 G-071）; test:docs/acceptance/evidence/G/tests/g-fileexposure.xml",
+  "evidence": [
+    "cmd:docs/acceptance/evidence/G/logs/g-fileexposure.log",
+    "test:docs/acceptance/evidence/G/tests/g-fileexposure.xml"
+  ],
+  "evidence_sha256": {
+    "docs/acceptance/evidence/G/logs/g-fileexposure.log": "f8ebd36e5192b8eb831c576f004dbbb49bdc1a714fad0f7b39aaec81cf006322",
+    "docs/acceptance/evidence/G/tests/g-fileexposure.xml": "cd23fd137ce7ba47e858c14eccb7c54ce448e5effc864e7dcca8758c5b6daa6f"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=G-071; verdict=PASS; line=742; ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b"
+    },
+    {
+      "name": "evidence_sha256",
+      "path": "docs/acceptance/evidence/G/logs/g-fileexposure.log",
+      "expected": "f8ebd36e5192b8eb831c576f004dbbb49bdc1a714fad0f7b39aaec81cf006322",
+      "actual": "f8ebd36e5192b8eb831c576f004dbbb49bdc1a714fad0f7b39aaec81cf006322",
+      "manifest_listed": true,
+      "ok": true
+    },
+    {
+      "name": "evidence_sha256",
+      "path": "docs/acceptance/evidence/G/tests/g-fileexposure.xml",
+      "expected": "cd23fd137ce7ba47e858c14eccb7c54ce448e5effc864e7dcca8758c5b6daa6f",
+      "actual": "cd23fd137ce7ba47e858c14eccb7c54ce448e5effc864e7dcca8758c5b6daa6f",
+      "manifest_listed": true,
+      "ok": true
+    },
+    {
+      "name": "junit_counts",
+      "path": "docs/acceptance/evidence/G/tests/g-fileexposure.xml",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "ok": true
+    },
+    {
+      "name": "cmd_log_exit",
+      "path": "docs/acceptance/evidence/G/logs/g-fileexposure.log",
+      "log_exit": 0,
+      "ledger_declared_exit": 0,
+      "ok": true
+    },
+    {
+      "name": "gate_assertion_rerun",
+      "cmd": "python -I tools/ci/g_security_gate.py --all",
+      "gate_exit": 0,
+      "assertion_id": "G-071",
+      "line": "G-071 PASS external storage writes=0",
+      "ok": true
+    }
+  ],
+  "adversarial": {
+    "attempted": false,
+    "result": "not-attempted"
+  },
+  "basis": "机械复算（reviewer=independent-reviewer:g-domain-batch46-line，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 G-071 并复算 ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "rebind_from_run_id": "2026-11-05T01:14:36+08:00-batch44-g-evidence",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 0,
+    "archived_files": 2,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}
