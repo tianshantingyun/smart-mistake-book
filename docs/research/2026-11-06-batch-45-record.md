@@ -482,3 +482,39 @@ D0 5 / A 24 / B 2 / C 12 / E 10 / F 23 / G 6 / H 7 / I 32 / J 22 / GATE 1。主�
 ---
 
 <!-- 体量自查：wc -lc = 484 行 / 45,708 B（≤65,536 B）。 -->
+
+## 9. 主会话收口（2026-11-05）
+
+### 9.1 主会话实跑验证
+
+| 项 | 结果 |
+|---|---|
+| `python -I tools/ci/acceptance_report.py` | **exit=1**；total 1200；PASS **865** / FAIL **30** / BLOCKED **161** / UNVERIFIED **144**；`violations=0`（E 域占位已清零） |
+| `pass_with_review` | **0 / 865**（域级复核 JSON 绑定旧台账 `bb25ef23…`，且自述 `independence_verified=false`） |
+| 单测门 12 模块 | `GRADLE_EXIT=0` |
+| 强门（逐任务 `--rerun`） | `GRADLE_EXIT=0` |
+| 环后强门 | `GRADLE_EXIT=0` |
+
+### 9.2 终裁：**验收不通过（NOT ACCEPTED）**
+
+我确认 `docs/acceptance/adjudication.md` 的结论，并只对其中两项签字：
+
+1. 结论「验收不通过」；
+2. 161 行 BLOCKED 清单（表示“条件/授权缺失，不判 PASS”）。
+
+**不签字**：865 条 PASS（无行级独立复核；F 域复核还发现 2 条 PASS 与证据矛盾）、30 条 FAIL、144 条 UNVERIFIED、发版就绪、“批次 45 验收通过”。
+
+五条阻断与记录 §0 一致：报告 exit 1；865 PASS 零行级复核；30 FAIL 中 28 条有当前证据、2 条判词过期且 H-066 曾因硬编码行号出现假通过；161 BLOCKED 中 10 条属内部热区/授权；证据此前不可从 HEAD 重放（本批已把证据入库，但 HEAD 台账仍是旧字节）。
+
+### 9.3 本批实得
+
+- E 域 80 个占位 id 全部换成逐字命令并实跑：domain 15 类/161 例、data 20 类/150 例 0 fail、探针 298,277 断言 OK、`--mutate` 红相 VIOLATED；`PLACEHOLDER_CMD` 101→0。
+- D0 100 行自验收落码；FIX 20 个修复单与 GATE 100 行落表；十域复核 JSON 落盘（虽然绑旧台账，作为下一轮重签的输入）。
+- KD-76 A6 仍 NOT EVALUABLE；isolation 窗仍 INVALID；p09 三次复跑仍不一致（未收敛）；发版 7 条 P0 维持。
+
+### 9.4 批次 46 的唯一出口
+
+1. 台账/证据冻结提交后，按**当前 sha** 逐行生成行级独立复核（reviewer≠作者），使 `pass_with_review == PASS 数`；
+2. 30 条 FAIL 逐条重判（修或保留 FAIL，不得洗绿）；
+3. 161 条 BLOCKED 逐条确认 runbook（外部/内部）；
+4. 重跑 `acceptance_report --require-complete`；若仍非 0，维持不通过并给出不可签字项清单。
