@@ -141,6 +141,45 @@ class AcceptanceLintTest(unittest.TestCase):
             self.assertIn("EVIDENCE_REUSED",
                           {v["code"] for v in data["violations"]})
 
+    def test_evidence_shared_by_five_rows_warns(self) -> None:
+        """同一证据被 5 行 PASS 共用时就必须告警（批次 45 复核 finding 9）。
+
+        旧阈值 `count > 10` 让 GATE 域“每证据恰好 10 行”的复用永远不告警；
+        D0/FIX 的 5–7 行复用同样不可见，于是 `warnings=0` 被误读成“独立性强”。
+        """
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            (tmp / "build").mkdir()
+            (tmp / "build" / "x.log").write_text("EXIT=0\n", encoding="utf-8")
+            rows = "".join(
+                _row(f"D0-{index:03d}", "PASS", "cmd:build/x.log#exit=0")
+                for index in range(1, 6)
+            )
+            ledger = tmp / "ledger.md"
+            ledger.write_text(HEADER + rows, encoding="utf-8")
+            proc, data = _run(tmp, ledger)
+            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            self.assertEqual([w["code"] for w in data["warnings"]],
+                             ["EVIDENCE_REUSED"])
+            self.assertEqual(len(data["reuse"]), 1)
+            self.assertEqual(data["reuse"][0]["count"], 5)
+
+    def test_evidence_shared_by_four_rows_is_not_a_warning(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            (tmp / "build").mkdir()
+            (tmp / "build" / "x.log").write_text("EXIT=0\n", encoding="utf-8")
+            rows = "".join(
+                _row(f"D0-{index:03d}", "PASS", "cmd:build/x.log#exit=0")
+                for index in range(1, 5)
+            )
+            ledger = tmp / "ledger.md"
+            ledger.write_text(HEADER + rows, encoding="utf-8")
+            proc, data = _run(tmp, ledger)
+            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            self.assertEqual(data["warnings"], [])
+            self.assertEqual(data["reuse"][0]["count"], 4)
+
     def test_self_review_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             tmp = Path(td)

@@ -218,6 +218,49 @@ class AcceptanceReportTest(unittest.TestCase):
             self.assertIn("REVIEW_LEDGER_SHA_MISMATCH",
                           {v["code"] for v in data["violations"]})
 
+    def test_review_verdict_must_be_a_known_verdict(self) -> None:
+        """复核 JSON 的 verdict 必须是 PASS/FAIL/BLOCKED/UNVERIFIED。
+
+        批次 45 复核 finding 5：B/D/E 的 domain-review 用了 SAMPLED_REVIEW /
+        PASS_WORKTREE / PASS_WITH_REVIEW，报告只查字段不查枚举，非标准判词
+        被原样接受并进入域索引。复核判词不能自造。
+        """
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            _write_log(tmp, "build/x.log", "EXIT=0\n")
+            (tmp / "build" / "review.json").write_text(
+                json.dumps({"reviewer": "r3", "run_id": "run-3",
+                            "ledger_sha256": "a" * 64,
+                            "verdict": "SAMPLED_REVIEW"}),
+                encoding="utf-8")
+            ledger = tmp / "ledger.md"
+            ledger.write_text(
+                HEADER + _row("D0-001", "PASS",
+                              "cmd:build/x.log#exit=0; review:build/review.json"),
+                encoding="utf-8")
+            proc, data = _run(tmp, ledger)
+            self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+            self.assertIn("REVIEW_VERDICT_INVALID",
+                          {v["code"] for v in data["violations"]})
+
+    def test_review_without_verdict_is_invalid(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            _write_log(tmp, "build/x.log", "EXIT=0\n")
+            (tmp / "build" / "review.json").write_text(
+                json.dumps({"reviewer": "r4", "run_id": "run-4",
+                            "ledger_sha256": "a" * 64}),
+                encoding="utf-8")
+            ledger = tmp / "ledger.md"
+            ledger.write_text(
+                HEADER + _row("D0-001", "PASS",
+                              "cmd:build/x.log#exit=0; review:build/review.json"),
+                encoding="utf-8")
+            proc, data = _run(tmp, ledger)
+            self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+            self.assertIn("REVIEW_VERDICT_INVALID",
+                          {v["code"] for v in data["violations"]})
+
     def test_device_verdict_fail_is_not_a_pass(self) -> None:
         """设备 JSON 自带 verdict=FAIL 时，即使 cmd 日志 EXIT=0 也不得判 PASS。"""
         with tempfile.TemporaryDirectory() as td:

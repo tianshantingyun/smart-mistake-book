@@ -46,6 +46,8 @@ from acceptance_report import (  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_LEDGER = ROOT / "docs" / "acceptance" / "ledger.md"
+# 同一证据被 ≥N 行 PASS 共用即告警。5 行足以让“两类独立证据”变成名义成立。
+REUSE_WARN_THRESHOLD = 5
 
 
 def _file_text(path: Path) -> str:
@@ -139,8 +141,11 @@ def lint(ledger: str | Path, repo_root: str | Path, partial: bool = False,
                 ):
                     violations.append({"id": row.row_id, "code": "SELF_REVIEW",
                                        "detail": f"{evidence.target}: reviewer 自证"})
-    for target, count in reuse.items():
-        if count > 10:
+    for target, count in reuse.most_common():
+        # 批次 45 复核 finding 9：旧阈值 `count > 10` 让“每证据恰好 10 行”的
+        # GATE 域和 5–7 行的 D0/FIX 复用永远不告警。5 行共用同一条证据已经
+        # 足以让“两类独立证据”变成名义成立，必须进入告警面。
+        if count >= REUSE_WARN_THRESHOLD:
             warnings.append({"id": "", "code": "EVIDENCE_REUSED",
                              "detail": f"{target} 被 {count} 行 PASS 共用，需确认独立性"})
     if strict_warnings:
@@ -154,6 +159,11 @@ def lint(ledger: str | Path, repo_root: str | Path, partial: bool = False,
         "total": len(rows),
         "violations": violations,
         "warnings": warnings,
+        # 即使某条证据没到告警阈值，也要把复用计数摊开：`warnings=[]` 不等于
+        # “证据互相独立”。调用方可以机械复核 max count。
+        "reuse": [{"target": target, "count": count}
+                  for target, count in reuse.most_common()],
+        "reuse_warn_threshold": REUSE_WARN_THRESHOLD,
         "ok": not violations,
         "exit_code": 0 if not violations else 1,
     }

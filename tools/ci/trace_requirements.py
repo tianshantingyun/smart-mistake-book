@@ -15,6 +15,7 @@
 - `DEVICE_EVIDENCE_MISSING`：方法声明设备执行，但证据里没有 `device:`；
 - `PASS_WITHOUT_TEST_LANDING`：PASS 行没有 test/device 落点；
 - `PASS_WITH_UNVERIFIED_METHOD`：PASS 行方法以 `UNVERIFIED:` 开头；
+- `BLOCKED_WITHOUT_RUNBOOK`：BLOCKED 行没有指向 runbook 出口；
 - `NO_LANDING_POINT`：方法为空。
 
 退出码：0 无缺口；1 有缺口；2 台账不可读。
@@ -99,6 +100,12 @@ def trace(ledger: str | Path, repo_root: str | Path, partial: bool = False) -> d
             if not row.method.strip() or row.method.strip() in {"-", "—"}:
                 row_gaps.append({"id": row.row_id, "code": "NO_LANDING_POINT",
                                  "detail": "BLOCKED 行没有 runbook/出口"})
+            elif ("runbook" not in row.method.lower()
+                  and "runbook" not in row.evidence_text.lower()):
+                # 批次 45 复核 finding 7：BLOCKED 只写 issue、不写出口时，
+                # “可签字的阻塞清单”无法复核——拿到条件后按哪一节复跑没有答案。
+                row_gaps.append({"id": row.row_id, "code": "BLOCKED_WITHOUT_RUNBOOK",
+                                 "detail": row.method[:160]})
             for item in evidence:
                 if not M.resolve(root, item.target).exists():
                     row_gaps.append({"id": row.row_id, "code": "MISSING_EVIDENCE_PATH",

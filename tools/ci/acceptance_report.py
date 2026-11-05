@@ -14,7 +14,7 @@
    SKIP 等“跳过门”标记；
 4. `test` XML 的 failures/errors 必须为 0，tests 不能为 0；
 5. `review` JSON 必须有 `reviewer` + `run_id` + 与当前台账一致的 `ledger_sha256`，
-   且 reviewer 不得在 `authors` 里；
+   且 reviewer 不得在 `authors` 里；`verdict` 必须是 PASS/FAIL/BLOCKED/UNVERIFIED；
 6. `summary` / 批次 `record` 类 Markdown 不得作为证据；
 7. `CMD:` 行含 `<...>` 占位（类名未展开、不可复跑）的日志不算运行记录；
 8. 设备 JSON 自带 `verdict`/`counts` 判词时必须为 PASS 且确有执行；
@@ -174,6 +174,13 @@ def _check_review(evidence: M.Evidence, path: Path, row: M.Row, out: list[dict],
         if not data.get(key):
             out.append({"id": row.row_id, "code": "REVIEW_MISSING_FIELD",
                         "detail": f"{evidence.target}: 缺 {key}"})
+    verdict = data.get("verdict")
+    # 批次 45 复核 finding 5：domain-review 曾用 SAMPLED_REVIEW / PASS_WORKTREE /
+    # PASS_WITH_REVIEW 等自造判词，报告只查字段不查枚举。复核判词必须落在
+    # 台账同一套 verdict 上，细粒度说明放到 verdict_detail / scope 字段。
+    if not isinstance(verdict, str) or verdict.strip().upper() not in M.VERDICTS:
+        out.append({"id": row.row_id, "code": "REVIEW_VERDICT_INVALID",
+                    "detail": f"{evidence.target}: verdict={verdict!r}"})
     declared_sha = data.get("ledger_sha256")
     if declared_sha and not re.fullmatch(r"[0-9a-fA-F]{64}", str(declared_sha)):
         out.append({"id": row.row_id, "code": "REVIEW_INVALID",
