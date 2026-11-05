@@ -242,3 +242,33 @@ J 域证据与命令见 `docs/research/evidence/2026-11-05-batch-44/j-domain/00-
 | J-064–J-072 | 回滚需成对包与生产签名 | 上一版 APK/AAB 可覆盖安装；备份导出/恢复演练；迁移非破坏（`RELEASE.md` Rollback） |
 | J-073–J-081 | Play Console 账号与商店素材缺失 | 按 `docs/research/2026-10-25-store-launch-materials-checklist.md` 备料并上传 |
 | J-082–J-090 | Play 封闭测试轨道未建立 | 创建内部/封闭轨道，上传 AAB，登记测试账号与反馈渠道 |
+
+## 13. FIX 域修复单与出口（批次 45 WS3）
+
+20 个修复单由批次 44 的 FAIL 21 + BLOCKED 73 归并而成；每单一个复发门
+（`python -I tools/ci/fix_relapse_gate.py --gate FIX-Tnn`，全跑 `--all --prove-red`）。
+门锁住当前判词：要关闭 KD-84/KD-85 或把外部阻塞改判成 PASS，必须同时提交独立读回/
+设备/复核证据并显式更新门，不能让判词随文档漂移。
+
+| 单 | 严重度 | 主题（覆盖行） | 处置 | 复跑条件 / 出口 |
+|---|---|---|---|---|
+| FIX-T01 | 高 | 复习滑杆端点崩溃（F-055/F-057） | 已修复（`587098f1`，band 夹回） | 复跑条件=`./gradlew :app:testLocalFirstDebugUnitTest --tests "com.tingyun.smartmistakebook.SchedulingRetentionSliderValueTest"`；端点直落 `toDouble()` 或删端点用例时复发门转红 |
+| FIX-T02 | 中 | 失败文案拼接原始异常 message（H-066 及同族 6 处） | 已修复（本批去掉 `${failure.message}`，保留域内异常的人工措辞） | 复跑条件=`python -I tools/ci/fix_relapse_gate.py --gate FIX-T02`；再出现 `.orEmpty()` 拼接即转红 |
+| FIX-T03 | 低 | 免责声明文案与 PDF 隐式标识现状不一致（H-052） | 已修复（`ae1234dc`；`h_compliance_gate --only H-052` 现 exit 0） | 复跑条件=`python -I tools/ci/h_compliance_gate.py --all --only H-052`；文案与注入现状再次冲突即转红 |
+| FIX-T04 | 中 | 部分页打印丢文档级 `/AIGC`（KD-84；H-018/H-061） | BLOCKED：需改 `core/export` 已批准 hunk 并做独立读者读回 | 复跑条件=按 §9.2 出设备产物后，宿主 pypdf/PyMuPDF 读回子集 PDF 的 `/AIGC` 且 `ProduceID` 与输入一致、页数等于所选页数；同时更新 `known-defects.md` 与本门 |
+| FIX-T05 | 高 | 模型改卷文本未纳入 `/AIGC` 判据（KD-85；H-018/H-062） | BLOCKED：落点跨 `feature/tutor`（热区）需主会话授权 | 复跑条件=纯用户来源经模型改卷后导出 PDF 被独立读者读回 `Label=1`、`ProduceID=输入 sha`；仅手工编辑仍无 `/AIGC`；`MistakePdfPaperEdit` 单测覆盖两向 |
+| FIX-T06 | 中 | 恢复回放零面积夹具（C-065） | 已修夹具（闭合三角形 `M/L/L/Z`，工作树未提交），设备绿轮未跑 | 复跑条件=`am instrument ... TutorVisualRebuildRestoreInstrumentedTest#theRestoreLegAloneReplaysOfflineWithZeroDispatchBookings` 在修复后 APK 上绿；夹具退回开口线段时本门转红 |
+| FIX-T07 | 中 | DOCX 无文档级 `/AIGC`（H-018） | BLOCKED：先在 `core/export` 加 docProps 标识，再做独立 DOCX 读回 | 复跑条件=DOCX 产物被独立读者读回文档级 `/AIGC`；仅在代码里出现字面量不算关闭（本门会转红） |
+| FIX-T08 | 高 | 真实 Provider 端到端（A-010/D-082..D-090，9 项） | BLOCKED：无真实密钥与上游 | 复跑条件=以环境变量注入 `*_API_KEY` 后按本文 D 域步骤执行，证据绑定 run-id 与 APK sha，且不回显密钥 |
+| FIX-T09 | 高 | arm64 设备矩阵（F-006..F-087 十项 + J-035/J-037..J-043，16 项） | BLOCKED：两台在线设备均 x86_64 | 复跑条件=换 arm64 真机后按 §9.2 J-037–J-045 重跑冷启/首帧/导出/内存/长时/进程死亡 |
+| FIX-T10 | 高 | 生产签名与指纹（J-019..J-027，6 项） | BLOCKED：`RELEASE_*` 4/4 未设 | 复跑条件=配齐签名环境变量后 `apksigner verify --print-certs`，指纹等于已登记发布指纹且 AAB/APK 同身份、证书覆盖发布窗口 |
+| FIX-T11 | 中 | 版本号单调与版本源（J-048/J-051/J-052/J-086，4 项） | BLOCKED：`versionCode` 仍是手写常量 2，改版本源属发布裁定 | 复跑条件=引入版本源并在两次构建上验证 vc 单调；历史 AAB 与现 APK 的 vc 可比 |
+| FIX-T12 | 中 | AAB 16KB / ABI / quickjs（J-033/J-034/J-041/J-088，4 项） | BLOCKED：AAB 陈旧且宿主无 16KB 设备 | 复跑条件=干净树重出 AAB 后 `j_release_verify.py aab16k` exit 0（ABI 等于 abiFilters、含 `libquickjs.so`、无 32 位 `.so`） |
+| FIX-T13 | 中 | 干净树与产物 revision（J-001/J-002/J-006，3 项） | BLOCKED：共享工作树有未提交改动，验收阶段不跑 Gradle | 复跑条件=提交后干净树 `j_release_verify.py identity --require-clean --require-head` exit 0 |
+| FIX-T14 | 中 | 商店素材与 Play 控制台（J-017/J-073..J-085/J-089/J-090，16 项） | BLOCKED：无账号、无素材、无托管 URL | 复跑条件=按 `docs/research/2026-10-25-store-launch-materials-checklist.md` 备料并上传，登记内部/封闭轨道与测试账号 |
+| FIX-T15 | 高 | 成对产物升级/降级/回滚（J-055..J-057/J-061/J-065/J-068/J-069，7 项） | BLOCKED：无成对 vc 产物与同钥匙 | 复跑条件=同钥匙出 vc N 与 N+1，按 §9.2 跑升级/降级/回滚，`dumpsys` 事后 vc 等于目标且数据保留 |
+| FIX-T16 | 高 | 青少年模式（H-039..H-043，5 项） | BLOCKED：G7 第 3/4/8 项未落地，`feature/profile` 等热区未空出 | 复跑条件=年龄确认与监护人同意接线，隐私政策专章发布；`h_compliance_gate --topic minor` exit 0 |
+| FIX-T17 | 高 | AIGC 显式角标 G1/G2（H-008） | BLOCKED：`feature/tutor`、`core/ui` 热区禁改 | 复跑条件=讲题与配图界面显示“AI 生成”角标并上设备截图；`h_compliance_gate --only H-008` exit 0 |
+| FIX-T18 | 中 | 隐私政策 / data safety / 备案 / 英文材料（H-024/H-025/H-036/H-051/H-053/H-081，6 项） | BLOCKED：需开发者域名、Play 后台、CAC 备案名单 | 复跑条件=隐私政策公开 URL 可访问、表单提交回执与备案号回填后重跑 H 域对应断言 |
+| FIX-T19 | 中 | 无障碍真实驱动 / IME / 旋转（I-007/I-061/I-070/I-075/I-079，5 项） | BLOCKED：无 TalkBack 语音回传驱动、无第三方 IME、无传感器真机 | 复跑条件=按 §6 无障碍与 §9.1 残余条目在真机走查并落设备证据 |
+| FIX-T20 | 低 | 供应链与台账协议门（G-087/G-088 + D0-030/D0-081） | BLOCKED：无离线 advisory 库；KD-72 锁未落地；D0 两行属 D0 域自验收 | 复跑条件=接入离线 CVE advisory 并联网取证；`--write-locks` 落 13 个锁后 `check_lockfiles.py` 在覆盖态 exit 0；D0-030/D0-081 由 D0 域处置 |

@@ -151,6 +151,37 @@ class TraceRequirementsTest(unittest.TestCase):
             self.assertNotIn("PASS_WITHOUT_TEST_LANDING",
                              {g["code"] for g in data["gaps"]})
 
+    def test_blocked_row_without_runbook_pointer_is_a_gap(self) -> None:
+        """BLOCKED 行必须指向 runbook 出口；只有一句 issue 不算可签字阻塞。
+
+        批次 45 复核 finding 7：144 条 BLOCKED 里有 13 行没有 runbook 指针，
+        trace 旧实现只查 method 非空，把“无出口”的阻塞也放行。
+        """
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            ledger = tmp / "ledger.md"
+            ledger.write_text(
+                HEADER + _row("D0-001", "unlock later", "-", "BLOCKED"),
+                encoding="utf-8")
+            proc, data = _run(tmp, ledger)
+            self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
+            self.assertIn("BLOCKED_WITHOUT_RUNBOOK",
+                          {g["code"] for g in data["gaps"]})
+
+    def test_blocked_row_with_runbook_pointer_is_traceable(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            tmp = Path(td)
+            (tmp / "docs" / "acceptance").mkdir(parents=True)
+            (tmp / "docs" / "acceptance" / "runbook.md").write_text("runbook\n",
+                                                                    encoding="utf-8")
+            ledger = tmp / "ledger.md"
+            ledger.write_text(
+                HEADER + _row("D0-001", "缺外部条件；出口 runbook.md §9", "-", "BLOCKED"),
+                encoding="utf-8")
+            proc, data = _run(tmp, ledger)
+            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            self.assertEqual(data["gaps"], [])
+
     def test_pass_row_needs_a_test_or_device_landing_point(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             tmp = Path(td)
