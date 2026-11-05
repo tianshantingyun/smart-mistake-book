@@ -1,0 +1,481 @@
+{
+  "id": "F-review",
+  "domain": "F",
+  "verdict": "UNVERIFIED",
+  "domain_verdict": "UNVERIFIED",
+  "review_status": "COMPLETE_WITH_FINDINGS",
+  "verdict_scope": "F 域 90 行未整体通过。本次抽 18 行：11 行确认、4 行部分成立、2 行与所引证据矛盾、1 行数值无源；F-055/F-057 的 FAIL 与 F-084 的 UNVERIFIED 维持。",
+  "sign_off": false,
+  "run_id": "2026-11-05T03:07:31Z-batch45-f-review",
+  "reviewer": "batch45-f-domain-independent-reviewer",
+  "authors": [
+    "batch44-f-domain-evidence-track"
+  ],
+  "self_review": false,
+  "ledger_sha256": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "reviewed_at": "2026-11-05T03:07:31Z",
+  "scope": "WS5 task 61/62：F 域抽样 >=5 行独立复算；本文件抽 18 行（覆盖 PASS/FAIL/UNVERIFIED）。不修改台账、不改产品代码。",
+  "sample_size": 18,
+  "ledger_counts": {
+    "F_total": 90,
+    "PASS": 55,
+    "FAIL": 2,
+    "BLOCKED": 10,
+    "UNVERIFIED": 23
+  },
+  "mechanical_checks": [
+    {
+      "name": "evidence_manifest",
+      "command": "cd docs/research/evidence/2026-11-05-batch-44/f-domain && sha256sum -c f-evidence-sha256.txt",
+      "exit": 0,
+      "result": "172/172 OK, 0 FAILED"
+    },
+    {
+      "name": "ledger_parse",
+      "command": "python -I (inline) parse F rows, verdict counts, evidence path existence, PASS independent-kind count",
+      "exit": 0,
+      "result": "90 rows; PASS 55/FAIL 2/BLOCKED 10/UNVERIFIED 23; missing evidence paths 0; PASS rows with <2 independent kinds 0"
+    },
+    {
+      "name": "acceptance_init",
+      "command": "python -I tools/ci/acceptance_init.py --check",
+      "exit": 0,
+      "result": "1200 rows, no drift"
+    },
+    {
+      "name": "acceptance_lint",
+      "command": "python -I tools/ci/acceptance_lint.py --ledger docs/acceptance/ledger.md",
+      "exit": 0,
+      "result": "violations=0; warnings=29 (EVIDENCE_REUSED)"
+    },
+    {
+      "name": "trace_requirements",
+      "command": "python -I tools/ci/trace_requirements.py --ledger docs/acceptance/ledger.md",
+      "exit": 0,
+      "result": "gaps=0"
+    },
+    {
+      "name": "acceptance_report",
+      "command": "python -I tools/ci/acceptance_report.py --ledger docs/acceptance/ledger.md",
+      "exit": 1,
+      "result": "counts={PASS:882,FAIL:30,BLOCKED:144,UNVERIFIED:144}; violations=0; pass_with_review=0; pass_without_review=882; state=FAIL"
+    }
+  ],
+  "evidence": [
+    "core/export/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExporterInstrumentedTest.kt",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-anr-crash-overlimit-5562.xml",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-db-perf.xml",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch2.xml",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch3.xml",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-preview-pdf1.xml",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-process-death-unit.xml",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash-overlimit-5562.cmd.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/background-restrictions-2.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/background-restrictions.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/background.cmd.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/background.device.json",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/db-perf.cmd.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/db-perf.instr.txt",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/device-startup-meta.txt",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/export-batch1.device.json",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/f-evidence-sha256.txt",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/f-startup.sh",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold6.txt",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/logcat-crash.txt",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/low-storage-5562.cmd.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/meminfo-after-startup.txt",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/process-death-manual.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/process-death-ui.xml",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/process-death.cmd.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/process-death.device.json",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/regression-baseline.json",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-stats.txt",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-cold.txt",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-hot.txt",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-run.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-stats.json",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json"
+  ],
+  "evidence_sha256": {
+    "core/export/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExporterInstrumentedTest.kt": "88dae459234e79c7b3402c196c5a560a6de82c304b4d83d506dea63871ff7f1e",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-anr-crash-overlimit-5562.xml": "12ffdd9a84a52554087881441df3dc2c9642134c5bed4e6c927265627ed6c9e7",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-db-perf.xml": "8e0f18ec9c389e44d9aadabd13cb65e754ef4c7a5ee97eb93cf2e72b0cc876fb",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml": "18feb4d52734fc1ac104b605a85e3c423665e9c7387595cc3547c936aabe781e",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch2.xml": "75422ca36efeb587f5ab09f5aa545abd135cc7b2b7ee94fc2158933e8078cccc",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch3.xml": "bffbeb812c9f62e1316072a64198488c0c1a9f293447c0d43071040e34c74d6d",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-preview-pdf1.xml": "5a22d5995bc2622adcc8bd9eab8741832047c9078dd9152ce8a6489183968115",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-process-death-unit.xml": "fb90ca9e5407c960d02663c8e874652242c8f80b487fcefc65c49c944c547690",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash-overlimit-5562.cmd.log": "105e641fb0d55b2bf254546d80e9ab942cd49f95b38d8a40f5c820091e5c534c",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log": "12702713ee1d85710da875687599497b24737d828f79be49a1b4aff5783f338b",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json": "fc86f1bf191efff7039f956d4177711691ceaba034949c091f3872c12c19676a",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/background-restrictions-2.log": "a8bb6ed1195cc6105574a687f84ebc3d48bbbde2aa5edf7254dc46ebcde62299",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/background-restrictions.log": "12c766e1eba85f8b8eebc96d9dfc255804606d02f37e730b81afabc7c5c4cfa1",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/background.cmd.log": "dd04806fe5553e0ea2339c6750a6d751ac4083302596ebb06c71043373587ece",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/background.device.json": "d6f35f183e8f5e06a26ff380b2eb2b161b3fb9960ae4aa04d66bd2129718d4f3",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/db-perf.cmd.log": "09e75a3ad93c4aac6d8e35ec764041109c8f4409e91c05254cc63099ce9af7a6",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/db-perf.instr.txt": "c51cd2a2ef9b5a15ccd1799e995dfefcfcafeba413bade79869662496234d82b",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/device-startup-meta.txt": "9134288064ef362c307ebdc1bc4bbe69a6bc81630599153c09e6ebe4bf423c29",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt": "4028d68213d86aaed8dcc18add0e1f75104d8bf72742b0462d626babbca53cff",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/export-batch1.device.json": "0dab5dde072a9eae2fca6b02e9aa490b25dfac0857d799bc020df326a3ef1300",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log": "5b2af454ab0102211b2c78f743ce3e14c79f7425348ed66b20460f914a7c6dd7",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/f-evidence-sha256.txt": "aeb8c2f20a957b68fc558996da90b2489f3c194739f35c0cf517e5bce5385492",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/f-startup.sh": "8c3a6e431cebaab5cfd3af4d054bef964fec8cb33955c83c980d2f5262281eec",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold6.txt": "134d9c43954cb6715d37a64642f24bcbe51e6e5b01b53d7c103590cb1a0d7566",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt": "e03f5ae8b93d3d30777be211a63104cd00f72f29907c8e3b6c3004572f506b27",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/logcat-crash.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/low-storage-5562.cmd.log": "6ec5e4ed63846d231b6e43ba2e9e1a6eeeffbad8e0dfb25daaab78771bc6939c",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/meminfo-after-startup.txt": "6baf64ea50321f47976d8c82a91baea1ec28fa5e6b92025891c1165a74c15984",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log": "e8d7bf0e92adfa377015ecd6f90859cd797500be86cb483b58458825ec9065de",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log": "e3df1f7fba8b4e131261f2f69340df4a18ebfc4f13f3bfee5171d578d756b75c",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/process-death-manual.log": "00a1c00a544d8ecc03d966f9da1c8ae918c79a9c7e3fae8ab069c0d18f5812aa",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/process-death-ui.xml": "61c6c831642ea718271496dca57c1a84a9bfbd2d45f5c736e7302ab2f0695ca2",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/process-death.cmd.log": "116402af0fc1977440efc480dbc893cfd3ab9429f1258a0182f180cd7af52fdf",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/process-death.device.json": "0c90010152d0ab4b1b82264be9b17723f464061b80bee3a3d033431fba7d5934",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/regression-baseline.json": "efaffeef196a1b5e3e4240ed3d3ac13500e25f35ce480ccc618227b88a46e2bc",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt": "9bfb6239e5b435147e8154a0e7f9e687774af7cc7b8a8cc8e3c55b15fcf5e58e",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv": "7e3c10619d0e068081014eea4c3504aecd418f72b527869791e900dd1781fcb0",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-stats.txt": "9417dcc1c75cc8d53256e94239e152820ad0066315e88d282a09b58542bea13e",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log": "784db0248ec327f4a8c2ce24e5bd88d745894880e9fa09e61f2d9f609000893c",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json": "071f247a9c5582be98b79d7155e98ec62108605a17f2fd1f9739f484b2a0b3d7",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-cold.txt": "75c07fdb6da14f9a363e2648fbf2f93039ae7c091f56836987772520ecf3e2a7",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-hot.txt": "c473a4b5b956d60ccca3d01862abb08e55089989c1a988fcd17879228d41a581",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-run.log": "d1534c85ef70d1760e462c2727a1b1211d925585556366e179e02a31bb98e687",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-stats.json": "8abda7a2d4cbcde45686d0792a1f19b54ad7c30835802dbddf05319f65f16736",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log": "d75e8ece4404113e4e795d878e5bb6aa0611c315588c3ac3855ab8e1fa1cfec0",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json": "a058db93cd384efe6c109e355b95aa629ea179fc25ff8c5cd000b9d7a1872bc1"
+  },
+  "sample_rows": [
+    {
+      "id": "F-001",
+      "ledger_verdict": "PASS",
+      "review_verdict": "CONFIRMED",
+      "claim": "冷启动基线：7 冷启 + 5 热启，解析 TotalTime",
+      "recomputed": "cold n=7 values=[3939,3001,3302,3261,3376,3354,3250] p50=3302 max=3939 mean=3354.7 all LaunchState=COLD; hot n=5 p50=232 max=435",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-cold.txt",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-hot.txt",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log"
+      ],
+      "notes": "逐轮原始 TotalTime 与 device JSON 数值一致。"
+    },
+    {
+      "id": "F-003",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PARTIAL",
+      "claim": "7/7 冷启超过 2000ms 并标记 COLD_OVER_TARGET=7/7，未静默记绿",
+      "recomputed": "7/7 cold > 2000ms 成立；但 startup-run.log 只有 START 一行，未落 COLD_OVER_TARGET 字符串（f-startup.sh:111 只 print 到 stdout）",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-cold.txt",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-run.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/f-startup.sh"
+      ],
+      "notes": "事实成立、标记产物缺失；应把 python 统计 stdout 追加到 startup-run.log 或把 COLD_OVER_TARGET 写进 startup.cmd.log。"
+    },
+    {
+      "id": "F-004",
+      "ledger_verdict": "PASS",
+      "review_verdict": "CONFIRMED",
+      "claim": "7 冷启 + 5 热启重复；冷启 p50=3302ms p95=3939ms max=3939ms",
+      "recomputed": "p50=3302 max=3939; p95=3939 under f-startup.sh:95 定义（sorted vals，index=int(round(0.95*(n-1)))）；线性插值会得 3770.1，差异来自百分位定义而非数据",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-cold.txt",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-stats.json",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log"
+      ],
+      "notes": "结论可复算；百分位口径需在台账注明为 nearest-index。"
+    },
+    {
+      "id": "F-010",
+      "ledger_verdict": "PASS",
+      "review_verdict": "CONFIRMED",
+      "claim": "warm-up：冷启前2轮均值 3470ms vs 平台期 3308.6ms，收敛 161.4ms",
+      "recomputed": "(3939+3001)/2=3470.0；mean(3302,3261,3376,3354,3250)=3308.6；delta=161.4",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-cold.txt",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/startup-stats.json"
+      ],
+      "notes": "与 startup-stats.json 完全一致。"
+    },
+    {
+      "id": "F-019",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PARTIAL",
+      "claim": "首帧基线：gfxinfo 逐轮；冷启 p50 300-2150ms，7/7 轮有 janky 帧",
+      "recomputed": "7/7 轮 janky（6×100%，1×80%）；各轮 50th percentile=[450,2050,2150,2100,2000,2350,300]，range=300-2350ms，不是 300-2150ms",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold6.txt"
+      ],
+      "notes": "7/7 janky 成立；上界写错 200ms。台账与 00-index §2.1 同错，应改为 300-2350ms。"
+    },
+    {
+      "id": "F-028",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PARTIAL",
+      "claim": "导出基线：60题64页 1.216/1.240/1.277s；产品单题 487/597/820ms；长文档 0.367/0.380s",
+      "recomputed": "XML/export.cmd.log 支持 1.216/1.240/1.277 与 0.367/0.380；PRODUCT_TIME_S=7.973/7.772/8.115（套件时长），487/597/820 不在任何原始证据文件，只在 00-index.md 与 regression-baseline.json",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/export-batch1.device.json",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/regression-baseline.json"
+      ],
+      "notes": "产品单题毫秒数无原始 logcat 落盘，不能独立复算。"
+    },
+    {
+      "id": "F-029",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PARTIAL",
+      "claim": "导出阈值：用例内置 <5000ms 断言 3/3 OK；MistakeBatchPerf 516/553/538ms",
+      "recomputed": "3 份 XML 均 tests=1 failures=0；源码 MistakePdfExporterInstrumentedTest.kt:369 有 elapsedMillis < 5_000 断言；516/553/538 未落盘（只出现在 00-index.md/regression-baseline.json）",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch2.xml",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch3.xml",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log",
+        "core/export/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExporterInstrumentedTest.kt"
+      ],
+      "notes": "阈值断言与 3/3 通过成立；具体 elapsedMs 数值不可复算。logcat -s MistakeBatchPerf 未归档。"
+    },
+    {
+      "id": "F-036",
+      "ledger_verdict": "PASS",
+      "review_verdict": "UNVERIFIED_NUMBERS",
+      "claim": "导出回归：批次43 518/545/569ms vs 本轮 516/553/538ms，差小于3%；DB 门 p95 127ms <350ms",
+      "recomputed": "两组逐次耗时只存在于 regression-baseline.json（其 source 为 ws11-performance.md 摘要）；export*.device.json 只存套件 time_s。排序配对最大差 2.81%（<3% 成立），但无法从原始产物复算。db-perf.cmd.log/instr/XML 无 p95=127；PerformanceGateTest 通过只能推出 p95<350ms",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/regression-baseline.json",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/db-perf.cmd.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-db-perf.xml"
+      ],
+      "notes": "回归结论方向可接受，但 516/553/538 与 127ms 是无源摘要值；PASS 依据不足，建议补 logcat 原始行或改引 performance-gate stdout。"
+    },
+    {
+      "id": "F-046",
+      "ledger_verdict": "PASS",
+      "review_verdict": "CONFIRMED",
+      "claim": "内存基线：冷启稳态 PSS 156.8MB；导出宿主 47.5-54.4MB；预览 28.4-45.1MB；D-04 65.8-66.3MB",
+      "recomputed": "COLD_STARTUP_TOTAL_PSS_KB=156818；EXPORT_HOST_PEAK_KB=54412,47525,47509；PREVIEW_HOST_PEAK_KB=28417,41443,45113；VISUAL=65777,66257。按 KB/1000 十进制 MB 与台账一致",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/meminfo-after-startup.txt",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log"
+      ],
+      "notes": "数值一致；regression-baseline.json 同字段用 MiB（53.1/46.4/46.4），单位命名需统一。"
+    },
+    {
+      "id": "F-055",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "CONFIRMED",
+      "claim": "2h soak 在 2504s FATAL；进程重启；2723s 人工停止，未完成 2h",
+      "recomputed": "soak-samples.csv 43 行；cycle=39 elapsed=2504 crash_lines=73 monkey_rc=69；max elapsed=2723；dropbox 12→14；soak-crash-logcat.txt FATAL @ SchedulingSettingsScreen.kt:74 → StudyExperienceRepository.kt:737",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-stats.txt",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json"
+      ],
+      "notes": "FAIL 判定成立；崩溃为产品路径真实缺陷。"
+    },
+    {
+      "id": "F-057",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "CONFIRMED",
+      "claim": "2h 内至少 1 次 FATAL EXCEPTION，超限路径命中",
+      "recomputed": "同 F-055：crash_lines 由 0→73，monkey_rc=69，进程 25402 FATAL；首次崩溃 2504s",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log"
+      ],
+      "notes": "FAIL 判定成立。"
+    },
+    {
+      "id": "F-064",
+      "ledger_verdict": "PASS",
+      "review_verdict": "REJECTED",
+      "claim": "dropbox 中 app 条目 12 条，全部早于本轮窗口；crash buffer 0 行",
+      "recomputed": "anr-crash.cmd.log/device.json 均记 DROPBOX_APP_ENTRIES=6；原始 dropbox-after.txt 中 'Process: com.tingyun.smartmistakebook.localfirst' 命中 6 次（6 条 data_app_crash，最后一条 2026-11-04 07:09:52，早于 15:23 窗口）；crash buffer 0 行",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/logcat-crash.txt"
+      ],
+      "notes": "实质性质（窗口内新增=0）成立，但 '12 条' 与所引证据矛盾；应改为 6 条或说明 12 是 soak 的另一计数口径。"
+    },
+    {
+      "id": "F-065",
+      "ledger_verdict": "PASS",
+      "review_verdict": "CONFIRMED",
+      "claim": "本轮窗口 2026-11-04T15:23Z..15:54Z 新增 ANR/crash=0（阈值 0）",
+      "recomputed": "窗口内 data_app_crash=0（最后一条 07:09:52）；logcat-crash.txt 0 行；NEW_EVENTS_IN_WINDOW=0",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/logcat-crash.txt"
+      ],
+      "notes": "NEW_EVENTS_IN_WINDOW 在 f-make-evidence.py 中是硬编码，但独立按原始 dropbox 时间戳复算结果相同。"
+    },
+    {
+      "id": "F-066",
+      "ledger_verdict": "PASS",
+      "review_verdict": "CONFIRMED",
+      "claim": "在 5562 上 am crash 注入一次崩溃，dropbox data_app_crash 计数 0→1，签名被扫描器识别",
+      "recomputed": "anr-crash-overlimit-5562.cmd.log: BEFORE_APP_CRASH_ENTRIES=0, AFTER_APP_CRASH_ENTRIES=1",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash-overlimit-5562.cmd.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-anr-crash-overlimit-5562.xml"
+      ],
+      "notes": "负向注入有效，说明崩溃扫描器不是空的。"
+    },
+    {
+      "id": "F-067",
+      "ledger_verdict": "PASS",
+      "review_verdict": "REJECTED",
+      "claim": "6 个仪器化套件 + 手工启停后 dropbox 计数稳定 12",
+      "recomputed": "所引 anr-crash.cmd.log 记 6；无 before 快照，无法证明“稳定”；原始 dropbox 只有 after 快照",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt"
+      ],
+      "notes": "'12' 与证据矛盾；'重复运行' 也缺 before/after 对照。建议补一次运行前后计数或降级。"
+    },
+    {
+      "id": "F-073",
+      "ledger_verdict": "PASS",
+      "review_verdict": "CONFIRMED",
+      "claim": "am kill 后 pid 为空；重启 pid 23758；冷启 3219ms；UI root 恢复",
+      "recomputed": "PID_BEFORE=23637, PID_AFTER_KILL=empty, PID_AFTER_RESTART=23758, RESTART_TOTAL_MS=3219；process-death-ui.xml 37 节点且含“下午好”“今日复习”；单元 XML 2/2 通过",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/process-death.cmd.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/process-death.device.json",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/process-death-manual.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/process-death-ui.xml",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-process-death-unit.xml"
+      ],
+      "notes": "一致。"
+    },
+    {
+      "id": "F-082",
+      "ledger_verdict": "PASS",
+      "review_verdict": "CONFIRMED",
+      "claim": "doze 冷启 3455ms；battery saver 3342ms；rare bucket 3247ms；multitask HOT 474ms",
+      "recomputed": "background-restrictions-2.log: doze TotalTime=3455, battery saver proper=3342；background-restrictions.log: rare=3247, multitask HOT=474",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/background-restrictions.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/background-restrictions-2.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/background.cmd.log",
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/background.device.json"
+      ],
+      "notes": "原始日志支持四个值；注意 f-make-evidence.py 把这些值硬编码进 cmd.log（未解析 raw log），原始值与硬编码当前一致。"
+    },
+    {
+      "id": "F-084",
+      "ledger_verdict": "UNVERIFIED",
+      "review_verdict": "CONFIRMED",
+      "claim": "低存储：/data 98% 时 PID 存在、FATAL/ENOSPC 0，但 UI 未确认，仍 UNVERIFIED",
+      "recomputed": "low-storage-5562.cmd.log: DF 98%, Status=timeout, LaunchState=UNKNOWN, PID=23413, FATAL_LINES=0, ENOSPC_LINES=0, UI_TEXTS=0",
+      "evidence": [
+        "docs/research/evidence/2026-11-05-batch-44/f-domain/low-storage-5562.cmd.log"
+      ],
+      "notes": "UNVERIFIED 正确；不可升级为 PASS。"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-R1",
+      "severity": "high",
+      "rows": [
+        "F-064",
+        "F-067"
+      ],
+      "issue": "台账写 dropbox app 条目 12，所引 anr-crash.cmd.log/device.json 与原始 dropbox-after.txt 均为 6；F-067 还缺 before 快照证明“稳定 12”。",
+      "action": "把 12 改为 6（或注明 12 是 soak dropbox_hits 口径）；F-067 补运行前后两次快照，否则降级。"
+    },
+    {
+      "id": "F-R2",
+      "severity": "medium",
+      "rows": [
+        "F-019"
+      ],
+      "issue": "台账写冷启 p50 300-2150ms；逐轮 gfxinfo 50th percentile 为 450/2050/2150/2100/2000/2350/300，实际 300-2350ms。",
+      "action": "改为 300-2350ms；00-index §2.1 同步。"
+    },
+    {
+      "id": "F-R3",
+      "severity": "medium",
+      "rows": [
+        "F-028",
+        "F-029",
+        "F-036"
+      ],
+      "issue": "516/553/538ms、487/597/820ms、DB p95 127ms 不在任何原始证据文件；只出现在 00-index.md 与派生的 regression-baseline.json。export*.device.json 只存套件 time_s，db-perf.cmd.log/instr/XML 不含 p95。",
+      "action": "补 logcat MistakeBatchPerf / 导出记录原始行与 PerformanceGate stdout，或从台账删去不可复算数值并把行降为部分证据。"
+    },
+    {
+      "id": "F-R4",
+      "severity": "low",
+      "rows": [
+        "F-003"
+      ],
+      "issue": "COLD_OVER_TARGET=7/7 只在 f-startup.sh:111 的 stdout，startup-run.log 未落该行；7/7 超 2000ms 本身可从原始 TotalTime 复算。",
+      "action": "把 python 统计输出 tee 到 startup-run.log 或写入 startup.cmd.log。"
+    },
+    {
+      "id": "F-R5",
+      "severity": "low",
+      "rows": [
+        "F-082",
+        "F-065"
+      ],
+      "issue": "f-make-evidence.py 对 background 的四个时延与 NEW_EVENTS_IN_WINDOW=0 是硬编码，不解析 raw log；本次原始日志与硬编码一致，但证据生成链仍可漂移。",
+      "action": "改为解析 background-restrictions*.log / dropbox 时间戳，避免 raw 变而 cmd.log 不变。"
+    },
+    {
+      "id": "F-R6",
+      "severity": "high",
+      "rows": [],
+      "issue": "acceptance_report pass_with_review=0：F-review.json 尚未被任何台账行以 review: token 引用，故本次复核不会改变报告 state。",
+      "action": "主会话在 F PASS 行加 review:docs/acceptance/verdicts/F-review.json，随后重算最终 ledger sha 并同步本文件 ledger_sha256，再重跑 report。"
+    }
+  ],
+  "adversarial": {
+    "attempted": true,
+    "result": "found-4-unsupported-or-contradicted-claims",
+    "cases": [
+      "用原始 startup-cold.txt 复算 p50/p95/max/mean，检验 F-001/F-003/F-004/F-010。",
+      "用原始 gfxinfo-cold*.txt 复算 janky 轮数与 p50 区间，推翻 F-019 的 300-2150ms 上界。",
+      "用 dropbox-after.txt 的 Process 命中数与时间戳复算 app 条目，推翻 F-064/F-067 的 12 条。",
+      "在全部 F 原始产物中 grep 516/553/538/487/597/820/p95=127，确认其不存在于 raw evidence。"
+    ]
+  },
+  "notes": "本文件是 F 域独立复核，不是 F 域总体通过。18 行中 11 CONFIRMED、4 PARTIAL、2 REJECTED、1 UNVERIFIED_NUMBERS；F-055/F-057 的 FAIL 与 F-084 的 UNVERIFIED 均维持。reviewer 不在 authors 内；authors 是批次 44 F 域证据轨标识，不是个人。所有复算基于仓库内原始证据，未重跑设备/Gradle；build/b45-f-review/recompute.txt 为本地复算输出（gitignored）。若台账在本文件生成后被编辑，需按 README 重绑 ledger_sha256。",
+  "independence": {
+    "reviewer_not_author": true,
+    "independence_verified": false,
+    "basis": "角色分离 + 对归档证据逐项机械复算；reviewer 未参与被复核证据的产出角色。",
+    "limitation": "reviewer 是角色标签，不是具名个人或第二模型；批次证据未记录生产者身份，无法证明跨模型独立。本复核只支持域级抽样结论，不构成台账行级 review 证据；report 的 pass_with_review 仍以行级 review token 为准。",
+    "verdict_ceiling": "UNVERIFIED (domain-level sample only)"
+  },
+  "ledger_sha256_at_review": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_sha256_current_after_fix": "887e3ba649eb17a70c0f6f7af8a657d606398a10925c6116818265387af689aa",
+  "ledger_binding_note": "本复核绑定修复前台账 bb25ef236056…；修复环只改了 35 行的 verdict/method（GATE-079 补证据、17 个 FIX 登记行改 BLOCKED、13 个 BLOCKED 补 runbook、4 个 D 行加脏树披露），未重跑本复核的抽样行。修复后台账为 887e3ba649eb…，因此本文件不得作为新台账的行级 review 证据；要转 PASS 必须在新台账上重跑。"
+}

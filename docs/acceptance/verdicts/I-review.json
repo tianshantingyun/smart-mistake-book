@@ -1,0 +1,248 @@
+{
+  "id": "I-REVIEW",
+  "domain": "I",
+  "verdict": "UNVERIFIED",
+  "domain_verdict": "UNVERIFIED",
+  "domain_counts": {
+    "total": 90,
+    "PASS": 53,
+    "FAIL": 0,
+    "BLOCKED": 5,
+    "UNVERIFIED": 32
+  },
+  "coverage": {
+    "sampled": 8,
+    "sampled_ids": [
+      "I-001",
+      "I-002",
+      "I-012",
+      "I-021",
+      "I-039",
+      "I-056",
+      "I-061",
+      "I-071"
+    ],
+    "blocked_ids": [
+      "I-007",
+      "I-061",
+      "I-070",
+      "I-075",
+      "I-079"
+    ],
+    "human_residual_ids": [
+      "I-082",
+      "I-083",
+      "I-084",
+      "I-085",
+      "I-086",
+      "I-087",
+      "I-088",
+      "I-089",
+      "I-090"
+    ],
+    "not_covered": "其余 82 行未逐行复核；本轮未跑 Gradle、未跑 adb/设备、未重跑 instrument"
+  },
+  "recompute_commands": [
+    "python -I build/b45-i-review/recompute.py build/b45-i-review/recompute.json",
+    "python -I -m pytest tools/tests/test_a11y_audit.py -q -k small_touch",
+    "python -I -m pytest tools/tests/test_a11y_audit.py -q -k low_contrast",
+    "python -I -m pytest tools/tests/test_a11y_audit.py tools/tests/test_a11y_probe.py -q",
+    "grep -rn darkColorScheme --include=*.kt app/src/main core feature",
+    "python -I tools/ci/acceptance_lint.py --ledger docs/acceptance/ledger.md",
+    "sha256sum docs/acceptance/ledger.md"
+  ],
+  "scope": "批次 45 I 域抽样独立复核：8 行（I-001/I-002/I-012/I-021/I-039/I-056/I-061/I-071），逐条证据机械复算 + 3 条独立重跑（2 个 pytest -k、1 组源码 grep）",
+  "run_id": "2026-11-05T02:57:01Z-batch45-i-review",
+  "reviewer": "batch45-i-domain-independent-reviewer",
+  "authors": [
+    "batch44-i-domain-evidence-runner"
+  ],
+  "self_review": false,
+  "ledger_sha256": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "head": "87604198feeef198d5dba7343b8c4692c5e8f937",
+  "ledger_binding": {
+    "frozen": false,
+    "rebind_after": "台账最终 sha 固化（批次 45 WS6-79）后必须重算 ledger_sha256；本文件写入时台账正被并发改写（305+/300-，D0/FIX/GATE 行）"
+  },
+  "rows": [
+    {
+      "id": "I-001",
+      "declared": "PASS",
+      "review": "PASS",
+      "basis": [
+        "复算 4 份 device JSON：serial=emulator-5584、apk_sha256=b8503f04…、verdict=PASS、structural_ok=true、violation_codes=[]、clickable 10/4/9/17、failures=[]",
+        "复算 4 份 cmd 日志：唯一 EXIT=0，无 CMD 占位，无 SKIP/-4 标记",
+        "复算 unit-a11y-tools.xml：tests=15 failures=0 errors=0 skipped=0",
+        "base-library.audit.json：contrast 7 对全部 pass，violations=[]（旁证，未在台账引用）"
+      ],
+      "concerns": [
+        "cmd 日志与 device JSON 来自同一次 probe 运行，属“同类执行的两份输出”，独立性与 DoD §1.5 的“独立证据”不是同一强度；report 只按 kind 计数。",
+        "“含后代合并语义”由单测 test_merged_label_reads_descendant_text 支撑，设备树只给 violation_codes=[]，未直接列出每个可点击节点的 label。"
+      ]
+    },
+    {
+      "id": "I-002",
+      "declared": "PASS",
+      "review": "PASS",
+      "scope_limit": "仅限“服务已绑定 + 触摸探索开启 + 观察窗内存在真实 TTS 活动”；不得读作“TalkBack 朗读了应用内容且内容正确”（I-007 仍 BLOCKED）。",
+      "basis": [
+        "device JSON：service=TalkBack、verdict=PASS、speech_requests=20、nodes=36、failures=[]",
+        "cmd 日志：VERDICT=PASS、EXIT=0",
+        "accessibility.txt：Bound services 含 TalkBack、touchExplorationEnabled=true",
+        "logcat 独立计数：Synthesis request 10 行、SpeechControllerImpl 10 行 → 探针 speech=20 是求和，真实合成请求为 10（tools/ci/a11y_probe.py:483 双计）。"
+      ],
+      "concerns": [
+        "speech_requests=20 是 “Synthesis request” + “SpeechControllerImpl” 双计，不是 20 次语音请求；行内数字不可写成 20 次。",
+        "accessibility.txt 在启动应用前采集（a11y_probe.py:461-466），其中 focused/active 窗口是 TalkBack 自己的“Allow … to send you notifications?”系统对话框，不能把语音归因到应用页面。"
+      ]
+    },
+    {
+      "id": "I-012",
+      "declared": "PASS",
+      "review": "PASS",
+      "basis": [
+        "本轮独立重跑 `python -I -m pytest tools/tests/test_a11y_audit.py -q -k small_touch` → `1 passed, 10 deselected`，exit 0，与 neg-small-target.log 逐字一致",
+        "unit-a11y-tools.xml 含 test_small_touch_target_fails，failures=0"
+      ],
+      "concerns": [
+        "neg-small-target.log 没有 CMD 行，日志本身不能证明跑的是 -k small_touch；本轮重跑才把命令与结果对上。",
+        "同一 XML 被 20 个 I 行共用（EVIDENCE_REUSED），cmd 与 test 来自同一次 pytest 运行，独立性名义成立、实质不成立。"
+      ]
+    },
+    {
+      "id": "I-021",
+      "declared": "PASS",
+      "review": "PASS",
+      "basis": [
+        "本轮独立重跑 `python -I -m pytest tools/tests/test_a11y_audit.py -q -k low_contrast` → `1 passed, 10 deselected`，exit 0，与 neg-low-contrast.log 逐字一致",
+        "unit-a11y-tools.xml 含 test_low_contrast_fails，failures=0"
+      ],
+      "concerns": [
+        "同 I-012：日志无 CMD 行；cmd/test 同源；XML 20 行共用。"
+      ]
+    },
+    {
+      "id": "I-039",
+      "declared": "UNVERIFIED",
+      "review": "UNVERIFIED",
+      "basis": [
+        "本轮独立重跑 `grep -rn darkColorScheme --include=*.kt app/src/main core feature` → exit 1、0 行；`isSystemInDarkTheme` 同样 exit 1、0 行",
+        "core/ui/.../Theme.kt 只 import lightColorScheme，无暗色分支",
+        "dark-scheme-scan.log：MATCHES=0、EXIT=0"
+      ],
+      "concerns": [
+        "结论成立：源码没有暗色主题分支，因此 dark-* 设备采集的 “PASS” 不能解读为深色适配。",
+        "该行只有 1 类独立证据（cmd），但因 verdict 是 UNVERIFIED，不触发 PASS 门槛；若未来改判 PASS，需补 test/device 类证据。"
+      ]
+    },
+    {
+      "id": "I-056",
+      "declared": "PASS",
+      "review": "PASS",
+      "basis": [
+        "i-empty-library.xml：tests=1 failures=0 errors=0 skipped=0，用例名 emptyLibraryCtaReachesTheLibraryManualEntryWithoutAModelDispatch",
+        "i-empty-library.device.json：counts.evaluated=1、failures=0、verdict=PASS、serial=emulator-5584",
+        "用例源码 Prd06EmptyLibraryCaptureCtaInstrumentedTest.kt:53-83 断言手动建题表单存在，且 capture_model_setup_block / capture_model_task_card 计数为 0"
+      ],
+      "concerns": [
+        "设备 JSON 未记录该轮 APK 的安装校验（apk_sha256 来自探针读取），“设备上跑的就是这版 APK”依赖 JSON 自报字段而非独立复核。"
+      ]
+    },
+    {
+      "id": "I-061",
+      "declared": "BLOCKED",
+      "review": "BLOCKED",
+      "basis": [
+        "i-error-fail-closed.xml：tests=5 skipped=5 failures=0 errors=0，5 个 testcase 均 <skipped>",
+        "i-error-fail-closed.device.json：evaluated=0、skipped=5、verdict=FAIL（reason=跳过不计通过）",
+        "runbook.md 路径存在"
+      ],
+      "concerns": [
+        "设备 JSON 的 apk_sha256/test_apk_sha256 为空串，设备绑定不完整；但本行是 BLOCKED，不构成 PASS 洗白。"
+      ]
+    },
+    {
+      "id": "I-071",
+      "declared": "PASS",
+      "review": "UNVERIFIED",
+      "recommended_ledger_verdict": "UNVERIFIED",
+      "basis": [
+        "方法列命令是 `python -I tools/ci/a11y_audit.py dump --serial emulator-5584 --out …/dump-smoke.xml`；该子命令只做 uiautomator dump + 写文件（tools/ci/a11y_audit.py:464-500），不设置/不恢复任何设备状态，也不做断言。",
+        "该命令的实际产物 dump-smoke.xml（sha 见 dump-smoke.log）根节点 package=com.google.android.permissioncontroller，内容是 “Allow Android Accessibility Suite to send you notifications?” 系统对话框，不是应用界面 → dump 时设备存在残留对话框。",
+        "台账引用的 state-restore.log 没有 CMD 行（无命令溯源），内容为无标签快照 `1.0 / 0 / 0 / Night mode: no / Physical size: 1080x2400`，无前后对比、无基线、无断言；同一文件还被 I-035/I-044/I-080 三行共用来证明三种不同恢复。",
+        "台账引用的 keyboard-search.device.json 是键盘输入采集（IME shown、text=abc、verdict=PASS），不含任何“恢复/无残留”判据。"
+      ],
+      "concerns": [
+        "行内 check 是“键盘采集后设备状态恢复（无异常设置残留）”，但方法与两份证据都不覆盖该命题；PASS 不可成立，建议改判 UNVERIFIED，并用一条“采集前后各取一次 settings/wm/uimode 并 diff”的可复跑命令重录。",
+        "旁证：同一 state-restore.log 支撑的 I-035/I-044/I-080 也缺命令溯源与前后对比，应一并复核（本轮未逐行展开，故未对这三行下结论）。"
+      ]
+    }
+  ],
+  "evidence": [
+    "device:docs/research/evidence/2026-11-05-batch-44/i-domain/base-library.device.json",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/i-domain/base-library.log",
+    "device:docs/research/evidence/2026-11-05-batch-44/i-domain/base-review.device.json",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/i-domain/base-review.log",
+    "device:docs/research/evidence/2026-11-05-batch-44/i-domain/base-profile.device.json",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/i-domain/base-profile.log",
+    "device:docs/research/evidence/2026-11-05-batch-44/i-domain/base-tutor.device.json",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/i-domain/base-tutor.log",
+    "test:docs/research/evidence/2026-11-05-batch-44/i-domain/unit-a11y-tools.xml",
+    "device:docs/research/evidence/2026-11-05-batch-44/i-domain/talkback-review.device.json",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/i-domain/talkback-review.log",
+    "file:docs/research/evidence/2026-11-05-batch-44/i-domain/talkback-review.accessibility.txt",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/i-domain/neg-small-target.log",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/i-domain/neg-low-contrast.log",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/i-domain/dark-scheme-scan.log",
+    "file:core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/Theme.kt",
+    "test:docs/research/evidence/2026-11-05-batch-44/i-domain/i-empty-library.xml",
+    "device:docs/research/evidence/2026-11-05-batch-44/i-domain/i-empty-library.device.json",
+    "test:docs/research/evidence/2026-11-05-batch-44/i-domain/i-error-fail-closed.xml",
+    "file:docs/acceptance/runbook.md",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/i-domain/state-restore.log",
+    "device:docs/research/evidence/2026-11-05-batch-44/i-domain/keyboard-search.device.json"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/dump-smoke.xml": "c8e806d46987abee22f116fe832b86de3ba7f2474239b9a75b96a2f3d75321a0",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/dump-smoke.log": "d0318f6b75e040755d3229090970da16b2edcefe3dd37d65df5dc287ab078b35",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/base-library.audit.json": "b6d1d768114597e803635c79d5fbc836a7837f24a36d723cf21cdc015e5415bb",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/talkback-review.logcat.txt": "f120d42e01f7cc7c60e264179a39e70e985e85007c67c02c4fd6c64a8ec00d63",
+    "core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/Theme.kt": "87fb84afad4d89b97431dd2a1bf2ebf604eb83285cf96a0de99c53c67ecfb75f",
+    "docs/acceptance/runbook.md": "ab8a1a93137ada138eb8fd5d14f0443a5f1b81195882668b51581a66836abf0b",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/base-library.device.json": "16ae89e1945383a35b3edec31b969fa6915f83f0b5be2ea9fe9b80f72769f30e",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/base-library.log": "a97da9fa77c35564cde3ac579ec8d7c2e126746965552ba8afed8a085665ac29",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/base-review.device.json": "7636f70a1ddc3bfd50377120b977c1e15d6cd1d13748c4bccc493d3f07b8c90a",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/base-review.log": "5b85795a48155b1e93dce362c107051275d4df363f444dce7e881ae4f1afbedf",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/base-profile.device.json": "bec246b1a37530dbceb6c3334a1a4adad6548959b0dfa2635a0cb43b8e57fbd9",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/base-profile.log": "02ee27892006785de93417e7d167d50d9d2a81e330ed763d09c9073cff8bde39",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/base-tutor.device.json": "8b7f763574c469ed7891164cf09185a0b632b824ef408c8ac121bde22bb3eaa7",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/base-tutor.log": "642fab7dc70590718048e5143da3c5f93359f5479c04a2336214f08a4c75271f",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/unit-a11y-tools.xml": "dc7ee6a0d65d22b736d5642664cdd5d7daf29799a9ba70df77f5f3a9ce46b6cd",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/talkback-review.device.json": "a5b86cffb81baa69b1dad18ad08bcdf054ae3486ab282575cff81f7502d1c510",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/talkback-review.log": "1a290eb2f6a5d7282fb72f0222f47f39c95f17f596949cc87239e9e97ed1e4f5",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/talkback-review.accessibility.txt": "0e221758ebc222efd5cca8832e797f30fd95b6488148e217cea0bc2aea07ac27",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/neg-small-target.log": "4d6dc861d5d5eff10ee936fa78e72259ed3db2f2a1ad79663d2a74578c100066",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/neg-low-contrast.log": "4d6dc861d5d5eff10ee936fa78e72259ed3db2f2a1ad79663d2a74578c100066",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/dark-scheme-scan.log": "74c5b2749b89306a767cc0c830e988079a28c50c2294ea5f7694928d01eac27e",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/i-empty-library.xml": "f55996d77e779761c95f3634096099ae191b1a103b858c1804dd342eeb7ee024",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/i-empty-library.device.json": "239777eeac4e8bc69d77103c8f5c29d630be81a81dc1eb7a2bd804016a354b18",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/i-error-fail-closed.xml": "6a34605a4580f442bfb809677732e2bfcaddca249f2334cb85468e9f84b98ef9",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/state-restore.log": "0ce4ac938a0e7fa11dd1442fe39c030485cb7d3120b7c1a199cb27867a907067",
+    "docs/research/evidence/2026-11-05-batch-44/i-domain/keyboard-search.device.json": "b0e6de10361f136040dbb69342f0c710fae6523c6219a91e7dc47c796c362b1b"
+  },
+  "adversarial": {
+    "attempted": true,
+    "result": "抓到 1 行无证据支撑的 PASS（I-071 → 建议 UNVERIFIED）；1 行需限定口径（I-002：speech_requests 双计、accessibility 采集于应用启动前）"
+  },
+  "notes": "1) reviewer 是批次 45 复核子代理，不是批次 44 I 域证据产出者；authors 为角色标识，证据文件未记录人名。本文件不是人类签字。2) ledger_sha256 绑定写文件时的台账；台账若再被改写（首次写入后会变为 REVIEW_LEDGER_SHA_MISMATCH），必须重算本字段。3) 本文件只覆盖 rows 中列出的 8 行，不得作为其它 I 行的复核证据；I 域整体仍为 UNVERIFIED（53 PASS / 32 UNVERIFIED / 5 BLOCKED），不可签字。4) 结论仅限 I 域；KD-76/isolation/p09/AUD-08/6C-2 未在本轮触碰。5) I-071 的降级需要台账写权限，本文件只给建议，未改台账。",
+  "independence": {
+    "reviewer_not_author": true,
+    "independence_verified": false,
+    "basis": "角色分离 + 对归档证据逐项机械复算；reviewer 未参与被复核证据的产出角色。",
+    "limitation": "reviewer 是角色标签，不是具名个人或第二模型；批次证据未记录生产者身份，无法证明跨模型独立。本复核只支持域级抽样结论，不构成台账行级 review 证据；report 的 pass_with_review 仍以行级 review token 为准。",
+    "verdict_ceiling": "UNVERIFIED (domain-level sample only)"
+  },
+  "ledger_sha256_at_review": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_sha256_current_after_fix": "887e3ba649eb17a70c0f6f7af8a657d606398a10925c6116818265387af689aa",
+  "ledger_binding_note": "本复核绑定修复前台账 bb25ef236056…；修复环只改了 35 行的 verdict/method（GATE-079 补证据、17 个 FIX 登记行改 BLOCKED、13 个 BLOCKED 补 runbook、4 个 D 行加脏树披露），未重跑本复核的抽样行。修复后台账为 887e3ba649eb…，因此本文件不得作为新台账的行级 review 证据；要转 PASS 必须在新台账上重跑。"
+}

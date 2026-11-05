@@ -1,0 +1,368 @@
+{
+  "id": "H-REVIEW",
+  "domain": "H",
+  "verdict": "UNVERIFIED",
+  "domain_verdict": "UNVERIFIED",
+  "scope": "批次 45 H 域（合规与文案）抽样独立复核：12 行（H-001/H-002/H-010/H-013/H-018/H-052/H-061/H-062/H-063/H-066/H-081/H-089），覆盖 4 条 PASS、全部 5 条 FAIL、1 条 BLOCKED、2 条 UNVERIFIED。逐行做证据存在性 + sha256 + 记录日志与当前门输出的逐字比对，并对 4 条 PASS 做独立源码复算；另跑 1 次全量 H 门与 2 组 pytest。",
+  "sample_size": 12,
+  "run_id": "2026-11-05T02:59:34Z-batch45-h-review",
+  "reviewer": "batch45-h-domain-independent-reviewer",
+  "authors": [
+    "batch44-h-domain-evidence-runner"
+  ],
+  "self_review": false,
+  "ledger_sha256": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "head": "87604198feeef198d5dba7343b8c4692c5e8f937",
+  "domain_counts": {
+    "source": "docs/acceptance/ledger.md 逐行按 domain=H 复算（grep '^| H-' + awk 第 7 列）",
+    "total": 90,
+    "declared": {
+      "PASS": 66,
+      "FAIL": 5,
+      "BLOCKED": 12,
+      "UNVERIFIED": 7
+    }
+  },
+  "recompute_commands": [
+    {
+      "cmd": "python -I tools/ci/h_compliance_gate.py --all",
+      "exit": 1,
+      "result": "68 PASS / 22 FAIL（90 行）；末行 EXIT=1",
+      "note": "raw 门判词 ≠ 台账判词：外部依赖映射 BLOCKED、人工残余映射 UNVERIFIED；H-052/H-066 的 raw PASS 与台账 FAIL 冲突，见 findings F1/F2"
+    },
+    {
+      "cmd": "python -I -m pytest tools/tests/test_h_compliance_gate.py -q",
+      "exit": 1,
+      "result": "1 failed, 89 passed in 1.66s；唯一红 = test_h066_diagnostics_copy_does_not_concatenate_raw_message（tools/tests/test_h_compliance_gate.py:358-361）"
+    },
+    {
+      "cmd": "python -I -m pytest tools/tests/test_h_compliance_gate.py -q -k \"h001 or h002 or h010 or h013 or h018 or h052 or h061 or h063 or h066 or h081 or h089\" -v",
+      "exit": 1,
+      "result": "1 failed, 23 passed, 66 deselected"
+    },
+    {
+      "cmd": "python -I tools/ci/h_compliance_gate.py --only H-001,H-018,H-052,H-061,H-062,H-063,H-066,H-081,H-089",
+      "exit": 1,
+      "result": "H-001 PASS / H-018 FAIL / H-052 PASS / H-061 FAIL / H-062 FAIL / H-063 FAIL / H-066 PASS / H-081 FAIL / H-089 FAIL"
+    },
+    {
+      "cmd": "python -I tools/ci/h_compliance_gate.py --only H-002,H-010,H-013",
+      "exit": 0,
+      "result": "H-002 / H-010 / H-013 全 PASS"
+    },
+    {
+      "cmd": "python -I tools/ci/acceptance_report.py --ledger docs/acceptance/ledger.md",
+      "exit": 1,
+      "result": "ledger_sha256=bb25ef23…；total=1200；counts={PASS:882, FAIL:30, BLOCKED:144, UNVERIFIED:144}；pass_with_review=0；pass_without_review=882；violations=[]；state=FAIL"
+    },
+    {
+      "cmd": "内联 python（-I）逐 id 调 h_compliance_gate.py --only <id>，与 docs/acceptance/evidence/H/logs/h-<id>.log 首行逐字比对",
+      "exit": 0,
+      "result": "11 条中 9 条 MATCH=True；H-052、H-066 MATCH=False（记录日志与当前门输出不同源）"
+    },
+    {
+      "cmd": "内联 python（-I）解析 tools/tests/test_h_compliance_gate.py 的 def test_hNNN_*，与 10 份 H tests XML 的 testcase name 求差",
+      "exit": 0,
+      "result": "8 份 XML stale_names=0；h-disclaimer.xml stale_names=1（test_h052_gap_copy_still_claims_pdf_has_no_implicit_label）；h-error-copy.xml stale_names=1（test_h066_gap_diagnostics_copy_concatenates_raw_message）；当前测试共 90 条"
+    }
+  ],
+  "rows": [
+    {
+      "id": "H-001",
+      "declared": "PASS",
+      "review": "PASS",
+      "basis": [
+        "本轮重跑 `python -I tools/ci/h_compliance_gate.py --only H-001` → `H-001 PASS 固定文案常量存在且含 AI/生成 两要素`，与 logs/h-001.log 首行逐字相同",
+        "独立复算（自写正则，不复用门实现）：AiGeneratedImageCaption.kt 中 `internal const val AI_GENERATED_IMAGE_CAPTION = \"本图由 AI 生成\"` 抽取值 == '本图由 AI 生成'",
+        "tests/h-aigc-explicit.xml：tests=9 failures=0 errors=0 skipped=0，testcase 名与当前测试文件完全一致；本轮 -k 重跑对应用例通过"
+      ],
+      "concerns": [
+        "门是文本级断言，只证明常量存在且含两要素，不证明设备导出的图注真的渲染出来（那是 C/J 域设备证据的命题）。"
+      ]
+    },
+    {
+      "id": "H-002",
+      "declared": "PASS",
+      "review": "PASS",
+      "basis": [
+        "本轮重跑 `--only H-002` PASS，与 logs/h-002.log 首行一致",
+        "独立复算：MistakePdfPagePlanner.kt 中 `isAiGeneratedExportImage(` 出现 3 次、`AI_GENERATED_IMAGE_CAPTION` 出现 3 次（门阈值 ≥2/≥2）",
+        "tests/h-aigc-explicit.xml failures=0，本轮 pytest 对应用例通过"
+      ],
+      "concerns": [
+        "计数类断言可被“同文件多处引用”满足；单题/块图两条分支的实际渲染分支未被逐行验证，但源码位置与行内 check 一致。"
+      ]
+    },
+    {
+      "id": "H-010",
+      "declared": "PASS",
+      "review": "PASS",
+      "basis": [
+        "本轮重跑 `--only H-010` PASS；输出 7 键顺序 ['Label','ContentProducer','ProduceID','ReservedCode1','ContentPropagator','PropagateID','ReservedCode2']，与 logs/h-010.log 逐字一致",
+        "独立复算：自写正则抽取 PdfAigcSchema.kt 的 `const val KEY_*` 文件序 == 门期望的 7 键序",
+        "tests/h-aigc-implicit.xml：tests=9 failures=0 errors=0 skipped=0"
+      ],
+      "concerns": [
+        "“与 TC260 模板一致”的官方原文本轮未取得，顺序正确性依据的是仓库 KDoc 与既有研究件（二手）；本复核只确认实现与断言的键序自洽。"
+      ]
+    },
+    {
+      "id": "H-013",
+      "declared": "PASS",
+      "review": "PASS",
+      "basis": [
+        "本轮重跑 `--only H-013` PASS，与 logs/h-013.log 首行一致",
+        "独立复算：PdfAigcInjector.kt 中 '/AIGC ' 出现 3 次；PdfAigcReader.kt 中 `dictionary[\"AIGC\"]` 出现 1 次",
+        "tests/h-aigc-implicit.xml failures=0，本轮 pytest 通过"
+      ],
+      "concerns": [
+        "证明的是“代码以 Info 字典 /AIGC 为唯一载体”的形状，不是“某个真实导出文件里读回了 /AIGC”；后者需要设备/pypdf 证据，不在本行。"
+      ]
+    },
+    {
+      "id": "H-018",
+      "declared": "FAIL",
+      "review": "FAIL",
+      "basis": [
+        "本轮重跑 `--only H-018` FAIL，与 logs/h-018.log 首行逐字一致",
+        "独立复算：DocxMistakeRenderer.kt 中 '/AIGC' 出现次数 = 0",
+        "docs/known-defects.md:3306 的 KD-84 (open) 与 :3318 的 KD-85 (open) 均在树"
+      ],
+      "concerns": [
+        "行内 check 是“全部交付格式与打印子集都有文件级隐式标识”，当前确为不成立；FAIL 判词成立，且未被任何证据洗白。"
+      ]
+    },
+    {
+      "id": "H-052",
+      "declared": "FAIL",
+      "review": "UNVERIFIED",
+      "recommended_ledger_verdict": "PASS（需先重录证据并补 test 类证据）",
+      "basis": [
+        "本轮重跑 `--only H-052` → **PASS**「文案与 PDF 隐式标识现状一致（KD-75 已关闭；KD-84/KD-85 仍开放）」，exit 0；台账记录的 logs/h-052.log 首行仍是 exit=1 的旧 FAIL（MATCH=False）",
+        "时间线：logs/h-052.log mtime 2026-11-05 01:48:01；docs/ai-content-disclosure-copy.md mtime 2026-11-05 04:05:47 —— 文案修复晚于日志，日志已被树内修复超越",
+        "独立复算：disclosure 文档中 '尚未写入文件级隐式信息' 命中 0、'PDF 不保留文件级隐式元数据' 命中 0；MistakePdfExporter.kt 中 `PdfAigcInjector().inject` 命中 1（:251）；文档 :36 仍如实写“部分页打印目前不含文件级隐式标识”，与 KD-84 一致",
+        "本轮 `pytest -k h052` → 1 passed（当前测试 test_h052_copy_matches_the_implemented_pdf_implicit_label）",
+        "但 tests/h-disclaimer.xml（台账未引用，见 residual）里 H-052 的 testcase 名仍是 test_h052_gap_copy_still_claims_pdf_has_no_implicit_label（stale_names=1），与本轮测试不同源"
+      ],
+      "concerns": [
+        "台账 FAIL 是**判词过期**（批次 44 §9.3 S3 已登记），不是产品缺口仍然存在；在本复核口径下不能直接签 PASS。",
+        "即使重录，行内证据只有 cmd + file 两类，其中 file 不计独立类 → 只有 1 类独立证据；改判 PASS 前必须补一条 test（重跑 h-disclaimer 组）或由独立复核提供 review 类证据，否则 report 会判 PASS_NEEDS_TWO_INDEPENDENT_EVIDENCE。",
+        "本复核不修改台账（不在本 ask 落点），只给 recommended_ledger_verdict。"
+      ]
+    },
+    {
+      "id": "H-061",
+      "declared": "FAIL",
+      "review": "FAIL",
+      "basis": [
+        "本轮重跑 `--only H-061` FAIL，与 logs/h-061.log 首行逐字一致",
+        "源码实读：MistakePdfDelivery.kt:215 `fun writeSubset(...)` 在 :227 `val document = PdfDocument()` 后 :229-:245 逐页 `renderer.openPage(pageIndex)` → `page.render(...)` 重绘，未见 Info 字典/元数据复制",
+        "docs/known-defects.md:3306 KD-84 (open) 症状描述与上述源码一致"
+      ],
+      "concerns": [
+        "门的 h061() 是常量 False（声明式），不能独立证伪/证实；本行的 FAIL 由源码 + KD 条目支撑，不是由门的“假断言”支撑。"
+      ]
+    },
+    {
+      "id": "H-062",
+      "declared": "FAIL",
+      "review": "FAIL",
+      "basis": [
+        "本轮重跑 `--only H-062` FAIL，与 logs/h-062.log 首行逐字一致",
+        "源码实读：core/export/.../MistakePdfPaperEdit.kt:233 `hasModelParsedText = sourceInput.hasModelParsedText,` 只透传来源判据",
+        "feature/tutor/.../TutorPaperEditApplier.kt:42 `fun apply(...)` / :76 `applyOne(...)` 应用模型命令，未见 provenance 置位；docs/known-defects.md:3318 KD-85 (open)"
+      ],
+      "concerns": [
+        "门的 h062() 同样是常量 False；FAIL 依据来自源码 + KD 条目。",
+        "修法涉及 feature/tutor 热区，本批复核只读，未触碰。"
+      ]
+    },
+    {
+      "id": "H-063",
+      "declared": "UNVERIFIED",
+      "review": "UNVERIFIED",
+      "basis": [
+        "本轮重跑 `--only H-063` FAIL，与 logs/h-063.log 首行一致；但 tools/ci/h_compliance_gate.py:635-636 的 h063() 是 `return False, \"…属人工视觉复核\"`",
+        "该行 check 是“设备上字号、对比度、不遮挡经人工视觉复核”，无可编码判据，树内无设备截图/人工复核记录（本批复核未跑设备）"
+      ],
+      "concerns": [
+        "台账 UNVERIFIED 正确；注意门输出的 FAIL 是“声明式缺口”，不是一次测量结果，引用时不得写成“门测出 FAIL”。"
+      ]
+    },
+    {
+      "id": "H-066",
+      "declared": "FAIL",
+      "review": "FAIL",
+      "basis": [
+        "台账 logs/h-066.log 首行 = `H-066 FAIL 诊断包失败文案是否拼接原始异常 message`，与当前门输出 `H-066 PASS …` **MATCH=False**",
+        "当前门 PASS 是**空转**：tools/ci/h_compliance_gate.py:656-657 `line = 826` → `text.splitlines()[825]`，实读 SecondaryScreens.kt:826 是 `                }`（一个右花括号），`\"failure.message\" not in \"}\"` 恒真",
+        "同源缺陷在测试侧：tools/tests/test_h_compliance_gate.py:358 `splitlines()[825]` 后还断言包含 '导出失败，本机记录不受影响。' → 本轮 `pytest -q` 红（1 failed），报 `assert '导出失败，本机记录不受影响。' in '                }'`",
+        "产品侧真实文案在 SecondaryScreens.kt:830 `diagnosticsMessage = \"导出失败，本机记录不受影响。请稍后重试。\"`，:829 注释声明不拼接原始 message；即“属性很可能成立”，但当前两条证据都不覆盖它",
+        "tests/h-error-copy.xml 中该 testcase 名仍是 test_h066_gap_diagnostics_copy_concatenates_raw_message（stale_names=1）"
+      ],
+      "concerns": [
+        "**不得**把当前门的 PASS 当作 H-066 通过：它检查的是右花括号。本复核维持 FAIL——判的是**该行证据链不成立**（门空转 + 测试红），不是判“产品仍在拼接异常”；在门/测试改成内容锚点并重录证据前，任何改判都没有依据。",
+        "修复动作是机械的：把行号锚点改成内容锚点（定位 `diagnosticsMessage =` 赋值或 catch 块），门与测试共用同一锚点；重录 h-066.log 与 h-error-copy.xml 后再判定。",
+        "这是本轮复核抓到的**工具假绿**（F1），应进 FIX 域；本文件不改工具（不在本 ask 落点）。"
+      ]
+    },
+    {
+      "id": "H-081",
+      "declared": "BLOCKED",
+      "review": "BLOCKED",
+      "basis": [
+        "本轮重跑 `--only H-081` FAIL，与 logs/h-081.log 首行一致；tools/ci/h_compliance_gate.py:740-741 的 h081() 是常量 False",
+        "独立复算：仓库根无 `fastlane/` 目录（`ls fastlane` → No such file or directory）；按 fastlane/metadata/store-listing/play-console 关键字全仓 grep（排除 build/）0 命中",
+        "行内 BLOCKED 理由指向发布工程外部依赖；本批复核未接触 Play Console"
+      ],
+      "concerns": [
+        "BLOCKED 成立（不是 PASS）；但“未产出英文上架材料”与“外部账号阻塞”是两件事：素材确实未产出，上架与否需 Play Console 账号，后者本复核无法验证。"
+      ]
+    },
+    {
+      "id": "H-089",
+      "declared": "UNVERIFIED",
+      "review": "UNVERIFIED",
+      "basis": [
+        "本轮重跑 `--only H-089` FAIL，与 logs/h-089.log 首行一致；tools/ci/h_compliance_gate.py:793-794 的 h089() 是常量 False",
+        "行内 check 是“错误文案语感与信息密度经人工复核”，无标注员/裁定者记录"
+      ],
+      "concerns": [
+        "语感类不可编码，UNVERIFIED 正确；同 H-063，门的 FAIL 是声明式缺口。"
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "高（假绿/工具缺陷）",
+      "title": "H-066 门用硬编码行号锚点，树内一次编辑后空转通过（检查到右花括号）",
+      "evidence": "tools/ci/h_compliance_gate.py:656-657；app/src/main/kotlin/com/tingyun/smartmistakebook/SecondaryScreens.kt:826（值为 '}'）与 :830（真实文案）；pytest 红见 tools/tests/test_h_compliance_gate.py:358-361",
+      "impact": "若有人只跑门、不看 pytest，会把 H-066 判成 PASS；这与“不得把缺失的门当通过”直接冲突。",
+      "disposition": "交 FIX 域：门与测试改为内容锚点（定位 diagnosticsMessage 赋值 + 断言同一行不含 failure.message），重录 logs/h-066.log 与 tests/h-error-copy.xml；本文件不改工具。"
+    },
+    {
+      "id": "F2",
+      "severity": "中（判词过期）",
+      "title": "H-052 台账 FAIL 与树内现状不符：日志早于文案修复 2h17m",
+      "evidence": "logs/h-052.log mtime 01:48:01 vs docs/ai-content-disclosure-copy.md mtime 04:05:47；本轮门 PASS；pytest -k h052 1 passed",
+      "impact": "台账把已修复项留作 FAIL，会虚增 FAIL 清单；但它没有把未修复项洗白，属“过度保守”错误。",
+      "disposition": "重录日志 + 重跑 h-disclaimer 组 XML + 补 test token 后可改判 PASS；本文件只给建议，不动台账。"
+    },
+    {
+      "id": "F3",
+      "severity": "中（证据同源）",
+      "title": "H 域 test 证据是 01:48 的一批 XML，其中 2 份的 testcase 名已与当前测试文件不符",
+      "evidence": "机械求差：h-disclaimer.xml 的 H-052 用例名、h-error-copy.xml 的 H-066 用例名 stale；其余 8 份 stale_names=0",
+      "impact": "report 只校验 tests/failures 计数，不校验 testcase 名，因此陈旧 XML 仍能充当 test 类证据；它对 PASS 行的“这条测试支撑这条 check”语义是打折的。",
+      "disposition": "重跑 H 组 pytest 并覆盖 10 份 XML；或给 report 增加 testcase 名匹配校验（交 FIX/D0）。"
+    },
+    {
+      "id": "F4",
+      "severity": "低（口径）",
+      "title": "h_compliance_gate.GAPS 仍把 52/66 列为缺口，但两个 check 已返回 True",
+      "evidence": "tools/ci/h_compliance_gate.py:816-817（GAPS 含 52、66）vs h052()/h066() 当前实现",
+      "impact": "注释口径与实现不一致，容易让人误读“52/66 仍是缺口”或反之。",
+      "disposition": "修复 F1/F2 时一并同步 GAPS 与注释。"
+    },
+    {
+      "id": "F5",
+      "severity": "低（证据卫生）",
+      "title": "H 证据目录内的 acceptance_report.json 绑定旧台账 d787ab4f（596/8/52/544），不是当前台账",
+      "evidence": "docs/acceptance/evidence/H/acceptance_report.json:3 `ledger_sha256=d787ab4f…`；当前台账 bb25ef23…",
+      "impact": "若被当作 H 域报告引用，会给出过时的域计数。本复核的 12 行均未引用它。",
+      "disposition": "重生成或删除，避免误引；不在本 ask 落点。"
+    }
+  ],
+  "evidence": [
+    "cmd:docs/acceptance/evidence/H/logs/h-001.log",
+    "cmd:docs/acceptance/evidence/H/logs/h-002.log",
+    "cmd:docs/acceptance/evidence/H/logs/h-010.log",
+    "cmd:docs/acceptance/evidence/H/logs/h-013.log",
+    "cmd:docs/acceptance/evidence/H/logs/h-018.log",
+    "cmd:docs/acceptance/evidence/H/logs/h-052.log",
+    "cmd:docs/acceptance/evidence/H/logs/h-061.log",
+    "cmd:docs/acceptance/evidence/H/logs/h-062.log",
+    "cmd:docs/acceptance/evidence/H/logs/h-063.log",
+    "cmd:docs/acceptance/evidence/H/logs/h-066.log",
+    "cmd:docs/acceptance/evidence/H/logs/h-081.log",
+    "cmd:docs/acceptance/evidence/H/logs/h-089.log",
+    "test:docs/acceptance/evidence/H/tests/h-aigc-explicit.xml",
+    "test:docs/acceptance/evidence/H/tests/h-aigc-implicit.xml",
+    "test:docs/acceptance/evidence/H/tests/h-export-marking.xml",
+    "test:docs/acceptance/evidence/H/tests/h-disclaimer.xml",
+    "test:docs/acceptance/evidence/H/tests/h-error-copy.xml",
+    "test:docs/acceptance/evidence/H/tests/h-i18n.xml",
+    "file:tools/ci/h_compliance_gate.py",
+    "file:tools/tests/test_h_compliance_gate.py",
+    "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/AiGeneratedImageCaption.kt",
+    "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPagePlanner.kt",
+    "file:core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/pdf/PdfAigcSchema.kt",
+    "file:core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/pdf/PdfAigcInjector.kt",
+    "file:core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/pdf/PdfAigcReader.kt",
+    "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt",
+    "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExporter.kt",
+    "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfDelivery.kt",
+    "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt",
+    "file:app/src/main/kotlin/com/tingyun/smartmistakebook/SecondaryScreens.kt",
+    "file:docs/ai-content-disclosure-copy.md",
+    "file:docs/known-defects.md"
+  ],
+  "evidence_sha256": {
+    "tools/ci/h_compliance_gate.py": "199428ea4e22d912bc0b08c2a0397f2e16721ab4c9f988112c975d2f2ad93512",
+    "tools/tests/test_h_compliance_gate.py": "d372b1cd3fa4a068ba2f96897ecc4014d5523b418e57a5af96ae30ad3e4ff5f8",
+    "docs/acceptance/ledger.md": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+    "docs/acceptance/evidence/H/logs/h-001.log": "03e960b5457c5fbb480d3c395780a1bce60f3912516ed5e1037c2be19bd97c1d",
+    "docs/acceptance/evidence/H/logs/h-002.log": "ad48d03633c7c4dcfcf3368941984428f6af86b13219fd5d16f5092936f9fdd5",
+    "docs/acceptance/evidence/H/logs/h-010.log": "41f383025796631bc461a58161b2df0192999524372758886be411442193c836",
+    "docs/acceptance/evidence/H/logs/h-013.log": "4eb9495fa54bb7452fcde2bc871d18ef3d0ab33a7c30cbd9e7f8702ad60e4f0a",
+    "docs/acceptance/evidence/H/logs/h-018.log": "49923fda9edad64ac8da240d990b93fa14d458f65ea4e5e53a88385d3443a570",
+    "docs/acceptance/evidence/H/logs/h-052.log": "86e625e288cc3b0073e137927e42d0c099da926dae4c71e7f6ebb74bc30fbf89",
+    "docs/acceptance/evidence/H/logs/h-061.log": "592106b28946b8e65b34d49c4d8ad383d57a3551ea1652ec385d5cd8383de6dd",
+    "docs/acceptance/evidence/H/logs/h-062.log": "e7649fe393df1301a4e99ef7080dfc71406a7412fb62aa4be0a3d87b97360e60",
+    "docs/acceptance/evidence/H/logs/h-063.log": "f91e5887726c5a8612f52c0dab7a0644ad11235219191c91e5a2935142ba74be",
+    "docs/acceptance/evidence/H/logs/h-066.log": "9822631c4b9702b2e3a976ecaea70b196a98eb3864b364575bde1f62760be8c5",
+    "docs/acceptance/evidence/H/logs/h-081.log": "32e47f3fa3346b964cfb65f90d6270d0fe1b16bd2566827175f3a211fb27db4c",
+    "docs/acceptance/evidence/H/logs/h-089.log": "988177e0989adc7caeb32d72ee2cb5395cec6511dab287c87967a6fe75dbc315",
+    "docs/acceptance/evidence/H/tests/h-aigc-explicit.xml": "bf5e45a31efdc2c3d61603b3362acd126d7ea0cb738f4bf1051c80bfa317d892",
+    "docs/acceptance/evidence/H/tests/h-aigc-implicit.xml": "9d46048e351dd5cc03e4e464f8865215c9a175ba85ba9750c46ee75590fd0dd6",
+    "docs/acceptance/evidence/H/tests/h-export-marking.xml": "27f49e32a8d21054760bcca4d312b7926b2b2a564de0d5cd541702044f5e7218",
+    "docs/acceptance/evidence/H/tests/h-disclaimer.xml": "1dd864f4e490c971f6721ee7c54774b520e0e27bef2433b96e681fbb1b941b4f",
+    "docs/acceptance/evidence/H/tests/h-error-copy.xml": "acee7301285389eeb8b7a7acc3e4d908e6ceeecf5a72dc5ca6b508764c736e11",
+    "docs/acceptance/evidence/H/tests/h-i18n.xml": "1fcb57419f48ac76a405f1e140489643c55b07d2eaf1368a2f840a1d3f6560a6",
+    "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/AiGeneratedImageCaption.kt": "eb1d44435c9dd58bfe33247ee77f18c15827ea2960593642f0c12ee6a4a72a73",
+    "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPagePlanner.kt": "26583e04e730128c7cb58d6440bf999844b66efab359966a660109a629286445",
+    "core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/pdf/PdfAigcSchema.kt": "11a88f94487035d7d3c666898c48199aaf25cbbd0bf65acf5a854fd048e3f299",
+    "core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/pdf/PdfAigcInjector.kt": "f8bd84e8c1af14c6d5411907a2168e5f39d661fb30cc00579bd6493f2b805466",
+    "core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/pdf/PdfAigcReader.kt": "018101e504eef6413312c800395271e250e93c6d51ed8d3938fde4c047f7b36a",
+    "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt": "dca6437922213c285335fce7320c9fe36a6aa58d9eecd26cfb1fa5bf7b82f441",
+    "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExporter.kt": "11b559b29965b2bf086f12f025e2df2748af03f53eea85fea66d98c14054e9ee",
+    "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfDelivery.kt": "5ca1db213e81f1b645099ebcc8ea71ace886e296afd8117e07aa4680272112fb",
+    "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt": "be7819ec4500fbbc37fde65a61f787bf7355de78d015e00c888e1ddf00b029a2",
+    "app/src/main/kotlin/com/tingyun/smartmistakebook/SecondaryScreens.kt": "12408eee7d93fd77b059cf5ea817fc5dea0e216120fa786f2fdc7bf6e7b91b6d",
+    "docs/ai-content-disclosure-copy.md": "cd7a74866545ad2740b09cbc68d2a36fa9d985cbdf95c7e6c02e93e6862c6e08",
+    "docs/known-defects.md": "bc82e1f4804d0fc9af9c6b5d43ae9b23dcc2b827fa15ddfcb891c9af5ae9c6a5"
+  },
+  "adversarial": {
+    "attempted": true,
+    "result": "抓到 1 条工具假绿（H-066：门空转 PASS + 测试红）与 1 条判词过期（H-052：树 PASS / 台账 FAIL）；另发现 2 份 test XML testcase 名陈旧、GAPS 注释与实现不一致、H 证据目录内旧报告未更新。未发现把 FAIL/BLOCKED/UNVERIFIED 洗成 PASS 的行。"
+  },
+  "residual": [
+    "本复核未跑设备、未跑 Gradle、未产出/读回真实 PDF；H-010/H-013 的 PASS 只证明源码形状，不证明运行时 PDF 含 /AIGC。",
+    "H 域另 78 行未逐行复核（90 − 12 = 78），本文件不得作为它们的证据。",
+    "H-052/H-066 的改判需要台账写权限与证据重录，本文件只给建议。",
+    "KD-76 / isolation / p09 / AUD-08 / 6C-2 未在本轮触碰，维持既有裁定。",
+    "本轮未验证 TC260 官方 7 键顺序原文；该事实沿用仓库 KDoc，属二手。"
+  ],
+  "notes": "1) reviewer 是批次 45 复核子代理，不是批次 44 H 域证据产出者；authors 是角色标签，证据文件未记录个人身份，本文件不是人类签字。2) ledger_sha256 绑定写文件时台账 bb25ef23…；台账再被改写后本字段会变 REVIEW_LEDGER_SHA_MISMATCH，必须重算。3) 本文件整体 verdict=UNVERIFIED：H 域 66 PASS / 5 FAIL / 12 BLOCKED / 7 UNVERIFIED，其中 2 条 FAIL 判词过期或证据失效，且 acceptance_report 的 pass_with_review 仍为 0，H 域不可签字。4) 引用本文件时只可指向 rows 中列出的 12 行，不可读作“H 域通过”。",
+  "independence": {
+    "reviewer_not_author": true,
+    "independence_verified": false,
+    "basis": "角色分离 + 对归档证据逐项机械复算；reviewer 未参与被复核证据的产出角色。",
+    "limitation": "reviewer 是角色标签，不是具名个人或第二模型；批次证据未记录生产者身份，无法证明跨模型独立。本复核只支持域级抽样结论，不构成台账行级 review 证据；report 的 pass_with_review 仍以行级 review token 为准。",
+    "verdict_ceiling": "UNVERIFIED (domain-level sample only)"
+  },
+  "ledger_sha256_at_review": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_sha256_current_after_fix": "887e3ba649eb17a70c0f6f7af8a657d606398a10925c6116818265387af689aa",
+  "ledger_binding_note": "本复核绑定修复前台账 bb25ef236056…；修复环只改了 35 行的 verdict/method（GATE-079 补证据、17 个 FIX 登记行改 BLOCKED、13 个 BLOCKED 补 runbook、4 个 D 行加脏树披露），未重跑本复核的抽样行。修复后台账为 887e3ba649eb…，因此本文件不得作为新台账的行级 review 证据；要转 PASS 必须在新台账上重跑。"
+}
