@@ -1,0 +1,20 @@
+{
+  "tag": "F-067-dropbox-stability",
+  "row": "F-067",
+  "claim_corrected": "6 个仪器化套件 + 手工启停后 dropbox data_app_crash 计数稳定 6（原行误写 12）",
+  "data_app_count_after": 6,
+  "new_events_in_window": 0,
+  "all_entries_timestamped_before_window": true,
+  "window": "2026-11-04T15:23Z..15:54Z",
+  "proof": "无窗口前快照归档；改用更强判据：运行后快照中每条 data_app_* 的时间戳都早于窗口起点，等价于窗口内新增 0 条（cmd log NEW_EVENTS_IN_WINDOW=0 同值）",
+  "sources_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt": "4028d68213d86aaed8dcc18add0e1f75104d8bf72742b0462d626babbca53cff",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log": "12702713ee1d85710da875687599497b24737d828f79be49a1b4aff5783f338b",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json": "fc86f1bf191efff7039f956d4177711691ceaba034949c091f3872c12c19676a"
+  },
+  "summary": {
+    "data_app_count_after": 6,
+    "new_events_in_window": 0,
+    "all_before_window": true
+  }
+}

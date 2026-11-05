@@ -1,0 +1,312 @@
+{
+  "runbook": "docs\\acceptance\\runbook.md",
+  "domain": "I",
+  "blocked_rows": 37,
+  "covered": 37,
+  "missing": [],
+  "rows": [
+    {
+      "id": "I-005",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    },
+    {
+      "id": "I-007",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "## 13. FIX 域修复单与出口（批次 45 WS3）",
+        "### 9.5.1 外部硬件 / 供应商 / 真机（7 行）"
+      ]
+    },
+    {
+      "id": "I-009",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.2 第二人 / 第二模型独立复核（9 行）"
+      ]
+    },
+    {
+      "id": "I-014",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.4 内部工具 / 产品决策缺口（7 行）"
+      ]
+    },
+    {
+      "id": "I-018",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.2 第二人 / 第二模型独立复核（9 行）"
+      ]
+    },
+    {
+      "id": "I-023",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.4 内部工具 / 产品决策缺口（7 行）"
+      ]
+    },
+    {
+      "id": "I-025",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.4 内部工具 / 产品决策缺口（7 行）"
+      ]
+    },
+    {
+      "id": "I-027",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.2 第二人 / 第二模型独立复核（9 行）"
+      ]
+    },
+    {
+      "id": "I-030",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.4 内部工具 / 产品决策缺口（7 行）"
+      ]
+    },
+    {
+      "id": "I-032",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    },
+    {
+      "id": "I-036",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.2 第二人 / 第二模型独立复核（9 行）"
+      ]
+    },
+    {
+      "id": "I-039",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.4 内部工具 / 产品决策缺口（7 行）",
+        "### 9.5.5 本节边界"
+      ]
+    },
+    {
+      "id": "I-041",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    },
+    {
+      "id": "I-043",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.4 内部工具 / 产品决策缺口（7 行）",
+        "### 9.5.5 本节边界"
+      ]
+    },
+    {
+      "id": "I-045",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.2 第二人 / 第二模型独立复核（9 行）"
+      ]
+    },
+    {
+      "id": "I-050",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.1 外部硬件 / 供应商 / 真机（7 行）"
+      ]
+    },
+    {
+      "id": "I-054",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.2 第二人 / 第二模型独立复核（9 行）"
+      ]
+    },
+    {
+      "id": "I-059",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    },
+    {
+      "id": "I-061",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "## 13. FIX 域修复单与出口（批次 45 WS3）",
+        "### 9.5.1 外部硬件 / 供应商 / 真机（7 行）"
+      ]
+    },
+    {
+      "id": "I-063",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.2 第二人 / 第二模型独立复核（9 行）"
+      ]
+    },
+    {
+      "id": "I-066",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.4 内部工具 / 产品决策缺口（7 行）"
+      ]
+    },
+    {
+      "id": "I-068",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.1 外部硬件 / 供应商 / 真机（7 行）"
+      ]
+    },
+    {
+      "id": "I-070",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "## 13. FIX 域修复单与出口（批次 45 WS3）",
+        "### 9.5.1 外部硬件 / 供应商 / 真机（7 行）"
+      ]
+    },
+    {
+      "id": "I-072",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.2 第二人 / 第二模型独立复核（9 行）"
+      ]
+    },
+    {
+      "id": "I-075",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "## 13. FIX 域修复单与出口（批次 45 WS3）",
+        "### 9.5.1 外部硬件 / 供应商 / 真机（7 行）"
+      ]
+    },
+    {
+      "id": "I-077",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    },
+    {
+      "id": "I-079",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "## 13. FIX 域修复单与出口（批次 45 WS3）",
+        "### 9.5.1 外部硬件 / 供应商 / 真机（7 行）"
+      ]
+    },
+    {
+      "id": "I-081",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.2 第二人 / 第二模型独立复核（9 行）"
+      ]
+    },
+    {
+      "id": "I-082",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    },
+    {
+      "id": "I-083",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    },
+    {
+      "id": "I-084",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    },
+    {
+      "id": "I-085",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    },
+    {
+      "id": "I-086",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    },
+    {
+      "id": "I-087",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    },
+    {
+      "id": "I-088",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    },
+    {
+      "id": "I-089",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    },
+    {
+      "id": "I-090",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### 9.5.3 人工语感 / 视觉评审（14 行）"
+      ]
+    }
+  ]
+}

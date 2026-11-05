@@ -1,0 +1,87 @@
+--------- beginning of system
+11-05 13:11:18.356   542  1903 I ActivityManager: Force stopping com.tingyun.smartmistakebook.core.export.test appid=10204 user=0: from pid 1027
+11-05 13:11:18.359   542  1903 W ProcessStats: Tracking association SourceState{2f72520 com.google.android.googlequicksearchbox:search/10132 BTop #45012} whose proc state 2 is better than process ProcessState{4c7dd9 com.google.android.googlequicksearchbox:interactor/10132 pkg=com.google.android.googlequicksearchbox} proc state 4 (10 skipped)
+11-05 13:11:18.360   542  1903 I AppsFilter: interaction: PackageSetting{f56a0fd com.tingyun.smartmistakebook.feature.tutor.test/10201} -> PackageSetting{5f496a0 com.tingyun.smartmistakebook.core.export.test/10204} BLOCKED
+11-05 13:11:18.362   542  1903 I AppsFilter: interaction: PackageSetting{5565043 com.tingyun.smartmistakebook.localfirst/10198} -> PackageSetting{5f496a0 com.tingyun.smartmistakebook.core.export.test/10204} BLOCKED
+11-05 13:11:18.362   542  1903 I AppsFilter: interaction: PackageSetting{906c6c0 com.tingyun.smartmistakebook.feature.capture.test/10194} -> PackageSetting{5f496a0 com.tingyun.smartmistakebook.core.export.test/10204} BLOCKED
+11-05 13:11:18.362   542  1903 I AppsFilter: interaction: PackageSetting{f14ff9 com.tingyun.smartmistakebook.core.database.test/10195} -> PackageSetting{5f496a0 com.tingyun.smartmistakebook.core.export.test/10204} BLOCKED
+11-05 13:11:18.362   542  1903 I AppsFilter: interaction: PackageSetting{b31b3e com.tingyun.smartmistakebook.core.data.test/10200} -> PackageSetting{5f496a0 com.tingyun.smartmistakebook.core.export.test/10204} BLOCKED
+11-05 13:11:18.362   542  1903 I AppsFilter: interaction: PackageSetting{e83ad9f com.tingyun.smartmistakebook.localfirst.test/10199} -> PackageSetting{5f496a0 com.tingyun.smartmistakebook.core.export.test/10204} BLOCKED
+11-05 13:11:18.363   542  1903 I AppsFilter: interaction: PackageSetting{4f18eec com.tingyun.smartmistakebook.feature.library.test/10197} -> PackageSetting{5f496a0 com.tingyun.smartmistakebook.core.export.test/10204} BLOCKED
+--------- beginning of main
+11-05 13:11:18.375   950   950 D CarrierSvcBindHelper: onHandleForceStop: [com.tingyun.smartmistakebook.core.export.test]
+11-05 13:11:18.376   950   950 D CarrierSvcBindHelper: No carrier app for: 0
+11-05 13:11:18.549  1065  1065 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-05 13:11:18.552  1065  1065 I AndroidRuntime: Using default boot image
+11-05 13:11:18.553  1065  1065 I AndroidRuntime: Leaving lock profiling enabled
+11-05 13:11:18.554  1065  1065 I app_process: Core platform API reporting enabled, enforcing=false
+11-05 13:11:18.555  1065  1065 I app_process: Using CollectorTypeCC GC.
+11-05 13:11:18.601  1065  1065 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-05 13:11:18.607  1065  1065 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-05 13:11:18.607  1065  1065 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+11-05 13:11:18.610  1065  1065 W app_process: Unexpected CPU variant for x86: x86_64.
+11-05 13:11:18.610  1065  1065 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-05 13:11:18.624  1065  1065 W main    : type=1400 audit(0.0:961): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-05 13:11:18.631  1065  1065 W libc    : Access denied finding property "ro.product.name_for_attestation"
+11-05 13:11:18.628  1065  1065 W main    : type=1400 audit(0.0:962): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-05 13:11:18.632  1065  1065 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+11-05 13:11:18.628  1065  1065 W main    : type=1400 audit(0.0:963): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-05 13:11:18.635  1065  1065 W libc    : Access denied finding property "ro.product.model_for_attestation"
+11-05 13:11:18.636  1065  1065 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-05 13:11:18.642  1065  1065 D UiAutomationConnection: Created on user UserHandle{0}
+11-05 13:11:18.643   542  1903 I ActivityManager: Force stopping com.tingyun.smartmistakebook.core.export.test appid=10204 user=0: start instr
+11-05 13:11:18.648   542  1903 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10204; state: DISABLED
+11-05 13:11:18.648   542  1903 D CompatibilityChangeReporter: Compat change id reported: 177438394; UID 10204; state: DISABLED
+11-05 13:11:18.648   542  1903 D CompatibilityChangeReporter: Compat change id reported: 135772972; UID 10204; state: DISABLED
+11-05 13:11:18.648   542  1903 D CompatibilityChangeReporter: Compat change id reported: 135754954; UID 10204; state: ENABLED
+11-05 13:11:18.650   542   573 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10204; state: ENABLED
+11-05 13:11:18.652   542   618 D CompatibilityChangeReporter: Compat change id reported: 265195908; UID 10204; state: ENABLED
+11-05 13:11:18.656   356   356 D Zygote  : Forked child process 1122
+11-05 13:11:18.659   542   573 I ActivityManager: Start proc 1122:com.tingyun.smartmistakebook.core.export.test/u0a204 for added application com.tingyun.smartmistakebook.core.export.test
+11-05 13:11:18.687  1122  1122 I ore.export.test: Late-enabling -Xcheck:jni
+11-05 13:11:18.699  1122  1122 I ore.export.test: Using CollectorTypeCC GC.
+11-05 13:11:18.701  1122  1122 W ore.export.test: Unexpected CPU variant for x86: x86_64.
+11-05 13:11:18.701  1122  1122 W ore.export.test: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-05 13:11:18.733   436   450 I adbd    : jdwp connection from 1122
+11-05 13:11:18.742   542  1903 D CompatibilityChangeReporter: Compat change id reported: 168419799; UID 10204; state: DISABLED
+11-05 13:11:18.742   542  1903 D CompatibilityChangeReporter: Compat change id reported: 273564678; UID 10204; state: DISABLED
+11-05 13:11:18.750  1122  1122 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10204; state: ENABLED
+11-05 13:11:18.750  1122  1122 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 10204; state: ENABLED
+11-05 13:11:18.752   542  1903 D CompatibilityChangeReporter: Compat change id reported: 170503758; UID 10204; state: ENABLED
+11-05 13:11:18.754  1122  1122 W ziparchive: Unable to open '/data/app/~~kCeAKQcKMTv2YcsVW3vhCA==/com.tingyun.smartmistakebook.core.export.test-1XfNMd7PYcAtJF3bBv7PsQ==/base.dm': No such file or directory
+11-05 13:11:18.754  1122  1122 W ziparchive: Unable to open '/data/app/~~kCeAKQcKMTv2YcsVW3vhCA==/com.tingyun.smartmistakebook.core.export.test-1XfNMd7PYcAtJF3bBv7PsQ==/base.dm': No such file or directory
+11-05 13:11:18.821  1122  1122 D nativeloader: Configuring clns-6 for other apk /data/app/~~kCeAKQcKMTv2YcsVW3vhCA==/com.tingyun.smartmistakebook.core.export.test-1XfNMd7PYcAtJF3bBv7PsQ==/base.apk. target_sdk_version=37, uses_libraries=, library_path=/data/app/~~kCeAKQcKMTv2YcsVW3vhCA==/com.tingyun.smartmistakebook.core.export.test-1XfNMd7PYcAtJF3bBv7PsQ==/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.tingyun.smartmistakebook.core.export.test
+11-05 13:11:18.830  1122  1122 V GraphicsEnvironment: Currently set values for:
+11-05 13:11:18.830  1122  1122 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-05 13:11:18.830  1122  1122 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-05 13:11:18.831  1122  1122 V GraphicsEnvironment: ANGLE GameManagerService for com.tingyun.smartmistakebook.core.export.test: false
+11-05 13:11:18.831  1122  1122 V GraphicsEnvironment: com.tingyun.smartmistakebook.core.export.test is not listed in per-application setting
+11-05 13:11:18.831  1122  1122 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-05 13:11:18.849  1122  1122 I AndroidJUnitRunner: newApplication android.app.Application
+11-05 13:11:18.864  1122  1122 I AndroidJUnitRunner: onCreate Bundle[mParcelledData.dataSize=312]
+11-05 13:11:18.867  1122  1122 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-05 13:11:18.881  1122  1122 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-05 13:11:18.882  1122  1166 D AndroidJUnitRunner: onStart is called.
+11-05 13:11:18.883   542  1903 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 10204. pid: 1122
+11-05 13:11:18.893   542  1903 D CompatibilityChangeReporter: Compat change id reported: 161145287; UID 10204; state: ENABLED
+11-05 13:11:18.894  1122  1166 I InstrConnection: Could not send broadcast or register receiver (isolatedProcess?)
+11-05 13:11:18.939  1122  1166 I TestRunner: run started: 1 tests
+11-05 13:11:18.942  1122  1166 I TestRunner: started: batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound(com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest)
+11-05 13:11:20.131  1122  1166 I MistakeBatchPerf: pdfQuestions=60 pages=64 elapsedMs=490
+11-05 13:11:20.134  1122  1166 I TestRunner: finished: batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound(com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest)
+11-05 13:11:20.140  1122  1166 I TestRunner: run finished: 1 tests, 0 failed, 0 ignored
+11-05 13:11:20.147   542  1903 I ActivityManager: Force stopping com.tingyun.smartmistakebook.core.export.test appid=10204 user=0: finished inst
+11-05 13:11:20.149  1065  1065 I app_process: System.exit called, status: 0
+11-05 13:11:20.151  1065  1065 I AndroidRuntime: VM exiting with result code 0.
+--------- beginning of kernel
+11-05 13:11:20.132     0     0 I binder  : 542:1903 ioctl 400c620e 7cadcffe0930 returned -11
+11-05 13:11:20.134     0     0 I binder  : 542:1903 ioctl 400c620e 7cadcffe0930 returned -11
+11-05 13:11:20.154   542  1903 E ActivityManager: Unable to freeze binder for 1122: -11
+11-05 13:11:20.159   542   561 D DisplayManagerService: Drop pending events for gone uid 10204
+11-05 13:11:20.159   542  1903 I ActivityManager: Killing 1122:com.tingyun.smartmistakebook.core.export.test/u0a204 (adj 0): stop com.tingyun.smartmistakebook.core.export.test due to finished inst
+11-05 13:11:20.173   542  1903 V ActivityManager: Got obituary of 1122:com.tingyun.smartmistakebook.core.export.test
+11-05 13:11:20.157     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-05 13:11:20.157     0     0 I binder  : undelivered transaction 5792191, process died.
+11-05 13:11:20.175   356   356 I Zygote  : Process 1122 exited due to signal 9 (Killed)
+11-05 13:11:20.901     0     0 I init    : Untracked pid 839 exited with status 143
+11-05 13:11:20.902     0     0 I init    : Untracked pid 839 did not have an associated service entry and will not be reaped

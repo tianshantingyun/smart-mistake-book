@@ -1,0 +1,163 @@
+--------- beginning of system
+11-05 13:12:03.315   542  1638 I ActivityManager: Force stopping com.tingyun.smartmistakebook.core.database.test appid=10195 user=0: from pid 2503
+11-05 13:12:03.317   542  1638 W ProcessStats: Tracking association SourceState{2f72520 com.google.android.googlequicksearchbox:search/10132 BTop #45039} whose proc state 2 is better than process ProcessState{4c7dd9 com.google.android.googlequicksearchbox:interactor/10132 pkg=com.google.android.googlequicksearchbox} proc state 4 (3 skipped)
+11-05 13:12:03.318   542  1638 I AppsFilter: interaction: PackageSetting{ea0c4d5 com.tingyun.smartmistakebook.core.export.test/10204} -> PackageSetting{82ae4ea com.tingyun.smartmistakebook.core.database.test/10195} BLOCKED
+11-05 13:12:03.318   542  1638 I AppsFilter: interaction: PackageSetting{f56a0fd com.tingyun.smartmistakebook.feature.tutor.test/10201} -> PackageSetting{82ae4ea com.tingyun.smartmistakebook.core.database.test/10195} BLOCKED
+11-05 13:12:03.318   542  1638 I AppsFilter: interaction: PackageSetting{5565043 com.tingyun.smartmistakebook.localfirst/10198} -> PackageSetting{82ae4ea com.tingyun.smartmistakebook.core.database.test/10195} BLOCKED
+11-05 13:12:03.318   542  1638 I AppsFilter: interaction: PackageSetting{906c6c0 com.tingyun.smartmistakebook.feature.capture.test/10194} -> PackageSetting{82ae4ea com.tingyun.smartmistakebook.core.database.test/10195} BLOCKED
+11-05 13:12:03.318   542  1638 I AppsFilter: interaction: PackageSetting{b31b3e com.tingyun.smartmistakebook.core.data.test/10200} -> PackageSetting{82ae4ea com.tingyun.smartmistakebook.core.database.test/10195} BLOCKED
+11-05 13:12:03.319   542  1638 I AppsFilter: interaction: PackageSetting{e83ad9f com.tingyun.smartmistakebook.localfirst.test/10199} -> PackageSetting{82ae4ea com.tingyun.smartmistakebook.core.database.test/10195} BLOCKED
+11-05 13:12:03.319   542  1638 I AppsFilter: interaction: PackageSetting{4f18eec com.tingyun.smartmistakebook.feature.library.test/10197} -> PackageSetting{82ae4ea com.tingyun.smartmistakebook.core.database.test/10195} BLOCKED
+--------- beginning of main
+11-05 13:12:03.335   950   950 D CarrierSvcBindHelper: onHandleForceStop: [com.tingyun.smartmistakebook.core.database.test]
+11-05 13:12:03.336   950   950 D CarrierSvcBindHelper: No carrier app for: 0
+11-05 13:12:04.043  2531  2531 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-05 13:12:04.046  2531  2531 I AndroidRuntime: Using default boot image
+11-05 13:12:04.046  2531  2531 I AndroidRuntime: Leaving lock profiling enabled
+11-05 13:12:04.047  2531  2531 I app_process: Core platform API reporting enabled, enforcing=false
+11-05 13:12:04.048  2531  2531 I app_process: Using CollectorTypeCC GC.
+11-05 13:12:04.098  2531  2531 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-05 13:12:04.103  2531  2531 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-05 13:12:04.103  2531  2531 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+11-05 13:12:04.106  2531  2531 W app_process: Unexpected CPU variant for x86: x86_64.
+11-05 13:12:04.106  2531  2531 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-05 13:12:04.118  2531  2531 W libc    : Access denied finding property "ro.product.name_for_attestation"
+11-05 13:12:04.118  2531  2531 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+11-05 13:12:04.119  2531  2531 W libc    : Access denied finding property "ro.product.model_for_attestation"
+11-05 13:12:04.119  2531  2531 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-05 13:12:04.116  2531  2531 W main    : type=1400 audit(0.0:970): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-05 13:12:04.116  2531  2531 W main    : type=1400 audit(0.0:971): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-05 13:12:04.116  2531  2531 W main    : type=1400 audit(0.0:972): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-05 13:12:04.124  2531  2531 D UiAutomationConnection: Created on user UserHandle{0}
+11-05 13:12:04.127   542  1638 I ActivityManager: Force stopping com.tingyun.smartmistakebook.core.database.test appid=10195 user=0: start instr
+11-05 13:12:04.139   542  1638 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10195; state: DISABLED
+11-05 13:12:04.142   542   573 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10195; state: ENABLED
+11-05 13:12:04.146   542   618 D CompatibilityChangeReporter: Compat change id reported: 265195908; UID 10195; state: ENABLED
+11-05 13:12:04.148   356   356 D Zygote  : Forked child process 2574
+11-05 13:12:04.151   542   573 I ActivityManager: Start proc 2574:com.tingyun.smartmistakebook.core.database.test/u0a195 for added application com.tingyun.smartmistakebook.core.database.test
+11-05 13:12:04.181  2574  2574 I e.database.test: Late-enabling -Xcheck:jni
+11-05 13:12:04.194  2574  2574 I e.database.test: Using CollectorTypeCC GC.
+11-05 13:12:04.195  2574  2574 W e.database.test: Unexpected CPU variant for x86: x86_64.
+11-05 13:12:04.195  2574  2574 W e.database.test: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-05 13:12:04.212   436   450 I adbd    : jdwp connection from 2574
+11-05 13:12:04.221   542  1638 D CompatibilityChangeReporter: Compat change id reported: 168419799; UID 10195; state: DISABLED
+11-05 13:12:04.222   542  1638 D CompatibilityChangeReporter: Compat change id reported: 273564678; UID 10195; state: DISABLED
+11-05 13:12:04.233  2574  2574 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10195; state: ENABLED
+11-05 13:12:04.234  2574  2574 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 10195; state: ENABLED
+11-05 13:12:04.236   542  1638 D CompatibilityChangeReporter: Compat change id reported: 170503758; UID 10195; state: ENABLED
+11-05 13:12:04.239  2574  2574 W ziparchive: Unable to open '/data/app/~~o_o3JEI5x3rIEPmJBYkkBg==/com.tingyun.smartmistakebook.core.database.test-1T3b1USPWUpHkHILgIbkYw==/base.dm': No such file or directory
+11-05 13:12:04.239  2574  2574 W ziparchive: Unable to open '/data/app/~~o_o3JEI5x3rIEPmJBYkkBg==/com.tingyun.smartmistakebook.core.database.test-1T3b1USPWUpHkHILgIbkYw==/base.dm': No such file or directory
+11-05 13:12:04.414  2574  2574 D nativeloader: Configuring clns-6 for other apk /data/app/~~o_o3JEI5x3rIEPmJBYkkBg==/com.tingyun.smartmistakebook.core.database.test-1T3b1USPWUpHkHILgIbkYw==/base.apk. target_sdk_version=37, uses_libraries=, library_path=/data/app/~~o_o3JEI5x3rIEPmJBYkkBg==/com.tingyun.smartmistakebook.core.database.test-1T3b1USPWUpHkHILgIbkYw==/lib/x86_64:/data/app/~~o_o3JEI5x3rIEPmJBYkkBg==/com.tingyun.smartmistakebook.core.database.test-1T3b1USPWUpHkHILgIbkYw==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.tingyun.smartmistakebook.core.database.test
+11-05 13:12:04.418   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 13:12:04.422  2574  2574 V GraphicsEnvironment: Currently set values for:
+11-05 13:12:04.423  2574  2574 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-05 13:12:04.423  2574  2574 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-05 13:12:04.423  2574  2574 V GraphicsEnvironment: ANGLE GameManagerService for com.tingyun.smartmistakebook.core.database.test: false
+11-05 13:12:04.423  2574  2574 V GraphicsEnvironment: com.tingyun.smartmistakebook.core.database.test is not listed in per-application setting
+11-05 13:12:04.423  2574  2574 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-05 13:12:04.436  2574  2574 I AndroidJUnitRunner: newApplication android.app.Application
+11-05 13:12:04.489  2574  2574 D WM-WrkMgrInitializer: Initializing WorkManager with default configuration.
+11-05 13:12:04.563  2574  2574 W e.database.test: Accessing hidden field Ljava/util/Collections$SynchronizedCollection;->mutex:Ljava/lang/Object; (max-target-o, reflection, denied)
+11-05 13:12:04.563  2574  2574 W e.database.test: Accessing hidden field Ljava/util/Collections$SynchronizedCollection;->c:Ljava/util/Collection; (unsupported, reflection, allowed)
+11-05 13:12:04.564  2574  2574 W e.database.test: Accessing hidden method Ljava/util/Collections$SynchronizedSet;-><init>(Ljava/util/Set;Ljava/lang/Object;)V (max-target-o, reflection, denied)
+11-05 13:12:04.564  2574  2574 W e.database.test: Accessing hidden method Ljava/util/Collections$SynchronizedCollection;-><init>(Ljava/util/Collection;Ljava/lang/Object;)V (max-target-o, reflection, denied)
+11-05 13:12:04.596  2574  2574 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+11-05 13:12:04.596  2574  2574 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+11-05 13:12:04.684  2574  2636 D WM-ForceStopRunnable: The default process name was not specified.
+11-05 13:12:04.701  2574  2636 D WM-ForceStopRunnable: Performing cleanup operations.
+11-05 13:12:04.765  2574  2636 D CompatibilityChangeReporter: Compat change id reported: 160794467; UID 10195; state: ENABLED
+11-05 13:12:04.767  2574  2636 D WM-ForceStopRunnable: Application was force-stopped, rescheduling.
+11-05 13:12:04.795  2574  2574 I AndroidJUnitRunner: onCreate Bundle[mParcelledData.dataSize=156]
+11-05 13:12:04.797  2574  2574 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-05 13:12:04.807  2574  2574 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-05 13:12:04.808  2574  2650 D AndroidJUnitRunner: onStart is called.
+11-05 13:12:04.809   542  1638 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 10195. pid: 2574
+11-05 13:12:04.816   542  1638 D CompatibilityChangeReporter: Compat change id reported: 161145287; UID 10195; state: ENABLED
+11-05 13:12:04.818  2574  2650 I InstrConnection: Could not send broadcast or register receiver (isolatedProcess?)
+11-05 13:12:04.825  2574  2649 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemalarm.RescheduleReceiver
+11-05 13:12:04.871  2574  2650 I TestRunner: run started: 6 tests
+11-05 13:12:04.876  2574  2650 I TestRunner: started: concurrentSearchPerformance(com.tingyun.smartmistakebook.core.database.PerformanceGateTest)
+11-05 13:12:09.129  2574  2586 I e.database.test: Background concurrent copying GC freed 937438(27MB) AllocSpace objects, 0(0B) LOS objects, 49% free, 20MB/40MB, paused 2.043ms,45us total 105.662ms
+11-05 13:12:10.379  2574  3086 D ProfileInstaller: Installing profile for com.tingyun.smartmistakebook.core.database.test
+11-05 13:12:14.408   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+--------- beginning of kernel
+11-05 13:12:22.291     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+11-05 13:12:24.406   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 13:12:31.467  2574  2731 I SQLiteConnection: /data/user/0/com.tingyun.smartmistakebook.core.database.test/databases/performance-test-67730884019300.db-wal 2500872 bytes: Bigger than 1048576; truncating
+11-05 13:12:32.150  2574  2650 I System.out: concurrent search (user-visible page path, not gated this batch): latencies=[11368, 11405, 11588, 11562, 11387, 11682, 11351, 11716, 11728, 11605]
+11-05 13:12:32.172  2574  2650 I TestRunner: finished: concurrentSearchPerformance(com.tingyun.smartmistakebook.core.database.PerformanceGateTest)
+11-05 13:12:32.178  2574  2650 I TestRunner: started: chineseSearchPerformance(com.tingyun.smartmistakebook.core.database.PerformanceGateTest)
+11-05 13:12:34.406   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 13:12:38.790   542   618 D CompatibilityChangeReporter: Compat change id reported: 218533173; UID 10200; state: ENABLED
+11-05 13:12:38.790   542   618 D CompatibilityChangeReporter: Compat change id reported: 262645982; UID 10200; state: ENABLED
+11-05 13:12:44.404   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 13:12:44.858   542   622 W CpuMonitorService: Current CPU frequency (5414994) is greater than maximum CPU frequency (2) for policy ID (0). Skipping CPU frequency policy
+11-05 13:12:44.858   542   622 W CpuMonitorService: Current CPU frequency (5413944) is greater than maximum CPU frequency (2) for policy ID (1). Skipping CPU frequency policy
+11-05 13:12:44.858   542   622 W CpuMonitorService: Current CPU frequency (5341849) is greater than maximum CPU frequency (2) for policy ID (2). Skipping CPU frequency policy
+11-05 13:12:44.859   542   622 W CpuMonitorService: Current CPU frequency (5354984) is greater than maximum CPU frequency (2) for policy ID (3). Skipping CPU frequency policy
+11-05 13:12:54.408   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 13:12:56.143  2574  2650 I TestRunner: finished: chineseSearchPerformance(com.tingyun.smartmistakebook.core.database.PerformanceGateTest)
+11-05 13:12:56.150  2574  2650 I TestRunner: started: facetQueryPerformance(com.tingyun.smartmistakebook.core.database.PerformanceGateTest)
+11-05 13:13:00.008  1387  1531 I AiAiEcho: Predicting[0]: 
+11-05 13:13:00.010  1387  1531 I AiAiEcho: EchoTargets: 
+11-05 13:13:00.010  1387  1531 I AiAiEcho: Filtered by AiAi flag check: 
+11-05 13:13:00.010  1387  1531 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-05 13:13:00.010  1387  1531 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-05 13:13:00.021   747   825 D EGL_emulation: app_time_stats: avg=60002.72ms min=60002.72ms max=60002.72ms count=1
+11-05 13:13:00.024   747   747 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-05 13:13:04.406   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 13:13:07.688  2574  2650 I TestRunner: finished: facetQueryPerformance(com.tingyun.smartmistakebook.core.database.PerformanceGateTest)
+11-05 13:13:07.694  2574  2650 I TestRunner: started: searchPerformance10kItems(com.tingyun.smartmistakebook.core.database.PerformanceGateTest)
+11-05 13:13:14.417   747   825 D EGL_emulation: app_time_stats: avg=14393.12ms min=14393.12ms max=14393.12ms count=1
+11-05 13:13:14.417   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 13:13:22.290     0     0 W healthd : battery l=100 v=5000 t=25.0 h=2 st=2 c=900000 fc=3000000 cc=10 chg=a
+11-05 13:13:24.405   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 13:13:30.603  2574  2650 I System.out: library search page benchmark: samples=[38, 46, 42, 47, 50, 55, 52, 48, 48, 48, 47, 44, 41, 47, 44, 48, 41, 45, 44, 39, 40, 39, 39, 42, 50, 43, 51, 54, 49, 62, 61, 50, 59, 46, 41, 49, 41, 41, 44, 41, 43, 37, 42, 39, 45, 39, 42, 43, 53, 46, 46, 52, 47, 41, 38, 41, 38, 35, 50, 35, 41, 38, 44, 38, 35, 41, 37, 42, 42, 51, 47, 42, 43, 47, 43, 36, 41, 43, 42, 41, 41, 42, 38, 39, 43, 38, 41, 37, 44, 55, 43, 53, 43, 47, 48, 49, 42, 38, 43, 39] p95=55ms
+11-05 13:13:30.616  2574  2650 I TestRunner: finished: searchPerformance10kItems(com.tingyun.smartmistakebook.core.database.PerformanceGateTest)
+11-05 13:13:30.619  2574  2650 I TestRunner: started: explainQueryPlanNoFullTableScan(com.tingyun.smartmistakebook.core.database.PerformanceGateTest)
+11-05 13:13:32.279   542   618 D CompatibilityChangeReporter: Compat change id reported: 218533173; UID 10204; state: ENABLED
+11-05 13:13:32.279   542   618 D CompatibilityChangeReporter: Compat change id reported: 262645982; UID 10204; state: ENABLED
+11-05 13:13:34.407   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 13:13:34.758   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 13:13:35.762   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 13:13:39.331   542   572 W ProcessCpuTracker: Failed to stat(/proc/9095): android.system.ErrnoException: stat failed: ENOENT (No such file or directory)
+11-05 13:13:39.331   542   572 W ProcessCpuTracker: Skipping unknown process pid 9095
+11-05 13:13:40.522  2574  2650 I System.out: library catalog EXPLAIN QUERY PLAN (title LIKE '%test%'):
+11-05 13:13:40.522  2574  2650 I System.out: SEARCH entry USING INDEX index_error_book_entry_status_updated_at_epoch_millis (status=?)
+11-05 13:13:40.522  2574  2650 I System.out: SEARCH revision USING INDEX index_problem_revision_problem_id_revision_id (problem_id=? AND revision_id=?)
+11-05 13:13:40.522  2574  2650 I System.out: SEARCH problem USING INDEX sqlite_autoindex_problem_1 (problem_id=?)
+11-05 13:13:40.522  2574  2650 I System.out: SEARCH unit USING COVERING INDEX sqlite_autoindex_practice_unit_1 (practice_unit_id=?)
+11-05 13:13:40.522  2574  2650 I System.out: SEARCH memory USING INDEX index_learner_problem_memory_state_projection_name_practice_unit_id_learner_id (projection_name=? AND practice_unit_id=?) LEFT-JOIN
+11-05 13:13:40.522  2574  2650 I System.out: CORRELATED SCALAR SUBQUERY 3
+11-05 13:13:40.522  2574  2650 I System.out: SEARCH binding USING COVERING INDEX index_practice_unit_knowledge_binding_practice_unit_id_knowledge_node_id_basis_revision_id_taxonomy_version (practice_unit_id=?)
+11-05 13:13:40.523  2574  2650 I System.out: SEARCH mastery USING INDEX sqlite_autoindex_learner_knowledge_mastery_state_1 (projection_name=? AND learner_id=? AND knowledge_node_id=?)
+11-05 13:13:40.523  2574  2650 I System.out: CORRELATED SCALAR SUBQUERY 4
+11-05 13:13:40.523  2574  2650 I System.out: SEARCH classification USING INDEX index_problem_classification_binding_problem_id_basis_revision_id_dimension_label_id (problem_id=? AND basis_revision_id=? AND dimension=?)
+11-05 13:13:40.523  2574  2650 I System.out: CORRELATED SCALAR SUBQUERY 5
+11-05 13:13:40.523  2574  2650 I System.out: SEARCH classification USING INDEX index_problem_classification_binding_problem_id_basis_revision_id_dimension_label_id (problem_id=? AND basis_revision_id=? AND dimension=?)
+11-05 13:13:40.533  2574  2650 I TestRunner: finished: explainQueryPlanNoFullTableScan(com.tingyun.smartmistakebook.core.database.PerformanceGateTest)
+11-05 13:13:40.537  2574  2650 I TestRunner: started: firstScreenPerformance(com.tingyun.smartmistakebook.core.database.PerformanceGateTest)
+11-05 13:13:44.415   747   825 D EGL_emulation: app_time_stats: avg=29997.61ms min=29997.61ms max=29997.61ms count=1
+11-05 13:13:44.415   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 13:13:44.878   542   622 W CpuMonitorService: Current CPU frequency (5198048) is greater than maximum CPU frequency (2) for policy ID (0). Skipping CPU frequency policy
+11-05 13:13:44.879   542   622 W CpuMonitorService: Current CPU frequency (5222095) is greater than maximum CPU frequency (2) for policy ID (1). Skipping CPU frequency policy
+11-05 13:13:44.879   542   622 W CpuMonitorService: Current CPU frequency (5395858) is greater than maximum CPU frequency (2) for policy ID (2). Skipping CPU frequency policy
+11-05 13:13:44.879   542   622 W CpuMonitorService: Current CPU frequency (5193767) is greater than maximum CPU frequency (2) for policy ID (3). Skipping CPU frequency policy
+11-05 13:13:52.487  2574  2650 I TestRunner: finished: firstScreenPerformance(com.tingyun.smartmistakebook.core.database.PerformanceGateTest)
+11-05 13:13:52.495  2574  2650 I TestRunner: run finished: 6 tests, 0 failed, 0 ignored
+11-05 13:13:52.515   542  1587 I ActivityManager: Force stopping com.tingyun.smartmistakebook.core.database.test appid=10195 user=0: finished inst
+11-05 13:13:52.515  2531  2531 I app_process: System.exit called, status: 0
+11-05 13:13:52.517  2531  2531 I AndroidRuntime: VM exiting with result code 0.
+11-05 13:13:52.500     0     0 I binder  : 542:1587 ioctl 400c620e 7cadd90c8930 returned -11
+11-05 13:13:52.500     0     0 I binder  : 542:1587 ioctl 400c620e 7cadd90c8930 returned -11
+11-05 13:13:52.520   542  1587 E ActivityManager: Unable to freeze binder for 2574: -11
+11-05 13:13:52.522   542  1587 I ActivityManager: Killing 2574:com.tingyun.smartmistakebook.core.database.test/u0a195 (adj 0): stop com.tingyun.smartmistakebook.core.database.test due to finished inst
+11-05 13:13:52.523   542   561 D DisplayManagerService: Drop pending events for gone uid 10195
+11-05 13:13:52.524   542  1587 W ProcessStats: Tracking association SourceState{2f72520 com.google.android.googlequicksearchbox:search/10132 BTop #45047} whose proc state 2 is better than process ProcessState{4c7dd9 com.google.android.googlequicksearchbox:interactor/10132 pkg=com.google.android.googlequicksearchbox} proc state 4 (3 skipped)
+11-05 13:13:52.543   542  1587 V ActivityManager: Got obituary of 2574:com.tingyun.smartmistakebook.core.database.test
+11-05 13:13:52.543   356   356 I Zygote  : Process 2574 exited due to signal 9 (Killed)
+11-05 13:13:52.525     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-05 13:13:52.527     0     0 I binder  : undelivered transaction 5794921, process died.
+11-05 13:13:53.960     0     0 I init    : Untracked pid 2435 exited with status 143
+11-05 13:13:53.961     0     0 I init    : Untracked pid 2435 did not have an associated service entry and will not be reaped
+11-05 13:13:54.408   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled

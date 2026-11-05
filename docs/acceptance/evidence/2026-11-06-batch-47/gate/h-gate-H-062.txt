@@ -1,0 +1,2 @@
+H-062 FAIL 模型改卷文本未纳入 /AIGC 判据（KD-85 open；修复落点跨 feature/tutor 热区，需主会话授权）
+EXIT=1

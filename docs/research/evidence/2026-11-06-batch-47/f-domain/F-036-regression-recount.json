@@ -1,0 +1,69 @@
+{
+  "tag": "F-036-regression-recount",
+  "row": "F-036",
+  "same_device_same_apk": {
+    "device": "emulator-5584",
+    "apk_sha256": "08ea26417f746daddf0344c8b12433702628e25670f7ca80283b2e2374e165c0"
+  },
+  "b43_documented_ms": [
+    545,
+    569,
+    518
+  ],
+  "b43_source": {
+    "path": "docs/research/evidence/2026-11-05-batch-43/ws11-performance.md",
+    "section": "§2.2",
+    "sha256": "cc3d018cba146f7417d202c078798a574f6f897f90912bbd8edc057d8ecc03af",
+    "note": "批次43 原始 build/ws11-batch43 产物未入库；本 md 是其归档记录"
+  },
+  "b47_fresh_ms": [
+    490,
+    464,
+    478
+  ],
+  "b47_mean_vs_b43_mean_pct": -12.25,
+  "b47_any_round_slower": false,
+  "db_gate": {
+    "device": "emulator-5584",
+    "apk_sha256": "32235e6323f7caa45bdbdb6a0c566f5f50c9fb4da26cef975163deb3a7501a61",
+    "tests": 6,
+    "failed": false,
+    "time_s": "107.624",
+    "p95_ms": 55,
+    "target_ms": 350,
+    "p95_raw_line": "11-05 13:13:30.603  2574  2650 I System.out: library search page benchmark: samples=[38, 46, 42, 47, 50, 55, 52, 48, 48, 48, 47, 44, 41, 47, 44, 48, 41, 45, 44, 39, 40, 39, 39, 42, 50, 43, 51, 54, 49, 62, 61, 50, 59, 46, 41, 49, 41, 41, 44, 41, 43, 37, 42, 39, 45, 39, 42, 43, 53, 46, 46, 52, 47, 41, 38, 41, 38, 35, 50, 35, 41, 38, 44, 38, 35, 41, 37, 42, 42, 51, 47, 42, 43, 47, 43, 36, 41, 43, 42, 41, 41, 42, 38, 39, 43, 38, 41, 37, 44, 55, 43, 53, 43, 47, 48, 49, 42, 38, 43, 39] p95=55ms"
+  },
+  "sources_sha256": {
+    "docs/research/evidence/2026-11-05-batch-43/ws11-performance.md": "cc3d018cba146f7417d202c078798a574f6f897f90912bbd8edc057d8ecc03af",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/db-perf-b47-5584.device.json": "090226a7422ed4f6dc21c7fff597c3e60311ff62912fdf7f4ba1baa94a11db3f",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/db-perf-b47-5584.logcat.txt": "8f75c7e6e702ddaf17854c6a90e990b1ad97c3fa5b5ef3f584987a8ef6fe490a",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/db-perf-b47-5584.instr.txt": "9e3343037ce3c0a98524236d2c67b14dd9af96d13bf026075d9c7c3d885f3e31",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/db-perf-b47-5584.cmd.log": "bf0188f479584d873896b38c8d988df11b2887428ab14e2631e969904239f5f9",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.device.json": "525c4fe2fd35845d692c2cd37644b690519294ecf1c038bf422be6c81a74f999",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.perf.logcat.txt": "63da86a9e211b63a73851cec2913fe1c41b5f46d7f6fb2bf32ec39ea96151909",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.instr.txt": "f0f33f751038b9e4e56fe4f972506fb114bf175b7237f8cfc2f6dd91a301e6a1",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.cmd.log": "b8c23e9cc1b047fc9c44b12ca834a4476f4d5f1b2d7210247cb185497fa30ae1",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r2.device.json": "3848f29cba4b06e76f0acbf546f4710c5d28b491cac403a52ac6c3e3a6cd05a4",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r2.perf.logcat.txt": "341abcb6f0eb69cddd1bdcaa125819b7c1585f79a288e34cca530a7a137f99b4",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r2.instr.txt": "6e56ad4a0f1b4e3a20f4a2994762d787d03080023c9705e7eff8d747e0caa543",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r2.cmd.log": "215c4d9cd25a806321bf595b4fd1e451b2abd31d872690fb9fc3062f5db97b48",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r3.device.json": "2e1b90006dd0991d7b47bdf1e62200c7e0d7d2cec5b61d7ae362cefb230ff9cc",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r3.perf.logcat.txt": "254886fc4e98dc4fc775a6c526503d72b62c1a6aa7bfbd998389dc1896c2eaeb",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r3.instr.txt": "6e2adf70fcd79e16b4ac214d8decaf75336125610af86f1fbf8b2c989abf7684",
+    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r3.cmd.log": "7481c342ef40335b4114898a8a25715b8f936ffe0527c10e62c6924cb2387605"
+  },
+  "summary": {
+    "b43_ms": [
+      545,
+      569,
+      518
+    ],
+    "b47_ms": [
+      490,
+      464,
+      478
+    ],
+    "mean_delta_pct": -12.25,
+    "db_p95_ms": 55
+  }
+}

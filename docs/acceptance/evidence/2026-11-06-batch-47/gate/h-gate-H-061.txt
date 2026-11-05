@@ -1,0 +1,2 @@
+H-061 PASS 部分页打印子集按 prepared 同一份 /AIGC JSON 重注入（KD-84）；设备用例断言 Label/ProduceID/页数并落盘子集供宿主 pypdf 独立读回
+EXIT=0

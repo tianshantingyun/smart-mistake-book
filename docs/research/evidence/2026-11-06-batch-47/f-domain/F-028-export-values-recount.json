@@ -1,0 +1,64 @@
+{
+  "tag": "F-028-export-values-recount",
+  "row": "F-028",
+  "claim_corrected": "基线只声称原始 export.cmd.log 记录的三组套件耗时；产品单题 487/597/820ms 无原始归档，已从本行删除",
+  "batch60_suite_s": [
+    1.216,
+    1.24,
+    1.277
+  ],
+  "product_path_suite_s": [
+    7.973,
+    7.772,
+    8.115
+  ],
+  "longdoc_suite_s": [
+    0.367,
+    0.38
+  ],
+  "xml": {
+    "batch1": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "time_s": "1.216"
+    },
+    "batch2": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "time_s": "1.24"
+    },
+    "batch3": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "time_s": "1.277"
+    },
+    "long1": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "time_s": "0.367"
+    },
+    "long2": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "time_s": "0.38"
+    }
+  },
+  "sources_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log": "5b2af454ab0102211b2c78f743ce3e14c79f7425348ed66b20460f914a7c6dd7",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml": "18feb4d52734fc1ac104b605a85e3c423665e9c7387595cc3547c936aabe781e",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch2.xml": "75422ca36efeb587f5ab09f5aa545abd135cc7b2b7ee94fc2158933e8078cccc",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch3.xml": "bffbeb812c9f62e1316072a64198488c0c1a9f293447c0d43071040e34c74d6d",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-long1.xml": "b89fb3d4f511ee6b258241a620f8e509570592a8979dd37474917b4cf928e277",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-long2.xml": "783b576f12440b8c8182c1198ea192e249543b10636cc068b318d79cf977a670"
+  },
+  "summary": {
+    "batch_rounds": 3,
+    "product_suite_rounds": 3,
+    "longdoc_rounds": 2
+  }
+}
