@@ -1,0 +1,10 @@
+{
+  "serial": "emulator-5584",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "captured_at": "2026-11-05T01:07:40+08:00",
+  "probe": "adb shell logcat -d | secret-pattern scan",
+  "logcat_lines": 13431,
+  "secret_pattern_hits": 0,
+  "first_hit": null
+}

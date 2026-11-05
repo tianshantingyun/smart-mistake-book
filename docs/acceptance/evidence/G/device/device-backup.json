@@ -1,0 +1,12 @@
+{
+  "serial": "emulator-5584",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "captured_at": "2026-11-05T01:07:36+08:00",
+  "probe": "adb shell bmgr backupnow <pkg>; adb shell dumpsys package <pkg>",
+  "bmgr_backupnow": "Running incremental backup for 1 requested packages.\nBackup finished with result: Backup is not allowed\nUnable to run backup",
+  "allow_backup_flag_present": false,
+  "pkg_flags": [
+    "pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "serial": "emulator-5584",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "captured_at": "2026-11-05T01:07:35+08:00",
+  "probe": "adb shell dumpsys package <pkg>",
+  "requested_permissions": [
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.FOREGROUND_SERVICE",
+    "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
+    "android.permission.INTERNET",
+    "android.permission.POST_NOTIFICATIONS",
+    "android.permission.RECEIVE_BOOT_COMPLETED",
+    "android.permission.WAKE_LOCK"
+  ],
+  "granted_permissions": [
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.FOREGROUND_SERVICE",
+    "android.permission.FOREGROUND_SERVICE_DATA_SYNC",
+    "android.permission.INTERNET",
+    "android.permission.POST_NOTIFICATIONS",
+    "android.permission.RECEIVE_BOOT_COMPLETED",
+    "android.permission.WAKE_LOCK"
+  ],
+  "pkg_flags": [
+    "pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ]"
+  ],
+  "dangerous_permission_grant_attempt": "Exception occurred while executing 'grant':\njava.lang.SecurityException: Package com.tingyun.smartmistakebook.localfirst has not requested permission android.permission.READ_CONTACTS\n\tat com.android.server.pm.permission.PermissionManagerServiceImpl.grantRuntimePermissionInternal(PermissionManagerServiceImpl.java:1423)\n\tat com.android.server.pm.permission.PermissionManagerServiceImpl.grantRuntimePermission(PermissionManagerServiceImpl.java:1337)\n\tat com.android.server.pm.permission.PermissionManagerService.grantRuntimePermission(PermissionManagerService.java:551)\n\tat android.permission.PermissionManager.grantRuntimePermission(PermissionManager.java:609)\n\tat com.android.server.pm.PackageManagerShellCommand.runGrantRevokePermission(PackageManagerShellCommand.java:2672)\n\tat com.android.server.pm.PackageManagerShellCommand.onCommand(PackageManagerShellCommand.java:291)\n\tat com.android.modules.utils.BasicShellCommandHandler.exec(BasicShellCommandHandler.java:97)\n\tat android.os.ShellCommand.exec(ShellCommand.java:38)\n\tat com.android.server.pm.PackageManagerService$IPackageManagerImpl.onShellCommand(PackageManagerService.java:6350)\n\tat android.os.Binder.shellCommand(Binder.java:1068)\n\tat android.os.Binder.onTransact(Binder.java:888)\n\tat android.content.pm.IPackageManager$Stub.onTransact(IPackageManager.java:4352)\n\tat com.android.server.pm.PackageManagerService$IPackageManagerImpl.onTransact(PackageManagerService.java:6334)\n\tat android.os.Binder.execTransactInternal(Binder.java:1344)\n\tat android.os.Binder.execTransact(Binder.java:1275)",
+  "permission_count": 7
+}
