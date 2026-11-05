@@ -1,0 +1,35 @@
+diff --git a/.github/workflows/acceptance.yml b/.github/workflows/acceptance.yml
+new file mode 100644
+index 0000000..1111111
+--- /dev/null
++++ b/.github/workflows/acceptance.yml
+@@ -0,0 +1,29 @@
++name: acceptance
++on:
++  pull_request:
++  workflow_dispatch:
++permissions:
++  contents: read
++jobs:
++  acceptance:
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v4
++      - uses: actions/setup-python@v5
++        with:
++          python-version: "3.13"
++      - name: ledger cardinality
++        run: python -I tools/ci/acceptance_init.py --check
++      - name: PASS evidence
++        run: python -I tools/ci/acceptance_report.py --ledger docs/acceptance/ledger.md --out build/acceptance/report.json --require-complete
++      - name: anti-forgery lint
++        run: python -I tools/ci/acceptance_lint.py --ledger docs/acceptance/ledger.md --out build/acceptance/lint.json --strict-warnings
++      - name: trace gaps
++        run: python -I tools/ci/trace_requirements.py --ledger docs/acceptance/ledger.md --out build/acceptance/trace.json
++      - name: metamorphic harness self-test
++        run: python -I tools/ci/metamorphic_checks.py --demo --out build/acceptance/metamorphic.json
++      - uses: actions/upload-artifact@v4
++        if: always()
++        with:
++          name: acceptance-reports
++          path: build/acceptance/
