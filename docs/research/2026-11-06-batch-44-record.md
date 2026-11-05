@@ -450,3 +450,60 @@ sha256sum docs/acceptance/ledger.md         -> 02ba5307…e65（460,671 B）
 ---
 
 <!-- 体量自查：wc -lc = 452 行 / 47,288 B（≤65,536 B）。 -->
+
+## 9. 主会话收口（2026-11-05，本段为收口权威）
+
+### 9.1 主会话实跑门禁
+
+| 门 | 结果 |
+|---|---|
+| 单测门（12 模块 `--continue`，`build/batch44-unit.log`） | **exit=0**（`GRADLE_EXIT=0`，1m34s；本轮 KB/dense 线已恢复） |
+| 强门（逐任务 `--rerun` androidTest 编译 + `assembleLocalFirstDebug`，`build/batch44-strong.log`） | **exit=0** |
+| 环后强门（`build/batch44-strong-postfix.log`） | exit=0 |
+| Scheduling 滑杆定向单测（主会话补跑） | **exit=0**（`build/batch44-app-sched-test.log`） |
+
+### 9.2 验收报告终态：**FAIL，不签字**
+
+主会话实跑 `python -I tools/ci/acceptance_report.py`（HEAD `542b9bba`、台账 sha `02ba5307…`）：
+
+- `total=1200`，`counts={PASS:668, FAIL:21, BLOCKED:73, UNVERIFIED:438}`，**state=FAIL，exit=1**。
+- `pass_with_review=0`：668 条 PASS 没有一条独立复核（DoD §1.5 不满足）。
+- `violations=101`（`PLACEHOLDER_CMD`，覆盖 E 域 80 个唯一 id）：E 域 80/80 PASS 的证据命令是占位符。
+- `trace_requirements` gaps=60（50 缺证据路径 + 10 缺设备证据）。
+- 300 行结构性未判定（D0/FIX/GATE 三域整体未发生）。
+
+**裁定：本批不构成验收通过，也不构成发版就绪。** 668 PASS 只能读作“机械审计有证据”，不能读作“用户验收已完成”。这不否定工具价值——验收工具本轮真实抓出了自家批次的假 PASS（PLACEHOLDER_CMD）与零复核，正是它该做的事。
+
+### 9.3 复核发现处置（S1–S15）
+
+| # | 处置 |
+|---|---|
+| S1 报告与台账不同步 | 以当前台账为准；主会话重跑报告即 exit 1；待批次 45 重生成 |
+| S2 E 域占位命令 | 记 UNVERIFIED；批次 45 逐字重录命令后重判 |
+| S3 FAIL 集不稳定（H-052/H-066 已绿） | 判词过期；批次 45 重跑后重判 |
+| S4 滑杆崩溃修复未测 | 主会话补跑定向单测 exit=0；仍缺设备/长时验证 |
+| S5 C-065 夹具零面积 | 交 FIX 域复核 |
+| S6 300 行未判定 | 批次 45 回填 D0/FIX/GATE |
+| S7 独立复核=0 | 批次 45 生成 verdict JSON（reviewer∉authors）后才可 PASS |
+| S8 证据哈希清单过期 | 批次 45 重生成并 verify |
+| S9 域索引计数过期 | 以台账为准；索引重写 |
+| S10 双门增量、不含 `:app` 全量 | 记录“非全量”；发版前需干净全量 |
+| S11 4 份 APK 不可合并 | 所有结论带 APK sha |
+| S12 计划 §0 七条前提错误 | 已由 crosscheck 记录，计划待重写 |
+| S13 6C-2 未加新不变量 | 沿用批次 43 的 3 例，行为未漂移 |
+| S14 发版不成立 | 维持；7 条 P0 |
+| S15 证据未跟踪/日志被忽略 | 本批已入库（acceptance/evidence + evidence 目录），gitignore 待调 |
+
+- **Mimosa**：本轮 hook 报 9 处 `low`「不安全随机数」，全部在 KB/dense 工具（`tools/kb_build`、`tools/kb_coverage`、`tools/dense_build`、`tools/tests/test_retrieval_significance.py`），非本批产物；覆盖不完整，**不得称项目安全**。
+
+### 9.4 提交（17 笔，已推送）
+
+验收机制核心（模型/init/report/lint/trace/hash）→ 蜕变/截图/无障碍/合规 + patch → 验收自测（含假绿回放/自突变）→ 截图/无障碍/合规自测 + DoD/schema → 台账/运行手册/终裁草案/判词 → 代码修复（滑杆崩溃 + H-066）→ G/H 证据 → A-D/E-F/I-J 证据与设备索引 → 研究 R1–R6 → 基线/文案/记录 → 本文。
+
+### 9.5 批次 45 的入口（必须做）
+
+1. **E 域 80 行逐字重录命令**（禁占位符），重判 PASS/UNVERIFIED。
+2. **D0/FIX/GATE 300 行回填**（D0 100 自验收、FIX 100 逐项修复单、GATE 100 门禁项）。
+3. **独立复核 verdict JSON**（每域 ≥5 行，reviewer∉authors），使 `pass_with_review>0`。
+4. **重跑 acceptance_report 到 exit 0 或给出可签字的 BLOCKED 清单**；否则明确“验收不通过”。
+5. S3/S8/S9 重算；p09、KD-76、isolation、AUD-08 按既有裁定维持。
