@@ -1,0 +1,368 @@
+{
+  "id": "C-review",
+  "domain": "C",
+  "verdict": "FAIL",
+  "domain_verdict": "FAIL",
+  "run_id": "2026-11-05T02:54:02Z-batch45-c-review",
+  "reviewer": "subagent-c-domain-independent-review",
+  "authors": [
+    "batch-44-c-domain-evidence-producer"
+  ],
+  "self_review": false,
+  "head": "87604198feeef198d5dba7343b8c4692c5e8f937",
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_rows": 1200,
+  "domain_counts": {
+    "rows": 90,
+    "PASS": 77,
+    "FAIL": 1,
+    "BLOCKED": 0,
+    "UNVERIFIED": 12
+  },
+  "scope": "批次 45 / WS5：C 域独立复核。抽样 13 行（12 PASS + 1 FAIL）逐行复算，另对 90 行做证据形状机检。不复跑 Gradle/设备（纪律：Gradle 只在门禁阶段串行，本项无设备授权）。",
+  "coverage": {
+    "rows_total": 90,
+    "sampled_recomputed": 13,
+    "sampled_pass_confirmed": 12,
+    "sampled_fail_confirmed": 1,
+    "pass_rows_shape_audited_only": 65,
+    "unverified_rows": 12
+  },
+  "rows": [
+    {
+      "id": "C-001",
+      "check": "SceneV1 绘制原语 Save：重复编译的 save/restore 序列逐字节相同",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-node-compiler.log",
+        "test:docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.log"
+      ],
+      "verified": [
+        "XML testsuite: tests=6 failures=0 errors=0 skipped=0, hostname=emulator-5584, timestamp=2026-11-04T13:13:18Z",
+        "XML 含 testcase theSameSceneCompilesToByteIdenticalDrawOps（源 QuickJsSceneCompilerInstrumentedTest.kt:165-180 断言 first/second/third drawCommandsJson 相等）",
+        "device JSON: serial=emulator-5584, apk_sha256=test_apk_sha256=c9943728ec7dfb699345f39af311c0c52e183fec70224a4952eae781000dc488, counts 6/0/0/0, verdict=PASS",
+        "cmd log 末行 EXIT=0；无 -4/SKIP/AssumptionViolated 标记"
+      ],
+      "recompute": "node tools/visual_compiler/run_tests.mjs -> 94 passed, 0 failed, EXIT=0（本轮实跑）",
+      "notes": "Node 台与设备 XML/JSON 计数一致；设备证据绑定批次 44 APK 84cae864…/test APK c9943728…，不外推到当前 HEAD。"
+    },
+    {
+      "id": "C-002",
+      "check": "SceneV1 绘制原语 Save：无 save 的 restore 在回放中 fail-closed",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.log"
+      ],
+      "verified": [
+        "XML tests=24 failures=0 errors=0 skipped=0，含 testcase aRestoreWithoutSaveFailsClosedInsideTheWalk（源 VisualDrawOpsPainterInstrumentedTest.kt 同名用例）",
+        "device JSON counts 24/0/0/0、verdict=PASS、serial 与 apk_sha256 齐全",
+        "cmd log 末行 EXIT=0；无跳过标记"
+      ],
+      "recompute": "XML↔device JSON 计数机检一致（24/0/0/0）；未在设备上重跑",
+      "notes": "设备执行记录为批次 44；本轮只复核证据内容与绑定，不冒充新设备轮。"
+    },
+    {
+      "id": "C-031",
+      "check": "编译器确定性：同输入两次编译逐字节相同",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-node-compiler.log",
+        "test:docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.log"
+      ],
+      "verified": [
+        "node 台断言 determinism/same input byte-identical（run_tests.mjs:274）、fresh context byte-identical（:278）",
+        "设备 XML 含 theSameSceneCompilesToByteIdenticalDrawOps 且 6/0/0/0",
+        "device JSON 绑定 emulator-5584 + c9943728…"
+      ],
+      "recompute": "node tools/visual_compiler/run_tests.mjs -> 94 passed, 0 failed, EXIT=0（本轮实跑）",
+      "notes": "与 C-001 共用同一份 Node/设备证据；lint 的 EVIDENCE_REUSED 属预期（同一 testcase 支撑同一性质的不同表述）。"
+    },
+    {
+      "id": "C-046",
+      "check": "fontScale 1/1.3/2：文本集合不随 fontScale 变化",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-metamorphic-font_scale_reflow.log",
+        "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-fontscale-capture.device.json",
+        "file:docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-fs2_0.xml",
+        "file:docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-light.xml"
+      ],
+      "verified": [
+        "本轮用 stdlib 重解析三份 uiautomator dump：c-home-light.xml / c-home-fs1_3.xml / c-home-fs2_0.xml 的 13 条有文本节点文本集合完全相同（12 个唯一串）",
+        "三份 dump 节点数均为 37，文本集合逐条相等",
+        "device JSON 绑定 emulator-5584 + apk_sha256=84cae864…，三档 font_scale 各自 dump sha256 与文件实算一致"
+      ],
+      "recompute": "python -I（stdlib ET 重解析三份 XML，逐节点比对文本）+ python -I tools/ci/metamorphic_checks.py --pairs-dir …/pairs --only render/font_scale_reflow -> ok=true, exit 0（本轮实跑）",
+      "notes": "台账把 cmd 探针与 device 侧车算两类独立证据；本轮独立重算文本集合，结论一致。"
+    },
+    {
+      "id": "C-047",
+      "check": "fontScale 1/1.3/2：所有标签仍在 1080×2400 viewBox 内",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-fontscale-probe.log",
+        "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-fontscale-capture.device.json",
+        "file:docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-fs1_3.xml",
+        "file:docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-fs2_0.xml"
+      ],
+      "verified": [
+        "本轮从三份 dump 解析 13 条文本节点 bounds：三档全部满足 x1>=0, y1>=0, x2<=1080, y2<=2400",
+        "device JSON wm_size=1080x2400 与断言口径一致"
+      ],
+      "recompute": "python -I（stdlib 正则解析 bounds 并逐条判定）-> all_in=True ×3 档（本轮实跑）",
+      "notes": "与 c-fontscale-probe.log 的 within_viewbox=True 一致。"
+    },
+    {
+      "id": "C-048",
+      "check": "fontScale 1/1.3/2：标签高度随 fontScale 非减",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-fontscale-probe.log",
+        "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-fontscale-capture.device.json",
+        "file:docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-fs1_3.xml",
+        "file:docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-fs2_0.xml"
+      ],
+      "verified": [
+        "本轮重算 13 条标签高度：fs1=[75,56,61,95,56,95,56,52,56,45,45,45,45]，fs1.3=[89,74,76,98,74,98,74,71,156,58,58,58,58]，fs2=[129,101,106,127,101,127,101,99,215,91,91,91,91]",
+        "逐项 fs1.3>=fs1 且 fs2>=fs1.3 全部成立（无反向）"
+      ],
+      "recompute": "python -I（stdlib ET 重算 bounds 高度并逐项比较）-> monotonic True（本轮实跑）",
+      "notes": "与 c-fontscale-probe.log 的 label_heights_* 逐值相同。"
+    },
+    {
+      "id": "C-049",
+      "check": "fontScale 1/1.3/2：1.3 中间档与 1.0/2.0 同文本、几何单调",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-fontscale-probe.log",
+        "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-fontscale-capture.device.json",
+        "file:docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-fs1_3.xml",
+        "file:docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-fs2_0.xml"
+      ],
+      "verified": [
+        "本轮重算：1.3 档文本集合与 1.0/2.0 档相同（13 条文本节点）",
+        "1.3 档高度介于/不低于 1.0 档且 2.0 档不低于 1.3 档（逐项比较全成立）"
+      ],
+      "recompute": "python -I（同一重算脚本，文本集合 + 高度单调）-> 成立（本轮实跑）",
+      "notes": "与 C-046/C-048 同一份证据的不同断言；不重复计为新增独立轮次。"
+    },
+    {
+      "id": "C-053",
+      "check": "暗色主题：应用窗口像素与浅色基线在阈值内一致（单浅色方案，Theme.kt 硬编码 lightColorScheme）",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-shot-light-vs-dark.log",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-theme-luminance.log",
+        "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-theme-capture.device.json",
+        "file:core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/Theme.kt"
+      ],
+      "verified": [
+        "本轮重跑截图差：light vs dark -> mae=0.10691425540123457, changed_ratio=0.0011975308641975308, changed_pixels=3104/2592000, exit 0（阈值 2.0 / 0.02）",
+        "数值与归档 c-shot-light-vs-dark.log 逐位相同，排除日志过期/伪造",
+        "c-theme-capture.device.json: serial=emulator-5584、apk_sha256=84cae864…、wm_size=1080x2400，三张 PNG sha256 与文件实算一致",
+        "Theme.kt:187-194 只传 SmartLightColorScheme，无 isSystemInDarkTheme/darkColorScheme，与“单浅色方案”口径一致"
+      ],
+      "recompute": "python -I tools/ci/screenshot_baseline.py compare --baseline …/c-home-light.png --current …/c-home-dark.png --max-mae 2.0 --max-changed-ratio 0.02 -> exit 0（本轮实跑）",
+      "notes": "亮度差 0.14/255 来自归档日志，本轮未重跑亮度探针；像素差独立复算已足够支撑该行断言。"
+    },
+    {
+      "id": "C-056",
+      "check": "PDF 光栅差：全部正例夹具通过原型门",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopsparityinstrumentedtest.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopsparityinstrumentedtest.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopsparityinstrumentedtest.log"
+      ],
+      "verified": [
+        "XML tests=16 failures=0 errors=0 skipped=0，含 testcase thePrototypeGateJudgesEveryPositiveFixture",
+        "源 VisualDrawOpsParityInstrumentedTest.kt:126-164 对该用例逐夹具断言非红、TEXT 不得 F5、要求位移敏感度的夹具必须过 gain 门",
+        "device JSON counts 16/0/0/0、verdict=PASS、serial+apk_sha256 齐全",
+        "cmd log EXIT=0，无跳过标记"
+      ],
+      "recompute": "XML↔device JSON 计数机检一致（16/0/0/0）+ 源断言实读；设备轮未重跑",
+      "notes": "该行证明“正例夹具全过门”，不证明每个负控都被抓；负控在 C-057…C-060 单列。"
+    },
+    {
+      "id": "C-065",
+      "check": "退化降级：恢复文档回放必须留下墨水（restore 不是静默空转）",
+      "ledger_verdict": "FAIL",
+      "review_verdict": "FAIL",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/c-domain/c-restore-single-rerun.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-restore-single-rerun.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-restore-single-rerun.log"
+      ],
+      "verified": [
+        "XML tests=1 failures=1 errors=0，testcase theRestoreLegAloneReplaysOfflineWithZeroDispatchBookings，failure 文本 'the restored document must leave ink (restore is not a silent no-op)'",
+        "device JSON counts 1/1/0/0、verdict=FAIL，与 XML 一致（未被 cmd EXIT 洗白）",
+        "源 TutorVisualRebuildRestoreInstrumentedTest.kt:155-160 的断言仍在，未删除",
+        "工作树该文件为 M：夹具已改为闭合三角形 M/L/L/Z（:385-396），但没有任何该夹具修复后的设备执行证据"
+      ],
+      "recompute": "XML/device 计数机检 + 源实读；未在设备重跑（无授权）",
+      "notes": "台账 FAIL 维持。树内夹具修复（FIX-T06）自述 BLOCKED，不得据此改 PASS；需设备绿轮后先红后绿回填。"
+    },
+    {
+      "id": "C-072",
+      "check": "预算 fail-closed：单 bitmap 16 MiB 字节门在创建前拒绝",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/c-domain/c-tutorvisualpreviewrendererinstrumentedtest.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-tutorvisualpreviewrendererinstrumentedtest.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-tutorvisualpreviewrendererinstrumentedtest.log"
+      ],
+      "verified": [
+        "XML tests=4 failures=0 errors=0，含 testcase theByteGateRefusesAnOverBudgetAllocationBeforeCreationAndTheRendererWiresItBeforeAllocating",
+        "源 TutorVisualPreviewRendererInstrumentedTest.kt:116-140 断言 2050×2050×4=16,810,000 B > 16 MiB 被拒且携带 BITMAP_BYTE_BUDGET 码，并验证渲染器在分配前接线",
+        "device JSON counts 4/0/0/0、verdict=PASS"
+      ],
+      "recompute": "XML↔device 计数机检 + 源断言实读；设备轮未重跑",
+      "notes": "断言为 2050×2050 越门；16 MiB 边界正控在 JVM 半边（台账另列）。"
+    },
+    {
+      "id": "C-085",
+      "check": "stroke-only 门：编译器生成侧拒绝 stroke-without-fill",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-node-compiler.log",
+        "test:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.log"
+      ],
+      "verified": [
+        "run_tests.mjs:433-437 有 expectReject('reject/style/stroke-without-fill', …, 'PAINTER_STROKE_WITHOUT_FILL')，即生成侧首门拒绝",
+        "painter XML 含 aStrokeOnlyPathStillFailsClosedInTheReplayFallback 且 24/0/0/0",
+        "node 日志末行 94 passed, 0 failed, EXIT=0"
+      ],
+      "recompute": "node tools/visual_compiler/run_tests.mjs -> 94 passed, 0 failed, EXIT=0（本轮实跑）",
+      "notes": "生成侧与回放侧同码族由 Node 台与设备用例两侧支持。"
+    },
+    {
+      "id": "C-090",
+      "check": "hitRegions：命中区路径计入 pathCommands 统计",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-node-compiler.log",
+        "test:docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.log"
+      ],
+      "verified": [
+        "run_tests.mjs:223 断言 legal/full pathCommands includes clip+hit == 2+4+4",
+        "源 QuickJsSceneCompilerInstrumentedTest.kt:160-162 断言 document.stats.pathCommands == 16（q(2)+dot(6)+clip(4)+命中区(4)），该断言所在 testcase aFullSceneCompilesIntoTypedDrawOps 在 XML 内",
+        "设备 XML/JSON 6/0/0/0、EXIT=0"
+      ],
+      "recompute": "node tools/visual_compiler/run_tests.mjs -> 94 passed, 0 failed, EXIT=0（本轮实跑）",
+      "notes": "设备 XML 为类级共享证据；具体命中断言可在源同 testcase 中逐条核对。"
+    }
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-node-compiler.log": "0f5aecc1106ffbfa699ea4e6f1d71fa4ad0a5fdfa21c4bde32db13a546299f89",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.xml": "5c5f234849aacff2c6fd2ab1c0ec8e09b69ad38904335fe1c528f3864fa4c39f",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.device.json": "73554dfebc660477eb92bbec42c55dbc7bcd51d200196df15eb979464e2c4113",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.log": "70547b7c49c48f44917ad38e45090270770ffe38d126af40bd79d628d86811dc",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.xml": "3287235a57875dfaf5bf39fcb02dd8e0149c483690526232db4ba94020ef3d41",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.device.json": "327615f968a9eb8bdb06a38c5cc2e41d18adab653d9002665b80a53a7e9b85c9",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.log": "6e1da977358ce8904ee0b8defc1831db1a94141adbadee701b88a4cb10d7ef6a",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-metamorphic-font_scale_reflow.log": "c6b4a8a7c9e7968839da89249e9a944e36123894cceb78453e1a87ba0e7edf60",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-fontscale-probe.log": "fc1b562d5796d50451a015cffa77b6cffd17aa4a06aed977b93d3a78a7952647",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-fontscale-capture.device.json": "275850c38628c17e652d47679e3e54d413319cd380baff54b42fbfdd93931ddb",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-light.xml": "69500009a238ec49d0706da5c26d93cfdbf558b780652ff679e590156c44e133",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-fs1_3.xml": "28e028143a0f0a0ff49dcc52941406edb969b8468bdc03e5e5464dfb5a280b0b",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-fs2_0.xml": "ce31316abe74a34f37845234bab388ef7b9186232a7f1fb4c164124bff430ff9",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-shot-light-vs-dark.log": "c43c20e37669e86b4a20c628b0823489a93e8b073f8b93ad28451dfcf38b2268",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-theme-luminance.log": "eed3ecd008ebf8dc7bb6a826854cc08ffeedf350b11f180935381d5afc1e8c38",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-theme-capture.device.json": "7e76b6af611a0d24520eff52200ecb10732b91781b41244d5a3a10599e4f2f5c",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-light.png": "bceb07164929e9f3c573c8aac5748ef337706a68d1b2d360b05bca70d32532ea",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-dark.png": "5aa5ca3457dab788c58d2b71e7c62343fa24321810f104c68d6f6d04d1d44473",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-light2.png": "4e68ca5bc9cb04bf6f9f040ebdfea16722de2bb8427c419cf924dd6875d3eeeb",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopsparityinstrumentedtest.xml": "cffadfd2947c508175d9ce7964c06067c3bcef2ca5b620f7623eae35aca00d81",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopsparityinstrumentedtest.device.json": "76200db46db0607404b1660f9df87c5fc2749514e56fd8995f3c076d6e16be8c",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopsparityinstrumentedtest.log": "326711f2d52f7db808bfcbb724f294bf1b84526f14d08c10efe8852deb154703",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-restore-single-rerun.xml": "d0e86ebf8f1db2f70b6e0254079eb514e3397ea4ecd0fbe92074a28b5e505223",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-restore-single-rerun.device.json": "cd17e29dcd5e9e32b76b91ea5f0a7bd0997c57010a92f9322b89123d4be8dfb3",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-restore-single-rerun.log": "0fc8adf1c84483786300e02ad2fc79e11de1228e3a970263f0419e7c978955a5",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-tutorvisualpreviewrendererinstrumentedtest.xml": "fa92341eac023c8c1730290024dff1ac19c1ee7484be2ba39314b99533a5f47d",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-tutorvisualpreviewrendererinstrumentedtest.device.json": "53e19e9b6253ddb5568de415487aa96a8512aa073050e4928d17bce168e678e2",
+    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-tutorvisualpreviewrendererinstrumentedtest.log": "c289297cb90e8eb69ebf37e497c3461e132bc1cfea2e245f9889ef8b4c9c9eb8"
+  },
+  "recompute_commands": [
+    "node tools/visual_compiler/run_tests.mjs  # 94 passed, 0 failed, EXIT=0",
+    "python -I tools/ci/metamorphic_checks.py --pairs-dir docs/research/evidence/2026-11-05-batch-44/c-domain/pairs --only render/font_scale_reflow  # ok=true, exit 0",
+    "python -I tools/ci/metamorphic_checks.py --pairs-dir docs/research/evidence/2026-11-05-batch-44/c-domain/pairs --only render/theme_swap  # ok=true, exit 0",
+    "python -I tools/ci/screenshot_baseline.py compare --baseline docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-light.png --current docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-dark.png --max-mae 2.0 --max-changed-ratio 0.02  # exit 0",
+    "python -I tools/ci/screenshot_baseline.py compare --baseline docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-light.png --current docs/research/evidence/2026-11-05-batch-44/c-domain/c-home-light2.png --max-mae 2.0 --max-changed-ratio 0.02  # exit 0",
+    "python -I - <stdlib ET script>  # 重解析 c-home-{light,fs1_3,fs2_0}.xml：文本集合相同、13/13 bounds 在 1080x2400 内、高度单调"
+  ],
+  "adversarial": {
+    "attempted": true,
+    "result": "rejected-one-claim",
+    "attempts": [
+      "尝试在 77 条 PASS 中找 XML tests=0 或 failures>0 的假绿：用 stdlib ET 遍历 C 域全部 test 证据，0 命中（11 份 XML 全部 tests>0、failures=0/errors=0，唯二失败在 FAIL 行）。",
+      "尝试证明归档日志过期：重跑 node 台与 screenshot compare，node 94/0 与 MAE=0.10691425540123457 / changed_ratio=0.0011975308641975308 与归档日志逐位一致。",
+      "尝试把 C-065 依“树内夹具已闭合”改判 PASS：拒绝。工作树 diff 只有夹具闭合，无该夹具修复后的设备执行证据；FIX-T06 自述 BLOCKED（fix-tickets.md:20）。",
+      "尝试只用设备 JSON 的 verdict=PASS 洗白 XML 红：对全部 13 对 XML/device 计数交叉核对，FAIL 行的 device JSON 也是 failures=1，未发现红被洗白。"
+    ]
+  },
+  "residual": {
+    "not_reexecuted": "65 条 PASS 仅做证据形状/计数/路径绑定机检，未在设备或门禁阶段重新执行；不得读作已独立复跑。",
+    "unverified_rows": {
+      "count": 12,
+      "ids": [
+        "C-005",
+        "C-008",
+        "C-010",
+        "C-015",
+        "C-020",
+        "C-045",
+        "C-066",
+        "C-067",
+        "C-068",
+        "C-071",
+        "C-088",
+        "C-089"
+      ],
+      "reason": "c-domain/00-index.md §8：仅 JVM 覆盖（Gradle 只在门禁阶段串行）/ Node 台仅一类证据 / 无专项设备用例。本轮未改变其 verdict。"
+    },
+    "fail_rows": {
+      "count": 1,
+      "ids": [
+        "C-065"
+      ],
+      "state": "证据支持 FAIL；树内夹具修复未执行设备绿轮。"
+    },
+    "device_binding": "全部设备证据绑定 emulator-5584 + APK 84cae864…（app 侧）/ c9943728…（core:data test），记录时点 2026-11-04；不能外推到当前 HEAD 构建。",
+    "domain_signable": false,
+    "domain_blocked_reason": "C-065 红 + 12 行 UNVERIFIED + 65 条 PASS 未独立复跑；C 域不得整体签 PASS。"
+  },
+  "notes": "独立复核范围仅 C 域；reviewer 为独立子代理（reviewer∉authors，非人类复核员）。结论：12/12 抽样 PASS 行经本轮机械复算/源断言核对成立；1/1 FAIL 行（C-065）维持红。域级 verdict=FAIL，不支持‘批次 45 C 域验收通过’。本 JSON 未改台账；review 证据挂载应由台账冻结后统一执行，避免并行写导致 ledger_sha256 失配。",
+  "independence": {
+    "reviewer_not_author": true,
+    "independence_verified": false,
+    "basis": "角色分离 + 对归档证据逐项机械复算；reviewer 未参与被复核证据的产出角色。",
+    "limitation": "reviewer 是角色标签，不是具名个人或第二模型；批次证据未记录生产者身份，无法证明跨模型独立。本复核只支持域级抽样结论，不构成台账行级 review 证据；report 的 pass_with_review 仍以行级 review token 为准。",
+    "verdict_ceiling": "UNVERIFIED (domain-level sample only)"
+  },
+  "ledger_sha256_at_review": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_sha256_current_after_fix": "887e3ba649eb17a70c0f6f7af8a657d606398a10925c6116818265387af689aa",
+  "ledger_binding_note": "本复核绑定修复前台账 bb25ef236056…；修复环只改了 35 行的 verdict/method（GATE-079 补证据、17 个 FIX 登记行改 BLOCKED、13 个 BLOCKED 补 runbook、4 个 D 行加脏树披露），未重跑本复核的抽样行。修复后台账为 887e3ba649eb…，因此本文件不得作为新台账的行级 review 证据；要转 PASS 必须在新台账上重跑。"
+}

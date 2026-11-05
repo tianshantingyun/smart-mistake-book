@@ -1,0 +1,398 @@
+{
+  "id": "B-REVIEW",
+  "domain": "B",
+  "verdict": "UNVERIFIED",
+  "domain_signed": false,
+  "scope": "批次 45 · B 域独立复核：抽 10 行 PASS + 2 行 UNVERIFIED，机械复算台账声明；不构成 B 域整体签字，也不构成批次 45 验收通过。",
+  "run_id": "2026-11-06T03:01:13Z-batch45-b-review",
+  "reviewer": "independent-b-reviewer-batch45",
+  "authors": [
+    "b-domain-recorder-batch44",
+    "batch44-implementer"
+  ],
+  "self_review": false,
+  "ledger_sha256": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_sha256_note": "快照 sha（复核时点）。若台账随后被其他域继续改写，本字段需在台账冻结后重新绑定，否则 acceptance_report 的 _check_review 会报 REVIEW_LEDGER_SHA_MISMATCH。",
+  "head": "87604198feeef198d5dba7343b8c4692c5e8f937",
+  "sampled_rows": 12,
+  "rows": [
+    {
+      "id": "B-001",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "claim": "迁移 v1 → v73，导出 schema 可打开并完成 Room 迁移",
+      "recompute": [
+        "独立解析 core/database/schemas/.../1.json：database.version=1、entities=37、foreignKeys=46、indices=111；与 b-migration-v01-static.log 的 37/46/111/version=1 逐项相等",
+        "addMigrations 源码计数 72；1..STUDY_DATABASE_VERSION 循环体见 FullMigrationMatrixInstrumentedTest.kt:37-50",
+        "b-migration-matrix.xml tests=1 failures=0 errors=0 skipped=0；b-migration-matrix.log INSTRUMENTATION_STATUS_CODE 1×开始+0×通过，尾部 OK (1 test) / EXIT=0",
+        "device.json apk_sha256=32235e63… 与盘上 core/database/build/outputs/apk/androidTest/debug/database-debug-androidTest.apk 的 sha256 逐字节相等"
+      ],
+      "result": "台账声明成立；test/cmd/device 三类证据均在树"
+    },
+    {
+      "id": "B-036",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "claim": "迁移 v36 → v73",
+      "recompute": [
+        "独立解析 36.json：database.version=36、entities=79、foreignKeys=92、indices=217；与 b-migration-v36-static.log 完全一致",
+        "v36 在迁移图中可达 73（1→2…→71→73 与 72→73 两条注册路径覆盖全部 1..72 起点）"
+      ],
+      "result": "台账声明成立"
+    },
+    {
+      "id": "B-072",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "claim": "迁移 v72 → v73（orphan 快照路径）",
+      "recompute": [
+        "独立解析 72.json：database.version=72、entities=91、foreignKeys=102、indices=245；与 b-migration-v72-static.log 完全一致",
+        "72.json 为 73 份 schema 文件之一（1..73 无缺号）；注册表含 MIGRATION_71_73 与 ERROR_CAUSE_MIGRATION_72_73，故 72→73 为直连边，可达"
+      ],
+      "result": "台账声明成立（注：72 不参与 1→73 的中间链，但 72→73 直连已注册）"
+    },
+    {
+      "id": "B-073",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "claim": "备份 mask=9 clean：创建写 trim 计数、恢复回执 mask=9、未选会话裁净、派生索引恒裁",
+      "recompute": [
+        "b-backup-create.xml 3/3、b-backup-restore.xml 48/48、b-backup-drill2.xml 4/4，三者 failures=0 errors=0 skipped=0",
+        "独立解析 b-backup-restore.log：INSTRUMENTATION_STATUS_CODE 1 出现 48 次、0 出现 48 次，无 -1/-2/-3/-4；尾部 OK (48 tests)/EXIT=0；create/drill2 同为 3/3、4/4",
+        "台账引用的 3 个用例名均能在对应 XML 找到，且均在 Kotlin 源码有对应 @Test（subsetSelectionWritesTrimReportCountsIntoTheManifest / subsetNineRestoreReportsSelectionTrimsDerivedIndexAndRebuildsAfterReopen / subsetMaskNineMigrationDrillDropsSessionsAndRebuildsBothSubjects）",
+        "3 份 device.json 同为 emulator-5566 / boot_id d8f39d06…，设备绑定存在"
+      ],
+      "caveats": [
+        "device.json 的 apk_sha256=c9943728… 为操作者声明（am_instrument_recorder --apk-sha 传参），运行期 data test APK 未被保留；当前盘上同路径 APK sha=611903803bbd…（重建于 2026-11-05T04:43+08），无法从现存产物复算该声明"
+      ],
+      "result": "台账声明成立；APK 身份为声明值，非本可复算值"
+    },
+    {
+      "id": "B-075",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "claim": "mask=9 corrupt：digest/rowCounts/closureVersion/schemaVersion/mask=8/assetPolicy 篡改与非法选择（mask=0/8/1/3）在创建或交换前拒绝",
+      "recompute": [
+        "源码 BackupSelectionRestoreInstrumentedTest.kt:278-305 的 tampered 列表逐项覆盖 closureDigest / rowCounts 漏表 / closureVersion=1 / schemaVersion=1 / mask=8 / assetPolicy=ABSENT 六个篡改面，与台账逐字对应",
+        "源码 BackupSelectionCreateInstrumentedTest.kt:190-230 的 invalidSelections 为 emptySet()=mask0、IMAGES=8、ISSUE_BOOK=1、ISSUE_BOOK+MASTERY=3，与台账“mask=0/8/1/3”逐字对应；断言 archive.size()==0 与快照目录不变",
+        "b-backup-plan-gate.log：allowedMasks=[9,13,15]、mask0_forbidden/mask8_not_provided 由 b-adversarial-mask-policy.log 独立复核；rejected_masks 恰为补集"
+      ],
+      "result": "台账声明成立"
+    },
+    {
+      "id": "B-079",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "claim": "mask=15 clean：派生索引仍恒裁、用户类别保留、换机演练每表往返",
+      "recompute": [
+        "引用的 3 个用例名（fullSelectionAlsoTrimsDerivedIndexRowsButKeepsUserCategories / fullSelectionPackageAlsoTrimsDerivedRowsAndRestoreKeepsThemEmpty / fullMaskFifteenMigrationDrillRoundTripsEveryTableAndSettings）在 b-backup-create.xml、b-backup-restore.xml、b-backup-drill2.xml 中逐一存在",
+        "XML 计数：create 3/3、restore 48/48、drill2 4/4，均 0 失败",
+        "派生索引恒裁在 B 门 check_backup_plan_sync.py 中另有结构性证据：derivedTables code==block==2、rebuildTables code==block==1"
+      ],
+      "result": "台账声明成立"
+    },
+    {
+      "id": "B-080",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "claim": "mask=15 partial：设置多键顺序写失败 → partial 回执、已写键保留、数据库不回滚",
+      "recompute": [
+        "源码 BackupRestoreInstrumentedTest.kt:851-901：repository.create(archive) 未传 selection ⇒ 全量 mask=15",
+        "断言逐条对应台账：assertEquals(RestoreSettingsOutcome.WRITE_FAILED)（partial 回执）、desiredRetention==0.9（失败前已写键保留，非恢复前 0.8）、restored.countMistakes()==1（数据库不回滚）",
+        "该用例在 b-backup-restore.xml 的 48 例内，整体 failures=0"
+      ],
+      "result": "台账声明成立"
+    },
+    {
+      "id": "B-086",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "claim": "损坏备份：zip 炸弹 / 条目数超限 / 单条目超限被拒绝",
+      "recompute": [
+        "源码 BackupRestoreInstrumentedTest.kt:1634-1697：zipBomb（16MiB 零字节，压缩比>100）、tooManyEntries（maxEntryCount=3 + 3 资产）、singleEntryOversize（maxSingleEntryBytes=256 + 1024B 随机字节，刻意先撞条目预算）三个用例均断言 validation is BackupValidation.Invalid",
+        "三个用例名均在 b-backup-restore.xml 中存在，该 XML 48/48 全绿"
+      ],
+      "result": "台账声明成立"
+    },
+    {
+      "id": "B-089",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "claim": "并发/CAS：重复恢复请求幂等拒绝",
+      "recompute": [
+        "源码 BackupRestoreInstrumentedTest.kt:2004-2048：ThrottledInputStream 保证两次 restore 重叠；断言第二次 isFailure 且消息含“重复的恢复请求”；随后重开库 countMistakes()==1（幂等后数据一致）",
+        "用例在 b-backup-restore.xml 48 例内，0 失败"
+      ],
+      "result": "台账声明成立"
+    },
+    {
+      "id": "B-090",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "claim": "事务/恢复：交换中断后启动回滚、交换前中断清理、非法选择停在交换前不落半库",
+      "recompute": [
+        "引用的 3 个用例名均存在：startupRecoveryRollsBackGenerationAfterInterruptedSwap、startupRecoveryCleansPreSwapInterruptionWithoutTouchingLiveData（b-backup-restore.xml）、corruptedSelectionStopsBeforeSwapLeavingNoHalfDatabase（b-backup-drill2.xml）",
+        "源码 DeviceMigrationDrillInstrumentedTest.kt:154-193 断言：拒因含“备份内容选择”、原库 countMistakes()==2、`.prev`/`.next` 不存在、RestoreIndexRebuildMarker 不存在——与“不落半库”逐条对应"
+      ],
+      "result": "台账声明成立"
+    },
+    {
+      "id": "B-077",
+      "ledger_verdict": "UNVERIFIED",
+      "review_verdict": "UNVERIFIED",
+      "claim": "mask=13 partial 无夹具，维持 UNVERIFIED",
+      "recompute": [
+        "全仓 backup androidTest 中 partial 相关夹具仅两处：declaredSubsetThatStillContainsUnselectedRowsIsRejectedByMeasuredData（把 FULL 包清单改写成 mask=9，见 BackupSelectionRestoreInstrumentedTest.kt:346-386）与 settingsWriteFailureIsReportedAsPartialWithoutRollingBackTheRestoredDatabase（全量 mask=15，见 BackupRestoreInstrumentedTest.kt:851）",
+        "另一处 RestoreIndexRebuildStatus.PARTIAL_FAILURE（BackupSelectionRestoreInstrumentedTest.kt:455）是索引重建失败态，归档取 issueBookAndImages()=mask 9，不是备份包的 mask=13 partial",
+        "未发现任何 mask=13 的半包/部分写失败夹具"
+      ],
+      "result": "UNVERIFIED 判词经复核成立；不得改判 PASS"
+    },
+    {
+      "id": "B-078",
+      "ledger_verdict": "UNVERIFIED",
+      "review_verdict": "UNVERIFIED",
+      "claim": "mask=13 corrupt 无夹具，维持 UNVERIFIED",
+      "recompute": [
+        "corrupt 夹具来源逐一核对：invalidDigestRowCountsAndClosureVersionAreRejectedBeforeSwapAndLiveDataStays（archive 取 issueBookAndImages()=mask 9）、thirdPartyRepackagedSubsetWithUnselectedTaskKindRowsIsRejectedBeforeSwap（mask 9）、thirdPartyRepackagedSubsetWithUnreferencedFigureOperationIsRejectedBeforeSwap（mask 9）、fullSelectionWithRowCountsThatDisagreeWithTheStagedDatabaseIsRejected（mask 15）、corruptedSelectionStopsBeforeSwapLeavingNoHalfDatabase（mask 9）",
+        "invalidDigest 用例内部的 mask=8 是把包清单改成非法值，属 corrupt 输入，不是“mask=13 包被篡改”",
+        "未发现 mask=13 篡改包夹具"
+      ],
+      "result": "UNVERIFIED 判词经复核成立；不得改判 PASS"
+    }
+  ],
+  "mechanical_recompute": {
+    "schema_vs_static_logs": {
+      "method": "逐版本解析 core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/1..72.json，重算 entities/foreignKeys/indices/database.version，与 b-migration-vNN-static.log 逐字段比对",
+      "result": "72/72 一致，0 处不符",
+      "spot_values": {
+        "v1": {
+          "entities": 37,
+          "foreignKeys": 46,
+          "indices": 111
+        },
+        "v36": {
+          "entities": 79,
+          "foreignKeys": 92,
+          "indices": 217
+        },
+        "v72": {
+          "entities": 91,
+          "foreignKeys": 102,
+          "indices": 245
+        },
+        "v73": {
+          "entities": 92,
+          "foreignKeys": 110,
+          "indices": 250
+        }
+      }
+    },
+    "migration_graph": {
+      "method": "从 StudyDatabase.kt 的 addMigrations 块抽 72 个迁移对象名，解析版本对并做可达性分析",
+      "registered_transitions": 72,
+      "all_starts_reach_73": true,
+      "schema_files": "1..73 共 73 份，无缺号",
+      "note": "72→73 与 71→73 同时注册；v72 不能经 1→…→72 到达，但 72→73 直连成立"
+    },
+    "xml_vs_source": {
+      "method": "把 XML 的 testcase 名与 Kotlin 源码 @Test fun 名做集合比对",
+      "b-migration-matrix": {
+        "xml": 1,
+        "source_matching_class": 1,
+        "phantom": 0
+      },
+      "b-backup-restore": {
+        "xml": 48,
+        "source": "34 (BackupRestore) + 11 (BackupSelectionRestore) + 3 (BackupV4PackRestore) = 48",
+        "phantom": 0
+      },
+      "b-backup-create": {
+        "xml": 3,
+        "source": 3,
+        "phantom": 0
+      },
+      "b-backup-drill2": {
+        "xml": 4,
+        "source": "DeviceMigrationDrillInstrumentedTest 共 6 个 @Test，其中 2 个需显式 -e 杀进程参数，按方法过滤未跑",
+        "phantom": 0
+      },
+      "ledger_cited_method_union_check": "12 行引用方法全部能在被引 XML 中找到（0 缺失）"
+    },
+    "instrumentation_logs": {
+      "b-migration-matrix": {
+        "numtests": 1,
+        "status_code_0": 1,
+        "status_code_1": 1,
+        "negative_codes": 0,
+        "tail": "OK (1 test); EXIT=0"
+      },
+      "b-backup-restore": {
+        "numtests": 48,
+        "status_code_0": 48,
+        "status_code_1": 48,
+        "negative_codes": 0,
+        "tail": "OK (48 tests); EXIT=0"
+      },
+      "b-backup-create": {
+        "numtests": 3,
+        "status_code_0": 3,
+        "status_code_1": 3,
+        "negative_codes": 0,
+        "tail": "OK (3 tests); EXIT=0"
+      },
+      "b-backup-drill2": {
+        "numtests": 4,
+        "status_code_0": 4,
+        "status_code_1": 4,
+        "negative_codes": 0,
+        "tail": "OK (4 tests); EXIT=0"
+      }
+    },
+    "apk_binding": {
+      "migration_track": "device.json 32235e63… == sha256(core/database/build/outputs/apk/androidTest/debug/database-debug-androidTest.apk) 逐字相等（可复算）",
+      "backup_track": "device.json 声明 c9943728…；当前 data-debug-androidTest.apk 为 611903803bbd…（mtime 2026-11-05 04:43:43 +0800）。运行期 APK 未保留，声明值不可从现存产物复算",
+      "serial_boot": "migration=emulator-5562/boot a702449b…；backup=emulator-5566/boot d8f39d06…（三份 backup JSON 自洽）"
+    },
+    "six_c_two_immutable": {
+      "source": "core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/BackupSelection.kt:90,140-146,166",
+      "allowed_masks": [
+        9,
+        13,
+        15
+      ],
+      "mask_0_forbidden": true,
+      "mask_8_not_provided": true,
+      "diff": "git diff --stat -- core/domain/BackupSelection.kt 为空（行为零改动）",
+      "verdict": "三项不可变均未被触碰"
+    }
+  },
+  "gate_runs": [
+    {
+      "cmd": "python -I tools/ci/check_backup_plan_sync.py",
+      "exit": 0,
+      "key": "25 项 checks 全 OK；allowedMasks=[9,13,15]；identityHash 1d086050… == 73.json；v4 fixture payload 1904640B sha=ce54c8246ed4"
+    },
+    {
+      "cmd": "python -I -m pytest tools/tests/ -q -k backup",
+      "exit": 0,
+      "key": "19 passed, 1409 deselected"
+    },
+    {
+      "cmd": "python -I tools/ci/acceptance_report.py --ledger docs/acceptance/ledger.md",
+      "exit": 1,
+      "key": "state=FAIL; counts PASS=882/FAIL=30/BLOCKED=144/UNVERIFIED=144; violations=[]; pass_with_review=0; ledger_sha256=bb25ef23…"
+    },
+    {
+      "cmd": "python -I tools/ci/acceptance_lint.py --ledger docs/acceptance/ledger.md",
+      "exit": 0,
+      "key": "violations=[]；warnings 含 B 域 EVIDENCE_REUSED（b-migration-matrix.xml/.device.json 被 72 行共用）"
+    },
+    {
+      "cmd": "python -I tools/ci/acceptance_init.py --check",
+      "exit": 0,
+      "key": "1200 行无漂移"
+    },
+    {
+      "cmd": "python -I tools/ci/trace_requirements.py --ledger docs/acceptance/ledger.md",
+      "exit": 0,
+      "key": "gaps=[]（B 域 0 gap）"
+    }
+  ],
+  "adversarial": {
+    "attempted": true,
+    "method": "复制台账到 build/b45-adversarial/ledger-mutated.md，注入两个应被拒绝的假绿：(1) B-077 由 UNVERIFIED 改为 PASS（保留单一 file 证据）；(2) B-001 的 test 证据指向 tests=1 failures=1 的假 XML",
+    "cmd": "python -I tools/ci/acceptance_report.py --ledger build/b45-adversarial/ledger-mutated.md --partial",
+    "exit": 1,
+    "observed": [
+      "B-077 PASS_NEEDS_TWO_INDEPENDENT_EVIDENCE（独立证据类=[]，file/hash 不计）",
+      "B-001 TEST_XML_FAILURES（build/b45-adversarial/failing.xml: failures=1 errors=0）"
+    ],
+    "result": "rejected",
+    "note": "两个假绿都被门挡住；未改仓内台账与证据（注入件仅存在于 gitignored build/）"
+  },
+  "evidence_sha256": {
+    "docs/acceptance/ledger.md": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-migration-matrix.xml": "25e29d35733314664213d3fa3b58d10b34c4a3caae9ed729be1335835db95f99",
+    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-migration-matrix.device.json": "d11e2d39bf6f331472819b9c782ed039325cadd1623a11f132531d7465ff1d04",
+    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-migration-v01-static.log": "e37e82bf32e46f775ad7fdf40c8c2ade5575ff239601e6a3ae980765f223d1e9",
+    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-migration-v36-static.log": "837fd5275b09fedbcf80e596a3bff8182962d972282d8908e78615bc57c19175",
+    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-migration-v72-static.log": "6be62d274bb7e66cf53168bc7a83f15c40e77bb33b9fd712836e7bba77195a10",
+    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-restore.xml": "e7d6aa7166fb16e1a1da97b3d2fcaf5caabf6593cad903f5b4562fe96463d0c6",
+    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-create.xml": "95a1a23914222445d7a416f94e2963bd803907c82567c79d533d37020ce811f6",
+    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-drill2.xml": "68475cd79ff3b3103ce7ba0d0063f726467c4387b122a116f875a6b4a7e0d8bf",
+    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-restore.device.json": "fc5396f872361f6cf360c047f9218a86adf2dc34cd5dee2d0d2f905a34c7c478",
+    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-create.device.json": "e5deb4921852140bd78ef39132eb97458fb57dbe7d30e9af0ba169eeee3a9975",
+    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-drill2.device.json": "c02771acaec783095dfd21886250539d058c6dc4f26d1a1508e39e1a80cec761",
+    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-plan-gate.log": "0fed1b40d85fb9a35f598881b083ea144140c4337b871a1ada9f26283756cfd3",
+    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-adversarial-mask-policy.log": "9e4ac531e894928fb2e87d1d95425d06ebecce20b7024e55261bb03457eb4962"
+  },
+  "findings": [
+    {
+      "id": "BR-1",
+      "severity": "中",
+      "finding": "B 域 cmd 证据（72 份 b-migration-vNN-static.log、b-backup-plan-gate.log、b-adversarial-mask-policy.log）被 .gitignore:31 的 *.log 规则忽略，未入库；干净克隆无法复算这些 PASS 的命令类证据。",
+      "evidence": "git check-ignore -v 命中 .gitignore:31:*.log；git ls-files b-domain 仅 18 件（XML/JSON/summary/00-index）",
+      "impact": "不影响当前工作树的 verdict（台账/门禁读得到文件），但证据可追溯性有缺口",
+      "next": "证据归档策略：对 docs/acceptance/evidence 与 docs/research/evidence 加 *.log 白名单，或改用 .cmd.log 且入库"
+    },
+    {
+      "id": "BR-2",
+      "severity": "中",
+      "finding": "B-073…B-090 的 device APK 身份为操作者声明值，运行期 APK 未保留；当前 data test APK 已被重建（2026-11-05T04:43+08，sha 61190380…），与 device.json 的 c9943728… 不同，无法复算。",
+      "evidence": "device.json ×3 声明 c9943728…；sha256sum core/data/.../data-debug-androidTest.apk = 611903803bbd…；stat mtime 2026-11-05 04:43:43",
+      "impact": "设备绑定不能机械复算，只能靠三份 JSON 自洽（同 boot_id/同 APK sha/同 hostname）",
+      "next": "后续批次保留运行期 APK 或记录构建产物 sha 清单；迁移轨的 database APK 已可复算（32235e63…）"
+    },
+    {
+      "id": "BR-3",
+      "severity": "低",
+      "finding": "b-migration-matrix.xml/.device.json 被 72 行 PASS 共用（lint EVIDENCE_REUSED）：一次设备运行内的单 testcase 循环 1..73，不是 72 次独立设备运行。",
+      "evidence": "acceptance_lint warnings；源码 FullMigrationMatrixInstrumentedTest.kt:37-50 为单测试内 for 循环；XML tests=1",
+      "impact": "按行读作“72 个版本各自有设备运行”会高估证据强度；逐版本可复算的是静态 schema 计数（本次 72/72 复算一致）",
+      "next": "台账/报告引用必须带“单用例循环”口径；不得写成 72 次独立运行"
+    },
+    {
+      "id": "BR-4",
+      "severity": "低",
+      "finding": "B-077/B-078 的 UNVERIFIED 判词正确（确无 mask=13 partial/corrupt 夹具），不应在批次 45 被改判 PASS。",
+      "evidence": "partial 夹具只有 mask=9（declaredSubset…）与 mask=15（settingsWriteFailure…）；corrupt 夹具为 mask=9 或 15；索引重建 PARTIAL_FAILURE 用 mask=9",
+      "impact": "B 域 90 行只能到 88 PASS + 2 UNVERIFIED",
+      "next": "需新增 mask=13 半包与篡改包夹具并经设备运行后才可改判"
+    },
+    {
+      "id": "BR-5",
+      "severity": "高（流程）",
+      "finding": "复核结论尚未绑定到台账行：台账无 review: 证据 token，acceptance_report 的 pass_with_review 仍为 0。",
+      "evidence": "本轮实跑 acceptance_report：pass_with_review=0、pass_without_review=882；grep 'review:' 仅命中 J 域方法列文字，无证据 token",
+      "impact": "DoD §1.5 不满足；本 JSON 目前只是复核产物，不参与机械审计",
+      "next": "台账冻结后，为被复核的 10 个 PASS 行追加 review:docs/acceptance/verdicts/B-review.json，然后用冻结后的台账 sha 重写本文件 ledger_sha256（顺序不可颠倒）"
+    },
+    {
+      "id": "BR-6",
+      "severity": "中",
+      "finding": "批次 45 当前 report state=FAIL、exit=1 的直接原因是 30 行 FAIL 与 pass_with_review=0；B 域自身 violations=0、0 FAIL。",
+      "evidence": "acceptance_report 输出 counts={PASS:882,FAIL:30,BLOCKED:144,UNVERIFIED:144}、violations=[]",
+      "impact": "B 域复核通过不等于批次验收通过",
+      "next": "FAIL 30 行按域归属另行处置；B 域不承担该 FAIL"
+    }
+  ],
+  "residual": [
+    "未跑 Gradle / 设备：本复核只做证据机械复算与门禁运行，未重跑 instrumented 测试（纪律：Gradle 只在门禁阶段串行，禁 connectedLocalFirstDebugAndroidTest）",
+    "B 域 90 行中 78 行未抽样；本文件不签 B 域整体",
+    "evidence_sha256 只覆盖本次抽样的 14 个文件，不是 B 域全量清单"
+  ],
+  "notes": "独立复核结论：B 域抽样 10 行 PASS 的声明均可由 ≥2 类独立证据支撑，且至少 1 条为本轮机械复算（schema 计数 72/72、迁移图可达性、XML↔源码用例集、instrumentation 状态码、APK 绑定、B 四方门）。2 行 UNVERIFIED 的判词经复核成立。B 域不构成批次 45 验收通过的必要条件之外的东西：批次仍因 30 行 FAIL 与 pass_with_review=0 判 FAIL。",
+  "verdict_detail": "SAMPLED_REVIEW",
+  "domain_verdict": "UNVERIFIED",
+  "independence": {
+    "reviewer_not_author": true,
+    "independence_verified": false,
+    "basis": "角色分离 + 对归档证据逐项机械复算；reviewer 未参与被复核证据的产出角色。",
+    "limitation": "reviewer 是角色标签，不是具名个人或第二模型；批次证据未记录生产者身份，无法证明跨模型独立。本复核只支持域级抽样结论，不构成台账行级 review 证据；report 的 pass_with_review 仍以行级 review token 为准。",
+    "verdict_ceiling": "UNVERIFIED (domain-level sample only)"
+  },
+  "ledger_sha256_at_review": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_sha256_current_after_fix": "887e3ba649eb17a70c0f6f7af8a657d606398a10925c6116818265387af689aa",
+  "ledger_binding_note": "本复核绑定修复前台账 bb25ef236056…；修复环只改了 35 行的 verdict/method（GATE-079 补证据、17 个 FIX 登记行改 BLOCKED、13 个 BLOCKED 补 runbook、4 个 D 行加脏树披露），未重跑本复核的抽样行。修复后台账为 887e3ba649eb…，因此本文件不得作为新台账的行级 review 证据；要转 PASS 必须在新台账上重跑。"
+}

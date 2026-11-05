@@ -1,0 +1,368 @@
+{
+  "id": "A-review",
+  "domain": "A",
+  "verdict": "UNVERIFIED",
+  "domain_verdict": "UNVERIFIED",
+  "verdict_scope": "A 域单域复核：9 行抽样成立；不签域通过，不签批次通过",
+  "run_id": "2026-11-05T03:03:24Z-batch45-a-review",
+  "reviewed_at": "2026-11-05T03:03:24Z",
+  "reviewer": "subagent-a-domain-independent-review",
+  "authors": [
+    "batch-44-a-domain-evidence-producer"
+  ],
+  "self_review": false,
+  "independence": {
+    "reviewer_not_author": true,
+    "independence_verified": false,
+    "basis": "角色分离 + 对归档证据逐项独立复算（XML/device/cmd/源断言）；未参与批次 44 A 域证据产出",
+    "limitation": "生产者模型未记录，无法证明跨模型独立；本复核按“不同角色 + 独立复算”计，若终裁要求更强独立性需第二模型或人工复核",
+    "authorship_note": "批次 44 A 域证据文件未记录具名作者/模型；authors 是产出角色标签，不是自称的个人身份",
+    "verdict_ceiling": "UNVERIFIED (domain-level sample only)"
+  },
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "head": "87604198feeef198d5dba7343b8c4692c5e8f937",
+  "dirty_paths_at_review": 3941,
+  "ledger_rows": 1200,
+  "domain_counts": {
+    "rows": 90,
+    "PASS": 65,
+    "FAIL": 0,
+    "BLOCKED": 1,
+    "UNVERIFIED": 24
+  },
+  "scope": "批次 45 / WS5：A 域独立复核。抽样 9 行 PASS（含主路径、导出、权限拒绝、备份恢复、提醒、设置中断恢复等高风险项）逐行复算；对 A 域 90 行做证据形状机检。未重跑 Gradle/设备（纪律：Gradle 只在门禁阶段串行；本项无设备重跑授权）。",
+  "coverage": {
+    "rows_total": 90,
+    "sampled_recomputed": 9,
+    "sampled_pass_confirmed": 9,
+    "sampled_pass_with_findings": 3,
+    "pass_rows_shape_audited": 65,
+    "pass_rows_shape_anomalies": 0,
+    "unverified_rows": 24,
+    "blocked_rows": 1,
+    "high_risk_sampled": [
+      "A-001",
+      "A-037",
+      "A-040",
+      "A-042",
+      "A-048",
+      "A-074",
+      "A-078",
+      "A-084"
+    ]
+  },
+  "samples": [
+    {
+      "id": "A-001",
+      "check": "旅程「拍照→分题→入库」：主路径",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.log",
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.log"
+      ],
+      "verified": [
+        "XML r1-shared: tests=6 failures=0 errors=0 skipped=0 @2026-11-04T08:51:05Z；r1-manual: tests=2 failures=0 errors=0 skipped=0 @08:51:40Z",
+        "device JSON 与 XML 逐项一致：r1-shared 6/6/0/0/0、r1-manual 2/2/0/0/0；recorded_at 与 XML timestamp 相差 0s；serial=emulator-5584、boot_id=5a34f877…、apk=84cae864…、test_apk=9ede778d…",
+        "cmd 日志末行 EXIT=0；无 -4/SKIP/AssumptionViolated；INSTRUMENTATION numtests 与 XML tests 一致（6、2）",
+        "源断言实读：SharedCaptureEntryInstrumentedTest.kt:52 断言分享图片落成 file:// 源的可恢复草稿；:174 断言多图批量导入 COMPLETED 且 2 页都有 draftId；LocalTaskLineDeviceInstrumentedTest.kt:86 断言手动建题落库 1 题、模型任务 0、重开可见",
+        "git diff 26f2327b..HEAD -- <上述源> 为空：证据快照与当前 HEAD 在这两个类上无漂移"
+      ],
+      "findings": [],
+      "notes": "两腿同 app APK（84cae864…）同 test APK（9ede778d…）；证据为批次 44 设备轮，本轮未重跑设备。"
+    },
+    {
+      "id": "A-019",
+      "check": "旅程「复习三键」：主路径",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.log"
+      ],
+      "verified": [
+        "XML r3-selfreport: tests=8 failures=0 errors=0 skipped=0 @2026-11-04T08:53:15Z；device counts=8/8/0/0/0、recorded_at 与 XML 相差 0s",
+        "cmd 日志 EXIT=0；numtests=8 与 XML 一致；无跳过标记",
+        "源断言实读：ReviewSelfReportDeviceUiInstrumentedTest.kt:178 断言 Good 键落自评样本 evidenceWeight=0.8、显示已存答案且无模型写入失败；:283 断言中断重试复用同一 requestId 且只写一次；:245 断言双击只产生 1 次提交",
+        "同一 XML 还含 again/hard 两键、旋转保留回执、fontScale 2.0 三键可达等 testcase，覆盖主路径与边界"
+      ],
+      "findings": [],
+      "notes": "r3-selfreport 一份类级 XML 同时支撑 A-019/020/021/025；各行语义由不同 testcase 承担（lint EVIDENCE_REUSED 属预期）。"
+    },
+    {
+      "id": "A-037",
+      "check": "旅程「导出 PDF/DOCX」：主路径",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.log",
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r5-export.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r5-export.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r5-export.log"
+      ],
+      "verified": [
+        "XML r1-manual: 2/0/0/0 @08:51:40Z；r5-export: 4/0/0/0 @10:45:34Z；两份 device JSON 计数均与 XML 一致、时间差 0s",
+        "命令溯源：两条 instrumentation 日志均 EXIT=0、numtests 与 XML 一致；无跳过标记",
+        "源断言实读：LocalTaskLineDeviceInstrumentedTest.kt:140 校验 DOCX 为 OOXML 包（[Content_Types].xml + word/document.xml + 题面）、保存副本 sha256 与产物一致、file:// 目标被拒；r5-export 的 ExportPdfDriver/Delivery 用例覆盖 PDF 请求、打印、保存/分享与通知深链",
+        "app APK 一致（84cae864…）"
+      ],
+      "findings": [
+        "两腿 test APK 不同：r1-manual=9ede778d…，r5-export=aab6af01…（00-index §1 记录 r5 在权限拆分后重打包）。同一 app APK 下跨 test APK 组合，复跑时需重新绑定 test_apk_sha256。"
+      ],
+      "notes": "语义覆盖成立；跨 test APK 快照是残余，不影响本行“导出主路径有真实产物与交付意图”的结论。"
+    },
+    {
+      "id": "A-040",
+      "check": "旅程「导出 PDF/DOCX」：空态",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-export-MistakePdfBatchEligibilityTest.xml",
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-LibraryExportNoticeTest.xml",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log"
+      ],
+      "verified": [
+        "XML BatchEligibility: 8/0/0/0 @2026-11-04T09:13:27.827Z；LibraryExportNotice: 3/0/0/0 @09:06:59.917Z",
+        "源断言实读：MistakePdfBatchEligibilityTest.kt:84 对 emptyList、MAX_QUESTIONS+1、全不可用列表分别断言 EMPTY / TOO_MANY_QUESTIONS / NO_READY_QUESTION，且发生在渲染前；LibraryExportNoticeTest #nothing visible says exactly that 断言空态文案",
+        "cmd jvm-app.cmd.log EXIT=0、BUILD SUCCESSFUL；COMMAND 含 --tests LibraryExportNoticeTest"
+      ],
+      "findings": [
+        "方法列声明 `:core:export:testDebugUnitTest --tests MistakePdfBatchEligibilityTest`，但本行证据未挂载该腿的命令日志；同目录 jvm-core-export.cmd.log（EXIT=0，含 BatchEligibility）存在却未被引用。命令溯源不完整（test XML 本身仍是直接执行记录）。"
+      ],
+      "notes": "断言与空态语义成立，维持 PASS；建议在台账冻结时把 jvm-core-export.cmd.log 补进本行证据，补不补都不改变本轮“语义成立、溯源有缺口”的判断。"
+    },
+    {
+      "id": "A-042",
+      "check": "旅程「导出 PDF/DOCX」：权限拒绝",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r5-permission-denied.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r5-permission-denied.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r5-permission-denied.log",
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r5-export.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r5-export.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r5-export.log"
+      ],
+      "verified": [
+        "XML r5-permission-denied: 1/0/0/0 @2026-11-04T10:46:05Z；device 1/1/0/0/0 @10:46:07，verdict=PASS；r5-export granted 腿 4/0/0/0",
+        "cmd 两腿均 EXIT=0；numtests 与 XML 一致；无跳过标记",
+        "源断言实读：MistakeExportNotificationsInstrumentedTest.kt:67 在启动前外部撤销权限（缺 smb_notifications_denied=true 直接 check 失败，不 skip）下断言 canPost=false、postSucceeded/postFailed 不抛且 activeNotifications 无导出通知；:30 授权态断言成功/失败两态通知正文与 contentIntent",
+        "两腿同 app APK 84cae864…、同 test APK aab6af01…"
+      ],
+      "findings": [],
+      "notes": "拒绝态不是 assumeTrue 跳过：参数缺失即失败；这是本行最强的反假绿设计。"
+    },
+    {
+      "id": "A-048",
+      "check": "旅程「备份/恢复」：中断恢复",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-data-BackupWriteGateRestoreLifecycleTest.xml",
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-data-BackupTempArtifactCleanupTest.xml",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-data.cmd.log"
+      ],
+      "verified": [
+        "XML BackupWriteGateRestoreLifecycleTest: 11/0/0/0 @2026-11-04T10:06:18.506Z；BackupTempArtifactCleanupTest: 2/0/0/0 @10:06:18.308Z",
+        "cmd jvm-core-data.cmd.log EXIT=0、BUILD SUCCESSFUL；COMMAND 的 --tests 覆盖两个类",
+        "源断言实读：BackupWriteGateRestoreLifecycleTest.kt:73 断言在途写未排空前不进交换段；:185 断言关库重启后写/备份/恢复三类 admission 全部立即失败且消息提示重开应用；:103 断言排空超时可读失败且门未被烧坏"
+      ],
+      "findings": [],
+      "notes": "JVM 门级证据；设备侧备份/恢复主路径由 A-046/A-047 另列，不以本行外推。"
+    },
+    {
+      "id": "A-074",
+      "check": "旅程「提醒」：失败路径",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log"
+      ],
+      "verified": [
+        "XML ReviewReminderCoordinatorTest: 7/0/0/0 @2026-11-04T09:06:59.971Z",
+        "cmd jvm-app.cmd.log EXIT=0、BUILD SUCCESSFUL；COMMAND 的 --tests 覆盖该类",
+        "源断言实读：ReviewReminderCoordinatorTest.kt:129 断言通道被阻塞时不发通知、保留次日排程、恢复后可发且无需改偏好；:111 断言 disabled 取消、blocked 保留次日闹钟且不投递；另有重复闹钟/时钟回拨、空日排明日等失败路径"
+      ],
+      "findings": [],
+      "notes": "FakeSystem 级失败路径；设备通知投递路径见 A-080，不把 JVM 结论外推到设备。"
+    },
+    {
+      "id": "A-078",
+      "check": "旅程「提醒」：权限拒绝",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "device:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j9-permission.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j9-permission.log",
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log"
+      ],
+      "verified": [
+        "device p-j9-permission: serial=emulator-5584、boot_id=5a34f877…、apk=84cae864…、verdict=PASS；observations 明确记录 revoked android.permission.POST_NOTIFICATIONS → 重新导航 → 页面 tag 仍在 → granted back",
+        "cmd p-j9-permission.log VERDICT PASS、EXIT=0；OBS 行与 device JSON observations 逐条一致",
+        "JVM ReviewReminderCoordinatorTest 7/0/0/0，:129 断言 blocked 通道不发通知且保留次日排程"
+      ],
+      "findings": [
+        "设备探针只断言“撤销权限后页面可达/无 FATAL”，没有在设备上断言“撤销权限后触发提醒不投递”；后者由 JVM blocked-channel 用例承担，属跨类组合证据。",
+        "探针源 tools/ci/a_journey_probe.py 当前未被 git 跟踪（git ls-files 无输出），探针证据无法从提交快照复现。"
+      ],
+      "notes": "旅程级“权限拒绝”判据成立（页面可用、无崩溃 + 协调器不投递）；设备端“不投递”未直接断言，作为残余记录。"
+    },
+    {
+      "id": "A-084",
+      "check": "旅程「设置」：中断恢复",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r10-recovery.xml",
+        "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r10-recovery.device.json",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r10-recovery.log"
+      ],
+      "verified": [
+        "XML r10-recovery: 4/0/0/0 @2026-11-04T08:56:51Z；device 4/4/0/0/0、recorded_at 与 XML 相差 0s",
+        "cmd EXIT=0；numtests=4 与 XML 一致；无跳过标记",
+        "源断言实读：StorageOperationLifecycleInstrumentedTest.kt:25 断言 Activity recreate 后仍是同一 ViewModel、执行次数仍为 1、消息最终可见；:15 断言带 RUNNING=true 的恢复态不会重建幽灵 busy，消息含“中断”且标志被清零"
+      ],
+      "findings": [],
+      "notes": "中断/重建恢复的断言与台账检查逐字对应，是本批最强的一行。"
+    }
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.xml": "317528af516a3c0d1a994ad90dcee18ea4e5b2fc7fbca5d069cf03f0c6f51363",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.device.json": "0667cd3b9f66af0d19aad2e93a8fe365b60a33ea0121f71527318ca9a468d4ec",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.log": "4f45d936d2446a663681624991d91c380addf92b380cc722a1ff1c497152860b",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.xml": "16f08556995260fbab1b8d0e23afbd0004c5213f48a836d18228a3047d2cdfff",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.device.json": "9e22047e5b89df62479e5e021794e6690ab2a0735db8326b82ad909cd20f1f26",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.log": "6e822f40c6ec22e57aa3379d3157ee69a684dde1c4695d2f1600c0d4f469c739",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.xml": "ade00dd4cf20f17e0321358f8ba73662e1bf39801a77aefe7cacdad5e36df4f9",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.device.json": "6d94bce1f7b98857634692bbe7d9fa10c35c07a49cca26bf0188fe8aea8efa8d",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.log": "810e337185d2af8a35394121252a125b911ca7dbf6348a4f6b902464d62a568d",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r5-export.xml": "ffaf0117d781d11d90b0e76d1783a5b43831ef8a98e167ce5e1c0b95897bda4b",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r5-export.device.json": "5a232c35d8874548c93f3dac58dd7d92257e4f70ef5bdeca45305943cf11948e",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r5-export.log": "3106de26275616ed914eb86f3d4cdf0a4e9d45e7f95d948e9db2ac101b94f229",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-export-MistakePdfBatchEligibilityTest.xml": "767fcc19b1b7d941dfc0d82af1079947322baec8501b5eea01f702708ab93e4a",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-LibraryExportNoticeTest.xml": "b4da0ab3f5cc59718112571d0a639fa96ada5088da6543f925b166d45acb0cc8",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log": "81361871729b28f832f5d335caee134a46190bb297f1793bba18b4eb616732c5",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r5-permission-denied.xml": "7da977b87b8a19bb466f1aaeec3fd7373d892382a5a050f62a2a46fec317004d",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r5-permission-denied.device.json": "276d566536ca99df07029600446f5e865884355d25905399ad3abbe731cfbbe8",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r5-permission-denied.log": "12dbe9e1e82984ec304db13e6acbf6f00e6d508bbe9500b713f1c6dbaca53dda",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-data-BackupWriteGateRestoreLifecycleTest.xml": "3e568948955b76db5b55bbf73ab336fc935e7c634bfd76193ec25b5930f529f5",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-data-BackupTempArtifactCleanupTest.xml": "bf04168b0ef44075cf81dbb8f0db69b27c1e7706af01616d3a4e9f4db9d06896",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-data.cmd.log": "da7bd62057424ab10cfb97772a37d3a8f04ff85c03dd6c27b6139ae5aa560a01",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml": "7f63b990303c4f1d0331ecb2f5eddfde52f2891d8d0ea5841879d66ae6bfbe73",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/p-j9-permission.device.json": "b7618e546b6b8f389d5e05dad568503bb934da1f295df184330ba270769b2129",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/p-j9-permission.log": "72629c790768e88295240b71bb6bef99c78c91f821b358199ac0bb89a8f32f4f",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r10-recovery.xml": "4971cb4f941ffe6cf78d2f7c7031674bc449f5d08665dc890a7fb560d1c63ac9",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r10-recovery.device.json": "5825751fe389c96b960d2fb12d6bb2b21b0987fd861470fa1f24e045e1c7a59e",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r10-recovery.log": "f783bbb1bd9b52bad02cb1d74364ecec4a89db0eedf3006aa5b0c6bc5535a871"
+  },
+  "evidence_tracking": {
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.xml": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.device.json": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.log": "untracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.xml": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.device.json": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.log": "untracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.xml": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.device.json": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.log": "untracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r5-export.xml": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r5-export.device.json": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r5-export.log": "untracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-export-MistakePdfBatchEligibilityTest.xml": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-LibraryExportNoticeTest.xml": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log": "untracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r5-permission-denied.xml": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r5-permission-denied.device.json": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r5-permission-denied.log": "untracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-data-BackupWriteGateRestoreLifecycleTest.xml": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-data-BackupTempArtifactCleanupTest.xml": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-data.cmd.log": "untracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/p-j9-permission.device.json": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/p-j9-permission.log": "untracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r10-recovery.xml": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r10-recovery.device.json": "tracked",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/r10-recovery.log": "untracked"
+  },
+  "recompute_commands": [
+    "python -I build/b45-a-review/verify_a.py  # 9 行机械复算：8 行 problems=none；A-040 仅 ROW_TEST_CLASS_NOT_IN_COMMAND（见 findings）；ledger_sha256=bb25ef23…",
+    "python -I build/b45-a-review/shape_audit.py  # 90 行：PASS 65 / UNVERIFIED 24 / BLOCKED 1；3 条异常全部属于 A-050（UNVERIFIED，device FAIL/exit=1）；PASS 行 0 形状异常",
+    "python -I -m pytest tools/tests/test_am_instrument_recorder.py tools/tests/test_a_journey_probe.py -q  # 9 passed，exit 0",
+    "python -I build/b45-a-review/adversarial.py  # 红相/突变全部被拒，ADVERSARIAL_METHOD_OK=true，exit 0",
+    "git diff --stat 26f2327b..HEAD -- <9 行对应测试源>  # 空：证据快照与当前 HEAD 在抽样测试源上无漂移",
+    "git check-ignore -v docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.log  # .gitignore:31:*.log（cmd 证据日志被忽略）"
+  ],
+  "adversarial": {
+    "attempted": true,
+    "result": "method-survived-mutations",
+    "attempts": [
+      "红相真品：用官方 acceptance_report._check_test/_check_cmd 判 r9-reminder-red.xml/.log，得到 TEST_XML_FAILURES + CMD_EXIT_NONZERO，红轮没有被洗成绿。",
+      "绿样本突变：把 r10-recovery.xml 的 failures 改为 1（build/ 副本），官方 _check_test 判 TEST_XML_FAILURES。",
+      "绑定突变：把 r10-recovery.device.json 的 apk_sha256 改为全 0（build/ 副本），复核层与归档 84cae864… 比对判不符；官方 _check_device 只查非空、不比对归档值，此刀由复核层补。",
+      "计数突变：把 r10-recovery.xml 的 tests 改为 5，复核层 XML↔device 计数比对判 5≠4。",
+      "上述突变只写 build/，不改原件；结果全部被拒（ADVERSARIAL_METHOD_OK=true）。"
+    ]
+  },
+  "residual": {
+    "not_reexecuted": "56 条未抽样 PASS 只做形状/路径/计数机检，未逐行复算；9 条抽样行也未在设备或门禁阶段重新执行。不得读作“A 域 65 条已独立复跑”。",
+    "unverified_rows": {
+      "count": 24,
+      "ids": [
+        "A-003",
+        "A-005",
+        "A-006",
+        "A-014",
+        "A-015",
+        "A-023",
+        "A-024",
+        "A-031",
+        "A-032",
+        "A-033",
+        "A-041",
+        "A-049",
+        "A-050",
+        "A-051",
+        "A-058",
+        "A-059",
+        "A-060",
+        "A-065",
+        "A-066",
+        "A-068",
+        "A-069",
+        "A-077",
+        "A-086",
+        "A-087"
+      ],
+      "reason": "a-domain/00-index.md §6：无大样本/无运行时权限/空态不适用/无断言落点；A-050 为 365 MiB 恢复 1800s 超时（device verdict=FAIL）。本轮未改变其 verdict。"
+    },
+    "blocked_rows": {
+      "count": 1,
+      "ids": [
+        "A-010"
+      ],
+      "reason": "真实 Provider/凭据缺失，runbook §9；已有注入模型 UI 用例，不能替代真实主路径。"
+    },
+    "evidence_tracking": "抽样的全部 cmd 日志（*.log）被 .gitignore:31 的 *.log 忽略、未入库；XML 与 device JSON 已跟踪。tools/ci/a_journey_probe.py 为未跟踪文件。证据目前只能在本工作树复算，clean clone 不能。",
+    "evidence_reuse": "A 域 41 个证据文件被多行 PASS 复用；jvm-app.cmd.log 支撑 8 条 PASS。各行语义由不同 testcase 承担，但“一次运行覆盖多行”不是多次独立执行。",
+    "tool_gap": "acceptance_report._check_device 只要求 apk_sha256 非空，不比对 00-index 的归档值；本复核用 84cae864… 与跨行一致性补了这刀。",
+    "source_relation": "证据快照为 HEAD 26f2327b + 工作树脏（a-domain/00-index.md §1）；当前 HEAD 87604198。抽样的 7 个测试源在 26f2327b..HEAD 无 diff；MistakeExportNotificationsInstrumentedTest.kt 与 ReviewReminderCoordinatorTest.kt 仍是工作树 M，其改动正是 00-index 记载的权限拆分/协调器改名，XML 含改名后的新 testcase，证据与当前工作树一致。",
+    "device_binding": "全部设备证据绑定 emulator-5584 / API 34 / boot_id 5a34f877… / app APK 84cae864…；test APK 9ede778d… 或 aab6af01…；记录时点 2026-11-04。不能外推到当前 HEAD 新构建。",
+    "domain_signable": false,
+    "domain_blocked_reason": "24 行 UNVERIFIED + A-010 BLOCKED；65 条 PASS 只抽 9 行独立复算，其余仅形状机检。A 域不得整体签 PASS。"
+  },
+  "notes": "独立复核范围仅 A 域；结论：9/9 抽样 PASS 行的证据计数、时间绑定、APK 绑定、命令退出码与源断言均成立；A-040 有命令腿溯源缺口、A-078 有设备端“不投递”未断言的残余。域级 verdict=UNVERIFIED，不支持“A 域验收通过”。本 JSON 未改台账；review 证据挂载应在台账冻结后统一执行，避免并行写导致 ledger_sha256 失配；当前绑定 ledger_sha256=bb25ef23…。",
+  "ledger_sha256_at_review": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_sha256_current_after_fix": "887e3ba649eb17a70c0f6f7af8a657d606398a10925c6116818265387af689aa",
+  "ledger_binding_note": "本复核绑定修复前台账 bb25ef236056…；修复环只改了 35 行的 verdict/method（GATE-079 补证据、17 个 FIX 登记行改 BLOCKED、13 个 BLOCKED 补 runbook、4 个 D 行加脏树披露），未重跑本复核的抽样行。修复后台账为 887e3ba649eb…，因此本文件不得作为新台账的行级 review 证据；要转 PASS 必须在新台账上重跑。"
+}
