@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.tingyun.smartmistakebook.core.data.study.ReviewSelfReportContractTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:49:41.882Z" hostname="TIANSHAN" time="0.008">
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.ReviewSelfReportContractTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-05T01:14:55.299Z" hostname="TIANSHAN" time="0.008">
   <properties/>
-  <testcase name="againIsTheOnlyFailureAndMustNotBeAbsorbedByHard" classname="com.tingyun.smartmistakebook.core.data.study.ReviewSelfReportContractTest" time="0.002"/>
+  <testcase name="againIsTheOnlyFailureAndMustNotBeAbsorbedByHard" classname="com.tingyun.smartmistakebook.core.data.study.ReviewSelfReportContractTest" time="0.003"/>
   <testcase name="theThreeKeysAreGoodHardAndAgainWithoutEasy" classname="com.tingyun.smartmistakebook.core.data.study.ReviewSelfReportContractTest" time="0.001"/>
   <testcase name="selfReportReasonsNeverMasqueradeAsMachineCheckedEvidence" classname="com.tingyun.smartmistakebook.core.data.study.ReviewSelfReportContractTest" time="0.0"/>
-  <testcase name="reviewLogWritesTheReportedKeyVerbatimAndTheSchedulingRatingSeparately" classname="com.tingyun.smartmistakebook.core.data.study.ReviewSelfReportContractTest" time="0.003"/>
+  <testcase name="reviewLogWritesTheReportedKeyVerbatimAndTheSchedulingRatingSeparately" classname="com.tingyun.smartmistakebook.core.data.study.ReviewSelfReportContractTest" time="0.002"/>
   <testcase name="hardStaysAStruggleButStillASuccessAndIsNotLiftedToGood" classname="com.tingyun.smartmistakebook.core.data.study.ReviewSelfReportContractTest" time="0.0"/>
   <testcase name="voidedReviewLogRowLeavesTheEffectiveViewAndStopsBeingThePreviousRow" classname="com.tingyun.smartmistakebook.core.data.study.ReviewSelfReportContractTest" time="0.002"/>
   <testcase name="goodIsPositiveSelfReportedRecallCappedAtGood" classname="com.tingyun.smartmistakebook.core.data.study.ReviewSelfReportContractTest" time="0.0"/>

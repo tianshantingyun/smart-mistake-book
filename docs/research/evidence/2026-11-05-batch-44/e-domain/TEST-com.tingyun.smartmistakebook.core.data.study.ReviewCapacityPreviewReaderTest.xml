@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:49:41.855Z" hostname="TIANSHAN" time="0.01">
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-05T01:14:55.269Z" hostname="TIANSHAN" time="0.01">
   <properties/>
-  <testcase name="preview reports exam deficits and their unmet share honestly" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest" time="0.007"/>
+  <testcase name="preview reports exam deficits and their unmet share honestly" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest" time="0.008"/>
   <testcase name="a subject without an exam gets a null exam retrievability" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest" time="0.0"/>
-  <testcase name="multi-subject preview reports per-subject grants and a total within capacity" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest" time="0.002"/>
-  <testcase name="rebalance and exam previews share one deduplicated count" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest" time="0.0"/>
+  <testcase name="multi-subject preview reports per-subject grants and a total within capacity" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest" time="0.001"/>
+  <testcase name="rebalance and exam previews share one deduplicated count" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest" time="0.001"/>
   <testcase name="facts mirror the forgetting curve exactly" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest" time="0.0"/>
   <testcase name="nothing in window and rebalance off returns the empty preview" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest" time="0.0"/>
   <system-out><![CDATA[]]></system-out>

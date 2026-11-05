@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerServiceCapacityPreviewTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:49:41.964Z" hostname="TIANSHAN" time="0.063">
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerServiceCapacityPreviewTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-05T01:14:55.373Z" hostname="TIANSHAN" time="0.06">
   <properties/>
-  <testcase name="service preview reports exam deficits from the real planning context" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerServiceCapacityPreviewTest" time="0.007"/>
-  <testcase name="service preview keeps the existing intake unschedulable count" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerServiceCapacityPreviewTest" time="0.004"/>
-  <testcase name="repository exposes the preview data source" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerServiceCapacityPreviewTest" time="0.05"/>
-  <testcase name="service preview is empty for no exam and disabled rebalance" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerServiceCapacityPreviewTest" time="0.002"/>
+  <testcase name="service preview reports exam deficits from the real planning context" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerServiceCapacityPreviewTest" time="0.006"/>
+  <testcase name="service preview keeps the existing intake unschedulable count" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerServiceCapacityPreviewTest" time="0.005"/>
+  <testcase name="repository exposes the preview data source" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerServiceCapacityPreviewTest" time="0.047"/>
+  <testcase name="service preview is empty for no exam and disabled rebalance" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerServiceCapacityPreviewTest" time="0.001"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

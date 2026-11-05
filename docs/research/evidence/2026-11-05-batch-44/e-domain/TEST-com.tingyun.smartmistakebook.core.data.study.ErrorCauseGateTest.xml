@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:49:41.569Z" hostname="TIANSHAN" time="0.002">
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-05T01:14:54.967Z" hostname="TIANSHAN" time="0.001">
   <properties/>
   <testcase name="the production gate is closed by default" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest" time="0.0"/>
   <testcase name="self report is a hard rule, not a tunable threshold" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest" time="0.0"/>
   <testcase name="self report can never auto book even when every other threshold passes" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest" time="0.0"/>
   <testcase name="a recent retraction pauses automatic booking until new evidence" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest" time="0.0"/>
-  <testcase name="below-threshold confidence and corroboration are refused" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest" time="0.0"/>
-  <testcase name="a node-scoped candidate needs DIRECT attribution" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest" time="0.001"/>
+  <testcase name="below-threshold confidence and corroboration are refused" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest" time="0.001"/>
+  <testcase name="a node-scoped candidate needs DIRECT attribution" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest" time="0.0"/>
   <testcase name="certified gate admits a non-careless candidate with enough corroboration" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest" time="0.0"/>
   <testcase name="careless never auto-books even when the gate is certified" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest" time="0.0"/>
   <testcase name="a paused or re-versioned gate refuses" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest" time="0.0"/>

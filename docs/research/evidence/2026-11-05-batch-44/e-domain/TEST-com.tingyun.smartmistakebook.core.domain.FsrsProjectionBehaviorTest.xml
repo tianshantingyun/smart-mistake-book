@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:54:07.979Z" hostname="TIANSHAN" time="0.187">
+<testsuite name="com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-05T01:14:37.420Z" hostname="TIANSHAN" time="0.198">
   <properties/>
-  <testcase name="cross day again resets the graduation success streak" classname="com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest" time="0.173"/>
+  <testcase name="cross day again resets the graduation success streak" classname="com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest" time="0.185"/>
   <testcase name="leech freezes difficulty at its ceiling" classname="com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest" time="0.003"/>
-  <testcase name="first review seeds initial stability and difficulty for its rating" classname="com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest" time="0.001"/>
+  <testcase name="first review seeds initial stability and difficulty for its rating" classname="com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest" time="0.0"/>
   <testcase name="three cross day successes with a ninety day interval schedule maintenance" classname="com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest" time="0.002"/>
   <testcase name="same day review takes the short term branch and never grows stability for good" classname="com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest" time="0.001"/>
-  <testcase name="cross day again counts toward the leech streak and lowers stability" classname="com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest" time="0.001"/>
+  <testcase name="cross day again counts toward the leech streak and lowers stability" classname="com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest" time="0.002"/>
   <testcase name="cross midnight review under 24 wall clock hours still counts as a new day" classname="com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest" time="0.005"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
