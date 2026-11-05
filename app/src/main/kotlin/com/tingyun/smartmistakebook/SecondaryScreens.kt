@@ -822,8 +822,8 @@ internal fun StorageScreen(
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (failure: Exception) {
-                diagnosticsMessage = "导出失败，本机记录不受影响。${failure.message.orEmpty()}"
+            } catch (_: Exception) { // H-066：原始异常 message 带 URI/路径/实现细节，学生可见文案不拼接
+                diagnosticsMessage = "导出失败，本机记录不受影响。请稍后重试。"
             } finally {
                 operationBusy = false
             }

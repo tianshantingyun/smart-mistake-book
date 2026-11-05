@@ -1,9 +1,11 @@
 package com.tingyun.smartmistakebook
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
@@ -39,6 +41,31 @@ class SchedulingSettingsInstrumentedTest {
         composeRule.onNodeWithTag("scheduling_retention_slider").assertIsDisplayed()
         // KF-11（2026-10-01）：FSRS 开关随 kill-switch 退场（FSRS 唯一化）。
         composeRule.onNodeWithTag("scheduling_fsrs_switch").assertDoesNotExist()
+    }
+
+    @Test
+    fun retentionSliderRightEdgeStoresAValueTheDomainAccepts() {
+        val saved = mutableListOf<SchedulingOptions>()
+        composeRule.setContent {
+            SchedulingSettingsScreen(
+                options = SchedulingOptions(),
+                exams = emptyList(),
+                onSetOptions = { saved.add(it) },
+                onAddExam = {},
+                onRemoveExam = {},
+                onBack = {},
+            )
+        }
+
+        // 0.97f 就是滑杆右端读数。修复前它经 Float→Double 变成 0.9700000286102295，
+        // options.copy 在 SchedulingOptions.init 的 require(0.7..0.97) 处抛
+        // IllegalArgumentException，主线程 FATAL（批次 44 soak，F-055/F-057）。
+        composeRule.onNodeWithTag("scheduling_retention_slider")
+            .performSemanticsAction(SemanticsActions.SetProgress) { it(0.97f) }
+
+        composeRule.runOnIdle {
+            assertEquals(0.97, saved.last().desiredRetention, 0.0)
+        }
     }
 
     @Test

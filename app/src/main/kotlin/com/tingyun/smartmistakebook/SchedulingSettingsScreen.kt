@@ -34,6 +34,25 @@ import java.time.ZoneId
 import kotlin.math.roundToInt
 
 /**
+ * `SchedulingOptions.init` 支持的记忆目标 band（`StudyExperienceRepository.kt:737` 同值）。
+ */
+private const val RETENTION_MIN = 0.7
+private const val RETENTION_MAX = 0.97
+
+/**
+ * 把滑杆的 Float 读数落成 `SchedulingOptions` 可接受的 Double。
+ *
+ * 消灭的失败：滑杆端点经 Float→Double 后**越出** 0.7..0.97（`0.97f.toDouble()` =
+ * 0.9700000286102295、`0.7f.toDouble()` = 0.6999999880790710），`SchedulingOptions` 的
+ * `init { require(...) }` 直接抛 IllegalArgumentException。批次 44 soak 在复习安排页点滑杆
+ * 端点（证据帧 `SchedulingSettingsScreen.kt:74`，
+ * `docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt`）因此
+ * FATAL EXCEPTION 并重启进程。落库前夹回 band，端点与越界读数都不再崩溃。
+ */
+internal fun retentionFromSlider(value: Float): Double =
+    value.toDouble().coerceIn(RETENTION_MIN, RETENTION_MAX)
+
+/**
  * 复习安排设置（spec mastery-scheduling §2.17/§8-B4）：记忆目标、考试日历。
  * 审计 2026-09-09 发现这三个写入路径此前全仓无调用方——`setOptions` /
  * `declareExam` / `removeExam` 只有接口与实现，学生改不了任何排程参数。
@@ -71,7 +90,7 @@ internal fun SchedulingSettingsScreen(
         Slider(
             value = options.desiredRetention.toFloat(),
             onValueChange = { value ->
-                onSetOptions(options.copy(desiredRetention = value.toDouble()))
+                onSetOptions(options.copy(desiredRetention = retentionFromSlider(value)))
             },
             valueRange = 0.7f..0.97f,
             steps = 26,
