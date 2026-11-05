@@ -289,3 +289,38 @@ PATH；设备证据为修复轨归档字节，我未重跑）、2h soak、arm64/
 > 注：`.gitignore:31` 排除部分 `*.log` 证据——入库时需主会话裁定显式 `-f` 或调整 ignore 规则
 > （基线 §6.3：31/32 条 FAIL 引用未跟踪证据；批次 47 同样存在，G-089 之外 J/F 域证据多为 `.log`）。
 > 提交后 `dirty_paths` 才可能回落，J-001 的 `--require-clean` 前提才可能解除。
+
+## 9. 主会话收口（2026-11-06，终态）
+
+### 9.1 主会话实跑复核
+
+| 项 | 实值 |
+|---|---|
+| `acceptance_report` | **PASS 897 / FAIL 23 / BLOCKED 280 / UNVERIFIED 0**；violations=0；exit=1（state=FAIL 因 23 FAIL） |
+| `pass_with_review` | 897/897（`pass_with_row_specific_review=728`；318→**172** 行 shared-suite，18 组 ≥5 行共用，残余主要在 D0 91 + GATE 28——这两域按构造就是"同一工具/同一门"的组检查） |
+| `acceptance_lint` | exit=1（144 `EVIDENCE_REUSED`；报告重生成轮的 UNVERIFIED_AS_PASS/C-043 已消） |
+| FAIL 变化 | 32→**23**：9 条以新证据转 PASS（防洗绿核验通过，台账相对 HEAD 恰 9 处 verdict 变更，无 PASS→FAIL、无 BLOCKED→PASS） |
+| BLOCKED runbook | **280/280**（载体切到 blocked-runbook.md，逐行条件/命令/判据/责任人） |
+| 门禁 | 单测门/强门/环后强门 `GRADLE_EXIT=0` |
+
+### 9.2 终裁：**NOT ACCEPTED（本轮验收终态，维持不通过）**
+
+签字范围：①结论「验收不通过」；②280 行 BLOCKED 清单与 runbook 覆盖这一**事实**；③9 条 FAIL→PASS 的证据核验（非洗绿）；④23 条 FAIL 的缺陷单（`j-fail-tickets-b47.md` 等）。
+不签字：897 条 PASS 的"产品验收通过"含义、shared-suite 残余 172 行、发版就绪。
+
+**为什么不再迭代一轮**：剩余 23 FAIL 的构成是——J 域 13 条（共享树脏/产物落后 58 提交/`RELEASE_*` 4/4 缺失/AAB 陈旧/证书过期/versionCode 手写）、AUD-08 人工金标、KD-76 真机、isolation 换机。这四类的解除条件全部在**用户侧或他线**：提供签名密钥与干净发布树、执行金标标注、提供 arm64/真机。在本机继续跑轮次无法消除它们；继续跑只会重刷同一批数字。
+
+### 9.3 本批实得
+
+- 依赖校验元数据 `gradle/verification-metadata.xml` 入库（942 组件，strict，两项任务实测绿）——顺带解决了 KD-72 的依赖完整性半边。
+- v4 夹具 assets 构建期同步任务落码；H-066 同族文案修复（FIX-T02）+ 用例。
+- FAIL 32→23 且全程防洗绿；shared-suite 318→172；BLOCKED runbook 0→280/280。
+- 门禁、9 条转 PASS 的复跑证据、23 条 FAIL 缺陷单全部落盘。
+
+### 9.4 交接给用户的清单（解除后即可重跑验收）
+
+1. `RELEASE_*` 四个密钥环境变量 + 干净发布树 → J 域 13 条 FAIL/BLOCKED 可重判；
+2. 人工金标（≥2 标注员 + 1 裁定）→ AUD-08 门可复算；
+3. arm64 设备/宿主 + 真机 → KD-76/KD-71/isolation 定案；
+4. 真实 Provider key → D 域真实链路验收；
+5. 热区会话收尾（`docs/current` 7 M、`core/domain` 2 M、UI 队列）→ 契约 P0 应用与剩余 BLOCKED。
