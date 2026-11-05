@@ -26,6 +26,21 @@ class StorageRestoreFeedbackTest {
     }
 
     /**
+     * 批次 45 FIX-T02（H-066 同族）：非域内异常不得把原始 message 抄给学生。
+     * 修复前该分支是 `"恢复失败，已尝试保留原数据。${failure.message.orEmpty()}"`，
+     * `IOException`/`IllegalStateException` 携带的 `content://` URI 与路径会直接进入
+     * 用户可见文案；本用例钉住“只给固定措辞 + 下一步动作”。
+     */
+    @Test fun genericRestoreFailureDoesNotEchoTheRawExceptionMessage() {
+        val message = storageRestoreFailureMessage(
+            IllegalStateException("open failed: content://media/external/primary%3ADownload/x.smbk"),
+        )
+        assertFalse("不得回显 content:// URI", message.contains("content://"))
+        assertFalse("不得回显实现细节", message.contains("open failed"))
+        assertTrue("必须给下一步动作", message.contains("核对本机数据"))
+    }
+
+    /**
      * KD-47：恢复设置是多键顺序写、非原子。写失败时数据库已恢复，但设置可能只写进去一部分，
      * 文案不得承诺“保持原样”。
      */

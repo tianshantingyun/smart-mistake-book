@@ -718,8 +718,10 @@ internal fun StorageScreen(
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (failure: Exception) {
-                operationMessage = "备份失败，原数据不受影响。${failure.message.orEmpty()}"
+            } catch (_: Exception) {
+                // H-066 同族（批次 45 FIX-T02）：原始异常 message 带 URI/路径/实现细节，
+                // 学生可见文案只给固定措辞与下一步动作，不拼接 message。
+                operationMessage = "备份失败，原数据不受影响。请检查保存位置后重试。"
             } finally {
                 operationBusy = false
             }
@@ -748,8 +750,9 @@ internal fun StorageScreen(
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (failure: Exception) {
-                operationMessage = "校验失败，文件可能已损坏。${failure.message.orEmpty()}"
+            } catch (_: Exception) {
+                // H-066 同族（批次 45 FIX-T02）：不拼接原始异常 message。
+                operationMessage = "校验失败，文件可能已损坏。请换一个备份文件重试。"
             } finally {
                 operationBusy = false
             }
@@ -782,8 +785,9 @@ internal fun StorageScreen(
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (failure: Exception) {
-                operationMessage = "校验失败，文件可能已损坏，恢复未开始。${failure.message.orEmpty()}"
+            } catch (_: Exception) {
+                // H-066 同族（批次 45 FIX-T02）：不拼接原始异常 message。
+                operationMessage = "校验失败，文件可能已损坏，恢复未开始。请换一个备份文件重试。"
             } finally {
                 operationBusy = false
             }
@@ -855,9 +859,9 @@ internal fun StorageScreen(
                                 onDatabaseClosed(operationMessage.orEmpty(), false)
                             } catch (cancelled: CancellationException) {
                                 throw cancelled
-                            } catch (failure: Exception) {
-                                operationMessage =
-                                    "删除未全部完成，请重启后重试。${failure.message.orEmpty()}"
+                            } catch (_: Exception) {
+                                // H-066 同族（批次 45 FIX-T02）：不拼接原始异常 message。
+                                operationMessage = "删除未全部完成，请重启后重试。"
                                 onDatabaseClosed(operationMessage.orEmpty(), false)
                             } finally {
                                 operationBusy = false
@@ -1007,9 +1011,9 @@ internal fun StorageScreen(
                         }
                     } catch (cancelled: CancellationException) {
                         throw cancelled
-                    } catch (failure: Exception) {
-                        operationMessage =
-                            "清理未完成，原题图不受影响。${failure.message.orEmpty()}"
+                    } catch (_: Exception) {
+                        // H-066 同族（批次 45 FIX-T02）：不拼接原始异常 message。
+                        operationMessage = "清理未完成，原题图不受影响。请稍后重试。"
                     } finally {
                         operationBusy = false
                     }
@@ -1371,11 +1375,13 @@ internal fun storageRestoreCompletionMessage(
 
 internal fun storageRestoreFailureMessage(failure: Exception): String =
     if (failure is BackupRestoreDatabaseClosedException) {
+        // 域内异常自带人工撰写的安全措辞，转述它是有意的；其余异常不转述 message
+        // （H-066 同族，批次 45 FIX-T02：原始 message 可能带路径/URI/实现细节）。
         val detail = failure.message?.takeIf(String::isNotBlank)
             ?: "恢复未完成，当前本机数据状态需要核对。"
         "$detail 请关闭应用后重新打开，并核对本机数据。"
     } else {
-        "恢复失败，已尝试保留原数据。${failure.message.orEmpty()}"
+        "恢复失败，已尝试保留原数据。请关闭应用后重新打开，并核对本机数据。"
     }
 
 private fun formatBytes(bytes: Long): String = when {
