@@ -1,29 +1,25 @@
 {
   "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b",
-  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
-  "dirty_paths": 4739,
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
+  "dirty_paths": 4795,
   "total": 1200,
   "counts": {
-    "PASS": 888,
-    "FAIL": 32,
+    "PASS": 897,
+    "FAIL": 23,
     "BLOCKED": 280,
     "UNVERIFIED": 0
   },
   "state": "FAIL",
-  "pass_with_two_kinds": 888,
-  "pass_with_review": 888,
+  "pass_with_two_kinds": 897,
+  "pass_with_review": 897,
   "pass_without_review": 0,
   "pass_with_invalid_review": 0,
-  "pass_with_row_specific_review": 575,
+  "pass_with_row_specific_review": 728,
   "review_shared_check_groups": [
     {
       "fingerprint": "d03734e927c5e5026e9b3c01767d0216ebfd52a428d4f286c3f19cd435be49f3",
       "rows": 9
-    },
-    {
-      "fingerprint": "9f5f3c0558d311f81ee8239956b926ad2817f3dbb36a76cfcb64763fbc6fc573",
-      "rows": 8
     },
     {
       "fingerprint": "fa57a55fafdc616511f2e957c87ca7f70907cb890b552049e3bec1f1aa5cc143",
@@ -62,14 +58,6 @@
       "rows": 7
     },
     {
-      "fingerprint": "e886641beffca334d7cea7e9d4399c5a4796a114511bd909209f6bee6a7bc000",
-      "rows": 7
-    },
-    {
-      "fingerprint": "2441d87ce0fd9927e8921df488f0dbe659f76769d653d39bc893f7a81c16e10a",
-      "rows": 6
-    },
-    {
       "fingerprint": "33c926817d628806c803e0bd7f2abeba991b9d3c48b4f522f7dab2ad21859a89",
       "rows": 6
     },
@@ -90,16 +78,8 @@
       "rows": 6
     },
     {
-      "fingerprint": "e761b649809ef89a477a984826e5336a77b51f71f95d9b1f4ef130423baf3167",
-      "rows": 6
-    },
-    {
       "fingerprint": "efadc4d12c944bd11d9ea40c8f03510e43d819b9ff04925c78e9e77325b0f7fa",
       "rows": 6
-    },
-    {
-      "fingerprint": "0d6d7df8bf4babcad4379427efe783f31b41f016dc71b2ef58ac6b61a9c581e6",
-      "rows": 5
     },
     {
       "fingerprint": "520bdb06712113b86d2543dc40c44da806adb1f30b91e176357de5f8108c06ab",
@@ -108,17 +88,14 @@
     {
       "fingerprint": "7dac470dcff9143c27b52d582af5fddee16c903f4e61bf8daf49752777756aa2",
       "rows": 5
-    },
-    {
-      "fingerprint": "adf1098736829f74610dd57d4366a98ab8d77117f64b5491d6b04f52486b8015",
-      "rows": 5
     }
   ],
   "review_evidence_batches": {
-    "44": 1472,
+    "44": 1488,
     "45": 402,
     "46": 62,
-    "unlabeled": 380
+    "47": 18,
+    "unlabeled": 384
   },
   "review_validation_errors": [],
   "unverified": 0,
@@ -127,12 +104,12 @@
     {
       "id": "",
       "code": "NOT_ACCEPTANCE_COMPLETE",
-      "detail": "UNVERIFIED=0 FAIL=32 BLOCKED=280"
+      "detail": "UNVERIFIED=0 FAIL=23 BLOCKED=280"
     },
     {
       "id": "",
       "code": "REVIEW_CHECKS_SHARED",
-      "detail": "24 组非 ledger_row checks 被 ≥5 行共用，行级判别力不成立"
+      "detail": "18 组非 ledger_row checks 被 ≥5 行共用，行级判别力不成立"
     }
   ],
   "warnings": [
@@ -140,11 +117,6 @@
       "id": "",
       "code": "REVIEW_CHECKS_SHARED",
       "detail": "同一组非 ledger_row checks 被 9 行 PASS 共用 (fp=d03734e927c5)；行级判别力不成立"
-    },
-    {
-      "id": "",
-      "code": "REVIEW_CHECKS_SHARED",
-      "detail": "同一组非 ledger_row checks 被 8 行 PASS 共用 (fp=9f5f3c0558d3)；行级判别力不成立"
     },
     {
       "id": "",
@@ -194,16 +166,6 @@
     {
       "id": "",
       "code": "REVIEW_CHECKS_SHARED",
-      "detail": "同一组非 ledger_row checks 被 7 行 PASS 共用 (fp=e886641beffc)；行级判别力不成立"
-    },
-    {
-      "id": "",
-      "code": "REVIEW_CHECKS_SHARED",
-      "detail": "同一组非 ledger_row checks 被 6 行 PASS 共用 (fp=2441d87ce0fd)；行级判别力不成立"
-    },
-    {
-      "id": "",
-      "code": "REVIEW_CHECKS_SHARED",
       "detail": "同一组非 ledger_row checks 被 6 行 PASS 共用 (fp=33c926817d62)；行级判别力不成立"
     },
     {
@@ -229,17 +191,7 @@
     {
       "id": "",
       "code": "REVIEW_CHECKS_SHARED",
-      "detail": "同一组非 ledger_row checks 被 6 行 PASS 共用 (fp=e761b649809e)；行级判别力不成立"
-    },
-    {
-      "id": "",
-      "code": "REVIEW_CHECKS_SHARED",
       "detail": "同一组非 ledger_row checks 被 6 行 PASS 共用 (fp=efadc4d12c94)；行级判别力不成立"
-    },
-    {
-      "id": "",
-      "code": "REVIEW_CHECKS_SHARED",
-      "detail": "同一组非 ledger_row checks 被 5 行 PASS 共用 (fp=0d6d7df8bf4b)；行级判别力不成立"
     },
     {
       "id": "",
@@ -250,11 +202,6 @@
       "id": "",
       "code": "REVIEW_CHECKS_SHARED",
       "detail": "同一组非 ledger_row checks 被 5 行 PASS 共用 (fp=7dac470dcff9)；行级判别力不成立"
-    },
-    {
-      "id": "",
-      "code": "REVIEW_CHECKS_SHARED",
-      "detail": "同一组非 ledger_row checks 被 5 行 PASS 共用 (fp=adf109873682)；行级判别力不成立"
     }
   ],
   "ok": false,

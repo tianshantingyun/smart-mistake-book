@@ -1,33 +1,25 @@
-# 批次 46 逐项终裁表（1200 项，行级复核版）
+# 批次 47 逐项终裁表（1200 项，行级复核版）
 
-> run-id：`2026-11-06T09:00:00Z-batch46-line-review`　台账 `docs/acceptance/ledger.md` sha256：`19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b`
-> 输入：`docs/acceptance/acceptance-report.json`、`docs/acceptance/evidence/2026-11-06-batch-46/gate/lint.txt`、`trace.txt`。
+> run-id：批次 47 行级复核（`batch47-f-domain-fail-fix` / `batch47-g089-repair` / `batch47-h-domain-fail-repair` / `batch47-line-review-<域>`）　台账 `docs/acceptance/ledger.md` sha256：`a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737`
+> 输入：`docs/acceptance/acceptance-report.json`、`docs/acceptance/evidence/2026-11-06-batch-47/gate/`（lint/trace/行特有 checks/runbook 覆盖）。
 
 ## 0. 结论：**验收不通过（NOT ACCEPTED），不签总体通过**
 
 | 项 | 实值 | 判定 |
 |---|---|---|
 | 台账行数 | 1200（D0 100 / A–J 各 90 / FIX 100 / GATE 100） | — |
-| verdict 计数 | PASS 888 / FAIL 32 / BLOCKED 280 / UNVERIFIED 0 | 非 PASS 312 行 |
+| verdict 计数 | PASS 897 / FAIL 23 / BLOCKED 280 / UNVERIFIED 0 | 非 PASS 303 行 |
 | `acceptance_report` | **exit 1**（state=FAIL，violations=0） | 阻断：仍有 FAIL/BLOCKED |
 | `--require-complete` | **exit 1**（NOT_ACCEPTANCE_COMPLETE + REVIEW_CHECKS_SHARED） | 阻断 |
-| `acceptance_lint` | **exit 1**，violations=144，warnings=144（全部 EVIDENCE_REUSED） | 阻断（GATE-042） |
-| `acceptance_lint --warn-only` | exit 0，warnings=144 | 仅诊断用 |
+| `acceptance_lint` | **exit 1**，violations=144，warnings=144（144 EVIDENCE_REUSED；报告重生成轮的 UNVERIFIED_AS_PASS/C-043 已由修复环消除，见终裁 §8.2） | 阻断 |
+| `acceptance_lint --warn-only` | **exit 0**（violations=0：真违规已清零，仅复用告警降级为诊断） | 复用告警不阻断（144 条为诊断面） |
 | `trace_requirements` | exit 0，gaps=0 | 追溯缺口为 0 |
-| `pass_with_review` | **888 / 888**（逐项复算通过）；`pass_without_review` 0 | DoD §1.5 机械面成立 |
-| `pass_with_row_specific_review` | **575 / 888**；318 行 `checks_scope=shared-suite` | 行级判别力缺口 |
-| `d0_self_acceptance --group all` | 213 CHECK / 0 FAILURES / exit 0 | 自验收可复现 |
+| `pass_with_review` | **897 / 897**；`pass_without_review` 0；`pass_with_invalid_review` 0 | DoD §1.5 机械面成立 |
+| `pass_with_row_specific_review` | **728 / 897**；18 组 ≥5 行共用（119 行：D0 91 + GATE 28）；`checks_scope=shared-suite` 172 行 | 行级判别力缺口收敛中，未清零 |
+| `d0_self_acceptance --group all` | 213 CHECK / **1 FAILURES** / exit 1（`h-061_fail`：d0 预期未随 H-061 批次 47 改判更新） | 自验收含 1 处陈旧预期，工具待更新 |
 
-**判词**：本报告不能签「批次 46 验收通过」，也不构成发版就绪。`PASS` 表示该行证据通过`acceptance_report.py` 的 ≥2 类独立证据审计，并有一个行级复核 JSON；行级复核为**同一会话脚本的机械复算**（sha256、cmd exit、XML counts、device 绑定），不替代第二个人/第二模型的语义复核，也不表示产品可用。
+**判词**：本报告不能签「批次 47 验收通过」，也不构成发版就绪。`PASS` 表示该行证据通过`acceptance_report.py` 的 ≥2 类独立证据审计，并有一个行级复核 JSON（逐项复算通过）；行级复核为**机械复算**（sha256、cmd exit、XML counts、device 绑定），不替代第二个人/第二模型的语义复核，也不表示产品可用。
 
-> **批次 46 修复环（2026-11-05）**：`pass_with_review` 旧口径只数 `review:` token
-> 是否存在，888 不能证明复核成立。修复后 `acceptance_report.py` 逐项复算
-> `checks[]`：888/888 通过复算，但 **318 行的非 `ledger_row` checks 与其他行
-> 逐字节相同**（318 行落在 >1 行的指纹组；其中 24 组 ≥5 行、覆盖 156 行，最大 9 行），
-> 因此 `pass_with_row_specific_review`
-> 只有 **575**。294 份原 `run_id` 为 batch44 的复核已在本轮真实复算后重绑为
-> batch46 repair run；仍保留 `rebind_from_run_id` 供追溯。证据引用中 2294 条指向
-> 归档批次、90 条指向本批，行级复核主要是“旧证据字节未变”，不是“本轮重跑”。
 ## 1. 域统计
 
 | 域 | 总数 | PASS | FAIL | BLOCKED | UNVERIFIED | 行级复核 |
@@ -38,14 +30,14 @@
 | C 视觉与渲染 | 90 | 88 | 0 | 2 | 0 | 88/88 |
 | D 模型链路 | 90 | 81 | 0 | 9 | 0 | 81/81 |
 | E 复习与算法 | 90 | 81 | 0 | 9 | 0 | 81/81 |
-| F 性能与稳定 | 90 | 48 | 9 | 33 | 0 | 48/48 |
-| G 安全与隐私 | 90 | 82 | 1 | 7 | 0 | 82/82 |
-| H 合规与文案 | 90 | 68 | 3 | 19 | 0 | 68/68 |
+| F 性能与稳定 | 90 | 55 | 2 | 33 | 0 | 55/55 |
+| G 安全与隐私 | 90 | 83 | 0 | 7 | 0 | 83/83 |
+| H 合规与文案 | 90 | 69 | 2 | 19 | 0 | 69/69 |
 | I 可用性与无障碍 | 90 | 53 | 0 | 37 | 0 | 53/53 |
 | J 发布工程 | 90 | 29 | 13 | 48 | 0 | 29/29 |
 | FIX 修复与加固 | 100 | 15 | 0 | 85 | 0 | 15/15 |
 | GATE 门禁与终裁 | 100 | 90 | 6 | 4 | 0 | 90/90 |
-| **合计** | **1200** | **888** | **32** | **280** | **0** | **888/888** |
+| **合计** | **1200** | **897** | **23** | **280** | **0** | **897/897** |
 
 ## 2. 逐项表
 
@@ -651,7 +643,7 @@
 | F-016 | PASS | warm-up：日志 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/startup-cold.txt; device:docs/research/evidence/2026-11-05-batch-44/f-domain/logcat-displayed.txt; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/startu |
 | F-017 | PASS | warm-up：证据 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log; hash:docs/research/evidence/2026-11-05-batch-44/f-domain/f-evidence |
 | F-018 | BLOCKED | warm-up：回归 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json |
-| F-019 | FAIL | 首帧：基线 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt; device:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd. |
+| F-019 | PASS | 首帧：基线 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold6.txt; device:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/startu |
 | F-020 | BLOCKED | 首帧：阈值 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt |
 | F-021 | PASS | 首帧：超限 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log; review:docs/acceptance/verdicts/rows/F-021.json |
 | F-022 | PASS | 首帧：重复运行 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt; device:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd. |
@@ -660,15 +652,15 @@
 | F-025 | PASS | 首帧：日志 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/logcat-displayed.txt; device:docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd |
 | F-026 | PASS | 首帧：证据 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log; hash:docs/research/evidence/2026-11-05-batch-44/f-domain/f-evidence |
 | F-027 | BLOCKED | 首帧：回归 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt |
-| F-028 | FAIL | 导出耗时：基线 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log; test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml; device:docs/research/evidence/2026-11-05-batch-44/f-domain/export-b |
-| F-029 | FAIL | 导出耗时：阈值 | test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml; test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch2.xml; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/ex |
+| F-028 | PASS | 导出耗时：基线 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log; test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml; device:docs/research/evidence/2026-11-05-batch-44/f-domain/export-b |
+| F-029 | PASS | 导出耗时：阈值 | test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml; test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch2.xml; test:docs/research/evidence/2026-11-05-batch-44/f-domain/T |
 | F-030 | PASS | 导出耗时：超限 | test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-long1.xml; device:docs/research/evidence/2026-11-05-batch-44/f-domain/export-long1.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain |
 | F-031 | PASS | 导出耗时：重复运行 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log; test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch2.xml; test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-expor |
 | F-032 | PASS | 导出耗时：设备 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/export-batch1.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log; review:docs/acceptance/verdicts/rows/F-032.json |
 | F-033 | BLOCKED | 导出耗时：arm64（BLOCKED） | file:docs/acceptance/runbook.md |
-| F-034 | FAIL | 导出耗时：日志 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/export-batch1.instr.txt; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log |
+| F-034 | PASS | 导出耗时：日志 | device:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.perf.logcat.txt; device:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.device.json; cmd:docs/research/evidence/2026-11-0 |
 | F-035 | PASS | 导出耗时：证据 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log; test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml; hash:docs/research/evidence/2026-11-05-batch-44/f-domain/f-evidence |
-| F-036 | FAIL | 导出耗时：回归 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log; test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/db-perf.cmd |
+| F-036 | PASS | 导出耗时：回归 | cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.cmd.log; device:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.device.json; cmd:docs/research/evidence/2026-11-06-batch-47/ |
 | F-037 | PASS | 预览耗时：基线 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log; test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-preview-pdf1.xml; device:docs/research/evidence/2026-11-05-batch-44/f-domain/preview- |
 | F-038 | BLOCKED | 预览耗时：阈值 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log |
 | F-039 | BLOCKED | 预览耗时：超限 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log |
@@ -696,10 +688,10 @@
 | F-061 | PASS | 长时 2h：日志 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv; device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-monkey-1.log; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd. |
 | F-062 | PASS | 长时 2h：证据 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json; hash:docs/research/evidence/2026-11-05-batch-44/f-domain/f-evidence-sha25 |
 | F-063 | BLOCKED | 长时 2h：回归 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log |
-| F-064 | FAIL | ANR/崩溃签名：基线 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/drop |
+| F-064 | PASS | ANR/崩溃签名：基线 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/drop |
 | F-065 | PASS | ANR/崩溃签名：阈值 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/logcat-crash.txt; review:docs/acceptance/verdicts/rows/F-065.json |
 | F-066 | PASS | ANR/崩溃签名：超限 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash-overlimit-5562.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash-overlimit-5562.device.json; cmd:docs/research/evidence/2026-1 |
-| F-067 | FAIL | ANR/崩溃签名：重复运行 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt |
+| F-067 | PASS | ANR/崩溃签名：重复运行 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt; device:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-cras |
 | F-068 | PASS | ANR/崩溃签名：设备 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log; review:docs/acceptance/verdicts/rows/F-068.json |
 | F-069 | BLOCKED | ANR/崩溃签名：arm64（BLOCKED） | file:docs/acceptance/runbook.md |
 | F-070 | PASS | ANR/崩溃签名：日志 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log; review:docs/acceptance/verdicts/rows/F-070.json |
@@ -816,7 +808,7 @@
 | G-086 | PASS | 5 个直接依赖坐标版本快照已记录（quickjs/okhttp/room/mlkit/kotlin） | cmd:docs/acceptance/evidence/G/logs/g-plaintext_deps.log#exit=0; test:docs/acceptance/evidence/G/tests/g-plaintext_deps.xml; review:docs/acceptance/verdicts/rows/G-086.json |
 | G-087 | BLOCKED | 已知 CVE 比对 | - |
 | G-088 | BLOCKED | 锁文件覆盖（KD-72） | - |
-| G-089 | FAIL | Gradle 依赖校验元数据 | file:docs/known-defects.md; file:app/build.gradle.kts |
+| G-089 | PASS | Gradle 依赖校验元数据 | cmd:docs/acceptance/evidence/G/logs/g-089-verification-metadata.log#exit=0; cmd:docs/acceptance/evidence/G/logs/g-089-gradle-verify.log#exit=0; test:docs/acceptance/evidence/G/tests/g-089-verification-metadata.xml; file: |
 | G-090 | PASS | 仓库仅 google 与 mavenCentral，且 FAIL_ON_PROJECT_REPOS | cmd:docs/acceptance/evidence/G/logs/g-plaintext_deps.log#exit=0; test:docs/acceptance/evidence/G/tests/g-plaintext_deps.xml; review:docs/acceptance/verdicts/rows/G-090.json |
 
 ### H 合规与文案（90）
@@ -840,7 +832,7 @@
 | H-015 | PASS | AIGC 隐式：纯用户内容判据为假并早退，不改写 PDF 字节 | cmd:docs/acceptance/evidence/H/logs/h-015.log#exit=0; test:docs/acceptance/evidence/H/tests/h-aigc-implicit.xml; file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExporter.kt; review:doc |
 | H-016 | PASS | AIGC 隐式：图片隐式标识写 EXIF 四字段与 TC260 XMP，随文件字节走 | cmd:docs/acceptance/evidence/H/logs/h-016.log#exit=0; test:docs/acceptance/evidence/H/tests/h-aigc-implicit.xml; file:core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/capture/GeneratedFigureMetadata.kt; r |
 | H-017 | PASS | AIGC 隐式：只认 Label 等于 1，伪造、缺失、损坏包读回 false | cmd:docs/acceptance/evidence/H/logs/h-017.log#exit=0; test:docs/acceptance/evidence/H/tests/h-aigc-implicit.xml; file:core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/capture/GeneratedFigureMetadata.kt; r |
-| H-018 | FAIL | AIGC 隐式：全部交付格式与打印子集都有文件级隐式标识 | cmd:docs/research/evidence/2026-11-06-batch-46/h-domain/h-018-b46.log; file:docs/known-defects.md; file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt |
+| H-018 | FAIL | AIGC 隐式：全部交付格式与打印子集都有文件级隐式标识 | cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log; file:docs/known-defects.md; file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt |
 | H-019 | PASS | 隐私政策：数据流文件写明本地优先与绝不外发的清单 | cmd:docs/acceptance/evidence/H/logs/h-019.log#exit=0; test:docs/acceptance/evidence/H/tests/h-privacy.xml; file:PRIVACY-DATA-FLOW.md; review:docs/acceptance/verdicts/rows/H-019.json |
 | H-020 | PASS | 隐私政策：current 文档含应用内披露、删除、Play data safety 草案三节 | cmd:docs/acceptance/evidence/H/logs/h-020.log#exit=0; test:docs/acceptance/evidence/H/tests/h-privacy.xml; file:docs/current/privacy-and-data-safety.md; review:docs/acceptance/verdicts/rows/H-020.json |
 | H-021 | PASS | 隐私政策：应用内“数据与隐私”页按 LOCAL_FIRST 与 STRICT_OFFLINE 分支说明 | cmd:docs/acceptance/evidence/H/logs/h-021.log#exit=0; test:docs/acceptance/evidence/H/tests/h-privacy.xml; file:app/src/main/kotlin/com/tingyun/smartmistakebook/SecondaryScreens.kt; review:docs/acceptance/verdicts/rows/H |
@@ -883,8 +875,8 @@
 | H-058 | PASS | 导出水印：DOCX 原字节嵌入保留图片隐式元数据 | cmd:docs/acceptance/evidence/H/logs/h-058.log#exit=0; test:docs/acceptance/evidence/H/tests/h-export-marking.xml; file:core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/capture/GeneratedFigureMetadata.kt;  |
 | H-059 | PASS | 导出水印：QUESTION_DIAGRAM 等非生成角色不伪标 | cmd:docs/acceptance/evidence/H/logs/h-059.log#exit=0; test:docs/acceptance/evidence/H/tests/h-export-marking.xml; file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/AiGeneratedImageCaption.kt; revi |
 | H-060 | PASS | 导出水印：图注渲染时派生，不进 inputSha256 与草稿 | cmd:docs/acceptance/evidence/H/logs/h-060.log#exit=0; test:docs/acceptance/evidence/H/tests/h-export-marking.xml; file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/AiGeneratedImageCaption.kt; revi |
-| H-061 | FAIL | 导出水印：部分页打印子集保留文档级 /AIGC | cmd:docs/research/evidence/2026-11-06-batch-46/h-domain/h-061-b46.log; file:docs/known-defects.md |
-| H-062 | FAIL | 导出水印：模型改卷产生的文本导出时带 /AIGC | cmd:docs/research/evidence/2026-11-06-batch-46/h-domain/h-062-b46.log; file:docs/known-defects.md |
+| H-061 | PASS | 导出水印：部分页打印子集保留文档级 /AIGC | cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-gate-b47.log#exit=0; test:docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-connected-green.xml; cmd:docs/research/evidence/2026-11-06-batch-47/h-doma |
+| H-062 | FAIL | 导出水印：模型改卷产生的文本导出时带 /AIGC | cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-062-b47.log; file:docs/known-defects.md; file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt |
 | H-063 | BLOCKED | 导出水印：设备上字号、对比度、不遮挡经人工视觉复核 | cmd:docs/acceptance/evidence/H/logs/h-063.log#exit=1; file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/AiGeneratedImageCaption.kt |
 | H-064 | PASS | 错误文案：导出失败与不可导出文案无技术术语与堆栈 | cmd:docs/acceptance/evidence/H/logs/h-064.log#exit=0; test:docs/acceptance/evidence/H/tests/h-error-copy.xml; file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExportCopy.kt; review:docs |
 | H-065 | PASS | 错误文案：PDF 说 A4、DOCX 说 Word，两套交付物各自成句 | cmd:docs/acceptance/evidence/H/logs/h-065.log#exit=0; test:docs/acceptance/evidence/H/tests/h-error-copy.xml; file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExportCopy.kt; review:docs |
@@ -1316,6 +1308,6 @@
 
 ## 3. 不可变项
 
-- 6C-2：mask=8 不提供、mask=0 禁止、派生索引恒裁；本批只读确认。
-- KD-76 open；isolation 不定案；p09 未收敛；AUD-08 FAIL。
-- 发版不成立。
+- 6C-2：mask=8 不提供、mask=0 禁止、派生索引恒裁；本批只读确认未漂移。
+- KD-76 open；isolation 不定案（KD-66 关闭依据不变，批次 40 E-40-04 PARTIAL）；p09 未收敛；AUD-08 FAIL。
+- 发版不成立；批次 47 未新增 Gradle/设备重跑（除 H-061/F/G 设备复跑由修复轨完成）。
