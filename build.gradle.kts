@@ -31,6 +31,11 @@ plugins {
 // androidTest / runtime）。`dependencies` 在多项目里只作用于被点名的 project，故用聚合任务。
 // 暂不启用全量 verification-metadata（R2 §2.5：字节级风险已由 quickjs 三构件 sha256 门
 // 覆盖，全图 166 坐标 + 元数据的维护成本不划算）；锁文件齐全且 CI 绿后再评估 LockMode.STRICT。
+// 【2026-11-06 批次 47 状态更新（G-089 修复）】验收台账 G-089 要求落地依赖校验元数据，
+// gradle/verification-metadata.xml 已由 `--write-verification-metadata sha256` 生成入库
+// （942 组件；strict 校验 :app:assembleStrictOfflineDebug 与 :core:database:kspDebugKotlin 绿，
+// 证据 docs/acceptance/evidence/G/logs/g-089-*.log）。自此 Gradle 默认按 strict 校验依赖字节；
+// 新增依赖或新配置解析到未钉构件会构建失败，用同一命令重跑该任务补录清单。
 val kotlinStdlibVersion = libs.versions.kotlin.get()
 
 subprojects {
