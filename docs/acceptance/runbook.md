@@ -226,6 +226,10 @@ python -I tools/ci/acceptance_hash_manifest.py \
 - `run_id` 与本次命令/设备轮次一致；
 - `ledger_sha256` 由 `sha256sum docs/acceptance/ledger.md` 得出；
 - 终裁只对单行 id 生效，不写总体“通过”。
+- 冲突处理：同一行出现两份判词时，**冲突时保留双方判词**并登记冲突项，
+  不合并、不覆盖、不以任一方单独签字。
+- 行级终裁的字段与类型由 `docs/acceptance/verdicts/verdict.schema.json` 校验；
+  `checks` 必须含可复算值（XML tests/failures、CMD exit、文件 sha、设备关键行）。
 
 ## 9.2 J 域（发布工程）出口
 
