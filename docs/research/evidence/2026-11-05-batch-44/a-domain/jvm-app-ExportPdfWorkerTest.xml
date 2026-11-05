@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.ExportPdfWorkerTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-11-04T09:06:59.871Z" hostname="TIANSHAN" time="0.032">
+  <properties/>
+  <testcase name="the skipped-feature notice speaks only when something was requested and skipped" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.015"/>
+  <testcase name="a single request round trips through the work input map" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.004"/>
+  <testcase name="malformed or unknown inputs decode to null instead of a half request" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.0"/>
+  <testcase name="an old request without a format key decodes to pdf and a bad one rejects the whole request" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.0"/>
+  <testcase name="a malformed layout rejects the whole request instead of falling back" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.001"/>
+  <testcase name="an edited request without a draft id is rejected instead of becoming an empty paper" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.0"/>
+  <testcase name="an old request without layout keys decodes to the default layout" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.0"/>
+  <testcase name="a layout survives the work input round trip for both request kinds" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.001"/>
+  <testcase name="a batch request round trips and keeps entry ids in order" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.001"/>
+  <testcase name="an edited request round trips with its draft id layout and format" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.001"/>
+  <testcase name="a batch of a hundred ids stays far below the work data limit" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.005"/>
+  <testcase name="a format survives the work input round trip for both request kinds" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.001"/>
+  <testcase name="the worker runs whenever the book is usable and only waits for a closed database" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.001"/>
+  <testcase name="unique work is named per export so one record cannot stack two jobs" classname="com.tingyun.smartmistakebook.ExportPdfWorkerTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

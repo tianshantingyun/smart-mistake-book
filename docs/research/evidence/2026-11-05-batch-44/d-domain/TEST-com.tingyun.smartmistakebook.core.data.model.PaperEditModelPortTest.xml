@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:23.883Z" hostname="TIANSHAN" time="0.125">
+  <properties/>
+  <testcase name="retriesOfTheSameEditShareOneLogicalOperationWhileNewRequestsDoNot" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest" time="0.092"/>
+  <testcase name="aTerminalStateFromAnotherRequestCannotBeHandedBack" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest" time="0.008"/>
+  <testcase name="theCallerConsentValueIsForwardedAndNeverHardcoded" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest" time="0.004"/>
+  <testcase name="aFlowThatEndsWithoutATerminalStateFailsClosed" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest" time="0.003"/>
+  <testcase name="aRetryableFailureSurfacesItsCodeAndRetryabilityInsteadOfEmptyCommands" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest" time="0.006"/>
+  <testcase name="aPermanentFailureIsNotFlattenedIntoAnEmptyCommandList" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest" time="0.003"/>
+  <testcase name="thePortSubmitsOneBoundedPaperEditRequestAndReturnsTheValidatedOutput" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest" time="0.003"/>
+  <testcase name="anEmptyFlowFailsClosedRatherThanReportingNoChanges" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest" time="0.003"/>
+  <testcase name="aCancelledTaskIsReportedAsCancellationNotAsSuccess" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

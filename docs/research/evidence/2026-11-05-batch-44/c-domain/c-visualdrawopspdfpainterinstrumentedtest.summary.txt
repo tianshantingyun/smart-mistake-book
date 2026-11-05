@@ -1,0 +1,2 @@
+tests=16 evaluated=16 failures=0 errors=0 ignored_or_assumed=0
+VERDICT PASS: all passed

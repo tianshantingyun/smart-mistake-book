@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="r3-selfreport" tests="8" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T08:53:15Z">
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="doubleTapOnAKeySubmitsExactlyOneAttempt" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="interruptedSubmissionRetriesTheSameRequestAndWritesOnce" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="undoThenReevaluateUsesTheRewoundVersionAndAdvancesAgain" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="rotationKeepsTheRecordedReceiptAndUndoAction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="hardKeyRecordsEffortfulRecallAsPositiveEvidence" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="goodKeyRecordsTheSelfReportAndShowsTheStoredAnswerWithoutAModel" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="againKeyRecordsAMissAsNegativeEvidence" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewSelfReportDeviceUiInstrumentedTest" name="doubleFontKeepsAllThreeKeysReachableWithRealTouchAndOneStoredAttempt" time="0">
+  </testcase>
+</testsuite>

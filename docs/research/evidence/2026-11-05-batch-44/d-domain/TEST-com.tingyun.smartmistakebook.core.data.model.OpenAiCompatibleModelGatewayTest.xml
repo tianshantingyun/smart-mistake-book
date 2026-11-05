@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" tests="68" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:36.519Z" hostname="TIANSHAN" time="17.877">
+  <properties/>
+  <testcase name="tutorResponseRejectsIntentCapabilityMismatch" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.958"/>
+  <testcase name="tutorResponseAdmitsMissingThinkingMarkdownAsNull" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.136"/>
+  <testcase name="streamingPrefixStaysWithinTheStatusBudgetForLongAnswers" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.166"/>
+  <testcase name="tutorResponseParsesIntentWithoutGrantingDatabaseAuthority" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.142"/>
+  <testcase name="tutorResponseParsesAttachedImagesFromWire" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.144"/>
+  <testcase name="organizationUsesAliasesAndReconstructsRelationTargetsLocally" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.043"/>
+  <testcase name="tutorResponseParsesThinkingMarkdownFromWire" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.14"/>
+  <testcase name="tutorResponseRejectsUnsafeThinkingMarkdown" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.139"/>
+  <testcase name="http429MapsToRateLimitedFailureThroughTheGatewayExecutionPath" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.014"/>
+  <testcase name="tutorResponseUsesOnlyBoundedCurrentQuestionTextAndAllowsOmittedOptionalContent" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.142"/>
+  <testcase name="tutorPlanParsesThinkingMarkdownFromWire" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.14"/>
+  <testcase name="laterTutorCycleReceivesExactStudentWordsWithoutPermissionToProbe" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.143"/>
+  <testcase name="credentialClearedDuringEndpointPreparationFailsClosedBeforeEnqueue" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.018"/>
+  <testcase name="truncatedCompletionIsRetryableIncompleteOutputNotInvalidResponse" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.009"/>
+  <testcase name="tutorPlanAcceptsExplanationWithoutInventingAChoiceQuestion" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.131"/>
+  <testcase name="connectionFailureMapsToNetworkUnavailableAndTimeoutMapsToTimeout" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.01"/>
+  <testcase name="aNativeToolRoundMovesItsNarrationOutOfTheBodyIntoTheToolUnit" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.902"/>
+  <testcase name="missingIntentFailsClosedAsAmbiguousInsteadOfAssumingCurrentQuestionHelp" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.138"/>
+  <testcase name="configuredProtocolDrivesTheWireProtocolInsteadOfAlwaysDefaulting" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.013"/>
+  <testcase name="tutorLobbySendsOnlyTheMessageContextAndParsesBoundedIntent" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.145"/>
+  <testcase name="tutorResponseRejectsUnknownAttachedImageKey" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.136"/>
+  <testcase name="parseFailureCaptureCarriesTheRawBodyTaskKindAndException" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.141"/>
+  <testcase name="http401And403MapToAuthenticationFailureWithoutRetrying" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.007"/>
+  <testcase name="tutorResponseRequiresAStrictSolutionRevealBoolean" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.382"/>
+  <testcase name="http5xxMapsToRetryableServiceFailureThroughTheGatewayExecutionPath" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.007"/>
+  <testcase name="aBrokenCaptureSeamNeverChangesTheProductOutcome" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.005"/>
+  <testcase name="readinessRevokedWhilePreparingFailsClosedBeforeTransport" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.004"/>
+  <testcase name="assessmentMapsIndependentQuestionRegionsInReadingOrder" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.008"/>
+  <testcase name="tutorResponseRejectsUnknownOrActiveOutputFields" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.881"/>
+  <testcase name="paperEditOverBudgetOutputIsRetryableIncompleteOutput" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.021"/>
+  <testcase name="tutorPlanAdmitsMissingThinkingMarkdownAsNull" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.133"/>
+  <testcase name="tutorPlanAcceptsNoContextualMovesInsteadOfForcingButtons" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.138"/>
+  <testcase name="assessmentUsesOnlyApprovedImageAndMapsBoundedJson" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.007"/>
+  <testcase name="oversizedMultiPageRequestFailsBeforeOpeningAnyApprovedAsset" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.009"/>
+  <testcase name="paperEditShapeErrorIsPermanentInvalidResponse" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.009"/>
+  <testcase name="truncatedTutorStreamFailsAsIncompleteOutputAfterItsContentArrived" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.132"/>
+  <testcase name="paperEditOverBudgetCaptureKeepsTheRetryableBudgetFailure" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.009"/>
+  <testcase name="aRouteBRoundNeverPutsItsEnvelopeOnTheAnswerChannel" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.879"/>
+  <testcase name="tutorFollowUpUsesPersistedChoiceAndRequestedTeachingMove" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.139"/>
+  <testcase name="imageBearingTutorRespondSendsTheStudentsImageOnTheWire" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.139"/>
+  <testcase name="providerRejectionCaptureCarriesTheErrorBodyAndStatusButNoException" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.007"/>
+  <testcase name="tutorLobbyParsesThinkingMarkdownFromWire" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.134"/>
+  <testcase name="credentialRotatedDuringEndpointPreparationFailsClosedBeforeEnqueue" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.008"/>
+  <testcase name="publicAddressPolicyRejectsLocalAndReservedNetworks" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.001"/>
+  <testcase name="tutorLobbyRejectsAttachedImagesAsAnUnknownKey" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.13"/>
+  <testcase name="textOnlyTutorRespondReadsNoAssetAndSendsNoImageBytes" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.141"/>
+  <testcase name="streamingTutorPlanEmitsIncrementalProgressBeforeCompletion" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.141"/>
+  <testcase name="longStreamedRepliesKeepTheirProgressFrameCountBounded" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.144"/>
+  <testcase name="aRouteAAnswerRoundStillStreamsItsBodyCharacterByCharacter" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.89"/>
+  <testcase name="liveReasoningFramesSurfaceBeforeTheAnswerWhileTheCallIsStillRunning" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="2.776"/>
+  <testcase name="configuredButUntestedProviderAdvertisesNoModelTasks" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.004"/>
+  <testcase name="mockWebServerReceivesAuthorizedImageThroughRealEnqueuePath" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.244"/>
+  <testcase name="parseOverwritesTrustFieldsAndNeverPreselectsAnswer" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.019"/>
+  <testcase name="localOnlyPermitNeverReachesNetworkEnqueue" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.004"/>
+  <testcase name="parseRejectsInvalidFigureAxisInsteadOfFallingBackSilently" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.015"/>
+  <testcase name="paperEditRunsUnderGlobalConsentAndReturnsWhitelistedCommands" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.006"/>
+  <testcase name="tutorResponseAdmitsMissingAttachedImagesAsEmpty" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.126"/>
+  <testcase name="onlyCapabilitiesThatPassedTheExactTestAreAdvertised" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.004"/>
+  <testcase name="aTutorBodyBeyondItsTextBudgetIsRetryableInsteadOfPermanentlyFailed" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.137"/>
+  <testcase name="capabilityFingerprintChangesWhenTheProtocolChanges" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.005"/>
+  <testcase name="parseReconstructsCartesianFigureWithLocalIdsAndDiagramEvidence" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.005"/>
+  <testcase name="missingCredentialDoesNotOpenAssetOrCallTransport" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.003"/>
+  <testcase name="paperEditShapeFailureCaptureKeepsItsTaskKindAndTheRawProviderBody" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.005"/>
+  <testcase name="liveReasoningFramesStaySparseEnoughForTheEventBudget" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="5.644"/>
+  <testcase name="tutorPlanSendsNoImageOrLocalIdsAndReconstructsTrustedContext" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.142"/>
+  <testcase name="anOverBudgetMoveLabelIsTruncatedToTheDeclaredBudgetInsteadOfFailingTheRound" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.14"/>
+  <testcase name="aRespondMoveLabelBeyondTheBudgetIsTruncatedInsteadOfFailingTheRound" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.125"/>
+  <testcase name="authenticationFailureIsPermanentAndActionable" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

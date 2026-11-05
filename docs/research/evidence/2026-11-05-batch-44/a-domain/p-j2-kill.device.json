@@ -1,0 +1,23 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "5a34f877-606b-4e74-b7b8-84f6398faf9d",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "journey_label": "p-j2-kill",
+  "action": "kill",
+  "root_tag": "root_tutor",
+  "observations": [
+    "tapped nav_tutor",
+    "page tag present: root_tutor",
+    "page tag present: tutor_capture_shortcut",
+    "pid before: 22432",
+    "process death method: am kill",
+    "pid after: 22586",
+    "page tag present: root_tutor",
+    "sub-screen state restored after kill: tutor_capture_shortcut"
+  ],
+  "failures": [],
+  "verdict": "PASS",
+  "started_at": "2026-11-04T09:27:22Z",
+  "finished_at": "2026-11-04T09:28:04Z"
+}

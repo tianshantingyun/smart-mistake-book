@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.model.PaperEditTasksTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:00.972Z" hostname="TIANSHAN" time="0.167">
+  <properties/>
+  <testcase name="aSchemaEighteenRequestCannotCarryAPaperEditInput" classname="com.tingyun.smartmistakebook.core.model.PaperEditTasksTest" time="0.048"/>
+  <testcase name="paperEditOutputRejectsShapeErrorsAndOverBudgetCommands" classname="com.tingyun.smartmistakebook.core.model.PaperEditTasksTest" time="0.028"/>
+  <testcase name="aPaperWithoutANoteAreaCannotCarryNotes" classname="com.tingyun.smartmistakebook.core.model.PaperEditTasksTest" time="0.0"/>
+  <testcase name="completionValidatorBindsPaperEditInputToPaperEditOutput" classname="com.tingyun.smartmistakebook.core.model.PaperEditTasksTest" time="0.012"/>
+  <testcase name="paperEditKindNameAndWireDiscriminatorsArePinned" classname="com.tingyun.smartmistakebook.core.model.PaperEditTasksTest" time="0.053"/>
+  <testcase name="promptPolicyVersionIsPinned" classname="com.tingyun.smartmistakebook.core.model.PaperEditTasksTest" time="0.003"/>
+  <testcase name="readOnlyBlocksCannotCarryEditableTextOrChoices" classname="com.tingyun.smartmistakebook.core.model.PaperEditTasksTest" time="0.003"/>
+  <testcase name="paperEditRequestAndOutputRoundTripAtSchemaNineteen" classname="com.tingyun.smartmistakebook.core.model.PaperEditTasksTest" time="0.007"/>
+  <testcase name="instructionNoteAndSnapshotBudgetsAreEnforced" classname="com.tingyun.smartmistakebook.core.model.PaperEditTasksTest" time="0.002"/>
+  <testcase name="duplicateEntryAndBlockIdsAreRejected" classname="com.tingyun.smartmistakebook.core.model.PaperEditTasksTest" time="0.001"/>
+  <testcase name="operationFingerprintIgnoresTheEnvelopeAndFollowsThePaperContent" classname="com.tingyun.smartmistakebook.core.model.PaperEditTasksTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.RealProviderProtocolTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:54.403Z" hostname="TIANSHAN" time="0.087">
+  <properties/>
+  <testcase name="egressManifest_containsExactProviderConfig" classname="com.tingyun.smartmistakebook.core.data.model.RealProviderProtocolTest" time="0.001"/>
+  <testcase name="captureAssessmentFlow_rejectsMalformedResponse" classname="com.tingyun.smartmistakebook.core.data.model.RealProviderProtocolTest" time="0.021"/>
+  <testcase name="providerReturns5xx_mapsToTemporaryFailure" classname="com.tingyun.smartmistakebook.core.data.model.RealProviderProtocolTest" time="0.015"/>
+  <testcase name="providerTimeout_returnsNetworkUnavailable" classname="com.tingyun.smartmistakebook.core.data.model.RealProviderProtocolTest" time="0.015"/>
+  <testcase name="captureAssessmentFlow_sendsAuthorizedImage" classname="com.tingyun.smartmistakebook.core.data.model.RealProviderProtocolTest" time="0.004"/>
+  <testcase name="tutorLobbyFlow_sendsApprovedMessageImages" classname="com.tingyun.smartmistakebook.core.data.model.RealProviderProtocolTest" time="0.005"/>
+  <testcase name="providerReturns401_mapsToProviderAuthFailed" classname="com.tingyun.smartmistakebook.core.data.model.RealProviderProtocolTest" time="0.003"/>
+  <testcase name="providerReturns429_mapsToRateLimited" classname="com.tingyun.smartmistakebook.core.data.model.RealProviderProtocolTest" time="0.018"/>
+  <testcase name="tutorLobbyFlow_sendsTextOnly_noImagesInBody" classname="com.tingyun.smartmistakebook.core.data.model.RealProviderProtocolTest" time="0.004"/>
+  <testcase name="tutorLobbyOutput_parsesCorrectly" classname="com.tingyun.smartmistakebook.core.data.model.RealProviderProtocolTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.model.ModelTextSurrogateTruncationTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:05.415Z" hostname="TIANSHAN" time="0.016">
+  <properties/>
+  <testcase name="anAlreadyLoneSurrogateAtTheBoundaryIsLeftAsIs" classname="com.tingyun.smartmistakebook.core.model.ModelTextSurrogateTruncationTest" time="0.0"/>
+  <testcase name="zeroOrNegativeBudgetYieldsEmptyText" classname="com.tingyun.smartmistakebook.core.model.ModelTextSurrogateTruncationTest" time="0.0"/>
+  <testcase name="budgetOfOneRefusesToKeepHalfAPair" classname="com.tingyun.smartmistakebook.core.model.ModelTextSurrogateTruncationTest" time="0.0"/>
+  <testcase name="aBoundaryJustBeforeAnEmojiUsesTheFullBudget" classname="com.tingyun.smartmistakebook.core.model.ModelTextSurrogateTruncationTest" time="0.004"/>
+  <testcase name="aBudgetBoundaryInsideAnEmojiDropsTheWholePairInsteadOfLeavingHalfACharacter" classname="com.tingyun.smartmistakebook.core.model.ModelTextSurrogateTruncationTest" time="0.0"/>
+  <testcase name="aPreviewWhoseBoundaryLandsBeforeAnEmojiStillFillsTheBudgetExactly" classname="com.tingyun.smartmistakebook.core.model.ModelTextSurrogateTruncationTest" time="0.004"/>
+  <testcase name="everyBudgetAcrossMixedTextStaysWithinBudgetAndIsAPrefix" classname="com.tingyun.smartmistakebook.core.model.ModelTextSurrogateTruncationTest" time="0.005"/>
+  <testcase name="theOldTakeBehaviourWouldHaveProducedALoneSurrogate" classname="com.tingyun.smartmistakebook.core.model.ModelTextSurrogateTruncationTest" time="0.001"/>
+  <testcase name="textWithinTheBudgetIsReturnedUnchanged" classname="com.tingyun.smartmistakebook.core.model.ModelTextSurrogateTruncationTest" time="0.0"/>
+  <testcase name="aPairEndingExactlyAtTheBudgetBoundaryIsKeptWhole" classname="com.tingyun.smartmistakebook.core.model.ModelTextSurrogateTruncationTest" time="0.001"/>
+  <testcase name="aStreamingPreviewThatWouldHaveSplitAnEmojiStaysWhole" classname="com.tingyun.smartmistakebook.core.model.ModelTextSurrogateTruncationTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

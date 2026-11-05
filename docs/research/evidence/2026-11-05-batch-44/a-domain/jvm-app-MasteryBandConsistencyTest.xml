@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.MasteryBandConsistencyTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-04T09:06:59.951Z" hostname="TIANSHAN" time="0.011">
+  <properties/>
+  <testcase name="theCutPointsAreTheDocumentedOnes" classname="com.tingyun.smartmistakebook.MasteryBandConsistencyTest" time="0.001"/>
+  <testcase name="theFairBoundaryAgreesBetweenMasteryAndForgettingRisk" classname="com.tingyun.smartmistakebook.MasteryBandConsistencyTest" time="0.002"/>
+  <testcase name="theTwoLabelsAgreeAtEveryScoreOnTheGrid" classname="com.tingyun.smartmistakebook.MasteryBandConsistencyTest" time="0.008"/>
+  <testcase name="theRetentionBandSharesTheSameCutPoints" classname="com.tingyun.smartmistakebook.MasteryBandConsistencyTest" time="0.0"/>
+  <testcase name="theStrongBoundaryAgreesBetweenMasteryAndForgettingRisk" classname="com.tingyun.smartmistakebook.MasteryBandConsistencyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

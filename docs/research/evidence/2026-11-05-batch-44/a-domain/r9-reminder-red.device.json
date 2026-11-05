@@ -1,0 +1,19 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "5a34f877-606b-4e74-b7b8-84f6398faf9d",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "test_apk_sha256": "00bae34128b27a025a10c65ce4f5508525a8b35aea4053c191f681b105511a9c",
+  "package": "com.tingyun.smartmistakebook.localfirst.test",
+  "runner": "androidx.test.runner.AndroidJUnitRunner",
+  "class_filter": "com.tingyun.smartmistakebook.ReviewReminderInstrumentedTest,com.tingyun.smartmistakebook.ReviewReminderPlatformInstrumentedTest",
+  "counts": {
+    "tests": 2,
+    "evaluated": 2,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "verdict": "FAIL",
+  "reason": "failures=1 errors=0",
+  "recorded_at": "2026-11-04T08:45:15Z"
+}

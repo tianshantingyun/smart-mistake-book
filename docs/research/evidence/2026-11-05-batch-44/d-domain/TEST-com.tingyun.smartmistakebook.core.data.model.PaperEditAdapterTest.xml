@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.PaperEditAdapterTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:23.253Z" hostname="TIANSHAN" time="0.62">
+  <properties/>
+  <testcase name="parseReturnsTheValidatedCommandJson" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditAdapterTest" time="0.322"/>
+  <testcase name="promptOmitsSetNoteWhenTheLayoutHasNoNoteArea" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditAdapterTest" time="0.038"/>
+  <testcase name="parseRejectsUnknownRootKeysAndUnknownCommandTypes" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditAdapterTest" time="0.012"/>
+  <testcase name="anOverBudgetResponseUsesTheRetryableTextBudgetException" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditAdapterTest" time="0.003"/>
+  <testcase name="protocolParsesPaperEditResponsesAndKeepsTheFailureSplit" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditAdapterTest" time="0.148"/>
+  <testcase name="aSchemaNineteenRequestCannotBeDecodedUnderTheLegacySchema" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditAdapterTest" time="0.054"/>
+  <testcase name="promptListsEveryWhitelistedCommandFromTheParser" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditAdapterTest" time="0.002"/>
+  <testcase name="theWireRequestCarriesTheWholeBoundedSnapshotAndTheResponseRoundTripsBack" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditAdapterTest" time="0.034"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,8 @@
+{
+  "ledger": "docs/acceptance/ledger.md",
+  "total": 1200,
+  "violations": [],
+  "warnings": [],
+  "ok": true,
+  "exit_code": 0
+}

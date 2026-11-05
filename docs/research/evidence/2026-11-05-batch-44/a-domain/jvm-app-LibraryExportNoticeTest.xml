@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.LibraryExportNoticeTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-04T09:06:59.917Z" hostname="TIANSHAN" time="0.03">
+  <properties/>
+  <testcase name="too many visible names the limit and the filters that still exist" classname="com.tingyun.smartmistakebook.LibraryExportNoticeTest" time="0.029"/>
+  <testcase name="nothing visible says exactly that" classname="com.tingyun.smartmistakebook.LibraryExportNoticeTest" time="0.0"/>
+  <testcase name="candidates are queued without any rejection notice" classname="com.tingyun.smartmistakebook.LibraryExportNoticeTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

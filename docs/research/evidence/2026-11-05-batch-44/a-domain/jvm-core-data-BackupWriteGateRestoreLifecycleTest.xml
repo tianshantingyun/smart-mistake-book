@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.backup.BackupWriteGateRestoreLifecycleTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-11-04T10:06:18.506Z" hostname="TIANSHAN" time="0.911">
+  <properties/>
+  <testcase name="backup is rejected while a restore is registered" classname="com.tingyun.smartmistakebook.core.data.backup.BackupWriteGateRestoreLifecycleTest" time="0.234"/>
+  <testcase name="restore commit waits for in-flight writers" classname="com.tingyun.smartmistakebook.core.data.backup.BackupWriteGateRestoreLifecycleTest" time="0.187"/>
+  <testcase name="backup job releases the restore admission when it ends" classname="com.tingyun.smartmistakebook.core.data.backup.BackupWriteGateRestoreLifecycleTest" time="0.004"/>
+  <testcase name="restore preparation does not block ordinary writes" classname="com.tingyun.smartmistakebook.core.data.backup.BackupWriteGateRestoreLifecycleTest" time="0.004"/>
+  <testcase name="restore commit queues writes and releases them when the restore ends" classname="com.tingyun.smartmistakebook.core.data.backup.BackupWriteGateRestoreLifecycleTest" time="0.16"/>
+  <testcase name="writes queued behind the commit fail after the restart close instead of running" classname="com.tingyun.smartmistakebook.core.data.backup.BackupWriteGateRestoreLifecycleTest" time="0.158"/>
+  <testcase name="closing the database for restart rejects every admission immediately" classname="com.tingyun.smartmistakebook.core.data.backup.BackupWriteGateRestoreLifecycleTest" time="0.005"/>
+  <testcase name="restore is rejected while a backup snapshot is running" classname="com.tingyun.smartmistakebook.core.data.backup.BackupWriteGateRestoreLifecycleTest" time="0.009"/>
+  <testcase name="restore admission is idempotent when ended twice" classname="com.tingyun.smartmistakebook.core.data.backup.BackupWriteGateRestoreLifecycleTest" time="0.003"/>
+  <testcase name="restore commit fails with a readable reason when the drain times out" classname="com.tingyun.smartmistakebook.core.data.backup.BackupWriteGateRestoreLifecycleTest" time="0.142"/>
+  <testcase name="backup job is mutually exclusive with restore and with another backup" classname="com.tingyun.smartmistakebook.core.data.backup.BackupWriteGateRestoreLifecycleTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

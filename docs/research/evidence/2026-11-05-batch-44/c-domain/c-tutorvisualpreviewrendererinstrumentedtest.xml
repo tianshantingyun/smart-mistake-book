@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="c-tutorvisualpreviewrendererinstrumentedtest" tests="4" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T13:32:21Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererInstrumentedTest" name="aCancelledPreviewPersistIsRethrownAndNeverFoldedIntoARefusal" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererInstrumentedTest" name="theByteGateRefusesAnOverBudgetAllocationBeforeCreationAndTheRendererWiresItBeforeAllocating" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererInstrumentedTest" name="aPreviewThatFitsAloneIsAcceptedAndCommittableWhileACombinedOverflowRefusesOnlyThePreview" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererInstrumentedTest" name="fullCanvasPreviewRefusalLeavesTheSnapshotCommittableWithoutAPreviewReference" time="0">
+  </testcase>
+</testsuite>

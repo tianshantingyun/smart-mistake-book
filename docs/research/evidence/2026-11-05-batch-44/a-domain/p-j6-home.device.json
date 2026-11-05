@@ -1,0 +1,23 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "5a34f877-606b-4e74-b7b8-84f6398faf9d",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "journey_label": "p-j6-home",
+  "action": "home",
+  "root_tag": "storage_screen",
+  "observations": [
+    "tapped nav_profile",
+    "tapped profile_storage_setting",
+    "page tag present: storage_screen",
+    "page tag present: storage_create_backup",
+    "pid before: 20904",
+    "pressed HOME",
+    "page tag present: storage_screen",
+    "page tag present: storage_create_backup"
+  ],
+  "failures": [],
+  "verdict": "PASS",
+  "started_at": "2026-11-04T09:23:39Z",
+  "finished_at": "2026-11-04T09:24:15Z"
+}

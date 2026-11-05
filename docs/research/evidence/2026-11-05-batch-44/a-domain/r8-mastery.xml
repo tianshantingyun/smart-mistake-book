@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="r8-mastery" tests="2" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T08:55:23Z">
+  <testcase classname="com.tingyun.smartmistakebook.LearningMasteryScreenInstrumentedTest" name="learningHistoryIsGroupedForStudentsWithoutKnowledgeBaseInternals" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.UserVisibleRecoveryInstrumentedTest" name="masteryEmptyActionOpensTheMistakeLibrary" time="0">
+  </testcase>
+</testsuite>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="c-restore-single-rerun" tests="1" failures="1" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T13:32:54Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualRebuildRestoreInstrumentedTest" name="theRestoreLegAloneReplaysOfflineWithZeroDispatchBookings" time="0">
+    <failure message="instrumentation failure">java.lang.AssertionError: the restored document must leave ink (restore is not a silent no-op)
+</failure>
+  </testcase>
+</testsuite>

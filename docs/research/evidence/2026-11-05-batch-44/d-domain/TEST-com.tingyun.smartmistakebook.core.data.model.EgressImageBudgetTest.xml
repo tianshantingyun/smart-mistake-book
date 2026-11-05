@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.EgressImageBudgetTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:36.387Z" hostname="TIANSHAN" time="0.018">
+  <properties/>
+  <testcase name="anImageInsideTheEdgeBudgetIsNotResized" classname="com.tingyun.smartmistakebook.core.data.model.EgressImageBudgetTest" time="0.005"/>
+  <testcase name="downscalingKeepsTheAspectRatioAndTheLongEdgeBudget" classname="com.tingyun.smartmistakebook.core.data.model.EgressImageBudgetTest" time="0.0"/>
+  <testcase name="aSmallJpegGoesOutExactlyAsStored" classname="com.tingyun.smartmistakebook.core.data.model.EgressImageBudgetTest" time="0.001"/>
+  <testcase name="sampleSizeStaysOneWhenNoDownsamplingIsNeeded" classname="com.tingyun.smartmistakebook.core.data.model.EgressImageBudgetTest" time="0.0"/>
+  <testcase name="aTwelveMegapixelPhotoIsDownscaled" classname="com.tingyun.smartmistakebook.core.data.model.EgressImageBudgetTest" time="0.001"/>
+  <testcase name="anOversizedPngIsScheduledForReEncodingAsAJpeg" classname="com.tingyun.smartmistakebook.core.data.model.EgressImageBudgetTest" time="0.0"/>
+  <testcase name="sampleSizeNeverDecodesSmallerThanTheTarget" classname="com.tingyun.smartmistakebook.core.data.model.EgressImageBudgetTest" time="0.0"/>
+  <testcase name="anImageJustOverTheByteBudgetIsDownscaledEvenWhenItsEdgesAreSmall" classname="com.tingyun.smartmistakebook.core.data.model.EgressImageBudgetTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

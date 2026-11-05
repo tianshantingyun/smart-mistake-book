@@ -1,0 +1,23 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "5a34f877-606b-4e74-b7b8-84f6398faf9d",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "journey_label": "p-j7-kill",
+  "action": "kill",
+  "root_tag": "root_library",
+  "observations": [
+    "tapped nav_library",
+    "page tag present: root_library",
+    "page tag present: library_search_field",
+    "pid before: 24003",
+    "process death method: am kill",
+    "pid after: 24155",
+    "page tag present: root_library",
+    "sub-screen state restored after kill: library_search_field"
+  ],
+  "failures": [],
+  "verdict": "PASS",
+  "started_at": "2026-11-04T09:30:32Z",
+  "finished_at": "2026-11-04T09:31:02Z"
+}

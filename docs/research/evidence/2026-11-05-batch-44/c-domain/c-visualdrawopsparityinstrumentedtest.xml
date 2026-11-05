@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="c-visualdrawopsparityinstrumentedtest" tests="16" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T13:14:04Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="n04LabelShiftIsCaught" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="n08UniformInteriorColorCastStaysRedInsteadOfBeingDowngradedToF5" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="n02SingleChannelShiftIsCaught" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="n09OnePixelTextShiftIsCaught" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="n05GlyphSubstitutionIsCaught" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="n12WholeBlockShiftBeyondToleranceIsCaught" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="backgroundNullIsObservedButNeverJudged" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="n07DroppedOpsAreCaught" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="parityMetricsUseUnionForIouAndStayInsideErosionBounds" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="n13CentroidBlindSpotIsCoveredByBboxOrShift" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="thePrototypeGateJudgesEveryPositiveFixture" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="n10WholePageMisdrawIsCaught" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="n11ShapeWrongButPositionAndMassRightIsCaught" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="n06AlphaMagnitudeChangeIsCaught" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="n01OnePixelRasterShiftIsCaught" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParityInstrumentedTest" name="n03DroppedClipIsCaught" time="0">
+  </testcase>
+</testsuite>

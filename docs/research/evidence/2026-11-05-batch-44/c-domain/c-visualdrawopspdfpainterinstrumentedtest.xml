@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="c-visualdrawopspdfpainterinstrumentedtest" tests="16" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T13:13:43Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfFillMatchesTheScreenOnTheNormalizedPixelGrid" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfHalfAlphaTracksTheScreenQuantizedAlpha" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfAndScreenShareTheSameGridAtAnyPageScale" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfWriteFailureMidStreamKeepsTheFirstFailureText" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfRasterIsDeterministicAcrossTwoIndependentBuilds" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfGroupLabelLeavesInkAtTheProjectedRootSpacePosition" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfWriteFailureIsCoded" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfUnusablePtPerDuFailsClosed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfPageSizeUsesCeilOfViewBoxTimesPtPerDu" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfOversizePageFailsClosed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfReplayFailuresKeepTheScreenPainterCodeFamily" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfBackgroundCoversTheRoundedUpPage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfFileWriteRoundTripsThroughReadback" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfDoesNotPaintHitRegions" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfReadOnlyTargetFailsClosedBeforeAnyWrite" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPdfPainterInstrumentedTest" name="pdfNestedGroupClipCutsInRootSpace" time="0">
+  </testcase>
+</testsuite>

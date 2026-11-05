@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeDetailRepositoryTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-11-04T10:06:19.966Z" hostname="TIANSHAN" time="0.187">
+  <properties/>
+  <testcase name="batchReadUsesOneSnapshotAndRestoresRequestedOrderFailClosed" classname="com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeDetailRepositoryTest" time="0.085"/>
+  <testcase name="validButDifferentConfirmedSnapshotFailsClosedForCurrentAndExactReads" classname="com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeDetailRepositoryTest" time="0.043"/>
+  <testcase name="corruptStructuredSnapshotNeverMasqueradesAsLegacyMarkdown" classname="com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeDetailRepositoryTest" time="0.005"/>
+  <testcase name="readyPreservesMultiBlockDocumentAndAvailableSource" classname="com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeDetailRepositoryTest" time="0.01"/>
+  <testcase name="exactReadRemainsPinnedWhenCurrentRevisionChanges" classname="com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeDetailRepositoryTest" time="0.01"/>
+  <testcase name="exactReadRejectsCrossProblemKeyAndKeepsCorruptState" classname="com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeDetailRepositoryTest" time="0.005"/>
+  <testcase name="exactReadKeepsUnavailableCanonicalSourceVisible" classname="com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeDetailRepositoryTest" time="0.006"/>
+  <testcase name="legacyUsesMarkdownOnlyWhenStructuredSnapshotIsAbsent" classname="com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeDetailRepositoryTest" time="0.004"/>
+  <testcase name="revisionHistoryPreservesImmutableIdentityAndCurrentHead" classname="com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeDetailRepositoryTest" time="0.012"/>
+  <testcase name="missingCanonicalFileDoesNotHideStructuredQuestion" classname="com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeDetailRepositoryTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

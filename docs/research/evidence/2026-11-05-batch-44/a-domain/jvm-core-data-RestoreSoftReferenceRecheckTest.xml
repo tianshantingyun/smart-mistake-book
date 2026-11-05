@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.backup.RestoreSoftReferenceRecheckTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-04T10:06:19.422Z" hostname="TIANSHAN" time="0.038">
+  <properties/>
+  <testcase name="attempts survive only when their operation is kept or their output stays referenced" classname="com.tingyun.smartmistakebook.core.data.backup.RestoreSoftReferenceRecheckTest" time="0.027"/>
+  <testcase name="unknown task kinds fail closed for subsets" classname="com.tingyun.smartmistakebook.core.data.backup.RestoreSoftReferenceRecheckTest" time="0.005"/>
+  <testcase name="task kinds of unselected categories must not survive in subsets" classname="com.tingyun.smartmistakebook.core.data.backup.RestoreSoftReferenceRecheckTest" time="0.001"/>
+  <testcase name="selected category kinds pass without complaints" classname="com.tingyun.smartmistakebook.core.data.backup.RestoreSoftReferenceRecheckTest" time="0.001"/>
+  <testcase name="unknown figure source kind fails closed for subsets" classname="com.tingyun.smartmistakebook.core.data.backup.RestoreSoftReferenceRecheckTest" time="0.002"/>
+  <testcase name="unselected source kind operation survives only via live output or clean redraw pin" classname="com.tingyun.smartmistakebook.core.data.backup.RestoreSoftReferenceRecheckTest" time="0.001"/>
+  <testcase name="null and full masks are not rechecked" classname="com.tingyun.smartmistakebook.core.data.backup.RestoreSoftReferenceRecheckTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

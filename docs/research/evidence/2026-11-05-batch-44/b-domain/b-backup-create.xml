@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="b-backup-create" tests="3" failures="0" errors="0" skipped="0" hostname="emulator-5566" timestamp="2026-11-04T12:16:49Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionCreateInstrumentedTest" name="subsetSelectionWritesTrimReportCountsIntoTheManifest" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionCreateInstrumentedTest" name="nonCreatableSelectionsAreRejectedBeforeAnySnapshotOrArchiveByte" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionCreateInstrumentedTest" name="fullSelectionAlsoTrimsDerivedIndexRowsButKeepsUserCategories" time="0">
+  </testcase>
+</testsuite>

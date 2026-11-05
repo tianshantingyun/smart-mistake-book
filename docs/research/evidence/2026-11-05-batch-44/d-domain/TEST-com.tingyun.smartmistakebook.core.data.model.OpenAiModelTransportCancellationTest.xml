@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.OpenAiModelTransportCancellationTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:25:05.336Z" hostname="TIANSHAN" time="0.137">
+  <properties/>
+  <testcase name="cancellingTheCoroutineCancelsTheHttpCall" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiModelTransportCancellationTest" time="0.11"/>
+  <testcase name="cancellingTheCoroutineCancelsTheSseCall" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiModelTransportCancellationTest" time="0.027"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:25:05.801Z" hostname="TIANSHAN" time="0.05">
+  <properties/>
+  <testcase name="an out-of-menu native declaration does not gate the write" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.01"/>
+  <testcase name="the round gate carries how many rows each call returned" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.003"/>
+  <testcase name="a native tool round in a question round no longer refuses the write" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.005"/>
+  <testcase name="an advisory node write without disclosed codes reads as no writable target" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.003"/>
+  <testcase name="a figure call reaches the runner only under the current-question intent" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.003"/>
+  <testcase name="an authorized tool outside the declared set is still refused" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.002"/>
+  <testcase name="a javascript figure call never reaches the image generator" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.002"/>
+  <testcase name="a write call anchored in the round menu reaches the runner" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.002"/>
+  <testcase name="a lobby round without any disclosed code reads as no writable target" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.003"/>
+  <testcase name="a write call with no question anchor still reaches the runner" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.003"/>
+  <testcase name="an anchor pointing outside the round menu no longer gates the write" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.002"/>
+  <testcase name="a fabricated code is structurally refused and never reaches the runner" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.002"/>
+  <testcase name="an advisory write with a fabricated node code is structurally refused" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.002"/>
+  <testcase name="a no-question round no longer refuses the reads at the round gate" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.003"/>
+  <testcase name="a native tool round in a round with no question reaches the runner" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.003"/>
+  <testcase name="advisory tools pass the round gate to the runner in any intent" classname="com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

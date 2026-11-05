@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:24.012Z" hostname="TIANSHAN" time="0.017">
+  <properties/>
+  <testcase name="theNoNoteLayoutPromptMatchesItsVersionedGoldenByteForByte" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest" time="0.009"/>
+  <testcase name="theNoteLayoutPromptMatchesItsVersionedGoldenByteForByte" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest" time="0.006"/>
+  <testcase name="theGoldenVersionIsTheOnePersistedForPaperEdit" classname="com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

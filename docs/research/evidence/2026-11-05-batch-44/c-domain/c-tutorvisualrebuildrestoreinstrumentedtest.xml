@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="c-tutorvisualrebuildrestoreinstrumentedtest" tests="3" failures="1" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T13:32:31Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualRebuildRestoreInstrumentedTest" name="processRebuildContinuesFromTheLatestLiveCheckpoint" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualRebuildRestoreInstrumentedTest" name="theRestoreLegAloneReplaysOfflineWithZeroDispatchBookings" time="0">
+    <failure message="instrumentation failure">java.lang.AssertionError: the restored document must leave ink (restore is not a silent no-op)
+</failure>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualRebuildRestoreInstrumentedTest" name="everyRestoreGateSurvivesRealRowsThroughThePortReadSide" time="0">
+  </testcase>
+</testsuite>

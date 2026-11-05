@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.model.KnowledgeQuizProtocolTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:09.964Z" hostname="TIANSHAN" time="0.095">
+  <properties/>
+  <testcase name="inputRoundTripsThroughTheModelTaskCodec" classname="com.tingyun.smartmistakebook.core.model.KnowledgeQuizProtocolTest" time="0.077"/>
+  <testcase name="outputValidationRequiresAChoiceThatMatchesTheCorrectId" classname="com.tingyun.smartmistakebook.core.model.KnowledgeQuizProtocolTest" time="0.001"/>
+  <testcase name="outputRoundTripsThroughTheModelTaskCodec" classname="com.tingyun.smartmistakebook.core.model.KnowledgeQuizProtocolTest" time="0.012"/>
+  <testcase name="inputRejectsBlankKnowledgeNodeId" classname="com.tingyun.smartmistakebook.core.model.KnowledgeQuizProtocolTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

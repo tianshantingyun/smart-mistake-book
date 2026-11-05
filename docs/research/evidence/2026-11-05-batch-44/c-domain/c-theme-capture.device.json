@@ -1,0 +1,36 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "5a34f877-606b-4e74-b7b8-84f6398faf9d",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "test_apk_sha256": "aab6af01af75ae4d0c310e367a0d947ed44e76df56ef1566fc9936fd1022ac5e",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "activity": "com.tingyun.smartmistakebook.MainActivity",
+  "wm_size": "1080x2400",
+  "density": 420,
+  "sdk": 34,
+  "recorded_at": "2026-11-04T13:38:52Z",
+  "state": "system dark on / light baseline",
+  "captures": [
+    {
+      "state": "light",
+      "screenshot": "c-home-light.png",
+      "sha256": "bceb07164929e9f3c573c8aac5748ef337706a68d1b2d360b05bca70d32532ea",
+      "dump": "c-home-light.xml",
+      "dump_sha256": "69500009a238ec49d0706da5c26d93cfdbf558b780652ff679e590156c44e133"
+    },
+    {
+      "state": "dark",
+      "screenshot": "c-home-dark.png",
+      "sha256": "5aa5ca3457dab788c58d2b71e7c62343fa24321810f104c68d6f6d04d1d44473",
+      "dump": "c-home-dark.xml",
+      "dump_sha256": "69500009a238ec49d0706da5c26d93cfdbf558b780652ff679e590156c44e133"
+    },
+    {
+      "state": "light-relaunch",
+      "screenshot": "c-home-light2.png",
+      "sha256": "4e68ca5bc9cb04bf6f9f040ebdfea16722de2bb8427c419cf924dd6875d3eeeb",
+      "dump": "c-home-light2.xml",
+      "dump_sha256": "69500009a238ec49d0706da5c26d93cfdbf558b780652ff679e590156c44e133"
+    }
+  ]
+}

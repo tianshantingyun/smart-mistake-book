@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="r3-empty" tests="3" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T08:53:27Z">
+  <testcase classname="com.tingyun.smartmistakebook.DualReviewEntryInstrumentedTest" name="completedMistakeReviewKeepsTheKnowledgeEntryWhenKnowledgeRemains" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.DualReviewEntryInstrumentedTest" name="zeroOrUnloadedKnowledgeCountDoesNotShowTheEntry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.DualReviewEntryInstrumentedTest" name="computedKnowledgeCountShowsClickableEntry" time="0">
+  </testcase>
+</testsuite>

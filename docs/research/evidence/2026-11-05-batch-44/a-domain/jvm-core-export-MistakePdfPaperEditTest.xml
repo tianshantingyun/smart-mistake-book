@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" tests="19" skipped="0" failures="0" errors="0" timestamp="2026-11-04T09:13:28.007Z" hostname="TIANSHAN" time="0.095">
+  <properties/>
+  <testcase name="editing a paragraph changes the exported blocks and the rendered document" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.006"/>
+  <testcase name="editing the paper note only changes the draft and never the entry note" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.003"/>
+  <testcase name="the last question cannot be removed" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.001"/>
+  <testcase name="an unedited draft round trips through the store and keeps the source identity" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.01"/>
+  <testcase name="unknown ids are ignored instead of corrupting another question" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.003"/>
+  <testcase name="cleanup removes drafts older than the ttl" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.006"/>
+  <testcase name="removing and restoring a question returns to the exact source snapshot" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.006"/>
+  <testcase name="an unedited paper draft is the same snapshot and the same docx bytes as a direct batch export" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.005"/>
+  <testcase name="fromStates skips ineligible entries and counts them" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.006"/>
+  <testcase name="text edits flag the retained figure for review while reordering does not" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.001"/>
+  <testcase name="moving a question renumbers the headings and moves its blocks" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.003"/>
+  <testcase name="editing never writes back to the source inputs or the source document fingerprint" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.001"/>
+  <testcase name="an externally added question is assembled at the requested position" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.001"/>
+  <testcase name="blank required text blocks the draft and is reported before rendering" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.001"/>
+  <testcase name="a draft round trips through the store with every block shape" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.018"/>
+  <testcase name="fromStates returns null when nothing is eligible" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.003"/>
+  <testcase name="a corrupted or missing draft reads as null instead of a half document" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.012"/>
+  <testcase name="removing a question updates the paper count in the rendered meta line" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.005"/>
+  <testcase name="a draft id cannot escape the draft directory" classname="com.tingyun.smartmistakebook.core.export.MistakePdfPaperEditTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

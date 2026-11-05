@@ -1,0 +1,7 @@
+serial=emulator-5562
+boot_id=a702449b-0f25-4481-800f-ab0a475a37a6
+sdk=34
+abi=x86_64
+page_size=
+apk_sha256=32235e6323f7caa45bdbdb6a0c566f5f50c9fb4da26cef975163deb3a7501a61
+apk_path=core/database/build/outputs/apk/androidTest/debug/database-debug-androidTest.apk

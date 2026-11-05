@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="r6-backup-scale" tests="1" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T10:29:51Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupSelectionScaleInstrumentedTest" name="threeHundredSixtyFiveMiBFullAndSubsetBackupRestoreWithSpacePreflight" time="0">
+  </testcase>
+</testsuite>
