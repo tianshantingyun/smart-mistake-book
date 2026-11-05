@@ -499,3 +499,43 @@ Play Console、人工金标、TalkBack/IME、内部热区授权均未取得。
   `575+313=888` 的复算为准）。
 - 复核仍不是独立主体复核（`independent_agent=false`）；“另一 agent 抽样 5 行”与
   “第二人/第二模型语义复核”仍是 **UNVERIFIED**。
+
+## 9. 主会话收口（2026-11-05）
+
+### 9.1 终态（主会话实跑）
+
+| 项 | 实值 |
+|---|---|
+| 台账 | 1200 行；sha `19ea6b57…`（本批后） |
+| 计数 | **PASS 888 / FAIL 32 / BLOCKED 280 / UNVERIFIED 0** |
+| `pass_with_review` | **888 / 888**；`pass_without_review=0` |
+| 行级 JSON | **920 份**（888 PASS + 32 FAIL），0 缺失、0 硬错误 |
+| `acceptance_report` | exit=1（violations 0；state=FAIL 因 32 FAIL） |
+| `--require-complete` | exit=1（`NOT_ACCEPTANCE_COMPLETE` UNVERIFIED=0 FAIL=32 BLOCKED=280；`REVIEW_CHECKS_SHARED` 24 组 checks 被 ≥5 行共用，318 行 `checks_scope=shared-suite`） |
+| `acceptance_lint` | exit=1（144 违规/144 警告，反作弊面阻断 GATE-042） |
+
+### 9.2 终裁：**NOT ACCEPTED（验收不通过）**
+
+我确认 `docs/acceptance/adjudication.md` 结论，并签字范围与批次 45 相同：
+
+- **可签字**：结论「验收不通过」；280 行 BLOCKED 清单（条件缺失，不判 PASS）；888 条 PASS 已有行级机械复核这一事实（仅指“复算通过”，不指“功能已验收”）。
+- **不签字**：32 条 FAIL；318 行共享 checks 的行级判别力；发版就绪；任何“批次验收通过”。
+
+### 9.3 五条阻断的更新
+
+1. 零复核已消除：`pass_with_review=888/888`。
+2. UNVERIFIED 已归零（144→0）：可跑的都跑了，其余转 BLOCKED。
+3. 新阻断：`REVIEW_CHECKS_SHARED`（24 组 checks 被 ≥5 行共用；318 行 `checks_scope=shared-suite`）——行级判别力不足，需按行细化 checks。
+4. 32 条 FAIL 有当前证据：需逐条修或保留；不允许洗绿。
+5. 280 条 BLOCKED：外部条件（Provider/签名/arm64/金标/热区）与内部授权缺一不可。
+
+### 9.4 提交（5 笔，已推送）
+
+工具（行级复算/共享 checks 检测/lint 阻断）→ 台账/报告/终裁/域索引 → 920 份行级 JSON + schema → 基线/记录/证据。
+
+### 9.5 若继续（批次 47）
+
+1. 32 条 FAIL 逐条修（先红后绿）或保留 FAIL 并写缺陷；
+2. 318 行 shared-suite checks 细化到行（每行至少 1 项行特有复算）；
+3. 280 条 BLOCKED 逐条确认 runbook，外部项列给用户/他线；
+4. 重跑 `--require-complete`；只有 FAIL=0 且 shared checks 清零，才可能签“通过”。
