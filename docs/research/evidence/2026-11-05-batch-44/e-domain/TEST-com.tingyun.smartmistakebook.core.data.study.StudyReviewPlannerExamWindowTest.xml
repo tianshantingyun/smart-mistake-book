@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerExamWindowTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:49:41.895Z" hostname="TIANSHAN" time="0.066">
+  <properties/>
+  <testcase name="plan without exam is bit-identical to a plan with an out-of-window exam" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerExamWindowTest" time="0.038"/>
+  <testcase name="weak knowledge node pulls its bound fresh question ahead before the exam" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerExamWindowTest" time="0.013"/>
+  <testcase name="in-window exam flips the daily selection toward the exam subject" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerExamWindowTest" time="0.005"/>
+  <testcase name="in-window exam grows the daily budget and the queue" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerExamWindowTest" time="0.004"/>
+  <testcase name="exam capacity budget ramps linearly inside the window and stays flat outside" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerExamWindowTest" time="0.001"/>
+  <testcase name="parallel exams take the steepest ramp for budget and rank by subject ramp" classname="com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerExamWindowTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

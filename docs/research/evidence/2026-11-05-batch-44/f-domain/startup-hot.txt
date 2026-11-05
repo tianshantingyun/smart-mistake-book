@@ -1,0 +1,50 @@
+hot#1
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Warning: Activity not started, its current task has been brought to the front
+Status: ok
+LaunchState: HOT
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+TotalTime: 435
+WaitTime: 449
+Complete
+---
+hot#2
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Warning: Activity not started, its current task has been brought to the front
+Status: ok
+LaunchState: HOT
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+TotalTime: 237
+WaitTime: 239
+Complete
+---
+hot#3
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Warning: Activity not started, its current task has been brought to the front
+Status: ok
+LaunchState: HOT
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+TotalTime: 198
+WaitTime: 222
+Complete
+---
+hot#4
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Warning: Activity not started, its current task has been brought to the front
+Status: ok
+LaunchState: HOT
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+TotalTime: 214
+WaitTime: 217
+Complete
+---
+hot#5
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Warning: Activity not started, its current task has been brought to the front
+Status: ok
+LaunchState: HOT
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+TotalTime: 232
+WaitTime: 240
+Complete
+---

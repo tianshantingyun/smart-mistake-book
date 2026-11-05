@@ -1,0 +1,5 @@
+Applications Graphics Acceleration Info:
+Uptime: 28619863 Realtime: 28619863
+
+** Graphics info for pid 8384 [com.tingyun.smartmistakebook.localfirst] **
+Failure while dumping the app: ProcessRecord{e9c82c0 8384:com.tingyun.smartmistakebook.localfirst/u0a245}

@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest#longDocumentPaginatesAndHardLimitFailsClosed" tests="1" failures="0" errors="0" skipped="0" time="0.367"><testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest" name="longDocumentPaginatesAndHardLimitFailsClosed" time="0.367" /></testsuite>

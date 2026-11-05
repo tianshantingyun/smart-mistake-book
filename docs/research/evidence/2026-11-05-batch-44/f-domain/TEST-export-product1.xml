@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="com.tingyun.smartmistakebook.MistakeExportBackgroundInstrumentedTest#exportCompletesAfterTheDetailingPageIsLeftAndStaysRetrievable" tests="1" failures="0" errors="0" skipped="0" time="7.973"><testcase classname="com.tingyun.smartmistakebook.MistakeExportBackgroundInstrumentedTest" name="exportCompletesAfterTheDetailingPageIsLeftAndStaysRetrievable" time="7.973" /></testsuite>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" tests="27" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:54:08.516Z" hostname="TIANSHAN" time="1.241">
+  <properties/>
+  <testcase name="same-KC quota is waived while the knowledge node is not yet learned" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.06"/>
+  <testcase name="a planning time before the correction watermark is refused" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.001"/>
+  <testcase name="a candidate whose prerequisite is missing is hard gated" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.005"/>
+  <testcase name="a planning time before the projected snapshot is refused" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.0"/>
+  <testcase name="without a prerequisite graph no candidate is gated" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.001"/>
+  <testcase name="a stale snapshot is refused instead of mixing checkpoints" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.0"/>
+  <testcase name="same subject never runs longer than three consecutive items" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.006"/>
+  <testcase name="budget fill median reaches at least 85 percent on synthetic data" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.096"/>
+  <testcase name="five thousand item backlog rotates without exceeding the daily budget" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.982"/>
+  <testcase name="same input and same model state replay to the same fingerprint" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.003"/>
+  <testcase name="expired calibration is conservative even when the mastery estimate is high" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.001"/>
+  <testcase name="clock rollback is exposed as conservative review risk" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.0"/>
+  <testcase name="beam collapse still returns the best partial plan instead of an empty queue" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.001"/>
+  <testcase name="a chat-fresh but card-overdue knowledge node still raises the stale review risk" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.002"/>
+  <testcase name="leeched card stays reachable but ranks below a healthy card" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.001"/>
+  <testcase name="an older unscheduled mistake outranks a newly arrived equal candidate" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.0"/>
+  <testcase name="missing and conflicted knowledge are scored as conservative calibration risk" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.001"/>
+  <testcase name="degenerate single candidate scenarios still fill the budget" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.001"/>
+  <testcase name="overdue risk and weak knowledge are explained" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.0"/>
+  <testcase name="swap keeps the high value item over a weak but more diverse one" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.002"/>
+  <testcase name="an exam pulls a card forward only below the retrieval ceiling" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.0"/>
+  <testcase name="a candidate returns to the plan once its prerequisite recovers" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.001"/>
+  <testcase name="a repeatedly captured mistake is prioritized and changes plan identity" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.0"/>
+  <testcase name="every selected item explains why it was scheduled" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.002"/>
+  <testcase name="v2 is not worse than a first-fit greedy baseline on adversarial data" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.004"/>
+  <testcase name="randomized plans never repeat practice units and never exceed the budget" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.065"/>
+  <testcase name="same item family never appears in consecutive positions" classname="com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

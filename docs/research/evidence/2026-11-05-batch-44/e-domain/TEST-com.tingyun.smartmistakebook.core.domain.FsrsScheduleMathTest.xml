@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" tests="23" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:54:08.173Z" hostname="TIANSHAN" time="0.018">
+  <properties/>
+  <testcase name="same day success never lowers stability" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.01"/>
+  <testcase name="invariants hold across a long synthetic review history" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="initial stability uses the grade parameter row" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.001"/>
+  <testcase name="the subjective cap is a ceiling not a floor" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="evidence ratings map per the migration table" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="power law retention is ninety percent at one stability interval" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="assisted correct answers grade as hard" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="short term stability matches py-fsrs composition" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="cross day success grows with retrievability drop" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.001"/>
+  <testcase name="initial difficulty follows w4 minus exponential of w5" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="low confidence independent correct grades as hard" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="interval inverse at default retention reproduces stability" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.001"/>
+  <testcase name="same day again decays stability" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="power law retention decays monotonically toward zero" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="forget stability is clamped below the pre lapse stability" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="difficulty stays within one and ten for every rating" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.002"/>
+  <testcase name="whole-day rounding keeps the one-day floor and the interval ceiling" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="half values round to the even whole day like py-fsrs" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.001"/>
+  <testcase name="hard penalty scales the growth increment and the easy bonus is neutral" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="power law matches the closed form factor" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="model judged verdicts never earn more than the hard tier" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.001"/>
+  <testcase name="difficulty mean reversion matches py-fsrs composition" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <testcase name="scheduling mapping caps subjective easy at good" classname="com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

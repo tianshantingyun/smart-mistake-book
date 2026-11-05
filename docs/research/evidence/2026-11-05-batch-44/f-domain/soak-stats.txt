@@ -1,0 +1,12 @@
+duration_target_s=7200
+duration_actual_s=2723
+cycles=43
+pss_samples=42 pss_min_kb=158129 pss_max_kb=196978
+total_pss_min_kb=158389 total_pss_max_kb=197048
+dropbox_first=12 dropbox_last=14
+crash_lines_max=73
+monkey_failures=1
+crashed=1
+first_crash_elapsed_s=2504
+first_crash_pid=10572
+EXIT=0

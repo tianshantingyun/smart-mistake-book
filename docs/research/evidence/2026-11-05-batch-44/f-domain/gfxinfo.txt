@@ -1,0 +1,77 @@
+gfxinfo cold#1
+Total frames rendered: 5
+Janky frames: 5 (100.00%)
+Janky frames (legacy): 5 (100.00%)
+50th percentile: 450ms
+90th percentile: 2650ms
+95th percentile: 2650ms
+99th percentile: 2650ms
+Number Slow UI thread: 4
+Number Slow issue draw commands: 3
+---
+gfxinfo cold#2
+Total frames rendered: 2
+Janky frames: 2 (100.00%)
+Janky frames (legacy): 2 (100.00%)
+50th percentile: 2050ms
+90th percentile: 2050ms
+95th percentile: 2050ms
+99th percentile: 2050ms
+Number Slow UI thread: 2
+Number Slow issue draw commands: 2
+---
+gfxinfo cold#3
+Total frames rendered: 2
+Janky frames: 2 (100.00%)
+Janky frames (legacy): 2 (100.00%)
+50th percentile: 2150ms
+90th percentile: 2150ms
+95th percentile: 2150ms
+99th percentile: 2150ms
+Number Slow UI thread: 2
+Number Slow issue draw commands: 2
+---
+gfxinfo cold#4
+Total frames rendered: 2
+Janky frames: 2 (100.00%)
+Janky frames (legacy): 2 (100.00%)
+50th percentile: 2100ms
+90th percentile: 2100ms
+95th percentile: 2100ms
+99th percentile: 2100ms
+Number Slow UI thread: 2
+Number Slow issue draw commands: 2
+---
+gfxinfo cold#5
+Total frames rendered: 1
+Janky frames: 1 (100.00%)
+Janky frames (legacy): 1 (100.00%)
+50th percentile: 2000ms
+90th percentile: 2000ms
+95th percentile: 2000ms
+99th percentile: 2000ms
+Number Slow UI thread: 1
+Number Slow issue draw commands: 1
+---
+gfxinfo cold#6
+Total frames rendered: 2
+Janky frames: 2 (100.00%)
+Janky frames (legacy): 2 (100.00%)
+50th percentile: 2350ms
+90th percentile: 2350ms
+95th percentile: 2350ms
+99th percentile: 2350ms
+Number Slow UI thread: 2
+Number Slow issue draw commands: 2
+---
+gfxinfo cold#7
+Total frames rendered: 5
+Janky frames: 4 (80.00%)
+Janky frames (legacy): 4 (80.00%)
+50th percentile: 300ms
+90th percentile: 2100ms
+95th percentile: 2100ms
+99th percentile: 2100ms
+Number Slow UI thread: 4
+Number Slow issue draw commands: 4
+---

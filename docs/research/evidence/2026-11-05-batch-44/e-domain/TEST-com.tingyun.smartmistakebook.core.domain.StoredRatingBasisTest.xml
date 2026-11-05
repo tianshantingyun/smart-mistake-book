@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.StoredRatingBasisTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:54:09.971Z" hostname="TIANSHAN" time="0.005">
+  <properties/>
+  <testcase name="storedIsAgain is true only for the stored again value" classname="com.tingyun.smartmistakebook.core.domain.StoredRatingBasisTest" time="0.003"/>
+  <testcase name="fromStored clamps out of range values to the endpoints" classname="com.tingyun.smartmistakebook.core.domain.StoredRatingBasisTest" time="0.0"/>
+  <testcase name="parameter index and grade minus three keep the py fsrs basis" classname="com.tingyun.smartmistakebook.core.domain.StoredRatingBasisTest" time="0.0"/>
+  <testcase name="stored ratings pair one to one with the algorithm enum" classname="com.tingyun.smartmistakebook.core.domain.StoredRatingBasisTest" time="0.002"/>
+  <testcase name="poor grade covers again and hard only" classname="com.tingyun.smartmistakebook.core.domain.StoredRatingBasisTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

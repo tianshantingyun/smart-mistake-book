@@ -1,0 +1,16 @@
+{
+  "tag": "export-long1",
+  "serial": "emulator-5566",
+  "apk_sha256": "08ea26417f746daddf0344c8b12433702628e25670f7ca80283b2e2374e165c0",
+  "target_package": "com.tingyun.smartmistakebook.core.export.test",
+  "class": "com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest#longDocumentPaginatesAndHardLimitFailsClosed",
+  "started": "2026-11-04T15:48:29Z",
+  "finished": "2026-11-04T15:48:30Z",
+  "tests": 1,
+  "failed": false,
+  "time_s": "0.367",
+  "pss_first_kb": 26017,
+  "pss_peak_kb": 42730,
+  "pss_samples": 6,
+  "result": "OK"
+}

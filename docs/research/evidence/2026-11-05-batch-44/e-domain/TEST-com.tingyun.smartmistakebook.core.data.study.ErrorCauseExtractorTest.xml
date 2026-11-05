@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:49:41.561Z" hostname="TIANSHAN" time="0.004">
+  <properties/>
+  <testcase name="an overgeneralized rule keeps the finer detail code" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest" time="0.0"/>
+  <testcase name="node certainty is carried through without upgrading it" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest" time="0.0"/>
+  <testcase name="an invalid rule stated by the student is conceptual" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest" time="0.0"/>
+  <testcase name="self report alone never classifies but supports an existing trace candidate" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest" time="0.0"/>
+  <testcase name="a valid rule with a wrong step is procedural and rules out the conceptual branch" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest" time="0.001"/>
+  <testcase name="no student trace abstains instead of guessing a cause" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest" time="0.0"/>
+  <testcase name="the careless triple must hold in full" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest" time="0.001"/>
+  <testcase name="a read mismatch corrected after rereading is misidentification" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest" time="0.001"/>
+  <testcase name="fast wrong needs thirty baseline samples before it changes the detail code" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest" time="0.0"/>
+  <testcase name="a revision changed after the attempt abstains" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest" time="0.0"/>
+  <testcase name="a read mismatch without the correction evidence does not classify" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

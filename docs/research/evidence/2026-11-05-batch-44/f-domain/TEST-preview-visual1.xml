@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewAssemblyInstrumentedTest#switchOnRendersThroughTheProductionChainAndCommitsThePreviewId" tests="1" failures="0" errors="0" skipped="0" time="0.581"><testcase classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewAssemblyInstrumentedTest" name="switchOnRendersThroughTheProductionChainAndCommitsThePreviewId" time="0.581" /></testsuite>

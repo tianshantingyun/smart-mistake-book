@@ -1,0 +1,65 @@
+Applications Memory Usage (in Kilobytes):
+Uptime: 28879890 Realtime: 28879890
+
+** MEMINFO in pid 8890 [com.tingyun.smartmistakebook.localfirst] **
+                   Pss  Private  Private     Swap      Rss     Heap     Heap     Heap
+                 Total    Dirty    Clean    Dirty    Total     Size    Alloc     Free
+                ------   ------   ------   ------   ------   ------   ------   ------
+  Native Heap    20672    20592        0        0    23804    30140    22426     3768
+  Dalvik Heap    62083    61864        0        0    69692    77496    52920    24576
+ Dalvik Other     8189     7596        0        0     9420                           
+        Stack     2912     2912        0        0     2916                           
+       Ashmem       18        0        0        0      552                           
+    Other dev       19        0       16        0      328                           
+     .so mmap     4195      476      188        0    41240                           
+    .jar mmap     3657        0      844        0    37552                           
+    .apk mmap      245        0        0        0     2024                           
+    .ttf mmap      252        0        0        0      920                           
+    .dex mmap       19        0        0        0      812                           
+    .oat mmap       49        0        0        0     1696                           
+    .art mmap     6423     5800        0        0    27068                           
+   Other mmap     3959       72     2964        0     6752                           
+      Unknown    94944    94936        0        0    95520                           
+        TOTAL   207636   194248     4012        0   320296   107636    75346    28344
+ 
+ App Summary
+                       Pss(KB)                        Rss(KB)
+                        ------                         ------
+           Java Heap:    67664                          96760
+         Native Heap:    20592                          23804
+                Code:     1532                          85436
+               Stack:     2912                           2916
+            Graphics:        0                              0
+       Private Other:   105560
+              System:     9376
+             Unknown:                                  111380
+ 
+           TOTAL PSS:   207636            TOTAL RSS:   320296      TOTAL SWAP (KB):        0
+ 
+ Objects
+               Views:        7         ViewRootImpl:        1
+         AppContexts:        5           Activities:        1
+              Assets:       19        AssetManagers:        0
+       Local Binders:       22        Proxy Binders:       37
+       Parcel memory:       10         Parcel count:       43
+    Death Recipients:        0             WebViews:        0
+ 
+ SQL
+         MEMORY_USED:     2105
+  PAGECACHE_OVERFLOW:      627          MALLOC_SIZE:       46
+ 
+ DATABASES
+      pgsz     dbsz   Lookaside(b) cache hits cache misses cache size  Dbname
+PER CONNECTION STATS
+         4     1896            100   385  1298    24  /data/user/0/com.tingyun.smartmistakebook.localfirst/databases/smart-mistake-book.db
+         4       40                    0     0     0    (attached) temp
+         4     1896             50     5   129     3  /data/user/0/com.tingyun.smartmistakebook.localfirst/databases/smart-mistake-book.db (4)
+         4     1896            123    64    92     6  /data/user/0/com.tingyun.smartmistakebook.localfirst/databases/smart-mistake-book.db (3)
+         4     1896            123   274    89    19  /data/user/0/com.tingyun.smartmistakebook.localfirst/databases/smart-mistake-book.db (2)
+         4      104            123    89   116    25  /data/user/0/com.tingyun.smartmistakebook.localfirst/no_backup/androidx.work.workdb
+         4        8                    0     0     0    (attached) temp
+         4      104             41    10    15     3  /data/user/0/com.tingyun.smartmistakebook.localfirst/no_backup/androidx.work.workdb (3)
+POOL STATS
+     cache hits  cache misses    cache size  Dbname
+            620          1433          2053  /data/user/0/com.tingyun.smartmistakebook.localfirst/databases/smart-mistake-book.db
+            105           166           271  /data/user/0/com.tingyun.smartmistakebook.localfirst/no_backup/androidx.work.workdb

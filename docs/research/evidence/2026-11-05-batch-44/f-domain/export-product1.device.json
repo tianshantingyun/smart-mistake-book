@@ -1,0 +1,16 @@
+{
+  "tag": "export-product1",
+  "serial": "emulator-5566",
+  "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac",
+  "target_package": "com.tingyun.smartmistakebook.localfirst",
+  "class": "com.tingyun.smartmistakebook.MistakeExportBackgroundInstrumentedTest#exportCompletesAfterTheDetailingPageIsLeftAndStaysRetrievable",
+  "started": "2026-11-04T15:49:58Z",
+  "finished": "2026-11-04T15:50:10Z",
+  "tests": 1,
+  "failed": false,
+  "time_s": "7.973",
+  "pss_first_kb": 155711,
+  "pss_peak_kb": 316607,
+  "pss_samples": 104,
+  "result": "OK"
+}

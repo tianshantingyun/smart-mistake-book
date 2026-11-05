@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.AttentionSignalTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:54:07.253Z" hostname="TIANSHAN" time="0.043">
+  <properties/>
+  <testcase name="extra switches and away time discount with a floor" classname="com.tingyun.smartmistakebook.core.domain.AttentionSignalTest" time="0.02"/>
+  <testcase name="avoidance signal needs repeated switches and a poor grade" classname="com.tingyun.smartmistakebook.core.domain.AttentionSignalTest" time="0.004"/>
+  <testcase name="first switch is absorbed and clean attempts keep full weight" classname="com.tingyun.smartmistakebook.core.domain.AttentionSignalTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

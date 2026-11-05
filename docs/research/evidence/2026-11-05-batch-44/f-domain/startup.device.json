@@ -1,0 +1,26 @@
+{
+  "serial": "emulator-5566",
+  "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac",
+  "model": "sdk_gphone64_x86_64",
+  "abi": "x86_64",
+  "sdk": "34",
+  "page_size": "4096",
+  "boot_id": "5e1a5d59-af6c-452b-9f7a-6e94eb15296e",
+  "cold": {
+    "n": 7,
+    "min": 3001,
+    "p50": 3302,
+    "p95": 3939,
+    "max": 3939,
+    "mean": 3354.7
+  },
+  "hot": {
+    "n": 5,
+    "min": 198,
+    "p50": 232,
+    "p95": 435,
+    "max": 435,
+    "mean": 263.2
+  },
+  "warmup_delta_ms": 161.4
+}

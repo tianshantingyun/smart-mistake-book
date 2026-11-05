@@ -1,0 +1,139 @@
+{
+  "source": "docs/research/evidence/2026-11-05-batch-43/ws11-performance.md",
+  "source_lines": {
+    "startup": "29-32",
+    "export": "69-78,87-93",
+    "preview": "101-104",
+    "memory": "116-121",
+    "db": "132-138"
+  },
+  "batch43": {
+    "device": "emulator-5584",
+    "app_apk_sha256": "1aee470aaff2db5320eae676e8155de75efc4c1febf21c09b6c8ea63e29ed3cd",
+    "export_test_apk_sha256": "08ea26417f746daddf0344c8b12433702628e25670f7ca80283b2e2374e165c0",
+    "cold_start_ms": {
+      "rounds": [
+        4313,
+        4266,
+        3548,
+        3467,
+        3503,
+        3432,
+        3340
+      ],
+      "p50": 3503
+    },
+    "hot_start_ms": {
+      "rounds": [
+        191,
+        182,
+        182,
+        214,
+        189
+      ],
+      "p50": 189
+    },
+    "batch60_elapsed_ms": [
+      545,
+      569,
+      518
+    ],
+    "product_export_ms": [
+      659,
+      731,
+      900,
+      706,
+      689,
+      763
+    ],
+    "pdf_preview_suite_s": [
+      0.373,
+      0.364,
+      0.346
+    ],
+    "visual_preview_suite_s": [
+      0.652,
+      0.672
+    ],
+    "batch60_pss_peak_mb": [
+      55.4,
+      48.6,
+      48.6
+    ],
+    "pdf_preview_pss_peak_mb": [
+      43.7,
+      42.4,
+      43.9
+    ],
+    "visual_preview_pss_peak_mb": [
+      72.7,
+      67.2
+    ],
+    "cold_idle_pss_mb": 188.3,
+    "db_perf_p95_ms": 50
+  },
+  "current": {
+    "device": "emulator-5566",
+    "app_apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac",
+    "export_test_apk_sha256": "08ea26417f746daddf0344c8b12433702628e25670f7ca80283b2e2374e165c0",
+    "cold_start_ms": {
+      "rounds": [
+        3939,
+        3001,
+        3302,
+        3261,
+        3376,
+        3354,
+        3250
+      ],
+      "p50": 3302
+    },
+    "hot_start_ms": {
+      "rounds": [
+        435,
+        237,
+        198,
+        214,
+        232
+      ],
+      "p50": 232
+    },
+    "batch60_elapsed_ms": [
+      516,
+      553,
+      538
+    ],
+    "product_export_ms": [
+      820,
+      487,
+      597
+    ],
+    "pdf_preview_suite_s": [
+      0.359,
+      0.332,
+      0.378
+    ],
+    "visual_preview_suite_s": [
+      0.581,
+      0.581
+    ],
+    "batch60_pss_peak_mb": [
+      53.1,
+      46.4,
+      46.4
+    ],
+    "pdf_preview_pss_peak_mb": [
+      27.8,
+      40.5,
+      44.1
+    ],
+    "visual_preview_pss_peak_mb": [
+      64.2,
+      64.7
+    ],
+    "cold_idle_pss_mb": 153.1,
+    "db_perf_p95_ms": 127,
+    "db_perf_device": "emulator-5562"
+  },
+  "note": "batch43 baseline is a different emulator instance and, for app-path product export, a different app APK; batch export uses the same export.test APK 08ea."
+}

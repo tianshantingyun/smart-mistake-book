@@ -1,0 +1,16 @@
+{
+  "tag": "db-perf",
+  "serial": "emulator-5562",
+  "apk_sha256": "32235e6323f7caa45bdbdb6a0c566f5f50c9fb4da26cef975163deb3a7501a61",
+  "target_package": "com.tingyun.smartmistakebook.core.database.test",
+  "class": "com.tingyun.smartmistakebook.core.database.PerformanceGateTest",
+  "started": "2026-11-04T15:58:17Z",
+  "finished": "2026-11-04T16:05:58Z",
+  "tests": 6,
+  "failed": false,
+  "time_s": "452.618",
+  "pss_first_kb": 16005,
+  "pss_peak_kb": 110977,
+  "pss_samples": 2652,
+  "result": "OK"
+}

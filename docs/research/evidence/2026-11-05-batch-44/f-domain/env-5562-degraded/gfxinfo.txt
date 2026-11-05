@@ -1,0 +1,14 @@
+gfxinfo cold#1
+---
+gfxinfo cold#2
+---
+gfxinfo cold#3
+---
+gfxinfo cold#4
+---
+gfxinfo cold#5
+---
+gfxinfo cold#6
+---
+gfxinfo cold#7
+---

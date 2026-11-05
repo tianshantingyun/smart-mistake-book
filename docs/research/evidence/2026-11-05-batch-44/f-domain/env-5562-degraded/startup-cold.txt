@@ -1,0 +1,56 @@
+cold#1 wall_ms=14904
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: timeout
+LaunchState: UNKNOWN (-1)
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+WaitTime: 12891
+Complete
+---
+cold#2 wall_ms=14725
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: timeout
+LaunchState: UNKNOWN (-1)
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+WaitTime: 12797
+Complete
+---
+cold#3 wall_ms=12936
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: timeout
+LaunchState: UNKNOWN (-1)
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+WaitTime: 11437
+Complete
+---
+cold#4 wall_ms=16191
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: timeout
+LaunchState: UNKNOWN (-1)
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+WaitTime: 13314
+Complete
+---
+cold#5 wall_ms=14303
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: timeout
+LaunchState: UNKNOWN (-1)
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+WaitTime: 12311
+Complete
+---
+cold#6 wall_ms=13994
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: timeout
+LaunchState: UNKNOWN (-1)
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+WaitTime: 12692
+Complete
+---
+cold#7 wall_ms=13858
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: timeout
+LaunchState: UNKNOWN (-1)
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+WaitTime: 13220
+Complete
+---

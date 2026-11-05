@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.MissedDayRebalancePolicyTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:49:41.830Z" hostname="TIANSHAN" time="0.005">
+  <properties/>
+  <testcase name="exam-picked units are excluded before the eligible window and the item cap" classname="com.tingyun.smartmistakebook.core.data.study.MissedDayRebalancePolicyTest" time="0.003"/>
+  <testcase name="only items with at least 85 percent elapsed interval are pulled" classname="com.tingyun.smartmistakebook.core.data.study.MissedDayRebalancePolicyTest" time="0.0"/>
+  <testcase name="zero remaining days still grows the budget to the cap and reports clear days" classname="com.tingyun.smartmistakebook.core.data.study.MissedDayRebalancePolicyTest" time="0.001"/>
+  <testcase name="backlog within the cap uses the required multiplier and the remaining days" classname="com.tingyun.smartmistakebook.core.data.study.MissedDayRebalancePolicyTest" time="0.0"/>
+  <testcase name="backlog beyond the growth cap extends the horizon at 15x budget" classname="com.tingyun.smartmistakebook.core.data.study.MissedDayRebalancePolicyTest" time="0.0"/>
+  <testcase name="invalid growth cap fails closed instead of chasing forever" classname="com.tingyun.smartmistakebook.core.data.study.MissedDayRebalancePolicyTest" time="0.0"/>
+  <testcase name="empty backlog is a neutral plan that leaves the budget untouched" classname="com.tingyun.smartmistakebook.core.data.study.MissedDayRebalancePolicyTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

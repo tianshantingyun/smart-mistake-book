@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.ReviewCapacitySchedulerTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:49:41.869Z" hostname="TIANSHAN" time="0.005">
+  <properties/>
+  <testcase name="without exam picks the backlog may still use the 15x ceiling" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacitySchedulerTest" time="0.001"/>
+  <testcase name="items demanded by both channels are excluded before rebalance picks" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacitySchedulerTest" time="0.0"/>
+  <testcase name="each subject uses its own nearest exam day" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacitySchedulerTest" time="0.0"/>
+  <testcase name="two in-window subjects share one daily capacity instead of doubling it" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacitySchedulerTest" time="0.003"/>
+  <testcase name="an already-ramped budget is not multiplied by 15 twice" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacitySchedulerTest" time="0.0"/>
+  <testcase name="no exam and no rebalance is an empty plan" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacitySchedulerTest" time="0.0"/>
+  <testcase name="two subjects each demanding 80 percent share the daily capacity by urgency" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacitySchedulerTest" time="0.001"/>
+  <testcase name="rebalance only spends the slots left by the exam channel" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacitySchedulerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

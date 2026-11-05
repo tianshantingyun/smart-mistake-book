@@ -1,0 +1,8 @@
+11-04 15:40:13.358   522   539 I ActivityTaskManager: Displayed com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity for user 0: +3s630ms
+11-04 15:42:11.364   522   539 I ActivityTaskManager: Displayed com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity for user 0: +3s939ms
+11-04 15:42:22.207   522   539 I ActivityTaskManager: Displayed com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity for user 0: +3s1ms
+11-04 15:42:29.672   522   539 I ActivityTaskManager: Displayed com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity for user 0: +3s302ms
+11-04 15:42:39.724   522   539 I ActivityTaskManager: Displayed com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity for user 0: +3s261ms
+11-04 15:42:51.549   522   539 I ActivityTaskManager: Displayed com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity for user 0: +3s376ms
+11-04 15:43:00.656   522   539 I ActivityTaskManager: Displayed com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity for user 0: +3s354ms
+11-04 15:43:08.780   522   539 I ActivityTaskManager: Displayed com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity for user 0: +3s250ms

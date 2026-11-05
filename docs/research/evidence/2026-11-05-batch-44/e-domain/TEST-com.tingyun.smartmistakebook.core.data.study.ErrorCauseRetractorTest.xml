@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:49:41.575Z" hostname="TIANSHAN" time="0.023">
+  <properties/>
+  <testcase name="user confirmation can book careless without the statistical gate" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest" time="0.004"/>
+  <testcase name="user retraction writes a RETRACTED observation and voids the binding" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest" time="0.003"/>
+  <testcase name="superseding moves the active key to the new binding" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest" time="0.003"/>
+  <testcase name="the default-closed gate writes nothing" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest" time="0.001"/>
+  <testcase name="a certified gate books through one label-chain transaction" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest" time="0.002"/>
+  <testcase name="a blank retraction reason is refused before any write" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest" time="0.004"/>
+  <testcase name="a stale binding id conflicts without writing a retraction row" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest" time="0.002"/>
+  <testcase name="retracting without an active binding is a no-op" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest" time="0.001"/>
+  <testcase name="answer-key correction is the only SYSTEM retraction path" classname="com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
