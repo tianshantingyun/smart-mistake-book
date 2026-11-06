@@ -1,0 +1,18 @@
+{
+  "row": "G-051",
+  "purpose": "行特有复算（批次47）：设备 smbk:// 无法解析（Activity not started）",
+  "serial": "emulator-5584",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "installed": true,
+  "apk_sha256": "f534b0dd8aeabeeeec633bcbb9d24a62efe900eb75fdbcce199b979d58f7f7de",
+  "archived_apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "abi": "x86_64",
+  "sdk_int": 34,
+  "captured_at": "2026-11-06T01:02:12+08:00",
+  "probe": "adb -s emulator-5584 shell am start -a android.intent.action.VIEW -d smbk://open",
+  "am_start_exit": 0,
+  "custom_scheme_unresolved": true,
+  "error_line": "Error: Activity not started, unable to resolve Intent { act=android.intent.action.VIEW dat=smbk://open/... flg=0x10000000 }",
+  "raw_am_start_output": "Starting: Intent { act=android.intent.action.VIEW dat=smbk://open/... }\nError: Activity not started, unable to resolve Intent { act=android.intent.action.VIEW dat=smbk://open/... flg=0x10000000 }",
+  "probe_note": "am 的 -a VIEW 简写会展开为 android.intent.action.VIEW（echo 显示 act=VIEW），简写与全名动作均报 Error: Activity not started；重放以全名动作记录，与归档口径一致。归档 apk_sha256=84cae864… 与当前安装包 f534b0dd… 不同（批次间构建漂移），本文件绑定当前安装包字节。"
+}

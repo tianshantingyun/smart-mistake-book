@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="e061-errorcause-ledger-b46" tests="3" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-05T08:43:03Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ErrorCauseLedgerInstrumentedTest" name="appendAcceptRetractAndSupersedeKeepOneActiveRow" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ErrorCauseLedgerInstrumentedTest" name="aFailingVoidRollsBackTheRetractionRowAndKeepsTheBindingActive" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.database.ErrorCauseLedgerInstrumentedTest" name="candidateRejectedAndRetractedStatesLeaveNoActiveLabelBehind" time="0">
+  </testcase>
+</testsuite>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.backup.SixC2RulingInvariantTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-05T09:09:32.420Z" hostname="TIANSHAN" time="0.379">
+  <properties/>
+  <testcase name="allowed mask set is exactly nine thirteen fifteen in domain and data layers" classname="com.tingyun.smartmistakebook.core.data.backup.SixC2RulingInvariantTest" time="0.125"/>
+  <testcase name="an archive declaring the empty or images only selection is rejected before restore" classname="com.tingyun.smartmistakebook.core.data.backup.SixC2RulingInvariantTest" time="0.244"/>
+  <testcase name="backup receipts refuse the empty and images only masks" classname="com.tingyun.smartmistakebook.core.data.backup.SixC2RulingInvariantTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

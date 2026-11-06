@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-11-05T08:44:21.719Z" hostname="TIANSHAN" time="0.021">
+  <properties/>
+  <testcase name="broken allocation parameters are refused" classname="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" time="0.005"/>
+  <testcase name="empty and zero-area batches are admitted" classname="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" time="0.0"/>
+  <testcase name="the byte gate stays independent of the pixel budget" classname="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" time="0.0"/>
+  <testcase name="bitmap byte math does not overflow int multiplication" classname="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" time="0.0"/>
+  <testcase name="the exact 16 MiB allocation is admitted and one byte more is refused" classname="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" time="0.011"/>
+  <testcase name="fractional box edges are ceiled per box" classname="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" time="0.0"/>
+  <testcase name="the pixel budget constant is exactly 4 MP in du" classname="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" time="0.0"/>
+  <testcase name="multiple wide text boxes sum across entries" classname="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" time="0.0"/>
+  <testcase name="the two budget constants stay separate declarations" classname="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" time="0.0"/>
+  <testcase name="broken box dimensions are refused at the pure function" classname="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" time="0.003"/>
+  <testcase name="a full-canvas layout box alone exceeds the transaction budget" classname="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" time="0.0"/>
+  <testcase name="the exact 4 MP total is admitted and one pixel more is refused" classname="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" time="0.001"/>
+  <testcase name="the bitmap byte budget constant is exactly 16 MiB" classname="com.tingyun.smartmistakebook.core.data.visual.VisualLayoutBudgetTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
