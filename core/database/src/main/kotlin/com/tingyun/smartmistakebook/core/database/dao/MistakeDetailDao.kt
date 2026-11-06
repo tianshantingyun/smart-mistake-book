@@ -461,6 +461,19 @@ internal abstract class MistakeDetailDao {
         errorBookEntryId: String,
     ): List<MistakeRevisionSummaryRow>
 
+    @Query("""
+        SELECT link.role, asset.source_asset_id, asset.content_sha256, asset.relative_path,
+               asset.mime_type, asset.byte_size, asset.width, asset.height, asset.source_type,
+               asset.created_at_epoch_millis
+        FROM error_book_entry AS entry
+        JOIN problem_revision_source_asset AS link ON link.problem_revision_id = entry.current_revision_id
+        JOIN canonical_source_asset AS asset ON asset.source_asset_id = link.source_asset_id
+        WHERE entry.entry_id = :errorBookEntryId AND entry.status = 'ACTIVE'
+          AND asset.mime_type LIKE 'image/%' AND link.role != 'TUTOR_EXPLANATION'
+        ORDER BY link.ordinal, asset.source_asset_id
+    """)
+    abstract fun observeQuestionSourceRows(errorBookEntryId: String): Flow<List<MistakeDetailSourceAssetRow>>
+
     @Transaction
     open suspend fun read(errorBookEntryId: String): MistakeDetailRecord? {
         val detail = findDetail(errorBookEntryId) ?: return null
@@ -1141,24 +1154,25 @@ private fun MistakeDetailRow.toRecord(
     questionDocumentSnapshot = questionDocumentSnapshot,
     contentFingerprint = contentFingerprint,
     answerSpecPresent = answerSpecPresent,
-    sourceAssets = sourceAssets.map { row ->
-        MistakeDetailSourceAssetRecord(
-            role = row.role,
-            sourceAsset = CanonicalSourceAssetRecord(
-                sourceAssetId = row.sourceAssetId,
-                contentSha256 = row.contentSha256,
-                relativePath = row.relativePath,
-                mimeType = row.mimeType,
-                byteSize = row.byteSize,
-                width = row.width,
-                height = row.height,
-                sourceType = row.sourceType,
-                createdAtEpochMillis = row.createdAtEpochMillis,
-            ),
-        )
-    },
+    sourceAssets = sourceAssets.map { it.toSourceRecord() },
     tutorSessionId = tutorSessionId,
     tutorQuestionRevisionNumber = tutorQuestionRevisionNumber,
     userNote = userNote,
     archived = entryStatus == com.tingyun.smartmistakebook.core.database.StudyDbValue.ErrorBookStatus.ARCHIVED,
 )
+
+internal fun MistakeDetailSourceAssetRow.toSourceRecord(): MistakeDetailSourceAssetRecord =
+    MistakeDetailSourceAssetRecord(
+        role = role,
+        sourceAsset = CanonicalSourceAssetRecord(
+            sourceAssetId = sourceAssetId,
+            contentSha256 = contentSha256,
+            relativePath = relativePath,
+            mimeType = mimeType,
+            byteSize = byteSize,
+            width = width,
+            height = height,
+            sourceType = sourceType,
+            createdAtEpochMillis = createdAtEpochMillis,
+        ),
+    )

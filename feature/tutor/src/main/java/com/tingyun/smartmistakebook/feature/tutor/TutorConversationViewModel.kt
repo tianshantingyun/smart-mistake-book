@@ -407,6 +407,10 @@ internal class TutorConversationViewModel(
         }
     }
 
+    fun onExportDetailedAnswersChange(include: Boolean) {
+        updateState { state -> state.exportSheet?.let { sheet -> state.copy(exportSheet = sheet.copy(includeDetailedAnswers = include)) } ?: state }
+    }
+
     /**
      * 学生在 sheet 里勾/取消一道候选题（含「从错题本再选」选中的条目）。
      *
@@ -711,6 +715,16 @@ internal class TutorConversationViewModel(
     }
 
     // ---- 输入与附件（B3：全部跨进程保留） ----
+
+    fun seedPaperReview(seed: PaperReviewTutorSeed, replaceDraft: Boolean = false): Boolean {
+        if (savedStateHandle.get<String>("paper-review-seed") == seed.requestId) return true
+        if (!replaceDraft && (_uiState.value.draft.isNotBlank() || _uiState.value.pendingImages.isNotEmpty())) return false
+        savedStateHandle["paper-review-seed"] = seed.requestId
+        if (replaceDraft) updateState { it.copy(pendingImages = emptyList()) }
+        onDraftChange(seed.prompt)
+        onGalleryResult(seed.imageUris)
+        return true
+    }
 
     fun onDraftChange(value: String) {
         val next = value.take(TutorLobbyInput.MAX_STUDENT_MESSAGE_CHARS)

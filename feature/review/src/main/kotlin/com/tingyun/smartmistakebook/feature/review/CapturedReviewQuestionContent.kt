@@ -5,6 +5,7 @@ import com.tingyun.smartmistakebook.core.ui.claudeDismissOnEscape
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -36,6 +38,11 @@ import com.tingyun.smartmistakebook.core.ui.LocalImageViewer
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
 import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.StructuredContentRenderer
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.WorkspaceSheet
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Image
 
 @Composable
 internal fun CapturedReviewQuestionContent(entry: StudyCatalogEntry, state: MistakeDetailState?) {
@@ -66,25 +73,31 @@ internal fun CapturedReviewQuestionContent(entry: StudyCatalogEntry, state: Mist
         Text("这道题的原图暂不可用。", color = SmartColors.InkSecondary)
     }
     if (showOriginal) {
-        Dialog(onDismissRequest = closeOriginals, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-            Surface(modifier = Modifier.fillMaxSize().claudeDismissOnEscape(onDismiss = closeOriginals), color = SmartColors.Paper) {
-                Column(Modifier.fillMaxSize().padding(12.dp)) {
-                    TextButton(onClick = closeOriginals) { Text("关闭原图") }
-                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),
+        WorkspaceSheet("复习原图", closeOriginals, icon = Icons.Outlined.Image,
+            subtitle = "共 ${assets.size} 页 · 点击图片可放大查看", actions = {
+                TextButton(onClick = closeOriginals, modifier = Modifier.fillMaxWidth()) { Text("关闭原图") }
+            }) {
+                    Column(
                         verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         assets.forEachIndexed { index, asset ->
                             val uri = (asset.location as? MistakeSourceLocation.Available)?.localUri
                             var failed by remember(uri) { mutableStateOf(uri == null) }
-                            Text("原图 ${index + 1} / ${assets.size}")
-                            if (uri != null) BoundedLocalImage(uri, "复习原图 ${index + 1}", expanded = true,
-                                modifier = Modifier.fillMaxWidth().clickable { viewingOriginalIndex = index }, onLoadStateChange = {
-                                    failed = it == LocalImageLoadState.UNAVAILABLE
-                                })
-                            if (failed) Text("这一页原图无法读取，其他内容仍可查看。", color = SmartColors.ErrorText)
+                            WorkspacePanel(contentPadding = PaddingValues(0.dp)) {
+                                Column {
+                                    Text("原图 ${index + 1} / ${assets.size}",
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                                        color = SmartColors.JadeDark, style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.SemiBold)
+                                    if (uri != null) BoundedLocalImage(uri, "复习原图 ${index + 1}", expanded = true,
+                                        modifier = Modifier.fillMaxWidth().clickable { viewingOriginalIndex = index }, onLoadStateChange = {
+                                            failed = it == LocalImageLoadState.UNAVAILABLE
+                                        })
+                                    if (failed) Text("这一页原图无法读取，其他内容仍可查看。",
+                                        modifier = Modifier.padding(16.dp), color = SmartColors.ErrorText)
+                                }
+                            }
                         }
                     }
-                }
-            }
         }
         viewingOriginalIndex?.let { index ->
             val uri = (assets.getOrNull(index)?.location as? MistakeSourceLocation.Available)?.localUri

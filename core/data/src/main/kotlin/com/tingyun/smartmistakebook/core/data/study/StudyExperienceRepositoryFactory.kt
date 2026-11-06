@@ -38,6 +38,7 @@ object StudyExperienceRepositoryFactory {
         applicationScope = applicationScope,
         closeDatabaseOnClose = false,
         schedulingOptions = schedulingOptions,
+        reviewTimeBudgetSeconds = schedulingOptions.dailyReviewBudgetSeconds,
         schedulingSettingsStore = schedulingSettingsStore,
         optimizedFsrsParameters = optimizedFsrsParameters,
     )

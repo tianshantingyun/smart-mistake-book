@@ -69,11 +69,12 @@ internal class MistakeExportNotifications(
         displayName: String,
         skippedNotice: String? = null,
         format: MistakeExportFormat = MistakeExportFormat.PDF,
+        artifactRole: com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole = com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.QUESTIONS,
     ) {
         post(
             exportId = exportId,
             // 6B-1：Word 交付没有"打印"这一步（打印适配器只认 PDF），文案按格式如实分叉。
-            title = when (format) {
+            title = if (artifactRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS) "${format.studentLabel} 详细答案已导出" else when (format) {
                 MistakeExportFormat.PDF -> "A4 导出已完成"
                 MistakeExportFormat.DOCX -> "Word 导出已完成"
             },
@@ -92,10 +93,10 @@ internal class MistakeExportNotifications(
         )
     }
 
-    fun postFailed(exportId: String, failureMessage: String) {
+    fun postFailed(exportId: String, failureMessage: String, artifactRole: com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole = com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.QUESTIONS) {
         post(
             exportId = exportId,
-            title = "这次导出没有完成",
+            title = if (artifactRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS) "详细答案未导出" else "这次导出没有完成",
             text = failureMessage,
         )
     }
@@ -109,7 +110,7 @@ internal class MistakeExportNotifications(
         val notification = NotificationCompat.Builder(applicationContext, MISTAKE_EXPORT_CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("正在整理导出文件")
-            .setContentText("导出会在后台完成，你可以先离开这个页面。")
+            .setContentText("正在后台导出，可离开此页。")
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setOngoing(true)

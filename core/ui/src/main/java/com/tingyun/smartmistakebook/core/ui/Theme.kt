@@ -13,25 +13,48 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-/** The single, paper-like palette used by the visual references. */
+/** Neutral reading surfaces, a teal brand, and distinct semantic accents. */
 object SmartColors {
     val Paper = Color(0xFFF7F6F2)
-    val Ink = Color(0xFF151515)
-    val InkSecondary = Color(0xFF525252)
-    val InkMuted = Color(0xFF87919B)
-    val Jade = Color(0xFF23704A)
-    val JadeDark = Color(0xFF286647)
-    val JadeActive = Color(0xFF087046)
-    val JadeSoft = Color(0xFFDDE7E0)
-    val JadeMuted = Color(0xFF83B39A)
-    val Divider = Color(0xFFD8DAD8)
-    val Outline = Color(0xFFC8CED1)
-    val Track = Color(0xFFE2E0DE)
-    val ErrorWarm = Color(0xFFE36F27)
-    val ErrorText = Color(0xFFA23E24)
-    val OnJade = Color(0xFFFFFDFC)
-    val ContentSurface = Color.White
-    val SubtleSurface = Color(0xFFF0EFEC)
+    val Ink = Color(0xFF242A32)
+    val InkSecondary = Color(0xFF56616F)
+    val InkMuted = Color(0xFF5E6874)
+    val Forest = Color(0xFF123D35)
+    val Jade = Color(0xFF087F70)
+    val JadeDark = Color(0xFF125D54)
+    val JadeActive = Color(0xFF06695F)
+    val JadeSoft = Color(0xFFE5F2EE)
+    val JadeMuted = Color(0xFF7EACA2)
+    val HeaderSurface = Color(0xFFEAF2EF)
+    val HeaderInk = Color(0xFF174E46)
+    val HeaderSecondary = Color(0xFF46675F)
+    val Divider = Color(0xFFE3E0D9)
+    val Outline = Color(0xFF7F8994)
+    val Track = Color(0xFFE8E5DE)
+    val ErrorWarm = Color(0xFFC9543D)
+    val ErrorText = Color(0xFFAC3D32)
+    val ErrorSurface = Color(0xFFFBF0ED)
+    val OnJade = Color.White
+    val ContentSurface = Color(0xFFFDFCF9)
+    val SubtleSurface = Color(0xFFF0EEE8)
+    val ReadingSurface = Color(0xFFF7F2E9)
+    val ReadingAccent = Color(0xFF765C3B)
+    val LearningSurface = Color(0xFFEDF2FA)
+    val LearningAccent = Color(0xFF496B92)
+    val AgentAccent = Color(0xFF765D8E)
+    val AgentSurface = Color(0xFFF1EDF6)
+    val NotesAccent = Color(0xFF965E73)
+    val NotesSurface = Color(0xFFF7EDF1)
+    val PendingSurface = Color(0xFFFCF3E3)
+    val PendingAccent = Color(0xFF805A18)
+    val CodeSurface = Color(0xFF20262F)
+    val CodeHeader = Color(0xFF2B333F)
+    val OnCode = Color(0xFFE6EBF1)
+    val StarMastered = Color(0xFF82DFBB)
+    val StarLearning = Color(0xFFA9C5F0)
+    val StarConflicted = Color(0xFFF4CD83)
+    val StarStale = Color(0xFFDAB999)
+    val StarUnknown = Color(0xFFB1BAC6)
 }
 
 val Paper = SmartColors.Paper
@@ -56,9 +79,16 @@ object SmartDimens {
     val ContentHorizontalPadding = 16.dp
     val MinimumTouchTarget = 48.dp
     val CallToActionRadius = 12.dp
-    val SurfaceRadius = 12.dp
-    val ChipRadius = 8.dp
+    val SurfaceRadius = 14.dp
+    val ChipRadius = 10.dp
     val MaximumContentWidth = 600.dp
+}
+
+object SmartIconSizes {
+    val Navigation = 22.dp
+    val Small = 16.dp
+    val Standard = 20.dp
+    val Large = 24.dp
 }
 
 val SmartTypography = Typography(
@@ -71,16 +101,16 @@ val SmartTypography = Typography(
     ),
     headlineLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Bold,
-        fontSize = 32.sp,
-        lineHeight = 40.sp,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 28.sp,
+        lineHeight = 36.sp,
         letterSpacing = (-0.2).sp,
     ),
     headlineMedium = TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Bold,
-        fontSize = 28.sp,
-        lineHeight = 36.sp,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
     ),
     headlineSmall = TextStyle(
         fontFamily = FontFamily.SansSerif,
@@ -109,8 +139,8 @@ val SmartTypography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 15.sp,
-        lineHeight = 22.sp,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
     ),
     bodyMedium = TextStyle(
         fontFamily = FontFamily.SansSerif,
@@ -146,23 +176,25 @@ val SmartTypography = Typography(
 
 val SmartShapes = Shapes(
     extraSmall = RoundedCornerShape(SmartDimens.ChipRadius),
-    small = RoundedCornerShape(SmartDimens.SurfaceRadius),
+    small = RoundedCornerShape(12.dp),
     medium = RoundedCornerShape(SmartDimens.SurfaceRadius),
     large = RoundedCornerShape(SmartDimens.CallToActionRadius),
-    extraLarge = RoundedCornerShape(16.dp),
+    extraLarge = RoundedCornerShape(24.dp),
 )
 
-private val SmartLightColorScheme = lightColorScheme(
+internal val SmartLightColorScheme = lightColorScheme(
     primary = Jade,
     onPrimary = OnJade,
     primaryContainer = JadeSoft,
     onPrimaryContainer = Ink,
-    secondary = JadeDark,
+    secondary = SmartColors.LearningAccent,
     onSecondary = OnJade,
-    secondaryContainer = JadeSoft,
-    onSecondaryContainer = Ink,
-    tertiary = JadeMuted,
-    onTertiary = Ink,
+    secondaryContainer = SmartColors.LearningSurface,
+    onSecondaryContainer = SmartColors.LearningAccent,
+    tertiary = SmartColors.ReadingAccent,
+    onTertiary = OnJade,
+    tertiaryContainer = SmartColors.ReadingSurface,
+    onTertiaryContainer = SmartColors.ReadingAccent,
     background = Paper,
     onBackground = Ink,
     surface = ContentSurface,
@@ -170,13 +202,19 @@ private val SmartLightColorScheme = lightColorScheme(
     surfaceVariant = SubtleSurface,
     onSurfaceVariant = InkSecondary,
     surfaceContainerLowest = ContentSurface,
-    surfaceContainerLow = Paper,
+    surfaceContainerLow = Color(0xFFFAF9F5),
     surfaceContainer = SubtleSurface,
-    surfaceContainerHigh = ContentSurface,
-    surfaceContainerHighest = SubtleSurface,
+    surfaceContainerHigh = Color(0xFFEDEAE3),
+    surfaceContainerHighest = Color(0xFFE5E1D8),
+    surfaceBright = ContentSurface,
+    surfaceDim = Color(0xFFE2DED4),
+    surfaceTint = Jade,
+    inverseSurface = Color(0xFF26323A),
+    inverseOnSurface = Color(0xFFF7F6F2),
+    inversePrimary = Color(0xFF91D8CA),
     error = ErrorText,
     onError = OnJade,
-    errorContainer = Color(0xFFFBEAE4),
+    errorContainer = SmartColors.ErrorSurface,
     onErrorContainer = ErrorText,
     outline = Outline,
     outlineVariant = Divider,

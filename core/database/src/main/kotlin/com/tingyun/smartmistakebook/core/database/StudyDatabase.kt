@@ -1,6 +1,9 @@
 package com.tingyun.smartmistakebook.core.database
 
 import android.content.Context
+import com.tingyun.smartmistakebook.core.database.dao.ErrorCauseDao
+import com.tingyun.smartmistakebook.core.database.entity.ErrorCauseBindingEntity
+import com.tingyun.smartmistakebook.core.database.entity.ErrorCauseObservationEntity
 import androidx.room3.Database
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
@@ -11,7 +14,6 @@ import com.tingyun.smartmistakebook.core.database.dao.BindingAuditSampleDao
 import com.tingyun.smartmistakebook.core.database.dao.BindingChangeDao
 import com.tingyun.smartmistakebook.core.database.dao.ChatEvidenceDao
 import com.tingyun.smartmistakebook.core.database.dao.CleanRedrawTaskDao
-import com.tingyun.smartmistakebook.core.database.dao.ErrorCauseDao
 import com.tingyun.smartmistakebook.core.database.dao.FigureGenerationDao
 import com.tingyun.smartmistakebook.core.database.dao.FigureGenerationReconcileDao
 import com.tingyun.smartmistakebook.core.database.dao.ImmutableLearningFactDao
@@ -74,8 +76,6 @@ import com.tingyun.smartmistakebook.core.database.entity.AttemptCorrectionEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptEventEntity
 import com.tingyun.smartmistakebook.core.database.entity.AttemptSubmissionEntity
 import com.tingyun.smartmistakebook.core.database.entity.ErrorBookEntryEntity
-import com.tingyun.smartmistakebook.core.database.entity.ErrorCauseBindingEntity
-import com.tingyun.smartmistakebook.core.database.entity.ErrorCauseObservationEntity
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeNodeEntity
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeNodeSourceBindingEntity
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeSourceEntity
@@ -139,7 +139,7 @@ import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionVisualEn
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualProgramEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualSnapshotEntity
 
-internal const val STUDY_DATABASE_VERSION = 73
+internal const val STUDY_DATABASE_VERSION = 75
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -151,6 +151,11 @@ internal object SplitImportLedgerStrings {
 @Database(
     views = [LibraryCatalogView::class, KnowledgeQuestionLatticeView::class],
     entities = [
+        ErrorCauseObservationEntity::class,
+        ErrorCauseBindingEntity::class,
+        com.tingyun.smartmistakebook.core.database.entity.PaperReviewEntity::class,
+        com.tingyun.smartmistakebook.core.database.entity.PaperReviewQuestionEntity::class,
+        com.tingyun.smartmistakebook.core.database.entity.PaperReviewPhotoEntity::class,
         ProblemEntity::class,
         ProblemRevisionEntity::class,
         PracticeUnitEntity::class,
@@ -237,18 +242,21 @@ internal object SplitImportLedgerStrings {
         CleanRedrawTaskEntity::class,
         FigureGenerationOperationEntity::class,
         FigureGenerationAttemptEntity::class,
+        com.tingyun.smartmistakebook.core.database.entity.MistakeEditJobEntity::class,
+        com.tingyun.smartmistakebook.core.database.entity.DetailedSolutionManifestEntity::class,
+        com.tingyun.smartmistakebook.core.database.entity.DetailedSolutionEntity::class,
+        com.tingyun.smartmistakebook.core.database.entity.MistakeExportGroupEntity::class,
         TutorVisualProgramEntity::class,
         TutorVisualSnapshotEntity::class,
         TutorMessageVisualEntity::class,
         ProblemRevisionVisualEntity::class,
-        // 批次 40 / WS2：schema 73 错因账本两表（71 → 73 直连迁移，L2 表不恢复）。
-        ErrorCauseObservationEntity::class,
-        ErrorCauseBindingEntity::class,
     ],
     version = STUDY_DATABASE_VERSION,
     exportSchema = true,
 )
 internal abstract class StudyDatabase : RoomDatabase() {
+    abstract fun detailedSolutionDao(): com.tingyun.smartmistakebook.core.database.dao.DetailedSolutionDao
+    abstract fun mistakeEditJobDao(): com.tingyun.smartmistakebook.core.database.dao.MistakeEditJobDao
     abstract fun problemDao(): ProblemDao
 
     abstract fun practiceUnitAssessmentDao(): PracticeUnitAssessmentDao
@@ -266,6 +274,9 @@ internal abstract class StudyDatabase : RoomDatabase() {
     abstract fun contentInstallStateDao(): ContentInstallStateDao
 
     abstract fun knowledgeSearchIndexStateDao(): KnowledgeSearchIndexStateDao
+
+    abstract fun errorCauseDao(): ErrorCauseDao
+    abstract fun paperReviewDao(): com.tingyun.smartmistakebook.core.database.dao.PaperReviewDao
 
     abstract fun mistakeDetailDao(): MistakeDetailDao
 
@@ -304,9 +315,6 @@ internal abstract class StudyDatabase : RoomDatabase() {
     abstract fun mistakeExportRecordDao(): MistakeExportRecordDao
 
     abstract fun bindingAuditSampleDao(): BindingAuditSampleDao
-
-    /** 批次 40 / WS2：错因两表的唯一写入口（schema 73）。 */
-    abstract fun errorCauseDao(): ErrorCauseDao
 
     abstract fun libraryQueryDao(): LibraryQueryDao
 
@@ -416,12 +424,11 @@ object StudyDatabaseFactory {
             ANSWER_KEY_CORRECTION_MIGRATION_67_68,
             FIGURE_GENERATION_MIGRATION_68_69,
             VISUAL_SNAPSHOT_MIGRATION_69_70,
-            // 批次 32 / S1：渲染器与字体清单版本并入快照唯一键（DROP 旧三列键 + CREATE 五列键）。
             VISUAL_SNAPSHOT_IDENTITY_MIGRATION_70_71,
-            // 批次 40 / WS2：rebased schema 73（71 → 73 直连）。L2 的 71→72 链已由 KB 32B 回滚；
-            // 72.json 只作为 orphan 保留，仍登记 72→73 以覆盖从 72 快照迁移的矩阵用例。
-            MIGRATION_71_73,
-            ERROR_CAUSE_MIGRATION_72_73,
+            LIBRARY_INTERIOR_MIGRATION_71_72,
+            PAPER_REVIEW_MIGRATION_72_73,
+            LIBRARY_INTERIOR_MIGRATION_73_74,
+            UI_INTEGRATION_MIGRATION_74_75,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

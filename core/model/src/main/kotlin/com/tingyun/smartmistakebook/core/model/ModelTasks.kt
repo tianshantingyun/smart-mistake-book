@@ -28,6 +28,8 @@ enum class ModelTaskKind {
      * 名字是持久契约——它进 `model_task.task_kind`、备份包与逻辑操作指纹；改名会让历史行的
      * 操作指纹失配。golden 测试钉住 `name == "PAPER_EDIT"`。
      */
+    MISTAKE_EDIT,
+    MISTAKE_SOLUTION,
     PAPER_EDIT,
 }
 
@@ -830,8 +832,15 @@ object ModelTaskLogicalOperationFingerprint {
         buildString {
             append(input.kind.name)
             append('\n')
+            if (input is DetailedSolutionInput) {
+                append(solutionLogicalOperationPayload(input))
+                return@buildString
+            }
             append(
-                logicalOperationJson.encodeToString(ModelTaskInput.serializer(), input)
+                logicalOperationJson.encodeToString(
+                    ModelTaskInput.serializer(),
+                    (input as? MistakeEditInput)?.logicalEditInput() ?: input,
+                )
                     .withoutEmptyPageComparison(input)
                     .withoutEmptyToolCarrier(input)
                     .withoutEmptyLobbyImageRefs(input)

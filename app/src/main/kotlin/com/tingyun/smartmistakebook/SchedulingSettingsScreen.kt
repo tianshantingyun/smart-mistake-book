@@ -28,29 +28,10 @@ import com.tingyun.smartmistakebook.core.domain.SchedulingOptions
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
-import com.tingyun.smartmistakebook.core.ui.SectionHeader
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 import java.time.LocalDate
 import java.time.ZoneId
 import kotlin.math.roundToInt
-
-/**
- * `SchedulingOptions.init` 支持的记忆目标 band（`StudyExperienceRepository.kt:737` 同值）。
- */
-private const val RETENTION_MIN = 0.7
-private const val RETENTION_MAX = 0.97
-
-/**
- * 把滑杆的 Float 读数落成 `SchedulingOptions` 可接受的 Double。
- *
- * 消灭的失败：滑杆端点经 Float→Double 后**越出** 0.7..0.97（`0.97f.toDouble()` =
- * 0.9700000286102295、`0.7f.toDouble()` = 0.6999999880790710），`SchedulingOptions` 的
- * `init { require(...) }` 直接抛 IllegalArgumentException。批次 44 soak 在复习安排页点滑杆
- * 端点（证据帧 `SchedulingSettingsScreen.kt:74`，
- * `docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt`）因此
- * FATAL EXCEPTION 并重启进程。落库前夹回 band，端点与越界读数都不再崩溃。
- */
-internal fun retentionFromSlider(value: Float): Double =
-    value.toDouble().coerceIn(RETENTION_MIN, RETENTION_MAX)
 
 /**
  * 复习安排设置（spec mastery-scheduling §2.17/§8-B4）：记忆目标、考试日历。
@@ -70,60 +51,99 @@ internal fun SchedulingSettingsScreen(
     onRemoveExam: (String) -> Unit,
     onBack: () -> Unit,
     retentionHint: OptimalRetention.Recommendation? = null,
+    settingsMessage: String? = null,
 ) {
     RootPageColumn(modifier = Modifier.testTag("root_scheduling_settings")) {
         SecondaryHeader(title = "复习安排", onBack = onBack)
         Text(
-            text = "改动在下次启动应用时生效。",
+            text = "每日时长用于新计划，不影响已开始或已导出的计划。记忆目标下次启动时生效。",
             color = InkSecondary,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp),
         )
         Spacer(Modifier.height(12.dp))
 
-        SectionHeader(title = "记忆目标")
-        Text(
-            text = "目标回忆成功率：${(options.desiredRetention * 100).roundToInt()}%",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.testTag("scheduling_retention_label"),
-        )
-        Slider(
-            value = options.desiredRetention.toFloat(),
-            onValueChange = { value ->
-                onSetOptions(options.copy(desiredRetention = retentionFromSlider(value)))
-            },
-            valueRange = 0.7f..0.97f,
-            steps = 26,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("scheduling_retention_slider"),
-        )
-        // CMRR-style recommendation (研究 2026-09-09 §5): a reference value from
-        // the learner's own memory states, never applied automatically.
-        retentionHint?.let { hint ->
-            Text(
-                text = "参考值 ${(hint.desiredRetention * 100).roundToInt()}%（实验性，" +
-                    "由你自己的记忆状态模拟得出，仅供参考）",
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.testTag("scheduling_retention_hint"),
-            )
+        WorkspacePanel {
+            var minutes by rememberSaveable(options.dailyReviewMinutes) { mutableStateOf(options.dailyReviewMinutes.toString()) }
+            SettingsSectionTitle("每日预计复习时长")
+            Text("${options.dailyReviewMinutes} 分钟 / 天", style = MaterialTheme.typography.headlineSmall,
+                color = com.tingyun.smartmistakebook.core.ui.SmartColors.JadeDark)
+            @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+            @Composable fun Presets() {
+                androidx.compose.foundation.layout.FlowRow(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp)) {
+                    listOf(10, 20, 30, 45).forEach { value ->
+                        com.tingyun.smartmistakebook.core.ui.OutlineActionChip("$value 分钟", { minutes = value.toString() },
+                            selected = minutes.toIntOrNull() == value)
+                    }
+                }
+            }
+            Presets()
+            OutlinedTextField(value = minutes, onValueChange = { value -> minutes = value.filter(Char::isDigit).take(3) },
+                label = { Text("自定义分钟数（5–120）") }, singleLine = true,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth().testTag("scheduling_daily_minutes"))
+            com.tingyun.smartmistakebook.core.ui.PrimaryActionButton("保存每日时长",
+                onClick = { minutes.toIntOrNull()?.takeIf { it in 5..120 }?.let { onSetOptions(options.copy(dailyReviewMinutes = it)) } },
+                enabled = minutes.toIntOrNull()?.let { it in 5..120 && it != options.dailyReviewMinutes } == true,
+                modifier = Modifier.fillMaxWidth().testTag("scheduling_save_daily_minutes"))
+            Text("系统按题目难度估算题量，实际用时可能不同；考试期会适当增加复习安排。",
+                color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+            settingsMessage?.let { Text(it, color = InkSecondary, style = MaterialTheme.typography.bodySmall) }
         }
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column {
+                SettingsSectionTitle(title = "记忆目标")
+                Text(
+                    text = "${(options.desiredRetention * 100).roundToInt()}%",
+                    color = com.tingyun.smartmistakebook.core.ui.SmartColors.LearningAccent,
+                    style = MaterialTheme.typography.displaySmall,
+                    modifier = Modifier.padding(top = 12.dp).testTag("scheduling_retention_label"),
+                )
+                Text("目标回忆成功率", style = MaterialTheme.typography.bodySmall, color = InkSecondary)
+                Slider(
+                    value = options.desiredRetention.toFloat(),
+                    onValueChange = { value ->
+                        onSetOptions(options.copy(desiredRetention = value.toDouble()))
+                    },
+                    valueRange = 0.7f..0.97f,
+                    steps = 26,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("scheduling_retention_slider"),
+                )
+                // CMRR-style recommendation (研究 2026-09-09 §5): a reference value from
+                // the learner's own memory states, never applied automatically.
+                retentionHint?.let { hint ->
+                    Text(
+                        text = "参考值 ${(hint.desiredRetention * 100).roundToInt()}%（实验性，" +
+                            "由你自己的记忆状态模拟得出，仅供参考）",
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.testTag("scheduling_retention_hint"),
+                    )
+                }
 
-        PaperDivider(modifier = Modifier.padding(vertical = 12.dp))
+            }
+        }
+        Spacer(Modifier.height(16.dp))
 
-        SectionHeader(title = "考试日历")
-        Text(
-            text = "添加考试日期后，考前两周会优先安排相关科目的复习。",
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodySmall,
-        )
-        Spacer(Modifier.height(8.dp))
-        ExamCalendarEditor(
-            exams = exams,
-            onAddExam = onAddExam,
-            onRemoveExam = onRemoveExam,
-        )
+        WorkspacePanel {
+            Column {
+                SettingsSectionTitle(title = "考试日历")
+                Text(
+                    text = "添加考试日期后，考前两周会优先安排相关科目的复习。",
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Spacer(Modifier.height(8.dp))
+                ExamCalendarEditor(
+                    exams = exams,
+                    onAddExam = onAddExam,
+                    onRemoveExam = onRemoveExam,
+                )
+            }
+        }
     }
 }
 

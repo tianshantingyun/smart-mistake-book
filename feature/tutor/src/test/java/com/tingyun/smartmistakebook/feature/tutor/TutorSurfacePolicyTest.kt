@@ -171,11 +171,9 @@ class TutorSurfacePolicyTest {
     fun theEmptyStateDirectoryListsOnlyCapabilitiesThatActuallyDoSomething() {
         var captures = 0
         var picks = 0
-        var notebookOpens = 0
         val capabilities = agentCapabilityDirectory(
             onCapture = { captures += 1 },
             onPickMistake = { picks += 1 },
-            onOpenMistakeNotebook = { notebookOpens += 1 },
         )
 
         assertTrue("空态必须真的是一条目录，而不是一句话", capabilities.size >= 3)
@@ -189,15 +187,14 @@ class TutorSurfacePolicyTest {
         }
         // 被既有用例与产品口径按住的标签。
         assertEquals(
-            setOf("tutor_capture_shortcut", "tutor_choose_existing_button", "tutor_directory_open_notebook"),
+            setOf("tutor_capture_shortcut", "tutor_choose_existing_button"),
             capabilities.mapNotNull { it.actionTestTag }.toSet(),
         )
         capabilities.first { it.id == "capture" }.onAction?.invoke()
         capabilities.first { it.id == "pick-from-notebook" }.onAction?.invoke()
-        capabilities.first { it.id == "open-notebook" }.onAction?.invoke()
+        assertTrue(capabilities.none { it.id == "open-notebook" || it.actionLabel == "打开错题本" })
         assertEquals(1, captures)
         assertEquals(1, picks)
-        assertEquals(1, notebookOpens)
         // 「试一句」（S5）：每条能力都带可点示例，点了直接作为首条消息发出——
         // 所以示例必须**每一句都非空、标签唯一**（点了没反应的假示例与重复的标签都是缺陷）。
         assertTrue(capabilities.all { capability -> capability.examples.isNotEmpty() })

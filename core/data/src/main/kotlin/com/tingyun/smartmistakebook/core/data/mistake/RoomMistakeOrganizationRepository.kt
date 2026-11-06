@@ -55,6 +55,7 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.KnowledgeBaseNodeContext
 import com.tingyun.smartmistakebook.core.model.KnowledgeGroundingFingerprint
 import com.tingyun.smartmistakebook.core.model.KnowledgeGroundingRequest
+import com.tingyun.smartmistakebook.core.model.KnowledgeNodeSelection
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeGranularity
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeKind
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeVerificationStatus
@@ -351,13 +352,17 @@ internal class RoomMistakeOrganizationRepository(
     override fun observeConfirmed(key: MistakeRevisionKey): Flow<ConfirmedMistakeOrganization> =
         database.observeConfirmedProblemOrganization(key.problemId, key.problemRevisionId)
             .map { record ->
+                val catalogIds = record.classifications.filter { it.labelId.startsWith("catalog:") }
+                    .mapTo(linkedSetOf()) { it.labelId.removePrefix("catalog:") }
+                val catalogSubjects = if (catalogIds.isEmpty()) emptyMap() else
+                    database.readKnowledgeNodesByIds(catalogIds).associate { it.knowledgeNodeId to it.subject }
                 ConfirmedMistakeOrganization(
                     classifications = record.classifications.mapNotNull { binding ->
                         val dimension = runCatching {
                             ClassificationDimension.valueOf(binding.dimension)
                         }.getOrNull()?.takeIf { it in PROBLEM_ORGANIZATION_CONTENT_DIMENSIONS }
                             ?: return@mapNotNull null
-                        ConfirmedProblemClassification(dimension, binding.labelId, binding.displayName)
+                        ConfirmedProblemClassification(dimension, binding.labelId, binding.displayName, binding.taxonomyVersion, catalogSubjects[binding.labelId.removePrefix("catalog:")])
                     },
                     relations = record.relations.mapNotNull { relation ->
                         val kind = runCatching {
@@ -539,7 +544,8 @@ internal class RoomMistakeOrganizationRepository(
             output.plan.relations.getOrNull(index)
                 ?: error("Selected relation is outside the persisted model output")
         }
-        require(confirmedClassifications.isNotEmpty()) { "Select or add at least one classification" }
+        val (catalogNodes, catalogParents) = resolveCatalogSelections(selection.knowledgeSelections)
+        require(confirmedClassifications.isNotEmpty() || catalogNodes.isNotEmpty()) { "Select or add at least one classification" }
         require(confirmedClassifications.all { it.dimension in PROBLEM_ORGANIZATION_CONTENT_DIMENSIONS }) {
             "Only chapter and knowledge classifications can be saved"
         }
@@ -549,10 +555,10 @@ internal class RoomMistakeOrganizationRepository(
         require(selection.relationRemovals.all { it.kind in PROBLEM_ORGANIZATION_RELATION_KINDS }) {
             "This relation type is no longer part of problem organization"
         }
-        require(confirmedClassifications.any { it.dimension == ClassificationDimension.KNOWLEDGE }) {
+        require(catalogNodes.isNotEmpty() || confirmedClassifications.any { it.dimension == ClassificationDimension.KNOWLEDGE }) {
             "Keep at least one knowledge classification for review planning"
         }
-        require(confirmedClassifications.any { it.dimension == ClassificationDimension.CHAPTER }) {
+        require(catalogNodes.isNotEmpty() || confirmedClassifications.any { it.dimension == ClassificationDimension.CHAPTER }) {
             "Keep at least one chapter classification for a clear hierarchy"
         }
         val confirmedRelations = acceptedRelations(
@@ -581,6 +587,8 @@ internal class RoomMistakeOrganizationRepository(
             requestId = requestId,
             input = input,
             classifications = confirmedClassifications,
+            catalogNodes = catalogNodes,
+            catalogParents = catalogParents,
             relations = confirmedRelations,
             atomicKnowledge = output.plan.atomicKnowledge,
             stepAttributions = output.plan.stepAttributions,
@@ -667,11 +675,14 @@ internal class RoomMistakeOrganizationRepository(
             "Offline correction does not change relations"
         }
         val current = currentOrganizationFor(key)
+        val (catalogNodes, catalogParents) = resolveCatalogSelections(selection.knowledgeSelections)
         val command = buildOfflineCorrectionCommand(
             entryId = key.entryId,
             current = current.toOfflineCorrectionFacts(),
             userClassifications = selection.userClassifications,
             correctedAtEpochMillis = correctedAtEpochMillis,
+            catalogNodes = catalogNodes,
+            catalogParents = catalogParents,
         )
         val result = try {
             database.confirmProblemOrganization(
@@ -719,6 +730,27 @@ internal class RoomMistakeOrganizationRepository(
             classificationCount = result.receipt.classificationCount,
             relationCount = result.receipt.relationCount,
         )
+    }
+
+    private suspend fun resolveCatalogSelections(
+        selections: Set<KnowledgeNodeSelection>,
+    ): Pair<List<KnowledgeNodeSeedRecord>, List<KnowledgeNodeSeedRecord>> {
+        if (selections.isEmpty()) return emptyList<KnowledgeNodeSeedRecord>() to emptyList()
+        val ids = selections.mapTo(linkedSetOf()) { it.nodeId }
+        require(database.readActiveKnowledgeNodeIds(ids) == ids) { "知识目录已更新，请重新选择" }
+        val nodes = database.readKnowledgeNodesByIds(ids).associateBy { it.knowledgeNodeId }
+        val selected = selections.sortedBy { it.nodeId }.map { pick ->
+            val node = requireNotNull(nodes[pick.nodeId]) { "知识点已不存在，请重新选择" }
+            require(node.taxonomyVersion == pick.taxonomyVersion && node.verificationStatus in CATALOG_REVIEWED_STATUSES) {
+                "知识目录已更新，请重新选择"
+            }
+            node
+        }
+        val parentIds = selected.mapNotNullTo(linkedSetOf()) { it.parentKnowledgeNodeId }
+        val parents = if (parentIds.isEmpty()) emptyList() else database.readKnowledgeNodesByIds(parentIds)
+        require(parents.size == parentIds.size && database.readActiveKnowledgeNodeIds(parentIds) == parentIds &&
+            parents.all { it.verificationStatus in CATALOG_REVIEWED_STATUSES }) { "知识点章节已更新，请重新选择" }
+        return selected to parents
     }
 
     override fun observeOrganizationOptions(
@@ -865,15 +897,17 @@ internal fun buildOfflineCorrectionCommand(
     current: OfflineCorrectionFacts,
     userClassifications: List<UserProblemClassification>,
     correctedAtEpochMillis: Long,
+    catalogNodes: List<KnowledgeNodeSeedRecord> = emptyList(),
+    catalogParents: List<KnowledgeNodeSeedRecord> = emptyList(),
 ): ConfirmProblemOrganizationCommand {
     require(correctedAtEpochMillis > 0) { "correctedAtEpochMillis must be positive" }
     val classifications = userClassifications.map { classification ->
         classification.toSuggestion()
     }
-    require(classifications.any { it.dimension == ClassificationDimension.KNOWLEDGE }) {
+    require(catalogNodes.isNotEmpty() || classifications.any { it.dimension == ClassificationDimension.KNOWLEDGE }) {
         "Keep at least one knowledge classification for review planning"
     }
-    require(classifications.any { it.dimension == ClassificationDimension.CHAPTER }) {
+    require(catalogNodes.isNotEmpty() || classifications.any { it.dimension == ClassificationDimension.CHAPTER }) {
         "Keep at least one chapter classification for a clear hierarchy"
     }
     val input = ProblemOrganizationInput(
@@ -890,6 +924,8 @@ internal fun buildOfflineCorrectionCommand(
         requestId = "offline-correction:$entryId:$correctedAtEpochMillis",
         input = input,
         classifications = classifications,
+        catalogNodes = catalogNodes,
+        catalogParents = catalogParents,
         relations = emptyList(),
         acceptedAtEpochMillis = correctedAtEpochMillis,
         acceptanceSource = BindingAcceptanceSource.USER_CORRECTED,
@@ -1458,6 +1494,8 @@ internal fun buildConfirmationCommand(
      * [ClassificationCandidateSource.NONE]（没有模型输出，没有候选可落）。
      */
     candidateSource: ClassificationCandidateSource,
+    catalogNodes: List<KnowledgeNodeSeedRecord> = emptyList(),
+    catalogParents: List<KnowledgeNodeSeedRecord> = emptyList(),
 ): ConfirmProblemOrganizationCommand {
     require(
         acceptanceSource == BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED ||
@@ -1466,10 +1504,10 @@ internal fun buildConfirmationCommand(
     require(classifications.all { it.dimension in PROBLEM_ORGANIZATION_CONTENT_DIMENSIONS }) {
         "Only chapter and knowledge classifications can be saved"
     }
-    require(classifications.any { it.dimension == ClassificationDimension.CHAPTER }) {
+    require(catalogNodes.isNotEmpty() || classifications.any { it.dimension == ClassificationDimension.CHAPTER }) {
         "At least one chapter classification is required"
     }
-    require(classifications.any { it.dimension == ClassificationDimension.KNOWLEDGE }) {
+    require(catalogNodes.isNotEmpty() || classifications.any { it.dimension == ClassificationDimension.KNOWLEDGE }) {
         "At least one knowledge classification is required"
     }
     require(relations.all { it.kind in PROBLEM_ORGANIZATION_RELATION_KINDS }) {
@@ -1477,6 +1515,24 @@ internal fun buildConfirmationCommand(
     }
     require(relationRemovals.all { it.kind in PROBLEM_ORGANIZATION_RELATION_KINDS }) {
         "This relation type is no longer part of problem organization"
+    }
+    require(catalogNodes.isEmpty() || acceptanceSource == BindingAcceptanceSource.USER_CORRECTED) {
+        "Only an explicit user correction can select cross-subject catalog nodes"
+    }
+    val catalogClassifications = catalogNodes.flatMap { node ->
+        val chapter = node.parentKnowledgeNodeId?.let { id ->
+            requireNotNull(catalogParents.singleOrNull { it.knowledgeNodeId == id }) { "Missing catalog chapter" }
+        } ?: node
+        require(chapter.subject == node.subject) { "Catalog chapter must keep the node's subject" }
+        listOf(ClassificationDimension.KNOWLEDGE to node, ClassificationDimension.CHAPTER to chapter)
+    }.distinctBy { (dimension, node) -> dimension to node.knowledgeNodeId }.map { (dimension, node) ->
+        ProblemClassificationBindingRecord(
+            bindingId = "classification:${sha256("${input.problemRevisionId}|$dimension|catalog:${node.knowledgeNodeId}|${node.taxonomyVersion}").take(40)}",
+            problemId = input.problemId, basisRevisionId = input.problemRevisionId,
+            dimension = dimension.name, labelId = "catalog:${node.knowledgeNodeId}", displayName = node.displayName,
+            taxonomyVersion = node.taxonomyVersion, acceptanceSource = acceptanceSource.name,
+            acceptedAtEpochMillis = acceptedAtEpochMillis,
+        )
     }
     val taxonomyVersion = if (acceptanceSource == BindingAcceptanceSource.LOCAL_POLICY_ACCEPTED) {
         ORGANIZATION_TAXONOMY_VERSION
@@ -1599,7 +1655,7 @@ internal fun buildConfirmationCommand(
     // `BINDING_CHANGED`，重放时该题的当前绑定为空 → 装配侧（StudyProjectionDrainer）按写路径
     // 同规则物化伪绑定事实，历史证据改挂 `pseudo:<SUBJECT>` 兜底桶、旧知识点状态归零、
     // 证据进归档不丢——不再退回写时快照。
-    val knowledgeBindings = atomicNodePairs.map { (atom, node) ->
+    val knowledgeBindings = atomicNodePairs.filter { (_, node) -> catalogNodes.none { it.knowledgeNodeId == node.knowledgeNodeId } }.map { (atom, node) ->
         val attributedSteps = attributedStepCounts[atom.referenceId] ?: 0
         KnowledgeBindingSeedRecord(
             bindingId = "knowledge-binding:${sha256("${input.practiceUnitId}|${node.knowledgeNodeId}|${input.problemRevisionId}|$taxonomyVersion").take(40)}",
@@ -1614,6 +1670,16 @@ internal fun buildConfirmationCommand(
             acceptedAtEpochMillis = acceptedAtEpochMillis,
         )
     }
+    val catalogBindings = catalogNodes.map { node ->
+        KnowledgeBindingSeedRecord(
+            bindingId = "knowledge-binding:${sha256("${input.practiceUnitId}|${node.knowledgeNodeId}|${input.problemRevisionId}|${node.taxonomyVersion}").take(40)}",
+            practiceUnitId = input.practiceUnitId, knowledgeNodeId = node.knowledgeNodeId,
+            basisRevisionId = input.problemRevisionId, strength = 1.0, sourceType = acceptanceSource.name,
+            taxonomyVersion = node.taxonomyVersion, acceptedAtEpochMillis = acceptedAtEpochMillis,
+        )
+    }
+    val allClassifications = classificationRecords + catalogClassifications
+    val allBindings = knowledgeBindings + catalogBindings
     val relationRecords = relations.map { suggestion ->
         ProblemRelationSeedRecord(
             relationId = relationId(
@@ -1644,9 +1710,9 @@ internal fun buildConfirmationCommand(
         append(input.problemId).append('|').append(input.problemRevisionId).append('|')
         append(input.practiceUnitId).append('|').append(acceptedAtEpochMillis).append('|')
         append(acceptanceSource.name).append('|').append(replaceRelations).append('|')
-        classificationRecords.sortedBy { it.bindingId }.forEach { append(it.bindingId).append('|') }
+        allClassifications.sortedBy { it.bindingId }.forEach { append(it.bindingId).append('|') }
         topicNodes.sortedBy { it.knowledgeNodeId }.forEach { append(it.knowledgeNodeId).append('|') }
-        knowledgeBindings.sortedBy { it.bindingId }.forEach { binding ->
+        allBindings.sortedBy { it.bindingId }.forEach { binding ->
             append(binding.bindingId).append(':').append(binding.strength).append('|')
         }
         relationRecords.sortedBy { it.relationId }.forEach { append(it.relationId).append('|') }
@@ -1664,8 +1730,9 @@ internal fun buildConfirmationCommand(
         problemRevisionId = input.problemRevisionId,
         practiceUnitId = input.practiceUnitId,
         knowledgeNodes = topicNodes,
-        knowledgeBindings = knowledgeBindings,
-        classifications = classificationRecords,
+        knowledgeBindings = allBindings,
+        classifications = allClassifications,
+        knowledgeSelections = catalogNodes.mapTo(linkedSetOf()) { KnowledgeNodeSelection(it.knowledgeNodeId, it.taxonomyVersion) },
         relations = relationRecords,
         relationIdsToRemove = relationIdsToRemove,
         acceptedAtEpochMillis = acceptedAtEpochMillis,
@@ -1742,3 +1809,5 @@ private fun String.normalizedBigrams(): Set<String> {
 private fun sha256(value: String): String = MessageDigest.getInstance("SHA-256")
     .digest(value.toByteArray(StandardCharsets.UTF_8))
     .joinToString("") { byte -> "%02x".format(byte) }
+
+private val CATALOG_REVIEWED_STATUSES = setOf("CURATED", "SOURCE_GROUNDED", "USER_CONFIRMED")

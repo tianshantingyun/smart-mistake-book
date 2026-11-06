@@ -1,9 +1,9 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -25,10 +26,10 @@ import com.tingyun.smartmistakebook.core.domain.tutorLocalActionTarget
 import com.tingyun.smartmistakebook.core.domain.TutorLocalActionTarget
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestDecision
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestKind
-import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
+import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 
 /**
  * 确认卡（A4 / 插眼 5）：**本地动作的确认**——学生点了才会执行。
@@ -42,6 +43,7 @@ import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
  * 同一张卡，裁决后行落终态（不在界面上留一份会漂的状态）。
  */
 @Composable
+@OptIn(ExperimentalLayoutApi::class)
 internal fun TutorPendingRequestCard(
     request: AgentPendingRequest,
     modifier: Modifier = Modifier,
@@ -56,18 +58,18 @@ internal fun TutorPendingRequestCard(
         modifier = modifier
             .fillMaxWidth()
             .testTag(testTagPrefix),
-        color = JadeActive.copy(alpha = 0.06f),
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, JadeActive.copy(alpha = 0.32f)),
+        color = SmartColors.PendingSurface,
+        shape = RoundedCornerShape(20.dp),
+        shadowElevation = 1.dp,
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
                 text = copy.title,
-                color = Ink,
-                style = MaterialTheme.typography.titleSmall,
+                color = SmartColors.PendingAccent,
+                style = MaterialTheme.typography.titleMedium,
             )
             Text(
                 text = copy.detail,
@@ -78,8 +80,9 @@ internal fun TutorPendingRequestCard(
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.testTag("${testTagPrefix}_busy")
                     .semantics { liveRegion = LiveRegionMode.Polite })
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlineActionChip(
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp),
+                maxItemsInEachRow = if (LocalDensity.current.fontScale > 1.3f) 1 else 2) {
+                PrimaryActionButton(
                     text = copy.acceptLabel,
                     onClick = { if (canDecide) onDecide(AgentPendingRequestDecision.ACCEPT) },
                     enabled = canDecide,
@@ -127,7 +130,7 @@ internal fun pendingRequestCopy(
         TutorLocalActionTarget.SAVE_CAPTURE_DRAFT -> TutorPendingRequestCopy(
             "把这次拍照的题加入错题本？", "确认后保存这次拍照的草稿。", "加入错题本")
         TutorLocalActionTarget.INTAKE_ATTACHED_IMAGES -> TutorPendingRequestCopy(
-            "录入这一轮附上的图片？", "确认后把附图加入录入队列，整理完成后可在错题本查看。", "加入录入")
+            "录入这一轮附上的图片？", "确认后将附图加入录入队列。", "加入录入")
         else -> if (context.libraryProblemId != null) TutorPendingRequestCopy(
             "查看错题本里的这道题？", "这道题已在错题本中，确认后打开它的详情。", "打开这道题")
         else TutorPendingRequestCopy("打开错题本？", "确认后前往错题本查看已有题目。", "打开错题本")
@@ -146,14 +149,14 @@ internal fun pendingRequestCopy(
             detail = when {
                 layout != null ->
                     "版式：${exportLayoutSummary(layout)}。" +
-                        "确认后打开导出设置，可以改版式、勾选要导出的题；点「开始导出」才会生成文件。"
+                        "确认后选择题目和版式，点击“开始导出”生成文件。"
                 // 升级前落库的行是空形状：读回不抛（读回宽容），这里如实说是旧版本的请求，
                 // 确认后用默认版式继续——不崩、也不假装模型提过版式。
                 legacy ->
                     "这张导出请求来自旧版本（没有版式提议）。" +
-                        "确认后用默认版式打开导出设置，可以改版式、勾选要导出的题。"
+                        "确认后选择题目和版式。"
                 else ->
-                    "确认后打开导出设置：可以改版式、勾选要导出的题，点「开始导出」才会生成文件。"
+                    "确认后选择题目和版式，点击“开始导出”生成文件。"
             },
             acceptLabel = "去导出",
         )

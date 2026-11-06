@@ -59,6 +59,7 @@ internal object Routes {
     const val Storage = "settings/storage"
 
     fun mistakeDetail(itemId: String): String = "mistake/${Uri.encode(itemId)}"
+    fun exportResults(exportId: String): String = "$ExportResults?exportId=${Uri.encode(exportId)}"
 
     fun mistakeTutor(key: MistakeRevisionKey): String = listOf(
         "mistake",

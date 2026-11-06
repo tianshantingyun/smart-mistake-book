@@ -1196,11 +1196,11 @@ internal object SmbkArchiveCodec {
         }
         // 规则表按包**自称的** closureVersion 选（WS1 item 5）：closure 4 的旧包用冻结的
         // v4 规则校验，而不是被"必须等于本机 5"在第一道门硬拒。不认识 → 可读拒绝。
-        val rule = ClosureRuleTables.of(record.closureVersion)
+        val rule = ClosureRuleTables.of(record.closureVersion, record.rowCounts.keys)
             ?: return SelectionRead.Invalid(
                 "备份内容选择的 closureVersion=${record.closureVersion} 不受支持，" +
                     "本机支持 ${ClosureRuleTables.v4.closureVersion}/" +
-                    "${ClosureRuleTables.v5.closureVersion}（closure ≤3 无不可变规则表，" +
+                    "${ClosureRuleTables.v6.closureVersion}（closure ≤3 无不可变规则表，" +
                     "≥6 请升级 App）",
             )
         if (record.categoryMask !in SmbkSelectionPlan.allowedMasks) {
@@ -1264,6 +1264,7 @@ internal object SmbkArchiveCodec {
                 categories = SmbkSelectionPlan.categoriesOf(record.categoryMask),
                 assetPolicy = record.assetPolicy,
                 rowCounts = record.rowCounts,
+
             )
         }.getOrElse { failure ->
             return SelectionRead.Invalid(

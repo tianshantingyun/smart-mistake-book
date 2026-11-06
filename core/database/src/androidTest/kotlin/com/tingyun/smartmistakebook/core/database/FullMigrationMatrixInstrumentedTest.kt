@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.sqlite.driver.AndroidSQLiteDriver
+import com.tingyun.smartmistakebook.core.data.backup.BackupSnapshotTrimmer
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshotJson
 import com.tingyun.smartmistakebook.core.model.ProjectionCheckpoint
@@ -32,6 +33,111 @@ import androidx.sqlite.execSQL
  */
 @RunWith(AndroidJUnit4::class)
 class FullMigrationMatrixInstrumentedTest {
+    @Test
+    fun paperPhotosFollowTheSelectedReviewRecordsInBackup() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        for (mask in listOf(15, 13, 9)) {
+            val name = "backup-paper-$mask-${System.nanoTime()}.db"
+            try {
+                createDatabaseFromExportedSchema(context, name, STUDY_DATABASE_VERSION)
+                val file = context.getDatabasePath(name)
+                android.database.sqlite.SQLiteDatabase.openDatabase(file.absolutePath, null, 0).use { db ->
+                    db.execSQL("INSERT INTO review_plan VALUES ('plan','learner','2026-11-05',20762,'Asia/Shanghai',1200,1,'READY','v1',0,'fingerprint',0,1)")
+                    db.execSQL("INSERT INTO review_session VALUES ('session','plan','COMPLETED',NULL,1,1,1,0,1200,0,1)")
+                    db.execSQL("INSERT INTO paper_review VALUES ('paper','session','plan','fingerprint','{}',1,NULL)")
+                    db.execSQL("INSERT INTO canonical_source_asset VALUES ('answer-photo','sha256','answers/photo.png','image/png',12,1,1,'CAMERA',1)")
+                    db.execSQL("INSERT INTO paper_review_photo VALUES ('photo','paper','answer-photo',0,NULL,1)")
+                }
+                val report = BackupSnapshotTrimmer().trim(file, mask)
+                val keepReview = mask == 15
+                assertEquals(if (keepReview) setOf("answer-photo") else emptySet<String>(), report.referencedAssetIds)
+                assertEquals(if (keepReview) 1L else 0L, report.postRowCounts.getValue("paper_review_photo"))
+                assertEquals(if (keepReview) 1L else 0L, report.postRowCounts.getValue("paper_review"))
+            } finally { context.deleteDatabase(name) }
+        }
+    }
+
+    @Test
+    fun currentSchemaCanBeTrimmedForBackupWithoutChangingIdentity() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val name = "backup-current-${System.nanoTime()}.db"
+        try {
+            createDatabaseFromExportedSchema(context, name, STUDY_DATABASE_VERSION)
+            val file = context.getDatabasePath(name)
+            val report = BackupSnapshotTrimmer().trim(file, 15)
+            assertEquals(STUDY_DATABASE_VERSION, report.schemaVersion)
+            assertEquals(0L, report.trimmedRowCount)
+            assertTrue(report.postRowCounts.containsKey("paper_review"))
+            assertTrue(report.postRowCounts.containsKey("mistake_edit_job"))
+            android.database.sqlite.SQLiteDatabase.openDatabase(file.absolutePath, null, 0).use { db ->
+                assertEquals(STUDY_DATABASE_VERSION, db.version)
+                db.rawQuery("SELECT identity_hash FROM room_master_table WHERE id=42", null).use {
+                    assertTrue(it.moveToFirst())
+                    assertEquals("f9a3d1c9ea8ef83d7222721ad1015a51", it.getString(0))
+                }
+                db.rawQuery("PRAGMA foreign_key_check", null).use { assertFalse(it.moveToFirst()) }
+            }
+        } finally { context.deleteDatabase(name) }
+    }
+
+    @Test
+    fun legacyAndCompleteV73LayoutsReachCurrentWithoutReset() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        for (version in listOf(71, 72, 73, 74)) {
+            for (legacy in if (version == 73) listOf(false, true) else listOf(false)) {
+                val name = "library-v73-$version-$legacy-${System.nanoTime()}.db"
+                try {
+                    createDatabaseFromExportedSchema(context, name, if (legacy) 71 else version)
+                    if (legacy) android.database.sqlite.SQLiteDatabase.openDatabase(
+                        context.getDatabasePath(name).absolutePath, null, 0,
+                    ).use { db ->
+                        db.execSQL("UPDATE room_master_table SET identity_hash='1d086050204a0da1ed6b6e3299dd9733' WHERE id=42")
+                        db.version = 73
+                    }
+                    val migrated = StudyDatabaseFactory.open(context, name)
+                    try { assertEquals(0, migrated.libraryCatalogCount("", null, null, null, null, null)) }
+                    finally { migrated.close() }
+                    val reference = "$name-reference"
+                    try {
+                        createDatabaseFromExportedSchema(context, reference, STUDY_DATABASE_VERSION)
+                        // Main's orphan v72 retains its retired derived index table. Preserve it,
+                        // while requiring exact equality for every current table, index and view.
+                        val legacyObjects = if (version == 72) setOf(
+                            "table:knowledge_search_material_feature",
+                            "index:index_knowledge_search_material_feature_subject_knowledge_node_id",
+                            "index:index_knowledge_search_material_feature_subject_search_feature",
+                        ) else emptySet()
+                        assertStructurallyEqual(context.getDatabasePath(reference), context.getDatabasePath(name), legacyObjects)
+                    } finally { context.deleteDatabase(reference) }
+                } finally { context.deleteDatabase(name) }
+            }
+        }
+    }
+
+    @Test
+    fun partialV73LayoutIsRejectedWithoutAdvancingVersion() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val name = "library-partial-v73-${System.nanoTime()}.db"
+        try {
+            createDatabaseFromExportedSchema(context, name, 71)
+            android.database.sqlite.SQLiteDatabase.openDatabase(context.getDatabasePath(name).absolutePath, null, 0).use { db ->
+                db.execSQL("UPDATE room_master_table SET identity_hash='1d086050204a0da1ed6b6e3299dd9733' WHERE id=42")
+                db.execSQL("CREATE TABLE paper_review (unexpected TEXT)")
+                db.version = 73
+            }
+            val migrated = StudyDatabaseFactory.open(context, name)
+            try {
+                val failure = runCatching { migrated.libraryCatalogCount("", null, null, null, null, null) }.exceptionOrNull()
+                assertNotNull(failure)
+                assertTrue(failure!!.stackTraceToString().contains("Unsupported partial v73"))
+            } finally { migrated.close() }
+            android.database.sqlite.SQLiteDatabase.openDatabase(context.getDatabasePath(name).absolutePath, null, 0).use { db ->
+                assertEquals(73, db.version)
+                db.rawQuery("SELECT name FROM sqlite_master WHERE name='paper_review'", null).use { assertTrue(it.moveToFirst()) }
+            }
+        } finally { context.deleteDatabase(name) }
+    }
+
     @Test
     fun everyExportedSchemaVersionMigratesToCurrentWithoutDestructiveFallback() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()

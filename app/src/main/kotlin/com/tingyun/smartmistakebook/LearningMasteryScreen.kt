@@ -2,6 +2,9 @@ package com.tingyun.smartmistakebook
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,7 +14,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ShowChart
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
+import com.tingyun.smartmistakebook.core.ui.MasteryEstimateBar
+import com.tingyun.smartmistakebook.core.ui.masteryStatusColor
+import com.tingyun.smartmistakebook.core.ui.masteryEstimateColor
+import com.tingyun.smartmistakebook.core.ui.masteryBandLabel
+import com.tingyun.smartmistakebook.core.ui.SmartIconSizes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +29,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.domain.AlgorithmConstants
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.domain.StudyKnowledgeSummary
@@ -68,11 +77,11 @@ internal fun LearningMasteryScreen(
             // D-Q3：知识内容还在后台就位时，掌握总览的三个计数恒为 0。改前这里显示
             // "还没有学习记录"——把"还没准备好"说成了"你没有记录"。
             title = "掌握分析还在准备中",
-            supportingText = "整理到知识点的题会自动纳入分析，准备好后这里会显示你的掌握情况。",
+            supportingText = "题目关联知识点后，将显示掌握情况。",
         )
         summaries.isEmpty() -> PageState.Empty(
             title = "还没有学习记录",
-            supportingText = "你做过并保存的题会自动整理到相应科目和知识点，不需要手动填写。",
+            supportingText = "完成作答并保存题目后，自动整理学习记录。",
             actionLabel = "去错题本看看",
             onAction = onOpenLibrary,
         )
@@ -90,7 +99,9 @@ internal fun LearningMasteryScreen(
             summaries = summaries,
             projectionIsCurrent = overview.projectionIsCurrent,
         )
-        RecentLearningChanges(
+        KnowledgeConstellation(summaries, overview.knowledgePrerequisites)
+        SubjectMasteryChart(summaries)
+        RecentLearningActivity(
             summaries = summaries,
             nowEpochMillis = nowEpochMillis,
         )
@@ -155,14 +166,13 @@ private fun LearningMasterySummary(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 12.dp)
-            .background(JadeSoft.copy(alpha = 0.52f), RoundedCornerShape(12.dp))
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(vertical = 14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.ShowChart,
                 contentDescription = null,
-                tint = JadeActive,
+                tint = Ink,
             )
             Text(
                 text = "你的学习情况",
@@ -178,13 +188,14 @@ private fun LearningMasterySummary(
                 .padding(top = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            MasterySummaryValue("掌握较稳", mastered)
-            MasterySummaryValue("正在巩固", consolidating)
-            MasterySummaryValue("有记录科目", subjectCount)
+            MasterySummaryValue("掌握较稳", mastered, Modifier.weight(1f))
+            MasterySummaryValue("正在巩固", consolidating, Modifier.weight(1f))
+            MasterySummaryValue("有记录科目", subjectCount, Modifier.weight(1f))
         }
+        MasteryDistribution(summaries)
         Text(
             text = if (projectionIsCurrent) {
-                "会随着你之后做题和复习自动更新"
+                "当前状态基于已记录的作答，随练习更新"
             } else {
                 "已根据现有作答记录整理"
             },
@@ -196,7 +207,37 @@ private fun LearningMasterySummary(
 }
 
 @Composable
-private fun RecentLearningChanges(
+private fun MasteryDistribution(summaries: List<StudyKnowledgeSummary>) {
+    val counts = summaries.groupingBy { it.status }.eachCount()
+    val states = listOf(MasteryStatus.MASTERED, MasteryStatus.LEARNING, MasteryStatus.CONFLICTED,
+        MasteryStatus.STALE, MasteryStatus.UNKNOWN)
+    val description = states.joinToString("，") { "${it.studentLabel()} ${counts[it] ?: 0} 个" }
+    Column(Modifier.fillMaxWidth().padding(top = 16.dp).testTag("learning_mastery_distribution")
+        .semantics(mergeDescendants = true) { contentDescription = "当前知识点状态，$description" }) {
+        Text("当前知识点状态", color = InkSecondary, style = MaterialTheme.typography.labelLarge)
+        Row(Modifier.fillMaxWidth().padding(top = 8.dp).height(10.dp)
+            .background(Track, RoundedCornerShape(5.dp)), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+            states.forEach { state ->
+                val count = counts[state] ?: 0
+                if (count > 0) Box(Modifier.weight(count.toFloat()).height(10.dp)
+                    .background(masteryStatusColor(state), RoundedCornerShape(3.dp)))
+            }
+        }
+        FlowRow(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            states.forEach { state ->
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Box(Modifier.size(7.dp).background(masteryStatusColor(state), RoundedCornerShape(3.dp)))
+                    Text("${state.studentLabel()} ${counts[state] ?: 0}", color = InkSecondary,
+                        style = MaterialTheme.typography.labelMedium)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecentLearningActivity(
     summaries: List<StudyKnowledgeSummary>,
     nowEpochMillis: Long,
 ) {
@@ -211,10 +252,11 @@ private fun RecentLearningChanges(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 18.dp)
+            .padding(top = 16.dp)
+            .padding(vertical = 16.dp)
             .testTag("learning_mastery_recent"),
     ) {
-        SectionHeader("最近变化")
+        SectionHeader("最近活动")
         recent.forEachIndexed { index, (summary, occurredAt) ->
             if (index > 0) PaperDivider(Modifier.padding(vertical = 10.dp))
             Row(
@@ -255,13 +297,13 @@ private fun RecentLearningChanges(
 }
 
 @Composable
-private fun MasterySummaryValue(label: String, value: Int) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+private fun MasterySummaryValue(label: String, value: Int, modifier: Modifier = Modifier) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = value.toString(),
-            color = JadeActive,
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
+            color = Ink,
+            style = MaterialTheme.typography.headlineMedium.copy(fontSize = 28.sp, lineHeight = 36.sp),
+            fontWeight = FontWeight.SemiBold,
         )
         Text(
             text = label,
@@ -277,6 +319,7 @@ private fun SubjectMasterySection(
     summaries: List<StudyKnowledgeSummary>,
     modifier: Modifier = Modifier,
 ) {
+    val hasEvidence = summaries.any { it.masteryIntervalUpper != null }
     val average = summaries
         .map(StudyKnowledgeSummary::conservativeMasteryScore)
         .average()
@@ -285,7 +328,7 @@ private fun SubjectMasterySection(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(JadeSoft.copy(alpha = 0.28f), RoundedCornerShape(12.dp))
+            .background(SmartColors.ContentSurface, RoundedCornerShape(20.dp))
             .padding(horizontal = 14.dp, vertical = 13.dp)
             .testTag("learning_mastery_subject:${subject.name}"),
     ) {
@@ -306,15 +349,14 @@ private fun SubjectMasterySection(
                 style = MaterialTheme.typography.labelMedium,
             )
         }
-        LinearProgressIndicator(
-            progress = { average },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-                .height(6.dp),
-            color = JadeActive,
-            trackColor = Track,
-        )
+        val estimateLabel = if (hasEvidence) masteryBandLabel(average.toDouble()) else "证据还少"
+        val estimateColor = if (hasEvidence) masteryEstimateColor(average.toDouble()) else SmartColors.InkMuted
+        Text("平均掌握估计 · $estimateLabel",
+            color = estimateColor, style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(top = 8.dp))
+        MasteryEstimateBar(value = average, color = estimateColor,
+            modifier = Modifier.padding(top = 6.dp),
+            hasEvidence = hasEvidence)
         summaries
             .groupBy { summary -> summary.topicPath.firstOrNull() ?: "其他知识点" }
             .toList()
@@ -369,19 +411,12 @@ private fun KnowledgeMasteryRow(
             )
             Text(
                 text = summary.status.studentLabel(),
-                color = if (summary.status == MasteryStatus.MASTERED) JadeActive else InkSecondary,
+                color = masteryStatusColor(summary.status),
                 style = MaterialTheme.typography.labelMedium,
             )
         }
-        LinearProgressIndicator(
-            progress = { progress },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 5.dp)
-                .height(5.dp),
-            color = JadeActive,
-            trackColor = Track,
-        )
+        MasteryEstimateBar(value = progress, color = masteryStatusColor(summary.status),
+            modifier = Modifier.padding(top = 6.dp), hasEvidence = summary.masteryIntervalUpper != null)
         // P8（规格 §1.2）：行内小字区间文案——复用既有样式，不新造视觉组件。
         Text(
             text = masteryIntervalLabel(summary.conservativeMasteryScore, summary.masteryIntervalUpper),
@@ -392,7 +427,7 @@ private fun KnowledgeMasteryRow(
     }
 }
 
-private fun MasteryStatus.studentLabel(): String = when (this) {
+internal fun MasteryStatus.studentLabel(): String = when (this) {
     MasteryStatus.UNKNOWN -> "刚开始记录"
     MasteryStatus.LEARNING -> "正在学习"
     MasteryStatus.MASTERED -> "掌握较稳"

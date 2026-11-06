@@ -372,7 +372,7 @@ internal class TutorLobbySendCommands(
                         error = appFailure(
                             code = AppFailureCode.NETWORK_UNAVAILABLE,
                             title = "这条消息已经保留",
-                            message = "这条消息已经保留，但暂时没有发出去。",
+                            message = "消息已保留，发送未完成。",
                             dataPreserved = true,
                             retryability = Retryability.RETRYABLE,
                             primaryAction = ActionType.RETRY,
@@ -485,7 +485,7 @@ internal class TutorLobbySendCommands(
                         error = appFailure(
                             code = AppFailureCode.NETWORK_UNAVAILABLE,
                             title = "这条消息已经保留",
-                            message = "这条消息已经保留，但暂时没有发出去。",
+                            message = "消息已保留，发送未完成。",
                             dataPreserved = true,
                             retryability = Retryability.RETRYABLE,
                             primaryAction = ActionType.RETRY,

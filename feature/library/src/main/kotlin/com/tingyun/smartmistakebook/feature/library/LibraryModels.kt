@@ -31,6 +31,13 @@ internal enum class LibraryFacet(
 
 /** 收藏这一维的选项 id（唯一选项）。 */
 internal const val LIBRARY_FAVORITE_OPTION_ID = "favorite"
+internal const val LIBRARY_UNCLASSIFIED_OPTION_ID = "__unclassified__"
+
+internal fun completeMasteryOptions(options: List<LibraryFacetOption>): List<LibraryFacetOption> =
+    listOf(MasteryState.CONFLICTED, MasteryState.LEARNING, MasteryState.MASTERED,
+        MasteryState.STALE, MasteryState.UNKNOWN).map { state ->
+        LibraryFacetOption(state.id, state.label, options.firstOrNull { it.id == state.id }?.count ?: 0)
+    }
 
 /**
  * 「录入时间段」筛选档位（阶段 4A 批 1 · L5）：按条目创建时间取最近 N 天。
@@ -135,6 +142,7 @@ internal data class LibraryMistake(
     fun facetOptions(facet: LibraryFacet): List<LibraryFacetOption> = when (facet) {
         LibraryFacet.SUBJECT -> listOf(LibraryFacetOption(subject.name, subject.studentLabel()))
         LibraryFacet.CHAPTER -> chapterLabels.map { LibraryFacetOption(it, it) }
+            .ifEmpty { listOf(LibraryFacetOption(LIBRARY_UNCLASSIFIED_OPTION_ID, "未分板块")) }
         LibraryFacet.MASTERY -> listOf(LibraryFacetOption(mastery.id, mastery.label))
         LibraryFacet.FAVORITE -> if (isFavorite) {
             listOf(LibraryFacetOption(LIBRARY_FAVORITE_OPTION_ID, "已收藏"))
@@ -145,7 +153,7 @@ internal data class LibraryMistake(
 
     fun hasFacetValue(facet: LibraryFacet, optionId: String): Boolean = when (facet) {
         LibraryFacet.SUBJECT -> subject.name == optionId
-        LibraryFacet.CHAPTER -> optionId in chapterLabels
+        LibraryFacet.CHAPTER -> if (optionId == LIBRARY_UNCLASSIFIED_OPTION_ID) chapterLabels.isEmpty() else optionId in chapterLabels
         LibraryFacet.MASTERY -> mastery.id == optionId
         LibraryFacet.FAVORITE -> isFavorite && optionId == LIBRARY_FAVORITE_OPTION_ID
     }
@@ -194,6 +202,7 @@ internal data class LibraryUiState(
     val loaded: Boolean = true,
     /** C11 收藏开关的写失败回执（写没进去必须如实说，不能默默回弹）。 */
     val favoriteNotice: String? = null,
+    val chapterOptionLabels: Map<String, String> = emptyMap(),
 ) {
     val hasActiveFilters: Boolean
         get() = query.isNotBlank() || !selections.isEmpty || timeRange != LibraryTimeRange.ALL
@@ -277,7 +286,14 @@ internal class LibraryCatalog(
     ): List<LibraryFacetOption> = optionsByFacet.getValue(facet)
         .asSequence()
         .filter { option -> optionAvailableInHierarchy(facet, option.id, selections) }
-        .toList()
+        .toList().let { options ->
+            val counted = options.map { option -> option.copy(count = mistakes.count { mistake ->
+                mistake.hasFacetValue(facet, option.id) && LibraryFacet.entries.all { other ->
+                    other == facet || selections.selectedOptionId(other)?.let { mistake.hasFacetValue(other, it) } != false
+                }
+            }) }
+            if (facet == LibraryFacet.MASTERY) completeMasteryOptions(counted) else counted
+        }
 
     fun normalizeSelection(
         facet: LibraryFacet,

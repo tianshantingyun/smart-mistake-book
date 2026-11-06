@@ -4,10 +4,23 @@ import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.VisualRole
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapNotNull
 
 /** Read-only projection of the current formal revision behind one error-book entry. */
 interface MistakeDetailRepository {
     fun observe(errorBookEntryId: String): Flow<MistakeDetailState>
+
+    /** Lightweight outer-list preview. Production reads source links without a detail transaction. */
+    fun observeQuestionImages(errorBookEntryId: String): Flow<List<MistakeSourceAsset>> =
+        observe(errorBookEntryId).mapNotNull { state ->
+            val detail = when (state) {
+                MistakeDetailState.Loading -> return@mapNotNull null
+                is MistakeDetailState.Ready -> state.detail
+                is MistakeDetailState.Legacy -> state.detail
+                else -> return@mapNotNull emptyList()
+            }
+            if (detail.archived) emptyList() else detail.source.questionImageAssets()
+        }
 
     /** Observes one immutable problem revision selected independently of the entry's current head. */
     fun observeExact(key: MistakeRevisionKey): Flow<MistakeDetailState>
@@ -237,6 +250,20 @@ sealed interface MistakeSourceSet {
     }
 }
 
+/** Saved question pictures shared by library and attachment pickers; explanation images stay in the answer. */
+fun MistakeSourceSet.questionImageAssets(): List<MistakeSourceAsset> = when (this) {
+    MistakeSourceSet.Missing -> emptyList()
+    is MistakeSourceSet.Present -> {
+        val pictures = assets.filter { it.mimeType.startsWith("image/", ignoreCase = true) &&
+            it.role != com.tingyun.smartmistakebook.core.model.VisualRole.TUTOR_EXPLANATION.name }
+            .distinctBy { it.sourceAssetId }
+        val cleanRole = com.tingyun.smartmistakebook.core.model.VisualRole.CLEAN_IMAGE.name
+        pictures.filter { it.role == cleanRole }
+            .sortedWith(compareByDescending<MistakeSourceAsset> { it.createdAtEpochMillis }.thenBy { it.sourceAssetId }) +
+            pictures.filterNot { it.role == cleanRole }
+    }
+}
+
 data class MistakeSourceAsset(
     val role: String,
     val sourceAssetId: String,
@@ -289,6 +316,7 @@ data class ReviseMistakeProblemCommand(
     val questionDocument: CapturedQuestionDocument,
     val revisedAtEpochMillis: Long,
     val title: String? = null,
+    val adoptedEditOperationIds: Set<String> = emptySet(),
 ) {
     init {
         require(commandId.matches(COMMAND_ID_PATTERN)) {
@@ -298,6 +326,7 @@ data class ReviseMistakeProblemCommand(
         require(expectedRevisionId.isNotBlank()) { "Expected revision id must not be blank" }
         require(expectedRevisionNumber > 0) { "Expected revision number must be positive" }
         require(revisedAtEpochMillis >= 0) { "Revision time must not be negative" }
+        require(adoptedEditOperationIds.size <= 32 && adoptedEditOperationIds.all { it.startsWith("mistake-edit:") && it.length <= 128 })
     }
 
     private companion object {

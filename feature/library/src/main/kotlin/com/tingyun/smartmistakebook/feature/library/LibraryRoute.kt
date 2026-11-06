@@ -2,6 +2,8 @@ package com.tingyun.smartmistakebook.feature.library
 
 import androidx.compose.foundation.background
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,7 +36,9 @@ import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import com.tingyun.smartmistakebook.core.ui.studentLabel
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +61,7 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -158,6 +164,9 @@ private fun LibraryContent(
     modifier: Modifier,
 ) {
     val uiState = viewModel.uiState
+    val motion = LocalClaudeMotionEnabled.current
+    val itemFade = if (motion) tween<Float>(ClaudeMotion.PageMillis, easing = ClaudeMotion.Enter) else null
+    val itemPlacement = if (motion) tween<IntOffset>(220, easing = ClaudeMotion.Expand) else null
     val scope = rememberCoroutineScope()
     val pagingItems = if (usePaging) viewModel.pagingData.collectAsLazyPagingItems() else null
     val visibleMistakeCount = if (usePaging) uiState.totalCount else uiState.visibleMistakes.size
@@ -244,7 +253,7 @@ private fun LibraryContent(
                     )
                     AnimatedVisibility(visible = filtersExpanded) {
                         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                            .background(SmartColors.JadeSoft.copy(alpha = 0.35f)).padding(12.dp)) {
+                            .background(SmartColors.ContentSurface).padding(12.dp)) {
                             FacetTabs(activeFacet = uiState.activeFacet, onSelect = viewModel::selectFacet)
                             FacetOptions(
                                 facet = uiState.activeFacet,
@@ -305,6 +314,7 @@ private fun LibraryContent(
                 if (mistake != null) {
                     LibraryQuestionCard(
                         mistake = mistake,
+                        modifier = Modifier.animateItem(fadeInSpec = itemFade, placementSpec = itemPlacement, fadeOutSpec = itemFade),
                         sourceRepository = mistakeDetailRepository,
                         onClick = { onOpenItem(mistake.id) },
                         onToggleFavorite = { favorite ->
@@ -320,6 +330,7 @@ private fun LibraryContent(
             ) { mistake ->
                 LibraryQuestionCard(
                     mistake = mistake,
+                    modifier = Modifier.animateItem(fadeInSpec = itemFade, placementSpec = itemPlacement, fadeOutSpec = itemFade),
                     sourceRepository = mistakeDetailRepository,
                     onClick = { onOpenItem(mistake.id) },
                     onToggleFavorite = { favorite ->
@@ -358,7 +369,7 @@ private fun LibrarySearchField(
             .testTag("library_search_field"),
         singleLine = true,
         placeholder = { Text("搜索题目、板块或知识点", style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium, color = SmartColors.Ink, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+            color = SmartColors.InkSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
         leadingIcon = {
             Icon(
@@ -381,7 +392,7 @@ private fun LibrarySearchField(
         } else {
             null
         },
-        shape = MaterialTheme.shapes.extraLarge,
+        shape = RoundedCornerShape(18.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = SmartColors.Jade,
             unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
@@ -408,6 +419,7 @@ private fun FacetTabs(
     )
 }
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun FacetOptions(
     facet: LibraryFacet,
@@ -415,33 +427,36 @@ private fun FacetOptions(
     selectedOptionId: String?,
     onSelect: (String?) -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        OutlineActionChip(
-            text = "全部",
-            onClick = { onSelect(null) },
-            modifier = Modifier.testTag("library_filter_all"),
-            selected = selectedOptionId == null,
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (facet == LibraryFacet.MASTERY) Text(
+            "掌握阶段：需巩固 → 学习中 → 已掌握",
+            style = MaterialTheme.typography.labelMedium, color = SmartColors.InkSecondary,
         )
-        options.forEach { option ->
-            val label = if (facet == LibraryFacet.MASTERY)
-                MasteryState.entries.firstOrNull { it.id == option.id }?.label ?: option.label else option.label
-            val displayText = if (option.count > 0) {
-                "$label (${option.count})"
-            } else {
-                label
+        androidx.compose.foundation.layout.FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            OutlineActionChip(text = "全部", onClick = { onSelect(null) },
+                modifier = Modifier.testTag("library_filter_all"), selected = selectedOptionId == null)
+            options.forEach { option ->
+                val label = if (facet == LibraryFacet.SUBJECT)
+                    com.tingyun.smartmistakebook.core.model.SubjectKind.entries.firstOrNull { it.name == option.id }?.studentLabel() ?: option.label
+                    else option.label
+                OutlineActionChip(
+                    text = "$label (${option.count})", onClick = { onSelect(option.id) },
+                    modifier = Modifier.testTag(filterTag(facet, option)), selected = selectedOptionId == option.id,
+                )
             }
-            OutlineActionChip(
-                text = displayText,
-                onClick = { onSelect(option.id) },
-                modifier = Modifier.testTag(filterTag(facet, option)),
-                selected = selectedOptionId == option.id,
-            )
         }
+        if (facet == LibraryFacet.CHAPTER && options.none { it.id != LIBRARY_UNCLASSIFIED_OPTION_ID }) Text(
+            "当前题目尚未分配板块，可在题目详情中修改分类。",
+            style = MaterialTheme.typography.bodySmall, color = SmartColors.InkSecondary,
+        )
+        if (facet == LibraryFacet.MASTERY) Text(
+            "待复习表示需要更新学习记录；未作答的题目单列为待评估。",
+            style = MaterialTheme.typography.bodySmall, color = SmartColors.InkSecondary,
+        )
     }
 }
 
@@ -509,61 +524,71 @@ private fun EmptyLibraryResult(
     onCapture: () -> Unit,
     onClear: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 34.dp)
-            .testTag("library_empty_state"),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Surface(
+        modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
+        shape = RoundedCornerShape(24.dp),
+        color = SmartColors.ContentSurface,
     ) {
-        Icon(
-            imageVector = when (state) {
-                LibraryEmptyState.CATALOG_EMPTY -> Icons.Outlined.LibraryAdd
-                LibraryEmptyState.FILTERED_EMPTY -> Icons.Outlined.Search
-                LibraryEmptyState.SEARCH_EMPTY -> Icons.Outlined.SearchOff
-            },
-            contentDescription = null,
-            modifier = Modifier.size(42.dp),
-            tint = SmartColors.InkMuted,
-        )
-        Spacer(Modifier.height(10.dp))
-        Text(
-            text = state.title,
-            style = MaterialTheme.typography.titleMedium,
-            color = SmartColors.Ink,
-            fontWeight = FontWeight.SemiBold,
-        )
-        Spacer(Modifier.height(4.dp))
-        Text(
-            text = state.supportingText,
-            style = MaterialTheme.typography.bodyMedium,
-            color = SmartColors.InkSecondary,
-        )
-        if (state == LibraryEmptyState.CATALOG_EMPTY) {
-            // 首装没有照片也能起步：录入页有本地「手动建题」入口，不依赖模型能力。
-            Spacer(Modifier.height(6.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 32.dp)
+                .testTag("library_empty_state"),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            if (state == LibraryEmptyState.CATALOG_EMPTY) {
+                LibraryEmptyIllustration()
+            } else Icon(
+                imageVector = when (state) {
+                    LibraryEmptyState.CATALOG_EMPTY -> Icons.Outlined.LibraryAdd
+                    LibraryEmptyState.FILTERED_EMPTY -> Icons.Outlined.Search
+                    LibraryEmptyState.SEARCH_EMPTY -> Icons.Outlined.SearchOff
+                },
+                contentDescription = null,
+                modifier = Modifier.size(42.dp),
+                tint = SmartColors.InkMuted,
+            )
+            Spacer(Modifier.height(10.dp))
             Text(
-                text = LIBRARY_EMPTY_MANUAL_HINT,
-                style = MaterialTheme.typography.bodySmall,
+                text = state.title,
+                style = MaterialTheme.typography.titleMedium,
+                color = SmartColors.Ink,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = state.supportingText,
+                style = MaterialTheme.typography.bodyMedium,
                 color = SmartColors.InkSecondary,
-                modifier = Modifier.testTag("library_empty_manual_hint"),
+                textAlign = TextAlign.Center,
             )
-            Spacer(Modifier.height(16.dp))
-            PrimaryActionButton(
-                text = "录入",
-                onClick = onCapture,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("library_capture_button"),
-                icon = Icons.Outlined.LibraryAdd,
-            )
-        } else if (canClear) {
-            Spacer(Modifier.height(16.dp))
-            OutlineActionChip(
-                text = "清除搜索与筛选",
-                onClick = onClear,
-                modifier = Modifier.testTag("library_clear_filters"),
-            )
+            if (state == LibraryEmptyState.CATALOG_EMPTY) {
+                // 首装没有照片也能起步：录入页有本地「手动建题」入口，不依赖模型能力。
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    text = LIBRARY_EMPTY_MANUAL_HINT,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = SmartColors.InkSecondary,
+                    modifier = Modifier.testTag("library_empty_manual_hint"),
+                    textAlign = TextAlign.Center,
+                )
+                Spacer(Modifier.height(16.dp))
+                PrimaryActionButton(
+                    text = "录入",
+                    onClick = onCapture,
+                    modifier = Modifier
+                        .widthIn(min = 160.dp)
+                        .testTag("library_capture_button"),
+                    icon = Icons.Outlined.LibraryAdd,
+                )
+            } else if (canClear) {
+                Spacer(Modifier.height(16.dp))
+                OutlineActionChip(
+                    text = "清除搜索与筛选",
+                    onClick = onClear,
+                    modifier = Modifier.testTag("library_clear_filters"),
+                )
+            }
         }
     }
 }

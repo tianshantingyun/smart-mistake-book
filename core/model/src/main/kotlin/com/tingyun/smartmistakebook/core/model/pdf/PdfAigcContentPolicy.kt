@@ -19,6 +19,8 @@ package com.tingyun.smartmistakebook.core.model.pdf
  * 本对象零 Android 依赖；`core:export` 是热区，本批只落判据，不改进导出调用点（见结果登记）。
  */
 object PdfAigcContentPolicy {
+    /** Invalidate image-only export caches after adding parsed-text provenance. */
+    const val GENERATION: Int = 2
 
     /** 与 `core:model` 的 `QuestionBlockProvenance.MODEL_DOCUMENT_PARSE` 同名对齐。 */
     const val MODEL_DOCUMENT_PARSE_PROVENANCE: String = "MODEL_DOCUMENT_PARSE"

@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
@@ -33,24 +36,35 @@ import androidx.compose.ui.unit.dp
 fun ReferenceEditorPage(
     modifier: Modifier = Modifier,
     imageUris: List<String> = emptyList(),
+    actions: (@Composable ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val currentContent by rememberUpdatedState(content)
     val editor = remember { movableContentOf { RootPageColumn(content = currentContent) } }
     var splitRatio by rememberSaveable { mutableFloatStateOf(.5f) }
-    BoxWithConstraints(modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
-        if (imageUris.isNotEmpty() && maxWidth >= 840.dp && maxHeight >= 480.dp) {
-            ClaudeSplitPane(splitRatio, { splitRatio = it }, Modifier.widthIn(max = 1240.dp), left = {
-                Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)
-                    .testTag("editor_source_reference"), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    SectionHeader("原图参考")
-                    imageUris.forEachIndexed { index, uri ->
-                        EditorReferenceImage(uri, index)
+    Column(modifier.fillMaxSize().then(if (actions != null) Modifier.imePadding() else Modifier), horizontalAlignment = Alignment.CenterHorizontally) {
+        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+            if (imageUris.isNotEmpty() && maxWidth >= 840.dp && maxHeight >= 480.dp) {
+                ClaudeSplitPane(splitRatio, { splitRatio = it }, Modifier.widthIn(max = 1240.dp), left = {
+                    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp)
+                        .testTag("editor_source_reference"), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        SectionHeader("原图参考")
+                        imageUris.forEachIndexed { index, uri ->
+                            EditorReferenceImage(uri, index)
+                        }
                     }
-                }
-            }, right = { editor() })
-        } else {
-            editor()
+                }, right = { editor() })
+            } else {
+                editor()
+            }
+        }
+        if (actions != null) Surface(color = SmartColors.ContentSurface, modifier = Modifier.fillMaxWidth()) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                PaperDivider()
+                Column(Modifier.widthIn(max = SmartDimens.MaximumContentWidth).fillMaxWidth().navigationBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp), content = actions)
+            }
         }
     }
 }
@@ -59,7 +73,7 @@ fun ReferenceEditorPage(
 private fun EditorReferenceImage(uri: String, index: Int) {
     var viewing by remember(uri) { mutableStateOf(false) }
     var state by remember(uri) { mutableStateOf(LocalImageLoadState.LOADING) }
-    Column {
+    WorkspacePanel(containerColor = SmartColors.ContentSurface, contentPadding = androidx.compose.foundation.layout.PaddingValues(12.dp)) {
         BoundedLocalImage(uri, "参考图 ${index + 1}", expanded = true,
             modifier = Modifier.fillMaxWidth(), onLoadStateChange = { state = it })
         if (state == LocalImageLoadState.UNAVAILABLE) {

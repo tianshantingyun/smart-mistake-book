@@ -77,7 +77,15 @@ object MistakePdfEligibility {
         state: MistakeDetailState.Ready,
         layout: MistakePdfLayout,
     ): MistakePdfEligibilityResult {
+        val storedReferences = state.questionDocument.storedFigureReferences.associateBy { it.blockId }
+        val sourceAssets = (state.detail.source as? MistakeSourceSet.Present)?.assets.orEmpty()
+        val storedAssets = storedReferences.mapValues { (_, ref) -> sourceAssets.singleOrNull {
+            it.sourceAssetId == ref.assetId && it.contentSha256 == ref.contentSha256 && it.role == ref.role.name && it.location is MistakeSourceLocation.Available
+        } }
         val reasons = buildSet {
+            if (storedAssets.any { (id, asset) -> asset == null && (layout.includeSolution || storedReferences.getValue(id).role != VisualRole.TUTOR_EXPLANATION) }) {
+                add(MistakePdfIneligibility.CORRUPT_CONTENT)
+            }
             if (
                 CapturedQuestionDocumentValidator
                     .validateForCommit(state.questionDocument)
@@ -367,6 +375,9 @@ class MistakePdfExportInput internal constructor(
     val layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
     /** 条目备注（includeNote 时才进渲染）；入口已做安全内联化。 */
     val userNote: String? = null,
+    val sourceRevisionId: String? = null,
+    val sourceImages: List<com.tingyun.smartmistakebook.core.model.ModelEgressAssetGrant> = emptyList(),
+    val artifactRole: com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole = com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.QUESTIONS,
 ) {
     init {
         val violations = layout.validate()

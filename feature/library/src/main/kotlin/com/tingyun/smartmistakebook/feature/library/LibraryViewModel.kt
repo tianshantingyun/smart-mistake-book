@@ -346,7 +346,9 @@ internal class LibraryViewModel(
             if (catalogRepository !== repository || currentQuery() != domainQuery ||
                 uiState.activeFacet != activeFacet) return@launch
             uiState = uiState.copy(
-                activeOptions = facetOptions,
+                activeOptions = if (activeFacet == LibraryFacet.MASTERY) completeMasteryOptions(facetOptions) else facetOptions,
+                chapterOptionLabels = if (activeFacet == LibraryFacet.CHAPTER)
+                    facetOptions.associate { it.id to it.label } else uiState.chapterOptionLabels,
                 totalCount = count,
                 loaded = true,
             )

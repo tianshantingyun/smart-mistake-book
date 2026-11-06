@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.clickable
@@ -57,6 +59,11 @@ import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.RootPageLazyColumn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.catch
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNotice
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNoticeTone
+import com.tingyun.smartmistakebook.core.ui.InlineActionButton
 import androidx.compose.runtime.rememberCoroutineScope
 
 private val SPLIT_IMPORT_TABLES = arrayOf(
@@ -82,13 +89,18 @@ fun SplitImportReviewRoute(
     modifier: Modifier = Modifier,
 ) {
     val scope = rememberCoroutineScope()
-    val jobs by repository.observeActiveImports().collectAsStateWithLifecycle(
-        initialValue = emptyList(),
-    )
+    var retry by remember { mutableStateOf(0) }
+    var message by remember { mutableStateOf<String?>(null) }
+    var loadFailed by remember { mutableStateOf(false) }
+    var busy by remember { mutableStateOf(false) }
+    val jobs by remember(repository, retry) {
+        loadFailed = false
+        repository.observeActiveImports().catch { loadFailed = true; emit(emptyList()) }
+    }.collectAsStateWithLifecycle(initialValue = null)
     var selectedJobId by remember { mutableStateOf<String?>(initialJobId) }
-    val job = jobs.firstOrNull { it.jobId == selectedJobId }
-        ?: jobs.firstOrNull { it.jobId == initialJobId }
-        ?: jobs.firstOrNull()
+    val job = jobs?.firstOrNull { it.jobId == selectedJobId }
+        ?: jobs?.firstOrNull { it.jobId == initialJobId }
+        ?: jobs?.firstOrNull()
     val reviewableJob = job?.takeIf {
         it.status == SplitImportStatus.READY ||
             it.status == SplitImportStatus.PREPARING
@@ -96,44 +108,25 @@ fun SplitImportReviewRoute(
 
     RootPageLazyColumn(modifier = modifier.testTag("split_review_list")) {
         item(key = "split_review_header") {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 52.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IconButton(onClick = onFinished) {
-                    Icon(
-                        Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = "返回",
-                        tint = Ink,
-                    )
-                }
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        "录入整份题目",
-                        color = Ink,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        "切分完成，勾选要录入的题目",
-                        color = InkSecondary,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-                if (reviewableJob != null) {
-                    Text(
-                        text = "${reviewableJob.questions.filter { it.selected }.size}/" +
-                            "${reviewableJob.questions.size}",
-                        color = JadeActive,
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.testTag("split_review_count"),
-                    )
-                }
+            ClaudePageHeader("录入整份题目", onBack = onFinished, actions = {
+                if (reviewableJob != null) Text(
+                    text = "${reviewableJob.questions.filter { it.selected }.size}/${reviewableJob.questions.size}",
+                    color = JadeActive, style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.testTag("split_review_count"),
+                )
+            })
+            Text(if (reviewableJob?.status == SplitImportStatus.READY) "勾选题目，再逐题确认录入" else "查看切分进度与待录入题目", color = InkSecondary,
+                style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp))
+            Spacer(Modifier.height(4.dp))
+        }
+        message?.let { item { WorkspaceNotice(it, tone = WorkspaceNoticeTone.ERROR) } }
+        if (jobs == null || loadFailed) {
+            item {
+                WorkspaceNotice(if (loadFailed) "拆分记录暂时无法读取，请重试。" else "正在读取拆分记录…",
+                    tone = if (loadFailed) WorkspaceNoticeTone.ERROR else WorkspaceNoticeTone.INFO)
+                if (loadFailed) InlineActionButton("重新读取", { retry++ })
             }
-            PaperDivider()
+            return@RootPageLazyColumn
         }
         if (reviewableJob == null) {
             item(key = "split_review_empty") {
@@ -168,6 +161,9 @@ fun SplitImportReviewRoute(
                 Spacer(Modifier.height(10.dp))
             }
         }
+        if (reviewableJob.status == SplitImportStatus.PREPARING) item {
+            WorkspaceNotice("正在准备题目。可先查看切分范围，准备完成后再逐题录入。")
+        }
         reviewableJob.questions.forEach { question ->
             item(key = "split_q_${question.questionOrdinal}") {
                 SplitQuestionCard(
@@ -177,13 +173,20 @@ fun SplitImportReviewRoute(
                     sourceUri = reviewableJob.sourceUri,
                     question = question,
                     onToggle = {
+                        if (!busy) {
+                        busy = true; message = null
                         scope.launch {
-                            repository.updateSelection(
+                          try {
+                            check(repository.updateSelection(
                                 jobId = reviewableJob.jobId,
                                 questionOrdinal = question.questionOrdinal,
                                 selected = !question.selected,
                                 occurredAtEpochMillis = System.currentTimeMillis(),
-                            )
+                            )) { "选择未保存，请重试。" }
+                          } catch (cancelled: CancellationException) { throw cancelled }
+                          catch (failure: Exception) { message = failure.message ?: "选择未保存，请重试。" }
+                          finally { busy = false }
+                        }
                         }
                     },
                 )
@@ -193,10 +196,13 @@ fun SplitImportReviewRoute(
         item(key = "split_review_footer") {
             Spacer(Modifier.height(6.dp))
             PrimaryActionButton(
-                text = "录入所选（${reviewableJob.questions.count { it.selected }}）",
-                enabled = reviewableJob.questions.any { it.selected },
+                text = if (busy) "正在处理…" else "录入所选（${reviewableJob.questions.count { it.selected }}）",
+                enabled = !busy && reviewableJob.status == SplitImportStatus.READY && reviewableJob.questions.any { it.selected },
                 onClick = {
+                    if (!busy) {
+                    busy = true; message = null
                     scope.launch {
+                      try {
                         // 逐题提交（T4/AUD-03）：这里**只**负责打开最早的那道未提交题。
                         // 过去在这里先把所有勾选题标成 SAVED，学生只录了第一题、其余题却已经
                         // 显示「已录入」；现在标 SAVED 的唯一依据是提交回执（入库成功）。
@@ -210,10 +216,17 @@ fun SplitImportReviewRoute(
                         if (nextDraftId != null) {
                             onOpenDraft(nextDraftId)
                         } else {
+                            check(reviewableJob.questions.none { it.selected && it.confirmState == SplitImportConfirmState.PENDING }) {
+                                "所选题目尚未准备好，请稍后重试。"
+                            }
                             // 没有可打开的未提交题：勾选的都交完了（或压根没有可打开的草稿），
                             // 这个任务在复核页收尾。
-                            repository.complete(reviewableJob.jobId, System.currentTimeMillis())
+                            check(repository.complete(reviewableJob.jobId, System.currentTimeMillis())) { "暂时无法完成录入，请重试。" }
                         }
+                      } catch (cancelled: CancellationException) { throw cancelled }
+                      catch (failure: Exception) { message = failure.message ?: "暂时无法打开题目，请重试。" }
+                      finally { busy = false }
+                    }
                     }
                 },
                 modifier = Modifier
@@ -332,7 +345,7 @@ private fun SplitRegionThumb(
         modifier = Modifier
             .size(width = 72.dp, height = 96.dp)
             .testTag("split_question_thumb_${question.questionOrdinal}"),
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(12.dp),
         color = SubtleSurface,
     ) {
         Box(Modifier.fillMaxSize()) {

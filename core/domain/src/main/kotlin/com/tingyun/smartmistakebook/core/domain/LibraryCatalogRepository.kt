@@ -35,6 +35,11 @@ data class LibraryCatalogItem(
     val isFavorite: Boolean = false,
     val nextReviewAtEpochMillis: Long?,
     val retrievability: Double?,
+    val problemId: String = "",
+    val problemRevisionId: String = "",
+    val practiceUnitId: String = "",
+    val problemMarkdown: String = summary,
+
 ) {
     init {
         require(entryId.isNotBlank()) { "Library item id must not be blank" }

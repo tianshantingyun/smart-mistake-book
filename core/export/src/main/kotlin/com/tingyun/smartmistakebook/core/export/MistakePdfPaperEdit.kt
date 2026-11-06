@@ -208,6 +208,7 @@ class MistakePdfPaperEdit private constructor(
                 edited = false,
                 questionCount = questions.size,
                 sourceInputSha256 = sourceInput.inputSha256,
+                frozenQuestions = freezeQuestions(),
             )
         }
         val blocks = buildPaperBlocks(questions, layout)
@@ -229,8 +230,6 @@ class MistakePdfPaperEdit private constructor(
             blocks = blocks,
             // 来源题面文档指纹保持不变：卷面编辑不产生新的题面 revision（5B 才做修订编辑）。
             questionDocumentSha256 = sourceInput.questionDocumentSha256,
-            // KD-75 C2：卷面编辑只改块序列，不改变内容出处——模型解析文本事实随来源快照透传。
-            hasModelParsedText = sourceInput.hasModelParsedText,
             inputSha256 = fingerprint,
             maxPages = sourceInput.maxPages,
             maxRenderedLines = sourceInput.maxRenderedLines,
@@ -250,13 +249,23 @@ class MistakePdfPaperEdit private constructor(
             },
             layout = layout,
             userNote = sourceInput.userNote,
+            hasModelParsedText = sourceInput.hasModelParsedText,
+            sourceRevisionId = sourceInput.sourceRevisionId,
+            sourceImages = sourceInput.sourceImages,
+            artifactRole = sourceInput.artifactRole,
         )
         return MistakePaperDraft(
             input = editedInput,
             edited = true,
             questionCount = questions.size,
             sourceInputSha256 = sourceInput.inputSha256,
+            frozenQuestions = freezeQuestions(),
         )
+    }
+
+    private fun freezeQuestions(): List<com.tingyun.smartmistakebook.core.model.FrozenExportQuestion> {
+        val result = questions.mapIndexed { index, question -> runCatching { freezePaperQuestion(question, index + 1) }.getOrNull() }
+        return if (result.all { it != null }) result.filterNotNull() else emptyList()
     }
 
     private fun withQuestion(
@@ -368,9 +377,66 @@ data class MistakePdfPaperQuestion(
      * "编辑了文字"就把讲解过程图丢掉。
      */
     val solutionImages: List<MistakePdfExportImage> = emptyList(),
+    val sourceRevisionId: String? = null,
+    val sourceRevisionNumber: Int = 1,
+    val sourceImages: List<com.tingyun.smartmistakebook.core.model.ModelEgressAssetGrant> = emptyList(),
 ) {
     init {
         require(entryId.isNotBlank()) { "A paper question needs an entry id" }
+    }
+}
+
+/** Freezes the final paper text and image facts; margins, notes and ordinal never enter question reuse. */
+internal fun freezePaperQuestion(question: MistakePdfPaperQuestion, ordinal: Int): com.tingyun.smartmistakebook.core.model.FrozenExportQuestion {
+    val revision = requireNotNull(question.sourceRevisionId)
+    val refs = mutableListOf<com.tingyun.smartmistakebook.core.model.StoredFigureReference>()
+    val grants = mutableListOf<com.tingyun.smartmistakebook.core.model.ModelEgressAssetGrant>()
+    val blocks = mutableListOf<com.tingyun.smartmistakebook.core.model.ContentBlock>()
+    fun image(id: String, sha: String?, role: String?) {
+        val source = question.sourceImages.singleOrNull { it.sha256 == sha } ?: error("Paper image has no canonical source")
+        val visualRole = com.tingyun.smartmistakebook.core.model.VisualRole.valueOf(role ?: "CLEAN_IMAGE")
+        require(visualRole == com.tingyun.smartmistakebook.core.model.VisualRole.CLEAN_IMAGE || visualRole == com.tingyun.smartmistakebook.core.model.VisualRole.QUESTION_DIAGRAM)
+        refs += com.tingyun.smartmistakebook.core.model.StoredFigureReference(id, source.assetId, source.sha256, visualRole)
+        grants += source
+        blocks += com.tingyun.smartmistakebook.core.model.ContentBlock.Paragraph(id, "题目配图")
+    }
+    if (question.cleanImageLocalUri != null) image("paper-question-image", question.cleanImageSha256, question.questionImageRole)
+    question.blocks.forEach { block -> when (block) {
+        is MistakePdfBlock.Note -> Unit
+        is MistakePdfBlock.Image -> if (block.role != "TUTOR_EXPLANATION") image(block.id, block.expectedContentSha256, block.role)
+        is MistakePdfBlock.Paragraph -> blocks += com.tingyun.smartmistakebook.core.model.ContentBlock.Paragraph(block.id, block.text)
+        is MistakePdfBlock.SectionHeading -> blocks += com.tingyun.smartmistakebook.core.model.ContentBlock.Paragraph(block.id, block.text)
+        is MistakePdfBlock.Formula -> blocks += com.tingyun.smartmistakebook.core.model.ContentBlock.Formula(block.id, block.latex, block.alternativeText, block.display)
+        is MistakePdfBlock.Figure -> blocks += com.tingyun.smartmistakebook.core.model.ContentBlock.Figure(block.id, block.title, block.alternativeText, block.schema)
+        is MistakePdfBlock.ChoiceGroup -> blocks += com.tingyun.smartmistakebook.core.model.ContentBlock.ChoiceGroup(block.id, block.prompt,
+            block.choices.map { com.tingyun.smartmistakebook.core.model.StructuredChoice(it.id, it.text) })
+    } }
+    val document = com.tingyun.smartmistakebook.core.model.QuestionDocument("paper-question", question.title, blocks)
+    return com.tingyun.smartmistakebook.core.model.FrozenExportQuestion(ordinal, question.entryId,
+        com.tingyun.smartmistakebook.core.model.SolutionBasis(revision, com.tingyun.smartmistakebook.core.model.solutionQuestionSha256(document, refs)),
+        document, refs, grants.distinctBy { it.assetId }, question.sourceRevisionNumber)
+}
+
+internal fun verifyFrozenPaperQuestions(draft: MistakePaperDraft) {
+    val blocks = draft.input.blocks
+    val frozen = draft.frozenQuestions
+    require(frozen.size == draft.questionCount)
+    frozen.forEachIndexed { index, question ->
+        val prefix = "question-$index-"
+        val start = blocks.indexOfFirst { it.id == "${prefix}heading" }
+        require(start >= 0)
+        val heading = blocks[start] as? MistakePdfBlock.SectionHeading
+        require(heading?.text == "${index + 1}. ${question.document.title}")
+        val end = if (index == frozen.lastIndex) blocks.size else blocks.indexOfFirst { it.id == "question-${index + 1}-heading" }.also { require(it > start) }
+        val content = blocks.subList(start + 1, end)
+        val image = content.singleOrNull { it.id == "${prefix}image" } as? MistakePdfBlock.Image
+        val questionBlocks = content.filterNot { it.id == "${prefix}meta" || it.id == "${prefix}image" || it is MistakePdfBlock.Note }
+            .map { block -> block.withNamespacedId(block.id.removePrefix(prefix)) }
+        val reconstructed = freezePaperQuestion(MistakePdfPaperQuestion(question.entryId, requireNotNull(question.document.title), "", questionBlocks,
+            cleanImageLocalUri = image?.localUri, cleanImageSha256 = image?.expectedContentSha256, cleanImageByteSize = image?.expectedByteSize,
+            questionImageRole = image?.role, sourceRevisionId = question.basis.revisionId, sourceRevisionNumber = question.revisionNumber,
+            sourceImages = question.sourceImages), question.ordinal)
+        require(reconstructed.basis == question.basis) { "Frozen paper content differs from its answer question" }
     }
 }
 
@@ -387,6 +453,9 @@ internal fun paperQuestionOf(input: MistakePdfExportInput): MistakePdfPaperQuest
         cleanImageByteSize = input.cleanImageByteSize,
         questionImageRole = input.questionImageRole,
         solutionImages = input.solutionImages,
+        sourceRevisionId = input.sourceRevisionId,
+        sourceRevisionNumber = input.revisionNumber,
+        sourceImages = input.sourceImages,
     )
 
 /**

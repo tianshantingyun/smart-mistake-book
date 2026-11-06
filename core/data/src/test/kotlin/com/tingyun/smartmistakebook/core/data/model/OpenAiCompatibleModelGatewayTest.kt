@@ -10,6 +10,7 @@ import com.tingyun.smartmistakebook.core.domain.ModelConfigurationUpdate
 import com.tingyun.smartmistakebook.core.domain.ModelCredentialReadResult
 import com.tingyun.smartmistakebook.core.domain.RestrictedModelAsset
 import com.tingyun.smartmistakebook.core.domain.RestrictedModelAssetSource
+import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentDecision
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentInput
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentOrigin
@@ -110,6 +111,86 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class OpenAiCompatibleModelGatewayTest {
+    private fun editInputWithImage(): com.tingyun.smartmistakebook.core.model.MistakeEditInput {
+        val block = ContentBlock.Paragraph("edit-block", "原条件")
+        val document = CapturedQuestionDocument(document = QuestionDocument("edit-document", blocks = listOf(block)), blockEvidence = listOf(
+            com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence(block.id, "", null, WritingLayer.UNKNOWN,
+                QuestionBlockProvenance.USER_TRANSCRIPTION, null, QuestionBlockReviewStatus.USER_CONFIRMED, null)))
+        return com.tingyun.smartmistakebook.core.model.MistakeEditInput(
+            com.tingyun.smartmistakebook.core.model.EditBasis("edit-entry", "edit-revision", com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint.of(document)),
+            document, setOf(block.id), "根据原图修正条件", listOf(ModelEgressAssetGrant(ASSET_ID, SHA, IMAGE.size.toLong(), 100, 200)))
+    }
+
+    @Test fun mistakeEditMockServerReceivesOriginalImageAndRejectsInvalidOrTruncatedOutput() = runBlocking {
+        MockWebServer().use { server ->
+            server.start()
+            val valid = """{"summaryMarkdown":"已修正条件","changes":[{"type":"paragraph","target":"block-1","markdown":"修正后的条件"}]}"""
+            val responses = listOf(envelope(valid), envelope(valid.replace("\"summaryMarkdown\":", "\"uri\":\"https://bad.example/image\",\"summaryMarkdown\":")), envelope("{", "length"))
+            responses.forEachIndexed { index, responseBody ->
+                server.enqueue(MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json").setBody(responseBody))
+                val configured = CONFIGURATION.copy(capabilityVerification = requireNotNull(CONFIGURATION.capabilityVerification).copy(supportsMistakeEdit = true))
+                var openedAsset: String? = null
+                val gateway = OpenAiCompatibleModelGateway(FakeConfigurationStore(configured),
+                    assetSource = assetSource { _, id -> openedAsset = id; asset() },
+                    transport = modelTransport { wire ->
+                        val request = Request.Builder().url(server.url("/chat/completions")).post(wire.body.toRequestBody("application/json".toMediaType())).build()
+                        OkHttpClient().newCall(request).execute().use { ModelHttpResponse(it.code, it.body.string()) }
+                    }, clock = { AUTHORIZATION_NOW })
+                val request = ModelTaskRequest(requestId = "edit-$index", input = editInputWithImage(), occurredAtEpochMillis = REQUEST_OCCURRED_AT, agentConsentGranted = true)
+                val events = gateway.execute(ModelEgressPolicy.authorize(request, gateway.capabilities())).toList()
+                if (index == 0) assertTrue((events.last() as ModelGatewayEvent.Completed).output is com.tingyun.smartmistakebook.core.model.MistakeEditOutput)
+                else assertEquals(if (index == 1) ModelFailureCode.INVALID_RESPONSE else ModelFailureCode.INCOMPLETE_OUTPUT,
+                    (events.last() as ModelGatewayEvent.Failed).failure.code)
+                val wire = requireNotNull(server.takeRequest()).body.readUtf8()
+                assertEquals(ASSET_ID, openedAsset)
+                assertTrue(wire.contains("data:image/jpeg;base64,AQIDBA=="))
+                assertFalse(wire.contains("edit-entry")); assertFalse(wire.contains("edit-revision")); assertFalse(wire.contains(ASSET_ID))
+            }
+            assertEquals(3, server.requestCount)
+        }
+    }
+
+    @Test fun changedEditSourceFingerprintIsRejectedBeforeHttp() = runBlocking {
+        val configured = CONFIGURATION.copy(capabilityVerification = requireNotNull(CONFIGURATION.capabilityVerification).copy(supportsMistakeEdit = true))
+        var calls = 0
+        val gateway = OpenAiCompatibleModelGateway(FakeConfigurationStore(configured), assetSource { _, _ -> asset() },
+            transport = modelTransport { calls++; ModelHttpResponse(200, envelope("""{"summaryMarkdown":"修改","changes":[{"type":"paragraph","target":"block-1","markdown":"新条件"}]}""")) })
+        val original = editInputWithImage()
+        val changed = original.copy(sourceImages = original.sourceImages.map { it.copy(sha256 = "b".repeat(64)) })
+        val request = ModelTaskRequest(requestId = "edit-source-changed", input = changed, occurredAtEpochMillis = REQUEST_OCCURRED_AT, agentConsentGranted = true)
+        val events = gateway.execute(ModelEgressPolicy.authorize(request, gateway.capabilities())).toList()
+        assertEquals(0, calls)
+        assertTrue(events.last() is ModelGatewayEvent.Failed)
+    }
+
+    @Test fun unverifiedEditCapabilityAndCancelledEditMakeZeroHttpCalls() = runBlocking {
+        MockWebServer().use { server ->
+            server.start()
+            server.enqueue(MockResponse().setBody(envelope("""{"summaryMarkdown":"修改","changes":[{"type":"paragraph","target":"block-1","markdown":"新条件"}]}""")))
+            var calls = 0
+            fun post(wire: WireRequest): ModelHttpResponse {
+                calls++
+                val request = Request.Builder().url(server.url("/chat/completions")).post(wire.body.toRequestBody("application/json".toMediaType())).build()
+                return OkHttpClient().newCall(request).execute().use { ModelHttpResponse(it.code, it.body.string()) }
+            }
+            val oldGateway = OpenAiCompatibleModelGateway(FakeConfigurationStore(CONFIGURATION), assetSource { _, _ -> asset() }, transport = modelTransport { post(it) })
+            assertFalse(oldGateway.capabilities().supports(ModelTaskKind.MISTAKE_EDIT))
+            val request = ModelTaskRequest(requestId = "edit-gated", input = editInputWithImage(), occurredAtEpochMillis = REQUEST_OCCURRED_AT, agentConsentGranted = true)
+            val denied = runCatching { ModelEgressPolicy.authorize(request, oldGateway.capabilities()) }.exceptionOrNull() as com.tingyun.smartmistakebook.core.model.ModelEgressAuthorizationException
+            assertEquals(ModelFailureCode.PROVIDER_CAPABILITY_MISSING, denied.failureCode)
+            assertEquals(0, calls); assertEquals(0, server.requestCount)
+            val entered = CompletableDeferred<Unit>()
+            val hold = CompletableDeferred<Unit>()
+            val configured = CONFIGURATION.copy(capabilityVerification = requireNotNull(CONFIGURATION.capabilityVerification).copy(supportsMistakeEdit = true))
+            val gateway = OpenAiCompatibleModelGateway(FakeConfigurationStore(configured), assetSource { _, _ -> asset() },
+                transport = ModelHttpTransport { wire, beforeEnqueue -> entered.complete(Unit); hold.await(); beforeEnqueue(); post(wire) })
+            val execution = ModelEgressPolicy.authorize(request, gateway.capabilities())
+            val work = async { gateway.execute(execution).toList() }
+            entered.await(); work.cancel(); work.join()
+            assertTrue(work.isCancelled); assertEquals(0, calls); assertEquals(0, server.requestCount)
+        }
+    }
+
     @Test
     fun configuredButUntestedProviderAdvertisesNoModelTasks() = runBlocking {
         val gateway = OpenAiCompatibleModelGateway(

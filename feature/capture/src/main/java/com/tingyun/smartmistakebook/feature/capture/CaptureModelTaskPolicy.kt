@@ -13,9 +13,9 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
 
 internal const val CAPTURE_SPLIT_NEEDS_SINGLE_PAGE =
-    "自动拆分只支持单页题目，这一页有多页。可以对单页使用自动拆分或手动框选。"
+    "自动拆分仅支持单页。请先选择一页，或手动框选。"
 internal const val CAPTURE_SPLIT_FAILED =
-    "这次拆分没有完成，原图已经保留。可以重试，也可以改用手动框选每道题的范围。"
+    "拆分未完成，原图已保留。请重试或手动框选。"
 internal const val CAPTURE_SPLIT_MANUAL_REGION_LIMIT = 12
 
 internal fun captureFailedTaskClearsAuthorization(status: ModelTaskStatus?): Boolean =
