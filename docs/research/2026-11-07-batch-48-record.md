@@ -498,3 +498,39 @@ $ git status --porcelain -- tools/split_golden/ → 仅新增 v2 与旁车，v1 
 （KnowledgeQuizTasks.kt、PdfAigcContentPolicy.kt 及两测试，属并行知识线，与切分/热区无关）；
 `core/capture/`、app capture 目录保持零改动；finding #6/#10 引用的"model 目录干净"
 快照在修复环时点已不成立，特此登记现态。热区文件无任何 status 条目，结论不变。
+
+## 9. 主会话收口（2026-11-07，合并 PR#13 后的树态权威）
+
+### 9.1 合并事件与手工并集
+
+推送被拒（origin 已前进：他线 PR#13「确立最终 UI 基线并收口文案」+ B35 自愈 + KD-84 部分页重注入 + **schema 73→74→75**（paper_reviews/answer manifest 两代新表））。按纪律 merge（不 rebase）：
+
+- 12 个阻塞 merge 的共享脏文件**整文件纳入**（`a8a1c817`，注明归属混合；树当时编译绿）。
+- merge 冲突 3 文件；`--ours` 解决后暴露**单向丢失**：origin 的 T8（`DetailedSolutionPort`/`MistakeEditJobPort` supertype、`paperReviews`、`detailedSolutions` 桥接、answer-manifest 覆盖）与 `PdfAigcContentPolicy.GENERATION` 重复声明、`TutorSurfacePolicyTest` 文案断言（PR#13 精简为「已结束」）。已逐项手工并集补回（`StudyDatabasePort.kt`/`RoomStudyDatabase.kt`/`PdfAigcContentPolicy.kt`/`TutorSurfacePolicyTest.kt`）；`RoomStudyDatabase` 以 a8a1c817 为基重放 T8 两块。
+- 依赖面：G-089 strict 校验补录新 androidx 依赖（`--write-verification-metadata`）；`feature/library` 补 `kotlinx-coroutines-test`；锁清单经门禁任务集 `--write-locks` 更新（14 份，未提交——KD-72 维持）。
+- 定向修复验证：domain JVM 31 断言上限 31→33（模型 MAX_TOTAL=32）；library/tutor/domain 四组定向测试全绿后跑全量。
+
+### 9.2 合并后树态（如实）
+
+- **双门**：主会话实跑单测门（12 模块 + `core:domain:test`）exit=1、强门（含 post-merge 强制重编）exit=1（Build FAILED）。**17 例红，全部是他线语义变更与批次 41/42 断言的冲突，非本批引入**：
+  - 容量族 5 例（`StudyReviewPlannerExamWindowTest`×4 + `CapacityPreviewTest`）：预算 120→1200（他线改 `StudyExperienceRepository` 常量语义）；
+  - `KernelWave0` 1 例：schema 75 vs 断言（他线 bump 未同步该测试）；
+  - `LibraryFts` 3 例 + `RoomBackedStudyExperience` 1 例 + `Gateway` 3 例 + `TutorExportSheet` 1 例：同源（DAO SQL/文案/manifest 语义随 PR#13 变更）。
+  - `MistakeOrganizationRepositoryTest` 已由本批修绿（31→33）。
+- 归因与出口：这些是**他线 PR#13/B35 在飞语义**，重锚属其会话（或取得授权的下一批）；本批不代改语义，只做编译并集。
+
+### 9.3 批次 48 交付（不受树态影响）
+
+- **金标 v2 落库**：24 页盲标（A 轮全 24 + B 轮 8 复标，题数 κ=1.0、IoU 均值 0.9641），`evidenceGradeLevel=G1（model-labeled 如实）`，validate PASS，sha `03b1eecc…`，v1 一字未动；负控三改必红实测。
+- **切分门如实 FAIL**：dev ① 0.4167、acceptance 单次 ① 5/8=0.625、③ 3/26≠0——**未达 0.9**；主码零改动（仅评测通道 `GoldenSplitEvalChannelHarness`）；门报告/裁定落 `splitter/`。未达标原因（切残边界/跨栏题）见附录 A。
+- **D 域改判**：Provider 行转 PASS（产品路径设备证据 `d-domain/`）；真机/arm64 行改「用户裁定豁免」；台账 898/23/279，`pass_with_review=898/898`。
+- 验收报告/终裁已按台账重生成；`trace` exit 0（gaps 0）。
+
+### 9.4 提交（本收口轮）
+
+v2 金标+门脚本+通道 → 48 证据块 → 验收台账/行级 JSON → 基线/记录 → 共享树收口（12 文件）→ merge + 手工并集修复 → 依赖校验/锁补录 → 本节。
+
+### 9.5 交接（不变 + 新增）
+
+- 原五项外部条件不变（签名/金标路径已启动/arm64 已豁免/Provider 已部分解除/热区）。
+- **新增**：PR#13/B35 与批次 41/42 断言的语义重锚（17 例红清单见 §9.2）——归他线会话或授权批。
