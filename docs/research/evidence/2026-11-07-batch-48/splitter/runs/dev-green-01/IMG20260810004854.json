@@ -1,0 +1,25 @@
+{
+    "file": "IMG20260810004854.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 36937,
+    "responseHead": "{\"id\":\"fdceda50-f8ce-4812-8c4d-993412e1db25\",\"object\":\"chat.completion\",\"created\":1793987035,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"RECAPTURE\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.55,\\\"right\\\":0.42,\\\"bottom\\\":1.0},\\\"message\\\":\\\"第4题题干可见但选项缺失，无法完整转写\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.35,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":0.78},\\\"message\\\":\\\"上一题仅见D—H选项，缺少题干与A—C，无法完整转写\\\"}],\\\"suggestedActions\\\":[\\\"RECAPTURE\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图像内容。用户要求只返回JSON。需要分析图片：一张旋转的试卷/题目照片。需要判断是否足以完整转写一道或多道独立题。决定PASS/RECAPTURE/NEED_MORE_IMAGE/SPLIT等。需要识别完整可见的独立题数量。图片显示似乎是一页题目，但拍摄方向旋转90度。内容包含题目选项？让我仔细阅读。\\n\\n图片旋转了90度（文本竖排从左到右？实际照片中文字顺时针旋转90度？）。需要按阅读方向看。可见内容：右侧从上到下（实际横向）有：\\n\\nD. 蛋白质和核酸具有多样性的原因之一是都具有千差万别的空间结构\\nE. 核酸中核苷酸的排列顺序能够决定蛋白质中氨基酸的排列顺序\\nF. 蛋白质和核酸在合成时都需要模板、能量和酶\\nG. 蛋白质合成需要核酸参与，核酸合成不需要蛋白质参与\\nH. 真核细胞的核中有DNA—蛋白质复合物，而原核细胞的拟核中没有 [全国I卷]\\n4. [2025·辽宁大连一模] 生物体内有许多蛋白质含有除氨基酸外的其他化学成分作为其结构的一部分，若非蛋白成分是核酸，这种蛋白质称为核蛋白。下列相关叙述错误的是\\n\\n左侧还有题干? 图像底部/左边有截断： \\\"列相关叙述错误的是\\\" 可能是第4题题干。还看到选项 A/B/C? 图片中只显示D-H？ 这似乎是一道多选题，有选项A-H? 可能是某题（多选题）选项D-H，前面A-C未显示。独立题数量：画面中似乎只有一道题（包含选项D-H），上面可能还有别的题？顶部显示D选项，所以可能是某一道题的多个选项。还有第4题题干。这看起来像两个部分？ 实际上图像中 D-H 是某题选项，第4题题干在下方。需要判断几道互相独立的题。可能图片中包含一道题（题号未明）的选项D-H，以及第4题题干（但第4题的选项A-D未完全显示？或者第4题是另一道独立题）。让我映射区域。\\n\\n图片内容旋转：如果逆时针旋转90度，能看到横向文字。顶部（原图右侧）是 D、E、F、G、H 选项，底部（原图左侧）有“4. [2025·辽宁大连一模] 生物体内有许多蛋白质含有除氨基酸外的其他化学成分作为其结构的一部分，若非蛋白成分是核酸，这种蛋白质称为核蛋白。下列相关叙述错误的是” 后面是否跟着这道题的选项？但",
+    "decision": "RECAPTURE",
+    "issueCodes": [
+        "MISSING_OPTIONS",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 559057,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "ea3cdf02fd223f2e114739b967d5bce1aa9b02b7e41f9e49e1dc13a3a85b3ebf",
+    "promptSha256": "d9f6d267cd7bdb124bf679abea439062e8dc73e3b62d058500f98ce6636e3a67"
+}

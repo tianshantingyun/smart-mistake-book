@@ -1,0 +1,42 @@
+{
+  "pageId": "IMG20260810004353",
+  "file": "IMG20260810004353.jpg",
+  "sha256": "eb92fe5b24ff41ec2ad8396e150faa500336719e13e8baeb973a28433a9fd726",
+  "split": "acceptance",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T00:20:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（摆正整页渲染图与带网格放大裁片）；标注时未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "物理",
+  "layout": "single-column",
+  "questionCount": 2,
+  "boxes": [
+    {"order": 1, "questionNo": "14", "left": 0.055, "top": 0.145, "right": 0.93, "bottom": 0.725, "questionType": "solve", "coordConfidence": "high", "rawBox": {"left": 0.07, "top": 0.055, "right": 0.855, "bottom": 0.93}, "notes": "题14（13分）含(1)(2)(3)；题号(2)(3)被红笔圈画随框；(3)下方红色手写批注（y≈0.65–0.72）随框；题14图位于框内右侧（x≈0.72–1.0, y≈0.48–0.775，右缘出画），按指南附图不入题干框但轴对齐矩形无法排除，如实记录"},
+    {"order": 2, "questionNo": "15", "left": 0.055, "top": 0.895, "right": 0.935, "bottom": 1.0, "questionType": "solve", "coordConfidence": "medium", "rawBox": {"left": 0.0, "top": 0.055, "right": 0.945, "bottom": 0.935}, "notes": "题15（18分）题干在本页起两行，第二行被图像底缘裁切，题目延续到下一页"}
+  ],
+  "strata": {
+    "questionType": "solve",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": true,
+    "optionsIncluded": false,
+    "figureOwnership": [1]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "primary box coords in upright space (raw rotated 90 CCW); rawBox in raw file space",
+  "orientation": {"rawSize": [3072, 4096], "rawToUpright": "rotate90ccw", "uprightSize": [4096, 3072]},
+  "imageSize": [4096, 3072],
+  "notes": "页眉『注：重庆市育才中学校』(y<0.03) 不入框；本页 upright 为横幅 4096x3072。"
+}

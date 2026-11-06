@@ -1,0 +1,45 @@
+{
+  "pageId": "IMG20260810010034",
+  "file": "IMG20260810010034.jpg",
+  "sha256": "ca110cc4ae39968947cdda26d2f69d9db32ef49c08c347b7b3f306c262cb002b",
+  "split": "acceptance",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T04:20:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图、带网格放大裁片与自写行投影测量脚本的像素行带输出）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "数学",
+  "layout": "single-column",
+  "questionCount": 6,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号,疑为2)", "left": 0.08, "top": 0.0, "right": 0.86, "bottom": 0.1, "questionType": "choice", "coordConfidence": "high", "notes": "承接上页题目：顶缘裁切残行（『2]』公式尾）+选项 C.[1/2,+∞) 与 D.(1/2,+∞) 一行"},
+    {"order": 2, "questionNo": "3", "left": 0.055, "top": 0.11, "right": 0.87, "bottom": 0.24, "questionType": "choice", "coordConfidence": "high", "notes": "题3 题干+选项A-D两行；右侧黑笔大字 D 作答记号随框"},
+    {"order": 3, "questionNo": "4", "left": 0.055, "top": 0.245, "right": 0.94, "bottom": 0.465, "questionType": "choice", "coordConfidence": "high", "notes": "题4【多选题】题干2行+选项A/B、C/D两行；右侧大片红/黑笔作答记号（x≈0.62-0.93）随框"},
+    {"order": 4, "questionNo": "5", "left": 0.055, "top": 0.47, "right": 0.9, "bottom": 0.565, "questionType": "fill", "coordConfidence": "high", "notes": "题5 两问填空（值域），黑笔手写答案随框"},
+    {"order": 5, "questionNo": "6", "left": 0.055, "top": 0.57, "right": 0.9, "bottom": 0.795, "questionType": "fill", "coordConfidence": "high", "notes": "题6 (1)(2) 两小问填空，黑笔手写答案与右侧红笔 [5,9] 随框"},
+    {"order": 6, "questionNo": "7", "left": 0.055, "top": 0.795, "right": 0.9, "bottom": 0.9, "questionType": "fill", "coordConfidence": "medium", "notes": "题7 填空（7 被红笔圈画）+下方红笔手写演算（y≈0.85-0.90）随框"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": false,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image + pixel row-band profile (rowprofile.py)",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "右缘 x>0.92 为对页窄条（10./11. 题号残字与桌面杂物）不入框。印刷题号 3-7 共 5 个 + 承接块，questionCount=6。"
+}

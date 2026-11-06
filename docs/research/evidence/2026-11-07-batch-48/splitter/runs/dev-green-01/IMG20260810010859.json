@@ -1,0 +1,43 @@
+{
+    "file": "IMG20260810010859.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 18276,
+    "responseHead": "{\"id\":\"62ce744d-65a9-4169-9465-42307be2b89f\",\"object\":\"chat.completion\",\"created\":1793987285,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.1,\\\"top\\\":0.04,\\\"right\\\":0.92,\\\"bottom\\\":0.7},\\\"message\\\":\\\"画面包含多道独立题，需拆分。\\\"}],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[{\\\"left\\\":0.12,\\\"top\\\":0.055,\\\"right\\\":0.91,\\\"bottom\\\":0.2},{\\\"left\\\":0.12,\\\"top\\\":0.255,\\\"right\\\":0.88,\\\"bottom\\\":0.48},{\\\"left\\\":0.14,\\\"top\\\":0.49,\\\"right\\\":0.78,\\\"bottom\\\":0.69}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"We need answer JSON only. Need assess image. Need determine independent questions fully visible. Image shows textbook page. It includes some fill-in statements numbered 7? Actually top: \\\"(2) 标量：只有大小，没有方向，... [14] ...\\\" Then \\\"7. 三角形定则：...\\\" likely one question? Then \\\"基础小测\\\" section: \\\"1. 判断\\\" with subitems (1)(2)(3). Then \\\"2. 物体受到两个力...\\\" This is a separate question. Need decide if multiple independent questions 2-12 fully visible? We need identify question boundaries. There is a question 7 (fill blanks) near top fully visible? It spans from \\\"7. 三角形定则...\\\" to \\\"则是[16] __ 的，都是矢量相加的法则。\\\" Yes complete question? The preceding line (2) 标量... maybe part of previous question, partially visible, not complete? It has [14] and maybe line \\\"只有大小,没有方向,相加...\\\" Could be a question with blanks? But top clipped? The image top shows \\\"(2) 标量：只有大小，没有方向，相加...\\\" It might be part of a fill-in question, but at top edge partially cut? Actually fir",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.12,
+            "top": 0.055,
+            "right": 0.91,
+            "bottom": 0.2
+        },
+        {
+            "left": 0.12,
+            "top": 0.255,
+            "right": 0.88,
+            "bottom": 0.48
+        },
+        {
+            "left": 0.14,
+            "top": 0.49,
+            "right": 0.78,
+            "bottom": 0.69
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "image": {
+        "egressBytes": 508910,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "25dcaf5c41f4e03aeff134d073d2286c78bb32c741cb5e45ddca0b753f2ecda4",
+    "promptSha256": "d9f6d267cd7bdb124bf679abea439062e8dc73e3b62d058500f98ce6636e3a67"
+}

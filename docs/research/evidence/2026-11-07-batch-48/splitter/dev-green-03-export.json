@@ -1,0 +1,408 @@
+{
+ "pages": [
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "PASS",
+   "file": "IMG20260810004304.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004304.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "cab5c34974f0005b13f706a00847a366d2903a9aa87d201554b305f795a99d69",
+   "decision": "SPLIT",
+   "file": "IMG20260810004511.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004511.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.63,
+     "left": 0.02,
+     "right": 0.7,
+     "top": 0.08
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.52,
+     "right": 0.99,
+     "top": 0.47
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": null,
+   "file": "IMG20260810004854.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "ERROR",
+   "pageId": "IMG20260810004854.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": null,
+   "file": "IMG20260810005144.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "ERROR",
+   "pageId": "IMG20260810005144.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "f3651ab575d572d03a07cd05b64a9d2e9368f3130e30986aabf975391554a42c",
+   "decision": "SPLIT",
+   "file": "IMG20260810005301.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005301.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.99,
+     "left": 0.01,
+     "right": 0.465,
+     "top": 0.01
+    },
+    {
+     "bottom": 0.99,
+     "left": 0.47,
+     "right": 0.825,
+     "top": 0.01
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810005605.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005605.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "40ca88ae07af01e0690744b78de27efc54e628e0138568beee8dc724673a2e73",
+   "decision": "SPLIT",
+   "file": "IMG20260810005855.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005855.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.36,
+     "left": 0.05,
+     "right": 0.96,
+     "top": 0.0
+    },
+    {
+     "bottom": 0.8,
+     "left": 0.05,
+     "right": 0.99,
+     "top": 0.36
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.05,
+     "right": 0.99,
+     "top": 0.8
+    }
+   ]
+  },
+  {
+   "boxesSha256": "7602970c28d65107c3de3ee160d8474a975ca5394d458635dfdfb1216166bafd",
+   "decision": "SPLIT",
+   "file": "IMG20260810010306.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010306.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.265,
+     "left": 0.06,
+     "right": 0.95,
+     "top": 0.0
+    },
+    {
+     "bottom": 0.615,
+     "left": 0.05,
+     "right": 0.96,
+     "top": 0.275
+    },
+    {
+     "bottom": 0.875,
+     "left": 0.05,
+     "right": 0.96,
+     "top": 0.625
+    }
+   ]
+  },
+  {
+   "boxesSha256": "5122e934abb083b30a76410aecfe6dcc04661918ba93c3ee7a51ed3a7147446b",
+   "decision": "SPLIT",
+   "file": "IMG20260810010349.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010349.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 4,
+   "questions": [
+    {
+     "bottom": 0.13,
+     "left": 0.17,
+     "right": 0.98,
+     "top": 0.0
+    },
+    {
+     "bottom": 0.44,
+     "left": 0.17,
+     "right": 1.0,
+     "top": 0.2
+    },
+    {
+     "bottom": 0.69,
+     "left": 0.17,
+     "right": 1.0,
+     "top": 0.44
+    },
+    {
+     "bottom": 0.82,
+     "left": 0.17,
+     "right": 1.0,
+     "top": 0.69
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4eac4fd15acdc9e1b9789db65d47bfef1237bec8bed4f9b64841e6adb5e5d7e4",
+   "decision": "SPLIT",
+   "file": "IMG20260810010633.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010633.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 5,
+   "questions": [
+    {
+     "bottom": 0.263,
+     "left": 0.1,
+     "right": 0.65,
+     "top": 0.06
+    },
+    {
+     "bottom": 0.862,
+     "left": 0.08,
+     "right": 0.75,
+     "top": 0.263
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.08,
+     "right": 0.75,
+     "top": 0.862
+    },
+    {
+     "bottom": 0.54,
+     "left": 0.77,
+     "right": 1.0,
+     "top": 0.15
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.77,
+     "right": 1.0,
+     "top": 0.54
+    }
+   ]
+  },
+  {
+   "boxesSha256": "02c07405d7f0f16aba7aa27030b1a8681230d8443ee6a8f68623381cc7cc6ae1",
+   "decision": "SPLIT",
+   "file": "IMG20260810010859.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010859.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.285,
+     "left": 0.045,
+     "right": 0.985,
+     "top": 0.095
+    },
+    {
+     "bottom": 0.61,
+     "left": 0.045,
+     "right": 0.985,
+     "top": 0.345
+    },
+    {
+     "bottom": 0.84,
+     "left": 0.045,
+     "right": 0.985,
+     "top": 0.615
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "PASS",
+   "file": "IMG20260810011017.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011017.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "PASS",
+   "file": "IMG20260810011126.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011126.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "173566a0c73b008a682009b2f8e129c6958eaf5c629e7067f3beeeea955a4005",
+   "decision": "SPLIT",
+   "file": "IMG20260810011248.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011248.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 4,
+   "questions": [
+    {
+     "bottom": 0.38,
+     "left": 0.04,
+     "right": 0.82,
+     "top": 0.285
+    },
+    {
+     "bottom": 0.447,
+     "left": 0.04,
+     "right": 0.8,
+     "top": 0.382
+    },
+    {
+     "bottom": 0.66,
+     "left": 0.03,
+     "right": 0.95,
+     "top": 0.455
+    },
+    {
+     "bottom": 0.94,
+     "left": 0.04,
+     "right": 0.97,
+     "top": 0.73
+    }
+   ]
+  },
+  {
+   "boxesSha256": "b803485b4e23baf38956bd7d18add68803d2afdd79709e39a043b07b2d63dfa2",
+   "decision": "SPLIT",
+   "file": "IMG20260810011649.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011649.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.98,
+     "left": 0.18,
+     "right": 0.78,
+     "top": 0.02
+    },
+    {
+     "bottom": 0.55,
+     "left": 0.0,
+     "right": 0.17,
+     "top": 0.2
+    }
+   ]
+  },
+  {
+   "boxesSha256": "3f971d340bcb1c87c2ab6f646798abec1dd69e5b1dbc37a726a91637155ac069",
+   "decision": "SPLIT",
+   "file": "IMG20260810012103.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810012103.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.235,
+     "left": 0.0,
+     "right": 1.0,
+     "top": 0.0
+    },
+    {
+     "bottom": 0.675,
+     "left": 0.0,
+     "right": 1.0,
+     "top": 0.25
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.0,
+     "right": 1.0,
+     "top": 0.685
+    }
+   ]
+  }
+ ],
+ "schemaVersion": 2,
+ "source": {
+  "channel": "golden-split-eval-harness-v1（JVM harness；非设备 DB 导出，如实标注）",
+  "divergences": [
+   "transport: plain HTTPS POST instead of gateway authorization pipeline (same requestBody builder, same parseCompletion)",
+   "image egress copy: prepared by caller per EgressImageBudget plan (long edge 2048, JPEG q88, q70 fallback); PIL resampling, not Android Skia bytes; scaledSize re-verified here"
+  ],
+  "endpoint": "https://api.deepseek.com",
+  "keySha8": "cd10efbc",
+  "model": "deepseek-flash",
+  "pageRecordSha256": {
+   "IMG20260810004304.jpg": "7bc3e0a79bf63ada2d48672b952aa11684ddd82122811a42dd36c197a834700c",
+   "IMG20260810004511.jpg": "3810fe600cff0870364eb49ecdcfd39bcd578a38d4525d0d6bbb97721b40008c",
+   "IMG20260810004854.jpg": "4a037789d292e3a73d584a9fc825d61c0276f5a6d487b5a5129c814eaee8b96b",
+   "IMG20260810005144.jpg": "e1d47b38a9351ad91e4a28b2a192418e292e5b261bc17865ee7dd75baeb47a5c",
+   "IMG20260810005301.jpg": "8910a01fb68e6a085f657427a6f3d984d78c58875d077cf06d2ec0de2686bc40",
+   "IMG20260810005605.jpg": "f492e3f1e7d24dbd70f8ef3e973da2d35a8397ce85c5e68894e68d5eff6ce5a7",
+   "IMG20260810005855.jpg": "6826758c6b92e272ea71f9b7288b9509ac456622123736b23337bc8279db2a35",
+   "IMG20260810010306.jpg": "fa480d6aea270191737cd9d1f805282a6756471c6202e2151646b301599dc00d",
+   "IMG20260810010349.jpg": "8b801b87fb376bcab8e7cfcf2e40bfe73694e0cec4253d09d5f89e3075cea574",
+   "IMG20260810010633.jpg": "0b52adfc0724b78feec0523c47410fe2d2e628d77562ba9a7b9517d5f5fcc105",
+   "IMG20260810010859.jpg": "1842f38b7acadd7e78d41b204bdec2916fc7c54958c31742d038931b2421fbb3",
+   "IMG20260810011017.jpg": "9d7ca36d20a777f101c600abfda232926c4cf5008d1302e63221161f13cc590e",
+   "IMG20260810011126.jpg": "e832a0e9248c365c65aec5f44898ddf49ed2bc82f33c1d1f75d8f00b39b948d1",
+   "IMG20260810011248.jpg": "a3ea5fbb74ce5e63bbb753629b30ed81806636b4600afad0ecfc6941a4de4dac",
+   "IMG20260810011649.jpg": "4705e3601aa368cec57c58e922d90a4d4f7f4d6fec77b0fd43ef1e459dbeca4a",
+   "IMG20260810012103.jpg": "584a1565b39d4a1ebb15c585e4c3bc4cd26bd265b328e86d2a2d2cbbde35d2f8"
+  },
+  "runId": "dev-green-03",
+  "runManifestSha256": "ce15e8f60cd4e6f91b8f85a6312ffab48a3c03a702d8afaa4ecda695cd2d5371",
+  "wireProtocol": "openai-chat-completions-v1"
+ }
+}

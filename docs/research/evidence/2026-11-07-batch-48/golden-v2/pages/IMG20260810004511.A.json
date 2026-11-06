@@ -1,0 +1,43 @@
+{
+  "pageId": "IMG20260810004511",
+  "file": "IMG20260810004511.jpg",
+  "sha256": "9190e13efa39df228032754acee0ccd76a5cb38173487820e663d7ff0acde750",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T00:40:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（摆正整页渲染图与带网格放大裁片）；标注时未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "数学",
+  "layout": "single-column",
+  "questionCount": 3,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号)", "left": 0.08, "top": 0.2, "right": 0.68, "bottom": 0.315, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.2, "top": 0.32, "right": 0.315, "bottom": 0.92}, "notes": "承接上页题目的 C/D 两个选项行（独立性检验表述），题号在上一页未见；按 9/10 顺序疑为题 8，未确证"},
+    {"order": 2, "questionNo": "9", "left": 0.05, "top": 0.268, "right": 0.96, "bottom": 0.65, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.268, "top": 0.04, "right": 0.65, "bottom": 0.95}, "notes": "题9（多选）题干两行+选项A-D；A/D 被红笔圈画随框；题干右侧与下方红色手写演算随框；D 选项红圈下缘(≈0.65)与题10上缘(≈0.645)轻微重叠，如实记录"},
+    {"order": 3, "questionNo": "10", "left": 0.05, "top": 0.645, "right": 0.96, "bottom": 1.0, "questionType": "choice", "coordConfidence": "medium", "rawBox": {"left": 0.645, "top": 0.04, "right": 1.0, "bottom": 0.95}, "notes": "题10（多选）题干三行+选项A；选项B 行被图像底缘裁切（四局比赛后…0.0405），下方红色手写随框；题目延续到下一页"}
+  ],
+  "strata": {
+    "questionType": "choice",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": false,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "primary box coords in upright space (raw rotated 90 CW); rawBox in raw file space",
+  "orientation": {"rawSize": [3072, 4096], "rawToUpright": "rotate90cw", "uprightSize": [4096, 3072]},
+  "imageSize": [4096, 3072],
+  "notes": "questionCount=3 的构成：承接上页的选项块（1 框）+ 题9 + 题10；印刷题号仅 9、10。rawToUpright 旋转方向经两次试转确认（ROTATE_270 即顺时针 90°）。"
+}

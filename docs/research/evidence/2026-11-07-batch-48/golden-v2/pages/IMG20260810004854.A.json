@@ -1,0 +1,42 @@
+{
+  "pageId": "IMG20260810004854",
+  "file": "IMG20260810004854.jpg",
+  "sha256": "254833c635f00c34689b332d475d8503faa0921041d192995f1336f25f7dae08",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T01:00:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（摆正整页渲染图与带网格放大裁片）；标注时未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "生物",
+  "layout": "single-column",
+  "questionCount": 2,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号)", "left": 0.02, "top": 0.21, "right": 0.955, "bottom": 0.775, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.225, "top": 0.02, "right": 0.79, "bottom": 0.955}, "notes": "承接上页题目的选项 D/E/F/G/H（各含换行续行），题号在上一页；红色手写批注（转录的DNA…，x≈0.28–0.76）与红笔星标/圈画随框"},
+    {"order": 2, "questionNo": "4", "left": 0.02, "top": 0.785, "right": 0.955, "bottom": 1.0, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.0, "top": 0.02, "right": 0.215, "bottom": 0.955}, "notes": "题4 [2025·辽宁大连一模] 题干四行，底缘处选项 A 首行被裁切；选项在本页未出现，题目延续到下一页；右侧红笔（ ）括号随框"}
+  ],
+  "strata": {
+    "questionType": "choice",
+    "hasFormula": false,
+    "hasHandwriting": true,
+    "hasFigure": false,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "primary box coords in upright space (raw rotated 90 CCW); rawBox in raw file space",
+  "orientation": {"rawSize": [4096, 3072], "rawToUpright": "rotate90ccw", "uprightSize": [3072, 4096]},
+  "imageSize": [3072, 4096],
+  "notes": "纸张上缘倾斜（左 y≈0.12，右 y≈0.155），上方为背景编织物；页面照片倾斜明显，坐标为轴对齐估读。questionCount=2 = 承接块 + 题4；印刷题号仅 4。"
+}

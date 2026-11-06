@@ -1,0 +1,22 @@
+{
+    "file": "IMG20260810004304.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 5529,
+    "responseHead": "{\"id\":\"5cc92cc2-74bb-469a-9b9b-29cd7a293e0b\",\"object\":\"chat.completion\",\"created\":1793986983,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片是否完整转写一道或多道独立题。图片是高中化学题，页面显示第16题（14分），有多个小问 (1)(2)(3)(4)。这算一道独立题，不是多道独立题。需要检查是否完整可见：图片顺时针旋转90度？实际阅读需旋转。有题干和装置图，包含小问和手写答案。页面右侧边缘？看起来整页完整，底部有页码“化学试题 第6页 共8页”。题目左侧有“16. (14分)...”完整。右侧有手写公式，可能覆盖？没有遮挡关键内容。是否缺选项？这是填空题/实验题，没有选择题选项，不算MISSING_OPTIONS。是否需要PASS？需判断是否足以完整转写一道题。图片包含一道题完整，虽有手写批注和答案，但题干可读。可能存在一些公式手写导致? 原题在右侧有“已知：①...”和“DCDMH的质量分数为____(用含有a、c、V1、V2的代数式表示)。”手写答案红笔有些覆盖但题目可读。图片方向倒转但可转写。无阻断。decision PASS。issues可能为空或REVIEW？问题：图片中多处手写覆盖/红笔，可能遮挡公式？看右侧手写红色包括“0.985(V1-V2)/a?”以及反应方程式。这些是手写答案，不是原题内容？部分印刷题目可能被手写覆盖。比如“达到滴定终点的现象为____；样品中DCDMH的质量分数为____”有手写覆盖。但仍可转写题干。可以PASS。suggestedActions应为？如果不通过则动作？格式要求suggestedActions数组。PASS时可能包CONTINUE_ANYWAY? 需给出推荐。可能suggestedActions: []? 但格式说suggestedActions数组。建议 CONTINUE_ANYWAY。questionRegions空数组因为非SPLIT。followingPageRelations空数组。顶层只能这些键。需要仅JSON。但是否有多个独立题？第16题内部有小问，不算多题。因此PASS。\\n\\n需要确保顶层JSON只含decision/issues/suggestedActions/questionRegions/followingPageRelations，不含type。issues可为[]。suggestedActions可能[]或[\\\"CONTINUE_ANYWAY\\\"]。系统允许值未明确。用户要求“返回decision(PASS/RECAPTURE/NEED_MORE_IMAGE/SPLIT)、issues数组...、suggestedActions数组(RECAPTURE/ADD_IMAGE/CONTINUE_ANYWAY)、questionRegions数组...”。PASS时suggestedActions可能[\\\"CONTINUE_ANYWAY\\\"]。issues[]。questionRegions[]。followingPageRelations[]。\\n\\n但是，需考虑图片是横向旋转的，文字可读但“图片是否足以",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 499971,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "8d62090cb3de4ac8f9a6590a28ab7f0a9513acdf1631483f9298d4fcf7af9038",
+    "promptSha256": "d9f6d267cd7bdb124bf679abea439062e8dc73e3b62d058500f98ce6636e3a67"
+}

@@ -1,0 +1,39 @@
+{
+    "file": "IMG20260810004511.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 40931,
+    "responseHead": "{\"id\":\"d5829160-481e-4fb1-bf49-829fb66a7b84\",\"object\":\"chat.completion\",\"created\":1793988116,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"画面含第9、10两道独立题\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.72,\\\"top\\\":0.5,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"第10题部分选项未入镜\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.28,\\\"top\\\":0.18,\\\"right\\\":0.72,\\\"bottom\\\":0.52},\\\"message\\\":\\\"红色手写批注遮挡部分题干\\\"}],\\\"suggestedActions\\\":[\\\"RECAPTURE\\\",\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.02,\\\"top\\\":0.08,\\\"right\\\":0.7,\\\"bottom\\\":0.63},{\\\"left\\\":0.52,\\\"top\\\":0.47,\\\"right\\\":0.99,\\\"bottom\\\":1}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片是否足以完整转写一道或多道独立题。图片竖向，旋转。内容可见：有C,D选项残留，题号9（多选）完整？题10（多选）部分，右侧有题A等可能是下一题？需要判断独立题数量。画面包含至少两道独立题：第9题完整（题干+ABCD选项），第10题部分（题干+选项？未见选项，下方A.第一局...，可能是第11题？）。需要SPLIT若2到12独立题。但需考虑内容未拍全：第10题题干可见到“最终甲获胜的概率”，下方有A.第一局比赛后甲的筹码个数记为X... 这可能属于第10题的选项A? 注意第10题（多选）甲、乙两人进行象棋比赛... 最终甲获胜的概率”，然后下面有A. 第一局比赛后甲的筹码个数记为X，则期望E(X)=3.1 ... 这似乎可能是第11题，因为第10题题干没完？ 看文本：10.（多选）甲、乙两人进行象棋比赛，赛前每人发3枚筹码。一局后负的一方，需将自己的1枚筹码给对方；若平局，双方的筹码不动，当一方无筹码时，比赛结束。由以往两人的比赛结果可知，在一局中甲胜的概率为0.3，乙胜的概率为0.2，用P_i(i=0,1,...,6)表示“在甲所得筹码为i枚时，最终甲获胜的概率”，则 [手写] 。 A. 第一局比赛后甲的筹码个数记为X，则期望E(X)=3.1 ... 然后右侧还可见“四局比赛后，乙获胜的概率为0.0405”？这可能是第10题的选项？不对，A项“第一局比赛后甲的筹码个数记为X，则期望E(X)=3.1”看起来也是选择题选项。第10题（多选）下面可能有一组选项A-D，但画面只显示A项，BCD可能在下一页或右侧被截。图片底部被截断，第10题",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "MISSING_OPTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [
+        {
+            "left": 0.02,
+            "top": 0.08,
+            "right": 0.7,
+            "bottom": 0.63
+        },
+        {
+            "left": 0.52,
+            "top": 0.47,
+            "right": 0.99,
+            "bottom": 1.0
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "image": {
+        "egressBytes": 565447,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "a9b3c6a5b24f5e706c68b50b469f5de513aba4b3d2223d0a169fa07c16fdfaa5",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

@@ -1,0 +1,49 @@
+{
+    "file": "IMG20260810011248.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 20426,
+    "responseHead": "{\"id\":\"0d163478-42f9-44c6-9793-925d726a47fc\",\"object\":\"chat.completion\",\"created\":1793987318,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.04,\\\"top\\\":0.40,\\\"right\\\":0.95,\\\"bottom\\\":0.99},\\\"message\\\":\\\"画面含4道独立题，需拆分\\\"}],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[{\\\"left\\\":0.06,\\\"top\\\":0.40,\\\"right\\\":0.70,\\\"bottom\\\":0.50},{\\\"left\\\":0.06,\\\"top\\\":0.52,\\\"right\\\":0.93,\\\"bottom\\\":0.62},{\\\"left\\\":0.04,\\\"top\\\":0.62,\\\"right\\\":0.95,\\\"bottom\\\":0.82},{\\\"left\\\":0.04,\\\"top\\\":0.87,\\\"right\\\":0.95,\\\"bottom\\\":0.995}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片内容。图片是一页数学试题。我们看到顶部有B/C/D选项，似乎是上一题的选项，题干不可见（截断）。然后“三、填空题：本题共3小题，每小题5分，共15分。”接着第12题、13题、14题。然后“四、解答题：本题共5小题，共77分。解答应写出文字说明，证明过程或演算步骤” 接着第15题，包含(1)(2)。需要判断是否包含2到12道互相独立的题。完整可见的独立题：第12题、第13题、第14题、第15题。顶部B/C/D可能属于上一题，但题干不可见，题不完整。完整可见的独立题有4道（12,13,14,15），所以必须返回SPLIT。需要给出questionRegions每道题一个完整外接区域，按阅读顺序。问题：第15题包含(1)(2)是同一道题，算一道。需要给4个区域。同时issues标记MULTIPLE_QUESTIONS BLOCKING，region可以给整个页面？issues里region为0-1坐标。可以给覆盖多题区域？一个issue的region可以标为整页或? 要求region为0到1坐标，message简短中文。可以给MULTIPLE_QUESTIONS的region覆盖题目区域整体，比如0.05,0.25,0.95,0.95? 但issue region用于指出问题区域。也可以分别多个issue？不需要。suggestedActions包含SPLIT？注意suggestedActions数组（RECAPTURE/ADD_IMAGE/CONTINUE_ANYWAY）。对于SPLIT决策，suggestedActions可以包含CONTINUE_ANYWAY? 或者无需? 需要返回suggestedActions数组，不能为空? 看要求没有明确，可以[suggestedActions: []]? 但通常需至少一个。对于SPLIT，可能建议CONTINUE_ANYWAY？题面要求“必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions...”。suggestedAc",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.06,
+            "top": 0.4,
+            "right": 0.7,
+            "bottom": 0.5
+        },
+        {
+            "left": 0.06,
+            "top": 0.52,
+            "right": 0.93,
+            "bottom": 0.62
+        },
+        {
+            "left": 0.04,
+            "top": 0.62,
+            "right": 0.95,
+            "bottom": 0.82
+        },
+        {
+            "left": 0.04,
+            "top": 0.87,
+            "right": 0.95,
+            "bottom": 0.995
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 4,
+    "image": {
+        "egressBytes": 527976,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "21094abd2327467c807c68fdcf5ec3a546ea3e34220b0c3a21684b49869fb3d4",
+    "promptSha256": "d9f6d267cd7bdb124bf679abea439062e8dc73e3b62d058500f98ce6636e3a67"
+}

@@ -1,0 +1,24 @@
+{
+    "file": "IMG20260810005605.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 14569,
+    "responseHead": "{\"id\":\"2141c973-27d3-4166-84e8-889b62284490\",\"object\":\"chat.completion\",\"created\":1793987747,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"NEED_MORE_IMAGE\\\",\\\"issues\\\":[{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.05,\\\"top\\\":0.88,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"第2题底部被页面边缘截断，子问不完整\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。需要返回JSON。观察图片：顶部有上一题选项 D、E（属于上一道题，题干未显示被截断，不算完整可见独立题）。然后标题“二、金属氢化物的还原性”，引入文本，然后编号2题“根据金属氢化物的特点解答下列问题。”包含(1)(2)子问。这算一道独立题（第2题），但底部被截断：第(2)问不完整，下面“脱锈剂（铁锈的成分表示为...”被截断。所以完整可见的独立题只有1道？第2题本身是否完整？题干“2. 根据...解答下列问题。”可见，但子问(2)下方被截断，题目不完整。需要判断是否足以完整转写一道或多道独立题。选项D/E是上一道题的一部分，但题干不可见（被截断），所以不完整。第2题也未完整显示（底部截断）。那是否 NEED_MORE_IMAGE？规则：仅当完整可见的独立题不足2道、且可见题干被截断无法转写时才返回NEED_MORE_IMAGE；个别题被页面边缘截断时，只把完整可见的题计入questionRegions，不要因此返回NEED_MORE_IMAGE。这里图片包含第2题部分，题干可见但底部内容截断。问题是“判断图片是否足以完整转写一道或多道独立题”。如果一道题也不完整，则可能NEED_MORE_IMAGE？需要看完整可见独立题数量：0？顶部D/E属于上题选项，但题干未显示，不完整。第2题从编号到(2)部分可见，但底部被截断，不完整。因此没有完整可见的独立题。可见题干被截断无法转写（第2题底部内容缺失，上一题题干缺失）。那么decision应为NEED_MORE_IMAGE，issues有OCCLUDED？截断不被列为code？可用OCCLUDED或KEY_TEXT_UNREADABLE？截断不是遮挡。可用OCCLUDED severity BLOCKING region底部？或者用KEY_TEXT_UNREADABLE？题目文字可读但缺失。建议ADD_IMAGE。questionRegions空。followingPageRelations空。需要返回JSON，顶层只能这些键。不能加type。但用户要求必须只返回符合要求的JSON。Schema说{\\\"type\\\": \\\"json_object\\\"} 是响应格式，但明确顶层JSON只能含decision/issues/suggestedActions/questionRegions/followingPageRelations，不得添加其他键（例如type）。所以我们不能包含type。需要输出JSON对象。需要决定具体决策。\\n\\n但仔细读：如果画面包含2到12道互相独立的题，必须SP",
+    "decision": "NEED_MORE_IMAGE",
+    "issueCodes": [
+        "OCCLUDED"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 580162,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "0f8f98ad78b0da71f946499ac9f8b64843ea05cb933b5f3d5f50596f49f30732",
+    "promptSha256": "199e175b4815daee015258dce6c13951abe378d8c363c83bf9fa59a1257a0793"
+}

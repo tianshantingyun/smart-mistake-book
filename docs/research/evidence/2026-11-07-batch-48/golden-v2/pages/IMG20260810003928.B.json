@@ -1,0 +1,43 @@
+{
+  "pageId": "IMG20260810003928",
+  "file": "IMG20260810003928.jpg",
+  "sha256": "a8283fd2550086c1bc8e99f1973594b69fe00e741d34d44195597a642ea4f34d",
+  "split": "acceptance",
+  "round": "B",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "B",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent) — 同模型第二轮",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T09:00:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "B 轮为同一模型在写毕 B JSON 前未读取任何 A 轮 JSON 的重标；但同一会话内 A 轮判读内容不可避免在上下文中留存，故 B 轮不构成协议 §3.3 意义上的独立标注，仅作同模型一致性证据。",
+  "subject": "化学",
+  "layout": "single-column",
+  "questionCount": 4,
+  "boxes": [
+    {"order": 1, "questionNo": "1", "left": 0.12, "top": 0.135, "right": 1.0, "bottom": 0.34, "questionType": "choice", "coordConfidence": "high", "notes": "题干一行+四图对照表，右缘出画"},
+    {"order": 2, "questionNo": "2", "left": 0.105, "top": 0.345, "right": 1.0, "bottom": 0.57, "questionType": "choice", "coordConfidence": "medium", "notes": "题干+四选项含球棍模型/结构简式/电子云图，右缘出画"},
+    {"order": 3, "questionNo": "3", "left": 0.09, "top": 0.572, "right": 0.83, "bottom": 0.695, "questionType": "choice", "coordConfidence": "high", "notes": "题号红笔圈画随框"},
+    {"order": 4, "questionNo": "4", "left": 0.09, "top": 0.688, "right": 0.87, "bottom": 0.92, "questionType": "choice", "coordConfidence": "medium", "notes": "题干+选项A-D+下方连续红色手写离子方程式随框；右缘页边手写 Mg 方程式不入框"}
+  ],
+  "strata": {
+    "questionType": "choice",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": false,
+    "optionsIncluded": true,
+    "figureOwnership": [1, 2]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "B 轮重标：页顶考试说明残行与『第Ⅰ卷』『一、选择题』节头不入框；页脚『试卷第1页，共7页』不入框。"
+}

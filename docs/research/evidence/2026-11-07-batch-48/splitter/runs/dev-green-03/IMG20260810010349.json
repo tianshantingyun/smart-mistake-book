@@ -1,0 +1,51 @@
+{
+    "file": "IMG20260810010349.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 33575,
+    "responseHead": "{\"id\":\"72ff0b2e-542b-4ad0-bfc4-f5cd02fbee17\",\"object\":\"chat.completion\",\"created\":1793988352,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"图片包含第15至18题，共4道独立题，应拆分。\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.15,\\\"top\\\":0,\\\"right\\\":0.95,\\\"bottom\\\":0.1},\\\"message\\\":\\\"第15题顶部题干及部分条件被裁切，可能缺少内容。\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.85,\\\"top\\\":0.2,\\\"right\\\":1,\\\"bottom\\\":0.7},\\\"message\\\":\\\"第16、17题D选项贴近右边缘，部分文字可能不完整。\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.17,\\\"top\\\":0,\\\"right\\\":0.98,\\\"bottom\\\":0.13},{\\\"left\\\":0.17,\\\"top\\\":0.2,\\\"right\\\":1,\\\"bottom\\\":0.44},{\\\"left\\\":0.17,\\\"top\\\":0.44,\\\"right\\\":1,\\\"bottom\\\":0.69},{\\\"left\\\":0.17,\\\"top\\\":0.69,\\\"right\\\":1,\\\"bottom\\\":0.82}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答一个JSON对象，判断图片是否足以完整转写一道或多道独立题。需要遵守格式。我们要分析图片内容：包含题15（部分？顶部被截断?）、16、17、18。图片中有多道独立题：15、16、17、18。题15顶部似乎被裁掉一部分？看图片顶部：有 \\\"15. (2022·浙江) 若 3sin α - sin β = √10, α, [然后下一行?] π/2, 则 sin α = ... , cos 2β = ...\\\" 题15题干部分：图片最上方被切掉了一些？顶部有 \\\"15. (2022·浙江) 若 3sin α - sin β = √10, α, \\\"，然后第二行 \\\"π/2, 则 sin α = ...\\\" 可能条件 \\\"α, β ∈ (0, π/2)\\\"? 由于顶部裁剪，可能缺少α,β范围。看起来左上方被裁剪，但主要题干可能部分可见。题16完整，题干和选项 A-D，但右侧D选项部分被裁剪？看图右侧，D. 的选项内容似乎只显示 \\\"2/5\\\"? 或 \\\"D. ...\\\" 右侧有手写/页面边缘，D选项可能不完整。题16选项D: 看到 \\\"D.\\\" 以及右侧有 \\\"2/5\\\"？图像右侧边缘显示 \\\"2\\\"在上，下面 \\\"5\\\"？可能D选项被裁切，但可读? 图片右边缘切掉了部分D选项。题17选项D. 3 ",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "OCCLUDED",
+        "KEY_TEXT_UNREADABLE"
+    ],
+    "regions": [
+        {
+            "left": 0.17,
+            "top": 0.0,
+            "right": 0.98,
+            "bottom": 0.13
+        },
+        {
+            "left": 0.17,
+            "top": 0.2,
+            "right": 1.0,
+            "bottom": 0.44
+        },
+        {
+            "left": 0.17,
+            "top": 0.44,
+            "right": 1.0,
+            "bottom": 0.69
+        },
+        {
+            "left": 0.17,
+            "top": 0.69,
+            "right": 1.0,
+            "bottom": 0.82
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 4,
+    "image": {
+        "egressBytes": 420535,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "df0389a539c096426759e91577f27a1d2b9d5347ab51df6f0db9175bb9205c53",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

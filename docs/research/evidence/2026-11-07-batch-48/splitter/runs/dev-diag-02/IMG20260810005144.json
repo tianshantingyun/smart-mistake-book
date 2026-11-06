@@ -1,0 +1,63 @@
+{
+    "file": "IMG20260810005144.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 43038,
+    "responseHead": "{\"id\":\"b6752c32-7fbe-4b2c-8ccf-b105c58efd80\",\"object\":\"chat.completion\",\"created\":1793986587,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"画面包含多道独立题，需拆分后分别转写\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":0.48,\\\"bottom\\\":0.15},\\\"message\\\":\\\"顶部题目仅见选项，题干被裁切，无法完整转写\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.52,\\\"top\\\":0,\\\"right\\\":0.94,\\\"bottom\\\":0.12},\\\"message\\\":\\\"第13题的B至D选项位于右栏顶部，需与左栏题干合并转写\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\",\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.03,\\\"top\\\":0.02,\\\"right\\\":0.48,\\\"bottom\\\":0.145},{\\\"left\\\":0.03,\\\"top\\\":0.155,\\\"right\\\":0.48,\\\"bottom\\\":0.3},{\\\"left\\\":0.03,\\\"top\\\":0.3,\\\"right\\\":0.48,\\\"bottom\\\":0.58},{\\\"left\\\":0.03,\\\"top\\\":0.58,\\\"right\\\":0.48,\\\"bottom\\\":0.875},{\\\"left\\\":0.52,\\\"top\\\":0.13,\\\"right\\\":0.94,\\\"bottom\\\":0.44},{\\\"left\\\":0.52,\\\"top\\\":0.46,\\\"right\\\":0.94,\\\"bottom\\\":0.98}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图像是否足以完整转写一道或多道独立题。图像是一页练习册，包含多道题。需要返回JSON。必须严格符合。需要识别画面是否包含2到12道互相独立的题，则返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按阅读顺序给出每道题完整外接区域。这里图中有题10? 左栏从顶部开始一个题（题干A-D，似乎第10题？顶部被截断，看不到题号，可能是第10题，选项A-D）。然后第11题、第12题、第13题；右栏顶部有题目部分B/C/D选项（可能是第10题延续？），然后第14题、综合应用练第15题。需要确定独立题数量：可能左栏顶部题10（选项A-D）其实在左栏上方，右栏顶部B-D是同一个第10题的选项吗？看布局：左栏顶部A-D四个选项；右栏顶部B、C、D（缺少A?）这可能是同一题被分栏排版？但图像左栏顶部有A、B、C、D四个选项，右栏顶部有B、C、",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "KEY_TEXT_UNREADABLE",
+        "KEY_TEXT_UNREADABLE"
+    ],
+    "regions": [
+        {
+            "left": 0.03,
+            "top": 0.02,
+            "right": 0.48,
+            "bottom": 0.145
+        },
+        {
+            "left": 0.03,
+            "top": 0.155,
+            "right": 0.48,
+            "bottom": 0.3
+        },
+        {
+            "left": 0.03,
+            "top": 0.3,
+            "right": 0.48,
+            "bottom": 0.58
+        },
+        {
+            "left": 0.03,
+            "top": 0.58,
+            "right": 0.48,
+            "bottom": 0.875
+        },
+        {
+            "left": 0.52,
+            "top": 0.13,
+            "right": 0.94,
+            "bottom": 0.44
+        },
+        {
+            "left": 0.52,
+            "top": 0.46,
+            "right": 0.94,
+            "bottom": 0.98
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 6,
+    "image": {
+        "egressBytes": 722393,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "e02019460191cc93c321a7f41229ab06169d16b139b03c47a5cb476544a48701",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

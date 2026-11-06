@@ -1,0 +1,38 @@
+{
+    "file": "IMG20260810004353.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 28622,
+    "responseHead": "{\"id\":\"b4176ca3-2847-4748-b177-e10bd292b4c1\",\"object\":\"chat.completion\",\"created\":1793988793,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"画面包含第14、15两道独立题，需拆分。\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.55,\\\"right\\\":0.22,\\\"bottom\\\":0.82},\\\"message\\\":\\\"第15题题干及配图未拍全，内容被截断。\\\"}],\\\"suggestedActions\\\":[\\\"RECAPTURE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.22,\\\"top\\\":0.08,\\\"right\\\":0.98,\\\"bottom\\\":0.99},{\\\"left\\\":0.0,\\\"top\\\":0.0,\\\"right\\\":0.22,\\\"bottom\\\":0.82}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图像是否足够完整转写一道或多道独立题。图像中清晰可见两道物理题：第14题和第15题。用户要求：若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按页面阅读顺序给出每道题的完整外接区域，包含题干、选项、图形和作答区，区域之间不得大面积重叠；否则questionRegions必须为空数组。其他decision必须返回空questionRegions。同一道题跨页不算多题，内容未拍全时返回NEED_MORE_IMAGE。followingPageRelations必须返回空数组。\\n\\n图像显示14题和15题。14题内容从题号到题14图，包括题干和三个小问以及图，图在下方。15题可见题号、题干开头和“题15图”？实际上15题只显示到“如图15图所示为半径为R的透明球过圆心O的截面，已知透明球的半径为R，折射率为n。其中AB”，下面可能还有图或内容被截断。图像左侧被截断？题目15内容明显不全，只显示了部分题干。图片右侧也有部分。需要判断是否足以完整转写一道或多道独立题。这里有2道独立题，应返回SPLIT。但第15题内容未拍全？如果包含2道独立题，必须返回SPLIT，可能同时有NEED_MORE_IMAGE问题？decision只能一个。规则说若画面包含2到12道互相独立的题，必须返回SPLIT。所以decision=SPLIT。issues需要包括MULTIPLE_QUESTIONS BLOCKING。还可能包括OCCLUDED或KEY_TEXT_UNREADABLE？15题下方/右侧内容未拍全，可能属于MISSING? 可用OCCLUDED表示被截断？MULTIPLE_QUESTIONS即可。还要判断各题区域。第14题区域：从左上大致 (0.10, 0.10) 到 (0.97, 0.95)？第14题题干从顶部右侧开始，题号14在靠近顶部右",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [
+        {
+            "left": 0.22,
+            "top": 0.08,
+            "right": 0.98,
+            "bottom": 0.99
+        },
+        {
+            "left": 0.0,
+            "top": 0.0,
+            "right": 0.22,
+            "bottom": 0.82
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "image": {
+        "egressBytes": 536313,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "a7b0a925325351349bfb6825faf603f50e59068f4ecc63b7c73beca89ec5d17d",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

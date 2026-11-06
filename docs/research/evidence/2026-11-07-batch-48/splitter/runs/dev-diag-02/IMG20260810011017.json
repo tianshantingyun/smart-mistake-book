@@ -1,0 +1,24 @@
+{
+    "file": "IMG20260810011017.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 40155,
+    "responseHead": "{\"id\":\"cb3b75b0-7326-40ba-b6e9-0a2f9d63ece0\",\"object\":\"chat.completion\",\"created\":1793986709,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":0.22,\\\"bottom\\\":1},\\\"message\\\":\\\"左侧相邻题被裁切，不影响主体题转写\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片是否足以完整转写一道或多道独立题。图片是一页，有主要题目“跟进训练2”，左侧有前一题残留文字和图示，还有顶部选项C/D残留。主体是一道题，包括题干、图、三小问，下面有手写解答。左侧有一列残留内容（上一题未拍全）包括“大小为B。放置，接入轨道... 最终恰好停在... 之间的阻值为... 为μ。MN=... 速度为g，试求：... 安培力；... 小v1；... 时间t。”及图。这些属于另一道题的部分内容，未完整显示且被裁切。图片中可看到至少两个题：左侧被截断的题和主体题。但是否算2到12道互相独立的题? 画面包含2道题，但左侧题不完整，跨页/裁切。规则：若包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING。但主体是完整一道，左侧是另一道不完整。问题还包含“内容未拍全时返回NEED_MORE_IMAGE”。这里左侧题内容未拍全（被裁）。可是整体图片主要是主体题足够完整转写。要求判断图片是否足以完整转写一道或多道独立题。由于画面包含2道独立题，虽然左侧不完整，必须SPLIT？需要给出questionRegions每道题完整外接区域？但左侧不完整无法给出完整外接区域，而且区域需要包含完整题干选项图形作答区。这可冲突。决策选项PASS/RECAPTURE/NEED_MORE_IMAGE/SPLIT。若多题必须SPLIT。图片中有主体完整题，左侧是前一题残余，顶部也是上一题选项残余。也许可以视为一页中显示两道独立题（一道局部，一道完整）。必须SPLIT并标记MULTIPLE_QUESTIONS BLOCKING，questionRegions给出两个区域：左侧残留题区域和大题区域。但questionRegions要求每道题的完整外接区域，包含题干选项图形和作答区；左侧题不完整，无法完整。是否应返回NEED_MORE_IMAGE + issue OCCLUDED? 规则“若画面包含2到12道互相独立的题，必须返回SPLIT”较硬。但“内容未拍全时返回NEED_MORE_IMAGE”。这里内容未拍全的是左侧题。然而主要任务可能希望识别主体题目，左边缘上一题不应算作需要转写的独立题？画面包含2道独立题，是的。但也可能只算一道题，因为左侧裁切严重只是上下文。需要仔细看：左侧文字是上一道题延续，且在图像左约0-0.27，上从上到下。如果转写主体题则可完整。问题问“判断图片是否足以完整转写一道或多道独立题。”图片中有主体完整一道，但还有其他题部分。也许如果只转写独立完整题可以PASS? 规则多题必须SPLIT。因此应SPLIT。\\n\\",
+    "decision": "PASS",
+    "issueCodes": [
+        "OCCLUDED"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 578751,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "4b188fbbb1201ff73be0f9a0c78778449e4aa756742feb94cda0f8e10682b6f1",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

@@ -1,0 +1,45 @@
+{
+    "file": "IMG20260810012103.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 25550,
+    "responseHead": "{\"id\":\"89e12fc0-1602-4329-aa58-c78b9a44a23f\",\"object\":\"chat.completion\",\"created\":1793988611,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"画面包含多道独立题，需分割\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":0.08},\\\"message\\\":\\\"顶部题目题干被截断，无法完整转写\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0.94,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"第11题后续内容及图甲未拍全\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":0.235},{\\\"left\\\":0,\\\"top\\\":0.25,\\\"right\\\":1,\\\"bottom\\\":0.675},{\\\"left\\\":0,\\\"top\\\":0.685,\\\"right\\\":1,\\\"bottom\\\":1}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。需要返回JSON严格schema。图片内容：顶部似乎有上一道题的部分（题干不完整，图像和选项A-D），然后第10题完整？下面三、非选择题，第11题。图片顶部有题目部分，可能包含一道较完整题？需要分析是否包含多道独立题。图片中可见一个顶部题目：有四个图像 A-D，题干在上方被截断？图片顶部有文字“负方向为正）随位移 x 的变化图像正确的是”以及图像A-D。这应该是某道选择题的一部分，题干不完整（上方被截断），选项图像在。然后第10题完整（题干+四个选项+图）。然后第11题开始，但内容延续到下一张？第11题题干到“再插上大头针 D，使 D 挡住 A、B、C。”可能还没完，且没有选项（非选择题）。图片底部截断。这画面包含至少两道独立题？顶部题（题号可能9？）和第10题，还有第11题。题目区域可能2到12道独立题？如果包含2道以上独立题必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions给出每道题完整外接区域。但顶部题不完整（题干被截断），第11题可能未拍全。需要决定decision。规则：若画面包含2到12道互相独立的题，必须返回SPLIT。但又有“内容未拍全时返回NEED_MORE_IMAGE”。这里有多题，且至少顶部题不完整，第11题可能内容未拍全。需要仔细判断“完整转写一道或多道独立题”。提示问判断图片是否足以完整转写一道或多道独立题。如果画面包含2到12道独立题必须SPLIT",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "KEY_TEXT_UNREADABLE",
+        "KEY_TEXT_UNREADABLE"
+    ],
+    "regions": [
+        {
+            "left": 0.0,
+            "top": 0.0,
+            "right": 1.0,
+            "bottom": 0.235
+        },
+        {
+            "left": 0.0,
+            "top": 0.25,
+            "right": 1.0,
+            "bottom": 0.675
+        },
+        {
+            "left": 0.0,
+            "top": 0.685,
+            "right": 1.0,
+            "bottom": 1.0
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "image": {
+        "egressBytes": 524993,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "ee9a24201867210284711936e61905ca33e090e4d5ebebf1f54a78329c4e981c",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

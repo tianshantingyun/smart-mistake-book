@@ -1,0 +1,43 @@
+{
+    "file": "IMG20260810010306.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 3417,
+    "responseHead": "{\"id\":\"338705a5-ea9a-4b7a-84d1-22e5437e1af5\",\"object\":\"chat.completion\",\"created\":1793987781,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.03,\\\"top\\\":0.12,\\\"right\\\":0.95,\\\"bottom\\\":0.81},\\\"message\\\":\\\"画面含第10、11、12三道独立题，需拆分\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.04,\\\"top\\\":0.12,\\\"right\\\":0.93,\\\"bottom\\\":0.27},{\\\"left\\\":0.03,\\\"top\\\":0.275,\\\"right\\\":0.96,\\\"bottom\\\":0.575},{\\\"left\\\":0.03,\\\"top\\\":0.57,\\\"right\\\":0.96,\\\"bottom\\\":0.81}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"The image shows three independent questions: 10, 11 (with sub-parts (1) and (2)), and 12. Question 11 has two sub-questions, but they're part of the same numbered question—是同一道题还是两道独立题？编号11下有两个小问（1）（2），属于同一道题。所以完整可见的独立题有3道（10、11、12），必须返回SPLIT。\\n\\nQuestionRegions需按阅读顺序给出每道题的区域。\\n\\n顶部还有一个小图形，可能属于上一题（第9题或者上面的题），被截断了。只计入完整可见的题。\\n\\n区域坐标估算（图像高约1500，宽约1125，归一化）：\\n\\n题10：y从约0.13到0.26；x从0.05到0.9。left 0.04, top 0.13, right 0.92, bottom 0.27。\\n\\n题11：从0.28到0.55。包括（1）和（2），到\\\"(0,8)\\\"下方大约 y=0.56。left 0.04, top 0.28, right 0.95, bottom 0.57。\\n\\n题12：从0.56到0.80。left 0.03, top 0.57, right 0.95, bottom 0.80。\\n\\nissues：MULTIPLE_QUESTIONS BLOCKING。其他可能有手写遮挡但可读。区域message简短。\\n\\ndecision SPLIT，suggestedActions: CONTINUE_ANYWAY? SPLIT情况下suggestedActions可以只含CONTINUE_ANYWAY。规则只限制 PASS 不得含 RECAPTURE/ADD_IMAGE。SPLIT可含 CONTINUE_ANYWAY。followingPageRelations 空数组。\"},\"logprobs\":null,\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":15",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.04,
+            "top": 0.12,
+            "right": 0.93,
+            "bottom": 0.27
+        },
+        {
+            "left": 0.03,
+            "top": 0.275,
+            "right": 0.96,
+            "bottom": 0.575
+        },
+        {
+            "left": 0.03,
+            "top": 0.57,
+            "right": 0.96,
+            "bottom": 0.81
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "image": {
+        "egressBytes": 349842,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "d986b5c130e607e62d4b38ed8185681738d85300ed5337d7b310e152b254b3d1",
+    "promptSha256": "199e175b4815daee015258dce6c13951abe378d8c363c83bf9fa59a1257a0793"
+}

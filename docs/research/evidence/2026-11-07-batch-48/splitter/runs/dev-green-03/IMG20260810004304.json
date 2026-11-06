@@ -1,0 +1,22 @@
+{
+    "file": "IMG20260810004304.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 7577,
+    "responseHead": "{\"id\":\"5752373c-a010-4d62-b871-70f27ea08c07\",\"object\":\"chat.completion\",\"created\":1793988109,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要分析图片。图片是一页化学试题，似乎是第16题一个大题，包含多个小问（1)(2)(3)(4)以及实验装置图。要求判断是否足以完整转写一道或多道独立题。看到页面是“16. (14分)”一个实验综合题，包含题干、装置图、几个小问，以及空白实验、计算等。这应该是一道题，不是多道独立题。图片整体可见，但有些内容可能被手写遮挡？需要检查是否有缺失选项/关键文字不可读/眩光/遮挡/多题。图片里是拍照，边缘有部分文字，但主体完整。这是一页纸，可能整页只有第16题，从“16.(14分)”开始到结束。没有看到其他独立题号。所以不是多题，questionRegions应为空。decision可能PASS，除非存在关键文字不可读？需要评估。\\n\\n图片旋转了90度？文字竖排？实际上图片横向拍摄，文字呈纵向？需要阅读。内容：左上起“16. (14分) 高效广谱的酰胺型缓释消毒剂二氯海因DCDMH...”。装置图。小问(1)(2)(3)(4)，以及空白实验。手写答案覆盖在部分区域，但印刷文字仍可辨识。有红笔批改。可能存在遮挡：手写答案在题目空白处，不会遮挡题干。有一处红圈“②”和红笔标记。图片右侧有部分内容：已知化学方程式手写、答案等。整体足以转写。可能issues为空。suggestedActions CONTINUE_ANYWAY? 需要返回数组。如果PASS，suggestedActions可能[\\\"CONTINUE_ANYWAY\\\"]？规范只给建议动作枚举。对于PASS，也许空数组或CONTINUE_ANYWAY。需要遵循。其他decision必须空questionRegions。followingPageRelations空数组。\\n\\n但需要严格返回JSON。字段：decision, issues, suggestedActions, questionRegions, followingPageRelations。注意问题要求：返回decision(PASS/RECAPTURE/NEED_MORE_IMAGE/SPLIT)、issues数组、suggestedActions数组、questionRegions数组，每项仅含left/top/right/bottom四个0到1坐标。若画面包含2到12道互相独立的题，必须返回SPLIT...否则questionRegions必须为空数组。其他decision必须返回空questionRegions。同一道题跨页不算多题，内容未拍全时返回NEED_MORE_IMAGE。followingPageRelations必须返回空数组。\\n\\n这张图像是一道题，可能存在部分内容被裁切？看左下角边缘，题号16开始，题干完整。右侧边缘似乎到了纸张边缘，可能右边有一点被裁掉？看图片右下角有“化学试题 第6页，共8页”在图片底部（实际右侧？因为旋转）。图像右侧边缘接近文字“（用含有a、c、V1、V2的代数式表示）”，后面“；样品中 DCDMH 的质量分数为___",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 499971,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "ccfd1d42b1b83d85444bb1ebcb5ba314dfefd812919ac3e7af9dec734444f45e",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

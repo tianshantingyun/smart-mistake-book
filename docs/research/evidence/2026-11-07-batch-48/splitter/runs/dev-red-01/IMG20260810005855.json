@@ -1,0 +1,43 @@
+{
+    "file": "IMG20260810005855.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 28830,
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.03,
+            "top": 0.0,
+            "right": 1.0,
+            "bottom": 0.355
+        },
+        {
+            "left": 0.05,
+            "top": 0.355,
+            "right": 0.99,
+            "bottom": 0.845
+        },
+        {
+            "left": 0.07,
+            "top": 0.845,
+            "right": 1.0,
+            "bottom": 1.0
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "image": {
+        "egressBytes": 651810,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "b812b41e0bc7fe2c6da759d0d622199bd84497098c0470cbfc586230671a13bb",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

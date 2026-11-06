@@ -1,0 +1,43 @@
+{
+    "file": "IMG20260810010306.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 18378,
+    "responseHead": "{\"id\":\"6705d114-c9e4-4e24-b44a-4eb4caa265ea\",\"object\":\"chat.completion\",\"created\":1793988334,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"画面含第10、11、12三道独立题，需拆分\\\"}],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[{\\\"left\\\":0.06,\\\"top\\\":0.0,\\\"right\\\":0.95,\\\"bottom\\\":0.265},{\\\"left\\\":0.05,\\\"top\\\":0.275,\\\"right\\\":0.96,\\\"bottom\\\":0.615},{\\\"left\\\":0.05,\\\"top\\\":0.625,\\\"right\\\":0.96,\\\"bottom\\\":0.875}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要按用户要求，只返回JSON。需要判断图片是否足以完整转写一道或多道独立题。图片中可见三道题，编号10、11（含(1)(2)），12。需要返回SPLIT，因为包含3道互相独立题（2到12道）。MULTIPLE_QUESTIONS标BLOCKING。questionRegions按阅读顺序给出每道题完整外接区域，包含题干、选项、图形和作答区，区域之间不得大面积重叠。需要给出issues数组。可能还需要识别手写答案遮挡/红笔覆盖? 图片中手写红色答案覆盖了作答位置，但题目本身可读；不过图像上方图形属于第10题？ 顶部有个抛物线图，可能与第10题有关（二次函数值域），但题干在图下方，图形在上方。需要区域包含图形。图片是斜的/裁切。需要判断是否完整转写？ 第10题题干完整，作答处有红笔写答案覆盖，但题目可读。第11题(1)(2)完整，红笔答案覆盖作答处。第12题完整，红笔答案覆盖作答处。三题都完整。不过图片中第10题顶部图形可能有一部分在页面顶部被裁掉？ 看图片顶部，有抛物线图形，顶点和x轴标记 -1,0,1，图形似乎顶部未完全显示？ 抛物线顶点接近顶部边缘，可能被裁切？ 需要看：图片顶部显示抛物线峰顶，可能最顶端被裁掉一点点？ 图形本身用于第10题？题干是关于值域，可能不需要图形？ 但用户要求区域包含图形。图形在顶部，部分顶部可能超出画面？ 图片最上边有抛物线顶点，看起来峰顶稍微在顶部边缘，可能完整？ 从显示看顶点圆滑在图片上方边缘，可能被截掉一点。但第10题题干完整，图形可能辅助。需返回issues？ 可能KEY_TEXT_UNREADABLE? 手写红色字覆盖答案，但题干可读；答案处有红笔涂改，不影响题目转写。但“完整转写”可能包括手写答案？ 系统是错题本，需要转写题目，不是答案。红色答案和勾画覆盖了填空处，可能影响识别答案，但题目文本可读。issues可标记OCCLUDED/KEY_TEXT_UNREADABLE severity REVIEW在答案区域？ 需要谨慎。图片中第11(1)答案“k≤-16或k≥?”被红笔划掉，可能答案区域手写覆盖。但题目本身完整。第12题答案“a≠? [0,1]”有红笔覆盖。这些是学生作答，不是题目内容。题目转写不需",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.06,
+            "top": 0.0,
+            "right": 0.95,
+            "bottom": 0.265
+        },
+        {
+            "left": 0.05,
+            "top": 0.275,
+            "right": 0.96,
+            "bottom": 0.615
+        },
+        {
+            "left": 0.05,
+            "top": 0.625,
+            "right": 0.96,
+            "bottom": 0.875
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "image": {
+        "egressBytes": 349842,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "276c09b3f39184171a61d2a58b14fe885c472cc9eb460b1255af1cf35ae3a613",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

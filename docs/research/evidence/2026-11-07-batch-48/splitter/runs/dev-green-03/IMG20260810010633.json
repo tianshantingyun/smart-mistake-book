@@ -1,0 +1,58 @@
+{
+    "file": "IMG20260810010633.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 36962,
+    "responseHead": "{\"id\":\"e03dcdfd-1287-4e97-bc2d-dc0254a286c9\",\"object\":\"chat.completion\",\"created\":1793988386,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"画面含多道独立题：左栏3道、右栏2道\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.08,\\\"top\\\":0.05,\\\"right\\\":0.65,\\\"bottom\\\":0.265},\\\"message\\\":\\\"题11题干开头疑在画面上方被截断\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.08,\\\"top\\\":0.862,\\\"right\\\":0.75,\\\"bottom\\\":1},\\\"message\\\":\\\"题13选项未完整入镜\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.77,\\\"top\\\":0.14,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"右栏题1、题2选项未完整入镜\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.1,\\\"top\\\":0.06,\\\"right\\\":0.65,\\\"bottom\\\":0.263},{\\\"left\\\":0.08,\\\"top\\\":0.263,\\\"right\\\":0.75,\\\"bottom\\\":0.862},{\\\"left\\\":0.08,\\\"top\\\":0.862,\\\"right\\\":0.75,\\\"bottom\\\":1},{\\\"left\\\":0.77,\\\"top\\\":0.15,\\\"right\\\":1,\\\"bottom\\\":0.54},{\\\"left\\\":0.77,\\\"top\\\":0.54,\\\"right\\\":1,\\\"bottom\\\":1}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答 JSON only。任务：判断图片是否足以完整转写一道或多道独立题。图片显示一页试卷，左侧有题11（部分顶部？题号被截? 看到“上，不计轻钩与绳间的摩擦。现将MN杆绕N点垂直纸面向外缓慢转动15°，该过程中关于绳子上张力大小的变化，下列说法正确的是”选项A-D。这应该是一道题，但题干起始部分在图片上方被截掉？图片顶部从“上，不计轻钩...”开始，似乎缺少题目开头（可能上一页/上方）。题12完整：题干、图、选项A-D。题13开始但被截断：题号13，题干到“图。一名工人在高处...”下沿截断，不完整。右侧还有另一栏题目（1. (2025...等），很多被截断且部分可见。图片显然包含多道独立题（左栏11/12/13，右栏1/2）。需要判断是否必须SPLIT如果画面包含2到12道互相独立的题",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "KEY_TEXT_UNREADABLE",
+        "MISSING_OPTIONS",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.1,
+            "top": 0.06,
+            "right": 0.65,
+            "bottom": 0.263
+        },
+        {
+            "left": 0.08,
+            "top": 0.263,
+            "right": 0.75,
+            "bottom": 0.862
+        },
+        {
+            "left": 0.08,
+            "top": 0.862,
+            "right": 0.75,
+            "bottom": 1.0
+        },
+        {
+            "left": 0.77,
+            "top": 0.15,
+            "right": 1.0,
+            "bottom": 0.54
+        },
+        {
+            "left": 0.77,
+            "top": 0.54,
+            "right": 1.0,
+            "bottom": 1.0
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 5,
+    "image": {
+        "egressBytes": 541862,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "521c92663ddb155f944c8fd4b4c33751ccb2a864192d46e91a57792da9d55400",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

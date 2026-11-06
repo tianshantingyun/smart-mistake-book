@@ -1,0 +1,37 @@
+{
+    "file": "IMG20260810011649.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 43337,
+    "responseHead": "{\"id\":\"afa4c8a9-5bb8-4f3c-87a3-e75ee07bf6a0\",\"object\":\"chat.completion\",\"created\":1793987894,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.02,\\\"top\\\":0.02,\\\"right\\\":0.80,\\\"bottom\\\":0.58},\\\"message\\\":\\\"画面含两道独立题，需拆分\\\"}],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[{\\\"left\\\":0.20,\\\"top\\\":0.04,\\\"right\\\":0.80,\\\"bottom\\\":0.58},{\\\"left\\\":0.02,\\\"top\\\":0.02,\\\"right\\\":0.18,\\\"bottom\\\":0.38}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"We need answer JSON only. Need inspect image. Need decide if sufficient to transcribe one or multiple independent questions. Image rotated 90? Need analyze content. We need count complete independent questions. The image shows page with questions 11 and 12? Let's parse.\\n\\nImage orientation: text rotated left? Need mentally rotate clockwise? It shows right edge top? Let's map.\\n\\nVisible: At top right (in image coordinates maybe) question 11: \\\"11. 11分制乒乓球比赛规则如下：在一局比赛中，每两球交换发球权，每胜一球得1分，先得11分且至少领先2分者获胜，该局比赛结束；当某局比分打成10:10后，每球交换发球权，领先2分者获胜，该局比赛结束。假设甲发球时甲得分的概率为2/3，乙发球时甲得分的概率为1/2，各球的比赛结果相互独立，且各局比赛结果相互独立。则下列说法正确的是 A. ... B. ... C. ... D. ...\\\" There are options A-D visible? In image, options A? Let's inspect: The option list appears left of question text? Actually after question, lines:\\n\\\"甲得分的概率为 1/2，各球的比赛结果相互独立，且各局比赛结果相互独立，则下列说法正确的是\\\"\\nThen options:\\nA. 记每局比赛甲获胜的概率为 p0，则前三局甲恰好胜一局的概率为 p0(1-p0)^2\\nB. 记每局比赛甲获胜的概率为 p0，X为前三局中甲获胜的局数，则X的方差为3p0(1-p0)\\nC. 记每局比赛甲获胜的概率为p0，若已知第一、二局甲已连胜，则甲最终获胜的概率为 p0^3 -",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.2,
+            "top": 0.04,
+            "right": 0.8,
+            "bottom": 0.58
+        },
+        {
+            "left": 0.02,
+            "top": 0.02,
+            "right": 0.18,
+            "bottom": 0.38
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "image": {
+        "egressBytes": 573298,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "9bd1507da5976afdc81c7668cfe8eac855f396242fdf849d167fa3f9c6466c9f",
+    "promptSha256": "199e175b4815daee015258dce6c13951abe378d8c363c83bf9fa59a1257a0793"
+}

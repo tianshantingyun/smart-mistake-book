@@ -1,0 +1,38 @@
+{
+    "file": "IMG20260810004511.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 47489,
+    "responseHead": "{\"id\":\"7bcccf07-1716-4ecb-a688-b961f59ef7a1\",\"object\":\"chat.completion\",\"created\":1793986988,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.27,\\\"top\\\":0.07,\\\"right\\\":1.0,\\\"bottom\\\":0.98},\\\"message\\\":\\\"画面含第9、10两道独立题\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.63,\\\"top\\\":0.40,\\\"right\\\":1.0,\\\"bottom\\\":0.98},\\\"message\\\":\\\"第10题仅见A项，B-D选项缺失\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.27,\\\"top\\\":0.07,\\\"right\\\":0.73,\\\"bottom\\\":0.62},{\\\"left\\\":0.63,\\\"top\\\":0.40,\\\"right\\\":1.0,\\\"bottom\\\":0.98}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"We need answer JSON only. Need inspect image: rotated 90? Contains multiple questions? Need determine decision. Image appears page with at least questions 9, 10, and maybe prior C/D statements from previous question, and right side question 10/A continuation. Let's parse.\\n\\nWe need judge whether image sufficient to transcribe one or more independent questions. If 2-12 independent questions complete visible -> SPLIT with BLOCKING multiple questions and regions per question.\\n\\nImage shows:\\n- Top left (rotated): C. 根据小概率值0.10的独立性检验，认为变量A与变量B不独立; D. 根据小概率值0.05... These are options of a previous question not fully visible? Not independent complete question? Options only. Could be prior question partially visible (only C,D). Not complete question. Should not count as complete independent question? The instruction: complete",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.27,
+            "top": 0.07,
+            "right": 0.73,
+            "bottom": 0.62
+        },
+        {
+            "left": 0.63,
+            "top": 0.4,
+            "right": 1.0,
+            "bottom": 0.98
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "image": {
+        "egressBytes": 565447,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "6d4ca721bb8ee6814228c95af85e5fbafb2a5b2cd4490f5e771920a0501ea341",
+    "promptSha256": "d9f6d267cd7bdb124bf679abea439062e8dc73e3b62d058500f98ce6636e3a67"
+}

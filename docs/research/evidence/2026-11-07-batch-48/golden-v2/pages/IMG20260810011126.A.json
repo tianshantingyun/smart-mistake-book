@@ -1,0 +1,41 @@
+{
+  "pageId": "IMG20260810011126",
+  "file": "IMG20260810011126.jpg",
+  "sha256": "d67c3bed50dbbd96c69baecc1e43857b40c4919f654428189d2500180b25ea3e",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T06:40:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图与带网格放大裁片）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "物理",
+  "layout": "single-column",
+  "questionCount": 2,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号)", "left": 0.16, "top": 0.0, "right": 0.75, "bottom": 0.065, "questionType": "choice", "coordConfidence": "high", "notes": "承接上页题目：选项 C（顶缘裁切）与 D 两行"},
+    {"order": 2, "questionNo": "跟进训练3", "left": 0.16, "top": 0.07, "right": 0.77, "bottom": 0.955, "questionType": "choice", "coordConfidence": "high", "notes": "跟进训练3（多选）：标签（红笔圈画）+题干1行+红笔作答记号+四幅图（甲偏振光路图 y≈0.17-0.33、乙立体电影照片、丙衍射照片 y≈0.36-0.49、丁泊松亮斑照片，附图归属=本题）+选项A-D各2-3行（B被划、干涉手写圈画）"}
+  ],
+  "strata": {
+    "questionType": "choice",
+    "hasFormula": false,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": [2]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "左缘 x<0.115 为上一页右缘窄条（蓝框表格残字）不入框；右缘 x>0.88 为下一页左缘窄条（2.解决…3.不同…残字）不入框。印刷题号：跟进训练3 共 1 个 + 承接块，questionCount=2。"
+}

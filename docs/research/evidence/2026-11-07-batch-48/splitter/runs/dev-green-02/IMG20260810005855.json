@@ -1,0 +1,22 @@
+{
+    "file": "IMG20260810005855.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 19404,
+    "responseHead": "{\"id\":\"8aaa852d-532b-4059-b2d3-c3a033bb7ad0\",\"object\":\"chat.completion\",\"created\":1793987762,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片内容。用户要求返回JSON，顶层键仅限 decision/issues/suggestedActions/questionRegions/followingPageRelations。不得有 type 键。需要分析图片：这是一页化学选择题，有第?题上部（前一题）和第11题，以及第12题开头。需要判断是否包含2到12道互相独立的题。完整可见的独立题有2道及以上必须SPLIT，MULTIPLE_QUESTIONS标BLOCKING，questionRegions按阅读顺序给出每道题完整外接区域，每道题恰好一个区域，包含题干、选项、图形和作答区，不得合并相邻题，也不得拆同一题。仅当完整可见独立题不足2道且可见题干被截断无法转写才 NEED_MORE_IMAGE；个别题被页面边缘截断，只把完整可见的题计入questionRegions，不要因此NEED_MORE_IMAGE。此处顶部的题：能看到部分题干开头？可能是上一题，上半部被截断：图片最上方有“碳酸氢钠热稳定性的套管实验。请观察如图所示的实验装置，分析实验原理。下列说法错误的是”以及选项[A][B][C][D]。题干开头似乎被裁掉了（顶部有部分文字？图片顶部可见“碳酸氢钠热稳定性的”上方还有文字被截？边缘裁切）。该题选项完整？选项A到D可见，但题干最开头可能缺少编号及部分文字。题目主体完整可见？可能是前一道题，题目开头被页面顶部边缘截断吗？图片顶部有残留字，题干起始不完整。第11题完整可见：题干、图示、选项A-D完整（D完整，底部到离子方程式，选项D结束）。第12题开始于底部，题干和部分内容但被底部截断，选项不可见，无法完整转写。按规则：完整可见的独立题有第11题，可能顶部题？顶部题题干开头被截断，但可见部分足以转写？需要谨慎：要求“完整可见的独立题有2道及以上必须SPLIT”。如果顶部题算完整可见（尽管上方题干开头有裁切？），那么就有2道。题目区域：第一道题从顶部到第10题选项D结束（顶部边界0，底部约0.35），第二道题第11题从约0.36到0.77，第三道第12题是截断不完整，不计入questionRegions。如果只完整可见1道，则不能SPLIT；但可见题干被截断无法转写？第11题完整，不需要NEED_MORE_IMAGE。那decision可能PASS? 但这里有多道独立题（第11完整，第12不完整，顶部题不完整）。规则强调“个别题被页面边缘截断时，只把完整可见的题计入questionRegions，不要因此返回NEED_MORE_IMAGE。” 如果完整可见独立题不足2道，且可见题干被截断无法转写才 NEED_MORE_IMAGE。这里第11完整；第12截断无法转写，但它是个别题被截断；不应因此返回NEED_MORE_IMAGE。那decision是什么？PASS? 但是 PASS 表示图片足以完整转写一道或多道独立题？如果画面只有一道完整题，PASS可以？需要判断图片是否足以完整转写一道或多道独立题。画",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 651810,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "5e957a6570a3065a80ff5a22f0f2fe52a8ac0f20ebf5aeeeba793b2cab0d41ec",
+    "promptSha256": "199e175b4815daee015258dce6c13951abe378d8c363c83bf9fa59a1257a0793"
+}

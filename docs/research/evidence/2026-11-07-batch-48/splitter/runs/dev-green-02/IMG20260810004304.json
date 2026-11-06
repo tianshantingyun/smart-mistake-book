@@ -1,0 +1,22 @@
+{
+    "file": "IMG20260810004304.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 7553,
+    "responseHead": "{\"id\":\"9e8e4ebf-c813-4c7c-b641-d42d03e0f0b8\",\"object\":\"chat.completion\",\"created\":1793987577,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片内容。需要按用户要求返回JSON。分析图片：这是一页化学试题，似乎只有第16题一道大题（14分），包含多个小问，还有装置图、化学式、滴定实验等。题干可能完整可见？图片逆时针旋转了90度，文字竖向，但内容完整。题号16. (14分) 后面是一道综合实验题，包含（1）（2）（3）（4）小问，属于同一道题。因此不是多道独立题。需要判断是否可完整转写。画面边缘：左侧有题号，右侧有页脚“化学试题 第6页，共8页”，顶部有化学式，底部有一些额外标注/手写。题目似乎从左侧开始，所有内容都在画面内。是否存在遮挡？有手写红笔圈、批注、答案，可能覆盖题干? 看关键文本可能被遮挡？装置图清晰，文字大多可读。第（1）题“仪器丁的名称是____，其中盛放的试剂为____。”下方有手写红色标记，盖住了一部分横线？但题干可读。第（2）题“丙装置采用的控温方式为____，乙装置中长颈漏斗的作用是____。”红笔圈住（1）? 手写“水浴”等。第（3）题化学方程式。第（4）题包括①取样、滴定等，②空白实验，最后“已知：①... ②... 达到滴定终点的现象为____；样品中DCDMH的质量分数为____（用含有a、c、V、V₂的代数式表示）。”有手写批注和计算，有一些红笔涂改覆盖在“水浴”和化学式上，但应该可读？可能有个别手写红字覆盖在“水浴”处，公式右侧手写“V₁L”等。手写答案不属于题目。是否有选项缺失？这是主观题，没有选项。是否需要RECAPTURE? 如果红笔覆盖关键文本? 需要谨慎。按照约束：判断图片是否足以完整转写一道或多道独立题。如果完整可见的独立题不足2道且可见题干被截断无法转写才 NEED_MORE_IMAGE。这里一道题完整可见，没有截断。PASS? 但可能存在“KEY_TEXT_UNREADABLE”或“GLARE_COVERS_FORMULA”等。看图片：装置图与文字清晰，手写红笔可能遮挡某些填空横线，但题干可读。没有强反光。没有遮挡关键公式？在（4）②后面化学方程式手写覆盖了部分? 图像里手写红色“0”和“1”等，可能覆盖在公式附近，但印刷公式仍可辨认。可能存在“OCCLUDED” REVEIW? 但如果不影响转写，PASS。需要questionRegions空数组。followingPageRelations空数组。suggestedActions若PASS不得含RECAPTURE/ADD_IMAGE，可以用CONTINUE_ANYWAY。issues可以空数组或包含REVIEW类的轻微问题。顶层JSON只能含 decision/issues/suggestedActions/questionRegions/followingPageRelations。不添加type。必须返回JSON。注意decision=PASS, suggestedActions不得含RECAPTURE/ADD_IMAGE。可以 suggestedActions: [\\\"CONTINUE_ANYWAY",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 499971,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "39550411a471a4bf217822cc31e89c8e45b30eb18b28a80e252592209179dac7",
+    "promptSha256": "199e175b4815daee015258dce6c13951abe378d8c363c83bf9fa59a1257a0793"
+}

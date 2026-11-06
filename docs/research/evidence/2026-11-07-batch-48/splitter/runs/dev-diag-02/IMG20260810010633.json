@@ -1,0 +1,27 @@
+{
+    "file": "IMG20260810010633.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 15709,
+    "responseHead": "{\"id\":\"2ba49f2e-7b1f-4ded-9e84-b49e8d64060d\",\"object\":\"chat.completion\",\"created\":1793986694,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"NEED_MORE_IMAGE\\\",\\\"issues\\\":[{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.05,\\\"top\\\":0.78,\\\"right\\\":0.95,\\\"bottom\\\":1.0},\\\"message\\\":\\\"下方第13题及选项被画面边缘截断，无法完整转写。\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.05,\\\"top\\\":0.0,\\\"right\\\":0.85,\\\"bottom\\\":0.22},\\\"message\\\":\\\"上方残留题目题干开头缺失，不能独立转写。\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.72,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"右侧列题目被裁切，文字与选项不完整。\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.08,\\\"top\\\":0.82,\\\"right\\\":0.92,\\\"bottom\\\":1.0},\\\"message\\\":\\\"第13题选项未拍全。\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\",\\\"RECAPTURE\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图像是否足以完整转写一道或多道独立题。需要按 schema 返回 JSON。分析图像：照片是书页/试卷，中间完整显示第12题（包含题干、选项、图形、作答区），上方有上一题的后半部分（题干+选项，题干开头不完整“上，不计轻钩...”），下方有第13题开头部分，但第13题内容被截断，只显示到“一名工人在高处...”然后图片下边缘截断，选项和图形不完全。右侧还有另一列题目（第1、2题等）大部分被裁切，只有部分可见。图像包含多道题？可见：上方残留题（上一题的下半部分）不完整；第12题完整；第13题不完整；右侧列题目部分残缺。题目区域？是否应该 SPLIT？规则：若画面包含2到12道互相独立的题，必须返回 SPLIT，将 MULTIPLE_QUESTIONS 标为 BLOCKING，questionRegions按页面阅读顺序给出每道题的完整外接区域，包含题干、选项、图形和作答区，区域之间不得大面积重叠；否则 questionRegions 必须为空数组。其他 decision 必须返回空 questionRegions。同一道题跨页不算多题，内容未拍全时返回 NEED_MORE_IMAGE。\\n\\n这里图像包含第12题完整，但第13题不完整（内容未拍全），上方题也不完整。还有右侧列可能是独立题，但只露出很窄部分。如果内容未拍全时返回 NEED_MORE_IMAGE。但画面包含多道独立题？第12题是完整；第13题只有开",
+    "decision": "NEED_MORE_IMAGE",
+    "issueCodes": [
+        "OCCLUDED",
+        "OCCLUDED",
+        "OCCLUDED",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 541862,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "365acb75fa0d860bd0b965aaa8b2e6bf868cdcc5d6bd064ccf67915f0f5ba59b",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

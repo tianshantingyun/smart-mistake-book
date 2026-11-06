@@ -1,0 +1,21 @@
+{
+    "file": "IMG20260810011017.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 14676,
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 578751,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "4b188fbbb1201ff73be0f9a0c78778449e4aa756742feb94cda0f8e10682b6f1",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

@@ -1,0 +1,110 @@
+{
+    "runId": "dev-green-03",
+    "channel": "golden-split-eval-harness-v1",
+    "wireProtocol": "openai-chat-completions-v1",
+    "model": "deepseek-flash",
+    "endpoint": "https://api.deepseek.com",
+    "keySha8": "cd10efbc",
+    "divergences": [
+        "transport: plain HTTPS POST instead of gateway authorization pipeline (same requestBody builder, same parseCompletion)",
+        "image egress copy: prepared by caller per EgressImageBudget plan (long edge 2048, JPEG q88, q70 fallback); PIL resampling, not Android Skia bytes; scaledSize re-verified here"
+    ],
+    "pages": [
+        {
+            "file": "IMG20260810004304.jpg",
+            "record": "IMG20260810004304.json",
+            "status": "OK",
+            "regionCount": 0
+        },
+        {
+            "file": "IMG20260810004511.jpg",
+            "record": "IMG20260810004511.json",
+            "status": "OK",
+            "regionCount": 2
+        },
+        {
+            "file": "IMG20260810004854.jpg",
+            "record": "IMG20260810004854.json",
+            "status": "ERROR",
+            "regionCount": 0
+        },
+        {
+            "file": "IMG20260810005144.jpg",
+            "record": "IMG20260810005144.json",
+            "status": "ERROR",
+            "regionCount": 0
+        },
+        {
+            "file": "IMG20260810005301.jpg",
+            "record": "IMG20260810005301.json",
+            "status": "OK",
+            "regionCount": 2
+        },
+        {
+            "file": "IMG20260810005605.jpg",
+            "record": "IMG20260810005605.json",
+            "status": "OK",
+            "regionCount": 0
+        },
+        {
+            "file": "IMG20260810005855.jpg",
+            "record": "IMG20260810005855.json",
+            "status": "OK",
+            "regionCount": 3
+        },
+        {
+            "file": "IMG20260810010306.jpg",
+            "record": "IMG20260810010306.json",
+            "status": "OK",
+            "regionCount": 3
+        },
+        {
+            "file": "IMG20260810010349.jpg",
+            "record": "IMG20260810010349.json",
+            "status": "OK",
+            "regionCount": 4
+        },
+        {
+            "file": "IMG20260810010633.jpg",
+            "record": "IMG20260810010633.json",
+            "status": "OK",
+            "regionCount": 5
+        },
+        {
+            "file": "IMG20260810010859.jpg",
+            "record": "IMG20260810010859.json",
+            "status": "OK",
+            "regionCount": 3
+        },
+        {
+            "file": "IMG20260810011017.jpg",
+            "record": "IMG20260810011017.json",
+            "status": "OK",
+            "regionCount": 0
+        },
+        {
+            "file": "IMG20260810011126.jpg",
+            "record": "IMG20260810011126.json",
+            "status": "OK",
+            "regionCount": 0
+        },
+        {
+            "file": "IMG20260810011248.jpg",
+            "record": "IMG20260810011248.json",
+            "status": "OK",
+            "regionCount": 4
+        },
+        {
+            "file": "IMG20260810011649.jpg",
+            "record": "IMG20260810011649.json",
+            "status": "OK",
+            "regionCount": 2
+        },
+        {
+            "file": "IMG20260810012103.jpg",
+            "record": "IMG20260810012103.json",
+            "status": "OK",
+            "regionCount": 3
+        }
+    ]
+}

@@ -1,0 +1,42 @@
+{
+  "pageId": "IMG20260810010202",
+  "file": "IMG20260810010202.jpg",
+  "sha256": "09f27749dc9bfac95211dedc938830b9e31e2405fedf6f593978d17ff4811da0",
+  "split": "acceptance",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T04:40:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图、带网格放大裁片与自写行投影测量脚本的像素行带输出）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "数学",
+  "layout": "single-column",
+  "questionCount": 3,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(材料尾)", "left": 0.0, "top": 0.0, "right": 0.86, "bottom": 0.118, "questionType": "other", "coordConfidence": "high", "notes": "承接上页的讲解材料尾3行（原式=√(a²+b²)(sinxcosφ+…)…含一个角的三角函数的问题。），前两行被图像顶缘裁切"},
+    {"order": 2, "questionNo": "思考题2", "left": 0.075, "top": 0.14, "right": 0.95, "bottom": 0.545, "questionType": "mixed", "coordConfidence": "high", "notes": "思考题2：(1)【多选题】题干2行+选项A-D两行 +(2)计算填空；右侧大片红/黑笔作答记号（x≈0.6-0.95）随框；(1)(2)为同题号两小问，按指南记一框"},
+    {"order": 3, "questionNo": "例3", "left": 0.045, "top": 0.632, "right": 0.91, "bottom": 0.835, "questionType": "choice", "coordConfidence": "high", "notes": "例3 (1)化简…题干2行+选项A/B、C/D两行；例3 标签红笔圈画、右侧红笔 D 作答记号随框；节标题『微专题2 升(降)幂公式的应用』(y≈0.575-0.608)不入框"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": false,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image + pixel row-band profile (rowprofile.py)",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "右缘虚线页边 x≈0.955，右缘红笔小字与透印不入框；页码 104（左下 y≈0.925-0.95）不入框。印刷题号：思考题2、例3 共 2 个 + 承接材料块，questionCount=3。"
+}

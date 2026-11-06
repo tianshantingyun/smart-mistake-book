@@ -1,0 +1,42 @@
+{
+  "pageId": "IMG20260810005711",
+  "file": "IMG20260810005711.jpg",
+  "sha256": "8e940693d7fc95c740a7f59a9d4787cb4ee217e04a24ae330619013b5bdceaa1",
+  "split": "acceptance",
+  "round": "B",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "B",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent) — 同模型第二轮",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T10:00:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "B 轮为同一模型在写毕 B JSON 前未读取任何 A 轮 JSON 的重标；但同一会话内 A 轮判读内容不可避免在上下文中留存，故 B 轮不构成协议 §3.3 意义上的独立标注，仅作同模型一致性证据。",
+  "subject": "化学",
+  "layout": "single-column",
+  "questionCount": 3,
+  "boxes": [
+    {"order": 1, "questionNo": "1", "left": 0.07, "top": 0.0, "right": 0.87, "bottom": 0.44, "questionType": "choice", "coordConfidence": "high", "notes": "题1 题干两行（首行顶缘裁切）+选项对照表（下缘 y≈0.437）；右上黑笔作答记号随框"},
+    {"order": 2, "questionNo": "2", "left": 0.07, "top": 0.45, "right": 0.87, "bottom": 0.81, "questionType": "choice", "coordConfidence": "high", "notes": "题2 题干（黑笔D作答）+选项A-D（B/C红圈、A被划）"},
+    {"order": 3, "questionNo": "3", "left": 0.07, "top": 0.875, "right": 0.87, "bottom": 1.0, "questionType": "fill", "coordConfidence": "high", "notes": "题3 题干两行，底缘裁切延续到下一页；节标题不入框"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": false,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "B 轮重标：右缘对页窄条不入框。"
+}

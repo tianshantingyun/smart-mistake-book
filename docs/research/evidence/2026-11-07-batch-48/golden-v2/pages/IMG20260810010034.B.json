@@ -1,0 +1,45 @@
+{
+  "pageId": "IMG20260810010034",
+  "file": "IMG20260810010034.jpg",
+  "sha256": "ca110cc4ae39968947cdda26d2f69d9db32ef49c08c347b7b3f306c262cb002b",
+  "split": "acceptance",
+  "round": "B",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "B",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent) — 同模型第二轮",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T09:20:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "B 轮为同一模型在写毕 B JSON 前未读取任何 A 轮 JSON 的重标；但同一会话内 A 轮判读内容不可避免在上下文中留存，故 B 轮不构成协议 §3.3 意义上的独立标注，仅作同模型一致性证据。",
+  "subject": "数学",
+  "layout": "single-column",
+  "questionCount": 6,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号,疑为2)", "left": 0.08, "top": 0.0, "right": 0.86, "bottom": 0.1, "questionType": "choice", "coordConfidence": "high", "notes": "承接上页：顶缘残行+选项C/D一行"},
+    {"order": 2, "questionNo": "3", "left": 0.055, "top": 0.11, "right": 0.87, "bottom": 0.24, "questionType": "choice", "coordConfidence": "high", "notes": "题3 题干+选项两行+黑笔D作答"},
+    {"order": 3, "questionNo": "4", "left": 0.055, "top": 0.245, "right": 0.94, "bottom": 0.47, "questionType": "choice", "coordConfidence": "high", "notes": "题4【多选题】题干2行+选项两行+右侧大片红黑作答记号"},
+    {"order": 4, "questionNo": "5", "left": 0.055, "top": 0.47, "right": 0.9, "bottom": 0.57, "questionType": "fill", "coordConfidence": "high", "notes": "题5 两问填空含手写"},
+    {"order": 5, "questionNo": "6", "left": 0.055, "top": 0.575, "right": 0.9, "bottom": 0.79, "questionType": "fill", "coordConfidence": "high", "notes": "题6 (1)(2) 两小问填空含手写"},
+    {"order": 6, "questionNo": "7", "left": 0.055, "top": 0.795, "right": 0.9, "bottom": 0.9, "questionType": "fill", "coordConfidence": "high", "notes": "题7 填空+下方红笔演算"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": false,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "B 轮重标：右缘对页窄条不入框。"
+}

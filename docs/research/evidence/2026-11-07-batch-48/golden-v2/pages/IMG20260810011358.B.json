@@ -1,0 +1,45 @@
+{
+  "pageId": "IMG20260810011358",
+  "file": "IMG20260810011358.jpg",
+  "sha256": "35d5df23ebab77798143735883f2ea0a3d026d2fdb7c639f33bb19fb20b2a78a",
+  "split": "acceptance",
+  "round": "B",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "B",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent) — 同模型第二轮",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T09:40:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "B 轮为同一模型在写毕 B JSON 前未读取任何 A 轮 JSON 的重标；但同一会话内 A 轮判读内容不可避免在上下文中留存，故 B 轮不构成协议 §3.3 意义上的独立标注，仅作同模型一致性证据。",
+  "subject": "数学",
+  "layout": "single-column",
+  "questionCount": 5,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号,疑为4)", "left": 0.09, "top": 0.0, "right": 0.8, "bottom": 0.145, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.855, "top": 0.09, "right": 1.0, "bottom": 0.8}, "notes": "承接上页：顶缘残行+选项A/B、C/D两行"},
+    {"order": 2, "questionNo": "5", "left": 0.09, "top": 0.15, "right": 0.79, "bottom": 0.37, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.63, "top": 0.09, "right": 0.85, "bottom": 0.78}, "notes": "题5 题干1行+选项A-D一行+行间手写；页边红笔记号不入框"},
+    {"order": 3, "questionNo": "6", "left": 0.09, "top": 0.325, "right": 0.79, "bottom": 0.565, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.435, "top": 0.09, "right": 0.675, "bottom": 0.78}, "notes": "题6 题干3行（6 红笔圈画）+选项A-D一行"},
+    {"order": 4, "questionNo": "7", "left": 0.09, "top": 0.575, "right": 0.8, "bottom": 0.835, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.165, "top": 0.09, "right": 0.44, "bottom": 0.8}, "notes": "题7 题干2行+选项A-D一行+行间手写"},
+    {"order": 5, "questionNo": "8", "left": 0.09, "top": 0.85, "right": 0.8, "bottom": 0.945, "questionType": "choice", "coordConfidence": "medium", "rawBox": {"left": 0.055, "top": 0.09, "right": 0.15, "bottom": 0.8}, "notes": "题8 题干1行+选项A-D一行；左缘涂鸦不入框"}
+  ],
+  "strata": {
+    "questionType": "choice",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "primary box coords in upright space (raw rotated 90 CCW); rawBox in raw file space",
+  "orientation": {"rawSize": [3072, 4096], "rawToUpright": "rotate90ccw", "uprightSize": [4096, 3072]},
+  "imageSize": [4096, 3072],
+  "notes": "B 轮重标：页脚『第1页，共4页』不入框。"
+}

@@ -1,0 +1,51 @@
+{
+    "file": "IMG20260810003928.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 31174,
+    "responseHead": "{\"id\":\"e7028b0e-c906-447b-8860-a7e5c2ce7460\",\"object\":\"chat.completion\",\"created\":1793988762,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"画面含4道独立题，需拆分\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.78,\\\"top\\\":0.17,\\\"right\\\":1,\\\"bottom\\\":0.29},\\\"message\\\":\\\"第1题D选项右侧被裁切，文字不完整\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.55,\\\"top\\\":0.35,\\\"right\\\":1,\\\"bottom\\\":0.43},\\\"message\\\":\\\"第2题B选项右侧文字被裁切，电子排布式不完整\\\"}],\\\"suggestedActions\\\":[\\\"RECAPTURE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.08,\\\"top\\\":0.14,\\\"right\\\":1,\\\"bottom\\\":0.29},{\\\"left\\\":0.08,\\\"top\\\":0.31,\\\"right\\\":1,\\\"bottom\\\":0.65},{\\\"left\\\":0.08,\\\"top\\\":0.65,\\\"right\\\":1,\\\"bottom\\\":0.78},{\\\"left\\\":0.08,\\\"top\\\":0.78,\\\"right\\\":1,\\\"bottom\\\":0.965}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。图片显示一页试卷，包含第1卷，一、选择题，第1题到第4题。需要判断是否多题。画面包含4道独立题（1-4），且可能第1题选项D被截断？需要仔细看。第1题：题干“下列含有马元素的文物中，主要成分属于合金的是”，选项A秦铜车马 B唐三星腾空马? 应该是唐三彩腾空马 C昭陵六骏石刻 D. 右侧图像和标签被截断？图片右边缘只看到D. 后面被切掉。第1题的D选项文字未完全显示？图片右侧切掉，D选项只显示“D.”，其图片部分显示了马？实际第1题选项布局四列：A秦铜车马，B唐三彩腾空马，C昭陵六骏石刻，D. ? 图片最右侧被截断，只看到D. 后面可能还有文字，但图像区域部分可见。这属于选项缺失/未拍全。另外第2题：选项A、B、C、D，其中A“PH3分子的球棍模型”被手写涂画，但可读。B“基态Cr原子的简化电子排布式：[Ar]3d54...”右侧被截断？图片右侧：B选项后面“[Ar]3d54”可能被截断为“[Ar]3d54?”，需要判断完整内容。图片右侧确实切掉了部分。C“顺-2-丁烯的结构简式”图形可见。D“基态Na原子最高能级的电子云轮廓图”图形可见。但第2题选项B右侧被截断，可能缺少s1? “[Ar]3d54s1”被截断。第3题完整，第4题选项D右侧有部分被截断？第4题D：水电",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "MISSING_OPTIONS",
+        "KEY_TEXT_UNREADABLE"
+    ],
+    "regions": [
+        {
+            "left": 0.08,
+            "top": 0.14,
+            "right": 1.0,
+            "bottom": 0.29
+        },
+        {
+            "left": 0.08,
+            "top": 0.31,
+            "right": 1.0,
+            "bottom": 0.65
+        },
+        {
+            "left": 0.08,
+            "top": 0.65,
+            "right": 1.0,
+            "bottom": 0.78
+        },
+        {
+            "left": 0.08,
+            "top": 0.78,
+            "right": 1.0,
+            "bottom": 0.965
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 4,
+    "image": {
+        "egressBytes": 514114,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "8f7ef946379ce57d4a5e5e3b6226f9ab4d2bf2c2644150c167744fc8a8ee8313",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

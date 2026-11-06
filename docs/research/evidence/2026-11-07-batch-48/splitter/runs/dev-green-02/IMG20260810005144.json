@@ -1,0 +1,55 @@
+{
+    "file": "IMG20260810005144.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 59247,
+    "responseHead": "{\"id\":\"58cae057-ae75-4f18-ae52-880f8adf48e6\",\"object\":\"chat.completion\",\"created\":1793987633,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.04,\\\"top\\\":0.03,\\\"right\\\":0.97,\\\"bottom\\\":0.98},\\\"message\\\":\\\"画面包含11—15共5道独立题，需拆分转写\\\"}],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[{\\\"left\\\":0.04,\\\"top\\\":0.12,\\\"right\\\":0.49,\\\"bottom\\\":0.31},{\\\"left\\\":0.04,\\\"top\\\":0.32,\\\"right\\\":0.49,\\\"bottom\\\":0.61},{\\\"left\\\":0.04,\\\"top\\\":0.03,\\\"right\\\":0.97,\\\"bottom\\\":0.75},{\\\"left\\\":0.52,\\\"top\\\":0.15,\\\"right\\\":0.97,\\\"bottom\\\":0.37},{\\\"left\\\":0.52,\\\"top\\\":0.39,\\\"right\\\":0.97,\\\"bottom\\\":0.98}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。需要返回严格JSON，顶层只能有decision/issues/suggestedActions/questionRegions/followingPageRelations。需要先分析图片内容。图片似乎是一页生物习题，左栏和右栏内容。需要判断完整可见的独立题数量。画面中有多道题：左侧第11题（题号11）完整可见？第12题（题号12）完整可见，带图；第13题（题号13）跨左右栏？看13题题干在左栏底部，选项A在左栏底部，然后右栏顶部继续B,C,D？需要判断一道题跨栏？题目13：[2025·辽宁盘锦三模] 立克次氏体是单细胞生物，其最外层... 下列叙述错误的是 ... 选项A在左栏底部，B/C/D在右栏顶部。这是同一道题跨两栏，但都在同一页完整可见。右侧14题完整可见；15题是综合应用题，包含若干小题(1)(2)(3)(4)(5)。需要判断独立题数量：11、12、13、14、15。15是一道综合题含多小问，算一道独立题。画面是否能完整转写？左边边缘有题号被截？图片完整显示整页，左右边缘有裁切但主要内容完整。第11题选项A-D完整可见。第12题完整，图可见。第13题完整跨栏可见。14完整。15完整包含图和小题。因此有5道独立题，必须返回SPLIT，MULTIPLE_QUESTIONS标BLOCKING，questionRegions按阅读顺序给出每道题的完整外接区域，每道题恰好一个区域。区域要包含题干、选项、图形、作答区，不能大面积重叠。需要给出0-1坐标。图片尺寸约 1280x1707? 实际图像 1280 宽 x 1706 高？从坐标看。需要确定每道题区域边界。\\n\\n图片布局：整页分两栏。左栏有：\\n顶部：延续上一题? 左上角有 A. 抑制细菌细胞壁形成的抗生素对两种病原体不起作用；B. 支原体的生物膜系统... C... D... 这可能是上一题",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.04,
+            "top": 0.12,
+            "right": 0.49,
+            "bottom": 0.31
+        },
+        {
+            "left": 0.04,
+            "top": 0.32,
+            "right": 0.49,
+            "bottom": 0.61
+        },
+        {
+            "left": 0.04,
+            "top": 0.03,
+            "right": 0.97,
+            "bottom": 0.75
+        },
+        {
+            "left": 0.52,
+            "top": 0.15,
+            "right": 0.97,
+            "bottom": 0.37
+        },
+        {
+            "left": 0.52,
+            "top": 0.39,
+            "right": 0.97,
+            "bottom": 0.98
+        }
+    ],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 722393,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "ed24c7a14f2b0144ae60a3d1f70fb490a8a3b3a89960622626707629e45f6f74",
+    "promptSha256": "199e175b4815daee015258dce6c13951abe378d8c363c83bf9fa59a1257a0793"
+}

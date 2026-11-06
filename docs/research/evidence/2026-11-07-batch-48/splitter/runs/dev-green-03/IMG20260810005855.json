@@ -1,0 +1,45 @@
+{
+    "file": "IMG20260810005855.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 19595,
+    "responseHead": "{\"id\":\"0e2e1709-ad7e-44b4-acb0-57350378f7bf\",\"object\":\"chat.completion\",\"created\":1793988314,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.05,\\\"top\\\":0.36,\\\"right\\\":0.99,\\\"bottom\\\":0.80},\\\"message\\\":\\\"画面含多道独立题\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.05,\\\"top\\\":0.0,\\\"right\\\":0.99,\\\"bottom\\\":0.07},\\\"message\\\":\\\"顶部题干或装置图边缘被截断\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.05,\\\"top\\\":0.90,\\\"right\\\":0.99,\\\"bottom\\\":1.0},\\\"message\\\":\\\"第12题选项未拍全\\\"}],\\\"suggestedActions\\\":[\\\"RECAPTURE\\\",\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.05,\\\"top\\\":0.0,\\\"right\\\":0.96,\\\"bottom\\\":0.36},{\\\"left\\\":0.05,\\\"top\\\":0.36,\\\"right\\\":0.99,\\\"bottom\\\":0.80},{\\\"left\\\":0.05,\\\"top\\\":0.80,\\\"right\\\":0.99,\\\"bottom\\\":1.0}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片是否足以完整转写一道或多道独立题。图片显示有第10题的一部分？顶部有一道题（可能是第10题）内容从“碳酸氢钠热稳定性...”开始，有ABCD选项，但题干开头不完整？最上边缘有部分文字切掉？图像顶部：有红笔、部分题干缺失? 看图片：顶部第一行部分被截断，出现“...碳酸氢钠热稳定性的 套管实验。请观察如图所示的实验装置，分析实验原理。下列说法错误的是”。这似乎是上一题的题干，但左上角有部分文字被裁掉，顶部可能有缺字。题目包含实验装置图，图顶部部分被切掉（试管/烧杯图上半截？实际图中有装置，但顶部边缘可能切断）。选项[A][B][C][D]可见。这道题可能完整？题干开头“某同学...”可能缺失？图上首行是“某同学用...?” 不，顶部第一行在最上边缘：只能看到“ 硫酸氢钠热稳定性的  ...”前面有红笔；可能“碳酸氢钠”完整？左上角有“某同学...”？需要仔细。\\n\\n中间第11题完整可见，有图，选项ABCD；但选项A/B/C/D都有，题号11完整。第12题在底部，题干可见到“实验①取反应后的溶液加入二氧化锰，立即产生大量气体；实验②③中红色均不褪去，下列分析...”但底部被截断，可以看到“下列分析...”部分和选项未显示，图像底边切断。第12题不完整。因此图片不是完整转写全部题。但决策？可能是MULTIPLE_QUESTIONS 2到12独立题？画面包含至少3道题：顶部题（可能第10题）",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "OCCLUDED",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.05,
+            "top": 0.0,
+            "right": 0.96,
+            "bottom": 0.36
+        },
+        {
+            "left": 0.05,
+            "top": 0.36,
+            "right": 0.99,
+            "bottom": 0.8
+        },
+        {
+            "left": 0.05,
+            "top": 0.8,
+            "right": 0.99,
+            "bottom": 1.0
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "image": {
+        "egressBytes": 651810,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "ce36b2ef62f8e134acea059c0dfc6f608202488fa656118a06edf6f7fd69fbc6",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

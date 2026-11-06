@@ -1,0 +1,22 @@
+{
+    "file": "IMG20260810011017.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 10122,
+    "responseHead": "{\"id\":\"0ac67c6b-9b52-4171-a937-e3ee55ad8ff5\",\"object\":\"chat.completion\",\"created\":1793987303,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足够完整转写一道或多道独立题。需要只返回JSON符合schema。顶层只能含decision/issues/suggestedActions/questionRegions/followingPageRelations。不能加type。需要分析图片。\\n\\n图片是一页练习册/试卷。可见左边缘有上一道题的部分残留（文字：大小为B。放置，接入轨道初速度v0沿导最终恰好停在之间的阻值为... 等），左下有图（P点、磁场区域），还有左侧一些题目残留。主体中间偏右是“【跟进训练2】（2025·山东省潍坊市高三三模）”一道完整题：题干、示意图、三个小问，下面有手写解答。左侧边缘被截断，显示上一道题的片段，不完整。主体这一道题完整可见？题干从“如图所示，空间中有一足够长的光滑平行金属导轨...”到“求：”，图，问(1)(2)(3)，完整。下面手写解题，不是题目。左侧有另一题部分文字和图，不完整。问题：画面里完整可见的独立题有几道？只有1道完整可见（跟进训练2）。左侧上一题只有片段，被页面边缘截断，不完整。因此不足2道，不返回SPLIT。是否足以完整转写该道题？主体题文字清晰，图可见，三个小问，选项？这是计算题无选项。没有遮挡，无明显眩光。左边缘部分不完整但不算主图？是否应返回PASS？需判断完整转写一道或多道独立题。图片里有完整的一道题，可以PASS。但左侧可能有上一题的一大段，包含一些条件，被截断，可能影响？题目是独立的。主体完整。应PASS。但需要检查是否有手写遮挡题干？没有。图片整体可读。下方手写答案不影响题目。左边缘上一题被截断，但不是完整的题，不属于需转写的独立题？可以只转写完整题。decision PASS。issues空数组？可能有一些 REVIEW 吗？左侧截断的上一题？按照规则：个别题被页面边缘截断时，只把完整可见的题计入questionRegions，不要因此返回NEED_MORE_IMAGE。但questionRegions在非SPLIT必须为空，即使有截断题。所以不标。可能issue? 不需要。suggestedActions? PASS时通常 CONTINUE_ANYWAY? 需要返回 suggestedActions 数组。对于PASS，建议可能是 CONTINUE_ANYWAY。需要确认格式。顶层键包括 followingPageRelations 空数组。issues空数组。questionRegions空数组。decision PASS。suggestedActions可以 [\\\"CONTINUE_ANYWAY\\\"] 还是 []? 题目要求返回suggestedActions数组，可能建议动作。对于PASS，可以 CONTINUE_ANYWAY 或空？最好 CONTINUE_ANYWAY 表示继续转写。但“suggestedActions”枚举：RECAPTURE/ADD_IMAGE/CONTINUE_ANYWAY。PASS时可 CONTIN",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 578751,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "16f93cec3f589dac261759b66eedf984147cbb036a132853547f48fb1d4e2e1d",
+    "promptSha256": "d9f6d267cd7bdb124bf679abea439062e8dc73e3b62d058500f98ce6636e3a67"
+}

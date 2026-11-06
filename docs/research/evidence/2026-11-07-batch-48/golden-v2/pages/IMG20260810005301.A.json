@@ -1,0 +1,42 @@
+{
+  "pageId": "IMG20260810005301",
+  "file": "IMG20260810005301.jpg",
+  "sha256": "7d682009ceebd089bdfdc141b4264d589415f79763c4a75369770eb401d2ca7b",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T03:00:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图、带网格放大裁片与自写行投影测量脚本的像素行带输出）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "生物",
+  "layout": "two-column",
+  "questionCount": 2,
+  "boxes": [
+    {"order": 1, "questionNo": "14", "left": 0.03, "top": 0.065, "right": 0.5, "bottom": 1.0, "questionType": "fill", "coordConfidence": "high", "notes": "题14 左栏部分：题干7行（14.研究证实…请分析下列问题。）+线粒体/脂滴/溶酶体插图（y≈0.24-0.36，附图归属=本题）+小问(1)(2)①②③①②③含大量手写；左栏底缘含手写至页底"},
+    {"order": 2, "questionNo": "14", "left": 0.5, "top": 0.036, "right": 0.955, "bottom": 0.165, "questionType": "fill", "coordConfidence": "high", "notes": "题14 右栏部分：跨栏续行小问(4)(5)含手写；与 order1 为同一题的两段，读序上紧邻（左栏毕接右栏顶）"},
+    {"order": 3, "questionNo": "15", "left": 0.5, "top": 0.172, "right": 0.955, "bottom": 0.96, "questionType": "fill", "coordConfidence": "high", "notes": "题15 [2026·陕西宝鸡一模] 题干4行+图甲（跨膜蛋白A/B/C区）+图乙（SRP/核糖体/内质网）+小问(1)(2)(3)含大量手写与红笔批注；框内右下含两个二维码（x≈0.75-0.95, y≈0.845-0.93），轴对齐框无法排除，如实记录"}
+  ],
+  "strata": {
+    "questionType": "fill",
+    "hasFormula": false,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": false,
+    "optionsIncluded": false,
+    "figureOwnership": [1, 3]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image + pixel row-band profile (rowprofile.py)",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "双栏页：左栏 x≈0.03-0.48，右栏 x≈0.50-0.95；『▶▶综合应用练』栏标签（y≈0.047-0.061）不入框；右缘 x>0.955 竖排书边文字与页码不入框。印刷题号 14、15 共 2 个。"
+}

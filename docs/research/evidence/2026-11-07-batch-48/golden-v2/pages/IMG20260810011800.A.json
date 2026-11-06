@@ -1,0 +1,41 @@
+{
+  "pageId": "IMG20260810011800",
+  "file": "IMG20260810011800.jpg",
+  "sha256": "0609ba473e93bfcbf86dd0ada34d7d4cac9849aac4c8f82a08f92321abfd25d4",
+  "split": "acceptance",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T08:00:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（摆正整页渲染图与带网格放大裁片）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "物理",
+  "layout": "single-column",
+  "questionCount": 1,
+  "boxes": [
+    {"order": 1, "questionNo": "15", "left": 0.045, "top": 0.195, "right": 1.0, "bottom": 1.0, "questionType": "solve", "coordConfidence": "high", "rawBox": {"left": 0.0, "top": 0.045, "right": 0.805, "bottom": 1.0}, "notes": "题15 整页一题（单题页整页框）：题干7行（导轨+电容器+双掷开关场景，多处手写下划线）+小问(1)(2)(3)各1行+电路/导轨图（O/C/P、开关1/2、R、M/N、B、a-g 标注，x≈0.42-1.0, y≈0.65-0.85，右缘出画，附图归属=本题）+左下大片手写解答（解:(1)…Q=CU²/4…(2)…）至底缘"}
+  ],
+  "strata": {
+    "questionType": "solve",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": false,
+    "optionsIncluded": false,
+    "figureOwnership": [1]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "primary box coords in upright space (raw rotated 90 CCW); rawBox in raw file space",
+  "orientation": {"rawSize": [3072, 4096], "rawToUpright": "rotate90ccw", "uprightSize": [4096, 3072]},
+  "imageSize": [4096, 3072],
+  "notes": "题干首行上方 y<0.19 为书页边缘空白。印刷题号 15 共 1 个，questionCount=1。"
+}

@@ -1,0 +1,43 @@
+{
+  "pageId": "IMG20260810010349",
+  "file": "IMG20260810010349.jpg",
+  "sha256": "9e57e84e0dc6c4ce29e22657a46ba7cf91069a1ee890ef003a93f3c94513af13",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T05:20:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图、带网格放大裁片与自写行投影测量脚本的像素行带输出）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "数学",
+  "layout": "single-column",
+  "questionCount": 4,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(15)", "left": 0.14, "top": 0.0, "right": 0.91, "bottom": 0.12, "questionType": "fill", "coordConfidence": "high", "notes": "题15 尾部（首行被顶缘裁切）：…则 sin α=[手写3√10/10?]，cos 2β=[手写4/5被划改]；右上有红笔大括号批注（x≈0.78-0.92）随框"},
+    {"order": 2, "questionNo": "16", "left": 0.14, "top": 0.215, "right": 0.94, "bottom": 0.415, "questionType": "choice", "coordConfidence": "high", "notes": "题16 题干1行（16.已知 sin(θ+20°)=1/5，则 sin(2θ−50°) 的值）+选项A-D一行；D 选项被右缘裁切；『创新培优·重点班选做』横幅标签(y≈0.14-0.18)不入框"},
+    {"order": 3, "questionNo": "17", "left": 0.14, "top": 0.443, "right": 0.94, "bottom": 0.65, "questionType": "choice", "coordConfidence": "high", "notes": "题17 题干2行（含跨行分式，右缘裁切）+选项A-D一行（D.3 被右缘裁切）"},
+    {"order": 4, "questionNo": "18", "left": 0.14, "top": 0.658, "right": 0.94, "bottom": 0.745, "questionType": "fill", "coordConfidence": "high", "notes": "题18 题干1行（18 被红笔圈画），手写作答随框"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": false,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image + pixel row-band profile (rowprofile.py)",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "左缘 x<0.09 为对页窄条（红笔记号与残字）不入框；页底 y>0.85 为书本边缘阴影无内容；页码 343 (y≈0.79-0.82) 不入框。印刷题号 16、17、18 共 3 个 + 承接块，questionCount=4。"
+}

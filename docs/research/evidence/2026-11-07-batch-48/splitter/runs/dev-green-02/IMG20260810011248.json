@@ -1,0 +1,49 @@
+{
+    "file": "IMG20260810011248.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 27332,
+    "responseHead": "{\"id\":\"26042cf3-25be-4e13-9de9-42df9829080c\",\"object\":\"chat.completion\",\"created\":1793987867,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.04,\\\"top\\\":0.27,\\\"right\\\":0.96,\\\"bottom\\\":0.97},\\\"message\\\":\\\"画面包含4道完整独立题，需拆分\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.04,\\\"top\\\":0.27,\\\"right\\\":0.56,\\\"bottom\\\":0.36},{\\\"left\\\":0.04,\\\"top\\\":0.395,\\\"right\\\":0.65,\\\"bottom\\\":0.47},{\\\"left\\\":0.04,\\\"top\\\":0.49,\\\"right\\\":0.96,\\\"bottom\\\":0.78},{\\\"left\\\":0.04,\\\"top\\\":0.785,\\\"right\\\":0.94,\\\"bottom\\\":0.97}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片。图片是试卷局部，包含：\\n- 顶部有选项 B C D，可能属于上一道选择题，题干和选项A不在画面中。这算不完整题目，被截断。\\n- 第三填空题，共有3小题，12、13、14。12题完整？题目12：\\\"(2-1/x)(x-1)^5 的展开式中，x项的系数为____\\\" 完整。13题完整：\\\"已知函数 f(x)=e^x - ax 有极小值，且极小值小于0，则实数a的取值范围为____\\\" 完整。14题完整：\\\"现有 n ... 若第三次取出的球为白球的概率是2/5，则在前两次取出的球是白球的条件下，第三次取出的球是白球的概率是____\\\" 完整。\\n- 第四解答题，15题：\\\"已知函数 f(x)=xlnx - mx + 1/2. (1)当m=2时，讨论f(x)的单调性；(2)若对任意的x∈(0,+∞)，f(x)≥0恒成立，求m的取值范围.\\\" 完整。\\n所以完整可见独立题有12,13,14,15 四道。还有顶部选择题不完整，不计入。根据规则，2到12道互相独立题必须SPLIT。需要返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按阅读顺序给出每道题的完整外接区域，每道题恰好一个区域。包含题干、选项、图形和作答区。但注意顶部不完整的选择题不属于完整可见独立题，不计入questionRegions？规则说个别题被页面边缘截断时，只把完整可见的题计入questionRegions，不要因此返回NEED_MORE_IMAGE。所以questionRegions只包含12,13,14,15。区域需要坐标。需要估算每个题的区域外接矩形，包含题干、选项、图形和作答区。页面尺寸约2000x1500（从图看）。坐标归一化0-1。\\n\\n需要为每道题确定区域。图片顶部有B/C/D选项，属于不完整题，不属于任何区域？questionRegions只包含完整题。第12题从\\\"三、填空题...\\\"标题下开始，到12题作答横线下方。是否包含大题标",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.04,
+            "top": 0.27,
+            "right": 0.56,
+            "bottom": 0.36
+        },
+        {
+            "left": 0.04,
+            "top": 0.395,
+            "right": 0.65,
+            "bottom": 0.47
+        },
+        {
+            "left": 0.04,
+            "top": 0.49,
+            "right": 0.96,
+            "bottom": 0.78
+        },
+        {
+            "left": 0.04,
+            "top": 0.785,
+            "right": 0.94,
+            "bottom": 0.97
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 4,
+    "image": {
+        "egressBytes": 527976,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "93a7d08231b1df324697c3739cbe2c2c6ec952830f215aaff10184a6fc1c7b65",
+    "promptSha256": "199e175b4815daee015258dce6c13951abe378d8c363c83bf9fa59a1257a0793"
+}

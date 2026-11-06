@@ -1,0 +1,45 @@
+{
+  "pageId": "IMG20260810011248",
+  "file": "IMG20260810011248.jpg",
+  "sha256": "a4b8d938af9b6717884dca1c4961bcabd9176ae022f1f59824657ad2926bf65f",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T07:00:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图与带网格放大裁片）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "数学",
+  "layout": "single-column",
+  "questionCount": 5,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号)", "left": 0.075, "top": 0.025, "right": 0.6, "bottom": 0.215, "questionType": "choice", "coordConfidence": "high", "notes": "承接上页多选题：选项 B/C/D 三行（g(x)最小值/方程实根/恒成立不等式）"},
+    {"order": 2, "questionNo": "12", "left": 0.045, "top": 0.335, "right": 0.85, "bottom": 0.41, "questionType": "fill", "coordConfidence": "high", "notes": "题12 (2−1/x)(x−1)^5 展开式 x 项系数，手写 20 与红笔批注随框；节标题『三、填空题…』(y≈0.285-0.315)不入框"},
+    {"order": 3, "questionNo": "13", "left": 0.045, "top": 0.415, "right": 0.8, "bottom": 0.475, "questionType": "fill", "coordConfidence": "high", "notes": "题13 f(x)=e^x−ax 极小值问题，手写 (0,1) 随框"},
+    {"order": 4, "questionNo": "14", "left": 0.045, "top": 0.485, "right": 0.98, "bottom": 0.69, "questionType": "fill", "coordConfidence": "high", "notes": "题14 袋子取球条件概率题，题干4行（14 被红笔圈画），手写 1/2 在行末右缘随框"},
+    {"order": 5, "questionNo": "15", "left": 0.045, "top": 0.8, "right": 0.87, "bottom": 0.935, "questionType": "solve", "coordConfidence": "high", "notes": "题15 已知函数 f(x)=xlnx−mx+1/2 + 小问(1)(2)行；节标题『四、解答题…』(y≈0.755-0.785)不入框；(1)行末被下缘裁切风险低（内容完整）"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": false,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "raw image space; content upright in raw (no rotation)",
+  "orientation": {"rawSize": [4096, 3072], "rawToUpright": "none", "uprightSize": [4096, 3072]},
+  "imageSize": [4096, 3072],
+  "notes": "横幅照片（4096x3072）但页面内容正立，无旋转；照片为竖版试卷页的水平带（上下内容连续），页面右缘接近图像右缘。印刷题号 12、13、14、15 共 4 个 + 承接块，questionCount=5。"
+}

@@ -1,0 +1,42 @@
+{
+  "pageId": "IMG20260810004952",
+  "file": "IMG20260810004952.jpg",
+  "sha256": "d00ee03587664cd52ac88fcbbcfb0b0390e703aeb1b7967fa436c23e64fa7290",
+  "split": "acceptance",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T01:30:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（摆正整页渲染图与带网格放大裁片）；标注时未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "生物",
+  "layout": "single-column",
+  "questionCount": 2,
+  "boxes": [
+    {"order": 1, "questionNo": "1", "left": 0.18, "top": 0.198, "right": 0.95, "bottom": 0.95, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.05, "top": 0.18, "right": 0.802, "bottom": 0.95}, "notes": "教辅『典型例题1』[2025·四川德阳三模]：框自题号『1.』起（指南：材料框在题号前不入框），含选项A-D及红笔圈画/划线；题干材料框（图中左侧可见…连续性，y≈0.028-0.135, x≈0.27-0.97）为题1材料，按指南不并入题干框，如实登记；D 选项红圈下缘(≈0.97)与例题2上缘(≈0.955)轻微重叠"},
+    {"order": 2, "questionNo": "2", "left": 0.255, "top": 0.95, "right": 0.95, "bottom": 1.0, "questionType": "other", "coordConfidence": "medium", "rawBox": {"left": 0.0, "top": 0.255, "right": 0.802, "bottom": 0.95}, "notes": "教辅『典型例题2』[2025·湖南长沙期中]《细胞》杂志…：本页仅见题干前两行，第二行被图像底缘裁切，延续到下一页；题型本页不可判（记 other）"}
+  ],
+  "strata": {
+    "questionType": "choice",
+    "hasFormula": false,
+    "hasHandwriting": true,
+    "hasFigure": false,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "primary box coords in upright space (raw rotated 90 CCW); rawBox in raw file space",
+  "orientation": {"rawSize": [4096, 3072], "rawToUpright": "rotate90ccw", "uprightSize": [3072, 4096]},
+  "imageSize": [3072, 4096],
+  "notes": "图像左缘 x<0.19 为对开页（书本前一页）窄条，其上残行（…解体，在分…过程发生…可导致…类风湿…的是（ ））不属本页内容，不入框；『典型例题』标签（y≈0.155-0.19）为栏外标签不入框。"
+}

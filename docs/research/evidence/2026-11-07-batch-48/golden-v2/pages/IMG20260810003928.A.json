@@ -1,0 +1,43 @@
+{
+  "pageId": "IMG20260810003928",
+  "file": "IMG20260810003928.jpg",
+  "sha256": "a8283fd2550086c1bc8e99f1973594b69fe00e741d34d44195597a642ea4f34d",
+  "split": "acceptance",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-06T16:00:00Z",
+      "guideline": "aud08-model-gold-b48-v1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图与带网格放大裁片）；标注时未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "化学",
+  "layout": "single-column",
+  "questionCount": 4,
+  "boxes": [
+    {"order": 1, "questionNo": "1", "left": 0.125, "top": 0.14, "right": 1.0, "bottom": 0.337, "questionType": "choice", "coordConfidence": "high", "notes": "题干+四图对照表，表格右缘超出画面（D 选项被裁）"},
+    {"order": 2, "questionNo": "2", "left": 0.105, "top": 0.35, "right": 1.0, "bottom": 0.565, "questionType": "choice", "coordConfidence": "medium", "notes": "含球棍模型/结构简式/电子云轮廓图，右缘超出画面"},
+    {"order": 3, "questionNo": "3", "left": 0.09, "top": 0.57, "right": 0.83, "bottom": 0.692, "questionType": "choice", "coordConfidence": "high", "notes": "题号被红笔圈画，随框"},
+    {"order": 4, "questionNo": "4", "left": 0.095, "top": 0.686, "right": 0.87, "bottom": 0.918, "questionType": "choice", "coordConfidence": "medium", "notes": "D 选项下方红色手写离子方程式（y≈0.86–0.92）与题块连续，随框"}
+  ],
+  "strata": {
+    "questionType": "choice",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": false,
+    "optionsIncluded": true,
+    "figureOwnership": [1, 2]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "normalized to full image (EXIF orientation=1, 3072x4096)",
+  "imageSize": [3072, 4096],
+  "notes": "页顶『2.考试结束后，将答题卡交回。』为考试说明续行（非试题），不入框；『第Ⅰ卷』『一、选择题…』为节头不入框；右缘手写 Mg2+ 水解方程式（x≈0.63–0.97, y≈0.73–0.81）位于页边空白，按指南不计入 Q4 框；纸张右缘超出画面。"
+}

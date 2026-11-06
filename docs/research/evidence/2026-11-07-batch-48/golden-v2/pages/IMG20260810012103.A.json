@@ -1,0 +1,43 @@
+{
+  "pageId": "IMG20260810012103",
+  "file": "IMG20260810012103.jpg",
+  "sha256": "689fe4f3ecd2ba4b638406bee90ffc16a88a62e1e78f01ae2a49847656f03003",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T08:20:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图与带网格放大裁片）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "物理",
+  "layout": "single-column",
+  "questionCount": 3,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号,疑为9)", "left": 0.0, "top": 0.0, "right": 0.91, "bottom": 0.255, "questionType": "choice", "coordConfidence": "high", "notes": "承接上页：残行（顶缘裁切『负方向为正）随位移x的变化图像正确的是』）+四幅 i-t / F-x 图像选项 A-D（y≈0.05-0.25）+右上被裁切的坐标轴图残段（x≈0.72-0.90, y<0.04，属上题图尾）+红笔 A?C? 作答记号随框"},
+    {"order": 2, "questionNo": "10", "left": 0.03, "top": 0.262, "right": 0.975, "bottom": 0.65, "questionType": "choice", "coordConfidence": "high", "notes": "题10 双棒导轨题：题干7行（10 红笔圈画，μ=√3/3 分式跨行）+斜导轨 a/b/v₀/B/θ 图（x≈0.72-0.94, y≈0.295-0.47，附图归属=本题）+红笔『动能定理』边注（x≈0.89-0.97）+选项A-D两行（C/D 红笔圈画，红笔A作答）"},
+    {"order": 3, "questionNo": "11", "left": 0.02, "top": 0.722, "right": 0.955, "bottom": 0.865, "questionType": "solve", "coordConfidence": "high", "notes": "题11 测玻璃折射率实验题干5行（如图甲的实验方法…使D挡住A、B、C。）；节标题『三、非选择题…』(y≈0.685-0.715)不入框；图甲应在其后（下一页或下方空白），本页未见"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": [2]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "raw image space; content upright in raw (no rotation)",
+  "orientation": {"rawSize": [4096, 3072], "rawToUpright": "none", "uprightSize": [4096, 3072]},
+  "imageSize": [4096, 3072],
+  "notes": "横幅照片但内容正立，无旋转；页底 y>0.87 为空白。印刷题号 10、11 共 2 个 + 承接块，questionCount=3。"
+}

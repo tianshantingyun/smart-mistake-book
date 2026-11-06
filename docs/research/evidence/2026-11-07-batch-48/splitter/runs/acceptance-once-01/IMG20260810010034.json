@@ -1,0 +1,56 @@
+{
+    "file": "IMG20260810010034.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 35358,
+    "responseHead": "{\"id\":\"a596c412-3419-48f4-af22-a172d678112f\",\"object\":\"chat.completion\",\"created\":1793988864,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.04,\\\"top\\\":0.10,\\\"right\\\":0.96,\\\"bottom\\\":0.94},\\\"message\\\":\\\"画面按题号包含第3至7题共5道独立题，需拆分\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.05,\\\"top\\\":0.0,\\\"right\\\":0.95,\\\"bottom\\\":0.10},\\\"message\\\":\\\"顶部第2题题干及部分选项未拍全\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.04,\\\"top\\\":0.10,\\\"right\\\":0.96,\\\"bottom\\\":0.27},{\\\"left\\\":0.04,\\\"top\\\":0.28,\\\"right\\\":0.96,\\\"bottom\\\":0.46},{\\\"left\\\":0.04,\\\"top\\\":0.47,\\\"right\\\":0.96,\\\"bottom\\\":0.60},{\\\"left\\\":0.04,\\\"top\\\":0.60,\\\"right\\\":0.96,\\\"bottom\\\":0.79},{\\\"left\\\":0.04,\\\"top\\\":0.79,\\\"right\\\":0.96,\\\"bottom\\\":0.94}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。图片显示一页数学练习，包含第3、4、5、6(1)(2)、7题，顶部的第2题选项C/D部分可见。用户要求：若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按阅读顺序给出每道题完整外接区域。否则questionRegions为空。其他decision必须空questionRegions。同一道题跨页不算多题，内容未拍全时返回NEED_MORE_IMAGE。\\n\\n需要分析图片。图中包含多道题：顶部有第2题选项C和D（题干不可见，可能上一题残缺）。然后第3题完整？第3题函数值域，选项A-D完整，题号3，题干可见。第4题多选题，题干和选项A-D完整。第5题是填空题，包含两个空，可能是一道题（两个函数值域），完整。第6题有(1)(2)两个子题，算一道题还是两道独立题？通常大题6含两个小题，可能算一道题（包含两个小问）。第7题函数值域，完整，但下面有手写答案。画面底部有一些红色手写。第6题(2)下方有手写，但题目本身可见。第7题下面还有“11.”等边缘，不是题。顶部第2题只看到选项C/D，题干缺失，属于内容未拍全？但画面中可识别独立题从3到7。第2题不完整（缺少题干和部分选项），但可能是上一页或顶部截断。用户说同一道题跨页不算多题，内容未拍全时返回NEED_MORE_IMAGE。图片顶部第2题不完整，这是否导致NEED_MORE_IMA",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [
+        {
+            "left": 0.04,
+            "top": 0.1,
+            "right": 0.96,
+            "bottom": 0.27
+        },
+        {
+            "left": 0.04,
+            "top": 0.28,
+            "right": 0.96,
+            "bottom": 0.46
+        },
+        {
+            "left": 0.04,
+            "top": 0.47,
+            "right": 0.96,
+            "bottom": 0.6
+        },
+        {
+            "left": 0.04,
+            "top": 0.6,
+            "right": 0.96,
+            "bottom": 0.79
+        },
+        {
+            "left": 0.04,
+            "top": 0.79,
+            "right": 0.96,
+            "bottom": 0.94
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 5,
+    "image": {
+        "egressBytes": 485774,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "d1ddad42599e85c2403d95e029e0ebc4361a4fb7e1d3735e5ceda3de712df8b8",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

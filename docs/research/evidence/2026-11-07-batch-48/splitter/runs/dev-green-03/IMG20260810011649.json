@@ -1,0 +1,38 @@
+{
+    "file": "IMG20260810011649.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 82854,
+    "responseHead": "\n{\"id\":\"fdedeb20-4977-4d80-a9c4-0b3b4aa45b45\",\"object\":\"chat.completion\",\"created\":1793988528,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.02,\\\"right\\\":0.78,\\\"bottom\\\":0.98},\\\"message\\\":\\\"画面包含第11题和第12题两道独立题，需要拆分。\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.78,\\\"top\\\":0.02,\\\"right\\\":1.0,\\\"bottom\\\":0.98},\\\"message\\\":\\\"右侧相邻题目的题干和A选项未完整入镜，仅见B-D选项及图形。\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\",\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.18,\\\"top\\\":0.02,\\\"right\\\":0.78,\\\"bottom\\\":0.98},{\\\"left\\\":0.0,\\\"top\\\":0.20,\\\"right\\\":0.17,\\\"bottom\\\":0.55}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"We need answer JSON only. Need inspect image. Need decide if sufficient to fully transcribe one or multiple independent questions. Image shows page with at least questions 11 (multiple choice) and 12 (fill blank). Also top right fragment question? Let's parse.\\n\\nImage rotated? Text vertical in view. Need identify questions. There is question 11: \\\"11. 分制乒乓球比赛规则如下：...\\\" multiple choice A-D, with graphic? Looks complete? It spans large region; options A-D visible? Actually options are A. 记每局比赛甲获胜的概率为p0, 则前三局甲恰好胜一局的概率为... B... C... D... It also includes preceding items? At top right there are fragments from previous question? Let's orient: Image is page rotated 90 deg counterclockwise? Top of page is right side? Need mentally rotate. At right side top? There is \\\"B. f(x)既没有最大值，也",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.18,
+            "top": 0.02,
+            "right": 0.78,
+            "bottom": 0.98
+        },
+        {
+            "left": 0.0,
+            "top": 0.2,
+            "right": 0.17,
+            "bottom": 0.55
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "image": {
+        "egressBytes": 573298,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "e18255d1f4eeee2ed5f19b1318c771d8639711de20a6becdb4762a1c837a58f4",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

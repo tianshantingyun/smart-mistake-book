@@ -1,0 +1,17 @@
+{
+  "run_id": "2026-11-06T18:40:12Z-batch48-d-domain-device",
+  "serial": "emulator-5554",
+  "apk_sha256": "147ca5a4c61618fb6381c2dc8c1c0daa50286f42b714be838ed06e1627901be8",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "build_task": ":app:assembleLocalFirstDebug",
+  "gradle_exit": 0,
+  "page_size": 4096,
+  "provider_display": "DeepSeek",
+  "model_id": "deepseek-flash",
+  "protocol": "OPENAI_CHAT_COMPLETIONS",
+  "base_url": "https://api.deepseek.com",
+  "key_source": "manual-device-input",
+  "key_sha8": "cd10efbc",
+  "capability_test": "PASS x2 (图片读取和讲解都可用)",
+  "notes": "密钥不落仓不落日志；上游请求 id 由 app 不落库（网关无 HTTP 日志），故无该字段"
+}

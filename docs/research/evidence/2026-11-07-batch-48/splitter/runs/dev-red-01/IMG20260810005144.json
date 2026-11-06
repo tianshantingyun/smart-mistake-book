@@ -1,0 +1,6 @@
+{
+    "file": "IMG20260810005144.jpg",
+    "status": "ERROR",
+    "errorType": "InvalidModelResponseException",
+    "errorMessage": "invalid model response"
+}

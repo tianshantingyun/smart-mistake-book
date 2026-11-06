@@ -1,0 +1,42 @@
+{
+  "pageId": "IMG20260810005855",
+  "file": "IMG20260810005855.jpg",
+  "sha256": "3cfca2983f228b10bed09baf89782daf267f039ad0582e59529a9a1fce833ea8",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T04:00:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图、带网格放大裁片与自写行投影测量脚本的像素行带输出）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "化学",
+  "layout": "single-column",
+  "questionCount": 3,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号,疑为10)", "left": 0.085, "top": 0.0, "right": 0.92, "bottom": 0.4, "questionType": "choice", "coordConfidence": "high", "notes": "承接上页题目：残行（顶缘裁切）+题干4行（碳酸氢钠热稳定性的套管实验…下列说法错误的是）+套管实验装置图（右上 y≈0-0.10, x≈0.45-0.92，附图归属=本题）+选项[A]-[D]（D 末行『酸体积:甲>乙』至 y≈0.40）；[A]被红笔划线、[C]有红笔标记"},
+    {"order": 2, "questionNo": "11", "left": 0.085, "top": 0.41, "right": 0.92, "bottom": 0.92, "questionType": "choice", "coordConfidence": "high", "notes": "题11 题干2行+CaCl2/Na2CO3/NaHCO3 试管对照图（y≈0.455-0.685 含产生白色沉淀/无色气体标注，附图归属=本题）+选项[A]-[D]（C 被红笔圈画）"},
+    {"order": 3, "questionNo": "12", "left": 0.085, "top": 0.922, "right": 0.9, "bottom": 1.0, "questionType": "other", "coordConfidence": "high", "notes": "题12 题干起始4行（12.过氧化钠与水反应后滴加酚酞…），底缘裁切，延续到下一页；题型本页不可判（记 other）"}
+  ],
+  "strata": {
+    "questionType": "choice",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": [1, 2]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image + pixel row-band profile (rowprofile.py)",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "右缘 x>0.93 为虚线页边+对页残字不入框；全页有背面透印文字（印刷透印非手写）。红笔题号圈画（左缘 y≈0.36-0.48、0.78-0.83）随相应题框。印刷题号 11、12 共 2 个 + 承接块，questionCount=3。"
+}

@@ -1,0 +1,25 @@
+{
+    "file": "IMG20260810004854.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 21459,
+    "decision": "NEED_MORE_IMAGE",
+    "issueCodes": [
+        "MISSING_OPTIONS",
+        "MISSING_OPTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 559057,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "f8af1f9a10a608e226ae98f5c99ae43559815a7689a5f13702b5b7f21b89b305",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

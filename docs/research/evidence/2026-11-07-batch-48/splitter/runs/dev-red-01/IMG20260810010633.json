@@ -1,0 +1,24 @@
+{
+    "file": "IMG20260810010633.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 24514,
+    "decision": "NEED_MORE_IMAGE",
+    "issueCodes": [
+        "KEY_TEXT_UNREADABLE",
+        "KEY_TEXT_UNREADABLE"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 541862,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "365acb75fa0d860bd0b965aaa8b2e6bf868cdcc5d6bd064ccf67915f0f5ba59b",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

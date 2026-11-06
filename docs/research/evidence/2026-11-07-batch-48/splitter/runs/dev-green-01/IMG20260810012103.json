@@ -1,0 +1,25 @@
+{
+    "file": "IMG20260810012103.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 18140,
+    "responseHead": "{\"id\":\"447d10ac-65de-4cbf-b37e-77ca032ea985\",\"object\":\"chat.completion\",\"created\":1793987365,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":0.22},\\\"message\\\":\\\"页面上方题目题干被截断，无法完整转写\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0.67,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"下方第11题后续内容被截断，无法完整转写\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图像是否足够完整转写一道或多道独立题。需要返回JSON只有指定键。需要识别画面中有几道完整可见独立题。图像显示似乎上半部分有上一题选项图形（第9题？被截断部分），中间第10题完整选择题，下有第三大题非选择题标题和11题部分（但11题题干可见，可能不完整？下方被截断，题干到C选项？这可能是实验题，有继续内容未显示）。题目要求：如果画面包含2到12道互相独立的题，必须返回SPLIT，标MULTIPLE_QUESTIONS BLOCKING，questionRegions按阅读顺序每道题一个完整外接区域。这里完整可见独立题有2道吗？第10题完整可见。第11题题干开头可见，但题目可能还不完整，因为下方截断，可能后续有图、问题。但“完整可见的独立题”不足2道？第10完整；第11不完整（下方被截断，非选择题部分只是开始，未显示完整）。顶部上一题：从“负方向为正）随位移x的变化图像正确的是”以及A-D图，这是一道选择题的末尾/主体，题干不完整（上方被截断）。所以只有第10题完整可见？但第11题题干也许足够独立成题？它包含实验步骤描述，但没有问题/空格/图，显然不完整，被下边缘截断。根据规则：个别题被页面边缘截断时，只把完整可见的题计入questionRegions，不要因此返回NEED_MORE_IMAGE。仅当完整可见的独立题不足2道、且可见题干被截断无法转写时才返回NEED_MORE_IMAGE。这里有完整可见的第10题，顶部和第11题都被截断，但题干部分可转写？顶部题题干部分缺失，第11题后续缺失；如果目标转写“一道或多道独立题”，整页可否完整转写第10题？如果只需一道，是否PASS? 需要判断图片是否足以完整转写一道或多道独立题。画面有第10题完整，足以完整转写一道独立题。但存在被截断的其他题；按说个别题被页面边缘截断时，只把完整可见的题计入questionRegions，不要因此返回NEED_MORE_IMAGE。如果完整可见独立题不足2道，不应SPLIT，questionRegions为空。那decision是什么？若只有一道完整题，则可PASS（如果第10题完全可读）。不过有顶部题的选项图形和部分题干被截断，以及第11题也截断，是否issues? 可能有M",
+    "decision": "PASS",
+    "issueCodes": [
+        "KEY_TEXT_UNREADABLE",
+        "KEY_TEXT_UNREADABLE"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 524993,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "f546a4c3107f8673b82e6f53f603fe2db214163c5160151d7ee87e97f19b3873",
+    "promptSha256": "d9f6d267cd7bdb124bf679abea439062e8dc73e3b62d058500f98ce6636e3a67"
+}

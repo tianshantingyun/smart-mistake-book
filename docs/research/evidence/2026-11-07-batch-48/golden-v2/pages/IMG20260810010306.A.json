@@ -1,0 +1,43 @@
+{
+  "pageId": "IMG20260810010306",
+  "file": "IMG20260810010306.jpg",
+  "sha256": "c0a6174dc3584a1f457eed3d0db0daef1644a8c49c8dda84e6a61148df28e5cd",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T05:00:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图、带网格放大裁片与自写行投影测量脚本的像素行带输出）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "数学",
+  "layout": "single-column",
+  "questionCount": 4,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号,疑为9)", "left": 0.395, "top": 0.012, "right": 0.645, "bottom": 0.128, "questionType": "other", "coordConfidence": "high", "notes": "承接上页题目的二次函数图像（抛物线+坐标轴 -1/O/1/x），曲线顶部被图像顶缘轻微裁切；按指南成块附图不入题干框，作为承接内容的独立块登记"},
+    {"order": 2, "questionNo": "10", "left": 0.075, "top": 0.155, "right": 0.87, "bottom": 0.3, "questionType": "fill", "coordConfidence": "high", "notes": "题10 题干2行，黑笔 7 与红笔 9或25 作答随框"},
+    {"order": 3, "questionNo": "11", "left": 0.075, "top": 0.312, "right": 0.905, "bottom": 0.615, "questionType": "fill", "coordConfidence": "high", "notes": "题11 (1)(2) 两小问各2行，黑笔手写答案随框；右缘红笔边注（x>0.92）不入框"},
+    {"order": 4, "questionNo": "12", "left": 0.075, "top": 0.62, "right": 0.87, "bottom": 0.895, "questionType": "fill", "coordConfidence": "high", "notes": "题12 题干3行（12 被红笔圈画），黑/红笔作答 [0,1] 随框"}
+  ],
+  "strata": {
+    "questionType": "fill",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": true,
+    "optionsIncluded": false,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image + pixel row-band profile (rowprofile.py)",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "左缘 x<0.05 对页残字（、∈）不入框；右缘 x>0.93 透印与对页红笔边注不入框；页码 311（y≈0.92-0.95）不入框。印刷题号 10、11、12 共 3 个 + 承接图块，questionCount=4。"
+}

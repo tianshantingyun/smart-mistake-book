@@ -1,0 +1,22 @@
+{
+    "file": "IMG20260810011800.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 20960,
+    "responseHead": "{\"id\":\"79abda3f-d734-4921-a476-14817734630a\",\"object\":\"chat.completion\",\"created\":1793988936,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"We need answer JSON only. Need analyze image. Need determine if sufficient complete transcribe one or multiple independent questions. Image is a physics problem, likely one question with subparts (1)(2)(3). There is handwriting calculations overlaid on left and some annotations. Need assess issues: MISSING_OPTIONS? It's not multiple choice, no options. KEY_TEXT_UNREADABLE? Some handwriting/printed text maybe readable mostly. GLARE? no. OCCLUDED? There is handwriting over left margin but not covering core printed text? It covers some blank space maybe left of problem, not question. Need see if image includes entire question? Top right has first line starts \\\"15. 如图所示，平行光滑金属导轨固定在绝缘水平桌面上...\\\" It continues across lines. Need check if all printed text visible? The image is rotated? It's full page? It shows problem text along right side from top to bottom, and diagram near bottom left. Text seems complete for question statement and subparts. However left side handwritten calculations overlap maybe but not covering printed text. The question has diagram with labels partly under handwriting? Need inspect.\\n\\nNeed decide PASS likely. Since only one independent question (with subparts). No split. Need questionRegions empty per instruction unless 2-12 in",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 606237,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "cad8290580724d9fa0dbb91970257ca279b6cd1bf61bff4d39ecf6f9deb93e18",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

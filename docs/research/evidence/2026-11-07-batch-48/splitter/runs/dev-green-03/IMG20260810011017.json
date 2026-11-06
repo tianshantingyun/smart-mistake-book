@@ -1,0 +1,22 @@
+{
+    "file": "IMG20260810011017.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 47755,
+    "responseHead": "{\"id\":\"f168540f-a17c-42ec-aff3-a139b2c7d100\",\"object\":\"chat.completion\",\"created\":1793988447,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要根据图片判断。需要返回JSON。需要分析图像。图片是试卷页面，右侧完整显示一道题：标题 [跟进训练2] (2025...)，题干，示意图，三个小问 (1)(2)(3)，下面有手写解答。左侧边缘还被截断显示另一道题的部分内容（包括选项 C D? 上端 C. v=... D. ...，和左侧一列“大小为B...放置，接入轨道...初速度...最终恰好停在...之间的阻值为...动摩擦因数为 μ。MN=...速度为g，试求...”以及左侧图示和“安培力；小v1；时间t。”、“(3)正...等”以及下方图示。它是一道左侧题目，但其题目大部分被裁切，只有右侧/边缘部分？需要判断图片是否足以完整转写一道或多道独立题。画面中包含多道独立题吗？右侧完整题是一道。左侧边缘显示的是前一道题的部分。根据要求：“若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按页面阅读顺序给出每道题的完整外接区域，包含题干、选项、图形和作答区，区域之间不得大面积重叠；否则questionRegions必须为空数组。其他decision必须返回空questionRegions。同一道题跨页不算多题，内容未拍全时返回NEED_MORE_IMAGE。”\\n\\n此图确实有多道题：左侧有一道不完整（被裁切），右侧完整一道。但左侧题内容未拍全，只有边缘。是否需要返回SPLIT？它说若画面包含2到12道互相独立的题，必须返回SPLIT。可是左侧题并不完整，可能无法作为完整区域？而且如果内容未拍全时返回NEED_MORE_IMAGE。需要决定。图像中明显右侧一道完整，左侧一道部分，且顶部还有前一道题的选项C/D（C. v=1.0 m/s D. v=1.5 m/s）可能是上一题。最上方左侧还有一行“大小为B。”以及下面题干似乎另一题。实际上页面左半部分被拍照截掉，显示的是左侧栏的题目的右半部分（页面可能是双栏？），右侧栏是完整题。图片显示右侧一栏，左侧部分有文字但不全。右侧题完整。多道题在画面里不完整。如果目标判断“是否足以完整转写一道或多道独立题”，对于右侧题足以完整转写，但左侧不完整。需要看是否应该 PASS 还是 NEED_MORE_IMAGE? 如果只需要转写右侧这一道完整题，可能 PASS？但图片里有其他题的部分，可能会干扰。系统要求：若画面包含2到12道互相独立的题，必须返回SPLIT。但左侧和右侧是独立题。即便左侧不完整，是否算包含？画面确实包含另一道题的部分内容；questionRegions要给出每道题的完整外接区域。左侧题区域位于0到约0.28，但内容不完整（图像左边界裁切）。不能提供完整外接区域（因为题被左边缘裁掉）。可能应返回 NEED_MORE_IMAGE 并标记左侧题被裁切/内容未拍全，建议重拍/加图。但决策规则对多题优先？需要仔细。\\n\\n图片尺寸约 1125x1500。右侧题区域从 x≈0.18? 标题从 x=0.24? 到 0.98。左侧另",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 578751,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "1c2e74cc591173e4e96b4c1b8153558e680189fe7de51cb54351258e3f7ffa87",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

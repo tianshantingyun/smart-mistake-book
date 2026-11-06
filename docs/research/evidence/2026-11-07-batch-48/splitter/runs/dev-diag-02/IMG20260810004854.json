@@ -1,0 +1,26 @@
+{
+    "file": "IMG20260810004854.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 21715,
+    "responseHead": "{\"id\":\"1e9c41ed-b475-448e-8a42-420417565841\",\"object\":\"chat.completion\",\"created\":1793986661,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"NEED_MORE_IMAGE\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.55,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":0.8},\\\"message\\\":\\\"上方题目仅见D-H，缺少题干和A-C选项\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.02,\\\"top\\\":0.2,\\\"right\\\":0.6,\\\"bottom\\\":0.95},\\\"message\\\":\\\"第4题缺少A-D选项\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.15,\\\"top\\\":0.35,\\\"right\\\":0.55,\\\"bottom\\\":0.9},\\\"message\\\":\\\"红笔手写圈注覆盖部分题干和选项\\\"}],\\\"suggestedActions\\\":[\\\"RECAPTURE\\\",\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图像是否足以完整转写一道或多道独立题。图像是横向拍摄的页面，展示了选择题选项 D 到 H 和一个题号 4 的新题。需要分析。\\n\\n首先理解图像内容。看起来是试卷/练习册，右上方可能是题干，然后选项 D-H，但左侧/下方有第4题。图像旋转了90度？需要按阅读方向看。图像中文字是竖排？实际上图像横向：文字横向旋转？看文字方向：顶部右侧是 \\\"D. 蛋白质和核酸具有多样性的原因之一是都具有千差万别的空间结构\\\" 然后 E, F, G, H 选项。左侧下方是 \\\"4. [2025·辽宁大连一模] 生物体内有许多蛋白质含有除氨基酸外的其他化学成分作为其结构的一部分，若非蛋白成分是核酸，这种蛋白质称为核蛋白。下列相关叙述错误的是\\\" 然后下面还有选项？图像左边缘可见一个 \\\"A\\\"？可能第4题题干和部分选项，但选项A-D可能在另一页/未拍全？图像中第4题题号下给了一段题干，但紧接着没有看到选项A-D；在图像最左边缘有\\\"蛋白。下列相关叙述错误的是\\\"结束，然后下方似乎空白/被截断？实际上图像只显示了第4题题干，没有选项。而上方 D-H 是上一道题的选项。所以画面包含至少一道完整题（D-H前面的题干没拍全？）和另一道不完整题（第4题缺少选项）。也有可能是同一道题？第4题是新的题，但它下面的选项没拍全。需要判断是否包含多道独立题？画面中有上一题的选项D-H，但题干未在画面中？看右上方：有 \\\"D. 蛋白质和核酸具有多样性的原因之一是都具有千差万别的空间结构\\\" ——这可能是某道题的选项D。其上可能还有题干/选项A-C未拍到。左侧/下方有第4题，但只看到题干，没有选项。所以画面是不完整的，可能跨越两题，但都不完整。需要返回 NEED_MORE_IMAGE 还是 RECAPTURE? 需要根据规则。\\n\\n规则：判断图片是否足以完整转写一道",
+    "decision": "NEED_MORE_IMAGE",
+    "issueCodes": [
+        "MISSING_OPTIONS",
+        "MISSING_OPTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 559057,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "f8af1f9a10a608e226ae98f5c99ae43559815a7689a5f13702b5b7f21b89b305",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

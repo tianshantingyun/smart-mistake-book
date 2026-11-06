@@ -1,0 +1,42 @@
+{
+  "pageId": "IMG20260810011017",
+  "file": "IMG20260810011017.jpg",
+  "sha256": "dcfe9f6714d221e9a928716b996c1f0ebbb13e61ae6dce6b83508f6fe0ff38f2",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T06:20:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图与带网格放大裁片）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "物理",
+  "layout": "single-column",
+  "questionCount": 2,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号,疑为跟进训练1)-左缘段", "left": 0.0, "top": 0.0, "right": 0.175, "bottom": 0.97, "questionType": "solve", "coordConfidence": "medium", "notes": "上题被左缘裁切的尾部：文字残行（…大小为B。放置，接入轨道…试求：）+P/P₁导轨图（y≈0.21-0.34）+残行（安培力/小v1/动时间t）+B/Ⅱ/Ⅲ磁场图（y≈0.83-0.97）；行首均被裁"},
+    {"order": 2, "questionNo": "prev-cont(同题)-选项段", "left": 0.21, "top": 0.0, "right": 0.8, "bottom": 0.03, "questionType": "choice", "coordConfidence": "high", "notes": "同一上题的选项行 C.v=1.0 m/s 与 D.v=1.5 m/s（主栏顶部，顶缘轻微裁切）；与 order1 为同一题的两段"},
+    {"order": 3, "questionNo": "跟进训练2", "left": 0.185, "top": 0.033, "right": 0.8, "bottom": 0.99, "questionType": "solve", "coordConfidence": "high", "notes": "跟进训练2 (2025·山东省潍坊市高三三模)：题干10行（θ=37°匀强磁场导轨…sin37°=0.6。求：）+导轨/金属棒图（y≈0.40-0.55，附图归属=本题）+小问(1)(2)(3)（(3)红笔圈画）+下方大片手写解答（y≈0.69-0.99，含小图）；『(2025·山东省潍坊市高三三模)』来源标注随题干"}
+  ],
+  "strata": {
+    "questionType": "solve",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": true,
+    "optionsIncluded": false,
+    "figureOwnership": [3]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "页面左缘被裁（主页面内容从 x≈0.21 开始，左缘残留上题尾部）；右缘 x>0.80 透印+桌面暗角不入框。印刷题号：跟进训练2 共 1 个 + 上题两段，questionCount=2。"
+}

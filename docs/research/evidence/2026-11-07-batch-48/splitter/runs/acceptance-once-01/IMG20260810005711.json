@@ -1,0 +1,44 @@
+{
+    "file": "IMG20260810005711.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 12655,
+    "responseHead": "{\"id\":\"ee32f0bb-a4aa-41de-9c5c-af55d2238015\",\"object\":\"chat.completion\",\"created\":1793988851,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"画面包含第1、2、3题，需拆分\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.07,\\\"top\\\":0.78,\\\"right\\\":0.93,\\\"bottom\\\":1},\\\"message\\\":\\\"第3题题干被截断\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\",\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.06,\\\"top\\\":0,\\\"right\\\":0.96,\\\"bottom\\\":0.44},{\\\"left\\\":0.06,\\\"top\\\":0.44,\\\"right\\\":0.97,\\\"bottom\\\":0.78},{\\\"left\\\":0.07,\\\"top\\\":0.78,\\\"right\\\":0.93,\\\"bottom\\\":1}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。图片显示一页练习，包含题1（表格选择）、题2（选择题四个选项）、题3（开头，题干不完整，可能未拍全）。需要决定decision。画面包含多道独立题：题1、题2、题3，且题3内容被截断，未完整。根据规则：若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions给出每道题完整外接区域。但题3未拍全，是否仍然返回SPLIT？规则说若画面包含2到12道互相独立的题，必须返回SPLIT。这里题3部分可见，算独立题但未完整。另外内容未拍全时返回NEED_MORE_IMAGE。存在冲突？需要优先？用户要求判断图片是否足以完整转写一道或多道独立题。如果包含多道独立题必须SPLIT。题3未拍全，可能需要NEED_MORE_IMAGE。但decision只能一个。需要权衡：图片中明显有至少两道完整题，第三道不完整。若按SPLIT，questionRegions要给出每道题的完整外接区域，但题3区域不完整，无法给出完整包含题干、选项、图形和作答区。所以可能应该NEED_MORE_IMAGE？但规则明确2到12道独立题必须SPLIT。不过题3未完整，算不算“包含2到12道互相独立的题”？也许只计算完整题？题1和题2完整，题3只有开头，也是题。需返回SPLIT并标MULTIPLE_QUESTIONS BLOCKING，同时标OCCLUDED或KEY_TEXT_UNREADABLE? 题3底部截断，属于内容未拍全，问题码可用OCCLUDED? 没有MISSING_CONTENT，只有OCCLUDED。可标OCCLUDED REVIEW/BLOCKING region底部，message“第3题题干被截断”。suggestedAct",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [
+        {
+            "left": 0.06,
+            "top": 0.0,
+            "right": 0.96,
+            "bottom": 0.44
+        },
+        {
+            "left": 0.06,
+            "top": 0.44,
+            "right": 0.97,
+            "bottom": 0.78
+        },
+        {
+            "left": 0.07,
+            "top": 0.78,
+            "right": 0.93,
+            "bottom": 1.0
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "image": {
+        "egressBytes": 423997,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "09f2583b243c934ba9a58bbba832e51af9c37339a284c4a746ffe1f9842f788d",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

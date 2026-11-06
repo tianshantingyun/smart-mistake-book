@@ -1,0 +1,22 @@
+{
+    "file": "IMG20260810011126.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 4596,
+    "responseHead": "{\"id\":\"18271c06-ee42-4d6b-9222-d668ea8c93a5\",\"object\":\"chat.completion\",\"created\":1793987313,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题，返回JSON。需要遵守格式。观察图片：主体是一道多选题（跟进训练，多选）如图所示，下列说法正确的有。包含题干、图甲乙丙丁、选项A-D。图片顶部还有上一题的选项C/D部分（“C. 两镜片没有... D. 左镜片变暗，右镜片变亮”），这属于上一道题的部分，但被截断。右边缘有另一栏文字（学问题、2.解决...等），看起来是相邻页面/栏的题，部分可见。左侧边缘有另一栏文字（缝干涉、宽度相等等），也属于其他页面内容。需要判断独立题数量：当前完整可见的独立题是一道（跟进训练题）。顶部上一题选项不完整，属于个别题被页面边缘截断，只把完整可见的题计入，不因此NEED_MORE_IMAGE。右侧栏有“2.解决... (1)波... (2)波... (3)双... n越... (4)... 不变 3.不同...”这可能是另一道题（或几道）部分可见，不完整。左侧栏也是其他内容，不完整。因此完整可见独立题不足2道，且可见题干（跟进训练）完整，选项完整，图形完整，可以转写。所以decision应为PASS？需要检查是否有其他问题：图片倾斜/边缘截断但主体完整。题目文字清晰可读。选项完整A-D。图形完整。没有遮挡。可以PASS。questionRegions为空数组（因为非SPLIT）。issues可以空数组。suggestedActions可以空数组或CONTINUE_ANYWAY? 需要看规范：suggestedActions数组可包含RECAPTURE/ADD_IMAGE/CONTINUE_ANYWAY。PASS通常空数组。顶层只能含decision/issues/suggestedActions/questionRegions/followingPageRelations。followingPageRelations空数组。\\n\\n需要确保只返回JSON，没有代码块。decision PASS。issues空。suggestedActions空。questionRegions空。followingPageRelations空。\\n\\n但需要仔细考虑：图片顶部有上一题的C/D选项，可能属于另一道题的一部分，但被截断。如果仅完整可见独立题1道，不返回SPLIT。PASS。另外图片右侧有“2.解决...”可能是另一道题，但只显示部分，不完整，不计入。图片左侧也有其他栏，不完整。所以PASS。\\n\\n输出JSON对象。要符合schema。不能加type。所以：\\n{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\\n需要确保JSON有效。\"},\"logprobs\":null,\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":1491,\"completion_tokens\":",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 621145,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "0a1d3d8d54c811f2920483ec668009d664b25498b767665b7335731dd99f7d36",
+    "promptSha256": "d9f6d267cd7bdb124bf679abea439062e8dc73e3b62d058500f98ce6636e3a67"
+}

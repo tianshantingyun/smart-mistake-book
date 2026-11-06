@@ -1,0 +1,41 @@
+{
+  "pageId": "IMG20260810004304",
+  "file": "IMG20260810004304.jpg",
+  "sha256": "b99119948a0d1f8eff0639dcb491688cef468be9a268325563e8e75bf4672a0b",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T00:00:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（摆正整页渲染图与带网格放大裁片）；标注时未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "化学",
+  "layout": "single-column",
+  "questionCount": 1,
+  "boxes": [
+    {"order": 1, "questionNo": "16", "left": 0.115, "top": 0.075, "right": 0.89, "bottom": 0.978, "questionType": "solve", "coordConfidence": "high", "rawBox": {"left": 0.075, "top": 0.11, "right": 0.978, "bottom": 0.885}, "notes": "题16（14分）含(1)-(4)小问与已知①②，单题页整页一框；底部红色手写答案 98.5c(V1-V2)/(Ma) 随框"}
+  ],
+  "strata": {
+    "questionType": "solve",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": false,
+    "optionsIncluded": false,
+    "figureOwnership": [1]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "primary box coords in upright space (raw rotated 90 CW); rawBox in raw file space",
+  "orientation": {"rawSize": [4096, 3072], "rawToUpright": "rotate90cw", "uprightSize": [3072, 4096]},
+  "imageSize": [3072, 4096],
+  "notes": "页脚『化学试题 第6页，共8页』(y≈0.94-0.965) 与底部手写答案在 y 向重叠，框按轴对齐外接矩形不可避免含页脚区域，如实记录。"
+}

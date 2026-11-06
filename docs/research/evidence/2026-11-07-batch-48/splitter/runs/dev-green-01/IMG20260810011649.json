@@ -1,0 +1,37 @@
+{
+    "file": "IMG20260810011649.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 26579,
+    "responseHead": "{\"id\":\"69798bfe-a942-4ee0-a354-c509e2119bd9\",\"object\":\"chat.completion\",\"created\":1793987338,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.02,\\\"top\\\":0.06,\\\"right\\\":0.92,\\\"bottom\\\":0.82},\\\"message\\\":\\\"画面含第11、12题两道独立题，需拆分\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.36,\\\"top\\\":0.06,\\\"right\\\":0.92,\\\"bottom\\\":0.74},{\\\"left\\\":0.02,\\\"top\\\":0.06,\\\"right\\\":0.32,\\\"bottom\\\":0.82}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片是否足以完整转写一道或多道独立题。图片是竖拍，逆时针旋转了90度？内容是试卷，包含多道题。需要识别独立题数量。画面里有：右上部分（按原来阅读顺序）似乎是第11题（概率乒乓球）占据大部分，还有第12题填空题？以及右上角还有上一题残留选项（B. f(x)既没有最大值... C... D...）属于前面选择题的一部分。图片中包含多个题：顶部右侧是前一题的选项C/D? 还有第11题完整；左下第12题（x^2+1/x)^6常数项。可能还有第？需要按画面阅读顺序。由于包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，给出questionRegions每道题的完整外接区域。需要确定哪些完整可见的独立题。图片旋转：实际阅读方向应该是竖直从右往左？图像显示文字逆时针90度，需要顺时针旋转90度才能正常阅读。旋转后：顶部可能是第11题？我们来理清。\\n\\n原图：宽1125高1500? 显示为横向的试卷左页？文字方向当前是从上到下？需要按图像坐标（left/top/right/bottom 0到1）给区域。图片中当前方向：题11在右上部，文字垂直排列（阅读时需将头左转？）。题12在左下部，文字垂直。此外最右侧（图像右边）能看到一个曲线图和一些文字，似乎是前一题的图形和选项B/C/D。最左边有题12。画面中完整题：第11题（概率）、第12题（二项式展开）。还有右侧/上方的选择题残片：可见B选项、C选项、D选项和图形？可能是一道完整的题吗？需要判断：在图片最右侧，有“B. f(x)既没有最大值，也没有最小值；C. 当0<k<8/e^5时...;D. 若x∈[m,+∞)时，f(x)的最大值为8/e^5，则m的最大值为5” 以及一个图形。这应该是第10题或第9题的下半部分，题干未完整可见（题干不在画面，只有选项和图形），所以不是完整可见的独立题。题11有题干和选项完整（A/B/C/D? 图中只看到A? 题意：11. 11分制乒乓球比赛... 下列... 选项A记每局比赛甲获胜概率为p0... B... C... D... 都在。完整。题12：二、填空题：本题共3小题，每小题5分，共15分。12. (x^2+1/x)^6的展开式中的常数项为____。完整。可能题",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.36,
+            "top": 0.06,
+            "right": 0.92,
+            "bottom": 0.74
+        },
+        {
+            "left": 0.02,
+            "top": 0.06,
+            "right": 0.32,
+            "bottom": 0.82
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "image": {
+        "egressBytes": 573298,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "9019562fe2674b6fbde78bb9de670ad5faa94e805172ba1517db58fcaaa66001",
+    "promptSha256": "d9f6d267cd7bdb124bf679abea439062e8dc73e3b62d058500f98ce6636e3a67"
+}

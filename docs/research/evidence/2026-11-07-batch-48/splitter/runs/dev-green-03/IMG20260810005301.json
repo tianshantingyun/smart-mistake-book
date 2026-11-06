@@ -1,0 +1,37 @@
+{
+    "file": "IMG20260810005301.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 56889,
+    "responseHead": "{\"id\":\"39dbd750-6fd0-43f4-9042-ca6be2807079\",\"object\":\"chat.completion\",\"created\":1793988239,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"含14、15两道独立题，14题跨栏排版\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.01,\\\"top\\\":0.01,\\\"right\\\":0.465,\\\"bottom\\\":0.99},{\\\"left\\\":0.47,\\\"top\\\":0.01,\\\"right\\\":0.825,\\\"bottom\\\":0.99}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要按照要求返回JSON。需要判断图片是否足以完整转写一道或多道独立题。需要识别是否有2到12道独立题。图片展示教辅页面，含多道题？看内容：左侧第14题，有小题(1)(2)(3)，右侧上方是第14题的(4)(5)延续？然后第15题，包含(1)(2)(3)。所以独立题是第14题和第15题？第14题跨左右栏：左栏开始14. 研究证实...，包含(1)(2)(3)；右栏顶部(4)(5)显然是第14题延续。然后第15题从右栏中部开始，包含(1)(2)(3)。所以画面包含2道独立题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按阅读顺序给出每道题的完整外接区域，包含题干、选项、图形和作答区，区域之间不得大面积重叠。需要给出2个区域。阅读顺序：第14题从左上到右栏顶部？区域需要包含题干、图形、作答区。(14题占据左栏全部和右栏上部，包括(4)(5)。15题占据右栏中下部及底部。区域之间不能大面积重叠。需要坐标估计0-1。图像尺寸约1440x1920？但坐标归一化。需要定义left/top/right/bottom。\\n\\n需要识别页面边界。左栏内容从x约40到650？右栏内容从x约680到1180？还有右侧边栏班级姓名题号区在x约1200-1420。题目区域可能不包含答题栏? 需要包含题干选项图形作答区。第14题：左栏从x=25? 到x=660，y=40到y=1850左右? 但15题在右栏，需要避免重叠。第14题右栏部分(4)(5)在y约30到320? 右栏x约680到1170。 所以第14题外接区域可能跨左栏和右栏上部，如果用一个矩形包含左栏全部和右栏上部，会与15题区域重叠吗？15题从y约340开始到y约1900，x约680到1180。矩形14如果right=1180, bottom=330，则与15 top=340不重叠。左栏14 bottom=1850? 左栏14从y40到y1850? 但左栏底部到y1850，x25-660。矩形跨到右栏上部，如果bottom=330，不能包含左栏下部？必须完整外接区域：左栏14内容从y40到约1850（底部小题(3)结束），而右栏(4)(5)在y30-330。一个外接矩形如果包含左栏全部（bottom~1850）和右栏上部（",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.01,
+            "top": 0.01,
+            "right": 0.465,
+            "bottom": 0.99
+        },
+        {
+            "left": 0.47,
+            "top": 0.01,
+            "right": 0.825,
+            "bottom": 0.99
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "image": {
+        "egressBytes": 733295,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "b3015037ba381a86cc0a3f4a97268adab843c418b54897babf538ea3d6b81b53",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

@@ -1,0 +1,46 @@
+{
+  "pageId": "IMG20260810005144",
+  "file": "IMG20260810005144.jpg",
+  "sha256": "dd91f2d68aa5479814f858b7928dcfd525ed564a655bb3dffb93e7b04c3697a7",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T02:30:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图、带网格放大裁片与自写行投影测量脚本rowprofile.py的像素行带输出）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "生物",
+  "layout": "two-column",
+  "questionCount": 6,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号)", "left": 0.07, "top": 0.017, "right": 0.475, "bottom": 0.222, "questionType": "choice", "coordConfidence": "high", "notes": "左栏顶部：承接上页题目的选项 A-D（A/B 各两行、C 一行、D 两行『色体』）；页顶被裁的首行（y≈0.018-0.041）属该题残行随框；红笔划线随框"},
+    {"order": 2, "questionNo": "11", "left": 0.07, "top": 0.228, "right": 0.475, "bottom": 0.437, "questionType": "choice", "coordConfidence": "high", "notes": "题11 题干3行+选项A/B/C(两行)/D(两行，末行『般原核细胞』y≈0.42-0.437)；C 项红笔批注『原核生物』随框"},
+    {"order": 3, "questionNo": "12", "left": 0.07, "top": 0.444, "right": 0.475, "bottom": 0.825, "questionType": "choice", "coordConfidence": "high", "notes": "题12 题干3行+视野1/视野2插图（y≈0.505-0.614，随框，附图归属=本题）+选项A-D（至『亚显微结构』行）+行间手写批注；底缘手写批注与题13首行在 y 向轻微交叠，如实记录"},
+    {"order": 4, "questionNo": "13", "left": 0.07, "top": 0.805, "right": 0.52, "bottom": 1.0, "questionType": "choice", "coordConfidence": "high", "notes": "题13 左栏部分：题干6行（13.[2025·辽宁盘锦三模]立克次氏体…）+选项A（两行，末行『多种酶』被图像底缘裁切）；右缘含学生黑笔圈画（x≈0.42-0.52）"},
+    {"order": 5, "questionNo": "13", "left": 0.52, "top": 0.013, "right": 0.985, "bottom": 0.147, "questionType": "choice", "coordConfidence": "high", "notes": "题13 右栏部分：跨栏续行选项 B(两行)/C(两行)/D(两行)；与 order4 为同一题的两段，读序上紧邻"},
+    {"order": 6, "questionNo": "14", "left": 0.52, "top": 0.153, "right": 0.985, "bottom": 0.446, "questionType": "choice", "coordConfidence": "high", "notes": "题14 [2025·四川成都一模] 题干5行（①-④特征）+选项A-D各一行；题干右侧红/黑笔大字作答记号（x≈0.62-0.85）随框"},
+    {"order": 7, "questionNo": "15", "left": 0.52, "top": 0.474, "right": 0.985, "bottom": 1.0, "questionType": "fill", "coordConfidence": "high", "notes": "题15（综合应用练）题干2行+四幅微生物图（y≈0.53-0.665，附图归属=本题）+小问(1)-(5)含大量手写答案与红笔批注；(5)末行被底缘裁切；框内右下含『知识点漏洞扫我一目了然』二维码（x≈0.80-0.90, y≈0.905-0.985），轴对齐框无法排除，如实记录"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": false,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": [3, 7]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image + pixel row-band profile (rowprofile.py)",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation for this page",
+  "imageSize": [3072, 4096],
+  "notes": "双栏页：左栏 x≈0.05-0.48，右栏 x≈0.52-0.97；最左 x<0.05 为书脊/答题区号表（班级姓名栏），不入框；最右 x>0.985 为对页窄条残字，不入框；『▶▶综合应用练』栏标签（y≈0.454-0.465）不入框。印刷题号 11-15 共 5 个 + 承接块，questionCount=6。"
+}

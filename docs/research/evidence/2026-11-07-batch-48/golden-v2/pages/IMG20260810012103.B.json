@@ -1,0 +1,43 @@
+{
+  "pageId": "IMG20260810012103",
+  "file": "IMG20260810012103.jpg",
+  "sha256": "689fe4f3ecd2ba4b638406bee90ffc16a88a62e1e78f01ae2a49847656f03003",
+  "split": "dev",
+  "round": "B",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "B",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent) — 同模型第二轮",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T08:50:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "B 轮为同一模型在写毕 B JSON 前未读取任何 A 轮 JSON 的重标；但同一会话内 A 轮判读内容不可避免在上下文中留存，故 B 轮不构成协议 §3.3 意义上的独立标注，仅作同模型一致性证据。",
+  "subject": "物理",
+  "layout": "single-column",
+  "questionCount": 3,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号,疑为9)", "left": 0.0, "top": 0.0, "right": 0.91, "bottom": 0.25, "questionType": "choice", "coordConfidence": "high", "notes": "承接上页：顶缘裁切残行+四幅 i-t/F-x 图像选项 A-D+右上被裁坐标轴图残段+红笔作答记号"},
+    {"order": 2, "questionNo": "10", "left": 0.03, "top": 0.26, "right": 0.97, "bottom": 0.655, "questionType": "choice", "coordConfidence": "high", "notes": "题10 题干7行+斜导轨图+红笔『动能定理』边注+选项A-D两行（C/D红圈）"},
+    {"order": 3, "questionNo": "11", "left": 0.02, "top": 0.722, "right": 0.95, "bottom": 0.865, "questionType": "solve", "coordConfidence": "high", "notes": "题11 题干5行；节标题不入框"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": [2]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "raw image space; content upright in raw (no rotation)",
+  "orientation": {"rawSize": [4096, 3072], "rawToUpright": "none", "uprightSize": [4096, 3072]},
+  "imageSize": [4096, 3072],
+  "notes": "B 轮重标。"
+}

@@ -1,0 +1,43 @@
+{
+  "pageId": "IMG20260810011649",
+  "file": "IMG20260810011649.jpg",
+  "sha256": "75b90dfbf369e90bd3af15279908e56af267b2d7a540d5871621a308bb3b8389",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T07:40:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（摆正整页渲染图、带网格放大裁片与自写行投影测量脚本的像素行带输出）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "数学",
+  "layout": "single-column",
+  "questionCount": 3,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号,疑为10)", "left": 0.14, "top": 0.04, "right": 0.64, "bottom": 0.235, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.765, "top": 0.14, "right": 0.96, "bottom": 0.64}, "notes": "承接上页多选题：选项 B/C/D 三行（D 被划并红笔圈画）；右上角手绘函数草图（x≈0.70-0.95, y≈0-0.19）属上题演算，按页边规则不入框，如实登记"},
+    {"order": 2, "questionNo": "11", "left": 0.09, "top": 0.26, "right": 0.91, "bottom": 0.725, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.275, "top": 0.09, "right": 0.74, "bottom": 0.91}, "notes": "题11 乒乓球概率题：题干4行（11 红笔圈画，多处手写下划线）+选项A-D各1行（A 标签被划改、D 红笔圈画、行间手写 2/3）"},
+    {"order": 3, "questionNo": "12", "left": 0.075, "top": 0.9, "right": 0.62, "bottom": 1.0, "questionType": "fill", "coordConfidence": "high", "rawBox": {"left": 0.0, "top": 0.075, "right": 0.1, "bottom": 0.62}, "notes": "题12 (x²+1/x)^6 展开式常数项，手写 15 随框；下方手写 24 被底缘裁切随框；『第Ⅱ卷』卷标(y≈0.755-0.79)与节标题『二、填空题…』(y≈0.83-0.865)不入框"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image + pixel row-band profile (rowprofile.py)",
+  "coordConvention": "primary box coords in upright space (raw rotated 90 CCW); rawBox in raw file space",
+  "orientation": {"rawSize": [3072, 4096], "rawToUpright": "rotate90ccw", "uprightSize": [4096, 3072]},
+  "imageSize": [4096, 3072],
+  "notes": "旋转方向经试转核对（ROTATE_90 逆时针正确，CW 颠倒）。印刷题号 11、12 共 2 个 + 承接块，questionCount=3。"
+}

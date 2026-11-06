@@ -1,0 +1,39 @@
+{
+    "file": "IMG20260810010349.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 38575,
+    "responseHead": "{\"id\":\"4be1ff57-fbe9-4226-82b7-c9f0bc4c10de\",\"object\":\"chat.completion\",\"created\":1793987785,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":0.82},\\\"message\\\":\\\"画面含多道独立题，需按题拆分\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":0.14},\\\"message\\\":\\\"第15题题干右侧被裁切，条件不完整\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0.44,\\\"right\\\":1,\\\"bottom\\\":0.67},\\\"message\\\":\\\"第17题等式右侧被裁切，题干不完整\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.07,\\\"top\\\":0.16,\\\"right\\\":0.995,\\\"bottom\\\":0.44},{\\\"left\\\":0.07,\\\"top\\\":0.67,\\\"right\\\":0.995,\\\"bottom\\\":0.81}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片内容。图中可见题15部分（顶部，题干被截断？实际上第15题看到后半部分：3sinα - sinβ = √10, α? 然后 π/2，则 sin α = ...，cos 2β = ...。题干开头可能被裁掉？顶部显示\\\"15.(2022·浙江)若 3sinα - sinβ = √10, α\\\" 然后下一行 \\\"π/2 , 则...\\\" 这是完整题吗？可能题干从顶部开始，左上角有部分被截断？顶部有\\\"15.\\\"可见，但可能上面还有内容？看起来第15题完整，包括条件和填空。第16题完整，有题干和选项A-D，D选项右侧被边缘截断（D. 部分可见，可能是 2/5 或 -?）。第17题完整题干和选项A-D，D右侧也被截断？C.2, D.3? D可见\\\"3\\\"部分。第18题完整题干和填空。所以画面包含4道独立题（15、16、17、18）。必须返回SPLIT，MULTIPLE_QUESTIONS BLOCKING。questionRegions按阅读顺序给每道题完整外接区域，区域包含题干选项图形作答区。需要坐标0到1。\\n\\n图片尺寸约1125x1500。需要估计每道题区域。图片显示顶部第15题从y=0开始到约200? 第15题结束在红色标记附近y~180。第16题从y~280开始到约650? 包括选项行。第17题从y~650开始到约1050。第18题从y~1030到约1200。需要确定独立题区域。\\n\\n但注意第15题可能顶部题干被截断？顶部边缘显示\\\"15.\\\"完整，但题干开头\\\"15.(2022·浙江)若 3sinα - s",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "KEY_TEXT_UNREADABLE",
+        "KEY_TEXT_UNREADABLE"
+    ],
+    "regions": [
+        {
+            "left": 0.07,
+            "top": 0.16,
+            "right": 0.995,
+            "bottom": 0.44
+        },
+        {
+            "left": 0.07,
+            "top": 0.67,
+            "right": 0.995,
+            "bottom": 0.81
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "image": {
+        "egressBytes": 420535,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "e7dcfaa921fb25dd258d2124775eb11dd280bec093574632ff9c4dd5ed3a406b",
+    "promptSha256": "199e175b4815daee015258dce6c13951abe378d8c363c83bf9fa59a1257a0793"
+}

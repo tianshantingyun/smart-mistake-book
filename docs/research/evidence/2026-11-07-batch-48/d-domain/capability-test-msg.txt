@@ -1,0 +1,6 @@
+# 能力测试消息（uiautomator dump capability_operation_message 节点两次实测）
+# run-id: 2026-11-06T18:40:12Z-batch48-d-domain-device
+# 测次1（首次配置后）: 2026-11-06T19:16:51Z
+MSG_1=测试通过：图片读取和讲解都可用。
+MSG_2=测试通过：图片读取和讲解都可用。
+# 两次均为同屏复测（Chrome 误置前后台后返回重跑），消息节点 resource-id=capability_operation_message

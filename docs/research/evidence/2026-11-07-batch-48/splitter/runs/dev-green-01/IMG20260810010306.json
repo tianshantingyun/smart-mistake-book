@@ -1,0 +1,43 @@
+{
+    "file": "IMG20260810010306.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 24301,
+    "responseHead": "{\"id\":\"f1b639c5-9d81-4bd3-99df-1a8a6d8ca591\",\"object\":\"chat.completion\",\"created\":1793987198,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.05,\\\"top\\\":0.13,\\\"right\\\":0.97,\\\"bottom\\\":0.81},\\\"message\\\":\\\"画面包含10、11、12三道独立题，应拆分。\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.05,\\\"top\\\":0.135,\\\"right\\\":0.965,\\\"bottom\\\":0.285},{\\\"left\\\":0.05,\\\"top\\\":0.3,\\\"right\\\":0.975,\\\"bottom\\\":0.59},{\\\"left\\\":0.05,\\\"top\\\":0.6,\\\"right\\\":0.975,\\\"bottom\\\":0.805}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"We need answer JSON only. Need inspect image. We need decide whether complete transcription of one or multiple independent questions. Image shows page with questions 10, 11 (with subparts (1)(2)), 12. Need classify independent questions. There are 3 numbered questions; 11 has two subquestions but likely one independent question with subparts? The instruction: \\\"2到12道互相独立的题\\\" must SPLIT. Need determine number. There are 10, 11, 12. Question 11 includes (1)(2) but same numbered question? It is one question with two subparts, probably independent? The schema says \\\"一道或多道独立题\\\" and questionRegions complete external region per question. If numbered 10,11,12 each independent, SPLIT with 3 regions. Need decide. Also top graph at top belongs to previous question? It is at top, maybe question 9? The image top has graph and question 10, but graph is likely from prior question (question 9) at page top? It cou",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.05,
+            "top": 0.135,
+            "right": 0.965,
+            "bottom": 0.285
+        },
+        {
+            "left": 0.05,
+            "top": 0.3,
+            "right": 0.975,
+            "bottom": 0.59
+        },
+        {
+            "left": 0.05,
+            "top": 0.6,
+            "right": 0.975,
+            "bottom": 0.805
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "image": {
+        "egressBytes": 349842,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "ad9691dbdd3432adc8ce415d4557884ff99fd981d67b2c5567fea7150d32fca8",
+    "promptSha256": "d9f6d267cd7bdb124bf679abea439062e8dc73e3b62d058500f98ce6636e3a67"
+}

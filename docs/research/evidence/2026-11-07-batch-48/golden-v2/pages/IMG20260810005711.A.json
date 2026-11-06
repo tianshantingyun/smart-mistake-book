@@ -1,0 +1,42 @@
+{
+  "pageId": "IMG20260810005711",
+  "file": "IMG20260810005711.jpg",
+  "sha256": "8e940693d7fc95c740a7f59a9d4787cb4ee217e04a24ae330619013b5bdceaa1",
+  "split": "acceptance",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T03:40:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图、带网格放大裁片与自写行投影测量脚本的像素行带输出）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "化学",
+  "layout": "single-column",
+  "questionCount": 3,
+  "boxes": [
+    {"order": 1, "questionNo": "1", "left": 0.07, "top": 0.0, "right": 0.87, "bottom": 0.44, "questionType": "choice", "coordConfidence": "high", "notes": "题1 题干两行（首行被图像顶缘裁切）+选项对照表格（选项/物质/化学键类型/化合物类型，表格下缘 y≈0.437）；右上黑笔大字作答记号随框"},
+    {"order": 2, "questionNo": "2", "left": 0.07, "top": 0.455, "right": 0.87, "bottom": 0.81, "questionType": "choice", "coordConfidence": "high", "notes": "题2 题干（含黑笔大字 D 作答）+选项A-D（A 被划、B/C 被红笔圈画）"},
+    {"order": 3, "questionNo": "3", "left": 0.07, "top": 0.878, "right": 0.87, "bottom": 1.0, "questionType": "fill", "coordConfidence": "high", "notes": "题3 题干两行（3.实验室利用NH4Cl固体和Ca(OH)2固体反应制氨气，化学方程式为 2NH4Cl+Ca(OH)2…），底缘被裁切，题目延续到下一页；节标题『二、物质转化过程中化学键的变化』(y≈0.827-0.856)不入框"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": false,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image + pixel row-band profile (rowprofile.py)",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "右缘 x>0.93 为对页窄条（虚线页边后残字 1./2. 化 等）不入框。印刷题号 1、2、3 共 3 个。"
+}

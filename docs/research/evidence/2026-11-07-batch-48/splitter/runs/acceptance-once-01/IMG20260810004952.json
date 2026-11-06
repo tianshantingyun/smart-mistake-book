@@ -1,0 +1,25 @@
+{
+    "file": "IMG20260810004952.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 29486,
+    "responseHead": "{\"id\":\"f2055bbc-f399-4147-ba68-bb4ab0c2363e\",\"object\":\"chat.completion\",\"created\":1793988822,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"NEED_MORE_IMAGE\\\",\\\"issues\\\":[{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0.42,\\\"right\\\":0.34,\\\"bottom\\\":1},\\\"message\\\":\\\"题2题干及选项被图像边界截断\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.55,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":0.32},\\\"message\\\":\\\"顶部上一题选项被截断\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\",\\\"RECAPTURE\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片是否足以完整转写一道或多道独立题。图片是旋转90度？内容包含多道题？需要识别。图像显示页面右半部分？有题1、题2。顶部还有其他部分题目？看起来图片旋转了90度（文字竖直）。画面有题干1和题干2，可能还有上方若干不完整题（被截断？）。需要根据要求：若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按阅读顺序给出每道题完整外接区域，包含题干、选项、图形和作答区，区域不重叠。其他decision空。图像中能转写完整独立题？有一道题1（2025四川德阳三模 蛋白质分选...下列分析正确的是 A...）和题2（2025湖南长沙期中...）但题2在底部被截断？图像底部显示“内蛋白质分”被截断，题干未完整。题1完整吗？题1的选项A-D可见。题2选项A-D可见？但题干开头“2. [2025·湖南长沙期中]《细胞》杂志刊登了康奈尔大学一项研究，该研究揭示了体内蛋白质分...”底部截断，选项可见A-D，但题干后半/选项？可能题干不完整，需要更多图像。图像顶部还有部分题（右侧有“下列叙述...”“过程发生...”等，可能是上一题选项？）上部是另一道题的部分，被截断。因此可能包含多道题但有些未拍全。判断：图像包含至少2道题，且有未拍全内容（顶部/底部）。要求若2到12道独立题必须SPLIT。但内容未拍全时返回NEED_MORE_IMAGE。这是冲突？如果画面包含2到12道互相独立的题，必须SPLIT。其他decision必须空。内容未拍全时返回NEED_MORE_IMAGE。这里既有2道完整/半完整独立题，也有截断的顶部题。或许应返回NEED_MORE_IMAGE？但“若画面包含2到12道互相独立的题，必须返回SPLIT”。需要区分画面包含独立题。题1和题2都是独立题，尽管题2可能底部截断？但题2的题干和选项大部分可见，底部“内蛋白质分”可能是题干继续？实际上题2：2. [2025·湖南长沙期中]《细胞》杂志刊登了康奈尔大学一项研究，该研究揭示了体内蛋白质分... 后面应该还有题干，然后选项A...？图片中选项 A. 细胞核无关 B. 蛋白",
+    "decision": "NEED_MORE_IMAGE",
+    "issueCodes": [
+        "KEY_TEXT_UNREADABLE",
+        "KEY_TEXT_UNREADABLE"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 523394,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "40d1a3f7c2ada35b5f784684cd401d34ace48d36c3a5402df07a0ef399a96c8d",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

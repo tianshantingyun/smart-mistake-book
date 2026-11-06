@@ -1,0 +1,43 @@
+{
+  "pageId": "IMG20260810004511",
+  "file": "IMG20260810004511.jpg",
+  "sha256": "9190e13efa39df228032754acee0ccd76a5cb38173487820e663d7ff0acde750",
+  "split": "dev",
+  "round": "B",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "B",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent) — 同模型第二轮",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T09:30:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "B 轮为同一模型在写毕 B JSON 前未读取任何 A 轮 JSON 的重标；但同一会话内 A 轮判读内容不可避免在上下文中留存，故 B 轮不构成协议 §3.3 意义上的独立标注，仅作同模型一致性证据。",
+  "subject": "数学",
+  "layout": "single-column",
+  "questionCount": 3,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号)", "left": 0.075, "top": 0.19, "right": 0.68, "bottom": 0.325, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.325, "top": 0.075, "right": 0.44, "bottom": 0.925}, "notes": "承接上页题目：C/D 两个选项行（独立性检验表述），题号在上一页未见"},
+    {"order": 2, "questionNo": "9", "left": 0.05, "top": 0.265, "right": 0.96, "bottom": 0.655, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.265, "top": 0.05, "right": 0.655, "bottom": 0.95}, "notes": "题9（多选）题干两行+选项A-D；红笔圈画与手写演算随框"},
+    {"order": 3, "questionNo": "10", "left": 0.05, "top": 0.64, "right": 0.96, "bottom": 1.0, "questionType": "choice", "coordConfidence": "high", "rawBox": {"left": 0.64, "top": 0.05, "right": 1.0, "bottom": 0.95}, "notes": "题10（多选）题干三行+选项A；选项B行被图像底缘裁切；延续到下一页"}
+  ],
+  "strata": {
+    "questionType": "choice",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": false,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "primary box coords in upright space (raw rotated 90 CW); rawBox in raw file space",
+  "orientation": {"rawSize": [3072, 4096], "rawToUpright": "rotate90cw", "uprightSize": [4096, 3072]},
+  "imageSize": [4096, 3072],
+  "notes": "B 轮重标：questionCount=3 = 承接选项块+题9+题10；印刷题号仅 9、10。"
+}

@@ -1,0 +1,44 @@
+{
+    "file": "IMG20260810010202.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 23942,
+    "responseHead": "{\"id\":\"bb70fff3-7e0d-4394-b635-d119e2acf312\",\"object\":\"chat.completion\",\"created\":1793988899,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.05,\\\"top\\\":0.14,\\\"right\\\":0.94,\\\"bottom\\\":0.80},\\\"message\\\":\\\"画面包含3道独立题，需拆分\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.55,\\\"top\\\":0.13,\\\"right\\\":0.95,\\\"bottom\\\":0.34},\\\"message\\\":\\\"手写涂改遮挡题干和选项B，建议复核\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.06,\\\"top\\\":0.14,\\\"right\\\":0.93,\\\"bottom\\\":0.38},{\\\"left\\\":0.14,\\\"top\\\":0.40,\\\"right\\\":0.85,\\\"bottom\\\":0.50},{\\\"left\\\":0.06,\\\"top\\\":0.55,\\\"right\\\":0.94,\\\"bottom\\\":0.80}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。返回JSON。需要识别图片内容。图片是一页数学资料，包含顶部公式片段、思考题2（1）多选题，选项A-D，且手写涂改遮挡？题目文字有些被手写覆盖，但仍可读。然后（2）计算题，有手写答案2，题目完整。下方微专题2 升(降)幂公式的应用，例3（1）化简... 结果是 选项A-D，题目完整。可能包含多道独立题：思考题2(1) 是一道多选题；思考题2(2) 是一道计算题；例3(1) 是一道选择题？ 它们是否互相独立？ 应该是相互独立的三道题。题目数量在2到12之间，必须返回SPLIT，将MULTIPLE_QUESTIONS标BLOCKING，questionRegions按阅读顺序给出每道题完整外接区域，包含题干、选项、图形、作答区，区域之间不得大面积重叠。需要判断图片是否足以完整转写每道题。有手写涂改/遮挡：思考题2(1)题干被红笔划线和手写符号遮挡，选项B被手写线条和红圈遮挡（但选项文字仍可辨认？ B.√2 cos(π/4 - α)，被手写覆盖但尚可读）。需要标OCCLUDED或KEY_TEXT_UNREADABLE? 因为手写遮挡关键选项/题干，可能影响转写，但可读。 severity REVIEW? 需要决定是否阻塞。还有顶部有一些残缺题干：原式=... 属于前一题？ 图片顶部显示部分公式，不完整。这是上一题的内容？ 画面最顶部有“原式 = √(a²+b²)(sin x cos φ ... sin(x+φ). 高考中经常考查利用该式将所给问题化为只含一个角的三角函数的问题.” 这可能是上一题的解析/方法，不是独立题？ 它没有题号，且被截断。可能不影响当前三题。图片底部是“104”页码，题目完整。例3题干末尾“结果是”完整。选项完整。因此可以SPLIT。\\n\\n需要输出",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [
+        {
+            "left": 0.06,
+            "top": 0.14,
+            "right": 0.93,
+            "bottom": 0.38
+        },
+        {
+            "left": 0.14,
+            "top": 0.4,
+            "right": 0.85,
+            "bottom": 0.5
+        },
+        {
+            "left": 0.06,
+            "top": 0.55,
+            "right": 0.94,
+            "bottom": 0.8
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "image": {
+        "egressBytes": 524023,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "d63783b21ab943f1ff4e8e7f3e52d4e7af0d94c2f5931aea92030e4d66572432",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

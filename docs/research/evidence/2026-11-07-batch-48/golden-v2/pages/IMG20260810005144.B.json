@@ -1,0 +1,46 @@
+{
+  "pageId": "IMG20260810005144",
+  "file": "IMG20260810005144.jpg",
+  "sha256": "dd91f2d68aa5479814f858b7928dcfd525ed564a655bb3dffb93e7b04c3697a7",
+  "split": "dev",
+  "round": "B",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "B",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent) — 同模型第二轮",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T09:10:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "B 轮为同一模型在写毕 B JSON 前未读取任何 A 轮 JSON 的重标；但同一会话内 A 轮判读内容不可避免在上下文中留存，故 B 轮不构成协议 §3.3 意义上的独立标注，仅作同模型一致性证据。",
+  "subject": "生物",
+  "layout": "two-column",
+  "questionCount": 6,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号)", "left": 0.06, "top": 0.02, "right": 0.48, "bottom": 0.22, "questionType": "choice", "coordConfidence": "high", "notes": "左栏顶部承接上页选项A-D（含顶缘裁切残行）"},
+    {"order": 2, "questionNo": "11", "left": 0.06, "top": 0.228, "right": 0.48, "bottom": 0.44, "questionType": "choice", "coordConfidence": "high", "notes": "题11 题干3行+选项A-D"},
+    {"order": 3, "questionNo": "12", "left": 0.06, "top": 0.445, "right": 0.48, "bottom": 0.825, "questionType": "choice", "coordConfidence": "high", "notes": "题12 题干3行+视野1/视野2图+选项A-D+手写批注"},
+    {"order": 4, "questionNo": "13", "left": 0.06, "top": 0.8, "right": 0.5, "bottom": 1.0, "questionType": "choice", "coordConfidence": "high", "notes": "题13 左栏部分：题干6行+选项A（底缘裁切）"},
+    {"order": 5, "questionNo": "13", "left": 0.52, "top": 0.015, "right": 0.98, "bottom": 0.15, "questionType": "choice", "coordConfidence": "high", "notes": "题13 右栏部分：跨栏选项B/C/D"},
+    {"order": 6, "questionNo": "14", "left": 0.52, "top": 0.155, "right": 0.98, "bottom": 0.45, "questionType": "choice", "coordConfidence": "high", "notes": "题14 题干5行+选项A-D+右侧红黑作答记号"},
+    {"order": 7, "questionNo": "15", "left": 0.52, "top": 0.475, "right": 0.98, "bottom": 1.0, "questionType": "fill", "coordConfidence": "high", "notes": "题15 题干2行+四幅微生物图+小问(1)-(5)含手写与二维码（框内右下，如实记录）"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": false,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": [3, 7]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "B 轮重标：左缘书脊/答题区号表与右缘对页窄条不入框。"
+}

@@ -1,0 +1,43 @@
+{
+  "pageId": "IMG20260810010859",
+  "file": "IMG20260810010859.jpg",
+  "sha256": "758b03abb3db320191a89ada2758c2d4b8f846ca8973aedd8e2c1882cca562b8",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T06:00:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图、带网格放大裁片与自写行投影测量脚本的像素行带输出）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "物理",
+  "layout": "single-column",
+  "questionCount": 4,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(知识清单尾)", "left": 0.18, "top": 0.0, "right": 0.9, "bottom": 0.085, "questionType": "fill", "coordConfidence": "high", "notes": "承接上页知识清单：(2)标量…（顶缘裁切）+ 14[手写]的物理量。如路程、质量等。"},
+    {"order": 2, "questionNo": "7", "left": 0.18, "top": 0.09, "right": 0.905, "bottom": 0.26, "questionType": "fill", "coordConfidence": "high", "notes": "知识清单条目7（三角形定则…）4行，填空15/16 由手写『有向线段』『等效』补全；按指南作为带题号的独立内容块记一框"},
+    {"order": 3, "questionNo": "1", "left": 0.14, "top": 0.325, "right": 0.9, "bottom": 0.605, "questionType": "other", "coordConfidence": "high", "notes": "基础小测 题1 判断：(1)(2)(3) 三个判断小问含手写 √/× 与红笔圈画；『基础小测』栏目横幅(y≈0.269-0.304)不入框；(3)与题2首行在 y 向轻微交叠如实记录"},
+    {"order": 4, "questionNo": "2", "left": 0.14, "top": 0.61, "right": 0.9, "bottom": 0.785, "questionType": "solve", "coordConfidence": "high", "notes": "题2 题干4行（F1=18N、F2=24N 求合力）+手写答案 30N 53°（y≈0.73-0.78）随框"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": false,
+    "hasHandwriting": true,
+    "hasFigure": false,
+    "crossPage": true,
+    "optionsIncluded": false,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image + pixel row-band profile (rowprofile.py)",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "页底 y>0.8 为背面透印（非本页内容）；右缘虚线页边与对页窄条不入框。印刷题号 7、1、2（基础小测）共 3 个 + 承接块，questionCount=4。"
+}

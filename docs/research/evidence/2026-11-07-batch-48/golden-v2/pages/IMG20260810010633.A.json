@@ -1,0 +1,42 @@
+{
+  "pageId": "IMG20260810010633",
+  "file": "IMG20260810010633.jpg",
+  "sha256": "c8da1e90dd25cfb618b95ff23362dbde6b835e3121b8188c54b59fdeb39a6125",
+  "split": "dev",
+  "round": "A",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "A",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T05:40:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "本页标注仅依据页面图像（整页渲染图与带网格放大裁片）；未读取任何切分算法代码或输出、未读取 v1 金标 boxes 值、未读取任何其他标注员的标注结果。",
+  "subject": "物理",
+  "layout": "single-column",
+  "questionCount": 3,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(未见图号,疑为11)", "left": 0.145, "top": 0.0, "right": 0.865, "bottom": 0.285, "questionType": "choice", "coordConfidence": "high", "notes": "承接上页题目：残行（顶缘裁切『上，』）+题干3行（…现将MN杆绕N点垂直纸面向外缓慢转动15°…下列说法正确的是）+红笔A作答+选项A-D两行"},
+    {"order": 2, "questionNo": "12", "left": 0.115, "top": 0.288, "right": 0.865, "bottom": 0.835, "questionType": "choice", "coordConfidence": "high", "notes": "题12 题干7行（12 被红笔圈画，物块沿AC匀速…拉力大小为）+矩形平板ABCD立体图（y≈0.51-0.70，附图归属=本题）+选项A-D两行；红笔A作答随框"},
+    {"order": 3, "questionNo": "13", "left": 0.145, "top": 0.843, "right": 0.865, "bottom": 1.0, "questionType": "other", "coordConfidence": "medium", "notes": "题13 (2026·山东省枣庄市高三上月考) 题干起始4行（吊运外机场景），底缘裁切延续到下一页；右下吊装示意图起始（P/M 标注，y≈0.90-1.0）随框；题型本页不可判"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": true,
+    "hasHandwriting": true,
+    "hasFigure": true,
+    "crossPage": true,
+    "optionsIncluded": true,
+    "figureOwnership": [2, 3]
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "对开书页：主页面 x≈0.115-0.87，左缘 x<0.115 为上一页右缘窄条（残字/图/红笔）不入框，右缘 x>0.87 为下一页左缘窄条（第5节 题1/题2 残字）不入框。印刷题号 12、13 共 2 个 + 承接块，questionCount=3。"
+}

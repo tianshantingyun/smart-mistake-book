@@ -1,0 +1,44 @@
+{
+    "file": "IMG20260810011649.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 41283,
+    "responseHead": "{\"id\":\"aafd2633-3831-440e-9552-d012dab22e07\",\"object\":\"chat.completion\",\"created\":1793986754,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":[0.02,0.02,1.0,0.98],\\\"message\\\":\\\"画面包含题10、题11、题12，需拆分\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":[0.66,0.02,1.0,0.98],\\\"message\\\":\\\"题10题干及A选项未入镜，无法完整转写\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.66,\\\"top\\\":0.02,\\\"right\\\":0.995,\\\"bottom\\\":0.98},{\\\"left\\\":0.16,\\\"top\\\":0.03,\\\"right\\\":0.66,\\\"bottom\\\":0.87},{\\\"left\\\":0.02,\\\"top\\\":0.14,\\\"right\\\":0.13,\\\"bottom\\\":0.58}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片是否足以完整转写一道或多道独立题。图片内容是数学试卷，包含几道题？阅读：右侧有题号11，选择题（如果... f(x)=k ... 选项？）看起来题11是选择题？左侧有第11题？画面顺时针旋转90°。需要识别区域。图片包含多道题：右上部分似乎是上一题选项 B,C,D? 题11；中间主要是题11（乒乓球比赛规则），包含A/B/C/D选项？左侧有填空题12，以及“二、填空题：本题共3小题，每小题5分，共15分。”，还有第II卷。这明显包含多道独立题：题11（带ABCD）和题12，还可能上方的题10的一部分？让我们仔细看图片。\\n\\n图片方向是横向的，需要旋转。可见内容：\\n\\n最右边（原图上方）：\\n“B. f(x)既没有最大值，也没有最小值”\\n“C. 当0<k<8/e^5时，f(x)=k有且只有三个实根”\\n“D. 若x∈[m,+∞)时，f(x)的最大值为8/e^5，则m的最大值为5”\\n这似乎是某选择题的选项，题干可能被截掉了（题号？可能第10题）在图片外？但B/C/D可见，A选项可能不可见？最右侧只看到B/C/D，题干可能在下方/被遮挡？实际上，这是第?题（可能是10题）的选项，题号未显示。由于题目B/C/D所在区域只显示选项，题干和A选项可能在图片外，这是不完整。然后下方有题11：\\n“11. 11分制乒乓球比赛规则如下：在一局比赛中，每两球交换发球权，每胜一球得1分，先得11分且至少领先2分者获胜，该局比赛结束；当某局比分打成10:10后，每球交换发球权，领先2分者获胜，该局比赛结束。现有甲、乙两人进行一场五局三胜，每局11分制的乒乓球比赛。假设甲发球时甲得分的概率为2/3，乙发球时甲得分的概率为1/2，各球的比赛结果相互独立，且各局比赛结果相互独立，则下列说法正确的是\\nA. 记每局比赛甲获胜的概率为p0，则前三局甲恰好胜一局的概率为p0(1-p0)^2\\nB. 记每局比赛甲获胜的概率为p0，X为前三局中甲获胜的局数",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [
+        {
+            "left": 0.66,
+            "top": 0.02,
+            "right": 0.995,
+            "bottom": 0.98
+        },
+        {
+            "left": 0.16,
+            "top": 0.03,
+            "right": 0.66,
+            "bottom": 0.87
+        },
+        {
+            "left": 0.02,
+            "top": 0.14,
+            "right": 0.13,
+            "bottom": 0.58
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "image": {
+        "egressBytes": 573298,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "570fbd613ab2dc03cb40b83d9f94348812171e2c6fd88422d72b25d7af7fd298",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

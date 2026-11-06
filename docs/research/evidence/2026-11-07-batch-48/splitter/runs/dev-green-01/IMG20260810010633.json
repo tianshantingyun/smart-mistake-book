@@ -1,0 +1,25 @@
+{
+    "file": "IMG20260810010633.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 21320,
+    "responseHead": "{\"id\":\"55393cb7-6cfd-4408-8657-0edcd0756ff9\",\"object\":\"chat.completion\",\"created\":1793987263,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.18,\\\"top\\\":0.08,\\\"right\\\":0.92,\\\"bottom\\\":0.27},\\\"message\\\":\\\"页面顶部题目开头被截断，无法完整转写\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.16,\\\"top\\\":0.86,\\\"right\\\":0.93,\\\"bottom\\\":1.0},\\\"message\\\":\\\"第13题题干被页面下边缘截断，无法完整转写\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图像是否足以完整转写一道或多道独立题目。需要返回JSON符合 schema。顶层键只能是 decision/issues/suggestedActions/questionRegions/followingPageRelations。需要分析图像内容。\\n\\n图像是拍摄的练习册页面，左右两栏。左侧栏主体可见。图像中有多道题：顶部有上一题残余（从“上，不计轻钩与绳间的摩擦。现将MN 杆绕 N 点垂直纸面向外缓慢转动15°，该过程中关于绳子上张力大小的变化，下列说法正确的是”选项A-D）。然后第12题：“如图所示，矩形平板 ABCD 的 AD 边固定在水平面上，平板与水平面夹角为 θ，AC 与 AB 的夹角也为 θ。质量为 m 的物块在平行于平板的拉力作用下，沿 AC 方向匀速运动。物块与平板间的动摩擦因数 μ=tanθ，重力加速度大小为 g，拉力大小为” 配图，选项A-D。下方第13题开始：“13.(2026·山东省枣庄市高三上月考)如图为高层安装空调时吊运外机的场景简化图。一名工人在高处...” 但题干被下边缘截断，选项不可见。右侧栏有第5？以及另一栏的题目部分可见（1.(2025... 选项A... 2.如图...等），但右侧被截掉，显示不全。\\n\\n问题：判断是否足以完整转写一道或多道独立题。如果有2到12道互相独立的题完整可见，必须返回SPLIT。需要数完整可见独立题。图像里完整可见的独立题有几道？顶部那题：题干前半部分被上边缘截断吗？文字开头“上，不计轻钩与绳间的摩擦。现将MN 杆绕 N 点垂直纸面向外缓慢转动15°，该过程中关于绳子上张力大小的变化，下列说法正确的是”明显是某题的后半段，缺少前文（可能前面有“轻钩...挂在...”）。题目本身可能不完整，因为题干起始被截断，但选项完整。这算完整可见的独立题吗？完整转写需要题干完整，但已截断。第12题完整可见（编号12，题干完整，图，选项完整）。第13题题干不完整（下边缘截断），不算完整可见。右侧栏题目不完整（边缘截断且内容少），不算完整可见。顶部题目可能不完整，不算完整可见？题目开头被截断。所以完整可见的独立题只有第12题一道？那么不应返回SPLIT。但decision需要什么？如果只有一道完整可见，但画",
+    "decision": "PASS",
+    "issueCodes": [
+        "OCCLUDED",
+        "OCCLUDED"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 541862,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "fb23af997e9afa0617be2dbe8e242ab659b4f845c5fa379874adf5b87a1a7699",
+    "promptSha256": "d9f6d267cd7bdb124bf679abea439062e8dc73e3b62d058500f98ce6636e3a67"
+}

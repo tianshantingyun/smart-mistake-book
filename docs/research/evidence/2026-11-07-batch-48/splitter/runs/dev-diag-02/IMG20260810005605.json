@@ -1,0 +1,25 @@
+{
+    "file": "IMG20260810005605.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 10546,
+    "responseHead": "{\"id\":\"c9255373-17b9-4388-aed6-b6baa73cb125\",\"object\":\"chat.completion\",\"created\":1793986683,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"NEED_MORE_IMAGE\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.04,\\\"top\\\":0.22,\\\"right\\\":0.92,\\\"bottom\\\":0.41},\\\"message\\\":\\\"顶部仅见D、E选项，题干及A-C缺失\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.03,\\\"top\\\":0.86,\\\"right\\\":0.98,\\\"bottom\\\":1.0},\\\"message\\\":\\\"第2题(2)底部被裁切\\\"}],\\\"suggestedActions\\\":[\\\"RECAPTURE\\\",\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足够完整转写一道或多道独立题。需要只返回JSON符合schema。需要分析图像内容。图像是一页教辅/习题，上面可见上一题选项D、E（可能是某选择题的选项），然后\\\"二、金属氢化物的还原性\\\"知识点说明，然后第2题\\\"根据金属氢化物的特点解答下列问题。\\\"包含(1) KH...电子式...化学方程式...转移电子数...（手写答案），(2) NaH在无水条件下可作为某些钢铁制品的脱锈剂(铁锈的成分表示为Fe2O3...)，底部被裁切。还看到右侧有装订/另一页边缘和红笔\\\"2\\\"。此图看起来有一道题（第2题）部分，上方D、E可能是上一道题的选项但题干及A-C未拍全。同时第2题底部也不完整。因此图片不足以完整转写一道或多道独立题：内容未拍全，需要NEED_MORE_IMAGE。问题列表：KEY_TEXT_UNREADABLE? 可能没有不可读，但底部截断，属于OCCLUDED？遮挡？图片边缘裁切未拍全，应标记OCCLUDED? 更合适MISSING_OPTIONS? 因为上方D/E是某题选项，但题干和A-C缺失，选项缺失。如果判断为包含多道独立题？画面包含上一题残余（D/E）和第2题，但上一题不完整；第2题是一道独立题，跨页/底部未拍全。题目区域若SPLIT需2到12道互相独立题，必须返回SPLIT。画面是否包含2道独立题？D/E属于上一题的部分，但没有题干和A-C，不完整。第2题有题干和部分小问，底部裁切。因此不应SPLIT，因为不是完整独立题？题目内容未拍全返回NEED_MORE_IMAGE。需要decision NEED_MORE_IMAGE。issues数组包含：MISSING_OPTIONS: 顶部选项D、E可见但题干与A-C缺失，BLOCKING；区域大概顶部0-0.25? 但需region 0-1坐标。还有OCCLUDED或KEY_TEXT_UNREADABLE底部第2题(2)被裁切，BLOCKING，区域底部0.85-1? message简短中文。还可以有MULTIPLE_QUESTIONS? 如果包含上一题残余和第2题，但上一题不完整；是否应标MULTIPLE_QUESTIONS? 规则：若画面包含2到1",
+    "decision": "NEED_MORE_IMAGE",
+    "issueCodes": [
+        "MISSING_OPTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 580162,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "ee939e529934cc16ddb69406f84bcc9105b6e10056268a120e54981c5c424ec0",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

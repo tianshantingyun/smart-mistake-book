@@ -1,0 +1,43 @@
+{
+    "file": "IMG20260810010349.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 40729,
+    "responseHead": "{\"id\":\"b353b9b2-21ab-4c81-a447-54309a5c9f26\",\"object\":\"chat.completion\",\"created\":1793987222,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":0.45},\\\"message\\\":\\\"画面含多道独立题，需按题分割\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.08,\\\"top\\\":0.095,\\\"right\\\":1,\\\"bottom\\\":0.22},{\\\"left\\\":0.08,\\\"top\\\":0.225,\\\"right\\\":1,\\\"bottom\\\":0.35},{\\\"left\\\":0.06,\\\"top\\\":0.355,\\\"right\\\":0.95,\\\"bottom\\\":0.44}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片内容。只有JSON，顶层键 decision/issues/suggestedActions/questionRegions/followingPageRelations。需要分析图片：包含多道独立题？可见完整独立题有几道。图片中从上到下：15题（2022浙江）若3sinα - sinβ=√10，α... 顶端有截断？第15题从图片顶部开始，题干部分可见：“15. (2022·浙江) 若 3sin α - sin β = √10 , α, ...” 然后下一行 “π/2 , 则 sin α = ____ , cos 2β = ____” 这似乎完整? 顶部边缘可能切掉了部分？看图像顶部：有15.及“若3sinα-sinβ=√10, α,” 可见第一行上边被裁掉一点点但内容可读。第15题是填空题，有手写答案。完整可见？题干包括条件“α, ...” 后面可能接“α,β∈(0, π/2)”? 看图片顶部右侧“α,”后似乎被截断，下面一行有π/2，可能完整条件是“α,β∈(0,π/2)”布局：第一行右侧“α,”，第二行开始左“π/2,”，这是条件的一部分，可能图片顶部裁掉了上标？但文本可读：若 3sin α - sin β = √10 , α, β∈(0, π/2), 则... 图片显示“α,”然后下一行“π/2,”可能“α,β∈(0, π/2)”的“β∈(0,”被手写/红笔遮挡？实际上第一行最右“α,”，第二行左侧“π/2,”有点奇怪。需要判断是否完整转写。但重点是如果画面包含2到12道互相独立的题，必须SPLIT。这里明显有15、16、17、18四道题，至少完整可见? 16完整，17完整？17题选项D可能被裁？选项D.3在右侧边缘，可见“D.3”部分，最后数字3可能靠近右边被裁？图片右侧边缘显示D. 3? 第17题选项A -1 B.1 C.2 D.3，D的3在边缘，完整可读? 看右侧“D.3”有点被裁但可见。18题完整可见。因此完整可见独立题至少4道。必须返回SPLIT，issues标记MULTIPLE_QUESTIONS BLOCKING，questionRegions给出每道题完整外接区域。需要给出4个",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.08,
+            "top": 0.095,
+            "right": 1.0,
+            "bottom": 0.22
+        },
+        {
+            "left": 0.08,
+            "top": 0.225,
+            "right": 1.0,
+            "bottom": 0.35
+        },
+        {
+            "left": 0.06,
+            "top": 0.355,
+            "right": 0.95,
+            "bottom": 0.44
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "image": {
+        "egressBytes": 420535,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "77c9406fcd489735ec93ca4c710cf4ddbc0cae19d7fccb76734728a7c7bb2598",
+    "promptSha256": "d9f6d267cd7bdb124bf679abea439062e8dc73e3b62d058500f98ce6636e3a67"
+}

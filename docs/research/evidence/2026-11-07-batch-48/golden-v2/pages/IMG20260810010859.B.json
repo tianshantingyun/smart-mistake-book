@@ -1,0 +1,43 @@
+{
+  "pageId": "IMG20260810010859",
+  "file": "IMG20260810010859.jpg",
+  "sha256": "758b03abb3db320191a89ada2758c2d4b8f846ca8973aedd8e2c1882cca562b8",
+  "split": "dev",
+  "round": "B",
+  "labelers": [
+    {
+      "kind": "model",
+      "labelerId": "B",
+      "agentName": "v2 金标盲标 (ZCode workflow subagent) — 同模型第二轮",
+      "provider": "bigmodel-start-plan",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "ranAtUtc": "2026-11-07T09:50:00Z",
+      "guideline": "aud08-model-gold-b48-v1.1"
+    }
+  ],
+  "independenceDeclaration": "B 轮为同一模型在写毕 B JSON 前未读取任何 A 轮 JSON 的重标；但同一会话内 A 轮判读内容不可避免在上下文中留存，故 B 轮不构成协议 §3.3 意义上的独立标注，仅作同模型一致性证据。",
+  "subject": "物理",
+  "layout": "single-column",
+  "questionCount": 4,
+  "boxes": [
+    {"order": 1, "questionNo": "prev-cont(知识清单尾)", "left": 0.18, "top": 0.0, "right": 0.9, "bottom": 0.085, "questionType": "fill", "coordConfidence": "high", "notes": "承接上页知识清单：(2)标量…（顶缘裁切）+14 填空行"},
+    {"order": 2, "questionNo": "7", "left": 0.18, "top": 0.085, "right": 0.91, "bottom": 0.26, "questionType": "fill", "coordConfidence": "high", "notes": "知识清单条目7 三角形定则4行（填空15/16 手写补全）"},
+    {"order": 3, "questionNo": "1", "left": 0.14, "top": 0.32, "right": 0.9, "bottom": 0.6, "questionType": "other", "coordConfidence": "high", "notes": "基础小测 题1 判断 (1)(2)(3)；『基础小测』横幅不入框"},
+    {"order": 4, "questionNo": "2", "left": 0.14, "top": 0.6, "right": 0.9, "bottom": 0.78, "questionType": "solve", "coordConfidence": "high", "notes": "题2 题干4行+手写答案 30N 53°"}
+  ],
+  "strata": {
+    "questionType": "mixed",
+    "hasFormula": false,
+    "hasHandwriting": true,
+    "hasFigure": false,
+    "crossPage": true,
+    "optionsIncluded": false,
+    "figureOwnership": []
+  },
+  "coordMethod": "visual-estimate-from-rendered-image",
+  "coordConvention": "raw image space (EXIF orientation=1, 3072x4096); no rotation",
+  "imageSize": [3072, 4096],
+  "notes": "B 轮重标。"
+}
