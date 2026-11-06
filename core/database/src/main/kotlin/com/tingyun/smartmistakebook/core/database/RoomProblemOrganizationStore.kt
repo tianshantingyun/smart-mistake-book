@@ -93,6 +93,27 @@ internal class RoomProblemOrganizationStore(
                     command.practiceUnitId,
                 )
             }
+            if (command.knowledgeSelections.isNotEmpty()) {
+                require(dao.currentCatalogTargetCount(command.problemId, command.problemRevisionId) > 0) {
+                    "题目版本已变化，请重新打开分类"
+                }
+                val expectedLabels = linkedMapOf<Pair<String, String>, KnowledgeNodeEntity>()
+                for (pick in command.knowledgeSelections) {
+                    val node = requireNotNull(dao.readKnowledgeNode(pick.nodeId)) { "知识点已不存在" }
+                    require(node.status == "ACTIVE" && node.taxonomyVersion == pick.taxonomyVersion &&
+                        node.verificationStatus in CATALOG_REVIEWED_STATUSES) { "知识目录已更新，请重新选择" }
+                    val chapter = node.parentKnowledgeNodeId?.let { requireNotNull(dao.readKnowledgeNode(it)) } ?: node
+                    require(chapter.status == "ACTIVE" && chapter.subject == node.subject &&
+                        chapter.verificationStatus in CATALOG_REVIEWED_STATUSES) { "知识点章节已更新，请重新选择" }
+                    expectedLabels["KNOWLEDGE" to "catalog:${node.knowledgeNodeId}"] = node
+                    expectedLabels["CHAPTER" to "catalog:${chapter.knowledgeNodeId}"] = chapter
+                }
+                val actual = command.classifications.filter { it.labelId.startsWith("catalog:") }
+                require(actual.mapTo(hashSetOf()) { it.dimension to it.labelId } == expectedLabels.keys &&
+                    actual.all { row -> expectedLabels[row.dimension to row.labelId]?.let {
+                        row.displayName == it.displayName && row.taxonomyVersion == it.taxonomyVersion
+                    } == true }) { "知识目录已更新，请重新选择" }
+            }
             val incomingAcceptanceSource = command.classifications
                 .mapTo(linkedSetOf()) { it.acceptanceSource }
                 .single()
@@ -676,3 +697,5 @@ private fun ProblemOrganizationReceiptEntity.toRecord() = ProblemOrganizationRec
     relationCount,
     acceptedAtEpochMillis,
 )
+
+private val CATALOG_REVIEWED_STATUSES = setOf("CURATED", "SOURCE_GROUNDED", "USER_CONFIRMED")

@@ -51,6 +51,10 @@ object CanonicalAssetReferenceSites {
           AND NOT EXISTS (
             SELECT 1 FROM tutor_visual_snapshot AS visual_preview
             WHERE visual_preview.preview_asset_id = asset.source_asset_id
+        )
+          AND NOT EXISTS (
+            SELECT 1 FROM paper_review_photo AS paper_photo
+            WHERE paper_photo.source_asset_id = asset.source_asset_id
         )"""
 
     /**

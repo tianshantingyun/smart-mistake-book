@@ -14,6 +14,8 @@ interface MistakeReadPort {
     suspend fun countMistakes(): Int
     suspend fun findMistakeBySourceKey(sourceKey: String): MistakeRecord?
     suspend fun readMistakeDetail(errorBookEntryId: String): MistakeDetailRecord?
+    fun observeMistakeSourceAssets(errorBookEntryId: String): Flow<List<com.tingyun.smartmistakebook.core.database.MistakeDetailSourceAssetRecord>> =
+        kotlinx.coroutines.flow.flow { emit(readMistakeDetail(errorBookEntryId)?.sourceAssets.orEmpty()) }
     suspend fun readExactMistakeDetail(
         entryId: String,
         problemId: String,

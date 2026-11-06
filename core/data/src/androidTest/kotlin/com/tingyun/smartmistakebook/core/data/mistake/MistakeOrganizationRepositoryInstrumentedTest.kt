@@ -70,6 +70,7 @@ class MistakeOrganizationRepositoryInstrumentedTest {
         context.deleteDatabase(databaseName)
         database = StudyDatabaseFactory.open(context, databaseName)
         seedStudyFacts(context, database, databaseName, seed())
+        updateCatalogFixture("UPDATE knowledge_node SET status = 'RETIRED' WHERE knowledge_node_id = 'retired-catalog'")
         repository = RoomMistakeOrganizationRepository(
             database = database,
             // 这些用例钉的是整理结果的本地落库与幂等，不是就绪门（D-Q3）：按已就绪构造。
@@ -443,6 +444,103 @@ class MistakeOrganizationRepositoryInstrumentedTest {
         )
     }
 
+    @Test
+    fun manualCatalogSelectionKeepsCrossSubjectIdsAndReopensWithoutChangingTheQuestion() = runBlocking {
+        prepareCatalogDocument()
+        val picks = setOf(catalogPick(ATOMIC_KNOWLEDGE_NODE, "math-v1"), catalogPick("physics-same-name", "physics-v1"))
+        val first = repository.correctConfirmedOrganization(catalogKey(), catalogSelection(picks), 600)
+        val replay = repository.correctConfirmedOrganization(catalogKey(), catalogSelection(picks), 600)
+        assertTrue(first.created)
+        assertFalse(replay.created)
+        val stored = database.observeConfirmedProblemOrganization(PROBLEM, REVISION).first()
+        assertEquals(picks.map { it.nodeId }.toSet(), stored.knowledgeNodeIds)
+        assertEquals(2, stored.classifications.count { it.dimension == "KNOWLEDGE" })
+        assertEquals(setOf("math-v1", "physics-v1"), stored.classifications.filter { it.dimension == "KNOWLEDGE" }.map { it.taxonomyVersion }.toSet())
+        assertEquals("MATH", database.observeMistakes().first().single { it.entryId == "entry-main" }.subject)
+        val nodes = database.readKnowledgeNodesByIds(stored.knowledgeNodeIds)
+        assertEquals(setOf("MATH", "PHYSICS"), nodes.map { it.subject }.toSet())
+        assertEquals(setOf("函数最值", "力学"), stored.classifications.filter { it.dimension == "CHAPTER" }.map { it.displayName }.toSet())
+        val reopened = RoomMistakeOrganizationRepository(database, knowledgeBaseAvailability = readyKnowledgeBaseAvailability())
+        assertEquals(picks.map { it.nodeId }.toSet(), reopened.observeConfirmed(catalogKey()).first().knowledgeNodeIds)
+        persistSuccess("after-manual-catalog", completeOutput(), completedAt = 800)
+        assertTrue(repository.applySuccessfulOrganization("after-manual-catalog").preservedUserCorrection)
+        assertEquals(stored.knowledgeNodeIds, database.observeConfirmedProblemOrganization(PROBLEM, REVISION).first().knowledgeNodeIds)
+    }
+
+    @Test
+    fun invalidCatalogSelectionsRejectTheWholeCorrection() = runBlocking {
+        prepareCatalogDocument()
+        repository.correctConfirmedOrganization(catalogKey(), catalogSelection(setOf(catalogPick(ATOMIC_KNOWLEDGE_NODE, "math-v1"))), 600)
+        val before = database.observeConfirmedProblemOrganization(PROBLEM, REVISION).first()
+        for (bad in listOf(catalogPick("physics-same-name", "wrong-version"), catalogPick("retired-catalog", "physics-v1"), catalogPick("candidate-catalog", "physics-v1"), catalogPick("missing", "v1"))) {
+            assertTrue(runCatching {
+                repository.correctConfirmedOrganization(catalogKey(), catalogSelection(setOf(catalogPick(ATOMIC_KNOWLEDGE_NODE, "math-v1"), bad)), 700)
+            }.isFailure)
+            assertEquals(before, database.observeConfirmedProblemOrganization(PROBLEM, REVISION).first())
+        }
+    }
+
+    @Test
+    fun catalogCommandIsRevalidatedInsideTheTransaction() = runBlocking {
+        val selected = database.readKnowledgeNodesByIds(setOf("physics-same-name")).single()
+        val parent = database.readKnowledgeNodesByIds(setOf("physics-topic")).single()
+        val command = buildOfflineCorrectionCommand("entry-main", OfflineCorrectionFacts(PROBLEM, REVISION, PRACTICE, SubjectKind.MATH, question("catalog-test", "求函数最值")), emptyList(), 600,
+            catalogNodes = listOf(selected), catalogParents = listOf(parent))
+        updateCatalogFixture("UPDATE knowledge_node SET taxonomy_version = 'changed' WHERE knowledge_node_id = 'physics-same-name'")
+        assertTrue(runCatching { database.confirmProblemOrganization(command) }.isFailure)
+        assertTrue(database.observeConfirmedProblemOrganization(PROBLEM, REVISION).first().classifications.isEmpty())
+    }
+
+    @Test
+    fun oldRevisionCatalogCommandCannotPartiallyWrite() = runBlocking {
+        val selected = database.readKnowledgeNodesByIds(setOf("physics-same-name")).single()
+        val parent = database.readKnowledgeNodesByIds(setOf("physics-topic")).single()
+        val command = buildOfflineCorrectionCommand("entry-main", OfflineCorrectionFacts(PROBLEM, REVISION, PRACTICE, SubjectKind.MATH, question("catalog-test", "求函数最值")), emptyList(), 600,
+            catalogNodes = listOf(selected), catalogParents = listOf(parent))
+        android.database.sqlite.SQLiteDatabase.openDatabase(context.getDatabasePath(databaseName).absolutePath, null, android.database.sqlite.SQLiteDatabase.OPEN_READWRITE).use { sqlite ->
+            val values = android.content.ContentValues()
+            sqlite.rawQuery("SELECT * FROM problem_revision WHERE revision_id = ?", arrayOf(REVISION)).use { cursor ->
+                check(cursor.moveToFirst())
+                cursor.columnNames.forEachIndexed { index, column ->
+                    if (cursor.isNull(index)) values.putNull(column) else values.put(column, cursor.getString(index))
+                }
+            }
+            values.put("revision_id", "catalog-new-revision")
+            values.put("revision_number", 2)
+            values.put("content_fingerprint", "9".repeat(64))
+            sqlite.insertOrThrow("problem_revision", null, values)
+            sqlite.execSQL("UPDATE error_book_entry SET current_revision_id = 'catalog-new-revision' WHERE entry_id = 'entry-main'")
+        }
+        assertTrue(runCatching { database.confirmProblemOrganization(command) }.isFailure)
+        assertTrue(database.observeConfirmedProblemOrganization(PROBLEM, REVISION).first().classifications.isEmpty())
+    }
+
+    private fun prepareCatalogDocument() {
+        val document = com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument(
+            document = question("catalog-stem", "求函数最值"),
+            blockEvidence = listOf(com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence(
+                blockId = "catalog-stem-block", sourceAssetId = "", sourceRegion = null,
+                writingLayer = com.tingyun.smartmistakebook.core.model.WritingLayer.UNKNOWN,
+                provenance = com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance.USER_TRANSCRIPTION,
+                confidence = null, reviewStatus = com.tingyun.smartmistakebook.core.model.QuestionBlockReviewStatus.USER_CONFIRMED,
+                producerVersion = null,
+            )),
+        )
+        android.database.sqlite.SQLiteDatabase.openDatabase(context.getDatabasePath(databaseName).absolutePath, null, android.database.sqlite.SQLiteDatabase.OPEN_READWRITE).use {
+            it.execSQL("UPDATE problem_revision SET question_document_snapshot = ?, content_fingerprint = ? WHERE revision_id = ?", arrayOf(
+                com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec.encode(document),
+                com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint.of(document), REVISION))
+        }
+    }
+
+    private fun catalogKey() = com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey("entry-main", PROBLEM, REVISION)
+    private fun catalogPick(id: String, version: String) = com.tingyun.smartmistakebook.core.model.KnowledgeNodeSelection(id, version)
+    private fun catalogSelection(picks: Set<com.tingyun.smartmistakebook.core.model.KnowledgeNodeSelection>) =
+        ProblemOrganizationSelection(emptySet(), emptySet(), knowledgeSelections = picks)
+    private fun updateCatalogFixture(sql: String) {
+        android.database.sqlite.SQLiteDatabase.openDatabase(context.getDatabasePath(databaseName).absolutePath, null, android.database.sqlite.SQLiteDatabase.OPEN_READWRITE).use { it.execSQL(sql) }
+    }
+
     private suspend fun persistExistingOrganization(
         acceptanceSource: BindingAcceptanceSource = BindingAcceptanceSource.USER_CORRECTED,
     ) {
@@ -715,6 +813,10 @@ class MistakeOrganizationRepositoryInstrumentedTest {
             ),
         ),
         knowledgeNodes = listOf(
+            KnowledgeNodeSeedRecord("physics-topic", "physics:topic:mechanics", "PHYSICS", "力学", null, "physics-v1", 1, verificationStatus = "CURATED"),
+            KnowledgeNodeSeedRecord("physics-same-name", "physics:atomic:same-name", "PHYSICS", "确定函数最值的候选位置", "physics-topic", "physics-v1", 1, granularity = "ATOMIC", verificationStatus = "CURATED"),
+            KnowledgeNodeSeedRecord("retired-catalog", "physics:retired", "PHYSICS", "已退役", "physics-topic", "physics-v1", 1, verificationStatus = "CURATED"),
+            KnowledgeNodeSeedRecord("candidate-catalog", "physics:candidate", "PHYSICS", "待审核", "physics-topic", "physics-v1", 1),
             KnowledgeNodeSeedRecord(
                 knowledgeNodeId = KNOWLEDGE_TOPIC_NODE,
                 stableCode = "math:topic:function-extrema",

@@ -171,7 +171,9 @@ internal class RoomLibrarySearchStore(
             filters.append("\n  AND catalog.subject = ?")
             bindings += subjectId
         }
-        if (sectionId != null) {
+        if (sectionId == "__unclassified__") {
+            filters.append("\n  AND COALESCE(catalog.chapter_labels, '') = ''")
+        } else if (sectionId != null) {
             filters.append(
                 "\n  AND EXISTS (\n" +
                     "      SELECT 1 FROM problem_classification_binding AS classification\n" +
@@ -579,6 +581,9 @@ internal fun String?.toCatalogLabels(): List<String> = this
 
 private fun LibraryCatalogView.toRow() = LibraryCatalogRow(
     entryId = entryId,
+    problemId = problemId,
+    problemRevisionId = problemRevisionId,
+    practiceUnitId = practiceUnitId,
     title = title,
     problemMarkdown = problemMarkdown,
     subject = subject,
@@ -600,6 +605,9 @@ private fun LibraryFacetCountRow.toRecord() = LibraryFacetCountRecord(
 
 private fun LibraryFtsSearchDao.LibrarySearchHitRow.toCatalogRow() = LibraryCatalogRow(
     entryId = entryId,
+    problemId = problemId,
+    problemRevisionId = problemRevisionId,
+    practiceUnitId = practiceUnitId,
     title = title,
     problemMarkdown = problemMarkdown,
     subject = subject,

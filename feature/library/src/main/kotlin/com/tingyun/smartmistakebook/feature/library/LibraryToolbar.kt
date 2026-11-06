@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
@@ -28,15 +29,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -46,6 +45,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.studentLabel
@@ -60,57 +60,35 @@ internal fun LibraryPageHeader(
 ) {
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val showFileLabel = maxWidth >= 320.dp && LocalDensity.current.fontScale <= 1.2f
-        val stackTitle = maxWidth < 300.dp || LocalDensity.current.fontScale > 1.3f
-        Column(Modifier.padding(bottom = 12.dp).drawBehind {
-            drawRect(SmartColors.Jade, topLeft = Offset(0f, size.height - 3.dp.toPx()),
-                size = Size(32.dp.toPx(), 3.dp.toPx()))
-        }) {
-            if (stackTitle) {
-                Text("错题本", color = SmartColors.Ink, style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold)
-            }
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                if (!stackTitle) {
-                Text(
-                    "错题本",
-                    modifier = Modifier.weight(1f),
-                    color = SmartColors.Ink,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                )
-                } else {
-                    Spacer(Modifier.weight(1f))
-                }
+        com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader(
+            title = "错题本", subtitle = "原题、笔记与复习记录", actions = {
                 TextButton(
                     onClick = onOpenResults,
                     modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_export_results")
                         .semantics { contentDescription = "查看已导出的文件" },
                     contentPadding = PaddingValues(horizontal = 10.dp),
-                    colors = ButtonDefaults.textButtonColors(contentColor = SmartColors.Ink),
+                    colors = ButtonDefaults.textButtonColors(contentColor = SmartColors.InkSecondary),
                 ) {
-                    Icon(Icons.Outlined.FolderOpen, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Outlined.FolderOpen, null, Modifier.size(20.dp))
                     if (showFileLabel) {
                         Spacer(Modifier.width(4.dp))
-                        Text("已导出", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+                        Text("已导出", style = MaterialTheme.typography.labelMedium)
                     }
                 }
                 if (showCapture) {
-                    Spacer(Modifier.width(4.dp))
-                    Button(
-                        onClick = onCapture,
+                    Button(onClick = onCapture,
                         modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_capture_button"),
-                        shape = MaterialTheme.shapes.large,
+                        shape = RoundedCornerShape(14.dp),
                         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 10.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = SmartColors.Jade, contentColor = SmartColors.OnJade),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
-                    ) {
-                        Icon(Icons.Outlined.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)) {
+                        Icon(Icons.Outlined.Add, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(4.dp))
-                        Text("录入", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+                        Text("录入", style = MaterialTheme.typography.labelMedium)
                     }
                 }
-            }
-        }
+            },
+        )
     }
 }
 
@@ -177,7 +155,8 @@ internal fun LibrarySelectedFilters(
             state.selections.selectedOptionId(facet)?.let { id ->
                 val label = when (facet) {
                     LibraryFacet.SUBJECT -> SubjectKind.entries.firstOrNull { it.name == id }?.studentLabel() ?: id
-                    LibraryFacet.CHAPTER -> id
+                    LibraryFacet.CHAPTER -> if (id == LIBRARY_UNCLASSIFIED_OPTION_ID) "未分板块"
+                        else state.chapterOptionLabels[id] ?: state.activeOptions.firstOrNull { it.id == id }?.label ?: "已选板块"
                     LibraryFacet.MASTERY -> MasteryState.fromId(id).label
                     LibraryFacet.FAVORITE -> "已收藏"
                 }

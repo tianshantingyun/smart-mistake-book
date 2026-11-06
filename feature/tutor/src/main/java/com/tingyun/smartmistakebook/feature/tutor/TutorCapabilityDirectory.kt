@@ -3,16 +3,13 @@ package com.tingyun.smartmistakebook.feature.tutor
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
-import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
 import com.tingyun.smartmistakebook.core.ui.claudeInteractiveRow
-import com.tingyun.smartmistakebook.core.ui.ContentSurface
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,10 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.InlineActionButton
 import com.tingyun.smartmistakebook.core.ui.SubtleSurface
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 
 /**
  * 空态里的一条能力（它能干什么）。
@@ -54,13 +54,12 @@ internal data class TutorCapabilityExample(
 /**
  * 智能体栏空态的能力目录（A1：新会话空白时展示"它能干什么"，有内容后让位）。
  *
- * 只列**真的点了有反应**的能力：录入并讲解、从错题本挑一道、打开错题本。选择导出（第二项能力）
+ * 只列**真的点了有反应**的能力：录入并讲解、从错题本挑一道。选择导出（第二项能力）
  * 要等导出链路落地（阶段 4B），这里不出现——一个点了没反应的入口比没有入口更糟。
  */
 internal fun agentCapabilityDirectory(
     onCapture: () -> Unit,
     onPickMistake: () -> Unit,
-    onOpenMistakeNotebook: () -> Unit,
 ): List<TutorCapability> = listOf(
     TutorCapability(
         id = "explain",
@@ -99,20 +98,7 @@ internal fun agentCapabilityDirectory(
         actionTestTag = "tutor_choose_existing_button",
         onAction = onPickMistake,
     ),
-    TutorCapability(
-        id = "open-notebook",
-        title = "去错题本看看",
-        detail = "查看已保存的题和学习记录。",
-        examples = listOf(
-            TutorCapabilityExample(
-                "我的错题本里现在大概有些什么？",
-                "tutor_example_open_notebook",
-            ),
-        ),
-        actionLabel = "打开错题本",
-        actionTestTag = "tutor_directory_open_notebook",
-        onAction = onOpenMistakeNotebook,
-    ),
+
 )
 
 /**
@@ -137,27 +123,29 @@ internal fun TutorCapabilityDirectory(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(
-            text = "也可以从这里开始。",
+            text = "快捷开始",
             modifier = Modifier.testTag("tutor_empty_state"),
             color = InkSecondary,
-            style = ClaudeLayout.ControlText,
+            style = MaterialTheme.typography.bodySmall,
         )
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             capabilities.forEach { capability ->
                 val label = capability.actionLabel
                 val action = capability.onAction
                 if (label != null && action != null) {
-                    TutorSuggestionChip(label, action, capability.actionTestTag ?: "tutor_capability_action_${capability.id}")
+                    TutorSuggestionChip(label, action, capability.actionTestTag ?: "tutor_capability_action_${capability.id}", emphasized = true)
                 }
             }
         }
         capabilities.forEach { capability ->
-            Column(
+            WorkspacePanel(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("tutor_capability_${capability.id}"),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
+                Text(capability.title, color = Ink, style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold)
+                Text(capability.detail, color = InkSecondary, style = MaterialTheme.typography.bodySmall)
                 if (capability.examples.isNotEmpty()) {
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
@@ -176,12 +164,13 @@ internal fun TutorCapabilityDirectory(
 }
 
 @Composable
-private fun TutorSuggestionChip(text: String, onClick: () -> Unit, testTag: String) {
-    val shape = RoundedCornerShape(12.dp)
-    Box(Modifier.heightIn(min = 48.dp).background(ContentSurface, shape)
-        .border(1.dp, Ink.copy(alpha = .1f), shape)
+private fun TutorSuggestionChip(text: String, onClick: () -> Unit, testTag: String, emphasized: Boolean = false) {
+    val shape = RoundedCornerShape(14.dp)
+    Box(Modifier.heightIn(min = 48.dp)
         .claudeInteractiveRow(onClick, shape = shape).padding(horizontal = 12.dp, vertical = 10.dp).testTag(testTag),
         contentAlignment = Alignment.CenterStart) {
-        Text(text, color = InkSecondary, style = ClaudeLayout.ControlText, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(text, color = if (emphasized) SmartColors.JadeDark else Ink,
+            style = MaterialTheme.typography.bodySmall, fontWeight = if (emphasized) FontWeight.Medium else FontWeight.Normal,
+            maxLines = 2, overflow = TextOverflow.Ellipsis)
     }
 }

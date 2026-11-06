@@ -183,7 +183,7 @@ internal const val TUTOR_CONVERSATION_IMAGE_ONLY_MESSAGE = "请帮我看看这�
  * 这件事在结构上不可能再发生：点击要么真的发出去，要么这句话就在输入框上方。
  */
 internal const val TUTOR_TURN_STALLED_BLOCK_REASON =
-    "上一条回复还没有完成，先点「继续回复」把它接上，再发新消息。"
+    "请先继续上一条回复，再发送新消息。"
 
 /**
  * 本轮附件题读不出来时的那一句（讲题侧「从错题库选择」）。
@@ -191,7 +191,7 @@ internal const val TUTOR_TURN_STALLED_BLOCK_REASON =
  * 它此前散在界面里（`TutorSessionPanel`），现在跟着读取那一步一起在 ViewModel 里——读盘在哪，
  * 读失败的话就在哪，界面只负责把它渲染到附件区那一行。
  */
-internal const val TUTOR_ATTACH_READ_FAILED_MESSAGE = "这道题的题面现在读不出来，换一道试试。"
+internal const val TUTOR_ATTACH_READ_FAILED_MESSAGE = "题面暂时无法读取，请换一道题。"
 
 internal const val TUTOR_CONVERSATION_FAILED_REPLY_BODY = "这次回复没有准备好，你的消息已经保留。"
 internal const val TUTOR_CONVERSATION_INTERRUPTED_REPLY_BODY = "这条消息已经保留，暂时没有收到讲解。"

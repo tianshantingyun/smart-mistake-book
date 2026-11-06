@@ -53,6 +53,7 @@ import com.tingyun.smartmistakebook.core.data.settings.DataStoreSchedulingSettin
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseRecallAssembly
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
+import com.tingyun.smartmistakebook.core.domain.MistakeExportStatus
 import com.tingyun.smartmistakebook.core.domain.CaptureWorkflowRepository
 import com.tingyun.smartmistakebook.core.domain.BatchImportRepository
 import com.tingyun.smartmistakebook.core.domain.BackupRepository
@@ -197,7 +198,14 @@ class SmartMistakeBookApplication : Application() {
     lateinit var mistakeOrganizationRepository: MistakeOrganizationRepository
         private set
 
+    lateinit var knowledgeCatalogRepository: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository
+        private set
+
     lateinit var modelTaskRepository: ModelTaskRepository
+        private set
+    var mistakeEditRepository: com.tingyun.smartmistakebook.core.domain.MistakeEditRepository? = null
+        private set
+    var detailedSolutionRepository: com.tingyun.smartmistakebook.core.domain.DetailedSolutionRepository? = null
         private set
 
     lateinit var tutorInteractionRepository: TutorInteractionRepository
@@ -264,6 +272,14 @@ class SmartMistakeBookApplication : Application() {
 
     /** 导出通知（两态 + 未授权退化）；worker 与前台服务路径共用。 */
     internal val mistakeExportNotifications by lazy { MistakeExportNotifications(this) }
+
+    internal val paperReviewRepository: com.tingyun.smartmistakebook.core.domain.PaperReviewRepository by lazy {
+        com.tingyun.smartmistakebook.core.data.study.RoomPaperReviewRepository(this, database, studyRepository,
+            mistakeDetailRepository, mistakeExportRepository) { snapshot ->
+            val draft = requireNotNull(mistakePaperDraftStore.decodeSnapshot(snapshot)) { "原卷快照无法读取" }
+            startMistakeExportEdited(draft, MistakeExportFormat.PDF)
+        }
+    }
 
     private lateinit var database: StudyDatabasePort
     private lateinit var reviewReminderCoordinator: ReviewReminderCoordinator
@@ -405,6 +421,7 @@ class SmartMistakeBookApplication : Application() {
             tutorAttachedQuestionReader = TutorAttachedQuestionReaderFactory.create(
                 mistakeDetailRepository,
             )
+            knowledgeCatalogRepository = com.tingyun.smartmistakebook.core.data.mistake.RoomKnowledgeCatalogRepository(database, applicationScope)
             mistakeOrganizationRepository = MistakeOrganizationRepositoryFactory.create(
                 database = database,
                 knowledgeBaseAvailability = knowledgeBaseAvailability,
@@ -438,6 +455,8 @@ class SmartMistakeBookApplication : Application() {
                 renderDocx = MistakeDocxExporter(this)::prepare,
                 // 6B-2：编辑后的卷面从草稿读——不按条目重读，编辑结果就是渲染输入。
                 readPaperDraft = mistakePaperDraftStore::read,
+                readGroupPaper = ::readGroupedQuestionPaper,
+                readDetailedAnswers = ::readGroupedDetailedAnswers,
             )
             val roomSplitImportRepository = SplitImportRepositoryFactory.createConcrete(database)
             splitImportRepository = roomSplitImportRepository
@@ -503,6 +522,15 @@ class SmartMistakeBookApplication : Application() {
                     }
                 },
             )
+            val editConfigurationStore = modelConfigurationStore
+            run {
+                mistakeEditRepository = com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeEditRepository.create(
+                    this, database, modelTaskRepository, figureGenerationCoordinator, editConfigurationStore,
+                    capabilities.networkRequestsAllowed, applicationScope)
+                applicationScope.launch { mistakeEditRepository?.resumePendingJobs(capabilities.networkRequestsAllowed) }
+                detailedSolutionRepository = com.tingyun.smartmistakebook.core.data.export.RoomDetailedSolutionRepository.create(
+                    this, database, modelTaskRepository, figureGenerationCoordinator, editConfigurationStore, capabilities.networkRequestsAllowed)
+            }
             captureRepository = CaptureWorkflowRepositoryFactory.create(
                 context = this,
                 database = database,
@@ -911,7 +939,7 @@ class SmartMistakeBookApplication : Application() {
     fun startMistakeExportEdited(
         draft: MistakePaperDraft,
         format: MistakeExportFormat,
-    ) {
+    ): String {
         val exportId = newMistakeExportId()
         // 草稿文件名用跨平台安全字符（导出 id 里的 ':' 在 Windows JVM 测试里不是合法文件名）。
         val draftId = exportId.replace(':', '_')
@@ -953,6 +981,77 @@ class SmartMistakeBookApplication : Application() {
                 kind = MistakeExportKind.BATCH,
             )
         }
+        return exportId
+    }
+
+    suspend fun prepareDetailedAnswerExport(draft: MistakePaperDraft, format: MistakeExportFormat): String = withContext(Dispatchers.IO) {
+        require(draft.frozenQuestions.size == draft.questionCount) { "无法完整冻结这份卷面，请检查题面和配图后重试；题目仍可单独导出" }
+        val solutions = requireNotNull(detailedSolutionRepository) { "详细答案暂时不可用" }
+        val draftId = "answer-paper-${java.util.UUID.randomUUID()}"
+        val manifest = com.tingyun.smartmistakebook.core.model.FrozenAnswerManifest(draftId, draft.input.inputSha256,
+            draft.input.layout, draft.frozenQuestions, mistakePaperDraftStore.encodeSnapshot(draft))
+        mistakePaperDraftStore.restoreFrozenPaper(manifest)
+        val manifestId = solutions.freeze(manifest)
+        val groupId = "export-group-${java.util.UUID.randomUUID()}"
+        mistakeExportRepository.createGroup(groupId, manifestId, com.tingyun.smartmistakebook.core.model.DetailedSolutionCodec.manifestSha256(manifest), format, System.currentTimeMillis())
+        PrepareDetailedSolutionsWorker.enqueue(this@SmartMistakeBookApplication, manifestId)
+        groupId
+    }
+
+    suspend fun retryDetailedAnswerPreparation(groupId: String) {
+        val group = requireNotNull(mistakeExportRepository.readGroup(groupId))
+        requireNotNull(detailedSolutionRepository).retry(group.manifestId, capabilities.networkRequestsAllowed)
+        PrepareDetailedSolutionsWorker.enqueue(this, group.manifestId, replace = true)
+    }
+
+    suspend fun changeDetailedAnswerFormat(groupId: String, format: MistakeExportFormat): String {
+        val current = requireNotNull(mistakeExportRepository.readGroup(groupId))
+        if (current.format == format) return groupId
+        val nextId = "export-group-${java.util.UUID.randomUUID()}"
+        mistakeExportRepository.createGroup(nextId, current.manifestId, current.manifestSha256, format, System.currentTimeMillis())
+        return nextId
+    }
+
+    suspend fun startGroupedExports(groupId: String, includeAnswers: Boolean,
+        approval: com.tingyun.smartmistakebook.core.model.AnswerPreviewApproval? = null, retryFailed: Boolean = false) = withContext(Dispatchers.IO) {
+        var group = requireNotNull(mistakeExportRepository.readGroup(groupId))
+        val manifest = requireNotNull(database.readAnswerManifest(group.manifestId))
+        if (includeAnswers) {
+            require(approval != null && mistakeExportRepository.confirmAnswerPreview(groupId, approval)) { "答案或格式已经变化，请重新预览后确认" }
+            group = requireNotNull(mistakeExportRepository.readGroup(groupId))
+        }
+        val question = requireNotNull(mistakeExportRepository.recordGroupedStarted(groupId, com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.QUESTIONS, System.currentTimeMillis(), retryFailed))
+        if (question.status == MistakeExportStatus.RUNNING) ExportPdfDriver.enqueue(this@SmartMistakeBookApplication,
+            MistakeExportJobRequest.Edited(question.exportId, manifest.manifest.paperDraftId, manifest.manifest.layout, group.format, groupId, group.manifestSha256))
+        if (includeAnswers) {
+            val answer = requireNotNull(mistakeExportRepository.recordGroupedStarted(groupId, com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS, System.currentTimeMillis(), retryFailed))
+            if (answer.status == MistakeExportStatus.RUNNING) ExportPdfDriver.enqueue(this@SmartMistakeBookApplication,
+                MistakeExportJobRequest.DetailedAnswers(answer.exportId, groupId, group.manifestSha256, requireNotNull(group.solutionsSha256), group.format, manifest.manifest.layout))
+        }
+    }
+
+    private suspend fun readGroupedQuestionPaper(groupId: String, manifestSha256: String): MistakePaperDraft? {
+        val group = mistakeExportRepository.readGroup(groupId) ?: return null
+        if (group.manifestSha256 != manifestSha256) return null
+        val record = database.readAnswerManifest(group.manifestId) ?: return null
+        if (record.manifestSha256 != manifestSha256 || record.status == com.tingyun.smartmistakebook.core.model.DetailedSolutionPreparationStatus.STALE) return null
+        return mistakePaperDraftStore.restoreFrozenPaper(record.manifest)
+    }
+
+    private suspend fun readGroupedDetailedAnswers(request: MistakeExportJobRequest.DetailedAnswers): com.tingyun.smartmistakebook.core.export.DetailedAnswerExportInput? {
+        val group = mistakeExportRepository.readGroup(request.groupId) ?: return null
+        if (group.answersExportId != request.exportId || group.manifestSha256 != request.manifestSha256 || group.format != request.format || group.solutionsSha256 != request.solutionsSha256) return null
+        val approval = com.tingyun.smartmistakebook.core.model.AnswerPreviewApproval(request.manifestSha256, request.solutionsSha256, request.format)
+        if (group.previewSha256 != approval.fingerprint()) return null
+        val preparation = detailedSolutionRepository?.read(group.manifestId) ?: return null
+        if (!preparation.complete || preparation.manifestSha256 != request.manifestSha256 || preparation.solutionsSha256 != request.solutionsSha256 || preparation.manifest.layout != request.layout) return null
+        val images = preparation.items.flatMap { item -> item.document?.figures.orEmpty().map { it to item.figureUris[it.assetId] } }.associate { (ref, uri) ->
+            val asset = requireNotNull(database.readCanonicalSourceAsset(ref.assetId))
+            require(asset.contentSha256 == ref.contentSha256)
+            ref.assetId to com.tingyun.smartmistakebook.core.export.MistakePdfExportImage(ref.role.name, requireNotNull(uri), asset.contentSha256, asset.byteSize)
+        }
+        return com.tingyun.smartmistakebook.core.export.DetailedAnswerExportInput(preparation.manifest,
+            preparation.items.map { requireNotNull(it.document) }, request.format, request.layout) { images[it.assetId] }
     }
 
     private fun enqueueMistakeExport(

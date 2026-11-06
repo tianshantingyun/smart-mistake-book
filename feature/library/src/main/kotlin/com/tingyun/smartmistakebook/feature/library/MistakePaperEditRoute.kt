@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+
 import androidx.compose.foundation.layout.heightIn
 import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.BorderStroke
@@ -78,6 +80,7 @@ fun MistakePaperEditRoute(
     onBack: () -> Unit,
     onExport: (MistakePaperDraft, MistakeExportFormat) -> Unit,
     modifier: Modifier = Modifier,
+    onPrepareDetailedAnswers: ((MistakePaperDraft, MistakeExportFormat) -> Unit)? = null,
 ) {
     val latestLoadPaper by rememberUpdatedState(loadPaper)
     val latestOnExport by rememberUpdatedState(onExport)
@@ -155,7 +158,7 @@ fun MistakePaperEditRoute(
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = "仅修改这份卷面，不影响错题本；确认后重新生成文件。",
+                    text = "仅修改导出卷面，错题本保持不变。",
                     modifier = Modifier.testTag("native_paper_edit_notice"),
                     color = InkSecondary,
                     style = MaterialTheme.typography.bodySmall,
@@ -256,6 +259,12 @@ fun MistakePaperEditRoute(
     if (formatSheetOpen && editedPaper != null) {
         // 原生格式入口（PRD-04）原样复用：默认 PDF、可选 Word、可取消；取消不入队。
         MistakeExportFormatSheet(
+            onPrepareDetailedAnswers = onPrepareDetailedAnswers?.let { prepare -> { format ->
+                when (val result = confirmNativePaperEdit(editedPaper)) {
+                    is NativePaperEditConfirm.Ready -> { formatSheetOpen = false; prepare(result.draft, format) }
+                    NativePaperEditConfirm.BlankText -> message = "有必填文字被清空，填上后才能导出。"
+                }
+            } },
             subtitle = "重新生成编辑后的卷面（${editedPaper.questions.size} 题）",
             onDismiss = { formatSheetOpen = false },
             onConfirm = { format ->
@@ -293,31 +302,8 @@ internal fun confirmNativePaperEdit(edit: MistakePdfPaperEdit): NativePaperEditC
 
 @Composable
 private fun NativePaperEditHeader(onBack: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 58.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = onBack,
-            modifier = Modifier
-                .size(48.dp)
-                .testTag("native_paper_edit_header_back"),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "返回",
-                tint = Ink,
-            )
-        }
-        Spacer(Modifier.size(4.dp))
-        Text(
-            text = "编辑卷面",
-            color = Ink,
-            style = MaterialTheme.typography.headlineSmall,
-        )
-    }
+    ClaudePageHeader("编辑卷面", onBack = onBack,
+        backModifier = Modifier.testTag("native_paper_edit_header_back"))
 }
 
 @Composable
@@ -337,11 +323,8 @@ private fun NativePaperQuestionEditor(
     onChoiceTextChange: (blockId: String, choiceId: String, text: String) -> Unit,
     onNoteChange: (String) -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag("native_paper_edit_question_${question.entryId}"),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+    com.tingyun.smartmistakebook.core.ui.WorkspacePanel(
+        modifier = Modifier.testTag("native_paper_edit_question_${question.entryId}"),
     ) {
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
@@ -444,9 +427,9 @@ private fun NativePaperQuestionEditor(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("native_paper_edit_figure_review_${question.entryId}"),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(12.dp),
                 color = JadeSoft.copy(alpha = 0.4f),
-                border = BorderStroke(1.dp, Outline),
+                shadowElevation = 1.dp,
             ) {
                 Text(
                     text = "文字已改：原图可能不再匹配，本版保留原图，不会自动重画。",

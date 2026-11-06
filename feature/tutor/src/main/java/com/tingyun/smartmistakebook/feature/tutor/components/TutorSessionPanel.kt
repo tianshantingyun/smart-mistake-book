@@ -168,6 +168,22 @@ internal fun TutorModelPanel(
         ),
     )
     val state by viewModel.uiState.collectAsState()
+    val paperSeed = com.tingyun.smartmistakebook.feature.tutor.LocalPaperReviewTutorSeed.current
+    var pendingPaperSeed by remember(paperSeed?.requestId) { mutableStateOf<PaperReviewTutorSeed?>(null) }
+    LaunchedEffect(paperSeed?.requestId, surface.libraryProblemId) {
+        if (paperSeed != null && paperSeed.entryId == surface.libraryProblemId && !viewModel.seedPaperReview(paperSeed)) pendingPaperSeed = paperSeed
+    }
+    pendingPaperSeed?.let { seed ->
+        com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog(
+            onDismissRequest = { pendingPaperSeed = null },
+            title = { Text("当前对话已有草稿") },
+            text = { Text("是否用本题的纸质作答替换当前草稿和待发送图片？已发送的对话记录会保留。") },
+            confirmButton = { com.tingyun.smartmistakebook.core.ui.ClaudeTextButton(onClick = {
+                viewModel.seedPaperReview(seed, replaceDraft = true); pendingPaperSeed = null
+            }) { Text("替换草稿") } },
+            dismissButton = { com.tingyun.smartmistakebook.core.ui.ClaudeTextButton(onClick = { pendingPaperSeed = null }) { Text("保留原草稿") } },
+        )
+    }
     val scope = rememberCoroutineScope()
     val sessionContext = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current

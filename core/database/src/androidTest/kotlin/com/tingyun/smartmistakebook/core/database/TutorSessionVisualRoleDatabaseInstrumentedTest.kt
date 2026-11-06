@@ -1,5 +1,9 @@
 package com.tingyun.smartmistakebook.core.database
 
+import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationOperationCommand
+import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationAttemptCommand
+import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationAttemptCommand
+import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -64,6 +68,8 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
         store.registerCanonicalSourceAsset(clean)
         store.registerCanonicalSourceAsset(explanation)
         store.registerCanonicalSourceAsset(studentPhoto)
+        admitFigure("figure-clean", "request-1", "SOURCE_RECONSTRUCTION")
+        admitFigure("figure-explain", "request-1", "EXPLANATION")
 
         store.appendTutorStudentMessage(
             AppendTutorStudentMessageDatabaseCommand(
@@ -220,6 +226,8 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
         // content_sha256 唯一，INSERT OR IGNORE 会把这张图静默丢掉，后续消息引用行触发 FK 失败。
         val clean = generatedAsset("figure-kept", "b")
         store.registerCanonicalSourceAsset(clean)
+        // Reusing a paid image keeps its original generation operation, even in a later model turn.
+        admitFigure("figure-kept", "request-before-cache", "SOURCE_RECONSTRUCTION")
         store.appendTutorAssistantMessage(
             AppendTutorAssistantMessageDatabaseCommand(
                 conversationId = CONVERSATION_ID,
@@ -258,6 +266,21 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
             "消息引用随会话级联删除",
             store.readTutorMessageSourceAssets(listOf("assistant-kept")).isEmpty(),
         )
+    }
+
+    private suspend fun admitFigure(assetId: String, requestId: String, purpose: String) {
+        val operationId = "trusted:$assetId"
+        val attemptId = "$operationId:attempt-1"
+        assertTrue(store.beginFigureGenerationOperation(BeginFigureGenerationOperationCommand(
+            operationId, "local-learner", "TUTOR_MESSAGE", requestId, "a".repeat(64),
+            purpose, FigureGenerationPolicy.POLICY_VERSION, "PENDING", 1_500,
+        )))
+        assertTrue(store.beginFigureGenerationAttempt(BeginFigureGenerationAttemptCommand(
+            attemptId, operationId, 1, "IMAGE_MODEL", "RUNNING", null, "b".repeat(64), "reservation:$assetId", 1_500,
+        )))
+        assertTrue(store.finishFigureGenerationAttempt(FinishFigureGenerationAttemptCommand(
+            attemptId, "SUCCEEDED", assetId, null, 1_600,
+        )))
     }
 
     private suspend fun seedConfirmedTutorSession() {
@@ -367,6 +390,7 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
                                 kind = kind,
                                 figureId = figureId,
                                 generatedNow = true,
+                                operationId = "trusted:$figureId",
                             ),
                         )
                     },

@@ -2,8 +2,8 @@ package com.tingyun.smartmistakebook.core.ui
 
 // Native port of Caho1/open-claude-ui CdsButton.tsx, c1f923ae (MIT, Copyright 2026 Caho1).
 // Full upstream license is bundled at assets/open-source/open-claude-ui-LICENSE.txt.
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -26,11 +26,15 @@ import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.TextButton as MaterialTextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -62,9 +66,9 @@ private fun ClaudeAction(
             disabledContentColor = InkMuted,
         )
         ActionVariant.SECONDARY -> ButtonDefaults.buttonColors(
-            containerColor = Ink.copy(alpha = if (hovered) .10f else .06f),
+            containerColor = if (hovered) Ink.copy(alpha = .05f) else Color.Transparent,
             contentColor = Ink,
-            disabledContainerColor = Ink.copy(alpha = .03f),
+            disabledContainerColor = Color.Transparent,
             disabledContentColor = InkMuted,
         )
         ActionVariant.GHOST -> ButtonDefaults.textButtonColors(
@@ -107,9 +111,12 @@ private fun Modifier.claudeActionFeedback(
     val pressed by source.collectIsPressedAsState()
     val focused by source.collectIsFocusedAsState()
     val motion = LocalClaudeMotionEnabled.current
-    val scale by animateFloatAsState(if (pressed && enabled && motion) .95f else 1f,
-        ClaudeMotion.spec(motion, ClaudeMotion.PressMillis), label = "cds-button-press")
-    return graphicsLayer { scaleX = scale; scaleY = scale }
+    val density = LocalDensity.current.density
+    var longestEdgeDp by remember { mutableFloatStateOf(0f) }
+    val scale by animateFloatAsState(if (pressed && enabled && motion) ClaudeMotion.pressedScale(longestEdgeDp) else 1f,
+        ClaudeMotion.pressSpec(motion, pressed && enabled), label = "cds-button-press")
+    return onSizeChanged { longestEdgeDp = maxOf(it.width, it.height) / density }
+        .graphicsLayer { scaleX = scale; scaleY = scale }
         .then(if (focused && enabled) Modifier.border(2.dp, claudeFocusIndicatorColor(containerColor), shape) else Modifier)
 }
 
@@ -118,7 +125,7 @@ fun ClaudeButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = RoundedCornerShape(8.dp),
+    shape: Shape = RoundedCornerShape(SmartDimens.CallToActionRadius),
     colors: ButtonColors? = null,
     elevation: ButtonElevation? = null,
     border: BorderStroke? = null,
@@ -134,7 +141,7 @@ fun ClaudeSecondaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = RoundedCornerShape(8.dp),
+    shape: Shape = RoundedCornerShape(SmartDimens.CallToActionRadius),
     colors: ButtonColors? = null,
     elevation: ButtonElevation? = null,
     border: BorderStroke? = null,
@@ -149,7 +156,7 @@ fun ClaudeTextButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = RoundedCornerShape(8.dp),
+    shape: Shape = RoundedCornerShape(SmartDimens.CallToActionRadius),
     colors: ButtonColors? = null,
     border: BorderStroke? = null,
     contentPadding: PaddingValues = PaddingValues(horizontal = 10.dp, vertical = 8.dp),
@@ -182,13 +189,24 @@ fun ClaudeIconButton(
 ) {
     val source = interactionSource ?: remember { MutableInteractionSource() }
     val hovered by source.collectIsHoveredAsState()
+    val pressed by source.collectIsPressedAsState()
+    val motion = LocalClaudeMotionEnabled.current
+    val targetSurface = when {
+        !enabled -> colors.disabledContainerColor
+        colors.containerColor.alpha > 0f -> colors.containerColor
+        pressed -> colors.contentColor.copy(alpha = .10f)
+        hovered -> colors.contentColor.copy(alpha = .06f)
+        else -> Color.Transparent
+    }
+    val feedbackSurface by animateColorAsState(targetSurface,
+        ClaudeMotion.spec(motion, ClaudeMotion.PressMillis), label = "icon-button-surface")
     CompositionLocalProvider(LocalRippleConfiguration provides null) {
         MaterialTextButton(onClick = onClick,
             modifier = modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
-                .claudeActionFeedback(source, enabled, RoundedCornerShape(8.dp), colors.containerColor),
-            enabled = enabled, shape = RoundedCornerShape(8.dp), contentPadding = PaddingValues(0.dp),
+                .claudeActionFeedback(source, enabled, RoundedCornerShape(10.dp), colors.containerColor),
+            enabled = enabled, shape = RoundedCornerShape(10.dp), contentPadding = PaddingValues(0.dp),
             colors = ButtonDefaults.textButtonColors(
-                containerColor = if (hovered && colors.containerColor.alpha == 0f) Ink.copy(alpha = .05f) else colors.containerColor,
+                containerColor = if (motion) feedbackSurface else targetSurface,
                 contentColor = colors.contentColor, disabledContainerColor = colors.disabledContainerColor,
                 disabledContentColor = colors.disabledContentColor), interactionSource = source) { content() }
     }

@@ -1,5 +1,9 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+
 import androidx.compose.foundation.layout.heightIn
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -219,56 +223,61 @@ internal fun BatchImportContent(
 ) {
     RootPageLazyColumn(
         modifier = modifier.testTag("batch_import_root"),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
     ) {
         item("header") {
             BatchImportHeader(onBack)
-            Text(
-                text = "选择多张照片或一份 PDF。逐页保存，单页失败不影响其他页。",
-                color = SmartColors.InkSecondary,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            if (interruptedImport) {
-                Spacer(Modifier.height(12.dp))
-                BatchImportInterruptedNotice()
-            }
-            Spacer(Modifier.height(14.dp))
-            PrimaryActionButton(
-                text = when {
-                    job == null -> "选择多张照片"
-                    job.status == BatchImportStatus.COMPLETED && job.failedCount == 0 ->
-                        "再选一组照片"
-                    else -> "请先完成本次导入"
-                },
-                onClick = onChoosePhotos,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 52.dp)
-                    .testTag("batch_import_choose"),
-                icon = Icons.Outlined.ImageSearch,
-                enabled = job == null ||
-                    (job.status == BatchImportStatus.COMPLETED && job.failedCount == 0),
-            )
-            Spacer(Modifier.height(8.dp))
-            OutlineActionChip(
-                text = when {
-                    job == null -> "导入整份 PDF"
-                    job.status == BatchImportStatus.COMPLETED && job.failedCount == 0 ->
-                        "再导入一份 PDF"
-                    else -> "请先完成本次导入"
-                },
-                onClick = onChoosePdf,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp)
-                    .testTag("batch_import_choose_pdf"),
-                icon = Icons.Outlined.PictureAsPdf,
-                enabled = job == null ||
-                    (job.status == BatchImportStatus.COMPLETED && job.failedCount == 0),
-            )
-            message?.let {
-                Spacer(Modifier.height(8.dp))
-                Text(it, color = SmartColors.ErrorText, style = MaterialTheme.typography.bodySmall)
+            Spacer(Modifier.height(12.dp))
+            WorkspacePanel {
+                Column {
+                    Text(
+                        text = "选择多张照片或一份 PDF。逐页保存，单页失败不影响其他页。",
+                        color = SmartColors.InkSecondary,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    if (interruptedImport) {
+                        Spacer(Modifier.height(12.dp))
+                        BatchImportInterruptedNotice()
+                    }
+                    Spacer(Modifier.height(14.dp))
+                    PrimaryActionButton(
+                        text = when {
+                            job == null -> "选择多张照片"
+                            job.status == BatchImportStatus.COMPLETED && job.failedCount == 0 ->
+                                "再选一组照片"
+                            else -> "请先完成本次导入"
+                        },
+                        onClick = onChoosePhotos,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 52.dp)
+                            .testTag("batch_import_choose"),
+                        icon = Icons.Outlined.ImageSearch,
+                        enabled = job == null ||
+                            (job.status == BatchImportStatus.COMPLETED && job.failedCount == 0),
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    OutlineActionChip(
+                        text = when {
+                            job == null -> "导入整份 PDF"
+                            job.status == BatchImportStatus.COMPLETED && job.failedCount == 0 ->
+                                "再导入一份 PDF"
+                            else -> "请先完成本次导入"
+                        },
+                        onClick = onChoosePdf,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 52.dp)
+                            .testTag("batch_import_choose_pdf"),
+                        icon = Icons.Outlined.PictureAsPdf,
+                        enabled = job == null ||
+                            (job.status == BatchImportStatus.COMPLETED && job.failedCount == 0),
+                    )
+                    message?.let {
+                        Spacer(Modifier.height(8.dp))
+                        Text(it, color = SmartColors.ErrorText, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
             }
             Spacer(Modifier.height(16.dp))
         }
@@ -371,9 +380,9 @@ private fun BatchOrganizationCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("batch_import_organization"),
-        color = SmartColors.Paper,
+        color = SmartColors.ContentSurface,
         shape = RoundedCornerShape(10.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Outline),
+        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Divider),
     ) {
         Column(
             modifier = Modifier.padding(14.dp),
@@ -417,9 +426,9 @@ private fun BatchSplitReadyCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("batch_import_split_ready"),
-        color = SmartColors.Paper,
+        color = SmartColors.ContentSurface,
         shape = RoundedCornerShape(10.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Outline),
+        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Divider),
     ) {
         Column(
             modifier = Modifier.padding(14.dp),
@@ -450,16 +459,7 @@ private fun BatchSplitReadyCard(
 
 @Composable
 private fun BatchImportHeader(onBack: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth().heightIn(min = 58.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(onClick = onBack, modifier = Modifier.size(48.dp)) {
-            Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "返回")
-        }
-        Spacer(Modifier.size(4.dp))
-        Text("整卷录入", style = MaterialTheme.typography.headlineSmall)
-    }
+    ClaudePageHeader("整卷录入", onBack = onBack)
 }
 
 @Composable
@@ -471,9 +471,9 @@ private fun BatchImportSummary(
     val completed = batchImportCompletedCount(job)
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("batch_import_summary"),
-        color = SmartColors.JadeSoft.copy(alpha = 0.45f),
+        color = SmartColors.JadeSoft,
         shape = RoundedCornerShape(10.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Outline),
+        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.JadeMuted.copy(alpha = .35f)),
     ) {
         Column(
             modifier = Modifier.padding(14.dp),

@@ -22,9 +22,9 @@ import org.junit.Test
 class CanonicalAssetReferenceSingleSourceTest {
 
     @Test
-    fun `trimmer six site sql is derived from the shared predicate`() {
+    fun `trimmer reference site sql is derived from the shared predicate`() {
         assertEquals(
-            "裁剪器的站点 SQL 必须由共享谓词单源生成（NOT (六个 NOT EXISTS) ≡ 六个 EXISTS）",
+            "裁剪器的站点 SQL 必须由共享谓词单源生成（NOT (七个 NOT EXISTS) ≡ 七个 EXISTS）",
             "SELECT asset.source_asset_id FROM canonical_source_asset AS asset " +
                 "WHERE NOT (" + CanonicalAssetReferenceSites.UNREFERENCED_PREDICATE_SQL + ")",
             BackupSnapshotTrimmer.FIVE_SITE_ASSET_IDS_SQL,
@@ -32,9 +32,9 @@ class CanonicalAssetReferenceSingleSourceTest {
     }
 
     @Test
-    fun `shared predicate names exactly the six reference sites`() {
+    fun `shared predicate names exactly the seven reference sites`() {
         val predicate = CanonicalAssetReferenceSites.UNREFERENCED_PREDICATE_SQL
-        assertEquals("恰好六个 NOT EXISTS 分支", 6, Regex("NOT EXISTS").findAll(predicate).count())
+        assertEquals("恰好七个 NOT EXISTS 分支", 7, Regex("NOT EXISTS").findAll(predicate).count())
         listOf(
             "problem_revision_source_asset",
             "problem_draft_source_asset",
@@ -42,8 +42,9 @@ class CanonicalAssetReferenceSingleSourceTest {
             "tutor_message_source_asset",
             "figure_generation_attempt",
             "tutor_visual_snapshot",
+            "paper_review_photo",
         ).forEach { site ->
-            assertTrue("六站点谓词必须点名 $site", predicate.contains("$site AS "))
+            assertTrue("七站点谓词必须点名 $site", predicate.contains("$site AS "))
         }
         // DAO 完整查询：WHERE 子句就是共享谓词本身，排序保持清理认领的既有口径。
         val daoQuery = CanonicalAssetReferenceSites.FIND_UNREFERENCED_CANONICAL_ASSETS_SQL

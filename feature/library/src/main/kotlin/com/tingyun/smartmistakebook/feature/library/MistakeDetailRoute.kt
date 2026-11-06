@@ -1,5 +1,9 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
+
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -17,6 +21,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.Print
+import androidx.compose.material.icons.outlined.DashboardCustomize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Chat
@@ -49,6 +56,7 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawCommand
 import com.tingyun.smartmistakebook.core.domain.ExplicitRedrawFailureReason
@@ -99,6 +107,7 @@ fun MistakeDetailRoute(
     errorBookEntryId: String,
     repository: MistakeDetailRepository,
     organizationRepository: MistakeOrganizationRepository,
+    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository? = null,
     modelTasks: ModelTaskRepository,
     profile: StudyProfileOverview,
     catalogEntries: List<StudyCatalogEntry>,
@@ -115,6 +124,8 @@ fun MistakeDetailRoute(
     /** 知识能力就绪位（D-Q3）：未就绪时智能整理如实说"准备中"，不发起、也不误报模型未配置。 */
     knowledgeBaseAvailability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
     modifier: Modifier = Modifier,
+    agentEdits: com.tingyun.smartmistakebook.core.domain.MistakeEditRepository? = null,
+    modelEgressAllowed: Boolean = false,
 ) {
     var selectedRevisionId by rememberSaveable(errorBookEntryId) {
         mutableStateOf<String?>(null)
@@ -128,6 +139,9 @@ fun MistakeDetailRoute(
         MistakeRevisionEditRoute(
             entryId = errorBookEntryId,
             repository = repository,
+            agentEdits = agentEdits,
+            modelEgressAllowed = modelEgressAllowed,
+            onOpenModelSettings = onOpenModelSettings,
             onBack = {
                 editing = false
                 // A save may have succeeded even if the learner used the back arrow instead of
@@ -180,6 +194,7 @@ fun MistakeDetailRoute(
         onTutor = onTutor,
         repository = repository,
         organizationRepository = organizationRepository,
+                knowledgeCatalog = knowledgeCatalog,
         modelTasks = modelTasks,
         profile = profile,
         catalogEntries = catalogEntries,
@@ -206,6 +221,7 @@ internal fun MistakeDetailContent(
     onTutor: (MistakeRevisionKey) -> Unit = {},
     repository: MistakeDetailRepository? = null,
     organizationRepository: MistakeOrganizationRepository? = null,
+    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository? = null,
     modelTasks: ModelTaskRepository? = null,
     profile: StudyProfileOverview = StudyProfileOverview(),
     catalogEntries: List<StudyCatalogEntry> = emptyList(),
@@ -263,6 +279,7 @@ internal fun MistakeDetailContent(
                 onBack = onBack,
                 repository = repository,
                 organizationRepository = organizationRepository,
+                knowledgeCatalog = knowledgeCatalog,
                 modelTasks = modelTasks,
                 profile = profile,
                 catalogEntries = catalogEntries,
@@ -322,31 +339,8 @@ private fun HistoricalRevisionRecovery(
 
 @Composable
 private fun MistakeDetailHeader(onBack: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 58.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = onBack,
-            modifier = Modifier
-                .size(48.dp)
-                .testTag("mistake_detail_back"),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "返回",
-                tint = Ink,
-            )
-        }
-        Spacer(Modifier.size(4.dp))
-        Text(
-            text = "错题详情",
-            color = Ink,
-            style = MaterialTheme.typography.headlineSmall,
-        )
-    }
+    ClaudePageHeader("错题详情", onBack = onBack,
+        backModifier = Modifier.testTag("mistake_detail_back"))
 }
 
 @Composable
@@ -380,6 +374,7 @@ private fun ReadyDetail(
     onBack: () -> Unit,
     repository: MistakeDetailRepository?,
     organizationRepository: MistakeOrganizationRepository?,
+    knowledgeCatalog: com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository?,
     modelTasks: ModelTaskRepository?,
     profile: StudyProfileOverview,
     catalogEntries: List<StudyCatalogEntry>,
@@ -446,24 +441,32 @@ private fun ReadyDetail(
             )
         }
         Spacer(Modifier.height(16.dp))
-        MistakeSectionCard("题面", modifier = Modifier.testTag("mistake_detail_question_module")) {
+        MistakeSectionCard("题面", modifier = Modifier.testTag("mistake_detail_question_module"),
+            headerColor = SmartColors.LearningSurface) {
             StructuredContentRenderer(
                 document = state.questionDocument.document.let { document ->
                     if (document.title?.trim() == state.detail.identity.title.trim()) document.copy(title = null)
                     else document
                 },
                 choicesEnabled = false,
+                storedFigures = state.questionDocument.storedFigureReferences,
+                figureUri = { ref ->
+                    (state.detail.source as? com.tingyun.smartmistakebook.core.domain.MistakeSourceSet.Present)?.assets
+                        ?.singleOrNull { it.sourceAssetId == ref.assetId && it.contentSha256 == ref.contentSha256 }
+                        ?.location?.let { (it as? MistakeSourceLocation.Available)?.localUri }
+                },
             )
             PaperDivider()
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 if (!isViewingHistoricalRevision && onEdit != null) {
-                    InlineActionButton("修改这道题", onEdit, Modifier.testTag("mistake_detail_edit"))
+                    InlineActionButton("修改这道题", onEdit, Modifier.testTag("mistake_detail_edit"), icon = Icons.Outlined.EditNote)
                 }
                 InlineActionButton(
                     text = if (isViewingHistoricalRevision) "导出这一版 A4" else "导出 A4",
                     onClick = onExport,
                     modifier = Modifier.testTag("mistake_detail_export_a4"),
+                    icon = Icons.Outlined.Print,
                 )
                 // 6B-2：当前版本可进入卷面编辑（只改导出文档副本）；历史版本只读，不提供入口。
                 if (!isViewingHistoricalRevision && onEditPaper != null) {
@@ -471,6 +474,7 @@ private fun ReadyDetail(
                         text = "编辑卷面",
                         onClick = onEditPaper,
                         modifier = Modifier.testTag("mistake_detail_edit_paper"),
+                        icon = Icons.Outlined.DashboardCustomize,
                     )
                 }
             }
@@ -512,10 +516,18 @@ private fun ReadyDetail(
         ExplanationSourceSection(
             source = state.detail.source,
         )
+        if (!isViewingHistoricalRevision && organizationRepository != null && knowledgeCatalog != null) {
+            ManualCatalogCorrectionAction(
+                key = checkNotNull(state.exportRevisionKeyOrNull()), subject = state.detail.identity.subject,
+                organizationRepository = organizationRepository, catalog = knowledgeCatalog,
+                available = knowledgeBaseAvailability is KnowledgeBaseAvailability.Ready,
+            )
+        }
         if (!isViewingHistoricalRevision && organizationRepository != null && modelTasks != null) {
             MistakeOrganizationSection(
                 key = checkNotNull(state.exportRevisionKeyOrNull()),
                 organizationRepository = organizationRepository,
+                knowledgeCatalog = knowledgeCatalog,
                 modelTasks = modelTasks,
                 profile = profile,
                 catalogEntries = catalogEntries,
@@ -1015,8 +1027,8 @@ private fun IdentityBlock(
     Text(
         text = identity.title,
         color = Ink,
-        style = MaterialTheme.typography.headlineMedium,
-        fontWeight = FontWeight.Bold,
+        style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp, lineHeight = 32.sp),
+        fontWeight = FontWeight.SemiBold,
     )
     Spacer(Modifier.height(8.dp))
     Text(
@@ -1032,55 +1044,30 @@ private fun RevisionHistorySection(
     viewedRevisionId: String,
     onSelectRevision: (MistakeRevisionSummary) -> Unit,
 ) {
-    if (history.isEmpty()) return
+    if (history.size <= 1) return
     val ordered = remember(history) { history.sortedByDescending(MistakeRevisionSummary::revisionNumber) }
     val viewed = ordered.firstOrNull { it.problemRevisionId == viewedRevisionId } ?: return
     var expanded by rememberSaveable(viewedRevisionId, ordered.size) { mutableStateOf(false) }
 
-    Spacer(Modifier.height(18.dp))
-    SectionHeader(
-        title = "题面版本",
-        action = if (ordered.size > 1) {
-            {
-                OutlineActionChip(
-                    text = if (expanded) "收起" else "查看 ${ordered.size} 个版本",
+    Spacer(Modifier.height(12.dp))
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag("mistake_revision_summary"),
+        shape = RoundedCornerShape(14.dp),
+        color = SmartColors.SubtleSurface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Divider),
+    ) {
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text("题面版本", Modifier.weight(1f), color = InkSecondary,
+                    style = MaterialTheme.typography.labelLarge)
+                if (ordered.size > 1) TextButton(
                     onClick = { expanded = !expanded },
                     modifier = Modifier.testTag("mistake_revision_history_toggle"),
-                    selected = expanded,
-                )
+                ) { Text(if (expanded) "收起" else "查看 ${ordered.size} 个版本") }
             }
-        } else {
-            null
-        },
-    )
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 10.dp)
-            .testTag("mistake_revision_summary"),
-        shape = RoundedCornerShape(10.dp),
-        color = JadeSoft.copy(alpha = 0.4f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Outline),
-    ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
-        ) {
-            Text(
-                text = "正在查看第 ${viewed.revisionNumber} 版${if (viewed.isCurrent) " · 当前" else " · 历史只读"}",
-                color = Ink,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = if (ordered.size == 1) {
-                    "当前只有 1 个已保存题面版本"
-                } else {
-                    "共保留 ${ordered.size} 个已保存版本，旧版不会被后续修改覆盖"
-                },
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-            )
+            Text("正在查看第 ${viewed.revisionNumber} 版${if (viewed.isCurrent) " · 当前" else " · 历史只读"}",
+                color = Ink, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
         }
     }
     if (expanded) {
@@ -1166,6 +1153,7 @@ private fun SourceAssetSection(
         title = if (assets.size > 1) "$title · ${assets.size} 张" else title,
         modifier = Modifier.testTag("${tag}_section"),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
+        headerColor = if (isExplanation) SmartColors.AgentSurface else SmartColors.ReadingSurface,
     ) {
         Column(
             Modifier.fillMaxWidth().testTag("${tag}_content"),

@@ -105,6 +105,9 @@ internal class StudyReviewPlannerService(
      * 同一份快照派生。原实现每个候选调一次考前权重、每次 `store.exams.first()`
      * （N 次流读取），最近考试再读一次。
      */
+    private suspend fun dailyReviewBudgetSeconds(): Int =
+        schedulingSettingsStore?.options?.first()?.dailyReviewBudgetSeconds ?: reviewTimeBudgetSeconds
+
     private suspend fun readExams(): List<ExamCalendarEntry> =
         schedulingSettingsStore?.exams?.first().orEmpty()
 
@@ -310,7 +313,7 @@ internal class StudyReviewPlannerService(
         val effectiveReviewBudgetSeconds = examCapacityBudgetSeconds(
             exams = exams,
             localDayEpochDay = planningContext.localDate.toEpochDay(),
-            baseBudgetSeconds = reviewTimeBudgetSeconds,
+            baseBudgetSeconds = dailyReviewBudgetSeconds(),
         )
         val tierByUnit = difficultyTierByUnit(distinctBacklog.map(MistakeRecord::practiceUnitId))
         return distinctBacklog.count { mistake ->
@@ -461,7 +464,7 @@ internal class StudyReviewPlannerService(
         val effectiveReviewBudgetSeconds = examCapacityBudgetSeconds(
             exams = exams,
             localDayEpochDay = localDayEpochDay,
-            baseBudgetSeconds = reviewTimeBudgetSeconds,
+            baseBudgetSeconds = dailyReviewBudgetSeconds(),
         )
         // G6 薄弱优先：任一科目当天在考试窗口内才读**一次**全库扫描（无考试日零额外读）。
         // 节点级聚合与知识点队列同一函数/同一 decay；折算门在候选组装处（按科目坡道 > 0）。
@@ -897,7 +900,7 @@ internal class StudyReviewPlannerService(
                 )
             },
             now = planningContext.planningAtEpochMillis,
-            timeBudgetSeconds = reviewTimeBudgetSeconds,
+            timeBudgetSeconds = currentPlan.plan.timeBudgetSeconds,
             prerequisiteStabilityDaysByNode = prerequisiteStabilityDaysByNode,
             fullLibraryScanCandidates = scanCandidates,
             fullLibraryScanDailyCap = FULL_LIBRARY_SCAN_DAILY_CAP,

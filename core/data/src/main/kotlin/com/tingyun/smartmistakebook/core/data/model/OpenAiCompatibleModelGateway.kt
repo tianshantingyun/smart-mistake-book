@@ -1,5 +1,8 @@
 package com.tingyun.smartmistakebook.core.data.model
 
+import com.tingyun.smartmistakebook.core.model.MistakeEditInput
+import com.tingyun.smartmistakebook.core.model.DetailedSolutionInput
+
 import com.tingyun.smartmistakebook.core.data.model.wire.ModelWireProtocol
 import com.tingyun.smartmistakebook.core.data.model.wire.protocolFor
 import com.tingyun.smartmistakebook.core.data.model.wire.supportsStreamedToolCallAggregation
@@ -199,6 +202,8 @@ internal class OpenAiCompatibleModelGateway(
                             ModelGatewayEvent.Progress(
                                 stage = ModelTaskStage.VALIDATING_OUTPUT,
                                 userMessage = when (execution.request.input) {
+                                    is MistakeEditInput -> "智能体正在准备可审阅的修改建议"
+                                    is DetailedSolutionInput -> "正在整理详细答案"
                                     is CaptureAssessmentInput -> "模型正在判断题目是否拍全"
                                     is CaptureParseInput -> "模型正在整理可核对的题面"
                                     is ImagePipelineClassifyInput -> "模型正在判断题目是否需要配图"
@@ -354,6 +359,18 @@ internal class OpenAiCompatibleModelGateway(
             try {
                 imageReadPlan.forEach { planned ->
                     assetSource.open(execution, planned.assetId).use { asset ->
+                        val frozenImages = when (val input = execution.request.input) {
+                            is MistakeEditInput -> input.sourceImages
+                            is DetailedSolutionInput -> input.question.sourceImages
+                            else -> null
+                        }
+                        frozenImages?.let { grants ->
+                            val expected = grants.singleOrNull { it.assetId == planned.assetId }
+                            if (expected == null || asset.assetId != expected.assetId || asset.sha256 != expected.sha256 ||
+                                asset.byteSize != expected.byteSize || asset.width != expected.width || asset.height != expected.height) {
+                                throw SecurityException("Edit source changed after the draft was frozen")
+                            }
+                        }
                         require(asset.mimeType in APPROVED_IMAGE_MIME_TYPES) {
                             "Approved model asset is not a canonical image"
                         }
@@ -629,6 +646,8 @@ private fun ModelGatewayExecution.requireImageRequestFits(
             add(input.sourceAssetId)
             input.followingSourceAssets.forEach { add(it.assetId) }
         }
+        is MistakeEditInput -> input.sourceImages.map { it.assetId }
+        is DetailedSolutionInput -> input.question.sourceImages.map { it.assetId }
         is CaptureParseInput -> input.sourceAssets.sortedBy { it.pageIndex }.map { it.assetId }
         is ImagePipelineClassifyInput -> listOf(input.sourceAssetId)
         // 本条消息的图在前，上文图片在后（顺序与提示词里的说明一致，模型据此区分）。

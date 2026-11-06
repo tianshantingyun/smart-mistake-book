@@ -22,7 +22,6 @@ import com.tingyun.smartmistakebook.core.database.entity.TutorMessageSourceAsset
 import com.tingyun.smartmistakebook.core.database.TutorMessageSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.requireBoundQuestionPair
 import com.tingyun.smartmistakebook.core.model.decodeTutorTurnToolTrace
-import com.tingyun.smartmistakebook.core.model.visualRole
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -88,6 +87,45 @@ internal abstract class TutorConversationDao {
         messageIds: List<String>,
     ): List<TutorMessageSourceAssetEntity>
 
+    @Query("""
+        SELECT DISTINCT CASE o.purpose
+            WHEN 'SOURCE_TRANSCRIPTION' THEN 'CLEAN_IMAGE'
+            WHEN 'SOURCE_RECONSTRUCTION' THEN 'CLEAN_IMAGE'
+            WHEN 'PIXEL_CLEANUP' THEN 'CLEAN_IMAGE'
+            WHEN 'EXPLANATION' THEN 'TUTOR_EXPLANATION'
+            WHEN 'ILLUSTRATION' THEN 'TUTOR_EXPLANATION'
+        END
+        FROM figure_generation_attempt a
+        JOIN figure_generation_operation o ON o.operation_id = a.operation_id
+        JOIN canonical_source_asset c ON c.source_asset_id = a.output_asset_id
+        WHERE o.source_kind = 'TUTOR_MESSAGE' AND (o.source_id = :requestId OR o.operation_id = :operationId)
+          AND a.status = 'SUCCEEDED' AND c.source_asset_id = :assetId
+          AND c.source_type = 'GENERATED_FIGURE'
+          AND o.purpose IN ('SOURCE_TRANSCRIPTION', 'SOURCE_RECONSTRUCTION', 'PIXEL_CLEANUP', 'EXPLANATION', 'ILLUSTRATION')
+        """)
+    protected abstract suspend fun admittedFigureRoles(requestId: String?, assetId: String, operationId: String?): List<String>
+
+    private suspend fun assistantFigureLinks(
+        command: AppendTutorAssistantMessageDatabaseCommand,
+    ): List<TutorMessageSourceAssetEntity> {
+        val basisRevisionId = findConversation(command.conversationId)?.anchorProblemRevisionId
+        val trace = decodeTutorTurnToolTrace(command.toolTraceJson)
+        return command.sourceImageAssetIds.mapIndexed { index, assetId ->
+            // Only attached successful generation records establish a role. A tool trace is display data.
+            // A cached result keeps its original operation; its trace id is only a lookup hint, never role authority.
+            val operationId = trace?.entries?.filter { it.ok && it.figure?.figureId == assetId }
+                ?.mapNotNull { it.figure?.operationId }?.distinct()?.singleOrNull()
+            val role = admittedFigureRoles(command.logicalOperationId, assetId, operationId).singleOrNull()
+            TutorMessageSourceAssetEntity(
+                messageId = command.messageId,
+                sourceAssetId = assetId,
+                ordinal = index,
+                role = role,
+                basisRevisionId = basisRevisionId.takeIf { role != null },
+            )
+        }
+    }
+
     open suspend fun readMessageSourceAssets(
         messageIds: List<String>,
     ): List<TutorMessageSourceAssetRecord> =
@@ -100,6 +138,7 @@ internal abstract class TutorConversationDao {
                     sourceAssetId = row.sourceAssetId,
                     ordinal = row.ordinal,
                     role = row.role,
+                    basisRevisionId = row.basisRevisionId,
                 )
             }
         }
@@ -443,35 +482,6 @@ internal abstract class TutorConversationDao {
         // 死掉的话，重放是唯一会把引用补上的时机；缺了它，那张已付费的图会在宽限期后被回收。
         insertMessageSourceAssetRows(assistantFigureLinks(command))
         return existing.toRecord()
-    }
-
-    /**
-     * 助手消息的配图引用行：角色来自**同一次写入的工具痕迹**，不是第二份调用方声明。
-     *
-     * 消灭的失败：保存/导出只能看到"这张图属于这条消息"，却不知道它是干净题面还是讲解图，
-     * 于是讲解图会随题目区一起导出。痕迹里一条 `GENERATE_FIGURE` 自带 figureId 与 kind，
-     * 这里按 [visualRole] 单源映射；没有痕迹/痕迹里没有这张图 = 角色未知（NULL，不猜）。
-     */
-    private fun assistantFigureLinks(
-        command: AppendTutorAssistantMessageDatabaseCommand,
-    ): List<TutorMessageSourceAssetEntity> {
-        val rolesByAsset = decodeTutorTurnToolTrace(command.toolTraceJson)
-            ?.entries
-            ?.mapNotNull { entry ->
-                val figure = entry.figure ?: return@mapNotNull null
-                val figureId = figure.figureId ?: return@mapNotNull null
-                figureId to figure.kind.visualRole().name
-            }
-            ?.toMap()
-            .orEmpty()
-        return command.sourceImageAssetIds.mapIndexed { index, assetId ->
-            TutorMessageSourceAssetEntity(
-                messageId = command.messageId,
-                sourceAssetId = assetId,
-                ordinal = index,
-                role = rolesByAsset[assetId],
-            )
-        }
     }
 
     @Transaction

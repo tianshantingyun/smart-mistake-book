@@ -189,6 +189,7 @@ data class TutorMessageSourceAssetRecord(
     val sourceAssetId: String,
     val ordinal: Int,
     val role: String? = null,
+    val basisRevisionId: String? = null,
 )
 
 data class AppendTutorAssistantMessageDatabaseCommand(

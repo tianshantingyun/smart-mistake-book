@@ -22,6 +22,49 @@ import java.util.zip.ZipOutputStream
 
 class SmbkArchiveCodecTest {
     @Test
+    fun `daily review budget survives settings backup and legacy settings keep the default`() {
+        val settings = settingsFixture().copy(dailyReviewMinutes = 45)
+        assertEquals(settings, SmbkSettingsCodec.decode(SmbkSettingsCodec.encode(settings).decodeToString()))
+        assertNull(SmbkSettingsCodec.rejectionReasonFor(settings))
+        val legacy = SmbkSettingsCodec.decode("""{"schemaVersion":1,"desiredRetention":0.9}""")
+        assertEquals(20, legacy.dailyReviewMinutes)
+        assertNull(SmbkSettingsCodec.rejectionReasonFor(legacy))
+        assertTrue(SmbkSettingsCodec.rejectionReasonFor(settings.copy(dailyReviewMinutes = 121)) != null)
+    }
+
+    @Test
+    fun `historical main and ui selection backups retain their declared digest when read`() {
+        val archive = ByteArrayOutputStream()
+        SmbkArchiveCodec.create(archive = archive, database = tempFile("database.sqlite", "database-content"),
+            assets = emptyList(), referencedAssets = emptyList(), databaseSchemaVersion = 75,
+            problemCount = 0, createdAtEpochMillis = 12_000L,
+            selection = selectionFixture(mask = 15, rowCounts = emptyRowCounts(), trimmedTableCount = 0))
+        val bytes = archive.toByteArray()
+        val json = Json { encodeDefaults = true }
+        val manifest = json.decodeFromString(SmbkManifest.serializer(), manifestText(bytes))
+        val errorTables = setOf("error_cause_observation", "error_cause_binding")
+        val paperTables = setOf("paper_review", "paper_review_question", "paper_review_photo")
+        val historical = listOf(
+            Triple(4, ClosureRuleTables.v4.rowCountKeys, 91),
+            Triple(5, ClosureRuleTables.v5.rowCountKeys, 92),
+            Triple(4, SmbkSelectionPlan.rowCountKeys - errorTables - paperTables, 94),
+            Triple(5, SmbkSelectionPlan.rowCountKeys - errorTables, 97),
+        )
+        historical.forEach { (version, keys, expectedSize) ->
+            val oldCounts = keys.associateWith { 0L }
+            assertEquals(expectedSize, oldCounts.size)
+            val rule = requireNotNull(ClosureRuleTables.of(version, keys))
+            val old = requireNotNull(manifest.selection).copy(closureVersion = version, rowCounts = oldCounts,
+                closureDigest = ClosureRuleTables.digest(rule, SmbkSelectionPlan.categoriesOf(15),
+                    SmbkSelectionPlan.ASSET_POLICY_INCLUDED, oldCounts))
+            val legacyBytes = rewriteEntry(bytes, "manifest.json", json.encodeToString(SmbkManifest.serializer(),
+                manifest.copy(databaseSchemaVersion = if (version == 4) 72 else 73, selection = old)))
+            assertTrue("Historical closure $version / $expectedSize keys",
+                SmbkArchiveCodec.validate(ByteArrayInputStream(legacyBytes)) is BackupValidation.Valid)
+        }
+    }
+
+    @Test
     fun `create and validate round trip reports exact counts and checksums`() {
         val database = tempFile("database.sqlite", "database-content")
         val asset = tempFile("asset-a.png", "asset-content")
@@ -1584,7 +1627,7 @@ class SmbkArchiveCodecTest {
             // 键集合门在摘要/投影校验之前：92 键的 v4 声明必须按"91 表"拒绝。
             "rowCounts" to base.copy(rowCounts = emptyRowCounts(), closureDigest = "0".repeat(64)),
             "closureVersion" to base.copy(closureVersion = 3),
-            "closureVersion" to base.copy(closureVersion = 6),
+            "closureVersion" to base.copy(closureVersion = 7),
             "knowledge_search_material_feature" to base.copy(
                 rowCounts = base.rowCounts.toMutableMap().apply {
                     put("knowledge_search_material_feature", 1L)

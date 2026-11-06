@@ -293,7 +293,7 @@ class LibraryCatalogTest {
         }
         assertEquals("数学", entry.contentPath)
         assertEquals("待评估", entry.mastery.label)
-        assertTrue(legacyCatalog.optionsFor(LibraryFacet.CHAPTER).isEmpty())
+        assertEquals(listOf(LIBRARY_UNCLASSIFIED_OPTION_ID), legacyCatalog.optionsFor(LibraryFacet.CHAPTER).map { it.id })
     }
 
     @Test
@@ -309,6 +309,23 @@ class LibraryCatalogTest {
         )
 
         assertEquals("综合 › 综合实践 › 建模", entry.contentPath)
+    }
+
+    @Test
+    fun masteryOptionsStayCompleteWhenOnlyUnassessedQuestionsExist() {
+        val options = completeMasteryOptions(listOf(LibraryFacetOption("unknown", "待评估", 3)))
+        assertEquals(listOf("conflicted", "learning", "mastered", "stale", "unknown"), options.map { it.id })
+        assertEquals(listOf(0, 0, 0, 0, 3), options.map { it.count })
+    }
+
+    @Test
+    fun unclassifiedFilterDoesNotIncludeClassifiedQuestions() {
+        val unclassified = mistakes.first().copy(id = "unclassified", chapterLabels = emptyList())
+        val mixed = LibraryCatalog(mistakes + unclassified)
+        assertEquals(listOf("unclassified"), mixed.filter("", LibrarySelections(chapter = LIBRARY_UNCLASSIFIED_OPTION_ID)).map { it.id })
+        assertEquals(1, mixed.optionsFor(LibraryFacet.CHAPTER).first { it.id == LIBRARY_UNCLASSIFIED_OPTION_ID }.count)
+        assertEquals(3, mixed.optionsFor(LibraryFacet.MASTERY, LibrarySelections(subject = "MATH"))
+            .sumOf { it.count })
     }
 
     private fun mistake(

@@ -291,8 +291,10 @@ class AndroidBackupRepository(
         val reminders = reviewReminders ?: return null
         return try {
             val reminder = reminders.current()
+            val options = scheduling.options.first()
             SmbkSettingsDocumentV1(
-                desiredRetention = scheduling.options.first().desiredRetention,
+                desiredRetention = options.desiredRetention,
+                dailyReviewMinutes = options.dailyReviewMinutes,
                 examCalendar = scheduling.exams.first(),
                 optimizedFsrsParameters = scheduling.optimizedParameters.first()?.toList(),
                 reviewReminderEnabled = reminder.enabled,
@@ -835,7 +837,7 @@ class AndroidBackupRepository(
         return try {
             val document = SmbkSettingsCodec.decode(settingsFile.readText())
             RestorableSettings(
-                scheduling = SchedulingOptions(document.desiredRetention),
+                scheduling = SchedulingOptions(document.desiredRetention, document.dailyReviewMinutes),
                 exams = document.examCalendar,
                 optimizedParameters = document.optimizedFsrsParameters?.toDoubleArray(),
                 reminder = ReviewReminderPreferences(

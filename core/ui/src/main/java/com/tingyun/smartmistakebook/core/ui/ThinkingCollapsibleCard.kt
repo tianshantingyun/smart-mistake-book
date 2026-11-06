@@ -19,8 +19,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -65,8 +65,7 @@ fun ThinkingCollapsibleCard(
     }
     val thinkingBody = thinkingMarkdown?.takeIf { it.isNotBlank() }
     Column(
-        modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-            .background(Paper).border(1.dp, Ink.copy(alpha = .1f), RoundedCornerShape(12.dp)),
+        modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -101,7 +100,7 @@ fun ThinkingCollapsibleCard(
             )
             if (thinkingBody != null) ClaudeCopyButton(thinkingBody)
             Icon(
-                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                imageVector = if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
                 contentDescription = if (expanded) "收起思考过程" else "展开思考过程",
                 tint = color,
                 modifier = Modifier.size(16.dp),
@@ -111,7 +110,7 @@ fun ThinkingCollapsibleCard(
             visible = expanded && thinkingBody != null,
         ) {
             Column {
-            PaperDivider(color = Ink.copy(alpha = .1f))
+            PaperDivider(color = Divider)
             SafeMarkdownText(
                 markdown = thinkingBody.orEmpty(),
                 style = MaterialTheme.typography.bodyMedium,

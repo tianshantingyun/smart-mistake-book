@@ -299,7 +299,7 @@ internal interface LibraryFtsSearchDao {
         WHERE library_search_fts MATCH :matchQuery
           AND (:subjectId IS NULL OR catalog.subject = :subjectId)
           AND (
-              :sectionId IS NULL OR EXISTS (
+              :sectionId IS NULL OR (:sectionId = '__unclassified__' AND COALESCE(catalog.chapter_labels, '') = '') OR EXISTS (
                   SELECT 1 FROM problem_classification_binding AS classification
                   WHERE classification.problem_id = catalog.problem_id
                     AND classification.basis_revision_id = catalog.problem_revision_id
@@ -346,7 +346,7 @@ internal interface LibraryFtsSearchDao {
             "CROSS JOIN library_catalog AS catalog " +
             "    ON catalog.problem_revision_id = content.problem_revision_id " +
             "WHERE library_search_fts MATCH :matchQuery " +
-            "AND (:sectionId IS NULL OR EXISTS (SELECT 1 FROM problem_classification_binding AS c " +
+            "AND (:sectionId IS NULL OR (:sectionId = '__unclassified__' AND COALESCE(catalog.chapter_labels, '') = '') OR EXISTS (SELECT 1 FROM problem_classification_binding AS c " +
             "WHERE c.problem_id = catalog.problem_id AND c.basis_revision_id = catalog.problem_revision_id " +
             "AND c.dimension = 'CHAPTER' AND c.label_id = :sectionId)) " +
             "AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId) " +
@@ -406,7 +406,7 @@ internal interface LibraryFtsSearchDao {
             "    ON catalog.problem_revision_id = content.problem_revision_id " +
             "WHERE library_search_fts MATCH :matchQuery " +
             "AND (:subjectId IS NULL OR catalog.subject = :subjectId) " +
-            "AND (:sectionId IS NULL OR EXISTS (SELECT 1 FROM problem_classification_binding AS c " +
+            "AND (:sectionId IS NULL OR (:sectionId = '__unclassified__' AND COALESCE(catalog.chapter_labels, '') = '') OR EXISTS (SELECT 1 FROM problem_classification_binding AS c " +
             "WHERE c.problem_id = catalog.problem_id AND c.basis_revision_id = catalog.problem_revision_id " +
             "AND c.dimension = 'CHAPTER' AND c.label_id = :sectionId)) " +
             "AND (:createdFromEpochMillis IS NULL OR " +
@@ -438,7 +438,7 @@ internal interface LibraryFtsSearchDao {
             "    ON catalog.problem_revision_id = content.problem_revision_id " +
             "WHERE library_search_fts MATCH :matchQuery " +
             "AND (:subjectId IS NULL OR catalog.subject = :subjectId) " +
-            "AND (:sectionId IS NULL OR EXISTS (SELECT 1 FROM problem_classification_binding AS c " +
+            "AND (:sectionId IS NULL OR (:sectionId = '__unclassified__' AND COALESCE(catalog.chapter_labels, '') = '') OR EXISTS (SELECT 1 FROM problem_classification_binding AS c " +
             "WHERE c.problem_id = catalog.problem_id AND c.basis_revision_id = catalog.problem_revision_id " +
             "AND c.dimension = 'CHAPTER' AND c.label_id = :sectionId)) " +
             "AND (:masteryId IS NULL OR catalog.mastery_id = :masteryId) " +

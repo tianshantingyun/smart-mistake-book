@@ -22,8 +22,18 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material.icons.outlined.NotificationsNone
+import androidx.compose.material.icons.outlined.EventNote
+import androidx.compose.material.icons.outlined.AccountTree
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.ui.text.font.FontWeight
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ButtonDefaults
 import com.tingyun.smartmistakebook.core.ui.ClaudeFilterChip as FilterChip
 import androidx.compose.material3.Icon
 import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
@@ -45,6 +55,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -85,7 +97,7 @@ import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
-import com.tingyun.smartmistakebook.core.ui.SectionHeader
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 import com.tingyun.smartmistakebook.diagnostics.DiagnosticsBundleExporter
 import com.tingyun.smartmistakebook.diagnostics.DiagnosticsBootstrap
 import java.io.OutputStream
@@ -96,8 +108,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
+internal fun SettingsSectionTitle(title: String) {
+    Text(title, color = Ink, style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.fillMaxWidth().semantics { heading() })
+}
+
+@Composable
 internal fun SecondaryHeader(title: String, onBack: () -> Unit) {
-    com.tingyun.smartmistakebook.core.ui.ClaudePageHeader(title, onBack = onBack)
+    com.tingyun.smartmistakebook.core.ui.ClaudePageHeader(
+        title, onBack = onBack, modifier = Modifier.padding(bottom = 12.dp),
+    )
 }
 
 @Composable
@@ -161,315 +182,329 @@ internal fun CapabilityScreen(
         SecondaryHeader(title = "模型设置", onBack = { if (!committing) onBack() })
 
         if (capabilities.networkRequestsAllowed && configurationStore != null) {
-            PaperDivider(Modifier.padding(vertical = 16.dp))
-            SectionHeader("模型服务")
-            Text(
-                text = "应用直接连接你选择的服务商，不经过本应用云端。费用由你的服务商账户承担。",
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .testTag("capability_direct_connection_notice"),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Text(
-                text = "API Key 只保存在本机安全存储中，只用于连接服务商，不会作为内容发给模型。",
-                modifier = Modifier
-                    .padding(top = 4.dp, bottom = 10.dp)
-                    .testTag("capability_secret_notice"),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Text(
-                text = "接口协议（须与服务商一致）",
-                modifier = Modifier
-                    .padding(bottom = 6.dp)
-                    .testTag("capability_protocol_label"),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            com.tingyun.smartmistakebook.core.ui.ClaudeSegmentedControl(
-                segments = ModelProviderProtocol.entries.map { candidate ->
-                    com.tingyun.smartmistakebook.core.ui.ClaudeSegment(candidate.name,
-                        candidate.displayLabel(), "capability_protocol_${candidate.name}")
-                },
-                selectedId = protocol.name,
-                onSelect = { selected -> protocol = ModelProviderProtocol.valueOf(selected); operationMessage = null },
-                enabled = formEnabled,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp).testTag("capability_protocol_group"),
-            )
-            OutlinedTextField(
-                value = provider,
-                onValueChange = {
-                    provider = it
-                    operationMessage = null
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("capability_provider"),
-                label = { Text("服务商") },
-                enabled = formEnabled,
-                singleLine = true,
-            )
-            OutlinedTextField(
-                value = modelId,
-                onValueChange = {
-                    modelId = it
-                    operationMessage = null
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp)
-                    .testTag("capability_model_id"),
-                label = { Text("模型 ID") },
-                enabled = formEnabled,
-                singleLine = true,
-            )
-            OutlinedTextField(
-                value = baseUrl,
-                onValueChange = {
-                    baseUrl = it
-                    operationMessage = null
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp)
-                    .testTag("capability_base_url"),
-                label = { Text("Base URL（${protocol.baseUrlHint()}）") },
-                enabled = formEnabled,
-                singleLine = true,
-            )
-            OutlinedTextField(
-                value = apiKey,
-                onValueChange = {
-                    apiKey = it
-                    operationMessage = null
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp)
-                    .testTag("capability_api_key"),
-                label = { Text("API Key") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation = PasswordVisualTransformation(),
-                enabled = formEnabled,
-                singleLine = true,
-            )
-            PrimaryActionButton(
-                text = if (operation == CapabilityOperation.SAVING) {
-                    "正在保存"
-                } else {
-                    "保存配置"
-                },
-                onClick = {
-                    val submittedProvider = provider
-                    val submittedBaseUrl = baseUrl
-                    val submittedModelId = modelId
-                    val submittedProtocol = protocol
-                    val submittedApiKey = apiKey
-                    operation = CapabilityOperation.SAVING
-                    operationMessage = null
-                    screenScope.launch {
-                        val sourceChars = submittedApiKey.toCharArray()
-                        val secret = ModelApiKey.from(sourceChars)
-                        try {
-                            val result = configurationStore.save(
-                                update = ModelConfigurationUpdate(
-                                    provider = submittedProvider,
-                                    baseUrl = submittedBaseUrl,
-                                    modelId = submittedModelId,
-                                    protocol = submittedProtocol,
-                                ),
-                                apiKey = secret,
-                            )
-                            operationMessage = result.toUserMessage(
-                                successMessage = "配置已保存在本机，请继续测试模型。",
-                            )
-                            if (result is ModelConfigurationMutationResult.Success) apiKey = ""
-                        } catch (cancelled: CancellationException) {
-                            throw cancelled
-                        } catch (_: Exception) {
-                            operationMessage = "本机安全存储发生异常，配置未生效。"
-                        } finally {
-                            secret.close()
-                            Arrays.fill(sourceChars, '\u0000')
-                            operation = CapabilityOperation.IDLE
-                        }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-                    .testTag("capability_save"),
-                enabled = formEnabled && provider.isNotBlank() &&
-                    baseUrl.isNotBlank() && modelId.isNotBlank() && apiKey.isNotBlank(),
-            )
-            Text(
-                text = "测试仅发送内置样例，不发送你的题目或学习记录。",
-                modifier = Modifier.padding(top = 12.dp),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-            )
-            OutlinedButton(
-                onClick = {
-                    operation = CapabilityOperation.TESTING
-                    operationMessage = null
-                    screenScope.launch {
-                        try {
-                            operationMessage = capabilityTester
-                                ?.testSavedConfiguration()
-                                ?.toCapabilityTestMessage()
-                                ?: "能力测试暂不可用，请稍后再试。"
-                        } catch (cancelled: CancellationException) {
-                            throw cancelled
-                        } catch (_: Exception) {
-                            operationMessage = "能力测试暂未完成，请稍后再试。"
-                        } finally {
-                            operation = CapabilityOperation.IDLE
-                        }
-                    }
-                },
-                enabled = formEnabled && capabilityTester != null &&
-                    configuration.isConfigured && apiKey.isBlank() &&
-                    provider == configuration.provider &&
-                    baseUrl == configuration.baseUrl && modelId == configuration.modelId &&
-                    protocol == configuration.protocol,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-                    .testTag("capability_test"),
-            ) {
-                Text(
-                    if (operation == CapabilityOperation.TESTING) {
-                        "正在测试"
-                    } else {
-                        "测试模型能力"
-                    },
-                )
+            Spacer(Modifier.height(16.dp))
+            WorkspacePanel {
+                Column {
+                    SettingsSectionTitle("模型服务")
+                    Text(
+                        text = "直接连接所选服务商，费用由你的服务商账户承担。",
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .testTag("capability_direct_connection_notice"),
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Text(
+                        text = "API Key 安全保存在本机，仅用于连接服务商，不作为内容发送给模型。",
+                        modifier = Modifier
+                            .padding(top = 4.dp, bottom = 10.dp)
+                            .testTag("capability_secret_notice"),
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Text(
+                        text = "接口协议（须与服务商一致）",
+                        modifier = Modifier
+                            .padding(bottom = 6.dp)
+                            .testTag("capability_protocol_label"),
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    com.tingyun.smartmistakebook.core.ui.ClaudeSegmentedControl(
+                        segments = ModelProviderProtocol.entries.map { candidate ->
+                            com.tingyun.smartmistakebook.core.ui.ClaudeSegment(candidate.name,
+                                candidate.displayLabel(), "capability_protocol_${candidate.name}")
+                        },
+                        selectedId = protocol.name,
+                        onSelect = { selected -> protocol = ModelProviderProtocol.valueOf(selected); operationMessage = null },
+                        enabled = formEnabled,
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp).testTag("capability_protocol_group"),
+                    )
+                    OutlinedTextField(
+                        value = provider,
+                        onValueChange = {
+                            provider = it
+                            operationMessage = null
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("capability_provider"),
+                        label = { Text("服务商") },
+                        enabled = formEnabled,
+                        singleLine = true,
+                    )
+                    OutlinedTextField(
+                        value = modelId,
+                        onValueChange = {
+                            modelId = it
+                            operationMessage = null
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp)
+                            .testTag("capability_model_id"),
+                        label = { Text("模型 ID") },
+                        enabled = formEnabled,
+                        singleLine = true,
+                    )
+                    OutlinedTextField(
+                        value = baseUrl,
+                        onValueChange = {
+                            baseUrl = it
+                            operationMessage = null
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp)
+                            .testTag("capability_base_url"),
+                        label = { Text("Base URL（${protocol.baseUrlHint()}）") },
+                        enabled = formEnabled,
+                        singleLine = true,
+                    )
+                    OutlinedTextField(
+                        value = apiKey,
+                        onValueChange = {
+                            apiKey = it
+                            operationMessage = null
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp)
+                            .testTag("capability_api_key"),
+                        label = { Text("API Key") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        visualTransformation = PasswordVisualTransformation(),
+                        enabled = formEnabled,
+                        singleLine = true,
+                    )
+                    PrimaryActionButton(
+                        text = if (operation == CapabilityOperation.SAVING) {
+                            "正在保存"
+                        } else {
+                            "保存配置"
+                        },
+                        onClick = {
+                            val submittedProvider = provider
+                            val submittedBaseUrl = baseUrl
+                            val submittedModelId = modelId
+                            val submittedProtocol = protocol
+                            val submittedApiKey = apiKey
+                            operation = CapabilityOperation.SAVING
+                            operationMessage = null
+                            screenScope.launch {
+                                val sourceChars = submittedApiKey.toCharArray()
+                                val secret = ModelApiKey.from(sourceChars)
+                                try {
+                                    val result = configurationStore.save(
+                                        update = ModelConfigurationUpdate(
+                                            provider = submittedProvider,
+                                            baseUrl = submittedBaseUrl,
+                                            modelId = submittedModelId,
+                                            protocol = submittedProtocol,
+                                        ),
+                                        apiKey = secret,
+                                    )
+                                    operationMessage = result.toUserMessage(
+                                        successMessage = "配置已保存在本机，请继续测试模型。",
+                                    )
+                                    if (result is ModelConfigurationMutationResult.Success) apiKey = ""
+                                } catch (cancelled: CancellationException) {
+                                    throw cancelled
+                                } catch (_: Exception) {
+                                    operationMessage = "本机安全存储发生异常，配置未生效。"
+                                } finally {
+                                    secret.close()
+                                    Arrays.fill(sourceChars, '\u0000')
+                                    operation = CapabilityOperation.IDLE
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                            .testTag("capability_save"),
+                        enabled = formEnabled && provider.isNotBlank() &&
+                            baseUrl.isNotBlank() && modelId.isNotBlank() && apiKey.isNotBlank(),
+                    )
+                }
             }
-            OutlinedButton(
-                onClick = { confirmClear = true },
-                enabled = formEnabled &&
-                    (configuration.isConfigured || configuration.provider.isNotBlank()),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp)
-                    .testTag("capability_clear"),
-            ) {
-                Text(
-                    if (operation == CapabilityOperation.CLEARING) {
-                        "正在清除"
-                    } else {
-                        "清除本机配置与密钥"
-                    },
-                )
-            }
-            operationMessage?.let { message ->
-                Text(
-                    text = message,
-                    modifier = Modifier
-                        .padding(top = 10.dp)
-                        .testTag("capability_operation_message"),
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                )
+            Spacer(Modifier.height(16.dp))
+            WorkspacePanel {
+                Column {
+                    SettingsSectionTitle("连接与能力测试")
+                    Text(
+                        text = "测试仅发送内置样例，不发送你的题目或学习记录。",
+                        modifier = Modifier.padding(top = 12.dp),
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    OutlinedButton(
+                        onClick = {
+                            operation = CapabilityOperation.TESTING
+                            operationMessage = null
+                            screenScope.launch {
+                                try {
+                                    operationMessage = capabilityTester
+                                        ?.testSavedConfiguration()
+                                        ?.toCapabilityTestMessage()
+                                        ?: "能力测试暂不可用，请稍后再试。"
+                                } catch (cancelled: CancellationException) {
+                                    throw cancelled
+                                } catch (_: Exception) {
+                                    operationMessage = "能力测试暂未完成，请稍后再试。"
+                                } finally {
+                                    operation = CapabilityOperation.IDLE
+                                }
+                            }
+                        },
+                        enabled = formEnabled && capabilityTester != null &&
+                            configuration.isConfigured && apiKey.isBlank() &&
+                            provider == configuration.provider &&
+                            baseUrl == configuration.baseUrl && modelId == configuration.modelId &&
+                            protocol == configuration.protocol,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                            .testTag("capability_test"),
+                    ) {
+                        Text(
+                            if (operation == CapabilityOperation.TESTING) {
+                                "正在测试"
+                            } else {
+                                "测试模型能力"
+                            },
+                        )
+                    }
+                    OutlinedButton(
+                        onClick = { confirmClear = true },
+                        enabled = formEnabled &&
+                            (configuration.isConfigured || configuration.provider.isNotBlank()),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp)
+                            .testTag("capability_clear"),
+                    ) {
+                        Text(
+                            if (operation == CapabilityOperation.CLEARING) {
+                                "正在清除"
+                            } else {
+                                "清除本机配置与密钥"
+                            },
+                        )
+                    }
+                    operationMessage?.let { message ->
+                        Text(
+                            text = message,
+                            modifier = Modifier
+                                .padding(top = 10.dp)
+                                .testTag("capability_operation_message"),
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
             }
         } else {
-            PaperDivider(Modifier.padding(vertical = 16.dp))
+            Spacer(Modifier.height(16.dp))
             Text(
-                text = "当前版本未启用大模型服务，因此不显示服务商、地址、API Key 和能力测试。",
+                text = "此版本未启用模型服务，无需配置服务商或 API Key。",
                 modifier = Modifier.testTag("capability_strict_offline_notice"),
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodyLarge,
             )
         }
         if (calibrationReportProvider != null) {
-            PaperDivider(Modifier.padding(vertical = 16.dp))
-            SectionHeader("学习预测效果")
-            val report = calibrationReport
-            when {
-                calibrationUnavailable -> Text(
-                    text = "校准数据暂不可用，请稍后再试。",
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .testTag("capability_calibration_error"),
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-
-                report == null -> Text(
-                    text = "正在读取校准数据…",
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .testTag("capability_calibration_loading"),
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-
-                report.resolvedPredictions == 0 -> Text(
-                    text = "暂无可对比的预测。完成复习后，将在这里显示预测与实际作答的对比结果。",
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .testTag("capability_calibration_empty"),
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-
-                else -> Column(Modifier.padding(top = 8.dp)) {
-                    Text(
-                        text = "模型 ${report.modelVersion.modelId} · ${report.modelVersion.version}",
-                        modifier = Modifier.testTag("capability_calibration_model"),
-                        color = InkSecondary,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    Text(
-                        text = "已验证预测 ${report.resolvedPredictions}/${report.totalPredictions}",
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                            .testTag("capability_calibration_resolved"),
-                        color = Ink,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Text(
-                        text = "Brier 分数 " + "%.4f".format(report.overallBrierScore),
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                            .testTag("capability_calibration_brier"),
-                        color = Ink,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    report.overallLogLoss?.let { logLoss ->
-                        Text(
-                            text = "对数损失 " + "%.4f".format(logLoss),
+            Spacer(Modifier.height(16.dp))
+            WorkspacePanel {
+                Column {
+                    SettingsSectionTitle("学习预测效果")
+                    val report = calibrationReport
+                    when {
+                        calibrationUnavailable -> Text(
+                            text = "校准数据暂不可用，请稍后再试。",
                             modifier = Modifier
-                                .padding(top = 4.dp)
-                                .testTag("capability_calibration_log_loss"),
-                            color = Ink,
+                                .padding(top = 8.dp)
+                                .testTag("capability_calibration_error"),
+                            color = InkSecondary,
                             style = MaterialTheme.typography.bodyMedium,
                         )
+
+                        report == null -> Text(
+                            text = "正在读取校准数据…",
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .testTag("capability_calibration_loading"),
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+
+                        report.resolvedPredictions == 0 -> Text(
+                            text = "暂无可对比的预测。完成复习后，将在这里显示预测与实际作答的对比结果。",
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .testTag("capability_calibration_empty"),
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+
+                        else -> Column(Modifier.padding(top = 8.dp)) {
+                            Text(
+                                text = "模型 ${report.modelVersion.modelId} · ${report.modelVersion.version}",
+                                modifier = Modifier.testTag("capability_calibration_model"),
+                                color = InkSecondary,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            Text(
+                                text = "已验证预测 ${report.resolvedPredictions}/${report.totalPredictions}",
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .testTag("capability_calibration_resolved"),
+                                color = Ink,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                            Text(
+                                text = "Brier 分数 " + "%.4f".format(report.overallBrierScore),
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .testTag("capability_calibration_brier"),
+                                color = Ink,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                            report.overallLogLoss?.let { logLoss ->
+                                Text(
+                                    text = "对数损失 " + "%.4f".format(logLoss),
+                                    modifier = Modifier
+                                        .padding(top = 4.dp)
+                                        .testTag("capability_calibration_log_loss"),
+                                    color = Ink,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                            }
+                            Text(
+                                text = "期望校准误差 ECE " + "%.4f".format(report.expectedCalibrationError),
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .testTag("capability_calibration_ece"),
+                                color = Ink,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                            Text(
+                                text = "最大分桶偏差 " + "%.4f".format(report.maximumCalibrationDeviation),
+                                modifier = Modifier
+                                    .padding(top = 4.dp)
+                                    .testTag("capability_calibration_max_deviation"),
+                                color = Ink,
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        }
                     }
-                    Text(
-                        text = "期望校准误差 ECE " + "%.4f".format(report.expectedCalibrationError),
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                            .testTag("capability_calibration_ece"),
-                        color = Ink,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Text(
-                        text = "最大分桶偏差 " + "%.4f".format(report.maximumCalibrationDeviation),
-                        modifier = Modifier
-                            .padding(top = 4.dp)
-                            .testTag("capability_calibration_max_deviation"),
-                        color = Ink,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
+                    if (sourceCalibrationProvider != null) {
+                        SourceCalibrationSection(
+                            provider = requireNotNull(sourceCalibrationProvider),
+                        )
+                    }
                 }
             }
-        if (sourceCalibrationProvider != null) {
-            SourceCalibrationSection(
-                provider = requireNotNull(sourceCalibrationProvider),
-            )
-        }
         }
     }
     // 确认框放在函数末尾（而非列内），因为它只在配置存在时可达：触发它的按钮本身
@@ -525,14 +560,14 @@ internal fun CapabilityScreen(
 
 internal fun capabilityVerificationSummary(configuration: ModelConfigurationSnapshot): String {
     val verification = configuration.currentCapabilityVerification()
-        ?: return "配置已保存在本机，请先测试模型能力。使用拍照或讲题时，相关内容会直接发送给所选模型。"
+        ?: return "配置已保存，请测试模型能力。拍照或讲题的内容将发送给所选模型。"
     return when {
         verification.authenticationFailed ->
             "上次验证未通过，请检查或更新 API Key 后重试。"
         verification.supportsImageInput && verification.supportsStructuredOutput ->
-            "测试通过：可识别题图并讲解。点击发送即交给模型处理，不再另行确认。"
+            "测试通过：可识别题图并讲解。${verification.editCapabilityDescription()}点击发送即交给模型处理，不再另行确认。"
         verification.supportsStructuredOutput ->
-            "文字讲解可用，题图识别未通过测试。"
+            "文字讲解可用，题图识别未通过测试。${verification.editCapabilityDescription()}"
         verification.supportsImageInput ->
             "模型能识别测试图片，但回复格式不符合要求，暂不能使用 AI 功能。"
         else -> "能力测试未通过，当前模型暂不兼容。"
@@ -542,9 +577,9 @@ internal fun capabilityVerificationSummary(configuration: ModelConfigurationSnap
 internal fun ModelCapabilityTestResult.toCapabilityTestMessage(): String = when (this) {
     is ModelCapabilityTestResult.Completed -> when {
         verification.supportsImageInput && verification.supportsStructuredOutput ->
-            "测试通过：图片读取和讲解都可用。"
+            "测试通过：图片读取和讲解都可用。${verification.editCapabilityDescription()}"
         verification.supportsStructuredOutput ->
-            "文字讲解可用，题图识别未通过测试。"
+            "文字讲解可用，题图识别未通过测试。${verification.editCapabilityDescription()}"
         verification.supportsImageInput ->
             "模型能识别图片，但回复格式不符合要求，暂不能使用 AI 功能。"
         else -> "测试未通过：当前模型暂不兼容。"
@@ -589,25 +624,31 @@ internal fun DataPrivacyScreen(
 ) {
     RootPageColumn {
         SecondaryHeader(title = "数据与隐私", onBack = onBack)
-        SectionHeader("本机数据清单")
-        Text(
-            "当前题面、原图、学习记录和复习进度都保存在本机应用空间。未完成的临时照片会按过期规则清理，不会自动进入错题本。",
-            modifier = Modifier.padding(top = 10.dp),
-            color = InkSecondary,
-        )
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        SectionHeader("智能服务")
-        Text(
-            text = when (capabilities.networkMode) {
-                NetworkMode.LOCAL_FIRST ->
-                    "拍照、讲题或整理是你主动发起时才会进行；发起即把当前内容交给已配置模型，不再逐次询问。学习记录和整个错题本不会交给模型自行查看或修改。"
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column {
+                SettingsSectionTitle("本机数据清单")
+                CapabilityRow(Icons.Outlined.Storage, "保存在本机", "题面、原图、学习记录与复习进度保存在应用空间。")
+                CapabilityRow(Icons.Outlined.Security, "临时内容单独管理", "未完成的临时照片按过期规则清理，不会自动进入错题本。")
+            }
+        }
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column {
+                SettingsSectionTitle("智能服务")
+                Text(
+                    text = when (capabilities.networkMode) {
+                        NetworkMode.LOCAL_FIRST ->
+                            "主动发起拍照、讲题或整理即授权发送当前内容，不再逐次确认。模型不能自行查看或修改学习记录及整个错题本。"
 
-                NetworkMode.STRICT_OFFLINE ->
-                    "当前版本不使用联网智能服务，本机内容不会发送给模型服务。"
-            },
-            modifier = Modifier.padding(top = 10.dp),
-            color = InkSecondary,
-        )
+                        NetworkMode.STRICT_OFFLINE ->
+                            "当前版本不使用联网智能服务，本机内容不会发送给模型服务。"
+                    },
+                    modifier = Modifier.padding(top = 10.dp),
+                    color = InkSecondary,
+                )
+            }
+        }
     }
 }
 
@@ -718,10 +759,8 @@ internal fun StorageScreen(
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (_: Exception) {
-                // H-066 同族（批次 45 FIX-T02）：原始异常 message 带 URI/路径/实现细节，
-                // 学生可见文案只给固定措辞与下一步动作，不拼接 message。
-                operationMessage = "备份失败，原数据不受影响。请检查保存位置后重试。"
+            } catch (failure: Exception) {
+                operationMessage = "备份失败，原数据不受影响。${failure.message.orEmpty()}"
             } finally {
                 operationBusy = false
             }
@@ -750,9 +789,8 @@ internal fun StorageScreen(
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (_: Exception) {
-                // H-066 同族（批次 45 FIX-T02）：不拼接原始异常 message。
-                operationMessage = "校验失败，文件可能已损坏。请换一个备份文件重试。"
+            } catch (failure: Exception) {
+                operationMessage = "校验失败，文件可能已损坏。${failure.message.orEmpty()}"
             } finally {
                 operationBusy = false
             }
@@ -785,9 +823,8 @@ internal fun StorageScreen(
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (_: Exception) {
-                // H-066 同族（批次 45 FIX-T02）：不拼接原始异常 message。
-                operationMessage = "校验失败，文件可能已损坏，恢复未开始。请换一个备份文件重试。"
+            } catch (failure: Exception) {
+                operationMessage = "校验失败，文件可能已损坏，恢复未开始。${failure.message.orEmpty()}"
             } finally {
                 operationBusy = false
             }
@@ -826,8 +863,8 @@ internal fun StorageScreen(
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (_: Exception) { // H-066：原始异常 message 带 URI/路径/实现细节，学生可见文案不拼接
-                diagnosticsMessage = "导出失败，本机记录不受影响。请稍后重试。"
+            } catch (failure: Exception) {
+                diagnosticsMessage = "导出失败，本机记录不受影响。${failure.message.orEmpty()}"
             } finally {
                 operationBusy = false
             }
@@ -836,6 +873,7 @@ internal fun StorageScreen(
 
     if (confirmDelete) {
         AlertDialog(
+            dangerConfirm = true,
             onDismissRequest = { confirmDelete = false },
             title = { Text("删除全部数据？") },
             text = {
@@ -859,9 +897,9 @@ internal fun StorageScreen(
                                 onDatabaseClosed(operationMessage.orEmpty(), false)
                             } catch (cancelled: CancellationException) {
                                 throw cancelled
-                            } catch (_: Exception) {
-                                // H-066 同族（批次 45 FIX-T02）：不拼接原始异常 message。
-                                operationMessage = "删除未全部完成，请重启后重试。"
+                            } catch (failure: Exception) {
+                                operationMessage =
+                                    "删除未全部完成，请重启后重试。${failure.message.orEmpty()}"
                                 onDatabaseClosed(operationMessage.orEmpty(), false)
                             } finally {
                                 operationBusy = false
@@ -911,194 +949,233 @@ internal fun StorageScreen(
     RootPageColumn(modifier = Modifier.testTag("storage_screen")) {
         androidx.activity.compose.BackHandler(enabled = operationBusy) { }
         SecondaryHeader(title = "存储、备份与导出", onBack = { if (!operationBusy) onBack() })
-        SectionHeader("本机存储")
-        val current = inventory
-        Text(
-            text = when {
-                current != null ->
-                    "学习记录 ${formatBytes(current.databaseBytes)} · 题图 ${formatBytes(current.assetBytes)} · 可清理临时文件 ${formatBytes(current.cleanableBytes)}"
-                inventoryFailed -> "暂时读不到本机占用。"
-                else -> "正在读取本机占用…"
-            },
-            modifier = Modifier.padding(top = 10.dp),
-            color = if (inventoryFailed) ErrorText else InkSecondary,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-        if (inventoryFailed && current == null) {
-            OutlinedButton(
-                onClick = { inventoryRetry += 1 },
-                modifier = Modifier
-                    .padding(top = 6.dp)
-                    .testTag("storage_inventory_retry"),
-            ) { Text("重试读取") }
-        }
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        SectionHeader("备份内容")
-        Text(
-            "仅备份下方所选内容，不含 API Key、发送授权和临时文件。" +
-                "恢复前会校验文件并请你确认内容，再替换本机数据；失败时尝试恢复原数据。",
-            modifier = Modifier.padding(top = 10.dp),
-            color = InkSecondary,
-        )
-        if (backupActivity != BackupActivity.Idle) {
-            Text(
-                "正在创建备份，其他保存操作会在备份完成后继续。",
-                modifier = Modifier
-                    .padding(top = 6.dp)
-                    .testTag("storage_backup_activity"),
-                color = InkSecondary,
-            )
-        }
-        BackupContentSelectionSection(
-            enabled = !operationBusy,
-            busy = operationBusy,
-            onCreateBackup = { selection ->
-                pendingSelectionMask = selection.mask
-                createBackup.launch("smart-mistake-book-${System.currentTimeMillis()}.smbk")
-            },
-        )
-        OutlinedButton(
-            onClick = { validateBackup.launch(arrayOf("application/octet-stream", "application/zip")) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-                .testTag("storage_validate_backup"),
-            enabled = !operationBusy,
-        ) {
-            Text("检查备份文件")
-        }
-        OutlinedButton(
-            onClick = {
-                restoreBackup.launch(
-                    arrayOf("application/octet-stream", "application/zip"),
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-                .testTag("storage_restore_backup"),
-            enabled = !operationBusy,
-        ) {
-            Text("从备份恢复（替换当前数据）")
-        }
-        OutlinedButton(
-            onClick = { confirmDelete = true },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-                .testTag("storage_delete_all"),
-            enabled = !operationBusy,
-        ) {
-            Text("删除全部数据")
-        }
-        OutlinedButton(
-            onClick = {
-                if (operationBusy) return@OutlinedButton
-                operationBusy = true
-                operationMessage = null
-                scope.launch {
-                    try {
-                        val removed = withContext(Dispatchers.IO) {
-                            backupRepository.cleanupOrphanAssets()
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column {
+                SettingsSectionTitle("本机存储")
+                val current = inventory
+                if (current != null) {
+                    Column(Modifier.fillMaxWidth().padding(top = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf("学习记录" to formatBytes(current.databaseBytes),
+                            "题图" to formatBytes(current.assetBytes),
+                            "可清理文件" to formatBytes(current.cleanableBytes)).forEach { (label, value) ->
+                            Surface(color = SmartColors.SubtleSurface, shape = RoundedCornerShape(12.dp)) {
+                                Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    Text(label, Modifier.weight(1f), color = InkSecondary, style = MaterialTheme.typography.bodyMedium)
+                                    Text(value, color = Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                                }
+                            }
                         }
-                        operationMessage = if (removed == 0) {
-                            "没有可清理的未使用题图。"
-                        } else {
-                            "已清理 $removed 张未使用的题图。"
-                        }
-                        inventory = withContext(Dispatchers.IO) {
-                            backupRepository.inspect()
-                        }
-                    } catch (cancelled: CancellationException) {
-                        throw cancelled
-                    } catch (_: Exception) {
-                        // H-066 同族（批次 45 FIX-T02）：不拼接原始异常 message。
-                        operationMessage = "清理未完成，原题图不受影响。请稍后重试。"
-                    } finally {
-                        operationBusy = false
                     }
                 }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-                .testTag("storage_cleanup_orphans"),
-            enabled = !operationBusy,
-        ) {
-            Text("清理未使用的题图")
+                if (current == null) Text(
+                    text = when {
+                        current != null ->
+                            "学习记录 ${formatBytes(current.databaseBytes)} · 题图 ${formatBytes(current.assetBytes)} · 可清理临时文件 ${formatBytes(current.cleanableBytes)}"
+                        inventoryFailed -> "暂时读不到本机占用。"
+                        else -> "正在读取本机占用…"
+                    },
+                    modifier = Modifier.padding(top = 10.dp),
+                    color = if (inventoryFailed) ErrorText else InkSecondary,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                if (inventoryFailed && current == null) {
+                    OutlinedButton(
+                        onClick = { inventoryRetry += 1 },
+                        modifier = Modifier
+                            .padding(top = 6.dp)
+                            .testTag("storage_inventory_retry"),
+                    ) { Text("重试读取") }
+                }
+            }
         }
-        orphanGcStatus?.let { message ->
-            Text(
-                text = message,
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .testTag("storage_orphan_gc_status"),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-            )
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column {
+                SettingsSectionTitle("备份内容")
+                Text(
+                    "仅备份下方所选内容，不含 API Key、发送授权和临时文件。" +
+                        "恢复前会校验文件并请你确认内容，再替换本机数据；失败时尝试恢复原数据。",
+                    modifier = Modifier.padding(top = 10.dp),
+                    color = InkSecondary,
+                )
+                if (backupActivity != BackupActivity.Idle) {
+                    Text(
+                        "正在创建备份，其他保存操作会在备份完成后继续。",
+                        modifier = Modifier
+                            .padding(top = 6.dp)
+                            .testTag("storage_backup_activity"),
+                        color = InkSecondary,
+                    )
+                }
+                BackupContentSelectionSection(
+                    enabled = !operationBusy,
+                    busy = operationBusy,
+                    onCreateBackup = { selection ->
+                        pendingSelectionMask = selection.mask
+                        createBackup.launch("smart-mistake-book-${System.currentTimeMillis()}.smbk")
+                    },
+                )
+                OutlinedButton(
+                    onClick = { validateBackup.launch(arrayOf("application/octet-stream", "application/zip")) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .testTag("storage_validate_backup"),
+                    enabled = !operationBusy,
+                ) {
+                    Text("检查备份文件")
+                }
+                OutlinedButton(
+                    onClick = {
+                        restoreBackup.launch(
+                            arrayOf("application/octet-stream", "application/zip"),
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .testTag("storage_restore_backup"),
+                    enabled = !operationBusy,
+                ) {
+                    Text("从备份恢复（替换当前数据）")
+                }
+            }
         }
-        operationMessage?.let { message ->
-            Text(
-                text = message,
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .testTag("storage_operation_message"),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-            )
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column {
+                SettingsSectionTitle("数据维护")
+                OutlinedButton(
+                    onClick = { confirmDelete = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .testTag("storage_delete_all"),
+                    enabled = !operationBusy,
+                ) {
+                    Text("删除全部数据")
+                }
+                OutlinedButton(
+                    onClick = {
+                        if (operationBusy) return@OutlinedButton
+                        operationBusy = true
+                        operationMessage = null
+                        scope.launch {
+                            try {
+                                val removed = withContext(Dispatchers.IO) {
+                                    backupRepository.cleanupOrphanAssets()
+                                }
+                                operationMessage = if (removed == 0) {
+                                    "没有可清理的未使用题图。"
+                                } else {
+                                    "已清理 $removed 张未使用的题图。"
+                                }
+                                inventory = withContext(Dispatchers.IO) {
+                                    backupRepository.inspect()
+                                }
+                            } catch (cancelled: CancellationException) {
+                                throw cancelled
+                            } catch (failure: Exception) {
+                                operationMessage =
+                                    "清理未完成，原题图不受影响。${failure.message.orEmpty()}"
+                            } finally {
+                                operationBusy = false
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .testTag("storage_cleanup_orphans"),
+                    enabled = !operationBusy,
+                ) {
+                    Text("清理未使用的题图")
+                }
+                orphanGcStatus?.let { message ->
+                    Text(
+                        text = message,
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .testTag("storage_orphan_gc_status"),
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                operationMessage?.let { message ->
+                    Text(
+                        text = message,
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .testTag("storage_operation_message"),
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
         }
         // T6 诊断节：启动自检"上次异常退出"的只读提示 + 本机诊断包导出入口。
         // 横幅不自动外发、可忽略；Root/启动横幅是本批禁改热区，提示落在本设置页，
         // 学生反馈问题时从同一页导出诊断包（本地优先闭环，R2 选型 §1）。
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        SectionHeader("诊断")
-        DiagnosticsBootstrap.lastExitNotice?.let { notice ->
-            Text(
-                text = notice,
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .testTag("diagnostics_exit_notice"),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodyMedium,
-            )
-        }
-        Text(
-            "崩溃和无响应记录仅保存在本机，有容量上限，不会自动上传。" +
-                "诊断包含最近的问题记录和应用版本，可用于反馈问题。",
-            modifier = Modifier.padding(top = 10.dp),
-            color = InkSecondary,
-        )
-        OutlinedButton(
-            onClick = {
-                exportDiagnostics.launch(
-                    "smart-mistake-book-diagnostics-${System.currentTimeMillis()}.txt",
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column {
+                SettingsSectionTitle("诊断")
+                DiagnosticsBootstrap.lastExitNotice?.let { notice ->
+                    Text(
+                        text = notice,
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .testTag("diagnostics_exit_notice"),
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+                Text(
+                    "崩溃和无响应记录仅保存在本机，有容量上限，不会自动上传。" +
+                        "诊断包含最近的问题记录和应用版本，可用于反馈问题。",
+                    modifier = Modifier.padding(top = 10.dp),
+                    color = InkSecondary,
                 )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-                .testTag("diagnostics_export"),
-            enabled = !operationBusy,
-        ) {
-            Text("导出诊断包")
+                OutlinedButton(
+                    onClick = {
+                        exportDiagnostics.launch(
+                            "smart-mistake-book-diagnostics-${System.currentTimeMillis()}.txt",
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                        .testTag("diagnostics_export"),
+                    enabled = !operationBusy,
+                ) {
+                    Text("导出诊断包")
+                }
+                diagnosticsMessage?.let { message ->
+                    Text(
+                        text = message,
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .testTag("diagnostics_operation_message"),
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
         }
-        diagnosticsMessage?.let { message ->
-            Text(
-                text = message,
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .testTag("diagnostics_operation_message"),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-            )
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column {
+                SettingsSectionTitle("单题导出")
+                Text(
+                    "详情页可导出单题，错题本可导出筛选结果。均使用已确认的题面。",
+                    modifier = Modifier.padding(top = 10.dp),
+                    color = InkSecondary,
+                )
+            }
         }
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        SectionHeader("单题导出")
-        Text(
-            "单道错题可在详情页保存或打印 PDF；错题本还能把当前筛选结果整理成一份 A4 练习。两种方式都只使用已经确认的正式题面。",
-            modifier = Modifier.padding(top = 10.dp),
-            color = InkSecondary,
-        )
     }
 }
 
@@ -1375,13 +1452,11 @@ internal fun storageRestoreCompletionMessage(
 
 internal fun storageRestoreFailureMessage(failure: Exception): String =
     if (failure is BackupRestoreDatabaseClosedException) {
-        // 域内异常自带人工撰写的安全措辞，转述它是有意的；其余异常不转述 message
-        // （H-066 同族，批次 45 FIX-T02：原始 message 可能带路径/URI/实现细节）。
         val detail = failure.message?.takeIf(String::isNotBlank)
             ?: "恢复未完成，当前本机数据状态需要核对。"
         "$detail 请关闭应用后重新打开，并核对本机数据。"
     } else {
-        "恢复失败，已尝试保留原数据。请关闭应用后重新打开，并核对本机数据。"
+        "恢复失败，已尝试保留原数据。${failure.message.orEmpty()}"
     }
 
 private fun formatBytes(bytes: Long): String = when {
@@ -1450,4 +1525,10 @@ private fun ModelProviderProtocol.baseUrlHint(): String = when (this) {
     ModelProviderProtocol.OPENAI_RESPONSES -> "例如 https://api.openai.com/v1"
     ModelProviderProtocol.ANTHROPIC_MESSAGES -> "例如 https://api.anthropic.com"
     ModelProviderProtocol.GEMINI_GENERATE_CONTENT -> "例如 https://generativelanguage.googleapis.com"
+}
+
+private fun com.tingyun.smartmistakebook.core.domain.ModelCapabilityVerification.editCapabilityDescription(): String = when {
+    !supportsMistakeEdit -> "智能修改暂不可用，可重新测试或更换模型。"
+    supportsImageInput -> "智能修改可用。"
+    else -> "文字修改可用，图像修改需支持题图识别。"
 }

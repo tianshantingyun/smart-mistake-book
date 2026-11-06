@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.ui
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -63,6 +64,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 
@@ -76,7 +78,7 @@ fun SectionHeader(
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 40.dp),
+            .defaultMinSize(minHeight = if (action == null) 28.dp else 48.dp),
     ) {
         if (action != null && (maxWidth < 300.dp || LocalDensity.current.fontScale > 1.3f)) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -99,6 +101,7 @@ fun InlineActionButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     contentDescription: String = text,
+    icon: ImageVector? = null,
 ) {
     TextButton(
         onClick = onClick,
@@ -109,6 +112,10 @@ fun InlineActionButton(
         colors = ButtonDefaults.textButtonColors(contentColor = Ink, disabledContentColor = InkMuted),
         contentPadding = PaddingValues(horizontal = 10.dp, vertical = 8.dp),
     ) {
+        icon?.let {
+            Icon(it, null, Modifier.size(SmartIconSizes.Small))
+            Spacer(Modifier.width(6.dp))
+        }
         Text(text, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
     }
 }
@@ -126,21 +133,25 @@ fun ScreenStatePanel(
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 96.dp)
-            .padding(vertical = 18.dp),
+            .padding(horizontal = 16.dp, vertical = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Box(Modifier.size(40.dp),
+            contentAlignment = Alignment.Center) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(42.dp),
-            tint = InkMuted,
+            modifier = Modifier.size(26.dp),
+            tint = JadeDark,
         )
+        }
         Spacer(Modifier.height(10.dp))
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             color = Ink,
             fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center,
         )
         if (supportingText != null) {
             Spacer(Modifier.height(4.dp))
@@ -148,6 +159,7 @@ fun ScreenStatePanel(
                 text = supportingText,
                 style = MaterialTheme.typography.bodyMedium,
                 color = InkSecondary,
+                textAlign = TextAlign.Center,
             )
         }
         if (actionLabel != null && onAction != null) {
@@ -232,7 +244,7 @@ fun PrimaryActionButton(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(SmartIconSizes.Standard),
             )
             Spacer(Modifier.width(8.dp))
         }
@@ -261,10 +273,11 @@ fun OutlineActionChip(
             },
         enabled = enabled,
         shape = RoundedCornerShape(SmartDimens.ChipRadius),
-        border = null,
+        border = if (selected == false) BorderStroke(1.dp, SmartColors.Divider) else null,
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (selected == true) JadeSoft else Ink.copy(alpha = .06f),
+            containerColor = if (selected == true) JadeSoft else Color.Transparent,
             contentColor = if (selected == true) JadeActive else InkSecondary,
+            disabledContainerColor = Color.Transparent,
             disabledContentColor = InkMuted,
         ),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
@@ -273,11 +286,11 @@ fun OutlineActionChip(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(21.dp),
+                modifier = Modifier.size(SmartIconSizes.Standard),
             )
             Spacer(Modifier.width(7.dp))
         }
-        Text(text = text, style = MaterialTheme.typography.labelMedium)
+        Text(text = text, style = MaterialTheme.typography.labelLarge)
     }
 }
 
@@ -300,10 +313,13 @@ fun SubjectIcon(
     modifier: Modifier = Modifier,
     contentDescription: String = "${subject.studentLabel()}学科",
 ) {
+    val accent = subject.studentAccentColor()
     SubjectIcon(
         icon = subject.icon(),
         contentDescription = contentDescription,
         modifier = modifier,
+        containerColor = Color.Transparent,
+        tint = accent,
     )
 }
 
@@ -312,13 +328,13 @@ fun SubjectIcon(
     icon: ImageVector,
     contentDescription: String,
     modifier: Modifier = Modifier,
-    containerColor: Color = SubtleSurface,
+    containerColor: Color = Color.Transparent,
     tint: Color = InkSecondary,
 ) {
     Box(
         modifier = modifier
             .size(36.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(containerColor)
             .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center,
@@ -326,7 +342,7 @@ fun SubjectIcon(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(SmartIconSizes.Standard),
             tint = tint,
         )
     }

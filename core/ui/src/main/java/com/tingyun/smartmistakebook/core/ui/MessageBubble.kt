@@ -35,12 +35,12 @@ fun MessageBubble(
     ) {
         Box(
             modifier = Modifier
-                .widthIn(0.dp, 280.dp)
+                .then(if (isUser) Modifier.widthIn(max = 320.dp) else Modifier.fillMaxWidth())
                 .background(
                     if (isUser) {
                         MaterialTheme.colorScheme.primaryContainer
                     } else {
-                        MaterialTheme.colorScheme.secondaryContainer
+                        Color.Transparent
                     },
                     shape = RoundedCornerShape(12.dp)
                 ),
@@ -58,7 +58,7 @@ fun MessageBubble(
 private fun UserMessageContent(text: String) {
     Text(
         text = text,
-        fontSize = 15.sp,
+        style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onPrimaryContainer,
         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
         textAlign = TextAlign.Start,
@@ -69,7 +69,7 @@ private fun UserMessageContent(text: String) {
 private fun AIMessageContent(text: String) {
     SetupMaterial3RichText {
         RichText(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            modifier = Modifier.padding(vertical = 12.dp),
             style = RichTextStyle(
                 codeBlockStyle = CodeBlockStyle(
                     textStyle = TextStyle(

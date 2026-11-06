@@ -152,7 +152,7 @@ class RoomLibraryCatalogRepository(
                 favoriteOnly = query.favoriteOnly,
             )
         }
-        rows.map { row ->
+        val options = rows.map { row ->
             LibraryFacetCount(
                 id = row.id,
                 label = when (facet) {
@@ -163,6 +163,10 @@ class RoomLibraryCatalogRepository(
                 count = row.count,
             )
         }
+        if (facet == LibraryFacetKind.SECTION) {
+            val unclassified = totalCount(query.copy(sectionId = "__unclassified__"))
+            options + LibraryFacetCount("__unclassified__", "未分板块", unclassified)
+        } else options
     }
 }
 
@@ -173,6 +177,10 @@ object LibraryCatalogRepositoryFactory {
 
 private fun LibraryCatalogRow.toCatalogItem() = LibraryCatalogItem(
     entryId = entryId,
+    problemId = problemId,
+    problemRevisionId = problemRevisionId,
+    practiceUnitId = practiceUnitId,
+    problemMarkdown = problemMarkdown,
     title = title,
     summary = com.tingyun.smartmistakebook.core.model.ReadableMathText.inlineMarkdown(
         problemMarkdown,

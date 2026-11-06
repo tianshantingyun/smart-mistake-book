@@ -20,11 +20,28 @@ import com.tingyun.smartmistakebook.core.database.ResolveKnowledgeGroundingComma
 import com.tingyun.smartmistakebook.core.database.ReviewedKnowledgeCoverageRecord
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
+import com.tingyun.smartmistakebook.core.model.KnowledgeCatalogPosition
+
+data class KnowledgeCatalogRecord(
+    val node: KnowledgeNodeSeedRecord,
+    val snippet: String,
+    val position: KnowledgeCatalogPosition,
+)
 
 /**
  * Read-only port for knowledge base operations.
  */
 interface KnowledgeReadPort {
+    /** Complete catalog membership, independent of the tutor's bounded recall index. */
+    suspend fun readKnowledgeCatalogPage(
+        terms: List<String>, after: KnowledgeCatalogPosition?, limit: Int,
+    ): List<KnowledgeCatalogRecord> = throw UnsupportedOperationException("Catalog search is not installed")
+
+    suspend fun readKnowledgeCatalogPhrases(): List<String> = emptyList()
+
+    fun observeKnowledgeCatalogChanges(): Flow<Unit> = flowOf(Unit)
+
     suspend fun readSubjectKnowledgeNodes(
         subject: String,
         limit: Int,

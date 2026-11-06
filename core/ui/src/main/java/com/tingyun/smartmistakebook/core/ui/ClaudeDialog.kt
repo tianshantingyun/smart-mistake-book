@@ -1,10 +1,10 @@
 package com.tingyun.smartmistakebook.core.ui
 
 // Native port of Caho1/open-claude-ui ConfirmationDialog.tsx, c1f923ae; MIT, Copyright 2026 Caho1.
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
@@ -55,7 +59,7 @@ fun ClaudeAlertDialog(
     icon: (@Composable () -> Unit)? = null,
     title: (@Composable () -> Unit)? = null,
     text: (@Composable () -> Unit)? = null,
-    shape: Shape = RoundedCornerShape(16.dp),
+    shape: Shape = RoundedCornerShape(18.dp),
     containerColor: Color = ContentSurface,
     iconContentColor: Color = JadeActive,
     titleContentColor: Color = Ink,
@@ -70,16 +74,18 @@ fun ClaudeAlertDialog(
             .claudeDismissOnEscape(enabled = properties.dismissOnBackPress, onDismiss = onDismissRequest),
             contentAlignment = Alignment.Center) {
             Surface(modifier.widthIn(max = 520.dp).fillMaxWidth().heightIn(max = maxHeight)
-                .claudeModalEntrance(),
+                .claudeModalEntrance().claudeSurfaceShadow(shape, ClaudeSurfaceDepth.FLOATING),
                 shape = shape, color = containerColor, tonalElevation = tonalElevation,
-                shadowElevation = 16.dp, border = BorderStroke(1.dp, Ink.copy(alpha = .1f))) {
-                Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top,
+                border = BorderStroke(1.dp, SmartColors.Divider), shadowElevation = 0.dp) {
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        if (icon != null) CompositionLocalProvider(LocalContentColor provides iconContentColor, content = icon)
-                        Column(Modifier.weight(1f).padding(top = 8.dp)) {
+                        if (dangerConfirm) {
+                            Icon(Icons.Outlined.WarningAmber, null, Modifier.size(24.dp), tint = SmartColors.ErrorText)
+                        } else if (icon != null) CompositionLocalProvider(LocalContentColor provides iconContentColor, content = icon)
+                        Column(Modifier.weight(1f).semantics { heading() }) {
                             if (title != null) CompositionLocalProvider(LocalContentColor provides titleContentColor) {
-                                ProvideTextStyle(MaterialTheme.typography.titleMedium, title)
+                                ProvideTextStyle(MaterialTheme.typography.titleLarge, title)
                             }
                         }
                         if (properties.dismissOnBackPress || properties.dismissOnClickOutside) {
@@ -96,6 +102,7 @@ fun ClaudeAlertDialog(
                             }
                         }
                     }
+                    PaperDivider()
                     FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                         verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         CompositionLocalProvider(LocalClaudeDialogButtonKind provides ClaudeDialogButtonKind.CANCEL) {

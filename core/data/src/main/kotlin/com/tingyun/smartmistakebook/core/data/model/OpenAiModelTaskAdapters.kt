@@ -1,5 +1,8 @@
 package com.tingyun.smartmistakebook.core.data.model
 
+import com.tingyun.smartmistakebook.core.model.MistakeEditInput
+import com.tingyun.smartmistakebook.core.model.DetailedSolutionInput
+
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentInput
 import com.tingyun.smartmistakebook.core.model.CaptureAssessmentOutput
 import com.tingyun.smartmistakebook.core.model.CaptureParseInput
@@ -68,6 +71,8 @@ internal object OpenAiModelTaskAdapters {
     internal const val VISUAL_STATE_END: String = "===TUTOR_VISUAL_STATE_END==="
 
     fun prompt(input: ModelTaskInput): String = when (input) {
+        is DetailedSolutionInput -> OpenAiDetailedSolutionProtocol.prompt(input)
+        is MistakeEditInput -> OpenAiMistakeEditProtocol.prompt(input)
         is CaptureAssessmentInput -> assessmentPrompt(input)
         is CaptureParseInput -> PARSE_PROMPT
         is ImagePipelineClassifyInput -> imagePipelineClassifyPrompt(input)
@@ -86,6 +91,8 @@ internal object OpenAiModelTaskAdapters {
         input: ModelTaskInput,
         modelVersion: String,
     ): ModelTaskOutput = when (input) {
+        is DetailedSolutionInput -> OpenAiDetailedSolutionProtocol.parse(payload, input, modelVersion)
+        is MistakeEditInput -> OpenAiMistakeEditProtocol.parse(payload, input, modelVersion)
         is CaptureAssessmentInput -> CaptureAssessmentOutput(
             assessment = payload.toAssessment(modelVersion),
         )

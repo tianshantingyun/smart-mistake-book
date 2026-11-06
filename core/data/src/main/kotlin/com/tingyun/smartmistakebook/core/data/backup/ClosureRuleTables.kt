@@ -8,10 +8,10 @@ import java.security.MessageDigest
  * **消灭的具体失败**：`closureVersion` 被当成"必须等于本机常量"的硬等值比较，一份
  * closure 4（schema 72）的合法旧包在第一道门就被拒，即使它的 91 表行数、摘要与裁剪数
  * 都自洽——旧包永久不可恢复。规则表把"用哪张表解释 rowCounts/digest"变成数据，
- * 读侧按包自称的版本校验，绝不按当前 v5 规则重算。
+ * 读侧按包自称的版本校验，绝不按当前 v6 规则重算。
  *
- * 支持窗口 N-1：`closure ∈ {4, 5}`。`≤3` 没有不可变规则表（无法按当时算法重算摘要），
- * `≥6` 规则未知——两者都明确拒绝并提示升级/重导出（R2 §3.4）。
+ * 兼容历史包：`closure ∈ {4, 5, 6}`；4、5 按冻结键集合区分主分支与旧 UI 分支。`≤3` 没有不可变规则表（无法按当时算法重算摘要），
+ * `≥7` 规则未知——两者都明确拒绝并提示升级/重导出（R2 §3.4）。
  *
  * **不复制上游代码**：只冻结校验所需的三件事（键集合、裁剪上限、摘要前缀）。v4 数值
  * 逐字取自 `git show 70509247:core/data/.../SmbkSelectionPlan.kt`（closure 4 时点，
@@ -54,7 +54,7 @@ internal object ClosureRuleTables {
     private val materialFeatureTable: Set<String> = setOf("knowledge_search_material_feature")
 
     /** 现行规则（closure 5 / schema 73）：唯一可写版本。 */
-    val v5 = SmbkClosureRule(
+    val v6 = SmbkClosureRule(
         closureVersion = SmbkSelectionPlan.CLOSURE_VERSION,
         digestPrefix = SmbkSelectionPlan.CLOSURE_DIGEST_PREFIX,
         rowCountKeys = SmbkSelectionPlan.rowCountKeys,
@@ -62,6 +62,12 @@ internal object ClosureRuleTables {
         addedTables = emptySet(),
         droppedTables = emptySet(),
     )
+
+    private val interiorTables = setOf("mistake_edit_job", "detailed_solution_manifest", "detailed_solution", "mistake_export_group", "paper_review", "paper_review_question", "paper_review_photo")
+    val v5 = SmbkClosureRule(5, "smbk-selection-v5", SmbkSelectionPlan.rowCountKeys - interiorTables,
+        84, interiorTables, emptySet())
+    private val v5Ui = SmbkClosureRule(5, "smbk-selection-v5", SmbkSelectionPlan.rowCountKeys - errorCauseTables,
+        89, errorCauseTables, emptySet())
 
     /**
      * closure 4（schema 72）的冻结快照：91 键 / 83 裁剪项 / `smbk-selection-v4`。
@@ -71,29 +77,34 @@ internal object ClosureRuleTables {
     val v4 = SmbkClosureRule(
         closureVersion = 4,
         digestPrefix = "smbk-selection-v4",
-        rowCountKeys = SmbkSelectionPlan.rowCountKeys - errorCauseTables + materialFeatureTable,
+        rowCountKeys = SmbkSelectionPlan.rowCountKeys - errorCauseTables - interiorTables + materialFeatureTable,
         trimOrderSize = 83,
-        addedTables = errorCauseTables,
+        addedTables = errorCauseTables + interiorTables,
         droppedTables = materialFeatureTable,
     )
 
+    private val paperTables = setOf("paper_review", "paper_review_question", "paper_review_photo")
+    private val v4Ui = SmbkClosureRule(4, "smbk-selection-v4", SmbkSelectionPlan.rowCountKeys - errorCauseTables - paperTables,
+        86, errorCauseTables + paperTables, emptySet())
+
     init {
         check(v4.rowCountKeys.size == 91) { "closure 4 must declare 91 row-count keys" }
-        check(v5.rowCountKeys.size == SmbkSelectionPlan.allTables.size) {
-            "closure 5 row-count keys must match the current table list"
+        check(v6.rowCountKeys.size == SmbkSelectionPlan.allTables.size) {
+            "closure 6 row-count keys must match the current table list"
         }
-        check(v4.droppedTables.all { it !in v5.rowCountKeys }) {
+        check(v4.droppedTables.all { it !in v6.rowCountKeys }) {
             "Dropped tables must be absent from the current rule table"
         }
-        check(v4.addedTables.all { it in v5.rowCountKeys }) {
+        check(v4.addedTables.all { it in v6.rowCountKeys }) {
             "Added tables must be present in the current rule table"
         }
     }
 
     /** 声明版本 → 规则表；不认识返回 null（调用方给出可读拒绝）。 */
-    fun of(closureVersion: Int): SmbkClosureRule? = when (closureVersion) {
-        v4.closureVersion -> v4
-        v5.closureVersion -> v5
+    fun of(closureVersion: Int, keys: Set<String>? = null): SmbkClosureRule? = when (closureVersion) {
+        v4.closureVersion -> if (keys == v4Ui.rowCountKeys) v4Ui else v4
+        5 -> if (keys == v5Ui.rowCountKeys) v5Ui else v5
+        v6.closureVersion -> v6
         else -> null
     }
 

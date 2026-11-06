@@ -1,10 +1,13 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.SubtleSurface
+import com.tingyun.smartmistakebook.core.ui.JadeActive
+
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.border
+import androidx.compose.foundation.background
 import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
 import com.tingyun.smartmistakebook.core.ui.claudeInteractiveRow
 import com.tingyun.smartmistakebook.core.ui.Ink
@@ -80,6 +83,7 @@ private fun localImageDisplayName(context: Context, localUri: String): String? =
         else -> null
     }
     name?.filterNot(Char::isISOControl)?.take(120)?.takeIf(String::isNotBlank)
+        ?.takeUnless { it.matches(Regex("lobby-intake-[a-f0-9]{64}\\.(png|jpe?g|webp)", RegexOption.IGNORE_CASE)) }
 }.getOrNull()
 
 /**
@@ -113,7 +117,7 @@ internal fun PendingMessageImagesRow(
                     }
                 }
                 val label = displayName ?: "图片 ${index + 1}"
-                Row(Modifier.border(1.dp, Ink.copy(alpha = .1f), RoundedCornerShape(8.dp)),
+                Row(Modifier.clip(RoundedCornerShape(14.dp)).background(SubtleSurface),
                     verticalAlignment = Alignment.CenterVertically) {
                     BoundedLocalImage(
                         imageUri = images[index].localUri,
@@ -122,7 +126,7 @@ internal fun PendingMessageImagesRow(
                         collapsedMaxHeight = 48.dp,
                         modifier = Modifier
                             .size(48.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .clip(RoundedCornerShape(14.dp))
                             .clickable { viewing = ViewedMessageImage(uri, "待发送图片 ${index + 1} · $label") },
                     )
                     Column(Modifier.widthIn(max = 144.dp).padding(horizontal = 8.dp)) {
@@ -184,7 +188,7 @@ internal fun MessageImagesRow(
                         collapsedMaxHeight = 140.dp,
                         modifier = Modifier
                             .size(width = 120.dp, height = 120.dp)
-                            .clip(RoundedCornerShape(10.dp))
+                            .clip(RoundedCornerShape(16.dp))
                             .clickable { viewing = ViewedMessageImage(uri, "消息图片 ${index + 1}") }
                             .testTag("${testTagPrefix}_message_image_$index"),
                     )
@@ -219,7 +223,7 @@ internal fun MessageAttachmentDialog(
         emphasizeConfirm = false,
         title = { Text("添加") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 // 三个动作同权，所以都排在内容区；确认键留给"取消"。
                 AttachmentMenuRow(
                     text = "拍照",
@@ -273,12 +277,14 @@ private fun AttachmentMenuRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .claudeInteractiveRow(onClick)
-            .padding(vertical = 10.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(SubtleSurface)
+            .claudeInteractiveRow(onClick, shape = RoundedCornerShape(14.dp))
+            .padding(horizontal = 12.dp, vertical = 12.dp)
             .testTag(testTag),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(icon, contentDescription = null)
+        Icon(icon, contentDescription = null, tint = JadeActive)
         Text(text = text, modifier = Modifier.padding(start = 10.dp))
     }
 }

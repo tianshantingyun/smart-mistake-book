@@ -11,9 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.AutoStories
@@ -24,6 +25,7 @@ import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import com.tingyun.smartmistakebook.core.ui.studentAccentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -49,20 +51,24 @@ internal fun LibraryQuestionCard(
     sourceRepository: MistakeDetailRepository?,
     onClick: () -> Unit,
     onToggleFavorite: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     ClaudeCard(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp).testTag("library_item_${mistake.id}"),
+        modifier = modifier.fillMaxWidth().padding(bottom = 12.dp).testTag("library_item_${mistake.id}"),
+        shape = RoundedCornerShape(10.dp),
+        bordered = true,
+        elevation = 1.dp,
     ) {
         Column {
             LibraryInlineImages(
                 mistake = mistake,
                 repository = sourceRepository,
                 modifier = Modifier.fillMaxWidth(),
-                captionContent = { source ->
+                captionContent = { source, previewAction ->
                     Box(Modifier.padding(start = if (source.isBlank()) 16.dp else 0.dp,
                         end = if (source.isBlank()) 12.dp else 0.dp)) {
-                        LibraryCardHeading(mistake, source, onToggleFavorite)
+                        LibraryCardHeading(mistake, source, onToggleFavorite, previewAction)
                     }
                 },
                 fallbackContent = {
@@ -83,23 +89,33 @@ internal fun LibraryQuestionCard(
 }
 
 @Composable
-private fun LibraryCardHeading(mistake: LibraryMistake, source: String, onToggleFavorite: (Boolean) -> Unit) {
+private fun LibraryCardHeading(
+    mistake: LibraryMistake,
+    source: String,
+    onToggleFavorite: (Boolean) -> Unit,
+    previewAction: (@Composable () -> Unit)?,
+) {
     val favoriteTint = libraryStateColor(
         if (mistake.isFavorite) SmartColors.Jade else SmartColors.InkSecondary,
         label = "library-favorite-color", durationMillis = ClaudeMotion.PressMillis,
     )
-    Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(mistake.title, style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, lineHeight = 25.sp),
+    Row(Modifier.fillMaxWidth().padding(bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f).padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(mistake.title,
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp, lineHeight = 24.sp),
                 fontWeight = FontWeight.SemiBold,
                 color = SmartColors.Ink, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            LibraryCardMetadata(mistake, source)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Box(Modifier.weight(1f)) { LibraryCardMetadata(mistake, source) }
+                previewAction?.invoke()
+            }
         }
         IconButton(onClick = { onToggleFavorite(!mistake.isFavorite) },
-            modifier = Modifier.testTag("library_favorite_${mistake.id}").semantics {
+            modifier = Modifier.align(Alignment.Top).testTag("library_favorite_${mistake.id}").semantics {
                 stateDescription = if (mistake.isFavorite) "已收藏" else "未收藏"
             }) {
-            Icon(if (mistake.isFavorite) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+            Icon(if (mistake.isFavorite) Icons.Filled.Bookmark else Icons.Outlined.BookmarkAdd,
                 contentDescription = if (mistake.isFavorite) "取消收藏 ${mistake.title}" else "收藏 ${mistake.title}",
                 tint = favoriteTint, modifier = Modifier.size(20.dp))
         }
@@ -112,7 +128,7 @@ private fun LibraryCardMetadata(mistake: LibraryMistake, source: String) {
         val stacked = maxWidth < 180.dp || LocalDensity.current.fontScale > 1.3f
         @Composable fun ContentPath(modifier: Modifier = Modifier) {
             Text(if (source.isBlank()) mistake.contentPath else "$source · ${mistake.contentPath}", modifier = modifier,
-                style = MaterialTheme.typography.labelMedium, color = SmartColors.InkSecondary,
+                style = MaterialTheme.typography.labelMedium, color = mistake.subject.studentAccentColor(),
                 maxLines = if (stacked) 2 else 1, overflow = TextOverflow.Ellipsis)
         }
         if (stacked) Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -128,13 +144,17 @@ private fun LibraryCardMetadata(mistake: LibraryMistake, source: String) {
 @Composable
 internal fun LibraryMasteryBadge(mastery: MasteryState) {
     val background = libraryStateColor(when (mastery) {
-        MasteryState.LEARNING, MasteryState.MASTERED -> SmartColors.JadeSoft
-        MasteryState.CONFLICTED, MasteryState.STALE -> SmartColors.ErrorWarm.copy(alpha = .12f)
-        MasteryState.UNKNOWN -> SmartColors.SubtleSurface
+        MasteryState.LEARNING -> SmartColors.LearningSurface
+        MasteryState.MASTERED -> SmartColors.JadeSoft
+        MasteryState.CONFLICTED -> SmartColors.ErrorSurface
+        MasteryState.STALE -> SmartColors.PendingSurface
+        MasteryState.UNKNOWN -> Color.Transparent
     }, label = "library-mastery-surface")
     val tint = libraryStateColor(when (mastery) {
-        MasteryState.LEARNING, MasteryState.MASTERED -> SmartColors.JadeDark
-        MasteryState.CONFLICTED, MasteryState.STALE -> SmartColors.ErrorText
+        MasteryState.LEARNING -> SmartColors.LearningAccent
+        MasteryState.MASTERED -> SmartColors.JadeDark
+        MasteryState.CONFLICTED -> SmartColors.ErrorText
+        MasteryState.STALE -> SmartColors.PendingAccent
         MasteryState.UNKNOWN -> SmartColors.InkSecondary
     }, label = "library-mastery-icon")
     val icon = when (mastery) {
