@@ -117,6 +117,8 @@ internal fun buildBatchExportInput(
         maxPages = MistakePdfExportLimits.MAX_BATCH_PAGES,
         maxRenderedLines = MistakePdfExportLimits.MAX_BATCH_RENDERED_LINES,
         maxPdfBytes = MistakePdfExportLimits.MAX_BATCH_PDF_BYTES,
+        // KD-75 C2：整批只要有一道题含模型解析文本，整份 PDF 都要打标（判据是文档级）。
+        hasModelParsedText = inputs.any(MistakePdfExportInput::hasModelParsedText),
         solutionImages = solutionImages,
         layout = layout,
     )

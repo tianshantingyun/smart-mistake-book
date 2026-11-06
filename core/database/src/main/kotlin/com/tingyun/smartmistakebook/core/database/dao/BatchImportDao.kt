@@ -251,18 +251,22 @@ internal interface BatchImportDao {
 
     /**
      * Whether the staged source behind [sourceUri] must survive. A READY page counts as
-     * retaining while its split stage is still PENDING: the split attempt stores that uri
-     * as the review page's source image, so dropping it early would leave a review screen
-     * whose original photo cannot be opened.
+     * retaining while its split stage is still PENDING. A preparing or ready split job
+     * also retains it after that stage settles: the review screen still opens this URI.
      */
     @Query(
         """
-        SELECT COUNT(*) FROM batch_import_page
-        WHERE source_uri = :sourceUri
-          AND (
-              status IN ('QUEUED', 'IMPORTING', 'FAILED')
-              OR (status = 'READY' AND split_after_status = 'PENDING')
-          )
+        SELECT (
+            SELECT COUNT(*) FROM batch_import_page
+            WHERE source_uri = :sourceUri
+              AND (
+                  status IN ('QUEUED', 'IMPORTING', 'FAILED')
+                  OR (status = 'READY' AND split_after_status = 'PENDING')
+              )
+        ) + (
+            SELECT COUNT(*) FROM split_import_job
+            WHERE source_uri = :sourceUri AND status IN ('PREPARING', 'READY')
+        )
         """,
     )
     suspend fun countRetainedSourceUri(sourceUri: String): Int

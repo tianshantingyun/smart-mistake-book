@@ -1044,9 +1044,451 @@ class EntrySmokeTest(SplitGateTestBase):
         proc = subprocess.run(
             [sys.executable, str(SPLIT_TOOLS / "check_split_gate.py"),
              "--app", str(self.tmp / "nope.json")],
-            capture_output=True, text=True, cwd=str(REPO), timeout=120)
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            cwd=str(REPO), timeout=120)
         self.assertEqual(3, proc.returncode, proc.stdout + proc.stderr)
         self.assertIn("门后自动化不启用", proc.stdout)
+
+
+# ---------------------------------------------------------------- v2 金标：证据等级 G0–G5
+
+def model_labelers(count: int = 2) -> list[dict]:
+    """两次独立模型标注的最小登记形态（R5 §3.2 G2 的必填字段）。"""
+    return [{"kind": "model", "provider": "openai-compatible", "modelId": "fixture-model",
+             "modelVersion": f"v{index}", "promptSha256": f"{index + 1:02x}" * 32,
+             "ranAtUtc": f"2026-11-0{index + 1}T00:00:00Z"}
+            for index in range(count)]
+
+
+def human_labelers(count: int = 2) -> list[dict]:
+    return [{"kind": "human", "agentId": f"reviewer-{index}", "role": "labeler"}
+            for index in range(count)]
+
+
+def agreement_block() -> dict:
+    return {"metric": "raw-agreement", "value": 1.0, "subset": "all 7 pages",
+            "chanceCorrected": None}
+
+
+def write_v2_golden(path: Path, pages: list[dict], level: str = "G2",
+                    **extras) -> Path:
+    """v2 金标（新文件 + 新旁车）：根级 `evidenceGradeLevel` 是机检等级的唯一来源。"""
+    doc = {"schemaVersion": V.SCHEMA_VERSION_V2,
+           "generatedAt": "2026-11-02T00:00:00Z",
+           "sampleRule": "测试夹具：v2 结构，非真实抽样",
+           "evidenceGrade": "fixture-labeled; not a real dataset",
+           "evidenceGradeLevel": level,
+           "labelingProtocolVersion": "aud08-protocol-v1",
+           "guidelineVersion": "aud08-guideline-v1",
+           "pages": pages}
+    doc.update(extras)
+    text = V.canonical_dump(doc)
+    path.write_text(text, encoding="utf-8", newline="")
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    path.with_name(path.name + ".sha256").write_text(
+        f"{digest}  {path.name}\n", encoding="utf-8", newline="")
+    return path
+
+
+class EvidenceLevelTest(SplitGateTestBase):
+    """item 31：等级必须从产物读、可机检；v1 的 G2 是映射不是可复算。
+
+    它消灭的具体失败（R5 §3.1/§3.4）：`evidenceGrade` 是自由文本，C2 只能锁字符串
+    "没被改过"，不能证明"两名标注员独立一致"是真的；门报告把 `model-labeled` 硬编码，
+    金标升级后报告仍写旧等级，读者也拿不到"该等级支撑什么断言"。
+    """
+
+    def _level(self, doc: dict) -> tuple:
+        return V.evidence_level(doc)
+
+    def test_v1_real_golden_is_g2_and_not_recomputable(self):
+        doc, failures = V.validate(REAL_GOLDEN, REAL_SIDECAR)
+        self.assertEqual([], failures)
+        level, recomputable, level_failures = self._level(doc)
+        self.assertEqual("G2", level, "v1 冻结产物只能按常量映射为 G2")
+        self.assertFalse(recomputable, "v1 无逐页 labelers 记录，等级不可从产物复算")
+        self.assertEqual([], level_failures)
+
+    def test_v2_g2_with_two_model_labelers_and_agreement_passes(self):
+        pages = default_golden_pages(7)
+        golden = write_v2_golden(self.tmp / "g2.json", pages,
+                                 labelers=model_labelers(2), agreement=agreement_block())
+        doc, failures = V.validate(golden, golden.with_name(golden.name + ".sha256"))
+        self.assertEqual([], failures)
+        level, recomputable, level_failures = self._level(doc)
+        self.assertEqual("G2", level)
+        self.assertTrue(recomputable)
+        self.assertEqual([], level_failures)
+
+    def test_v2_g2_without_agreement_is_c7(self):
+        """等级声明 G2 但没有一致性记录：C7 必须红（不许只靠一个字符串升级）。"""
+        pages = default_golden_pages(7)
+        golden = write_v2_golden(self.tmp / "g2.json", pages, labelers=model_labelers(2))
+        _doc, failures = V.validate(golden, golden.with_name(golden.name + ".sha256"))
+        self.assertTrue(any(f.startswith("C7:") for f in failures), failures)
+
+    def test_v2_single_model_labeler_cannot_claim_g2(self):
+        pages = default_golden_pages(7)
+        golden = write_v2_golden(self.tmp / "g2.json", pages,
+                                 labelers=model_labelers(1), agreement=agreement_block())
+        _doc, failures = V.validate(golden, golden.with_name(golden.name + ".sha256"))
+        self.assertTrue(any(f.startswith("C7:") for f in failures), failures)
+
+    def test_v2_overclaim_g4_without_review_is_c7(self):
+        """G4 要求人工逐条核过（根 review + 每页 reviewedBy）；缺一项即红。"""
+        pages = default_golden_pages(7)
+        golden = write_v2_golden(
+            self.tmp / "g4.json", pages, level="G4",
+            labelers=human_labelers(2), agreement=agreement_block(),
+            adjudication={"method": "adjudicated", "adjudicatorId": "adj-1",
+                          "role": "adjudicator", "guidelineVersion": "aud08-guideline-v1",
+                          "decidedAtUtc": "2026-11-02T00:00:00Z"})
+        _doc, failures = V.validate(golden, golden.with_name(golden.name + ".sha256"))
+        self.assertTrue(any(f.startswith("C7:") for f in failures), failures)
+        self.assertTrue(any("review" in f for f in failures if f.startswith("C7:")), failures)
+
+    def test_v2_g4_with_review_passes(self):
+        pages = default_golden_pages(7)
+        for page in pages:
+            page["reviewedBy"] = "reviewer-0"
+        golden = write_v2_golden(
+            self.tmp / "g4.json", pages, level="G4",
+            labelers=human_labelers(2), agreement=agreement_block(),
+            review={"humanId": "reviewer-0", "guidelineVersion": "aud08-guideline-v1",
+                    "reviewedAtUtc": "2026-11-02T00:00:00Z", "changes": []},
+            adjudication={"method": "adjudicated", "adjudicatorId": "adj-1",
+                          "role": "adjudicator", "guidelineVersion": "aud08-guideline-v1",
+                          "decidedAtUtc": "2026-11-02T00:00:00Z"})
+        _doc, failures = V.validate(golden, golden.with_name(golden.name + ".sha256"))
+        self.assertEqual([], failures)
+
+    def test_v1_cannot_carry_a_level_field(self):
+        """v1 根字段恰好；想给 v1 加 evidenceGradeLevel 必须走 v2 新文件（C2 红）。"""
+        pages = default_golden_pages(7)
+        golden = self.frozen(pages)
+        doc = json.loads(golden.read_text(encoding="utf-8"))
+        doc["evidenceGradeLevel"] = "G5"
+        golden.write_text(V.canonical_dump(doc), encoding="utf-8", newline="")
+        digest = hashlib.sha256(golden.read_bytes()).hexdigest()
+        golden.with_name(golden.name + ".sha256").write_text(
+            f"{digest}  {golden.name}\n", encoding="utf-8", newline="")
+        _doc, failures = V.validate(golden, golden.with_name(golden.name + ".sha256"))
+        self.assertTrue(any("C2" in f and "evidenceGradeLevel" in f for f in failures), failures)
+
+    def test_gate_report_reads_level_from_artifact(self):
+        """门报告不得硬编码等级：v2 注明 G2 时报告写 G2 且 recomputable=true。"""
+        pages = default_golden_pages(7)
+        golden = write_v2_golden(self.tmp / "g2.json", pages,
+                                 labelers=model_labelers(2), agreement=agreement_block())
+        app = [(page["file"], aligned_app_boxes(page)) for page in pages]
+        app_path = self.tmp / "app.json"
+        write_app(app_path, app)
+        code, report, _out = self._invoke(
+            ["--golden", str(golden),
+             "--sidecar", str(golden.with_name(golden.name + ".sha256")),
+             "--app", str(app_path)])
+        self.assertEqual(0, code)
+        self.assertEqual("G2", report["golden"]["evidenceGradeLevel"])
+        self.assertTrue(report["golden"]["evidenceLevelRecomputable"])
+        self.assertEqual("artifact_field", report["golden"]["evidenceLevelSource"])
+
+    def test_gate_blocks_overclaiming_level(self):
+        """等级不足（G4 缺人工复核）：门必须 exit 2 / NOT_EVALUABLE_FREEZE，不得判 PASS。"""
+        pages = default_golden_pages(7)
+        golden = write_v2_golden(
+            self.tmp / "g4.json", pages, level="G4",
+            labelers=human_labelers(2), agreement=agreement_block(),
+            adjudication={"method": "adjudicated", "adjudicatorId": "adj-1",
+                          "role": "adjudicator", "guidelineVersion": "aud08-guideline-v1",
+                          "decidedAtUtc": "2026-11-02T00:00:00Z"})
+        app = [(page["file"], aligned_app_boxes(page)) for page in pages]
+        app_path = self.tmp / "app.json"
+        write_app(app_path, app)
+        code, report, out = self._invoke(
+            ["--golden", str(golden),
+             "--sidecar", str(golden.with_name(golden.name + ".sha256")),
+             "--app", str(app_path)])
+        self.assertEqual(2, code)
+        self.assertEqual("NOT_EVALUABLE_FREEZE", report["gate"]["state"])
+        self.assertTrue(any(f.startswith("C7:") for f in report["freezeFailures"]))
+        self.assertIn("门后自动化不启用", out)
+
+
+# ---------------------------------------------------------------- item 30：逐页裁定 rulings
+
+class RulingDocumentTest(SplitGateTestBase):
+    """rulings.json：一 run 一份、append-only、六条不变量机检、负控必红（R5 §2）。"""
+
+    def _run_with_rulings(self, pages: list[dict], app: list[tuple[str, list[dict]]]):
+        golden = self.frozen(pages)
+        app_path = self.tmp / "app.json"
+        write_app(app_path, app)
+        out_dir = self.tmp / "rulings"
+        code, _report, out = self._invoke(
+            ["--golden", str(golden),
+             "--sidecar", str(golden.with_name(golden.name + ".sha256")),
+             "--app", str(app_path), "--rulings-out", str(out_dir)])
+        return code, out, sorted(out_dir.glob("*.json"))
+
+    def _valid_document(self) -> tuple[dict, list[str]]:
+        import validate_rulings as RV
+        pages = default_golden_pages(7)
+        app = [(page["file"], aligned_app_boxes(page)) for page in pages]
+        code, _out, files = self._run_with_rulings(pages, app)
+        self.assertEqual(0, code)
+        self.assertEqual(1, len(files), "一次运行必须落恰好一份 rulings")
+        doc = json.loads(files[0].read_text(encoding="utf-8"))
+        return doc, RV.validate_document(doc)
+
+    def test_rulings_written_with_schema_and_valid(self):
+        doc, failures = self._valid_document()
+        self.assertEqual([], failures, failures)
+        self.assertEqual(1, doc["rulingSchemaVersion"])
+        self.assertEqual("PASS", doc["gate"]["state"])
+        self.assertEqual(7, len(doc["rulings"]))
+        page = doc["rulings"][0]
+        for key in ("pageId", "pageIdKind", "appRef", "gold", "app", "diff", "ruling"):
+            self.assertIn(key, page)
+        self.assertEqual("automated", page["ruling"]["decidedBy"]["kind"])
+        self.assertTrue(page["ruling"]["decidedBy"]["agentId"].startswith("script:"))
+        self.assertEqual(7, doc["summary"]["pages"])
+        self.assertEqual(7, doc["summary"]["consistent"])
+
+    def test_negative_control_tampered_iou_count_is_rejected(self):
+        import validate_rulings as RV
+        doc, failures = self._valid_document()
+        self.assertEqual([], failures)
+        doc["rulings"][0]["diff"]["iouOkCount"] += 1
+        self.assertNotEqual([], RV.validate_document(doc))
+
+    def test_negative_control_human_kind_without_agent_id_is_rejected(self):
+        import validate_rulings as RV
+        doc, _failures = self._valid_document()
+        doc["rulings"][0]["ruling"]["decidedBy"] = {
+            "kind": "human", "agentId": "", "ruleId": "count-v2"}
+        self.assertNotEqual([], RV.validate_document(doc))
+
+    def test_negative_control_tampered_boxes_digest_is_rejected(self):
+        """改摘要（而不同步 summary.rulingsSha256）：自检必须红。"""
+        import validate_rulings as RV
+        doc, _failures = self._valid_document()
+        doc["rulings"][0]["gold"]["boxesSha256"] = "0" * 64
+        self.assertNotEqual([], RV.validate_document(doc))
+
+    def test_rulings_deterministic_except_run_identity(self):
+        """同输入两次构建：除 run/decidedAtUtc 外 rulings 逐字节一致。"""
+        import io
+        import rulings as RU
+        from contextlib import redirect_stdout
+        pages = default_golden_pages(7)
+        app = [(page["file"], aligned_app_boxes(page)) for page in pages]
+        golden = self.frozen(pages)
+        app_path = self.tmp / "app.json"
+        write_app(app_path, app)
+        with redirect_stdout(io.StringIO()):
+            G.main(["--golden", str(golden),
+                    "--sidecar", str(golden.with_name(golden.name + ".sha256")),
+                    "--app", str(app_path)])
+        report = G.LAST_REPORT
+        first = RU.build_document(report, run_id="20261102T000000Z-aaaaaaaa",
+                                  generated_at_utc="2026-11-02T00:00:00Z",
+                                  command=["python", "check_split_gate.py"])
+        second = RU.build_document(report, run_id="20261102T000000Z-bbbbbbbb",
+                                   generated_at_utc="2026-11-02T00:00:00Z",
+                                   command=["python", "check_split_gate.py"])
+        for doc in (first, second):
+            for page in doc["rulings"]:
+                page["ruling"]["decidedAtUtc"] = None
+        self.assertEqual(json.dumps(first["rulings"], ensure_ascii=False, sort_keys=True),
+                         json.dumps(second["rulings"], ensure_ascii=False, sort_keys=True))
+
+    def test_not_evaluable_run_writes_no_rulings(self):
+        """门不可判（应用导出缺失）：不得伪造逐页裁定，也不落 rulings 文件。"""
+        pages = default_golden_pages(7)
+        golden = self.frozen(pages)
+        out_dir = self.tmp / "rulings"
+        code, _report, out = self._invoke(
+            ["--golden", str(golden),
+             "--sidecar", str(golden.with_name(golden.name + ".sha256")),
+             "--app", str(self.tmp / "nope.json"), "--rulings-out", str(out_dir)])
+        self.assertEqual(3, code)
+        self.assertFalse(out_dir.exists() and any(out_dir.glob("*.json")))
+        self.assertIn("未生成 rulings", out)
+
+    def test_write_refuses_overwrite(self):
+        import rulings as RU
+        import validate_rulings as RV
+        doc, _failures = self._valid_document()
+        target = self.tmp / "once"
+        RU.write_document(doc, target)
+        with self.assertRaises(FileExistsError):
+            RU.write_document(doc, target)
+        self.assertEqual([], RV.validate_document(doc))
+
+
+# ---------------------------------------------------------------- item 31/32：等级、范围、红线
+
+class GateScopeAndRedLineTest(SplitGateTestBase):
+    """门报告必须自带范围声明与硬红线，且门红时不得出现任何门级 PASS 判词。"""
+
+    def test_scope_and_hard_red_lines_present(self):
+        pages = default_golden_pages(10)
+        app = [(page["file"], aligned_app_boxes(page)) for page in pages]
+        code, report, _out = self.run_gate(pages, app)
+        self.assertEqual(0, code)
+        scope = report["scope"]
+        self.assertTrue(scope["notGeneralizable"])
+        self.assertIn("不等于", scope["statement"])
+        self.assertEqual(report["golden"]["sha256"], scope["appliesTo"]["goldenSha256"])
+        self.assertEqual(report["app"]["sha256"], scope["appliesTo"]["appSha256"])
+        red = report["hardRedLines"]["fragmentedQuestions"]
+        self.assertEqual(0, red["value"])
+        self.assertTrue(red["satisfied"])
+
+    def test_hard_red_line_unsatisfied_when_fragment_exists(self):
+        pages = default_golden_pages(10)
+        app = [(page["file"], aligned_app_boxes(page)) for page in pages]
+        target = pages[-1]["boxes"][0]
+        app[-1] = (pages[-1]["file"], [
+            _box(target["left"] + 0.01, target["top"] + 0.01,
+                 target["right"] - 0.01, target["bottom"] - 0.01),
+            _box(target["left"] + 0.02, target["top"] + 0.02,
+                 target["right"] - 0.02, target["bottom"] - 0.02)])
+        _code, report, _out = self.run_gate(pages, app)
+        self.assertFalse(report["hardRedLines"]["fragmentedQuestions"]["satisfied"])
+
+    def test_red_gate_never_prints_gate_level_pass(self):
+        """KD-76 先例：门红时任何 PASS 字样都必须带"（子步骤）"限定。"""
+        pages = default_golden_pages(10)
+        app = [(page["file"], aligned_app_boxes(page)) for page in pages]
+        app[0] = (pages[0]["file"], aligned_app_boxes(pages[0]) + [corner_box()])
+        app[1] = (pages[1]["file"], aligned_app_boxes(pages[1]) + [corner_box()])
+        evidence = self.tmp / "evidence.md"
+        code, report, out = self.run_gate(pages, app, ["--evidence-out", str(evidence)])
+        self.assertEqual(1, code)
+        self.assertEqual("FAIL", report["gate"]["state"])
+        for label, text in (("stdout", out), ("evidence", evidence.read_text(encoding="utf-8"))):
+            for line in text.splitlines():
+                if "PASS" in line:
+                    self.assertIn("（子步骤）", line,
+                                  f"{label} 在门红时出现无限定词的 PASS 判词：{line}")
+
+
+# ---------------------------------------------------------------- item 29：app-split v2 生产者
+
+class ExportV2ProducerTest(SplitGateTestBase):
+    """生产者 v2：只做加法；每个新字段对应一次真实的溯源失败（R5 §4.2 G-1..G-7）。"""
+
+    def _db(self) -> Path:
+        db = self.tmp / "snapshot.db"
+        make_split_db(db)
+        seed_split_db(db)
+        return db
+
+    def _export(self, db: Path, out: Path) -> tuple[int, str]:
+        import io
+        from contextlib import redirect_stdout
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = X.main(["--db", str(db), "--out", str(out)])
+        return code, buffer.getvalue()
+
+    def _doc(self, out: Path) -> dict:
+        return json.loads(out.read_text(encoding="utf-8"))
+
+    def test_v2_source_identity_fields(self):
+        db = self._db()
+        conn = sqlite3.connect(db)
+        conn.execute("PRAGMA user_version = 72")
+        conn.commit()
+        conn.close()
+        out = self.tmp / "a.json"
+        code, text = self._export(db, out)
+        self.assertEqual(0, code, text)
+        doc = self._doc(out)
+        self.assertEqual(2, doc["schemaVersion"])
+        source = doc["source"]
+        self.assertEqual("app-split-v2", source["producer"]["contract"])
+        self.assertEqual(hashlib.sha256(
+            (SPLIT_TOOLS / "export_split_eval.py").read_bytes()).hexdigest(),
+            source["producer"]["sha256"])
+        self.assertEqual(72, source["db"]["userVersion"])
+        self.assertEqual("three-file", source["snapshot"]["mode"])
+        self.assertTrue(source["snapshot"]["identitySha256"])
+        self.assertTrue(source["payload"]["sha256"])
+
+    def test_v2_page_job_and_integrity_fields(self):
+        db = self._db()
+        out = self.tmp / "a.json"
+        code, text = self._export(db, out)
+        self.assertEqual(0, code, text)
+        page = self._doc(out)["pages"][0]
+        self.assertEqual("split:B1:0#p0", page["pageId"])
+        self.assertEqual("job+page", page["pageIdKind"])
+        job = page["job"]
+        self.assertEqual("split:B1:0", job["jobId"])
+        self.assertEqual("BATCH", job["sourceKind"])
+        self.assertEqual("fp0", job["sourceFingerprint"])
+        self.assertEqual("READY", job["status"])
+        self.assertEqual(1, job["pageCount"])
+        self.assertEqual(2, job["questionCount"])
+        self.assertTrue(page["integrity"]["jobQuestionCountMatches"])
+        self.assertTrue(page["integrity"]["jobPageCountMatches"])
+        expected = hashlib.sha256(json.dumps(
+            page["questions"], ensure_ascii=False, sort_keys=True,
+            separators=(",", ":")).encode("utf-8")).hexdigest()
+        self.assertEqual(expected, page["boxesSha256"])
+
+    def test_job_count_mismatch_is_recorded_not_fatal(self):
+        """job 记 9 题、实际 2 行：如实落 integrity=false，不 exit（门决定怎么读）。"""
+        db = self._db()
+        conn = sqlite3.connect(db)
+        conn.execute("UPDATE split_import_job SET question_count=9 WHERE job_id='split:B1:0'")
+        conn.commit()
+        conn.close()
+        out = self.tmp / "a.json"
+        code, text = self._export(db, out)
+        self.assertEqual(0, code, text)
+        page = self._doc(out)["pages"][0]
+        self.assertFalse(page["integrity"]["jobQuestionCountMatches"])
+
+    def test_v2_export_stays_byte_identical_on_rerun(self):
+        db = self._db()
+        one, two = self.tmp / "one.json", self.tmp / "two.json"
+        self.assertEqual(0, self._export(db, one)[0])
+        self.assertEqual(0, self._export(db, two)[0])
+        self.assertEqual(one.read_bytes(), two.read_bytes(),
+                         "同快照复跑必须逐字节一致（新字段不得含墙钟/随机）")
+
+    def test_v2_source_flows_into_measure_and_gate(self):
+        db = self._db()
+        conn = sqlite3.connect(db)
+        conn.execute("PRAGMA user_version = 72")
+        conn.commit()
+        conn.close()
+        app = self.tmp / "a.json"
+        self.assertEqual(0, self._export(db, app)[0])
+        pages = [two_question_page("IMG_1001.jpg"),
+                 _page("IMG_1002.jpg", [_box(0.05, 0.05, 0.9, 0.3)])]
+        pages += [_page(f"IMG_{index:04d}.jpg", [_box(0.05, 0.05, 0.9, 0.3)])
+                  for index in range(1003, 1008)]
+        golden = self.frozen(pages)
+        import io
+        from contextlib import redirect_stdout
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = G.main(["--golden", str(golden),
+                           "--sidecar", str(golden.with_name(golden.name + ".sha256")),
+                           "--app", str(app)])
+        report = G.LAST_REPORT
+        self.assertEqual(1, code)  # 单题页被拆 → 门如实 FAIL
+        self.assertEqual(2, report["app"]["appSchemaVersion"])
+        self.assertEqual(72, report["app"]["source"]["dbUserVersion"])
+        self.assertEqual("three-file", report["app"]["source"]["snapshotMode"])
+        row = {row["file"]: row for row in report["perPage"]}["IMG_1001.jpg"]
+        self.assertEqual("split:B1:0#p0", row["appPageId"])
+        self.assertEqual("job+page", row["appPageIdKind"])
+        self.assertTrue(row["appJobQuestionCountMatches"])
 
 
 if __name__ == "__main__":

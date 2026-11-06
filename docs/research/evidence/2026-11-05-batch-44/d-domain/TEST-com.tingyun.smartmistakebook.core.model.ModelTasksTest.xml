@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.model.ModelTasksTest" tests="33" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:10.073Z" hostname="TIANSHAN" time="0.099">
+  <properties/>
+  <testcase name="logicalOperationFingerprintIgnoresTransportAuthorizationProviderAndTime" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.02"/>
+  <testcase name="captureParseRejectsEvidenceFromAnotherSourceAsset" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.027"/>
+  <testcase name="captureParseRejectsAStaleOrUnversionedBasis" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <testcase name="captureParseRejectsInvalidDocumentProvenanceAndMissingProducer" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.003"/>
+  <testcase name="providerMetadataRejectsBidirectionalControlCharacters" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.002"/>
+  <testcase name="pageRelationAssessmentToleratesPageWideQuestionRegions" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.011"/>
+  <testcase name="gatewayMessagesRejectUnsafeControlCharacters" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.002"/>
+  <testcase name="pageRelationAssessmentToleratesNonSplitMultipleQuestionIssuesAndRegions" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.002"/>
+  <testcase name="remoteDispatchBudgetAllowsUpToTheConfiguredLimitOnly" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.001"/>
+  <testcase name="captureParseContractRoundTripsAtTheCurrentSchemaVersion" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.009"/>
+  <testcase name="fingerprintChangesWhenUserHintChanges" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.002"/>
+  <testcase name="taskSnapshotRejectsFingerprintFromAnotherRequest" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.005"/>
+  <testcase name="blockedAssessmentRequiresAnExplanation" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <testcase name="nonSplitAssessmentCannotCarryQuestionRegions" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <testcase name="captureParseBindsDocumentAndEvidenceToTheRequestedRevision" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.001"/>
+  <testcase name="multipleIndependentQuestionsCannotContinueAsAReviewWarning" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <testcase name="progressTruncatesLongReplyInsteadOfRejecting" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.004"/>
+  <testcase name="assessmentInputDecodesLegacyJsonWithoutUserHint" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.001"/>
+  <testcase name="singlePageAssessmentCannotContinueWithMultipleQuestionsOutsideTheSplitFlow" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <testcase name="passingAssessmentCannotHideABlockingRecaptureRequest" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <testcase name="captureParseBindsOneAssessmentToEveryOrderedSourcePage" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.001"/>
+  <testcase name="captureParseRejectsModelClaimingLocalPolicyAcceptance" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <testcase name="legacyAssessmentRemainsReadableAfterTheMultipleQuestionGateUpgrade" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <testcase name="captureParseRejectsAnUnboundSourceAssetHash" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.001"/>
+  <testcase name="fingerprintChangesWhenInputChanges" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <testcase name="captureParseRejectsUnboundedModelVersion" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <testcase name="progressOfLongReplyDoesNotThrow" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.001"/>
+  <testcase name="completionRejectsOutputsForTheWrongRequestKind" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <testcase name="successfulTaskRequiresOutput" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <testcase name="progressKeepsShortReplyUnchanged" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <testcase name="requestAndOutputCodecsRoundTripStrongTypes" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.003"/>
+  <testcase name="captureParseRejectsModelClaimingUserConfirmation" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.001"/>
+  <testcase name="assessmentInputRejectsOverlongUserHint" classname="com.tingyun.smartmistakebook.core.model.ModelTasksTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

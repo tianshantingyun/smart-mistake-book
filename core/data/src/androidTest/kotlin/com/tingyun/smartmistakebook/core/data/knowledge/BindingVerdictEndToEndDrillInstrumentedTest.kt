@@ -204,7 +204,7 @@ class BindingVerdictEndToEndDrillInstrumentedTest {
             "title": "D-0 演练教学活动来源",
             "publisher": "演练夹具",
             "edition": "2026",
-            "sourceUri": "https://example.org/d0-binding-verdict-drill",
+            "sourceUri": "https://github.com/tianshantingyun/smart-mistake-book/fixtures/d0-binding-verdict-drill",
             "licenseStatus": "LICENSED",
             "contentFingerprint": "$DRILL_SOURCE_FINGERPRINT",
             "importedAtEpochMillis": $DRILL_SOURCE_IMPORTED_AT_EPOCH_MILLIS,

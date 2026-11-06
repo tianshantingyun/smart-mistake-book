@@ -19,6 +19,7 @@ import java.util.Locale
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
@@ -227,7 +228,10 @@ internal object ReviewedKnowledgePackJsonCodec {
         val sourceNamespace = root.requiredString("sourceNamespace")
         val reviewedAt = root.requiredLong("reviewedAtEpochMillis")
         require(reviewedAt > 0) { "Knowledge-pack review time must be positive" }
-        val sourceUri = root.requiredString("sourceUri")
+        // 顶层 sourceUri 允许显式 null：2025 四科包没有与「2025 版次」对应的单一官方 URI，
+        // 置 null 并靠每科合成源的三元组（机构+文件名+版次）证明来源身份，比编一个域名诚实。
+        // 键必须存在（`requireOnlyKeys` 已保证），值可为 null。
+        val sourceUri = root.requiredNullableString("sourceUri")
         val blueprints = root.requiredArray("subjects").mapIndexed { index, element ->
             subjectDecoder(element, index)
         }
@@ -409,7 +413,7 @@ private fun JsonElement.toPointBlueprint(label: String): PointBlueprint {
 private fun SubjectBlueprint.toSource(
     sourceNamespace: String,
     reviewedAt: Long,
-    sourceUri: String,
+    sourceUri: String?,
     coverage: KnowledgePackCoverage,
 ) = KnowledgeSourceSeedRecord(
     sourceId = sourceId(sourceNamespace),
@@ -647,6 +651,20 @@ private fun JsonObject.requiredString(name: String): String {
     val primitive = get(name) as? JsonPrimitive
         ?: error("Knowledge-pack field $name must be a string")
     require(primitive.isString) { "Knowledge-pack field $name must be a string" }
+    return primitive.content.also {
+        require(it.isNotBlank() && it == it.trim()) {
+            "Knowledge-pack field $name must be a trimmed non-blank string"
+        }
+    }
+}
+
+/** 键必须存在，值可以是字符串或显式 null（顶层 `sourceUri` 用）。 */
+private fun JsonObject.requiredNullableString(name: String): String? {
+    val element = get(name) ?: error("Knowledge-pack field $name is required")
+    if (element is JsonNull) return null
+    val primitive = element as? JsonPrimitive
+        ?: error("Knowledge-pack field $name must be a string or null")
+    require(primitive.isString) { "Knowledge-pack field $name must be a string or null" }
     return primitive.content.also {
         require(it.isNotBlank() && it == it.trim()) {
             "Knowledge-pack field $name must be a trimmed non-blank string"

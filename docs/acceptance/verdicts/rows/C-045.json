@@ -1,0 +1,61 @@
+{
+  "id": "C-045",
+  "verdict": "PASS",
+  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-c",
+  "reviewer": "batch46-line-reviewer-C",
+  "authors": [
+    "batch45-evidence-producer-C"
+  ],
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "evidence": [
+    "cmd:docs/research/evidence/2026-11-06-batch-46/c-domain/c-database-visual-identity-jvm.cmd.log",
+    "test:docs/research/evidence/2026-11-06-batch-46/c-domain/TEST-com.tingyun.smartmistakebook.core.database.TutorVisualIdentityTest.xml"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-06-batch-46/c-domain/c-database-visual-identity-jvm.cmd.log": "7646da8e83e8d8d3d3bc1f8c6de6f2aac2049ccb1f4bdbdbd9a2c96b213d004f",
+    "docs/research/evidence/2026-11-06-batch-46/c-domain/TEST-com.tingyun.smartmistakebook.core.database.TutorVisualIdentityTest.xml": "4f15032991174e170ab4d7f43ee4824a8d10787c4566df1623aa265f97f9de88"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=C-045; verdict=PASS; line=356; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/research/evidence/2026-11-06-batch-46/c-domain/c-database-visual-identity-jvm.cmd.log",
+      "value": "exit_markers=[0]; cmd=./gradlew --offline -q :core:database:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.database.TutorVisualIdentityTest; sha256=7646da8e83e8d8d3d3bc1f8c6de6f2aac2049ccb1f4bdbdbd9a2c96b213d004f"
+    },
+    {
+      "name": "xml_aggregate",
+      "source": "docs/research/evidence/2026-11-06-batch-46/c-domain/TEST-com.tingyun.smartmistakebook.core.database.TutorVisualIdentityTest.xml",
+      "value": "tests=6; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.database.TutorVisualIdentityTest; timestamp=2026-11-05T08:44:37.982Z; hostname=TIANSHAN; sha256=4f15032991174e170ab4d7f43ee4824a8d10787c4566df1623aa265f97f9de88"
+    },
+    {
+      "name": "xml_testcase",
+      "source": "docs/research/evidence/2026-11-06-batch-46/c-domain/TEST-com.tingyun.smartmistakebook.core.database.TutorVisualIdentityTest.xml",
+      "value": "testcases=6; first=sha256 helper matches the standard vector; all_present=True"
+    }
+  ],
+  "basis": "机械复算（reviewer=batch46-line-reviewer-C，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 C-045 并复算 ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "adversarial": {
+    "attempted": true,
+    "result": "recomputed-no-mismatch"
+  },
+  "review_scope": "single-ledger-row",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 2,
+    "archived_files": 0,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

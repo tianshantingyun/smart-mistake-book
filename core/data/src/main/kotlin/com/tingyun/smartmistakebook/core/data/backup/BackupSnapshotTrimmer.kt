@@ -23,7 +23,7 @@ data class TrimAssetReference(
 )
 
 /**
- * 裁剪报告。所有表计数都按 [SmbkSelectionPlan.allTables] 的 90 个键给出（0 也写），
+ * 裁剪报告。所有表计数都按 [SmbkSelectionPlan.allTables] 的 92 个键给出（0 也写），
  * 可直接作为 v3 manifest 的 `rowCounts` 来源；`trimmedTableCount` 只数**实际删除了行**的表
  * （不含 FTS rebuild），与 §9.7 的 digest 口径一致。
  */

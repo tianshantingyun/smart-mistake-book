@@ -1,0 +1,26 @@
+{
+  "env_present": [],
+  "env_missing": [
+    "RELEASE_KEY_ALIAS",
+    "RELEASE_KEY_PASSWORD",
+    "RELEASE_STORE_FILE",
+    "RELEASE_STORE_PASSWORD"
+  ],
+  "tracked_keystores": [],
+  "doc_mentions_keystore_properties": true,
+  "doc_mentions_env_contract": false,
+  "apk_signer": {
+    "exit": 0,
+    "sha256": "9dc07e9f5ce9a409f38596ef89b39ec8ea561feb26d3c61dfbf1a958c6056e20",
+    "schemes": {
+      "v1": true,
+      "v2": true,
+      "v3": false
+    }
+  },
+  "aab_signer": {
+    "exit": 0,
+    "sha256": "a9e76cad95af11d0eaceda673b002ea618702d4394bf2349d4579c86f33b2701",
+    "owner": null
+  }
+}

@@ -28,6 +28,17 @@ internal val LIBRARY_INTERIOR_MIGRATION_73_74 = object : Migration(73, 74) {
         val identity = connection.prepare("SELECT identity_hash FROM room_master_table WHERE id = 42").use {
             if (it.step()) it.getText(0) else null
         }
+        // Main's exported v72 snapshot predates library editing. Its 72→73 step
+        // adds only paper tables before this migration runs, with the v72 hash intact.
+        val paperTables = setOf("paper_review", "paper_review_question", "paper_review_photo")
+        if (identity == "aa5e8e8e6536e0c1f3adcda6867814cb" &&
+            tables.intersect(interiorTables) == paperTables &&
+            exportColumns.intersect(pairedExportColumns).isEmpty()
+        ) {
+            LIBRARY_INTERIOR_MIGRATION_71_72.migrate(connection)
+            return
+        }
+
         check(
             identity == "1d086050204a0da1ed6b6e3299dd9733" &&
                 tables.intersect(interiorTables).isEmpty() &&
@@ -36,5 +47,12 @@ internal val LIBRARY_INTERIOR_MIGRATION_73_74 = object : Migration(73, 74) {
 
         LIBRARY_INTERIOR_MIGRATION_71_72.migrate(connection)
         PAPER_REVIEW_MIGRATION_72_73.migrate(connection)
+    }
+}
+
+/** Adds main-branch error-cause records to existing UI databases without rewriting user rows. */
+internal val UI_INTEGRATION_MIGRATION_74_75 = object : Migration(74, 75) {
+    override suspend fun migrate(connection: SQLiteConnection) {
+        ERROR_CAUSE_MIGRATION_72_73.migrate(connection)
     }
 }

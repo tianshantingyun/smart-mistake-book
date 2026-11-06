@@ -124,6 +124,7 @@ object ModelTaskCompletionValidator {
         request: ModelTaskRequest,
         output: ModelTaskOutput,
     ): List<ModelTaskCompletionIssue> = when (val input = request.input) {
+        is PaperEditInput -> if (output is PaperEditOutput) emptyList() else listOf(typeMismatch())
         is DetailedSolutionInput -> if (output is DetailedSolutionOutput && output.document.basis == input.question.basis &&
             output.document.origin == SolutionOrigin.MODEL && output.document.verification == SolutionVerification.UNVERIFIED) {
             emptyList()

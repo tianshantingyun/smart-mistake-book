@@ -1,0 +1,63 @@
+cold#1 wall_ms=5415
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+TotalTime: 3939
+WaitTime: 3947
+Complete
+---
+cold#2 wall_ms=4347
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+TotalTime: 3001
+WaitTime: 3003
+Complete
+---
+cold#3 wall_ms=3496
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+TotalTime: 3302
+WaitTime: 3331
+Complete
+---
+cold#4 wall_ms=3482
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+TotalTime: 3261
+WaitTime: 3267
+Complete
+---
+cold#5 wall_ms=5285
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+TotalTime: 3376
+WaitTime: 3385
+Complete
+---
+cold#6 wall_ms=4162
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+TotalTime: 3354
+WaitTime: 3357
+Complete
+---
+cold#7 wall_ms=3985
+Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity
+TotalTime: 3250
+WaitTime: 3269
+Complete
+---

@@ -20,6 +20,7 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskFailure
 import com.tingyun.smartmistakebook.core.model.ModelTaskKind
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
 import com.tingyun.smartmistakebook.core.model.ModelTaskStage
+import com.tingyun.smartmistakebook.core.model.PaperEditInput
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.ProblemOrganizationInput
 import com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence
@@ -157,6 +158,7 @@ class FakeModelGateway(
         is ProblemOrganizationInput -> error(
             "The capture-only demo provider cannot organize committed problems",
         )
+        is PaperEditInput -> error("The capture-only demo provider cannot edit paper copies")
     }
 
     private companion object {

@@ -248,7 +248,7 @@ class ReviewedTeachingMaterialSidecarBindingVerdictTest {
             "title":"开放数学教学资料",
             "publisher":"示例机构",
             "edition":"2026",
-            "sourceUri":"https://example.org/math",
+            "sourceUri":"https://www.pep.com.cn/math",
             "licenseStatus":"LICENSED",
             "contentFingerprint":"CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC",
             "importedAtEpochMillis":1784764800000

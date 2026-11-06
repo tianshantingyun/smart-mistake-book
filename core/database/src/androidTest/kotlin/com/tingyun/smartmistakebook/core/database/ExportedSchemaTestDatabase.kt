@@ -58,6 +58,7 @@ internal fun createDatabaseFromExportedSchema(
 internal fun assertStructurallyEqual(
     referencePath: java.io.File,
     migratedPath: java.io.File,
+    expectedLegacyObjects: Set<String> = emptySet(),
 ) {
     // ALTER TABLE can only append columns, so a migrated table's column
     // ORDER differs from a fresh create; Room's own migration validation
@@ -77,7 +78,7 @@ internal fun assertStructurallyEqual(
         }
     org.junit.Assert.assertTrue(
         "missing=$missing extra=$extra differing=" + differing.entries.take(3),
-        missing.isEmpty() && extra.isEmpty() && differing.isEmpty(),
+        missing.isEmpty() && extra == expectedLegacyObjects && differing.isEmpty(),
     )
 }
 

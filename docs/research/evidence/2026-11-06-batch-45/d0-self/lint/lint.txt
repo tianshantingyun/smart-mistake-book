@@ -1,0 +1,26 @@
+GROUP lint
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group lint
+CHECK real_ledger EXPECTED=0 ACTUAL=0 OK
+CHECK real_zero_violations EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_summary EXPECTED=1 ACTUAL=1 OK
+CHECK caught_summary EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_skip EXPECTED=1 ACTUAL=1 OK
+CHECK caught_skip EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_bad_exit EXPECTED=1 ACTUAL=1 OK
+CHECK caught_bad_exit EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_self_review EXPECTED=1 ACTUAL=1 OK
+CHECK caught_self_review EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_empty EXPECTED=1 ACTUAL=1 OK
+CHECK caught_empty EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_marked_pass EXPECTED=1 ACTUAL=1 OK
+CHECK caught_marked_pass EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_duplicate EXPECTED=1 ACTUAL=1 OK
+CHECK caught_duplicate EXPECTED=1 ACTUAL=1 OK
+CHECK replay_batch41 EXPECTED=1 ACTUAL=1 OK
+CHECK replay_batch42 EXPECTED=1 ACTUAL=1 OK
+CHECK reuse_warning EXPECTED=0 ACTUAL=0 OK
+CHECK reuse_warned EXPECTED=1 ACTUAL=1 OK
+CHECK strict_warnings EXPECTED=1 ACTUAL=1 OK
+CHECK reuse_escalated EXPECTED=1 ACTUAL=1 OK
+CHECKS=22 FAILURES=0
+EXIT=0

@@ -17,8 +17,15 @@ Before tagging a release:
 7. Confirm the version name and code are bumped and the release branch only
    receives blocking fixes.
 
-Release signing is intentionally not committed. Configure `keystore.properties`
-locally and keep the keystore out of the repository.
+Release signing is intentionally not committed. The build does **not** read a
+`keystore.properties` file: `app/build.gradle.kts` populates the release signing
+config from four environment variables at evaluation time — `RELEASE_KEY_ALIAS`,
+`RELEASE_KEY_PASSWORD`, `RELEASE_STORE_FILE` and `RELEASE_STORE_PASSWORD`. Keep
+the keystore outside the repository. `validateReleaseSigning` fails the build
+when any of the four is missing, and
+`python -I tools/ci/j_release_verify.py signing --root . --apk <apk> --aab <aab> --apksigner <apksigner>`
+fails closed (exit 1) until the APK and AAB share one signer identity and the AAB
+certificate is inside its validity window.
 
 ## Known migration debt: v16 reconstructed schema
 

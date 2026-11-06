@@ -274,7 +274,7 @@ class ReviewedKnowledgePackInstrumentedTest {
                     title = "经审校的函数知识目录",
                     publisher = "授权教研机构",
                     edition = null,
-                    sourceUri = "https://example.edu/math/reviewed-pack",
+                    sourceUri = "https://github.com/tianshantingyun/smart-mistake-book/fixtures/math/reviewed-pack",
                     licenseStatus = KnowledgeSourceLicenseStatus.REFERENCE_ONLY.name,
                     contentFingerprint = "A".repeat(64),
                     importedAtEpochMillis = 1_500,

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.LongRangeSampleLedgerTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:54:57.258Z" hostname="TIANSHAN" time="0.012">
+  <properties/>
+  <testcase name="predictable count equals the optimizer predictableSampleCount on the same fixture" classname="com.tingyun.smartmistakebook.core.domain.LongRangeSampleLedgerTest" time="0.011"/>
+  <testcase name="state is authoritative for same-day and legacy rows fall back to the elapsed heuristic" classname="com.tingyun.smartmistakebook.core.domain.LongRangeSampleLedgerTest" time="0.001"/>
+  <testcase name="missing delta_t and state are counted over the predictable set only" classname="com.tingyun.smartmistakebook.core.domain.LongRangeSampleLedgerTest" time="0.0"/>
+  <testcase name="empty ledger reports zero counts with the gate floor still referenced" classname="com.tingyun.smartmistakebook.core.domain.LongRangeSampleLedgerTest" time="0.0"/>
+  <testcase name="every aud-17 bucket is classified and the funnel partitions the raw rows" classname="com.tingyun.smartmistakebook.core.domain.LongRangeSampleLedgerTest" time="0.0"/>
+  <testcase name="gate floor references the optimizer 400 constant and never judges attainment" classname="com.tingyun.smartmistakebook.core.domain.LongRangeSampleLedgerTest" time="0.0"/>
+  <testcase name="excluded rows neither seed nor advance a card sequence" classname="com.tingyun.smartmistakebook.core.domain.LongRangeSampleLedgerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

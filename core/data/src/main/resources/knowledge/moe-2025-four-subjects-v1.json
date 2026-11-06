@@ -4,7 +4,7 @@
  "taxonomyVersion": "moe-2025-four-subjects-v1",
  "sourceNamespace": "moe-2025-four-subjects",
  "reviewedAtEpochMillis": 1784908800000,
- "sourceUri": "https://example.edu/curriculum/2025-four-subjects",
+ "sourceUri": null,
  "coverage": {
   "baselineId": "moe-high-school-2017-2025",
   "catalogLevel": "PARTIAL",

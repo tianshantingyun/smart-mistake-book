@@ -1,0 +1,85 @@
+{
+  "tag": "F-019-gfxinfo-recount",
+  "row": "F-019",
+  "claim_corrected": "冷启 p50 300-2350ms（批次44 原行误写上界 2150ms）",
+  "rounds": [
+    {
+      "round": 1,
+      "total_frames": 5,
+      "janky_frames": 5,
+      "janky_pct": 100.0,
+      "p50_ms": 450
+    },
+    {
+      "round": 2,
+      "total_frames": 2,
+      "janky_frames": 2,
+      "janky_pct": 100.0,
+      "p50_ms": 2050
+    },
+    {
+      "round": 3,
+      "total_frames": 2,
+      "janky_frames": 2,
+      "janky_pct": 100.0,
+      "p50_ms": 2150
+    },
+    {
+      "round": 4,
+      "total_frames": 2,
+      "janky_frames": 2,
+      "janky_pct": 100.0,
+      "p50_ms": 2100
+    },
+    {
+      "round": 5,
+      "total_frames": 1,
+      "janky_frames": 1,
+      "janky_pct": 100.0,
+      "p50_ms": 2000
+    },
+    {
+      "round": 6,
+      "total_frames": 2,
+      "janky_frames": 2,
+      "janky_pct": 100.0,
+      "p50_ms": 2350
+    },
+    {
+      "round": 7,
+      "total_frames": 5,
+      "janky_frames": 4,
+      "janky_pct": 80.0,
+      "p50_ms": 300
+    }
+  ],
+  "p50_ms": [
+    450,
+    2050,
+    2150,
+    2100,
+    2000,
+    2350,
+    300
+  ],
+  "range_ms": [
+    300,
+    2350
+  ],
+  "all_rounds_janky": true,
+  "sources_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt": "e03f5ae8b93d3d30777be211a63104cd00f72f29907c8e3b6c3004572f506b27",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold1.txt": "6904f5cd4efb4514afea1d6075487648ec915bf11634eaf85e2b3fa32e2db867",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold2.txt": "a94c717e04c3114de0b9bb75d717817e6e11da0ec9800b428bc7798e73b033f8",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold3.txt": "0885c054c56170829063226800649bae55da4c6d8557b716f24bd1ba2762c332",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold4.txt": "60f7c84047822fc5ab8bc80cd62d63af1ad9dd0c0eee5c94f317bbce4e524dec",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold5.txt": "084fe9b93b214013487febf31731a1471c0f4b792bc2f060229fb2aa1bc8431d",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold6.txt": "134d9c43954cb6715d37a64642f24bcbe51e6e5b01b53d7c103590cb1a0d7566",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold7.txt": "578ab78a1e1af2134b36a1d5c57bed0189c58ea7e53adf364c868cbfe52a423e"
+  },
+  "summary": {
+    "rounds": 7,
+    "p50_min": 300,
+    "p50_max": 2350
+  }
+}

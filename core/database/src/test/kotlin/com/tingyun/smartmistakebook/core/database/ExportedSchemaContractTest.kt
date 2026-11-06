@@ -7,6 +7,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
+import java.nio.file.Files
 
 /**
  * Locks the exported Room schema set at the file level: every checked-in schema
@@ -18,10 +19,7 @@ class ExportedSchemaContractTest {
 
     @Test
     fun everyExportedSchemaIsCompleteAndVersioned() {
-        val schemas = File("schemas")
-            .walkTopDown()
-            .filter { it.isFile && it.extension == "json" }
-            .toList()
+        val schemas = exportedSchemaFiles()
         assertTrue("Expected exported Room schemas", schemas.isNotEmpty())
 
         schemas.forEach { file ->
@@ -65,10 +63,7 @@ class ExportedSchemaContractTest {
 
     @Test
     fun placeholderSchemaHashIsExplicitlyScopedToV16Only() {
-        val schemas = File("schemas")
-            .walkTopDown()
-            .filter { it.isFile && it.extension == "json" }
-            .toList()
+        val schemas = exportedSchemaFiles()
         val placeholderVersions = schemas
             .map { file ->
                 val database = json.decodeFromString<SchemaFile>(file.readText()).database
@@ -90,10 +85,7 @@ class ExportedSchemaContractTest {
      */
     @Test
     fun everySchemaMasterTableHashMatchesItsIdentityHash() {
-        val schemas = File("schemas")
-            .walkTopDown()
-            .filter { it.isFile && it.extension == "json" }
-            .toList()
+        val schemas = exportedSchemaFiles()
         schemas.forEach { file ->
             val database = json.decodeFromString<SchemaFile>(file.readText()).database
             val masterInsert = database.setupQueries.firstOrNull { query ->
@@ -113,8 +105,49 @@ class ExportedSchemaContractTest {
         }
     }
 
+    /**
+     * 回归用例（批次 41 单测门红）：隐藏目录里的工具状态不是 schema 导出。
+     *
+     * 修复前 `walkTopDown()` 会把它当 schema 读：文件名不是版本号 → 第一条断言就红，
+     * 报错文案还指向"schema 文件名不是版本号"，掩盖真正的 schema 漂移。
+     */
+    @Test
+    fun hiddenToolStateUnderSchemasIsNotTreatedAsExportedSchema() {
+        val root = Files.createTempDirectory("smbk-schema-contract").toFile()
+        try {
+            root.resolve("73.json").writeText("{}")
+            root.resolve(".mimosa/hook-state/state.json").apply {
+                parentFile.mkdirs()
+                writeText("{\"touched\":[]}")
+            }
+            assertEquals(
+                "只有版本化 JSON 参与契约断言；隐藏目录里的工具状态必须被排除",
+                setOf("73.json"),
+                exportedSchemaFiles(root).map(File::getName).toSet(),
+            )
+        } finally {
+            root.deleteRecursively()
+        }
+    }
+
     private val File.nameWithoutVersion: Int
         get() = nameWithoutExtension.toInt()
+
+    /**
+     * 只返回**受版本管理的** schema 导出物：`schemas/<db>/<version>.json`。
+     *
+     * 不递归进隐藏目录、不认隐藏文件——工作区工具会在 `schemas/` 下写自己的状态 JSON
+     * （本仓的 Mimosa 钩子就写 `.mimosa/hook-state/` 下的 JSON，且被 `.gitignore` 忽略）。
+     * 那些文件不是 Room 导出，若参与断言会让契约测试对"文件名不是版本号"误报红，
+     * 掩盖真正的 schema 漂移（批次 41 单测门 3 红即由此原因）。
+     *
+     * **没有放宽断言**：73 份真实 schema 仍逐份跑完三条断言；被排除的只有隐藏条目。
+     */
+    private fun exportedSchemaFiles(root: File = File("schemas")): List<File> = root
+        .walkTopDown()
+        .onEnter { directory -> !directory.name.startsWith(".") }
+        .filter { it.isFile && it.extension == "json" && !it.name.startsWith(".") }
+        .toList()
 
     private companion object {
         const val PLACEHOLDER_HASH = "00000000000000000000000000000000"

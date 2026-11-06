@@ -1,5 +1,9 @@
 package com.tingyun.smartmistakebook.core.database
 
+import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationOperationCommand
+import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationAttemptCommand
+import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationAttemptCommand
+import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -28,14 +32,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationOperationCommand
-import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationAttemptCommand
-import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationAttemptCommand
-import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicy
 
 /**
  * 4E WG-06 T2a：讲题会话「保存到错题本」时，**本会话助手消息的视觉引用**必须与提交回执
- * 在同一个事务里复制到 `problem_revision_source_asset`，且角色来自可信生成审计。
+ * 在同一个事务里复制到 `problem_revision_source_asset`，且角色来自生成痕迹里的 kind。
  *
  * 这些用例钉住四个用户可见后果：
  * 1. 保存后详情/导出能看到本轮生成的干净题面图与讲解图，且两者角色不混；
@@ -60,7 +60,7 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
     }
 
     @Test
-    fun savingCopiesAssistantFigureRolesFromSuccessfulGenerationAudit() = runBlocking {
+    fun savingCopiesAssistantFigureRolesFromTheToolTrace() = runBlocking {
         seedConfirmedTutorSession()
         val clean = generatedAsset("figure-clean", "c")
         val explanation = generatedAsset("figure-explain", "d")
@@ -100,7 +100,7 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
             ),
         )
 
-        // 消息链从成功审计取得角色，保存事务复制的是同一份事实。
+        // 消息链先各自带上角色（T2a 的 trace kind→role），保存事务复制的是同一份事实。
         assertEquals(
             "CLEAN_IMAGE",
             store.readTutorMessageSourceAssets(listOf("assistant-1"))

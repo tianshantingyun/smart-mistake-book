@@ -1,0 +1,209 @@
+{
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
+  "dirty_paths": 4795,
+  "total": 1200,
+  "counts": {
+    "PASS": 897,
+    "FAIL": 23,
+    "BLOCKED": 280,
+    "UNVERIFIED": 0
+  },
+  "state": "FAIL",
+  "pass_with_two_kinds": 897,
+  "pass_with_review": 897,
+  "pass_without_review": 0,
+  "pass_with_invalid_review": 0,
+  "pass_with_row_specific_review": 728,
+  "review_shared_check_groups": [
+    {
+      "fingerprint": "d03734e927c5e5026e9b3c01767d0216ebfd52a428d4f286c3f19cd435be49f3",
+      "rows": 9
+    },
+    {
+      "fingerprint": "fa57a55fafdc616511f2e957c87ca7f70907cb890b552049e3bec1f1aa5cc143",
+      "rows": 8
+    },
+    {
+      "fingerprint": "1818575648b6e0a9695a5321d04f147cb4403ccaa70c2b6dca46286c83f6888d",
+      "rows": 7
+    },
+    {
+      "fingerprint": "262c9b2a6e35b6f1543024f9d6e2b1bced3704b9d29eaf41ccaa2d2d1b5755b6",
+      "rows": 7
+    },
+    {
+      "fingerprint": "3e94debb9543eab07b0fe4d6482fc9603349b8e4c9a4d36ed700fa955f351ec2",
+      "rows": 7
+    },
+    {
+      "fingerprint": "71621477e0714490bd916627012537c84a4bfbadbfce231f61f983d9948c99ce",
+      "rows": 7
+    },
+    {
+      "fingerprint": "827846a4c2f81fcb8ea404ab1bc1633f9ccc5541031a1e4aa7b57c304d37c1bf",
+      "rows": 7
+    },
+    {
+      "fingerprint": "9c1c13f220f0303cb4fd4978e00b1f5c5ba650a5085417d060e7cf62b9bdf95f",
+      "rows": 7
+    },
+    {
+      "fingerprint": "9df10e570cad857f75c51c074b7683163ed2bc66ef8740036f5217a9819246f3",
+      "rows": 7
+    },
+    {
+      "fingerprint": "ce2109e1739d8fa502f90dc91d25c56a6e28b709d98b4b584280da1fc936092a",
+      "rows": 7
+    },
+    {
+      "fingerprint": "33c926817d628806c803e0bd7f2abeba991b9d3c48b4f522f7dab2ad21859a89",
+      "rows": 6
+    },
+    {
+      "fingerprint": "355b1f7a3deecf4f260577ab3a2649aaaf6f9723855f4b56424a9fa02795099e",
+      "rows": 6
+    },
+    {
+      "fingerprint": "582a775f8c4357fa7a0b21337b345c3f194ee6892a21ec037386ffabb8c52975",
+      "rows": 6
+    },
+    {
+      "fingerprint": "610f4b4dd99954f3995e465e5e0f921c822daa8f9a4a9d4f2ab0353fb833e8ce",
+      "rows": 6
+    },
+    {
+      "fingerprint": "6275ae819aba5d934630be4e1fde928861fd012259acecfc06f75eb08d6c2154",
+      "rows": 6
+    },
+    {
+      "fingerprint": "efadc4d12c944bd11d9ea40c8f03510e43d819b9ff04925c78e9e77325b0f7fa",
+      "rows": 6
+    },
+    {
+      "fingerprint": "520bdb06712113b86d2543dc40c44da806adb1f30b91e176357de5f8108c06ab",
+      "rows": 5
+    },
+    {
+      "fingerprint": "7dac470dcff9143c27b52d582af5fddee16c903f4e61bf8daf49752777756aa2",
+      "rows": 5
+    }
+  ],
+  "review_evidence_batches": {
+    "44": 1488,
+    "45": 402,
+    "46": 62,
+    "47": 18,
+    "unlabeled": 384
+  },
+  "review_validation_errors": [],
+  "unverified": 0,
+  "acceptance_complete": false,
+  "violations": [
+    {
+      "id": "",
+      "code": "NOT_ACCEPTANCE_COMPLETE",
+      "detail": "UNVERIFIED=0 FAIL=23 BLOCKED=280"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "18 组非 ledger_row checks 被 ≥5 行共用，行级判别力不成立"
+    }
+  ],
+  "warnings": [
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 9 行 PASS 共用 (fp=d03734e927c5)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 8 行 PASS 共用 (fp=fa57a55fafdc)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 7 行 PASS 共用 (fp=1818575648b6)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 7 行 PASS 共用 (fp=262c9b2a6e35)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 7 行 PASS 共用 (fp=3e94debb9543)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 7 行 PASS 共用 (fp=71621477e071)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 7 行 PASS 共用 (fp=827846a4c2f8)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 7 行 PASS 共用 (fp=9c1c13f220f0)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 7 行 PASS 共用 (fp=9df10e570cad)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 7 行 PASS 共用 (fp=ce2109e1739d)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 6 行 PASS 共用 (fp=33c926817d62)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 6 行 PASS 共用 (fp=355b1f7a3dee)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 6 行 PASS 共用 (fp=582a775f8c43)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 6 行 PASS 共用 (fp=610f4b4dd999)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 6 行 PASS 共用 (fp=6275ae819aba)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 6 行 PASS 共用 (fp=efadc4d12c94)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 5 行 PASS 共用 (fp=520bdb067121)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 5 行 PASS 共用 (fp=7dac470dcff9)；行级判别力不成立"
+    }
+  ],
+  "ok": false,
+  "exit_code": 1
+}

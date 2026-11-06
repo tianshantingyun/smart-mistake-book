@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-11-05T01:14:37.786Z" hostname="TIANSHAN" time="0.064">
+  <properties/>
+  <testcase name="independent error after high mastery enters conflicted state" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.002"/>
+  <testcase name="full replay produces the same chat-evidence clock as incremental projection" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.03"/>
+  <testcase name="attempt ids are idempotent and weighted bindings update every knowledge node" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.001"/>
+  <testcase name="siblings created on different study days are not cross staggered" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.001"/>
+  <testcase name="same attempt id with conflicting payload is rejected deterministically" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.016"/>
+  <testcase name="identical retries in one projection batch apply exactly once" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.001"/>
+  <testcase name="a negative chat judgment carries its direction into the mastery state" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.001"/>
+  <testcase name="chat evidence refreshes the mastery clock like any other evidence" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.0"/>
+  <testcase name="a later chat judgment supersedes an earlier attempt clock" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.0"/>
+  <testcase name="visible tutor answer refreshes the clock without double penalty" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.003"/>
+  <testcase name="device clock rollback is recorded and cannot move memory review time backwards" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.0"/>
+  <testcase name="full replay reproduces dispersion and reveal knowledge card lapses bit for bit" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.006"/>
+  <testcase name="a review on the local day after an exposure is still a cross day" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.001"/>
+  <testcase name="a review after an answer exposure stays on its own learner-local day" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.0"/>
+  <testcase name="valid calibration snapshot carries current support into mastery state" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.001"/>
+  <testcase name="legacy chat evidence without an anchor class projects at its stored full weight" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.0"/>
+  <testcase name="same batch siblings from one source are dispersed by one day each" classname="com.tingyun.smartmistakebook.core.domain.LearningProjectorTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

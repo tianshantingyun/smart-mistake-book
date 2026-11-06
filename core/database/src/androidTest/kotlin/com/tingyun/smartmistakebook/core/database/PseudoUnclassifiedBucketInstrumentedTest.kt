@@ -78,7 +78,7 @@ class PseudoUnclassifiedBucketInstrumentedTest {
         title = "经审校的函数知识目录",
         publisher = "授权教研机构",
         edition = null,
-        sourceUri = "https://example.edu/math/bucket-twin",
+        sourceUri = "https://github.com/tianshantingyun/smart-mistake-book/fixtures/math/bucket-twin",
         licenseStatus = KnowledgeSourceLicenseStatus.REFERENCE_ONLY.name,
         contentFingerprint = "C".repeat(64),
         importedAtEpochMillis = 1_000,

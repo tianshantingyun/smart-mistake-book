@@ -73,7 +73,7 @@ class FullMigrationMatrixInstrumentedTest {
                 assertEquals(STUDY_DATABASE_VERSION, db.version)
                 db.rawQuery("SELECT identity_hash FROM room_master_table WHERE id=42", null).use {
                     assertTrue(it.moveToFirst())
-                    assertEquals("4d2c8e0f54148a3a4690da34d4307e21", it.getString(0))
+                    assertEquals("f9a3d1c9ea8ef83d7222721ad1015a51", it.getString(0))
                 }
                 db.rawQuery("PRAGMA foreign_key_check", null).use { assertFalse(it.moveToFirst()) }
             }
@@ -83,7 +83,7 @@ class FullMigrationMatrixInstrumentedTest {
     @Test
     fun legacyAndCompleteV73LayoutsReachCurrentWithoutReset() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        for (version in listOf(71, 73)) {
+        for (version in listOf(71, 72, 73, 74)) {
             for (legacy in if (version == 73) listOf(false, true) else listOf(false)) {
                 val name = "library-v73-$version-$legacy-${System.nanoTime()}.db"
                 try {
@@ -100,7 +100,14 @@ class FullMigrationMatrixInstrumentedTest {
                     val reference = "$name-reference"
                     try {
                         createDatabaseFromExportedSchema(context, reference, STUDY_DATABASE_VERSION)
-                        assertStructurallyEqual(context.getDatabasePath(reference), context.getDatabasePath(name))
+                        // Main's orphan v72 retains its retired derived index table. Preserve it,
+                        // while requiring exact equality for every current table, index and view.
+                        val legacyObjects = if (version == 72) setOf(
+                            "table:knowledge_search_material_feature",
+                            "index:index_knowledge_search_material_feature_subject_knowledge_node_id",
+                            "index:index_knowledge_search_material_feature_subject_search_feature",
+                        ) else emptySet()
+                        assertStructurallyEqual(context.getDatabasePath(reference), context.getDatabasePath(name), legacyObjects)
                     } finally { context.deleteDatabase(reference) }
                 } finally { context.deleteDatabase(name) }
             }

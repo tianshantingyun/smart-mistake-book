@@ -1,0 +1,12 @@
+GROUP metamorphic
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group metamorphic
+CHECK demo EXPECTED=0 ACTUAL=0 OK
+CHECK demo_relations_12 EXPECTED=1 ACTUAL=1 OK
+CHECK demo_all_ok EXPECTED=1 ACTUAL=1 OK
+CHECK pair_broken EXPECTED=1 ACTUAL=1 OK
+CHECK counterexample_present EXPECTED=1 ACTUAL=1 OK
+CHECK reason_readable EXPECTED=1 ACTUAL=1 OK
+CHECK missing_fixture EXPECTED=2 ACTUAL=2 OK
+CHECK unknown_relation EXPECTED=2 ACTUAL=2 OK
+CHECKS=8 FAILURES=0
+EXIT=0

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.database.TutorVisualIdentityTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-05T08:44:37.982Z" hostname="TIANSHAN" time="0.052">
+  <properties/>
+  <testcase name="sha256 helper matches the standard vector" classname="com.tingyun.smartmistakebook.core.database.TutorVisualIdentityTest" time="0.004"/>
+  <testcase name="snapshot id is content and render-version addressed under the program" classname="com.tingyun.smartmistakebook.core.database.TutorVisualIdentityTest" time="0.028"/>
+  <testcase name="every identity input changes the id" classname="com.tingyun.smartmistakebook.core.database.TutorVisualIdentityTest" time="0.011"/>
+  <testcase name="snapshot length prefixes keep adjacent version fields unambiguous" classname="com.tingyun.smartmistakebook.core.database.TutorVisualIdentityTest" time="0.001"/>
+  <testcase name="length prefixes keep adjacent variable fields unambiguous" classname="com.tingyun.smartmistakebook.core.database.TutorVisualIdentityTest" time="0.0"/>
+  <testcase name="program id is deterministic and pinned to the documented byte layout" classname="com.tingyun.smartmistakebook.core.database.TutorVisualIdentityTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

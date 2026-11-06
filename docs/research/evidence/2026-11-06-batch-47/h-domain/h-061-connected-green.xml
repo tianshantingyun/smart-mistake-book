@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuites tests="1" failures="0" errors="0" skipped="0" time="3.735" timestamp="2026-11-05T13:05:57" hostname="localhost">
+  <testsuite name="com.tingyun.smartmistakebook.core.export.MistakePdfExporterAigcInstrumentedTest" tests="1" failures="0" errors="0" skipped="0" time="0.678" timestamp="2026-11-05T13:05:57" hostname="localhost">
+    <properties>
+      <property name="device" value="kb_test_device(AVD) - 14" />
+      <property name="flavor" value="" />
+      <property name="project" value=":core:export" />
+    </properties>
+    <testcase name="wholePrintAndPartialPrintBothKeepTheDocumentLevelAigcEntry" classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterAigcInstrumentedTest" time="0.678" />
+  </testsuite>
+</testsuites>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="r10-settings" tests="10" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T08:56:21Z">
+  <testcase classname="com.tingyun.smartmistakebook.SchedulingSettingsInstrumentedTest" name="addingAndRemovingAnExamCallsTheStore" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SchedulingSettingsInstrumentedTest" name="schedulingSettingsExposeRetentionSliderWithoutTheRemovedFsrsSwitch" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SourceCalibrationSectionInstrumentedTest" name="explainsWhatToDoWhenNoSourceHasEverBeenReported" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SourceCalibrationSectionInstrumentedTest" name="listsEachSourceWithPairsAndTheModelJudgedFittingExclusion" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest" name="clearingHasItsOwnProgressCopyAndLocksTheWholeForm" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest" name="testResultIsRemovedAsSoonAsTheSavedFormIsEdited" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest" name="syntheticTestRunsOnlyAfterTapAndShowsTheByokBoundary" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest" name="protocolPickerShowsTheSavedProtocolAndSavesTheSelection" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest" name="savingLocksTheWholeFormUntilTheSubmittedKeyIsHandled" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest" name="cancellingTheClearConfirmationKeepsTheConfiguration" time="0">
+  </testcase>
+</testsuite>

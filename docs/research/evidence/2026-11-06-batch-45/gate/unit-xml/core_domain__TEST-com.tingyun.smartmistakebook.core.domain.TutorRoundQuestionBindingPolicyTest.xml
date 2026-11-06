@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" tests="27" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:12:53.654Z" hostname="TIANSHAN" time="0.086">
+  <properties/>
+  <testcase name="a round whose reply carries no binding is not the previous bound question" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.071"/>
+  <testcase name="a failed round does not become the previous bound question" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.005"/>
+  <testcase name="an empty menu can never bind" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.002"/>
+  <testcase name="a subject name is not a verifiable anchor" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.001"/>
+  <testcase name="every declared anchor must appear verbatim in the student message" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.001"/>
+  <testcase name="the most recent bound round supplies the previous bound question" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.001"/>
+  <testcase name="deduplicates the same revision and keeps the first occurrence" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="a declaration outside the menu is rejected" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="an anchor that does not come from the question itself is rejected" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="an explicitly attached question carries over even when the model did not restate it" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.002"/>
+  <testcase name="a missing declaration is a no-question round" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="a round that pins the attached question refuses a declaration naming another candidate" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="the declaration is rejected when the anchor belongs to no part of the question" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="a declaration without anchor terms is rejected" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="a call without a declaration falls back to the question the request already knows" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="caps the menu at eight candidates" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.001"/>
+  <testcase name="a one-character anchor cannot carry a binding" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="a declaration naming another revision of a menu problem is rejected" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="a declaration that fails the local checks does not fall back to the known question" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="a round that pins the attached question keeps the declaration naming it" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="an anchor found in the question body but not in its title binds" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="a call whose declaration passes the two local checks is anchored" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="the newest binding wins when several rounds are bound" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.001"/>
+  <testcase name="a call without a declaration in a round with no known question stays unanchored" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="keeps explicit additions ahead of earlier rounds and retrieval" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="an anchor the student never wrote is rejected" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <testcase name="a menu candidate anchored verbatim in the student message binds" classname="com.tingyun.smartmistakebook.core.domain.TutorRoundQuestionBindingPolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

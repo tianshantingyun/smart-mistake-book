@@ -1,0 +1,23 @@
+{
+  "aab": "app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab",
+  "sha256": "d073410529133c77374eb36097d6cea7e866126e81b822cb55ab7fa4c5d4bcdc",
+  "abi_set": [
+    "arm64-v8a",
+    "armeabi-v7a",
+    "x86",
+    "x86_64"
+  ],
+  "native_libs": [
+    "libLiteRt.so",
+    "libLiteRtClGlAccelerator.so",
+    "libandroidx.graphics.path.so",
+    "libdatastore_shared_counter.so",
+    "liblitert_jni.so",
+    "libmlkit_google_ocr_pipeline.so"
+  ],
+  "alignment": 2,
+  "errors": [
+    "ABI set ['arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'] != abiFilters ['arm64-v8a', 'x86_64']",
+    "required native library missing: libquickjs.so"
+  ]
+}

@@ -3114,6 +3114,22 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 禁止；所有拒绝都不静默补齐、不静默缩水。上述裁定取代设计件 §9.9/机器块中仍标 `OPEN` 的 `openMasks` 与
 `derivedPolicy`（设计件回写仍为文档债，见批次记录 §5.2/§6.1）。
 
+### 2026-11-03 批次 42 重裁（①/② 被用户重裁，③ 维持）
+
+> 本小节是**新裁定**，不是对上面 2026-10-23 记录的事后改写；旧记录保留为历史。
+
+1. **仅图片（mask=8）改为允许，但必须有题面/源证据**：包内 `problem_revision_source_asset` 必须存在
+   role ∈ {`QUESTION_SOURCE`, `SOURCE_EVIDENCE`} 的链接；链接行与其 `problem_revision` → `problem`
+   父行随包保留（RESTRICT FK 要求），只为证据资产收字节。纯 `CLEAN_IMAGE` 组合在裁剪器预扫阶段
+   fail-closed（`SmbkSelectionPlan.requireImageEvidence`），不产出「恢复完就蒸发」的图片包。
+2. **空选择（mask=0）改为允许 = 仅身份/设置包**：恢复侧识别 mask=0 后只应用 `settings.json`，
+   **不关闭/交换数据库**，因此不删除本机内容、不要求重启（`restartRequired=false`）。旧“重置包”语义废止。
+3. **派生索引恒裁、恢复后按科重建维持不变**（2026-10-23 的 a+c）。
+4. 允许集合 = 闭包自洽的全部 mask **{0,8,9,13,15}**；1–7、10–12、14 仍拒绝且不静默补齐。
+   `SmbkSelectionPlan.allowedMasks`、`SmbkArchiveCodec` 读写闸门、`BackupSelection.ALLOWED_MASKS`、
+   UI 勾选/文案、设计件 §9.9/§9.11 同批同步；四方位门 `python -I tools/ci/check_backup_plan_sync.py`
+   本轮实跑 exit=0。
+
 ### 本批结果（增量）
 
 - **6C-2 域/机器清单（T1/T2）**：新 `BackupSelection` 四类别位、5 条闭包、`requireCreatable` 只接受 9/13/15；
@@ -3332,6 +3348,11 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **设置/关于页嵌入点未嵌**：`SecondaryScreens.kt` 开工即脏 M（他线在飞，2026-10-26 T0 复核 `git diff --stat`
   86 行改动）、宿主 `SmartMistakeBookRoot.kt` 他线动画热区——本批只落文案文件与清单，不嵌入；嵌入随 G1/G2
   接线批（落点建议见 `docs/ai-content-disclosure-copy.md` §6：应用现无"关于"页，设置区新增入口）。
+  **批次 40 WS9 分支 D 复核（2026-11-02，原地复核、不另建条目）**：`SecondaryScreens.kt` 与
+  `SmartMistakeBookRoot.kt` 已在 `a3f367df` 入库——`git status --porcelain -- <两文件>` 均为空，宿主不再是
+  他线热区；G1/G2 落点仍未 clean：`feature/tutor` 脏面=未跟踪 `gradle.lockfile` + 0 字节 `nul`，`core/ui`
+  脏面=`Theme.kt` 9 行批次 39 兼容别名 M + 未跟踪 `gradle.lockfile`（实跑 `git status --porcelain -- feature/`
+  与 `core/ui/`）。故嵌入条目**维持未落**，仍随 G1/G2 接线批（`feature/tutor` 与 `core/ui` clean 后）一次到位。
 - 产品文案占位符【模型名称】【备案号】【上线编号】未回填（依赖模型提供者选定与属地登记完成，清单第 6/7 项联动）。
 - 第 4 项"教育服务时段豁免"条文表述、第 12 项各商店材料清单：待验证（R5 §6）；本文档不构成法律意见。
 
@@ -3676,3 +3697,155 @@ model egress payload"）vs 定稿 R4"可由智能体搭桥转录"——**定案�
 - **KD-82 残余**：imagePrompt 半边（OpenAiModelProtocol.kt:552）未对齐，"任何文档/证据不得把现 schema 写成与本地门同一口径"的禁令继续有效；是否另立条目由台账 owner 定。
 - **UNVERIFIED**：生产签名/arm64 真机/16KB release 面/API 23 全套件；release 窗口三项 raw 缺口（装机与设备侧 sha、K6 `-e class` 命令行、step14 设备负载实测——runner 摘要声明，落盘员 UNVERIFIED-raw）；KD-82 JVM 出数=门禁轮报告 XML 读值（记录员未复跑 Gradle，口径同批次 36 先例）。
 - **不做**：JS 广告（`availableMethods` 未动）；core/data 降级变体修复未落（只标注）；真实 Provider；锁文件提交（KD-72 窗口仍不满足）；`docs/current` 热区正文；`tmp/` 证据不提交。
+
+## 批次 38 三倍任务量批——Q-02 预裁落地 + V-02 调用侧编排与 M-03×V-02 开放裁定点 + KD-82 imagePrompt 半边 + R-04 Keeper 预研（2026-11-01）
+
+> 依据：批次 38 计划 `.zcode/plans/plan-2026-11-01-batch-38-triple.md`（25 项→13 轨，主会话预裁含 Q-02）、三研究 `docs/research/2026-11-01-method-switching-and-transactions.md`（R1，330 行）`2026-11-01-measure-artifact-and-budget.md`（R2，293 行）`2026-11-01-preview-source-evidence.md`（R3，160 行）、三预研（KD-76 判据 134 行 / V-01④ PDF 腿 112 行 / R-04 Keeper 87 行）、设备证据 `docs/research/evidence/2026-11-01-batch-38/`（E-00…E-13）、批次记录 `docs/research/2026-11-01-batch-38-record.md`。**记录步零 Gradle/零设备/零 git 写。**
+
+### 裁定内容
+
+- **Q-02 按主会话预裁落地、未停项（计划预裁的执行登记）**：语义三面钉死（枚举文 `FigureGeneration.kt:55-56`、prompt 用途段 `FigurePromptAssembler.kt:302-303`、R3 §1.4）——研究未证明存在合法"可重绘"语义，故"语义'保留原像素'的 PIXEL_CLEANUP 一律 requiresPixelFidelity=true、policy 无条件拒绝"落地：policy 新增 `effectiveRequiresPixelFidelity`=宿主显式位∨(purpose==PIXEL_CLEANUP)，JS/IMAGE 两道 pixel 门同收（不接收宿主声明降级——target 语义规整而非用途→方法路由）；入口声明面归位 `ConfiguredCleanImageGenerator.kt:109` true。红→绿构造性钉子：修复前 policy 只看 target 位+入口 false 时 PIXEL_CLEANUP+JS proposal 会被放行，新测试第 1 例正钉该旧漏洞形状（修复后 TARGET_UNSATISFIABLE）；净化链（EDIT+supportsPixelEditing）不受影响，`requiresPixelFidelity` 契约语义="只能走支持该能力的 EDIT"非逐位相同。
+- **V-02 方法切换=R1 §2.2 候选 B 调用侧编排**：`FigureMethodSwitchRunner`（core/data internal）单方法 `generateWithMethodFallback`——一次切换=同 request（同 operationId）第二次 coordinator.generate，协调器/policy/审计/账本/DAO 零改动（审计 insertOperation=IGNORE/attempt ABORT 唯一/终态最后尝试覆写天然支持；账本 per-operation 跨方法累计 MAX_DISPATCHES=6 不重置）。切换判据 fail-closed（可归属程序错五类+HARD_DEADLINE_EXCEEDED 才切；UNAVAILABLE/[UNATTRIBUTED]/账本 Denied/最终图上限不触发；REJECTED+JS 专面预算文案允许转 IMAGE 一次）；IMAGE→JS（"图像不佳"）不做机械回退，经有界 TutorVisualContext 模型回合驱动（A-07 生产零构造，接线归 X-01）。**生产接线无调用方**（全仓 grep 仅 runner+测试；KDoc"前置依赖"如实登记）——X-01 归位裁定待主会话，四个生产 coordinator.generate 调用点中 RoomTutorToolRunner 为他线热区 M。
+- **M-03×V-02 跨特性交互=登记分支（行为裁定开放）**：4MP 排版预算超限折 `INVALID_PROGRAM`（引擎度量结算接线）恰落入 V-02 可归属切换集→现行为=切换+远程预留（远程账本 6 上限不重置）；语义上更接近排除项 INPUT_OVER_BUDGET 的"输入侧修输入"（IMAGE 产物不经 4MP 布局门）。处置=双侧 KDoc 登记（`FigureMethodSwitchRunner` §2.4 表 M-03×V-02 行 + `VisualLayoutBudget` 执行点登记段），**"程序侧确定性超限 vs 输入侧越量"开放裁定点归主会话（X-01 生产接线前裁定）**；改裁定须同步两处注记；LAYOUT_PIXEL_BUDGET 场景专项用例随行为裁定同批落，不预钉未裁行为（修复环第 2 轮处置）。
+- **KD-82 imagePrompt 残余 Fix direction ① 半边**：`OpenAiModelProtocol.kt:561` maxLength=⌊4096/4⌋=1024 码点（协议 schema 数值对齐，非能力广告面；本地 4096 字节门三执行点零改动）；对齐测试改钉 1024+4B 恰边界正例+1025 码点负例 fail-closed。**KD-82 open 维持**：JVM 出数缺当日 XML（记录员普查唯一当日红=FusedRecallSupersetTest，KB 线域）+ 关闭裁决另一半（广告解冻批）未发生；最坏 4× 过度广告已消除，"不得把 schema 写成与本地门同一口径"禁令继续有效。
+- **R-04 维持阻塞 + Keeper 预研结论**：上游 slackhq/Keeper 0.16.1 在 AGP 9 结构性不可用（issue #152；孤儿化）；可行对象=活跃 fork **usefulness/keeper v0.19.0**（Apache-2.0、AGP 9.0→9.5.0 连续 CI MERGED 证据、SDK 37 命中本仓 compileSdk；L8 双机制+mapping 分支经源码 gh api 实读确认）——AGP 9.3.0 兼容性获上游 CI 级强证据，**本仓最终验证仍须沙盒+K2+三值预检+K6 全链（UNVERIFIED 显式）**；勘误候选：最小接入不需编辑 settings.gradle.kts（pluginManagement 已含双仓），实际触面=3 个构建文件+settings-gradle.lockfile+KD-72 锁窗口——台账表述更正归主会话采纳与否。R-04 阻塞不因预研改变。
+- **设备与门禁事实**：24 套件 223 例全绿（emulator-5562；首跑 3 红归因 D 环境同 APK 复跑取代；源快照 1220 文件两窗口 diff 0；T2 两文件编译错误经授权两处机械修复解锁）；**V-03/V-04 三套件编译进 dex 未执行**；KD-76 校准判据未就绪未执行（E-13，KD-76 open）；强门 exit=0 ×2、**单测门 exit=1 ×2 未归因**（收口前主会话须取得失败清单——当日 XML 普查唯一红=FusedRecallSupersetTest 2/3，core/data knowledge 面 KB 线域）。
+
+### 边界（不得越权 / 仍待裁定 / UNVERIFIED）
+
+- **M-03×V-02 行为裁定点开放**：切换 vs 归 INPUT_OVER_BUDGET 排除——主会话在 X-01 生产接线前裁定；专项用例不预钉未裁行为。
+- **V-02/X-01 生产接线待裁**：runner 是归位后的自然落点；不抢接（RoomTutorToolRunner 为他线热区）。
+- **载体已落、执行未出数**：V-03/V-04 三设备套件与批次 38 core/data 侧 11 个 JVM 套件全部 UNVERIFIED（设备执行归该轨判据；JVM 无当日 XML）；M-03 16MiB 分配前置门无生产执行点（接线归预览分配点）；D-04 写侧无生产调用方（previewAssetId 恒 null，快照提交接线归后续批）。
+- **A-10 编排半边**："耗尽→文字降级"编排半边登记维持（清单行不转"通过"）；协调器级"IMAGE+JS 混合合计第 3 份拒绝"直接向量仍缺（FigureMethodSwitchTest + E-11 设备位共同守卫）。
+- **UNVERIFIED**：R-04 Keeper 接入（预研≠实施）；单测门 exit=1 构成；生产签名/arm64/16KB/真机；KD-76 校准；Q-04 设备截图臂与 oracle 学科重算逐字段复核。
+- **不做**：JS 广告（`availableMethods` 未动、生产装配恒三参）；R-04 实施（触构建面，预研先行）；锁文件提交（KD-72 分支 B）；`docs/current` 热区正文（:208 登记不落笔）；`tmp/` 证据不提交；任何 git 写。
+
+## 批次 39 接线与设备校准批——D-04 预览接线缝与有界降级 + M-03 16MiB 分配前门 + V-01④ 公开测试缝 + KD-76 计时 seam（2026-11-01）
+
+> 依据：批次 39 计划 `.zcode/plans/plan-2026-11-01-batch-39-wiring-calibration.md`（16 项→10 轨）、两研究 `docs/research/2026-11-01-preview-wiring.md`（R1，366 行）/`2026-11-01-kd76-timing-calibration.md`（R2，252 行）、批次 39 基线（165 行）、设备证据 `docs/research/evidence/2026-11-01-batch-39/`（E-00…E-08）、批次记录 `docs/research/2026-11-01-batch-39-record.md`。**记录步零 Gradle/零设备/零 git 写。**
+
+### 裁定内容
+
+- **D-04 预览接线=R1 §2 八步管线，落独立可接线单元、生产装配零调用方如实登记**：渲染输入=Rendered.drawCommandsJson→`VisualDrawOpsParser.parse` 恢复级复检→`VisualDrawOpsPainter.draw`（pxPerDu=min(1f,1600/maxDu)，不取设备 density 保内容寻址幂等）→PNG→`TutorVisualPreviewAssetPersister.persist`（字节→行原子）→record.sourceAssetId 填 previewAssetId→仓储提交；仅 commitAssistantTurnWithVisual 路径（stageSnapshot 不做——STAGING 行 60 分钟租约回收）；失败语义=有界降级（门拒/绘制拒/persist 拒→previewAssetId=null+有界诊断≤512+快照照常提交；CancellationException 重抛；OOM 兜底折码）——依据：预览是③档显示缓存（VERIFIED_FONT_MANIFESTS 空集 `VisualSnapshotRestore.kt:125` 使冷恢复恒 ReadOnly），快照完整性靠 drawCommands 不靠预览；未引用资产行由六站点谓词 GC 自愈；"文字+预览合计≤4MP"在预览生成侧判（不在引擎结算处并入——4096² 合法画布否则被显示缓存问题连杀整图）。生产装配点（`SmartMistakeBookApplication.kt:364-368` 恒三参/`DefaultFigureGenerationCoordinator` 他线在飞）不可自行落——接 visualEngine 会翻转 JS 能力广告；唯一真实插入点=app ④ 设备例 commit 路径（T2 已接线演示）。
+- **M-03 16MiB 分配前门接线**：`requireBitmapBytesWithinBudget` 接在预览渲染 createBitmap 前（`TutorVisualPreviewRenderer.kt:332`，IAE→BITMAP_BYTE_BUDGET、分配不发生）——M-03 两门全接线（4MP=引擎结算处批 38、16MiB=预览分配点本批）；N5（du 累计）/N6（单次分配）两门独立判、向量分开写（防发现等价设备镜像）。
+- **V-01④=方案 A 单新文件公开缝 `VisualChainTestSeams`**：restoreDecision/writeSnapshotPdf 两公共操作、不透 internal 类型；KDoc 三硬约束（仅 androidTest 引用 grep 门=`tools/ci/check_visual_test_seams.py` 机检〔0 main/test 引用+1 androidTest 引用，负控有效〕/R-04 keep/不透 internal）；回滚=删 1 新文件+还用例增量。**keep 行未落**（`r04-test-keep.pro` 零命中）——缝/渲染器 keep 义务移交 R-04 批，此前引用两者的 release 轨用例不得进 R-04 清单。
+- **KD-76 计时 seam=R2 §2 四阶段 5 时刻戳**：`ConnectStageTimestamps` 挂 Link 按 generation 记账（S-bind/S-warmup/S-ready-gap/S-firstbyte）、@Volatile 单写者零新增锁、6 打点行/5 语义写点全在引擎一文件、零生产行为改动；访问器 `connectStageTimestampsForTest(generation?)`；回滚=删类+6 打点+1 访问器。READY_TIMEOUT=10s 校准判据（p95≤5s 维持、超线只动单常量 :1251 并回写契约 :72、1500ms/2500ms/loading 语义红线零触碰）与 29.5s 分段实测相加方案（否决单例端到端故障链）入档；**校准出数 UNVERIFIED**（设备校准用例未落码、androidTest 0 引用）→ READY_TIMEOUT 维持 10s、KD-76 open 维持。
+- **P-11/P-12③ errorKind runner 半边**：runner 开工实测干净→按计划条件分支落（独立结果码 `figure_engine_unattributed` + UNAVAILABLE 分支按 `UNATTRIBUTED_DIAGNOSTIC_PREFIX` 判别〔前缀同源 `VisualJsFailureClassification.kt:141` internal const〕+ 学生句"本机绘图引擎这次出了故障，没有生成"+2 新用例先红后绿登记）；不混 figure_failed（不诱导修 program）、不混 figure_unavailable（不谎称通道未配置）；prompt/能力快照对现网可达路径逐字节不变（新码生产暂不可达——防御位保护直调 runTraced 调用者与 X-01 接线后路径）。
+- **设备与门禁事实**：28 套件 236 例执行、绿终判 26 套件 220 例（新例 12 首证：N 4+X-02 6+A-10 协调器级 1+V-01④ 1）；源快照 1227 文件 diff=0；keep/S=71/dex/资产门全过；单测门/强门 exit=0（修复环后，工单给定）；复核 10 条（5 中 5 低），非低 5 条处置 5/5。**isolation 三窗 15 例红未收敛**（D 环境主导、T4 关联不可证伪→R2 §7.6 seam 设备绿绑定不成立，裁定请求三选项上报主会话）；**X-03 0/1 红=A 类夹具缺陷**（两 id 空间错配，修复+复跑归落码批）。
+
+### 边界（不得越界 / 仍待裁定 / UNVERIFIED）
+
+- **D-04 生产装配待裁**：端口+设备向量绿、生产装配零调用方（previewAssetId 生产恒 null）——不构成关闭建议；装配点归位批裁定，接线不得翻转广告开关。
+- **isolation 三窗红 + T4 绑定**：低负载窗重跑 / T4-reverted 控制轮 / 接受 D 归因——主会话裁定；KD-76 校准与 V-01④ 关闭建议的绑定前提受牵制。
+- **V-01 状态判定**归主会话（④ 设备证据已取得，严格口径维持 PARTIAL 至裁定）；**X-03 修复+复跑**归落码批同窗。
+- **UNVERIFIED**：KD-76 校准出数（校准用例未落码）；seam 访问器过滤逻辑零测试覆盖（复核 #10）；本批新增 JVM 套件逐套件出数（门级 exit=0 工单给定）；生产签名/arm64/16KB/真机；Q-04 设备半边（真机渲染金样）；M-04 度量失败标记 runner 半边（candidate 登记）。
+- **不做**：JS 广告（`availableMethods` 未动、生产装配恒三参）；R-04 keep 登记（义务移交 R-04 批）；生产装配接线（热区+广告红线）；锁文件提交（KD-72 分支 B 维持）；`docs/current` 热区正文（:208 登记不落笔）；`tmp/` 证据不提交；任何 git 写。
+
+## 批次 40 5× 任务量收口批——WS7 契约 V1.1 草案 + 准入清单 69 行一次清算 + KD-24/28/32 移交 + KD-61/63/65 复核（2026-11-02）
+
+> 依据：计划 `.zcode/plans/plan-2026-11-02-batch-40-5x.md`（WS7 任务 39–44）、批次 40 基线 `docs/research/2026-11-02-batch-40-baseline.md`（§8 勘误）、契约草案 `docs/research/2026-11-02-contract-v1.1-tightening-draft.md`、准入清单 `docs/research/2026-10-26-batch-24-4e2-admission-checklist.md`（v3 补记 21 + 附录 L）、批次 39 收尾记录（`docs/research/2026-11-01-batch-39-tail-record.md`，经 MASTER-LINE `:5` 批次 39 行转录）。**本轨零 Gradle/零设备/零 git 写。**
+
+### 裁定内容
+
+- **契约 V1.1 收紧条款草案（任务 39）**：落 `docs/research/2026-11-02-contract-v1.1-tightening-draft.md`，十条 C-1…C-10。**不写 `docs/current`**——本会话实跑 `git status --porcelain -- docs/current/` = 7 条 M（README/architecture-contract/data-schema/implementation-status/model-task-contracts/product-contract/release-gates），热区未清空。优先级：**P0 = C-1（广告门单向前置）/ C-6（快照身份=db+wal、`-shm` 排除，回写 `:208` 的 KD-81 旧句）/ C-10（DB/请求 schema、备份清单、identityHash 三处同源）**；P1 = C-7/C-8/C-9；P2 = C-2/C-3/C-4/C-5（随各 WS 判据定稿同批并入）。并入时必须同步准入清单与 KD 台账（草案 §4 列明），不得只改契约正文。**本轨不预填** `/AIGC` 字段名、自动落账阈值、目标可提取度取值、新任务 kind 名单、schema 73 表数/CLOSURE 目标值（草案 §5 归主会话）。
+- **准入清单 69 行全量状态矩阵（任务 40）**：附录 L 一次清算，计数 **✅20 / ◐34 / ✗10 / ?3 / ⛔1 / §1 = 69**；**0 项转"通过"**、MVA 不成立、`availableMethods` 未动。三处**反向失真更正**：① P-01 不得按历史 6/6 记绿——套件现 15 @Test（本会话 `grep -c` 实测），批次 39 收尾 isolation 基线 8 红/控制 10 红、15/15 未达 → 记"不可声称通过（8/15 红，逐方法映射未建立）"；② D-01 "DB v69/`tutor_visual` 零命中"已过时——`72.json` 实含 `tutor_visual_program`/`tutor_visual_snapshot`/`tutor_message_visual`/`problem_revision_visual`（本会话实测）→ 记"表与迁移已落、端到端同事务判据待证据"；③ M-02 `UnwiredVisualContentMeasurer` 已被替换（`VisualJsService.kt:83` KDoc）→ 记"已接线"。其余关键实测：E-01/S-01/S-07/X-01 维持零命中；A-11=21 @Test、A-12=46+7（本会话实测）；A-13 门脚本本会话实跑 PASS/EXIT=0（三构造点 `capture/ConfiguredCleanImageGenerator.kt:100`/`AttachedImageGenerator.kt:155`/`TutorFigureGenerator.kt:377`）；R-05 许可载体仍只有 compose-richtext/open-claude-ui。**"基础事实"口径**：✅ 只表示载体在树，不等于执行通过。
+- **KD-24/28/32 移交 KB 线（任务 41，不越线）**：三条各在原条目追加"批次 40 WS7 移交登记"块，明确承接方=KB 线、本线零代码、关闭/重开判据原文一字不动、受理批号与评测窗口由 KB 线自记。现树复核：KD-24 `MAX_SEARCH_FRAGMENTS=16` 仍在（`KnowledgeSearchFeatureExtractor.kt:15`）、dense 面在 `core/data/.../knowledge/dense/`；KD-28 两份 9 科清单仍在（`KnowledgeBaseImportContract.kt:31` / `SubjectKind.kt:4-15`）；KD-32 未达项 ①–⑥ 原样登记。
+- **KD-61/63/65 状态复核（任务 42，低危清仓判断）**：**三条均维持 open（low），不清仓**。KD-61：写门生产调用点 3 处（新增 `FigureGenerationReconciler.kt:82`），复习/知识/掌握度/导出/提醒仍 DAO 直写；KD-63：标记清除仍在 `deleteAllNonDatabaseFiles` 第 10 步（`AndroidBackupRepository.kt:1037`）、`RestoreSoftReferenceRecheck.kt:191-192` `finally` 仍无条件删边车且无注释；KD-65：`OpenAiModelResponseParsers.kt:297` KDoc 仍称 `purpose` 不在白名单，而 `:300-308` 实含 `"purpose"`、`:321-323` 另有值校验——纯文档缺陷，最小修法已登记、行为不改。
+- **基线勘误采信**：计划 §2 "schema 71→72" 与现树不符——`StudyDatabase.kt:140` = **72**，WS2 应写 **72→73**（采信批次 40 基线 §8 #2）；基线 §8 #1 记 8 份 `2026-11-02-*` 研究文书 MISSING，本会话 `ls docs/research/ | grep 2026-11-02` 实见 **10 份**（8 份计划点名 + `batch-40-baseline.md` + 未跟踪的 `kb-l2-material-features-prereg.md`）——该 MISSING 为基线落笔时点值，现已补落。计划 §1 的计数矛盾（WS8 标 5 项、正文 7 项；51/82 vs 80）登记待主会话澄清，本轨不改计划。
+
+### 边界（不得越界 / 仍待裁定 / UNVERIFIED）
+
+- **只收口 WS7**：WS1–WS6/WS8 的实施、门禁、设备结论不在此节断言；本轨不代裁 KD-76/isolation/R-04/V-01/X-03 的关闭。
+- **契约正文零改动**：`docs/current` 7 条 M 未清，草案只在 research；C-6 的 `:208` 旧句仍在树（本会话 `sed -n '208p'` 实读，KD-81 句在 AUD-08 长行内）。
+- **KD 台账改动仅限追加块**：五个条目各追加一段（三段移交 + 三段复核），不改既有 Progress/判据原文；`known-defects.md` 为共享 M 面，本轨按锚点插入、每次重读后再写。
+- **UNVERIFIED**：任何 JVM/仪器化/设备执行；契约 C-2 的 TC260 字段表（未读研究全文）；C-3/C-4/C-5 的最终参数；P-02/P-03/P-05/P-06/P-08/P-09/P-10/P-11/P-12/S-04/S-06/A-02–A-09/A-11/A-12/Q-03/Q-05/Q-06/V-03/V-04/R-01–R-05/X-04 的运行时结论均为转录。
+- **不做**：JS 广告（`availableMethods` 未动）；R-04 实施（Keeper 仍只出草案）；锁文件提交（KD-72 分支 B）；`docs/current` 热区正文；`tmp/` 证据不提交；任何 git 写。
+
+### 复核轮追加裁定：schema 73 rebase 与同号冲突（2026-11-02）
+
+> 依据：批次 40 复核第 1 轮发现（schema 73 未接线 + L2 依赖 + 同号冲突）、KB 32B §15「L2 不可判→回滚」、`docs/research/evidence/2026-11-02-batch-40/step02b-schema73-migration-backup.md` §4–§5。本轨零 Gradle/零设备；代码侧已落，KSP 导出物待门禁。
+
+- **schema 73 基线 = rebase 到 71，不恢复 L2**。KB 32B 已删除 `KnowledgeSearchMaterialFeatureMigration_71_72.kt` / 实体（`restored=27/deleted=5`），71→72 链不存在；本批不推翻他线裁定。73 = 71 的 90 表 + 错因两表 = **92 表**，迁移为 **`MIGRATION_71_73` 直连**（保留 `ERROR_CAUSE_MIGRATION_72_73` 只覆盖 from-72 的 orphan 快照）；`72.json` 作为 orphan 保留，不删不改。
+- **identityHash / 73.json 不猜**：rebased `73.json`（92 表）已由门禁 `:core:database:kspDebugKotlin` 生成（version 73 / entities 92 / views 2 / FK 110），`SmbkSelectionPlan.IDENTITY_HASH` 已回填 `1d086050204a0da1ed6b6e3299dd9733`；哨兵与 `identityHashPending` 保留给下次 bump。原 93 表未跟踪 `73.json` 已移出 schema 目录（`build/schema-rebase-73/`）。
+- **版本号冲突规则**：**先提交者占用 schema 版本号，后到者重编号并重跑 KSP**。本线占 **73**（92 表）；`codex/ui-green-pages-2026-10-27` 工作树的未跟踪 73.json=97 表/`4d2c8e0f…`（`paper_review*` 三表）在合并时必须改为 **74**。禁止两套同号 schema 共存。
+- **不在本轮断言**：编译/KSP/迁移矩阵实际通过（禁跑 Gradle）；回填前不得把 73 写成“当前树通过”；`SmbkSelectionPlanTest` 的 schema 用例以 `assumeTrue` 等待 73.json，生成后 identityHash 断言在回填前保持红（诚实信号）。
+
+### 批次 40 记录收口（2026-11-02，记录员；只读/零 Gradle/零设备/零 git 写）
+
+- **记录落盘**：`docs/research/2026-11-02-batch-40-record.md`（80 行对账表 = 49 实施 + 8 研究 + 23 流程；计划自述 80 与实列 51+8+23=82 的差额按 §0.1 映射，45–51 逐项在 §4.8/§6 可查）。该文件同时保留复核修复轮补建的更正段（§7）。
+- **当前树口径（本轮实读/实跑）**：HEAD `dee81ea7`；工作树 589 条（119 M + 470 ??，暂存 0）；`STUDY_DATABASE_VERSION=73`、两错因实体/DAO/`MIGRATION_71_73` 已注册；`73.json` = 92 表/2 视图/110 FK/`1d086050…`；KSP `RoomOpenDelegate(73,"1d086050…")`；`SmbkSelectionPlan` 92/84/2/closure 5；请求 schema 19。
+- **门禁/设备边界**：设备结果只绑 10:13 四包 APK；schema 设备绿是 93 表/`aa9f0313…` 口径，当前 92 表树未重跑 §46/§47；KD-75 设备用例不在树、`core/export` 零接线 → open；KD-76 无单轮入口、本批无 M 值 → open；isolation 单臂 15/15、A3 不符、无 T4 控制轮 → 不得写通过；KD-71 G1/G2/G3/G5 满足、G4 未做 → 仅建议条件式关闭；28 套件 237 例 27 绿、p09 1 红；AUD-08 门值 FAIL 维持。
+- **记录员实跑更正**：`tools/tests/test_split_gate.py` 在 `PYTHONUTF8=1` 与 `env -u PYTHONUTF8` 两种跑法下均 **61 passed**（子进程调用 `:1047` 显式 `encoding="utf-8"`），复核第 2 轮“GBK 22 failed”不适用于当前树；当前单测 XML 静态扫描 530 个/4085 tests/3 failures，3 红均为 `core/data/.../knowledge/` KB 词面测试，归 KB 线。
+- **不同步断言**：本收口不替代主会话关闭裁定；KD-75/76/isolation 维持 open/不得通过；`docs/current` 7 M 未清，契约正文仍未改；热区提交仍禁止。
+
+
+## 批次 41 复核修复 + 剩余推进批——契约 V1.1 P0 接缝 + 容量/备份/KD-76 判据裁定（2026-11-02）
+
+> 依据：计划 `.zcode/plans/plan-2026-11-03-batch-41.md`（§2 WS1–WS10）、批次 41 基线 `docs/research/2026-11-03-batch-41-baseline.md`（D1–D6）、批次 40 记录 §8/§9、本批证据 `docs/research/evidence/2026-11-03-batch-41/`（WS2/WS4/WS6/AUD-08/研究交叉复核）、契约 P0 草案 `docs/research/2026-11-03-contract-v1.1-p0-seams.md`。**本轨（WS10）零 Gradle/零设备/零 git 写；JVM/设备结论以各轨证据为准。**
+
+### 裁定内容
+
+- **契约 V1.1 P0 接缝只出草案、不落正文（item 58）**：`docs/current` 本轮实跑仍 **7 条 M**，契约正文零改动。三段落点冻结：**C-1** 新增于 §9 `:212` 之后（`availableMethods` 加 JS 的前提 = 准入清单 69 行全过 + MVA-JS-STATIC + 设备证据绑定当前源快照/APK sha；六广告面同源同批；半步不构成广告）；**C-6** 替换 `:208` 段尾 KD-81 旧句（身份 = db + `-wal`，`-shm` 显式排除；导出前后各取一次，db/-wal 变化先于写盘拒绝；身份只证字节一致、不证读事务快照）；**C-10** 替换 `:182` 整段（DB 73 / 92 表 / trim 84 / closure 5 / `1d086050…`、请求 schema 19；`identityHash` 只由 KSP 生成回填、禁手写；旧版本 JSON 跑门必失败；版本被占用时后到者重编号并重跑 KSP）。并入时必须同批改契约、准入清单、KD 台账、MASTER-LINE 与本节，**不得只改一侧**。
+- **准入清单二次清算（item 59）**：附录 N 仍 **69 行**，计数 ✅20/◐34/✗10/?3/⛔1/§1，**0 项转"通过"**、MVA 不成立、`availableMethods` 未动。P-01 的批次 41 证据 = 6 个配对 run 全 15/15 PASS 但 **5/6 个 post-gate INVALID → UNCONVERGED**、T4 控制轮未做，故仍不得写"通过/T4 排除"；P-07 的 KD-76 单轮入口与报表工具已落码，但本批无 20 轮设备样本、无 M 值，仍 ◐。
+- **closure 4→5 旧包兼容读侧（WS1 item 5；新开 KD-83）**：读侧按包**自称**的 `closureVersion` 选择冻结规则表，支持窗口 **N-1 = {4,5}**；closure ≤3（无不可变规则表）与 ≥6（规则未知）明确拒绝并给可读原因，不猜测。新增表（`error_cause_observation`/`error_cause_binding`）在载荷中必须为 0；被删表（`knowledge_search_material_feature`）声明或实测非 0 即整包拒绝，**不以 0 补齐静默丢行**。v4 规则数值取自 closure 4 时点源码（91 键 / 83 裁剪 / `smbk-selection-v4`），不按 v5 重算。**边界**：兼容读侧只解决"旧 v3 包不可恢复"；JVM 三例（`SmbkArchiveCodecTest`）执行状态 UNVERIFIED，KD-83 保持 open。
+- **复习容量：单日容量只有一份（WS1 items 1–3）**：多科考试通道共享同一 `dailyCapacity`，超容量时按"距考天数升序、缺口降序"分逐科名额；去重发生在取题**之前**（考试已取题排除出再平衡候选），`deduplicatedCount` 因此恒 0、保留为回归哨兵；预览必须报逐科 `granted/demand/unmet` 与总量，并区分基础日容量与 1.5× 成长上限。**二次放大禁令**：调用方已把爬坡后预算传入时，必须同时传 `growthCeilingBudgetSeconds`，否则会到基准的 2.25×。**边界**：全部为 JVM 载体，执行 UNVERIFIED；生产接线（`ReviewPlannerV2.VERSION`、设置/预算持久化）仍在热区。
+- **KD-76 单轮入口与诚实报表（WS3 items 18–22）**：校准入口改为 `am instrument -e smb.kd76.round N`（一轮一进程），20 轮由 `run_kd76_rounds.sh` 逐轮 `am instrument` 采样（reboot/force-stop 两种形状，逐轮落 XML），`summarize_kd76.py` 只读逐轮 XML 并要求 1..20 各一份；**G1 红、样本不足、APK/设备指纹不一致一律 NOT EVALUABLE，绝不输出 PASS 判词**。`Kd76ReportVerdict` 为报表判词单一事实源（门 = `READY_TIMEOUT/2` = 5000 ms，样本 20）。29.5 s 只按 S1–S4 预算分段报告，禁止单例端到端拼接。**边界**：本批无设备 20 轮样本，主口径 M 不存在；生产 `READY_TIMEOUT_MILLIS=10_000L` 未改；KD-76 保持 open。
+- **isolation 结论口径（WS4）**：只有在低负载窗内、OFF/ON 配对成立时才可谈 T4 因果；本轮 6 run 全 15/15 PASS 但窗口 5/6 INVALID，判词 **UNCONVERGED**；T4 控制轮未做（无生产侧回退），**禁止写"T4 排除"**，15/15 只作窗内样本。
+- **防漂移门（WS1 item 8）**：四方一致性（`SmbkSelectionPlan.kt` / 设计件 §9.11 机器块 / `SmbkSelectionPlanTest` golden / `73.json`）脚本化，缺文件 exit 2、不静默通过；closure 4 冻结表也纳入同一脚本。本轮实跑 **PASS/EXIT=0**、自测 **4 passed**。CI 只出 patch 草案（`check_backup_plan_sync.ci.patch`），**本批不改进 CI 配置**。
+
+### 边界（不得越界 / 仍待裁定 / UNVERIFIED）
+
+- **契约正文零改动**：`docs/current` 7 条 M 未清；C-1/C-6/C-10 只在 `docs/research/2026-11-03-contract-v1.1-p0-seams.md`。
+- **不代裁关闭**：KD-75（设备用例 10 @Test 在树、无设备执行；`core/export` 零接线）、KD-76（无 M）、KD-83（JVM 未跑）、R-04（K6 红）均不关闭；X-03/isolation 不写"T4 排除"。
+- **UNVERIFIED**：任何 Gradle 编译/单测/androidTest/设备执行；WS5 schema 73 设备复现、WS7 6B-3、WS9 ps16k x86_64 无仓内证据；`SmbkArchiveCodecTest`/`Kd76ReportVerdictTest`/`ErrorCauseChainTest`/`ReviewCapacity*Test` 执行状态。Python 侧仅本轮实跑：`check_backup_plan_sync.py` PASS/EXIT=0、`tools/tests/test_backup_plan_sync.py` 4 passed、`tools/tests/{test_summarize_kd76,test_kd76_chain_segments,test_lowload_gate,test_isolation_pair_report,test_t4_control_marker,test_check_eval_label_leakage}.py` 合计 57 passed。
+- **不做**：JS 广告（`availableMethods` 未动）；`core/export` 实改（只 patch 草案）；CI 配置改动；schema 版本改动（本批仍 73）；任何 git 写。
+
+### 批次 41 设备证据更正（2026-11-03 主会话收口）
+
+上文「KD-75 设备用例在树、无设备执行」「WS5 schema 73 设备复现 UNVERIFIED」为文档先于设备执行的时点陈述；后续 E-41-D02/D03 已实测：schema 73 矩阵 16/16、备份 34/34、trimmer 10/10、rowCounts 2/2、错因 3/3、drill 6；KD-75 设备往返 10/10（APK `0e906482…`，pypdf 独立读回 7 文件）。**KD-75 仍 open**（`core/export` 零接线），KD-76/isolation 结论不变。裁决以 E 文件与批次 41 记录 §4 为准。
+
+
+## 批次 42 契约 V1.1 P0 可应用 patch + 准入清单三次清算 + AUD-08 抽样与门红线（2026-11-03）
+
+> 依据：计划 `.zcode/plans/plan-2026-11-04-batch-42.md` §2 WS9 71–75、批次 42 基线 `docs/research/2026-11-04-batch-42-baseline.md`、批次 41 记录 §9.3、协议 `docs/research/2026-11-03-aud08-human-gold-protocol.md`、GATE.md §0/§5、本批各轨证据 `docs/research/evidence/2026-11-04-batch-42/`（WS2–WS8）。**本轨（WS9）零 Gradle/零设备/零 git 写；设备与门禁数字均为其他轨证据的只读转录。**
+
+### 裁定内容
+
+- **契约 V1.1 P0 只出可应用 patch、不落正文（item 71）**：`docs/current` 本轮实跑仍 **7 条 M**，`visual-generation-contract.md` 本身干净。产出 `docs/research/2026-11-04-contract-v1.1-p0-applicable.patch`（2 hunks，+4/−2）——C-1 在 §9 一般门段后新增"JS 广告单向前置"（69 行全过 + MVA + 设备证据绑当前源快照/APK sha；六广告面同源同批；半步不构成广告）；C-6 替换 `:208` 段尾 KD-81 旧句（身份 = 主库 + `-wal`，`-shm` 显式排除；导出前后各取一次，期间变化先于写盘拒绝；身份只证字节一致、不证读事务快照）；C-10 替换 `:182` 整段（DB 73 / 92 表 / trim 84 / closure 5 / `1d086050…`、请求 19；`identityHash` 只由 KSP 生成回填、禁手写；旧版本 JSON 跑门必失败；同号顺延）。**`git apply --check` exit=0**（可应用），但**本批不应用**；并入时必须同批改契约、准入清单、KD 台账、MASTER-LINE 与本记录（批次 41 WS10 §5 的同一约束）。
+- **准入清单三次清算（item 72）**：附录 O 仍 **69 行**，计数 **✅20/◐35/✗10/?2/⛔1/§1**（本会话脚本重数、与附录 N 的 ID 集合逐项相同）。**唯一档位变化是 R-03 ?→◐**：WS8 在 `ps16k_x86_64` 实测 `PAGE_SIZE=16384`，且 OCR 路径 `nativeloader: Load …/lib/x86_64/libmlkit_google_ocr_pipeline.so … : ok` + `OCR process succeeded` 证明真实装载随包 native 库；**arm64 仍 BLOCKED**（无设备/宿主）→ 不转 ✅。**0 项转"通过"**、MVA 不成立、`availableMethods` 未动。证据面刷新但不转档：P-01（WS4 六 run 15 例全 `-4`、UNCONVERGED、T4 控制轮无 OFF 产物）、P-07（KD-76 单批 n=20、`M.p95=1889`，但 A6 两批/C4/产品进程未满足 → open）、D-04（WS7 默认关闭注入点，生产 commit 调用点不存在 → 仍 BLOCKED）、E-03（`mistake-export-v3` 未升版，AIGC 靠策略代际哨兵）、R-04（Keeper 配置层可执行、K1–K6 未跑）。
+- **AUD-08 人工金标抽样计划（item 73）**：`docs/research/2026-11-04-aud08-human-gold-sampling-plan.md`——抽样框 = 仓外 155 张 jpg；复用 v1 `sampleRule` 的步长 6 系统抽样，**本会话复算得 24 页（≥20）**，且 v1 的 7 张金标页在框中的下标 `0/6/12/48/84/108/132` 全为 6 的倍数，证明 7 页是该 24 页的子集；24 页逐页 `sha256` 冻结；`dev 16 / acceptance 8` 由 `sha256(文件名)` 升序确定性切分（8 张 acceptance 中 5 张非 v1 页）。**与 v1 的关键差别**：不一致页**不排除**，全部进 v2 并按协议 S4/S5 裁定（消掉 24→7 的幸存者偏差）。**人工标注未执行**（无标注员）→ S0/S2–S7 与 G3/G4/G5 产物均不存在，人工金标正确率 UNVERIFIED/BLOCKED。
+- **门值复算维持 FAIL + 自动决策红线（item 74）**：`python -I tools/split_golden/check_split_gate.py` 本轮实跑 **exit=1**：① `4/7 = 0.5714 < 0.9`、③ `0/16 = 0.0000 ≤ 0.05`，② `7/16 = 0.4375`（只度量）；金标冻结校验 PASS、证据等级 **G2**、`hardRedLines.fragmentedQuestions = 0/0 满足`。阈值/口径/分母/金标零改动。**自动决策红线固定为 `gate.passed && hardRedLines.fragmentedQuestions.satisfied`，并由 4C③ 产品裁定开启**；理由：题级 n≥20 时 `1/n ≤ 0.05`，1 道切残会通过 ③ 的闭边界；24 页计划预计题级 n≈55，冲突必然触发。即使门绿，held-out 未做、等级仅 G2、样本不可外推、无 4C③ 四项仍各自阻断。证据 `docs/research/evidence/2026-11-04-batch-42/step-aud08-gate-recompute-b42.md`、报告 `build/ws9-batch42/gate-report-batch42.json`、裁定 `…/rulings/20261103T044703Z-10c61be3.json`（`validate_rulings.py` PASS）。
+- **台账回写（item 75）**：本行 + `docs/REFACTOR-MASTER-LINE.md` 批次 42 WS9 行 + 准入清单 v3 补记 23/附录 O。
+
+### 边界（不得越界 / 仍待裁定 / UNVERIFIED）
+
+- **契约正文零改动**：C-1/C-6/C-10 只在 patch 文件；`docs/current` 7 条 M 未清。
+- **不代裁关闭**：KD-75（设备/独立读者/`MODEL_DOCUMENT_PARSE` 判据全 UNVERIFIED）、KD-76（单批 n=20 不足以满足 A6；C4 未测）、R-04（K1–K6 未跑）、isolation（UNCONVERGED，禁写"T4 排除"）均不关闭；KD-83 的关闭以 WS5 证据为准，不在本轨。
+- **UNVERIFIED**：本轨未跑任何 Gradle/仪器化/设备；P-01/P-07/R-03/R-04 的运行时数字全部转录；人工金标抽样计划未执行；`git apply` 只做 `--check`，未应用。
+- **不做**：JS 广告（`availableMethods` 未动）；改阈值（0.9/0.05）；改金标 v1；改 schema 73；任何 git 写。
+
+
+## 批次 43 契约 P0 冲突清单 + 计划收尾盘点 + KD 全量审计（2026-11-04）
+
+> 依据：计划 `.zcode/plans/plan-2026-11-05-batch-43.md` §2 WS6 45–50（自述 74、**实列 78**，本记录按 78 对账）、R5 `docs/research/2026-11-05-contract-merge-protocol.md`、R6 `docs/research/2026-11-05-plan-closure.md`、`docs/known-defects.md` 机器解析、本批证据 `docs/research/evidence/2026-11-05-batch-43/`（WS2/WS3/WS4/WS5）。**本轨（WS6）零 Gradle/零设备/零 git 写；设备与门禁数字均为其他轨证据的只读转录。**
+
+### 裁定内容
+
+- **契约 P0 本批不落正文，出逐文件冲突清单（项 45）**：`docs/current` 本轮实跑仍 **7 条 M**（暂存 0，99+/5−），前件「清空」不成立。但 patch 目标 `visual-generation-contract.md` **干净**且 `git apply --check` **exit=0**——7 M 与 patch 目标**不相交**；批次 42 记录「7 M → 并入 BLOCKED」的文本层表述**更正为**：阻塞是计划 §4「`docs/current` 热区禁改」的纪律，不是冲突。冲突清单落 `docs/research/2026-11-05-contract-p0-conflict-list.json`（schema `contract-p0-conflict-list/1`，8 条）：**A 类 2**（README、implementation-status，add-only）、**B 类 3**（architecture-contract「coordinator planned」已被 `core/domain/FigureGenerationCoordinator.kt` 推翻；data-schema 写 68/18 而现树 73/19；model-task-contracts 的 planned 措辞过时）、**C 类 3**（product-contract −2、release-gates −2 改写当前行为/门语义；vgc add/add，保留 main 版）。只读干跑 `git merge-tree`：25 处冲突 / 7 文件，`docs/current` 面只有 vgc。**任何 C 类并入前必须有主会话裁定记录**；README 层 2 六行无提交来源，合并/checkout 前必须先单独提交。
+- **计划收尾盘点以 R6 为准（项 46）**：`2026-11-05-plan-closure.md`（407 行，当前未跟踪）已在工作树，74 行 = 9+7+34+12+6+6，判定 **可做 30 / 热区 26 / 外部阻塞 17 / 已关闭 1**。本线**不新增第二份盘点**——两份账必然漂移；本文件只补它未覆盖的 KD 审计与批次 44 残余输入。
+- **KD 全量审计（项 49）**：84 条标题（含本批新开 KD-84），**open 17 / closed 67**。逐条处置见 `docs/research/2026-11-05-ws6-contract-plan-closeout.md` §4.2。要点：
+  - **KD-75 关闭维持**（WS1 于本批关闭）：代码载体本轮实读核对存在（`MistakePdfEligibility.kt:157` 派生、`MistakePdfExporter.kt:241` 使用、`PdfAigcContentPolicy.kt:30` `GENERATION=2`、`:46` 判据、`MistakePdfEligibility.kt:460-461` 指纹代际）；但**证据缺口登记**——批次 43 证据目录**无 WS1 E 文件**，三份命名 PDF 产物全仓 `find` 未命中。不重开（代码载体与台账内实跑自述可指认），缺口由证据轨补件。
+  - **KD-76 维持 open**：WS2 两批各 n=19/20、各有一轮产品可见红（`HARD_DEADLINE_EXCEEDED`），A6 判 **NOT EVALUABLE**（`ws2-kd76-a6.md:129,160`）；两批不得相加成 n=40，也不得因「两批都跑了」写成 A6 满足。
+  - **KD-84 新开**（`:3304`）：部分页打印 `MistakePdfDelivery.writeSubset`（`:146`/`:215`）逐页重绘丢文档级 `/AIGC`。这是 KD-75 Fix direction 允许的「明确登记」但**必须有条目承接**，否则关闭后该用户可见后果无处记账。二选一出口：重注入或取消部分页打印；须独立读者读回。
+  - **KD-28/29/82 维持**「接受边界 / 不排期」判定，**标题不改**：把 `open` 改成 `closed` 是改台账语义（open = 仍未修），须主会话一次裁定用词，WS6 不单方面改。
+  - **DOCX `docProps/custom.xml` 不新开**：虽同样「另立条目」，但本批无任何代码或设备载体，开了只有标题没有证据；登记在 KD-75 关闭边界，待合规线做 DOCX 导出时再开。
+- **批次 44 不造第二份草案（项 50）**：`.zcode/plans/plan-2026-11-05-batch-44-acceptance.md` 已在树且干净（96 行，1000 项验收替代机制）。本线只补它缺的**残余项输入**：R6 §9.5 的 26 项（4E 设备向量 8 / 4E 数据侧 5 / 4E 许可入仓 1 / PRD·5B·5b 复验 11 / 6C 文档 1）+ KD-61/63/65/71/73 五条小修。热区 26 项与外部阻塞 17 项**不进批次 44**——它们不是排期问题。
+
+### 边界（不得越界 / 仍待裁定 / UNVERIFIED）
+
+- **`docs/current` 零字节改动**：契约正文仍 7 M；patch 未应用、7 M 未合并；本线只做 `--check` 与只读 `merge-tree`。
+- **热区零改动**：`core/domain`、`core/ui`、`feature/*`、`docs/current`、`settings.gradle.kts`、Application/Root 本线均未触碰。
+- **不代裁关闭**：KD-76（A6 NOT EVALUABLE）、KD-67/68（热区）、KD-72（配置面）维持；isolation 不写「T4 排除」；KD-75 的关闭不由本节背书，只做载体核对与缺口登记。
+- **UNVERIFIED**：KD-75 的设备 `OK (7 tests)` 与 pypdf 三份读回（台账内自述，仓内无 E 文件）；`:core:model:test` 644 例 / `:core:export` 172 例（未复跑）；patch 对分支版的 `hunk #2 FAILED`（转录 R5 E11，本轮未跑）；67 条已关闭 KD 的关闭质量（只解析标题，未重判）。
+- **不做**：任何 `git apply`/`merge`/`add`/`commit`；改 schema 73；动 `availableMethods`；改 KD 标题用词；改阈值或金标。
+

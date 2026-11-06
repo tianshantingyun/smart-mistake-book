@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-05T03:04:58.707Z" hostname="TIANSHAN" time="0.018">
+  <properties/>
+  <testcase name="anImagePromptPastTheAdvertisedBoundIsRejectedFailClosedWithTheByteCount" classname="com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest" time="0.006"/>
+  <testcase name="aFullAsciiImagePromptAtTheAdvertisedBoundPassesSchemaAndTheLocalByteGate" classname="com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest" time="0.006"/>
+  <testcase name="aProgramPastTheAdvertisedBoundIsRejectedFailClosedWithTheByteCount" classname="com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest" time="0.002"/>
+  <testcase name="theWorstCaseFourByteProgramAtTheAdvertisedBoundPassesBothGates" classname="com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest" time="0.002"/>
+  <testcase name="programSchemaFacetIsTheByteSafeCodePointBound" classname="com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest" time="0.001"/>
+  <testcase name="aFullAsciiProgramAtTheAdvertisedBoundPassesSchemaAndTheLocalByteGate" classname="com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest" time="0.001"/>
+  <testcase name="theWorstCaseFourByteImagePromptAtTheAdvertisedBoundPassesBothGates" classname="com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

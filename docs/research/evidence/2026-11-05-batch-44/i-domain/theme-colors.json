@@ -1,0 +1,98 @@
+{
+  "pairs": [
+    {
+      "label": "Theme.kt:lightColorScheme:onSurface/surface",
+      "fg": [
+        21,
+        21,
+        21
+      ],
+      "bg": [
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "label": "Theme.kt:lightColorScheme:onBackground/background",
+      "fg": [
+        21,
+        21,
+        21
+      ],
+      "bg": [
+        247,
+        246,
+        242
+      ]
+    },
+    {
+      "label": "Theme.kt:lightColorScheme:onPrimary/primary",
+      "fg": [
+        255,
+        253,
+        252
+      ],
+      "bg": [
+        35,
+        112,
+        74
+      ]
+    },
+    {
+      "label": "Theme.kt:lightColorScheme:onSecondaryContainer/secondaryContainer",
+      "fg": [
+        21,
+        21,
+        21
+      ],
+      "bg": [
+        221,
+        231,
+        224
+      ]
+    },
+    {
+      "label": "Theme.kt:lightColorScheme:onSurfaceVariant/surfaceVariant",
+      "fg": [
+        82,
+        82,
+        82
+      ],
+      "bg": [
+        240,
+        239,
+        236
+      ]
+    },
+    {
+      "label": "Theme.kt:lightColorScheme:onError/error",
+      "fg": [
+        255,
+        253,
+        252
+      ],
+      "bg": [
+        162,
+        62,
+        36
+      ]
+    },
+    {
+      "label": "Theme.kt:lightColorScheme:onErrorContainer/errorContainer",
+      "fg": [
+        162,
+        62,
+        36
+      ],
+      "bg": [
+        251,
+        234,
+        228
+      ]
+    }
+  ],
+  "sources": [
+    "core\\ui\\src\\main\\java\\com\\tingyun\\smartmistakebook\\core\\ui\\Theme.kt"
+  ]
+}

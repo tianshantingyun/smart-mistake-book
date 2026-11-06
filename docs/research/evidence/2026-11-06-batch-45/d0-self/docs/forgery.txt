@@ -1,0 +1,10 @@
+GROUP docs-forgery
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group docs --section forgery
+CHECK forgery_self_review EXPECTED=1 ACTUAL=1 OK
+CHECK forgery_summary_evidence EXPECTED=1 ACTUAL=1 OK
+CHECK forgery_screenshot_binding EXPECTED=1 ACTUAL=1 OK
+CHECK forgery_cmd_exit EXPECTED=1 ACTUAL=1 OK
+CHECK forgery_device_serial EXPECTED=1 ACTUAL=1 OK
+CHECK forgery_no_rewrite EXPECTED=1 ACTUAL=1 OK
+CHECKS=6 FAILURES=0
+EXIT=0

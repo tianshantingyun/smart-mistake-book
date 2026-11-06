@@ -1,0 +1,10 @@
+CMD: python -I tools/ci/acceptance_report.py --ledger docs/acceptance/ledger.md
+  "unverified": 144,
+  "acceptance_complete": false,
+  "violations": [],
+  "warnings": [],
+  "ok": false,
+  "exit_code": 1
+}
+
+EXIT=1

@@ -136,12 +136,14 @@ class MistakeExportJobRunner(
     private suspend fun runEdited(
         request: MistakeExportJobRequest.Edited,
     ): MistakeExportJobOutcome {
-        val draft = if (request.groupId != null) readGroupPaper?.invoke(request.groupId, requireNotNull(request.manifestSha256))
-            else readPaperDraft?.invoke(request.draftId)
+        val read = readPaperDraft
+            ?: return MistakeExportJobOutcome.Failed(
+                "这次导出没有准备好卷面草稿，请重新编辑后再导出。",
+            )
+        val draft = read(request.draftId)
             ?: return MistakeExportJobOutcome.Failed(
                 "这份编辑后的卷面没有保存下来，请重新编辑后再导出。",
             )
-        if (draft == null) return MistakeExportJobOutcome.Failed("冻结的题目卷无法读取，请重新准备")
         if (draft.input.layout != request.layout) {
             return MistakeExportJobOutcome.Failed(
                 "这份卷面的版式已经变了，请重新编辑后再导出。",
@@ -172,7 +174,7 @@ class MistakeExportJobRunner(
         // 移除 SOLUTION_SECTION；结果通知必须读同一个事实，不能继续说"解析区已跳过"。
         // 批量导出同理：合并输入里有讲解图就说明解析区确实排了图。
         val solutionSectionRendered =
-            input.artifactRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS || input.layout.includeSolution && input.solutionImages.isNotEmpty()
+            input.layout.includeSolution && input.solutionImages.isNotEmpty()
         return when (request.format) {
             MistakeExportFormat.PDF -> {
                 val prepared = renderPdf(input)

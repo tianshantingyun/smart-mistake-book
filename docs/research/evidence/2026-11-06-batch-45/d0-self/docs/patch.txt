@@ -1,0 +1,11 @@
+GROUP docs-patch
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group docs --section patch
+CHECK apply_check EXPECTED=0 ACTUAL=0 OK
+CHECK report_step EXPECTED=1 ACTUAL=1 OK
+CHECK lint_step EXPECTED=1 ACTUAL=1 OK
+CHECK trace_step EXPECTED=1 ACTUAL=1 OK
+CHECK failure_blocks EXPECTED=1 ACTUAL=1 OK
+CHECK new_file_only EXPECTED=1 ACTUAL=1 OK
+CHECK not_applied EXPECTED=1 ACTUAL=1 OK
+CHECKS=7 FAILURES=0
+EXIT=0

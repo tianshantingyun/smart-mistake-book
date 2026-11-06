@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuite name="com.tingyun.smartmistakebook.core.export.MistakePdfDeliveryRegressionInstrumentedTest#previewPageZeroKeepsA4SizeAndAspectUnderParameterizedLayouts" tests="1" failures="0" errors="0" skipped="0" time="0.332"><testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfDeliveryRegressionInstrumentedTest" name="previewPageZeroKeepsA4SizeAndAspectUnderParameterizedLayouts" time="0.332" /></testsuite>

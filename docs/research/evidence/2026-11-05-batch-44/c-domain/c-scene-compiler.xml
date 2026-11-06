@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="c-scene-compiler" tests="6" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T13:13:18Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsSceneCompilerInstrumentedTest" name="anSdkArgumentViolationIsRejectedAsInvalidScene" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsSceneCompilerInstrumentedTest" name="aMaxBudgetSceneCompilesWithinTheCooperativePhaseWindow" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsSceneCompilerInstrumentedTest" name="theSameSceneCompilesToByteIdenticalDrawOps" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsSceneCompilerInstrumentedTest" name="aFullSceneCompilesIntoTypedDrawOps" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsSceneCompilerInstrumentedTest" name="aSceneOverTheNodeBudgetIsRejectedWithTypedCode" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsSceneCompilerInstrumentedTest" name="anIllegalSceneShapeIsRejectedAsInvalidSceneWithTypedCode" time="0">
+  </testcase>
+</testsuite>

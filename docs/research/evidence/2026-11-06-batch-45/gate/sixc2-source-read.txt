@@ -1,0 +1,18 @@
+=== 6C-2 三项裁定实读（只读，未改行为） 2026-11-05T10:31:54+08:00 ===
+HEAD: 87604198feeef198d5dba7343b8c4692c5e8f937
+file: core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/BackupSelection.kt
+67: * 只有闭包自洽（[isClosed]）且 mask ∈ [ALLOWED_MASKS] 的选择才能成包。
+70: * 1. 允许的组合只有 [ALLOWED_MASKS]：`9`（题+图）、`13`（题+会话+图）、`15`（全选）；
+86:    /** 闭包是否自洽；`0` 与 `8` 也是自洽的，是否可创建另见 [isCreatable]。 */
+89:    /** `create()` 可接受的选择：闭包自洽且 mask ∈ [ALLOWED_MASKS]。 */
+90:    val isCreatable: Boolean = isClosed && mask in ALLOWED_MASKS
+137:        require(isClosed) {
+140:        require(mask in ALLOWED_MASKS) {
+166:        val ALLOWED_MASKS: Set<Int> = linkedSetOf(9, 13, 15)
+192:        require(mask in 0..BackupContentCategory.FULL_MASK) {
+--- 工作树对该文件的改动 ---
+git diff --stat -- core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/BackupSelection.kt:
+(空 = 无改动)
+--- 允许集合常量 ---
+166:        val ALLOWED_MASKS: Set<Int> = linkedSetOf(9, 13, 15)
+EXIT=0

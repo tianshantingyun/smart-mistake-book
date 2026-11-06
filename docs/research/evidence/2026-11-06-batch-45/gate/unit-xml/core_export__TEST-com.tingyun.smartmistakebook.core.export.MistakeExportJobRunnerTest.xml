@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" tests="21" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:12:44.097Z" hostname="TIANSHAN" time="0.266">
+  <properties/>
+  <testcase name="a mismatched revision is blocked without rendering" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.042"/>
+  <testcase name="an unedited paper draft through the edit request keeps the batch name" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.063"/>
+  <testcase name="an edited export refuses a draft built for another layout" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.008"/>
+  <testcase name="a corrupted prepared artifact is refused instead of reported as delivered" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.007"/>
+  <testcase name="an edited export renders the confirmed draft and never reads entries again" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.012"/>
+  <testcase name="an over limit batch is blocked before reading any detail" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.005"/>
+  <testcase name="a batch with nothing exportable is blocked and an empty batch too" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.008"/>
+  <testcase name="a legacy record is blocked with the honest content reason" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.008"/>
+  <testcase name="an edited export fails honestly when the draft or its reader is missing" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.004"/>
+  <testcase name="a batch omits ineligible entries and names itself by the included count" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.012"/>
+  <testcase name="a docx render failure speaks about the Word document" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.005"/>
+  <testcase name="an eligible single export renders and names itself from the visible revision" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.012"/>
+  <testcase name="a docx request renders through the docx renderer and names itself with the docx extension" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.014"/>
+  <testcase name="an unexpected render exception becomes a generic failure" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.004"/>
+  <testcase name="a docx request without a docx renderer fails honestly instead of falling back to pdf" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.005"/>
+  <testcase name="a docx batch names itself by the included count" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.011"/>
+  <testcase name="a page limit failure becomes the student facing render failure" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.005"/>
+  <testcase name="an invalid layout is refused where the request is built" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.001"/>
+  <testcase name="a corrupted docx artifact is refused instead of reported as delivered" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.008"/>
+  <testcase name="an edited docx export names itself with the docx extension" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.012"/>
+  <testcase name="the request layout reaches the renderer for single and batch exports" classname="com.tingyun.smartmistakebook.core.export.MistakeExportJobRunnerTest" time="0.015"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

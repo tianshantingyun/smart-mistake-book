@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.ReadSideMasteryClosureTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-05T01:14:55.251Z" hostname="TIANSHAN" time="0.001">
+  <properties/>
+  <testcase name="a chat-refreshed but card-overdue node is not a strength" classname="com.tingyun.smartmistakebook.core.data.study.ReadSideMasteryClosureTest" time="0.0"/>
+  <testcase name="a dependent with an unrecovered prerequisite is suppressed out of strengths" classname="com.tingyun.smartmistakebook.core.data.study.ReadSideMasteryClosureTest" time="0.001"/>
+  <testcase name="a forgotten but stored-mastered node drops out of strengths and into weaknesses" classname="com.tingyun.smartmistakebook.core.data.study.ReadSideMasteryClosureTest" time="0.0"/>
+  <testcase name="a currently durable node stays in strengths" classname="com.tingyun.smartmistakebook.core.data.study.ReadSideMasteryClosureTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,8 @@
+{
+  "serial": "emulator-5566",
+  "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac",
+  "pid_before": "23637",
+  "pid_after_restart": "23758",
+  "restart_total_ms": 3219,
+  "ui_dump": "process-death-ui.xml"
+}

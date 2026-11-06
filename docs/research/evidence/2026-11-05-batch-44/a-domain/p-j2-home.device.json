@@ -1,0 +1,22 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "5a34f877-606b-4e74-b7b8-84f6398faf9d",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "journey_label": "p-j2-home",
+  "action": "home",
+  "root_tag": "root_tutor",
+  "observations": [
+    "tapped nav_tutor",
+    "page tag present: root_tutor",
+    "page tag present: tutor_capture_shortcut",
+    "pid before: 19894",
+    "pressed HOME",
+    "page tag present: root_tutor",
+    "page tag present: tutor_capture_shortcut"
+  ],
+  "failures": [],
+  "verdict": "PASS",
+  "started_at": "2026-11-04T09:21:06Z",
+  "finished_at": "2026-11-04T09:21:37Z"
+}

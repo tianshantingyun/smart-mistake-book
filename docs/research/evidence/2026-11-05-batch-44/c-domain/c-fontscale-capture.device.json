@@ -1,0 +1,36 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "5a34f877-606b-4e74-b7b8-84f6398faf9d",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "test_apk_sha256": "aab6af01af75ae4d0c310e367a0d947ed44e76df56ef1566fc9936fd1022ac5e",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "activity": "com.tingyun.smartmistakebook.MainActivity",
+  "wm_size": "1080x2400",
+  "density": 420,
+  "sdk": 34,
+  "recorded_at": "2026-11-04T13:38:52Z",
+  "state": "font_scale 1.0 / 1.3 / 2.0 (force-stop relaunch each)",
+  "captures": [
+    {
+      "font_scale": "1.0",
+      "screenshot": "c-home-light.png",
+      "sha256": "bceb07164929e9f3c573c8aac5748ef337706a68d1b2d360b05bca70d32532ea",
+      "dump": "c-home-light.xml",
+      "dump_sha256": "69500009a238ec49d0706da5c26d93cfdbf558b780652ff679e590156c44e133"
+    },
+    {
+      "font_scale": "1.3",
+      "screenshot": "c-home-fs1_3.png",
+      "sha256": "43b327663b9cfd7770f87545f1a289dc433403aa15798af98c5d3d3d59091a7d",
+      "dump": "c-home-fs1_3.xml",
+      "dump_sha256": "28e028143a0f0a0ff49dcc52941406edb969b8468bdc03e5e5464dfb5a280b0b"
+    },
+    {
+      "font_scale": "2.0",
+      "screenshot": "c-home-fs2_0.png",
+      "sha256": "282a135b4ebad4e5390458874a6b52f9eda93ba535ae5b95e190cefa173d07dd",
+      "dump": "c-home-fs2_0.xml",
+      "dump_sha256": "ce31316abe74a34f37845234bab388ef7b9186232a7f1fb4c164124bff430ff9"
+    }
+  ]
+}

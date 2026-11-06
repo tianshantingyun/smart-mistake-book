@@ -1,0 +1,120 @@
+--------- beginning of main
+11-05 05:10:02.787 29317 29317 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-05 05:10:02.888 29317 29317 I AndroidRuntime: Using default boot image
+11-05 05:10:02.973 29317 29317 I AndroidRuntime: Leaving lock profiling enabled
+11-05 05:10:03.000 29317 29317 I app_process: Core platform API reporting enabled, enforcing=false
+11-05 05:10:03.025 29317 29317 I app_process: Using CollectorTypeCC GC.
+11-05 05:10:03.931 29317 29317 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-05 05:10:03.943 29317 29317 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-05 05:10:03.968 29317 29317 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+11-05 05:10:04.012 29317 29317 W app_process: Unexpected CPU variant for x86: x86_64.
+11-05 05:10:04.012 29317 29317 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-05 05:10:04.348 29317 29317 W libc    : Access denied finding property "ro.product.name_for_attestation"
+11-05 05:10:04.348 29317 29317 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+11-05 05:10:04.348 29317 29317 W libc    : Access denied finding property "ro.product.model_for_attestation"
+11-05 05:10:04.296 29317 29317 W main    : type=1400 audit(0.0:65): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-05 05:10:04.364 29317 29317 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+11-05 05:10:04.348 29317 29317 W main    : type=1400 audit(0.0:66): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-05 05:10:04.348 29317 29317 W main    : type=1400 audit(0.0:67): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-05 05:10:04.453 29317 29317 D UiAutomationConnection: Created on user UserHandle{0}
+--------- beginning of system
+11-05 05:10:04.515 18285 18906 I ActivityManager: Force stopping com.tingyun.smartmistakebook.core.database.test appid=10241 user=0: start instr
+11-05 05:10:04.517 18285 18906 E libprocessgroup: No such cgroup attribute: /sys/fs/cgroup/uid_10241/cgroup.freeze
+11-05 05:10:04.517 18285 18906 W libprocessgroup: Failed to apply Frozen process profile: No such file or directory
+11-05 05:10:04.732 18285 18906 E libprocessgroup: No such cgroup attribute: /sys/fs/cgroup/uid_10241/cgroup.freeze
+11-05 05:10:04.732 18285 18906 W libprocessgroup: Failed to apply Unfrozen process profile: No such file or directory
+11-05 05:10:04.733 18285 18303 W Looper  : Drained
+11-05 05:10:04.734 18285 18906 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10241; state: DISABLED
+11-05 05:10:04.813 18285 18327 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10241; state: ENABLED
+11-05 05:10:04.873 18214 18214 D Zygote  : Forked child process 29332
+11-05 05:10:04.873 18285 18327 W ActivityManager: Slow operation: 140ms so far, now at startProcess: returned from zygote!
+11-05 05:10:04.873 18285 18327 W ActivityManager: Slow operation: 140ms so far, now at startProcess: done updating battery stats
+11-05 05:10:04.874 18285 18327 W ActivityManager: Slow operation: 140ms so far, now at startProcess: building log message
+11-05 05:10:04.874 18285 18327 I ActivityManager: Start proc 29332:com.tingyun.smartmistakebook.core.database.test/u0a241 for added application com.tingyun.smartmistakebook.core.database.test
+11-05 05:10:04.893 18285 18327 W ActivityManager: Slow operation: 160ms so far, now at startProcess: starting to update pids map
+11-05 05:10:04.920 18285 18327 W ActivityManager: Slow operation: 187ms so far, now at startProcess: done updating pids map
+11-05 05:10:04.943 18285 18375 D CompatibilityChangeReporter: Compat change id reported: 265195908; UID 10241; state: ENABLED
+11-05 05:10:05.080 18285 18303 W Looper  : Slow dispatch took 223ms android.ui h=com.android.server.am.ActivityManagerService$UiHandler c=com.android.server.am.UidObserverController$$ExternalSyntheticLambda0@655f98f m=0
+11-05 05:10:05.107 29332 29332 I e.database.test: Late-enabling -Xcheck:jni
+11-05 05:10:05.171 29332 29332 W e.database.test: Suspending all threads took: 12.416ms
+11-05 05:10:05.174 29332 29332 I e.database.test: Using CollectorTypeCC GC.
+11-05 05:10:05.179 29332 29332 W e.database.test: Unexpected CPU variant for x86: x86_64.
+11-05 05:10:05.179 29332 29332 W e.database.test: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-05 05:10:05.657   451   459 I adbd    : jdwp connection from 29332
+11-05 05:10:05.855 18285 18326 W system_server: Long monitor contention with owner binder:18285_10 (19304) at boolean com.android.server.am.ActivityManagerService.unbindService(android.app.IServiceConnection)(ActivityManagerService.java:13426) waiters=0 in boolean com.android.server.am.BroadcastQueueModernImpl.lambda$new$0(android.os.Message) for 370ms
+11-05 05:10:06.265 29332 29332 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10241; state: ENABLED
+11-05 05:10:06.288 29332 29332 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 10241; state: ENABLED
+11-05 05:10:06.373 18285 18906 D CompatibilityChangeReporter: Compat change id reported: 170503758; UID 10241; state: ENABLED
+11-05 05:10:06.374 18285 19304 W system_server: Long monitor contention with owner binder:18285_4 (18362) at boolean com.android.server.am.ActivityManagerService.unbindService(android.app.IServiceConnection)(ActivityManagerService.java:13426) waiters=0 in boolean com.android.server.am.ActivityManagerService.unbindService(android.app.IServiceConnection) for 108ms
+11-05 05:10:06.408 23455 23455 D BoundBrokerSvc: onUnbind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-05 05:10:06.454 29332 29332 W ziparchive: Unable to open '/data/app/~~RTZ0Ptx7iqepfWKOsNUd0g==/com.tingyun.smartmistakebook.core.database.test-lHojnPf9Qr-cJU2eAO30Vw==/base.dm': No such file or directory
+11-05 05:10:06.456 29332 29332 W ziparchive: Unable to open '/data/app/~~RTZ0Ptx7iqepfWKOsNUd0g==/com.tingyun.smartmistakebook.core.database.test-lHojnPf9Qr-cJU2eAO30Vw==/base.dm': No such file or directory
+11-05 05:10:07.181 29332 29332 D nativeloader: Configuring clns-6 for other apk /data/app/~~RTZ0Ptx7iqepfWKOsNUd0g==/com.tingyun.smartmistakebook.core.database.test-lHojnPf9Qr-cJU2eAO30Vw==/base.apk. target_sdk_version=37, uses_libraries=, library_path=/data/app/~~RTZ0Ptx7iqepfWKOsNUd0g==/com.tingyun.smartmistakebook.core.database.test-lHojnPf9Qr-cJU2eAO30Vw==/lib/x86_64:/data/app/~~RTZ0Ptx7iqepfWKOsNUd0g==/com.tingyun.smartmistakebook.core.database.test-lHojnPf9Qr-cJU2eAO30Vw==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.tingyun.smartmistakebook.core.database.test
+11-05 05:10:08.014 29332 29332 V GraphicsEnvironment: Currently set values for:
+11-05 05:10:08.014 29332 29332 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-05 05:10:08.014 29332 29332 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-05 05:10:08.015 29332 29332 V GraphicsEnvironment: ANGLE GameManagerService for com.tingyun.smartmistakebook.core.database.test: false
+11-05 05:10:08.015 29332 29332 V GraphicsEnvironment: com.tingyun.smartmistakebook.core.database.test is not listed in per-application setting
+11-05 05:10:08.015 29332 29332 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-05 05:10:09.048 29332 29332 I AndroidJUnitRunner: newApplication android.app.Application
+11-05 05:10:10.265 29332 29332 W e.database.test: Verification of kotlinx.coroutines.flow.StateFlow androidx.lifecycle.Lifecycle.getCurrentStateFlow() took 128.521ms (202.30 bytecodes/s) (1936B approximate peak alloc)
+11-05 05:10:10.718 29332 29332 D WM-WrkMgrInitializer: Initializing WorkManager with default configuration.
+11-05 05:10:10.939 29332 29332 W e.database.test: Accessing hidden field Ljava/util/Collections$SynchronizedCollection;->mutex:Ljava/lang/Object; (max-target-o, reflection, denied)
+11-05 05:10:10.940 29332 29332 W e.database.test: Accessing hidden field Ljava/util/Collections$SynchronizedCollection;->c:Ljava/util/Collection; (unsupported, reflection, allowed)
+11-05 05:10:10.940 29332 29332 W e.database.test: Accessing hidden method Ljava/util/Collections$SynchronizedSet;-><init>(Ljava/util/Set;Ljava/lang/Object;)V (max-target-o, reflection, denied)
+11-05 05:10:10.940 29332 29332 W e.database.test: Accessing hidden method Ljava/util/Collections$SynchronizedCollection;-><init>(Ljava/util/Collection;Ljava/lang/Object;)V (max-target-o, reflection, denied)
+11-05 05:10:11.117 29332 29332 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+11-05 05:10:11.125 29332 29332 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+11-05 05:10:11.562 29332 29351 D WM-ForceStopRunnable: The default process name was not specified.
+11-05 05:10:11.696 29332 29351 D WM-ForceStopRunnable: Performing cleanup operations.
+11-05 05:10:11.784 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:10:12.151 29332 29351 W e.database.test: JNI critical lock held for 90.232ms on Thread[2,tid=29351,Runnable,Thread*=0x7a0abb8362c0,peer=0x1306cd18,"WM.task-1"]
+11-05 05:10:12.217 29332 29351 D CompatibilityChangeReporter: Compat change id reported: 160794467; UID 10241; state: ENABLED
+11-05 05:10:12.233 29332 29351 D WM-ForceStopRunnable: Application was force-stopped, rescheduling.
+11-05 05:10:12.315 29332 29332 I AndroidJUnitRunner: onCreate Bundle[mParcelledData.dataSize=180]
+11-05 05:10:12.343 29332 29332 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-05 05:10:12.375 29332 29332 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-05 05:10:12.375 29332 29353 D AndroidJUnitRunner: onStart is called.
+11-05 05:10:12.376 18285 18906 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 10241. pid: 29332
+11-05 05:10:12.407 29332 29332 I Choreographer: Skipped 139 frames!  The application may be doing too much work on its main thread.
+11-05 05:10:12.645 18285 18906 D CompatibilityChangeReporter: Compat change id reported: 161145287; UID 10241; state: ENABLED
+11-05 05:10:12.645 29332 29353 I InstrConnection: Could not send broadcast or register receiver (isolatedProcess?)
+11-05 05:10:12.846 29332 29351 W e.database.test: Verification of java.lang.Object kotlin.collections.CollectionsKt___CollectionsKt.last(java.lang.Iterable, kotlin.jvm.functions.Function1) took 133.945ms (395.68 bytecodes/s) (2560B approximate peak alloc)
+11-05 05:10:12.922 29332 29354 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemalarm.RescheduleReceiver
+11-05 05:10:12.974 29332 29353 I TestRunner: run started: 3 tests
+11-05 05:10:12.983 29332 29353 I TestRunner: started: appendAcceptRetractAndSupersedeKeepOneActiveRow(com.tingyun.smartmistakebook.core.database.ErrorCauseLedgerInstrumentedTest)
+11-05 05:10:16.675 29332 29353 I TestRunner: finished: appendAcceptRetractAndSupersedeKeepOneActiveRow(com.tingyun.smartmistakebook.core.database.ErrorCauseLedgerInstrumentedTest)
+11-05 05:10:16.752 29332 29353 I TestRunner: started: aFailingVoidRollsBackTheRetractionRowAndKeepsTheBindingActive(com.tingyun.smartmistakebook.core.database.ErrorCauseLedgerInstrumentedTest)
+11-05 05:10:17.576 29332 29361 D ProfileInstaller: Installing profile for com.tingyun.smartmistakebook.core.database.test
+11-05 05:10:18.190 29332 29353 I TestRunner: finished: aFailingVoidRollsBackTheRetractionRowAndKeepsTheBindingActive(com.tingyun.smartmistakebook.core.database.ErrorCauseLedgerInstrumentedTest)
+11-05 05:10:18.258 29332 29353 I TestRunner: started: candidateRejectedAndRetractedStatesLeaveNoActiveLabelBehind(com.tingyun.smartmistakebook.core.database.ErrorCauseLedgerInstrumentedTest)
+11-05 05:10:18.514 18285 18333 W BatteryExternalStatsWorker: error reading Bluetooth stats: 9
+11-05 05:10:18.793 18285 18906 D TelephonyManager: requestModemActivityInfo: Sending result to app: ModemActivityInfo{ mTimestamp=34643752 mSleepTimeMs=0 mIdleTimeMs=33592123 mActivityStatsTechSpecificInfo=[{mRat=UNKNOWN,mFrequencyRange=UNKNOWN,mTxTimeMs[]=[0, 0, 0, 0, 0],mRxTimeMs=0}]}
+11-05 05:10:19.023 18221 18260 I netd    : tetherGetStats() -> {[]} <8.79ms>
+11-05 05:10:20.002 18285 18380 W CpuMonitorService: Current CPU frequency (5472334) is greater than maximum CPU frequency (2) for policy ID (0). Skipping CPU frequency policy
+11-05 05:10:20.003 18285 18380 W CpuMonitorService: Current CPU frequency (5421304) is greater than maximum CPU frequency (2) for policy ID (2). Skipping CPU frequency policy
+11-05 05:10:20.010 18285 18380 W CpuMonitorService: Current CPU frequency (5340135) is greater than maximum CPU frequency (2) for policy ID (3). Skipping CPU frequency policy
+11-05 05:10:20.931 29332 29353 I TestRunner: finished: candidateRejectedAndRetractedStatesLeaveNoActiveLabelBehind(com.tingyun.smartmistakebook.core.database.ErrorCauseLedgerInstrumentedTest)
+11-05 05:10:21.008 29332 29353 I TestRunner: run finished: 3 tests, 0 failed, 0 ignored
+11-05 05:10:21.123 18285 18906 I ActivityManager: Force stopping com.tingyun.smartmistakebook.core.database.test appid=10241 user=0: finished inst
+11-05 05:10:21.169 29317 29317 I app_process: System.exit called, status: 0
+11-05 05:10:21.169 29317 29317 I AndroidRuntime: VM exiting with result code 0.
+11-05 05:10:21.170 18285 18906 E ActivityManager: Unable to freeze binder for 29332: -11
+11-05 05:10:21.171 18285 18906 I ActivityManager: Killing 29332:com.tingyun.smartmistakebook.core.database.test/u0a241 (adj 0): stop com.tingyun.smartmistakebook.core.database.test due to finished inst
+--------- beginning of kernel
+11-05 05:10:21.144     0     0 I binder  : 18285:18906 ioctl 400c620e 7a08897da930 returned -11
+11-05 05:10:21.146     0     0 I binder  : 18285:18906 ioctl 400c620e 7a08897da930 returned -11
+11-05 05:10:21.184 18285 18303 D DisplayManagerService: Drop pending events for gone uid 10241
+11-05 05:10:21.383 18285 18906 W ProcessStats: Tracking association SourceState{f27bbdd com.google.android.googlequicksearchbox:search/10132 BTop #8719} whose proc state 2 is better than process ProcessState{b4a51 com.google.android.googlequicksearchbox:interactor/10132 pkg=com.google.android.googlequicksearchbox} proc state 4 (150 skipped)
+11-05 05:10:21.384 18214 18214 I Zygote  : Process 29332 exited due to signal 9 (Killed)
+11-05 05:10:21.388 18285 19304 V ActivityManager: Got obituary of 29332:com.tingyun.smartmistakebook.core.database.test
+11-05 05:10:21.318     0     0 I binder  : release 29332:29353 transaction 1316783 out, still active
+11-05 05:10:21.360     0     0 I binder  : undelivered TRANSACTION_COMPLETE
+11-05 05:10:21.363     0     0 I binder  : 18906:18285 reply target not found
+11-05 05:10:21.363     0     0 I binder  : 18285:18906 transaction reply to 0:0 failed 1316798/29189/0, size 4-0 line 3140
+11-05 05:10:21.372     0     0 I binder  : send failed reply for transaction 1316783, target dead
+11-05 05:10:21.593 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:10:30.932 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:10:31.235 18285 18384 D ActivityManager: freezing 25643 com.google.android.apps.wellbeing
+11-05 05:10:31.592 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-05 05:10:31.931 18498 18498 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled

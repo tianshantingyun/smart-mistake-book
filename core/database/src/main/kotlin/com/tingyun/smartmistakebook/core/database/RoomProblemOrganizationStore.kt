@@ -196,10 +196,8 @@ internal class RoomProblemOrganizationStore(
             val knowledgeBindings = command.knowledgeBindings
                 .map(KnowledgeBindingSeedRecord::toOrganizationEntity)
             if (knowledgeBindings.isNotEmpty()) {
-                val catalogIds = command.knowledgeSelections.mapTo(hashSetOf()) { it.nodeId }
-                val legacyBindings = knowledgeBindings.filter { it.knowledgeNodeId !in catalogIds }
-                val expectedSubject = if (legacyBindings.isEmpty()) null else knowledgeNodes.mapTo(linkedSetOf()) { it.subject }.single()
-                legacyBindings.forEach { binding ->
+                val expectedSubject = knowledgeNodes.mapTo(linkedSetOf()) { it.subject }.single()
+                knowledgeBindings.forEach { binding ->
                     val boundNode = dao.readKnowledgeNode(binding.knowledgeNodeId)
                         ?: throw DatabaseContractViolationException(
                             "Knowledge binding references an unknown node",
@@ -402,23 +400,8 @@ internal fun validateCommand(command: ConfirmProblemOrganizationCommand) {
     require(command.practiceUnitId.isNotBlank()) { "practiceUnitId must not be blank" }
     require(command.acceptedAtEpochMillis > 0) { "acceptedAtEpochMillis must be positive" }
     require(command.knowledgeNodes.size <= 24) { "At most 24 knowledge nodes may be accepted" }
-    val catalogIds = command.knowledgeSelections.mapTo(hashSetOf()) { it.nodeId }
-    require(catalogIds.size == command.knowledgeSelections.size && catalogIds.size <= 32)
-    val catalogLabels = command.classifications.filter { it.labelId.startsWith("catalog:") }
-    require(catalogLabels.isEmpty() == command.knowledgeSelections.isEmpty())
-    require(command.classifications.size in 1..64 &&
-        command.classifications.size - catalogLabels.size + catalogIds.size <= 32) {
-        "At most 32 choices and their derived chapter labels may be accepted"
-    }
-    require(command.knowledgeBindings.count { it.knowledgeNodeId !in catalogIds } <= 24)
-    require(command.knowledgeSelections.isEmpty() ||
-        command.classifications.all { it.acceptanceSource == BindingAcceptanceSource.USER_CORRECTED.name }) {
-        "Only explicit user corrections can select catalog identities"
-    }
-    require(command.knowledgeBindings.filter { it.knowledgeNodeId in catalogIds }.let { bindings ->
-        bindings.mapTo(hashSetOf()) { it.knowledgeNodeId } == catalogIds && bindings.size == catalogIds.size &&
-            bindings.all { binding -> command.knowledgeSelections.any { it.nodeId == binding.knowledgeNodeId && it.taxonomyVersion == binding.taxonomyVersion } }
-    }) { "Every catalog selection must have exactly one versioned binding" }
+    require(command.knowledgeBindings.size <= 24) { "At most 24 knowledge bindings may be accepted" }
+    require(command.classifications.size in 1..32) { "Between 1 and 32 classifications are required" }
     require(command.relations.size <= 8) { "At most 8 relations may be accepted" }
     require(command.relationIdsToRemove.size <= 64) { "At most 64 relations may be removed" }
     require(!command.replaceRelations || command.relationIdsToRemove.isEmpty()) {
@@ -511,13 +494,13 @@ internal fun validateCommand(command: ConfirmProblemOrganizationCommand) {
             it.createdAtEpochMillis == command.acceptedAtEpochMillis
     }) { "Every accepted knowledge node must be complete and current" }
     val knowledgeLabels = command.classifications
-        .filter { it.dimension == ClassificationDimension.KNOWLEDGE.name && !it.labelId.startsWith("catalog:") }
+        .filter { it.dimension == ClassificationDimension.KNOWLEDGE.name }
         .mapTo(linkedSetOf()) { it.labelId }
     require(command.knowledgeNodes.mapTo(linkedSetOf()) { it.stableCode } == knowledgeLabels) {
         "Visible topic nodes must exactly match the accepted knowledge classifications"
     }
     val visibleTopicNodeIds = command.knowledgeNodes.mapTo(linkedSetOf()) { it.knowledgeNodeId }
-    val boundKnowledgeNodeIds = command.knowledgeBindings.mapTo(linkedSetOf()) { it.knowledgeNodeId } - catalogIds
+    val boundKnowledgeNodeIds = command.knowledgeBindings.mapTo(linkedSetOf()) { it.knowledgeNodeId }
     // KF-07：**允许零绑定**。没有可验证的原子节点时不再退化为"把全部可见 topic 节点按
     // strength=1.0 全绑"（那是把整章错记成这道题的掌握证据）；空绑定 = 诚实未分类，pseudo 占位
     // 由下游 `ensurePseudoKnowledgeBinding` 物化（见本函数 KDoc）。空绑定下这条检查恒真，

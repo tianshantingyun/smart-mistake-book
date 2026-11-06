@@ -1,0 +1,13 @@
+serial=emulator-5562
+model=sdk_gphone64_x86_64
+device=emu64xa
+abi=x86_64
+sdk=34
+page_size=4096
+boot_id=a702449b-0f25-4481-800f-ab0a475a37a6
+apk_path=/data/app/~~kpwEkVodpWOVtKaETi-0pQ==/com.tingyun.smartmistakebook.localfirst-D2WfLVz-DO9SClC8WyUCEw==/base.apk
+apk_sha256=9b832f9673179f4077a5d6559b1e84d5852df0ff82f08f2961002e5bd7e29e16
+loadavg_before=2.88 1.43 1.07 1/1623 8370
+started_at=2026-11-04T15:26:20Z
+loadavg_after=12.18 4.62 2.23 5/1691 9046
+finished_at=2026-11-04T15:31:08Z

@@ -1,0 +1,56 @@
+# 批次 45 验收关闭机械复算（台账结构 / E 域占位 / D0-FIX-GATE 覆盖 / 终裁 ID 对账 / 复核 JSON 绑定）
+# 用途：把“验收不通过”与 §4 BLOCKED 清单从人工叙述降为可复算事实。
+CMD: python -I - <<'PY'
+import json, re, sys, hashlib
+sys.path.insert(0, 'tools/ci')
+import acceptance_model as M
+ledger = 'docs/acceptance/ledger.md'
+rows, issues = M.parse_ledger(ledger)
+sha = hashlib.sha256(open(ledger, 'rb').read()).hexdigest()
+print('rows', len(rows), 'parse_issues', len(issues), 'ledger_sha256', sha)
+print('empty_verdicts', sum(1 for r in rows if not r.verdict.strip()))
+print('domain_counts', {d: sum(1 for r in rows if r.domain == d) for d in ('D0', 'FIX', 'GATE')})
+e = [r for r in rows if r.domain == 'E']
+print('E_rows', len(e),
+      'E_placeholder_methods', sum(1 for r in e if re.search(r'<[^<>\n]{1,120}>', r.method)),
+      'E_verdicts', {v: sum(1 for r in e if r.verdict == v) for v in ('PASS', 'FAIL', 'BLOCKED', 'UNVERIFIED')})
+text = open('docs/acceptance/adjudication.md', encoding='utf-8').read()
+def sec(a, b):
+    return text[text.index(a):text.index(b, text.index(a))]
+for name, a, b, key in [
+    ('§3', '## 3. FAIL', '## 4. BLOCKED', 'FAIL'),
+    ('§4', '## 4. BLOCKED', '## 5. UNVERIFIED', 'BLOCKED'),
+    ('§5', '## 5. UNVERIFIED', '## 6. ', 'UNVERIFIED'),
+]:
+    ids = set(re.findall(r'\b[A-Z][A-Z0-9]*-\d{3}\b', sec(a, b)))
+    led = {r.row_id for r in rows if r.verdict == key}
+    print(name, key, 'ids', len(ids), 'ledger', len(led), 'missing', sorted(led - ids), 'extra', sorted(ids - led))
+import pathlib
+revs = sorted(pathlib.Path('docs/acceptance/verdicts').glob('*-review.json'))
+bad = []
+for p in revs:
+    d = json.loads(p.read_text(encoding='utf-8'))
+    problems = []
+    for k in ('reviewer', 'run_id', 'ledger_sha256'):
+        if not d.get(k):
+            problems.append('missing ' + k)
+    if str(d.get('ledger_sha256', '')).lower() != sha:
+        problems.append('sha_mismatch')
+    if d.get('reviewer') in (d.get('authors') or []):
+        problems.append('self')
+    if d.get('self_review') is True:
+        problems.append('self_review')
+    if problems:
+        bad.append((p.name, problems))
+print('review_jsons', len(revs), 'invalid', bad)
+PY
+EXIT=0
+OUTPUT:
+rows 1200 parse_issues 0 ledger_sha256 bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686
+empty_verdicts 0
+domain_counts {'D0': 100, 'FIX': 100, 'GATE': 100}
+E_rows 90 E_placeholder_methods 0 E_verdicts {'PASS': 80, 'FAIL': 0, 'BLOCKED': 0, 'UNVERIFIED': 10}
+§3 FAIL ids 30 ledger 30 missing [] extra []
+§4 BLOCKED ids 144 ledger 144 missing [] extra []
+§5 UNVERIFIED ids 144 ledger 144 missing [] extra []
+review_jsons 10 invalid []

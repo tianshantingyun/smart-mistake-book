@@ -31,7 +31,8 @@ internal object ModelProbeSpec {
     const val STRUCTURED_INSTRUCTION = "Return only one JSON object and no surrounding text."
 
     const val STRUCTURED_USER =
-        """Synthetic compatibility check. Return exactly {"$STRUCTURED_TOKEN_FIELD":"$STRUCTURED_TOKEN","mistakeEdit":{"summaryMarkdown":"Text update","changes":[{"type":"paragraph","target":"block-1","markdown":"x^2"}]},"detailedSolution":{"finalAnswerMarkdown":"2","steps":[{"type":"paragraph","markdown":"1+1=2"}]}}."""
+        "Synthetic compatibility check. Return exactly " +
+            "{\"$STRUCTURED_TOKEN_FIELD\":\"$STRUCTURED_TOKEN\"}."
 
     const val IMAGE_USER =
         "This is a synthetic image check, not a real question. " +

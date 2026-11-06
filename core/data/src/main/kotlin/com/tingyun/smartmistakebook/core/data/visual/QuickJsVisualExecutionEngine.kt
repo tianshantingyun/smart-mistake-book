@@ -407,6 +407,18 @@ class QuickJsVisualExecutionEngine(
                         MEASUREMENT_UNAVAILABLE_DIAGNOSTIC_MARKER,
                 )
             }
+            // M-03（批次 38）：契约 §4"单事务所有文字 artifact 与预览的累计像素 ≤ 4 MP"
+            // （`VisualLayoutBudget` KDoc 承载口径与两门独立裁定）。结算点在 measurer 汇总
+            // 之后、render 之前：越界内容此前畅通无阻地进 render/编译。映射判断（登记）：
+            // 内容来自程序 prepare 输出，越界是**程序侧确定性超限**，与下方
+            // IllegalArgumentException 分支"度量批次构造器预算 → INVALID_PROGRAM"同族——
+            // 折 ENGINE_CLOSED 会把它喂成"度量设施不可用"（M-04 的反向误归因：确定性超限
+            // 重试不解决，还会白烧一次重排）。不截断、不静默缩放（契约 §4）；预览尺寸并入
+            // 同一累计是 D-04 轨的接线点。
+            val layoutBudgetDiagnostic = VisualLayoutBudget.transactionBudgetDiagnostic(measured.entries)
+            if (layoutBudgetDiagnostic != null) {
+                return rejected(VisualExecutionRejection.INVALID_PROGRAM, layoutBudgetDiagnostic)
+            }
             val contentIds = measured.entries.map { it.contentId }.toSet()
             val metricsJsonText = metricsJson(measured.entries)
             val sceneJson = runPhase(

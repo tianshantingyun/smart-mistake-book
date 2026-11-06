@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="library" tests="109" failures="1" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T21:26:12Z">
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.BatchImportInstrumentedTest" name="organizationOffersPlainLanguageCopyForAConfiguredModel" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.BatchImportInstrumentedTest" name="confirmedContinuationLooksLikeOneQuestion" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.BatchImportInstrumentedTest" name="partialBatchShowsCalmProgressAndKeepsActionsPageSpecific" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.BatchImportInterruptedNoticeInstrumentedTest" name="anInterruptedPreviousImportIsStatedOnTheEntry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.BatchImportInterruptedNoticeInstrumentedTest" name="aCleanEntryCarriesNoInterruptedNotice" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.BatchImportOutcomeInstrumentedTest" name="committedPageStopsOfferingDraftResumeOnTheOpenBatchScreen" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.BatchImportOutcomeInstrumentedTest" name="removedPageStopsOfferingDraftResumeOnTheOpenBatchScreen" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryAdaptiveActionsInstrumentedTest" name="largeTypeKeepsTheTitleReadableAndBothActionsIndependent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryBatchExportEntryInstrumentedTest" name="emptyLibraryDoesNotShowAnExportActionButKeepsTheResultsEntry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryBatchExportEntryInstrumentedTest" name="exportUsesCurrentFilteredOrderWithoutPerQuestionSelection" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="unavailablePictureKeepsTheQuestionTextAndAnHonestMessage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="aNewRevisionOfTheSameEntryRefreshesThePicture" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="theCardIdentifiesTheQuestionBeforeThePictureAndKeepsThePictureActionBesideItsLabel" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="zoomingARedrawnQuestionKeepsItsActualSourceRole" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="oneQuestionWithTwelveLongPagesOnlyDecodesVisiblePagesAndCanReachTheLast" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="listShowsTheSavedPictureWithoutOpeningDetailAndFavoriteRemainsIndependent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="pagedLibraryAlsoShowsTheSavedPictureDirectly" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="loadingPicturesIsNotAnImageFailureAndAConfirmedTextQuestionRemovesThePlaceholder" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="adjacentPicturesAndAManualQuestionKeepTheirOwnNavigationAndContent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="multipagePicturesAreAvailableInOrderWithoutOpeningTheQuestion" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="aFailedFirstPageShowsAnErrorRatherThanAnEmptyLibraryAndRetryLoadsTheQuestion" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="aManualQuestionWithoutPicturesKeepsItsTextWithoutAFalseImageError" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="zoomActionDoesNotOpenTheQuestionOrToggleItsFavorite" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryInlineImagesInstrumentedTest" name="anAuthoritativeEmptyCountDoesNotOfferExportOrSuggestClearingANonexistentFilter" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryLayoutInstrumentedTest" name="defaultLayoutGivesTheFirstQuestionPriorityOverFilters" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryLayoutInstrumentedTest" name="narrowScreenAndLargeTypeKeepActionsReachableWithoutOverlap" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryLayoutInstrumentedTest" name="collapsedFiltersKeepTheActiveConditionVisibleAndRemovable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryLayoutInstrumentedTest" name="emptySearchStillShowsRecoveryAndPageActions" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryPendingTasksEntryInstrumentedTest" name="aCountWithoutAContinueTargetDoesNotRenderAFakeEntry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryPendingTasksEntryInstrumentedTest" name="emptyLibraryKeepsCaptureAndPendingTaskEntryReachable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryRepositoryInstrumentedTest" name="aChangedCatalogRefreshesCountsWithoutChangingTheQuery" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryRepositoryInstrumentedTest" name="expandedFiltersKeepSortAndTimeRangeWiredToTheOriginalQuery" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryRepositoryInstrumentedTest" name="aLateOldQueryCannotOverwriteTheCurrentCount" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryRepositoryInstrumentedTest" name="repositoryFacetOptionsCanActuallyBeSelected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryRepositoryInstrumentedTest" name="exportCountDescribesAllCandidatesEvenWhenOnlyOneRowHasLoaded" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryRepositoryInstrumentedTest" name="anEmptySearchKeepsTheFieldAndClearAction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryScrollPerformanceInstrumentedTest" name="longCatalogRecordsNativeFrameStatsDuringTouchScrolling" time="0">
+    <failure message="instrumentation failure">java.lang.AssertionError: Actual touch scrolling must move the first card offscreen
+</failure>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryStatePresentationInstrumentedTest" name="reducedMotionShowsTheConfirmedStateWithoutWaitingForAnAnimation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryStatePresentationInstrumentedTest" name="anEnabledTransitionSettlesOnTheConfirmedState" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryStatePresentationInstrumentedTest" name="favoriteFeedbackWaitsForTheSavedValueAndAnimationsNeverRepeatTheWrite" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.LibraryStatePresentationInstrumentedTest" name="largeTypeKeepsEveryStateReadableAndOmitsADuplicateSummary" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeDetailExplicitRedrawInstrumentedTest" name="openingAndRotatingNeverDispatch" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeDetailExplicitRedrawInstrumentedTest" name="redrawOnlyDispatchesOnUserActionAndShowsRunningFailureAndSuccess" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeDetailRoleSectionsInstrumentedTest" name="aDistinctDocumentTitleIsKeptBesideTheQuestionIdentity" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeDetailRoleSectionsInstrumentedTest" name="directSectionsSurviveStateRestoreWithoutAnyWriteOrDispatch" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeDetailRoleSectionsInstrumentedTest" name="questionSourceAndNoteModulesRemainSeparateWithoutWriting" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeDetailRoleSectionsInstrumentedTest" name="aPictureUsesItsFullWidthAndNaturalHeightAndOpensTheViewerDirectly" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeDetailRoleSectionsInstrumentedTest" name="questionAndExplanationPicturesAppearWithoutAnExpansionStepAndStayInSeparateSections" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeDetailRoleSectionsInstrumentedTest" name="manyDirectLongPagesOnlyDecodeInTheViewportAndTheLastPageIsReachable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeDetailRoleSectionsInstrumentedTest" name="directExplanationPicturesAlsoUseNaturalHeight" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeDetailRoleSectionsInstrumentedTest" name="legacyCleanImageStillRendersFirstAndHasNoExplanationSection" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeExportFormatSheetInstrumentedTest" name="aSubtitleNamesWhatIsBeingExported" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeExportFormatSheetInstrumentedTest" name="cancellingDismissesWithoutStartingAnExport" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeExportFormatSheetInstrumentedTest" name="theSheetDefaultsToPdfAndConfirmsPdfWithoutAnyChoice" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeExportFormatSheetInstrumentedTest" name="selectingWordPutsDocxIntoTheExportRequest" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeExportHubInstrumentedTest" name="aNoticeIsShownAndCanBeDismissed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeExportHubInstrumentedTest" name="anEmptyHubExplainsWhereResultsComeFrom" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeExportHubInstrumentedTest" name="aCleanedUpArtifactFailsClosedWithAnHonestMessageOnShare" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeExportHubInstrumentedTest" name="aCleanedUpArtifactFailsClosedWithAnHonestMessageOnSave" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeExportHubInstrumentedTest" name="runningRecordShowsProgressWithoutDeliveryActions" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeExportHubInstrumentedTest" name="succeededRecordOffersDeliveryWhileFailedRecordStatesItsReason" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeExportInstrumentedTest" name="readyDetailOffersTutorAndPassesTheVisibleExactRevision" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeExportInstrumentedTest" name="readyDetailOffersExportAndPassesTheVisibleExactRevision" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeNoteAndArchiveInstrumentedTest" name="userCanAddANoteAndArchive" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeNoteAndArchiveInstrumentedTest" name="savedNoteUpdatesTheBodyAndTheNextEditorWithoutLeavingThePage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeNoteAndArchiveInstrumentedTest" name="archivedDetailShowsRestoreBannerAndRestores" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="classificationRowsStayLockedWhileSaving" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="knowledgeTreePickJoinsTheSavedCorrectionSelection" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="reentryHydratesExistingSucceededTaskWithoutPreparingOrExecutingAgain" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="successfulResultIsAppliedWithoutCheckboxesAndEditorOpensOnlyOnRequest" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="reentryRequiresOneNewConfirmationBeforeResumingExternalPendingTask" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="reentryAutomaticallyResumesLocalPendingTaskWithItsExactRequest" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="plannedRemovalOfExistingRelationCanBeUndoneBeforeSave" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="treePickerGroupsOptionsAndMarksWhatIsAlreadySelected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="studentSeesExactDisclosureAndOrganizationStartsAutomatically" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="rotationKeepsExternalPendingTaskPausedUntilOneNewConfirmation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="reentryAfterACorrectionStillOffersTheTreeEditorFromThePreservedState" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="incompleteResultKeepsTheScreenToOneRetryAction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="localApplyRetryReusesSuccessfulRequestWithoutExecutingModelAgain" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="reentryRequiresOneNewConfirmationBeforeRetryingExternalFailure" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeOrganizationInstrumentedTest" name="capabilityFailureOffersWorkingRetryAndSettingsActions" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeRelationAndRevisionInstrumentedTest" name="versionHistoryCanSelectAnImmutableOlderRevision" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeRelationAndRevisionInstrumentedTest" name="relationToAnOlderRevisionIsShownAsStaleInsteadOfSilentlyRedirected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeRelationAndRevisionInstrumentedTest" name="currentRevisionOffersEdit" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeRelationAndRevisionInstrumentedTest" name="editorConflictKeepsTheDraftAndOffersReload" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeRelationAndRevisionInstrumentedTest" name="editorShowsDiffAndSavesAgainstTheExpectedRevision" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeRelationAndRevisionInstrumentedTest" name="historicalRevisionIsReadOnlyAndHasAnObviousWayBackToCurrent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeRelationAndRevisionInstrumentedTest" name="detailEditEntryOpensTheEditorOnTheCurrentRevision" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeRelationAndRevisionInstrumentedTest" name="confirmedRelationExplainsTrustAndOpensOnlyTheExactLocalRevision" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeRelationAndRevisionInstrumentedTest" name="historicalRevisionStaysReadOnlyWithoutEditEntry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeSectionCardInstrumentedTest" name="aCollapsedModuleKeepsItsLargeTypeActionInsideAndDoesNotRevealTheBody" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.MistakeSectionCardInstrumentedTest" name="theHeaderAndBodyAreActuallyPaintedAsDifferentRegions" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" name="theMistakeDetailOffersTheNativeEditEntryForTheCurrentRevision" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" name="uneditedNativeExportMatchesTheNormalBatchSnapshot" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" name="aHistoricalRevisionDoesNotOfferPaperEditing" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" name="theExportHubDoesNotGuessWhereAnEditedPaperComesFrom" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" name="noEditableQuestionIsExplainedInsteadOfShowingAnEmptyEditor" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" name="theExportHubOffersTheNativeEditEntryWithTheSourcesSuppliedByTheCaller" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" name="editingATitleRecomputesTheFingerprintWithoutTouchingTheSourceQuestion" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" name="aBlankTitleFailsClosedBeforeAnyExportSheetOpens" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.SplitImportReviewCommitFlowInstrumentedTest" name="theListResumesFromTheEarliestUnsubmittedQuestionWithTheRealConfirmState" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.SplitImportReviewCommitFlowInstrumentedTest" name="tappingRecordSelectedOpensTheEarliestQuestionAndMarksNothingSaved" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.SplitImportReviewCommitFlowInstrumentedTest" name="aFullyCommittedJobIsRetiredInsteadOfOpeningAnotherDraft" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.SplitReviewEntryInstrumentedTest" name="reviewPageSelectsTheRoutedJobAndListsItsQuestions" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.SplitReviewEntryInstrumentedTest" name="theFullSourcePageCanBeZoomedWithoutChangingQuestionSelection" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.SplitReviewEntryInstrumentedTest" name="reviewPageShowsAnEmptyStateInsteadOfABlankScreenWhenNoJobIsActive" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.SplitReviewEntryInstrumentedTest" name="eachQuestionThumbnailShowsItsOwnCroppedAreaRatherThanTheWholePage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.SplitReviewEntryInstrumentedTest" name="tappingQuestionTextChangesThePublishedSelectionOnce" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.feature.library.SplitReviewEntryInstrumentedTest" name="batchImportSurfacesTheReadyAutoSplitJobAsATappableCard" time="0">
+  </testcase>
+</testsuite>

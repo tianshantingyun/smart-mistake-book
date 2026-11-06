@@ -1,0 +1,19 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+  "apk_sha256": "f534b0dd8aeabeeeec633bcbb9d24a62efe900eb75fdbcce199b979d58f7f7de",
+  "test_apk_sha256": "4316d191974f2c39bcf8d419518892f07a610236afc249af497c6721f72b47b9",
+  "package": "com.tingyun.smartmistakebook.feature.capture.test",
+  "runner": "androidx.test.runner.AndroidJUnitRunner",
+  "class_filter": "com.tingyun.smartmistakebook.feature.capture.CaptureCommittedReceiptCardInstrumentedTest,com.tingyun.smartmistakebook.feature.capture.CaptureCorrectionFormInstrumentedTest,com.tingyun.smartmistakebook.feature.capture.CaptureDocumentPreviewCardInstrumentedTest,com.tingyun.smartmistakebook.feature.capture.CaptureModelSetupBlockInstrumentedTest,com.tingyun.smartmistakebook.feature.capture.CaptureModelTaskCardInstrumentedTest,com.tingyun.smartmistakebook.feature.capture.CapturePendingCapturesInstrumentedTest,com.tingyun.smartmistakebook.feature.capture.CaptureScreenInstrumentedTest,com.tingyun.smartmistakebook.feature.capture.CaptureScreenModelGateInstrumentedTest,com.tingyun.smartmistakebook.feature.capture.CaptureScreenStateRestorationTest,com.tingyun.smartmistakebook.feature.capture.CaptureShareAuthorizationInstrumentedTest,com.tingyun.smartmistakebook.feature.capture.CaptureShareIntakeRouteInstrumentedTest,com.tingyun.smartmistakebook.feature.capture.CaptureSourceImagePreviewInstrumentedTest,com.tingyun.smartmistakebook.feature.capture.CaptureStructuredDocumentEditorInstrumentedTest,com.tingyun.smartmistakebook.feature.capture.CaptureTouchTargetsInstrumentedTest",
+  "counts": {
+    "tests": 44,
+    "evaluated": 44,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "verdict": "FAIL",
+  "reason": "failures=1 errors=0",
+  "recorded_at": "2026-11-04T21:31:53Z"
+}

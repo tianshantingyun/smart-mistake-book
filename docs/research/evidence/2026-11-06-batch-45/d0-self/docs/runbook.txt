@@ -1,0 +1,10 @@
+GROUP docs-runbook
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group docs --section runbook
+CHECK runbook_per_domain EXPECTED=1 ACTUAL=1 OK
+CHECK runbook_verdict_criteria EXPECTED=1 ACTUAL=1 OK
+CHECK runbook_archive_paths EXPECTED=1 ACTUAL=1 OK
+CHECK runbook_device_binding EXPECTED=1 ACTUAL=1 OK
+CHECK runbook_residual_declaration EXPECTED=1 ACTUAL=1 OK
+CHECK runbook_blocked_exit EXPECTED=1 ACTUAL=1 OK
+CHECKS=6 FAILURES=0
+EXIT=0

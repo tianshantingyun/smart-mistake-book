@@ -1,0 +1,19 @@
+{
+  "serial": "emulator-5566",
+  "boot_id": "d8f39d06-ec64-4bd7-96f3-7846250d6fb9",
+  "apk_sha256": "c9943728ec7dfb699345f39af311c0c52e183fec70224a4952eae781000dc488",
+  "test_apk_sha256": "c9943728ec7dfb699345f39af311c0c52e183fec70224a4952eae781000dc488",
+  "package": "com.tingyun.smartmistakebook.core.data.test",
+  "runner": "androidx.test.runner.AndroidJUnitRunner",
+  "class_filter": "com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest#fullMaskFifteenMigrationDrillRoundTripsEveryTableAndSettings,com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest#subsetMaskNineMigrationDrillDropsSessionsAndRebuildsBothSubjects,com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest#subsetMaskThirteenMigrationDrillKeepsSessionsAndSettings,com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest#corruptedSelectionStopsBeforeSwapLeavingNoHalfDatabase",
+  "counts": {
+    "tests": 4,
+    "evaluated": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "verdict": "PASS",
+  "reason": "all passed",
+  "recorded_at": "2026-11-04T12:11:12Z"
+}

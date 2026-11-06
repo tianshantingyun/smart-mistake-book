@@ -1,0 +1,17 @@
+=== AUD-08 阈值与口径只读核对（不改值） 2026-11-05T10:35:59+08:00 ===
+cmd: grep -n 阈值 tools/split_golden/check_split_gate.py; git diff --stat -- tools/split_golden
+3:"""切分金标门（AUD-08）红绿判定器：冻结校验 → 度量 → 0.9/0.05 判定 → 报告/证据/裁定落盘。
+10:  ① 判门步骤不存在：0.5714 vs 0.9 是过是不过，全靠读记录的人自己心算；
+19:按**闭边界** ①≥0.9 且 ③≤0.05 判定（与度量脚本常量逐字一致，阈值出处随报告落盘），
+27:- `hardRedLines.fragmentedQuestions`：切残硬红线（required=0）。n≥20 时 1/20=0.05 会通过
+49:  0  门 PASS（①≥0.9 且 ③≤0.05，本次度量）
+91:COUNT_GATE = 0.9
+92:FRAGMENT_GATE = 0.05
+102:    "quote": ("本轮门式（计划 E4 的建议值，标\"立项自定\"）：① ≥ 0.9 且 ③ ≤ 0.05；"
+109:        "metric": "① 题数完全一致率 countExactRate（分母=可比金标页数）",
+112:                                       "constant": "COUNT_GATE = 0.9"}),
+117:        "metric": "③ 切残率 fragmentRate（分母=金标总题数；切残不得自动入库）",
+120:                                       "constant": "FRAGMENT_GATE = 0.05"}),
+--- 工作树对 tools/split_golden 的改动 ---
+(空 = 未改动)
+EXIT=0

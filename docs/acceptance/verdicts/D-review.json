@@ -1,0 +1,402 @@
+{
+  "domain": "D",
+  "verdict": "UNVERIFIED",
+  "reviewer": "batch45-d-domain-independent-reviewer",
+  "authors": [
+    "batch-44-d-domain-implementer"
+  ],
+  "self_review": false,
+  "run_id": "2026-11-05T03:05:00Z-batch45-d-review",
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "head": "87604198feeef198d5dba7343b8c4692c5e8f937",
+  "dirty_paths_uall": 3952,
+  "run_manifest": "docs/research/evidence/2026-11-06-batch-45/d-review/run-manifest.json",
+  "scope": "D 域 90 行（81 PASS + 9 BLOCKED）。抽样 10 行独立复算（覆盖 6 份批次 44 cmd 日志、9 个测试类），并对全部 90 行做机械重算。",
+  "sampled_rows": [
+    {
+      "id": "D-001",
+      "ledger_verdict": "PASS",
+      "check": "prompt 版本/golden：paper-edit 备注版式提示词与带版本首行的 golden 文件逐字节一致",
+      "method": "test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditPromptGoldenTest.kt#theNoteLayoutPromptMatchesItsVersionedGoldenByteForByte",
+      "recompute_command": "gradlew -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest --rerun --console=plain",
+      "recompute_exit": 0,
+      "recompute_log": "docs/research/evidence/2026-11-06-batch-45/d-review/data-rerun-all.log",
+      "fresh_test_xml": "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditPromptGoldenTest.xml",
+      "fresh_counts": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "named_test_present_in_fresh_xml": true,
+      "independent_evidence_kinds": [
+        "cmd",
+        "test"
+      ],
+      "source_git_status": "clean",
+      "method_present_at_head": true,
+      "machine_verdict": "PASS_WORKTREE",
+      "review_result": "PASS_WORKTREE",
+      "notes": "目标源与 HEAD 一致；在脏树上 fresh rerun 绿。A–I 允许 PASS_WORKTREE。"
+    },
+    {
+      "id": "D-010",
+      "ledger_verdict": "PASS",
+      "check": "请求 schema 19：CURRENT_SCHEMA_VERSION=19、PAPER_EDIT=19，而 visual context 仍停 18（重钉不放宽）",
+      "method": "test: core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorVisualContextFingerprintTest.kt#theRequestSchemaIsNineteenAfterThePaperEditKind",
+      "recompute_command": "gradlew -q :core:model:test --tests com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest --rerun --console=plain",
+      "recompute_exit": 0,
+      "recompute_log": "docs/research/evidence/2026-11-06-batch-45/d-review/model-rerun.log",
+      "fresh_test_xml": "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest.xml",
+      "fresh_counts": {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "named_test_present_in_fresh_xml": true,
+      "independent_evidence_kinds": [
+        "cmd",
+        "test"
+      ],
+      "source_git_status": "M",
+      "method_present_at_head": false,
+      "machine_verdict": "PASS_WORKTREE",
+      "review_result": "PASS_WORKTREE_NOT_AT_HEAD",
+      "notes": "工作树绿；HEAD 上方法名不存在且旧方法断言 18 对 HEAD 常量 19，必红。见 D-F1。"
+    },
+    {
+      "id": "D-017",
+      "ledger_verdict": "PASS",
+      "check": "请求 schema 19：program 面声明上限按最坏 4 字节 code point 与本地字节门对齐",
+      "method": "test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ProgramSchemaMaxLengthAlignmentTest.kt#theWorstCaseFourByteProgramAtTheAdvertisedBoundPassesBothGates",
+      "recompute_command": "gradlew -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest --rerun --console=plain",
+      "recompute_exit": 0,
+      "recompute_log": "docs/research/evidence/2026-11-06-batch-45/d-review/data-rerun-all.log",
+      "fresh_test_xml": "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest.xml",
+      "fresh_counts": {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "named_test_present_in_fresh_xml": true,
+      "independent_evidence_kinds": [
+        "cmd",
+        "test"
+      ],
+      "source_git_status": "M",
+      "method_present_at_head": true,
+      "machine_verdict": "PASS_WORKTREE",
+      "review_result": "PASS_WORKTREE_CLASS_RED_AT_HEAD",
+      "notes": "抽样方法体在 HEAD 未变；同类另一测试在 HEAD 断言 imagePrompt=4096 对生产面 1024，HEAD 上整类红。见 D-F3。"
+    },
+    {
+      "id": "D-019",
+      "ledger_verdict": "PASS",
+      "check": "解析失败分类：改卷输出出现未知命令 replace_image 时映射 INVALID_RESPONSE 且不可重试",
+      "method": "test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#paperEditShapeErrorIsPermanentInvalidResponse",
+      "recompute_command": "gradlew -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest --rerun --console=plain",
+      "recompute_exit": 0,
+      "recompute_log": "docs/research/evidence/2026-11-06-batch-45/d-review/data-rerun-all.log",
+      "fresh_test_xml": "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest.xml",
+      "fresh_counts": {
+        "tests": 68,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "named_test_present_in_fresh_xml": true,
+      "independent_evidence_kinds": [
+        "cmd",
+        "test"
+      ],
+      "source_git_status": "clean",
+      "method_present_at_head": true,
+      "machine_verdict": "PASS_WORKTREE",
+      "review_result": "PASS_WORKTREE",
+      "notes": "目标源与 HEAD 一致；fresh rerun 绿。"
+    },
+    {
+      "id": "D-027",
+      "ledger_verdict": "PASS",
+      "check": "解析失败分类：诊断记录 toString 永不含响应原文/学生文本，且旁路异常不改变产品结果",
+      "method": "test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ModelCallFailureRecordLogDisciplineTest.kt#toStringNeverEchoesTheRawResponseOrStudentText",
+      "recompute_command": "gradlew -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.model.ModelCallFailureRecordLogDisciplineTest --rerun --console=plain",
+      "recompute_exit": 0,
+      "recompute_log": "docs/research/evidence/2026-11-06-batch-45/d-review/data-rerun-all.log",
+      "fresh_test_xml": "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.ModelCallFailureRecordLogDisciplineTest.xml",
+      "fresh_counts": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "named_test_present_in_fresh_xml": true,
+      "independent_evidence_kinds": [
+        "cmd",
+        "test"
+      ],
+      "source_git_status": "??",
+      "method_present_at_head": false,
+      "machine_verdict": "PASS_WORKTREE",
+      "review_result": "PASS_WORKTREE_NOT_AT_HEAD",
+      "notes": "主测试文件在 HEAD 不存在（untracked）；工作树 fresh rerun 绿。见 D-F2。"
+    },
+    {
+      "id": "D-046",
+      "ledger_verdict": "PASS",
+      "check": "工具环：远程派发持久账本 MAX_DISPATCHES=6，attempt=6 起不可再调度",
+      "method": "test: core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/ModelTasksTest.kt#remoteDispatchBudgetAllowsUpToTheConfiguredLimitOnly",
+      "recompute_command": "gradlew -q :core:model:test --tests com.tingyun.smartmistakebook.core.model.ModelTasksTest --rerun --console=plain",
+      "recompute_exit": 0,
+      "recompute_log": "docs/research/evidence/2026-11-06-batch-45/d-review/model-rerun.log",
+      "fresh_test_xml": "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.model.ModelTasksTest.xml",
+      "fresh_counts": {
+        "tests": 33,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "named_test_present_in_fresh_xml": true,
+      "independent_evidence_kinds": [
+        "cmd",
+        "test"
+      ],
+      "source_git_status": "clean",
+      "method_present_at_head": true,
+      "machine_verdict": "PASS_WORKTREE",
+      "review_result": "PASS_WORKTREE",
+      "notes": "目标源与 HEAD 一致；fresh rerun 绿。"
+    },
+    {
+      "id": "D-049",
+      "ledger_verdict": "PASS",
+      "check": "工具环：伪造知识点代号在轮门结构性拒绝，永不到达 runner",
+      "method": "test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/TutorToolRoundGateTest.kt#a fabricated code is structurally refused and never reaches the runner",
+      "recompute_command": "gradlew -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest --rerun --console=plain",
+      "recompute_exit": 0,
+      "recompute_log": "docs/research/evidence/2026-11-06-batch-45/d-review/data-rerun-all.log",
+      "fresh_test_xml": "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest.xml",
+      "fresh_counts": {
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "named_test_present_in_fresh_xml": true,
+      "independent_evidence_kinds": [
+        "cmd",
+        "test"
+      ],
+      "source_git_status": "clean",
+      "method_present_at_head": true,
+      "machine_verdict": "PASS_WORKTREE",
+      "review_result": "PASS_WORKTREE",
+      "notes": "台账方法列是无反引号的自然语言名，实际对应 Kotlin 反引号函数；fresh XML 中同名 testcase 存在。"
+    },
+    {
+      "id": "D-050",
+      "ledger_verdict": "PASS",
+      "check": "工具环：生图调用只在 current-question 意图到达 runner，JS 方法调用永不到图像生成器",
+      "method": "test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/TutorToolRoundGateTest.kt#a figure call reaches the runner only under the current-question intent",
+      "recompute_command": "gradlew -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest --rerun --console=plain",
+      "recompute_exit": 0,
+      "recompute_log": "docs/research/evidence/2026-11-06-batch-45/d-review/data-rerun-all.log",
+      "fresh_test_xml": "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.TutorToolRoundGateTest.xml",
+      "fresh_counts": {
+        "tests": 16,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "named_test_present_in_fresh_xml": true,
+      "independent_evidence_kinds": [
+        "cmd",
+        "test"
+      ],
+      "source_git_status": "clean",
+      "method_present_at_head": true,
+      "machine_verdict": "PASS_WORKTREE",
+      "review_result": "PASS_WORKTREE",
+      "notes": "主方法加“另证”方法都在 fresh XML 中；fresh rerun 绿。"
+    },
+    {
+      "id": "D-055",
+      "ledger_verdict": "PASS",
+      "check": "paper-edit：白名单每一条命令都按声明字段解析成功",
+      "method": "test: core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/PaperEditCommandParserTest.kt#everyWhitelistedCommandParsesWithItsDeclaredFields",
+      "recompute_command": "gradlew -q :core:model:test --tests com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest --rerun --console=plain",
+      "recompute_exit": 0,
+      "recompute_log": "docs/research/evidence/2026-11-06-batch-45/d-review/model-rerun.log",
+      "fresh_test_xml": "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest.xml",
+      "fresh_counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "named_test_present_in_fresh_xml": true,
+      "independent_evidence_kinds": [
+        "cmd",
+        "test"
+      ],
+      "source_git_status": "clean",
+      "method_present_at_head": true,
+      "machine_verdict": "PASS_WORKTREE",
+      "review_result": "PASS_WORKTREE",
+      "notes": "目标源与 HEAD 一致；fresh rerun 绿。"
+    },
+    {
+      "id": "D-076",
+      "ledger_verdict": "PASS",
+      "check": "重试/取消：取消协程会取消普通 HTTP 调用",
+      "method": "test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiModelTransportCancellationTest.kt#cancellingTheCoroutineCancelsTheHttpCall",
+      "recompute_command": "gradlew -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.model.OpenAiModelTransportCancellationTest --rerun --console=plain",
+      "recompute_exit": 0,
+      "recompute_log": "docs/research/evidence/2026-11-06-batch-45/d-review/data-rerun-all.log",
+      "fresh_test_xml": "docs/research/evidence/2026-11-06-batch-45/d-review/TEST-com.tingyun.smartmistakebook.core.data.model.OpenAiModelTransportCancellationTest.xml",
+      "fresh_counts": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "named_test_present_in_fresh_xml": true,
+      "independent_evidence_kinds": [
+        "cmd",
+        "test"
+      ],
+      "source_git_status": "clean",
+      "method_present_at_head": true,
+      "machine_verdict": "PASS_WORKTREE",
+      "review_result": "PASS_WORKTREE",
+      "notes": "目标源与 HEAD 一致；fresh rerun 绿。"
+    }
+  ],
+  "domain_summary": {
+    "ledger_rows": 90,
+    "PASS": 81,
+    "BLOCKED": 9,
+    "FAIL": 0,
+    "UNVERIFIED": 0,
+    "all_PASS_rows_have_two_independent_kinds": true,
+    "mechanical_evidence_issues": 0,
+    "sampled_rows": 10,
+    "sampled_pass_worktree": 7,
+    "sampled_not_reproducible_at_head": 3
+  },
+  "blocked_rows": {
+    "count": 9,
+    "ids": [
+      "D-082",
+      "D-083",
+      "D-084",
+      "D-085",
+      "D-086",
+      "D-087",
+      "D-088",
+      "D-089",
+      "D-090"
+    ],
+    "reason": "无真实 Provider 密钥（runbook docs/acceptance/runbook.md:162）；BLOCKED 不等于通过，需以环境变量注入 *_API_KEY 后按 runbook 复跑",
+    "evidence": "docs/acceptance/runbook.md"
+  },
+  "findings": [
+    {
+      "id": "D-F1",
+      "severity": "blocking-for-PASS_HEAD",
+      "rows": [
+        "D-010"
+      ],
+      "summary": "D-010 的方法名只存在于未提交的工作树：HEAD 的 TutorVisualContextFingerprintTest 仍是 theRequestSchemaIsEighteen，断言 18，而 HEAD 的 ModelTaskRequest.CURRENT_SCHEMA_VERSION=19（ModelTasks.kt:566-567），即 HEAD 上该测试必红。批次 44 的绿 XML 是在脏树上生成的。",
+      "evidence": [
+        "git show HEAD:core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorVisualContextFingerprintTest.kt -> 行 63 fun theRequestSchemaIsEighteen(); 行 64 assertEquals(18, ModelTaskRequest.CURRENT_SCHEMA_VERSION)",
+        "git show HEAD:core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/ModelTasks.kt -> 行 566 const val PAPER_EDIT_SCHEMA_VERSION = 19; 行 567 const val CURRENT_SCHEMA_VERSION = PAPER_EDIT_SCHEMA_VERSION",
+        "git status --porcelain -- core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorVisualContextFingerprintTest.kt -> \" M\"",
+        "fresh rerun: gradlew -q :core:model:test --tests com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest --rerun -> exit 0 (7 tests, 0 failures)"
+      ],
+      "disposition": "工作树上 PASS_WORKTREE 成立；提交该测试更新前不得声称 PASS_HEAD。"
+    },
+    {
+      "id": "D-F2",
+      "severity": "blocking-for-PASS_HEAD",
+      "rows": [
+        "D-027"
+      ],
+      "summary": "D-027 的主测试文件 ModelCallFailureRecordLogDisciplineTest.kt 在 HEAD 不存在（git status \"??\"）。台账 PASS 只能由当前工作树复现；干净 HEAD 检出无法运行“toString 不得回显学生原文”的断言。",
+      "evidence": [
+        "git status --porcelain -- core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ModelCallFailureRecordLogDisciplineTest.kt -> \"??\"",
+        "git show HEAD:core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ModelCallFailureRecordLogDisciplineTest.kt -> fatal: path exists on disk, but not in 'HEAD'",
+        "fresh rerun: gradlew -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.model.ModelCallFailureRecordLogDisciplineTest --rerun -> exit 0 (3 tests, 0 failures)"
+      ],
+      "disposition": "工作树上 PASS_WORKTREE；需提交该测试文件后才可谈 PASS_HEAD。"
+    },
+    {
+      "id": "D-F3",
+      "severity": "caveat",
+      "rows": [
+        "D-017",
+        "D-018"
+      ],
+      "summary": "D-017/D-018 的抽样方法体在 HEAD 与工作树一致，但其所在类的另一测试在 HEAD 仍断言 imagePrompt=4096，而 HEAD 生产面已按 MAX_IMAGE_PROMPT_UTF8_BYTES/4=1024 广告（OpenAiModelProtocol.kt:561），HEAD 上该类整体红。绿 XML 同样来自脏树。",
+      "evidence": [
+        "git show HEAD:core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ProgramSchemaMaxLengthAlignmentTest.kt -> 行 164 assertEquals(FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES, imagePrompt.maxLength)",
+        "git grep HEAD -- core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiModelProtocol.kt -> 行 561 MAX_IMAGE_PROMPT_UTF8_BYTES / 4",
+        "git status --porcelain -- core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ProgramSchemaMaxLengthAlignmentTest.kt -> \" M\"",
+        "fresh rerun: gradlew -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest --rerun -> exit 0 (7 tests, 0 failures)"
+      ],
+      "disposition": "行级方法在工作树上成立；类级 HEAD 红属未提交修复，需一并提交。"
+    },
+    {
+      "id": "D-F4",
+      "severity": "global-blocking",
+      "scope": "D + 全局",
+      "summary": "证据绑定脏树：review 时 git status --porcelain -uall = 3952 条，HEAD=87604198。按验收证据模型 §4.4/§7.4，A–I 可用 PASS_WORKTREE，J/GATE 的 signed PASS 必须 PASS_HEAD；台账 J-001（干净树前提）当前为 FAIL，因此本批不可能签出 PASS_HEAD 级验收。",
+      "evidence": [
+        "git status --porcelain -uall | wc -l -> 3952",
+        "python -I tools/ci/acceptance_report.py -> exit 1, state=FAIL, counts {PASS:882, FAIL:30, BLOCKED:144, UNVERIFIED:144}, violations=0, pass_with_review=0",
+        "docs/acceptance/ledger.md J-001 -> FAIL"
+      ],
+      "disposition": "D 域可按 PASS_WORKTREE 复核；整体验收维持“不通过”。"
+    },
+    {
+      "id": "D-F5",
+      "severity": "process",
+      "summary": "台账当前没有任何 PASS 行引用 review 证据，acceptance_report 的 pass_with_review=0（DoD §1.5 不满足）。本文件提供 D 域 10 行抽样复核，可作为 wiring 的输入；本 subagent 未改台账（不在本项落点）。",
+      "evidence": [
+        "python -I tools/ci/acceptance_report.py -> pass_with_review=0, pass_without_review=882",
+        "grep -c \"review:\" docs/acceptance/ledger.md -> 7，全部在 J 域 UNVERIFIED 的“方法”叙述里，不是证据 token"
+      ],
+      "disposition": "由主会话/编排在 D 域抽样行加 review:docs/acceptance/verdicts/D-review.json 后才计 pass_with_review。"
+    }
+  ],
+  "adversarial": {
+    "attempted": true,
+    "result": "findings-recorded",
+    "attempts": [
+      "fresh --rerun 重跑（不复用批次 44 XML），全部 exit 0，且抽样方法名出现在新 XML 的 testcase 列表内",
+      "负向对照：--tests 一个不存在的类 -> BUILD FAILED / exit 1，证明测试任务确实按 filter 执行而非空跑",
+      "HEAD 交叉核对（git show）抓出 D-010 方法改名、D-027 文件缺失、D-017/D-018 类级 HEAD 红",
+      "机械重算 90 行：81 PASS 每行至少 2 类独立证据，0 条 XML 失败/0 条 cmd 非零退出/0 占位命令"
+    ],
+    "not_attempted": [
+      "未在干净 HEAD worktree 上重建并跑全量单测（需额外完整构建；HEAD 矛盾已由断言/常量直接证明）",
+      "未做设备侧复算（D 域抽样均为 JVM 单测）"
+    ]
+  },
+  "notes": "D 域 90 行 = 81 PASS + 9 BLOCKED（真实 Provider），0 FAIL / 0 UNVERIFIED。本复核独立重跑 10 行并机械重算全部 90 行。结论：D 域在工作树上 PASS_WORKTREE 成立；3 个测试源的未提交改动使 D-010/D-027 及 D-017/D-018 所在类无法在 HEAD 复现，需提交后才能升级为 PASS_HEAD。整体验收不因本文件而通过：全局仍有 30 条 FAIL（含 J/GATE 发版与 GATE-032/035/038/042），pass_with_review 仍为 0。",
+  "verdict_detail": "PASS_WORKTREE",
+  "domain_verdict": "UNVERIFIED",
+  "independence": {
+    "reviewer_not_author": true,
+    "independence_verified": false,
+    "basis": "角色分离 + 对归档证据逐项机械复算；reviewer 未参与被复核证据的产出角色。",
+    "limitation": "reviewer 是角色标签，不是具名个人或第二模型；批次证据未记录生产者身份，无法证明跨模型独立。本复核只支持域级抽样结论，不构成台账行级 review 证据；report 的 pass_with_review 仍以行级 review token 为准。",
+    "verdict_ceiling": "UNVERIFIED (domain-level sample only)"
+  },
+  "ledger_sha256_at_review": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_sha256_current_after_fix": "887e3ba649eb17a70c0f6f7af8a657d606398a10925c6116818265387af689aa",
+  "ledger_binding_note": "本复核绑定修复前台账 bb25ef236056…；修复环只改了 35 行的 verdict/method（GATE-079 补证据、17 个 FIX 登记行改 BLOCKED、13 个 BLOCKED 补 runbook、4 个 D 行加脏树披露），未重跑本复核的抽样行。修复后台账为 887e3ba649eb…，因此本文件不得作为新台账的行级 review 证据；要转 PASS 必须在新台账上重跑。"
+}

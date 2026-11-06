@@ -389,7 +389,7 @@ class AndroidBackupRepository(
 
     /**
      * v3 manifest 的 `selection` 块（6C-2）。digest 用 §9.7 的 v2 算法；`rowCounts` 必须
-     * 覆盖 90 表，`assetPolicy` 只能是 `INCLUDED`（本批合法 mask 都含图片）。
+     * 覆盖 92 表，`assetPolicy` 只能是 `INCLUDED`（本批合法 mask 都含图片）。
      */
     private fun selectionRecord(
         mask: Int,
@@ -482,10 +482,10 @@ class AndroidBackupRepository(
             // Phase 1: Validate and unpack (counting compressed bytes for zip-bomb ratio)
             journal.writePhase(RestorePhase.VALIDATING)
             val countingSource = CountingInputStream(source)
-            val validation = SmbkArchiveCodec.unpack(countingSource, staging)
-            val valid = validation as? BackupValidation.Valid
+            val unpacked = SmbkArchiveCodec.unpackDetailed(countingSource, staging)
+            val valid = unpacked.validation as? BackupValidation.Valid
                 ?: throw BackupRestoreException(
-                    (validation as BackupValidation.Invalid).reason,
+                    (unpacked.validation as BackupValidation.Invalid).reason,
                 )
 
             // Phase 2: Free-space preflight
@@ -553,7 +553,7 @@ class AndroidBackupRepository(
             verifyDeclaredSelectionAgainstStagedDatabase(
                 stagingDb,
                 valid.manifest.selection,
-                valid.manifest.selectionRowCounts,
+                unpacked.projection,
             )
 
             // Phase 2c.2（6C-2 T5，产品裁定 ③-a+c）：派生索引恒裁并把科目列表带出去。
@@ -1220,14 +1220,15 @@ class AndroidBackupRepository(
     }
 
     /**
-     * Phase 2c.1（6C-2 T5）：清单的 selection 声明 vs **包内库实测**。
+     * Phase 2c.1（6C-2 T5 + WS1 item 5）：清单的 selection 声明 vs **包内库实测**。
      *
      * 两件事都在交换前做，权威判据始终是包内库（清单是包自己带的，可以撒谎）：
-     * 1. **逐表行数对拍**：manifest `rowCounts` 的 90 个键必须与包内库 `COUNT(*)` 逐表相等。
-     *    这覆盖了 mask=15（没有未选类别可查）的情形——一份只有题/图的子集包被改写成
-     *    「全量」时，声明行数与包内实际行数必然漂开；digest/rowCounts 的自洽只能证明
-     *    清单内部一致，不能证明载荷是那份清单描述的内容。
-     * 2. **未勾选类别必须 0 行**：即使行数对拍通过，声明为未包含的类别也不许带数据。
+     * 1. **按声明版本键空间逐表行数对拍**：closure 5 包比 92 键，closure 4 包比 91 键
+     *    （R2 §3.3 A8）。声明缺键不允许 `?: 0` 兜底——那会把"截断包/伪造包"洗成合法。
+     * 2. **投影的增删表**：新增表（v4→v5 的 `error_cause_*`）在载荷里必须不存在/为 0；
+     *    被删表（`knowledge_search_material_feature`）声明与实测都必须为 0，非 0 即拒绝
+     *    整包（不静默丢行，R2 §7 D3）。
+     * 3. **未勾选类别必须 0 行**：即使行数对拍通过，声明为未包含的类别也不许带数据。
      *
      * v1/v2（selection=null）是全量语义，跳过。表不存在按 0 行处理：旧 schema 的包还没有
      * 这些表，Room 迁移会建出空表，与"未包含"等价。任何不符都在交换前拒绝——原数据、
@@ -1236,10 +1237,10 @@ class AndroidBackupRepository(
     private fun verifyDeclaredSelectionAgainstStagedDatabase(
         stagedDatabaseFile: File,
         selection: BackupSelectionSummary?,
-        declaredRowCounts: Map<String, Long>?,
+        projection: SmbkSelectionProjection?,
     ) {
         if (selection == null) return
-        if (declaredRowCounts == null) {
+        if (projection == null) {
             throw BackupRestoreException(
                 "备份内容选择缺少逐表行数声明，恢复被拒绝",
             )
@@ -1256,32 +1257,50 @@ class AndroidBackupRepository(
             }
         val mismatched = mutableListOf<String>()
         val nonEmpty = mutableListOf<String>()
+        val projectionViolations = mutableListOf<String>()
+        // 要读计数的表：声明键空间（按声明版本，v4=91 / v5=92）+ 新增表（不在 v4 声明里）。
+        val countedTables = LinkedHashSet<String>().apply {
+            addAll(projection.declaredRowCounts.keys)
+            addAll(projection.addedTables)
+        }
         try {
             SQLiteDatabase.openDatabase(
                 stagedDatabaseFile.absolutePath,
                 null,
                 SQLiteDatabase.OPEN_READONLY,
             ).use { database ->
-                val allTables = SmbkSelectionPlan.allTables
-                val existing = existingTables(database, allTables)
-                val actualCounts = LinkedHashMap<String, Long>(allTables.size)
-                allTables.forEach { table ->
-                    actualCounts[table] = if (table in existing) {
-                        val quoted = "\"" + table.replace("\"", "\"\"") + "\""
-                        database.rawQuery("SELECT COUNT(*) FROM $quoted", null).use { cursor ->
-                            if (!cursor.moveToFirst()) {
-                                throw BackupRestoreException("无法读取包内表 $table 的行数")
-                            }
-                            cursor.getLong(0)
+                val existing = existingTables(database, countedTables.toList())
+                fun countOf(table: String): Long = if (table in existing) {
+                    val quoted = "\"" + table.replace("\"", "\"\"") + "\""
+                    database.rawQuery("SELECT COUNT(*) FROM $quoted", null).use { cursor ->
+                        if (!cursor.moveToFirst()) {
+                            throw BackupRestoreException("无法读取包内表 $table 的行数")
                         }
-                    } else {
-                        0L
+                        cursor.getLong(0)
                     }
+                } else {
+                    0L
                 }
-                allTables.forEach { table ->
-                    val declared = declaredRowCounts[table] ?: 0L
+                val actualCounts = LinkedHashMap<String, Long>(countedTables.size)
+                countedTables.forEach { table -> actualCounts[table] = countOf(table) }
+                // R1：声明键空间逐键精确对拍（缺键已由 codec 的键集合门拒绝，这里直接 getValue）。
+                projection.declaredRowCounts.forEach { (table, declared) ->
                     val actual = actualCounts.getValue(table)
                     if (declared != actual) mismatched += "$table declared=$declared actual=$actual"
+                }
+                // R2：新增表在载荷里必须为 0（迁移前不存在 → 0；存在且有行 = 包/规则漂移）。
+                projection.addedTables.forEach { table ->
+                    val actual = actualCounts.getValue(table)
+                    if (actual > 0L) {
+                        projectionViolations += "新增表 $table 实测 $actual 行（应为 0）"
+                    }
+                }
+                // R2/D3：被删表声明与实测都必须为 0；codec 已拒声明非 0，这里兜实测。
+                projection.droppedTables.forEach { table ->
+                    val actual = actualCounts.getValue(table)
+                    if (actual > 0L) {
+                        projectionViolations += "已废弃表 $table 实测 $actual 行（应为 0，拒绝静默丢行）"
+                    }
                 }
                 unselectedTables.forEach { table ->
                     val actual = actualCounts[table] ?: 0L
@@ -1301,6 +1320,12 @@ class AndroidBackupRepository(
                 if (mismatched.size > 8) "…共 ${mismatched.size} 张表" else ""
             throw BackupRestoreException(
                 "备份内容选择与包内数据不一致：逐表行数与声明不符（$detail），恢复被拒绝",
+            )
+        }
+        if (projectionViolations.isNotEmpty()) {
+            throw BackupRestoreException(
+                "备份内容选择与包内数据不一致：规则版本投影不允许的行" +
+                    "（${projectionViolations.take(3).joinToString("；")}），恢复被拒绝",
             )
         }
         if (nonEmpty.isNotEmpty()) {

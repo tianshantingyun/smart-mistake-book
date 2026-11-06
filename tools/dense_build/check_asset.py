@@ -125,6 +125,16 @@ def evaluate(repo_root=None, pack_path=None, sidecar_path=None, vocab_path=None,
                       header["ids"][first] if first is not None else "-",
                       expected_ids[first] if first is not None else "-"))
 
+        # ---- 4b) 行的 (node_id, kind, surface) 有序序列 == 旁车布局摘要 ----
+        # `layout`（ids）只证明"向量行属于哪些节点"；canonical name 或等量别名文本被改、
+        # 而 ids/行数不变时，`packSha256` 可被"重钉"绕过（见预注册 §0.3 的实测绕过路径）。
+        # 这一项是**独立检查**：ids 红不掩盖它，它红也不必伴随 ids 红。
+        expected_layout = D.layout_sha256(rows)
+        recorded_layout = ((sidecar.get("corpus") or {}).get("layoutSha256")) or ""
+        record("layoutSha256", expected_layout == recorded_layout,
+               "当前包布局 sha256=%s；旁车 corpus.layoutSha256=%s"
+               % (expected_layout[:16], (recorded_layout or "(缺)")[:16]))
+
     # ---- 5) 模型清单（在则比对；不在则如实标未验证，不当作通过） ----
     if manifest.is_file():
         model = json.loads(manifest.read_text(encoding="utf-8"))

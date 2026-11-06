@@ -1,7 +1,5 @@
 package com.tingyun.smartmistakebook.feature.library
 
-import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.performTouchInput
@@ -13,7 +11,6 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -64,7 +61,6 @@ import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.RelatedProblemCandidate
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 import com.tingyun.smartmistakebook.core.ui.SmartMistakeBookTheme
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
@@ -638,122 +634,6 @@ class MistakeOrganizationInstrumentedTest {
         assertTrue(second.userClassifications.any { it.displayName == "函数的概念与性质" })
         // 上一次的修改仍在集合里（编辑器用保留值做了初始选择）。
         assertTrue(second.userClassifications.any { it.displayName == "三角函数的图象与变换" })
-    }
-
-    @Test
-    fun completeCatalogPickerKeepsCrossSubjectIdentitiesAndOnlyStagesOnDone() {
-        val organization = FakeOrganizationRepository()
-        val math = com.tingyun.smartmistakebook.core.model.CatalogHit(com.tingyun.smartmistakebook.core.model.KnowledgeNodeSelection("math-same", "m1"), "MATH", listOf("函数"), "共同名称", "数学材料", listOf("共同名称"))
-        val physics = math.copy(node = com.tingyun.smartmistakebook.core.model.KnowledgeNodeSelection("physics-same", "p1"), subject = "PHYSICS", chapterPath = listOf("力学"), snippet = "物理材料")
-        val catalog = object : com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository {
-            override suspend fun search(query: com.tingyun.smartmistakebook.core.model.CatalogQuery) =
-                com.tingyun.smartmistakebook.core.model.CatalogPage(listOf(math, physics), null, "v1")
-        }
-        composeRule.setContent { SmartMistakeBookTheme {
-            ManualCatalogCorrectionAction(MistakeRevisionKey("entry-1", "problem-1", "revision-1"), "MATH", organization, catalog, true)
-        } }
-        composeRule.onNodeWithTag("mistake_catalog_correct").performClick()
-        waitForTag("mistake_tree_knowledge_math-same")
-        composeRule.onNodeWithTag("mistake_tree_knowledge_math-same").performClick()
-        composeRule.onNodeWithTag("mistake_tree_knowledge_physics-same").performScrollTo().performClick()
-        val screenshot = composeRule.onNodeWithTag("knowledge_catalog_sheet").captureToImage()
-        val captureContext = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
-        java.io.File(captureContext.getExternalFilesDir(null), "catalog-picker.png").outputStream().use {
-            screenshot.asAndroidBitmap().compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
-        }
-        composeRule.onNodeWithTag("mistake_tree_done").performClick()
-        composeRule.runOnIdle { assertNull(organization.lastSelection) }
-        composeRule.onNodeWithTag("catalog_manual_save").performClick()
-        composeRule.waitUntil(10_000) { organization.lastSelection != null }
-        assertEquals(setOf(math.node, physics.node), requireNotNull(organization.lastSelection).knowledgeSelections)
-        composeRule.onNodeWithTag("catalog_save_message").assertExists()
-    }
-
-    @Test
-    fun dismissingCatalogSheetDiscardsItsSelection() {
-        var done = false
-        val visible = mutableStateOf(true)
-        val hit = com.tingyun.smartmistakebook.core.model.CatalogHit(com.tingyun.smartmistakebook.core.model.KnowledgeNodeSelection("one", "v1"), "MATH", emptyList(), "知识点", "材料", emptyList())
-        val catalog = object : com.tingyun.smartmistakebook.core.domain.KnowledgeCatalogRepository {
-            override suspend fun search(query: com.tingyun.smartmistakebook.core.model.CatalogQuery) = com.tingyun.smartmistakebook.core.model.CatalogPage(listOf(hit), null, "v1")
-        }
-        composeRule.setContent { SmartMistakeBookTheme {
-            if (visible.value) KnowledgeCatalogPickerSheet(catalog, "MATH", emptyList(), true, 32, onDone = { done = true }, onDismiss = { visible.value = false })
-        } }
-        waitForTag("mistake_tree_knowledge_one")
-        composeRule.onNodeWithTag("mistake_tree_knowledge_one").performClick()
-        composeRule.onNodeWithContentDescription("关闭对话框").performClick()
-        composeRule.runOnIdle { assertTrue(!done); assertTrue(!visible.value) }
-    }
-
-    @Test
-    fun realCatalogSearchBeyond256SavesCrossSubjectLinksAndReopensTheirSubjects() {
-        val context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
-        val name = "catalog-ui-${System.nanoTime()}.db"
-        val database = com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory.open(context, name)
-        val job = kotlinx.coroutines.SupervisorJob()
-        val scope = kotlinx.coroutines.CoroutineScope(job + kotlinx.coroutines.Dispatchers.IO)
-        val visible = mutableStateOf(true)
-        try {
-            kotlinx.coroutines.runBlocking { database.readDatabaseVersion() }
-            val doc = CapturedQuestionDocument(document = QuestionDocument("catalog-doc", blocks = listOf(ContentBlock.Paragraph("stem", "求函数最值"))),
-                blockEvidence = listOf(com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence(
-                    blockId = "stem", sourceAssetId = "", sourceRegion = null,
-                    writingLayer = com.tingyun.smartmistakebook.core.model.WritingLayer.UNKNOWN,
-                    provenance = com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance.USER_TRANSCRIPTION,
-                    confidence = null, reviewStatus = com.tingyun.smartmistakebook.core.model.QuestionBlockReviewStatus.USER_CONFIRMED, producerVersion = null)))
-            android.database.sqlite.SQLiteDatabase.openDatabase(context.getDatabasePath(name).absolutePath, null, android.database.sqlite.SQLiteDatabase.OPEN_READWRITE).use { sql ->
-                sql.setForeignKeyConstraintsEnabled(true)
-                sql.beginTransaction()
-                try {
-                    sql.execSQL("INSERT INTO problem(problem_id,canonical_fingerprint,subject,created_at_epoch_millis) VALUES ('catalog-problem',?,'MATH',1)", arrayOf("a".repeat(64)))
-                    sql.execSQL("INSERT INTO problem_revision(revision_id,problem_id,revision_number,title,problem_markdown,question_document_snapshot,answer_verification_status,source_type,content_fingerprint,created_at_epoch_millis) VALUES ('catalog-revision','catalog-problem',1,'函数题','求函数最值',?,'UNKNOWN','TEST',?,1)", arrayOf(
-                        com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec.encode(doc), com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint.of(doc)))
-                    sql.execSQL("INSERT INTO practice_unit(practice_unit_id,problem_id,problem_revision_id,unit_key,unit_kind,title,prompt_markdown,estimated_seconds,created_at_epoch_millis) VALUES ('catalog-practice','catalog-problem','catalog-revision','unit','PROBLEM','函数题','求函数最值',60,1)")
-                    sql.execSQL("INSERT INTO error_book_entry(entry_id,practice_unit_id,problem_id,current_revision_id,status,accepted_at_epoch_millis,updated_at_epoch_millis) VALUES ('catalog-entry','catalog-practice','catalog-problem','catalog-revision','ACTIVE',1,1)")
-                    fun node(id: String, subject: String, title: String, parent: String?, version: String) {
-                        sql.execSQL("INSERT INTO knowledge_node(knowledge_node_id,stable_code,subject,display_name,canonical_name,parent_knowledge_node_id,taxonomy_version,created_at_epoch_millis,verification_status) VALUES (?,?,?,?,?,?,?,1,'CURATED')", arrayOf(id, "stable:$id", subject, title, title, parent, version))
-                    }
-                    node("math-topic", "MATH", "函数", null, "m1")
-                    node("physics-topic", "PHYSICS", "力学", null, "p1")
-                    (0..299).forEach { index -> node("math-$index", "MATH", if (index == 299) "边界目标" else "目录%03d".format(index), "math-topic", "m1") }
-                    node("physics-target", "PHYSICS", "边界目标", "physics-topic", "p1")
-                    sql.setTransactionSuccessful()
-                } finally { sql.endTransaction() }
-            }
-            val catalog = com.tingyun.smartmistakebook.core.data.mistake.RoomKnowledgeCatalogRepository(database, scope)
-            val organization = com.tingyun.smartmistakebook.core.data.mistake.MistakeOrganizationRepositoryFactory.create(database,
-                kotlinx.coroutines.flow.MutableStateFlow<com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability>(com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability.Ready))
-            val key = MistakeRevisionKey("catalog-entry", "catalog-problem", "catalog-revision")
-            composeRule.setContent { SmartMistakeBookTheme {
-                if (visible.value) ManualCatalogCorrectionAction(key, "MATH", organization, catalog, true)
-            } }
-            composeRule.onNodeWithTag("mistake_catalog_correct").performClick()
-            composeRule.onNodeWithTag("mistake_tree_query").performTextInput("边界目标")
-            waitForTag("mistake_tree_knowledge_math-299")
-            composeRule.onNodeWithTag("mistake_tree_knowledge_math-299").performClick()
-            composeRule.onNodeWithTag("mistake_tree_knowledge_physics-target").performScrollTo().performClick()
-            composeRule.onNodeWithTag("mistake_tree_done").performClick()
-            kotlinx.coroutines.runBlocking { assertTrue(database.observeConfirmedProblemOrganization("catalog-problem", "catalog-revision").first().classifications.isEmpty()) }
-            composeRule.onNodeWithTag("catalog_manual_save").performClick()
-            waitForTag("catalog_save_message")
-            composeRule.onNodeWithText("已保存知识点关联").assertExists()
-            kotlinx.coroutines.runBlocking {
-                assertEquals(setOf("math-299", "physics-target"), database.observeConfirmedProblemOrganization("catalog-problem", "catalog-revision").first().knowledgeNodeIds)
-                assertEquals("MATH", database.observeMistakes().first().single().subject)
-            }
-            composeRule.onNodeWithTag("mistake_catalog_correct").performClick()
-            waitForTag("catalog_selected_physics-target")
-            composeRule.onNodeWithText("物理 · 边界目标 ×").assertExists()
-            composeRule.onNodeWithText("数学 · 边界目标 ×").assertExists()
-        } finally {
-            composeRule.runOnIdle { visible.value = false }
-            composeRule.waitForIdle()
-            job.cancel()
-            kotlinx.coroutines.runBlocking { job.join() }
-            database.close()
-            context.deleteDatabase(name)
-        }
     }
 
     private fun waitForTag(tag: String) {

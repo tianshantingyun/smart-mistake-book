@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.backup.V4PackFixtureTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-04T10:06:19.817Z" hostname="TIANSHAN" time="0.134">
+  <properties/>
+  <testcase name="frozenKeySetMatchesProductionRuleTableAndSchema72" classname="com.tingyun.smartmistakebook.core.data.backup.V4PackFixtureTest" time="0.024"/>
+  <testcase name="selfConsistentForgedRowCountPassesCodec" classname="com.tingyun.smartmistakebook.core.data.backup.V4PackFixtureTest" time="0.061"/>
+  <testcase name="assetMirrorMatchesAuthoritySourceByteForByte" classname="com.tingyun.smartmistakebook.core.data.backup.V4PackFixtureTest" time="0.005"/>
+  <testcase name="payloadByteFlipIsRejected" classname="com.tingyun.smartmistakebook.core.data.backup.V4PackFixtureTest" time="0.007"/>
+  <testcase name="productionDigestMatchesIndependentOracleForGoldenRowCounts" classname="com.tingyun.smartmistakebook.core.data.backup.V4PackFixtureTest" time="0.001"/>
+  <testcase name="goldenPackProjectsToCurrentSelectionKeySpace" classname="com.tingyun.smartmistakebook.core.data.backup.V4PackFixtureTest" time="0.012"/>
+  <testcase name="droppedTableWithRowsIsRejectedByCodec" classname="com.tingyun.smartmistakebook.core.data.backup.V4PackFixtureTest" time="0.013"/>
+  <testcase name="goldenPackBytesMatchFrozenSealAndCodecAccepts" classname="com.tingyun.smartmistakebook.core.data.backup.V4PackFixtureTest" time="0.009"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

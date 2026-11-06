@@ -107,7 +107,13 @@ class VisualDrawOpsParserTest {
         stats = VisualDrawOpsStats(nodes = 3, pathCommands = 11, labels = 1, ops = 6),
     )
 
-    private fun fixtureText(): String = VisualDrawOpsParser.serialize(fixtureDocument())
+    private fun serializedText(document: VisualDrawOpsDocument): String =
+        when (val result = VisualDrawOpsParser.serialize(document)) {
+            is VisualDrawOpsSerialization.Text -> result.text
+            is VisualDrawOpsSerialization.Rejected -> throw AssertionError(result.failure)
+        }
+
+    private fun fixtureText(): String = serializedText(fixtureDocument())
 
     /**
      * 可拼装的文档文本：`include` 控制键的存在性（缺字段负向用）。
@@ -161,12 +167,12 @@ class VisualDrawOpsParserTest {
     @Test
     fun `draw ops survive a json round trip with every number bit for bit`() {
         val original = fixtureDocument()
-        val text = VisualDrawOpsParser.serialize(original)
+        val text = serializedText(original)
         val reparsed = parseValid(text)
 
         assertDocumentBitwiseEqual(original, reparsed)
         // 第二圈：文本也必须稳定（固定键序 + 同值 toString → byte 级相同）。
-        assertEquals(text, VisualDrawOpsParser.serialize(reparsed))
+        assertEquals(text, serializedText(reparsed))
     }
 
     @Test
@@ -185,11 +191,11 @@ class VisualDrawOpsParserTest {
         )
 
         val first = parseValid(text)
-        val rewritten = VisualDrawOpsParser.serialize(first)
+        val rewritten = serializedText(first)
         val second = parseValid(rewritten)
 
         assertDocumentBitwiseEqual(first, second)
-        assertEquals(rewritten, VisualDrawOpsParser.serialize(second))
+        assertEquals(rewritten, serializedText(second))
         assertEquals(1.0, (first.ops[2] as VisualDrawOp.DrawPath).alpha, 0.0)
     }
 

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.TutorConversationPromptTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:24.035Z" hostname="TIANSHAN" time="0.074">
+  <properties/>
+  <testcase name="aRespondDigestIsMarkedAsASummaryToo" classname="com.tingyun.smartmistakebook.core.data.model.TutorConversationPromptTest" time="0.044"/>
+  <testcase name="theInteractionModeAndTheScaffoldLevelReachTheModel" classname="com.tingyun.smartmistakebook.core.data.model.TutorConversationPromptTest" time="0.012"/>
+  <testcase name="theVariablePerTurnNoteNeverBreaksTheStablePrefix" classname="com.tingyun.smartmistakebook.core.data.model.TutorConversationPromptTest" time="0.009"/>
+  <testcase name="consecutiveTurnsShareAStablePrefixSoUpstreamCachingCanHit" classname="com.tingyun.smartmistakebook.core.data.model.TutorConversationPromptTest" time="0.001"/>
+  <testcase name="theLobbyDistinguishesEarlierImagesFromTheOnesJustAttached" classname="com.tingyun.smartmistakebook.core.data.model.TutorConversationPromptTest" time="0.005"/>
+  <testcase name="theLobbyHistoryIsAReadableTranscriptRatherThanAJsonArray" classname="com.tingyun.smartmistakebook.core.data.model.TutorConversationPromptTest" time="0.001"/>
+  <testcase name="anOverBudgetHistoryArrivesAsAnExplicitlyMarkedSummary" classname="com.tingyun.smartmistakebook.core.data.model.TutorConversationPromptTest" time="0.001"/>
+  <testcase name="theRespondHistoryAlsoSitsBetweenTheRulesAndTheVariableContext" classname="com.tingyun.smartmistakebook.core.data.model.TutorConversationPromptTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -7,13 +7,15 @@
 
 | 文件 | 职责 |
 |---|---|
-| `tables/split_golden_v1.json` + `.sha256` | **冻结金标 v1**：7 页 / 16 框；代理金标（模型标注、两标注员一致、无人工专家）；sha `f9e92c47…` |
-| `validate_split_golden.py` | 冻结字节与 schema 机械校验 C1–C6（sha 旁车、canonical 逐字节、CRLF=0、框合法、页不重复、页数≥7、evidenceGrade 冻结常量） |
-| `export_split_eval.py` | 设备 DB 快照 → `build/split-eval/app-split.json`（R4 §3.7 指名的生产者；只读 DB、**快照身份覆盖 `-wal`**、读事务钉住一个快照、导出期间 db/`-wal` 漂移即 exit 2、页名三级解析逐页标 `nameSource`、拒重复页名/非法框） |
-| `measure_split_accuracy.py` | 度量（口径 v2）：①题数完全一致率 ②IoU≥0.5 ③切残率 + 逐页表；`--json` 机器口径（逐页行透传 `appNameSource`/`appJobId`/`appPageIndex`，文件级 `app.source`）；同输入重跑逐字节一致 |
-| `check_split_gate.py` | **门判定器**：冻结校验 → 度量 → 0.9/0.05 闭边界判定 → 报告/证据落盘；证据 §5 逐页表含"来源"列；exit 0/1/2/3；不切任何产品开关 |
-| `GATE.md` | 门说明（独立载体） |
-| `test_split_gate.py`（在 `tools/tests/`） | 机制测试：阈值边界、报告形状、冻结校验、导出器（CI discover 覆盖） |
+| `tables/split_golden_v1.json` + `.sha256` | **冻结金标 v1**：7 页 / 16 框；代理金标（模型标注、两标注员一致、无人工专家）；sha `f9e92c47…`；等级 **G2 但不可复算**（见 GATE.md §2.1） |
+| `validate_split_golden.py` | 冻结字节与 schema 机械校验 C1–C7（sha 旁车、canonical 逐字节、CRLF=0、框合法、页不重复、页数≥7、evidenceGrade 冻结常量；C7 = G0–G5 等级与其登记字段） |
+| `export_split_eval.py` | 设备 DB 快照 → `build/split-eval/app-split.json`（R4 §3.7 指名的生产者；只读 DB、**快照身份覆盖 `-wal`**、读事务钉住一个快照、导出期间 db/`-wal` 漂移即 exit 2、页名三级解析逐页标 `nameSource`、拒重复页名/非法框；**v2 生产者字段见 §"app-split v2"**） |
+| `measure_split_accuracy.py` | 度量（口径 v2）：①题数完全一致率 ②IoU≥0.5 ③切残率 + 逐页表；`--json` 机器口径（逐页行透传 `appNameSource`/`appJobId`/`appPageId`/`appJobQuestionCountMatches` 等来源，并给出**自算**的 `goldBoxesSha256`/`appBoxesSha256`/`fragmentPiecesByGoldIndex`/`unmatchedAppBoxCount`；文件级 `app.source` 含 `dbUserVersion`/快照身份/载荷/生产者）；同输入重跑逐字节一致 |
+| `check_split_gate.py` | **门判定器**：冻结校验 → 度量 → 0.9/0.05 闭边界判定 → 报告/证据/裁定落盘；报告含 `golden.evidenceGradeLevel`、`hardRedLines`、`scope`；exit 0/1/2/3；不切任何产品开关 |
+| `rulings.py` | 逐页裁定文档构建/落盘：`--rulings-out <dir>` → `<dir>/<runId>.json`（一 run 一份、append-only、落盘前自检）；门不可判时**不生成** |
+| `validate_rulings.py` | `rulings.json` 机械校验 R1–R9（六条不变量 + 内容摘要 + 裁定人语义）；负控：改数/改 kind/改摘要必红 |
+| `GATE.md` | 门说明（独立载体；门值/红线/等级/范围/禁止清单） |
+| `test_split_gate.py`（在 `tools/tests/`） | 机制测试：阈值边界、报告形状、冻结校验、导出器、快照身份、溯源透传、**rulings 负控、v2 生产者、G0–G5 等级、门红无 PASS 误印**（CI discover 覆盖） |
 
 ## 数据流
 
@@ -21,10 +23,13 @@
 设备 DB 快照（sqlite，只读）
    │  export_split_eval.py --db <快照> [--page-map <map.json>]
    ▼
-build/split-eval/app-split.json（页名+框+溯源；无溯源块的导出，设备来源 UNVERIFIED）
-   │  check_split_gate.py（内部：validate C1–C6 → measure --json → 判门）
+build/split-eval/app-split.json（schemaVersion=2：页名+框+v2 溯源；无溯源块的旧导出：设备来源 UNVERIFIED）
+   │  check_split_gate.py（内部：validate C1–C7 → measure --json → 判门）
    ▼
-门判定 exit 0/1/2/3 + --report-json + --evidence-out（R4 模板精神）
+门判定 exit 0/1/2/3
+   ├── --report-json   确定性报告（含等级/硬红线/范围声明）
+   ├── --evidence-out  R4 模板精神证据 md
+   └── --rulings-out   <dir>/<runId>.json（逐页裁定，append-only；validate_rulings.py 校验）
 ```
 
 门不过 → **门后自动化不启用**（裁定 37 / 4C③）；门过也不由工具启用任何东西。
@@ -41,12 +46,17 @@ python tools/split_golden/export_split_eval.py --db snapshot.sqlite --sidecar
 # 3) 只度量（人读）
 python tools/split_golden/measure_split_accuracy.py                     # 只报数，exit 0 ≠ 门过
 
-# 4) 判门（红绿判定器 + 证据落盘）
+# 4) 判门（红绿判定器 + 报告/证据/逐页裁定）
 python tools/split_golden/check_split_gate.py \
     --report-json build/split-eval/gate-report.json \
-    --evidence-out docs/research/evidence/<批目录>/step-aud08-<时点>.md
+    --evidence-out docs/research/evidence/<批目录>/step-aud08-<时点>.md \
+    --rulings-out build/split-eval/rulings
 
-# 5) 自检（只读；当前历史导出的期望：FAIL + 自动化关闭）
+# 5) 裁定文件自检（R1–R9；改一处数字/kind/摘要即红）
+python tools/split_golden/validate_rulings.py \
+    --file build/split-eval/rulings/<runId>.json
+
+# 6) 自检（只读；当前历史导出的期望：FAIL + 自动化关闭）
 python tools/split_golden/check_split_gate.py    # exit 1 = 门 FAIL（① 4/7）；automation.enabled=false
 ```
 
@@ -62,6 +72,40 @@ python tools/split_golden/check_split_gate.py    # exit 1 = 门 FAIL（① 4/7�
 - 导出无溯源块（4C 历史导出的形态）：`UNVERIFIED（导出无溯源块）`——**不以文件名反推来源**。
 
 来源只做记录，不进任何分子/分母/阈值；门值与口径不受影响。
+
+同一批逐页数据还会写进 `--rulings-out` 的 `rulings.json`（append-only）：
+每页含 `pageId/pageIdKind`、`appRef`、`gold/app.boxesSha256`、全部 `diff` 数值
+（含 `iouByGoldIndex`/`unmatchedAppBoxCount`/`fragmentPiecesByGoldIndex`）、
+`ruling.verdict/redLineHit/decidedBy/evidenceGradeLevel`。`validate_rulings.py` 校验
+R1–R9；负控（改数/改 kind/改摘要）在 `tools/tests/test_split_gate.py` 有对应用例。
+注意 `summary.missingInApp` 与指标 ① 的分子口径不同（单题页缺页时 ① 仍记一致），
+引用时写明口径（GATE.md §3）。
+
+## app-split v2 生产者字段（2026-11-02）
+
+`schemaVersion=2`，**只做加法**（`pages[].file/questions` 不动，度量/门脚本照常消费）：
+
+| 字段 | 消灭的具体失败 |
+|---|---|
+| `source.producer{file,sha256,contract}` | 同 `schemaVersion` 的两版脚本输出无法区分，旧导出被当新口径 |
+| `source.db.userVersion` | 不知道导出产自 schema 70/71/72/73；切分表迁移后跨版本比较无意义 |
+| `source.snapshot.mode` | 分不清"三件原样拷贝"与"逻辑快照"（身份语义不同） |
+| `pages[].pageId` + `pageIdKind` | 合成页名（`job:<id>#p<n>`）与真实文件名混在一列，join 只能靠猜 |
+| `pages[].job{jobId,sourceUri,sourceKind,sourceFingerprint,status,pageCount,questionCount,createdAt,updatedAt}` | 同一文件名可能来自不同 job，事后不可区分 |
+| `pages[].integrity{jobQuestionCountMatches,jobPageCountMatches}` | job 记 6 题、导出行 3 条时**静默通过**（只按行分组） |
+| `pages[].boxesSha256` | 裁定只绑文件名；同名页换了框仍复用旧裁定 |
+
+- `db.userVersion` 在**同一读事务内**用 `PRAGMA user_version` 读取；只记录，不据此拒绝导出。
+- `integrity=false` **不 exit**（生产数据可能合法缺页），由门报告的
+  `appIntegrityMismatchPages` 与证据 §6 显式列出。
+- 不加墙钟：任何时间字段都会让"同快照两次导出"不再逐字节一致。
+- 真设备库实测（2026-11-02）：4 台在线设备中 **2 台装有本应用**——
+  `emulator-5562`（schema **72**，导出 sha `fa0ba8ae…`）与 `emulator-5596`（schema **71**，
+  导出 sha `02cec6f0…`，`tmp/aud08-db-5596-2026-11-02/app-split.json`）；两者的
+  `split_import_job`/`split_import_question` 均 **0 行**
+  → 导出 **0 页**；同一快照复跑**逐字节一致**（5562 实测）。另 2 台未安装
+  （`run-as: unknown package`）。"job/integrity 字段在真机有分题数据时的取值"仍
+  **UNVERIFIED**（夹具用例只证明字段生成正确）。
 
 ## 设备 DB 快照怎么取（2026-10-29 批次 31 在真设备库上实跑，命令可复用）
 
@@ -121,5 +165,9 @@ python tools/split_golden/check_split_gate.py    # exit 1 = 门 FAIL（① 4/7�
 - v1 冻结字节不可改：任何编辑（含缩进/键序/结尾换行）都会被 C1 判红；
 - 升级金标 = **新文件 v2 + 新旁车**（冻结 v1 不动），同时补 GATE.md §2 的
   标注来源/复核与 train/dev/acceptance 切分登记；
+- **v2 起等级是结构化字段**：`evidenceGradeLevel` 必填，`validate_split_golden.py` 的 C7
+  逐级检查该等级要求的登记字段（G1 单模型 / G2 两模型+agreement / G3 人工复核 /
+  G4 双人+裁定 / G5 加 dev/acceptance 切分）。v1 只能按键值映射为 G2 且
+  `recomputable=false`——不得通过给 v1 加字段"提升等级"（C2 会红）；
 - 阈值 0.9/0.05 改值：先裁定并留旧值对照（`THRESHOLDS.source` 随报告落盘），
   不得为让门变绿改阈值/口径/分母/金标。

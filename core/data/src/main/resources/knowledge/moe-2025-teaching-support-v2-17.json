@@ -5,50 +5,50 @@
   {
    "sourceId": "desktop-src-d8b718d85a:biology",
    "subject": "BIOLOGY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料(4)",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "35F0C03E99DD5E9D9DB8814B589AAB6804DCE7A5B4A35BC2E6DA76A4311544B7",
    "importedAtEpochMillis": 1789733218691,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-2452b2cbe4:biology",
    "subject": "BIOLOGY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 6. 2026生物总复习",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "A260977C1AF61A08745DC6E7DF5F37300664058178B807E6D755BD2527F5F596",
    "importedAtEpochMillis": 1789733218957,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-e35c96096a:math",
    "subject": "MATH",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "DA44D7822E4E91D760B228E72495E4CE137101298124C0695FF0474FDFBE032B",
    "importedAtEpochMillis": 1789669590286,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   }
  ],
  "materials": [

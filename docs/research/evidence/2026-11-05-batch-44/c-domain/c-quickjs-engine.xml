@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="c-quickjs-engine" tests="27" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T13:16:10Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="aMissingVisualObjectAndASyntaxErrorAreInvalidPrograms" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="strictModeRewriteOfFrozenFrameInputThrowsATypeError" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="prepareOverTheContentRequestBudgetIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="renderCannotReferenceContentNotFrozenInThisTransaction" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="aSecondTransactionCannotObserveGlobalsDeclaredByTheFirst" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="rebindingObjectFreezeCannotDefeatTheDeepFreeze" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="bootstrapClosesDateAndReplaysMathRandomDeterministicallyFromTheSeed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="globalsOutsideTheSandboxDoNotExist" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="aConcurrentExecutionIsRejectedAsBusy" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="forgedOutOfMemoryMessageIsInvalidProgram" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="aProgramRendersWithFrozenFrameInputAndFrozenContentReferences" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="aMeasurementFacilityFailureFoldsToEngineClosedWithAStableMarker" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="issue240SelfQueuingJobIsKnownOpenAndLeaksOnlyDaemonThreads" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="concurrentCloseAndExecuteRoundsNeverReportAnUnexpectedOutcome" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="stringLengthCapIsNotAHeapOutOfMemory" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="anInfiniteLoopIsCooperativelyInterruptedAndReportedAsAPhaseTimeout" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="mutatingFrozenMetricsSilentlyFailsAndContentIdGateStaysGreen" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="memoryOverTheHeapBudgetIsRejectedAsAMemoryLimit" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="mutatingFrozenFrameInputSilentlyFailsAndReadsBackOriginalValues" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="frozenInputCoexistsWithSeededPrngAndClosedDate" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="theHostAbandoningAnInFlightTransactionFreesTheSingleFlightSlot" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="closeDuringAnInFlightTransactionWaitsAndRejectsIt" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="heapExhaustionWithLostErrorMessageIsAttributedByMemoryUsage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="strictModeRewriteOfFrozenMetricsThrowsATypeError" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="closingIsIdempotentAndExecuteAfterCloseIsRejected" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="aJsRuntimeErrorIsReportedAsABoundedDiagnosticNotAnException" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.QuickJsVisualExecutionEngineInstrumentedTest" name="nullThrownAtLowMemoryIsUnattributedInvalidProgram" time="0">
+  </testcase>
+</testsuite>

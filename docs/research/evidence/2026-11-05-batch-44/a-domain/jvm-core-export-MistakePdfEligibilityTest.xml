@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-11-04T09:13:27.844Z" hostname="TIANSHAN" time="0.057">
+  <properties/>
+  <testcase name="partially corrected document still counts as model parsed text" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.001"/>
+  <testcase name="visibleNotesAndImageBytesInvalidateTheCacheButHiddenNotesDoNot" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.001"/>
+  <testcase name="unrenderedFieldsDoNotInvalidateTheFingerprint" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.001"/>
+  <testcase name="danglingSelectedChoiceFailsClosed" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.006"/>
+  <testcase name="identicalContentRunsHitTheSameFingerprint" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.003"/>
+  <testcase name="pure user document keeps the model text flag false" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.0"/>
+  <testcase name="learnerNoteIsMappedIntoTheExportInput" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.0"/>
+  <testcase name="readyConfirmedSupportedDocumentMapsWithoutFallbackMarkdown" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.028"/>
+  <testcase name="provenance change rewrites the export cache key" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.0"/>
+  <testcase name="theNewestCleanRedrawIsExportedWhenLegacyRowsAccumulated" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.0"/>
+  <testcase name="cleanRedrawAssetIsExportedAsTheCleanImage" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.0"/>
+  <testcase name="cleanImageIdentityAndByteChangesRewriteTheFingerprint" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.001"/>
+  <testcase name="unconfirmedBlockFailsClosed" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.0"/>
+  <testcase name="legacyAndCorruptStatesFailClosed" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.0"/>
+  <testcase name="withoutRedrawOnlyTheStructuredFigureIsExported" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.014"/>
+  <testcase name="confirmedFigureMapsToDeterministicPdfBlock" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.001"/>
+  <testcase name="model parsed evidence sets the model text flag" classname="com.tingyun.smartmistakebook.core.export.MistakePdfEligibilityTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

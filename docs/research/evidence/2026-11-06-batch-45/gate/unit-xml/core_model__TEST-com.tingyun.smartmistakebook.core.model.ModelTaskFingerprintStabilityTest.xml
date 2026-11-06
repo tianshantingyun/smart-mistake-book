@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" tests="46" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:12:31.222Z" hostname="TIANSHAN" time="0.087">
+  <properties/>
+  <testcase name="aLegacySchemaRequestCannotCarryAnAttachedQuestion" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.002"/>
+  <testcase name="aRealAttachedQuestionStillChangesTheOperationFingerprint" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.005"/>
+  <testcase name="aLegacySchemaRequestCannotCarryABoundQuestionMenu" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="legacyRequestCannotCarryAnInteractionModeOrAScaffoldLevel" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.006"/>
+  <testcase name="aRespondRowWrittenBeforeTheAttachedQuestionCarrierStillValidatesAfterUpgrade" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.002"/>
+  <testcase name="legacyV7RowWithOldConsentKeyDecodesViaShimAndFingerprintIsStable" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="aRowWrittenBeforeTheVisualContextCarrierStillValidatesAfterUpgrade" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.003"/>
+  <testcase name="aCodedKnowledgeChannelRowRoundTripsAndKeepsItsFingerprint" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.008"/>
+  <testcase name="theUnclassifiedBucketCodeIsARealCarrierWithItsRoleRoundTripping" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.002"/>
+  <testcase name="respondOperationFingerprintStableAcrossCarrierFieldAddition" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="theFullAdvisoryToolFaceRoundTripsAndKeepsItsFingerprint" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.0"/>
+  <testcase name="attachedQuestionCarrierKeepsTheOperationFingerprintStableAcrossSchemaVersions" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="aRealKnowledgeCodeChannelStillChangesTheOperationFingerprint" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="aRespondRowWrittenBeforeTheKnowledgeCodeChannelStillValidatesAfterUpgrade" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="lobbyOperationFingerprintStableAcrossCarrierFieldAddition" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.005"/>
+  <testcase name="aRealContextCarrierStillChangesTheOperationFingerprint" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.002"/>
+  <testcase name="aLegacySchemaRequestCannotCarryAKnownRoundQuestion" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.0"/>
+  <testcase name="aKnownRoundQuestionOutsideTheMenuIsRejectedAtConstruction" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="currentV8RequestEncodesNewConsentKey" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.0"/>
+  <testcase name="lobbyInteractionModeKeepsTheFingerprintStableAcrossSchemaVersions" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.002"/>
+  <testcase name="aPlanRowWrittenBeforeTheKnowledgeCodeChannelStillValidatesAfterUpgrade" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="legacyV5RequestFingerprintSurvivesCodecRoundTrip" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.012"/>
+  <testcase name="aRealBoundQuestionMenuStillChangesTheOperationFingerprint" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="aRealLocalActionOutcomeStillChangesTheFingerprint" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.005"/>
+  <testcase name="respondContextCarrierKeepsTheOperationFingerprintStableAcrossSchemaVersions" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="aNormalModeRoundCarriesTheModeInItsFingerprintExactlyLikeANewSchemaRow" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.0"/>
+  <testcase name="aManifestRowWrittenBeforeTheProhibitedDataFieldWasDeletedStillValidates" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.009"/>
+  <testcase name="aRealInteractionModeChangeIsAnotherLogicalOperation" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="aSchemaOneRespondRowStillValidatesAfterEveryLaterCarrierWasAdded" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.0"/>
+  <testcase name="aRealAdvisoryDeclarationStillChangesTheOperationFingerprint" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="legacyRequestCannotCarryLocalActionOutcomes" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.0"/>
+  <testcase name="aLegacySchemaRequestCannotCarryTheKnowledgeCodeChannelOrPlanToolRounds" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.0"/>
+  <testcase name="knowledgeCodeChannelCarriersKeepTheOperationFingerprintStableAcrossSchemaVersions" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="aRespondRowWrittenBeforeTheKnownRoundQuestionCarrierStillValidatesAfterUpgrade" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="lobbyContextCarriersKeepTheOperationFingerprintStableAcrossSchemaVersions" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.0"/>
+  <testcase name="aLobbyRowWrittenBeforeTheContextCarriersStillValidatesAfterUpgrade" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="anAttachedQuestionDisagreeingWithTheKnownAnchorIsRejectedAtConstruction" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.0"/>
+  <testcase name="aRealKnownRoundQuestionStillChangesTheOperationFingerprint" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="aLegacySchemaRequestCannotCarryAVisualContext" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.003"/>
+  <testcase name="lobbyLocalActionCarrierKeepsTheFingerprintStableAcrossSchemaVersions" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.0"/>
+  <testcase name="respondBoundQuestionCarrierKeepsTheOperationFingerprintStableAcrossSchemaVersions" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="knownRoundQuestionCarrierKeepsTheOperationFingerprintStableAcrossSchemaVersions" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.0"/>
+  <testcase name="aRowWrittenBeforeTheAdvisoryToolsStillValidatesAfterUpgrade" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.001"/>
+  <testcase name="visualContextCarrierKeepsTheOperationFingerprintStableAcrossSchemaVersions" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.0"/>
+  <testcase name="aRealVisualContextStillChangesTheOperationFingerprint" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.002"/>
+  <testcase name="aRespondRowWrittenBeforeTheBoundQuestionCarrierStillValidatesAfterUpgrade" classname="com.tingyun.smartmistakebook.core.model.ModelTaskFingerprintStabilityTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

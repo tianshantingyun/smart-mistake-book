@@ -1,0 +1,21 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+  "apk_sha256": "724ce71834c227db79266149267d52c1b55a23d3cbceb2b93ce3930cba342b44",
+  "package": "com.tingyun.smartmistakebook.offline",
+  "observations": {
+    "page_size_bytes": 4096,
+    "abi": "x86_64",
+    "sdk": 34
+  },
+  "secondary_serial": "emulator-5562",
+  "secondary_boot_id": "a702449b-0f25-4481-800f-ab0a475a37a6",
+  "secondary_observations": {
+    "page_size_bytes": 4096,
+    "abi": "x86_64",
+    "sdk": 34,
+    "package_service_error": "cmd: Failure calling service package: Broken pipe (32)"
+  },
+  "failures": ["no device reports PAGE_SIZE=16384"],
+  "notes": "两台在线设备均为 4096 字节页；16384 运行时判据无法在本机满足。该文件只证明设备不是 16KB 设备，不证明 APK 运行时失败。"
+}

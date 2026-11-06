@@ -93,7 +93,8 @@ import java.util.concurrent.atomic.AtomicInteger
  * 构造参数 [context] 必须是 application context：引擎生命周期长于任何 Activity，
  * 且 binding 不应随某个页面销毁而失效。
  *
- * 测试可观测性（internal，仪器化用例使用）：连接计数、当前 generation/UID、等待重连。
+ * 测试可观测性（internal，仪器化用例使用）：连接计数、当前 generation/UID、等待重连、
+ * 连接四阶段时间戳（[ConnectStageTimestamps]，KD-76 校准数据源，批次 39 T4）。
  * 这些 seam 消灭的失败是"进程层行为只能靠猜"——重建一次、新进程无 BUSY 都由设备用例
  * 直接断言，而不是靠日志推断。
  */
@@ -393,7 +394,12 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
         }
 
         when (accepted) {
-            VisualJsWire.STATUS_ACCEPTED -> Unit
+            VisualJsWire.STATUS_ACCEPTED -> {
+                // 打点（批次 39 T4，R2 §2.2 #4）：阶段③终点 = service.execute 返回 ACCEPTED。
+                // 非 ACCEPTED 出口不写（BUSY/STALE/SHUTTING_DOWN 不属于成功路径）；多请求
+                // 按"最后一个请求"语义覆盖写（R2 §2.3 裁定 ②，诊断面不做历史累积）。
+                connection.timestamps.executeAcceptedAtMillis = SystemClock.uptimeMillis()
+            }
             VisualJsWire.STATUS_BUSY -> {
                 runCatching { writeEnd.close() }
                 return@coroutineScope rejected(
@@ -478,7 +484,7 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
             // Binder 回调线程只入队；PFD 读取放 IO，避免占住 Binder 线程。
             scope.launch {
                 try {
-                    val bytes = payload?.let { readResultPayload(it) }
+                    val bytes = payload?.let { readResultPayload(it, connection.timestamps) }
                     if (!pending.isCompleted) {
                         pending.complete(VisualJsProtocol.decodeResult(status, bytes, diagnostics))
                     }
@@ -531,8 +537,16 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
      * worker 关闭自己 read end 的正常动作读成 `IOException: Remote side is dead`（设备
      * 探针 A/E：数据已完整缓冲仍抛）。dup 出的数据 fd 不带 comm 通道；真正截断的 payload
      * 仍会在 JSON 解码处被拒绝，不会把半截场景当成功。
+     *
+     * [timestamps] 只承载首字节打点（批次 39 T4，R2 §2.2 #5）：读循环内首个成功 `read`
+     * 时刻写一次（本 payload 的后续 read 不再写；新请求的读取覆盖旧值）。备选"在
+     * onResult 回调打点"被否——那是回调到达时刻，不是首字节时刻（fd 读取在 `scope.launch`
+     * 内）。热读循环的代价 = 每帧一次 volatile 写 + 一个本地旗标，语义零改动。
      */
-    private suspend fun readResultPayload(payload: ParcelFileDescriptor): ByteArray? =
+    private suspend fun readResultPayload(
+        payload: ParcelFileDescriptor,
+        timestamps: ConnectStageTimestamps,
+    ): ByteArray? =
         withContext(Dispatchers.IO) {
             val detached = try {
                 payload.dup()
@@ -547,9 +561,14 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
                     val output = ByteArrayOutputStream()
                     val buffer = ByteArray(8 * 1024)
                     var total = 0
+                    var firstByteStaged = false
                     while (true) {
                         val read = input.read(buffer)
                         if (read < 0) break
+                        if (!firstByteStaged) {
+                            firstByteStaged = true
+                            timestamps.firstByteAtMillis = SystemClock.uptimeMillis()
+                        }
                         total += read
                         if (total > VisualExecutionBudget.MAX_TRANSACTION_JSON_BYTES) {
                             // 结果信封超预算：按截断/不可信处理，不把半截 JSON 当场景。
@@ -646,6 +665,9 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
         val candidate = Link(generation)
         link = candidate
         val intent = Intent(context, VisualJsService::class.java)
+        // 打点（批次 39 T4，R2 §2.2 #1）：bindService 请求前一刻 = 阶段①起点。bind 失败/
+        // attach 超时出口不改写它：bindConnectedAt 留 0 即"未连接"事实（诊断面，零生产行为）。
+        candidate.timestamps.bindRequestedAtMillis = SystemClock.uptimeMillis()
         val bound = try {
             context.bindService(intent, candidate.connection, Context.BIND_AUTO_CREATE)
         } catch (failure: RuntimeException) {
@@ -793,18 +815,31 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
             } catch (_: RuntimeException) {
                 return false
             }
-            if (readyNow) return true
+            if (readyNow) {
+                // 打点（批次 39 T4，R2 §2.2 #3）：isReady() 首真时刻 = 阶段②终点。超时/
+                // 死亡/closed 出口不写——readyAt 留 0 即"未 ready"，与 loading 语义如实对应。
+                candidate.timestamps.readyAtMillis = SystemClock.uptimeMillis()
+                return true
+            }
             delay(READY_POLL_INTERVAL_MILLIS)
         }
         // 预算边界最后一次判定：到点瞬间翻转不算超时（不放宽预算，只是不做时钟截断）。
         if (closed.get() || candidate.death.isCompleted) return false
-        return try {
+        val readyNowAtDeadline = try {
             service.isReady()
         } catch (_: RemoteException) {
             false
         } catch (_: RuntimeException) {
             false
         }
+        // 边界真也是 ready 事实（不是超时/死亡/closed 出口）：同样打点，保持
+        // "readyAt == 0 ⟺ 从未见到 ready"恰好成立——否则已 ready 的连接会带 readyAt=0
+        // 的时间戳记录，设备轨校准把已 ready 轮误读成未 ready（R2 §2.2 #3 不变量的
+        // 本出口延伸，1 行打点、语义零改动）。
+        if (readyNowAtDeadline) {
+            candidate.timestamps.readyAtMillis = SystemClock.uptimeMillis()
+        }
+        return readyNowAtDeadline
     }
 
     private fun readyBudgetMillis(): Long = readyTimeoutOverrideForTest ?: READY_TIMEOUT_MILLIS
@@ -977,6 +1012,11 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
     )
 
     private inner class Link(val generation: Long) {
+        /**
+         * per-bind 四阶段时间戳（批次 39 T4，R2 §2.1 裁定 ①）：随 Link 新建、按 generation
+         * 天然隔离——旧实例时间戳不污染新实例，与 Link 其余 per-bind 状态同构。
+         */
+        val timestamps = ConnectStageTimestamps()
         val death = CompletableDeferred<Unit>()
         val connected = CompletableDeferred<Boolean>()
 
@@ -1115,6 +1155,10 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
                 state = LinkState.CONNECTED
                 // 与 state 同时记账：awaitConnectedForTest 看到 CONNECTED 时计数已包含本次。
                 connections.incrementAndGet()
+                // 打点（批次 39 T4，R2 §2.2 #2）：与连接发布同锁同刻 = 阶段①终点。S-bind
+                // 终点取 markConnected 锁内、不用 connected.await() 返回时刻——后者晚一个
+                // 调度周期，会把调度抖动算进 S-bind（R2 §2.1 段定义）。
+                timestamps.bindConnectedAtMillis = SystemClock.uptimeMillis()
                 if (!connected.isCompleted) connected.complete(true)
                 true
             }
@@ -1217,6 +1261,36 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
         return link?.state == LinkState.CONNECTED
     }
 
+    /**
+     * 测试 seam：取当前 link（或指定 generation）的连接四阶段时间戳；link 为空或尚未
+     * started（bind 请求未发出）返回 null。
+     *
+     * **它消灭的失败**（KD-76 校准无数据源，批次 39 T4）：
+     * - `READY_TIMEOUT=10 s` 校准只有服务端口径（AMS `Start proc`→`warm-up finished`），
+     *   客户端可感口径（bind→ready）无数据——E-04 口径明示"不含：宿主 bind/握手排队
+     *   （未测，无客户端侧计时 seam）"（`docs/research/evidence/2026-10-27-batch-27/
+     *   step04-warmup-cost.md` §1；`docs/known-defects.md:2897`）；
+     * - 29.5 s worst-case 链只有名义值，四段没有任何客户端侧实测数字
+     *   （`docs/known-defects.md:2899` (b)、契约 `docs/current/visual-generation-contract.md:72`）；
+     * - 冷启动首请求若超预算，端到端时长无法分段归因（慢在 attach、握手排队、ready 轮询
+     *   还是首字节；`docs/research/evidence/2026-10-27-batch-26/step03-kd76-criteria.md` §5）。
+     *
+     * 设备轨经本 seam 出 S-bind/S-warmup/S-ready-gap/S-firstbyte 实测数据
+     * （R2 `docs/research/2026-11-01-kd76-timing-calibration.md` §3/§4）。
+     *
+     * generation 过滤防误读：调用方传入期望 generation 而当前 link 已重建为新实例时
+     * 返回 null，不把新实例的时间戳当旧实例的。
+     *
+     * 回滚 = 删本函数 + [ConnectStageTimestamps] 类 + 6 处打点行（5 个语义写点，readyAt
+     * 有两处成功出口）= 完整回退；生产路径（bind/握手/ready/execute/超时/loading 语义）
+     * 零行为改动，既有 9 个测试 seam 与既有用例零改动。
+     */
+    internal fun connectStageTimestampsForTest(generation: Long? = null): ConnectStageTimestamps? {
+        val current = synchronized(linkLock) { link } ?: return null
+        if (generation != null && current.generation != generation) return null
+        return current.timestamps.takeIf { it.started() }
+    }
+
     private companion object {
         const val TAG = "VisualJsClientEngine"
 
@@ -1280,4 +1354,74 @@ internal object VisualJsResultFrameFilter {
         frameGeneration == linkGeneration &&
             frameRequestId == requestId &&
             callerUid == workerUid
+}
+
+/**
+ * 连接四阶段时间戳（批次 39 T4；KD-76 计时 seam 的数据面，R2 §2.1 设计落码）。
+ *
+ * 实例随每次 bind 新建的 [VisualJsClientEngine.Link] 创建（per-bind 隔离，按 generation
+ * 天然隔离——旧实例时间戳不污染新实例，与 Link 其余 per-bind 状态同构）。5 个时刻戳构成
+ * 首尾相接的完整时间轴，段长用同进程单钟 `SystemClock.uptimeMillis()` 相减（R2 §3.4
+ * anti-flaky：单钟相减、无注入时钟、无扣除式计时）：
+ *
+ * - **S-bind**：[bindRequestedAtMillis] → [bindConnectedAtMillis]（bindService→AMS
+ *   fork/attach→握手→CONNECTED 发布；首连预算 15 s / 重建 10 s）；
+ * - **S-warmup**：[bindConnectedAtMillis] → [readyAtMillis]（客户端可感 warm-up 投影段，
+ *   **不是服务端装载本体**——本体从服务 onCreate 起、早于宿主握手；与 E-04 服务端口径
+ *   相减即得 bind/握手排队段；`READY_TIMEOUT=10 s` 校准的主口径，预算 10 s）；
+ * - **S-ready-gap**：[readyAtMillis] → [executeAcceptedAtMillis]（ready→首个请求被
+ *   ACCEPTED，含队列背压；冷启动单请求应≈0，非零即队列背压参与——归因信息）；
+ * - **S-firstbyte**：[executeAcceptedAtMillis] → [firstByteAtMillis]（ACCEPTED→结果
+ *   首字节，⊂ 宿主 2500 ms 阶段期限；**不含** payload 全量读取/JSON 解码——全量读完
+ *   在 `pending.complete` 之后，另属 2500 ms 期限面）。
+ *
+ * **0 = 未发生**（防"零值被当时间戳"歧义）：bind 失败/attach 超时/ready 超时/死亡出口
+ * 不写后续字段——[bindConnectedAtMillis] == 0 即"未连接"、[readyAtMillis] == 0 即
+ * "未 ready"，与 loading 语义如实对应（R2 §2.2）。[executeAcceptedAtMillis]/
+ * [firstByteAtMillis] 按"最后一个请求"语义覆盖写（R2 §2.3 裁定 ②：时间戳类诊断面不做
+ * 历史累积，历史累积指认不出消费方）。
+ *
+ * **它消灭的失败**（KD-76 校准无数据源）：E-04 装载成本口径明示"不含：宿主 bind/握手
+ * 排队（未测，无客户端侧计时 seam）"（`docs/research/evidence/2026-10-27-batch-27/
+ * step04-warmup-cost.md` §1）；`READY_TIMEOUT=10 s` 校准只有服务端口径、客户端可感口径
+ * 无数据（`docs/known-defects.md:2897`）；29.5 s worst-case 链只有名义值、四段无任何
+ * 客户端侧实测数字（`docs/known-defects.md:2899` (b)）；冷启动首请求超预算时无法分段
+ * 归因（`docs/research/evidence/2026-10-27-batch-26/step03-kd76-criteria.md` §5）。
+ *
+ * 单写者性：每字段恰一个语义写点（[VisualJsClientEngine] 内共 6 处打点行，readyAt 有
+ * 两处成功出口）；写者 = binder 主线程 1 处（markConnected）+ IO 协程 5 处，每字段单
+ * 写者、单调性由阶段顺序保证 → `@Volatile` 足够，零新增锁/CAS（新增锁在这里指认不出
+ * 它消灭的失败，R2 §2.2）。
+ *
+ * 构造器不加 private（对 R2 §2.1 草图的唯一偏差）：纯数据诊断面无不变量可保护，且
+ * JVM 语义单测（`ConnectStageTimestampsTest`）需直接构造全零实例——private 会把该
+ * seam 的纯语义面挤到只能设备轨验证。
+ */
+internal class ConnectStageTimestamps {
+    /** 阶段①起点：bindService 调用前一刻（connectLocked）。 */
+    @Volatile
+    var bindRequestedAtMillis: Long = 0L
+
+    /** 阶段①终点=②起点：markConnected 同锁发布 CONNECTED（与 connectionCount 记账同刻）。 */
+    @Volatile
+    var bindConnectedAtMillis: Long = 0L
+
+    /** 阶段②终点=③起点：isReady() 首次返回 true（awaitWorkerReady，两处成功出口）。 */
+    @Volatile
+    var readyAtMillis: Long = 0L
+
+    /** 阶段③终点=④起点：service.execute 返回 STATUS_ACCEPTED（runSession）。 */
+    @Volatile
+    var executeAcceptedAtMillis: Long = 0L
+
+    /** 阶段④终点：结果 payload 首字节 read 成功（readResultPayload 读循环内，非 onResult 回调到达时刻）。 */
+    @Volatile
+    var firstByteAtMillis: Long = 0L
+
+    /**
+     * 任一时刻戳已写即视为 started。首个写点恒为 [bindRequestedAtMillis]（阶段顺序保证：
+     * 任一字段非 0 时它必非 0），判它一个字段即精确；bind 失败/loading 出口只写了它、
+     * 其余留 0 的记录也必须算 started——"bind 已请求、未连接"是合法诊断事实。
+     */
+    fun started(): Boolean = bindRequestedAtMillis != 0L
 }

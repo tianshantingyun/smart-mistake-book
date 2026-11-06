@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="c-visualdrawopspainterinstrumentedtest" tests="24" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T13:13:38Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="drawRenderedReplaysTheFrozenCommandSequence" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="aLegalSceneGoesFromCompileToColoredBitmap" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="anOddDashStillFailsClosedInTheReplayFallback" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="aMathLabelFailsClosedThisBatch" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="anEightDigitColorAlphaMultipliesWithTheOpAlphaInsteadOfBeingOverwritten" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="aRestoreWithoutSaveFailsClosedInsideTheWalk" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="aStrokeOnlyPathStillFailsClosedInTheReplayFallback" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="aNestedGroupClipCutsInRootSpace" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="aStrokePhasePaintsOutsideTheFillBand" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="aShorterDashAfterALongerDashOnTheSamePainterKeepsItsOwnPattern" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="aForeignSchemaVersionFailsClosed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="backgroundColorsTheCanvasAndNullLeavesItTransparent" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="aGroupLabelLandsAtTheProjectedRootSpacePosition" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="theSameOpsPaintIdenticalPixelsInAFreshTestMethod" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="stateIsRestoredAfterGroupClose" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="anEmptyDashStillFailsClosedInTheReplayFallback" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="theReplayTextPaintKeepsTheExplicitlyPinnedFlagsMirroredByTheMeasureFingerprint" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="drawRenderedFailsClosedOnMissingOrInvalidCommands" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="aLabelWithoutResolvableContentFailsClosed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="anUnusableReplayScaleFailsClosed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="aShearMatrixPlacesInkByContractColumnOrder" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="theSameOpsPaintIdenticalPixelsWithinOneMethod" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="halfAlphaFillsFloorTheQuantizedAlpha" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest" name="aStrokeOnlyPathWithAnOddDashReportsTheSameFirstGateAsTheGenerators" time="0">
+  </testcase>
+</testsuite>

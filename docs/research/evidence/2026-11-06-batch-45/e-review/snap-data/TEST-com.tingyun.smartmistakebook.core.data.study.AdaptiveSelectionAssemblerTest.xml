@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:58:37.775Z" hostname="TIANSHAN" time="0.567">
+  <properties/>
+  <testcase name="void and replace corrections resolve with mastery-projection semantics" classname="com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest" time="0.303"/>
+  <testcase name="prerequisite stability joins the existing graph with the learner snapshot" classname="com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest" time="0.043"/>
+  <testcase name="quiz evidence stream filters the channel and resolves option counts per event" classname="com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest" time="0.074"/>
+  <testcase name="candidates assemble from the current session pool and saved mistake families" classname="com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest" time="0.028"/>
+  <testcase name="unverified production candidates expose a consumable clarification request" classname="com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest" time="0.031"/>
+  <testcase name="assembled production candidates stay fail-closed to clarify until verified" classname="com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest" time="0.003"/>
+  <testcase name="watermark cache is transparent and re-folds when the ledger grows" classname="com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest" time="0.005"/>
+  <testcase name="predictions follow the replayed state of the ledger prefix" classname="com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest" time="0.003"/>
+  <testcase name="gap ledger and broken prefixes fail closed" classname="com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest" time="0.005"/>
+  <testcase name="no snapshot and no mistake yields no candidates without failing" classname="com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest" time="0.002"/>
+  <testcase name="coroutine cancellation propagates instead of becoming a fail-closed null" classname="com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest" time="0.021"/>
+  <testcase name="upgraded user asserted candidate enters the ask corridor with the existing elo predictor" classname="com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest" time="0.036"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="i-empty-library" tests="1" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T19:07:00Z">
+  <testcase classname="com.tingyun.smartmistakebook.Prd06EmptyLibraryCaptureCtaInstrumentedTest" name="emptyLibraryCtaReachesTheLibraryManualEntryWithoutAModelDispatch" time="0">
+  </testcase>
+</testsuite>

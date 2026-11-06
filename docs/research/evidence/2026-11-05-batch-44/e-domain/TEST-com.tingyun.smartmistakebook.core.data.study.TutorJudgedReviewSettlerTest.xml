@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" tests="25" skipped="0" failures="0" errors="0" timestamp="2026-11-05T01:14:55.643Z" hostname="TIANSHAN" time="0.255">
+  <properties/>
+  <testcase name="anAlreadyMaterializedPseudoBindingIsUsedInPlace" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.038"/>
+  <testcase name="replayingTheSameModelVerdictSettlementKeepsOneSnapshotId" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.016"/>
+  <testcase name="anAnchoredVerdictWithoutAMatchingBindingStaysBlocked" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.01"/>
+  <testcase name="openEndedSessionFallsBackToTheGateAcceptedModelVerdict" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.01"/>
+  <testcase name="localCheckAnswersDecideTheVerdictAndModelClaimCannotOverrideAnIncorrectOne" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.011"/>
+  <testcase name="aNewerTutorSessionWithoutAnAnswerDoesNotHideTheAnsweredOne" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.011"/>
+  <testcase name="theMostRecentlyAnsweredTutorSessionDecides" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.009"/>
+  <testcase name="onlyExternalNodeEvidenceLeavesTheItemBlocked" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.008"/>
+  <testcase name="theSettledSnapshotRecordsTheDrivingEvidenceWithItsBinding" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.009"/>
+  <testcase name="evidenceOnAnUnrelatedKnowledgeNodeIsNotAVerdict" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.008"/>
+  <testcase name="earlierCycleMistakesDoNotStickAfterReteach" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.007"/>
+  <testcase name="noVerdictAtAllWritesNothingAndLeavesTheQueueWhereItWas" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.02"/>
+  <testcase name="aVerdictFromBeforeThisReviewItemDoesNotSettleIt" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.007"/>
+  <testcase name="anUnclassifiedQuestionWithoutAnyVerdictIsStillBlocked" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.007"/>
+  <testcase name="anAlreadyConsumedAnswerInTheNewestSessionIsNotReplacedByAnOlderOne" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.006"/>
+  <testcase name="afterUndoTheSessionVersionIsNotTheQueueOrdinalAndTheHeadItemStillSettles" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.007"/>
+  <testcase name="anUnclassifiedQuestionSettlesItsPseudoAnchoredVerdict" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.008"/>
+  <testcase name="replayingTheSameSettlementDoesNotDoubleWrite" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.007"/>
+  <testcase name="rejectedModelVerdictIsNotEvidence" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.005"/>
+  <testcase name="anUnclassifiedQuestionStaysBlockedWhenThePseudoBindingCannotBeMaterialized" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.006"/>
+  <testcase name="aChangedVerdictContentYieldsANewSnapshotId" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.007"/>
+  <testcase name="aRealNodeEvidenceDoesNotAnchorAnUnclassifiedQuestion" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.005"/>
+  <testcase name="aPrerequisiteKnowledgeVerdictNoLongerFlipsTheWholeQuestion" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.006"/>
+  <testcase name="allCheckAnswersCorrectSettlesAsCorrect" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.014"/>
+  <testcase name="aNewerSessionWithOnlyExternalEvidenceDoesNotHideTheAnchoredOne" classname="com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest" time="0.009"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

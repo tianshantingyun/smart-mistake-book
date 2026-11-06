@@ -1,0 +1,296 @@
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest:
+INSTRUMENTATION_STATUS: test=aHungWorkerReleasesTheCallerWithinHardPlus500ms
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest:
+INSTRUMENTATION_STATUS: test=aHungWorkerReleasesTheCallerWithinHardPlus500ms
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=theClientRebuildsAtMostOnceAfterConfirmedAbandons
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=theClientRebuildsAtMostOnceAfterConfirmedAbandons
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=aReadyTimeoutFailsHonestlyWithoutLatchingAndTheNextExecuteRebinds
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=aReadyTimeoutFailsHonestlyWithoutLatchingAndTheNextExecuteRebinds
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=anOverBudgetRequestEnvelopeIsRejectedByTheBoundedRead
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=anOverBudgetRequestEnvelopeIsRejectedByTheBoundedRead
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=anUnattributedEngineFailureKeepsItsPrefixAcrossTheAidlWire
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=anUnattributedEngineFailureKeepsItsPrefixAcrossTheAidlWire
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=aMalformedCallerRequestIsRejectedWithoutTakingTheFlightSlot
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=aMalformedCallerRequestIsRejectedWithoutTakingTheFlightSlot
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=aStaleGenerationIsRejectedAndAStaleTerminateIsANoOp
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=aStaleGenerationIsRejectedAndAStaleTerminateIsANoOp
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=aFirstConnectTimeoutFailsHonestlyAndTheNextExecuteRetriesWithoutLatching
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=aFirstConnectTimeoutFailsHonestlyAndTheNextExecuteRetriesWithoutLatching
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=aSecondConcurrentRequestIsRejectedBusyWhileTheFirstIsInFlight
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=aSecondConcurrentRequestIsRejectedBusyWhileTheFirstIsInFlight
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=anExecuteAcquiredDuringWarmUpIsRefusedBoundedlyAndNeverWatchdogKilled
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=anExecuteAcquiredDuringWarmUpIsRefusedBoundedlyAndNeverWatchdogKilled
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=theWatchdogKillsAHungWorkerAndAFreshGenerationHasNoBusyState
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=theWatchdogKillsAHungWorkerAndAFreshGenerationHasNoBusyState
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=anExplicitRetryOfAnInjectedFusedProgramRendersAndReleasesTheFuse
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=anExplicitRetryOfAnInjectedFusedProgramRendersAndReleasesTheFuse
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=aColdStartAttachBeyondTheOldConnectBudgetStillRendersTheFirstProgram
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=15
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: SMB_LOWLOAD_GATE UNGATED: shell_side_INVALID:la_ratio_max
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at com.tingyun.smartmistakebook.visualjs.IsolationGate.require(LowLoadProbe.kt:243)
+	at com.tingyun.smartmistakebook.visualjs.VisualJsIsolationInstrumentedTest.lowLoadGate(VisualJsIsolationInstrumentedTest.kt:144)
+
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=aColdStartAttachBeyondTheOldConnectBudgetStillRendersTheFirstProgram
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_RESULT: stream=
+
+Time: 8.669
+
+OK (15 tests)
+
+
+INSTRUMENTATION_CODE: -1
+INSTRUMENT_EXIT=0

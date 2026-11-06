@@ -309,6 +309,15 @@ class TutorToolTraceTest {
         )
     }
 
+    /** P-11（批次 35）：本地绘图引擎不可归属失败码有自己的学生话（引擎这次故障，不是通道缺失）。 */
+    @Test
+    fun theUnattributedFigureEngineCodeHasItsOwnSentence() {
+        assertEquals(
+            "本机绘图引擎这次出了故障，没有生成",
+            tutorToolRefusalText("figure_engine_unattributed"),
+        )
+    }
+
     @Test
     fun theRunningLineNamesToolsInStudentWords() {
         assertEquals(

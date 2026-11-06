@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="r9-reminder" tests="2" failures="1" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T08:45:13Z">
+  <testcase classname="com.tingyun.smartmistakebook.ReviewReminderInstrumentedTest" name="reminderPreferenceIsUsableAndNotificationIntentReturnsToReview" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewReminderPlatformInstrumentedTest" name="firedReminderPostsPrivateGenericNotificationWithContentIntent" time="0">
+    <failure message="instrumentation failure">org.junit.ComparisonFailure: expected:&lt;有 4 道题待复习，点[这里]开始。&gt; but was:&lt;有 4 道题待复习，点[击]开始。&gt;
+</failure>
+  </testcase>
+</testsuite>

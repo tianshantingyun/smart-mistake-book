@@ -1,0 +1,13 @@
+{
+  "file": "docs/research/evidence/2026-11-06-batch-44/device-track/probes/home-light.png",
+  "sha256": "c714aebb4b733fa4098648053f368c0ba0ccb02731027200fd9249d0abcd19ab",
+  "serial": "emulator-5584",
+  "apk_sha256": "f534b0dd8aeabeeeec633bcbb9d24a62efe900eb75fdbcce199b979d58f7f7de",
+  "captured_at": "2026-11-04T21:43:07.361964+00:00",
+  "command": [
+    "adb",
+    "exec-out",
+    "screencap",
+    "-p"
+  ]
+}

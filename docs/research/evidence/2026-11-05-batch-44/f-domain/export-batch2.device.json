@@ -1,0 +1,16 @@
+{
+  "tag": "export-batch2",
+  "serial": "emulator-5566",
+  "apk_sha256": "08ea26417f746daddf0344c8b12433702628e25670f7ca80283b2e2374e165c0",
+  "target_package": "com.tingyun.smartmistakebook.core.export.test",
+  "class": "com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest#batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound",
+  "started": "2026-11-04T15:47:56Z",
+  "finished": "2026-11-04T15:47:58Z",
+  "tests": 1,
+  "failed": false,
+  "time_s": "1.24",
+  "pss_first_kb": 6686,
+  "pss_peak_kb": 47525,
+  "pss_samples": 15,
+  "result": "OK"
+}

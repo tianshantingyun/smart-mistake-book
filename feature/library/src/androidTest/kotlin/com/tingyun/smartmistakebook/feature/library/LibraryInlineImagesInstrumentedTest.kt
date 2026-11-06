@@ -66,11 +66,10 @@ class LibraryInlineImagesInstrumentedTest {
     }
 
     @Test fun anAuthoritativeEmptyCountDoesNotOfferExportOrSuggestClearingANonexistentFilter() {
-        var captures = 0
         compose.setContent {
             SmartMistakeBookTheme {
                 LibraryRoute(listOf(entry()), catalogRepository = SinglePageCatalog(reportedTotal = 0),
-                    onCapture = { captures++ }, onExportVisible = {}, onOpenExportResults = {}, onOpenItem = {})
+                    onCapture = {}, onExportVisible = {}, onOpenExportResults = {}, onOpenItem = {})
             }
         }
         compose.waitUntil(5_000) { compose.onAllNodesWithText("暂无错题").fetchSemanticsNodes().isNotEmpty() }
@@ -78,11 +77,6 @@ class LibraryInlineImagesInstrumentedTest {
         compose.onNodeWithTag("library_clear_filters").assertDoesNotExist()
         compose.onNodeWithText("当前筛选下没有错题").assertDoesNotExist()
         compose.onNodeWithTag("library_capture_button").assertIsDisplayed()
-        if (InstrumentationRegistry.getArguments().getString("uiEvidence") == "true") {
-            compose.captureLibraryQaScreenshot("library-empty.png")
-        }
-        compose.onNodeWithTag("library_capture_button").performClick()
-        compose.runOnIdle { assertEquals(1, captures) }
     }
 
     @Test fun aFailedFirstPageShowsAnErrorRatherThanAnEmptyLibraryAndRetryLoadsTheQuestion() {

@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "patched_load_segments": 3,
+  "errors": [
+    "PT_LOAD p_align=0x1000 < 0x4000",
+    "PT_LOAD p_align=0x1000 < 0x4000",
+    "PT_LOAD p_align=0x1000 < 0x4000"
+  ],
+  "target": "lib/arm64-v8a/libLiteRt.so"
+}

@@ -5,34 +5,34 @@
   {
    "sourceId": "desktop-src-48689b61de:physics",
    "subject": "PHYSICS",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料(1)",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "76E45DFAA54E87666698DBFB15E71C331C3C7336A9F486CD7BD1E6E4FE13483D",
    "importedAtEpochMillis": 1789739786865,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "subject": "CHEMISTRY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料(3)",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "D45C35EA10D42D32A8A0A578557911B78B313C048345E31D7AB2381426DFFAA0",
    "importedAtEpochMillis": 1789732926467,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   }
  ],
  "materials": [
@@ -1256,29 +1256,6 @@
    ]
   },
   {
-   "slug": "ext-phy-e0d7cb769f-001",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "匀速圆周运动的定义、特点与条件（第22讲 圆周运动）",
-   "summaryMarkdown": "线速度大小处处相等、轨迹为圆周的运动叫匀速圆周运动；加速度大小不变且始终指向圆心，是变加速运动；条件是合外力大小不变、方向始终与速度方向垂直且指向圆心。",
-   "applicabilityMarkdown": "PRIMARY：判断匀速圆周运动、分析其加速度方向与合外力条件时。",
-   "contentMarkdown": "1. 定义：如果物体沿着圆周运动，并且线速度的大小处处相等，所做的运动叫作匀速圆周运动。\\n2. 特点：加速度大小不变，方向始终指向圆心，是变加速运动。\\n3. 条件：合外力大小不变，方向始终与速度方向垂直且指向圆心。",
-   "boundaryMarkdown": "匀速圆周运动的“匀速”指线速度大小不变，速度方向时刻改变，因此是变速（变加速）运动；条件要求合外力完全用于提供向心力。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理举一反三系列（新高考通用）/资料/2026版/第22讲 圆周运动（举一反三讲义）（全国通用）（教师版）.docx（块 e0d7cb769f-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-e0d7cb769f-001",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:圆周运动的基础概念和规律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-e0d7cb769f-003",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -1371,52 +1348,6 @@
    ]
   },
   {
-   "slug": "ext-phy-34c8589ff9-001b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "与弹力有关的圆周运动临界条件（第23讲·2 与弹力有关的临界极值问题）",
-   "summaryMarkdown": "两接触物体分离的临界条件是它们之间的弹力恰好为零；绳上拉力的临界条件是绳恰好拉直且无弹力，或绳上拉力恰好等于最大承受力。",
-   "applicabilityMarkdown": "PRIMARY：处理水平面内圆周运动中物体分离、绳恰好绷直或绳被拉断类临界问题时。",
-   "contentMarkdown": "1. 两个接触物体分离的临界条件是物体间的弹力恰好为零。\\n2. 绳上拉力的临界条件是绳恰好拉直且无弹力或绳上拉力恰好为最大承受力。",
-   "boundaryMarkdown": "分离类临界对应弹力为零，绳类临界要先分清是恰好无弹力还是拉力达最大承受力两个不同临界。块内例1-1（2024江苏卷）及答案属题目，未纳入。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理举一反三系列（新高考通用）/资料/2026版/第23讲 专题：圆周运动的临界问题（举一反三讲义）（全国通用）（教师版）.docx（块 34c8589ff9-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-34c8589ff9-001b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:水平面内圆周运动的临界特征",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-34c8589ff9-004",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "竖直面内变速圆周运动的分析要点（第23讲·考点02 竖直面内圆周运动的临界问题）",
-   "summaryMarkdown": "竖直面内圆周运动一般为变速圆周运动，只有最高点、最低点（或等效最高点、等效最低点）合外力指向圆心；分析时把合外力沿圆心方向与切线方向正交分解，能量问题用机械能守恒或动能定理处理。",
-   "applicabilityMarkdown": "PRIMARY：分析竖直面内（含等效最高点）圆周运动的受力、速度大小变化与能量关系时。",
-   "contentMarkdown": "1. 竖直面内圆周运动一般为变速圆周运动，故除最高点和最低点（或等效最高点和等效最低点）合外力指向圆心外，其他位置合外力不指向圆心。\\n2. 在变速圆周运动中，只需要把合外力沿圆心方向和速度方向正交分解：指向圆心的分力提供向心力、只改变速度的方向，沿切线方向的合力改变速度的大小。\\n3. 只有重力做功的竖直面内的变速圆周运动机械能守恒，有其他力参与做功的可用动能定理或能量守恒解题。",
-   "boundaryMarkdown": "分解的目的是分别处理改变方向与改变大小两类效果；合外力一般不指向圆心，不能对任意位置直接用 F合＝mv²/r。块内两类模型的表格与例2-1、例2-2及答案属题目，未纳入。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理举一反三系列（新高考通用）/资料/2026版/第23讲 专题：圆周运动的临界问题（举一反三讲义）（全国通用）（教师版）.docx（块 34c8589ff9-004）",
-   "reviewedAtEpochMillis": 1792418197154,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-34c8589ff9-004",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:圆周运动临界问题的解题思路",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-01a71ca8e7-002",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -1435,29 +1366,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:向心力实验的数据处理与结论",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-01a71ca8e7-002b",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "向心力演示器实验的操作注意事项（第24讲 实验6·5 注意事项）",
-   "summaryMarkdown": "摇动手柄时应力求缓慢加速，注意观察其中一个标尺的格数；达到预定格数时即保持转速恒定，再观察并记录其余读数。",
-   "applicabilityMarkdown": "PRIMARY：用向心力演示器探究向心力与质量、半径、角速度关系的操作与读数环节。",
-   "contentMarkdown": "摇动手柄时应力求缓慢加速，注意观察其中一个标尺的格数。达到预定格数时，即保持转速恒定，观察并记录其余读数。",
-   "boundaryMarkdown": "该做法是为了在稳定转速下读数、减小标尺格数不稳定的误差；只有达到预定格数并保持转速恒定后，其余读数才有效。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理举一反三系列（新高考通用）/资料/2026版/第24讲 实验6：探究向心力大小与半径、角速度、质量的关系（举一反三讲义）（全国通用）（教师版）.docx（块 01a71ca8e7-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-01a71ca8e7-002b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:向心力演示器的使用注意事项",
      "role": "PRIMARY"
     }
    ]
@@ -3901,75 +3809,6 @@
    ]
   },
   {
-   "slug": "ext-phy-ec3402c050-001",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "牛顿第一定律内容与惯性（专题04·题型一·教师版）",
-   "summaryMarkdown": "牛顿第一定律指出物体不受力时保持原运动状态；惯性是物体的固有属性，质量是惯性大小的唯一量度。",
-   "applicabilityMarkdown": "PRIMARY：判断惯性大小、解释物体保持原有运动状态的现象时。",
-   "contentMarkdown": "1. 牛顿第一定律内容：一切物体总保持匀速直线运动状态或静止状态，除非作用在它上面的力迫使它改变这种状态。\\n2. 惯性是物体保持原来匀速直线运动状态或静止状态的性质。\\n3. 量度：质量是物体惯性大小的唯一量度，质量大的物体惯性大，质量小的物体惯性小。\\n4. 普遍性：惯性是物体的固有属性，一切物体都有惯性，与物体的运动情况和受力情况无关。",
-   "boundaryMarkdown": "惯性大小只由质量决定，与速度、受力无关；加速度才是改变运动状态的原因，「速度大惯性大」「受力大惯性大」都是常见错误。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理热点知识讲练与题型归纳（全国通用）/资料/专题04 牛顿运动定律的应用（教师版）.docx（块 ec3402c050-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-ec3402c050-001",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:定义-物体具有保持原来匀速直线运动状态或静止状态的性质-质量是惯性的唯一量度",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-ec3402c050-001b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "牛顿第二定律的表达式与瞬时对应关系（专题04·题型一·教师版）",
-   "summaryMarkdown": "牛顿第二定律 F＝ma，核心是加速度与合外力的瞬时对应关系：二者总是同时产生、同时消失、同时变化。",
-   "applicabilityMarkdown": "PRIMARY：由合外力求加速度、或分析力突变瞬间加速度如何变化时。",
-   "contentMarkdown": "1. 表达式：F＝ma。\\n2. 理解：核心是加速度与合外力的瞬时对应关系，二者总是同时产生、同时消失、同时变化。",
-   "boundaryMarkdown": "理解的核心是加速度与合外力的瞬时对应关系；应用时先确定该时刻的合外力，再求加速度，力变则加速度随之同步变化。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理热点知识讲练与题型归纳（全国通用）/资料/专题04 牛顿运动定律的应用（教师版）.docx（块 ec3402c050-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-ec3402c050-001b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:牛顿第二定律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-ec3402c050-001c",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "作用力与反作用力的三同、三异、三无关（专题04·题型一·教师版）",
-   "summaryMarkdown": "作用力与反作用力大小相等、方向相反、作用在同一直线上；具有三同（大小、性质、变化情况）、三异（方向、受力物体、效果）与三无关。",
-   "applicabilityMarkdown": "PRIMARY：辨析作用力与反作用力、并与一对平衡力作区分时。",
-   "contentMarkdown": "1. 内容：两个物体之间的作用力和反作用力总是大小相等、方向相反、作用在同一条直线上。\\n2. 三同：大小相同；性质相同；变化情况相同。\\n3. 三异：方向不同；受力物体不同；产生的效果不同。\\n4. 三无关：与物体的种类无关；与物体的运动状态无关；与物体是否和其他物体存在相互作用无关。",
-   "boundaryMarkdown": "三同三异三无关用于区分作用力与反作用力和一对平衡力：前者分别作用在两个物体上且性质相同，后者作用在同一物体上。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理热点知识讲练与题型归纳（全国通用）/资料/专题04 牛顿运动定律的应用（教师版）.docx（块 ec3402c050-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-ec3402c050-001c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:牛顿第三定律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-ec3402c050-021",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -4338,29 +4177,6 @@
    ]
   },
   {
-   "slug": "ext-phy-ac361d8840-010",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "应用动量守恒定律解题的步骤（专题14·题型三·学生版）",
-   "summaryMarkdown": "应用动量守恒定律解题的步骤：明确研究对象与系统组成、判断动量是否守恒、规定正方向确定初末动量、列方程并代入求解。",
-   "applicabilityMarkdown": "PRIMARY：列动量守恒方程求解碰撞、反冲、人船等系统问题时。",
-   "contentMarkdown": "1. 明确研究对象，确定系统的组成（系统包括哪几个物体及研究的过程）。\\n2. 进行受力分析，判断系统动量是否守恒（或某一方向上动量是否守恒）。\\n3. 规定正方向，确定初、末状态动量。\\n4. 由动量守恒定律列出方程，代入数据求出结果，必要时讨论说明。",
-   "boundaryMarkdown": "动量守恒须先判断（整体守恒或某一方向守恒）；动量是矢量，规定正方向后各速度按方向取正负号代入。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理热点知识讲练与题型归纳（全国通用）/资料/专题14 动量守恒定律及应用（学生版）.docx（块 ac361d8840-010）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-ac361d8840-010",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:应用动量守恒定律的解题步骤",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-5cbbe117fd-016",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -4494,29 +4310,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:库仑力的力学性质",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-570d1a09e3-005",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "带电粒子运动轨迹问题的分析方法（三步）（专题16·题型三·学生版）",
-   "summaryMarkdown": "轨迹问题三步法：由轨迹弯曲方向判断受力方向；结合速度方向与静电力方向判做功与电势能变化；用动能定理或能量守恒判断动能变化。",
-   "applicabilityMarkdown": "PRIMARY：给出电场线与带电粒子运动轨迹，判断电场方向、电荷正负、做功与电势能变化时。",
-   "contentMarkdown": "1. 从轨迹的弯曲方向判断受力方向（轨迹向合外力方向弯曲），从而分析电场方向或电荷的正负。\\n2. 结合轨迹、速度方向与静电力的方向，确定静电力做功的正负，从而确定电势能、电势和电势差的变化等。\\n3. 根据动能定理或能量守恒定律判断动能的变化情况。",
-   "boundaryMarkdown": "方法用于由轨迹反推受力与能量变化；轨迹弯曲方向指向的是合外力方向，若粒子还受重力等其他力，须先区分合外力与静电力。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/专项复习/2026年高考物理热点知识讲练与题型归纳（全国通用）/资料/专题16 电场能的性质（学生版）.docx（块 570d1a09e3-005）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-570d1a09e3-005",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:利用电场线和等势面解决带电粒子运动问题的方法",
      "role": "PRIMARY"
     }
    ]
@@ -15240,121 +15033,6 @@
    ]
   },
   {
-   "slug": "ext-che-f6a9a7f531-008",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "电镀的定义与主要目的（第03讲 电解池、金属的腐蚀与防护·题型03）",
-   "summaryMarkdown": "电镀是利用电解原理在某些金属表面镀上一薄层其他金属或合金的加工工艺，目的是使金属增强抗腐蚀能力、增加表面硬度和美观。",
-   "applicabilityMarkdown": "PRIMARY：判断电镀的功能与目的，或说明铁件上镀铜这类加工工艺的原理归属时。",
-   "contentMarkdown": "1. 定义：利用电解原理在某些金属表面镀上一薄层其他金属或合金的加工工艺。\\n2. 主要目的：使金属增强抗腐蚀能力，增加表面硬度和美观。",
-   "boundaryMarkdown": "本块只给定义与主要目的；镀层金属作阳极、待镀件作阴极、电解液含镀层金属离子等电极细节块内未展开。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第03讲 电解池、金属的腐蚀与防护（举一反三讲义）（教师版）.docx（块 f6a9a7f531-008）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-f6a9a7f531-008",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电镀与电解精炼",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-f6a9a7f531-008b",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "电解精炼铜的电极与阳极泥（第03讲 电解池、金属的腐蚀与防护·题型03）",
-   "summaryMarkdown": "电解精炼铜时粗铜作阳极（Cu−2e−===Cu2＋）、纯铜作阴极（Cu2＋＋2e−===Cu），电解质溶液为 CuSO4 溶液；活泼性较强的 Zn、Fe 以离子形式进入溶液，活泼性较差的 Ag、Au 沉积为阳极泥。",
-   "applicabilityMarkdown": "PRIMARY：分析电解精炼装置中的电极反应、判断阳极泥成分或电解质溶液中离子变化时。",
-   "contentMarkdown": "1. 粗铜为阳极，主要的电极反应式为 Cu−2e−===Cu2＋；纯铜为阴极，电极反应式为 Cu2＋＋2e−===Cu；电解质溶液为 CuSO4 溶液。\\n2. 活泼性较强的铁、锌等以离子形式进入电解质溶液；活泼性较差的金、银则沉积在电解槽底部形成阳极泥。",
-   "boundaryMarkdown": "阳极泥只含比铜不活泼的金属（Ag、Au 等），Zn、Fe 进入溶液会改变电解液成分；阴极必须用纯铜，不能用粗铜。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第03讲 电解池、金属的腐蚀与防护（举一反三讲义）（教师版）.docx（块 f6a9a7f531-008）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-f6a9a7f531-008b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电镀与电解精炼",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-f6a9a7f531-015",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "电解计算的依据与步骤（第03讲 电解池、金属的腐蚀与防护·题型05）",
-   "summaryMarkdown": "依据阳极失电子数＝阴极得电子数、串联各电解池转移电子总数相等；步骤是先写电极反应式（注意阳极材料）、确定多离子共存时的放电顺序，再按得失电子守恒列关系式计算。",
-   "applicabilityMarkdown": "PRIMARY：电解（含串联电解池、多离子混合溶液）的定量计算，需要确定电极产物或转移电子数时。",
-   "contentMarkdown": "1. 依据：阳极失去的电子数＝阴极得到的电子数；串联电路中各电解池转移的电子总数相等；电源输出的电子总数和电解池中转移的电子总数相等。\\n2. 步骤：正确书写电极反应式（特别要注意阳极材料）；注意溶液中有多种离子共存时，要确定离子放电的先后顺序；根据得失电子守恒列出关系式进行计算。",
-   "boundaryMarkdown": "阳极材料（活性或惰性）决定阳极反应，写错会导致电子数算错；多离子共存时必须先判断放电顺序，不能把总转移电子数直接按某一离子分配。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第03讲 电解池、金属的腐蚀与防护（举一反三讲义）（教师版）.docx（块 f6a9a7f531-015）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-f6a9a7f531-015",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电化学综合计算的三种常用方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-f6a9a7f531-019",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "金属腐蚀的定义与本质（第03讲 电解池、金属的腐蚀与防护·题型06）",
-   "summaryMarkdown": "金属或合金与周围的气体或液体发生氧化还原反应而引起损耗的现象叫金属腐蚀；本质是金属原子失电子变成金属阳离子（M−ne−===Mn＋）。",
-   "applicabilityMarkdown": "PRIMARY：判断某现象是否属于金属腐蚀、写出腐蚀的电极反应，或区分腐蚀类型时。",
-   "contentMarkdown": "1. 定义：金属或合金与周围的气体或液体发生氧化还原反应而引起损耗的现象。\\n2. 本质：金属原子失电子生成金属阳离子，即 M−ne−===Mn＋。",
-   "boundaryMarkdown": "腐蚀的本质是金属被氧化（不是被还原）；讲义“钢铁的电化学腐蚀”一节只有标题，析氢腐蚀与吸氧腐蚀的具体电极反应未随文本导出。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第03讲 电解池、金属的腐蚀与防护（举一反三讲义）（教师版）.docx（块 f6a9a7f531-019）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-f6a9a7f531-019",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属的腐蚀",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-f6a9a7f531-022",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "金属防护的两条思路与四种覆盖处理（第03讲 电解池、金属的腐蚀与防护·题型07）",
-   "summaryMarkdown": "改变金属材料组成（如不锈钢、钛合金）或在金属表面覆盖保护层；覆盖方式包括非金属保护层、金属保护层（电镀锌锡铬镍）、发蓝处理（生成致密四氧化三铁薄膜）与钝化处理（阳极氧化铝制品）。",
-   "applicabilityMarkdown": "PRIMARY：判断金属防护措施的类型与原理，或解释钢管涂绝缘膜、镀层保护等现象时。",
-   "contentMarkdown": "1. 改变金属材料的组成：在金属中添加其他金属或非金属制成性能优异的合金，如不锈钢、钛合金。\\n2. 在金属表面覆盖保护层：在钢铁制品表面喷涂油漆、矿物性油脂或覆盖搪瓷、塑料等形成非金属保护层；用电镀等方法在钢铁表面镀上一层锌、锡、铬、镍等金属。\\n3. 发蓝处理：用化学方法在钢铁部件表面生成一层致密的四氧化三铁薄膜；钝化处理：利用阳极氧化处理铝制品的表面，使之形成致密的氧化膜而钝化。",
-   "boundaryMarkdown": "覆盖保护层的前提是保护层致密完整；镀层破损（如海边潮湿环境中镀层破损的铁片）会因电化学腐蚀加快腐蚀，不能只看“镀了金属”。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第03讲 电解池、金属的腐蚀与防护（举一反三讲义）（教师版）.docx（块 f6a9a7f531-022）",
-   "reviewedAtEpochMillis": 1792418197154,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-f6a9a7f531-022",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:金属防护的其他方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-23bad9367c-001",
    "subject": "CHEMISTRY",
    "type": "CONCEPT_EXPLANATION",
@@ -15677,29 +15355,6 @@
    ]
   },
   {
-   "slug": "ext-che-b4e07c977a-008b",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "MgO 与 Mg(OH)2 的性质（第04讲 金属材料及金属矿物的开发利用·题型04）",
-   "summaryMarkdown": "MgO 是碱性氧化物、难溶于水，溶于盐酸：MgO＋2H＋===Mg2＋＋H2O；Mg(OH)2 为难溶于水的中强碱，溶于盐酸：Mg(OH)2＋2H＋===Mg2＋＋2H2O。",
-   "applicabilityMarkdown": "PRIMARY：判断 MgO、Mg(OH)2 与酸反应的表现，或分析含镁物质转化时。",
-   "contentMarkdown": "1. MgO 为碱性氧化物，难溶于水，溶于盐酸的离子方程式为 MgO＋2H＋===Mg2＋＋H2O。\\n2. Mg(OH)2 为难溶于水的中强碱，溶于盐酸的离子方程式为 Mg(OH)2＋2H＋===Mg2＋＋2H2O。",
-   "boundaryMarkdown": "两者都难溶于水，与盐酸反应分别按碱性氧化物、碱的离子方程式书写（MgO 不能拆写成 Mg2＋ 与 OH−）。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第04讲  金属材料及金属矿物的开发利用（举一反三讲义）（教师版）.docx（块 b4e07c977a-008）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-b4e07c977a-008b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:镁的重要化合物",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-b4e07c977a-008c",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -15884,144 +15539,6 @@
    ]
   },
   {
-   "slug": "ext-che-479d4a456d-001",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "自发过程与自发反应的含义和特点（第04讲 化学反应的方向与调控·题型01）",
-   "summaryMarkdown": "自发过程是不借助外力就能进行的过程（体系趋向低能、密闭条件下自发有序→无序）；自发反应是给定条件下无需外界帮助、一经引发即能自动进行的反应，它有方向性、不一定能实际发生且速率不一定大。",
-   "applicabilityMarkdown": "PRIMARY：判断某过程或反应是否属于自发（自发过程、自发反应），以及辨析“需要加热就不是自发”“非自发过程任何条件下都不能自发”等说法时。",
-   "contentMarkdown": "1. 自发过程：在一定条件下，不用借助外力就可以自发进行的过程（如高山流水、自由落体）；特点：体系趋向于从高能状态转变为低能状态；在密闭条件下，体系有从有序自发转变为无序的倾向。\\n2. 非自发过程：在一定条件下，需持续借助外力才能进行的过程。\\n3. 自发反应：在给定的条件下，无需外界帮助，一经引发即能自动进行的反应（如钢铁生锈）；其逆反应在相同条件下一定不能自发进行，自发反应不一定能实际发生，发生时速率也不一定大。",
-   "boundaryMarkdown": "“自发”不等于“不需要条件”（自发过程也需要特定条件）、不等于“一定发生”、也不等于“速率大”；改变条件可使某些非自发过程转变为自发过程。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第04讲 化学反应的方向、化学反应的调控（举一反三讲义，7大题型）（解析版）.docx（块 479d4a456d-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-479d4a456d-001",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:自发反应",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-479d4a456d-003",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "焓判据及其局限性（第04讲 化学反应的方向与调控·题型02）",
-   "summaryMarkdown": "用焓变判断反应方向即焓判据（能量判据）：多数放热反应自发进行，但有些吸热反应也能自发（如 2N2O5(g)＝4NO2(g)＋O2(g) ΔH＝＋109.8 kJ·mol−1），故只用焓判据不全面。",
-   "applicabilityMarkdown": "PRIMARY：判断某反应方向可否用焓判据解释，或辨析“放热反应都自发、吸热反应都不自发”类说法时。",
-   "contentMarkdown": "1. 焓判据：放热反应过程中体系能量降低，因此具有自发进行的倾向，科学家提出用焓变（能量变化）来判断反应进行的方向，这就是焓判据（能量判据）。\\n2. 焓变与化学反应进行方向的关系：多数放热反应是自发进行的（如燃烧反应、中和反应）；有些吸热反应也可以自发进行，如 2N2O5(g)===4NO2(g)＋O2(g) ΔH＝＋109.8 kJ·mol−1。\\n3. 结论：只用焓判据判断反应是否自发进行不全面。",
-   "boundaryMarkdown": "焓判据只是经验判据，吸热反应是否自发还取决于熵变与温度；“放热一定自发、吸热一定不自发”的说法不成立。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第04讲 化学反应的方向、化学反应的调控（举一反三讲义，7大题型）（解析版）.docx（块 479d4a456d-003）",
-   "reviewedAtEpochMillis": 1792418197154,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-479d4a456d-003",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:判断化学反应的自发性",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-479d4a456d-005",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "熵、熵变与熵判据（第04讲 化学反应的方向与调控·题型03）",
-   "summaryMarkdown": "熵 S 衡量体系混乱度（S(g)>S(l)>S(s)）；熵变 ΔS 为产物总熵与反应物总熵之差，ΔS 越大越有利于自发；多数自发反应趋于混乱度增大，但熵减的铝热反应也能自发，故熵判据同样不全面。",
-   "applicabilityMarkdown": "PRIMARY：判断过程或反应的熵增熵减、比较同种物质不同状态的熵值，或辨析“熵增一定自发、熵减一定不自发”时。",
-   "contentMarkdown": "1. 熵的含义：熵是衡量一个体系混乱度的物理量，即表示体系的不规则或无序状态程度的物理量；混乱度越大，体系越无序，体系的熵就越大，用符号 S 表示。同一条件下不同物质有不同的熵值，同一物质在不同状态下熵值也不同，一般规律是 S(g)>S(l)>S(s)。\\n2. 熵变：反应前后体系熵的变化用 ΔS 表示，化学反应的 ΔS 越大，越有利于反应自发进行；ΔS 为反应产物总熵与反应物总熵之差。\\n3. 方向与熵变的关系：许多熵增反应常温常压下可自发进行（产生气体、气体物质的量增大的反应熵变通常为正）；有些熵增反应需较高温度才自发；铝热反应是熵减反应，在一定条件下也可以自发进行。",
-   "boundaryMarkdown": "熵增只是“趋向”，不是自发的充分条件；与外界隔离的体系自发过程导致熵增大，判断时不要把“混乱度增大”与“一定自发”混同。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第04讲 化学反应的方向、化学反应的调控（举一反三讲义，7大题型）（解析版）.docx（块 479d4a456d-005）",
-   "reviewedAtEpochMillis": 1792418197154,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-479d4a456d-005",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:判断化学反应的自发性",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-479d4a456d-008",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "复合判据 ΔH−TΔS 与温度对反应方向的影响（第04讲 化学反应的方向与调控·题型04）",
-   "summaryMarkdown": "恒温恒压下用 ΔH−TΔS＜0 判断反应正向自发（只判可能性，不判是否实际发生）；ΔH＜0 且 ΔS＞0 一定自发，ΔH＞0 且 ΔS＜0 一定不自发，两者同号时与温度有关；自发温度由 ΔH−TΔS≤0 求得，注意单位换算。",
-   "applicabilityMarkdown": "PRIMARY：判断某反应在给定温度下能否自发、求自发进行的最高或最低温度，或判断“任何温度下都能自发”类说法时。",
-   "contentMarkdown": "1. 复合判据：ΔH−TΔS＜0，反应正向自发进行；适用条件为恒温恒压；局限性是只能判断反应发生的可能性，不能判断反应是否实际发生。\\n2. 温度影响：ΔH＜0、ΔS＞0 时 ΔG＜0 反应自发；ΔH＞0、ΔS＜0 时 ΔG＞0 反应不能自发；ΔH＞0、ΔS＞0 或 ΔH＜0、ΔS＜0 时是否自发与温度有关，一定温度下可使 ΔG＝0（达平衡状态）；ΔH＜0、ΔS＜0 时低温有利于反应自发进行。\\n3. 自发温度的计算：依据 ΔH−TΔS≤0，ΔS＞0 时求最低温度、ΔS＜0 时求最高温度；计算时注意单位换算（ΔS 单位 J·mol−1·K−1、ΔH 单位 kJ·mol−1、T 单位 K）。\\n4. 注意：不能片面地用焓判据、熵判据孤立判断；不能忽视温度的作用；不能错误认为“自发反应”不需要任何条件；不能忽视 ΔH、T、ΔS 单位的协调一致。",
-   "boundaryMarkdown": "判据只在恒温恒压下使用；ΔH 与 ΔS 单位不同，代入前必须统一，块内的温度不等式分式未随文本导出，使用时应由 ΔH−TΔS≤0 自行列式。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第04讲 化学反应的方向、化学反应的调控（举一反三讲义，7大题型）（解析版）.docx（块 479d4a456d-008）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-479d4a456d-008",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:自由能与化学反应的方向",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-479d4a456d-012",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "合成氨反应的四个特点（第04讲 化学反应的方向与调控·题型05）",
-   "summaryMarkdown": "N2(g)+3H2(g)⇌2NH3(g) 在 298 K 时 ΔH＝−92.4 kJ·mol−1、ΔS＝−198.2 J·mol−1·K−1：常温下 ΔH−TΔS<0 能自发、反应可逆、ΔS<0 气体体积减小、ΔH<0 放热。",
-   "applicabilityMarkdown": "PRIMARY：分析合成氨条件选择（温度、压强、催化剂）时先调用反应本身的自发性、可逆性与焓变熵变特点。",
-   "contentMarkdown": "1. 合成氨反应：N2(g)+3H2(g)⇌2NH3(g)，已知 298 K 时 ΔH＝−92.4 kJ·mol−1，ΔS＝−198.2 J·mol−1·K−1。\\n2. 自发性：常温（298 K）下 ΔH−TΔS<0，能自发进行；可逆性：反应为可逆反应。\\n3. 熵变：ΔS<0，正反应是气体体积减小的反应；焓变：ΔH<0，正反应是放热反应。",
-   "boundaryMarkdown": "“常温自发”只说明热力学可能性；实际合成氨必须考虑速率与平衡（条件选择表在块内未随文本导出），不能把自发性当作反应条件已确定。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第04讲 化学反应的方向、化学反应的调控（举一反三讲义，7大题型）（解析版）.docx（块 479d4a456d-012）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-479d4a456d-012",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合成氨反应的特点",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-479d4a456d-017",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "化学反应调控的目的、考虑因素与基本措施（第04讲 化学反应的方向与调控·题型07）",
-   "summaryMarkdown": "调控目的是促进有利反应（加快速率、提高转化率）、抑制有害反应；需结合设备、安全、经济与环保综合权衡；措施上通过温度、浓度、压强、固体表面积、催化剂调控速率，通过改变温度、浓度、压强改变可逆反应的限度提高转化率。",
-   "applicabilityMarkdown": "PRIMARY：回答工业或实验中“为什么这样控制条件”“如何提高转化率/加快速率”类问题时。",
-   "contentMarkdown": "1. 目的：促进有利的化学反应（加快速率、提高反应物转化率）；抑制有害的化学反应（减缓反应速率、减少甚至消除有害物质、控制副反应）。\\n2. 考虑因素：实际生产要结合设备条件、安全操作、经济成本等情况，综合考虑影响化学反应速率和化学平衡的因素，寻找适宜的生产条件；还要根据环境保护及社会效益等方面的规定和要求权衡利弊。\\n3. 措施：通过改变温度、溶液浓度、气体的压强（或浓度）、固体的表面积以及使用催化剂等调控反应速率；通过改变温度、浓度、压强等改变可逆反应的限度从而提高转化率。",
-   "boundaryMarkdown": "速率与平衡要分别考虑（催化剂只改变速率不影响平衡；改变压强对无气体参与或气体分子数不变的反应不影响平衡）；实际选择适宜条件还需权衡设备与成本，不能只按平衡理论取极值。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第04讲 化学反应的方向、化学反应的调控（举一反三讲义，7大题型）（解析版）.docx（块 479d4a456d-017）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-479d4a456d-017",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:工业生产中化学反应条件的选择",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-4112b48508-008b",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -16086,75 +15603,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体与非晶体",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-5a7b1250f0-013",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "原子分数坐标的概念与表示方法（第04讲 晶体结构与性质·题型05）",
-   "summaryMarkdown": "以晶胞参数为单位长度建立的坐标系可表示晶胞中各原子的相对位置，称为原子分数坐标；任一原子的中心位置都可用 3 个分别小于 1 的数表示，如位于晶胞原点的原子坐标为(0，0，0)。",
-   "applicabilityMarkdown": "PRIMARY：给晶胞图写原子分数坐标，或由坐标反推原子在晶胞中的位置时。",
-   "contentMarkdown": "1. 概念：以晶胞参数为单位长度建立的坐标系可以表示晶胞中各原子的相对位置，称为原子分数坐标。\\n2. 表示方法：晶胞中的任一个原子的中心位置均可用 3 个分别小于 1 的数在立体坐标系中表示出来，如位于晶胞原点 A（顶角）的原子的坐标为(0，0，0)。",
-   "boundaryMarkdown": "三个分量都以晶胞参数为单位长度（均小于 1）；块内 B、C、D 三点的具体坐标数值未随文本导出，实例位置需结合晶胞图确定。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第04讲 晶体结构与性质（举一反三讲义）（教师版）.docx（块 5a7b1250f0-013）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-5a7b1250f0-013",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原子分数坐标",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-5a7b1250f0-013b",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "晶体投影问题的四个关键（第04讲 晶体结构与性质·题型05）",
-   "summaryMarkdown": "投影的本质是把三维结构中的微粒投影到二维平面；关键是弄清投影方向、是否有不同层微粒重叠、不同位置投影与三维微粒的一一对应，以及求距离时微粒不一定在同一平面。",
-   "applicabilityMarkdown": "PRIMARY：判断晶胞沿某方向（x、y 平面或体对角线）的投影图，或由投影图反推晶胞结构时。",
-   "contentMarkdown": "1. 晶体投影问题本质上是把三维空间晶体结构中的微粒投影到二维平面上，解此类题的关键：要弄清是沿着什么方向进行投影。\\n2. 投影的时候，是否存在着不同层微粒的相互重叠。\\n3. 明确不同位置的投影和三维空间中的微粒如何一一对应。\\n4. 求微粒间距离时要注意投影在同一平面，微粒不一定在同一平面。",
-   "boundaryMarkdown": "沿不同方向投影得到的图形不同，不能凭“看上去像”选图；投影重合点需对回原三维坐标确认（块内 x、y 平面与体对角线投影图未随文本导出）。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第04讲 晶体结构与性质（举一反三讲义）（教师版）.docx（块 5a7b1250f0-013）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-5a7b1250f0-013b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞投影",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-4f607d90b6-008",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "电化学计算的三种常用方法（第04讲 电化学原理的综合应用·题型05）",
-   "summaryMarkdown": "按总反应式列比例式计算；按电子守恒（串联电路转移电子数相等）计算，包括混合溶液电解的分阶段计算；按得失电子守恒构建关系式，如以电路中通过 4 mol e− 为桥梁。",
-   "applicabilityMarkdown": "PRIMARY：电化学定量计算（串联电路两极产物、相同电量、混合溶液分阶段电解）时选择其中一条路径列式。",
-   "contentMarkdown": "1. 根据总反应式计算：先写出电极反应式，再写出总反应式，最后根据总反应式列出比例式计算。\\n2. 根据电子守恒计算：用于串联电路中阴阳两极产物、正负两极产物、相同电量等类型的计算，依据是电路中转移的电子数相等；也用于混合溶液中电解的分阶段计算。\\n3. 根据关系式计算：根据得失电子守恒建立起已知量与未知量之间的桥梁，构建计算所需的关系式，如以电路中通过 4 mol e− 为桥梁可构建关系式（式中 M 为金属，n 为其离子的化合价数值）。",
-   "boundaryMarkdown": "三种方法都以得失电子守恒为内核；混合溶液电解必须先判断离子放电的先后顺序再分阶段列式；关系式中的 4 mol e− 序列在块内未随文本导出，使用时须按电子守恒自行推导。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习举一反三（新高考通用）/资料/2026版/第04讲 电化学原理的综合应用（举一反三讲义）（学生版）.docx（块 4f607d90b6-008）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-4f607d90b6-008",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电化学综合计算的三种常用方法",
      "role": "PRIMARY"
     }
    ]
@@ -18713,29 +18161,6 @@
    ]
   },
   {
-   "slug": "ext-che-022fc6418a-008c",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "沉铁除杂：先氧化再调 pH 生成 Fe(OH)3 沉淀（02·3）",
-   "summaryMarkdown": "利用 Fe3＋ 极易水解、Fe(OH)3 溶度积很小，先把 Fe2＋ 氧化为 Fe3＋，再调 pH 至弱酸性沉铁过滤。",
-   "applicabilityMarkdown": "化学工艺流程题中需要除去溶液里铁杂质时选用。",
-   "contentMarkdown": "1. Fe(OH)3 是很弱的碱、溶度积很小，Fe3＋ 极易水解，只能存在于酸性较强的溶液中。\\n2. 除铁做法：常将杂质 Fe2＋ 氧化为 Fe3＋，然后调节溶液的 pH 为弱酸性，生成 Fe(OH)3 沉淀，过滤除去含铁的杂质。",
-   "boundaryMarkdown": "顺序不可颠倒（先氧化、后调 pH）；pH 只调到弱酸性，过高会连带沉淀其他金属离子，影响目标产物收率。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题02 铁及其重要化合物（知识清单）（全国通用）（学生版）.docx（块 022fc6418a-008）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-022fc6418a-008c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:调节pH分离提纯金属离子",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-022fc6418a-009",
    "subject": "CHEMISTRY",
    "type": "CONCEPT_EXPLANATION",
@@ -18846,29 +18271,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-022fc6418a-016b",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "Fe2＋ 既有氧化性又有还原性（03·“铁三角”）",
-   "summaryMarkdown": "Fe2＋ 主要表现还原性，易被氧化成 Fe3＋，并与 MnO4－、NO3－(H＋)、ClO－ 等因氧化还原而不共存。",
-   "applicabilityMarkdown": "判断亚铁盐的保存与反应、或做离子共存题时使用。",
-   "contentMarkdown": "1. Fe2＋ 既有氧化性又有还原性，主要表现还原性，易被氧化剂氧化成 Fe3＋。\\n2. 常用氧化：2Fe2＋＋Cl2===2Fe3＋＋2Cl－；2Fe2＋＋H2O2＋2H＋===2Fe3＋＋2H2O。\\n3. Fe2＋ 与 MnO4－、NO3－(H＋)、ClO－ 等因发生氧化还原反应而不能大量共存。",
-   "boundaryMarkdown": "还原性是 Fe2＋ 的主导性质，保存亚铁盐须防氧化（如加铁屑、隔绝空气）；与 MnO4－、NO3－ 的不共存须注明酸性条件。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题02 铁及其重要化合物（知识清单）（全国通用）（学生版）.docx（块 022fc6418a-016）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-022fc6418a-016b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:亚铁盐",
      "role": "PRIMARY"
     }
    ]
@@ -19035,52 +18437,6 @@
    ]
   },
   {
-   "slug": "ext-che-f93b82f3a2-009c",
-   "subject": "CHEMISTRY",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "铁与水蒸气反应的装置与安全注意（01·3）",
-   "summaryMarkdown": "还原铁粉与水蒸气反应需高温、不能直接用水，点燃氢气前必须验纯。",
-   "applicabilityMarkdown": "设计或评价铁与水蒸气反应实验（供水蒸气、加热、氢气验纯）时使用。",
-   "contentMarkdown": "1. 还原铁粉和水蒸气反应需要高温，所以不能直接用水，实验须持续提供水蒸气。\\n2. 为了实验安全，点燃氢气或加热氢气时需要验纯。",
-   "boundaryMarkdown": "只覆盖供气方式与氢气验纯两点；产物组成、装置连接顺序等另有条目。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题02 铁及其重要化合物（知识清单）（全国通用）（教师版）.docx（块 f93b82f3a2-009）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-f93b82f3a2-009c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁与水蒸气反应的注意事项",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-f93b82f3a2-010",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "铁的氢氧化物的稳定性（02·2）",
-   "summaryMarkdown": "Fe(OH)3 受热易分解；Fe(OH)2 在空气中迅速被氧气氧化成 Fe(OH)3。",
-   "applicabilityMarkdown": "判断铁的氢氧化物受热、露置空气时的变化，或设计隔绝空气制备 Fe(OH)2 的方案时使用。",
-   "contentMarkdown": "1. Fe(OH)3 受热易分解：Fe(OH)3 受热生成 Fe2O3 和 H2O。\\n2. 在空气中，Fe(OH)2 能够非常迅速地被氧气氧化成 Fe(OH)3。",
-   "boundaryMarkdown": "稳定性差异源于 Fe(OH)2 中＋2 价铁的还原性；凡有 O2 等氧化性物质存在，Fe(OH)2 都难以稳定存在。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题02 铁及其重要化合物（知识清单）（全国通用）（教师版）.docx（块 f93b82f3a2-010）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-f93b82f3a2-010",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的氢氧化物",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-f93b82f3a2-010b",
    "subject": "CHEMISTRY",
    "type": "CONCEPT_EXPLANATION",
@@ -19127,52 +18483,6 @@
    ]
   },
   {
-   "slug": "ext-che-f93b82f3a2-012",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "Fe2＋、Fe3＋ 的水解与盐溶液配制（03·2）",
-   "summaryMarkdown": "二者是典型弱碱阳离子，盐溶液显酸性并因相互促进水解与 CO32－ 等不共存；配制时用铁屑防氧化、用酸抑制水解。",
-   "applicabilityMarkdown": "解释铁盐溶液显酸性、判断离子共存，或配制与保存亚铁盐、铁盐溶液时使用。",
-   "contentMarkdown": "1. Fe2＋、Fe3＋ 是典型的弱碱阳离子，它们的盐溶液显酸性，并与 CO32－、HCO3－、AlO2－ 等因相互促进水解而不能大量共存，如 2Fe3＋＋3CO32－＋3H2O===2Fe(OH)3↓＋3CO2↑。\\n2. 配制亚铁盐溶液：加入少量铁屑防止 Fe2＋ 被氧化，加入少量相应的酸溶液抑制 Fe2＋ 水解。\\n3. 配制铁盐溶液：加入少量相应的酸溶液抑制 Fe3＋ 水解（如 FeCl3 先溶于较浓盐酸再稀释，Fe2(SO4)3 先溶于 H2SO4 再稀释）。",
-   "boundaryMarkdown": "抑制水解只能加对应酸；加铁屑只适用于亚铁盐溶液，铁盐溶液中加铁屑会把 Fe3＋ 还原为 Fe2＋。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题02 铁及其重要化合物（知识清单）（全国通用）（教师版）.docx（块 f93b82f3a2-012）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-f93b82f3a2-012",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有关fe2-fe3-的水解问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-f93b82f3a2-015",
-   "subject": "CHEMISTRY",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "铁及其氧化物、氢氧化物的易错点（01 易错点）",
-   "summaryMarkdown": "钝化是化学变化；铁的产物价态随氧化剂而变；铁锈与纯氧燃烧产物不同；判断反应类型先看铁的价态。",
-   "applicabilityMarkdown": "辨析“铁的产物是什么”“钝化算不算反应”“铁锈成分”等易错说法时使用。",
-   "contentMarkdown": "1. 钝化是化学变化：铁遇冷的浓硫酸或浓硝酸，表面形成致密氧化膜，阻止内部金属继续与浓酸反应，表现出较强的化学稳定性和耐腐蚀性。\\n2. 产物价态易错：Fe 与 Cl2 生成 FeCl3 而不是 FeCl2；与 S 生成 FeS 而不是 Fe2S3；与盐酸生成 FeCl2 而不是 FeCl3；与 I2 生成 FeI2 而不是 FeI3。\\n3. 铁在潮湿的空气中生成铁锈的主要成分是 Fe2O3，而铁在纯 O2 中燃烧的产物是 Fe3O4。\\n4. 判断铁的化合物与酸反应的产物时，注意铁在化合物中的价态，利用价态及试剂的氧化性或还原性区分复分解反应与氧化还原反应。",
-   "boundaryMarkdown": "第 2 条针对铁作还原剂被氧化的情况；化合物中已是 Fe3＋ 时与酸反应属复分解、价态不变。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题02 铁及其重要化合物（知识清单）（全国通用）（教师版）.docx（块 f93b82f3a2-015）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-f93b82f3a2-015",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁-铁的氧化物和氢氧化物的易错点",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-f93b82f3a2-018",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -19191,29 +18501,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁的氧化物组成的确定",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-f93b82f3a2-021",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "Fe3＋ 的强氧化性及其表现（03·“铁三角”）",
-   "summaryMarkdown": "Fe3＋ 具较强氧化性，可氧化 H2S、S2－、I－、SO2、SO32－、Fe、Cu 等物质。",
-   "applicabilityMarkdown": "判断铁盐与还原性物质能否反应、书写相应离子方程式时使用。",
-   "contentMarkdown": "1. Fe3＋ 具有较强的氧化性，可以氧化 H2S、S2－、I－、SO2、SO32－、Fe、Cu 等物质。\\n2. 示例：2Fe3＋＋S2－===2Fe2＋＋S↓；2Fe3＋＋2I－===2Fe2＋＋I2。",
-   "boundaryMarkdown": "被氧化对象须是还原性较强的物质；Fe3＋ 遇 S2－、I－ 时自身一律被还原为 Fe2＋，对方分别被氧化为 S、I2。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题02 铁及其重要化合物（知识清单）（全国通用）（教师版）.docx（块 f93b82f3a2-021）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-f93b82f3a2-021",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁盐",
      "role": "PRIMARY"
     }
    ]
@@ -19763,213 +19050,6 @@
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-df6d15950b-014d",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:影响分子溶解性的因素",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-df6d15950b-023",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "化学键与物质类别的对应关系（01 化学键与物质类别的关系）",
-   "summaryMarkdown": "除稀有气体外物质都有化学键；极性/非极性共价键与离子键的不同组合对应不同类别的物质。",
-   "applicabilityMarkdown": "判断某物质所含化学键类型，或由键型反推物质类别时使用。",
-   "contentMarkdown": "1. 除稀有气体中没有化学键外，其他物质都存在化学键。\\n2. 只含有极性共价键的物质一般是不同种非金属元素形成的共价化合物（SiO2、HCl、CH4 等）；只含有非极性共价键的物质是同种非金属元素形成的单质（Cl2、P4、金刚石等）。\\n3. 既有极性键又有非极性键的共价化合物一般由多个原子组成（H2O2、C2H4 等）；只含离子键的物质主要是活泼金属与活泼非金属形成的化合物（Na2S、CaCl2、NaCl 等）。\\n4. 既有离子键又有极性共价键的如 NaOH、K2SO4；既有离子键又有非极性共价键的如 Na2O2；仅由非金属元素形成的离子化合物如 NH4Cl、NH4NO3；金属元素和非金属元素间可能存在共价键，如 AlCl3。",
-   "boundaryMarkdown": "结论是“一般”对应，判断仍以实际成键为准（如 AlCl3 是共价化合物、NH4Cl 是离子化合物）。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题03 化学键 分子结构与性质（知识清单）（全国通用）（教师版）.docx（块 df6d15950b-023）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-df6d15950b-023",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学键与物质类别的关系",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-df6d15950b-027",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "σ 键与 π 键的判断与数目计算（03·(2)）",
-   "summaryMarkdown": "按重叠方式、单双三键、强度判断 σ/π 键，并按 σ＝单键＋双键＋三键＋配位键、π＝双键＋三键×2 计数。",
-   "applicabilityMarkdown": "数分子中 σ 键、π 键数目，或判断某个共价键是 σ 键还是 π 键时使用。",
-   "contentMarkdown": "1. 依据轨道重叠方式判断：“头碰头”重叠为 σ 键，“肩并肩”重叠为 π 键。\\n2. 依据单、双键判断：共价单键全是 σ 键；共价双键含 1 个 σ 键和 1 个 π 键；共价三键含 1 个 σ 键和 2 个 π 键。\\n3. 计数：σ 键的数目＝单键数＋双键数＋三键数＋配位键数；π 键的数目＝双键数＋三键数×2。\\n4. 强度：σ 键的强度较大、较稳定；π 键活泼、比较容易断裂（注意 N≡N 中的 π 键强度较大）。",
-   "boundaryMarkdown": "计数公式适用于用结构式表达的共价分子；苯环等离域体系不能按单双键逐一对数 σ、π。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题03 化学键 分子结构与性质（知识清单）（全国通用）（教师版）.docx（块 df6d15950b-027）",
-   "reviewedAtEpochMillis": 1792418197154,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-df6d15950b-027",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:共价键的分类",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-df6d15950b-027b",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "极性键与非极性键的判断（03·(3)）",
-   "summaryMarkdown": "从成键原子种类、共用电子对是否偏移、电负性三个角度判断极性键与非极性键。",
-   "applicabilityMarkdown": "判断某共价键是极性键还是非极性键时使用。",
-   "contentMarkdown": "1. 看形成共价键的两原子：不同种元素的原子之间形成极性共价键，同种元素的原子之间形成非极性共价键。\\n2. 看电子对的偏移：共用电子对有偏移的为极性键，无偏移的为非极性键。\\n3. 看电负性：成键原子电负性不同（不同种元素）的为极性键。",
-   "boundaryMarkdown": "判断对象是“键”而非“分子”：键有极性不等于分子有极性，分子极性还要看空间结构是否对称。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题03 化学键 分子结构与性质（知识清单）（全国通用）（教师版）.docx（块 df6d15950b-027）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-df6d15950b-027b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:共价键的分类",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-df6d15950b-027c",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "共价键与离子键的形成判据及 σ 优先（03·(1)）",
-   "summaryMarkdown": "电负性相差不大才形成共价键（相差大于 1.7 形成离子键）；成键优先形成 σ 键，半径大难形成 π 键。",
-   "applicabilityMarkdown": "解释某化合物是共价化合物还是离子化合物、或元素间难以形成双键三键时使用。",
-   "contentMarkdown": "1. 只有两原子的电负性相差不大时，才能形成共用电子对、形成共价键；当两原子的电负性相差很大（大于 1.7）时，会形成离子键。\\n2. 原子形成共价键时优先形成 σ 键；成键原子半径越大，越难形成 π 键（如 Si 等难形成双键）。",
-   "boundaryMarkdown": "1.7 是电负性差的一般界限，判断键型与化合物类型还要结合实际物质性质。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题03 化学键 分子结构与性质（知识清单）（全国通用）（教师版）.docx（块 df6d15950b-027）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-df6d15950b-027c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:共价键",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-df6d15950b-032",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "范德华力与氢键对物质性质的影响（05 分子的性质·(2)）",
-   "summaryMarkdown": "范德华力由分子极性与相对分子质量决定、影响熔沸点和硬度；氢键主要影响熔点、沸点与溶解性。",
-   "applicabilityMarkdown": "比较物质的熔沸点、硬度，或解释氢键对溶解、电离的影响时使用。",
-   "contentMarkdown": "1. 范德华力的影响因素有分子的极性和分子的相对分子质量；它主要影响熔点、沸点、硬度等物理性质，范德华力越大，熔点、沸点越高。\\n2. 一般来说，组成和结构相似的物质，相对分子质量越大，范德华力越大，物质的熔、沸点越高。\\n3. 氢键主要影响物质的物理性质，如熔点、沸点等，形成分子间氢键，其熔点、沸点升高；氢键还影响溶解、电离过程，形成分子间氢键，物质的溶解性增大。",
-   "boundaryMarkdown": "分子间作用力和氢键都只影响物理性质，不能用来解释化学稳定性的差异。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题03 化学键 分子结构与性质（知识清单）（全国通用）（教师版）.docx（块 df6d15950b-032）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-df6d15950b-032",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:分子间作用力对物质性质的影响",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-df6d15950b-034",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "配合物的组成与配位数、稳定性的判断（06 配位键和配合物）",
-   "summaryMarkdown": "配合物可以没有外界或含多种配体；配位数按配位原子总数计；配位原子电负性越小配位键越稳定。",
-   "applicabilityMarkdown": "确定中心原子（离子）的配位数，或比较不同配体形成配位键的稳定性时使用。",
-   "contentMarkdown": "1. 配合物的组成：有的配合物没有外界（如 Fe(CO)5、Ni(CO)4）；有的配合物有多种配体（如 [Cu(NH3)2(H2O)2]SO4、[Co(SO4)(NH3)5]Br）。\\n2. 配位数＝配位体中与中心原子（离子）成键的配位原子的总数：单齿配体时等于配位体的数目，双齿配体时等于配位体的数目×2。\\n3. 稳定性比较：与同种金属原子（离子）成键时，配位原子的电负性越小，形成的配位键越稳定，如 [Cu(NH3)4]2＋>[Cu(H2O)4]2＋。",
-   "boundaryMarkdown": "配位数按配位原子数而不是配位体个数计；稳定性比较只在同一中心原子（离子）与不同配位原子之间进行。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题03 化学键 分子结构与性质（知识清单）（全国通用）（教师版）.docx（块 df6d15950b-034）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-df6d15950b-034",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:配位化合物",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-df6d15950b-047",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "中心原子杂化类型的判断（01·1）",
-   "summaryMarkdown": "由中心原子价层电子对数或“σ 键数＋孤电子对数”判断 sp、sp2、sp3 杂化。",
-   "applicabilityMarkdown": "需要判断分子或离子中心原子的杂化类型时使用。",
-   "contentMarkdown": "1. 按中心原子的价层电子对数判断：价层电子对数依次为 4、3、2 时，杂化类型依次为 sp3、sp2、sp。\\n2. 按“杂化轨道数＝σ键数＋孤电子对数”判断：C 原子 2 个 σ 键为 sp、3 个为 sp2、4 个为 sp3；N 原子 2 个 σ 键为 sp2、3 个为 sp3；O 或 S 原子 2 个 σ 键为 sp3。",
-   "boundaryMarkdown": "只数 σ 键与孤电子对，π 键不计入杂化轨道数；分子含多个中心原子时须逐个判断。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题03 化学键 分子结构与性质（知识清单）（全国通用）（教师版）.docx（块 df6d15950b-047）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-df6d15950b-047",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:中心原子杂化类型的判断",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-df6d15950b-047b",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "分子（或离子）空间结构的判断（01·2）",
-   "summaryMarkdown": "先算中心原子价层电子对数，再结合孤电子对确定分子或离子的实际空间结构。",
-   "applicabilityMarkdown": "判断给定分子或离子的空间构型（如 V 形、正四面体形）时使用。",
-   "contentMarkdown": "1. 求中心原子的价层电子对数（＝σ 键数＋孤电子对数），确定电子对的空间排布。\\n2. 再看孤电子对占位，得出分子（或离子）的实际空间结构。例如 OF2：O 的价层电子对数为 4（sp3 杂化），氧原子形成 2 个 σ 键、有 2 个孤电子对，OF2 的空间结构呈 V 形。",
-   "boundaryMarkdown": "电子对构型与分子构型不一定相同（4 对电子中有孤电子对时由四面体变为 V 形）；判断只针对中心原子。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题03 化学键 分子结构与性质（知识清单）（全国通用）（教师版）.docx（块 df6d15950b-047）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-df6d15950b-047b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:vsepr模型",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-df6d15950b-052",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "判断分子溶解性的三步排查（03·2 影响分子溶解性的因素）",
-   "summaryMarkdown": "依次看有无氢键、“相似相溶”、是否与水反应来判断分子在水中的溶解性。",
-   "applicabilityMarkdown": "解释或比较物质在水中的溶解性时，按三步顺序排查。",
-   "contentMarkdown": "1. 首先考虑有无氢键：如氨气极易溶于水，主要是氨气与水分子之间形成氢键。\\n2. 若无氢键，则考虑“相似相溶”原理：如 HCl 与水分子之间不存在氢键，但两者均为极性分子，HCl 易溶于水。\\n3. 最后考虑分子是否与水反应：如 Cl2 既不是极性分子，也不能与水分子形成氢键，但氯气能溶于水，是因为氯气能与水发生反应。",
-   "boundaryMarkdown": "三步是定性排查顺序，只解释溶解性趋势，不给溶解度数值；不能只凭“相似相溶”一条否定前两步。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习知识清单（全国通用）/2026版/专题03 化学键 分子结构与性质（知识清单）（全国通用）（教师版）.docx（块 df6d15950b-052）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-df6d15950b-052",
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:影响分子溶解性的因素",
@@ -23129,29 +22209,6 @@
    ]
   },
   {
-   "slug": "ext-che-85df884e05-021b",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "定容时仰视、俯视刻度线的误差方向（专题02·考向02 思维建模③·教师版）",
-   "summaryMarkdown": "仰视刻度线使溶液体积偏大、所配浓度偏小；俯视刻度线使溶液体积偏小、所配浓度偏大。",
-   "applicabilityMarkdown": "PRIMARY：判断定容读数（仰视或俯视）造成浓度偏高还是偏低时。",
-   "contentMarkdown": "仰视刻度线，导致溶液体积偏大，所配浓度偏小；俯视刻度线，导致溶液体积偏小，所配浓度偏大。",
-   "boundaryMarkdown": "只针对定容读数造成的体积偏差；先定 V 偏大还是偏小，再按 c＝n/V 判断浓度方向。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习考点精讲精练（新高考通用）/2026版/专题02  物质的量浓度（高效培优讲义）（教师版）.docx（块 85df884e05-021）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-85df884e05-021b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液的配制误差分析",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-10003de2c3-006",
    "subject": "CHEMISTRY",
    "type": "MISCONCEPTION_GUIDE",
@@ -25999,29 +25056,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:信息型氧化还原方程式的书写",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-1d1662dd2f-008",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "从组成、熔沸点、性质区分纯净物与混合物（第一章第01讲 物质的分类及转化·考向2思维建模）",
-   "summaryMarkdown": "纯净物有固定的组成和结构、有固定的熔沸点、保持一种物质的性质；混合物无固定的组成和结构、无固定的熔沸点、保持原有物质各自的性质。",
-   "applicabilityMarkdown": "PRIMARY：判断某物质（汽油、空气等）属于纯净物还是混合物时。",
-   "contentMarkdown": "1. 纯净物：有固定的组成和结构；有固定的熔沸点；保持一种物质的性质。\\n2. 混合物：无固定的组成和结构；无固定的熔沸点；保持原有物质各自的性质。",
-   "boundaryMarkdown": "只看组成与熔沸点是否固定、是否保持一种物质的性质、不能只看名称或状态；本条只讲纯净物与混合物的区分、不涉及酸、碱、盐、电解质等其他分类标准。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第一章 物质及其变化/第01讲  物质的分类及转化（复习讲义）（全国通用）（教师版）.docx（块 1d1662dd2f-008）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-1d1662dd2f-008",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:纯净物",
      "role": "PRIMARY"
     }
    ]
@@ -29247,52 +28281,6 @@
    ]
   },
   {
-   "slug": "ext-che-debd9107b2-018",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "比较键角大小的思维模型（第03讲·考向4思维建模）",
-   "summaryMarkdown": "先看杂化类型：sp＞sp2＞sp3；再看同一分子中π键电子斥力大、键角大。",
-   "applicabilityMarkdown": "PRIMARY：给出多个分子或离子，要求比较或排序键角大小时。",
-   "contentMarkdown": "1. 杂化轨道类型不同：sp＞sp2＞sp3。\\n2. 在同一分子中，π键电子斥力大，键角大。",
-   "boundaryMarkdown": "本块思维模型第(2)条缺失（疑为图示或表格未转出），只保留上述两条判据；比较同杂化类型分子的键角时还须另补孤电子对与电负性等判据。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第五章 物质结构与性质 元素周期律/第03讲 分子结构与性质、化学键（复习讲义）（全国通用）（教师版）.docx（块 debd9107b2-018）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-debd9107b2-018",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:键角大小的比较",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-debd9107b2-024",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "判断分子或离子立体构型的三步曲（第03讲·考向1思维建模）",
-   "summaryMarkdown": "三步：先算中心原子的价层电子对数，再定价层电子对的立体构型，最后由成键电子对数与孤电子对数定出分子的立体构型。",
-   "applicabilityMarkdown": "PRIMARY：用价层电子对互斥理论预测分子或离子的空间构型时。",
-   "contentMarkdown": "1. 第一步：确定中心原子上的价层电子对数。\\n2. 第二步：确定价层电子对的立体构型——价层电子对相互排斥、趋向尽可能远离，据此由对数确定构型。\\n3. 第三步：价层电子对总数减去成键电子对数得孤电子对数，由成键电子对数和孤电子对数确定较稳定的分子立体构型。",
-   "boundaryMarkdown": "适用于主族元素为中心原子的分子或离子；价层电子对数必须计入孤电子对（不能只数成键的σ键），第一步数错则后两步全错。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第五章 物质结构与性质 元素周期律/第03讲 分子结构与性质、化学键（复习讲义）（全国通用）（教师版）.docx（块 debd9107b2-024）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-debd9107b2-024",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:vsepr模型",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-debd9107b2-030",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -29426,29 +28414,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞中粒子配位数的计算",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-e10749660f-009",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "鉴别晶体与非晶体的四种方法（第04讲·考向1思维建模）",
-   "summaryMarkdown": "四法鉴别：看外观有无规则几何外形、测熔点是否固定、测是否有各向异性、X－射线衍射（最科学可靠，晶体得分立斑点或明锐谱线、非晶体只散射得连续谱线）。",
-   "applicabilityMarkdown": "PRIMARY：判断某固体是晶体还是非晶体、评价晶体与非晶体比较的叙述时。",
-   "contentMarkdown": "1. 观察外观：晶体有规则的几何外形，而非晶体没有。\\n2. 测定熔点是否固定：晶体有固定熔点，而非晶体没有。\\n3. 测定是否具有各向异性：晶体有各向异性，而非晶体没有。\\n4. X－射线衍射法（最科学可靠的方法）：晶体能使 X－射线发生衍射（得到分立的斑点或明锐的谱线），而非晶体只能散射（得到连续的谱线）。",
-   "boundaryMarkdown": "前三法为常规辅助判断，最终以 X－射线衍射法为准；四条判据只用于区分晶体与非晶体，不能用来区分两种晶体。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第五章 物质结构与性质 元素周期律/第04讲 晶体结构与性质（复习讲义）（全国通用）（教师版）.docx（块 e10749660f-009）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-e10749660f-009",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶体与非晶体",
      "role": "PRIMARY"
     }
    ]
@@ -29891,29 +28856,6 @@
    ]
   },
   {
-   "slug": "ext-che-b1ccc03bd6-015",
-   "subject": "CHEMISTRY",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "沉淀溶解平衡的三个易错点（变化类型、加固体、难溶与弱电解质）（第04讲 沉淀溶解平衡·考向1 思维建模）",
-   "summaryMarkdown": "沉淀溶解平衡的移动属物理变化但遵循勒夏特列原理；达到平衡后再加该难溶物对平衡无影响；难溶电解质不一定是弱电解质。",
-   "applicabilityMarkdown": "PRIMARY：辨析「沉淀溶解平衡是否属化学变化」「再加固体是否移动平衡」「难溶物是否等于弱电解质」等易错判断时。",
-   "contentMarkdown": "1. 沉淀溶解平衡移动过程是固体溶解和析出的相互转化，属于物理变化，但遵循勒夏特列原理。\\n2. 沉淀溶解达到平衡时，再加入该难溶物对平衡无影响。\\n3. 难溶电解质不一定是弱电解质，如 BaSO4、AgCl 等都是强电解质。",
-   "boundaryMarkdown": "三条针对「难溶」「沉淀」「变化类型」的常见误判；「难溶」指溶解度小，与电解质强弱无关，判断强弱仍看是否完全电离。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第八章 水溶液中的离子反应与平衡/第04讲 沉淀溶解平衡（复习讲义）（全国通用）（教师版） .docx（块 b1ccc03bd6-015）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-b1ccc03bd6-015",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:沉淀溶解平衡易错六点",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-b1ccc03bd6-022",
    "subject": "CHEMISTRY",
    "type": "CONCEPT_EXPLANATION",
@@ -30121,29 +29063,6 @@
    ]
   },
   {
-   "slug": "ext-che-ed230e0ad8-010",
-   "subject": "CHEMISTRY",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "反应过程能量分析的四个注意（第01讲教师版·考向1 思维建模）",
-   "summaryMarkdown": "焓变与反应条件及反应是否彻底无关、催化剂只降低活化能不改焓变、反应中化学键不一定完全断裂、有能量变化的过程不一定是放热或吸热反应。",
-   "applicabilityMarkdown": "PRIMARY：分析反应过程能量图象、判断某过程是否为放热或吸热反应、或讨论催化剂对焓变的影响时。",
-   "contentMarkdown": "焓变与反应发生的条件、反应是否彻底无关；催化剂能降低反应的活化能、但不影响焓变的大小。\\n在化学反应中，反应物各原子之间的化学键不一定完全断裂。\\n有能量变化的过程不一定是放热反应或吸热反应，如水结成冰放热但不属于放热反应。",
-   "boundaryMarkdown": "四条均为“不一定”类辨析：不能由有无能量变化反推反应类型，也不能由键是否完全断裂判断是否发生化学反应。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第六章 化学反应与能量/第01讲 化学反应的热效应（复习讲义）（全国通用）（教师版）.docx（块 ed230e0ad8-010）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-ed230e0ad8-010",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:反应热",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-ed230e0ad8-042",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -30323,29 +29242,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电极反应式",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-447c937000-032",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "多液电池的定义与分析要领（第02讲教师版·考向4 思维建模）",
-   "summaryMarkdown": "多液电池靠多种电解质溶液间离子定向移动形成内部电流；分析时须列清每个电极、每种溶液的变化。",
-   "applicabilityMarkdown": "PRIMARY：分析由多种电解质溶液构成的多液电池的电极反应与离子移动时。",
-   "contentMarkdown": "多液电池是指基于多种电解质溶液进行离子定向移动形成内部电流的原电池，装置较为复杂、反应相对较难。\\n分析要领：认真观察图示、分析原理，列清每一个电极、每一种溶液发生的变化。",
-   "boundaryMarkdown": "多液电池靠离子在多套电解质溶液间定向移动导电；须逐池、逐极分析，不能套用单一电解液的模型。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮复习讲义+练习+课件（新教材新高考）/2026版/第六章 化学反应与能量/第02讲 原电池、化学电源（复习讲义）（全国通用）（教师版）.docx（块 447c937000-032）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-447c937000-032",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:多液电池的分析方法",
      "role": "PRIMARY"
     }
    ]
@@ -33640,29 +32536,6 @@
    ]
   },
   {
-   "slug": "ext-che-61d1bf85f1-006",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "从组成、熔沸点、性质区分纯净物和混合物（第01讲 物质的分类及转化·考向1 思维建模）",
-   "summaryMarkdown": "纯净物有固定的组成和结构、有固定的熔沸点、保持一种物质的性质；混合物无固定的组成和结构、无固定的熔沸点、保持原有物质各自的性质。",
-   "applicabilityMarkdown": "PRIMARY：判断某物质属于纯净物还是混合物、说明两者的区分依据时。",
-   "contentMarkdown": "1. 纯净物：有固定的组成和结构；有固定的熔沸点；保持一种物质的性质。\\n2. 混合物：无固定的组成和结构；无固定的熔沸点；保持原有物质各自的性质。",
-   "boundaryMarkdown": "该判据是概念层面的区分标准；判断具体物质时要回到组成与熔沸点是否固定，不能只凭名称或所含元素种类判断。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（四川专用）/第01讲 物质的分类及转化（复习讲义）（四川专用）（学生版）.docx（块 61d1bf85f1-006）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-61d1bf85f1-006",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:纯净物",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-61d1bf85f1-007",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -35135,75 +34008,6 @@
    ]
   },
   {
-   "slug": "ext-che-5215a08d59-010",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "氮氧化物污染的三种处理方法（第03讲 氮及其重要化合物（学生版）·考向1 思维建模）",
-   "summaryMarkdown": "NOx 污染的常用处理：NaOH 溶液吸收法（NO2 与 NO 混合吸收、NO2 单独吸收）、氨吸收法（NH3 还原 NO2 或 NO）、催化转化法（汽车尾气中 CO 与 NO 反应）。",
-   "applicabilityMarkdown": "PRIMARY：回答氮氧化物尾气处理的原理、书写吸收反应的化学方程式或评价处理方案时。",
-   "contentMarkdown": "1. NaOH 溶液吸收法：NO2＋NO＋2NaOH＝2NaNO2＋H2O；2NO2＋2NaOH＝NaNO3＋NaNO2＋H2O。\\n2. 氨吸收法：8NH3＋6NO2＝7N2＋12H2O；4NH3＋6NO＝5N2＋6H2O。\\n3. 催化转化法：汽车尾气催化转化器中发生 2CO＋2NO＝2CO2＋N2。",
-   "boundaryMarkdown": "三类方法都是把 NOx 转化为无害或易吸收物质的思路；选用时要看气体组成（NO 与 NO2 的相对量会影响碱液吸收的产物）。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（四川专用）/第03讲 氮及其重要化合物（复习讲义）（四川专用）（学生版）.docx（块 5215a08d59-010）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-5215a08d59-010",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:n2o-no和no2等氮氧化物是空气污染物-含有氮氧化物的尾气需处理后才能排放",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-5215a08d59-011",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "氮氧化物溶于水计算的实质与总关系式（第03讲 氮及其重要化合物（学生版）·考向2 思维建模）",
-   "summaryMarkdown": "NO2、NO、O2 混合气溶于水的实质是 3NO2＋H2O＝2HNO3＋NO 与 2NO＋O2＝2NO2，故剩余气体只能是 NO 或 O2；总关系式为 4NO＋3O2＋2H2O＝4HNO3 与 4NO2＋O2＋2H2O＝4HNO3。",
-   "applicabilityMarkdown": "PRIMARY：计算氮氧化物（与 O2 混合）溶于水后剩余气体的种类、体积或所得溶液浓度时。",
-   "contentMarkdown": "1. 反应的实质：3NO2＋H2O＝2HNO3＋NO，2NO＋O2＝2NO2，故若有气体剩余只能是 NO 或 O2，不可能是 NO2。\\n2. NO 和 O2 通入水中的总关系式：4NO＋3O2＋2H2O＝4HNO3。\\n3. NO2 和 O2 通入水中的总关系式：4NO2＋O2＋2H2O＝4HNO3。",
-   "boundaryMarkdown": "两条总关系式按恰好完全反应使用；若 NO 与 O2（或 NO2 与 O2）的体积比不等于关系式中的比值，需先判断剩余气体是 NO 还是 O2，再对剩余部分单独计算。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（四川专用）/第03讲 氮及其重要化合物（复习讲义）（四川专用）（学生版）.docx（块 5215a08d59-011）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-5215a08d59-011",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:氮氧化物与氧气混合溶于水的计算",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-5215a08d59-013",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "喷泉实验的原理与发生条件（第03讲 氮及其重要化合物（学生版）·考向4 思维建模）",
-   "summaryMarkdown": "喷泉实验靠烧瓶内外短时间内产生较大压强差，利用大气压把烧杯中的液体压入烧瓶形成喷泉；条件是容器内气体极易溶于水，或与溶液中的溶质发生化学反应。",
-   "applicabilityMarkdown": "PRIMARY：判断某气体与吸收液组合能否形成喷泉、解释喷泉现象或设计喷泉实验时。",
-   "contentMarkdown": "1. 原理：使烧瓶内外在短时间内产生较大的压强差，利用大气压将烧瓶下面烧杯中的液体压入烧瓶内，在尖嘴导管口形成喷泉。\\n2. 发生条件：容器内气体极易溶于水，或容器内气体与溶液中的溶质发生化学反应。",
-   "boundaryMarkdown": "两个条件满足其一即可形成喷泉；气体溶解或反应必须足够快、足够显著才能形成明显压强差，难溶且不反应的气体不适用。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（四川专用）/第03讲 氮及其重要化合物（复习讲义）（四川专用）（学生版）.docx（块 5215a08d59-013）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-5215a08d59-013",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:形成喷泉的原理",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-5215a08d59-024",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -36400,29 +35204,6 @@
    ]
   },
   {
-   "slug": "ext-che-e8e221ed0f-004b",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "系统命名法中四类字的含义（安徽·有机化合物的结构特点）",
-   "summaryMarkdown": "名称中各部分含义：烯、炔、醛、酮、酸、酯等指官能团；二、三、四等指相同取代基或官能团的个数；1、2、3等指官能团或取代基的位置；甲、乙、丙、丁等指主链碳原子个数。",
-   "applicabilityMarkdown": "PRIMARY：读写有机物系统命名、由名称反推有机物结构时。",
-   "contentMarkdown": "1. 烯、炔、醛、酮、酸、酯……指官能团。\\n2. 二、三、四……指相同取代基或官能团的个数。\\n3. 1、2、3……指官能团或取代基的位置；甲、乙、丙、丁……指主链碳原子个数分别是 1、2、3、4……",
-   "boundaryMarkdown": "四类字用于解读名称；主链碳数用“甲乙丙丁”表示，不含官能团位次信息，还原结构还须结合位次数字与个数。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（安徽专用）/第01讲 有机化合物的结构特点与研究方法（复习讲义）（安徽专用）（学生版）.docx（块 e8e221ed0f-004）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-e8e221ed0f-004b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:命名原则",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-b992a94afa-014",
    "subject": "CHEMISTRY",
    "type": "CONCEPT_EXPLANATION",
@@ -36622,75 +35403,6 @@
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-025004618b-020b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:fe-oh-3胶体的制备",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-20580101b3-008",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "从组成、熔沸点、性质区分纯净物与混合物（安徽专用第01讲 教师版·【思维建模】）",
-   "summaryMarkdown": "纯净物有固定的组成和结构、有固定的熔沸点、只保持一种物质的性质；混合物无固定的组成和结构、无固定的熔沸点、保持原有物质各自的性质。",
-   "applicabilityMarkdown": "PRIMARY：判断某物质是纯净物还是混合物、或分析混合物特征描述时。",
-   "contentMarkdown": "1. 纯净物：有固定的组成和结构；有固定的熔沸点；只保持一种物质的性质。\\n2. 混合物：无固定的组成和结构；无固定的熔沸点；保持原有物质各自的性质。",
-   "boundaryMarkdown": "区分要从组成、熔沸点、性质三个角度综合判断；有固定的熔沸点是纯净物的重要特征，只凭“含多种元素”等单一线索不能判为混合物。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（安徽专用）/第01讲 物质的分类及转化（复习讲义）（安徽专用）（教师版）.docx（块 20580101b3-008）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-20580101b3-008",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:纯净物",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-20580101b3-027",
-   "subject": "CHEMISTRY",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "胶体知识易错六点（安徽专用第01讲 教师版·【易错警示】1-5）",
-   "summaryMarkdown": "胶体的本质特征是胶粒直径 1～100 nm（不是丁达尔效应）；胶体不带电而胶体粒子带电荷（淀粉胶体粒子例外）；胶粒数目远小于铁原子数、吸附能力强；微粒能透过滤纸不能透过半透膜。",
-   "applicabilityMarkdown": "PRIMARY：辨析胶体的本质特征、电性、胶粒数目与分离方法等易错点时。",
-   "contentMarkdown": "1. 丁达尔效应可快速鉴别溶液与胶体，但胶体区别于其他分散系的本质特征是胶体粒子的直径介于 1～100 nm 之间，而不是丁达尔效应。\\n2. 胶体不带电荷，胶体粒子（分散质）带电荷；但淀粉胶体的胶体粒子也不带电荷，整个分散系仍呈电中性。\\n3. Fe(OH)3 胶体中，Fe(OH)3 胶粒数目远小于铁原子的数目；胶粒有很大的比表面积，吸附能力很强。\\n4. 胶体中的分散质微粒能透过滤纸、但不能透过半透膜：用过滤分离胶体和浊液，用渗析分离胶体和溶液。",
-   "boundaryMarkdown": "本质特征只认粒子直径 1～100 nm；胶体整体呈电中性、不带电荷；分离胶体与溶液用渗析而不是过滤。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（安徽专用）/第01讲 物质的分类及转化（复习讲义）（安徽专用）（教师版）.docx（块 20580101b3-027）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-20580101b3-027",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:胶体知识易错点",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-20580101b3-027b",
-   "subject": "CHEMISTRY",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "书写 Fe(OH)3 胶体制备化学方程式的四个易错点（安徽专用第01讲 教师版·【易错警示】6）",
-   "summaryMarkdown": "书写 Fe(OH)3 胶体制备方程式时：用 === 不用可逆符号；Fe(OH)3 后注明「胶体」且不用 ↓；反应条件写 △；HCl 后不标 ↑。",
-   "applicabilityMarkdown": "PRIMARY：书写或检查 Fe(OH)3 胶体制备的化学方程式时。",
-   "contentMarkdown": "1. 用 === 而不用可逆符号。\\n2. Fe(OH)3 后面要注明「胶体」，不使用 ↓ 符号。\\n3. 反应条件写 △。\\n4. HCl 后面不能标 ↑ 符号。",
-   "boundaryMarkdown": "本条只针对胶体制备的化学方程式：胶体不写成沉淀（不标 ↓），HCl 虽是生成物但不标气体符号，反应条件不能漏。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（安徽专用）/第01讲 物质的分类及转化（复习讲义）（安徽专用）（教师版）.docx（块 20580101b3-027）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-20580101b3-027b",
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:fe-oh-3胶体的制备",
@@ -37113,29 +35825,6 @@
    ]
   },
   {
-   "slug": "ext-che-c8eaa7660b-004",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "原电池中电子与离子的运动方向（安徽专用第02讲 原电池·【易错提醒】2）",
-   "summaryMarkdown": "电子只能在导线中流动、不能在溶液中流动；离子只能在溶液中移动、不能在导线中移动；用盐桥时阴离子移向负极区、阳离子移向正极区。",
-   "applicabilityMarkdown": "PRIMARY：判断原电池（含盐桥、交换膜）中电子流向与离子迁移方向时。",
-   "contentMarkdown": "1. 电子只能在导线中流动而不能在溶液中流动；离子只能在溶液中移动而不能在导线中移动（电子不下水、离子不上岸）。\\n2. 原电池中的内电路和外电路分别通过离子的移动和电子的流动而形成闭合回路。\\n3. 有盐桥时，盐桥中的阴离子移向负极区、阳离子移向正极区；有交换膜时离子选择性通过（如阳离子交换膜中阳离子移向正极）。",
-   "boundaryMarkdown": "“电子不下水、离子不上岸”是判断电学回路的底线；交换膜有选择性，只有对应离子能通过并定向迁移。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（安徽专用）/第02讲 原电池、化学电源（复习讲义）（安徽专用）（学生版）.docx（块 c8eaa7660b-004）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-c8eaa7660b-004",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电化学中电子流向与离子迁移方向的判断",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-c8eaa7660b-004b",
    "subject": "CHEMISTRY",
    "type": "MISCONCEPTION_GUIDE",
@@ -37154,29 +35843,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:原电池的工作原理-以zn-cu原电池为例",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-c8eaa7660b-006",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "电极反应式书写的一般方法（安徽专用第02讲 原电池·【思维建模】2）",
-   "summaryMarkdown": "写电极反应式按四步：明确两极反应物、明确直接产物（负极氧化、正极还原）、按介质环境与共存原则确定最终产物、按电荷守恒与原子守恒配平。",
-   "applicabilityMarkdown": "PRIMARY：书写原电池的电极反应式、或补全给定装置的电极反应时。",
-   "contentMarkdown": "1. 明确两极的反应物。\\n2. 明确直接产物：根据负极氧化、正极还原确定两极的直接产物。\\n3. 确定最终产物：根据介质环境和共存原则，找出参与的介质粒子，确定最终产物。\\n4. 配平：根据电荷守恒、原子守恒配平电极反应式。",
-   "boundaryMarkdown": "确定最终产物必须结合介质环境与共存原则；配平要同时满足电荷守恒与原子守恒，不能只配原子。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（安徽专用）/第02讲 原电池、化学电源（复习讲义）（安徽专用）（学生版）.docx（块 c8eaa7660b-006）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-c8eaa7660b-006",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电极反应式",
      "role": "PRIMARY"
     }
    ]
@@ -37634,29 +36300,6 @@
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-2006d50048-013",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:含苯环同分异构体数目的确定技巧",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-4fdc080203-015",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "苯环上连有取代基的同分异构体数目判断（安徽专用第02讲 烃 教师版·【思维建模】）",
-   "summaryMarkdown": "苯环上两个取代基时有 3 种同分异构体；三个取代基时按完全相同（3 种）、两个相同（6 种）、均不相同（10 种）计数。",
-   "applicabilityMarkdown": "PRIMARY：判断苯环上多个取代基形成的同分异构体数目时。",
-   "contentMarkdown": "1. 苯环上有两个取代基时，有 3 种同分异构体。\\n2. 苯环上有三个取代基时：若三个取代基完全相同，有 3 种同分异构体；若有两个取代基相同，有 6 种；若三个取代基均不相同，有 10 种。",
-   "boundaryMarkdown": "计数只针对苯环上取代基的位置异构（不考虑立体异构）；三个取代基先按完全相同/两个相同/均不相同归类再套数目。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（安徽专用）/第02讲 烃（复习讲义）（安徽专用）（教师版）.docx（块 4fdc080203-015）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-4fdc080203-015",
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:含苯环同分异构体数目的确定技巧",
@@ -39712,75 +38355,6 @@
    ]
   },
   {
-   "slug": "ext-che-e5ccf9cc1e-006",
-   "subject": "CHEMISTRY",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "官能团识别与书写：醇/酚、醛类的判据及常见错误（湖南专用第01讲 有机化合物的结构特点·学生版）",
-   "summaryMarkdown": "—OH 连苯环为酚、连链烃基或脂环烃基为醇；醛类须醛基与烃基直接相连，甲酸、甲酸盐、甲酸某酯不属醛类；官能团书写有常见错误写法。",
-   "applicabilityMarkdown": "PRIMARY：判断某物质属于醇还是酚、是否属于醛类，或检查官能团书写时。",
-   "contentMarkdown": "1. —OH 连到苯环上属于酚，连到链烃基或脂环烃基上为醇。\\n2. 醛类物质是醛基与烃基直接相连的有机物，甲酸、甲酸盐、甲酸某酯等不属于醛类物质。\\n3. 官能团书写常出现的错误：双键错写成「C===C」；「—CHO」错写成「CHO—」或「—COH」。",
-   "boundaryMarkdown": "判别依据是官能团的连接对象（羟基连苯环或连烃基、醛基是否与烃基直接相连）；书写时双键与醛基有规范写法，不能凭习惯简写。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第01讲 有机化合物的结构特点与研究方法（复习讲义）（湖南专用）（学生版）.docx（块 e5ccf9cc1e-006）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-e5ccf9cc1e-006",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:依据官能团分类",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-e5ccf9cc1e-007",
-   "subject": "CHEMISTRY",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "有机物系统命名的四类常见错误（湖南专用第01讲 有机化合物的结构特点·学生版）",
-   "summaryMarkdown": "常见错误：主链选取不当（不含官能团、不是最长且支链最多）；编号错（官能团位次不是最小）；支链主次不分；连接线「-」「，」忘记或用错。",
-   "applicabilityMarkdown": "PRIMARY：检查有机物命名是否正确、或按系统命名法命名时。",
-   "contentMarkdown": "1. 主链选取不当：所选主链不包含官能团，不是主链最长、支链最多。\\n2. 编号错：所编官能团的位次不是最小。\\n3. 支链主次不分：没有按先简后繁的顺序排列。\\n4. 连接线「-」「，」忘记或用错。",
-   "boundaryMarkdown": "四条针对链状有机物的系统命名；具体主链与位次仍要按官能团优先与最小编号规则核对。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第01讲 有机化合物的结构特点与研究方法（复习讲义）（湖南专用）（学生版）.docx（块 e5ccf9cc1e-007）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-e5ccf9cc1e-007",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:命名原则",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-e5ccf9cc1e-007b",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "系统命名法中四类字的含义（湖南专用第01讲 有机化合物的结构特点·学生版）",
-   "summaryMarkdown": "名称中各部分含义：烯、炔、醛、酮、酸、酯等指官能团；二、三、四等指相同取代基或官能团的个数；1、2、3等指位置；甲、乙、丙、丁等指主链碳原子个数。",
-   "applicabilityMarkdown": "PRIMARY：读写有机物系统命名、由名称反推有机物结构时。",
-   "contentMarkdown": "1. 烯、炔、醛、酮、酸、酯……指官能团。\\n2. 二、三、四……指相同取代基或官能团的个数。\\n3. 1、2、3……指官能团或取代基的位置。\\n4. 甲、乙、丙、丁……指主链碳原子个数分别是 1、2、3、4……",
-   "boundaryMarkdown": "四类字用于解读名称；主链碳数用「甲乙丙丁」表示，不含官能团位次信息，还原结构还须结合位次数字与个数。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第01讲 有机化合物的结构特点与研究方法（复习讲义）（湖南专用）（学生版）.docx（块 e5ccf9cc1e-007）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-e5ccf9cc1e-007b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:命名原则",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-561c522b89-006",
    "subject": "CHEMISTRY",
    "type": "MISCONCEPTION_GUIDE",
@@ -39942,29 +38516,6 @@
    ]
   },
   {
-   "slug": "ext-che-5292ff1265-011",
-   "subject": "CHEMISTRY",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "实验室制取 Cl2 的四点注意（湖南专用第01讲 氯及其重要化合物·学生版·考向1）",
-   "summaryMarkdown": "必须用浓盐酸（稀盐酸与 MnO2 不反应）；加热温度不宜过高以减少 HCl 挥发；结束先停止反应并排出残留 Cl2 再拆装置；尾气用 NaOH 吸收而不用澄清石灰水。",
-   "applicabilityMarkdown": "PRIMARY：判断制 Cl2 的盐酸浓度、温控、拆卸顺序与尾气吸收是否正确时。",
-   "contentMarkdown": "1. 反应物的选择：必须用浓盐酸，稀盐酸与 MnO2 不反应，且随反应进行浓盐酸变稀后反应停止，盐酸中的 HCl 不可能全部参加反应。\\n2. 加热温度不宜过高，以减少 HCl 挥发。\\n3. 实验结束后，先使反应停止并排出残留的 Cl2 后，再拆卸装置，避免污染空气。\\n4. 尾气吸收用 NaOH 溶液，不能用澄清石灰水，因为澄清石灰水中含 Ca(OH)2 的量少，吸收不完全。",
-   "boundaryMarkdown": "四点分别针对盐酸浓度、温控、拆卸顺序与尾气吸收；尾气不用澄清石灰水的原因是 Ca(OH)2 溶解度小、用量不足。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第01讲 氯及其重要化合物（复习讲义）（湖南专用）（学生版）.docx（块 5292ff1265-011）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-5292ff1265-011",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:cl2的实验室制法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-44ad239dd0-015",
    "subject": "CHEMISTRY",
    "type": "MISCONCEPTION_GUIDE",
@@ -40103,52 +38654,6 @@
    ]
   },
   {
-   "slug": "ext-che-e61b33c880-009",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "从组成、熔沸点、性质区分纯净物与混合物（湖南专用第01讲 物质的分类及转化·教师版·思维建模）",
-   "summaryMarkdown": "纯净物有固定的组成和结构、有固定的熔沸点、保持一种物质的性质；混合物无固定的组成和结构、无固定的熔沸点、保持原有物质各自的性质。",
-   "applicabilityMarkdown": "PRIMARY：判断某物质是纯净物还是混合物、或分析混合物特征描述时。",
-   "contentMarkdown": "1. 纯净物：有固定的组成和结构；有固定的熔沸点；保持一种物质的性质。\\n2. 混合物：无固定的组成和结构；无固定的熔沸点；保持原有物质各自的性质。",
-   "boundaryMarkdown": "区分要从组成、熔沸点、性质三个角度综合判断；有固定的熔沸点是纯净物的重要特征，不能凭单一线索下结论。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第01讲 物质的分类及转化（复习讲义）（湖南专用）（教师版）.docx（块 e61b33c880-009）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-e61b33c880-009",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:纯净物",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-e61b33c880-015",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "传统文化类试题的解题关键（湖南专用第01讲 物质的分类及转化·教师版·考向1）",
-   "summaryMarkdown": "关键是把所给文本信息提取为有效信息并正确解读，转化为物质的物理性质、化学性质、分离与提纯方法、反应类型及反应原理等教材知识。",
-   "applicabilityMarkdown": "PRIMARY：以古诗词、古籍记载或地方文化工艺为背景考查化学知识时。",
-   "contentMarkdown": "解答传统文化类试题的关键是根据所给文本信息提取有效信息并正确解读，转化为化学学科中物质的物理性质、化学性质、分离与提纯方法、反应类型及反应原理等熟悉的教材知识。",
-   "boundaryMarkdown": "与同讲学生版为同一知识段（写侧保留两份）；本条只给「关键」，不含例题的逐项判断。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第01讲 物质的分类及转化（复习讲义）（湖南专用）（教师版）.docx（块 e61b33c880-015）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-e61b33c880-015",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:传统文化类试题的解题方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-364422b4cf-015",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -40236,29 +38741,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:外界条件对电离平衡影响的四个不一定",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-a981c3a083-010",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "从「定性」「定量」两个角度分析电离平衡的移动（湖南专用第01讲 电离平衡·学生版·考向2）",
-   "summaryMarkdown": "定性用勒·夏特列原理——平衡向「减弱」这种改变的方向移动、结果不能抵消或超越这种改变；定量用浓度商规则——Q＞K 逆向、Q＝K 平衡、Q＜K 正向。",
-   "applicabilityMarkdown": "PRIMARY：分析外界条件改变时电离平衡的移动方向时。",
-   "contentMarkdown": "1. 定性角度：按勒·夏特列原理，平衡向「减弱」这种改变的方向移动，移动结果不能「抵消」或「超越」这种改变。\\n2. 定量角度：按浓度商规则，Q＞K 时平衡逆向移动，Q＝K 时处于平衡状态，Q＜K 时平衡正向移动。",
-   "boundaryMarkdown": "定性分析给出方向、定量分析给出判据，两者结论应一致；浓度商要与该温度下的平衡常数比较。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第01讲 电离平衡（复习讲义）（湖南专用）（学生版）.docx（块 a981c3a083-010）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-a981c3a083-010",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:从-定性-和-定量-两个角度理解电离平衡",
      "role": "PRIMARY"
     }
    ]
@@ -40586,29 +39068,6 @@
    ]
   },
   {
-   "slug": "ext-che-cde8b71dd3-030",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "原子光谱的定义、分类与应用（湖南专用第02讲 原子结构与性质·教师版·考向3）",
-   "summaryMarkdown": "电子发生跃迁时吸收或释放不同的光，用光谱仪摄取吸收光谱或发射光谱，总称原子光谱；吸收光谱为明亮背景的暗色谱线、发射光谱为暗色背景的明亮谱线；光与电子跃迁释放能量有关。",
-   "applicabilityMarkdown": "PRIMARY：说明原子光谱的分类与特征、或解释焰火霓虹灯光等与电子跃迁的关系时。",
-   "contentMarkdown": "1. 原子光谱：不同元素原子的电子发生跃迁时会吸收或释放不同的光，可以用光谱仪摄取各种元素原子的吸收光谱或发射光谱，总称原子光谱。\\n2. 分类及特征：吸收光谱为明亮背景的暗色谱线；发射光谱为暗色背景的明亮谱线。\\n3. 应用——光谱分析：利用原子光谱上的特征谱线来鉴定元素；焰火、霓虹灯光、激光、荧光、LED 灯光等都与核外电子跃迁释放能量有关。",
-   "boundaryMarkdown": "本条与同讲学生版为同一知识段（写侧保留两份）；形成原因一处块内为空白，未取。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第02讲 原子结构与性质（复习讲义）（湖南专用）（教师版）.docx（块 cde8b71dd3-030）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-cde8b71dd3-030",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:基态、激发态与原子光谱",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-1b23d3e496-005",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -40627,29 +39086,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:判断原电池正-负极的方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-1b23d3e496-005b",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "双液（带盐桥）原电池优于单液原电池的原因（湖南专用第02讲 原电池、化学电源·教师版·考向1）",
-   "summaryMarkdown": "双液铜锌原电池用盐桥隔开氧化剂与还原剂，Zn 与 Cu2＋ 不直接接触，仅有化学能转化为电能、避免能量损耗，电流稳定、放电时间长。",
-   "applicabilityMarkdown": "PRIMARY：比较双液（带盐桥）原电池与单液原电池、说明盐桥作用时。",
-   "contentMarkdown": "双液铜、锌原电池（带盐桥）与单液原电池相比，最大的优点是 Zn 与氧化剂（Cu2＋）不直接接触，仅有化学能转化为电能，避免了能量损耗，故电流稳定、放电时间长。",
-   "boundaryMarkdown": "优点来自氧化剂与还原剂被盐桥分隔这一前提；单液电池中两物质直接接触，会有一部分化学能转化为热能。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（湖南专用）/第02讲 原电池、化学电源（复习讲义）（湖南专用）（教师版）.docx（块 1b23d3e496-005）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-1b23d3e496-005b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:盐桥的作用与双液原电池",
      "role": "PRIMARY"
     }
    ]
@@ -43024,29 +41460,6 @@
    ]
   },
   {
-   "slug": "ext-che-3ce5fd3c1d-008",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "从组成、熔沸点、性质区分纯净物与混合物（第01讲·考向2思维建模）",
-   "summaryMarkdown": "纯净物有固定的组成和结构、有固定的熔沸点、保持一种物质的性质；混合物无固定的组成和结构、无固定的熔沸点、保持原有物质各自的性质。",
-   "applicabilityMarkdown": "PRIMARY：判断某物质是纯净物还是混合物、辨析相关叙述时。",
-   "contentMarkdown": "1. 纯净物：有固定的组成和结构；有固定的熔沸点；保持一种物质的性质。\\n2. 混合物：无固定的组成和结构；无固定的熔沸点；保持原有物质各自的性质。",
-   "boundaryMarkdown": "三条判据逐条核对（组成与结构、熔沸点、性质保持）；混合物保持各组分原有性质，不能按单一物质的性质推断。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（福建专用）/第一章 物质及其变化/第01讲 物质的分类及转化（学生版）.docx（块 3ce5fd3c1d-008）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-3ce5fd3c1d-008",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:纯净物",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-3ce5fd3c1d-012",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -43714,29 +42127,6 @@
    ]
   },
   {
-   "slug": "ext-che-0269f99d81-014",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "两平衡状态互为等效的四点条件（第02讲·考向2思维建模）",
-   "summaryMarkdown": "等效平衡须满足：同一条件；同一可逆反应；只是初始投料不同（建立平衡的方向可不同）；平衡时相应物质在各自体系中的体积分数（或物质的量分数）相同。",
-   "applicabilityMarkdown": "PRIMARY：判断不同投料方式建立的两个平衡状态是否等效时。",
-   "contentMarkdown": "1. 两平衡状态互为等效要满足四点：①同一条件；②同一可逆反应；③仅仅由于初始投料不同（建立平衡的方向可以不同）；④平衡时相应物质在各自平衡体系中的体积分数（或物质的量分数）相同。",
-   "boundaryMarkdown": "等效指组分分数相同，不要求各物质的量绝对相等。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（福建专用）/第七章 化学反应速率与化学平衡/第02讲 化学平衡状态、化学平衡的移动（复习讲义）（福建专用）（学生版）.docx（块 0269f99d81-014）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-0269f99d81-014",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:等效平衡",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-0269f99d81-015",
    "subject": "CHEMISTRY",
    "type": "MISCONCEPTION_GUIDE",
@@ -44146,29 +42536,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:脂肪烃的结构特点及通式",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-024618b63e-024",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "「苯环」与「侧链」的相互影响（第02讲·考向2思维建模·教师版）",
-   "summaryMarkdown": "苯环上的取代优先在邻、对位；光照下取代在侧链烷基；与苯环直接相连碳上有氢的侧链可被氧化为羧基；加氢只发生在苯环。",
-   "applicabilityMarkdown": "PRIMARY：解释或判断苯的同系物的取代、氧化、加成产物与反应条件时使用。",
-   "contentMarkdown": "1．取代反应：侧链（烷基）使苯环邻、对位氢更活泼，取代优先发生在邻、对位；光照条件下取代反应发生在侧链烷基上（类似烷烃的取代）。\\n2．氧化反应：与苯环直接相连的碳原子上有氢时，侧链可被酸性KMnO4溶液氧化为羧基（—COOH）。\\n3．加成反应：延用苯的加成规律，与H2加成需Ni作催化剂并加热，苯环被还原为环己烷结构，侧链烷基不发生加成。",
-   "boundaryMarkdown": "判断取代产物先看反应条件；侧链能否被氧化取决于与苯环直接相连的碳上是否有氢（如叔丁基苯不能被氧化）。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（福建专用）/第九章 有机化学基础/第02讲 烃（教师版）.docx（块 024618b63e-024）",
-   "reviewedAtEpochMillis": 1792418197154,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-024618b63e-024",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:苯的同系物的结构与性质",
      "role": "PRIMARY"
     }
    ]
@@ -45434,29 +43801,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电化学中电子流向与离子迁移方向的判断",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-d3637bf4e4-011",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "化学电源中电极反应式书写的一般方法（第02讲 原电池与化学电源·考向1 思维建模）",
-   "summaryMarkdown": "化学电源中书写电极反应式按四步：明确两极反应物、明确直接产物、结合介质确定最终产物、按守恒配平。",
-   "applicabilityMarkdown": "PRIMARY：由化学电源（一次电池、二次电池、燃料电池）装置书写两极的电极反应式时。",
-   "contentMarkdown": "明确两极的反应物。\\n明确直接产物：根据负极氧化、正极还原，明确两极的直接产物。\\n确定最终产物：根据介质环境和共存原则，找出参与的介质粒子，确定最终产物。\\n配平：根据电荷守恒、原子守恒配平电极反应式。",
-   "boundaryMarkdown": "四步须按序进行；直接产物是中间判断、不能当最终产物，介质粒子（如 H＋、OH－）要依介质环境选取。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（福建专用）/第六章 化学反应与能量/第02讲原电池 与化学电源（复习讲义）（学生版）（福建专用）.docx（块 d3637bf4e4-011）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-d3637bf4e4-011",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:电极反应式",
      "role": "PRIMARY"
     }
    ]
@@ -48176,29 +46520,6 @@
    ]
   },
   {
-   "slug": "ext-che-6eea87cdfb-007",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "复合判据只指出反应趋势（第04讲 化学反应的方向·考向2 思维建模）",
-   "summaryMarkdown": "反应能否自发进行需综合考虑焓变和熵变对反应的影响；复合判据ΔH－TΔS＜0只指出自发进行的趋势，不说明反应一定能实际发生，还要考虑反应快慢。",
-   "applicabilityMarkdown": "PRIMARY：判断某反应在一定温度下能否自发进行，或辨析「ΔH－TΔS＜0就一定能实际发生」类说法时。",
-   "contentMarkdown": "1. 反应能否自发进行需综合考虑焓变和熵变对反应的影响，复合判据为ΔH－TΔS＜0。\\n2. 但ΔH－TΔS＜0的反应不一定能够实际发生，它只指出了该条件下化学反应自发进行的趋势，还要考虑化学反应的快慢问题。",
-   "boundaryMarkdown": "判据只给可能性、不保证实际发生；温度与焓变、熵变组合的具体结论表未随文抽取，本条不含各组合的逐一结论。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（黑吉辽蒙专用）/第04讲 化学反应的方向、化学反应的调控（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 6eea87cdfb-007）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-6eea87cdfb-007",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:自由能与化学反应的方向",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-2d35cc3e9a-007",
    "subject": "CHEMISTRY",
    "type": "CONCEPT_EXPLANATION",
@@ -48237,29 +46558,6 @@
    "contentAttribute": "AI_SYNTHESIZED",
    "contentProvider": "moe-2025-four-subjects-v1",
    "contentId": "ext-che-0614213d2c-004",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞组成的计算-均摊法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-e2d6f05263-005",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "均摊法要按晶胞形状定共用份额（第04讲 晶体结构与性质·考向2 思维建模）",
-   "summaryMarkdown": "用均摊法计算晶胞微粒数时要先看清晶胞形状：先确定任意位置上的一个粒子被几个晶胞共有，如六棱柱晶胞中顶角、侧棱、底面上的棱、面心原子依次被6、3、4、2个晶胞所共有。",
-   "applicabilityMarkdown": "PRIMARY：由六棱柱等非立方晶胞的示意图计算微粒个数或确定化学式时。",
-   "contentMarkdown": "1. 使用均摊法计算晶胞中微粒个数时，要注意晶胞（结构）的形状。\\n2. 不同形状的晶胞，应先分析任意位置上的一个粒子被几个晶胞所共有，再按1/n折算。\\n3. 六棱柱晶胞中，顶角、侧棱、底面上的棱、面心原子依次被6、3、4、2个晶胞所共有。",
-   "boundaryMarkdown": "份额随晶胞形状变化，不能一律套用立方晶胞的1/8、1/4等份额；本条不含配位数与密度计算。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（黑吉辽蒙专用）/第04讲 晶体结构与性质（复习讲义）（黑吉辽蒙专用）（教师版）.docx（块 e2d6f05263-005）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-e2d6f05263-005",
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞组成的计算-均摊法",
@@ -48498,29 +46796,6 @@
    ]
   },
   {
-   "slug": "ext-che-db449c8aa3-013",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "高聚物单体的推断方法（第04讲 生物大分子、合成高分子·考向2 思维建模）",
-   "summaryMarkdown": "推断单体先判断是加聚产物还是缩聚产物并找准断键处：加聚物按「凡双键，四个碳；无双键，两个碳」断键后半键闭合、单双键互换；缩聚物在特征结构处断键，碳上补—OH、氧或氮上补—H。",
-   "applicabilityMarkdown": "PRIMARY：给出高聚物链节（结构简式），要求反推单体或判断单体组成时。",
-   "contentMarkdown": "1. 推断单体时，一定要先判断是加聚产物还是缩聚产物，并找准断键处。\\n2. 加聚产物：主链一般全为碳原子，按「凡双键，四个碳；无双键，两个碳」的规律画线断键，然后半键闭合、单双键互换。\\n3. 缩聚产物：链节中不全为碳原子，一般有酯基、肽键等结构，在画线处断键，碳原子上连—OH，氧原子或氮原子上连—H，即得单体。",
-   "boundaryMarkdown": "加聚物与缩聚物的断键规则不能混用；断键后须核对单体官能团与链节是否吻合。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（黑吉辽蒙专用）/第04讲 生物大分子、合成高分子（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 db449c8aa3-013）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-db449c8aa3-013",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:聚合反应及聚合物单体的判断",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-che-347258cd54-017",
    "subject": "CHEMISTRY",
    "type": "METHOD_MODEL",
@@ -48585,29 +46860,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验方案设计中的操作与安全要点",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-che-4e68d6cc38-010",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "选择性之和为100%时两条曲线镜像对称（第05讲 化学反应速率与化学平衡图像·考向2 复杂曲线变化图像）",
-   "summaryMarkdown": "多重平衡体系中，随着温度的升高，若两种物质的选择性之和等于100%，则二者的选择性变化曲线呈镜像对称。",
-   "applicabilityMarkdown": "PRIMARY：多曲线图像中识别某物质的选择性曲线，或校验两条选择性曲线的关系时。",
-   "contentMarkdown": "1. 多重平衡体系中，随着温度的升高，如果两种物质的选择性之和等于100%，那么二者的选择性变化曲线呈镜像对称。\\n2. 据对称性可由一条曲线直接推得另一条（两种选择性互余）。",
-   "boundaryMarkdown": "只对选择性之和恰为100%的两条曲线成立；存在其他含该元素的副产物时不适用。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-c099d2d6fc:chemistry",
-   "sourceLocator": "桌面资料 2026年新高考资料(3) / 2026年新高考资料(3)/一轮复习/2026年高考化学一轮课件+讲义+练习（黑吉辽蒙专用）/第05讲 化学反应速率与化学平衡图像（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 4e68d6cc38-010）",
-   "reviewedAtEpochMillis": 1792418197154,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-che-4e68d6cc38-010",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:多重平衡中的产物调控与选择性",
      "role": "PRIMARY"
     }
    ]

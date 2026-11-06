@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="device-scheduling" tests="3" failures="0" errors="0" skipped="0" hostname="emulator-5562" timestamp="2026-11-05T02:29:32Z">
+  <testcase classname="com.tingyun.smartmistakebook.SchedulingSettingsInstrumentedTest" name="retentionSliderRightEdgeStoresAValueTheDomainAccepts" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SchedulingSettingsInstrumentedTest" name="addingAndRemovingAnExamCallsTheStore" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SchedulingSettingsInstrumentedTest" name="schedulingSettingsExposeRetentionSliderWithoutTheRemovedFsrsSwitch" time="0">
+  </testcase>
+</testsuite>

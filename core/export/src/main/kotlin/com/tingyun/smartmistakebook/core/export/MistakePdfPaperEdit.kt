@@ -249,6 +249,10 @@ class MistakePdfPaperEdit private constructor(
             },
             layout = layout,
             userNote = sourceInput.userNote,
+            hasModelParsedText = sourceInput.hasModelParsedText,
+            sourceRevisionId = sourceInput.sourceRevisionId,
+            sourceImages = sourceInput.sourceImages,
+            artifactRole = sourceInput.artifactRole,
         )
         return MistakePaperDraft(
             input = editedInput,

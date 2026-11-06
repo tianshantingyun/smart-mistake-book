@@ -5,258 +5,258 @@
   {
    "sourceId": "desktop-src-7a6607b645:chemistry",
    "subject": "CHEMISTRY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2027版高中《53知识清单》彩色版（化学）",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "FCBD32DF1E57786946421FFD6CF0AC1A8B4122CA2F66A64C5859E79FDC3DF15E",
    "importedAtEpochMillis": 1790769112439,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-d719f687b2:physics",
    "subject": "PHYSICS",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2027版高中《53知识清单》彩色版（物理）",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "1963F172F893093E0432DA4513E81CB5AAFC4B8D9B4AF469D30EB69A5EF95801",
    "importedAtEpochMillis": 1790769112451,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-48689b61de:physics",
    "subject": "PHYSICS",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料(1)",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "76E45DFAA54E87666698DBFB15E71C331C3C7336A9F486CD7BD1E6E4FE13483D",
    "importedAtEpochMillis": 1789739786865,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-c099d2d6fc:chemistry",
    "subject": "CHEMISTRY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料(3)",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "D45C35EA10D42D32A8A0A578557911B78B313C048345E31D7AB2381426DFFAA0",
    "importedAtEpochMillis": 1789732926467,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-7b2647b433:math",
    "subject": "MATH",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 27版五三",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "1959862E778D2A1D7D2EE9090A0A63B43B58107476639538E7E8AC1B178E0645",
    "importedAtEpochMillis": 1789743702720,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-7b2647b433:biology",
    "subject": "BIOLOGY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 27版五三",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "4B8F903AC2C5A9739CDCC344BA479B913BC40B09177389C4BFCF34FCEECA5001",
    "importedAtEpochMillis": 1789733219373,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-7b2647b433:chemistry",
    "subject": "CHEMISTRY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 27版五三",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "25ACA917ED65BEC02141841019A23530CB07CA7F2004AF86BAF310C50D2B4D38",
    "importedAtEpochMillis": 1789739807250,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-7b2647b433:physics",
    "subject": "PHYSICS",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 27版五三",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "F83BAF108E49BAA3F0129CF8C6CCA6E7A107B6BE0DAD86FF2EE1409CF4C40DF1",
    "importedAtEpochMillis": 1789739800974,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-d8b718d85a:biology",
    "subject": "BIOLOGY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料(4)",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "35F0C03E99DD5E9D9DB8814B589AAB6804DCE7A5B4A35BC2E6DA76A4311544B7",
    "importedAtEpochMillis": 1789733218691,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-2452b2cbe4:biology",
    "subject": "BIOLOGY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 6. 2026生物总复习",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "A260977C1AF61A08745DC6E7DF5F37300664058178B807E6D755BD2527F5F596",
    "importedAtEpochMillis": 1789733218957,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-e35c96096a:math",
    "subject": "MATH",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2026年新高考资料",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "DA44D7822E4E91D760B228E72495E4CE137101298124C0695FF0474FDFBE032B",
    "importedAtEpochMillis": 1789669590286,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "desktop-src-76de8fd161:math",
    "subject": "MATH",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "桌面教辅资料 · 2027版高中《53知识清单》彩色版（数学）",
    "publisher": "教辅汇编（桌面原始资料）",
    "edition": "2026/2027版",
-   "sourceUri": "https://www.example.edu/desktop-kb-source",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "5FB0932C8184EB19CB09B3EAE9BF1BC4021912F103CEA8EF72DD2DA4465CEA99",
    "importedAtEpochMillis": 1790769112445,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。"
+   "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "registry-kb-math-knowledge-list:math",
    "subject": "MATH",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "registry-kb-math-knowledge-list:math",
    "publisher": "教辅汇编",
    "edition": "2027版",
-   "sourceUri": "https://www.example.edu/material",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "9EE829AD6BF919AD290AE96063BAFE2AD4D52CB75B338186E0578BD629942420",
    "importedAtEpochMillis": 1784908740000,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文。"
+   "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "registry-kb-physics-knowledge-list:physics",
    "subject": "PHYSICS",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "registry-kb-physics-knowledge-list:physics",
    "publisher": "教辅汇编",
    "edition": "2027版",
-   "sourceUri": "https://www.example.edu/material",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "141BC7543D1F60756E0F118EADD2C3B63A93922A2762DCA19AA52040CC410CF9",
    "importedAtEpochMillis": 1784908740000,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文。"
+   "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "registry-kb-chemistry-knowledge-list:chemistry",
    "subject": "CHEMISTRY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "registry-kb-chemistry-knowledge-list:chemistry",
    "publisher": "教辅汇编",
    "edition": "2027版",
-   "sourceUri": "https://www.example.edu/material",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "F6083391F02ADA8E93E19E23A959E727D59D7787F86ACAD1CF4F7AD916CFA744",
    "importedAtEpochMillis": 1784908740000,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文。"
+   "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文；仅参考、独立重写，不保存原文。"
   },
   {
    "sourceId": "registry-kb-biology-knowledge-list:biology",
    "subject": "BIOLOGY",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "UNVERIFIED_PLACEHOLDER",
    "title": "registry-kb-biology-knowledge-list:biology",
    "publisher": "教辅汇编",
    "edition": "2027版",
-   "sourceUri": "https://www.example.edu/material",
+   "sourceUri": null,
    "licenseStatus": "REFERENCE_ONLY",
    "contentFingerprint": "788D64E5292E7DE3265F837EFD76D4C3CFFF3ACFF718D262616C9765D4EEC38E",
    "importedAtEpochMillis": 1784908740000,
    "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
    "licenseExpression": null,
    "licenseUri": null,
-   "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文。"
+   "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文；仅参考、独立重写，不保存原文。"
   }
  ],
  "materials": [
@@ -11324,29 +11324,6 @@
    ]
   },
   {
-   "slug": "ext-phy-9846d7ef3d-008",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "核反应方程式的书写要点",
-   "summaryMarkdown": "书写核反应方程要熟记基本粒子符号、遵循质量数与电荷数守恒，并只用箭头表示反应方向。",
-   "applicabilityMarkdown": "判断核反应方程正误、补全核反应方程。",
-   "contentMarkdown": "1. 熟记常见基本粒子的符号：质子、中子、α 粒子、β 粒子、正电子、氘核、氚核等。\\n2. 核反应方程遵循质量数守恒与电荷数守恒。\\n3. 核反应不可逆，方程式只能用「→」表示反应方向。",
-   "boundaryMarkdown": "反应方向不可倒写、不能用等号；检查方程先看质量数与电荷数是否分别守恒。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/另附1套Word版题库/第十五章　近代物理/第2讲　原子结构和原子核.docx（块 9846d7ef3d-008）",
-   "reviewedAtEpochMillis": 1791562045851,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-9846d7ef3d-008",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:核反应",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-9846d7ef3d-008b",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -13601,29 +13578,6 @@
    ]
   },
   {
-   "slug": "ext-phy-3c974cb368-001",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "接触带电的电荷分配原则",
-   "summaryMarkdown": "形状、大小相同的导体接触后再分开：同种电荷带等量同种电荷，异种电荷先中和再平分余下电荷",
-   "applicabilityMarkdown": "相同金属球（导体）接触起电后计算电荷量与相互作用的库仑力",
-   "contentMarkdown": "①两个形状、大小相同且带同种电荷的导体，接触后再分开，二者带等量同种电荷。\\n②若两导体原来带异种电荷，则电荷先中和，余下的电荷再平分，接触后二者仍带等量同种电荷。",
-   "boundaryMarkdown": "该分配原则只适用于两个形状、大小相同的导体（如相同的金属球）接触后再分开的情形；异种电荷必须先中和再平分，不能把电荷量直接相加后平分。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/学生用书Word版文档/复习讲义/第九章　静电场/第九章　第42课时　电场力的性质.docx（块 3c974cb368-001）",
-   "reviewedAtEpochMillis": 1791562045851,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-3c974cb368-001",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电荷守恒定律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-3c974cb368-002",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -14751,29 +14705,6 @@
    ]
   },
   {
-   "slug": "ext-phy-7997501baf-001",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "对功能关系的理解",
-   "summaryMarkdown": "力做功的过程就是能量转化的过程，功是能量转化的量度：不同力做功对应不同形式能的转化，做功多少与能量转化多少数值相等。",
-   "applicabilityMarkdown": "判断某力做功对应何种能量转化，比较做功与能量变化的大小关系。",
-   "contentMarkdown": "1. 力做功的过程就是能量转化的过程，不同形式的能量发生相互转化是通过做功来实现的。\\n2. 功是能量转化的量度：不同的力做功对应不同形式的能转化，具有一一对应关系；做功的多少与能量转化的多少在数值上相等。",
-   "boundaryMarkdown": "只到功能关系的一般理解；各种常见功能关系（重力、弹力、摩擦力、安培力做功等）的对应表见“常见的功能关系”。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/学生用书Word版文档/复习讲义/第六章　机械能守恒定律/第六章　第30课时　功能关系　能量守恒定律.docx（块 7997501baf-001）",
-   "reviewedAtEpochMillis": 1791562045851,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-7997501baf-001",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:功能关系",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-7997501baf-003",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -15280,29 +15211,6 @@
    ]
   },
   {
-   "slug": "ext-phy-e96cb82402-003b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "传感器的工作原理",
-   "summaryMarkdown": "传感器感受力、温度、光、声、化学成分等被测量，按一定规律转换为电压、电流等电学量或电路的通断输出。",
-   "applicabilityMarkdown": "判断某装置是否属于传感器、识别被测量与输出量，说明把非电学量转换为电学量的意义。",
-   "contentMarkdown": "1. 传感器：能够感受诸如力、温度、光、声、化学成分等被测量，并能把它们按照一定的规律转换为便于传送和处理的可用信号输出。\n2. 通常转换成的可用信号是电压、电流等电学量，或转换为电路的通断。\n3. 把非电学量转换为电学量，可以很方便地进行测量、传输、处理和控制。",
-   "boundaryMarkdown": "只到传感器的工作原理与一般模式；光敏电阻、热敏电阻、霍尔元件等常见敏感元件的特性见同节其他材料。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/学生用书Word版文档/复习讲义/第十三章　交变电流　电磁振荡　电磁波　传感器/第十三章　第73课时　电磁振荡　电磁波　传感器　实验十六：利用传感器制作简单的自动控制装置.docx（块 e96cb82402-003）",
-   "reviewedAtEpochMillis": 1791562045851,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-e96cb82402-003b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:传感器",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-e96cb82402-003c",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -15390,29 +15298,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究影响感应电流方向的因素实验",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-1f94ea5058-002b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "楞次定律的内容与适用范围",
-   "summaryMarkdown": "感应电流具有这样的方向，即感应电流的磁场总要阻碍引起感应电流的磁通量的变化；楞次定律适用于一切电磁感应现象。",
-   "applicabilityMarkdown": "由磁通量的变化方向判断感应电流的磁场方向与感应电流方向。",
-   "contentMarkdown": "1. 内容：感应电流具有这样的方向，即感应电流的磁场总要阻碍引起感应电流的磁通量的变化。\n2. 适用范围：一切电磁感应现象。",
-   "boundaryMarkdown": "只到楞次定律的表述与适用范围；“阻碍”的多层理解、右手定则与楞次定律的选用及推论见同节点其他材料。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/学生用书Word版文档/复习讲义/第十二章　电磁感应/第十二章　第66课时　电磁感应现象　楞次定律　实验十四：探究影响感应电流方向的因素.docx（块 1f94ea5058-002）",
-   "reviewedAtEpochMillis": 1791562045851,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-1f94ea5058-002b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:楞次定律",
      "role": "PRIMARY"
     }
    ]
@@ -19995,29 +19880,6 @@
    ]
   },
   {
-   "slug": "ext-phy-6334948245-005b",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "用E＝U/d在非匀强电场中作定性判断（第43讲·考点二）",
-   "summaryMarkdown": "等差等势面越密场强越大；距离相等时E越大U越大，用于非匀强电场的定性判断。",
-   "applicabilityMarkdown": "PRIMARY：非匀强电场中比较场强、电势差或电势高低时。",
-   "contentMarkdown": "①判断电场强度大小：等差等势面越密，电场强度越大。\\n②判断电势差的大小及电势的高低：距离相等的两点间的电势差，E越大，U越大，进而判断电势的高低。",
-   "boundaryMarkdown": "定性判断，不能替代U＝Ed的定量计算；块内【例10】题干不取。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第43讲 电场中功能关系及图像问题-（讲义）（学生版）.docx（块 6334948245-005）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-6334948245-005b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电势差与电场强度的关系",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-mat-550f58da7b-010b",
    "subject": "MATH",
    "type": "CONCEPT_EXPLANATION",
@@ -20082,29 +19944,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:与复数模相关的轨迹问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-7ca0e6cba4-002",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "弹力的定义、产生条件与方向（第6课时·考点二 弹力）",
-   "summaryMarkdown": "弹力是发生形变的物体要恢复原状、对与它接触的物体产生的力；产生条件是直接接触且接触处发生弹性形变，方向总与施力物体形变的方向相反。",
-   "applicabilityMarkdown": "PRIMARY：判断某接触处是否存在弹力、或确定弹力的方向时。",
-   "contentMarkdown": "1.弹力的定义：发生形变的物体，要恢复原状，对与它接触的物体产生的力的作用。\\n2.产生条件：物体间直接接触；接触处发生弹性形变。\\n3.方向：总是与施力物体形变的方向相反。",
-   "boundaryMarkdown": "方向与施力物体形变的方向相反，不是与受力物体形变的方向相同；只接触而无弹性形变则无弹力。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/教师用书Word版文档/第二章　相互作用/第二章　第6课时　重力　弹力　摩擦力.docx（块 7ca0e6cba4-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-7ca0e6cba4-002",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹力的定义及产生条件",
      "role": "PRIMARY"
     }
    ]
@@ -20956,29 +20795,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:黑洞",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-e178fca328-001",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "简谐运动的定义与平衡位置（第39课时·考点一 1、2）",
-   "summaryMarkdown": "物体在运动方向上所受的力与偏离平衡位置位移的大小成正比、且总指向平衡位置，这样的运动就是简谐运动；平衡位置是回复力为零的位置。",
-   "applicabilityMarkdown": "PRIMARY：判断某运动是否为简谐运动、或确定平衡位置时。",
-   "contentMarkdown": "1.简谐运动：如果物体在运动方向上所受的力与它偏离平衡位置位移的大小成正比，并且总是指向平衡位置，这样的运动就是简谐运动。\\n2.平衡位置：物体在振动过程中回复力为零的位置。",
-   "boundaryMarkdown": "判据是力与位移成正比且指向平衡位置，不是速度按正弦规律变化；平衡位置处回复力为零但速度不一定为零。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/教师用书Word版文档/第八章　机械振动与机械波/第八章　第39课时　机械振动.docx（块 e178fca328-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-e178fca328-001",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:简谐运动",
      "role": "PRIMARY"
     }
    ]
@@ -23031,29 +22847,6 @@
    ]
   },
   {
-   "slug": "ext-phy-5576d932d3-008",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "固体的分类",
-   "summaryMarkdown": "固体分为晶体和非晶体两类，晶体又分为单晶体和多晶体。",
-   "applicabilityMarkdown": "PRIMARY：判断某固体所属类别、整理固体分类体系时。",
-   "contentMarkdown": "1. 固体分为晶体和非晶体两类。\\n2. 晶体又分为单晶体和多晶体。",
-   "boundaryMarkdown": "只给分类层级；单晶体与多晶体、晶体与非晶体在熔点、各向异性等方面的差异另见相应材料。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/教师用书Word版文档/第十五章　热学/第十五章　第77课时　分子动理论　内能　固体和液体.docx（块 5576d932d3-008）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-5576d932d3-008",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:对晶体和非晶体的理解",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-5576d932d3-008b",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -24526,29 +24319,6 @@
    ]
   },
   {
-   "slug": "ext-phy-c212a79f67-001",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "匀速圆周运动的定义、特点与条件（第四章 第20课时·考点一）",
-   "summaryMarkdown": "线速度大小处处相等的圆周运动叫匀速圆周运动，其加速度大小不变、方向始终指向圆心，是变加速运动；条件是合外力大小不变、方向始终与速度方向垂直且指向圆心。",
-   "applicabilityMarkdown": "PRIMARY：判断匀速圆周运动的性质（匀变速还是变加速）、写出其运动条件时。",
-   "contentMarkdown": "①定义：如果物体沿着圆周运动，并且线速度的大小处处相等，所做的运动叫作匀速圆周运动。\\n②特点：加速度大小不变，方向始终指向圆心，是变加速运动。\\n③条件：合外力大小不变，方向始终与速度方向垂直且指向圆心。",
-   "boundaryMarkdown": "匀速圆周运动是“匀速率”而非“匀变速”，加速度方向时刻改变；块内“描述圆周运动的物理量”表在抽取中被剥离；“思考”栏中 an 与 r 的正比反比问答属题目派生，未纳入；判断题与例1（含答案）未纳入。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/教师用书Word版文档/第四章　曲线运动/第四章　第20课时　圆周运动.docx（块 c212a79f67-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-c212a79f67-001",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:圆周运动的基础概念和规律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-c212a79f67-003",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -24705,29 +24475,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:圆周运动临界问题的解题思路",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-1c7f1fe062-005",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "斜面上圆周运动的滑动临界（第四章 第21课时·考点三）",
-   "summaryMarkdown": "物体在倾角 θ 的斜面上做圆周运动时，重力垂直斜面的分力与支持力大小相等；最容易滑动的位置是最低点，恰好滑动时 μmgcos θ－mgsin θ＝mω2R。",
-   "applicabilityMarkdown": "PRIMARY：物体随斜面或倾斜圆盘做圆周运动、判断开始相对滑动的角速度或位置时。",
-   "contentMarkdown": "①物体在斜面上做圆周运动时，设斜面的倾角为 θ，重力垂直斜面的分力与物体受到的支持力大小相等。\\n②物体在转动过程中，最容易滑动的位置是最低点，恰好滑动时：μmgcos θ－mgsin θ＝mω2R。",
-   "boundaryMarkdown": "只适用于斜面上做圆周运动、分析“恰好滑动”的临界；临界位置在最低点，最高点一般不易滑动。块内“思考”推导与例6（含答案）属题目，未纳入。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年大一轮复习讲义物理课件讲义练习/教师用书Word版文档/第四章　曲线运动/第四章　第21课时　专题强化：圆周运动的临界问题.docx（块 1c7f1fe062-005）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-1c7f1fe062-005",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:斜面上圆周运动的临界问题",
      "role": "PRIMARY"
     }
    ]
@@ -26136,52 +25883,6 @@
    ]
   },
   {
-   "slug": "ext-phy-a297608907-002",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "滑块—弹簧模型的两大守恒与两个特殊状态（专题强化9·模型一）",
-   "summaryMarkdown": "两物体与弹簧相互作用时合外力为零则动量守恒、除弹簧弹力外内力不做功则机械能守恒；弹簧最长或最短时两物体速度相同、系统动能最小，恢复原长时系统动能无损失。",
-   "applicabilityMarkdown": "PRIMARY：滑块（两物体）通过轻弹簧相互作用，需要在弹簧最长、最短或恢复原长等状态求速度、弹性势能时。",
-   "contentMarkdown": "1. 动量守恒：两物体与弹簧相互作用过程中，若系统所受外力的矢量和为零，则系统动量守恒。\\n2. 机械能守恒：系统所受外力为零（或除弹簧弹力以外的内力不做功）时机械能守恒，动能与弹性势能之和不变。\\n3. 弹簧处于最长（或最短）状态时两物体速度相同、弹性势能最大、系统动能最小，相当于完全非弹性碰撞，减少的动能转化为弹簧的弹性势能。\\n4. 弹簧恢复原长时弹性势能为零、系统动能无损失，相当于弹性碰撞，可联立动量守恒与动能不变求两物体速度。",
-   "boundaryMarkdown": "只适用于系统合外力为零（如光滑水平面）或除弹簧弹力外不做功的情形；竖直或粗糙面须计入重力等外力做功；弹簧质量不计且在弹性限度内。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高三物理一轮复习专题突破讲义/资料/2026版/专题强化9“滑块—弹簧”模型和“滑块—斜(曲)面”模型（解析）.docx（块 a297608907-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-a297608907-002",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑块-小球-弹簧模型",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-a297608907-005",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "滑块—斜（曲）面模型的两个关键状态（专题强化9·模型二）",
-   "summaryMarkdown": "滑块在光滑曲面上上升到最大高度时与曲面具有共同水平速度、竖直分速度为零，系统水平方向动量守恒且机械能守恒；返回最低点即两者分离点，相当于弹性碰撞。",
-   "applicabilityMarkdown": "PRIMARY：滑块在光滑斜面（曲面）上滑行，求上升最大高度、最低点分离位置或返回后速度时。",
-   "contentMarkdown": "1. 上升到最大高度：滑块与曲面具有共同水平速度 v共、此时滑块竖直分速度为零；系统水平方向动量守恒，机械能守恒，相当于完全非弹性碰撞（减少的动能转化为滑块的重力势能）。\\n2. 上升的最大高度 h 由能量方程确定，不一定等于弧形轨道的高度。\\n3. 返回最低点：是滑块与曲面的分离点，水平方向动量守恒且系统机械能守恒，相当于弹性碰撞。",
-   "boundaryMarkdown": "只有水平方向动量守恒（竖直方向有重力与面弹力，动量不守恒）；要求接触面光滑、地面光滑，否则须计摩擦与外力做功。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高三物理一轮复习专题突破讲义/资料/2026版/专题强化9“滑块—弹簧”模型和“滑块—斜(曲)面”模型（解析）.docx（块 a297608907-005）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-a297608907-005",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑块-斜面-曲面-模型-相对运动与临界问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-66088be8b8-008",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -26591,29 +26292,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:动能定理及其应用-功能关系",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-63c3e07902-002",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "四条常见的功能关系（第10讲 单个物体的功能关系）",
-   "summaryMarkdown": "合外力的功等于动能变化；除重力（或弹簧弹力）外其他力的功等于机械能变化；克服安培力的功等于电能增加量；一对滑动摩擦力做功等于系统机械能减少。",
-   "applicabilityMarkdown": "PRIMARY：需要把做功与某种能量变化对应起来列式时（动能定理、机械能变化、电功、摩擦生热）。",
-   "contentMarkdown": "1. 合外力对物体所做的功等于物体动能的变化（动能定理）。\\n2. 除重力（或弹簧弹力）之外的力对物体所做的功等于物体机械能的变化。\\n3. 克服安培力做的功等于电能增加量。\\n4. 一对滑动摩擦力做功等于系统机械能减少（内能增加）。",
-   "boundaryMarkdown": "四条关系各有专属的功与能量配对：动能变化只对应合外力的功，机械能变化只对应除重力（或弹簧弹力）以外力的功，不能混用；滑动摩擦生热由相对位移决定。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习模型与方法归类（全国通用）/资料/第10讲 单个物体的功能关系（教师版）（模型与方法）（全国通用）.docx（块 63c3e07902-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-63c3e07902-002",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:功能关系",
      "role": "PRIMARY"
     }
    ]
@@ -27235,29 +26913,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑块-小球-弹簧模型",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-d7bfac6d9e-030",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "爆炸现象与动量守恒（第13讲 系统的动量守恒定律·模型三）",
-   "summaryMarkdown": "爆炸与碰撞类似：相互作用时间很短、作用力很大且远大于系统所受外力，所以系统动量守恒（如爆竹爆炸）。",
-   "applicabilityMarkdown": "PRIMARY：爆炸、炸裂类问题，判断爆炸瞬间能否用动量守恒列式时。",
-   "contentMarkdown": "1. 爆炸与碰撞类似：物体间的相互作用时间很短、作用力很大，且远大于系统所受的外力。\\n2. 所以爆炸过程系统动量守恒，如爆竹爆炸。",
-   "boundaryMarkdown": "仅当内力远大于外力、外力冲量可忽略时按动量守恒处理；爆炸过程系统动能通常增大（有其他形式能转化为动能），不能按机械能守恒计算。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习模型与方法归类（全国通用）/资料/第13讲 系统的动量守恒定律（教师版）（模型与方法）（全国通用）.docx（块 d7bfac6d9e-030）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-d7bfac6d9e-030",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:爆炸现象与动量守恒",
      "role": "PRIMARY"
     }
    ]
@@ -30506,52 +30161,6 @@
    ]
   },
   {
-   "slug": "ext-phy-b60733a89d-001b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "力的三要素与作用效果（专题02知识清单教师版·力的基础概念）",
-   "summaryMarkdown": "力的三要素是大小、方向、作用点；力的作用效果是使物体发生形变或改变物体的运动状态。",
-   "applicabilityMarkdown": "PRIMARY：分析力改变运动状态或使物体形变、说明力的三要素时。",
-   "contentMarkdown": "1. 力的三要素：大小、方向、作用点。\\n2. 作用效果：使物体发生形变或改变物体的运动状态。",
-   "boundaryMarkdown": "三要素中任一要素改变，力的作用效果都可能不同；运动状态的改变即产生加速度。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题02 相互作用（知识清单）（全国通用）（教师版）.docx（块 b60733a89d-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-b60733a89d-001b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的作用效果与力的三要素",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-b60733a89d-001c",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "四种基本相互作用（专题02知识清单教师版·力的基础概念）",
-   "summaryMarkdown": "自然界存在四种基本相互作用：引力相互作用、电磁相互作用、强相互作用和弱相互作用。",
-   "applicabilityMarkdown": "PRIMARY：识别自然界四种基本相互作用、说明力的本质分类时。",
-   "contentMarkdown": "1. 四种基本相互作用：引力相互作用、电磁相互作用、强相互作用和弱相互作用。\\n2. 弹力、摩擦力等常见力不是基本相互作用，它们由电磁相互作用等引起。",
-   "boundaryMarkdown": "四种基本相互作用按本质分类，与按效果命名的常见力不在同一层次。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题02 相互作用（知识清单）（全国通用）（教师版）.docx（块 b60733a89d-001）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-b60733a89d-001c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:四种基本相互作用-引力相互作用-电磁相互作用-强相互作用和弱相互作用",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-b60733a89d-001d",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -30593,29 +30202,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:形变",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-b60733a89d-003b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "弹力的定义与产生条件（专题02知识清单教师版·弹力）",
-   "summaryMarkdown": "弹力是发生形变的物体由于要恢复原状而对与它接触的物体产生的力，产生条件为直接接触且接触处发生形变。",
-   "applicabilityMarkdown": "PRIMARY：说明弹力的定义、判断弹力产生的条件是否满足时。",
-   "contentMarkdown": "1. 定义：发生形变的物体，由于要恢复原状，对与它接触的物体产生的力。\\n2. 产生条件：物体间直接接触；接触处发生形变。",
-   "boundaryMarkdown": "两个条件缺一不可：只接触不发生形变不产生弹力。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题02 相互作用（知识清单）（全国通用）（教师版）.docx（块 b60733a89d-003）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-b60733a89d-003b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹力的定义及产生条件",
      "role": "PRIMARY"
     }
    ]
@@ -30920,29 +30506,6 @@
    ]
   },
   {
-   "slug": "ext-phy-b60733a89d-024b",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "相似三角形法解动态平衡（专题02知识清单教师版·共点力的动态平衡）",
-   "summaryMarkdown": "力的三角形与空间几何三角形相似时，利用对应边成比例F1/L1＝F2/L2＝G/L3，由几何边长变化直接推断力的变化。",
-   "applicabilityMarkdown": "PRIMARY：三力动态平衡且三个力分别平行于几何三角形三边时。",
-   "contentMarkdown": "1. 利用对应边成比例：F1/L1＝F2/L2＝G/L3（G为重力）。\\n2. 分析几何边长L的变化，直接推断对应力F的变化；优点是极其简便、一步到位。",
-   "boundaryMarkdown": "必须能找到与力三角形相似的几何三角形；缓慢是使用前提。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题02 相互作用（知识清单）（全国通用）（教师版）.docx（块 b60733a89d-024）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-b60733a89d-024b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:相似三角形法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-b60733a89d-028",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -30984,52 +30547,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:相似三角形-动态三角形-拉密定理等方法解决临界极值问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-c4605806a7-002",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "科里奥利力（专题03知识清单学生版·牛顿运动三定律的基本概念）",
-   "summaryMarkdown": "科里奥利力是旋转参考系中运动的物体所受的偏转力，如地球上的气流。",
-   "applicabilityMarkdown": "PRIMARY：解释旋转参考系中运动物体发生偏转、说明惯性力来源时。",
-   "contentMarkdown": "1. 科里奥利力：旋转参考系中运动的物体（如地球上的气流）受的偏转力。\\n2. 它只在旋转参考系中出现，是描述物体运动时引入的惯性力。",
-   "boundaryMarkdown": "科里奥利力不是物体间的相互作用，只出现在旋转（非惯性）参考系中。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题03 牛顿运动定律的理解应用（知识清单）（全国通用）(学生版）.docx（块 c4605806a7-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-c4605806a7-002",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:科里奥利力",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-c4605806a7-002b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "旋转参考系中的离心力（专题03知识清单学生版·牛顿运动三定律的基本概念）",
-   "summaryMarkdown": "旋转参考系（如旋转圆盘）中物体感到被向外甩的力叫离心力，它是非惯性系中的惯性力。",
-   "applicabilityMarkdown": "PRIMARY：说明非惯性系中物体感到被甩出的原因、辨析离心力性质时。",
-   "contentMarkdown": "1. 离心力：旋转参考系中（如旋转圆盘），物体感到被向外甩的力。\\n2. 离心力不是物体间的相互作用，而是旋转参考系这一非惯性系中引入的惯性力。",
-   "boundaryMarkdown": "在惯性系中不能说物体受到离心力；惯性系与非惯性系的区别是能否直接使用牛顿第二定律。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题03 牛顿运动定律的理解应用（知识清单）（全国通用）(学生版）.docx（块 c4605806a7-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-c4605806a7-002b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:非惯性参考系",
      "role": "PRIMARY"
     }
    ]
@@ -31099,52 +30616,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:定义-物体具有保持原来匀速直线运动状态或静止状态的性质-质量是惯性的唯一量度",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-c4605806a7-003b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "牛顿第二定律的表述与适用条件（专题03知识清单学生版·牛顿第二定律）",
-   "summaryMarkdown": "在惯性参考系中，物体的加速度与合外力成正比、与质量成反比，加速度方向与合外力方向相同；定律只适用于惯性系、宏观物体和低速运动。",
-   "applicabilityMarkdown": "PRIMARY：说明牛顿第二定律的内容与适用条件、判断定律能否直接使用时。",
-   "contentMarkdown": "1. 定义：在惯性参考系中，物体的加速度与合外力成正比，与质量成反比；公式F＝ma，a的方向与合外力方向相同。\\n2. 适用条件：只适用于惯性参考系（相对地面静止或匀速直线运动的参考系）；只适用于宏观物体、低速运动的情况。",
-   "boundaryMarkdown": "牛顿第二定律不能用于非惯性参考系；宏观、低速是它的适用边界。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题03 牛顿运动定律的理解应用（知识清单）（全国通用）(学生版）.docx（块 c4605806a7-003）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-c4605806a7-003b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:牛顿第二定律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-c4605806a7-003c",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "牛顿第二定律公式的四个性质（专题03知识清单学生版·牛顿第二定律）",
-   "summaryMarkdown": "F＝ma具有瞬时性、矢量性、同体性和独立性：加速度与合力瞬时对应，方向与合力相同，各量属于同一物体，各分方向加速度相互独立。",
-   "applicabilityMarkdown": "PRIMARY：分析合力变化瞬间的加速度、分解方向处理加速度时。",
-   "contentMarkdown": "1. 瞬时性：加速度和物体所受的合力是瞬时对应关系，同时产生、变化、消失。\\n2. 矢量性：物体加速度方向与所受合力方向相同。\\n3. 同体性：F＝ma中各量都属于同一物体。\\n4. 独立性：将合力分解后，其在分解方向产生的加速度相互独立。",
-   "boundaryMarkdown": "速度不可以突变，但力和加速度可以突变；合力消失的瞬间加速度立即为零。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题03 牛顿运动定律的理解应用（知识清单）（全国通用）(学生版）.docx（块 c4605806a7-003）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-c4605806a7-003c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:牛顿第二定律",
      "role": "PRIMARY"
     }
    ]
@@ -31587,29 +31058,6 @@
    ]
   },
   {
-   "slug": "ext-phy-ae445151cc-002c",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "力与运动关系的物理学史（专题03知识清单教师版·牛顿运动三定律的基本概念）",
-   "summaryMarkdown": "亚里士多德认为力是维持物体运动的原因；伽利略指出力是改变运动状态的原因；笛卡尔强调不受外力时保持直线匀速运动；牛顿把这些思想数学化并纳入惯性系框架。",
-   "applicabilityMarkdown": "PRIMARY：说明牛顿第一定律的建立过程、辨析力与运动关系的历史观点时。",
-   "contentMarkdown": "1. 亚里士多德观点：力是维持物体运动状态的原因。\\n2. 伽利略观点：力是改变物体运动状态的原因，而非维持运动的原因；笛卡尔观点：物体在不受外力时保持直线匀速运动。\\n3. 牛顿将伽利略和笛卡尔的思想数学化，纳入惯性系框架，明确区分外力与惯性运动；惯性系即是以地面或与地面相对静止的物体作为参考系。",
-   "boundaryMarkdown": "亚里士多德的观点是被推翻的错误认识；力不是维持运动的原因。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题03 牛顿运动定律的理解应用（知识清单）（全国通用）(教师版）.docx（块 ae445151cc-002）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-ae445151cc-002c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:牛顿第一定律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-ae445151cc-002d",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -31720,29 +31168,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:牛顿第二定律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-ae445151cc-004c",
-   "subject": "PHYSICS",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "力和加速度可以突变、速度不可以突变（专题03知识清单教师版·牛顿第二定律）",
-   "summaryMarkdown": "速度不可以突变，力和加速度可以突变。",
-   "applicabilityMarkdown": "PRIMARY：分析剪断、抽出、突然启动等瞬时问题时。",
-   "contentMarkdown": "1. 速度不可以突变；力和加速度可以突变。\\n2. 受力改变的瞬间速度保持原值，而加速度立即改变，判断瞬时加速度要先分析新的受力。",
-   "boundaryMarkdown": "突变结论的前提是被动受力发生突变；速度的连续性由加速过程决定。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习知识清单（全国通用）/2026版/专题03 牛顿运动定律的理解应用（知识清单）（全国通用）(教师版）.docx（块 ae445151cc-004）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-ae445151cc-004c",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力、加速度与速度的关系",
      "role": "PRIMARY"
     }
    ]
@@ -41891,29 +41316,6 @@
    ]
   },
   {
-   "slug": "ext-phy-4f36f4e53d-006",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "探究加速度与力、质量关系实验的器材改进（第18讲·创新实验）",
-   "summaryMarkdown": "气垫导轨可免除平衡阻力，力传感器或弹簧测力计可直接测绳的拉力、不必满足小车质量远大于钩码质量，光电门等可更精确测位移与瞬时速度。",
-   "applicabilityMarkdown": "PRIMARY：优化探究加速度与力、质量关系的实验方案、选择或评价改进器材时。",
-   "contentMarkdown": "1. 气垫导轨：不用平衡阻力。\\n2. 力传感器或弹簧测力计：可直接测绳的拉力，不必保证小车质量远大于钩码的总质量。\\n3. 速度传感器、位移传感器、光电门：可以更加精确地测出小车的位移和瞬时速度。",
-   "boundaryMarkdown": "器材改进只解决平衡阻力与测力精度问题，不改变实验仍以牛顿第二定律为原理、仍要保证绳的拉力为合力的前提。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第18讲 实验4探究加速度与物体受力 物体质量的关系-（讲义）（学生版）.docx（块 4f36f4e53d-006）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-4f36f4e53d-006",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:探究加速度与力质量关系的实验创新",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-4f36f4e53d-006b",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -45088,52 +44490,6 @@
    ]
   },
   {
-   "slug": "ext-phy-4b50c32b6c-004",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "库仑力作用下平衡问题的处理思路（第41讲·考点一1·教师版）",
-   "summaryMarkdown": "库仑力作用下的平衡问题，解题思路与力学平衡问题相同，只是在受力中多了库仑力。",
-   "applicabilityMarkdown": "PRIMARY：遇到带电小球的平衡问题（三个自由点电荷、悬挂带电小球等）时。",
-   "contentMarkdown": "库仑力作用下的平衡问题，其解题思路与力学中的平衡问题一样，只是在原来受力的基础上多了库仑力。",
-   "boundaryMarkdown": "本条只给处理思路；「具体步骤如下」为图示，正文在抽取中缺失；块内【例5】答案与详解不取。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第41讲 电场力的性质-（讲义）（教师版）.docx（块 4b50c32b6c-004）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-4b50c32b6c-004",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:库仑力作用下的平衡问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-4b50c32b6c-004b",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "三个自由点电荷的平衡条件（第41讲·考点一2·教师版）",
-   "summaryMarkdown": "三个自由点电荷平衡时，每个点电荷受另外两个点电荷的合力为零，或处于另两个点电荷合场强为零的位置。",
-   "applicabilityMarkdown": "PRIMARY：处理共线三个自由点电荷平衡（求电荷量比、位置）的问题时。",
-   "contentMarkdown": "平衡条件：每个点电荷受到另外两个点电荷的合力为零，或每个点电荷处于另外两个点电荷产生的合电场强度为零的位置。",
-   "boundaryMarkdown": "「(2)平衡规律」正文在抽取中缺失；块内【例5】题干与详解不取。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第41讲 电场力的性质-（讲义）（教师版）.docx（块 4b50c32b6c-004）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-4b50c32b6c-004b",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:三个自由点电荷的平衡模型",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-4b50c32b6c-008",
    "subject": "PHYSICS",
    "type": "CONCEPT_EXPLANATION",
@@ -46992,29 +46348,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:法拉第电磁感应定律",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-88ccc5e352-011",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "自感现象、自感电动势与自感系数（第60讲·考点三）",
-   "summaryMarkdown": "线圈中电流变化时，其变化磁场在线圈本身激发自感电动势 E＝LΔI/Δt；自感系数 L 与线圈大小、形状、匝数及铁芯有关。",
-   "applicabilityMarkdown": "PRIMARY：分析通电、断电自感现象与线圈对电流变化的阻碍作用时。",
-   "contentMarkdown": "1. 概念：当一个线圈中的电流变化时，它所产生的变化的磁场在线圈本身激发出感应电动势，这种现象称为自感，由此产生的感应电动势叫作自感电动势。\\n2. 表达式：E＝LΔI/Δt。\\n3. 自感系数 L 的影响因素：与线圈的大小、形状、匝数以及是否有铁芯有关。",
-   "boundaryMarkdown": "自感电动势阻碍的是电流的变化，不是电流本身；通电、断电自感的具体现象还需结合 L 与电路电阻分析。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮复习精讲精练/资料/第60讲 法拉第电磁感应定律 自感和涡流-（讲义）（教师版）.docx（块 88ccc5e352-011）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-88ccc5e352-011",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:自感",
      "role": "PRIMARY"
     }
    ]
@@ -53529,29 +52862,6 @@
    ]
   },
   {
-   "slug": "ext-phy-9f6d933276-010",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "平均速度与瞬时速度的区别和联系（安徽专用第01讲·【解题技巧】）",
-   "summaryMarkdown": "平均速度是过程量，与位移和时间有关，表示某段位移或某段时间内运动的平均快慢；瞬时速度是状态量，与位置和时刻有关；瞬时速度等于运动时间Δt→0时的平均速度，匀速直线运动中两者相等。",
-   "applicabilityMarkdown": "PRIMARY：辨析平均速度与瞬时速度、判断所给速度是过程量还是状态量时。",
-   "contentMarkdown": "1.平均速度是过程量，与位移和时间有关，表示物体在某段位移或某段时间内的平均运动快慢程度。\\n2.瞬时速度是状态量，与位置和时刻有关，表示物体在某一位置或某一时刻的运动快慢程度。\\n3.联系：瞬时速度等于运动时间Δt→0时的平均速度；对于匀速直线运动，瞬时速度与平均速度相等。",
-   "boundaryMarkdown": "平均速度只能粗略描述一段过程的快慢、不要求各时刻速度相同；变速运动中通常所说的速度指瞬时速度。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（安徽专用）/第01讲 运动的描述 匀变速直线运动的规律（复习讲义）（安徽专用）（教师版）.docx（块 9f6d933276-010）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-9f6d933276-010",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平均速度与瞬时速度的区别",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-9f6d933276-016",
    "subject": "PHYSICS",
    "type": "MISCONCEPTION_GUIDE",
@@ -54863,29 +54173,6 @@
    ]
   },
   {
-   "slug": "ext-phy-dfe59fcd19-009",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "非正弦式交变电流有效值的两种求法（第58讲 解题技巧）",
-   "summaryMarkdown": "求非正（余）弦式交变电流有效值有两条路：图像含正弦式特定周期段时用结论法直接套有效值与最大值的关系；一般情形用定义法，抓住相同时间、相同电阻、相同热量的三同，时间取一个周期。",
-   "applicabilityMarkdown": "PRIMARY：遇到非正（余）弦式（半波、矩形波等）交变电流、要求其有效值或比较发热功率时。",
-   "contentMarkdown": "1. 结论法：如果图像的一部分是正弦式交变电流的特定周期段（必须是从零至最大值或从最大值至零），可直接应用正弦式交变电流的有效值与最大值之间的关系求解（块内该处表达式残缺，未补写）。\\n2. 有效值定义法（非正、余弦式交变电流）：计算时要抓住「三同」，即相同时间内、相同电阻上产生相同热量，列式求解时时间取一个周期。",
-   "boundaryMarkdown": "结论法只适用于波形中恰含一段从零至最大值或从最大值至零的正弦段；定义法是通法，不能对非正弦式波形直接套用正弦式有效值与最大值的关系。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（湖南专用）/第58讲 交变电流的产生和描述（复习讲义）（湖南专用）（教师版）.docx（块 dfe59fcd19-009）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-dfe59fcd19-009",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:交变电流有效值的计算",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-b99458ea57-005",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -55226,75 +54513,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹力有无的判断方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-477ad6128f-022",
-   "subject": "PHYSICS",
-   "type": "MISCONCEPTION_GUIDE",
-   "title": "摩擦力不一定是阻力：阻碍的是相对运动（第05讲复习讲义·易错提醒·教师版）",
-   "summaryMarkdown": "摩擦力总是阻碍物体间的相对运动或相对运动趋势，但不一定阻碍物体的运动；方向与物体运动方向相同时是动力，相反时是阻力。",
-   "applicabilityMarkdown": "PRIMARY：判断摩擦力是动力还是阻力，或由摩擦力方向推断物体运动情况时。",
-   "contentMarkdown": "1.摩擦力总是阻碍物体间的相对运动或者相对运动趋势，但不一定阻碍物体的运动。\\n2.摩擦力的方向与物体的运动方向相同时，它是物体运动的动力；与物体的运动方向相反时，它是物体运动的阻力。",
-   "boundaryMarkdown": "比较的对象是“相对运动（趋势）”而不是物体对地的运动；摩擦力方向与运动方向可以成任意夹角，不能只看运动方向判断。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（福建专用）/第05讲 三大性质力（复习讲义）（福建专用）（教师版）.docx（块 477ad6128f-022）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-477ad6128f-022",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:摩擦力的常见认识误区",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-477ad6128f-024",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "摩擦力的计算思路：先判类型再选方法（第05讲复习讲义·思维建模·教师版）",
-   "summaryMarkdown": "计算摩擦力先判定是静摩擦力还是滑动摩擦力：静摩擦力按二力平衡条件求解，滑动摩擦力用公式法或二力平衡条件求解。",
-   "applicabilityMarkdown": "PRIMARY：要求计算物体所受摩擦力大小时。",
-   "contentMarkdown": "1.先判定是静摩擦力还是滑动摩擦力。\\n2.静摩擦力：物体处于静止或匀速直线运动状态时，可根据二力平衡条件求解。\\n3.滑动摩擦力：根据公式法 f＝μFN 或二力平衡条件求解。",
-   "boundaryMarkdown": "静摩擦力不能用 f＝μFN 计算；滑动摩擦力大小与相对滑动速度、接触面积无关，公式中的 FN 不总是等于重力。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（福建专用）/第05讲 三大性质力（复习讲义）（福建专用）（教师版）.docx（块 477ad6128f-024）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-477ad6128f-024",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:摩擦力大小的计算方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-eaffbd3f7f-005",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "求合力的作图法与计算法（第06讲复习讲义·方法归纳）",
-   "summaryMarkdown": "求共点力的合力可用作图法或计算法：按平行四边形定则作出分力与合力的示意图，再由几何知识求对角线即得合力。",
-   "applicabilityMarkdown": "PRIMARY：已知两个共点分力的大小和方向，要求它们的合力时。",
-   "contentMarkdown": "1.作图法：以两分力为邻边按平行四边形定则作示意图，量出对角线的长度和方向即得合力。\\n2.计算法：两分力不共线时，根据平行四边形定则作出分力及合力的示意图，再由几何知识求解对角线，即为合力。",
-   "boundaryMarkdown": "作图法有读数误差，同一题中标度要统一；分力共线时按同向相加、反向相减处理，不必作图。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（福建专用）/第06讲 力的合成与分解（复习讲义）（福建专用）（学生版）.docx（块 eaffbd3f7f-005）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-eaffbd3f7f-005",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:力的合成",
      "role": "PRIMARY"
     }
    ]
@@ -55967,98 +55185,6 @@
    ]
   },
   {
-   "slug": "ext-phy-4052ccf38a-004",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "求解匀变速直线运动问题的一般步骤与注意点（黑吉辽蒙第02讲·考向2 思维建模）",
-   "summaryMarkdown": "先分析已知量与待求量、据所涉物理量选合适公式；刹车类先算车停下所用时间；双向可逆类可全过程列式，但必须注意各矢量的正负号及物理意义。",
-   "applicabilityMarkdown": "PRIMARY：求解匀变速直线运动问题、需要选公式或处理刹车类、双向可逆类过程时。",
-   "contentMarkdown": "1. 选择公式时先分析已知量和待求量，根据所涉及的物理量选择合适的公式求解，使问题简化。\\n2. 刹车类问题：车速为零时停止运动、加速度也突变为零；应先计算车停下所用时间，再选择合适公式求解。\\n3. 双向可逆类问题（如沿光滑斜面上滑的物块）：到最高点后仍能以原加速度匀加速下滑，全过程加速度大小、方向均不变，可对全过程列式，但必须注意 x、v、a 等矢量的正负号及物理意义。",
-   "boundaryMarkdown": "刹车类问题若忽略速度为零后的运动突变会多算时间；双向可逆类全过程列式的前提是加速度大小与方向始终不变。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（黑吉辽蒙专用）/第02讲 匀变速直线运动的规律（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 4052ccf38a-004）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-4052ccf38a-004",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:应用匀变速直线运动规律解题的基本思路",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-4052ccf38a-008",
-   "subject": "PHYSICS",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "匀变速直线运动公式的矢量性与正负号（黑吉辽蒙第02讲·考向2 思维建模）",
-   "summaryMarkdown": "匀变速直线运动公式中除时间外其余物理量均为矢量，可以用正、负号表示方向；应用时须先规定正方向。",
-   "applicabilityMarkdown": "PRIMARY：用匀变速直线运动公式列式、需要处理各量方向与正负号时。",
-   "contentMarkdown": "1. 匀变速直线运动的公式中，除时间 t 外其余物理量均为矢量，可以用正、负号表示矢量的方向。\\n2. 列方程前应先规定正方向，再把各量按方向关系代入正、负号后统一求解。",
-   "boundaryMarkdown": "正负号只表示方向、不表示大小；同一问题中正方向一经规定不得中途更换。思维建模中的公式表在抽取中缺失（仅存注文），本条据注文与公式的矢量性写成。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（黑吉辽蒙专用）/第02讲 匀变速直线运动的规律（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 4052ccf38a-008）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-4052ccf38a-008",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:以上各式均为矢量式-应用时应规定正方向",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-4052ccf38a-012",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "测重力加速度的方法：打点计时器法与频闪照相机法（黑吉辽蒙第02讲·考向1 思维建模）",
-   "summaryMarkdown": "用打点计时器打点或频闪照相机等间隔拍摄记录自由落体的位置，通过测量计数点（各时刻位置）间的距离，由匀变速直线运动的推论求重力加速度。",
-   "applicabilityMarkdown": "PRIMARY：设计或分析测重力加速度的实验、选择测量手段时。",
-   "contentMarkdown": "1. 打点计时器法：让重物自由下落，用打点计时器打出点迹清晰的纸带；对纸带上计数点间的距离 h 进行测量，利用匀变速直线运动的推论求出重力加速度。\\n2. 频闪照相机法：频闪照相机每间隔相等的时间拍摄一次，可追踪记录做自由落体运动的物体在各个时刻的位置，再由匀变速直线运动的推论求出重力加速度。",
-   "boundaryMarkdown": "两种方法都要求物体只受重力（尽量减小阻力影响）；纸带或照片上位置（距离）的测量误差直接影响 g 的测量精度。思维建模中求 g 的公式符号在抽取中缺失（原句「利用 求出重力加速度」），本条不写公式。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（黑吉辽蒙专用）/第02讲 匀变速直线运动的规律（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 4052ccf38a-012）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-4052ccf38a-012",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:测量重力加速度的实验方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-4052ccf38a-016",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "自由落体与竖直上抛相遇问题的位移关系与全程法（黑吉辽蒙第02讲·考向4 解题技巧）",
-   "summaryMarkdown": "同时运动的相遇由两者位移关系联立求时间；竖直上抛用全程法处理，取 v0 方向为正，由 v、h 的正负判断上升或下降、在抛出点上方或下方。",
-   "applicabilityMarkdown": "PRIMARY：处理自由落体与竖直上抛（含反弹）的相遇问题、需要列位移关系或判断相遇位置与时刻时。",
-   "contentMarkdown": "1. 处理思路：同时运动的自由落体与竖直上抛，按两物体的位移关系列式并解出相遇时间（块内该位移关系式在抽取中缺失）。\\n2. 全程法：将全过程视为初速度 v0 向上、加速度 g 向下的匀变速直线运动，必须注意物理量的矢量性——习惯上取 v0 的方向为正方向，则 v＞0 时物体正在上升、v＜0 时物体正在下降；h＞0 时物体在抛出点上方、h＜0 时物体在抛出点下方。",
-   "boundaryMarkdown": "全程法的前提是加速度恒为 g（不计空气阻力）；与地面碰撞后速度等大反向的反弹过程需分段处理。块内位移关系式抽取缺失，使用时须自行按相遇位置列式。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（黑吉辽蒙专用）/第02讲 匀变速直线运动的规律（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 4052ccf38a-016）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-4052ccf38a-016",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:自由落体与竖直上抛的相遇问题",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "ext-phy-32af80d1f1-005",
    "subject": "PHYSICS",
    "type": "METHOD_MODEL",
@@ -56330,29 +55456,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:活结与死结模型",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "ext-phy-1f98dda32f-012",
-   "subject": "PHYSICS",
-   "type": "METHOD_MODEL",
-   "title": "接触物相对滑动的题型识别与临界条件（黑吉辽蒙第08讲·考向1 思维建模）",
-   "summaryMarkdown": "物体处于平衡状态、力的矢量三角形变化、恰好不滑动是相对滑动临界问题的识别特征；临界条件是摩擦力为最大静摩擦力，斜面问题中 μ＝tanθ 为临界情形。",
-   "applicabilityMarkdown": "PRIMARY：判断两接触物是否恰好发生相对滑动、求保持平衡的条件（如斜面倾角、动摩擦因数）时。",
-   "contentMarkdown": "1. 题型识别：①物体处于平衡状态；②力的矢量三角形发生变化；③物体恰好不滑动。\\n2. 临界条件：物体所受摩擦力为最大静摩擦力，Ff≤μFN 是所有受静摩擦力物体平衡的必要条件。\\n3. 斜面问题中 μ＝tanθ 表示重力沿斜面向下分力等于最大静摩擦力的临界情况；题目出现「最大」「最小」「刚好」等关键词时一般隐藏着临界问题。\\n4. 注意：静摩擦力一般随外力的变化而变化，注意静摩擦力方向的判断。",
-   "boundaryMarkdown": "Ff≤μFN 中的 μFN 是最大静摩擦力（题设常认为等于滑动摩擦力）；μ＝tanθ 只适用于斜面上摩擦力方向沿斜面的平衡情形。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "desktop-src-48689b61de:physics",
-   "sourceLocator": "桌面资料 2026年新高考资料(1) / 2026年新高考资料(1)/一轮复习/2026年高考物理一轮课件+讲义+练习（黑吉辽蒙专用）/第08讲 动态平衡问题 平衡中的临界和极值问题（复习讲义）（黑吉辽蒙专用）（学生版）.docx（块 1f98dda32f-012）",
-   "reviewedAtEpochMillis": 1791685829440,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "ext-phy-1f98dda32f-012",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:物体间恰好不发生相对滑动-的临界条件是物体间恰好达到最大静摩擦力",
      "role": "PRIMARY"
     }
    ]

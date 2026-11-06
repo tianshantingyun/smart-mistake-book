@@ -1,0 +1,10 @@
+{
+  "serial": "emulator-5584",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "captured_at": "2026-11-05T01:07:41+08:00",
+  "probe": "adb shell am start -n <pkg>/<debug-only activity>",
+  "debug_activity_start": "Starting: Intent { cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.BindingAuditActivity }",
+  "debug_activity_reachable_from_shell": true,
+  "note": "debug artifact only; check_release_manifest.py asserts these components are absent from merged release manifests"
+}

@@ -189,16 +189,9 @@ internal class RoomMistakeDetailRepository(
                 listOf("TITLE_TOO_LONG"),
             )
         }
-        var document = command.questionDocument.copy(
+        val document = command.questionDocument.copy(
             document = command.questionDocument.document.copy(title = resolvedTitle),
         )
-        if (document.storedFigureReferences.isNotEmpty()) {
-            val previous = recordReader.read(command.entryId)?.takeIf { it.problemRevisionId == command.expectedRevisionId }
-                ?.questionDocumentSnapshot?.let { CapturedQuestionDocumentCodec.decode(it) }
-            if (previous != null && previous != document) {
-                document = document.copy(storedFigureReferences = document.storedFigureReferences.filterNot { it in previous.storedFigureReferences })
-            }
-        }
         val issues = CapturedQuestionDocumentValidator.validateForCommit(document)
         if (issues.isNotEmpty()) {
             return@withContext ReviseMistakeProblemResult.InvalidDocument(

@@ -55,6 +55,7 @@ data class DetailedAnswerExportInput(
             "共 ${documents.size} 题 · 与题目卷题号一致", null, blocks, solutionsSha, fingerprint,
             maxPages = MistakePdfExportLimits.MAX_BATCH_PAGES, maxRenderedLines = MistakePdfExportLimits.MAX_BATCH_RENDERED_LINES,
             maxPdfBytes = MistakePdfExportLimits.MAX_BATCH_PDF_BYTES, layout = answerLayout,
+            hasModelParsedText = documents.any { it.origin == com.tingyun.smartmistakebook.core.model.SolutionOrigin.MODEL },
             artifactRole = MistakeExportArtifactRole.DETAILED_ANSWERS)
     }
 }

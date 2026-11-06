@@ -1,0 +1,21 @@
+GROUP a11y
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group a11y
+CHECK clean_pass EXPECTED=0 ACTUAL=0 OK
+CHECK nodes_counted EXPECTED=1 ACTUAL=1 OK
+CHECK structural_pass EXPECTED=1 ACTUAL=1 OK
+CHECK contrast_pass EXPECTED=1 ACTUAL=1 OK
+CHECK dump_hash EXPECTED=1 ACTUAL=1 OK
+CHECK no_violations EXPECTED=1 ACTUAL=1 OK
+CHECK small_target_fails EXPECTED=1 ACTUAL=1 OK
+CHECK touch_target_caught EXPECTED=1 ACTUAL=1 OK
+CHECK missing_label_fails EXPECTED=1 ACTUAL=1 OK
+CHECK label_caught EXPECTED=1 ACTUAL=1 OK
+CHECK no_colors_ok EXPECTED=0 ACTUAL=0 OK
+CHECK no_colors_not_pass EXPECTED=1 ACTUAL=1 OK
+CHECK low_contrast_fails EXPECTED=1 ACTUAL=1 OK
+CHECK contrast_caught EXPECTED=1 ACTUAL=1 OK
+CHECK bad_dump_exit2 EXPECTED=2 ACTUAL=2 OK
+CHECK archived_dump EXPECTED=0 ACTUAL=0 OK
+CHECK archived_dump_nodes EXPECTED=1 ACTUAL=1 OK nodes=13
+CHECKS=17 FAILURES=0
+EXIT=0

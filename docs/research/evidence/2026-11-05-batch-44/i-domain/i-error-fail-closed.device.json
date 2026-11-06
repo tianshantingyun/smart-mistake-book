@@ -1,0 +1,19 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+  "apk_sha256": "",
+  "test_apk_sha256": "",
+  "package": "com.tingyun.smartmistakebook.localfirst.test",
+  "runner": "androidx.test.runner.AndroidJUnitRunner",
+  "class_filter": "com.tingyun.smartmistakebook.RootTutorFailClosedInstrumentedTest",
+  "counts": {
+    "tests": 5,
+    "evaluated": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 5
+  },
+  "verdict": "FAIL",
+  "reason": "skipped=5（跳过不计通过）",
+  "recorded_at": "2026-11-04T18:41:49Z"
+}

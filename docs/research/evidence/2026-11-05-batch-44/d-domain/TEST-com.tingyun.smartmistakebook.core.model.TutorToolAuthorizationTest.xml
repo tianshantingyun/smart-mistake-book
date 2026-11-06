@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:10.205Z" hostname="TIANSHAN" time="0.013">
+  <properties/>
+  <testcase name="lowConfidenceIntentIsNotRouteEligible" classname="com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest" time="0.01"/>
+  <testcase name="masteryUpdateRequiresCurrentQuestionHelpIntent" classname="com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest" time="0.002"/>
+  <testcase name="generateFigureRequiresTheCurrentQuestionIntent" classname="com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest" time="0.0"/>
+  <testcase name="ambiguousIntentNeverAuthorizesTools" classname="com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest" time="0.0"/>
+  <testcase name="masteryReadRequiresLearningProgressOrCurrentQuestion" classname="com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest" time="0.0"/>
+  <testcase name="advisoryToolsAreAuthorizedInEveryRoundWhenDeclared" classname="com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest" time="0.0"/>
+  <testcase name="notebookWriteNeverAuthorizedOnNonCurrentQuestionIntent" classname="com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest" time="0.0"/>
+  <testcase name="masteryUpdateNotAllowedWhenUndeclaredEvenUnderCurrentQuestion" classname="com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest" time="0.0"/>
+  <testcase name="notebookWriteRequiresExplicitStudentRequest" classname="com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest" time="0.0"/>
+  <testcase name="currentQuestionReadToolsAuthorizedButCasualNone" classname="com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

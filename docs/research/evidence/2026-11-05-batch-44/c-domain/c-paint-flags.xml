@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="c-paint-flags" tests="2" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T13:16:15Z">
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualMeasureReplayPaintFlagsInstrumentedTest" name="theMeasuringPaintAndTheReplayTextPaintShareTheFingerprintedFlags" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.VisualMeasureReplayPaintFlagsInstrumentedTest" name="aFingerprintThatDisagreesWithTheActualPaintFailsClosed" time="0">
+  </testcase>
+</testsuite>

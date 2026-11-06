@@ -106,3 +106,47 @@
 2025 基线下九科目录与范围清单逐点一致，且教学支持内容已声明并实际达到完整覆盖。教学支持声明为 `FULL`
 时，每个细化知识点都必须绑定讲解资料，而且九科各自至少有方法模型和完整例题。
 任一失败都不能对外宣称“覆盖全高中知识”。
+
+## 可教性与止损口径（THIN / 无源 / A 层封层）
+
+本节把“有材料”与“可教”分开登记，并固定三个终态口径。它只改变发布口径，不改写既有覆盖判定；台账中 `status` 与 `finalReview` 的原值保留。
+
+### 可教单元最小自足集（THIN 标准）
+
+一个节点要作为可教单元发布，其 PRIMARY 绑定材料至少应覆盖对应单元的最小自足集：
+
+| 单元 | 材料类型 | 最小自足集 | 不足时的登记 |
+|---|---|---|---|
+| 概念 | `CONCEPT_EXPLANATION` | 定义 + 条件 + 反例 | `teachability=THIN` |
+| 方法 | `METHOD_MODEL` | 特征 + 步骤 + 边界 | `teachability=THIN` |
+| 误区 | `MISCONCEPTION_GUIDE` | 错法 + 成因 + 纠正 | `teachability=THIN` |
+
+**THIN 判定（机械口径）**：节点 PRIMARY 绑定材料数 **≤2** 即标 `THIN`。当前工作树 25 个侧车、3,280 个节点、64,839 条 PRIMARY 绑定，THIN 节点 **433**（MATH 118 / PHYSICS 113 / CHEMISTRY 128 / BIOLOGY 74）；其中恰 1 条材料的 **238** 个（MATH 74 / PHYSICS 55 / CHEMISTRY 64 / BIOLOGY 45），0 材料节点 0 个。
+
+**发布规则**：
+
+- `THIN` 不得发布为 `COVERED`；`publishedCounts.publishedCOVERED` 不计入 THIN 行。
+- `status` 是覆盖判定，`teachability` 是可教性限定；两者分列，不互相改写。
+- 机器登记在 `knowledge-production/kb-coverage-alignment-2026-v2.json`：`thinStandard`、`thinNodes`（433 条）、`rowAnnotations`、`publishedCounts`。
+- 旧 `knowledge-production/node-material-gaps-2026-10-21.csv` 是「恰 1 条材料」的历史快照；本口径的 ≤2 THIN 登记以台账 `thinNodes` 为准。
+- 复算源为 25 个侧车 `core/data/src/main/resources/knowledge/moe-2025-teaching-support-v2-01..25.json` 的 `materials[].bindings[]`（`role=PRIMARY`）。
+
+### 选修 235：无源终态
+
+- 选修 235 行（`candidateRef` 含 `/elective-`）标 `terminalState=NO_SOURCE`，终态理由 **「无源（材料池 0 MATERIAL 行）」**。
+- 口径边界：4 科主包 0 个选修 topic、0 个选修自有节点；材料池按 `node_slug` 记录，故选修自有 MATERIAL 行 = 0。235 行中 189 行无目标节点，46 行仅借用主线节点，不计选修自有材料。
+- 选修 235 行不计入 `publishedCounts.publishedCOVERED`；不补源、不建点、不伪造来源。
+- 逐条计数与理由见台账 `electiveTerminal` / `rowAnnotations`；历史逐条报告见 `docs/research/2026-10-13-elective-coverage-report.md` §3。
+
+### A 层止损：60,512 封层 + 2 轮 5 材料
+
+- A 层 **60,512 块**维持批14 **SEAL**：point **1,053.333 < 1,500**、Wilson lower **326.901 < 800**、genuine **5/5**；不重开、不重判、不追加抽样。登记见 `docs/kb-acceptance-2026-10-17.md:452,649` 与 `docs/research/2026-10-25-kb-final-acceptance-criteria-v1.md:47,74`。
+- 定向抽取 2 轮：v25 22 子面 → MATERIAL 3 / SKIP 15 / NOT_FOUND 4；v26 39 子面 → MATERIAL 2 / SKIP 4 / NOT_FOUND 33。两轮合计 **5 条 MATERIAL**，按 C6 止损口径停止，不设第 3 轮。
+- NOT_FOUND 共 **37** 条，按 reason 记：**无源 4 / 不相关 33 / 重复 0**。重复/已覆盖候选均落 SKIP（v26 M04/M05/M09/R09；v25 15 条 SKIP），不计 NOT_FOUND。
+- 机器登记见 `knowledge-production/a-layer-stop-loss-2026-11-02.json`；逐条表与证据见同目录 `.md`。
+
+### 边界
+
+- 本节只落台账与文档，未改 `tools/audit-knowledge-packs.ps1` 等发布门脚本；`FULL` 声明仍须按本节排除 THIN 与选修无源行。
+- 选修 235 的「材料池 0 MATERIAL 行」按选修自有节点口径成立；46 行借用主线节点的材料不计入选修自有材料。
+- THIN 是材料数量口径，不替代内容质量审校；THIN 节点补料仍须走来源登记、审校与晋升链。

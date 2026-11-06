@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="r1-shared" tests="6" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T08:51:05Z">
+  <testcase classname="com.tingyun.smartmistakebook.SharedCaptureEntryInstrumentedTest" name="aRetryableShareFailureCanBeRetriedAndSucceeds" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SharedCaptureEntryInstrumentedTest" name="aShareOfMoreThanThirtyFilesIsRejectedByTheCountGate" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SharedCaptureEntryInstrumentedTest" name="aSharedImageLandsAsAnEditableCaptureDraft" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SharedCaptureEntryInstrumentedTest" name="aSharedFileThatIsNotAnImageIsRejectedWithoutCreatingADraft" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SharedCaptureEntryInstrumentedTest" name="aSharedImageAboveTheByteBudgetIsRejectedByTheSizeGate" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.SharedCaptureEntryInstrumentedTest" name="severalSharedImagesStartTheExistingBatchImport" time="0">
+  </testcase>
+</testsuite>

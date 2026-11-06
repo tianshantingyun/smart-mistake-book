@@ -43,7 +43,7 @@ data class ProblemOrganizationSelection(
         require(userClassifications.size <= MAX_USER_CLASSIFICATIONS) {
             "Too many user classifications were added at once"
         }
-        require(classificationIndexes.size + userClassifications.size + knowledgeSelections.size <= MAX_TOTAL_CLASSIFICATIONS) {
+        require(classificationIndexes.size + userClassifications.size <= MAX_TOTAL_CLASSIFICATIONS) {
             "Too many classifications were selected at once"
         }
         require(

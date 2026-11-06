@@ -77,6 +77,41 @@ tasks.matching { it.name.startsWith("merge") && it.name.endsWith("AndroidTestAss
     .configureEach { dependsOn(syncGoldenQueryAssets) }
 
 /**
+ * KD-83 / WS5：closure 4（schema 72）备份包夹具的 **androidTest assets 副本**构建期同步。
+ *
+ * 权威源 `tools/backup_fixtures/v4/`（黄金件 + 两份负向件 + `v4-pack.golden.json`）由
+ * `tools/ci/make_v4_pack_fixture.py` 一次性冻结；设备侧只读 APK 里的副本。手工拷贝会重演
+ * "源重新冻结、副本没跟上，仪表化还在评旧字节"的那类失败，所以这里沿用 `syncGoldenQueryAssets`
+ * 的三段式（构建期同步 → JVM 逐字节守卫
+ * `V4PackFixtureTest.assetMirrorMatchesAuthoritySourceByteForByte` → 仪表化运行时 sha256 断言）。
+ *
+ * **消灭的具体失败**：`SmbkArchiveCodecTest` 的 v4 用例用被测代码现算键集/摘要（同规则自证），
+ * 且载荷是 16 字节假文件；设备上从来没有"真 72 库 + 冻结字节"的恢复样本（批次 41 F14）。
+ */
+val v4PackFixtureSourceDir = rootProject.layout.projectDirectory.dir("tools/backup_fixtures/v4")
+val v4PackFixtureAssetDir = layout.projectDirectory.dir("src/androidTest/assets/backup/v4")
+val v4PackFixtureFileNames = listOf(
+    "closure4-schema72-mask15.smbk",
+    "closure4-schema72-mask15.smbk.sha256",
+    "forged-count.smbk",
+    "forged-count.smbk.sha256",
+    "dropped-nonempty.smbk",
+    "dropped-nonempty.smbk.sha256",
+    "v4-pack.golden.json",
+)
+val syncV4PackFixtures = tasks.register<Copy>("syncV4PackFixtures") {
+    group = "verification"
+    description = "把冻结的 closure 4 备份包夹具从 tools/backup_fixtures/v4 同步到 androidTest assets"
+    from(v4PackFixtureSourceDir) {
+        include(v4PackFixtureFileNames)
+    }
+    into(v4PackFixtureAssetDir)
+}
+
+tasks.matching { it.name.startsWith("merge") && it.name.endsWith("AndroidTestAssets") }
+    .configureEach { dependsOn(syncV4PackFixtures) }
+
+/**
  * LiteRT 2.1.6 的 manifest namespace 冲突（真机档实测暴露；库模块自己的合并不受影响，
  * 所以 JVM/库级门看不到它）。
  *

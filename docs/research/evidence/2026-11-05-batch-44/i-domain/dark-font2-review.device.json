@@ -1,0 +1,26 @@
+{
+  "action": "capture",
+  "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac",
+  "boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+  "checks": [
+    "root tag present: root_review"
+  ],
+  "clickable": 4,
+  "contrast": "PASS",
+  "density_dpi": 420,
+  "failures": [],
+  "finished_at": "2026-11-04T19:05:49Z",
+  "label": "dark-font2-review",
+  "nodes": 35,
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "sdk": "34",
+  "serial": "emulator-5584",
+  "started_at": "2026-11-04T19:05:49Z",
+  "state": {
+    "font_scale": 2.0,
+    "night": "yes"
+  },
+  "structural_ok": true,
+  "verdict": "PASS",
+  "violation_codes": []
+}

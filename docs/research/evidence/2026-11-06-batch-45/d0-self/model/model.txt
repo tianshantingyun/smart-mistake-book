@@ -1,0 +1,17 @@
+GROUP model
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group model
+CHECK ledger_rows_1200 EXPECTED=1 ACTUAL=1 OK rows=1200
+CHECK ledger_ids_and_counts EXPECTED=1 ACTUAL=1 OK identity_issues=0
+CHECK columns_six EXPECTED=1 ACTUAL=1 OK
+CHECK verdicts_legal EXPECTED=1 ACTUAL=1 OK
+CHECK verdicts_nonempty EXPECTED=1 ACTUAL=1 OK
+CHECK evidence_tokens_parse EXPECTED=1 ACTUAL=1 OK tokens=2352
+CHECK init_check EXPECTED=0 ACTUAL=0 OK
+CHECK mutation_verdict EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_duplicate EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_columns EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_domain EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_kind EXPECTED=1 ACTUAL=1 OK
+CHECK mutation_empty_path EXPECTED=1 ACTUAL=1 OK
+CHECKS=13 FAILURES=0
+EXIT=0

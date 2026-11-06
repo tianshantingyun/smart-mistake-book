@@ -130,7 +130,7 @@ internal fun pendingRequestCopy(
         TutorLocalActionTarget.SAVE_CAPTURE_DRAFT -> TutorPendingRequestCopy(
             "把这次拍照的题加入错题本？", "确认后保存这次拍照的草稿。", "加入错题本")
         TutorLocalActionTarget.INTAKE_ATTACHED_IMAGES -> TutorPendingRequestCopy(
-            "录入这一轮附上的图片？", "确认后录入附图，整理完成后存入错题本。", "加入录入")
+            "录入这一轮附上的图片？", "确认后将附图加入录入队列。", "加入录入")
         else -> if (context.libraryProblemId != null) TutorPendingRequestCopy(
             "查看错题本里的这道题？", "这道题已在错题本中，确认后打开它的详情。", "打开这道题")
         else TutorPendingRequestCopy("打开错题本？", "确认后前往错题本查看已有题目。", "打开错题本")

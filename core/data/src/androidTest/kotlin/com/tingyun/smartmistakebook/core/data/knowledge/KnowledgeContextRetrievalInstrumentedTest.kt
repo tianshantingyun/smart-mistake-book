@@ -428,7 +428,7 @@ class KnowledgeContextRetrievalInstrumentedTest {
         title = "经核验的高中数学知识目录",
         publisher = "授权教研机构",
         edition = null,
-        sourceUri = "https://example.edu/math/knowledge-index",
+        sourceUri = "https://www.moe.gov.cn/math/knowledge-index",
         licenseStatus = KnowledgeSourceLicenseStatus.REFERENCE_ONLY.name,
         contentFingerprint = "C".repeat(64),
         importedAtEpochMillis = REVIEWED_AT,

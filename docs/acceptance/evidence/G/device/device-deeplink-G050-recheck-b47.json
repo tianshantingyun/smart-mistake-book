@@ -1,0 +1,19 @@
+{
+  "row": "G-050",
+  "purpose": "行特有复算（批次47）：设备 VIEW https 解析到 Chrome 而非本应用",
+  "serial": "emulator-5584",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "installed": true,
+  "apk_sha256": "f534b0dd8aeabeeeec633bcbb9d24a62efe900eb75fdbcce199b979d58f7f7de",
+  "archived_apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "abi": "x86_64",
+  "sdk_int": 34,
+  "captured_at": "2026-11-06T01:02:12+08:00",
+  "probe": "adb -s emulator-5584 shell cmd package resolve-activity -a android.intent.action.VIEW -d https://example.com/x",
+  "resolve_exit": 0,
+  "resolved_package": "com.android.chrome/com.google.android.apps.chrome.IntentDispatcher",
+  "resolve_contains_app_package": false,
+  "handles_view_action": false,
+  "raw_resolve_output": "priority=0 preferredOrder=0 match=0x208000 specificIndex=-1 isDefault=true\nActivityInfo:\n  name=com.google.android.apps.chrome.IntentDispatcher\n  packageName=com.android.chrome\n  enabled=true exported=true directBootAware=false\n  taskAffinity=null targetActivity=org.chromium.chrome.browser.document.ChromeLauncherActivity persistableMode=PERSIST_ROOT_ONLY\n  launchMode=LAUNCH_MULTIPLE flags=0x311220 privateFlags=0x2 theme=0x7f1501e9\n  screenOrientation=-1 configChanges=0x1fb3 softInputMode=0x0\n  lockTaskLaunchMode=LOCK_TASK_LAUNCH_MODE_DEFAULT\n  resizeMode=RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION\n  knownActivityEmbeddingCerts={}\n  ApplicationInfo:\n    name=org.chromium.chrome.browser.base.SplitChromeApplication\n    packageName=com.android.chrome\n    labelRes=0x7f140241 nonLocalizedLabel=null icon=0x7f09027c banner=0x0\n    className=org.chromium.chrome.browser.base.SplitChromeApplication\n    processName=com.android.chrome\n    taskAffinity=com.android.chrome\n    uid=10150 flags=0xa0cbbec5 privateFlags=0x84089110 theme=0x0\n    requiresSmallestWidthDp=0 compatibleWidthLimitDp=0 largestWidthLimitDp=0\n    sourceDir=/data/app/~~5cKYp-1WLESxx-16qg6jdw==/com.android.chrome-_jR3DOAY0VZ61y4ju9HxyA==/Chrome.apk\n    resourceDirs=[/product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk]\n    overlayPaths=[/product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk, /data/resource-cache/com.android.systemui-neutral-xIrr.frro, /data/resource-cache/com.android.systemui-accent-s0k5.frro, /data/resource-cache/com.android.systemui-dynamic-1F59.frro]\n    seinfo=default:targetSdkVersion=34\n    seinfoUser=:complete\n    dataDir=/data/user/0/com.android.chrome\n    deviceProtectedDataDir=/data/user_de/0/com.android.chrome\n    credentialProtectedDataDir=/data/user/0/com.android.chrome\n    sharedLibraryFiles=[/data/app/~~CoGA3G_xGlbL4zCZKcOnUA==/com.google.android.trichromelibrary_567263637-Tdd_xVZ0gDzI1-BHZJw8aQ==/TrichromeLibrary.apk]\n    enabled=true minSdkVersion=29 targetSdkVersion=34 versionCode=567263637 targetSandboxVersion=1\n    manageSpaceActivityName=org.chromium.chrome.browser.site_settings.ManageSpaceActivity\n    supportsRtl=true\n    fullBackupContent=true\n    crossProfile=false\n    networkSecurityConfigRes=0x7f18002d\n    category=7\n    HiddenApiEnforcementPolicy=2\n    usesNonSdkApi=false\n    allowsPlaybackCapture=false\n    nativeHeapZeroInitialized=0\n    localeConfigRes=0x7f180029\n    enableOnBackInvokedCallback=true\n    createTimestamp=81386266",
+  "probe_note": "ledger 原文的 -a VIEW 简写在本机 cmd package 不展开（输出 No activity found，复测两次稳定）；与批次44归档输出同格式对应的是全名动作 -a android.intent.action.VIEW，重放以全名动作执行。归档 apk_sha256=84cae864… 与当前安装包 f534b0dd… 不同（批次间构建漂移），本文件绑定当前安装包字节。"
+}

@@ -1,0 +1,430 @@
+{
+  "schema": "acceptance-domain-review/1",
+  "id": "G-REVIEW",
+  "domain": "G",
+  "domain_title": "安全与隐私",
+  "verdict": "BLOCKED",
+  "domain_verdict": "BLOCKED",
+  "ledger_verdict": "BLOCKED",
+  "review_verdict": "BLOCKED",
+  "domain_counts": {
+    "PASS": 82,
+    "FAIL": 0,
+    "BLOCKED": 2,
+    "UNVERIFIED": 6
+  },
+  "sample_size": 13,
+  "ledger": "docs/acceptance/ledger.md",
+  "review_result": "13 G rows sampled and independently recomputed; all 13 concur with ledger PASS. The G domain is NOT signed: G-087 and G-088 remain BLOCKED (no offline advisory source; KD-72 lockfiles NOT_LANDED) and G-016/G-036/G-072/G-080/G-081/G-089 remain UNVERIFIED. This file covers only the 13 sampled rows.",
+  "run_id": "2026-11-05T02:56:51Z-batch45-g-review",
+  "reviewer": "independent-reviewer:g-domain-batch45",
+  "authors": [
+    "batch-44-g-evidence-group"
+  ],
+  "self_review": false,
+  "ledger_sha256": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_g_section_sha256": "24609f3435a00ff62cc32198a82af2307a92c31773468503b8687c48f96734a5",
+  "ledger_note": "Ledger is modified in the working tree: D0/FIX/GATE rows changed concurrently (200/200/200 lines), G rows unchanged (0 G-line diffs). Whole-ledger sha binds this review's run; G-section sha anchors the 90 G rows. Re-bind before wiring if the ledger changes again.",
+  "head": "87604198feeef198d5dba7343b8c4692c5e8f937",
+  "scope": {
+    "ledger_rows_total_G": 90,
+    "ledger_verdicts_G": {
+      "PASS": 82,
+      "FAIL": 0,
+      "BLOCKED": 2,
+      "UNVERIFIED": 6
+    },
+    "gate_assertions": 74,
+    "gate_assertions_note": "74 ids have assertions; 9 device/device-artifact rows are covered by test_g_device_evidence, G-054 reuses G-046, and 6 non-PASS rows have none.",
+    "sampled_rows": [
+      "G-001",
+      "G-012",
+      "G-019",
+      "G-021",
+      "G-026",
+      "G-032",
+      "G-037",
+      "G-048",
+      "G-059",
+      "G-064",
+      "G-066",
+      "G-077",
+      "G-083"
+    ]
+  },
+  "recompute": {
+    "cmd": [
+      "python -I tools/ci/g_security_gate.py --all -> RESULT: 74 passed, 0 failed, topic=all; EXIT=0",
+      "sha256sum -c docs/acceptance/evidence/G/hashes.sha256 -> 30/30 OK, exit 0",
+      "python -I tools/ci/check_lockfiles.py -> exit 0 with KD-72 NOT_LANDED skip notice (G-088 stays BLOCKED)",
+      "git diff -U0 -- docs/acceptance/ledger.md | grep '^[+-]| G-' -> 0 lines (G section unchanged)"
+    ],
+    "test": [
+      "python -I -m pytest tools/tests/test_g_security_gate.py tools/tests/test_g_device_evidence.py tools/tests/test_g_gate_negative_control.py -q -> 75 passed in 6.84s, exit 0",
+      "the 12 persisted evidence XMLs sum to exactly 75 testcases (6+4+5+6+5+6+7+5+4+5+19+3), matching the fresh run"
+    ],
+    "mechanical": [
+      "own secret regex over 4096 tracked files and 443 untracked entries",
+      "own Log.[dewiv]( scan over 762 main-product .kt files",
+      "direct reads: manifests, backup/data-extraction XMLs, 4 provider path XMLs, OpenAiModelTransport.kt, BackupSelection.kt, SecondaryScreens.kt, ReviewReminderPlatform.kt, MistakeExportNotifications.kt",
+      "evidence-log vs fresh-run diff across all 10 topic logs: 1 line differs (G-083 untracked count 459 -> 443); no verdict differs"
+    ]
+  },
+  "rows": [
+    {
+      "id": "G-001",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "concur": true,
+      "evidence": [
+        "cmd:docs/acceptance/evidence/G/logs/g-secrets.log#exit=0",
+        "test:docs/acceptance/evidence/G/tests/g-secrets.xml"
+      ],
+      "recompute": [
+        "gate --all: 'G-001 PASS tracked secret-pattern hits=0' (74 passed/0 failed, EXIT=0)",
+        "own regex scan of 4096 tracked files -> 2 raw hits, both 'model-task-<32hex>' (docs/known-defects.md:1511; docs/research/2026-10-11-thin-vertical-slice-walkthrough.md:286); excluding model-task- -> 0",
+        "sha256sum -c G/hashes.sha256 -> 30/30 OK, exit 0"
+      ],
+      "notes": "Ledger's 'model-task- substring' explanation independently reproduced."
+    },
+    {
+      "id": "G-012",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "concur": true,
+      "evidence": [
+        "cmd:docs/acceptance/evidence/G/logs/g-logging.log#exit=0",
+        "test:docs/acceptance/evidence/G/tests/g-logging.xml"
+      ],
+      "recompute": [
+        "gate --all: 'G-012 PASS log calls scanned=88; sensitive-argument hits=0'",
+        "own Log.[dewiv]( regex over 762 main-product .kt files -> log_calls=88, sensitive_hits=0"
+      ],
+      "notes": "Property holds. Finding F1: ledger check text says '114 处 Log 扫描' vs 88 in log and fresh run (stale prose)."
+    },
+    {
+      "id": "G-019",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "concur": true,
+      "evidence": [
+        "cmd:docs/acceptance/evidence/G/logs/g-backup.log#exit=0",
+        "device:docs/acceptance/evidence/G/device/device-backup.json"
+      ],
+      "recompute": [
+        "gate --all: 'G-019 PASS main manifest allowBackup=false=True'",
+        "read app/src/main/AndroidManifest.xml:12 -> android:allowBackup=\"false\"",
+        "device-backup.json: bmgr 'Backup is not allowed', allow_backup_flag_present=false, no ALLOW_BACKUP in pkgFlags; bound to emulator-5584 / apk 84cae864...ab5b"
+      ],
+      "notes": "Both halves reproduced from persisted artifacts; no adb run this session."
+    },
+    {
+      "id": "G-021",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "concur": true,
+      "evidence": [
+        "cmd:docs/acceptance/evidence/G/logs/g-backup.log#exit=0",
+        "test:docs/acceptance/evidence/G/tests/g-backup.xml"
+      ],
+      "recompute": [
+        "gate --all: 'G-021 PASS cloud + device-transfer both exclude db=True'",
+        "read app/src/main/res/xml/data_extraction_rules.xml -> cloud-backup (disableIfNoEncryptionCapabilities=true) and device-transfer each exclude root/file/database/sharedpref/external"
+      ],
+      "notes": "Database excluded on both cloud backup and device transfer."
+    },
+    {
+      "id": "G-026",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "concur": true,
+      "evidence": [
+        "cmd:docs/acceptance/evidence/G/logs/g-backup.log#exit=0",
+        "test:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-data-SixC2RulingInvariantTest.xml"
+      ],
+      "recompute": [
+        "gate --all: 'G-026 PASS allowed masks {9,13,15} with require guard=True'",
+        "read BackupSelection.kt:90,140,166 -> isCreatable = isClosed && mask in ALLOWED_MASKS; require(mask in ALLOWED_MASKS); linkedSetOf(9,13,15)",
+        "git diff --stat -- BackupSelection.kt -> empty; invariant XML tests=3 failures=0 errors=0"
+      ],
+      "notes": "Immutable 6C-2 rule confirmed read-only (mask=8 not offered, mask=0 rejected, derived index always trimmed)."
+    },
+    {
+      "id": "G-032",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "concur": true,
+      "evidence": [
+        "cmd:docs/acceptance/evidence/G/logs/g-egress.log#exit=0",
+        "test:docs/acceptance/evidence/G/tests/g-egress.xml"
+      ],
+      "recompute": [
+        "gate --all: 'G-032 PASS SSRF guard rejects non-public addresses=True'",
+        "read OpenAiModelTransport.kt:79-109 -> any/loopback/link-local/site-local/multicast rejected; IPv6 only global unicast minus 2001:db8::/32",
+        "read :214-225 -> https-only, no embedded user/password, all resolved addresses must be publicly routable or throw"
+      ],
+      "notes": "Guard runs on DNS resolution results, not only the literal host."
+    },
+    {
+      "id": "G-037",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "concur": true,
+      "evidence": [
+        "cmd:docs/acceptance/evidence/G/logs/g-permissions.log#exit=0",
+        "device:docs/acceptance/evidence/G/device/device-permissions.json"
+      ],
+      "recompute": [
+        "gate --all: 'G-037 PASS main=2 flavor=2 dangerous=[]'",
+        "own grep: main=POST_NOTIFICATIONS+RECEIVE_BOOT_COMPLETED, localFirst=INTERNET+ACCESS_NETWORK_STATE, strictOffline only removals; no dangerous permission",
+        "device-permissions.json: requested=7 granted=7, none dangerous; bound to emulator-5584 / apk 84cae864...ab5b"
+      ],
+      "notes": "Merged 7-permission surface includes library-declared FGS/WAKE_LOCK; author manifests declare 4."
+    },
+    {
+      "id": "G-048",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "concur": true,
+      "evidence": [
+        "cmd:docs/acceptance/evidence/G/logs/g-deeplink.log#exit=0",
+        "test:docs/acceptance/evidence/G/tests/g-deeplink.xml"
+      ],
+      "recompute": [
+        "gate --all: 'G-048 PASS autoVerify declarations=False'",
+        "own grep of every app/core/feature AndroidManifest.xml for autoVerify|intent.action.VIEW|category.BROWSABLE|android:scheme -> none"
+      ],
+      "notes": "No app-link or custom-scheme surface exists at all."
+    },
+    {
+      "id": "G-059",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "concur": true,
+      "evidence": [
+        "cmd:docs/acceptance/evidence/G/logs/g-intent.log#exit=0",
+        "test:docs/acceptance/evidence/G/tests/g-intent.xml"
+      ],
+      "recompute": [
+        "gate --all: 'G-059 PASS PendingIntent sites=3 FLAG_IMMUTABLE=3 FLAG_MUTABLE=0'",
+        "read all 3 sites: MistakeExportNotifications.kt:145-149, ReviewReminderPlatform.kt:82-87, :90-97; each uses FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE"
+      ],
+      "notes": "Verified per call site, not only by count."
+    },
+    {
+      "id": "G-064",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "concur": true,
+      "evidence": [
+        "cmd:docs/acceptance/evidence/G/logs/g-fileexposure.log#exit=0",
+        "test:docs/acceptance/evidence/G/tests/g-fileexposure.xml",
+        "test:docs/acceptance/evidence/G/tests/g-negative-control.xml"
+      ],
+      "recompute": [
+        "gate --all: 'G-064 PASS providers exposing app root=0'",
+        "read all 4 provider path XMLs -> pdf/docx/capture cache subdirs + batch files-path; no path=\".\" or \"/\"",
+        "negative control test_g_gate_negative_control.py rewrites a copy to path=\".\" and asserts chk_g064()==False; XML 3 tests 0 failures"
+      ],
+      "notes": "Mutation control proves the assertion can go red."
+    },
+    {
+      "id": "G-066",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "concur": true,
+      "evidence": [
+        "device:docs/acceptance/evidence/G/device/device-fileexposure.json",
+        "test:docs/acceptance/evidence/G/tests/g-device-artifacts.xml"
+      ],
+      "recompute": [
+        "device-fileexposure.json: pdf_provider_denied=true, batch_provider_denied=true, both SecurityException 'not exported from UID 10198'; bound to emulator-5584 / apk 84cae864...ab5b",
+        "g-device-artifacts.xml: 19 tests 0 failures (incl. test_file_providers_deny_unauthorized_reads)",
+        "fresh pytest test_g_device_evidence.py -> part of 75 passed"
+      ],
+      "notes": "Persisted device evidence only; no adb execution this session."
+    },
+    {
+      "id": "G-077",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "concur": true,
+      "evidence": [
+        "cmd:docs/acceptance/evidence/G/logs/g-clipboard_screenshot.log#exit=0",
+        "test:docs/acceptance/evidence/G/tests/g-clipboard_screenshot.xml"
+      ],
+      "recompute": [
+        "gate --all: G-077 FLAG_SECURE only in SecondaryScreens.kt",
+        "read SecondaryScreens.kt:113-118 -> DisposableEffect addFlags(FLAG_SECURE) + onDispose clearFlags; no other main-product site"
+      ],
+      "notes": "Scoped add/clear pair (also supports G-078)."
+    },
+    {
+      "id": "G-083",
+      "ledger_verdict": "PASS",
+      "review_verdict": "PASS",
+      "concur": true,
+      "evidence": [
+        "cmd:docs/acceptance/evidence/G/logs/g-plaintext_deps.log#exit=0",
+        "test:docs/acceptance/evidence/G/tests/g-plaintext_deps.xml"
+      ],
+      "recompute": [
+        "gate --all: 'G-083 PASS untracked files scanned=443; secret hits=0'",
+        "own git status parse -> 443 untracked entries, 311 files <=1MB scanned, 0 secret hits after excluding model-task-"
+      ],
+      "notes": "Property holds. Finding F2: count is run-dependent (ledger 456 / log 459 / fresh 443)."
+    }
+  ],
+  "spot_checks_non_pass": [
+    {
+      "id": "G-016",
+      "ledger_verdict": "UNVERIFIED",
+      "check": "f-domain/anr-crash.device.json -> crash_buffer_lines=0; no crash trace captured"
+    },
+    {
+      "id": "G-036",
+      "ledger_verdict": "UNVERIFIED",
+      "check": "no app Provider credential configured (only an unrelated env var name, DASUAPI_API_KEY); external egress not executed"
+    },
+    {
+      "id": "G-072",
+      "ledger_verdict": "UNVERIFIED",
+      "check": "gate chk_g072 string guard passes, but row stays UNVERIFIED because no runtime traversal URI can be constructed; row does not cite the cmd log"
+    },
+    {
+      "id": "G-080",
+      "ledger_verdict": "UNVERIFIED",
+      "check": "no screenshot artifact under docs/acceptance/evidence/G; not executed"
+    },
+    {
+      "id": "G-081",
+      "ledger_verdict": "UNVERIFIED",
+      "check": "grep EXTRA_IS_SENSITIVE over app/core/feature -> absent; product ruling pending"
+    },
+    {
+      "id": "G-087",
+      "ledger_verdict": "BLOCKED",
+      "check": "no advisory/CVE tool under tools/ci; cannot claim 'no vulnerabilities'"
+    },
+    {
+      "id": "G-088",
+      "ledger_verdict": "BLOCKED",
+      "check": "check_lockfiles exits 0 only because locking is NOT_LANDED; 13 project gradle.lockfile (+ settings-gradle.lockfile) untracked; KD-72 open"
+    },
+    {
+      "id": "G-089",
+      "ledger_verdict": "UNVERIFIED",
+      "check": "gradle/verification-metadata.xml does not exist"
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "low",
+      "status": "open",
+      "row": "G-012",
+      "detail": "Ledger check text says '114 处 Log 扫描'; evidence log and fresh run both report 88. Stale prose; assertion unaffected. Correct the ledger text (outside this review's landing scope)."
+    },
+    {
+      "id": "F2",
+      "severity": "low",
+      "status": "open",
+      "row": "G-083",
+      "detail": "Ledger check text says '456 个文件'; evidence log 459; fresh run 443. Run-dependent count; assertion (0 hits) stable. Drop the fixed number or mark it as a run-time value."
+    },
+    {
+      "id": "F3",
+      "severity": "low",
+      "status": "open",
+      "row": "G-063",
+      "detail": "Gate detail labels 'library exported components=6', but that total includes app-owned MainActivity; real library count is 5 (matches G-055). Label-only defect."
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "status": "open",
+      "row": "G-009",
+      "detail": "chk_g009 asserts the archive codec has no secret references, while ledger G-009 checks the device no_backup listing. G-009 cites device+test only, so no false PASS; id-to-assertion mapping is inconsistent."
+    },
+    {
+      "id": "F5",
+      "severity": "medium",
+      "status": "open",
+      "row": "baseline",
+      "detail": "Plan/record expect ledger sha 02ba5307..., current working tree is bb25ef23... (D0/FIX/GATE edited concurrently, 200/200/200 lines). Bound to current sha plus G-section sha 24609f...; refresh if the ledger moves again."
+    },
+    {
+      "id": "F6",
+      "severity": "medium",
+      "status": "open",
+      "row": "wiring",
+      "detail": "acceptance_report.py counts pass_with_review only from 'review:' tokens in ledger rows; this file alone does not raise it. Honest wiring is one review token per sampled row (13), never one token for all 82 PASS rows. Until wired, pass_with_review stays 0."
+    },
+    {
+      "id": "F7",
+      "severity": "info",
+      "status": "accepted",
+      "row": "device",
+      "detail": "All 8 device JSONs bind to emulator-5584 / apk 84cae864...ab5b (batch-44 track); no adb this session, so conclusions hold for that build only."
+    },
+    {
+      "id": "F8",
+      "severity": "info",
+      "status": "accepted",
+      "row": "test-class",
+      "detail": "Persisted 'test' XMLs are pytest self-tests of the gate assertions and device-binding tests: independent of the cmd run, not independent of the gate code. Direct source/XML scanning is the independent recompute."
+    },
+    {
+      "id": "F9",
+      "severity": "info",
+      "status": "accepted",
+      "row": "coverage",
+      "detail": "74 gate assertions for 90 rows; 9 device rows covered by test_g_device_evidence, G-054 reuses G-046, 6 non-PASS rows deliberately have none."
+    }
+  ],
+  "limitations": [
+    "No adb/emulator execution this session; device rows verified only against persisted JSON (serial + apk sha) and hashes.",
+    "No Gradle build/test run; no runtime proof of egress, clipboard sensitivity, or lock-screen behaviour.",
+    "The gate is a source-text assertion suite and does not prove runtime behaviour; G-036 runtime egress stays unproven.",
+    "Coverage is 13 of 90 G rows and must not be cited for the other 77.",
+    "G-087/G-088 remain BLOCKED and 6 rows remain UNVERIFIED; the G domain is not signed."
+  ],
+  "evidence_sha256": {
+    "docs/acceptance/evidence/G/logs/g-secrets.log": "bc964cf6111d09110cea9cac85105486316662e0ef7bdb7a451704a4cf9967c4",
+    "docs/acceptance/evidence/G/tests/g-secrets.xml": "235afb7aa4846ee84d5efcc8dcb3e39cecf0f3cf8ebfbf281fb82b5347236bfe",
+    "docs/acceptance/evidence/G/logs/g-logging.log": "40c241519862ac9154d974438e3fc015f1cbf8e50ce375f8788ca3d23e97daa8",
+    "docs/acceptance/evidence/G/tests/g-logging.xml": "599033f1ee8413e781f0362c8e463b5250469e6236a51fc096200d0c9937a36a",
+    "docs/acceptance/evidence/G/logs/g-backup.log": "718b786c25b8575fe437dfcb440ab2391490dafa01cfd4a686a0ffb674933a93",
+    "docs/acceptance/evidence/G/device/device-backup.json": "7427c5621c4c57b69aa1a6be980d35aac362976669fe90da03131a26b42ecec1",
+    "docs/acceptance/evidence/G/tests/g-backup.xml": "573b5e9ba7aed9677d51e66fb0da0ce3e35d5a256dc73b32028f7e2d92d7c52f",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-data-SixC2RulingInvariantTest.xml": "3631fb2b7d18c079e0a27a9766eb0a3953dfffbef8bd97e1e212cacb6b4eb929",
+    "docs/acceptance/evidence/G/logs/g-egress.log": "e31d0695bf9ece95234cd213e16452109ce10803ad616146dc7014df1c54c421",
+    "docs/acceptance/evidence/G/tests/g-egress.xml": "20f8bbd590044dbf09f32bc24865742adffa4ad9eae57091b18fd76dea074bd0",
+    "docs/acceptance/evidence/G/logs/g-permissions.log": "d18b5763d5a9c8eea4a4bd1defd4dc02bb97d73478e4a502756468f71e2ee10f",
+    "docs/acceptance/evidence/G/device/device-permissions.json": "bfd430e4b84feff25ea919960c18ed6f602abde6a943c29870c956193a584001",
+    "docs/acceptance/evidence/G/logs/g-deeplink.log": "6cb80182491fd89bd3c466807a4abaf00bdce5c565ef0335396c555cc6bf65f4",
+    "docs/acceptance/evidence/G/tests/g-deeplink.xml": "b2ec409853c785389b737fb8adff77d83b73bc864db1ef8a282ae868d6ba666a",
+    "docs/acceptance/evidence/G/logs/g-intent.log": "53efc068204d79778f039c5e95b255ccbae7f81068bcc307f980349a70ba96ae",
+    "docs/acceptance/evidence/G/tests/g-intent.xml": "6b4cc82596627191244b7601d1aa9e4037cdf91705a0ac65fbd1be4a4e75a88f",
+    "docs/acceptance/evidence/G/logs/g-fileexposure.log": "f8ebd36e5192b8eb831c576f004dbbb49bdc1a714fad0f7b39aaec81cf006322",
+    "docs/acceptance/evidence/G/tests/g-fileexposure.xml": "cd23fd137ce7ba47e858c14eccb7c54ce448e5effc864e7dcca8758c5b6daa6f",
+    "docs/acceptance/evidence/G/tests/g-negative-control.xml": "1862745ccf0f7aedb86723afd210cadfd50e49db12e4c1106e602c6c541b2f2d",
+    "docs/acceptance/evidence/G/device/device-fileexposure.json": "97b62f3fd4abc7f73f9a25b4a18e2a7b12773dc3e0b80c5333ecbe3dba17be7a",
+    "docs/acceptance/evidence/G/tests/g-device-artifacts.xml": "3c739e01be486b9b022cf78e8c3e69959f3bfd825ff098bc215dd051ecd53e1b",
+    "docs/acceptance/evidence/G/logs/g-clipboard_screenshot.log": "a84c43974035f1a42aef19ad087de6cf061d562c1be25ee86fd542e345cdb0d4",
+    "docs/acceptance/evidence/G/tests/g-clipboard_screenshot.xml": "5090e1bd8d97e9ec338aa37914212d5e23d44471ea80cefc01a049c3bc4f74b5",
+    "docs/acceptance/evidence/G/logs/g-plaintext_deps.log": "6a3c923918325f6fcaa2065ad5929e9691adc9a75adf1f8b09274c9f6d1d105b",
+    "docs/acceptance/evidence/G/tests/g-plaintext_deps.xml": "7fa5965eac3a403d2029dbe80679afe08b39fa7bbfa9bf1f525c6b3d7b9c0617",
+    "build/g-review/g-all.log": "0a50f7db2e0a3afedc17918be7f0f43702e2342583db8d6a0da442878b2b731a"
+  },
+  "independence": {
+    "reviewer_not_author": true,
+    "independence_verified": false,
+    "basis": "角色分离 + 对归档证据逐项机械复算；reviewer 未参与被复核证据的产出角色。",
+    "limitation": "reviewer 是角色标签，不是具名个人或第二模型；批次证据未记录生产者身份，无法证明跨模型独立。本复核只支持域级抽样结论，不构成台账行级 review 证据；report 的 pass_with_review 仍以行级 review token 为准。",
+    "verdict_ceiling": "UNVERIFIED (domain-level sample only)"
+  },
+  "ledger_sha256_at_review": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_sha256_current_after_fix": "887e3ba649eb17a70c0f6f7af8a657d606398a10925c6116818265387af689aa",
+  "ledger_binding_note": "本复核绑定修复前台账 bb25ef236056…；修复环只改了 35 行的 verdict/method（GATE-079 补证据、17 个 FIX 登记行改 BLOCKED、13 个 BLOCKED 补 runbook、4 个 D 行加脏树披露），未重跑本复核的抽样行。修复后台账为 887e3ba649eb…，因此本文件不得作为新台账的行级 review 证据；要转 PASS 必须在新台账上重跑。"
+}

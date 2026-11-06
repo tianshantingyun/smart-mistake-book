@@ -1,0 +1,1219 @@
+--------- beginning of system
+11-04 19:08:01.430   542  1903 I ActivityManager: Force stopping com.tingyun.smartmistakebook.localfirst appid=10198 user=0: from pid 16719
+11-04 19:08:01.432   542  1903 I ActivityManager: Killing 16519:com.tingyun.smartmistakebook.localfirst/u0a198 (adj 102): stop com.tingyun.smartmistakebook.localfirst due to from pid 16719
+11-04 19:08:01.433   542   561 D DisplayManagerService: Drop pending events for gone uid 10198
+11-04 19:08:01.433   542  1903 W ActivityTaskManager: Force removing ActivityRecord{7181f7d u0 com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity t501 f}}: app died, no saved state
+11-04 19:08:01.440   542  1903 I AppsFilter: interaction: PackageSetting{ac3cdf0 com.tingyun.smartmistakebook.core.export.test/10196} -> PackageSetting{a6c278a com.tingyun.smartmistakebook.localfirst/10198} BLOCKED
+11-04 19:08:01.440   542  1903 I AppsFilter: interaction: PackageSetting{ce1028f com.tingyun.smartmistakebook.core.database.test/10195} -> PackageSetting{a6c278a com.tingyun.smartmistakebook.localfirst/10198} BLOCKED
+11-04 19:08:01.440   542  1903 I AppsFilter: interaction: PackageSetting{42fd91c com.tingyun.smartmistakebook.core.data.test/10200} -> PackageSetting{a6c278a com.tingyun.smartmistakebook.localfirst/10198} BLOCKED
+11-04 19:08:01.442   747   790 V WindowManagerShell: Transition requested: android.os.BinderProxy@b705f9 TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=501 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity} numActivities=0 lastActiveTime=2683505 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@955993e} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=true isVisibleRequested=true isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+--------- beginning of main
+11-04 19:08:01.449   421   421 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-04 19:08:01.456   950   950 D CarrierSvcBindHelper: onHandleForceStop: [com.tingyun.smartmistakebook.localfirst]
+11-04 19:08:01.457   950   950 D CarrierSvcBindHelper: No carrier app for: 0
+11-04 19:08:01.480   542  1910 V ActivityManager: Got obituary of 16519:com.tingyun.smartmistakebook.localfirst
+11-04 19:08:01.481   542   816 I WindowManager: WIN DEATH: Window{338113d u0 com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity}
+11-04 19:08:01.482   356   356 I Zygote  : Process 16519 exited due to signal 9 (Killed)
+11-04 19:08:01.483   542   816 W InputManager-JNI: Input channel object '338113d com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity (client)' was disposed without first being removed with the input manager!
+11-04 19:08:01.493   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-04 19:08:01.522   542   560 V WindowManager: Sent Transition #170 createdAt=11-04 19:08:01.434 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=501 displayId=0 isRunning=false baseIntent=Intent { flg=0x10000000 cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity} numActivities=0 lastActiveTime=2683505 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{e0f52b3 Task{68bae72 #501 type=standard A=10198:com.tingyun.smartmistakebook.localfirst}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=true isVisibleRequested=true isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-04 19:08:01.522   542   560 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-04 19:08:01.522   542   560 V WindowManager:     info={id=170 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{RemoteToken{e0f52b3 Task{68bae72 #501 type=standard A=10198:com.tingyun.smartmistakebook.localfirst}}} m=CLOSE f=NONE leash=Surface(name=Task=501)/@0x9d4e1ed sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{de3c87f Task{6fbc4bf #466 type=standard A=10138:com.google.android.marvin.talkback}}} m=TO_FRONT f=TRANSLUCENT leash=Surface(name=Task=466)/@0xd450add sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{338f7cd Task{dedd3d3 #463 type=standard A=10138:com.google.android.marvin.talkback}}} m=TO_FRONT f=TRANSLUCENT leash=Surface(name=Task=463)/@0x661d2f6 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{f619817 Task{30afbb2 #461 type=standard A=10138:com.google.android.marvin.talkback}}} m=TO_FRONT f=TRANSLUCENT leash=Surface(name=Task=461)/@0xd9f8a58 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{d32e365 Task{3467974 #1 type=home}}} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xfa289a sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{5751ddf token=android.os.Binder@e3f247e})/@0x2d7a5bc sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:01.523   747   790 V WindowManagerShell: onTransitionReady android.os.BinderProxy@b705f9: {id=170 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@e299216} m=CLOSE f=NONE leash=Surface(name=Task=501)/@0x217539f sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@53a1797} m=TO_FRONT f=TRANSLUCENT leash=Surface(name=Task=466)/@0xb633cec sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@2b63d84} m=TO_FRONT f=TRANSLUCENT leash=Surface(name=Task=463)/@0x5908b5 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@66e996d} m=TO_FRONT f=TRANSLUCENT leash=Surface(name=Task=461)/@0x78e0b4a sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@724b9a2} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x4278abb sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{5751ddf token=android.os.Binder@e3f247e})/@0x8bd3bd8 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:01.523   747   790 V WindowManagerShell: Playing animation for (#170)android.os.BinderProxy@b705f9@0
+11-04 19:08:01.524   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@b3c4425
+11-04 19:08:01.524   747   790 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@f0a79fa
+11-04 19:08:01.524   747   790 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@9fc4bab
+11-04 19:08:01.524   747   790 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@bc8208
+11-04 19:08:01.524   747   790 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-04 19:08:01.524   747   790 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@a11fda1
+11-04 19:08:01.524   747   790 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@763bc6
+11-04 19:08:01.524   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@9b1f787
+11-04 19:08:01.524   747   790 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=170 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@e299216} m=CLOSE f=NONE leash=Surface(name=Task=501)/@0x217539f sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@53a1797} m=TO_FRONT f=TRANSLUCENT leash=Surface(name=Task=466)/@0xb633cec sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@2b63d84} m=TO_FRONT f=TRANSLUCENT leash=Surface(name=Task=463)/@0x5908b5 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@66e996d} m=TO_FRONT f=TRANSLUCENT leash=Surface(name=Task=461)/@0x78e0b4a sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@724b9a2} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x4278abb sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{5751ddf token=android.os.Binder@e3f247e})/@0x8bd3bd8 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:01.524   747   790 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=dream independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=null},{atype=home independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@f3db8f8, appThread = android.app.IApplicationThread$Stub$Proxy@37381d1, debugName = LauncherToDream }}
+11-04 19:08:01.525   747   790 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@2622436, appThread = android.app.IApplicationThread$Stub$Proxy@2960f37, debugName = QuickstepLaunchHome }}
+11-04 19:08:01.525   747   790 V WindowManagerShell:  Delegate animation for #170 to null
+11-04 19:08:01.525   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultTransitionHandler@39bb6b4
+11-04 19:08:01.525   747   790 V WindowManagerShell: start default transition animation, info = {id=170 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@e299216} m=CLOSE f=NONE leash=Surface(name=Task=501)/@0x217539f sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@53a1797} m=TO_FRONT f=TRANSLUCENT leash=Surface(name=Task=466)/@0xb633cec sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@2b63d84} m=TO_FRONT f=TRANSLUCENT leash=Surface(name=Task=463)/@0x5908b5 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@66e996d} m=TO_FRONT f=TRANSLUCENT leash=Surface(name=Task=461)/@0x78e0b4a sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@724b9a2} m=TO_FRONT f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0x4278abb sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{null m=TO_FRONT f=IS_WALLPAPER leash=Surface(name=WallpaperWindowToken{5751ddf token=android.os.Binder@e3f247e})/@0x8bd3bd8 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:01.526   747   790 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@61badf0 animAttr=0x10 type=CLOSE isEntrance=true
+11-04 19:08:01.526   747   790 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@685f69 animAttr=0x10 type=CLOSE isEntrance=true
+11-04 19:08:01.526   747   790 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@db8cdee animAttr=0x10 type=CLOSE isEntrance=true
+11-04 19:08:01.526   747   790 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@a82628f animAttr=0x10 type=CLOSE isEntrance=true
+11-04 19:08:01.526   747   790 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@567dafa animAttr=0x11 type=CLOSE isEntrance=false
+11-04 19:08:01.527   747   790 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@39bb6b4
+11-04 19:08:01.767   747   790 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#170)android.os.BinderProxy@b705f9@0
+11-04 19:08:01.768   542   560 V WindowManager: Finish Transition #170: created at 11-04 19:08:01.434 collect-started=0.041ms request-sent=0.145ms started=9.26ms ready=9.244ms sent=87.719ms finished=334.37ms
+11-04 19:08:01.769   542  1902 W WindowManager: Exception thrown during dispatchAppVisibility Window{338113d u0 com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity EXITING}
+11-04 19:08:01.769   542  1902 W WindowManager: android.os.DeadObjectException
+11-04 19:08:01.769   542  1902 W WindowManager: 	at android.os.BinderProxy.transactNative(Native Method)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at android.os.BinderProxy.transact(BinderProxy.java:584)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at android.view.IWindow$Stub$Proxy.dispatchAppVisibility(IWindow.java:546)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at com.android.server.wm.WindowState.sendAppVisibilityToClients(WindowState.java:3271)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at com.android.server.wm.WindowContainer.sendAppVisibilityToClients(WindowContainer.java:1221)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at com.android.server.wm.WindowToken.setClientVisible(WindowToken.java:409)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at com.android.server.wm.ActivityRecord.setClientVisible(ActivityRecord.java:6946)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at com.android.server.wm.ActivityRecord.postApplyAnimation(ActivityRecord.java:5637)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at com.android.server.wm.ActivityRecord.commitVisibility(ActivityRecord.java:5580)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at com.android.server.wm.Transition.finishTransition(Transition.java:1151)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at com.android.server.wm.TransitionController.finishTransition(TransitionController.java:868)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at com.android.server.wm.WindowOrganizerController.finishTransition(WindowOrganizerController.java:396)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at android.window.IWindowOrganizerController$Stub.onTransact(IWindowOrganizerController.java:286)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at com.android.server.wm.WindowOrganizerController.onTransact(WindowOrganizerController.java:181)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at android.os.Binder.execTransactInternal(Binder.java:1339)
+11-04 19:08:01.769   542  1902 W WindowManager: 	at android.os.Binder.execTransact(Binder.java:1275)
+11-04 19:08:01.769   542  1902 I Process : Sending signal. PID: 16519 SIG: 9
+11-04 19:08:01.772   542   563 W ActivityManager: setHasOverlayUi called on unknown pid: 16519
+11-04 19:08:01.775   747   790 V WindowManagerShell: Track 0 became idle
+11-04 19:08:01.775   747   790 V WindowManagerShell: All active transition animations finished
+11-04 19:08:01.798   421   421 E BpTransactionCompletedListener: Failed to transact (-32)
+11-04 19:08:01.963   542   542 W AccessibilityManagerService:  wait for adding window timeout: 2484
+11-04 19:08:01.963   542   542 W AccessibilityManagerService:  wait for adding window timeout: 2475
+11-04 19:08:01.965   542   542 W AccessibilityManagerService:  wait for adding window timeout: 2486
+11-04 19:08:01.978   542   542 W AccessibilityManagerService:  wait for adding window timeout: 2476
+11-04 19:08:01.997   542   542 W AccessibilityManagerService:  wait for adding window timeout: 2473
+11-04 19:08:03.018   542  1902 W ActivityTaskManager: callingPackage for (uid=2000, pid=16726) has no WPC
+11-04 19:08:03.019   542  1902 D CompatibilityChangeReporter: Compat change id reported: 265464455; UID 10198; state: DISABLED
+11-04 19:08:03.019   542  1902 D CompatibilityChangeReporter: Compat change id reported: 265452344; UID 10198; state: DISABLED
+11-04 19:08:03.020   542  1902 D CompatibilityChangeReporter: Compat change id reported: 266124927; UID 10198; state: DISABLED
+11-04 19:08:03.020   542  1902 D CompatibilityChangeReporter: Compat change id reported: 265451093; UID 10198; state: DISABLED
+11-04 19:08:03.020   542  1902 D CompatibilityChangeReporter: Compat change id reported: 265456536; UID 10198; state: DISABLED
+11-04 19:08:03.020   542  1902 D CompatibilityChangeReporter: Compat change id reported: 255940284; UID 10198; state: DISABLED
+11-04 19:08:03.020   542  1902 D CompatibilityChangeReporter: Compat change id reported: 236283604; UID 10198; state: DISABLED
+11-04 19:08:03.020   542  1902 D CompatibilityChangeReporter: Compat change id reported: 263959004; UID 10198; state: DISABLED
+11-04 19:08:03.020   542  1902 D CompatibilityChangeReporter: Compat change id reported: 264304459; UID 10198; state: DISABLED
+11-04 19:08:03.022   542  1902 D CompatibilityChangeReporter: Compat change id reported: 264301586; UID 10198; state: DISABLED
+11-04 19:08:03.022   542  1902 D CompatibilityChangeReporter: Compat change id reported: 254631730; UID 10198; state: DISABLED
+11-04 19:08:03.022   542  1902 D CompatibilityChangeReporter: Compat change id reported: 273509367; UID 10198; state: DISABLED
+11-04 19:08:03.022   542  1902 D CompatibilityChangeReporter: Compat change id reported: 263259275; UID 10198; state: DISABLED
+11-04 19:08:03.022   542  1902 D CompatibilityChangeReporter: Compat change id reported: 174042980; UID 10198; state: DISABLED
+11-04 19:08:03.023   542  1902 D CompatibilityChangeReporter: Compat change id reported: 174042936; UID 10198; state: DISABLED
+11-04 19:08:03.023   542  1902 D CompatibilityChangeReporter: Compat change id reported: 181136395; UID 10198; state: DISABLED
+11-04 19:08:03.023   542  1902 D CompatibilityChangeReporter: Compat change id reported: 194480991; UID 10198; state: ENABLED
+11-04 19:08:03.026   542  1902 D CompatibilityChangeReporter: Compat change id reported: 184838306; UID 10198; state: DISABLED
+11-04 19:08:03.026   542  1902 D CompatibilityChangeReporter: Compat change id reported: 185004937; UID 10198; state: DISABLED
+11-04 19:08:03.027   542  1902 D CompatibilityChangeReporter: Compat change id reported: 205907456; UID 10198; state: ENABLED
+11-04 19:08:03.029   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-04 19:08:03.033   542  1902 I ActivityTaskManager: START u0 {flg=0x10000000 cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity} with LAUNCH_SINGLE_TOP from uid 2000 (BAL_ALLOW_PERMISSION) result code=0
+11-04 19:08:03.034   747   790 V WindowManagerShell: Transition requested: android.os.BinderProxy@12e7320 TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=503 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity } baseActivity=ComponentInfo{com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity} topActivity=ComponentInfo{com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity} origActivity=null realActivity=ComponentInfo{com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity} numActivities=1 lastActiveTime=2689031 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@29af4d9} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{b6a8e9e com.tingyun.smartmistakebook.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-04 19:08:03.036   542  1910 D CompatibilityChangeReporter: Compat change id reported: 168419799; UID 10198; state: DISABLED
+11-04 19:08:03.038   542  1910 D CompatibilityChangeReporter: Compat change id reported: 273564678; UID 10198; state: DISABLED
+11-04 19:08:03.040   542   563 D CompatibilityChangeReporter: Compat change id reported: 135634846; UID 10198; state: DISABLED
+11-04 19:08:03.041   542   573 D CompatibilityChangeReporter: Compat change id reported: 143937733; UID 10198; state: ENABLED
+11-04 19:08:03.042   747   810 D SplashScreenView: Build android.window.SplashScreenView{ecf6aa V.E...... ......ID 0,0-0,0}
+11-04 19:08:03.042   747   810 D SplashScreenView: Icon: view: android.widget.ImageView{989029b V.ED..... ......I. 0,0-0,0 #10204f0 android:id/splashscreen_icon_view} drawable: com.android.wm.shell.startingsurface.SplashscreenIconDrawableFactory$ImmobileIconDrawable@d038638 size: 420
+11-04 19:08:03.042   747   810 D SplashScreenView: Branding: view: android.view.View{4b56611 G.ED..... ......I. 0,0-0,0 #10204ef android:id/splashscreen_branding_view} drawable: null size w: 0 h: 0
+11-04 19:08:03.047   356   356 D Zygote  : Forked child process 16729
+11-04 19:08:03.049   421   421 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-04 19:08:03.052   542  1910 D CoreBackPreview: Window{cd1c392 u0 Splash Screen com.tingyun.smartmistakebook.localfirst}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@1c486de, mPriority=0, mIsAnimationCallback=false}
+11-04 19:08:03.052   542   573 I ActivityManager: Start proc 16729:com.tingyun.smartmistakebook.localfirst/u0a198 for next-top-activity {com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity}
+11-04 19:08:03.053   542   618 D CompatibilityChangeReporter: Compat change id reported: 265195908; UID 10198; state: ENABLED
+11-04 19:08:03.075 16729 16729 I book.localfirst: Late-enabling -Xcheck:jni
+11-04 19:08:03.091 16729 16729 I book.localfirst: Using CollectorTypeCC GC.
+11-04 19:08:03.091 16729 16729 W book.localfirst: Unexpected CPU variant for x86: x86_64.
+11-04 19:08:03.091 16729 16729 W book.localfirst: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-04 19:08:03.098   542   564 I WindowManager: Queue is too deep! Purged item with index=461
+11-04 19:08:03.103   542   564 I WindowManager: Queue is too deep! Purged item with index=466
+11-04 19:08:03.107   542   564 I WindowManager: Queue is too deep! Purged item with index=502
+11-04 19:08:03.109   542   560 V WindowManager: Sent Transition #171 createdAt=11-04 19:08:03.023 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=503 displayId=0 isRunning=true baseIntent=Intent { flg=0x10000000 cmp=com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity } baseActivity=ComponentInfo{com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity} topActivity=ComponentInfo{com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity} origActivity=null realActivity=ComponentInfo{com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity} numActivities=1 lastActiveTime=2689031 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{7ce3542 Task{554dd06 #503 type=standard A=10198:com.tingyun.smartmistakebook.localfirst}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{a12f953 com.tingyun.smartmistakebook.MainActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-04 19:08:03.109   542   560 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-04 19:08:03.109   542   560 V WindowManager:     info={id=171 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{RemoteToken{7ce3542 Task{554dd06 #503 type=standard A=10198:com.tingyun.smartmistakebook.localfirst}}} m=OPEN f=NONE leash=Surface(name=Task=503)/@0x89493b6 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{df87a46 Task{4dd47c8 #502 type=standard A=10138:com.google.android.marvin.talkback}}} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=502)/@0xd54e4a5 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{de3c87f Task{6fbc4bf #466 type=standard A=10138:com.google.android.marvin.talkback}}} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=466)/@0xd450add sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{338f7cd Task{dedd3d3 #463 type=standard A=10138:com.google.android.marvin.talkback}}} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=463)/@0x661d2f6 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{f619817 Task{30afbb2 #461 type=standard A=10138:com.google.android.marvin.talkback}}} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=461)/@0xd9f8a58 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{RemoteToken{d32e365 Task{3467974 #1 type=home}}} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xfa289a sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:03.109   747   790 V WindowManagerShell: onTransitionReady android.os.BinderProxy@12e7320: {id=171 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@76bc88b} m=OPEN f=NONE leash=Surface(name=Task=503)/@0x2d4e450 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@680ed68} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=502)/@0x815c649 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@3aaf581} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=466)/@0x925db4e sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@95e0626} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=463)/@0xa44546f sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@a4c6267} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=461)/@0xdabf57c sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@b2b7814} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xeb7e05 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:03.110   747   790 V WindowManagerShell: Playing animation for (#171)android.os.BinderProxy@12e7320@0
+11-04 19:08:03.110   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@b3c4425
+11-04 19:08:03.110   747   790 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@f0a79fa
+11-04 19:08:03.110   747   790 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@9fc4bab
+11-04 19:08:03.110   747   790 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@bc8208
+11-04 19:08:03.110   747   790 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-04 19:08:03.110   747   790 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@a11fda1
+11-04 19:08:03.111   747   790 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@763bc6
+11-04 19:08:03.111   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@9b1f787
+11-04 19:08:03.111   747   790 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=171 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@76bc88b} m=OPEN f=NONE leash=Surface(name=Task=503)/@0x2d4e450 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@680ed68} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=502)/@0x815c649 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@3aaf581} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=466)/@0x925db4e sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@95e0626} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=463)/@0xa44546f sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@a4c6267} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=461)/@0xdabf57c sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@b2b7814} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xeb7e05 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:03.111   747   790 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=dream independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=null},{atype=home independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@f3db8f8, appThread = android.app.IApplicationThread$Stub$Proxy@37381d1, debugName = LauncherToDream }}
+11-04 19:08:03.111   747   790 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@2622436, appThread = android.app.IApplicationThread$Stub$Proxy@2960f37, debugName = QuickstepLaunchHome }}
+11-04 19:08:03.111   747   790 V WindowManagerShell:  Delegate animation for #171 to null
+11-04 19:08:03.111   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultTransitionHandler@39bb6b4
+11-04 19:08:03.112   747   790 V WindowManagerShell: start default transition animation, info = {id=171 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@76bc88b} m=OPEN f=NONE leash=Surface(name=Task=503)/@0x2d4e450 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@680ed68} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=502)/@0x815c649 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@3aaf581} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=466)/@0x925db4e sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@95e0626} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=463)/@0xa44546f sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@a4c6267} m=TO_BACK f=TRANSLUCENT leash=Surface(name=Task=461)/@0xdabf57c sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0},{WCT{android.window.IWindowContainerToken$Stub$Proxy@b2b7814} m=TO_BACK f=SHOW_WALLPAPER leash=Surface(name=Task=1)/@0xeb7e05 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:03.112   747   790 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@ab2be03 animAttr=0x13 type=OPEN isEntrance=false
+11-04 19:08:03.112   747   790 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@265b3fe animAttr=0x13 type=OPEN isEntrance=false
+11-04 19:08:03.112   747   790 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@699375f animAttr=0x13 type=OPEN isEntrance=false
+11-04 19:08:03.113   747   790 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@95b5ac animAttr=0x13 type=OPEN isEntrance=false
+11-04 19:08:03.113   747   790 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@c20f275 animAttr=0x13 type=OPEN isEntrance=false
+11-04 19:08:03.113   747   790 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@19b40f1 animAttr=0x12 type=OPEN isEntrance=true
+11-04 19:08:03.114   747   790 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@39bb6b4
+11-04 19:08:03.118   436   450 I adbd    : jdwp connection from 16729
+11-04 19:08:03.131 16729 16729 D CompatibilityChangeReporter: Compat change id reported: 171979766; UID 10198; state: ENABLED
+11-04 19:08:03.132 16729 16729 D CompatibilityChangeReporter: Compat change id reported: 242716250; UID 10198; state: ENABLED
+11-04 19:08:03.139   542  1903 D CompatibilityChangeReporter: Compat change id reported: 170503758; UID 10198; state: ENABLED
+11-04 19:08:03.141 16729 16729 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+11-04 19:08:03.142 16729 16729 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.sidecar.jar
+11-04 19:08:03.142 16729 16729 W ziparchive: Unable to open '/data/app/~~TLKVFbvrmHi82ik8QvZ5DQ==/com.tingyun.smartmistakebook.localfirst-TBAdnaqQ_lK1PqU9fl22Wg==/base.dm': No such file or directory
+11-04 19:08:03.142 16729 16729 W ziparchive: Unable to open '/data/app/~~TLKVFbvrmHi82ik8QvZ5DQ==/com.tingyun.smartmistakebook.localfirst-TBAdnaqQ_lK1PqU9fl22Wg==/base.dm': No such file or directory
+11-04 19:08:03.154   747   825 D EGL_emulation: app_time_stats: avg=3114.54ms min=3114.54ms max=3114.54ms count=1
+11-04 19:08:03.199   542   552 I system_server: NativeAlloc concurrent copying GC freed 291063(11MB) AllocSpace objects, 27(540KB) LOS objects, 45% free, 28MB/52MB, paused 809us,95us total 100.265ms
+11-04 19:08:03.338 10112 16693 D AudioTrack: stop(57): called with 88080 frames delivered
+11-04 19:08:03.349  3654 16746 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-04 19:08:03.350 10112 16692 I GoogleTTSServiceImpl: Synthesis request for locale eng-USA and name en-US-language
+11-04 19:08:03.350 10112 16692 I GoogleTTSServiceImpl: TTS dispatch: en-us-x-iog-lstm-embedded
+11-04 19:08:03.350  3654 16748 D CCodec  : allocate(c2.android.vorbis.decoder)
+11-04 19:08:03.352  3654 16748 I CCodec  : setting up 'default' as default (vendor) store
+11-04 19:08:03.354  3654 16748 I CCodec  : Created component [c2.android.vorbis.decoder]
+11-04 19:08:03.354  3654 16748 D CCodecConfig: read media type: audio/vorbis
+11-04 19:08:03.357  3654 16748 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-04 19:08:03.357  3654 16748 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-04 19:08:03.358  3654 16748 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-04 19:08:03.358  3654 16748 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-04 19:08:03.358  3654 16748 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-04 19:08:03.358  3654 16748 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-04 19:08:03.358  3654 16748 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-04 19:08:03.360  3654 16748 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-04 19:08:03.360  3654 16748 D CCodecConfig: c2 config diff is Dict {
+11-04 19:08:03.360  3654 16748 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-04 19:08:03.360  3654 16748 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 32768
+11-04 19:08:03.360  3654 16748 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-04 19:08:03.360  3654 16748 D CCodecConfig:   string input.media-type.value = "audio/vorbis"
+11-04 19:08:03.360  3654 16748 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-04 19:08:03.360  3654 16748 D CCodecConfig:   c2::u32 raw.channel-count.value = 1
+11-04 19:08:03.360  3654 16748 D CCodecConfig:   c2::u32 raw.sample-rate.value = 48000
+11-04 19:08:03.360  3654 16748 D CCodecConfig: }
+11-04 19:08:03.363  3654 16748 D MediaCodec: flushMediametrics
+11-04 19:08:03.363  3654 16748 D CCodec  : [c2.android.vorbis.decoder] buffers are bound to CCodec for this session
+11-04 19:08:03.363  3654 16748 D CCodecConfig: no c2 equivalents for durationUs
+11-04 19:08:03.363  3654 16748 D CCodecConfig: no c2 equivalents for track-id
+11-04 19:08:03.363  3654 16748 D CCodecConfig: no c2 equivalents for csd-1
+11-04 19:08:03.363  3654 16748 D CCodecConfig: no c2 equivalents for flags
+11-04 19:08:03.367   747   825 D EGL_emulation: app_time_stats: avg=232.02ms min=15.59ms max=3651.29ms count=18
+11-04 19:08:03.368  3654 16748 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 88000
+11-04 19:08:03.368  3654 16748 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-04 19:08:03.368  3654 16748 D CCodecConfig:   c2::u32 raw.sample-rate.value = 22050
+11-04 19:08:03.369  3654 16748 W Codec2Client: query -- param skipped: index = 1107298332.
+11-04 19:08:03.369  3654 16748 D CCodec  : encoding statistics level = 0
+11-04 19:08:03.369  3654 16748 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-04 19:08:03.369  3654 16748 D CCodec  :   int32_t bitrate = 88000
+11-04 19:08:03.369  3654 16748 D CCodec  :   int32_t channel-count = 2
+11-04 19:08:03.369  3654 16748 D CCodec  :   int32_t max-input-size = 32768
+11-04 19:08:03.369  3654 16748 D CCodec  :   string mime = "audio/vorbis"
+11-04 19:08:03.369  3654 16748 D CCodec  :   int32_t sample-rate = 22050
+11-04 19:08:03.369  3654 16748 D CCodec  : }
+11-04 19:08:03.369  3654 16748 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-04 19:08:03.369  3654 16748 D CCodec  :   int32_t channel-count = 2
+11-04 19:08:03.369  3654 16748 D CCodec  :   string mime = "audio/raw"
+11-04 19:08:03.369  3654 16748 D CCodec  :   int32_t sample-rate = 22050
+11-04 19:08:03.369  3654 16748 D CCodec  :   int32_t channel-mask = 3
+11-04 19:08:03.369  3654 16748 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-04 19:08:03.369  3654 16748 D CCodec  : }
+11-04 19:08:03.369  3654 16748 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-04 19:08:03.370  3654 16748 W Codec2Client: query -- param skipped: index = 1342179345.
+11-04 19:08:03.371  3654 16748 W Codec2Client: query -- param skipped: index = 2415921170.
+11-04 19:08:03.372  3654 16748 D CCodecBufferChannel: [c2.android.vorbis.decoder#394] Created input block pool with allocatorID 16 => poolID 27 - OK (0)
+11-04 19:08:03.373  3654 16748 I CCodecBufferChannel: [c2.android.vorbis.decoder#394] Created output block pool with allocatorID 16 => poolID 36 - OK
+11-04 19:08:03.373  3654 16748 D CCodecBufferChannel: [c2.android.vorbis.decoder#394] Configured output block pool ids 36 => OK
+11-04 19:08:03.376   483 16749 D SimpleC2Component: Using output block pool with poolID 36 => got 36 - 0
+11-04 19:08:03.412   418  2181 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:03.413   418  2181 D AudioFlinger: Client defaulted notificationFrames to 480 for frameCount 4096
+11-04 19:08:03.418   418  2181 D AF::TrackHandle: OpPlayAudio: track:98 usage:11 not muted
+11-04 19:08:03.421   747   790 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#171)android.os.BinderProxy@12e7320@0
+11-04 19:08:03.423   418   431 D audioserver: FGS Logger Transaction failed
+11-04 19:08:03.423   542   560 V WindowManager: Finish Transition #171: created at 11-04 19:08:03.023 collect-started=0.031ms request-sent=7.644ms started=16.826ms ready=60.656ms sent=84.433ms finished=398.866ms
+11-04 19:08:03.423   418   431 D audioserver: -129
+11-04 19:08:03.435   747   790 V WindowManagerShell: Track 0 became idle
+11-04 19:08:03.435   747   790 V WindowManagerShell: All active transition animations finished
+11-04 19:08:03.446  3654 10183 D BufferPoolAccessor2.0: bufferpool2 0x7cae8404d988 : 0(0 size) total buffers - 0(0 size) used buffers - 2/7 (recycle/alloc) - 5/126 (fetch/transfer)
+11-04 19:08:03.446  3654 10183 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-04 19:08:03.448   483   745 D BufferPoolAccessor2.0: bufferpool2 0x757512f939d8 : 0(0 size) total buffers - 0(0 size) used buffers - 59/61 (recycle/alloc) - 2/60 (fetch/transfer)
+11-04 19:08:03.448   483   745 D BufferPoolAccessor2.0: evictor expired: 3, evicted: 1
+11-04 19:08:03.453   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:03.453   418   510 D audioserver: -129
+11-04 19:08:03.476   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:03.476   418   510 D audioserver: -129
+11-04 19:08:03.526  3654 16748 D CCodecBufferChannel: [c2.android.vorbis.decoder#394] MediaCodec discarded an unknown buffer
+11-04 19:08:03.526  3654 16748 D CCodecBufferChannel: [c2.android.vorbis.decoder#394] MediaCodec discarded an unknown buffer
+11-04 19:08:03.526  3654 16748 D CCodecBufferChannel: [c2.android.vorbis.decoder#394] MediaCodec discarded an unknown buffer
+11-04 19:08:03.529  3654 16748 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-04 19:08:03.529   483   789 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-04 19:08:03.529   483   789 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-04 19:08:03.530  3654 16746 D MediaCodec: flushMediametrics
+11-04 19:08:03.538   418   431 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:03.539   418   431 D AF::TrackHandle: OpPlayAudio: track:99 usage:11 not muted
+11-04 19:08:03.541   418   431 D audioserver: FGS Logger Transaction failed
+11-04 19:08:03.541   418   431 D audioserver: -129
+11-04 19:08:03.543   418   431 D audioserver: FGS Logger Transaction failed
+11-04 19:08:03.543   418   431 D audioserver: -129
+11-04 19:08:03.559   542   542 W AccessibilityManagerService:  wait for adding window timeout: 2490
+11-04 19:08:03.587 16729 16729 D nativeloader: Configuring clns-6 for other apk /data/app/~~TLKVFbvrmHi82ik8QvZ5DQ==/com.tingyun.smartmistakebook.localfirst-TBAdnaqQ_lK1PqU9fl22Wg==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~TLKVFbvrmHi82ik8QvZ5DQ==/com.tingyun.smartmistakebook.localfirst-TBAdnaqQ_lK1PqU9fl22Wg==/lib/x86_64:/data/app/~~TLKVFbvrmHi82ik8QvZ5DQ==/com.tingyun.smartmistakebook.localfirst-TBAdnaqQ_lK1PqU9fl22Wg==/base.apk!/lib/x86_64, permitted_path=/data:/mnt/expand:/data/user/0/com.tingyun.smartmistakebook.localfirst
+11-04 19:08:03.596 16729 16729 V GraphicsEnvironment: Currently set values for:
+11-04 19:08:03.597 16729 16729 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[]
+11-04 19:08:03.597 16729 16729 V GraphicsEnvironment:   angle_gl_driver_selection_values=[]
+11-04 19:08:03.597 16729 16729 V GraphicsEnvironment: ANGLE GameManagerService for com.tingyun.smartmistakebook.localfirst: false
+11-04 19:08:03.598 16729 16729 V GraphicsEnvironment: com.tingyun.smartmistakebook.localfirst is not listed in per-application setting
+11-04 19:08:03.598 16729 16729 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+11-04 19:08:03.635   542   563 W AccessibilityWindowsPopulator: Windows change within in 2 frames continuously over 500 ms and notify windows changed immediately
+11-04 19:08:03.704 16729 16729 D WM-WrkMgrInitializer: Initializing WorkManager with default configuration.
+11-04 19:08:03.743 16729 16729 W book.localfirst: Accessing hidden field Ljava/util/Collections$SynchronizedCollection;->mutex:Ljava/lang/Object; (max-target-o, reflection, denied)
+11-04 19:08:03.743 16729 16729 W book.localfirst: Accessing hidden field Ljava/util/Collections$SynchronizedCollection;->c:Ljava/util/Collection; (unsupported, reflection, allowed)
+11-04 19:08:03.743 16729 16729 W book.localfirst: Accessing hidden method Ljava/util/Collections$SynchronizedSet;-><init>(Ljava/util/Set;Ljava/lang/Object;)V (max-target-o, reflection, denied)
+11-04 19:08:03.743 16729 16729 W book.localfirst: Accessing hidden method Ljava/util/Collections$SynchronizedCollection;-><init>(Ljava/util/Collection;Ljava/lang/Object;)V (max-target-o, reflection, denied)
+11-04 19:08:03.766 16729 16729 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemjob.SystemJobService
+11-04 19:08:03.766 16729 16729 D WM-Schedulers: Created SystemJobScheduler and enabled SystemJobService
+11-04 19:08:03.823 16729 16756 D WM-ForceStopRunnable: The default process name was not specified.
+11-04 19:08:03.824 16729 16756 D WM-ForceStopRunnable: Performing cleanup operations.
+11-04 19:08:03.846 16729 16756 D WM-SystemJobScheduler: Reconciling jobs
+11-04 19:08:03.852 16729 16756 D CompatibilityChangeReporter: Compat change id reported: 160794467; UID 10198; state: ENABLED
+11-04 19:08:03.856 16729 16756 D WM-ForceStopRunnable: Application was force-stopped, rescheduling.
+11-04 19:08:03.897 16729 16729 D CompatibilityChangeReporter: Compat change id reported: 3400644; UID 10198; state: ENABLED
+11-04 19:08:03.912 16729 16758 D WM-PackageManagerHelper: Skipping component enablement for androidx.work.impl.background.systemalarm.RescheduleReceiver
+11-04 19:08:04.380 16729 16768 W book.localfirst: Accessing hidden method Landroid/database/sqlite/SQLiteDatabase;->getThreadSession()Landroid/database/sqlite/SQLiteSession; (unsupported, reflection, allowed)
+11-04 19:08:04.380 16729 16768 W book.localfirst: Accessing hidden method Landroid/database/sqlite/SQLiteSession;->beginTransaction(ILandroid/database/sqlite/SQLiteTransactionListener;ILandroid/os/CancellationSignal;)V (unsupported, reflection, allowed)
+11-04 19:08:04.384   747   825 D EGL_emulation: app_time_stats: avg=16.27ms min=13.26ms max=19.14ms count=61
+11-04 19:08:04.409   542  1902 I ActivityManager: Flag disabled. Ignoring finishAttachApplication from uid: 10198. pid: 16729
+11-04 19:08:04.410 16729 16729 D StrictMode: StrictMode policy violation; ~duration=498 ms: android.os.strictmode.DiskReadViolation
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:74)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at libcore.io.ForwardingOs.access(ForwardingOs.java:128)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.app.ActivityThread$AndroidOs.access(ActivityThread.java:8054)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at java.io.UnixFileSystem.checkAccess(UnixFileSystem.java:313)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at java.io.File.exists(File.java:813)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:790)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:781)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.app.ContextImpl.getNoBackupFilesDir(ContextImpl.java:854)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.content.ContextWrapper.getNoBackupFilesDir(ContextWrapper.java:301)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.getJournalDir(RestoreRecoveryCoordinator.kt:32)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.detectPendingRestores(RestoreRecoveryCoordinator.kt:39)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:204)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-04 19:08:04.410 16729 16729 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-04 19:08:04.411 16729 16729 D StrictMode: StrictMode policy violation; ~duration=498 ms: android.os.strictmode.DiskReadViolation
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at java.io.UnixFileSystem.list(UnixFileSystem.java:376)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at java.io.File.list(File.java:1129)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at java.io.File.listFiles(File.java:1293)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.detectPendingRestores(RestoreRecoveryCoordinator.kt:39)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:204)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-04 19:08:04.411 16729 16729 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-04 19:08:04.412 16729 16729 D StrictMode: StrictMode policy violation; ~duration=498 ms: android.os.strictmode.DiskReadViolation
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at java.io.UnixFileSystem.getBooleanAttributes(UnixFileSystem.java:282)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at java.io.File.isFile(File.java:876)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.detectPendingRestores$lambda$0(RestoreRecoveryCoordinator.kt:40)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator$$ExternalSyntheticLambda0.accept(D8$$SyntheticClass:0)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at java.io.File.listFiles(File.java:1298)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreRecoveryCoordinator.detectPendingRestores(RestoreRecoveryCoordinator.kt:39)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:204)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-04 19:08:04.412 16729 16729 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-04 19:08:04.414 16729 16729 D StrictMode: StrictMode policy violation; ~duration=497 ms: android.os.strictmode.DiskReadViolation
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:74)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at libcore.io.ForwardingOs.access(ForwardingOs.java:128)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.app.ActivityThread$AndroidOs.access(ActivityThread.java:8054)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at java.io.UnixFileSystem.checkAccess(UnixFileSystem.java:313)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at java.io.File.exists(File.java:813)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:790)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.app.ContextImpl.ensurePrivateCacheDirExists(ContextImpl.java:786)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.app.ContextImpl.getCacheDir(ContextImpl.java:897)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.content.ContextWrapper.getCacheDir(ContextWrapper.java:326)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:366)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-04 19:08:04.414 16729 16729 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-04 19:08:04.418 16729 16729 D StrictMode: StrictMode policy violation; ~duration=497 ms: android.os.strictmode.DiskReadViolation
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at java.io.UnixFileSystem.list(UnixFileSystem.java:376)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at java.io.File.list(File.java:1129)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at java.io.File.listFiles(File.java:1293)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:366)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-04 19:08:04.418 16729 16729 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-04 19:08:04.419 16729 16729 D StrictMode: StrictMode policy violation; ~duration=497 ms: android.os.strictmode.DiskReadViolation
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:74)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at libcore.io.ForwardingOs.access(ForwardingOs.java:128)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.app.ActivityThread$AndroidOs.access(ActivityThread.java:8054)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at java.io.UnixFileSystem.checkAccess(UnixFileSystem.java:313)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at java.io.File.exists(File.java:813)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:790)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:781)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.app.ContextImpl.getFilesDir(ContextImpl.java:826)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.content.ContextWrapper.getFilesDir(ContextWrapper.java:286)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:369)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-04 19:08:04.419 16729 16729 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-04 19:08:04.421 16729 16729 D StrictMode: StrictMode policy violation; ~duration=497 ms: android.os.strictmode.DiskReadViolation
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at java.io.UnixFileSystem.list(UnixFileSystem.java:376)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at java.io.File.list(File.java:1129)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at java.io.File.listFiles(File.java:1293)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:369)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-04 19:08:04.421 16729 16729 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-04 19:08:04.422 16729 16729 D StrictMode: StrictMode policy violation; ~duration=497 ms: android.os.strictmode.DiskReadViolation
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.os.StrictMode$AndroidBlockGuardPolicy.onReadFromDisk(StrictMode.java:1666)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at libcore.io.BlockGuardOs.access(BlockGuardOs.java:74)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at libcore.io.ForwardingOs.access(ForwardingOs.java:128)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.app.ActivityThread$AndroidOs.access(ActivityThread.java:8054)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at java.io.UnixFileSystem.checkAccess(UnixFileSystem.java:313)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at java.io.File.exists(File.java:813)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:790)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.app.ContextImpl.ensurePrivateDirExists(ContextImpl.java:781)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.app.ContextImpl.getDatabasesDir(ContextImpl.java:1050)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.app.ContextImpl.getDatabasePath(ContextImpl.java:1029)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.content.ContextWrapper.getDatabasePath(ContextWrapper.java:384)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.databaseDir(RestoreRecoveryCoordinator.kt:388)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.RestoreGenerationSupport.cleanupOrphans(RestoreRecoveryCoordinator.kt:376)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.core.data.backup.BackupRestoreStartupRecovery.recoverOnStartup(RestoreRecoveryCoordinator.kt:249)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at com.tingyun.smartmistakebook.SmartMistakeBookApplication.onCreate(SmartMistakeBookApplication.kt:334)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.app.Instrumentation.callApplicationOnCreate(Instrumentation.java:1316)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.app.ActivityThread.handleBindApplication(ActivityThread.java:6998)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.app.ActivityThread.-$$Nest$mhandleBindApplication(Unknown Source:0)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:2236)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.os.Handler.dispatchMessage(Handler.java:106)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.os.Looper.loopOnce(Looper.java:205)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.os.Looper.loop(Looper.java:294)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at android.app.ActivityThread.main(ActivityThread.java:8177)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at java.lang.reflect.Method.invoke(Native Method)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:552)
+11-04 19:08:04.422 16729 16729 D StrictMode: 	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:971)
+11-04 19:08:04.424 16729 16756 D CompatibilityChangeReporter: Compat change id reported: 194532703; UID 10198; state: ENABLED
+11-04 19:08:04.424 16729 16756 D CompatibilityChangeReporter: Compat change id reported: 253665015; UID 10198; state: ENABLED
+11-04 19:08:04.424 16729 16756 D WM-SystemJobScheduler: Scheduling work ID 1fec0c94-3fea-4d56-97b4-1cf8d0e39d45Job ID 147
+11-04 19:08:04.428   542  1902 D CompatibilityChangeReporter: Compat change id reported: 253665015; UID 10198; state: ENABLED
+11-04 19:08:04.429   542  1902 D CompatibilityChangeReporter: Compat change id reported: 194532703; UID 10198; state: ENABLED
+11-04 19:08:04.438 16729 16756 D WM-GreedyScheduler: Starting tracking for 1fec0c94-3fea-4d56-97b4-1cf8d0e39d45
+11-04 19:08:04.447  3654 10183 D BufferPoolAccessor2.0: evictor expired: 2, evicted: 0
+11-04 19:08:04.454 16729 16774 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-04 19:08:04.462 16729 16774 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-04 19:08:04.465 16729 16774 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-04 19:08:04.479 16729 16756 D WM-SystemJobScheduler: Scheduling work ID b46e78af-0334-460a-96a2-5375bf0f5f6fJob ID 148
+11-04 19:08:04.486 16729 16756 D WM-GreedyScheduler: Starting work for b46e78af-0334-460a-96a2-5375bf0f5f6f
+11-04 19:08:04.487 16729 16756 D WM-GreedyScheduler: Starting tracking for 1fec0c94-3fea-4d56-97b4-1cf8d0e39d45
+11-04 19:08:04.509 16729 16758 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=b46e78af-0334-460a-96a2-5375bf0f5f6f, generation=0)
+11-04 19:08:04.513 16729 16757 D CompatibilityChangeReporter: Compat change id reported: 263076149; UID 10198; state: ENABLED
+11-04 19:08:04.521   542  1903 D CompatibilityChangeReporter: Compat change id reported: 161145287; UID 10198; state: ENABLED
+11-04 19:08:04.522 16729 16757 D WM-ConstraintTracker: BatteryNotLowTracker: initial state = true
+11-04 19:08:04.522 16729 16757 D WM-BrdcstRcvrCnstrntTrc: BatteryNotLowTracker: registering receiver
+11-04 19:08:04.527   542  1903 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+11-04 19:08:04.527   542  1903 D PackageManager: Clear ephemeral installer activity
+11-04 19:08:04.529 16729 16757 D WM-PackageManagerHelper: androidx.work.impl.background.systemalarm.RescheduleReceiver enabled
+11-04 19:08:04.530 16729 16758 D WM-GreedyScheduler: Constraints met: Scheduling work ID WorkGenerationalId(workSpecId=1fec0c94-3fea-4d56-97b4-1cf8d0e39d45, generation=0)
+11-04 19:08:04.532 16729 16758 D WM-Processor: Processor: processing WorkGenerationalId(workSpecId=1fec0c94-3fea-4d56-97b4-1cf8d0e39d45, generation=0)
+11-04 19:08:04.563 16729 16729 D CompatibilityChangeReporter: Compat change id reported: 237531167; UID 10198; state: DISABLED
+11-04 19:08:04.564 16729 16729 W OpenGLRenderer: Unknown dataspace 0
+11-04 19:08:04.573 16729 16729 I Choreographer: Skipped 40 frames!  The application may be doing too much work on its main thread.
+11-04 19:08:04.678   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:04.678   418   510 D audioserver: -129
+11-04 19:08:04.709 10112 16693 D AudioTrack: stop(58): called with 30240 frames delivered
+11-04 19:08:04.722 10112 16692 I GoogleTTSServiceImpl: Synthesis request for locale eng-USA and name en-US-language
+11-04 19:08:04.723 10112 16692 I GoogleTTSServiceImpl: TTS dispatch: en-us-x-iog-lstm-embedded
+11-04 19:08:04.766   418   431 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:04.767   418   431 D AudioFlinger: Client defaulted notificationFrames to 480 for frameCount 4096
+11-04 19:08:04.769   418   431 D AF::TrackHandle: OpPlayAudio: track:100 usage:11 not muted
+11-04 19:08:04.777   418   431 D audioserver: FGS Logger Transaction failed
+11-04 19:08:04.777   418   431 D audioserver: -129
+11-04 19:08:04.813   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:04.813   418   510 D audioserver: -129
+11-04 19:08:04.836   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:04.837   418   510 D audioserver: -129
+11-04 19:08:04.860   542   626 D ActivityManager: freezing 1676 com.google.android.gms
+11-04 19:08:04.968 16729 16729 W book.localfirst: Accessing hidden method Landroid/os/SystemProperties;->addChangeCallback(Ljava/lang/Runnable;)V (unsupported, reflection, allowed)
+11-04 19:08:04.969 16729 16729 D CompatibilityChangeReporter: Compat change id reported: 193247900; UID 10198; state: ENABLED
+11-04 19:08:05.233 16729 16729 W WindowOnBackDispatcher: OnBackInvokedCallback is not enabled for the application.
+11-04 19:08:05.233 16729 16729 W WindowOnBackDispatcher: Set 'android:enableOnBackInvokedCallback="true"' in the application manifest.
+11-04 19:08:05.251   542  1902 D CoreBackPreview: Window{821e511 u0 com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@fb4207c, mPriority=0, mIsAnimationCallback=false}
+11-04 19:08:05.512 16729 16771 W OpenGLRenderer: Failed to initialize 101010-2 format, error = EGL_SUCCESS
+--------- beginning of kernel
+11-04 19:08:05.511     0     0 I servicemanager: Could not find android.hardware.graphics.allocator.IAllocator/default in the VINTF manifest.
+11-04 19:08:05.528   542   595 I AppsFilter: interaction: PackageSetting{ac3cdf0 com.tingyun.smartmistakebook.core.export.test/10196} -> PackageSetting{6b53481 com.tingyun.smartmistakebook.localfirst/10198} BLOCKED
+11-04 19:08:05.529   160   160 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@4.0::IMapper/default in either framework or device VINTF manifest.
+11-04 19:08:05.529   542   595 I AppsFilter: interaction: PackageSetting{ce1028f com.tingyun.smartmistakebook.core.database.test/10195} -> PackageSetting{6b53481 com.tingyun.smartmistakebook.localfirst/10198} BLOCKED
+11-04 19:08:05.529   542   595 I AppsFilter: interaction: PackageSetting{42fd91c com.tingyun.smartmistakebook.core.data.test/10200} -> PackageSetting{6b53481 com.tingyun.smartmistakebook.localfirst/10198} BLOCKED
+11-04 19:08:05.533 16729 16771 I Gralloc4: mapper 4.x is not supported
+11-04 19:08:05.536   542   618 D CompatibilityChangeReporter: Compat change id reported: 218533173; UID 10198; state: ENABLED
+11-04 19:08:05.536   542   618 D CompatibilityChangeReporter: Compat change id reported: 262645982; UID 10198; state: ENABLED
+11-04 19:08:05.541   542   627 I RoleService: Granting default roles...
+11-04 19:08:05.553   911   911 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-04 19:08:05.553   950   950 D CarrierSvcBindHelper: onPackageModified: com.tingyun.smartmistakebook.localfirst
+11-04 19:08:05.553   911   911 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-04 19:08:05.553   950   950 D CarrierSvcBindHelper: No carrier app for: 0
+11-04 19:08:05.557   542   639 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+11-04 19:08:05.561   747   747 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+11-04 19:08:05.565   950  1223 D ImsResolver: maybeAddedImsService, packageName: com.tingyun.smartmistakebook.localfirst
+11-04 19:08:05.568   747   824 D StylusManager: Stylus InputDevice changed: 13 virtio_input_multi_touch_10
+11-04 19:08:05.571   747   824 D StylusManager: Stylus InputDevice changed: 12 virtio_input_multi_touch_9
+11-04 19:08:05.573   747   824 D StylusManager: Stylus InputDevice changed: 11 virtio_input_multi_touch_8
+11-04 19:08:05.574  1271  4467 I PermissionControllerServiceImpl: Updating user sensitive for uid 10198
+11-04 19:08:05.578   747   824 D StylusManager: Stylus InputDevice changed: 14 virtio_input_multi_touch_11
+11-04 19:08:05.579   747   824 D StylusManager: Stylus InputDevice changed: 6 virtio_input_multi_touch_3
+11-04 19:08:05.580   747   824 D StylusManager: Stylus InputDevice changed: 9 virtio_input_multi_touch_6
+11-04 19:08:05.582   747   824 D StylusManager: Stylus InputDevice changed: 8 virtio_input_multi_touch_5
+11-04 19:08:05.582   747   824 D StylusManager: Stylus InputDevice changed: 7 virtio_input_multi_touch_4
+11-04 19:08:05.583   747   824 D StylusManager: Stylus InputDevice changed: 10 virtio_input_multi_touch_7
+11-04 19:08:05.584   747   824 D StylusManager: Stylus InputDevice changed: 4 virtio_input_multi_touch_1
+11-04 19:08:05.585   747   824 D StylusManager: Stylus InputDevice changed: 5 virtio_input_multi_touch_2
+11-04 19:08:05.604  1271 16779 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms.supervision, role: android.app.role.SYSTEM_SUPERVISION
+11-04 19:08:05.605  1387  1387 I AiAiEcho: AppFetcherImpl onPackageChanged com.tingyun.smartmistakebook.localfirst.
+11-04 19:08:05.606  1387 14972 I AiAiEcho: AppIndexer Package:[com.tingyun.smartmistakebook.localfirst] UserProfile:[0] Enabled:[true].
+11-04 19:08:05.607  1387 14972 I AiAiEcho: AppFetcherImplV2 updateApps package:[com.tingyun.smartmistakebook.localfirst], userId:[0], reason:[package is updated.].
+11-04 19:08:05.615  1271 16779 I Role    : com.google.android.gms not qualified for android.app.role.SYSTEM_CALL_STREAMING due to missing RequiredComponent{mIntentFilterData=IntentFilterData{mAction='android.telecom.CallStreamingService', mCategories='[]', mDataScheme='null', mDataType='null'}, mMinTargetSdkVersion=1, mFlags='0', mPermission='android.permission.BIND_CALL_STREAMING_SERVICE', mQueryFlags=0, mMetaData=[]}
+11-04 19:08:05.615  1271 16779 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms, role: android.app.role.SYSTEM_CALL_STREAMING
+11-04 19:08:05.617  1271 16779 W Role    : Default holder doesn't have required signing certificate: com.google.android.apps.work.clouddpc:23962F4B43B9857638EA66F4D419518EAE282491ACDA4B94707BD59003C45E58
+11-04 19:08:05.750   542   560 W ziparchive: Unable to open '/data/app/~~TLKVFbvrmHi82ik8QvZ5DQ==/com.tingyun.smartmistakebook.localfirst-TBAdnaqQ_lK1PqU9fl22Wg==/base.dm': No such file or directory
+11-04 19:08:05.751   542   560 I ActivityTaskManager: Displayed com.tingyun.smartmistakebook.localfirst/com.tingyun.smartmistakebook.MainActivity for user 0: +2s730ms
+11-04 19:08:05.753 16729 16729 D WM-WorkerWrapper: Starting work for com.tingyun.smartmistakebook.BatchImportDriverWorker
+11-04 19:08:05.753 16729 16729 D WM-WorkerWrapper: Starting work for com.tingyun.smartmistakebook.OrphanAssetGcWorker
+11-04 19:08:05.766 16729 16745 I OpenGLRenderer: Davey! duration=1847ms; Flags=1, FrameTimelineVsyncId=378721, IntendedVsync=2689896991100, Vsync=2690563657740, InputEventId=0, HandleInputStart=2690575799500, AnimationStart=2690575817200, PerformTraversalsStart=2690576687000, DrawStart=2691546410100, FrameDeadline=2689913657766, FrameInterval=2690573866500, FrameStartTime=16666666, SyncQueued=2691569428900, SyncStart=2691572302700, IssueDrawCommandsStart=2691575547000, SwapBuffers=2691687223600, FrameCompleted=2691746980800, DequeueBufferDuration=45600, QueueBufferDuration=317800, GpuCompleted=2691746774200, SwapBuffersCompleted=2691746980800, DisplayPresentTime=2314885530818453536, CommandSubmissionCompleted=2691687223600, 
+11-04 19:08:05.791   542  1498 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-04 19:08:05.819 16729 16729 I Choreographer: Skipped 68 frames!  The application may be doing too much work on its main thread.
+11-04 19:08:06.015  1296  3121 I FontLog : Received query Noto Color Emoji Compat, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-04 19:08:06.015  1296  3121 I FontLog : Query [emojicompat-emoji-font] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-04 19:08:06.018  1296  3121 I FontLog : Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-04 19:08:06.024  1296  1451 I FontLog : Pulling font file for id = 72, cache size = 8 [CONTEXT service_id=132 ]
+11-04 19:08:06.027 16729 16729 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=b46e78af-0334-460a-96a2-5375bf0f5f6f, generation=0)
+11-04 19:08:06.030 16729 16758 D WM-Processor: Work WorkGenerationalId(workSpecId=b46e78af-0334-460a-96a2-5375bf0f5f6f, generation=0) is already enqueued for processing
+11-04 19:08:06.034 16729 16729 D WM-SystemJobService: onStartJob for WorkGenerationalId(workSpecId=1fec0c94-3fea-4d56-97b4-1cf8d0e39d45, generation=0)
+11-04 19:08:06.035 16729 16743 I OpenGLRenderer: Davey! duration=1347ms; Flags=0, FrameTimelineVsyncId=379160, IntendedVsync=2690680324402, Vsync=2691813657690, InputEventId=0, HandleInputStart=2691821693500, AnimationStart=2691821713000, PerformTraversalsStart=2691942103900, DrawStart=2691974435700, FrameDeadline=2691763657692, FrameInterval=2691818882400, FrameStartTime=16666666, SyncQueued=2691978214200, SyncStart=2691978382200, IssueDrawCommandsStart=2691978460600, SwapBuffers=2691986063900, FrameCompleted=2692027937600, DequeueBufferDuration=25200, QueueBufferDuration=900500, GpuCompleted=2692027796500, SwapBuffersCompleted=2692027937600, DisplayPresentTime=6878235099618631533, CommandSubmissionCompleted=2691986063900, 
+11-04 19:08:06.038   542  1910 D CompatibilityChangeReporter: Compat change id reported: 214016041; UID 10198; state: ENABLED
+11-04 19:08:06.038   542  1910 I ImeTracker: com.tingyun.smartmistakebook.localfirst:3dcd0259: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_UNSPECIFIED_WINDOW
+11-04 19:08:06.039   542  1910 I ImeTracker: com.tingyun.smartmistakebook.localfirst:3dcd0259: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-04 19:08:06.045 16729 16756 D WM-Processor: Work WorkGenerationalId(workSpecId=1fec0c94-3fea-4d56-97b4-1cf8d0e39d45, generation=0) is already enqueued for processing
+11-04 19:08:06.053  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():3227 
+11-04 19:08:06.055  3654 10903 E AccessibilityService: bindInput must be paired with unbindInput.
+11-04 19:08:06.055  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2087 repeatCheckTimes = 0, unlocked = true
+11-04 19:08:06.055  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=com.tingyun.smartmistakebook.localfirst fieldId=0 fieldName=null extras=null}, false)
+11-04 19:08:06.056  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.shouldHideHeaderOnInitialState():4008 ShouldHideHeaderOnInitialState = false
+11-04 19:08:06.056  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2087 repeatCheckTimes = 2, unlocked = true
+11-04 19:08:06.060  1296  3121 I FontLog : Pulling font file for id = 72, cache size = 8 [CONTEXT service_id=132 ]
+11-04 19:08:06.066 16729 16756 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=1fec0c94-3fea-4d56-97b4-1cf8d0e39d45, tags={ com.tingyun.smartmistakebook.OrphanAssetGcWorker,orphan-asset-gc } ]
+11-04 19:08:06.074 16729 16756 I WM-WorkerWrapper: Worker result SUCCESS for Work [ id=b46e78af-0334-460a-96a2-5375bf0f5f6f, tags={ com.tingyun.smartmistakebook.BatchImportDriverWorker,batch-import-driver } ]
+11-04 19:08:06.078 16729 16729 W AccessibilityDelegate: Drawing order is not available, was AccessibilityNodeInfo requested for a child node before its parent?
+11-04 19:08:06.079   542  1903 D PackageManager: Instant App installer not found with android.intent.action.INSTALL_INSTANT_APP_PACKAGE
+11-04 19:08:06.079   542  1903 D PackageManager: Clear ephemeral installer activity
+11-04 19:08:06.080 16729 16756 D WM-PackageManagerHelper: androidx.work.impl.background.systemalarm.RescheduleReceiver disabled
+11-04 19:08:06.087 16729 16729 D WM-Processor: Processor 1fec0c94-3fea-4d56-97b4-1cf8d0e39d45 executed; reschedule = false
+11-04 19:08:06.088 16729 16729 D WM-GreedyScheduler: Stopping tracking for WorkGenerationalId(workSpecId=1fec0c94-3fea-4d56-97b4-1cf8d0e39d45, generation=0)
+11-04 19:08:06.090 16729 16729 D WM-SystemJobService: 1fec0c94-3fea-4d56-97b4-1cf8d0e39d45 executed on JobScheduler
+11-04 19:08:06.092 16729 16729 D WM-Processor: Processor b46e78af-0334-460a-96a2-5375bf0f5f6f executed; reschedule = false
+11-04 19:08:06.092 16729 16729 D WM-SystemJobService: b46e78af-0334-460a-96a2-5375bf0f5f6f executed on JobScheduler
+11-04 19:08:06.093 16729 16729 D WM-SystemJobService: onStopJob for WorkGenerationalId(workSpecId=1fec0c94-3fea-4d56-97b4-1cf8d0e39d45, generation=0)
+11-04 19:08:06.095 16729 16757 D WM-GreedyScheduler: Cancelling work ID 1fec0c94-3fea-4d56-97b4-1cf8d0e39d45
+11-04 19:08:06.098 16729 16757 D WM-BrdcstRcvrCnstrntTrc: BatteryNotLowTracker: unregistering receiver
+11-04 19:08:06.101   542  1686 D ActivityManager: sync unfroze 1676 com.google.android.gms for 6
+11-04 19:08:06.109   542  1910 W JobScheduler: Job didn't exist in JobStore: e277fab {androidx.work.systemjobscheduler} #u0a198/147 @androidx.work.systemjobscheduler@com.tingyun.smartmistakebook.localfirst/androidx.work.impl.background.systemjob.SystemJobService
+11-04 19:08:06.114 16729 16757 D WM-GreedyScheduler: Cancelling work ID b46e78af-0334-460a-96a2-5375bf0f5f6f
+11-04 19:08:06.121   542  2620 W JobScheduler: Job didn't exist in JobStore: ae166dd {androidx.work.systemjobscheduler} #u0a198/148 @androidx.work.systemjobscheduler@com.tingyun.smartmistakebook.localfirst/androidx.work.impl.background.systemjob.SystemJobService
+11-04 19:08:06.121   747   809 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=falsecallback=android.view.ViewRootImpl$$ExternalSyntheticLambda17@87bd376
+11-04 19:08:06.122   542  2620 D CoreBackPreview: Window{cd1c392 u0 Splash Screen com.tingyun.smartmistakebook.localfirst EXITING}: Setting back callback null
+11-04 19:08:06.122 16729 16729 D WM-SystemJobService: onStopJob for WorkGenerationalId(workSpecId=b46e78af-0334-460a-96a2-5375bf0f5f6f, generation=0)
+11-04 19:08:06.125   542  1903 W InputManager-JNI: Input channel object 'cd1c392 Splash Screen com.tingyun.smartmistakebook.localfirst (client)' was disposed without first being removed with the input manager!
+11-04 19:08:06.125  1296 16785 I Fitness : OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package: flg=0x45000010 pkg=com.google.android.gms cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+11-04 19:08:06.136   542  1919 D CompatibilityChangeReporter: Compat change id reported: 161252188; UID 10198; state: DISABLED
+11-04 19:08:06.151  3654  3654 E talkback: EventTypeWindowContentChangedFeedbackRule:     windowContentChanged: error, node is null
+11-04 19:08:06.152   993  1720 D OneSearchSuggestProvider: Shut down the binder channel
+11-04 19:08:06.152  1296 16786 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_CHANGED [CONTEXT service_id=17 ]
+11-04 19:08:06.158   993  1078 I ImeTracker: com.google.android.apps.nexuslauncher:fcab5a5f: onRequestHide at ORIGIN_CLIENT_HIDE_SOFT_INPUT reason HIDE_SOFT_INPUT
+11-04 19:08:06.158   993  1078 I ImeTracker: com.google.android.apps.nexuslauncher:fcab5a5f: onFailed at PHASE_CLIENT_VIEW_SERVED
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379383, 13033608, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379398, 13140942, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379421, 12451610, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379436, 6997544, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379451, 6759178, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379459, 9067612, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379467, 8342846, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379475, 8957680, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379483, 10517114, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379491, 10263048, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379499, 8965982, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379507, 0, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missing HWUI jank callback for vsyncId: 379507, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379515, 11986850, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379523, 10451584, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379531, 11522818, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.174   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379539, 14407652, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.175   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379547, 0, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.175   747   809 W FrameTracker: Missing HWUI jank callback for vsyncId: 379547, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.175   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379569, 11650820, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.175   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379591, 11547954, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.175   747   809 W FrameTracker: Missed SF frame:PREDICTION_ERROR, 379599, 0, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.175   747   809 W FrameTracker: Missing HWUI jank callback for vsyncId: 379599, CUJ=J<SPLASHSCREEN_EXIT_ANIM>
+11-04 19:08:06.175   747   794 V PerfettoTrigger: Not triggering com.android.telemetry.interaction-jank-monitor-39 - not enough time since last trigger
+11-04 19:08:06.179   542   571 W UsageStatsService: Unexpected activity event reported! (com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity event : 23 instanceId : 205747643)
+11-04 19:08:06.181   542   571 W UsageStatsService: Unexpected activity event reported! (com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity event : 23 instanceId : 26221801)
+11-04 19:08:06.181   418   431 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:06.183   418   431 D AF::TrackHandle: OpPlayAudio: track:101 usage:11 not muted
+11-04 19:08:06.188   542   571 W UsageStatsService: Unexpected activity event reported! (com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity event : 23 instanceId : 145171828)
+11-04 19:08:06.190   542   571 W UsageStatsService: Unexpected activity event reported! (com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity event : 23 instanceId : 51456107)
+11-04 19:08:06.196   418   431 D audioserver: FGS Logger Transaction failed
+11-04 19:08:06.196   418   431 D audioserver: -129
+11-04 19:08:06.198  1296 16600 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-04 19:08:06.199   418   431 D audioserver: FGS Logger Transaction failed
+11-04 19:08:06.199   418   431 D audioserver: -129
+11-04 19:08:06.212  1296 16600 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-04 19:08:06.212  1296 16600 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-04 19:08:06.216  1676  2096 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=AppsCorpus serviceId=36
+11-04 19:08:06.228  1676  1676 D BoundBrokerSvc: onBind: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-04 19:08:06.229  1676  1676 D BoundBrokerSvc: Loading bound service for intent: Intent { act=com.google.android.gms.feedback.internal.IFeedbackService dat=chimera-action:/... cmp=com.google.android.gms/.chimera.GmsBoundBrokerService }
+11-04 19:08:06.256  1676 16798 W Icing   : No valid account for uploading user actions
+11-04 19:08:06.275  1676 16798 I Icing   : Usage reports ok 1, Failed Usage reports 0, indexed 0, rejected 0
+11-04 19:08:06.294 10112 16693 D AudioTrack: stop(60): called with 35640 frames delivered
+11-04 19:08:06.297  1676  2759 I Icing   : IndexChimeraService.getServiceInterface callingPackage=com.google.android.gms componentName=null serviceId=30
+11-04 19:08:06.302  1676 16798 W Icing   : No valid account for uploading user actions
+11-04 19:08:06.307  3654  3654 V A11yInputMethod: startInput(): editor=android.view.inputmethod.EditorInfo@6ef8e9
+11-04 19:08:06.307  3654  3654 V A11yInputMethod: CALL: onStartInput
+11-04 19:08:06.308  1676 16798 I Icing   : Usage reports ok 0, Failed Usage reports 0, indexed 0, rejected 0
+11-04 19:08:06.344 10112 16692 I GoogleTTSServiceImpl: Synthesis request for locale eng-USA and name en-US-language
+11-04 19:08:06.345 10112 16692 I GoogleTTSServiceImpl: TTS dispatch: en-us-x-iog-lstm-embedded
+11-04 19:08:06.357 10112 10225 I ClearcutMetricXmitter: Transmission has failed: cfn: 31003: Log dropped because of storage quota exceeded.
+11-04 19:08:06.400   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:06.400   418   510 D audioserver: -129
+11-04 19:08:06.403   418  1646 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:06.403   418  1646 D AudioFlinger: Client defaulted notificationFrames to 480 for frameCount 4096
+11-04 19:08:06.404   418  1646 D AF::TrackHandle: OpPlayAudio: track:102 usage:11 not muted
+11-04 19:08:06.406   418  2181 D audioserver: FGS Logger Transaction failed
+11-04 19:08:06.406   418  2181 D audioserver: -129
+11-04 19:08:06.424   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:06.424   418   510 D audioserver: -129
+11-04 19:08:06.515   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-04 19:08:07.082   542   595 I AppsFilter: interaction: PackageSetting{ac3cdf0 com.tingyun.smartmistakebook.core.export.test/10196} -> PackageSetting{5556a48 com.tingyun.smartmistakebook.localfirst/10198} BLOCKED
+11-04 19:08:07.082   542   595 I AppsFilter: interaction: PackageSetting{ce1028f com.tingyun.smartmistakebook.core.database.test/10195} -> PackageSetting{5556a48 com.tingyun.smartmistakebook.localfirst/10198} BLOCKED
+11-04 19:08:07.082   542   595 I AppsFilter: interaction: PackageSetting{42fd91c com.tingyun.smartmistakebook.core.data.test/10200} -> PackageSetting{5556a48 com.tingyun.smartmistakebook.localfirst/10198} BLOCKED
+11-04 19:08:07.094   542   627 I RoleService: Granting default roles...
+11-04 19:08:07.097  1271  7202 I PermissionControllerServiceImpl: Updating user sensitive for uid 10198
+11-04 19:08:07.097   950   950 D CarrierSvcBindHelper: onPackageModified: com.tingyun.smartmistakebook.localfirst
+11-04 19:08:07.098   950   950 D CarrierSvcBindHelper: No carrier app for: 0
+11-04 19:08:07.102   911   911 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-04 19:08:07.105   911   911 V MediaPlayerList: mPackageChangedBroadcastReceiver: action: android.intent.action.PACKAGE_CHANGED
+11-04 19:08:07.107  1271 16779 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms.supervision, role: android.app.role.SYSTEM_SUPERVISION
+11-04 19:08:07.109   747   747 D ControlsListingControllerImpl: ServiceConfig reloaded, count: 0
+11-04 19:08:07.111  1271 16779 I Role    : com.google.android.gms not qualified for android.app.role.SYSTEM_CALL_STREAMING due to missing RequiredComponent{mIntentFilterData=IntentFilterData{mAction='android.telecom.CallStreamingService', mCategories='[]', mDataScheme='null', mDataType='null'}, mMinTargetSdkVersion=1, mFlags='0', mPermission='android.permission.BIND_CALL_STREAMING_SERVICE', mQueryFlags=0, mMetaData=[]}
+11-04 19:08:07.111  1271 16779 E RoleControllerServiceImpl: Default/fallback role holder package doesn't qualify for the role, package: com.google.android.gms, role: android.app.role.SYSTEM_CALL_STREAMING
+11-04 19:08:07.112  1271 16779 W Role    : Default holder doesn't have required signing certificate: com.google.android.apps.work.clouddpc:23962F4B43B9857638EA66F4D419518EAE282491ACDA4B94707BD59003C45E58
+11-04 19:08:07.119   542   639 I InputReader: Reconfiguring input devices, changes=KEYBOARD_LAYOUTS
+11-04 19:08:07.124   747   824 D StylusManager: Stylus InputDevice changed: 13 virtio_input_multi_touch_10
+11-04 19:08:07.125   747   824 D StylusManager: Stylus InputDevice changed: 12 virtio_input_multi_touch_9
+11-04 19:08:07.125   747   824 D StylusManager: Stylus InputDevice changed: 11 virtio_input_multi_touch_8
+11-04 19:08:07.126   747   824 D StylusManager: Stylus InputDevice changed: 14 virtio_input_multi_touch_11
+11-04 19:08:07.127   747   824 D StylusManager: Stylus InputDevice changed: 6 virtio_input_multi_touch_3
+11-04 19:08:07.128   950  1223 D ImsResolver: maybeAddedImsService, packageName: com.tingyun.smartmistakebook.localfirst
+11-04 19:08:07.129   747   824 D StylusManager: Stylus InputDevice changed: 9 virtio_input_multi_touch_6
+11-04 19:08:07.131   747   824 D StylusManager: Stylus InputDevice changed: 8 virtio_input_multi_touch_5
+11-04 19:08:07.132  1387  1387 I AiAiEcho: AppFetcherImpl onPackageChanged com.tingyun.smartmistakebook.localfirst.
+11-04 19:08:07.133   747   824 D StylusManager: Stylus InputDevice changed: 7 virtio_input_multi_touch_4
+11-04 19:08:07.133  1387 16422 I AiAiEcho: AppIndexer Package:[com.tingyun.smartmistakebook.localfirst] UserProfile:[0] Enabled:[true].
+11-04 19:08:07.133  1387 16422 I AiAiEcho: AppFetcherImplV2 updateApps package:[com.tingyun.smartmistakebook.localfirst], userId:[0], reason:[package is updated.].
+11-04 19:08:07.133   747   824 D StylusManager: Stylus InputDevice changed: 10 virtio_input_multi_touch_7
+11-04 19:08:07.133   747   824 D StylusManager: Stylus InputDevice changed: 4 virtio_input_multi_touch_1
+11-04 19:08:07.134   747   824 D StylusManager: Stylus InputDevice changed: 5 virtio_input_multi_touch_2
+11-04 19:08:07.277  1676 16798 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+11-04 19:08:07.281  1676 16798 I Icing   : Indexing com.google.android.gms-internal.3p:MobileApplication from com.google.android.gms
+11-04 19:08:07.283  1676 16798 I Icing   : Indexing done com.google.android.gms-apps
+11-04 19:08:07.284  1676 16798 I Icing   : Indexing done com.google.android.gms-internal.3p:MobileApplication
+11-04 19:08:07.518   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-04 19:08:07.601   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:07.602   418   510 D audioserver: -129
+11-04 19:08:07.625  1296 16785 I Fitness : OnPackageChangedOperation got intent: Intent { act=android.intent.action.PACKAGE_CHANGED dat=package: flg=0x45000010 pkg=com.google.android.gms cmp=com.google.android.gms/.chimera.PersistentIntentOperationService (has extras) } [CONTEXT service_id=17 ]
+11-04 19:08:07.636  1296 16785 I Fitness : FitCleanupIntentOperation received Intent android.intent.action.PACKAGE_CHANGED [CONTEXT service_id=17 ]
+11-04 19:08:07.642 16804 16804 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-04 19:08:07.642  1296 16442 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-04 19:08:07.645 16804 16804 I AndroidRuntime: Using default boot image
+11-04 19:08:07.646 16804 16804 I AndroidRuntime: Leaving lock profiling enabled
+11-04 19:08:07.646  1296 16442 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-04 19:08:07.647  1296 16442 W ChimeraUtils: Module com.google.android.gms.nearby_en missing resource null(0)
+11-04 19:08:07.647 16804 16804 I app_process: Core platform API reporting enabled, enforcing=false
+11-04 19:08:07.648 16804 16804 I app_process: Using CollectorTypeCC GC.
+11-04 19:08:07.686 16804 16804 D nativeloader: InitDefaultPublicLibraries for_preload=1: libandroid.so:libaaudio.so:libamidi.so:libbinder_ndk.so:libc.so:libcamera2ndk.so:libdl.so:libEGL.so:libGLESv1_CM.so:libGLESv2.so:libGLESv3.so:libicu.so:libicui18n.so:libicuuc.so:libjnigraphics.so:liblog.so:libmediandk.so:libm.so:libnativehelper.so:libnativewindow.so:libOpenMAXAL.so:libOpenSLES.so:libRS.so:libstdc++.so:libsync.so:libvulkan.so:libwebviewchromium_plat_support.so:libz.so
+11-04 19:08:07.691 16804 16804 D app_process: Time zone APEX ICU file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-04 19:08:07.691 16804 16804 D app_process: I18n APEX ICU file found: /apex/com.android.i18n/etc/icu/icudt72l.dat
+11-04 19:08:07.694 16804 16804 W app_process: Unexpected CPU variant for x86: x86_64.
+11-04 19:08:07.694 16804 16804 W app_process: Known variants: atom, sandybridge, silvermont, goldmont, goldmont-plus, tremont, kabylake, default
+11-04 19:08:07.695 16804 16804 W app_process: ClassLoaderContext shared library size mismatch. Expected=2, found=0 (PCL[]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]} | PCL[])
+11-04 19:08:07.695 16804 16804 W app_process: ClassLoaderContext classpath size mismatch. expected=0, found=1 (PCL[]{PCL[/system/framework/android.test.runner.jar*4168958247]{PCL[/system/framework/android.test.base.jar*836642756]#PCL[/system/framework/android.test.mock.jar*3186112116]}#PCL[/system/framework/android.test.base.jar*836642756]} | PCL[/system/framework/android.test.runner.jar*4168958247])
+11-04 19:08:07.705 16804 16804 W libc    : Access denied finding property "ro.product.name_for_attestation"
+11-04 19:08:07.705 16804 16804 W libc    : Access denied finding property "ro.product.brand_for_attestation"
+11-04 19:08:07.706 16804 16804 W libc    : Access denied finding property "ro.product.model_for_attestation"
+11-04 19:08:07.706 16804 16804 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-04 19:08:07.700 16804 16804 W main    : type=1400 audit(0.0:573): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-04 19:08:07.704 16804 16804 W main    : type=1400 audit(0.0:574): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-04 19:08:07.704 16804 16804 W main    : type=1400 audit(0.0:575): avc:  denied  { read } for  name="u:object_r:build_attestation_prop:s0" dev="tmpfs" ino=86 scontext=u:r:shell:s0 tcontext=u:object_r:build_attestation_prop:s0 tclass=file permissive=0
+11-04 19:08:07.710 16804 16804 D UiAutomationConnection: Created on user UserHandle{0}
+11-04 19:08:07.710 16804 16804 I UiAutomation: Initialized for user 0 on display 0
+11-04 19:08:07.710 16804 16804 W UiAutomation: Created with deprecatead constructor, assumes DEFAULT_DISPLAY
+11-04 19:08:07.711   542  2620 D AccessibilityManagerService: changeCurrentUserForTestAutomationIfNeededLocked(0): ignoring because device doesn't support visible background users
+11-04 19:08:07.712   542  2620 I UiAutomationManager: Registering UiTestAutomationService (id=com.android.server.accessibility/UiAutomation) when called by user 0
+11-04 19:08:07.713   542   816 I MediaFocusControl: abandonAudioFocus() from uid/pid 10138/3654 clientId=android.media.AudioManager@58a7710com.google.android.accessibility.utils.output.SpeechControllerImpl$5@29bc209
+11-04 19:08:07.714 10112 10225 D AudioTrack: stop(62): called with 35104 frames delivered
+11-04 19:08:07.717 10112 16692 I GoogleTTSServiceImpl: Synthesis request for locale eng-USA and name en-US-language
+11-04 19:08:07.719 10112 16692 I GoogleTTSServiceImpl: TTS dispatch: en-us-x-iog-lstm-embedded
+11-04 19:08:07.719 10112 16692 I GoogleTTSServiceImpl: Did not cache synthesis request.
+11-04 19:08:07.721   418  2181 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:07.721   418  2181 D AudioFlinger: Client defaulted notificationFrames to 320 for frameCount 4096
+11-04 19:08:07.722   418  2181 D AF::TrackHandle: OpPlayAudio: track:103 usage:11 not muted
+11-04 19:08:07.724 16804 16822 V UiAutomation: Init UiAutomation@ec6e706[id=187, displayId=0, flags=0]
+11-04 19:08:07.727   542  1910 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-04 19:08:07.728   542  1910 I MediaFocusControl: requestAudioFocus() from uid/pid 10138/3654 AA=USAGE_ASSISTANCE_ACCESSIBILITY/CONTENT_TYPE_SPEECH clientId=android.media.AudioManager@58a7710com.google.android.accessibility.utils.output.SpeechControllerImpl$5@29bc209 callingPack=com.google.android.marvin.talkback req=3 flags=0x0 sdk=34
+11-04 19:08:07.729   542  1910 I AudioService.FadeOutManager: unfadeOutUid() uid:10138
+11-04 19:08:07.729  1387  1415 I AiAiEcho: Settings changed for uri: content://settings/secure/touch_exploration_enabled
+11-04 19:08:07.729   542  1910 D SafetySourceDataValidator: No cert check requested for package com.google.android.permissioncontroller
+11-04 19:08:07.729  1387  1531 I AiAiEcho: Predicting[0]: 
+11-04 19:08:07.729  1387  1531 I AiAiEcho: EchoTargets: 
+11-04 19:08:07.729  1387  1531 I AiAiEcho: Filtered by AiAi flag check: 
+11-04 19:08:07.730  1387  1531 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-04 19:08:07.730  1387  1531 I AiAiEcho: Predicting[0]: 
+11-04 19:08:07.730  1387  1531 I AiAiEcho: EchoTargets: 
+11-04 19:08:07.730  1387  1531 I AiAiEcho: Filtered by AiAi flag check: 
+11-04 19:08:07.730  1387  1531 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-04 19:08:07.730  1387  1531 I AiAiEcho: Predicting[0]: 
+11-04 19:08:07.730  1387  1531 I AiAiEcho: EchoTargets: 
+11-04 19:08:07.730  1387  1531 I AiAiEcho: Filtered by AiAi flag check: 
+11-04 19:08:07.730  1387  1531 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-04 19:08:07.731  1387  1531 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface media_data_manager with targets# 0 (types=[])
+11-04 19:08:07.731  1387  1531 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-04 19:08:07.731  1387  1531 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-04 19:08:07.731 10112 16692 I GoogleTTSServiceImpl: Synthesis request for locale eng-USA and name en-US-language
+11-04 19:08:07.732 10112 16692 I GoogleTTSServiceImpl: TTS dispatch: en-us-x-iog-lstm-embedded
+11-04 19:08:07.736   418  1646 D audioserver: FGS Logger Transaction failed
+11-04 19:08:07.736   418  1646 D audioserver: -129
+11-04 19:08:07.741 16729 16771 D EGL_emulation: app_time_stats: avg=390.75ms min=3.62ms max=1359.18ms count=5
+11-04 19:08:07.732   747   747 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-04 19:08:07.742   747   747 D SsMediaDataProvider: Forwarding Smartspace updates []
+11-04 19:08:07.743   542  1910 D SafetySourceDataValidator: No cert check requested for package com.google.android.permissioncontroller
+11-04 19:08:07.744   418   431 D audioserver: FGS Logger Transaction failed
+11-04 19:08:07.744   418   431 D audioserver: -129
+11-04 19:08:07.807   418   431 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:07.808   418   431 D AudioFlinger: Client defaulted notificationFrames to 480 for frameCount 4096
+11-04 19:08:07.809   418   431 D AF::TrackHandle: OpPlayAudio: track:104 usage:11 not muted
+11-04 19:08:07.813   418   431 D audioserver: FGS Logger Transaction failed
+11-04 19:08:07.813   418   431 D audioserver: -129
+11-04 19:08:07.850   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:07.850   418   510 D audioserver: -129
+11-04 19:08:07.873   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:07.873   418   510 D audioserver: -129
+11-04 19:08:08.453  3654 10183 D BufferPoolAccessor2.0: bufferpool2 0x7cae84026b78 : 0(0 size) total buffers - 0(0 size) used buffers - 2/7 (recycle/alloc) - 5/98 (fetch/transfer)
+11-04 19:08:08.453  3654 10183 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-04 19:08:08.453   483   745 D BufferPoolAccessor2.0: bufferpool2 0x757512f96a68 : 0(0 size) total buffers - 0(0 size) used buffers - 43/47 (recycle/alloc) - 4/46 (fetch/transfer)
+11-04 19:08:08.453   483   745 D BufferPoolAccessor2.0: evictor expired: 1, evicted: 1
+11-04 19:08:08.640  1676 16796 I Icing   : Indexing com.google.android.gms-apps from com.google.android.gms
+11-04 19:08:08.645  1676 16796 I Icing   : Indexing com.google.android.gms-internal.3p:MobileApplication from com.google.android.gms
+11-04 19:08:08.647  1676 16796 I Icing   : Indexing done com.google.android.gms-apps
+11-04 19:08:08.648  1676 16796 I Icing   : Indexing done com.google.android.gms-internal.3p:MobileApplication
+11-04 19:08:08.651   542  1906 W ProcessStats: Tracking association SourceState{c5cb4e8 com.google.android.gms.persistent/10128 BTop #13308} whose proc state 2 is better than process ProcessState{267774b com.google.android.gms/10128 pkg=com.google.android.gms} proc state 8 (97 skipped)
+11-04 19:08:08.776 16804 16804 W AccessibilityNodeInfoDumper: Fetch time: 43ms
+11-04 19:08:08.784   542  2620 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-04 19:08:08.784   542  2620 D AccessibilityManagerService: restoreCurrentUserForTestAutomationIfNeededLocked(): ignoring because device doesn't support visible background users
+11-04 19:08:08.786 16804 16804 D AndroidRuntime: Shutting down VM
+11-04 19:08:08.907 10112 16693 D AudioTrack: stop(64): called with 25440 frames delivered
+11-04 19:08:08.911   542  2620 I MediaFocusControl: abandonAudioFocus() from uid/pid 10138/3654 clientId=android.media.AudioManager@58a7710com.google.android.accessibility.utils.output.SpeechControllerImpl$5@29bc209
+11-04 19:08:08.914 10112 16692 I GoogleTTSServiceImpl: Synthesis request for locale eng-USA and name en-US-language
+11-04 19:08:08.915   542  1910 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-04 19:08:08.915 10112 16692 I GoogleTTSServiceImpl: TTS dispatch: en-us-x-iog-lstm-embedded
+11-04 19:08:08.915 10112 16692 I GoogleTTSServiceImpl: Did not cache synthesis request.
+11-04 19:08:08.918   542  2620 W WindowMagnificationMgr: requestConnection duplicated request: connect=false, mConnectionState=DISCONNECTED
+11-04 19:08:08.922   542  1910 D SafetySourceDataValidator: No cert check requested for package com.google.android.permissioncontroller
+11-04 19:08:08.922   911  1111 D BluetoothAdapterService: cancelDiscovery
+11-04 19:08:08.923   911   995 I bt_btif_dm: packages/modules/Bluetooth/system/btif/src/btif_dm.cc:2469 btif_dm_cancel_discovery: Cancel search
+11-04 19:08:08.923   911   995 I bluetooth: packages/modules/Bluetooth/system/bta/dm/bta_dm_main.cc:96 bta_dm_search_sm_execute: state:BTA_DM_SEARCH_IDLE, event:BTA_DM_API_SEARCH_CANCEL_EVT[0x201]
+11-04 19:08:08.923   418  1646 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:08.923   418  1646 D AudioFlinger: Client defaulted notificationFrames to 320 for frameCount 4096
+11-04 19:08:08.924   418  1646 D AF::TrackHandle: OpPlayAudio: track:105 usage:11 not muted
+11-04 19:08:08.926   542  1910 D SafetySourceDataValidator: No cert check requested for package com.google.android.permissioncontroller
+11-04 19:08:08.929 10112 16692 I GoogleTTSServiceImpl: Synthesis request for locale eng-USA and name en-US-language
+11-04 19:08:08.929 10112 16692 I GoogleTTSServiceImpl: TTS dispatch: en-us-x-iog-lstm-embedded
+11-04 19:08:08.930 10112 16692 I GoogleTTSServiceImpl: Did not cache synthesis request.
+11-04 19:08:08.933   418  2181 D audioserver: FGS Logger Transaction failed
+11-04 19:08:08.934   418  2181 D audioserver: -129
+11-04 19:08:08.938   542  1910 D TextToSpeechManagerPerUserService: Unbinding TTS engine: com.google.android.tts. Reason: client disconnection request
+11-04 19:08:08.939   542  1910 I MediaFocusControl: abandonAudioFocus() from uid/pid 10138/3654 clientId=android.media.AudioManager@58a7710com.google.android.accessibility.utils.output.SpeechControllerImpl$5@29bc209
+11-04 19:08:08.939  3654  3654 E talkback: SpeechControllerImpl: Completed speech while already completed!
+11-04 19:08:08.940   418   418 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:08.940 10112 10409 I ClearcutMetricXmitter: Transmission has failed: cfn: 31003: Log dropped because of storage quota exceeded.
+11-04 19:08:08.940   418   418 D AudioFlinger: Client defaulted notificationFrames to 320 for frameCount 4096
+11-04 19:08:08.941   542   542 W TextToSpeechManagerPerUserService: Disconnected from TTS engine
+11-04 19:08:08.941   418   418 D AF::TrackHandle: OpPlayAudio: track:106 usage:11 not muted
+11-04 19:08:08.942  3654 10520 I TextToSpeech: Disconnected from TTS engine
+11-04 19:08:08.942   542   542 W ServiceConnector.Impl: mayInterruptIfRunning not supported - ignoring
+11-04 19:08:08.945   418   418 D audioserver: FGS Logger Transaction failed
+11-04 19:08:08.945   418   418 D audioserver: -129
+11-04 19:08:08.953   542  1910 D SafetySourceDataValidator: No cert check requested for package com.google.android.permissioncontroller
+11-04 19:08:08.958  1387  1795 I AiAiEcho: Settings changed for uri: content://settings/secure/touch_exploration_enabled
+11-04 19:08:08.958  1387  1531 I AiAiEcho: Predicting[0]: 
+11-04 19:08:08.958  1387  1531 I AiAiEcho: EchoTargets: 
+11-04 19:08:08.958  1387  1531 I AiAiEcho: Filtered by AiAi flag check: 
+11-04 19:08:08.959  1387  1531 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-04 19:08:08.959  1387  1531 I AiAiEcho: Predicting[0]: 
+11-04 19:08:08.959  1387  1531 I AiAiEcho: EchoTargets: 
+11-04 19:08:08.959  1387  1531 I AiAiEcho: Filtered by AiAi flag check: 
+11-04 19:08:08.959  1387  1531 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-04 19:08:08.959  1387  1531 I AiAiEcho: Predicting[0]: 
+11-04 19:08:08.959  1387  1531 I AiAiEcho: EchoTargets: 
+11-04 19:08:08.959  1387  1531 I AiAiEcho: Filtered by AiAi flag check: 
+11-04 19:08:08.959  1387  1531 I AiAiEcho: Ranked targets strategy: SORT, count: 0, ranking metadata: 
+11-04 19:08:08.959  1387  1531 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface media_data_manager with targets# 0 (types=[])
+11-04 19:08:08.960  1387  1531 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface home with targets# 0 (types=[])
+11-04 19:08:08.960   747   747 D SsMediaDataProvider: Forwarding Smartspace updates []
+11-04 19:08:08.960  1387  1531 I AiAiEcho: #postPredictionTargets: Sending updates to UISurface lockscreen with targets# 0 (types=[])
+11-04 19:08:08.965  3654  3654 I TextToSpeech: Sucessfully bound to com.google.android.tts
+11-04 19:08:08.966   542  1910 D TextToSpeechManagerPerUserService: Trying to start connection to TTS engine: com.google.android.tts
+11-04 19:08:08.969   747   747 W PageIndicator: Total number of pages invalid: 0. Assuming 1 page.
+11-04 19:08:08.975   542  2620 W ActivityManager: Unable to start service Intent { act=com.google.android.play.core.splitinstall.BIND_SPLIT_INSTALL_SERVICE pkg=com.android.vending } U=0: not found
+11-04 19:08:08.988 10112 10112 I GoogleTtsServicePeer: Creating Google TTS service, version googletts.google-speech-apk_20230123.02_p3.506463867
+11-04 19:08:08.994   542   542 D TextToSpeechManagerPerUserService: Connected successfully to TTS engine: com.google.android.tts
+11-04 19:08:08.995  3654 10520 I TextToSpeech: Connected to TTS engine
+11-04 19:08:09.000 10112 10409 W RankedDispatcher: The requested voice is not available for this app identifier
+11-04 19:08:09.000 10112 10409 I GoogleTTSServiceImpl: currentLocale = en-US
+11-04 19:08:09.000 10112 10225 I ClearcutMetricXmitter: Transmission has failed: cfn: 31003: Log dropped because of storage quota exceeded.
+11-04 19:08:09.000 10112 10409 W RankedDispatcher: The requested voice is not available for this app identifier
+11-04 19:08:09.001 10112 10409 I GoogleTTSServiceImpl: For default lang en-us is name en-US-language (en-us-x-iog-server)
+11-04 19:08:09.002  3654 10113 I TextToSpeech: Setting up the connection to TTS engine...
+11-04 19:08:09.008 10112 10409 I ClearcutMetricXmitter: Transmission has failed: cfn: 31003: Log dropped because of storage quota exceeded.
+11-04 19:08:09.029   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:09.029   418   510 D audioserver: -129
+11-04 19:08:09.045   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:09.045   418   510 D audioserver: -129
+11-04 19:08:09.083  3654  3654 I LibLouisWrapper_Native: Setting tables path to: /data/user_de/0/com.google.android.marvin.talkback/app_translator
+11-04 19:08:09.182  3654  3654 I LibLouisWrapper_Native: Setting tables path to: /data/user_de/0/com.google.android.marvin.talkback/app_translator
+11-04 19:08:09.196  3654  3667 W marvin.talkback: Cleared Reference was only reachable from finalizer (only reported once)
+11-04 19:08:09.286  3654  3654 I LibLouisWrapper_Native: Setting tables path to: /data/user_de/0/com.google.android.marvin.talkback/app_translator
+11-04 19:08:09.381  3654  3654 I LibLouisWrapper_Native: Setting tables path to: /data/user_de/0/com.google.android.marvin.talkback/app_translator
+11-04 19:08:09.386   542  1910 W WindowMagnificationMgr: requestConnection duplicated request: connect=true, mConnectionState=CONNECTED
+11-04 19:08:09.387  3654  3654 W Settings: Setting device_provisioned has moved from android.provider.Settings.Secure to android.provider.Settings.Global.
+11-04 19:08:09.391   542  1910 D SafetySourceDataValidator: No cert check requested for package com.google.android.permissioncontroller
+11-04 19:08:09.391  3654  3654 W Settings: Setting device_provisioned has moved from android.provider.Settings.Secure to android.provider.Settings.Global.
+11-04 19:08:09.397   542  2620 V SplashScreenExceptionList: SplashScreen checking exception for package com.google.android.marvin.talkback (target sdk:34) -> false
+11-04 19:08:09.399   542  2620 I ActivityTaskManager: START u0 {flg=0x18000020 cmp=com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity (has extras)} with LAUNCH_MULTIPLE from uid 10138 (BAL_ALLOW_PERMISSION) result code=0
+11-04 19:08:09.400   747   790 V WindowManagerShell: Transition requested: android.os.BinderProxy@13c1b5d TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=504 displayId=0 isRunning=true baseIntent=Intent { flg=0x18800020 cmp=com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity } baseActivity=ComponentInfo{com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity} topActivity=ComponentInfo{com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity} origActivity=null realActivity=ComponentInfo{com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity} numActivities=1 lastActiveTime=2695398 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@ddc2cd2} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{8d341a3 com.google.android.accessibility.talkback.permission.PermissionRequestActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-04 19:08:09.415   421   421 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-04 19:08:09.437 16729 16771 D EGL_emulation: app_time_stats: avg=1696.16ms min=1696.16ms max=1696.16ms count=1
+11-04 19:08:09.438   542   816 W WindowMagnificationMgr: requestConnection duplicated request: connect=true, mConnectionState=CONNECTED
+11-04 19:08:09.444   542   816 D SafetySourceDataValidator: No cert check requested for package com.google.android.permissioncontroller
+11-04 19:08:09.463   911   926 D BluetoothAdapterService: cancelDiscovery
+11-04 19:08:09.463   911   995 I bt_btif_dm: packages/modules/Bluetooth/system/btif/src/btif_dm.cc:2469 btif_dm_cancel_discovery: Cancel search
+11-04 19:08:09.463   911   995 I bluetooth: packages/modules/Bluetooth/system/bta/dm/bta_dm_main.cc:96 bta_dm_search_sm_execute: state:BTA_DM_SEARCH_IDLE, event:BTA_DM_API_SEARCH_CANCEL_EVT[0x201]
+11-04 19:08:09.465  3654  3654 E talkback: SpeechControllerImpl: TTS is not ready. Attempted to speak before TTS was initialized. Item: {utteranceId:"", fragments:[{text:TalkBack on, earcons:[], haptics:[], speechParams:Bundle[{pitch=1.0}]nonSpeechParams:Bundle[{}]fragmentStartIndex:0}], uninterruptible:true, flushGlobalTtsQueue:false, flags:62, creationTime:1793819289465}
+11-04 19:08:09.465  3654  3654 W Settings: Setting device_provisioned has moved from android.provider.Settings.Secure to android.provider.Settings.Global.
+11-04 19:08:09.465  3654  3654 W Settings: Setting device_provisioned has moved from android.provider.Settings.Secure to android.provider.Settings.Global.
+11-04 19:08:09.467   542   816 W WindowMagnificationMgr: requestConnection duplicated request: connect=true, mConnectionState=CONNECTED
+11-04 19:08:09.471   542  1910 D SafetySourceDataValidator: No cert check requested for package com.google.android.permissioncontroller
+11-04 19:08:09.472  3654  3654 V A11yInputMethod: startInput(): editor=android.view.inputmethod.EditorInfo@2bd4fc3
+11-04 19:08:09.472  3654  3654 V A11yInputMethod: CALL: onStartInput
+11-04 19:08:09.473  3654  3654 E talkback: FeatureDownloader: Fail to get session states. com.google.android.play.core.serviceconnection.ServiceUnavailableException: Failed to bind to the service.
+11-04 19:08:09.482   542   816 I ActivityTaskManager: START u0 {act=android.content.pm.action.REQUEST_PERMISSIONS pkg=com.google.android.permissioncontroller cmp=com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity (has extras)} with LAUNCH_MULTIPLE from uid 10138 (BAL_ALLOW_VISIBLE_WINDOW) result code=0
+11-04 19:08:09.492 16729 16729 W AccessibilityDelegate: Drawing order is not available, was AccessibilityNodeInfo requested for a child node before its parent?
+11-04 19:08:09.497 10112 10409 W RankedDispatcher: The requested voice is not available for this app identifier
+11-04 19:08:09.497 10112 10409 I GoogleTTSServiceImpl: currentLocale = en-US
+11-04 19:08:09.498 10112 10409 W RankedDispatcher: The requested voice is not available for this app identifier
+11-04 19:08:09.499 10112 10409 I GoogleTTSServiceImpl: currentLocale = en-US
+11-04 19:08:09.500 10112 10409 W RankedDispatcher: The requested voice is not available for this app identifier
+11-04 19:08:09.500 10112 10409 I GoogleTTSServiceImpl: For default lang en-us is name en-US-language (en-us-x-iog-server)
+11-04 19:08:09.505 10112 10409 W RankedDispatcher: The requested voice is not available for this app identifier
+11-04 19:08:09.505 10112 10409 I GoogleTTSServiceImpl: currentLocale = en-US
+11-04 19:08:09.506 10112 10225 I ClearcutMetricXmitter: Transmission has failed: cfn: 31003: Log dropped because of storage quota exceeded.
+11-04 19:08:09.507 10112 16831 I PipelineReaderImpl: Initializing en-us-x-hol-lstm-embedded from disk
+11-04 19:08:09.511 10112 10225 I ClearcutMetricXmitter: Transmission has failed: cfn: 31003: Log dropped because of storage quota exceeded.
+11-04 19:08:09.528   542  1910 I MediaFocusControl: requestAudioFocus() from uid/pid 10138/3654 AA=USAGE_ASSISTANCE_ACCESSIBILITY/CONTENT_TYPE_SPEECH clientId=android.media.AudioManager@98a1688com.google.android.accessibility.utils.output.SpeechControllerImpl$5@7d93821 callingPack=com.google.android.marvin.talkback req=3 flags=0x0 sdk=34
+11-04 19:08:09.528   542  1910 I AudioService.FadeOutManager: unfadeOutUid() uid:10138
+11-04 19:08:09.529 10112 10409 I ClearcutMetricXmitter: Transmission has failed: cfn: 31003: Log dropped because of storage quota exceeded.
+11-04 19:08:09.537   542  1919 D CoreBackPreview: Window{1227251 u0 com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@c4ae28d, mPriority=0, mIsAnimationCallback=false}
+11-04 19:08:09.545  1271  1271 D AutofillManager: Fill dialog is enabled:false, hints=[]
+11-04 19:08:09.571   542  1686 D CoreBackPreview: Window{4d6d645 u0 com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@60688fd, mPriority=0, mIsAnimationCallback=false}
+11-04 19:08:09.578   747   790 V WindowManagerShell: onTransitionReady android.os.BinderProxy@13c1b5d: {id=172 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@52c441e} m=OPEN f=TRANSLUCENT leash=Surface(name=Task=504)/@0x704cca0 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:09.578   747   790 V WindowManagerShell: Playing animation for (#172)android.os.BinderProxy@13c1b5d@0
+11-04 19:08:09.578   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@b3c4425
+11-04 19:08:09.578   747   790 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@f0a79fa
+11-04 19:08:09.578   542   560 I ActivityTaskManager: Displayed com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity for user 0: +180ms
+11-04 19:08:09.578   747   790 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@9fc4bab
+11-04 19:08:09.578   747   790 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@bc8208
+11-04 19:08:09.579   747   790 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-04 19:08:09.579   542   560 V WindowManager: Sent Transition #172 createdAt=11-04 19:08:09.394 via request=TransitionRequestInfo { type = OPEN, triggerTask = TaskInfo{userId=0 taskId=504 displayId=0 isRunning=true baseIntent=Intent { flg=0x18800020 cmp=com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity } baseActivity=ComponentInfo{com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity} topActivity=ComponentInfo{com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity} origActivity=null realActivity=ComponentInfo{com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity} numActivities=1 lastActiveTime=2695398 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{6b7b7f9 Task{2e8b0f5 #504 type=standard A=10138:com.google.android.marvin.talkback}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=ActivityInfo{9dd633e com.google.android.accessibility.talkback.permission.PermissionRequestActivity} launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=false isVisible=false isVisibleRequested=false isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-04 19:08:09.579   542   560 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-04 19:08:09.579   747   790 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@a11fda1
+11-04 19:08:09.579   747   790 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@763bc6
+11-04 19:08:09.579   542   560 V WindowManager:     info={id=172 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{RemoteToken{6b7b7f9 Task{2e8b0f5 #504 type=standard A=10138:com.google.android.marvin.talkback}}} m=OPEN f=TRANSLUCENT leash=Surface(name=Task=504)/@0xf3399f2 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:09.579   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@9b1f787
+11-04 19:08:09.579   747   790 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=172 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@52c441e} m=OPEN f=TRANSLUCENT leash=Surface(name=Task=504)/@0x704cca0 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:09.579   747   790 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=dream independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=null},{atype=home independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@f3db8f8, appThread = android.app.IApplicationThread$Stub$Proxy@37381d1, debugName = LauncherToDream }}
+11-04 19:08:09.580   747   790 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@2622436, appThread = android.app.IApplicationThread$Stub$Proxy@2960f37, debugName = QuickstepLaunchHome }}
+11-04 19:08:09.580   747   790 V WindowManagerShell:  Delegate animation for #172 to null
+11-04 19:08:09.580   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultTransitionHandler@39bb6b4
+11-04 19:08:09.580   747   790 V WindowManagerShell: start default transition animation, info = {id=172 t=OPEN f=0x0 trk=0 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@52c441e} m=OPEN f=TRANSLUCENT leash=Surface(name=Task=504)/@0x704cca0 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:09.580   747   790 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@afa12cc animAttr=0x4 type=OPEN isEntrance=true
+11-04 19:08:09.581   747   790 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@39bb6b4
+11-04 19:08:09.601   542  1686 I ImeTracker: com.google.android.permissioncontroller:2abb0849: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_ALWAYS_HIDDEN_STATE
+11-04 19:08:09.602   542  1686 I ImeTracker: com.google.android.permissioncontroller:2abb0849: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-04 19:08:09.606  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():3227 
+11-04 19:08:09.607   747   825 D EGL_emulation: app_time_stats: avg=633.77ms min=2.31ms max=6305.25ms count=10
+11-04 19:08:09.607  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2087 repeatCheckTimes = 0, unlocked = true
+11-04 19:08:09.607  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=com.google.android.permissioncontroller fieldId=0 fieldName=null extras=null}, false)
+11-04 19:08:09.607  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.shouldHideHeaderOnInitialState():4008 ShouldHideHeaderOnInitialState = false
+11-04 19:08:09.607  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2087 repeatCheckTimes = 2, unlocked = true
+11-04 19:08:09.608  3654 10903 E AccessibilityService: bindInput must be paired with unbindInput.
+11-04 19:08:09.610  3654  3654 V A11yInputMethod: startInput(): editor=android.view.inputmethod.EditorInfo@b7fca59
+11-04 19:08:09.611  3654  3654 V A11yInputMethod: CALL: doFinishInput
+11-04 19:08:09.611  3654  3654 V A11yInputMethod: CALL: onFinishInput
+11-04 19:08:09.616  1271  1271 I ImeTracker: com.google.android.permissioncontroller:e93edfa3: onRequestHide at ORIGIN_CLIENT_HIDE_SOFT_INPUT reason HIDE_SOFT_INPUT
+11-04 19:08:09.617   542  1910 I ImeTracker: com.google.android.permissioncontroller:e93edfa3: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-04 19:08:09.745 10112 16831 E tflite  : third_party/tensorflow/lite/core/subgraph.cc:903 tensor.data.raw != nullptr was not true.
+11-04 19:08:09.836   747   825 D EGL_emulation: app_time_stats: avg=132.65ms min=13.16ms max=4785.12ms count=41
+11-04 19:08:09.840 16729 16837 D ProfileInstaller: Installing profile for com.tingyun.smartmistakebook.localfirst
+11-04 19:08:09.845 10112 16831 I ControllerWrapperImpl: Done initializing en-us-x-hol-lstm-embedded
+11-04 19:08:09.846 10112 16831 I GoogleTTSServiceImpl: Synthesis request for locale eng-USA and name en-US-language
+11-04 19:08:09.847 10112 16831 I GoogleTTSServiceImpl: TTS dispatch: en-us-x-iog-lstm-embedded
+11-04 19:08:09.887   418   418 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:09.888   418   418 D AudioFlinger: Client defaulted notificationFrames to 480 for frameCount 4096
+11-04 19:08:09.889   418   418 D AF::TrackHandle: OpPlayAudio: track:107 usage:11 not muted
+11-04 19:08:09.893   418   418 D audioserver: FGS Logger Transaction failed
+11-04 19:08:09.893   418   418 D audioserver: -129
+11-04 19:08:09.900   747   790 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#172)android.os.BinderProxy@13c1b5d@0
+11-04 19:08:09.901   542   560 V WindowManager: Finish Transition #172: created at 11-04 19:08:09.394 collect-started=0.027ms request-sent=3.908ms started=8.339ms ready=140.239ms sent=181.063ms finished=506.853ms
+11-04 19:08:09.903   747   790 V WindowManagerShell: Track 0 became idle
+11-04 19:08:09.903   747   790 V WindowManagerShell: All active transition animations finished
+11-04 19:08:10.043   542   542 W AccessibilityManagerService:  wait for adding window timeout: 2492
+11-04 19:08:10.099   542   563 W AccessibilityWindowsPopulator: Windows change within in 2 frames continuously over 500 ms and notify windows changed immediately
+11-04 19:08:10.676  1271  1271 V GrantPermissionsViewModel: Logged buttons presented and clicked permissionGroupName=android.permission-group.NOTIFICATIONS uid=10138 selectedPrecision=0 package=com.google.android.marvin.talkback presentedButtons=9 clickedButton=0 isPermissionRationaleShown=false sessionId=-1448236862961330744 targetSdk=34
+11-04 19:08:10.678  1271  1271 V GrantPermissionsViewModel: Permission grant result requestId=-1448236862961330744 callingUid=10138 callingPackage=com.google.android.marvin.talkback permission=android.permission.POST_NOTIFICATIONS isImplicit=false result=11 isPermissionRationaleShown=false
+11-04 19:08:10.683   747   790 V WindowManagerShell: Transition requested: android.os.BinderProxy@70eb8f6 TransitionRequestInfo { type = CLOSE, triggerTask = null, remoteTransition = null, displayChange = null }
+11-04 19:08:10.687   542  1910 W ActivityTaskManager: Duplicate finish request for r=ActivityRecord{62db9ea u0 com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity t504 f}}
+11-04 19:08:10.688   542  1910 W ActivityTaskManager: Duplicate finish request for r=ActivityRecord{62db9ea u0 com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity t504 f}}
+11-04 19:08:10.695   542   560 V WindowManager: Sent Transition #173 createdAt=11-04 19:08:10.682 via request=TransitionRequestInfo { type = CLOSE, triggerTask = null, remoteTransition = null, displayChange = null }
+11-04 19:08:10.696   542   560 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-04 19:08:10.696   542   560 V WindowManager:     info={id=173 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{null m=CLOSE f=TRANSLUCENT|FILLS_TASK leash=Surface(name=ActivityRecord{62db9ea u0 com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity)/@0x4e7d795 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:10.696   747   790 V WindowManagerShell: onTransitionReady android.os.BinderProxy@70eb8f6: {id=173 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{null m=CLOSE f=TRANSLUCENT|FILLS_TASK leash=Surface(name=ActivityRecord{62db9ea u0 com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity)/@0x1e3e4f7 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:10.696   747   790 V WindowManagerShell: Playing animation for (#173)android.os.BinderProxy@70eb8f6@0
+11-04 19:08:10.698   421   421 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-04 19:08:10.698   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@b3c4425
+11-04 19:08:10.698   747   790 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@f0a79fa
+11-04 19:08:10.698   747   790 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@9fc4bab
+11-04 19:08:10.698   747   790 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@bc8208
+11-04 19:08:10.698   747   790 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-04 19:08:10.699   747   790 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@a11fda1
+11-04 19:08:10.699   747   790 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@763bc6
+11-04 19:08:10.700   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@9b1f787
+11-04 19:08:10.701   747   790 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=173 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{null m=CLOSE f=TRANSLUCENT|FILLS_TASK leash=Surface(name=ActivityRecord{62db9ea u0 com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity)/@0x1e3e4f7 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:10.701   747   790 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=dream independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=null},{atype=home independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@f3db8f8, appThread = android.app.IApplicationThread$Stub$Proxy@37381d1, debugName = LauncherToDream }}
+11-04 19:08:10.701   747   790 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@2622436, appThread = android.app.IApplicationThread$Stub$Proxy@2960f37, debugName = QuickstepLaunchHome }}
+11-04 19:08:10.702   747   790 V WindowManagerShell:  Delegate animation for #173 to null
+11-04 19:08:10.702   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultTransitionHandler@39bb6b4
+11-04 19:08:10.702   747   790 V WindowManagerShell: start default transition animation, info = {id=173 t=CLOSE f=0x0 trk=0 r=[0@Point(0, 0)] c=[{null m=CLOSE f=TRANSLUCENT|FILLS_TASK leash=Surface(name=ActivityRecord{62db9ea u0 com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity)/@0x1e3e4f7 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:10.702   747   790 V WindowManagerShell: loadAnimation: anim=null animAttr=0x7 type=CLOSE isEntrance=false
+11-04 19:08:10.702   542   816 W ActivityTaskManager: Finishing task with all activities already finished
+11-04 19:08:10.703   542   816 W ActivityTaskManager: Duplicate finish request for r=ActivityRecord{62db9ea u0 com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity t504 f}}
+11-04 19:08:10.703   542  2620 W ActivityTaskManager: Finishing task with all activities already finished
+11-04 19:08:10.703   542  2620 W ActivityTaskManager: Duplicate finish request for r=ActivityRecord{62db9ea u0 com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity t504 f}}
+11-04 19:08:10.703   747   790 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#173)android.os.BinderProxy@70eb8f6@0
+11-04 19:08:10.707   747   825 D EGL_emulation: app_time_stats: avg=122.20ms min=14.69ms max=971.48ms count=9
+11-04 19:08:10.712   542   560 V WindowManager: Finish Transition #173: created at 11-04 19:08:10.682 collect-started=0.037ms request-sent=0.285ms started=4.275ms ready=11.804ms sent=13.551ms finished=30.512ms
+11-04 19:08:10.731   747   790 V WindowManagerShell: Track 0 became idle
+11-04 19:08:10.731   747   790 V WindowManagerShell: All active transition animations finished
+11-04 19:08:10.731   747   790 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@39bb6b4
+11-04 19:08:10.734   747   790 V WindowManagerShell: Track 0 became idle
+11-04 19:08:10.735   747   790 V WindowManagerShell: All active transition animations finished
+11-04 19:08:10.735   747   790 W Looper  : Slow dispatch took 39ms wmshell.main h=android.os.Handler c=com.android.wm.shell.transition.Transitions$TransitionPlayerImpl$$ExternalSyntheticLambda0@4e7d993 m=0
+11-04 19:08:10.735   747   790 W Looper  : Slow delivery took 32ms wmshell.main h=android.os.Handler c=null m=12
+11-04 19:08:10.735   747   790 V WindowManagerShell: Transition requested: android.os.BinderProxy@5b49dd0 TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=504 displayId=0 isRunning=false baseIntent=Intent { flg=0x18800020 cmp=com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity} numActivities=0 lastActiveTime=2696690 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{android.window.IWindowContainerToken$Stub$Proxy@4dcc1c9} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-04 19:08:10.742  1271  1271 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=falsecallback=android.view.ViewRootImpl$$ExternalSyntheticLambda17@68037b0
+11-04 19:08:10.745   542   560 V WindowManager: Sent Transition #174 createdAt=11-04 19:08:10.698 via request=TransitionRequestInfo { type = CLOSE, triggerTask = TaskInfo{userId=0 taskId=504 displayId=0 isRunning=false baseIntent=Intent { flg=0x18800020 cmp=com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity } baseActivity=null topActivity=null origActivity=null realActivity=ComponentInfo{com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity} numActivities=0 lastActiveTime=2696690 supportsMultiWindow=true resizeMode=1 isResizeable=true minWidth=-1 minHeight=-1 defaultMinSize=220 token=WCT{RemoteToken{6b7b7f9 Task{2e8b0f5 #504 type=standard A=10138:com.google.android.marvin.talkback}}} topActivityType=1 pictureInPictureParams=null shouldDockBigOverlays=false launchIntoPipHostTaskId=-1 lastParentTaskIdBeforePip=-1 displayCutoutSafeInsets=null topActivityInfo=null launchCookies=[] positionInParent=Point(0, 0) parentTaskId=-1 isFocused=true isVisible=true isVisibleRequested=true isSleeping=false topActivityInSizeCompat=false topActivityEligibleForLetterboxEducation= false topActivityLetterboxed= false isFromDoubleTap= false topActivityLetterboxVerticalPosition= -1 topActivityLetterboxHorizontalPosition= -1 topActivityLetterboxWidth=-1 topActivityLetterboxHeight=-1 locusId=null displayAreaFeatureId=1 cameraCompatControlState=hidden}, remoteTransition = null, displayChange = null }
+11-04 19:08:10.746   542  1910 D CoreBackPreview: Window{4d6d645 u0 com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity EXITING}: Setting back callback null
+11-04 19:08:10.746   542   560 V WindowManager:     startWCT=WindowContainerTransaction { changes = {} hops = [] errorCallbackToken=null taskFragmentOrganizer=null }
+11-04 19:08:10.746   542   560 V WindowManager:     info={id=174 t=CLOSE f=0x0 trk=1 r=[0@Point(0, 0)] c=[{WCT{RemoteToken{6b7b7f9 Task{2e8b0f5 #504 type=standard A=10138:com.google.android.marvin.talkback}}} m=CLOSE f=TRANSLUCENT leash=Surface(name=Task=504)/@0xf3399f2 sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:10.747   421   421 I BpBinder: onLastStrongRef automatically unlinking death recipients: 
+11-04 19:08:10.748  3654  3654 W WindowOnBackDispatcher: sendCancelIfRunning: isInProgress=falsecallback=android.view.ViewRootImpl$$ExternalSyntheticLambda17@d70355d
+11-04 19:08:10.751   747   790 W Looper  : Drained
+11-04 19:08:10.753   542  1919 D CoreBackPreview: Window{1227251 u0 com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity}: Setting back callback null
+11-04 19:08:10.764   747   790 V WindowManagerShell: onTransitionReady android.os.BinderProxy@5b49dd0: {id=174 t=CLOSE f=0x0 trk=1 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@48dc6fc} m=CLOSE f=TRANSLUCENT leash=Surface(name=Task=504)/@0xf7ff0ce sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:10.764   747   790 V WindowManagerShell: Playing animation for (#174)android.os.BinderProxy@5b49dd0@1
+11-04 19:08:10.764   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultMixedHandler@b3c4425
+11-04 19:08:10.764   747   790 V WindowManagerShell:  try handler com.android.wm.shell.keyguard.KeyguardTransitionHandler@f0a79fa
+11-04 19:08:10.764   747   790 V WindowManagerShell:  try handler com.android.wm.shell.activityembedding.ActivityEmbeddingController@9fc4bab
+11-04 19:08:10.764   747   790 V WindowManagerShell:  try handler com.android.wm.shell.recents.RecentsTransitionHandler@bc8208
+11-04 19:08:10.765   747   790 V ShellRecents: RecentsTransitionHandler.startAnimation: no controller found
+11-04 19:08:10.770   747   790 V WindowManagerShell:  try handler com.android.wm.shell.pip.PipTransition@a11fda1
+11-04 19:08:10.771   747   790 V WindowManagerShell:  try handler com.android.wm.shell.splitscreen.StageCoordinator@763bc6
+11-04 19:08:10.771   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.RemoteTransitionHandler@9b1f787
+11-04 19:08:10.771   747   790 V WindowManagerShell: Transition doesn't have explicit remote, search filters for match for {id=174 t=CLOSE f=0x0 trk=1 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@48dc6fc} m=CLOSE f=TRANSLUCENT leash=Surface(name=Task=504)/@0xf7ff0ce sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:10.772   747   790 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x0 checks=[{atype=dream independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=ANY topActivity=null},{atype=home independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@f3db8f8, appThread = android.app.IApplicationThread$Stub$Proxy@37381d1, debugName = LauncherToDream }}
+11-04 19:08:10.772   747   790 V WindowManagerShell:  Checking filter Pair{{types=[] flags=0x0] notFlags=0x100 checks=[{atype=home independent=true modes=[OPEN,TO_FRONT] flags=NONE mustBeTask=false order=TOP topActivity=ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}},{atype=standard independent=true modes=[CLOSE,TO_BACK] flags=NONE mustBeTask=false order=ANY topActivity=null}]} RemoteTransition { remoteTransition = android.window.IRemoteTransition$Stub$Proxy@2622436, appThread = android.app.IApplicationThread$Stub$Proxy@2960f37, debugName = QuickstepLaunchHome }}
+11-04 19:08:10.773   747   790 V WindowManagerShell:  Delegate animation for #174 to null
+11-04 19:08:10.773   747   790 V WindowManagerShell:  try handler com.android.wm.shell.transition.DefaultTransitionHandler@39bb6b4
+11-04 19:08:10.773   747   790 V WindowManagerShell: start default transition animation, info = {id=174 t=CLOSE f=0x0 trk=1 r=[0@Point(0, 0)] c=[{WCT{android.window.IWindowContainerToken$Stub$Proxy@48dc6fc} m=CLOSE f=TRANSLUCENT leash=Surface(name=Task=504)/@0xf7ff0ce sb=Rect(0, 0 - 1080, 2400) eb=Rect(0, 0 - 1080, 2400) d=0}]}
+11-04 19:08:10.774   542  1919 W InputManager-JNI: Input channel object '4d6d645 com.google.android.permissioncontroller/com.android.permissioncontroller.permission.ui.GrantPermissionsActivity (client)' was disposed without first being removed with the input manager!
+11-04 19:08:10.774   747   790 V WindowManagerShell: loadAnimation: anim=android.view.animation.AnimationSet@66ee80b animAttr=0x7 type=CLOSE isEntrance=false
+11-04 19:08:10.776   747   790 V WindowManagerShell:  animated by com.android.wm.shell.transition.DefaultTransitionHandler@39bb6b4
+11-04 19:08:10.776   542  1910 W InputManager-JNI: Input channel object '1227251 com.google.android.marvin.talkback/com.google.android.accessibility.talkback.permission.PermissionRequestActivity (client)' was disposed without first being removed with the input manager!
+11-04 19:08:10.809 16729 16771 D EGL_emulation: app_time_stats: avg=1372.01ms min=1372.01ms max=1372.01ms count=1
+11-04 19:08:10.826   542  1587 I ImeTracker: com.tingyun.smartmistakebook.localfirst:b186530e: onRequestHide at ORIGIN_SERVER_HIDE_INPUT reason HIDE_UNSPECIFIED_WINDOW
+11-04 19:08:10.827   542  1587 I ImeTracker: com.tingyun.smartmistakebook.localfirst:b186530e: onCancelled at PHASE_SERVER_SHOULD_HIDE
+11-04 19:08:10.827  3654 10903 E AccessibilityService: bindInput must be paired with unbindInput.
+11-04 19:08:10.829  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():3227 
+11-04 19:08:10.830  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2087 repeatCheckTimes = 0, unlocked = true
+11-04 19:08:10.830  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1877 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=com.tingyun.smartmistakebook.localfirst fieldId=0 fieldName=null extras=null}, false)
+11-04 19:08:10.830  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.shouldHideHeaderOnInitialState():4008 ShouldHideHeaderOnInitialState = false
+11-04 19:08:10.832  1321  1321 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2087 repeatCheckTimes = 2, unlocked = true
+11-04 19:08:10.836   747   825 D EGL_emulation: app_time_stats: avg=17.58ms min=13.35ms max=49.22ms count=56
+11-04 19:08:10.837 16729 16729 W AccessibilityDelegate: Drawing order is not available, was AccessibilityNodeInfo requested for a child node before its parent?
+11-04 19:08:10.838 16729 16729 W AccessibilityDelegate: Drawing order is not available, was AccessibilityNodeInfo requested for a child node before its parent?
+11-04 19:08:10.839 16729 16729 W AccessibilityDelegate: Drawing order is not available, was AccessibilityNodeInfo requested for a child node before its parent?
+11-04 19:08:10.857  3654  3654 V A11yInputMethod: startInput(): editor=android.view.inputmethod.EditorInfo@d466ef7
+11-04 19:08:10.857  3654  3654 V A11yInputMethod: CALL: onStartInput
+11-04 19:08:10.976 10112 16832 D AudioTrack: stop(67): called with 24960 frames delivered
+11-04 19:08:10.980   542  1919 I MediaFocusControl: abandonAudioFocus() from uid/pid 10138/3654 clientId=android.media.AudioManager@98a1688com.google.android.accessibility.utils.output.SpeechControllerImpl$5@7d93821
+11-04 19:08:11.033   747   790 V WindowManagerShell: Transition animation finished (aborted=false), notifying core (#174)android.os.BinderProxy@5b49dd0@1
+11-04 19:08:11.034   542   560 V WindowManager: Finish Transition #174: created at 11-04 19:08:10.698 collect-started=0.029ms request-sent=0.094ms started=38.526ms ready=38.495ms sent=46.389ms finished=335.295ms
+11-04 19:08:11.038   747   790 V WindowManagerShell: Track 1 became idle
+11-04 19:08:11.039   747   790 V WindowManagerShell: All active transition animations finished
+11-04 19:08:11.091   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:11.091   418   510 D audioserver: -129
+11-04 19:08:11.108   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:11.108   418   510 D audioserver: -129
+11-04 19:08:11.422   542  1903 I MediaFocusControl: requestAudioFocus() from uid/pid 10138/3654 AA=USAGE_ASSISTANCE_ACCESSIBILITY/CONTENT_TYPE_SPEECH clientId=android.media.AudioManager@98a1688com.google.android.accessibility.utils.output.SpeechControllerImpl$5@7d93821 callingPack=com.google.android.marvin.talkback req=3 flags=0x0 sdk=34
+11-04 19:08:11.423   542  1903 I AudioService.FadeOutManager: unfadeOutUid() uid:10138
+11-04 19:08:11.424 10112 16831 I GoogleTTSServiceImpl: Synthesis request for locale eng-USA and name en-US-language
+11-04 19:08:11.425 10112 16831 I GoogleTTSServiceImpl: TTS dispatch: en-us-x-iog-lstm-embedded
+11-04 19:08:11.448  3654 16851 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-04 19:08:11.449  3654 16853 D CCodec  : allocate(c2.android.vorbis.decoder)
+11-04 19:08:11.450  3654 16853 I CCodec  : setting up 'default' as default (vendor) store
+11-04 19:08:11.452  3654 16853 I CCodec  : Created component [c2.android.vorbis.decoder]
+11-04 19:08:11.453  3654 16853 D CCodecConfig: read media type: audio/vorbis
+11-04 19:08:11.456  3654 16853 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-04 19:08:11.461  3654 16853 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-04 19:08:11.461  3654 16853 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-04 19:08:11.462  3654 16853 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-04 19:08:11.466  3654 16853 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-04 19:08:11.466  3654 16853 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-04 19:08:11.466  3654 16853 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-04 19:08:11.467  3654 16853 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-04 19:08:11.467  3654 16853 D CCodecConfig: c2 config diff is Dict {
+11-04 19:08:11.467  3654 16853 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-04 19:08:11.467  3654 16853 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 32768
+11-04 19:08:11.467  3654 16853 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-04 19:08:11.467  3654 16853 D CCodecConfig:   string input.media-type.value = "audio/vorbis"
+11-04 19:08:11.467  3654 16853 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-04 19:08:11.467  3654 16853 D CCodecConfig:   c2::u32 raw.channel-count.value = 1
+11-04 19:08:11.467  3654 16853 D CCodecConfig:   c2::u32 raw.sample-rate.value = 48000
+11-04 19:08:11.467  3654 16853 D CCodecConfig: }
+11-04 19:08:11.470  3654 16853 D MediaCodec: flushMediametrics
+11-04 19:08:11.470  3654 16853 D CCodec  : [c2.android.vorbis.decoder] buffers are bound to CCodec for this session
+11-04 19:08:11.470  3654 16853 D CCodecConfig: no c2 equivalents for durationUs
+11-04 19:08:11.470  3654 16853 D CCodecConfig: no c2 equivalents for track-id
+11-04 19:08:11.470  3654 16853 D CCodecConfig: no c2 equivalents for csd-1
+11-04 19:08:11.470  3654 16853 D CCodecConfig: no c2 equivalents for flags
+11-04 19:08:11.471  3654 16853 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 88000
+11-04 19:08:11.471  3654 16853 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-04 19:08:11.471  3654 16853 D CCodecConfig:   c2::u32 raw.sample-rate.value = 22050
+11-04 19:08:11.472  3654 16853 W Codec2Client: query -- param skipped: index = 1107298332.
+11-04 19:08:11.472  3654 16853 D CCodec  : encoding statistics level = 0
+11-04 19:08:11.472  3654 16853 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-04 19:08:11.472  3654 16853 D CCodec  :   int32_t bitrate = 88000
+11-04 19:08:11.472  3654 16853 D CCodec  :   int32_t channel-count = 2
+11-04 19:08:11.472  3654 16853 D CCodec  :   int32_t max-input-size = 32768
+11-04 19:08:11.472  3654 16853 D CCodec  :   string mime = "audio/vorbis"
+11-04 19:08:11.472  3654 16853 D CCodec  :   int32_t sample-rate = 22050
+11-04 19:08:11.472  3654 16853 D CCodec  : }
+11-04 19:08:11.472  3654 16853 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-04 19:08:11.472  3654 16853 D CCodec  :   int32_t channel-count = 2
+11-04 19:08:11.472  3654 16853 D CCodec  :   string mime = "audio/raw"
+11-04 19:08:11.472  3654 16853 D CCodec  :   int32_t sample-rate = 22050
+11-04 19:08:11.472  3654 16853 D CCodec  :   int32_t channel-mask = 3
+11-04 19:08:11.472  3654 16853 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-04 19:08:11.472  3654 16853 D CCodec  : }
+11-04 19:08:11.472  3654 16853 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-04 19:08:11.474  3654 16853 W Codec2Client: query -- param skipped: index = 1342179345.
+11-04 19:08:11.474  3654 16853 W Codec2Client: query -- param skipped: index = 2415921170.
+11-04 19:08:11.475   483   806 D BufferPoolAccessor2.0: Destruction - bufferpool2 0x757512f96a68 cached: 0/0M, 0/0% in use; allocs: 47, 91% recycled; transfers: 46, 91% unfetched
+11-04 19:08:11.475   483   789 D BufferPoolAccessor2.0: bufferpool2 0x757512f939d8 : 0(0 size) total buffers - 0(0 size) used buffers - 59/61 (recycle/alloc) - 2/60 (fetch/transfer)
+11-04 19:08:11.475   483   789 D BufferPoolAccessor2.0: Destruction - bufferpool2 0x757512f939d8 cached: 0/0M, 0/0% in use; allocs: 61, 97% recycled; transfers: 60, 97% unfetched
+11-04 19:08:11.475  3654 16853 D CCodecBufferChannel: [c2.android.vorbis.decoder#338] Created input block pool with allocatorID 16 => poolID 28 - OK (0)
+11-04 19:08:11.476  3654 10184 D BufferPoolAccessor2.0: bufferpool2 0x7cae8404d988 : 0(0 size) total buffers - 0(0 size) used buffers - 2/7 (recycle/alloc) - 5/126 (fetch/transfer)
+11-04 19:08:11.476  3654 10184 D BufferPoolAccessor2.0: Destruction - bufferpool2 0x7cae8404d988 cached: 0/0M, 0/0% in use; allocs: 7, 29% recycled; transfers: 126, 96% unfetched
+11-04 19:08:11.477  3654 10184 D BufferPoolAccessor2.0: Destruction - bufferpool2 0x7cae84026b78 cached: 0/0M, 0/0% in use; allocs: 7, 29% recycled; transfers: 98, 95% unfetched
+11-04 19:08:11.478  3654 16853 I CCodecBufferChannel: [c2.android.vorbis.decoder#338] Created output block pool with allocatorID 16 => poolID 37 - OK
+11-04 19:08:11.478  3654 16853 D CCodecBufferChannel: [c2.android.vorbis.decoder#338] Configured output block pool ids 37 => OK
+11-04 19:08:11.478   483 16854 D SimpleC2Component: Using output block pool with poolID 37 => got 37 - 0
+11-04 19:08:11.488   418   431 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:11.488   418   431 D AudioFlinger: Client defaulted notificationFrames to 480 for frameCount 4096
+11-04 19:08:11.488   418   431 D AF::TrackHandle: OpPlayAudio: track:108 usage:11 not muted
+11-04 19:08:11.495   418  1646 D audioserver: FGS Logger Transaction failed
+11-04 19:08:11.495   418  1646 D audioserver: -129
+11-04 19:08:11.523  3654 10113 W SQLiteLog: (28) double-quoted string literal: "4"
+11-04 19:08:11.530   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-04 19:08:11.628  3654 16853 D CCodecBufferChannel: [c2.android.vorbis.decoder#338] MediaCodec discarded an unknown buffer
+11-04 19:08:11.628  3654 16853 D CCodecBufferChannel: [c2.android.vorbis.decoder#338] MediaCodec discarded an unknown buffer
+11-04 19:08:11.628  3654 16853 D CCodecBufferChannel: [c2.android.vorbis.decoder#338] MediaCodec discarded an unknown buffer
+11-04 19:08:11.630  3654 16853 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-04 19:08:11.630   483   806 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-04 19:08:11.630   483   806 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-04 19:08:11.632  3654 16851 D MediaCodec: flushMediametrics
+11-04 19:08:11.635   418  1646 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:11.636   418  1646 D AF::TrackHandle: OpPlayAudio: track:109 usage:11 not muted
+11-04 19:08:11.638   418  1646 D audioserver: FGS Logger Transaction failed
+11-04 19:08:11.638   418  1646 D audioserver: -129
+11-04 19:08:11.910   418   510 D AF::Track: interceptBuffer: took 513us to intercept 0 tracks
+11-04 19:08:12.076   911  1117 D BtGatt.ScanManager: uid 10128 isForeground true scanMode -1
+11-04 19:08:12.076   911  1117 D BtGatt.ScanManager: uid 10128 isForeground true scanMode -1
+11-04 19:08:12.535   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-04 19:08:12.994 16729 16729 W book.localfirst: Accessing hidden method Landroid/view/ViewTreeObserver;->dispatchOnScrollChanged()V (unsupported, reflection, allowed)
+11-04 19:08:13.030   747   747 D StatusBarIconController: ignoring old pipeline callbacks, because the new mobile icons are enabled
+11-04 19:08:13.035 10112 16832 D AudioTrack: stop(68): called with 36360 frames delivered
+11-04 19:08:13.035   747   825 D EGL_emulation: app_time_stats: avg=288.54ms min=5.90ms max=2167.27ms count=8
+11-04 19:08:13.041   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:13.041   418   510 D audioserver: -129
+11-04 19:08:13.045 10112 16831 I GoogleTTSServiceImpl: Synthesis request for locale eng-USA and name en-US-language
+11-04 19:08:13.045 10112 16831 I GoogleTTSServiceImpl: TTS dispatch: en-us-x-iog-lstm-embedded
+11-04 19:08:13.054  3654 16864 D MediaCodecList: codecHandlesFormat: no format, so no extra checks
+11-04 19:08:13.056  3654 16867 D CCodec  : allocate(c2.android.vorbis.decoder)
+11-04 19:08:13.059  3654 16867 I CCodec  : setting up 'default' as default (vendor) store
+11-04 19:08:13.064  3654 16867 I CCodec  : Created component [c2.android.vorbis.decoder]
+11-04 19:08:13.065  3654 16867 D CCodecConfig: read media type: audio/vorbis
+11-04 19:08:13.065  3654 16867 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.max-count.values
+11-04 19:08:13.066  3654 16867 D ReflectedParamUpdater: extent() != 1 for single value type: output.subscribed-indices.values
+11-04 19:08:13.066  3654 16867 D ReflectedParamUpdater: extent() != 1 for single value type: input.buffers.allocator-ids.values
+11-04 19:08:13.066  3654 16867 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.allocator-ids.values
+11-04 19:08:13.066  3654 16867 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.allocator-ids.values
+11-04 19:08:13.066  3654 16867 D ReflectedParamUpdater: extent() != 1 for single value type: output.buffers.pool-ids.values
+11-04 19:08:13.066  3654 16867 D ReflectedParamUpdater: extent() != 1 for single value type: algo.buffers.pool-ids.values
+11-04 19:08:13.066  3654 16867 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-04 19:08:13.066  3654 16867 D CCodecConfig: c2 config diff is Dict {
+11-04 19:08:13.066  3654 16867 D CCodecConfig:   c2::u32 coded.bitrate.value = 64000
+11-04 19:08:13.066  3654 16867 D CCodecConfig:   c2::u32 input.buffers.max-size.value = 32768
+11-04 19:08:13.066  3654 16867 D CCodecConfig:   c2::u32 input.delay.value = 0
+11-04 19:08:13.066  3654 16867 D CCodecConfig:   string input.media-type.value = "audio/vorbis"
+11-04 19:08:13.066  3654 16867 D CCodecConfig:   string output.media-type.value = "audio/raw"
+11-04 19:08:13.066  3654 16867 D CCodecConfig:   c2::u32 raw.channel-count.value = 1
+11-04 19:08:13.066  3654 16867 D CCodecConfig:   c2::u32 raw.sample-rate.value = 48000
+11-04 19:08:13.066  3654 16867 D CCodecConfig: }
+11-04 19:08:13.069  3654 16867 D MediaCodec: flushMediametrics
+11-04 19:08:13.070  3654 16867 D CCodec  : [c2.android.vorbis.decoder] buffers are bound to CCodec for this session
+11-04 19:08:13.070  3654 16867 D CCodecConfig: no c2 equivalents for durationUs
+11-04 19:08:13.070  3654 16867 D CCodecConfig: no c2 equivalents for track-id
+11-04 19:08:13.070  3654 16867 D CCodecConfig: no c2 equivalents for csd-1
+11-04 19:08:13.070  3654 16867 D CCodecConfig: no c2 equivalents for flags
+11-04 19:08:13.070  3654 16867 D CCodecConfig: c2 config diff is   c2::u32 coded.bitrate.value = 160000
+11-04 19:08:13.070  3654 16867 D CCodecConfig:   c2::u32 raw.channel-count.value = 2
+11-04 19:08:13.070  3654 16867 D CCodecConfig:   c2::u32 raw.sample-rate.value = 44100
+11-04 19:08:13.070  3654 16867 W Codec2Client: query -- param skipped: index = 1107298332.
+11-04 19:08:13.070  3654 16867 D CCodec  : encoding statistics level = 0
+11-04 19:08:13.071  3654 16867 D CCodec  : setup formats input: AMessage(what = 0x00000000) = {
+11-04 19:08:13.071  3654 16867 D CCodec  :   int32_t bitrate = 160000
+11-04 19:08:13.071  3654 16867 D CCodec  :   int32_t channel-count = 2
+11-04 19:08:13.071  3654 16867 D CCodec  :   int32_t max-input-size = 32768
+11-04 19:08:13.071  3654 16867 D CCodec  :   string mime = "audio/vorbis"
+11-04 19:08:13.071  3654 16867 D CCodec  :   int32_t sample-rate = 44100
+11-04 19:08:13.071  3654 16867 D CCodec  : }
+11-04 19:08:13.071  3654 16867 D CCodec  : setup formats output: AMessage(what = 0x00000000) = {
+11-04 19:08:13.071  3654 16867 D CCodec  :   int32_t channel-count = 2
+11-04 19:08:13.071  3654 16867 D CCodec  :   string mime = "audio/raw"
+11-04 19:08:13.071  3654 16867 D CCodec  :   int32_t sample-rate = 44100
+11-04 19:08:13.071  3654 16867 D CCodec  :   int32_t channel-mask = 3
+11-04 19:08:13.071  3654 16867 D CCodec  :   int32_t android._config-pcm-encoding = 2
+11-04 19:08:13.071  3654 16867 D CCodec  : }
+11-04 19:08:13.072  3654 16867 I CCodecConfig: query failed after returning 7 values (BAD_INDEX)
+11-04 19:08:13.072  3654 16867 W Codec2Client: query -- param skipped: index = 1342179345.
+11-04 19:08:13.072  3654 16867 W Codec2Client: query -- param skipped: index = 2415921170.
+11-04 19:08:13.073  3654 16867 D CCodecBufferChannel: [c2.android.vorbis.decoder#866] Created input block pool with allocatorID 16 => poolID 29 - OK (0)
+11-04 19:08:13.073  3654 16867 I CCodecBufferChannel: [c2.android.vorbis.decoder#866] Created output block pool with allocatorID 16 => poolID 38 - OK
+11-04 19:08:13.074  3654 16867 D CCodecBufferChannel: [c2.android.vorbis.decoder#866] Configured output block pool ids 38 => OK
+11-04 19:08:13.075   483 16868 D SimpleC2Component: Using output block pool with poolID 38 => got 38 - 0
+11-04 19:08:13.111   418  1646 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:13.111   418  1646 D AudioFlinger: Client defaulted notificationFrames to 480 for frameCount 4096
+11-04 19:08:13.113   418  1646 D AF::TrackHandle: OpPlayAudio: track:110 usage:11 not muted
+11-04 19:08:13.120   418  1646 D audioserver: FGS Logger Transaction failed
+11-04 19:08:13.120   418  1646 D audioserver: -129
+11-04 19:08:13.155   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:13.155   418   510 D audioserver: -129
+11-04 19:08:13.178   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:13.178   418   510 D audioserver: -129
+11-04 19:08:13.205  3654 16867 D CCodecBufferChannel: [c2.android.vorbis.decoder#866] MediaCodec discarded an unknown buffer
+11-04 19:08:13.205  3654 16867 D CCodecBufferChannel: [c2.android.vorbis.decoder#866] MediaCodec discarded an unknown buffer
+11-04 19:08:13.205  3654 16867 D CCodecBufferChannel: [c2.android.vorbis.decoder#866] MediaCodec discarded an unknown buffer
+11-04 19:08:13.207   483   508 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-04 19:08:13.207   483   508 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-04 19:08:13.207  3654 16867 I hw-BpHwBinder: onLastStrongRef automatically unlinking death recipients
+11-04 19:08:13.208  3654 16864 D MediaCodec: flushMediametrics
+11-04 19:08:13.212   418   431 W AudioFlinger: createTrack_l(): mismatch between requested flags (00000004) and output flags (00000002)
+11-04 19:08:13.213   418   431 D AF::TrackHandle: OpPlayAudio: track:111 usage:11 not muted
+11-04 19:08:13.218   418   431 D audioserver: FGS Logger Transaction failed
+11-04 19:08:13.218   418   431 D audioserver: -129
+11-04 19:08:13.715   542  1498 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-04 19:08:14.446   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:14.446   418   510 D audioserver: -129
+11-04 19:08:15.167 10112 16832 D AudioTrack: stop(70): called with 48360 frames delivered
+11-04 19:08:15.179   542  1910 I MediaFocusControl: abandonAudioFocus() from uid/pid 10138/3654 clientId=android.media.AudioManager@98a1688com.google.android.accessibility.utils.output.SpeechControllerImpl$5@7d93821
+11-04 19:08:15.284   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:15.285   418   510 D audioserver: -129
+11-04 19:08:15.299   418   510 D audioserver: FGS Logger Transaction failed
+11-04 19:08:15.299   418   510 D audioserver: -129
+11-04 19:08:15.818   181 16773 I keystore2: system/security/keystore2/src/watchdog.rs:319 - Watchdog thread idle -> terminating. Have a great day.
+11-04 19:08:16.048 16729 16739 I book.localfirst: Background concurrent copying GC freed 997017(27MB) AllocSpace objects, 2(11MB) LOS objects, 24% free, 74MB/98MB, paused 688us,41us total 106.695ms
+11-04 19:08:16.479  3654 10183 D BufferPoolAccessor2.0: bufferpool2 0x7cae8407b448 : 0(0 size) total buffers - 0(0 size) used buffers - 2/7 (recycle/alloc) - 5/126 (fetch/transfer)
+11-04 19:08:16.479  3654 10183 D BufferPoolAccessor2.0: evictor expired: 3, evicted: 1
+11-04 19:08:16.479   483   745 D BufferPoolAccessor2.0: bufferpool2 0x757512f939d8 : 0(0 size) total buffers - 0(0 size) used buffers - 60/61 (recycle/alloc) - 1/60 (fetch/transfer)
+11-04 19:08:16.479   483   745 D BufferPoolAccessor2.0: evictor expired: 3, evicted: 1

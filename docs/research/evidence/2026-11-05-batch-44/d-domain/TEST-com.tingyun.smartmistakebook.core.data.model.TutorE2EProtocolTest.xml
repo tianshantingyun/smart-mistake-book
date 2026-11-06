@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.TutorE2EProtocolTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:25:05.701Z" hostname="TIANSHAN" time="0.093">
+  <properties/>
+  <testcase name="planSendsImage_whenEgressManifestAuthorizesIt" classname="com.tingyun.smartmistakebook.core.data.model.TutorE2EProtocolTest" time="0.025"/>
+  <testcase name="egressManifestMatchesExactlyWhatIsSent_lobby" classname="com.tingyun.smartmistakebook.core.data.model.TutorE2EProtocolTest" time="0.008"/>
+  <testcase name="responseParser_rejectsExtraFields" classname="com.tingyun.smartmistakebook.core.data.model.TutorE2EProtocolTest" time="0.011"/>
+  <testcase name="promptPolicyVersionIncludedInManifest" classname="com.tingyun.smartmistakebook.core.data.model.TutorE2EProtocolTest" time="0.0"/>
+  <testcase name="providerCapabilityMismatch_caughtBeforeNetwork" classname="com.tingyun.smartmistakebook.core.data.model.TutorE2EProtocolTest" time="0.0"/>
+  <testcase name="multipleImagesSentInCorrectOrder" classname="com.tingyun.smartmistakebook.core.data.model.TutorE2EProtocolTest" time="0.017"/>
+  <testcase name="respondSendsImage_whenAuthorized" classname="com.tingyun.smartmistakebook.core.data.model.TutorE2EProtocolTest" time="0.005"/>
+  <testcase name="lobbySendsImages_whenProvidedByTheStudent" classname="com.tingyun.smartmistakebook.core.data.model.TutorE2EProtocolTest" time="0.025"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

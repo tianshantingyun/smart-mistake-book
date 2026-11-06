@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.StudyDayMathTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-05T01:14:38.957Z" hostname="TIANSHAN" time="0.017">
+  <properties/>
+  <testcase name="crossing the 4am study day boundary is what starts a new day" classname="com.tingyun.smartmistakebook.core.domain.StudyDayMathTest" time="0.0"/>
+  <testcase name="late night reviews still belong to the previous study day" classname="com.tingyun.smartmistakebook.core.domain.StudyDayMathTest" time="0.001"/>
+  <testcase name="study day agrees with the zone-rules derivation shifted by day start" classname="com.tingyun.smartmistakebook.core.domain.StudyDayMathTest" time="0.015"/>
+  <testcase name="a same study day pair is zero days apart however long it runs" classname="com.tingyun.smartmistakebook.core.domain.StudyDayMathTest" time="0.0"/>
+  <testcase name="the same instant lands on different study days under different offsets" classname="com.tingyun.smartmistakebook.core.domain.StudyDayMathTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

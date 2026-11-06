@@ -1,0 +1,73 @@
+{
+  "id": "A-040",
+  "verdict": "PASS",
+  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-a",
+  "reviewer": "batch46-line-reviewer-A",
+  "authors": [
+    "batch45-evidence-producer-A"
+  ],
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "evidence": [
+    "test:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-export-MistakePdfBatchEligibilityTest.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-LibraryExportNoticeTest.xml",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-export-MistakePdfBatchEligibilityTest.xml": "767fcc19b1b7d941dfc0d82af1079947322baec8501b5eea01f702708ab93e4a",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-LibraryExportNoticeTest.xml": "b4da0ab3f5cc59718112571d0a639fa96ada5088da6543f925b166d45acb0cc8",
+    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log": "81361871729b28f832f5d335caee134a46190bb297f1793bba18b4eb616732c5"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=A-040; verdict=PASS; line=171; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+    },
+    {
+      "name": "xml_aggregate",
+      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-export-MistakePdfBatchEligibilityTest.xml",
+      "value": "tests=8; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.export.MistakePdfBatchEligibilityTest; timestamp=2026-11-04T09:13:27.827Z; hostname=TIANSHAN; sha256=767fcc19b1b7d941dfc0d82af1079947322baec8501b5eea01f702708ab93e4a"
+    },
+    {
+      "name": "xml_testcase",
+      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-core-export-MistakePdfBatchEligibilityTest.xml",
+      "value": "testcases=8; first=fingerprintChangesWhenVisibleOrderChanges; all_present=True"
+    },
+    {
+      "name": "xml_aggregate",
+      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-LibraryExportNoticeTest.xml",
+      "value": "tests=3; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.LibraryExportNoticeTest; timestamp=2026-11-04T09:06:59.917Z; hostname=TIANSHAN; sha256=b4da0ab3f5cc59718112571d0a639fa96ada5088da6543f925b166d45acb0cc8"
+    },
+    {
+      "name": "xml_testcase",
+      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-LibraryExportNoticeTest.xml",
+      "value": "testcases=3; first=too many visible names the limit and the filters that still exist; all_present=True"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log",
+      "value": "exit_markers=[0]; cmd=./gradlew :app:testLocalFirstDebugUnitTest --offline --tests \"com.tingyun.smartmistakebook.ReviewReminderCoordinatorTest\" --tests \"com.tingyun.smartmistakebook.ReviewReminderTimeCalculatorTest\" --test; sha256=81361871729b28f832f5d335caee134a46190bb297f1793bba18b4eb616732c5"
+    }
+  ],
+  "basis": "机械复算（reviewer=batch46-line-reviewer-A，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 A-040 并复算 ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "adversarial": {
+    "attempted": true,
+    "result": "recomputed-no-mismatch"
+  },
+  "review_scope": "single-ledger-row",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 0,
+    "archived_files": 3,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

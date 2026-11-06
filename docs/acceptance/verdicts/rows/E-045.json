@@ -1,0 +1,124 @@
+{
+  "id": "E-045",
+  "verdict": "PASS",
+  "run_id": "2026-11-05T16:51:14Z-batch47-e-row-specific-repair-r2",
+  "reviewer": "batch47-E-row-specific-repairer-r2",
+  "authors": [
+    "batch45-evidence-producer-E"
+  ],
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "evidence": [
+    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReadSideMasteryClosureTest.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.LearningProjectorTest.xml",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest.xml": "7541d5b7f7005a679b26a0b768a5a05cf047f931d3968aa8e4895d5e56069898",
+    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest.xml": "ae3949f435dd3e4f4228cb2bf298d38560ffa1c144cfab9b89bf84d2a8767d2f",
+    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReadSideMasteryClosureTest.xml": "584cb829219ce1f787fa58ddcc04b745155c335b0c633c1442c96e870b156344",
+    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.LearningProjectorTest.xml": "e907787e307dee567a7ed81ffa696728c56462eaa2e5bfac124ffac7004e2731",
+    "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log": "8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972",
+    "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log": "422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=E-045; verdict=PASS; line=536; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+    },
+    {
+      "name": "xml_aggregate",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest.xml",
+      "value": "tests=2; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest; timestamp=2026-11-05T01:14:55.236Z; hostname=TIANSHAN; sha256=7541d5b7f7005a679b26a0b768a5a05cf047f931d3968aa8e4895d5e56069898"
+    },
+    {
+      "name": "xml_testcase",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest.xml",
+      "value": "testcases=2; first=a state without evidence carries no interval upper; all_present=True"
+    },
+    {
+      "name": "xml_aggregate",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest.xml",
+      "value": "tests=8; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest; timestamp=2026-11-05T01:14:37.880Z; hostname=TIANSHAN; sha256=ae3949f435dd3e4f4228cb2bf298d38560ffa1c144cfab9b89bf84d2a8767d2f"
+    },
+    {
+      "name": "xml_testcase",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest.xml",
+      "value": "testcases=8; first=a reveal lapses the knowledge card bound to the question; all_present=True"
+    },
+    {
+      "name": "xml_aggregate",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReadSideMasteryClosureTest.xml",
+      "value": "tests=4; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.data.study.ReadSideMasteryClosureTest; timestamp=2026-11-05T01:14:55.251Z; hostname=TIANSHAN; sha256=584cb829219ce1f787fa58ddcc04b745155c335b0c633c1442c96e870b156344"
+    },
+    {
+      "name": "xml_testcase",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReadSideMasteryClosureTest.xml",
+      "value": "testcases=4; first=a chat-refreshed but card-overdue node is not a strength; all_present=True"
+    },
+    {
+      "name": "xml_aggregate",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.LearningProjectorTest.xml",
+      "value": "tests=17; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.domain.LearningProjectorTest; timestamp=2026-11-05T01:14:37.786Z; hostname=TIANSHAN; sha256=e907787e307dee567a7ed81ffa696728c56462eaa2e5bfac124ffac7004e2731"
+    },
+    {
+      "name": "xml_testcase",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.LearningProjectorTest.xml",
+      "value": "testcases=17; first=independent error after high mastery enters conflicted state; all_present=True"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
+      "value": "exit_markers=[0]; cmd=./gradlew --offline -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.study.StudySchedulingCalibrationTest --tests com.tingyun.smartmistakebook.core.data.study.ReviewCapac; sha256=8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
+      "value": "exit_markers=[0]; cmd=./gradlew --offline -q :core:domain:test --tests com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest --tests com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest --tests com.t; sha256=422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
+    },
+    {
+      "name": "xml_counts",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest.xml",
+      "value": "tests=2; failures=0; errors=0; suite=com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest; sha256=7541d5b7f7005a679b26a0b768a5a05cf047f931d3968aa8e4895d5e56069898"
+    },
+    {
+      "name": "xml_counts",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest.xml",
+      "value": "tests=8; failures=0; errors=0; suite=com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest; sha256=ae3949f435dd3e4f4228cb2bf298d38560ffa1c144cfab9b89bf84d2a8767d2f"
+    },
+    {
+      "name": "xml_counts",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReadSideMasteryClosureTest.xml",
+      "value": "tests=4; failures=0; errors=0; suite=com.tingyun.smartmistakebook.core.data.study.ReadSideMasteryClosureTest; sha256=584cb829219ce1f787fa58ddcc04b745155c335b0c633c1442c96e870b156344"
+    },
+    {
+      "name": "xml_testcase",
+      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.LearningProjectorTest.xml",
+      "value": "testcases=17; testcase=full replay reproduces dispersion and reveal knowledge card lapses bit for bit; present=true; suite=com.tingyun.smartmistakebook.core.domain.LearningProjectorTest; sha256=e907787e307dee567a7ed81ffa696728c56462eaa2e5bfac124ffac7004e2731"
+    }
+  ],
+  "basis": "批次 47 / E 域行特有复算第二轮（reviewer=batch47-E-row-specific-repairer-r2，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 E-045 并复算 ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737；打开本行 evidence 重算 sha256 与可判定字段；第二轮追加的 check 逐字节断言本行 claim 点名的测试方法（xml_testcase）与套件计数（xml_counts）在当前归档 XML 字节里成立。本文件只对该单行生效。",
+  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "adversarial": {
+    "attempted": true,
+    "result": "recomputed-no-mismatch"
+  },
+  "review_scope": "single-ledger-row",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T16:51:14Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 0,
+    "archived_files": 6,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

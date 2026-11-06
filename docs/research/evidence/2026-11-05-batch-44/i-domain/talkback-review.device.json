@@ -1,0 +1,23 @@
+{
+  "action": "talkback",
+  "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac",
+  "boot_id": "831e5d06-7331-40d8-8cf4-406976b8a9c3",
+  "checks": [
+    "TalkBack bound",
+    "touch exploration enabled",
+    "speech requests=20",
+    "nodes=36"
+  ],
+  "density_dpi": 420,
+  "failures": [],
+  "finished_at": "2026-11-04T19:08:21Z",
+  "label": "talkback-review",
+  "nodes": 36,
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "sdk": "34",
+  "serial": "emulator-5584",
+  "service": "com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService",
+  "speech_requests": 20,
+  "started_at": "2026-11-04T19:08:21Z",
+  "verdict": "PASS"
+}

@@ -1,0 +1,2 @@
+E-046 xml_testcase: real_ok=True verified=True | mutated_errors=['xml_testcase: testcase absent no student trace abstains instead of guessing a cause'] verified=True -> DISCRIMINATIVE
+E-062 witness_source: real_ok=True verified=True | mutated_errors=['witness_source: line_contains absent from source'] verified=True -> DISCRIMINATIVE

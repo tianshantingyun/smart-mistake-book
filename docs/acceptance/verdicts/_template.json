@@ -1,0 +1,12 @@
+{
+  "id": "REPLACE-WITH-LEDGER-ID",
+  "verdict": "UNVERIFIED",
+  "run_id": "",
+  "reviewer": "",
+  "authors": [],
+  "ledger_sha256": "",
+  "evidence": [],
+  "evidence_sha256": {},
+  "adversarial": {"attempted": false, "result": "not-attempted"},
+  "notes": "模板，不是终裁；不得作为证据引用。"
+}

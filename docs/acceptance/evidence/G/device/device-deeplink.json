@@ -1,0 +1,11 @@
+{
+  "serial": "emulator-5584",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "captured_at": "2026-11-05T01:07:37+08:00",
+  "probe": "adb shell cmd package resolve-activity / adb shell am start -a VIEW",
+  "view_https_resolve": "priority=0 preferredOrder=0 match=0x208000 specificIndex=-1 isDefault=true\ncom.android.chrome/com.google.android.apps.chrome.IntentDispatcher",
+  "custom_scheme_start": "Starting: Intent { act=android.intent.action.VIEW dat=smbk://open/... }\nError: Activity not started, unable to resolve Intent { act=android.intent.action.VIEW dat=smbk://open/... flg=0x10000000 }",
+  "resolved_package": "com.android.chrome/com.google.android.apps.chrome.IntentDispatcher",
+  "handles_view_action": false
+}

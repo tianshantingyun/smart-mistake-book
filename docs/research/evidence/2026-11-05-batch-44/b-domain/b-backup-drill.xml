@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="b-backup-drill" tests="8" failures="0" errors="0" skipped="6" hostname="emulator-5566" timestamp="2026-11-04T12:08:14Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest" name="restoreFromHandoffAfterProcessDeath" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest" name="corruptedSelectionStopsBeforeSwapLeavingNoHalfDatabase" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest" name="killProcessHandoffStagesArchiveThenDies" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest" name="fullMaskFifteenMigrationDrillRoundTripsEveryTableAndSettings" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest" name="subsetMaskThirteenMigrationDrillKeepsSessionsAndSettings" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.DeviceMigrationDrillInstrumentedTest" name="subsetMaskNineMigrationDrillDropsSessionsAndRebuildsBothSubjects" time="0">
+    <skipped message="ignored or assumption failed"/>
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRowCountsCoverageInstrumentedTest" name="everyRowCountMatchesThePackagedAndRestoredDatabaseByName" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.backup.BackupRowCountsCoverageInstrumentedTest" name="manifestRowCountsEnumerateTheNinetyThreeSchemaTablesByName" time="0">
+  </testcase>
+</testsuite>

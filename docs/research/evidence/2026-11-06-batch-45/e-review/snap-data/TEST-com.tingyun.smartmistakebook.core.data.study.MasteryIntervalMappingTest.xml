@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:58:38.658Z" hostname="TIANSHAN" time="0.004">
+  <properties/>
+  <testcase name="a state without evidence carries no interval upper" classname="com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest" time="0.004"/>
+  <testcase name="summary conservative score and interval upper come from the same s over f estimate" classname="com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,26 @@
+[
+  {
+    "round": 1,
+    "window_ms": 597,
+    "window_median_kb": 289357,
+    "pre_median_kb": 271166,
+    "post_median_kb": 307153,
+    "window_samples": 15
+  },
+  {
+    "round": 2,
+    "window_ms": 487,
+    "window_median_kb": 286178,
+    "pre_median_kb": 273621,
+    "post_median_kb": 305623,
+    "window_samples": 14
+  },
+  {
+    "round": 3,
+    "window_ms": 820,
+    "window_median_kb": 289241,
+    "pre_median_kb": 268451,
+    "post_median_kb": 307129,
+    "window_samples": 17
+  }
+]

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" tests="27" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:25:05.479Z" hostname="TIANSHAN" time="0.123">
+  <properties/>
+  <testcase name="aDecodedSourceJsOver64KiBIsABudgetFailure" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.033"/>
+  <testcase name="conflictingIdsForTheSameIndexFailClosed" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.003"/>
+  <testcase name="aToolOnlyRoundWithUsageChunksAndACleanEofIsAccepted" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.002"/>
+  <testcase name="aMalformedDataFrameInAToolRoundFailsClosed" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <testcase name="multipleJsonValuesInArgumentsAreRejected" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.003"/>
+  <testcase name="nonStreamingToolPayloadExactBoundariesMatchTheStreamedGate" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.02"/>
+  <testcase name="invalidArgumentJsonIsRejected" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <testcase name="nonStreamingToolPayloadsOver512KiBAreAlsoRejected" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.004"/>
+  <testcase name="nonContiguousIndicesFailClosed" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <testcase name="aggregatesInterleavedToolCallsByIndexAndCarriesTheTerminalFinishReason" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.002"/>
+  <testcase name="conflictingNamesForTheSameIndexFailClosed" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <testcase name="repeatsOfTheSameIdAndNameAreAcceptedAndArgumentsStillAppend" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <testcase name="streamedToolArgumentsOneBytePastThe512KiBBudgetAreRejected" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.008"/>
+  <testcase name="toolCallFragmentsAfterTheTerminalFrameAreRejected" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.002"/>
+  <testcase name="aStopFinishReasonWithToolCallsIsRejected" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <testcase name="aTruncatingFinishReasonWithToolCallsIsIncomplete" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <testcase name="aContentOnlyRoundKeepsItsExistingShape" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <testcase name="aNonFunctionToolCallTypeFailsClosed" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.0"/>
+  <testcase name="emptyArgumentsAreRejectedInsteadOfTreatedAsAnEmptyObject" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <testcase name="indicesOutsideTheBoundedCallCountFailClosed" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <testcase name="toolCallsWithoutATerminalFinishReasonAreIncompleteNotInvalid" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <testcase name="totalStreamedToolArgumentsOver512KiBIsABudgetFailure" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.007"/>
+  <testcase name="streamedToolArgumentsAtExactlyThe512KiBBudgetAreAdmitted" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.013"/>
+  <testcase name="aMissingToolCallIndexFailsClosed" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <testcase name="argumentsWithNewlinesBackslashesCjkAndEmojiSurviveVerbatim" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <testcase name="anIncrementalBudgetObserverAbortsAsSoonAsTheCapIsCrossed" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.007"/>
+  <testcase name="toolCallsDeclaredByFinishReasonButMissingFromTheStreamAreRejected" classname="com.tingyun.smartmistakebook.core.data.model.OpenAiSseToolCallAggregationTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,92 @@
+H-001 PASS 固定文案常量存在且含 AI/生成 两要素
+H-002 PASS PDF 题目区图与块图两条分支都消费同一图注常量
+H-003 PASS DOCX 图注调用点=3（题目图/块图/解答图三条分支）
+H-004 PASS CLEAN_IMAGE/解答图为真，QUESTION_DIAGRAM 等非生成角色为假
+H-005 PASS 产品主源码弱化措辞命中=0
+H-006 PASS 标识开关类符号命中=0（第四条义务性，不设关闭）
+H-007 PASS 字面定义=1，常量消费点=6
+H-008 FAIL 讲题/配图界面显式角标命中=0（G1/G2 接线未落地）
+H-009 PASS JVM 用例数与判据代际哨兵同期存在（11/6, gen=2）
+H-010 PASS 7 键与顺序=['Label', 'ContentProducer', 'ProduceID', 'ReservedCode1', 'ContentPropagator', 'PropagateID', 'ReservedCode2']
+H-011 PASS Label=1；ProduceID=输入 sha256（64 位小写 hex）
+H-012 PASS 提供者常量 + 写前 ASCII/键集校验（fail-closed）
+H-013 PASS 注入/读回都以 Info 字典 /AIGC 文本串为唯一载体
+H-014 PASS AI 图或 MODEL_DOCUMENT_PARSE 任一命中即打标，派生自 blockEvidence
+H-015 PASS 纯用户内容 shouldLabel=false 时早退，不改写字节
+H-016 PASS 图片隐式标识写 EXIF 四字段 + TC260 XMP，随文件字节走
+H-017 PASS 读回只认规范 Label==1；缺标识/伪造包按 false（fail-closed）
+H-018 FAIL 文件级隐式标识覆盖缺口：DOCX 无文档级 /AIGC；KD-84 部分页打印丢标；KD-85 模型改卷文本漏标
+H-019 PASS 本地优先与“不发什么”清单在隐私数据流文件中
+H-020 PASS 应用内披露/删除/Play data safety 草案三节齐全
+H-021 PASS 应用内“数据与隐私”页按联网模式分支如实说明
+H-022 PASS 分析/广告 SDK 依赖命中=0
+H-023 PASS 主清单最小权限；联网 flavor 显式声明、离线 flavor 显式移除
+H-024 FAIL 已发布隐私政策 URL 命中=0（需 Play/开发者域名，外部阻塞）
+H-025 FAIL 应用文案引用的未成年人专章在现有隐私文本中是否存在
+H-026 PASS 删除确认文案与“数据库/题图/设置/临时文件”范围一致
+H-027 PASS 设置页入口与回调接线存在
+H-028 PASS 首装 UNKNOWN=OFF，构建开关默认 false
+H-029 PASS v1 端点为空的 fail-closed 上传门
+H-030 PASS 属性袋无自由文本字段，键集白名单固定
+H-031 PASS 14 岁以下与 14–17 均要求监护人确认；未披露年龄 fail-closed
+H-032 PASS 政策版本/哈希一致才放行；撤回与年龄门有用例
+H-033 PASS check_telemetry_compliance exit=0；note: V9 is source-level only; merged-manifest/aapt2 and device packet capture are separate evidence levels (R5 §4.2).
+H-034 PASS data safety“未收集”与 v1 无上传端点一致
+H-035 PASS 系统备份/迁移关闭，全部域排除；备份仅走用户显式导出
+H-036 FAIL Play Console data safety 表单需开发者账号与已发布 URL，外部阻塞
+H-037 PASS G7 最严解释对齐裁定已登记
+H-038 PASS 完整模式不建设的理由（无内容池/推荐流/消费场景）已留痕
+H-039 FAIL 产品侧监护人同意机制命中=0（仅遥测门）
+H-040 FAIL 年龄确认 UI 命中=0（落地批次待排）
+H-041 FAIL “家长须知”入口命中=0
+H-042 FAIL 防沉迷最小集（时长提醒/静默时段）命中=0
+H-043 FAIL 隐私文本中的未成年人专章
+H-044 PASS 界面模块社交/私信/评论文案命中=0
+H-045 PASS 14 岁以下无监护人拒绝的用例在树
+H-046 PASS 首启/关于/完整三档文案齐全
+H-047 PASS 固定措辞与不弱化规则已写死
+H-048 PASS 免责表述存在且指向教材/老师
+H-049 PASS 未成年人提示按主动说明表述，不冒充法定义务
+H-050 PASS 第十条红线与不可去除承诺在文案中
+H-051 FAIL 文案嵌入点（关于页/首启弹窗）命中=0（热区未空出）
+H-052 PASS 文案与 PDF 隐式标识现状一致（KD-75 已关闭；KD-84/KD-85 仍开放）
+H-053 FAIL 备案号/上线编号/模型名占位符是否回填
+H-054 PASS 双轨法规基线与施行日期引用
+H-055 PASS 单题题目区图注分支
+H-056 PASS 批量/卷面块级图注按角色逐图判断
+H-057 PASS 改卷面走同一 planner，图注不丢
+H-058 PASS DOCX 原字节嵌入保留图片隐式元数据
+H-059 PASS 非生成角色不伪标
+H-060 PASS 图注渲染时派生，不进输入指纹
+H-061 FAIL 部分页打印 writeSubset 逐页重绘，文档级 /AIGC 丢失（KD-84 open）
+H-062 FAIL 模型改卷文本未纳入 /AIGC 判据（KD-85 open）
+H-063 FAIL 图注在真实设备/PDF 上的字号、对比度、不遮挡属人工视觉复核
+H-064 PASS 技术术语命中=0，中文句号条数=41
+H-065 PASS PDF 文案说 A4、DOCX 文案说 Word，两套交付物各自成句
+H-066 PASS 诊断包失败文案是否拼接原始异常 message
+H-067 PASS 失败文案说“未产出完整文件”且导出层删 pending 不发布
+H-068 PASS 导出文案中的敏感/内部标识命中=0
+H-069 PASS 导出文案契约用例覆盖全部失败枚举
+H-070 PASS 失败通知标题/正文为学生可读文案，锁屏私有
+H-071 PASS 注入失败映射 GENERATED_PDF_INVALID，不产出无标记文件
+H-072 PASS 中文文案中的英文整词=[]
+H-073 PASS 应用名资源与清单引用一致
+H-074 PASS 额外 locale 资源目录=[]（产品当前仅中文）
+H-075 FAIL 硬编码 Text 字面量文件命中=214（未做资源抽取）
+H-076 FAIL supportsRtl=true 但无 RTL 布局/文案走查证据
+H-077 FAIL 界面日期格式硬编码点=9（未做本地化格式抽取）
+H-078 PASS plurals 资源=0（中文无复数，N/A）
+H-079 PASS 未翻译英文句子=[]
+H-080 FAIL 无应用内语言切换；系统 locale 变更后的行为未测
+H-081 FAIL 英文商店详情/隐私政策本地化未产出（发布工程外部依赖）
+H-082 PASS 中英混排保留“AI 生成”空格
+H-083 PASS 中文间半角逗号/分号命中=0
+H-084 PASS 半角省略号命中=0
+H-085 PASS 中文间半角问号/叹号/冒号命中=0
+H-086 PASS 全角拉丁/数字命中=0
+H-087 PASS “AI 生成”无空格变体命中=0
+H-088 PASS 用户可见文案无全角空格/Tab
+H-089 FAIL 错误文案语感与信息密度属人工/母语者复核
+H-090 FAIL 设备字体回退、标点宽度与暗色可读性需截图/TalkBack 走查
+EXIT=1
+HGATE_EXIT=1

@@ -355,6 +355,8 @@ class MistakePdfPaperEditTest {
                 MistakePdfBlock.SectionHeading("heading-1", "解析"),
             ),
             questionDocumentSha256 = input.questionDocumentSha256,
+            // KD-75 C2：卷面草稿必须原样保存"含模型解析文本"事实，否则编辑后的导出会漏标。
+            hasModelParsedText = true,
             inputSha256 = input.inputSha256,
             cleanImageLocalUri = "file:///tmp/clean.png",
             // KD-55：编辑草稿必须把同一条资产记录的完整性期望带进图块。
@@ -481,6 +483,7 @@ class MistakePdfPaperEditTest {
         assertEquals(expected.documentTitle, actual.documentTitle)
         assertEquals(expected.blocks, actual.blocks)
         assertEquals(expected.questionDocumentSha256, actual.questionDocumentSha256)
+        assertEquals(expected.hasModelParsedText, actual.hasModelParsedText)
         assertEquals(expected.inputSha256, actual.inputSha256)
         assertEquals(expected.maxPages, actual.maxPages)
         assertEquals(expected.maxRenderedLines, actual.maxRenderedLines)
@@ -511,6 +514,7 @@ class MistakePdfPaperEditTest {
         blocks = listOfNotNull(blockText?.let { MistakePdfBlock.Paragraph("stem", it) }) +
             extraBlocks,
         questionDocumentSha256 = exportFingerprint("test-doc", entryId),
+        hasModelParsedText = false,
         inputSha256 = exportFingerprint("test-input", entryId),
         userNote = "这题的备注",
     )

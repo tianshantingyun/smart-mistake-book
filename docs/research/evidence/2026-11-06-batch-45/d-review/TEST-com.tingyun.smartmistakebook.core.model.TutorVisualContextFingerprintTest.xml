@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:55:33.056Z" hostname="TIANSHAN" time="0.029">
+  <properties/>
+  <testcase name="aLegacySchemaRowCannotCarryAVisualContext" classname="com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest" time="0.007"/>
+  <testcase name="theContextBudgetsAreEnforcedInUtf8Bytes" classname="com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest" time="0.001"/>
+  <testcase name="theRequestSchemaIsNineteenAfterThePaperEditKind" classname="com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest" time="0.0"/>
+  <testcase name="planAndRespondBothCarryTheContextThroughTheCodec" classname="com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest" time="0.018"/>
+  <testcase name="anEmptyContextKeepsTheEncodingAndTheOperationFingerprintUnchanged" classname="com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest" time="0.002"/>
+  <testcase name="anEmptyContextObjectIsRejected" classname="com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest" time="0.0"/>
+  <testcase name="aRealContextChangesBothFingerprints" classname="com.tingyun.smartmistakebook.core.model.TutorVisualContextFingerprintTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

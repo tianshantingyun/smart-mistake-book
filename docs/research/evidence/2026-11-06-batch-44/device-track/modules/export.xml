@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="export" tests="30" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T21:22:31Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakeExportVisualRoleInstrumentedTest" name="anExplanationImageIsNotDrawnIntoTheQuestionAreaWhenTheSolutionAreaIsOff" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakeExportVisualRoleInstrumentedTest" name="aRequestedSolutionSectionDrawsTheExplanationImageAfterTheQuestionArea" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfCleanImageExportInstrumentedTest" name="aCleanImageAssetIsActuallyDrawnIntoTheExportedPdf" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfCleanImageExportInstrumentedTest" name="everyQuestionKeepsItsOwnImageInABatchPdf" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfDeliveryRegressionInstrumentedTest" name="printingTheWholeDocumentStreamsExactlyThePreparedBytes" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfDeliveryRegressionInstrumentedTest" name="previewPageZeroKeepsA4SizeAndAspectUnderParameterizedLayouts" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfDeliveryRegressionInstrumentedTest" name="printingAPartialRangeReRendersOnlyTheRequestedPage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterAigcInstrumentedTest" name="realExportWithAiImageIsLabeledAndKeepsRenderedBytesAndPageCount" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterAigcInstrumentedTest" name="pureUserContentExportHasNoAigcInfoEntry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterAigcInstrumentedTest" name="oldUnmarkedArtifactUnderTheSameKeyIsRejectedAndRebuiltWithAigc" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterAigcInstrumentedTest" name="secondPrepareReusesTheSameLabeledArtifact" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterAigcInstrumentedTest" name="modelParsedTextArtifactUnderTheOldKeyIsRejectedAndRebuiltWithAigc" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterAigcInstrumentedTest" name="wholePrintKeepsAigcWhilePartialPrintDropsTheDocumentLevelEntry" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterAigcInstrumentedTest" name="modelParsedTextOnlyExportIsLabeled" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest" name="saveRefusesToOverwriteItsOwnPreparedShareFile" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest" name="incompleteExistingTargetFailsClosedInsteadOfBeingOverwritten" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest" name="orphanedHalfPublishIsCleanedBeforeAtomicDirectoryPublish" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest" name="fileProviderSharesOnlyTheDedicatedCacheSubtree" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest" name="longDocumentPaginatesAndHardLimitFailsClosed" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest" name="preparedPdfOpensPreviewsAndReusesSamePathAndDigest" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest" name="preparingAnotherExportRemovesPublishedArtifactsOlderThanOneDay" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest" name="batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest" name="recoveryTokenReopensOnlyTheExactVerifiedPreparedPdf" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest" name="cartesianFigureRendersIntoVerifiedPdfPreview" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest" name="deliveryIntentsUsePrivateProviderAndReadOnlyShareGrant" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfExporterInstrumentedTest" name="saveCopiesPreparedPdfThenRechecksDestinationDigest" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfLayoutTemplatesInstrumentedTest" name="threeTemplatesProduceDistinctVerifiedPdfs" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfLayoutTemplatesInstrumentedTest" name="aPracticeSheetWithAnOverLongParagraphStillExports" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfLayoutTemplatesInstrumentedTest" name="aParameterizedPracticeSheetRendersWithoutFailingItsBudgets" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.export.MistakePdfMissingSourceInstrumentedTest" name="manualTranscriptionWithoutSourceImageExportsAPdf" time="0">
+  </testcase>
+</testsuite>

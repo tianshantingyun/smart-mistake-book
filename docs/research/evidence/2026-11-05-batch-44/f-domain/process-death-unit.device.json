@@ -1,0 +1,16 @@
+{
+  "tag": "process-death-unit",
+  "serial": "emulator-5566",
+  "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac",
+  "target_package": "com.tingyun.smartmistakebook.localfirst",
+  "class": "com.tingyun.smartmistakebook.StorageOperationLifecycleInstrumentedTest",
+  "started": "2026-11-04T15:51:27Z",
+  "finished": "2026-11-04T15:51:35Z",
+  "tests": 2,
+  "failed": false,
+  "time_s": "5.407",
+  "pss_first_kb": 10398,
+  "pss_peak_kb": 267952,
+  "pss_samples": 59,
+  "result": "OK"
+}

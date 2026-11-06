@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.export.MistakePdfBatchEligibilityTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-04T09:13:27.827Z" hostname="TIANSHAN" time="0.012">
+  <properties/>
+  <testcase name="fingerprintChangesWhenVisibleOrderChanges" classname="com.tingyun.smartmistakebook.core.export.MistakePdfBatchEligibilityTest" time="0.003"/>
+  <testcase name="visibleNoteAndCleanImageChangesRewriteTheBatchFingerprint" classname="com.tingyun.smartmistakebook.core.export.MistakePdfBatchEligibilityTest" time="0.002"/>
+  <testcase name="batchImageBlocksCarryTheCleanImageRecordIntegrity" classname="com.tingyun.smartmistakebook.core.export.MistakePdfBatchEligibilityTest" time="0.0"/>
+  <testcase name="emptyOversizedAndEntirelyUnavailableListsFailBeforeRendering" classname="com.tingyun.smartmistakebook.core.export.MistakePdfBatchEligibilityTest" time="0.0"/>
+  <testcase name="batchSnapshotNeverCopiesFallbackMarkdown" classname="com.tingyun.smartmistakebook.core.export.MistakePdfBatchEligibilityTest" time="0.001"/>
+  <testcase name="notesRemainInsideTheirOwnQuestionWhenExportedTogether" classname="com.tingyun.smartmistakebook.core.export.MistakePdfBatchEligibilityTest" time="0.001"/>
+  <testcase name="preservesVisibleOrderAndAutomaticallyOmitsUnavailableEntries" classname="com.tingyun.smartmistakebook.core.export.MistakePdfBatchEligibilityTest" time="0.001"/>
+  <testcase name="unrenderedFieldsKeepTheBatchFingerprintStableAndRerunsMatch" classname="com.tingyun.smartmistakebook.core.export.MistakePdfBatchEligibilityTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

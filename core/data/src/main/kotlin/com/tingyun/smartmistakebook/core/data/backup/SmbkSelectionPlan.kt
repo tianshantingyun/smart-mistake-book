@@ -7,10 +7,10 @@ import java.security.MessageDigest
  *
  * 唯一数据源：`docs/research/2026-10-17-6c2-content-selection-design.md` §9.14 的
  * `<!-- 6c2-plan-v5:begin -->` 机器块；表/视图/FK 的事实源是 Room 导出物
- * `core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/74.json`
+ * `core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/75.json`
  * （`database.version=74`、`identityHash=4d2c8e0f…`）。本文件不新增规则：类别、闭包、
  * 裁剪顺序、软引用、资产根、kind 谓词全部逐项对应机器块，`SmbkSelectionPlanTest`
- * 反向解析机器块与 `74.json` 断言两处同源。
+ * 反向解析机器块与 `75.json` 断言两处同源。
  *
  * schema 73 已增加纸卷、固定题目快照与原始作答照片，照片属于复习记录的资产根。
  *
@@ -38,21 +38,21 @@ import java.security.MessageDigest
  */
 object SmbkSelectionPlan {
 
-    /** 机器块 `schemaVersion`，同时是 `74.json` 的 `database.version`。 */
-    const val SCHEMA_VERSION: Int = 74
+    /** 机器块 `schemaVersion`，同时是 `75.json` 的 `database.version`。 */
+    const val SCHEMA_VERSION: Int = 75
 
     /**
-     * 机器块 `identityHash`，必须与 `74.json` 的 `database.identityHash` 相等。
-     * 只能取 KSP 构建产物（`StudyDatabase_Impl.kt` 的 `RoomOpenDelegate` 与 `74.json` 同值），
+     * 机器块 `identityHash`，必须与 `75.json` 的 `database.identityHash` 相等。
+     * 只能取 KSP 构建产物（`StudyDatabase_Impl.kt` 的 `RoomOpenDelegate` 与 `75.json` 同值），
      * 不得估算或手写。
      */
-    const val IDENTITY_HASH: String = "4d2c8e0f54148a3a4690da34d4307e21"
+    const val IDENTITY_HASH: String = "f9a3d1c9ea8ef83d7222721ad1015a51"
 
     /** 规则表版本；只在规则表变化时 bump，不是 schemaVersion 的别名。 */
-    const val CLOSURE_VERSION: Int = 5
+    const val CLOSURE_VERSION: Int = 6
 
     /** digest 前缀，与 closureVersion=5 绑定。 */
-    const val CLOSURE_DIGEST_PREFIX: String = "smbk-selection-v5"
+    const val CLOSURE_DIGEST_PREFIX: String = "smbk-selection-v6"
 
     /** 四项用户类别全选。 */
     const val FULL_MASK: Int = 15
@@ -150,6 +150,9 @@ object SmbkSelectionPlan {
             "student_model_prediction",
             "prediction_outcome",
             "learner_chat_evidence",
+            // 批次 40 / WS2（schema 73）：错因追加式证据 + 现行标签。
+            "error_cause_observation",
+            "error_cause_binding",
         ),
         SmbkSelectionCategory.SESSIONS to listOf(
             "tutor_conversation",
@@ -176,7 +179,7 @@ object SmbkSelectionPlan {
         "content_install_state",
     )
 
-    /** 2 张派生索引表：恒裁，恢复完成后按科重建（本批裁定 ③）。 */
+    /** 2 张派生索引表：恒裁，恢复完成后按科重建（本批裁定 ③；L2 的 knowledge_search_material_feature 已随 KB 32B 回滚）。 */
     val derivedTables: List<String> = listOf(
         "knowledge_search_feature",
         "knowledge_search_index_state",
@@ -205,7 +208,7 @@ object SmbkSelectionPlan {
 
     /**
      * 89 项裁剪顺序（子表先于父表）。= 97 − 7 ALWAYS − 1 `library_search_fts`；
-     * 派生表在列（本批恒裁）。逐边拓扑合法性由测试按 `74.json` 的真实 FK 图校验。
+     * 派生表在列（本批恒裁）。逐边拓扑合法性由测试按 `75.json` 的真实 FK 图校验。
      */
     val trimOrder: List<String> = listOf(
         "paper_review_photo",
@@ -283,6 +286,9 @@ object SmbkSelectionPlan {
         "applied_correction_record",
         "attempt_correction",
         "applied_attempt_record",
+        // 错因 binding 引用 observation，必须更早裁；两者都引用 attempt_event/practice_unit/题面修订。
+        "error_cause_binding",
+        "error_cause_observation",
         "attempt_event",
         "attempt_submission",
         "applied_answer_reveal_record",
@@ -542,6 +548,10 @@ object SmbkSelectionPlan {
         "LEARNING_SUMMARIZE" to SmbkSelectionCategory.SESSIONS,
         "REVIEW_RERANK" to SmbkSelectionCategory.MASTERY,
         "KNOWLEDGE_QUIZ" to SmbkSelectionCategory.MASTERY,
+        // 6B-3 改卷（批次 40 / WS4）：会话侧动作，卷面可以从题重新导出，不属于学生的源事实。
+        // 未加这一行时，恢复侧 RestoreSoftReferenceRecheck 会把它判成"映射外"直接拒包。
+        // 73.json 的机器块由 WS2 单写者重建；本批只同步这一条类别归属。
+        "PAPER_EDIT" to SmbkSelectionCategory.SESSIONS,
     )
 
     /** `figure_generation_operation.source_kind` → 类别；`source_id` 不反查宿主行。 */
@@ -563,20 +573,20 @@ object SmbkSelectionPlan {
 
     init {
         require(allTables.size == allTables.toSet().size) { "表被重复归类：$allTables" }
-        require(allTables.size == 97) { "schema 74 应有 97 张表，实际 ${allTables.size}" }
-        require(views.size == 2) { "schema 74 应有 2 个视图，实际 ${views.size}" }
+        require(allTables.size == 99) { "schema 75 应有 99 张表，实际 ${allTables.size}" }
+        require(views.size == 2) { "schema 75 应有 2 个视图，实际 ${views.size}" }
         require(categoryTables[SmbkSelectionCategory.ISSUE_BOOK]?.size == 35) { "ISSUE_BOOK 应为 35 张表" }
-        require(categoryTables[SmbkSelectionCategory.MASTERY]?.size == 38) { "MASTERY 应为 38 张表" }
+        require(categoryTables[SmbkSelectionCategory.MASTERY]?.size == 40) { "MASTERY 应为 40 张表" }
         require(categoryTables[SmbkSelectionCategory.SESSIONS]?.size == 7) { "SESSIONS 应为 7 张表" }
         require(categoryTables[SmbkSelectionCategory.IMAGES]?.size == 1) { "IMAGES 应为 1 张表" }
         require(alwaysTables.size == 7) { "ALWAYS 应为 7 张表" }
         require(derivedTables.size == 2) { "DERIVED 应为 2 张表" }
         require(splitTables.size == 7) { "SPLIT 应为 7 张表" }
-        require(trimOrder.size == 89) { "裁剪顺序应为 89 项，实际 ${trimOrder.size}" }
+        require(trimOrder.size == 91) { "裁剪顺序应为 91 项，实际 ${trimOrder.size}" }
         require(trimOrder.size == trimOrder.toSet().size) { "裁剪顺序有重复项" }
         require(
             trimOrder.toSet() == allTables.toSet() - alwaysTables.toSet() - rebuildTables.toSet(),
-        ) { "裁剪顺序必须恰好覆盖 97 表 − ALWAYS − FTS" }
+        ) { "裁剪顺序必须恰好覆盖 99 表 − ALWAYS − FTS" }
         require(derivedTables.all { it in trimOrder }) { "派生表按本批裁定必须恒裁" }
         require(expectedClosure.size == 6) { "类别闭包应为 6 条边" }
         require(softReferences.size == 24) { "软引用应为 24 条" }
@@ -587,7 +597,7 @@ object SmbkSelectionPlan {
         require(allowedMasks == setOf(9, 13, 15)) { "本批只允许 9/13/15" }
     }
 
-    /** 表 → 归属桶；未知表返回 null（调用方对 `74.json` 漂移 fail-closed）。 */
+    /** 表 → 归属桶；未知表返回 null（调用方对 `75.json` 漂移 fail-closed）。 */
     fun bucketOf(table: String): SmbkTableBucket? = tableBucketIndex[table]
 
     /** 用户类别表的类别；ALWAYS/DERIVED/SPLIT 或未知表返回 null。 */
@@ -648,9 +658,9 @@ object SmbkSelectionPlan {
     }
 
     /**
-     * §9.7 的 v3 digest：
+     * §9.7 的 v5 digest：
      * ```
-     * sha256("smbk-selection-v5\n" + "closureVersion=5\n"
+     * sha256("smbk-selection-v6\n" + "closureVersion=5\n"
      *      + "categories=" + sorted.joinToString(",") + "\n"
      *      + "assetPolicy=" + assetPolicy + "\n"
      *      + rowCounts.keys.sorted().joinToString("") { "$it=${rowCounts[it]}\n" })
@@ -684,10 +694,10 @@ object SmbkSelectionPlan {
             .joinToString(separator = "") { byte -> "%02x".format(byte.toInt() and 0xff) }
     }
 
-    /** Read the immediately preceding schema-72 backup without inventing paper rows. New writes stay v5. */
+    /** Read frozen historical backup rules; all new archives use closure 6. */
     fun rowCountKeysForRead(closureVersion: Int): Set<String> = when (closureVersion) {
         CLOSURE_VERSION -> rowCountKeys
-        4 -> rowCountKeys - setOf("paper_review", "paper_review_question", "paper_review_photo")
+        4, 5 -> requireNotNull(ClosureRuleTables.of(closureVersion)).rowCountKeys
         else -> error("不支持的备份规则版本：$closureVersion")
     }
 }

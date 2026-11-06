@@ -1,0 +1,44 @@
+[
+  {
+    "press": 1,
+    "label": "已导出 查看已导出的文件",
+    "class": "android.view.View",
+    "bounds": "[624,84][833,210]",
+    "focused": true
+  },
+  {
+    "press": 2,
+    "label": "录入",
+    "class": "android.view.View",
+    "bounds": "[844,84][1038,210]",
+    "focused": true
+  },
+  {
+    "press": 3,
+    "label": "搜索题目、板块或知识点",
+    "class": "android.widget.EditText",
+    "bounds": "[42,274][1038,421]",
+    "focused": true
+  },
+  {
+    "press": 4,
+    "label": "筛选",
+    "class": "android.view.View",
+    "bounds": "[662,432][876,558]",
+    "focused": true
+  },
+  {
+    "press": 5,
+    "label": "导出 导出当前 5 道",
+    "class": "android.view.View",
+    "bounds": "[876,432][1038,558]",
+    "focused": true
+  },
+  {
+    "press": 6,
+    "label": "恒温下，密闭容器中的反应 N₂O₄(g) ⇌ 2NO₂(g) 已达到平衡。 瞬间将容器体积压缩为原来的一半。只考虑体积突变后的浓 收藏 用浓度商判断平衡移动 待评估 化学 用浓度商判断平衡移动",
+    "class": "android.view.View",
+    "bounds": "[42,579][1038,1027]",
+    "focused": true
+  }
+]

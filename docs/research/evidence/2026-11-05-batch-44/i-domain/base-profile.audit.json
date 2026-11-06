@@ -1,0 +1,61 @@
+{
+  "clickable": 9,
+  "contrast": {
+    "measured": 7,
+    "min_ratio": 5.534,
+    "pairs": [
+      {
+        "label": "Theme.kt:lightColorScheme:onSurface/surface",
+        "pass": true,
+        "ratio": 18.261,
+        "threshold": 4.5
+      },
+      {
+        "label": "Theme.kt:lightColorScheme:onBackground/background",
+        "pass": true,
+        "ratio": 16.887,
+        "threshold": 4.5
+      },
+      {
+        "label": "Theme.kt:lightColorScheme:onPrimary/primary",
+        "pass": true,
+        "ratio": 5.937,
+        "threshold": 4.5
+      },
+      {
+        "label": "Theme.kt:lightColorScheme:onSecondaryContainer/secondaryContainer",
+        "pass": true,
+        "ratio": 14.419,
+        "threshold": 4.5
+      },
+      {
+        "label": "Theme.kt:lightColorScheme:onSurfaceVariant/surfaceVariant",
+        "pass": true,
+        "ratio": 6.795,
+        "threshold": 4.5
+      },
+      {
+        "label": "Theme.kt:lightColorScheme:onError/error",
+        "pass": true,
+        "ratio": 6.37,
+        "threshold": 4.5
+      },
+      {
+        "label": "Theme.kt:lightColorScheme:onErrorContainer/errorContainer",
+        "pass": true,
+        "ratio": 5.534,
+        "threshold": 4.5
+      }
+    ],
+    "reason": null,
+    "status": "PASS",
+    "threshold": 4.5
+  },
+  "density_dpi": 420,
+  "min_dp": 48.0,
+  "nodes": 50,
+  "ok": true,
+  "structural_ok": true,
+  "violation_codes": [],
+  "violations": []
+}

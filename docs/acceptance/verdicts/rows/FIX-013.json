@@ -1,0 +1,61 @@
+{
+  "id": "FIX-013",
+  "verdict": "PASS",
+  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-fix",
+  "reviewer": "batch46-line-reviewer-FIX",
+  "authors": [
+    "batch45-evidence-producer-FIX"
+  ],
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "evidence": [
+    "cmd:docs/research/evidence/2026-11-06-batch-45/fix/logs/FIX-sweep.log",
+    "test:docs/research/evidence/2026-11-06-batch-45/fix/xml/FIX-T03.xml"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-06-batch-45/fix/logs/FIX-sweep.log": "10b05e157aac287e3e810ec7df79123c2ee5bb244b54b51975cf945fed529612",
+    "docs/research/evidence/2026-11-06-batch-45/fix/xml/FIX-T03.xml": "a3927727ce6ffe4b967d77480f67f9ba58227f4786edcc885a4bdf5d284baad4"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=FIX-013; verdict=PASS; line=1044; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/research/evidence/2026-11-06-batch-45/fix/logs/FIX-sweep.log",
+      "value": "exit_markers=[0]; cmd=n/a; sha256=10b05e157aac287e3e810ec7df79123c2ee5bb244b54b51975cf945fed529612"
+    },
+    {
+      "name": "xml_aggregate",
+      "source": "docs/research/evidence/2026-11-06-batch-45/fix/xml/FIX-T03.xml",
+      "value": "tests=3; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T09:56:47.602346+08:00; hostname=tianshan; sha256=a3927727ce6ffe4b967d77480f67f9ba58227f4786edcc885a4bdf5d284baad4"
+    },
+    {
+      "name": "xml_testcase",
+      "source": "docs/research/evidence/2026-11-06-batch-45/fix/xml/FIX-T03.xml",
+      "value": "testcases=3; first=test_fixed_gates_are_green_on_current_tree; all_present=True"
+    }
+  ],
+  "basis": "机械复算（reviewer=batch46-line-reviewer-FIX，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 FIX-013 并复算 ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "adversarial": {
+    "attempted": true,
+    "result": "recomputed-no-mismatch"
+  },
+  "review_scope": "single-ledger-row",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 0,
+    "archived_files": 2,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

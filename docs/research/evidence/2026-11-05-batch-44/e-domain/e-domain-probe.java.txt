@@ -1,0 +1,159 @@
+import com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicy;
+import com.tingyun.smartmistakebook.core.domain.FsrsRating;
+import com.tingyun.smartmistakebook.core.domain.FsrsScheduleMath;
+import com.tingyun.smartmistakebook.core.model.StudyDayMath;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+/**
+ * Independent adversarial probe over the REAL compiled production classes.
+ * It does not re-run JUnit; it exercises the same bytecode from Java with
+ * seeded randomized inputs and reports the first counterexample for each invariant.
+ *
+ * Reproducibility copy. Compile/run against the module class outputs listed in
+ * 00-index.md section 1. `--mutate` is a red control, not production code.
+ */
+public final class EDomainProbe {
+    private static int checks = 0;
+    private static final List<String> failures = new ArrayList<>();
+
+    public static void main(String[] args) {
+        ReviewCapacityPolicy p = ReviewCapacityPolicy.INSTANCE;
+        Random r = new Random(44L);
+
+        // 1. dailyQuota bounds + monotonicity + zero semantics.
+        for (int i = 0; i < 20000; i++) {
+            int remaining = r.nextInt(5001);
+            int daysLeft = r.nextInt(31);
+            int cap = r.nextInt(51);
+            int q = p.dailyQuota(remaining, daysLeft, cap);
+            expect(q >= 0, "dailyQuota negative: " + remaining + "," + daysLeft + "," + cap + " -> " + q);
+            expect(q <= cap, "dailyQuota above cap: " + remaining + "," + daysLeft + "," + cap + " -> " + q);
+            if (remaining == 0 || cap == 0) expect(q == 0, "dailyQuota zero case: " + remaining + "," + daysLeft + "," + cap + " -> " + q);
+            if (daysLeft <= 0 && remaining > 0 && cap > 0) expect(q == cap, "dailyQuota daysLeft<=0: " + remaining + "," + daysLeft + "," + cap + " -> " + q);
+            int qNext = p.dailyQuota(remaining + 1, daysLeft, cap);
+            expect(qNext >= q, "dailyQuota not monotone in remaining: " + remaining + "," + daysLeft + "," + cap + " -> " + q + " vs " + qNext);
+        }
+
+        // 2. examTargetRetention window/bounds/monotonicity.
+        for (double base : new double[]{0.7, 0.8, 0.9}) {
+            for (int d = -5; d <= 30; d++) {
+                double target = p.examTargetRetention(base, d);
+                expect(target >= base - 1e-12 && target <= 0.97 + 1e-12, "examTargetRetention out of bounds: " + base + "," + d + " -> " + target);
+                if (d < 0 || d > 14) expect(Math.abs(target - base) < 1e-12, "examTargetRetention outside window changed: " + base + "," + d + " -> " + target);
+                if (d == 0) expect(Math.abs(target - 0.97) < 1e-12, "examTargetRetention d=0 not 0.97: " + target);
+                if (d >= 0 && d < 14) {
+                    double next = p.examTargetRetention(base, d + 1);
+                    expect(next <= target + 1e-12, "examTargetRetention not non-increasing: " + base + "," + d + " -> " + target + " vs " + next);
+                }
+            }
+        }
+
+        // 3. allocateByDayWeights conservation and rest days.
+        for (int i = 0; i < 5000; i++) {
+            int len = 1 + r.nextInt(14);
+            List<Integer> weights = new ArrayList<>();
+            for (int j = 0; j < len; j++) weights.add(r.nextInt(4));
+            if (weights.stream().mapToInt(Integer::intValue).sum() == 0) weights.set(0, 1);
+            int remaining = r.nextInt(5001);
+            List<Integer> alloc = p.allocateByDayWeights(remaining, weights);
+            int sum = alloc.stream().mapToInt(Integer::intValue).sum();
+            expect(sum == remaining, "allocateByDayWeights not conserved: " + remaining + " weights=" + weights + " -> " + alloc);
+            for (int j = 0; j < len; j++) {
+                expect(alloc.get(j) >= 0, "allocateByDayWeights negative: " + alloc);
+                if (weights.get(j) == 0) expect(alloc.get(j) == 0, "rest day got quota: weights=" + weights + " -> " + alloc);
+            }
+        }
+
+        // 4. examDeficit bounds.
+        for (int i = 0; i < 20000; i++) {
+            double retr = r.nextDouble();
+            double target = 0.9 + r.nextDouble() * 0.07;
+            double deficit = p.examDeficit(retr, target);
+            expect(deficit >= 0.0 && deficit <= 1.0, "examDeficit out of [0,1]: " + retr + "," + target + " -> " + deficit);
+        }
+
+        // 5. FSRS retention / interval / stability invariants.
+        FsrsScheduleMath f = FsrsScheduleMath.INSTANCE;
+        double[] w = f.getDEFAULT_PARAMETERS();
+        double decay = -w[20];
+        for (int i = 0; i < 20000; i++) {
+            double stability = 0.1 + r.nextDouble() * 999.9;
+            double elapsed = r.nextDouble() * 2000.0;
+            double retr = f.retention(elapsed, stability, decay);
+            expect(retr >= 0.0 && retr <= 1.0, "retention out of [0,1]: " + elapsed + "," + stability + " -> " + retr);
+            expect(Math.abs(f.retention(0.0, stability, decay) - 1.0) < 1e-12, "retention(0) != 1 for stability " + stability);
+            double later = f.retention(elapsed + 0.5, stability, decay);
+            expect(later <= retr + 1e-12, "retention not non-increasing: " + elapsed + "," + stability + " -> " + retr + " vs " + later);
+            int interval = f.intervalDays(stability, 0.9, decay);
+            expect(interval >= 1 && interval <= FsrsScheduleMath.MAXIMUM_INTERVAL_DAYS, "intervalDays out of range: " + stability + " -> " + interval);
+            int laterInterval = f.intervalDays(stability + 1.0, 0.9, decay);
+            expect(laterInterval >= interval, "intervalDays not monotone: " + stability + " -> " + interval + " vs " + laterInterval);
+        }
+        for (FsrsRating rating : FsrsRating.values()) {
+            for (int i = 0; i < 5000; i++) {
+                double stability = 0.1 + r.nextDouble() * 999.9;
+                double next = f.shortTermStability(stability, rating, w);
+                if (rating == FsrsRating.AGAIN) {
+                    expect(next < stability, "shortTerm AGAIN did not decay: " + stability + " -> " + next);
+                } else {
+                    expect(next >= stability, "shortTerm " + rating + " lowered stability: " + stability + " -> " + next);
+                }
+                double difficulty = 1.0 + r.nextDouble() * 9.0;
+                double nextDifficulty = f.nextDifficulty(difficulty, rating, w);
+                expect(nextDifficulty >= 1.0 - 1e-12 && nextDifficulty <= 10.0 + 1e-12, "nextDifficulty out of [1,10]: " + difficulty + "," + rating + " -> " + nextDifficulty);
+            }
+        }
+
+        // 6. StudyDayMath: 04:00 boundary and per-offset agreement with java.time zone rules.
+        int[] offsets = {-300, 0, 120, 480, 780};
+        for (int off : offsets) {
+            ZoneOffset zone = ZoneOffset.ofTotalSeconds(off * 60);
+            for (int i = 0; i < 5000; i++) {
+                long millis = -86_400_000L * 365L + (long) (r.nextDouble() * 1_000_000_000_000.0);
+                LocalDateTime shifted = LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), zone)
+                        .minusHours(StudyDayMath.DAY_START_HOUR);
+                long expected = shifted.toLocalDate().toEpochDay();
+                long actual = StudyDayMath.INSTANCE.localEpochDayOf(millis, off);
+                expect(expected == actual, "studyDay mismatch at offset " + off + " millis " + millis + " expected " + expected + " actual " + actual);
+            }
+            // Local 03:50 vs 04:10 must be one study day apart.
+            long localMidnight = Instant.parse("2026-02-25T00:00:00Z").toEpochMilli() - off * 60_000L;
+            long before = localMidnight + (3 * 60 + 50) * 60_000L;
+            long after = localMidnight + (4 * 60 + 10) * 60_000L;
+            long delta = StudyDayMath.INSTANCE.localEpochDayOf(after, off) - StudyDayMath.INSTANCE.localEpochDayOf(before, off);
+            expect(delta == 1L, "04:00 boundary not one day at offset " + off + " delta " + delta);
+            // Local 23:50 vs next 00:20 must stay the same study day.
+            long night = localMidnight + (23 * 60 + 50) * 60_000L;
+            long justAfterMidnight = localMidnight + 24 * 3_600_000L + 20 * 60_000L;
+            long delta2 = StudyDayMath.INSTANCE.localEpochDayOf(justAfterMidnight, off) - StudyDayMath.INSTANCE.localEpochDayOf(night, off);
+            expect(delta2 == 0L, "midnight crossed a study day before 04:00 at offset " + off + " delta " + delta2);
+        }
+
+        // Mutation control: used only to prove the probe can fail. It does not touch production code.
+        if (args.length > 0 && "--mutate".equals(args[0]) && failures.isEmpty()) {
+            failures.add("MUTATION_CONTROL: probe forced to report a violation to prove it is not vacuous");
+        }
+
+        System.out.println("PROBE_CHECKS=" + checks);
+        if (failures.isEmpty()) {
+            System.out.println("PROBE_RESULT=OK");
+            System.out.println("EXIT=0");
+        } else {
+            for (String failure : failures.subList(0, Math.min(20, failures.size()))) System.out.println("PROBE_COUNTEREXAMPLE=" + failure);
+            System.out.println("PROBE_COUNTEREXAMPLES=" + failures.size());
+            System.out.println("PROBE_RESULT=VIOLATED");
+            System.out.println("EXIT=1");
+            System.exit(1);
+        }
+    }
+
+    private static void expect(boolean condition, String message) {
+        checks++;
+        if (!condition && failures.size() < 200) failures.add(message);
+    }
+}

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.ModelStreamSelectionTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:25:05.325Z" hostname="TIANSHAN" time="0.009">
+  <properties/>
+  <testcase name="aNativeToolRoundFallsBackToNonStreamingWhenTheProtocolCannotAggregateToolCalls" classname="com.tingyun.smartmistakebook.core.data.model.ModelStreamSelectionTest" time="0.008"/>
+  <testcase name="aNativeToolRoundKeepsStreamingWhenTheProtocolAggregatesToolCalls" classname="com.tingyun.smartmistakebook.core.data.model.ModelStreamSelectionTest" time="0.0"/>
+  <testcase name="nonToolRoundsKeepTheirExistingStreamingPolicy" classname="com.tingyun.smartmistakebook.core.data.model.ModelStreamSelectionTest" time="0.001"/>
+  <testcase name="streamingStillRequiresTheProviderAndTheSseSurface" classname="com.tingyun.smartmistakebook.core.data.model.ModelStreamSelectionTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

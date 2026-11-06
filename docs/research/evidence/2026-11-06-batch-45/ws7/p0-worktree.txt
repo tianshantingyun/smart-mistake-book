@@ -1,0 +1,6 @@
+CMD: git status --porcelain | wc -l
+602
+CMD: git status --porcelain -uall | wc -l
+3988
+CMD: git rev-parse HEAD
+87604198feeef198d5dba7343b8c4692c5e8f937

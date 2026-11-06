@@ -1,0 +1,9 @@
+{
+  "usage": "app/build/outputs/mapping/strictOfflineRelease/usage.txt",
+  "classes": [
+    "androidx.work.impl.WorkDatabase_Impl",
+    "com.google.mlkit.common.internal.CommonComponentRegistrar",
+    "com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions"
+  ],
+  "violations": []
+}

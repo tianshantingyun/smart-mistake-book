@@ -1,0 +1,3 @@
+CMD: bash tools/ci/run_kd76_rounds.sh --serial emulator-5562 --mode reboot --rounds 10 --first-round 11 --out /tmp/ws7-a6/never --batch-id B --run-id probe --a6-plan build/kd76-runs/a6b/a6-plan.txt
+run_kd76_rounds: A6 mode requires --rounds 20 --first-round 1 (got 10/11)
+EXIT=2

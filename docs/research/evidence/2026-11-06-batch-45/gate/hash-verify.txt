@@ -1,0 +1,2 @@
+OK D:/smart mistake book/docs/research/evidence/2026-11-06-batch-45/gate/MANIFEST.sha256
+EXIT=0

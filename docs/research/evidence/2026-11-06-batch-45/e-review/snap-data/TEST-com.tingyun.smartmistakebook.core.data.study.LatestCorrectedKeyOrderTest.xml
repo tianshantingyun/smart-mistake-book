@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.LatestCorrectedKeyOrderTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:58:38.474Z" hostname="TIANSHAN" time="0.024">
+  <properties/>
+  <testcase name="a user-asserted answer row counts as a key correction" classname="com.tingyun.smartmistakebook.core.data.study.LatestCorrectedKeyOrderTest" time="0.022"/>
+  <testcase name="a voided later correction falls back to the earlier effective key" classname="com.tingyun.smartmistakebook.core.data.study.LatestCorrectedKeyOrderTest" time="0.0"/>
+  <testcase name="ledger order wins even when wall-clock timestamps disagree" classname="com.tingyun.smartmistakebook.core.data.study.LatestCorrectedKeyOrderTest" time="0.0"/>
+  <testcase name="without a complete ledger order the reader explicitly degrades to timestamp order" classname="com.tingyun.smartmistakebook.core.data.study.LatestCorrectedKeyOrderTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

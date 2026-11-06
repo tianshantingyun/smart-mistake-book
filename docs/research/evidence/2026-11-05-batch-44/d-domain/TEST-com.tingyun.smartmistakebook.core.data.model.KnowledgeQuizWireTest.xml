@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.KnowledgeQuizWireTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:25:05.321Z" hostname="TIANSHAN" time="0.002">
+  <properties/>
+  <testcase name="parsesQuestionChoicesAndCorrectId" classname="com.tingyun.smartmistakebook.core.data.model.KnowledgeQuizWireTest" time="0.001"/>
+  <testcase name="rejectsACorrectChoiceIdThatIsNotPresent" classname="com.tingyun.smartmistakebook.core.data.model.KnowledgeQuizWireTest" time="0.0"/>
+  <testcase name="rejectsUnexpectedTopLevelKeys" classname="com.tingyun.smartmistakebook.core.data.model.KnowledgeQuizWireTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

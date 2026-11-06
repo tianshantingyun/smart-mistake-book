@@ -1,0 +1,10 @@
+GROUP docs-verdicts
+COMMAND: python -I tools/ci/d0_self_acceptance.py --group docs --section verdicts
+CHECK dir_and_readme EXPECTED=1 ACTUAL=1 OK
+CHECK template_fields EXPECTED=1 ACTUAL=1 OK
+CHECK no_real_verdict_json EXPECTED=1 ACTUAL=1 OK json=0
+CHECK no_verdict_schema EXPECTED=1 ACTUAL=1 OK
+OBSERVED real_verdict_json=0
+OBSERVED verdict_schema_files=0
+CHECKS=4 FAILURES=0
+EXIT=0

@@ -716,3 +716,290 @@ PYTHONPATH=tools python tools/kb_coverage/alignment.py --check            # 308/
 ```
 
 **批次31A 终版结算（文书员，2026-11-01 10:50）**：**v25 adopted**（09:24；判据 1–3 过、判据 4 NOT_RUN；stateAfter 65,019/157）；**v26 failed**（39 子面 → 2 材料；promote 已落盘 28 文件，dense step1 被他线编译阻塞，其余全 NOT_RUN）；**ask 记 v26 已回滚，但截至 10:50 实测未回滚——release/staging 仍 v26（159/65,021），故本行只写"failed、回滚未成立"**；**v27 blocked**（无对象，UNVERIFIED）。审计第 2 版 **done / 来源不可发布**。回归 902/OK、金标 2/2、超集守卫缺失；八门 **7/8**（`judgment_drift` 518 红）。验收 v1.4 **F13 红 / F14 红 / F15 只读数 52.2677% / F16 严格口径红（35 条例外，2 条待复核）⇒ 不达标**。最高下一步（未执行）：**先把 v26 回滚到 v25 并逐字核验，再谈任何 v26/后续版本**；回滚后再清 518、F13/F14、F16 与来源元数据。
+
+## 21. 批次31A 终版追加：v25 adopted / v26 adopted / v27 failed（回滚未成立）+ 验收 v1.4（2026-11-01 13:45）
+
+> **只追加**：§19/§20 原文未改；本节记录 §20 之后的 v27 落盘、失败与验收复算。与 §20 冲突时以本节为准（时点更晚）。数字来源：`build/agent-batch31a/{v25-final.md,v26-final.md,v27.log,v27-touched-files.txt,v27-full.log,audit.md,gates-run-1331.stdout.txt,consistency.txt}` + 本会话 13:39–13:45 实跑。追加前备份：`build/agent-batch31a/backup/kb-outstanding-work-2026-09-20.pre-append-1345.md`（sha256 `e30b8836…`）。
+
+**当前身份（13:45 实跑）**：HEAD `f0512a47…`；origin/main `d72dbebc…`（`origin/main...HEAD` = `22 0`）；porcelain **写报告前 773（270 M + 503 ??）→ 写报告后 774（271 M + 503 ??）**；release=staging=**v27**（manifest `859a8116…`/27/`e685f52388883199`、v2-25 `93269182…`/159、材料 **64,928**、别名 **41,029**、主包 `f77303e6…`、`.vec a7418ad4…`、`.vec.json 9acc5720…`）。
+
+| 项 | 状态 | 读数与证据 |
+| --- | --- | --- |
+| **v25（A 层 22 子面回放）** | **adopted（09:24）** | 22 子面 → MATERIAL 3/SKIP 15/NOT_FOUND 4；设备融合 **117/129**、MRR **0.7239018…**、24 章 **0/24/0**、零漂移 **0/0**；判据 4 NOT_RUN；stateAfter `25/7e4102b6…`、v2-25 `89693752…`/157、65,019；已被 v26 覆盖 |
+| **v26（A 层 39 子面扩展）** | **adopted（v26-final.md）** | 39 子面 → MATERIAL 2/SKIP 4/NOT_FOUND 33；v2-25 159；材料 **65,021**；设备 **117/129**、MRR **0.7239018…**、24 章 **0/24/0**、零漂移 **0/0**、bootstrap delta **0.0**/CI **[0,0]**/p **1.0**；stateAfter `26/aea886e4…`、主包 `96246c78…`、别名 40,841、`.vec 70329115…` |
+| **v27（材料卫生）** | **failed；ask 记 failed-rolled-back，实测 rolled-back 未成立** | ① 87 组/180 材料/93 退休；② 127/127 FIXED；③ 205 候选/141 APPLIED/64 REJECTED；④ 926 候选/153 ACCEPTED（T 87+C 66）/730 REJECTED；材料 65,021→**64,928**、别名 40,841→**41,029**；promote real exit0/28 文件/28/28；**dense_export exit1（int8_docs 0.998950899<0.999）**、**dense step1 被他线 `TutorVisualPreviewRenderer.kt:254` 阻塞**、dense step2–8 NOT_RUN；**JVM 1463/6 failed**；**py_suite 902/1 failed（test_i04 锚点 `bio-kb-chromatin-chromosome-same-substance` 被 v27 去重退休）**；pin_check `PIN_OK=False`（硬编码 44121 vs 实际 44,309）；`judgment_drift 517`。**回滚未执行**：release/staging 仍 v27；回滚源 `backup-v27/{staging,alias,judgments}` 已逐字复核为 v26（聚合 `9e7d3e13…`、`5e8ed8ba…`、`634b5e75…`），目标值见批报 §13.3 |
+| **只读审计** | **done（第 3 版，13:06）** | 49 sourceId/206 行/64,930 材料；`sourceUri` 207 处占位；生产门 `-RequireProductionReady` EXIT=1；权利门 EXIT=1（schema 4）；edition 16/49；`title==sourceId` 27/49；wusan 4/4；Python 29/29、Kotlin 44 例 43 PASS/1 FAIL；v25/v26/v27 内容层未见金标定向注入（153/153 别名材料派生、141/141 title 前缀、正文 sha 未变），**范围层 39 节点含 9 个金标 expectedSlug、8 条 title 机械残片 ⇒ “与金标完全无关”不成立** |
+| **回归** | **JVM 1463/6 failed；py_suite 902/1 failed；金标 2/2；超集守卫缺失** | `build/v27-full.log:69`；`gates/py_suite.log:792-803`；`v27-full-xml/...GoldenRetrievalJvmTest.xml` tests=2/failures=0；`FusedRecallSupersetTest.kt` 不在树内 |
+| **门** | **6/8 rc=0、red=1** | 绿：promote_dry(0；version→28)、slice(0)、asset(0)、alignment(0)、transcripts(0)、judgment_fp(0)；红：kb_checks(1；`judgment_drift 517`)、py_suite(1；test_i04) |
+| **验收 v1.4：F13** | **红（双口径均≠0）** | v27 键 **1 组/2 材料/1 多余**（`ext-phy-0ba0a43cf3-015`/`ext-phy-477ad6128f-022`，`摩擦力不一定是阻力`，未进 dedupe CSV）；严格键 **10 组/20/10**（9 组标点/空格变体 + 上述 1 组） |
+| **验收 v1.4：F14** | **口径分歧** | v27 键 **0**（`short<=8` 0、`same_title` 0）；严格键 **124**（均为 title+句末标点，如 `…直线上` vs `…直线上。`）；v27 ② 只修 `≤8` 字，未覆盖此类 |
+| **验收 v1.4：F15** | **只读数** | **34,080/64,928 = 52.4889%**（>24 字 20,588 ∪ 含标点 30,744 = 30,848）；v26 33,985/65,021 = 52.2677%；ask 未设阈值 |
+| **验收 v1.4：F16** | **来源 PASS / 子串 2 条例外** | 37,749 行 = 37,649 标题 + 188 例外 + 0 未匹配；153 条 v27 T/C 全部带 `source_slug`；`alias==query` 0；`alias==expectedSlug` 1（`人船模型`）；`exception_not_title` 100；`strict_substr_of_query` **2**（`实验室制取氢氧化铝`、`二项式系数最大的项`，均批16 T/C，非 v27 新增） |
+| **A 层边界** | **重申，不重开** | v25 22 子面（3/15/4）；v26 39 新子面（2/4/33）；不重开 60,512 SEAL、235 选修、46/16 PARTIAL、238 薄料全量、51 仅误区、22 v24/v25 子面；v27 是卫生批，不新增节点（3,280）、不改阈值/金标/判官 |
+| **一致性** | **0 PASS / 3 FAIL** | C01 HEAD `f0512a47` ≠ 基线 `147c4b9f`；C02 装置新测 `35ef09ce…` 不存在；C03 写面漂移（v27 manifest/25 sidecar/主包/`.vec`/`.vec.json`/`model-manifest`/4 判定表/2 别名表/`DenseRecallRerankerTest.kt`/`DenseRecallAssembly.kt`/资产目录越界）；porcelain 773（写前） |
+| **提交** | **未提交** | HEAD `f0512a47`；origin/main `d72dbebc`（`22 0`）；本文件与批报只追加；未 commit/push |
+
+**批次31A 终版残留（按阻塞程度）**：
+
+1. **v27 未回滚（最高）**：release/staging 仍 v27（27/64,928/41,029/`a7418ad4…`）；回滚到 **v26**（不是 HEAD v24；`git checkout` 会回滚过头）；回滚源 `backup-v27/{staging,alias,judgments}` 已逐字复核，目标 manifest `370b0979…`/26/`aea886e4…`、主包 `96246c78…`、v2-25 `93269182…`/159、65,021、别名 40,841、`.vec 70329115…`；exam exemptions 2 条指纹无逐字备份（回滚源缺口）。
+2. **v27 failed/无判读**：dense step2–8、设备/JVM 四路、零漂移、bootstrap 全 NOT_RUN；promote 先于门红落盘；不得写“v27 测负/通过”。
+3. **v27 去重退休锚点材料**：`bio-kb-chromatin-chromosome-same-substance` 在 `v27-retired-json/`，`test_i04` 因此红；回滚即恢复。
+4. **F13 残组**：v27 键 1 组/1 多余；严格键 10 组/10 多余；F13 不达标。
+5. **F14 口径分歧**：v27 键 0；严格键 124；v1.5 冻结归一后再判。
+6. **F16 子串 2 条例外**（批16 T/C，非 v27 新增）。
+7. **`judgment_drift` 517 未归因**。
+8. **dense export 未过门**（int8_docs 0.998950899<0.999）+ **pin_check 硬编码 44121 过期**（实际 44,309）。
+9. **来源元数据缺口**（49/49 占位 URI、生产门红、权利门 schema 4 不可运行、16/49 edition、27/49 title==sourceId、4/4 wusan）。
+10. **一致性 0/3；porcelain 773（写前）；超集守卫缺失；未提交**。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD; git rev-list --left-right --count origin/main...HEAD   # f0512a47…；22 0
+git status --porcelain | wc -l; git status --porcelain | cut -c1-2 | sort | uniq -c   # 写报告前 773 = 270 M + 503 ??
+python -I -X utf8 -c "import json;d=json.load(open('core/data/src/main/resources/knowledge/moe-2025-update-manifest.json',encoding='utf-8'));print(d['version'],d['contentVersion'])"  # 27 e685f523…
+sed -n '2,5p' build/agent-batch31a/v26-device/device-metrics.txt          # 117/129；MRR 0.7239018…
+grep -n -E "promote_real|dense_export|dense_step1|dense_step2_4|dense_step5_6|dense_step7_8|repin" build/agent-batch31a/v27.log | tail -10
+grep -n -E "FAILED|tests completed" build/v27-full.log | tail -8          # 1463 / 6 failed
+grep -n -E "FAIL:|AssertionError|Ran 902|FAILED" build/agent-batch31a/gates/py_suite.log | tail -8
+python -I -X utf8 build/agent-batch31a/scripts/f13_f16_repro.py           # F13 10/20/10；F14 124；F15 52.4889%；F16 2 子串
+python tools/ci/run_kb_checks.py                                          # rc=1；judgment_drift 517
+python -m unittest discover -s tools/tests -t tools                       # 902 / 1 failed
+python tools/kb_build/promote.py --dry-run                                # rc=0；version→28
+./gradlew :core:data:testDebugUnitTest --tests "*GoldenRetrievalJvmTest*" --console=plain   # XML tests=2 failures=0
+```
+
+**批次31A 终版结算（文书员，2026-11-01 13:45）**：**v25 adopted**（22 子面 3/15/4；117/129；65,019/157）；**v26 adopted**（39 子面 2/4/33；117/129；65,021/159；bootstrap 0/[0,0]/1.0）；**v27 failed**（卫生四组已落盘并 promote，但 dense_export int8_docs 0.998950899<0.999、JVM 6 红、py_suite 锚点被去重退休、pin 过期、judgment_drift 517；**ask 记 rolled-back，实测未回滚——release/staging 仍 v27**）。审计第 3 版 **done / 来源不可发布**。回归 **JVM 1463/6、py_suite 902/1、金标 2/2、超集守卫缺失**；八门 **6/8**（kb_checks 517、py_suite test_i04 红）。验收 v1.4：**F13 红（1/10 组）、F14 口径分歧（0/124）、F15 只读数 52.4889%、F16 来源 PASS / 子串 2 条例外**。最高下一步（未执行）：**先把 v27 回滚到 v26 并逐字核验，再谈 v28**；回滚后再清 517、F13/F14 口径、F16 两条例外与来源元数据。
+
+**记账（本节写入时点）**：写报告后 porcelain **774（271 M + 503 ??）**；本节写入后计数见下一行收尾复跑。本节只追加 docs，未触碰 KB 数据面。
+
+**收尾复跑（13:45）**：porcelain **775（272 `M` + 503 `??`）**；两份 docs 均 `M`（`docs/kb-batch31a-2026-11-01.md` `cbdc5ae8…`、`docs/kb-outstanding-work-2026-09-20.md` `c106c448…`）；本节与批报均为纯追加（`git diff --numstat` = `57/0` 与 `298/0`）；未改 KB 数据面。
+
+**§21.1 更正（13:52）**：§21 表中 v27 行“pin_check `PIN_OK=False`（硬编码 44121 vs 实际 44,309）”不变；但回滚源需精确：`DenseRecallAssembly.kt` v26 `c654d988…` = HEAD 可作源；`model-manifest.json` v26 `b3896531…` ≠ HEAD `af3fbcb5…`（**内容源缺口**）；`DenseRecallRerankerTest.kt` v27 pre `8a7026c2…` ≠ HEAD/`pin-pre-sha.txt` `c45add86…`（**pre 口径冲突**，v27 相对 HEAD 改动 0）。回滚时不得用 HEAD 覆盖后两件；须从 v26 快照/构建产物取回并逐字核验。批报 §13.12/§13.13 已补登。
+
+## 22. 批次31A 批报终版追加：v25 adopted / v26 adopted / v27 **rolled-back**（2026-11-01 17:58）
+
+> **只追加**：§19–§21 原文未改；本节接 §21.1 之后追加。与 §19–§21 冲突时以本节为准（时点最晚，且为**当前树实测**）。追加前备份：本文件 `build/agent-batch31a/backup/kb-outstanding-work-2026-09-20.pre-append-1752.md`（sha256 `51251f5d…`）；批报 `…pre-append-1752.md`（`f53ca354…`）。数字来源：`docs/kb-batch31a-2026-11-01.md` §14 ＋ `build/agent-batch31a/{v25-final.md,v26-final.md,v27-final.md,audit.md,gates3/,consistency-recheck-final.txt,rollback-evidence/,scripts/f13_f16_repro.py,scripts/f13_f14_dual.py}`；本会话 17:33–17:58 实跑（八门、一致性 8 门、F13–F16、JVM 定向、`src_inventory.py`）。
+
+| 项 | 本会话实测 | 证据 |
+| --- | --- | --- |
+| **身份** | HEAD `b22c366aefd4692e0a50a996a2bffaa3af6f4740`；origin/main 同值 `0 0`；分支 `main`；porcelain **490（76 `M` + 414 `??`）** | `git rev-parse` / `git rev-list --left-right --count` / `git status --porcelain` |
+| **release = staging** | **v26**：`26` / `aea886e42b36dcb2` / manifest `370b0979…`；主包 `96246c78…`；v2-25 `93269182…` / **159**；材料 **65,021** / 节点 3,280 / 别名 40,841；`.vec 70329115…` / `.vec.json 5cbbcb6f…`；release==staging **28/28** | `python -I` 读 manifest；`sha256sum`；`f13_f14_dual.py`；一致性 C05 PASS |
+| **v25** | **adopted**（09:24）：A 层回放 **22 子面 → 3/15/4**；设备融合 **117/129**（MRR 0.7239018…）；24 章 0/24/0；零漂移 0/0；判据 4 **NOT_RUN**；v2-25 157 / 65,019 | `v25-final.md:9-44` |
+| **v26** | **adopted**：A 层扩展 **39 子面 → 2/4/33**；`117/129`；24 章 0/24/0；零漂移 0/0；bootstrap `0.0 / [0.0,0.0] / p=1.0`（收束补跑）；v2-25 159 / 65,021 | `v26-final.md:9-40` |
+| **v27** | **rolled-back（已执行）**：`adopted=false`，回滚到 v26（16:13–16:25）。失败证据 6 条：dense export `0.998950899<0.999`、dense step1 FAILED、JVM `1463/6`、py_suite `902/1`（`test_i04` 锚点被退休）、pin 44,309≠44,121、`judgment_drift 517`；另 v27fix 重建 dense 越过预注册。回滚后 59 路径 post-sha 全 = v26；v27 标记 **0**；`material_retire.csv` 已移出树 | `v27-final.md:9-13,24-57`；`rollback-evidence/v27-rollback-post-sha.txt`；本会话 grep/ls |
+| **审计** | **done**（第 4 版，`audit.md` 16:52）：49 `sourceId` / 206 行 / 65,023 材料；`sourceUri` 206/206 占位；生产门 EXIT=1；权利门 schema 4 EXIT=1；16/49 edition；27/49 `title==sourceId`；守卫 JVM 31/31、Python 16/16；**设备判官未跑** ⇒ 按「来源可发布」**不通过** | `audit.md:1-40`；本会话重跑 `src_inventory.py` → 49/206/65,023 |
+| **门（八门）** | **7/8 rc=0、red=1**：绿 `py_suite`(902/Ran 257.935s OK)、`promote_dry`(0；`version→27`，零写盘)、`slice`、`asset`(10/10；44,121)、`alignment`、`transcripts`、`judgment_fp`；红 `kb_checks` **rc=1**（`judgment_drift 518`：content 335 + boundary 183） | `build/agent-batch31a/gates3/summary.txt`（17:45:11–17:50:12，不覆盖 gates2） |
+| **一致性** | **C01–C08 全 PASS、EXIT=0**（含 C06「HEAD 数据仍 v24 / 回滚点祖先」、C05 release==staging 28/28） | `consistency-recheck-final.txt`（17:52，本会话生成） |
+| **JVM** | 金标 `GoldenRetrievalJvmTest` **tests=2 / failures=0**；v27 期 6 红的 5 类（Production/Stage1/Stage2/Reranker/VectorAsset）本会话 **15 例全绿**（BUILD SUCCESSFUL） | Gradle XML：`core/data/build/test-results/testDebugUnitTest/TEST-*` |
+| **验收 v1.4** | **F13 红**（v27 键 87 组/93 多余；严格键 96/199/103）／**F14 红**（127；严格 251）／**F15 只读数 52.2677%（33,985/65,021）**／**F16 来源 PASS、子串口径 2 条例外**（37,561 = 37,526 + 35 + 0；`alias==query` 0；`==expectedSlug` 1） ⇒ **不达标** | `f13_f16_repro.py` / `f13_f14_dual.py`（本会话） |
+| **A 层边界** | 封层不重开（60,512 块 SEAL）；v25 22 子面、v26 39 子面为定向抽取；**v27 不是 A 层**（卫生批，已回滚） | 批报 §14.7 |
+| **提交** | **未提交**：HEAD `b22c366a` 的 KB 数据仍是 **v24**；v25/v26 采纳态只在工作树 | 一致性 C06 PASS |
+
+**批次31A 残留（当前树，按阻塞程度）**：
+
+1. **`judgment_drift` 518 红**（content 335 + boundary 183），成因**未逐条归因**；`kb_checks rc=1`。不得写「31A 引入」。
+2. **F13 红**：v27 键 87 组 / 93 多余；严格键 96 组 / 103 多余。与 v24 同值 ⇒ **pre-existing**；v27 的清理随回滚复原。
+3. **F14 红**：v27 键 127；严格 251。两套口径在 v26 树**都红**（§13.6.2 的「v27 键 0」只属已修复的 v27 树）。
+4. **F15 无阈值**：52.2677%，只读数。
+5. **F16 两条例外**：`实验室制取氢氧化铝`、`二项式系数最大的项`（批16 T/C，非本批新增）。
+6. **来源元数据缺口**：占位 `sourceUri`、生产门红、权利门 schema 4 不可运行、edition/title 缺口。
+7. **超集守卫缺失**：`FusedRecallSupersetTest.kt` 不在树内；镜像 `RetrievalBenchmark.kt:482` 为 pre。
+8. **未提交 / HEAD 数据 v24**：按 HEAD 构建得到 v24。
+9. **回滚只到文件级**：回滚时未重跑设备/零漂移；本会话只补 JVM 定向 15 例。
+10. **`material_exam_exemptions.csv` 为重建值** `ed7375b7…`（HEAD + CRLF），无独立 v26 sha 对拍。
+11. **v27fix 中间物仍在 `build/`**（`.vec 327125a2…`、pack `d1e7cc67…` 等），不得当 v26 基线。
+12. **下次 promote 复用版本号 27**（`promote_dry` 实测 `version→27`），与失败 v27 同名，证据需区分。
+13. **py_suite 覆盖事实 WARNING**（「0 行匹配；没有可聚合的材料覆盖事实」；rc=0）。
+
+**已解除（相对 §19/§21）**：staging≠release → 现 28/28；`extraction_state` 3 行与判定表互斥 → 五条新料在包且在判定表有 MATERIAL 行；v27 未回滚 → 已回滚；`test_i04` 红 → py_suite 902 OK；v27 期 pin 硬编码过期 → v26 `check_asset` 10/10（44,121）。
+
+**更正 §21.1（EOL 口径）**：`model-manifest.json` **不是**内容源缺口——HEAD blob `af3fbcb5…` 与工作树 `b3896531…` 是同一内容的 LF/CRLF 两种哈希（本会话 `git show HEAD:… | sha256sum` = `tr -d '\r' < … | sha256sum` = `af3fbcb5…`；`pin-pre-sha.txt:7` 记 `b3896531…`）。`DenseRecallRerankerTest.kt` 的 HEAD blob / 工作树 / `pin-pre-sha.txt:3` 三者均 `c45add86…`，且该文件最后一次提交（`b1d59757`，批次28）的 blob 就是 `c45add86…`，v25/v26 写面不含 `.kt` ⇒ **无回滚源缺口**；`v27.log:450,477` 的 `8a7026c2…` 元组顺序未文档化，只能是 v27 期工作树瞬态。§21.1 的「回滚源缺口 / pre 口径冲突」结论作废；批报 §14.2 已更正。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD; git rev-list --left-right --count origin/main...HEAD      # b22c366a…；0 0
+python -I -X utf8 -c "import json;d=json.load(open('core/data/src/main/resources/knowledge/moe-2025-update-manifest.json',encoding='utf-8'));print(d['version'],d['contentVersion'])"   # 26 aea886e42b36dcb2
+bash build/agent-batch31a/scripts/run_gates_b31a3.sh                           # 7/8；overall red=1
+python -I -X utf8 build/agent-batch31a/scripts/consistency_v26_recheck.py      # C01–C08 PASS，EXIT=0
+python -I -X utf8 build/agent-batch31a/scripts/f13_f16_repro.py                # 96/199/103；251；52.2677%；37,561=37,526+35
+python -I -X utf8 build/agent-batch31a/scripts/f13_f14_dual.py                 # v27 键 87/180/93；F14 127；别名 40,841
+./gradlew :core:data:testDebugUnitTest --tests "*GoldenRetrievalJvmTest*" --console=plain   # tests=2 failures=0
+```
+
+**批次31A 批报终版结算（文书员，2026-11-01 17:58）**：**v25 adopted**（22 子面 3/15/4；117/129；65,019/157；判据 4 NOT_RUN）／**v26 adopted**（39 子面 2/4/33；117/129；65,021/159；bootstrap 0/[0,0]/1.0）／**v27 rolled-back（已执行并核验）**／**审计 done（来源不可发布）**。回归：**八门 7/8**（`judgment_drift` 518）、**py_suite 902 OK**、**JVM 金标 2/2 + 定向 15/15**、**一致性 8/8**。验收 v1.4：**F13 红 / F14 红 / F15 只读数 52.2677% / F16 来源 PASS、子串 2 条例外 ⇒ 不达标**。最高下一步（未执行）：**先归因 518；再以 v26 为基线、冻结 F13/F14 归一键后另立卫生批；F16 两条例外补出处；来源元数据与超集守卫各自立项**；提交由主循环裁定。
+
+**§22 收尾复跑（17:59；18:02 复核）**：porcelain **492（78 `M` + 414 `??`）**；写前 490（76 `M` + 414 `??`），增量恰为本节与批报两份 docs。`git diff --numstat` = **`244/0`**（批报）与 **`56/0`**（本台账）——**纯追加，0 删除**。sha 不在本节硬编码（后续校订会改变它）：核对方式是 `git diff --numstat` 删除数为 0、且与追加前备份 `build/agent-batch31a/backup/*.pre-append-1752.md`（`f53ca354…` / `51251f5d…`）逐字前缀一致。未改 KB 数据/包/判定表/别名表/来源字段/门判据/Kotlin 代码；未 commit/push。本节唯二写入为两份 docs；新增脚本仅落 `build/agent-batch31a/scripts/{run_gates_b31a3.sh,f13_f14_dual.py}`（`build/` 被 gitignore）。
+
+## 23. 批次32A judgment_drift 518 归因修复 + L1/L2/L3 blocked + 验收 v1.5（2026-11-02 01:36 追加）
+
+> **只追加**：§19–§22 原文未改；本节接 §22 之后追加。追加前备份：本文件 `build/agent-batch32a/backup/kb-outstanding-work.pre-append-20261102.md`（835 行，sha256 `94c55c226dcecdc2866bfe4f988b821e073fd7f1eae5a9cb23a241a951cb9deb`）。数字来源：`docs/kb-batch32a-2026-11-01.md`、`build/agent-batch32a/{drift-report.md,baseline/identity.md,baseline/judgment-drift-518.csv,_drift_before.json,_drift_after.json,gates/,l1-device/,l1-touched-files.txt}`、`docs/research/2026-11-01-kb-l1-bm25-lexical-prereg.md`；本会话 01:30–01:50 实跑 `kb_checks`、漂移单测、BM25 单测、518 复算。
+
+| 批次 | 主题 | 结论 | 门 | 验收 v1.5 | 残留 |
+|---|---|---|---|---|---|
+| **32A** | judgment_drift 518 归因与修复；L1/L2/L3 三臂 | **518 = 377 + 141**：377 已登记存量真漂移（content **194** + boundary **183**）+ 141 行尾 CR 假漂移；未登记新增 **0**（missing 0、unlocatable 0、重复 slug 0）。修复只归一换行，基线仍 377，门转绿 | **8/8 rc=0**；`OK judgment_drift`（value 377 = 基线） | **F17 blocked**：L1 融合 **115/129**（B v26 **117/129**）、24 章 **2 lower/22 equal/0 higher**、零漂移 **9/2 ≠0**、bootstrap NOT_RUN ⇒ `PARKED_GATE_RED`；**F18 blocked/NOT_RUN**（L2 无预注册/代码/读数）；**F19 blocked/NOT_RUN**（L3 无线索表/代码/对照）；`judgment_drift` **绿** | L1 15 `M`+5 `A` **未回滚**（DB schema 72）；377 条「谁先改」方向未定；L2/L3 未起；B 记录 `vec.json` sha 与当前树不同（`5cbbcb6f…` vs `6612a28d…`，UNVERIFIED） |
+
+**逐项证据（本会话实跑/实读）**：
+
+1. **漂移归因**：修前 `content 335 + boundary 183 = 518`；修后 `content 194 + boundary 183 = 377`；移除 **141**、新增 **0**；141 条全部满足 `norm(expected)==norm(actual)` 且 `\r` 只在判定侧、包侧 0。377 条与 `build/agent-batch14/a/judgment-drift-baseline.csv` **逐键 0/0、sha256 0 mismatch**。根因：`core.autocrlf=true` + `* text=auto` 把 CSV 引号内多行字段的 LF 也转成 CRLF（git 索引 blob CR 0 / 工作树 CR 44,451 = LF 44,451）。
+2. **门**：`python tools/ci/run_kb_checks.py` → **EXIT=0**，`OK judgment_drift`；其余 7 门引用 `gates/summary.txt`（01:21，`overall red=0`），本会话未重跑。
+3. **单测**：`test_kb_judgment_drift.py` **17 tests OK**；`Bm25LexicalScoreTest` **7 tests / 0 failures / 0 errors**（`./gradlew :core:database:testDebugUnitTest --tests "*Bm25LexicalScoreTest*"` BUILD SUCCESSFUL）。
+4. **L1 读数**（批内设备产物，未重跑）：融合 115/129 / MRR 0.7135658915；词面 100/129 / MRR 0.6257105943；B v26 融合 117/129 / MRR 0.7239018088；lower 2 章 = `数学必修第一册·第三章·函数的概念与性质`、`数学必修第二册·第六章·平面向量`；同路零漂移 lexical 9 / fused 2；导入 47,470 ms（≤60 s，但属 L1 不属 L2）；samegen `SAME_GENERATION_OK`。
+5. **F18/F19 无对象**：`docs/research/` 无 L2/L3 预注册；树内无材料 title/summary 特征、无查询类型路由代码；`baseline/identity.md` 只有落点分析与代价外推（L2 +31% 行、约 +44 s，未实测），§7 明记未跑。
+
+**批次32A 结算（文书员，2026-11-02 01:36）**：**drift 518 已归因并修复**（377 真 + 141 CR 假；未登记新增 0；`judgment_drift` 绿，八门 8/8）。**L1 blocked**（`PARKED_GATE_RED`：115/129 < B 117/129；2 章 lower；零漂移 9/2；bootstrap NOT_RUN；**未回滚**）。**L2/L3 blocked**（无对象，NOT_RUN）。**验收 v1.5 F17–F19 未达标**。最高下一步（未执行）：① 先按预注册 §4 回滚 L1（逐文件，禁整树 checkout；设备清库后装 v26）；② 377 条判方向后再决定是否回填并下调基线；③ L2/L3 各自另立预注册。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD; git rev-list --left-right --count origin/main...HEAD   # f10a1e4e…；0 0
+python tools/ci/run_kb_checks.py ; echo "EXIT=$?"                         # EXIT=0；OK judgment_drift
+PYTHONPATH=tools python -m unittest discover -s tools/tests -t tools -p "test_kb_judgment_drift.py" -v   # 17 tests OK
+./gradlew :core:database:testDebugUnitTest --tests "*Bm25LexicalScoreTest*" --console=plain            # BUILD SUCCESSFUL；7/0/0
+PYTHONPATH=tools python -X utf8 -m kb_coverage.judgment_drift --json       # value 377；脚本按差异 rc=1，不套基线
+cat build/agent-batch32a/l1-device/l1-device-summary.json                  # 115/129；2 lower；zero 9/2；PARKED_GATE_RED
+cat build/agent-batch32a/gates/summary.txt                                 # overall red=0
+```
+
+**§23 记账**：本文件为纯追加（写前 835 行）；未改 §19–§22；未改 KB 数据/包/判定表/别名表/来源字段/门判据/Kotlin 代码；未 commit/push。
+
+## 24. 批次32B 材料卫生（去重/摘要/标题/sourceUri）+ 薄料选修 + L2/L3 blocked + v28 blocked + 验收 v1.5 F20–F24（2026-11-02 10:05 追加）
+
+> **只追加**：§19–§23 原文未改；本节接 §23 之后追加。追加前备份：`build/agent-batch32b/backup/kb-outstanding-work.pre-append-20261102.md`（868 行，sha256 `0dd3b318bbc0e9d055bc260f4c222c2a5d0ffd3424fcd3cc386ba8fa4ef3edf7`）。数字来源：`docs/kb-batch32b-2026-11-02.md`、`build/agent-batch32b/{v28.log,gates/summary.txt,evidence/verify.txt,calibration/kappa.json,rewrite/evidence/verify.txt}`、`build/agent-batch31c/{plan.json,dedupe-clusters.csv,dedupe-pairs.csv,retire-list.csv}`、`docs/research/2026-11-02-kb-l2-material-features-prereg.md`；本会话 09:30–10:05 实跑八门中的 6 门、来源两门、去重复算与包计数。
+
+| 批次 | 主题 | 结论 | 门 | 验收 v1.5 | 残留 |
+|---|---|---|---|---|---|
+| **32B** | 材料卫生（去重/摘要/标题/sourceUri）+ 薄料选修登记 + L2/L3 + v28 | **去重 written**：65,021→**64,839（−182）**；节点 3,280；候选对 **369**；簇 **209**（195×2/11×3/2×4/1×8；174 簇有退休、18 仅 SKIP）；退休 182 / SKIP 26 / 受保护成员 58；锚点 **0 误伤、10/10 在位**。**摘要 127/127**（退化 127→0）。**标题 205 = 153 APPLIED / 49 NOOP / 3 REVERTED**；205 集合规 **202/205=98.54%**。**sourceUri 49 源 = A1/B4/C44**；来源行 **206**（A1+B4+C201）；**26 sidecar+1 manifest**。**薄料 THIN 433**（118/113/128/74；恰 1 条 238）；选修 235 `NO_SOURCE`；主线 publishedCOVERED **392/426**。**κ 0.6247**（n=480；正 360/硬负 120；CI[0.5510,0.6969]）。**L2 blocked**（17 件已写、241 JVM/1 真库；设备/零漂移/导入/71→72 真迁移 NOT_RUN）。**L3 blocked**（无对象）。**v28 blocked**：已写 `version=32`，release==staging 30/30、八门 8/8、7 类 JVM 17/0/0，但 F24 红 + 融合 119→113、chapterMin 0.5→0.0 + 设备/零漂移/导入未跑 | **8/8 rc=0**（`gates/summary.txt`；本会话复跑 kb_checks/py_suite(937 OK)/promote_dry/asset/alignment/judgment_fp 全 0）；**来源生产门 `-RequireProductionReady` EXIT=1**；**来源权利门 EXIT=1**（`Unsupported teaching-material schema 4`） | **F20 部分**：锚点 0 误伤 ✓；同规则复跑仍 **1 条拟退休**（`ext-che-2728b2ed9a-016`→`ext-che-4f82967fc2-009`，节点「纯净物」）+ 20 SKIP；精确 title+summary 仍 15 组/21 条多余（多为实体/锚点保护 SKIP 簇）。**F21 达标**：退化摘要 0/64,839。**F22 未达 100%**：202/205；1 条 APPLIED 仍含 `^`（`ext-mat-1a1cc76f2d-032`）；2 条按设计回退（40/27 字）；1 条 slug 不存在。**F23 点估计通过、稳定性未证**：0.6247≥0.61，但 CI 下界 0.551<0.61，`POSITIVE_REPRODUCTION_LOW`。**F24 未达标（红）** | v28 version 32 **未采纳/未 commit**；F24 九科四类证据全缺；来源权利门对 schema 4 不可运行；F20 1 条残留；F22 1 条 LaTeX；κ 稳定性未证；L2 17 件未回滚且读判缺失；L3 无对象；**32A L1 判官被改→115/129 不可比**（设备判官 post `ce7ef8e2…` vs 现行 `9fae203f…`；`RetrievalBenchmark` post `8134553a…` vs 现行 `8c2a2ef0…`；`KnowledgeSearchBm25.kt` 等 4 件 ABSENT）；v28 融合回退未裁定；`.vec.json` 旧差被 `6b7de846…` 取代；标题全包合规仅 68.31% |
+
+**逐项证据（本会话实跑/实读）**：
+
+1. **去重**：`build/agent-batch31c/plan.json` counts = materials 65,021 / nodes 3,280 / pairs 369 / clusters 209 / retire 182 / skip 26 / anchors 10 / alias_protected 35,515；`dedupe-clusters.csv` 209 行（195/11/2/1）；`retire-list.csv` 182 行（CHEMISTRY 78 / PHYSICS 54 / MATH 48 / BIOLOGY 2；protected=true 0）。本会话在重建 65,021 包上复跑同一规则得 **209/369/182/26**，逐数一致；在当前 64,839 包上复跑得 **1 拟退休 + 20 SKIP + 156 对 + 38 簇**。
+2. **摘要/标题**：`rewrite/evidence/verify.txt`：`[2] degenerate summaries: 0`、`[6] summaries landed 127/127`、`[5] titles rows=205 applied_landed=153/153 reverted=3 noop=49`、`[8] 205-set still >24 (by design): 2`。本会话包内逐 slug 复核：摘要 127/127、标题 APPLIED 153/153 落盘；退化摘要 0；205 集合规 202/205；全包 44,289/64,839。
+3. **sourceUri**：`scripts/fix_sourceuri.py --dry-run` → `targets=49 A=1 B=4 C=44`；release/staging 均 `files_changed=0 sources_changed=0 seen=49`。包内 `sources[]` 命中 206 行（A1/B4/C201）；形状 0 违规；改动 25×2025 + 1×2020 sidecar + manifest。
+4. **薄料/选修**：`knowledge-production/kb-coverage-alignment-2026-v2.json`：thinNodes 433（materialCount 1:238 / 2:195）；electiveTerminal total 235 / NO_SOURCE / 16 COVERED / 30 PARTIAL / 189 NOT_COVERED / 46 有主线落点；publishedCounts 主线 392/426、THIN 8，全部 publishedCOVERED 392、THIN 9、NO_SOURCE 235；rowAnnotations 243。A 层：60,512 SEAL + 2 轮 5 MATERIAL + NOT_FOUND 37（4/33/0）。
+5. **κ**：`calibration/kappa.json`：n 480、hardNegatives **120**（ask 写 12，与 `items.jsonl` 的 kind 分布不符）、primary κ 0.6247272727、po 0.8208333、bootstrap CI [0.551002,0.696870]、double A–C 0.751295 / B–C 0.625、order 480/480、decision `RUBRIC_NOT_REJECTED_AT_G2`、warning `POSITIVE_REPRODUCTION_LOW`、readonlyOk true。模型双标（G2），非人工 IAA。
+6. **L2**：预注册 §7：编译门 2/2 exit 0；`:core:database:testDebugUnitTest` 241 tests/0 fail；MaterialFeatureScale 65,021 材料 / 3,280 节点 / **209,236 材料行** / 1,424 ms；真库用例 1/1 7.255 s；`FullMigrationMatrix` 13/15 后手动停止（1→72 >40 min）；设备判读/零漂移/60 s 导入/71→72 真迁移/DB 计数 **NOT_RUN/UNVERIFIED**；镜像 `RetrievalBenchmark.kt` 未改 ⇒ 零漂移不可判。schema 72 已跟踪，工作树 sha `a49452df…`。
+7. **L3**：本会话 `grep -rn "queryType|query_type|线索表|CONCEPT_QUERY|METHOD_QUERY" core tools docs/research/2026-11-02*` 无命中；无预注册/代码/对照。
+8. **v28**：`v28.log`：version 32 / contentVersion 9a582f233bd7ce98；release==staging 30/30；dense 词面 101/129、dense 104/129、融合 113/129（MRR 0.7237726098）、端侧模拟 113/129；JVM 7 类 17/0/0；`gates/summary.txt` 8/8 rc=0。阻塞：F24 EXIT=1（本会话复跑）、融合 119→113/chapterMin 0.5→0.0、设备/零漂移/导入 NOT_RUN、权利门 schema 4 EXIT=1。
+
+**批次32B 结算（文书员，2026-11-02 10:05）**：**卫生三件已写入**（去重 65,021→64,839；摘要 127/127、退化 0；sourceUri 49 源/206 行/26 sidecar+manifest；标题 205 行 153/49/3）。**薄料选修登记已写入**（THIN 433、选修 235 NO_SOURCE、主线 392/426）。**校准 κ=0.6247 点估计过 0.61，但 CI 下界 0.551<0.61、稳定性未证**。**v28 已写 version 32 但 blocked**（F24 红 + 融合 119→113/chapterMin 0.5→0.0 + 设备/零漂移/导入未跑），**未采纳/未 commit**。**L2 blocked**（17 件已写、读判缺失）；**L3 blocked**（无对象）。**验收 v1.5 F20–F24 未达标**（F21 绿；F20 部分；F22 未达 100%；F23 点估计过/稳定性未证；F24 红）。**32A L1 登记**：L1 读数所用设备判官 post `ce7ef8e2…`、`RetrievalBenchmark` post `8134553a…`，现行已回滚为 `9fae203f…`/`8c2a2ef0…` ⇒ **115/129 不可比、不可由当前树复现**。最高下一步（未执行）：① 裁定 v28 采纳/回滚（回滚逐文件，禁整树 checkout）；② 补 F24 九科来源证据或明确降级发布口径；③ 处理 F20 1 条残留与 F22 1 条 LaTeX；④ L2 改镜像后跑双路/零漂移/冷装/真迁移；⑤ L3 另立预注册。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD; git rev-list --left-right --count origin/main...HEAD      # a3f367df…；0 0
+python -I -X utf8 -c "import json;d=json.load(open('core/data/src/main/resources/knowledge/moe-2025-update-manifest.json',encoding='utf-8'));print(d['version'],d['contentVersion'])"   # 32 9a582f233bd7ce98
+python tools/ci/run_kb_checks.py ; echo "EXIT=$?"                            # EXIT=0
+PYTHONPATH=tools python -m unittest discover -s tools/tests -t tools          # Ran 937 tests … OK
+python tools/kb_build/promote.py --dry-run                                    # EXIT=0；version→33
+python tools/dense_build/check_asset.py ; echo "EXIT=$?"                      # EXIT=0
+PYTHONPATH=tools python -X utf8 -m kb_coverage.alignment --check ; echo "EXIT=$?"   # EXIT=0
+python tools/kb_coverage/verify_judgment_fp.py ; echo "EXIT=$?"               # EXIT=0
+pwsh -NoProfile -File tools/audit-knowledge-source-register.ps1 -ProjectRoot "D:\smart mistake book" -RequireProductionReady ; echo "EXIT=$?"   # EXIT=1
+pwsh -NoProfile -File tools/audit-knowledge-source-rights.ps1 -ProjectRoot "D:\smart mistake book" ; echo "EXIT=$?"                              # EXIT=1（schema 4）
+python -I -X utf8 -c "import json;d=json.load(open('build/agent-batch32b/calibration/kappa.json',encoding='utf-8'));print(d['n'],d['hardNegatives'],d['primary']['kappa'],d['primary']['ci95_bootstrap']['ci95'],d['decision']['status'])"
+cat build/agent-batch32b/gates/summary.txt                                    # overall red=0
+cat build/agent-batch32b/v28/identity-final.txt                               # version 32 / 64839
+```
+
+**§24 记账**：本文件为纯追加（写前 868 行）；未改 §19–§23；未改 KB 数据/包/判定表/别名表/来源字段/门判据/Kotlin 代码；未 commit/push。本会话复核副作用：`build/agent-batch31c/` 去重产物按原 plan 与重建包恢复（209/369/182 一致）；`calibration/report.md` 由 `kappa.json` 重渲染。两者均为 gitignored 证据。
+
+### §24.1 批次32B 结案裁定（2026-11-02 10:50 +0800，取代 §24 的「工作树=32」状态）
+
+- **v28 否决**：融合 119→113、chapterMin 0.5→0.0（「24 章不劣」+主集回退）、F24 来源生产门红、设备/零漂移/导入 NOT_RUN ⇒ 不构成可采纳证据。
+- **L2 不可判**：镜像未同代（`RetrievalBenchmark.kt` 仍 `8c2a2ef0…`）、设备/迁移/导入全 NOT_RUN；**L3 无对象**。
+- **回滚（逐文件，禁整树 checkout）**：包面 28 件 `restored=28`；代码面 `restored=27` + `deleted=5`（L2 三源 + 两单测 + 一 androidTest）。备份 `build/agent-batch32b/rollback-backup/`；脚本 `build/agent-batch32b/scripts/rollback_32b_unadopted.py`。
+- **恢复后身份**：manifest **26 / `aea886e42b36dcb2`** / retired 1,222；dense `packSha256=96246c78…` == 主包 sha、44,121 向量（回滚前为「v32 manifest + v26 主包 + v26 dense」嵌合体）。
+- **staging 拆除**：候选 27 件留存 `build/agent-batch32b/candidate-v32-staging/`，staging 恢复 v26（`staging_restored=27`）；`promote --dry-run` 由 version→33 变为 **→27**。
+- **八门复核**：8/8 rc=0，`HEAD=922a1f7d`。
+- **编译门 UNVERIFIED**：`:core:database:compileDebugKotlin` 红点全在他线在飞 `RoomStudyDatabase.kt:2410-2457` 的 `errorCauseDao`（4e.2 线 DAO 未写出），不在本批回滚面；不得据此声称编译通过。
+- **候选来源（未提交）**：`materialize.py`、`new_content.py`、4 个 `material_judgments` CSV（RETIRED 182）、`fix_sourceuri.py`、`rewrite/`、去重脚本。下一波把去重/摘要/标题拆三臂单变量复测。
+- **32A L1**：读数所用判官为改动版（post `ce7ef8e2…`），现树 `9fae203f…`；115/129 **不可比、不可复现**，臂已回滚。
+
+## 25. 批次33 八臂（BM25/路由/导入/材料特征/B1/B2/B3/B4）+ 基线设备读数 + 八门 + 验收 v1.6（2026-11-02/03 追加）
+
+> **只追加**：§19–§24.1 原文未改；本节接 §24.1 之后追加。追加前备份：`build/agent-batch33/backup/kb-outstanding-work.pre-append-20261103.md`（922 行，sha256 `aca9b05cc9dfcca65fb6db69d05f6c09cc25fd8d68abc927ec71cfcabe67d857`）。数字来源：`docs/kb-batch33-2026-11-02.md`、`build/agent-batch33/{bm25,routing,import,b1,b2,b3,b4}/final.md`、`build/agent-batch33/baseline/device/baseline.json`、`build/agent-batch33/gates/summary.txt`、`build/agent-batch33/close/tail.md`、`build/agent-batch32b/calibration/kappa.json`；本会话 2026-11-03 实跑 HEAD / porcelain / 六元组 / staging 比对 / KB 面计数（见本节逐项证据第 1、11、12 条）。
+
+| 批次 | 主题 | 结论 | 门 | 验收 v1.6 | 残留 |
+|---|---|---|---|---|---|
+| **33** | 八臂：BM25 / 查询类型路由 / 渐进导入 / 材料特征（L2）/ B1 摘要 / B2 标题 / B3 去重 / B4 sourceUri | **2 adopted（B3、B4）、5 rolled-back（BM25、路由、导入、B1、B2；B2=STOPPED）、1 blocked（材料特征）**。**B3**：retire 168、65,021→64,853、manifest 27/`2cd974db`、锚点 0 误伤/未解释 0、六项判据全过。**B4**：占位 207→0、合成源 4→0、manifest 28/`ce8edb8f`、pack `10ede1bf…`、vecjson `6c1c448f…`、`.vec` `70329115…` 不变、真抽取器 3,705/546,119 同 sha `f0593a4d…`。**BM25**：R1 115/129 < B 117/129、R2 两章更低、R4 lexical symdiff=1 ⇒ NOT JUDGEABLE；9 件写面复位。**路由**：设备四规则 PASS，但单测 1644/3 red + 预注册夹具未执行。**导入**：G2 68,408 ms > 60,000 硬上限、N=1；仅保留 `synchronous=OFF→NORMAL`。**B1**：层 2 真 Kotlin 抽取器 NOT_RUN ⇒ 不采纳。**B2**：别名 +123/20 节点，剩余 0/153 < 120 ⇒ STOPPED。 | **8/8 rc=0，overall red=0**（`build/agent-batch33/gates/summary.txt`，2026-11-03 16:17–16:23，HEAD `faab17f5…`；本轮未重跑） | **未达标**：**F20 达标**（未解释 0、锚点 10/10）；**F21 未达**（B1 回滚，degenerate=127）；**F22 未达**（B2 零应用）；**F23 点估计 0.6247 过、CI 下界 0.5510 < 0.61**；**F24 红**（EXIT=1）。κ 口径 = 模型双标 G2、n=480（360 正/120 硬负）、10,000 次 bootstrap | 尾巴 **`clean=false`**：① 29 件 v28 内容 `M` 未提交；④ freeze 文件仍 v26，复算 v28 有 9 项差异（`verify_six_tuple.py` exit 1）。另：B2b 待做；材料特征读判缺失；路由装置缺口；导入未达硬门；B4 设备夹具红；F24 九科证据缺；R5 未施工；16 KB AAB/arm64 NOT_RUN |
+
+**逐项证据（本批产物 / 本会话实跑）**：
+
+1. **身份与树态**：批次基线 HEAD `62522930…`；收口 HEAD `faab17f5…`（`62522930` 为其祖先）。本会话 `git status --porcelain | wc -l` = **649**（468 `??` + 167 `M` + 14 `D`），staged **0**；BM25 臂内记录为 585（臂写前计数，二者是不同时点）。KB 面：资源目录 **29 `M`**、`assets/dense` 1、`tools/kb_*` 27、`knowledge-production` 14、金标 0。
+2. **BM25 rolled-back**：R1/R2/R4 FAIL、仅 R3 PASS；R1 115/129（0.8914728682，MRR 0.7118863049）vs B 117/129（0.9069767442，MRR 0.7239018088）；R2 两章 6/11 vs 7/11、1/3 vs 2/3；R4 lexical symdiff=1（`二次函数在闭区间上的最值问题`）。9 件写面回 pre-sha（7 干净；`ProductionLexicalLegExportTest` `ffd7d574…` 与 `DenseRecallRerankerTest` `d1f10bcd…` 为他线既有 `M`）；§5.3 三件新增文件删除；KB v26/pack `96246c78…`/vec `70329115…`/vecjson `6612a28d…`/金标 `eabef102…` 未变；staging==release；schema 73 / `INDEX_VERSION=1`。记录 `build/agent-batch33/bm25/final.md`。
+3. **路由 rolled-back**：设备 R1 117/129==B、R2 24 equal/0 lower/0 higher、R3 zero-drift 0/0、R4 F1 645/645/F2 117/129/F3 8/645；单测 1644/3 red（他线词面/导出）；`retest_usage_r1.py` 未改、`TeachingMaterialAllocationInstrumentedTest.kt` 未改、ranked 测试未创建。7 `M` 恢复 + 6 `??` 删除；双门 0/0；六元组在 `62522930` 时点 26/26。记录 `build/agent-batch33/routing/final.md`。
+4. **导入 rolled-back**：G1 8,345 ms（target 5,000 FAIL / hard 10,000 PASS）；G2 68,408 ms（target 45,000 FAIL / hard 60,000 FAIL）；G3 p95 15 ms / overBudget 0 / silentEmpty 0 PASS；N=1，≥20 冷装与 20 次崩溃注入 `notRun`。11/12 源码恢复，`RoomKnowledgeImportMaintenance.kt` 保留 `synchronous=OFF→NORMAL`；11 件新增 + 1 件未登记夹具删除；schema 74 删除回 73。门 1 exit 0、门 2 exit 1（他线 `PdfAigcContentPolicy.kt` 删除）。记录 `build/agent-batch33/import/final.md`。
+5. **材料特征（L2）blocked**：预注册 `docs/research/2026-11-02-kb-l2-material-features-prereg.md`；`build/agent-batch33/l2-material/` 仅有 `backup/` 与 `gates/`，**无 `final.md`**。已有：编译门 2/2 exit 0、`:core:database` 241 tests/0 fail、`MaterialFeatureScaleTest` 65,021 材料/3,280 节点/209,236 材料行/1,424 ms、真库 1/1。缺口：设备双路、零漂移（镜像未同代 ⇒ 不可判）、60 s 导入、71→72 真迁移、DB 计数全 `NOT_RUN`/`UNVERIFIED`。**未采纳**。
+6. **B1 rolled-back**：层 2（真 Kotlin `fromNode`，3,705 节点）`NOT_RUN` 是准入阻塞点；层 1/3 与 Python 镜像零差异（`f460819a…`/`dedc652d…`/`b0bb8c18…`）。7 件内容 + manifest 回 pre-sha；`tools/kb_build/verify_summary_only.py` 删除；staging 30/30；回滚后 `degenerate=127`、材料 65,021；六元组 25 PASS/1 headSha。记录 `build/agent-batch33/b1/final.md`。
+7. **B2 rolled-back（STOPPED）**：别名候选 pre 37,566 vs post(153) 37,689，净 +123；受影响 20 节点（全 `+N/-0`），153 条 APPLIED 全落其上；剔除后剩余 0/153 < 120 ⇒ STOPPED；零内容触碰，24/24 pre-sha OK，staging 30/30 v26。B2b 已登记下一波。记录 `build/agent-batch33/b2/final.md`。
+8. **B3 adopted**：retire 168、65,021→64,853、manifest 27/`2cd974dbada7cb2f`、manifest sha `a08cbfcb…`、25-sidecar 聚合 `ab5831eb…`；特征/vec-ids 零 diff、锚点 10/10、金标 3,847 lost=0、THIN 626 lost=0、恰 1 材料节点 238→238；369 对处置未解释 0；release↔staging 30/30；六元组 20 PASS/6 新基线差异。记录 `build/agent-batch33/b3/final.md`。
+9. **B4 adopted**：占位 207→0、合成源 4→0；manifest 28/`ce8edb8f89d91fe7`、pack `10ede1bf…`、vecjson `6c1c448f…`（只 `packSha256` 变）、vec `70329115…`；真抽取器 3,705 节点/546,119 特征同 sha `f0593a4d…`；契约 `KnowledgeBaseImportContractTest` 23/23、`BundledKnowledgeNodesContractTest` 5/5；六元组 17 PASS/9 新基线差异；**F24 仍 EXIT=1，不声称转绿**。记录 `build/agent-batch33/b4/final.md`。
+10. **基线设备读数**（`baseline.json`，v26，A0 复测）：FUSED **129 cases × 5 samples、hits 117、miss 12**、Recall@5 `0.9069767442`、MRR `0.7239018088`、p50/p95/max 47/78/201 ms、overBudget 0；lexical 101/129、MRR `0.6178294574`、7/13/16 ms；device↔JVM fused/lexical symdiff 均 0；samegen MATCH、安装 6,044 ms。**不是任何臂的采纳证据**。
+11. **八门**：kb_checks / py_suite / promote_dry / slice / asset / alignment / transcripts / judgment_fp 全 rc=0，`overall red=0`；本轮只读 summary，未重跑。
+12. **尾巴**：`close/tail.md` **`clean=false`**；① 29 件 v28 内容 `M`；② manifest/pack/vec 三方一致；③ staging 30/30；④ 六元组对 freeze 9 项差异（本会话 `verify_six_tuple.py` exit 1、9 FAIL，逐项见批报 §0.2）；⑤ 8 臂唯一 `final.md`；⑥ 71/71，import 安全修复保留。
+13. **验收 v1.6**：F20 达标（B3 未解释 0、锚点 10/10）；F21 未达（B1 回滚、degenerate=127）；F22 未达（B2 0/153、别名 +123）；F23 点估计 **0.6247272727**、bootstrap 95% CI **[0.5510018, 0.6968699]**（n=480，360 正/120 硬负，双标 48，`RUBRIC_NOT_REJECTED_AT_G2`、`POSITIVE_REPRODUCTION_LOW`；模型双标 G2，非人工 IAA）⇒ 下界未过 0.61；F24 红（`audit-knowledge-source-register.ps1 -RequireProductionReady` EXIT=1）。**v1.6 总判未达标**。
+
+**批次33 结算（文书员，2026-11-03）**：**B3/B4 已采纳并登记新基线 v28**（材料 64,853；manifest `28/ce8edb8f89d91fe7`、pack `10ede1bf…`、vecjson `6c1c448f…`、vec `70329115…` 不变）；**BM25/路由/导入/B1/B2 已按各臂 final 回滚，材料特征 blocked**；**八门 8/8 rc=0**；**尾巴 `clean=false`**（29 件 v28 未提交 + freeze 仍 v26）；**验收 v1.6 未达标**（F20 绿；F21/F22/F24 未达；F23 点估计过/下界未过）。最高下一步（未执行）：① 提交/登记 29 件 v28 内容并刷新 `baseline/six-tuple.json` 至 exit 0；② B2b 单变量复测；③ 材料特征改镜像后跑双路/零漂移/冷装/真迁移；④ F24 来源证据；⑤ 清 B4 设备夹具占位域；⑥ 路由/导入按预注册补齐装置与样本。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD; git status --porcelain | wc -l; git diff --cached --name-only | wc -l   # faab17f5…；649；0
+python -I build/agent-batch33/baseline/verify_six_tuple.py; echo "EXIT=$?"                  # EXIT=1, failures: 9（对 v26 freeze）
+python -I -X utf8 -c "import json;d=json.load(open('core/data/src/main/resources/knowledge/moe-2025-update-manifest.json',encoding='utf-8'));print(d['version'],d['contentVersion'])"   # 28 ce8edb8f89d91fe7
+git status --porcelain=v1 -- core/data/src/main/resources/knowledge | wc -l               # 29
+cat build/agent-batch33/gates/summary.txt                                                  # overall red=0
+python -I -X utf8 -c "import json;d=json.load(open('build/agent-batch32b/calibration/kappa.json',encoding='utf-8'));print(d['n'],d['hardNegatives'],d['primary']['kappa'],d['primary']['ci95_bootstrap']['ci95'],d['decision']['status'])"   # 480 120 0.6247… [0.5510,0.6969] RUBRIC_NOT_REJECTED_AT_G2
+```
+
+**§25 记账**：本文件为纯追加（追加前 922 行，sha `aca9b05c…`）；未改 §19–§24.1；未改 KB 数据/包/判定表/别名表/来源字段/门判据/Kotlin 代码；未 commit/push。未重跑项已在批报 §0.2 与本节逐条标注，不作完成性声明。
+
+## 26. 批次34 八臂（资产契约/导入/API23/B2b/词面消融/路由/材料候选/render）+ 双机矩阵 + 八门 + 尾巴 + R10 规则（2026-11-04 追加）
+
+> **只追加**：§19–§25 原文未改；本节接 §25 之后追加。追加前备份：`build/agent-batch34/backup/kb-outstanding-work.pre-append-20261104.md`（962 行，sha256 `1c1b8909ced41126bc2dc68fbb38bd8e699cedf722461d40d40326c7838882c6`）。数字来源：`docs/kb-batch34-2026-11-03.md`、`build/agent-batch34/{w1,w2,w3,w4,w5,w6,w8}/final.md`、`build/agent-batch34/w7/device/report.md`、`build/agent-batch34/w9/device.md`、`build/agent-batch34/w10/{api23.json,api34.json,api34-runs.tsv}`、`build/agent-batch34/gates/summary.txt`、`build/agent-batch34/close/tail.md`、`docs/research/2026-11-03-kb-r10-small-n-eval-stats.md`；本会话 2026-11-04 实跑 HEAD / porcelain / 哈希锚 / `check_asset` / `promote --dry-run` / `test_dense_asset_gate` / 计数复算（见逐项证据第 1、11、12 条）。
+
+| 批次 | 主题 | 结论 | 门 | 尾巴 / 验收 | 残留 |
+|---|---|---|---|---|---|
+| **34** | 八臂：W1 资产契约（`corpus.layoutSha256`）/ W2 首启导入性能 / W3 API23 raw DDL / W4 B2b / W5 词面 α·b 消融 / W6 路由 v2 / W7 材料候选设备臂 / W8 render v3；另加双机矩阵 | **2 adopted（W1、W3）、5 rolled-back（W2、W4、W5、W6、W8）、1 blocked（W7）**。**W1**：旁车只增 `layoutSha256` 一行（3,631→3,719 B），`check_asset` 11/11、Python 9/9、Kotlin 4/4+2/2、冒烟同源 APK 正常。**W3**：双机 8/8、logcat 只读异常 0、安装器 2/2；SQLite **3.8.10.2 / 3.39.2**。**W2**：G2 20 次 p50 **74,756** / p95 **78,695** / max **80,412 ms**（全部 >60,000）；崩溃注入有效 **10/10**（kill 点 7–14 不可达）；G1 51,486 ms、G3 p95 9,416 ms、7 次静默空；读路径写副作用登记。**W4**：119→**118/129**，`(w,l)=(1,2)`、m=3、p=1.0；G-IMPORT **81,724 ms** > 60,000；G-FIRST `NOT_RUN`。**W5**：A1 **102/129**、净 **-15**、p **0.000729**、单章损失 **4**；A2 116/129、净 -1；A3 117/129、0/0 不可判读（BM25 未接线）。**W6**：`routing_eval_v2.py` 不存在 ⇒ **ABORT**，无设备读数。**W7**：安装成功、既有分配 4/4、工具环 11/11；G-FIRST / zero-drift `NOT_RUN`，候选仪器缺失。**W8**：8 件恢复 + 1 件新增删除；定向 5/5、6/6、4/4；设备 `parked`。 | **7/8 rc=0**：kb_checks / promote_dry / slice / asset / alignment / transcripts / judgment_fp = **0**；**py_suite rc=1**（1148 tests / **3 failures / 15 errors**，3 failures 全是 `test_dense_asset_gate` 的 B2b 遗留）。`overall red=1` | **双机 green/green**：API23（`emulator-5570`）8 套件 / **25** 用例；API34（`emulator-5584`）**13** 次运行 / **31** 用例；0 failed、0 FATAL、0 ANR。**W9**：16 线程 p95 **168 ms** / errors 0；备份恢复 34/34；冷启 golden p95 **156 ms**、Recall **117/129**；16KB `NOT_RUN`。**尾巴 `clean=false`**：① 资源目录 1 `M`（`.vec.json`）、KB 相关 53；②③⑥ PASS；④ 对 `baseline/six-tuple.json` 2 项 DIFF（`headSha`、sidecar sha）；⑤ `test_dense_asset_gate.py` 3 红且不在 B2b touched；⑦ 16KB `NOT_RUN` | B2b 测试夹具残留（阻断 py_suite）；baseline 未刷新；KB 面未提交；16KB `NOT_RUN`；W2 读路径写副作用 + 导入 67–80 s + 设备未回装；W4 设备未回装（DB `f4972bb4…`）；W5 BM25 未接线；W6 静态门/ranked 仪器缺失；W7 首查探针/候选仪器缺失；W8 设备 `parked`；`py_suite` 15 errors 未归因；F20–F24 未复跑 |
+
+**逐项证据（本批产物 / 本会话实跑）**：
+
+1. **身份与树态**：批次基线 HEAD `0fef943641f53560b92ce2afec4da22bf52f5e86`（2026-11-03 20:08:52 +0800；`baseline/six-tuple.json` 的 `headSha`，`generatedAtUtc=2026-11-03T16:02:05Z`）；收口 HEAD `26f2327b0f88d3cad7e076b967b62874e36ca07d`（2026-11-04 14:02:41 +0800）。`git merge-base --is-ancestor 0fef9436 26f2327b` → exit 0。本会话 `git status --porcelain | wc -l` = **581**，staged **0**；KB 面：资源目录 **1 `M`**（`.vec.json`）、`assets/dense` 1、`tools/kb_* + dense_build + split_golden` 25、`knowledge-production` 14。schema **73**（`StudyDatabase.kt:142`）、`INDEX_VERSION=1`（`KnowledgeSearchFeatureExtractor.kt:28`）。
+2. **W1 资产契约 adopted**：7 件写面（6 `M` + 1 新增），post-sha 与 `build/agent-batch34/b4-layout-sha/touched-files.txt` 逐件一致；`check_asset` **exit 0 / 11 项 OK**（含 `layoutSha256=1aa8142e…`）；`test_dense_asset_gate.py` **9/9 OK**（N1 `28fc9985…`、N2 `235faec7…`、N3 `ca519f35…`，均只红 `layoutSha256`）；Kotlin `DenseLayoutIdentityTest` 4/4、`DenseAssetProvenanceTest` 2/2；旁车 `f0c94795…`、`.vec`/主包/金标/pin 未变；APK `028eb07e…` 在 `emulator-5562` 冒烟无崩溃。记录 `build/agent-batch34/w1/final.md`。
+3. **W2 导入 rolled-back**：`w2/device/summary.json` G2 N=20 逐次 67,513–80,412 ms，p50 74,756 / p95 78,695 / max 80,412，20/20 > 60,000 硬上限；崩溃注入有效 10/10、零丢失 10/10、`integrity_check` 10/10，kill 点 7–14 机制不可达；G1 51,486 ms；G3 p95 9,416 ms、39 样本 7 次静默空；读路径写副作用（`RoomKnowledgeBaseStore.kt:183,268,284`；`KnowledgePort.kt:40-46`）。回滚 10 件恢复 pre-sha、`app/gradle.lockfile` 重建 `91d66e83…`、7 件新增删除、staged 0；回滚后编译/契约 exit 0。设备重装 `NOT_RUN`。记录 `build/agent-batch34/w2/final.md`。
+4. **W3 API23 DDL adopted**：双机 `RoomImportDdlCompatibilityInstrumentedTest` 各 **OK (8 tests)**；`logcat` 只读异常 **0/0**；安装器 API23/API34 各 **OK (2 tests)**；`sqlite_version()` **3.8.10.2 / 3.39.2**；实现为 `sqlite_master` 门控 + `inIndexDdlTransaction`（`BEGIN IMMEDIATE`）。写面 1 `M`（`eacf9b0c…`）+ 1 新增（`ea9fe8b6…`）；零触碰 sha 全等；staged 0。修复前红基线/中间 API/真机 `NOT_RUN`。记录 `build/agent-batch34/w3/final.md`。
+5. **W4 B2b rolled-back**：设备 **118/129**（基线 v27 119/129），`(w,l)=(1,2)`、m=3、净 -1、精确 McNemar **p=1.0**；A/B 均不通过；G-IMPORT **81,724 ms** > 60,000 红；G-DRIFT 0；G-CHAP 单章最大损失 1；G-FIRST `NOT_RUN`。19 件内容 + 向量/旁车/常量/夹具/测试锚恢复 pre-sha；staged 0；回滚后 Provenance 2/2、LayoutIdentity 4/4、VectorAsset 5/5、Reranker 5/5、词面导出绿。`dense-device-order-reference.txt` 的 pre 值 `aad0381d…` 只能由 v28 词面腿复现（写前 fixture 相对写前词面腿陈旧）。设备回装 `NOT_RUN`（DB `contentVersion=f4972bb4…`）。记录 `build/agent-batch34/w4/final.md`。
+6. **W5 词面消融 rolled-back**：B0 117/129；A1 (α=1.0) **102/129**、w2/l17/m19、净 **-15**、p **0.000729**，24 章 7 章损失、最大单章 **4** ⇒ 守卫红；A2 (α=0.75) 116/129、w1/l2/m3、净 -1、p 1.0；A3 (b=0) 117/129、0/0、与 B0 位图全等（**不可判读**，BM25 未接线）。G0 零漂移 0。生产 `DenseFusion.ALPHA` 仍 0.5；`ACTIVE_ABLATION` 与重载删除；5 件新增实验文件删除；staged 0；回滚后编译 + 定向测试 exit 0。记录 `build/agent-batch34/w5/final.md`。
+7. **W6 路由 v2 rolled-back（ABORT）**：`w6/device/run.status` 原文 `status=ABORT / reason=缺少 …tools/kb_coverage/routing_eval_v2.py：静态门不存在，不得跑设备（v2 §5.1）`；`device.tsv`/`instrument.txt`/`logcat.txt` 全未产生；`deliveryRoutingExport` grep 0 命中。6 件生产源码恢复 pre-sha、6 件新增删除、staged 0；编译与 androidTest 装配 exit 0。静态门/设备门/位图/匹配率/24 章/Z1–Z3 全 `NOT_RUN`。记录 `build/agent-batch34/w6/final.md`。
+8. **W7 材料候选设备臂 blocked**：`app-strictOffline-debug.apk` `fd9edbe7…` 安装 `Success`；`TeachingMaterialAllocationInstrumentedTest` **OK (4 tests)**、`RoomModelTaskToolLoopInstrumentedTest` **OK (11 tests)**；预注册候选仪器 `TeachingMaterialCandidatesPerNodeInstrumentedTest.kt` 缺失；`tools/kb_perf/first_query_20x.sh` 不存在、`FirstQueryDuration` 无发出点 ⇒ G-FIRST `NOT_RUN`；zero-drift `NOT_RUN`；未改代码，无需回滚。**本目录不是 L2 材料 title+summary 特征臂**；batch34 未重启 L2，若按 L2 口径则本批无新增读数、状态沿用批次33 `blocked`。记录 `build/agent-batch34/w7/device/report.md`。
+9. **W8 render v3 rolled-back**：8 件既有文件恢复 pre-sha（`RoomTutorToolRunner.kt` `2de1e68f…`、`TutorToolDescriptions.kt` `0aa0b5dd…`、`KnowledgeTeachingMaterialDao.kt` `0a29d863…` 等）+ `KnowledgeReadSecondSlotTest.kt` 删除；`rg` 第二槽/候选符号 0 命中；staged 0；`UsageMaterialAllocationTest` 5/5、`KnowledgeReadRecallBudgetTest` 6/6、`TutorToolDescriptionsSnapshotTest` 4/4；设备 `parked`，第二槽/渲染文本/首查 p95 全 `NOT_RUN`。记录 `build/agent-batch34/w8/final.md`。
+10. **双机矩阵 + W9**：`w10/api23.json` status **green**（8 套件 / 25 用例 / 0 failed；logcat 零崩溃签名）；`w10/api34.json` verdict **green**（13 次运行 / 31 用例 / 0 failed / 0 ignored / FATAL 0 / ANR 0；golden run2 p95 78 ms、Recall 117/129、MRR 0.7239；并发 160 样本 p95 95 ms、errors 0；交付渲染 3/3）。`w9/device.md`：16 线程 p50 75 / p95 168 / max 249 ms、errors 0；备份 `OpsDeviceVerification` 1/1、`BackupRowCountsCoverage` 2/2、`BackupRestore` 34/34；冷启 62,321 ms、融合 p95 156 ms、Recall 117/129、overBudget 6/645；16KB `NOT_RUN`（bundletool 不可用）。
+11. **八门**：`build/agent-batch34/gates/summary.txt`（2026-11-04 21:20:25–21:27:16，HEAD `26f2327b…`）：kb_checks 0、**py_suite 1**、promote_dry 0、slice 0、asset 0、alignment 0、transcripts 0、judgment_fp 0；**overall red=1**。`py_suite` 1148 tests / **3 failures / 15 errors**；3 failures = `test_dense_asset_gate` N1/N2/N3（B2b 遗留），15 errors 分布于 acceptance_report/init/lint/hash_manifest、metamorphic_checks、a11y_audit、screenshot_baseline、trace_requirements。本会话实跑 `test_dense_asset_gate` exit 1（3 failures）、`check_asset` exit 0（11 OK）、`promote --dry-run` exit 0（version→29）。
+12. **尾巴**：`close/tail.md` **`clean=false`**。① FAIL：资源目录 1 `M`（`.vec.json`）、KB 相关 53（tail 记录值；本会话实测四个窄面 1/1/25/14）；② PASS：manifest `d69ebb8b…` / 主包 `10ede1bf…` / `.vec` `70329115…` / `.vec.json` `f0c94795…` / pin `70329115…` / 金标 `eabef102…` / `layoutSha256=1aa8142e…`；③ PASS：release 30 / same 30 / mismatch 0 / only-staging `['.staging-freeze.json']`；④ FAIL：对 `baseline/six-tuple.json` 2 项 DIFF（`headSha` 0fef9436→26f2327b、sidecar `6c1c448f`→`f0c94795`），其余 MATCH；⑤ FAIL：`tools/tests/test_dense_asset_gate.py` 仍为 B2b post `b36f712a…`（W1 post `21812c61…`），不在 B2b touched 清单，定向 3 红；⑥ PASS（内容层）：`promote --dry-run` rc=0、version→29、压平 0；⑦ FAIL（部分）：16 线程在位，16KB `NOT_RUN`。
+13. **R10 判定规则落地**：**单臂单测**——B2b 一臂一次判读、不做 Holm（`b2b-prereg.md:181-206`）；W5 A1 confirmatory、A2/A3 diagnostic（`lexical-ablation-prereg.md:65,113-126`）；路由 v2 一个 APK 一次 run、`--static` 只是 preflight（`routing-prereg-v2.md:201-208`）。**m 停**——本批未启用早停，全部跑满 129 条只读一次；实测 B2b m=3（不可判定档，按臂内“净增<+2”规则回滚，不写“等价”）、W5 A1 m=19、A2 m=3、A3 m=0；无二次查看/按 p 值停。**非劣界**——批次34 **没有任何臂预注册非劣**；R10 的 Δ=1 条低于分辨率（`b=c=0` 90% 下界 −2.05 pp）、最小可用 margin 5 条（3.876 pp）只作模板保留；路由 v2 的“不劣（无回归）”R1–R5 是产品守卫，不是带 margin 的统计非劣。**复现**——两个 adopted 臂（W1/W3）不是检索效果臂；有检索读数的 B2b/W5 均未采纳且无 fresh 集。
+
+**批次34 结算（文书员，2026-11-04）**：**W1 资产契约与 W3 API23 DDL 已采纳并保留**（旁车 `f0c94795…`、`layoutSha256=1aa8142e…`；DDL 双机 8/8）；**W2/W4/W5/W6/W8 已按各臂 final 回滚，W7 blocked**；**双机矩阵 green/green**（API23 8/25，API34 13/31）；**八门 7/8 rc=0**（`py_suite` 红于 B2b 遗留夹具）；**尾巴 `clean=false`**（①④⑤⑦ 未过）；**R10 的单臂单测与 m 停已落地，非劣界未使用**。最高下一步（未执行）：① 恢复 `test_dense_asset_gate.py` 到 W1 post `21812c61…`（或按 v28 重钉三值），把 `py_suite` 修到 rc=0；② 刷新 `baseline/six-tuple.json` 至 W1 后新值；③ 提交/登记 KB 面 1 `M` + 53 条相关脏项；④ 修 W2 读路径写副作用并补 20 次冷装/注入；⑤ 补 W6 静态门与 ranked 仪器、W7 首查探针与候选仪器；⑥ 16KB bundletool + 真机。
+
+**最小复核命令**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD; git status --porcelain | wc -l; git diff --cached --name-only | wc -l   # 26f2327b…；581；0
+python -I -X utf8 -c "import json;d=json.load(open('core/data/src/main/resources/knowledge/moe-2025-update-manifest.json',encoding='utf-8'));print(d['version'],d['contentVersion'])"   # 28 ce8edb8f89d91fe7
+python -I tools/dense_build/check_asset.py; echo "EXIT=$?"                                 # EXIT=0，11 OK
+python -I tools/kb_build/promote.py --dry-run; echo "EXIT=$?"                              # EXIT=0，version→29
+python -I tools/tests/test_dense_asset_gate.py; echo "EXIT=$?"                             # EXIT=1，Ran 9，failures=3
+cat build/agent-batch34/gates/summary.txt                                                  # overall red=1；py_suite rc=1
+python -I -X utf8 -c "import json;d=json.load(open('build/agent-batch34/w10/api23.json',encoding='utf-8'));print(d['status'],d['summary'])"
+python -I -X utf8 -c "import json;d=json.load(open('build/agent-batch34/w10/api34.json',encoding='utf-8'));print(d['verdict'],d['totals'])"
+cat build/agent-batch34/close/tail.md                                                      # clean=false
+```
+
+**§26 记账**：本文件为纯追加（追加前 962 行，sha `1c1b8909…`）；未改 §19–§25；未改 KB 数据/包/判定表/别名表/来源字段/门判据/Kotlin 代码；未 commit/push。未重跑项已在批报 §0.2 与本节逐条标注，不作完成性声明。

@@ -1,0 +1,60 @@
+{
+  "tag": "F-064-dropbox-recount",
+  "row": "F-064",
+  "claim_corrected": "dropbox 中 app 条目 6 条（原行误写 12，12 是 soak.device.json 的 dropbox_first 口径）",
+  "data_app_entries": [
+    {
+      "timestamp": "2026-11-03 09:08:02",
+      "tag": "data_app_crash",
+      "kind": "text",
+      "bytes": 7644
+    },
+    {
+      "timestamp": "2026-11-03 09:08:19",
+      "tag": "data_app_crash",
+      "kind": "text",
+      "bytes": 7643
+    },
+    {
+      "timestamp": "2026-11-03 09:08:34",
+      "tag": "data_app_crash",
+      "kind": "text",
+      "bytes": 7644
+    },
+    {
+      "timestamp": "2026-11-04 07:05:02",
+      "tag": "data_app_crash",
+      "kind": "text",
+      "bytes": 7644
+    },
+    {
+      "timestamp": "2026-11-04 07:06:01",
+      "tag": "data_app_crash",
+      "kind": "text",
+      "bytes": 4336
+    },
+    {
+      "timestamp": "2026-11-04 07:09:52",
+      "tag": "data_app_crash",
+      "kind": "text",
+      "bytes": 4337
+    }
+  ],
+  "data_app_count": 6,
+  "device_json_reported": 6,
+  "crash_buffer_lines": 0,
+  "window": "2026-11-04T15:23Z..15:54Z",
+  "all_entries_before_window": true,
+  "note": "设备时区=UTC（批次47 logcat 时间戳与宿主 UTC 逐秒一致）；6 条全部早于窗口起点 2026-11-04T15:23Z",
+  "sources_sha256": {
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/dropbox-after.txt": "4028d68213d86aaed8dcc18add0e1f75104d8bf72742b0462d626babbca53cff",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json": "fc86f1bf191efff7039f956d4177711691ceaba034949c091f3872c12c19676a",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log": "12702713ee1d85710da875687599497b24737d828f79be49a1b4aff5783f338b",
+    "docs/research/evidence/2026-11-05-batch-44/f-domain/logcat-crash.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "summary": {
+    "data_app_entries": 6,
+    "crash_buffer_lines": 0,
+    "all_before_window": true
+  }
+}

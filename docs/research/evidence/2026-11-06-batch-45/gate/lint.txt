@@ -1,0 +1,156 @@
+{
+  "ledger": "docs/acceptance/ledger.md",
+  "total": 1200,
+  "violations": [],
+  "warnings": [
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/b-domain/b-migration-matrix.xml 被 72 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/b-domain/b-migration-matrix.device.json 被 72 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-restore.xml 被 16 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-restore.device.json 被 16 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-plan-gate.log 被 16 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-node-compiler.log 被 31 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.xml 被 22 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.device.json 被 22 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-scene-compiler.log 被 22 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.xml 被 23 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.device.json 被 23 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.log 被 23 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspdfpainterinstrumentedtest.xml 被 12 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspdfpainterinstrumentedtest.device.json 被 12 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspdfpainterinstrumentedtest.log 被 12 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-prompt-paper.log 被 12 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-tools-quiz-cancel.log 被 16 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.OpenAiCompatibleModelGatewayTest.xml 被 12 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-gateway-egress.log 被 14 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/d-domain/d-model-budget-egress.log 被 13 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/d-domain/d-model-tools-recovery.log 被 18 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log 被 30 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log 被 15 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log 被 56 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml 被 11 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json 被 13 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log 被 17 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExportCopy.kt 被 12 行 PASS 共用，需确认独立性"
+    },
+    {
+      "id": "",
+      "code": "EVIDENCE_REUSED",
+      "detail": "docs/research/evidence/2026-11-05-batch-44/i-domain/unit-a11y-tools.xml 被 20 行 PASS 共用，需确认独立性"
+    }
+  ],
+  "ok": true,
+  "exit_code": 0
+}
+
+EXIT=0

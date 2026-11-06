@@ -167,7 +167,8 @@ class SplitImportCommitReceiptInstrumentedTest : CaptureWorkflowTestBase() {
                 draftId = original.draftId,
                 expectedRevisionNumber = original.revisionNumber,
                 assessmentRequestId = "capture-assess:split-three-questions",
-                sourceAssetId = requireNotNull(original.sourceAssetId),
+                // A8：照片导入的摘要必须带源图（空源形态只属于手动建题）。
+                sourceAssetId = checkNotNull(original.sourceAssetId),
                 regions = listOf(
                     NormalizedSourceRegion(0.05, 0.02, 0.95, 0.30),
                     NormalizedSourceRegion(0.05, 0.35, 0.95, 0.63),

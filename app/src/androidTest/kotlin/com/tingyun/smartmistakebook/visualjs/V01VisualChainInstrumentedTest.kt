@@ -4,19 +4,34 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.pdf.PdfRenderer
+import android.os.ParcelFileDescriptor
 import android.os.Process
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.data.visual.FigureGenerationCoordinationFactory
 import com.tingyun.smartmistakebook.core.data.visual.TutorVisualCommitRepository
+import com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewLabel
+import com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewOutcome
+import com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererFactory
+import com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRequest
 import com.tingyun.smartmistakebook.core.data.visual.TutorVisualProgramInput
 import com.tingyun.smartmistakebook.core.data.visual.TutorVisualSnapshotInput
+import com.tingyun.smartmistakebook.core.data.visual.VisualChainRestoreDecision
+import com.tingyun.smartmistakebook.core.data.visual.VisualChainTestSeamLabel
+import com.tingyun.smartmistakebook.core.data.visual.VisualChainTestSeams
 import com.tingyun.smartmistakebook.core.data.visual.VisualFrameInputs
 import com.tingyun.smartmistakebook.core.data.visual.VisualFrameSnapshot
+import com.tingyun.smartmistakebook.core.data.visual.VisualMeasuredLayoutArtifact
 import com.tingyun.smartmistakebook.core.database.AppendTutorAssistantMessageDatabaseCommand
 import com.tingyun.smartmistakebook.core.database.CreateTutorConversationDatabaseCommand
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
+import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.TutorVisualStatus
 import com.tingyun.smartmistakebook.core.database.TutorVisualTurnCommitRecord
 import com.tingyun.smartmistakebook.core.domain.ModelApiKey
@@ -54,6 +69,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.roundToInt
@@ -104,6 +120,16 @@ import kotlin.math.roundToInt
  * `FigureGenerationCoordinationFactory.create` 既有第 4/5 参（默认 null），生产装配仍三参
  * ——负控用例把"生产 null → UNAVAILABLE"钉在同一套件里。
  *
+ * **④ 腿增量（批次 39，3→4 例）**：第 4 例
+ * [theRestoredChainWritesAPdfThroughTheTestSeamAndKeepsThePreviewReference] 经
+ * core:data 公开测试缝 `VisualChainTestSeams`（批次 38 T10 方案 A）走 restore→PDF 全腿，
+ * 并叠加 D-04 预览接线的全程形（渲染器 + 生产 vault 写侧 → previewAssetId 落库 →
+ * 真实重开存活 → ③档只读时预览 id 可达）。缝的引用纪律由
+ * `tools/ci/check_visual_test_seams.py` 机检（src/main 零引用 + 非孤儿）；其 keep 义务
+ * 与预览渲染器一并在 `app/r04-test-keep.pro` 登记（R-04 批）前，本例**不得进 R-04
+ * release 轨用例清单**。label 参数走 R1 §3.2-B 的"测试内现算"路径（引擎回传 contentIds +
+ * 测试内 Paint 现算，见 [measuredLabelMetrics]）。
+ *
  * **本轨纪律**：不运行 Gradle/设备命令（门禁由脚本串行执行）；以下判据是设备轨要执行的
  * 断言，不是已通过的结果（先红后绿登记法）。方法名无空格（D8 SimpleName 约束）。
  */
@@ -116,6 +142,7 @@ class V01VisualChainInstrumentedTest {
     private val engines = CopyOnWriteArrayList<VisualJsClientEngine>()
     private val databases = CopyOnWriteArrayList<StudyDatabasePort>()
     private val databaseNames = CopyOnWriteArrayList<String>()
+    private val createdFiles = CopyOnWriteArrayList<File>()
 
     @After
     fun tearDown() {
@@ -128,6 +155,8 @@ class V01VisualChainInstrumentedTest {
         databases.clear()
         databaseNames.forEach { name -> runCatching { context.deleteDatabase(name) } }
         databaseNames.clear()
+        createdFiles.forEach { runCatching { it.delete() } }
+        createdFiles.clear()
     }
 
     // ------------------------------------------------------------ V-01 用例 A：生成腿 + 0 派发四断言位
@@ -332,14 +361,141 @@ class V01VisualChainInstrumentedTest {
         assertEquals(TutorVisualStatus.LIVE, chain.reopenedSnapshot.status)
     }
 
+    // ------------------------------------------------------------ V-01 ④ 腿：restore→PDF 全腿 + D-04 预览引用全程
+
+    /**
+     * ④ 腿（批次 39；批次 38 T10 方案 A 落地 + D-04 预览接线的全程形）：真隔离引擎第二次
+     * 执行直取 Rendered → 预览渲染器（**生产 vault 写侧**）产出 previewAssetId → 一次事务
+     * 提交 → 真实关闭 + 同名重开 → 测试缝 restore 判定（②档 Replay 注入清单 + ③档只读
+     * previewVerified=true 时预览 id 透出）→ 测试缝 PDF 全腿 → `PdfRenderer` 公共 API 回读。
+     *
+     * 断言只用缝公共返回值 + `PdfRenderer` 公共 API + 像素数组（缝 KDoc 约束 3）；
+     * label 走测试内现算（[measuredLabelMetrics]）。R-04 keep 登记前本例不进 release 轨
+     * 清单（缝 KDoc 约束 2）。
+     */
+    @Test
+    fun theRestoredChainWritesAPdfThroughTheTestSeamAndKeepsThePreviewReference() = runBlocking {
+        val chain = runChainToCommittedReopen(withPreview = true)
+        val previewAssetId = requireNotNull(chain.previewAssetId) {
+            "the 360x240 chain preview must be accepted and carry a preview asset id"
+        }
+
+        // D-04：previewAssetId 落库且穿越真实重开（提交行与重开行同值）。
+        assertEquals(previewAssetId, chain.committed.snapshot.previewAssetId)
+        assertEquals(previewAssetId, chain.reopenedSnapshot.previewAssetId)
+        // 资产行以共享 source type 登记（六站点判定/治理口径的单一来源，D-04 类型漂移钉）。
+        assertEquals(
+            StudyDbValue.SourceAssetType.LOCAL_VISUAL_PREVIEW,
+            readSingleRow(
+                "SELECT source_type FROM canonical_source_asset WHERE source_asset_id = ?",
+                previewAssetId,
+            ).string("source_type"),
+        )
+
+        // ②档 Replay：注入已登记清单（生产 VERIFIED_FONT_MANIFESTS 为空集 → 默认恒只读；
+        // 注入即验证解析/回放判定序本身——策略 KDoc 明示的测试用法）。
+        val replay = VisualChainTestSeams.restoreDecision(
+            snapshot = chain.reopenedSnapshot,
+            verifiedFontManifests = setOf(FONT_MANIFEST_VERSION),
+        )
+        val replayDecision = replay as? VisualChainRestoreDecision.Replay
+            ?: error("the restored snapshot must replay, got $replay")
+        assertEquals(chain.reopenedSnapshot.snapshotId, replayDecision.snapshotId)
+        assertEquals(VIEWPORT.widthDu, replayDecision.viewportWidthDu)
+        assertEquals(VIEWPORT.heightDu, replayDecision.viewportHeightDu)
+        assertEquals(FRAME_THEME, replayDecision.theme)
+
+        // ③档只读：默认空清单 → FONT_MANIFEST_UNVERIFIED；previewVerified=true → 预览 id
+        // 透出（③档显示缓存可达——D-04 消灭"冷恢复只剩文字说明"的断言位）。
+        val readOnly = VisualChainTestSeams.restoreDecision(
+            snapshot = chain.reopenedSnapshot,
+            verifiedFontManifests = emptySet(),
+            previewVerified = true,
+        )
+        val readOnlyDecision = readOnly as? VisualChainRestoreDecision.ReadOnly
+            ?: error("the default policy must degrade to read-only, got $readOnly")
+        assertEquals("RESTORE_FONT_MANIFEST_UNVERIFIED", readOnlyDecision.reasonCode)
+        assertEquals(previewAssetId, readOnlyDecision.previewAssetId)
+
+        // ④ PDF 全腿：seam（解析复检 + writeFile，D1∧D2∧D3 内部强制）→ 公共 API 回读。
+        val target = File(context.cacheDir, "v01-chain-pdf-${System.nanoTime()}.pdf")
+        createdFiles.add(target)
+        VisualChainTestSeams.writeSnapshotPdf(
+            drawCommandsJson = chain.drawCommandsJson,
+            contentIds = chain.executed.contentIds,
+            label = seamLabel(chain.labelContentId),
+            ptPerDu = 1f,
+            target = target,
+        )
+        assertTrue("the published pdf must exist", target.exists())
+        assertTrue("the published pdf must not be empty", target.length() > 0L)
+        val bytes = target.readBytes()
+        val tail = bytes.copyOfRange(maxOf(0, bytes.size - PDF_TAIL_WINDOW_BYTES), bytes.size)
+        assertTrue(
+            "the pdf tail window must contain the trailer marker",
+            String(tail, StandardCharsets.US_ASCII).contains(PDF_TRAILER_MARKER),
+        )
+        ParcelFileDescriptor.open(target, ParcelFileDescriptor.MODE_READ_ONLY).use { descriptor ->
+            PdfRenderer(descriptor).use { renderer ->
+                assertEquals("the pdf must be a single page", 1, renderer.pageCount)
+                renderer.openPage(0).use { page ->
+                    assertEquals(
+                        "page width must be viewBox.w × ptPerDu (ceil)",
+                        VIEWPORT.widthDu,
+                        page.width,
+                    )
+                    assertEquals(
+                        "page height must be viewBox.h × ptPerDu (ceil)",
+                        VIEWPORT.heightDu,
+                        page.height,
+                    )
+                    val scale = 2f
+                    val rasterWidth = (page.width * scale).roundToInt()
+                    val rasterHeight = (page.height * scale).roundToInt()
+                    val bitmap = Bitmap.createBitmap(rasterWidth, rasterHeight, Bitmap.Config.ARGB_8888)
+                    try {
+                        bitmap.eraseColor(Color.WHITE)
+                        page.render(
+                            bitmap,
+                            null,
+                            Matrix().apply { setScale(scale, scale) },
+                            PdfRenderer.Page.RENDER_MODE_FOR_PRINT,
+                        )
+                        val pixels = IntArray(rasterWidth * rasterHeight).also {
+                            bitmap.getPixels(it, 0, rasterWidth, 0, 0, rasterWidth, rasterHeight)
+                        }
+                        assertTrue(
+                            "the pdf raster must not be blank",
+                            pixels.any { it != Color.WHITE },
+                        )
+                        // 圆心（du 55,55 = circle(50,50,40) 过组平移 +5,+5）× scale 处必有路径墨
+                        //（红 fill × 组 opacity 0.5 与白底混合仍非白——存在性而非颜色断言）。
+                        val probeX = (55 * scale).roundToInt()
+                        val probeY = (55 * scale).roundToInt()
+                        assertTrue(
+                            "the pdf must carry path ink at the circle center ($probeX,$probeY)",
+                            pixels[probeY * rasterWidth + probeX] != Color.WHITE,
+                        )
+                    } finally {
+                        bitmap.recycle()
+                    }
+                }
+            }
+        }
+    }
+
     // ------------------------------------------------------------ 链的复用骨架（链腿专用）
 
     /**
      * 一次完整链路的中间产物（真隔离引擎版）：proposal → coordinator（注入真引擎）→
      * coordinator.generate（引擎第一次执行）→ 测试直取第二次执行 → commit → close →
      * 同名重开 → 读行。见证③的预置与复核在本骨架内完成（夹具缺陷②修复）。
+     *
+     * @param withPreview true 时在提交前走 D-04 预览接线（渲染器 + 生产 vault 写侧 →
+     *   previewAssetId 填进快照输入；R1 §2.2 顺序即语义）。默认 false——③ 链腿的既有
+     *   断言形状零改动。
      */
-    private suspend fun runChainToCommittedReopen(): ChainArtifacts {
+    private suspend fun runChainToCommittedReopen(withPreview: Boolean = false): ChainArtifacts {
         val databaseName = "v01-chain-${System.nanoTime()}.db"
         databaseNames.add(databaseName)
         context.deleteDatabase(databaseName)
@@ -406,6 +562,27 @@ class V01VisualChainInstrumentedTest {
             SERVICE_CONTENT_ID_PATTERN.matches(labelContentId),
         )
 
+        // D-04 预览接线（R1 §2.2 顺序即语义）：渲染 → persist（生产 vault 写侧，字节→行
+        // 原子两步）→ previewAssetId 填进快照输入 → 仓储提交。只在此 LIVE 首张可见图路径，
+        // 不在 stageSnapshot（STAGING 是 60 分钟租约的临时中间态）。
+        var previewAssetId: String? = null
+        if (withPreview) {
+            val renderer = TutorVisualPreviewRendererFactory.forProduction(context, store)
+            val outcome = renderer.renderPreview(
+                TutorVisualPreviewRequest(
+                    rendered = executed,
+                    viewportWidthDu = frame.viewport.widthDu,
+                    viewportHeightDu = frame.viewport.heightDu,
+                    fontScaleMilli = (fontScaleOf() * 1_000f).roundToInt(),
+                    createdAtEpochMillis = 9_000, // 与仓储 clock 同源（R1 §2.2-3）。
+                    labels = listOf(previewLabel(labelContentId)),
+                ),
+            )
+            val accepted = outcome as? TutorVisualPreviewOutcome.Accepted
+                ?: error("the 360x240 chain preview must be accepted, got $outcome")
+            previewAssetId = accepted.previewAssetId
+        }
+
         // 保存：一次事务提交 assistant 正文 + program + LIVE 快照 + link（D-02 契约）。
         val repository = TutorVisualCommitRepository(
             database = store,
@@ -441,6 +618,7 @@ class V01VisualChainInstrumentedTest {
                 rendererVersion = RENDERER_VERSION,
                 fontManifestVersion = FONT_MANIFEST_VERSION,
                 questionVerificationStatus = "NOT_CHECKED",
+                previewAssetId = previewAssetId,
             ),
             ownerRequestId = OWNER_REQUEST_ID,
         )
@@ -476,6 +654,7 @@ class V01VisualChainInstrumentedTest {
             committed = committed,
             reopenedLink = reopenedLink,
             reopenedSnapshot = reopenedSnapshot,
+            previewAssetId = previewAssetId,
         )
     }
 
@@ -487,7 +666,62 @@ class V01VisualChainInstrumentedTest {
         val committed: TutorVisualTurnCommitRecord,
         val reopenedLink: com.tingyun.smartmistakebook.core.database.TutorMessageVisualRecord,
         val reopenedSnapshot: com.tingyun.smartmistakebook.core.database.TutorVisualSnapshotRecord,
+        /** D-04 预览接线产物；withPreview=false 时为 null（③ 链腿既有形状）。 */
+        val previewAssetId: String?,
     )
+
+    // ------------------------------------------------------------ ④ 腿 label 的测试内现算（R1 §3.2-B）
+
+    /**
+     * 测试内现算的 label 度量（du）：与回放侧 painter 的 textPaint 装配同构——flags=0
+     * （core:data internal `REPLAY_TEXT_PAINT_FLAGS` 的测试侧镜像，跨模块不可引用）、
+     * textSize = sizeSp × fontScale × density px、advance/fontMetrics 换算 du（/density）。
+     * 返回 (advanceDu, heightDu)。
+     */
+    private fun measuredLabelMetrics(): Pair<Float, Float> {
+        val density = context.resources.displayMetrics.density
+        val paint = Paint().apply {
+            flags = 0
+            textSize = 16f * fontScaleOf() * density
+        }
+        val metrics = paint.fontMetrics
+        val advanceDu = paint.measureText(LABEL_PAYLOAD) / density
+        val heightDu = (metrics.descent - metrics.ascent) / density
+        return Pair(advanceDu, heightDu)
+    }
+
+    /** 预览渲染器的 label 输入（公共度量 artifact 载体；M-01/replay 同一行段规则）。 */
+    private fun previewLabel(contentId: String): TutorVisualPreviewLabel {
+        val (advanceDu, heightDu) = measuredLabelMetrics()
+        return TutorVisualPreviewLabel(
+            contentId = contentId,
+            payload = LABEL_PAYLOAD,
+            artifact = VisualMeasuredLayoutArtifact(
+                kind = com.tingyun.smartmistakebook.core.domain.VisualContentKind.TEXT,
+                widthDu = advanceDu,
+                heightDu = heightDu,
+                baselineDu = 0f,
+                fontSizeSp = 16f,
+                digest = "v01-chain-preview-label",
+                lines = listOf(VisualMeasuredLayoutArtifact.Line(0, LABEL_PAYLOAD.length, advanceDu)),
+                degraded = false,
+                inkBounds = VisualMeasuredLayoutArtifact.InkRect(0f, 0f, advanceDu, heightDu),
+            ),
+        )
+    }
+
+    /** PDF 缝的 label 输入（缝公共值类型，同一次现算）。 */
+    private fun seamLabel(contentId: String): VisualChainTestSeamLabel {
+        val (_, heightDu) = measuredLabelMetrics()
+        return VisualChainTestSeamLabel(
+            contentId = contentId,
+            payload = LABEL_PAYLOAD,
+            sizeSp = 16f,
+            fontScale = fontScaleOf(),
+            heightDu = heightDu,
+            lines = listOf(VisualChainTestSeamLabel.Line(0, LABEL_PAYLOAD.length)),
+        )
+    }
 
     // ------------------------------------------------------------ 夹具
 
@@ -776,6 +1010,10 @@ class V01VisualChainInstrumentedTest {
 
         /** 生产 VERIFIED_FONT_MANIFESTS 为空集；测试提交的已登记清单版本（与 core/data 变体同值）。 */
         const val FONT_MANIFEST_VERSION = "font-manifest-v1"
+
+        /** PDF 尾窗回读参数（与 core/data 变体 D 腿同型：非空 + 尾窗含 %%EOF）。 */
+        const val PDF_TAIL_WINDOW_BYTES = 64
+        const val PDF_TRAILER_MARKER = "%%EOF"
 
         /**
          * 渲染器实现版本的测试侧镜像（与 core:data internal 常量

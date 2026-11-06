@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:55:33.023Z" hostname="TIANSHAN" time="0.029">
+  <properties/>
+  <testcase name="emptyCommandsAreParsedSoTheCallerCanExplainThereWasNothingToDo" classname="com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest" time="0.006"/>
+  <testcase name="anUnknownCommandTypeIsRejectedInsteadOfIgnored" classname="com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest" time="0.007"/>
+  <testcase name="zeroAndHugeMoveOffsetsAreRejected" classname="com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest" time="0.001"/>
+  <testcase name="everyWhitelistedCommandParsesWithItsDeclaredFields" classname="com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest" time="0.008"/>
+  <testcase name="codeFencesAndFreeTextAreNotMasqueradedIntoCommands" classname="com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest" time="0.001"/>
+  <testcase name="wrongFieldTypesAreRejected" classname="com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest" time="0.002"/>
+  <testcase name="payloadSizeAndCommandCountAreBounded" classname="com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest" time="0.003"/>
+  <testcase name="anExtraFieldSuchAsAnImageUriRejectsTheWholeCommand" classname="com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest" time="0.001"/>
+  <testcase name="blankRequiredTextIsRejectedButBlankBlockTextAndNoteAreLeftToTheApplier" classname="com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest" time="0.0"/>
+  <testcase name="theRootShapeIsExactlyTheCommandsObject" classname="com.tingyun.smartmistakebook.core.model.PaperEditCommandParserTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,3 @@
+c5f5efd177825c67779ba230336095453cdc359db7a9735c7cbdc6c3f62b5ca9 *app/build/outputs/apk/localFirst/debug/app-localFirst-debug.apk
+8ad0ff903a39eaaf79e5d23ad0645359c41ff6012db82d8a3b8dd396033355be *app/build/outputs/apk/androidTest/localFirst/debug/app-localFirst-debug-androidTest.apk
+EXIT=0

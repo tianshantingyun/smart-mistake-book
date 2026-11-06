@@ -1,0 +1,2 @@
+--------- beginning of main
+11-05 13:11:37.086  1918  1960 I MistakeBatchPerf: pdfQuestions=60 pages=64 elapsedMs=464

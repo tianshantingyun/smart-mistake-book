@@ -1,0 +1,503 @@
+{
+  "_note": "E 域（复习与算法）独立复核终裁。仅覆盖 docs/acceptance/ledger.md 中 E-001..E-090；不写全局‘验收通过’。reviewer 不在 authors 内。所有结论来自 2026-11-05 本会话实跑与机械复算，命令逐字见 recompute.commands。",
+  "id": "E",
+  "domain": "E",
+  "domain_title": "复习与算法",
+  "review_type": "independent-domain-review",
+  "reviewer": "b45-e-independent-reviewer",
+  "authors": [
+    "b45-e-domain-author"
+  ],
+  "self_review": false,
+  "run_id": "2026-11-05T10:52:00+08:00-batch45-e-review",
+  "reviewed_at": "2026-11-05T11:00:00+08:00",
+  "ledger_path": "docs/acceptance/ledger.md",
+  "ledger_sha256": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "source_head": "87604198feeef198d5dba7343b8c4692c5e8f937",
+  "source_dirty": {
+    "porcelain": 594,
+    "porcelain_uall": 3951,
+    "note": "共享工作树；本轮只读复核，未改源码/台账/热区。"
+  },
+  "verdict": "UNVERIFIED",
+  "verdict_scope": "E 域抽样复核通过（≥5 行），且 80 个 PASS 行引用的 35 份 XML 与两条重录命令经本轮独立重跑机械复算一致；10 个 UNVERIFIED 行维持不签字。本判词不构成批次 45 全局验收通过，也不构成发版就绪。",
+  "row_counts": {
+    "total": 90,
+    "PASS": 80,
+    "FAIL": 0,
+    "BLOCKED": 0,
+    "UNVERIFIED": 10
+  },
+  "independence": {
+    "reviewer_not_author": true,
+    "independence_verified": false,
+    "basis": "角色分离 + 对归档证据逐项机械复算；reviewer 未参与被复核证据的产出角色。",
+    "limitation": "作者的 cmd 与 test 两类证据来自同一次执行（E 域 00-index §2.3 自述）。因此行级‘两类独立证据’不等同两次独立执行；本复核用本轮重跑补上独立执行这一维。",
+    "evidence_classes": [
+      "cmd（重录的逐字 Gradle/探针命令日志，EXIT 可读）",
+      "test（每类 JUnit XML，failures/errors/skipped 可机械解析）",
+      "本轮独立重跑（reviewer 亲自执行，不复用作者退出码）",
+      "机械复算（XML 计数/用例名/回归小计逐项对账）"
+    ],
+    "verdict_ceiling": "UNVERIFIED (domain-level sample only)"
+  },
+  "recompute": {
+    "commands": [
+      {
+        "id": "domain-jvm",
+        "cmd": "./gradlew --offline -q :core:domain:test --tests com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest --tests com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest --tests com.tingyun.smartmistakebook.core.domain.FsrsParameterRecoveryTest --tests com.tingyun.smartmistakebook.core.domain.ForgettingCurveTest --tests com.tingyun.smartmistakebook.core.domain.ReviewUndoReplayTest --tests com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test --tests com.tingyun.smartmistakebook.core.domain.LearningProjectorTest --tests com.tingyun.smartmistakebook.core.domain.StoredRatingBasisTest --tests com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarnessTest --tests com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest --tests com.tingyun.smartmistakebook.core.domain.PlannedReasonCalibrationTest --tests com.tingyun.smartmistakebook.core.domain.MasteryMemoryCardTest --tests com.tingyun.smartmistakebook.core.domain.LongRangeSampleLedgerTest --tests com.tingyun.smartmistakebook.core.domain.AttentionSignalTest --tests com.tingyun.smartmistakebook.core.domain.StudyDayMathTest",
+        "cmd_source": "逐字取自 docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log:1（去掉 CMD: 前缀）",
+        "exit": 0,
+        "fresh": {
+          "classes": 15,
+          "tests": 161,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "executed_at": "2026-11-05T10:54+08:00"
+      },
+      {
+        "id": "data-jvm",
+        "cmd": "./gradlew --offline -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.study.StudySchedulingCalibrationTest --tests com.tingyun.smartmistakebook.core.data.study.ReviewCapacitySchedulerTest --tests com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest --tests com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest --tests com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest --tests com.tingyun.smartmistakebook.core.data.study.ReviewLogStateTest --tests com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerExamWindowTest --tests com.tingyun.smartmistakebook.core.data.study.MissedDayRebalancePolicyTest --tests com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest --tests com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest --tests com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest --tests com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest --tests com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest --tests com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest --tests com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerServiceCapacityPreviewTest --tests com.tingyun.smartmistakebook.core.data.study.ReviewSelfReportContractTest --tests com.tingyun.smartmistakebook.core.data.study.TutorJudgedReviewSettlerTest --tests com.tingyun.smartmistakebook.core.data.study.LongRangeSampleLedgerReadTest --tests com.tingyun.smartmistakebook.core.data.study.ReadSideMasteryClosureTest --tests com.tingyun.smartmistakebook.core.data.study.LatestCorrectedKeyOrderTest",
+        "cmd_source": "逐字取自 docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log:1（去掉 CMD: 前缀）",
+        "exit": 0,
+        "fresh": {
+          "classes": 20,
+          "tests": 150,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "executed_at": "2026-11-05T10:55+08:00"
+      }
+    ],
+    "evidence_xml_comparison": {
+      "compared_classes": 35,
+      "count_mismatches": 0,
+      "testcase_name_mismatches": 0,
+      "note": "逐类比较本轮 build/test-results 与 docs/.../e-domain/TEST-*.xml：tests/failures/errors/skipped 与全部 <testcase name> 完全一致。证据 XML 的 timestamp 为 2026-11-05T01:14Z（重录轮），字节因时间/主机字段不同而不同，属预期。"
+    },
+    "probe": {
+      "green": {
+        "cmd": "bash docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe-run.sh",
+        "exit": 0,
+        "output": [
+          "PROBE_CHECKS=298277",
+          "PROBE_RESULT=OK"
+        ],
+        "result": "reproduced"
+      },
+      "mutation_control": {
+        "cmd": "bash docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe-run.sh --mutate",
+        "exit": 1,
+        "output": [
+          "PROBE_CHECKS=298277",
+          "PROBE_COUNTEREXAMPLES=1",
+          "PROBE_RESULT=VIOLATED"
+        ],
+        "result": "reproduced；证明探针非恒绿，固定种子 Random(44) 与 298,277 次断言可复现"
+      }
+    },
+    "sha_manifest": {
+      "cmd": "sha256sum -c docs/research/evidence/2026-11-05-batch-44/e-domain/sha256.txt",
+      "listed": 47,
+      "ok": 47,
+      "failed": 0,
+      "note": "清单自身不列入（--verify 时排除），与 00-index §8 自述一致。"
+    },
+    "gates": {
+      "acceptance_report": {
+        "cmd": "python -I tools/ci/acceptance_report.py --ledger docs/acceptance/ledger.md",
+        "exit": 1,
+        "ledger_sha256": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+        "e_violations": 0,
+        "e_placeholder_cmd": 0,
+        "global_counts": {
+          "PASS": 882,
+          "FAIL": 30,
+          "BLOCKED": 144,
+          "UNVERIFIED": 144
+        },
+        "global_state": "FAIL",
+        "note": "批次 44 的 101 条 E 域 PLACEHOLDER_CMD 已归零；全局 exit 1 来自其他域的 FAIL/BLOCKED/UNVERIFIED 与 pass_with_review=0，不是 E 域命令占位。"
+      },
+      "acceptance_lint": {
+        "cmd": "python -I tools/ci/acceptance_lint.py --ledger docs/acceptance/ledger.md",
+        "exit": 0,
+        "violations": 0,
+        "warnings": 29,
+        "e_domain_warnings": 4,
+        "e_domain_warning_detail": [
+          "e-domain-domain-jvm.cmd.log 被 30 行 PASS 共用",
+          "e-domain-data-jvm.cmd.log 被 56 行 PASS 共用",
+          "e-domain-probe.cmd.log 被 15 行 PASS 共用",
+          "TEST-...ErrorCauseChainTest.xml 被 11 行 PASS 共用"
+        ],
+        "note": "EVIDENCE_REUSED 是结构性复用（一次模块执行服务多行），不是伪造；由本轮独立重跑补独立执行维。"
+      },
+      "trace_requirements": {
+        "cmd": "python -I tools/ci/trace_requirements.py --ledger docs/acceptance/ledger.md",
+        "exit": 0,
+        "gaps": 0,
+        "e_gaps": 0
+      }
+    }
+  },
+  "sampled_rows": [
+    {
+      "id": "E-001",
+      "ledger_verdict": "PASS",
+      "claim": "FSRS 档位 0 值：fromStored(0) 与负值夹到 AGAIN，不产生越界评分",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StoredRatingBasisTest.xml",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log"
+      ],
+      "recompute": {
+        "fresh_xml": "StoredRatingBasisTest tests=5 failures=0 errors=0 skipped=0 (本轮 10:54 重跑)",
+        "testcase": "fromStored clamps out of range values to the endpoints",
+        "source": "core/domain/src/test/kotlin/com/tingyun/smartmistakebook/core/domain/StoredRatingBasisTest.kt:31-41",
+        "assertion": "assertEquals(FsrsRating.AGAIN, FsrsRating.fromStored(0))；assertEquals(FsrsRating.AGAIN, FsrsRating.fromStored(-5))"
+      },
+      "review_result": "CONFIRMED"
+    },
+    {
+      "id": "E-010",
+      "ledger_verdict": "PASS",
+      "claim": "容量总量 0 值：dailyQuota(0)=0、cap=0 不发放、单日容量下限为 1",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest.xml",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log"
+      ],
+      "recompute": {
+        "fresh_xml": "ReviewCapacityPolicyTest tests=15 failures=0 errors=0 skipped=0",
+        "testcases": [
+          "daily quota uses ceil and clamps to the day capacity",
+          "zero capacity grants nothing and duplicate subjects fail closed",
+          "daily capacity is at least one and rejects non-positive inputs"
+        ],
+        "source": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/ReviewCapacityPolicyTest.kt:40-49,189-198,250-270",
+        "assertion": "dailyQuota(remaining=0,...)=0 且 dailyQuota(...,capPerDay=0)=0；allocateSubjectCaps(capacity=0)=[0,0]；capacityPerDay(60,300)=1，0 输入 assertThrows"
+      },
+      "review_result": "CONFIRMED"
+    },
+    {
+      "id": "E-019",
+      "ledger_verdict": "PASS",
+      "claim": "考试配额 0 值：窗口外 d=0/15/30/-1 零输出、不取题、目标保留率回退 base",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest.xml",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log"
+      ],
+      "recompute": {
+        "fresh_xml": "ExamQuotaPlannerTest tests=8 failures=0 errors=0 skipped=0",
+        "testcase": "outside the fourteen-day window produces zero output",
+        "source": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/ExamQuotaPlannerTest.kt:16-33",
+        "assertion": "对 0/15/30/-1 逐值 assertFalse(inWindow)、quota=0、deficitCount=0、picked 为空、targetRetentionAtExam=0.90(base)"
+      },
+      "review_result": "CONFIRMED"
+    },
+    {
+      "id": "E-046",
+      "ledger_verdict": "PASS",
+      "claim": "错因候选 0 值：无学生轨迹或改卷后轨迹时弃权，不猜错因",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest.xml",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log"
+      ],
+      "recompute": {
+        "fresh_xml": "ErrorCauseExtractorTest tests=11 failures=0 errors=0 skipped=0",
+        "testcases": [
+          "no student trace abstains instead of guessing a cause",
+          "a revision changed after the attempt abstains"
+        ],
+        "source": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/ErrorCauseExtractorTest.kt:20-25,195-206",
+        "assertion": "两条用例均 assertNull(extractor.extract(...))"
+      },
+      "review_result": "CONFIRMED"
+    },
+    {
+      "id": "E-073",
+      "ledger_verdict": "PASS",
+      "claim": "排序稳定 0 值：空候选或全掌握节点输出空队列，不失败",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
+        "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest.xml",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log"
+      ],
+      "recompute": {
+        "fresh_xml": [
+          "KnowledgeReviewQueueTest tests=22 0/0/0",
+          "AdaptiveSelectionAssemblerTest tests=12 0/0/0"
+        ],
+        "testcases": [
+          "emptyOrAllMasteredCandidatesYieldsEmptyQueue",
+          "no snapshot and no mistake yields no candidates without failing"
+        ],
+        "source": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/AdaptiveSelectionAssemblerTest.kt:303-309",
+        "assertion": "assembleCandidates(...) 与 emptyList<AdaptiveQuestionCandidate>() 相等；队列侧空/全掌握候选返回空队列"
+      },
+      "review_result": "CONFIRMED"
+    },
+    {
+      "id": "E-082",
+      "ledger_verdict": "PASS",
+      "claim": "时间界 04:00：本地 00:00 到 04:00 的复习仍归前一个学习日",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log"
+      ],
+      "recompute": {
+        "fresh_xml": "StudyDayMathTest tests=5 failures=0 errors=0 skipped=0",
+        "testcase": "late night reviews still belong to the previous study day",
+        "source": "core/domain/src/test/kotlin/com/tingyun/smartmistakebook/core/domain/StudyDayMathTest.kt:65-76",
+        "assertion": "offset=480；23:50 与次日 00:20 的 localEpochDayOf 差为 0"
+      },
+      "review_result": "CONFIRMED"
+    },
+    {
+      "id": "E-090",
+      "ledger_verdict": "PASS",
+      "claim": "时间界回归：四类 30 例全绿（StudyDayMath 5 + ReviewLogState 1 + Projector 17 + Projection 7）",
+      "evidence": [
+        "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml",
+        "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReviewLogStateTest.xml",
+        "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.LearningProjectorTest.xml",
+        "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest.xml",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
+        "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log"
+      ],
+      "recompute": {
+        "fresh_counts": {
+          "StudyDayMathTest": 5,
+          "ReviewLogStateTest": 1,
+          "LearningProjectorTest": 17,
+          "FsrsProjectionBehaviorTest": 7
+        },
+        "sum": 30,
+        "failures_errors_skipped": 0
+      },
+      "review_result": "CONFIRMED"
+    },
+    {
+      "id": "E-061",
+      "ledger_verdict": "UNVERIFIED",
+      "claim": "错因落账并发。JVM 用例用假端口，不模拟 SQL 事务；真 SQLite 事务由设备用例覆盖，本轮未跑设备",
+      "evidence": [
+        "file:core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/ErrorCauseBookingService.kt"
+      ],
+      "recompute": {
+        "instrumented_test_exists": "core/database/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/ErrorCauseLedgerInstrumentedTest.kt",
+        "repo_device_evidence": "docs/research/evidence/2026-11-06-batch-44/device-track/modules/database.xml:59-64 记录同类的 3 条 testcase（appendAcceptRetractAndSupersedeKeepOneActiveRow / aFailingVoidRollsBackTheRetractionRowAndKeepsTheBindingActive / candidateRejectedAndRetractedStatesLeaveNoActiveLabelBehind），无 failure；database.device.json verdict=PASS counts.tests=319",
+        "concurrency_case": "未找到并发用例"
+      },
+      "review_result": "UNVERIFIED-CONFIRMED",
+      "note": "verdict 维持 UNVERIFIED（并发确实未测）；但行内理由‘本轮未跑设备’在仓库层面不准确——批次 44 device-track 已执行该设备类。下一批应改引该设备证据，并把缺口收窄为‘并发未测’，而不是‘设备未跑’。"
+    }
+  ],
+  "regression_rows": [
+    {
+      "id": "E-009",
+      "claim": "35 例",
+      "recomputed": 35,
+      "result": "MATCH"
+    },
+    {
+      "id": "E-018",
+      "claim": "33 例",
+      "recomputed": 33,
+      "result": "MATCH"
+    },
+    {
+      "id": "E-027",
+      "claim": "14 例",
+      "recomputed": 14,
+      "result": "MATCH"
+    },
+    {
+      "id": "E-036",
+      "claim": "15 例",
+      "recomputed": 15,
+      "result": "MATCH"
+    },
+    {
+      "id": "E-045",
+      "claim": "31 例",
+      "recomputed": 31,
+      "result": "MATCH"
+    },
+    {
+      "id": "E-054",
+      "claim": "20 例",
+      "recomputed": 20,
+      "result": "MATCH"
+    },
+    {
+      "id": "E-063",
+      "claim": "24 例",
+      "recomputed": 24,
+      "result": "MATCH"
+    },
+    {
+      "id": "E-072",
+      "claim": "15 例",
+      "recomputed": 15,
+      "result": "MATCH"
+    },
+    {
+      "id": "E-081",
+      "claim": "69 例",
+      "recomputed": 69,
+      "result": "MATCH"
+    },
+    {
+      "id": "E-090",
+      "claim": "30 例",
+      "recomputed": 30,
+      "result": "MATCH"
+    }
+  ],
+  "non_pass_rows": [
+    {
+      "id": "E-007",
+      "verdict": "UNVERIFIED",
+      "reason": "FSRS 并发未测",
+      "review": "证据只有 file:，未冒充 PASS"
+    },
+    {
+      "id": "E-016",
+      "verdict": "UNVERIFIED",
+      "reason": "容量纯策略并发未测",
+      "review": "证据只有 file:，未冒充 PASS"
+    },
+    {
+      "id": "E-025",
+      "verdict": "UNVERIFIED",
+      "reason": "考试配额并发未测",
+      "review": "证据只有 file:，未冒充 PASS"
+    },
+    {
+      "id": "E-034",
+      "verdict": "UNVERIFIED",
+      "reason": "再平衡并发未测",
+      "review": "证据只有 file:，未冒充 PASS"
+    },
+    {
+      "id": "E-043",
+      "verdict": "UNVERIFIED",
+      "reason": "投影并发未测",
+      "review": "证据只有 file:，未冒充 PASS"
+    },
+    {
+      "id": "E-052",
+      "verdict": "UNVERIFIED",
+      "reason": "提取器并发未测",
+      "review": "证据只有 file:，未冒充 PASS"
+    },
+    {
+      "id": "E-061",
+      "verdict": "UNVERIFIED",
+      "reason": "落账并发未测；设备事务类已有历史设备证据但未引用",
+      "review": "见 sampled_rows.E-061"
+    },
+    {
+      "id": "E-070",
+      "verdict": "UNVERIFIED",
+      "reason": "撤回并发未测",
+      "review": "证据只有 file:，未冒充 PASS"
+    },
+    {
+      "id": "E-079",
+      "verdict": "UNVERIFIED",
+      "reason": "规划并发未测",
+      "review": "证据只有 file:，未冒充 PASS"
+    },
+    {
+      "id": "E-086",
+      "verdict": "UNVERIFIED",
+      "reason": "DST 春季跳变未测（仅 America/New_York 冬季样本）",
+      "review": "证据只有 file:，未冒充 PASS"
+    }
+  ],
+  "findings": [
+    {
+      "id": "FR-E-1",
+      "severity": "info",
+      "finding": "批次 44 的 101 条 E 域 PLACEHOLDER_CMD 已消除：90 行中 80 个 PASS 行的 method 命令与 4 个 cmd.log 的 CMD 行均逐字展开，无 <...> 占位；acceptance_report 对 E 域 0 违规。",
+      "evidence": "本轮 python -I tools/ci/acceptance_report.py 输出 e_violations=0；行级 grep 无占位符"
+    },
+    {
+      "id": "FR-E-2",
+      "severity": "medium",
+      "finding": "E 域 80 个 PASS 行共用 2 条模块级 Gradle 日志（domain 30 行、data 56 行）与 1 条探针日志（15 行），且 cmd 与 test 来自同一次执行；单靠台账无法证明行级独立。本轮独立重跑 35 类 311 例全绿，补上独立执行维，但仍属类级而非逐断言级。",
+      "evidence": "acceptance_lint warnings 4 条 E 域 EVIDENCE_REUSED；E 域 00-index §2.3"
+    },
+    {
+      "id": "FR-E-3",
+      "severity": "low",
+      "finding": "E-061 行内理由‘本轮未跑设备’不准确：批次 44 device-track 的 database 套件已执行 ErrorCauseLedgerInstrumentedTest 3 例（0 failure，database.device.json PASS 319/319）。verdict 仍应维持 UNVERIFIED（并发未测），但理由应收窄。",
+      "evidence": "docs/research/evidence/2026-11-06-batch-44/device-track/modules/database.xml:59-64；database.device.json"
+    },
+    {
+      "id": "FR-E-4",
+      "severity": "info",
+      "finding": "探针红相（--mutate）本轮复现 EXIT=1 / PROBE_RESULT=VIOLATED，绿相 298,277 次断言 OK；探针不是恒绿，可用作第二类独立执行路径。",
+      "evidence": "本轮两次 probe 运行输出"
+    },
+    {
+      "id": "FR-E-5",
+      "severity": "info",
+      "finding": "E 域证据 sha 清单 47/47 校验通过；35 份 XML 的类/用例名/计数与本轮重跑完全一致。",
+      "evidence": "sha256sum -c sha256.txt -> 47 OK；本轮机械比较 35/35 无差异"
+    }
+  ],
+  "residuals": [
+    "10 条 UNVERIFIED（并发 ×8、E-061 设备事务并发、E-086 DST 春季跳变）没有新增用例，本复核不改判。",
+    "行级‘两类独立证据’的独立性受同一执行限制；本轮重跑是独立执行，但不是逐行独立实现。",
+    "本轮未跑 adb/设备：E-061 引用的是历史 device-track 证据，不是本轮设备复核。",
+    "E 域通过不改变批次 45 全局结论：acceptance_report 仍 exit 1 / state=FAIL（其他域 FAIL 30 / BLOCKED 144 / UNVERIFIED 144，pass_with_review=0）。"
+  ],
+  "adversarial": {
+    "attempted": true,
+    "result": "mutation-control-reproduced",
+    "detail": "e-domain-probe-run.sh --mutate 强制探针报错并 exit 1，证明绿相不是恒绿；本轮未对 JUnit 用例做自突变（不在本 ask 范围）。"
+  },
+  "evidence": [
+    "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log#exit=0",
+    "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe-mutate.cmd.log#exit=1",
+    "hash:docs/research/evidence/2026-11-05-batch-44/e-domain/sha256.txt#ok=47/47",
+    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StoredRatingBasisTest.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
+    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml"
+  ],
+  "evidence_dir": "docs/research/evidence/2026-11-05-batch-44/e-domain/",
+  "local_artifacts": {
+    "note": "本轮临时输出原在 gitignored build/e-review/；修复环已原样归档到 docs/research/evidence/2026-11-06-batch-45/e-review/（45 文件 + README），并由 EVIDENCE.sha256 覆盖。",
+    "archived_dir": "docs/research/evidence/2026-11-06-batch-45/e-review",
+    "previous_paths": [
+      "build/e-review/domain-rerun.out",
+      "build/e-review/data-rerun.out",
+      "build/e-review/snap-domain/ (15 XML)",
+      "build/e-review/snap-data/ (20 XML)",
+      "build/e-review/probe-green.log",
+      "build/e-review/probe-mutate.log",
+      "build/e-review/xml-counts.json"
+    ]
+  },
+  "conclusion": "E 域 90 行复核：80 PASS 行证据完整、命令可复跑、本轮 35 类/311 例独立重跑全绿、探针 298,277 次断言与红相均复现、sha 47/47 通过；抽样 6 个 PASS 行与 10 个回归行逐断言/逐计数一致。10 个 UNVERIFIED（并发/DST/设备事务）维持不签字，其中 E-061 理由需收窄。结论：E 域域级判词降为 UNVERIFIED（原 PASS_WITH_REVIEW 仅抽样，且 80 行没有行级 review token、cmd 为合并运行）；批次 45 全局验收仍不通过（report exit 1），本文件不替代全局终裁。",
+  "verdict_detail": "PASS_WITH_REVIEW",
+  "domain_verdict": "UNVERIFIED",
+  "ledger_sha256_at_review": "bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686",
+  "ledger_sha256_current_after_fix": "887e3ba649eb17a70c0f6f7af8a657d606398a10925c6116818265387af689aa",
+  "ledger_binding_note": "本复核绑定修复前台账 bb25ef236056…；修复环只改了 35 行的 verdict/method（GATE-079 补证据、17 个 FIX 登记行改 BLOCKED、13 个 BLOCKED 补 runbook、4 个 D 行加脏树披露），未重跑本复核的抽样行。修复后台账为 887e3ba649eb…，因此本文件不得作为新台账的行级 review 证据；要转 PASS 必须在新台账上重跑。",
+  "verdict_ceiling": "UNVERIFIED (domain-level sample; no row-level review)"
+}

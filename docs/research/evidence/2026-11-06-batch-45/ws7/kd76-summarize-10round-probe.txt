@@ -1,0 +1,15 @@
+CMD: python -I tools/ci/summarize_kd76.py /tmp/ws7-a6/batch10
+INPUT: 10 real round XMLs copied from build/kd76-runs/a6b/batchA
+KD-76 main criterion M = per-round (S-bind + S-warmup), nearest-rank p95 (n must be 20)
+samples: n=9/20 | G1: RED
+apkSha256: ec135844ee879f8d889880aec618545889d00487094c9f52c95ba5f889e19bb5
+device fingerprint(s): google/sdk_gphone64_x86_64/emu64xa:14/UE1A.230829.050/12077443:userdebug/dev-keys
+bootCount(s): [64, 65, 66, 67, 68, 69, 70, 71, 72, 73]
+host boot_id(s): n=10 unique=10
+mode(s): ['reboot']
+G2: NOT EVALUABLE (n=9/20; G1 RED; snapshot consistent; input incomplete)
+  - missing rounds: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20] (expected exactly 1..20)
+  - G1: round 1: XML carries a <failure>/<error> element
+  - G1: round 1: FAIL (censored >= 2500 ms): execute produced Rejected/HARD_DEADLINE_EXCEEDED: visual_js worker died: binder died instead of a rendered result
+  no verdict may be derived from this run; do not quote a p95 or a gate result
+EXIT=2

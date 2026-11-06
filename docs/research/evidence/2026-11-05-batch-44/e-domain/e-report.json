@@ -1,0 +1,19 @@
+{
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "5d773ccfce300805cdeed163be188b71ac5c62cfb61c910a7829ddeec03db5f3",
+  "total": 1200,
+  "counts": {
+    "PASS": 392,
+    "FAIL": 1,
+    "BLOCKED": 38,
+    "UNVERIFIED": 769
+  },
+  "state": "FAIL",
+  "pass_with_two_kinds": 392,
+  "unverified": 769,
+  "acceptance_complete": false,
+  "violations": [],
+  "warnings": [],
+  "ok": true,
+  "exit_code": 0
+}

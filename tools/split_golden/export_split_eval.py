@@ -36,6 +36,21 @@
 - 导出前后各取一次输入清单：**db/-wal 变了就 exit 2（`快照一致性`）**，且该校验先于写盘。
   工具不能证明"曾经有 WAL 被漏拷"（那是取库纪律：三件同一时刻，见 README）。
 
+## 溯源字段（v2，只做加法；`pages[].file/questions` 不动）
+
+每一页新增（每项对应一次真实的溯源失败，R5 §4.2 G-1..G-7）：
+
+- `pageId` + `pageIdKind`（`<job_id>#p<page_index>` / `job+page`）：合成页名与真实文件名
+  混在同一列时，join 只能靠猜；
+- `job{jobId,sourceKind,sourceFingerprint,status,pageCount,questionCount,createdAt,
+  updatedAt}`：同一个文件名可能来自不同 job，事后不可区分；
+- `integrity{jobQuestionCountMatches,jobPageCountMatches}`：job 记账数与导出行数不符时
+  此前**静默通过**；现在如实落盘（不 exit——生产数据可能合法缺页，由门决定怎么读）；
+- `boxesSha256`：`sha256(canon({left,top,right,bottom}…))`，让裁定能绑定几何。
+文件级新增 `producer{file,sha256,contract}`、`db.userVersion`（同一读事务内
+`PRAGMA user_version`；只记录不拒绝）、`snapshot.mode`（`three-file`）。
+**不加墙钟**：任何时间字段都会让"同快照两次导出"不再逐字节一致。
+
 ## 红线
 
 - DB **只读**（sqlite `mode=ro` URI 打开；主库字节不变，含帧的 `-wal` 字节不变；
@@ -73,16 +88,22 @@ REPO: Path = HERE.parents[1]
 DEFAULT_OUT: Path = REPO / "build" / "split-eval" / "app-split.json"
 
 BOX_KEYS = ("left", "top", "right", "bottom")
-REPORT_SCHEMA_VERSION = 1
+REPORT_SCHEMA_VERSION = 2
+# 导出契约名：页面字段只做加法；消费方（measure）只读 pages[].file/questions。
+PRODUCER_CONTRACT = "app-split-v2"
+SNAPSHOT_MODE = "three-file"
 # 产物身份的显式版本：口径一改必须换值，旧导出的身份才不会被误当同口径比较。
 IDENTITY_KIND = "inputs-v1"
 # 溯源记录用（与下方 execute 处的字面量语句一致；SQL 全部字面量/参数化，无输入拼接）。
 QUERIES_DOCUMENTATION = (
     "SELECT q.job_id, q.page_index, q.question_ordinal, q.region_left, q.region_top, "
     "q.region_right, q.region_bottom, q.selected, q.confirm_state, j.source_uri, "
-    "j.status, j.page_count FROM split_import_question q JOIN split_import_job j "
-    "ON j.job_id = q.job_id ORDER BY q.job_id, q.page_index, q.question_ordinal ; "
-    "SELECT source_uri FROM batch_import_page WHERE job_id = ? AND page_index = ?"
+    "j.status, j.page_count, j.source_kind, j.source_fingerprint, j.question_count, "
+    "j.created_at_epoch_millis, j.updated_at_epoch_millis FROM split_import_question q "
+    "JOIN split_import_job j ON j.job_id = q.job_id "
+    "ORDER BY q.job_id, q.page_index, q.question_ordinal ; "
+    "SELECT source_uri FROM batch_import_page WHERE job_id = ? AND page_index = ? ; "
+    "PRAGMA user_version"
 )
 # 读出行为说明（不是 SQL，不塞进 QUERIES_DOCUMENTATION 以免被下游当语句执行）。
 READ_TRANSACTION_DOCUMENTATION = "BEGIN … (single WAL snapshot; all SELECTs) … close"
@@ -96,6 +117,16 @@ def _canonical_json(value) -> bytes:
     """身份与载荷摘要的规范化序列化（键序/分隔符固定 ⇒ 同值同字节）。"""
     return json.dumps(value, ensure_ascii=False, sort_keys=True,
                       separators=(",", ":")).encode("utf-8")
+
+
+def _producer_identity() -> dict:
+    """生产者身份：同 `schemaVersion` 的两版脚本输出必须可区分（G-5）。
+
+    它消灭的具体失败：报告只写 `schemaVersion: 1` 时，v1 的两版脚本（字段不同）
+    产出的文件无法区分，旧导出被当新口径引用。
+    """
+    script = Path(__file__).resolve()
+    return {"file": script.name, "sha256": _sha256(script), "contract": PRODUCER_CONTRACT}
 
 
 def _sidecar_paths(db_path: Path) -> dict[str, Path]:
@@ -236,23 +267,37 @@ def collect(db_path: Path, page_map_path: Path | None) -> dict:
             rows = conn.execute(
                 "SELECT q.job_id, q.page_index, q.question_ordinal, "
                 "q.region_left, q.region_top, q.region_right, q.region_bottom, "
-                "q.selected, q.confirm_state, j.source_uri, j.status, j.page_count "
+                "q.selected, q.confirm_state, j.source_uri, j.status, j.page_count, "
+                "j.source_kind, j.source_fingerprint, j.question_count, "
+                "j.created_at_epoch_millis, j.updated_at_epoch_millis "
                 "FROM split_import_question q JOIN split_import_job j"
                 " ON j.job_id = q.job_id "
                 "ORDER BY q.job_id, q.page_index, q.question_ordinal"
             ).fetchall()
+            # Room 用 PRAGMA user_version 持久化 schema 版本：同一读事务里取，才是
+            # "这份导出实际读到的库版本"（跨 schema 比较切分指标没有意义）。
+            user_version = conn.execute("PRAGMA user_version").fetchone()[0]
         except sqlite3.OperationalError as failure:
             raise DataError(f"DB 快照缺 split_import_job / split_import_question 表"
                             f"（不是应用 DB？）：{failure}") from failure
 
         grouped: dict[tuple[str, int], dict] = {}
+        jobs: dict[str, dict] = {}
         for (job_id, page_index, ordinal, left, top, right, bottom,
-             selected, confirm_state, source_uri, job_status, page_count) in rows:
+             selected, confirm_state, source_uri, job_status, page_count,
+             source_kind, source_fingerprint, job_question_count,
+             created_ms, updated_ms) in rows:
             key = (str(job_id), int(page_index))
             page_entry = grouped.setdefault(key, {
-                "jobId": key[0], "pageIndex": key[1], "sourceUri": source_uri,
-                "jobStatus": job_status, "pageCount": page_count,
+                "jobId": key[0], "pageIndex": key[1],
                 "questions": [], "selectedCount": 0, "confirmStates": {}})
+            jobs.setdefault(key[0], {
+                "jobId": key[0], "sourceUri": source_uri, "status": job_status,
+                "pageCount": page_count, "questionCount": job_question_count,
+                "sourceKind": source_kind, "sourceFingerprint": source_fingerprint,
+                "createdAtEpochMillis": created_ms,
+                "updatedAtEpochMillis": updated_ms,
+            })
             box = {"left": left, "top": top, "right": right, "bottom": bottom}
             _validate_box(box, f"split_import_question(job={key[0]},"
                                f"page={key[1]},ordinal={ordinal})")
@@ -263,15 +308,39 @@ def collect(db_path: Path, page_map_path: Path | None) -> dict:
             page_entry["confirmStates"][state_text] = \
                 page_entry["confirmStates"].get(state_text, 0) + 1
 
+        # job 级合计：`split_import_job.question_count/page_count` 是**整 job** 的记账，
+        # 不能拿单页行数比。不一致不 exit（生产数据可能合法缺页），只如实落盘。
+        job_totals: dict[str, dict] = {}
+        for (job_id, page_index), entry in grouped.items():
+            totals = job_totals.setdefault(job_id, {"questions": 0, "pages": set()})
+            totals["questions"] += len(entry["questions"])
+            totals["pages"].add(page_index)
+
         pages: list[dict] = []
         for (job_id, page_index), entry in sorted(grouped.items()):
             name, name_source = _resolve_page_name(conn, job_id, page_index, page_map)
-            pages.append({"file": name, "nameSource": name_source,
-                          "jobId": job_id, "pageIndex": page_index,
-                          "questionCount": len(entry["questions"]),
-                          "selectedCount": entry["selectedCount"],
-                          "confirmStates": dict(sorted(entry["confirmStates"].items())),
-                          "questions": entry["questions"]})
+            job = jobs[job_id]
+            totals = job_totals[job_id]
+            pages.append({
+                # 稳定页 id：合成名与真实文件名混在同一列时，join 只能靠猜（G-3）。
+                "pageId": f"{job_id}#p{page_index}", "pageIdKind": "job+page",
+                "file": name, "nameSource": name_source,
+                "jobId": job_id, "pageIndex": page_index,
+                "job": job,
+                "integrity": {
+                    "jobQuestionCountMatches": (
+                        None if job["questionCount"] is None
+                        else job["questionCount"] == totals["questions"]),
+                    "jobPageCountMatches": (
+                        None if job["pageCount"] is None
+                        else job["pageCount"] == len(totals["pages"])),
+                },
+                "boxesSha256": hashlib.sha256(
+                    _canonical_json(entry["questions"])).hexdigest(),
+                "questionCount": len(entry["questions"]),
+                "selectedCount": entry["selectedCount"],
+                "confirmStates": dict(sorted(entry["confirmStates"].items())),
+                "questions": entry["questions"]})
 
         pages.sort(key=lambda page: page["file"])
         seen: dict[str, str] = {}
@@ -298,14 +367,18 @@ def collect(db_path: Path, page_map_path: Path | None) -> dict:
     # 主库摘要直接取清单值（与 snapshot.inputs.db 同一时刻、同一口径）。
     db_entry = before["inputs"]["db"] or {"file": db_path.name, "sha256": None, "bytes": None}
     payload_digest = hashlib.sha256(_canonical_json(pages)).hexdigest()
+    snapshot = dict(before, mode=SNAPSHOT_MODE)   # 取库模式：不能只看三件是否存在
     return {
         "schemaVersion": REPORT_SCHEMA_VERSION,
         "source": {
+            # 生产者身份：同 schemaVersion 的两版脚本输出必须可区分（G-5）。
+            "producer": _producer_identity(),
             # 保留原值与位置：measure_split_accuracy / check_split_gate 在读 db.sha256，
             # 它不是快照身份（不含 WAL），不得把新口径塞进旧字段。
+            # userVersion 只记录、不据此拒绝导出（拒绝属门的事，R5 §4.3）。
             "db": {"file": db_entry["file"], "sha256": db_entry["sha256"],
-                   "bytes": db_entry["bytes"]},
-            "snapshot": before,                       # 产物身份：db + -wal
+                   "bytes": db_entry["bytes"], "userVersion": user_version},
+            "snapshot": snapshot,                     # 产物身份：db + -wal
             "payload": {"sha256": payload_digest,     # 内容身份：pages 的规范化摘要
                         "pages": len(pages),
                         "boxes": sum(page["questionCount"] for page in pages)},
@@ -353,6 +426,10 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  页 {len(document['pages'])} / 框 {total_boxes}；"
           f"页名来源 {document['source']['nameSourceCounts']}")
     print(f"  DB sha256={document['source']['db']['sha256']}（主库字节摘要，不是快照身份）")
+    print(f"  DB schema user_version={document['source']['db']['userVersion']}"
+          "（同一读事务内读取；只记录，不据此拒绝导出）")
+    producer = document["source"]["producer"]
+    print(f"  生产者 {producer['file']} sha256={producer['sha256']}（{producer['contract']}）")
     snapshot = document["source"]["snapshot"]
     print(f"  快照身份 sha256={snapshot['identitySha256']}"
           f"（{snapshot['identityKind']}：db+wal 的 sha；-shm 不计入）")

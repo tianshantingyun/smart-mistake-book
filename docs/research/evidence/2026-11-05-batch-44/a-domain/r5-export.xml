@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="r5-export" tests="4" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T10:45:34Z">
+  <testcase classname="com.tingyun.smartmistakebook.ExportPdfDriverInstrumentedTest" name="theBuiltRequestIsExpeditedAndDegradesInsteadOfDropping" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.MistakeExportDeliveryInstrumentedTest" name="printActionGoesThroughTheExistingAdapterWithoutCrashing" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.MistakeExportDeliveryInstrumentedTest" name="saveAndShareGoThroughTheExistingDeliveryIntents" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.MistakeExportNotificationsInstrumentedTest" name="grantedPermissionPostsBothTerminalStatesWithADeepLink" time="0">
+  </testcase>
+</testsuite>

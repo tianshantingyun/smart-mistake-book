@@ -1,0 +1,13 @@
+A6: NOT EVALUABLE
+  batchA: n=19/20, G1 RED, M.p95=UNVERIFIED ms (gate 5000 ms, margin UNVERIFIED ms), max=6305 ms, batch=A, runId=20261103T160030Z-A-312840, app=ec135844ee879f8d¡­
+  batchB: n=19/20, G1 RED, M.p95=UNVERIFIED ms (gate 5000 ms, margin UNVERIFIED ms), max=5822 ms, batch=B, runId=20261103T160030Z-B-312840, app=ec135844ee879f8d¡­
+  - raw_output_missing: batchA XML without am output/OK line ['round-01.xml']
+  - raw_output_missing: batchB XML without am output/OK line ['round-17.xml']
+  - failed_rounds: batchA failedRounds=1 (per-round product failure; censored sample, not a retry)
+  - failed_rounds: batchB failedRounds=1 (per-round product failure; censored sample, not a retry)
+  - batch_batchA: G1: round 1: XML carries a <failure>/<error> element
+  - batch_batchA: G1: round 1: FAIL (censored >= 2500 ms): execute produced Rejected/HARD_DEADLINE_EXCEEDED: visual_js worker died: binder died instead of a rendered result
+  - batch_batchB: G1: round 17: XML carries a <failure>/<error> element
+  - batch_batchB: G1: round 17: FAIL (censored >= 2500 ms): execute produced Rejected/HARD_DEADLINE_EXCEEDED: visual_js worker died: binder died instead of a rendered result
+  no A6 claim may be derived; per-batch numbers are not a substitute, and no batch PASS may be read as A6.
+  observed gap: 30.466666666666665 min; plan sha256: 1cc29dc0c51f1f1098781ae1538c53dddd35cb634bd78f958ff711859f70927c

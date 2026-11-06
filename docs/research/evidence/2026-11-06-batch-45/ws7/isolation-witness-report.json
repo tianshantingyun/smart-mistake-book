@@ -1,0 +1,440 @@
+{
+  "evidence": "witness+stream",
+  "witness_source": "docs/research/evidence/2026-11-06-batch-45/ws7/isolation-ws7-invalid.witness.jsonl",
+  "witness_available": true,
+  "canary_ok": true,
+  "witness_unavailable_reason": null,
+  "suite": {
+    "start": {
+      "v": 1,
+      "seq": 1,
+      "phase": "suite_start",
+      "t_ms": 30225147,
+      "cpu_ms": 9590,
+      "run": "ws7-isolation-invalid",
+      "run_source": "argument",
+      "pid": 28897,
+      "uid": 10245,
+      "arm": "OFF",
+      "pkg": "com.tingyun.smartmistakebook.localfirst",
+      "sdk": 34,
+      "expected_tests": 15,
+      "apk": {
+        "source_dir": "/data/app/~~-UTk9-KYBZzQoQMnP05bHA==/com.tingyun.smartmistakebook.localfirst-wZokiCTm2DkI0Neit1ZL0A==/base.apk",
+        "size": 183675460,
+        "sha256_source": "unavailable",
+        "version_code": 2,
+        "last_update_time": 1793845392264
+      }
+    },
+    "end": {
+      "v": 1,
+      "seq": 48,
+      "phase": "suite_end",
+      "t_ms": 30233642,
+      "cpu_ms": 15140,
+      "rows": 47,
+      "expected_rows": 78,
+      "canary_ok": true,
+      "witness_unavailable": null,
+      "elapsed_ms": 8502,
+      "file": "/data/user/0/com.tingyun.smartmistakebook.localfirst/files/isolation-witness/ws7-isolation-invalid/witness.jsonl"
+    },
+    "rows": 48
+  },
+  "expected_methods": 15,
+  "counts": {
+    "NOT_SCHEDULED": 0,
+    "SCHEDULED_NOT_RUN": 0,
+    "IGNORED": 0,
+    "ENV_SKIP": 15,
+    "FIXTURE_SKIP": 0,
+    "BODY_SKIP": 0,
+    "BODY_CRASH": 0,
+    "EXECUTED": 0,
+    "UNDECIDABLE_NO_WITNESS": 0,
+    "STREAM_INCOMPLETE": 0,
+    "CONTRADICTION_PASS_WITHOUT_BODY": 0
+  },
+  "executed": [],
+  "not_executed": [
+    "ENV_SKIP"
+  ],
+  "methods": {
+    "workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 37,
+        "phase": "gate",
+        "t_ms": 30232219,
+        "cpu_ms": 14880,
+        "method": "workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    },
+    "anUnattributedEngineFailureKeepsItsPrefixAcrossTheAidlWire": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 16,
+        "phase": "gate",
+        "t_ms": 30227649,
+        "cpu_ms": 12710,
+        "method": "anUnattributedEngineFailureKeepsItsPrefixAcrossTheAidlWire",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    },
+    "aStaleGenerationIsRejectedAndAStaleTerminateIsANoOp": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 22,
+        "phase": "gate",
+        "t_ms": 30228617,
+        "cpu_ms": 13110,
+        "method": "aStaleGenerationIsRejectedAndAStaleTerminateIsANoOp",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    },
+    "theWatchdogKillsAHungWorkerAndAFreshGenerationHasNoBusyState": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 40,
+        "phase": "gate",
+        "t_ms": 30232565,
+        "cpu_ms": 14940,
+        "method": "theWatchdogKillsAHungWorkerAndAFreshGenerationHasNoBusyState",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    },
+    "theClientRebuildsAtMostOnceAfterConfirmedAbandons": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 7,
+        "phase": "gate",
+        "t_ms": 30226098,
+        "cpu_ms": 11450,
+        "method": "theClientRebuildsAtMostOnceAfterConfirmedAbandons",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    },
+    "aColdStartAttachBeyondTheOldConnectBudgetStillRendersTheFirstProgram": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 46,
+        "phase": "gate",
+        "t_ms": 30233364,
+        "cpu_ms": 15100,
+        "method": "aColdStartAttachBeyondTheOldConnectBudgetStillRendersTheFirstProgram",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    },
+    "theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 34,
+        "phase": "gate",
+        "t_ms": 30231739,
+        "cpu_ms": 14790,
+        "method": "theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    },
+    "anExplicitRetryOfAnInjectedFusedProgramRendersAndReleasesTheFuse": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 43,
+        "phase": "gate",
+        "t_ms": 30232999,
+        "cpu_ms": 15040,
+        "method": "anExplicitRetryOfAnInjectedFusedProgramRendersAndReleasesTheFuse",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    },
+    "aHungWorkerReleasesTheCallerWithinHardPlus500ms": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 4,
+        "phase": "gate",
+        "t_ms": 30225681,
+        "cpu_ms": 10640,
+        "method": "aHungWorkerReleasesTheCallerWithinHardPlus500ms",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": false
+      },
+      "floor": null
+    },
+    "aMalformedCallerRequestIsRejectedWithoutTakingTheFlightSlot": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 19,
+        "phase": "gate",
+        "t_ms": 30228204,
+        "cpu_ms": 12970,
+        "method": "aMalformedCallerRequestIsRejectedWithoutTakingTheFlightSlot",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    },
+    "anOverBudgetRequestEnvelopeIsRejectedByTheBoundedRead": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 13,
+        "phase": "gate",
+        "t_ms": 30227108,
+        "cpu_ms": 12330,
+        "method": "anOverBudgetRequestEnvelopeIsRejectedByTheBoundedRead",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    },
+    "aSecondConcurrentRequestIsRejectedBusyWhileTheFirstIsInFlight": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 28,
+        "phase": "gate",
+        "t_ms": 30230132,
+        "cpu_ms": 13960,
+        "method": "aSecondConcurrentRequestIsRejectedBusyWhileTheFirstIsInFlight",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    },
+    "anExecuteAcquiredDuringWarmUpIsRefusedBoundedlyAndNeverWatchdogKilled": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 31,
+        "phase": "gate",
+        "t_ms": 30230968,
+        "cpu_ms": 14360,
+        "method": "anExecuteAcquiredDuringWarmUpIsRefusedBoundedlyAndNeverWatchdogKilled",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    },
+    "aFirstConnectTimeoutFailsHonestlyAndTheNextExecuteRetriesWithoutLatching": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 25,
+        "phase": "gate",
+        "t_ms": 30229188,
+        "cpu_ms": 13400,
+        "method": "aFirstConnectTimeoutFailsHonestlyAndTheNextExecuteRetriesWithoutLatching",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    },
+    "aReadyTimeoutFailsHonestlyWithoutLatchingAndTheNextExecuteRebinds": {
+      "state": "ENV_SKIP",
+      "reasons": [
+        "gate_ungated",
+        "reason=shell_side_INVALID:la_ratio_max"
+      ],
+      "rows": 3,
+      "stream_status": "SKIP",
+      "gate": {
+        "v": 1,
+        "seq": 10,
+        "phase": "gate",
+        "t_ms": 30226500,
+        "cpu_ms": 11940,
+        "method": "aReadyTimeoutFailsHonestlyWithoutLatchingAndTheNextExecuteRebinds",
+        "verdict": "UNGATED",
+        "reason": "shell_side_INVALID:la_ratio_max",
+        "shell_gate": "INVALID",
+        "shell_reason": "la_ratio_max",
+        "reused": true
+      },
+      "floor": null
+    }
+  },
+  "gate_cache": {
+    "gate_rows": 15,
+    "reused_true": 14,
+    "reused_false": 1
+  },
+  "load_evidence": {
+    "floor_sum_ms": 44450,
+    "total_body_wall_ms": 0,
+    "body_rows": 0,
+    "cpu_ratio_note": "cpu_delta_ms/wall_ms 只记录，不设阈值（研究件 §4.4）",
+    "cpu_ratio_per_method": {
+      "workerIsIsolatedAndAProgramRoundTripsWithoutBeingKilledLater": null,
+      "anUnattributedEngineFailureKeepsItsPrefixAcrossTheAidlWire": null,
+      "aStaleGenerationIsRejectedAndAStaleTerminateIsANoOp": null,
+      "theWatchdogKillsAHungWorkerAndAFreshGenerationHasNoBusyState": null,
+      "theClientRebuildsAtMostOnceAfterConfirmedAbandons": null,
+      "aColdStartAttachBeyondTheOldConnectBudgetStillRendersTheFirstProgram": null,
+      "theClientRebuildsOnceAfterADeathAndTheNewWorkerIsNotBusy": null,
+      "anExplicitRetryOfAnInjectedFusedProgramRendersAndReleasesTheFuse": null,
+      "aHungWorkerReleasesTheCallerWithinHardPlus500ms": null,
+      "aMalformedCallerRequestIsRejectedWithoutTakingTheFlightSlot": null,
+      "anOverBudgetRequestEnvelopeIsRejectedByTheBoundedRead": null,
+      "aSecondConcurrentRequestIsRejectedBusyWhileTheFirstIsInFlight": null,
+      "anExecuteAcquiredDuringWarmUpIsRefusedBoundedlyAndNeverWatchdogKilled": null,
+      "aFirstConnectTimeoutFailsHonestlyAndTheNextExecuteRetriesWithoutLatching": null,
+      "aReadyTimeoutFailsHonestlyWithoutLatchingAndTheNextExecuteRebinds": null
+    }
+  },
+  "violations": [],
+  "ok": true
+}

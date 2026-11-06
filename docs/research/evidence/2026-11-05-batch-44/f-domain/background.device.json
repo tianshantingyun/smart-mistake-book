@@ -1,0 +1,9 @@
+{
+  "serial": "emulator-5566",
+  "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac",
+  "doze_cold_ms": 3455,
+  "battery_saver_cold_ms": 3342,
+  "rare_bucket_cold_ms": 3247,
+  "multitask_hot_ms": 474,
+  "storage_used_pct": 36
+}

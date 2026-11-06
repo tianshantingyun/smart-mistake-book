@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" tests="18" skipped="0" failures="0" errors="0" timestamp="2026-11-05T02:12:47.195Z" hostname="TIANSHAN" time="0.067">
+  <properties/>
+  <testcase name="usable structured candidate derives a title without student typing" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.025"/>
+  <testcase name="writing layer edit stays inside evidence without flattening the document" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.002"/>
+  <testcase name="final action fills optional metadata while keeping commit validation intact" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.001"/>
+  <testcase name="a stale final identity can be explicitly renewed before migration save" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.0"/>
+  <testcase name="existing meaningful paragraph remains a structured correction" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.0"/>
+  <testcase name="block edit preserves formulas choices figures and evidence" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.0"/>
+  <testcase name="late model candidate never overwrites a dirty workspace" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.001"/>
+  <testcase name="writer never turns coroutine cancellation into a save error" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.01"/>
+  <testcase name="photo draft with a blank paragraph stays uneditable as manual text" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.0"/>
+  <testcase name="blank candidate stays unusable" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.001"/>
+  <testcase name="blank candidate cannot be turned into a manual transcription" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.0"/>
+  <testcase name="final acceptance only calls blocks actually edited by the student confirmed" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.0"/>
+  <testcase name="commit retry replays the persisted confirmation without new user evidence" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.002"/>
+  <testcase name="only the fingerprint-matching final workspace identity may bypass another save" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.012"/>
+  <testcase name="restore prefers the complete persisted workspace" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.003"/>
+  <testcase name="writer advances CAS identity from each returned snapshot" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.006"/>
+  <testcase name="confirmation identity is created once and reused" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.002"/>
+  <testcase name="manual transcription draft starts editable and keeps its provenance" classname="com.tingyun.smartmistakebook.feature.capture.CaptureWorkspacePolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

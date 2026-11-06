@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-11-05T01:14:55.256Z" hostname="TIANSHAN" time="0.007">
+  <properties/>
+  <testcase name="zero capacity grants nothing and duplicate subjects fail closed" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.001"/>
+  <testcase name="growth multiplier is bounded by the 15x adjudicated cap" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.0"/>
+  <testcase name="largest remainder is deterministic and conserves the total" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.001"/>
+  <testcase name="exam deficit is zero when target is met and bounded otherwise" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.0"/>
+  <testcase name="exam target retention ramps to 097 only inside the 14-day window" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.001"/>
+  <testcase name="budget multiplier grows the budget, not the item count" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.0"/>
+  <testcase name="rest days receive zero and a zero-weight plan fails closed" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.0"/>
+  <testcase name="daily quota uses ceil and clamps to the day capacity" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.0"/>
+  <testcase name="the subject with the nearest exam keeps its full demand" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.001"/>
+  <testcase name="budget minutes map to seconds only inside the adjudicated 10-60 range" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.0"/>
+  <testcase name="subject caps conserve the capacity and never exceed a subject demand" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.001"/>
+  <testcase name="days to clear follows ceil of backlog over growth headroom" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.001"/>
+  <testcase name="daily capacity is at least one and rejects non-positive inputs" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.0"/>
+  <testcase name="day weights redistribute without changing the total" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.0"/>
+  <testcase name="daily quota is monotone in remaining and in study days" classname="com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

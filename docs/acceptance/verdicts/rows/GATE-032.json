@@ -1,0 +1,68 @@
+{
+  "id": "GATE-032",
+  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-gate",
+  "reviewer": "batch46-line-reviewer-GATE",
+  "authors": [
+    "batch45-evidence-producer-GATE"
+  ],
+  "verdict": "FAIL",
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "evidence": [
+    "cmd:docs/research/evidence/2026-11-06-batch-46/gate/acceptance-report.txt",
+    "file:docs/research/evidence/2026-11-06-batch-46/gate/acceptance-report.json"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-06-batch-46/gate/acceptance-report.txt": "06683bf159cc81e0edeb17644a793892308dc60f57f95a6cfd5abb03856b74c7",
+    "docs/research/evidence/2026-11-06-batch-46/gate/acceptance-report.json": "11703423e12f42f09f5a71cab513388dc7d8d7083db50441c502d7e022af2144"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=GATE-032; verdict=FAIL; line=1163; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/research/evidence/2026-11-06-batch-46/gate/acceptance-report.txt",
+      "value": "exit_markers=[1]; cmd=n/a; sha256=06683bf159cc81e0edeb17644a793892308dc60f57f95a6cfd5abb03856b74c7"
+    },
+    {
+      "name": "file_sha256",
+      "source": "docs/research/evidence/2026-11-06-batch-46/gate/acceptance-report.json",
+      "value": "sha256=11703423e12f42f09f5a71cab513388dc7d8d7083db50441c502d7e022af2144"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/research/evidence/2026-11-06-batch-45/gate/acceptance-report.txt",
+      "value": "exit_markers=[1]; cmd=n/a; sha256=58c22c00ab2c003ffb927b555f1735cf34a9b387edeb9881c7c4debeb8b03c38"
+    },
+    {
+      "name": "file_sha256",
+      "source": "docs/research/evidence/2026-11-06-batch-45/gate/acceptance-report.json",
+      "value": "sha256=833fee345771596e05827965ddd0328a1e6b632ce8c963bfd01bae7cc6518c85"
+    },
+    {
+      "name": "contradiction",
+      "source": "docs/acceptance/ledger.md",
+      "value": "cmd: python -I tools/ci/acceptance_report.py --ledger docs/acceptance/ledger.md"
+    }
+  ],
+  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "regenerated_by": "batch46-report-regenerator",
+  "regeneration_note": "报告重生成：移除同一 batch-46 路径的 4 个历史 sha 重复检查（9995d95b/def0fe8c/d7ef69db/77d32615），保留与当前字节一致的 06683bf1 与 11703423；batch-45 历史证据对保留。verdict 未改（FAIL）。",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 2,
+    "archived_files": 0,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

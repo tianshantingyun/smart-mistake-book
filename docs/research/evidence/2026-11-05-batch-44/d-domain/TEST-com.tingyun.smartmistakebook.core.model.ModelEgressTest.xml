@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.model.ModelEgressTest" tests="28" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:05.258Z" hostname="TIANSHAN" time="0.152">
+  <properties/>
+  <testcase name="preparedRequestBudgetFailsClosedWhenBase64ArithmeticWouldOverflow" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.006"/>
+  <testcase name="a no-question round with an image keeps the existing lobby image disclosure" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.021"/>
+  <testcase name="a no-question round discloses no question document" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.0"/>
+  <testcase name="externalProviderCannotRunWithoutStudentApproval" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.028"/>
+  <testcase name="tutorConversationGrantMayPrecedeANewMessageWhileItIsStillFresh" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.014"/>
+  <testcase name="tutorConversationGrantMayPrecedeANewPlanWhileItIsStillFresh" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.002"/>
+  <testcase name="a question round discloses the confirmed question document" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.0"/>
+  <testcase name="schemaOneTutorPlanFingerprintOmitsNewStudentContextField" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.051"/>
+  <testcase name="currentTutorPlanDisclosureIncludesBoundedConversationContext" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.0"/>
+  <testcase name="lobbyApprovalFromTheSameSendDecisionAuthorizesTheMessage" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.005"/>
+  <testcase name="preparedRequestBudgetKeepsSmallImagePayloadsUnchanged" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.0"/>
+  <testcase name="aLobbyMessageMayCarryEarlierImagesOnlyWithinItsGrantedScope" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.004"/>
+  <testcase name="preparedRequestBudgetRejectsAnOversizedMultiPageTotal" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.0"/>
+  <testcase name="providerConfigurationChangeInvalidatesAnExistingApproval" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.0"/>
+  <testcase name="a carried candidate menu is disclosed as its own data class" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.001"/>
+  <testcase name="a lobby manifest cannot claim to cover a candidate menu" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.0"/>
+  <testcase name="legacySchemaOneFingerprintStillMatchesItsOriginalJsonShape" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.002"/>
+  <testcase name="only a question round that carries a menu discloses other questions" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.003"/>
+  <testcase name="tutorResponseApprovalUsesTheExactNewDisclosure" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.0"/>
+  <testcase name="a legacy manifest cannot claim to cover a candidate menu" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.001"/>
+  <testcase name="exactCaptureApprovalAuthorizesOnlyTheBoundExternalProviderAndAsset" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.0"/>
+  <testcase name="persistedSchemaTwoTutorPlanManifestKeepsItsOriginalDisclosure" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.004"/>
+  <testcase name="lobbyApprovalOneMillisecondOlderThanTheMessageIsRejected" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.001"/>
+  <testcase name="anImageBearingRespondRoundNeedsAnImageCapableProvider" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.001"/>
+  <testcase name="a manifest that covers the candidate menu authorizes the round" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.0"/>
+  <testcase name="captureApprovalRejectsAnyUndisclosedExtraDataClass" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.0"/>
+  <testcase name="aTextOnlyRespondRoundStillRunsOnATextOnlyProvider" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.0"/>
+  <testcase name="persistedSchemaOneTutorPlanManifestStillDecodesButCannotAuthorizeACurrentPrompt" classname="com.tingyun.smartmistakebook.core.model.ModelEgressTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

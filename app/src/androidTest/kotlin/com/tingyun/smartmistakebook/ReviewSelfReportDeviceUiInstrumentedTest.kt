@@ -179,8 +179,6 @@ class ReviewSelfReportDeviceUiInstrumentedTest {
         val owner = newOwnerState()
         setReviewContent(owner)
         waitForTag("review_self_report_root")
-        composeRule.waitForIdle()
-        captureReviewForestScreenshot("review-question")
         chooseCorrectOption()
         clickKey("review_key_good")
         waitForTag("review_self_report_receipt")
@@ -203,8 +201,6 @@ class ReviewSelfReportDeviceUiInstrumentedTest {
         assertEquals(1, samples.size)
         assertEquals("Good 原档 0.8 逐位落库", 0.8, samples.single().evidenceWeight, 1e-9)
         assertEquals(1, currentOrdinal())
-        composeRule.waitForIdle()
-        captureReviewForestScreenshot("review-answer")
     }
 
     @Test

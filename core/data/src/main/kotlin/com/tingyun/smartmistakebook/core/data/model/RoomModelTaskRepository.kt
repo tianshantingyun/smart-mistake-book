@@ -52,6 +52,7 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
 import com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot
 import com.tingyun.smartmistakebook.core.model.ModelTaskStage
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
+import com.tingyun.smartmistakebook.core.model.PaperEditInput
 import com.tingyun.smartmistakebook.core.model.ProblemOrganizationInput
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
@@ -724,6 +725,7 @@ class RoomModelTaskRepository internal constructor(
                     is TutorRespondInput -> "回复已准备好"
                     is com.tingyun.smartmistakebook.core.model.KnowledgeQuizInput -> "复习题已准备好"
                     is ProblemOrganizationInput -> "分类和题目联系建议已生成，请确认后再保存"
+                    is PaperEditInput -> "卷面修改建议已生成，请确认后再应用"
                 },
                 provider = current.provider,
                 output = event.output,

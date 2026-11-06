@@ -5,12 +5,12 @@
   {
    "sourceId": "source:moe-2020:math:teaching",
    "subject": "MATH",
-   "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+   "sourceType": "OFFICIAL_CURRICULUM_STANDARD",
    "title": "2020 版课标数学基础包（内置）",
    "publisher": "教育部课标（内置整理）",
    "edition": "2020版",
-   "sourceUri": "https://www.example.edu/moe-2020-foundation",
-   "licenseStatus": "REFERENCE_ONLY",
+   "sourceUri": "https://www.moe.gov.cn/srcsite/A26/s8001/202006/W020200603315372317586.zip",
+   "licenseStatus": "PUBLIC_OFFICIAL",
    "contentFingerprint": "ABE9CBE5617954D551C41EA4BA5E049E4F92059459CD9491EA9E963984FCF361",
    "importedAtEpochMillis": 1784764700000
   }

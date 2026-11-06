@@ -72,7 +72,6 @@ class TutorLobbyScrollInstrumentedTest {
         composeRule.runOnIdle { conversations.publishAssistantReply(ANSWER_MARKER) }
 
         composeRule.onNodeWithText(ANSWER_MARKER, substring = true).assertIsDisplayed()
-        captureTutorFullUiEvidence("tutor-conversation.png", composeRule::waitForIdle)
     }
 
     @Test

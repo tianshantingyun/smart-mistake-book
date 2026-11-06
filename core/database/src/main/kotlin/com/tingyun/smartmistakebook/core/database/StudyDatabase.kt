@@ -1,6 +1,9 @@
 package com.tingyun.smartmistakebook.core.database
 
 import android.content.Context
+import com.tingyun.smartmistakebook.core.database.dao.ErrorCauseDao
+import com.tingyun.smartmistakebook.core.database.entity.ErrorCauseBindingEntity
+import com.tingyun.smartmistakebook.core.database.entity.ErrorCauseObservationEntity
 import androidx.room3.Database
 import androidx.room3.Room
 import androidx.room3.RoomDatabase
@@ -136,7 +139,7 @@ import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionVisualEn
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualProgramEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualSnapshotEntity
 
-internal const val STUDY_DATABASE_VERSION = 74
+internal const val STUDY_DATABASE_VERSION = 75
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -148,6 +151,8 @@ internal object SplitImportLedgerStrings {
 @Database(
     views = [LibraryCatalogView::class, KnowledgeQuestionLatticeView::class],
     entities = [
+        ErrorCauseObservationEntity::class,
+        ErrorCauseBindingEntity::class,
         com.tingyun.smartmistakebook.core.database.entity.PaperReviewEntity::class,
         com.tingyun.smartmistakebook.core.database.entity.PaperReviewQuestionEntity::class,
         com.tingyun.smartmistakebook.core.database.entity.PaperReviewPhotoEntity::class,
@@ -270,6 +275,7 @@ internal abstract class StudyDatabase : RoomDatabase() {
 
     abstract fun knowledgeSearchIndexStateDao(): KnowledgeSearchIndexStateDao
 
+    abstract fun errorCauseDao(): ErrorCauseDao
     abstract fun paperReviewDao(): com.tingyun.smartmistakebook.core.database.dao.PaperReviewDao
 
     abstract fun mistakeDetailDao(): MistakeDetailDao
@@ -422,6 +428,7 @@ object StudyDatabaseFactory {
             LIBRARY_INTERIOR_MIGRATION_71_72,
             PAPER_REVIEW_MIGRATION_72_73,
             LIBRARY_INTERIOR_MIGRATION_73_74,
+            UI_INTEGRATION_MIGRATION_74_75,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

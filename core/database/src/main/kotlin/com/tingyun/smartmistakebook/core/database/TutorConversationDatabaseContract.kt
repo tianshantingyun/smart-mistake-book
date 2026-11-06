@@ -177,12 +177,17 @@ internal fun requireBoundQuestionPair(problemId: String?, problemRevisionId: Str
     }
 }
 
-/** 学生消息附图的引用行（消息删除时级联删除）。 */
+/**
+ * 消息附图的引用行（消息删除时级联删除）。
+ *
+ * [role] 是 4E WG-08 的类型化角色：助手消息里由生成痕迹的 kind 派生
+ * （REDRAW→CLEAN_IMAGE、GENERATE_PROCESS→TUTOR_EXPLANATION）；学生消息附图与旧行是
+ * NULL = 角色未知（迁移不回填、保存链不猜）。
+ */
 data class TutorMessageSourceAssetRecord(
     val messageId: String,
     val sourceAssetId: String,
     val ordinal: Int,
-    /** Null preserves unknown metadata on pre-migration attachments. */
     val role: String? = null,
     val basisRevisionId: String? = null,
 )

@@ -67,7 +67,6 @@ class TutorHistoryInstrumentedTest {
             }
         }
 
-        captureTutorFullUiEvidence("tutor-history.png", composeRule::waitForIdle)
         composeRule.onNodeWithTag("tutor_history_delete_conversation-delete-1").performClick()
         composeRule.onNodeWithText("删除这条讲题记录？").assertExists()
         composeRule.onNodeWithText("删除").performClick()

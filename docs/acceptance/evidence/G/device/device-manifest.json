@@ -1,0 +1,239 @@
+{
+  "serial": "emulator-5584",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "captured_at": "2026-11-05T01:11:57+08:00",
+  "probe": "aapt2 dump xmltree --file AndroidManifest.xml <pulled base.apk>",
+  "target_sdk": 36,
+  "debuggable": "true",
+  "allow_backup": "false",
+  "uses_cleartext_traffic": "false",
+  "network_security_config_present": true,
+  "data_extraction_rules_present": true,
+  "full_backup_content_present": true,
+  "providers": [
+    {
+      "type": "provider",
+      "name": "androidx.core.content.FileProvider",
+      "exported": "false",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "provider",
+      "name": "com.tingyun.smartmistakebook.core.data.capture.BatchImportFileProvider",
+      "exported": "false",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "provider",
+      "name": "com.google.mlkit.common.internal.MlKitInitProvider",
+      "exported": "false",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "provider",
+      "name": "com.tingyun.smartmistakebook.core.export.MistakePdfFileProvider",
+      "exported": "false",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "provider",
+      "name": "com.tingyun.smartmistakebook.core.export.MistakeDocxFileProvider",
+      "exported": "false",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "provider",
+      "name": "androidx.startup.InitializationProvider",
+      "exported": "false",
+      "enabled": null,
+      "permission": null
+    }
+  ],
+  "exported_components": [
+    {
+      "type": "activity",
+      "name": "com.tingyun.smartmistakebook.BindingAuditActivity",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "activity",
+      "name": "com.tingyun.smartmistakebook.KnowledgeEvidenceAuditActivity",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "receiver",
+      "name": "com.tingyun.smartmistakebook.TestSeedModelConfigReceiver",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "receiver",
+      "name": "com.tingyun.smartmistakebook.TestCaptureModelFailuresReceiver",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "activity",
+      "name": "com.tingyun.smartmistakebook.MainActivity",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "service",
+      "name": "com.google.android.play.core.assetpacks.AssetPackExtractionService",
+      "exported": "true",
+      "enabled": "false",
+      "permission": null
+    },
+    {
+      "type": "receiver",
+      "name": "com.google.android.play.core.assetpacks.SessionStateBroadcastReceiver",
+      "exported": "true",
+      "enabled": "true",
+      "permission": "android.permission.INSTALL_PACKAGES"
+    },
+    {
+      "type": "service",
+      "name": "androidx.work.impl.background.systemjob.SystemJobService",
+      "exported": "true",
+      "enabled": null,
+      "permission": "android.permission.BIND_JOB_SERVICE"
+    },
+    {
+      "type": "receiver",
+      "name": "androidx.work.impl.diagnostics.DiagnosticsReceiver",
+      "exported": "true",
+      "enabled": "true",
+      "permission": "android.permission.DUMP"
+    },
+    {
+      "type": "activity",
+      "name": "androidx.compose.ui.tooling.PreviewActivity",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "activity",
+      "name": "androidx.activity.ComponentActivity",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "receiver",
+      "name": "androidx.profileinstaller.ProfileInstallReceiver",
+      "exported": "true",
+      "enabled": "true",
+      "permission": "android.permission.DUMP"
+    }
+  ],
+  "app_exported_components": [
+    {
+      "type": "activity",
+      "name": "com.tingyun.smartmistakebook.BindingAuditActivity",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "activity",
+      "name": "com.tingyun.smartmistakebook.KnowledgeEvidenceAuditActivity",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "receiver",
+      "name": "com.tingyun.smartmistakebook.TestSeedModelConfigReceiver",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "receiver",
+      "name": "com.tingyun.smartmistakebook.TestCaptureModelFailuresReceiver",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "activity",
+      "name": "com.tingyun.smartmistakebook.MainActivity",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    }
+  ],
+  "library_exported_components": [
+    {
+      "type": "service",
+      "name": "com.google.android.play.core.assetpacks.AssetPackExtractionService",
+      "exported": "true",
+      "enabled": "false",
+      "permission": null
+    },
+    {
+      "type": "receiver",
+      "name": "com.google.android.play.core.assetpacks.SessionStateBroadcastReceiver",
+      "exported": "true",
+      "enabled": "true",
+      "permission": "android.permission.INSTALL_PACKAGES"
+    },
+    {
+      "type": "service",
+      "name": "androidx.work.impl.background.systemjob.SystemJobService",
+      "exported": "true",
+      "enabled": null,
+      "permission": "android.permission.BIND_JOB_SERVICE"
+    },
+    {
+      "type": "receiver",
+      "name": "androidx.work.impl.diagnostics.DiagnosticsReceiver",
+      "exported": "true",
+      "enabled": "true",
+      "permission": "android.permission.DUMP"
+    },
+    {
+      "type": "activity",
+      "name": "androidx.compose.ui.tooling.PreviewActivity",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "activity",
+      "name": "androidx.activity.ComponentActivity",
+      "exported": "true",
+      "enabled": null,
+      "permission": null
+    },
+    {
+      "type": "receiver",
+      "name": "androidx.profileinstaller.ProfileInstallReceiver",
+      "exported": "true",
+      "enabled": "true",
+      "permission": "android.permission.DUMP"
+    }
+  ],
+  "isolated_process_service": true,
+  "share_mime_types": [
+    "image/*",
+    "application/pdf",
+    "image/*",
+    "application/pdf"
+  ]
+}

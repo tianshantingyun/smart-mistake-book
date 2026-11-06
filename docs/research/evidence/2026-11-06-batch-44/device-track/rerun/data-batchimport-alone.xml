@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="data-batchimport-alone" tests="8" failures="1" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T21:02:19Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="failedSourceIsRetainedUntilThePageIsSkipped" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="explicitOrganizationMergesOnlyAModelConfirmedContinuation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="pdfIsPrivatelyRenderedByPageAndUsesTheExistingRecoverablePipeline" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="splitRecognitionSkipsExternalEgressWithoutAConfiguredModelAndImportsEveryPage" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="externalContentUrisAreStagedBeforeTheDurableJobAndSurviveRebuild" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="stagingRejectsContentAboveTheCanonicalVaultInputLimit" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="splitRecognitionDegradesWhenTheModelIsUnavailableAndEveryPageStillImports" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.core.data.capture.BatchImportRepositoryInstrumentedTest" name="concurrentRequestReplayKeepsOnlyTheCommittedStagingSession" time="0">
+    <failure message="instrumentation failure">android.database.SQLException: Error code: 21, message: connection is closed
+</failure>
+  </testcase>
+</testsuite>

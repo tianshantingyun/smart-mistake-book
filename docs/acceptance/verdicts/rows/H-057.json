@@ -1,0 +1,75 @@
+{
+  "id": "H-057",
+  "verdict": "PASS",
+  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-h",
+  "reviewer": "batch46-line-reviewer-H",
+  "authors": [
+    "batch45-evidence-producer-H"
+  ],
+  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "evidence": [
+    "cmd:docs/acceptance/evidence/H/logs/h-057.log",
+    "test:docs/acceptance/evidence/H/tests/h-export-marking.xml",
+    "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt",
+    "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPagePlanner.kt"
+  ],
+  "evidence_sha256": {
+    "docs/acceptance/evidence/H/logs/h-057.log": "8e1590e46f1594b80fc0f9e19e8ef18c0a1741c78873b07a4cde9b3e4fa8f78d",
+    "docs/acceptance/evidence/H/tests/h-export-marking.xml": "27f49e32a8d21054760bcca4d312b7926b2b2a564de0d5cd541702044f5e7218",
+    "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt": "be7819ec4500fbbc37fde65a61f787bf7355de78d015e00c888e1ddf00b029a2",
+    "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPagePlanner.kt": "26583e04e730128c7cb58d6440bf999844b66efab359966a660109a629286445"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=H-057; verdict=PASS; line=818; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/acceptance/evidence/H/logs/h-057.log",
+      "value": "exit_markers=[0]; cmd=n/a; sha256=8e1590e46f1594b80fc0f9e19e8ef18c0a1741c78873b07a4cde9b3e4fa8f78d"
+    },
+    {
+      "name": "xml_aggregate",
+      "source": "docs/acceptance/evidence/H/tests/h-export-marking.xml",
+      "value": "tests=9; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T01:48:27.619894+08:00; hostname=tianshan; sha256=27f49e32a8d21054760bcca4d312b7926b2b2a564de0d5cd541702044f5e7218"
+    },
+    {
+      "name": "xml_testcase",
+      "source": "docs/acceptance/evidence/H/tests/h-export-marking.xml",
+      "value": "testcases=9; first=test_h055_single_export_question_image_is_labelled; all_present=True"
+    },
+    {
+      "name": "file_sha256",
+      "source": "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt",
+      "value": "sha256=be7819ec4500fbbc37fde65a61f787bf7355de78d015e00c888e1ddf00b029a2"
+    },
+    {
+      "name": "file_sha256",
+      "source": "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPagePlanner.kt",
+      "value": "sha256=26583e04e730128c7cb58d6440bf999844b66efab359966a660109a629286445"
+    }
+  ],
+  "basis": "机械复算（reviewer=batch46-line-reviewer-H，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 H-057 并复算 ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+  "adversarial": {
+    "attempted": true,
+    "result": "recomputed-no-mismatch"
+  },
+  "review_scope": "single-ledger-row",
+  "ledger_batch": 46,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-05T11:28:35Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 0,
+    "archived_files": 4,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

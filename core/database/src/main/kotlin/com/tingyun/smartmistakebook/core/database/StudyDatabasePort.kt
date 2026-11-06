@@ -121,6 +121,7 @@ interface StudyDatabasePort : AutoCloseable, ModelTaskDatabasePort,
     com.tingyun.smartmistakebook.core.database.port.MistakeEditJobPort,
     com.tingyun.smartmistakebook.core.database.port.DetailedSolutionPort,
     KnowledgeSearchIndexRebuildPort,
+    com.tingyun.smartmistakebook.core.database.port.ErrorCausePort,
     TutorVisualPort {
     val paperReviews: com.tingyun.smartmistakebook.core.database.dao.PaperReviewStore
         get() = throw UnsupportedOperationException("Paper review storage is unavailable")

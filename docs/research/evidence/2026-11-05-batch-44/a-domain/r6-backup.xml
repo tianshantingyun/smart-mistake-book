@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="r6-backup" tests="11" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T08:54:50Z">
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="emptyAndImagesOnlySelectionsStayUnreachable" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="uncheckingSessionsCascadesMasterySoTheResultIsNine" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="createPassesTheSelectedCategoriesToTheRepository" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="restoreConfirmationNamesThePackageAndWhatWillBeCleared" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="checkingMasteryFromNinePullsSessionsBackIn" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="zeroEightAndUnclosedSelectionsNeverReachTheRepository" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="checkingACategoryPullsInItsDependencies" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="uncheckingMasteryLeavesIssueBookSessionsImages" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="fromThirteenUncheckingSessionsAlsoLeavesNine" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="restoreReceiptNamesTheSelectedCategories" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.BackupSelectionUiInstrumentedTest" name="defaultSelectionIsEverythingAndCreationReceivesMaskFifteen" time="0">
+  </testcase>
+</testsuite>

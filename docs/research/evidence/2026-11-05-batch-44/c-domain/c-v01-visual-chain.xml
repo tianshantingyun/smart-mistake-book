@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="c-v01-visual-chain" tests="4" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T13:15:05Z">
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.V01VisualChainInstrumentedTest" name="theFrozenDrawCommandsCommitAndSurviveARealReopenRenderedByTheIsolatedEngine" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.V01VisualChainInstrumentedTest" name="aJsProposalThroughTheCoordinatorRendersWithZeroRemoteDispatchWitnesses" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.V01VisualChainInstrumentedTest" name="theProductionAssemblyWithoutAnInjectedEngineKeepsJsUnavailableWithoutAuditRows" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.visualjs.V01VisualChainInstrumentedTest" name="theRestoredChainWritesAPdfThroughTheTestSeamAndKeepsThePreviewReference" time="0">
+  </testcase>
+</testsuite>

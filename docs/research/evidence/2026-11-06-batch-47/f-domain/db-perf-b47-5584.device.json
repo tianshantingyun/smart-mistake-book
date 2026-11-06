@@ -1,0 +1,20 @@
+{
+  "tag": "db-perf-b47-5584",
+  "serial": "emulator-5584",
+  "apk_sha256": "32235e6323f7caa45bdbdb6a0c566f5f50c9fb4da26cef975163deb3a7501a61",
+  "abi": "x86_64",
+  "sdk": "34",
+  "target_package": "com.tingyun.smartmistakebook.core.database.test",
+  "class": "com.tingyun.smartmistakebook.core.database.PerformanceGateTest",
+  "started": "2026-11-05T13:12:01Z",
+  "finished": "2026-11-05T13:13:51Z",
+  "tests": 6,
+  "failed": false,
+  "time_s": "107.624",
+  "perf_lines": 0,
+  "elapsed_ms": [],
+  "pss_first_kb": null,
+  "pss_peak_kb": null,
+  "pss_samples": 0,
+  "result": "OK"
+}

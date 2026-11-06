@@ -24,16 +24,19 @@ com.google.ai.edge.litert:litert:2.1.6, com.google.ai.edge.litert:litert-api:2.1
 换成 `package="com.google.ai.edge.litert.api"` → 其余条目按原顺序、原内容写回。
 脚本打印源/产物 sha256 与清单改动前后，便于复核"只改了这一处"。
 
-用法（仓库根下）：
+用法（仓库根下，路径固定）：
 ```
-python tools/dense_build/patch_litert_api_aar.py <源 litert-api-2.1.6.aar> <产物路径>
+python tools/dense_build/patch_litert_api_aar.py
+# 源  build/litert-aar/litert-api-2.1.6.aar
+# 产物 build/litert-patched/litert-api-2.1.6-patched.aar
 ```
+脚本不接受命令行路径参数：读写位置由仓库根常量推导，避免参数把操作引到仓库外。
+需要其它路径时，import 本模块后直接调用 `patch(src, dst)`。
 """
 from __future__ import annotations
 
 import hashlib
 import re
-import sys
 import zipfile
 from pathlib import Path
 
@@ -94,4 +97,10 @@ def patch(source: Path, target: Path) -> None:
 
 
 if __name__ == "__main__":
-    patch(Path(sys.argv[1]), Path(sys.argv[2]))
+    # 不用命令行参数：源/产物都从仓库根的 build/ 固定目录推导，避免"参数把读写引到仓库外"。
+    # 需要自定义路径时，import 本模块后直接调用 patch()。
+    root = Path(__file__).resolve().parent.parent.parent
+    patch(
+        root / "build" / "litert-aar" / "litert-api-2.1.6.aar",
+        root / "build" / "litert-patched" / "litert-api-2.1.6-patched.aar",
+    )

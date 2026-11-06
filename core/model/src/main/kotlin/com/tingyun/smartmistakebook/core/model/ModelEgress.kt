@@ -38,6 +38,8 @@ enum class ModelEgressDataClass {
 
 /** One source of truth for the prompt whose exact scope the student approved. */
 object ModelPromptPolicyVersions {
+    const val MISTAKE_EDIT = "mistake-edit-v1-host-bound-patches"
+    const val MISTAKE_SOLUTION = "detailed-solution-v1"
     const val CAPTURE_DOCUMENT = "capture-document-policy-v1"
     /**
      * v13：单一代号通道映射表 + Plan 工具环 + 教学材料加载失败披露（ADR 0001 / D5-D8）。
@@ -83,9 +85,16 @@ object ModelPromptPolicyVersions {
     const val TUTOR_LOBBY = "tutor-lobby-v17-export-layout-proposal"
     const val LEARNING_SUMMARIZE = "learning-summarize-v1-tutor-debrief"
     const val PROBLEM_ORGANIZATION = "problem-organization-v4-atomic"
-    const val MISTAKE_EDIT = "mistake-edit-v1-host-bound-patches"
-    const val MISTAKE_SOLUTION = "detailed-solution-v1"
     const val KNOWLEDGE_QUIZ = "knowledge-quiz-v1-boundary-anchored"
+
+    /**
+     * 6B-3 自然语言改卷（批次 40 / WS4）。文本在 `core:data` 的 `PaperEditPrompt`，版本串在
+     * 这里——与其余 kind 同一分工（清单/授权只认版本串）。
+     *
+     * v1：七命令白名单从 `PaperEditCommand.TYPES` 生成，卷面只暴露题序 / entryId / 标题 /
+     * 文字块 / 选项 / 已删来源题；禁图片地址与代码。
+     */
+    const val PAPER_EDIT = "paper-edit-v1-whitelist-commands"
 
     fun currentFor(kind: ModelTaskKind): String? = when (kind) {
         ModelTaskKind.CAPTURE_ASSESS,
@@ -97,9 +106,10 @@ object ModelPromptPolicyVersions {
         ModelTaskKind.TUTOR_LOBBY -> TUTOR_LOBBY
         ModelTaskKind.LEARNING_SUMMARIZE -> LEARNING_SUMMARIZE
         ModelTaskKind.PROBLEM_CLASSIFY -> PROBLEM_ORGANIZATION
+        ModelTaskKind.KNOWLEDGE_QUIZ -> KNOWLEDGE_QUIZ
         ModelTaskKind.MISTAKE_EDIT -> MISTAKE_EDIT
         ModelTaskKind.MISTAKE_SOLUTION -> MISTAKE_SOLUTION
-        ModelTaskKind.KNOWLEDGE_QUIZ -> KNOWLEDGE_QUIZ
+        ModelTaskKind.PAPER_EDIT -> PAPER_EDIT
         ModelTaskKind.PROBLEM_RELATE,
         ModelTaskKind.TUTOR_EVALUATE,
         ModelTaskKind.REVIEW_RERANK,
@@ -496,11 +506,11 @@ sealed interface ModelExecutionPermit {
     data class External(val manifest: ModelEgressManifest) : ModelExecutionPermit
 
     /**
-     * Granted for agent-eligible kinds (capture assess/parse/classify and tutor
-     * plan/respond) when the user has enabled global model-agent consent in
-     * Settings ("configuring the model = consent"). Carries no per-asset grant: the
-     * request's own asset refs plus the consent flag authorize the read. Lobby and
-     * the organization/summarize routes always require a manifest.
+     * Granted for agent-eligible kinds (capture assess/parse/classify, tutor
+     * plan/respond, knowledge quiz and paper edit) when the user has enabled global
+     * model-agent consent in Settings ("configuring the model = consent"). Carries no
+     * per-asset grant: the request's own asset refs plus the consent flag authorize the
+     * read. Lobby and the organization/summarize routes always require a manifest.
      */
     data object ProviderConsented : ModelExecutionPermit
 }

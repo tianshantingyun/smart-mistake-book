@@ -1,5 +1,15 @@
 package com.tingyun.smartmistakebook.core.database
 
+import com.tingyun.smartmistakebook.core.database.dao.ErrorCauseLedgerConflictException
+import com.tingyun.smartmistakebook.core.database.port.ErrorCauseAppendResult
+import com.tingyun.smartmistakebook.core.database.port.ErrorCauseBindingRecord
+import com.tingyun.smartmistakebook.core.database.port.ErrorCauseObservationRecord
+import com.tingyun.smartmistakebook.core.database.port.ErrorCauseWriteResult
+import com.tingyun.smartmistakebook.core.database.port.toEntity
+import com.tingyun.smartmistakebook.core.database.port.toRecord
+import com.tingyun.smartmistakebook.core.model.ErrorCauseDecisionSource
+import com.tingyun.smartmistakebook.core.model.ErrorCauseScope
+
 import com.tingyun.smartmistakebook.core.database.dao.toSourceRecord
 
 import androidx.paging.PagingSource
@@ -2555,6 +2565,68 @@ internal class RoomStudyDatabase(
         if (!TutorVisualWriteChecks.sameSnapshotPayload(entity, write)) {
             throw ImmutablePayloadConflictException("tutor_visual_snapshot", entity.snapshotId)
         }
+    }
+
+    override suspend fun appendObservation(
+        record: ErrorCauseObservationRecord,
+    ): ErrorCauseAppendResult {
+        val rowId = database.errorCauseDao().insertObservation(record.toEntity())
+        return if (rowId < 0) ErrorCauseAppendResult.DUPLICATE else ErrorCauseAppendResult.INSERTED
+    }
+
+    override suspend fun readActiveBinding(scope: ErrorCauseScope): ErrorCauseBindingRecord? =
+        database.errorCauseDao()
+            .findActiveBindingWithAcceptedSource(scope.activeKey())
+            ?.toRecord()
+
+    override suspend fun acceptObservationAndActivateBinding(
+        binding: ErrorCauseBindingRecord,
+        decidedAtEpochMillis: Long,
+        decisionSource: ErrorCauseDecisionSource,
+    ): ErrorCauseWriteResult = try {
+        val applied = database.errorCauseDao().acceptObservationAndActivateBinding(
+            observationId = binding.sourceObservationId,
+            binding = binding.toEntity(),
+            decidedAtEpochMillis = decidedAtEpochMillis,
+            decisionSource = decisionSource.name,
+        )
+        if (applied) ErrorCauseWriteResult.APPLIED else ErrorCauseWriteResult.CONFLICT
+    } catch (_: ErrorCauseLedgerConflictException) {
+        ErrorCauseWriteResult.CONFLICT
+    }
+
+    override suspend fun retractActiveBinding(
+        retraction: ErrorCauseObservationRecord,
+        bindingId: String,
+        endedAtEpochMillis: Long,
+    ): ErrorCauseWriteResult = try {
+        val applied = database.errorCauseDao().retractActiveBinding(
+            retraction = retraction.toEntity(),
+            bindingId = bindingId,
+            endedAtEpochMillis = endedAtEpochMillis,
+        )
+        if (applied) ErrorCauseWriteResult.APPLIED else ErrorCauseWriteResult.CONFLICT
+    } catch (_: ErrorCauseLedgerConflictException) {
+        ErrorCauseWriteResult.CONFLICT
+    }
+
+    override suspend fun supersedeActiveBinding(
+        newObservation: ErrorCauseObservationRecord,
+        newBinding: ErrorCauseBindingRecord,
+        oldBindingId: String,
+        decidedAtEpochMillis: Long,
+        decisionSource: ErrorCauseDecisionSource,
+    ): ErrorCauseWriteResult = try {
+        val applied = database.errorCauseDao().supersedeActiveBinding(
+            newObservationId = newObservation.observationId,
+            newBinding = newBinding.toEntity(),
+            oldBindingId = oldBindingId,
+            decidedAtEpochMillis = decidedAtEpochMillis,
+            decisionSource = decisionSource.name,
+        )
+        if (applied) ErrorCauseWriteResult.APPLIED else ErrorCauseWriteResult.CONFLICT
+    } catch (_: ErrorCauseLedgerConflictException) {
+        ErrorCauseWriteResult.CONFLICT
     }
 
     override fun close() = database.close()

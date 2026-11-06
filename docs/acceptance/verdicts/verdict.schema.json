@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "acceptance row verdict",
+  "description": "行级独立复核 JSON；由 tools/ci/d0_self_acceptance.py 的 schema 子集校验。",
+  "type": "object",
+  "required": [
+    "id",
+    "verdict",
+    "run_id",
+    "reviewer",
+    "authors",
+    "ledger_sha256",
+    "evidence",
+    "evidence_sha256",
+    "checks",
+    "basis"
+  ],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[A-Z][A-Z0-9]*-[0-9]{3}$"},
+    "verdict": {"type": "string", "enum": ["PASS", "FAIL", "BLOCKED", "UNVERIFIED"]},
+    "run_id": {"type": "string", "minLength": 1},
+    "reviewer": {"type": "string", "minLength": 1},
+    "authors": {"type": "array", "items": {"type": "string"}},
+    "ledger_sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
+    "evidence": {"type": "array", "items": {"type": "string"}},
+    "evidence_sha256": {"type": "object"},
+    "checks": {"type": "array", "minItems": 1},
+    "basis": {"type": "string", "minLength": 1}
+  }
+}

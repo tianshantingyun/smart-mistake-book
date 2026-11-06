@@ -1,0 +1,24 @@
+{
+  "cold": {},
+  "hot": {
+    "n": 2,
+    "min": 720,
+    "p50": 5425.5,
+    "p95": 10131,
+    "max": 10131,
+    "mean": 5425.5
+  },
+  "cold_rounds": [],
+  "hot_rounds": [
+    {
+      "round": "hot#1",
+      "total_ms": 10131,
+      "state": "HOT"
+    },
+    {
+      "round": "hot#5",
+      "total_ms": 720,
+      "state": "HOT"
+    }
+  ]
+}

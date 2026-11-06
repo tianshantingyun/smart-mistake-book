@@ -45,11 +45,18 @@ build/split-eval/app-split.json（设备 DB 快照，非现场重跑）。
 
 ## 逐页来源（透传，不猜，不参与口径）
 
-导出器（`export_split_eval.py`）在每页写 `nameSource`/`jobId`/`pageIndex`，文件级写
-`source` 块。`--json` 的逐页行透传为 `appNameSource`/`appJobId`/`appPageIndex`/
-`appProvenance`，文件级摘要进 `app.source`（db sha256、页名来源计数、pageMap 元数据）。
-**导出没有溯源块时这些字段为 null/false**（4C 历史导出即此形态）——不得由文件名反推
-来源。来源只做记录，不进入任何分子/分母/阈值。
+导出器（`export_split_eval.py`）在每页写 `nameSource`/`jobId`/`pageIndex`（v2 起还有
+`pageId`/`pageIdKind`/`integrity`），文件级写 `source` 块（v2 起含 `producer`/
+`db.userVersion`/`snapshot`/`payload`）。`--json` 的逐页行透传为 `appNameSource`/
+`appJobId`/`appPageIndex`/`appPageId`/`appPageIdKind`/`appJobQuestionCountMatches`/
+`appProvenance`，文件级摘要进 `app.source`（含 `dbUserVersion`/`snapshotIdentitySha256`/
+`payloadSha256`/`producerSha256`）。**导出没有溯源块时这些字段为 null/false**
+（4C 历史导出即此形态）——不得由文件名反推来源。来源只做记录，不进入任何分子/分母/阈值。
+
+逐页行还给出裁定所需的**几何与子判据**（`goldBoxesSha256`/`appBoxesSha256`/
+`fragmentPiecesByGoldIndex`/`fragmentedGoldIndices`/`unmatchedAppBoxCount`）：
+`unmatchedAppBoxCount = 应用框数 − 1:1 配对数`（配对数 = min(金标,应用)；超出者此前
+完全不进任何数）。口径本身一字未动。
 
 纯读：不写任何文件、不联网，结果只打印到 stdout。
 """
@@ -72,7 +79,9 @@ COUNT_GATE = 0.9
 FRAGMENT_GATE = 0.05
 BOX_KEYS = ("left", "top", "right", "bottom")
 # 应用导出可携带的页级溯源键（export_split_eval.py 写出）；缺省一律记 null，不猜。
-PROVENANCE_KEYS = ("nameSource", "jobId", "pageIndex", "sourceUri", "jobStatus", "pageCount")
+PROVENANCE_KEYS = ("nameSource", "jobId", "pageIndex", "sourceUri", "jobStatus", "pageCount",
+                   # v2 起：稳定页 id 与 job 计数一致性（只透传，不进口径）
+                   "pageId", "pageIdKind", "integrity")
 
 # 自动化裁定（既有裁定 37 / 4C③，本脚本只声明、不执行——没有任何产品开关可切）。
 AUTOMATION_RULING = ("门后自动化不启用（裁定 37 / 4C③：门不过不允许自动入库，切残不得自动入库）。"
@@ -99,6 +108,17 @@ def parse_box(raw: object, where: str) -> dict[str, float]:
     if not box["left"] < box["right"] or not box["top"] < box["bottom"]:
         raise DataError(f"{where} 是空/反向框（left<right、top<bottom 不成立）：{box}")
     return box
+
+
+def canonical_sha256(value: object) -> str:
+    """几何摘要（裁定记录用）：键序/分隔符固定 ⇒ 同值同字节。
+
+    它消灭的具体失败：逐页裁定只绑定文件名时，同名页换了框仍会复用旧裁定；
+    摘要让"这次判的到底是哪一组框"可核。
+    """
+    payload = json.dumps(value, ensure_ascii=False, sort_keys=True,
+                         separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
 
 
 def _read_json(path: Path, label: str) -> object:
@@ -148,8 +168,8 @@ def load_golden(path: Path) -> list[dict]:
     return pages
 
 
-def _load_app_document(path: Path) -> tuple[list[dict], dict[str, dict], dict | None]:
-    """-> (pages, 每页溯源, 文件级 source 块)。溯源缺失时为空，绝不猜。"""
+def _load_app_document(path: Path) -> tuple[list[dict], dict[str, dict], dict | None, object]:
+    """-> (pages, 每页溯源, 文件级 source 块, 导出的 schemaVersion)。缺失时为空，绝不猜。"""
     doc = _read_json(path, "应用导出")
     if not isinstance(doc, dict):
         raise DataError(f"应用导出根不是 JSON 对象：{type(doc).__name__}")
@@ -178,7 +198,8 @@ def _load_app_document(path: Path) -> tuple[list[dict], dict[str, dict], dict | 
         pages.append({"file": name, "boxes": boxes})
         provenance[name] = {key: raw[key] for key in PROVENANCE_KEYS if key in raw}
     raw_source = doc.get("source")
-    return pages, provenance, raw_source if isinstance(raw_source, dict) else None
+    return (pages, provenance, raw_source if isinstance(raw_source, dict) else None,
+            doc.get("schemaVersion"))
 
 
 def load_app(path: Path) -> list[dict]:
@@ -319,6 +340,7 @@ def _page_metric(page: dict, app_boxes: list[dict], app_page_missing: bool,
     ok, reason = count_verdict(gold_count, len(app_boxes))
     legacy_ok = (gold_count == len(app_boxes))
     provenance = app_provenance or {}
+    integrity = provenance.get("integrity")
     return {
         "file": page["file"],
         "goldQuestions": gold_count,
@@ -329,9 +351,21 @@ def _page_metric(page: dict, app_boxes: list[dict], app_page_missing: bool,
         "matchedIous": [matched.get(index) for index in range(len(gold_boxes))],
         "iouOk": iou_ok,
         "fragmentedCount": len(fragmented),
+        "fragmentedGoldIndices": fragmented,
+        "fragmentPiecesByGoldIndex": pieces,
         "fragmentedByThreshold": {str(threshold): count
                                   for threshold, count in threshold_counts.items()},
+        # 配对只覆盖 min(金标, 应用) 个框；超出者此前完全不进任何数（R5 §2.3）。
+        "unmatchedAppBoxCount": len(app_boxes) - len(pairs),
+        "goldBoxesSha256": canonical_sha256(gold_boxes),
+        "appBoxesSha256": canonical_sha256(app_boxes),
         "appPageMissing": app_page_missing,
+        "appPageId": provenance.get("pageId"),
+        "appPageIdKind": provenance.get("pageIdKind"),
+        "appJobQuestionCountMatches": (integrity.get("jobQuestionCountMatches")
+                                       if isinstance(integrity, dict) else None),
+        "appJobPageCountMatches": (integrity.get("jobPageCountMatches")
+                                   if isinstance(integrity, dict) else None),
         "appNameSource": provenance.get("nameSource"),
         "appJobId": provenance.get("jobId"),
         "appPageIndex": provenance.get("pageIndex"),
@@ -366,6 +400,9 @@ def _aggregate(rows: list[dict], app_pages: list[dict] | None) -> dict:
     extra_pages = [page["file"] for page in (app_pages or [])
                    if page["file"] not in golden_name_set]
     missing_app_pages = [row["file"] for row in rows if row["appPageMissing"]]
+    integrity_mismatch_pages = [row["file"] for row in rows
+                                if row["appJobQuestionCountMatches"] is False
+                                or row["appJobPageCountMatches"] is False]
     return {
         "countExact": {"successes": consistent_pages, "denominator": page_count,
                        "value": count_rate},
@@ -389,6 +426,7 @@ def _aggregate(rows: list[dict], app_pages: list[dict] | None) -> dict:
         "gatePassed": count_rate >= COUNT_GATE and fragment_rate <= FRAGMENT_GATE,
         "missingAppPages": missing_app_pages,
         "extraAppPages": extra_pages,
+        "integrityMismatchPages": integrity_mismatch_pages,
     }
 
 
@@ -401,21 +439,38 @@ def _describe_golden(golden_path: Path, golden_pages: list[dict]) -> dict:
 
 
 def _describe_app_source(source: dict | None) -> dict:
-    """文件级溯源摘要（导出器写的 `source` 块）。缺失即 present=false，不补默认值。"""
+    """文件级溯源摘要（导出器写的 `source` 块）。缺失即 present=false，不补默认值。
+
+    v2 的输入版本字段（`db.userVersion`/快照身份/载荷身份/生产者 sha）原样透传：
+    跨 schema 比较切分准确率没有意义，报告里必须能看出这份导出产自哪一版库。
+    """
     if not isinstance(source, dict):
-        return {"present": False, "dbSha256": None, "nameSourceCounts": None,
-                "pageMap": None}
+        return {"present": False, "dbSha256": None, "dbUserVersion": None,
+                "snapshotIdentitySha256": None, "snapshotMode": None,
+                "payloadSha256": None, "producerSha256": None,
+                "producerContract": None, "nameSourceCounts": None, "pageMap": None}
     db = source.get("db") if isinstance(source.get("db"), dict) else {}
+    snapshot = source.get("snapshot") if isinstance(source.get("snapshot"), dict) else {}
+    payload = source.get("payload") if isinstance(source.get("payload"), dict) else {}
+    producer = source.get("producer") if isinstance(source.get("producer"), dict) else {}
     counts = source.get("nameSourceCounts")
     return {"present": True, "dbSha256": db.get("sha256"),
+            "dbUserVersion": db.get("userVersion"),
+            "snapshotIdentitySha256": snapshot.get("identitySha256"),
+            "snapshotMode": snapshot.get("mode"),
+            "payloadSha256": payload.get("sha256"),
+            "producerSha256": producer.get("sha256"),
+            "producerContract": producer.get("contract"),
             "nameSourceCounts": counts if isinstance(counts, dict) else None,
             "pageMap": source.get("pageMap")}
 
 
 def _describe_app(app_path: Path, app_pages: list[dict] | None,
-                  app_source: dict | None = None) -> dict:
+                  app_source: dict | None = None,
+                  app_schema_version: object = None) -> dict:
     exists = app_pages is not None
     return {"file": app_path.name, "exists": exists,
+            "appSchemaVersion": app_schema_version if exists else None,
             "sha256": hashlib.sha256(app_path.read_bytes()).hexdigest() if exists else None,
             "bytes": app_path.stat().st_size if exists else None,
             "pageCount": len(app_pages) if exists else None,
@@ -438,13 +493,13 @@ def build_report(golden_path: Path, golden_pages: list[dict], app_path: Path) ->
                        "legacyCountExact": None, "changedPages": [],
                        "missingAppPages": [], "extraAppPages": []})
         return report
-    app_pages, app_provenance, app_source = _load_app_document(app_path)
+    app_pages, app_provenance, app_source, app_schema_version = _load_app_document(app_path)
     app_by_file = {page["file"]: page["boxes"] for page in app_pages}
     rows = [_page_metric(page, app_by_file.get(page["file"], []),
                          page["file"] not in app_by_file,
                          app_provenance.get(page["file"]))
             for page in golden_pages]
-    report["app"] = _describe_app(app_path, app_pages, app_source)
+    report["app"] = _describe_app(app_path, app_pages, app_source, app_schema_version)
     report["pages"] = rows
     agg = _aggregate(rows, app_pages)
     report["metrics"] = {"countExact": agg["countExact"], "iou": agg["iou"],
@@ -455,6 +510,7 @@ def build_report(golden_path: Path, golden_pages: list[dict], app_path: Path) ->
     report["changedPages"] = agg["changedPages"]
     report["missingAppPages"] = agg["missingAppPages"]
     report["extraAppPages"] = agg["extraAppPages"]
+    report["integrityMismatchPages"] = agg["integrityMismatchPages"]
     return report
 
 
@@ -581,6 +637,9 @@ def main(argv: list[str] | None = None) -> int:
         print(f"注意：应用导出缺以下金标页（按 0 框计）：{'、'.join(agg['missingAppPages'])}")
     if agg["extraAppPages"]:
         print(f"注意：应用导出多出金标没有的页（不进入任何分母）：{'、'.join(agg['extraAppPages'])}")
+    if agg["integrityMismatchPages"]:
+        print("注意：以下页的 job 记账题数/页数与导出行数不一致（integrity=false，"
+              f"门报告如实列出）：{'、'.join(agg['integrityMismatchPages'])}")
     return 0
 
 

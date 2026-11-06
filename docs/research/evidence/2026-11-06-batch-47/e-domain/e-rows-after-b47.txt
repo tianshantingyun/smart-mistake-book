@@ -1,0 +1,7 @@
+label=after-b47 rows_dir=docs/acceptance/verdicts/rows
+ledger_sha256=19ea6b57c5bbe73281232e170fb491a1360b6c1c87e0c9205e15c3f075f33e7b
+E_verdicts={'PASS': 81, 'BLOCKED': 9}
+json=81 valid=81 invalid=0
+E_shared_groups(>=5)=0
+E_row_specific=81/81
+checks_scope={'row-specific': 81}

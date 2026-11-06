@@ -2,356 +2,8 @@
   "formatVersion": 1,
   "database": {
     "version": 73,
-    "identityHash": "4d2c8e0f54148a3a4690da34d4307e21",
+    "identityHash": "1d086050204a0da1ed6b6e3299dd9733",
     "entities": [
-      {
-        "tableName": "paper_review",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`paper_id` TEXT NOT NULL, `session_id` TEXT NOT NULL, `plan_id` TEXT NOT NULL, `fingerprint` TEXT NOT NULL, `draft_snapshot` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `export_id` TEXT, PRIMARY KEY(`paper_id`), FOREIGN KEY(`session_id`) REFERENCES `review_session`(`review_session_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
-        "fields": [
-          {
-            "fieldPath": "paperId",
-            "columnName": "paper_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "sessionId",
-            "columnName": "session_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "planId",
-            "columnName": "plan_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "fingerprint",
-            "columnName": "fingerprint",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "draftSnapshot",
-            "columnName": "draft_snapshot",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "createdAt",
-            "columnName": "created_at",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "exportId",
-            "columnName": "export_id",
-            "affinity": "TEXT"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "paper_id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_paper_review_session_id",
-            "unique": false,
-            "columnNames": [
-              "session_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_paper_review_session_id` ON `${TABLE_NAME}` (`session_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "review_session",
-            "onDelete": "RESTRICT",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "session_id"
-            ],
-            "referencedColumns": [
-              "review_session_id"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "paper_review_question",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`paper_id` TEXT NOT NULL, `ordinal` INTEGER NOT NULL, `entry_id` TEXT NOT NULL, `practice_unit_id` TEXT NOT NULL, `problem_id` TEXT NOT NULL, `revision_id` TEXT NOT NULL, `title` TEXT NOT NULL, `markdown` TEXT NOT NULL, `result` TEXT, `corrected` INTEGER NOT NULL, `original_visible` INTEGER NOT NULL, `answered_at` INTEGER, `note` TEXT NOT NULL, `applied` INTEGER NOT NULL, PRIMARY KEY(`paper_id`, `ordinal`), FOREIGN KEY(`paper_id`) REFERENCES `paper_review`(`paper_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`entry_id`) REFERENCES `error_book_entry`(`entry_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`revision_id`) REFERENCES `problem_revision`(`revision_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`practice_unit_id`) REFERENCES `practice_unit`(`practice_unit_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
-        "fields": [
-          {
-            "fieldPath": "paperId",
-            "columnName": "paper_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "ordinal",
-            "columnName": "ordinal",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "entryId",
-            "columnName": "entry_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "practiceUnitId",
-            "columnName": "practice_unit_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "problemId",
-            "columnName": "problem_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "revisionId",
-            "columnName": "revision_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "title",
-            "columnName": "title",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "markdown",
-            "columnName": "markdown",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "result",
-            "columnName": "result",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "corrected",
-            "columnName": "corrected",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "originalVisible",
-            "columnName": "original_visible",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "answeredAt",
-            "columnName": "answered_at",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "note",
-            "columnName": "note",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "applied",
-            "columnName": "applied",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "paper_id",
-            "ordinal"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_paper_review_question_entry_id",
-            "unique": false,
-            "columnNames": [
-              "entry_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_paper_review_question_entry_id` ON `${TABLE_NAME}` (`entry_id`)"
-          },
-          {
-            "name": "index_paper_review_question_revision_id",
-            "unique": false,
-            "columnNames": [
-              "revision_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_paper_review_question_revision_id` ON `${TABLE_NAME}` (`revision_id`)"
-          },
-          {
-            "name": "index_paper_review_question_practice_unit_id",
-            "unique": false,
-            "columnNames": [
-              "practice_unit_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_paper_review_question_practice_unit_id` ON `${TABLE_NAME}` (`practice_unit_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "paper_review",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "paper_id"
-            ],
-            "referencedColumns": [
-              "paper_id"
-            ]
-          },
-          {
-            "table": "error_book_entry",
-            "onDelete": "RESTRICT",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "entry_id"
-            ],
-            "referencedColumns": [
-              "entry_id"
-            ]
-          },
-          {
-            "table": "problem_revision",
-            "onDelete": "RESTRICT",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "revision_id"
-            ],
-            "referencedColumns": [
-              "revision_id"
-            ]
-          },
-          {
-            "table": "practice_unit",
-            "onDelete": "RESTRICT",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "practice_unit_id"
-            ],
-            "referencedColumns": [
-              "practice_unit_id"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "paper_review_photo",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`photo_id` TEXT NOT NULL, `paper_id` TEXT NOT NULL, `source_asset_id` TEXT NOT NULL, `corrected` INTEGER NOT NULL, `question_ordinal` INTEGER, `created_at` INTEGER NOT NULL, PRIMARY KEY(`photo_id`), FOREIGN KEY(`paper_id`) REFERENCES `paper_review`(`paper_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`source_asset_id`) REFERENCES `canonical_source_asset`(`source_asset_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
-        "fields": [
-          {
-            "fieldPath": "photoId",
-            "columnName": "photo_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "paperId",
-            "columnName": "paper_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "sourceAssetId",
-            "columnName": "source_asset_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "corrected",
-            "columnName": "corrected",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "questionOrdinal",
-            "columnName": "question_ordinal",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "createdAt",
-            "columnName": "created_at",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "photo_id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_paper_review_photo_paper_id",
-            "unique": false,
-            "columnNames": [
-              "paper_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_paper_review_photo_paper_id` ON `${TABLE_NAME}` (`paper_id`)"
-          },
-          {
-            "name": "index_paper_review_photo_source_asset_id",
-            "unique": false,
-            "columnNames": [
-              "source_asset_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_paper_review_photo_source_asset_id` ON `${TABLE_NAME}` (`source_asset_id`)"
-          },
-          {
-            "name": "index_paper_review_photo_paper_id_source_asset_id",
-            "unique": true,
-            "columnNames": [
-              "paper_id",
-              "source_asset_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_paper_review_photo_paper_id_source_asset_id` ON `${TABLE_NAME}` (`paper_id`, `source_asset_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "paper_review",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "paper_id"
-            ],
-            "referencedColumns": [
-              "paper_id"
-            ]
-          },
-          {
-            "table": "canonical_source_asset",
-            "onDelete": "RESTRICT",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "source_asset_id"
-            ],
-            "referencedColumns": [
-              "source_asset_id"
-            ]
-          }
-        ]
-      },
       {
         "tableName": "problem",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`problem_id` TEXT NOT NULL, `canonical_fingerprint` TEXT NOT NULL, `subject` TEXT NOT NULL, `created_at_epoch_millis` INTEGER NOT NULL, `archived_at_epoch_millis` INTEGER, PRIMARY KEY(`problem_id`))",
@@ -9670,7 +9322,7 @@
       },
       {
         "tableName": "mistake_export_record",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`export_id` TEXT NOT NULL, `kind` TEXT NOT NULL, `display_name` TEXT, `status` TEXT NOT NULL, `input_sha256` TEXT, `pdf_sha256` TEXT, `page_count` INTEGER, `failure_message` TEXT, `created_at_epoch_millis` INTEGER NOT NULL, `finished_at_epoch_millis` INTEGER, `group_id` TEXT, `artifact_role` TEXT NOT NULL DEFAULT 'QUESTIONS', PRIMARY KEY(`export_id`), FOREIGN KEY(`group_id`) REFERENCES `mistake_export_group`(`group_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`export_id` TEXT NOT NULL, `kind` TEXT NOT NULL, `display_name` TEXT, `status` TEXT NOT NULL, `input_sha256` TEXT, `pdf_sha256` TEXT, `page_count` INTEGER, `failure_message` TEXT, `created_at_epoch_millis` INTEGER NOT NULL, `finished_at_epoch_millis` INTEGER, PRIMARY KEY(`export_id`))",
         "fields": [
           {
             "fieldPath": "exportId",
@@ -9725,18 +9377,6 @@
             "fieldPath": "finishedAtEpochMillis",
             "columnName": "finished_at_epoch_millis",
             "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "groupId",
-            "columnName": "group_id",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "artifactRole",
-            "columnName": "artifact_role",
-            "affinity": "TEXT",
-            "notNull": true,
-            "defaultValue": "'QUESTIONS'"
           }
         ],
         "primaryKey": {
@@ -9744,31 +9384,7 @@
           "columnNames": [
             "export_id"
           ]
-        },
-        "indices": [
-          {
-            "name": "index_mistake_export_record_group_id",
-            "unique": false,
-            "columnNames": [
-              "group_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_mistake_export_record_group_id` ON `${TABLE_NAME}` (`group_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "mistake_export_group",
-            "onDelete": "RESTRICT",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "group_id"
-            ],
-            "referencedColumns": [
-              "group_id"
-            ]
-          }
-        ]
+        }
       },
       {
         "tableName": "binding_audit_sample",
@@ -10160,530 +9776,6 @@
             ],
             "referencedColumns": [
               "source_asset_id"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "mistake_edit_job",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`operation_id` TEXT NOT NULL, `entry_id` TEXT NOT NULL, `basis_revision_id` TEXT NOT NULL, `draft_sha256` TEXT NOT NULL, `semantic_fingerprint` TEXT NOT NULL, `request_id` TEXT NOT NULL, `request_snapshot` TEXT NOT NULL, `request_fingerprint` TEXT NOT NULL, `generation` INTEGER NOT NULL, `status` TEXT NOT NULL, `state_version` INTEGER NOT NULL, `output_snapshot` TEXT, `figures_snapshot` TEXT NOT NULL, `message` TEXT, `created_at_epoch_millis` INTEGER NOT NULL, `updated_at_epoch_millis` INTEGER NOT NULL, `committed_revision_id` TEXT, PRIMARY KEY(`operation_id`), FOREIGN KEY(`entry_id`) REFERENCES `error_book_entry`(`entry_id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`basis_revision_id`) REFERENCES `problem_revision`(`revision_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`committed_revision_id`) REFERENCES `problem_revision`(`revision_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
-        "fields": [
-          {
-            "fieldPath": "operationId",
-            "columnName": "operation_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "entryId",
-            "columnName": "entry_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "basisRevisionId",
-            "columnName": "basis_revision_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "draftSha256",
-            "columnName": "draft_sha256",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "semanticFingerprint",
-            "columnName": "semantic_fingerprint",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "requestId",
-            "columnName": "request_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "requestSnapshot",
-            "columnName": "request_snapshot",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "requestFingerprint",
-            "columnName": "request_fingerprint",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "generation",
-            "columnName": "generation",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "status",
-            "columnName": "status",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "stateVersion",
-            "columnName": "state_version",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "outputSnapshot",
-            "columnName": "output_snapshot",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "figuresSnapshot",
-            "columnName": "figures_snapshot",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "message",
-            "columnName": "message",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "createdAtEpochMillis",
-            "columnName": "created_at_epoch_millis",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "updatedAtEpochMillis",
-            "columnName": "updated_at_epoch_millis",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "committedRevisionId",
-            "columnName": "committed_revision_id",
-            "affinity": "TEXT"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "operation_id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_mistake_edit_job_entry_id",
-            "unique": false,
-            "columnNames": [
-              "entry_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_mistake_edit_job_entry_id` ON `${TABLE_NAME}` (`entry_id`)"
-          },
-          {
-            "name": "index_mistake_edit_job_basis_revision_id",
-            "unique": false,
-            "columnNames": [
-              "basis_revision_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_mistake_edit_job_basis_revision_id` ON `${TABLE_NAME}` (`basis_revision_id`)"
-          },
-          {
-            "name": "index_mistake_edit_job_committed_revision_id",
-            "unique": false,
-            "columnNames": [
-              "committed_revision_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_mistake_edit_job_committed_revision_id` ON `${TABLE_NAME}` (`committed_revision_id`)"
-          },
-          {
-            "name": "index_mistake_edit_job_status_operation_id",
-            "unique": false,
-            "columnNames": [
-              "status",
-              "operation_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_mistake_edit_job_status_operation_id` ON `${TABLE_NAME}` (`status`, `operation_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "error_book_entry",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "entry_id"
-            ],
-            "referencedColumns": [
-              "entry_id"
-            ]
-          },
-          {
-            "table": "problem_revision",
-            "onDelete": "RESTRICT",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "basis_revision_id"
-            ],
-            "referencedColumns": [
-              "revision_id"
-            ]
-          },
-          {
-            "table": "problem_revision",
-            "onDelete": "RESTRICT",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "committed_revision_id"
-            ],
-            "referencedColumns": [
-              "revision_id"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "detailed_solution_manifest",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`manifest_id` TEXT NOT NULL, `paper_draft_id` TEXT NOT NULL, `manifest_snapshot` TEXT NOT NULL, `manifest_sha256` TEXT NOT NULL, `input_sha256` TEXT NOT NULL, `status` TEXT NOT NULL, `state_version` INTEGER NOT NULL, `created_at_epoch_millis` INTEGER NOT NULL, `updated_at_epoch_millis` INTEGER NOT NULL, PRIMARY KEY(`manifest_id`))",
-        "fields": [
-          {
-            "fieldPath": "manifestId",
-            "columnName": "manifest_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "paperDraftId",
-            "columnName": "paper_draft_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "manifestSnapshot",
-            "columnName": "manifest_snapshot",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "manifestSha256",
-            "columnName": "manifest_sha256",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "inputSha256",
-            "columnName": "input_sha256",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "status",
-            "columnName": "status",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "stateVersion",
-            "columnName": "state_version",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "createdAtEpochMillis",
-            "columnName": "created_at_epoch_millis",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "updatedAtEpochMillis",
-            "columnName": "updated_at_epoch_millis",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "manifest_id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_detailed_solution_manifest_paper_draft_id",
-            "unique": false,
-            "columnNames": [
-              "paper_draft_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_detailed_solution_manifest_paper_draft_id` ON `${TABLE_NAME}` (`paper_draft_id`)"
-          },
-          {
-            "name": "index_detailed_solution_manifest_status",
-            "unique": false,
-            "columnNames": [
-              "status"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_detailed_solution_manifest_status` ON `${TABLE_NAME}` (`status`)"
-          }
-        ]
-      },
-      {
-        "tableName": "detailed_solution",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`solution_id` TEXT NOT NULL, `revision_id` TEXT NOT NULL, `question_sha256` TEXT NOT NULL, `protocol_version` TEXT NOT NULL, `request_id` TEXT NOT NULL, `request_snapshot` TEXT NOT NULL, `request_fingerprint` TEXT NOT NULL, `output_snapshot` TEXT, `document_snapshot` TEXT, `document_sha256` TEXT, `figures_snapshot` TEXT NOT NULL, `origin` TEXT, `verification` TEXT, `generation` INTEGER NOT NULL, `status` TEXT NOT NULL, `state_version` INTEGER NOT NULL, `message` TEXT, `created_at_epoch_millis` INTEGER NOT NULL, `updated_at_epoch_millis` INTEGER NOT NULL, PRIMARY KEY(`solution_id`), FOREIGN KEY(`revision_id`) REFERENCES `problem_revision`(`revision_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
-        "fields": [
-          {
-            "fieldPath": "solutionId",
-            "columnName": "solution_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "revisionId",
-            "columnName": "revision_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "questionSha256",
-            "columnName": "question_sha256",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "protocolVersion",
-            "columnName": "protocol_version",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "requestId",
-            "columnName": "request_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "requestSnapshot",
-            "columnName": "request_snapshot",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "requestFingerprint",
-            "columnName": "request_fingerprint",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "outputSnapshot",
-            "columnName": "output_snapshot",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "documentSnapshot",
-            "columnName": "document_snapshot",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "documentSha256",
-            "columnName": "document_sha256",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "figuresSnapshot",
-            "columnName": "figures_snapshot",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "origin",
-            "columnName": "origin",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "verification",
-            "columnName": "verification",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "generation",
-            "columnName": "generation",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "status",
-            "columnName": "status",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "stateVersion",
-            "columnName": "state_version",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "message",
-            "columnName": "message",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "createdAtEpochMillis",
-            "columnName": "created_at_epoch_millis",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "updatedAtEpochMillis",
-            "columnName": "updated_at_epoch_millis",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "solution_id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_detailed_solution_revision_id_question_sha256_protocol_version",
-            "unique": true,
-            "columnNames": [
-              "revision_id",
-              "question_sha256",
-              "protocol_version"
-            ],
-            "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_detailed_solution_revision_id_question_sha256_protocol_version` ON `${TABLE_NAME}` (`revision_id`, `question_sha256`, `protocol_version`)"
-          },
-          {
-            "name": "index_detailed_solution_status",
-            "unique": false,
-            "columnNames": [
-              "status"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_detailed_solution_status` ON `${TABLE_NAME}` (`status`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "problem_revision",
-            "onDelete": "RESTRICT",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "revision_id"
-            ],
-            "referencedColumns": [
-              "revision_id"
-            ]
-          }
-        ]
-      },
-      {
-        "tableName": "mistake_export_group",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`group_id` TEXT NOT NULL, `manifest_id` TEXT NOT NULL, `manifest_sha256` TEXT NOT NULL, `format_token` TEXT NOT NULL, `requested_answers` INTEGER NOT NULL, `questions_export_id` TEXT, `answers_export_id` TEXT, `preview_sha256` TEXT, `solutions_sha256` TEXT, `state_version` INTEGER NOT NULL, `created_at_epoch_millis` INTEGER NOT NULL, PRIMARY KEY(`group_id`), FOREIGN KEY(`manifest_id`) REFERENCES `detailed_solution_manifest`(`manifest_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
-        "fields": [
-          {
-            "fieldPath": "groupId",
-            "columnName": "group_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "manifestId",
-            "columnName": "manifest_id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "manifestSha256",
-            "columnName": "manifest_sha256",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "formatToken",
-            "columnName": "format_token",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "requestedAnswers",
-            "columnName": "requested_answers",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "questionsExportId",
-            "columnName": "questions_export_id",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "answersExportId",
-            "columnName": "answers_export_id",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "previewSha256",
-            "columnName": "preview_sha256",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "solutionsSha256",
-            "columnName": "solutions_sha256",
-            "affinity": "TEXT"
-          },
-          {
-            "fieldPath": "stateVersion",
-            "columnName": "state_version",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "createdAtEpochMillis",
-            "columnName": "created_at_epoch_millis",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "group_id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_mistake_export_group_manifest_id",
-            "unique": false,
-            "columnNames": [
-              "manifest_id"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_mistake_export_group_manifest_id` ON `${TABLE_NAME}` (`manifest_id`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "detailed_solution_manifest",
-            "onDelete": "RESTRICT",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "manifest_id"
-            ],
-            "referencedColumns": [
-              "manifest_id"
             ]
           }
         ]
@@ -11275,6 +10367,414 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "error_cause_observation",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`observation_id` TEXT NOT NULL, `learner_id` TEXT NOT NULL, `practice_unit_id` TEXT NOT NULL, `problem_revision_id` TEXT NOT NULL, `knowledge_node_id` TEXT, `attempt_id` TEXT, `cause` TEXT NOT NULL, `detail_code` TEXT, `confidence` REAL NOT NULL, `channel` TEXT NOT NULL, `extractor_version` TEXT NOT NULL, `taxonomy_version` TEXT NOT NULL, `rationale_markdown` TEXT NOT NULL, `evidence_refs_json` TEXT NOT NULL, `observed_at_epoch_millis` INTEGER NOT NULL, `status` TEXT NOT NULL, `decided_at_epoch_millis` INTEGER, `decision_source` TEXT, `supersedes_observation_id` TEXT, PRIMARY KEY(`observation_id`), FOREIGN KEY(`practice_unit_id`) REFERENCES `practice_unit`(`practice_unit_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`problem_revision_id`) REFERENCES `problem_revision`(`revision_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`knowledge_node_id`) REFERENCES `knowledge_node`(`knowledge_node_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`attempt_id`) REFERENCES `attempt_event`(`attempt_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`supersedes_observation_id`) REFERENCES `error_cause_observation`(`observation_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "observationId",
+            "columnName": "observation_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "learnerId",
+            "columnName": "learner_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "practiceUnitId",
+            "columnName": "practice_unit_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "problemRevisionId",
+            "columnName": "problem_revision_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "knowledgeNodeId",
+            "columnName": "knowledge_node_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "attemptId",
+            "columnName": "attempt_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "cause",
+            "columnName": "cause",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "detailCode",
+            "columnName": "detail_code",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "confidence",
+            "columnName": "confidence",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "channel",
+            "columnName": "channel",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "extractorVersion",
+            "columnName": "extractor_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taxonomyVersion",
+            "columnName": "taxonomy_version",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rationaleMarkdown",
+            "columnName": "rationale_markdown",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "evidenceRefsJson",
+            "columnName": "evidence_refs_json",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "observedAtEpochMillis",
+            "columnName": "observed_at_epoch_millis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "decidedAtEpochMillis",
+            "columnName": "decided_at_epoch_millis",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "decisionSource",
+            "columnName": "decision_source",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "supersedesObservationId",
+            "columnName": "supersedes_observation_id",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "observation_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_error_cause_observation_learner_unit_observed",
+            "unique": false,
+            "columnNames": [
+              "learner_id",
+              "practice_unit_id",
+              "observed_at_epoch_millis"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_error_cause_observation_learner_unit_observed` ON `${TABLE_NAME}` (`learner_id`, `practice_unit_id`, `observed_at_epoch_millis`)"
+          },
+          {
+            "name": "index_error_cause_observation_attempt_id",
+            "unique": false,
+            "columnNames": [
+              "attempt_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_error_cause_observation_attempt_id` ON `${TABLE_NAME}` (`attempt_id`)"
+          },
+          {
+            "name": "index_error_cause_observation_unit_cause",
+            "unique": false,
+            "columnNames": [
+              "practice_unit_id",
+              "cause"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_error_cause_observation_unit_cause` ON `${TABLE_NAME}` (`practice_unit_id`, `cause`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "practice_unit",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "practice_unit_id"
+            ],
+            "referencedColumns": [
+              "practice_unit_id"
+            ]
+          },
+          {
+            "table": "problem_revision",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "problem_revision_id"
+            ],
+            "referencedColumns": [
+              "revision_id"
+            ]
+          },
+          {
+            "table": "knowledge_node",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "knowledge_node_id"
+            ],
+            "referencedColumns": [
+              "knowledge_node_id"
+            ]
+          },
+          {
+            "table": "attempt_event",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "attempt_id"
+            ],
+            "referencedColumns": [
+              "attempt_id"
+            ]
+          },
+          {
+            "table": "error_cause_observation",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "supersedes_observation_id"
+            ],
+            "referencedColumns": [
+              "observation_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "error_cause_binding",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`binding_id` TEXT NOT NULL, `learner_id` TEXT NOT NULL, `practice_unit_id` TEXT NOT NULL, `problem_revision_id` TEXT NOT NULL, `knowledge_node_id` TEXT, `cause` TEXT NOT NULL, `detail_code` TEXT, `confidence` REAL NOT NULL, `acceptance_source` TEXT NOT NULL, `gate_version` TEXT, `source_observation_id` TEXT NOT NULL, `accepted_at_epoch_millis` INTEGER NOT NULL, `state` TEXT NOT NULL, `active_key` TEXT, `superseded_by_binding_id` TEXT, `ended_at_epoch_millis` INTEGER, PRIMARY KEY(`binding_id`), FOREIGN KEY(`practice_unit_id`) REFERENCES `practice_unit`(`practice_unit_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`problem_revision_id`) REFERENCES `problem_revision`(`revision_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`knowledge_node_id`) REFERENCES `knowledge_node`(`knowledge_node_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`source_observation_id`) REFERENCES `error_cause_observation`(`observation_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`superseded_by_binding_id`) REFERENCES `error_cause_binding`(`binding_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "bindingId",
+            "columnName": "binding_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "learnerId",
+            "columnName": "learner_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "practiceUnitId",
+            "columnName": "practice_unit_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "problemRevisionId",
+            "columnName": "problem_revision_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "knowledgeNodeId",
+            "columnName": "knowledge_node_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "cause",
+            "columnName": "cause",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "detailCode",
+            "columnName": "detail_code",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "confidence",
+            "columnName": "confidence",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "acceptanceSource",
+            "columnName": "acceptance_source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gateVersion",
+            "columnName": "gate_version",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sourceObservationId",
+            "columnName": "source_observation_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "acceptedAtEpochMillis",
+            "columnName": "accepted_at_epoch_millis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "state",
+            "columnName": "state",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "activeKey",
+            "columnName": "active_key",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "supersededByBindingId",
+            "columnName": "superseded_by_binding_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "endedAtEpochMillis",
+            "columnName": "ended_at_epoch_millis",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "binding_id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_error_cause_binding_active_key",
+            "unique": true,
+            "columnNames": [
+              "active_key"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_error_cause_binding_active_key` ON `${TABLE_NAME}` (`active_key`)"
+          },
+          {
+            "name": "index_error_cause_binding_learner_unit_state",
+            "unique": false,
+            "columnNames": [
+              "learner_id",
+              "practice_unit_id",
+              "state"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_error_cause_binding_learner_unit_state` ON `${TABLE_NAME}` (`learner_id`, `practice_unit_id`, `state`)"
+          },
+          {
+            "name": "index_error_cause_binding_problem_revision_id",
+            "unique": false,
+            "columnNames": [
+              "problem_revision_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_error_cause_binding_problem_revision_id` ON `${TABLE_NAME}` (`problem_revision_id`)"
+          },
+          {
+            "name": "index_error_cause_binding_source_observation_id",
+            "unique": false,
+            "columnNames": [
+              "source_observation_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_error_cause_binding_source_observation_id` ON `${TABLE_NAME}` (`source_observation_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "practice_unit",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "practice_unit_id"
+            ],
+            "referencedColumns": [
+              "practice_unit_id"
+            ]
+          },
+          {
+            "table": "problem_revision",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "problem_revision_id"
+            ],
+            "referencedColumns": [
+              "revision_id"
+            ]
+          },
+          {
+            "table": "knowledge_node",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "knowledge_node_id"
+            ],
+            "referencedColumns": [
+              "knowledge_node_id"
+            ]
+          },
+          {
+            "table": "error_cause_observation",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "source_observation_id"
+            ],
+            "referencedColumns": [
+              "observation_id"
+            ]
+          },
+          {
+            "table": "error_cause_binding",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "superseded_by_binding_id"
+            ],
+            "referencedColumns": [
+              "binding_id"
+            ]
+          }
+        ]
       }
     ],
     "views": [
@@ -11289,7 +10789,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4d2c8e0f54148a3a4690da34d4307e21')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1d086050204a0da1ed6b6e3299dd9733')"
     ]
   }
 }

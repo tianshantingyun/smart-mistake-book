@@ -1,0 +1,9 @@
+{
+  "serial": "emulator-5584",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "pid_before": "5468",
+  "pid_after_kill": null,
+  "pid_after_restart": "5584",
+  "restart_total_ms": 7711,
+  "source": "process-death-repeat-5584.log"
+}

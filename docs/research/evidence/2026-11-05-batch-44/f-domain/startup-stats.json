@@ -1,0 +1,85 @@
+{
+  "cold": {
+    "n": 7,
+    "min": 3001,
+    "p50": 3302,
+    "p95": 3939,
+    "max": 3939,
+    "mean": 3354.7
+  },
+  "hot": {
+    "n": 5,
+    "min": 198,
+    "p50": 232,
+    "p95": 435,
+    "max": 435,
+    "mean": 263.2
+  },
+  "cold_rounds": [
+    {
+      "round": "cold#1",
+      "total_ms": 3939,
+      "state": "COLD"
+    },
+    {
+      "round": "cold#2",
+      "total_ms": 3001,
+      "state": "COLD"
+    },
+    {
+      "round": "cold#3",
+      "total_ms": 3302,
+      "state": "COLD"
+    },
+    {
+      "round": "cold#4",
+      "total_ms": 3261,
+      "state": "COLD"
+    },
+    {
+      "round": "cold#5",
+      "total_ms": 3376,
+      "state": "COLD"
+    },
+    {
+      "round": "cold#6",
+      "total_ms": 3354,
+      "state": "COLD"
+    },
+    {
+      "round": "cold#7",
+      "total_ms": 3250,
+      "state": "COLD"
+    }
+  ],
+  "hot_rounds": [
+    {
+      "round": "hot#1",
+      "total_ms": 435,
+      "state": "HOT"
+    },
+    {
+      "round": "hot#2",
+      "total_ms": 237,
+      "state": "HOT"
+    },
+    {
+      "round": "hot#3",
+      "total_ms": 198,
+      "state": "HOT"
+    },
+    {
+      "round": "hot#4",
+      "total_ms": 214,
+      "state": "HOT"
+    },
+    {
+      "round": "hot#5",
+      "total_ms": 232,
+      "state": "HOT"
+    }
+  ],
+  "warmup_first2_mean": 3470.0,
+  "warmup_plateau_mean": 3308.6,
+  "warmup_delta_ms": 161.4
+}

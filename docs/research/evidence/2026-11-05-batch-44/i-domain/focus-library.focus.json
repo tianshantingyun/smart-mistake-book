@@ -1,0 +1,58 @@
+[
+  {
+    "press": 1,
+    "label": "已导出 查看已导出的文件",
+    "class": "android.view.View",
+    "bounds": "[624,84][833,210]",
+    "focused": true
+  },
+  {
+    "press": 2,
+    "label": "录入",
+    "class": "android.view.View",
+    "bounds": "[844,84][1038,210]",
+    "focused": true
+  },
+  {
+    "press": 3,
+    "label": "搜索题目、板块或知识点",
+    "class": "android.widget.EditText",
+    "bounds": "[42,274][1038,421]",
+    "focused": true
+  },
+  {
+    "press": 4,
+    "label": "筛选",
+    "class": "android.view.View",
+    "bounds": "[662,432][876,558]",
+    "focused": true
+  },
+  {
+    "press": 5,
+    "label": "导出 导出当前 1 道",
+    "class": "android.view.View",
+    "bounds": "[876,432][1038,558]",
+    "focused": true
+  },
+  {
+    "press": 6,
+    "label": "# T7本地线题目新拍题目 求 f(x)=x-2x 的单调区间。 收藏 T7本地线题目新拍题目 待评估 综合 T7本地线题目新拍题目",
+    "class": "android.view.View",
+    "bounds": "[42,579][1038,901]",
+    "focused": true
+  },
+  {
+    "press": 7,
+    "label": "收藏 T7本地线题目新拍题目",
+    "class": "android.view.View",
+    "bounds": "[880,611][1006,737]",
+    "focused": true
+  },
+  {
+    "press": 8,
+    "label": "复习",
+    "class": "android.view.View",
+    "bounds": "[21,2158][280,2326]",
+    "focused": true
+  }
+]

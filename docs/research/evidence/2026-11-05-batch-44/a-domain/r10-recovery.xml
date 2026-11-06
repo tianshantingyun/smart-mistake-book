@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="r10-recovery" tests="4" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T08:56:51Z">
+  <testcase classname="com.tingyun.smartmistakebook.StorageOperationLifecycleInstrumentedTest" name="aRunningOperationSurvivesActivityRecreationExactlyOnce" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.StorageOperationLifecycleInstrumentedTest" name="anInterruptedProcessDoesNotRestoreAPhantomBusyOperation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.UserVisibleRecoveryInstrumentedTest" name="editsToAnExistingConfigurationSurviveTheInitialLoadingFrameAfterRecreation" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.UserVisibleRecoveryInstrumentedTest" name="unsavedModelConfigurationSurvivesActivityRecreation" time="0">
+  </testcase>
+</testsuite>

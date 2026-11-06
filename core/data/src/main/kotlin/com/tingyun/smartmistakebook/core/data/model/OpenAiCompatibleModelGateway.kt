@@ -1,5 +1,8 @@
 package com.tingyun.smartmistakebook.core.data.model
 
+import com.tingyun.smartmistakebook.core.model.MistakeEditInput
+import com.tingyun.smartmistakebook.core.model.DetailedSolutionInput
+
 import com.tingyun.smartmistakebook.core.data.model.wire.ModelWireProtocol
 import com.tingyun.smartmistakebook.core.data.model.wire.protocolFor
 import com.tingyun.smartmistakebook.core.data.model.wire.supportsStreamedToolCallAggregation
@@ -48,9 +51,8 @@ import com.tingyun.smartmistakebook.core.model.ModelTextBudgetExceededException
 import com.tingyun.smartmistakebook.core.model.ModelTaskOutput
 import com.tingyun.smartmistakebook.core.model.ModelTaskStage
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
+import com.tingyun.smartmistakebook.core.model.PaperEditInput
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
-import com.tingyun.smartmistakebook.core.model.MistakeEditInput
-import com.tingyun.smartmistakebook.core.model.DetailedSolutionInput
 import com.tingyun.smartmistakebook.core.model.ProblemOrganizationInput
 import com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence
 import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
@@ -135,26 +137,24 @@ internal class OpenAiCompatibleModelGateway(
                 try {
                     val imageReadPlan = execution.requireImageRequestFits(provider.modelId)
                     emit(ModelGatewayEvent.Started(provider))
+                    // 纯文本轮次不读图片：改卷（PAPER_EDIT）与讲题/整理同一阶段，否则会向学生
+                    // 显示"正在读取你刚刚授权的题图"——而它根本没有图片可读。
+                    val textOnlyRound = execution.request.input is TutorPlanInput ||
+                        execution.request.input is TutorLobbyInput ||
+                        execution.request.input is TutorRespondInput ||
+                        execution.request.input is ProblemOrganizationInput ||
+                        execution.request.input is PaperEditInput
                     emit(
                         ModelGatewayEvent.Progress(
-                            stage = if (execution.request.input is TutorPlanInput ||
-                                execution.request.input is TutorLobbyInput ||
-                                execution.request.input is TutorRespondInput ||
-                                execution.request.input is ProblemOrganizationInput
-                            ) {
+                            stage = if (textOnlyRound) {
                                 ModelTaskStage.PREPARING
                             } else {
                                 ModelTaskStage.READING_IMAGE
                             },
-                            userMessage = if (
-                                execution.request.input is TutorPlanInput ||
-                                execution.request.input is TutorLobbyInput ||
-                                execution.request.input is TutorRespondInput ||
-                                execution.request.input is ProblemOrganizationInput
-                            ) {
-                                "正在读取当前题目"
-                            } else {
-                                "正在读取你刚刚授权的题图"
+                            userMessage = when {
+                                !textOnlyRound -> "正在读取你刚刚授权的题图"
+                                execution.request.input is PaperEditInput -> "正在读取当前卷面"
+                                else -> "正在读取当前题目"
                             },
                         ),
                     )
@@ -213,6 +213,7 @@ internal class OpenAiCompatibleModelGateway(
                                     is TutorDebriefInput -> "正在安静地整理这次讲题的要点"
                                     is com.tingyun.smartmistakebook.core.model.KnowledgeQuizInput -> "模型正在按知识点出复习题"
                                     is ProblemOrganizationInput -> "模型正在提出待确认的分类和题目联系"
+                                    is PaperEditInput -> "模型正在按你的要求修改卷面副本"
                                 },
                             ),
                         )
@@ -570,9 +571,11 @@ private fun ModelConfigurationSnapshot.toCapabilities(): ProviderCapabilitySnaps
             add(ModelTaskKind.TUTOR_RESPOND)
             add(ModelTaskKind.TUTOR_LOBBY)
             add(ModelTaskKind.PROBLEM_CLASSIFY)
-            if (verification.supportsMistakeEdit) add(ModelTaskKind.MISTAKE_EDIT)
-            if (verification.supportsDetailedSolution) add(ModelTaskKind.MISTAKE_SOLUTION)
             add(ModelTaskKind.KNOWLEDGE_QUIZ)
+            // 6B-3 改卷是纯文本结构化输出；不加这一行，全局同意路径的
+            // `provider.supports(PAPER_EDIT)` 恒为 false，任务永远停在
+            // EGRESS_AUTHORIZATION_REQUIRED（R4 高危复核项）。探测本身与 kind 无关，无需新探针。
+            add(ModelTaskKind.PAPER_EDIT)
             if (verification.supportsImageInput) {
                 add(ModelTaskKind.CAPTURE_ASSESS)
                 add(ModelTaskKind.CAPTURE_PARSE)

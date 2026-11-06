@@ -137,8 +137,7 @@ internal object RestoreSoftReferenceRecheck {
      * 查询失败（库打不开/读不出）抛 [BackupRestoreException]——恢复被拒绝而不是放行。
      */
     fun recheck(stagedDatabaseFile: File, mask: Int?): List<String> {
-        val editViolations = recheckEditJobs(stagedDatabaseFile) + recheckDetailedSolutions(stagedDatabaseFile)
-        if (editViolations.isNotEmpty() || mask == null || mask == SmbkSelectionPlan.FULL_MASK) return editViolations
+        if (mask == null || mask == SmbkSelectionPlan.FULL_MASK) return emptyList()
         val path = stagedDatabaseFile.absolutePath
         val observed = try {
             SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY).use { database ->

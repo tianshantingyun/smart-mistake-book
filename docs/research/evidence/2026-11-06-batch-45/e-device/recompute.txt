@@ -1,0 +1,14 @@
+CHECK log has 'OK (3 tests)': OK (OK (3 tests)
+
+)
+CHECK log start codes (1) == 3: OK (count(1)=3)
+CHECK log pass codes (0) == 3: OK (count(0)=3)
+CHECK log has no error/failure/ignored/assumption code: OK (bad=[])
+CHECK log test names unique == 3: OK (names=['aFailingVoidRollsBackTheRetractionRowAndKeepsTheBindingActive', 'appendAcceptRetractAndSupersedeKeepOneActiveRow', 'candidateRejectedAndRetractedStatesLeaveNoActiveLabelBehind'])
+CHECK xml tests == 3: OK (tests=3)
+CHECK xml failures/errors/skipped all 0: OK (0/0/0)
+CHECK xml testcase names == log names: OK (xml=['aFailingVoidRollsBackTheRetractionRowAndKeepsTheBindingActive', 'appendAcceptRetractAndSupersedeKeepOneActiveRow', 'candidateRejectedAndRetractedStatesLeaveNoActiveLabelBehind'])
+CHECK device.json counts match: OK (device.json)
+CHECK device.json verdict PASS: OK (verdict)
+CHECKS=10 MISMATCHES=0
+RECOMPUTE=OK

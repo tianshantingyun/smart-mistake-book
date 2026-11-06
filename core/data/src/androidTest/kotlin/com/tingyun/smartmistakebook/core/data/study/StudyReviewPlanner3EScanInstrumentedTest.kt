@@ -508,7 +508,7 @@ class StudyReviewPlanner3EScanInstrumentedTest {
                 title = "3E 设备夹具来源($subject)",
                 publisher = null,
                 edition = null,
-                sourceUri = "https://example.org/3e-${subject.lowercase()}",
+                sourceUri = "https://github.com/tianshantingyun/smart-mistake-book/fixtures/3e-${subject.lowercase()}",
                 licenseStatus = "PUBLIC_OFFICIAL",
                 contentFingerprint = sha256Hex("source-3e-$subject"),
                 importedAtEpochMillis = NODE_CREATED_AT,

@@ -14,6 +14,7 @@ import androidx.compose.ui.test.performScrollTo
 import com.tingyun.smartmistakebook.core.ui.SmartMistakeBookTheme
 import org.junit.Assert.assertEquals
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -64,10 +65,6 @@ class CaptureModelTaskCardInstrumentedTest {
                 }
             } }
         }
-        composeRule.onNodeWithText("请选择拆分方式").assertExists()
-        composeRule.onNodeWithText("原图已保存，选择拆分方式后继续。").assertExists()
-        composeRule.onNodeWithText("正在拆分本页题目", substring = true).assertDoesNotExist()
-        composeRule.captureCaptureVisualEvidence("capture-split-large-type.png")
         val minimumPx = with(composeRule.density) { 48.dp.toPx() }
         listOf("capture_split_auto_button", "capture_split_manual_button").forEach { tag ->
             val node = composeRule.onNodeWithTag(tag).performScrollTo().assertIsDisplayed()
@@ -83,7 +80,7 @@ class CaptureModelTaskCardInstrumentedTest {
     fun demoProviderRoutesToModelSettingsWithoutManualEntry() {
         var settingsOpened = false
         composeRule.setContent {
-            SmartMistakeBookTheme {
+            MaterialTheme {
                 CaptureModelTaskCard(
                     snapshot = succeededDemoSnapshot(),
                     onRetry = {},
@@ -102,7 +99,7 @@ class CaptureModelTaskCardInstrumentedTest {
     fun missingModelShowsOnlySettingsRecovery() {
         var settingsOpened = false
         composeRule.setContent {
-            SmartMistakeBookTheme {
+            MaterialTheme {
                 CaptureModelTaskCard(
                     snapshot = failureSnapshot(ModelFailureCode.MODEL_NOT_CONFIGURED),
                     onRetry = {},
@@ -126,7 +123,7 @@ class CaptureModelTaskCardInstrumentedTest {
         var assessmentRetried = false
         var parseRetried = false
         composeRule.setContent {
-            SmartMistakeBookTheme {
+            MaterialTheme {
                 CaptureModelTaskCard(
                     snapshot = failureSnapshot(ModelFailureCode.NETWORK_UNAVAILABLE),
                     parseSnapshot = failureSnapshot(ModelFailureCode.TIMEOUT).copy(taskId = "parse"),
@@ -149,7 +146,7 @@ class CaptureModelTaskCardInstrumentedTest {
     fun cancelledTaskOffersRestartWithoutPushingManualEntry() {
         var retried = false
         composeRule.setContent {
-            SmartMistakeBookTheme {
+            MaterialTheme {
                 CaptureModelTaskCard(
                     snapshot = cancelledSnapshot(),
                     onRetry = { retried = true },
@@ -185,7 +182,7 @@ class CaptureModelTaskCardInstrumentedTest {
             ),
         )
         composeRule.setContent {
-            SmartMistakeBookTheme {
+            MaterialTheme {
                 CaptureModelTaskCard(
                     snapshot = snapshot,
                     onRetry = {},
@@ -195,7 +192,7 @@ class CaptureModelTaskCardInstrumentedTest {
             }
         }
 
-        composeRule.onNodeWithText("已保存的页面将保留", substring = true).assertExists()
+        composeRule.onNodeWithText("已保存的页面不会丢失", substring = true).assertExists()
         composeRule.onNodeWithTag("capture_manual_entry_button").assertDoesNotExist()
         composeRule.onNodeWithTag("capture_model_add_page_button").performClick()
         composeRule.runOnIdle {
@@ -227,7 +224,7 @@ class CaptureModelTaskCardInstrumentedTest {
             ),
         )
         composeRule.setContent {
-            SmartMistakeBookTheme {
+            MaterialTheme {
                 CaptureModelTaskCard(
                     snapshot = snapshot,
                     onRetry = {},

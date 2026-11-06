@@ -149,12 +149,29 @@ enum class KnowledgeSourceType {
     TEXTBOOK,
     AUTHORIZED_EDUCATION_MATERIAL,
     MANUAL_RESEARCH,
+
+    /**
+     * 来源身份无法核实（连文件/版次都只是占位记录）。
+     *
+     * 曾经这类来源被塞进 `AUTHORIZED_EDUCATION_MATERIAL` + `REFERENCE_ONLY`，再用一个假域名
+     * 凑出"可追溯"的形状——类型上看不出"我们其实不知道来源"。显式占位类让这类记录在类型上
+     * 可见，契约才能对它施加更严的 null/marker 规则（见 `KnowledgeBaseImportContract`）。
+     */
+    UNVERIFIED_PLACEHOLDER,
 }
 
 enum class KnowledgeSourceLicenseStatus {
     PUBLIC_OFFICIAL,
     LICENSED,
     REFERENCE_ONLY,
+
+    /**
+     * 许可状态本身无法确认的显式占位类。
+     *
+     * 它必须 `sourceUri = null`，并且由引用三元组（机构 + 文件名 + 版次）与
+     * attribution 的「来源不明（占位）」标记兜底；不允许再借 `REFERENCE_ONLY` 掩盖"来源不明"。
+     */
+    UNVERIFIED_PLACEHOLDER,
 }
 
 /**

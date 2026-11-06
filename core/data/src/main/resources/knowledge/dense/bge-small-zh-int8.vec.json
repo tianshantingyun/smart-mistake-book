@@ -5,6 +5,7 @@
     "atomicNodes": 3280,
     "canonicalVectors": 3280,
     "includeTopics": false,
+    "layoutSha256": "1aa8142e381d1b2b40b2ba3d5eec2783e5781830321613fcb78fff7f61e9d75c",
     "layoutSource": "spec §2.2；与离线臂 stage2_common.build_vector_layout 同序",
     "nodeScore": "max over the node's vectors (canonicalName + aliases) cosine",
     "vectorCount": 44121
@@ -49,7 +50,7 @@
   },
   "packId": "moe-2025-four-subjects-v1",
   "packPath": "core/data/src/main/resources/knowledge/moe-2025-four-subjects-v1.json",
-  "packSha256": "96246c78a1706bfc29e9de9f98e43a927e055e16d44bc4dcd1b94b3b78ca0b4f",
+  "packSha256": "10ede1bf449de38ff21a53d1a13468a82b765dd0d0852dde4af770a1b8ef6670",
   "productionLexicalLeg": {
     "note": "生产 v1 词面腿（COUNT(DISTINCT feature)，行序 = 生产排序）",
     "path": "build/production-lexical-leg.tsv",

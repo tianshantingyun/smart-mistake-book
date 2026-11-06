@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.ReviewReminderCoordinatorTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-04T09:06:59.971Z" hostname="TIANSHAN" time="0.04">
+  <properties/>
+  <testcase name="aDifferentLocalDayInAnotherTimeZoneCanNotifyOnce" classname="com.tingyun.smartmistakebook.ReviewReminderCoordinatorTest" time="0.027"/>
+  <testcase name="duplicateAlarmAndClockRollbackDoNotDistractTheStudentAgain" classname="com.tingyun.smartmistakebook.ReviewReminderCoordinatorTest" time="0.002"/>
+  <testcase name="aFinishedOrEmptyDaySchedulesTomorrowWithoutDistractingTheStudent" classname="com.tingyun.smartmistakebook.ReviewReminderCoordinatorTest" time="0.002"/>
+  <testcase name="aTemporarilyBlockedChannelKeepsTomorrowScheduledAndRecoversWithoutPreferenceChanges" classname="com.tingyun.smartmistakebook.ReviewReminderCoordinatorTest" time="0.002"/>
+  <testcase name="refreshSchedulesEnabledReminderFromTrustedPreferences" classname="com.tingyun.smartmistakebook.ReviewReminderCoordinatorTest" time="0.003"/>
+  <testcase name="disabledCancelsWhileABlockedChannelRetainsTheNextAlarmWithoutPosting" classname="com.tingyun.smartmistakebook.ReviewReminderCoordinatorTest" time="0.002"/>
+  <testcase name="reminderBroadcastPostsOnlyThePendingCountAndSchedulesTomorrow" classname="com.tingyun.smartmistakebook.ReviewReminderCoordinatorTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

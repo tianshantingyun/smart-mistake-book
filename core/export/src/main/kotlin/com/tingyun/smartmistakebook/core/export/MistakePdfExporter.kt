@@ -3,6 +3,11 @@ package com.tingyun.smartmistakebook.core.export
 import android.content.Context
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
+import com.tingyun.smartmistakebook.core.model.VisualRole
+import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcContentPolicy
+import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcInjectionException
+import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcInjector
+import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcMetadata
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -119,6 +124,7 @@ class MistakePdfExporter(context: Context) {
         requireExportDirectory(exportDirectory)
         return ExportRootLock.withLock(exportDirectory) {
             store.cleanupTemporaryDirectories()
+            store.ensurePolicyGeneration(AIGC_POLICY_SENTINEL)
             val now = System.currentTimeMillis()
             store.cleanupPublishedArtifacts(now, protectedInputSha256 = "")
             store.findExisting(input)?.let { existing ->
@@ -135,6 +141,7 @@ class MistakePdfExporter(context: Context) {
                         MistakePdfExportFailure.PDF_SIZE_LIMIT_EXCEEDED,
                     )
                 }
+                labelPdfInPlace(temporaryPdf, input)
                 val pageCount = validatedPageCount(temporaryPdf)
                 store.writeDigest(temporaryDirectory, sha256File(temporaryPdf))
                 store.publish(input, temporaryDirectory, pageCount).also { prepared ->
@@ -157,6 +164,7 @@ class MistakePdfExporter(context: Context) {
         return try {
             requireExportDirectory(exportDirectory)
             ExportRootLock.withLock(exportDirectory) {
+                store.ensurePolicyGeneration(AIGC_POLICY_SENTINEL)
                 val prepared = store.findExact(token) ?: return@withLock null
                 val pageCount = validatedPageCount(prepared.file)
                 prepared.takeIf { pageCount == token.pageCount }
@@ -186,8 +194,80 @@ class MistakePdfExporter(context: Context) {
 
     companion object {
         const val EXPORT_DIRECTORY = "mistake_pdf_exports"
+
+        /**
+         * 打标策略代际哨兵（R1 §4.3）。判据或注入器行为一变就必须换名：
+         * 升级后第一次 `prepare`/`reopenVerified` 会一次性删掉上一代已发布产物，
+         * 消灭的失败是"旧的无 `/AIGC` 包在 TTL 内仍能被分享/打印"。
+         *
+         * 名字从 [PdfAigcContentPolicy.GENERATION] 派生：升判据就升代际，两处不会漂开。
+         */
+        internal val AIGC_POLICY_SENTINEL =
+            ".aigc-policy-gen-${PdfAigcContentPolicy.GENERATION}"
     }
 }
+
+/**
+ * 判据镜像 [DeterministicMistakePdfRenderer] 实际画出的图集合（`DeterministicMistakePdfRenderer.kt:36-46`）：
+ * 题目区图、请求解析区时的解析图、卷面块图（题目区排除 `TUTOR_EXPLANATION`）。
+ *
+ * 两个陷阱：`isAiGeneratedExportImage(null) == true`，所以必须与"确实有这张图"与起来，
+ * 否则纯文字导出会被伪标；`TUTOR_EXPLANATION` 块在题目区从不绘制，必须排除。
+ */
+internal fun MistakePdfExportInput.paintsAiGeneratedImage(): Boolean {
+    val question = cleanImageLocalUri != null && isAiGeneratedExportImage(questionImageRole)
+    val solution = layout.includeSolution &&
+        solutionImages.any { image -> isAiGeneratedExportImage(image.role) }
+    val blockFigures = blocks
+        .filterIsInstance<MistakePdfBlock.Image>()
+        .filterNot { block -> block.role == VisualRole.TUTOR_EXPLANATION.name }
+        .any { block -> isAiGeneratedExportImage(block.role) }
+    return question || solution || blockFigures
+}
+
+/**
+ * 在 render 之后、页数/摘要之前就地打标（R1 §2.1 的 P2）。
+ *
+ * 位置的三条性质：注入后字节由 `PdfRenderer` 真实打开（`validatedPageCount`）；
+ * `writeDigest` 对注入后字节取摘要；`publish` 的 rename 让"带标记"与"已发布"原子。
+ * 失败一律 fail-closed：抛 [MistakePdfExportException]，pending 目录由 `prepare` 的
+ * finally 删除，不产出无标记文件。
+ *
+ * [MistakePdfExportInput.hasModelParsedText] 由资格层从 `blockEvidence` 派生（KD-75 C2）：
+ * 只要文档里出现过 `MODEL_DOCUMENT_PARSE` 就打标，与 AI 图**共用这一次** [PdfAigcContentPolicy.shouldLabel]
+ * 调用——不另起第二条注入分支（否则字节顺序/摘要/原子性会各自演化）。
+ * 判据代际见 `MistakePdfExporter.AIGC_POLICY_SENTINEL`：
+ * 改判据或写入范围必须同时升 [PdfAigcContentPolicy.GENERATION]。
+ */
+internal fun labelPdfInPlace(file: File, input: MistakePdfExportInput) {
+    if (!PdfAigcContentPolicy.shouldLabel(
+            hasAiGeneratedImage = input.paintsAiGeneratedImage(),
+            hasModelParsedText = input.hasModelParsedText,
+        )
+    ) {
+        return
+    }
+    // 注入器峰值约 4–5 倍文件长度；先挡在分配之前，而不是捕获 OOM（R1 §5.3）。
+    if (file.length() > MAX_LABELED_PDF_BYTES) {
+        throw MistakePdfExportException(MistakePdfExportFailure.PDF_SIZE_LIMIT_EXCEEDED)
+    }
+    val labeled = try {
+        PdfAigcInjector().inject(file.readBytes(), PdfAigcMetadata.document(input.inputSha256))
+    } catch (failure: PdfAigcInjectionException) {
+        throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID, failure)
+    }
+    if (labeled.size.toLong() > input.maxPdfBytes) {
+        throw MistakePdfExportException(MistakePdfExportFailure.PDF_SIZE_LIMIT_EXCEEDED)
+    }
+    FileOutputStream(file).use { output ->
+        output.write(labeled)
+        output.flush()
+        output.fd.sync()
+    }
+}
+
+/** 注入器 O(n) 多次复制的可预见峰值上限（R1 §5.3）；超出即明确失败，不冒险 OOM。 */
+private const val MAX_LABELED_PDF_BYTES = 12L * 1024L * 1024L
 
 private class PreparedPdfStore(
     private val directory: File,
@@ -226,6 +306,20 @@ private class PreparedPdfStore(
                 retainedBytes -= artifact.byteSize
             }
         }
+    }
+
+    /**
+     * 策略代际变更的一次性清空（R1 §4.3）。
+     *
+     * 哨兵**最后**创建：中途崩溃则下次重跑；只删 [publishedArtifacts] 认得的"形状完整的
+     * 已发布对"，半成品目录保持原样，既有 `EXISTING_FILE_INTEGRITY_CONFLICT` 语义不被削弱。
+     * 哨兵是根目录下的普通文件（不是 64-hex 目录），不会被当成产物或进入清理。
+     */
+    fun ensurePolicyGeneration(sentinelName: String) {
+        val sentinel = File(directory, sentinelName)
+        if (sentinel.exists()) return
+        publishedArtifacts().forEach(::deletePublishedArtifact)
+        if (!sentinel.createNewFile() && !sentinel.exists()) publishFailed()
     }
 
     fun markAccessed(prepared: PreparedMistakePdf, nowEpochMillis: Long) {

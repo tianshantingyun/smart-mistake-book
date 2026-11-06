@@ -1,0 +1,24 @@
+{
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "887e3ba649eb17a70c0f6f7af8a657d606398a10925c6116818265387af689aa",
+  "head": "87604198feeef198d5dba7343b8c4692c5e8f937",
+  "dirty_paths": 4091,
+  "total": 1200,
+  "counts": {
+    "PASS": 865,
+    "FAIL": 30,
+    "BLOCKED": 161,
+    "UNVERIFIED": 144
+  },
+  "state": "FAIL",
+  "pass_with_two_kinds": 865,
+  "pass_with_review": 0,
+  "pass_without_review": 865,
+  "unverified": 144,
+  "acceptance_complete": false,
+  "violations": [],
+  "warnings": [],
+  "ok": false,
+  "exit_code": 1
+}
+

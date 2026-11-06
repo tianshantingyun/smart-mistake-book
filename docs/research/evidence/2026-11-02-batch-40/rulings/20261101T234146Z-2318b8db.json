@@ -1,0 +1,431 @@
+{
+  "gate": {
+    "count": {
+      "comparison": ">=",
+      "met": false,
+      "threshold": 0.9,
+      "value": 0.5714285714285714
+    },
+    "fragment": {
+      "comparison": "<=",
+      "met": true,
+      "threshold": 0.05,
+      "value": 0.0
+    },
+    "passed": false,
+    "state": "FAIL"
+  },
+  "hardRedLines": {
+    "fragmentedQuestions": {
+      "required": 0,
+      "satisfied": true,
+      "value": 0
+    }
+  },
+  "inputs": {
+    "app": {
+      "appSchemaVersion": null,
+      "dbUserVersion": null,
+      "file": "app-split.json",
+      "payloadSha256": null,
+      "sha256": "9b49b0c474d68409eba1617b888e7cf823507341ef63f54a65d9f4d68f4c2fd6",
+      "snapshotIdentitySha256": null
+    },
+    "caliber": "v2",
+    "golden": {
+      "evidenceGrade": "model-labeled, no human expert; two independent labelers agreed",
+      "evidenceGradeLevel": "G2",
+      "evidenceLevelRecomputable": false,
+      "file": "split_golden_v1.json",
+      "pageCount": 7,
+      "sha256": "f9e92c47b399252d2e92ecd633c2a2b76a52b0bfcdcff78868a513dedd1e4c9f"
+    },
+    "thresholds": {
+      "countExactMin": {
+        "comparison": ">=",
+        "value": 0.9
+      },
+      "fragmentMax": {
+        "comparison": "<=",
+        "value": 0.05
+      }
+    }
+  },
+  "rulingSchemaVersion": 1,
+  "rulings": [
+    {
+      "app": {
+        "boxCount": 4,
+        "boxesSha256": "386406b2295a3aa219b5f3e732e7cf1c237c1daa68dbdf386f54f2cac704599a"
+      },
+      "appRef": {
+        "jobId": null,
+        "nameSource": null,
+        "pageId": null,
+        "pageIdKind": null,
+        "pageIndex": null,
+        "pagePresent": true
+      },
+      "diff": {
+        "appPagePresent": true,
+        "countDelta": 0,
+        "countVerdict": "CONSISTENT",
+        "fragmentPiecesByGoldIndex": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "fragmentedGoldIndices": [],
+        "iouByGoldIndex": [
+          0.6404494382022472,
+          0.7533039647577093,
+          0.7077747989276143,
+          0.6673553719008265
+        ],
+        "iouOkCount": 4,
+        "unmatchedAppBoxCount": 0
+      },
+      "gold": {
+        "boxesSha256": "cf42298168b478fdc6c133b433304d03074557ac53fc8a05ea6bade4323292af",
+        "questionCount": 4
+      },
+      "pageId": "IMG20260810003928.jpg",
+      "pageIdKind": "golden_filename",
+      "ruling": {
+        "decidedAtUtc": "2026-11-01T23:41:46Z",
+        "decidedBy": {
+          "agentId": "script:check_split_gate.py@sha256:c46caeaa66e9",
+          "kind": "automated",
+          "ruleId": "count-v2+iou-maxweight-0.5+fragment-0.5"
+        },
+        "evidenceGradeLevel": "G2",
+        "redLineHit": false,
+        "verdict": "CONSISTENT"
+      }
+    },
+    {
+      "app": {
+        "boxCount": 0,
+        "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "appRef": {
+        "jobId": null,
+        "nameSource": null,
+        "pageId": null,
+        "pageIdKind": null,
+        "pageIndex": null,
+        "pagePresent": true
+      },
+      "diff": {
+        "appPagePresent": true,
+        "countDelta": -1,
+        "countVerdict": "CONSISTENT",
+        "fragmentPiecesByGoldIndex": [
+          0
+        ],
+        "fragmentedGoldIndices": [],
+        "iouByGoldIndex": [
+          null
+        ],
+        "iouOkCount": 0,
+        "unmatchedAppBoxCount": 0
+      },
+      "gold": {
+        "boxesSha256": "99b62612b2e31721e96a184837d778239727fff5b2fdf1bd4fc1c0a031548f12",
+        "questionCount": 1
+      },
+      "pageId": "IMG20260810004304.jpg",
+      "pageIdKind": "golden_filename",
+      "ruling": {
+        "decidedAtUtc": "2026-11-01T23:41:46Z",
+        "decidedBy": {
+          "agentId": "script:check_split_gate.py@sha256:c46caeaa66e9",
+          "kind": "automated",
+          "ruleId": "count-v2+iou-maxweight-0.5+fragment-0.5"
+        },
+        "evidenceGradeLevel": "G2",
+        "redLineHit": false,
+        "verdict": "CONSISTENT"
+      }
+    },
+    {
+      "app": {
+        "boxCount": 0,
+        "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "appRef": {
+        "jobId": null,
+        "nameSource": null,
+        "pageId": null,
+        "pageIdKind": null,
+        "pageIndex": null,
+        "pagePresent": true
+      },
+      "diff": {
+        "appPagePresent": true,
+        "countDelta": -2,
+        "countVerdict": "INCONSISTENT_COUNT",
+        "fragmentPiecesByGoldIndex": [
+          0,
+          0
+        ],
+        "fragmentedGoldIndices": [],
+        "iouByGoldIndex": [
+          null,
+          null
+        ],
+        "iouOkCount": 0,
+        "unmatchedAppBoxCount": 0
+      },
+      "gold": {
+        "boxesSha256": "d55147b96cd9736c3b69200c70dbfbaf7156a9a73e1a78041dcddebcf5333d65",
+        "questionCount": 2
+      },
+      "pageId": "IMG20260810004353.jpg",
+      "pageIdKind": "golden_filename",
+      "ruling": {
+        "decidedAtUtc": "2026-11-01T23:41:46Z",
+        "decidedBy": {
+          "agentId": "script:check_split_gate.py@sha256:c46caeaa66e9",
+          "kind": "automated",
+          "ruleId": "count-v2"
+        },
+        "evidenceGradeLevel": "G2",
+        "redLineHit": false,
+        "verdict": "INCONSISTENT_COUNT"
+      }
+    },
+    {
+      "app": {
+        "boxCount": 0,
+        "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "appRef": {
+        "jobId": null,
+        "nameSource": null,
+        "pageId": null,
+        "pageIdKind": null,
+        "pageIndex": null,
+        "pagePresent": true
+      },
+      "diff": {
+        "appPagePresent": true,
+        "countDelta": -2,
+        "countVerdict": "INCONSISTENT_COUNT",
+        "fragmentPiecesByGoldIndex": [
+          0,
+          0
+        ],
+        "fragmentedGoldIndices": [],
+        "iouByGoldIndex": [
+          null,
+          null
+        ],
+        "iouOkCount": 0,
+        "unmatchedAppBoxCount": 0
+      },
+      "gold": {
+        "boxesSha256": "8345e08f59b0da1c7a9948fa7635177ff3117c97364891051e7c555b8a16be50",
+        "questionCount": 2
+      },
+      "pageId": "IMG20260810005605.jpg",
+      "pageIdKind": "golden_filename",
+      "ruling": {
+        "decidedAtUtc": "2026-11-01T23:41:46Z",
+        "decidedBy": {
+          "agentId": "script:check_split_gate.py@sha256:c46caeaa66e9",
+          "kind": "automated",
+          "ruleId": "count-v2"
+        },
+        "evidenceGradeLevel": "G2",
+        "redLineHit": false,
+        "verdict": "INCONSISTENT_COUNT"
+      }
+    },
+    {
+      "app": {
+        "boxCount": 4,
+        "boxesSha256": "15e628008bb6728af906512d4b1f3fee8408ee36a7378248a84d17f53b99d20d"
+      },
+      "appRef": {
+        "jobId": null,
+        "nameSource": null,
+        "pageId": null,
+        "pageIdKind": null,
+        "pageIndex": null,
+        "pagePresent": true
+      },
+      "diff": {
+        "appPagePresent": true,
+        "countDelta": 0,
+        "countVerdict": "CONSISTENT",
+        "fragmentPiecesByGoldIndex": [
+          1,
+          1,
+          1,
+          1
+        ],
+        "fragmentedGoldIndices": [],
+        "iouByGoldIndex": [
+          0.6390977443609023,
+          0.705677867902665,
+          0.6750981247274312,
+          0.47513812154696144
+        ],
+        "iouOkCount": 3,
+        "unmatchedAppBoxCount": 0
+      },
+      "gold": {
+        "boxesSha256": "0b7bb4e60350b735f523fdf77539a5913eb3b3bd89747c1ee15217dbc52b5d9c",
+        "questionCount": 4
+      },
+      "pageId": "IMG20260810010349.jpg",
+      "pageIdKind": "golden_filename",
+      "ruling": {
+        "decidedAtUtc": "2026-11-01T23:41:46Z",
+        "decidedBy": {
+          "agentId": "script:check_split_gate.py@sha256:c46caeaa66e9",
+          "kind": "automated",
+          "ruleId": "count-v2+iou-maxweight-0.5+fragment-0.5"
+        },
+        "evidenceGradeLevel": "G2",
+        "redLineHit": false,
+        "verdict": "CONSISTENT"
+      }
+    },
+    {
+      "app": {
+        "boxCount": 0,
+        "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "appRef": {
+        "jobId": null,
+        "nameSource": null,
+        "pageId": null,
+        "pageIdKind": null,
+        "pageIndex": null,
+        "pagePresent": true
+      },
+      "diff": {
+        "appPagePresent": true,
+        "countDelta": -2,
+        "countVerdict": "INCONSISTENT_COUNT",
+        "fragmentPiecesByGoldIndex": [
+          0,
+          0
+        ],
+        "fragmentedGoldIndices": [],
+        "iouByGoldIndex": [
+          null,
+          null
+        ],
+        "iouOkCount": 0,
+        "unmatchedAppBoxCount": 0
+      },
+      "gold": {
+        "boxesSha256": "4c5d0b3a604f946b4702c8e832b3709fc9a415811ba3f6c2e9baf0020a9740bc",
+        "questionCount": 2
+      },
+      "pageId": "IMG20260810011126.jpg",
+      "pageIdKind": "golden_filename",
+      "ruling": {
+        "decidedAtUtc": "2026-11-01T23:41:46Z",
+        "decidedBy": {
+          "agentId": "script:check_split_gate.py@sha256:c46caeaa66e9",
+          "kind": "automated",
+          "ruleId": "count-v2"
+        },
+        "evidenceGradeLevel": "G2",
+        "redLineHit": false,
+        "verdict": "INCONSISTENT_COUNT"
+      }
+    },
+    {
+      "app": {
+        "boxCount": 0,
+        "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "appRef": {
+        "jobId": null,
+        "nameSource": null,
+        "pageId": null,
+        "pageIdKind": null,
+        "pageIndex": null,
+        "pagePresent": true
+      },
+      "diff": {
+        "appPagePresent": true,
+        "countDelta": -1,
+        "countVerdict": "CONSISTENT",
+        "fragmentPiecesByGoldIndex": [
+          0
+        ],
+        "fragmentedGoldIndices": [],
+        "iouByGoldIndex": [
+          null
+        ],
+        "iouOkCount": 0,
+        "unmatchedAppBoxCount": 0
+      },
+      "gold": {
+        "boxesSha256": "7001b88d1c8c7e9a9f407fb11d7816a09ebb58cc0e2f825fd8ba81cc5130a087",
+        "questionCount": 1
+      },
+      "pageId": "IMG20260810011800.jpg",
+      "pageIdKind": "golden_filename",
+      "ruling": {
+        "decidedAtUtc": "2026-11-01T23:41:46Z",
+        "decidedBy": {
+          "agentId": "script:check_split_gate.py@sha256:c46caeaa66e9",
+          "kind": "automated",
+          "ruleId": "count-v2+iou-maxweight-0.5+fragment-0.5"
+        },
+        "evidenceGradeLevel": "G2",
+        "redLineHit": false,
+        "verdict": "CONSISTENT"
+      }
+    }
+  ],
+  "rulingsSha256": "1d4f9bfe332e49143dd28fc68ab07faec080e88b61eb6019482dd8a01d7c36b5",
+  "run": {
+    "command": [
+      "C:\\Users\\听云\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+      "D:\\smart mistake book\\tools\\split_golden\\check_split_gate.py",
+      "--report-json",
+      "build/split-eval/gate-report-batch40.json",
+      "--evidence-out",
+      "docs/research/evidence/2026-11-02-batch-40/step-aud08-gate-4c.md",
+      "--rulings-out",
+      "docs/research/evidence/2026-11-02-batch-40/rulings"
+    ],
+    "generatedAtUtc": "2026-11-01T23:41:46Z",
+    "runId": "20261101T234146Z-2318b8db",
+    "tool": {
+      "file": "check_split_gate.py",
+      "sha256": "c46caeaa66e96ffdabe9291339d3e4a670519cf3f32583e2e6cfc2ef53e9cae0"
+    }
+  },
+  "scope": {
+    "appliesTo": {
+      "appSha256": "9b49b0c474d68409eba1617b888e7cf823507341ef63f54a65d9f4d68f4c2fd6",
+      "goldenSha256": "f9e92c47b399252d2e92ecd633c2a2b76a52b0bfcdcff78868a513dedd1e4c9f"
+    },
+    "evidenceGradeLevel": "G2",
+    "notGeneralizable": true,
+    "reasons": [
+      "金标 v1 的 7 页不是 155 页总体的概率样本：sampleRule 只记录 155→24 的系统抽样，24→7 的入集准则未落产物，且自承 24 张里只有 2 张被人眼打开过",
+      "训练/开发/验收切分未做：同一批 7 页既调门又验门",
+      "证据等级是代理金标（v1 为 G2：模型标注、无人工专家），不是人工金标"
+    ],
+    "statement": "本门值（① 4/7=0.5714、③ 0/16=0.0000）只对 金标 sha `f9e92c47b399…` × 应用导出 sha `9b49b0c474d6…` 这份样本成立；**不等于**当前设备库切分准确率，也**不等于**该模型在 155 页数据集上的准确率（证据等级 G2）。"
+  },
+  "summary": {
+    "consistent": 4,
+    "fragmented": 0,
+    "inconsistentCount": 3,
+    "missingInApp": 0,
+    "notEvaluable": 0,
+    "pages": 7
+  }
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.model.TutorToolRoundBudgetTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:24:05.434Z" hostname="TIANSHAN" time="0.017">
+  <properties/>
+  <testcase name="truncationKeepsAUsablePrefixAndNamesTheTruncation" classname="com.tingyun.smartmistakebook.core.model.TutorToolRoundBudgetTest" time="0.003"/>
+  <testcase name="whatDoesNotFitSaysSoInsteadOfSilentlyDisappearing" classname="com.tingyun.smartmistakebook.core.model.TutorToolRoundBudgetTest" time="0.0"/>
+  <testcase name="theRoundTotalIsCappedEvenWhenEachOutcomeIsWithinItsOwnBudget" classname="com.tingyun.smartmistakebook.core.model.TutorToolRoundBudgetTest" time="0.0"/>
+  <testcase name="outcomesThatFitArePassedThroughUntouched" classname="com.tingyun.smartmistakebook.core.model.TutorToolRoundBudgetTest" time="0.001"/>
+  <testcase name="theRoundResultIsBuiltWithTheBudgetApplied" classname="com.tingyun.smartmistakebook.core.model.TutorToolRoundBudgetTest" time="0.002"/>
+  <testcase name="anExtendedRoundGetsTheLargerTotalSoTheExtendedResultIsReachable" classname="com.tingyun.smartmistakebook.core.model.TutorToolRoundBudgetTest" time="0.0"/>
+  <testcase name="admittingADroppedOutcomeStillFitsInsideTheBudget" classname="com.tingyun.smartmistakebook.core.model.TutorToolRoundBudgetTest" time="0.001"/>
+  <testcase name="aRenderV2KnowledgeReadSharesTheRoundWithTwoOtherResultsInOrder" classname="com.tingyun.smartmistakebook.core.model.TutorToolRoundBudgetTest" time="0.006"/>
+  <testcase name="aBudgetTooSmallForAnyOutcomeIsRefusedRatherThanSilentlyEmptyingThem" classname="com.tingyun.smartmistakebook.core.model.TutorToolRoundBudgetTest" time="0.002"/>
+  <testcase name="aSqueezedOutcomeKeepsItsExecutionVerdict" classname="com.tingyun.smartmistakebook.core.model.TutorToolRoundBudgetTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

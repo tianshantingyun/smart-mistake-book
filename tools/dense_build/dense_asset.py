@@ -359,6 +359,29 @@ def atomic_layout(root, pack_path=None):
     return rows, nodes, groups
 
 
+LAYOUT_TAB = "\t"
+LAYOUT_LF = "\n"
+
+
+def layout_sha256(rows) -> str:
+    """布局摘要（旁车 `corpus.layoutSha256` 与两端校验的**唯一**实现）。
+
+    消灭的具体失败：`ids` 只证明"向量行属于哪些节点"，不证明"这些行对应的文本是什么"。
+    canonical name 或等量别名文本被改、而 ids 与行数不变时，`packSha256` 可以被"重钉"绕过，
+    现有门没有任何一项能红。这里把 `(node_id, kind, surface)` 的**有序**序列做成摘要，
+    与 `atomic_layout()` 同序（= `.vec` 的向量行序）。
+
+    规范序列化（写死，不做任何转义）：每条 row 为 `node_id + TAB + kind + TAB + surface + LF`，
+    UTF-8 无 BOM，SHA-256 小写十六进制。`kind` 参与哈希，因此 canonical↔alias 互换也会红。
+    已知边界：surface 内含 LF 时编码非无歧义，本摘要只声称漂移检测，不声称抗构造碰撞。
+    """
+    digest = hashlib.sha256()
+    for row in rows:
+        digest.update(("%s%s%s%s%s%s" % (row["node_id"], LAYOUT_TAB, row["kind"], LAYOUT_TAB,
+                                        row["surface"], LAYOUT_LF)).encode("utf-8"))
+    return digest.hexdigest()
+
+
 def goldens(root):
     path = root.joinpath(*GOLDEN_RELATIVE.split("/"))
     actual = sha256_file(path)

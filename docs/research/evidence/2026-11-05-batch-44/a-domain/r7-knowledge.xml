@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="r7-knowledge" tests="4" failures="0" errors="0" skipped="0" hostname="emulator-5584" timestamp="2026-11-04T08:55:09Z">
+  <testcase classname="com.tingyun.smartmistakebook.KnowledgeReviewSessionInstrumentedTest" name="savedStateParcelRoundTripRestoresTheOriginalNodeAndChoiceWithAnEmptyNewPlan" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.KnowledgeReviewSessionInstrumentedTest" name="loadFailureShowsRetryThatCanRecover" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.KnowledgeReviewSessionInstrumentedTest" name="skippingTheOnlyNodeShowsAFinishActionWithoutRecordingAVerdict" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.KnowledgeReviewSessionInstrumentedTest" name="singleNodeSessionLoadsQuizzesAnswersAndFinishes" time="0">
+  </testcase>
+</testsuite>

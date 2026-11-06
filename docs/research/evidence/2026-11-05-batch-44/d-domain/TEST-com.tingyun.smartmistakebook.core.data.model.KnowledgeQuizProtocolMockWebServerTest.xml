@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.model.KnowledgeQuizProtocolMockWebServerTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-04T14:25:04.501Z" hostname="TIANSHAN" time="0.815">
+  <properties/>
+  <testcase name="realHttpRoundTripParsesTheQuizReplyIntoKnowledgeQuizOutput" classname="com.tingyun.smartmistakebook.core.data.model.KnowledgeQuizProtocolMockWebServerTest" time="0.805"/>
+  <testcase name="quizReplyWhoseCorrectIdIsAbsentIsRejectedBeforeTheUiCanSeeSuccess" classname="com.tingyun.smartmistakebook.core.data.model.KnowledgeQuizProtocolMockWebServerTest" time="0.001"/>
+  <testcase name="requestBodyCarriesTheMaterialAndItsBoundaryAnchor" classname="com.tingyun.smartmistakebook.core.data.model.KnowledgeQuizProtocolMockWebServerTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

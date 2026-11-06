@@ -1,0 +1,23 @@
+{
+  "serial": "emulator-5584",
+  "boot_id": "5a34f877-606b-4e74-b7b8-84f6398faf9d",
+  "apk_sha256": "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "journey_label": "p-j5-home",
+  "action": "home",
+  "root_tag": "mistake_detail_ready",
+  "observations": [
+    "tapped nav_library",
+    "tapped library_item_entry:m1:closed-interval-extrema",
+    "page tag present: mistake_detail_ready",
+    "page tag present: mistake_detail_export_a4",
+    "pid before: 30327",
+    "pressed HOME",
+    "page tag present: mistake_detail_ready",
+    "page tag present: mistake_detail_export_a4"
+  ],
+  "failures": [],
+  "verdict": "PASS",
+  "started_at": "2026-11-04T09:54:49Z",
+  "finished_at": "2026-11-04T09:55:35Z"
+}

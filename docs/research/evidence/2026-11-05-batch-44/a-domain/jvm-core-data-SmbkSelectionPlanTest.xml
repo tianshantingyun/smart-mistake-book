@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.backup.SmbkSelectionPlanTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-11-04T10:06:19.633Z" hostname="TIANSHAN" time="0.173">
+  <properties/>
+  <testcase name="mask propagation follows the closure and full mastery means everything" classname="com.tingyun.smartmistakebook.core.data.backup.SmbkSelectionPlanTest" time="0.007"/>
+  <testcase name="trim order covers exactly 84 tables and is a child before parent topological order" classname="com.tingyun.smartmistakebook.core.data.backup.SmbkSelectionPlanTest" time="0.05"/>
+  <testcase name="only masks 9 13 and 15 are creatable and every other mask is rejected" classname="com.tingyun.smartmistakebook.core.data.backup.SmbkSelectionPlanTest" time="0.002"/>
+  <testcase name="asset policy constants on both sides stay identical" classname="com.tingyun.smartmistakebook.core.data.backup.SmbkSelectionPlanTest" time="0.0"/>
+  <testcase name="schema 73 exports 92 tables 2 views and 110 foreign keys matching the plan identity" classname="com.tingyun.smartmistakebook.core.data.backup.SmbkSelectionPlanTest" time="0.013"/>
+  <testcase name="plan data matches the section 9_11 machine block field for field" classname="com.tingyun.smartmistakebook.core.data.backup.SmbkSelectionPlanTest" time="0.04"/>
+  <testcase name="every schema table is classified exactly once and the plan has no ghost tables" classname="com.tingyun.smartmistakebook.core.data.backup.SmbkSelectionPlanTest" time="0.012"/>
+  <testcase name="closure folded from the real fk graph equals the five expected edges" classname="com.tingyun.smartmistakebook.core.data.backup.SmbkSelectionPlanTest" time="0.014"/>
+  <testcase name="asset roots and split kind predicates stay consistent with the classification" classname="com.tingyun.smartmistakebook.core.data.backup.SmbkSelectionPlanTest" time="0.011"/>
+  <testcase name="twenty one soft references resolve against schema 73 and never shadow a hard foreign key" classname="com.tingyun.smartmistakebook.core.data.backup.SmbkSelectionPlanTest" time="0.016"/>
+  <testcase name="digest refuses row counts that do not cover all 92 tables" classname="com.tingyun.smartmistakebook.core.data.backup.SmbkSelectionPlanTest" time="0.002"/>
+  <testcase name="empty full selection digest matches the published golden" classname="com.tingyun.smartmistakebook.core.data.backup.SmbkSelectionPlanTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
