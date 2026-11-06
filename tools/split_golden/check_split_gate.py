@@ -190,11 +190,20 @@ def _base_report() -> dict:
 
 # ---------------------------------------------------------------- 范围声明（R5 §5.5）
 
-SCOPE_REASONS = (
+# 范围声明的金标侧理由：随金标版本走（--golden 决定）。v1 文本为历史冻结表述，逐字保留；
+# v2 为批次 48 金标形态（24 页、G1、dev/acceptance 16/8 切分）。应用导出通道的身份
+# （设备 DB 导出 vs 代理通道）不在本脚本硬编码——它随导出的 source 块走。
+SCOPE_REASONS_V1 = (
     "金标 v1 的 7 页不是 155 页总体的概率样本：sampleRule 只记录 155→24 的系统抽样，"
     "24→7 的入集准则未落产物，且自承 24 张里只有 2 张被人眼打开过",
     "训练/开发/验收切分未做：同一批 7 页既调门又验门",
     "证据等级是代理金标（v1 为 G2：模型标注、无人工专家），不是人工金标",
+)
+SCOPE_REASONS_V2 = (
+    "金标 v2 的 24 页是 155 页数据集按步长 6 的系统抽样，不是概率样本；"
+    "标注为单模型盲标（G1，model-labeled），无人工专家复核，坐标为模型估读（±0.01–0.02）",
+    "v2 已做 dev/acceptance（16/8）切分：dev 16 页参与了切分修复调参，acceptance 8 页"
+    "只复算一次；门值不外推为未参与调参页面的准确率",
 )
 
 
@@ -225,7 +234,8 @@ def build_scope(report: dict) -> dict:
             "appliesTo": {"goldenSha256": golden.get("sha256"),
                           "appSha256": app.get("sha256")},
             "evidenceGradeLevel": level,
-            "reasons": list(SCOPE_REASONS)}
+            "reasons": list(SCOPE_REASONS_V1 if "v1" in (golden.get("file") or "")
+                            else SCOPE_REASONS_V2)}
 
 
 def build_hard_red_lines(report: dict) -> dict:

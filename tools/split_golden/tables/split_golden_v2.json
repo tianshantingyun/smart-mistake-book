@@ -1,0 +1,1006 @@
+{
+  "adjudication": {
+    "adjudicatorId": "v2 金标盲标 (ZCode workflow subagent) — 与标注员 A 同代理同模型（自裁定，非独立第三方）",
+    "decidedAtUtc": "2026-11-06T16:53:00Z",
+    "decisions": [
+      {
+        "boxIndex": 0,
+        "decision": "保留 A 轮 [0.08,0.20,0.68,0.315]；B 轮 [0.075,0.19,0.68,0.325] 与细网格读数（C 行 0.205-0.245、D 行 0.275-0.31）比对后 A 更贴合",
+        "issue": "A/B IoU=0.8448（承接块边界）",
+        "pageId": "IMG20260810004511"
+      },
+      {
+        "decision": "v2 记判定框数；语义差异在 method 与 record 说明",
+        "issue": "questionCount(印刷题数) != len(boxes)",
+        "pageId": "IMG20260810005144/005301/011017"
+      }
+    ],
+    "guidelineVersion": "aud08-model-gold-b48-v1.1",
+    "method": "A 轮（完整轮：整页渲染+网格裁片+像素行带测量）为 v2 基线；B 轮 8 页重标仅作一致性证据，逐框贪心 IoU 匹配全部 >=0.5，无结构分歧，最低配对 (IMG20260810004511 承接块 IoU=0.8448) 复核网格读数后仍取 A 轮；v2 的 questionCount 记判定框数=len(boxes)：印刷题号数与框数不同的三页（005144 6题7框、005301 2题3框、011017 2题3框）系跨栏/分散题按非连续区域记多框所致，如实登记不改框",
+    "note": "裁定人非独立第三方（同模型同代理，主会话代理角色）——等级因此封顶 G1，不称人工裁定、不写 G3/G4/G5",
+    "role": "adjudicator"
+  },
+  "agreement": {
+    "boxIoUMean": 0.9641,
+    "boxIoUMin": 0.8448,
+    "boxPairs": "35/35 matched, IoU>=0.5 pairing rate 1.0",
+    "chanceCorrected": {
+      "kappa": 1.0
+    },
+    "countAgreePages": "8/8",
+    "metric": "per-page questionCount exact agreement (Cohen kappa) + greedy box IoU matching on 8 overlap pages",
+    "note": "同模型第二轮（B），非独立双人标注；机检不可证项（互不可见性）如实记 UNVERIFIED 于 record",
+    "rawCountAgreement": 1.0,
+    "subset": "8 pages: IMG20260810012103/003928/005144/10034/004511/011358/010859/005711 (dev 4 + acceptance 4)",
+    "value": 1.0
+  },
+  "evidenceGrade": "model-labeled, no human expert; single model (GLM-5.3-Flash via ZCode harness) blind labeling of all 24 pages from page images only (no split-algorithm code/output, no v1 boxes read before labeling); same-model 8-page re-pass recorded under agreement as consistency evidence only (not independent per protocol §3.3); no human review; grade capped at G1",
+  "evidenceGradeLevel": "G1",
+  "generatedAt": "2026-11-06T16:53:00Z",
+  "guidelineVersion": "aud08-model-gold-b48-v1.1",
+  "labelers": [
+    {
+      "agentName": "v2 金标盲标 (ZCode workflow subagent)",
+      "independence": "只看页面图像（含放大裁片与自写行带测量）；未读切分算法代码/输出与 v1 boxes",
+      "kind": "model",
+      "labelerId": "A",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "pages": "all 24 (blind, page order = sampling plan §4 order)",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "provider": "bigmodel-start-plan",
+      "ranAtUtc": "2026-11-06T15:56:39Z"
+    },
+    {
+      "agentName": "v2 金标盲标 (ZCode workflow subagent) — 同模型第二轮",
+      "independence": "同模型同会话重标：不构成协议 §3.3 独立标注，仅作一致性证据；不升级等级",
+      "kind": "model",
+      "labelerId": "B",
+      "modelId": "GLM-5.3-Flash",
+      "modelVersion": "harness-reported-name-only",
+      "pages": "8 overlap pages (shuffled order; B JSONs written before any comparison with A)",
+      "promptSha256": "408d33373cd647eaa5ef62024e91d07daccc833bc425cc59140ecbc344a1a980",
+      "provider": "bigmodel-start-plan",
+      "ranAtUtc": "2026-11-07T08:50:00Z"
+    }
+  ],
+  "labelingProtocolVersion": "aud08-human-gold-v1",
+  "pages": [
+    {
+      "boxes": [
+        {
+          "bottom": 0.337,
+          "left": 0.125,
+          "right": 1.0,
+          "top": 0.14
+        },
+        {
+          "bottom": 0.565,
+          "left": 0.105,
+          "right": 1.0,
+          "top": 0.35
+        },
+        {
+          "bottom": 0.692,
+          "left": 0.09,
+          "right": 0.83,
+          "top": 0.57
+        },
+        {
+          "bottom": 0.918,
+          "left": 0.095,
+          "right": 0.87,
+          "top": 0.686
+        }
+      ],
+      "file": "IMG20260810003928.jpg",
+      "layout": "single-column",
+      "questionCount": 4,
+      "strata": {
+        "crossPage": false,
+        "figureOwnership": [
+          1,
+          2
+        ],
+        "hasFigure": true,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "choice"
+      },
+      "subject": "化学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.978,
+          "left": 0.115,
+          "right": 0.89,
+          "top": 0.075
+        }
+      ],
+      "file": "IMG20260810004304.jpg",
+      "layout": "single-column",
+      "questionCount": 1,
+      "strata": {
+        "crossPage": false,
+        "figureOwnership": [
+          1
+        ],
+        "hasFigure": true,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": false,
+        "questionType": "solve"
+      },
+      "subject": "化学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.725,
+          "left": 0.055,
+          "right": 0.93,
+          "top": 0.145
+        },
+        {
+          "bottom": 1.0,
+          "left": 0.055,
+          "right": 0.935,
+          "top": 0.895
+        }
+      ],
+      "file": "IMG20260810004353.jpg",
+      "layout": "single-column",
+      "questionCount": 2,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [
+          1
+        ],
+        "hasFigure": true,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": false,
+        "questionType": "solve"
+      },
+      "subject": "物理"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.315,
+          "left": 0.08,
+          "right": 0.68,
+          "top": 0.2
+        },
+        {
+          "bottom": 0.65,
+          "left": 0.05,
+          "right": 0.96,
+          "top": 0.268
+        },
+        {
+          "bottom": 1.0,
+          "left": 0.05,
+          "right": 0.96,
+          "top": 0.645
+        }
+      ],
+      "file": "IMG20260810004511.jpg",
+      "layout": "single-column",
+      "questionCount": 3,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [],
+        "hasFigure": false,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "choice"
+      },
+      "subject": "数学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.775,
+          "left": 0.02,
+          "right": 0.955,
+          "top": 0.21
+        },
+        {
+          "bottom": 1.0,
+          "left": 0.02,
+          "right": 0.955,
+          "top": 0.785
+        }
+      ],
+      "file": "IMG20260810004854.jpg",
+      "layout": "single-column",
+      "questionCount": 2,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [],
+        "hasFigure": false,
+        "hasFormula": false,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "choice"
+      },
+      "subject": "生物"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.95,
+          "left": 0.18,
+          "right": 0.95,
+          "top": 0.198
+        },
+        {
+          "bottom": 1.0,
+          "left": 0.255,
+          "right": 0.95,
+          "top": 0.95
+        }
+      ],
+      "file": "IMG20260810004952.jpg",
+      "layout": "single-column",
+      "questionCount": 2,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [],
+        "hasFigure": false,
+        "hasFormula": false,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "choice"
+      },
+      "subject": "生物"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.222,
+          "left": 0.07,
+          "right": 0.475,
+          "top": 0.017
+        },
+        {
+          "bottom": 0.437,
+          "left": 0.07,
+          "right": 0.475,
+          "top": 0.228
+        },
+        {
+          "bottom": 0.825,
+          "left": 0.07,
+          "right": 0.475,
+          "top": 0.444
+        },
+        {
+          "bottom": 1.0,
+          "left": 0.07,
+          "right": 0.52,
+          "top": 0.805
+        },
+        {
+          "bottom": 0.147,
+          "left": 0.52,
+          "right": 0.985,
+          "top": 0.013
+        },
+        {
+          "bottom": 0.446,
+          "left": 0.52,
+          "right": 0.985,
+          "top": 0.153
+        },
+        {
+          "bottom": 1.0,
+          "left": 0.52,
+          "right": 0.985,
+          "top": 0.474
+        }
+      ],
+      "file": "IMG20260810005144.jpg",
+      "layout": "two-column",
+      "questionCount": 7,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [
+          3,
+          7
+        ],
+        "hasFigure": true,
+        "hasFormula": false,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "mixed"
+      },
+      "subject": "生物"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 1.0,
+          "left": 0.03,
+          "right": 0.5,
+          "top": 0.065
+        },
+        {
+          "bottom": 0.165,
+          "left": 0.5,
+          "right": 0.955,
+          "top": 0.036
+        },
+        {
+          "bottom": 0.96,
+          "left": 0.5,
+          "right": 0.955,
+          "top": 0.172
+        }
+      ],
+      "file": "IMG20260810005301.jpg",
+      "layout": "two-column",
+      "questionCount": 3,
+      "strata": {
+        "crossPage": false,
+        "figureOwnership": [
+          1,
+          3
+        ],
+        "hasFigure": true,
+        "hasFormula": false,
+        "hasHandwriting": true,
+        "optionsIncluded": false,
+        "questionType": "fill"
+      },
+      "subject": "生物"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.4,
+          "left": 0.025,
+          "right": 0.885,
+          "top": 0.26
+        },
+        {
+          "bottom": 1.0,
+          "left": 0.02,
+          "right": 0.885,
+          "top": 0.652
+        }
+      ],
+      "file": "IMG20260810005605.jpg",
+      "layout": "single-column",
+      "questionCount": 2,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [],
+        "hasFigure": false,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "mixed"
+      },
+      "subject": "化学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.44,
+          "left": 0.07,
+          "right": 0.87,
+          "top": 0.0
+        },
+        {
+          "bottom": 0.81,
+          "left": 0.07,
+          "right": 0.87,
+          "top": 0.455
+        },
+        {
+          "bottom": 1.0,
+          "left": 0.07,
+          "right": 0.87,
+          "top": 0.878
+        }
+      ],
+      "file": "IMG20260810005711.jpg",
+      "layout": "single-column",
+      "questionCount": 3,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [],
+        "hasFigure": false,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "mixed"
+      },
+      "subject": "化学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.4,
+          "left": 0.085,
+          "right": 0.92,
+          "top": 0.0
+        },
+        {
+          "bottom": 0.92,
+          "left": 0.085,
+          "right": 0.92,
+          "top": 0.41
+        },
+        {
+          "bottom": 1.0,
+          "left": 0.085,
+          "right": 0.9,
+          "top": 0.922
+        }
+      ],
+      "file": "IMG20260810005855.jpg",
+      "layout": "single-column",
+      "questionCount": 3,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [
+          1,
+          2
+        ],
+        "hasFigure": true,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "choice"
+      },
+      "subject": "化学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.1,
+          "left": 0.08,
+          "right": 0.86,
+          "top": 0.0
+        },
+        {
+          "bottom": 0.24,
+          "left": 0.055,
+          "right": 0.87,
+          "top": 0.11
+        },
+        {
+          "bottom": 0.465,
+          "left": 0.055,
+          "right": 0.94,
+          "top": 0.245
+        },
+        {
+          "bottom": 0.565,
+          "left": 0.055,
+          "right": 0.9,
+          "top": 0.47
+        },
+        {
+          "bottom": 0.795,
+          "left": 0.055,
+          "right": 0.9,
+          "top": 0.57
+        },
+        {
+          "bottom": 0.9,
+          "left": 0.055,
+          "right": 0.9,
+          "top": 0.795
+        }
+      ],
+      "file": "IMG20260810010034.jpg",
+      "layout": "single-column",
+      "questionCount": 6,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [],
+        "hasFigure": false,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "mixed"
+      },
+      "subject": "数学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.118,
+          "left": 0.0,
+          "right": 0.86,
+          "top": 0.0
+        },
+        {
+          "bottom": 0.545,
+          "left": 0.075,
+          "right": 0.95,
+          "top": 0.14
+        },
+        {
+          "bottom": 0.835,
+          "left": 0.045,
+          "right": 0.91,
+          "top": 0.632
+        }
+      ],
+      "file": "IMG20260810010202.jpg",
+      "layout": "single-column",
+      "questionCount": 3,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [],
+        "hasFigure": false,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "mixed"
+      },
+      "subject": "数学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.128,
+          "left": 0.395,
+          "right": 0.645,
+          "top": 0.012
+        },
+        {
+          "bottom": 0.3,
+          "left": 0.075,
+          "right": 0.87,
+          "top": 0.155
+        },
+        {
+          "bottom": 0.615,
+          "left": 0.075,
+          "right": 0.905,
+          "top": 0.312
+        },
+        {
+          "bottom": 0.895,
+          "left": 0.075,
+          "right": 0.87,
+          "top": 0.62
+        }
+      ],
+      "file": "IMG20260810010306.jpg",
+      "layout": "single-column",
+      "questionCount": 4,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [],
+        "hasFigure": true,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": false,
+        "questionType": "fill"
+      },
+      "subject": "数学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.12,
+          "left": 0.14,
+          "right": 0.91,
+          "top": 0.0
+        },
+        {
+          "bottom": 0.415,
+          "left": 0.14,
+          "right": 0.94,
+          "top": 0.215
+        },
+        {
+          "bottom": 0.65,
+          "left": 0.14,
+          "right": 0.94,
+          "top": 0.443
+        },
+        {
+          "bottom": 0.745,
+          "left": 0.14,
+          "right": 0.94,
+          "top": 0.658
+        }
+      ],
+      "file": "IMG20260810010349.jpg",
+      "layout": "single-column",
+      "questionCount": 4,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [],
+        "hasFigure": false,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "mixed"
+      },
+      "subject": "数学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.285,
+          "left": 0.145,
+          "right": 0.865,
+          "top": 0.0
+        },
+        {
+          "bottom": 0.835,
+          "left": 0.115,
+          "right": 0.865,
+          "top": 0.288
+        },
+        {
+          "bottom": 1.0,
+          "left": 0.145,
+          "right": 0.865,
+          "top": 0.843
+        }
+      ],
+      "file": "IMG20260810010633.jpg",
+      "layout": "single-column",
+      "questionCount": 3,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [
+          2,
+          3
+        ],
+        "hasFigure": true,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "mixed"
+      },
+      "subject": "物理"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.085,
+          "left": 0.18,
+          "right": 0.9,
+          "top": 0.0
+        },
+        {
+          "bottom": 0.26,
+          "left": 0.18,
+          "right": 0.905,
+          "top": 0.09
+        },
+        {
+          "bottom": 0.605,
+          "left": 0.14,
+          "right": 0.9,
+          "top": 0.325
+        },
+        {
+          "bottom": 0.785,
+          "left": 0.14,
+          "right": 0.9,
+          "top": 0.61
+        }
+      ],
+      "file": "IMG20260810010859.jpg",
+      "layout": "single-column",
+      "questionCount": 4,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [],
+        "hasFigure": false,
+        "hasFormula": false,
+        "hasHandwriting": true,
+        "optionsIncluded": false,
+        "questionType": "mixed"
+      },
+      "subject": "物理"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.97,
+          "left": 0.0,
+          "right": 0.175,
+          "top": 0.0
+        },
+        {
+          "bottom": 0.03,
+          "left": 0.21,
+          "right": 0.8,
+          "top": 0.0
+        },
+        {
+          "bottom": 0.99,
+          "left": 0.185,
+          "right": 0.8,
+          "top": 0.033
+        }
+      ],
+      "file": "IMG20260810011017.jpg",
+      "layout": "single-column",
+      "questionCount": 3,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [
+          3
+        ],
+        "hasFigure": true,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": false,
+        "questionType": "solve"
+      },
+      "subject": "物理"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.065,
+          "left": 0.16,
+          "right": 0.75,
+          "top": 0.0
+        },
+        {
+          "bottom": 0.955,
+          "left": 0.16,
+          "right": 0.77,
+          "top": 0.07
+        }
+      ],
+      "file": "IMG20260810011126.jpg",
+      "layout": "single-column",
+      "questionCount": 2,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [
+          2
+        ],
+        "hasFigure": true,
+        "hasFormula": false,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "choice"
+      },
+      "subject": "物理"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.215,
+          "left": 0.075,
+          "right": 0.6,
+          "top": 0.025
+        },
+        {
+          "bottom": 0.41,
+          "left": 0.045,
+          "right": 0.85,
+          "top": 0.335
+        },
+        {
+          "bottom": 0.475,
+          "left": 0.045,
+          "right": 0.8,
+          "top": 0.415
+        },
+        {
+          "bottom": 0.69,
+          "left": 0.045,
+          "right": 0.98,
+          "top": 0.485
+        },
+        {
+          "bottom": 0.935,
+          "left": 0.045,
+          "right": 0.87,
+          "top": 0.8
+        }
+      ],
+      "file": "IMG20260810011248.jpg",
+      "layout": "single-column",
+      "questionCount": 5,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [],
+        "hasFigure": false,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "mixed"
+      },
+      "subject": "数学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.142,
+          "left": 0.09,
+          "right": 0.79,
+          "top": 0.0
+        },
+        {
+          "bottom": 0.365,
+          "left": 0.095,
+          "right": 0.79,
+          "top": 0.155
+        },
+        {
+          "bottom": 0.56,
+          "left": 0.09,
+          "right": 0.79,
+          "top": 0.33
+        },
+        {
+          "bottom": 0.83,
+          "left": 0.09,
+          "right": 0.8,
+          "top": 0.565
+        },
+        {
+          "bottom": 0.945,
+          "left": 0.09,
+          "right": 0.8,
+          "top": 0.855
+        }
+      ],
+      "file": "IMG20260810011358.jpg",
+      "layout": "single-column",
+      "questionCount": 5,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [],
+        "hasFigure": true,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "choice"
+      },
+      "subject": "数学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.235,
+          "left": 0.14,
+          "right": 0.64,
+          "top": 0.04
+        },
+        {
+          "bottom": 0.725,
+          "left": 0.09,
+          "right": 0.91,
+          "top": 0.26
+        },
+        {
+          "bottom": 1.0,
+          "left": 0.075,
+          "right": 0.62,
+          "top": 0.9
+        }
+      ],
+      "file": "IMG20260810011649.jpg",
+      "layout": "single-column",
+      "questionCount": 3,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [],
+        "hasFigure": true,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "mixed"
+      },
+      "subject": "数学"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 1.0,
+          "left": 0.045,
+          "right": 1.0,
+          "top": 0.195
+        }
+      ],
+      "file": "IMG20260810011800.jpg",
+      "layout": "single-column",
+      "questionCount": 1,
+      "strata": {
+        "crossPage": false,
+        "figureOwnership": [
+          1
+        ],
+        "hasFigure": true,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": false,
+        "questionType": "solve"
+      },
+      "subject": "物理"
+    },
+    {
+      "boxes": [
+        {
+          "bottom": 0.255,
+          "left": 0.0,
+          "right": 0.91,
+          "top": 0.0
+        },
+        {
+          "bottom": 0.65,
+          "left": 0.03,
+          "right": 0.975,
+          "top": 0.262
+        },
+        {
+          "bottom": 0.865,
+          "left": 0.02,
+          "right": 0.955,
+          "top": 0.722
+        }
+      ],
+      "file": "IMG20260810012103.jpg",
+      "layout": "single-column",
+      "questionCount": 3,
+      "strata": {
+        "crossPage": true,
+        "figureOwnership": [
+          2
+        ],
+        "hasFigure": true,
+        "hasFormula": true,
+        "hasHandwriting": true,
+        "optionsIncluded": true,
+        "questionType": "mixed"
+      },
+      "subject": "物理"
+    }
+  ],
+  "sampleRule": "frame=C:/Users/听云/Pictures/错题数据集 (155 jpg, 仓外); rule=文件名字典序 sorted 后取下标 0,6,...,138 (步长6) -> 24 页; 每页 sha256(文件字节) 与 docs/research/2026-11-04-aud08-human-gold-sampling-plan.md §4 冻结表逐字节一致 (24/24); 无替换 (替换规则: 仅解码失败时按下标 144/150 补位); split=对 24 个文件名取 sha256(name) 升序前16=dev 后8=acceptance, 与计划 §4 表全等; 复算命令与输出见 docs/research/evidence/2026-11-07-batch-48/",
+  "schemaVersion": 2,
+  "split": {
+    "acceptance": [
+      "IMG20260810003928.jpg",
+      "IMG20260810004353.jpg",
+      "IMG20260810004952.jpg",
+      "IMG20260810005711.jpg",
+      "IMG20260810010034.jpg",
+      "IMG20260810010202.jpg",
+      "IMG20260810011358.jpg",
+      "IMG20260810011800.jpg"
+    ],
+    "dev": [
+      "IMG20260810004304.jpg",
+      "IMG20260810004511.jpg",
+      "IMG20260810004854.jpg",
+      "IMG20260810005144.jpg",
+      "IMG20260810005301.jpg",
+      "IMG20260810005605.jpg",
+      "IMG20260810005855.jpg",
+      "IMG20260810010306.jpg",
+      "IMG20260810010349.jpg",
+      "IMG20260810010633.jpg",
+      "IMG20260810010859.jpg",
+      "IMG20260810011017.jpg",
+      "IMG20260810011126.jpg",
+      "IMG20260810011248.jpg",
+      "IMG20260810011649.jpg",
+      "IMG20260810012103.jpg"
+    ],
+    "heldOutUnusedForTuning": true
+  }
+}
