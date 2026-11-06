@@ -281,3 +281,13 @@ p09 设备复测、第二人/第二模型语义复核。F/H/G/J 域的批次 47 
 三份清单 `--verify` 均 exit 0（修复环复核轮实跑）；门禁原始输出在
 `docs/acceptance/evidence/2026-11-06-batch-47/gate/`（14 件，修复环全部重跑重生成）：
 report/lint/trace/row-specific/runbook 覆盖×2/d0/aud08/H×3/pytest/regen-validation。
+
+---
+
+## 追加裁定（2026-11-06，用户三项新裁定落账）
+
+1. **真机/arm64 验证：用户裁定豁免**。KD-76/KD-71/isolation 相关行的「arm64/真机」条件不再构成发版阻塞；行级改判（BLOCKED → 用户豁免注记）随下一轮验收执行，不伪造 PASS。
+2. **真实 Provider key：已提供并完成协议级冒烟 PASS**（`E-48-PROV-01`：/models 200、chat/completions ×3 全 200、672–764ms、key sha8 `cd10efbc`；密钥只存 gitignored `local.properties`）。D 域相关行 blocked_by 更新；产品路径（设备侧凭据配置→应用链路）仍待下一轮。
+3. **人工金标：用户选定路径 1（我代理金标 + 修切分算法）**。下一轮交付：逐页视觉判定生成 `split_golden_v2.json`（等级如实标 model-labeled）+ 切分算法修至对 v2 ≥0.9 + 门复算。在此之前 AUD-08 门维持 FAIL，不洗绿。
+
+以上三项不改变「NOT ACCEPTED」的总结论；它们缩小的是**解除条件清单**。
