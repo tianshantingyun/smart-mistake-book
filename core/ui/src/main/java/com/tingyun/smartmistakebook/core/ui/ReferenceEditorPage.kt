@@ -59,8 +59,12 @@ fun ReferenceEditorPage(
             }
         }
         if (actions != null) Surface(color = SmartColors.ContentSurface, modifier = Modifier.fillMaxWidth()) {
-            Column(Modifier.widthIn(max = SmartDimens.MaximumContentWidth).fillMaxWidth().navigationBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp), content = actions)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                PaperDivider()
+                Column(Modifier.widthIn(max = SmartDimens.MaximumContentWidth).fillMaxWidth().navigationBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 12.dp), horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp), content = actions)
+            }
         }
     }
 }
@@ -69,7 +73,7 @@ fun ReferenceEditorPage(
 private fun EditorReferenceImage(uri: String, index: Int) {
     var viewing by remember(uri) { mutableStateOf(false) }
     var state by remember(uri) { mutableStateOf(LocalImageLoadState.LOADING) }
-    WorkspacePanel(contentPadding = androidx.compose.foundation.layout.PaddingValues(12.dp)) {
+    WorkspacePanel(containerColor = SmartColors.ContentSurface, contentPadding = androidx.compose.foundation.layout.PaddingValues(12.dp)) {
         BoundedLocalImage(uri, "参考图 ${index + 1}", expanded = true,
             modifier = Modifier.fillMaxWidth(), onLoadStateChange = { state = it })
         if (state == LocalImageLoadState.UNAVAILABLE) {

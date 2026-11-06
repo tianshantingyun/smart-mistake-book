@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.library
 
+
 import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
 
 import androidx.compose.foundation.layout.heightIn
@@ -108,6 +109,7 @@ fun MistakeExportHubRoute(
     modifier: Modifier = Modifier,
     groups: List<com.tingyun.smartmistakebook.core.domain.MistakeExportGroup> = emptyList(),
     onOpenAnswerGroup: ((String) -> Unit)? = null,
+    focusedExportId: String? = null,
 ) {
     val context = LocalContext.current
     val pdfExporter = remember(context) { MistakePdfExporter(context) }
@@ -117,6 +119,9 @@ fun MistakeExportHubRoute(
     var pendingSaveFormat by rememberSaveable { mutableStateOf<String?>(null) }
     var actionInProgress by remember { mutableStateOf(false) }
     var actionMessage by remember { mutableStateOf<ExportHubMessage?>(null) }
+    var showAll by rememberSaveable(focusedExportId) { mutableStateOf(false) }
+    val focused = !showAll && focusedExportId != null
+    val visibleRecords = if (focused) records.filter { it.exportId == focusedExportId } else records
 
     fun reopen(record: MistakeExportRecord): PreparedMistakePdfToken? =
         record.preparedPdfValueOrNull()?.let(PreparedMistakePdfToken::fromPersistedValue)
@@ -173,6 +178,12 @@ fun MistakeExportHubRoute(
     ) {
         MistakeExportHubHeader(onBack)
         Spacer(Modifier.height(8.dp))
+        if (focused) {
+            com.tingyun.smartmistakebook.core.ui.WorkspaceNotice(
+                if (visibleRecords.isEmpty()) "这份纸卷的文件记录已清理，请返回纸卷重新生成。" else "当前仅显示这份纸卷的导出文件，可直接保存、分享或打印。",
+                tone = if (visibleRecords.isEmpty()) com.tingyun.smartmistakebook.core.ui.WorkspaceNoticeTone.WARNING else com.tingyun.smartmistakebook.core.ui.WorkspaceNoticeTone.INFO)
+            com.tingyun.smartmistakebook.core.ui.InlineActionButton("查看全部导出记录", { showAll = true })
+        }
         notice?.let { text ->
             ExportHubNotice(message = text, onDismiss = onDismissNotice)
             Spacer(Modifier.height(10.dp))
@@ -201,10 +212,11 @@ fun MistakeExportHubRoute(
             Spacer(Modifier.height(10.dp))
         }
         val pendingGroups = groups.distinctBy { it.manifestId }.filter { group ->
+            (!focused || group.questionsExportId == focusedExportId || group.answersExportId == focusedExportId) &&
             listOf(group.questionsExportId, group.answersExportId).any { id -> id == null || records.none { it.exportId == id && it.status == MistakeExportStatus.SUCCEEDED } }
         }
         if (onOpenAnswerGroup != null) pendingGroups.forEach { group ->
-            Surface(color = com.tingyun.smartmistakebook.core.ui.SmartColors.LearningSurface,
+            Surface(color = com.tingyun.smartmistakebook.core.ui.SmartColors.ContentSurface,
                 shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("题目与详细答案 · ${group.format.studentLabel}", style = MaterialTheme.typography.titleSmall, color = Ink)
@@ -220,7 +232,7 @@ fun MistakeExportHubRoute(
             }
             Spacer(Modifier.height(12.dp))
         }
-        if (records.isEmpty() && pendingGroups.isEmpty()) {
+        if (visibleRecords.isEmpty() && pendingGroups.isEmpty() && !focused) {
             Text(
                 text = "暂无导出文件。可从错题详情或错题本列表导出，完成后在这里查看。",
                 modifier = Modifier.testTag("mistake_export_hub_empty"),
@@ -228,7 +240,7 @@ fun MistakeExportHubRoute(
                 style = MaterialTheme.typography.bodyMedium,
             )
         } else {
-            records.forEach { record ->
+            visibleRecords.forEach { record ->
                 val format = record.deliveryFormat()
                 ExportRecordRow(
                     record = record,
@@ -393,9 +405,9 @@ private fun ExportHubNotice(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("mistake_export_hub_notice"),
-        color = JadeSoft.copy(alpha = 0.38f),
-        shape = RoundedCornerShape(12.dp),
-        shadowElevation = 1.dp,
+        color = com.tingyun.smartmistakebook.core.ui.SmartColors.ContentSurface,
+        shape = RoundedCornerShape(4.dp),
+        border = BorderStroke(1.dp, com.tingyun.smartmistakebook.core.ui.SmartColors.Divider),
     ) {
         Row(
             modifier = Modifier.padding(start = 14.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
@@ -410,7 +422,7 @@ private fun ExportHubNotice(
             IconButton(
                 onClick = onDismiss,
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(48.dp)
                     .testTag("mistake_export_hub_notice_dismiss"),
             ) {
                 Icon(
@@ -436,9 +448,9 @@ private fun ExportRecordRow(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("export_hub_record_${record.exportId}"),
-        color = JadeSoft.copy(alpha = 0.24f),
-        shape = RoundedCornerShape(12.dp),
-        shadowElevation = 1.dp,
+        color = com.tingyun.smartmistakebook.core.ui.SmartColors.ContentSurface,
+        shape = RoundedCornerShape(4.dp),
+        border = BorderStroke(1.dp, com.tingyun.smartmistakebook.core.ui.SmartColors.Divider),
     ) {
         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
             Text(

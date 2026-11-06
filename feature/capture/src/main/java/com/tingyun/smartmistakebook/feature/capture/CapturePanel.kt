@@ -19,6 +19,6 @@ internal fun CapturePanel(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     WorkspacePanel(modifier = modifier, contentPadding = PaddingValues(0.dp)) {
-        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = verticalArrangement, content = content)
+        Column(Modifier.fillMaxWidth().padding(vertical = 16.dp), verticalArrangement = verticalArrangement, content = content)
     }
 }

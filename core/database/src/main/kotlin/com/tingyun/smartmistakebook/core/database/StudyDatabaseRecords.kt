@@ -774,6 +774,10 @@ data class LibraryCatalogRow(
     val isFavorite: Boolean = false,
     val nextReviewAtEpochMillis: Long?,
     val retrievability: Double?,
+    val problemId: String = "",
+    val problemRevisionId: String = "",
+    val practiceUnitId: String = "",
+
 ) {
     init {
         require(entryId.isNotBlank()) { "Library row entry id must not be blank" }

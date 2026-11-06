@@ -110,7 +110,7 @@ internal class MistakeExportNotifications(
         val notification = NotificationCompat.Builder(applicationContext, MISTAKE_EXPORT_CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("正在整理导出文件")
-            .setContentText("导出会在后台完成，你可以先离开这个页面。")
+            .setContentText("正在后台导出，可离开此页。")
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setOngoing(true)

@@ -59,7 +59,6 @@ import com.tingyun.smartmistakebook.core.ui.Track
 import com.tingyun.smartmistakebook.core.ui.ClaudeSettingsRow
 import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
 import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
-import com.tingyun.smartmistakebook.core.ui.StudioMetricTile
 import com.tingyun.smartmistakebook.core.ui.SmartColors
 
 @Composable
@@ -84,7 +83,7 @@ fun ProfileRoute(
             bottom = 12.dp,
         ),
     ) {
-        WorkspacePageHeader("我的", subtitle = "学习记录与应用设置")
+        WorkspacePageHeader("我的")
         if (overview.hasLearningEvidence) {
             WeeklyLearningSection(overview, review, Modifier.padding(top = 16.dp))
         }
@@ -117,7 +116,7 @@ private fun LearningMasteryEntry(
     Column(modifier = modifier.fillMaxWidth()) {
         SectionHeader(title = "学习掌握")
         Spacer(Modifier.height(8.dp))
-        WorkspacePanel(contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)) {
+        WorkspacePanel(contentPadding = PaddingValues(vertical = 4.dp)) {
             SettingsRow(
                 title = "查看全部知识点",
                 subtitle = learningMasterySubtitle(overview),
@@ -144,19 +143,15 @@ private fun WeeklyLearningSection(
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         WeeklyStat("累计作答", overview.recordedAttemptCount.toString(), "次", Modifier.fillMaxWidth())
                         PaperDivider()
-                        WeeklyStat("已掌握", overview.newlyMasteredCount.toString(), "个知识点", Modifier.fillMaxWidth(),
-                            SmartColors.LearningSurface, SmartColors.LearningAccent)
+                        WeeklyStat("已掌握", overview.newlyMasteredCount.toString(), "个知识点", Modifier.fillMaxWidth())
                         PaperDivider()
-                        WeeklyStat("连续复习", review.completionStreakDays.toString(), "天", Modifier.fillMaxWidth(),
-                            SmartColors.ReadingSurface, SmartColors.ReadingAccent)
+                        WeeklyStat("连续复习", review.completionStreakDays.toString(), "天", Modifier.fillMaxWidth())
                     }
                 } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     WeeklyStat("累计作答", overview.recordedAttemptCount.toString(), "次", Modifier.weight(1f))
-                    WeeklyStat("已掌握", overview.newlyMasteredCount.toString(), "个知识点", Modifier.weight(1f),
-                        SmartColors.LearningSurface, SmartColors.LearningAccent)
-                    WeeklyStat("连续复习", review.completionStreakDays.toString(), "天", Modifier.weight(1f),
-                        SmartColors.ReadingSurface, SmartColors.ReadingAccent)
+                    WeeklyStat("已掌握", overview.newlyMasteredCount.toString(), "个知识点", Modifier.weight(1f))
+                    WeeklyStat("连续复习", review.completionStreakDays.toString(), "天", Modifier.weight(1f))
                 }
             }
             Row(
@@ -200,10 +195,19 @@ private fun WeeklyStat(
     value: String,
     unit: String,
     modifier: Modifier = Modifier,
-    containerColor: androidx.compose.ui.graphics.Color = JadeSoft,
-    accentColor: androidx.compose.ui.graphics.Color = JadeActive,
 ) {
-    StudioMetricTile(value, label, unit, modifier, containerColor, accentColor)
+    Column(modifier = modifier.padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(label, color = InkSecondary, style = MaterialTheme.typography.labelMedium)
+        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(value, Modifier.alignByBaseline(), color = when (label) {
+                "累计作答" -> SmartColors.LearningAccent
+                "连续复习" -> SmartColors.ReadingAccent
+                else -> JadeActive
+            },
+                style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.SemiBold)
+            Text(unit, Modifier.alignByBaseline(), color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+        }
+    }
 }
 
 @Composable
@@ -215,11 +219,11 @@ private fun WeaknessSection(
         Column {
             SectionHeader(title = "当前薄弱点")
             weaknesses.forEachIndexed { index, weakness ->
-                if (index > 0) PaperDivider(Modifier.padding(start = 64.dp))
+                if (index > 0) PaperDivider(Modifier.padding(start = 40.dp))
                 WeaknessRow(
                     title = weakness.displayName,
                     // P8（规格 §1.2）：detail 追加粗粒度区间文案（与掌握档同源的唯一文案函数）。
-                    detail = "${weakness.status.displayLabel()} · 以独立作答为参考 · " +
+                    detail = "${weakness.status.displayLabel()} · " +
                         com.tingyun.smartmistakebook.core.ui.masteryIntervalLabel(
                             weakness.conservativeMasteryScore,
                             weakness.masteryIntervalUpper,
@@ -270,7 +274,7 @@ private fun WeaknessRow(
         SubjectIcon(
             subject = subject,
             contentDescription = "$title 所属学科",
-            modifier = Modifier.size(44.dp),
+            modifier = Modifier.size(28.dp),
         )
         Column(
             modifier = Modifier
@@ -319,19 +323,18 @@ private fun SettingsSection(
     Column(modifier = modifier.fillMaxWidth()) {
         SectionHeader(title = "设置")
         Spacer(Modifier.height(8.dp))
-        WorkspacePanel(contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)) {
+        WorkspacePanel(contentPadding = PaddingValues(vertical = 4.dp)) {
             Column {
                 SettingsRow(
                     title = "模型设置",
                     subtitle = capabilitySubtitle,
                     icon = Icons.Outlined.Memory,
-                    iconContainerColor = SmartColors.LearningSurface,
-                    iconTint = SmartColors.LearningAccent,
+                    iconContainerColor = SmartColors.AgentSurface,
+                    iconTint = SmartColors.AgentAccent,
                     onClick = onOpenCapability,
                     modifier = Modifier
                         .testTag("profile_capability_setting"),
                 )
-                PaperDivider(Modifier.padding(start = 48.dp, end = 8.dp))
                 SettingsRow(
                     title = "数据与隐私",
                     subtitle = privacySubtitle,
@@ -339,7 +342,6 @@ private fun SettingsSection(
                     onClick = onOpenDataPrivacy,
                     modifier = Modifier.testTag("profile_privacy_setting"),
                 )
-                PaperDivider(Modifier.padding(start = 48.dp, end = 8.dp))
                 SettingsRow(
                     title = "提醒与复习偏好",
                     subtitle = "每日提醒时间与通知权限",
@@ -349,17 +351,15 @@ private fun SettingsSection(
                     onClick = onOpenReminder,
                     modifier = Modifier.testTag("profile_reminder_setting"),
                 )
-                PaperDivider(Modifier.padding(start = 48.dp, end = 8.dp))
                 SettingsRow(
                     title = "复习安排",
-                    subtitle = "记忆目标、复习算法与考试日期",
+                    subtitle = "每日时长、记忆目标与考试日期",
                     icon = Icons.Outlined.Tune,
                     iconContainerColor = SmartColors.LearningSurface,
                     iconTint = SmartColors.LearningAccent,
                     onClick = onOpenScheduling,
                     modifier = Modifier.testTag("profile_scheduling_setting"),
                 )
-                PaperDivider(Modifier.padding(start = 48.dp, end = 8.dp))
                 SettingsRow(
                     title = "存储与导出",
                     subtitle = "管理题图、备份与导出文件",

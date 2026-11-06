@@ -175,7 +175,7 @@ private fun StarDetails(
     val motion = LocalClaudeMotionEnabled.current
     val target = starColor(knowledge.status).copy(alpha = .06f)
     val tint by animateColorAsState(target, ClaudeMotion.spec(motion, ClaudeMotion.RevealMillis), label = "star-detail-tint")
-    Column(Modifier.fillMaxWidth().background(if (motion) tint else target, RoundedCornerShape(16.dp)).padding(16.dp)
+    Column(Modifier.fillMaxWidth().background(if (motion) tint else target, RoundedCornerShape(14.dp)).padding(16.dp)
         .testTag("knowledge_star_details").semantics(mergeDescendants = true) {},
         verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(knowledge.displayName, color = SmartColors.Ink, style = MaterialTheme.typography.titleMedium)

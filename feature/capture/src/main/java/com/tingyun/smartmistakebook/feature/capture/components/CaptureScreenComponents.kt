@@ -410,7 +410,7 @@ internal fun AwaitingCorrectionCard(
         Spacer(Modifier.height(14.dp))
         Text(
             text = if (isImporting) {
-                "图片已收到，正在自动保存到本机；保存完成后会继续整理题面。"
+                "正在保存图片，随后整理题面。"
             } else {
                 "这张图还没有安全保存，已暂停后续处理。请重试，或重新拍摄。"
             },
@@ -481,7 +481,7 @@ internal fun CaptureCommittedCard(
             )
         }
         Text(
-            text = "原图和整理后的题面都已保存。现在可以查看这道题，或继续录入下一道。",
+            text = "原图和题面已保存，可查看或继续录入。",
             modifier = Modifier.padding(top = 10.dp),
             color = InkSecondary,
             style = MaterialTheme.typography.bodyMedium,

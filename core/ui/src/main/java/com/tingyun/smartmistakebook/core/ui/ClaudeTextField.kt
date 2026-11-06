@@ -60,7 +60,7 @@ fun ClaudeTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = RoundedCornerShape(14.dp),
+    shape: Shape = RoundedCornerShape(10.dp),
     colors: TextFieldColors = OutlinedTextFieldDefaults.colors(
         focusedTextColor = Ink, unfocusedTextColor = Ink,
         focusedContainerColor = ContentSurface, unfocusedContainerColor = ContentSurface,

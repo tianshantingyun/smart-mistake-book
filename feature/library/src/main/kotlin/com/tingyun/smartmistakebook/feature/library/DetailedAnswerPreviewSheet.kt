@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -35,7 +37,7 @@ fun DetailedAnswerPreviewSheet(
     val ready = preparation?.complete == true
     val stopped = preparation?.status in setOf(DetailedSolutionPreparationStatus.FAILED, DetailedSolutionPreparationStatus.CANCELLED)
     val completed = preparation?.items?.count { it.status == DetailedSolutionPreparationStatus.READY } ?: 0
-    WorkspaceSheet("详细答案预览", onDismiss, subtitle = "题目和答案分别生成文件，可分别保存和分享。", actions = {
+    WorkspaceSheet("详细答案预览", onDismiss, icon = Icons.Outlined.MenuBook, subtitle = "题目和答案分别生成文件，可分别保存和分享。", actions = {
         if (ready && group != null) ClaudeButton({
             onConfirm(AnswerPreviewApproval(group.manifestSha256, requireNotNull(preparation.solutionsSha256), group.format))
         }, Modifier.fillMaxWidth(), enabled = acknowledged && !busy) { Text("确认并导出题目与答案") }
@@ -56,7 +58,7 @@ fun DetailedAnswerPreviewSheet(
                 }
             }
             if (group.format == MistakeExportFormat.DOCX) Text(mistakeExportFormatDocxNotice, style = MaterialTheme.typography.bodySmall, color = InkSecondary)
-            Surface(color = SmartColors.LearningSurface, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth().animateContentSize()) {
+            Surface(color = SmartColors.LearningSurface, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(if (ready) "${preparation.items.size} 题答案已准备好" else "已准备 $completed/${preparation.items.size} 题",
                         style = MaterialTheme.typography.titleSmall, color = Ink)
@@ -72,7 +74,7 @@ fun DetailedAnswerPreviewSheet(
                 var expanded by rememberSaveable(group.manifestId, item.ordinal) { mutableStateOf(item.ordinal == 1) }
                 val canExpand = item.document != null
                 val question = preparation.manifest.questions.single { it.ordinal == item.ordinal }
-                Column(Modifier.fillMaxWidth().animateContentSize(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Row(Modifier.fillMaxWidth().then(if (canExpand) Modifier.clickable(role = Role.Button) { expanded = !expanded } else Modifier)
                         .padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
@@ -88,7 +90,7 @@ fun DetailedAnswerPreviewSheet(
                         }
                         if (canExpand) Text(if (expanded) "收起" else "查看", color = SmartColors.LearningAccent, style = MaterialTheme.typography.labelLarge)
                     }
-                    AnimatedVisibility(canExpand && expanded) {
+                    ClaudeDisclosure(canExpand && expanded) {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             item.document?.let { document ->
                                 Text((if (document.origin == SolutionOrigin.MODEL) "智能体生成" else "已有解答") +
@@ -104,11 +106,11 @@ fun DetailedAnswerPreviewSheet(
                     PaperDivider()
                 }
             }
-            if (ready) Row(Modifier.fillMaxWidth().toggleable(acknowledged, role = Role.Checkbox, onValueChange = { acknowledged = it }), verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(acknowledged, null)
+            if (ready) Row(Modifier.fillMaxWidth().toggleable(acknowledged, enabled = !busy, role = Role.Checkbox, onValueChange = { acknowledged = it }), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Checkbox(acknowledged, null, enabled = !busy)
                 Text("我已查看这份答案，按当前格式导出", Modifier.weight(1f), color = Ink, style = MaterialTheme.typography.bodyMedium)
             }
         }
-        message?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = InkSecondary) }
+        message?.let { WorkspaceNotice(it, tone = WorkspaceNoticeTone.ERROR) }
     }
 }

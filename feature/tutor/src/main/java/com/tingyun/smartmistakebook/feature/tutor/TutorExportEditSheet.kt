@@ -1,39 +1,28 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.EditNote
+import com.tingyun.smartmistakebook.core.ui.WorkspaceSheet
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNotice
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNoticeTone
 import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
-import com.tingyun.smartmistakebook.core.ui.Paper
 
-import com.tingyun.smartmistakebook.core.ui.claudeDismissOnEscape
-import com.tingyun.smartmistakebook.core.ui.claudeModalEntrance
 
 import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.tingyun.smartmistakebook.core.export.MistakePaperDraft
 import com.tingyun.smartmistakebook.core.export.MistakePdfBlock
 import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
@@ -77,183 +66,150 @@ internal fun TutorExportEditSheet(
     onDetailedAnswersChange: ((Boolean) -> Unit)? = null,
     onPrepareDetailedAnswers: ((MistakePaperDraft) -> Unit)? = null,
 ) {
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize().imePadding().padding(top = 24.dp).claudeDismissOnEscape(onDismiss = onDismiss),
-            contentAlignment = Alignment.BottomCenter,
-        ) {
-            Surface(
+    WorkspaceSheet(
+        title = "编辑卷面",
+        subtitle = "共 ${edit.questions.size} 题 · 版式：${exportLayoutSummary(edit.layout)}",
+        subtitleModifier = Modifier.testTag("tutor_export_edit_summary"),
+        icon = Icons.Outlined.EditNote,
+        onDismiss = { if (!modelEditBusy) onDismiss() },
+        modifier = Modifier.testTag("tutor_export_edit_sheet"),
+        actions = {
+            PrimaryActionButton(
+                text = if (includeDetailedAnswers) "准备答案并预览（${edit.questions.size} 题）" else "确认导出（${edit.questions.size} 题）",
+                onClick = { if (includeDetailedAnswers && onPrepareDetailedAnswers != null) onPrepareDetailedAnswers(edit.toDraft()) else onConfirm(edit.toDraft()) },
+                // 模型改卷在途时不允许抢跑：否则会导出改到一半之前的副本。
+                enabled = !edit.hasBlankText && !modelEditBusy,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 700.dp)
-                    .claudeModalEntrance()
-                    .testTag("tutor_export_edit_sheet"),
-                color = Paper,
-                shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-                shadowElevation = 4.dp,
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 20.dp, vertical = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    Text(
-                        text = "编辑卷面",
-                        color = Ink,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Text(
-                        text = "共 ${edit.questions.size} 题 · 版式：${exportLayoutSummary(edit.layout)}",
-                        modifier = Modifier.testTag("tutor_export_edit_summary"),
-                        color = InkSecondary,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    Text(
-                        text = "仅修改这份卷面，不影响错题本；确认后重新生成文件。" +
-                            exportFormatNotice(format)?.let { "\n$it" }.orEmpty(),
-                        modifier = Modifier.testTag("tutor_export_edit_notice"),
-                        color = InkSecondary,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                    .testTag("tutor_export_edit_confirm"),
+            )
+            OutlineActionChip(
+                text = "返回选题",
+                enabled = !modelEditBusy,
+                onClick = onBack,
+                modifier = Modifier.testTag("tutor_export_edit_back"),
+            )
+            OutlineActionChip(
+                text = "先不用",
+                enabled = !modelEditBusy,
+                onClick = onDismiss,
+                modifier = Modifier.testTag("tutor_export_edit_dismiss"),
+            )
+        },
+    ) {
+        WorkspaceNotice(
+            message = "仅修改导出卷面，错题本保持不变。" +
+                exportFormatNotice(format)?.let { "\n$it" }.orEmpty(),
+            modifier = Modifier.testTag("tutor_export_edit_notice"),
+            tone = WorkspaceNoticeTone.INFO,
+        )
 
-                    // 6B-3：自然语言改卷（只在这条入口接上模型端口时出现）。
-                    if (modelEditAvailable) {
-                        Text(
-                            text = "用一句话改卷面",
-                            modifier = Modifier.testTag("tutor_export_edit_ai_section"),
-                            color = Ink,
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Medium,
-                        )
-                        OutlinedTextField(
-                            value = instruction,
-                            onValueChange = onInstructionChange,
-                            label = { Text("例如：删掉第二题，把第一题标题改短一点") },
-                            enabled = !modelEditBusy,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .testTag("tutor_export_edit_ai_instruction"),
-                        )
-                        Text(
-                            text = "AI 仅能移出题目、加回已移出的题、调整顺序和" +
-                                "修改文字。修改备注需开启「含备注」。不能改图，也不影响错题本。",
-                            modifier = Modifier.testTag("tutor_export_edit_ai_hint"),
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                        PrimaryActionButton(
-                            text = if (modelEditBusy) "正在改卷面…" else "让 AI 改卷面",
-                            onClick = onModelEdit,
-                            enabled = instruction.isNotBlank() && !modelEditBusy,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .testTag("tutor_export_edit_ai_apply"),
-                        )
-                    }
-                    modelEditMessage?.let { message ->
-                        Text(
-                            text = message,
-                            modifier = Modifier.testTag("tutor_export_edit_ai_message"),
-                            color = if (modelEditMessageIsError) ErrorText else InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
+        // 6B-3：自然语言改卷（只在这条入口接上模型端口时出现）。
+        if (modelEditAvailable) {
+            Text(
+                text = "用一句话改卷面",
+                modifier = Modifier.testTag("tutor_export_edit_ai_section"),
+                color = Ink,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Medium,
+            )
+            OutlinedTextField(
+                value = instruction,
+                onValueChange = onInstructionChange,
+                label = { Text("例如：删掉第二题，把第一题标题改短一点") },
+                enabled = !modelEditBusy,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("tutor_export_edit_ai_instruction"),
+            )
+            Text(
+                text = "AI 仅能移出题目、加回已移出的题、调整顺序和" +
+                    "修改文字。修改备注需开启「含备注」。不能改图，也不影响错题本。",
+                modifier = Modifier.testTag("tutor_export_edit_ai_hint"),
+                color = InkSecondary,
+                style = MaterialTheme.typography.bodySmall,
+            )
+            PrimaryActionButton(
+                text = if (modelEditBusy) "正在改卷面…" else "让 AI 改卷面",
+                onClick = onModelEdit,
+                enabled = instruction.isNotBlank() && !modelEditBusy,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("tutor_export_edit_ai_apply"),
+            )
+        }
+        modelEditMessage?.let { message ->
+            WorkspaceNotice(
+                message = message,
+                modifier = Modifier.testTag("tutor_export_edit_ai_message"),
+                tone = if (modelEditMessageIsError) WorkspaceNoticeTone.ERROR else WorkspaceNoticeTone.INFO,
+            )
+        }
 
-                    if (edit.omittedCount > 0) {
-                        Text(
-                            text = "另有 ${edit.omittedCount} 道暂时不能导出，已略过。",
-                            modifier = Modifier.testTag("tutor_export_edit_omitted"),
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
+        if (edit.omittedCount > 0) {
+            WorkspaceNotice(
+                message = "另有 ${edit.omittedCount} 道暂时不能导出，已略过。",
+                modifier = Modifier.testTag("tutor_export_edit_omitted"),
+                tone = WorkspaceNoticeTone.WARNING,
+            )
+        }
 
-                    edit.questions.forEachIndexed { index, question ->
-                        PaperQuestionEditor(
-                            index = index,
-                            question = question,
-                            canMoveUp = index > 0,
-                            canMoveDown = index < edit.questions.lastIndex,
-                            canRemove = edit.canRemoveQuestion,
-                            figureReviewRequired = edit.figureReviewRequired(question.entryId),
-                            onMove = { offset -> onMove(question.entryId, offset) },
-                            onRemove = { onRemove(question.entryId) },
-                            onTitleChange = { title ->
-                                onTitleChange(question.entryId, title)
-                            },
-                            onBlockTextChange = { blockId, text ->
-                                onBlockTextChange(question.entryId, blockId, text)
-                            },
-                            onChoiceTextChange = { blockId, choiceId, text ->
-                                onChoiceTextChange(
-                                    question.entryId,
-                                    blockId,
-                                    choiceId,
-                                    text,
-                                )
-                            },
-                            includeNote = edit.layout.includeNote,
-                            onNoteChange = { note -> onNoteChange(question.entryId, note) },
-                        )
-                    }
-
-                    if (edit.removedQuestions.isNotEmpty()) {
-                        Text(
-                            text = "已移出卷面的题（可加回）",
-                            color = Ink,
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Medium,
-                        )
-                        edit.removedQuestions.forEach { removed ->
-                            OutlineActionChip(
-                                text = "加回：${removed.title}",
-                                onClick = { onRestore(removed.entryId) },
-                                modifier = Modifier.testTag(
-                                    "tutor_export_edit_restore_${removed.entryId}",
-                                ),
-                            )
-                        }
-                    }
-
-                    if (edit.hasBlankText) {
-                        Text(
-                            text = "有必填文字被清空，填上后才能导出。",
-                            modifier = Modifier.testTag("tutor_export_edit_blank_warning"),
-                            color = ErrorText,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-
-                    Spacer(Modifier.height(2.dp))
-                    if (onDetailedAnswersChange != null && onPrepareDetailedAnswers != null) TutorDetailedAnswersChoice(includeDetailedAnswers, onDetailedAnswersChange)
-                    PrimaryActionButton(
-                        text = if (includeDetailedAnswers) "准备答案并预览（${edit.questions.size} 题）" else "确认导出（${edit.questions.size} 题）",
-                        onClick = { if (includeDetailedAnswers && onPrepareDetailedAnswers != null) onPrepareDetailedAnswers(edit.toDraft()) else onConfirm(edit.toDraft()) },
-                        // 模型改卷在途时不允许抢跑：否则会导出改到一半之前的副本。
-                        enabled = !edit.hasBlankText && !modelEditBusy,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("tutor_export_edit_confirm"),
+        edit.questions.forEachIndexed { index, question ->
+            PaperQuestionEditor(
+                index = index,
+                question = question,
+                canMoveUp = index > 0,
+                canMoveDown = index < edit.questions.lastIndex,
+                canRemove = edit.canRemoveQuestion,
+                figureReviewRequired = edit.figureReviewRequired(question.entryId),
+                onMove = { offset -> onMove(question.entryId, offset) },
+                onRemove = { onRemove(question.entryId) },
+                onTitleChange = { title ->
+                    onTitleChange(question.entryId, title)
+                },
+                onBlockTextChange = { blockId, text ->
+                    onBlockTextChange(question.entryId, blockId, text)
+                },
+                onChoiceTextChange = { blockId, choiceId, text ->
+                    onChoiceTextChange(
+                        question.entryId,
+                        blockId,
+                        choiceId,
+                        text,
                     )
-                    OutlineActionChip(
-                        text = "返回选题",
-                        onClick = onBack,
-                        modifier = Modifier.testTag("tutor_export_edit_back"),
-                    )
-                    OutlineActionChip(
-                        text = "先不用",
-                        onClick = onDismiss,
-                        modifier = Modifier.testTag("tutor_export_edit_dismiss"),
-                    )
-                }
+                },
+                includeNote = edit.layout.includeNote,
+                onNoteChange = { note -> onNoteChange(question.entryId, note) },
+            )
+        }
+
+        if (edit.removedQuestions.isNotEmpty()) {
+            Text(
+                text = "已移出卷面的题（可加回）",
+                color = Ink,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Medium,
+            )
+            edit.removedQuestions.forEach { removed ->
+                OutlineActionChip(
+                    text = "加回：${removed.title}",
+                    onClick = { onRestore(removed.entryId) },
+                    modifier = Modifier.testTag(
+                        "tutor_export_edit_restore_${removed.entryId}",
+                    ),
+                )
             }
         }
+
+        if (edit.hasBlankText) {
+            WorkspaceNotice(
+                message = "有必填文字被清空，填上后才能导出。",
+                modifier = Modifier.testTag("tutor_export_edit_blank_warning"),
+                tone = WorkspaceNoticeTone.ERROR,
+            )
+        }
+
+        if (onDetailedAnswersChange != null && onPrepareDetailedAnswers != null) TutorDetailedAnswersChoice(includeDetailedAnswers, onDetailedAnswersChange)
     }
 }
 

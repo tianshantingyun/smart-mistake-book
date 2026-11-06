@@ -21,7 +21,7 @@ internal interface LibraryQueryDao {
         SELECT * FROM library_catalog AS catalog
         WHERE (:subjectId IS NULL OR catalog.subject = :subjectId)
           AND (
-              :sectionId IS NULL OR EXISTS (
+              :sectionId IS NULL OR (:sectionId = '__unclassified__' AND COALESCE(catalog.chapter_labels, '') = '') OR EXISTS (
                   SELECT 1 FROM problem_classification_binding AS classification
                   WHERE classification.problem_id = catalog.problem_id
                     AND classification.basis_revision_id = catalog.problem_revision_id
@@ -73,7 +73,7 @@ internal interface LibraryQueryDao {
         SELECT * FROM library_catalog AS catalog
         WHERE (:subjectId IS NULL OR catalog.subject = :subjectId)
           AND (
-              :sectionId IS NULL OR EXISTS (
+              :sectionId IS NULL OR (:sectionId = '__unclassified__' AND COALESCE(catalog.chapter_labels, '') = '') OR EXISTS (
                   SELECT 1 FROM problem_classification_binding AS classification
                   WHERE classification.problem_id = catalog.problem_id
                     AND classification.basis_revision_id = catalog.problem_revision_id
@@ -127,7 +127,7 @@ internal interface LibraryQueryDao {
         SELECT COUNT(*) FROM library_catalog AS catalog
         WHERE (:subjectId IS NULL OR catalog.subject = :subjectId)
           AND (
-              :sectionId IS NULL OR EXISTS (
+              :sectionId IS NULL OR (:sectionId = '__unclassified__' AND COALESCE(catalog.chapter_labels, '') = '') OR EXISTS (
                   SELECT 1 FROM problem_classification_binding AS classification
                   WHERE classification.problem_id = catalog.problem_id
                     AND classification.basis_revision_id = catalog.problem_revision_id
@@ -172,7 +172,7 @@ internal interface LibraryQueryDao {
         """
         SELECT catalog.subject AS id, catalog.subject AS label, COUNT(*) AS count
         FROM library_catalog AS catalog
-        WHERE (:sectionId IS NULL OR EXISTS (
+        WHERE (:sectionId IS NULL OR (:sectionId = '__unclassified__' AND COALESCE(catalog.chapter_labels, '') = '') OR EXISTS (
                   SELECT 1 FROM problem_classification_binding AS classification
                   WHERE classification.problem_id = catalog.problem_id
                     AND classification.basis_revision_id = catalog.problem_revision_id
@@ -261,7 +261,7 @@ internal interface LibraryQueryDao {
         SELECT catalog.mastery_id AS id, catalog.mastery_id AS label, COUNT(*) AS count
         FROM library_catalog AS catalog
         WHERE (:subjectId IS NULL OR catalog.subject = :subjectId)
-          AND (:sectionId IS NULL OR EXISTS (
+          AND (:sectionId IS NULL OR (:sectionId = '__unclassified__' AND COALESCE(catalog.chapter_labels, '') = '') OR EXISTS (
                   SELECT 1 FROM problem_classification_binding AS classification
                   WHERE classification.problem_id = catalog.problem_id
                     AND classification.basis_revision_id = catalog.problem_revision_id
@@ -315,7 +315,7 @@ internal interface LibraryQueryDao {
         FROM library_catalog AS catalog
         WHERE (:subjectId IS NULL OR catalog.subject = :subjectId)
           AND (
-              :sectionId IS NULL OR EXISTS (
+              :sectionId IS NULL OR (:sectionId = '__unclassified__' AND COALESCE(catalog.chapter_labels, '') = '') OR EXISTS (
                   SELECT 1 FROM problem_classification_binding AS classification
                   WHERE classification.problem_id = catalog.problem_id
                     AND classification.basis_revision_id = catalog.problem_revision_id

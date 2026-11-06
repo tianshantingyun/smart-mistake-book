@@ -27,6 +27,7 @@ import com.tingyun.smartmistakebook.core.domain.MistakeRevisionReceipt
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionSummary
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceAsset
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
+import com.tingyun.smartmistakebook.core.domain.questionImageAssets
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
 import com.tingyun.smartmistakebook.core.domain.ReviseMistakeProblemCommand
 import com.tingyun.smartmistakebook.core.domain.ReviseMistakeProblemResult
@@ -124,6 +125,7 @@ internal class RoomMistakeDetailRepository(
     /** 4E WG-06 T3：没有接线的装配不显示重绘入口（默认 NotSupported/Idle）。 */
     private val explicitRedrawRequester: ExplicitRedrawRequester? = null,
     private val explicitRedrawObserver: ExplicitRedrawObserver? = null,
+    private val sourceImagesObserver: ((String) -> Flow<List<MistakeDetailSourceAssetRecord>>)? = null,
 ) : MistakeDetailRepository {
     override fun supportsExplicitRedraw(): Boolean =
         explicitRedrawRequester != null && explicitRedrawObserver != null
@@ -332,6 +334,14 @@ internal class RoomMistakeDetailRepository(
             "${command.expectedRevisionId}:$digest"
     }
 
+    override fun observeQuestionImages(errorBookEntryId: String): Flow<List<MistakeSourceAsset>> {
+        require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }
+        val observer = sourceImagesObserver ?: return super.observeQuestionImages(errorBookEntryId)
+        return observer(errorBookEntryId).map { records ->
+            if (records.isEmpty()) emptyList() else MistakeSourceSet.Present(records.map { it.toDomain() }).questionImageAssets()
+        }.flowOn(Dispatchers.IO)
+    }
+
     override fun observe(errorBookEntryId: String): Flow<MistakeDetailState> {
         require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }
         return flow {
@@ -499,6 +509,7 @@ object MistakeDetailRepositoryFactory {
         val assetVault = AndroidCanonicalAssetVault(context.applicationContext)
         return RoomMistakeDetailRepository(
             recordReader = MistakeDetailRecordReader(database::readMistakeDetail),
+            sourceImagesObserver = database::observeMistakeSourceAssets,
             exactRecordReader = ExactMistakeDetailRecordReader { key ->
                 database.readExactMistakeDetail(
                     entryId = key.entryId,

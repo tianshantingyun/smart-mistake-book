@@ -273,6 +273,14 @@ class SmartMistakeBookApplication : Application() {
     /** 导出通知（两态 + 未授权退化）；worker 与前台服务路径共用。 */
     internal val mistakeExportNotifications by lazy { MistakeExportNotifications(this) }
 
+    internal val paperReviewRepository: com.tingyun.smartmistakebook.core.domain.PaperReviewRepository by lazy {
+        com.tingyun.smartmistakebook.core.data.study.RoomPaperReviewRepository(this, database, studyRepository,
+            mistakeDetailRepository, mistakeExportRepository) { snapshot ->
+            val draft = requireNotNull(mistakePaperDraftStore.decodeSnapshot(snapshot)) { "原卷快照无法读取" }
+            startMistakeExportEdited(draft, MistakeExportFormat.PDF)
+        }
+    }
+
     private lateinit var database: StudyDatabasePort
     private lateinit var reviewReminderCoordinator: ReviewReminderCoordinator
 
@@ -931,7 +939,7 @@ class SmartMistakeBookApplication : Application() {
     fun startMistakeExportEdited(
         draft: MistakePaperDraft,
         format: MistakeExportFormat,
-    ) {
+    ): String {
         val exportId = newMistakeExportId()
         // 草稿文件名用跨平台安全字符（导出 id 里的 ':' 在 Windows JVM 测试里不是合法文件名）。
         val draftId = exportId.replace(':', '_')
@@ -973,6 +981,7 @@ class SmartMistakeBookApplication : Application() {
                 kind = MistakeExportKind.BATCH,
             )
         }
+        return exportId
     }
 
     suspend fun prepareDetailedAnswerExport(draft: MistakePaperDraft, format: MistakeExportFormat): String = withContext(Dispatchers.IO) {

@@ -30,6 +30,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material.icons.outlined.Forum
+import androidx.compose.material.icons.outlined.AutoStories
+import androidx.compose.material.icons.outlined.PersonOutline
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
@@ -104,6 +107,7 @@ import com.tingyun.smartmistakebook.feature.library.MAX_LIBRARY_BATCH_EXPORT_QUE
 import com.tingyun.smartmistakebook.feature.library.MistakeExportFormatSheet
 import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import com.tingyun.smartmistakebook.feature.library.MistakeExportHubRoute
 import com.tingyun.smartmistakebook.feature.library.MistakeDetailRoute
 import com.tingyun.smartmistakebook.feature.library.MistakePaperEditRoute
@@ -155,9 +159,9 @@ private data class RootDestination(
 
 private val rootDestinations = listOf(
     RootDestination(Routes.Review, "复习", Icons.Outlined.EventAvailable, "nav_review"),
-    RootDestination(Routes.Tutor, "智能体", Icons.AutoMirrored.Outlined.Chat, "nav_tutor"),
-    RootDestination(Routes.Library, "错题本", Icons.AutoMirrored.Outlined.MenuBook, "nav_library"),
-    RootDestination(Routes.Profile, "我的", Icons.Outlined.ManageAccounts, "nav_profile"),
+    RootDestination(Routes.Tutor, "智能体", Icons.Outlined.Forum, "nav_tutor"),
+    RootDestination(Routes.Library, "错题本", Icons.Outlined.AutoStories, "nav_library"),
+    RootDestination(Routes.Profile, "我的", Icons.Outlined.PersonOutline, "nav_profile"),
 )
 
 internal fun bottomBarRouteFor(route: String?): String? = when (route) {
@@ -323,6 +327,40 @@ internal fun SmartMistakeBookRoot(
     // 反推；讲题 sheet 的导出版式是学生定制的、不随 id 带过来，故清空而不冒充。
     // 存成编码串：rememberSaveable 的默认 Saver 对 List 的实现类型并不稳定，String 一定可存。
     var lastPaperEditEntryIdsRaw by rememberSaveable { mutableStateOf("") }
+    var paperBusy by remember { mutableStateOf(false) }
+    var paperNotice by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedPaperId by rememberSaveable { mutableStateOf<String?>(null) }
+    var paperTutorSeed by remember { mutableStateOf<com.tingyun.smartmistakebook.feature.tutor.PaperReviewTutorSeed?>(null) }
+    val paperReviews = remember(application) { application.paperReviewRepository }
+
+    fun exportTodayPaper() {
+        if (paperBusy) return
+        paperBusy = true; paperNotice = null
+        applicationUiScope.launch {
+            try {
+                val progress = requireNotNull(repository.startOrResumeReviewSession("paper-start:${UUID.randomUUID()}", System.currentTimeMillis())) { "今日没有待复习错题" }
+                val overview = repository.snapshot.value.review
+                val units = overview.scheduledPracticeUnitIds.drop(progress.currentOrdinal)
+                require(units.isNotEmpty()) { "今日错题已完成，可在纸卷记录中查看此前导出" }
+                val catalog = repository.snapshot.value.catalog.associateBy { it.practiceUnitId }
+                val entries = units.map { requireNotNull(catalog[it]) { "计划中的题目暂时无法读取，请重试" } }
+                val draft = requireNotNull(application.buildMistakePaperEdit(entries.map { it.entryId },
+                    MistakePdfLayout(templateId = MistakePdfLayout.TEMPLATE_PRACTICE_SHEET))) { "当前题面不完整，暂时无法导出" }.toDraft()
+                require(draft.frozenQuestions.size == entries.size && draft.frozenQuestions.zip(entries).all { (frozen, entry) -> frozen.entryId == entry.entryId && frozen.basis.revisionId == entry.problemRevisionId }) { "题目刚刚更新，请重试以确认版本" }
+                val id = "paper:${progress.sessionId}:${draft.input.inputSha256}"
+                paperReviews.create(com.tingyun.smartmistakebook.core.domain.PaperReview(id, progress.sessionId, progress.planId,
+                    draft.input.inputSha256, application.mistakePaperDraftStore.encodeSnapshot(draft), System.currentTimeMillis(), null,
+                    entries.mapIndexed { index, entry -> com.tingyun.smartmistakebook.core.domain.PaperReviewQuestion(
+                        progress.currentOrdinal + index, entry.entryId, entry.practiceUnitId, entry.problemId,
+                        entry.problemRevisionId, entry.title, entry.problemMarkdown) }))
+                paperReviews.export(id)
+                selectedPaperId = id
+                navController.navigate("paper-review") { launchSingleTop = true }
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (failure: Exception) { paperNotice = failure.message ?: "纸卷准备失败，请重试" }
+            finally { paperBusy = false }
+        }
+    }
     var pendingAnswerGroupId by rememberSaveable { mutableStateOf<String?>(null) }
     var answerGroup by remember { mutableStateOf<com.tingyun.smartmistakebook.core.domain.MistakeExportGroup?>(null) }
     var answerPreparation by remember { mutableStateOf<com.tingyun.smartmistakebook.core.domain.DetailedSolutionPreparation?>(null) }
@@ -442,6 +480,11 @@ internal fun SmartMistakeBookRoot(
         activity?.moveTaskToBack(true)
     }
 
+    androidx.compose.runtime.CompositionLocalProvider(
+        com.tingyun.smartmistakebook.feature.tutor.LocalTutorMistakeRepository provides application.mistakeDetailRepository,
+        com.tingyun.smartmistakebook.feature.tutor.LocalTutorLibraryCatalog provides application.libraryCatalogRepository,
+        com.tingyun.smartmistakebook.feature.tutor.LocalPaperReviewTutorSeed provides paperTutorSeed,
+    ) {
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -551,8 +594,14 @@ internal fun SmartMistakeBookRoot(
                             null
                         }
                     }
+                    val dailyOptions by application.schedulingSettingsStore.options.collectAsStateWithLifecycle(initialValue = SchedulingOptions())
                     ReviewRoute(
+                        onExportToday = ::exportTodayPaper,
+                        onPaperHistory = { selectedPaperId = null; navController.navigate("paper-review") { launchSingleTop = true } },
+                        paperBusy = paperBusy, paperNotice = paperNotice,
+                        dailyReviewBudgetSeconds = dailyOptions.dailyReviewBudgetSeconds,
                         overview = experience.review,
+                        catalog = experience.catalog,
                         profile = experience.profile,
                         knowledgeReviewCount = knowledgeReviewCount,
                         // PRD-06/T8：只有数据确实 READY 才把题数交给空态判定；加载中/出错
@@ -1203,8 +1252,11 @@ internal fun SmartMistakeBookRoot(
                     modifier = Modifier.testTag("root_split_review"),
                 )
             }
-            composable(Routes.ExportResults) {
+            composable("${Routes.ExportResults}?exportId={exportId}", arguments = listOf(
+                navArgument("exportId") { type = NavType.StringType; nullable = true; defaultValue = null }
+            )) { entry ->
                 MistakeExportHubRoute(
+                    focusedExportId = entry.arguments?.getString("exportId"),
                     groups = exportGroups,
                     onOpenAnswerGroup = { pendingAnswerGroupId = it; answerMessage = null },
                     records = exportRecords,
@@ -1212,7 +1264,7 @@ internal fun SmartMistakeBookRoot(
                     onDismissNotice = { pendingExportNotice = null },
                     onBack = navController::popBackStack,
                     // 6B-2（T6）：来源题只来自本组件发起过的原生导出；拿不到就不摆入口。
-                    paperEditEntryIds = lastPaperEditEntryIds,
+                    paperEditEntryIds = if (entry.arguments?.getString("exportId") == null) lastPaperEditEntryIds else emptyList(),
                     onEditPaper = { entryIds ->
                         navController.navigate(mistakePaperEditRoute(entryIds)) {
                             launchSingleTop = true
@@ -1426,11 +1478,53 @@ internal fun SmartMistakeBookRoot(
                     suggestedMinute = suggestedReminderMinute,
                 )
             }
+            composable("paper-review") {
+                com.tingyun.smartmistakebook.feature.review.PaperReviewRoute(paperReviews, selectedPaperId,
+                    details = application.mistakeDetailRepository,
+                    externalMessage = paperNotice,
+                    onDismissExternalMessage = { paperNotice = null },
+                    externalBusy = answerBusy || paperBusy,
+                    onBack = { navController.popBackStack() },
+                    onOpenExports = { id -> navController.navigate(Routes.exportResults(id)) },
+                    onDetailedAnswers = { id ->
+                        if (!answerBusy) {
+                            answerBusy = true; paperNotice = null; answerMessage = null
+                            applicationUiScope.launch {
+                                try {
+                                    val draft = requireNotNull(application.mistakePaperDraftStore.decodeSnapshot(paperReviews.draftSnapshot(id))) { "原卷快照无法读取" }
+                                    pendingAnswerGroupId = application.prepareDetailedAnswerExport(draft, MistakeExportFormat.PDF)
+                                } catch (cancelled: CancellationException) { throw cancelled }
+                                catch (failure: Exception) { paperNotice = failure.message ?: "详细答案暂时无法准备，请重试。" }
+                                finally { answerBusy = false }
+                            }
+                        }
+                    },
+                    onAskAgent = { id, ordinal, selectedPhotoIds ->
+                        if (!paperBusy) {
+                        paperBusy = true; paperNotice = null
+                        applicationUiScope.launch {
+                            try {
+                                val paper = requireNotNull(paperReviews.observe(id).first())
+                                val question = paper.questions.first { it.ordinal == ordinal }
+                                val photos = com.tingyun.smartmistakebook.core.domain.paperReviewAgentPhotos(paper.photos, ordinal, selectedPhotoIds)
+                                val uris = photos.map { photo -> requireNotNull(application.lobbyMessageImageIntake.resolveIntakeUri(photo.sourceAssetId)) { "照片暂时无法读取，请重新上传" } }
+                                paperTutorSeed = com.tingyun.smartmistakebook.feature.tutor.PaperReviewTutorSeed(
+                                    "paper-seed:${UUID.randomUUID()}", question.entryId,
+                                    "请检查我的纸质复习作答。题目：${question.markdown}\n已附 ${uris.size} 张原始作答照片。请先辨认原始作答与订正，说明推理和错误；看不清或无法区分时明确说待确认。不要把订正后的答案当成独立答对，也不要替我修改题目或掌握状态。你的结果是建议，我会回到纸质复习页逐题确认。", uris)
+                                navController.navigate(Routes.mistakeTutor(MistakeRevisionKey(question.entryId, question.problemId, question.problemRevisionId)))
+                            } catch (cancelled: CancellationException) { throw cancelled }
+                            catch (failure: Exception) { paperNotice = failure.message ?: "暂时无法打开智能体，请重试" }
+                            finally { paperBusy = false }
+                        }
+                        }
+                    })
+            }
             composable(Routes.Scheduling) {
                 val schedulingOptions by application.schedulingSettingsStore.options
                     .collectAsStateWithLifecycle(initialValue = SchedulingOptions())
                 val exams by application.schedulingSettingsStore.exams
                     .collectAsStateWithLifecycle(initialValue = emptyList())
+                var schedulingMessage by remember { mutableStateOf<String?>(null) }
                 val schedulingScope = rememberCoroutineScope()
                 var retentionHint by remember {
                     mutableStateOf<com.tingyun.smartmistakebook.core.domain.OptimalRetention.Recommendation?>(null)
@@ -1443,11 +1537,17 @@ internal fun SmartMistakeBookRoot(
                 }
                 SchedulingSettingsScreen(
                     options = schedulingOptions,
+                    settingsMessage = schedulingMessage,
                     exams = exams,
                     retentionHint = retentionHint,
                     onSetOptions = { updated ->
                         schedulingScope.launch {
-                            application.schedulingSettingsStore.setOptions(updated)
+                            try {
+                                application.schedulingSettingsStore.setOptions(updated)
+                                schedulingMessage = "已保存，新的每日时长用于下一次生成的计划。"
+                                repository.refresh()
+                            } catch (cancelled: CancellationException) { throw cancelled }
+                            catch (_: Exception) { schedulingMessage = "保存失败，请重试；原有设置已保留。" }
                         }
                     },
                     onAddExam = { entry ->
@@ -1550,6 +1650,8 @@ internal fun SmartMistakeBookRoot(
             onChangeFormat = { format -> answerAction { pendingAnswerGroupId = application.changeDetailedAnswerFormat(id, format) } },
             onOpenSettings = { pendingAnswerGroupId = null; navController.navigate(Routes.Capability) { launchSingleTop = true } })
     }
+}
+
 }
 
 @Composable

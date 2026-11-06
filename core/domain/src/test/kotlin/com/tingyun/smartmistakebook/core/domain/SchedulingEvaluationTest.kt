@@ -9,6 +9,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SchedulingEvaluationHarnessTest {
+    @Test fun dailyReviewTimeDefaultsToTwentyMinutesAndRejectsInvalidBudgets() {
+        assertEquals(20, SchedulingOptions().dailyReviewMinutes)
+        assertThrows(IllegalArgumentException::class.java) { SchedulingOptions(dailyReviewMinutes = 0) }
+        assertThrows(IllegalArgumentException::class.java) { SchedulingOptions(dailyReviewMinutes = 121) }
+        assertEquals(300, SchedulingOptions(dailyReviewMinutes = 5).dailyReviewBudgetSeconds)
+    }
+
 
     @Test
     fun `replay prefers the collected calendar day delta over a wall clock floor`() {

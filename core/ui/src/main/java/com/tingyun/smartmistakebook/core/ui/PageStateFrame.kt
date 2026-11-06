@@ -157,8 +157,6 @@ fun PageStateFrame(
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 160.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(ContentSurface)
             .padding(horizontal = 24.dp, vertical = 24.dp)
             .semantics(mergeDescendants = true) {
                 liveRegion = LiveRegionMode.Polite
@@ -173,7 +171,7 @@ fun PageStateFrame(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.size(42.dp),
+                modifier = Modifier.size(32.dp),
                 tint = if (state is PageState.Error) ErrorWarm else InkMuted,
             )
         }

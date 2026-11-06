@@ -150,7 +150,7 @@ internal fun CapturePendingCapturesSection(
             modifier = Modifier.padding(top = 18.dp),
         )
         Text(
-            text = "未完成录入的题保存在这里，存入错题本后自动移出。",
+            text = "待录入题目暂存于此，录入后自动移出。",
             color = InkSecondary,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp),

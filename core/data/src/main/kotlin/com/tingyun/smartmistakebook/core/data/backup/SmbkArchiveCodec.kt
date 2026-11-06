@@ -1159,7 +1159,7 @@ internal object SmbkArchiveCodec {
                     "本机只读 ${SmbkSelectionRecord.CURRENT_SCHEMA_VERSION}",
             )
         }
-        if (record.closureVersion != SmbkSelectionPlan.CLOSURE_VERSION) {
+        if (record.closureVersion !in setOf(4, SmbkSelectionPlan.CLOSURE_VERSION)) {
             return SelectionRead.Invalid(
                 "备份内容选择的 closureVersion=${record.closureVersion} 不受支持，" +
                     "本机规则表为 ${SmbkSelectionPlan.CLOSURE_VERSION}",
@@ -1192,20 +1192,22 @@ internal object SmbkArchiveCodec {
                     "本机只读 ${SmbkSelectionPlan.ASSET_POLICY_INCLUDED}",
             )
         }
-        if (record.rowCounts.keys != SmbkSelectionPlan.rowCountKeys) {
-            val missing = (SmbkSelectionPlan.rowCountKeys - record.rowCounts.keys).sorted()
-            val extra = (record.rowCounts.keys - SmbkSelectionPlan.rowCountKeys).sorted()
+        val expectedRowCountKeys = SmbkSelectionPlan.rowCountKeysForRead(record.closureVersion)
+        if (record.rowCounts.keys != expectedRowCountKeys) {
+            val missing = (expectedRowCountKeys - record.rowCounts.keys).sorted()
+            val extra = (record.rowCounts.keys - expectedRowCountKeys).sorted()
             return SelectionRead.Invalid(
-                "备份内容选择的 rowCounts 必须覆盖 90 表：missing=$missing extra=$extra",
+                "备份内容选择的 rowCounts 必须覆盖 ${expectedRowCountKeys.size} 表：missing=$missing extra=$extra",
             )
         }
         if (record.rowCounts.values.any { count -> count < 0L }) {
             return SelectionRead.Invalid("备份内容选择的 rowCounts 含负数")
         }
-        if (record.trimmedTableCount !in 0..SmbkSelectionPlan.trimOrder.size) {
+        val maximumTrimmedTables = SmbkSelectionPlan.trimOrder.size - if (record.closureVersion == 4) 3 else 0
+        if (record.trimmedTableCount !in 0..maximumTrimmedTables) {
             return SelectionRead.Invalid(
                 "备份内容选择的 trimmedTableCount=${record.trimmedTableCount} 越界 " +
-                    "(0..${SmbkSelectionPlan.trimOrder.size})",
+                    "(0..$maximumTrimmedTables)",
             )
         }
         val recomputed = runCatching {
@@ -1213,6 +1215,7 @@ internal object SmbkArchiveCodec {
                 categories = SmbkSelectionPlan.categoriesOf(record.categoryMask),
                 assetPolicy = record.assetPolicy,
                 rowCounts = record.rowCounts,
+                closureVersion = record.closureVersion,
             )
         }.getOrElse { failure ->
             return SelectionRead.Invalid(

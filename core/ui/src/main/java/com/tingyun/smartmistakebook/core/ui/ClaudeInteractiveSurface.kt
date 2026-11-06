@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.ui
 
 // cds-theme.css / DraggableSessionList.tsx, Caho1/open-claude-ui c1f923ae, MIT.
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -21,11 +22,36 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.shadow.Shadow
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpOffset
+
+/** Two shadow layers from cds-theme.css: contact first, then a soft ambient penumbra. */
+enum class ClaudeSurfaceDepth { PANEL, COMPOSER, FLOATING }
+
+fun Modifier.claudeSurfaceShadow(
+    shape: Shape,
+    depth: ClaudeSurfaceDepth = ClaudeSurfaceDepth.PANEL,
+    emphasis: Float = 1f,
+): Modifier {
+    val floating = depth == ClaudeSurfaceDepth.FLOATING
+    val composer = depth == ClaudeSurfaceDepth.COMPOSER
+    val strength = emphasis.coerceIn(0f, 1.5f)
+    return dropShadow(shape, Shadow(
+        radius = if (floating) 6.dp else 2.dp,
+        color = Ink.copy(alpha = .045f * strength),
+        offset = DpOffset(0.dp, if (floating) 2.dp else 1.dp),
+    )).dropShadow(shape, Shadow(
+        radius = if (floating) 24.dp else if (composer) 20.dp else 8.dp,
+        color = Ink.copy(alpha = (if (floating) .12f else if (composer) .055f else .065f) * strength),
+        offset = DpOffset(0.dp, if (floating) 8.dp else if (composer) 4.dp else 2.dp),
+    ))
+}
 
 /** Neutral interactive paint without scaling text, image bounds, or hit targets. */
 @Composable
@@ -68,13 +94,20 @@ fun ClaudeCard(
     val pressed by source.collectIsPressedAsState()
     val hovered by source.collectIsHoveredAsState()
     val focused by source.collectIsFocusedAsState()
+    val motion = LocalClaudeMotionEnabled.current
     val fill by animateColorAsState(if (pressed) SubtleSurface else if (hovered) Paper else ContentSurface,
-        ClaudeMotion.spec(LocalClaudeMotionEnabled.current), label = "cds-card-fill")
+        ClaudeMotion.spec(motion), label = "cds-card-fill")
+    val shadowStrength by animateFloatAsState(when {
+        pressed -> .55f
+        hovered || focused -> 1.35f
+        else -> 1f
+    }, ClaudeMotion.spec(motion, ClaudeMotion.RevealMillis), label = "cds-card-shadow")
     CompositionLocalProvider(LocalRippleConfiguration provides null) {
-        Surface(onClick = onClick, modifier = modifier, shape = shape, color = fill,
+        Surface(onClick = onClick, modifier = modifier.then(if (elevation > 0.dp)
+            Modifier.claudeSurfaceShadow(shape, emphasis = shadowStrength) else Modifier), shape = shape, color = fill,
             border = if (focused) BorderStroke(2.dp, claudeFocusIndicatorColor(fill))
                 else if (bordered) BorderStroke(1.dp, Ink.copy(alpha = .1f)) else null,
-            shadowElevation = elevation,
+            shadowElevation = 0.dp,
             interactionSource = source, content = content)
     }
 }

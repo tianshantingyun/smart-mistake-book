@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.core.database
 
+import com.tingyun.smartmistakebook.core.database.dao.toSourceRecord
+
 import androidx.paging.PagingSource
 import androidx.room3.RoomRawQuery
 import androidx.room3.withReadTransaction
@@ -968,6 +970,15 @@ internal class RoomStudyDatabase(
         require(sourceKey.isNotBlank()) { "sourceKey must not be blank" }
         return database.problemDao().findMistakeBySourceKey(sourceKey)?.toRecord()
     }
+
+    override fun observeMistakeSourceAssets(errorBookEntryId: String): Flow<List<MistakeDetailSourceAssetRecord>> {
+        require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }
+        return database.mistakeDetailDao().observeQuestionSourceRows(errorBookEntryId)
+            .map { rows -> rows.map { it.toSourceRecord() } }
+    }
+
+    override val paperReviews: com.tingyun.smartmistakebook.core.database.dao.PaperReviewStore
+        get() = database.paperReviewDao()
 
     override suspend fun readMistakeDetail(errorBookEntryId: String): MistakeDetailRecord? {
         require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }

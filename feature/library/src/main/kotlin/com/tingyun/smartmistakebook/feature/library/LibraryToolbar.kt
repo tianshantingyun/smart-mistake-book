@@ -155,7 +155,8 @@ internal fun LibrarySelectedFilters(
             state.selections.selectedOptionId(facet)?.let { id ->
                 val label = when (facet) {
                     LibraryFacet.SUBJECT -> SubjectKind.entries.firstOrNull { it.name == id }?.studentLabel() ?: id
-                    LibraryFacet.CHAPTER -> id
+                    LibraryFacet.CHAPTER -> if (id == LIBRARY_UNCLASSIFIED_OPTION_ID) "未分板块"
+                        else state.chapterOptionLabels[id] ?: state.activeOptions.firstOrNull { it.id == id }?.label ?: "已选板块"
                     LibraryFacet.MASTERY -> MasteryState.fromId(id).label
                     LibraryFacet.FAVORITE -> "已收藏"
                 }

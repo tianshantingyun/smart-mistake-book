@@ -14,6 +14,7 @@ import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -31,6 +32,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.animation.core.animateFloatAsState
 
@@ -48,6 +51,13 @@ object ClaudeMotion {
 
     fun <T> spec(enabled: Boolean, duration: Int = SnapMillis): FiniteAnimationSpec<T> =
         if (enabled) tween(duration, easing = Swift) else snap()
+
+    /** Upstream 320/28/1 release spring, with a short direct press and no delayed click. */
+    fun pressSpec(enabled: Boolean, pressed: Boolean): FiniteAnimationSpec<Float> = when {
+        !enabled -> snap()
+        pressed -> tween(SnapMillis, easing = Snap)
+        else -> spring(dampingRatio = .783f, stiffness = 320f)
+    }
 
     /** Keep total travel within 2dp, including wide buttons and entry cards. */
     internal fun pressedScale(longestEdgeDp: Float): Float =
@@ -96,12 +106,18 @@ fun ClaudeDisclosure(
 
 /** One entrance for a modal instance; gesture transforms and viewport measurement stay independent. */
 @Composable
-fun Modifier.claudeModalEntrance(): Modifier {
+fun Modifier.claudeModalEntrance(fromBottom: Boolean = false): Modifier {
     val enabled = LocalClaudeMotionEnabled.current
     var entered by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { entered = true }
     val fraction by animateFloatAsState(if (entered || !enabled) 1f else 0f,
         animationSpec = if (enabled) tween(ClaudeMotion.RevealMillis, easing = ClaudeMotion.Out) else snap(),
         label = "cds-modal-entrance")
-    return graphicsLayer { alpha = fraction; scaleX = .95f + .05f * fraction; scaleY = scaleX }
+    val travel = with(LocalDensity.current) { 12.dp.toPx() }
+    return graphicsLayer {
+        alpha = fraction
+        translationY = if (fromBottom) travel * (1f - fraction) else 0f
+        scaleX = if (fromBottom) 1f else .95f + .05f * fraction
+        scaleY = scaleX
+    }
 }

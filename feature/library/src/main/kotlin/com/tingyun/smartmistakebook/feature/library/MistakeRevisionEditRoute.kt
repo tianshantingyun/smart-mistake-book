@@ -4,6 +4,8 @@ import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 
 import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.heightIn
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -14,7 +16,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -28,6 +29,8 @@ import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
+import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -75,14 +78,31 @@ fun MistakeRevisionEditRoute(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var confirmDiscard by rememberSaveable { mutableStateOf(false) }
     var agentSheetOpen by rememberSaveable { mutableStateOf(false) }
-    if (agentSheetOpen) MistakeAgentEditSheet(state, { agentSheetOpen = false }, viewModel::requestAgentEdit,
-        viewModel::adoptAgentEdit, viewModel::cancelAgentEdit, viewModel::retryAgentEdit, onOpenModelSettings)
-    LaunchedEffect(state.agentJob?.status) {
-        if (state.agentJob?.status == com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.ADOPTED) agentSheetOpen = false
+    var openedAgentInitially by rememberSaveable(entryId) { mutableStateOf(false) }
+    var manualExpanded by rememberSaveable(entryId) { mutableStateOf(agentEdits == null) }
+    LaunchedEffect(state.loading, state.unavailableReason, state.draftPreview, agentEdits) {
+        // The sheet remembers its initial target blocks; opening during load would freeze an empty scope.
+        if (agentEdits != null && !openedAgentInitially && !state.loading &&
+            state.unavailableReason == null && state.draftPreview != null) {
+            openedAgentInitially = true
+            agentSheetOpen = true
+        }
     }
-    LaunchedEffect(Unit) { viewModel.onEditorOpened() }
+    if (agentSheetOpen) MistakeAgentEditSheet(state, { agentSheetOpen = false }, viewModel::requestAgentEdit,
+        viewModel::adoptAgentEdit, viewModel::cancelAgentEdit, viewModel::retryAgentEdit, onOpenModelSettings,
+        viewModel::onAgentInstructionChanged)
+    LaunchedEffect(modelEgressAllowed) { viewModel.updateModelEgressAllowed(modelEgressAllowed) }
+    LaunchedEffect(state.agentAdoptedOperationId) {
+        if (state.agentAdoptedOperationId != null) agentSheetOpen = false
+    }
+    var editorOpened by rememberSaveable(entryId) { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        // Returning from model settings restores this editor session, including its unsaved draft.
+        if (!editorOpened) { viewModel.onEditorOpened(); editorOpened = true }
+    }
 
     fun leave() {
+        if (state.agentAdopting) return
         if (state.dirty) confirmDiscard = true else onBack()
     }
     BackHandler { leave() }
@@ -96,9 +116,9 @@ fun MistakeRevisionEditRoute(
                 OutlinedButton(onDone, Modifier.fillMaxWidth().testTag("mistake_revision_edit_done")) { Text("完成，返回详情") }
             } else {
                 PrimaryActionButton(
-                    text = if (state.saving) "保存中…" else "保存修改",
+                    text = if (state.saving) "保存中…" else "保存题面",
                     onClick = viewModel::save,
-                    enabled = !state.saving && state.dirty && state.conflict == null,
+                    enabled = !state.saving && state.agentAction == null && state.dirty && state.conflict == null,
                     modifier = Modifier.fillMaxWidth().testTag("mistake_revision_edit_save"),
                     contentDescription = "保存为新的题面版本",
                 )
@@ -142,22 +162,42 @@ fun MistakeRevisionEditRoute(
         }
 
         if (agentEdits != null) {
-            com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton({ agentSheetOpen = true }, Modifier.fillMaxWidth(), enabled = !state.saving) {
-                Text(if (state.agentJob?.status in setOf(com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.QUEUED,
+            com.tingyun.smartmistakebook.core.ui.PrimaryActionButton(
+                text = if (state.agentJob?.status in setOf(com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.QUEUED,
                     com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.REQUESTING,
-                    com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.GENERATING_FIGURES)) "查看智能体修改进度" else "让智能体修改文字或配图",
-                    color = com.tingyun.smartmistakebook.core.ui.SmartColors.LearningAccent)
-            }
+                    com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus.GENERATING_FIGURES)) "查看智能体修改进度" else "告诉智能体怎么修改",
+                onClick = { agentSheetOpen = true }, modifier = Modifier.fillMaxWidth(),
+                enabled = !state.saving && !state.agentAdopting, icon = Icons.Outlined.AutoAwesome,
+            )
             Spacer(Modifier.height(14.dp))
         }
-        MistakeSectionCard("题目内容", headerColor = com.tingyun.smartmistakebook.core.ui.SmartColors.ReadingSurface) {
+        if (state.agentAdoptedOperationId != null && state.dirty) {
+            com.tingyun.smartmistakebook.core.ui.WorkspaceNotice(
+                "智能体修改已采用到草稿，请核对下方差异，再点“保存题面”使其生效。",
+                tone = com.tingyun.smartmistakebook.core.ui.WorkspaceNoticeTone.SUCCESS,
+            )
+            Spacer(Modifier.height(12.dp))
+        }
+        if (agentEdits != null) {
+            com.tingyun.smartmistakebook.core.ui.ClaudeTextButton(
+                { manualExpanded = !manualExpanded },
+                modifier = Modifier.align(Alignment.End).testTag("mistake_revision_edit_manual_toggle"),
+                enabled = !state.saving && !state.agentAdopting,
+            ) {
+                Icon(Icons.Outlined.EditNote, null, Modifier.size(18.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(if (manualExpanded) "收起手动调整" else "手动调整", style = MaterialTheme.typography.labelLarge)
+            }
+        }
+        if (manualExpanded) {
+        MistakeSectionCard("题目内容", headerColor = com.tingyun.smartmistakebook.core.ui.SmartColors.AgentSurface) {
             Column {
                 OutlinedTextField(
                     value = state.title,
                     onValueChange = viewModel::onTitleChanged,
                     label = { Text("标题") },
                     singleLine = true,
-                    enabled = !state.saving,
+                    enabled = !state.saving && !state.agentAdopting,
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("mistake_revision_edit_title"),
@@ -170,7 +210,7 @@ fun MistakeRevisionEditRoute(
                         state.figureBlockUris[block.id]?.let { uri ->
                             com.tingyun.smartmistakebook.core.ui.BoundedLocalImage(uri, "题目配图", expanded = true, modifier = Modifier.fillMaxWidth())
                         } ?: Text("这张配图暂时无法读取", color = InkSecondary)
-                        if (agentEdits != null) com.tingyun.smartmistakebook.core.ui.ClaudeTextButton({ agentSheetOpen = true }) { Text("让智能体修改配图") }
+                        if (agentEdits != null) com.tingyun.smartmistakebook.core.ui.ClaudeTextButton({ agentSheetOpen = true }, enabled = !state.saving && !state.agentAdopting) { Text("让智能体修改配图") }
                     } else when (block.kind) {
                         RevisionEditBlockKind.STEM -> OutlinedTextField(
                             value = block.text,
@@ -178,7 +218,7 @@ fun MistakeRevisionEditRoute(
                             label = { Text("题干") },
                             minLines = 3,
                             maxLines = 12,
-                            enabled = !state.saving,
+                            enabled = !state.saving && !state.agentAdopting,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("mistake_revision_edit_block_$index"),
@@ -188,7 +228,7 @@ fun MistakeRevisionEditRoute(
                                 value = block.text,
                                 onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
                                 label = { Text("公式 LaTeX") },
-                                enabled = !state.saving,
+                                enabled = !state.saving && !state.agentAdopting,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .testTag("mistake_revision_edit_formula_$index"),
@@ -198,7 +238,7 @@ fun MistakeRevisionEditRoute(
                                 value = block.secondaryText,
                                 onValueChange = { viewModel.onBlockSecondaryChanged(block.id, it) },
                                 label = { Text("公式的文字说明") },
-                                enabled = !state.saving,
+                                enabled = !state.saving && !state.agentAdopting,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .testTag("mistake_revision_edit_formula_alt_$index"),
@@ -210,7 +250,7 @@ fun MistakeRevisionEditRoute(
                                 onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
                                 label = { Text("选项题干") },
                                 minLines = 2,
-                                enabled = !state.saving,
+                                enabled = !state.saving && !state.agentAdopting,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .testTag("mistake_revision_edit_choices_prompt_$index"),
@@ -223,7 +263,7 @@ fun MistakeRevisionEditRoute(
                                         viewModel.onChoiceChanged(block.id, choiceIndex, it)
                                     },
                                     label = { Text("选项 ${choiceLabel(choiceIndex)}") },
-                                    enabled = !state.saving,
+                                    enabled = !state.saving && !state.agentAdopting,
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .testTag(
@@ -237,7 +277,7 @@ fun MistakeRevisionEditRoute(
                                 value = block.secondaryText,
                                 onValueChange = { viewModel.onBlockSecondaryChanged(block.id, it) },
                                 label = { Text("图形标题") },
-                                enabled = !state.saving,
+                                enabled = !state.saving && !state.agentAdopting,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .testTag("mistake_revision_edit_figure_title_$index"),
@@ -248,7 +288,7 @@ fun MistakeRevisionEditRoute(
                                 onValueChange = { viewModel.onBlockTextChanged(block.id, it) },
                                 label = { Text("图形的文字含义") },
                                 minLines = 2,
-                                enabled = !state.saving,
+                                enabled = !state.saving && !state.agentAdopting,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .testTag("mistake_revision_edit_figure_alt_$index"),
@@ -271,6 +311,19 @@ fun MistakeRevisionEditRoute(
 
             }
         }
+        } else {
+            state.draftPreview?.let { preview ->
+                MistakeSectionCard("当前题面", modifier = Modifier.testTag("mistake_revision_edit_preview"),
+                    headerColor = com.tingyun.smartmistakebook.core.ui.SmartColors.LearningSurface) {
+                    com.tingyun.smartmistakebook.core.ui.StructuredContentRenderer(
+                        document = preview.document, choicesEnabled = false,
+                        storedFigures = preview.storedFigureReferences,
+                        figureUri = { ref -> state.adoptedFigureUris[ref.assetId] ?: state.figureBlockUris[ref.blockId] },
+                    )
+                }
+            }
+        }
+
         Spacer(Modifier.height(18.dp))
         SectionHeader("将保存的修改")
         Spacer(Modifier.height(8.dp))
@@ -311,7 +364,7 @@ fun MistakeRevisionEditRoute(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("mistake_revision_edit_conflict"),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(10.dp),
                 color = MaterialTheme.colorScheme.errorContainer,
             ) {
                 Column(Modifier.padding(14.dp)) {
@@ -381,7 +434,7 @@ private fun RevisionNotice(text: String, tag: String) {
         modifier = Modifier
             .fillMaxWidth()
             .testTag(tag),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(10.dp),
         color = JadeSoft.copy(alpha = 0.45f),
         shadowElevation = 1.dp,
     ) {

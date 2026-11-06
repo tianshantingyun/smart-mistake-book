@@ -28,7 +28,6 @@ import com.tingyun.smartmistakebook.core.domain.SchedulingOptions
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
-import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 import java.time.LocalDate
 import java.time.ZoneId
@@ -52,11 +51,12 @@ internal fun SchedulingSettingsScreen(
     onRemoveExam: (String) -> Unit,
     onBack: () -> Unit,
     retentionHint: OptimalRetention.Recommendation? = null,
+    settingsMessage: String? = null,
 ) {
     RootPageColumn(modifier = Modifier.testTag("root_scheduling_settings")) {
         SecondaryHeader(title = "复习安排", onBack = onBack)
         Text(
-            text = "改动在下次启动应用时生效。",
+            text = "每日时长用于新计划，不影响已开始或已导出的计划。记忆目标下次启动时生效。",
             color = InkSecondary,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(top = 4.dp),
@@ -64,13 +64,43 @@ internal fun SchedulingSettingsScreen(
         Spacer(Modifier.height(12.dp))
 
         WorkspacePanel {
+            var minutes by rememberSaveable(options.dailyReviewMinutes) { mutableStateOf(options.dailyReviewMinutes.toString()) }
+            SettingsSectionTitle("每日预计复习时长")
+            Text("${options.dailyReviewMinutes} 分钟 / 天", style = MaterialTheme.typography.headlineSmall,
+                color = com.tingyun.smartmistakebook.core.ui.SmartColors.JadeDark)
+            @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+            @Composable fun Presets() {
+                androidx.compose.foundation.layout.FlowRow(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(6.dp)) {
+                    listOf(10, 20, 30, 45).forEach { value ->
+                        com.tingyun.smartmistakebook.core.ui.OutlineActionChip("$value 分钟", { minutes = value.toString() },
+                            selected = minutes.toIntOrNull() == value)
+                    }
+                }
+            }
+            Presets()
+            OutlinedTextField(value = minutes, onValueChange = { value -> minutes = value.filter(Char::isDigit).take(3) },
+                label = { Text("自定义分钟数（5–120）") }, singleLine = true,
+                keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = androidx.compose.ui.text.input.KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth().testTag("scheduling_daily_minutes"))
+            com.tingyun.smartmistakebook.core.ui.PrimaryActionButton("保存每日时长",
+                onClick = { minutes.toIntOrNull()?.takeIf { it in 5..120 }?.let { onSetOptions(options.copy(dailyReviewMinutes = it)) } },
+                enabled = minutes.toIntOrNull()?.let { it in 5..120 && it != options.dailyReviewMinutes } == true,
+                modifier = Modifier.fillMaxWidth().testTag("scheduling_save_daily_minutes"))
+            Text("系统按题目难度估算题量，实际用时可能不同；考试期会适当增加复习安排。",
+                color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+            settingsMessage?.let { Text(it, color = InkSecondary, style = MaterialTheme.typography.bodySmall) }
+        }
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
             Column {
-                SectionHeader(title = "记忆目标")
+                SettingsSectionTitle(title = "记忆目标")
                 Text(
-                    text = "目标回忆成功率：${(options.desiredRetention * 100).roundToInt()}%",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.testTag("scheduling_retention_label"),
+                    text = "${(options.desiredRetention * 100).roundToInt()}%",
+                    color = com.tingyun.smartmistakebook.core.ui.SmartColors.LearningAccent,
+                    style = MaterialTheme.typography.displaySmall,
+                    modifier = Modifier.padding(top = 12.dp).testTag("scheduling_retention_label"),
                 )
+                Text("目标回忆成功率", style = MaterialTheme.typography.bodySmall, color = InkSecondary)
                 Slider(
                     value = options.desiredRetention.toFloat(),
                     onValueChange = { value ->
@@ -100,7 +130,7 @@ internal fun SchedulingSettingsScreen(
 
         WorkspacePanel {
             Column {
-                SectionHeader(title = "考试日历")
+                SettingsSectionTitle(title = "考试日历")
                 Text(
                     text = "添加考试日期后，考前两周会优先安排相关科目的复习。",
                     color = InkSecondary,

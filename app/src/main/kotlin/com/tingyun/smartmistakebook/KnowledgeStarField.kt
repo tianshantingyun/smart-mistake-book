@@ -105,9 +105,9 @@ internal fun KnowledgeStarField(
     val hitRadius = with(density) { 24.dp.toPx() }
     // Draw geometry is also the touch geometry; do not write Compose state from a draw pass.
     val labelTargets = remember(stars) { mutableListOf<PlacedStarLabel>() }
-    Column(Modifier.fillMaxWidth().testTag("knowledge_star_observatory").clip(RoundedCornerShape(22.dp))
-        .background(Brush.linearGradient(listOf(SmartColors.Paper, SmartColors.HeaderSurface)))
-        .border(1.dp, SmartColors.Divider, RoundedCornerShape(22.dp))) {
+    Column(Modifier.fillMaxWidth().testTag("knowledge_star_observatory").clip(RoundedCornerShape(14.dp))
+        .background(SmartColors.ContentSurface)
+        .border(1.dp, SmartColors.Divider, RoundedCornerShape(14.dp))) {
         FlowRow(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("${stars.size} 个知识点 · ${links.size} 条关联", color = SmartColors.InkSecondary,

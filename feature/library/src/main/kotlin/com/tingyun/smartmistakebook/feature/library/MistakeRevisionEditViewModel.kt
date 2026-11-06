@@ -33,7 +33,6 @@ import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.model.EditBasis
 import com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint
-import com.tingyun.smartmistakebook.core.model.applyPreparedMistakeEdit
 
 enum class RevisionEditBlockKind {
     STEM,
@@ -84,8 +83,16 @@ data class MistakeRevisionEditUiState(
     val agentJob: MistakeEditJob? = null,
     val agentBefore: CapturedQuestionDocument? = null,
     val agentPreview: CapturedQuestionDocument? = null,
+    val agentAction: String? = null,
+    val agentAdopting: Boolean = false,
+    val agentAdoptedOperationId: String? = null,
+    val agentSubmittedInstruction: String? = null,
+    val agentInstructionDraft: String = "",
+    val agentError: String? = null,
+    val agentConfigured: Boolean = false,
     val adoptedFigureUris: Map<String, String> = emptyMap(),
     val figureBlockUris: Map<String, String> = emptyMap(),
+    val draftPreview: CapturedQuestionDocument? = null,
 )
 
 /**
@@ -97,9 +104,9 @@ class MistakeRevisionEditViewModel(
     private val entryId: String,
     private val repository: MistakeDetailRepository,
     private val agentEdits: MistakeEditRepository? = null,
-    private val modelEgressAllowed: Boolean = false,
+    private var modelEgressAllowed: Boolean = false,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(MistakeRevisionEditUiState(entryId = entryId))
+    private val _state = MutableStateFlow(MistakeRevisionEditUiState(entryId = entryId, agentConfigured = modelEgressAllowed))
     val state: StateFlow<MistakeRevisionEditUiState> = _state.asStateFlow()
 
     private var baselineDocument: CapturedQuestionDocument? = null
@@ -108,19 +115,33 @@ class MistakeRevisionEditViewModel(
     private var adoptedEditIds = emptySet<String>()
     private var agentObserver: Job? = null
 
+    fun updateModelEgressAllowed(allowed: Boolean) {
+        modelEgressAllowed = allowed
+        _state.update { it.copy(agentConfigured = allowed) }
+    }
+
+    fun onAgentInstructionChanged(value: String) {
+        if (_state.value.agentAction != null) return
+        _state.update { it.copy(agentInstructionDraft = value.take(4_000)) }
+    }
+
     fun requestAgentEdit(targetBlockIds: Set<String>, instruction: String, sourceAssetIds: Set<String>, editTitle: Boolean) {
         val edits = agentEdits ?: return
+        if (!canStartAgentAction() || instruction.isBlank() || (targetBlockIds.isEmpty() && !editTitle)) return
         val draft = currentDocument() ?: return
         val revision = baselineRevisionId ?: return
         val problem = problemId ?: return
+        _state.update { it.copy(agentAction = "正在提交新要求…", agentError = null) }
         viewModelScope.launch {
             try {
                 val id = edits.requestEdit(MistakeEditRequest(MistakeRevisionKey(entryId, problem, revision), draft,
                     targetBlockIds, instruction, sourceAssetIds, editTitle), modelEgressAllowed)
-                _state.update { it.copy(agentBefore = draft, agentPreview = null, message = null) }
+                _state.update { it.copy(agentJob = null, agentBefore = draft, agentPreview = null,
+                    agentSubmittedInstruction = instruction, agentAdoptedOperationId = null, message = null) }
                 observeAgent(id, draft)
             } catch (cancelled: CancellationException) { throw cancelled }
-            catch (failure: Exception) { _state.update { it.copy(message = failure.message ?: "未能发起修改，请检查模型设置") } }
+            catch (failure: Exception) { _state.update { it.copy(agentError = failure.message ?: "未能发起修改，请检查模型设置") } }
+            finally { _state.update { it.copy(agentAction = null) } }
         }
     }
 
@@ -128,52 +149,86 @@ class MistakeRevisionEditViewModel(
         val edits = agentEdits ?: return
         agentObserver?.cancel()
         agentObserver = viewModelScope.launch {
-            edits.observe(id).collect { job ->
-                _state.update { it.copy(agentJob = job) }
-                if (job?.status == MistakeEditJobStatus.READY) {
-                    val current = currentDocument() ?: return@collect
-                    val basis = EditBasis(entryId, baselineRevisionId ?: return@collect, CapturedQuestionDocumentFingerprint.of(current))
-                    val ready = edits.readySuggestion(id, basis) ?: return@collect
-                    _state.update { it.copy(agentJob = ready, agentBefore = ready.sourceDraft ?: requestedDraft, agentPreview = ready.preparedDraft) }
+            try {
+                edits.observe(id).collect { job ->
+                    // Durable ADOPTED can arrive before the local draft has been replaced.
+                    if (_state.value.agentAdopting) return@collect
+                    _state.update { it.copy(agentJob = job) }
+                    if (job?.status in setOf(MistakeEditJobStatus.READY, MistakeEditJobStatus.ADOPTED) &&
+                        _state.value.agentAdoptedOperationId != id) {
+                        val basis = EditBasis(entryId, baselineRevisionId ?: return@collect, CapturedQuestionDocumentFingerprint.of(requestedDraft))
+                        val ready = edits.readySuggestion(id, basis) ?: return@collect
+                        if (!_state.value.agentAdopting && _state.value.agentAdoptedOperationId != id) {
+                            _state.update { it.copy(agentJob = ready, agentBefore = ready.sourceDraft ?: requestedDraft, agentPreview = ready.preparedDraft) }
+                        }
+                    }
                 }
-            }
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (failure: Exception) { _state.update { it.copy(agentError = failure.message ?: "读取修改进度失败，请重新打开查看") } }
         }
     }
 
     fun adoptAgentEdit() {
         val edits = agentEdits ?: return
+        if (_state.value.agentAction != null || _state.value.saving || _state.value.loading) return
         val id = _state.value.agentJob?.operationId ?: return
+        val current = currentDocument() ?: return
+        val basis = EditBasis(entryId, baselineRevisionId ?: return, CapturedQuestionDocumentFingerprint.of(current))
+        _state.update { it.copy(agentAction = "正在采用到草稿…", agentAdopting = true, agentError = null) }
         viewModelScope.launch {
-            val current = currentDocument() ?: return@launch
-            val basis = EditBasis(entryId, baselineRevisionId ?: return@launch, CapturedQuestionDocumentFingerprint.of(current))
-            val ready = edits.readySuggestion(id, basis) ?: return@launch
-            if (!edits.markAdopted(id, basis)) return@launch
-            // Recheck after suspension: text typed while validating the result always wins.
-            if (currentDocument()?.let(CapturedQuestionDocumentFingerprint::of) != basis.draftSha256) {
-                _state.update { it.copy(message = "题面已修改，请重新提出修改请求") }; return@launch
-            }
-            val preview = _state.value.agentPreview ?: return@launch
-            draftTemplate = preview
-            adoptedEditIds = adoptedEditIds + id
-            _state.update { it.copy(title = preview.document.title.orEmpty(), blocks = preview.document.blocks.map { block ->
-                block.toDraft().copy(readOnly = preview.storedFigureReferences.any { ref -> ref.blockId == block.id })
-            }, figureBlockUris = it.figureBlockUris + ready.figures.mapNotNull { ref -> ready.figureUris[ref.assetId]?.let { uri -> ref.blockId to uri } }.toMap(),
-                adoptedFigureUris = it.adoptedFigureUris + ready.figureUris, agentPreview = null,
-                message = "已采用修改，请保存题面") }
-            recomputeDiff()
+            try {
+                val ready = edits.readySuggestion(id, basis) ?: error("当前题面或修改结果已变化，请核对后重新生成")
+                val preview = ready.preparedDraft ?: error("修改预览不完整，请重试上次请求")
+                if (currentDocument()?.let(CapturedQuestionDocumentFingerprint::of) != basis.draftSha256) {
+                    error("题面已修改，请重新提出修改请求")
+                }
+                check(edits.markAdopted(id, basis)) { "采用未完成，题目版本或结果已变化，请重新生成" }
+                draftTemplate = preview
+                adoptedEditIds = adoptedEditIds + id
+                _state.update { it.copy(title = preview.document.title.orEmpty(), blocks = preview.document.blocks.map { block ->
+                    block.toDraft().copy(readOnly = preview.storedFigureReferences.any { ref -> ref.blockId == block.id })
+                }, figureBlockUris = it.figureBlockUris + ready.figures.mapNotNull { ref -> ready.figureUris[ref.assetId]?.let { uri -> ref.blockId to uri } }.toMap(),
+                    adoptedFigureUris = it.adoptedFigureUris + ready.figureUris, agentPreview = null,
+                    agentJob = ready.copy(status = MistakeEditJobStatus.ADOPTED),
+                    message = "已采用修改，请保存题面") }
+                recomputeDiff()
+                // The route closes only after the local draft and diff are both available.
+                _state.update { it.copy(agentAdoptedOperationId = id) }
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (failure: Exception) { _state.update { it.copy(agentError = failure.message ?: "采用失败，预览已保留，请重试") } }
+            finally { _state.update { it.copy(agentAction = null, agentAdopting = false) } }
         }
     }
 
-    fun cancelAgentEdit() { _state.value.agentJob?.operationId?.let { id -> viewModelScope.launch { agentEdits?.cancel(id) } } }
+    fun cancelAgentEdit() {
+        val edits = agentEdits ?: return
+        if (_state.value.agentAction != null) return
+        val id = _state.value.agentJob?.operationId ?: return
+        _state.update { it.copy(agentAction = "正在停止…", agentError = null) }
+        viewModelScope.launch {
+            try { edits.cancel(id) }
+            catch (cancelled: CancellationException) { throw cancelled }
+            catch (failure: Exception) { _state.update { it.copy(agentError = failure.message ?: "停止失败，请重试") } }
+            finally { _state.update { it.copy(agentAction = null) } }
+        }
+    }
 
     fun retryAgentEdit() {
         val edits = agentEdits ?: return
+        if (!canStartAgentAction()) return
         val id = _state.value.agentJob?.operationId ?: return
+        _state.update { it.copy(agentAction = "正在重试上次请求…", agentError = null) }
         viewModelScope.launch {
             try { edits.retry(id, modelEgressAllowed) }
             catch (cancelled: CancellationException) { throw cancelled }
-            catch (failure: Exception) { _state.update { it.copy(message = failure.message ?: "暂时无法重试") } }
+            catch (failure: Exception) { _state.update { it.copy(agentError = failure.message ?: "暂时无法重试") } }
+            finally { _state.update { it.copy(agentAction = null) } }
         }
+    }
+
+    private fun canStartAgentAction(): Boolean = _state.value.let {
+        it.agentAction == null && !it.saving && !it.loading && it.unavailableReason == null &&
+            it.agentJob?.status !in setOf(MistakeEditJobStatus.QUEUED, MistakeEditJobStatus.REQUESTING, MistakeEditJobStatus.GENERATING_FIGURES)
     }
     private var baselineTitle: String = ""
     private var baselineRevisionId: String? = null
@@ -192,6 +247,7 @@ class MistakeRevisionEditViewModel(
      * instead of the current head.
      */
     fun onEditorOpened() {
+        if (_state.value.agentAction != null) return
         if (openedOnce) {
             loadBaseline()
         } else {
@@ -200,21 +256,25 @@ class MistakeRevisionEditViewModel(
     }
 
     fun onTitleChanged(value: String) {
+        if (_state.value.agentAdopting || _state.value.saving) return
         _state.update { current -> current.copy(title = value.take(MAX_TITLE_CHARS), message = null) }
         recomputeDiff()
     }
 
     fun onBlockTextChanged(blockId: String, value: String) {
+        if (_state.value.agentAdopting || _state.value.saving) return
         updateBlock(blockId) { block -> block.copy(text = value.take(MAX_BLOCK_CHARS)) }
         _state.update { it.copy(message = null) }
     }
 
     fun onBlockSecondaryChanged(blockId: String, value: String) {
+        if (_state.value.agentAdopting || _state.value.saving) return
         updateBlock(blockId) { block -> block.copy(secondaryText = value.take(MAX_BLOCK_CHARS)) }
         _state.update { it.copy(message = null) }
     }
 
     fun onChoiceChanged(blockId: String, choiceIndex: Int, value: String) {
+        if (_state.value.agentAdopting || _state.value.saving) return
         updateBlock(blockId) { block ->
             if (choiceIndex !in block.choices.indices) return@updateBlock block
             block.copy(
@@ -236,6 +296,7 @@ class MistakeRevisionEditViewModel(
      * only after the learner can see the new diff.
      */
     fun reload() {
+        if (_state.value.agentAction != null || _state.value.saving) return
         val draftBlocks = _state.value.blocks
         val draftTitle = _state.value.title
         viewModelScope.launch {
@@ -284,7 +345,7 @@ class MistakeRevisionEditViewModel(
 
     fun save() {
         val current = _state.value
-        if (current.saving || current.loading || current.unavailableReason != null) return
+        if (current.saving || current.agentAction != null || current.loading || current.unavailableReason != null) return
         val document = currentDocument() ?: run {
             _state.update { it.copy(message = "题面内容还不完整，暂时无法保存。") }
             return
@@ -412,6 +473,7 @@ class MistakeRevisionEditViewModel(
     }
 
     private fun loadBaseline() {
+        agentObserver?.cancel()
         viewModelScope.launch {
             _state.update { it.copy(loading = true) }
             val loaded = readReadyState()
@@ -447,6 +509,8 @@ class MistakeRevisionEditViewModel(
                     agentJob = null,
                     agentPreview = null,
                     agentBefore = null,
+                    agentAdoptedOperationId = null,
+                    agentError = null,
                     adoptedFigureUris = emptyMap(),
                     figureBlockUris = document.storedFigureReferences.mapNotNull { ref ->
                         (detail.source as? MistakeSourceSet.Present)?.assets?.singleOrNull { it.sourceAssetId == ref.assetId && it.contentSha256 == ref.contentSha256 }
@@ -474,8 +538,9 @@ class MistakeRevisionEditViewModel(
     }
 
     private suspend fun recoverAgentEdit(document: CapturedQuestionDocument) {
+        val edits = agentEdits ?: return
         val basis = EditBasis(entryId, baselineRevisionId ?: return, CapturedQuestionDocumentFingerprint.of(document))
-        val latest = agentEdits?.latestForBasis(basis) ?: return
+        val latest = edits.latestForBasis(basis) ?: return
         _state.update { it.copy(agentBefore = document) }
         observeAgent(latest.operationId, document)
     }
@@ -521,6 +586,7 @@ class MistakeRevisionEditViewModel(
                     )
                 },
                 dirty = changes.isNotEmpty(),
+                draftPreview = edited,
             )
         }
     }

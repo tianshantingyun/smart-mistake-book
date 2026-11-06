@@ -158,7 +158,7 @@ fun MistakePaperEditRoute(
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = "仅修改这份卷面，不影响错题本；确认后重新生成文件。",
+                    text = "仅修改导出卷面，错题本保持不变。",
                     modifier = Modifier.testTag("native_paper_edit_notice"),
                     color = InkSecondary,
                     style = MaterialTheme.typography.bodySmall,

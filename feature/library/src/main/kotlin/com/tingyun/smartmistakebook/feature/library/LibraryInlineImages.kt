@@ -35,7 +35,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
-import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceAsset
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
 import com.tingyun.smartmistakebook.core.ui.BoundedLocalImage
@@ -67,7 +66,7 @@ internal fun LibraryInlineImages(
     val preview by key(repository, mistake.id, mistake.imageVersionKey) {
         produceState<InlineImagesState>(InlineImagesState.Loading) {
             try {
-                repository.observe(mistake.id).collect { value = it.inlineImages() }
+                repository.observeQuestionImages(mistake.id).collect { value = InlineImagesState.Images(it) }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
@@ -195,39 +194,4 @@ private sealed interface InlineImagesState {
     data object Loading : InlineImagesState
     data object Unavailable : InlineImagesState
     data class Images(val assets: List<MistakeSourceAsset>) : InlineImagesState
-}
-
-private fun MistakeDetailState.inlineImages(): InlineImagesState {
-    val detail = when (this) {
-        MistakeDetailState.Loading -> return InlineImagesState.Loading
-        is MistakeDetailState.Ready -> detail
-        is MistakeDetailState.Legacy -> detail
-        else -> return InlineImagesState.Unavailable
-    }
-    if (detail.archived) return InlineImagesState.Images(emptyList())
-    // Revision evidence retains reading order even when source links are returned in asset-ID order.
-    val sourceOrder = (this as? MistakeDetailState.Ready)?.questionDocument?.blockEvidence
-        ?.map { it.sourceAssetId }?.distinct()?.withIndex()?.associate { it.value to it.index }.orEmpty()
-    // displayAssets() 已排除讲解图，并把"当前干净题面"（最新一张）放在最前。这里只在
-    // 原图组内按题面证据的阅读顺序重排；干净题面组保持 displayAssets 的顺序（index），
-    // 否则再按 createdAt 升序会把多张历史重绘倒回"旧图在前"。
-    val images = detail.source.displayAssets()
-        .filter { it.mimeType.startsWith("image/", ignoreCase = true) }
-        .distinctBy { it.sourceAssetId }
-        .withIndex()
-        .sortedWith(
-            compareBy<IndexedValue<MistakeSourceAsset>> {
-                if (it.value.role == CLEAN_IMAGE_SOURCE_ROLE) 0 else 1
-            }
-                .thenBy {
-                    if (it.value.role == CLEAN_IMAGE_SOURCE_ROLE) {
-                        it.index
-                    } else {
-                        sourceOrder[it.value.sourceAssetId] ?: Int.MAX_VALUE
-                    }
-                }
-                .thenBy { it.value.createdAtEpochMillis },
-        )
-        .map { it.value }
-    return InlineImagesState.Images(images)
 }

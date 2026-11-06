@@ -137,8 +137,8 @@ internal fun CaptureCorrectionForm(
                 )
                 Text(
                     text = when {
-                        manualTranscription -> "把题目完整敲进下面，确认无误后存入错题本。"
-                        manualEntry -> "本地识别可能有误差，确认无误后录入。"
+                        manualTranscription -> "输入完整题目，核对后存入错题本。"
+                        manualEntry -> "请核对识别结果后录入。"
                         else -> "题面已整理好，可以直接继续"
                     },
                     color = InkSecondary,

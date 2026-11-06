@@ -173,11 +173,10 @@ internal fun TutorLobbyRoute(
     // 也不为"只是进来看一眼"建会话行——会话行由第一条消息自己保证。这些规则现在落在
     // [TutorConversationViewModel] 的初始状态里（默认空会话 id + 自己创建会话行）。
 
-    val capabilities = remember(onCapture, onOpenMistakeNotebook) {
+    val capabilities = remember(onCapture) {
         agentCapabilityDirectory(
             onCapture = onCapture,
             onPickMistake = viewModel::onOpenMistakePicker,
-            onOpenMistakeNotebook = onOpenMistakeNotebook,
         )
     }
     val composerBlock = TutorComposerAvailability(
@@ -353,17 +352,6 @@ internal fun TutorLobbyRoute(
                                 .testTag("tutor_lobby_resume"),
                         )
                     }
-                }
-            }
-            if (state.notebookLookupRequested && !state.hasActiveTask) {
-                item(key = "lobby-notebook-lookup") {
-                    OutlineActionChip(
-                        text = "打开错题本",
-                        onClick = onOpenMistakeNotebook,
-                        modifier = Modifier
-                            .padding(top = 10.dp)
-                            .testTag("tutor_lobby_open_notebook"),
-                    )
                 }
             }
             // 确认卡（A4）：模型申请的本地动作落成一张**库里的行**，学生点了才执行。

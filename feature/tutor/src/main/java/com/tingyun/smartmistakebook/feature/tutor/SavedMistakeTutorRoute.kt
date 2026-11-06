@@ -67,6 +67,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 
+data class PaperReviewTutorSeed(val requestId: String, val entryId: String, val prompt: String, val imageUris: List<String>)
+val LocalPaperReviewTutorSeed = androidx.compose.runtime.staticCompositionLocalOf<PaperReviewTutorSeed?> { null }
+
 @Composable
 fun SavedMistakeTutorRoute(
     key: MistakeRevisionKey,

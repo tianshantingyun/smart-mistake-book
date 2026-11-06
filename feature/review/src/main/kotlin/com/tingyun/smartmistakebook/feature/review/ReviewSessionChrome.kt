@@ -18,7 +18,7 @@ import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 /** The three review modes share a reading position without changing their queue calculations. */
 @Composable
 internal fun ReviewSessionProgress(label: String, progress: Float) {
-    WorkspacePanel(contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp)) {
+    WorkspacePanel(contentPadding = PaddingValues(vertical = 12.dp)) {
         Text(label, color = SmartColors.InkSecondary, style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Medium)
         LinearProgressIndicator(

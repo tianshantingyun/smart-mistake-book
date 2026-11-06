@@ -133,7 +133,7 @@ fun KnowledgeReviewSessionScreen(
             KnowledgeSessionHeader(onBack = onBack)
             Spacer(Modifier.height(18.dp))
             Text(
-                text = "这次复习的知识点顺序无法恢复，请返回后重新开始。已记录的学习结果不会丢失。",
+                text = "复习顺序无法恢复，请返回重试。已记录的结果会保留。",
                 style = MaterialTheme.typography.bodyLarge,
                 color = SmartColors.InkSecondary,
             )
@@ -672,7 +672,7 @@ private fun KnowledgeQuizLoadFailure(
                 Text("跳过这个知识点")
             }
             Text(
-                text = "跳过不会记录本次结果，这个知识点保持到期，之后还会再遇到。",
+                text = "跳过不记录结果，此知识点仍待复习。",
                 modifier = Modifier.padding(top = 6.dp),
                 color = SmartColors.InkSecondary,
                 style = MaterialTheme.typography.labelSmall,

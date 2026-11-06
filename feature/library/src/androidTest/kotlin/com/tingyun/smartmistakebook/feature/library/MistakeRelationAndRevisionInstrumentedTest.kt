@@ -1,6 +1,12 @@
 package com.tingyun.smartmistakebook.feature.library
 
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -46,6 +52,13 @@ import com.tingyun.smartmistakebook.core.model.WritingLayer
 import com.tingyun.smartmistakebook.core.ui.SmartMistakeBookTheme
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.CompletableDeferred
+import com.tingyun.smartmistakebook.core.domain.MistakeEditRepository
+import com.tingyun.smartmistakebook.core.domain.MistakeEditJob
+import com.tingyun.smartmistakebook.core.domain.MistakeEditRequest
+import com.tingyun.smartmistakebook.core.model.EditBasis
+import com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -246,7 +259,7 @@ class MistakeRelationAndRevisionInstrumentedTest {
         composeRule.onNodeWithTag("mistake_revision_edit_title")
             .performTextReplacement("更正后的标题")
         composeRule.onNodeWithTag("mistake_revision_edit_diff").assertExists()
-        composeRule.onNodeWithTag("mistake_revision_edit_save").performScrollTo().performClick()
+        composeRule.onNodeWithTag("mistake_revision_edit_save").assertIsDisplayed().performClick()
         composeRule.waitUntil(timeoutMillis = 5_000) { repository.lastCommand != null }
 
         val command = checkNotNull(repository.lastCommand)
@@ -260,7 +273,7 @@ class MistakeRelationAndRevisionInstrumentedTest {
                 ).assertExists()
             }.isSuccess
         }
-        composeRule.onNodeWithTag("mistake_revision_edit_done").performScrollTo().performClick()
+        composeRule.onNodeWithTag("mistake_revision_edit_done").assertIsDisplayed().performClick()
         assertTrue(done)
     }
 
@@ -289,13 +302,88 @@ class MistakeRelationAndRevisionInstrumentedTest {
 
         composeRule.onNodeWithTag("mistake_revision_edit_title")
             .performTextReplacement("我的未保存草稿")
-        composeRule.onNodeWithTag("mistake_revision_edit_save").performScrollTo().performClick()
+        composeRule.onNodeWithTag("mistake_revision_edit_save").assertIsDisplayed().performClick()
         composeRule.waitUntil(timeoutMillis = 5_000) { repository.lastCommand != null }
         composeRule.waitForIdle()
         composeRule.onNodeWithTag("mistake_revision_edit_conflict").assertExists()
         composeRule.onNodeWithTag("mistake_revision_edit_reload").assertExists()
         composeRule.onNodeWithTag("mistake_revision_edit_title")
             .assertTextContains("我的未保存草稿")
+    }
+
+    @Test
+    fun adoptedObserverCannotCloseThePreviewBeforeLocalDraftReplacement() {
+        val baseline = readyState(2, "revision-2")
+        val repository = EditableDetailRepository(baseline, savedResult())
+        val receipt = CompletableDeferred<Unit>()
+        val jobs = MutableStateFlow<MistakeEditJob?>(null)
+        val edits = object : MistakeEditRepository {
+            override suspend fun latestForBasis(basis: EditBasis): MistakeEditJob {
+                val source = baseline.questionDocument
+                return MistakeEditJob("mistake-edit:test", basis, MistakeEditJobStatus.READY,
+                    sourceDraft = source, preparedDraft = source.copy(document = source.document.copy(title = "智能体改后的标题")))
+                    .also { jobs.value = it }
+            }
+            override fun observe(operationId: String) = jobs
+            override suspend fun readySuggestion(operationId: String, currentBasis: EditBasis) = jobs.value?.takeIf { it.basis == currentBasis }
+            override suspend fun markAdopted(operationId: String, currentBasis: EditBasis): Boolean {
+                jobs.value = jobs.value!!.copy(status = MistakeEditJobStatus.ADOPTED)
+                receipt.await()
+                return true
+            }
+            override suspend fun requestEdit(request: MistakeEditRequest, agentConsentGranted: Boolean) = error("Must reuse ready preview")
+            override suspend fun cancel(operationId: String) = Unit
+            override suspend fun retry(operationId: String, agentConsentGranted: Boolean) = Unit
+            override suspend fun resumePendingJobs(agentConsentGranted: Boolean) = Unit
+        }
+        composeRule.setContent { SmartMistakeBookTheme {
+            MistakeRevisionEditRoute("entry-1", repository, {}, {}, agentEdits = edits, modelEgressAllowed = true)
+        } }
+        composeRule.waitUntil(5_000) { composeRule.onAllNodesWithText("采用到草稿").fetchSemanticsNodes().isNotEmpty() }
+        composeRule.onNodeWithText("采用到草稿").performClick()
+        composeRule.waitUntil(5_000) { jobs.value?.status == MistakeEditJobStatus.ADOPTED }
+        composeRule.onNodeWithText("正在采用到草稿…").assertIsDisplayed()
+        assertNull(repository.lastCommand)
+        receipt.complete(Unit)
+        composeRule.waitUntil(5_000) { composeRule.onAllNodesWithText("智能体修改", useUnmergedTree = true).fetchSemanticsNodes().isEmpty() }
+        composeRule.onNode(hasText("智能体改后的标题") and hasAnyAncestor(hasTestTag("mistake_revision_edit_preview"))).assertExists()
+        composeRule.onNodeWithTag("mistake_revision_edit_manual_toggle").performScrollTo().performClick()
+        composeRule.onNodeWithTag("mistake_revision_edit_title").performScrollTo().assertTextContains("智能体改后的标题")
+        assertNull(repository.lastCommand)
+        composeRule.onNodeWithTag("mistake_revision_edit_save").assertIsDisplayed().performClick()
+        composeRule.waitUntil(5_000) { repository.lastCommand != null }
+        assertEquals("智能体改后的标题", repository.lastCommand!!.questionDocument.document.title)
+    }
+
+    @Test
+    fun paragraphOnlyEditorOpensAgentWithTargetsAndPreviewsUnsavedManualDraft() {
+        val repository = EditableDetailRepository(readyState(2, "revision-2"), savedResult())
+        val edits = object : MistakeEditRepository {
+            override suspend fun latestForBasis(basis: EditBasis): MistakeEditJob? = null
+            override fun observe(operationId: String): Flow<MistakeEditJob?> = flowOf(null)
+            override suspend fun readySuggestion(operationId: String, currentBasis: EditBasis): MistakeEditJob? = null
+            override suspend fun markAdopted(operationId: String, currentBasis: EditBasis) = false
+            override suspend fun requestEdit(request: MistakeEditRequest, agentConsentGranted: Boolean): String = error("No model calls expected")
+            override suspend fun cancel(operationId: String) = Unit
+            override suspend fun retry(operationId: String, agentConsentGranted: Boolean) = Unit
+            override suspend fun resumePendingJobs(agentConsentGranted: Boolean) = Unit
+        }
+        composeRule.setContent { SmartMistakeBookTheme {
+            MistakeRevisionEditRoute("entry-1", repository, {}, {}, agentEdits = edits, modelEgressAllowed = true)
+        } }
+        composeRule.onNodeWithText("修改范围 · 已选 1/32 块 · 展开").assertExists()
+        composeRule.onNodeWithContentDescription("关闭对话框").performClick()
+        composeRule.onNodeWithTag("mistake_revision_edit_block_0").assertDoesNotExist()
+        composeRule.onNode(hasText("求函数最值。") and hasAnyAncestor(hasTestTag("mistake_revision_edit_preview"))).assertExists()
+        composeRule.onNodeWithTag("mistake_revision_edit_manual_toggle").performScrollTo().performClick()
+        composeRule.onNodeWithTag("mistake_revision_edit_block_0").performScrollTo().performTextReplacement("证明函数存在最大值。")
+        composeRule.onNodeWithTag("mistake_revision_edit_manual_toggle").performScrollTo().performClick()
+        composeRule.onNodeWithTag("mistake_revision_edit_block_0").assertDoesNotExist()
+        composeRule.onNode(hasText("证明函数存在最大值。") and hasAnyAncestor(hasTestTag("mistake_revision_edit_preview"))).assertExists()
+        assertNull(repository.lastCommand)
+        composeRule.onNodeWithTag("mistake_revision_edit_save").assertIsDisplayed().performClick()
+        composeRule.waitUntil(5_000) { repository.lastCommand != null }
+        assertEquals("证明函数存在最大值。", (repository.lastCommand!!.questionDocument.document.blocks.single() as ContentBlock.Paragraph).markdown)
     }
 
     private fun savedResult(): ReviseMistakeProblemResult.Saved {
@@ -440,7 +528,8 @@ class MistakeRelationAndRevisionInstrumentedTest {
                 id = "question-$revisionId",
                 blocks = listOf(ContentBlock.Paragraph("paragraph-$revisionId", "求函数最值。")),
             ),
-            blockEvidence = emptyList(),
+            blockEvidence = listOf(QuestionBlockEvidence("paragraph-$revisionId", "", null, WritingLayer.UNKNOWN,
+                QuestionBlockProvenance.USER_TRANSCRIPTION, null, QuestionBlockReviewStatus.USER_CONFIRMED, null)),
         ),
     )
 

@@ -4,10 +4,23 @@ import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.VisualRole
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.mapNotNull
 
 /** Read-only projection of the current formal revision behind one error-book entry. */
 interface MistakeDetailRepository {
     fun observe(errorBookEntryId: String): Flow<MistakeDetailState>
+
+    /** Lightweight outer-list preview. Production reads source links without a detail transaction. */
+    fun observeQuestionImages(errorBookEntryId: String): Flow<List<MistakeSourceAsset>> =
+        observe(errorBookEntryId).mapNotNull { state ->
+            val detail = when (state) {
+                MistakeDetailState.Loading -> return@mapNotNull null
+                is MistakeDetailState.Ready -> state.detail
+                is MistakeDetailState.Legacy -> state.detail
+                else -> return@mapNotNull emptyList()
+            }
+            if (detail.archived) emptyList() else detail.source.questionImageAssets()
+        }
 
     /** Observes one immutable problem revision selected independently of the entry's current head. */
     fun observeExact(key: MistakeRevisionKey): Flow<MistakeDetailState>
@@ -234,6 +247,20 @@ sealed interface MistakeSourceSet {
         init {
             require(assets.isNotEmpty()) { "A present source set must contain an asset" }
         }
+    }
+}
+
+/** Saved question pictures shared by library and attachment pickers; explanation images stay in the answer. */
+fun MistakeSourceSet.questionImageAssets(): List<MistakeSourceAsset> = when (this) {
+    MistakeSourceSet.Missing -> emptyList()
+    is MistakeSourceSet.Present -> {
+        val pictures = assets.filter { it.mimeType.startsWith("image/", ignoreCase = true) &&
+            it.role != com.tingyun.smartmistakebook.core.model.VisualRole.TUTOR_EXPLANATION.name }
+            .distinctBy { it.sourceAssetId }
+        val cleanRole = com.tingyun.smartmistakebook.core.model.VisualRole.CLEAN_IMAGE.name
+        pictures.filter { it.role == cleanRole }
+            .sortedWith(compareByDescending<MistakeSourceAsset> { it.createdAtEpochMillis }.thenBy { it.sourceAssetId }) +
+            pictures.filterNot { it.role == cleanRole }
     }
 }
 

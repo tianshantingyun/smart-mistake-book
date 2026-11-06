@@ -180,7 +180,7 @@ internal fun OrganizationCorrectionEditor(
         if (customEditorVisible) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(10.dp),
                 color = JadeSoft.copy(alpha = 0.28f),
                 shadowElevation = 1.dp,
             ) {

@@ -347,7 +347,7 @@ private fun BatchImportInterruptedNotice() {
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("batch_import_interrupted"),
         color = SmartColors.ErrorWarm.copy(alpha = 0.10f),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(10.dp),
         border = androidx.compose.foundation.BorderStroke(
             1.dp,
             SmartColors.ErrorWarm.copy(alpha = 0.45f),
@@ -380,9 +380,9 @@ private fun BatchOrganizationCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("batch_import_organization"),
-        color = SmartColors.Paper,
-        shape = RoundedCornerShape(20.dp),
-        shadowElevation = 1.dp,
+        color = SmartColors.ContentSurface,
+        shape = RoundedCornerShape(10.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Divider),
     ) {
         Column(
             modifier = Modifier.padding(14.dp),
@@ -426,9 +426,9 @@ private fun BatchSplitReadyCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("batch_import_split_ready"),
-        color = SmartColors.Paper,
-        shape = RoundedCornerShape(20.dp),
-        shadowElevation = 1.dp,
+        color = SmartColors.ContentSurface,
+        shape = RoundedCornerShape(10.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.Divider),
     ) {
         Column(
             modifier = Modifier.padding(14.dp),
@@ -471,9 +471,9 @@ private fun BatchImportSummary(
     val completed = batchImportCompletedCount(job)
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("batch_import_summary"),
-        color = SmartColors.JadeSoft.copy(alpha = 0.45f),
-        shape = RoundedCornerShape(20.dp),
-        shadowElevation = 1.dp,
+        color = SmartColors.JadeSoft,
+        shape = RoundedCornerShape(10.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, SmartColors.JadeMuted.copy(alpha = .35f)),
     ) {
         Column(
             modifier = Modifier.padding(14.dp),

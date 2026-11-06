@@ -1,37 +1,29 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Print
+import com.tingyun.smartmistakebook.core.ui.WorkspaceSheet
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNotice
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNoticeTone
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.ContentSurface
-import com.tingyun.smartmistakebook.core.ui.Paper
 import com.tingyun.smartmistakebook.core.ui.JadeDark
 
-import com.tingyun.smartmistakebook.core.ui.claudeDismissOnEscape
-import com.tingyun.smartmistakebook.core.ui.claudeModalEntrance
 
-import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.background
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.semantics.Role
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,8 +35,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfBlockKind
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
@@ -249,7 +239,7 @@ internal fun exportSkipNotice(layout: MistakePdfLayout): String? {
 internal fun exportFormatNotice(format: MistakeExportFormat): String? = when (format) {
     MistakeExportFormat.PDF -> null
     MistakeExportFormat.DOCX ->
-        "Word 文件用文字说明代替图形，不含作答空白区；可用 Word 打开并打印。"
+        "Word 以文字说明代替图形，不含作答区。打印请用 Word 打开。"
 }
 
 /**
@@ -365,281 +355,243 @@ internal fun TutorExportSheet(
     val skipNotice = exportSkipNotice(state.layout)
     val formatNotice = exportFormatNotice(state.format)
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize().imePadding().padding(top = 24.dp).claudeDismissOnEscape(onDismiss = onDismiss),
-            contentAlignment = Alignment.BottomCenter,
-        ) {
-            Surface(
+    WorkspaceSheet(
+        title = "导出练习卷",
+        subtitle = "版式：${exportLayoutSummary(state.layout)}",
+        subtitleModifier = Modifier.testTag("tutor_export_sheet_summary"),
+        icon = Icons.Outlined.Print,
+        onDismiss = { if (!state.editLoading) onDismiss() },
+        modifier = Modifier.testTag("tutor_export_sheet"),
+        actions = {
+            PrimaryActionButton(
+                text = "编辑卷面（已选 ${selectedIds.size} 道）",
+                onClick = { onEditRequest(selectedIds) },
+                enabled = selectedIds.isNotEmpty() && !state.editLoading,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(max = 640.dp)
-                    .claudeModalEntrance()
-                    .testTag("tutor_export_sheet"),
-                color = Paper,
-                shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
-                shadowElevation = 4.dp,
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 20.dp, vertical = 20.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    Text(
-                        text = "导出练习卷",
-                        color = Ink,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Text(
-                        text = "版式：${exportLayoutSummary(state.layout)}",
-                        modifier = Modifier.testTag("tutor_export_sheet_summary"),
-                        color = InkSecondary,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-
-                    // ---- ① 版式参数表单（预填模型提议值） ----
-                    SheetSectionLabel("模板")
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf(
-                            MistakePdfLayout.TEMPLATE_PRACTICE_SHEET to "练习卷",
-                            MistakePdfLayout.TEMPLATE_COMPACT to "紧凑版",
-                            MistakePdfLayout.TEMPLATE_WITH_ANSWERS to "答案卷",
-                        ).forEach { (templateId, label) ->
-                            OutlineActionChip(
-                                text = label,
-                                onClick = {
-                                    onLayoutChange(state.layout.copy(templateId = templateId))
-                                },
-                                selected = state.layout.templateId == templateId,
-                                modifier = Modifier.testTag("tutor_export_sheet_template_$templateId"),
-                            )
-                        }
-                    }
-
-                    // 交付格式（6B-1）：与模板同区；选择随任务进 worker，成果入口按扩展名分流。
-                    SheetSectionLabel("文件格式")
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        MistakeExportFormat.entries.forEach { format ->
-                            OutlineActionChip(
-                                text = format.studentLabel,
-                                onClick = { onFormatChange(format) },
-                                selected = state.format == format,
-                                modifier = Modifier.testTag(
-                                    "tutor_export_sheet_format_${format.token}",
-                                ),
-                            )
-                        }
-                    }
-                    formatNotice?.let { notice ->
-                        Text(
-                            text = notice,
-                            modifier = Modifier.testTag("tutor_export_sheet_docx_notice"),
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-
-                    SheetSectionLabel("栏数与字号")
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf(1 to "单栏", 2 to "双栏").forEach { (count, label) ->
-                            OutlineActionChip(
-                                text = label,
-                                onClick = { onLayoutChange(state.layout.copy(columnCount = count)) },
-                                selected = state.layout.columnCount == count,
-                                modifier = Modifier.testTag("tutor_export_sheet_columns_$count"),
-                            )
-                        }
-                        listOf(1 to "字号小", 2 to "字号标准", 3 to "字号大").forEach { (scale, label) ->
-                            OutlineActionChip(
-                                text = label,
-                                onClick = { onLayoutChange(state.layout.copy(fontScale = scale)) },
-                                selected = state.layout.fontScale == scale,
-                                modifier = Modifier.testTag("tutor_export_sheet_font_$scale"),
-                            )
-                        }
-                    }
-
-                    SheetSectionLabel("页边距与图形缩放")
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        StepperChip(
-                            label = "页边距 ${state.layout.marginPt}pt",
-                            canDecrease = state.layout.marginPt > MistakePdfLayout.MIN_MARGIN_PT,
-                            canIncrease = state.layout.marginPt < MistakePdfLayout.MAX_MARGIN_PT,
-                            onDecrease = {
-                                onLayoutChange(
-                                    state.layout.copy(
-                                        marginPt = (state.layout.marginPt - 12)
-                                            .coerceAtLeast(MistakePdfLayout.MIN_MARGIN_PT),
-                                    ),
-                                )
-                            },
-                            onIncrease = {
-                                onLayoutChange(
-                                    state.layout.copy(
-                                        marginPt = (state.layout.marginPt + 12)
-                                            .coerceAtMost(MistakePdfLayout.MAX_MARGIN_PT),
-                                    ),
-                                )
-                            },
-                            testTagPrefix = "tutor_export_sheet_margin",
-                        )
-                        StepperChip(
-                            label = "图形 ${(state.layout.imageScale * 100).toInt()}%",
-                            canDecrease = state.layout.imageScale > MistakePdfLayout.MIN_IMAGE_SCALE,
-                            canIncrease = state.layout.imageScale < MistakePdfLayout.MAX_IMAGE_SCALE,
-                            onDecrease = {
-                                onLayoutChange(
-                                    state.layout.copy(
-                                        imageScale = (state.layout.imageScale - 0.1f)
-                                            .coerceAtLeast(MistakePdfLayout.MIN_IMAGE_SCALE),
-                                    ),
-                                )
-                            },
-                            onIncrease = {
-                                onLayoutChange(
-                                    state.layout.copy(
-                                        imageScale = (state.layout.imageScale + 0.1f)
-                                            .coerceAtMost(MistakePdfLayout.MAX_IMAGE_SCALE),
-                                    ),
-                                )
-                            },
-                            testTagPrefix = "tutor_export_sheet_image_scale",
-                        )
-                    }
-
-                    SheetSectionLabel("附加内容")
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlineActionChip(
-                            text = if (state.layout.includeAnswer) "含答案区" else "不含答案区",
-                            onClick = {
-                                onLayoutChange(
-                                    state.layout.copy(includeAnswer = !state.layout.includeAnswer),
-                                )
-                            },
-                            selected = state.layout.includeAnswer,
-                            modifier = Modifier.testTag("tutor_export_sheet_include_answer"),
-                        )
-                        OutlineActionChip(
-                            text = if (state.layout.includeSolution) "含解析区" else "不含解析区",
-                            onClick = {
-                                onLayoutChange(
-                                    state.layout.copy(includeSolution = !state.layout.includeSolution),
-                                )
-                            },
-                            selected = state.layout.includeSolution,
-                            modifier = Modifier.testTag("tutor_export_sheet_include_solution"),
-                        )
-                        OutlineActionChip(
-                            text = if (state.layout.includeNote) "含备注区" else "不含备注区",
-                            onClick = {
-                                onLayoutChange(
-                                    state.layout.copy(includeNote = !state.layout.includeNote),
-                                )
-                            },
-                            selected = state.layout.includeNote,
-                            modifier = Modifier.testTag("tutor_export_sheet_include_note"),
-                        )
-                    }
-                    skipNotice?.let { notice ->
-                        Text(
-                            text = notice,
-                            modifier = Modifier.testTag("tutor_export_sheet_skip_notice"),
-                            color = ErrorText,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-
-                    // ---- ② 候选题目（本轮本地留痕） ----
-                    SheetSectionLabel("选择要导出的题")
-                    if (resolution.candidates.isEmpty()) {
-                        Text(
-                            text = "本次未找到错题，可从错题本重新选择。",
-                            modifier = Modifier.testTag("tutor_export_sheet_candidates_empty"),
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    } else {
-                        resolution.candidates.forEach { candidate ->
-                            CandidateRow(
-                                candidate = candidate,
-                                checked = candidate.entryId in selectedIds,
-                                enabled = !state.editLoading,
-                                onCheckedChange = { checked ->
-                                    onToggleCandidate(candidate.entryId, checked)
-                                },
-                            )
-                        }
-                    }
-                    if (resolution.missingCount > 0) {
-                        Text(
-                            text = "另有 ${resolution.missingCount} 道已不在错题本里，不会导出。",
-                            modifier = Modifier.testTag("tutor_export_sheet_missing_note"),
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                    OutlineActionChip(
-                        text = "从错题本再选",
-                        enabled = !state.editLoading,
-                        onClick = { pickerOpen = true },
-                        modifier = Modifier.testTag("tutor_export_sheet_pick_more"),
-                    )
-
-                    // ---- ③ 确认：先编辑卷面（6B-2），或按原样直接导出 ----
-                    Spacer(Modifier.height(2.dp))
-                    if (state.editLoading) {
-                        Text(
-                            text = "正在准备可编辑的卷面…",
-                            modifier = Modifier.testTag("tutor_export_sheet_edit_loading"),
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                    state.editMessage?.let { message ->
-                        Text(
-                            text = message,
-                            modifier = Modifier.testTag("tutor_export_sheet_edit_message"),
-                            color = ErrorText,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                    PrimaryActionButton(
-                        text = "编辑卷面（已选 ${selectedIds.size} 道）",
-                        onClick = { onEditRequest(selectedIds) },
-                        enabled = selectedIds.isNotEmpty() && !state.editLoading,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("tutor_export_sheet_edit"),
-                    )
-                    if (onDetailedAnswersChange != null && onPrepareDetailedAnswers != null) TutorDetailedAnswersChoice(state.includeDetailedAnswers, onDetailedAnswersChange)
-                    OutlineActionChip(
-                        text = if (state.includeDetailedAnswers) "不编辑，准备答案并预览" else "不编辑，直接导出",
-                        onClick = { if (state.includeDetailedAnswers && onPrepareDetailedAnswers != null) onPrepareDetailedAnswers(state.format, state.layout, selectedIds) else onConfirm(state.format, state.layout, selectedIds) },
-                        enabled = selectedIds.isNotEmpty(),
-                        modifier = Modifier.testTag("tutor_export_sheet_confirm"),
-                    )
-                    if (selectedIds.isEmpty()) {
-                        Text(
-                            text = "至少勾一道题才能导出。",
-                            modifier = Modifier.testTag("tutor_export_sheet_confirm_hint"),
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                    OutlineActionChip(
-                        text = "先不用",
-                        onClick = onDismiss,
-                        modifier = Modifier.testTag("tutor_export_sheet_dismiss"),
-                    )
-                }
+                    .testTag("tutor_export_sheet_edit"),
+            )
+            OutlineActionChip(
+                text = if (state.includeDetailedAnswers) "不编辑，准备答案并预览" else "不编辑，直接导出",
+                onClick = { if (state.includeDetailedAnswers && onPrepareDetailedAnswers != null) onPrepareDetailedAnswers(state.format, state.layout, selectedIds) else onConfirm(state.format, state.layout, selectedIds) },
+                enabled = selectedIds.isNotEmpty() && !state.editLoading,
+                modifier = Modifier.testTag("tutor_export_sheet_confirm"),
+            )
+            if (selectedIds.isEmpty()) {
+                Text(
+                    text = "至少勾一道题才能导出。",
+                    modifier = Modifier.testTag("tutor_export_sheet_confirm_hint"),
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+            OutlineActionChip(
+                text = "先不用",
+                enabled = !state.editLoading,
+                onClick = onDismiss,
+                modifier = Modifier.testTag("tutor_export_sheet_dismiss"),
+            )
+        },
+    ) {
+        // ---- ① 版式参数表单（预填模型提议值） ----
+        SheetSectionLabel("模板")
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf(
+                MistakePdfLayout.TEMPLATE_PRACTICE_SHEET to "练习卷",
+                MistakePdfLayout.TEMPLATE_COMPACT to "紧凑版",
+                MistakePdfLayout.TEMPLATE_WITH_ANSWERS to "答案卷",
+            ).forEach { (templateId, label) ->
+                OutlineActionChip(
+                    text = label,
+                    onClick = {
+                        onLayoutChange(state.layout.copy(templateId = templateId))
+                    },
+                    selected = state.layout.templateId == templateId,
+                    modifier = Modifier.testTag("tutor_export_sheet_template_$templateId"),
+                )
             }
         }
+
+        // 交付格式（6B-1）：与模板同区；选择随任务进 worker，成果入口按扩展名分流。
+        SheetSectionLabel("文件格式")
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            MistakeExportFormat.entries.forEach { format ->
+                OutlineActionChip(
+                    text = format.studentLabel,
+                    onClick = { onFormatChange(format) },
+                    selected = state.format == format,
+                    modifier = Modifier.testTag(
+                        "tutor_export_sheet_format_${format.token}",
+                    ),
+                )
+            }
+        }
+        formatNotice?.let { notice ->
+            WorkspaceNotice(
+                message = notice,
+                modifier = Modifier.testTag("tutor_export_sheet_docx_notice"),
+                tone = WorkspaceNoticeTone.INFO,
+            )
+        }
+
+        SheetSectionLabel("栏数与字号")
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            listOf(1 to "单栏", 2 to "双栏").forEach { (count, label) ->
+                OutlineActionChip(
+                    text = label,
+                    onClick = { onLayoutChange(state.layout.copy(columnCount = count)) },
+                    selected = state.layout.columnCount == count,
+                    modifier = Modifier.testTag("tutor_export_sheet_columns_$count"),
+                )
+            }
+            listOf(1 to "字号小", 2 to "字号标准", 3 to "字号大").forEach { (scale, label) ->
+                OutlineActionChip(
+                    text = label,
+                    onClick = { onLayoutChange(state.layout.copy(fontScale = scale)) },
+                    selected = state.layout.fontScale == scale,
+                    modifier = Modifier.testTag("tutor_export_sheet_font_$scale"),
+                )
+            }
+        }
+
+        SheetSectionLabel("页边距与图形缩放")
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            StepperChip(
+                label = "页边距 ${state.layout.marginPt}pt",
+                canDecrease = state.layout.marginPt > MistakePdfLayout.MIN_MARGIN_PT,
+                canIncrease = state.layout.marginPt < MistakePdfLayout.MAX_MARGIN_PT,
+                onDecrease = {
+                    onLayoutChange(
+                        state.layout.copy(
+                            marginPt = (state.layout.marginPt - 12)
+                                .coerceAtLeast(MistakePdfLayout.MIN_MARGIN_PT),
+                        ),
+                    )
+                },
+                onIncrease = {
+                    onLayoutChange(
+                        state.layout.copy(
+                            marginPt = (state.layout.marginPt + 12)
+                                .coerceAtMost(MistakePdfLayout.MAX_MARGIN_PT),
+                        ),
+                    )
+                },
+                testTagPrefix = "tutor_export_sheet_margin",
+            )
+            StepperChip(
+                label = "图形 ${(state.layout.imageScale * 100).toInt()}%",
+                canDecrease = state.layout.imageScale > MistakePdfLayout.MIN_IMAGE_SCALE,
+                canIncrease = state.layout.imageScale < MistakePdfLayout.MAX_IMAGE_SCALE,
+                onDecrease = {
+                    onLayoutChange(
+                        state.layout.copy(
+                            imageScale = (state.layout.imageScale - 0.1f)
+                                .coerceAtLeast(MistakePdfLayout.MIN_IMAGE_SCALE),
+                        ),
+                    )
+                },
+                onIncrease = {
+                    onLayoutChange(
+                        state.layout.copy(
+                            imageScale = (state.layout.imageScale + 0.1f)
+                                .coerceAtMost(MistakePdfLayout.MAX_IMAGE_SCALE),
+                        ),
+                    )
+                },
+                testTagPrefix = "tutor_export_sheet_image_scale",
+            )
+        }
+
+        SheetSectionLabel("附加内容")
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlineActionChip(
+                text = if (state.layout.includeAnswer) "含答案区" else "不含答案区",
+                onClick = {
+                    onLayoutChange(
+                        state.layout.copy(includeAnswer = !state.layout.includeAnswer),
+                    )
+                },
+                selected = state.layout.includeAnswer,
+                modifier = Modifier.testTag("tutor_export_sheet_include_answer"),
+            )
+            OutlineActionChip(
+                text = if (state.layout.includeSolution) "含解析区" else "不含解析区",
+                onClick = {
+                    onLayoutChange(
+                        state.layout.copy(includeSolution = !state.layout.includeSolution),
+                    )
+                },
+                selected = state.layout.includeSolution,
+                modifier = Modifier.testTag("tutor_export_sheet_include_solution"),
+            )
+            OutlineActionChip(
+                text = if (state.layout.includeNote) "含备注区" else "不含备注区",
+                onClick = {
+                    onLayoutChange(
+                        state.layout.copy(includeNote = !state.layout.includeNote),
+                    )
+                },
+                selected = state.layout.includeNote,
+                modifier = Modifier.testTag("tutor_export_sheet_include_note"),
+            )
+        }
+        skipNotice?.let { notice ->
+            WorkspaceNotice(
+                message = notice,
+                modifier = Modifier.testTag("tutor_export_sheet_skip_notice"),
+                tone = WorkspaceNoticeTone.WARNING,
+            )
+        }
+
+        // ---- ② 候选题目（本轮本地留痕） ----
+        SheetSectionLabel("选择要导出的题")
+        if (resolution.candidates.isEmpty()) {
+            WorkspaceNotice(
+                message = "本次未找到错题，可从错题本重新选择。",
+                modifier = Modifier.testTag("tutor_export_sheet_candidates_empty"),
+                tone = WorkspaceNoticeTone.INFO,
+            )
+        } else {
+            resolution.candidates.forEach { candidate ->
+                CandidateRow(
+                    candidate = candidate,
+                    checked = candidate.entryId in selectedIds,
+                    enabled = !state.editLoading,
+                    onCheckedChange = { checked ->
+                        onToggleCandidate(candidate.entryId, checked)
+                    },
+                )
+            }
+        }
+        if (resolution.missingCount > 0) {
+            WorkspaceNotice(
+                message = "另有 ${resolution.missingCount} 道已不在错题本里，不会导出。",
+                modifier = Modifier.testTag("tutor_export_sheet_missing_note"),
+                tone = WorkspaceNoticeTone.WARNING,
+            )
+        }
+        OutlineActionChip(
+            text = "从错题本再选",
+            enabled = !state.editLoading,
+            onClick = { pickerOpen = true },
+            modifier = Modifier.testTag("tutor_export_sheet_pick_more"),
+        )
+
+        if (state.editLoading) {
+            WorkspaceNotice(
+                message = "正在准备可编辑的卷面…",
+                modifier = Modifier.testTag("tutor_export_sheet_edit_loading"),
+                tone = WorkspaceNoticeTone.INFO,
+            )
+        }
+        state.editMessage?.let { message ->
+            WorkspaceNotice(
+                message = message,
+                modifier = Modifier.testTag("tutor_export_sheet_edit_message"),
+                tone = WorkspaceNoticeTone.ERROR,
+            )
+        }
+        if (onDetailedAnswersChange != null && onPrepareDetailedAnswers != null) TutorDetailedAnswersChoice(state.includeDetailedAnswers, onDetailedAnswersChange)
     }
 
     if (pickerOpen) {
@@ -657,7 +609,7 @@ internal fun TutorExportSheet(
 
 @Composable
 internal fun TutorDetailedAnswersChoice(checked: Boolean, onChange: (Boolean) -> Unit) {
-    Row(Modifier.fillMaxWidth().toggleable(checked, role = Role.Checkbox, onValueChange = onChange), verticalAlignment = Alignment.CenterVertically) {
+    Row(Modifier.fillMaxWidth().toggleable(checked, role = Role.Checkbox, onValueChange = onChange), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Checkbox(checked, null)
         Column(Modifier.weight(1f)) {
             Text("另存一份详细答案", color = Ink, style = MaterialTheme.typography.bodyMedium)

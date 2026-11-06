@@ -66,6 +66,9 @@ class NativeUiAdoptionInstrumentedTest {
     private fun capture(name: String) {
         if (InstrumentationRegistry.getArguments().getString("uiEvidence") != "true") return
         compose.waitForIdle()
+        // Semantics can settle before the window transition reaches the screenshot surface.
+        android.os.SystemClock.sleep(300)
+        compose.waitForIdle()
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val directory = checkNotNull(instrumentation.targetContext.getExternalFilesDir("ui-adoption"))
         val screenshot = checkNotNull(instrumentation.uiAutomation.takeScreenshot())

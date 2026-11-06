@@ -81,12 +81,12 @@ internal data class TutorComposerAvailability(
 /** 不能发送时的原因（可以发送时返回 null，按正常态渲染）。顺序 = 谁先拦住学生就先说谁。 */
 internal fun TutorComposerAvailability.block(): TutorComposerBlock? = when {
     questionNotReady -> TutorComposerBlock(
-        reason = "这道题还没有打开，读出来之后就能接着问。",
+        reason = "正在读取题目，请稍候。",
         inputDisabled = true,
     )
 
     conversationEnded -> TutorComposerBlock(
-        reason = "这次讲题已经结束，未存入错题本。",
+        reason = "讲题已结束，未存入错题本。",
         inputDisabled = true,
     )
 
@@ -106,7 +106,7 @@ internal fun TutorComposerAvailability.block(): TutorComposerBlock? = when {
     )
 
     !planReady -> TutorComposerBlock(
-        reason = "正在准备这道题的讲解，马上就好。",
+        reason = "正在准备讲解…",
     )
 
     // 模型没问题、讲解也在，但上一轮停在半路：接上它，新的这一条才发得出去。

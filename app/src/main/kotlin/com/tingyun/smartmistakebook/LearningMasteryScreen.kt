@@ -77,11 +77,11 @@ internal fun LearningMasteryScreen(
             // D-Q3：知识内容还在后台就位时，掌握总览的三个计数恒为 0。改前这里显示
             // "还没有学习记录"——把"还没准备好"说成了"你没有记录"。
             title = "掌握分析还在准备中",
-            supportingText = "整理到知识点的题会自动纳入分析，准备好后这里会显示你的掌握情况。",
+            supportingText = "题目关联知识点后，将显示掌握情况。",
         )
         summaries.isEmpty() -> PageState.Empty(
             title = "还没有学习记录",
-            supportingText = "你做过并保存的题会自动整理到相应科目和知识点，不需要手动填写。",
+            supportingText = "完成作答并保存题目后，自动整理学习记录。",
             actionLabel = "去错题本看看",
             onAction = onOpenLibrary,
         )
@@ -166,8 +166,7 @@ private fun LearningMasterySummary(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 12.dp)
-            .background(SmartColors.ContentSurface, RoundedCornerShape(20.dp))
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .padding(vertical = 14.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
@@ -254,8 +253,7 @@ private fun RecentLearningActivity(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 16.dp)
-            .background(SmartColors.ContentSurface, RoundedCornerShape(20.dp))
-            .padding(16.dp)
+            .padding(vertical = 16.dp)
             .testTag("learning_mastery_recent"),
     ) {
         SectionHeader("最近活动")

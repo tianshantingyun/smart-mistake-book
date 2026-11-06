@@ -13,6 +13,24 @@ import org.junit.Test
  * 那几道题"和"身份映射一字不差"这两件事必须钉住。
  */
 class TutorMistakePickerTest {
+    @Test fun pickerQueryCombinesEveryFilterAndAnExactTimeWindow() {
+        val query = pickerLibraryQuery("导数", "MATH", "chapter-1", "learning", true, 7,
+            com.tingyun.smartmistakebook.core.domain.LibrarySort.RECENTLY_CREATED, 900_000_000L)
+        assertEquals("导数", query.searchText)
+        assertEquals("MATH", query.subjectId)
+        assertEquals("chapter-1", query.sectionId)
+        assertEquals("learning", query.masteryId)
+        assertTrue(query.favoriteOnly)
+        assertEquals(295_200_000L, query.createdFromEpochMillis)
+        assertEquals(900_000_000L, query.createdToEpochMillis)
+    }
+
+    @Test fun clearingPickerFiltersRemovesTheTimeWindowToo() {
+        val query = pickerLibraryQuery("", null, null, null, false, null,
+            com.tingyun.smartmistakebook.core.domain.LibrarySort.RECENTLY_UPDATED, 900_000_000L)
+        assertEquals(com.tingyun.smartmistakebook.core.domain.LibraryQuery(), query)
+    }
+
 
     private fun entry(
         problemId: String,

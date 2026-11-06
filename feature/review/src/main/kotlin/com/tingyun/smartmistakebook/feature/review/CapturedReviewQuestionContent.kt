@@ -40,6 +40,9 @@ import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.StructuredContentRenderer
 import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
 import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.WorkspaceSheet
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Image
 
 @Composable
 internal fun CapturedReviewQuestionContent(entry: StudyCatalogEntry, state: MistakeDetailState?) {
@@ -70,13 +73,11 @@ internal fun CapturedReviewQuestionContent(entry: StudyCatalogEntry, state: Mist
         Text("这道题的原图暂不可用。", color = SmartColors.InkSecondary)
     }
     if (showOriginal) {
-        Dialog(onDismissRequest = closeOriginals, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-            Surface(modifier = Modifier.fillMaxSize().claudeDismissOnEscape(onDismiss = closeOriginals), color = SmartColors.Paper) {
-                Column(Modifier.fillMaxSize().padding(12.dp)) {
-                    ClaudePageHeader("原图", actions = {
-                        TextButton(onClick = closeOriginals) { Text("关闭原图") }
-                    })
-                    Column(Modifier.weight(1f).verticalScroll(rememberScrollState()),
+        WorkspaceSheet("复习原图", closeOriginals, icon = Icons.Outlined.Image,
+            subtitle = "共 ${assets.size} 页 · 点击图片可放大查看", actions = {
+                TextButton(onClick = closeOriginals, modifier = Modifier.fillMaxWidth()) { Text("关闭原图") }
+            }) {
+                    Column(
                         verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         assets.forEachIndexed { index, asset ->
                             val uri = (asset.location as? MistakeSourceLocation.Available)?.localUri
@@ -97,8 +98,6 @@ internal fun CapturedReviewQuestionContent(entry: StudyCatalogEntry, state: Mist
                             }
                         }
                     }
-                }
-            }
         }
         viewingOriginalIndex?.let { index ->
             val uri = (assets.getOrNull(index)?.location as? MistakeSourceLocation.Available)?.localUri

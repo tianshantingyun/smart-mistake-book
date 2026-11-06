@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +16,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.automirrored.outlined.ShowChart
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Print
+import androidx.compose.material.icons.outlined.AddPhotoAlternate
+import androidx.compose.material.icons.outlined.Calculate
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.ButtonDefaults
+import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
+import com.tingyun.smartmistakebook.core.ui.studentAccentColor
+import com.tingyun.smartmistakebook.core.ui.studentSubjectAccentColor
+import com.tingyun.smartmistakebook.core.ui.studentSubjectLabel
 import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Icon
@@ -29,11 +40,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.tingyun.smartmistakebook.core.domain.NewIntroductionPolicy
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.domain.StudyReviewOverview
@@ -41,14 +50,9 @@ import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
-import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.SubjectIcon
-import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
-import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
-import com.tingyun.smartmistakebook.core.ui.StudioMetricTile
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -83,6 +87,12 @@ fun ReviewRoute(
      */
     onContinuePendingTasks: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
+    dailyReviewBudgetSeconds: Int = 1200,
+    onExportToday: (() -> Unit)? = null,
+    onPaperHistory: (() -> Unit)? = null,
+    paperBusy: Boolean = false,
+    paperNotice: String? = null,
+    catalog: List<StudyCatalogEntry> = emptyList(),
 ) {
     val surfaceState = resolveReviewSurfaceState(
         scheduledCount = overview.scheduledCount,
@@ -97,11 +107,9 @@ fun ReviewRoute(
         modifier = modifier.testTag("review_root"),
     ) {
         ReviewGreeting()
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(28.dp))
         Column(Modifier.fillMaxWidth()) {
             Column {
-                SectionHeader(title = "今日复习")
-                Spacer(Modifier.height(8.dp))
                 if (surfaceState == ReviewSurfaceState.NORMAL) {
                     ReviewSummary(overview)
                 } else {
@@ -144,12 +152,70 @@ fun ReviewRoute(
                     onClick = onStartReview,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 58.dp)
+                        .heightIn(min = 54.dp)
                         .testTag("review_start_button"),
                     icon = Icons.AutoMirrored.Outlined.MenuBook,
                     enabled = overview.scheduledCount > 0 && !overview.completedToday,
                 )
             }
+        }
+        val preview = remember(overview.scheduledPracticeUnitIds, catalog) {
+            val byUnit = catalog.associateBy { it.practiceUnitId }
+            overview.scheduledPracticeUnitIds.mapNotNull(byUnit::get)
+        }
+        if (!overview.completedToday && preview.isNotEmpty()) {
+            Spacer(Modifier.height(26.dp))
+            Text("今日题目预览", style = MaterialTheme.typography.titleMedium, color = SmartColors.Ink)
+            Spacer(Modifier.height(12.dp))
+            PaperDivider()
+            preview.take(3).forEach { question ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)
+                        .testTag("review_preview_${question.entryId}"),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        if (question.subject == "MATH") Icons.Outlined.Calculate else Icons.AutoMirrored.Outlined.MenuBook,
+                        null, tint = question.subject.studentSubjectAccentColor(), modifier = Modifier.size(22.dp),
+                    )
+                    Spacer(Modifier.width(18.dp))
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(question.title, style = MaterialTheme.typography.titleMedium, color = SmartColors.Ink)
+                        Text(question.subject.studentSubjectLabel(), style = MaterialTheme.typography.bodySmall,
+                            color = question.subject.studentSubjectAccentColor())
+                    }
+                }
+                PaperDivider()
+            }
+            if (preview.size > 3) {
+                Text("另有 ${preview.size - 3} 道题", modifier = Modifier.padding(top = 8.dp),
+                    style = MaterialTheme.typography.bodySmall, color = SmartColors.InkSecondary)
+            }
+        }
+        if (onExportToday != null || onPaperHistory != null) {
+            Spacer(Modifier.height(24.dp))
+            PaperDivider()
+            Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                onExportToday?.let { action ->
+                    PaperReviewAction(
+                        text = if (paperBusy) "准备纸卷…" else "导出打印", icon = Icons.Outlined.Print,
+                        onClick = action, enabled = !paperBusy && overview.scheduledCount > 0 && !overview.completedToday,
+                        iconTint = SmartColors.ReadingAccent,
+                        modifier = Modifier.weight(1f).testTag("review_export_today"),
+                    )
+                }
+                if (onExportToday != null && onPaperHistory != null) {
+                    Box(Modifier.width(1.dp).height(22.dp).background(SmartColors.Divider))
+                }
+                onPaperHistory?.let { action ->
+                    PaperReviewAction(text = "回传作答", icon = Icons.Outlined.AddPhotoAlternate,
+                        onClick = action, enabled = !paperBusy, iconTint = SmartColors.AgentAccent,
+                        modifier = Modifier.weight(1f).testTag("review_paper_history"))
+                }
+            }
+            PaperDivider()
+            paperNotice?.let { Text(it, modifier = Modifier.padding(top = 8.dp),
+                color = SmartColors.InkSecondary, style = MaterialTheme.typography.bodySmall) }
         }
         // 失败待处理任务在正常计划态下也要保留入口：它属于录入任务，不是复习队列的一部分。
         if (surfaceState != ReviewSurfaceState.PENDING_FAILED_TASKS &&
@@ -176,6 +242,7 @@ fun ReviewRoute(
             IntakeBacklogPreview(
                 backlogCount = overview.intakeBacklogCount,
                 medianEstimateSeconds = overview.intakeMedianEstimateSeconds,
+                dailyBudgetSeconds = dailyReviewBudgetSeconds,
                 modifier = Modifier.testTag("review_intake_backlog_preview"),
             )
         }
@@ -184,11 +251,7 @@ fun ReviewRoute(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        color = SmartColors.JadeSoft.copy(alpha = 0.55f),
-                        shape = RoundedCornerShape(16.dp),
-                    )
-                    .padding(horizontal = 14.dp, vertical = 12.dp)
+                    .padding(vertical = 12.dp)
                     .semantics(mergeDescendants = true) {}
                     .testTag("review_continuity"),
                 verticalAlignment = Alignment.CenterVertically,
@@ -208,9 +271,11 @@ fun ReviewRoute(
         }
         if (profile.hasLearningEvidence && profile.weaknesses.isNotEmpty()) {
             Spacer(Modifier.height(20.dp))
-            WorkspacePanel {
+            Column {
+                PaperDivider()
+                Spacer(Modifier.height(20.dp))
                 Column {
-                    SectionHeader(title = "薄弱知识点")
+                    Text("薄弱知识点", style = MaterialTheme.typography.titleMedium, color = SmartColors.Ink)
                     Spacer(Modifier.height(10.dp))
                     profile.weaknesses.take(2).forEachIndexed { index, weakness ->
                         WeakPointRow(
@@ -230,6 +295,7 @@ fun ReviewRoute(
                                 Icons.Outlined.Bolt
                             },
                             testTag = "review_weakness_$index",
+                            accent = weakness.subject.studentAccentColor(),
                         )
                     }
                 }
@@ -416,46 +482,53 @@ internal fun reviewContinuityText(overview: StudyReviewOverview): String? = when
         "连续复习 ${overview.completionStreakDays} 天 · 完成今天的安排后自动记录"
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ReviewGreeting() {
-    val now = remember { Date() }
-    val hour = remember { Calendar.getInstance().get(Calendar.HOUR_OF_DAY) }
-    val greeting = when (hour) {
-        in 5..10 -> "早上好，同学"
-        in 11..13 -> "中午好，同学"
-        in 14..17 -> "下午好，同学"
-        else -> "晚上好，同学"
+    val dateLabel = remember {
+        SimpleDateFormat("M月d日 EEE", Locale.SIMPLIFIED_CHINESE).format(Date())
     }
-    val dateLabel = remember(now) {
-        SimpleDateFormat("M月d日 · EEEE", Locale.SIMPLIFIED_CHINESE).format(now)
+    FlowRow(Modifier.fillMaxWidth().padding(top = 36.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text("复习", style = MaterialTheme.typography.headlineLarge, color = SmartColors.Ink)
+        Text(dateLabel, modifier = Modifier.align(Alignment.CenterVertically),
+            style = MaterialTheme.typography.bodyMedium, color = SmartColors.InkSecondary)
     }
-    WorkspacePageHeader(title = "复习", subtitle = "$greeting · $dateLabel")
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ReviewSummary(overview: StudyReviewOverview) {
-    BoxWithConstraints(Modifier.fillMaxWidth()) {
-        if (maxWidth < 260.dp || LocalDensity.current.fontScale > 1.3f) {
-            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                SummaryValue(overview.scheduledCount.toString(),
-                    if (overview.completedToday) "道今日已完成" else "道计划复习", Modifier.fillMaxWidth())
-                PaperDivider()
-                StudioMetricTile(((overview.estimatedSeconds + 59) / 60).toString(), "预计用时（分钟）",
-                    modifier = Modifier.fillMaxWidth(), containerColor = SmartColors.LearningSurface, accentColor = SmartColors.LearningAccent)
-            }
-        } else Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            SummaryValue(overview.scheduledCount.toString(),
-                if (overview.completedToday) "道今日已完成" else "道计划复习", Modifier.weight(1f))
-            StudioMetricTile(((overview.estimatedSeconds + 59) / 60).toString(), "预计用时（分钟）",
-                modifier = Modifier.weight(1f), containerColor = SmartColors.LearningSurface, accentColor = SmartColors.LearningAccent)
+    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(if (overview.completedToday) "今日已完成" else "今日待复习",
+                style = MaterialTheme.typography.titleMedium, color = SmartColors.Ink)
+            Spacer(Modifier.width(8.dp))
+            Text("${overview.scheduledCount}题", color = SmartColors.Jade,
+                style = MaterialTheme.typography.headlineMedium)
+        }
+        Row(Modifier.align(Alignment.CenterVertically), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.Schedule, null, tint = SmartColors.InkSecondary, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(6.dp))
+            Text("预计 ${(overview.estimatedSeconds + 59) / 60} 分钟",
+                style = MaterialTheme.typography.bodyMedium, color = SmartColors.InkSecondary)
         }
     }
 }
 
 @Composable
-private fun SummaryValue(value: String, label: String, modifier: Modifier = Modifier) {
-    StudioMetricTile(value, label, modifier = modifier)
+private fun PaperReviewAction(text: String, icon: ImageVector, onClick: () -> Unit,
+    enabled: Boolean, modifier: Modifier = Modifier,
+    iconTint: androidx.compose.ui.graphics.Color = SmartColors.InkSecondary) {
+    TextButton(onClick = onClick, enabled = enabled, modifier = modifier.heightIn(min = 48.dp),
+        shape = RoundedCornerShape(10.dp),
+        colors = ButtonDefaults.textButtonColors(contentColor = SmartColors.Ink)) {
+        Icon(icon, null, tint = if (enabled) iconTint else SmartColors.InkMuted, modifier = Modifier.size(22.dp))
+        Spacer(Modifier.width(10.dp))
+        Text(text, style = MaterialTheme.typography.labelLarge)
+    }
 }
 
 @Composable
@@ -464,6 +537,7 @@ private fun WeakPointRow(
     detail: String,
     icon: ImageVector,
     testTag: String,
+    accent: androidx.compose.ui.graphics.Color,
 ) {
     Row(
         modifier = Modifier
@@ -472,18 +546,15 @@ private fun WeakPointRow(
             .testTag(testTag),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SubjectIcon(
-            icon = icon,
-            contentDescription = "$title 知识点",
-            modifier = Modifier.size(44.dp),
-        )
+        Icon(icon, contentDescription = null, tint = accent,
+            modifier = Modifier.size(24.dp))
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = SmartColors.Ink,
-                fontWeight = FontWeight.Medium,
+                color = accent,
+                fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.height(3.dp))
             Text(
@@ -499,41 +570,36 @@ private fun WeakPointRow(
 /**
  * Intake-backlog coverage preview (spec batch-intake §6 P3): renders the
  * backlog as a schedule — "每天约 X 题新学，约 M 天覆盖" — computed with the
- * same NewIntroductionPolicy.preview the scheduler uses, so the promise
- * matches what the daily introduction actually does. A median reference
- * budget of 15 minutes of new material per day keeps the estimate stable
- * without threading the full time-budget preference into this surface.
+ * same NewIntroductionPolicy.preview the scheduler uses and the student's
+ * daily review budget, so the preview agrees with the schedule.
  */
 @Composable
 private fun IntakeBacklogPreview(
     backlogCount: Int,
     medianEstimateSeconds: Int,
+    dailyBudgetSeconds: Int = 1200,
     modifier: Modifier = Modifier,
 ) {
     val estimateSeconds = if (medianEstimateSeconds > 0) medianEstimateSeconds else 60
-    val preview = remember(backlogCount, estimateSeconds) {
+    val preview = remember(backlogCount, estimateSeconds, dailyBudgetSeconds) {
         NewIntroductionPolicy.preview(
             backlogCount = backlogCount,
             typicalItemSeconds = estimateSeconds,
-            timeBudgetSeconds = DEFAULT_INTAKE_DAILY_BUDGET_SECONDS,
+            timeBudgetSeconds = dailyBudgetSeconds,
         )
     }
-    WorkspacePanel(modifier = modifier) {
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text("新题安排", color = SmartColors.Ink,
-                style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            Text(
-                text = if (preview.daysToCover <= 0) {
-                    "还有 $backlogCount 道新题待学"
-                } else {
-                    "还有 $backlogCount 道新题待学：每天约 ${preview.perDayItems} 题，约 ${preview.daysToCover} 天安排完"
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = SmartColors.Ink,
-            )
-        }
+    Column(modifier = modifier.padding(top = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text("新题安排", color = SmartColors.Ink,
+            style = MaterialTheme.typography.titleMedium)
+        Text(
+            text = androidx.compose.ui.text.buildAnnotatedString {
+                pushStyle(androidx.compose.ui.text.SpanStyle(color = SmartColors.ReadingAccent, fontWeight = FontWeight.SemiBold))
+                append("$backlogCount 题待学")
+                pop()
+                if (preview.daysToCover > 0) append("  ·  每天约 ${preview.perDayItems} 题")
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            color = SmartColors.InkSecondary,
+        )
     }
 }
-
-/** Reference daily budget (seconds) the intake preview is computed from. */
-private const val DEFAULT_INTAKE_DAILY_BUDGET_SECONDS = 900

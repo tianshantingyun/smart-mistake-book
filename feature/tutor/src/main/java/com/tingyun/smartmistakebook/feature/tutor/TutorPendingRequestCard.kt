@@ -130,7 +130,7 @@ internal fun pendingRequestCopy(
         TutorLocalActionTarget.SAVE_CAPTURE_DRAFT -> TutorPendingRequestCopy(
             "把这次拍照的题加入错题本？", "确认后保存这次拍照的草稿。", "加入错题本")
         TutorLocalActionTarget.INTAKE_ATTACHED_IMAGES -> TutorPendingRequestCopy(
-            "录入这一轮附上的图片？", "确认后把附图加入录入队列，整理完成后可在错题本查看。", "加入录入")
+            "录入这一轮附上的图片？", "确认后录入附图，整理完成后存入错题本。", "加入录入")
         else -> if (context.libraryProblemId != null) TutorPendingRequestCopy(
             "查看错题本里的这道题？", "这道题已在错题本中，确认后打开它的详情。", "打开这道题")
         else TutorPendingRequestCopy("打开错题本？", "确认后前往错题本查看已有题目。", "打开错题本")
@@ -149,14 +149,14 @@ internal fun pendingRequestCopy(
             detail = when {
                 layout != null ->
                     "版式：${exportLayoutSummary(layout)}。" +
-                        "确认后打开导出设置，可以改版式、勾选要导出的题；点「开始导出」才会生成文件。"
+                        "确认后选择题目和版式，点击“开始导出”生成文件。"
                 // 升级前落库的行是空形状：读回不抛（读回宽容），这里如实说是旧版本的请求，
                 // 确认后用默认版式继续——不崩、也不假装模型提过版式。
                 legacy ->
                     "这张导出请求来自旧版本（没有版式提议）。" +
-                        "确认后用默认版式打开导出设置，可以改版式、勾选要导出的题。"
+                        "确认后选择题目和版式。"
                 else ->
-                    "确认后打开导出设置：可以改版式、勾选要导出的题，点「开始导出」才会生成文件。"
+                    "确认后选择题目和版式，点击“开始导出”生成文件。"
             },
             acceptLabel = "去导出",
         )

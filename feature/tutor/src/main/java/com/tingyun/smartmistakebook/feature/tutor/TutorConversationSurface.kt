@@ -1,5 +1,8 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.claudeSurfaceShadow
+import com.tingyun.smartmistakebook.core.ui.ClaudeSurfaceDepth
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -14,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -725,8 +727,11 @@ internal fun TutorChatComposer(
     val sendPressed by sendInteraction.collectIsPressedAsState()
     val motionEnabled = com.tingyun.smartmistakebook.core.ui.LocalClaudeMotionEnabled.current
     val sendScale by animateFloatAsState(if (sendPressed && motionEnabled) .95f else 1f,
-        com.tingyun.smartmistakebook.core.ui.ClaudeMotion.spec(motionEnabled,
-            com.tingyun.smartmistakebook.core.ui.ClaudeMotion.PressMillis), label = "composer_send_press")
+        com.tingyun.smartmistakebook.core.ui.ClaudeMotion.pressSpec(motionEnabled, sendPressed), label = "composer_send_press")
+    val shadowStrength by animateFloatAsState(if (!enabled) .5f else if (focused) 1.35f else .8f,
+        com.tingyun.smartmistakebook.core.ui.ClaudeMotion.spec(motionEnabled, 220), label = "composer-focus-shadow")
+    val outlineColor by androidx.compose.animation.animateColorAsState(if (focused) JadeActive else Outline,
+        com.tingyun.smartmistakebook.core.ui.ClaudeMotion.spec(motionEnabled, 220), label = "composer-focus-outline")
     var editorValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(value, TextRange(value.length)))
     }
@@ -747,9 +752,9 @@ internal fun TutorChatComposer(
     }
     val shape = RoundedCornerShape(ClaudeLayout.ComposerRadius)
     Column(modifier = modifier.fillMaxWidth()
-        .shadow(2.dp, shape, ambientColor = Color.Black.copy(alpha = .035f), spotColor = Color.Black.copy(alpha = .035f))
+        .claudeSurfaceShadow(shape, ClaudeSurfaceDepth.COMPOSER, emphasis = shadowStrength)
         .background(if (enabled) ContentSurface else SubtleSurface, shape)
-        .border(if (focused) 2.dp else 1.dp, if (focused) JadeActive else Outline, shape)
+        .border(if (focused) 2.dp else 1.dp, outlineColor, shape)
         .padding(ClaudeLayout.ComposerPadding)) {
         attachmentPreview?.invoke()
         BasicTextField(

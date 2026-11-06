@@ -136,7 +136,7 @@ import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionVisualEn
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualProgramEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualSnapshotEntity
 
-internal const val STUDY_DATABASE_VERSION = 72
+internal const val STUDY_DATABASE_VERSION = 74
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -148,6 +148,9 @@ internal object SplitImportLedgerStrings {
 @Database(
     views = [LibraryCatalogView::class, KnowledgeQuestionLatticeView::class],
     entities = [
+        com.tingyun.smartmistakebook.core.database.entity.PaperReviewEntity::class,
+        com.tingyun.smartmistakebook.core.database.entity.PaperReviewQuestionEntity::class,
+        com.tingyun.smartmistakebook.core.database.entity.PaperReviewPhotoEntity::class,
         ProblemEntity::class,
         ProblemRevisionEntity::class,
         PracticeUnitEntity::class,
@@ -266,6 +269,8 @@ internal abstract class StudyDatabase : RoomDatabase() {
     abstract fun contentInstallStateDao(): ContentInstallStateDao
 
     abstract fun knowledgeSearchIndexStateDao(): KnowledgeSearchIndexStateDao
+
+    abstract fun paperReviewDao(): com.tingyun.smartmistakebook.core.database.dao.PaperReviewDao
 
     abstract fun mistakeDetailDao(): MistakeDetailDao
 
@@ -415,6 +420,8 @@ object StudyDatabaseFactory {
             VISUAL_SNAPSHOT_MIGRATION_69_70,
             VISUAL_SNAPSHOT_IDENTITY_MIGRATION_70_71,
             LIBRARY_INTERIOR_MIGRATION_71_72,
+            PAPER_REVIEW_MIGRATION_72_73,
+            LIBRARY_INTERIOR_MIGRATION_73_74,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

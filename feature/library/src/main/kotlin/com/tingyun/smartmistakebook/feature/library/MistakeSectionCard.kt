@@ -47,12 +47,12 @@ internal fun MistakeSectionCard(
     expanded: Boolean = true,
     action: (@Composable () -> Unit)? = null,
     contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-    headerColor: Color = SmartColors.SubtleSurface,
+    headerColor: Color = SmartColors.ContentSurface,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(10.dp),
         color = SmartColors.ContentSurface,
         border = BorderStroke(1.dp, SmartColors.Divider),
         shadowElevation = 0.dp,

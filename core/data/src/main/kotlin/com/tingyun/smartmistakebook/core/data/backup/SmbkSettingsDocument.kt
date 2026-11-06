@@ -38,11 +38,13 @@ internal data class SmbkSettingsDocumentV1(
     val reviewReminderEnabled: Boolean = false,
     @SerialName("reviewReminderMinutesAfterMidnight")
     val reviewReminderMinutesAfterMidnight: Int = DEFAULT_REVIEW_REMINDER_MINUTES_AFTER_MIDNIGHT,
+    @SerialName("dailyReviewMinutes")
+    val dailyReviewMinutes: Int = 20,
 ) {
     companion object {
-        const val SETTINGS_SCHEMA_VERSION = 1
+        const val SETTINGS_SCHEMA_VERSION = 2
         const val MIN_READABLE_SCHEMA_VERSION = 1
-        const val MAX_READABLE_SCHEMA_VERSION = 1
+        const val MAX_READABLE_SCHEMA_VERSION = 2
     }
 }
 
@@ -76,7 +78,7 @@ internal object SmbkSettingsCodec {
             return "备份设置版本过旧，暂不支持恢复"
         }
         return try {
-            SchedulingOptions(document.desiredRetention)
+            SchedulingOptions(document.desiredRetention, document.dailyReviewMinutes)
             document.optimizedFsrsParameters?.toDoubleArray()?.let(FsrsScheduleMath::requireValid)
             ReviewReminderPreferences(
                 enabled = document.reviewReminderEnabled,

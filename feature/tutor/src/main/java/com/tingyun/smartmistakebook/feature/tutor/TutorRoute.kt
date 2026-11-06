@@ -213,9 +213,9 @@ internal fun TutorPrompt(text: String, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth().padding(start = ClaudeLayout.AssistantInset),
         verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Box(Modifier.size(24.dp).clip(RoundedCornerShape(8.dp)).background(JadeSoft),
+            Box(Modifier.size(24.dp),
                 contentAlignment = Alignment.Center) {
-                Icon(Icons.Outlined.AutoStories, "智能讲题助手", Modifier.size(15.dp), tint = JadeActive)
+                Icon(Icons.Outlined.AutoStories, "智能讲题助手", Modifier.size(24.dp), tint = com.tingyun.smartmistakebook.core.ui.SmartColors.AgentAccent)
             }
             Text("讲题助手", color = Ink, style = ClaudeLayout.ControlText)
         }

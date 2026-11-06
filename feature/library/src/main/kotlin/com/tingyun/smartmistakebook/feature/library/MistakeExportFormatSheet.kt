@@ -106,14 +106,14 @@ fun MistakeExportFormatSheet(
             Text(mistakeExportFormatDocxNotice, Modifier.testTag("mistake_export_format_docx_notice"),
                 color = InkSecondary, style = MaterialTheme.typography.bodySmall)
         }
-        if (onPrepareDetailedAnswers != null) Row(Modifier.fillMaxWidth().toggleable(detailedAnswers, role = Role.Checkbox, onValueChange = { detailedAnswers = it }), verticalAlignment = Alignment.CenterVertically) {
+        if (onPrepareDetailedAnswers != null) Row(Modifier.fillMaxWidth().toggleable(detailedAnswers, role = Role.Checkbox, onValueChange = { detailedAnswers = it }), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Checkbox(detailedAnswers, null)
-            Column {
+            Column(Modifier.weight(1f)) {
                 Text("另存一份详细答案", style = MaterialTheme.typography.bodyMedium, color = Ink)
-                Text("复用完整解答，补全缺失部分，预览后导出。", style = MaterialTheme.typography.bodySmall, color = InkSecondary)
+                Text("复用已有解答，补全后预览导出。", style = MaterialTheme.typography.bodySmall, color = InkSecondary)
             }
         }
-        Text(if (onPrepareDetailedAnswers == null) "导出内容默认不含答案区；这里只选择文件格式，不改动版式。" else "题目与答案分别生成文件，默认只导出题目。",
+        Text(if (onPrepareDetailedAnswers == null) "导出内容默认不含答案区；这里只选择文件格式，不改动版式。" else "题目、答案分别导出。",
             Modifier.testTag("mistake_export_format_answer_note"),
             color = InkSecondary, style = MaterialTheme.typography.bodySmall)
     }
@@ -139,4 +139,4 @@ internal fun mistakeExportFormatOptionDescription(
  * 不承诺 Word 与 PDF 逐项一致。
  */
 internal const val mistakeExportFormatDocxNotice: String =
-    "Word 版式：图形以文字说明呈现，暂不含作答空白区；打印请用 Word 打开后进行。"
+    "Word 以文字说明代替图形，不含作答区。打印请用 Word 打开。"

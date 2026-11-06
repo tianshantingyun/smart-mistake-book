@@ -21,6 +21,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.Print
+import androidx.compose.material.icons.outlined.DashboardCustomize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Chat
@@ -439,7 +442,7 @@ private fun ReadyDetail(
         }
         Spacer(Modifier.height(16.dp))
         MistakeSectionCard("题面", modifier = Modifier.testTag("mistake_detail_question_module"),
-            headerColor = SmartColors.ReadingSurface) {
+            headerColor = SmartColors.LearningSurface) {
             StructuredContentRenderer(
                 document = state.questionDocument.document.let { document ->
                     if (document.title?.trim() == state.detail.identity.title.trim()) document.copy(title = null)
@@ -457,12 +460,13 @@ private fun ReadyDetail(
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 if (!isViewingHistoricalRevision && onEdit != null) {
-                    InlineActionButton("修改这道题", onEdit, Modifier.testTag("mistake_detail_edit"))
+                    InlineActionButton("修改这道题", onEdit, Modifier.testTag("mistake_detail_edit"), icon = Icons.Outlined.EditNote)
                 }
                 InlineActionButton(
                     text = if (isViewingHistoricalRevision) "导出这一版 A4" else "导出 A4",
                     onClick = onExport,
                     modifier = Modifier.testTag("mistake_detail_export_a4"),
+                    icon = Icons.Outlined.Print,
                 )
                 // 6B-2：当前版本可进入卷面编辑（只改导出文档副本）；历史版本只读，不提供入口。
                 if (!isViewingHistoricalRevision && onEditPaper != null) {
@@ -470,6 +474,7 @@ private fun ReadyDetail(
                         text = "编辑卷面",
                         onClick = onEditPaper,
                         modifier = Modifier.testTag("mistake_detail_edit_paper"),
+                        icon = Icons.Outlined.DashboardCustomize,
                     )
                 }
             }
@@ -1148,7 +1153,7 @@ private fun SourceAssetSection(
         title = if (assets.size > 1) "$title · ${assets.size} 张" else title,
         modifier = Modifier.testTag("${tag}_section"),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(0.dp),
-        headerColor = if (isExplanation) SmartColors.LearningSurface else SmartColors.ReadingSurface,
+        headerColor = if (isExplanation) SmartColors.AgentSurface else SmartColors.ReadingSurface,
     ) {
         Column(
             Modifier.fillMaxWidth().testTag("${tag}_content"),

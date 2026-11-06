@@ -54,13 +54,12 @@ internal data class TutorCapabilityExample(
 /**
  * 智能体栏空态的能力目录（A1：新会话空白时展示"它能干什么"，有内容后让位）。
  *
- * 只列**真的点了有反应**的能力：录入并讲解、从错题本挑一道、打开错题本。选择导出（第二项能力）
+ * 只列**真的点了有反应**的能力：录入并讲解、从错题本挑一道。选择导出（第二项能力）
  * 要等导出链路落地（阶段 4B），这里不出现——一个点了没反应的入口比没有入口更糟。
  */
 internal fun agentCapabilityDirectory(
     onCapture: () -> Unit,
     onPickMistake: () -> Unit,
-    onOpenMistakeNotebook: () -> Unit,
 ): List<TutorCapability> = listOf(
     TutorCapability(
         id = "explain",
@@ -99,20 +98,7 @@ internal fun agentCapabilityDirectory(
         actionTestTag = "tutor_choose_existing_button",
         onAction = onPickMistake,
     ),
-    TutorCapability(
-        id = "open-notebook",
-        title = "去错题本看看",
-        detail = "查看已保存的题和学习记录。",
-        examples = listOf(
-            TutorCapabilityExample(
-                "我的错题本里现在大概有些什么？",
-                "tutor_example_open_notebook",
-            ),
-        ),
-        actionLabel = "打开错题本",
-        actionTestTag = "tutor_directory_open_notebook",
-        onAction = onOpenMistakeNotebook,
-    ),
+
 )
 
 /**
@@ -137,7 +123,7 @@ internal fun TutorCapabilityDirectory(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(
-            text = "也可以从这里开始。",
+            text = "快捷开始",
             modifier = Modifier.testTag("tutor_empty_state"),
             color = InkSecondary,
             style = MaterialTheme.typography.bodySmall,
@@ -180,7 +166,7 @@ internal fun TutorCapabilityDirectory(
 @Composable
 private fun TutorSuggestionChip(text: String, onClick: () -> Unit, testTag: String, emphasized: Boolean = false) {
     val shape = RoundedCornerShape(14.dp)
-    Box(Modifier.heightIn(min = 48.dp).background(if (emphasized) SmartColors.JadeSoft else SubtleSurface, shape)
+    Box(Modifier.heightIn(min = 48.dp)
         .claudeInteractiveRow(onClick, shape = shape).padding(horizontal = 12.dp, vertical = 10.dp).testTag(testTag),
         contentAlignment = Alignment.CenterStart) {
         Text(text, color = if (emphasized) SmartColors.JadeDark else Ink,

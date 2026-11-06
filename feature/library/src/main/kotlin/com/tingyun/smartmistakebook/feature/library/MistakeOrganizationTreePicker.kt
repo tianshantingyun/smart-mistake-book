@@ -6,6 +6,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -109,19 +110,20 @@ internal fun OrganizationTreePickerDialog(
     }
     val isEmpty = options.chapters.isEmpty() && options.knowledgeNodes.isEmpty()
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("从知识树选择") },
-        text = {
+    com.tingyun.smartmistakebook.core.ui.WorkspaceSheet(
+        title = "从知识树选择", onDismiss = onDismiss, scrollContent = false,
+        icon = androidx.compose.material.icons.Icons.Outlined.Search,
+        actions = { TextButton(onClick = onDismiss, modifier = Modifier.testTag("mistake_tree_done")) { Text("完成") } },
+    ) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 OutlinedTextField(
                     value = query,
                     onValueChange = { value -> query = value.take(MAX_TREE_QUERY_CHARS) },
                     singleLine = true,
-                    label = { Text("搜索板块或知识点") },
+                    placeholder = { Text("搜索板块或知识点") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("mistake_tree_query"),
@@ -144,7 +146,7 @@ internal fun OrganizationTreePickerDialog(
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(max = TREE_PICKER_MAX_HEIGHT)
+                            .weight(1f)
                             .testTag("mistake_tree_list"),
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
@@ -189,14 +191,7 @@ internal fun OrganizationTreePickerDialog(
                     }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = onDismiss,
-                modifier = Modifier.testTag("mistake_tree_done"),
-            ) { Text("完成") }
-        },
-    )
+    }
 }
 
 @Composable
@@ -269,6 +264,8 @@ internal fun KnowledgeCatalogPickerSheet(
     androidx.compose.runtime.LaunchedEffect(available) { vm.setAvailable(available) }
     com.tingyun.smartmistakebook.core.ui.WorkspaceSheet(
         title = "选择知识点",
+        scrollContent = false,
+        icon = androidx.compose.material.icons.Icons.Outlined.Search,
         modifier = Modifier.testTag("knowledge_catalog_sheet"),
         subtitle = "全知识库 · 当前题目：${catalogSubjectLabel(subject)} · 可跨学科关联",
         onDismiss = onDismiss,
@@ -282,7 +279,7 @@ internal fun KnowledgeCatalogPickerSheet(
     ) {
         OutlinedTextField(
             value = state.query, onValueChange = vm::setQuery,
-            label = { Text("搜索知识点、关键词或整句话") },
+            placeholder = { Text("搜索知识点、关键词或整句话") },
             modifier = Modifier.fillMaxWidth().testTag("mistake_tree_query"),
             maxLines = 3,
         )
@@ -311,7 +308,7 @@ internal fun KnowledgeCatalogPickerSheet(
             Text("正在读取知识目录", color = InkSecondary, style = MaterialTheme.typography.bodySmall)
         } else {
             state.error?.let { error ->
-                Text(error, color = MaterialTheme.colorScheme.error, modifier = Modifier.testTag("catalog_error"))
+                com.tingyun.smartmistakebook.core.ui.WorkspaceNotice(error, tone = com.tingyun.smartmistakebook.core.ui.WorkspaceNoticeTone.ERROR, modifier = Modifier.testTag("catalog_error"))
                 TextButton(onClick = { if (state.hits.isEmpty()) vm.retry() else vm.loadNext() }) { Text("重试") }
             }
             if (state.hits.isEmpty() && state.error == null) {
@@ -319,7 +316,7 @@ internal fun KnowledgeCatalogPickerSheet(
                 if (state.query.isNotBlank()) TextButton(onClick = { vm.setQuery("") }) { Text("浏览全部知识点") }
             }
             val groupedHits = remember(state.hits) { state.hits.groupBy { it.subject to it.chapterPath }.values.flatten() }
-            LazyColumn(Modifier.fillMaxWidth().heightIn(max = 380.dp).testTag("mistake_tree_list"), state = listState, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyColumn(Modifier.fillMaxWidth().weight(1f).testTag("mistake_tree_list"), state = listState, verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 groupedHits.forEachIndexed { index, hit ->
                     val group = "${catalogSubjectLabel(hit.subject)} · ${hit.chapterPath.joinToString(" / ").ifEmpty { "未分章节" }}"
                     val previous = groupedHits.getOrNull(index - 1)

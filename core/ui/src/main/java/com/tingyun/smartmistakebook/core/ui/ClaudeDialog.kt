@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,9 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
@@ -55,7 +59,7 @@ fun ClaudeAlertDialog(
     icon: (@Composable () -> Unit)? = null,
     title: (@Composable () -> Unit)? = null,
     text: (@Composable () -> Unit)? = null,
-    shape: Shape = RoundedCornerShape(24.dp),
+    shape: Shape = RoundedCornerShape(18.dp),
     containerColor: Color = ContentSurface,
     iconContentColor: Color = JadeActive,
     titleContentColor: Color = Ink,
@@ -70,14 +74,16 @@ fun ClaudeAlertDialog(
             .claudeDismissOnEscape(enabled = properties.dismissOnBackPress, onDismiss = onDismissRequest),
             contentAlignment = Alignment.Center) {
             Surface(modifier.widthIn(max = 520.dp).fillMaxWidth().heightIn(max = maxHeight)
-                .claudeModalEntrance(),
+                .claudeModalEntrance().claudeSurfaceShadow(shape, ClaudeSurfaceDepth.FLOATING),
                 shape = shape, color = containerColor, tonalElevation = tonalElevation,
-                border = BorderStroke(1.dp, SmartColors.Divider), shadowElevation = 12.dp) {
+                border = BorderStroke(1.dp, SmartColors.Divider), shadowElevation = 0.dp) {
                 Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        if (icon != null) CompositionLocalProvider(LocalContentColor provides iconContentColor, content = icon)
-                        Column(Modifier.weight(1f)) {
+                        if (dangerConfirm) {
+                            Icon(Icons.Outlined.WarningAmber, null, Modifier.size(24.dp), tint = SmartColors.ErrorText)
+                        } else if (icon != null) CompositionLocalProvider(LocalContentColor provides iconContentColor, content = icon)
+                        Column(Modifier.weight(1f).semantics { heading() }) {
                             if (title != null) CompositionLocalProvider(LocalContentColor provides titleContentColor) {
                                 ProvideTextStyle(MaterialTheme.typography.titleLarge, title)
                             }

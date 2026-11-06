@@ -647,6 +647,7 @@ class BackupSnapshotTrimmer(
         val sessionsSelected = SmbkSelectionCategory.SESSIONS in selected
         val issueFlag = if (issueBookSelected) "1" else "0"
         val sessionsFlag = if (sessionsSelected) "1" else "0"
+        val masteryFlag = if (SmbkSelectionCategory.MASTERY in selected) "1" else "0"
 
         // R：存活根引用表在**任何 DELETE 之前**指向的资产。
         database.execSQL(
@@ -657,8 +658,9 @@ class BackupSnapshotTrimmer(
             UNION SELECT source_asset_id FROM problem_draft
                   WHERE CAST(? AS INTEGER) = 1 AND source_asset_id IS NOT NULL
             UNION SELECT source_asset_id FROM tutor_message_source_asset WHERE CAST(? AS INTEGER) = 1
+            UNION SELECT source_asset_id FROM paper_review_photo WHERE CAST(? AS INTEGER) = 1
             """.trimIndent(),
-            arrayOf<Any?>(issueFlag, issueFlag, issueFlag, sessionsFlag),
+            arrayOf<Any?>(issueFlag, issueFlag, issueFlag, sessionsFlag, masteryFlag),
         )
 
         // O_seed：按 source_kind 的类别选；不按 source_id 反查宿主行。
@@ -1122,6 +1124,26 @@ class BackupSnapshotTrimmer(
             terminalStatuses + captureKinds + classifyKinds + tutorKinds + knowledgeKinds
 
         return listOf(
+            SoftReferenceCheck(
+                "paper_review.plan_id",
+                """
+                SELECT paper_id FROM paper_review
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM review_plan AS plan
+                    WHERE plan.review_plan_id = paper_review.plan_id)
+                """.trimIndent(),
+                emptyList(),
+            ),
+            SoftReferenceCheck(
+                "paper_review_question.problem_id",
+                """
+                SELECT paper_id || char(31) || ordinal FROM paper_review_question
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM problem
+                    WHERE problem.problem_id = paper_review_question.problem_id)
+                """.trimIndent(),
+                emptyList(),
+            ),
             SoftReferenceCheck("model_task.subject_id", modelTaskSql, modelTaskArgs),
             SoftReferenceCheck(
                 id = "model_task_operation.subject_id",
@@ -1312,6 +1334,7 @@ class BackupSnapshotTrimmer(
             UNION SELECT source_asset_id FROM problem_draft
                   WHERE source_asset_id IS NOT NULL
             UNION SELECT source_asset_id FROM tutor_message_source_asset
+            UNION SELECT source_asset_id FROM paper_review_photo
             UNION SELECT output_asset_id FROM figure_generation_attempt
                   WHERE output_asset_id IS NOT NULL
             UNION SELECT preview_asset_id FROM tutor_visual_snapshot

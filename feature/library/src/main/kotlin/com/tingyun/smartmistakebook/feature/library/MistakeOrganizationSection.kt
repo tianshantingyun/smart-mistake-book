@@ -509,7 +509,7 @@ internal fun MistakeOrganizationSection(
         is MistakeOrganizationSurfaceState.ExecutionFailed -> {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(10.dp),
                 color = JadeSoft.copy(alpha = 0.35f),
                 shadowElevation = 1.dp,
             ) {
@@ -723,7 +723,7 @@ private fun OrganizationApplying() {
 private fun IncompleteOrganizationCard(onRetry: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("mistake_organization_incomplete"),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(10.dp),
         color = JadeSoft.copy(alpha = 0.35f),
         shadowElevation = 1.dp,
     ) {
@@ -742,7 +742,7 @@ private fun IncompleteOrganizationCard(onRetry: () -> Unit) {
 private fun OrganizationApplyFailure(message: String, onRetry: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("mistake_organization_apply_failure"),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(10.dp),
         color = JadeSoft.copy(alpha = 0.35f),
         shadowElevation = 1.dp,
     ) {
@@ -771,7 +771,7 @@ private fun ConfirmedOrganizationSummary(
     if (contentClassifications.isEmpty() && contentRelations.isEmpty()) return
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("mistake_organization_confirmed"),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(10.dp),
         color = JadeSoft.copy(alpha = 0.5f),
         shadowElevation = 1.dp,
     ) {
@@ -883,7 +883,7 @@ private fun OrganizationRunning(message: String?) {
 private fun ModelUnavailable(onOpenModelSettings: () -> Unit) {
     Surface(
         color = JadeSoft.copy(alpha = 0.35f),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(10.dp),
         shadowElevation = 1.dp,
     ) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -912,7 +912,7 @@ private fun KnowledgePreparingCard(availability: KnowledgeBaseAvailability) {
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("mistake_organization_knowledge_preparing"),
         color = JadeSoft.copy(alpha = 0.35f),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(10.dp),
         shadowElevation = 1.dp,
     ) {
         Row(
@@ -939,7 +939,7 @@ private fun ModelCapabilityFailure(
     Surface(
         modifier = Modifier.fillMaxWidth().testTag("mistake_organization_capability_failure"),
         color = JadeSoft.copy(alpha = 0.35f),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(10.dp),
         shadowElevation = 1.dp,
     ) {
         Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -978,7 +978,7 @@ private fun OrganizationConsentCard(
         modifier = Modifier.fillMaxWidth().testTag(
             if (isPaused) "mistake_organization_paused" else "mistake_organization_consent",
         ),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(10.dp),
         color = JadeSoft.copy(alpha = 0.35f),
         shadowElevation = 1.dp,
     ) {

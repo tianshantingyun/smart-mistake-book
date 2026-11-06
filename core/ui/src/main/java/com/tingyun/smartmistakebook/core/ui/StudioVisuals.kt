@@ -59,19 +59,18 @@ fun StudioMetricTile(
     label: String,
     unit: String = "",
     modifier: Modifier = Modifier,
-    containerColor: Color = SmartColors.JadeSoft,
+    containerColor: Color = Color.Transparent,
     accentColor: Color = SmartColors.JadeDark,
 ) {
     Surface(modifier.fillMaxWidth().semantics(mergeDescendants = true) {
         contentDescription = "$label，$value$unit"
-    }, shape = RoundedCornerShape(16.dp), color = containerColor,
-        border = BorderStroke(1.dp, accentColor.copy(alpha = .12f))) {
-        Column(Modifier.defaultMinSize(minHeight = 114.dp).padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    }, shape = RoundedCornerShape(10.dp), color = containerColor) {
+        Column(Modifier.defaultMinSize(minHeight = 72.dp).padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(label, color = accentColor, style = MaterialTheme.typography.labelMedium)
             Text(value, color = accentColor, fontWeight = FontWeight.SemiBold,
-                style = MaterialTheme.typography.headlineLarge.copy(fontSize = 30.sp,
-                    lineHeight = 36.sp, fontFeatureSettings = "tnum"))
+                style = MaterialTheme.typography.headlineLarge.copy(fontSize = 24.sp,
+                    lineHeight = 30.sp, fontFeatureSettings = "tnum"))
             if (unit.isNotEmpty()) Text(unit, color = accentColor,
                 style = MaterialTheme.typography.labelMedium)
         }

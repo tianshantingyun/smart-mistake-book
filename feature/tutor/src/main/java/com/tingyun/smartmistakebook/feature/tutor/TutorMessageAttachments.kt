@@ -83,6 +83,7 @@ private fun localImageDisplayName(context: Context, localUri: String): String? =
         else -> null
     }
     name?.filterNot(Char::isISOControl)?.take(120)?.takeIf(String::isNotBlank)
+        ?.takeUnless { it.matches(Regex("lobby-intake-[a-f0-9]{64}\\.(png|jpe?g|webp)", RegexOption.IGNORE_CASE)) }
 }.getOrNull()
 
 /**

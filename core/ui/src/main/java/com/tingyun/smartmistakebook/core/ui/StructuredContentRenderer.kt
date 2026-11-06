@@ -75,6 +75,7 @@ fun StructuredContentRenderer(
     modifier: Modifier = Modifier,
     selectedChoices: Map<String, String> = emptyMap(),
     choicesEnabled: Boolean = true,
+    readOnlyChoices: Boolean = !choicesEnabled,
     onChoiceSelected: (groupId: String, choiceId: String) -> Unit = { _, _ -> },
     storedFigures: List<com.tingyun.smartmistakebook.core.model.StoredFigureReference> = emptyList(),
     figureUri: (com.tingyun.smartmistakebook.core.model.StoredFigureReference) -> String? = { null },
@@ -115,6 +116,7 @@ fun StructuredContentRenderer(
                         block = block,
                         selectedChoiceId = selectedChoices[block.id] ?: block.selectedChoiceId,
                         enabled = choicesEnabled,
+                        readOnly = readOnlyChoices,
                         onChoiceSelected = { choiceId -> onChoiceSelected(block.id, choiceId) },
                     )
 
@@ -159,20 +161,14 @@ private fun FormulaBlock(block: ContentBlock.Formula) {
             .semantics(mergeDescendants = true) {
                 contentDescription = FormulaAccessibility.contentDescription(spokenDescription)
             },
-        color = JadeSoft,
+        color = androidx.compose.ui.graphics.Color.Transparent,
         contentColor = Ink,
         shape = RoundedCornerShape(SmartDimens.SurfaceRadius),
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            modifier = Modifier.padding(vertical = 10.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Text(
-                text = "公式 · 结构化渲染",
-                color = JadeActive,
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.SemiBold,
-            )
             MathFormulaBox(
                 formula = block.latex,
                 color = Ink,
@@ -195,6 +191,7 @@ private fun ChoiceGroupBlock(
     block: ContentBlock.ChoiceGroup,
     selectedChoiceId: String?,
     enabled: Boolean,
+    readOnly: Boolean = false,
     onChoiceSelected: (String) -> Unit,
 ) {
     Column(
@@ -204,9 +201,9 @@ private fun ChoiceGroupBlock(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         SafeMarkdownText(
-            markdown = block.promptMarkdown,
+            markdown = if (readOnly && block.promptMarkdown.trim().matches(Regex("请选择(一个)?(答案|选项)[。！!]?"))) "选项" else block.promptMarkdown,
             style = MaterialTheme.typography.titleMedium,
-            emptyFallback = "请选择一个选项",
+            emptyFallback = if (readOnly) "选项" else "请选择一个选项",
         )
         if (block.choices.isEmpty()) {
             Text(
@@ -219,6 +216,11 @@ private fun ChoiceGroupBlock(
             )
         } else {
             block.choices.forEachIndexed { index, choice ->
+                if (readOnly) Row(Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("${('A'.code + index).toChar()}.", color = InkSecondary, style = MaterialTheme.typography.bodyLarge)
+                    SafeMarkdownText(choice.markdown, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                    if (selectedChoiceId == choice.id) Text("已选", color = JadeActive, style = MaterialTheme.typography.labelLarge)
+                } else
                 ChoiceRow(
                     choice = choice,
                     spokenPosition = "${index + 1}/${block.choices.size}",

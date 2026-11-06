@@ -131,7 +131,7 @@ fun TutorHistoryRoute(
             onDismissRequest = { deleteTarget = null },
             dangerConfirm = true,
             title = { Text("删除这条讲题记录？") },
-            text = { Text("仅删除这条对话，题目及其历史版本、错题本内容都会保留。") },
+            text = { Text("仅删除对话，保留题目及历史版本。") },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -163,9 +163,9 @@ private fun TutorHistoryRow(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("tutor_history_row_${conversation.conversationId}"),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(0.dp),
         bordered = false,
-        elevation = 1.dp,
+        elevation = 0.dp,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

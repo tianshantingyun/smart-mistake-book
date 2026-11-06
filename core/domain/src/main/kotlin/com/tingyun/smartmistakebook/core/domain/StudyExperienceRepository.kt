@@ -734,8 +734,12 @@ data class SaveTutorProblemCommand(
 data class SchedulingOptions(
     /** Target retention r* in the supported 0.7..0.97 band. */
     val desiredRetention: Double = FsrsMemoryUpdateModel.DEFAULT_DESIRED_RETENTION,
+    val dailyReviewMinutes: Int = 20,
 ) {
+    val dailyReviewBudgetSeconds: Int get() = dailyReviewMinutes * 60
+
     init {
+        require(dailyReviewMinutes in 5..120) { "Daily review minutes must be between 5 and 120" }
         require(desiredRetention in 0.7..0.97) {
             "Desired retention must be within the supported 0.7..0.97 range"
         }

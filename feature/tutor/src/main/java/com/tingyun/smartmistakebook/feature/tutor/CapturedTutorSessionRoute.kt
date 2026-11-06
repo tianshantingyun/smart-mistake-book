@@ -211,10 +211,11 @@ fun CapturedTutorSessionRoute(
 
     if (showEndConfirmation) {
         AlertDialog(
+            dangerConfirm = true,
             onDismissRequest = { showEndConfirmation = false },
             title = { Text("结束这次临时讲题？") },
             text = {
-                Text("结束后不会加入错题本；题面和原图仍安全保留在本机。返回只表示稍后继续，不会结束。")
+                Text("结束不存入错题本，题面和原图留在本机。返回可稍后继续。")
             },
             confirmButton = {
                 TextButton(

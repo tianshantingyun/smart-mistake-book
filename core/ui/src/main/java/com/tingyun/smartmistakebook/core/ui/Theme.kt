@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 
 /** Neutral reading surfaces, a teal brand, and distinct semantic accents. */
 object SmartColors {
-    val Paper = Color(0xFFF6F7F9)
+    val Paper = Color(0xFFF7F6F2)
     val Ink = Color(0xFF242A32)
     val InkSecondary = Color(0xFF56616F)
     val InkMuted = Color(0xFF5E6874)
@@ -28,19 +28,23 @@ object SmartColors {
     val HeaderSurface = Color(0xFFEAF2EF)
     val HeaderInk = Color(0xFF174E46)
     val HeaderSecondary = Color(0xFF46675F)
-    val Divider = Color(0xFFE2E6EB)
+    val Divider = Color(0xFFE3E0D9)
     val Outline = Color(0xFF7F8994)
-    val Track = Color(0xFFE6EAEE)
+    val Track = Color(0xFFE8E5DE)
     val ErrorWarm = Color(0xFFC9543D)
     val ErrorText = Color(0xFFAC3D32)
     val ErrorSurface = Color(0xFFFBF0ED)
     val OnJade = Color.White
-    val ContentSurface = Color.White
-    val SubtleSurface = Color(0xFFF0F2F5)
+    val ContentSurface = Color(0xFFFDFCF9)
+    val SubtleSurface = Color(0xFFF0EEE8)
     val ReadingSurface = Color(0xFFF7F2E9)
     val ReadingAccent = Color(0xFF765C3B)
     val LearningSurface = Color(0xFFEDF2FA)
-    val LearningAccent = Color(0xFF435F88)
+    val LearningAccent = Color(0xFF496B92)
+    val AgentAccent = Color(0xFF765D8E)
+    val AgentSurface = Color(0xFFF1EDF6)
+    val NotesAccent = Color(0xFF965E73)
+    val NotesSurface = Color(0xFFF7EDF1)
     val PendingSurface = Color(0xFFFCF3E3)
     val PendingAccent = Color(0xFF805A18)
     val CodeSurface = Color(0xFF20262F)
@@ -74,13 +78,14 @@ val SubtleSurface = SmartColors.SubtleSurface
 object SmartDimens {
     val ContentHorizontalPadding = 16.dp
     val MinimumTouchTarget = 48.dp
-    val CallToActionRadius = 16.dp
-    val SurfaceRadius = 20.dp
-    val ChipRadius = 12.dp
+    val CallToActionRadius = 12.dp
+    val SurfaceRadius = 14.dp
+    val ChipRadius = 10.dp
     val MaximumContentWidth = 600.dp
 }
 
 object SmartIconSizes {
+    val Navigation = 22.dp
     val Small = 16.dp
     val Standard = 20.dp
     val Large = 24.dp
@@ -197,15 +202,15 @@ internal val SmartLightColorScheme = lightColorScheme(
     surfaceVariant = SubtleSurface,
     onSurfaceVariant = InkSecondary,
     surfaceContainerLowest = ContentSurface,
-    surfaceContainerLow = Color(0xFFFAFBFC),
+    surfaceContainerLow = Color(0xFFFAF9F5),
     surfaceContainer = SubtleSurface,
-    surfaceContainerHigh = Color(0xFFEBEEF2),
-    surfaceContainerHighest = Color(0xFFE3E8EE),
+    surfaceContainerHigh = Color(0xFFEDEAE3),
+    surfaceContainerHighest = Color(0xFFE5E1D8),
     surfaceBright = ContentSurface,
-    surfaceDim = Color(0xFFE1E6EC),
+    surfaceDim = Color(0xFFE2DED4),
     surfaceTint = Jade,
     inverseSurface = Color(0xFF26323A),
-    inverseOnSurface = Color(0xFFF5F7FA),
+    inverseOnSurface = Color(0xFFF7F6F2),
     inversePrimary = Color(0xFF91D8CA),
     error = ErrorText,
     onError = OnJade,

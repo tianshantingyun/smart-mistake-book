@@ -22,6 +22,37 @@ import java.util.zip.ZipOutputStream
 
 class SmbkArchiveCodecTest {
     @Test
+    fun `daily review budget survives settings backup and legacy settings keep the default`() {
+        val settings = settingsFixture().copy(dailyReviewMinutes = 45)
+        assertEquals(settings, SmbkSettingsCodec.decode(SmbkSettingsCodec.encode(settings).decodeToString()))
+        assertNull(SmbkSettingsCodec.rejectionReasonFor(settings))
+        val legacy = SmbkSettingsCodec.decode("""{"schemaVersion":1,"desiredRetention":0.9}""")
+        assertEquals(20, legacy.dailyReviewMinutes)
+        assertNull(SmbkSettingsCodec.rejectionReasonFor(legacy))
+        assertTrue(SmbkSettingsCodec.rejectionReasonFor(settings.copy(dailyReviewMinutes = 121)) != null)
+    }
+
+    @Test
+    fun `schema 72 selection backups retain their original v4 digest when read`() {
+        val archive = ByteArrayOutputStream()
+        SmbkArchiveCodec.create(archive = archive, database = tempFile("database.sqlite", "database-content"),
+            assets = emptyList(), referencedAssets = emptyList(), databaseSchemaVersion = 73,
+            problemCount = 0, createdAtEpochMillis = 12_000L,
+            selection = selectionFixture(mask = 15, rowCounts = emptyRowCounts(), trimmedTableCount = 0))
+        val bytes = archive.toByteArray()
+        val json = Json { encodeDefaults = true }
+        val manifest = json.decodeFromString(SmbkManifest.serializer(), manifestText(bytes))
+        val oldCounts = SmbkSelectionPlan.rowCountKeysForRead(4).associateWith { 0L }
+        assertEquals(94, oldCounts.size)
+        val old = requireNotNull(manifest.selection).copy(closureVersion = 4, rowCounts = oldCounts,
+            closureDigest = SmbkSelectionPlan.closureDigest(SmbkSelectionPlan.categoriesOf(15),
+                SmbkSelectionPlan.ASSET_POLICY_INCLUDED, oldCounts, closureVersion = 4))
+        val legacyBytes = rewriteEntry(bytes, "manifest.json", json.encodeToString(SmbkManifest.serializer(),
+            manifest.copy(databaseSchemaVersion = 72, selection = old)))
+        assertTrue(SmbkArchiveCodec.validate(ByteArrayInputStream(legacyBytes)) is BackupValidation.Valid)
+    }
+
+    @Test
     fun `create and validate round trip reports exact counts and checksums`() {
         val database = tempFile("database.sqlite", "database-content")
         val asset = tempFile("asset-a.png", "asset-content")

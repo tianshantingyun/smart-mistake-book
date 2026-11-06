@@ -22,6 +22,15 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Memory
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Storage
+import androidx.compose.material.icons.outlined.NotificationsNone
+import androidx.compose.material.icons.outlined.EventNote
+import androidx.compose.material.icons.outlined.AccountTree
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.ui.text.font.FontWeight
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ButtonDefaults
@@ -46,6 +55,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -86,7 +97,6 @@ import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
-import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 import com.tingyun.smartmistakebook.diagnostics.DiagnosticsBundleExporter
 import com.tingyun.smartmistakebook.diagnostics.DiagnosticsBootstrap
@@ -98,8 +108,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
+internal fun SettingsSectionTitle(title: String) {
+    Text(title, color = Ink, style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.fillMaxWidth().semantics { heading() })
+}
+
+@Composable
 internal fun SecondaryHeader(title: String, onBack: () -> Unit) {
-    com.tingyun.smartmistakebook.core.ui.ClaudePageHeader(title, onBack = onBack)
+    com.tingyun.smartmistakebook.core.ui.ClaudePageHeader(
+        title, onBack = onBack, modifier = Modifier.padding(bottom = 12.dp),
+    )
 }
 
 @Composable
@@ -166,9 +185,9 @@ internal fun CapabilityScreen(
             Spacer(Modifier.height(16.dp))
             WorkspacePanel {
                 Column {
-                    SectionHeader("模型服务")
+                    SettingsSectionTitle("模型服务")
                     Text(
-                        text = "应用直接连接你选择的服务商，不经过本应用云端。费用由你的服务商账户承担。",
+                        text = "直接连接所选服务商，费用由你的服务商账户承担。",
                         modifier = Modifier
                             .padding(top = 8.dp)
                             .testTag("capability_direct_connection_notice"),
@@ -176,7 +195,7 @@ internal fun CapabilityScreen(
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(
-                        text = "API Key 只保存在本机安全存储中，只用于连接服务商，不会作为内容发给模型。",
+                        text = "API Key 安全保存在本机，仅用于连接服务商，不作为内容发送给模型。",
                         modifier = Modifier
                             .padding(top = 4.dp, bottom = 10.dp)
                             .testTag("capability_secret_notice"),
@@ -307,6 +326,12 @@ internal fun CapabilityScreen(
                         enabled = formEnabled && provider.isNotBlank() &&
                             baseUrl.isNotBlank() && modelId.isNotBlank() && apiKey.isNotBlank(),
                     )
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+            WorkspacePanel {
+                Column {
+                    SettingsSectionTitle("连接与能力测试")
                     Text(
                         text = "测试仅发送内置样例，不发送你的题目或学习记录。",
                         modifier = Modifier.padding(top = 12.dp),
@@ -382,7 +407,7 @@ internal fun CapabilityScreen(
         } else {
             Spacer(Modifier.height(16.dp))
             Text(
-                text = "当前版本未启用大模型服务，因此不显示服务商、地址、API Key 和能力测试。",
+                text = "此版本未启用模型服务，无需配置服务商或 API Key。",
                 modifier = Modifier.testTag("capability_strict_offline_notice"),
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodyLarge,
@@ -392,7 +417,7 @@ internal fun CapabilityScreen(
             Spacer(Modifier.height(16.dp))
             WorkspacePanel {
                 Column {
-                    SectionHeader("学习预测效果")
+                    SettingsSectionTitle("学习预测效果")
                     val report = calibrationReport
                     when {
                         calibrationUnavailable -> Text(
@@ -535,7 +560,7 @@ internal fun CapabilityScreen(
 
 internal fun capabilityVerificationSummary(configuration: ModelConfigurationSnapshot): String {
     val verification = configuration.currentCapabilityVerification()
-        ?: return "配置已保存在本机，请先测试模型能力。使用拍照或讲题时，相关内容会直接发送给所选模型。"
+        ?: return "配置已保存，请测试模型能力。拍照或讲题的内容将发送给所选模型。"
     return when {
         verification.authenticationFailed ->
             "上次验证未通过，请检查或更新 API Key 后重试。"
@@ -602,22 +627,19 @@ internal fun DataPrivacyScreen(
         Spacer(Modifier.height(16.dp))
         WorkspacePanel {
             Column {
-                SectionHeader("本机数据清单")
-                Text(
-                    "当前题面、原图、学习记录和复习进度都保存在本机应用空间。未完成的临时照片会按过期规则清理，不会自动进入错题本。",
-                    modifier = Modifier.padding(top = 10.dp),
-                    color = InkSecondary,
-                )
+                SettingsSectionTitle("本机数据清单")
+                CapabilityRow(Icons.Outlined.Storage, "保存在本机", "题面、原图、学习记录与复习进度保存在应用空间。")
+                CapabilityRow(Icons.Outlined.Security, "临时内容单独管理", "未完成的临时照片按过期规则清理，不会自动进入错题本。")
             }
         }
         Spacer(Modifier.height(16.dp))
         WorkspacePanel {
             Column {
-                SectionHeader("智能服务")
+                SettingsSectionTitle("智能服务")
                 Text(
                     text = when (capabilities.networkMode) {
                         NetworkMode.LOCAL_FIRST ->
-                            "拍照、讲题或整理是你主动发起时才会进行；发起即把当前内容交给已配置模型，不再逐次询问。学习记录和整个错题本不会交给模型自行查看或修改。"
+                            "主动发起拍照、讲题或整理即授权发送当前内容，不再逐次确认。模型不能自行查看或修改学习记录及整个错题本。"
 
                         NetworkMode.STRICT_OFFLINE ->
                             "当前版本不使用联网智能服务，本机内容不会发送给模型服务。"
@@ -851,6 +873,7 @@ internal fun StorageScreen(
 
     if (confirmDelete) {
         AlertDialog(
+            dangerConfirm = true,
             onDismissRequest = { confirmDelete = false },
             title = { Text("删除全部数据？") },
             text = {
@@ -929,9 +952,25 @@ internal fun StorageScreen(
         Spacer(Modifier.height(16.dp))
         WorkspacePanel {
             Column {
-                SectionHeader("本机存储")
+                SettingsSectionTitle("本机存储")
                 val current = inventory
-                Text(
+                if (current != null) {
+                    Column(Modifier.fillMaxWidth().padding(top = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf("学习记录" to formatBytes(current.databaseBytes),
+                            "题图" to formatBytes(current.assetBytes),
+                            "可清理文件" to formatBytes(current.cleanableBytes)).forEach { (label, value) ->
+                            Surface(color = SmartColors.SubtleSurface, shape = RoundedCornerShape(12.dp)) {
+                                Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically) {
+                                    Text(label, Modifier.weight(1f), color = InkSecondary, style = MaterialTheme.typography.bodyMedium)
+                                    Text(value, color = Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                                }
+                            }
+                        }
+                    }
+                }
+                if (current == null) Text(
                     text = when {
                         current != null ->
                             "学习记录 ${formatBytes(current.databaseBytes)} · 题图 ${formatBytes(current.assetBytes)} · 可清理临时文件 ${formatBytes(current.cleanableBytes)}"
@@ -955,7 +994,7 @@ internal fun StorageScreen(
         Spacer(Modifier.height(16.dp))
         WorkspacePanel {
             Column {
-                SectionHeader("备份内容")
+                SettingsSectionTitle("备份内容")
                 Text(
                     "仅备份下方所选内容，不含 API Key、发送授权和临时文件。" +
                         "恢复前会校验文件并请你确认内容，再替换本机数据；失败时尝试恢复原数据。",
@@ -1008,7 +1047,7 @@ internal fun StorageScreen(
         Spacer(Modifier.height(16.dp))
         WorkspacePanel {
             Column {
-                SectionHeader("数据维护")
+                SettingsSectionTitle("数据维护")
                 OutlinedButton(
                     onClick = { confirmDelete = true },
                     modifier = Modifier
@@ -1083,7 +1122,7 @@ internal fun StorageScreen(
         Spacer(Modifier.height(16.dp))
         WorkspacePanel {
             Column {
-                SectionHeader("诊断")
+                SettingsSectionTitle("诊断")
                 DiagnosticsBootstrap.lastExitNotice?.let { notice ->
                     Text(
                         text = notice,
@@ -1129,9 +1168,9 @@ internal fun StorageScreen(
         Spacer(Modifier.height(16.dp))
         WorkspacePanel {
             Column {
-                SectionHeader("单题导出")
+                SettingsSectionTitle("单题导出")
                 Text(
-                    "单道错题可在详情页保存或打印 PDF；错题本还能把当前筛选结果整理成一份 A4 练习。两种方式都只使用已经确认的正式题面。",
+                    "详情页可导出单题，错题本可导出筛选结果。均使用已确认的题面。",
                     modifier = Modifier.padding(top = 10.dp),
                     color = InkSecondary,
                 )

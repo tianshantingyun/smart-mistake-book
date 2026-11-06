@@ -2,6 +2,8 @@ package com.tingyun.smartmistakebook.feature.library
 
 import androidx.compose.foundation.background
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +38,7 @@ import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import com.tingyun.smartmistakebook.core.ui.studentLabel
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -161,6 +164,9 @@ private fun LibraryContent(
     modifier: Modifier,
 ) {
     val uiState = viewModel.uiState
+    val motion = LocalClaudeMotionEnabled.current
+    val itemFade = if (motion) tween<Float>(ClaudeMotion.PageMillis, easing = ClaudeMotion.Enter) else null
+    val itemPlacement = if (motion) tween<IntOffset>(220, easing = ClaudeMotion.Expand) else null
     val scope = rememberCoroutineScope()
     val pagingItems = if (usePaging) viewModel.pagingData.collectAsLazyPagingItems() else null
     val visibleMistakeCount = if (usePaging) uiState.totalCount else uiState.visibleMistakes.size
@@ -247,7 +253,7 @@ private fun LibraryContent(
                     )
                     AnimatedVisibility(visible = filtersExpanded) {
                         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                            .background(SmartColors.JadeSoft.copy(alpha = 0.35f)).padding(12.dp)) {
+                            .background(SmartColors.ContentSurface).padding(12.dp)) {
                             FacetTabs(activeFacet = uiState.activeFacet, onSelect = viewModel::selectFacet)
                             FacetOptions(
                                 facet = uiState.activeFacet,
@@ -308,6 +314,7 @@ private fun LibraryContent(
                 if (mistake != null) {
                     LibraryQuestionCard(
                         mistake = mistake,
+                        modifier = Modifier.animateItem(fadeInSpec = itemFade, placementSpec = itemPlacement, fadeOutSpec = itemFade),
                         sourceRepository = mistakeDetailRepository,
                         onClick = { onOpenItem(mistake.id) },
                         onToggleFavorite = { favorite ->
@@ -323,6 +330,7 @@ private fun LibraryContent(
             ) { mistake ->
                 LibraryQuestionCard(
                     mistake = mistake,
+                    modifier = Modifier.animateItem(fadeInSpec = itemFade, placementSpec = itemPlacement, fadeOutSpec = itemFade),
                     sourceRepository = mistakeDetailRepository,
                     onClick = { onOpenItem(mistake.id) },
                     onToggleFavorite = { favorite ->
@@ -411,6 +419,7 @@ private fun FacetTabs(
     )
 }
 
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun FacetOptions(
     facet: LibraryFacet,
@@ -418,33 +427,36 @@ private fun FacetOptions(
     selectedOptionId: String?,
     onSelect: (String?) -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        OutlineActionChip(
-            text = "全部",
-            onClick = { onSelect(null) },
-            modifier = Modifier.testTag("library_filter_all"),
-            selected = selectedOptionId == null,
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (facet == LibraryFacet.MASTERY) Text(
+            "掌握阶段：需巩固 → 学习中 → 已掌握",
+            style = MaterialTheme.typography.labelMedium, color = SmartColors.InkSecondary,
         )
-        options.forEach { option ->
-            val label = if (facet == LibraryFacet.MASTERY)
-                MasteryState.entries.firstOrNull { it.id == option.id }?.label ?: option.label else option.label
-            val displayText = if (option.count > 0) {
-                "$label (${option.count})"
-            } else {
-                label
+        androidx.compose.foundation.layout.FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            OutlineActionChip(text = "全部", onClick = { onSelect(null) },
+                modifier = Modifier.testTag("library_filter_all"), selected = selectedOptionId == null)
+            options.forEach { option ->
+                val label = if (facet == LibraryFacet.SUBJECT)
+                    com.tingyun.smartmistakebook.core.model.SubjectKind.entries.firstOrNull { it.name == option.id }?.studentLabel() ?: option.label
+                    else option.label
+                OutlineActionChip(
+                    text = "$label (${option.count})", onClick = { onSelect(option.id) },
+                    modifier = Modifier.testTag(filterTag(facet, option)), selected = selectedOptionId == option.id,
+                )
             }
-            OutlineActionChip(
-                text = displayText,
-                onClick = { onSelect(option.id) },
-                modifier = Modifier.testTag(filterTag(facet, option)),
-                selected = selectedOptionId == option.id,
-            )
         }
+        if (facet == LibraryFacet.CHAPTER && options.none { it.id != LIBRARY_UNCLASSIFIED_OPTION_ID }) Text(
+            "当前题目尚未分配板块，可在题目详情中修改分类。",
+            style = MaterialTheme.typography.bodySmall, color = SmartColors.InkSecondary,
+        )
+        if (facet == LibraryFacet.MASTERY) Text(
+            "待复习表示需要更新学习记录；未作答的题目单列为待评估。",
+            style = MaterialTheme.typography.bodySmall, color = SmartColors.InkSecondary,
+        )
     }
 }
 

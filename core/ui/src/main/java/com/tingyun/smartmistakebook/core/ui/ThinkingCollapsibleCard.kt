@@ -65,8 +65,7 @@ fun ThinkingCollapsibleCard(
     }
     val thinkingBody = thinkingMarkdown?.takeIf { it.isNotBlank() }
     Column(
-        modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp))
-            .background(SubtleSurface),
+        modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

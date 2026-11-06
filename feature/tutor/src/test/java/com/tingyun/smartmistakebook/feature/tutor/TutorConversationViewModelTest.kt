@@ -78,6 +78,22 @@ class TutorConversationViewModelTest {
     }
 
     @Test
+    fun paperReviewKeepsAnExistingDraftUntilReplacementIsConfirmed() = runTest(dispatcher.scheduler) {
+        val viewModel = viewModel(conversations = FakeConversationRepository())
+        advanceUntilIdle()
+        viewModel.onDraftChange("原来的问题")
+        viewModel.onGalleryResult(listOf("content://original-photo"))
+        val seed = PaperReviewTutorSeed("paper-seed", "entry", "请检查纸上作答", listOf("content://paper-photo"))
+        assertEquals(false, viewModel.seedPaperReview(seed))
+        assertEquals("原来的问题", viewModel.uiState.value.draft)
+        assertEquals(true, viewModel.seedPaperReview(seed, replaceDraft = true))
+        assertEquals(seed.prompt, viewModel.uiState.value.draft)
+        assertEquals(1, viewModel.uiState.value.pendingImages.size)
+        assertEquals(true, viewModel.seedPaperReview(seed))
+        assertEquals(1, viewModel.uiState.value.pendingImages.size)
+    }
+
+    @Test
     fun aFreshEntryDoesNotAdoptAnyExistingConversation() = runTest(dispatcher.scheduler) {
         val conversations = FakeConversationRepository()
         conversations.seed(

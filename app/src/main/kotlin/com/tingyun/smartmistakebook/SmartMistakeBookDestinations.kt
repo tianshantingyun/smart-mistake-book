@@ -560,7 +560,7 @@ internal fun tutorSettlementNoticeFor(
     )
     status == TutorJudgedReviewSettlementStatus.NO_VERDICT && tutorVisitedForItem ->
         ReviewTutorSettlementNotice(
-            message = "本次讲题还没有形成判定，复习进度没有推进——可以再讲一次，或重新判定。",
+            message = "尚未形成判定，复习进度未更新。可重新讲解或判定。",
             retryLabel = SETTLEMENT_RETRY_LABEL,
         )
     else -> null

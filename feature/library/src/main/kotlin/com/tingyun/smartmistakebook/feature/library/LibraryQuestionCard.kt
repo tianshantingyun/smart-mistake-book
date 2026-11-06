@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.BookmarkAdd
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.AutoStories
@@ -25,6 +25,7 @@ import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import com.tingyun.smartmistakebook.core.ui.studentAccentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -50,13 +51,14 @@ internal fun LibraryQuestionCard(
     sourceRepository: MistakeDetailRepository?,
     onClick: () -> Unit,
     onToggleFavorite: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     ClaudeCard(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp).testTag("library_item_${mistake.id}"),
-        shape = RoundedCornerShape(18.dp),
+        modifier = modifier.fillMaxWidth().padding(bottom = 12.dp).testTag("library_item_${mistake.id}"),
+        shape = RoundedCornerShape(10.dp),
         bordered = true,
-        elevation = 0.dp,
+        elevation = 1.dp,
     ) {
         Column {
             LibraryInlineImages(
@@ -113,7 +115,7 @@ private fun LibraryCardHeading(
             modifier = Modifier.align(Alignment.Top).testTag("library_favorite_${mistake.id}").semantics {
                 stateDescription = if (mistake.isFavorite) "已收藏" else "未收藏"
             }) {
-            Icon(if (mistake.isFavorite) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+            Icon(if (mistake.isFavorite) Icons.Filled.Bookmark else Icons.Outlined.BookmarkAdd,
                 contentDescription = if (mistake.isFavorite) "取消收藏 ${mistake.title}" else "收藏 ${mistake.title}",
                 tint = favoriteTint, modifier = Modifier.size(20.dp))
         }
@@ -126,7 +128,7 @@ private fun LibraryCardMetadata(mistake: LibraryMistake, source: String) {
         val stacked = maxWidth < 180.dp || LocalDensity.current.fontScale > 1.3f
         @Composable fun ContentPath(modifier: Modifier = Modifier) {
             Text(if (source.isBlank()) mistake.contentPath else "$source · ${mistake.contentPath}", modifier = modifier,
-                style = MaterialTheme.typography.labelMedium, color = SmartColors.InkSecondary,
+                style = MaterialTheme.typography.labelMedium, color = mistake.subject.studentAccentColor(),
                 maxLines = if (stacked) 2 else 1, overflow = TextOverflow.Ellipsis)
         }
         if (stacked) Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -142,13 +144,17 @@ private fun LibraryCardMetadata(mistake: LibraryMistake, source: String) {
 @Composable
 internal fun LibraryMasteryBadge(mastery: MasteryState) {
     val background = libraryStateColor(when (mastery) {
-        MasteryState.LEARNING, MasteryState.MASTERED -> SmartColors.JadeSoft
-        MasteryState.CONFLICTED, MasteryState.STALE -> SmartColors.ErrorWarm.copy(alpha = .12f)
+        MasteryState.LEARNING -> SmartColors.LearningSurface
+        MasteryState.MASTERED -> SmartColors.JadeSoft
+        MasteryState.CONFLICTED -> SmartColors.ErrorSurface
+        MasteryState.STALE -> SmartColors.PendingSurface
         MasteryState.UNKNOWN -> Color.Transparent
     }, label = "library-mastery-surface")
     val tint = libraryStateColor(when (mastery) {
-        MasteryState.LEARNING, MasteryState.MASTERED -> SmartColors.JadeDark
-        MasteryState.CONFLICTED, MasteryState.STALE -> SmartColors.ErrorText
+        MasteryState.LEARNING -> SmartColors.LearningAccent
+        MasteryState.MASTERED -> SmartColors.JadeDark
+        MasteryState.CONFLICTED -> SmartColors.ErrorText
+        MasteryState.STALE -> SmartColors.PendingAccent
         MasteryState.UNKNOWN -> SmartColors.InkSecondary
     }, label = "library-mastery-icon")
     val icon = when (mastery) {

@@ -44,7 +44,6 @@ import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
-import com.tingyun.smartmistakebook.core.ui.SectionHeader
 import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -139,7 +138,7 @@ internal fun ReminderScreen(
         Spacer(Modifier.height(16.dp))
         WorkspacePanel {
             Column {
-                SectionHeader("复习节奏")
+                SettingsSectionTitle("复习节奏")
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -187,18 +186,18 @@ internal fun ReminderScreen(
             }
         }
         Spacer(Modifier.height(16.dp))
-        WorkspacePanel {
+        WorkspacePanel(containerColor = com.tingyun.smartmistakebook.core.ui.SmartColors.ContentSurface) {
             Column {
-                SectionHeader("提醒时间")
+                SettingsSectionTitle("提醒时间")
                 Text(
                     formatReminderTime(preferences.minutesAfterMidnight),
                     modifier = Modifier
                         .padding(top = 12.dp)
                         .testTag("reminder_time_value"),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Ink,
+                    style = MaterialTheme.typography.displayMedium,
+                    color = com.tingyun.smartmistakebook.core.ui.SmartColors.JadeDark,
                 )
-                Text("选一个符合日常节奏的时间，也可以自定义。", color = InkSecondary)
+                Text("选择提醒时间，或自定义。", color = InkSecondary)
                 Text(
                     "提醒由系统发送，省电模式下可能延迟。",
                     modifier = Modifier.padding(top = 2.dp),
@@ -259,7 +258,7 @@ internal fun ReminderScreen(
 
                 if (preferences.enabled && !permissionGranted) {
                     Text(
-                        "提醒偏好已保留，但系统通知权限已关闭，所以当前不会弹出提醒。",
+                        "提醒设置已保留。请开启系统通知权限以接收提醒。",
                         modifier = Modifier.padding(top = 16.dp),
                         color = InkSecondary,
                     )
