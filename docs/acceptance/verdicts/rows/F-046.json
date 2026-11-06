@@ -12,7 +12,7 @@
   ],
   "self_review": false,
   "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
   "method": "冷启稳态 PSS 156.8MB；批量导出宿主峰值 47.5-54.4MB；预览 28.4-45.1MB；D-04 65.8-66.3MB; device: emulator-5566",
   "evidence": [
@@ -29,7 +29,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=F-046; verdict=PASS; line=627; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=F-046; verdict=PASS; line=627; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "cmd_exit",
@@ -109,7 +109,7 @@
       }
     }
   ],
-  "basis": "机械复算（reviewer=subagent-f-domain-row-reviewer-b46，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 F-046 并复算 ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "basis": "机械复算（reviewer=subagent-f-domain-row-reviewer-b46，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 F-046 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
   "findings": [],
   "adversarial": {
     "attempted": true,

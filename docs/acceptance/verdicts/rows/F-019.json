@@ -33,7 +33,7 @@
   },
   "findings": [],
   "caveats": [],
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "method": "gfxinfo 逐轮 Total frames/Janky/50th percentile；冷启 p50 300-2350ms（450/2050/2150/2100/2000/2350/300，批次47 复算与 gfxinfo-cold1..7 一致），7/7 轮有 janky 帧; device: emulator-5566",
   "evidence": [
     "device:docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold6.txt",
@@ -51,7 +51,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=F-019; verdict=PASS; line=600; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=F-019; verdict=PASS; line=600; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "device_text",

@@ -6,7 +6,7 @@
   "authors": [
     "batch47-h-domain-fixer"
   ],
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "evidence": [
     "cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-gate-b47.log",
     "test:docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-connected-green.xml",
@@ -23,7 +23,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=H-061; verdict=PASS; line=822; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=H-061; verdict=PASS; line=822; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "cmd_exit",
@@ -56,7 +56,7 @@
       "value": "ledger 行声称部分页打印子集保留文档级 /AIGC；h-061-pypdf-b47.log 显示 prepared(4 页) 与 subset(1 页) 的 /AIGC 同 ProduceID（等于设备 cache 目录名=输入指纹）、Label=1，与声称一致（无矛盾）"
     }
   ],
-  "basis": "机械复算 + 先红后绿修复复核：KD-84 修复（MistakePdfDelivery.relabelSubset 读 prepared 同一份 /AIGC JSON 重注入子集）后，设备用例 wholePrintAndPartialPrintBothKeepTheDocumentLevelAigcEntry 先红（h-061-red-b47.log，AssertionError partial-page print must keep the document-level /AIGC）后绿（h-061-connected-green.xml tests=1 failures=0；同 APK am instrument 全类 OK (7 tests)）；宿主 pypdf 6.16.2 独立读回 prepared(4 页)/subset(1 页) 的 /AIGC 均 Label=1 且 ProduceID 一致并等于设备 cache 目录名（=prepared.inputSha256）。ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737。",
+  "basis": "机械复算 + 先红后绿修复复核：KD-84 修复（MistakePdfDelivery.relabelSubset 读 prepared 同一份 /AIGC JSON 重注入子集）后，设备用例 wholePrintAndPartialPrintBothKeepTheDocumentLevelAigcEntry 先红（h-061-red-b47.log，AssertionError partial-page print must keep the document-level /AIGC）后绿（h-061-connected-green.xml tests=1 failures=0；同 APK am instrument 全类 OK (7 tests)）；宿主 pypdf 6.16.2 独立读回 prepared(4 页)/subset(1 页) 的 /AIGC 均 Label=1 且 ProduceID 一致并等于设备 cache 目录名（=prepared.inputSha256）。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。",
   "notes": "判 FAIL→PASS 依据的是本轮新证据（设备红绿轮 + 独立读者读回），不是改判据或删断言。残余边界：KD-85（模型改卷文本）不在本行判据内仍 open；本复核是机械复算，不构成第二人/第二模型的独立语义复核。共享工作树并发提示：ledger 正被他线同步编辑，sha 以主会话收口重绑为准。",
   "adversarial": {
     "attempted": true,

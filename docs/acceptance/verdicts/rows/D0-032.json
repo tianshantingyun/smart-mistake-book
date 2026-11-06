@@ -6,7 +6,7 @@
   "authors": [
     "batch45-evidence-producer-D0"
   ],
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "evidence": [
     "cmd:docs/research/evidence/2026-11-06-batch-46/d0-self/verdicts.txt",
     "test:docs/research/evidence/2026-11-06-batch-46/gate/d0-self-pytest.xml"
@@ -19,7 +19,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=D0-032; verdict=PASS; line=63; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=D0-032; verdict=PASS; line=63; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "cmd_log",
@@ -34,7 +34,7 @@
     {
       "name": "direct_recount",
       "source": "docs/acceptance/ledger.md",
-      "value": "row_json_files=920; reviewer_not_author=920"
+      "value": "row_json_files=921; reviewer_not_author=921"
     }
   ],
   "basis": "机械复算（reviewer=batch46-convergence-reviewer，非本行证据作者）：批次 46 收敛时发现本 JSON 旧检查把已存在的证据误标为 evidence_missing（生成器路径解析缺陷，错误地以 exists=False 记在 PASS 行上）。本轮按台账当前字节复算 ledger_sha256 与证据 sha256，直接重跑/重读可判定字段后重建 checks；不改变台账 verdict，只让检查值可复算。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",

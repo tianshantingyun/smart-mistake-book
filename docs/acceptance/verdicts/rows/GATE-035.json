@@ -6,7 +6,7 @@
   "authors": [
     "batch45-evidence-producer-GATE"
   ],
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "evidence": [
     "cmd:docs/research/evidence/2026-11-06-batch-46/gate/pass-with-review-check.log",
     "test:docs/research/evidence/2026-11-06-batch-46/gate/tools-report.xml"
@@ -19,7 +19,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=GATE-035; verdict=PASS; line=1166; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=GATE-035; verdict=PASS; line=1166; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "cmd_exit",

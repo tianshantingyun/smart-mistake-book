@@ -1,0 +1,79 @@
+{
+  "id": "D-089",
+  "verdict": "PASS",
+  "verdict_detail": "PASS_WORKTREE",
+  "machine_verdict": "PASS_WORKTREE",
+  "run_id": "2026-11-06T18:40:12Z-batch48-d-domain-device",
+  "reviewer": "复核 D 域行级",
+  "reviewer_id": "batch48-d-domain-row-reviewer",
+  "authors": [
+    "batch48-d-domain-device-verifier"
+  ],
+  "self_review": false,
+  "ledger": "docs/acceptance/ledger.md",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
+  "head": "3007a2bcef719150e1710737fc3f13c7b2938266",
+  "reviewed_at_utc": "2026-11-06T19:20:00Z",
+  "scope": "D domain: D-089 re-adjudicated BLOCKED->PASS on product-path device evidence (E-48-D-DEV-01); single verdict flip of batch 48 WS3",
+  "evidence": [
+    "cmd:docs/research/evidence/2026-11-07-batch-48/d-domain/device-task-lifecycle.log",
+    "device:docs/research/evidence/2026-11-07-batch-48/d-domain/device-d-domain-run.json",
+    "file:docs/research/evidence/2026-11-07-batch-48/d-domain/00-index.md"
+  ],
+  "evidence_sha256": {
+    "docs/research/evidence/2026-11-07-batch-48/d-domain/device-task-lifecycle.log": "d025054c3079cf4ef0a2620067a787ff754846e71df28435724f6583b1b3303e",
+    "docs/research/evidence/2026-11-07-batch-48/d-domain/device-d-domain-run.json": "55cb0a2e69c5a359196e154adce572080915ee76be5ffd07cfb798ec45ddf6d0",
+    "docs/research/evidence/2026-11-07-batch-48/d-domain/00-index.md": "0cfb79eee733e06e95ebcf121929bc45cdf0f658a4df6ac3e7a32528ba9e72d7"
+  },
+  "checks": [
+    {
+      "name": "ledger_row",
+      "source": "docs/acceptance/ledger.md",
+      "value": "id=D-089; verdict=PASS; line=490; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
+    },
+    {
+      "name": "cmd_exit",
+      "source": "docs/research/evidence/2026-11-07-batch-48/d-domain/device-task-lifecycle.log",
+      "value": "EXIT=0; sha256=d025054c3079cf4ef0a2620067a787ff754846e71df28435724f6583b1b3303e"
+    },
+    {
+      "name": "device_binding",
+      "source": "docs/research/evidence/2026-11-07-batch-48/d-domain/device-d-domain-run.json",
+      "value": "serial=emulator-5554"
+    },
+    {
+      "name": "file_sha256",
+      "source": "docs/research/evidence/2026-11-07-batch-48/d-domain/00-index.md",
+      "value": "sha256=0cfb79eee733e06e95ebcf121929bc45cdf0f658a4df6ac3e7a32528ba9e72d7"
+    },
+    {
+      "name": "file_sha256",
+      "source": "docs/research/evidence/2026-11-07-batch-48/d-domain/capability-test-msg.txt",
+      "value": "sha256=5f4ed5e36a1c322041efb30294755b9c2ba81d2192f9f4d9eb9334496032e863"
+    },
+    {
+      "name": "file_sha256",
+      "source": "docs/research/evidence/2026-11-07-batch-48/d-domain/logcat-key-lines.log",
+      "value": "sha256=a286d18af60c22fce630369e5c8236b4455d708df845fe919aefa88d99b8c26a"
+    }
+  ],
+  "basis": "判据=runbook §9.4 判据表 D-089 行：证据头四项（run-id、APK sha、设备 serial、密钥来源=人工在设备输入）齐备且全文无密钥片段。证据包 E-48-D-DEV-01（批次 48）：00-index.md 表头四项齐备；device-d-domain-run.json 绑定 serial=emulator-5554；其字节由 file_sha256 钉住，字节内容含 APK sha256 147ca5a4…（147ca5a4c61618fb6381c2dc8c1c0daa50286f42b714be838ed06e1627901be8）；密钥核查=raw logcat 0 命中（sk-/Bearer/key 明文）、本目录所有文件仅记 sha8 cd10efbc。本行是批次 48 WS3 唯一 BLOCKED->PASS 改判（防洗绿自查已断言）。",
+  "contradictions": [],
+  "notes": "未覆盖≠未通过：本行只主张证据绑定纪律，不主张端到端主路径完成（D-082 维持 BLOCKED）。复核为同一会话机械复算，非第二主体语义复核。",
+  "method": "cmd: adb -s emulator-5554 shell run-as … sqlite3 取 model_task/model_task_event 任务生命周期",
+  "check_text": "真实 Provider：证据绑定 run-id、APK sha 与密钥来源（不回显密钥）",
+  "ledger_batch": 48,
+  "review_kind": "mechanical-recompute",
+  "verified_at": "2026-11-06T19:20:00Z",
+  "independence": {
+    "reviewer_role_only": true,
+    "independent_agent": false,
+    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  },
+  "evidence_freshness": {
+    "current_batch_files": 6,
+    "archived_files": 0,
+    "basis": "bytes-on-disk"
+  },
+  "checks_scope": "row-specific"
+}

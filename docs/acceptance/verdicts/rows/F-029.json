@@ -33,7 +33,7 @@
   },
   "findings": [],
   "caveats": [],
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "method": "阈值判定：用例内置 elapsedMillis 5000ms 断言批次44 3/3 通过（TEST-export-batch1..3 failures=0）；批次47 同 export.test APK 08ea 在 emulator-5584 复跑 3 轮 MistakeBatchPerf elapsedMs=490/464/478 均 5000 内（原始 logcat 落盘）; test: TEST-export-batch1.xml",
   "evidence": [
     "test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch1.xml",
@@ -53,7 +53,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=F-029; verdict=PASS; line=610; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=F-029; verdict=PASS; line=610; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "xml_counts",

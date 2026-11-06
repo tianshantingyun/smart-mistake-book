@@ -6,7 +6,7 @@
   "authors": [
     "batch47-h-domain-fixer"
   ],
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "evidence": [
     "cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log",
     "file:docs/known-defects.md",
@@ -21,7 +21,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=H-018; verdict=FAIL; line=779; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=H-018; verdict=FAIL; line=779; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "cmd_exit",
@@ -44,7 +44,7 @@
       "value": "python -I tools/ci/h_compliance_gate.py --only H-018；FAIL：DOCX 无文档级 /AIGC、KD-85 模型改卷漏标（KD-84 已修，见 H-061）——缺口仍真实存在，保留 FAIL 不洗绿"
     }
   ],
-  "basis": "批次 47 H 域修复后机械复算：三分量缺口中 KD-84 已修（KD-84 closed + H-061 转 PASS），剩余 DOCX 无文档级 /AIGC（DocxMistakeRenderer/MinimalDocxWriter 无 docProps 部件，runbook FIX-T07）与 KD-85 模型改卷漏标（置位点在 feature/tutor 热区，FIX-T05）；门禁 --only H-018 复跑 EXIT=1，保留 FAIL。ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737。",
+  "basis": "批次 47 H 域修复后机械复算：三分量缺口中 KD-84 已修（KD-84 closed + H-061 转 PASS），剩余 DOCX 无文档级 /AIGC（DocxMistakeRenderer/MinimalDocxWriter 无 docProps 部件，runbook FIX-T07）与 KD-85 模型改卷漏标（置位点在 feature/tutor 热区，FIX-T05）；门禁 --only H-018 复跑 EXIT=1，保留 FAIL。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。",
   "notes": "保留 FAIL，不洗绿：两个剩余缺口均非本批可闭合（热区/跨线载体选型）。缺陷单与复跑命令见 docs/research/evidence/2026-11-06-batch-47/h-domain/fix-tickets-h47.md。本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
   "adversarial": {
     "attempted": true,

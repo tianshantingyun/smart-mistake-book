@@ -12,7 +12,7 @@
   ],
   "self_review": false,
   "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
   "method": "2h 内至少 1 次 FATAL EXCEPTION（SchedulingSettingsScreen.kt:74 到 SchedulingOptions 越界），超限路径命中；批次47 复核：根因已修（587098f1），修复后 2h 复跑未做，超限路径不再命中无设备证据，维持 FAIL（缺陷单 FIX-T01/soak）",
   "evidence": [
@@ -33,7 +33,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=F-057; verdict=FAIL; line=638; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=F-057; verdict=FAIL; line=638; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "cmd_exit",

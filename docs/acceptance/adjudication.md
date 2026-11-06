@@ -291,3 +291,97 @@ report/lint/trace/row-specific/runbook 覆盖×2/d0/aud08/H×3/pytest/regen-vali
 3. **人工金标：用户选定路径 1（我代理金标 + 修切分算法）**。下一轮交付：逐页视觉判定生成 `split_golden_v2.json`（等级如实标 model-labeled）+ 切分算法修至对 v2 ≥0.9 + 门复算。在此之前 AUD-08 门维持 FAIL，不洗绿。
 
 以上三项不改变「NOT ACCEPTED」的总结论；它们缩小的是**解除条件清单**。
+
+---
+
+## 批次 48 报告重生成终裁（2026-11-07，WS4 记录员）
+
+### B48-0. 结论
+
+**NOT ACCEPTED 维持**。阻塞清单缩小：BLOCKED **280→279**（唯一 verdict 变更 = D-089
+BLOCKED→PASS）；FAIL 23 条原样保留；`--require-complete` **exit 1** 与本终裁一致。
+金标 v2 已落盘但等级如实为 **G1（model-labeled）**，AUD-08 v2 门 FAIL 如实落盘
+（① 0.4167 <0.9），不因金标存在而转绿。
+
+### B48-1. 本轮实跑（WS4 记录员逐字命令与 exit）
+
+| # | 命令 | exit | 关键输出 |
+|---:|---|---:|---|
+| 1 | `python -I tools/ci/acceptance_report.py --require-complete --out docs/acceptance/acceptance-report.json` | **1** | PASS 898 / FAIL 23 / BLOCKED 279 / UNVERIFIED 0；`NOT_ACCEPTANCE_COMPLETE` + `REVIEW_CHECKS_SHARED` 18 组；`pass_with_review=898`、`pass_with_row_specific_review=729`、`pass_with_invalid_review=0`、`review_validation_errors=[]`；head `3007a2bc`、dirty=5045 |
+| 2 | `python -I tools/ci/acceptance_lint.py --out build/batch48-ws4-lint.json` | **1** | violations=144（全 `EVIDENCE_REUSED`；0 条涉及批次 48 新证据） |
+| 3 | 同命令 `--warn-only` | **0** | violations=0、warnings=144 |
+| 4 | `python -I tools/ci/trace_requirements.py --out build/batch48-ws4-trace.json` | **0** | total=1200；gaps=0 |
+| 5 | `check_blocked_runbook_coverage.py`（默认载体 runbook.md） | **1** | covered 88/279、missing 191（默认载体与计划载体错位，同批次 47 §6.4） |
+| 6 | 同法进程内替换 `RUNBOOK`→`blocked-runbook.md`（不改工具源文件） | **0** | covered **279/279**、missing 0 |
+| 7 | 三份哈希清单 `--verify` | **0/0/0** | EVIDENCE 323 项、REVIEWS 934 项、GATES 9 项全 OK |
+| 8 | `make_verdicts_report.py`（本批投影器） | **0** | verdicts.md 1315 行 + domain-index.md 32 行重生成，绑 ledger sha `28e96a8d…` |
+
+门禁原始输出归档：`docs/acceptance/evidence/2026-11-07-batch-48/gate/`（7 件 + 投影器）。
+
+### B48-2. 防洗绿核验（本轮记录员实跑）
+
+1. **台账 verdict diff = 恰 1 处**：`git show HEAD:docs/acceptance/ledger.md`（sha
+   `a9912c2a…`，批次 47 终态）对盘上台账（sha `28e96a8d…`）逐行比对：两侧各 1200 行、
+   无新增/丢失行，verdict 变更仅 `D-089 BLOCKED→PASS`。无 PASS→FAIL、无其他 BLOCKED→PASS。
+2. **D-089 行级复核自证**：`rows/D-089.json` 实读 checks 恰 6 项（ledger_row / cmd_exit /
+   device_binding / file_sha256×3），`ledger_sha256=28e96a8d…`、`review_kind=mechanical-recompute`；
+   证据文件（`d-domain/device-task-lifecycle.log` 等）在盘，report `review_validation_errors=[]`。
+3. **密钥卫生抽验**：批次 48 证据树 + 新报告 `sk-[0-9a-zA-Z]{20,}` 模式 3 命中，上下文逐一
+   实读均为 `model-task-<32hex>` 内部任务 ID 子串；三串 sha8
+   `52272650/2ed9fa64/4c7349b2` **均 ≠** 授权标识 `cd10efbc`。密钥本体零落盘成立。
+4. **verdicts.md 过期点消除**：旧批次 47 版第 526 行 `| D-089 | BLOCKED |`、合计
+   897/23/280 → 重生成后 D-089=PASS、合计 898/23/279，逐项表与台账逐字投影。
+
+### B48-3. 签字
+
+**签什么**
+
+1. 结论「**批次 48 验收不通过（NOT ACCEPTED）；发版不成立**」维持。
+2. BLOCKED 280→279 的事实与 runbook 覆盖 279/279（blocked-runbook.md 载体）——只证明出口条目在，不证明条件取得。
+3. D-089 BLOCKED→PASS 的证据核验（E-48-D-DEV-01 在盘 + 行级 JSON 绑当前台账 sha + report 校验 0 错）——机械复核口径，非洗绿。
+4. 金标 v2 等级 **G1（model-labeled）** 如实、AUD-08 v2 门 FAIL 如实（只读引用 WS2 归档
+   `gate-report-v2-01.json`：① 10/24=0.4167 未过、③ 0.0385≤0.05 过、切残 fragmentedQuestions=3≠0；
+   本轮未重跑，acceptance 单次复算红线）。
+5. 23 条 FAIL 原样保留（批次 47 §3 清单延续）；280→279 之外的 BLOCKED 判定未动。
+
+**不签什么**
+
+1. 不签「批次 48 验收通过」——require-complete 两阻断（FAIL=23、18 组 ≥5 行 shared checks）
+   与 279 BLOCKED 均未消除；批次 47 §9.2 前提（FAIL=0 且 shared=0）仍不成立。
+2. 不签 D 域完整闭环——D-082（上游请求 id 绑定）等 8 行 BLOCKED；PROBLEM_CLASSIFY
+   长流式未达终态；讲题（TUTOR）任务观测窗内未获创建。
+3. 不签金标 v2 的语义正确性与跨标注员一致性——G1 单模型盲标，B 轮为同模型第二轮
+   （一致性只证明自我稳定）；坐标目测精度 ±0.01–0.02 无人工复核。
+4. 不签 `heldOutUnusedForTuning` 的最终真伪——过程性声明，本轮无独立证据（WS1/WS2 已标 UNVERIFIED）。
+5. 不签 shared-suite 残余（18 组）的行级判别力、不签发版就绪。
+
+### B48-4. 下一轮入口（阻塞清单缩小后）
+
+1. GATE-091/092/099 台账行证据仍指批次 46 门日志；v2 门证据在
+   `docs/research/evidence/2026-11-07-batch-48/splitter/`；台账行证据重锚属后续门禁轮（本报告轮零台账变更）。
+2. `d0_self_acceptance` 的 `h-061_fail` 陈旧预期仍未更新（批次 47 §6.5 遗留，本轮未跑 d0）。
+3. 解锁排序继承批次 47 §9.3（缩小后）：D0/GATE shared 行补齐 → 23 条 FAIL 逐条闭环
+   （J 域仍需干净树+生产签名）→ 未跟踪工具/证据入库 → 金标若需 G3/G4 再走人工标注 → 热区授权。
+
+### B48-5. 产物与哈希（批次 48 WS4 终态）
+
+| 产物 | sha256 |
+|---|---|
+| `docs/acceptance/ledger.md` | `28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375` |
+| `docs/acceptance/acceptance-report.json` | `d9243d705e62e84e0555b6dde4b06fdd179f28401d00a500ca4686a15fe179ba` |
+| `docs/acceptance/verdicts.md` | `cd9ef1f9e658d221f5e24bb57a312d12d698b080612267e1e4d610bef584ad62` |
+| `docs/acceptance/domain-index.md` | `db00dee4081a80902e6e3b31f2cd896058328e79bd084c5e8e6f0fdb9cd18055` |
+| `REVIEWS.sha256`（934 项，`docs/acceptance/verdicts/**`） | `481ae538aa23135732d8354ceda921ffb3107de60bfbe8a9943ec0b0dfaea9c8` |
+| `EVIDENCE.sha256`（323 项，`docs/research/evidence/2026-11-07-batch-48/**`） | `803b082984bcf3a30bd209b30394b27b33e1cd85709bf4ccab2d8ba85636649e` |
+| `GATES.sha256`（9 项，batch-48 acceptance evidence 目录；自哈希） | `bed4c4c9603a8bc05da7669f4433104f04a448abb0fc505aa811498898c6a0d0` |
+
+```text
+结论：批次 48 验收不通过（NOT ACCEPTED）；发版不成立；阻塞清单 280→279
+签字人：批次 48 报告重生成轮（WS4 记录员）
+签署范围：B48-3 签什么 1–5 项
+不签范围：B48-3 不签什么 1–5 项
+日期：2026-11-07
+```
+
+> 本终裁不把任何 `BLOCKED` 读成通过，不把行级机械复算读成语义复核，
+> 不把 G1 金标读成人工金标，不把 v2 门 FAIL 的如实落盘读成问题已解决。

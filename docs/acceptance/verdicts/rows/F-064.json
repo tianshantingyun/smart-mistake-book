@@ -33,7 +33,7 @@
   },
   "findings": [],
   "caveats": [],
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "method": "dropbox 中 app 条目 6 条（data_app_crash：2026-11-03 09:08 三条与 2026-11-04 07:05-07:09 三条，全部早于本轮窗口 15:23Z..15:54Z；原行误写 12 系 soak 口径混用），crash buffer 0 行; device: emulator-5566",
   "evidence": [
     "device:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json",
@@ -51,7 +51,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=F-064; verdict=PASS; line=645; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=F-064; verdict=PASS; line=645; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "dropbox_app_entries",

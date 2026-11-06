@@ -33,7 +33,7 @@
   },
   "findings": [],
   "caveats": [],
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "method": "MistakeBatchPerf logcat 与 am instrument 原始输出：批次44 只有 instr 无 logcat（原 FAIL 根因）；批次47 同 export.test APK 08ea 在 emulator-5584 复跑 r1..r3 各 1 条 MistakeBatchPerf 行（elapsedMs=490/464/478）与原始 instr 落盘; device: emulator-5584",
   "evidence": [
     "device:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.perf.logcat.txt",
@@ -51,7 +51,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=F-034; verdict=PASS; line=615; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=F-034; verdict=PASS; line=615; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "device_text",

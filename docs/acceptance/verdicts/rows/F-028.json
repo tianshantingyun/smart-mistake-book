@@ -33,7 +33,7 @@
   },
   "findings": [],
   "caveats": [],
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "method": "导出耗时基线（原始 export.cmd.log KEY=VALUE）：60题64页套件 1.216/1.240/1.277s；产品路径单题套件 7.973/7.772/8.115s（含 WorkManager+UI 夹具，非纯渲染时延）；长文档 0.367/0.380s；批次47 复算一致；原行产品单题 487/597/820ms 无原始归档已删除; device: emulator-5566",
   "evidence": [
     "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/export.cmd.log",
@@ -51,7 +51,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=F-028; verdict=PASS; line=609; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=F-028; verdict=PASS; line=609; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "export_cmd_values",

@@ -1,21 +1,21 @@
 {
   "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
-  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
-  "dirty_paths": 4795,
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
+  "head": "3007a2bcef719150e1710737fc3f13c7b2938266",
+  "dirty_paths": 5045,
   "total": 1200,
   "counts": {
-    "PASS": 897,
+    "PASS": 898,
     "FAIL": 23,
-    "BLOCKED": 280,
+    "BLOCKED": 279,
     "UNVERIFIED": 0
   },
   "state": "FAIL",
-  "pass_with_two_kinds": 897,
-  "pass_with_review": 897,
+  "pass_with_two_kinds": 898,
+  "pass_with_review": 898,
   "pass_without_review": 0,
   "pass_with_invalid_review": 0,
-  "pass_with_row_specific_review": 728,
+  "pass_with_row_specific_review": 729,
   "review_shared_check_groups": [
     {
       "fingerprint": "d03734e927c5e5026e9b3c01767d0216ebfd52a428d4f286c3f19cd435be49f3",
@@ -95,6 +95,7 @@
     "45": 402,
     "46": 62,
     "47": 18,
+    "48": 3,
     "unlabeled": 384
   },
   "review_validation_errors": [],
@@ -104,7 +105,7 @@
     {
       "id": "",
       "code": "NOT_ACCEPTANCE_COMPLETE",
-      "detail": "UNVERIFIED=0 FAIL=23 BLOCKED=280"
+      "detail": "UNVERIFIED=0 FAIL=23 BLOCKED=279"
     },
     {
       "id": "",

@@ -7,7 +7,7 @@
   ],
   "self_review": false,
   "verdict": "PASS",
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "ledger_line": "docs/acceptance/ledger.md#G-089",
   "check": "Gradle 依赖校验元数据",
   "method": "cmd: python -I tools/ci/g_security_gate.py --topic plaintext_deps （断言 G-089）; cmd: ./gradlew --dependency-verification strict --no-configuration-cache --no-parallel --console=plain :app:assembleStrictOfflineDebug （批次47 先红后绿：修复前红基线见 docs/acceptance/evidence/G/logs/g-089-red-baseline.log）",
@@ -29,7 +29,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=G-089; verdict=PASS; line=760; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=G-089; verdict=PASS; line=760; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "file_sha256",

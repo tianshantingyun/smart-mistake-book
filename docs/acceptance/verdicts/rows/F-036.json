@@ -33,7 +33,7 @@
   },
   "findings": [],
   "caveats": [],
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "method": "回归对照（同机同 APK 08ea，emulator-5584）：批次43 文档 518/545/569ms vs 批次47 复跑 490/464/478ms（原始 logcat），三轮均值 544.0 到 477.3ms（-12.2%），无一轮慢于批次43 最慢轮；DB 门 PerformanceGateTest（database.test 32235e63）在 5584 6/6 OK 107.6s，p95=55ms 低于 350ms 目标（原始 logcat 落盘）",
   "evidence": [
     "cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.cmd.log",
@@ -53,7 +53,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=F-036; verdict=PASS; line=617; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=F-036; verdict=PASS; line=617; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "export_rounds",

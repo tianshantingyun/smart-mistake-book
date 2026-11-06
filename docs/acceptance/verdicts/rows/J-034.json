@@ -6,7 +6,7 @@
     "batch45-evidence-producer-J"
   ],
   "verdict": "FAIL",
-  "ledger_sha256": "a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737",
+  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
   "evidence": [
     "cmd:docs/research/evidence/2026-11-06-batch-46/j-domain/j-aab16k.log"
   ],
@@ -17,7 +17,7 @@
     {
       "name": "ledger_row",
       "source": "docs/acceptance/ledger.md",
-      "value": "id=J-034; verdict=FAIL; line=975; ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737"
+      "value": "id=J-034; verdict=FAIL; line=975; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
     },
     {
       "name": "cmd_exit",
@@ -35,7 +35,7 @@
       "value": "cmd: python -I tools/ci/j_release_verify.py aab16k"
     }
   ],
-  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=a9912c2abe7e0eaa9b19eee4c507b608dfad27fe74a455e40cfc1adb56254737。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
   "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
   "ledger_batch": 46,
   "review_kind": "mechanical-recompute",
