@@ -2,6 +2,8 @@ package com.tingyun.smartmistakebook.core.data.visual
 
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionResult
 import com.tingyun.smartmistakebook.core.domain.VisualViewport
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.fail
@@ -22,6 +24,11 @@ import org.junit.Test
  *    坏版本（0/2）、超大数组（ops 1025 / hitRegions 129 / dash 33 / 命令 4097）。
  * 3. **Rendered 入口**：`drawCommandsJson == null`、外壳版本不符、正常解析（无 viewport
  *    时不做视口回显——这正是回放入口与引擎提交门的语义差）。
+ *
+ * 批次 30 T8 增补：**`serialize()` 与 `parse()` 同门**（stroke-only / 奇数 dash / stats
+ * 不符 / 非有限数在发射前即拒）、**序列化产物必可被自身解析**（往返门）、**路径命令精确
+ * 元数**（多余/缺失分量一律 `DRAWOPS_PATH`）、**重复 JSON 键拒绝**（`DRAWOPS_DUP_KEY`，
+ * 含"库本身静默保留后者"的可执行取证用例）。
  *
  * 先红后绿：本文件先于 [VisualDrawOpsParser] 的实现落盘（往返用例在解析器缺失时编译不
  * 过，负向用例在实现返回 Valid 时全红）；本环境不运行 Gradle，执行归双门（本结果登记为
@@ -107,7 +114,42 @@ class VisualDrawOpsParserTest {
         stats = VisualDrawOpsStats(nodes = 3, pathCommands = 11, labels = 1, ops = 6),
     )
 
-    private fun fixtureText(): String = VisualDrawOpsParser.serialize(fixtureDocument())
+    private fun fixtureText(): String = serializeValid(fixtureDocument())
+
+    /** [VisualDrawOpsParser.serialize] 的新结果类型：通过的文本，或把拒绝码打印出来失败。 */
+    private fun serializeValid(document: VisualDrawOpsDocument): String =
+        when (val result = VisualDrawOpsParser.serialize(document)) {
+            is VisualDrawOpsSerialization.Text -> result.text
+            is VisualDrawOpsSerialization.Rejected ->
+                throw AssertionError("${result.failure.code}: ${result.failure.message}")
+        }
+
+    private fun serializationFailure(document: VisualDrawOpsDocument): VisualDrawOpsValidation.Invalid =
+        when (val result = VisualDrawOpsParser.serialize(document)) {
+            is VisualDrawOpsSerialization.Text ->
+                throw AssertionError("expected a rejection, got a text: ${result.text.take(120)}")
+            is VisualDrawOpsSerialization.Rejected -> result.failure
+        }
+
+    private fun singleOpDocument(
+        op: VisualDrawOp,
+        stats: VisualDrawOpsStats,
+    ): VisualDrawOpsDocument = VisualDrawOpsDocument(
+        drawSchemaVersion = 1,
+        viewBox = VisualDrawOpsViewBox(0.0, 0.0, 360.0, 240.0),
+        background = null,
+        ops = listOf(op),
+        hitRegions = emptyList(),
+        stats = stats,
+    )
+
+    private fun stroke(dash: List<Double>? = null): VisualStrokeSpec = VisualStrokeSpec(
+        width = 2.0,
+        cap = VisualStrokeCap.BUTT,
+        join = VisualStrokeJoin.MITER,
+        miterLimit = 4.0,
+        dash = dash,
+    )
 
     /**
      * 可拼装的文档文本：`include` 控制键的存在性（缺字段负向用）。
@@ -161,12 +203,12 @@ class VisualDrawOpsParserTest {
     @Test
     fun `draw ops survive a json round trip with every number bit for bit`() {
         val original = fixtureDocument()
-        val text = VisualDrawOpsParser.serialize(original)
+        val text = serializeValid(original)
         val reparsed = parseValid(text)
 
         assertDocumentBitwiseEqual(original, reparsed)
         // 第二圈：文本也必须稳定（固定键序 + 同值 toString → byte 级相同）。
-        assertEquals(text, VisualDrawOpsParser.serialize(reparsed))
+        assertEquals(text, serializeValid(reparsed))
     }
 
     @Test
@@ -185,12 +227,83 @@ class VisualDrawOpsParserTest {
         )
 
         val first = parseValid(text)
-        val rewritten = VisualDrawOpsParser.serialize(first)
+        val rewritten = serializeValid(first)
         val second = parseValid(rewritten)
 
         assertDocumentBitwiseEqual(first, second)
-        assertEquals(rewritten, VisualDrawOpsParser.serialize(second))
+        assertEquals(rewritten, serializeValid(second))
         assertEquals(1.0, (first.ops[2] as VisualDrawOp.DrawPath).alpha, 0.0)
+    }
+
+    // ------------------------------------------------------------ 序列化生成门（批次 30 T8）
+
+    /**
+     * `serialize()` 必须跑与 `parse()` 同一套生成门：这两个用例在旧实现下会**拿到文本**
+     * （stroke-only / 奇数 dash 原样发射），修复后才折成与回放门同码的拒绝。
+     */
+    @Test
+    fun `serializing a stroke only path is rejected by the same generation gate`() {
+        val document = singleOpDocument(
+            VisualDrawOp.DrawPath(
+                path = listOf(VisualPathCommand.MoveTo(0.0, 0.0), VisualPathCommand.LineTo(1.0, 1.0)),
+                fill = null,
+                stroke = stroke(),
+                alpha = 1.0,
+            ),
+            VisualDrawOpsStats(nodes = 1, pathCommands = 2, labels = 0, ops = 1),
+        )
+        assertEquals(PAINTER_STROKE_WITHOUT_FILL, serializationFailure(document).code)
+    }
+
+    @Test
+    fun `serializing an odd dash is rejected by the same generation gate`() {
+        for (dash in listOf(emptyList<Double>(), listOf(2.0), listOf(2.0, 1.0, 3.0))) {
+            val document = singleOpDocument(
+                VisualDrawOp.DrawPath(
+                    path = listOf(VisualPathCommand.MoveTo(0.0, 0.0), VisualPathCommand.LineTo(1.0, 1.0)),
+                    fill = "#000000",
+                    stroke = stroke(dash),
+                    alpha = 1.0,
+                ),
+                VisualDrawOpsStats(nodes = 1, pathCommands = 2, labels = 0, ops = 1),
+            )
+            assertEquals("dash=$dash", PAINTER_DASH_ODD, serializationFailure(document).code)
+        }
+    }
+
+    @Test
+    fun `serializing a document whose stats disagree with its ops is rejected`() {
+        val fixture = fixtureDocument()
+        val mismatched = fixture.copy(stats = fixture.stats.copy(ops = fixture.stats.ops + 1))
+        assertEquals("DRAWOPS_STATS", serializationFailure(mismatched).code)
+    }
+
+    @Test
+    fun `serializing a non finite number is a bounded rejection, not an exception`() {
+        // 旧实现这里抛 IllegalArgumentException（同一入口两种失败形态）；现在折成带码结果。
+        val fixture = fixtureDocument()
+        val nonFinite = fixture.copy(viewBox = fixture.viewBox.copy(w = Double.NaN))
+        assertEquals("DRAWOPS_BOUNDS", serializationFailure(nonFinite).code)
+    }
+
+    /** 往返门：**序列化产物必可被同一解析器解析**，且解析回来的文档逐位等于输入。 */
+    @Test
+    fun `every serialized document is parseable by the same parser`() {
+        val compilerShaped = parseValid(
+            documentText(
+                ops = "[" +
+                    """{"op":"save"},""" +
+                    """{"op":"path","path":[["M",0,0],["L",100,0],["L",100,50],["Z"]],""" +
+                    """"fill":"#ff0000","stroke":null,"alpha":1},""" +
+                    """{"op":"restore"}]""",
+                stats = """{"nodes":1,"pathCommands":4,"labels":0,"ops":3}""",
+            ),
+        )
+        for (document in listOf(fixtureDocument(), compilerShaped)) {
+            val emitted = serializeValid(document)
+            assertDocumentBitwiseEqual(document, parseValid(emitted))
+            assertEquals(emitted, serializeValid(parseValid(emitted)))
+        }
     }
 
     // ------------------------------------------------------------ 负向：缺字段
@@ -267,6 +380,95 @@ class VisualDrawOpsParserTest {
         assertEquals("DRAWOPS_TYPE", codeOf(documentText(hitRegions = "{}")))
         val fiveEntryMatrix = """{"op":"concat","m":[1,0,0,1,0]}"""
         assertEquals("DRAWOPS_TYPE", codeOf(documentText(ops = "[$fiveEntryMatrix]")))
+    }
+
+    // ------------------------------------------------------------ 路径命令元数（批次 30 T8）
+
+    /**
+     * 每个命令数组的**精确元数**：M/L 3 项、C 7 项、Z 1 项。旧实现按需取值，尾巴被静默
+     * 丢弃（`["M",1,2,3]` 画成 M(1,2)、`["Z",0]` 忽略 0）——坏形状被画成"相近的另一条
+     * 路径"，与"缺字段即拒"的严格性不一致。
+     */
+    @Test
+    fun `a path command with extra or missing components is rejected`() {
+        val malformedPaths = listOf(
+            """[["M",0,0,9]]""",                       // M 多一个分量
+            """[["M",0,0],["L",1,1,2]]""",             // L 多一个分量
+            """[["M",0,0],["C",1,1,2,2,3,3,4]]""",     // C 多一个分量（7 个坐标）
+            """[["M",0,0],["Z",0]]""",                 // Z 不接受任何分量
+            """[["M",0]]""",                           // M 少一个分量
+            """[["M",0,0],["C",1,1,2,2,3]]""",         // C 少一个分量
+        )
+        for (path in malformedPaths) {
+            val op = """{"op":"path","path":$path,"fill":"#000000","stroke":null,"alpha":1}"""
+            assertEquals(path, "DRAWOPS_PATH", codeOf(documentText(ops = "[$op]")))
+        }
+    }
+
+    @Test
+    fun `path commands with the exact arity are still accepted`() {
+        val op = """{"op":"path","path":[["M",0,0],["L",1,1],["C",1,1,2,2,3,3],["Z"]],""" +
+            """"fill":"#000000","stroke":null,"alpha":1}"""
+        val text = documentText(
+            ops = "[$op]",
+            stats = """{"nodes":1,"pathCommands":4,"labels":0,"ops":1}""",
+        )
+        val document = parseValid(text)
+        val path = (document.ops.single() as VisualDrawOp.DrawPath).path
+        assertEquals(4, path.size)
+    }
+
+    // ------------------------------------------------------------ 重复 JSON 键（批次 30 T8）
+
+    /**
+     * **库行为取证（可执行）**：钉住 kotlinx-serialization-json 1.9.0（`Json` 默认配置）的
+     * 树解析器对重复键的处理——后者静默覆盖前者，不报错。字节码侧同证：`JsonTreeReader
+     * .readObject` 用 `LinkedHashMap` + `Map.put`。若升级后库改为拒绝，本用例会转红，
+     * 提醒重估前置扫描是否还需要。
+     */
+    @Test
+    fun `the pinned kotlinx json tree parser silently keeps the last duplicate key`() {
+        val parsed = Json.parseToJsonElement("""{"a":1,"a":2}""") as JsonObject
+        assertEquals(setOf("a"), parsed.keys)
+        assertEquals("2", parsed["a"]?.toString())
+    }
+
+    @Test
+    fun `a duplicate object key is rejected with its own code`() {
+        val duplicatedRoot = documentText().replace(
+            "\"background\":null",
+            "\"background\":null,\"background\":\"#ffffff\"",
+        )
+        assertEquals(VisualDrawOpsParser.CODE_DUP_KEY, codeOf(duplicatedRoot))
+
+        val duplicatedNested = documentText(viewBox = """{"x":0,"y":0,"w":360,"h":240,"x":1}""")
+        assertEquals(VisualDrawOpsParser.CODE_DUP_KEY, codeOf(duplicatedNested))
+
+        // 转义写法解码后与已有键同名——与 JS 编译器 parseString 的解码语义一致，也是重复键。
+        val escapedDuplicate = documentText().replace(
+            "\"background\":null",
+            "\"background\":null,\"\\u0062ackground\":\"#ffffff\"",
+        )
+        assertEquals(VisualDrawOpsParser.CODE_DUP_KEY, codeOf(escapedDuplicate))
+    }
+
+    @Test
+    fun `a duplicate key inside a string value is not a duplicate`() {
+        val contentId = """{"a":1,"a":2}"""
+        val label = """{"op":"label","contentId":"{\"a\":1,\"a\":2}","x":1,"y":2,""" +
+            """"rotationDeg":0,"hAlign":"left","vAlign":"top","color":"#000000","alpha":1}"""
+        val text = documentText(
+            ops = "[$label]",
+            stats = """{"nodes":1,"pathCommands":0,"labels":1,"ops":1}""",
+        )
+        val document = parseValid(text, frozenContentIds = setOf(contentId))
+        assertEquals(contentId, (document.ops.single() as VisualDrawOp.Label).contentId)
+    }
+
+    @Test
+    fun `a malformed text still reports not json rather than a duplicate key`() {
+        // 扫描器只做额外门；JSON 合法性仍归 DRAWOPS_NOT_JSON（顺序确定、可诊断）。
+        assertEquals("DRAWOPS_NOT_JSON", codeOf("""{"a":1,"a":2"""))
     }
 
     // ------------------------------------------------------------ 负向：版本

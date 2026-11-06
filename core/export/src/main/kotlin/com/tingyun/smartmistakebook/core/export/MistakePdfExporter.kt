@@ -8,6 +8,7 @@ import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcContentPolicy
 import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcInjectionException
 import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcInjector
 import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcMetadata
+import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcReader
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
 import java.io.File
@@ -75,6 +76,24 @@ data class PreparedMistakePdf internal constructor(
             file.parentFile?.listFiles()?.map(File::getName)?.toSet() == PREPARED_PAIR_NAMES &&
             readRecordedDigest(File(file.parentFile, PREPARED_DIGEST_FILE_NAME)) == sha256 &&
             sha256File(file) == sha256
+
+    /**
+     * 该产物已写入的文档级 `/AIGC` JSON；`null` = 未打标（纯用户内容）。
+     *
+     * 只给部分页打印重注入用（KD-84）：读回原产物拿到**同一份** JSON 写进子集，`ProduceID`
+     * 与输入指纹因此与整份导出一致，不另起第二份判据。产物存在但 `/AIGC` 读不出时抛
+     * [MistakePdfExportFailure.GENERATED_PDF_INVALID]，由打印适配器转成写失败——不静默输出
+     * 一份失去标识的子集。
+     */
+    internal val aigcMetadataJson: String?
+        get() {
+            val readBack = try {
+                PdfAigcReader.readLatestAigc(file.readBytes())
+            } catch (failure: Exception) {
+                throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID, failure)
+            }
+            return readBack?.json
+        }
 
     private companion object {
         val SHA_256 = Regex("[a-f0-9]{64}")

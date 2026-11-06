@@ -22,6 +22,8 @@ import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationOperati
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualSnapshotEntity
 import com.tingyun.smartmistakebook.core.database.dao.ErrorCauseLedgerConflictException
 import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationAttemptCommand
+import com.tingyun.smartmistakebook.core.database.port.KnowledgeRecallResult
+import com.tingyun.smartmistakebook.core.database.port.KnowledgeSearchIndexVerification
 import com.tingyun.smartmistakebook.core.database.port.ErrorCauseAppendResult
 import com.tingyun.smartmistakebook.core.database.port.ErrorCauseBindingRecord
 import com.tingyun.smartmistakebook.core.database.port.ErrorCauseObservationRecord
@@ -640,7 +642,7 @@ internal class RoomStudyDatabase(
         searchFeatures: Set<String>,
         limit: Int,
         queryText: String?,
-    ): List<KnowledgeNodeSeedRecord> = knowledgeBase.readSubjectKnowledgeRecallCandidates(
+    ): KnowledgeRecallResult = knowledgeBase.readSubjectKnowledgeRecallCandidates(
         subject = subject,
         searchFeatures = searchFeatures,
         limit = limit,
@@ -757,6 +759,14 @@ internal class RoomStudyDatabase(
 
     override suspend fun <R> withDeferredKnowledgeSearchFeatureIndexes(block: suspend () -> R): R =
         knowledgeImportMaintenance.withDeferredFeatureIndexes(block)
+
+    /** B35：导入路径启动自愈的前半步——只读核验（无写副作用），见 [RoomKnowledgeBaseStore]。 */
+    override suspend fun verifyKnowledgeSearchIndexCompleteness(): KnowledgeSearchIndexVerification =
+        knowledgeBase.verifyAllKnowledgeSearchIndexes()
+
+    /** B35：导入路径启动自愈的单科写侧修复（旧读路径写自愈体的唯一调用点）。 */
+    override suspend fun healKnowledgeSearchIndex(subject: String) =
+        knowledgeBase.healKnowledgeSearchIndex(subject)
 
     override suspend fun applyReviewedKnowledgePack(
         command: ApplyReviewedKnowledgePackCommand,

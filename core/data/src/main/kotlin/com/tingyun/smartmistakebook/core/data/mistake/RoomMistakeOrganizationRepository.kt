@@ -224,12 +224,14 @@ internal class RoomMistakeOrganizationRepository(
             }
         }
         val questionText = QuestionDocumentMarkdownProjection.project(currentDocument.document)
+        // B35：召回口改形（candidates + indexComplete）；归类路径只用候选集，标记由
+        // 讲题装配层合成披露。候选集语义与改前逐字一致。
         val recallCandidates = database.readSubjectKnowledgeRecallCandidates(
             subject = current.subject,
             searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion(questionText),
             limit = MAX_KNOWLEDGE_RECALL_CANDIDATES,
             queryText = questionText,
-        )
+        ).candidates
         val initialKnowledgeRecords = KnowledgeContextRetriever.select(
             candidates = recallCandidates,
             questionText = questionText,

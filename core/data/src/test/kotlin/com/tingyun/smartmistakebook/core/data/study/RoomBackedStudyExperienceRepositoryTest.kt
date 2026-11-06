@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.study
 
 import com.tingyun.smartmistakebook.core.database.ImmutablePayloadConflictException
+import com.tingyun.smartmistakebook.core.database.port.KnowledgeRecallResult
 import com.tingyun.smartmistakebook.core.database.ReviewLogEntry
 import com.tingyun.smartmistakebook.core.database.dao.ArchivedEntrySummaryRow
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
@@ -2758,12 +2759,16 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         searchFeatures: Set<String>,
         limit: Int,
         queryText: String?,
-    ): List<KnowledgeNodeSeedRecord> =
+    ): KnowledgeRecallResult =
         // Filtered by subject and truncated, but deliberately not matched against
         // searchFeatures: resolution quality belongs to the real index and is
         // covered by the instrumented test against Room. What these tests need is
         // a deterministic "the words resolved to these nodes" answer.
-        recallCandidates.filter { it.subject == subject }.take(limit)
+        // B35：召回口改形后假端口带完整标记（真库的完整性判定由仪器化用例钉住）。
+        KnowledgeRecallResult(
+            candidates = recallCandidates.filter { it.subject == subject }.take(limit),
+            indexComplete = true,
+        )
 
     override suspend fun readKnowledgeNodesByIds(ids: Set<String>):
         List<KnowledgeNodeSeedRecord> = knowledgeNodes.filter { it.knowledgeNodeId in ids }

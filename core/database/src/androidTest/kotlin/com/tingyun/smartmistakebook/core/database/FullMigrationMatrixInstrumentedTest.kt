@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.database
 
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.sqlite.driver.AndroidSQLiteDriver
@@ -2027,6 +2028,73 @@ class FullMigrationMatrixInstrumentedTest {
             connection.close()
         }
     }
+
+    /**
+     * 批次 40 / WS2 item 13：v72→73 只建错因两表，**旧行一行不动**。
+     *
+     * 矩阵主用例用的是空库，看不出"旧行还在不在"；这里在 v72 库里先写一行
+     * `attempt_submission`（无外键、三列全非空），迁移后逐项断言：
+     * 1. 旧行仍在；2. 两张新表存在且为空；3. `active_key` 唯一索引已建。
+     */
+    @Test
+    fun errorCauseTablesAreCreatedEmptyWhileV72RowsSurvive() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "error-cause-73-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        try {
+            createDatabaseFromExportedSchema(context, databaseName, version = 72)
+            SQLiteDatabase.openDatabase(
+                context.getDatabasePath(databaseName).absolutePath,
+                null,
+                SQLiteDatabase.OPEN_READWRITE,
+            ).use { database ->
+                database.execSQL(
+                    "INSERT INTO attempt_submission " +
+                        "(submission_id, learner_id, payload_fingerprint) VALUES (?, ?, ?)",
+                    arrayOf("submission-1", "learner-1", "fingerprint-1"),
+                )
+            }
+
+            val migrated = StudyDatabaseFactory.open(context, databaseName)
+            assertEquals(
+                "Room 是惰性打开：先读版本强制它把 v72 库迁到 73",
+                STUDY_DATABASE_VERSION,
+                migrated.readDatabaseVersion(),
+            )
+            migrated.close()
+
+            SQLiteDatabase.openDatabase(
+                context.getDatabasePath(databaseName).absolutePath,
+                null,
+                SQLiteDatabase.OPEN_READONLY,
+            ).use { database ->
+                assertEquals("旧行必须原样保留", 1, countRows(database, "attempt_submission"))
+                assertEquals(0, countRows(database, "error_cause_observation"))
+                assertEquals(0, countRows(database, "error_cause_binding"))
+                assertTrue(
+                    "73.json 与真库都必须有 active_key 唯一索引",
+                    indexExists(database, "index_error_cause_binding_active_key"),
+                )
+            }
+        } finally {
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    private fun countRows(database: SQLiteDatabase, table: String): Long =
+        database.rawQuery("SELECT COUNT(*) FROM `$table`", null).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            cursor.getLong(0)
+        }
+
+    private fun indexExists(database: SQLiteDatabase, name: String): Boolean =
+        database.rawQuery(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND name = ?",
+            arrayOf(name),
+        ).use { cursor ->
+            assertTrue(cursor.moveToFirst())
+            cursor.getLong(0) > 0
+        }
 
     private class ArchiveRow(
         val projectionName: String,

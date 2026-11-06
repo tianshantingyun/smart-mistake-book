@@ -38,13 +38,19 @@ interface KnowledgeReadPort {
      * 词面次序。**长度语义不变**（≤ limit 个 matched + 父节点）；救援配额 = 1 时，稠密腿可能
      * 用 1 个同科、可信、非退役的 dense-only 节点**替换第 5 槽**，其余成员的成员与相对次序
      * 不变（契约见 `DenseRecallReranker` 与 `DenseRecallOrdering.withRescueSlot`）。
+     *
+     * B35（2026-11-07，读路径只读化）：返回值带 [KnowledgeRecallResult.indexComplete]——
+     * 检索索引对该科**未核验完整**时调用方必须拿到显式降级标记，而不是静默空/静默子集
+     * （空 + 无标记 = 静默空，是 G3 的硬失败口径）。本读口**零写副作用**：判定不完整时不补、
+     * 不重建，查询照常返回（缺特征行的查询天然返回子集）；写侧修复在导入路径启动自愈
+     * （[KnowledgeWritePort.healKnowledgeSearchIndex]）。
      */
     suspend fun readSubjectKnowledgeRecallCandidates(
         subject: String,
         searchFeatures: Set<String>,
         limit: Int,
         queryText: String? = null,
-    ): List<KnowledgeNodeSeedRecord>
+    ): KnowledgeRecallResult
 
     suspend fun readKnowledgeNodesByIds(ids: Set<String>): List<KnowledgeNodeSeedRecord>
 
@@ -194,6 +200,29 @@ interface KnowledgeReadPort {
 }
 
 /**
+ * B35（2026-11-07，读路径只读化）：召回口的结果 —— 候选集 + **检索索引完整性标记**。
+ *
+ * 消灭的失败：改前召回口返回裸 `List`，「索引没建好/该科缺特征行」与「真的没有候选」
+ * 在调用方不可区分（未就绪 ⇒ 静默空）。导入期探测（G3）把「空结果但没带标记」判为
+ * 静默空硬失败；带上 [indexComplete] 后，`IMPORTING`（合成口径见 core:data 装配层）下
+ * 的不完整/空结果是**显式降级**，不再是无声的假话。
+ *
+ * [indexComplete] = 召回路径对 `subject` 的只读核验结论（判据与旧读路径自愈前半逐条一致）。
+ * 它只描述**词面特征索引**；稠密腿是否在场、精排是否零命中都不由它表达。
+ * 合成 `INSTALLED` / `IMPORTING` 最终标记的单一口径在 core:data（`isInstallUpToDate`
+ * 共用安装快路径判定，不复制第二份比较逻辑）。
+ */
+data class KnowledgeRecallResult(
+    /** ≤ limit 个 matched + 其父节点，语义与改前逐字一致（排序、去重、稠密腿重排不变）。 */
+    val candidates: List<KnowledgeNodeSeedRecord>,
+    /**
+     * false = 该科检索索引未核验完整（锚点缺失/不等，或同版本下 已索引 < 已审校）。
+     * 本读口不修复：缺特征行的查询天然返回子集；写侧修复在导入路径启动自愈。
+     */
+    val indexComplete: Boolean,
+)
+
+/**
  * One row of the 3E full-library scan source ([KnowledgeReadPort.readFullLibraryScanNodes]):
  * one **active** knowledge node's in-book bound questions plus its quiz-able material group.
  *
@@ -214,6 +243,17 @@ data class FullLibraryScanNodeRecord(
     val boundPracticeUnitIds: List<String>,
     /** Quiz-able material group (`material_id`), or null when this node has no usable material. */
     val materialGroupId: String?,
+)
+
+/**
+ * B35：导入路径启动自愈的**只读核验**结果（[KnowledgeWritePort.verifyKnowledgeSearchIndexCompleteness]）。
+ *
+ * [subjects] = 实际核验的科目集（`knowledge_node.subject` 去重）；[incomplete] = 其中判定
+ * **不完整**的子集（锚点缺失/不等，或同版本下 已索引 < 已审校），保持 [subjects] 的顺序。
+ */
+data class KnowledgeSearchIndexVerification(
+    val subjects: List<String>,
+    val incomplete: List<String>,
 )
 
 /**
@@ -325,6 +365,35 @@ interface KnowledgeWritePort {
      * EXISTS` 在索引已在时是 O(1) 元数据检查，不重排数据。
      */
     suspend fun ensureKnowledgeSearchFeatureIndexes() {}
+
+    /**
+     * B35（2026-11-07，读路径只读化）：**只读核验**库内全部科目的检索索引完整性
+     * （科目集由实现方从 `knowledge_node.subject` 去重读取，与
+     * [com.tingyun.smartmistakebook.core.model.KnowledgeSearchIndexRebuildPort.listKnowledgeSubjects]
+     * 同源）。核验是导入路径启动自愈的前半步；读路径（召回）对本科的核验由
+     * [KnowledgeReadPort.readSubjectKnowledgeRecallCandidates] 的 `indexComplete` 承载。
+     *
+     * 判定口径与旧读路径自愈前半**逐条一致**（K1 缓存命中 = 零 DAO；未命中 = 版本锚点 +
+     * 两条 COUNT）；任何分支不写库、不补行、不重建。崩溃安全的写侧修复在
+     * [healKnowledgeSearchIndex]。
+     *
+     * 默认实现返回零科目（无可核验内容）：测试替身与历史适配器不做核验。
+     */
+    suspend fun verifyKnowledgeSearchIndexCompleteness(): KnowledgeSearchIndexVerification =
+        KnowledgeSearchIndexVerification(subjects = emptyList(), incomplete = emptyList())
+
+    /**
+     * B35（2026-11-07，读路径只读化）：导入路径启动自愈的**单科修复**——旧读路径写自愈体
+     * 迁出的唯一落点（`BundledKnowledgeBaseInstaller.install()` 在快路径判定之前调用）。
+     *
+     * 两个分支原语义：锚点缺失/不等 ⇒ 整科重建（[KnowledgeSearchIndexRebuildPort]
+     * 同款 builder：分块短写事务、锚点最后写）；同版本下 已索引 < 已审校 ⇒ 事务内只补缺。
+     * 「快路径命中但核验不完整」不得跳过：KD-51 取消窗口的「锚点当前 + 索引半成品」
+     * 原来靠读路径兜底，读路径只读化后必须由这里接住。
+     *
+     * 默认实现为空操作：测试替身与历史适配器没有可修复的索引。
+     */
+    suspend fun healKnowledgeSearchIndex(subject: String) {}
 
     /**
      * 在「`knowledge_search_feature` 二级索引暂时移除」的窗口内执行 [block]，退出

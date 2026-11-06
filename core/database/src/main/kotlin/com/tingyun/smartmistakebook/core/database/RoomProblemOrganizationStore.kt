@@ -171,6 +171,16 @@ internal class RoomProblemOrganizationStore(
                         }
                     }
                 }
+                // B35（2026-11-07，读路径只读化）：确认路径**同一写事务**内补写检索特征行——
+                // 消灭失效④对读时自愈的依赖。改前确认落 USER_CONFIRMED 节点但不建特征行，
+                // 靠下一次召回的读路径只补缺兜底；读路径只读化后没有人再接住它（K1 的
+                // 「确认后立刻召回」用例会红），所以特征行必须在这里与节点同事务落库。
+                // 行集 = 与 insertKnowledgeNodes 同集合的 `toSearchFeatures()`（与整科重建/
+                // 只补缺同一个抽取器，只此一份）；插入复用补缺同款 `insertKnowledgeSearchFeatures`
+                //（`OR IGNORE`）——重复确认/已有特征行的节点不重复写，幂等。
+                dao.insertKnowledgeSearchFeatures(
+                    command.knowledgeNodes.flatMap(KnowledgeNodeSeedRecord::toSearchFeatures),
+                )
             }
             val knowledgeBindings = command.knowledgeBindings
                 .map(KnowledgeBindingSeedRecord::toOrganizationEntity)
@@ -283,12 +293,12 @@ internal class RoomProblemOrganizationStore(
                 receipt = expectedReceipt.toRecord(),
             )
         }
-        // ④-6（K1 批 1）：整理确认的判定缓存失效（**提交后**才失效——失效在前会把
-        // "提交前旧判定"的并发验证放行，落成假完整）。本命令携带的知识节点是
-        // USER_CONFIRMED 的（用户纠正）或独占该节点事实的，它们此刻没有特征行；
-        // 下一次召回必须重新核验并走只补缺，否则新知识点永远不进召回索引。
-        // 幂等重放（created=false 的提前返回）也走同一条保守失效：命令携带的节点集不变，
-        // 失效只是让下一次召回多付一次核验，不影响正确性。
+        // ④-6（K1 批 1；B35 后语义更新）：整理确认的判定缓存失效（**提交后**才失效——失效
+        // 在前会把"提交前旧判定"的并发验证放行，落成假完整）。B35 起确认路径已**同事务写
+        // 特征行**（见上方 insertKnowledgeSearchFeatures），"确认后无特征行靠读时自愈补"的
+        // 原失败已消灭；这条保守失效保留，防两类残余：①幂等重放（created=false）携带的节点
+        // 特征行可能不完整/来自旧版本库态；②本事务之外的索引相关写入（未来新增写路径）不得
+        // 带着安装前的"完整"结论放行。失效只让下一次召回多付一次核验，不影响正确性。
         command.knowledgeNodes
             .mapTo(linkedSetOf(), KnowledgeNodeSeedRecord::subject)
             .forEach(searchIndexCompleteness::invalidate)

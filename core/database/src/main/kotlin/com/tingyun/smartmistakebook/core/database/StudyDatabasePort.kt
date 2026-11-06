@@ -11,6 +11,7 @@ import com.tingyun.smartmistakebook.core.database.port.CaptureWritePort
 import com.tingyun.smartmistakebook.core.database.port.CleanRedrawTaskPort
 import com.tingyun.smartmistakebook.core.database.port.DraftReadPort
 import com.tingyun.smartmistakebook.core.database.port.DraftWritePort
+import com.tingyun.smartmistakebook.core.database.port.ErrorCausePort
 import com.tingyun.smartmistakebook.core.database.port.ExportRecordPort
 import com.tingyun.smartmistakebook.core.database.port.FigureGenerationAuditPort
 import com.tingyun.smartmistakebook.core.database.port.FigureGenerationRecorderPort
@@ -119,6 +120,7 @@ interface StudyDatabasePort : AutoCloseable, ModelTaskDatabasePort,
     FigureGenerationAuditPort,
     FigureGenerationRecorderPort,
     KnowledgeSearchIndexRebuildPort,
+    ErrorCausePort,
     TutorVisualPort {
 
     /** Diagnostic: the SQLite PRAGMA user_version of the opened database. */

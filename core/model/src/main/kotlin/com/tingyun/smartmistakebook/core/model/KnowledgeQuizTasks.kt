@@ -160,6 +160,13 @@ object ModelTaskCompletionValidator {
         } else {
             listOf(typeMismatch())
         }
+        // 6B-3 改卷：形状门在 PaperEditOutput 的构造期（白名单解析器）已经跑过，这里只核对
+        // "输入类型 ↔ 输出类型"。把解析器再复制一份到这里会让两条判据各自漂移。
+        is PaperEditInput -> if (output is PaperEditOutput) {
+            emptyList()
+        } else {
+            listOf(typeMismatch())
+        }
         is TutorPlanInput -> if (output is TutorPlanOutput) {
             validateTutorPlan(input, output)
         } else {

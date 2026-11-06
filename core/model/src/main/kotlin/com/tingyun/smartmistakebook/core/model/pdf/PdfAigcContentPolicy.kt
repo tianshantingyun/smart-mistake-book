@@ -16,9 +16,18 @@ package com.tingyun.smartmistakebook.core.model.pdf
  * AI 内容；程序化 JS 图形（确定性代码绘制，不是模型推理）。这是《办法》第十条"不得伪造标识"
  * 的边界，不能为了"更安全"把所有导出都打标。
  *
- * 本对象零 Android 依赖；`core:export` 是热区，本批只落判据，不改进导出调用点（见结果登记）。
+ * 本对象零 Android 依赖；`core:export` 的 `MistakePdfEligibility` 从 `blockEvidence` 派生
+ * 「含模型解析文本」，`MistakePdfExporter.labelPdfInPlace` 用**同一次** [shouldLabel] 调用覆盖
+ * AI 图与模型文本（不另起第二条注入分支）。
  */
 object PdfAigcContentPolicy {
+
+    /**
+     * 判据/注入行为的代际。改判据、改写入范围、改注入算法都必须 +1；缓存哨兵名与导出指纹
+     * 都从它派生（`MistakePdfExporter.AIGC_POLICY_SENTINEL`、`exportFingerprintPolicyTag()`），
+     * 三处不一致时 `MistakePdfExporterAigcJvmTest` 的「三方一致」用例会红。
+     */
+    const val GENERATION: Int = 2
 
     /** 与 `core:model` 的 `QuestionBlockProvenance.MODEL_DOCUMENT_PARSE` 同名对齐。 */
     const val MODEL_DOCUMENT_PARSE_PROVENANCE: String = "MODEL_DOCUMENT_PARSE"

@@ -19,6 +19,8 @@ import com.tingyun.smartmistakebook.core.database.entity.KnowledgeTeachingMateri
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeTeachingMaterialNodeBindingEntity
 import com.tingyun.smartmistakebook.core.database.entity.PracticeUnitKnowledgeBindingEntity
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeReadPort
+import com.tingyun.smartmistakebook.core.database.port.KnowledgeRecallResult
+import com.tingyun.smartmistakebook.core.database.port.KnowledgeSearchIndexVerification
 import com.tingyun.smartmistakebook.core.database.port.FullLibraryScanNodeRecord
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBindingRecord
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeVerificationStatus
@@ -161,6 +163,12 @@ internal class RoomKnowledgeBaseStore(
      * （含词面腿无分的原子节点），端侧按任务书只重排词面召回集 —— 实测差异
      * = 90 条里 1 条的 top-5 成员、命中数 0 条（见 `tools/dense_build/stage3_device_sim.py`）。
      *
+     * **B35（2026-11-07，读路径只读化）**：本函数是**纯读路径**——判索引完整性走
+     * [verifyKnowledgeSearchIndex]（只读），不完整时**不补行、不重建**，查询照常返回
+     * （缺特征行的查询天然返回子集），但调用方拿到的 [KnowledgeRecallResult.indexComplete]
+     * 为 false（合成后 `IMPORTING`，不许静默空）。写侧自愈只存在于导入路径启动自愈
+     * （`BundledKnowledgeBaseInstaller` → [healKnowledgeSearchIndex]）。
+     *
      * @param queryText 原始查询文本（稠密腿的输入）。`null` = 该调用方不要稠密腿
      *   （例：`MASTERY_FOCUS_RESOLUTION_LIMIT` 的裸 B 路，D7 冻结了它的形态）。
      */
@@ -169,7 +177,7 @@ internal class RoomKnowledgeBaseStore(
         searchFeatures: Set<String>,
         limit: Int,
         queryText: String? = null,
-    ): List<KnowledgeNodeSeedRecord> {
+    ): KnowledgeRecallResult {
         require(subject.isNotBlank()) { "subject must not be blank" }
         require(limit in 1..MAX_KNOWLEDGE_RECALL_CANDIDATES) {
             "knowledge recall candidate limit is outside the supported range"
@@ -178,9 +186,13 @@ internal class RoomKnowledgeBaseStore(
             "knowledge recall query has too many search features"
         }
         if (searchFeatures.isEmpty()) {
-            return readSubjectKnowledgeNodes(subject, limit.coerceAtMost(256))
+            // 纯按科列举不经特征索引（无词面可查）：结果与索引完整性无关，标记不降级。
+            return KnowledgeRecallResult(
+                candidates = readSubjectKnowledgeNodes(subject, limit.coerceAtMost(256)),
+                indexComplete = true,
+            )
         }
-        ensureKnowledgeSearchIndex(subject)
+        val indexComplete = verifyKnowledgeSearchIndex(subject)
         val dao = database.problemOrganizationDao()
         val rows = dao.searchSubjectKnowledgeRecallCandidates(subject, searchFeatures, limit)
         val matched = rerankMatchOrder(subject, queryText, rows)
@@ -188,9 +200,12 @@ internal class RoomKnowledgeBaseStore(
         val parents = dao.readKnowledgeNodesByIds(
             matched.mapNotNullTo(hashSetOf(), KnowledgeNodeEntity::parentKnowledgeNodeId) - matchedIds,
         )
-        return (matched + parents)
-            .distinctBy(KnowledgeNodeEntity::knowledgeNodeId)
-            .map(KnowledgeNodeEntity::toSeedRecord)
+        return KnowledgeRecallResult(
+            candidates = (matched + parents)
+                .distinctBy(KnowledgeNodeEntity::knowledgeNodeId)
+                .map(KnowledgeNodeEntity::toSeedRecord),
+            indexComplete = indexComplete,
+        )
     }
 
     /**
@@ -224,7 +239,55 @@ internal class RoomKnowledgeBaseStore(
     }
 
     /**
-     * 检索索引自愈，两级门：
+     * 检索索引**只读核验**（B35 读路径只读化，2026-11-07）。判定口径与旧读路径自愈的前半
+     * **逐条一致**，任何分支都不写库：
+     *
+     * 1. **版本锚点**（`knowledge_search_index_state`）：抽取规则版本见
+     *    [KnowledgeSearchFeatureExtractor.INDEX_VERSION]——锚点缺失或**不等** ⇒ 不完整
+     *    （修复=整科重建，只发生在 [healKnowledgeSearchIndex]，见其分支说明）。
+     * 2. 同版本下「已审校 = 0 或 已索引 ≥ 已审校」才算完整；`已索引 < 已审校` ⇒ 不完整
+     *    （修复=事务内只补缺，同上）。
+     *
+     * ④-6（K1 批 1）：判定结论进 [searchIndexCompleteness] 缓存。**缓存命中 = 零 DAO 调用**
+     * （连锚点都不读）——"已审校=0 或 已索引≥已审校"在上一次验证后没有任何写路径失效时
+     * 恒真。失效代号在读计数**之前**观察：期间任何写路径失效都让本次结论作废（在途验证
+     * 不得把重建前/安装前的旧读落成"完整"）。**落缓存是内存写，不是库写**——本函数因此
+     * 保持纯读。
+     *
+     * 返回 false 时调用方（召回口）把 [KnowledgeRecallResult.indexComplete] 降级为 false
+     * 并照常返回查询结果；**不在这里补行/重建**（旧读路径写自愈已整体迁出到
+     * [healKnowledgeSearchIndex]，它是该写体的唯一调用点）。
+     */
+    private suspend fun verifyKnowledgeSearchIndex(subject: String): Boolean {
+        val completeness = searchIndexCompleteness
+        if (completeness.isVerifiedComplete(subject)) return true
+        val observedGeneration = completeness.readInvalidationGeneration(subject)
+        val dao = database.problemOrganizationDao()
+        val stateDao = database.knowledgeSearchIndexStateDao()
+        completeness.recordVerificationQuery(SearchIndexVerificationQueries.READ_INDEX_VERSION)
+        if (stateDao.readVersion(subject) != KnowledgeSearchFeatureExtractor.INDEX_VERSION) {
+            return false
+        }
+        completeness.recordVerificationQuery(SearchIndexVerificationQueries.COUNT_REVIEWED)
+        val reviewedCount = dao.countReviewedKnowledgeNodesBySubject(subject)
+        if (reviewedCount == 0) {
+            completeness.markVerifiedCompleteIfUnchanged(subject, observedGeneration)
+            return true
+        }
+        completeness.recordVerificationQuery(SearchIndexVerificationQueries.COUNT_INDEXED)
+        if (dao.countIndexedKnowledgeNodesBySubject(subject) >= reviewedCount) {
+            completeness.markVerifiedCompleteIfUnchanged(subject, observedGeneration)
+            return true
+        }
+        return false
+    }
+
+    /**
+     * 检索索引**写侧自愈**（B35 读路径只读化，2026-11-07）：旧读路径自愈体（写分支）整体
+     * 迁到这里。**唯一调用点 = 导入路径启动自愈**（`BundledKnowledgeBaseInstaller.install()`
+     * 在快路径判定之前经 `KnowledgeWritePort.healKnowledgeSearchIndex` 进入）；读路径零写副作用。
+     *
+     * 两级门（与旧 ensure 逐条一致）：
      *
      * 1. **版本锚点**（`knowledge_search_index_state`）：节点侧抽取规则变化时见
      *    [KnowledgeSearchFeatureExtractor.INDEX_VERSION]（当前 = v1 的 16 片段 / 192 特征
@@ -240,16 +303,9 @@ internal class RoomKnowledgeBaseStore(
      * S21（2026-10-02）：整科重建分支与**内容安装期**共用 [KnowledgeSearchIndexBuilder]——
      * 安装已经建好索引并写好锚点，正常路径下这里只做版本读取与"只补缺"检查；本函数仍是
      * 抽取规则换版/锚点缺失时的自愈兜底。
-     *
-     * ④-6（K1 批 1）：判定结论进 [searchIndexCompleteness] 缓存。**缓存命中 = 零 DAO 调用**
-     * （连锚点都不读）——"已审校=0 或 已索引≥已审校"在上一次验证后没有任何写路径失效时
-     * 恒真。失效代号在读计数**之前**观察：期间任何写路径失效都让本次结论作废（在途验证
-     * 不得把重建前/安装前的旧读落成“完整”）。
      */
-    private suspend fun ensureKnowledgeSearchIndex(subject: String) {
+    suspend fun healKnowledgeSearchIndex(subject: String) {
         val completeness = searchIndexCompleteness
-        if (completeness.isVerifiedComplete(subject)) return
-        val observedGeneration = completeness.readInvalidationGeneration(subject)
         val dao = database.problemOrganizationDao()
         val stateDao = database.knowledgeSearchIndexStateDao()
         completeness.recordVerificationQuery(SearchIndexVerificationQueries.READ_INDEX_VERSION)
@@ -257,12 +313,10 @@ internal class RoomKnowledgeBaseStore(
             completeness.recordVerificationQuery(SearchIndexVerificationQueries.COUNT_REVIEWED)
             val reviewedCount = dao.countReviewedKnowledgeNodesBySubject(subject)
             if (reviewedCount == 0) {
-                completeness.markVerifiedCompleteIfUnchanged(subject, observedGeneration)
                 return
             }
             completeness.recordVerificationQuery(SearchIndexVerificationQueries.COUNT_INDEXED)
             if (dao.countIndexedKnowledgeNodesBySubject(subject) >= reviewedCount) {
-                completeness.markVerifiedCompleteIfUnchanged(subject, observedGeneration)
                 return
             }
             database.withWriteTransaction {
@@ -282,6 +336,16 @@ internal class RoomKnowledgeBaseStore(
             return
         }
         searchIndexBuilder.rebuildSubject(subject)
+    }
+
+    /**
+     * B35：只读核验**库内全部科目**（导入路径启动自愈的前半步，无任何写副作用）。
+     * 科目集与恢复路径的 `listKnowledgeSubjects` 同源（`knowledge_node.subject` 去重）。
+     */
+    suspend fun verifyAllKnowledgeSearchIndexes(): KnowledgeSearchIndexVerification {
+        val subjects = database.problemOrganizationDao().readKnowledgeSubjects()
+        val incomplete = subjects.filterNot { verifyKnowledgeSearchIndex(it) }
+        return KnowledgeSearchIndexVerification(subjects = subjects, incomplete = incomplete)
     }
 
     suspend fun readKnowledgeNodesByIds(ids: Set<String>): List<KnowledgeNodeSeedRecord> {
