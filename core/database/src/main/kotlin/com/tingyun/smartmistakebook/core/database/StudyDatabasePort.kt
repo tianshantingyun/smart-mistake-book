@@ -119,9 +119,14 @@ interface StudyDatabasePort : AutoCloseable, ModelTaskDatabasePort,
     CleanRedrawTaskPort,
     FigureGenerationAuditPort,
     FigureGenerationRecorderPort,
+    com.tingyun.smartmistakebook.core.database.port.MistakeEditJobPort,
+    com.tingyun.smartmistakebook.core.database.port.DetailedSolutionPort,
     KnowledgeSearchIndexRebuildPort,
     ErrorCausePort,
     TutorVisualPort {
+    val paperReviews: com.tingyun.smartmistakebook.core.database.dao.PaperReviewStore
+        get() = throw UnsupportedOperationException("Paper review storage is unavailable")
+
 
     /** Diagnostic: the SQLite PRAGMA user_version of the opened database. */
     suspend fun readDatabaseVersion(): Int = 0

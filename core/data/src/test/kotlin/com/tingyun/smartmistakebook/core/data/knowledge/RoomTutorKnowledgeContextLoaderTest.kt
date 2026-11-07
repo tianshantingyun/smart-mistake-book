@@ -198,6 +198,6 @@ class RoomTutorKnowledgeContextLoaderTest {
             searchFeatures: Set<String>,
             limit: Int,
             queryText: String?,
-        ): List<KnowledgeNodeSeedRecord> = throw IllegalStateException("boom")
+        ): com.tingyun.smartmistakebook.core.database.port.KnowledgeRecallResult = throw IllegalStateException("boom")
     }
 }

@@ -104,7 +104,7 @@ internal fun SchedulingSettingsScreen(
                 Slider(
                     value = options.desiredRetention.toFloat(),
                     onValueChange = { value ->
-                        onSetOptions(options.copy(desiredRetention = value.toDouble()))
+                        onSetOptions(options.copy(desiredRetention = retentionFromSlider(value)))
                     },
                     valueRange = 0.7f..0.97f,
                     steps = 26,
@@ -235,3 +235,6 @@ private fun ExamCalendarEditor(
         Text("添加考试")
     }
 }
+
+internal fun retentionFromSlider(value: Float): Double =
+    value.toDouble().coerceIn(0.7, 0.97)

@@ -44,7 +44,7 @@ class KnowledgeReadRecallBudgetTest {
             searchFeatures: Set<String>,
             limit: Int,
             queryText: String?,
-        ): List<KnowledgeNodeSeedRecord> {
+        ): com.tingyun.smartmistakebook.core.database.port.KnowledgeRecallResult {
             recallLimits += limit
             recallQueryTexts += queryText
             return super.readSubjectKnowledgeRecallCandidates(

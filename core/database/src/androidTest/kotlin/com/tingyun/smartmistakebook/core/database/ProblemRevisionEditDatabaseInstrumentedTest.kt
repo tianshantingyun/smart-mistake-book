@@ -16,6 +16,7 @@ import com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence
 import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
 import com.tingyun.smartmistakebook.core.model.QuestionBlockReviewStatus
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
+import com.tingyun.smartmistakebook.core.model.StoredFigureReference
 import com.tingyun.smartmistakebook.core.model.VisualRole
 import com.tingyun.smartmistakebook.core.model.WritingLayer
 import kotlinx.coroutines.Dispatchers
@@ -49,6 +50,45 @@ class ProblemRevisionEditDatabaseInstrumentedTest {
     @After
     fun tearDown() {
         store.close()
+    }
+
+    @Test
+    fun textRevisionPreservesInheritedFiguresAndRejectsReboundReferences() = runBlocking {
+        seedCommittedProblem()
+        seedOldBasisWork()
+        val figure = StoredFigureReference("stem", ASSET_CLEAN, "c".repeat(64), VisualRole.CLEAN_IMAGE)
+        val baseline = document("第一版题面").copy(storedFigureReferences = listOf(figure))
+        val snapshot = CapturedQuestionDocumentCodec.encode(baseline).replace("'", "''")
+        val fingerprint = CapturedQuestionDocumentFingerprint.of(baseline)
+        (store as RoomStudyDatabase).database.withWriteTransaction {
+            // This fixture represents a previously adopted, persisted figure on the original revision.
+            executeSQL(
+                "UPDATE problem_revision SET question_document_snapshot = '$snapshot', " +
+                    "content_fingerprint = '$fingerprint' WHERE revision_id = '$REVISION_ONE'",
+            )
+        }
+
+        val edited = document("修改后的文字").copy(storedFigureReferences = listOf(figure))
+        val rebound = edited.copy(storedFigureReferences = listOf(figure.copy(contentSha256 = "f".repeat(64))))
+        val rejected = runCatching {
+            store.writer().reviseCommittedProblem(command(rebound, commandId = "rebound-figure"))
+        }
+        assertTrue("A changed asset hash needs new figure authority", rejected.exceptionOrNull() is IllegalArgumentException)
+        assertEquals(REVISION_ONE, store.readMistakeDetail(ENTRY_ID)?.problemRevisionId)
+        assertEquals(1, store.readMistakeRevisionHistory(ENTRY_ID).size)
+
+        val saved = store.writer().reviseCommittedProblem(command(edited, commandId = "retained-figure"))
+            as ReviseCommittedProblemResult.Saved
+        assertTrue(saved.created)
+        val current = checkNotNull(store.readMistakeDetail(ENTRY_ID))
+        val persisted = CapturedQuestionDocumentCodec.decode(checkNotNull(current.questionDocumentSnapshot))
+        assertEquals(listOf(figure), persisted.storedFigureReferences)
+        assertTrue(current.sourceAssets.any {
+            it.sourceAsset.sourceAssetId == figure.assetId &&
+                it.sourceAsset.contentSha256 == figure.contentSha256 && it.role == figure.role.name
+        })
+        val original = checkNotNull(store.readExactMistakeDetail(ENTRY_ID, PROBLEM_ID, REVISION_ONE))
+        assertEquals(baseline, CapturedQuestionDocumentCodec.decode(checkNotNull(original.questionDocumentSnapshot)))
     }
 
     @Test

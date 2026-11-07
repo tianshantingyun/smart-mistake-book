@@ -89,7 +89,7 @@ class TutorSurfacePolicyTest {
         ).block()
 
         assertNotNull("会话结束后输入框也不能消失（A5）", block)
-        assertTrue(block!!.reason.contains("已经结束"))
+        assertTrue(block!!.reason.contains("已结束"))
         // 确实没有可以发过去的对象：输入框在，但不假装能输入。
         assertTrue(block.inputDisabled)
         assertNull(block.action)
@@ -116,7 +116,7 @@ class TutorSurfacePolicyTest {
             conversationEnded = true,
         ).block()
 
-        assertTrue(block!!.reason.contains("已经结束"))
+        assertTrue(block!!.reason.contains("已结束"))
         assertTrue(block.inputDisabled)
     }
 

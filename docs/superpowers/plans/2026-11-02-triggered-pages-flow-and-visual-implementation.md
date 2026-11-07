@@ -175,3 +175,18 @@ fun paperReviewAgentPhotos(photos: List<PaperReviewPhoto>, ordinal: Int, selecte
 - 页面：四主入口与模型设置原生导航1项通过；实际查看当前错题本、智能体以及隐私、提醒、复习安排、存储页面，纸质页等到稳定空态并验证返回今日复习。模型设置保留FLAG_SECURE，不以受保护黑屏截图作为视觉证据。其余状态沿用前述逐路由证据等级，不声称所有模型、照片和实体打印状态均已重验。
 - 本次以这版UI为后续基准：暖白/青绿、克制点缀色、编辑式清单排版、共用图标/层次与减少动态效果规则；不另起视觉方案。在线模型请求、实体打印和真机帧率/耗电不在此次验证范围。
 - 详细日志与截图：既有授权证据目录中的ui-final-1106-*及ui-feedback-final-*。当前工作树整合远程主分支；D:/smart mistake book的未提交工作保持原样。
+
+## 后端生产接线复核与工作树收口（2026-11-07）
+
+当前UI工作树快进到main的ba7b5624后复查。后续手工并集合并遗漏过已有UI后端实现，已恢复StudyDatabasePort的改题/详细答案端口、纸卷存储，以及Room门面的改题任务、答案清单、成对导出、外层题图和目录查询/监听实现。保留主线新增KnowledgeRecallResult、索引核验/自愈及最新LIVE快照接口。
+
+- 修复模型合成探测请求与解析器不一致，新回归用例先复现缺字段失败，再验证改题及详细答案能力标记。
+- 已有配图的题目修改文字时允许继承原版本完全一致的配图引用，新引用仍需采用任务授权。真实Room用例验证伪造SHA拒绝、事务回滚及正常保存。
+- 设置已保存但列表刷新失败时，提示准确反映两个阶段。修复记忆目标滑块Float端点转换，避免合法端点落在领域范围外。
+- 补齐主线接口变更后的调用方与测试替身。导出金样只移除题目区的已选答案标记并重新登记摘要，保留逐项结构校验。文案断言同步当前正式用词。
+- 新鲜验证命令覆盖feature:library、feature:tutor、feature:review、core:export全部单测，以及app导出/滑块、core:data能力/改题/答案/分类/上下文定向测试，共666项通过。应用和数据库测试包构建通过。KnowledgeCatalogSearchInstrumentedTest与ProblemRevisionEditDatabaseInstrumentedTest共16项真实Room测试通过。
+- 生产JS绘图准入仍待完成。Application的绘图协调器尚未传入JS引擎及frameInputs，改题和详细答案配图目前声明IMAGE_MODEL_ONLY。后续应由生图引擎线完成运行时准入、统一产物接线与真实入口验证。
+- 图像编辑只接受一张源图，多图参考与编辑目标的选择语义仍需磨合。纸卷历史目前全量读取且逐卷/逐图加载，规模增长有N+1成本。真实打印回传全链路、在线模型效果与大规模纸卷性能仍待专项验证。
+- 当前任务只在本UI工作树提交核验后的补丁。共享主工作树D:/smart mistake book仍有其他线的持续改动，其统一提交范围已弹窗询问，等待用户答复及各线完成状态。
+
+证据位于既有授权目录backend-1107-verification.log、backend-1107-probe-red.log、backend-1107-native.log和backend-1107-review.md。以上剩余项应随后端线收口继续核验。

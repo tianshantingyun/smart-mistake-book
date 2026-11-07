@@ -1544,10 +1544,18 @@ internal fun SmartMistakeBookRoot(
                         schedulingScope.launch {
                             try {
                                 application.schedulingSettingsStore.setOptions(updated)
-                                schedulingMessage = "已保存，新的每日时长用于下一次生成的计划。"
+                            } catch (cancelled: CancellationException) { throw cancelled }
+                            catch (_: Exception) {
+                                schedulingMessage = "保存失败，请重试。"
+                                return@launch
+                            }
+                            schedulingMessage = "已保存，新的每日时长用于下一次生成的计划。"
+                            try {
                                 repository.refresh()
                             } catch (cancelled: CancellationException) { throw cancelled }
-                            catch (_: Exception) { schedulingMessage = "保存失败，请重试；原有设置已保留。" }
+                            catch (_: Exception) {
+                                schedulingMessage = "设置已保存，复习列表暂未刷新，请稍后重试。"
+                            }
                         }
                     },
                     onAddExam = { entry ->

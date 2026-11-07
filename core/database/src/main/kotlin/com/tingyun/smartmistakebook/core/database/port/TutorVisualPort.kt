@@ -87,6 +87,21 @@ interface TutorVisualPort {
             "This StudyDatabasePort implementation does not support visual reads",
         )
 
+    /**
+     * 冷恢复/进程重建的**读侧**：本 program 最新的 LIVE 快照（`promoted_at DESC`，平局按
+     * `snapshot_id DESC`；STAGING 永不参与）。
+     *
+     * **它消灭的具体失败**：恢复的"最近 checkpoint 续读"此前没有端口级出口——
+     * `TutorVisualDao.findLatestLiveSnapshot` 是 core/database 的 internal，core/data 的
+     * 恢复调用方要么跨层直摸 DAO（依赖方向不允许），要么各自手写 SELECT（LIVE 谓词与排序
+     * 口径逐调用方漂移，"最近"是哪张变成实现细节）。读侧与写侧（stage/commit）同经
+     * [TutorVisualPort]，重建续读（批次 38 V-03）才能在端口层被测试与复用。
+     */
+    suspend fun readLatestLiveTutorVisualSnapshot(programId: String): TutorVisualSnapshotRecord? =
+        throw UnsupportedOperationException(
+            "This StudyDatabasePort implementation does not support visual reads",
+        )
+
     suspend fun readTutorMessageVisual(messageId: String, ordinal: Int): TutorMessageVisualRecord? =
         throw UnsupportedOperationException(
             "This StudyDatabasePort implementation does not support visual reads",

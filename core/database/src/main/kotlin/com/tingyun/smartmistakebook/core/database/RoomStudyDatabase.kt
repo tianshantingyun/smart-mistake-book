@@ -1,5 +1,19 @@
 package com.tingyun.smartmistakebook.core.database
 
+import com.tingyun.smartmistakebook.core.database.dao.ErrorCauseLedgerConflictException
+import com.tingyun.smartmistakebook.core.database.port.ErrorCauseAppendResult
+import com.tingyun.smartmistakebook.core.database.port.ErrorCauseBindingRecord
+import com.tingyun.smartmistakebook.core.database.port.ErrorCauseObservationRecord
+import com.tingyun.smartmistakebook.core.database.port.ErrorCauseWriteResult
+import com.tingyun.smartmistakebook.core.database.port.toEntity
+import com.tingyun.smartmistakebook.core.database.port.toRecord
+import com.tingyun.smartmistakebook.core.model.ErrorCauseDecisionSource
+import com.tingyun.smartmistakebook.core.model.ErrorCauseScope
+
+import com.tingyun.smartmistakebook.core.database.dao.toSourceRecord
+
+import com.tingyun.smartmistakebook.core.database.port.KnowledgeRecallResult
+import com.tingyun.smartmistakebook.core.database.port.KnowledgeSearchIndexVerification
 import androidx.paging.PagingSource
 import androidx.room3.RoomRawQuery
 import androidx.room3.withReadTransaction
@@ -15,23 +29,28 @@ import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealFact
 import com.tingyun.smartmistakebook.core.database.PersistedReviewLogLast
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import com.tingyun.smartmistakebook.core.database.dao.toEntity
+import com.tingyun.smartmistakebook.core.database.dao.toRecord
+import com.tingyun.smartmistakebook.core.database.dao.requireOutputAuthority
+import com.tingyun.smartmistakebook.core.database.dao.requireFigureAuthority
+import com.tingyun.smartmistakebook.core.database.port.PersistedMistakeEditJob
+import com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus
+import com.tingyun.smartmistakebook.core.model.EditBasis
+import com.tingyun.smartmistakebook.core.model.ModelTaskFingerprint
+import com.tingyun.smartmistakebook.core.model.ModelTaskLogicalOperationFingerprint
+import com.tingyun.smartmistakebook.core.model.MistakeEditChange
+import com.tingyun.smartmistakebook.core.model.StoredFigureReference
+import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicyVersion
+import com.tingyun.smartmistakebook.core.model.editFigureRole
+import com.tingyun.smartmistakebook.core.model.mistakeEditFigureOperationId
+import com.tingyun.smartmistakebook.core.model.mistakeEditFigureBasis
+import com.tingyun.smartmistakebook.core.model.mistakeEditFigureAssetId
 import java.io.File
 import com.tingyun.smartmistakebook.core.database.dao.TutorVisualDao
 import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationAttemptEntity
 import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationOperationEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualSnapshotEntity
-import com.tingyun.smartmistakebook.core.database.dao.ErrorCauseLedgerConflictException
 import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationAttemptCommand
-import com.tingyun.smartmistakebook.core.database.port.KnowledgeRecallResult
-import com.tingyun.smartmistakebook.core.database.port.KnowledgeSearchIndexVerification
-import com.tingyun.smartmistakebook.core.database.port.ErrorCauseAppendResult
-import com.tingyun.smartmistakebook.core.database.port.ErrorCauseBindingRecord
-import com.tingyun.smartmistakebook.core.database.port.ErrorCauseObservationRecord
-import com.tingyun.smartmistakebook.core.database.port.ErrorCauseWriteResult
-import com.tingyun.smartmistakebook.core.database.port.toEntity
-import com.tingyun.smartmistakebook.core.database.port.toRecord
-import com.tingyun.smartmistakebook.core.model.ErrorCauseDecisionSource
-import com.tingyun.smartmistakebook.core.model.ErrorCauseScope
 import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationOperationCommand
 import com.tingyun.smartmistakebook.core.database.port.BeginLocalFigureGenerationAttemptCommand
 import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationAttemptCommand
@@ -65,6 +84,141 @@ internal class RoomStudyDatabase(
     private val searchIndexCompleteness: KnowledgeSearchIndexCompleteness =
         KnowledgeSearchIndexCompleteness(),
 ) : StudyDatabasePort, MistakeRevisionWritePort {
+    private val detailedSolutions = com.tingyun.smartmistakebook.core.database.dao.RoomDetailedSolutionStore(database) { upsertCanonicalSourceAssetRow(it) }
+    override suspend fun freezeAnswerManifest(record: com.tingyun.smartmistakebook.core.database.port.PersistedAnswerManifest) = detailedSolutions.freezeAnswerManifest(record)
+    override suspend fun readAnswerManifest(manifestId: String) = detailedSolutions.readAnswerManifest(manifestId)
+    override fun observeAnswerManifest(manifestId: String) = detailedSolutions.observeAnswerManifest(manifestId)
+    override suspend fun updateAnswerManifest(manifestId: String, expectedVersion: Long, status: com.tingyun.smartmistakebook.core.model.DetailedSolutionPreparationStatus, atEpochMillis: Long) = detailedSolutions.updateAnswerManifest(manifestId, expectedVersion, status, atEpochMillis)
+    override suspend fun createDetailedSolution(record: com.tingyun.smartmistakebook.core.database.port.PersistedDetailedSolution) = detailedSolutions.createDetailedSolution(record)
+    override suspend fun readDetailedSolution(solutionId: String) = detailedSolutions.readDetailedSolution(solutionId)
+    override fun observeDetailedSolutions(solutionIds: List<String>) = detailedSolutions.observeDetailedSolutions(solutionIds)
+    override suspend fun updateDetailedSolution(record: com.tingyun.smartmistakebook.core.database.port.PersistedDetailedSolution) = detailedSolutions.updateDetailedSolution(record)
+    override suspend fun attachDetailedSolutionFigure(solutionId: String, expectedVersion: Long, blockId: String, attemptId: String, asset: CanonicalSourceAssetRecord, atEpochMillis: Long) = detailedSolutions.attachDetailedSolutionFigure(solutionId, expectedVersion, blockId, attemptId, asset, atEpochMillis)
+    override suspend fun verifyDetailedSolutionFigures(solutionId: String) = detailedSolutions.verifyDetailedSolutionFigures(solutionId)
+    override suspend fun latestMistakeEditJob(basis: EditBasis): PersistedMistakeEditJob? =
+        database.mistakeEditJobDao().latest(basis.entryId, basis.revisionId, basis.draftSha256)?.let { readMistakeEditJob(it.operationId) }
+    override suspend fun createMistakeEditJob(job: PersistedMistakeEditJob): PersistedMistakeEditJob = database.withWriteTransaction {
+        val dao = database.mistakeEditJobDao()
+        dao.read(job.operationId)?.let { row ->
+            val existing = requireNotNull(readMistakeEditJob(row.operationId)) { "这条修改记录已损坏，请调整修改要求后重新提交" }
+            require(ModelTaskLogicalOperationFingerprint.of(existing.request) == ModelTaskLogicalOperationFingerprint.of(job.request))
+            return@withWriteTransaction existing
+        }
+        require(job.status == MistakeEditJobStatus.QUEUED && job.stateVersion == 0L && job.generation == 0 && job.output == null && job.figures.isEmpty() && job.committedRevisionId == null)
+        require(dao.currentBasis(job.input.basis.entryId, job.input.basis.revisionId) == 1) { "Edit basis is no longer current" }
+        check(dao.insert(job.toEntity()) != -1L)
+        job
+    }
+
+    override suspend fun readMistakeEditJob(operationId: String): PersistedMistakeEditJob? = database.withWriteTransaction {
+        val dao = database.mistakeEditJobDao()
+        val row = dao.read(operationId) ?: return@withWriteTransaction null
+        try { row.toRecord() }
+        catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+        catch (_: Exception) {
+            try {
+                val base = row.copy(status = "FAILED", outputSnapshot = null, figuresSnapshot = "[]").toRecord()
+                require(base.committedRevisionId == null)
+                val output = requireNotNull(dao.completedOutput(base.request.requestId, ModelTaskFingerprint.of(base.request)))
+                    .let { com.tingyun.smartmistakebook.core.model.ModelTaskCodec.decodeOutput(it) as com.tingyun.smartmistakebook.core.model.MistakeEditOutput }
+                require(output.basis == base.input.basis)
+                output.suggestion.requireMatches(base.input)
+                val changes = output.suggestion.changes.filterIsInstance<MistakeEditChange.ReplaceFigure>()
+                val refs = changes.mapNotNull { change ->
+                    val purpose = change.proposal.purpose ?: return@mapNotNull null
+                    dao.recoverFigure(mistakeEditFigureOperationId(base.operationId, change.blockId), base.input.basis.revisionId,
+                        mistakeEditFigureBasis(ModelTaskFingerprint.of(base.request), output, change.blockId), purpose.name,
+                        FigureGenerationPolicyVersion.VALUE)?.let { StoredFigureReference(change.blockId, it.assetId, it.contentSha256, editFigureRole(purpose)) }
+                }
+                val status = when (output.suggestion.decision) {
+                    com.tingyun.smartmistakebook.core.model.MistakeEditDecision.NO_CHANGE -> MistakeEditJobStatus.NO_CHANGE
+                    com.tingyun.smartmistakebook.core.model.MistakeEditDecision.NEED_SOURCE -> MistakeEditJobStatus.NEED_SOURCE
+                    com.tingyun.smartmistakebook.core.model.MistakeEditDecision.UNAVAILABLE -> MistakeEditJobStatus.UNAVAILABLE
+                    com.tingyun.smartmistakebook.core.model.MistakeEditDecision.SUGGEST_CHANGES -> if (refs.size == changes.size) MistakeEditJobStatus.READY else MistakeEditJobStatus.FAILED
+                }
+                val recovered = base.copy(output = output, figures = refs, status = status, stateVersion = base.stateVersion + 1,
+                    message = "已从完成记录恢复修改建议，已生成的图片不会重复生成")
+                dao.requireFigureAuthority(recovered)
+                check(dao.repairSnapshots(operationId, row.stateVersion, status.name,
+                    com.tingyun.smartmistakebook.core.model.ModelTaskCodec.encodeOutput(output),
+                    com.tingyun.smartmistakebook.core.model.StoredFigureReferenceCodec.encode(refs), requireNotNull(recovered.message)) == 1)
+                return@withWriteTransaction recovered
+            } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+            catch (_: Exception) { /* An unverifiable row must not block recovery of other jobs. */ }
+            dao.quarantine(operationId, row.stateVersion, "修改记录损坏，请重新提交修改要求")
+            val failed = dao.read(operationId)
+            runCatching { failed?.toRecord() }.getOrNull()
+        }
+    }
+
+    override fun observeMistakeEditJob(operationId: String): Flow<PersistedMistakeEditJob?> =
+        database.mistakeEditJobDao().observe(operationId).map { row ->
+            row?.let { runCatching { it.toRecord() }.getOrNull() ?: readMistakeEditJob(operationId) }
+        }
+
+    override suspend fun transitionMistakeEditJob(next: PersistedMistakeEditJob): Boolean = database.withWriteTransaction {
+        val dao = database.mistakeEditJobDao()
+        val previous = dao.read(next.operationId)?.toRecord() ?: return@withWriteTransaction false
+        if (previous.stateVersion + 1 != next.stateVersion) return@withWriteTransaction false
+        previous.requireSuccessor(next)
+        require(next.figures == previous.figures || next.generation == previous.generation + 1 && next.figures.all { it in previous.figures }) { "Only audited asset attachment may add a figure" }
+        dao.requireFigureAuthority(next)
+        if (next.status in setOf(MistakeEditJobStatus.REQUESTING, MistakeEditJobStatus.GENERATING_FIGURES, MistakeEditJobStatus.READY, MistakeEditJobStatus.ADOPTED)) {
+            if (dao.currentBasis(next.input.basis.entryId, next.input.basis.revisionId) != 1) return@withWriteTransaction false
+        }
+        check(dao.update(next.toEntity()) == 1)
+        true
+    }
+
+    override suspend fun readPendingMistakeEditJobs(afterOperationId: String?, limit: Int): List<PersistedMistakeEditJob> {
+        require(limit in 1..64)
+        val result = mutableListOf<PersistedMistakeEditJob>()
+        var cursor = afterOperationId
+        while (result.size < limit) {
+            val remaining = limit - result.size
+            val rows = database.mistakeEditJobDao().pending(cursor, remaining)
+            if (rows.isEmpty()) break
+            rows.forEach { row -> readMistakeEditJob(row.operationId)?.takeIf { it.status in setOf(MistakeEditJobStatus.QUEUED, MistakeEditJobStatus.REQUESTING, MistakeEditJobStatus.GENERATING_FIGURES) }?.let(result::add) }
+            cursor = rows.last().operationId
+            if (rows.size < remaining) break
+        }
+        return result
+    }
+
+    override suspend fun isMistakeEditBasisCurrent(basis: EditBasis): Boolean =
+        database.mistakeEditJobDao().currentBasis(basis.entryId, basis.revisionId) == 1
+
+    override suspend fun verifyMistakeEditFigures(operationId: String): Boolean = database.withReadTransaction {
+        val dao = database.mistakeEditJobDao()
+        val job = dao.read(operationId)?.toRecord() ?: return@withReadTransaction false
+        dao.requireFigureAuthority(job)
+        true
+    }
+
+    override suspend fun attachMistakeEditFigure(operationId: String, expectedVersion: Long, blockId: String, attemptId: String, asset: CanonicalSourceAssetRecord, atEpochMillis: Long): PersistedMistakeEditJob? = database.withWriteTransaction {
+        val dao = database.mistakeEditJobDao()
+        val job = dao.read(operationId)?.toRecord() ?: return@withWriteTransaction null
+        if (job.stateVersion != expectedVersion || job.status != MistakeEditJobStatus.GENERATING_FIGURES || job.committedRevisionId != null) return@withWriteTransaction null
+        if (dao.currentBasis(job.input.basis.entryId, job.input.basis.revisionId) != 1) return@withWriteTransaction null
+        dao.requireFigureAuthority(job)
+        require(asset.sourceAssetId == mistakeEditFigureAssetId(attemptId)) { "Each generated attempt needs its own immutable asset identity" }
+        val output = requireNotNull(job.output)
+        val change = output.suggestion.changes.filterIsInstance<MistakeEditChange.ReplaceFigure>().single { it.blockId == blockId }
+        require(job.figures.none { it.blockId == blockId })
+        val purpose = requireNotNull(change.proposal.purpose)
+        require(dao.eligibleAttempt(attemptId, mistakeEditFigureOperationId(operationId, blockId), job.input.basis.revisionId,
+            mistakeEditFigureBasis(ModelTaskFingerprint.of(job.request), output, blockId), purpose.name,
+            FigureGenerationPolicyVersion.VALUE, asset.sourceAssetId) == 1) { "Generated attempt does not belong to this edit target" }
+        upsertCanonicalSourceAssetRow(asset)
+        check(database.figureGenerationDao().attachAttemptOutputAsset(attemptId, asset.sourceAssetId) == 1)
+        val next = job.copy(stateVersion = job.stateVersion + 1, updatedAtEpochMillis = atEpochMillis,
+            figures = job.figures + StoredFigureReference(blockId, asset.sourceAssetId, asset.contentSha256, editFigureRole(purpose)))
+        job.requireSuccessor(next)
+        dao.requireFigureAuthority(next)
+        check(dao.update(next.toEntity()) == 1)
+        next
+    }
+
     private val knowledgeResearchReviewStore = RoomKnowledgeResearchReviewStore(database)
 
     private val problemOrganization =
@@ -623,6 +777,15 @@ internal class RoomStudyDatabase(
         limit: Int,
     ): List<KnowledgeNodeSeedRecord> = knowledgeBase.readSubjectKnowledgeNodes(subject, limit)
 
+    override suspend fun readKnowledgeCatalogPage(
+        terms: List<String>, after: com.tingyun.smartmistakebook.core.model.KnowledgeCatalogPosition?, limit: Int,
+    ): List<com.tingyun.smartmistakebook.core.database.port.KnowledgeCatalogRecord> =
+        knowledgeBase.readKnowledgeCatalogPage(terms, after, limit)
+
+    override suspend fun readKnowledgeCatalogPhrases(): List<String> = knowledgeBase.readKnowledgeCatalogPhrases()
+
+    override fun observeKnowledgeCatalogChanges(): Flow<Unit> = knowledgeBase.observeKnowledgeCatalogChanges()
+
     /**
      * 6C-2 T5：恢复后派生索引按科重建的窄端口（`KnowledgeSearchIndexRebuildPort`）。
      *
@@ -760,7 +923,6 @@ internal class RoomStudyDatabase(
     override suspend fun <R> withDeferredKnowledgeSearchFeatureIndexes(block: suspend () -> R): R =
         knowledgeImportMaintenance.withDeferredFeatureIndexes(block)
 
-    /** B35：导入路径启动自愈的前半步——只读核验（无写副作用），见 [RoomKnowledgeBaseStore]。 */
     override suspend fun verifyKnowledgeSearchIndexCompleteness(): KnowledgeSearchIndexVerification =
         knowledgeBase.verifyAllKnowledgeSearchIndexes()
 
@@ -827,6 +989,15 @@ internal class RoomStudyDatabase(
         require(sourceKey.isNotBlank()) { "sourceKey must not be blank" }
         return database.problemDao().findMistakeBySourceKey(sourceKey)?.toRecord()
     }
+
+    override fun observeMistakeSourceAssets(errorBookEntryId: String): Flow<List<MistakeDetailSourceAssetRecord>> {
+        require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }
+        return database.mistakeDetailDao().observeQuestionSourceRows(errorBookEntryId)
+            .map { rows -> rows.map { it.toSourceRecord() } }
+    }
+
+    override val paperReviews: com.tingyun.smartmistakebook.core.database.dao.PaperReviewStore
+        get() = database.paperReviewDao()
 
     override suspend fun readMistakeDetail(errorBookEntryId: String): MistakeDetailRecord? {
         require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }
@@ -1301,6 +1472,12 @@ internal class RoomStudyDatabase(
     override suspend fun createMistakeExportRecord(
         command: CreateMistakeExportRecordCommand,
     ): MistakeExportRecordRow = database.mistakeExportRecordDao().createRunning(command)
+
+    override suspend fun createMistakeExportGroup(record: MistakeExportGroupRecord) = database.mistakeExportRecordDao().createGroup(record)
+    override suspend fun readMistakeExportGroup(groupId: String) = database.mistakeExportRecordDao().readGroup(groupId)
+    override fun observeMistakeExportGroups(limit: Int) = database.mistakeExportRecordDao().observeGroups(limit)
+    override suspend fun confirmMistakeAnswerPreview(groupId: String, approval: com.tingyun.smartmistakebook.core.model.AnswerPreviewApproval) = database.mistakeExportRecordDao().confirmPreview(groupId, approval)
+    override suspend fun startGroupedMistakeExport(command: StartGroupedMistakeExportCommand) = database.mistakeExportRecordDao().startGrouped(command)
 
     override suspend fun completeMistakeExportRecord(
         command: CompleteMistakeExportRecordCommand,
@@ -2410,10 +2587,6 @@ internal class RoomStudyDatabase(
         }
     }
 
-    // ------------------------------------------------------------------
-    // 批次 40 / WS2：错因账本（schema 73）。三种状态迁移各自是 DAO 的单事务。
-    // ------------------------------------------------------------------
-
     override suspend fun appendObservation(
         record: ErrorCauseObservationRecord,
     ): ErrorCauseAppendResult {
@@ -2508,7 +2681,38 @@ internal class RoomStudyDatabase(
     // KDoc-only hunk above stays untouched.
     override suspend fun reviseCommittedProblem(
         command: ReviseCommittedProblemCommand,
-    ): ReviseCommittedProblemResult = database.mistakeDetailDao().reviseCommittedProblem(command)
+    ): ReviseCommittedProblemResult = database.withWriteTransaction {
+        val dao = database.mistakeEditJobDao()
+        val result = database.mistakeDetailDao().reviseCommittedProblem(command)
+        val revisionId = when (result) {
+            is ReviseCommittedProblemResult.Saved -> result.record.problemRevisionId
+            is ReviseCommittedProblemResult.Unchanged -> result.record.problemRevisionId
+            else -> return@withWriteTransaction result
+        }
+        val document = com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec.decode(command.questionDocumentSnapshot)
+        require(com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint.of(document) == command.contentFingerprint)
+        val jobs = command.adoptedEditOperationIds.map { id ->
+            requireNotNull(dao.read(id)?.toRecord()) { "Adopted edit job is missing" }.also { job ->
+                require(job.status == MistakeEditJobStatus.ADOPTED && job.input.basis.entryId == command.entryId && job.input.basis.revisionId == command.expectedRevisionId)
+                require(job.committedRevisionId == null || job.committedRevisionId == revisionId) { "An edit cannot be reused on a different revision" }
+                dao.requireFigureAuthority(job)
+            }
+        }
+        val admitted = jobs.flatMap { it.figures }.toSet()
+        val baselineSnapshot = dao.revisionSnapshot(command.expectedRevisionId)
+        val inherited = baselineSnapshot?.let {
+            com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec.decode(it)
+                .storedFigureReferences.toSet()
+        }.orEmpty()
+        require(document.storedFigureReferences.all { it in admitted || it in inherited }) { "A stored figure needs an adopted job for this basis" }
+        if (result is ReviseCommittedProblemResult.Saved && result.created) {
+            document.storedFigureReferences.forEachIndexed { index, figure -> dao.linkFigure(revisionId, figure.assetId, figure.role.name, index) }
+        }
+        jobs.filter { it.committedRevisionId == null }.forEach { job ->
+            check(dao.consume(job.operationId, job.stateVersion, revisionId, maxOf(command.revisedAtEpochMillis, job.updatedAtEpochMillis)) == 1)
+        }
+        result
+    }
 }
 
 

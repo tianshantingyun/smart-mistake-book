@@ -42,7 +42,7 @@ class MistakePdfPlannerGoldenTest {
                 "line/SPACER/8.00/false/0/",
                 "line/BODY/18.00/false/0/下列哪个正确？",
                 "line/CHOICE/18.00/false/0/A. 单调递增",
-                "line/CHOICE/18.00/false/0/B. 先减后增 [已选]",
+                "line/CHOICE/18.00/false/0/B. 先减后增",
                 "line/SPACER/8.00/false/0/",
                 "figure/figure/SymbolTable/102.00/499.00/0",
                 "line/SPACER/8.00/false/0/",
@@ -71,7 +71,7 @@ class MistakePdfPlannerGoldenTest {
                 "line/SPACER/8.00/false/0/",
                 "line/BODY/18.00/false/0/下列哪个正确？",
                 "line/CHOICE/18.00/false/0/A. 单调递增",
-                "line/CHOICE/18.00/true/0/B. 先减后增 [已选]",
+                "line/CHOICE/18.00/true/0/B. 先减后增",
                 "blank/2/36.00/0",
                 "line/SPACER/8.00/false/0/",
                 "figure/figure/SymbolTable/102.00/499.00/0",
@@ -125,6 +125,7 @@ class MistakePdfPlannerGoldenTest {
     // ---- fixture ----
 
     private fun input(layout: MistakePdfLayout): MistakePdfExportInput = MistakePdfExportInput(
+        hasModelParsedText = false,
         errorBookEntryId = "entry-golden",
         problemId = "problem-golden",
         problemRevisionId = "revision-golden",
@@ -165,13 +166,13 @@ class MistakePdfPlannerGoldenTest {
          * `MistakePdfPagePlannerTest` 的既有常量断言。
          *
          * 修复轮 P2-1 把布局身份改成无损位表示（`imageScaleBits`），摘要随之重登记；
-         * 逐项内容断言未变。
+         * 题目区隐藏已选答案后重新登记摘要，逐项断言仅移除题目选项的已选标记。
          */
         const val DEFAULT_PLAN_GOLDEN_SHA256 =
-            "b2cb5e067a053c9f2ca41ceb814ff4d8ec71a61effc2712af3f66f9ba34400ee"
+            "2ba874cc9b3341cbaee1d19142953da8ecc646bc9953771ed29c26a35aff61c0"
 
         /** 练习卷版式（作答空白区 + 答案区）的本实现单机登记（同上，P2-1 后重登记）。 */
         const val PRACTICE_PLAN_GOLDEN_SHA256 =
-            "0a8dfa0d8e7797b2f0f554352d81adf8de97986e4b4048f8dbc59376433d6a75"
+            "d9f928e1c35ba74d002779ae819e93893aa8143569d5cb2c970cd18778c5f819"
     }
 }

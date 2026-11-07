@@ -21,9 +21,6 @@ package com.tingyun.smartmistakebook.core.model.pdf
  * AI 图与模型文本（不另起第二条注入分支）。
  */
 object PdfAigcContentPolicy {
-    /** Invalidate image-only export caches after adding parsed-text provenance. */
-    const val GENERATION: Int = 2
-
     /**
      * 判据/注入行为的代际。改判据、改写入范围、改注入算法都必须 +1；缓存哨兵名与导出指纹
      * 都从它派生（`MistakePdfExporter.AIGC_POLICY_SENTINEL`、`exportFingerprintPolicyTag()`），

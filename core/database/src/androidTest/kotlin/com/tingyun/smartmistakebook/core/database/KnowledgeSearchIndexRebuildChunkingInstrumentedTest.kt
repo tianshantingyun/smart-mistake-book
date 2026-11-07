@@ -238,7 +238,7 @@ class KnowledgeSearchIndexRebuildChunkingInstrumentedTest {
         )
         assertTrue(
             "补缺后这个节点必须真的可召回（残缺状态下它一条特征行都没有）；node=$missingNodeId",
-            recalled.any { it.knowledgeNodeId == missingNodeId },
+            recalled.candidates.any { it.knowledgeNodeId == missingNodeId },
         )
         assertEquals(
             "读路径必须把它补回来（或下一次整科重建收敛），行集与一次跑完逐位相同",

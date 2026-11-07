@@ -507,6 +507,7 @@ class DocxMistakeRendererTest {
         userNote: String? = null,
         layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
     ): MistakePdfExportInput = MistakePdfExportInput(
+        hasModelParsedText = false,
         errorBookEntryId = "entry-1",
         problemId = "problem-1",
         problemRevisionId = "revision-3",

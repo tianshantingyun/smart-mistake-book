@@ -222,6 +222,7 @@ class MistakePdfPagePlannerTest {
         maxRenderedLines: Int = MistakePdfExportLimits.MAX_BATCH_RENDERED_LINES,
         cleanImageLocalUri: String? = null,
     ): MistakePdfExportInput = MistakePdfExportInput(
+        hasModelParsedText = false,
         errorBookEntryId = "entry-test",
         problemId = "problem-test",
         problemRevisionId = "revision-test",

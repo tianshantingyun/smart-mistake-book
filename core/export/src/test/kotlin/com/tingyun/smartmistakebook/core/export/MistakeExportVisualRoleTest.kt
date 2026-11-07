@@ -750,6 +750,7 @@ class MistakeExportVisualRoleTest {
         solutionImages: List<MistakePdfExportImage> = emptyList(),
         layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
     ): MistakePdfExportInput = MistakePdfExportInput(
+        hasModelParsedText = false,
         errorBookEntryId = "entry-manual",
         problemId = "problem-manual",
         problemRevisionId = "revision-manual",
@@ -772,6 +773,7 @@ class MistakeExportVisualRoleTest {
     /** 同一份输入，去掉 WG-07 新增的角色/解析图字段（模拟旧调用方）。 */
     private fun withoutRole(input: MistakePdfExportInput): MistakePdfExportInput =
         MistakePdfExportInput(
+            hasModelParsedText = input.hasModelParsedText,
             errorBookEntryId = input.errorBookEntryId,
             problemId = input.problemId,
             problemRevisionId = input.problemRevisionId,

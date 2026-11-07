@@ -71,8 +71,16 @@ internal class RoomTutorKnowledgeContextLoader(
                     // 拍照讲题是产品主入口：把原始题面交给稠密腿（可选，未装配/不可用即纯词面）。
                     queryText = text,
                 )
+                if (!recall.indexComplete) {
+                    return TutorKnowledgeContextResult(
+                        preDisclosures = emptyList(),
+                        candidateNodeIds = emptyList(),
+                        loadFailed = true,
+                        knowledgeBasePreparing = true,
+                    )
+                }
                 KnowledgeContextRetriever.select(
-                    candidates = recall,
+                    candidates = recall.candidates,
                     questionText = text,
                     limit = MAX_CANDIDATE_NODES,
                 ).map { it.knowledgeNodeId }
