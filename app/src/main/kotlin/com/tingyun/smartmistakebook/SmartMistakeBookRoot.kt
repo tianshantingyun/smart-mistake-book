@@ -75,7 +75,14 @@ import androidx.navigation.navArgument
 import com.tingyun.smartmistakebook.core.data.study.AnswerKeyCorrectionCommand
 import com.tingyun.smartmistakebook.core.data.study.AnswerKeyCorrectionStatus
 import com.tingyun.smartmistakebook.core.data.study.AnswerKeyCorrectionWriter
+import com.tingyun.smartmistakebook.core.data.study.KnowledgeQuizItemVerificationUpgradeOutcome
+import com.tingyun.smartmistakebook.core.data.study.KnowledgeQuizItemVerificationUpgrader
+import com.tingyun.smartmistakebook.core.data.study.LedgerAnswerKeyVerificationSourceVerifier
 import com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepository
+import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationSource
+import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationUpgradeRejection
+import com.tingyun.smartmistakebook.core.domain.AdaptiveTargetKind
+import com.tingyun.smartmistakebook.core.model.AnswerKeyVerification
 import com.tingyun.smartmistakebook.core.domain.CaptureEntryOrigin
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationSnapshot
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
@@ -120,6 +127,9 @@ import com.tingyun.smartmistakebook.feature.profile.ProfileRoute
 import com.tingyun.smartmistakebook.feature.review.CapturedReviewSessionScreen
 import com.tingyun.smartmistakebook.feature.review.KnowledgeQuizAnswerIssue
 import com.tingyun.smartmistakebook.feature.review.KnowledgeQuizAnswerKeyCorrection
+import com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationOutcome
+import com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenter
+import com.tingyun.smartmistakebook.feature.review.KnowledgeCalibrationDecision
 import com.tingyun.smartmistakebook.feature.review.KnowledgeQuizLoadResult
 import com.tingyun.smartmistakebook.feature.review.KnowledgeReviewQuizLoader
 import com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionScreen
@@ -221,6 +231,50 @@ private fun knowledgeQuizAnswerKeyCorrectionRequestId(
     correction: KnowledgeQuizAnswerKeyCorrection,
 ): String = "answer-key-replace:${correction.knowledgeNodeId}:${correction.itemId}:" +
     "${correction.newCorrectChoiceId}:${correction.selectedChoiceId ?: "none"}"
+
+/**
+ * KD-67：一次"确认题面答案"的稳定身份。
+ *
+ * 同一 (会话, 知识点, 题面, 这次作答) 重复确认是同一笔——更正写入口回 REPLAYED、不重复
+ * 入账；换会话/换题面/换一次作答才是另一笔。确认卡双击与旋转重建都落在这个身份上。
+ */
+private fun knowledgeQuizClarificationConfirmationRequestId(
+    sessionId: Long,
+    knowledgeNodeId: String,
+    itemId: String,
+    selectedChoiceId: String,
+): String = "answer-key-confirm:$sessionId:$knowledgeNodeId:$itemId:$selectedChoiceId"
+
+/** KD-67：核验升级被拒时给学生看的话（内部枚举名不直接上屏）。 */
+private fun clarificationUpgradeRejectionText(
+    reason: AnswerKeyVerificationUpgradeRejection,
+): String = when (reason) {
+    AnswerKeyVerificationUpgradeRejection.TARGET_IS_NOT_AN_UPGRADE ->
+        "这次确认没有可写入的状态。"
+    AnswerKeyVerificationUpgradeRejection.CURRENT_IS_NOT_UNVERIFIED ->
+        "这道题的答案已经核对过了，不需要再确认。"
+    AnswerKeyVerificationUpgradeRejection.SOURCE_DOES_NOT_MATCH_TARGET ->
+        "确认记录和这次操作对不上，请返回后重新确认。"
+    AnswerKeyVerificationUpgradeRejection.USER_CONFIRMATION_LEARNER_MISMATCH ->
+        "这次确认不属于当前学习者，未记录。"
+    AnswerKeyVerificationUpgradeRejection.SOURCE_NOT_VERIFIED ->
+        "没有找到你确认这道题答案的记录，请重新做一次再确认。"
+}
+
+/**
+ * KD-67：确认时"用户断言记录"没写下来时给学生看的话。
+ *
+ * 写入口的拒因是内部枚举/机器码（`ANSWER_KEY_TARGET_NOT_FOUND` 等），对学生的信息量为零，
+ * 直接上屏等于把实现细节塞进产品文案。
+ */
+private fun clarificationCorrectionRejectionText(reason: String?): String = when (reason) {
+    "ANSWER_KEY_TARGET_NOT_FOUND" -> "没有找到你这次作答的记录，请重新作答后再确认。"
+    "ANSWER_KEY_REPLACEMENT_ANSWER_REQUIRED" -> "需要先作答，才能确认这道题的答案。"
+    "ANSWER_KEY_ITEM_UNREADABLE" -> "这道题读不回来了，暂时不能确认。"
+    "ANSWER_KEY_NODE_NOT_ANCHORED" -> "这道题还没对应到知识点，暂时不能确认。"
+    "ANSWER_KEY_CHOICE_NOT_IN_ITEM" -> "题面的选项和答案对不上，暂时不能确认。"
+    else -> "这次确认没有写下来，请再试一次。"
+}
 
 /**
  * 6B-2 原生卷面编辑路由（T6）。
@@ -524,7 +578,18 @@ internal fun SmartMistakeBookRoot(
                     null
                 },
             )
-            StudyDataStatusLine(experience.status)
+            StudyDataStatusLine(
+                status = experience.status,
+                // 投影专用状态卡自带"哪一类不一致 + 重新整理"；再叠一句通用错误
+                // 只会让唯一有出路的提示被噪声盖住。
+                suppressGenericError = experience.projectionIssue != null,
+            )
+            experience.projectionIssue?.let { issue ->
+                StudyProjectionIssueBanner(
+                    issue = issue,
+                    onReproject = { repository.reprojectAll() },
+                )
+            }
             val motionEnabled = LocalClaudeMotionEnabled.current
             val pageOffset = with(LocalDensity.current) { 16.dp.roundToPx() }
             NavHost(
@@ -919,6 +984,26 @@ internal fun SmartMistakeBookRoot(
                         knowledgeBaseAvailability = application.knowledgeBaseAvailability,
                     )
                 }
+                // KD-67：CLARIFY_OR_CONFIRM 的消费出口。卡片状态随本目的地存活，离开即销毁；
+                // 同一决策的重放由 presenter 的请求键幂等吸收（不会冲掉学生正在点的确认）。
+                val clarificationPresenter = remember { KnowledgeClarificationPresenter() }
+                val knowledgeClarificationState by
+                    clarificationPresenter.state.collectAsStateWithLifecycle()
+                // 本会话身份 = 屏幕内持久化的会话起点（会话恢复仍同一场）。装配点与确认写路径
+                // 都用它定位 `(会话, 知识点)` 的题面，不能等 UI 自己拼。
+                var activeKnowledgeReviewSessionId by remember { mutableStateOf<Long?>(null) }
+                // KD-67 核验写方：来源回执由账本校验（用户断言当前答案的那笔记录），写口是
+                // core/database 的单列 CAS；只有确认卡会调它，别处不得绕过来源语义。
+                val knowledgeQuizItemVerificationUpgrader = remember(application) {
+                    KnowledgeQuizItemVerificationUpgrader(
+                        database = application.studyDatabase,
+                        learnerId = RoomBackedStudyExperienceRepository.DEFAULT_LEARNER_ID,
+                        sourceVerifier = LedgerAnswerKeyVerificationSourceVerifier(
+                            database = application.studyDatabase,
+                            learnerId = RoomBackedStudyExperienceRepository.DEFAULT_LEARNER_ID,
+                        ),
+                    )
+                }
                 when {
                     destinationLifecycle != Lifecycle.State.RESUMED ->
                         ReviewSessionGateMessage("正在打开知识点复习…")
@@ -941,25 +1026,65 @@ internal fun SmartMistakeBookRoot(
                                     onBack = onKnowledgeBack,
                                     // 恢复：读回本会话已落库的题面（只读，不出网，AUD-02）。
                                     restoreQuiz = { entry, sessionId ->
-                                        repository.readPersistedKnowledgeQuizItem(
+                                        activeKnowledgeReviewSessionId = sessionId
+                                        val restored = repository.readPersistedKnowledgeQuizItem(
                                             sessionId = sessionId,
                                             knowledgeNodeId = entry.knowledgeNodeId,
                                         )
                                             ?.let(KnowledgeQuizLoadResult::Ready)
                                             ?: KnowledgeQuizLoadResult.Unavailable
+                                        // KD-67 生产装配点：题面已在库里 → 选择器能看到这个
+                                        // 目标上的候选（未核验 → CLARIFY），澄清载荷交给
+                                        // presenter 拉起确认卡。失败不阻塞复习（只记日志）：
+                                        // 选择是解释性决策，不是出题前提。
+                                        if (restored is KnowledgeQuizLoadResult.Ready) {
+                                            runCatching {
+                                                repository.selectKnowledgeReviewQuestion(
+                                                    sessionId = sessionId,
+                                                    knowledgeNodeId = entry.knowledgeNodeId,
+                                                    clarificationConsumer = clarificationPresenter,
+                                                )
+                                            }.onFailure { failure ->
+                                                android.util.Log.w(
+                                                    "SmartMistakeBook",
+                                                    "Knowledge review selection failed: $failure",
+                                                )
+                                            }
+                                        }
+                                        restored
                                     },
                                     // 现场出题：生成成功后把题面落库，再把**库内那一行**交给
                                     // 会话——屏幕上的题面与之后恢复读回的题面因此是同一道题。
                                     loadQuiz = { entry, sessionId ->
+                                        activeKnowledgeReviewSessionId = sessionId
                                         when (val loaded = quizLoader.loadQuiz(entry)) {
-                                            is KnowledgeQuizLoadResult.Ready -> repository
-                                                .persistKnowledgeQuizItem(
-                                                    sessionId = sessionId,
-                                                    knowledgeNodeId = entry.knowledgeNodeId,
-                                                    item = loaded.item,
-                                                )
-                                                ?.let(KnowledgeQuizLoadResult::Ready)
-                                                ?: KnowledgeQuizLoadResult.Unavailable
+                                            is KnowledgeQuizLoadResult.Ready -> {
+                                                val persisted = repository
+                                                    .persistKnowledgeQuizItem(
+                                                        sessionId = sessionId,
+                                                        knowledgeNodeId = entry.knowledgeNodeId,
+                                                        item = loaded.item,
+                                                    )
+                                                    ?.let(KnowledgeQuizLoadResult::Ready)
+                                                    ?: KnowledgeQuizLoadResult.Unavailable
+                                                if (persisted is KnowledgeQuizLoadResult.Ready) {
+                                                    // 落库后装配：候选（本会话快照池）此刻可读，
+                                                    // 未核验题面会走到 CLARIFY 并拉起确认卡。
+                                                    runCatching {
+                                                        repository.selectKnowledgeReviewQuestion(
+                                                            sessionId = sessionId,
+                                                            knowledgeNodeId = entry.knowledgeNodeId,
+                                                            clarificationConsumer = clarificationPresenter,
+                                                        )
+                                                    }.onFailure { failure ->
+                                                        android.util.Log.w(
+                                                            "SmartMistakeBook",
+                                                            "Knowledge review selection failed: $failure",
+                                                        )
+                                                    }
+                                                }
+                                                persisted
+                                            }
                                             else -> loaded
                                         }
                                     },
@@ -1108,6 +1233,204 @@ internal fun SmartMistakeBookRoot(
                                     // 读不到时 submit 前再兜底取一次（见上），CAS 始终生效。
                                     loadAnswerKeyVersion = { itemId ->
                                         answerKeyCorrectionWriter.currentKeyVersionForItem(itemId)
+                                    },
+                                    // KD-67：确认卡（未核验题面）——候选/原因/确认/换题/取消。
+                                    clarificationState = knowledgeClarificationState,
+                                    onClarificationConfirm = {
+                                            candidateId,
+                                            correctChoiceId,
+                                            selectedChoiceId,
+                                        ->
+                                        val sessionId = activeKnowledgeReviewSessionId
+                                        val nodeId = clarificationPresenter
+                                            .currentRequest()
+                                            ?.targetKnowledgeNodeIds
+                                            ?.singleOrNull()
+                                        // 卡片先切忙态：双击不会再发起第二笔写入。
+                                        if (!clarificationPresenter.beginConfirm(candidateId)) {
+                                            return@KnowledgeReviewSessionScreen
+                                        }
+                                        if (sessionId == null || nodeId == null) {
+                                            clarificationPresenter.failConfirm(
+                                                "这道题还没有准备好，请返回后重新进入。",
+                                            )
+                                            return@KnowledgeReviewSessionScreen
+                                        }
+                                        application.applicationScope.launch {
+                                            val message = try {
+                                                // 1) 先把"学生确认了这个答案"落成一条
+                                                //    账本里的用户断言记录（KD-43 的 UNKNOWN
+                                                //    键路径：保留被拒观察行，按断言键重判这次
+                                                //    作答）。它同时是升级口的来源回执。
+                                                val expectedKeyVersion = answerKeyCorrectionWriter
+                                                    .currentKeyVersionForItem(candidateId)
+                                                val receipt = answerKeyCorrectionWriter.submit(
+                                                    AnswerKeyCorrectionCommand(
+                                                        requestId =
+                                                            knowledgeQuizClarificationConfirmationRequestId(
+                                                                sessionId = sessionId,
+                                                                knowledgeNodeId = nodeId,
+                                                                itemId = candidateId,
+                                                                selectedChoiceId = selectedChoiceId,
+                                                            ),
+                                                        knowledgeNodeId = nodeId,
+                                                        conversationId =
+                                                            "knowledge-quiz-review:$sessionId",
+                                                        itemId = candidateId,
+                                                        selectedChoiceId = selectedChoiceId,
+                                                        newCorrectChoiceId = correctChoiceId,
+                                                        voidTarget = false,
+                                                        expectedKeyVersion = expectedKeyVersion,
+                                                        reasonMarkdown =
+                                                            "学生确认题面答案：$correctChoiceId",
+                                                        occurredAtEpochMillis =
+                                                            System.currentTimeMillis(),
+                                                    ),
+                                                )
+                                                when (receipt.status) {
+                                                    AnswerKeyCorrectionStatus.RECORDED,
+                                                    AnswerKeyCorrectionStatus.REPLAYED,
+                                                    -> {
+                                                        // 2) 账本记录已存在 → 单列 CAS 升级为
+                                                        //    USER_ASSERTED。来源校验会核对这笔
+                                                        //    记录确实断言了**题面当前**的答案。
+                                                        val outcome =
+                                                            knowledgeQuizItemVerificationUpgrader
+                                                                .upgrade(
+                                                                    sessionId = sessionId,
+                                                                    knowledgeNodeId = nodeId,
+                                                                    targetVerification =
+                                                                        AnswerKeyVerification
+                                                                            .USER_ASSERTED,
+                                                                    source =
+                                                                        AnswerKeyVerificationSource
+                                                                            .UserAssertion(
+                                                                                confirmationId =
+                                                                                    receipt
+                                                                                        .correctionId,
+                                                                                confirmedByLearnerId =
+                                                                                    RoomBackedStudyExperienceRepository
+                                                                                        .DEFAULT_LEARNER_ID,
+                                                                                confirmedAtEpochMillis =
+                                                                                    System
+                                                                                        .currentTimeMillis(),
+                                                                            ),
+                                                                )
+                                                        when (outcome) {
+                                                            is KnowledgeQuizItemVerificationUpgradeOutcome.Upgraded,
+                                                            is KnowledgeQuizItemVerificationUpgradeOutcome.AlreadyUpgraded,
+                                                            -> {
+                                                                clarificationPresenter
+                                                                    .completeConfirm()
+                                                                "答案已确认：以后的作答会按这个答案计入掌握度。"
+                                                            }
+                                                            is KnowledgeQuizItemVerificationUpgradeOutcome.Rejected -> {
+                                                                val text =
+                                                                    clarificationUpgradeRejectionText(
+                                                                        outcome.reason,
+                                                                    )
+                                                                clarificationPresenter.failConfirm(text)
+                                                                text
+                                                            }
+                                                            KnowledgeQuizItemVerificationUpgradeOutcome.SnapshotNotFound -> {
+                                                                val text = "这道题的题面已经不在了，请返回后重新进入。"
+                                                                clarificationPresenter.failConfirm(text)
+                                                                text
+                                                            }
+                                                            KnowledgeQuizItemVerificationUpgradeOutcome.SnapshotUnreadable -> {
+                                                                val text = "这道题读不回来了，暂时不能确认。"
+                                                                clarificationPresenter.failConfirm(text)
+                                                                text
+                                                            }
+                                                            KnowledgeQuizItemVerificationUpgradeOutcome.ConcurrentVerificationChange -> {
+                                                                val text =
+                                                                    "这道题的核验状态刚被别处改过，请重新确认。"
+                                                                clarificationPresenter.failConfirm(text)
+                                                                text
+                                                            }
+                                                        }
+                                                    }
+                                                    else -> {
+                                                        val text = clarificationCorrectionRejectionText(
+                                                            receipt.reason,
+                                                        )
+                                                        clarificationPresenter.failConfirm(text)
+                                                        text
+                                                    }
+                                                }
+                                            } catch (cancelled: CancellationException) {
+                                                throw cancelled
+                                            } catch (failure: Throwable) {
+                                                android.util.Log.w(
+                                                    "SmartMistakeBook",
+                                                    "Knowledge-quiz confirmation failed: $failure",
+                                                )
+                                                clarificationPresenter.failConfirm(
+                                                    "这次确认没有写下来，请再试一次。",
+                                                )
+                                                "这次确认没有写下来，请再试一次。"
+                                            }
+                                            withContext(Dispatchers.Main) {
+                                                Toast.makeText(
+                                                    context,
+                                                    message,
+                                                    Toast.LENGTH_LONG,
+                                                ).show()
+                                            }
+                                        }
+                                    },
+                                    // 换题 = 不做这道题：卡片关闭并跳过该知识点（同一会话的
+                                    // 题面身份是 (会话, 知识点)，重出只会读回同一道题）。
+                                    onClarificationNewQuestion = {
+                                        clarificationPresenter.finish(
+                                            KnowledgeClarificationOutcome.NEW_QUESTION,
+                                        )
+                                    },
+                                    onClarificationCancel = {
+                                        clarificationPresenter.finish(
+                                            KnowledgeClarificationOutcome.CANCELLED,
+                                        )
+                                    },
+                                    // K5（批次 49 P2-14；修复环补决策消费）：学生选
+                                    // 「先做校准题」= 本次节点的选择改走选择器已有的
+                                    // CALIBRATION 走廊。返回值不再丢弃——决策由会话状态机
+                                    // 持久化并显示；选择失败（null）如实显示"未完成"，不阻断
+                                    // 正常复习。
+                                    onRequestCalibrationQuiz = { conflictedEntry ->
+                                        val sessionId = activeKnowledgeReviewSessionId
+                                        if (sessionId == null) {
+                                            null
+                                        } else {
+                                            try {
+                                                repository.selectKnowledgeReviewQuestion(
+                                                    sessionId = sessionId,
+                                                    knowledgeNodeId =
+                                                        conflictedEntry.knowledgeNodeId,
+                                                    clarificationConsumer =
+                                                        clarificationPresenter,
+                                                    requestedTargetKind =
+                                                        AdaptiveTargetKind.CALIBRATION,
+                                                    // 学生亲手点了"先做校准题"——这是
+                                                    // 选择器要求的显式请求授权。
+                                                    userRequestedQuestion = true,
+                                                )?.let { decision ->
+                                                    KnowledgeCalibrationDecision(
+                                                        decisionKind = decision.kind,
+                                                        reasonCodes = decision.reasonCodes,
+                                                        selectedAssessmentItemId =
+                                                            decision.selectedAssessmentItemId,
+                                                    )
+                                                }
+                                            } catch (cancelled: CancellationException) {
+                                                throw cancelled
+                                            } catch (failure: Exception) {
+                                                android.util.Log.w(
+                                                    "SmartMistakeBook",
+                                                    "Calibration selection failed: $failure",
+                                                )
+                                                null
+                                            }
+                                        }
                                     },
                                     modifier = Modifier.testTag("root_knowledge_review_session"),
                                 )
@@ -1440,6 +1763,17 @@ internal fun SmartMistakeBookRoot(
                     capabilityTester = application.modelCapabilityTester,
                     calibrationReportProvider = { application.studyRepository.calibrationReport() },
                     sourceCalibrationProvider = { application.studyRepository.sourceCalibrations() },
+                    // 批次 49 P2-12：校准可见页。读走仓库一次装配；写复用既有两条路径
+                    // （采纳门在 StudySchedulingCalibration，重置走设置存储）。
+                    schedulingCalibrationProvider = {
+                        application.studyRepository.schedulingCalibrationView()
+                    },
+                    onOptimizeSchedulingParameters = {
+                        application.studyRepository.optimizeSchedulingParameters() != null
+                    },
+                    onResetSchedulingParameters = {
+                        application.schedulingSettingsStore.setOptimizedParameters(null)
+                    },
                     onBack = navController::popBackStack,
                 )
             }
@@ -1691,10 +2025,15 @@ private sealed interface KnowledgeReviewPlanState {
 }
 
 @Composable
-private fun StudyDataStatusLine(status: StudyDataStatus) {
+private fun StudyDataStatusLine(
+    status: StudyDataStatus,
+    /** true = 错误由投影专用状态卡说明（批次 49 P2-13），这里不再重复通用错误句。 */
+    suppressGenericError: Boolean = false,
+) {
     val message = when (status) {
         StudyDataStatus.LOADING -> "正在读取本机学习记录…"
-        StudyDataStatus.ERROR -> "本机学习数据暂时无法更新；不会用空白结果替代已有记录。"
+        StudyDataStatus.ERROR ->
+            if (suppressGenericError) return else "本机学习数据暂时无法更新；不会用空白结果替代已有记录。"
         StudyDataStatus.READY -> return
     }
     Text(

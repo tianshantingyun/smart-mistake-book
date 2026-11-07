@@ -130,6 +130,12 @@ internal fun CapabilityScreen(
     calibrationReportProvider: (suspend () -> CalibrationReport)? = null,
     /** 来源校准（含讲题判定那档）；见 [SourceCalibrationSection]。 */
     sourceCalibrationProvider: (suspend () -> List<com.tingyun.smartmistakebook.core.domain.SourceCalibration>)? = null,
+    /** 复习排程校准（参数/拟合记录/按理由校准/G6/版本）；见 [SchedulingCalibrationSection]。 */
+    schedulingCalibrationProvider: (suspend () -> com.tingyun.smartmistakebook.core.domain.SchedulingCalibrationView?)? = null,
+    /** 复用 `StudyExperienceRepository.optimizeSchedulingParameters`；返回是否采纳了候选参数。 */
+    onOptimizeSchedulingParameters: (suspend () -> Boolean)? = null,
+    /** 复用 `SchedulingSettingsStore.setOptimizedParameters(null)`。 */
+    onResetSchedulingParameters: (suspend () -> Unit)? = null,
 ) {
     val context = LocalContext.current
     DisposableEffect(Unit) {
@@ -504,6 +510,18 @@ internal fun CapabilityScreen(
                         )
                     }
                 }
+            }
+        }
+        // 批次 49 P2-12：复习排程校准。入口留在能力页，不新建导航体系；两个动作都复用
+        // 既有写路径（采纳门在数据层），页面只负责触发与刷新。
+        if (schedulingCalibrationProvider != null) {
+            Spacer(Modifier.height(16.dp))
+            WorkspacePanel(modifier = Modifier.testTag("capability_scheduling_calibration")) {
+                SchedulingCalibrationSection(
+                    provider = requireNotNull(schedulingCalibrationProvider),
+                    onOptimize = onOptimizeSchedulingParameters,
+                    onReset = onResetSchedulingParameters,
+                )
             }
         }
     }
