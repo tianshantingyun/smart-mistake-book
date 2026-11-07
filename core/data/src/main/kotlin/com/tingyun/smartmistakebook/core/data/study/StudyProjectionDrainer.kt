@@ -1,7 +1,6 @@
 package com.tingyun.smartmistakebook.core.data.study
 
 import com.tingyun.smartmistakebook.core.database.ConsumedLedgerEventReceipt
-import com.tingyun.smartmistakebook.core.database.LearningLedgerIntegrityException
 import com.tingyun.smartmistakebook.core.database.LearningLedgerReadStatus
 import com.tingyun.smartmistakebook.core.database.PersistedLearnerSnapshot
 import com.tingyun.smartmistakebook.core.database.ProjectionArchiveRecord
@@ -31,6 +30,18 @@ import java.time.Clock
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+
+/**
+ * 投影排空无法继续的**投影级**失败（批次 49 P2-13）。
+ *
+ * 为什么单列一个类型：读面要把"投影/账本对不上"与"数据库暂时读不了"分开呈现——前者有
+ * 专用状态与"重新整理"动作，后者只能重试。把 [status] 带在异常上，是因为同一类失败里
+ * "冲突"与"缺口"对学生意味着不同的原因，不能合并成一句通用错误。
+ */
+internal class StudyProjectionUnavailableException(
+    val status: ProjectionStatus,
+    message: String,
+) : IllegalStateException(message)
 
 /**
  * Drains the immutable learning ledger into the learner projection (spec §6):
@@ -107,11 +118,17 @@ internal class StudyProjectionDrainer(
                 return@repeat
             }
             when (batch.stopReason) {
-                ProjectionBatchStopReason.GAP,
-                ProjectionBatchStopReason.CONFLICT,
-                -> throw LearningLedgerIntegrityException(
-                    batch.detail ?: "Learning ledger stopped at ${batch.blockedAtSequence}",
-                )
+                ProjectionBatchStopReason.GAP ->
+                    throw StudyProjectionUnavailableException(
+                        status = ProjectionStatus.WAITING_FOR_GAP,
+                        message = batch.detail ?: "Learning ledger stopped at ${batch.blockedAtSequence}",
+                    )
+
+                ProjectionBatchStopReason.CONFLICT ->
+                    throw StudyProjectionUnavailableException(
+                        status = ProjectionStatus.CONFLICTED,
+                        message = batch.detail ?: "Learning ledger stopped at ${batch.blockedAtSequence}",
+                    )
 
                 ProjectionBatchStopReason.FULL_REPLAY_REQUIRED -> {
                     try {
@@ -162,15 +179,31 @@ internal class StudyProjectionDrainer(
                                 knowledgeNodeSuccessors = knowledgeNodeSuccessors,
                             )
                         }
-                        check(
-                            result.missingSequence == null &&
-                            result.conflictedAttemptIds.isEmpty() &&
-                                result.conflictedAnswerRevealOutcomeIds.isEmpty() &&
-                                result.conflictedTutorAnswerExposureOutcomeIds.isEmpty() &&
-                                result.deferredAttemptIds.isEmpty() &&
-                                result.deferredAnswerRevealOutcomeIds.isEmpty() &&
-                                result.deferredTutorAnswerExposureOutcomeIds.isEmpty(),
-                        ) { "Projector rejected a database-validated incremental prefix" }
+                        // 增量投影拒绝"数据库校验过的前缀"= 投影与账本已不一致。批次 49
+                        // P2-13：以前这里抛通用 `check`，读面只能落通用 ERROR；现在按投影
+                        // 自己给出的状态分类——冲突（两条矛盾记录）与缺口（少一段）各有各的
+                        // 读面原因与"重新整理"出口。
+                        val rejectedStatus = when {
+                            result.snapshot.projectionStatus == ProjectionStatus.CONFLICTED ||
+                                result.conflictedAttemptIds.isNotEmpty() ||
+                                result.conflictedAnswerRevealOutcomeIds.isNotEmpty() ||
+                                result.conflictedTutorAnswerExposureOutcomeIds.isNotEmpty() ->
+                                ProjectionStatus.CONFLICTED
+
+                            result.missingSequence != null ||
+                                result.deferredAttemptIds.isNotEmpty() ||
+                                result.deferredAnswerRevealOutcomeIds.isNotEmpty() ||
+                                result.deferredTutorAnswerExposureOutcomeIds.isNotEmpty() ->
+                                ProjectionStatus.WAITING_FOR_GAP
+
+                            else -> null
+                        }
+                        if (rejectedStatus != null) {
+                            throw StudyProjectionUnavailableException(
+                                status = rejectedStatus,
+                                message = "Projector rejected a database-validated incremental prefix",
+                            )
+                        }
                         val commit = ProjectionCommit(
                             projectionName = PROJECTION_NAME,
                             learnerId = learnerId,
@@ -206,14 +239,51 @@ internal class StudyProjectionDrainer(
         throw ProjectionCasConflictException("Projection did not drain within the bounded work limit")
     }
 
+    /**
+     * 批次 49 P2-13 "重新整理"：**强制**从不可变账本全量重放，不看增量批次的停止原因。
+     *
+     * 与 [drain] 的区别就是"不再问投影自己是否过期"：投影自报 `CONFLICTED`、或增量批次
+     * 在冲突处抛错之后，账本仍是唯一真值——只要账本完整，重放就能把这版投影重新算对。
+     * 账本不完整时 [commitFullReplay] 会以同一个 [StudyProjectionUnavailableException]
+     * 如实失败（不假装修好）。
+     *
+     * CAS 冲突按 [MAX_CAS_RETRIES] 重读后重试：重放提交走同一个乐观并发门，别的写入者
+     * 推进版本不是失败，而是"读到新版本再算一次"。归档-覆盖的顺序由 [commitFullReplay]
+     * 自身保证（先归档被替换的那份，再提交重放结果）。
+     */
+    suspend fun reproject(): PersistedLearnerSnapshot {
+        val knowledgeNodeSuccessors = knowledgeNodeSuccessorsCache.current()
+        var current: PersistedLearnerSnapshot? =
+            onDatabase { database.readCurrentLearnerSnapshot(PROJECTION_NAME, learnerId) }
+        var consecutiveCasConflicts = 0
+        while (true) {
+            try {
+                return commitFullReplay(current, knowledgeNodeSuccessors)
+            } catch (conflict: ProjectionCasConflictException) {
+                consecutiveCasConflicts++
+                if (consecutiveCasConflicts >= MAX_CAS_RETRIES) throw conflict
+                current = onDatabase {
+                    database.readCurrentLearnerSnapshot(PROJECTION_NAME, learnerId)
+                }
+            }
+        }
+    }
+
     private suspend fun commitFullReplay(
         current: PersistedLearnerSnapshot?,
         knowledgeNodeSuccessors: KnowledgeNodeSuccessors,
     ): PersistedLearnerSnapshot {
         val ledger = onDatabase { database.loadLearningLedger(learnerId) }
         if (ledger.status != LearningLedgerReadStatus.COMPLETE) {
-            throw LearningLedgerIntegrityException(
-                ledger.detail ?: "Full replay blocked at ${ledger.blockedAtSequence}",
+            // 重放的输入是"完整账本"；缺口与冲突各自对应不同的投影状态——读面据此说清
+            // 原因，而不是把两种账本事实压成同一句通用错误。
+            throw StudyProjectionUnavailableException(
+                status = when (ledger.status) {
+                    LearningLedgerReadStatus.GAP -> ProjectionStatus.WAITING_FOR_GAP
+                    LearningLedgerReadStatus.CONFLICT -> ProjectionStatus.CONFLICTED
+                    LearningLedgerReadStatus.COMPLETE -> error("unreachable")
+                },
+                message = ledger.detail ?: "Full replay blocked at ${ledger.blockedAtSequence}",
             )
         }
         // KF-32（3B 步骤三）：重放的输入是"账本 + **当前绑定表** + 取代链"三件套——

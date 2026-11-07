@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.data.study
 
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
+import com.tingyun.smartmistakebook.core.database.LearningLedgerReadStatus
 import com.tingyun.smartmistakebook.core.database.port.SeedAssessmentPort
 import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationSource
 import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationSourceVerifier
@@ -10,6 +11,8 @@ import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationUpgradeReje
 import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationUpgradeRequest
 import com.tingyun.smartmistakebook.core.domain.decideAnswerKeyVerificationUpgrade
 import com.tingyun.smartmistakebook.core.model.AnswerKeyVerification
+import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
+import com.tingyun.smartmistakebook.core.model.EvidenceCorrection
 
 /**
  * `assessment_item_snapshot.verification_status` 的**单列**写端口（G5-A / KD-67）。
@@ -30,7 +33,10 @@ import com.tingyun.smartmistakebook.core.model.AnswerKeyVerification
  * **生产 adapter 状态（批次 23 T2 已接线）**：core/database 的
  * [SeedAssessmentPort.compareAndSetAssessmentItemVerificationStatus] 与
  * [StudyDatabaseAssessmentItemVerificationStatusWriter] 已落，生产形态的构造器默认走
- * 单列 CAS。确认流本身仍缺 feature 侧消费者与生产调用点（KD-67 ①③），所以本条仍 open。
+ * 单列 CAS。确认流的生产消费者已由批次 49 落地（`KnowledgeClarificationPresenter` +
+ * `SmartMistakeBookRoot` 的确认/升级接线），因此 KD-67 的“消费方缺失”不再是 open 原因；
+ * 仍未跑的是真 Room 端到端（selector → presenter → 确认 → CAS 升级），见
+ * `docs/research/evidence/2026-11-08-batch-49/repair/unit-gate-and-kd67-blockers.md` §3。
  */
 interface AssessmentItemVerificationStatusWriter {
     /**
@@ -64,6 +70,70 @@ class StudyDatabaseAssessmentItemVerificationStatusWriter(
         expectedCurrentStatus = expectedCurrentStatus,
         newVerificationStatus = newVerificationStatus,
     ) > 0
+}
+
+/**
+ * 生产回执校验实现（KD-67 / 批次 49）：把 `UserAssertion.confirmationId` 落到**账本里真实存在
+ * 的用户断言记录**上，而不是只看"id 非空"。
+ *
+ * 消灭的失败：端口在批次 22 落地后一直没有生产实现——确认流要么把任何自造 id 当回执
+ * （升级口绕过 PRD-02 的来源语义），要么根本无法在生产里升级（确认按下就报
+ * `SOURCE_NOT_VERIFIED`，学生看到"确认失败"却不知道为什么）。
+ *
+ * 什么算一条真实的用户断言（与 KD-43 的"改正答案键"写入口同一形状）：
+ * - 该学习者账本里有一条**已接受**的 `ChatEvidenceSubmitted`，其 id 等于 `confirmationId`；
+ * - 它的 `knowledgeNodeId` 属于该题面的知识点集合；
+ * - 它的理由以 `answer-key-correction:<itemId>:<key>:` 开头，且 `<key>` 等于**题面当前的**
+ *   标准答案——学生确认的是"这道题现在这个答案"，不是任何别的键（否则一次"改成 B"的
+ *   更正会被当成"确认 A"的回执）；
+ * - 该记录没有被任何后续 `EvidenceCorrection` 指向（撤销/替换 = 学生收回了这次断言，
+ *   fail-closed 不认）。
+ *
+ * `IndependentVerification` 的生产记录源（人工复核/正式题源）目前不存在，本实现**一律
+ * 返回 false**：宁可让 `VERIFIED` 升级不可达，也不拿"看起来像"的 id 冒充实核验。
+ */
+class LedgerAnswerKeyVerificationSourceVerifier(
+    private val database: StudyDatabasePort,
+    private val learnerId: String,
+) : AnswerKeyVerificationSourceVerifier {
+
+    override suspend fun verify(
+        source: AnswerKeyVerificationSource,
+        learnerId: String,
+        assessmentItemSnapshotId: String,
+    ): Boolean {
+        if (learnerId != this.learnerId) return false
+        return when (source) {
+            is AnswerKeyVerificationSource.UserAssertion ->
+                verifyUserAssertion(source, assessmentItemSnapshotId)
+
+            is AnswerKeyVerificationSource.IndependentVerification -> false
+        }
+    }
+
+    private suspend fun verifyUserAssertion(
+        source: AnswerKeyVerificationSource.UserAssertion,
+        assessmentItemSnapshotId: String,
+    ): Boolean {
+        if (source.confirmedByLearnerId != learnerId) return false
+        val row = database.findAssessmentItemSnapshot(assessmentItemSnapshotId) ?: return false
+        val spec = knowledgeQuizAnswerSpecOf(row) ?: return false
+        val ledger = database.loadLearningLedger(learnerId)
+        if (ledger.status != LearningLedgerReadStatus.COMPLETE) return false
+        val assertion = ledger.validPrefix.firstNotNullOfOrNull { persisted ->
+            (persisted.event as? ChatEvidenceSubmitted)
+                ?.takeIf { it.evidenceId == source.confirmationId }
+        } ?: return false
+        if (assertion.knowledgeNodeId !in spec.knowledgeNodeIds) return false
+        val prefix = knowledgeQuizKeyCorrectionReasonPrefix(spec.itemId, spec.correctChoiceId)
+        if (!assertion.reasonMarkdown.startsWith(prefix)) return false
+        // 被撤销/替换的断言 = 学生收回了"这个答案对"；不认它。
+        val superseded = ledger.validPrefix.any { persisted ->
+            val event = persisted.event
+            event is EvidenceCorrection && event.targetEvidenceId == source.confirmationId
+        }
+        return !superseded
+    }
 }
 
 /** 核验升级的写方结果（写方不抛业务异常；每个失败都有可判别出口）。 */

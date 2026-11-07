@@ -41,10 +41,22 @@ internal class StudySnapshotBuilder(
         knowledgeCoverage: StudyKnowledgeCoverageOverview,
     ): StudyExperienceSnapshot {
         val projection = learnerSnapshot()
-        check(
-            projection.freshness == LearnerSnapshotFreshness.CURRENT &&
-                projection.projectionStatus == ProjectionStatus.CURRENT,
-        ) { "Cannot publish a study snapshot from a stale or incomplete learning projection" }
+        if (projection.freshness != LearnerSnapshotFreshness.CURRENT ||
+            projection.projectionStatus != ProjectionStatus.CURRENT
+        ) {
+            // 批次 49 P2-13：以前这里抛通用 `check`，读面只能落"通用 ERROR"。现在把投影
+            // 自己的状态带出去——读面因此能显示"哪一类不一致"并给出"重新整理"。
+            // `projectionStatus == CURRENT` 但新鲜度不是 CURRENT 只会来自不一致的存储行，
+            // 归到 CATCHING_UP（投影还差一步），不冒充"冲突"。
+            throw StudyProjectionUnavailableException(
+                status = if (projection.projectionStatus == ProjectionStatus.CURRENT) {
+                    ProjectionStatus.CATCHING_UP
+                } else {
+                    projection.projectionStatus
+                },
+                message = "Cannot publish a study snapshot from a stale or incomplete learning projection",
+            )
+        }
 
         val planningContext = plannerService.planningContext(projection)
         // W0-2/Q4 读时校验：版本门只落在**非进行中**的那条读回上——进行中的会话必须与显示队列

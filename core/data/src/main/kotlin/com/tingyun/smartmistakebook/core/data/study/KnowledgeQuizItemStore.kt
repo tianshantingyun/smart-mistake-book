@@ -105,12 +105,18 @@ internal class KnowledgeQuizItemStore(
      *
      * null = 该行最终仍读不出来（本次要写的题面自己就解不开、或冲突根本不是本 id 的行引起的）
      * ——调用方按失败出口处置，不拿内存里的题面顶替库里的题面。
+     *
+     * [verificationStatus]（KD-67）：调用方已知的键核验状态。默认 `UNKNOWN` 保持模型生成
+     * 题面的既有语义（没有独立支持）；调用方有独立核验/用户确认依据时可显式写入。
+     * 损坏行重写时**不会**把库内已有的已核验状态降回 `UNKNOWN`：修复口只修内容，
+     * 状态列的原值是另一条事实（谁确认过这道题），不能被"重试出题"顺手抹掉。
      */
     suspend fun save(
         sessionId: Long,
         knowledgeNodeId: String,
         item: TutorAssessmentItem,
         occurredAtEpochMillis: Long,
+        verificationStatus: String = StudyDbValue.VerificationStatus.UNKNOWN,
     ): TutorAssessmentItem? {
         val snapshotId = knowledgeQuizItemSnapshotId(
             learnerId = learnerId,
@@ -121,6 +127,7 @@ internal class KnowledgeQuizItemStore(
             snapshotId = snapshotId,
             item = item,
             occurredAtEpochMillis = occurredAtEpochMillis,
+            verificationStatus = verificationStatus,
         )
         try {
             database.saveAssessmentItemSnapshot(incoming)
@@ -133,7 +140,20 @@ internal class KnowledgeQuizItemStore(
             //   题面永远显示不出来。损坏行没有可保护的内容，原地覆盖重写，让重试有出路。
             val existing = database.findAssessmentItemSnapshot(snapshotId)
             if (existing != null && decode(existing) == null) {
-                database.overwriteAssessmentItemSnapshot(incoming)
+                // 损坏行身上唯一值得保留的元数据就是核验状态：调用方没显式给新状态时，
+                // 沿用库里的值（KD-67：一次已经发生的确认不因重试而消失）。
+                val effectiveStatus = if (verificationStatus == StudyDbValue.VerificationStatus.UNKNOWN) {
+                    existing.verificationStatus
+                } else {
+                    verificationStatus
+                }
+                database.overwriteAssessmentItemSnapshot(
+                    if (effectiveStatus == incoming.verificationStatus) {
+                        incoming
+                    } else {
+                        incoming.copy(verificationStatus = effectiveStatus)
+                    },
+                )
             }
         }
         return read(sessionId, knowledgeNodeId)
@@ -143,6 +163,7 @@ internal class KnowledgeQuizItemStore(
         snapshotId: String,
         item: TutorAssessmentItem,
         occurredAtEpochMillis: Long,
+        verificationStatus: String,
     ): AssessmentItemSnapshotSeedRecord = AssessmentItemSnapshotSeedRecord(
         assessmentItemSnapshotId = snapshotId,
         itemRevision = ITEM_REVISION,
@@ -170,10 +191,11 @@ internal class KnowledgeQuizItemStore(
         ),
         // PRD-02：**两轴拆分**。`scoringMode = AUTO_VERIFIED` 只声明"对错可由本地
         // `selectedChoiceId == correctChoiceId` 机械确定"；它**不**表示键本身已被独立核验。
-        // 模型生成的题面没有独立支持，故 `verificationStatus = UNKNOWN`——写入口据此只保留
+        // 模型生成的题面没有独立支持，故调用方默认传 `UNKNOWN`——写入口据此只保留
         // 会话反馈与真实选择，不新增数值掌握证据（要计分须先把该行升级为 VERIFIED/
-        // USER_ASSERTED，例如用户明确更正或独立核验流程）。
-        verificationStatus = StudyDbValue.VerificationStatus.UNKNOWN,
+        // USER_ASSERTED，例如用户明确更正或独立核验流程）。KD-67：状态不再是写死的常量，
+        // 已核验的题面（重写/迁移）可以如实写回自己的状态。
+        verificationStatus = verificationStatus,
         assessmentEligibility = StudyDbValue.AssessmentEligibility.SESSION_ONLY,
         scoringMode = StudyDbValue.ScoringMode.AUTO_VERIFIED,
         // 题面不依赖学习快照版本，也不参与投影检查点：两列落固定标记与 0，不伪造一个投影位点。
@@ -233,12 +255,18 @@ internal class KnowledgeQuizItemStore(
             explicitNulls = true
             ignoreUnknownKeys = false
         }
-        val answerSpecJson = Json {
-            encodeDefaults = true
-            explicitNulls = true
-            ignoreUnknownKeys = false
-        }
+        val answerSpecJson = knowledgeQuizAnswerSpecJson
     }
+}
+
+/**
+ * 键载荷的 JSON 口径（单源）：写口与 [knowledgeQuizAnswerSpecOf] 必须逐字段一致，
+ * 否则"写进去解得开、读出来解不开"会变成一行静默损坏。
+ */
+private val knowledgeQuizAnswerSpecJson = Json {
+    encodeDefaults = true
+    explicitNulls = true
+    ignoreUnknownKeys = false
 }
 
 /**
@@ -262,6 +290,19 @@ internal data class KnowledgeQuizItemSnapshotView(
     val scoringMode: String?,
     val item: TutorAssessmentItem?,
 )
+
+/**
+ * 一行呈现快照的**键载荷**（`answer_spec_snapshot` 解码结果）；解不开/版本不认识 = null。
+ *
+ * 核验升级的来源校验需要"这道题的 itemId 与当前标准答案"，而它只需要读列、不需要题面
+ * 可读（题面可读性由升级口单独判）。放在这里而不是让调用方各自 decode：键载荷的 schema
+ * 闸只该有一处。
+ */
+internal fun knowledgeQuizAnswerSpecOf(
+    record: AssessmentItemSnapshotSeedRecord,
+): KnowledgeQuizAnswerSpec? = runCatching {
+    knowledgeQuizAnswerSpecJson.decodeFromString(KnowledgeQuizAnswerSpec.serializer(), record.answerSpecSnapshot)
+}.getOrNull()
 
 /**
  * 一道知识点复习题面的行身份：`(learner, 会话, 知识点)`。
