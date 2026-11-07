@@ -273,14 +273,18 @@ fun OutlineActionChip(
             },
         enabled = enabled,
         shape = RoundedCornerShape(SmartDimens.ChipRadius),
-        border = if (selected == false) BorderStroke(1.dp, SmartColors.Divider) else null,
+        border = when (selected) {
+            true -> BorderStroke(1.dp, JadeActive.copy(alpha = .2f))
+            false -> BorderStroke(1.dp, SmartColors.Divider)
+            null -> null
+        },
         colors = ButtonDefaults.buttonColors(
             containerColor = if (selected == true) JadeSoft else Color.Transparent,
             contentColor = if (selected == true) JadeActive else InkSecondary,
             disabledContainerColor = Color.Transparent,
             disabledContentColor = InkMuted,
         ),
-        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+        contentPadding = PaddingValues(horizontal = if (selected != null) 8.dp else 12.dp, vertical = 8.dp),
     ) {
         if (icon != null) {
             Icon(
@@ -289,6 +293,10 @@ fun OutlineActionChip(
                 modifier = Modifier.size(SmartIconSizes.Standard),
             )
             Spacer(Modifier.width(7.dp))
+        } else if (selected != null) {
+            Box(Modifier.size(6.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                .background(if (selected) JadeActive else Color.Transparent))
+            Spacer(Modifier.width(6.dp))
         }
         Text(text = text, style = MaterialTheme.typography.labelLarge)
     }

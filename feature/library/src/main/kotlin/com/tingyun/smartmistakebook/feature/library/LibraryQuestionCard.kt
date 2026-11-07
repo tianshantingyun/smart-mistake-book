@@ -143,13 +143,6 @@ private fun LibraryCardMetadata(mistake: LibraryMistake, source: String) {
 
 @Composable
 internal fun LibraryMasteryBadge(mastery: MasteryState) {
-    val background = libraryStateColor(when (mastery) {
-        MasteryState.LEARNING -> SmartColors.LearningSurface
-        MasteryState.MASTERED -> SmartColors.JadeSoft
-        MasteryState.CONFLICTED -> SmartColors.ErrorSurface
-        MasteryState.STALE -> SmartColors.PendingSurface
-        MasteryState.UNKNOWN -> Color.Transparent
-    }, label = "library-mastery-surface")
     val tint = libraryStateColor(when (mastery) {
         MasteryState.LEARNING -> SmartColors.LearningAccent
         MasteryState.MASTERED -> SmartColors.JadeDark
@@ -164,12 +157,10 @@ internal fun LibraryMasteryBadge(mastery: MasteryState) {
         MasteryState.CONFLICTED -> Icons.Outlined.ErrorOutline
         MasteryState.STALE -> Icons.Outlined.Schedule
     }
-    Surface(color = background, shape = MaterialTheme.shapes.extraSmall) {
-        Row(Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            Icon(icon, null, modifier = Modifier.size(12.dp), tint = tint)
-            Text(mastery.label, style = MaterialTheme.typography.labelMedium, color = SmartColors.Ink)
-        }
+    Row(verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Icon(icon, null, modifier = Modifier.size(14.dp), tint = tint)
+        Text(mastery.label, style = MaterialTheme.typography.labelMedium, color = tint)
     }
 }
 

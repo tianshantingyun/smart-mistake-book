@@ -113,7 +113,9 @@ fun ClaudeSegmentedControl(
         Box(Modifier.horizontalScroll(rememberScrollState())) {
             Box(Modifier.width(cellWidth * segments.size + 2.dp).height(IntrinsicSize.Min)
                 .background(Ink.copy(alpha = .06f), CircleShape).padding(1.dp)) {
-                val boundedOffset = thumbOffset.coerceIn(0.dp, cellWidth * (segments.size - 1))
+                val targetOffset = cellWidth * selectedIndex.coerceAtLeast(0)
+                val boundedOffset = (if (motion) thumbOffset else targetOffset)
+                    .coerceIn(0.dp, cellWidth * (segments.size - 1))
                 if (selectedIndex >= 0) Box(Modifier.matchParentSize().padding(start = boundedOffset,
                     end = cellWidth * (segments.size - 1) - boundedOffset)
                     .shadow(2.dp, CircleShape).background(ContentSurface, CircleShape)
