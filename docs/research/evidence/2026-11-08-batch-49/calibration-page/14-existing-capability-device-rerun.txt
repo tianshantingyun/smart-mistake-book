@@ -1,0 +1,48 @@
+
+com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest:.
+Error in testResultIsRemovedAsSoonAsTheSavedFormIsEdited(com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest):
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains '测试通过：图片读取和讲解都可用。' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:80)
+	at com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest.testResultIsRemovedAsSoonAsTheSavedFormIsEdited(CapabilityScreenInstrumentedTest.kt:131)
+
+Error in syntheticTestRunsOnlyAfterTapAndShowsTheByokBoundary(com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest):
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains '测试通过：图片读取和讲解都可用。' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:80)
+	at com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest.syntheticTestRunsOnlyAfterTapAndShowsTheByokBoundary(CapabilityScreenInstrumentedTest.kt:84)
+...
+
+Time: 16.077
+There were 2 failures:
+1) testResultIsRemovedAsSoonAsTheSavedFormIsEdited(com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest)
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains '测试通过：图片读取和讲解都可用。' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:80)
+	at com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest.testResultIsRemovedAsSoonAsTheSavedFormIsEdited(CapabilityScreenInstrumentedTest.kt:131)
+2) syntheticTestRunsOnlyAfterTapAndShowsTheByokBoundary(com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest)
+java.lang.AssertionError: Action performScrollTo() failed.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (Text + InputText + EditableText contains '测试通过：图片读取和讲解都可用。' (ignoreCase: false))
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.ActionsKt.performScrollTo(Actions.kt:80)
+	at com.tingyun.smartmistakebook.CapabilityScreenInstrumentedTest.syntheticTestRunsOnlyAfterTapAndShowsTheByokBoundary(CapabilityScreenInstrumentedTest.kt:84)
+
+FAILURES!!!
+Tests run: 6,  Failures: 2
+
+

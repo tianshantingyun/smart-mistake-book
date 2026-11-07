@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-11-07T18:06:21.861Z" hostname="TIANSHAN" time="0.055">
+  <properties/>
+  <testcase name="every known clarify reason maps to a student readable line" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.019"/>
+  <testcase name="a different decision opens the card even after one was resolved" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.023"/>
+  <testcase name="dismissing the card records the chosen outcome without confirming anything" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.001"/>
+  <testcase name="a clarify decision that is not about an unverified key offers no confirmation" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.0"/>
+  <testcase name="a failed confirmation returns to asking with a visible reason" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.001"/>
+  <testcase name="the state flow is observable by the screen" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.003"/>
+  <testcase name="confirming a candidate outside the request is refused" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.001"/>
+  <testcase name="a resolved decision is not reopened by the same request replay" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.001"/>
+  <testcase name="a key unverified decision is confirmable" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.0"/>
+  <testcase name="the card exposes the selector version so a stale card can be told apart" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.001"/>
+  <testcase name="only the on-screen question can be confirmed" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.0"/>
+  <testcase name="a clarify decision opens the card with its candidates and reasons" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.001"/>
+  <testcase name="an unknown reason code degrades to an honest generic line instead of leaking the code" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.0"/>
+  <testcase name="a replayed request while the card is busy keeps the busy state" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

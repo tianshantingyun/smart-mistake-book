@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<hierarchy rotation="0">
+<node class="android.widget.FrameLayout" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,0][1080,2400]">
+<node class="android.widget.LinearLayout" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,0][1080,2337]">
+<node class="android.widget.FrameLayout" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,63][1080,2337]">
+<node class="androidx.compose.ui.platform.ComposeView" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,63][1080,517]">
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,63][1080,517]">
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,95][1038,485]">
+<node class="android.widget.TextView" text="学习记录需要重新整理" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,95][462,156]" />
+<node class="android.widget.TextView" text="学习记录里有两处互相矛盾的内容，投影暂时停在冲突处，学习数据无法继续更新。" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,167][1038,277]" />
+<node class="android.view.View" text="" content-desc="" clickable="true" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,298][1038,424]">
+<node class="android.view.View" text="" content-desc="用本机学习记录重新整理；不会删除任何作答" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,298][1038,424]" />
+<node class="android.widget.TextView" text="重新整理" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[468,335][612,387]" />
+<node class="android.widget.Button" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,298][1038,424]" />
+</node>
+<node class="android.widget.TextView" text="重新整理会用本机学习账本重新计算；不会删除任何作答记录。" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,440][910,485]" />
+</node>
+</node>
+</node>
+</node>
+</node>
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,0][1080,63]" />
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,2337][1080,2400]" />
+</node>
+</hierarchy>

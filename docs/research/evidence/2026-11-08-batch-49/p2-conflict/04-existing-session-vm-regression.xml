@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" tests="23" skipped="0" failures="0" errors="0" timestamp="2026-11-07T16:44:07.719Z" hostname="TIANSHAN" time="0.059">
+  <properties/>
+  <testcase name="aFailedSubmitRetriesWithTheSameIdentityWhileANextSessionGetsItsOwn" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.014"/>
+  <testcase name="aRestoredSessionReadsTheQuizBackWithoutGeneratingAgain" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.003"/>
+  <testcase name="restoreFromProcessDeathKeepsNodeIndex" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.0"/>
+  <testcase name="recordingTheLastAnswerCompletesTheSession" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.003"/>
+  <testcase name="processRestoreKeepsTheOriginalQueueAndChoiceWhenTheNewPlanIsReordered" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.004"/>
+  <testcase name="wrongAnswerStillRecordsNegativeVerdictAndAllowsContinue" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.003"/>
+  <testcase name="skippingAFailedNodeAdvancesWithoutRecordingAnything" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.0"/>
+  <testcase name="continueToNextAdvancesAndClearsVerdictBeforeLoadingNext" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.003"/>
+  <testcase name="restoredLoadedStatusKeepsTheQuizForReadBackInsteadOfRegenerating" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.001"/>
+  <testcase name="loadingCurrentQuizRunsTheInjectDispatcherAndShowsItem" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.002"/>
+  <testcase name="restoredKnowledgePreparingReopensTheLoadPath" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.0"/>
+  <testcase name="theTwoCannotLoadReasonsBecomeDistinctStatuses" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.004"/>
+  <testcase name="skippingTheLastNodeEndsTheSessionWithoutAVerdict" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.0"/>
+  <testcase name="aFailedLoadIsRetryableWithoutLosingTheNode" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.003"/>
+  <testcase name="aRestoreThatCannotReadTheQuizFallsBackToTheFailureExit" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.002"/>
+  <testcase name="skippingAllNodesRestoresACompletedSessionEvenWhenTheCurrentPlanIsEmpty" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.001"/>
+  <testcase name="startsAtFirstNodeIdleWithoutItem" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.0"/>
+  <testcase name="aDamagedQueueSnapshotUsesTheRecoveryExitInsteadOfGuessingANode" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.001"/>
+  <testcase name="processRestoreKeepsTheVerdictBoundToItsNodeWhenTheNewPlanShrinksOrIsEmpty" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.004"/>
+  <testcase name="aFailedWritebackIsRetryableAndDoesNotLockTheNode" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.004"/>
+  <testcase name="correctAnswerRecordsVerdictAndAllowsContinue" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.004"/>
+  <testcase name="anOutOfRangeRestoredIndexIsClampedAndCannotKeepAnUnrelatedChoice" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.0"/>
+  <testcase name="legacyProgressWithoutQueueIdentityCannotBeAppliedToANewPlan" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeReviewSessionViewModelTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

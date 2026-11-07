@@ -1,0 +1,2556 @@
+{
+  "runbook": "docs\\acceptance\\blocked-runbook.md",
+  "domain": null,
+  "blocked_rows": 278,
+  "covered": 278,
+  "missing": [],
+  "rows": [
+    {
+      "id": "A-003",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-005",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-006",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-2 无运行时权限场景（8 行，缺产品口径）"
+      ]
+    },
+    {
+      "id": "A-010",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-3 真实 Provider（A-010，外部条件）"
+      ]
+    },
+    {
+      "id": "A-014",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-015",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-2 无运行时权限场景（8 行，缺产品口径）"
+      ]
+    },
+    {
+      "id": "A-023",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-024",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-2 无运行时权限场景（8 行，缺产品口径）"
+      ]
+    },
+    {
+      "id": "A-031",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-4 详情页空态（A-031，产品口径）"
+      ]
+    },
+    {
+      "id": "A-032",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-033",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-2 无运行时权限场景（8 行，缺产品口径）"
+      ]
+    },
+    {
+      "id": "A-041",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-049",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-050",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-5 大数据备份/恢复超时（A-050，阈值未定）"
+      ]
+    },
+    {
+      "id": "A-051",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-2 无运行时权限场景（8 行，缺产品口径）"
+      ]
+    },
+    {
+      "id": "A-058",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-059",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-060",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-2 无运行时权限场景（8 行，缺产品口径）"
+      ]
+    },
+    {
+      "id": "A-065",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-066",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-068",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-069",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-2 无运行时权限场景（8 行，缺产品口径）"
+      ]
+    },
+    {
+      "id": "A-077",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-086",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-1 缺用例 / 夹具 / 大样本（14 行，内部可执行）"
+      ]
+    },
+    {
+      "id": "A-087",
+      "domain": "A",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## 覆盖索引（A 域，25 行）",
+        "### A-2 无运行时权限场景（8 行，缺产品口径）"
+      ]
+    },
+    {
+      "id": "B-077",
+      "domain": "B",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## B 域",
+        "### B-1 / B-2 mask=13 状态夹具（2 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "B-078",
+      "domain": "B",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## B 域",
+        "### B-1 / B-2 mask=13 状态夹具（2 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "C-008",
+      "domain": "C",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## C 域",
+        "### C-1 R-03 嵌套合成（C-008，内部）"
+      ]
+    },
+    {
+      "id": "C-088",
+      "domain": "C",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## C 域",
+        "### C-2 hitRegions 屏幕侧（C-088，内部）"
+      ]
+    },
+    {
+      "id": "D-082",
+      "domain": "D",
+      "covered": true,
+      "sections": [
+        "## blocked_by 七类总索引（批次 47；280 行全覆盖）",
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## D 域"
+      ]
+    },
+    {
+      "id": "D-083",
+      "domain": "D",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## D 域"
+      ]
+    },
+    {
+      "id": "D-084",
+      "domain": "D",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## D 域"
+      ]
+    },
+    {
+      "id": "D-085",
+      "domain": "D",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## D 域"
+      ]
+    },
+    {
+      "id": "D-086",
+      "domain": "D",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## D 域"
+      ]
+    },
+    {
+      "id": "D-087",
+      "domain": "D",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## D 域"
+      ]
+    },
+    {
+      "id": "D-088",
+      "domain": "D",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## D 域"
+      ]
+    },
+    {
+      "id": "D-090",
+      "domain": "D",
+      "covered": true,
+      "sections": [
+        "## blocked_by 七类总索引（批次 47；280 行全覆盖）",
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## D 域"
+      ]
+    },
+    {
+      "id": "E-007",
+      "domain": "E",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## E 域",
+        "### E-1 并发（7 行）"
+      ]
+    },
+    {
+      "id": "E-016",
+      "domain": "E",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## E 域",
+        "### E-1 并发（7 行）"
+      ]
+    },
+    {
+      "id": "E-025",
+      "domain": "E",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## E 域",
+        "### E-1 并发（7 行）"
+      ]
+    },
+    {
+      "id": "E-034",
+      "domain": "E",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## E 域",
+        "### E-1 并发（7 行）"
+      ]
+    },
+    {
+      "id": "E-043",
+      "domain": "E",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## E 域",
+        "### E-1 并发（7 行）"
+      ]
+    },
+    {
+      "id": "E-052",
+      "domain": "E",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## E 域",
+        "### E-1 并发（7 行）"
+      ]
+    },
+    {
+      "id": "E-070",
+      "domain": "E",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## E 域",
+        "### E-2 并发 + 真事务（1 行）",
+        "### E-3 DST（1 行）"
+      ]
+    },
+    {
+      "id": "E-079",
+      "domain": "E",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## E 域",
+        "### E-1 并发（7 行）"
+      ]
+    },
+    {
+      "id": "E-086",
+      "domain": "E",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## E 域",
+        "### E-3 DST（1 行）"
+      ]
+    },
+    {
+      "id": "F-002",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-006",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-009",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-011",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-012",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-015",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-018",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-020",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-024",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-027",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-033",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-038",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-039",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-042",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-047",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-048",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-050",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-051",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-054",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-056",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-058",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-060",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-069",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-072",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-074",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-078",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-081",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-083",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-084",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-085",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-087",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "F-090",
+      "domain": "F",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## F 域"
+      ]
+    },
+    {
+      "id": "G-016",
+      "domain": "G",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## G 域"
+      ]
+    },
+    {
+      "id": "G-036",
+      "domain": "G",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## G 域"
+      ]
+    },
+    {
+      "id": "G-072",
+      "domain": "G",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## G 域"
+      ]
+    },
+    {
+      "id": "G-080",
+      "domain": "G",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## G 域"
+      ]
+    },
+    {
+      "id": "G-081",
+      "domain": "G",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## G 域"
+      ]
+    },
+    {
+      "id": "G-087",
+      "domain": "G",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## G 域"
+      ]
+    },
+    {
+      "id": "G-088",
+      "domain": "G",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## G 域",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "H-008",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## H 域",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "H-024",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-025",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-036",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-039",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-040",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-041",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-042",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-043",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-051",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-053",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-063",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-075",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-076",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-077",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-080",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-081",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-089",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "H-090",
+      "domain": "H",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## H 域"
+      ]
+    },
+    {
+      "id": "I-005",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-007",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-009",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-014",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-018",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-023",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-025",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-027",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-030",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-032",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-036",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-039",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-041",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-043",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-045",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-050",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-054",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-059",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-061",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-063",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-066",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-068",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-070",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-072",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-075",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-077",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-079",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-081",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-082",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-083",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-084",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-085",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-086",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-087",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-088",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-089",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "I-090",
+      "domain": "I",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## I 域"
+      ]
+    },
+    {
+      "id": "J-003",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-006",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-007",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-008",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-017",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-018",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-019",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-022",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-026",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-035",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-036",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-037",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-038",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-039",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-042",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-043",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-049",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-053",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-055",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-056",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-057",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-061",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-063",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-065",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-066",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-067",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-068",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-069",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-070",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-071",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-073",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-074",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-075",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-076",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-077",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-078",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-079",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-080",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-081",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-082",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-083",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-084",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-085",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-086",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-087",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-088",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-089",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "J-090",
+      "domain": "J",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## J 域"
+      ]
+    },
+    {
+      "id": "FIX-016",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-017",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-018",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-019",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-020",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-021",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-022",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-023",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-024",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-025",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-026",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-027",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-028",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-029",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-030",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-031",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-032",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-033",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-034",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-035",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-036",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-037",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-038",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-039",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-040",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-041",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-042",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-043",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-044",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-045",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-046",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-047",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-048",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-049",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-050",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-051",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-052",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-053",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-054",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-055",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-056",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-057",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-058",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-059",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-060",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-061",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-062",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-063",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-064",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-065",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §7 授权（内部·裁定或工程执行，116 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-066",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-067",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-068",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-069",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-070",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-071",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-072",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-073",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-074",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-075",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §2 签名（外部，20 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-076",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-077",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-078",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-079",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-080",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-081",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-082",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-083",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-084",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-085",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §6 热区（内部·需主会话授权改码，18 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-086",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-087",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-088",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-089",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-090",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-091",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-092",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-093",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-094",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-095",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-096",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-097",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-098",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-099",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "FIX-100",
+      "domain": "FIX",
+      "covered": true,
+      "sections": [
+        "### §5 环境（外部，51 行）",
+        "## FIX 域"
+      ]
+    },
+    {
+      "id": "GATE-096",
+      "domain": "GATE",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## GATE 域"
+      ]
+    },
+    {
+      "id": "GATE-097",
+      "domain": "GATE",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## GATE 域"
+      ]
+    },
+    {
+      "id": "GATE-098",
+      "domain": "GATE",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## GATE 域"
+      ]
+    },
+    {
+      "id": "GATE-100",
+      "domain": "GATE",
+      "covered": true,
+      "sections": [
+        "### §4 金标（外部·人工判定/独立复核，37 行）",
+        "## GATE 域"
+      ]
+    }
+  ]
+}

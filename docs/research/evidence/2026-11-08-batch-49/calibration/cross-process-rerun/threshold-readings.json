@@ -1,0 +1,33 @@
+{
+  "line": "mastery_thresholds",
+  "model_based": true,
+  "change_proposed": false,
+  "thresholds": [[21.0, 0.9], [14.0, 0.9], [21.0, 0.85]],
+  "note": "只测不改：本批不产生任何阈值变更提案（ask 硬约束）",
+  "aggregates": [
+    {"truth_arm": "W-decay", "policy": "T0", "day": 30, "n": 2, "coverage_median": "0x1.0p0", "coverage_min": 0, "coverage_max": 2, "misjudge_rate_median": "0x0.0p0", "structural_zero": false},
+    {"truth_arm": "W-decay", "policy": "T0", "day": 60, "n": 2, "coverage_median": "0x1.4p1", "coverage_min": 2, "coverage_max": 3, "misjudge_rate_median": "0x0.0p0", "structural_zero": false},
+    {"truth_arm": "W-decay", "policy": "T0", "day": 90, "n": 2, "coverage_median": "0x1.8p2", "coverage_min": 5, "coverage_max": 7, "misjudge_rate_median": "0x0.0p0", "structural_zero": false},
+    {"truth_arm": "W-decay", "policy": "T0", "day": 120, "n": 2, "coverage_median": "0x1.4p2", "coverage_min": 4, "coverage_max": 6, "misjudge_rate_median": "0x0.0p0", "structural_zero": false},
+    {"truth_arm": "W-decay", "policy": "T1", "day": 30, "n": 2, "coverage_median": "0x1.8p0", "coverage_min": 1, "coverage_max": 2, "misjudge_rate_median": "0x0.0p0", "structural_zero": false},
+    {"truth_arm": "W-decay", "policy": "T1", "day": 60, "n": 2, "coverage_median": "0x1.4p2", "coverage_min": 5, "coverage_max": 5, "misjudge_rate_median": "0x0.0p0", "structural_zero": false},
+    {"truth_arm": "W-decay", "policy": "T1", "day": 90, "n": 2, "coverage_median": "0x1.0p3", "coverage_min": 7, "coverage_max": 9, "misjudge_rate_median": "0x0.0p0", "structural_zero": false},
+    {"truth_arm": "W-decay", "policy": "T1", "day": 120, "n": 2, "coverage_median": "0x1.cp2", "coverage_min": 4, "coverage_max": 10, "misjudge_rate_median": "0x0.0p0", "structural_zero": false},
+    {"truth_arm": "W-decay", "policy": "T2", "day": 30, "n": 2, "coverage_median": "0x1.0p0", "coverage_min": 0, "coverage_max": 2, "misjudge_rate_median": "0x0.0p0", "structural_zero": false},
+    {"truth_arm": "W-decay", "policy": "T2", "day": 60, "n": 2, "coverage_median": "0x1.4p1", "coverage_min": 2, "coverage_max": 3, "misjudge_rate_median": "0x0.0p0", "structural_zero": false},
+    {"truth_arm": "W-decay", "policy": "T2", "day": 90, "n": 2, "coverage_median": "0x1.ap2", "coverage_min": 6, "coverage_max": 7, "misjudge_rate_median": "0x0.0p0", "structural_zero": false},
+    {"truth_arm": "W-decay", "policy": "T2", "day": 120, "n": 2, "coverage_median": "0x1.6p2", "coverage_min": 5, "coverage_max": 6, "misjudge_rate_median": "0x0.0p0", "structural_zero": false},
+    {"truth_arm": "W-slip", "policy": "T0", "day": 30, "n": 2, "coverage_median": "0x1.0p-1", "coverage_min": 0, "coverage_max": 1, "misjudge_rate_median": "0x0.0p0", "structural_zero": true},
+    {"truth_arm": "W-slip", "policy": "T0", "day": 60, "n": 2, "coverage_median": "0x1.8p0", "coverage_min": 1, "coverage_max": 2, "misjudge_rate_median": "0x0.0p0", "structural_zero": true},
+    {"truth_arm": "W-slip", "policy": "T0", "day": 90, "n": 2, "coverage_median": "0x1.4p2", "coverage_min": 4, "coverage_max": 6, "misjudge_rate_median": "0x0.0p0", "structural_zero": true},
+    {"truth_arm": "W-slip", "policy": "T0", "day": 120, "n": 2, "coverage_median": "0x1.6p2", "coverage_min": 2, "coverage_max": 9, "misjudge_rate_median": "0x0.0p0", "structural_zero": true},
+    {"truth_arm": "W-slip", "policy": "T1", "day": 30, "n": 2, "coverage_median": "0x1.0p0", "coverage_min": 0, "coverage_max": 2, "misjudge_rate_median": "0x0.0p0", "structural_zero": true},
+    {"truth_arm": "W-slip", "policy": "T1", "day": 60, "n": 2, "coverage_median": "0x1.ap2", "coverage_min": 6, "coverage_max": 7, "misjudge_rate_median": "0x0.0p0", "structural_zero": true},
+    {"truth_arm": "W-slip", "policy": "T1", "day": 90, "n": 2, "coverage_median": "0x1.ap2", "coverage_min": 6, "coverage_max": 7, "misjudge_rate_median": "0x0.0p0", "structural_zero": true},
+    {"truth_arm": "W-slip", "policy": "T1", "day": 120, "n": 2, "coverage_median": "0x1.cp2", "coverage_min": 3, "coverage_max": 11, "misjudge_rate_median": "0x0.0p0", "structural_zero": true},
+    {"truth_arm": "W-slip", "policy": "T2", "day": 30, "n": 2, "coverage_median": "0x1.0p-1", "coverage_min": 0, "coverage_max": 1, "misjudge_rate_median": "0x0.0p0", "structural_zero": true},
+    {"truth_arm": "W-slip", "policy": "T2", "day": 60, "n": 2, "coverage_median": "0x1.8p0", "coverage_min": 1, "coverage_max": 2, "misjudge_rate_median": "0x0.0p0", "structural_zero": true},
+    {"truth_arm": "W-slip", "policy": "T2", "day": 90, "n": 2, "coverage_median": "0x1.6p2", "coverage_min": 5, "coverage_max": 6, "misjudge_rate_median": "0x0.0p0", "structural_zero": true},
+    {"truth_arm": "W-slip", "policy": "T2", "day": 120, "n": 2, "coverage_median": "0x1.6p2", "coverage_min": 2, "coverage_max": 9, "misjudge_rate_median": "0x0.0p0", "structural_zero": true}
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "clickable": 5,
+  "colors": null,
+  "colors_sha256": null,
+  "contrast": {
+    "measured": 0,
+    "min_ratio": null,
+    "pairs": [],
+    "reason": "no colors input",
+    "status": "UNVERIFIED",
+    "threshold": 4.5
+  },
+  "density_dpi": 420,
+  "dump": "docs\\research\\evidence\\2026-11-08-batch-49\\device\\a11y\\batch49\\batch49-clarification-card.xml",
+  "dump_sha256": "99f50337b0150a6879d60d45680168bb6fa2acbc0fed205c77e3de512299746d",
+  "min_dp": 48.0,
+  "min_dp_source": 48.0,
+  "nodes": 49,
+  "ok": false,
+  "structural_ok": true,
+  "violation_codes": [],
+  "violations": []
+}

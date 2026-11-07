@@ -1,0 +1,144 @@
+{
+  "batch": "49",
+  "model_based": true,
+  "holdout_run_id": "batch49-holdout-20261107T1455Z",
+  "primary_metric": "exam_subject_coverage_in_window",
+  "prereg_sha256": "042776e829fe943a736007074ef77ac0e191f7bbeca0169b58d3d1a3be96b843",
+  "head": "ba7b5624ea0c2bc3f09dcee247f5852e4f428122",
+  "file_sha256": {
+    "ReviewPlannerV2.kt": "ed6ae4e50147fc0f76580f5185cf0f8b9f8c7fc8e395db3fc7a9eda7fdc9651c",
+    "AlgorithmConstants.kt": "e695418f5a24f56ab38ec11d44dd84f7030423c69bb57fd27942e34a36ccfd84",
+    "ReviewPlanner.kt": "62143174c3a4086b745044cc0a5b69275fce9810b93dcac35b88b4610d0320f2",
+    "ClearlyMasteredForSkipPolicy.kt": "3cb0af7c7c199a98dec451338288dccad469d6db47aaf5cec1b214c80098599d",
+    "SchedulingEvaluation.kt": "e0f3f26aaac5dd1545bfa8eb8fda2e3fd37d8dd4b3dc9aba66e5b0fe780f7338",
+    "ReviewPlannerScaleBenchmarkTest.kt": "d72a2ed9aa8bc91f6471d75a0905475c5788af9f4a20c336d23e97c9a0342560",
+    "StudyReviewPlannerService.kt": "2bd8c40bb6352e5dd01b8a0998b9f7843d2c32a2d6c8602b073f3673f4d6948d",
+    "SimulatedLearner.kt": "62d1eeac482ab165e26920a5665d3e54719334dc3674b235a3149d88b63e65ef",
+    "SimulatedLearnerTest.kt": "94a27fae700e681f08b5542df68de813bb86c111bdee7cd2ab9f37eebd99212e"
+  },
+  "g6_grid": [
+    0.15,
+    0.25,
+    0.35,
+    0.5
+  ],
+  "g6_baseline_f": 0.0,
+  "weight_grid": [
+    0.75,
+    0.875,
+    1.0,
+    1.125,
+    1.25
+  ],
+  "thresholds_evaluated_not_changed": [
+    [
+      21.0,
+      0.9
+    ],
+    [
+      14.0,
+      0.9
+    ],
+    [
+      21.0,
+      0.85
+    ]
+  ],
+  "rho_grid": [
+    1.0,
+    0.975,
+    0.95,
+    0.925,
+    0.9,
+    0.875,
+    0.85,
+    0.825,
+    0.8,
+    0.775,
+    0.75
+  ],
+  "equal_time_tolerance": "0x1.eb851eb851eb8p-7",
+  "brier_delta_tolerance": "0x1.47ae147ae147bp-8",
+  "dev_seeds": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110
+  ],
+  "holdout_seeds": [
+    901,
+    902,
+    903,
+    904,
+    905,
+    906,
+    907,
+    908,
+    909,
+    910
+  ],
+  "worlds_per_layer": 10,
+  "simulation_runs_physical": 3120,
+  "simulation_runs_logical": 3334,
+  "expected_runs_per_world_from_prereg": "69-74 (extra rho scans for unequal weight arms are新增)",
+  "started_at": "2026-11-07T14:42:43.934111700Z",
+  "finished_at": "2026-11-07T14:53:37.908183600Z",
+  "wall_clock_seconds": 653,
+  "output_dir": "D:\\smart mistake book\\docs\\research\\evidence\\2026-11-08-batch-49\\calibration",
+  "known_deviations": [
+    "weight-line requires the §5.1 injection seam; seam landed per prereg §5.1 contract, so ReviewPlannerV2.kt / ReviewPlanner.kt / SimulatedLearner.kt hashes differ from prereg §1.1 (baseline digests still pinned in file_sha256_baseline)",
+    "W-slip misjudgment rate is a structural zero (truth decay == product decay), not evidence",
+    "A-line FSRS fitting (§7) not run in this ask; not part of the named scan set",
+    "real-database samples not touched -> BLOCKED, no numbers invented"
+  ],
+  "file_sha256_baseline": {
+    "ReviewPlannerV2.kt": "ee89aba3dfeb079812b72bf3808b9acc564c7d159743e1577da86de97cc20ecf",
+    "AlgorithmConstants.kt": "e695418f5a24f56ab38ec11d44dd84f7030423c69bb57fd27942e34a36ccfd84",
+    "ReviewPlanner.kt": "e5d66b5b00a22b6dac6fc0d32c3af54658b0f0f8428df74febb458e1ac0bfbfa",
+    "SimulatedLearner.kt": "d170338b35152f1adc0ef1d32e34a60fd896b696cb68fbf36483475f655cc2dc"
+  },
+  "post_report_drift": {
+    "registered_at": "2026-11-08T06:20:00Z",
+    "registered_by": "batch49-repair",
+    "note": "报告/门禁之后代码再发生两处字节变化；meta/run-manifest 的 file_sha256 保持报告时点值，本字段登记最终树与影响。",
+    "files": {
+      "StudyReviewPlannerService.kt": {
+        "report_sha256": "2bd8c40bb6352e5dd01b8a0998b9f7843d2c32a2d6c8602b073f3673f4d6948d",
+        "final_tree_sha256": "1cedc66844261a044bd55487cdedc496a33af2bb61ce686e0977072883cc1bbf",
+        "cause": "P2-14 在报告后加入 reasons = scored.reasons（:944），把实际选中理由写进返回",
+        "affects_g6_weight_golden_decision": false,
+        "why_not_affect": "G6/权重/金样只依赖 ReviewPlannerV2.kt（ed6ae4e5…，最终树仍匹配）；本文件只在服务层透传 reasons"
+      },
+      "ReviewCalibrationExperimentTest.kt": {
+        "report_sha256": "6f2ec17aceb06b13…c8d74a",
+        "final_tree_sha256": "d9e649a1e7760a7d1a990a2c42db52a389dca072a5cc8761c0cb38386afdb5c6",
+        "cause": "driver 在 unit/strong gate、设备绿跑、acceptance 索引之后被改（mtime 11-08 05:11）；不在 manifest 钉表",
+        "reproduction": "docs/research/evidence/2026-11-08-batch-49/repair/calibration-driver-drift.md"
+      }
+    },
+    "reproduction": {
+      "command": "BATCH49_CALIBRATION=run BATCH49_CALIBRATION_OUT=build/repair/calibration-rerun ./gradlew :core:domain:test --tests '*ReviewCalibrationExperimentTest' --rerun-tasks",
+      "exit_code": 0,
+      "wall_clock_seconds": 709,
+      "artifacts_identical_to_archive": [
+        "g6-runs.csv",
+        "weight-runs.csv",
+        "thresholds.csv",
+        "g6-decisions.json",
+        "weight-decisions.json",
+        "threshold-readings.json",
+        "prefix-identity.json",
+        "determinism.json",
+        "confirmation.json"
+      ],
+      "manifest_file_sha256_matches": "8/9（仅 StudyReviewPlannerService.kt 漂移）",
+      "holdout_note": "复跑覆盖 holdout seeds 901–910，仅用于逐位复现；digest 与归档相同、未改变任何裁决；holdout_run_id 使用新随机值"
+    }
+  }
+}

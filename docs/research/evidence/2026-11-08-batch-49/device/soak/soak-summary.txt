@@ -1,0 +1,7 @@
+duration_target_s=7200
+cycles=117
+pss_samples=0 pss_min_kb=None pss_max_kb=None
+total_pss_min_kb=176669 total_pss_max_kb=242118
+dropbox_first=2 dropbox_last=2
+crash_lines_first=19 crash_lines_last=19
+EXIT=0

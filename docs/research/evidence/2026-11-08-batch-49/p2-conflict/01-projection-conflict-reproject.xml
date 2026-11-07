@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.ProjectionConflictReprojectTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-07T16:52:03.739Z" hostname="TIANSHAN" time="0.047">
+  <properties/>
+  <testcase name="anIncrementalBatchRejectedByTheProjectorSurfacesTheConflictIssue" classname="com.tingyun.smartmistakebook.core.data.study.ProjectionConflictReprojectTest" time="0.009"/>
+  <testcase name="aHealthyEmptyDatabaseHasNoProjectionIssue" classname="com.tingyun.smartmistakebook.core.data.study.ProjectionConflictReprojectTest" time="0.012"/>
+  <testcase name="aGenericProjectionReadFailureDoesNotClaimAConflict" classname="com.tingyun.smartmistakebook.core.data.study.ProjectionConflictReprojectTest" time="0.005"/>
+  <testcase name="aFailedReprojectKeepsTheDedicatedIssueInsteadOfFallingBackToGenericError" classname="com.tingyun.smartmistakebook.core.data.study.ProjectionConflictReprojectTest" time="0.007"/>
+  <testcase name="conflictedLedgerSurfacesADedicatedProjectionIssue" classname="com.tingyun.smartmistakebook.core.data.study.ProjectionConflictReprojectTest" time="0.003"/>
+  <testcase name="ledgerGapSurfacesTheWaitingForGapProjectionIssue" classname="com.tingyun.smartmistakebook.core.data.study.ProjectionConflictReprojectTest" time="0.003"/>
+  <testcase name="calibrationIntentRoutesThroughTheCalibrationCorridor" classname="com.tingyun.smartmistakebook.core.data.study.ProjectionConflictReprojectTest" time="0.004"/>
+  <testcase name="reprojectAllReplaysTheWholeLedgerAndClearsTheProjectionIssue" classname="com.tingyun.smartmistakebook.core.data.study.ProjectionConflictReprojectTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

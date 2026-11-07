@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.SchedulingCalibrationViewBuilderTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-07T17:32:53.059Z" hostname="TIANSHAN" time="0.01">
+  <properties/>
+  <testcase name="an empty review log yields a view with no predictable samples and no losses" classname="com.tingyun.smartmistakebook.core.domain.SchedulingCalibrationViewBuilderTest" time="0.005"/>
+  <testcase name="exam ramp and planner version are read from their single source constants" classname="com.tingyun.smartmistakebook.core.domain.SchedulingCalibrationViewBuilderTest" time="0.001"/>
+  <testcase name="current and baseline validation losses are computed on the same split" classname="com.tingyun.smartmistakebook.core.domain.SchedulingCalibrationViewBuilderTest" time="0.001"/>
+  <testcase name="parameters without a local fit record are reported as imported not as a local fit" classname="com.tingyun.smartmistakebook.core.domain.SchedulingCalibrationViewBuilderTest" time="0.0"/>
+  <testcase name="a locally fitted set is attributed to the local fit with its own record" classname="com.tingyun.smartmistakebook.core.domain.SchedulingCalibrationViewBuilderTest" time="0.002"/>
+  <testcase name="per reason rows share the fitting sample scope and sample floors come from single constants" classname="com.tingyun.smartmistakebook.core.domain.SchedulingCalibrationViewBuilderTest" time="0.0"/>
+  <testcase name="nothing fitted yet reports the default parameters and an empty fit record" classname="com.tingyun.smartmistakebook.core.domain.SchedulingCalibrationViewBuilderTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

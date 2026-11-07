@@ -1,0 +1,9 @@
+{
+  "in_process_repeats": [
+    {"case": "g6_f0.25_rho1.0", "seed": 901, "f": 0.250000, "digest_a": "d1897e0c27a86f22f3e7d913a2064bf6473331fa35e86cea3da9312dea60f1c9", "digest_b": "d1897e0c27a86f22f3e7d913a2064bf6473331fa35e86cea3da9312dea60f1c9", "equal": true},
+    {"case": "baseline", "seed": 901, "f": 0, "digest_a": "d48d061c21c18990f126b81f55e1a06d2d40fa13779cf5e87ceb29934de81067", "digest_b": "d48d061c21c18990f126b81f55e1a06d2d40fa13779cf5e87ceb29934de81067", "equal": true},
+    {"case": "g6_f0.35_rho1.0", "seed": 902, "f": 0.350000, "digest_a": "34bc75d37699f964b04d0257041d84a889d0c2a8ab76c01c75cba74a411b505a", "digest_b": "34bc75d37699f964b04d0257041d84a889d0c2a8ab76c01c75cba74a411b505a", "equal": true}
+  ],
+  "in_process_all_equal": true,
+  "note": "跨进程复跑由外部两次 Gradle 调用比对 run-manifest/g6-runs.csv 完成"
+}

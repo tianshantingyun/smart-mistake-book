@@ -1,0 +1,52 @@
+{
+  "serial": "emulator-5566",
+  "apk_sha256": "e19f1b22c58299db2ffb3be0df7284288d91a0ce7e42f0e9eb95eb06fd5fce51",
+  "test_apk_sha256": "0252bc246948aead52f04821d97eb8656bbf470615f8f112731d74209d471609",
+  "device": {
+    "sdk": 34,
+    "abi": "x86_64",
+    "model": "sdk_gphone64_x86_64"
+  },
+  "counts": {
+    "tests": 17,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "evaluated": 17
+  },
+  "verdict": "PASS",
+  "review_kind": "device-run",
+  "run_id": "2026-11-08T06:30:00Z-batch49-repair-device-artifacts",
+  "ran_at_utc": "2026-11-08T06:24:00Z",
+  "commands": [
+    "adb -s emulator-5566 install -r -t app/build/outputs/apk/localFirst/debug/app-localFirst-debug.apk",
+    "adb -s emulator-5566 install -r -t app/build/outputs/apk/androidTest/localFirst/debug/app-localFirst-debug-androidTest.apk",
+    "adb -s emulator-5566 shell am instrument -w -e class 'com.tingyun.smartmistakebook.Batch49ReviewCardsAndReprojectInstrumentedTest' com.tingyun.smartmistakebook.localfirst.test/androidx.test.runner.AndroidJUnitRunner",
+    "adb -s emulator-5566 shell am instrument -w -e class 'com.tingyun.smartmistakebook.SchedulingCalibrationSectionInstrumentedTest' com.tingyun.smartmistakebook.localfirst.test/androidx.test.runner.AndroidJUnitRunner"
+  ],
+  "results": {
+    "Batch49ReviewCardsAndReprojectInstrumentedTest": "OK (9 tests)",
+    "SchedulingCalibrationSectionInstrumentedTest": "OK (8 tests)"
+  },
+  "artifacts": {
+    "screenshots": [
+      "device/screenshots/batch49-conflict-card.png",
+      "device/screenshots/batch49-clarification-card.png",
+      "device/screenshots/batch49-calibration-section.png",
+      "device/screenshots/batch49-projection-conflict.png"
+    ],
+    "a11y_dumps": [
+      "device/a11y/batch49/batch49-conflict-card.xml",
+      "device/a11y/batch49/batch49-clarification-card.xml",
+      "device/a11y/batch49/batch49-calibration-section.xml",
+      "device/a11y/batch49/batch49-projection-conflict.xml"
+    ],
+    "a11y_audit": [
+      "device/a11y/batch49-conflict-card.json",
+      "device/a11y/batch49-clarification-card.json",
+      "device/a11y/batch49-calibration-section.json",
+      "device/a11y/batch49-projection-conflict.json"
+    ]
+  },
+  "note": "批次49 修复环设备证据补件：PNG 由 composeRule.onRoot().captureToImage() 写 MediaStore；a11y 语义树由 UiAutomation.rootInActiveWindow 序列化（uiautomator dump 子命令在仪器化进程中返回空，已改直读无障碍树）。a11y_audit 四屏 STRUCTURAL=PASS，CONTRAST=UNVERIFIED（无颜色输入，不冒充整体通过）。此侧车只绑定本次修复环 APK，不替换 06/07 的历史绑定。"
+}

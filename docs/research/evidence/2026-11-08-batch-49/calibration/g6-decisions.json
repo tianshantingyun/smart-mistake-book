@@ -1,0 +1,28 @@
+{
+  "line": "G6",
+  "primary_metric": "exam_subject_coverage_in_window",
+  "model_based": true,
+  "min_effect_one_kc": "0x1.1111111111111p-5",
+  "sign_consistency_rule": "#{w: delta>0} >= 8/10; P(X>=8|coin)=56/1024=0.0547 (NOT a 5% test)",
+  "arms": [
+    {"id": "G6/A1", "f": 0.150000, "median_delta": "-0x1.1111111111108p-5", "positive": 3, "n": 6, "dev_median_delta": "0x0.0p0", "dev_positive": 3, "dev_n": 7, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": ["-0x1.ddddddddddde4p-4", "0x1.ddddddddddddcp-4"]},
+    {"id": "G6/A2", "f": 0.250000, "median_delta": "0x1.999999999999p-5", "positive": 4, "n": 6, "dev_median_delta": "0x1.111111111111p-6", "dev_positive": 4, "dev_n": 8, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": ["-0x1.1111111111114p-4", "0x1.3333333333336p-3"]},
+    {"id": "G6/A3", "f": 0.350000, "median_delta": "0x1.111111111111p-6", "positive": 4, "n": 8, "dev_median_delta": "0x1.1111111111108p-5", "dev_positive": 5, "dev_n": 8, "guard_ok": false, "pass": false, "reason": "median_delta_below_one_kc", "bootstrap_ci95": ["-0x1.111111111111p-4", "0x1.1111111111108p-4"]},
+    {"id": "G6/A4", "f": 0.500000, "median_delta": "0x1.1111111111118p-5", "positive": 5, "n": 8, "dev_median_delta": "0x1.11111111111p-5", "dev_positive": 5, "dev_n": 7, "guard_ok": false, "pass": false, "reason": "sign_consistency_below_8_of_10", "bootstrap_ci95": ["-0x1.11111111111p-5", "0x1.111111111110cp-3"]}
+  ],
+  "table": [
+    {"seed": 901, "f=0.150000": "-0x1.111111111111p-4","f=0.250000": "-0x1.111111111111p-4","f=0.350000": "-0x1.111111111111p-4","f=0.500000": null},
+    {"seed": 902, "f=0.150000": null,"f=0.250000": null,"f=0.350000": "0x1.111111111111p-4","f=0.500000": "0x1.999999999999p-4"},
+    {"seed": 903, "f=0.150000": "0x1.9999999999998p-4","f=0.250000": "0x1.999999999999cp-3","f=0.350000": "0x0.0p0","f=0.500000": "0x1.dddddddddddep-3"},
+    {"seed": 904, "f=0.150000": null,"f=0.250000": null,"f=0.350000": "0x1.111111111111p-5","f=0.500000": "0x1.111111111111p-5"},
+    {"seed": 905, "f=0.150000": "-0x1.5555555555558p-3","f=0.250000": "0x1.11111111111p-5","f=0.350000": "0x0.0p0","f=0.500000": "0x0.0p0"},
+    {"seed": 906, "f=0.150000": null,"f=0.250000": null,"f=0.350000": null,"f=0.500000": "-0x1.11111111111p-5"},
+    {"seed": 907, "f=0.150000": "0x1.0p-53","f=0.250000": "0x1.99999999999ap-4","f=0.350000": "0x1.111111111111p-5","f=0.500000": "0x1.111111111112p-5"},
+    {"seed": 908, "f=0.150000": null,"f=0.250000": "0x1.111111111111p-4","f=0.350000": "0x1.1111111111108p-4","f=0.500000": "0x1.111111111110cp-3"},
+    {"seed": 909, "f=0.150000": "-0x1.1111111111118p-4","f=0.250000": "-0x1.1111111111118p-4","f=0.350000": "-0x1.1111111111118p-4","f=0.500000": "-0x1.111111111111p-5"},
+    {"seed": 910, "f=0.150000": "0x1.111111111111p-3","f=0.250000": null,"f=0.350000": null,"f=0.500000": null}
+  ],
+  "no_equal_time_cells": 22,
+  "adopted_f": null,
+  "verdict": "KEEP_0.50 (no arm passed the pre-registered gate)"
+}

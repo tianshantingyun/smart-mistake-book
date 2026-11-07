@@ -1,0 +1,53 @@
+=== GIT ===
+HEAD=ba7b5624ea0c2bc3f09dcee247f5852e4f428122
+BRANCH=main
+DIRTY_FILES=643
+warning: in the working copy of 'core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/StudyProjectionDrainer.kt', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/StudySchedulingCalibration.kt', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'docs/acceptance/ledger.md', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'docs/kb-outstanding-work-2026-09-20.md', CRLF will be replaced by LF the next time Git touches it
+warning: in the working copy of 'tools/ci/acceptance_lint.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tools/tests/test_acceptance_hash_manifest.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tools/tests/test_acceptance_init.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tools/tests/test_acceptance_lint.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tools/tests/test_acceptance_report.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tools/tests/test_metamorphic_checks.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tools/tests/test_screenshot_baseline.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'tools/tests/test_trace_requirements.py', LF will be replaced by CRLF the next time Git touches it
+TRACKED_DIFF_SHA256=1546825ad7495090a18b0e65913b79ed3b8a6f73da4bfa904f749578439ac03f
+STATUS_SHA256=7ff5c72b5e762b27d14c7e872c03c51003f17b2b54c8bebfac0122ad47ab16cd
+
+=== DEVICE 5566 ===
+sdk_gphone64_x86_64
+34
+google/sdk_gphone64_x86_64/emu64xa:14/UE1A.230829.050/12077443:userdebug/dev-keys
+9520bedf3276ff56
+
+=== DEVICE 5590 ===
+sdk_gphone64_x86_64
+34
+google/sdk_gphone64_x86_64/emu64xa:14/UE1A.230829.050/12077443:userdebug/dev-keys
+
+=== PACKAGE 5566 ===
+    versionCode=2 minSdk=23 targetSdk=36
+    versionName=0.2.0-localfirst
+    lastUpdateTime=2026-11-07 18:03:34
+      firstInstallTime=2026-10-28 11:34:13
+
+=== APK HASHES ===
+ebb3aa340f071bb309edb1420220a9530e9734c1f34993fa91d5b8abd2244cee *app/build/outputs/apk/localFirst/debug/app-localFirst-debug.apk
+8629a05dbc7883c33ea9018746cc750d113fba8ac9e5d717a622660aead4d6ea *app/build/outputs/apk/androidTest/localFirst/debug/app-localFirst-debug-androidTest.apk
+2c3c1913a1885aacbc0f56554d7108c3f2ef9995e3a705016da2fb620e59f926 *core/database/build/outputs/apk/androidTest/debug/database-debug-androidTest.apk
+
+=== INSTALLED APK SHA (pulled from device) ===
+emulator-5566 base.apk sha256=ebb3aa340f071bb309edb1420220a9530e9734c1f34993fa91d5b8abd2244cee
+emulator-5590 base.apk sha256=ebb3aa340f071bb309edb1420220a9530e9734c1f34993fa91d5b8abd2244cee
+(both match built app-localFirst-debug.apk)
+
+=== BUILD/RUN CHRONOLOGY (local time) ===
+02:00 build red-phase: app=ace60e07187822e2ff45bb81936d5b47c4d2003b815d5cbb57eceabba9175b55 test=191cd26432fd2f886b9dbe24814573efc0518d35cb481789437349be29dc03d1 (observed via sha256sum at build time; artifacts later replaced by green build)
+02:01 red run #1: 8 run / 4 failures (2 test-side false reds)
+02:02 red run #2 (test fixed, production still pre-fix): 8 run / 2 failures (conflict-card dismissal)
+02:03 green build: app=ebb3aa340f071bb309edb1420220a9530e9734c1f34993fa91d5b8abd2244cee test=8629a05dbc7883c33ea9018746cc750d113fba8ac9e5d717a622660aead4d6ea
+02:03-02:05 green/regression runs on emulator-5566 (8/8, 8/8, 1/1, 4/4)
+02:04-04:04 2h soak on emulator-5590 (117 cycles, no new crash)

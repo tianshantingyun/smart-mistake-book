@@ -1,0 +1,46 @@
+批次 49 · 权重注入 seam（预注册 §5.1）机检记录 S1–S5
+执行者：标定实验子代理；记录时间 2026-11-08（本会话实跑，命令与输出逐字）
+
+前置（落地前）：
+  $ grep -rn "ReviewScoringWeights" core/ --include=*.kt
+  (无输出 —— 注入 seam 不存在，权重线按预注册 §10 #1 只能标 BLOCKED: NO_INJECTION_SEAM)
+  $ grep -rn "KC_DROP_WEIGHT" core/ --include=*.kt
+  core/domain/.../ReviewPlannerV2.kt:665:                KC_DROP_WEIGHT * kcDropPressure +
+  core/domain/.../ReviewPlanner.kt:22:internal const val KC_DROP_WEIGHT = 2.5
+
+S1 + S2（金样逐位不变 + 计划器用例全绿）：
+  $ ./gradlew :core:domain:test --tests "...ReviewPlannerScaleBenchmarkTest" \
+      --tests "...ReviewPlannerV2Test" --tests "...KnowledgeReviewPlannerTest" --console=plain
+  BUILD SUCCESSFUL in 14s
+  XML: ReviewPlannerScaleBenchmarkTest tests=2 skipped=0 failures=0 errors=0
+       ReviewPlannerV2Test             tests=27 skipped=0 failures=0 errors=0
+       KnowledgeReviewPlannerTest      tests=7  skipped=0 failures=0 errors=0
+
+S3（显式 DEFAULT == 隐式默认；默认值未漂移；每个坐标都是活旋钮）：
+  $ ./gradlew :core:domain:test --tests "...ReviewScoringWeightsSeamTest" --console=plain
+  BUILD SUCCESSFUL in 4s
+  XML: ReviewScoringWeightsSeamTest tests=3 skipped=0 failures=0 errors=0
+  红轮：首版夹具 9 个坐标里 kcDrop 未消费（mastery 状态缺 lastEvidenceDirection）→ 断言失败，
+        修夹具后转绿；这条失败正是该用例要抓的"死旋钮"。
+
+S4（AlgorithmConstants.kt 数值零变更）：
+  $ git diff --stat .../AlgorithmConstants.kt .../ReviewPlannerV2.kt .../ReviewPlanner.kt
+   .../ReviewPlanner.kt       |  5 +-
+   .../ReviewPlannerV2.kt     | 79 ++++++++++++++++------
+   AlgorithmConstants.kt 不在 diff 内 → 零变更
+
+S5（KC_DROP_WEIGHT 单源）：
+  $ grep -rn "KC_DROP_WEIGHT" core/ --include=*.kt   (落地后)
+  仅剩 KDoc 提及 + 新单源定义 DEFAULT_KC_DROP_WEIGHT（ReviewPlannerV2.kt:53）；
+  旧 `internal const val KC_DROP_WEIGHT = 2.5`（ReviewPlanner.kt:22）已删除。
+
+S3 夹具范围说明：三组金样的夹具生成器是 ReviewPlannerScaleBenchmarkTest 的 private 函数；
+S1 已覆盖**隐式默认**路径的三组金样逐位一致，本文件用自建夹具覆盖**显式 DEFAULT** 路径与 seam 活性。
+
+哈希影响（预注册 §8 机检 2 的字面冲突，已登记）：
+  ReviewPlannerV2.kt  baseline ee89aba3…0ecf → 实验后 ed6ae4e5…651c
+  ReviewPlanner.kt    baseline e5d66b5b…bfbfa → 实验后 62143174…32f2
+  SimulatedLearner.kt baseline d170338b…c2dc → 实验后 62d1eeac…e5ef（新增默认参数 scoringWeights）
+  AlgorithmConstants.kt 两次相同（e695418f…fd84）
+
+VERSION 纪律：未采纳任何非默认权重/G6 → ReviewPlannerV2.VERSION 仍为 "review-planner-v4"（未 bump）。

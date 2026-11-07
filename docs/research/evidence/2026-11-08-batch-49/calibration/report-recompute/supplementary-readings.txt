@@ -1,0 +1,116 @@
+== 1. NO_EQUAL_TIME 与等时误差 ==
+-- G6 --
+  dev     0.150000             rows= 10 timed=  7 no_equal_time=  3 rho_err_median=0.010312
+  dev     0.250000             rows= 10 timed=  8 no_equal_time=  2 rho_err_median=0.0091965
+  dev     0.350000             rows= 10 timed=  8 no_equal_time=  2 rho_err_median=0.009191499999999998
+  dev     0.500000             rows= 10 timed=  7 no_equal_time=  3 rho_err_median=0.008593
+  holdout 0.150000             rows= 10 timed=  6 no_equal_time=  4 rho_err_median=0.009926999999999998
+  holdout 0.250000             rows= 10 timed=  6 no_equal_time=  4 rho_err_median=0.0075215
+  holdout 0.350000             rows= 10 timed=  8 no_equal_time=  2 rho_err_median=0.010452
+  holdout 0.500000             rows= 10 timed=  8 no_equal_time=  2 rho_err_median=0.008048
+
+-- weights --
+  dev     W/diversity/x0.75    rows= 10 timed=  9 no_equal_time=  1 rho_err_median=0.005377
+  dev     W/diversity/x0.875   rows= 10 timed=  6 no_equal_time=  4 rho_err_median=0.0025475000000000003
+  dev     W/diversity/x1.125   rows= 10 timed=  4 no_equal_time=  6 rho_err_median=0.0033550000000000003
+  dev     W/diversity/x1.25    rows= 10 timed=  4 no_equal_time=  6 rho_err_median=0.009278000000000002
+  dev     W/due/x0.75          rows= 10 timed=  5 no_equal_time=  5 rho_err_median=0.003958
+  dev     W/due/x0.875         rows= 10 timed=  6 no_equal_time=  4 rho_err_median=0.011587
+  dev     W/due/x1.125         rows= 10 timed=  7 no_equal_time=  3 rho_err_median=0.005833
+  dev     W/due/x1.25          rows= 10 timed=  8 no_equal_time=  2 rho_err_median=0.0074815
+  dev     W/exam/x0.875        rows= 10 timed= 10 no_equal_time=  0 rho_err_median=0.0008905
+  dev     W/exam/x1.125        rows= 10 timed= 10 no_equal_time=  0 rho_err_median=0.001196
+  dev     W/exam/x1.25         rows= 10 timed= 10 no_equal_time=  0 rho_err_median=0.0007355
+  dev     W/kc-drop/x0.75      rows= 10 timed=  4 no_equal_time=  6 rho_err_median=0.0087695
+  dev     W/kc-drop/x0.875     rows= 10 timed=  6 no_equal_time=  4 rho_err_median=0.008334000000000001
+  dev     W/weak/x0.75         rows= 10 timed=  1 no_equal_time=  9 rho_err_median=0.003749
+  dev     W/weak/x0.875        rows= 10 timed=  5 no_equal_time=  5 rho_err_median=0.009441
+  dev     W/weak/x1.125        rows= 10 timed=  7 no_equal_time=  3 rho_err_median=0.009121
+  dev     W/weak/x1.25         rows= 10 timed=  9 no_equal_time=  1 rho_err_median=0.006783
+  holdout W/diversity/x0.75    rows= 10 timed=  8 no_equal_time=  2 rho_err_median=0.0042965
+  holdout W/diversity/x0.875   rows= 10 timed=  5 no_equal_time=  5 rho_err_median=0.007338
+  holdout W/diversity/x1.125   rows= 10 timed=  7 no_equal_time=  3 rho_err_median=0.003029
+  holdout W/diversity/x1.25    rows= 10 timed=  4 no_equal_time=  6 rho_err_median=0.006924
+  holdout W/due/x0.75          rows= 10 timed=  6 no_equal_time=  4 rho_err_median=0.0052864999999999995
+  holdout W/due/x0.875         rows= 10 timed=  6 no_equal_time=  4 rho_err_median=0.0053170000000000005
+  holdout W/due/x1.125         rows= 10 timed=  7 no_equal_time=  3 rho_err_median=0.012339
+  holdout W/due/x1.25          rows= 10 timed=  8 no_equal_time=  2 rho_err_median=0.0021125
+  holdout W/exam/x0.875        rows= 10 timed= 10 no_equal_time=  0 rho_err_median=0.0009905
+  holdout W/exam/x1.125        rows= 10 timed= 10 no_equal_time=  0 rho_err_median=0.001344
+  holdout W/exam/x1.25         rows= 10 timed= 10 no_equal_time=  0 rho_err_median=0.000725
+  holdout W/kc-drop/x0.75      rows= 10 timed=  9 no_equal_time=  1 rho_err_median=0.008576
+  holdout W/kc-drop/x0.875     rows= 10 timed=  8 no_equal_time=  2 rho_err_median=0.0094395
+  holdout W/weak/x0.75         rows= 10 timed=  2 no_equal_time=  8 rho_err_median=0.0023325000000000004
+  holdout W/weak/x0.875        rows= 10 timed=  6 no_equal_time=  4 rho_err_median=0.0047504999999999995
+  holdout W/weak/x1.125        rows= 10 timed=  8 no_equal_time=  2 rho_err_median=0.0098275
+  holdout W/weak/x1.25         rows= 10 timed= 10 no_equal_time=  0 rho_err_median=0.0064595
+
+== 2. 基线 Y（5 场考试窗口覆盖的算术平均）==
+  dev      distinct=5 min=0.666667 median=0.733333 max=0.8
+           values=[0.666667, 0.7, 0.733333, 0.766667, 0.8]
+  holdout  distinct=5 min=0.566667 median=0.733333 max=0.833333
+           values=[0.566667, 0.7, 0.733333, 0.766667, 0.833333]
+
+== 3. G6 每日题数封顶（MAX_BEAM_STEPS=20）==
+  f=0.15 dev      n= 7 days_at_cap_median=22.0 days_at_cap_sum=253.0 max_daily_items_median=20.0
+  f=0.15 holdout  n= 6 days_at_cap_median=31.0 days_at_cap_sum=202.0 max_daily_items_median=20.0
+  f=0.25 dev      n= 8 days_at_cap_median=24.0 days_at_cap_sum=254.0 max_daily_items_median=20.0
+  f=0.25 holdout  n= 6 days_at_cap_median=26.0 days_at_cap_sum=155.0 max_daily_items_median=20.0
+  f=0.35 dev      n= 8 days_at_cap_median=26.5 days_at_cap_sum=266.0 max_daily_items_median=20.0
+  f=0.35 holdout  n= 8 days_at_cap_median=24.5 days_at_cap_sum=242.0 max_daily_items_median=20.0
+  f=0.50 dev      n= 7 days_at_cap_median=28.0 days_at_cap_sum=271.0 max_daily_items_median=20.0
+  f=0.50 holdout  n= 8 days_at_cap_median=25.0 days_at_cap_sum=207.0 max_daily_items_median=20.0
+
+== 4. 掌握阈值读数（coverage / retention / misjudged 中位数）==
+  dev     W-decay T0 day= 30 n=10 coverage_med=1.0 share=0.033333 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=None
+  dev     W-decay T0 day= 60 n=10 coverage_med=2.0 share=0.066667 misjudge_med=0.0 ret30->60=1.0 ret30->90=None ret30->120=None
+  dev     W-decay T0 day= 90 n=10 coverage_med=5.0 share=0.166667 misjudge_med=0.0 ret30->60=None ret30->90=1.0 ret30->120=None
+  dev     W-decay T0 day=120 n=10 coverage_med=6.5 share=0.2166665 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=1.0
+  dev     W-decay T1 day= 30 n=10 coverage_med=1.0 share=0.033333 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=None
+  dev     W-decay T1 day= 60 n=10 coverage_med=3.5 share=0.1166665 misjudge_med=0.0 ret30->60=0.8333335 ret30->90=None ret30->120=None
+  dev     W-decay T1 day= 90 n=10 coverage_med=9.0 share=0.3 misjudge_med=0.0 ret30->60=None ret30->90=0.4166665 ret30->120=None
+  dev     W-decay T1 day=120 n=10 coverage_med=10.0 share=0.333333 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=0.7083335
+  dev     W-decay T2 day= 30 n=10 coverage_med=1.0 share=0.033333 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=None
+  dev     W-decay T2 day= 60 n=10 coverage_med=2.5 share=0.0833335 misjudge_med=0.0 ret30->60=1.0 ret30->90=None ret30->120=None
+  dev     W-decay T2 day= 90 n=10 coverage_med=5.5 share=0.1833335 misjudge_med=0.0 ret30->60=None ret30->90=1.0 ret30->120=None
+  dev     W-decay T2 day=120 n=10 coverage_med=7.0 share=0.233333 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=1.0
+  dev     W-slip  T0 day= 30 n=10 coverage_med=0.0 share=0.0 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=None
+  dev     W-slip  T0 day= 60 n=10 coverage_med=2.5 share=0.0833335 misjudge_med=0.0 ret30->60=0.5 ret30->90=None ret30->120=None
+  dev     W-slip  T0 day= 90 n=10 coverage_med=4.0 share=0.133333 misjudge_med=0.0 ret30->60=None ret30->90=0.5 ret30->120=None
+  dev     W-slip  T0 day=120 n=10 coverage_med=6.0 share=0.2 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=0.25
+  dev     W-slip  T1 day= 30 n=10 coverage_med=1.0 share=0.033333 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=None
+  dev     W-slip  T1 day= 60 n=10 coverage_med=6.0 share=0.2 misjudge_med=0.0 ret30->60=0.5 ret30->90=None ret30->120=None
+  dev     W-slip  T1 day= 90 n=10 coverage_med=8.0 share=0.266667 misjudge_med=0.0 ret30->60=None ret30->90=0.0 ret30->120=None
+  dev     W-slip  T1 day=120 n=10 coverage_med=10.0 share=0.333333 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=0.5
+  dev     W-slip  T2 day= 30 n=10 coverage_med=0.0 share=0.0 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=None
+  dev     W-slip  T2 day= 60 n=10 coverage_med=2.5 share=0.0833335 misjudge_med=0.0 ret30->60=0.5 ret30->90=None ret30->120=None
+  dev     W-slip  T2 day= 90 n=10 coverage_med=5.0 share=0.166667 misjudge_med=0.0 ret30->60=None ret30->90=0.5 ret30->120=None
+  dev     W-slip  T2 day=120 n=10 coverage_med=7.5 share=0.25 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=0.25
+  holdout W-decay T0 day= 30 n=10 coverage_med=1.0 share=0.033333 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=None
+  holdout W-decay T0 day= 60 n=10 coverage_med=2.0 share=0.066667 misjudge_med=0.0 ret30->60=1.0 ret30->90=None ret30->120=None
+  holdout W-decay T0 day= 90 n=10 coverage_med=4.0 share=0.133333 misjudge_med=0.0 ret30->60=None ret30->90=1.0 ret30->120=None
+  holdout W-decay T0 day=120 n=10 coverage_med=5.5 share=0.1833335 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=1.0
+  holdout W-decay T1 day= 30 n=10 coverage_med=2.0 share=0.066667 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=None
+  holdout W-decay T1 day= 60 n=10 coverage_med=3.5 share=0.1166665 misjudge_med=0.0 ret30->60=0.5 ret30->90=None ret30->120=None
+  holdout W-decay T1 day= 90 n=10 coverage_med=6.5 share=0.2166665 misjudge_med=0.0 ret30->60=None ret30->90=0.5 ret30->120=None
+  holdout W-decay T1 day=120 n=10 coverage_med=7.0 share=0.233333 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=0.5
+  holdout W-decay T2 day= 30 n=10 coverage_med=1.0 share=0.033333 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=None
+  holdout W-decay T2 day= 60 n=10 coverage_med=2.0 share=0.066667 misjudge_med=0.0 ret30->60=1.0 ret30->90=None ret30->120=None
+  holdout W-decay T2 day= 90 n=10 coverage_med=4.0 share=0.133333 misjudge_med=0.0 ret30->60=None ret30->90=1.0 ret30->120=None
+  holdout W-decay T2 day=120 n=10 coverage_med=5.5 share=0.1833335 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=1.0
+  holdout W-slip  T0 day= 30 n=10 coverage_med=1.0 share=0.033333 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=None
+  holdout W-slip  T0 day= 60 n=10 coverage_med=2.5 share=0.0833335 misjudge_med=0.0 ret30->60=0.0 ret30->90=None ret30->120=None
+  holdout W-slip  T0 day= 90 n=10 coverage_med=4.0 share=0.1333335 misjudge_med=0.0 ret30->60=None ret30->90=0.0 ret30->120=None
+  holdout W-slip  T0 day=120 n=10 coverage_med=6.0 share=0.2 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=0.5
+  holdout W-slip  T1 day= 30 n=10 coverage_med=2.0 share=0.066667 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=None
+  holdout W-slip  T1 day= 60 n=10 coverage_med=5.0 share=0.166667 misjudge_med=0.0 ret30->60=0.5 ret30->90=None ret30->120=None
+  holdout W-slip  T1 day= 90 n=10 coverage_med=7.0 share=0.233333 misjudge_med=0.0 ret30->60=None ret30->90=0.333333 ret30->120=None
+  holdout W-slip  T1 day=120 n=10 coverage_med=7.0 share=0.233333 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=0.4
+  holdout W-slip  T2 day= 30 n=10 coverage_med=1.0 share=0.033333 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=None
+  holdout W-slip  T2 day= 60 n=10 coverage_med=2.5 share=0.0833335 misjudge_med=0.0 ret30->60=0.5 ret30->90=None ret30->120=None
+  holdout W-slip  T2 day= 90 n=10 coverage_med=4.5 share=0.15000000000000002 misjudge_med=0.0 ret30->60=None ret30->90=0.5 ret30->120=None
+  holdout W-slip  T2 day=120 n=10 coverage_med=6.0 share=0.2 misjudge_med=0.0 ret30->60=None ret30->90=None ret30->120=1.0
+
+== 5. 前缀同一性 ==
+  checks=120 both_equal=120 all_equal_flag=True
+  worlds covered=20 layers=['dev', 'holdout']

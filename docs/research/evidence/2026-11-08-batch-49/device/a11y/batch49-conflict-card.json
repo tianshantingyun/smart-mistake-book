@@ -1,0 +1,23 @@
+{
+  "clickable": 6,
+  "colors": null,
+  "colors_sha256": null,
+  "contrast": {
+    "measured": 0,
+    "min_ratio": null,
+    "pairs": [],
+    "reason": "no colors input",
+    "status": "UNVERIFIED",
+    "threshold": 4.5
+  },
+  "density_dpi": 420,
+  "dump": "docs\\research\\evidence\\2026-11-08-batch-49\\device\\a11y\\batch49\\batch49-conflict-card.xml",
+  "dump_sha256": "25a73bd687a28a355b5e74be3edee8ecf0cbe8d2f187dac2ad25b252d922752f",
+  "min_dp": 48.0,
+  "min_dp_source": 48.0,
+  "nodes": 48,
+  "ok": false,
+  "structural_ok": true,
+  "violation_codes": [],
+  "violations": []
+}

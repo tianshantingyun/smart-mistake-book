@@ -1,0 +1,2 @@
+fixture command output (not a real run)
+EXIT=0

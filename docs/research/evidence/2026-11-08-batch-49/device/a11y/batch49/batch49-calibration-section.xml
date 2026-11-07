@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<hierarchy rotation="0">
+<node class="android.widget.FrameLayout" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,0][1080,2400]">
+<node class="android.widget.LinearLayout" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,0][1080,2337]">
+<node class="android.widget.FrameLayout" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,63][1080,2337]">
+<node class="androidx.compose.ui.platform.ComposeView" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,63][1080,1950]">
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,63][1080,1950]">
+<node class="android.widget.TextView" text="复习排程校准" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,150][1080,213]" />
+<node class="android.widget.TextView" text="这里显示当前生效的复习排程参数与它们的校准证据。参数改动在下次启动时生效。" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,245][1080,333]" />
+<node class="android.widget.TextView" text="排程器版本 review-planner-v4" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,359][430,405]" />
+<node class="android.widget.TextView" text="G6 考前扩容上限 +50%" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,410][331,456]" />
+<node class="android.widget.TextView" text="G6 幅度来自离线模拟标定（model-based）：30 KC / 300 题的合成世界未过采纳门，真库样本不足，暂维持现值；改幅度属产品裁定，不在本页自动调整。" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,461][1080,591]" />
+<node class="android.widget.TextView" text="参数来源：本地拟合参数" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,623][403,676]" />
+<node class="android.widget.TextView" text="w0 0.100" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,687][346,729]" />
+<node class="android.widget.TextView" text="w1 0.200" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[367,687][713,729]" />
+<node class="android.widget.TextView" text="w2 0.300" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[734,687][1080,729]" />
+<node class="android.widget.TextView" text="w3 0.400" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,740][346,782]" />
+<node class="android.widget.TextView" text="w4 0.500" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[367,740][713,782]" />
+<node class="android.widget.TextView" text="w5 0.600" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[734,740][1080,782]" />
+<node class="android.widget.TextView" text="w6 0.700" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,793][346,835]" />
+<node class="android.widget.TextView" text="w7 0.800" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[367,793][713,835]" />
+<node class="android.widget.TextView" text="w8 0.900" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[734,793][1080,835]" />
+<node class="android.widget.TextView" text="w9 1.000" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,846][346,888]" />
+<node class="android.widget.TextView" text="w10 1.100" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[367,846][713,888]" />
+<node class="android.widget.TextView" text="w11 1.200" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[734,846][1080,888]" />
+<node class="android.widget.TextView" text="w12 1.300" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,899][346,941]" />
+<node class="android.widget.TextView" text="w13 1.400" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[367,899][713,941]" />
+<node class="android.widget.TextView" text="w14 1.500" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[734,899][1080,941]" />
+<node class="android.widget.TextView" text="w15 1.600" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,952][346,994]" />
+<node class="android.widget.TextView" text="w16 1.700" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[367,952][713,994]" />
+<node class="android.widget.TextView" text="w17 1.800" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[734,952][1080,994]" />
+<node class="android.widget.TextView" text="w18 1.900" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1005][346,1047]" />
+<node class="android.widget.TextView" text="w19 2.000" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[367,1005][713,1047]" />
+<node class="android.widget.TextView" text="w20 2.100" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[734,1005][1080,1047]" />
+<node class="android.widget.TextView" text="最近拟合 2025-10-09 08:53 · 可预测样本 1234 例 · 验证损失 0.312（默认参数基线 0.355）" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1079][1080,1167]" />
+<node class="android.widget.TextView" text="当前参数验证损失 0.301 · 默认参数基线 0.355（同一 80/20 时间切分）" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1178][1018,1224]" />
+<node class="android.widget.TextView" text="当前可预测样本 1234 例；拟合器需 ≥400 例才会产出候选参数。" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1229][918,1275]" />
+<node class="android.widget.TextView" text="按计划理由的实现回忆率" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1312][403,1365]" />
+<node class="android.widget.TextView" text="DUE_RECALL_RISK" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1386][310,1439]" />
+<node class="android.widget.TextView" text="实现回忆率 63% · 总体基线 75%" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1444][455,1490]" />
+<node class="android.widget.TextView" text="样本 240 例：达到观察门槛，可人工讨论权重（不自动改写）。" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1495][891,1541]" />
+<node class="android.view.View" text="" content-desc="" clickable="true" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1578][1080,1704]">
+<node class="android.view.View" text="" content-desc="立即重拟合" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1578][1080,1704]" />
+<node class="android.widget.TextView" text="立即重拟合" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[449,1615][632,1668]" />
+<node class="android.widget.Button" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1578][1080,1704]" />
+</node>
+<node class="android.view.View" text="" content-desc="" clickable="true" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1725][1080,1851]">
+<node class="android.widget.TextView" text="重置参数" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[467,1762][614,1815]" />
+<node class="android.widget.Button" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1725][1080,1851]" />
+</node>
+<node class="android.widget.TextView" text="重置会丢弃本机拟合参数，回到 FSRS-6 默认值；下次启动生效，之后可以再拟合。" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,1862][1080,1950]" />
+</node>
+</node>
+</node>
+</node>
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,0][1080,63]" />
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,2337][1080,2400]" />
+</node>
+</hierarchy>

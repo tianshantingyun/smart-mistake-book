@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<hierarchy rotation="0">
+<node class="android.widget.FrameLayout" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,0][1080,2400]">
+<node class="android.widget.LinearLayout" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,0][1080,2337]">
+<node class="android.widget.FrameLayout" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,63][1080,2337]">
+<node class="androidx.compose.ui.platform.ComposeView" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,63][1080,2337]">
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,63][1080,2337]">
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,63][1080,2337]">
+<node class="android.widget.ScrollView" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,63][1080,2337]">
+<node class="android.view.View" text="" content-desc="" clickable="true" enabled="true" focused="false" selected="false" scrollable="false" bounds="[58,100][184,226]">
+<node class="android.view.View" text="" content-desc="返回复习首页" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[90,132][153,195]" />
+<node class="android.widget.Button" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[58,100][184,226]" />
+</node>
+<node class="android.widget.TextView" text="知识点复习" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[195,126][1022,201]" />
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,268][1038,430]">
+<node class="android.widget.TextView" text="第 1 / 1 个知识点" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,303][312,355]" />
+<node class="android.widget.ProgressBar" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,387][1038,398]" />
+</node>
+<node class="android.widget.TextView" text="函数单调性" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,472][1038,533]" />
+<node class="android.widget.TextView" text="知识点复习 · 掌握度巩固" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,562][429,614]" />
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,646][1038,1343]">
+<node class="android.widget.TextView" text="这个知识点最近有波动" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,691][462,752]" />
+<node class="android.widget.TextView" text="之前掌握过，最近又出现了错误。可以先按校准评估确认现在的水平，也可以直接继续复习。" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,768][1038,887]" />
+<node class="android.view.View" text="" content-desc="" clickable="true" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,919][1038,1045]">
+<node class="android.view.View" text="" content-desc="按正常复习继续这个知识点" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,919][1038,1045]" />
+<node class="android.widget.TextView" text="仍然复习" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[468,956][612,1008]" />
+<node class="android.widget.Button" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,919][1038,1045]" />
+</node>
+<node class="android.view.View" text="" content-desc="" clickable="true" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,1066][1038,1192]">
+<node class="android.widget.TextView" text="先做校准题" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[450,1103][630,1156]" />
+<node class="android.widget.Button" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,1066][1038,1192]" />
+</node>
+<node class="android.widget.TextView" text="校准评估只改本次选择口径：作答仍计入掌握度，不会把这次复习算作完成。" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,1208][1038,1301]" />
+</node>
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,1385][1038,1952]">
+<node class="android.widget.TextView" text="函数单调性的判定？" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,1430][465,1499]" />
+<node class="android.view.View" text="" content-desc="" clickable="true" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,1552][1038,1705]">
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[56,1566][182,1692]">
+<node class="android.widget.TextView" text="A" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[107,1607][131,1650]" />
+</node>
+<node class="android.widget.TextView" text="看导数符号" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[190,1598][1001,1659]" />
+<node class="android.widget.RadioButton" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,1552][1038,1705]" />
+</node>
+<node class="android.view.View" text="" content-desc="" clickable="true" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,1731][1038,1884]">
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[56,1745][182,1871]">
+<node class="android.widget.TextView" text="B" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[107,1786][130,1829]" />
+</node>
+<node class="android.widget.TextView" text="看函数值大小" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[190,1777][1001,1838]" />
+<node class="android.widget.RadioButton" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,1731][1038,1884]" />
+</node>
+</node>
+<node class="android.view.View" text="" content-desc="" clickable="true" enabled="false" focused="false" selected="false" scrollable="false" bounds="[42,2010][1038,2136]">
+<node class="android.view.View" text="" content-desc="请先选择一个答案" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,2010][1038,2136]" />
+<node class="android.widget.TextView" text="提交答案" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[468,2047][612,2099]" />
+<node class="android.widget.Button" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,2010][1038,2136]" />
+</node>
+<node class="android.view.View" text="" content-desc="" clickable="true" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,2136][1038,2262]">
+<node class="android.widget.TextView" text="这道题的答案有问题？" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[385,2177][695,2222]" />
+<node class="android.widget.Button" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[42,2136][1038,2262]" />
+</node>
+</node>
+</node>
+</node>
+</node>
+</node>
+</node>
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,0][1080,63]" />
+<node class="android.view.View" text="" content-desc="" clickable="false" enabled="true" focused="false" selected="false" scrollable="false" bounds="[0,2337][1080,2400]" />
+</node>
+</hierarchy>

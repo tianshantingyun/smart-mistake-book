@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.simulation.SimulatedLearnerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-07T17:32:54.799Z" hostname="TIANSHAN" time="5.598">
+  <properties/>
+  <testcase name="a full run populates every required metric" classname="com.tingyun.smartmistakebook.core.domain.simulation.SimulatedLearnerTest" time="1.083"/>
+  <testcase name="every simulated day stays inside its review budget" classname="com.tingyun.smartmistakebook.core.domain.simulation.SimulatedLearnerTest" time="0.73"/>
+  <testcase name="same seed reproduces every metric bit for bit" classname="com.tingyun.smartmistakebook.core.domain.simulation.SimulatedLearnerTest" time="1.686"/>
+  <testcase name="the careless rate actually moves the simulated outcomes" classname="com.tingyun.smartmistakebook.core.domain.simulation.SimulatedLearnerTest" time="1.021"/>
+  <testcase name="holdout seeds are disjoint from the dev seeds and name distinct worlds" classname="com.tingyun.smartmistakebook.core.domain.simulation.SimulatedLearnerTest" time="0.018"/>
+  <testcase name="a perturbed truth parameter set changes the simulated world" classname="com.tingyun.smartmistakebook.core.domain.simulation.SimulatedLearnerTest" time="1.058"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

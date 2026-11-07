@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.simulation.SchedulingEvaluationOnSimulationTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-07T22:19:10.579Z" hostname="TIANSHAN" time="4.457">
+  <properties/>
+  <testcase name="fsrs beats the exponential baseline on the simulated review log" classname="com.tingyun.smartmistakebook.core.domain.simulation.SchedulingEvaluationOnSimulationTest" time="4.448"/>
+  <system-out><![CDATA[[batch49-p1-10] samples=21489 fsrsLogLoss=0.15014319150694827 baselineLogLoss=0.373101209289151 fsrsValid=true baselineValid=true sampleCount=885 beats=true
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
