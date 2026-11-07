@@ -336,3 +336,38 @@
 | 报告投影 | `docs/acceptance/verdicts.md`、`docs/acceptance/domain-index.md` | 1200 行；计数 900/22/278；sha `8e3c84cf…`、`3d451976…` |
 | 门禁证据哈希 | `docs/acceptance/evidence/2026-11-08-batch-49/GATES.sha256` | 10 项；10/10 OK |
 | 上一批 | `docs/research/2026-11-07-batch-48-record.md` | 898/23/279；F-055/F-057/F-063 前态；NOT ACCEPTED |
+
+## 9. 主会话收口（2026-11-08）
+
+### 9.1 主会话实跑门禁
+
+| 门 | 结果 |
+|---|---|
+| 单测门（12 模块 `--continue`） | **exit=1**；2769 tests / 9 fail；全部为 HEAD 既存他线语义（KernelWave0 schema75、LibraryFts×3、Gateway×3、profileStrengths、TutorExportSheet）；本批 P0 五条原红已全绿 |
+| 强门（两 flavor androidTest 强制重编 + assemble） | **exit=0**（41s） |
+| 定向（模拟器/校准视图/ExamWindow/CapacityPreview/PlannedReason） | **exit=0** |
+| 验收报告 | PASS 900 / FAIL 22 / BLOCKED 278 / UNVERIFIED 0；`pass_with_review=900/900`；exit=1 |
+
+**22 FAIL 构成**：J 域 16（签名/AAB/版本/干净树）、H-018/H-062（DOCX/改卷文本 AIGC）、F-057（2h 超限路径未命中，缺陷单维持）、GATE-032/038/042/091/092/099（终裁门/CI/切分门）。外部与切分算法项，非本轮算法质量项。
+
+### 9.2 标定裁决（关键）
+
+- **G6 0/4、权重 0/17 全部未过预注册门 → 维持现值**；`EXAM_CAPACITY_RAMP_MAX_EXTRA_FRACTION=0.5`、`ReviewScoring` 常量未改，`ReviewPlannerV2.VERSION` 未 bump，金样未变。
+- 机制发现：`MAX_BEAM_STEPS=20` 使每日选题步数封顶，G6 扩容不转化为更多步数，f 效应被机械压平；护栏 G2/G3 在 6 KC/科的离散世界里结构性不可达——报告明确“不是权重没用，是可裁决区间为空”，且未事后改规则。
+- 掌握阈值 21/0.9 只测量（T0/T1/T2 读数），`change_proposed=false`，未改。
+- 全部结论标 **model-based**；真库/真机样本不足维持 BLOCKED。
+
+### 9.3 产品闭环与 P0 实得
+
+- **P0 断链**：预算同源（preview/intake/plan + 两新例）、review_log 最近窗口（设备红→绿 4/4）、per-reason 过滤、fake plannedReason、lint 检查列前缀、E-061 更正。
+- **P2**：KD-67 确认卡/presenter/核验写路径（JVM 14/0、设备 8/8→9/9）、校准可见页（JVM 7/7/8、设备 8/8）、投影冲突专用状态 + `reprojectAll()` + 知识点冲突卡（JVM 8/0/5/0/6/0/23/0/3/0、设备 8/8）。
+- 25 份失效复核按当前 sha 重生成；`pass_with_invalid_review=0`。
+
+### 9.4 提交与推送
+
+P0 修复 → 模拟器/预注册/报告/校准视图 → 数据层校准与测试 → KD-67/冲突数据层 → feature/review UI → app 校准页/横幅 → Root 接线/设备用例 → 验收台账 → 922 份行级 JSON → 证据 → 基线/记录；**已推送远端 `1c109282`**（本地树后续无未提交本批文件）。
+
+### 9.5 剩余
+
+- 外部：生产签名/AAB/versionCode/干净树（J 域 16）、DOCX 与改卷文本 AIGC（H-018/H-062）、切分门 0.5714（AUD-08 需 CV+LLM 重做）。
+- 算法侧：`MAX_BEAM_STEPS=20` 与护栏不可达是**设计级**发现，是否改属产品裁定；真库标定需 ≥400 可拟合样本；KD-67 真 Room 端到端与“第二道校准题”仍 BLOCKED。
