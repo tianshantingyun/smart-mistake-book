@@ -55,7 +55,7 @@ internal fun LibraryQuestionCard(
 ) {
     ClaudeCard(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().padding(bottom = 12.dp).testTag("library_item_${mistake.id}"),
+        modifier = modifier.fillMaxWidth().padding(bottom = 10.dp).testTag("library_item_${mistake.id}"),
         shape = RoundedCornerShape(10.dp),
         bordered = true,
         elevation = 1.dp,
@@ -75,7 +75,7 @@ internal fun LibraryQuestionCard(
                     if (mistake.summary.isNotBlank() && mistake.summary.trim() != mistake.title.trim()) Text(
                         text = mistake.summary,
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.Normal,
                         color = SmartColors.Ink,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                         maxLines = 3,
@@ -83,7 +83,7 @@ internal fun LibraryQuestionCard(
                     )
                 },
             )
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
         }
     }
 }
@@ -99,8 +99,8 @@ private fun LibraryCardHeading(
         if (mistake.isFavorite) SmartColors.Jade else SmartColors.InkSecondary,
         label = "library-favorite-color", durationMillis = ClaudeMotion.PressMillis,
     )
-    Row(Modifier.fillMaxWidth().padding(bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f).padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Row(Modifier.fillMaxWidth().padding(bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f).padding(top = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(mistake.title,
                 style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp, lineHeight = 24.sp),
                 fontWeight = FontWeight.SemiBold,

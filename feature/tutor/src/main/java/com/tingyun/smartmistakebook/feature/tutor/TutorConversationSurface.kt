@@ -353,7 +353,7 @@ internal fun TutorLiveTurnBlock(
             TutorStreamingReply(
                 markdown = answer,
                 modifier = Modifier
-                    .padding(top = 6.dp)
+                    .padding(top = 12.dp)
                     .testTag(answerTestTag),
             )
         }
@@ -368,7 +368,7 @@ internal fun TutorLiveTurnBlock(
                 text = TUTOR_SURFACE_STOP_LABEL,
                 onClick = stop,
                 modifier = Modifier
-                    .padding(top = 8.dp)
+                    .padding(top = 12.dp)
                     .testTag(stopTestTag),
             )
         }
@@ -625,7 +625,7 @@ internal fun TutorConversationFrame(
                     end = SmartDimens.ContentHorizontalPadding,
                     bottom = 12.dp,
                 ),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
                 if (composerInList && composer != null) {
                     item("tutor_start_composer") {

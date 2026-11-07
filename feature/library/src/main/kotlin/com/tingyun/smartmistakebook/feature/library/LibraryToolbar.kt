@@ -61,7 +61,7 @@ internal fun LibraryPageHeader(
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val showFileLabel = maxWidth >= 320.dp && LocalDensity.current.fontScale <= 1.2f
         com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader(
-            title = "错题本", subtitle = "原题、笔记与复习记录", actions = {
+            title = "错题本", subtitle = "原题、笔记与复习记录", compact = true, actions = {
                 TextButton(
                     onClick = onOpenResults,
                     modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_export_results")

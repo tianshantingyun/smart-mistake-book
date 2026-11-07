@@ -103,13 +103,20 @@ fun WorkspacePageHeader(
     title: String,
     modifier: Modifier = Modifier,
     subtitle: String? = null,
+    compact: Boolean = false,
     actions: (@Composable RowScope.() -> Unit)? = null,
 ) {
     Surface(modifier.fillMaxWidth(), color = Color.Transparent, contentColor = SmartColors.Ink) {
-        BoxWithConstraints(Modifier.padding(top = 36.dp, bottom = 20.dp)) {
+        BoxWithConstraints(
+            Modifier.padding(
+                top = if (compact) 20.dp else 36.dp,
+                bottom = if (compact) 12.dp else 20.dp,
+            ),
+        ) {
             @Composable fun Identity(modifier: Modifier = Modifier) {
                 Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(title, color = SmartColors.Ink, style = MaterialTheme.typography.headlineLarge,
+                    Text(title, color = SmartColors.Ink,
+                        style = if (compact) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.SemiBold, modifier = Modifier.semantics { heading() })
                     if (!subtitle.isNullOrBlank()) Text(subtitle, color = SmartColors.InkSecondary,
                         style = MaterialTheme.typography.bodySmall.copy(lineBreak = LineBreak.Paragraph))

@@ -313,7 +313,7 @@ internal fun TutorSurfaceAssistantReply(
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag(testTag),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             if (bodyMarkdown != null) {
                 ThinkingCollapsibleCard(

@@ -226,7 +226,7 @@ private fun LibraryContent(
                 if (emptyState == LibraryEmptyState.CATALOG_EMPTY) {
                     EmptyLibraryResult(emptyState, canClear = false, onCapture = onCapture, onClear = {})
                 } else {
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(8.dp))
                     LibrarySearchField(
                         query = uiState.query,
                         onQueryChange = viewModel::updateQuery,
@@ -246,14 +246,9 @@ private fun LibraryContent(
                             viewModel.exportVisible(MAX_LIBRARY_BATCH_EXPORT_QUESTIONS, onExportVisible)
                         },
                     )
-                    LibrarySelectedFilters(
-                        state = uiState,
-                        onRemoveFacet = { viewModel.toggleFilter(it, null) },
-                        onRemoveTimeRange = { viewModel.selectTimeRange(LibraryTimeRange.ALL) },
-                    )
                     AnimatedVisibility(visible = filtersExpanded) {
                         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                            .background(SmartColors.ContentSurface).padding(12.dp)) {
+                            .background(SmartColors.ContentSurface).padding(10.dp)) {
                             FacetTabs(activeFacet = uiState.activeFacet, onSelect = viewModel::selectFacet)
                             FacetOptions(
                                 facet = uiState.activeFacet,
@@ -271,6 +266,11 @@ private fun LibraryContent(
                             }
                         }
                     }
+                    LibrarySelectedFilters(
+                        state = uiState,
+                        onRemoveFacet = { viewModel.toggleFilter(it, null) },
+                        onRemoveTimeRange = { viewModel.selectTimeRange(LibraryTimeRange.ALL) },
+                    )
                     // 收藏开关的写失败必须看得见（默默回弹会把"没写进去"说成"写进去了"）。
                     uiState.favoriteNotice?.let { notice ->
                         Spacer(Modifier.height(6.dp))
