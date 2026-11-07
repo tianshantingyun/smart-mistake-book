@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
 import com.tingyun.smartmistakebook.core.ui.ClaudeCopyButton
 import com.tingyun.smartmistakebook.core.ui.ClaudeQuietDots
-import com.tingyun.smartmistakebook.core.ui.SubtleSurface
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -252,8 +252,13 @@ internal fun TutorSurfaceStudentBubble(
             modifier = Modifier
                 .widthIn(max = maxWidth * ClaudeLayout.MessageWidthFraction)
                 .testTag(testTag),
-            color = SubtleSurface,
-            shape = RoundedCornerShape(ClaudeLayout.MessageRadius),
+            color = SmartColors.JadeSoft.copy(alpha = 0.6f),
+            shape = RoundedCornerShape(
+                topStart = ClaudeLayout.MessageRadius,
+                topEnd = ClaudeLayout.MessageRadius,
+                bottomEnd = 6.dp,
+                bottomStart = ClaudeLayout.MessageRadius,
+            ),
         ) {
             Column(modifier = Modifier.padding(horizontal = ClaudeLayout.MessagePaddingX, vertical = ClaudeLayout.MessagePaddingY)) {
                 if (imageAssetIds.isNotEmpty() && imageIntake != null) {
@@ -313,7 +318,7 @@ internal fun TutorSurfaceAssistantReply(
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag(testTag),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             if (bodyMarkdown != null) {
                 ThinkingCollapsibleCard(

@@ -1,16 +1,14 @@
 package com.tingyun.smartmistakebook.feature.capture
 
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+import androidx.compose.foundation.layout.PaddingValues
 import com.tingyun.smartmistakebook.core.ui.ErrorText
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ErrorOutline
@@ -35,7 +33,6 @@ import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
-import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 
 @Composable
@@ -78,13 +75,10 @@ internal fun CaptureModelTaskCard(
         ?.issues
         ?.any { it.code == CaptureAssessmentIssueCode.MULTIPLE_QUESTIONS } == true
     val recoveryAction = captureModelRecoveryAction(snapshot, parseSnapshot)
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .border(1.dp, accent.copy(alpha = 0.55f), RoundedCornerShape(8.dp))
-            .background(JadeSoft.copy(alpha = 0.32f), RoundedCornerShape(8.dp))
-            .padding(14.dp)
-            .testTag("capture_model_task_card"),
+    WorkspacePanel(
+        modifier = modifier.testTag("capture_model_task_card"),
+        containerColor = if (needsAttention) SmartColors.ErrorSurface else SmartColors.SubtleSurface,
+        contentPadding = PaddingValues(16.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
@@ -277,7 +271,9 @@ internal fun capturePrivacyLine(
     snapshot: ModelTaskSnapshot?,
     parseSnapshot: ModelTaskSnapshot? = null,
     sourcePersisted: Boolean = true,
+    manualInput: Boolean = false,
 ): String = when {
+    manualInput -> "手动输入 · 内容保存在本机"
     !sourcePersisted -> "拍摄后会保存原图"
     snapshot?.provider?.isDemo == true || parseSnapshot?.provider?.isDemo == true ->
         "原图保存在本机"

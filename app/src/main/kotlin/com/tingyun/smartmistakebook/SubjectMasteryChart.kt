@@ -52,7 +52,8 @@ internal fun SubjectMasteryChart(summaries: List<StudyKnowledgeSummary>) {
     val points = subjectMasteryPoints(summaries)
     val known = points.filter { it.estimate != null }
     val largeText = LocalDensity.current.fontScale > 1.3f
-    WorkspacePanel(modifier = Modifier.padding(top = 16.dp).testTag("mastery_estimate_chart")) {
+    WorkspacePanel(modifier = Modifier.padding(top = 16.dp).testTag("mastery_estimate_chart"),
+        containerColor = SmartColors.ContentSurface) {
         Text("科目掌握估计", color = SmartColors.Ink, style = MaterialTheme.typography.titleMedium)
         Text("雷达图比较各科当前的平均掌握估计，不表示知识点关系、考试分数或正确率。",
             color = SmartColors.InkSecondary, style = MaterialTheme.typography.bodySmall)

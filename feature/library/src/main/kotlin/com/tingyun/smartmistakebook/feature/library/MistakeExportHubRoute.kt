@@ -406,7 +406,7 @@ private fun ExportHubNotice(
             .fillMaxWidth()
             .testTag("mistake_export_hub_notice"),
         color = com.tingyun.smartmistakebook.core.ui.SmartColors.ContentSurface,
-        shape = RoundedCornerShape(4.dp),
+        shape = RoundedCornerShape(14.dp),
         border = BorderStroke(1.dp, com.tingyun.smartmistakebook.core.ui.SmartColors.Divider),
     ) {
         Row(
@@ -452,7 +452,7 @@ private fun ExportRecordRow(
         shape = RoundedCornerShape(4.dp),
         border = BorderStroke(1.dp, com.tingyun.smartmistakebook.core.ui.SmartColors.Divider),
     ) {
-        Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = record.displayName ?: "正在整理导出文件…",
                 color = Ink,
@@ -478,7 +478,7 @@ private fun ExportRecordRow(
                 )
             }
             if (record.status == MistakeExportStatus.SUCCEEDED) {
-                Spacer(Modifier.height(10.dp))
+                com.tingyun.smartmistakebook.core.ui.PaperDivider(Modifier.padding(vertical = 12.dp))
                 PrimaryActionButton(
                     text = if (format == MistakeExportFormat.DOCX) "保存 Word" else "保存 PDF",
                     onClick = onSave,

@@ -28,7 +28,6 @@ import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.ui.text.font.FontWeight
 import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.ClaudeAlertDialog as AlertDialog
@@ -92,12 +91,11 @@ import com.tingyun.smartmistakebook.core.model.CalibrationReport
 import com.tingyun.smartmistakebook.core.model.NetworkMode
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import com.tingyun.smartmistakebook.core.ui.JadeActive
-import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
 import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNotice
 import com.tingyun.smartmistakebook.diagnostics.DiagnosticsBundleExporter
 import com.tingyun.smartmistakebook.diagnostics.DiagnosticsBootstrap
 import java.io.OutputStream
@@ -183,7 +181,7 @@ internal fun CapabilityScreen(
 
         if (capabilities.networkRequestsAllowed && configurationStore != null) {
             Spacer(Modifier.height(16.dp))
-            WorkspacePanel {
+            WorkspacePanel(containerColor = SmartColors.ContentSurface) {
                 Column {
                     SettingsSectionTitle("模型服务")
                     Text(
@@ -277,6 +275,7 @@ internal fun CapabilityScreen(
                         enabled = formEnabled,
                         singleLine = true,
                     )
+                    PaperDivider(Modifier.padding(top = 16.dp))
                     PrimaryActionButton(
                         text = if (operation == CapabilityOperation.SAVING) {
                             "正在保存"
@@ -329,7 +328,7 @@ internal fun CapabilityScreen(
                 }
             }
             Spacer(Modifier.height(16.dp))
-            WorkspacePanel {
+            WorkspacePanel(containerColor = SmartColors.ContentSurface) {
                 Column {
                     SettingsSectionTitle("连接与能力测试")
                     Text(
@@ -393,13 +392,9 @@ internal fun CapabilityScreen(
                         )
                     }
                     operationMessage?.let { message ->
-                        Text(
-                            text = message,
-                            modifier = Modifier
-                                .padding(top = 10.dp)
-                                .testTag("capability_operation_message"),
-                            color = InkSecondary,
-                            style = MaterialTheme.typography.bodySmall,
+                        WorkspaceNotice(
+                            message = message,
+                            modifier = Modifier.padding(top = 10.dp).testTag("capability_operation_message"),
                         )
                     }
                 }
@@ -415,7 +410,7 @@ internal fun CapabilityScreen(
         }
         if (calibrationReportProvider != null) {
             Spacer(Modifier.height(16.dp))
-            WorkspacePanel {
+            WorkspacePanel(containerColor = SmartColors.ContentSurface) {
                 Column {
                     SettingsSectionTitle("学习预测效果")
                     val report = calibrationReport
@@ -603,16 +598,16 @@ private fun CapabilityRow(icon: ImageVector, title: String, detail: String) {
     ) {
         Box(
             modifier = Modifier
-                .size(48.dp)
-                .background(JadeSoft, MaterialTheme.shapes.small),
+                .size(36.dp)
+                .background(SmartColors.SubtleSurface, RoundedCornerShape(12.dp)),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(icon, contentDescription = null, tint = JadeActive)
+            Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp), tint = SmartColors.JadeDark)
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
             Text(title, color = Ink, style = MaterialTheme.typography.titleMedium)
-            Text(detail, color = InkSecondary, style = MaterialTheme.typography.bodyMedium)
+            Text(detail, modifier = Modifier.padding(top = 4.dp), color = InkSecondary, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -625,7 +620,7 @@ internal fun DataPrivacyScreen(
     RootPageColumn {
         SecondaryHeader(title = "数据与隐私", onBack = onBack)
         Spacer(Modifier.height(16.dp))
-        WorkspacePanel {
+        WorkspacePanel(containerColor = SmartColors.ContentSurface) {
             Column {
                 SettingsSectionTitle("本机数据清单")
                 CapabilityRow(Icons.Outlined.Storage, "保存在本机", "题面、原图、学习记录与复习进度保存在应用空间。")
@@ -633,7 +628,7 @@ internal fun DataPrivacyScreen(
             }
         }
         Spacer(Modifier.height(16.dp))
-        WorkspacePanel {
+        WorkspacePanel(containerColor = SmartColors.ContentSurface) {
             Column {
                 SettingsSectionTitle("智能服务")
                 Text(
@@ -950,22 +945,21 @@ internal fun StorageScreen(
         androidx.activity.compose.BackHandler(enabled = operationBusy) { }
         SecondaryHeader(title = "存储、备份与导出", onBack = { if (!operationBusy) onBack() })
         Spacer(Modifier.height(16.dp))
-        WorkspacePanel {
+        WorkspacePanel(containerColor = SmartColors.ContentSurface) {
             Column {
                 SettingsSectionTitle("本机存储")
                 val current = inventory
                 if (current != null) {
-                    Column(Modifier.fillMaxWidth().padding(top = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(Modifier.fillMaxWidth().padding(top = 8.dp)) {
                         listOf("学习记录" to formatBytes(current.databaseBytes),
                             "题图" to formatBytes(current.assetBytes),
-                            "可清理文件" to formatBytes(current.cleanableBytes)).forEach { (label, value) ->
-                            Surface(color = SmartColors.SubtleSurface, shape = RoundedCornerShape(12.dp)) {
-                                Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
-                                    verticalAlignment = Alignment.CenterVertically) {
-                                    Text(label, Modifier.weight(1f), color = InkSecondary, style = MaterialTheme.typography.bodyMedium)
-                                    Text(value, color = Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-                                }
+                            "可清理文件" to formatBytes(current.cleanableBytes)).forEachIndexed { index, (label, value) ->
+                            if (index > 0) PaperDivider()
+                            Row(Modifier.fillMaxWidth().padding(vertical = 14.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Text(label, Modifier.weight(1f), color = InkSecondary, style = MaterialTheme.typography.bodyMedium)
+                                Text(value, color = Ink, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
@@ -992,7 +986,7 @@ internal fun StorageScreen(
             }
         }
         Spacer(Modifier.height(16.dp))
-        WorkspacePanel {
+        WorkspacePanel(containerColor = SmartColors.ContentSurface) {
             Column {
                 SettingsSectionTitle("备份内容")
                 Text(
@@ -1045,7 +1039,7 @@ internal fun StorageScreen(
             }
         }
         Spacer(Modifier.height(16.dp))
-        WorkspacePanel {
+        WorkspacePanel(containerColor = SmartColors.ContentSurface) {
             Column {
                 SettingsSectionTitle("数据维护")
                 OutlinedButton(
@@ -1056,7 +1050,7 @@ internal fun StorageScreen(
                         .testTag("storage_delete_all"),
                     enabled = !operationBusy,
                 ) {
-                    Text("删除全部数据")
+                    Text("删除全部数据", color = if (operationBusy) InkSecondary else ErrorText)
                 }
                 OutlinedButton(
                     onClick = {
@@ -1120,7 +1114,7 @@ internal fun StorageScreen(
         // 横幅不自动外发、可忽略；Root/启动横幅是本批禁改热区，提示落在本设置页，
         // 学生反馈问题时从同一页导出诊断包（本地优先闭环，R2 选型 §1）。
         Spacer(Modifier.height(16.dp))
-        WorkspacePanel {
+        WorkspacePanel(containerColor = SmartColors.ContentSurface) {
             Column {
                 SettingsSectionTitle("诊断")
                 DiagnosticsBootstrap.lastExitNotice?.let { notice ->
@@ -1166,7 +1160,7 @@ internal fun StorageScreen(
             }
         }
         Spacer(Modifier.height(16.dp))
-        WorkspacePanel {
+        WorkspacePanel(containerColor = SmartColors.ContentSurface) {
             Column {
                 SettingsSectionTitle("单题导出")
                 Text(
@@ -1220,7 +1214,12 @@ internal fun BackupContentSelectionSection(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 10.dp),
+                    .padding(top = 8.dp)
+                    .background(
+                        if (checked) SmartColors.JadeSoft.copy(alpha = 0.5f) else SmartColors.SubtleSurface,
+                        RoundedCornerShape(12.dp),
+                    )
+                    .padding(horizontal = 8.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.Top,
             ) {
                 Checkbox(

@@ -52,11 +52,12 @@ fun DetailedAnswerPreviewSheet(
                 Text("正在读取本次卷面…", color = InkSecondary)
             }
         } else {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                MistakeExportFormat.entries.forEach { format ->
-                    FilterChip(group.format == format, { onChangeFormat(format) }, { Text(format.studentLabel) }, enabled = !busy)
-                }
-            }
+            ClaudeSegmentedControl(
+                segments = MistakeExportFormat.entries.map { ClaudeSegment(it.token, it.studentLabel) },
+                selectedId = group.format.token,
+                onSelect = { token -> MistakeExportFormat.entries.firstOrNull { it.token == token }?.let(onChangeFormat) },
+                enabled = !busy,
+            )
             if (group.format == MistakeExportFormat.DOCX) Text(mistakeExportFormatDocxNotice, style = MaterialTheme.typography.bodySmall, color = InkSecondary)
             Surface(color = SmartColors.LearningSurface, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -74,11 +75,13 @@ fun DetailedAnswerPreviewSheet(
                 var expanded by rememberSaveable(group.manifestId, item.ordinal) { mutableStateOf(item.ordinal == 1) }
                 val canExpand = item.document != null
                 val question = preparation.manifest.questions.single { it.ordinal == item.ordinal }
-                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                MistakeSectionCard(
+                    title = "第 ${item.ordinal} 题 · 第 ${question.revisionNumber} 版",
+                    headerColor = SmartColors.LearningSurface,
+                ) {
                     Row(Modifier.fillMaxWidth().then(if (canExpand) Modifier.clickable(role = Role.Button) { expanded = !expanded } else Modifier)
                         .padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text("第 ${item.ordinal} 题 · 第 ${question.revisionNumber} 版", style = MaterialTheme.typography.titleMedium, color = Ink)
                             Text(when (item.status) {
                                 DetailedSolutionPreparationStatus.READY -> "已准备好"
                                 DetailedSolutionPreparationStatus.QUEUED -> "等待准备"
@@ -103,7 +106,6 @@ fun DetailedAnswerPreviewSheet(
                             }
                         }
                     }
-                    PaperDivider()
                 }
             }
             if (ready) Row(Modifier.fillMaxWidth().toggleable(acknowledged, enabled = !busy, role = Role.Checkbox, onValueChange = { acknowledged = it }), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {

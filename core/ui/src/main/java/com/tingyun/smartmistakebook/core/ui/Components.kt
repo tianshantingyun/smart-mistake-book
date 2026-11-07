@@ -136,7 +136,7 @@ fun ScreenStatePanel(
             .padding(horizontal = 16.dp, vertical = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(Modifier.size(40.dp),
+        Box(Modifier.size(52.dp).clip(RoundedCornerShape(16.dp)).background(JadeSoft),
             contentAlignment = Alignment.Center) {
         Icon(
             imageVector = icon,
@@ -145,7 +145,7 @@ fun ScreenStatePanel(
             tint = JadeDark,
         )
         }
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(16.dp))
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,

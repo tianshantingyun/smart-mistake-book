@@ -2,6 +2,8 @@
 
 package com.tingyun.smartmistakebook.feature.capture
 
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNotice
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNoticeTone
 import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -60,7 +62,6 @@ import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.ClaudeButton
 import com.tingyun.smartmistakebook.core.ui.ClaudeCard
 import com.tingyun.smartmistakebook.core.ui.SmartColors
-import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 
 @Composable
 internal fun WorkspaceSaveErrorCard(
@@ -72,10 +73,9 @@ internal fun WorkspaceSaveErrorCard(
     CapturePanel(
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, ErrorText.copy(alpha = .25f), RoundedCornerShape(20.dp))
             .testTag("capture_workspace_save_error"),
     ) {
-        Text(message, color = ErrorText, style = MaterialTheme.typography.bodySmall)
+        WorkspaceNotice(message, tone = WorkspaceNoticeTone.ERROR, title = "题目暂未保存")
         OutlineActionChip(
             text = if (saving) "正在重试…" else "重新保存",
             onClick = onRetry,
@@ -319,8 +319,8 @@ private fun CaptureModeOption(
                 }
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(text, color = foreground, style = if (primary) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleMedium)
-                Text(supportingText, color = if (primary) SmartColors.OnJade else InkSecondary,
+                Text(text, color = foreground, style = MaterialTheme.typography.titleMedium)
+                Text(supportingText, color = if (primary) SmartColors.OnJade.copy(alpha = .85f) else InkSecondary,
                     style = MaterialTheme.typography.bodySmall)
             }
             Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, Modifier.size(18.dp), tint = foreground)
@@ -516,27 +516,11 @@ internal fun CaptureCommittedCard(
 
 @Composable
 internal fun CaptureError(message: String, modifier: Modifier = Modifier) {
-    WorkspacePanel(modifier = modifier.fillMaxWidth()
-        .border(1.dp, ErrorText.copy(alpha = .25f), RoundedCornerShape(20.dp))
-        .testTag("capture_error")) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top,
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.ErrorOutline,
-                contentDescription = null,
-                modifier = Modifier.size(22.dp),
-                tint = ErrorWarm,
-            )
-            Text(
-                text = message,
-                modifier = Modifier.padding(start = 8.dp),
-                color = ErrorText,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        }
-    }
+    WorkspaceNotice(
+        message = message,
+        modifier = modifier.testTag("capture_error"),
+        tone = WorkspaceNoticeTone.ERROR,
+    )
 }
 
 @Composable

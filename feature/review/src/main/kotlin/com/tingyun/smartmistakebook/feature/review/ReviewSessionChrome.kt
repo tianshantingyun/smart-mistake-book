@@ -1,5 +1,12 @@
 package com.tingyun.smartmistakebook.feature.review
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material3.Icon
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,9 +25,15 @@ import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 /** The three review modes share a reading position without changing their queue calculations. */
 @Composable
 internal fun ReviewSessionProgress(label: String, progress: Float) {
-    WorkspacePanel(contentPadding = PaddingValues(vertical = 12.dp)) {
-        Text(label, color = SmartColors.InkSecondary, style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Medium)
+    WorkspacePanel(
+        containerColor = SmartColors.SubtleSurface,
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Icon(Icons.Outlined.Schedule, null, Modifier.size(16.dp), tint = SmartColors.JadeDark)
+            Text(label, color = SmartColors.InkSecondary, style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Medium)
+        }
         LinearProgressIndicator(
             progress = { progress },
             modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)),

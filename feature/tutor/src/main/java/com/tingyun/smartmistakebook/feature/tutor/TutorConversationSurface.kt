@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.feature.tutor
 
 import com.tingyun.smartmistakebook.core.ui.claudeSurfaceShadow
 import com.tingyun.smartmistakebook.core.ui.ClaudeSurfaceDepth
+import com.tingyun.smartmistakebook.core.ui.SmartColors
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.core.animateFloatAsState
@@ -630,8 +631,8 @@ internal fun TutorConversationFrame(
                 if (composerInList && composer != null) {
                     item("tutor_start_composer") {
                         Column(Modifier.fillMaxWidth().padding(top = startPageTopPadding)) {
-                            Text("今天想学点什么？", Modifier.padding(start = 4.dp, bottom = 20.dp),
-                                color = Ink, style = MaterialTheme.typography.headlineSmall)
+                            Text("今天想学点什么？", Modifier.padding(start = 4.dp, bottom = 24.dp),
+                                color = Ink, style = MaterialTheme.typography.headlineMedium)
                             composerBlock()
                         }
                     }
@@ -680,8 +681,8 @@ private fun ScrollToBottomButton(
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier,
-        containerColor = JadeActive,
-        contentColor = Paper,
+        containerColor = ContentSurface,
+        contentColor = JadeActive,
         shape = RoundedCornerShape(18.dp),
     ) {
         Icon(
@@ -726,9 +727,9 @@ internal fun TutorChatComposer(
     val sendInteraction = remember { MutableInteractionSource() }
     val sendPressed by sendInteraction.collectIsPressedAsState()
     val motionEnabled = com.tingyun.smartmistakebook.core.ui.LocalClaudeMotionEnabled.current
-    val sendScale by animateFloatAsState(if (sendPressed && motionEnabled) .95f else 1f,
+    val sendScale by animateFloatAsState(if (sendPressed && motionEnabled) .98f else 1f,
         com.tingyun.smartmistakebook.core.ui.ClaudeMotion.pressSpec(motionEnabled, sendPressed), label = "composer_send_press")
-    val shadowStrength by animateFloatAsState(if (!enabled) .5f else if (focused) 1.35f else .8f,
+    val shadowStrength by animateFloatAsState(if (!enabled) .35f else if (focused) .85f else .45f,
         com.tingyun.smartmistakebook.core.ui.ClaudeMotion.spec(motionEnabled, 220), label = "composer-focus-shadow")
     val outlineColor by androidx.compose.animation.animateColorAsState(if (focused) JadeActive else Outline,
         com.tingyun.smartmistakebook.core.ui.ClaudeMotion.spec(motionEnabled, 220), label = "composer-focus-outline")
@@ -754,7 +755,7 @@ internal fun TutorChatComposer(
     Column(modifier = modifier.fillMaxWidth()
         .claudeSurfaceShadow(shape, ClaudeSurfaceDepth.COMPOSER, emphasis = shadowStrength)
         .background(if (enabled) ContentSurface else SubtleSurface, shape)
-        .border(if (focused) 2.dp else 1.dp, outlineColor, shape)
+        .border(1.dp, outlineColor, shape)
         .padding(ClaudeLayout.ComposerPadding)) {
         attachmentPreview?.invoke()
         BasicTextField(

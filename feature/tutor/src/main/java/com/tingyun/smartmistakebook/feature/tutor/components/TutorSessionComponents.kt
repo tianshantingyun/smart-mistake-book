@@ -1,6 +1,8 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
 import com.tingyun.smartmistakebook.core.ui.ErrorText
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -222,19 +224,17 @@ internal fun TutorModelStatusCard(
     actionLabel: String? = null,
     onAction: () -> Unit = {},
 ) {
-    Surface(
+    WorkspacePanel(
         modifier = modifier
             .fillMaxWidth()
             .testTag("captured_tutor_model_status"),
-        color = JadeSoft.copy(alpha = 0.45f),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Outline),
+        containerColor = SmartColors.AgentSurface,
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(title, color = Ink, style = MaterialTheme.typography.titleMedium)
+            Text(title, color = SmartColors.AgentAccent, style = MaterialTheme.typography.titleSmall)
             Text(detail, color = InkSecondary, style = MaterialTheme.typography.bodyMedium)
             actionLabel?.let { label ->
                 OutlineActionChip(text = label, onClick = onAction)

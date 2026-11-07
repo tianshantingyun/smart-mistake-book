@@ -52,7 +52,7 @@ internal fun MistakeSectionCard(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(14.dp),
         color = SmartColors.ContentSurface,
         border = BorderStroke(1.dp, SmartColors.Divider),
         shadowElevation = 0.dp,

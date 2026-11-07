@@ -86,7 +86,8 @@ internal fun KnowledgeConstellation(
         selectedId = id
         resetView()
     }
-    WorkspacePanel(Modifier.padding(top = 16.dp).testTag("knowledge_constellation")) {
+    WorkspacePanel(Modifier.padding(top = 16.dp).testTag("knowledge_constellation"),
+        containerColor = SmartColors.ContentSurface) {
         Text("知识星图", color = SmartColors.Ink, style = MaterialTheme.typography.titleMedium)
         Text("查看知识分布，沿前置关系找到需要巩固的内容。", color = SmartColors.InkSecondary, style = MaterialTheme.typography.bodySmall)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

@@ -1,6 +1,10 @@
 package com.tingyun.smartmistakebook.core.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.draw.clip
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -85,9 +89,10 @@ fun WorkspaceSheet(
                     }
                     Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 6.dp),
                         verticalAlignment = Alignment.CenterVertically) {
-                        if (icon != null) {
-                            Icon(icon, null, Modifier.padding(end = 12.dp).size(24.dp), tint = SmartColors.JadeDark)
-                        }
+                        if (icon != null) Box(
+                            Modifier.padding(end = 12.dp).size(36.dp).clip(RoundedCornerShape(10.dp)).background(SmartColors.JadeSoft),
+                            contentAlignment = Alignment.Center,
+                        ) { Icon(icon, null, Modifier.size(20.dp), tint = SmartColors.JadeDark) }
                         Text(title, titleModifier.weight(1f).semantics { heading() }, color = SmartColors.Ink,
                             style = MaterialTheme.typography.titleLarge)
                         ClaudeIconButton(onDismiss) { Icon(Icons.Outlined.Close, "关闭对话框") }
@@ -100,7 +105,7 @@ fun WorkspaceSheet(
                         .padding(contentPadding),
                         verticalArrangement = Arrangement.spacedBy(12.dp), content = content)
                     PaperDivider()
-                    Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 20.dp, vertical = 14.dp),
+                    Column(Modifier.fillMaxWidth().background(SmartColors.Paper).navigationBarsPadding().padding(horizontal = 20.dp, vertical = 14.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(6.dp), content = actions)
                 }
@@ -118,10 +123,13 @@ fun WorkspaceChoiceRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val targetFill = if (selected) SmartColors.JadeSoft else SmartColors.ContentSurface
+    val motion = LocalClaudeMotionEnabled.current
+    val fill by animateColorAsState(targetFill, ClaudeMotion.spec(motion), label = "workspace-choice-fill")
     Surface(modifier.fillMaxWidth().selectable(selected, role = Role.RadioButton, onClick = onClick),
         shape = RoundedCornerShape(14.dp),
-        color = if (selected) SmartColors.JadeSoft else SmartColors.ContentSurface,
-        border = BorderStroke(1.dp, if (selected) SmartColors.Jade else SmartColors.Divider)) {
+        color = if (motion) fill else targetFill,
+        border = BorderStroke(1.dp, if (selected) SmartColors.Jade.copy(alpha = .45f) else SmartColors.Divider)) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             RadioButton(selected, onClick = null)

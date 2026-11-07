@@ -39,6 +39,8 @@ import com.tingyun.smartmistakebook.core.model.ClassificationDimension
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
+import com.tingyun.smartmistakebook.core.ui.JadeActive
+import com.tingyun.smartmistakebook.core.ui.claudeInteractiveRow
 import com.tingyun.smartmistakebook.core.ui.Outline
 
 /** Legacy name-based picker helpers remain compatible with callers without a catalog dependency.
@@ -215,11 +217,12 @@ private fun OrganizationTreeOptionRow(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = !selected, onClick = onClick)
+            .claudeInteractiveRow(onClick, selected = selected, enabled = !selected)
             .testTag(testTag),
         shape = RoundedCornerShape(12.dp),
-        color = if (selected) JadeSoft.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface,
-        shadowElevation = 1.dp,
+        color = if (selected) JadeSoft else MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, if (selected) JadeActive.copy(alpha = .35f) else com.tingyun.smartmistakebook.core.ui.SmartColors.Divider),
+        shadowElevation = 0.dp,
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
@@ -329,7 +332,7 @@ internal fun KnowledgeCatalogPickerSheet(
                             Modifier.fillMaxWidth().selectable(selected, role = androidx.compose.ui.semantics.Role.Checkbox, onClick = { vm.toggle(hit) }).testTag("mistake_tree_knowledge_${hit.node.nodeId}"),
                             color = if (selected) JadeSoft else MaterialTheme.colorScheme.surface,
                             shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, if (selected) MaterialTheme.colorScheme.primary else Outline),
+                            border = BorderStroke(1.dp, if (selected) JadeActive.copy(alpha = .4f) else com.tingyun.smartmistakebook.core.ui.SmartColors.Divider),
                         ) {
                             Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {

@@ -52,7 +52,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -104,7 +103,8 @@ fun ClaudeSegmentedControl(
     val direction = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
     val motion = LocalClaudeMotionEnabled.current
     BoxWithConstraints(modifier.fillMaxWidth()) {
-        val minCell = 76.dp * LocalDensity.current.fontScale
+        // Let enlarged labels wrap inside the cell before introducing horizontal overflow.
+        val minCell = 76.dp
         val cellWidth = maxOf((maxWidth - 2.dp) / segments.size, minCell)
         val selectedIndex = segments.indexOfFirst { it.id == selectedId }
         val thumbOffset by animateDpAsState(cellWidth * selectedIndex.coerceAtLeast(0),
@@ -151,7 +151,7 @@ fun ClaudeSegmentedControl(
                                 claudeFocusIndicatorColor(ContentSurface), CircleShape) else Modifier)
                             .selectable(selected, enabled, Role.Tab) {
                                 if (!selected) onSelect(segment.id)
-                            }.testTag(segment.testTag).padding(horizontal = 12.dp, vertical = 8.dp),
+                            }.testTag(segment.testTag).padding(horizontal = 8.dp, vertical = 8.dp),
                             contentAlignment = Alignment.Center) {
                             Text(segment.label, color = if (selected) Ink else InkSecondary,
                                 style = ClaudeLayout.ControlText,

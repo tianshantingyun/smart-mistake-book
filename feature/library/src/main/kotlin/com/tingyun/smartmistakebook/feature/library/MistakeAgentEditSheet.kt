@@ -1,6 +1,13 @@
 package com.tingyun.smartmistakebook.feature.library
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
@@ -152,10 +159,11 @@ internal fun MistakeAgentEditSheet(
         state.agentError?.let { WorkspaceNotice(it, tone = WorkspaceNoticeTone.ERROR) }
         if (ready && !adjusting) {
             WorkspaceNotice("核对后采用到草稿，再保存题面。", tone = WorkspaceNoticeTone.SUCCESS, title = "修改预览已就绪")
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(!showAfter, { showAfter = false }, { Text("修改前") })
-                FilterChip(showAfter, { showAfter = true }, { Text("修改后") })
-            }
+            ClaudeSegmentedControl(
+                segments = listOf(ClaudeSegment("before", "修改前"), ClaudeSegment("after", "修改后")),
+                selectedId = if (showAfter) "after" else "before",
+                onSelect = { showAfter = it == "after" },
+            )
             @Composable fun Comparison(after: Boolean) {
                 val document = if (after) state.agentPreview else state.agentBefore
                 document?.let {
@@ -168,15 +176,26 @@ internal fun MistakeAgentEditSheet(
                         })
                 }
             }
-            if (LocalClaudeMotionEnabled.current) AnimatedContent(showAfter, label = "agent-edit-comparison") { Comparison(it) }
-            else Comparison(showAfter)
+            MistakeSectionCard(if (showAfter) "修改后题面" else "原题面", headerColor = SmartColors.AgentSurface) {
+                if (LocalClaudeMotionEnabled.current) AnimatedContent(
+                    showAfter,
+                    transitionSpec = {
+                        fadeIn(tween(ClaudeMotion.RevealMillis)) togetherWith fadeOut(tween(ClaudeMotion.SnapMillis))
+                    },
+                    label = "agent-edit-comparison",
+                ) { Comparison(it) }
+                else Comparison(showAfter)
+            }
         }
     }
 }
 
 @Composable
 private fun AgentEditCheckRow(label: String, checked: Boolean, enabled: Boolean = true, onToggle: () -> Unit) {
-    Row(Modifier.fillMaxWidth().toggleable(checked, enabled = enabled, role = Role.Checkbox, onValueChange = { onToggle() }).padding(vertical = 4.dp),
+    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+        .background(if (checked) SmartColors.JadeSoft else SmartColors.SubtleSurface)
+        .toggleable(checked, enabled = enabled, role = Role.Checkbox, onValueChange = { onToggle() })
+        .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Checkbox(checked, null, enabled = enabled)
         Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = Ink)

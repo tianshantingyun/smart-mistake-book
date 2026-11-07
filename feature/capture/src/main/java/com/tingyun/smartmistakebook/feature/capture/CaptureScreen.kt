@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.feature.capture
 
+import com.tingyun.smartmistakebook.core.ui.WorkspaceJourney
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
@@ -743,6 +744,7 @@ fun CaptureScreen(
                 snapshot = state.assessmentSnapshot,
                 parseSnapshot = state.parseSnapshot,
                 sourcePersisted = state.draftId != null,
+                manualInput = manualTranscriptionDraft,
             ),
             icon = Icons.Outlined.Lock,
             contentDescription = "拍题隐私状态",
@@ -757,6 +759,15 @@ fun CaptureScreen(
             style = MaterialTheme.typography.bodySmall,
         )
 
+        WorkspaceJourney(
+            steps = listOf("选择来源", "整理题目", "确认题面"),
+            currentStep = when {
+                state.committedEntryId != null || candidateUsable || manualCommitReady -> 2
+                state.draftId != null || state.receivedImageUri != null -> 1
+                else -> 0
+            },
+            modifier = Modifier.padding(top = 20.dp, bottom = 4.dp),
+        )
         SectionHeader(
             title = when {
                 state.committedEntryId != null -> "已存入错题本"
