@@ -3472,7 +3472,8 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         reviewLogEntries
             .filter { it.learnerId == learnerId }
             .sortedBy { it.reviewedAtEpochMillis }
-            .take(limit)
+            // 与 DAO 同口径：最近 N 条（升序返回），不是最早 N 条。
+            .takeLast(limit)
             .map { entry ->
                 ReviewLogSampleRecord(
                     practiceUnitId = entry.practiceUnitId,
@@ -3485,6 +3486,7 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
                     deltaTDays = entry.deltaTDays,
                     state = entry.state,
                     schedulingEligible = entry.schedulingEligible,
+                    plannedReason = entry.plannedReason,
                 )
             }
 

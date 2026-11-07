@@ -304,10 +304,13 @@ class StudyReviewPlannerExamWindowTest {
         }
     }
 
-    private class MutableExamSettingsStore(exams: List<ExamCalendarEntry>) : SchedulingSettingsStore {
+    private class MutableExamSettingsStore(
+        exams: List<ExamCalendarEntry>,
+        options: SchedulingOptions = SchedulingOptions(),
+    ) : SchedulingSettingsStore {
         private val current = MutableStateFlow(exams)
 
-        override val options: Flow<SchedulingOptions> = flowOf(SchedulingOptions())
+        override val options: Flow<SchedulingOptions> = flowOf(options)
         override suspend fun setOptions(options: SchedulingOptions) = Unit
         override val exams: Flow<List<ExamCalendarEntry>> = current
         override suspend fun addExam(entry: ExamCalendarEntry) {
@@ -338,6 +341,8 @@ class StudyReviewPlannerExamWindowTest {
         database: FakeStudyDatabasePort,
         exams: List<ExamCalendarEntry>,
         budgetSeconds: Int,
+        budgetResolution: BudgetResolution = BudgetResolution.CONSTRUCTOR_ONLY,
+        settingsStore: SchedulingSettingsStore? = MutableExamSettingsStore(exams),
     ): StudyReviewPlannerService = StudyReviewPlannerService(
         database = database,
         learnerId = LEARNER_ID,
@@ -349,11 +354,12 @@ class StudyReviewPlannerExamWindowTest {
         knowledgeNodeScorer = KnowledgeNodeScorer(),
         durationModel = LogDurationModel(),
         reviewLogSink = ReviewLogSink(database, LEARNER_ID, CLOCK, ZONE),
-        schedulingSettingsStore = MutableExamSettingsStore(exams),
+        schedulingSettingsStore = settingsStore,
         predictionAuditService = HLRPredictionAuditService(),
         predictionAuditSink = NoopPredictionAuditSink,
         knowledgePrerequisites = KnowledgePrerequisiteReader(database),
         learnerSnapshot = { snapshot(emptyMap()) },
+        budgetResolution = budgetResolution,
     )
 
     private fun snapshot(memories: Map<String, ProblemMemoryState>) = LearnerSnapshot(
@@ -433,9 +439,17 @@ class StudyReviewPlannerExamWindowTest {
         exams: List<ExamCalendarEntry>,
         budgetSeconds: Int,
         mistakes: List<MistakeRecord>,
+        budgetResolution: BudgetResolution = BudgetResolution.CONSTRUCTOR_ONLY,
+        settingsStore: SchedulingSettingsStore? = MutableExamSettingsStore(exams),
         memoriesAt: (Long) -> Map<String, ProblemMemoryState> = { emptyMap() },
     ): ReviewPlanBundle {
-        val service = plannerService(database, exams, budgetSeconds)
+        val service = plannerService(
+            database = database,
+            exams = exams,
+            budgetSeconds = budgetSeconds,
+            budgetResolution = budgetResolution,
+            settingsStore = settingsStore,
+        )
         val planningContext = service.planningContext(snapshot(emptyMap()))
         mistakes.forEach(database::addMistake)
         return service.createReviewPlan(
@@ -443,5 +457,43 @@ class StudyReviewPlannerExamWindowTest {
             learnerSnapshot = snapshot(memoriesAt(planningContext.planningAtEpochMillis)),
             planningContext = planningContext,
         )
+    }
+
+    // ------------------------------------------------------------------
+    // 预算解析口径（修复“预览 120s / 计划 1200s”分叉）
+    // ------------------------------------------------------------------
+
+    @Test
+    fun `settings store budget wins over the constructor fallback`() = runBlocking {
+        val mistakes = dueMistakes("MATH", "unit-m1", "unit-m2")
+        val store = MutableExamSettingsStore(
+            exams = emptyList(),
+            options = SchedulingOptions(dailyReviewMinutes = 10),
+        )
+        val bundle = plan(
+            CountingScanPort(),
+            exams = emptyList(),
+            budgetSeconds = 120,
+            mistakes = mistakes,
+            memoriesAt = { at -> mapOf(dueMemoryAt(at, "unit-m1"), dueMemoryAt(at, "unit-m2")) },
+            budgetResolution = BudgetResolution.SETTINGS_THEN_CONSTRUCTOR,
+            settingsStore = store,
+        )
+        assertEquals("设置存储（10 分钟 = 600s）必须压过构造参数 120s", 600, bundle.plan.timeBudgetSeconds)
+    }
+
+    @Test
+    fun `null settings store falls back to the constructor budget`() = runBlocking {
+        val mistakes = dueMistakes("MATH", "unit-m1", "unit-m2")
+        val bundle = plan(
+            CountingScanPort(),
+            exams = emptyList(),
+            budgetSeconds = 120,
+            mistakes = mistakes,
+            memoriesAt = { at -> mapOf(dueMemoryAt(at, "unit-m1"), dueMemoryAt(at, "unit-m2")) },
+            budgetResolution = BudgetResolution.SETTINGS_THEN_CONSTRUCTOR,
+            settingsStore = null,
+        )
+        assertEquals("无设置存储时用构造参数", 120, bundle.plan.timeBudgetSeconds)
     }
 }

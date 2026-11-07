@@ -3,10 +3,12 @@ package com.tingyun.smartmistakebook.core.data.study
 import com.tingyun.smartmistakebook.core.database.ReviewLogEntry
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
+import com.tingyun.smartmistakebook.core.domain.FsrsParameterFit
 import com.tingyun.smartmistakebook.core.domain.FsrsParameterOptimizer
 import com.tingyun.smartmistakebook.core.domain.FsrsScheduleMath
 import com.tingyun.smartmistakebook.core.domain.HLRPredictionAuditService
 import com.tingyun.smartmistakebook.core.domain.LearningProjector
+import com.tingyun.smartmistakebook.core.domain.SchedulingCalibrationView
 import com.tingyun.smartmistakebook.core.domain.SchedulingOptions
 import com.tingyun.smartmistakebook.core.domain.SchedulingSettingsStore
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
@@ -61,6 +63,76 @@ class StudySchedulingCalibrationTest {
         assertEquals(FsrsParameterOptimizer.Mode.FULL_FIT, result!!.mode)
         assertEquals(450, result.sampleCount)
         assertSame("候选参数必须原样写入存量", result.parameters, store.optimized)
+    }
+
+    @Test
+    fun `adoption records when how many samples and the validation loss against the default baseline`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val store = FakeSchedulingSettingsStore()
+        val calibration = calibration(database, store)
+        seedGateFixture(database, cardCount = 450)
+
+        val result = requireNotNull(calibration.optimizeSchedulingParameters())
+        val fit = requireNotNull(store.fit)
+
+        assertEquals("拟合时点用注入 Clock，不读系统时钟", clock.millis(), fit.adoptedAtEpochMillis)
+        assertEquals(450, fit.sampleCount)
+        assertEquals(result.validationLogLoss, fit.validationLogLoss, 0.0)
+        assertNotNull("默认参数基线必须能在同一协议下测出", fit.baselineValidationLogLoss)
+        assertTrue(fit.baselineValidationLogLoss!!.isFinite())
+    }
+
+    @Test
+    fun `a rejected fit keeps the previous fit record intact`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val store = FakeSchedulingSettingsStore()
+        val calibration = calibration(database, store)
+        val previous = FsrsParameterFit(
+            adoptedAtEpochMillis = 123L,
+            sampleCount = 400,
+            validationLogLoss = 0.5,
+            baselineValidationLogLoss = 0.6,
+        )
+        store.fit = previous
+        seedGateFixture(database, cardCount = 399)
+
+        assertNull(calibration.optimizeSchedulingParameters())
+        assertSame("拒绝路径不写参数，也不改拟合记录", previous, store.fit)
+    }
+
+    @Test
+    fun `the calibration view reports stored parameters the fit record and predictable samples`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val store = FakeSchedulingSettingsStore()
+        val calibration = calibration(database, store)
+        seedGateFixture(database, cardCount = 450)
+
+        val result = requireNotNull(calibration.optimizeSchedulingParameters())
+        val view = calibration.schedulingCalibrationView()
+
+        assertEquals(SchedulingCalibrationView.ParameterSource.LOCAL_FIT, view.parameterSource)
+        assertEquals("页面展示的必须是实际生效的那组参数", result.parameters.toList(), view.parameters)
+        assertEquals(store.fit, view.lastFit)
+        assertEquals(450, view.predictableSampleCount)
+        assertEquals(21, view.parameterCount)
+        assertEquals(FsrsParameterOptimizer.MIN_SAMPLES_FOR_FITTING, view.fitSampleFloor)
+        assertNotNull("有验证对时页面要给出当前参数损失", view.currentValidationLogLoss)
+        assertNotNull("有验证对时页面要给出默认基线损失", view.baselineValidationLogLoss)
+        assertTrue("夹具没有计划理由 → 按理由表为空", view.perReason.isEmpty())
+    }
+
+    @Test
+    fun `the calibration view reports imported parameters when a fit record is absent`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val store = FakeSchedulingSettingsStore()
+        val calibration = calibration(database, store)
+        seedGateFixture(database, cardCount = 3)
+        store.optimized = FsrsScheduleMath.DEFAULT_PARAMETERS.copyOf().also { it[4] = it[4] + 0.5 }
+
+        val view = calibration.schedulingCalibrationView()
+
+        assertEquals(SchedulingCalibrationView.ParameterSource.IMPORTED, view.parameterSource)
+        assertNull(view.lastFit)
     }
 
     @Test
@@ -155,6 +227,7 @@ class StudySchedulingCalibrationTest {
 
     private class FakeSchedulingSettingsStore : SchedulingSettingsStore {
         var optimized: DoubleArray? = null
+        var fit: FsrsParameterFit? = null
 
         override val options: Flow<SchedulingOptions> = flowOf(SchedulingOptions())
         override suspend fun setOptions(options: SchedulingOptions) = Unit
@@ -163,8 +236,15 @@ class StudySchedulingCalibrationTest {
         override suspend fun removeExam(entryId: String) = Unit
         override val optimizedParameters: Flow<DoubleArray?>
             get() = flowOf(optimized)
+        override val parameterFit: Flow<FsrsParameterFit?>
+            get() = flowOf(fit)
+        override suspend fun recordParameterFit(fit: FsrsParameterFit?) {
+            this.fit = fit
+        }
         override suspend fun setOptimizedParameters(parameters: DoubleArray?) {
             optimized = parameters
+            // 与 DataStore 实现同语义：参数换了，旧拟合记录不再描述当前参数。
+            fit = null
         }
     }
 

@@ -188,6 +188,8 @@ class StudyReviewPlannerServiceCapacityPreviewTest {
         predictionAuditSink = NoopPredictionAuditSink,
         knowledgePrerequisites = KnowledgePrerequisiteReader(database),
         learnerSnapshot = { snapshot(emptyMap()) },
+        // 预算边界用例（120s）低于 SchedulingOptions 的 5 分钟下限，显式按构造参数解析。
+        budgetResolution = BudgetResolution.CONSTRUCTOR_ONLY,
     )
 
     private fun snapshot(memories: Map<String, ProblemMemoryState>) = LearnerSnapshot(
