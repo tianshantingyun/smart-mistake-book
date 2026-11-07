@@ -23,7 +23,7 @@ SCRIPT = REPO / "tools" / "ci" / "acceptance_hash_manifest.py"
 
 def _run(*args: str) -> subprocess.CompletedProcess:
     return subprocess.run([sys.executable, "-I", str(SCRIPT), *args],
-                          capture_output=True, text=True, cwd=str(REPO))
+                          capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(REPO))
 
 
 class AcceptanceHashManifestTest(unittest.TestCase):

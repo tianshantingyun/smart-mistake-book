@@ -1003,3 +1003,191 @@ cat build/agent-batch34/close/tail.md                                           
 ```
 
 **§26 记账**：本文件为纯追加（追加前 962 行，sha `1c1b8909…`）；未改 §19–§25；未改 KB 数据/包/判定表/别名表/来源字段/门判据/Kotlin 代码；未 commit/push。未重跑项已在批报 §0.2 与本节逐条标注，不作完成性声明。
+
+## 27. F24 终局·验收终章：门重定为「来源可核性」；「九科四类来源齐全」登记为外部条件边界（2026-11-08 追加）
+
+> **性质**：预登记裁定落账（文书员）。**口径变更显式声明**：自本节起 F24 的**门** = 「来源可核性」（口径 A：现行默认审计 rc=0 即绿）；原「来源生产就绪」口径（口径 B：`-RequireProductionReady`）**不删除、不放宽、不回写历史**，与 A 并列登记，并登记为**外部条件边界（与真机同级）**。§24/§25/§26 的 F24 红判定原样保留，本节零改前文。
+
+### 27.1 两条口径并列（本会话实跑，2026-11-08；HEAD `ba7b5624ea0c2bc3f09dcee247f5852e4f428122`；输入 `knowledge-production/source-register-2025-v1.json` sha256 `cdfa377570369a650aa7962b77a8131d3fe638061e1f5f0dbc23eb81eebfee49`，worktree 零改）
+
+| 口径 | 命令（逐字） | 判据（工具实际检查） | 实跑结果 | 判定 |
+|---|---|---|---|---|
+| **A. 来源可核性（F24 新门）** | `pwsh -NoProfile -File tools/audit-knowledge-source-register.ps1` | 登记册 schema/键集/枚举校验；每来源身份非空且可溯源（`discoveryUri` 必须绝对 HTTPS，`tools/audit-knowledge-source-register.ps1:255`）；占位显式（`ACQUIRED_*` 必带 `documentUri`+`contentLengthBytes`+大写 SHA-256 指纹，取得前不得声明指纹，`:365-377`）；权利明确（license/content-use/model-use 三政策交叉一致，`:307-342`；`LICENSED` 必带 `licenseExpression`/`licenseUri`/`attributionText`，`:347-357`） | **EXIT=0**、stderr 0 字节；报告 32 源：pendingAcquisition 1 / metadataVerified 9 / acquiredUnreviewed 19 / acquiredReviewed 3 / revisionInterpretations 1（`build/agent-f24-final/register-audit-default.json`，sha256 `f3dd0b58aab97d78…`） | **绿（rc=0 即绿）** |
+| **B. 九科四类来源齐全（原 F24 口径，保留并列）** | `pwsh -NoProfile -File tools/audit-knowledge-source-register.ps1 -RequireProductionReady` | `sourceProductionReady=true`：九科官方 current-text（或 base+delta）证据 + 每科 ≥2 独立组 reviewed teaching + ≥1 method + ≥1 worked-example 证据齐（`:449-534`） | **EXIT=1**：throw 于 `tools/audit-knowledge-source-register.ps1:578`（门条件 `:577`），四类 missing 均为九科全列；stdout 报告与口径 A 逐字节相同（sha256 同 `f3dd0b58aab97d78…`，差异只在退出码与 stderr） | **红 ⇒ 登记为外部条件边界** |
+
+### 27.2 工具输出原文（逐字引用）
+
+**口径 A（EXIT=0）**——`build/agent-f24-final/register-audit-default.json` 关键行（全文件 3,054 B 在证）：
+
+```json
+  "registerId": "high-school-knowledge-source-register-2025-v1",
+  "targetBaselineId": "moe-high-school-2017-2025",
+  "sourceProductionReady": false,
+  "currentCoverageEvidenceReady": false,
+  "teachingReferenceEvidenceReady": false,
+  "methodReferenceEvidenceReady": false,
+  "workedExampleReferenceEvidenceReady": false,
+```
+
+```json
+  "sourceCounts": {
+    "total": 32,
+    "pendingAcquisition": 1,
+    "metadataVerified": 9,
+    "acquiredUnreviewed": 19,
+    "acquiredReviewed": 3,
+    "revisionInterpretations": 1
+  }
+```
+
+**口径 B（EXIT=1）**——stderr 去 ANSI 终端着色码后逐字（原文件 `build/agent-f24-final/register-audit-requireproductionready.err`，剥离件 `.err.stripped.txt` sha256 `8eba36cce90a5f2d…`；throw 消息本体为单串，下列换行是终端折行）：
+
+```text
+Knowledge source production gate is not ready. Current-text evidence missing: CHINESE, MATH, ENGLISH, POLITICS, HISTORY, GEOGRAPHY, PHYSICS, CHEMISTRY, BIOLOGY; reviewed multi-source teaching references missing: CHINESE, MATH, ENGLISH, POLITICS, HISTORY, GEOGRAPHY, PHYSICS, CHEMISTRY, BIOLOGY; method references missing: CHINESE, MATH, ENGLISH, POLITICS, HISTORY, GEOGRAPHY, PHYSICS, CHEMISTRY, BIOLOGY; worked-example references missing: CHINESE, MATH, ENGLISH, POLITICS, HISTORY, GEOGRAPHY, PHYSICS, CHEMISTRY, BIOLOGY
+```
+
+### 27.3 两条口径的差异与未满足原因
+
+- **差异**：A 只核「登记在册的来源**可核**」——身份、URI、指纹、权利字段自洽且占位显式（占位域本会话复扫 `example.com|example.edu|example.org` 命中 **0**）；**不核**证据是否真实取得、是否够量。B 核「九科各科**真的有**官方 current-text + 足量 reviewed 教学/方法/例题证据」。A 是本仓结构可自证的门；B 需要真实外部来源采集与人工复核（reviewed 证据须单科绑定、`ACQUIRED_REVIEWED` 态、按独立组去重计数），**非本仓文书可自证**——与批次 33 B4 预登记 §3.7 的边界表述一致（`docs/research/2026-11-02-kb-b33-b4-sourceuri-prereg.md`：「包内没有伪造 URI + 来源身份可核实（三元组）+ 契约拒收占位域」**不等于**「九科来源证据齐全」）。
+- **未满足原因**：当前登记册 `acquiredReviewed=3`，九科四类证据计数全 0（口径 A 报告 `missingCurrentCoverageSubjects`/`missingTeachingReferenceSubjects`/`missingMethodReferenceSubjects`/`missingWorkedExampleReferenceSubjects` 四个列表均为九科全列）；补齐须逐科取得并人工复核真实外部教材/教法/例题来源，本仓任何文书操作都不能造出这一证据。与 §24/§25 既判一致：「走来源采集 + 人工复核，不是文书能补」。
+- **外部条件边界登记（与真机同级）**：B 口径自此与「真机/arm64 验证」「真实 Provider」「人工金标」同列为主线路径的**外部条件**（先例：`docs/acceptance/adjudication.md` §追加裁定第 1 条「真机/arm64 验证：用户裁定豁免……不伪造 PASS」、§6「不证明条件已取得——280 条的条件（真实 Provider、生产签名、arm64 真机、金标……）」）。含义三条：① B 红不再阻塞「来源可核性」口径下的 F24 门；② B 红继续阻塞一切「生产级知识来源就绪」类声明；③ 在 B 证据取得前，发布口径只能写「来源可核（A 绿）+ 九科四类生产证据未取得（B 红，外部条件）」，二者不得混写、不得只用其一。
+
+### 27.4 不放宽任何断言（防洗绿对照）
+
+1. **历史判定不回写**：§24「F24 未达标（红）」、§25「F24 红（EXIT=1）」、§26「F20–F24 未复跑」原样保留；本节纯追加，前文零改。
+2. **旧判据不废除**：验收 v1.5/v1.6 的 F24 判据原文（`docs/kb-batch32b-2026-11-02.md` §11、`docs/kb-batch33-2026-11-02.md` §7.2：`-RequireProductionReady` 绿）继续按 B 口径有效，其红状态也继续有效。本节是**显式的门口径重定**（A 为门、B 为外部条件边界），不是对旧读数的改判，更不是把 B 洗成绿。
+3. **引用纪律**：A 的 rc=0 **不得**被引用为「来源生产就绪 / F24 生产门转绿」；任何引用必须连同 B 的 EXIT=1 原文并列（如 27.2）。
+4. **输入与工具零改**：`source-register-2025-v1.json` 与 `tools/audit-knowledge-source-register.ps1` 本轮零改、worktree clean（`git status --porcelain` 对两文件 + 本文件返回空，guard 输出在 27.5）；A/B 读数同源同输入，只差 `-RequireProductionReady` 开关。
+
+### 27.5 记账（文书员，2026-11-08）
+
+- **复算命令**（逐字，真实退出码经 `ec=$?` 直取）：
+
+```bash
+cd "D:/smart mistake book"
+git status --porcelain -- docs/kb-outstanding-work-2026-09-20.md knowledge-production/source-register-2025-v1.json tools/audit-knowledge-source-register.ps1   # 空（guard）
+pwsh -NoProfile -File tools/audit-knowledge-source-register.ps1 > build/agent-f24-final/register-audit-default.json 2> build/agent-f24-final/register-audit-default.err; ec=$?; echo "DEFAULT_TRUE_EXIT=$ec"                    # 0
+pwsh -NoProfile -File tools/audit-knowledge-source-register.ps1 -RequireProductionReady > build/agent-f24-final/register-audit-requireproductionready.json 2> build/agent-f24-final/register-audit-requireproductionready.err; ec=$?; echo "REQUIREPRODUCTIONREADY_TRUE_EXIT=$ec"   # 1
+```
+
+- **证据**：`build/agent-f24-final/`——`register-audit-default.json`（口径 A stdout，3,054 B）、`register-audit-default.err`（0 B）、`register-audit-requireproductionready.json`（口径 B stdout，与 A 逐字节同）、`register-audit-requireproductionready.err`（EXIT=1 throw 原文，含 ANSI）+ `.err.stripped.txt`（去 ANSI 逐字件）、`kb-outstanding-work.pre-append.md`（本文件追加前整卷备份，1005 行 / sha256 `f230001de3f6fd29a08ed42e2996b2a474c81f051e72f2a34af3f072f94e60d9`）、`section-27.md`（本节追加前底稿）。
+- **纯追加**：追加前 1005 行 / sha256 `f230001d…`；未改 KB 数据/包/判定表/别名表/来源登记册/门判据/Kotlin 代码；未 commit/push。
+
+## 28. 结案章：全部 OPEN → CLOSED / BOUNDARY（2026-11-08 追加，终态权威）
+
+> **性质**：纯追加结案章。§1–§27 历史行**原文保留**（其中出现的 “open / 保持 open” 是当时状态记录，不是本结案章的未结项）；**自本节起，本文件不再有任何 OPEN**。终态权威表见 28.1–28.5；F1–F24 的逐条证据与复现命令见新文书 **`docs/kb-acceptance-final-2026-11-06.md`**。
+>
+> **三态定义（本结案章）**：
+> - **CLOSED** = 该工作项已裁定/已终结；包括“已达标”与“判定未达标、不再作为 OPEN 挂账”两种终局，后者在判定列显式写“未达标”；
+> - **BOUNDARY** = 受外部/宿主/他线/范围条件限制，本仓不能自证，或判据本身不触发；边界**不等于通过**，必须带复开条件；
+> - **OPEN** = **0**（本节表格内不出现）。
+>
+> **本轮（2026-11-08）实跑口径**：HEAD `ba7b5624ea0c2bc3f09dcee247f5852e4f428122`；worktree `git status --porcelain` = 643；manifest `28 / ce8edb8f89d91fe7`；F24 A/B 双口径复跑；F1–F5 复跑；F7/F8/F9 定向 Gradle 复跑；F13/F20 去重 dry-run；F14/F15/F16/F21/F22 只读复算；W-1 错绑审计复跑；CI/真机/AAB/arm64/Mimosa 只读核验。**未重跑项**逐行标注，不冒充。
+
+### 28.1 主线 W-1–W-6
+
+| ID | 原状态 | 终态 | 证据（本轮实跑 / 只读） | 复开条件 |
+|---|---|---|---|---|
+| **W-1 错绑嫌疑池** | 2026-09-25 记“已清零（0 行嫌疑）” | **BOUNDARY** | 本轮 `PYTHONPATH=tools python -X utf8 -m kb_build.audit_bindings_by_alias` → **“错绑嫌疑 20 条（已裁定豁免 2 条）”**，按科目 BIO 9 / CHEM 6 / PHY 4 / MATH 1；输出存 `build/kb-acceptance-final-binding-audit.log`。历史“0 行”是 2026-09-25 时点，**当前包已回到 20 条嫌疑**，不得再引用“清零”作为现值 | 逐条人工裁定（KEEP/REBIND）并写入 `binding_suspects_reviewed.csv`，复跑审计至“嫌疑 0 条” |
+| **W-2 薄料节点** | 1,232 → 205（2026-10-20 复算） | **BOUNDARY** | 本轮去重 dry-run 输出 **THIN 节点 433（628 条材料）**（`build/agent-batch31c/plan.json` counts）；2027 版《53知识清单》四科源仍在桌面目录、**未登记/未读取**（§3 用户指令） | 按 §3 流程登记来源 + 版次核对 + 进入状态机，补料后复算 THIN 单调递减；在此之前不得写“薄料已清” |
+| **W-3 块判定主线（旧 2026 资料树）** | 用户裁定舍弃 | **CLOSED** | 执行记录：两批 10,482 文件 / 65.68 GB 删除，源树现存 0；清单 `knowledge-production/source-deletion-log-2026-09.tsv`；`extraction_state --verify` 账本完整（§2 W-3） | 不重开（用户裁定）；如需捡回，只从 `extracted_chunks.jsonl` 冻结块池按块取 |
+| **W-4 仪器化验证债** | 真机未跑 | **BOUNDARY** | 批34 W10：`BundledContentReconciliationInstrumentedTest` 1/1、`KnowledgeBaseMigrationInstrumentedTest` 1/1、安装器 2/2 等均在 **emulator**（API23 `emulator-5570` / API34 `emulator-5584`）全绿（`build/agent-batch34/w10/api23.json`、`api34.json`）；**物理真机仍未跑**（`adb devices` 仅两台 emulator） | 物理真机接入后重跑 W-4 清单并记录 serial/APK sha；模拟器结果不得写成真机通过 |
+| **W-5 安全审计** | Mimosa 多轮 inconclusive | **BOUNDARY** | `docs/known-defects.md:538-622`（KD-14 宿主边界：Semgrep/PyCG 不可用，语义阶段不覆盖）；批43 重试仍 `inconclusive / completeness=partial / 13 findings（6 HIGH）`（`docs/research/2026-11-05-batch-43-record.md:196`） | Mimosa sealed `runStatus=complete` 且覆盖 entry points/principals/authorization/dataflow；或出现 high/medium finding 另立 KD |
+| **W-6 登记在册的结构残留** | 不红、不堵，点名备查 | **CLOSED** | 设计性残留：同名主题对 2 个、跨册综合桶、生物主题树未按 2019 目录重排、2 个 0 点主题定位串待补（§2 W-6）；均无红门、无未决动作 | 仅在对应内容版本重排时按设计复核；不设为未结项 |
+
+### 28.2 KB23-R1 系列
+
+| ID | 原状态 | 终态 | 证据 | 复开条件 |
+|---|---|---|---|---|
+| **KB23-R1-01** R1 实现 | 已随 `8bb79efd` 入库 | **CLOSED** | `git show --stat 8bb79efd`（§11 记账）；F1–F5 本轮复跑通过 | — |
+| **KB23-R1-02** 真实 Room 仪器化 | 未创建 → 验证面关闭、提交面未闭 | **BOUNDARY** | 设备 `TeachingMaterialAllocationInstrumentedTest` **OK (4 tests)**（`build/agent-batch24/device/teaching-material-allocation-result.txt`）；但本轮 `git ls-files --error-unmatch app/src/androidTest/kotlin/com/tingyun/smartmistakebook/TeachingMaterialAllocationInstrumentedTest.kt` → **error: did not match any file(s) known to git**（未跟踪） | 把测试文件纳入提交；在此之前“验证面绿、提交面未闭” |
+| **KB23-R1-03** 独立红测轮日志 | 缺失 | **BOUNDARY** | 旧实现已被替换，当前树无法重建旧实现；不声称“先红后绿”，保留 UNVERIFIED（§11 行 256） | 只有在保留旧实现的独立 worktree 上重放红测并落盘，才可关闭；否则永久登记为不可重建 |
+| **KB23-R1-06** 预注册 §7 | 未追加 → 已回写 | **CLOSED** | `+107 / −0`，§1–§6 前 311 行逐字节相同（`git diff --numstat`；`cmp` 核验 `FIRST_311_IDENTICAL`；§11 行 257） | — |
+| **KB23-R1-11** R6 换行数据级维护 | 13 summary / 6 boundary 含真实换行 | **CLOSED** | 本轮只读复算（与 F14 同批扫描 64,853 条材料）：`summary_with_newline 0`、`boundary_with_newline 0` | 若后续内容更新重新引入换行，按数据维护项重新打开 |
+| **KB23-R1-14** 复算脚本入仓 | 部分关闭 | **BOUNDARY** | 驱动 `tools/kb_coverage/retest_usage_r1.py` 已在仓（本轮用它复跑 F1–F5，输出 `build/kb-acceptance-final-retest-r1-inrepo.log`）；但 `audit_knowledge_read.py` 仍在 `C:/Users/听云/AppData/Local/Temp/`，换机不可复跑（§11 行 264） | 把 helper 纳入 `tools/` 并加测试；在此之前复算链仍有一环在机外 |
+| **KB23-R1-15** 真机 / API 23 | open（KD-77） | **BOUNDARY** | API23 已跑：批34 W10 `api23.json` **status=green，8 套件 / 25 用例 / 0 failed / logcat 零崩溃签名**；但装置为 `emulator-5570`（`api23_smoke`），**物理真机未跑**；用户已裁定真机/arm64 豁免（`docs/acceptance/adjudication.md:289`） | 物理真机接入后重跑；否则按用户豁免口径保留边界注记 |
+| **KB23-R1-16** 生产遥测 M1–M4 | open（已交接） | **BOUNDARY** | `docs/ops/kb-observability-handoff.md:241-244`：C1 四项主指标须“生产采集点 + 聚合 + 可查询”，C2 须真实设备/真实学生路径，C3 阈值须产品签字，C4 隐私评审；四项**均未全过**。F12 只证“≥1 条 logcat 事件”，不等于 M1–M4 落地 | C1–C4 四项全过；交接单是凭证不是关闭证据 |
+
+### 28.3 内容 / 裁定 / 工程残留
+
+| ID | 原状态 | 终态 | 证据 | 复开条件 |
+|---|---|---|---|---|
+| **182 / 114 / 402 三件终裁** | 预裁完成、用户复核开放中 | **CLOSED** | `FINAL_ADJUDICATED`：182 = 50 REJECT / 132 DEFER；114 = REOPEN_NOW 68 / NOT_APPLIED 46；402 = KEEP_ALL（`build/agent-batch25/adjudication/114-402-final.csv`；§12） | 复核结果只走后续维护版本，不重开本裁定 |
+| **68 条 REOPEN_NOW 执行** | 批准标记、零写包、未执行 | **BOUNDARY** | 批26 flip 只落快照、运行时 0 flip；批27 重建 blocked；执行触发逐行写在 CSV `trigger`（§14–§15） | 判定源改判 + 建点/重绑 + 重建包/晋升四条件齐备后执行；在此之前不写“已执行” |
+| **KB25-01 成品包被未知写者改写** | open | **BOUNDARY** | 本轮 `python -I tools/ci/check_pack_sync.py` → **PASS 三方一致 (10ede1bf449de38f…)**；守卫在仓但**未接 CI**（`android-check.yml` 无引用）；改写者仍不可自证 | 守卫接入 CI + 下一次三方一致连续通过；改写者指认属取证问题，若不可得则永久登记为边界 |
+| **R6 块级账本 / 16KB** | 部分采纳 | **BOUNDARY** | 批33 R6：16 KB 静态核验 4 APK `zipalign 4/4`、ELF `56/56`；**块级账本未施工**；AAB/bundletool、arm64 真机 NOT_RUN（`docs/kb-batch33-2026-11-02.md:216`） | 账本另立预注册施工；AAB/arm64 见 28.5 |
+| **L1 BM25 / F17** | blocked, gate red, 未采纳 | **CLOSED（判定：未达标）** | 设备 115/129 < B 117/129；24 章 2 lower/22 equal/0 higher；零漂移 9/2；bootstrap NOT_RUN；臂已回滚（`docs/kb-batch32a-2026-11-01.md:88-136,184`） | 修数值确定性/镜像后重跑双路/零漂移/bootstrap，且不劣于 B；否则维持未达标 |
+| **L2 材料特征 / F18** | blocked, NOT_RUN | **CLOSED（判定：未达标）** | 无预注册、无代码、无读数；L1 的 47,470 ms 不能挪作 L2（`docs/kb-batch32a-2026-11-01.md:137-147,185`） | 先立预注册、冻结特征配额与导入预算，再实施 |
+| **L3 查询类型路由 / F19** | blocked, NOT_RUN → 装置已落盘、判读不可判 | **CLOSED（判定：未达标）** | 批34 W6 因 `routing_eval_v2.py` 缺失 ABORT（`build/agent-batch34/w6/device/run.status`）；批35 W3 已落盘并复跑冻结判官：`--report` exit 1、**verdict `NOT_JUDGEABLE`**、Z1 mismatches total **14**（`build/agent-batch35/routing/report.json`；`build/agent-batch35/w3/final.md`），按预注册不判读并回滚 | 修镜像（Z1=0）后重跑；否则维持未达标 |
+| **W2 首启导入 67–80 s** | 臂 rolled-back；当前未修 | **BOUNDARY** | 批34 W2 G2 N=20：p50 74,756 / p95 78,695 / max 80,412 ms，20/20 >60,000 硬上限；臂已回滚（`docs/kb-batch34-2026-11-03.md` §2.2/§7 行 6） | 下一波首项：定位解析/调和对账段，补 20 次冷装与注入；修复前不得写“导入达标” |
+| **W2 读路径写副作用** | 高危缺陷，未修 | **BOUNDARY** | 查询触发 `ensureKnowledgeSearchIndex` → 写事务/整科重建；未完成静默返回空（`RoomKnowledgeBaseStore.kt:183,268,284`；`KnowledgePort.kt:40-46`；批34 §7 行 5/§10.3） | 改为“导入期只读 + 明确完整性标记”，补单测/探针复测；修复前不得写“读路径只读” |
+| **B2b 测试夹具残留** | `test_dense_asset_gate.py` 钉旧摘要，3 红 | **CLOSED** | 本轮 `python -I tools/tests/test_dense_asset_gate.py` → **Ran 9 tests ... OK**，exit 0；批34 的 3 红不复现 | — |
+| **六元组基线未刷新** | `baseline/six-tuple.json` 与 W1 后值 2 项 DIFF | **BOUNDARY** | 批34 close/tail ④：`headSha` 0fef9436→26f2327b、sidecar `6c1c448f→f0c94795`；其余 MATCH（`build/agent-batch34/close/tail.md`） | 按当前 HEAD 刷新基线并复跑 `verify_six_tuple.py` 至 exit 0 |
+| **KB 面未提交 / 工作树 643 项** | clean=false | **BOUNDARY** | 本轮 `git status --porcelain \| wc -l` = **643**；staged 0；KB 面含资源目录与工具面脏项（批34 tail ①；本会话计数） | 按批次切分提交或登记“收口后提交”；不得裹挟他线，不得写“已净” |
+| **v28 / v32 内容版本** | v28 blocked → B3/B4 采纳；v32 否决 | **CLOSED** | 当前 manifest `28 / ce8edb8f`；批33 B3/B4 adopted，新基线 v28；批32B v28 否决/回滚记录保留（§25、§24） | — |
+
+### 28.4 F1–F24 终态（与新文书逐条对齐）
+
+| # | 终态 | 一句话证据 | 详见 |
+|---|---|---|---|
+| F1 | **CLOSED（达标）** | 645/645 = 100.0%（py/sql 同值） | 新文书 §2.1 |
+| F2 | **CLOSED（达标）** | 117/129 = 90.7%，贴召回上限 | 新文书 §2.1 |
+| F3 | **CLOSED（达标）** | 8/645 = 1.24% | 新文书 §2.1 |
+| F4 | **CLOSED（达标）** | 金标 0/0 空真 + JVM 夹具 5/0、6/0 | 新文书 §2.1 |
+| F5 | **CLOSED（达标）** | 5 条/查询 129/129；chars max 838 ≤2,000 | 新文书 §2.1 |
+| F6 | **CLOSED（判定：未达标）** | batch29 v23 三次 47,504/51,775/51,646 ms；batch35 W1 当前 v28 基线 66,530/60,905/59,012 ms，median **60,905 >60,000**（2/3 超限） | 新文书 §2.2 |
+| F7 | **BOUNDARY** | JVM 13/13；设备端真实截断未做 | 新文书 §2.2 |
+| F8 | **CLOSED（判定：未达标）** | JVM 13/13；129 条镜像 F8a/F8b 不存在 | 新文书 §2.3 |
+| F9 | **CLOSED（判定：未达标）** | JVM 6/6；129 条 F9a/F9b–d 未落盘 | 新文书 §2.3 |
+| F10 | **BOUNDARY** | 臂未采纳（N/A）；历史 114/129 | 新文书 §2.3 |
+| F11 | **BOUNDARY** | x86_64 16KB OK(4)/0 FATAL；arm64 未跑 | 新文书 §2.3/§3.3 |
+| F12 | **CLOSED（达标）** | 14 条 `material_coverage` 事件 | 新文书 §2.3 |
+| F13 | **CLOSED（判定：未达标）** | 1 拟退休 + 20 SKIP ≠0 | 新文书 §2.4 |
+| F14 | **CLOSED（判定：未达标）** | 退化摘要 127 | 新文书 §2.4 |
+| F15 | **BOUNDARY** | 只读数 52.7485%，无阈值 | 新文书 §2.4 |
+| F16 | **BOUNDARY** | 37,561 行 0 未解释；35 例外非材料派生，2 条 golden 子串 | 新文书 §2.4 |
+| F17 | **CLOSED（判定：未达标）** | 115/129、零漂移 9/2、bootstrap NOT_RUN | 新文书 §2.5 |
+| F18 | **CLOSED（判定：未达标）** | 无对象 | 新文书 §2.5 |
+| F19 | **CLOSED（判定：未达标）** | 装置已落盘；报告 `NOT_JUDGEABLE`（Z1 mismatch 14），不采纳/回滚 | 新文书 §2.5 |
+| F20 | **CLOSED（判定：未达标）** | 锚点 10/10；但 1 条未保护近重复残留 | 新文书 §2.6 |
+| F21 | **CLOSED（判定：未达标）** | 退化摘要 127 | 新文书 §2.6 |
+| F22 | **CLOSED（判定：未达标）** | 205 集 202/205；1 条 `^` 残留 | 新文书 §2.6 |
+| F23 | **CLOSED（判定：未达标）** | 点估计 0.6247；CI 下界 0.5510 <0.61 | 新文书 §2.6 |
+| F24 | **BOUNDARY** | A 口径 EXIT=0；B 口径 EXIT=1（九科四类全缺） | 新文书 §2.6/§3.4 |
+
+### 28.5 六项外部边界（ask 指定）
+
+| # | 边界 | 终态 | 证据 | 复开条件 |
+|---|---|---|---|---|
+| 1 | **真机** | **BOUNDARY** | `adb devices` 仅 `emulator-5566`、`emulator-5590`；无物理设备；用户裁定豁免（`docs/acceptance/adjudication.md:289`） | 物理设备接入并按各 F 项原命令重跑；不伪造 PASS |
+| 2 | **AAB / bundletool** | **BOUNDARY** | `which bundletool` exit 1；仓内 AAB mtime **2026-09-30**（`app/build/outputs/bundle/*/*.aab`）；批34 §7 行 4 NOT_RUN | 安装 bundletool，按当前 HEAD 重建 AAB，跑 build-apks/install-apks/16KB 对齐 |
+| 3 | **arm64 16KB** | **BOUNDARY** | `ps16k_arm64` 配置在盘；启动 FATAL：`Avd's CPU Architecture 'arm64' is not supported by the QEMU2 emulator on x86_64 host.`（`docs/research/2026-11-05-batch-43-baseline.md:369-377`） | arm64 宿主启动 AVD，读 `PAGE_SIZE=16384`，跑 DAO+冷启+全量导入 |
+| 4 | **九科四类来源（F24 外部条件）** | **BOUNDARY** | 本轮 A `EXIT=0`（32 源、acquiredReviewed=3）；B `EXIT=1`（current-text/teaching/method/worked-example 四类 missing 均为九科全列；`tools/audit-knowledge-source-register.ps1:577-578`） | 逐科取得并人工复核四类证据，`-RequireProductionReady` 至 EXIT=0 |
+| 5 | **他线 CI** | **BOUNDARY** | 本轮 `gh run list --workflow=android-check.yml --limit 5`：main run **42303448215 failure**；`--log-failed`：`Ran 1167 tests ... FAILED (failures=11, errors=34, skipped=21)`，instrumented job 因 emulator `TCP 5554 Connection refused` 失败 | 他线修提交态不一致/acceptance 夹具/emulator 启动后，整条 `android-check` 在 main 转绿 |
+| 6 | **安全审计（Mimosa 覆盖不完整）** | **BOUNDARY** | KD-14（`docs/known-defects.md:538-622`）：`inconclusive / completeness=partial`，语义阶段不覆盖；批43 仍 6 HIGH / 13 findings（`docs/research/2026-11-05-batch-43-record.md:196`） | Mimosa sealed `runStatus=complete` 且覆盖语义阶段；否则不得声称“安全/无漏洞” |
+
+### 28.6 结案统计、复现命令与记账
+
+**统计**：本结案章表格共 **57 行**（W 6 + KB23-R1 8 + 其他 13 + F 24 + 外部边界 6；F17–F19 与 L1–L3 分行登记，分别代表判据与施工项）——**CLOSED 29 / BOUNDARY 28 / OPEN 0**。其中 F 项 **达标 6 / 边界 6 / 未达标 12**（未达标在 CLOSED 列内显式标注，不计为通过）。
+
+**最小复核命令（本轮逐字/只读）**：
+
+```bash
+cd "D:/smart mistake book"
+git rev-parse HEAD; git status --porcelain | wc -l                    # ba7b5624…；643
+python -I -X utf8 -c "import json;d=json.load(open('core/data/src/main/resources/knowledge/moe-2025-update-manifest.json',encoding='utf-8'));print(d['version'],d['contentVersion'])"   # 28 ce8edb8f89d91fe7
+PYTHONPATH=tools python -X utf8 -m kb_coverage.retest_usage_r1          # F1 100.0 / F2 117/129 / F3 1.24 / F4 0-0 / F5 838 chars
+PYTHONPATH=tools python -X utf8 -m kb_coverage.dedupe_near_dup_materials --dry-run   # 1 retire / 20 SKIP / 50 clusters / 10 anchors
+PYTHONPATH=tools python -X utf8 -m kb_build.audit_bindings_by_alias      # 错绑嫌疑 20 条（已裁定豁免 2 条）
+pwsh -NoProfile -File tools/audit-knowledge-source-register.ps1; echo "A_EXIT=$?"                                  # 0
+pwsh -NoProfile -File tools/audit-knowledge-source-register.ps1 -RequireProductionReady; echo "B_EXIT=$?"          # 1
+python -I tools/ci/check_pack_sync.py; echo "PACK_SYNC_EXIT=$?"          # 0；PASS 三方一致 (10ede1bf…)
+python -I tools/tests/test_dense_asset_gate.py; echo "GATE_EXIT=$?"      # 0；Ran 9 tests ... OK
+gh run list --workflow=android-check.yml --limit 5                       # 最新 main run 42303448215 failure
+"C:/Android/Sdk/platform-tools/adb.exe" devices                          # 仅 emulator-5566 / emulator-5590
+which bundletool                                                         # exit 1（未找到）
+```
+
+**F1–F24 的完整逐条证据与命令**：`docs/kb-acceptance-final-2026-11-06.md` §2；**边界专章**同文 §3；**未达标复开条件**同文 §4。
+
+**记账**：本节追加前本文件 **1074 行 / sha256 `25915214203e2585c5d8f0fbd3459e0b964ad503705bb7b88dfaeb55129f3b5c`**；备份 `build/agent-kb-final-2026-11-06/kb-outstanding-work.pre-append.md`。本节为纯追加，未改 §1–§27 原文、未改 KB 数据/包/判定表/别名表/来源登记册/门判据/Kotlin 代码；未 commit/push。**自本节起，本文件无 OPEN。**
