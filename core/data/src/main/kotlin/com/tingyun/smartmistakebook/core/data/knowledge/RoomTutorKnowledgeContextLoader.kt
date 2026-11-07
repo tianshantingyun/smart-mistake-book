@@ -72,7 +72,7 @@ internal class RoomTutorKnowledgeContextLoader(
                     queryText = text,
                 )
                 KnowledgeContextRetriever.select(
-                    candidates = recall,
+                    candidates = recall.candidates,
                     questionText = text,
                     limit = MAX_CANDIDATE_NODES,
                 ).map { it.knowledgeNodeId }
