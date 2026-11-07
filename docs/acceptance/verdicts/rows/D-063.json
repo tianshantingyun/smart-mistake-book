@@ -1,121 +1,121 @@
 {
-  "id": "D-063",
-  "verdict": "PASS",
-  "verdict_detail": "PASS_WORKTREE",
-  "machine_verdict": "PASS_WORKTREE",
-  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-d",
-  "reviewer": "复核 D 域行级",
-  "reviewer_id": "batch46-d-domain-row-reviewer",
-  "authors": [
-    "batch-44-d-domain-implementer"
-  ],
-  "self_review": false,
-  "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
-  "reviewed_at_utc": "2026-11-05T08:05:09Z",
-  "scope": "A–I domain: signed PASS with machine_verdict=PASS_WORKTREE is allowed on a dirty tree; no PASS_HEAD claim",
-  "evidence": [
-    "test:docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest.xml",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-prompt-paper.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest.xml": "aa5df724a8c71c30eab0015df01776e35e55b8110c64dad1e1b6d6e9e3b0ad8e",
-    "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-prompt-paper.log": "a599f3237afdb87d43da884693ee02cc0110afb71bc88db5cb45c75230e1397c"
+ "id": "D-063",
+ "verdict": "PASS",
+ "verdict_detail": "PASS_WORKTREE",
+ "machine_verdict": "PASS_WORKTREE",
+ "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-d",
+ "reviewer": "复核 D 域行级",
+ "reviewer_id": "batch46-d-domain-row-reviewer",
+ "authors": [
+  "batch-44-d-domain-implementer"
+ ],
+ "self_review": false,
+ "ledger": "docs/acceptance/ledger.md",
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
+ "reviewed_at_utc": "2026-11-05T08:05:09Z",
+ "scope": "A–I domain: signed PASS with machine_verdict=PASS_WORKTREE is allowed on a dirty tree; no PASS_HEAD claim",
+ "evidence": [
+  "test:docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest.xml",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-prompt-paper.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest.xml": "aa5df724a8c71c30eab0015df01776e35e55b8110c64dad1e1b6d6e9e3b0ad8e",
+  "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-prompt-paper.log": "a599f3237afdb87d43da884693ee02cc0110afb71bc88db5cb45c75230e1397c"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=D-063; verdict=PASS; line=464; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
+  {
+   "check": "source_sha256",
+   "file": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditModelPortTest.kt",
+   "exists": true,
+   "sha256": "132a3696ac5261392e0f0b6a46e8ea2ba5e85acb4ed9685a4146ff3b1a94ca3d",
+   "head_blob_sha256": "132a3696ac5261392e0f0b6a46e8ea2ba5e85acb4ed9685a4146ff3b1a94ca3d",
+   "sha256_equals_head_blob": true,
+   "head_present": true,
+   "git_status": "",
+   "git_status_clean": true,
+   "equals_head": true,
+   "primary_name_in_source": true,
+   "secondary_names_in_source": [
+    true,
+    true
+   ],
+   "source_kind": "test_source_at_head"
+  },
+  {
+   "check": "xml_counts",
+   "file": "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest.xml",
+   "sha256": "aa5df724a8c71c30eab0015df01776e35e55b8110c64dad1e1b6d6e9e3b0ad8e",
+   "suite": "com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest",
+   "tests": 9,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "testcases_recounted": 9,
+   "tests_equals_testcases": true,
+   "testcase_classnames_match_suite": true,
+   "timestamp": "2026-11-04T14:24:23.883Z",
+   "doctype_or_entity_present": false,
+   "xml_precheck": "no DOCTYPE/ENTITY (byte-level)"
+  },
+  {
+   "check": "testcase_presence",
+   "xmls": [
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest.xml"
+   ],
+   "primary": "aCancelledTaskIsReportedAsCancellationNotAsSuccess",
+   "primary_present": true,
+   "secondary": [
     {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=D-063; verdict=PASS; line=464; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
+     "name": "anEmptyFlowFailsClosedRatherThanReportingNoChanges",
+     "class_filter": null,
+     "present": true
     },
     {
-      "check": "source_sha256",
-      "file": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditModelPortTest.kt",
-      "exists": true,
-      "sha256": "132a3696ac5261392e0f0b6a46e8ea2ba5e85acb4ed9685a4146ff3b1a94ca3d",
-      "head_blob_sha256": "132a3696ac5261392e0f0b6a46e8ea2ba5e85acb4ed9685a4146ff3b1a94ca3d",
-      "sha256_equals_head_blob": true,
-      "head_present": true,
-      "git_status": "",
-      "git_status_clean": true,
-      "equals_head": true,
-      "primary_name_in_source": true,
-      "secondary_names_in_source": [
-        true,
-        true
-      ],
-      "source_kind": "test_source_at_head"
-    },
-    {
-      "check": "xml_counts",
-      "file": "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest.xml",
-      "sha256": "aa5df724a8c71c30eab0015df01776e35e55b8110c64dad1e1b6d6e9e3b0ad8e",
-      "suite": "com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest",
-      "tests": 9,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "testcases_recounted": 9,
-      "tests_equals_testcases": true,
-      "testcase_classnames_match_suite": true,
-      "timestamp": "2026-11-04T14:24:23.883Z",
-      "doctype_or_entity_present": false,
-      "xml_precheck": "no DOCTYPE/ENTITY (byte-level)"
-    },
-    {
-      "check": "testcase_presence",
-      "xmls": [
-        "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.data.model.PaperEditModelPortTest.xml"
-      ],
-      "primary": "aCancelledTaskIsReportedAsCancellationNotAsSuccess",
-      "primary_present": true,
-      "secondary": [
-        {
-          "name": "anEmptyFlowFailsClosedRatherThanReportingNoChanges",
-          "class_filter": null,
-          "present": true
-        },
-        {
-          "name": "aFlowThatEndsWithoutATerminalStateFailsClosed",
-          "class_filter": null,
-          "present": true
-        }
-      ],
-      "all_present": true
-    },
-    {
-      "check": "cmd_exit",
-      "file": "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-prompt-paper.log",
-      "sha256": "a599f3237afdb87d43da884693ee02cc0110afb71bc88db5cb45c75230e1397c",
-      "token_exit_attr": 0,
-      "log_exit_markers": [
-        0
-      ],
-      "cmd_header_names_all_suites": true,
-      "started_utc": "2026-11-04T14:24:12Z",
-      "finished_utc": "2026-11-04T14:24:26Z",
-      "xml_timestamps_within_window": true
+     "name": "aFlowThatEndsWithoutATerminalStateFailsClosed",
+     "class_filter": null,
+     "present": true
     }
-  ],
-  "basis": "机械复算（reviewer=复核 D 域行级，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 D-063 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "contradictions": [],
-  "notes": "未在本复核中重跑 Gradle（纪律：Gradle 只在串行门禁阶段）；checks 由归档 XML/CMD 日志/源文件哈希复算。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "method": "test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditModelPortTest.kt#aCancelledTaskIsReportedAsCancellationNotAsSuccess；另证 anEmptyFlowFailsClosedRatherThanReportingNoChanges、aFlowThatEndsWithoutATerminalStateFailsClosed",
-  "check_text": "paper-edit：模型端口把取消报告为取消而非成功，空流与无终态均 fail-closed",
-  "rebind_from_run_id": "2026-11-04T14:24:12Z@batch44-d-domain",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+   ],
+   "all_present": true
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 2,
-    "basis": "bytes-on-disk"
-  },
-  "checks_scope": "row-specific"
+  {
+   "check": "cmd_exit",
+   "file": "docs/research/evidence/2026-11-05-batch-44/d-domain/d-data-prompt-paper.log",
+   "sha256": "a599f3237afdb87d43da884693ee02cc0110afb71bc88db5cb45c75230e1397c",
+   "token_exit_attr": 0,
+   "log_exit_markers": [
+    0
+   ],
+   "cmd_header_names_all_suites": true,
+   "started_utc": "2026-11-04T14:24:12Z",
+   "finished_utc": "2026-11-04T14:24:26Z",
+   "xml_timestamps_within_window": true
+  }
+ ],
+ "basis": "机械复算（reviewer=复核 D 域行级，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 D-063 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+ "contradictions": [],
+ "notes": "未在本复核中重跑 Gradle（纪律：Gradle 只在串行门禁阶段）；checks 由归档 XML/CMD 日志/源文件哈希复算。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "method": "test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditModelPortTest.kt#aCancelledTaskIsReportedAsCancellationNotAsSuccess；另证 anEmptyFlowFailsClosedRatherThanReportingNoChanges、aFlowThatEndsWithoutATerminalStateFailsClosed",
+ "check_text": "paper-edit：模型端口把取消报告为取消而非成功，空流与无终态均 fail-closed",
+ "rebind_from_run_id": "2026-11-04T14:24:12Z@batch44-d-domain",
+ "ledger_batch": 46,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-05T11:28:35Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 2,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific"
 }

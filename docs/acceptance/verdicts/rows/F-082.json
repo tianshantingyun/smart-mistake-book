@@ -1,128 +1,128 @@
 {
-  "id": "F-082",
-  "domain": "F",
-  "check": "后台限制/低电低存/多任务：基线",
-  "verdict": "PASS",
-  "verdict_detail": "证据与行断言一致，复算值见 checks。",
-  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-f",
-  "review_run_id": "2026-11-05T08:00:11Z-batch46-f-domain-row-review",
-  "reviewer": "subagent-f-domain-row-reviewer-b46",
-  "authors": [
-    "batch44-f-domain-evidence-track"
-  ],
-  "self_review": false,
-  "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
-  "method": "doze 冷启 3455ms；battery saver 3342ms；rare bucket 3247ms；multitask HOT 474ms; device: emulator-5566",
-  "evidence": [
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/background.device.json",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/background.cmd.log",
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/background-restrictions-2.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/background.device.json": "d6f35f183e8f5e06a26ff380b2eb2b161b3fb9960ae4aa04d66bd2129718d4f3",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/background.cmd.log": "dd04806fe5553e0ea2339c6750a6d751ac4083302596ebb06c71043373587ece",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/background-restrictions-2.log": "a8bb6ed1195cc6105574a687f84ebc3d48bbbde2aa5edf7254dc46ebcde62299"
+ "id": "F-082",
+ "domain": "F",
+ "check": "后台限制/低电低存/多任务：基线",
+ "verdict": "PASS",
+ "verdict_detail": "证据与行断言一致，复算值见 checks。",
+ "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-f",
+ "review_run_id": "2026-11-05T08:00:11Z-batch46-f-domain-row-review",
+ "reviewer": "subagent-f-domain-row-reviewer-b46",
+ "authors": [
+  "batch44-f-domain-evidence-track"
+ ],
+ "self_review": false,
+ "ledger": "docs/acceptance/ledger.md",
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
+ "method": "doze 冷启 3455ms；battery saver 3342ms；rare bucket 3247ms；multitask HOT 474ms; device: emulator-5566",
+ "evidence": [
+  "device:docs/research/evidence/2026-11-05-batch-44/f-domain/background.device.json",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/background.cmd.log",
+  "device:docs/research/evidence/2026-11-05-batch-44/f-domain/background-restrictions-2.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/background.device.json": "d6f35f183e8f5e06a26ff380b2eb2b161b3fb9960ae4aa04d66bd2129718d4f3",
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/background.cmd.log": "dd04806fe5553e0ea2339c6750a6d751ac4083302596ebb06c71043373587ece",
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/background-restrictions-2.log": "a8bb6ed1195cc6105574a687f84ebc3d48bbbde2aa5edf7254dc46ebcde62299"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=F-082; verdict=PASS; line=663; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=F-082; verdict=PASS; line=663; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "device_binding",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/background.device.json",
-      "observed": {
-        "serial": "emulator-5566",
-        "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac"
-      },
-      "pass": true,
-      "sha256": "d6f35f183e8f5e06a26ff380b2eb2b161b3fb9960ae4aa04d66bd2129718d4f3"
-    },
-    {
-      "name": "cmd_exit",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/background.cmd.log",
-      "observed": {
-        "exit_markers": [
-          0
-        ],
-        "result": [
-          "OK"
-        ],
-        "tests": []
-      },
-      "expect": {
-        "exit": 0
-      },
-      "pass": true,
-      "sha256": "dd04806fe5553e0ea2339c6750a6d751ac4083302596ebb06c71043373587ece"
-    },
-    {
-      "name": "evidence_exists",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/background-restrictions-2.log",
-      "observed": {
-        "exists": true,
-        "bytes": 502
-      },
-      "pass": true,
-      "sha256": "a8bb6ed1195cc6105574a687f84ebc3d48bbbde2aa5edf7254dc46ebcde62299"
-    },
-    {
-      "name": "background_raw",
-      "target": "background-restrictions*.log",
-      "observed": {
-        "restrictions2_totals": [
-          3455,
-          3342
-        ],
-        "restrictions1_totals": [
-          0,
-          3486,
-          3247,
-          1431,
-          474
-        ],
-        "claimed": {
-          "doze": 3455,
-          "battery_saver": 3342,
-          "rare_bucket": 3247,
-          "multitask_hot": 474
-        },
-        "recomputed": {
-          "doze": 3455,
-          "battery_saver": 3342,
-          "rare_bucket": 3247,
-          "multitask_hot": 474
-        },
-        "match": true
-      }
-    }
-  ],
-  "basis": "机械复算（reviewer=subagent-f-domain-row-reviewer-b46，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 F-082 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "findings": [],
-  "adversarial": {
-    "attempted": true,
-    "result": "no-contradiction-found"
+  {
+   "name": "device_binding",
+   "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/background.device.json",
+   "observed": {
+    "serial": "emulator-5566",
+    "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac"
+   },
+   "pass": true,
+   "sha256": "d6f35f183e8f5e06a26ff380b2eb2b161b3fb9960ae4aa04d66bd2129718d4f3"
   },
-  "caveats": [
-    "f-make-evidence.py:144-151 的四个时延是硬编码；本复核从 background-restrictions*.log 的原始 TotalTime 逐值复算一致。"
-  ],
-  "notes": "本文件只对该单行生效，不构成 F 域或批次整体签字。证据由批次 44 F 域设备轮产出（emulator-5566/5562）；本复核只复算归档证据，未重跑设备。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "rebind_from_run_id": "2026-11-04T15:23:00Z-batch44-f-domain-device-run",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "cmd_exit",
+   "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/background.cmd.log",
+   "observed": {
+    "exit_markers": [
+     0
+    ],
+    "result": [
+     "OK"
+    ],
+    "tests": []
+   },
+   "expect": {
+    "exit": 0
+   },
+   "pass": true,
+   "sha256": "dd04806fe5553e0ea2339c6750a6d751ac4083302596ebb06c71043373587ece"
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 3,
-    "basis": "bytes-on-disk"
+  {
+   "name": "evidence_exists",
+   "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/background-restrictions-2.log",
+   "observed": {
+    "exists": true,
+    "bytes": 502
+   },
+   "pass": true,
+   "sha256": "a8bb6ed1195cc6105574a687f84ebc3d48bbbde2aa5edf7254dc46ebcde62299"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "background_raw",
+   "target": "background-restrictions*.log",
+   "observed": {
+    "restrictions2_totals": [
+     3455,
+     3342
+    ],
+    "restrictions1_totals": [
+     0,
+     3486,
+     3247,
+     1431,
+     474
+    ],
+    "claimed": {
+     "doze": 3455,
+     "battery_saver": 3342,
+     "rare_bucket": 3247,
+     "multitask_hot": 474
+    },
+    "recomputed": {
+     "doze": 3455,
+     "battery_saver": 3342,
+     "rare_bucket": 3247,
+     "multitask_hot": 474
+    },
+    "match": true
+   }
+  }
+ ],
+ "basis": "机械复算（reviewer=subagent-f-domain-row-reviewer-b46，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 F-082 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+ "findings": [],
+ "adversarial": {
+  "attempted": true,
+  "result": "no-contradiction-found"
+ },
+ "caveats": [
+  "f-make-evidence.py:144-151 的四个时延是硬编码；本复核从 background-restrictions*.log 的原始 TotalTime 逐值复算一致。"
+ ],
+ "notes": "本文件只对该单行生效，不构成 F 域或批次整体签字。证据由批次 44 F 域设备轮产出（emulator-5566/5562）；本复核只复算归档证据，未重跑设备。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "rebind_from_run_id": "2026-11-04T15:23:00Z-batch44-f-domain-device-run",
+ "ledger_batch": 46,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-05T11:28:35Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 3,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific"
 }

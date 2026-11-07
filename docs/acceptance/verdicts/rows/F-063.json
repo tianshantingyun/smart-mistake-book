@@ -1,0 +1,60 @@
+{
+ "id": "F-063",
+ "verdict": "PASS",
+ "run_id": "2026-11-08T02:45:00Z-batch49-ledger-freeze",
+ "reviewer": "batch49-acceptance-ledger-mechanical",
+ "authors": [
+  "batch49-implementers"
+ ],
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "evidence": [
+  "device:docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv",
+  "file:docs/research/evidence/2026-11-08-batch-49/device/soak/soak.cmd.log",
+  "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt",
+  "file:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log",
+  "device:docs/research/evidence/2026-11-08-batch-49/device/00-snapshot-and-device-meta.txt",
+  "file:docs/research/evidence/2026-11-08-batch-49/device/soak/EXIT-CAPTURE-CAVEAT.md"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv": "4b1e4241d261c36bb0032598524eded8aa04200e11a5a59b4e54f26725b2a474",
+  "docs/research/evidence/2026-11-08-batch-49/device/soak/soak.cmd.log": "617d234542b0bda288a9c2d70f7dd6defaabfa800707a1ddea57355b67397fcc",
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt": "9bfb6239e5b435147e8154a0e7f9e687774af7cc7b8a8cc8e3c55b15fcf5e58e",
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log": "784db0248ec327f4a8c2ce24e5bd88d745894880e9fa09e61f2d9f609000893c",
+  "docs/research/evidence/2026-11-08-batch-49/device/00-snapshot-and-device-meta.txt": "5a40766148772984aaf138a6b3069369ede760d3db6b88029f8432f0d1598855",
+  "docs/research/evidence/2026-11-08-batch-49/device/soak/EXIT-CAPTURE-CAVEAT.md": "6ec6c0060dbaac29b3fee45e987b2a2130e08247c70c8786a89c7cd7477ce2d2"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=F-063; verdict=PASS; line=644; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+  },
+  {
+   "name": "device_text",
+   "source": "docs/research/evidence/2026-11-08-batch-49/device/00-snapshot-and-device-meta.txt",
+   "value": "key_lines=['02:04-04:04 2h soak on emulator-5590 (117 cycles, no new crash)']; sha256=5a40766148772984aaf138a6b3069369ede760d3db6b88029f8432f0d1598855"
+  },
+  {
+   "name": "device_text",
+   "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt",
+   "value": "key_lines=['FATAL EXCEPTION: main']; sha256=9bfb6239e5b435147e8154a0e7f9e687774af7cc7b8a8cc8e3c55b15fcf5e58e"
+  },
+  {
+   "name": "soak_raw",
+   "source": "docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv",
+   "value": "pids=28350; restarts=0; crash_lines_first=19; crash_lines_last=19; batch44_crash_at_s=2504; sha256=4b1e4241d261c36bb0032598524eded8aa04200e11a5a59b4e54f26725b2a474"
+  }
+ ],
+ "basis": "机械复算（批次49 修复环）：复核本行 ledger_row、soak CSV 逐轮统计、设备/快照文本与证据 sha256；不再把 soak.cmd.log 的字面量 EXIT=0 当作命令退出证明。",
+ "notes": "2h 回归重判：批次44 2504s FATAL（Desired retention 越界）在本批 7200s 未复现，进程同 pid 未重启。；soak.cmd.log 的 EXIT=0 是旧 f-soak.sh 汇总 heredoc 的字面量，不是真实退出码，已改由 soak-samples.csv 逐轮统计判完成性（见 EXIT-CAPTURE-CAVEAT.md）",
+ "review_scope": "single-ledger-row",
+ "review_kind": "mechanical-recompute",
+ "ledger_batch": 49,
+ "verified_at": "2026-11-08T02:45:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "checks_scope": "row-specific"
+}

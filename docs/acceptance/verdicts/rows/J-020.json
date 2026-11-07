@@ -1,71 +1,71 @@
 {
-  "id": "J-020",
-  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-j",
-  "reviewer": "batch46-line-reviewer-J",
-  "authors": [
-    "batch45-evidence-producer-J"
-  ],
-  "verdict": "FAIL",
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "cmd:docs/research/evidence/2026-11-06-batch-46/j-domain/j-signing.log",
-    "file:app/build.gradle.kts"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-06-batch-46/j-domain/j-signing.log": "34d0a92a5d2218906a146458e2f0e3396d6ce0d28a53dc362f20f4f8d3c446bb",
-    "app/build.gradle.kts": "1bcc02473d885dc5015249e7ed8af28f8c383d495862a0712b03a66fec65d719"
+ "id": "J-020",
+ "run_id": "2026-11-05T08:50:11Z-batch46-line-review-j",
+ "reviewer": "batch46-line-reviewer-J",
+ "authors": [
+  "batch45-evidence-producer-J"
+ ],
+ "verdict": "FAIL",
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "evidence": [
+  "cmd:docs/research/evidence/2026-11-06-batch-46/j-domain/j-signing.log",
+  "file:app/build.gradle.kts"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-06-batch-46/j-domain/j-signing.log": "34d0a92a5d2218906a146458e2f0e3396d6ce0d28a53dc362f20f4f8d3c446bb",
+  "app/build.gradle.kts": "1bcc02473d885dc5015249e7ed8af28f8c383d495862a0712b03a66fec65d719"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=J-020; verdict=FAIL; line=961; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=J-020; verdict=FAIL; line=961; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-46/j-domain/j-signing.log",
-      "value": "exit_markers=[0]; cmd=python -I tools/ci/j_release_verify.py signing --root . --apk app/build/outputs/apk/strictOffline/release/app-strictOffline-release.apk --aab app/build/outputs/bundle/strictOfflineRelease/app-strictOf; sha256=34d0a92a5d2218906a146458e2f0e3396d6ce0d28a53dc362f20f4f8d3c446bb"
-    },
-    {
-      "name": "file_sha256",
-      "source": "app/build.gradle.kts",
-      "value": "sha256=1bcc02473d885dc5015249e7ed8af28f8c383d495862a0712b03a66fec65d719"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/j-domain/j-signing.log",
-      "value": "exit_markers=[0]; cmd=n/a; sha256=c98059752ad6fd1f88c9ba87f9ccce4c463f508d7d30c2fb6aeb7b0988d1532c"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/j-domain/j-apk-cert.log",
-      "value": "exit_markers=[0]; cmd=n/a; sha256=0a1144911a697346e7ce4832732f0664803a1dcd381e7f4329a18cb282f9b900"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/j-domain/j-release-manifest.log",
-      "value": "exit_markers=[0]; cmd=n/a; sha256=9935441fefc490e7bd459c0825054edcf9e652d02c36567a9beb3d5f6718cb8a"
-    },
-    {
-      "name": "contradiction",
-      "source": "docs/acceptance/ledger.md",
-      "value": "cmd: signing 与 keytool -printcert"
-    }
-  ],
-  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-06-batch-46/j-domain/j-signing.log",
+   "value": "exit_markers=[0]; cmd=python -I tools/ci/j_release_verify.py signing --root . --apk app/build/outputs/apk/strictOffline/release/app-strictOffline-release.apk --aab app/build/outputs/bundle/strictOfflineRelease/app-strictOf; sha256=34d0a92a5d2218906a146458e2f0e3396d6ce0d28a53dc362f20f4f8d3c446bb"
   },
-  "evidence_freshness": {
-    "current_batch_files": 1,
-    "archived_files": 1,
-    "basis": "bytes-on-disk"
+  {
+   "name": "file_sha256",
+   "source": "app/build.gradle.kts",
+   "value": "sha256=1bcc02473d885dc5015249e7ed8af28f8c383d495862a0712b03a66fec65d719"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/j-domain/j-signing.log",
+   "value": "exit_markers=[0]; cmd=n/a; sha256=c98059752ad6fd1f88c9ba87f9ccce4c463f508d7d30c2fb6aeb7b0988d1532c"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/j-domain/j-apk-cert.log",
+   "value": "exit_markers=[0]; cmd=n/a; sha256=0a1144911a697346e7ce4832732f0664803a1dcd381e7f4329a18cb282f9b900"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/j-domain/j-release-manifest.log",
+   "value": "exit_markers=[0]; cmd=n/a; sha256=9935441fefc490e7bd459c0825054edcf9e652d02c36567a9beb3d5f6718cb8a"
+  },
+  {
+   "name": "contradiction",
+   "source": "docs/acceptance/ledger.md",
+   "value": "cmd: signing 与 keytool -printcert"
+  }
+ ],
+ "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+ "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "ledger_batch": 46,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-05T11:28:35Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 1,
+  "archived_files": 1,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific"
 }

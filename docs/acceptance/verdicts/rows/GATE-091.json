@@ -1,78 +1,78 @@
 {
-  "id": "GATE-091",
-  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-gate",
-  "reviewer": "batch46-line-reviewer-GATE",
-  "authors": [
-    "batch45-evidence-producer-GATE"
-  ],
-  "verdict": "FAIL",
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "cmd:docs/research/evidence/2026-11-06-batch-46/gate/aud08-split-gate.txt",
-    "test:docs/research/evidence/2026-11-06-batch-46/gate/split-gate-pytest.xml"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-06-batch-46/gate/aud08-split-gate.txt": "c89b2a6e1f6b56e717bec798921622a16af0557b0e165b3221295341a116bbbd",
-    "docs/research/evidence/2026-11-06-batch-46/gate/split-gate-pytest.xml": "067adfa01a3ea79668b6343d3e20541405e5bb6bdb93518502c61858accf7992"
+ "id": "GATE-091",
+ "run_id": "2026-11-05T08:50:11Z-batch46-line-review-gate",
+ "reviewer": "batch46-line-reviewer-GATE",
+ "authors": [
+  "batch45-evidence-producer-GATE"
+ ],
+ "verdict": "FAIL",
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "evidence": [
+  "cmd:docs/research/evidence/2026-11-06-batch-46/gate/aud08-split-gate.txt",
+  "test:docs/research/evidence/2026-11-06-batch-46/gate/split-gate-pytest.xml"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-06-batch-46/gate/aud08-split-gate.txt": "c89b2a6e1f6b56e717bec798921622a16af0557b0e165b3221295341a116bbbd",
+  "docs/research/evidence/2026-11-06-batch-46/gate/split-gate-pytest.xml": "067adfa01a3ea79668b6343d3e20541405e5bb6bdb93518502c61858accf7992"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=GATE-091; verdict=FAIL; line=1222; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=GATE-091; verdict=FAIL; line=1222; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-46/gate/aud08-split-gate.txt",
-      "value": "exit_markers=[1]; cmd=n/a; sha256=c89b2a6e1f6b56e717bec798921622a16af0557b0e165b3221295341a116bbbd"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-06-batch-46/gate/split-gate-pytest.xml",
-      "value": "tests=61; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T16:52:41.993422+08:00; hostname=tianshan; sha256=067adfa01a3ea79668b6343d3e20541405e5bb6bdb93518502c61858accf7992"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-06-batch-46/gate/split-gate-pytest.xml",
-      "value": "testcases=61; first=test_count_exact_at_0_9_passes; all_present=True"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-45/gate/aud08-split-gate.txt",
-      "value": "exit_markers=[1]; cmd=n/a; sha256=e9c011da6062ed10e87480bf474dcb9c0f555b00bd968b833075f0d2accb57ab"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-06-batch-45/gate/split-gate-pytest.xml",
-      "value": "tests=61; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T10:35:23.586362+08:00; hostname=tianshan; sha256=b98b538912212a240c43da56d210cefb15f3209907ffcb4b597fe5bf5c1f86bd"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-06-batch-45/gate/split-gate-pytest.xml",
-      "value": "testcases=61; first=test_count_exact_at_0_9_passes; all_present=True"
-    },
-    {
-      "name": "contradiction",
-      "source": "docs/acceptance/ledger.md",
-      "value": "cmd: python -I tools/split_golden/check_split_gate.py"
-    }
-  ],
-  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "regenerated_by": "batch46-report-regenerator",
-  "regeneration_note": "报告重生成：移除假检查 evidence_missing exists=False（aud08-split-gate.txt 实际存在，sha c89b2a6e，exit=1 仍红）。verdict 未改（FAIL）。",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-06-batch-46/gate/aud08-split-gate.txt",
+   "value": "exit_markers=[1]; cmd=n/a; sha256=c89b2a6e1f6b56e717bec798921622a16af0557b0e165b3221295341a116bbbd"
   },
-  "evidence_freshness": {
-    "current_batch_files": 2,
-    "archived_files": 0,
-    "basis": "bytes-on-disk"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-06-batch-46/gate/split-gate-pytest.xml",
+   "value": "tests=61; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T16:52:41.993422+08:00; hostname=tianshan; sha256=067adfa01a3ea79668b6343d3e20541405e5bb6bdb93518502c61858accf7992"
   },
-  "checks_scope": "shared-suite"
+  {
+   "name": "xml_testcase",
+   "source": "docs/research/evidence/2026-11-06-batch-46/gate/split-gate-pytest.xml",
+   "value": "testcases=61; first=test_count_exact_at_0_9_passes; all_present=True"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-06-batch-45/gate/aud08-split-gate.txt",
+   "value": "exit_markers=[1]; cmd=n/a; sha256=e9c011da6062ed10e87480bf474dcb9c0f555b00bd968b833075f0d2accb57ab"
+  },
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-06-batch-45/gate/split-gate-pytest.xml",
+   "value": "tests=61; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T10:35:23.586362+08:00; hostname=tianshan; sha256=b98b538912212a240c43da56d210cefb15f3209907ffcb4b597fe5bf5c1f86bd"
+  },
+  {
+   "name": "xml_testcase",
+   "source": "docs/research/evidence/2026-11-06-batch-45/gate/split-gate-pytest.xml",
+   "value": "testcases=61; first=test_count_exact_at_0_9_passes; all_present=True"
+  },
+  {
+   "name": "contradiction",
+   "source": "docs/acceptance/ledger.md",
+   "value": "cmd: python -I tools/split_golden/check_split_gate.py"
+  }
+ ],
+ "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+ "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "regenerated_by": "batch46-report-regenerator",
+ "regeneration_note": "报告重生成：移除假检查 evidence_missing exists=False（aud08-split-gate.txt 实际存在，sha c89b2a6e，exit=1 仍红）。verdict 未改（FAIL）。",
+ "ledger_batch": 46,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-05T11:28:35Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 2,
+  "archived_files": 0,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "shared-suite"
 }

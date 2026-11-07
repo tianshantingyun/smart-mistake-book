@@ -1,71 +1,71 @@
 {
-  "id": "C-027",
-  "verdict": "PASS",
-  "run_id": "2026-11-06T12:00:00Z-batch47-line-review-c",
-  "reviewer": "batch47-line-reviewer-C",
-  "authors": [
-    "batch-44-c-domain-evidence-producer"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "test:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.xml",
-    "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.device.json",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.xml": "3287235a57875dfaf5bf39fcb02dd8e0149c483690526232db4ba94020ef3d41",
-    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.device.json": "327615f968a9eb8bdb06a38c5cc2e41d18adab653d9002665b80a53a7e9b85c9",
-    "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.log": "6e1da977358ce8904ee0b8defc1831db1a94141adbadee701b88a4cb10d7ef6a",
-    "docs/research/evidence/2026-11-06-batch-47/c-domain/c-node-bench-b47.cmd.log": "2390b204c3e4c42016bcd3fcb5e3c7c92bde0aee234edf89793d6ae710120c39"
+ "id": "C-027",
+ "verdict": "PASS",
+ "run_id": "2026-11-06T12:00:00Z-batch47-line-review-c",
+ "reviewer": "batch47-line-reviewer-C",
+ "authors": [
+  "batch-44-c-domain-evidence-producer"
+ ],
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "evidence": [
+  "test:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.xml",
+  "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.device.json",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.xml": "3287235a57875dfaf5bf39fcb02dd8e0149c483690526232db4ba94020ef3d41",
+  "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.device.json": "327615f968a9eb8bdb06a38c5cc2e41d18adab653d9002665b80a53a7e9b85c9",
+  "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.log": "6e1da977358ce8904ee0b8defc1831db1a94141adbadee701b88a4cb10d7ef6a",
+  "docs/research/evidence/2026-11-06-batch-47/c-domain/c-node-bench-b47.cmd.log": "2390b204c3e4c42016bcd3fcb5e3c7c92bde0aee234edf89793d6ae710120c39"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=C-027; verdict=PASS; line=338; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=C-027; verdict=PASS; line=338; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.xml",
-      "value": "tests=24; failures=0; errors=0; skipped=0; hostname=emulator-5584; timestamp=2026-11-04T13:13:38Z; sha256=3287235a57875dfaf5bf39fcb02dd8e0149c483690526232db4ba94020ef3d41"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.xml",
-      "value": "testcase=stateIsRestoredAfterGroupClose; present=true"
-    },
-    {
-      "name": "device_binding",
-      "source": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.device.json",
-      "value": "serial=emulator-5584; boot_id=5a34f877-606b-4e74-b7b8-84f6398faf9d; apk_sha256=c9943728ec7dfb699345f39af311c0c52e183fec70224a4952eae781000dc488; test_apk_sha256=c9943728ec7dfb699345f39af311c0c52e183fec70224a4952eae781000dc488; package=com.tingyun.smartmistakebook.core.data.test; class_filter=com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest; counts={\"tests\": 24, \"evaluated\": 24, \"failures\": 0, \"errors\": 0, \"skipped\": 0}; verdict=PASS; sha256=327615f968a9eb8bdb06a38c5cc2e41d18adab653d9002665b80a53a7e9b85c9"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.log",
-      "value": "EXIT=0; result=OK (24 tests); sha256=6e1da977358ce8904ee0b8defc1831db1a94141adbadee701b88a4cb10d7ef6a"
-    },
-    {
-      "name": "witness_source",
-      "source": "core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/visual/VisualDrawOpsPainter.kt:134",
-      "value": "line_contains=\"mirror.setValues(snapshot)\"; sha256=0852947090057ea5b837bbacd9e29915d82308a4b748f81785b3bf2712a250a2; fresh rerun 2026-11-06 archived: cmd:docs/research/evidence/2026-11-06-batch-47/c-domain/c-node-bench-b47.cmd.log (94 passed, 0 failed, EXIT=0; log sha256=2390b204c3e4c42016bcd3fcb5e3c7c92bde0aee234edf89793d6ae710120c39); proves=restore 时从快照还原镜像矩阵（闭合组后状态还原、不污染后续 op 的生产代码行）"
-    }
-  ],
-  "basis": "机械复算（reviewer=c-domain-row-reviewer-b46，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 C-027 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。 批次47 WS2 行级判别力修复：本行不再依赖与其他行逐字节相同的 checks，新增只属于本行的行特有复算（witness_source（VisualDrawOpsPainter.kt:134 状态还原代码行+sha 字节绑定））；仍为同一会话机械复算，不是第二个人/第二模型的语义复核。",
-  "notes": "设备证据为批次 44 冻结轮（serial=emulator-5584，boot_id=5a34f877…，core:data test APK c9943728… / app APK 84cae864…）。本轮 adb 实测该 emulator 当前 boot_id=831e5d06…、已装 core:data test APK sha=6119038…、app APK sha=f534b0d…，与证据不一致，故未重跑设备，只做证据文件复算。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次47 WS2 行级判别力修复：本行不再依赖与其他行逐字节相同的 checks，新增只属于本行的行特有复算（witness_source（VisualDrawOpsPainter.kt:134 状态还原代码行+sha 字节绑定））；仍为同一会话机械复算，不是第二个人/第二模型的语义复核。 批次47修复环（2026-11-06 复核轮）：witness_source 内嵌的 fresh rerun 声明此前无归档工件支撑（不可复算，见终裁 §8 新增 finding）；本轮实跑 node tools/visual_compiler/run_tests.mjs = 94 passed, 0 failed, EXIT=0，归档 cmd:docs/research/evidence/2026-11-06-batch-47/c-domain/c-node-bench-b47.cmd.log 并入 evidence_sha256；子句改锚该工件（log sha256 在 check value 内），verdict 与其余 checks 不变。",
-  "review_scope": "single-ledger-row",
-  "rebind_from_run_id": "2026-11-04T13:13:39Z-batch44-c-domain",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-06T12:00:00Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.xml",
+   "value": "tests=24; failures=0; errors=0; skipped=0; hostname=emulator-5584; timestamp=2026-11-04T13:13:38Z; sha256=3287235a57875dfaf5bf39fcb02dd8e0149c483690526232db4ba94020ef3d41"
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 3,
-    "basis": "bytes-on-disk"
+  {
+   "name": "xml_testcase",
+   "source": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.xml",
+   "value": "testcase=stateIsRestoredAfterGroupClose; present=true"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "device_binding",
+   "source": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.device.json",
+   "value": "serial=emulator-5584; boot_id=5a34f877-606b-4e74-b7b8-84f6398faf9d; apk_sha256=c9943728ec7dfb699345f39af311c0c52e183fec70224a4952eae781000dc488; test_apk_sha256=c9943728ec7dfb699345f39af311c0c52e183fec70224a4952eae781000dc488; package=com.tingyun.smartmistakebook.core.data.test; class_filter=com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest; counts={\"tests\": 24, \"evaluated\": 24, \"failures\": 0, \"errors\": 0, \"skipped\": 0}; verdict=PASS; sha256=327615f968a9eb8bdb06a38c5cc2e41d18adab653d9002665b80a53a7e9b85c9"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.log",
+   "value": "EXIT=0; result=OK (24 tests); sha256=6e1da977358ce8904ee0b8defc1831db1a94141adbadee701b88a4cb10d7ef6a"
+  },
+  {
+   "name": "witness_source",
+   "source": "core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/visual/VisualDrawOpsPainter.kt:134",
+   "value": "line_contains=\"mirror.setValues(snapshot)\"; sha256=0852947090057ea5b837bbacd9e29915d82308a4b748f81785b3bf2712a250a2; fresh rerun 2026-11-06 archived: cmd:docs/research/evidence/2026-11-06-batch-47/c-domain/c-node-bench-b47.cmd.log (94 passed, 0 failed, EXIT=0; log sha256=2390b204c3e4c42016bcd3fcb5e3c7c92bde0aee234edf89793d6ae710120c39); proves=restore 时从快照还原镜像矩阵（闭合组后状态还原、不污染后续 op 的生产代码行）"
+  }
+ ],
+ "basis": "机械复算（reviewer=c-domain-row-reviewer-b46，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 C-027 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。 批次47 WS2 行级判别力修复：本行不再依赖与其他行逐字节相同的 checks，新增只属于本行的行特有复算（witness_source（VisualDrawOpsPainter.kt:134 状态还原代码行+sha 字节绑定））；仍为同一会话机械复算，不是第二个人/第二模型的语义复核。",
+ "notes": "设备证据为批次 44 冻结轮（serial=emulator-5584，boot_id=5a34f877…，core:data test APK c9943728… / app APK 84cae864…）。本轮 adb 实测该 emulator 当前 boot_id=831e5d06…、已装 core:data test APK sha=6119038…、app APK sha=f534b0d…，与证据不一致，故未重跑设备，只做证据文件复算。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次47 WS2 行级判别力修复：本行不再依赖与其他行逐字节相同的 checks，新增只属于本行的行特有复算（witness_source（VisualDrawOpsPainter.kt:134 状态还原代码行+sha 字节绑定））；仍为同一会话机械复算，不是第二个人/第二模型的语义复核。 批次47修复环（2026-11-06 复核轮）：witness_source 内嵌的 fresh rerun 声明此前无归档工件支撑（不可复算，见终裁 §8 新增 finding）；本轮实跑 node tools/visual_compiler/run_tests.mjs = 94 passed, 0 failed, EXIT=0，归档 cmd:docs/research/evidence/2026-11-06-batch-47/c-domain/c-node-bench-b47.cmd.log 并入 evidence_sha256；子句改锚该工件（log sha256 在 check value 内），verdict 与其余 checks 不变。",
+ "review_scope": "single-ledger-row",
+ "rebind_from_run_id": "2026-11-04T13:13:39Z-batch44-c-domain",
+ "ledger_batch": 46,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-06T12:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 3,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific"
 }

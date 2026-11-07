@@ -1,68 +1,68 @@
 {
-  "id": "H-018",
-  "verdict": "FAIL",
-  "run_id": "2026-11-06T00:00:00Z-batch47-h-domain-fail-repair",
-  "reviewer": "batch47-h-domain-repair-reviewer",
-  "authors": [
-    "batch47-h-domain-fixer"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log",
-    "file:docs/known-defects.md",
-    "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log": "a47f4cd73c4c55fa8f875df77f7210fb39ad0c6d8e4fd011789441527a4d8b0f",
-    "docs/known-defects.md": "17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796",
-    "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt": "dca6437922213c285335fce7320c9fe36a6aa58d9eecd26cfb1fa5bf7b82f441"
+ "id": "H-018",
+ "verdict": "FAIL",
+ "run_id": "2026-11-06T00:00:00Z-batch47-h-domain-fail-repair",
+ "reviewer": "batch47-h-domain-repair-reviewer",
+ "authors": [
+  "batch47-h-domain-fixer"
+ ],
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "evidence": [
+  "cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log",
+  "file:docs/known-defects.md",
+  "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log": "a47f4cd73c4c55fa8f875df77f7210fb39ad0c6d8e4fd011789441527a4d8b0f",
+  "docs/known-defects.md": "17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796",
+  "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt": "dca6437922213c285335fce7320c9fe36a6aa58d9eecd26cfb1fa5bf7b82f441"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=H-018; verdict=FAIL; line=779; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=H-018; verdict=FAIL; line=779; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log",
-      "value": "exit_markers=[1]; cmd=python -I tools/ci/h_compliance_gate.py --only H-018; sha256=a47f4cd73c4c55fa8f875df77f7210fb39ad0c6d8e4fd011789441527a4d8b0f"
-    },
-    {
-      "name": "file_sha256",
-      "source": "docs/known-defects.md",
-      "value": "sha256=17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796"
-    },
-    {
-      "name": "file_sha256",
-      "source": "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt",
-      "value": "sha256=dca6437922213c285335fce7320c9fe36a6aa58d9eecd26cfb1fa5bf7b82f441"
-    },
-    {
-      "name": "contradiction",
-      "source": "docs/acceptance/ledger.md",
-      "value": "python -I tools/ci/h_compliance_gate.py --only H-018；FAIL：DOCX 无文档级 /AIGC、KD-85 模型改卷漏标（KD-84 已修，见 H-061）——缺口仍真实存在，保留 FAIL 不洗绿"
-    }
-  ],
-  "basis": "批次 47 H 域修复后机械复算：三分量缺口中 KD-84 已修（KD-84 closed + H-061 转 PASS），剩余 DOCX 无文档级 /AIGC（DocxMistakeRenderer/MinimalDocxWriter 无 docProps 部件，runbook FIX-T07）与 KD-85 模型改卷漏标（置位点在 feature/tutor 热区，FIX-T05）；门禁 --only H-018 复跑 EXIT=1，保留 FAIL。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。",
-  "notes": "保留 FAIL，不洗绿：两个剩余缺口均非本批可闭合（热区/跨线载体选型）。缺陷单与复跑命令见 docs/research/evidence/2026-11-06-batch-47/h-domain/fix-tickets-h47.md。本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "adversarial": {
-    "attempted": true,
-    "result": "gap-reconfirmed"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log",
+   "value": "exit_markers=[1]; cmd=python -I tools/ci/h_compliance_gate.py --only H-018; sha256=a47f4cd73c4c55fa8f875df77f7210fb39ad0c6d8e4fd011789441527a4d8b0f"
   },
-  "review_scope": "single-ledger-row",
-  "review_kind": "mechanical-recompute",
-  "ledger_batch": 47,
-  "verified_at": "2026-11-06T00:00:00Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "file_sha256",
+   "source": "docs/known-defects.md",
+   "value": "sha256=17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796"
   },
-  "evidence_freshness": {
-    "current_batch_files": 3,
-    "archived_files": 0,
-    "basis": "bytes-on-disk"
+  {
+   "name": "file_sha256",
+   "source": "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt",
+   "value": "sha256=dca6437922213c285335fce7320c9fe36a6aa58d9eecd26cfb1fa5bf7b82f441"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "contradiction",
+   "source": "docs/acceptance/ledger.md",
+   "value": "python -I tools/ci/h_compliance_gate.py --only H-018；FAIL：DOCX 无文档级 /AIGC、KD-85 模型改卷漏标（KD-84 已修，见 H-061）——缺口仍真实存在，保留 FAIL 不洗绿"
+  }
+ ],
+ "basis": "批次 47 H 域修复后机械复算：三分量缺口中 KD-84 已修（KD-84 closed + H-061 转 PASS），剩余 DOCX 无文档级 /AIGC（DocxMistakeRenderer/MinimalDocxWriter 无 docProps 部件，runbook FIX-T07）与 KD-85 模型改卷漏标（置位点在 feature/tutor 热区，FIX-T05）；门禁 --only H-018 复跑 EXIT=1，保留 FAIL。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。",
+ "notes": "保留 FAIL，不洗绿：两个剩余缺口均非本批可闭合（热区/跨线载体选型）。缺陷单与复跑命令见 docs/research/evidence/2026-11-06-batch-47/h-domain/fix-tickets-h47.md。本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "adversarial": {
+  "attempted": true,
+  "result": "gap-reconfirmed"
+ },
+ "review_scope": "single-ledger-row",
+ "review_kind": "mechanical-recompute",
+ "ledger_batch": 47,
+ "verified_at": "2026-11-06T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 3,
+  "archived_files": 0,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific"
 }

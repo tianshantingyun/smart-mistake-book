@@ -1,115 +1,115 @@
 {
-  "id": "D-048",
-  "verdict": "PASS",
-  "verdict_detail": "PASS_WORKTREE",
-  "machine_verdict": "PASS_WORKTREE",
-  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-d",
-  "reviewer": "复核 D 域行级",
-  "reviewer_id": "batch46-d-domain-row-reviewer",
-  "authors": [
-    "batch-44-d-domain-implementer"
-  ],
-  "self_review": false,
-  "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
-  "reviewed_at_utc": "2026-11-05T08:05:09Z",
-  "scope": "A–I domain: signed PASS with machine_verdict=PASS_WORKTREE is allowed on a dirty tree; no PASS_HEAD claim",
-  "evidence": [
-    "test:docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest.xml",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/d-domain/d-model-tools-recovery.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest.xml": "7ba87f345729ecf47a42e370ad1ce6e26b7a36fb4fea381b3f061fd9e0ded40d",
-    "docs/research/evidence/2026-11-05-batch-44/d-domain/d-model-tools-recovery.log": "acaf716c6b52e2d0b70a573cbce0121ca6df2ad7e5a4b60bfc02265738d4774e"
+ "id": "D-048",
+ "verdict": "PASS",
+ "verdict_detail": "PASS_WORKTREE",
+ "machine_verdict": "PASS_WORKTREE",
+ "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-d",
+ "reviewer": "复核 D 域行级",
+ "reviewer_id": "batch46-d-domain-row-reviewer",
+ "authors": [
+  "batch-44-d-domain-implementer"
+ ],
+ "self_review": false,
+ "ledger": "docs/acceptance/ledger.md",
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
+ "reviewed_at_utc": "2026-11-05T08:05:09Z",
+ "scope": "A–I domain: signed PASS with machine_verdict=PASS_WORKTREE is allowed on a dirty tree; no PASS_HEAD claim",
+ "evidence": [
+  "test:docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest.xml",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/d-domain/d-model-tools-recovery.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest.xml": "7ba87f345729ecf47a42e370ad1ce6e26b7a36fb4fea381b3f061fd9e0ded40d",
+  "docs/research/evidence/2026-11-05-batch-44/d-domain/d-model-tools-recovery.log": "acaf716c6b52e2d0b70a573cbce0121ca6df2ad7e5a4b60bfc02265738d4774e"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=D-048; verdict=PASS; line=449; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
+  {
+   "check": "source_sha256",
+   "file": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorToolAuthorizationTest.kt",
+   "exists": true,
+   "sha256": "04ab202a048d8a75b3c2428ba348b7210968804ed13d11fde2fa7b199f8e20f2",
+   "head_blob_sha256": "04ab202a048d8a75b3c2428ba348b7210968804ed13d11fde2fa7b199f8e20f2",
+   "sha256_equals_head_blob": true,
+   "head_present": true,
+   "git_status": "",
+   "git_status_clean": true,
+   "equals_head": true,
+   "primary_name_in_source": true,
+   "secondary_names_in_source": [
+    true
+   ],
+   "source_kind": "test_source_at_head"
+  },
+  {
+   "check": "xml_counts",
+   "file": "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest.xml",
+   "sha256": "7ba87f345729ecf47a42e370ad1ce6e26b7a36fb4fea381b3f061fd9e0ded40d",
+   "suite": "com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest",
+   "tests": 10,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "testcases_recounted": 10,
+   "tests_equals_testcases": true,
+   "testcase_classnames_match_suite": true,
+   "timestamp": "2026-11-04T14:24:10.205Z",
+   "doctype_or_entity_present": false,
+   "xml_precheck": "no DOCTYPE/ENTITY (byte-level)"
+  },
+  {
+   "check": "testcase_presence",
+   "xmls": [
+    "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest.xml"
+   ],
+   "primary": "ambiguousIntentNeverAuthorizesTools",
+   "primary_present": true,
+   "secondary": [
     {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=D-048; verdict=PASS; line=449; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "check": "source_sha256",
-      "file": "core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorToolAuthorizationTest.kt",
-      "exists": true,
-      "sha256": "04ab202a048d8a75b3c2428ba348b7210968804ed13d11fde2fa7b199f8e20f2",
-      "head_blob_sha256": "04ab202a048d8a75b3c2428ba348b7210968804ed13d11fde2fa7b199f8e20f2",
-      "sha256_equals_head_blob": true,
-      "head_present": true,
-      "git_status": "",
-      "git_status_clean": true,
-      "equals_head": true,
-      "primary_name_in_source": true,
-      "secondary_names_in_source": [
-        true
-      ],
-      "source_kind": "test_source_at_head"
-    },
-    {
-      "check": "xml_counts",
-      "file": "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest.xml",
-      "sha256": "7ba87f345729ecf47a42e370ad1ce6e26b7a36fb4fea381b3f061fd9e0ded40d",
-      "suite": "com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest",
-      "tests": 10,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "testcases_recounted": 10,
-      "tests_equals_testcases": true,
-      "testcase_classnames_match_suite": true,
-      "timestamp": "2026-11-04T14:24:10.205Z",
-      "doctype_or_entity_present": false,
-      "xml_precheck": "no DOCTYPE/ENTITY (byte-level)"
-    },
-    {
-      "check": "testcase_presence",
-      "xmls": [
-        "docs/research/evidence/2026-11-05-batch-44/d-domain/TEST-com.tingyun.smartmistakebook.core.model.TutorToolAuthorizationTest.xml"
-      ],
-      "primary": "ambiguousIntentNeverAuthorizesTools",
-      "primary_present": true,
-      "secondary": [
-        {
-          "name": "lowConfidenceIntentIsNotRouteEligible",
-          "class_filter": null,
-          "present": true
-        }
-      ],
-      "all_present": true
-    },
-    {
-      "check": "cmd_exit",
-      "file": "docs/research/evidence/2026-11-05-batch-44/d-domain/d-model-tools-recovery.log",
-      "sha256": "acaf716c6b52e2d0b70a573cbce0121ca6df2ad7e5a4b60bfc02265738d4774e",
-      "token_exit_attr": 0,
-      "log_exit_markers": [
-        0
-      ],
-      "cmd_header_names_all_suites": true,
-      "started_utc": "2026-11-04T14:24:07Z",
-      "finished_utc": "2026-11-04T14:24:11Z",
-      "xml_timestamps_within_window": true
+     "name": "lowConfidenceIntentIsNotRouteEligible",
+     "class_filter": null,
+     "present": true
     }
-  ],
-  "basis": "机械复算（reviewer=复核 D 域行级，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 D-048 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "contradictions": [],
-  "notes": "未在本复核中重跑 Gradle（纪律：Gradle 只在串行门禁阶段）；checks 由归档 XML/CMD 日志/源文件哈希复算。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "method": "test: core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorToolAuthorizationTest.kt#ambiguousIntentNeverAuthorizesTools；另证 lowConfidenceIntentIsNotRouteEligible",
-  "check_text": "工具环：低置信意图不进入路由，歧义意图从不授权任何工具（fail-closed）",
-  "rebind_from_run_id": "2026-11-04T14:24:07Z@batch44-d-domain",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+   ],
+   "all_present": true
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 2,
-    "basis": "bytes-on-disk"
-  },
-  "checks_scope": "row-specific"
+  {
+   "check": "cmd_exit",
+   "file": "docs/research/evidence/2026-11-05-batch-44/d-domain/d-model-tools-recovery.log",
+   "sha256": "acaf716c6b52e2d0b70a573cbce0121ca6df2ad7e5a4b60bfc02265738d4774e",
+   "token_exit_attr": 0,
+   "log_exit_markers": [
+    0
+   ],
+   "cmd_header_names_all_suites": true,
+   "started_utc": "2026-11-04T14:24:07Z",
+   "finished_utc": "2026-11-04T14:24:11Z",
+   "xml_timestamps_within_window": true
+  }
+ ],
+ "basis": "机械复算（reviewer=复核 D 域行级，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 D-048 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+ "contradictions": [],
+ "notes": "未在本复核中重跑 Gradle（纪律：Gradle 只在串行门禁阶段）；checks 由归档 XML/CMD 日志/源文件哈希复算。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "method": "test: core/model/src/test/kotlin/com/tingyun/smartmistakebook/core/model/TutorToolAuthorizationTest.kt#ambiguousIntentNeverAuthorizesTools；另证 lowConfidenceIntentIsNotRouteEligible",
+ "check_text": "工具环：低置信意图不进入路由，歧义意图从不授权任何工具（fail-closed）",
+ "rebind_from_run_id": "2026-11-04T14:24:07Z@batch44-d-domain",
+ "ledger_batch": 46,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-05T11:28:35Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 2,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific"
 }

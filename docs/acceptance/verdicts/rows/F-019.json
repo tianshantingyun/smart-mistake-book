@@ -1,112 +1,112 @@
 {
-  "id": "F-019",
-  "check": "首帧：基线",
-  "verdict": "PASS",
-  "verdict_detail": "原行把冷启 p50 上界写成 2150ms，cold#6 实为 2350ms（gfxinfo.txt 与 gfxinfo-cold6.txt 一致）。按 gfxinfo-cold1..7 重算：p50=450/2050/2150/2100/2000/2350/300，范围 300-2350ms，7/7 轮有 janky 帧；台账已按实测改正。",
-  "domain": "F",
-  "run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
-  "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
-  "reviewer": "subagent-f-domain-fail-fix-b47",
-  "authors": [
-    "batch44-f-domain-evidence-track",
-    "batch46-f-domain-row-reviewer-b46"
-  ],
-  "self_review": false,
-  "ledger": "docs/acceptance/ledger.md",
-  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
-  "ledger_batch": 47,
-  "review_kind": "mechanical-recompute",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ "id": "F-019",
+ "check": "首帧：基线",
+ "verdict": "PASS",
+ "verdict_detail": "原行把冷启 p50 上界写成 2150ms，cold#6 实为 2350ms（gfxinfo.txt 与 gfxinfo-cold6.txt 一致）。按 gfxinfo-cold1..7 重算：p50=450/2050/2150/2100/2000/2350/300，范围 300-2350ms，7/7 轮有 janky 帧；台账已按实测改正。",
+ "domain": "F",
+ "run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
+ "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
+ "reviewer": "subagent-f-domain-fail-fix-b47",
+ "authors": [
+  "batch44-f-domain-evidence-track",
+  "batch46-f-domain-row-reviewer-b46"
+ ],
+ "self_review": false,
+ "ledger": "docs/acceptance/ledger.md",
+ "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
+ "ledger_batch": 47,
+ "review_kind": "mechanical-recompute",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 2,
+  "archived_files": 0,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific",
+ "adversarial": {
+  "attempted": true,
+  "result": "no-contradiction-found"
+ },
+ "findings": [],
+ "caveats": [],
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "method": "gfxinfo 逐轮 Total frames/Janky/50th percentile；冷启 p50 300-2350ms（450/2050/2150/2100/2000/2350/300，批次47 复算与 gfxinfo-cold1..7 一致），7/7 轮有 janky 帧; device: emulator-5566",
+ "evidence": [
+  "device:docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold6.txt",
+  "device:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log",
+  "cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/F-019-gfxinfo-recount.cmd.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold6.txt": "134d9c43954cb6715d37a64642f24bcbe51e6e5b01b53d7c103590cb1a0d7566",
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json": "a058db93cd384efe6c109e355b95aa629ea179fc25ff8c5cd000b9d7a1872bc1",
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log": "d75e8ece4404113e4e795d878e5bb6aa0611c315588c3ac3855ab8e1fa1cfec0",
+  "docs/research/evidence/2026-11-06-batch-47/f-domain/F-019-gfxinfo-recount.cmd.log": "c2b5a62183b5c4f4a2e9a578d66ff2e5146df508939c659a8a58a8e26bb8ae19"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=F-019; verdict=PASS; line=600; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "evidence_freshness": {
-    "current_batch_files": 2,
-    "archived_files": 0,
-    "basis": "bytes-on-disk"
+  {
+   "name": "device_text",
+   "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt",
+   "value": "key_lines=['Total frames rendered: 5', 'Janky frames: 5 (100.00%)', '50th percentile: 2350ms']; lines=77; sha256=e03f5ae8b93d3d30777be211a63104cd00f72f29907c8e3b6c3004572f506b27"
   },
-  "checks_scope": "row-specific",
-  "adversarial": {
-    "attempted": true,
-    "result": "no-contradiction-found"
+  {
+   "name": "gfxinfo_per_round",
+   "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt",
+   "value": "rounds=7; p50_ms=450,2050,2150,2100,2000,2350,300; range_ms=300-2350; all_rounds_janky=true; recount=docs/research/evidence/2026-11-06-batch-47/f-domain/F-019-gfxinfo-recount.json; sha256=e03f5ae8b93d3d30777be211a63104cd00f72f29907c8e3b6c3004572f506b27"
   },
-  "findings": [],
-  "caveats": [],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "method": "gfxinfo 逐轮 Total frames/Janky/50th percentile；冷启 p50 300-2350ms（450/2050/2150/2100/2000/2350/300，批次47 复算与 gfxinfo-cold1..7 一致），7/7 轮有 janky 帧; device: emulator-5566",
-  "evidence": [
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold6.txt",
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log",
-    "cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/F-019-gfxinfo-recount.cmd.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold6.txt": "134d9c43954cb6715d37a64642f24bcbe51e6e5b01b53d7c103590cb1a0d7566",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json": "a058db93cd384efe6c109e355b95aa629ea179fc25ff8c5cd000b9d7a1872bc1",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.cmd.log": "d75e8ece4404113e4e795d878e5bb6aa0611c315588c3ac3855ab8e1fa1cfec0",
-    "docs/research/evidence/2026-11-06-batch-47/f-domain/F-019-gfxinfo-recount.cmd.log": "c2b5a62183b5c4f4a2e9a578d66ff2e5146df508939c659a8a58a8e26bb8ae19"
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-019-gfxinfo-recount.json",
+   "value": "sha256=81914d242523e75c775d218d7fa0d21123ac93fe5b72bfb59b9b90eac9c0c5eb; bytes=2462"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=F-019; verdict=PASS; line=600; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "device_text",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt",
-      "value": "key_lines=['Total frames rendered: 5', 'Janky frames: 5 (100.00%)', '50th percentile: 2350ms']; lines=77; sha256=e03f5ae8b93d3d30777be211a63104cd00f72f29907c8e3b6c3004572f506b27"
-    },
-    {
-      "name": "gfxinfo_per_round",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo.txt",
-      "value": "rounds=7; p50_ms=450,2050,2150,2100,2000,2350,300; range_ms=300-2350; all_rounds_janky=true; recount=docs/research/evidence/2026-11-06-batch-47/f-domain/F-019-gfxinfo-recount.json; sha256=e03f5ae8b93d3d30777be211a63104cd00f72f29907c8e3b6c3004572f506b27"
-    },
-    {
-      "name": "file_sha256",
-      "source": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-019-gfxinfo-recount.json",
-      "value": "sha256=81914d242523e75c775d218d7fa0d21123ac93fe5b72bfb59b9b90eac9c0c5eb; bytes=2462"
-    },
-    {
-      "name": "cmd_exit",
-      "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-019-gfxinfo-recount.cmd.log",
-      "observed": {
-        "exit_markers": [
-          0
-        ],
-        "result": [],
-        "tests": []
-      },
-      "expect": {
-        "exit": 0
-      },
-      "pass": true,
-      "sha256": "c2b5a62183b5c4f4a2e9a578d66ff2e5146df508939c659a8a58a8e26bb8ae19"
-    },
-    {
-      "name": "device_binding",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json",
-      "observed": {
-        "serial": "emulator-5566",
-        "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac"
-      },
-      "expect": null,
-      "pass": true,
-      "sha256": "a058db93cd384efe6c109e355b95aa629ea179fc25ff8c5cd000b9d7a1872bc1"
-    },
-    {
-      "name": "evidence_exists",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold6.txt",
-      "observed": {
-        "exists": true,
-        "bytes": 3249
-      },
-      "expect": null,
-      "pass": true,
-      "sha256": "134d9c43954cb6715d37a64642f24bcbe51e6e5b01b53d7c103590cb1a0d7566"
-    }
-  ],
-  "basis": "批次47 复算：解析 gfxinfo.txt 的 7 个分段与 gfxinfo-cold1..7 逐轮文件，逐轮交叉一致；复算脚本与输出为 docs/research/evidence/2026-11-06-batch-47/f-domain/F-019-gfxinfo-recount.{json,cmd.log}（EXIT=0）。",
-  "notes": "本文件只对该单行生效。上界 2150 改为 2350 是按原始证据修正基线记录（fix-tickets-b46 #1 出口判据），不是把失败说成成功。"
+  {
+   "name": "cmd_exit",
+   "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-019-gfxinfo-recount.cmd.log",
+   "observed": {
+    "exit_markers": [
+     0
+    ],
+    "result": [],
+    "tests": []
+   },
+   "expect": {
+    "exit": 0
+   },
+   "pass": true,
+   "sha256": "c2b5a62183b5c4f4a2e9a578d66ff2e5146df508939c659a8a58a8e26bb8ae19"
+  },
+  {
+   "name": "device_binding",
+   "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/startup.device.json",
+   "observed": {
+    "serial": "emulator-5566",
+    "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac"
+   },
+   "expect": null,
+   "pass": true,
+   "sha256": "a058db93cd384efe6c109e355b95aa629ea179fc25ff8c5cd000b9d7a1872bc1"
+  },
+  {
+   "name": "evidence_exists",
+   "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold6.txt",
+   "observed": {
+    "exists": true,
+    "bytes": 3249
+   },
+   "expect": null,
+   "pass": true,
+   "sha256": "134d9c43954cb6715d37a64642f24bcbe51e6e5b01b53d7c103590cb1a0d7566"
+  }
+ ],
+ "basis": "批次47 复算：解析 gfxinfo.txt 的 7 个分段与 gfxinfo-cold1..7 逐轮文件，逐轮交叉一致；复算脚本与输出为 docs/research/evidence/2026-11-06-batch-47/f-domain/F-019-gfxinfo-recount.{json,cmd.log}（EXIT=0）。",
+ "notes": "本文件只对该单行生效。上界 2150 改为 2350 是按原始证据修正基线记录（fix-tickets-b46 #1 出口判据），不是把失败说成成功。"
 }

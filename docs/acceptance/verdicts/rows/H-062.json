@@ -1,68 +1,68 @@
 {
-  "id": "H-062",
-  "verdict": "FAIL",
-  "run_id": "2026-11-06T00:00:00Z-batch47-h-domain-fail-repair",
-  "reviewer": "batch47-h-domain-repair-reviewer",
-  "authors": [
-    "batch47-h-domain-fixer"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-062-b47.log",
-    "file:docs/known-defects.md",
-    "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-06-batch-47/h-domain/h-062-b47.log": "4f111aca60eb561f716e8859f3e03435a4c1079f341a4769d89af135286a0ed5",
-    "docs/known-defects.md": "17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796",
-    "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt": "be7819ec4500fbbc37fde65a61f787bf7355de78d015e00c888e1ddf00b029a2"
+ "id": "H-062",
+ "verdict": "FAIL",
+ "run_id": "2026-11-06T00:00:00Z-batch47-h-domain-fail-repair",
+ "reviewer": "batch47-h-domain-repair-reviewer",
+ "authors": [
+  "batch47-h-domain-fixer"
+ ],
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "evidence": [
+  "cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-062-b47.log",
+  "file:docs/known-defects.md",
+  "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-06-batch-47/h-domain/h-062-b47.log": "4f111aca60eb561f716e8859f3e03435a4c1079f341a4769d89af135286a0ed5",
+  "docs/known-defects.md": "17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796",
+  "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt": "be7819ec4500fbbc37fde65a61f787bf7355de78d015e00c888e1ddf00b029a2"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=H-062; verdict=FAIL; line=823; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=H-062; verdict=FAIL; line=823; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-47/h-domain/h-062-b47.log",
-      "value": "exit_markers=[1]; cmd=python -I tools/ci/h_compliance_gate.py --only H-062; sha256=4f111aca60eb561f716e8859f3e03435a4c1079f341a4769d89af135286a0ed5"
-    },
-    {
-      "name": "file_sha256",
-      "source": "docs/known-defects.md",
-      "value": "sha256=17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796"
-    },
-    {
-      "name": "file_sha256",
-      "source": "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt",
-      "value": "sha256=be7819ec4500fbbc37fde65a61f787bf7355de78d015e00c888e1ddf00b029a2"
-    },
-    {
-      "name": "contradiction",
-      "source": "docs/acceptance/ledger.md",
-      "value": "python -I tools/ci/h_compliance_gate.py --only H-062；FAIL：KD-85 open，置位点在 feature/tutor 热区需主会话授权——KD-85 Progress（批次 47）与 gate 复跑 EXIT=1 证实缺口仍在，保留 FAIL 不洗绿"
-    }
-  ],
-  "basis": "批次 47 机械复算：MistakePdfPaperEdit.toDraft() 仍纯透传 hasModelParsedText（KD-85 open），修复落点 TutorPaperEditApplier.apply 属 feature/tutor 热区禁改；门禁 --only H-062 复跑 EXIT=1，保留 FAIL。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。",
-  "notes": "保留 FAIL，不洗绿：出口=主会话授权热区后按 KD-85 方案 ① 落 modelTextApplied 置位（runbook FIX-T05）。门禁已加防漂移条件（KD-85 closed + 置位落码同时成立才允许转绿）。本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "adversarial": {
-    "attempted": true,
-    "result": "gap-reconfirmed"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-06-batch-47/h-domain/h-062-b47.log",
+   "value": "exit_markers=[1]; cmd=python -I tools/ci/h_compliance_gate.py --only H-062; sha256=4f111aca60eb561f716e8859f3e03435a4c1079f341a4769d89af135286a0ed5"
   },
-  "review_scope": "single-ledger-row",
-  "review_kind": "mechanical-recompute",
-  "ledger_batch": 47,
-  "verified_at": "2026-11-06T00:00:00Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "file_sha256",
+   "source": "docs/known-defects.md",
+   "value": "sha256=17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796"
   },
-  "evidence_freshness": {
-    "current_batch_files": 3,
-    "archived_files": 0,
-    "basis": "bytes-on-disk"
+  {
+   "name": "file_sha256",
+   "source": "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt",
+   "value": "sha256=be7819ec4500fbbc37fde65a61f787bf7355de78d015e00c888e1ddf00b029a2"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "contradiction",
+   "source": "docs/acceptance/ledger.md",
+   "value": "python -I tools/ci/h_compliance_gate.py --only H-062；FAIL：KD-85 open，置位点在 feature/tutor 热区需主会话授权——KD-85 Progress（批次 47）与 gate 复跑 EXIT=1 证实缺口仍在，保留 FAIL 不洗绿"
+  }
+ ],
+ "basis": "批次 47 机械复算：MistakePdfPaperEdit.toDraft() 仍纯透传 hasModelParsedText（KD-85 open），修复落点 TutorPaperEditApplier.apply 属 feature/tutor 热区禁改；门禁 --only H-062 复跑 EXIT=1，保留 FAIL。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。",
+ "notes": "保留 FAIL，不洗绿：出口=主会话授权热区后按 KD-85 方案 ① 落 modelTextApplied 置位（runbook FIX-T05）。门禁已加防漂移条件（KD-85 closed + 置位落码同时成立才允许转绿）。本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "adversarial": {
+  "attempted": true,
+  "result": "gap-reconfirmed"
+ },
+ "review_scope": "single-ledger-row",
+ "review_kind": "mechanical-recompute",
+ "ledger_batch": 47,
+ "verified_at": "2026-11-06T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 3,
+  "archived_files": 0,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific"
 }

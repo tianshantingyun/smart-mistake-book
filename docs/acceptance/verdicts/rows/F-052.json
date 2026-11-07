@@ -1,117 +1,117 @@
 {
-  "id": "F-052",
-  "domain": "F",
-  "check": "内存峰值：日志",
-  "verdict": "PASS",
-  "verdict_detail": "证据与行断言一致，复算值见 checks。",
-  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-f",
-  "review_run_id": "2026-11-05T08:00:11Z-batch46-f-domain-row-review",
-  "reviewer": "subagent-f-domain-row-reviewer-b46",
-  "authors": [
-    "batch44-f-domain-evidence-track"
-  ],
-  "self_review": false,
-  "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
-  "method": "50ms PSS 采样原始文件与 memory.cmd.log; device: emulator-5566",
-  "evidence": [
-    "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log",
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/export-batch1.pss.txt"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log": "e8d7bf0e92adfa377015ecd6f90859cd797500be86cb483b58458825ec9065de",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/export-batch1.pss.txt": "7dc317fa3990f63c8cc90bc1d92b199ec6798ab0ddc03efb2984676694eb48e2"
+ "id": "F-052",
+ "domain": "F",
+ "check": "内存峰值：日志",
+ "verdict": "PASS",
+ "verdict_detail": "证据与行断言一致，复算值见 checks。",
+ "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-f",
+ "review_run_id": "2026-11-05T08:00:11Z-batch46-f-domain-row-review",
+ "reviewer": "subagent-f-domain-row-reviewer-b46",
+ "authors": [
+  "batch44-f-domain-evidence-track"
+ ],
+ "self_review": false,
+ "ledger": "docs/acceptance/ledger.md",
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
+ "method": "50ms PSS 采样原始文件与 memory.cmd.log; device: emulator-5566",
+ "evidence": [
+  "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log",
+  "device:docs/research/evidence/2026-11-05-batch-44/f-domain/export-batch1.pss.txt"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log": "e8d7bf0e92adfa377015ecd6f90859cd797500be86cb483b58458825ec9065de",
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/export-batch1.pss.txt": "7dc317fa3990f63c8cc90bc1d92b199ec6798ab0ddc03efb2984676694eb48e2"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=F-052; verdict=PASS; line=633; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=F-052; verdict=PASS; line=633; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "cmd_exit",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log",
-      "observed": {
-        "exit_markers": [
-          0
-        ],
-        "result": [
-          "OK"
-        ],
-        "tests": []
-      },
-      "expect": {
-        "exit": 0
-      },
-      "pass": true,
-      "sha256": "e8d7bf0e92adfa377015ecd6f90859cd797500be86cb483b58458825ec9065de"
-    },
-    {
-      "name": "evidence_exists",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/export-batch1.pss.txt",
-      "observed": {
-        "exists": true,
-        "bytes": 320
-      },
-      "pass": true,
-      "sha256": "7dc317fa3990f63c8cc90bc1d92b199ec6798ab0ddc03efb2984676694eb48e2"
-    },
-    {
-      "name": "memory_values",
-      "target": "memory.cmd.log",
-      "observed": {
-        "SERIAL": "emulator-5566",
-        "APK_SHA256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac",
-        "COLD_STARTUP_TOTAL_PSS_KB": "156818",
-        "EXPORT_HOST_PEAK_KB": "54412,47525,47509",
-        "PREVIEW_HOST_PEAK_KB": "28417,41443,45113",
-        "NOTE": "export/preview peaks are self-instrumented test hosts, not product-process attribution",
-        "RESULT": "OK",
-        "EXIT": "0"
-      }
-    },
-    {
-      "name": "meminfo_total_pss_kb",
-      "observed": 156818
-    },
-    {
-      "name": "pss_samples",
-      "observed": {
-        "export-batch1": 16,
-        "export-batch2": 15,
-        "export-batch3": 17,
-        "preview-pdf1": 6,
-        "preview-pdf2": 6,
-        "preview-pdf3": 6,
-        "preview-visual1": 13,
-        "preview-visual2": 12
-      }
-    }
-  ],
-  "basis": "机械复算（reviewer=subagent-f-domain-row-reviewer-b46，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 F-052 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "findings": [],
-  "adversarial": {
-    "attempted": true,
-    "result": "no-contradiction-found"
+  {
+   "name": "cmd_exit",
+   "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log",
+   "observed": {
+    "exit_markers": [
+     0
+    ],
+    "result": [
+     "OK"
+    ],
+    "tests": []
+   },
+   "expect": {
+    "exit": 0
+   },
+   "pass": true,
+   "sha256": "e8d7bf0e92adfa377015ecd6f90859cd797500be86cb483b58458825ec9065de"
   },
-  "caveats": [
-    "f-run-instr.sh:23 的采样循环 sleep 0.05，实测样本间隔约 90ms（adb/grep 开销）；「50ms 采样」指实现节拍。"
-  ],
-  "notes": "本文件只对该单行生效，不构成 F 域或批次整体签字。证据由批次 44 F 域设备轮产出（emulator-5566/5562）；本复核只复算归档证据，未重跑设备。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "rebind_from_run_id": "2026-11-04T15:23:00Z-batch44-f-domain-device-run",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "evidence_exists",
+   "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/export-batch1.pss.txt",
+   "observed": {
+    "exists": true,
+    "bytes": 320
+   },
+   "pass": true,
+   "sha256": "7dc317fa3990f63c8cc90bc1d92b199ec6798ab0ddc03efb2984676694eb48e2"
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 2,
-    "basis": "bytes-on-disk"
+  {
+   "name": "memory_values",
+   "target": "memory.cmd.log",
+   "observed": {
+    "SERIAL": "emulator-5566",
+    "APK_SHA256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac",
+    "COLD_STARTUP_TOTAL_PSS_KB": "156818",
+    "EXPORT_HOST_PEAK_KB": "54412,47525,47509",
+    "PREVIEW_HOST_PEAK_KB": "28417,41443,45113",
+    "NOTE": "export/preview peaks are self-instrumented test hosts, not product-process attribution",
+    "RESULT": "OK",
+    "EXIT": "0"
+   }
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "meminfo_total_pss_kb",
+   "observed": 156818
+  },
+  {
+   "name": "pss_samples",
+   "observed": {
+    "export-batch1": 16,
+    "export-batch2": 15,
+    "export-batch3": 17,
+    "preview-pdf1": 6,
+    "preview-pdf2": 6,
+    "preview-pdf3": 6,
+    "preview-visual1": 13,
+    "preview-visual2": 12
+   }
+  }
+ ],
+ "basis": "机械复算（reviewer=subagent-f-domain-row-reviewer-b46，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 F-052 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+ "findings": [],
+ "adversarial": {
+  "attempted": true,
+  "result": "no-contradiction-found"
+ },
+ "caveats": [
+  "f-run-instr.sh:23 的采样循环 sleep 0.05，实测样本间隔约 90ms（adb/grep 开销）；「50ms 采样」指实现节拍。"
+ ],
+ "notes": "本文件只对该单行生效，不构成 F 域或批次整体签字。证据由批次 44 F 域设备轮产出（emulator-5566/5562）；本复核只复算归档证据，未重跑设备。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "rebind_from_run_id": "2026-11-04T15:23:00Z-batch44-f-domain-device-run",
+ "ledger_batch": 46,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-05T11:28:35Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 2,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific"
 }

@@ -1,89 +1,89 @@
 {
-  "id": "G-010",
-  "verdict": "PASS",
-  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-g",
-  "reviewer": "independent-reviewer:g-domain-batch46-line",
-  "authors": [
-    "batch-44-g-evidence-group"
-  ],
-  "self_review": false,
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "ledger_line": "docs/acceptance/ledger.md#G-010",
-  "check": "遥测默认关：无键时 UNKNOWN 等价 OFF，门为 false",
-  "method": "cmd: python -I tools/ci/g_security_gate.py --topic logging （断言 G-010）; test:docs/acceptance/evidence/G/tests/g-logging.xml",
-  "evidence": [
-    "cmd:docs/acceptance/evidence/G/logs/g-logging.log",
-    "test:docs/acceptance/evidence/G/tests/g-logging.xml"
-  ],
-  "evidence_sha256": {
-    "docs/acceptance/evidence/G/logs/g-logging.log": "40c241519862ac9154d974438e3fc015f1cbf8e50ce375f8788ca3d23e97daa8",
-    "docs/acceptance/evidence/G/tests/g-logging.xml": "599033f1ee8413e781f0362c8e463b5250469e6236a51fc096200d0c9937a36a"
+ "id": "G-010",
+ "verdict": "PASS",
+ "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-g",
+ "reviewer": "independent-reviewer:g-domain-batch46-line",
+ "authors": [
+  "batch-44-g-evidence-group"
+ ],
+ "self_review": false,
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_line": "docs/acceptance/ledger.md#G-010",
+ "check": "遥测默认关：无键时 UNKNOWN 等价 OFF，门为 false",
+ "method": "cmd: python -I tools/ci/g_security_gate.py --topic logging （断言 G-010）; test:docs/acceptance/evidence/G/tests/g-logging.xml",
+ "evidence": [
+  "cmd:docs/acceptance/evidence/G/logs/g-logging.log",
+  "test:docs/acceptance/evidence/G/tests/g-logging.xml"
+ ],
+ "evidence_sha256": {
+  "docs/acceptance/evidence/G/logs/g-logging.log": "40c241519862ac9154d974438e3fc015f1cbf8e50ce375f8788ca3d23e97daa8",
+  "docs/acceptance/evidence/G/tests/g-logging.xml": "599033f1ee8413e781f0362c8e463b5250469e6236a51fc096200d0c9937a36a"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=G-010; verdict=PASS; line=681; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=G-010; verdict=PASS; line=681; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "evidence_sha256",
-      "path": "docs/acceptance/evidence/G/logs/g-logging.log",
-      "expected": "40c241519862ac9154d974438e3fc015f1cbf8e50ce375f8788ca3d23e97daa8",
-      "actual": "40c241519862ac9154d974438e3fc015f1cbf8e50ce375f8788ca3d23e97daa8",
-      "manifest_listed": true,
-      "ok": true
-    },
-    {
-      "name": "evidence_sha256",
-      "path": "docs/acceptance/evidence/G/tests/g-logging.xml",
-      "expected": "599033f1ee8413e781f0362c8e463b5250469e6236a51fc096200d0c9937a36a",
-      "actual": "599033f1ee8413e781f0362c8e463b5250469e6236a51fc096200d0c9937a36a",
-      "manifest_listed": true,
-      "ok": true
-    },
-    {
-      "name": "junit_counts",
-      "path": "docs/acceptance/evidence/G/tests/g-logging.xml",
-      "tests": 4,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "ok": true
-    },
-    {
-      "name": "cmd_log_exit",
-      "path": "docs/acceptance/evidence/G/logs/g-logging.log",
-      "log_exit": 0,
-      "ledger_declared_exit": 0,
-      "ok": true
-    },
-    {
-      "name": "gate_assertion_rerun",
-      "cmd": "python -I tools/ci/g_security_gate.py --all",
-      "gate_exit": 0,
-      "assertion_id": "G-010",
-      "line": "G-010 PASS consent unknown-state documented=True; off-by-default binding=True",
-      "ok": true
-    }
-  ],
-  "adversarial": {
-    "attempted": false,
-    "result": "not-attempted"
+  {
+   "name": "evidence_sha256",
+   "path": "docs/acceptance/evidence/G/logs/g-logging.log",
+   "expected": "40c241519862ac9154d974438e3fc015f1cbf8e50ce375f8788ca3d23e97daa8",
+   "actual": "40c241519862ac9154d974438e3fc015f1cbf8e50ce375f8788ca3d23e97daa8",
+   "manifest_listed": true,
+   "ok": true
   },
-  "basis": "机械复算（reviewer=independent-reviewer:g-domain-batch46-line，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 G-010 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "rebind_from_run_id": "2026-11-05T01:14:36+08:00-batch44-g-evidence",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "evidence_sha256",
+   "path": "docs/acceptance/evidence/G/tests/g-logging.xml",
+   "expected": "599033f1ee8413e781f0362c8e463b5250469e6236a51fc096200d0c9937a36a",
+   "actual": "599033f1ee8413e781f0362c8e463b5250469e6236a51fc096200d0c9937a36a",
+   "manifest_listed": true,
+   "ok": true
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 2,
-    "basis": "bytes-on-disk"
+  {
+   "name": "junit_counts",
+   "path": "docs/acceptance/evidence/G/tests/g-logging.xml",
+   "tests": 4,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "ok": true
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "cmd_log_exit",
+   "path": "docs/acceptance/evidence/G/logs/g-logging.log",
+   "log_exit": 0,
+   "ledger_declared_exit": 0,
+   "ok": true
+  },
+  {
+   "name": "gate_assertion_rerun",
+   "cmd": "python -I tools/ci/g_security_gate.py --all",
+   "gate_exit": 0,
+   "assertion_id": "G-010",
+   "line": "G-010 PASS consent unknown-state documented=True; off-by-default binding=True",
+   "ok": true
+  }
+ ],
+ "adversarial": {
+  "attempted": false,
+  "result": "not-attempted"
+ },
+ "basis": "机械复算（reviewer=independent-reviewer:g-domain-batch46-line，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 G-010 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+ "rebind_from_run_id": "2026-11-05T01:14:36+08:00-batch44-g-evidence",
+ "ledger_batch": 46,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-05T11:28:35Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 2,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific"
 }

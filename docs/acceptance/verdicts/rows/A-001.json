@@ -1,94 +1,94 @@
 {
-  "id": "A-001",
-  "verdict": "PASS",
-  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-a",
-  "reviewer": "batch46-line-reviewer-A",
-  "authors": [
-    "batch45-evidence-producer-A"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.xml",
-    "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.device.json",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.log",
-    "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.xml",
-    "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.device.json",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.xml": "317528af516a3c0d1a994ad90dcee18ea4e5b2fc7fbca5d069cf03f0c6f51363",
-    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.device.json": "0667cd3b9f66af0d19aad2e93a8fe365b60a33ea0121f71527318ca9a468d4ec",
-    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.log": "4f45d936d2446a663681624991d91c380addf92b380cc722a1ff1c497152860b",
-    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.xml": "16f08556995260fbab1b8d0e23afbd0004c5213f48a836d18228a3047d2cdfff",
-    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.device.json": "9e22047e5b89df62479e5e021794e6690ab2a0735db8326b82ad909cd20f1f26",
-    "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.log": "6e822f40c6ec22e57aa3379d3157ee69a684dde1c4695d2f1600c0d4f469c739"
+ "id": "A-001",
+ "verdict": "PASS",
+ "run_id": "2026-11-05T08:50:11Z-batch46-line-review-a",
+ "reviewer": "batch46-line-reviewer-A",
+ "authors": [
+  "batch45-evidence-producer-A"
+ ],
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "evidence": [
+  "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.xml",
+  "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.device.json",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.log",
+  "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.xml",
+  "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.device.json",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.xml": "317528af516a3c0d1a994ad90dcee18ea4e5b2fc7fbca5d069cf03f0c6f51363",
+  "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.device.json": "0667cd3b9f66af0d19aad2e93a8fe365b60a33ea0121f71527318ca9a468d4ec",
+  "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.log": "4f45d936d2446a663681624991d91c380addf92b380cc722a1ff1c497152860b",
+  "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.xml": "16f08556995260fbab1b8d0e23afbd0004c5213f48a836d18228a3047d2cdfff",
+  "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.device.json": "9e22047e5b89df62479e5e021794e6690ab2a0735db8326b82ad909cd20f1f26",
+  "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.log": "6e822f40c6ec22e57aa3379d3157ee69a684dde1c4695d2f1600c0d4f469c739"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=A-001; verdict=PASS; line=132; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=A-001; verdict=PASS; line=132; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.xml",
-      "value": "tests=6; failures=0; errors=0; skipped=0; suite=r1-shared; timestamp=2026-11-04T08:51:05Z; hostname=emulator-5584; sha256=317528af516a3c0d1a994ad90dcee18ea4e5b2fc7fbca5d069cf03f0c6f51363"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.xml",
-      "value": "testcases=6; first=aRetryableShareFailureCanBeRetriedAndSucceeds; all_present=True"
-    },
-    {
-      "name": "device_binding",
-      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.device.json",
-      "value": "serial=emulator-5584; apk_sha256=84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b; test_apk_sha256=9ede778ded7bde91157b4c09f9be61585bea0aed7e8cade450431c5ed86c13e3; counts={\"errors\": 0, \"evaluated\": 6, \"failures\": 0, \"skipped\": 0, \"tests\": 6}; verdict=PASS; boot_id=5a34f877-606b-4e74-b7b8-84f6398faf9d; sha256=0667cd3b9f66af0d19aad2e93a8fe365b60a33ea0121f71527318ca9a468d4ec"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.log",
-      "value": "exit_markers=[0]; cmd=n/a; sha256=4f45d936d2446a663681624991d91c380addf92b380cc722a1ff1c497152860b"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.xml",
-      "value": "tests=2; failures=0; errors=0; skipped=0; suite=r1-manual; timestamp=2026-11-04T08:51:40Z; hostname=emulator-5584; sha256=16f08556995260fbab1b8d0e23afbd0004c5213f48a836d18228a3047d2cdfff"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.xml",
-      "value": "testcases=2; first=nativeDocxExportProducesARealWordArtifactOnDevice; all_present=True"
-    },
-    {
-      "name": "device_binding",
-      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.device.json",
-      "value": "serial=emulator-5584; apk_sha256=84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b; test_apk_sha256=9ede778ded7bde91157b4c09f9be61585bea0aed7e8cade450431c5ed86c13e3; counts={\"errors\": 0, \"evaluated\": 2, \"failures\": 0, \"skipped\": 0, \"tests\": 2}; verdict=PASS; boot_id=5a34f877-606b-4e74-b7b8-84f6398faf9d; sha256=9e22047e5b89df62479e5e021794e6690ab2a0735db8326b82ad909cd20f1f26"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.log",
-      "value": "exit_markers=[0]; cmd=n/a; sha256=6e822f40c6ec22e57aa3379d3157ee69a684dde1c4695d2f1600c0d4f469c739"
-    }
-  ],
-  "basis": "机械复算（reviewer=batch46-line-reviewer-A，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 A-001 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "adversarial": {
-    "attempted": true,
-    "result": "recomputed-no-mismatch"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.xml",
+   "value": "tests=6; failures=0; errors=0; skipped=0; suite=r1-shared; timestamp=2026-11-04T08:51:05Z; hostname=emulator-5584; sha256=317528af516a3c0d1a994ad90dcee18ea4e5b2fc7fbca5d069cf03f0c6f51363"
   },
-  "review_scope": "single-ledger-row",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "xml_testcase",
+   "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.xml",
+   "value": "testcases=6; first=aRetryableShareFailureCanBeRetriedAndSucceeds; all_present=True"
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 6,
-    "basis": "bytes-on-disk"
+  {
+   "name": "device_binding",
+   "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.device.json",
+   "value": "serial=emulator-5584; apk_sha256=84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b; test_apk_sha256=9ede778ded7bde91157b4c09f9be61585bea0aed7e8cade450431c5ed86c13e3; counts={\"errors\": 0, \"evaluated\": 6, \"failures\": 0, \"skipped\": 0, \"tests\": 6}; verdict=PASS; boot_id=5a34f877-606b-4e74-b7b8-84f6398faf9d; sha256=0667cd3b9f66af0d19aad2e93a8fe365b60a33ea0121f71527318ca9a468d4ec"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-shared.log",
+   "value": "exit_markers=[0]; cmd=n/a; sha256=4f45d936d2446a663681624991d91c380addf92b380cc722a1ff1c497152860b"
+  },
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.xml",
+   "value": "tests=2; failures=0; errors=0; skipped=0; suite=r1-manual; timestamp=2026-11-04T08:51:40Z; hostname=emulator-5584; sha256=16f08556995260fbab1b8d0e23afbd0004c5213f48a836d18228a3047d2cdfff"
+  },
+  {
+   "name": "xml_testcase",
+   "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.xml",
+   "value": "testcases=2; first=nativeDocxExportProducesARealWordArtifactOnDevice; all_present=True"
+  },
+  {
+   "name": "device_binding",
+   "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.device.json",
+   "value": "serial=emulator-5584; apk_sha256=84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b; test_apk_sha256=9ede778ded7bde91157b4c09f9be61585bea0aed7e8cade450431c5ed86c13e3; counts={\"errors\": 0, \"evaluated\": 2, \"failures\": 0, \"skipped\": 0, \"tests\": 2}; verdict=PASS; boot_id=5a34f877-606b-4e74-b7b8-84f6398faf9d; sha256=9e22047e5b89df62479e5e021794e6690ab2a0735db8326b82ad909cd20f1f26"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r1-manual.log",
+   "value": "exit_markers=[0]; cmd=n/a; sha256=6e822f40c6ec22e57aa3379d3157ee69a684dde1c4695d2f1600c0d4f469c739"
+  }
+ ],
+ "basis": "机械复算（reviewer=batch46-line-reviewer-A，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 A-001 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+ "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "adversarial": {
+  "attempted": true,
+  "result": "recomputed-no-mismatch"
+ },
+ "review_scope": "single-ledger-row",
+ "ledger_batch": 46,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-05T11:28:35Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 6,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific"
 }

@@ -1,66 +1,66 @@
 {
-  "id": "E-067",
-  "verdict": "PASS",
-  "run_id": "2026-11-05T12:57:37Z-batch47-e-row-specific-repair",
-  "reviewer": "batch47-E-row-specific-repairer",
-  "authors": [
-    "batch45-evidence-producer-E"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml": "8c8721d14e1c60356cd5e084a4aecb2bd9b1786faab8073f8762bb2953685be7",
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log": "8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972"
+ "id": "E-067",
+ "verdict": "PASS",
+ "run_id": "2026-11-05T12:57:37Z-batch47-e-row-specific-repair",
+ "reviewer": "batch47-E-row-specific-repairer",
+ "authors": [
+  "batch45-evidence-producer-E"
+ ],
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "evidence": [
+  "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml": "8c8721d14e1c60356cd5e084a4aecb2bd9b1786faab8073f8762bb2953685be7",
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log": "8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=E-067; verdict=PASS; line=558; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=E-067; verdict=PASS; line=558; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml",
-      "value": "tests=6; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest; timestamp=2026-11-05T01:14:54.888Z; hostname=TIANSHAN; sha256=8c8721d14e1c60356cd5e084a4aecb2bd9b1786faab8073f8762bb2953685be7"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml",
-      "value": "testcases=6; first=the extractor's own careless candidate is refused by the certified gate; all_present=True"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
-      "value": "exit_markers=[0]; cmd=./gradlew --offline -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.study.StudySchedulingCalibrationTest --tests com.tingyun.smartmistakebook.core.data.study.ReviewCapac; sha256=8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml",
-      "value": "testcases=6; testcase=retraction hysteresis blocks auto write-back until a new negative event; present=true; suite=com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest; sha256=8c8721d14e1c60356cd5e084a4aecb2bd9b1786faab8073f8762bb2953685be7"
-    }
-  ],
-  "basis": "批次 47 / E 域行特有复算（reviewer=batch47-E-row-specific-repairer，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 E-067 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；打开本行 evidence 重算 sha256 与可判定字段；追加的 check 直接断言本行方法点名的测试方法（或源码字段/读侧查询）在当前字节里存在。本文件只对该单行生效。",
-  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "adversarial": {
-    "attempted": true,
-    "result": "recomputed-no-mismatch"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml",
+   "value": "tests=6; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest; timestamp=2026-11-05T01:14:54.888Z; hostname=TIANSHAN; sha256=8c8721d14e1c60356cd5e084a4aecb2bd9b1786faab8073f8762bb2953685be7"
   },
-  "review_scope": "single-ledger-row",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T12:57:37Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "xml_testcase",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml",
+   "value": "testcases=6; first=the extractor's own careless candidate is refused by the certified gate; all_present=True"
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 2,
-    "basis": "bytes-on-disk"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
+   "value": "exit_markers=[0]; cmd=./gradlew --offline -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.study.StudySchedulingCalibrationTest --tests com.tingyun.smartmistakebook.core.data.study.ReviewCapac; sha256=8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "xml_testcase",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml",
+   "value": "testcases=6; testcase=retraction hysteresis blocks auto write-back until a new negative event; present=true; suite=com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest; sha256=8c8721d14e1c60356cd5e084a4aecb2bd9b1786faab8073f8762bb2953685be7"
+  }
+ ],
+ "basis": "批次 47 / E 域行特有复算（reviewer=batch47-E-row-specific-repairer，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 E-067 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；打开本行 evidence 重算 sha256 与可判定字段；追加的 check 直接断言本行方法点名的测试方法（或源码字段/读侧查询）在当前字节里存在。本文件只对该单行生效。",
+ "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "adversarial": {
+  "attempted": true,
+  "result": "recomputed-no-mismatch"
+ },
+ "review_scope": "single-ledger-row",
+ "ledger_batch": 46,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-05T12:57:37Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 2,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific"
 }

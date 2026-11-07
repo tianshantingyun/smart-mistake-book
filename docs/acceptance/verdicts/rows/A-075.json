@@ -1,66 +1,66 @@
 {
-  "id": "A-075",
-  "verdict": "PASS",
-  "run_id": "2026-11-05T12:57:41Z-batch47-a-domain-rowspecific",
-  "reviewer": "batch47-a-domain-row-reviewer",
-  "authors": [
-    "batch45-evidence-producer-A"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "test:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml": "7f63b990303c4f1d0331ecb2f5eddfde52f2891d8d0ea5841879d66ae6bfbe73",
-    "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log": "81361871729b28f832f5d335caee134a46190bb297f1793bba18b4eb616732c5"
+ "id": "A-075",
+ "verdict": "PASS",
+ "run_id": "2026-11-05T12:57:41Z-batch47-a-domain-rowspecific",
+ "reviewer": "batch47-a-domain-row-reviewer",
+ "authors": [
+  "batch45-evidence-producer-A"
+ ],
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "evidence": [
+  "test:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml": "7f63b990303c4f1d0331ecb2f5eddfde52f2891d8d0ea5841879d66ae6bfbe73",
+  "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log": "81361871729b28f832f5d335caee134a46190bb297f1793bba18b4eb616732c5"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=A-075; verdict=PASS; line=206; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=A-075; verdict=PASS; line=206; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml",
-      "value": "tests=7; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.ReviewReminderCoordinatorTest; timestamp=2026-11-04T09:06:59.971Z; hostname=TIANSHAN; sha256=7f63b990303c4f1d0331ecb2f5eddfde52f2891d8d0ea5841879d66ae6bfbe73"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml",
-      "value": "testcases=7; first=aDifferentLocalDayInAnotherTimeZoneCanNotifyOnce; all_present=True"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log",
-      "value": "exit_markers=[0]; cmd=./gradlew :app:testLocalFirstDebugUnitTest --offline --tests \"com.tingyun.smartmistakebook.ReviewReminderCoordinatorTest\" --tests \"com.tingyun.smartmistakebook.ReviewReminderTimeCalculatorTest\" --test; sha256=81361871729b28f832f5d335caee134a46190bb297f1793bba18b4eb616732c5"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml",
-      "value": "testcase=duplicateAlarmAndClockRollbackDoNotDistractTheStudentAgain; present=true"
-    }
-  ],
-  "basis": "机械复算（reviewer=batch46-line-reviewer-A，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 A-075 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次47：新增行特有复算 xml_testcase(testcase=duplicateAlarmAndClockRollbackDoNotDistractTheStudentAgain)（derived：本行 method 只给类，testcase 取自该类且最贴近场景标签；存在性为事实；语义充分性不在本复算范围）；本行 checks 指纹因此唯一，checks_scope 改为 row-specific。",
-  "adversarial": {
-    "attempted": true,
-    "result": "recomputed-no-mismatch"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml",
+   "value": "tests=7; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.ReviewReminderCoordinatorTest; timestamp=2026-11-04T09:06:59.971Z; hostname=TIANSHAN; sha256=7f63b990303c4f1d0331ecb2f5eddfde52f2891d8d0ea5841879d66ae6bfbe73"
   },
-  "review_scope": "single-ledger-row",
-  "ledger_batch": 47,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T12:57:41Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "xml_testcase",
+   "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml",
+   "value": "testcases=7; first=aDifferentLocalDayInAnotherTimeZoneCanNotifyOnce; all_present=True"
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 2,
-    "basis": "bytes-on-disk"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log",
+   "value": "exit_markers=[0]; cmd=./gradlew :app:testLocalFirstDebugUnitTest --offline --tests \"com.tingyun.smartmistakebook.ReviewReminderCoordinatorTest\" --tests \"com.tingyun.smartmistakebook.ReviewReminderTimeCalculatorTest\" --test; sha256=81361871729b28f832f5d335caee134a46190bb297f1793bba18b4eb616732c5"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "xml_testcase",
+   "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml",
+   "value": "testcase=duplicateAlarmAndClockRollbackDoNotDistractTheStudentAgain; present=true"
+  }
+ ],
+ "basis": "机械复算（reviewer=batch46-line-reviewer-A，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 A-075 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+ "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次47：新增行特有复算 xml_testcase(testcase=duplicateAlarmAndClockRollbackDoNotDistractTheStudentAgain)（derived：本行 method 只给类，testcase 取自该类且最贴近场景标签；存在性为事实；语义充分性不在本复算范围）；本行 checks 指纹因此唯一，checks_scope 改为 row-specific。",
+ "adversarial": {
+  "attempted": true,
+  "result": "recomputed-no-mismatch"
+ },
+ "review_scope": "single-ledger-row",
+ "ledger_batch": 47,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-05T12:57:41Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 2,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific"
 }

@@ -1,54 +1,54 @@
 {
-  "id": "J-034",
-  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-j",
-  "reviewer": "batch46-line-reviewer-J",
-  "authors": [
-    "batch45-evidence-producer-J"
-  ],
-  "verdict": "FAIL",
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "cmd:docs/research/evidence/2026-11-06-batch-46/j-domain/j-aab16k.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-06-batch-46/j-domain/j-aab16k.log": "6173293fc57f3d67742263871719e0a87f24490e9ffa8ef1506d47c59a1dda95"
+ "id": "J-034",
+ "run_id": "2026-11-05T08:50:11Z-batch46-line-review-j",
+ "reviewer": "batch46-line-reviewer-J",
+ "authors": [
+  "batch45-evidence-producer-J"
+ ],
+ "verdict": "FAIL",
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "evidence": [
+  "cmd:docs/research/evidence/2026-11-06-batch-46/j-domain/j-aab16k.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-06-batch-46/j-domain/j-aab16k.log": "6173293fc57f3d67742263871719e0a87f24490e9ffa8ef1506d47c59a1dda95"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=J-034; verdict=FAIL; line=975; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=J-034; verdict=FAIL; line=975; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-46/j-domain/j-aab16k.log",
-      "value": "exit_markers=[1]; cmd=python -I tools/ci/j_release_verify.py aab16k --aab app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab; sha256=6173293fc57f3d67742263871719e0a87f24490e9ffa8ef1506d47c59a1dda95"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/j-domain/j-aab16k.log",
-      "value": "exit_markers=[1]; cmd=n/a; sha256=b73ddc83a6897ab3f11afbc8330addd94525dc6fd3a81d6b5d7e0cd67d958abc"
-    },
-    {
-      "name": "contradiction",
-      "source": "docs/acceptance/ledger.md",
-      "value": "cmd: python -I tools/ci/j_release_verify.py aab16k"
-    }
-  ],
-  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-06-batch-46/j-domain/j-aab16k.log",
+   "value": "exit_markers=[1]; cmd=python -I tools/ci/j_release_verify.py aab16k --aab app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab; sha256=6173293fc57f3d67742263871719e0a87f24490e9ffa8ef1506d47c59a1dda95"
   },
-  "evidence_freshness": {
-    "current_batch_files": 1,
-    "archived_files": 0,
-    "basis": "bytes-on-disk"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/j-domain/j-aab16k.log",
+   "value": "exit_markers=[1]; cmd=n/a; sha256=b73ddc83a6897ab3f11afbc8330addd94525dc6fd3a81d6b5d7e0cd67d958abc"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "contradiction",
+   "source": "docs/acceptance/ledger.md",
+   "value": "cmd: python -I tools/ci/j_release_verify.py aab16k"
+  }
+ ],
+ "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
+ "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "ledger_batch": 46,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-05T11:28:35Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 1,
+  "archived_files": 0,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific"
 }

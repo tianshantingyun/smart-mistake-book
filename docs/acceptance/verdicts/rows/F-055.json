@@ -1,119 +1,56 @@
 {
-  "id": "F-055",
-  "check": "长时 2h：基线",
-  "verdict": "FAIL",
-  "verdict_detail": "2h soak 第 39 轮（2504s）FATAL（滑杆端点 0.7f/0.97f 经 Float→Double 越出 band）。根因已修（commit 587098f1：retentionFromSlider 夹取；单测 4/4 绿，见 batch45 fix/xml），但修复后 2h soak 未复跑，未取得 2h 无 FATAL 的设备证据，按 fix-tickets-b46 #6 出口判据维持 FAIL。",
-  "run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
-  "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
-  "reviewer": "subagent-f-domain-fail-fix-b47",
-  "authors": [
-    "batch44-f-domain-evidence-track",
-    "batch46-f-domain-row-reviewer-b46"
-  ],
-  "self_review": false,
-  "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
-  "method": "2h soak 在 2504s 发生 FATAL EXCEPTION（Desired retention 越界）；进程重启，2723s 人工停止，未完成 2h；批次47 复核：根因已修（587098f1 滑杆端点夹取，单测 4/4 绿），修复后 2h soak 复跑未做，维持 FAIL（缺陷单 FIX-T01/soak）",
-  "evidence": [
-    "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log",
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json",
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt",
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-dropbox.txt",
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv",
-    "test:docs/research/evidence/2026-11-06-batch-45/fix/xml/TEST-com.tingyun.smartmistakebook.SchedulingRetentionSliderValueTest.xml"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log": "784db0248ec327f4a8c2ce24e5bd88d745894880e9fa09e61f2d9f609000893c",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json": "071f247a9c5582be98b79d7155e98ec62108605a17f2fd1f9739f484b2a0b3d7",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt": "9bfb6239e5b435147e8154a0e7f9e687774af7cc7b8a8cc8e3c55b15fcf5e58e",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-dropbox.txt": "22f795896dd6bab17fed59209fec52c95b391c4f73a28dfc624e0e01cd6ed91f",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv": "7e3c10619d0e068081014eea4c3504aecd418f72b527869791e900dd1781fcb0",
-    "docs/research/evidence/2026-11-06-batch-45/fix/xml/TEST-com.tingyun.smartmistakebook.SchedulingRetentionSliderValueTest.xml": "0338196472fc725fc9b6def67c54bfcab72441c464b78511d7f41e35971a7ff6"
+ "id": "F-055",
+ "verdict": "PASS",
+ "run_id": "2026-11-08T02:45:00Z-batch49-ledger-freeze",
+ "reviewer": "batch49-acceptance-ledger-mechanical",
+ "authors": [
+  "batch49-implementers"
+ ],
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "evidence": [
+  "device:docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv",
+  "file:docs/research/evidence/2026-11-08-batch-49/device/soak/soak.cmd.log",
+  "device:docs/research/evidence/2026-11-08-batch-49/device/00-snapshot-and-device-meta.txt",
+  "file:docs/research/evidence/2026-11-08-batch-49/device/soak/EXIT-CAPTURE-CAVEAT.md"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv": "4b1e4241d261c36bb0032598524eded8aa04200e11a5a59b4e54f26725b2a474",
+  "docs/research/evidence/2026-11-08-batch-49/device/soak/soak.cmd.log": "617d234542b0bda288a9c2d70f7dd6defaabfa800707a1ddea57355b67397fcc",
+  "docs/research/evidence/2026-11-08-batch-49/device/00-snapshot-and-device-meta.txt": "5a40766148772984aaf138a6b3069369ede760d3db6b88029f8432f0d1598855",
+  "docs/research/evidence/2026-11-08-batch-49/device/soak/EXIT-CAPTURE-CAVEAT.md": "6ec6c0060dbaac29b3fee45e987b2a2130e08247c70c8786a89c7cd7477ce2d2"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=F-055; verdict=PASS; line=636; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=F-055; verdict=FAIL; line=636; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "cmd_exit",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log",
-      "observed": {
-        "exit_markers": [
-          0
-        ],
-        "result": [],
-        "tests": []
-      },
-      "expect": {
-        "exit": 0
-      },
-      "pass": true,
-      "sha256": "784db0248ec327f4a8c2ce24e5bd88d745894880e9fa09e61f2d9f609000893c"
-    },
-    {
-      "name": "device_binding",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json",
-      "observed": {
-        "serial": "emulator-5566",
-        "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac"
-      },
-      "expect": null,
-      "pass": true,
-      "sha256": "071f247a9c5582be98b79d7155e98ec62108605a17f2fd1f9739f484b2a0b3d7"
-    },
-    {
-      "name": "evidence_exists",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt",
-      "observed": {
-        "exists": true,
-        "bytes": 9983
-      },
-      "expect": null,
-      "pass": true,
-      "sha256": "9bfb6239e5b435147e8154a0e7f9e687774af7cc7b8a8cc8e3c55b15fcf5e58e"
-    },
-    {
-      "name": "xml_counts",
-      "target": "docs/research/evidence/2026-11-06-batch-45/fix/xml/TEST-com.tingyun.smartmistakebook.SchedulingRetentionSliderValueTest.xml",
-      "observed": {
-        "tests": 4,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      },
-      "expect": null,
-      "pass": true,
-      "sha256": "0338196472fc725fc9b6def67c54bfcab72441c464b78511d7f41e35971a7ff6"
-    },
-    {
-      "name": "soak_summary",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json",
-      "value": "crash_at_s=2504; fatal=IllegalArgumentException Desired retention must be within the supported 0.7..0.97 range; soak_completed=false; fix_commit=587098f1; rerun_2h_after_fix=none"
-    }
-  ],
-  "basis": "机械复算（reviewer=subagent-f-domain-fail-fix-b47）：核对崩溃证据与修复状态；verdict 维持 FAIL，不复用单测证据替代长时设备观测。",
-  "ledger_batch": 47,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "device_text",
+   "source": "docs/research/evidence/2026-11-08-batch-49/device/00-snapshot-and-device-meta.txt",
+   "value": "key_lines=['02:04-04:04 2h soak on emulator-5590 (117 cycles, no new crash)']; sha256=5a40766148772984aaf138a6b3069369ede760d3db6b88029f8432f0d1598855"
   },
-  "evidence_freshness": {
-    "current_batch_files": 1,
-    "archived_files": 0,
-    "basis": "bytes-on-disk"
+  {
+   "name": "device_text",
+   "source": "docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv",
+   "value": "key_lines=['ts_utc,elapsed_s,cycle,pid,pss_kb,total_pss_kb,loadavg,dropbox_hits,crash_lines,monkey_rc']; sha256=4b1e4241d261c36bb0032598524eded8aa04200e11a5a59b4e54f26725b2a474"
   },
-  "checks_scope": "row-specific",
-  "adversarial": {
-    "attempted": true,
-    "result": "fail-retained"
-  },
-  "findings": [],
-  "caveats": [],
-  "notes": "缺陷单 FIX-T01/soak；复跑命令见 docs/acceptance/runbook.md §13。"
+  {
+   "name": "soak_raw",
+   "source": "docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv",
+   "value": "cycles=117; pids=28350; monkey_rc_nonzero=0; dropbox_first=2; dropbox_last=2; crash_lines_first=19; crash_lines_last=19; sha256=4b1e4241d261c36bb0032598524eded8aa04200e11a5a59b4e54f26725b2a474"
+  }
+ ],
+ "basis": "机械复算（批次49 修复环）：复核本行 ledger_row、soak CSV 逐轮统计、设备/快照文本与证据 sha256；不再把 soak.cmd.log 的字面量 EXIT=0 当作命令退出证明。",
+ "notes": "2h soak 基线重判：批次49 APK ebb3aa34 完整 7200s、117 轮、同一 pid、dropbox/crash 行数无增量（仅 x86_64 模拟器）。；soak.cmd.log 的 EXIT=0 是旧 f-soak.sh 汇总 heredoc 的字面量，不是真实退出码，已改由 soak-samples.csv 逐轮统计判完成性（见 EXIT-CAPTURE-CAVEAT.md）",
+ "review_scope": "single-ledger-row",
+ "review_kind": "mechanical-recompute",
+ "ledger_batch": 49,
+ "verified_at": "2026-11-08T02:45:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "checks_scope": "row-specific"
 }

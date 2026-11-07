@@ -1,125 +1,125 @@
 {
-  "id": "F-034",
-  "check": "导出耗时：日志",
-  "verdict": "PASS",
-  "verdict_detail": "本行要求 logcat 与 instr 两类原始输出；批次44 只归档了 instr（原 FAIL 根因）。批次47 用同一 export.test APK 08ea 在 emulator-5584 复跑 r1..r3：每轮 1 条 MistakeBatchPerf 行（elapsedMs=490/464/478）+ 原始 instr（OK (1 test)），全部落盘。",
-  "domain": "F",
-  "run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
-  "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
-  "reviewer": "subagent-f-domain-fail-fix-b47",
-  "authors": [
-    "batch44-f-domain-evidence-track",
-    "batch46-f-domain-row-reviewer-b46"
-  ],
-  "self_review": false,
-  "ledger": "docs/acceptance/ledger.md",
-  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
-  "ledger_batch": 47,
-  "review_kind": "mechanical-recompute",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ "id": "F-034",
+ "check": "导出耗时：日志",
+ "verdict": "PASS",
+ "verdict_detail": "本行要求 logcat 与 instr 两类原始输出；批次44 只归档了 instr（原 FAIL 根因）。批次47 用同一 export.test APK 08ea 在 emulator-5584 复跑 r1..r3：每轮 1 条 MistakeBatchPerf 行（elapsedMs=490/464/478）+ 原始 instr（OK (1 test)），全部落盘。",
+ "domain": "F",
+ "run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
+ "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
+ "reviewer": "subagent-f-domain-fail-fix-b47",
+ "authors": [
+  "batch44-f-domain-evidence-track",
+  "batch46-f-domain-row-reviewer-b46"
+ ],
+ "self_review": false,
+ "ledger": "docs/acceptance/ledger.md",
+ "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
+ "ledger_batch": 47,
+ "review_kind": "mechanical-recompute",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 4,
+  "archived_files": 0,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific",
+ "adversarial": {
+  "attempted": true,
+  "result": "no-contradiction-found"
+ },
+ "findings": [],
+ "caveats": [],
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "method": "MistakeBatchPerf logcat 与 am instrument 原始输出：批次44 只有 instr 无 logcat（原 FAIL 根因）；批次47 同 export.test APK 08ea 在 emulator-5584 复跑 r1..r3 各 1 条 MistakeBatchPerf 行（elapsedMs=490/464/478）与原始 instr 落盘; device: emulator-5584",
+ "evidence": [
+  "device:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.perf.logcat.txt",
+  "device:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.device.json",
+  "cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.cmd.log",
+  "cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/F-034-logcat-recount.cmd.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.perf.logcat.txt": "63da86a9e211b63a73851cec2913fe1c41b5f46d7f6fb2bf32ec39ea96151909",
+  "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.device.json": "525c4fe2fd35845d692c2cd37644b690519294ecf1c038bf422be6c81a74f999",
+  "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.cmd.log": "b8c23e9cc1b047fc9c44b12ca834a4476f4d5f1b2d7210247cb185497fa30ae1",
+  "docs/research/evidence/2026-11-06-batch-47/f-domain/F-034-logcat-recount.cmd.log": "01334e52c5681b4d26e2621392c7dde6807d7af027c18d62f5238927c52b0bff"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=F-034; verdict=PASS; line=615; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "evidence_freshness": {
-    "current_batch_files": 4,
-    "archived_files": 0,
-    "basis": "bytes-on-disk"
+  {
+   "name": "device_text",
+   "source": "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.perf.logcat.txt",
+   "value": "key_lines=['MistakeBatchPerf: pdfQuestions=60 pages=64 elapsedMs=490']; sha256=63da86a9e211b63a73851cec2913fe1c41b5f46d7f6fb2bf32ec39ea96151909"
   },
-  "checks_scope": "row-specific",
-  "adversarial": {
-    "attempted": true,
-    "result": "no-contradiction-found"
+  {
+   "name": "device_binding",
+   "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.device.json",
+   "observed": {
+    "serial": "emulator-5584",
+    "apk_sha256": "08ea26417f746daddf0344c8b12433702628e25670f7ca80283b2e2374e165c0"
+   },
+   "expect": null,
+   "pass": true,
+   "sha256": "525c4fe2fd35845d692c2cd37644b690519294ecf1c038bf422be6c81a74f999"
   },
-  "findings": [],
-  "caveats": [],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "method": "MistakeBatchPerf logcat 与 am instrument 原始输出：批次44 只有 instr 无 logcat（原 FAIL 根因）；批次47 同 export.test APK 08ea 在 emulator-5584 复跑 r1..r3 各 1 条 MistakeBatchPerf 行（elapsedMs=490/464/478）与原始 instr 落盘; device: emulator-5584",
-  "evidence": [
-    "device:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.perf.logcat.txt",
-    "device:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.device.json",
-    "cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.cmd.log",
-    "cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/F-034-logcat-recount.cmd.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.perf.logcat.txt": "63da86a9e211b63a73851cec2913fe1c41b5f46d7f6fb2bf32ec39ea96151909",
-    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.device.json": "525c4fe2fd35845d692c2cd37644b690519294ecf1c038bf422be6c81a74f999",
-    "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.cmd.log": "b8c23e9cc1b047fc9c44b12ca834a4476f4d5f1b2d7210247cb185497fa30ae1",
-    "docs/research/evidence/2026-11-06-batch-47/f-domain/F-034-logcat-recount.cmd.log": "01334e52c5681b4d26e2621392c7dde6807d7af027c18d62f5238927c52b0bff"
+  {
+   "name": "cmd_exit",
+   "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.cmd.log",
+   "observed": {
+    "exit_markers": [
+     0
+    ],
+    "result": [
+     "OK"
+    ],
+    "tests": []
+   },
+   "expect": {
+    "exit": 0
+   },
+   "pass": true,
+   "sha256": "b8c23e9cc1b047fc9c44b12ca834a4476f4d5f1b2d7210247cb185497fa30ae1"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=F-034; verdict=PASS; line=615; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "device_text",
-      "source": "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.perf.logcat.txt",
-      "value": "key_lines=['MistakeBatchPerf: pdfQuestions=60 pages=64 elapsedMs=490']; sha256=63da86a9e211b63a73851cec2913fe1c41b5f46d7f6fb2bf32ec39ea96151909"
-    },
-    {
-      "name": "device_binding",
-      "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.device.json",
-      "observed": {
-        "serial": "emulator-5584",
-        "apk_sha256": "08ea26417f746daddf0344c8b12433702628e25670f7ca80283b2e2374e165c0"
-      },
-      "expect": null,
-      "pass": true,
-      "sha256": "525c4fe2fd35845d692c2cd37644b690519294ecf1c038bf422be6c81a74f999"
-    },
-    {
-      "name": "cmd_exit",
-      "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.cmd.log",
-      "observed": {
-        "exit_markers": [
-          0
-        ],
-        "result": [
-          "OK"
-        ],
-        "tests": []
-      },
-      "expect": {
-        "exit": 0
-      },
-      "pass": true,
-      "sha256": "b8c23e9cc1b047fc9c44b12ca834a4476f4d5f1b2d7210247cb185497fa30ae1"
-    },
-    {
-      "name": "evidence_exists",
-      "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.instr.txt",
-      "observed": {
-        "exists": true,
-        "bytes": 942
-      },
-      "expect": null,
-      "pass": true,
-      "sha256": "f0f33f751038b9e4e56fe4f972506fb114bf175b7237f8cfc2f6dd91a301e6a1"
-    },
-    {
-      "name": "file_sha256",
-      "source": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-034-logcat-recount.json",
-      "value": "sha256=f73fd30348cced0c4b7bfcc765856def1e3ba4b5aa17c13a78835990fbbece65"
-    },
-    {
-      "name": "cmd_exit",
-      "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-034-logcat-recount.cmd.log",
-      "observed": {
-        "exit_markers": [
-          0
-        ],
-        "result": [],
-        "tests": []
-      },
-      "expect": {
-        "exit": 0
-      },
-      "pass": true,
-      "sha256": "01334e52c5681b4d26e2621392c7dde6807d7af027c18d62f5238927c52b0bff"
-    }
-  ],
-  "basis": "批次47 复跑命令：docs/research/evidence/2026-11-06-batch-47/f-domain/f47-run-instr.sh emulator-5584 com.tingyun.smartmistakebook.core.export.test '<class>#batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound' export-batch47-rN <outdir>；logcat -d -v threadtime -s MistakeBatchPerf:I 逐轮落盘。",
-  "notes": "本文件只对该单行生效。复跑在 x86_64 API34 模拟器（5584）上，真机/arm64 仍属 F-033 的 BLOCKED，不在本行声称。"
+  {
+   "name": "evidence_exists",
+   "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.instr.txt",
+   "observed": {
+    "exists": true,
+    "bytes": 942
+   },
+   "expect": null,
+   "pass": true,
+   "sha256": "f0f33f751038b9e4e56fe4f972506fb114bf175b7237f8cfc2f6dd91a301e6a1"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-034-logcat-recount.json",
+   "value": "sha256=f73fd30348cced0c4b7bfcc765856def1e3ba4b5aa17c13a78835990fbbece65"
+  },
+  {
+   "name": "cmd_exit",
+   "target": "docs/research/evidence/2026-11-06-batch-47/f-domain/F-034-logcat-recount.cmd.log",
+   "observed": {
+    "exit_markers": [
+     0
+    ],
+    "result": [],
+    "tests": []
+   },
+   "expect": {
+    "exit": 0
+   },
+   "pass": true,
+   "sha256": "01334e52c5681b4d26e2621392c7dde6807d7af027c18d62f5238927c52b0bff"
+  }
+ ],
+ "basis": "批次47 复跑命令：docs/research/evidence/2026-11-06-batch-47/f-domain/f47-run-instr.sh emulator-5584 com.tingyun.smartmistakebook.core.export.test '<class>#batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound' export-batch47-rN <outdir>；logcat -d -v threadtime -s MistakeBatchPerf:I 逐轮落盘。",
+ "notes": "本文件只对该单行生效。复跑在 x86_64 API34 模拟器（5584）上，真机/arm64 仍属 F-033 的 BLOCKED，不在本行声称。"
 }

@@ -1,124 +1,89 @@
 {
-  "id": "E-081",
-  "verdict": "PASS",
-  "run_id": "2026-11-05T16:51:14Z-batch47-e-row-specific-repair-r2",
-  "reviewer": "batch47-E-row-specific-repairer-r2",
-  "authors": [
-    "batch45-evidence-producer-E"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml",
-    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
-    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest.xml",
-    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest.xml",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml": "733cbe466f74e52aaf4f21e16faa916b189017cef1b27cd9edec388a13bcd443",
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml": "566ed929f4e895e3845b6b832f5f884de41bfaaa6e8ab59af6bb01540803fba4",
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest.xml": "0f6a844cbb32cbfd2958730cf045e1ece5fbf2532bbff18c05a73965c3d33d4b",
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest.xml": "22d46dab72281eca607c055d12a005c4b397d559f1a8ae05ffc2ffb86ce49912",
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log": "422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6",
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log": "8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972"
+ "id": "E-081",
+ "verdict": "PASS",
+ "run_id": "2026-11-08T02:45:00Z-batch49-ledger-freeze",
+ "reviewer": "batch49-acceptance-ledger-mechanical",
+ "authors": [
+  "batch49-implementers"
+ ],
+ "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "evidence": [
+  "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml",
+  "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
+  "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest.xml",
+  "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest.xml",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
+  "test:docs/research/evidence/2026-11-08-batch-49/p2-conflict/01-projection-conflict-reproject.xml",
+  "test:docs/research/evidence/2026-11-08-batch-49/p2-conflict/03-conflict-session-state.xml"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml": "733cbe466f74e52aaf4f21e16faa916b189017cef1b27cd9edec388a13bcd443",
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml": "566ed929f4e895e3845b6b832f5f884de41bfaaa6e8ab59af6bb01540803fba4",
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest.xml": "0f6a844cbb32cbfd2958730cf045e1ece5fbf2532bbff18c05a73965c3d33d4b",
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest.xml": "22d46dab72281eca607c055d12a005c4b397d559f1a8ae05ffc2ffb86ce49912",
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log": "422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6",
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log": "8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972",
+  "docs/research/evidence/2026-11-08-batch-49/p2-conflict/01-projection-conflict-reproject.xml": "1609024d7791d04a50fa4b127297a56286f29616bb02a44393c3169ff9236cef",
+  "docs/research/evidence/2026-11-08-batch-49/p2-conflict/03-conflict-session-state.xml": "ef2bb6a25f70e539ae90fab61b721cc17af93301b73cf01d3b6c9be304795778"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=E-081; verdict=PASS; line=572; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=E-081; verdict=PASS; line=572; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml",
-      "value": "tests=27; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test; timestamp=2026-11-05T01:14:37.933Z; hostname=TIANSHAN; sha256=733cbe466f74e52aaf4f21e16faa916b189017cef1b27cd9edec388a13bcd443"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml",
-      "value": "testcases=27; first=same-KC quota is waived while the knowledge node is not yet learned; all_present=True"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
-      "value": "tests=22; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest; timestamp=2026-11-05T01:14:37.649Z; hostname=TIANSHAN; sha256=566ed929f4e895e3845b6b832f5f884de41bfaaa6e8ab59af6bb01540803fba4"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
-      "value": "testcases=22; first=scoresKnowledgeNodesWithAMasteryDerivedDifficultyBand; all_present=True"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest.xml",
-      "value": "tests=12; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest; timestamp=2026-11-05T01:14:54.253Z; hostname=TIANSHAN; sha256=0f6a844cbb32cbfd2958730cf045e1ece5fbf2532bbff18c05a73965c3d33d4b"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest.xml",
-      "value": "testcases=12; first=void and replace corrections resolve with mastery-projection semantics; all_present=True"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest.xml",
-      "value": "tests=8; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest; timestamp=2026-11-05T01:14:55.003Z; hostname=TIANSHAN; sha256=22d46dab72281eca607c055d12a005c4b397d559f1a8ae05ffc2ffb86ce49912"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest.xml",
-      "value": "testcases=8; first=quota is capped by the daily capacity and the excess is reported honestly; all_present=True"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
-      "value": "exit_markers=[0]; cmd=./gradlew --offline -q :core:domain:test --tests com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest --tests com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest --tests com.t; sha256=422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
-      "value": "exit_markers=[0]; cmd=./gradlew --offline -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.study.StudySchedulingCalibrationTest --tests com.tingyun.smartmistakebook.core.data.study.ReviewCapac; sha256=8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972"
-    },
-    {
-      "name": "xml_counts",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml",
-      "value": "tests=27; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test; sha256=733cbe466f74e52aaf4f21e16faa916b189017cef1b27cd9edec388a13bcd443"
-    },
-    {
-      "name": "xml_counts",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
-      "value": "tests=22; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest; sha256=566ed929f4e895e3845b6b832f5f884de41bfaaa6e8ab59af6bb01540803fba4"
-    },
-    {
-      "name": "xml_counts",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest.xml",
-      "value": "tests=12; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest; sha256=0f6a844cbb32cbfd2958730cf045e1ece5fbf2532bbff18c05a73965c3d33d4b"
-    },
-    {
-      "name": "xml_counts",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest.xml",
-      "value": "tests=8; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest; sha256=22d46dab72281eca607c055d12a005c4b397d559f1a8ae05ffc2ffb86ce49912"
-    }
-  ],
-  "basis": "批次 47 / E 域行特有复算第二轮（reviewer=batch47-E-row-specific-repairer-r2，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 E-081 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；打开本行 evidence 重算 sha256 与可判定字段；第二轮追加的 check 逐字节断言本行 claim 点名的测试方法（xml_testcase）与套件计数（xml_counts）在当前归档 XML 字节里成立。本文件只对该单行生效。",
-  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "adversarial": {
-    "attempted": true,
-    "result": "recomputed-no-mismatch"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml",
+   "value": "tests=27; failures=0; errors=0; skipped=0; sha256=733cbe466f74e52aaf4f21e16faa916b189017cef1b27cd9edec388a13bcd443"
   },
-  "review_scope": "single-ledger-row",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T16:51:14Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
+   "value": "tests=22; failures=0; errors=0; skipped=0; sha256=566ed929f4e895e3845b6b832f5f884de41bfaaa6e8ab59af6bb01540803fba4"
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 6,
-    "basis": "bytes-on-disk"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.AdaptiveSelectionAssemblerTest.xml",
+   "value": "tests=12; failures=0; errors=0; skipped=0; sha256=0f6a844cbb32cbfd2958730cf045e1ece5fbf2532bbff18c05a73965c3d33d4b"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ExamQuotaPlannerTest.xml",
+   "value": "tests=8; failures=0; errors=0; skipped=0; sha256=22d46dab72281eca607c055d12a005c4b397d559f1a8ae05ffc2ffb86ce49912"
+  },
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-08-batch-49/p2-conflict/01-projection-conflict-reproject.xml",
+   "value": "tests=8; failures=0; errors=0; skipped=0; sha256=1609024d7791d04a50fa4b127297a56286f29616bb02a44393c3169ff9236cef"
+  },
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-08-batch-49/p2-conflict/03-conflict-session-state.xml",
+   "value": "tests=6; failures=0; errors=0; skipped=0; sha256=ef2bb6a25f70e539ae90fab61b721cc17af93301b73cf01d3b6c9be304795778"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
+   "value": "exit_markers=[0]; sha256=422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
+   "value": "exit_markers=[0]; sha256=8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972"
+  }
+ ],
+ "basis": "机械复算（reviewer=batch49-acceptance-ledger-mechanical，批次49 台账冻结轮，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 E-081 并复算 ledger_sha256=d370ef8ac6774499629443e0e06bce7e241e856af42369fa1a059499dfa75bba；逐个打开本行 evidence 复算 sha256、XML counts、cmd EXIT 与设备绑定。本文件只对该单行生效。",
+ "notes": "冲突处置回归：原排序 69 例 + 投影冲突/重整理 8 例 + 冲突卡状态机 6 例。",
+ "review_scope": "single-ledger-row",
+ "review_kind": "mechanical-recompute",
+ "ledger_batch": 49,
+ "verified_at": "2026-11-08T02:45:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "checks_scope": "row-specific"
 }
