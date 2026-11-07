@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import xml.etree.ElementTree as ET
 from collections import Counter
@@ -106,9 +107,13 @@ def lint(ledger: str | Path, repo_root: str | Path, partial: bool = False,
         if "<" in row.method and ">" in row.method:
             violations.append({"id": row.row_id, "code": "PLACEHOLDER_METHOD",
                                "detail": row.method})
-        if UNVERIFIED_RE.search(row.method) or UNVERIFIED_RE.search(row.evidence_text):
+        # 检查列只抓“状态前缀”形态（`UNVERIFIED:` / `未验证：`）；检查项正文里
+        # 描述规则（如“UNVERIFIED 不得标 PASS”）是合法措辞，不能误报。
+        if (re.match(r"^\s*(?:UNVERIFIED|未验证)\s*[:：]", row.check)
+                or UNVERIFIED_RE.search(row.method)
+                or UNVERIFIED_RE.search(row.evidence_text)):
             violations.append({"id": row.row_id, "code": "UNVERIFIED_AS_PASS",
-                               "detail": "方法/证据文本含 UNVERIFIED"})
+                               "detail": "检查列以 UNVERIFIED 开头，或方法/证据文本含 UNVERIFIED"})
         for evidence in items:
             reuse[evidence.target] += 1
             path = M.resolve(root, evidence.target)

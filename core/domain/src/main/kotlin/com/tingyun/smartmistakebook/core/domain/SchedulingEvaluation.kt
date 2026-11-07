@@ -314,7 +314,9 @@ object SchedulingEvaluationHarness {
      * threshold, never automatically.
      */
     fun calibratePlannedReasons(samples: List<ReviewSample>): List<PlannedReasonCalibration> {
-        val withReason = samples.mapNotNull { sample ->
+        // 与 FSRS 拟合/评估同一口径：排除 MODEL_JUDGED 与 REVEAL（否则 realized recall
+        // 会把“模型判词/看答案”算进按原因校准，与 logLoss 评估样本集不一致）。
+        val withReason = fittableReviewSamples(samples).mapNotNull { sample ->
             sample.plannedReason?.let { reason -> sample to reason }
         }
         if (withReason.isEmpty()) return emptyList()

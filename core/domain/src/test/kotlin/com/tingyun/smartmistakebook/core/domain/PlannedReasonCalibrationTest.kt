@@ -45,11 +45,32 @@ class PlannedReasonCalibrationTest {
         assertTrue(at.hasSufficientSamples)
     }
 
-    private fun sample(unitId: String, at: Long, reason: String?, correct: Boolean) = ReviewSample(
+    @Test
+    fun `model judged and reveal samples do not enter per reason calibration`() {
+        val samples = listOf(
+            sample("unit-1", 0, reason = "DUE_RECALL_RISK", correct = true),
+            sample("unit-2", DAY, reason = "DUE_RECALL_RISK", correct = false, sourceKind = "MODEL_JUDGED"),
+            sample("unit-3", DAY * 2, reason = "DUE_RECALL_RISK", correct = false, sourceKind = "REVEAL"),
+        )
+
+        val report = SchedulingEvaluationHarness.calibratePlannedReasons(samples)
+
+        val due = report.single { it.plannedReason == "DUE_RECALL_RISK" }
+        assertEquals("只统计可拟合样本（ATTEMPT/LOCAL_CHECKED/SELF_REPORT）", 1, due.sampleCount)
+        assertEquals(1.0, due.realizedRecallRate, 1e-9)
+    }
+
+    private fun sample(
+        unitId: String,
+        at: Long,
+        reason: String?,
+        correct: Boolean,
+        sourceKind: String = "ATTEMPT",
+    ) = ReviewSample(
         practiceUnitId = unitId,
         reviewedAtEpochMillis = at,
         rating = if (correct) FsrsRating.GOOD else FsrsRating.AGAIN,
-        sourceKind = "ATTEMPT",
+        sourceKind = sourceKind,
         plannedReason = reason,
     )
 

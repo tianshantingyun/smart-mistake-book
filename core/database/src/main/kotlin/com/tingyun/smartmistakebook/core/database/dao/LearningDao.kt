@@ -223,12 +223,21 @@ internal abstract class LearningDao {
         insertReviewLog(entries)
     }
 
+    /**
+     * 最近 [limit] 条样本，**升序返回**：内层按 `reviewed_at_utc DESC` 取最新 N 条，
+     * 外层再升序，保证“最近窗口”语义（修复前直接 ASC LIMIT 取的是最早 N 条，与
+     * `optimizeSchedulingParameters` 的“most recent window”口径相反）。
+     */
     @Query(
-        "SELECT card_id AS practice_unit_id, reviewed_at_utc, rating, duration_ms, time_bucket, " +
+        "SELECT practice_unit_id, reviewed_at_utc, rating, duration_ms, time_bucket, " +
             "source_kind, evidence_weight, scroll_up_count, edit_count, interruption_count, " +
-            "away_millis, planned_reason, delta_t_days, state, scheduling_eligible FROM review_log " +
-            "WHERE learner_id = :learnerId " +
-            "ORDER BY reviewed_at_utc ASC, review_log_id ASC LIMIT :limit",
+            "away_millis, planned_reason, delta_t_days, state, scheduling_eligible, review_log_id FROM (" +
+            "SELECT card_id AS practice_unit_id, reviewed_at_utc, rating, duration_ms, time_bucket, " +
+            "source_kind, evidence_weight, scroll_up_count, edit_count, interruption_count, " +
+            "away_millis, planned_reason, delta_t_days, state, scheduling_eligible, review_log_id " +
+            "FROM review_log WHERE learner_id = :learnerId " +
+            "ORDER BY reviewed_at_utc DESC, review_log_id DESC LIMIT :limit" +
+            ") ORDER BY reviewed_at_utc ASC, review_log_id ASC",
     )
     abstract suspend fun readReviewLogSamples(learnerId: String, limit: Int): List<ReviewLogSampleProjection>
 

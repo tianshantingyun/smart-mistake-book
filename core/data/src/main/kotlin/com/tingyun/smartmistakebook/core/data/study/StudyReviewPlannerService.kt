@@ -51,6 +51,14 @@ import kotlinx.coroutines.flow.first
  * planning stays auditable without the repository's snapshot orchestration
  * around it.
  */
+/**
+ * 预算解析口径：生产 = 设置存储优先（学生改的每日时长必须生效），构造参数只是
+ * store 为 null 时的回退；`CONSTRUCTOR_ONLY` 只给“按显式预算验证 G6/配额数学”的
+ * 夹具用（`SchedulingOptions` 的最小粒度是 5 分钟，装不下 60/120 秒的边界用例）。
+ * 两种口径都只有这一处解析，preview/plan/intake 共用。
+ */
+internal enum class BudgetResolution { SETTINGS_THEN_CONSTRUCTOR, CONSTRUCTOR_ONLY }
+
 internal class StudyReviewPlannerService(
     private val database: StudyDatabasePort,
     private val learnerId: String,
@@ -69,6 +77,7 @@ internal class StudyReviewPlannerService(
     private val predictionAuditSink: PredictionAuditSink,
     private val knowledgePrerequisites: KnowledgePrerequisiteReader,
     private val learnerSnapshot: suspend () -> LearnerSnapshot,
+    private val budgetResolution: BudgetResolution = BudgetResolution.SETTINGS_THEN_CONSTRUCTOR,
 ) {
 
     /**
@@ -105,8 +114,11 @@ internal class StudyReviewPlannerService(
      * 同一份快照派生。原实现每个候选调一次考前权重、每次 `store.exams.first()`
      * （N 次流读取），最近考试再读一次。
      */
-    private suspend fun dailyReviewBudgetSeconds(): Int =
-        schedulingSettingsStore?.options?.first()?.dailyReviewBudgetSeconds ?: reviewTimeBudgetSeconds
+    private suspend fun dailyReviewBudgetSeconds(): Int = when (budgetResolution) {
+        BudgetResolution.CONSTRUCTOR_ONLY -> reviewTimeBudgetSeconds
+        BudgetResolution.SETTINGS_THEN_CONSTRUCTOR ->
+            schedulingSettingsStore?.options?.first()?.dailyReviewBudgetSeconds ?: reviewTimeBudgetSeconds
+    }
 
     private suspend fun readExams(): List<ExamCalendarEntry> =
         schedulingSettingsStore?.exams?.first().orEmpty()
@@ -366,16 +378,19 @@ internal class StudyReviewPlannerService(
                 .toInstant()
                 .toEpochMilli() - 1
         }
+        // 预算与 createReviewPlan/intake 同一解析入口（设置存储优先）；修复前这里用构造
+        // 参数，导致“预览按 120s、真实计划按 1200s”的口径分叉。
+        val baseBudgetSeconds = dailyReviewBudgetSeconds()
         val effectiveBudgetSeconds = examCapacityBudgetSeconds(
             exams = exams,
             localDayEpochDay = todayEpochDay,
-            baseBudgetSeconds = reviewTimeBudgetSeconds,
+            baseBudgetSeconds = baseBudgetSeconds,
         )
         // 考试爬坡已经把今天的预算抬到 effectiveBudgetSeconds；门面不得在它之上再乘一次
         // 1.5（会到基准的 2.25×）。爬坡生效时把"今天的绝对上限"显式传进去；无爬坡时传
         // null，保留 F9 的 1.5× 积压成长。
         val growthCeilingBudgetSeconds =
-            effectiveBudgetSeconds.takeIf { it > reviewTimeBudgetSeconds }
+            effectiveBudgetSeconds.takeIf { it > baseBudgetSeconds }
         val subjectByPracticeUnit = mistakes.associate { it.practiceUnitId to it.subject }
         val capacityPreview = ReviewCapacityPreviewReader(
             forgettingCurve = ForgettingCurve(decay = planningDecay),
@@ -929,6 +944,9 @@ internal class StudyReviewPlannerService(
                         ?: scored.knowledgeNodeId,
                     masteryScore = state?.masteryScore,
                     lastEvidenceAtEpochMillis = state?.lastEvidenceAtEpochMillis,
+                    // 批次 49 P2-14：把排程侧的真实理由带到会话——冲突 KC 卡的触发判据
+                    // 与这里给该点加分的判据同源（`KnowledgeNodeScorer.masteryRiskFor`）。
+                    reasons = scored.reasons,
                 )
             },
         )
