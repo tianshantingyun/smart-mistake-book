@@ -385,3 +385,206 @@ BLOCKED→PASS）；FAIL 23 条原样保留；`--require-complete` **exit 1** �
 
 > 本终裁不把任何 `BLOCKED` 读成通过，不把行级机械复算读成语义复核，
 > 不把 G1 金标读成人工金标，不把 v2 门 FAIL 的如实落盘读成问题已解决。
+
+---
+
+## 批次 49 报告重生成终裁（2026-11-08，记录员）
+
+> 台账：`docs/acceptance/ledger.md` sha256 `264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8`（1200 行，批次 49 修复环后；修复前 `d370ef8a…`）。
+> 机器报告：`docs/acceptance/acceptance-report.json`（sha256 `5db05770bc90d24f2fcf3ba7d6dfc656e03bc21e4cde1142cff33950a28455db`，head `0515cfb0…`，dirty 4908，exit 1），与 `docs/acceptance/evidence/2026-11-08-batch-49/gate/acceptance-report.json` **逐字节相同**（本轮 `cmp`）。
+> 证据：`docs/research/evidence/2026-11-08-batch-49/`（`00-index.md`、`calibration/`、`calibration-page/`、`p2-conflict/`、`device/`、`jvm/`、`repair/`）；计划：`.zcode/plans/plan-2026-11-08-mastery-review-quality.md`。
+> 本段只写终裁结论、复核结果与签字边界；不替代台账、行级 JSON 与原始证据。
+> 本轮记录员**实跑**：`acceptance_report`（含 `--require-complete`）、`acceptance_lint`（严格 + `--warn-only`）、`trace_requirements`、三份 sha256 清单校验、soak CSV 逐轮复算、标定复跑 9 产物 `cmp`、台账与 922 份复核 JSON 统计。
+> 本轮**未重跑**：Gradle 单测/强门、设备 instrumented、2h soak、标定实验；相关结论一律标注“读自证据”，不冒充本轮实跑。
+
+### B49-0. 结论
+
+**批次 49 验收不通过（NOT ACCEPTED）；发版不成立。**
+
+| 项 | 实值 | 判定 |
+|---|---|---|
+| 台账 verdict | **PASS 900 / FAIL 22 / BLOCKED 278 / UNVERIFIED 0**（total 1200） | 非 PASS 300 行 |
+| `acceptance_report` | exit **1**；`state=FAIL`；`violations=[]`；`pass_with_review=900`、`pass_without_review=0`、`pass_with_invalid_review=0`、`pass_with_row_specific_review=731`、`review_validation_errors=[]` | 证据链本身 0 违规；批次级未收口 |
+| `--require-complete` | exit **1**；`NOT_ACCEPTANCE_COMPLETE (UNVERIFIED=0 FAIL=22 BLOCKED=278)` + `REVIEW_CHECKS_SHARED` 18 组 | 仍不可签字 |
+| 与批次 48 对比 | 898/23/279 → **900/22/278**；转 PASS 仅 **F-055**（FAIL→PASS）与 **F-063**（BLOCKED→PASS）；**F-057 维持 FAIL** | +2 PASS；FAIL −1；BLOCKED −1 |
+| 算法相关 FAIL/BLOCKED | **未清零**：算法链 FAIL=1（F-057）；E 域 9 条 BLOCKED 原判不动；A 域掌握/复习 6 条 BLOCKED 原判不动；F-056 及真库标定/上线门仍 BLOCKED | §B49-3 |
+| 掌握阈值 | `21.0` 天 / `0.9` **未改**（只测不改） | `AlgorithmConstants.kt:63/:66`，`git diff` 为空 |
+| G6 / 权重 | G6 0/4 过门、17 权重臂 0/17 过门；`adopted_f=null`、`adopted=null`；**全部维持现值** | §B49-5 |
+| VERSION / 金样 | `review-planner-v4` 未 bump；三组金样未重生成，逐位一致用例 2/2 绿 | 同上 |
+| KD-67 / 校准页 / 冲突处置 | 主题行 A-019/E-080、A-067/E-044、A-021/E-081/F-063 均 PASS；**生产 app 级真 Room e2e、第二道校准题、冲突 planner→队列设备链未闭合** | §B49-6 |
+| 发版剩余 | 22 FAIL（F-057、H-018/H-062、J 13、GATE 6）+ 278 BLOCKED；外部条件未取得 | §B49-7 |
+
+**22 FAIL 的逐组归属（本轮按台账实算）**：F-057 1 条；H-018/H-062 2 条；J-001/J-002/J-020/J-021/J-024/J-025/J-027/J-033/J-034/J-041/J-048/J-051/J-052 共 13 条；GATE-032/GATE-038/GATE-042/GATE-091/GATE-092/GATE-099 共 **6** 条。`postfix-gate.md` 与 `repair/README.md`/`repair/unit-gate-and-kd67-blockers.md` 写作“7 条 GATE”（`acceptance-gate-explanation.md` 逐行只列 6 条），与台账逐行不符（13+7+2+1=23）；**以台账 6 条为准**，总 FAIL 数不变。此系文字计数笔误，不影响任何 verdict。
+
+### B49-1. 本轮实跑（逐字命令与 exit）
+
+| # | 命令（逐字） | exit | 关键输出 |
+|---:|---|---:|---|
+| 1 | `python -I tools/ci/acceptance_report.py --out build/b49-finalcheck/report.json` | **1** | counts **900/22/278/0**；state=FAIL；`violations=[]`；`pass_with_review=900`、`pass_with_invalid_review=0`、`review_validation_errors=[]`；warnings 18；head `0515cfb0`；dirty **4912**（gate 归档 4908；4 条差额未逐条归因，属共享工作树变动，不影响台账/复核） |
+| 2 | 同脚本 `--require-complete --out build/b49-finalcheck/report-require-complete.json` | **1** | `NOT_ACCEPTANCE_COMPLETE (UNVERIFIED=0 FAIL=22 BLOCKED=278)`；`REVIEW_CHECKS_SHARED` 18 组 |
+| 3 | `python -I tools/ci/acceptance_lint.py --ledger docs/acceptance/ledger.md --out build/b49-finalcheck/lint.json` | **1** | total 1200；violations **144**，全部 `EVIDENCE_REUSED`；逐条检索 `2026-11-08-batch-49` 命中 **0** |
+| 4 | 同上 `--warn-only` | **0** | violations **0**，warnings 144 |
+| 5 | `python -I tools/ci/trace_requirements.py --ledger docs/acceptance/ledger.md --out build/b49-finalcheck/trace.json` | **0** | total 1200；gaps **0** |
+| 6 | `sha256sum -c docs/acceptance/evidence/2026-11-08-batch-49/REVIEWS.sha256` | **0** | **923/923 OK**（922 份 `rows/*.json` + `verdict.schema.json`） |
+| 7 | `sha256sum -c docs/research/evidence/2026-11-08-batch-49/EVIDENCE.sha256` | **0** | **271/271 OK** |
+| 8 | `sha256sum -c docs/acceptance/evidence/2026-11-08-batch-49/GATES.sha256` | **0** | **10/10 OK** |
+| 9 | Python 复算 `docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv` | — | 117 轮；单一 pid `28350`；`crash_lines` 19→19、`dropbox_hits` 2→2、`monkey_rc!=0` **0**；elapsed 6→7188s；PSS 176,698→225,466 kB（min/max 176,669/242,118） |
+| 10 | `cmp` 9 份 `calibration/` 与 `repair/calibration-rerun/` 产物 | — | **9/9 IDENTICAL**（`g6-runs.csv`、`weight-runs.csv`、`thresholds.csv`、`g6-decisions.json`、`weight-decisions.json`、`threshold-readings.json`、`prefix-identity.json`、`determinism.json`、`confirmation.json`） |
+| 11 | Python 解析台账 + 922 份复核 JSON | — | 1200 行；900/22/278；FAIL 22 名单见 §B49-0；922 份均 `review_kind=mechanical-recompute`、`independent_agent=false`、`ledger_sha256=264425f5…`；731 行独有指纹，169 行共用（18 组 ≥5 行 = 119 行；19 组 2–4 行 = 50 行） |
+| 12 | `cmp docs/acceptance/acceptance-report.json docs/acceptance/evidence/2026-11-08-batch-49/gate/acceptance-report.json` | — | **逐字节相同** |
+
+**读自证据、非本轮重跑**：Gradle 12 模块单测门（`repair/unit-gate-after.log`：4165 例、9 红、exit 1；`feature:review` 106/0、`core:domain` 741/0）；修复环 5 模块复跑（`postfix-gate.md`：2970 例、10 红、exit 1，新增 app 2 红）；强门（`postfix-gate.md`：7/7 任务 exit 0，仅编译/打包）；设备 06/07 绿跑与修复环 17/17；2h soak 运行本身；标定实验。上述均为证据文档/日志读数，未在本轮重新执行。
+
+### B49-2. 复核结果（922 份行级复核 + 修复环）
+
+1. **复核链有效，但不等于语义复核**：900 个 PASS 行全部有行级 JSON，`pass_without_review=0`、`pass_with_invalid_review=0`、`review_validation_errors=[]`；922 份全部是 `mechanical-recompute`，`independence.independent_agent=false`，复核人是同会话脚本，不是第二人/第二模型。
+2. **25 份失效复核已按当前 sha 重生成**：C-053、D-019…026/036/044/080、H-009…071、I-024；共同处理 `ledger_sha256`、`ledger_row`、`evidence_sha256` 全量复算，未改 verdict、证据路径或语义判据（`00-index.md` §2）。
+3. **修复环高/中 finding 已处置**：高项 **F-057 假 PASS 已回退为 FAIL**（`repair/README.md` §0/§1；`rows/F-057.json` 的 `basis` 明确“把未命中记为 PASS 是改写成功含义”）；中项 6 类（soak 退出码空证据、06/07 设备绑定自述、校准题决策消费与文案、两处哈希漂移、P1-10 模拟上线门、P2-15 截图/无障碍）已修/登记。修复环 prose 写“中项 7 类”，逐行表实为 1 高 + 6 中；以表为准。
+4. **F-055/F-063 的证据口径已改**：旧 `soak.cmd.log` 的 `EXIT=0` 是旧脚本字面量，不作退出证明；两行 `cmd:` 改 `file:`，完成性由 CSV 逐轮数据判（`device/soak/EXIT-CAPTURE-CAVEAT.md`）。F-055 PASS、F-063 PASS 均建立在该口径上。
+5. **shared-check 残余未清零**：18 组 ≥5 行共用（119 行），另有 19 组 2–4 行（50 行）；`pass_with_row_specific_review=731/900`。18 组与批次 48 同源（D0/GATE 门面），本批未新增。`--require-complete` 仍以 `REVIEW_CHECKS_SHARED` 阻断。
+6. **复核 JSON 的叙述性瑕疵（本轮新发现）**：34 份复核的 `basis` 文本仍写修复前台账 sha `d370ef8a…`（25 份重生成复核 + 9 份本批行：A-019/A-021/A-064/A-067/E-009/E-044/E-080/E-081/F-045）。它们的结构化 `ledger_sha256` 与 `ledger_row` check 已全部重绑到 `264425f5…`，`acceptance_report` 也 0 校验错误；但审计叙述与当前台账不一致，登记为复核质量残余，不改 verdict。
+7. **lint/runbook 口径**：严格 lint 144 条 `EVIDENCE_REUSED`（全部批次 44–48 既有复用，批次 49 新证据 0 条；`--warn-only` exit 0）。BLOCKED runbook 覆盖：计划载体 `blocked-runbook.md` **278/278**；默认载体 `runbook.md` 仅 88/278（载体错位，批次 47 §6.4 已登记）。覆盖只证明出口条目存在，不证明条件取得（`gate/blocked-runbook-coverage-*.json`）。
+
+### B49-3. 算法相关 FAIL/BLOCKED：未清零（按“清零或说明”以“说明”收口）
+
+**结论：按“清零”字面，未清零；按计划 §P3-17 “清零或说明”，本批以“说明”收口。**
+
+| 组 | 行 | 现判 | 本批变化/说明 |
+|---|---|---|---|
+| F 长时稳定（2h soak） | **F-055** | **PASS** | FAIL→PASS：7200s/117 轮、同 pid、0 新崩溃/重启；证据口径见 §B49-2.4 |
+| F 长时稳定（2h soak） | **F-063** | **PASS** | BLOCKED→PASS：批次 44 的 2504s FATAL 在 7200s 未复现，同 pid 未重启 |
+| F 长时稳定（2h soak） | **F-057** | **FAIL** | **维持 FAIL**：判据是正向要求“2h 内至少 1 次 FATAL / 超限路径命中”；本批 117 轮 `crash_lines` 19→19、`dropbox` 2→2、`monkey_rc` 全 0，**超限路径未命中**。批次 47 根因修复（`587098f1`）不等于超限路径验证完成；把未命中记 PASS 是改写成功含义 |
+| F 长时阈值 | F-056 | BLOCKED | 2h 阈值/PSS 有界未取得；本批总 PSS 176,669→242,118 kB（末轮 225,466，约 +49 MB）未归因，不据此宣称内存无问题 |
+| E 复习与算法 | E-007、E-016、E-025、E-034、E-043、E-052、E-070、E-079 | BLOCKED | 8 条并发行（FSRS/容量/考试配额/再平衡/掌握判定/错因候选/错因撤销/排序稳定），`UNVERIFIED: 并发`；多数为纯函数/纯策略、无共享可变状态，但均无并发用例（E-043 仅测幂等，未测并发投影） |
+| E 复习与算法 | E-086 | BLOCKED | DST 切换仅冬季 EST 探针，无 2026-03-08 春季跳变用例 |
+| A 掌握/复习旅程 | A-023、A-024（复习三键大数据/权限拒绝）；A-065、A-066、A-068、A-069（掌握度失败路径/中断恢复/大数据/权限拒绝） | BLOCKED | 6 条产品旅程 BLOCKED 原判不动；本批未以 JVM/设备证据转 PASS |
+| 真库证据 | 真库 per-reason / G6 因果效应；A 线 FSRS 拟合；参数可辨识性 | BLOCKED | 零真库样本；`threshold-readings` 与 G6/权重全部 **model-based**（30 KC/300 题/120 天合成世界）；参数可辨识性 `WORLD_TOO_SMALL_FOR_IDENTIFIABILITY` |
+| 真库上线门 | 真库 `fsrsBeatsBaseline` | BLOCKED | **模拟侧**由修复环 P1-10 补跑通过：885 样本、FSRS logLoss 0.1501 < baseline 0.3731、`beats=true`（`repair/TEST-…SchedulingEvaluationOnSimulationTest.xml`，本轮读）；真库侧仍 BLOCKED，未填数字 |
+| 非本链（内容切分） | GATE-091、GATE-092、GATE-099 | FAIL | AUD-08 v2 切分门（① 10/24=0.4167<0.9；切残 3≠0）；不属复习/掌握算法链，但同为 FAIL，未清零 |
+
+**说明**：`acceptance-gate-explanation.md` 把“算法相关 FAIL/BLOCKED 清零或说明”执行为“F-057 如实回退并说明，其余非算法行按归属说明”；`00-index.md` §6.8 另登记“E 域并发 7 行 + DST 1 行、F 域 arm64/阈值 32 行等保持原判”。索引写“并发 7 行”，台账逐行为 **8 条并发行 + 1 条 DST = 9 条 BLOCKED**（E-007/E-016/E-025/E-034/E-043/E-052/E-070/E-079 + E-086），以台账为准。本终裁按更宽口径把 E 域 9 条与 A 域掌握/复习 6 条一并列出：它们没有清零，但都有明确出口，不冒充通过。F-057 是本批唯一算法链 FAIL。
+
+### B49-4. 掌握阈值维持说明
+
+1. **值未变**：`AlgorithmConstants.kt:63` `MIN_STABILITY_DAYS = 21.0`、`:66` `MIN_CURRENT_RETENTION = 0.9`；本轮 `git diff --stat` 对该文件无输出（exit 0），sha256 `e695418f5a24f56ab38ec11d44dd84f7030423c69bb57fd27942e34a36ccfd84` 与预注册 §1.1 基线、`calibration/run-manifest.json` `file_sha256` 完全一致。
+2. **只读测量**：`calibration/threshold-readings.json` `"change_proposed": false`，注记“只测不改：本批不产生任何阈值变更提案”；报告 §3.3 只给 T0(21,0.90)/T1(14,0.90)/T2(21,0.85) 三组读数，**不生成任何变更提案**（`docs/research/2026-11-08-review-calibration-report.md:30、:211、:304`）。
+3. **读数边界**：T1 在 day 120 的中位覆盖 9/30、T0 6/30、T2 6–7/30（pooled），但掌握集分母只有 1–2 个 KC，保持率会被单点翻转；W-slip 误判率结构性为零。这些是**方向性观察，不是阈值安全证明**；不得用它们支撑“可以改阈值”或“阈值已验证安全”。
+4. **变更纪律**：任何阈值变更需用户单独裁定 + 新预注册 + `algorithm-version-ledger.md` + `SKIP_POLICY` 版本纪律（报告 §3.3/§7）。本批未触发。
+
+### B49-5. 参数变更前后证据（G6 / 权重）
+
+**结论：本批未采纳任何 G6/权重候选，行为值未变；没有 VERSION bump，也没有三组金样重生成。所谓“变更前后”是“值相同 + 行为中性 seam 落地”的前后对账，不是参数值变更记录。**
+
+**门裁决（读自本批证据，本轮复算其 JSON 结构）**
+
+| 线 | 结果 | 关键字段 |
+|---|---|---|
+| G6 幅度 `f` | **0/4 过门**；`adopted_f=null`；`verdict=KEEP_0.50 (no arm passed the pre-registered gate)` | `calibration/g6-decisions.json`：4 臂 `pass=false`，理由 `UNDERPOWERED`×2 / `median_delta_below_one_kc` / `sign_consistency_below_8_of_10`；`no_equal_time_cells=22` |
+| 权重 5 坐标 / 17 臂 | **0/17 过门**；`passing=0`；`adopted=null`；`verdict=KEEP_ALL_CURRENT_WEIGHTS` | `calibration/weight-decisions.json`：17 臂 `pass=false`；注记“至多采纳 1 个坐标；本批未见任何坐标过门时维持全部现值（预注册 §5.4）” |
+| 人工确认 | `NOT_RUN` / `no_arm_passed_g6_gate` | `calibration/confirmation.json` |
+| 独立复算 | effect-only adopt `None`；权重 passing `0` | `calibration/decision-recompute.txt`（读自证据） |
+| 跨进程复跑 | G6 7/7、权重 28/28 `digest` 逐位相同 | 报告 §2；`calibration/determinism.json` in-process 3/3 equal |
+| 最终裁决 | `constants_changed=false`、`version_bump=false`、`version=review-planner-v4`、`golden_regenerated=false` | `docs/research/2026-11-08-review-calibration-report.json` `decision` 块 |
+
+**前后哈希对账（本轮 `sha256sum`/读 manifest 实算）**
+
+| 文件 | 实验前基线（prereg §1.1） | 实验/报告时点 manifest | 最终树（本轮实测） | 说明 |
+|---|---|---|---|---|
+| `AlgorithmConstants.kt` | `e695418f…cfd84` | `e695418f…cfd84` | **`e695418f…cfd84`** | 阈值/G6/权重均未变；`git diff` 为空 |
+| `ReviewPlannerV2.kt` | `ee89aba3…20ecf` | `ed6ae4e5…c9651c` | **`ed6ae4e5…c9651c`** | 权重注入 seam 落地；默认值与成对指纹不变 |
+| `ReviewPlanner.kt` | `e5d66b5b…bfbfa` | `62143174…0320f2` | **`62143174…0320f2`** | 删除旧 `KC_DROP_WEIGHT` 副本，单源到 `ReviewPlannerV2.kt:53` |
+| `SimulatedLearner.kt` | `d170338b…5cc2dc` | `62d1eeac…3e65ef` | **`62d1eeac…3e65ef`** | 模拟器新增 |
+| `ReviewPlannerScaleBenchmarkTest.kt` | `d72a2ed9…2560`（未变） | `d72a2ed9…2560` | **`d72a2ed9…2560`** | 三组金样未重生成；`golden selection sequences stay bit identical` 2/2 绿 |
+| `StudyReviewPlannerService.kt` | — | `2bd8c40b…d6948d` | `1cedc668…cc1bbf` | 报告后 P2-14 加 `reasons = scored.reasons`（`:944`）；已登记 `post_report_drift`；G6/权重/金样只依赖 `ReviewPlannerV2.kt`，裁决不受影响 |
+| `ReviewCalibrationExperimentTest.kt`（driver） | — | `6f2ec17a…` | `d9e649a1…fdb5c6` | 报告/门禁后被改；最终 driver 复跑 709s，9 产物与归档逐字节相同（本轮 `cmp` 9/9 IDENTICAL） |
+
+- **VERSION 未 bump 的依据**：`ReviewPlannerV2.kt:1097` `const val VERSION = "review-planner-v4"`（本轮 grep 命中名为 `VERSION` 的定义仅此一处；同文件 `:1132` 的 `PLAN_FINGERPRINT_SCHEMA_VERSION` 是不同常量）。预注册 §11 的一次性 bundle 只在**采纳非默认值**时触发；本批未采纳，故不 bump、不重生成金样、不新增算法台账行（`p1-9-keep-current-values.md` §0/§3）。
+- **不可测项**：`avoidance` 权重在模拟世界不可测（`ReviewCandidate.avoidance` 恒 false，未扫）；报告 §3.4 将其标为“不可测”，不冒充已校准。
+- **行为中性 seam 的边界**：`ReviewPlannerV2.kt` 字节变化来自注入接缝，不是默认权重/G6 数值变化；`ReviewScoringWeightsSeamTest` 3/3、`ReviewPlannerScaleBenchmarkTest` 2/2（`golden selection sequences stay bit identical`）本轮读 XML 为绿；`ReviewPlannerV2Test` 27/27 见 `p1-9-keep-current-values.md` §4 表（读自证据，未在本轮复跑）。默认指纹与显式 `DEFAULT` 相同。若后续要把该 seam 视为“行为变更”，必须按硬约束补 VERSION/金样，本批不这样做。
+- **上线门**：P1-10 模拟侧 `SchedulingEvaluationOnSimulationTest` 1/0 绿，885 样本、FSRS 0.1501 < baseline 0.3731、`beats=true`；真库侧 BLOCKED。报告 JSON 的 `blocked` 块仍把 A 线整体标 `BLOCKED_NOT_RUN`——P1-10 是修复环另补的**模拟侧**执行，不改变真库 BLOCKED。模拟结论全部标 **model-based**，不外推真库。
+
+### B49-6. KD-67 / 校准页 / 冲突处置验收结论
+
+| 主题 | 行/判 | 本批证据（读自证据；标 XML 者为本轮解析计数） | 验收结论 | 未闭合残余（不签） |
+|---|---|---|---|---|
+| **KD-67 确认卡/澄清消费** | A-019 PASS、E-080 PASS | `KnowledgeClarificationPresenterTest` 14/0；`feature:review` 106/0；设备 06 绿跑 `OK (8 tests)`（APK `ebb3aa34…`）；修复环 17/17（9 例复习卡/重整理 + 8 例校准页，APK `e19f1b22…`，`12-batch49-repair-artifacts.device.json`） | 卡片状态机、候选/原因上屏、作答后确认、换题/取消、决策消费在 JVM + 设备 UI 层成立；行级 PASS | **真 Room e2e 未跑**（设备用例从 `KnowledgeReviewSessionScreen` 公开入口注入 `clarificationState`，未走 `SmartMistakeBookRoot` 真实 selector→presenter→状态流与真 Room 确认/升级）；**第二道校准题未实现**（候选池只有本会话已落库的 FOUNDATION 题，`(会话,知识点)` 单槽不允许第二道）；生产调用未传 `userRequestedQuestion=true`（integration F5：选择器先返回 `QUESTION_NOT_REQUESTED`，确认卡仍因 `noCandidateDecision` 出现，但 ASK 分支永不执行） |
+| **校准可见页** | A-067 PASS、E-044 PASS | `SchedulingCalibrationViewBuilderTest` 7/0；`StudySchedulingCalibrationTest` 8/0；`SchedulingCalibrationCopyTest` 7/0；设备校准页 `OK (8 tests)`（07，APK `ebb3aa34…`）；DataStore 4/4；四屏 a11y `STRUCTURAL=PASS`、`CONTRAST=UNVERIFIED` | 21 维参数、来源（本地拟合/默认/导入）、最近拟合时间/样本/验证 logLoss vs 基线、per-reason 表、G6 幅度与版本、立即重拟合/重置均在屏；空态显示 `—`、默认参数不冒充本地拟合、重置置灰；行级 PASS | **真库读数 BLOCKED**（零真库样本）；对比度 UNVERIFIED；大字号未测；既有 `CapabilityScreenInstrumentedTest` 2 红在 HEAD 等价构建上同样存在（非本批引入）；`SchedulingSettingsScreen.kt` 的 `retentionFromSlider` 恢复是 P2-12 范围外修复（`calibration-page/README.md` §5.2，已登记，需主会话复核） |
+| **投影冲突 / 知识点冲突** | A-021 PASS、E-081 PASS、F-063 PASS | `ProjectionConflictReprojectTest` 8/0；`KnowledgeConflictCardTest` 5/0；`KnowledgeConflictSessionStateTest` 6/0；既有 session VM 23/0；`StudyProjectionIssueCopyTest` 3/0；设备 06 绿跑 8/8；F-063 7200s 未复现批次 44 的 2504s FATAL、同 pid 未重启 | `CONFLICTED` 专用状态 + 不同学生原因句 + 「重新整理」`reprojectAll()`（零新增 DAO）；冲突卡默认「仍然复习」（0 必选）、「先做校准题」走既有 CALIBRATION 走廊（显式 `userRequestedQuestion=true`）、`CALIBRATION_CHECK` 单独不弹卡；行级 PASS | **冲突队列真实来源未在设备跑**（设备用例用 `reasons={CONFLICTED_KNOWLEDGE}` 构造；planner 打分→reasons→队列的设备级链路未跑，JVM 有覆盖）；「先做校准题」的第二道题同样未实现；投影卡只在不可自愈时出现（账本完整时 `drain()` 自动重放修好，属刻意行为）；对比度 UNVERIFIED |
+
+**总判**：三条主题在**行级机械复核 + JVM + 设备 UI 层**为 PASS，但都不是完整产品闭环；`A-019/A-067/A-021` 的 PASS 不能读成“KD-67/校准页/冲突处置全部完成”。三条残余已分别登记在 `00-index.md` §6、`repair/unit-gate-and-kd67-blockers.md` §3、`p2-conflict-handling.md` §6。
+
+计数来源：`KnowledgeClarificationPresenterTest`、`SchedulingCalibrationViewBuilderTest`、`ProjectionConflictReprojectTest`、`KnowledgeConflictCardTest`、`KnowledgeConflictSessionStateTest`、`04-existing-session-vm-regression`、`05-projection-issue-copy` 为本轮解析 XML；`StudySchedulingCalibrationTest` 8/0、DataStore 4/4、设备 06/07 与修复环 17/17 为证据文档/侧车读数；`feature:review` 106/0 为门禁日志读数。两者均未在本轮重跑。
+
+### B49-7. 发版阻塞剩余（外部）
+
+**278 BLOCKED 的域分布（本轮台账实算）**：FIX 85、J 48、I 37、F 32、A 25、H 19、E 9、D 8、G 7、GATE 4、B 2、C 2（合计 278）。全部 278 条在 `blocked-runbook.md` 载体有出口条目（278/278，gate JSON；条件未取得，不证明已解决）。
+
+**A. 外部条件（本批无授权/需环境或他人签字，不能靠改台账关闭）**
+
+| 类别 | 条目 | 现状 | 为什么本批不能关闭 |
+|---|---|---|---|
+| 发布工程 J（13 FAIL + 48 BLOCKED） | J-001/J-002 干净树与 revision；J-020/J-021/J-024/J-025/J-027 生产钥匙/指纹/AAB 同一身份/证书有效期/文档契约；J-033/J-034/J-041 AAB ABI/quickjs/32-bit `.so`；J-048/J-051/J-052 versionCode 单调/注入机制/历史可比 | 共享脏树（本轮 `-uall` 4912；gate 4908）；无生产签名产物 | 需要干净发布树、生产 keystore 与 AAB 构建；改写这些行等于伪造发布证据（`acceptance-gate-explanation.md`） |
+| 真实 Provider D-083 | 真实 401/429/5xx 失败注入与 UI 失败码映射 | key 具备、协议冒烟 PASS，但失败注入未做 | 需要真实凭据与可控失败注入（`ledger.md:484`） |
+| 真机 / arm64 | F-006 等 arm64 行、I 域 TalkBack/IME/独立复核、J 域 arm64 | 设备证据仅 x86_64 模拟器 API 34 | 需要真机/arm64 设备与人工无障碍签字；本批不伪造 |
+| 人工金标 / 独立语义复核 | GATE-096…098/100（金标 v2 G1 model-labeled）、I-027 独立复核人 | G1 单模型盲标；行级复核是机械复算，`independent_agent=false` | 需要第二人/第二模型语义复核与人工金标 |
+| 真库样本 | 真库 per-reason/G6 因果、真库 `fsrsBeatsBaseline`、参数可辨识性 | **BLOCKED**（零真库样本） | 需要真实使用历史（每卡 ≥2 次可拟合行）；模拟数不得替代 |
+| 他线合规 | H-018/H-062（AIGC 隐式标识/水印，KD-85 open） | FAIL；属导出/水印链，不在本批 `feature/review`+`app` 热区 | 需他线改导出链；本批不整文件抢占 |
+| 内容切分门 | GATE-091/GATE-092/GATE-099（AUD-08 v2） | FAIL；① 10/24=0.4167<0.9、切残 3≠0 | 需切分链修复与重跑；非本批复习算法链 |
+
+**B. 本批/他线未闭合（不属“外部”，但同样阻断签字）**
+
+1. **算法链**：F-057 维持 FAIL；E 域 9 条 BLOCKED、A 域掌握/复习 6 条 BLOCKED、F-056 BLOCKED（§B49-3）。
+2. **单测门**：12 模块 4165 例 / 9 红 / exit 1；修复环 5 模块复跑 2970 例 / 10 红 / exit 1（新增 app 2 红）；证据文档逐条归因为 HEAD 既存他线语义（`core:database` 4、`core:data` 4、`feature:tutor` 1、`app` 2；`repair/unit-gate-and-kd67-blockers.md` §1、`postfix-gate.md` §2.3），本批面 `feature:review` 106/0、`core:domain` 741/0。强门 exit 0 只证明编译/打包，不执行测试（`postfix-gate.md` §1）。
+3. **KD-67/校准页/冲突**：真 Room e2e、第二道校准题、冲突 planner→队列设备链、对比度均未闭合（§B49-6）。
+4. **验收质量**：18 组 ≥5 行 shared checks（119 行）+ 19 组 2–4 行（50 行）；731/900 行级特有；34 份复核 `basis` 叙述引用旧 sha；`d0_self_acceptance --group all` 本批未跑（`verdicts.md` §0）；证据树 22 个 `.log` 被 `.gitignore:31` 忽略，原始日志不入库（integration F10）；`docs/2026-11-08-review-calibration-report.json` 仍是 GBK 非法 UTF-8 旧副本（untracked；本轮实测解码失败），不得提交（integration F1）。
+5. **PSS 残余**：2h soak 总 PSS 176,669→242,118 kB（末轮 225,466，约 +49 MB）未归因；F-056 仍 BLOCKED，不据此宣称内存无问题。
+
+### B49-8. 签字
+
+**签什么**
+
+1. 结论「**批次 49 验收不通过（NOT ACCEPTED）；发版不成立**」；终态 **900/22/278/0**、`exit=1`、`violations=[]`、`pass_with_invalid_review=0`；22 FAIL 名单与 6 条 GATE 的逐行计数。
+2. 与批次 48 的收敛事实：898/23/279 → 900/22/278；**F-055 FAIL→PASS、F-063 BLOCKED→PASS**；**F-057 维持 FAIL**（超限路径未命中，不是“无崩溃=通过”）。
+3. **算法相关 FAIL/BLOCKED 未清零**：算法链 FAIL 1（F-057）；E 域 9 条 BLOCKED、A 域掌握/复习 6 条 BLOCKED、F-056 BLOCKED；真库标定/上线门 BLOCKED；AUD-08 三条 FAIL 另列。按“清零或说明”以“说明”收口，不签“清零”。
+4. **掌握阈值 21 天/0.9 维持**：只读测量、无变更提案；T1/T2 只是读数；分母 1–2 KC，不足以支撑阈值安全结论。
+5. **G6/权重全部维持现值**：0/4、0/17 过门；`adopted_f=null`、`adopted=null`；`AlgorithmConstants.kt` 哈希与预注册基线一致；VERSION `review-planner-v4` 未 bump；三组金样未重生成且逐位一致 2/2 绿；P1-10 模拟上线门 885 样本/`beats=true`，真库 BLOCKED。
+6. **KD-67/校准页/冲突处置的行级 PASS 与其残余**：A-019/E-080、A-067/E-044、A-021/E-081/F-063 的机械复核 + JVM/设备 UI 证据；残余（真 Room e2e、第二道题、冲突设备链、对比度、真库读数）如实登记。
+7. **复核链与修复环**：922 份行级 JSON 全部绑当前台账 sha；`REVIEWS.sha256` 923/923、`EVIDENCE.sha256` 271/271、`GATES.sha256` 10/10 校验通过；25 份失效复核按当前 sha 重生成；F-057 假 PASS 已回退；F-055/F-063 的 `cmd:`→`file:` 已更正；calibration 9 产物复跑逐字节一致。
+
+**不签什么**
+
+1. 不签「批次 49 验收通过」或「发版就绪」——`require-complete` 两阻断（FAIL=22、18 组 shared checks）与 278 BLOCKED 均未消除。
+2. 不签「算法相关 FAIL/BLOCKED 清零」——F-057 仍 FAIL；E/A 算法 BLOCKED 未取得条件；真库样本与真库上线门 BLOCKED；AUD-08 三条仍 FAIL。
+3. 不签「F-057 已通过」——117 轮 soak 未命中超限路径；根因修复不等于超限路径验证；旧 `soak.cmd.log` 的 `EXIT=0` 不作退出证明。
+4. 不签「掌握阈值已验证安全」或「可以改阈值」——读数只是 model-based、分母 1–2 KC 的方向性观察；任何变更需用户单独裁定 + 新预注册 + 版本纪律。
+5. 不签「G6/权重变更已落地」——本批没有变更；也不签“字节级 seam 改动等于行为变更”或反之——默认值/金样/指纹证明默认行为未变。
+6. 不签 KD-67 完整闭环、第二道校准题、冲突 planner→队列设备链、真库校准页读数、无障碍对比度。
+7. 不签 shared-suite 残余（18 组 ≥5 行 / 119 行；2–4 行 19 组 / 50 行）的行级判别力；不签 34 份 `basis` 旧 sha 叙述已清理；不签 `docs/2026-11-08-review-calibration-report.json` 可提交（GBK 非法 UTF-8）。
+8. 不签外部发布条件：干净树、生产签名、真实 Provider 失败注入、真机/arm64、人工金标/独立语义复核、真库样本、H-018/H-062、AUD-08。
+
+### B49-9. 产物与哈希（批次 49 终态）
+
+| 产物 | sha256 |
+|---|---|
+| `docs/acceptance/ledger.md`（1200 行） | `264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8` |
+| `docs/acceptance/acceptance-report.json` | `5db05770bc90d24f2fcf3ba7d6dfc656e03bc21e4cde1142cff33950a28455db` |
+| `docs/acceptance/verdicts.md` | `8e3c84cf0420527c67cb47cd4fc395ca693189828f684285d4a32380f49243ec` |
+| `docs/acceptance/domain-index.md` | `3d4519766bf877914397f7401a3f261c8e8a6d1219bd871e590400b5bbf82768` |
+| `REVIEWS.sha256`（923 项：922 行级 JSON + schema） | `20912e2222d77822196054d45136caccb46b164a12baac38b5b992bfe021a398` |
+| `EVIDENCE.sha256`（271 项，`docs/research/evidence/2026-11-08-batch-49/**` 非 `.mimosa`） | `a4893e67030e8c8d60696a8fca2e5fd48f8de15c87cf88e4621a334f3db9f449` |
+| `GATES.sha256`（10 项，batch-49 acceptance evidence `gate/`） | `b41a4d6f952bdd711f456a5cbea25aa35ea9717fe09cd84bdcee158183484277` |
+
+**证据口径（必须与结论一起读）**
+
+1. `docs/acceptance/acceptance-report.json` 与 `gate/acceptance-report.json` 逐字节相同；报告头 `head=0515cfb0…`、`dirty=4908`。`00-index.md:5` 仍写“HEAD `ba7b5624` / 门禁 4898”，是该索引头部未随 06:33 重生成更新的**陈旧叙述**；以报告 JSON 与本轮实跑为准（本轮 dirty 4912，4 条差额未逐条归因，属共享工作树变动）。
+2. 本轮未重跑 Gradle/设备/soak/标定；单测、强门、设备、标定计数均来自证据 XML/日志，soak 统计由 CSV 复算而非重跑。报告里的 `model-based` 数字不得外推真库或真机。
+3. 修复环 `repair/README.md` 的“中项 7 类”与 `postfix-gate.md`/`repair/unit-gate-and-kd67-blockers.md` 的“7 条 GATE”是 prose 计数笔误；逐行表与台账为准（1 高 + 6 中；6 条 GATE）。
+4. 本终裁不把任何 `BLOCKED` 读成通过，不把行级机械复算读成语义复核，不把 model-based 模拟读成真库结论，不把行级 PASS 读成完整产品闭环。
+
+```text
+结论：批次 49 验收不通过（NOT ACCEPTED）；发版不成立
+签字人：批次 49 报告重生成终裁（记录员）
+签署范围：B49-8 签什么 1–7 项
+不签范围：B49-8 不签什么 1–8 项
+日期：2026-11-08
+```

@@ -1,25 +1,27 @@
-# 批次 48 逐项终裁表（1200 项，行级复核版）
+# 批次 49 逐项终裁表（1200 项，行级复核版）
 
-> run-id：批次 48（D 域设备取证 `2026-11-06T18:40:12Z-batch48-d-domain-device`；WS4 门禁复跑 2026-11-07）。　台账 `docs/acceptance/ledger.md` sha256：`28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375`
-> 输入：`docs/acceptance/acceptance-report.json`、`docs/acceptance/evidence/2026-11-07-batch-48/gate/`（lint/trace/runbook 覆盖）。生成器：`docs/acceptance/evidence/2026-11-07-batch-48/make_verdicts_report.py`。
+> 台账 `docs/acceptance/ledger.md` sha256：`264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8`；run-id：`2026-11-08T02:45:00Z-batch49-ledger-freeze`。　HEAD `ba7b5624`（冻结时点）。
+> 修复环（2026-11-08）重锚：F-057 假 PASS 回退、F-055/F-063 soak 退出码证据改为 file 出处、922 份复核按新台账 sha 重绑；行级复核 run-id 仍为冻结轮，F-057 为 `batch49-repair-f057`。
+> 输入：`docs/acceptance/acceptance-report.json`、`docs/acceptance/evidence/2026-11-08-batch-49/gate/`（report/lint/trace/runbook 覆盖）。生成器：`docs/acceptance/evidence/2026-11-08-batch-49/make_verdicts_report.py`。
 
 ## 0. 结论：**验收不通过（NOT ACCEPTED），不签总体通过**
 
 | 项 | 实值 | 判定 |
 |---|---|---|
 | 台账行数 | 1200（D0 100 / A–J 各 90 / FIX 100 / GATE 100） | — |
-| verdict 计数 | PASS 898 / FAIL 23 / BLOCKED 279 / UNVERIFIED 0 | 非 PASS 302 行 |
-| `acceptance_report --require-complete` | **exit 1**（NOT_ACCEPTANCE_COMPLETE (UNVERIFIED=0 FAIL=23 BLOCKED=279) + REVIEW_CHECKS_SHARED 18 组） | 阻断：仍有 FAIL/BLOCKED |
-| `acceptance_lint` | **exit 1**（EVIDENCE_REUSED×144；0 条涉及批次 48 新证据） | 复用告警（诊断面） |
+| verdict 计数 | PASS 900 / FAIL 22 / BLOCKED 278 / UNVERIFIED 0 | 非 PASS 300 行 |
+| `acceptance_report --require-complete` | **exit 1**（NOT_ACCEPTANCE_COMPLETE + REVIEW_CHECKS_SHARED） | 阻断：仍有 FAIL/BLOCKED |
+| `acceptance_lint` | **exit 1**（EVIDENCE_REUSED×144；0 条涉及批次 49 新证据） | 复用告警（诊断面） |
 | `acceptance_lint --warn-only` | exit 0（violations=0，144 告警降级） | 复用告警不阻断 |
 | `trace_requirements` | exit 0，gaps=0 | 追溯缺口为 0 |
-| BLOCKED runbook 覆盖 | blocked-runbook.md 载体 **279/279** exit 0；runbook.md 默认载体 88/279 exit 1（默认载体与计划载体错位，批次 47 §6.4 已登记） | 出口条目完整（不证明条件取得） |
-| `pass_with_review` | **898 / 898**；`pass_without_review` 0；`pass_with_invalid_review` 0 | DoD §1.5 机械面成立 |
-| `pass_with_row_specific_review` | **729 / 898**；18 组 ≥5 行共用（119 行） | 行级判别力缺口未清零 |
-| `d0_self_acceptance --group all` | 未跑（本批记录员未跑；批次 47 已知 h-061_fail 陈旧预期遗留） | 不计入本轮门值 |
+| BLOCKED runbook 覆盖 | blocked-runbook.md 载体 **278/278**；runbook.md 默认载体 88/278（默认载体与计划载体错位，批次 47 §6.4 已登记） | 出口条目完整（不证明条件取得） |
+| `pass_with_review` | **900 / 900**；`pass_without_review` 0；`pass_with_invalid_review` 0 | DoD §1.5 机械面成立 |
+| `pass_with_row_specific_review` | **731 / 900**；18 组 ≥5 行共用（119 行） | 行级判别力缺口未清零 |
+| `acceptance_init --check` | exit 0（无输出） | 台账结构成立 |
+| `d0_self_acceptance --group all` | 未跑（本批记录员未跑） | 不计入本轮门值 |
 | 切分门 AUD-08（v2） | 只读引用 WS2 归档 `gate-report-v2-01.json`：① 10/24=0.4167 <0.9 未过；③ 0.0385≤0.05 过；切残 3≠0；未重跑（acceptance 单次复算红线） | AUD-08 维持 FAIL |
 
-**判词**：本报告不能签「批次 48 验收通过」，也不构成发版就绪。`PASS` 表示该行证据通过`acceptance_report.py` 的 ≥2 类独立证据审计，并有一个行级复核 JSON（逐项复算通过）；行级复核为**机械复算**（sha256、cmd exit、XML counts、device 绑定），不替代第二个人/第二模型的语义复核，也不表示产品可用。批次 48 实得：BLOCKED 280→**279**（唯一 verdict 变更 = D-089 以 E-48-D-DEV-01 设备证据转 PASS）；金标 v2 落盘但等级 **G1（model-labeled）**，非人工金标，AUD-08 不因此转绿；v2 切分门 FAIL 如实落盘（① 0.4167）。
+**判词**：本报告不能签「批次 49 验收通过」，也不构成发版就绪。`PASS` 表示该行证据通过`acceptance_report.py` 的 ≥2 类独立证据审计，并有一个行级复核 JSON（逐项复算通过）；行级复核为**机械复算**（sha256、cmd exit、XML counts、device 绑定），不替代第二个人/第二模型的语义复核，也不表示产品可用。批次 49 实得：PASS 898→**900**、FAIL 23→**22**、BLOCKED 279→**278**（F-055 以 2h soak 转 PASS，F-063 由 BLOCKED 转 PASS；F-057 因「超限路径未命中」未满足正向判据，维持 FAIL）；25 份失效复核 JSON 按当前 sha 重生成；掌握阈值 21 天/0.9、G6 0.5、`review-planner-v4`、三组金样均未改；P1 标定结论为 model-based，真库样本不足项维持 BLOCKED。
 
 ## 1. 域统计
 
@@ -31,14 +33,14 @@
 | C 视觉与渲染 | 90 | 88 | 0 | 2 | 0 | 88/88 |
 | D 模型链路 | 90 | 82 | 0 | 8 | 0 | 82/82 |
 | E 复习与算法 | 90 | 81 | 0 | 9 | 0 | 81/81 |
-| F 性能与稳定 | 90 | 55 | 2 | 33 | 0 | 55/55 |
+| F 性能与稳定 | 90 | 57 | 1 | 32 | 0 | 57/57 |
 | G 安全与隐私 | 90 | 83 | 0 | 7 | 0 | 83/83 |
 | H 合规与文案 | 90 | 69 | 2 | 19 | 0 | 69/69 |
 | I 可用性与无障碍 | 90 | 53 | 0 | 37 | 0 | 53/53 |
 | J 发布工程 | 90 | 29 | 13 | 48 | 0 | 29/29 |
 | FIX 修复与加固 | 100 | 15 | 0 | 85 | 0 | 15/15 |
 | GATE 门禁与终裁 | 100 | 90 | 6 | 4 | 0 | 90/90 |
-| **合计** | **1200** | **898** | **23** | **279** | **0** | **898/898** |
+| **合计** | **1200** | **900** | **22** | **278** | **0** | **900/900** |
 
 ## 2. 逐项表
 
@@ -169,9 +171,9 @@
 | A-016 | PASS | 旅程「讲题」：旋转 | device:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j2-rotate.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j2-rotate.log; review:docs/acceptance/verdicts/rows/A-016.json |
 | A-017 | PASS | 旅程「讲题」：后台 | device:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j2-home.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j2-home.log; review:docs/acceptance/verdicts/rows/A-017.json |
 | A-018 | PASS | 旅程「讲题」：杀进程 | device:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j2-kill.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j2-kill.log; review:docs/acceptance/verdicts/rows/A-018.json |
-| A-019 | PASS | 旅程「复习三键」：主路径 | test:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.xml; device:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r… |
+| A-019 | PASS | 旅程「复习三键」：主路径（含 KD-67 确认卡：候选与原因上屏、仅作答后确认可用、换题/取消可退出） | test:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.xml; device:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r… |
 | A-020 | PASS | 旅程「复习三键」：失败路径 | test:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.xml; device:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r… |
-| A-021 | PASS | 旅程「复习三键」：中断恢复 | test:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.xml; device:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r… |
+| A-021 | PASS | 旅程「复习三键」：中断恢复（含投影 CONFLICTED 专用状态与「重新整理」全量重放；失败提示未改变） | test:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.xml; device:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r… |
 | A-022 | PASS | 旅程「复习三键」：空态 | test:docs/research/evidence/2026-11-05-batch-44/a-domain/r2-tutor.xml; device:docs/research/evidence/2026-11-05-batch-44/a-domain/r2-tutor.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r2-tutor.lo… |
 | A-023 | BLOCKED | 旅程「复习三键」：大数据 | file:core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/study/StudyReviewPlanner3EScanInstrumentedTest.kt |
 | A-024 | BLOCKED | 旅程「复习三键」：权限拒绝 | file:app/src/androidTest/kotlin/com/tingyun/smartmistakebook/ReviewSelfReportDeviceUiInstrumentedTest.kt |
@@ -214,10 +216,10 @@
 | A-061 | PASS | 旅程「知识库浏览」：旋转 | device:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j7-rotate.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j7-rotate.log; review:docs/acceptance/verdicts/rows/A-061.json |
 | A-062 | PASS | 旅程「知识库浏览」：后台 | device:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j7-home.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j7-home.log; review:docs/acceptance/verdicts/rows/A-062.json |
 | A-063 | PASS | 旅程「知识库浏览」：杀进程 | device:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j7-kill.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j7-kill.log; review:docs/acceptance/verdicts/rows/A-063.json |
-| A-064 | PASS | 旅程「掌握度」：主路径 | test:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mastery.xml; device:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mastery.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mast… |
+| A-064 | PASS | 旅程「掌握度」：主路径（掌握阈值 21 天/0.9 维持；P1 离线标定 10+10 seed 报告 G6/权重未过预注册门，维持现值，结论标注 model-based） | test:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mastery.xml; device:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mastery.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mast… |
 | A-065 | BLOCKED | 旅程「掌握度」：失败路径 | file:app/src/main/kotlin/com/tingyun/smartmistakebook/LearningMasteryScreen.kt |
 | A-066 | BLOCKED | 旅程「掌握度」：中断恢复 | file:app/src/main/kotlin/com/tingyun/smartmistakebook/LearningMasteryScreen.kt |
-| A-067 | PASS | 旅程「掌握度」：空态 | test:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mastery.xml; device:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mastery.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mast… |
+| A-067 | PASS | 旅程「掌握度」：空态（校准页无拟合记录显示 —，默认参数不冒充本地拟合，重置按钮置灰） | test:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mastery.xml; device:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mastery.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mast… |
 | A-068 | BLOCKED | 旅程「掌握度」：大数据 | file:core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/MasteryIntervalMappingTest.kt |
 | A-069 | BLOCKED | 旅程「掌握度」：权限拒绝 | file:app/src/androidTest/kotlin/com/tingyun/smartmistakebook/LearningMasteryScreenInstrumentedTest.kt |
 | A-070 | PASS | 旅程「掌握度」：旋转 | device:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j8-rotate.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/p-j8-rotate.log; review:docs/acceptance/verdicts/rows/A-070.json |
@@ -539,7 +541,7 @@
 | E-006 | PASS | FSRS 回滚：时间回拨被夹取，retention 不因回拨超过 1；投影记录 clockAnomalyCount 且复习时间不回退 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ForgettingCurveTest.xml; test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.… |
 | E-007 | BLOCKED | UNVERIFIED: FSRS 并发。无并发调用 FSRS 的用例；算法是纯函数、无共享可变状态，但并发关系未测 | file:core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/FsrsScheduleMath.kt |
 | E-008 | PASS | FSRS 证据：reason 到评分档逐条固定，MODEL_JUDGED 不高于 HARD，自评不冒充独立正确 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest.xml; test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook… |
-| E-009 | PASS | FSRS 回归：四类 35 例全绿（ScheduleMath 23 + Projection 7 + ForgettingCurve 4 + ParameterRecovery 1） | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest.xml; test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook… |
+| E-009 | PASS | FSRS 回归：四类 35 例全绿（ScheduleMath 23 + Projection 7 + ForgettingCurve 4 + ParameterRecovery 1）；P1 模拟器 6 例同 seed 逐位一致；G6 0/4 与权重 0/17 臂未过预注册门，维持现值 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest.xml; test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook… |
 | E-010 | PASS | 容量总量 0 值：dailyQuota(0)=0、cap=0 不发放、单日容量下限为 1 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log;… |
 | E-011 | PASS | 容量总量 1 值：60s 预算与 300s 中位时长仍给 1 个名额，非正输入 fail closed | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPolicyTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log;… |
 | E-012 | PASS | 容量总量极大值：5000 项 10 天轮转不超 900s，成长倍率夹在 1.5 倍上限 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml; test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.… |
@@ -574,7 +576,7 @@
 | E-041 | PASS | 掌握判定重复输入：attempt id 幂等，同批重复只应用一次 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.LearningProjectorTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log; revi… |
 | E-042 | PASS | 掌握判定回滚：时钟回拨被记录且记忆复习时间不回退 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.LearningProjectorTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log; revi… |
 | E-043 | BLOCKED | UNVERIFIED: 掌握判定并发。投影器幂等性已测，但无并发投影用例 | file:core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/LearningProjector.kt |
-| E-044 | PASS | 掌握证据：summary 保守分与区间上界同源 MasteryEstimateMath.interval(s,f) | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.lo… |
+| E-044 | PASS | 掌握证据：summary 保守分与区间上界同源 MasteryEstimateMath.interval(s,f)；校准读模型 7 例覆盖来源判定、同切分损失、21 维与 per-reason 口径 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.lo… |
 | E-045 | PASS | 掌握判定回归：四类 31 例全绿（IntervalMapping 2 + MemoryCard 8 + ReadSide 4 + Projector 17） | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest.xml; test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartm… |
 | E-046 | PASS | 错因候选 0 值：无学生轨迹或改卷后轨迹时弃权，不猜错因 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log; … |
 | E-047 | PASS | 错因候选 1 值：单一有效规则配错误步骤判 procedural，学生自述非法规则判 conceptual | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseExtractorTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log; … |
@@ -591,7 +593,7 @@
 | E-058 | PASS | 错因落账边界时间：近期撤回暂停自动落账，paused 或 re-versioned gate 拒绝 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseGateTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log; revie… |
 | E-059 | PASS | 错因落账重复输入：同 scope 第二条候选不产生第二条 ACTIVE，结算重放不双写 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml; test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakeb… |
 | E-060 | PASS | 错因落账回滚：用户撤回写 RETRACTED 与 VOIDED 并清 active_key，审计保留 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml; test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakeb… |
-| E-061 | PASS | UNVERIFIED: 错因落账并发。JVM 用例用假端口，不模拟 SQL 事务；真 SQLite 事务由设备用例覆盖，本轮未跑设备 | test:docs/research/evidence/2026-11-06-batch-46/e-domain/e061-errorcause-ledger-b46.xml; device:docs/research/evidence/2026-11-06-batch-46/e-domain/e061-errorcause-ledger-b46.device.json; cmd:docs/research/evidence/2026… |
+| E-061 | PASS | 错因落账并发。JVM 用例用假端口，不模拟 SQL 事务；真 SQLite 事务由设备用例 `ErrorCauseLedgerInstrumentedTest` 覆盖（3 例 0 失败，E-061 证据） | test:docs/research/evidence/2026-11-06-batch-46/e-domain/e061-errorcause-ledger-b46.xml; device:docs/research/evidence/2026-11-06-batch-46/e-domain/e061-errorcause-ledger-b46.device.json; cmd:docs/research/evidence/2026… |
 | E-062 | PASS | 落账证据：ACTIVE 记录带 sourceObservationId、acceptanceSource=AUTO_GATE 与 gateVersion | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log; revi… |
 | E-063 | PASS | 错因落账回归：链路三件套 24 例全绿（Chain 6 + Gate 9 + Retractor 9） | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml; test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakeb… |
 | E-064 | PASS | 错因撤销 0 值：无 active binding 时撤回是 no-op | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log; … |
@@ -610,8 +612,8 @@
 | E-077 | PASS | 排序稳定重复输入：同输入同模型状态重放同指纹与同 planId | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log; review… |
 | E-078 | PASS | 排序稳定回滚：stale snapshot 被拒绝而不是混用 checkpoint | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log; review… |
 | E-079 | BLOCKED | UNVERIFIED: 排序稳定并发。无并发规划用例 | file:core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/ReviewPlannerV2.kt |
-| E-080 | PASS | 排序证据：每个选中项都有调度理由，同 family 不相邻且同科不超 3 连 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log; review… |
-| E-081 | PASS | 排序稳定回归：规划与排序 69 例全绿（PlanV2 27 + Queue 22 + Adaptive 12 + ExamQuota 8） | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml; test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.… |
+| E-080 | PASS | 排序证据：每个选中项都有调度理由，同 family 不相邻且同科不超 3 连；澄清决策消费 14 例覆盖候选、原因、确认、换题、取消 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log; test:d… |
+| E-081 | PASS | 排序稳定回归：规划与排序 69 例全绿（PlanV2 27 + Queue 22 + Adaptive 12 + ExamQuota 8）；投影冲突重整理 8 例 + 冲突卡状态机 6 例 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml; test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.… |
 | E-082 | PASS | 时间界 04:00：本地 00:00 到 04:00 的复习仍归前一个学习日 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log; cmd:docs/… |
 | E-083 | PASS | 时间界 04:00 边界：本地 03:50 到 04:10 仅隔 20 分钟但跨 1 个学习日 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log; cmd:docs/… |
 | E-084 | PASS | 时间界同日：同一学习日内两次作答即使跨 14 小时 delta_t 仍为 0 | test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml; cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log; cmd:docs/… |
@@ -670,7 +672,7 @@
 | F-042 | BLOCKED | 预览耗时：arm64（BLOCKED） | file:docs/acceptance/runbook.md |
 | F-043 | PASS | 预览耗时：日志 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/preview-pdf1.instr.txt; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log; review:docs/acceptance/verdicts/rows/F-043.json |
 | F-044 | PASS | 预览耗时：证据 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log; test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-preview-pdf1.xml; hash:docs/research/evidence/2026-11-05-batch-44/f-domain/f-evidenc… |
-| F-045 | PASS | 预览耗时：回归 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log; test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-preview-pdf1.xml; file:docs/research/evidence/2026-11-05-batch-44/f-domain/regressio… |
+| F-045 | PASS | 预览耗时：回归（批次43 PDF preview 0.346-0.373s vs 批次44 0.332-0.378s）；复习规划规模 60/500/5000 三组金样逐位一致 2 例 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log; test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-preview-pdf1.xml; file:docs/research/evidence/2026-11-05-batch-44/f-domain/regressio… |
 | F-046 | PASS | 内存峰值：基线 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/meminfo-after-startup.txt; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/expor… |
 | F-047 | BLOCKED | 内存峰值：阈值 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log |
 | F-048 | BLOCKED | 内存峰值：超限 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log |
@@ -680,15 +682,15 @@
 | F-052 | PASS | 内存峰值：日志 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/export-batch1.pss.txt; review:docs/acceptance/verdicts/rows/F-052.json |
 | F-053 | PASS | 内存峰值：证据 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/export-batch1.device.json; hash:docs/research/evidence/2026-11-05-batch-44/f-domain/f-ev… |
 | F-054 | BLOCKED | 内存峰值：回归 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/memory.cmd.log |
-| F-055 | FAIL | 长时 2h：基线 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json; device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-lo… |
+| F-055 | PASS | 长时 2h：基线（批次49 APK ebb3aa34 在 emulator-5590 完整 7200s、117 轮 monkey、同一 pid、0 新崩溃、0 进程重启） | device:docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv; file:docs/research/evidence/2026-11-08-batch-49/device/soak/soak.cmd.log; device:docs/research/evidence/2026-11-08-batch-49/device/00-snaps… |
 | F-056 | BLOCKED | 长时 2h：阈值 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log |
-| F-057 | FAIL | 长时 2h：超限 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json; device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-lo… |
+| F-057 | FAIL | 长时 2h：超限 | file:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json; device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-l… |
 | F-058 | BLOCKED | 长时 2h：重复运行 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log |
 | F-059 | PASS | 长时 2h：设备 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log; review:docs/acceptance/verdicts/rows/F-059.json |
 | F-060 | BLOCKED | 长时 2h：arm64（BLOCKED） | file:docs/acceptance/runbook.md |
 | F-061 | PASS | 长时 2h：日志 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv; device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-monkey-1.log; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd… |
 | F-062 | PASS | 长时 2h：证据 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json; hash:docs/research/evidence/2026-11-05-batch-44/f-domain/f-evidence-sha2… |
-| F-063 | BLOCKED | 长时 2h：回归 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log |
+| F-063 | PASS | 长时 2h：回归（批次44 在 2504s 发生 FATAL 崩溃，本批 7200s 未复现且进程同 pid 未重启） | device:docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv; file:docs/research/evidence/2026-11-08-batch-49/device/soak/soak.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-c… |
 | F-064 | PASS | ANR/崩溃签名：基线 | device:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json; cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/dro… |
 | F-065 | PASS | ANR/崩溃签名：阈值 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/logcat-crash.txt; review:docs/acceptance/verdicts/rows/F-065.json |
 | F-066 | PASS | ANR/崩溃签名：超限 | cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash-overlimit-5562.cmd.log; device:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash-overlimit-5562.device.json; cmd:docs/research/evidence/2026-… |
@@ -1309,7 +1311,8 @@
 
 ## 3. 不可变项
 
-- 6C-2：mask=8 不提供、mask=0 禁止、派生索引恒裁；本批只读确认未漂移（SmbkSelectionPlan.kt blob `e550f5f8…` 与 HEAD 逐字节一致，`git diff` 空；`:79` 常量与 `:593` require 在位）。
-- KD-76 open（known-defects.md:2916）；isolation 不定案（KD-66 关闭依据不变，批次 40 E-40-04 PARTIAL）；p09 未收敛（批次 45 三次实测，本批未重跑）。
-- AUD-08 FAIL（v2 门 ① 0.4167 <0.9）；金标 v2 = G1 model-labeled；真机/arm64 行为用户裁定豁免注记，verdict 维持 BLOCKED。
-- 发版不成立；本批未新增 Gradle/设备重跑（WS3 设备取证除外，见 E-48-D-DEV-01）。
+- 掌握阈值：`MIN_STABILITY_DAYS=21.0`、`MIN_CURRENT_RETENTION=0.9` 未改（`AlgorithmConstants.kt:63/:66`）。
+- G6 幅度 `EXAM_CAPACITY_RAMP_MAX_EXTRA_FRACTION=0.5` 未改；`ReviewPlannerV2.VERSION=review-planner-v4` 未 bump；三组金样未重生成（预注册门 0/4、0/17，报告裁决维持现值）。
+- 6C-2：mask=8 不提供、mask=0 禁止、派生索引恒裁；本批只读确认未漂移（SmbkSelectionPlan.kt blob `e550f5f8…` 与 HEAD 一致）。
+- KD-76 open；isolation 不定案；p09 未收敛；AUD-08 FAIL（v2 门 ① 0.4167 <0.9）；金标 v2 = G1 model-labeled。
+- 发版不成立；本批未改 `RoomStudyDatabase.kt`/DAO 方法签名（`LearningDao.readReviewLogSamples` 仅改既有 SQL）。

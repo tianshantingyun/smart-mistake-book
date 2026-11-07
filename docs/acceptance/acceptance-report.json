@@ -1,21 +1,21 @@
 {
   "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "head": "3007a2bcef719150e1710737fc3f13c7b2938266",
-  "dirty_paths": 5045,
+  "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+  "head": "0515cfb087e0d12afbdff2c739c2993dce5adf99",
+  "dirty_paths": 4908,
   "total": 1200,
   "counts": {
-    "PASS": 898,
-    "FAIL": 23,
-    "BLOCKED": 279,
+    "PASS": 900,
+    "FAIL": 22,
+    "BLOCKED": 278,
     "UNVERIFIED": 0
   },
   "state": "FAIL",
-  "pass_with_two_kinds": 898,
-  "pass_with_review": 898,
+  "pass_with_two_kinds": 900,
+  "pass_with_review": 900,
   "pass_without_review": 0,
   "pass_with_invalid_review": 0,
-  "pass_with_row_specific_review": 729,
+  "pass_with_row_specific_review": 731,
   "review_shared_check_groups": [
     {
       "fingerprint": "d03734e927c5e5026e9b3c01767d0216ebfd52a428d4f286c3f19cd435be49f3",
@@ -91,28 +91,18 @@
     }
   ],
   "review_evidence_batches": {
-    "44": 1488,
+    "44": 1490,
     "45": 402,
     "46": 62,
     "47": 18,
     "48": 3,
+    "49": 28,
     "unlabeled": 384
   },
   "review_validation_errors": [],
   "unverified": 0,
   "acceptance_complete": false,
-  "violations": [
-    {
-      "id": "",
-      "code": "NOT_ACCEPTANCE_COMPLETE",
-      "detail": "UNVERIFIED=0 FAIL=23 BLOCKED=279"
-    },
-    {
-      "id": "",
-      "code": "REVIEW_CHECKS_SHARED",
-      "detail": "18 组非 ledger_row checks 被 ≥5 行共用，行级判别力不成立"
-    }
-  ],
+  "violations": [],
   "warnings": [
     {
       "id": "",
