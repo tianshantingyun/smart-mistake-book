@@ -56,6 +56,10 @@ PRIV_CURRENT = "docs/current/privacy-and-data-safety.md"
 DISCLOSURE = "docs/ai-content-disclosure-copy.md"
 DECISIONS = "docs/agent-first-refactor-decisions-2026-09-23.md"
 KD = "docs/known-defects.md"
+AIGC_DEVICE_TEST = (
+    "core/export/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/export/"
+    "MistakePdfExporterAigcInstrumentedTest.kt"
+)
 SECONDARY = "app/src/main/kotlin/com/tingyun/smartmistakebook/SecondaryScreens.kt"
 PROFILE = "feature/profile/src/main/java/com/tingyun/smartmistakebook/feature/profile/ProfileRoute.kt"
 NOTIFICATIONS = "app/src/main/kotlin/com/tingyun/smartmistakebook/MistakeExportNotifications.kt"
@@ -148,9 +152,11 @@ class TestH010to018AigcImplicit:
         assert "aiGenerated=false" in text
         assert "Label" in text
 
-    def test_h018_gap_docx_partial_print_and_paper_edit_lack_document_label(self) -> None:
+    def test_h018_gap_docx_and_model_paper_edit_still_lack_document_label(self) -> None:
+        # KD-84 已修（closed）；剩余缺口 = DOCX 载体 + KD-85（模型改卷文本）。
         assert "/AIGC" not in read(DOCX)
-        assert "KD-84" in read(KD) and "KD-85" in read(KD)
+        assert "## KD-84 (closed" in read(KD)
+        assert "## KD-85 (open" in read(KD)
 
 
 class TestH019to027Privacy:
@@ -333,9 +339,15 @@ class TestH055to063ExportMarking:
     def test_h060_caption_is_derived_at_render_time(self) -> None:
         assert "不进" in read(CAPTION) and "inputSha256" in read(CAPTION)
 
-    def test_h061_gap_partial_print_loses_document_aigc(self) -> None:
-        assert "KD-84" in read(KD)
-        assert "writeSubset" in read(KD)
+    def test_h061_partial_print_relabels_subset_with_prepared_aigc(self) -> None:
+        delivery = read(
+            "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfDelivery.kt"
+        )
+        device = read(AIGC_DEVICE_TEST)
+        assert "relabelSubset" in delivery and "PdfAigcInjector().inject(subsetBytes" in delivery
+        assert "prepared.aigcMetadataJson" in delivery
+        assert "partial-page print must keep the document-level /AIGC" in device
+        assert "prepared.inputSha256, subsetReadBack.produceId" in device
 
     def test_h062_gap_model_paper_edit_text_is_unlabelled(self) -> None:
         assert "KD-85" in read(KD)
@@ -355,9 +367,17 @@ class TestH064to072ErrorCopy:
         assert "单题 A4 导出" in text and "单题 Word 文档" in text
 
     def test_h066_diagnostics_copy_does_not_concatenate_raw_message(self) -> None:
-        line = read(SECONDARY).splitlines()[825]
-        assert "failure.message" not in line
-        assert "导出失败，本机记录不受影响。" in line
+        # 批次 46：旧断言写死第 826 行（那里是 `}`），属假通过。改为按内容定位
+        # exportDiagnostics 回调块，并断言固定文案、无异常 message 拼接、取消重抛。
+        text = read(SECONDARY)
+        start = text.find("val exportDiagnostics = rememberLauncherForActivityResult(")
+        end = text.find("if (confirmDelete)", start + 1)
+        assert start >= 0 and end > start
+        block = text[start:end]
+        assert "导出失败，本机记录不受影响。" in block
+        assert not re.search(r"diagnosticsMessage\s*=\s*[^\n]*\b(?:failure|exception|error|throwable)\.message", block)
+        assert not re.search(r"diagnosticsMessage\s*=\s*[^\n]*\$\{[^}]*\.message", block)
+        assert "catch (cancelled: CancellationException)" in block and "throw cancelled" in block
 
     def test_h067_failure_copy_says_no_complete_file(self) -> None:
         text = read(COPY)

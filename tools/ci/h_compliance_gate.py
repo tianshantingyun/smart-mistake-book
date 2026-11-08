@@ -74,6 +74,8 @@ BACKUP_RULES = "app/src/main/res/xml/backup_rules.xml"
 EXTRACT_RULES = "app/src/main/res/xml/data_extraction_rules.xml"
 STRINGS = "app/src/main/res/values/strings.xml"
 CAPTION_TEST = "core/export/src/test/kotlin/com/tingyun/smartmistakebook/core/export/AiGeneratedImageCaptionTest.kt"
+AIGC_DELIVERY = "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfDelivery.kt"
+PAPER_EDIT = "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt"
 AIGC_JVM_TEST = "core/export/src/test/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExporterAigcJvmTest.kt"
 AIGC_DEVICE_TEST = "core/export/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExporterAigcInstrumentedTest.kt"
 COPY_TEST = "core/export/src/test/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExportCopyTest.kt"
@@ -293,15 +295,15 @@ def h017() -> tuple[bool, str]:
 def h018() -> tuple[bool, str]:
     docx_text = read(DOCX)
     kd = read(KD)
-    covered = "/AIGC" in docx_text and "KD-84" not in kd and "KD-85" not in kd
     gaps = []
     if "/AIGC" not in docx_text:
         gaps.append("DOCX 无文档级 /AIGC")
-    if "KD-84" in kd:
+    if re.search(r"^## KD-84 \(open", kd, re.MULTILINE):
         gaps.append("KD-84 部分页打印丢标")
-    if "KD-85" in kd:
+    if re.search(r"^## KD-85 \(open", kd, re.MULTILINE):
         gaps.append("KD-85 模型改卷文本漏标")
-    return covered, "文件级隐式标识覆盖缺口：" + "；".join(gaps)
+    covered = "/AIGC" in docx_text and not gaps
+    return covered, "文件级隐式标识覆盖缺口：" + "；".join(gaps) if gaps else "全部交付格式与打印子集均有文件级隐式标识"
 
 
 def h019() -> tuple[bool, str]:
@@ -623,12 +625,35 @@ def h060() -> tuple[bool, str]:
 
 
 def h061() -> tuple[bool, str]:
-    return False, "部分页打印 writeSubset 逐页重绘，文档级 /AIGC 丢失（KD-84 open）"
+    delivery = read(AIGC_DELIVERY)
+    device_test = read(AIGC_DEVICE_TEST)
+    ok = (
+        "relabelSubset(prepared, subsetBytes)" in delivery
+        and "prepared.aigcMetadataJson" in delivery
+        and "PdfAigcInjector().inject(subsetBytes, metadataJson)" in delivery
+        and "partial-page print must keep the document-level /AIGC" in device_test
+        and "prepared.inputSha256, subsetReadBack.produceId" in device_test
+        and "print-subset-relabeled.pdf" in device_test
+    )
+    return ok, (
+        "部分页打印子集按 prepared 同一份 /AIGC JSON 重注入（KD-84）；"
+        "设备用例断言 Label/ProduceID/页数并落盘子集供宿主 pypdf 独立读回"
+        if ok else
+        "部分页打印 writeSubset 未按 prepared 的 /AIGC 重注入（KD-84 回退）"
+    )
 
 
 def h062() -> tuple[bool, str]:
     kd = read(KD)
-    return False, "模型改卷文本未纳入 /AIGC 判据（KD-85 open）"
+    if re.search(r"^## KD-85 \(open", kd, re.MULTILINE):
+        return False, "模型改卷文本未纳入 /AIGC 判据（KD-85 open；修复落点跨 feature/tutor 热区，需主会话授权）"
+    paper = read(PAPER_EDIT)
+    ok = "modelTextApplied" in paper and "sourceInput.hasModelParsedText || modelTextApplied" in paper
+    return ok, (
+        "模型改卷文本已纳入 /AIGC 判据（KD-85 closed 且 MistakePdfPaperEdit 带模型文本置位）"
+        if ok else
+        "KD-85 已关闭但 MistakePdfPaperEdit 缺少模型改卷文本置位，判据未落码"
+    )
 
 
 def h063() -> tuple[bool, str]:
@@ -653,9 +678,30 @@ def h065() -> tuple[bool, str]:
 
 
 def h066() -> tuple[bool, str]:
-    line = 826
-    text = read(SECONDARY).splitlines()[line - 1]
-    return "failure.message" not in text, "诊断包失败文案是否拼接原始异常 message"
+    """H-066：诊断包导出失败时，学生可见文案不得拼接原始异常 message。
+
+    批次 46 修掉硬编码第 826 行（那只是 `}`，永远不含 failure.message，属假通过）。
+    改为按内容定位导出回调：在 `exportDiagnostics` 的 rememberLauncher 块内，
+    断言 (a) 固定失败文案存在，(b) 该块不出现异常 message 拼接，(c) 取消异常
+    仍被重抛（不被吞进文案）。
+    """
+    text = read(SECONDARY)
+    start = text.find("val exportDiagnostics = rememberLauncherForActivityResult(")
+    end = text.find("if (confirmDelete)", start + 1)
+    if start < 0 or end <= start:
+        return False, "找不到 exportDiagnostics 回调块（内容锚点失效）"
+    block = text[start:end]
+    fixed_copy = "导出失败，本机记录不受影响。请稍后重试。"
+    leak_patterns = (
+        r"diagnosticsMessage\s*=\s*[^\n]*\b(?:failure|exception|error|throwable)\.message",
+        r"diagnosticsMessage\s*=\s*[^\n]*\$\{[^}]*\.message",
+    )
+    leaks = [pattern for pattern in leak_patterns if re.search(pattern, block)]
+    rethrows_cancel = ("catch (cancelled: CancellationException)" in block
+                       and "throw cancelled" in block)
+    ok = fixed_copy in block and not leaks and rethrows_cancel
+    return ok, (f"固定文案={fixed_copy in block} 拼接命中={len(leaks)} "
+                f"取消重抛={rethrows_cancel}")
 
 
 def h067() -> tuple[bool, str]:

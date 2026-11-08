@@ -97,9 +97,9 @@ class MistakePdfExporterAigcJvmTest {
     @Test
     fun `policy generation is consistent across sentinel fingerprint and policy`() {
         // 三方必须同时升版：改判据只升一处，旧的无标包就能在 TTL 内被复用（KD-75 reopen condition）。
-        assertEquals(2, PdfAigcContentPolicy.GENERATION)
-        assertEquals(".aigc-policy-gen-2", MistakePdfExporter.AIGC_POLICY_SENTINEL)
-        assertEquals("mistake-export-v4-aigc-gen-2", exportFingerprintPolicyTag())
+        assertEquals(3, PdfAigcContentPolicy.GENERATION)
+        assertEquals(".aigc-policy-gen-3", MistakePdfExporter.AIGC_POLICY_SENTINEL)
+        assertEquals("mistake-export-v4-aigc-gen-3", exportFingerprintPolicyTag())
     }
 
     // ---------------------------------------------------------------- labelPdfInPlace
