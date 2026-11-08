@@ -50,8 +50,15 @@ internal const val PAINTER_STROKE_WITHOUT_FILL = "PAINTER_STROKE_WITHOUT_FILL"
 // 两道生成门前置同码拒绝**；本门保留为回放侧兜底。
 internal const val PAINTER_DASH_ODD = "PAINTER_DASH_ODD"
 
-// math 内容门：消灭"math 盒被当 text 画（几何错乱）或被静默跳过（内容消失）"（本批未实现
-// 盒走查；盒 Canvas 映射须与 core/ui Compose lowering 逐点一致，归回放/PDF 批，R1 §3.6）。
+// math 内容门（批次 50 裁定：**显式产品降级**，不是"本批未做"）。V1 的 math 盒回放按契约
+// 拒绝，理由是三件事实同时成立：① 冻结布局 artifact（`VisualMeasuredLayoutArtifact`）对
+// 未降级 math 只携 width/height/baseline（`lines=null`），**不携 MathBox、也不携原文**，
+// 回放侧无法构造可画的盒或文本；② 盒绘制的几何唯一来源是 core/ui Compose lowering 与
+// core/export `CanvasMathBoxRenderer`，契约 §5 明令"不得继续增加第三套公式/坐标绘制逻辑"；
+// ③ 可恢复的 math 形态已在度量期按契约降级为 text（`MathContentLowering.Result.FallbackText`
+// → text 布局 + `degraded=true`），生产回放路径不会构造本 DTO。消灭的失败：把"暂时未写"
+// 当默认行为、或用第二/第三套盒走查静默画错几何。解锁条件见 `docs/current/`
+// `visual-generation-contract.md` §5 第六条（须携盒或原文+环境，并与两侧几何逐点对齐）。
 internal const val PAINTER_LABEL_MATH = "PAINTER_LABEL_MATH"
 
 // 数值域门：消灭"Double→Float 溢出/非有限值静默进 Skia 产生未定义栅格化"（校验器 Double
@@ -213,7 +220,13 @@ internal sealed interface VisualLabelContent {
         val lines: List<VisualLabelLine>,
     ) : VisualLabelContent
 
-    /** math 盒内容：本批 fail-closed（[PAINTER_LABEL_MATH]），盒走查归回放/PDF 批（R1 §3.6）。 */
+    /**
+     * math 盒内容：V1 **显式降级**为 [PAINTER_LABEL_MATH] fail-closed（批次 50 裁定）。
+     *
+     * 生产路径不会构造本 DTO：未降级 math 的 artifact `lines=null`，预览/回放在折算前即以
+     * 同码拒绝（`TutorVisualPreviewRenderer`）；降级 math 走 [Text]。盒回放的解锁前置见
+     * [PAINTER_LABEL_MATH] KDoc 与契约 §5 第六条——不得在本类里新增第三套盒/坐标走查。
+     */
     data class Math(
         val box: MathBox,
         val sizeSp: Float,

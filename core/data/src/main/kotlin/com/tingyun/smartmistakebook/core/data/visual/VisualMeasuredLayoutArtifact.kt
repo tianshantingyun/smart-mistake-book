@@ -29,7 +29,7 @@ import com.tingyun.smartmistakebook.core.domain.VisualContentKind
  * | JS 编译器（render 的 metrics 注入，`QuickJsVisualExecutionEngine.metricsJson`） | 经端口投影的 widthDu/heightDu/baselineDu/fontSizeSp/digest/contentId | wire 形状本批**不变**（五字段 JSON）；改 wire = 契约变更，须同步 `tools/visual_compiler` JS 测试台（同值镜像纪律） |
  * | 原生越界检查（DrawOps 校验器/painter） | 端口 widthDu/heightDu（现行） | inkBounds 到位后**第一版不升级判据**——墨迹判据属契约变更（R2 §3.2-4） |
  * | painter / PDF 回放（`VisualDrawOpsPainter.playLabel`、`VisualDrawOpsPdfPainter`） | lines、heightDu（行高反解）、kind、degraded | 本批经 `VisualLabelContent` 的行结构消费；直携行高消除反解 = 回放批两端同改并保金样 |
- * | math 回放解锁（S-08 下游，R2 §5.3） | （经 [MathContentLowering] 的 MathBox → `VisualLabelContent.Math`） | 现行 `PAINTER_LABEL_MATH` fail-closed；解锁归回放批 |
+ * | math 回放解锁（S-08 下游，R2 §5.3） | （经 [MathContentLowering] 的 MathBox → `VisualLabelContent.Math`） | **批次 50 裁定：V1 显式产品降级**——本 artifact 不携 MathBox/原文，回放侧以 `PAINTER_LABEL_MATH` fail-closed；降级 math 已走 text（`lines` + `degraded=true`）可正常回放。解锁须先扩 artifact 形状（携盒或原文+环境）并与 core/ui、core/export 几何逐点对齐，不得新增第三套盒走查 |
  * | 持久化（RenderScene/快照，契约 §5 `:129`） | 全部字段 | 冷恢复须**环境指纹**可比对：digest 已锚定指纹但不可反解——持久化批落库时须随行携带环境指纹字面（`VisualMeasureEnvironment.fingerprint()` 同值；本类型不预加字段，落库形状归持久化批） |
  * | 缓存命中判定（契约 §3.2"缓存只在内容摘要和布局环境完全一致时命中"） | digest | [inkBounds] **不进** digest（派生量，R2 §3.2-5）；指纹参与 digest |
  * | 排版预算结算（M-03，`VisualLayoutBudget`） | widthDu/heightDu | `totalLayoutPixelsDu` 按盒 du 面积累计（含预览并入，D-04 接线） |

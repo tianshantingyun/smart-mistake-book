@@ -194,7 +194,10 @@ internal class VisualDrawOpsPainter {
             is VisualLabelContent.Math ->
                 throw paintingFailure(
                     PAINTER_LABEL_MATH,
-                    "$at: math box replay is not implemented this batch (fail-closed, R1 §3.6)",
+                    "$at: math box replay is explicitly degraded in V1 — the frozen layout " +
+                        "artifact carries no MathBox/payload, so there is no paintable lowering; " +
+                        "fail-closed by contract (no third geometry walker; see " +
+                        "VisualMeasuredLayoutArtifact / core/ui + core/export single source)",
                 )
             is VisualLabelContent.Text -> content
         }
