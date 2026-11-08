@@ -1,0 +1,52 @@
+{
+    "file": "IMG20260810011248.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 20810,
+    "responseHead": "{\"id\":\"a6b05a0c-13c2-45ed-b127-4fe1245bb833\",\"object\":\"chat.completion\",\"created\":1794127585,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"画面含12-15共四道独立题，需拆分\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.05,\\\"top\\\":0.02,\\\"right\\\":0.87,\\\"bottom\\\":0.22},\\\"message\\\":\\\"顶部仅有B-D选项，缺少题干和A项，疑似上一题未拍全\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\",\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.06,\\\"top\\\":0.265,\\\"right\\\":0.87,\\\"bottom\\\":0.385},{\\\"left\\\":0.06,\\\"top\\\":0.39,\\\"right\\\":0.86,\\\"bottom\\\":0.49},{\\\"left\\\":0.045,\\\"top\\\":0.505,\\\"right\\\":0.95,\\\"bottom\\\":0.725},{\\\"left\\\":0.055,\\\"top\\\":0.79,\\\"right\\\":0.97,\\\"bottom\\\":0.97}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。图片显示一页试卷，包含从B/C/D选项（可能属于前一道题的一部分）开始，然后第三大题填空题12,13,14，第四大题解答题15。注意图片顶部从B、C、D选项开始，缺少前面的题干/选项A？这可能是上一道题的一部分被截断。题目要求判断图片是否足以完整转写一道或多道独立题。若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按阅读顺序给出每道题完整外接区域，包含题干、选项、图形和作答区，区域之间不得大面积重叠。这里明显包含12、13、14、15四道题（可能还有顶部未完整的题）。需要返回SPLIT，MULTIPLE_QUESTIONS BLOCKING。但顶部B/C/D选项可能属于第11题？题目不完整，缺少题干和选项A。是否应该考虑这一道题？图片顶部只有选项B-D，缺少题干，无法完整转写。这可能导致MISSING/KEY? 需要标记OCCLUDED或KEY_TEXT? 实际上内容未拍全，是上一题的一部分，位于图片顶部被截断。但decision SPLIT要求questionRegions包含每道完整独立题。对于顶部不完整的题，不应该包括？但图片中可见的独立题包括12、13、14、15。顶部选项不属于完整题，可能不应作为独立题区域，但需要标记问题：顶部内容不完整（MISSING? OCCLUDED）。如果返回SPLIT，questionRegions应给出12-15的完整区域。也可以标记顶部不完",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.06,
+            "top": 0.265,
+            "right": 0.87,
+            "bottom": 0.385
+        },
+        {
+            "left": 0.06,
+            "top": 0.39,
+            "right": 0.86,
+            "bottom": 0.49
+        },
+        {
+            "left": 0.045,
+            "top": 0.505,
+            "right": 0.95,
+            "bottom": 0.725
+        },
+        {
+            "left": 0.055,
+            "top": 0.79,
+            "right": 0.97,
+            "bottom": 0.97
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 4,
+    "layoutHint": null,
+    "layoutHintChars": 0,
+    "image": {
+        "egressBytes": 527976,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "fb608b9b93b939feee86deb206f7cccd8b3e6051dfff99ce17896709ba18499c",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

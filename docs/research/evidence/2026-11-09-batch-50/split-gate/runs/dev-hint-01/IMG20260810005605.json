@@ -1,0 +1,27 @@
+{
+    "file": "IMG20260810005605.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 11397,
+    "responseHead": "{\"id\":\"1c1b7c43-161e-40af-b8cb-44520b94926a\",\"object\":\"chat.completion\",\"created\":1794127911,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"NEED_MORE_IMAGE\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.02,\\\"top\\\":0.23,\\\"right\\\":0.98,\\\"bottom\\\":0.39},\\\"message\\\":\\\"顶部仅见上一题D、E选项，题干及A—C选项缺失\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.02,\\\"top\\\":0.82,\\\"right\\\":0.98,\\\"bottom\\\":1.0},\\\"message\\\":\\\"页面底部第2题(2)内容被截断，无法完整转写\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足够完整转写一道或多道独立题。图像显示一页化学练习/课本内容。顶部有 D、E 选项（属于上一题的选择题选项，题目主干可能在前页未显示）。然后有“二、金属氢化物的还原性”标题和一段说明文字，接着是“2. 根据金属氢化物的特点解答下列问题。”以及 (1)(2) 小题。底部 (2) 被截断，内容未拍全（“脱锈剂（铁锈的成分表示为...”后面截断）。因此包含多道独立题吗？其实顶部 D/E 可能是上一道选择题的选项；但其题干和 A/B/C 不在画面中。这算一道独立的题吗？可能是上一题残余，不完整。然后有第2题（包含多个小问），是一道独立题，但底部 (2) 未拍全，内容缺失。所以decision可能是 NEED_MORE_IMAGE，因为内容未拍全。还需要判断是否包含2到12道互相独立的题？画面中主要有一道题（第2题）以及上一题的选项残片。上一题的题干缺失，不能构成完整独立题？可能不算多道独立题。因此不返回SPLIT。decision NEED_MORE_IMAGE，issues: 底部截断 OCCLUDED? 其实是内容未拍全。可用 OCCLUDED? 或 KEY_TEXT_UNREADABLE? 由于底部被截断，属于内容未拍全，可用 OCCLUDED（BLOCKING）region 底部。还有顶部 D/E 选项缺少题干和 A-C，属于 MISSING_OPTIONS? 但这是上一题的选项，画面只显示 D/E，缺少 A-C 和题干。这可能是 MISSING_OPTIONS（BLOCKING）区域顶部。但注意 MISSING_OPTIONS 是指选项缺失。顶部确实缺失选项。整体问题：顶部题目不完整和底部截断。suggestedActions 应为 ADD_IMAGE 或 RECAPTURE。如果内容未拍全，建议 ADD_IMAGE 以补全页面/相邻页面。decision NEED_MORE_IMAGE。questionRegions 必须为空数组，因为不是SPLIT。followingPageRelations 空数组。需要只返回JSON。\\n\\n需要仔细给出issues区域坐标。纸面范围 x 0-1, y 0-1。图像中纸",
+    "decision": "NEED_MORE_IMAGE",
+    "issueCodes": [
+        "MISSING_OPTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–1.000；单栏；行距约 20px；段落分隔（共 14 处，已截断到 8 条）：y=0.262（谷宽27px，栏1）；y=0.075（谷宽26px，栏1）；y=0.468（谷宽22px，栏1）；y=0.420（谷宽21px，栏1）；y=0.655（谷宽20px，栏1）；y=0.518（谷宽18px，栏1）；y=0.318（谷宽16px，栏1）；y=0.564（谷宽15px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 266,
+    "image": {
+        "egressBytes": 580162,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "873353f94df8f1472f6091a17ce5827d5ae92dd38ad8f7790d41e9e930bb801a",
+    "promptSha256": "c47f13956ecbab6faefd532bbb8ffa987ba65a3621ca1fed5561dcf65610e519"
+}

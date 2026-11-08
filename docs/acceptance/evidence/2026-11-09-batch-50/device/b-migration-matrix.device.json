@@ -1,0 +1,20 @@
+{
+  "serial": "emulator-5590",
+  "boot_id": "31ecd364-6b2a-4e52-9643-23e681696172",
+  "package": "com.tingyun.smartmistakebook.core.database.test",
+  "runner": "androidx.test.runner.AndroidJUnitRunner",
+  "verdict": "PASS",
+  "recorded_at": "2026-11-09T00:00:00Z",
+  "apk_sha256": "db14c022780bb7577bf2ea4f8f97f31124c32c760fd9cad5b6eb80f8b92cbf92",
+  "test_apk_sha256": "db14c022780bb7577bf2ea4f8f97f31124c32c760fd9cad5b6eb80f8b92cbf92",
+  "class_filter": "com.tingyun.smartmistakebook.core.database.FullMigrationMatrixInstrumentedTest",
+  "counts": {
+    "tests": 20,
+    "evaluated": 20,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_log": "docs/research/evidence/2026-11-09-batch-50/device/47-instrument-migration-matrix-final.log",
+  "schema_coverage": "1..75"
+}

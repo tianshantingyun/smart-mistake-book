@@ -1,0 +1,24 @@
+{
+    "file": "IMG20260810004304.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 7429,
+    "responseHead": "{\"id\":\"2c2959fa-4223-4482-aef6-27627edf5bd1\",\"object\":\"chat.completion\",\"created\":1794127716,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片能否完整转写一道或多道题。图片显示化学试卷第16题（14分），包含装置图、文字、手写标注等。整体是一道大题，可能包含多个小问（1）（3）（4）等。需要返回JSON。需要仔细分析是否足以完整转写。图片旋转90度？题面是竖向排版但内容横向可读。整张试卷是第16题一道题，多小问。题干和图形、选项/填空都有。问题：手写答案和红色批改覆盖部分文字？需要检查是否可读。图像清晰，文字可辨识。有手写解题标记，可能覆盖少量内容但可读。存在红色笔迹和手写公式，可能影响某些内容？例如“(2)”被红圈，“H2O”可能手写？在装置图上方有手写“Cl2”和“浓盐酸”等，可能是标注。题目空白填空处有手写答案，不是原文。需要判断是否完整转写题目本身。题目包含装置图，图中有甲乙丙丁标注，文字可读。有手写红色公式在（4）②附近，可能遮盖少量印刷内容？但似乎是在空白处。题目全部内容基本可读。decision PASS? 但是否有多个独立题？画面是第16题，一道题，含多个小问，不是2-12道互相独立题。所以decision PASS。questionRegions空。issues可以空？需要报告问题，如手写遮挡？有手写批注覆盖（红色划线）在（1）和（2）之间？可能标记“仪器丁的名称”附近？还有（4）②上方手写公式。issues可以列OCCLUDED severity REVIEW？但可能不影响转写。判断足以完整转写，decision PASS，issues空，suggestedActions空？格式要求suggestedActions数组，可以为空。followingPageRelations空。需要只返回JSON。\\n\\n注意“questionRegions必须为空数组”对于PASS。需要包含所有字段？schema指定返回decision、issues、suggestedActions、questionRegions、followingPageRelations。只返回JSON对象。没有问题。但还要确保issues数组格式：每项code/severity/region/message。没有则[]。suggestedActions []? 可能包含CONTINUE_ANYWAY？如果PASS则空。\\n\\n不过需要再检查图片边缘是否拍全：左侧文字可能被裁切？图片左侧有化学式结构部分（DCDMH结构）在左上角，但完整可见吗？左边结构式有部分在画面内，未见被裁。图片顶部/底部有文字边缘？题目从“16.（14分）”开始，到右侧“DCDMH的质量分数为____”结束，下方有“化学试题 第6页 共8页”页码。题干完整。装置图左侧到乙，右侧到丁，均可见。没有缺失。因此PASS。\\n\\n但题面中有一处公式手写：“① Cl2 + 2e- = 2Cl-”等，这些是手写答案，印刷题目可能只给空白。不影响转写题干。不过红色批注覆盖了题目中的某些文字？例如在（4）②前面有一行红色公式写在印刷文字上？看起来红色公式写在题目的空白处/两行之间，可能覆盖“达到滴定终点的现象",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–1.000；单栏；行距约 11px；段落分隔（共 2 处）：y=0.066（谷宽9px，栏1）；y=0.000（谷宽0px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 140,
+    "image": {
+        "egressBytes": 499971,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "fa9c134862a706a2b918c3eeb4717af2dd0ed50a101f87ee5374a1afad6a90d1",
+    "promptSha256": "5c500a8570eadb60fb964754ba9b5d5a9f1d5ae8f82ed1da675ef69689767d46"
+}

@@ -1,0 +1,19 @@
+{
+  "serial": "emulator-5590",
+  "boot_id": "31ecd364-6b2a-4e52-9643-23e681696172",
+  "package": "com.tingyun.smartmistakebook.core.data.test",
+  "runner": "androidx.test.runner.AndroidJUnitRunner",
+  "verdict": "PASS",
+  "recorded_at": "2026-11-09T00:00:00Z",
+  "apk_sha256": "ba005aa706d5ad039be5e7ab58ff268c551946b1d522195d64a534c8a080629b",
+  "test_apk_sha256": "ba005aa706d5ad039be5e7ab58ff268c551946b1d522195d64a534c8a080629b",
+  "class_filter": "com.tingyun.smartmistakebook.core.data.study.KnowledgeCalibrationQuestionRoomE2eInstrumentedTest",
+  "counts": {
+    "tests": 3,
+    "evaluated": 3,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_log": "docs/research/evidence/2026-11-09-batch-50/device/18-instrument-kd67-room-e2e.log"
+}

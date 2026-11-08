@@ -1,0 +1,24 @@
+{
+    "file": "IMG20260810004304.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 10429,
+    "responseHead": "{\"id\":\"e837008f-8ddc-447b-9ad0-10ca2e3b0717\",\"object\":\"chat.completion\",\"created\":1794128524,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图像是否足以完整转写一道或多道独立题。图片是化学试卷，题16（14分）包含多个小问，但属于同一道题（16题），不是多道独立题。页面边缘可能裁切：顶部左侧有题16题号，文本从“16.（14分）高效广谱的...”开始，题干完整？底部右侧有“化学试题 第6页，共8页”。整道题看起来是一道大题，包含装置图、实验流程、若干小问（1）（2）（3）（4），全部可见？需要检查内容是否完整：顶部左侧有结构式，题干从“16.（14分）高效广谱的...”完整。装置图完整。中间文字：“具体制备方法如下：在三颈烧瓶内加入DMH和一定量水，维持温度在0-10℃，滴加NaOH溶液的同时向反应体系中通入氯气，控制溶液的pH为8-10，反应时间为1h，停止反应后，经过一系列操作得到DCDMH粗品。”完整。回答下列问题：(1)仪器丁的名称____，其中盛放的试剂为____。(2)丙装置采用的控温方式为____，乙装置中长颈漏斗的作用是____。(3)丙中生成DCDMH的化学方程式____。(4)为测定所制产品中DCDMH的含量进行如下实验：...完整到②空白实验...已知：①结构式；②反应式；达到滴定终点的现象为____；DCDMH的质量分数为____（用含有a、c、V1、V2的代数式表示）。底部有手写答案，页面边缘可能右侧有些内容被裁切？看图片右侧边缘：在“达到滴定终点的现象为____”下面有手写“9.85（V1-V2）/a”或类似，题干完整。没有缺少选项（填空型）。是单道题，不是多道独立题。图像是否足以完整转写：大部分可读，有手写字但题目印刷可读。可能存在顶部边缘裁切了题16开头的“16.”左侧？可见。左侧结构式完整。右下角有页码完整。没有遮挡。不过有一些手写笔迹覆盖？红色笔迹标记，少量，不遮挡关键。题目内容较长但可读。Decision 应该是PASS? 需要看是否所有题干完整。注意题号是16，页面内容为一道题。是否因为页面边缘裁切导致某些文字被切？左侧顶部结构式旁边有文字“DMH”，完整。最左侧有“16.（14分）高效广谱的...”可见。底部“化学试题 第6页，共8页”完整。右侧没有裁切关键。所以PASS。issues数组可能为空。suggestedActions也许 CONTINUE_ANYWAY? 如果PASS，suggestedActions可以空？格式要求返回suggestedActions数组。可按无问题空数组？或者给CONTINUE_ANYWAY? 通常如果PASS，suggestedActions应为[]。questionRegions为空。followingPageRelations空。\\n\\n但需要谨慎：用户说“判断图片是否足以完整转写一道或多道独立题”。图像包含一道独立题，且完整。PASS。是否有局部可读性问题？手写答案可能干扰，但题目关键可读。没有issues。或者有“KEY_TEXT_UNREADABLE”因为手写覆盖了某些？红色标记在(1)(2)和(4)化学方程式附近，可能遮挡？看(4)①有手",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–1.000；单栏；行距约 11px；段落分隔（共 2 处）：y=0.066（谷宽9px，栏1）；y=0.000（谷宽0px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 140,
+    "image": {
+        "egressBytes": 499971,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "d62555b0125b5a26fdd0aaf54b95550d32a27607dc32f6da610eca6d2b50a114",
+    "promptSha256": "93a6f99f77cd9d83ffe0c1eadc22990c5cfb6a83b1ba3b49918d3a94fac56379"
+}

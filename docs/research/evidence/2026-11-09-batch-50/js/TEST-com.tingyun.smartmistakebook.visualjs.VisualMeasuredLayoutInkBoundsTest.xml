@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.visualjs.VisualMeasuredLayoutInkBoundsTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-08T11:25:23.796Z" hostname="TIANSHAN" time="0.003">
+  <properties/>
+  <testcase name="an empty final segment contributes no ink" classname="com.tingyun.smartmistakebook.visualjs.VisualMeasuredLayoutInkBoundsTest" time="0.001"/>
+  <testcase name="ink bounds are passed through unclamped, containment is not implied" classname="com.tingyun.smartmistakebook.visualjs.VisualMeasuredLayoutInkBoundsTest" time="0.001"/>
+  <testcase name="a payload of only line breaks measures zero ink" classname="com.tingyun.smartmistakebook.visualjs.VisualMeasuredLayoutInkBoundsTest" time="0.0"/>
+  <testcase name="multi-line ink is the union over per-segment rects" classname="com.tingyun.smartmistakebook.visualjs.VisualMeasuredLayoutInkBoundsTest" time="0.0"/>
+  <testcase name="a single line text ink bounds fold into box-top coordinates" classname="com.tingyun.smartmistakebook.visualjs.VisualMeasuredLayoutInkBoundsTest" time="0.0"/>
+  <testcase name="measure runs the artifact production path with its invariants" classname="com.tingyun.smartmistakebook.visualjs.VisualMeasuredLayoutInkBoundsTest" time="0.001"/>
+  <testcase name="a degraded math artifact keeps math kind, the degraded flag and text ink" classname="com.tingyun.smartmistakebook.visualjs.VisualMeasuredLayoutInkBoundsTest" time="0.0"/>
+  <testcase name="toArtifact carries every field and keeps the ink bounds" classname="com.tingyun.smartmistakebook.visualjs.VisualMeasuredLayoutInkBoundsTest" time="0.0"/>
+  <testcase name="a math box ink bounds equal the box itself" classname="com.tingyun.smartmistakebook.visualjs.VisualMeasuredLayoutInkBoundsTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

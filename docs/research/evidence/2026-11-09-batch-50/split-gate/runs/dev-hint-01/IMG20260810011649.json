@@ -1,0 +1,39 @@
+{
+    "file": "IMG20260810011649.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 49943,
+    "responseHead": "{\"id\":\"6f680b54-becc-48c2-99d0-27c443f18a85\",\"object\":\"chat.completion\",\"created\":1794128177,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"画面包含第11题和第12题两道独立题，应拆分。\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.255,\\\"top\\\":0.06,\\\"right\\\":0.795,\\\"bottom\\\":0.965},{\\\"left\\\":0.01,\\\"top\\\":0.055,\\\"right\\\":0.25,\\\"bottom\\\":0.99}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需判断图片是否足以完整转写一道或多道独立题。图片逆时针旋转90度？需要识别内容。图中包含多道题：右上角有B/C? 属于前一道题选项（第11?）以及题干“若x∈[m,+∞)时，f(x)的最大值为8/e^3，则m的最大值为5”可能是填空题/选择题? 中间有第11题概率选择题，包含A? B C D选项。左侧二、填空题：本题共3小题，每小题5分，共15分。第12题：\\\\((x^2+1/x)^6\\\\)展开式中的常数项为__。还有“第II卷”。可能还看到上方右边缘有上一题选项 B. f(x)既没有最大值，也没有最小值 C. 当0<k<8/e^5时，f(x)=k有且只有三个实根。似乎第?题是函数题，选项B,C在顶部，D选项在图右侧“若x∈[m,+∞)...”？需要判断是否多道独立题。有2到12道独立题吗？图片明显包含至少第11题（概率选择题）和第12题（填空），以及可能上一题的局部（B,C,D选项）？但题目是否完整？需要决定返回SPLIT还是NEED_MORE_IMAGE/RECAPTURE。\\n\\n任务要求：如果画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标BLOCKING，questionRegions按阅读顺序给出每道题的完整外接区域，包含题干、选项、图形和作答区，不得大面积重叠；否则questionRegions空。同一道题跨页不算多题，内容未拍全时返回NEED_MORE_IMAGE。\\n\\n图片是页面的一部分，侧向，包含一道概率选择题（第11题）和填空题第12题；顶部/右侧还有前一道函数题的选项 B/C/D（但题干未完整）。需要判断是否足以完整转写一道或多道独立题。第11题似乎完整：题干、选项A被手写划掉？有选项A? 图片中第11题开始于“11. 11分制乒乓球比赛规则如下：在一局比赛中，每两球交换发球权，每胜一球得1分，先得11分且至少领先2分者获胜，该局比赛结束；当某局比分打成10:10后，每球交换发球权，领先2分者获胜，该局比赛结束. 现有甲、乙两人进行一场五局三胜，每局11分制的乒乓球比赛. 假设甲发球时甲得分的概率为2/3，乙发球时甲得分的概率为1/2，各球的比赛结果相互独立，且各局比赛结果相互独立，则下列说法正确的是”。选项A、B、C、D",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.255,
+            "top": 0.06,
+            "right": 0.795,
+            "bottom": 0.965
+        },
+        {
+            "left": 0.01,
+            "top": 0.055,
+            "right": 0.25,
+            "bottom": 0.99
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–1.000；双栏，栏间空白位于 x=0.544–0.581；行距约 4px；段落分隔（共 25 处，已截断到 8 条）：y=0.038（谷宽25px，栏2）；y=0.068（谷宽25px，栏1）；y=0.994（谷宽25px，栏2）；y=0.127（谷宽13px，栏2）；y=0.110（谷宽11px，栏1）；y=0.053（谷宽10px，栏2）；y=0.103（谷宽6px，栏2）；y=0.876（谷宽6px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 284,
+    "image": {
+        "egressBytes": 573298,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "9f8f1f5a55fa9e1e78faf4d1f519f9cab0ab97893567547a7050e354e5e7afeb",
+    "promptSha256": "7fd65caa2f6563d205ae354fe02a36bc25a0e0447a3c0c6f526337e4d04e6ca5"
+}

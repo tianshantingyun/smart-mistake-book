@@ -1,0 +1,66 @@
+{
+  "command": "python -I tools/ci/j_release_verify.py aab16k --aab <fixture>.aab",
+  "purpose": "aab16k 判据的正负控。夹具是本轮合成的 .aab（zip）：只改 BundleConfig.pb 的 {1:enabled, 2:alignment} 消息与 lib/ 树。",
+  "not_release_evidence": true,
+  "fixtures": [
+    {
+      "name": "good.aab",
+      "bundle_config_bytes": 4,
+      "alignment": 2,
+      "abi_set": ["arm64-v8a", "x86_64"],
+      "native_libs": ["libLiteRt.so", "libquickjs.so"],
+      "errors": [],
+      "exit_code": 0
+    },
+    {
+      "name": "wrong-alignment.aab",
+      "bundle_config_bytes": 4,
+      "alignment": 1,
+      "abi_set": ["arm64-v8a", "x86_64"],
+      "native_libs": ["libLiteRt.so", "libquickjs.so"],
+      "errors": ["PAGE_ALIGNMENT_16K not declared (found 1)"],
+      "exit_code": 1
+    },
+    {
+      "name": "no-config.aab",
+      "bundle_config_bytes": 0,
+      "alignment": null,
+      "abi_set": ["arm64-v8a", "x86_64"],
+      "native_libs": ["libLiteRt.so", "libquickjs.so"],
+      "errors": ["PAGE_ALIGNMENT_16K not declared (found None)"],
+      "exit_code": 1
+    },
+    {
+      "name": "32bit.aab",
+      "bundle_config_bytes": 4,
+      "alignment": 2,
+      "abi_set": ["arm64-v8a", "armeabi-v7a", "x86_64"],
+      "native_libs": ["libLiteRt.so", "libquickjs.so"],
+      "errors": ["ABI set ['arm64-v8a', 'armeabi-v7a', 'x86_64'] != abiFilters ['arm64-v8a', 'x86_64']"],
+      "exit_code": 1
+    },
+    {
+      "name": "no-quickjs.aab",
+      "bundle_config_bytes": 4,
+      "alignment": 2,
+      "abi_set": ["arm64-v8a", "x86_64"],
+      "native_libs": ["libLiteRt.so"],
+      "errors": ["required native library missing: libquickjs.so"],
+      "exit_code": 1
+    }
+  ],
+  "reproduce": {
+    "note": "夹具为一次性合成件，本轮已删除；按下列字节可逐字重建（zip 内其它条目：base/manifest/AndroidManifest.xml 任意内容）。",
+    "BundleConfig.pb": {
+      "good": "hex 08 01 10 02  → {field1:1, field2:2} = PAGE_ALIGNMENT_16K",
+      "wrong-alignment": "hex 08 01 10 01  → {field1:1, field2:1}",
+      "absent": "空文件（或整个条目缺失）"
+    },
+    "lib_entries": {
+      "good/wrong-alignment/no-config": ["base/lib/arm64-v8a/libquickjs.so", "base/lib/arm64-v8a/libLiteRt.so", "base/lib/x86_64/libquickjs.so", "base/lib/x86_64/libLiteRt.so"],
+      "32bit": "同上 + base/lib/armeabi-v7a/{libquickjs,libLiteRt}.so",
+      "no-quickjs": "去掉所有 libquickjs.so"
+    }
+  },
+  "real_bundle_status": "NOT_RUN：仓内当前无任何 .aab 产物（find . -maxdepth 4 -name '*.aab' 为空），真实 AAB 的 PAGE_ALIGNMENT_16K 仍未证明。"
+}

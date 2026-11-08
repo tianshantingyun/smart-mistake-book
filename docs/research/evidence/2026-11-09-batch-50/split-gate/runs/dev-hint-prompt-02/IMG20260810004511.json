@@ -1,0 +1,41 @@
+{
+    "file": "IMG20260810004511.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 46110,
+    "responseHead": "{\"id\":\"bc7ac462-ec5f-4f1d-851a-e3f8e5201d09\",\"object\":\"chat.completion\",\"created\":1794128533,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"画面包含第9题、第10题等多道独立题\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.62,\\\"top\\\":0.02,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"第10题选项未拍全，仅见部分内容\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":0.1,\\\"bottom\\\":1},\\\"message\\\":\\\"页边仅见前一题的C/D选项，题干未拍全\\\"}],\\\"suggestedActions\\\":[\\\"RECAPTURE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.08,\\\"top\\\":0.05,\\\"right\\\":0.62,\\\"bottom\\\":0.98},{\\\"left\\\":0.62,\\\"top\\\":0.02,\\\"right\\\":1,\\\"bottom\\\":1}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片。图像旋转90度？需要识别内容。图片包含多个题。需要评估是否足以完整转写一道或多道独立题。看起来是数学试卷，包含第9题（多选）有选项A-D? 第10题（多选）也有选项? 还有第C/D前面可能是前面的题。需要返回SPLIT，因为包含2-12道独立题？画面中至少第9题、第10题，可能还有上一题选项C/D以及下一题A? 需要仔细看。\\n\\n图像横向，文字竖排因旋转。实际内容：左侧（底部？）有 C. 根据小概率值0.10的独立性检验，认为变量A与变量B不独立; D. 根据小概率值0.05...; 这可能是第8题选项C,D（题干不完全可见？），但可见选项属于一道前面题，题干没拍全？可能属于同一页面顶部前一题，题干不在画面，只有选项C/D。页面边缘裁切但可见选项，题干缺失，那这道题不完整。但主要画面包含第9题完整：9.(多选) 传承红色文化，... 华等7名同学加入方阵参加训练，则下列说法正确的是？选项A. 7名同学站成一排，小明、小红、小华必须从左到右的顺序站位，则不同的站法种数为840? 等等。图像中A/B/C/D选项有手写标记。需要看选项完整：A? 图像中B/C/D? 在题9下方有 B. 7名同学站成一排，小明、小红两人相邻，则不同的排法种数为720。C. 7名同学站成一排，小明、小红两人不相邻，则不同的排法种数为480。D. 7名同学分成三组（每组至少两人），进行三种不同的训练，则有630种不同的训练方法。选项A可能：7名同学站成一排，小明、小红、小华必须从左到右的顺序站位，则不同的站法种数为840？ 图像中在题9右侧有 A? 看不太清。第9题题目可能",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "MISSING_OPTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [
+        {
+            "left": 0.08,
+            "top": 0.05,
+            "right": 0.62,
+            "bottom": 0.98
+        },
+        {
+            "left": 0.62,
+            "top": 0.02,
+            "right": 1.0,
+            "bottom": 1.0
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.005–1.000，y=0.000–1.000；单栏；段落分隔（共 1 处）：y=0.000（谷宽0px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 113,
+    "image": {
+        "egressBytes": 565447,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "6e7177352b10f2c04436abb8ab3725b9c06068e4a77626f3263eb8fc6b2d7421",
+    "promptSha256": "51f404d4674cbcd7a6c199806a636e75cc889968321f6fa9836464fa2cf043cb"
+}

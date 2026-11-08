@@ -1,0 +1,360 @@
+{
+ "pages": [
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "PASS",
+   "file": "IMG20260810004304.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004304.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "d569901118e57673b541028bc5339ad3fd1e34337443bb5d74d23fad707b033a",
+   "decision": "SPLIT",
+   "file": "IMG20260810004511.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004511.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.995,
+     "left": 0.24,
+     "right": 0.58,
+     "top": 0.03
+    },
+    {
+     "bottom": 0.995,
+     "left": 0.58,
+     "right": 0.995,
+     "top": 0.03
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810004854.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004854.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "SPLIT",
+   "file": "IMG20260810005144.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005144.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "fe427b530a35a5f8dc2b651d463cd2188cf5aee40769ff496b7d883e7c8d2c91",
+   "decision": "SPLIT",
+   "file": "IMG20260810005301.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005301.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.89,
+     "left": 0.02,
+     "right": 0.46,
+     "top": 0.05
+    },
+    {
+     "bottom": 0.89,
+     "left": 0.48,
+     "right": 0.96,
+     "top": 0.17
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810005605.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005605.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "be72f6a70da003015995222642bfd734afb6e9e7fb0240b7cc6abad7e77735b9",
+   "decision": "SPLIT",
+   "file": "IMG20260810005855.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005855.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.39,
+     "left": 0.07,
+     "right": 0.96,
+     "top": 0.0
+    },
+    {
+     "bottom": 0.865,
+     "left": 0.07,
+     "right": 0.96,
+     "top": 0.39
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.07,
+     "right": 0.96,
+     "top": 0.865
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": null,
+   "file": "IMG20260810010306.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "ERROR",
+   "pageId": "IMG20260810010306.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "1b2946f90d32d8fc50d2ca8b795ffa2e93ec657cf70e6c87b709985f3cdcb0b2",
+   "decision": "SPLIT",
+   "file": "IMG20260810010349.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010349.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 4,
+   "questions": [
+    {
+     "bottom": 0.16,
+     "left": 0.08,
+     "right": 1.0,
+     "top": 0.0
+    },
+    {
+     "bottom": 0.405,
+     "left": 0.08,
+     "right": 1.0,
+     "top": 0.18
+    },
+    {
+     "bottom": 0.645,
+     "left": 0.08,
+     "right": 1.0,
+     "top": 0.43
+    },
+    {
+     "bottom": 0.8,
+     "left": 0.08,
+     "right": 1.0,
+     "top": 0.66
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": null,
+   "file": "IMG20260810010633.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "ERROR",
+   "pageId": "IMG20260810010633.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "823520ad45a77393bfebcd9cf14bcea8dacbd50f86adf0dc9fe5aab15399d51d",
+   "decision": "SPLIT",
+   "file": "IMG20260810010859.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010859.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.27,
+     "left": 0.13,
+     "right": 0.94,
+     "top": 0.045
+    },
+    {
+     "bottom": 0.705,
+     "left": 0.13,
+     "right": 0.95,
+     "top": 0.345
+    },
+    {
+     "bottom": 0.85,
+     "left": 0.13,
+     "right": 0.94,
+     "top": 0.7
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": null,
+   "file": "IMG20260810011017.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "ERROR",
+   "pageId": "IMG20260810011017.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "PASS",
+   "file": "IMG20260810011126.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011126.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "d9930250f83ee4e95fc036c6e89406ab8a9ef31014509a05358d3255d351e626",
+   "decision": "SPLIT",
+   "file": "IMG20260810011248.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011248.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 4,
+   "questions": [
+    {
+     "bottom": 0.42,
+     "left": 0.02,
+     "right": 0.88,
+     "top": 0.33
+    },
+    {
+     "bottom": 0.49,
+     "left": 0.02,
+     "right": 0.86,
+     "top": 0.43
+    },
+    {
+     "bottom": 0.66,
+     "left": 0.02,
+     "right": 0.94,
+     "top": 0.5
+    },
+    {
+     "bottom": 0.87,
+     "left": 0.02,
+     "right": 0.98,
+     "top": 0.75
+    }
+   ]
+  },
+  {
+   "boxesSha256": "58fef3bd3c15f4f801086c30d27cd52ba32180735c77ecc274994c2e51231721",
+   "decision": "SPLIT",
+   "file": "IMG20260810011649.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011649.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.965,
+     "left": 0.255,
+     "right": 0.795,
+     "top": 0.06
+    },
+    {
+     "bottom": 0.99,
+     "left": 0.01,
+     "right": 0.25,
+     "top": 0.055
+    }
+   ]
+  },
+  {
+   "boxesSha256": "323f4733019b5341ee922ce07007f37ab393287583c0bea141939d5c6881eceb",
+   "decision": "SPLIT",
+   "file": "IMG20260810012103.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810012103.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.245,
+     "left": 0.02,
+     "right": 0.99,
+     "top": 0.0
+    },
+    {
+     "bottom": 0.665,
+     "left": 0.02,
+     "right": 0.99,
+     "top": 0.245
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.02,
+     "right": 0.99,
+     "top": 0.665
+    }
+   ]
+  }
+ ],
+ "schemaVersion": 2,
+ "source": {
+  "channel": "golden-split-eval-hint-harness-v1（JVM harness；非设备 DB 导出，如实标注）",
+  "divergences": [
+   "transport: plain HTTPS POST instead of gateway authorization pipeline (same requestBody builder, same parseCompletion)",
+   "image egress copy: prepared by caller per EgressImageBudget plan (long edge 2048, JPEG q88, q70 fallback); PIL resampling, not Android Skia bytes; scaledSize re-verified here",
+   "layout hint gray fixtures: PIL BILINEAR to long edge 1024 then ITU-R 601 luma, derived from the egress copy (same frame as the image sent); not Android BitmapFactory bytes"
+  ],
+  "endpoint": "https://api.deepseek.com",
+  "keySha8": "cd10efbc",
+  "layoutHintArm": true,
+  "model": "deepseek-flash",
+  "pageRecordSha256": {
+   "IMG20260810004304.jpg": "9f5264348b4b5721379dd8fedec167873f283b66b540ce90cf896f3f42d382ac",
+   "IMG20260810004511.jpg": "ce70531df22f1eda99d21c482f515e870d68b041649364779b83ff0c03f6eb32",
+   "IMG20260810004854.jpg": "2fba5c5751c7e14b8f2d448874d2466628ea829cae5b82d582e7a546db9b0570",
+   "IMG20260810005144.jpg": "af1200cd3a049fac25fe1881f9b9aed9ee9f4f6e5b5336b1b3208fa22ef34323",
+   "IMG20260810005301.jpg": "c01aa1a392c21a40246adc2b2af4d01b1c49b2f9551cd980e937bee6b27bcb19",
+   "IMG20260810005605.jpg": "8e8f9a8f219533ebadf3dccce5697324662cb26015326f5501a64203336724b7",
+   "IMG20260810005855.jpg": "ab32526d103887aa9aac7ed0f8b2631631b84e7273df4f6628e148cbc0c11c1f",
+   "IMG20260810010306.jpg": "663e7ccaf0780ab4e651886d05d24c957fe4e7552084dcba2f3837d664c76363",
+   "IMG20260810010349.jpg": "5c14a16f236acfb2f35ad56a9f16215515558ed0da8acf4b504053c115fd23a0",
+   "IMG20260810010633.jpg": "6297f4a2b1278f286141a92b6501a622e05b4fc363dd29aeea3f61869b774ba3",
+   "IMG20260810010859.jpg": "a53509a41ac1d677ac625c41ba87be2e24f30399682de06c1e4995b523d3541d",
+   "IMG20260810011017.jpg": "9e5124b6cbfe96fc6c659c0682c9d5a04f535863f2c884fa8eeb6805073eae31",
+   "IMG20260810011126.jpg": "47bb24ac7530af0264e43d0ce40a58160a2c10cac6fbeb456d66050061a66829",
+   "IMG20260810011248.jpg": "6b15dbd25831122896599eb0ec9a08319372a72421141d68fa6f9958a3ac317a",
+   "IMG20260810011649.jpg": "1cb7ec70eb2bcfa20ca46ce8f8185afb5143cc7899ab5c690e89492d7611b75d",
+   "IMG20260810012103.jpg": "8bafb88034c6b4340093b38d5cc4146301c4b88b81147b2098632fe54cc2f60a"
+  },
+  "runId": "dev-hint-01",
+  "runManifestSha256": "41c240a6ebc33f34716696b0ffb5b174f59aefd15b75ef788e8afb69457e5815",
+  "wireProtocol": "openai-chat-completions-v1"
+ }
+}

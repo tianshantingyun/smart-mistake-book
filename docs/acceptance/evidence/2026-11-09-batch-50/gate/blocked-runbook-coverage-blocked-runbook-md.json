@@ -1,0 +1,7 @@
+{
+  "runbook": "docs\\acceptance\\blocked-runbook.md",
+  "domain": null,
+  "blocked_rows": 254,
+  "covered": 254,
+  "missing": []
+}

@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-147c8546b4-001	CORRECT		high	用向心力演示器与控制变量法探究向心力与质量、半径和角速度的关系	
+ext-phy-14a492ed6c-017	CORRECT		high	判断做功正负可用力与位移的夹角、力与瞬时速度的夹角、功能关系或能量守恒三种方法	节点为功，材料含正负判断
+ext-phy-14ac825f0c-018	CORRECT		high	动能定理多用于单个物体的运动过程、不涉及加速度与时间时更简捷	
+ext-phy-14acfa5ed6-018	CORRECT		high	Δp 一定时力的作用时间越短则力越大、时间越长则力越小	
+ext-phy-150bff7a09-014b	CORRECT		high	小球从偏角处由静止摆到最低点的速度	
+ext-phy-17730881c9-008	CORRECT		high	物体在斜面上做圆周运动时重力垂直斜面的分力与支持力大小相等	
+ext-phy-18235fe94d-006	CORRECT		high	超重与失重只由加速度方向决定，重力不变而视重改变	
+ext-phy-1824f038cb-007	CORRECT		high	当某一物体的受力难以直接分析时	节点为静摩擦力
+ext-phy-186644d5d8-024	CORRECT		high	等效法把环形电流或通电螺线管等效为小磁体	节点为安培力下导体运动
+ext-phy-18c0d3dd54-009	CORRECT		high	对变化过程中的若干状态在同一图中画出力的三角形	
+ext-phy-18cd4d7b47-050	CORRECT		high	电容器两端电压等于回路感应电动势，电荷量为 CE	
+ext-phy-19563ef602-003	CORRECT		high	确定场源、用安培定则判定各场源在该点的磁场、再按平行四边形定则合成	
+ext-phy-19de27257b-005	CORRECT		high	a-t 图线与时间轴所围面积等于该段时间内的速度变化量	
+ext-phy-1a8acded92-035	CORRECT		high	汇总静摩擦力与滑动摩擦力大小的计算方法	
+ext-phy-1ae40def5d-002b	CORRECT		high	洛伦兹力始终垂直于速度方向	
+ext-phy-1bbb2dfb90-007	CORRECT		high	合外力为零时惯性表现为保持原状	
+ext-phy-1bbb2dfb90-026	CORRECT		high	超重对应向上的加速度、F＝mg＋ma	
+ext-phy-1c87455784-006	CORRECT		high	竖直安装打点计时器以减小摩擦阻力	
+ext-phy-1d1f4d4ca8-016	CORRECT		high	用单刀双掷开关把电压表的测量对象切换两次	
+ext-phy-1dbc2880eb-016	CORRECT		high	垂直进入匀强电场的带电粒子做类平抛运动	
+ext-phy-202a7903f4-006d	CORRECT		high	用平均速度求瞬时速度、用逐差法或 $v-t$ 图像求加速度	
+ext-phy-204e4d3df7-011	CORRECT		high	物体在斜面上滑动时，滑动摩擦力与支持力只由 μ、m、θ 决定	
+ext-phy-206fb04353-007c	CORRECT		high	求外力用整体法、求内力用隔离法	
+ext-phy-206fb04353-014	CORRECT		high	以加速度为桥梁 把受力分析与运动分析两个方向的处理流程串起来	
+ext-phy-206fb04353-045	CORRECT		high	基本粒子不计重力、带电体计重力	
+ext-phy-206fb04353-049c	CORRECT		high	粒子轨迹半径等于磁场圆半径时 平行入射会聚焦、同点发散会平行	
+ext-phy-206fb04353-060b	CORRECT		high	总功率、内部功率、输出功率的关系及输出功率随外电阻的变化规律	
+ext-phy-206fb04353-071	CORRECT		high	两杆电动势相加还是相减、动量是否守恒	
+ext-phy-206fb04353-075b	CORRECT		high	周期只由劲度系数与振子质量决定 与振幅和放置方向无关	
+ext-phy-206fb04353-102b	CORRECT		high	伏安法、伏阻法、安阻法各自的原理式、误差来源与误差结论	
+ext-phy-206fb04353-105	CORRECT		high	误差允许范围内原副线圈电压与匝数成正比	
+ext-phy-209263e557-012	CORRECT		high	平均速度表示物体在某段位移或某段时间内的平均运动快慢程度	
+ext-phy-211199b145-011	CORRECT		high	单杆在恒定外力作用下从静止开始加速	
+ext-phy-2206e24008-001b	CORRECT		high	带电粒子经电场偏转后射出时，速度的反向延长线与初速度延长线的交点 O 为粒子水平位移的中点	
+ext-phy-23e5880455-005	CORRECT		high	先选取研究对象并受力分析	
+ext-phy-2422726855-001	CORRECT		high	曲线运动的概念、条件、处理思想与运动特征	
+ext-phy-2656b086e9-005	CORRECT		high	一切物体总保持匀速直线运动状态或静止状态，除非受到力的作用	
+ext-phy-26a9bdfe30-026	CORRECT		high	缓慢拉动活塞保持等温 由活塞受力平衡求压强	节点为气体实验定律
+ext-phy-289528790e-002b	CORRECT		high	电容 $C=Q/U$ 是比值定义式	
+ext-phy-289cb573b0-012b	CORRECT		high	以沙桶与沙的总重力 mg 为横轴、加速度为纵轴作图	
+ext-phy-28b9d29aea-015	CORRECT		high	该装置中系统重力势能的减少量对应托盘与砝码下降的 m2gl	节点为验证机械能守恒
+ext-phy-2977d187c1-003	CORRECT		high	库仑力平衡问题与力学平衡问题解法相同	
+ext-phy-29925db71b-001	CORRECT		high	匀速圆周运动是相等时间里通过的弧长相等的圆周运动	
+ext-phy-29c01ffb78-024	CORRECT		high	给出地面附近重力的黄金代换式以及第一宇宙速度的大小与意义	
+ext-phy-29c01ffb78-035	CORRECT		high	环绕天体做匀速圆周运动时万有引力提供向心力	
+ext-phy-2a5119abec-005	CORRECT		high	弹簧可产生沿弹簧的拉力与推力，橡皮筋只能产生拉力	节点为弹力
+ext-phy-2a5119abec-005b	CORRECT		high	滑动摩擦力与正压力成正比 F=μFN	
+ext-phy-2b63d7a05b-018b	CORRECT		high	碰撞后两球的相对速度与碰前相对速度成正比	
+ext-phy-2ce66db90e-005c	CORRECT		high	光滑水平面上滑块与光滑弧面（斜面）组成系统	
+ext-phy-311ac2aa8a-030	CORRECT		high	物体经历多个阶段时，若要求解某一中间物理量需分阶段列动能定理	

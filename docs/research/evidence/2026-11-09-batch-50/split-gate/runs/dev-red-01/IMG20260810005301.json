@@ -1,0 +1,39 @@
+{
+    "file": "IMG20260810005301.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 18614,
+    "responseHead": "{\"id\":\"f7ec4d02-b489-4ec1-81da-3f9542af2eef\",\"object\":\"chat.completion\",\"created\":1794127309,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.03,\\\"top\\\":0.04,\\\"right\\\":0.94,\\\"bottom\\\":0.97},\\\"message\\\":\\\"画面含第14、15两道独立题，需拆分\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.03,\\\"top\\\":0.04,\\\"right\\\":0.5,\\\"bottom\\\":0.97},{\\\"left\\\":0.505,\\\"top\\\":0.04,\\\"right\\\":0.94,\\\"bottom\\\":0.97}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。图片是一页练习册，左侧有第14题，右侧有第15题。内容看起来完整？包含题干、图、若干小问。页面跨两栏，但每道题完整在图片内。需要返回decision。若2到12道独立题，必须SPLIT。这里有第14题和第15题，两道独立题。需要返回SPLIT，标记MULTIPLE_QUESTIONS BLOCKING，questionRegions按阅读顺序给出每道题完整外接区域，包含题干选项图形作答区，不重叠。需要提供issues数组，可包含MULTIPLE_QUESTIONS BLOCKING region对应整体？还需要其他问题？图片有手写答案，可能影响可读性？题面可读，手写覆盖部分题干? 有些文字被手写遮盖，比如第14题(1)有手写答案覆盖，可能影响题干？但题干应可识别？需要检查是否有KEY_TEXT_UNREADABLE, GLARE, OCCLUDED。图片右侧边缘有答题栏。存在手写答案在题目上，可能遮挡了部分印刷文字，尤其是第14题(1)(2)(3)及第15题(1)(2)(3)。但整体题干大部分可读，部分被手写覆盖。作为错题本转写，可能只需要题目，不需要答案？但手写覆盖关键文字如\\\"细胞器\\\"等。需要标 REVIEW 或 BLOCKING? 图像是练习册拍照，内容完整，应该可转写。需要返回SPLIT，questionRegions两个区域。\\n\\n需要定义坐标0-1。图像宽约1512，高约2016？看分辨率 1512x2016？实际显示 1512x2016? 图片宽高比约1512:2016=0.75。左栏第14题区域：x从约 0.03 到 0.50，y从 0.04 到 0.98（包含图和小问）。右栏第15题区域：x从约 0.50 到 0.94，y从 0.04 到 0.98。答题栏右侧 x 0.94-1.0 不属于题目？但第15题可能包含答题区域？题目在右栏，右侧答题栏是作答区？题目要求包含作答区；右侧有题号1-14的答题栏，可能是作业答题区，不属于具体题。questionRegions应包含每道题完整外接区域，包括题干、选项、图形和作答区。第15题可能有右下角答题区? 但右侧答题栏是通用答题区，没法区分。我们尽量将第15题包含右栏主体和可能题目作答空白处。第14题左栏主体。区",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.03,
+            "top": 0.04,
+            "right": 0.5,
+            "bottom": 0.97
+        },
+        {
+            "left": 0.505,
+            "top": 0.04,
+            "right": 0.94,
+            "bottom": 0.97
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "layoutHint": null,
+    "layoutHintChars": 0,
+    "image": {
+        "egressBytes": 733295,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "198c54c8e7e6647e87eb77bd4ccfcc64ec0e24a1d2dc32c9ff841aac9a04d968",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

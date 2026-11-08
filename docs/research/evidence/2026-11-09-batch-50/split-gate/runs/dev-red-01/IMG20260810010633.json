@@ -1,0 +1,61 @@
+{
+    "file": "IMG20260810010633.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 68805,
+    "responseHead": "\n{\"id\":\"e7f8687e-c380-42d0-98c0-65f56bc86422\",\"object\":\"chat.completion\",\"created\":1794127445,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.08,\\\"top\\\":0.05,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"画面含多道独立题，需拆分。\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.16,\\\"top\\\":0.03,\\\"right\\\":0.82,\\\"bottom\\\":0.17},\\\"message\\\":\\\"顶部题题干被画面上缘截断。\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.77,\\\"top\\\":0.24,\\\"right\\\":1.0,\\\"bottom\\\":0.54},\\\"message\\\":\\\"右侧第1题选项被裁切。\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.77,\\\"top\\\":0.55,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"右侧第2题选项及图形不完整。\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.09,\\\"top\\\":0.74,\\\"right\\\":0.73,\\\"bottom\\\":1.0},\\\"message\\\":\\\"第13题后半与选项未拍全。\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\",\\\"RECAPTURE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.16,\\\"top\\\":0.05,\\\"right\\\":0.82,\\\"bottom\\\":0.23},{\\\"left\\\":0.09,\\\"top\\\":0.26,\\\"right\\\":0.8,\\\"bottom\\\":0.72},{\\\"left\\\":0.09,\\\"top\\\":0.74,\\\"right\\\":0.73,\\\"bottom\\\":1.0},{\\\"left\\\":0.77,\\\"top\\\":0.24,\\\"right\\\":1.0,\\\"bottom\\\":0.54},{\\\"left\\\":0.77,\\\"top\\\":0.55,\\\"right\\\":1.0,\\\"bottom\\\":1.0}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题，并返回JSON。需要仔细分析图片内容。图片是一页教辅资料的局部拍摄，画面包含左侧和右侧内容，中间主体可能有几道题。需要识别是否包含2到12道互相独立的题，若是必须SPLIT，并给出每道题完整外接区域，包含题干、选项、图形和作答区，区域间不得大面积重叠。否则questionRegions空。需要判断是否完整。我们只能依据图片。",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "OCCLUDED",
+        "MISSING_OPTIONS",
+        "MISSING_OPTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [
+        {
+            "left": 0.16,
+            "top": 0.05,
+            "right": 0.82,
+            "bottom": 0.23
+        },
+        {
+            "left": 0.09,
+            "top": 0.26,
+            "right": 0.8,
+            "bottom": 0.72
+        },
+        {
+            "left": 0.09,
+            "top": 0.74,
+            "right": 0.73,
+            "bottom": 1.0
+        },
+        {
+            "left": 0.77,
+            "top": 0.24,
+            "right": 1.0,
+            "bottom": 0.54
+        },
+        {
+            "left": 0.77,
+            "top": 0.55,
+            "right": 1.0,
+            "bottom": 1.0
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 5,
+    "layoutHint": null,
+    "layoutHintChars": 0,
+    "image": {
+        "egressBytes": 541862,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "365acb75fa0d860bd0b965aaa8b2e6bf868cdcc5d6bd064ccf67915f0f5ba59b",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

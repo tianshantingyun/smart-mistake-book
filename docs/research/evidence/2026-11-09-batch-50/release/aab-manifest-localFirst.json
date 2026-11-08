@@ -1,0 +1,15 @@
+{
+  "aab": "app/build/outputs/bundle/localFirstRelease/app-localFirst-release.aab",
+  "sha256": "48b8a6ddc6cb4efc7615d681399b13ef49fb8d00ab109bf9e9cadbe860d03462",
+  "manifest_entry": "base/manifest/AndroidManifest.xml",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "version_code": 101160,
+  "version_name": "0.2.0-localfirst",
+  "version_code_sources": {
+    "string": "101160",
+    "compiled_int": 101160
+  },
+  "expected_code": 101160,
+  "expected_name": "0.2.0-localfirst",
+  "errors": []
+}

@@ -1,0 +1,45 @@
+{
+    "file": "IMG20260810010306.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 12514,
+    "responseHead": "{\"id\":\"ada92ad5-a78d-4f7e-95ae-61be282bced2\",\"object\":\"chat.completion\",\"created\":1794128742,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"画面包含第10、11、12三道独立题，需拆分\\\"}],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[{\\\"left\\\":0.03,\\\"top\\\":0.13,\\\"right\\\":0.98,\\\"bottom\\\":0.33},{\\\"left\\\":0.03,\\\"top\\\":0.33,\\\"right\\\":0.98,\\\"bottom\\\":0.625},{\\\"left\\\":0.03,\\\"top\\\":0.625,\\\"right\\\":0.98,\\\"bottom\\\":0.9}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片内容：包含第10题、11题（含(1)(2)小问）、12题。需要区分独立题。这里第10、11、12是独立题？第11有两个小问，但属于同一大题。题面包含多个独立题（10、11、12），根据规则：若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按页面阅读顺序给出每道题的完整外接区域。这里有三道独立题，因此decision=SPLIT，issues包含MULTIPLE_QUESTIONS BLOCKING。questionRegions三项，分别对应10、11、12的区域。需要给出0-1坐标，包含题干、选项、图形和作答区。图片顶部有一个图像（二次函数示意图）可能属于第10题？它位于第10题上方，但第10题文字下方没有图形引用，可能是上一题残留的图形。第10题从y约0.13? 看图像顶部图形在y=0-0.12左右，第10题文字起始y约0.14? 需要估算坐标。图片尺寸大概 1080x1440? 坐标基于0-1。顶部图形位于x 0.4-0.7, y 0-0.12；第10题文字从 y约0.13 到 0.33，包括红笔作答。第11题从 y约0.33 到0.62（含(1)(2)）。第12题从 y约0.63 到0.88。页面底部页码311 y约0.93。纸面范围 y=0-0.927。我们需要区域不重叠，尽量覆盖。第10题区域 top 0.0? 是否包含顶部图形？该图形可能是上一题，但无法确定。第10题本身没有图形，所以不该包含顶部图形？区域从第10题文字开头到作答区结束。第10题从 y≈0.145 到0.325。left约0.06，right约0.95。第11题从y≈0.325到0.625。第12题从y≈0.63到0.88。需要避免大面积重叠，边界接壤可以。第10题top 0.13 bottom 0.33；第11 top 0.33 bottom 0.62；第12 top 0.62 bottom 0.90。left约0.04, right 0.98。这些区域包括红笔批注和作答区。问题：第10题下方红笔“7,9或25”，属于第10题作答区。第11题包含两小问；作为一个大",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.03,
+            "top": 0.13,
+            "right": 0.98,
+            "bottom": 0.33
+        },
+        {
+            "left": 0.03,
+            "top": 0.33,
+            "right": 0.98,
+            "bottom": 0.625
+        },
+        {
+            "left": 0.03,
+            "top": 0.625,
+            "right": 0.98,
+            "bottom": 0.9
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–0.927；单栏；行距约 24px；段落分隔（共 19 处，已截断到 8 条）：y=0.159（谷宽25px，栏1）；y=0.469（谷宽25px，栏1）；y=0.763（谷宽25px，栏1）；y=0.868（谷宽25px，栏1）；y=0.919（谷宽25px，栏1）；y=0.367（谷宽21px，栏1）；y=0.438（谷宽21px，栏1）；y=0.523（谷宽21px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 266,
+    "image": {
+        "egressBytes": 349842,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "639a5713733478528b5d6c7ee43d5809c0392e9f4bfad874b21371247e810256",
+    "promptSha256": "ec0076dc2ee62a6dbb9568e7fa4ee294fca30b045a755eb144c39cfef97e1a75"
+}

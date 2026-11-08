@@ -1,0 +1,53 @@
+{
+  "batch": 50,
+  "line": "privacy-filing",
+  "date": "2026-11-08",
+  "head": "a87fc70d",
+  "device": {
+    "serial": "emulator-5590",
+    "abi": "x86_64",
+    "sdk": 34,
+    "note": "emulator only, not a physical device"
+  },
+  "apk": {
+    "path": "app/build/outputs/apk/localFirst/debug/app-localFirst-debug.apk",
+    "sha256": "43f1fe46651614f081c0d9edb8a4bc0b33988905822868e857b24e25c34a3e8e"
+  },
+  "gates": {
+    "privacy_baseline": { "pass": 7, "fail": ["H-024", "H-025"], "exit": 1 },
+    "privacy_after": { "pass": 8, "fail": ["H-024"], "exit": 1, "changed": "H-025 FAIL->PASS" },
+    "data_safety_baseline": { "pass": 8, "fail": ["H-036"], "exit": 1 },
+    "data_safety_after": { "pass": 8, "fail": ["H-036"], "exit": 1 },
+    "threshold_changes": 0,
+    "external_blocked": ["H-024 published privacy policy URL", "H-036 Play data safety submission"]
+  },
+  "tests": {
+    "jvm_red": "compile error: Unresolved reference 'PrivacyPolicyCopy' (12 lines)",
+    "jvm_green": "tests=8 skipped=0 failures=0 errors=0",
+    "app_full_suite": "198 tests, 2 failed (StorageRestoreFeedbackTest, TutorSettlementNoticeTest) - no overlap with this line's diff",
+    "strict_offline_compile": "BUILD SUCCESSFUL"
+  },
+  "device_checks": [
+    "profile -> 数据与隐私 -> 查看隐私政策全文 renders 9 chapters with version 2026-11-08",
+    "filing/operator/contact all render 尚未取得; UI dumps contain no ICP备 or 8+ digit runs",
+    "system back: policy -> summary -> profile (BackHandler fix)"
+  ],
+  "fabricated_values": 0,
+  "files_added": [
+    "app/src/main/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopy.kt",
+    "app/src/test/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopyTest.kt",
+    "docs/current/play-data-safety-answers.md",
+    "docs/research/evidence/2026-11-09-batch-50/privacy/README.md"
+  ],
+  "files_modified_additive_only": [
+    "app/src/main/kotlin/com/tingyun/smartmistakebook/SecondaryScreens.kt",
+    "docs/current/privacy-and-data-safety.md"
+  ],
+  "unverified": [
+    "Play Console data category field names and collected/shared definition (WebFetch to developer.android.com / support.google.com timed out; only search snippets consulted)",
+    "strictOffline flavor on device",
+    "physical device, TalkBack, font scale, contrast, dark mode",
+    "English policy (H-081 external)",
+    "the two full-suite failures were not replayed on a clean HEAD checkout"
+  ]
+}

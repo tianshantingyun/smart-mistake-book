@@ -1,0 +1,51 @@
+{
+    "file": "IMG20260810010306.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 45729,
+    "responseHead": "{\"id\":\"9228fb99-76da-4817-903c-c96b5c1696e6\",\"object\":\"chat.completion\",\"created\":1794127369,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.05,\\\"top\\\":0.13,\\\"right\\\":0.98,\\\"bottom\\\":0.84},\\\"message\\\":\\\"画面含10、11(1)、11(2)、12共4道独立题，需拆分\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.06,\\\"top\\\":0.135,\\\"right\\\":0.92,\\\"bottom\\\":0.25},{\\\"left\\\":0.06,\\\"top\\\":0.255,\\\"right\\\":0.98,\\\"bottom\\\":0.365},{\\\"left\\\":0.06,\\\"top\\\":0.375,\\\"right\\\":0.95,\\\"bottom\\\":0.555},{\\\"left\\\":0.06,\\\"top\\\":0.57,\\\"right\\\":0.95,\\\"bottom\\\":0.84}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。需要返回JSON对象。要分析图片：图片是一页习题，包含题10、11(1)(2)、12。需要看是否包含2到12道互相独立的题。这里题10是单独题；题11有(1)(2)，似乎是一道题的两个小问，算一道题还是两个独立的题？题面说“一道或多道独立题”。通常大题带小问算一道独立题？但需要SPLIT如果画面包含2到12道互相独立的题。题10、11（含两个小问）、12：至少3道独立题？题11的(1)(2)是同一题编号下的两个小问，但它们可能独立？需要确定questionRegions按每道题完整外接区域。若判定为多题，必须SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING。并且questionRegions给出每道题区域。需要注意题干和手写答案，手写遮挡是否影响？图片上部有图形，可能属于上一题？顶部显示一个抛物线局部，标注-1,0,1，x轴。这个图形可能是第9题残留，不属于10？题10从“10.”开始，顶部图形可能属于上一题（未编号可见）。如果包含上一题图形但不完整，不影响题10? 但图片顶部包含部分图形和题10、11、12。需要判断内容是否完整。图片中每道题的内容看起来完整：题10题干和答题横线，手写答案。题11(1)(2)完整。题12完整。但题12的横线和答案完整。页面底部有页码311，完整。没有缺失选项，因为是填空题，无选项。没有严重眩光、遮挡（手写覆盖横线但可读）。字迹可读。所以如果多题则SPLIT。issues需包括MULTIPLE_QUESTIONS BLOCKING，region用该多题区域？issues region为0到1坐标。可以标记覆盖多个题目的区域，比如整页大部分。message简短中文。suggestedActions数组应为RECAPTURE/ADD_IMAGE/CONTINUE_ANYWAY。对于SPLIT，suggestedActions可能CONTINUE_ANYW",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.06,
+            "top": 0.135,
+            "right": 0.92,
+            "bottom": 0.25
+        },
+        {
+            "left": 0.06,
+            "top": 0.255,
+            "right": 0.98,
+            "bottom": 0.365
+        },
+        {
+            "left": 0.06,
+            "top": 0.375,
+            "right": 0.95,
+            "bottom": 0.555
+        },
+        {
+            "left": 0.06,
+            "top": 0.57,
+            "right": 0.95,
+            "bottom": 0.84
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 4,
+    "layoutHint": null,
+    "layoutHintChars": 0,
+    "image": {
+        "egressBytes": 349842,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "d4495d3b1cff619195a0a7935b0e205f828dd4cbd6fd49a62dd3fbf7b7bbb6d2",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

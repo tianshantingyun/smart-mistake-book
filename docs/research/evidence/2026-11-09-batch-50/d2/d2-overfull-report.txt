@@ -1,0 +1,852 @@
+2,481 个超配节点（同一节点 > 4 条材料）；它们挂着 62,944 条材料，其中超出 53,020 条是节点内排序第 5 位及以后的绑定。
+运行时没有每节点条数门：整批取数上界 1,024 条、展示由 20,000 字符预算按排序逐条装填（装不下才跳过）——上列绑定不是「永久不可见」，只是排序靠后在预算争用中吃亏。
+全部有绑定材料 64,853 条，落在 3,280 个节点上——超配节点占 97% 的材料；节点内 ≥4 条共 2,664 个（其中 =4 条 183 个）。
+其中与节点名零 2-gram 重合（疑似错绑；只做分诊不做判定）：5954 条；这当中排在超配段（第 5 位起）的 4918 条是优先复核对象。
+
+—— 最严重的 6 个（先 = 节点内前 4 条；后 = 第 5 位起，按序竞争预算；疑 = 疑似错绑）——
+■ 146 条  [MATH] 三角函数 / 三角函数的图象与性质
+    先    [0] MISCONCEPTION_GUIDE      262 字  三角函数单调性与最值的三个易错点（微专题1·易错提示）
+    先    [0] MISCONCEPTION_GUIDE      350 字  三角函数单调性的两个易错点：先化 ω＞0、tanx 分段递增（§4.5 开篇提示）
+    先    [0] MISCONCEPTION_GUIDE      273 字  三角函数单调性讨论的两个易误点（§4.5·谨防两个易误点）
+    先    [0] MISCONCEPTION_GUIDE      229 字  三角函数图象与性质的两个易误点
+    后    [0] MISCONCEPTION_GUIDE      324 字  三角函数对称性两处高频错解：对称中心纵坐标与周期系数（微专题1·易错提示）
+    后    [0] MISCONCEPTION_GUIDE      481 字  三角函数性质应用中的两个易误点
+    后疑  [0] MISCONCEPTION_GUIDE      230 字  单调区间漏周期倍数与复合负号的两条提醒（第19讲·五、易错点提醒）
+    后    [0] MISCONCEPTION_GUIDE      377 字  对称间隔与周期的关系及正切函数单调性的误区
+    后疑  [0] MISCONCEPTION_GUIDE      175 字  求y＝Asin(ωx＋φ)单调区间时注意A、ω的符号（§4.5·谨防易误点(1)）
+    后    [0] MISCONCEPTION_GUIDE      225 字  求三角函数单调区间的两个易误点（§4.5·易误点）
+    后    [0] MISCONCEPTION_GUIDE      182 字  求三角函数单调区间的易误点（§4.5 谨防易误点）
+    后    [0] MISCONCEPTION_GUIDE      483 字  求三角函数单调区间的注意事项
+    后疑  [0] MISCONCEPTION_GUIDE      487 字  求单调区间时忽略 ω 的正负
+    后疑  [0] MISCONCEPTION_GUIDE      675 字  由相邻零点距离求 ω 时勿忘 ω 为负
+    后疑  [2] METHOD_MODEL             373 字  $y=\sin\omega x$ 的增区间需先看 $\omega$ 的符号
+    后    [2] METHOD_MODEL             316 字  Asin(ωx+φ) 型函数性质的整体法
+    后    [2] METHOD_MODEL             278 字  「五点法」作三角函数的图象（53知识清单·数学 必修一 5.6）
+    后    [2] METHOD_MODEL             315 字  三角函数单调区间与最值的核心处理（微专题1·热点题型二）
+    后    [2] METHOD_MODEL             329 字  三角函数单调区间的求法与含参单调条件的处理
+    后    [2] METHOD_MODEL             530 字  三角函数单调区间的求法与含参问题
+    后    [2] METHOD_MODEL             433 字  三角函数单调区间的通法
+    后    [2] METHOD_MODEL             597 字  三角函数单调性与最值的求解思路
+    后    [2] METHOD_MODEL             293 字  三角函数周期与对称性的处理方法（微专题1·规律方法总结）
+    后    [2] METHOD_MODEL             278 字  三角函数周期性与对称性、奇偶性的常用结论（§4.5·常用结论）
+    后    [2] METHOD_MODEL             568 字  三角函数周期的处理
+    后    [2] METHOD_MODEL             263 字  三角函数周期的处理（第03讲·题型3方法技巧）
+    后    [2] METHOD_MODEL             326 字  三角函数图象与性质综合题的数形结合与四类命题角度（重难点27 题型09 思路点睛）
+    后    [2] METHOD_MODEL             379 字  三角函数图象与性质问题的三步：化简、整体代换、借图象性质（专题1.1·综合训练 第15题
+    后    [2] METHOD_MODEL             626 字  三角函数图象的五点法与三点两线法
+    后    [2] METHOD_MODEL             391 字  三角函数奇偶性、周期性与对称性问题的解题思路（第5节 三角函数的图象与性质·感悟提升）
+    后    [2] METHOD_MODEL             566 字  三角函数奇偶性的判断与结论
+    后    [2] METHOD_MODEL             256 字  三角函数对称性与三大性质的联动
+    后    [2] METHOD_MODEL             314 字  三角函数最小正周期的求法
+    后    [2] METHOD_MODEL             265 字  三角函数模型实际应用的两条路径
+    后    [2] METHOD_MODEL            1067 字  三角函数的单调性与周期性的求法
+    后    [2] METHOD_MODEL             476 字  三角函数的周期、对称轴与对称中心
+    后    [2] METHOD_MODEL            1105 字  三角函数的奇偶性与对称性判定
+    后    [2] METHOD_MODEL             115 字  三角函数零点与图象的数形结合
+    后    [2] METHOD_MODEL             275 字  三角性质问题先化为 y=Asin(ωx+φ) 标准形式
+    后    [2] METHOD_MODEL             513 字  三角综合问题先化标准形 $y=A\sin(\omega x+arphi)+k$
+    后    [2] METHOD_MODEL             297 字  与正、余弦函数有关的函数奇偶性的判断方法
+    后疑  [2] METHOD_MODEL             207 字  五点法作y=Asin(ωx+φ)的步骤
+    后    [2] METHOD_MODEL             226 字  五点法作正弦、余弦函数的简图
+    后    [2] METHOD_MODEL             339 字  五点法作正弦、余弦函数的简图（§4.5·1.用五点法作图）
+    后    [2] METHOD_MODEL             252 字  五点法作正弦、余弦函数简图（§4.5·知识梳理）
+    后疑  [2] METHOD_MODEL             179 字  五点法的描点与连线要点
+    后疑  [2] METHOD_MODEL             521 字  代入检验法判断对称轴与对称中心
+    后疑  [2] METHOD_MODEL             868 字  任意—存在型条件转化为解的个数
+    后    [2] METHOD_MODEL             631 字  函数值相等的两点关于对称轴对称
+    后    [2] METHOD_MODEL             243 字  含区间限制的单调性问题：先求全区间再取交集（第19讲：三角函数的图像与性质·单调性）
+    后疑  [2] METHOD_MODEL             346 字  周期求解三步骤与对称性代入验证法（微专题1·规律方法总结）
+    后    [2] METHOD_MODEL             311 字  复合三角函数奇偶性的判断步骤（第19讲：三角函数的图像与性质·奇偶性）
+    后    [2] METHOD_MODEL             409 字  复合三角函数的对称轴与对称中心（内层函数替换·第19讲）
+    后    [2] METHOD_MODEL             266 字  整体代换求复合三角函数的单调区间（第19讲：三角函数的图像与性质·单调性）
+    后疑  [2] METHOD_MODEL             439 字  整体代换求对称轴与对称中心
+    后疑  [2] METHOD_MODEL             557 字  整体代换法求单调区间
+    后    [2] METHOD_MODEL            1240 字  构造辅助角函数利用对称性求角
+    后    [2] METHOD_MODEL             224 字  正余弦型函数性质的判断步骤
+    后    [2] METHOD_MODEL             192 字  正切型函数单调性（含无定义点分段处理）
+    后    [2] METHOD_MODEL             260 字  正弦余弦型函数单调性的整体代换判断
+    后    [2] METHOD_MODEL             309 字  正弦型函数单调区间的整体处理法（三角函数的图象与性质·考点3）
+    后    [2] METHOD_MODEL             658 字  求三角函数单调区间的方法
+    后    [2] METHOD_MODEL             313 字  求三角函数单调区间的方法
+    后    [2] METHOD_MODEL             433 字  求三角函数周期的三种方法
+    后疑  [2] METHOD_MODEL            1475 字  用“中点为零点且单调”确定对称中心
+    后    [2] METHOD_MODEL             636 字  用二倍角化二次不等式解三角不等式
+    后    [2] METHOD_MODEL             311 字  用函数值判断三角函数的对称轴与对称中心
+    后疑  [2] METHOD_MODEL             637 字  由区间内零点个数求参数范围
+    后疑  [2] METHOD_MODEL             667 字  由单调区间的长度确定半周期
+    后疑  [2] METHOD_MODEL             649 字  由取到最值的两点距离求周期
+    后疑  [2] METHOD_MODEL            1063 字  由恒等式与最值分析定 λ 和 ω
+    后    [2] METHOD_MODEL             300 字  研究三角函数性质的两条思路（第2讲·考法归纳）
+    后    [2] METHOD_MODEL             522 字  研究三角函数性质的通法
+    后    [2] METHOD_MODEL             361 字  研究三角函数性质问题的三种意识：转化、整体、讨论（重难点培优02·检测Ⅱ组【方法点睛】）
+    后疑  [4] CONCEPT_EXPLANATION      365 字  y=Asin(ωx+φ) 的奇偶性、周期性与对称性（53知识清单·数学 必修一 5.6）
+    后    [4] CONCEPT_EXPLANATION      443 字  y＝Asin(ωx＋φ) 图象的对称性
+    后疑  [4] CONCEPT_EXPLANATION      274 字  y＝Asin(ωx＋φ) 的值域与对称轴、对称中心（易错易混05·九）
+    后    [4] CONCEPT_EXPLANATION      170 字  【基础知识篇·核心知识背记手册（背记版）】三角函数的图象、性质与图象变换
+    后    [4] CONCEPT_EXPLANATION      299 字  三个基本三角函数的单调区间（第19讲：三角函数的图像与性质·单调性依据）
+    后    [4] CONCEPT_EXPLANATION      299 字  三角函数周期性、对称性、奇偶性的常用结论（§4.5 熟记常用结论）
+    后    [4] CONCEPT_EXPLANATION      394 字  三角函数周期的常用结论
+    后    [4] CONCEPT_EXPLANATION      388 字  三角函数图象对称结构的等距结论
+    后    [4] CONCEPT_EXPLANATION      288 字  三角函数图象的对称性与奇偶性、周期性、单调性的联系（4.3三角函数图象与性质讲义·题型九
+    后    [4] CONCEPT_EXPLANATION      540 字  三角函数对称轴与对称中心的求法
+    后    [4] CONCEPT_EXPLANATION      348 字  三角函数的周期、对称、奇偶与单调性求解策略（专题5.3 三角函数的图象与性质 举一反三复
+    后    [4] CONCEPT_EXPLANATION      737 字  三角函数的周期与对称性
+    后    [4] CONCEPT_EXPLANATION      232 字  三角函数的周期性、对称性与奇偶性结论
+    后    [4] CONCEPT_EXPLANATION      496 字  三角函数的周期性与对称性核心结论（微专题1 三角函数的图像与性质·核心归纳）
+    后    [4] CONCEPT_EXPLANATION      499 字  三角函数的对称性 周期性与奇偶性结论
+    后    [4] CONCEPT_EXPLANATION      364 字  三角函数的对称性与周期、单调性的关系
+    后    [4] CONCEPT_EXPLANATION      210 字  三角函数的对称性与奇偶性结论
+    后    [4] CONCEPT_EXPLANATION      231 字  三角曲线对称中心与对称轴的距离关系（§4.5）
+    后    [4] CONCEPT_EXPLANATION      226 字  三角曲线对称轴、对称中心与周期的距离关系（专题05·题型15第3题【点睛】）
+    后    [4] CONCEPT_EXPLANATION      287 字  五点法与三点两线作图（第19讲：三角函数的图像与性质·图像绘制）
+    后    [4] CONCEPT_EXPLANATION      646 字  五点法作三角函数的图象
+    后    [4] CONCEPT_EXPLANATION      298 字  五点法作三角函数的图象（第03讲教师版·知识点1）
+    后疑  [4] CONCEPT_EXPLANATION      306 字  五点法作图
+    后    [4] CONCEPT_EXPLANATION      356 字  五点法作正弦、余弦函数的简图（第15讲 三角函数的图象和性质·知识点01）
+    后    [4] CONCEPT_EXPLANATION      338 字  五点法作正弦、余弦函数的简图（第5节 三角函数的图象与性质·知识梳理1）
+    后    [4] CONCEPT_EXPLANATION      568 字  五点法作正弦函数与余弦函数的简图
+    后    [4] CONCEPT_EXPLANATION      222 字  余弦函数的图象与性质
+    后    [4] CONCEPT_EXPLANATION      242 字  借助图象解三角函数不等式（53知识清单·数学 必修一 P130 5.4 拓展）
+    后    [4] CONCEPT_EXPLANATION      643 字  周期函数与最小正周期
+    后疑  [4] CONCEPT_EXPLANATION      263 字  周期性、对称性与奇偶性的常用结论（PPT §4.5 微点提醒）
+    后    [4] CONCEPT_EXPLANATION      245 字  基本三角函数的对称中心与对称轴（第19讲：三角函数的图像与性质·对称性）
+    后    [4] CONCEPT_EXPLANATION      314 字  复合三角函数的周期公式（第19讲：三角函数的图像与性质·周期性）
+    后疑  [4] CONCEPT_EXPLANATION      258 字  对称性间距与周期的关系（第15讲·常用结论1）
+    后疑  [4] CONCEPT_EXPLANATION      820 字  对称轴、对称中心与周期的关系
+    后疑  [4] CONCEPT_EXPLANATION      174 字  对称轴处取得最值（§4.6）
+    后    [4] CONCEPT_EXPLANATION      440 字  对钩函数的图象与性质
+    后    [4] CONCEPT_EXPLANATION      371 字  常考奇函数清单与“奇函数＋常数”性质
+    后    [4] CONCEPT_EXPLANATION      227 字  拓展判定：$f(a\pm x)$ 为偶函数 $\Rightarrow$ $f(x)$ 的
+    后    [4] CONCEPT_EXPLANATION      453 字  正、余弦型函数图象的对称轴与对称中心
+    后    [4] CONCEPT_EXPLANATION      279 字  正余弦函数的对称性与周期、单调性的关系（53知识清单·数学 必修一 P129 5.4 深
+    后疑  [4] CONCEPT_EXPLANATION      297 字  正余弦曲线的对称轴与对称中心
+    后    [4] CONCEPT_EXPLANATION      412 字  正切函数的核心性质
+    后    [4] CONCEPT_EXPLANATION      221 字  正弦、余弦、正切函数的单调区间
+    后    [4] CONCEPT_EXPLANATION      551 字  正弦、余弦、正切函数的图象与性质对照
+    后    [4] CONCEPT_EXPLANATION      296 字  正弦、余弦、正切函数的奇偶性与单调性（PPT §4.5）
+    后    [4] CONCEPT_EXPLANATION      211 字  正弦、余弦、正切函数的定义域、值域与周期
+    后    [4] CONCEPT_EXPLANATION      374 字  正弦、余弦、正切函数的定义域与值域对照
+    后    [4] CONCEPT_EXPLANATION      169 字  正弦、余弦、正切函数的定义域与值域（PPT §4.5）
+    后    [4] CONCEPT_EXPLANATION      198 字  正弦、余弦、正切函数的对称性
+    后    [4] CONCEPT_EXPLANATION      210 字  正弦、余弦、正切函数的性质
+    后    [4] CONCEPT_EXPLANATION     1069 字  正弦、余弦、正切函数的性质对照
+    后    [4] CONCEPT_EXPLANATION      267 字  正弦、余弦、正切曲线的对称性与周期关系（第5节 三角函数的图象与性质·常用结论1）
+    后    [4] CONCEPT_EXPLANATION      465 字  正弦与余弦图象的平移互化关系
+    后    [4] CONCEPT_EXPLANATION      175 字  正弦余弦函数的周期、定义域与值域
+    后    [4] CONCEPT_EXPLANATION      223 字  正弦余弦正切的五点与图象
+    后    [4] CONCEPT_EXPLANATION      252 字  正弦函数与余弦函数的图象与性质对照（53知识清单·数学 必修一 P129 5.4）
+    后    [4] CONCEPT_EXPLANATION      541 字  正弦函数与余弦函数的核心性质
+    后    [4] CONCEPT_EXPLANATION      273 字  正弦函数的图象与五点法
+    后    [4] CONCEPT_EXPLANATION      395 字  正弦型、余弦型与正切型函数的性质（专题08·真题命题背景60）
+    后疑  [4] CONCEPT_EXPLANATION      196 字  正弦型、余弦型曲线对称元素的间距（§4.6·常用结论(2)）
+    后    [4] CONCEPT_EXPLANATION      510 字  正弦型与余弦型函数的性质
+    后    [4] CONCEPT_EXPLANATION      398 字  正弦型函数的奇偶性、对称检验与常用周期（三角函数的图象与性质·考点2）
+    后    [4] CONCEPT_EXPLANATION     1597 字  正弦型函数的对称性与周期关系
+    后    [4] CONCEPT_EXPLANATION      435 字  正弦型方程两零点之和用对称性直接求（第四章 必刷小题7 三角函数·slide e15 答
+    后疑  [4] CONCEPT_EXPLANATION      192 字  正（余）弦型曲线对称性与周期的关系（§4.5·常用结论）
+    后疑  [4] CONCEPT_EXPLANATION      177 字  正（余）弦型曲线对称轴处取最值（§4.6·常用结论(3)）
+    后疑  [4] CONCEPT_EXPLANATION      247 字  正（余）弦型的奇偶性与 φ 的取值（§4.5·常用结论）
+    后疑  [4] CONCEPT_EXPLANATION      218 字  求 y=Asin(ωx+φ) 单调区间的整体代换法（53知识清单·数学 必修一 P132
+    后    [4] CONCEPT_EXPLANATION      159 字  用五点法作正弦、余弦函数的简图
+    后    [4] CONCEPT_EXPLANATION      688 字  用五点法作正弦、余弦函数的简图
+    后    [4] CONCEPT_EXPLANATION      217 字  用五点法作正弦、余弦函数简图（PPT §4.5）
+    后    [4] CONCEPT_EXPLANATION      202 字  零点三等价：函数有零点 $\Leftrightarrow$ 方程 $f(x)=0$ 有实
+
+■ 143 条  [BIOLOGY] 细胞的能量供应和利用 / 有氧呼吸
+    先    [0] MISCONCEPTION_GUIDE      653 字  NADH中氢的来源与交替呼吸途径的推断
+    先    [0] MISCONCEPTION_GUIDE      266 字  有氧呼吸的场所与物质变化
+    先    [0] MISCONCEPTION_GUIDE      283 字  第09讲 细胞呼吸·有氧呼吸阶段的易错点
+    先    [0] MISCONCEPTION_GUIDE      305 字  细胞呼吸的底物不只有葡萄糖
+    后疑  [2] METHOD_MODEL             484 字  三步定位法辨析电子传递过程
+    后    [2] METHOD_MODEL             166 字  有氧呼吸中反应物的数量比例1:6:6
+    后    [2] METHOD_MODEL             146 字  有氧呼吸中各元素的来源与去路
+    后    [2] METHOD_MODEL             225 字  有氧呼吸总反应式中水不能抵消（第09讲细胞呼吸① P65）
+    后疑  [2] METHOD_MODEL             462 字  电子传递过程的三步定位法
+    后    [2] METHOD_MODEL             133 字  耗 O2 多于产 CO2 → 推测呼吸底物含脂肪
+    后    [2] METHOD_MODEL              97 字  葡萄糖:O2:CO2 = 1:6:6 → 只进行有氧呼吸
+    后疑  [2] METHOD_MODEL             242 字  阶段、场所、原料、产物、能量
+    后    [4] CONCEPT_EXPLANATION      600 字  三羧酸循环是有氧呼吸第二阶段
+    后疑  [4] CONCEPT_EXPLANATION      366 字  三羧酸循环的场所、过程特点与代谢枢纽意义
+    后疑  [4] CONCEPT_EXPLANATION      539 字  三羧酸循环的场所与产物来源
+    后    [4] CONCEPT_EXPLANATION      144 字  光呼吸不产生 ATP，与有氧呼吸本质不同
+    后疑  [4] CONCEPT_EXPLANATION      218 字  化学渗透假说的要点（第11讲 综合分析②）
+    后疑  [4] CONCEPT_EXPLANATION      175 字  同有机物在生物体外的燃烧相比
+    后    [4] CONCEPT_EXPLANATION      179 字  呼吸作用最常利用的物质
+    后    [4] CONCEPT_EXPLANATION      405 字  呼吸电子传递与氧化磷酸化的偶联（源：27版五三B版生物·第五章 细胞的能量供应和利用·s
+    后    [4] CONCEPT_EXPLANATION      375 字  呼吸电子传递与氧化磷酸化的机制
+    后    [4] CONCEPT_EXPLANATION     1171 字  呼吸电子传递和氧化磷酸化
+    后    [4] CONCEPT_EXPLANATION      342 字  呼吸链受损与电子过度堆积的后果（27版53A生物学精练册·第五章·精练册word 微专题
+    后    [4] CONCEPT_EXPLANATION      512 字  呼吸链的抑制剂、解偶联剂与两条产热途径
+    后    [4] CONCEPT_EXPLANATION      683 字  呼吸链的电子供体与质子漏
+    后    [4] CONCEPT_EXPLANATION      372 字  在有氧呼吸过程中
+    后疑  [4] CONCEPT_EXPLANATION      125 字  对于绝大多数生物来说
+    后    [4] CONCEPT_EXPLANATION       99 字  对有氧呼吸的三个阶段归纳
+    后    [4] CONCEPT_EXPLANATION      207 字  有氧呼吸
+    后    [4] CONCEPT_EXPLANATION      135 字  有氧呼吸·第一阶段
+    后    [4] CONCEPT_EXPLANATION      139 字  有氧呼吸·第三阶段
+    后    [4] CONCEPT_EXPLANATION      149 字  有氧呼吸·第二阶段
+    后    [4] CONCEPT_EXPLANATION      380 字  有氧呼吸三个阶段的位置、物质变化与产能
+    后    [4] CONCEPT_EXPLANATION      230 字  有氧呼吸三个阶段的场所与物质变化
+    后    [4] CONCEPT_EXPLANATION      561 字  有氧呼吸三个阶段的场所与物质能量变化
+    后    [4] CONCEPT_EXPLANATION      181 字  有氧呼吸三个阶段的场所（第09讲细胞呼吸① P65）
+    后    [4] CONCEPT_EXPLANATION      203 字  有氧呼吸三阶段与电子传递链
+    后    [4] CONCEPT_EXPLANATION      199 字  有氧呼吸三阶段产 ATP 分配：第一阶段少、第二阶段少、第三阶段最多
+    后    [4] CONCEPT_EXPLANATION      252 字  有氧呼吸三阶段反
+    后    [4] CONCEPT_EXPLANATION      384 字  有氧呼吸三阶段的场所、元素去向与能量变化
+    后    [4] CONCEPT_EXPLANATION      414 字  有氧呼吸三阶段的场所、反应物与能量去向
+    后    [4] CONCEPT_EXPLANATION      462 字  有氧呼吸三阶段的场所与产物及无氧呼吸的两条去向
+    后    [4] CONCEPT_EXPLANATION      149 字  有氧呼吸三阶段的场所与物质能量变化（第11讲 综合分析②）
+    后    [4] CONCEPT_EXPLANATION      659 字  有氧呼吸三阶段的场所耗氧与产能
+    后    [4] CONCEPT_EXPLANATION      434 字  有氧呼吸三阶段的研究式划分
+    后    [4] CONCEPT_EXPLANATION      202 字  有氧呼吸与体外燃烧的异同（第9讲课件）
+    后    [4] CONCEPT_EXPLANATION      189 字  有氧呼吸与无氧呼吸中葡萄糖能量的去向
+    后    [4] CONCEPT_EXPLANATION      212 字  有氧呼吸与无氧呼吸的比较（第9讲课件）
+    后    [4] CONCEPT_EXPLANATION      253 字  有氧呼吸与燃烧的区别及其意义
+    后    [4] CONCEPT_EXPLANATION      166 字  有氧呼吸中反应物的利用与产物的形成阶段
+    后    [4] CONCEPT_EXPLANATION      146 字  有氧呼吸中水的消耗与产生阶段辨析
+    后    [4] CONCEPT_EXPLANATION      208 字  有氧呼吸中物质与能量的变化分析
+    后    [4] CONCEPT_EXPLANATION      204 字  有氧呼吸中碳、氢、氧元素的去向
+    后    [4] CONCEPT_EXPLANATION      530 字  有氧呼吸前两阶段的NADH与能量去向
+    后    [4] CONCEPT_EXPLANATION      188 字  有氧呼吸各阶段的物质与能量变化（第9讲课件）
+    后    [4] CONCEPT_EXPLANATION      208 字  有氧呼吸各阶段的物质变化
+    后    [4] CONCEPT_EXPLANATION      157 字  有氧呼吸总反
+    后    [4] CONCEPT_EXPLANATION      256 字  有氧呼吸总反应式中元素的来源与去向
+    后    [4] CONCEPT_EXPLANATION      220 字  有氧呼吸是指细胞在氧的参与下
+    后    [4] CONCEPT_EXPLANATION      196 字  有氧呼吸最常利用的底物是葡萄糖
+    后    [4] CONCEPT_EXPLANATION      194 字  有氧呼吸最常利用的物质是葡萄糖
+    后    [4] CONCEPT_EXPLANATION      233 字  有氧呼吸的三个概括阶段（糖酵解、三羧酸循环、氧化磷酸化）
+    后    [4] CONCEPT_EXPLANATION      220 字  有氧呼吸的三个概括阶段：糖酵解、三羧酸循环与氧化磷酸化
+    后    [4] CONCEPT_EXPLANATION      205 字  有氧呼吸的三个阶段
+    后    [4] CONCEPT_EXPLANATION      285 字  有氧呼吸的三个阶段
+    后    [4] CONCEPT_EXPLANATION      218 字  有氧呼吸的三个阶段
+    后    [4] CONCEPT_EXPLANATION      340 字  有氧呼吸的三个阶段与氧化磷酸化
+    后    [4] CONCEPT_EXPLANATION      192 字  有氧呼吸的三个阶段（第9讲课件）
+    后    [4] CONCEPT_EXPLANATION      631 字  有氧呼吸的三个阶段：糖酵解、三羧酸循环与氧化磷酸化
+    后    [4] CONCEPT_EXPLANATION      438 字  有氧呼吸的三阶段与物质代谢枢纽
+    后    [4] CONCEPT_EXPLANATION      253 字  有氧呼吸的主要场所——线粒体外膜
+    后    [4] CONCEPT_EXPLANATION      291 字  有氧呼吸的产能与能量转化效率
+    后    [4] CONCEPT_EXPLANATION      267 字  有氧呼吸的区室化与场所（6. 2026生物总复习·教材插图隐藏知识点·第五章）
+    后    [4] CONCEPT_EXPLANATION      405 字  有氧呼吸的反应式、场所与能量变化
+    后    [4] CONCEPT_EXPLANATION      499 字  有氧呼吸的场所、三阶段与能量转化
+    后    [4] CONCEPT_EXPLANATION      267 字  有氧呼吸的场所、能量变化与ATP产生阶段（源：27版五三B版生物·第五章 细胞的能量供应
+    后    [4] CONCEPT_EXPLANATION      150 字  有氧呼吸的总反
+    后    [4] CONCEPT_EXPLANATION      289 字  有氧呼吸的总反应式与能量转化
+    后    [4] CONCEPT_EXPLANATION      144 字  有氧呼吸的概念
+    后    [4] CONCEPT_EXPLANATION      216 字  有氧呼吸的概念
+    后    [4] CONCEPT_EXPLANATION      482 字  有氧呼吸的概念
+    后    [4] CONCEPT_EXPLANATION      198 字  有氧呼吸的概念
+    后    [4] CONCEPT_EXPLANATION      229 字  有氧呼吸的概念、场所与线粒体结构（第9讲课件）
+    后    [4] CONCEPT_EXPLANATION      190 字  有氧呼吸的概念、场所与能量转化
+    后    [4] CONCEPT_EXPLANATION      286 字  有氧呼吸的概念、过程与能量去路（必修1 P92～94）
+    后    [4] CONCEPT_EXPLANATION      235 字  有氧呼吸的概念与主要场所
+    后    [4] CONCEPT_EXPLANATION      243 字  有氧呼吸的概念与特点（第09讲细胞呼吸① P65）
+    后    [4] CONCEPT_EXPLANATION      268 字  有氧呼吸的特点与意义
+    后    [4] CONCEPT_EXPLANATION      446 字  有氧呼吸的电子传递链与氧化磷酸化（27版53A生物精讲册·第五章第3节）
+    后    [4] CONCEPT_EXPLANATION      149 字  有氧呼吸的能量去路与特点
+    后    [4] CONCEPT_EXPLANATION      180 字  有氧呼吸的能量释放（第09讲细胞呼吸① P65）
+    后    [4] CONCEPT_EXPLANATION      632 字  有氧呼吸的过程、场所与能量转化
+    后    [4] CONCEPT_EXPLANATION      288 字  有氧呼吸的过程与反应式
+    后    [4] CONCEPT_EXPLANATION      141 字  有氧呼吸第一阶段：糖酵解
+    后    [4] CONCEPT_EXPLANATION      187 字  有氧呼吸第三阶段电子传递的场所与结果（第09讲细胞呼吸① P69）
+    后    [4] CONCEPT_EXPLANATION      193 字  有氧呼吸第三阶段的ATP生成过程（第9讲课件）
+    后    [4] CONCEPT_EXPLANATION      267 字  有氧呼吸第三阶段的电子传递与ATP合成
+    后    [4] CONCEPT_EXPLANATION      231 字  有氧呼吸第三阶段的电子传递与H+浓度梯度（第09讲细胞呼吸① P69）
+    后    [4] CONCEPT_EXPLANATION      168 字  有氧呼吸第三阶段：O2 与电子和 H+ 结合生成水
+    后    [4] CONCEPT_EXPLANATION      153 字  有氧呼吸第三阶段：[H]与氧气结合
+    后    [4] CONCEPT_EXPLANATION      151 字  有氧呼吸第二阶段：丙酮酸和水反应
+    后    [4] CONCEPT_EXPLANATION      157 字  燃烧与细胞呼吸释放能量方式的比较
+    后    [4] CONCEPT_EXPLANATION      336 字  生成于有氧呼吸第三阶段
+    后疑  [4] CONCEPT_EXPLANATION      339 字  电子传递与ATP合成的偶联机制
+    后疑  [4] CONCEPT_EXPLANATION      121 字  电子传递释能把 H+ 泵至膜间隙，建立 H+ 浓度差
+    后疑  [4] CONCEPT_EXPLANATION      232 字  电子传递链与ATP合酶的工作机制
+    后疑  [4] CONCEPT_EXPLANATION      484 字  电子传递链与ATP的合成
+    后疑  [4] CONCEPT_EXPLANATION      211 字  电子传递链与化学渗透假说
+    后疑  [4] CONCEPT_EXPLANATION      650 字  电子传递链与氧化磷酸化
+    后    [4] CONCEPT_EXPLANATION      195 字  第09讲 细胞呼吸·H+经ATP合酶回流驱动ATP合成
+    后    [4] CONCEPT_EXPLANATION      234 字  第09讲 细胞呼吸·化学渗透假说三步
+    后    [4] CONCEPT_EXPLANATION      218 字  第09讲 细胞呼吸·总反应式中元素的来源与去路
+    后    [4] CONCEPT_EXPLANATION      406 字  第09讲 细胞呼吸·新情境：ATP合成酶与化学渗透假说
+    后    [4] CONCEPT_EXPLANATION      197 字  第09讲 细胞呼吸·新情境：ATP合成酶的工作原理
+    后    [4] CONCEPT_EXPLANATION      370 字  第09讲 细胞呼吸·新情境：化学渗透假说与贾格道夫实验
+    后    [4] CONCEPT_EXPLANATION      255 字  第09讲 细胞呼吸·有氧呼吸的三个阶段
+    后    [4] CONCEPT_EXPLANATION      319 字  第09讲 细胞呼吸·有氧呼吸的场所与过程要点
+    后    [4] CONCEPT_EXPLANATION      197 字  第09讲 细胞呼吸·有氧呼吸的概念
+    后    [4] CONCEPT_EXPLANATION      198 字  第09讲 细胞呼吸·有氧呼吸的概念与主要场所
+    后    [4] CONCEPT_EXPLANATION      227 字  第09讲 细胞呼吸·有氧呼吸的能量去路与特点
+    后    [4] CONCEPT_EXPLANATION      281 字  第09讲 细胞呼吸·电子传递和氧化磷酸化（第三阶段）
+    后    [4] CONCEPT_EXPLANATION      221 字  第09讲 细胞呼吸·电子传递链（重难点透析）
+    后    [4] CONCEPT_EXPLANATION      317 字  第09讲 细胞呼吸·第三阶段的电子传递与氧化磷酸化
+    后    [4] CONCEPT_EXPLANATION      198 字  第09讲 细胞呼吸·线粒体与有氧呼吸相适应的结构特点
+    后    [4] CONCEPT_EXPLANATION      310 字  第9讲·细胞呼吸的方式与过程
+    后疑  [4] CONCEPT_EXPLANATION      154 字  第一阶段（糖酵解）：葡萄糖在细胞质基质分解为丙酮酸
+    后疑  [4] CONCEPT_EXPLANATION      181 字  第三阶段：线粒体内膜进行电子传递与氧化磷酸化，产大量水与 ATP
+    后疑  [4] CONCEPT_EXPLANATION      137 字  第二阶段：丙酮酸进入线粒体基质氧化为 CO2 与 [H]
+    后疑  [4] CONCEPT_EXPLANATION      296 字  糖酵解与三羧酸循环的场所与产物
+    后疑  [4] CONCEPT_EXPLANATION      660 字  糖酵解的过程与特点
+    后疑  [4] CONCEPT_EXPLANATION      276 字  糖酵解的过程与能量去向
+    后疑  [4] CONCEPT_EXPLANATION      632 字  糖酵解（第一阶段）的ATP收支与产物
+    后疑  [4] CONCEPT_EXPLANATION      201 字  线粒体产能的原理（化学渗透）
+    后疑  [4] CONCEPT_EXPLANATION      335 字  线粒体内膜上H＋梯度驱动ATP合成的机制与解偶联危害（2027年一轮讲义·第11课时）
+    后疑  [4] CONCEPT_EXPLANATION      669 字  线粒体内膜上电子传递与ATP合成的偶联
+    后    [4] CONCEPT_EXPLANATION      234 字  线粒体内膜呼吸链与H+浓度梯度的建立（大单元2·层级2 二轮核心 slide e33）
+    后疑  [4] CONCEPT_EXPLANATION      484 字  线粒体内膜的电子传递链与丙酮酸转运
+    后    [4] CONCEPT_EXPLANATION      262 字  线粒体是进行有氧呼吸的主要场所
+    后    [4] CONCEPT_EXPLANATION      162 字  线粒体结构：双层膜+嵴+基质（有氧呼吸场所）
+    后疑  [4] CONCEPT_EXPLANATION      176 字  细胞中消耗水的代谢过程汇总
+    后    [4] CONCEPT_EXPLANATION      213 字  细胞呼吸与电子传递（第9讲课件）
+    后    [4] CONCEPT_EXPLANATION      323 字  细胞呼吸有关反应式书写常见错误有不写
+    后    [4] CONCEPT_EXPLANATION      137 字  脂肪底物呼吸：耗 O2 多、产 CO2 少（呼吸商<1）
+
+■ 141 条  [BIOLOGY] 细胞的能量供应和利用 / 影响光合作用强度的环境因素
+    先疑  [0] MISCONCEPTION_GUIDE      179 字  叶片上浮原因的常见误解
+    先    [2] METHOD_MODEL             531 字  O₂浓度升高如何影响净光合速率
+    先疑  [2] METHOD_MODEL             214 字  ②材料（一）
+    先疑  [2] METHOD_MODEL             189 字  ②材料（二）
+    后    [2] METHOD_MODEL             100 字  一昼夜曲线：光照为 0 时光合停止，曲线只反映呼吸
+    后疑  [2] METHOD_MODEL             118 字  光保护防线一（防御）：热耗散过剩光能
+    后疑  [2] METHOD_MODEL             125 字  光保护防线三（修复）：D1 蛋白修复替换恢复 PSII 活性
+    后疑  [2] METHOD_MODEL             118 字  光保护防线二（清除）：抗氧化酶系统清除活性氧
+    后    [2] METHOD_MODEL             150 字  光合作用强度
+    后    [2] METHOD_MODEL             275 字  光合作用限制因子的变化与温室调控
+    后疑  [2] METHOD_MODEL             186 字  光抑制三步链：光能过剩→ROS 生成→D1 蛋白失活
+    后疑  [2] METHOD_MODEL             474 字  光照或CO₂变化时短时间内物质含量的变化分析
+    后疑  [2] METHOD_MODEL             850 字  光补偿点与光饱和点的分析
+    后    [2] METHOD_MODEL             174 字  光饱和点前后限制因素的判断（第10讲 光合作用③）
+    后    [2] METHOD_MODEL             274 字  分析外部因素直接影响光合作用的三步思路（27版53A生物精讲册·第五章 考法）
+    后    [2] METHOD_MODEL             281 字  分析条件改变对光合速率影响的思路与答题要点（第五章·光合作用的影响因素）
+    后    [2] METHOD_MODEL             306 字  分析某因素对光合速率影响的三步思路（源：27版五三B版生物·第五章 细胞的能量供应和利用
+    后    [2] METHOD_MODEL             601 字  判断限制因素是气孔因素还是非气孔因素
+    后    [2] METHOD_MODEL             149 字  合理施肥对作物光合作用的促进作用（第11讲 综合分析④）
+    后    [2] METHOD_MODEL             269 字  外部因素间接影响光合速率的分析思路与答题要点（27版53A生物精讲册·第五章 考法）
+    后    [2] METHOD_MODEL             166 字  多因子变量对光合速率的影响分析（第10讲 光合作用③）
+    后    [2] METHOD_MODEL             479 字  多因子外部因素影响光合速率的限制因子分析
+    后    [2] METHOD_MODEL             187 字  多因子限制下光合作用曲线的变量分析
+    后    [2] METHOD_MODEL             170 字  多因素对光合速率影响曲线的分析
+    后    [2] METHOD_MODEL             542 字  多因素对光合速率影响的分段分析
+    后疑  [2] METHOD_MODEL             139 字  实验中叶片上浮的原因
+    后    [2] METHOD_MODEL             208 字  密闭环境中一昼夜光合速率曲线的分析（第11讲 综合分析①）
+    后    [2] METHOD_MODEL             245 字  探究光照强度对光合作用强度影响的变量设计
+    后疑  [2] METHOD_MODEL             143 字  提高叶绿素含量会增强光能吸收、加剧光抑制
+    后疑  [2] METHOD_MODEL             184 字  条件骤变时C3和C5含量的变化
+    后    [2] METHOD_MODEL             470 字  根系呼吸增强提高叶片净光合速率的推理
+    后    [2] METHOD_MODEL             563 字  气孔因素与非气孔因素的判断
+    后    [2] METHOD_MODEL             159 字  泵被抑制会连带干扰依赖其梯度的协同转运
+    后    [2] METHOD_MODEL             363 字  用胞间CO2浓度区分气孔因素与非气孔因素（27版五三·专题6光合作用·题型突破6《重难突
+    后    [2] METHOD_MODEL             311 字  由曲线重合与分离判断限制因素（27版53A生物学精练册·第五章·精练册PPT slide
+    后    [2] METHOD_MODEL             151 字  补偿点移动二定律：呼吸↑或光合↓均使补偿点右移
+    后    [2] METHOD_MODEL             264 字  逆境胁迫影响光合作用的途径归纳
+    后    [4] CONCEPT_EXPLANATION      143 字  (3)限制因素AD段主要限制因素
+    后    [4] CONCEPT_EXPLANATION      199 字  CO2浓度-光合作用曲线与补偿点、饱和点
+    后    [4] CONCEPT_EXPLANATION      387 字  CO2浓度、温度、矿质元素与水分对光合作用的影响（源：27版五三B版生物·第五章 细胞的
+    后    [4] CONCEPT_EXPLANATION      245 字  CO2浓度和温度对光合作用的影响及应用
+    后    [4] CONCEPT_EXPLANATION      236 字  CO2浓度对光合速率的影响及补偿点、饱和点（第10讲 光合作用③）
+    后    [4] CONCEPT_EXPLANATION      269 字  CO₂浓度对光合作用的影响
+    后    [4] CONCEPT_EXPLANATION      425 字  一昼夜代谢曲线分析与光合午休
+    后疑  [4] CONCEPT_EXPLANATION      246 字  为提高光能利用率
+    后疑  [4] CONCEPT_EXPLANATION      132 字  人工补光光源的合理选择
+    后    [4] CONCEPT_EXPLANATION      687 字  光、二氧化碳、温度与水对光合作用的影响
+    后    [4] CONCEPT_EXPLANATION      115 字  光合与呼吸强弱关系的图示区间
+    后    [4] CONCEPT_EXPLANATION      253 字  光合作用强度的含义、光照交替与光合午休（必修1 P105）
+    后    [4] CONCEPT_EXPLANATION      193 字  光合作用强度的概念及内外部影响因素（第10讲 光合作用③）
+    后    [4] CONCEPT_EXPLANATION      151 字  光合作用强度简单地说就
+    后    [4] CONCEPT_EXPLANATION      140 字  光合作用影响因素的内因与外因
+    后    [4] CONCEPT_EXPLANATION      119 字  光合作用的产物与输出
+    后    [4] CONCEPT_EXPLANATION      171 字  光合作用的概念与总反应
+    后    [4] CONCEPT_EXPLANATION      186 字  光合作用的概念与总反应式
+    后疑  [4] CONCEPT_EXPLANATION      765 字  光抑制与光保护机制
+    后疑  [4] CONCEPT_EXPLANATION      108 字  光抑制环节一：光能过剩损伤光系统 I 和 II
+    后    [4] CONCEPT_EXPLANATION      291 字  光照、CO2、温度三类非生物胁迫的影响原理（大单元2·层级2 二轮核心 slide e7
+    后    [4] CONCEPT_EXPLANATION      192 字  光照、CO2、温度与水及矿质元素对光合作用的影响
+    后    [4] CONCEPT_EXPLANATION      440 字  光照、温度及必需元素可通过影响叶绿素
+    后    [4] CONCEPT_EXPLANATION      231 字  光照与温度对光合作用的影响
+    后    [4] CONCEPT_EXPLANATION      214 字  光照强度-光合作用曲线各点分析
+    后    [4] CONCEPT_EXPLANATION      146 字  光照强度与光合作用强度的关系结论
+    后    [4] CONCEPT_EXPLANATION      323 字  光照强度与光质对光合作用的影响
+    后    [4] CONCEPT_EXPLANATION      359 字  光照强度对光合作用强度的影响
+    后    [4] CONCEPT_EXPLANATION      176 字  光照强度对光合速率的影响及农业生产应用（第10讲 光合作用③）
+    后疑  [4] CONCEPT_EXPLANATION      672 字  光能的去向与减轻光抑制的途径
+    后疑  [4] CONCEPT_EXPLANATION      217 字  光补偿点与光饱和点
+    后    [4] CONCEPT_EXPLANATION      218 字  光补偿点与光饱和点及光照强度曲线分析
+    后疑  [4] CONCEPT_EXPLANATION      121 字  光补偿点的含义
+    后疑  [4] CONCEPT_EXPLANATION      161 字  光补偿点的含义与应用
+    后疑  [4] CONCEPT_EXPLANATION      259 字  光饱和点、补偿点与植物生长的关系（大单元2·层级2 二轮核心 slide e62）
+    后    [4] CONCEPT_EXPLANATION      144 字  光饱和点的含义与限制因素
+    后    [4] CONCEPT_EXPLANATION      125 字  光饱和点：净光合速率达到最大时所需的最小光照强度
+    后疑  [4] CONCEPT_EXPLANATION      157 字  农业生产上“正其形，通其风”
+    后    [4] CONCEPT_EXPLANATION      136 字  土壤小动物对分解作用的辅助功能
+    后疑  [4] CONCEPT_EXPLANATION      167 字  在某植株或叶片的光补偿点（光
+    后疑  [4] CONCEPT_EXPLANATION      262 字  夏季晴朗的白天，7-10时
+    后    [4] CONCEPT_EXPLANATION      336 字  多因子对光合作用的影响与限制因素判断
+    后    [4] CONCEPT_EXPLANATION      327 字  多因子对光合速率的限制（源：27版五三B版生物·第五章 细胞的能量供应和利用·slide
+    后    [4] CONCEPT_EXPLANATION      208 字  多因素对光合速率的限制及C3与C5的变化
+    后疑  [4] CONCEPT_EXPLANATION      193 字  大棚内多施农家肥
+    后    [4] CONCEPT_EXPLANATION      167 字  大棚薄膜颜色对光合速率的影响
+    后疑  [4] CONCEPT_EXPLANATION      145 字  套种与合理密植提高光能利用率
+    后疑  [4] CONCEPT_EXPLANATION      294 字  密闭容器中CO2先降后稳的原因及农田施肥配套措施（必修1 P105）
+    后    [4] CONCEPT_EXPLANATION      453 字  影响光合作用强度的内因与外因
+    后    [4] CONCEPT_EXPLANATION      277 字  影响光合作用强度的内因与外因（必修1 P105）
+    后    [4] CONCEPT_EXPLANATION      191 字  影响光合作用强度的内外因素
+    后    [4] CONCEPT_EXPLANATION      221 字  影响光合作用强度的环境因素
+    后    [4] CONCEPT_EXPLANATION      315 字  影响光合作用强度的环境因素
+    后    [4] CONCEPT_EXPLANATION      188 字  影响光合作用的因·AB段
+    后    [4] CONCEPT_EXPLANATION      160 字  影响光合作用的因·A点
+    后    [4] CONCEPT_EXPLANATION      213 字  影响光合作用的因·BD段
+    后    [4] CONCEPT_EXPLANATION      182 字  影响光合作用的因·B点
+    后    [4] CONCEPT_EXPLANATION      200 字  影响光合作用的因·C点
+    后    [4] CONCEPT_EXPLANATION      191 字  影响光合作用的因·DE段
+    后    [4] CONCEPT_EXPLANATION      469 字  影响光合作用的因素及其在农业生产中的应用（27版53A生物精讲册·第五章第5节）
+    后    [4] CONCEPT_EXPLANATION      172 字  影响光合作用的外界因素（第11讲 细胞代谢综合分析（知识清单）（教师版）·考点追溯）
+    后    [4] CONCEPT_EXPLANATION      242 字  影响光合作用的环境因素分析（5）
+    后    [4] CONCEPT_EXPLANATION      258 字  影响光合作用的环境因素分析（6）
+    后    [4] CONCEPT_EXPLANATION      317 字  影响光合作用的环境因素分析（7）
+    后    [4] CONCEPT_EXPLANATION      175 字  影响光合作用的环境因素分析（一）
+    后    [4] CONCEPT_EXPLANATION      265 字  影响光合作用的环境因素分析（三）
+    后    [4] CONCEPT_EXPLANATION      179 字  影响光合作用的环境因素分析（二）
+    后    [4] CONCEPT_EXPLANATION      264 字  影响光合作用的环境因素分析（四）
+    后    [4] CONCEPT_EXPLANATION      263 字  影响叶绿素合成的三大因素
+    后    [4] CONCEPT_EXPLANATION      194 字  总光合速率可用O2的产生量或CO2
+    后    [4] CONCEPT_EXPLANATION      184 字  整株CO2吸收为0时叶肉细胞光合大于其呼吸
+    后疑  [4] CONCEPT_EXPLANATION      150 字  整株植物与叶肉细胞光补偿点的差异
+    后    [4] CONCEPT_EXPLANATION      220 字  易错：激素的产生和分布也受环境因素影响
+    后    [4] CONCEPT_EXPLANATION      251 字  植物缺少N、Mg、P影响光合作用的原因（第02讲·易错提醒）
+    后    [4] CONCEPT_EXPLANATION      598 字  气孔关闭导致光合午休的原因分析
+    后    [4] CONCEPT_EXPLANATION      160 字  水分、气孔与光合午休现象
+    后    [4] CONCEPT_EXPLANATION      584 字  水分、矿质元素与多因素对光合速率的影响
+    后    [4] CONCEPT_EXPLANATION      281 字  水分与无机盐胁迫影响光合作用的原理（大单元2·层级2 二轮核心 slide e77）
+    后    [4] CONCEPT_EXPLANATION      143 字  水分对光合作用的影响
+    后    [4] CONCEPT_EXPLANATION      189 字  水分对光合作用的影响与合理灌溉（第10讲 光合作用③）
+    后    [4] CONCEPT_EXPLANATION      201 字  温度和CO2浓度对光合作用的影响
+    后    [4] CONCEPT_EXPLANATION      193 字  温度对光合作用的影响与光合午休
+    后    [4] CONCEPT_EXPLANATION      180 字  温度对光合作用的影响与昼夜温差调控（第10讲 光合作用③）
+    后疑  [4] CONCEPT_EXPLANATION      252 字  白天适当提高温度或增加CO2浓度
+    后    [4] CONCEPT_EXPLANATION      224 字  矿质元素对光合作用的作用
+    后    [4] CONCEPT_EXPLANATION      225 字  矿质元素对光合作用的影响与合理施肥（第10讲 光合作用③）
+    后    [4] CONCEPT_EXPLANATION      401 字  第10讲 光合作用·CO2浓度、水分与矿质元素的影响
+    后    [4] CONCEPT_EXPLANATION      178 字  第10讲 光合作用·光合作用强度的概念与表示方法
+    后    [4] CONCEPT_EXPLANATION      198 字  第10讲 光合作用·光合作用指标与呼吸作用的关系
+    后    [4] CONCEPT_EXPLANATION      376 字  第10讲 光合作用·内因与光照、温度的影响
+    后    [4] CONCEPT_EXPLANATION      409 字  第10讲 光合作用·教材深挖拓展（长句作答）
+    后    [4] CONCEPT_EXPLANATION      224 字  第11讲·影响光合作用的因素与三率关系
+    后    [4] CONCEPT_EXPLANATION      143 字  缺N、Mg、P都会影响光合作用的原因
+    后疑  [4] CONCEPT_EXPLANATION      196 字  胁迫（逆境）的两大类型（大单元2·层级2 二轮核心 slide e75）
+    后疑  [4] CONCEPT_EXPLANATION      183 字  西瓜、玉米、辣椒轮作和固定种
+    后    [4] CONCEPT_EXPLANATION      174 字  调节气孔开闭的因素
+    后疑  [4] CONCEPT_EXPLANATION      204 字  连续光照与间隔光照下有机物积累的比较
+    后    [4] CONCEPT_EXPLANATION      415 字  逆境降低光合速率的常见机制
+    后疑  [4] CONCEPT_EXPLANATION      167 字  间隔光照提高光能利用率
+    后疑  [4] CONCEPT_EXPLANATION      197 字  间隔光照法提高光能利用率
+    后疑  [4] CONCEPT_EXPLANATION      152 字  阳生植物与阴生植物的比较
+    后疑  [4] CONCEPT_EXPLANATION      133 字  阳生植物与阴生植物的比较
+    后疑  [4] CONCEPT_EXPLANATION      161 字  阴生植物的光补偿点与光饱和点较低
+    后    [4] CONCEPT_EXPLANATION      174 字  除作为自变量的因素外
+
+■ 135 条  [BIOLOGY] 细胞的基本结构 / 细胞膜的结构和功能
+    先    [0] MISCONCEPTION_GUIDE      246 字  半透膜与选择透过性膜的区别与联系
+    先    [0] MISCONCEPTION_GUIDE      244 字  四种常见膜蛋白及其功能辨析
+    先    [0] MISCONCEPTION_GUIDE      264 字  糖被、糖蛋白与膜的结构特点、功能特性辨析
+    先    [0] MISCONCEPTION_GUIDE      205 字  细胞膜不同部位的化学成分和功能有差异（27版五三·细胞质·易错警示）
+    后    [0] MISCONCEPTION_GUIDE      371 字  膜蛋白分布与细胞骨架成分的辨析
+    后疑  [0] MISCONCEPTION_GUIDE      330 字  跨膜蛋白各区段的亲疏水性判断
+    后    [2] METHOD_MODEL             228 字  判断细胞活性的三种方法
+    后    [2] METHOD_MODEL             141 字  台盼蓝染色鉴别细胞死活
+    后    [2] METHOD_MODEL             318 字  用台盼蓝染色鉴别动物细胞的死活
+    后    [2] METHOD_MODEL             269 字  细胞膜成分的检测与验证方法
+    后    [2] METHOD_MODEL             340 字  细胞膜控制物质进出与信息交流功能的验证方法
+    后    [2] METHOD_MODEL             241 字  细胞膜的功能
+    后    [2] METHOD_MODEL             207 字  细胞膜的功能（二）
+    后    [2] METHOD_MODEL             272 字  细胞膜结构、功能的探究实验设计
+    后    [2] METHOD_MODEL             151 字  鉴定动物细胞
+    后    [4] CONCEPT_EXPLANATION      412 字  不同生物膜成分与功能的对应关系
+    后    [4] CONCEPT_EXPLANATION      220 字  不同细胞膜的主要成分都是蛋白质和磷脂
+    后疑  [4] CONCEPT_EXPLANATION      208 字  五种常考的膜蛋白
+    后    [4] CONCEPT_EXPLANATION      432 字  五种常考的膜蛋白及其功能
+    后    [4] CONCEPT_EXPLANATION      244 字  五种常考的膜蛋白及其功能（第04讲细胞的基本结构 第1课时 P26）
+    后    [4] CONCEPT_EXPLANATION      224 字  从哺乳动物成熟的红细胞、原核
+    后    [4] CONCEPT_EXPLANATION      142 字  具有双层膜的细胞结构
+    后    [4] CONCEPT_EXPLANATION      183 字  受精过程体现的细胞膜功能与结构特点（2027版一轮讲义·第50讲 考点一·2④）
+    后    [4] CONCEPT_EXPLANATION      170 字  台盼蓝染液与细胞膜控制物质进出的功能（第04讲细胞的基本结构 第1课时 P40）
+    后疑  [4] CONCEPT_EXPLANATION      365 字  四种常考的膜蛋白
+    后    [4] CONCEPT_EXPLANATION      258 字  四种常考膜蛋白及其功能区分（第05讲 考点一 考向二）
+    后    [4] CONCEPT_EXPLANATION      222 字  四种常见膜蛋白及其功能（必修1 P45）
+    后    [4] CONCEPT_EXPLANATION      179 字  在活细胞中
+    后    [4] CONCEPT_EXPLANATION      168 字  对细胞主要由磷脂双分子层构成的原因
+    后    [4] CONCEPT_EXPLANATION      184 字  用台盼蓝染液鉴别死细胞与活细胞
+    后    [4] CONCEPT_EXPLANATION      117 字  由表面张力推测细胞膜上有蛋白质
+    后疑  [4] CONCEPT_EXPLANATION      122 字  磷脂双分子层≠双层膜
+    后疑  [4] CONCEPT_EXPLANATION      154 字  磷脂的头部亲水，两个脂肪酸尾
+    后    [4] CONCEPT_EXPLANATION      265 字  第4讲·细胞膜的结构与功能
+    后疑  [4] CONCEPT_EXPLANATION      247 字  糖蛋白指一些多糖与蛋白质的复合体
+    后    [4] CONCEPT_EXPLANATION      162 字  糖被的组成与功能（第04讲细胞的基本结构 第1课时 P25）
+    后    [4] CONCEPT_EXPLANATION      294 字  糖被的组成与细胞膜上蛋白质的作用
+    后    [4] CONCEPT_EXPLANATION      226 字  细胞的基本结构与系统的边界（6. 2026生物总复习·第4讲 细胞膜与细胞核的结构和功能
+    后    [4] CONCEPT_EXPLANATION      363 字  细胞的基本结构：细胞膜、细胞核与细胞器的分工
+    后    [4] CONCEPT_EXPLANATION      102 字  细胞膜
+    后    [4] CONCEPT_EXPLANATION      189 字  细胞膜三大功能的结构基础
+    后    [4] CONCEPT_EXPLANATION      254 字  细胞膜三种信息交流方式与受体特性（第05讲 考点一 知识点1）
+    后    [4] CONCEPT_EXPLANATION      211 字  细胞膜上五种常考膜蛋白及功能
+    后    [4] CONCEPT_EXPLANATION      205 字  细胞膜上四种常考膜蛋白
+    后    [4] CONCEPT_EXPLANATION      212 字  细胞膜不是静止不动
+    后    [4] CONCEPT_EXPLANATION      194 字  细胞膜与细胞核易错辨析集
+    后    [4] CONCEPT_EXPLANATION      147 字  细胞膜中糖类占2%-10%形成糖被
+    后    [4] CONCEPT_EXPLANATION      123 字  细胞膜中脂质约占50%且磷脂最丰富
+    后    [4] CONCEPT_EXPLANATION      110 字  细胞膜中蛋白质约占40%与功能复杂性
+    后    [4] CONCEPT_EXPLANATION      190 字  细胞膜主要
+    后    [4] CONCEPT_EXPLANATION      238 字  细胞膜具有控制物质进出细胞的功能
+    后    [4] CONCEPT_EXPLANATION      166 字  细胞膜在物质交换与信息传递中的决定性作用（必修1 P52）
+    后    [4] CONCEPT_EXPLANATION      255 字  细胞膜将细胞与外界环境分隔开并控制物质进出（第05讲 考点一 知识点1）
+    后    [4] CONCEPT_EXPLANATION      268 字  细胞膜控制物质进出的相对性（第05讲 考点一 知识点1）
+    后    [4] CONCEPT_EXPLANATION      298 字  细胞膜控制物质进出细胞的功能及其普遍性和相对性
+    后    [4] CONCEPT_EXPLANATION      176 字  细胞膜流动性的实例与鉴定
+    后    [4] CONCEPT_EXPLANATION      163 字  细胞膜流动性的表现实例
+    后    [4] CONCEPT_EXPLANATION      155 字  细胞膜的三大功
+    后    [4] CONCEPT_EXPLANATION      135 字  细胞膜的三大功能
+    后    [4] CONCEPT_EXPLANATION      188 字  细胞膜的三大功能
+    后    [4] CONCEPT_EXPLANATION      144 字  细胞膜的三大功能
+    后    [4] CONCEPT_EXPLANATION      501 字  细胞膜的三大功能
+    后    [4] CONCEPT_EXPLANATION      218 字  细胞膜的三大功能与信息交流方式
+    后    [4] CONCEPT_EXPLANATION      193 字  细胞膜的三大功能与信息交流方式
+    后    [4] CONCEPT_EXPLANATION      223 字  细胞膜的三大功能与台盼蓝鉴别法（6. 2026生物总复习·第4讲·slide de7）
+    后    [4] CONCEPT_EXPLANATION      389 字  细胞膜的三大功能与细胞间信息交流的方式
+    后    [4] CONCEPT_EXPLANATION      217 字  细胞膜的三大功能（第04讲细胞的基本结构 第1课时 P24）
+    后    [4] CONCEPT_EXPLANATION      396 字  细胞膜的三项功能与两种特性（27版五三B版·生物学·第三章 细胞的基本结构 精讲册PPT
+    后    [4] CONCEPT_EXPLANATION      334 字  细胞膜的三项功能与控制能力、选择透过性
+    后    [4] CONCEPT_EXPLANATION      342 字  细胞膜的两大特性：结构特性与功能特性
+    后    [4] CONCEPT_EXPLANATION      202 字  细胞膜的主要成分是脂质和蛋白质
+    后    [4] CONCEPT_EXPLANATION      186 字  细胞膜的功能
+    后    [4] CONCEPT_EXPLANATION      153 字  细胞膜的功能
+    后    [4] CONCEPT_EXPLANATION      173 字  细胞膜的功能
+    后    [4] CONCEPT_EXPLANATION      134 字  细胞膜的功能
+    后    [4] CONCEPT_EXPLANATION      390 字  细胞膜的功能
+    后    [4] CONCEPT_EXPLANATION      269 字  细胞膜的功能、成分与结构
+    后    [4] CONCEPT_EXPLANATION      271 字  细胞膜的功能、成分探索与流动镶嵌模型（必修1 P40～46）
+    后    [4] CONCEPT_EXPLANATION      292 字  细胞膜的功能与植物细胞壁
+    后    [4] CONCEPT_EXPLANATION      188 字  细胞膜的功能特点：选择透过性
+    后    [4] CONCEPT_EXPLANATION      171 字  细胞膜的功能（一）
+    后    [4] CONCEPT_EXPLANATION      102 字  细胞膜的功能（三）
+    后    [4] CONCEPT_EXPLANATION      224 字  细胞膜的基本功能
+    后    [4] CONCEPT_EXPLANATION      189 字  细胞膜的外表面
+    后    [4] CONCEPT_EXPLANATION      700 字  细胞膜的成分 结构与功能
+    后    [4] CONCEPT_EXPLANATION      481 字  细胞膜的成分、结构与功能要点（27版五三B版·生物学·第三章 细胞的基本结构 精讲册PP
+    后    [4] CONCEPT_EXPLANATION      265 字  细胞膜的成分、结构模型与功能
+    后    [4] CONCEPT_EXPLANATION      350 字  细胞膜的成分与标记方法
+    后    [4] CONCEPT_EXPLANATION      189 字  细胞膜的成分与胆固醇的作用（6. 2026生物总复习·第4讲·slide e14）
+    后    [4] CONCEPT_EXPLANATION      215 字  细胞膜的成分及其作用（第04讲细胞的基本结构 第1课时 P25）
+    后    [4] CONCEPT_EXPLANATION      358 字  细胞膜的成分及其可变性
+    后    [4] CONCEPT_EXPLANATION      262 字  细胞膜的成分及其比例与作用（第05讲 考点一 知识点2）
+    后    [4] CONCEPT_EXPLANATION      282 字  细胞膜的成分及各成分的含量与作用
+    后    [4] CONCEPT_EXPLANATION      212 字  细胞膜的成分及特点
+    后    [4] CONCEPT_EXPLANATION      470 字  细胞膜的成分比例、糖被与流动性的证据
+    后    [4] CONCEPT_EXPLANATION      210 字  细胞膜的成分组成
+    后    [4] CONCEPT_EXPLANATION      221 字  细胞膜的流动性与选择透过性
+    后    [4] CONCEPT_EXPLANATION      232 字  细胞膜的流动性是由于组成细胞膜
+    后    [4] CONCEPT_EXPLANATION      221 字  细胞膜的特点：流动性与选择透过性（6. 2026生物总复习·第4讲·slide e18）
+    后    [4] CONCEPT_EXPLANATION      180 字  细胞膜的组成成分与比例
+    后    [4] CONCEPT_EXPLANATION      148 字  细胞膜的结构特性是具有流动性
+    后    [4] CONCEPT_EXPLANATION      177 字  细胞膜的结构特点
+    后    [4] CONCEPT_EXPLANATION      204 字  细胞膜的结构特点与功能特性（第04讲细胞的基本结构 第1课时 P25）
+    后    [4] CONCEPT_EXPLANATION      154 字  细胞膜的结构特点：具有一定的流动性
+    后    [4] CONCEPT_EXPLANATION      170 字  细胞膜的选择透过性及原因
+    后    [4] CONCEPT_EXPLANATION      166 字  细胞膜的选择透过性：主动选择性控制物质进出
+    后    [4] CONCEPT_EXPLANATION      412 字  细胞膜结构特点与功能特性的比较
+    后    [4] CONCEPT_EXPLANATION      230 字  细胞膜结构特点与功能特点的联系（第05讲 考点一 知识点3）
+    后    [4] CONCEPT_EXPLANATION      189 字  细胞膜结构的电镜照片
+    后    [4] CONCEPT_EXPLANATION      252 字  细胞膜进行细胞间信息交流的功能（第05讲 考点一 知识点1）
+    后    [4] CONCEPT_EXPLANATION      152 字  细胞间信息交流不一定
+    后    [4] CONCEPT_EXPLANATION      197 字  细胞间信息交流中受体的位置与特异性（6. 2026生物总复习·第4讲·slide de9
+    后    [4] CONCEPT_EXPLANATION      197 字  细胞间信息交流之接触传递与通道传递
+    后    [4] CONCEPT_EXPLANATION      162 字  细胞间信息交流之物质传递
+    后    [4] CONCEPT_EXPLANATION      176 字  细胞间信息交流方式主要
+    后    [4] CONCEPT_EXPLANATION      177 字  细胞间信息交流的三种方式
+    后    [4] CONCEPT_EXPLANATION      194 字  细胞间信息交流的三种方式
+    后    [4] CONCEPT_EXPLANATION      340 字  细胞间信息交流的三种方式
+    后    [4] CONCEPT_EXPLANATION      228 字  细胞间信息交流的三种方式（27版五三·细胞膜和细胞核·知识拓展）
+    后    [4] CONCEPT_EXPLANATION      322 字  细胞间信息交流的方式多种多样
+    后    [4] CONCEPT_EXPLANATION      150 字  细胞间信息交流：化学物质传递
+    后    [4] CONCEPT_EXPLANATION      140 字  细胞间信息交流：细胞膜直接接触
+    后    [4] CONCEPT_EXPLANATION      135 字  细胞间信息交流：胞间连丝通道传递
+    后    [4] CONCEPT_EXPLANATION      363 字  细胞间的信息交流
+    后    [4] CONCEPT_EXPLANATION      135 字  结构特点与功能特点的关系
+    后疑  [4] CONCEPT_EXPLANATION      387 字  耐寒性指标与膜流动性
+    后    [4] CONCEPT_EXPLANATION      120 字  胆固醇与动物细胞膜
+    后    [4] CONCEPT_EXPLANATION      218 字  脂质体的结构与药物运载（6. 2026生物总复习·第4讲·slide e24）
+    后    [4] CONCEPT_EXPLANATION      114 字  膜内有机酸根等大分子负离子不能自由通过细胞膜
+    后疑  [4] CONCEPT_EXPLANATION      202 字  膜内部分是疏水
+    后    [4] CONCEPT_EXPLANATION      181 字  膜蛋白的功能类别（6. 2026生物总复习·第4讲·slide e26）
+    后    [4] CONCEPT_EXPLANATION      281 字  膜蛋白的四种类型与癌变时糖蛋白的变化（27版五三·细胞膜和细胞核·知识拓展）
+    后    [4] CONCEPT_EXPLANATION      182 字  膜蛋白的镶嵌方式与作用（第04讲细胞的基本结构 第1课时 P25）
+    后疑  [4] CONCEPT_EXPLANATION      202 字  蛋白质分子以不同方式镶嵌在
+    后    [4] CONCEPT_EXPLANATION      166 字  蛋白质在细胞膜行使功
+
+■ 132 条  [BIOLOGY] 走近细胞 / 原核细胞和真核细胞
+    先    [0] MISCONCEPTION_GUIDE      209 字  原核与真核判断的常见误区（第01讲课件）
+    先    [0] MISCONCEPTION_GUIDE      268 字  原核与真核生物判断的五点辨析（第1讲 走近细胞 课时2，slide e22）
+    先    [0] MISCONCEPTION_GUIDE      307 字  原核与真核细胞结构的延伸辨析（第1讲 走近细胞 课时2，slide e23）
+    先    [0] MISCONCEPTION_GUIDE      261 字  原核生物与原生生物辨析的易错点（第01讲 考点二 知识点1）
+    后    [0] MISCONCEPTION_GUIDE      384 字  原核生物与真核生物的四个不一定
+    后    [0] MISCONCEPTION_GUIDE      421 字  原核生物与真核生物的辨析易错点
+    后    [0] MISCONCEPTION_GUIDE      246 字  原核细胞三处易错：蓝细菌光合、支原体无壁、遗传物质只有DNA
+    后    [0] MISCONCEPTION_GUIDE      377 字  由染色质与环状DNA判断真核原核
+    后    [0] MISCONCEPTION_GUIDE      986 字  真核与原核及细胞结构相关的易混易错
+    后    [0] MISCONCEPTION_GUIDE      483 字  真核生物与原核生物的判断及五个不一定
+    后    [0] MISCONCEPTION_GUIDE      334 字  细胞器相关的六个一定与不一定
+    后    [0] MISCONCEPTION_GUIDE      243 字  蓝细菌与支原体的两个易错点（第一章 走近细胞·精讲册·易混易错）
+    后    [2] METHOD_MODEL             108 字  原核生物无细胞核
+    后    [2] METHOD_MODEL             153 字  原核细胞和真核细·区别
+    后    [4] CONCEPT_EXPLANATION      312 字  三种常见原核生物细胞的结构对照
+    后    [4] CONCEPT_EXPLANATION      176 字  其他原核生物（第01讲 考点二 知识点1）
+    后    [4] CONCEPT_EXPLANATION      200 字  区分原核生物和真核生物的主要依据
+    后    [4] CONCEPT_EXPLANATION      160 字  单细胞生物的原核与真核归类判定
+    后    [4] CONCEPT_EXPLANATION      295 字  原核与真核细胞在细胞器、DNA形式上的差异
+    后    [4] CONCEPT_EXPLANATION      216 字  原核与真核细胞转录翻译的差异（6. 2026生物总复习·第1讲 走近细胞·slide e
+    后    [4] CONCEPT_EXPLANATION      171 字  原核生物
+    后    [4] CONCEPT_EXPLANATION      196 字  原核生物与孟德尔定律及可遗传变异
+    后    [4] CONCEPT_EXPLANATION      183 字  原核生物与特殊细胞的有氧呼吸
+    后    [4] CONCEPT_EXPLANATION      247 字  原核生物与真核生物的分类
+    后    [4] CONCEPT_EXPLANATION      142 字  原核生物无核膜，转录与翻译耦联进行
+    后    [4] CONCEPT_EXPLANATION      228 字  原核生物的判断
+    后    [4] CONCEPT_EXPLANATION      456 字  原核生物的类型、结构与真核生物的比较
+    后    [4] CONCEPT_EXPLANATION      294 字  原核生物（一）
+    后    [4] CONCEPT_EXPLANATION      260 字  原核生物（二）
+    后    [4] CONCEPT_EXPLANATION      917 字  原核细胞 真核细胞与病毒的比较
+    后    [4] CONCEPT_EXPLANATION      310 字  原核细胞与真核细胞在结构与分裂方式上的区别
+    后    [4] CONCEPT_EXPLANATION      355 字  原核细胞与真核细胞在遗传与变异上的区别
+    后    [4] CONCEPT_EXPLANATION      160 字  原核细胞与真核细胞基因表达的差异
+    后    [4] CONCEPT_EXPLANATION      183 字  原核细胞与真核细胞的主要区别
+    后    [4] CONCEPT_EXPLANATION      202 字  原核细胞与真核细胞的主要区别
+    后    [4] CONCEPT_EXPLANATION      305 字  原核细胞与真核细胞的几个易错辨析
+    后    [4] CONCEPT_EXPLANATION      168 字  原核细胞与真核细胞的分类依据
+    后    [4] CONCEPT_EXPLANATION      301 字  原核细胞与真核细胞的划分依据及常见类群
+    后    [4] CONCEPT_EXPLANATION      202 字  原核细胞与真核细胞的列表比较
+    后    [4] CONCEPT_EXPLANATION      509 字  原核细胞与真核细胞的多项比较
+    后    [4] CONCEPT_EXPLANATION      177 字  原核细胞与真核细胞的实例及蓝细菌特点（第01讲课件）
+    后    [4] CONCEPT_EXPLANATION      312 字  原核细胞与真核细胞的易错不一定（上）
+    后    [4] CONCEPT_EXPLANATION      359 字  原核细胞与真核细胞的易错不一定（下）
+    后    [4] CONCEPT_EXPLANATION      173 字  原核细胞与真核细胞的最主要区别
+    后    [4] CONCEPT_EXPLANATION      178 字  原核细胞与真核细胞的本质区别（6. 2026生物总复习·第1讲 走近细胞·考点3 细胞的
+    后    [4] CONCEPT_EXPLANATION      282 字  原核细胞与真核细胞的根本区别及代表结构
+    后    [4] CONCEPT_EXPLANATION      578 字  原核细胞与真核细胞的比较
+    后    [4] CONCEPT_EXPLANATION      547 字  原核细胞与真核细胞的比较
+    后    [4] CONCEPT_EXPLANATION      245 字  原核细胞与真核细胞的比较（一）（第01讲课件）
+    后    [4] CONCEPT_EXPLANATION      257 字  原核细胞与真核细胞的比较（二）（第01讲课件）
+    后    [4] CONCEPT_EXPLANATION      237 字  原核细胞与真核细胞的比较（第1章·背诵）
+    后    [4] CONCEPT_EXPLANATION      391 字  原核细胞与真核细胞的综合比较（6. 2026生物总复习·第1讲 走近细胞·slide e
+    后    [4] CONCEPT_EXPLANATION      297 字  原核细胞与真核细胞的转录翻译和代谢场所
+    后    [4] CONCEPT_EXPLANATION      210 字  原核细胞代谢易错点集中辨析
+    后    [4] CONCEPT_EXPLANATION      140 字  原核细胞和真核细·区别
+    后    [4] CONCEPT_EXPLANATION      109 字  原核细胞和真核细·区别
+    后    [4] CONCEPT_EXPLANATION      139 字  原核细胞和真核细·区别
+    后    [4] CONCEPT_EXPLANATION      140 字  原核细胞和真核细·区别
+    后    [4] CONCEPT_EXPLANATION      134 字  原核细胞和真核细·相同点,都有细胞膜、
+    后    [4] CONCEPT_EXPLANATION      135 字  原核细胞和真核细胞的根本区别
+    后    [4] CONCEPT_EXPLANATION      220 字  原核细胞和真核细胞（一）
+    后    [4] CONCEPT_EXPLANATION      140 字  原核细胞和真核细胞（二）
+    后    [4] CONCEPT_EXPLANATION      137 字  原核细胞拟核中也存在DNA-蛋白质复合物
+    后    [4] CONCEPT_EXPLANATION      138 字  原核细胞无核仁也能合成rRNA
+    后    [4] CONCEPT_EXPLANATION      204 字  原核细胞的典型结构
+    后    [4] CONCEPT_EXPLANATION      123 字  原核细胞的增殖方式：二分裂
+    后    [4] CONCEPT_EXPLANATION      219 字  原核细胞的结构与DNA存在形式（6. 2026生物总复习·第1讲 走近细胞·slide 
+    后    [4] CONCEPT_EXPLANATION      159 字  原核细胞的结构特点
+    后    [4] CONCEPT_EXPLANATION      129 字  原核细胞的质粒DNA分布在细胞质中
+    后    [4] CONCEPT_EXPLANATION      162 字  原核细胞转录与翻译可同时进行
+    后疑  [4] CONCEPT_EXPLANATION      203 字  带“菌”字生物的归属辨析
+    后    [4] CONCEPT_EXPLANATION      173 字  常考原核生物与真核生物的举例
+    后    [4] CONCEPT_EXPLANATION      289 字  常见原核生物的类群与记忆口诀（6. 2026生物总复习·第1讲 走近细胞·slide e
+    后    [4] CONCEPT_EXPLANATION      241 字  常见原核生物类群与支原体的特点（第1讲 走近细胞 课时2，slide de4）
+    后    [4] CONCEPT_EXPLANATION      317 字  常见原核生物（三菌三体）
+    后疑  [4] CONCEPT_EXPLANATION      133 字  常见的蓝细菌
+    后疑  [4] CONCEPT_EXPLANATION      368 字  幽门螺杆菌的增殖方式与遗传特点
+    后疑  [4] CONCEPT_EXPLANATION      449 字  支原体与特殊微生物的结构判断
+    后    [4] CONCEPT_EXPLANATION      107 字  支原体可能是最小、最简单的单细胞生物
+    后    [4] CONCEPT_EXPLANATION      124 字  支原体是最小最简单的原核生物
+    后疑  [4] CONCEPT_EXPLANATION      128 字  支原体的特殊性
+    后    [4] CONCEPT_EXPLANATION      114 字  支原体的特点（最小细胞、无细胞壁）
+    后疑  [4] CONCEPT_EXPLANATION      281 字  支原体的结构特点
+    后    [4] CONCEPT_EXPLANATION      148 字  支原体：最小最简单的无壁原核生物
+    后    [4] CONCEPT_EXPLANATION      151 字  最小、最简单的单细胞生物
+    后    [4] CONCEPT_EXPLANATION      204 字  有细胞结构的生物包括原核生物和
+    后疑  [4] CONCEPT_EXPLANATION      174 字  淡水水域污染后富营养化
+    后    [4] CONCEPT_EXPLANATION      133 字  真核与原核细胞的分裂方式
+    后    [4] CONCEPT_EXPLANATION      135 字  真核生物
+    后    [4] CONCEPT_EXPLANATION      143 字  真核生物
+    后    [4] CONCEPT_EXPLANATION      189 字  真核生物与原核生物的分类（第01讲 考点二 知识点1）
+    后    [4] CONCEPT_EXPLANATION      217 字  真核生物与原核生物的区别：有无核膜包被的细胞核
+    后    [4] CONCEPT_EXPLANATION      246 字  真核生物与原核生物的范围划分
+    后    [4] CONCEPT_EXPLANATION      406 字  真核细胞、原核细胞与病毒在遗传物质与增殖方式上的差别
+    后    [4] CONCEPT_EXPLANATION      474 字  真核细胞、原核细胞与病毒比较
+    后    [4] CONCEPT_EXPLANATION      728 字  真核细胞、原核细胞与病毒的对比（27版53A生物精讲册·第一章第1节）
+    后    [4] CONCEPT_EXPLANATION      358 字  真核细胞、原核细胞与病毒的结构比较
+    后    [4] CONCEPT_EXPLANATION      201 字  真核细胞与原核细胞在细胞核、细胞质上的差异
+    后    [4] CONCEPT_EXPLANATION      275 字  真核细胞与原核细胞在细胞膜、细胞壁、DNA分布与分裂方式上的差异
+    后    [4] CONCEPT_EXPLANATION      230 字  真核细胞与原核细胞在遗传规律与变异上的差异及共性
+    后    [4] CONCEPT_EXPLANATION      308 字  真核细胞与原核细胞的异同（结构）
+    后    [4] CONCEPT_EXPLANATION      347 字  真核细胞与原核细胞的异同（遗传与代谢）
+    后    [4] CONCEPT_EXPLANATION      289 字  真核细胞与原核细胞的核心区别
+    后    [4] CONCEPT_EXPLANATION      241 字  真核细胞与原核细胞的比较要点
+    后    [4] CONCEPT_EXPLANATION      297 字  真核细胞与原核细胞的结构比较（第1讲 走近细胞 课时2，slide de8）
+    后    [4] CONCEPT_EXPLANATION      315 字  真核细胞与原核细胞的遗传、分裂与代谢比较（第1讲 走近细胞 课时2，slide de9）
+    后    [4] CONCEPT_EXPLANATION      285 字  真核细胞和原核细胞的比较
+    后    [4] CONCEPT_EXPLANATION      473 字  硝化细菌：原核生物与化能合成作用
+    后    [4] CONCEPT_EXPLANATION      254 字  第1讲·原核细胞与真核细胞的比较
+    后    [4] CONCEPT_EXPLANATION      191 字  细胞核相关易错判定（转录翻译场所、rRNA合成）
+    后疑  [4] CONCEPT_EXPLANATION      298 字  细菌的基本结构与生态地位
+    后疑  [4] CONCEPT_EXPLANATION      240 字  细菌的基本结构（第01讲 考点二 知识点1）
+    后    [4] CONCEPT_EXPLANATION      244 字  细菌的结构特点与生态角色（第1讲 走近细胞 课时2，slide de5）
+    后    [4] CONCEPT_EXPLANATION      146 字  细菌（原核细胞）的结构共性
+    后疑  [4] CONCEPT_EXPLANATION      409 字  能进行光合作用的生物
+    后    [4] CONCEPT_EXPLANATION      253 字  蓝细菌与原核生物代谢的注意事项（第01讲 考点二 知识点1）
+    后疑  [4] CONCEPT_EXPLANATION      255 字  蓝细菌无叶绿体仍能进行光合作用
+    后    [4] CONCEPT_EXPLANATION      221 字  蓝细菌无叶绿体和线粒体却可光合与有氧呼吸（第1讲 走近细胞 课时2，slide de7）
+    后    [4] CONCEPT_EXPLANATION      198 字  蓝细菌的代表类群与易混辨析（第1讲 走近细胞 课时2，slide de6）
+    后疑  [4] CONCEPT_EXPLANATION      260 字  蓝细菌的生活方式与常见种类
+    后    [4] CONCEPT_EXPLANATION      252 字  蓝细菌的类群与代谢特点（6. 2026生物总复习·第1讲 走近细胞·slide e25）
+    后疑  [4] CONCEPT_EXPLANATION      272 字  蓝细菌的结构、代谢与生态现象
+    后疑  [4] CONCEPT_EXPLANATION      193 字  蓝细菌的结构与代谢特点
+    后疑  [4] CONCEPT_EXPLANATION      316 字  蓝细菌的结构与代谢特点
+    后疑  [4] CONCEPT_EXPLANATION      186 字  蓝细菌的结构与营养方式（第01讲 考点二 知识点1）
+    后疑  [4] CONCEPT_EXPLANATION      172 字  蓝细菌的自养特性与常见种类
+    后疑  [4] CONCEPT_EXPLANATION      289 字  蓝细菌的颜色来源与水华、赤潮的成因
+    后    [4] CONCEPT_EXPLANATION      406 字  蓝细菌类内膜结构与细胞器膜的类比
+    后    [4] CONCEPT_EXPLANATION      247 字  蓝细菌细胞
+    后    [4] CONCEPT_EXPLANATION      133 字  蓝细菌细胞内
+    后    [4] CONCEPT_EXPLANATION      163 字  蓝细菌（蓝藻）：原核生物，含藻蓝素和叶绿素，能进行光合作用
+    后    [4] CONCEPT_EXPLANATION      170 字  蓝细菌：原核自养型光合生物
+
+■ 124 条  [PHYSICS] 运动的描述 / 板块模型
+    先    [0] MISCONCEPTION_GUIDE      377 字  板块模型的位移关系与摩擦力突变
+    先    [2] METHOD_MODEL             301 字  2026大一轮复习物理·第七章第36课时《专题强化：动量守恒在子弹打木块模型和滑块—木板
+    先疑  [2] METHOD_MODEL             334 字  两滑块夹一木板：共速后把相对静止的两者视为整体（第17讲·第5题）
+    先疑  [2] METHOD_MODEL             248 字  判断滑块与木板相对静止或相对滑动的技巧
+    后疑  [2] METHOD_MODEL             695 字  判断物块是否在共速前滑离木板
+    后    [2] METHOD_MODEL             426 字  处理板块模型的三种方法
+    后    [2] METHOD_MODEL             546 字  处理滑块-木板模型的一般思路
+    后    [2] METHOD_MODEL             309 字  处理滑块—木板模型的三种方法（第11讲课件·思维建模）
+    后    [2] METHOD_MODEL             358 字  斜面上滑块—木板模型的解题关键
+    后    [2] METHOD_MODEL             345 字  斜面上滑块—木板模型的解题关键（黑吉辽蒙第12讲·考向3 思维建模）
+    后    [2] METHOD_MODEL             623 字  有外力作用下板块模型的解题策略
+    后    [2] METHOD_MODEL             408 字  有外力作用下板块模型的解题策略
+    后    [2] METHOD_MODEL             824 字  有外力作用在木板上的板块模型分析
+    后    [2] METHOD_MODEL             236 字  有拉力时板块模型的三种运动状态判据
+    后    [2] METHOD_MODEL             654 字  板块模型中共速速度与相对位移的求法
+    后    [2] METHOD_MODEL             316 字  板块模型中动量观点与能量观点的选用（大二轮物理培优版·专题二计算题培优1·e25）
+    后    [2] METHOD_MODEL             352 字  板块模型中的位移关系与摩擦力突变（福建专用第10讲）
+    后    [2] METHOD_MODEL             383 字  板块模型中的位移关系与相对滑动判断
+    后    [2] METHOD_MODEL             232 字  板块模型中的位移关系（同向与相向）
+    后    [2] METHOD_MODEL             334 字  板块模型中的速度关系与加速度关系
+    后    [2] METHOD_MODEL             606 字  板块模型分析注意事项
+    后    [2] METHOD_MODEL             681 字  板块模型动力学分析流程
+    后    [2] METHOD_MODEL            1188 字  板块模型受力情况与临界力分析
+    后    [2] METHOD_MODEL             305 字  板块模型同向与反向运动的位移关系（第06讲 牛顿第二定律·题型12）
+    后    [2] METHOD_MODEL             328 字  板块模型的三个注意点
+    后    [2] METHOD_MODEL             299 字  板块模型的三类求解思路：速度、时间、生热
+    后    [2] METHOD_MODEL              97 字  板块模型的三类求解方法
+    后    [2] METHOD_MODEL             218 字  板块模型的两条技巧突破
+    后    [2] METHOD_MODEL             324 字  板块模型的两条解题关键
+    后    [2] METHOD_MODEL             323 字  板块模型的两条解题关键点（第06讲 牛顿第二定律·题型12）
+    后    [2] METHOD_MODEL             564 字  板块模型的位移关系与摩擦力突变
+    后    [2] METHOD_MODEL             313 字  板块模型的分析方法
+    后    [2] METHOD_MODEL             355 字  板块模型的分析方法（福建专用第10讲）
+    后    [2] METHOD_MODEL             176 字  板块模型的分析要点
+    后    [2] METHOD_MODEL             415 字  板块模型的受力与位移关系（专题02 力与直线运动·培优讲义·原卷版）
+    后    [2] METHOD_MODEL             757 字  板块模型的受力分析与相对滑动判断
+    后    [2] METHOD_MODEL             353 字  板块模型的摩擦力判断与 v物＝v板 临界条件（专题02）
+    后    [2] METHOD_MODEL             352 字  板块模型的构建流程
+    后    [2] METHOD_MODEL             282 字  板块模型的求解关键
+    后    [2] METHOD_MODEL             225 字  板块模型的求解方法：按待求量选择规律（第27讲课件·知识点3 求解方法）
+    后    [2] METHOD_MODEL             486 字  板块模型的类型与解题关键
+    后    [2] METHOD_MODEL             598 字  板块模型的综合分析
+    后    [2] METHOD_MODEL             307 字  板块模型的观点选择与位移选取
+    后    [2] METHOD_MODEL             285 字  板块模型的解题思路
+    后    [2] METHOD_MODEL             256 字  板块模型的解题方法：隔离分析与过程衔接（第11讲讲义·教师版 知识点5 解题方法）
+    后    [2] METHOD_MODEL             332 字  板块模型的解题步骤与突破口
+    后    [2] METHOD_MODEL             889 字  板块模型的速度情况结论总结
+    后    [2] METHOD_MODEL             717 字  板块相对滑动临界的求外力
+    后    [2] METHOD_MODEL             217 字  板块系统中动量观点与动力学观点的选用（培优1·二）
+    后    [2] METHOD_MODEL             154 字  板块问题v启动与F启动的初始运动判断
+    后    [2] METHOD_MODEL             355 字  板块问题的动力学与能量分析思路
+    后    [2] METHOD_MODEL             312 字  板块问题的突破口：位移与速度关系
+    后    [2] METHOD_MODEL             859 字  水平面上滑块-木板模型的分类解读（力作用在块上）
+    后    [2] METHOD_MODEL             800 字  水平面上滑块-木板模型的分类解读（力作用在板上）
+    后    [2] METHOD_MODEL             641 字  滑块-木板模型
+    后    [2] METHOD_MODEL             447 字  滑块-木板模型的一个转折与两个关联
+    后    [2] METHOD_MODEL             415 字  滑块-木板模型的模型特点与位移关系（专题强化六·知识梳理）
+    后    [2] METHOD_MODEL             509 字  滑块-木板模型的特点与解题步骤
+    后    [2] METHOD_MODEL             262 字  滑块—木板模型的一个转折与两个关联
+    后    [2] METHOD_MODEL             238 字  滑块—木板模型的三类待求量与对应规律
+    后    [2] METHOD_MODEL             330 字  滑块—木板模型的临界与相对滑动过程（力在「块」上）（27版五三A版·物理·精讲册 牛顿运
+    后    [2] METHOD_MODEL             324 字  滑块—木板模型的位移关系与解题关键
+    后    [2] METHOD_MODEL             272 字  滑块—木板模型的位移关系构建（第11讲讲义·教师版 知识点4 模型构建）
+    后    [2] METHOD_MODEL             414 字  滑块—木板模型的关键与解题思路
+    后    [2] METHOD_MODEL             267 字  滑块—木板模型的动力学特点与构建
+    后    [2] METHOD_MODEL             313 字  滑块—木板模型的动量与能量配合（第36讲·考点二·教师版）
+    后    [2] METHOD_MODEL             227 字  滑块—木板模型的动量守恒与位移特点
+    后    [2] METHOD_MODEL             195 字  滑块—木板模型的处理关键：动态分析与终态推断（第31讲·考点三）
+    后    [2] METHOD_MODEL             596 字  滑块—木板模型的构建与位移关系
+    后    [2] METHOD_MODEL             406 字  滑块—木板模型的构建要点与解题关键（第17讲·考点二）
+    后    [2] METHOD_MODEL             398 字  滑块—木板模型的模型特点与求解方法（第36讲·考点02）
+    后    [2] METHOD_MODEL             252 字  滑块—木板模型的求解方法选择（2026一轮复习课件·第36讲 专题：子弹打木块模型·sl
+    后    [2] METHOD_MODEL             378 字  滑块—木板模型的特点与三类量的求解方法
+    后    [2] METHOD_MODEL             566 字  滑块—木板模型的特点与位移关系
+    后    [2] METHOD_MODEL             286 字  滑块—木板模型的特点与求解方法
+    后    [2] METHOD_MODEL             311 字  滑块—木板模型的特点与求解方法（第36讲·考点二·学生版）
+    后    [2] METHOD_MODEL             449 字  滑块—木板模型的相对位移关系（另附题库·专题强化六 模型特点与位移关系）
+    后    [2] METHOD_MODEL             323 字  滑块—木板模型（力作用在「块」上）的分析（27版五三A版·物理·精讲册 牛顿运动定律 模
+    后    [2] METHOD_MODEL             248 字  滑块—木板模型（力作用在「板」上）的分析（27版五三A版·物理·精讲册 牛顿运动定律 模
+    后疑  [2] METHOD_MODEL             201 字  滑块—木板综合问题的规律选择
+    后    [2] METHOD_MODEL             331 字  滑块与木板模型的位移关系与解题关键（2026年新高考资料(1)·第09讲 牛顿运动定律的
+    后    [2] METHOD_MODEL             518 字  滑块与木板模型的求解方法
+    后疑  [2] METHOD_MODEL             368 字  滑块与木板的两种位移关系
+    后疑  [2] METHOD_MODEL             448 字  滑块与木板的动力学分析
+    后疑  [2] METHOD_MODEL             322 字  滑块与木板类问题的解题要领
+    后疑  [2] METHOD_MODEL             458 字  滑块与木板运动状态的判断
+    后疑  [2] METHOD_MODEL             216 字  滑块与木板间的位移关系
+    后    [2] METHOD_MODEL             390 字  滑块木板模型的特点与位移关系
+    后    [2] METHOD_MODEL             212 字  物块—木板模型的分析策略
+    后疑  [2] METHOD_MODEL             351 字  由 v–t 图像求加速度并用隔离法反解两处动摩擦因数（阶段复习三·slide de5）
+    后    [2] METHOD_MODEL             226 字  解决滑块—木板模型的关键：找位移或速度关系
+    后    [2] METHOD_MODEL            1200 字  解板块模型试题必做的两步操作
+    后    [2] METHOD_MODEL             333 字  解答板—块模型的两条路径
+    后    [4] CONCEPT_EXPLANATION      202 字  F启动板块随F增大的三个阶段
+    后疑  [4] CONCEPT_EXPLANATION      165 字  v启动中木板是否被带动的判断
+    后    [4] CONCEPT_EXPLANATION      363 字  倾斜板块相对滑动时的两个加速度
+    后    [4] CONCEPT_EXPLANATION      364 字  动量守恒中的力学综合问题（第24讲）「知识点 板块模型」：特点与三种求解思路
+    后    [4] CONCEPT_EXPLANATION      116 字  块有初速度的板块共速后运动
+    后    [4] CONCEPT_EXPLANATION      248 字  块有初速度的板块运动（共速前）
+    后    [4] CONCEPT_EXPLANATION      225 字  子弹打木块与板块模型的共同特点
+    后    [4] CONCEPT_EXPLANATION      253 字  斜面板块受向上牵引力保持相对静止的条件
+    后    [4] CONCEPT_EXPLANATION      330 字  有拉力作用时板块模型的两个临界拉力
+    后    [4] CONCEPT_EXPLANATION      224 字  板块与传送带问题的三点注意
+    后    [4] CONCEPT_EXPLANATION      517 字  板块模型的三个基本关系
+    后    [4] CONCEPT_EXPLANATION      429 字  板块模型的位移关系与求解构建
+    后    [4] CONCEPT_EXPLANATION      300 字  板块模型的位移关系与解题关键点（2026一轮复习力学讲义·第06讲 牛顿第二定律·学生版
+    后    [4] CONCEPT_EXPLANATION      236 字  板块模型的情景特点与考查内容
+    后    [4] CONCEPT_EXPLANATION      379 字  板块模型的构成与过程特征
+    后    [4] CONCEPT_EXPLANATION      770 字  板块模型（系统不受拉力）的运动分析
+    后    [4] CONCEPT_EXPLANATION      227 字  板块问题
+    后    [4] CONCEPT_EXPLANATION      266 字  板块问题的位移关系与两个重要临界
+    后    [4] CONCEPT_EXPLANATION      275 字  板块（滑块—木板）模型的两条核心特点
+    后    [4] CONCEPT_EXPLANATION      305 字  板有初速度的板块共速后运动（比较μ₁与μ₂）
+    后    [4] CONCEPT_EXPLANATION      198 字  板有初速度的板块运动（共速前）
+    后    [4] CONCEPT_EXPLANATION      206 字  水平板块模型的两个最大静摩擦力
+    后    [4] CONCEPT_EXPLANATION      588 字  滑块-木板模型的特点与位移关系
+    后    [4] CONCEPT_EXPLANATION      202 字  滑块—平板模型的运动情境
+    后    [4] CONCEPT_EXPLANATION      298 字  滑块—木板模型的模型特点与位移关系
+    后    [4] CONCEPT_EXPLANATION      236 字  滑块—木板模型的模型特点（2026一轮复习课件·第36讲 专题：子弹打木块模型·slid
+    后    [4] CONCEPT_EXPLANATION      556 字  滑块—木板模型的特点
+    后    [4] CONCEPT_EXPLANATION      676 字  滑块—木板模型的特点与位移关系
+    后    [4] CONCEPT_EXPLANATION      258 字  滑块—木板模型的特点与守恒关系（第26讲讲义·教师版 滑块—木板 知识点1）
+    后    [4] CONCEPT_EXPLANATION      401 字  滑块—木板模型的特点与求解方法
+    后    [4] CONCEPT_EXPLANATION      364 字  滑块木板模型的特点与构建
+
+已写出 build\kb-staging\overfull_nodes.csv（62944 行，verdict 列留空待裁决）
+
+按章（前 10）：
+   2578 条  MATH 函数的概念与性质
+   2094 条  CHEMISTRY 跨册综合
+   1880 条  BIOLOGY 细胞的能量供应和利用
+   1816 条  PHYSICS 综合复习
+   1771 条  PHYSICS 运动的描述
+   1654 条  CHEMISTRY 物质及其变化
+   1643 条  PHYSICS 电磁感应与电磁波初步
+   1637 条  MATH 一元函数的导数及其应用
+   1599 条  BIOLOGY 遗传因子的发现
+   1574 条  MATH 直线和圆的方程

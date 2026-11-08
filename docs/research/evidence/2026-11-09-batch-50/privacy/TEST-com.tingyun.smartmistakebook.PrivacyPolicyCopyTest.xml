@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.PrivacyPolicyCopyTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-08T12:54:13.243Z" hostname="TIANSHAN" time="0.023">
+  <properties/>
+  <testcase name="local data inventory matches the real backup categories and temp files" classname="com.tingyun.smartmistakebook.PrivacyPolicyCopyTest" time="0.016"/>
+  <testcase name="unfilled filing number and operator say so instead of inventing values" classname="com.tingyun.smartmistakebook.PrivacyPolicyCopyTest" time="0.0"/>
+  <testcase name="no policy string fabricates a filing number or a备案-like code" classname="com.tingyun.smartmistakebook.PrivacyPolicyCopyTest" time="0.002"/>
+  <testcase name="minor chapter carries the guardian rule that the AI copy points to" classname="com.tingyun.smartmistakebook.PrivacyPolicyCopyTest" time="0.0"/>
+  <testcase name="external send section names what leaves and what never leaves" classname="com.tingyun.smartmistakebook.PrivacyPolicyCopyTest" time="0.0"/>
+  <testcase name="every required chapter is present once and in reading order" classname="com.tingyun.smartmistakebook.PrivacyPolicyCopyTest" time="0.001"/>
+  <testcase name="deletion and backup chapter matches the storage screen scope" classname="com.tingyun.smartmistakebook.PrivacyPolicyCopyTest" time="0.0"/>
+  <testcase name="policy states a version and an effective date" classname="com.tingyun.smartmistakebook.PrivacyPolicyCopyTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

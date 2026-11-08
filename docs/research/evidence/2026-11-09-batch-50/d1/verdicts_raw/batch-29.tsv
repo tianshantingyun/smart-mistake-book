@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-b7d1fb139f-001	CORRECT		high	动态平衡是受力状态缓慢变化、每一状态均可视为平衡状态	
+ext-phy-b7fee3d991-003c	CORRECT		high	万有引力分解为重力与自转向心力	
+ext-phy-b85d6e94ac-014	CORRECT		high	三力平衡中方向不变的力随其与转动力的夹角增大而增大	
+ext-phy-b8f4030539-002	CORRECT		high	运动电荷在磁场中受洛伦兹力，方向由左手定则判定	
+ext-phy-b933ea57b1-005	CORRECT		high	亮条纹对应光程差为波长整数倍的点	
+ext-phy-ba02cd41d1-026	CORRECT		high	光照变弱时光敏电阻的阻值增大	节点为常见传感器特点
+ext-phy-ba26a92263-050	CORRECT		high	把竖直上抛的上升阶段看成自由落体运动的逆过程	
+ext-phy-ba26a92263-052	CORRECT		high	从匀速运动的电梯上脱落的物体，改取电梯为参考系后初速度为零	
+ext-phy-bcf680b89e-007	CORRECT		high	把含电源与电阻的部分电路整体看作新电源	
+ext-phy-bdbc0a0d3c-001b	CORRECT		high	波速由介质决定、频率由波源决定	
+ext-phy-be563d8767-016	CORRECT		high	先在清晰的物理情境中找出临界条件或达到极值的条件	
+ext-phy-bf912285f2-001	CORRECT		high	质点是用来代替物体的有质量的点、是一种理想化模型	
+ext-phy-c0ccc8ad0e-005	CORRECT		high	图象与横轴围成的面积、图象的斜率分别对应功与合力	
+ext-phy-c41826321a-034	CORRECT		high	从结构、作用、时间空间过程、物理量分布与作用效果等方面的对称性分析物理过程	
+ext-phy-c7c442eb2f-002	CORRECT		high	归纳匀变速直线运动的三个基本公式、选用原则与正方向的规定	
+ext-phy-c7e340022d-064	CORRECT		high	电场力做正功时电势能减小	
+ext-phy-c83bff6d83-001b	CORRECT		high	用铁架台、单摆、游标卡尺、毫米刻度尺与停表完成实验	
+ext-phy-cb2bc851a5-005c	CORRECT		high	匀强电场中静电力做功 W＝Eqd＝qU	
+ext-phy-cc0cec1c22-003	CORRECT		high	安培力 F＝BILsinθ，方向用左手定则判断	
+ext-phy-cc890cbca0-004	CORRECT		high	光从光密介质射向光疏介质且入射角不小于临界角时发生全反射	
+ext-phy-cd27e7a2c5-007	CORRECT		high	磁通量的定义、公式、标量性与感应电流产生的条件	
+ext-phy-cd3308dfab-003b	CORRECT		high	伏安法测电阻中系统误差的来源与减小或消除方法	
+ext-phy-cd68d18dae-019	CORRECT		high	一个匀速直线运动与一个匀变速直线运动合成得匀变速曲线运动	
+ext-phy-d01d4cf436-001	CORRECT		high	阐明力与运动的关系，指出一切物体都有惯性	
+ext-phy-d172fe4b38-002b	CORRECT		high	能量守恒定律写作 ΔE增＝ΔE减	
+ext-phy-d172fe4b38-007	CORRECT		high	关联速度问题先做速度的分解并找出两物体的速度关系	
+ext-phy-d17a37ec60-012	CORRECT		high	安培力 F＝BIl sinθ，其中 θ 为 B 与 I 的夹角	
+ext-phy-d17a37ec60-027	CORRECT		high	洛伦兹力方向用左手定则判定	
+ext-phy-d17a37ec60-100	CORRECT		high	粒子先经电场再进入磁场时，电场中的匀变速直线运动或类平抛运动都对应磁场中的匀速圆周运动	
+ext-phy-d1e7b55724-011	CORRECT		high	需要中间量时分阶段用动能定理	
+ext-phy-d592e2aa61-011	CORRECT		high	类平抛运动合外力为恒力且与初速度垂直	
+ext-phy-d59a21ff9d-003	CORRECT		high	第19讲知识点2给出地球与行星同向运行时相距最近、相距最远的条件	
+ext-phy-d625775dcf-020b	CORRECT		medium	多个圆筒依次排列、奇数与偶数圆筒分别接交流电源两极	节点为交变电磁场运动，材料为直线加速器
+ext-phy-d6ae65db32-002	CORRECT		high	线圈在匀强磁场中绕垂直于磁感线的轴匀速转动即产生正弦式交变电流	
+ext-phy-d70470dd5b-003	CORRECT		high	通过实验求出做自由落体运动物体的重力势能减少量和对应过程动能的增加量	
+ext-phy-d72335472d-002b	CORRECT		high	给出电荷守恒定律的表述与实质	
+ext-phy-d72ac5caec-008	CORRECT		high	同一表头并联分流电阻成电流挡、串联分压电阻成电压挡	
+ext-phy-d7ae747433-003	CORRECT		high	一个力恒定、另两力方向同时变化时若力三角形与几何三角形相似可用相似三角形法	
+ext-phy-d8098ad0ee-022	CORRECT		high	接触脱离看弹力为零，相对滑动看静摩擦力最大	
+ext-phy-d86d080e2e-074b	CORRECT		high	以其中一个物体为参考系，用相对初速度和相对加速度	
+ext-phy-da0bf5731b-004b	CORRECT		high	图1 平衡摩擦力时倾角太大；图2 未平衡或倾角太小	
+ext-phy-da15454ce9-002	CORRECT		high	三力中一力恒定、一力方向不变时作矢量三角形	
+ext-phy-dbe393d33c-022	CORRECT		high	船要沿给定航线 AB 航行时，所需静水速度最小时船速方向与航线垂直	
+ext-phy-dc7b9d86bf-012	CORRECT		high	按取微元、求体积质量、列动量定理、代入反弹条件四步	
+ext-phy-df69a5f104-008b	CORRECT		high	发射速度等于 7.9 km/s 时卫星绕地球表面做匀速圆周运动	
+ext-phy-dfa71d855b-005	CORRECT		high	机械波传播的是振动形式与能量	
+ext-phy-dfa71d855b-007	CORRECT		high	折射定律指出入射角与折射角的正弦成正比	
+ext-phy-e0dafc554c-012	CORRECT		high	交流电流表与电压表的示数、用电器铭牌值	
+ext-phy-e14aad82a5-083b	CORRECT		high	以一分力的末端为圆心、另一分力大小为半径作圆（弧）	
+ext-phy-e14aad82a5-1198	CORRECT		high	初、末位置确定后位移唯一确定，而路程有无数种可能	

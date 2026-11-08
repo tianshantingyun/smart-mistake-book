@@ -1,0 +1,9 @@
+$ adb -s emulator-5590 shell am instrument -w -e class com.tingyun.smartmistakebook.core.data.study.KnowledgeCalibrationQuestionRoomE2eInstrumentedTest com.tingyun.smartmistakebook.core.data.test/androidx.test.runner.AndroidJUnitRunner
+
+com.tingyun.smartmistakebook.core.data.study.KnowledgeCalibrationQuestionRoomE2eInstrumentedTest:...
+
+Time: 1.203
+
+OK (3 tests)
+
+

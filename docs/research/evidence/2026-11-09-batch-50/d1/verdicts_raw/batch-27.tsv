@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-5cbbe117fd-021	CORRECT		high	爆炸时间极短、内力远大于外力，系统动量守恒	
+ext-phy-5f0734c145-008	CORRECT		high	合力做功是物体动能变化的原因	
+ext-phy-5f279cb1e3-016	CORRECT		high	补偿阻力要垫高有打点计时器的一端	
+ext-phy-5f87ee0d52-011	CORRECT		high	由电场力指向轨迹的凹侧确定受力方向	
+ext-phy-603fe63d7d-004	CORRECT		high	给出人造卫星轨道的分类以及静止卫星、近地卫星的确定参数	
+ext-phy-60d2dde3f2-010	CORRECT		high	已知分运动求合运动叫运动的合成	
+ext-phy-640c578237-001	CORRECT		high	抛体运动按水平匀速、竖直匀变速分解	
+ext-phy-69ce327dcf-004	CORRECT		high	合外力的冲量I是原因、动量变化量Δp是结果	
+ext-phy-6b9889167d-009	CORRECT		high	临界指平衡状态恰好出现或恰好不出现	
+ext-phy-6ee691cacf-001	CORRECT		high	曲线运动一定是变速运动，其条件为合外力方向与速度方向不共线	
+ext-phy-6f83133765-005	CORRECT		high	任一温度下气体分子的速率都按「中间多、两头少」分布	
+ext-phy-6f83133765-045	CORRECT		high	平衡状态下可用力平衡法、等压面法、液片法求封闭气体压强	节点为液柱模型
+ext-phy-6f83133765-068	CORRECT		high	内能变化量等于外界向系统传递的热量与外界对系统做功之和	
+ext-phy-70a90cf8d8-004b	CORRECT		high	倾斜传送带上物块与带共速后能否随带一起匀速运动	
+ext-phy-70ecbd7a48-004	CORRECT		high	v-t 图像的斜率表加速度、面积表位移、交点表示速度相等	
+ext-phy-7151338d60-002b	CORRECT		high	参考系的定义、选取原则以及任意性与同一性两条性质	
+ext-phy-716135c6a3-006b	CORRECT		high	当只有静电力对带电体做功时	
+ext-phy-71e5332f12-002	CORRECT		high	静电力做功与路径无关	
+ext-phy-72f415b3ad-004b	CORRECT		high	瞬时速度是运动物体在某一时刻或经过某一位置的速度	
+ext-phy-7430ee78fb-006	CORRECT		high	E-x 图像反映电场强度随位移变化的规律	
+ext-phy-76c88e5046-002	CORRECT		high	分别分析滑块与木板的加速度并用动能定理或能量守恒求解	
+ext-phy-77b6bade81-022	CORRECT		high	合外力做功对应动能变化、重力做功对应重力势能变化	
+ext-phy-7800d6a4f4-009	CORRECT		high	系统误差来自测力计本身，偶然误差来自读数与作图	
+ext-phy-7800d6a4f4-018	CORRECT		high	用橡皮筋或钩码替代弹簧测力计	
+ext-phy-7822ef10d0-028	CORRECT		high	因质量在机械能守恒式两边约去	
+ext-phy-786b51bf6a-008c	CORRECT		high	释放核能的反应中反应后各原子核与微观粒子的静止质量之和变小	
+ext-phy-79211e52f3-002	CORRECT		high	系统误差来自单摆模型是否符合要求	
+ext-phy-79aa74f36a-006	CORRECT		high	平衡物体的极值问题指力的变化过程中某个量出现的最大值和最小值	
+ext-phy-7bd52b56f2-006b	CORRECT		high	以图像是否为过原点直线判断正比关系	
+ext-phy-7e2a2e0f1a-007	CORRECT		high	Ep-x 图像切线斜率的绝对值表示电场力的大小	
+ext-phy-7fc0771aeb-010	CORRECT		high	按力系特征选方法	
+ext-phy-809cd933df-004	CORRECT		high	不要把研究对象所受的力与它对其他物体的作用力混淆	
+ext-phy-81ec357d7d-002	CORRECT		high	弹簧下端挂不同钩码并测伸长量	
+ext-phy-856c69c53e-009	CORRECT		high	处理平抛运动临界问题的四步流程	
+ext-phy-864d5b3176-007	CORRECT		high	静电力做正功电势能减少、做负功电势能增加	
+ext-phy-86c723ba5d-006b	CORRECT		high	同轴转动的各点角速度相等、皮带与齿轮等传动中轮缘各点的线速度大小相等	
+ext-phy-8842b13030-004	CORRECT		high	绳和轻杆的弹力会瞬时突变，轻弹簧的弹力在这一瞬间保持不变	
+ext-phy-88dc645d60-005	CORRECT		high	路端电压 U=E−Ir，外电阻 R 增大时 U 增大	
+ext-phy-88dc645d60-008	CORRECT		high	分压电路中两端总电阻与串联段电阻变化趋势一致	
+ext-phy-893c61cfa9-013	CORRECT		high	两者速度相等的瞬间摩擦力可能突变	
+ext-phy-89d21a51b7-003	CORRECT		high	临界状态是物理现象转变的转折点	
+ext-phy-89d9e2f341-009	CORRECT		high	电流做功的实质与电功率的计算式	
+ext-phy-8abeb2060c-017	CORRECT		high	测量时先用粗调旋钮使测微螺杆靠近被测物	
+ext-phy-8cff637f75-002	CORRECT		high	质点是有质量的点这一理想化模型	
+ext-phy-8e05545ad4-004b	CORRECT		high	轻核聚变同样因质量亏损放能	
+ext-phy-8e1792aaec-001b	CORRECT		high	导体电阻与长度成正比、与横截面积成反比	
+ext-phy-8f88de0242-024	CORRECT		high	求挡板、地面等外部对系统的弹力时把全部物体取为整体	
+ext-phy-90e5d9cabe-016	CORRECT		high	实质是比较两物体在相同时间内能否到达同一位置	
+ext-phy-90e5d9cabe-020	CORRECT		high	把两物体间的距离表示为关于时间的二次函数	
+ext-phy-911b33ff4a-018	CORRECT		high	追及相遇围绕一个临界条件（速度相等）和两个等量关系（时间、位移）展开	

@@ -1,0 +1,12 @@
+tools/kb_coverage/merge_text_judgments.py:47:TYPES = {"CONCEPT_EXPLANATION", "METHOD_MODEL", "MISCONCEPTION_GUIDE"}
+tools/kb_coverage/materialize.py:66:TYPES = {"CONCEPT_EXPLANATION", "METHOD_MODEL", "MISCONCEPTION_GUIDE"}
+## 一、判定规则（冻结版）
+
+1. 材料 type 仅 3 值：`CONCEPT_EXPLANATION` / `METHOD_MODEL` / `MISCONCEPTION_GUIDE`；
+   其余值禁用（`WORKED_EXAMPLE`/`COMPLETE_SOLUTION`/`DERIVATION`/`REPRESENTATION_GUIDE` 一律不用）。
+2. 只要知识点不要题目：题目/题干/成套选项/答案/解析不得成为材料，发现即 SKIP。
+| `action` | `MATERIAL` 或 `SKIP` | 只有 `MATERIAL` 会入库；`SKIP` 是显式裁定，同样落表防重判 |
+| `node_slug` | 绑定知识点 slug | MATERIAL 行必填；找不到对口节点时不得硬绑，写 `NEW:<subject>/<建议slug>`（见规则 7） |
+| `type` | `CONCEPT_EXPLANATION` / `METHOD_MODEL` / `MISCONCEPTION_GUIDE` | 其余 4 值禁用（规则 1） |
+| `title` | 材料标题 | 须含可溯源引文锚（规则 5） |
+| `summary` | 一句话摘要 | 同上 |

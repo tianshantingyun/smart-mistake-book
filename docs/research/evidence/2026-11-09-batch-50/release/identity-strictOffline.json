@@ -1,0 +1,72 @@
+{
+  "head": "a87fc70d15c8ad726cee17422dbeef0b4977747d",
+  "dirty_paths": 4314,
+  "dirty_sample": [
+    " M .gitignore",
+    " M app/build.gradle.kts",
+    " M app/src/androidTest/kotlin/com/tingyun/smartmistakebook/MistakeExportNotificationsInstrumentedTest.kt",
+    " M app/src/androidTest/kotlin/com/tingyun/smartmistakebook/ReviewIntakeBacklogPreviewInstrumentedTest.kt",
+    " M app/src/androidTest/kotlin/com/tingyun/smartmistakebook/ReviewReminderPlatformInstrumentedTest.kt",
+    " M app/src/main/kotlin/com/tingyun/smartmistakebook/ReviewReminderCoordinator.kt",
+    " M app/src/main/kotlin/com/tingyun/smartmistakebook/SchedulingSettingsScreen.kt",
+    " M app/src/main/kotlin/com/tingyun/smartmistakebook/SecondaryScreens.kt",
+    " M app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookApplication.kt",
+    " M app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt"
+  ],
+  "apk": {
+    "path": "app/build/outputs/apk/strictOffline/release/app-strictOffline-release.apk",
+    "sha256": "67413eadebde2329e3c24f7196f610b01a75fa0bb7981d7afebafbacd1ba8e1f",
+    "revision": "a87fc70d15c8ad726cee17422dbeef0b4977747d",
+    "revision_is_commit": true,
+    "commits_behind_head": 0,
+    "readable": true,
+    "zip_integrity": null,
+    "so_abis": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "aab": {
+    "path": "app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab",
+    "sha256": "edaf058ded0de18e1706c971d726174ed08b13467bd65af7c0902ed251fe3d88",
+    "readable": true,
+    "zip_integrity": null,
+    "so_abis": [
+      "arm64-v8a",
+      "x86_64"
+    ],
+    "native_libs": [
+      "libLiteRt.so",
+      "libLiteRtClGlAccelerator.so",
+      "libandroidx.graphics.path.so",
+      "libdatastore_shared_counter.so",
+      "liblitert_jni.so",
+      "libmlkit_google_ocr_pipeline.so",
+      "libquickjs.so"
+    ]
+  },
+  "mapping": {
+    "path": "app/build/outputs/mapping/strictOfflineRelease/mapping.txt",
+    "sha256": "ce595aa09168d19ed2c93faf28f8334acd47b6fd88c1627e4a3286496377277e",
+    "classes": 10661,
+    "renamed": 10461,
+    "removed": 1199,
+    "project_classes": 4056,
+    "project_renamed": 4043,
+    "project_removed": 211
+  },
+  "versions": {
+    "gradle": {
+      "version_code": null,
+      "version_name": "0.2.0",
+      "abi_filters": [
+        "arm64-v8a",
+        "x86_64"
+      ]
+    },
+    "output_metadata": {
+      "versionCode": 101160,
+      "versionName": "0.2.0-offline"
+    }
+  }
+}

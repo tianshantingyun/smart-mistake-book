@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.KnowledgeCalibrationQuestionTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-08T11:56:53.707Z" hostname="TIANSHAN" time="0.449">
+  <properties/>
+  <testcase name="confirming the second question upgrades only its own slot" classname="com.tingyun.smartmistakebook.core.data.study.KnowledgeCalibrationQuestionTest" time="0.346"/>
+  <testcase name="the second question persists under its own slot without touching the session question" classname="com.tingyun.smartmistakebook.core.data.study.KnowledgeCalibrationQuestionTest" time="0.006"/>
+  <testcase name="answering the second question is judged against its own key not the session question" classname="com.tingyun.smartmistakebook.core.data.study.KnowledgeCalibrationQuestionTest" time="0.033"/>
+  <testcase name="the calibration corridor selects the second question only after its own row is verified" classname="com.tingyun.smartmistakebook.core.data.study.KnowledgeCalibrationQuestionTest" time="0.048"/>
+  <testcase name="assembled candidates expose the persisted second question as a calibration candidate" classname="com.tingyun.smartmistakebook.core.data.study.KnowledgeCalibrationQuestionTest" time="0.007"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

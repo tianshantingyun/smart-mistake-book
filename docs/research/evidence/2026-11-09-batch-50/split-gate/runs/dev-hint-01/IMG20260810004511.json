@@ -1,0 +1,41 @@
+{
+    "file": "IMG20260810004511.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 60582,
+    "responseHead": "\n{\"id\":\"15524c75-ad20-49ea-bc0f-c934ce02e90c\",\"object\":\"chat.completion\",\"created\":1794127723,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.24,\\\"top\\\":0.03,\\\"right\\\":0.995,\\\"bottom\\\":0.995},\\\"message\\\":\\\"画面包含第9、10两道独立题，需拆分\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.58,\\\"top\\\":0.55,\\\"right\\\":0.995,\\\"bottom\\\":0.995},\\\"message\\\":\\\"第10题仅见A项，B/C/D选项缺失\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.0,\\\"right\\\":0.24,\\\"bottom\\\":0.995},\\\"message\\\":\\\"左侧C、D选项所属题目的题干及A、B选项缺失\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\",\\\"RECAPTURE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.24,\\\"top\\\":0.03,\\\"right\\\":0.58,\\\"bottom\\\":0.995},{\\\"left\\\":0.58,\\\"top\\\":0.03,\\\"right\\\":0.995,\\\"bottom\\\":0.995}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。需要返回JSON严格。需要分析图像内容。图片旋转了90度？文字竖排？需要识别。图像显示一张试卷/练习，文字是横向但图像顺时针旋转了90度？我们按内容识别。可见有题号9、10，还有前面C.D选项（属于上一题？），以及下面A选项。需要判断包含几道独立题。页面可能有第9题和第10题，且第10题内容延伸到右侧包括A选项，但页面底部似乎被截断？图像上部/右侧有手写红笔。需要确定是否涵盖完整题目。仔细看：\\n\\n文字方向：如果旋转逆时针90度看，正文水平。当前图像文字是竖排？其实文本行从下到上？让我们旋转心理。原图：左边缘有\\\"C. 根据小概率值...\\\"和\\\"D. 根据小概率值...\\\"，下面题号9“(多选) 传承红色文化...”，再下面题号10“(多选) 甲、乙两人进行象棋比赛...”，最右有A. 第一局比赛后...。这应该是一页的右侧栏? 看起来是试卷横向拍摄，图像右转90。我们需要基于未旋转或旋转后的区域坐标？要求region 0到1坐标，应该以当前图像坐标为准？ likely。questionRegions需要给每道题的完整外接区域。先识别题目。\\n\\n图片包含：\\n- 最左侧部分：C、D 选项（属于前一道题，题号可能在上方不可见或未拍全）两个选项：\\nC. 根据小概率值0.10的独立性检验，认为变量A与变量B不独立\\nD. 根据小概率值0.05的独立性检验，认为变量A与变量B不独立\\n\\n这是上一",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "MISSING_OPTIONS",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.24,
+            "top": 0.03,
+            "right": 0.58,
+            "bottom": 0.995
+        },
+        {
+            "left": 0.58,
+            "top": 0.03,
+            "right": 0.995,
+            "bottom": 0.995
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.005–1.000，y=0.000–1.000；单栏；段落分隔（共 1 处）：y=0.000（谷宽0px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 113,
+    "image": {
+        "egressBytes": 565447,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "499d0389ca1e87e23addc36b93007b1e13ddf67efaba791974abd07928ea00c0",
+    "promptSha256": "022a4a83ae17e9a5e5987299908fc68509b1ea92c5a694e8f47053c566097de3"
+}

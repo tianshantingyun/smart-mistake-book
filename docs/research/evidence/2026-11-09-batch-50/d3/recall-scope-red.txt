@@ -1,0 +1,45 @@
+
+com.tingyun.smartmistakebook.core.database.KnowledgeRecallParentScopeInstrumentedTest:
+Error in retiredAndModelCandidateParentsAreNotDisclosedByRecall(com.tingyun.smartmistakebook.core.database.KnowledgeRecallParentScopeInstrumentedTest):
+java.lang.AssertionError: 召回是当前工作路径：已退役父节点不得随 active 子节点被披露；ids=[atomic:candidate-child, atomic:active-child, atomic:retired-child, topic:active, topic:candidate, topic:retired]
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertFalse(Assert.java:65)
+	at com.tingyun.smartmistakebook.core.database.KnowledgeRecallParentScopeInstrumentedTest$retiredAndModelCandidateParentsAreNotDisclosedByRecall$1.invokeSuspend(KnowledgeRecallParentScopeInstrumentedTest.kt:133)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:256)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:54)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlockingImpl(Builders.kt:30)
+	at kotlinx.coroutines.BuildersKt.runBlockingImpl(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK(Builders.concurrent.kt:172)
+	at kotlinx.coroutines.BuildersKt.runBlockingK(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK$default(Builders.concurrent.kt:157)
+	at kotlinx.coroutines.BuildersKt.runBlockingK$default(Unknown Source:1)
+	at com.tingyun.smartmistakebook.core.database.KnowledgeRecallParentScopeInstrumentedTest.retiredAndModelCandidateParentsAreNotDisclosedByRecall(KnowledgeRecallParentScopeInstrumentedTest.kt:58)
+
+
+Time: 0.435
+There was 1 failure:
+1) retiredAndModelCandidateParentsAreNotDisclosedByRecall(com.tingyun.smartmistakebook.core.database.KnowledgeRecallParentScopeInstrumentedTest)
+java.lang.AssertionError: 召回是当前工作路径：已退役父节点不得随 active 子节点被披露；ids=[atomic:candidate-child, atomic:active-child, atomic:retired-child, topic:active, topic:candidate, topic:retired]
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at org.junit.Assert.assertFalse(Assert.java:65)
+	at com.tingyun.smartmistakebook.core.database.KnowledgeRecallParentScopeInstrumentedTest$retiredAndModelCandidateParentsAreNotDisclosedByRecall$1.invokeSuspend(KnowledgeRecallParentScopeInstrumentedTest.kt:133)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:256)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:54)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlockingImpl(Builders.kt:30)
+	at kotlinx.coroutines.BuildersKt.runBlockingImpl(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK(Builders.concurrent.kt:172)
+	at kotlinx.coroutines.BuildersKt.runBlockingK(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK$default(Builders.concurrent.kt:157)
+	at kotlinx.coroutines.BuildersKt.runBlockingK$default(Unknown Source:1)
+	at com.tingyun.smartmistakebook.core.database.KnowledgeRecallParentScopeInstrumentedTest.retiredAndModelCandidateParentsAreNotDisclosedByRecall(KnowledgeRecallParentScopeInstrumentedTest.kt:58)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1
+
+

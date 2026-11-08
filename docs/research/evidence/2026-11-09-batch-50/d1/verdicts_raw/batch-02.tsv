@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-bio-a40be6ced4-030	CORRECT		high	类囊体膜上分布着光合色素，在光照下吸收光能并裂解水分子	材料讲类囊体膜光反应功能，节点为类囊体结构功能
+ext-bio-bda81526c3-001c	CORRECT		high	肽类激素作为第一信使与靶细胞膜上的特异性受体结合	材料为激素作用机理的一个子类
+ext-bio-d21b373a7f-075	CORRECT		high	无性生殖可保持亲本的优良性状	节点判有性/无性，材料讲无性生殖方式与优点
+ext-bio-dbeaf21da0-008	CORRECT		high	亲核蛋白通过核定位信号（NLS）入核	材料为核孔复合体选择性运输
+ext-bio-e29b5be961-044	CORRECT		high	来自同一个次级精母细胞的两个配子染色体组成相同	
+ext-bio-e3a300b276-018	CORRECT		high	系谱图用□表示男性、○表示女性	
+ext-bio-e3a300b276-019b	CORRECT		high	遗传图解按 P、配子、F1、F2 四行书写	
+ext-bio-f66e8d6ea1-034	CORRECT		medium	胰岛A细胞分泌胰高血糖素升血糖，胰岛B细胞分泌胰岛素降血糖	节点为胰高血糖素，材料兼讲胰岛素与拮抗
+ext-bio-f8a6a12adc-014	CORRECT		high	雌性体细胞中一条X染色体随机失活	X失活即剂量补偿/巴氏小体机制
+ext-bio-f8a6a12adc-019	CORRECT		high	测序条数等于常染色体对数加2	节点为人类基因组测序，材料为通式与应用
+ext-bio-f90c4e2ecd-043	CORRECT		high	胰高血糖素作为大分子信息分子与膜表面受体结合、不进入细胞	
+ext-bio-fa56135114-014	CORRECT		high	轮作能充分利用土壤矿质元素、改善土壤并减少病虫害	材料为传统农业管理措施的子类
+ext-che-0160cf76f9-025	CORRECT		high	探究型综合实验分物质成分的探究、物质性质的探究与影响因素的探究三类	
+ext-che-01eb9ee365-021	CORRECT		high	从原料选择、反应原理与途径确定、产品分离提纯三方面入手	材料为有机制备实验的总体思路
+ext-che-02428cda49-051	CORRECT		high	在强碱性、低温条件下用氧化剂把 Fe(OH)3 氧化为 FeO4^2−	
+ext-che-067cb2c820-006b	CORRECT		high	说明顺反异构的形成条件、顺反式的判断以及手性分子与手性碳原子的含义	
+ext-che-0e98130b42-001	CORRECT		high	实质是反应物化学键断裂与生成物化学键形成	
+ext-che-103843daca-022	CORRECT		medium	用口诀记忆溶解性，并熟记H+、OH-的电离顺序	节点为溶解性，材料含电离顺序附加内容
+ext-che-122fb814eb-006b	CORRECT		high	NaCl中的I2加热升华除去	材料为固体混合物除杂三例
+ext-che-1b5c8b791f-003b	CORRECT		high	反应热的五种算法、平衡常数的三条关系	节点为考前必知清单，材料为其前5条
+ext-che-1e9a37df8e-011c	CORRECT		medium	分子式与结构简式不能混用	节点为有机物结构特点，材料为结构表示规范
+ext-che-238b6944e3-013	CORRECT		high	仪器安装从热源开始、按先下后上从左到右的顺序	
+ext-che-2c177d17ea-024	CORRECT		high	误食重金属盐服生鸡蛋清或牛奶后就医	
+ext-che-2ea875ef02-004	CORRECT		high	借助氧化产物、消去产物、一卤代物种类与加氢碳架确定官能团所处位置	
+ext-che-3025e9bb31-002	CORRECT		high	电离是电解质在水溶液中或熔融状态下解离成自由移动离子的过程	
+ext-che-39a20a4b89-004	CORRECT		high	以海水中的氯化钠为原料电解制烧碱	节点为NaOH性质与制取，材料为工业制法
+ext-che-3d6a64f5a9-007	CORRECT		high	守恒法包括原子守恒、电荷守恒与得失电子守恒	
+ext-che-4b16225acf-026	CORRECT		high	按离子放电顺序分段计算电子转移	
+ext-che-54aebd19bf-001	CORRECT		medium	氯原子易得1个电子，氯气氧化性强	节点从原子结构认识氯气氧化性，材料含结构与反应
+ext-che-54f0f2bb90-012	CORRECT		high	性质是变化的内因、变化是性质的具体体现	
+ext-che-596c6da0b6-012	CORRECT		high	能源分化石能源与新能源	
+ext-che-5c62da9e03-109c	CORRECT		high	熔融不导电但溶于水可能导电	
+ext-che-5c62da9e03-1115	CORRECT		high	天然气水合物（可燃冰）是天然气与水在高压低温下形成的类冰状结晶物质	
+ext-che-5c62da9e03-1146	CORRECT		high	离子液体是在室温或接近室温时呈液态的盐类物质	
+ext-che-5c62da9e03-1332	REBIND	一些有机物的命名	high	烯烃、炔烃命名与烷烃命名在主链选择、编号依据与名称书写三方面不同	材料讲烯烃/炔烃与烷烃命名差异，非一般步骤
+ext-che-5c62da9e03-1569	CORRECT		high	糖类可分为单糖、二糖、多糖	
+ext-che-5c62da9e03-167	CORRECT		high	合理施用化肥要综合考虑土壤状况、作物营养和化肥性质	
+ext-che-5c62da9e03-2025	CORRECT		high	NaHCO3 可与过多的胃酸（盐酸）反应	节点为Na2CO3/NaHCO3应用
+ext-che-5c62da9e03-2318	CORRECT		high	-2→0、0→-2、0→+4、+4→0 四种价态变化可分别用氯水、铁粉、浓硫酸、H₂S 溶液实现	
+ext-che-5c62da9e03-2341	CORRECT		high	中学阶段符合 A→O₂→B→O₂→C→H₂O→D 的常见转化有碳、钠、氮三条主线	
+ext-che-5c62da9e03-2626	CORRECT		medium	乙烯是重要的化工原料，可制取聚乙烯塑料、聚乙烯纤维、乙醇等	节点名即“乙烯是石油化工最基本的原料之一”，材料为其展开
+ext-che-5c62da9e03-2646	CORRECT		high	乙醇呈中性，碳酸呈弱酸性，乙酸呈弱酸性	
+ext-che-5c62da9e03-2653	CORRECT		high	氢氧根整体带负电荷，羟基、羧基中的羟基是不带电的原子团	
+ext-che-5c62da9e03-2705	REBIND	依据官能团分类	medium	官能团决定物质的主要化学性质	材料讲官能团决定性质，非官能团清单
+ext-che-5c62da9e03-2856	CORRECT		medium	光化学烟雾是由臭氧与碳氢化合物、氮氧化物在紫外线照射下作用后产生的一种有毒烟雾	材料含雾霾与光化学烟雾，节点覆盖NOx污染
+ext-che-5c62da9e03-408	CORRECT		high	固体废物的处理应遵循无害化、减量化和资源化原则	
+ext-che-6014828781-003	CORRECT		high	选母体、编序号、写名称的命名步骤	
+ext-che-64f2e7842b-033b	CORRECT		high	先加H2O2把Fe2+氧化为Fe3+，再加氨水沉淀、过滤洗涤后灼烧得铁的氧化物	节点为金属及其化合物制备
+ext-che-663847a2b8-003	CORRECT		high	用氧化产物、消去产物、一卤代物种类与加氢碳架推断官能团位置	
+ext-che-6711cf9801-016b	CORRECT		high	燃烧后温度高于100 ℃（水为气态）时ΔV＝y/4－1	节点为燃烧通式应用

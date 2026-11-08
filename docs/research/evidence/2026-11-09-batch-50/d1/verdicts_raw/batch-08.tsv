@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+bio-kb3-f4-s32-n05	CORRECT		high	自由扩散与协助扩散都是顺浓度梯度进行跨膜运输的	
+bio-kb3-f4-s53-n03	REBIND	有丝分裂	high	有丝分裂各时期的特点(以高等植物细胞为例)	现绑为观察实验，材料为各时期理论特点
+bio-kb3-f4-s58-n05	CORRECT		high	已分化的体细胞(或体细胞的细胞核)具有本物种个体发育所需要的全部基因	
+bio-kb3-f5-s5-2-n06	REBIND	atp的合成和利用	high	ATP是驱动细胞生命活动的直接能源物质	现绑为ATP结构，材料为ATP功能/能源物质
+bio-mo-cell-091	REBIND	核糖体	high	核糖体是氨基酸脱水缩合形成蛋白质的场所	现绑为氨基酸，材料为核糖体场所与分布
+bio-mo-cell-096	CORRECT		high	囊泡不属于细胞器，但属于生物膜系统	节点为细胞器结构功能，含囊泡归属
+bio-mo-cell-135	CORRECT		high	1926年，美国科学家萨姆纳利用丙酮作溶剂从刀豆种子中提取出了脲酶的结晶	
+bio-mo-cell-150	CORRECT		high	吸能反应一般与ATP水解的反应相联系	
+bio-mo-cell-207	CORRECT		high	在分裂间期主要进行DNA复制和有关蛋白质合成	
+bio-mo-ecosystem-022	CORRECT		high	碳在生物群落与非生物环境之间主要是以二氧化碳的形式循环的	
+bio-mo-ecosystem-029	CORRECT		medium	能量流动：单向流动、逐级递减；物质循环：循环流动、反复利用；信息传递：往往是双向的	材料为三者比较表，节点仅信息传递
+bio-mo-environment-015	CORRECT		high	引进物种和入侵物种不完全一致	
+bio-mo-fermentation-022	CORRECT		high	倒平板的具体操作步骤	
+bio-mo-gene-006	CORRECT		high	同源染色体配对——联会	
+bio-mo-gene-028	CORRECT		high	伴性遗传从本质上说符合基因的分离定律	
+bio-mo-gene-039	CORRECT		high	并非所有的R型细菌都转化为S型细菌	
+bio-mo-gene-110	CORRECT		high	基因突变是产生新基因的途径	
+bio-mo-genetic-engineering-008	REBIND	DNA的粗提取与鉴定	high	DNA不溶于酒精，但某些蛋白质溶于酒精	现绑为基因工程总论，材料为DNA提取与鉴定
+bio-mo-genetic-engineering-028	CORRECT		high	从预期的蛋白质功能出发	
+bio-mo-internal-environment-009	CORRECT		high	细胞代谢主要发生在细胞内	
+bio-mo-internal-environment-012	CORRECT		high	内环境稳态的实质：内环境的各种化学成分和理化性质保持动态平衡	
+bio-mo-nerve-004	CORRECT		high	传出神经可分为支配躯体运动的神经（躯体运动神经）和支配内脏器官的神经（内脏运动神经）	
+bio-pcr-prenatal-advantages	CORRECT		high	PCR 产前诊断操作简便、检测安全快速、不伤害胎儿	
+bio-primer-directionality-two-primers	CORRECT		medium	Taq DNA 聚合酶沿子链 5'→3' 合成	节点为PCR技术，同科无引物专点
+bio-protein-levels	CORRECT		high	氨基酸→肽链（一级）	
+bio-tumor-immunology-pd1	CORRECT		medium	肿瘤细胞表面 PD-L1 与 T 细胞表面 PD-1 结合	节点为免疫学应用，材料为免疫逃逸/PD-1应用
+chem-atomic-crystal-melting-comparison	CORRECT		high	原子半径越小键长越短键能越大	
+chem-carbon-chain-extension	CORRECT		high	加聚、缩聚、酯化、成肽、HCN加成、RMgX加成、羟醛缩合等可增碳	
+chem-equilibrium-constant-rate-constant-ratio	CORRECT		high	平衡时v正=v逆，故K=k正/k逆	
+chem-functional-group-introduction	CORRECT		high	按目标官能团选择引入方法	
+chem-fx-bao-he-rong-ye-f28x10	CORRECT		high	饱和NaHS溶液——收集H2S	
+chem-fx-ce-ding-dui-ying-yan-rong-ye-de-suan-j-f49x04	CORRECT		high	测定对应盐溶液的酸碱性	
+chem-fx-cu-tong-zhong-bu-huo-po-de-za-zhi-f41x12	CORRECT		high	粗铜中不活泼的杂质	
+chem-fx-jia-cheng-fan-ying-f60x09	CORRECT		high	加成反应：有机化合物分子中的 两端的原子与 结合	
+chem-fx-jiang-yi-ding-wu-zhi-di-liang-de-zu-f13x08	CORRECT		high	将一定物质的量的Na2CO3、NaHCO3组成的混合物溶于水	
+chem-fx-jiao-ti-wei-li-yi-ban-shi-li-zi-fen-zi-f07x16	CORRECT		high	胶体微粒一般是离子、分子或难溶物的聚集体	
+chem-fx-li-zi-jing-ti-f35x09	CORRECT		high	在CaF2晶体中，每个Ca2+周围距离最近且等距离的F-有_8__个	
+chem-fx-mou-rong-ye-zhong-han-you-ru-biao-suo-f76x27	CORRECT		high	某溶液Q中含有如表所示离子中的5种离子	节点为电荷守恒在离子推断中的应用
+chem-fx-qu-dai-fan-ying-f60x10	CORRECT		high	取代反应：有机化合物分子中的某些 被其他 代替的反应	
+chem-fx-re-zhong-fen-xi-fa-f01x04	CORRECT		high	热重分析法是在控制温度的条件下，测量物质的质量与温度或时间关系的方法	
+chem-fx-shi-yan-cao-zuo-yu-yi-qi-de-xuan-ze-f51x01	CORRECT		high	滴定管：查漏→洗涤→润洗→装液→→记录	节点为滴定操作
+chem-fx-shun-fan-yi-gou-f03x03	CORRECT		high	双键两端的每个碳原子上都连有两个不同的原子或原子团	
+chem-fx-tong-fen-yi-gou-ti-de-shu-xie-fang-fa-f03x04	CORRECT		high	主链由长到短，支链由整到散，位置由心到边	
+chem-fx-tong-fen-yi-gou-ti-shu-mu-de-pan-duan-f58x07	CORRECT		high	同分异构体数目的判断方法	
+chem-fx-yang-hua-huan-yuan-fan-ying-dian-zi-zh-f10x04	CORRECT		high	双线桥法：①标变价，②画箭头(反应物指向生成物)	
+chem-fx-you-ji-hua-he-wu-de-ming-ming-jie-gou-f64x10	NONE		high	有机化合物的命名、结构简式的书写、有机化学方程式的书写等	仅章节标题罗列，无知识内容；同科无覆盖三者的节点
+chem-fx-you-ji-wu-de-tong-fen-yi-gou-xian-xian-f58x02	CORRECT		high	化合物分子式相同而结构不同的现象称为同分异构现象	
+chem-fx-zai-biao-zhun-zhuang-kuang-xia-f01x08	NONE		high	在标准状况下，将含a L NO2和b L NO的混合气体通入625 g质量分数为21.2%的纯碱溶液中	仅题干数值情境，无可归知识结论
+chem-hj-benfen-xingzhi-yingxiang	CORRECT		high	苯酚具弱酸性，与浓溴水生成白色沉淀	
+chem-hj-daodian-nengli-shengwen-bijiao	CORRECT		high	升温时弱电解质溶液导电增强、强电解质溶液因离子迁移变慢略降	节点为电解质溶液导电性

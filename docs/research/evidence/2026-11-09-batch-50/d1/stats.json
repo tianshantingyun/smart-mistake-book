@@ -1,0 +1,82 @@
+{
+ "audit_id": "B50-D1-2026-11-08",
+ "gate": {
+  "criterion": "one-sided 95% Wilson lower bound of stratified weighted binding precision",
+  "threshold": 0.95,
+  "z": 1.6448536269514722
+ },
+ "guardrail": {
+  "criterion": "per-layer one-sided 95% Wilson lower bound",
+  "threshold": 0.9,
+  "deff_sensitivity": 1.05
+ },
+ "sample": {
+  "total": 1600,
+  "layers": {
+   "overfull": 1300,
+   "normal": 300
+  }
+ },
+ "judgments": {
+  "correct": 1557,
+  "rebind": 39,
+  "none": 4
+ },
+ "estimate": {
+  "point": 0.9821665565557136,
+  "se": 0.0033830036607307647,
+  "n_eff": 1530.4368543831492,
+  "lower_95": 0.975691305961763,
+  "point_nofpc": 0.9821665565557136,
+  "se_nofpc": 0.003422439099268571,
+  "lower_95_nofpc": 0.9756044199991312,
+  "se_deff105": 0.0034665471952569234,
+  "lower_95_deff105": 0.9755069103153924,
+  "pass": true
+ },
+ "per_layer": {
+  "overfull": {
+   "N": 62948,
+   "n": 1300,
+   "correct": 1279,
+   "errors": 21,
+   "p": 0.9838461538461538,
+   "weight": 0.9706258769833316,
+   "fpc": 0.9793635915929274,
+   "wilson_lower_95": 0.9770088445338914,
+   "wilson_lower_95_nofpc": 0.9770088445338914,
+   "guardrail_pass": true,
+   "error_counts": {
+    "REBIND": 19,
+    "NONE": 2
+   }
+  },
+  "normal": {
+   "N": 1905,
+   "n": 300,
+   "correct": 278,
+   "errors": 22,
+   "p": 0.9266666666666666,
+   "weight": 0.029374123016668467,
+   "fpc": 0.8429621848739496,
+   "wilson_lower_95": 0.8979148347511259,
+   "wilson_lower_95_nofpc": 0.8979148347511259,
+   "guardrail_pass": false,
+   "error_counts": {
+    "REBIND": 20,
+    "NONE": 2
+   }
+  }
+ },
+ "per_layer_guardrail_pass": false,
+ "overall_pass": false,
+ "verdict": "PASS main / FAIL guardrail",
+ "metadata": {
+  "labeler_kind": "model",
+  "model_id": "deepseek/deepseek-flash (ZCode harness)",
+  "prompt_sha256": "56158a5e74c5b613c0201b162aa9de146342da37874d68b0d28629f1e4ad9872",
+  "judged_at": "2026-11-08T00:00:00+08:00",
+  "blind_to_layer": true,
+  "human_expert": false
+ }
+}

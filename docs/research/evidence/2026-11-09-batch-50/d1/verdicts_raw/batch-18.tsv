@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-che-ab1d25f9f1-017	CORRECT		high	温度计位置由测温对象决定	
+ext-che-adb2ca9412-015b	CORRECT		high	写电子式不能漏写未成键电子对	
+ext-che-ae82ac501b-004b	CORRECT		high	阳极产物由电极材料和阴离子放电顺序决定	
+ext-che-af5d7e549d-024	CORRECT		high	取代反应的定义及其典型实例	
+ext-che-af5d7e549d-083	CORRECT		high	两种重要醛的俗称、状态与主要用途	
+ext-che-b08af4dc1c-020	CORRECT		high	同主族相邻周期元素的原子序数差等于相应周期的元素种数	
+ext-che-b0cb9158b7-002	CORRECT		high	消去反应要求烃中碳原子数≥2、相邻碳上有β-H	
+ext-che-b0ee88eeed-018	CORRECT		high	河水中形成的胶体入海时被海水中的电解质聚沉	
+ext-che-b3c0f75ea5-020b	CORRECT		high	速率方程表示速率与浓度的定量关系	
+ext-che-b461f32449-104	CORRECT		high	氮的转化按物质类别与价态两个维度分为非氧化还原与氧化还原两类	
+ext-che-b4e07c977a-005	CORRECT		high	金属冶炼的实质是 Mn＋＋ne−===M	
+ext-che-bc23c25828-007	CORRECT		high	按气体密度与水溶性选择收集方法	
+ext-che-bd0f39fee5-002	CORRECT		high	钠是银白色质软的活泼金属	
+ext-che-bd2f42069a-029	CORRECT		high	认为只要增大压强速率一定增大	
+ext-che-c06bc59347-009	CORRECT		high	盐类水解遵循「有弱才水解、越弱越水解、谁强显谁性、同强显中性」	
+ext-che-c0f8c1e205-045b	CORRECT		high	生成固态炭会覆盖催化剂表面	
+ext-che-c11998d60a-012	CORRECT		high	钝化不是不反应	
+ext-che-c11998d60a-031	CORRECT		high	明矾[KAl(SO4)2·12H2O]水溶液中铝离子水解显酸性	
+ext-che-c16497c974-056	CORRECT		high	对基元反应，平衡时 v正=v逆，故 k正/k逆=K	
+ext-che-c16497c974-068	CORRECT		medium	某时刻中间产物 B 的浓度=第一步生成的 B 的浓度减去第二步消耗的 B 的浓度	节点为多重平衡类型，材料为连续反应速率关系
+ext-che-c22be1e36f-011	CORRECT		high	同一能层按能级连写、Cr与Cu特例	
+ext-che-c2df53cb1b-012	CORRECT		high	模拟侯氏制碱法先通 NH3 后通 CO2	
+ext-che-c32a0576fc-006	CORRECT		high	可根据元素在化合物中价态的正负反向比较电负性大小	
+ext-che-c32a0576fc-025	CORRECT		high	由阳离子电荷数定位族序数	
+ext-che-c3ab790e04-005b	CORRECT		high	向水中引入 H+ 或 OH- 抑制水的电离	
+ext-che-c52fd19d03-006	CORRECT		high	SO2漂白是化合型且不能漂白指示剂	
+ext-che-c8eaa7660b-008	CORRECT		high	由条件改变推出平衡移动、电子转移、区域判断、流向与电极的一套分析链	
+ext-che-c8f0c72345-007	CORRECT		high	基态原子的电子排布要同时满足能量最低、洪特规则与泡利原理	
+ext-che-cb77b90f2c-030b	CORRECT		high	给出由通式(HO)mROn中n值判断酸性强弱的方法	
+ext-che-cd028acc60-010	CORRECT		high	稀释前后溶质的质量或物质的量守恒	
+ext-che-ce7e144b5c-002	CORRECT		high	在同一条件下既能正向又能逆向进行的反应称为可逆反应	
+ext-che-d13694dabb-004	CORRECT		high	利用同一物质两侧的浓度差产生电势	
+ext-che-d25527853d-006	CORRECT		high	用褪色、pH 比较与 Ksp 差异验证离子存在与性质强弱	
+ext-che-d361f74c03-014b	CORRECT		high	羧基中羟基的极性越大越易电离出H＋	
+ext-che-d46a1fe501-015	CORRECT		high	亚铁盐溶液要加铁屑防氧化并加酸防水解	
+ext-che-d5446e6215-010	CORRECT		high	超导陶瓷在临界温度下电阻为零	
+ext-che-d5446e6215-019	CORRECT		high	用KMnO4、KClO3、Ca(ClO)2等固体与浓盐酸常温反应也可制Cl2	
+ext-che-d5446e6215-069b	CORRECT		high	喷泉形成的原理是短时间内体系内外产生较大的压强差	
+ext-che-d5ea01c68d-028	CORRECT		high	O3、ClO2靠强氧化性杀菌消毒	
+ext-che-d931f0e7db-010b	CORRECT		high	电镀时镀层金属作阳极、电镀液浓度不变	
+ext-che-da7f3982cb-003	CORRECT		high	自发过程是不需持续施加外力就能进行的过程	
+ext-che-dce2cd2e1c-004	CORRECT		high	书写电离方程式须同时满足质量守恒与电荷守恒	
+ext-che-dd58d352ef-021	CORRECT		high	纠正关于速率变化趋势、浓度计算、固体影响、压强影响四类典型错判	
+ext-che-debd9107b2-011	CORRECT		high	含共价键的分子不一定是共价化合物	
+ext-che-debd9107b2-039	CORRECT		high	只含非极性键的分子必为非极性分子	
+ext-che-df3015b9d4-023	CORRECT		high	醇酯基(RCOOR′)水解生成RCOOH与R′OH	
+ext-che-df6d15950b-004	CORRECT		high	共价键的本质与分类，以及键能、键长、键角三个键参数	节点为共价键总论，材料含键参数
+ext-che-e4981d27ca-043	CORRECT		high	以氧化剂或还原剂为滴定剂，指示剂分为三类	
+ext-che-e53f690aae-028	CORRECT		high	纯固体纯液体不能表示速率，但固体颗粒变小会加快反应	
+ext-che-e5f86d011f-018	CORRECT		high	实验须用稀溶液、酸碱分别用量筒量取	

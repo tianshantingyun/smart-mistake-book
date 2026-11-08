@@ -1,0 +1,8 @@
+
+com.tingyun.smartmistakebook.core.database.KnowledgeSearchIndexCompletenessInstrumentedTest:.......
+
+Time: 1.365
+
+OK (7 tests)
+
+

@@ -1,0 +1,9 @@
+# 设备全量快照（批次 50）
+time=2026-11-08T13:21:33Z local=Sun Nov  8 21:21:33     2026
+HEAD=a87fc70d15c8ad726cee17422dbeef0b4977747d
+HEAD_subject=docs: 批次49 主会话收口（双门实跑/标定维持现值/产品闭环/22 FAIL 构成/推送）（1 文件）
+dirty_porcelain_lines=688
+dirty_uall_paths=4336
+tracked_diff_sha256=8992552bacaae8386835ea269ca459d702ae424d036d6246ba55f1667c886b66
+untracked_list_sha256=0495fa0484da033ce3ec2f80497b584215f0e1657f61da1667d92201b2403a0d
+untracked_count=4157

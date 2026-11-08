@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-fd233a9491-003b	CORRECT		high	简谐运动的振动图像表示做简谐运动的物体的位移随时间变化的规律	
+ext-phy-fef447131b-019b	CORRECT		high	把电流表改装成欧姆表：两表笔短接、调滑动变阻器使电流表满偏	
+ext-phy-fffc8cde9c-003c	REBIND	电磁波谱与各波段的特性	medium	按波长由长到短排列的电磁波谱	现绑为电磁波总论，同科有电磁波谱专点
+math-abstract-model-tangent	CORRECT		high	满足 $f(x\pm y)=\dfrac{f(x)\pm f(y)}{1\mp f(x)f(y)}$ 的抽象函数可联想模型 $f(x)=\tan x$	
+math-algebraic-fraction-to-slope	CORRECT		high	分式 $(y-b)/(x-a)$ 视为动点与定点连线的斜率	
+math-composite-zero-nested-substitution	CORRECT		high	令 $t=g(x)$，先解 $f(t)=0$ 再解 $t=g(x)$	
+math-folding-same-side-relations-invariant	CORRECT		high	位于折线同侧的点线面关系不变	
+math-fx-erci-qiudao-sibu-fa	CORRECT		high	二次求导解题按“求导定基→分析 $f''$ 定 $f'$ 单调→找 $f'$ 零点划分区间→解决最终问题”四步推进	
+math-fx-fenduan-hanshu-qiuzhi	CORRECT		high	求分段函数值先定位自变量所在段再代入	
+math-fx-qiantao-hanshu-chuli	CORRECT		high	先研究内层 $f(x)$ 的值域	
+math-fx-qiexian-canshu-sanguanxi	CORRECT		high	利用“切点处导数=切线斜率、切点在切线上、切点在曲线上”三重关系	
+math-fx-sanjiao-hanshangxia-bianhuan	CORRECT		high	上下平移 $+k$ 只移动平衡轴	
+math-fx-zhongdian-gongshi-xiangliang	CORRECT		high	$M$ 为线段 $AB$ 中点时，对平面内任一点 $O$ 有 $\overrightarrow{OM}=\dfrac{1}{2}(\overrightarrow{OA}+\overrightarrow{OB})$	
+math-hj-baohan-yu-jiaobing-dengjia	CORRECT		high	$A\subseteq B\Leftrightarrow A\cap B=A\Leftrightarrow A\cup B=B$	
+math-hj-dandiaoxing-panding-sanzhou	CORRECT		high	定域、求导解零点、列表判符号	
+math-hj-dingdian-dingzhi-fangfa	CORRECT		high	设参数后用韦达定理化简，使结果与参数无关	
+math-hj-erfen-fa	CORRECT		high	不断缩小区间逼近零点	
+math-hj-erxiangshi-xishu-xingzhi	CORRECT		high	二项式系数先增后减，中间项（或两项）最大，对称相等	
+math-hj-hechajiao-gongshi	CORRECT		high	$\sin(\alpha\pm\beta)=\sin\alpha\cos\beta\pm\cos\alpha\sin\beta$ 等六式	
+math-hj-kongjian-weihi-xiangliang-biaoshi	CORRECT		high	用方向向量、法向量的共线垂直判定位置关系	
+math-hj-lingdian-xiangguan-jielun	CORRECT		high	单调函数至多一个零点；周期函数有零点则有无穷多个	
+math-hj-s11-subset-def	CORRECT		high	A⊆B 表示 A 中任一元素都在 B 中	
+math-hj-s24-period-formulas	CORRECT		high	f(x+T)=−f(x) 或 f(x+T)=1/f(x) 都推出周期为 2T	
+math-hj-s63-gp-sign	CORRECT		high	等比数列各项符号由 a₁ 与 q 决定	
+math-hj-s77-line-plane-angle-steps	CORRECT		high	求线面角按建系、写方向向量与法向量、代入正弦公式、定角四步进行	
+math-hj-s79-distance-point-line	CORRECT		high	点到直线的距离用勾股式	
+math-hj-s84-chord-length	CORRECT		high	弦长可由联立方程的弦长公式求，更常用几何法	
+math-hj-s92-right-angle-locus	CORRECT		high	直角三角形斜边固定时，直角顶点的轨迹是以斜边为直径的圆	
+math-hj-sanjiao-hanshu-dingyi	CORRECT		high	终边上点 $P(x,y)$：$\sin\alpha=\frac{y}{r}$	
+math-hj-shuliangji-xingzhi	CORRECT		high	由数量积可判定垂直、求模与夹角	
+math-hj-zhengxingleixing-gainian	CORRECT		high	$A$ 为振幅，$T=\frac{2\pi}{\omega}$	
+math-kb-normal-vector-finding	CORRECT		high	设 n=(x,y,z)，由 n·a=0 与 n·b=0 联立	
+math-liexiang-gongshi-duishu-ln	CORRECT		high	$\ln\left(1+\frac{1}{n}\right)=\ln\frac{n+1}{n}=\ln(n+1)-\ln n$	
+math-mo-dandiao-qiucan-liangxingshi	CORRECT		high	“区间上单调”对应导数在该区间恒非负或恒非正	
+math-mo-fenzi-vari-fenli-zaigouzao	CORRECT		high	分子有变量时先代换或分离常数消去分子变量	
+math-mo-kongjian-mianmian-chuizhi-faxiangliang	CORRECT		high	两平面法向量数量积为零即面面垂直	
+math-mo-liangci-zhenjia-qiucan	CORRECT		high	量词命题真假转化为恒成立（能成立）或集合关系	
+math-mo-zuotu-sanfa	CORRECT		high	直接法、转化法（去绝对值）、图象变换法	
+math-parabola-focal-chord-y1y2-fixed	CORRECT		high	过焦点弦端点纵坐标之积恒为 −p²	
+math-shuliangji-jianxifa	CORRECT		high	图形有垂直或对称特征且关键点坐标易写时，建系用坐标运算求数量积	
+math-uniform-grouping-formula	CORRECT		high	平均分组必须除以组数的全排列 $A_k^k$ 消除组间顺序	
+phys-ban-chusudu-gongsu-qian	CORRECT		high	物块先匀加速 $a_1=\mu_1g$	
+phys-bu-lianxu-wei-yi-cha-m-n	CORRECT		high	对不连续的相等时间间隔，位移差公式可推广为 $x_m-x_n=(m-n)aT^2$	
+phys-efield-bfield-combination	CORRECT		high	粒子在匀强电场中做匀变速直线运动或类抛体运动	
+phys-elastic-one-moving-one-static	CORRECT		high	被碰球静止（v₂=0）的弹性碰撞中	
+phys-field-field-combination	CORRECT		high	粒子由一匀强磁场进入另一匀强磁场时 $v$ 不变	
+phys-first-law-special-cases	CORRECT		high	绝热时 $Q=0$、$W=\Delta U$	
+phys-fx-belt-tilt-mu-tan-theta	CORRECT		high	倾斜传送带上物块能否随带匀速取决于 $\mu$ 与 $\tan\theta$ 的关系	
+phys-fx-decay-three-rays	CORRECT		high	α 衰变放出氦核、β 衰变放出电子	
+phys-fx-friction-calculation-notes	CORRECT		high	先分清摩擦力性质，只有滑动摩擦力用 $f=\mu F_N$	

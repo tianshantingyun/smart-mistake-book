@@ -1,0 +1,59 @@
+{
+    "file": "IMG20260810005144.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 61086,
+    "responseHead": "\n{\"id\":\"7b3f64e5-7317-4b5f-acca-f9b14199577a\",\"object\":\"chat.completion\",\"created\":1794127809,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"画面含第11—15题等多道独立题，需拆分。\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.02,\\\"top\\\":0,\\\"right\\\":0.47,\\\"bottom\\\":0.18},\\\"message\\\":\\\"左上角选项所属题干被截断，无法归属。\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.82,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":0.9},\\\"message\\\":\\\"右侧相邻栏内容被截断，未纳入主体题目。\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.02,\\\"top\\\":0.19,\\\"right\\\":0.47,\\\"bottom\\\":0.55},{\\\"left\\\":0.02,\\\"top\\\":0.55,\\\"right\\\":0.47,\\\"bottom\\\":0.89},{\\\"left\\\":0.02,\\\"top\\\":0,\\\"right\\\":0.82,\\\"bottom\\\":1},{\\\"left\\\":0.5,\\\"top\\\":0.17,\\\"right\\\":0.82,\\\"bottom\\\":0.43},{\\\"left\\\":0.5,\\\"top\\\":0.44,\\\"right\\\":0.82,\\\"bottom\\\":0.94}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。需要返回JSON。需要分析图像内容。这是生物试卷。图中有左右双栏，包含多道题。画面中可见题号：左侧上方有选项A-D，似乎是上一题残留？题号11、12、13。右侧上方有B-D选项，题号14，综合应用练15。可能还有上方未显示题号。画面右侧边缘有另一栏题目被截断。需要判断是否包含2-12道独立题？显然包含多道独立题：11、12、13、14、15。左上角有A-D选项，可能是第10题选项但不完整？需要识别独立题区域。因为画面包含多道独立题，根据指令必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按页面阅读顺序给出每道题的完整外接区域，包含题干、选项、图形和作答区，区域之间不得大面积重叠。但同时还有内容未拍全：右边缘有内容截断（“题...”等），可能还有题目未完整显示。第15题题干和子题完整？似乎完整到页面底部，但底部可能被截断？右下角有二维码，最后一行文字完整。左侧第13题题干和选项完整，包含题号。第11题完整，包括题干选项。第12题完整，有图。第14题完整，包括题干选项。还可能有上方未编号选项属于第10题，但题",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "OCCLUDED",
+        "OCCLUDED"
+    ],
+    "regions": [
+        {
+            "left": 0.02,
+            "top": 0.19,
+            "right": 0.47,
+            "bottom": 0.55
+        },
+        {
+            "left": 0.02,
+            "top": 0.55,
+            "right": 0.47,
+            "bottom": 0.89
+        },
+        {
+            "left": 0.02,
+            "top": 0.0,
+            "right": 0.82,
+            "bottom": 1.0
+        },
+        {
+            "left": 0.5,
+            "top": 0.17,
+            "right": 0.82,
+            "bottom": 0.43
+        },
+        {
+            "left": 0.5,
+            "top": 0.44,
+            "right": 0.82,
+            "bottom": 0.94
+        }
+    ],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–0.897；双栏，栏间空白位于 x=0.467–0.504；行距约 9px；段落分隔（共 54 处，已截断到 8 条）：y=0.017（谷宽18px，栏1）；y=0.401（谷宽15px，栏2）；y=0.012（谷宽14px，栏2）；y=0.429（谷宽14px，栏2）；y=0.087（谷宽11px，栏2）；y=0.327（谷宽11px，栏1）；y=0.421（谷宽11px，栏1）；y=0.444（谷宽11px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 286,
+    "image": {
+        "egressBytes": 722393,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "d0cf33ea41afdca4f378201771a31b233eba3b686d854436c0e4acc5b960eb8f",
+    "promptSha256": "5b0253d4772ef37933163f6e000c4276c37e5181405599d97aff563a7ce909de"
+}

@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-bio-24a80368a2-005	CORRECT		high	参与跨膜运输的转运蛋白分载体蛋白与通道蛋白	
+ext-bio-2572fc572d-007	CORRECT		high	血浆、组织液与淋巴之间通过毛细血管与毛细淋巴管相互转化	
+ext-bio-25bc2f223f-009	CORRECT		high	取生理状态相同的动物分两组，一组注射激素、一组注射等量生理盐水	
+ext-bio-26746c92ba-055	CORRECT		high	PSⅡ夺取水的电子并建立H⁺梯度，PSⅠ将电子交给NADP⁺生成NADPH	
+ext-bio-26746c92ba-098	CORRECT		high	转录出的 RNA 与模板链碱基互补	
+ext-bio-26746c92ba-108b	CORRECT		high	稳态包括成分的相对稳定与理化性质的相对稳定	
+ext-bio-26746c92ba-122	CORRECT		high	用“Y”形符号认抗体与浆细胞	
+ext-bio-26746c92ba-130c	CORRECT		high	每个营养级能量来源之和等于去路之和	
+ext-bio-281a882fd7-026	CORRECT		high	浆细胞产生和分泌大量抗体	
+ext-bio-2907715275-004b	CORRECT		high	低丙种球蛋白血症是辅助性T细胞功能异常导致的免疫缺陷病	
+ext-bio-2b57888b0f-007	CORRECT		high	该实验用甲、乙两个小桶模拟雌雄生殖器官	
+ext-bio-2e2f39614d-002b	CORRECT		high	转录的概念：在细胞核中，以DNA双链中的一条链为模板	
+ext-bio-2e2f39614d-004	CORRECT		high	每种氨基酸对应一种或多种密码子，这种现象称为密码子的简并性	
+ext-bio-2ecf911396-009	CORRECT		high	溶酶体主要分布在动物细胞中	
+ext-bio-2f23d1b77e-004	CORRECT		high	以叶绿体为参照物观察细胞质的流动	
+ext-bio-3276db7ac0-007	CORRECT		high	核酸由4种核苷酸聚合，数量与排列顺序千差万别	
+ext-bio-3438b53d44-015	CORRECT		high	无细胞结构、营寄生生活、只含一种核酸	
+ext-bio-362fa1edab-070	CORRECT		high	水以自由扩散或协助扩散、葡萄糖进红细胞以协助扩散	
+ext-bio-36daaa0e4a-002	CORRECT		high	无丝分裂过程中细胞核先延长缢裂	
+ext-bio-37ee04fb75-002	CORRECT		high	水分子（或其他溶剂分子）通过半透膜的扩散称为渗透作用	
+ext-bio-3a1dab03b2-001	CORRECT		high	种群密度是种群最基本的数量特征	
+ext-bio-3a60560995-011	REBIND	管家基因与奢侈基因	high	前者所有细胞均表达，后者特异性表达	现绑为细胞分化，同科有管家/奢侈基因专点
+ext-bio-3a60560995-017	CORRECT		high	数量少、具分裂和分化能力，如造血干细胞	
+ext-bio-3b3eda0b1c-005	CORRECT		high	利用质壁分离与复原可判断成熟植物细胞的死活	
+ext-bio-3c949b66fc-007b	CORRECT		high	叶黄素V和Z可经叶黄素A相互转化	
+ext-bio-412f1baaa0-035	CORRECT		high	DNA甲基化、基因组印记、组蛋白修饰和RNA干扰	
+ext-bio-42d655b54e-009	CORRECT		high	以光为能源合成有机物，以光为信号经光敏色素调控细胞核基因表达	
+ext-bio-42d655b54e-030	CORRECT		high	减少光吸收、增强热耗散、提高光合产物生成速率或增强自由基清除可减轻光抑制	
+ext-bio-46ec017dac-019	CORRECT		high	O₂与CO₂竞争结合Rubisco	
+ext-bio-48c299db77-018	CORRECT		high	人类活动往往使群落演替按不同于自然演替的速度和方向进行	
+ext-bio-4d59518957-003	CORRECT		high	依据基因与染色体行为的平行关系推测基因在染色体上	
+ext-bio-4d59518957-003b	CORRECT		high	用果蝇眼色杂交实验证明基因在染色体上	
+ext-bio-4e8dccf192-018	CORRECT		high	无机盐参与调节人体的渗透压，维持细胞的正常形态	
+ext-bio-4eea527f87-006	CORRECT		high	在生态系统被彻底破坏之前，受到外界干扰、遭到一定程度破坏而恢复的过程视为抵抗力稳定性	
+ext-bio-524cba8aa4-008	CORRECT		high	红外相机监测法、遗传调查法、声音监测法、无人机观测法都不需要捕捉或标记动物	
+ext-bio-531bf95a49-011	CORRECT		high	光分为可见光和不可见光，光合作用利用的都是可见光	
+ext-bio-5459fe25cc-008	CORRECT		high	DNA复制经解旋、合成子链、复旋三步	
+ext-bio-5459fe25cc-009	CORRECT		high	基因通常是有遗传效应的DNA片段	
+ext-bio-58af510b8f-004	CORRECT		high	只有具中枢神经系统的多细胞动物才有反射	
+ext-bio-5970056f1a-009	CORRECT		high	选择两种不同的限制酶切割使基因两端产生两个不同的黏性末端	
+ext-bio-5970056f1a-016	CORRECT		medium	农杆菌的Ti质粒上的T-DNA可转移并整合到植物细胞染色体DNA上	节点为基因工程总论，材料为导入方法
+ext-bio-5a6b49ba69-008	CORRECT		high	氨基酸的种类、数目、排列顺序和空间结构不同决定了蛋白质结构的多样性	
+ext-bio-5eb3d3d99c-014	CORRECT		high	发高烧时体温不变则产热量等于散热量	
+ext-bio-5f510cdc4a-1008	CORRECT		high	用三个反例固定种群的三个要素	
+ext-bio-5f510cdc4a-1021	CORRECT		medium	从概念、范围和判断标准三方面区分种群与物种	节点为隔离与物种形成，材料为种群/物种比较
+ext-bio-5f510cdc4a-1023	CORRECT		high	常染色体与 X 染色体上基因频率的两类计算公式	
+ext-bio-5f510cdc4a-1104	CORRECT		high	脊髓内部灰质与白质的形态、组成与功能分工	
+ext-bio-5f510cdc4a-1289	CORRECT		high	免疫防御、免疫自稳与免疫监视的对象与意义	
+ext-bio-5f510cdc4a-1302	CORRECT		high	淋巴细胞分布在淋巴液、血液和淋巴结中	
+ext-bio-5f510cdc4a-1500	CORRECT		high	K值不是一成不变的	

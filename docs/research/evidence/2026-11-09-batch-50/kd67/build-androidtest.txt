@@ -1,0 +1,119 @@
+Reusing configuration cache.
+> Task :core:database:preBuild UP-TO-DATE
+> Task :core:data:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :core:model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:data:generateDebugAssets UP-TO-DATE
+> Task :core:domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:data:preBuild UP-TO-DATE
+> Task :core:database:generateDebugAssets UP-TO-DATE
+> Task :core:database:preDebugBuild UP-TO-DATE
+> Task :core:data:preDebugBuild UP-TO-DATE
+> Task :core:data:preDebugAndroidTestBuild UP-TO-DATE
+> Task :core:model:processResources NO-SOURCE
+> Task :core:domain:processResources NO-SOURCE
+> Task :core:data:generateDebugResources UP-TO-DATE
+> Task :core:data:syncV4PackFixtures UP-TO-DATE
+> Task :core:data:javaPreCompileDebug UP-TO-DATE
+> Task :core:database:javaPreCompileDebug UP-TO-DATE
+> Task :core:data:mapDebugSourceSetPaths UP-TO-DATE
+> Task :core:data:extractDeepLinksDebug UP-TO-DATE
+> Task :core:data:mergeDebugAssets UP-TO-DATE
+> Task :core:database:mergeDebugJniLibFolders UP-TO-DATE
+> Task :core:database:extractDeepLinksDebug UP-TO-DATE
+> Task :core:database:processDebugManifest UP-TO-DATE
+> Task :core:data:processDebugManifest UP-TO-DATE
+> Task :core:database:writeDebugAarMetadata UP-TO-DATE
+> Task :core:data:mergeDebugJniLibFolders UP-TO-DATE
+> Task :core:data:patchLitertApiAar UP-TO-DATE
+> Task :core:data:writeDebugAarMetadata UP-TO-DATE
+> Task :core:data:processDebugNavigationResources UP-TO-DATE
+> Task :core:database:mapDebugSourceSetPaths UP-TO-DATE
+> Task :core:database:generateDebugResources UP-TO-DATE
+> Task :core:database:mergeDebugAssets UP-TO-DATE
+> Task :core:data:generateDebugAndroidTestResources UP-TO-DATE
+> Task :core:database:processDebugNavigationResources UP-TO-DATE
+> Task :core:data:generateDebugAndroidTestGlobalSynthetics UP-TO-DATE
+> Task :core:data:syncGoldenQueryAssets UP-TO-DATE
+> Task :core:data:javaPreCompileDebugAndroidTest UP-TO-DATE
+> Task :core:data:processDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :core:data:mapDebugAndroidTestSourceSetPaths UP-TO-DATE
+> Task :core:data:writeDebugAndroidTestSigningConfigVersions UP-TO-DATE
+> Task :core:database:mergeDebugNativeLibs NO-SOURCE
+> Task :core:data:mergeDebugNativeLibs NO-SOURCE
+> Task :core:data:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :core:database:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :core:database:packageDebugResources UP-TO-DATE
+> Task :core:data:mergeDebugAndroidTestJniLibFolders UP-TO-DATE
+> Task :core:data:packageDebugResources UP-TO-DATE
+> Task :core:data:validateSigningDebugAndroidTest UP-TO-DATE
+> Task :core:data:compileDebugAndroidTestNavigationResources UP-TO-DATE
+> Task :core:data:packageDebugAndroidTestResources UP-TO-DATE
+> Task :core:database:compileDebugLibraryResources UP-TO-DATE
+> Task :core:database:parseDebugLocalResources UP-TO-DATE
+> Task :core:data:l8DexDesugarLibDebugAndroidTest UP-TO-DATE
+> Task :core:data:compileDebugLibraryResources UP-TO-DATE
+> Task :core:data:parseDebugAndroidTestLocalResources UP-TO-DATE
+> Task :core:data:parseDebugLocalResources UP-TO-DATE
+> Task :core:database:generateDebugRFile UP-TO-DATE
+> Task :core:data:generateDebugAndroidTestRFile UP-TO-DATE
+> Task :core:model:compileKotlin UP-TO-DATE
+> Task :core:data:generateDebugRFile UP-TO-DATE
+> Task :core:model:compileJava NO-SOURCE
+> Task :core:model:classes UP-TO-DATE
+> Task :core:model:jar UP-TO-DATE
+> Task :core:database:kspDebugKotlin UP-TO-DATE
+> Task :core:data:mergeDebugAndroidTestAssets UP-TO-DATE
+> Task :core:data:compressDebugAndroidTestAssets UP-TO-DATE
+> Task :core:domain:compileKotlin UP-TO-DATE
+> Task :core:domain:compileJava NO-SOURCE
+> Task :core:domain:classes UP-TO-DATE
+> Task :core:domain:jar UP-TO-DATE
+> Task :core:data:mergeDebugAndroidTestResources UP-TO-DATE
+> Task :core:database:compileDebugKotlin UP-TO-DATE
+> Task :core:database:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:database:processDebugJavaRes UP-TO-DATE
+> Task :core:database:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:database:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:data:checkDebugAndroidTestAarMetadata UP-TO-DATE
+> Task :core:database:copyRoomSchemas NO-SOURCE
+> Task :core:data:desugarDebugAndroidTestFileDependencies UP-TO-DATE
+> Task :core:data:checkDebugAndroidTestDuplicateClasses UP-TO-DATE
+> Task :core:data:mergeDebugAndroidTestNativeLibs UP-TO-DATE
+> Task :core:data:stripDebugAndroidTestDebugSymbols UP-TO-DATE
+> Task :core:data:mergeDebugAndroidTestManifest UP-TO-DATE
+> Task :core:data:processDebugAndroidTestManifest UP-TO-DATE
+> Task :core:data:mergeExtDexDebugAndroidTest UP-TO-DATE
+> Task :core:data:processDebugAndroidTestResources UP-TO-DATE
+
+> Task :core:data:compileDebugKotlin
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiImageGenerationChannel.kt:158:33 Unnecessary safe call on a non-null receiver of type 'ResponseBody'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiModelResponseParsers.kt:579:13 Unnecessary safe call on a non-null receiver of type 'JsonArray'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/PageLayoutHint.kt:92:23 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Bitmap'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/RoomModelTaskRepository.kt:1050:13 'when' is exhaustive so 'else' is redundant here.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/RoomModelTaskRepository.kt:1091:13 'when' is exhaustive so 'else' is redundant here.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/KnowledgeQuizFeedbackWriter.kt:166:25 Unnecessary safe call on a non-null receiver of type 'TutorAssessmentItem'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepository.kt:532:13 Unnecessary safe call on a non-null receiver of type 'Map<String, ProblemMemoryState>'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepository.kt:610:13 Unnecessary safe call on a non-null receiver of type 'Map<String, ProblemMemoryState>'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepository.kt:702:13 Unnecessary safe call on a non-null receiver of type 'Map<String, ProblemMemoryState>'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepository.kt:757:47 'suspend fun readAttemptP0(attemptId: String): PersistedAttemptP0?' is deprecated. P0 inspection only; keep data-layer wiring behind the repository boundary.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomTutorToolRunner.kt:1203:43 Unnecessary safe call on a non-null receiver of type 'ProblemDraftRecord'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/StudyAnswerRevealService.kt:34:13 Unnecessary safe call on a non-null receiver of type 'Map<String, ProblemMemoryState>'.
+
+> Task :core:data:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:data:processDebugJavaRes UP-TO-DATE
+> Task :core:data:bundleLibCompileToJarDebug
+> Task :core:data:bundleLibRuntimeToJarDebug
+> Task :core:data:compileDebugAndroidTestKotlin UP-TO-DATE
+> Task :core:data:compileDebugAndroidTestJavaWithJavac NO-SOURCE
+> Task :core:data:processDebugAndroidTestJavaRes UP-TO-DATE
+> Task :core:data:mergeDebugAndroidTestJavaResource UP-TO-DATE
+> Task :core:data:dexBuilderDebugAndroidTest
+> Task :core:data:mergeProjectDexDebugAndroidTest UP-TO-DATE
+> Task :core:data:mergeLibDexDebugAndroidTest
+> Task :core:data:packageDebugAndroidTest
+> Task :core:data:assembleDebugAndroidTest
+> Task :core:data:createDebugAndroidTestApkListingFileRedirect UP-TO-DATE
+
+BUILD SUCCESSFUL in 30s
+77 actionable tasks: 6 executed, 71 up-to-date
+Configuration cache entry reused.

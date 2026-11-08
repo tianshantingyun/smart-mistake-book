@@ -1,0 +1,8 @@
+# batch50 D-3 五红（原 D-3 第 1 步）当前态实跑
+# 命令: ./gradlew.bat :core:data:testDebugUnitTest --tests "*GoldenRetrievalJvmTest*" --tests "*ProductionLexicalLegExportTest*" --tests "*Stage1LexicalLabTest*" --tests "*Stage2LexicalScoresExportTest*" --tests "*DenseTokenizerParityTest*" --console=plain --rerun
+# 结果: BUILD SUCCESSFUL in 2m 13s
+GoldenRetrievalJvmTest -> tests="2" skipped="0" failures="0" errors="0"
+ProductionLexicalLegExportTest -> tests="1" skipped="0" failures="0" errors="0"
+Stage1LexicalLabTest -> tests="1" skipped="0" failures="0" errors="0"
+Stage2LexicalScoresExportTest -> tests="1" skipped="0" failures="0" errors="0"
+DenseTokenizerParityTest -> tests="7" skipped="0" failures="0" errors="0"

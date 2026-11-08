@@ -1,0 +1,67 @@
+{
+ "identity": {
+  "release_pack_sha256": "10ede1bf449de38ff21a53d1a13468a82b765dd0d0852dde4af770a1b8ef6670",
+  "staging_pack_sha256": "10ede1bf449de38ff21a53d1a13468a82b765dd0d0852dde4af770a1b8ef6670",
+  "staging_equals_release": true,
+  "pack_path": "core\\data\\src\\main\\resources\\knowledge\\moe-2025-four-subjects-v1.json"
+ },
+ "materials_total": 64853,
+ "nodes_total": 3280,
+ "overfull": {
+  "definition": "(subject,slug) 聚合、每条材料只计首个绑定、>4 条",
+  "source": "build/kb-staging/overfull_nodes.csv（`PYTHONPATH=tools python -m kb_build.overfull_nodes --write` 产物；weak_match/节点内排序由工具计算，本脚本只做 node 级聚合）",
+  "nodes_over_4": 2481,
+  "nodes_ge_4": 2664,
+  "nodes_eq_4": 183,
+  "materials_in_overfull": 62944,
+  "bindings_beyond_4": 53020,
+  "max_material_count": 146,
+  "max_node": "MATH/三角函数的图象与性质",
+  "zero_2gram_total": 5954,
+  "zero_2gram_excess": 4918,
+  "triage": {
+   "priority_review": 49,
+   "review": 1009,
+   "none": 1423
+  },
+  "retention_policy": "RETAIN_NO_CAP：运行时无每节点条数门（1,024 行整批上界 + 20,000 字符预算按排序装填），全部材料保留、不解绑、不物删；分诊标记只决定复核顺序，不构成删除/解绑裁决",
+  "ledger": "d2-overfull-ledger.csv"
+ },
+ "capacity": {
+  "rows": 91,
+  "already_in_pack_same_node": 22,
+  "in_pack_other_node": 12,
+  "not_admitted_historical": 44,
+  "obsolete_node": 13,
+  "node_missing": 21,
+  "disposition": "逐行登记（ALREADY_IN_PACK_SAME_NODE / IN_PACK_OTHER_NODE / NOT_ADMITTED_HISTORICAL / OBSOLETE_NODE）；不补、不删",
+  "producer_premise": "tools/kb_build/merge_candidate_verdicts.py:165 MAX_VISIBLE = 4 与 :209-216 ≥4 即拦——运行时无该门，规则已废止",
+  "producer_patch": "d2-capacity-deprecation.patch（在飞文件不抢占，仅出补丁+判据）",
+  "ledger": "d2-capacity-dispositions.csv"
+ },
+ "near_duplicate": {
+  "candidate_rows": 2,
+  "candidate_materials_in_pack": 2,
+  "pack_node_scan": "0 组 / 0 对（tools/kb_build/scan_duplicate_nodes.py；节点名口径）",
+  "material_level_scan": "50 簇 / 拟退休 1（dedupe_near_dup_materials --dry-run）；本 2 组被实体替换门挡下（正文仅虚词差异），需人工裁决",
+  "dispositions": {
+   "乙烯是石油化工最基本的原料之一": "ADJUDICATED_RETIRE_DEFERRED",
+   "特殊的棱柱和棱锥": "ADJUDICATED_RETIRE_DEFERRED"
+  },
+  "retire_deferred": [
+   "cmp-che-02639",
+   "cmp-mat-00065"
+  ],
+  "ledger": "d2-near-dup-dispositions.csv"
+ },
+ "type": {
+  "materials_total": 64853,
+  "outside_3_value_set": 0,
+  "outside_distribution": {},
+  "materialize_TYPES": "tools/kb_coverage/materialize.py:66 = 3 值",
+  "merge_TYPES": "tools/kb_coverage/merge_text_judgments.py:47 = 3 值",
+  "protocol": "docs/kb-chunk-judgment-protocol.md:62/90 = 3 值",
+  "single_source": true,
+  "ledger": "d2-type-distribution.csv"
+ }
+}

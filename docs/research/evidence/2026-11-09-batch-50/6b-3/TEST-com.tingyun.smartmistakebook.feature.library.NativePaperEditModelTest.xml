@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-11-08T11:00:42.810Z" hostname="TIANSHAN" time="0.045">
+  <properties/>
+  <testcase name="notes enter the snapshot only when the layout has a note area" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.006"/>
+  <testcase name="the revision is stable for the same paper and changes with its content" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.001"/>
+  <testcase name="the host paper id is stable for the same ticket and bounded for long tickets" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.0"/>
+  <testcase name="a preview can only be adopted on the exact paper it was generated from" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.011"/>
+  <testcase name="whitelisted commands produce a preview without touching the source paper" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.002"/>
+  <testcase name="a cancelled task is reported as cancelled and keeps the paper" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.003"/>
+  <testcase name="an illegal or out-of-range command rejects the whole batch and keeps the paper" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.003"/>
+  <testcase name="an unknown question id is rejected instead of guessed" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.001"/>
+  <testcase name="every block kind maps to the bounded snapshot shape" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.006"/>
+  <testcase name="a model failure keeps the paper and does not echo the provider message as a receipt" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.002"/>
+  <testcase name="the snapshot carries bounded paper text and never a local image location" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.001"/>
+  <testcase name="a blank required text blocks the request before any model task" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.002"/>
+  <testcase name="commands that change nothing are not reported as applied" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.001"/>
+  <testcase name="an empty command list is not a success receipt" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.0"/>
+  <testcase name="an input that cannot be represented is rejected before the port runs" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.001"/>
+  <testcase name="the app consent value is forwarded as given and never hardcoded" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.002"/>
+  <testcase name="a blank instruction and an over-budget instruction are rejected before the port runs" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

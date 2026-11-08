@@ -1,0 +1,39 @@
+# G0 static preconditions (batch 50, 2026-11-08T14:21:56+08:00)
+
+## markers (exact lines)
+574:> 本块由自检脚本解析（`<!-- 6c2-plan:begin -->` 标记内）。改动只改这里，
+577:<!-- 6c2-plan:begin -->
+738:<!-- 6c2-plan:end -->
+1666:<!-- 6c2-plan-v5:begin -->
+2311:<!-- 6c2-plan-v5:end -->
+2318:<!-- 6c2-plan-v3:begin -->
+2991:<!-- 6c2-plan-v3:end -->
+
+## 75.json
+version=75 identityHash=f9a3d1c9ea8ef83d7222721ad1015a51 entities=99 views=2 fks=123
+
+## v3 block (strict: begin immediately followed by json fence)
+strict v3 JSON blocks=1
+closureVersion=6 schemaVersion=75 identityHash=f9a3d1c9ea8ef83d7222721ad1015a51
+tables=99 views=['library_catalog', 'knowledge_question_lattice']
+digest=8567faae0e90ad4b720eab9fb4ceda82ce90fdb14e7c8ec4dc8309a520fb286c
+literal begin occurrences=1 end occurrences=1
+literal v5 begin occurrences=1 end occurrences=1
+
+## device
+List of devices attached
+emulator-5590          device product:sdk_gphone64_x86_64 model:sdk_gphone64_x86_64 device:emu64xa transport_id:1
+
+
+## backup androidTest @Test counts
+BackupRestoreInstrumentedTest 34
+BackupSnapshotTrimmerInstrumentedTest 10
+BackupRowCountsCoverageInstrumentedTest 2
+DeviceMigrationDrillInstrumentedTest 6
+BackupSelectionRestoreInstrumentedTest 11
+BackupV4PackRestoreInstrumentedTest 3
+
+## migration matrix
+143:    fun everyExportedSchemaVersionMigratesToCurrentWithoutDestructiveFallback() = runBlocking {
+145:        for (version in 1..STUDY_DATABASE_VERSION) {
+142:internal const val STUDY_DATABASE_VERSION = 75

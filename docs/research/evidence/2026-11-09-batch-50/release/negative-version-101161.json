@@ -1,0 +1,18 @@
+{
+  "gradle": {
+    "version_code": null,
+    "version_name": "0.2.0",
+    "abi_filters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "output_metadata": {
+    "versionCode": 101160,
+    "versionName": "0.2.0-offline"
+  },
+  "expected_code": 101161,
+  "errors": [
+    "output-metadata versionCode != --expected-code"
+  ]
+}

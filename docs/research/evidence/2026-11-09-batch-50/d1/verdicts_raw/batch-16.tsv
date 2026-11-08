@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-che-5c62da9e03-1709	CORRECT		high	取用药品遵循「粉状不沾壁、块状防刮底、液体防污染、标签防腐蚀」	
+ext-che-5c62da9e03-1788	CORRECT		high	v(X)＝X 的浓度变化量/时间变化量	
+ext-che-5c62da9e03-1905	CORRECT		high	单线桥法表示反应物中同种或不同种元素原子间的电子转移情况	
+ext-che-5c62da9e03-1991	CORRECT		high	2Na＋2H+＝2Na+＋H2↑，比钠与水反应更剧烈	
+ext-che-5c62da9e03-2017	CORRECT		high	Na2CO3 遇水生成 Na2CO3·H2O、Na2CO3·7H2O、Na2CO3·10H2O 三种结晶水合物	
+ext-che-5c62da9e03-2074	CORRECT		high	用 KSCN 溶液和氯水、NaOH 溶液或酸性 KMnO4 溶液检验	
+ext-che-5c62da9e03-2078	CORRECT		high	KFe[Fe(CN)6] 是铁与氰根形成的配合物沉淀，呈特征蓝色	
+ext-che-5c62da9e03-2089	CORRECT		medium	以化合价（0、+2、+3）为纵轴、物质类别（单质、氧化物、盐、碱）为横轴	节点为斜向转化，材料为整张价类图
+ext-che-5c62da9e03-2435	CORRECT		high	普通玻璃的主要成分为 Na₂SiO₃、CaSiO₃ 和 SiO₂	
+ext-che-5c62da9e03-2472	CORRECT		high	生成物总能量高于反应物的反应吸收热量	
+ext-che-5c62da9e03-2484	CORRECT		high	释放热量的反应是放热反应、吸收热量的反应是吸热反应	
+ext-che-5c62da9e03-2489	CORRECT		high	乙醇的官能团是羟基	
+ext-che-5c62da9e03-254	CORRECT		high	羟基酸可发生分子间酯化生成普通酯、分子内酯化生成环酯	
+ext-che-5c62da9e03-2581	CORRECT		high	乙烯可用分子式C2H4、结构简式CH2=CH2、电子式、球棍模型	
+ext-che-5c62da9e03-2616	CORRECT		high	链节是高分子中化学组成相同、可重复的最小结构单元	
+ext-che-5c62da9e03-2822	CORRECT		high	没有医生处方长期服用安眠药或镇静剂、滥用抗生素	
+ext-che-5c62da9e03-2823	CORRECT		high	食品添加剂是指为改善食品品质和色、香、味	
+ext-che-5c62da9e03-2867	CORRECT		high	虚拟路径法：先根据题意虚拟转化过程	
+ext-che-5c62da9e03-2901	CORRECT		high	分子间的自由碰撞必然有不同的碰撞取向	
+ext-che-5c62da9e03-2927	CORRECT		high	催化剂是通过改变反应历程、改变反应的活化能来改变反应速率的	
+ext-che-5c62da9e03-318	CORRECT		high	[Al(OH)₄]⁻通入CO₂生成Al(OH)₃沉淀与HCO₃⁻	
+ext-che-5c62da9e03-325	CORRECT		high	NO遇O₂变红棕色	
+ext-che-5c62da9e03-410	CORRECT		high	绿色化学也称环境友好化学	
+ext-che-5c62da9e03-525	CORRECT		high	平衡移动是原有平衡被改变的条件破坏后达到新平衡的过程	
+ext-che-5c62da9e03-628	CORRECT		high	加入醋酸钠固体使平衡逆向移动	
+ext-che-5c62da9e03-639	CORRECT		high	判断某酸是强酸还是弱酸可从是否完全电离入手	
+ext-che-5c62da9e03-698	CORRECT		high	沉淀滴定是利用沉淀反应进行滴定、测量分析的方法	
+ext-che-5c62da9e03-729	CORRECT		high	水解平衡体系中加水虽然使平衡右移	
+ext-che-5c62da9e03-786	CORRECT		high	接通电路后电流表指针偏转、锌片质量减少、铜片质量增加	
+ext-che-5c62da9e03-843	CORRECT		high	该实验所用 CuCl₂ 溶液的溶质质量分数以约 25% 为最佳	
+ext-che-5c62da9e03-879	CORRECT		medium	氢氧燃料电池以正、负极反应	节点为氢氧燃料电池实验，材料为原电池/电解池对比
+ext-che-5c8ab8324c-101	CORRECT		high	电路中通过的电荷量可按 q=I×t 计算	
+ext-che-6014828781-027	CORRECT		high	先按苯环上取代基个数分类	
+ext-che-60bd9bec4e-019	CORRECT		high	吸氧腐蚀中活泼金属作负极失电子	
+ext-che-6102bf2210-050	CORRECT		high	同周期主族元素电负性从左到右逐渐增大	
+ext-che-6102bf2210-058	CORRECT		high	设n为周期序数	
+ext-che-6253c65966-032	CORRECT		high	归纳设晶体1 mol、判断失重顺序、计算残留率	
+ext-che-6299d8c952-002b	CORRECT		high	铜的冶炼包括湿法炼铜、高温炼铜与电解精炼	
+ext-che-6299d8c952-003b	CORRECT		high	铜常温生成碱式碳酸铜、加热生成CuO	
+ext-che-62a07b1e95-018	CORRECT		high	推断单体先判断是加聚产物还是缩聚产物	
+ext-che-6688d1895f-021b	CORRECT		high	横向变化体现同价态不同物质类别之间的转化	
+ext-che-6688d1895f-030	CORRECT		high	碱性介质中用次氯酸钠把 Fe(OH)3 氧化为 FeO42-	
+ext-che-688f01431f-007	CORRECT		high	升高温度或使用催化剂都能加快化学反应速率	
+ext-che-68ecf40e02-013b	CORRECT		high	不能用澄清石灰水鉴别	
+ext-che-6aa46b5568-005	CORRECT		high	由常见反应条件快速判断有机反应类型	
+ext-che-6b9ae33803-005b	CORRECT		high	由价层电子对数或 σ 键数与孤电子对数判断杂化类型	
+ext-che-6e5105e0b4-002b	CORRECT		high	同温同压下相同体积的任何气体含有相同数目的分子	
+ext-che-6e5105e0b4-009	CORRECT		high	混合物可借助最简式或摩尔质量求微粒数目	
+ext-che-6f4d11d307-018	CORRECT		high	以淀粉溶液为指示剂、用Na2S2O3溶液滴定I2	
+ext-che-6fc1ebbbcb-008	CORRECT		high	乙醛与新制 Cu(OH)2 的反应必须在碱性环境中进行	

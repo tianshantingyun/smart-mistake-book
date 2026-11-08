@@ -1,0 +1,16 @@
+# B 域标注核对（batch 50 / G0）
+
+命令（只读）: python -I 解析 docs/acceptance/ledger.md 的 B 行
+B rows=90 (B-001..B-090)
+rows whose target text mentions v73=73
+evidence batches={'2026-11-05-batch-44': 282}
+evidence tokens total=282
+
+ledger sha256:
+264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8 *docs/acceptance/ledger.md
+
+row review JSON count:
+922
+
+domain-index B row:
+11:| B 数据完整性 | 数据完整性 | 90 | 88 | 0 | 2 | 0 | 88/88 | blocked-runbook B 域 §B-1/B-2；mask=13 状态夹具；**schema 75：88 个 PASS 均为 v73 历史证据，不构成 75 通过，75 需新设备证据（`docs/acceptance/b-domain-schema75-annotation.md`；复跑命令见 `docs/research/evidence/2026-11-09-batch-50/g0/04-device-rerun-commands.md`）** |

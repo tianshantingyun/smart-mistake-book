@@ -1,0 +1,31 @@
+{
+  "env_present": [
+    "RELEASE_KEY_ALIAS",
+    "RELEASE_KEY_PASSWORD",
+    "RELEASE_STORE_FILE",
+    "RELEASE_STORE_PASSWORD"
+  ],
+  "env_missing": [],
+  "tracked_keystores": [],
+  "doc_mentions_keystore_properties": true,
+  "doc_mentions_env_contract": true,
+  "apk_signer": {
+    "exit": 0,
+    "sha256": "26466dbfb132af681aa0d7a7bea624d1456228dfd1086f8d4fc2dcf2e38dbba1",
+    "schemes": {
+      "v1": true,
+      "v2": true,
+      "v3": false
+    }
+  },
+  "aab_signer": {
+    "sha256": "2c8415b260dc6b645a33497077c819ddc2cbb85eaab7f00f2d87424becad5eba",
+    "owner": "CN=SmartMistakeBook Local Release, OU=NOT-PLAY-PRODUCTION, O=SmartMistakeBook, C=CN",
+    "not_before": "2026-11-08T21:03:04",
+    "not_after": "2054-03-26T21:03:04",
+    "exit": 0
+  },
+  "errors": [
+    "APK/AAB signer identity differs: apk=26466dbfb132af68 aab=2c8415b260dc6b64"
+  ]
+}

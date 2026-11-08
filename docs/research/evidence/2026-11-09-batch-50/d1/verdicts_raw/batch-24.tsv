@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-mat-d1afd2a941-007	CORRECT		high	振幅 A 与纵坐标伸缩成正比、ω 与横坐标伸缩成反比	
+ext-mat-d31af416b6-010b	CORRECT		high	过两圆交点的圆设为两圆方程的线性组合	
+ext-mat-d389a75fb9-002b	CORRECT		high	端点处函数值为零时，端点导数为零是必要条件	
+ext-mat-d3cc06b089-014	CORRECT		high	若 P 在与 AB 平行的直线上运动，则 λ+μ 为定值 k	
+ext-mat-d502bb3547-022	CORRECT		high	由垂足坐标或向量投影均可导出点到直线的距离公式	
+ext-mat-d68ad97a21-021	CORRECT		high	给值求角需先用条件缩小角的范围	
+ext-mat-d9314bc502-001	CORRECT		high	先求该点处的导数值作为斜率，再用点斜式写方程	
+ext-mat-da04441fbe-002c	CORRECT		high	点在曲线上时可直接写切线	
+ext-mat-da04441fbe-005b	CORRECT		high	在 [a，b] 上连续、在 (a，b) 内可导的函数必有最大值和最小值	
+ext-mat-dd50f84d11-003	CORRECT		high	先假设存在或结论成立再推理验证	
+ext-mat-dfb4397fc4-047	CORRECT		high	点在圆上时可由切点与圆心连线的斜率取负倒数求切线斜率	
+ext-mat-e036722bc5-001e	CORRECT		high	在某区间上导数恒正则函数递增、恒负则递减	
+ext-mat-e099a16c22-017	CORRECT		high	分式型或整式型 sin、cos 齐次式，同除以相应幂化为 tan 的式子求值	
+ext-mat-e0afed1411-014	CORRECT		high	由导函数在 x0 两侧的符号变化判定极大值与极小值	
+ext-mat-e4c87437a2-002	CORRECT		high	等式中同时出现边和角时，先用余弦定理	
+ext-mat-e4c87437a2-011b	CORRECT		high	遇到 $\sin C+\cos B=0$ 这类“一角正弦加另一角余弦为零”的条件	
+ext-mat-e8782c89b4-016	CORRECT		high	定义域化不等式借图象求解；值域可化辅助角、或换元为二次函数	
+ext-mat-e99f917373-006	CORRECT		high	极化恒等式把向量的数量积转化为两个向量和差模的平方差	
+ext-mat-eb06dd91c4-005	CORRECT		high	S_m、S_{2m}−S_m、S_{3m}−S_{2m} 也成等差数列	
+ext-mat-ec95317cfd-002c	CORRECT		high	期望是各取值与对应概率乘积之和	
+ext-mat-edbf138d88-002b	CORRECT		high	对 m＞0、n＞0、λ≠0，双曲线 x²/m－y²/n＝λ 与 x²/m－y²/n＝1 的渐近线相同	
+ext-mat-efa31ffedb-009	CORRECT		high	观察、比较、归纳、转化、联想，并从分子分母与符号特征入手	
+ext-mat-f47ed86d9d-005	CORRECT		high	计数基数较大且带递推特征时，用数列建立递推关系求解	
+ext-mat-f54706b410-004	CORRECT		high	直线是圆的对称轴当且仅当它过圆心	
+ext-mat-f61d0abe63-005	CORRECT		high	按跨阶式形态选母函数	节点为同构法
+ext-mat-f624294e8c-004	CORRECT		high	同构题的规范步骤是先把两边化成同一结构并写出同构函数	
+ext-mat-f6298dd0a9-002	CORRECT		high	长方体与正方体的外接球直径等于体对角线	
+ext-mat-f63756b7fd-001b	CORRECT		high	给出零点存在定理的条件与结论以及把存在性加强为唯一性的两个推论	
+ext-mat-f88c50d572-014	CORRECT		high	和（差）的坐标等于对应坐标的和（差）	
+ext-mat-fe402d7baf-002	CORRECT		high	加减与数乘按分量运算，模由坐标平方和开方	
+ext-phy-00dee0496f-005	CORRECT		high	卢瑟福由α粒子轰击金箔时少数粒子发生大角度偏转的事实	
+ext-phy-01f8378916-003	CORRECT		high	电容器由两个彼此绝缘又相距很近的导体组成	
+ext-phy-0246b2438b-003	CORRECT		high	以抛出点为原点沿水平和竖直方向建立坐标系	
+ext-phy-029d4bc055-006	CORRECT		high	先按实际效果确定两个分力方向	
+ext-phy-02ac849651-001	CORRECT		high	传送带问题以摩擦力为纽带关联传送带与物块的运动	
+ext-phy-0377c73fb1-028	CORRECT		high	把与原线圈串联的定值电阻R0、变压器和交流电源整体等效为一个新电源	
+ext-phy-069c8fd197-006	CORRECT		high	木板到抛出点的高度由 y 变为 2y 时	
+ext-phy-0763583702-016b	CORRECT		high	粒子射入圆形磁场时速度方向与入射点半径的夹角	
+ext-phy-07893069b4-002	CORRECT		high	用沿电场方向的电势差与动能变化列方程	
+ext-phy-07f5d5ebf5-021	CORRECT		high	物体沿光滑斜面下滑时支持力与位移垂直、对物体不做功	
+ext-phy-08dd0f112c-009	CORRECT		high	先由E＝U/d求出两个方向的分电场强度	
+ext-phy-0b2ace4bef-016	REBIND	电磁波谱与各波段的特性	medium	按波长或频率的大小把电磁波排列成谱叫电磁波谱	现绑为电磁波总论，同科有电磁波谱专点
+ext-phy-0c0a28e1b5-024	CORRECT		high	B、l、v 两两垂直时 E=Blv	
+ext-phy-100c90511b-006b	CORRECT		high	速度增大时万有引力不足以提供向心力、做离心运动	
+ext-phy-11680982fd-013	CORRECT		high	横臂紧固螺钉必须旋紧、摇动手柄应缓慢加速并稳定读数两条要求	
+ext-phy-11a4f5e5e5-003	CORRECT		high	合外力做的功等于动能的变化量	
+ext-phy-11e0cd0998-002	CORRECT		high	一切物体都在辐射电磁波且与温度有关	
+ext-phy-11e0cd0998-008	CORRECT		high	原子核由质子和中子组成、电荷数等于核内质子数	
+ext-phy-123426e7c1-011	CORRECT		high	归纳波的多解来源、通式写法以及判断传播方向的处理思路	
+ext-phy-14007d0207-007	CORRECT		high	类平抛是受恒定合外力、初速度与合外力方向垂直的匀变速曲线运动	

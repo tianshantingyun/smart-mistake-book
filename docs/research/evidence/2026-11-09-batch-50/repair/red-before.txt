@@ -1,0 +1,26 @@
+# 批次 50 修复环：修复前（红）状态的可复核读数
+# 采集时点：2026-11-09；除特别说明外均在仓库根执行（Git Bash）。
+
+## 1) AUD-08 范围文案（HEAD 版本 = 修复前）
+$ git show HEAD:tools/split_golden/check_split_gate.py | grep -n "只复算一次"
+206:    "只复算一次；门值不外推为未参与调参页面的准确率",
+$ git show HEAD:tools/split_golden/check_split_gate.py | grep -c "在本批只运行一次"
+0
+
+## 2) MVA 旧门恒真字段（HEAD 版本 = 修复前，无 citable 标记）
+$ git show HEAD:tools/figure_eval/figure_eval_gate.py | grep -c "critical_error_evidence"
+0
+$ git show HEAD:tools/figure_eval/figure_eval_gate.py | sed -n "980p"
+            "critical_error_accepted": False,  # 关键不匹配一律不被接受（fail-closed 核验）
+
+## 3) D-1 抽样框复放（修复前即红；本环未改 sample_d1.py）
+$ cd docs/research/evidence/2026-11-09-batch-50/d1 && python -I -X utf8 sample_d1.py --check; echo EXIT=$?
+{"check": "sample_keys", "match": false, "expected": 1600, "actual": 1600}
+EXIT=2
+
+## 4) 修复环新增证据在 HEAD 不存在（新增文件，非改写历史证据）
+$ git log --all --oneline -- docs/research/evidence/2026-11-09-batch-50/d1/frame-drift.json
+(empty = 从未提交)
+$ git status --porcelain -- docs/research/evidence/2026-11-09-batch-50/d1/frame-drift.json docs/research/evidence/2026-11-09-batch-50/repair
+?? docs/research/evidence/2026-11-09-batch-50/d1/frame-drift.json
+?? docs/research/evidence/2026-11-09-batch-50/repair/

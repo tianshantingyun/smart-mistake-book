@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-mat-372a93bbf3-015	CORRECT		high	先独立分析非圆图形的对称轴/对称中心	
+ext-mat-3878a1c497-001	CORRECT		high	等差由相邻项差为常数定义	节点为等差性质，材料含概念与公式
+ext-mat-3927b021ea-006	CORRECT		high	数列可拆成等差、等比或可转化求和的几个数列时	
+ext-mat-39c496a7c2-010b	CORRECT		high	f(x＋a)＝f(a－x) 等价于图象关于 x＝a 对称	
+ext-mat-3ac9e93917-002d	CORRECT		high	含n个元素的有限集合有2的n次方个子集	
+ext-mat-3c2623876b-018	CORRECT		high	把三点共线转化为两向量共线	节点为共线定理，材料含三点共线推论
+ext-mat-3d7cc92736-006	CORRECT		high	研究二次函数图象抓三点（顶点与两个对称点）、一线（对称轴）、一开口（开口方向）	
+ext-mat-3fceddbaa8-002	CORRECT		high	向量的坐标等于终点坐标减起点坐标	
+ext-mat-418086fcde-020	CORRECT		high	最值通常在特殊位置取到	
+ext-mat-41ab94b34f-002c	CORRECT		high	截距可正、可负、可为零；距离是非负数	节点为直线方程，材料为截距/距离辨析
+ext-mat-421f40944a-011	CORRECT		high	若 A1…An 两两互斥且并为样本空间 Ω	
+ext-mat-421f40944a-031	CORRECT		high	相关系数衡量两个变量之间线性相关关系的强弱	
+ext-mat-42aa537c31-006	CORRECT		high	重心、外心、内心、垂心各有几何定义与对应的向量等式	
+ext-mat-45b726d8de-003b	CORRECT		high	f(a)f(b)<0 只保证区间上至少有一个零点，反之不一定	
+ext-mat-45b726d8de-003c	CORRECT		high	已知二次函数的零点求参数时，不要忽略对二次项系数的讨论	
+ext-mat-4727e299b1-005b	CORRECT		high	判断由几个函数相乘（或复合）而成的函数的奇偶性时	
+ext-mat-47f6cc7b06-001d	CORRECT		high	把所求面积（或长度）表示为关于某个角的三角函数式	
+ext-mat-49c409368f-002	CORRECT		high	用切线不等式把指数、对数、三角函数放缩为多项式	
+ext-mat-4b16443613-001	CORRECT		high	判定：平面外一条直线与平面内一条直线平行	
+ext-mat-4c0e7b09b0-024	CORRECT		high	化同名后由 sinX＝sinY 解角必须写全两族解	
+ext-mat-4cc7709544-017b	CORRECT		high	不等式在区间上恒（能）成立时，若能分离参数	
+ext-mat-4ccdd5f292-011	CORRECT		high	求曲线上的点到定直线（或另一条曲线）距离的最小值	
+ext-mat-4e258ba37b-003	CORRECT		high	含参数的三次函数求导并因式分解后	
+ext-mat-4e2c834cd3-027	CORRECT		high	底数含参时解对数不等式要分 a>1 与 0<a<1 两类	
+ext-mat-4f090e41dc-004	CORRECT		high	恒成立问题先利用导数判断函数单调性	
+ext-mat-50873a567d-003	CORRECT		high	平面内到一个定点和一条定直线距离相等的点的轨迹是抛物线	
+ext-mat-54427e2d25-001	CORRECT		high	求三角形的边长、角度、周长、面积的范围与最值时	
+ext-mat-54bbe673d9-002b	CORRECT		high	当三棱锥中出现三条两两垂直的棱	
+ext-mat-54f58ca872-004b	CORRECT		high	角平分线定理及中线长、张角定理	节点为角平分线定理，材料含中线/张角定理
+ext-mat-555709725e-003b	CORRECT		high	求导后解 f′(x)=0 找出可能的极值点	
+ext-mat-58a7b65e81-001c	CORRECT		high	两平面所成的二面角是直二面角时两平面垂直	
+ext-mat-58f79b9532-003	CORRECT		high	几何体不便直接定球心时，建立空间直角坐标系	
+ext-mat-5a29cdbc86-001b	CORRECT		high	焦点到渐近线距离为 b、通径长 2b²/a	
+ext-mat-5b737469ca-001b	CORRECT		high	证线面平行时先在平面内找一条与已知直线平行的直线	
+ext-mat-5bd79bdc7b-002b	CORRECT		high	按二次项系数、判别式与两根大小三层依次分类讨论	
+ext-mat-6056c4f67d-001	CORRECT		high	同一个对应法则后括号内整体的取值范围相同	
+ext-mat-6475d53e0f-023	CORRECT		high	用数量积性质解题按性质匹配→条件转化→代入运算→结果验证推进	
+ext-mat-66381aa848-002	CORRECT		high	由图形变化产生的动点在定直线上	
+ext-mat-672db6028f-040	CORRECT		high	椭圆上任一点到焦点 F1 的距离满足 a－c≤|QF1|≤a＋c	
+ext-mat-68937c1ee4-006	CORRECT		high	求两函数公切线按设两切点、求两处切线斜率	
+ext-mat-699f8bb768-002	CORRECT		high	证明不等式可移项构造函数、分拆函数或用放缩后构造函数	
+ext-mat-6d1a81acee-002	CORRECT		high	归纳作函数图象的四步流程以及平移、对称、翻折三类变换	
+ext-mat-6daf8dd6b3-004b	CORRECT		high	若 f(x) 是定义在 R 上的偶函数且在 [0，+∞) 上单调递减	
+ext-mat-6db76cc282-005	CORRECT		high	f′(x0) 是曲线在点 (x0，f(x0)) 处切线的斜率	
+ext-mat-71bdc90e80-001c	CORRECT		high	改量词否结论	
+ext-mat-73c84e17c4-010	CORRECT		high	用平方关系实现正余弦互化、用商数关系实现弦切互化	
+ext-mat-7515f8e3e9-005	CORRECT		high	给出圆的一般方程形式、表示圆的条件	
+ext-mat-75d5c5ac0b-005	CORRECT		high	已知切点时按“求切点纵坐标—求导得斜率—写点斜式”三步	
+ext-mat-75d5c5ac0b-006	CORRECT		high	只给斜率时先设切点横坐标	
+ext-mat-7680e8fc69-067	CORRECT		high	提出零假设 H0、整理 2×2 列联表并计算 χ²	

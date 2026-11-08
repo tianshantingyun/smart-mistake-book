@@ -1,0 +1,5737 @@
+{
+  "aggregate": {
+    "blockCoverageAtTol": 0.6731,
+    "blockPrecision": 0.1111,
+    "blockTopsPerQuestion": 6.058,
+    "candidateStarts": 315,
+    "candidateTopMatches": 35,
+    "columnDetectCorrect": 14,
+    "cvOnlyCountExact": "3/16",
+    "cvOnlyCountExactRate": 0.1875,
+    "cvOnlyFragmentRate": 0.4038,
+    "cvOnlyFragmentedQuestions": 21,
+    "goldBoundaryCount": 52,
+    "goldBoundaryGapShareLe50": 0.7308,
+    "goldQuestions": 52,
+    "nearestBlockDeltaMedian": 0.0047,
+    "nearestBlockDeltaP90": 0.0549,
+    "nearestBlockDeltaShareLe008": 0.5962,
+    "nearestBlockDeltaShareLe015": 0.6923,
+    "pages": 16
+  },
+  "golden": {
+    "evidenceGradeLevel": "G1",
+    "file": "split_golden_v2.json",
+    "pageCount": 16,
+    "schemaVersion": 2,
+    "sha256": "03b1eeccbbde19e5ab2e67d5e7de9bf1c1f2b1d8124c3e4b1e6cfe2091e18e54",
+    "subset": "dev"
+  },
+  "maxEdge": 1024,
+  "pages": [
+    {
+      "boundary": [
+        {
+          "gapDepth": 0.667,
+          "nearestBlockDelta": 0.075,
+          "top": 0.075
+        }
+      ],
+      "cv": {
+        "blockStarts": 1,
+        "blockTops": [
+          0.0
+        ],
+        "blocks": 1,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.8438,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.6104,
+            "top": 0.0
+          }
+        ],
+        "columns": 1,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 35.8,
+          "candidates": [
+            {
+              "bothSideRowShare": 0.655,
+              "center": 0.6821,
+              "leftShare": 0.836,
+              "rightShare": 0.164,
+              "widthPx": 85
+            }
+          ]
+        },
+        "orientationUncertain": false,
+        "regions": 0,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 0,
+        "uprightEvidence": 0.156,
+        "window": {
+          "bottom": 1.0,
+          "left": 0.0,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 0,
+        "consistent": true,
+        "fragmentedCount": 0,
+        "iouOk": 0,
+        "matchedIous": [
+          null
+        ],
+        "reason": "一致（单题页：不拆分=期望）"
+      },
+      "file": "IMG20260810004304.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 1,
+      "goldTops": [
+        0.075
+      ],
+      "sha256": "b99119948a0d1f8eff0639dcb491688cef468be9a268325563e8e75bf4672a0b",
+      "sourceShape": {
+        "height": 768,
+        "width": 1024
+      },
+      "topMatch": {
+        "matchedCandidates": [],
+        "pairs": [],
+        "precision": 0.0,
+        "recall": 0.0
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 0.467,
+          "nearestBlockDelta": 0.1951,
+          "top": 0.2
+        },
+        {
+          "gapDepth": 0.27,
+          "nearestBlockDelta": 0.2631,
+          "top": 0.268
+        },
+        {
+          "gapDepth": 0.569,
+          "nearestBlockDelta": 0.6401,
+          "top": 0.645
+        }
+      ],
+      "cv": {
+        "blockStarts": 1,
+        "blockTops": [
+          0.0049
+        ],
+        "blocks": 1,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.9951,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.0049
+          }
+        ],
+        "columns": 1,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 59.48,
+          "candidates": []
+        },
+        "orientationUncertain": false,
+        "regions": 0,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 0,
+        "uprightEvidence": -0.191,
+        "window": {
+          "bottom": 1.0,
+          "left": 0.0052,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 0,
+        "consistent": false,
+        "fragmentedCount": 0,
+        "iouOk": 0,
+        "matchedIous": [
+          null,
+          null,
+          null
+        ],
+        "reason": "不一致（金标 3 vs 应用 0，漏拆）"
+      },
+      "file": "IMG20260810004511.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 3,
+      "goldTops": [
+        0.2,
+        0.268,
+        0.645
+      ],
+      "sha256": "9190e13efa39df228032754acee0ccd76a5cb38173487820e663d7ff0acde750",
+      "sourceShape": {
+        "height": 1024,
+        "width": 768
+      },
+      "topMatch": {
+        "matchedCandidates": [],
+        "pairs": [],
+        "precision": 0.0,
+        "recall": 0.0
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 0.74,
+          "nearestBlockDelta": 0.0101,
+          "top": 0.21
+        },
+        {
+          "gapDepth": 0.875,
+          "nearestBlockDelta": 0.0962,
+          "top": 0.785
+        }
+      ],
+      "cv": {
+        "blockStarts": 14,
+        "blockTops": [
+          0.0,
+          0.0,
+          0.0547,
+          0.1185,
+          0.1719,
+          0.2201,
+          0.2669,
+          0.3125,
+          0.3594,
+          0.3958,
+          0.4036,
+          0.4961,
+          0.543,
+          0.6888
+        ],
+        "blocks": 14,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.0456,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0169,
+            "top": 0.0
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.75,
+            "heightRatio": 0.0599,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0112,
+            "top": 0.0547
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.2734,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0075,
+            "top": 0.1185
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.2865,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0187,
+            "top": 0.3958
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.3112,
+            "indentRatio": 0.0037,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.2509,
+            "top": 0.6888
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.1641,
+            "indentRatio": 0.0069,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.1065,
+            "top": 0.0
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.091,
+            "heightRatio": 0.0404,
+            "indentRatio": 0.0069,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.1065,
+            "top": 0.1719
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.091,
+            "heightRatio": 0.0378,
+            "indentRatio": 0.0034,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.11,
+            "top": 0.2201
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.273,
+            "heightRatio": 0.0391,
+            "indentRatio": 0.0034,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.1065,
+            "top": 0.2669
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.909,
+            "heightRatio": 0.0391,
+            "indentRatio": 0.0034,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.1031,
+            "top": 0.3125
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.091,
+            "heightRatio": 0.0378,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.1031,
+            "top": 0.3594
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.909,
+            "heightRatio": 0.0872,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.1065,
+            "top": 0.4036
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.727,
+            "heightRatio": 0.043,
+            "indentRatio": 0.189,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.1031,
+            "top": 0.4961
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.545,
+            "heightRatio": 0.457,
+            "indentRatio": 0.1271,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0034,
+            "top": 0.543
+          }
+        ],
+        "columns": 2,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 64.28,
+          "candidates": [
+            {
+              "bothSideRowShare": 0.973,
+              "center": 0.3042,
+              "leftShare": 0.28,
+              "rightShare": 0.72,
+              "widthPx": 21
+            },
+            {
+              "bothSideRowShare": 1.0,
+              "center": 0.4736,
+              "leftShare": 0.488,
+              "rightShare": 0.512,
+              "widthPx": 18
+            },
+            {
+              "bothSideRowShare": 0.995,
+              "center": 0.5337,
+              "leftShare": 0.587,
+              "rightShare": 0.413,
+              "widthPx": 25
+            }
+          ]
+        },
+        "orientationUncertain": false,
+        "regions": 3,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 3,
+        "uprightEvidence": -0.152,
+        "window": {
+          "bottom": 1.0,
+          "left": 0.0,
+          "right": 0.8301,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 3,
+        "consistent": false,
+        "fragmentedCount": 1,
+        "iouOk": 0,
+        "matchedIous": [
+          0.1554,
+          0.2636
+        ],
+        "reason": "不一致（金标 2 vs 应用 3）"
+      },
+      "file": "IMG20260810004854.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 2,
+      "goldTops": [
+        0.21,
+        0.785
+      ],
+      "sha256": "254833c635f00c34689b332d475d8503faa0921041d192995f1336f25f7dae08",
+      "sourceShape": {
+        "height": 768,
+        "width": 1024
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          5
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 5,
+            "deltaTop": 0.0101,
+            "goldIndex": 0
+          }
+        ],
+        "precision": 0.07142857142857142,
+        "recall": 0.5
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0004,
+          "top": 0.017
+        },
+        {
+          "gapDepth": 0.026,
+          "nearestBlockDelta": 0.0005,
+          "top": 0.228
+        },
+        {
+          "gapDepth": 0.047,
+          "nearestBlockDelta": 0.0003,
+          "top": 0.444
+        },
+        {
+          "gapDepth": 0.315,
+          "nearestBlockDelta": 0.0026,
+          "top": 0.805
+        },
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0013,
+          "top": 0.013
+        },
+        {
+          "gapDepth": 0.406,
+          "nearestBlockDelta": 0.0182,
+          "top": 0.153
+        },
+        {
+          "gapDepth": 0.059,
+          "nearestBlockDelta": 0.0035,
+          "top": 0.474
+        }
+      ],
+      "cv": {
+        "blockStarts": 59,
+        "blockTops": [
+          0.0117,
+          0.0166,
+          0.0391,
+          0.0508,
+          0.0869,
+          0.0967,
+          0.1113,
+          0.1318,
+          0.1348,
+          0.1797,
+          0.1816,
+          0.2041,
+          0.2061,
+          0.2285,
+          0.2305,
+          0.248,
+          0.2529,
+          0.3018,
+          0.3252,
+          0.3271,
+          0.3496,
+          0.3496,
+          0.3711,
+          0.373,
+          0.3975,
+          0.4014,
+          0.4209,
+          0.4287,
+          0.4443,
+          0.4531,
+          0.4678,
+          0.4775,
+          0.4912,
+          0.5088,
+          0.5322,
+          0.5488,
+          0.5781,
+          0.5996,
+          0.6221,
+          0.624,
+          0.6465,
+          0.6484,
+          0.668,
+          0.6729,
+          0.6904,
+          0.6963,
+          0.7139,
+          0.7158,
+          0.7363,
+          0.7422,
+          0.7588,
+          0.7832,
+          0.8076,
+          0.8096,
+          0.832,
+          0.8555,
+          0.8574,
+          0.8789,
+          0.8965
+        ],
+        "blocks": 59,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.0254,
+            "indentRatio": 0.0669,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0056,
+            "top": 0.0166
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0371,
+            "indentRatio": 0.0028,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0111,
+            "top": 0.0508
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0117,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0223,
+            "top": 0.0967
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.333,
+            "heightRatio": 0.0176,
+            "indentRatio": 0.0641,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0056,
+            "top": 0.1113
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.667,
+            "heightRatio": 0.042,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0167,
+            "top": 0.1348
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.556,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0362,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0056,
+            "top": 0.1816
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0306,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0139,
+            "top": 0.2061
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.111,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0139,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0028,
+            "top": 0.2305
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.333,
+            "heightRatio": 0.0439,
+            "indentRatio": 0.0084,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0084,
+            "top": 0.248
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.111,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0056,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0056,
+            "top": 0.3018
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.222,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0056,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0028,
+            "top": 0.3271
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0056,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0028,
+            "top": 0.3496
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.889,
+            "heightRatio": 0.0225,
+            "indentRatio": 0.0028,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0028,
+            "top": 0.3711
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.444,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0028,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0028,
+            "top": 0.3975
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.111,
+            "heightRatio": 0.0127,
+            "indentRatio": 0.0028,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0028,
+            "top": 0.4209
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.222,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0028,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0028,
+            "top": 0.4443
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.111,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0474,
+            "top": 0.4678
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.111,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0028,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0028,
+            "top": 0.4912
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.444,
+            "heightRatio": 0.1055,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0613,
+            "top": 0.5088
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.889,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.1031,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0808,
+            "top": 0.6221
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.111,
+            "heightRatio": 0.0117,
+            "indentRatio": 0.1978,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0362,
+            "top": 0.6465
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.111,
+            "heightRatio": 0.0166,
+            "indentRatio": 0.1031,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0836,
+            "top": 0.668
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.667,
+            "heightRatio": 0.0127,
+            "indentRatio": 0.0585,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0028,
+            "top": 0.6904
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.222,
+            "heightRatio": 0.0176,
+            "indentRatio": 0.0696,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0028,
+            "top": 0.7139
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.556,
+            "heightRatio": 0.0127,
+            "indentRatio": 0.1086,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0111,
+            "top": 0.7363
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.111,
+            "heightRatio": 0.0176,
+            "indentRatio": 0.0919,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0947,
+            "top": 0.7588
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.778,
+            "heightRatio": 0.0195,
+            "indentRatio": 0.0056,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0056,
+            "top": 0.7832
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.556,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0585,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0028,
+            "top": 0.8076
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.111,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0446,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0195,
+            "top": 0.832
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.111,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0195,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0084,
+            "top": 0.8555
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.111,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0111,
+            "top": 0.8789
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.444,
+            "heightRatio": 0.0088,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0919,
+            "top": 0.8965
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.0166,
+            "indentRatio": 0.0157,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0052,
+            "top": 0.0117
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.158,
+            "heightRatio": 0.0381,
+            "indentRatio": 0.0131,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0131,
+            "top": 0.0391
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.053,
+            "heightRatio": 0.042,
+            "indentRatio": 0.0131,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0079,
+            "top": 0.0869
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.316,
+            "heightRatio": 0.0381,
+            "indentRatio": 0.0131,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0105,
+            "top": 0.1318
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.053,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0131,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0315,
+            "top": 0.1797
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.053,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0131,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0315,
+            "top": 0.2041
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.158,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0131,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0236,
+            "top": 0.2285
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.158,
+            "heightRatio": 0.0625,
+            "indentRatio": 0.0105,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0341,
+            "top": 0.2529
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.053,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0105,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0262,
+            "top": 0.3252
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.158,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0079,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0236,
+            "top": 0.3496
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.053,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0105,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0289,
+            "top": 0.373
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.474,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0341,
+            "top": 0.4014
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.368,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0105,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0105,
+            "top": 0.4287
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.158,
+            "heightRatio": 0.0127,
+            "indentRatio": 0.0105,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0289,
+            "top": 0.4531
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.263,
+            "heightRatio": 0.0479,
+            "indentRatio": 0.0079,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.021,
+            "top": 0.4775
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.737,
+            "heightRatio": 0.0127,
+            "indentRatio": 0.1391,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0289,
+            "top": 0.5322
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.421,
+            "heightRatio": 0.0225,
+            "indentRatio": 0.0079,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0105,
+            "top": 0.5488
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.737,
+            "heightRatio": 0.0176,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0341,
+            "top": 0.5781
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.421,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0131,
+            "top": 0.5996
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.947,
+            "heightRatio": 0.0195,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0131,
+            "top": 0.624
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.526,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0367,
+            "top": 0.6484
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.947,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0367,
+            "top": 0.6729
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.947,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0341,
+            "top": 0.6963
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.421,
+            "heightRatio": 0.0234,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0341,
+            "top": 0.7158
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.316,
+            "heightRatio": 0.0645,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.8635,
+            "top": 0.7422
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.316,
+            "heightRatio": 0.043,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.8583,
+            "top": 0.8096
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.526,
+            "heightRatio": 0.0479,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.853,
+            "top": 0.8574
+          }
+        ],
+        "columns": 2,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 127.68,
+          "candidates": [
+            {
+              "bothSideRowShare": 0.88,
+              "center": 0.4857,
+              "leftShare": 0.453,
+              "rightShare": 0.547,
+              "widthPx": 28
+            }
+          ]
+        },
+        "orientationUncertain": false,
+        "regions": 32,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 32,
+        "uprightEvidence": 0.002,
+        "window": {
+          "bottom": 0.9053,
+          "left": 0.0,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 32,
+        "consistent": false,
+        "fragmentedCount": 5,
+        "iouOk": 3,
+        "matchedIous": [
+          0.3597,
+          0.6781,
+          0.7088,
+          0.1401,
+          0.7085,
+          0.2677,
+          0.3644
+        ],
+        "reason": "不一致（金标 7 vs 应用 32）"
+      },
+      "file": "IMG20260810005144.jpg",
+      "goldLayout": "two-column",
+      "goldQuestions": 7,
+      "goldTops": [
+        0.017,
+        0.228,
+        0.444,
+        0.805,
+        0.013,
+        0.153,
+        0.474
+      ],
+      "sha256": "dd91f2d68aa5479814f858b7928dcfd525ed564a655bb3dffb93e7b04c3697a7",
+      "sourceShape": {
+        "height": 1024,
+        "width": 768
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          0,
+          1,
+          13,
+          28,
+          31,
+          52
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 1,
+            "deltaTop": 0.0004,
+            "goldIndex": 0
+          },
+          {
+            "candidateIndex": 13,
+            "deltaTop": 0.0005,
+            "goldIndex": 1
+          },
+          {
+            "candidateIndex": 28,
+            "deltaTop": 0.0003,
+            "goldIndex": 2
+          },
+          {
+            "candidateIndex": 52,
+            "deltaTop": 0.0026,
+            "goldIndex": 3
+          },
+          {
+            "candidateIndex": 0,
+            "deltaTop": 0.0013,
+            "goldIndex": 4
+          },
+          {
+            "candidateIndex": 31,
+            "deltaTop": 0.0035,
+            "goldIndex": 6
+          }
+        ],
+        "precision": 0.1016949152542373,
+        "recall": 0.8571428571428571
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 0.397,
+          "nearestBlockDelta": 0.0035,
+          "top": 0.065
+        },
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0021,
+          "top": 0.036
+        },
+        {
+          "gapDepth": 0.134,
+          "nearestBlockDelta": 0.0067,
+          "top": 0.172
+        }
+      ],
+      "cv": {
+        "blockStarts": 56,
+        "blockTops": [
+          0.0381,
+          0.0391,
+          0.0615,
+          0.0693,
+          0.085,
+          0.0918,
+          0.1074,
+          0.1152,
+          0.1387,
+          0.1445,
+          0.1621,
+          0.1787,
+          0.1855,
+          0.2012,
+          0.209,
+          0.2246,
+          0.2256,
+          0.248,
+          0.2744,
+          0.3584,
+          0.3896,
+          0.4121,
+          0.4365,
+          0.4551,
+          0.4814,
+          0.5049,
+          0.5049,
+          0.5264,
+          0.5498,
+          0.5723,
+          0.5908,
+          0.5957,
+          0.6123,
+          0.6182,
+          0.6357,
+          0.6416,
+          0.6553,
+          0.6641,
+          0.6787,
+          0.6904,
+          0.7012,
+          0.7217,
+          0.7314,
+          0.7461,
+          0.7578,
+          0.7686,
+          0.7793,
+          0.791,
+          0.8008,
+          0.8135,
+          0.8262,
+          0.8359,
+          0.8438,
+          0.8604,
+          0.8691,
+          0.8896
+        ],
+        "blocks": 56,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.0205,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0086,
+            "top": 0.0391
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0086,
+            "top": 0.0693
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0057,
+            "top": 0.0918
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0127,
+            "indentRatio": 0.0891,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0029,
+            "top": 0.1152
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.375,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0891,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0029,
+            "top": 0.1387
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0862,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0144,
+            "top": 0.1621
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0176,
+            "indentRatio": 0.0891,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0115,
+            "top": 0.1855
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0127,
+            "indentRatio": 0.0862,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0057,
+            "top": 0.209
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.5,
+            "heightRatio": 0.127,
+            "indentRatio": 0.0287,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0029,
+            "top": 0.2256
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0215,
+            "indentRatio": 0.0259,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0057,
+            "top": 0.3584
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0176,
+            "indentRatio": 0.0259,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0057,
+            "top": 0.3896
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.625,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0259,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0057,
+            "top": 0.4121
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.375,
+            "heightRatio": 0.0127,
+            "indentRatio": 0.0115,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0115,
+            "top": 0.4365
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0166,
+            "indentRatio": 0.0259,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0057,
+            "top": 0.4551
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0201,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0144,
+            "top": 0.4814
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0086,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0029,
+            "top": 0.5049
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.875,
+            "heightRatio": 0.0195,
+            "indentRatio": 0.0201,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0144,
+            "top": 0.5264
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.5,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0029,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0345,
+            "top": 0.5498
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0172,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.023,
+            "top": 0.5723
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0186,
+            "indentRatio": 0.0172,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.023,
+            "top": 0.5957
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.5,
+            "heightRatio": 0.0166,
+            "indentRatio": 0.0172,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0259,
+            "top": 0.6182
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.875,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0201,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.023,
+            "top": 0.6416
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0144,
+            "top": 0.6641
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.375,
+            "heightRatio": 0.0352,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0029,
+            "top": 0.6904
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0195,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0057,
+            "top": 0.7314
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.875,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0057,
+            "top": 0.7578
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0057,
+            "top": 0.7793
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.875,
+            "heightRatio": 0.0166,
+            "indentRatio": 0.0287,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0316,
+            "top": 0.8008
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.125,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0316,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0316,
+            "top": 0.8262
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.5,
+            "heightRatio": 0.0176,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0086,
+            "top": 0.8438
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0057,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0029,
+            "top": 0.8691
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.625,
+            "heightRatio": 0.041,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0776,
+            "top": 0.8896
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0052,
+            "top": 0.0381
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.125,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0052,
+            "top": 0.0615
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0127,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0052,
+            "top": 0.085
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0332,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.1074
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.5,
+            "heightRatio": 0.0244,
+            "indentRatio": 0.224,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0286,
+            "top": 0.1445
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0052,
+            "top": 0.1787
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.125,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0234,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0052,
+            "top": 0.2012
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.1953,
+            "top": 0.2246
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0156,
+            "top": 0.248
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": true,
+            "gapRatio": 1.625,
+            "heightRatio": 0.2275,
+            "indentRatio": 0.0755,
+            "railOk": false,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0312,
+            "top": 0.2744
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.375,
+            "heightRatio": 0.0771,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0833,
+            "top": 0.5049
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.125,
+            "heightRatio": 0.0137,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0339,
+            "top": 0.5908
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0186,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0339,
+            "top": 0.6123
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.625,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0339,
+            "top": 0.6357
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.5,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0104,
+            "top": 0.6553
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0339,
+            "top": 0.6787
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0339,
+            "top": 0.7012
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.625,
+            "heightRatio": 0.0186,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0651,
+            "top": 0.7217
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0703,
+            "top": 0.7461
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.875,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0703,
+            "top": 0.7686
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.875,
+            "heightRatio": 0.0166,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0339,
+            "top": 0.791
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0166,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0339,
+            "top": 0.8135
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0215,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0339,
+            "top": 0.8359
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 0.375,
+            "heightRatio": 0.0703,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.9948,
+            "top": 0.8604
+          }
+        ],
+        "columns": 2,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 148.6,
+          "candidates": [
+            {
+              "bothSideRowShare": 0.917,
+              "center": 0.4707,
+              "leftShare": 0.444,
+              "rightShare": 0.556,
+              "widthPx": 27
+            }
+          ]
+        },
+        "orientationUncertain": false,
+        "regions": 30,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 30,
+        "uprightEvidence": 0.043,
+        "window": {
+          "bottom": 0.9307,
+          "left": 0.0,
+          "right": 0.9883,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 30,
+        "consistent": false,
+        "fragmentedCount": 2,
+        "iouOk": 0,
+        "matchedIous": [
+          0.3564,
+          0.0,
+          0.2917
+        ],
+        "reason": "不一致（金标 3 vs 应用 30）"
+      },
+      "file": "IMG20260810005301.jpg",
+      "goldLayout": "two-column",
+      "goldQuestions": 3,
+      "goldTops": [
+        0.065,
+        0.036,
+        0.172
+      ],
+      "sha256": "7d682009ceebd089bdfdc141b4264d589415f79763c4a75369770eb401d2ca7b",
+      "sourceShape": {
+        "height": 1024,
+        "width": 768
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          0,
+          2,
+          11
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 2,
+            "deltaTop": 0.0035,
+            "goldIndex": 0
+          },
+          {
+            "candidateIndex": 0,
+            "deltaTop": 0.0021,
+            "goldIndex": 1
+          },
+          {
+            "candidateIndex": 11,
+            "deltaTop": 0.0067,
+            "goldIndex": 2
+          }
+        ],
+        "precision": 0.05357142857142857,
+        "recall": 1.0
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0017,
+          "top": 0.26
+        },
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0033,
+          "top": 0.652
+        }
+      ],
+      "cv": {
+        "blockStarts": 14,
+        "blockTops": [
+          0.0,
+          0.0762,
+          0.2617,
+          0.3184,
+          0.3691,
+          0.4199,
+          0.4678,
+          0.5176,
+          0.5645,
+          0.6094,
+          0.6553,
+          0.7041,
+          0.7529,
+          0.9014
+        ],
+        "blocks": 14,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.041,
+            "indentRatio": 0.5234,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.0
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.8,
+            "heightRatio": 0.1035,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": false,
+            "tokenRatio": 1.0,
+            "top": 0.0762
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 4.2,
+            "heightRatio": 0.0371,
+            "indentRatio": 0.0443,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0286,
+            "top": 0.2617
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0303,
+            "indentRatio": 0.026,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0052,
+            "top": 0.3184
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.05,
+            "heightRatio": 0.0293,
+            "indentRatio": 0.0326,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0547,
+            "top": 0.3691
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.1,
+            "heightRatio": 0.0273,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0365,
+            "top": 0.4199
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.05,
+            "heightRatio": 0.0293,
+            "indentRatio": 0.0508,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0365,
+            "top": 0.4678
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.05,
+            "heightRatio": 0.0293,
+            "indentRatio": 0.0521,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0352,
+            "top": 0.5176
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.9,
+            "heightRatio": 0.0342,
+            "indentRatio": 0.0534,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0378,
+            "top": 0.5645
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.55,
+            "heightRatio": 0.0264,
+            "indentRatio": 0.056,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0378,
+            "top": 0.6094
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0361,
+            "indentRatio": 0.0156,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0169,
+            "top": 0.6553
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.65,
+            "heightRatio": 0.042,
+            "indentRatio": 0.0221,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.7041
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.35,
+            "heightRatio": 0.1455,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0091,
+            "top": 0.7529
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.15,
+            "heightRatio": 0.0986,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0065,
+            "top": 0.9014
+          }
+        ],
+        "columns": 1,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 122.28,
+          "candidates": []
+        },
+        "orientationUncertain": false,
+        "regions": 10,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 10,
+        "uprightEvidence": 0.227,
+        "window": {
+          "bottom": 1.0,
+          "left": 0.0,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 10,
+        "consistent": false,
+        "fragmentedCount": 2,
+        "iouOk": 2,
+        "matchedIous": [
+          0.7021,
+          0.6483
+        ],
+        "reason": "不一致（金标 2 vs 应用 10）"
+      },
+      "file": "IMG20260810005605.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 2,
+      "goldTops": [
+        0.26,
+        0.652
+      ],
+      "sha256": "3dad1553820d3d263ff884d51caeb565246cf5d79af648f1c754894093c754f7",
+      "sourceShape": {
+        "height": 1024,
+        "width": 768
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          2,
+          10
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 2,
+            "deltaTop": 0.0017,
+            "goldIndex": 0
+          },
+          {
+            "candidateIndex": 10,
+            "deltaTop": 0.0033,
+            "goldIndex": 1
+          }
+        ],
+        "precision": 0.14285714285714285,
+        "recall": 1.0
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 0.679,
+          "nearestBlockDelta": 0.0,
+          "top": 0.0
+        },
+        {
+          "gapDepth": 0.053,
+          "nearestBlockDelta": 0.0041,
+          "top": 0.41
+        },
+        {
+          "gapDepth": 0.216,
+          "nearestBlockDelta": 0.0028,
+          "top": 0.922
+        }
+      ],
+      "cv": {
+        "blockStarts": 26,
+        "blockTops": [
+          0.0,
+          0.0781,
+          0.1436,
+          0.207,
+          0.2373,
+          0.2793,
+          0.3057,
+          0.3457,
+          0.375,
+          0.4141,
+          0.4453,
+          0.4795,
+          0.5049,
+          0.585,
+          0.6289,
+          0.6611,
+          0.6953,
+          0.7285,
+          0.7627,
+          0.793,
+          0.8262,
+          0.8594,
+          0.8896,
+          0.9248,
+          0.9541,
+          0.9854
+        ],
+        "blocks": 26,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.0752,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.1042,
+            "top": 0.0
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.375,
+            "heightRatio": 0.0576,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0052,
+            "top": 0.0781
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0557,
+            "indentRatio": 0.1016,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.1367,
+            "top": 0.1436
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0254,
+            "indentRatio": 0.1081,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.207
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.625,
+            "heightRatio": 0.0322,
+            "indentRatio": 0.1133,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0885,
+            "top": 0.2373
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0225,
+            "indentRatio": 0.1719,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0312,
+            "top": 0.2793
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.5,
+            "heightRatio": 0.0303,
+            "indentRatio": 0.112,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0065,
+            "top": 0.3057
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0234,
+            "indentRatio": 0.0273,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0052,
+            "top": 0.3457
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0273,
+            "indentRatio": 0.026,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0312,
+            "top": 0.375
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.5,
+            "heightRatio": 0.0234,
+            "indentRatio": 0.0234,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": false,
+            "tokenRatio": 0.0065,
+            "top": 0.4141
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0225,
+            "indentRatio": 0.0352,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.1029,
+            "top": 0.4453
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.5,
+            "heightRatio": 0.0205,
+            "indentRatio": 0.1901,
+            "railOk": false,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0169,
+            "top": 0.4795
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.625,
+            "heightRatio": 0.0693,
+            "indentRatio": 0.1823,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0104,
+            "top": 0.5049
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.375,
+            "heightRatio": 0.0254,
+            "indentRatio": 0.1927,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0208,
+            "top": 0.585
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.375,
+            "heightRatio": 0.0234,
+            "indentRatio": 0.1589,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.6289
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.125,
+            "heightRatio": 0.0215,
+            "indentRatio": 0.0898,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0078,
+            "top": 0.6611
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.625,
+            "heightRatio": 0.0234,
+            "indentRatio": 0.0938,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.6953
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0244,
+            "indentRatio": 0.0924,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.7285
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0264,
+            "indentRatio": 0.0703,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0273,
+            "top": 0.7627
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.5,
+            "heightRatio": 0.0234,
+            "indentRatio": 0.0651,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0091,
+            "top": 0.793
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0273,
+            "indentRatio": 0.1146,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0117,
+            "top": 0.8262
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0244,
+            "indentRatio": 0.0143,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0273,
+            "top": 0.8594
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0293,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0104,
+            "top": 0.8896
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0244,
+            "indentRatio": 0.0117,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0117,
+            "top": 0.9248
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.625,
+            "heightRatio": 0.0273,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0104,
+            "top": 0.9541
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.5,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.9854
+          }
+        ],
+        "columns": 1,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 103.0,
+          "candidates": []
+        },
+        "orientationUncertain": false,
+        "regions": 7,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 7,
+        "uprightEvidence": -0.012,
+        "window": {
+          "bottom": 1.0,
+          "left": 0.0,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 7,
+        "consistent": false,
+        "fragmentedCount": 2,
+        "iouOk": 2,
+        "matchedIous": [
+          0.0676,
+          0.6609,
+          0.5576
+        ],
+        "reason": "不一致（金标 3 vs 应用 7）"
+      },
+      "file": "IMG20260810005855.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 3,
+      "goldTops": [
+        0.0,
+        0.41,
+        0.922
+      ],
+      "sha256": "3cfca2983f228b10bed09baf89782daf267f039ad0582e59529a9a1fce833ea8",
+      "sourceShape": {
+        "height": 1024,
+        "width": 768
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          0,
+          9,
+          23
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 0,
+            "deltaTop": 0.0,
+            "goldIndex": 0
+          },
+          {
+            "candidateIndex": 9,
+            "deltaTop": 0.0041,
+            "goldIndex": 1
+          },
+          {
+            "candidateIndex": 23,
+            "deltaTop": 0.0028,
+            "goldIndex": 2
+          }
+        ],
+        "precision": 0.11538461538461539,
+        "recall": 1.0
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 1.0,
+          "nearestBlockDelta": 0.012,
+          "top": 0.012
+        },
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0032,
+          "top": 0.155
+        },
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0054,
+          "top": 0.312
+        },
+        {
+          "gapDepth": 0.077,
+          "nearestBlockDelta": 0.0009,
+          "top": 0.62
+        }
+      ],
+      "cv": {
+        "blockStarts": 15,
+        "blockTops": [
+          0.0,
+          0.1582,
+          0.2168,
+          0.3066,
+          0.3662,
+          0.4336,
+          0.4678,
+          0.5225,
+          0.5801,
+          0.6191,
+          0.6641,
+          0.6914,
+          0.7627,
+          0.8682,
+          0.9189
+        ],
+        "blocks": 15,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.1074,
+            "indentRatio": 0.013,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.0
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.261,
+            "heightRatio": 0.0303,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.1582
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.261,
+            "heightRatio": 0.0801,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0117,
+            "top": 0.2168
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.435,
+            "heightRatio": 0.0371,
+            "indentRatio": 0.0104,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0065,
+            "top": 0.3066
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0605,
+            "indentRatio": 0.0013,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0404,
+            "top": 0.3662
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.304,
+            "heightRatio": 0.0078,
+            "indentRatio": 0.8372,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.4336
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.174,
+            "heightRatio": 0.0322,
+            "indentRatio": 0.151,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0091,
+            "top": 0.4678
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0537,
+            "indentRatio": 0.0013,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0221,
+            "top": 0.5225
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.174,
+            "heightRatio": 0.0195,
+            "indentRatio": 0.7148,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0247,
+            "top": 0.5801
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.87,
+            "heightRatio": 0.0361,
+            "indentRatio": 0.0247,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.6191
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.391,
+            "heightRatio": 0.0127,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0117,
+            "top": 0.6641
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.652,
+            "heightRatio": 0.041,
+            "indentRatio": 0.1536,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0299,
+            "top": 0.6914
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.348,
+            "heightRatio": 0.0791,
+            "indentRatio": 0.0677,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.7627
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.174,
+            "heightRatio": 0.0254,
+            "indentRatio": 0.0365,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0195,
+            "top": 0.8682
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.13,
+            "heightRatio": 0.0078,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0365,
+            "top": 0.9189
+          }
+        ],
+        "columns": 1,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 22.8,
+          "candidates": []
+        },
+        "orientationUncertain": false,
+        "regions": 7,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 7,
+        "uprightEvidence": 0.409,
+        "window": {
+          "bottom": 0.9268,
+          "left": 0.0,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 7,
+        "consistent": false,
+        "fragmentedCount": 1,
+        "iouOk": 1,
+        "matchedIous": [
+          0.0,
+          0.4035,
+          0.4875,
+          0.6428
+        ],
+        "reason": "不一致（金标 4 vs 应用 7）"
+      },
+      "file": "IMG20260810010306.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 4,
+      "goldTops": [
+        0.012,
+        0.155,
+        0.312,
+        0.62
+      ],
+      "sha256": "c0a6174dc3584a1f457eed3d0db0daef1644a8c49c8dda84e6a61148df28e5cd",
+      "sourceShape": {
+        "height": 1024,
+        "width": 768
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          0,
+          1,
+          3,
+          9
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 0,
+            "deltaTop": 0.012,
+            "goldIndex": 0
+          },
+          {
+            "candidateIndex": 1,
+            "deltaTop": 0.0032,
+            "goldIndex": 1
+          },
+          {
+            "candidateIndex": 3,
+            "deltaTop": 0.0054,
+            "goldIndex": 2
+          },
+          {
+            "candidateIndex": 9,
+            "deltaTop": 0.0009,
+            "goldIndex": 3
+          }
+        ],
+        "precision": 0.26666666666666666,
+        "recall": 1.0
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 1.0,
+          "nearestBlockDelta": 0.0,
+          "top": 0.0
+        },
+        {
+          "gapDepth": 0.4,
+          "nearestBlockDelta": 0.0343,
+          "top": 0.215
+        },
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0084,
+          "top": 0.443
+        },
+        {
+          "gapDepth": 0.05,
+          "nearestBlockDelta": 0.0051,
+          "top": 0.658
+        }
+      ],
+      "cv": {
+        "blockStarts": 16,
+        "blockTops": [
+          0.0,
+          0.0469,
+          0.0947,
+          0.1211,
+          0.1387,
+          0.1807,
+          0.2578,
+          0.2822,
+          0.3252,
+          0.4346,
+          0.5088,
+          0.5244,
+          0.6123,
+          0.6631,
+          0.791,
+          0.8564
+        ],
+        "blocks": 16,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.0264,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0078,
+            "top": 0.0
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.312,
+            "heightRatio": 0.042,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0352,
+            "top": 0.0469
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.375,
+            "heightRatio": 0.0215,
+            "indentRatio": 0.207,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.0947
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.312,
+            "heightRatio": 0.0039,
+            "indentRatio": 0.526,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.1211
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.875,
+            "heightRatio": 0.0391,
+            "indentRatio": 0.2018,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.1387
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.188,
+            "heightRatio": 0.0742,
+            "indentRatio": 0.1341,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0052,
+            "top": 0.1807
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.188,
+            "heightRatio": 0.0068,
+            "indentRatio": 0.5885,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0143,
+            "top": 0.2578
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.125,
+            "heightRatio": 0.0264,
+            "indentRatio": 0.0169,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.2822
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.062,
+            "heightRatio": 0.085,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0169,
+            "top": 0.3252
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.562,
+            "heightRatio": 0.0586,
+            "indentRatio": 0.1302,
+            "railOk": false,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.013,
+            "top": 0.4346
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0039,
+            "indentRatio": 0.0143,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0326,
+            "top": 0.5088
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0752,
+            "indentRatio": 0.013,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0195,
+            "top": 0.5244
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.812,
+            "heightRatio": 0.0342,
+            "indentRatio": 0.0143,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0052,
+            "top": 0.6123
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.062,
+            "heightRatio": 0.1025,
+            "indentRatio": 0.0065,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.6631
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.625,
+            "heightRatio": 0.0312,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.791
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.188,
+            "heightRatio": 0.0078,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0964,
+            "top": 0.8564
+          }
+        ],
+        "columns": 1,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 23.8,
+          "candidates": []
+        },
+        "orientationUncertain": false,
+        "regions": 7,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 7,
+        "uprightEvidence": 0.324,
+        "window": {
+          "bottom": 0.8643,
+          "left": 0.0,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 7,
+        "consistent": false,
+        "fragmentedCount": 1,
+        "iouOk": 0,
+        "matchedIous": [
+          0.1857,
+          0.3706,
+          0.2907,
+          0.2536
+        ],
+        "reason": "不一致（金标 4 vs 应用 7）"
+      },
+      "file": "IMG20260810010349.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 4,
+      "goldTops": [
+        0.0,
+        0.215,
+        0.443,
+        0.658
+      ],
+      "sha256": "9e57e84e0dc6c4ce29e22657a46ba7cf91069a1ee890ef003a93f3c94513af13",
+      "sourceShape": {
+        "height": 1024,
+        "width": 768
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          0,
+          9,
+          13
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 0,
+            "deltaTop": 0.0,
+            "goldIndex": 0
+          },
+          {
+            "candidateIndex": 9,
+            "deltaTop": 0.0084,
+            "goldIndex": 2
+          },
+          {
+            "candidateIndex": 13,
+            "deltaTop": 0.0051,
+            "goldIndex": 3
+          }
+        ],
+        "precision": 0.1875,
+        "recall": 0.75
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 1.0,
+          "nearestBlockDelta": 0.0,
+          "top": 0.0
+        },
+        {
+          "gapDepth": 0.691,
+          "nearestBlockDelta": 0.037,
+          "top": 0.288
+        },
+        {
+          "gapDepth": 0.253,
+          "nearestBlockDelta": 0.0056,
+          "top": 0.843
+        }
+      ],
+      "cv": {
+        "blockStarts": 9,
+        "blockTops": [
+          0.0,
+          0.083,
+          0.251,
+          0.5186,
+          0.5479,
+          0.5938,
+          0.7207,
+          0.7998,
+          0.8486
+        ],
+        "blocks": 9,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.0342,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.5443,
+            "top": 0.0
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 9.091,
+            "heightRatio": 0.165,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0573,
+            "top": 0.083
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.545,
+            "heightRatio": 0.2529,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.1003,
+            "top": 0.251
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.727,
+            "heightRatio": 0.0254,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0182,
+            "top": 0.5186
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.727,
+            "heightRatio": 0.0391,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0208,
+            "top": 0.5479
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.273,
+            "heightRatio": 0.1133,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.1458,
+            "top": 0.5938
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.545,
+            "heightRatio": 0.0762,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0924,
+            "top": 0.7207
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.545,
+            "heightRatio": 0.0449,
+            "indentRatio": 0.0026,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0273,
+            "top": 0.7998
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.727,
+            "heightRatio": 0.0869,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.7005,
+            "top": 0.8486
+          }
+        ],
+        "columns": 1,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 76.8,
+          "candidates": []
+        },
+        "orientationUncertain": false,
+        "regions": 5,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 5,
+        "uprightEvidence": 0.055,
+        "window": {
+          "bottom": 0.9355,
+          "left": 0.0,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 5,
+        "consistent": false,
+        "fragmentedCount": 1,
+        "iouOk": 0,
+        "matchedIous": [
+          0.2963,
+          0.2976,
+          0.3712
+        ],
+        "reason": "不一致（金标 3 vs 应用 5）"
+      },
+      "file": "IMG20260810010633.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 3,
+      "goldTops": [
+        0.0,
+        0.288,
+        0.843
+      ],
+      "sha256": "c8da1e90dd25cfb618b95ff23362dbde6b835e3121b8188c54b59fdeb39a6125",
+      "sourceShape": {
+        "height": 1024,
+        "width": 768
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          0,
+          8
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 0,
+            "deltaTop": 0.0,
+            "goldIndex": 0
+          },
+          {
+            "candidateIndex": 8,
+            "deltaTop": 0.0056,
+            "goldIndex": 2
+          }
+        ],
+        "precision": 0.2222222222222222,
+        "recall": 0.6666666666666666
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 0.833,
+          "nearestBlockDelta": 0.0,
+          "top": 0.0
+        },
+        {
+          "gapDepth": 0.457,
+          "nearestBlockDelta": 0.0282,
+          "top": 0.09
+        },
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0047,
+          "top": 0.325
+        },
+        {
+          "gapDepth": 0.338,
+          "nearestBlockDelta": 0.0179,
+          "top": 0.61
+        }
+      ],
+      "cv": {
+        "blockStarts": 19,
+        "blockTops": [
+          0.0,
+          0.1182,
+          0.1592,
+          0.2061,
+          0.2598,
+          0.3203,
+          0.373,
+          0.415,
+          0.5117,
+          0.5195,
+          0.6279,
+          0.7246,
+          0.7842,
+          0.7959,
+          0.8535,
+          0.8945,
+          0.9033,
+          0.9316,
+          0.9443
+        ],
+        "blocks": 19,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.1084,
+            "indentRatio": 0.1836,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0104,
+            "top": 0.0
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.176,
+            "heightRatio": 0.0283,
+            "indentRatio": 0.2148,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0221,
+            "top": 0.1182
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.529,
+            "heightRatio": 0.0293,
+            "indentRatio": 0.1927,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.1592
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.118,
+            "heightRatio": 0.0322,
+            "indentRatio": 0.2044,
+            "railOk": false,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0143,
+            "top": 0.2061
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.588,
+            "heightRatio": 0.04,
+            "indentRatio": 0.1562,
+            "railOk": false,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0807,
+            "top": 0.2598
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.471,
+            "heightRatio": 0.0449,
+            "indentRatio": 0.1536,
+            "railOk": false,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0091,
+            "top": 0.3203
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.941,
+            "heightRatio": 0.0371,
+            "indentRatio": 0.1849,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0078,
+            "top": 0.373
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.588,
+            "heightRatio": 0.0811,
+            "indentRatio": 0.1745,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0117,
+            "top": 0.415
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.882,
+            "heightRatio": 0.0039,
+            "indentRatio": 0.1784,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.5117
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.471,
+            "heightRatio": 0.1025,
+            "indentRatio": 0.1172,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0156,
+            "top": 0.5195
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.706,
+            "heightRatio": 0.0742,
+            "indentRatio": 0.1432,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.112,
+            "top": 0.6279
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.706,
+            "heightRatio": 0.0527,
+            "indentRatio": 0.4245,
+            "railOk": false,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0547,
+            "top": 0.7246
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.824,
+            "heightRatio": 0.0049,
+            "indentRatio": 0.918,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.7842
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.824,
+            "heightRatio": 0.041,
+            "indentRatio": 0.9167,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.7959
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.0,
+            "heightRatio": 0.0332,
+            "indentRatio": 0.9154,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.8535
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.941,
+            "heightRatio": 0.0049,
+            "indentRatio": 0.9141,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.8945
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.471,
+            "heightRatio": 0.0244,
+            "indentRatio": 0.9141,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.9033
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.471,
+            "heightRatio": 0.0039,
+            "indentRatio": 0.9141,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.9316
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.059,
+            "heightRatio": 0.0322,
+            "indentRatio": 0.2253,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.9443
+          }
+        ],
+        "columns": 1,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 52.44,
+          "candidates": []
+        },
+        "orientationUncertain": false,
+        "regions": 4,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 4,
+        "uprightEvidence": 0.076,
+        "window": {
+          "bottom": 1.0,
+          "left": 0.0,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 4,
+        "consistent": true,
+        "fragmentedCount": 0,
+        "iouOk": 1,
+        "matchedIous": [
+          0.0,
+          0.2938,
+          0.5164,
+          0.1421
+        ],
+        "reason": "一致"
+      },
+      "file": "IMG20260810010859.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 4,
+      "goldTops": [
+        0.0,
+        0.09,
+        0.325,
+        0.61
+      ],
+      "sha256": "758b03abb3db320191a89ada2758c2d4b8f846ca8973aedd8e2c1882cca562b8",
+      "sourceShape": {
+        "height": 1024,
+        "width": 768
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          0,
+          5
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 0,
+            "deltaTop": 0.0,
+            "goldIndex": 0
+          },
+          {
+            "candidateIndex": 5,
+            "deltaTop": 0.0047,
+            "goldIndex": 2
+          }
+        ],
+        "precision": 0.10526315789473684,
+        "recall": 0.5
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 0.65,
+          "nearestBlockDelta": 0.0,
+          "top": 0.0
+        },
+        {
+          "gapDepth": 0.65,
+          "nearestBlockDelta": 0.0,
+          "top": 0.0
+        },
+        {
+          "gapDepth": 0.448,
+          "nearestBlockDelta": 0.033,
+          "top": 0.033
+        }
+      ],
+      "cv": {
+        "blockStarts": 20,
+        "blockTops": [
+          0.0,
+          0.2031,
+          0.2598,
+          0.2852,
+          0.2949,
+          0.3262,
+          0.3545,
+          0.3896,
+          0.5166,
+          0.5244,
+          0.5693,
+          0.6016,
+          0.6328,
+          0.7002,
+          0.7275,
+          0.8281,
+          0.8398,
+          0.8789,
+          0.918,
+          0.9697
+        ],
+        "blocks": 20,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.1963,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.1979,
+            "top": 0.0
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.4,
+            "heightRatio": 0.0479,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0534,
+            "top": 0.2031
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.8,
+            "heightRatio": 0.0215,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.2598
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.8,
+            "heightRatio": 0.0049,
+            "indentRatio": 0.0065,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.2852
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0254,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0755,
+            "top": 0.2949
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.2,
+            "heightRatio": 0.0166,
+            "indentRatio": 0.0052,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.3262
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.4,
+            "heightRatio": 0.0176,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.3545
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 3.6,
+            "heightRatio": 0.123,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0365,
+            "top": 0.3896
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.8,
+            "heightRatio": 0.0039,
+            "indentRatio": 0.1784,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.5166
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.8,
+            "heightRatio": 0.0273,
+            "indentRatio": 0.1784,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.5244
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 3.6,
+            "heightRatio": 0.0205,
+            "indentRatio": 0.1771,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.5693
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.4,
+            "heightRatio": 0.0186,
+            "indentRatio": 0.1758,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.6016
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.6,
+            "heightRatio": 0.0645,
+            "indentRatio": 0.0169,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.6328
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.6,
+            "heightRatio": 0.0244,
+            "indentRatio": 0.1693,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0547,
+            "top": 0.7002
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.6,
+            "heightRatio": 0.0967,
+            "indentRatio": 0.0039,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.7275
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.8,
+            "heightRatio": 0.0088,
+            "indentRatio": 0.0182,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.8281
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.6,
+            "heightRatio": 0.0352,
+            "indentRatio": 0.0156,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0143,
+            "top": 0.8398
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.8,
+            "heightRatio": 0.0361,
+            "indentRatio": 0.013,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0143,
+            "top": 0.8789
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.6,
+            "heightRatio": 0.0459,
+            "indentRatio": 0.0091,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0143,
+            "top": 0.918
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.2,
+            "heightRatio": 0.0303,
+            "indentRatio": 0.0286,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.9697
+          }
+        ],
+        "columns": 1,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 59.44,
+          "candidates": []
+        },
+        "orientationUncertain": false,
+        "regions": 9,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 9,
+        "uprightEvidence": -0.047,
+        "window": {
+          "bottom": 1.0,
+          "left": 0.0,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 9,
+        "consistent": false,
+        "fragmentedCount": 1,
+        "iouOk": 0,
+        "matchedIous": [
+          0.1084,
+          0.0,
+          0.2253
+        ],
+        "reason": "不一致（金标 3 vs 应用 9）"
+      },
+      "file": "IMG20260810011017.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 3,
+      "goldTops": [
+        0.0,
+        0.0,
+        0.033
+      ],
+      "sha256": "dcfe9f6714d221e9a928716b996c1f0ebbb13e61ae6dce6b83508f6fe0ff38f2",
+      "sourceShape": {
+        "height": 1024,
+        "width": 768
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          0
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 0,
+            "deltaTop": 0.0,
+            "goldIndex": 0
+          }
+        ],
+        "precision": 0.05,
+        "recall": 0.3333333333333333
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 0.743,
+          "nearestBlockDelta": 0.0,
+          "top": 0.0
+        },
+        {
+          "gapDepth": 0.095,
+          "nearestBlockDelta": 0.0023,
+          "top": 0.07
+        }
+      ],
+      "cv": {
+        "blockStarts": 16,
+        "blockTops": [
+          0.0,
+          0.0723,
+          0.123,
+          0.2324,
+          0.374,
+          0.3906,
+          0.5254,
+          0.5713,
+          0.6172,
+          0.6553,
+          0.6641,
+          0.7109,
+          0.7588,
+          0.8037,
+          0.8389,
+          0.8994
+        ],
+        "blocks": 16,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.0547,
+            "indentRatio": 0.0508,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0885,
+            "top": 0.0
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.5,
+            "heightRatio": 0.04,
+            "indentRatio": 0.1471,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.0723
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.917,
+            "heightRatio": 0.0898,
+            "indentRatio": 0.0065,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.123
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.667,
+            "heightRatio": 0.1299,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0859,
+            "top": 0.2324
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0039,
+            "indentRatio": 0.0013,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.374
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.083,
+            "heightRatio": 0.1318,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0846,
+            "top": 0.3906
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.25,
+            "heightRatio": 0.0342,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.013,
+            "top": 0.5254
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0322,
+            "indentRatio": 0.0039,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0247,
+            "top": 0.5713
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.167,
+            "heightRatio": 0.0234,
+            "indentRatio": 0.0729,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.6172
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0049,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0586,
+            "top": 0.6553
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.333,
+            "heightRatio": 0.0312,
+            "indentRatio": 0.069,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.6641
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.333,
+            "heightRatio": 0.0293,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0156,
+            "top": 0.7109
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.583,
+            "heightRatio": 0.0352,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": false,
+            "tokenRatio": 0.0078,
+            "top": 0.7588
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.833,
+            "heightRatio": 0.0312,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0013,
+            "top": 0.8037
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.333,
+            "heightRatio": 0.0518,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0026,
+            "top": 0.8389
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.1006,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0521,
+            "top": 0.8994
+          }
+        ],
+        "columns": 1,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 139.84,
+          "candidates": []
+        },
+        "orientationUncertain": false,
+        "regions": 9,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 9,
+        "uprightEvidence": -0.072,
+        "window": {
+          "bottom": 1.0,
+          "left": 0.0,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 9,
+        "consistent": false,
+        "fragmentedCount": 1,
+        "iouOk": 0,
+        "matchedIous": [
+          0.1623,
+          0.1675
+        ],
+        "reason": "不一致（金标 2 vs 应用 9）"
+      },
+      "file": "IMG20260810011126.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 2,
+      "goldTops": [
+        0.0,
+        0.07
+      ],
+      "sha256": "d67c3bed50dbbd96c69baecc1e43857b40c4919f654428189d2500180b25ea3e",
+      "sourceShape": {
+        "height": 1024,
+        "width": 768
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          0,
+          1
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 0,
+            "deltaTop": 0.0,
+            "goldIndex": 0
+          },
+          {
+            "candidateIndex": 1,
+            "deltaTop": 0.0023,
+            "goldIndex": 1
+          }
+        ],
+        "precision": 0.125,
+        "recall": 1.0
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0042,
+          "top": 0.025
+        },
+        {
+          "gapDepth": 0.241,
+          "nearestBlockDelta": 0.0238,
+          "top": 0.335
+        },
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0127,
+          "top": 0.415
+        },
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0189,
+          "top": 0.485
+        },
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0086,
+          "top": 0.8
+        }
+      ],
+      "cv": {
+        "blockStarts": 12,
+        "blockTops": [
+          0.0208,
+          0.0924,
+          0.1589,
+          0.276,
+          0.3112,
+          0.4023,
+          0.4661,
+          0.5365,
+          0.6003,
+          0.7357,
+          0.8086,
+          0.875
+        ],
+        "blocks": 12,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.0339,
+            "indentRatio": 0.0869,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0107,
+            "top": 0.0208
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.16,
+            "heightRatio": 0.0312,
+            "indentRatio": 0.0859,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0107,
+            "top": 0.0924
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.08,
+            "heightRatio": 0.0508,
+            "indentRatio": 0.0859,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0117,
+            "top": 0.1589
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.04,
+            "heightRatio": 0.0273,
+            "indentRatio": 0.0508,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0176,
+            "top": 0.276
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.24,
+            "heightRatio": 0.0651,
+            "indentRatio": 0.0508,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0049,
+            "top": 0.3112
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.8,
+            "heightRatio": 0.0391,
+            "indentRatio": 0.0488,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.4023
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.76,
+            "heightRatio": 0.0417,
+            "indentRatio": 0.0303,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.043,
+            "top": 0.4661
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.88,
+            "heightRatio": 0.0326,
+            "indentRatio": 0.04,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0098,
+            "top": 0.5365
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.96,
+            "heightRatio": 0.0534,
+            "indentRatio": 0.0312,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0176,
+            "top": 0.6003
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.52,
+            "heightRatio": 0.0404,
+            "indentRatio": 0.0205,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0166,
+            "top": 0.7357
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0339,
+            "indentRatio": 0.0156,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0049,
+            "top": 0.8086
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0534,
+            "indentRatio": 0.0068,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0078,
+            "top": 0.875
+          }
+        ],
+        "columns": 1,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 35.0,
+          "candidates": []
+        },
+        "orientationUncertain": false,
+        "regions": 5,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 5,
+        "uprightEvidence": 0.443,
+        "window": {
+          "bottom": 1.0,
+          "left": 0.0,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 5,
+        "consistent": true,
+        "fragmentedCount": 1,
+        "iouOk": 1,
+        "matchedIous": [
+          0.0,
+          0.3049,
+          0.0849,
+          0.3538,
+          0.5384
+        ],
+        "reason": "一致"
+      },
+      "file": "IMG20260810011248.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 5,
+      "goldTops": [
+        0.025,
+        0.335,
+        0.415,
+        0.485,
+        0.8
+      ],
+      "sha256": "a4b8d938af9b6717884dca1c4961bcabd9176ae022f1f59824657ad2926bf65f",
+      "sourceShape": {
+        "height": 768,
+        "width": 1024
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          0,
+          5,
+          10
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 0,
+            "deltaTop": 0.0042,
+            "goldIndex": 0
+          },
+          {
+            "candidateIndex": 5,
+            "deltaTop": 0.0127,
+            "goldIndex": 2
+          },
+          {
+            "candidateIndex": 10,
+            "deltaTop": 0.0086,
+            "goldIndex": 4
+          }
+        ],
+        "precision": 0.25,
+        "recall": 0.6
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 0.0,
+          "nearestBlockDelta": 0.0019,
+          "top": 0.04
+        },
+        {
+          "gapDepth": 0.534,
+          "nearestBlockDelta": 0.0549,
+          "top": 0.26
+        },
+        {
+          "gapDepth": 0.316,
+          "nearestBlockDelta": 0.0025,
+          "top": 0.9
+        }
+      ],
+      "cv": {
+        "blockStarts": 20,
+        "blockTops": [
+          0.0381,
+          0.0684,
+          0.0898,
+          0.0977,
+          0.1006,
+          0.127,
+          0.1494,
+          0.2051,
+          0.3662,
+          0.4453,
+          0.4473,
+          0.4648,
+          0.4834,
+          0.6602,
+          0.833,
+          0.876,
+          0.8975,
+          0.9229,
+          0.9336,
+          0.9941
+        ],
+        "blocks": 20,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.0176,
+            "indentRatio": 0.1292,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0359,
+            "top": 0.0684
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0039,
+            "indentRatio": 0.1292,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0096,
+            "top": 0.0898
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.042,
+            "indentRatio": 0.0024,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0455,
+            "top": 0.0977
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.5,
+            "heightRatio": 0.2139,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0574,
+            "top": 0.1494
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0762,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.055,
+            "top": 0.3662
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.2109,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.177,
+            "top": 0.4453
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.167,
+            "indentRatio": 0.5407,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0981,
+            "top": 0.6602
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.5,
+            "heightRatio": 0.0371,
+            "indentRatio": 0.7081,
+            "railOk": false,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0478,
+            "top": 0.833
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.5,
+            "heightRatio": 0.0186,
+            "indentRatio": 0.7201,
+            "railOk": false,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0311,
+            "top": 0.876
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0186,
+            "indentRatio": 0.4569,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0024,
+            "top": 0.8975
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.75,
+            "heightRatio": 0.0078,
+            "indentRatio": 0.7225,
+            "railOk": false,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0239,
+            "top": 0.9229
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.75,
+            "heightRatio": 0.0264,
+            "indentRatio": 0.7153,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0407,
+            "top": 0.9336
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.0596,
+            "indentRatio": 0.2693,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0062,
+            "top": 0.0381
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.3003,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0155,
+            "top": 0.1006
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": true,
+            "gapRatio": 3.667,
+            "heightRatio": 0.0752,
+            "indentRatio": 0.0062,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0495,
+            "top": 0.127
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.2383,
+            "indentRatio": 0.0,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0867,
+            "top": 0.2051
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.333,
+            "heightRatio": 0.0146,
+            "indentRatio": 0.0155,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0433,
+            "top": 0.4473
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.0156,
+            "indentRatio": 0.0155,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0464,
+            "top": 0.4648
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": false,
+            "gapRatio": 1.0,
+            "heightRatio": 0.4639,
+            "indentRatio": 0.0186,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0495,
+            "top": 0.4834
+          },
+          {
+            "columnIndex": 1,
+            "gapOk": true,
+            "gapRatio": 16.0,
+            "heightRatio": 0.0059,
+            "indentRatio": 0.7399,
+            "railOk": false,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0093,
+            "top": 0.9941
+          }
+        ],
+        "columns": 2,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 27.44,
+          "candidates": [
+            {
+              "bothSideRowShare": 0.629,
+              "center": 0.3509,
+              "leftShare": 0.246,
+              "rightShare": 0.754,
+              "widthPx": 25
+            },
+            {
+              "bothSideRowShare": 0.811,
+              "center": 0.4935,
+              "leftShare": 0.432,
+              "rightShare": 0.568,
+              "widthPx": 24
+            },
+            {
+              "bothSideRowShare": 0.811,
+              "center": 0.5618,
+              "leftShare": 0.511,
+              "rightShare": 0.489,
+              "widthPx": 27
+            },
+            {
+              "bothSideRowShare": 0.822,
+              "center": 0.6328,
+              "leftShare": 0.598,
+              "rightShare": 0.402,
+              "widthPx": 26
+            },
+            {
+              "bothSideRowShare": 0.83,
+              "center": 0.694,
+              "leftShare": 0.691,
+              "rightShare": 0.309,
+              "widthPx": 20
+            }
+          ]
+        },
+        "orientationUncertain": false,
+        "regions": 12,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 12,
+        "uprightEvidence": -0.215,
+        "window": {
+          "bottom": 1.0,
+          "left": 0.0,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 12,
+        "consistent": false,
+        "fragmentedCount": 1,
+        "iouOk": 0,
+        "matchedIous": [
+          0.2302,
+          0.3505,
+          0.3689
+        ],
+        "reason": "不一致（金标 3 vs 应用 12）"
+      },
+      "file": "IMG20260810011649.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 3,
+      "goldTops": [
+        0.04,
+        0.26,
+        0.9
+      ],
+      "sha256": "75b90dfbf369e90bd3af15279908e56af267b2d7a540d5871621a308bb3b8389",
+      "sourceShape": {
+        "height": 1024,
+        "width": 768
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          0,
+          16
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 0,
+            "deltaTop": 0.0019,
+            "goldIndex": 0
+          },
+          {
+            "candidateIndex": 16,
+            "deltaTop": 0.0025,
+            "goldIndex": 2
+          }
+        ],
+        "precision": 0.1,
+        "recall": 0.6666666666666666
+      }
+    },
+    {
+      "boundary": [
+        {
+          "gapDepth": 0.427,
+          "nearestBlockDelta": 0.0,
+          "top": 0.0
+        },
+        {
+          "gapDepth": 0.278,
+          "nearestBlockDelta": 0.0375,
+          "top": 0.262
+        },
+        {
+          "gapDepth": 0.318,
+          "nearestBlockDelta": 0.0163,
+          "top": 0.722
+        }
+      ],
+      "cv": {
+        "blockStarts": 17,
+        "blockTops": [
+          0.0,
+          0.0443,
+          0.1133,
+          0.1901,
+          0.2161,
+          0.2995,
+          0.3346,
+          0.3672,
+          0.388,
+          0.4232,
+          0.444,
+          0.5182,
+          0.5924,
+          0.6706,
+          0.6992,
+          0.7383,
+          0.8307
+        ],
+        "blocks": 17,
+        "candidatesAll": [
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": null,
+            "heightRatio": 0.0391,
+            "indentRatio": 0.0459,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0146,
+            "top": 0.0
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.5,
+            "heightRatio": 0.0573,
+            "indentRatio": 0.0771,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0117,
+            "top": 0.0443
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.125,
+            "heightRatio": 0.0729,
+            "indentRatio": 0.0762,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.002,
+            "top": 0.1133
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.375,
+            "heightRatio": 0.0143,
+            "indentRatio": 0.0684,
+            "railOk": false,
+            "score": 0,
+            "tokenOk": false,
+            "tokenRatio": 0.0039,
+            "top": 0.1901
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.125,
+            "heightRatio": 0.0742,
+            "indentRatio": 0.0293,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0479,
+            "top": 0.2161
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.875,
+            "heightRatio": 0.026,
+            "indentRatio": 0.0371,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0146,
+            "top": 0.2995
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.875,
+            "heightRatio": 0.026,
+            "indentRatio": 0.0361,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0146,
+            "top": 0.3346
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.625,
+            "heightRatio": 0.0091,
+            "indentRatio": 0.3818,
+            "railOk": false,
+            "score": 1,
+            "tokenOk": true,
+            "tokenRatio": 0.0107,
+            "top": 0.3672
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.125,
+            "heightRatio": 0.026,
+            "indentRatio": 0.0312,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0078,
+            "top": 0.388
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.875,
+            "heightRatio": 0.0078,
+            "indentRatio": 0.0215,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0469,
+            "top": 0.4232
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 1.25,
+            "heightRatio": 0.0573,
+            "indentRatio": 0.0156,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.3311,
+            "top": 0.444
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.625,
+            "heightRatio": 0.0417,
+            "indentRatio": 0.0537,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0127,
+            "top": 0.5182
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 3.125,
+            "heightRatio": 0.0482,
+            "indentRatio": 0.0361,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.041,
+            "top": 0.5924
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 2.875,
+            "heightRatio": 0.0247,
+            "indentRatio": 0.0107,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0195,
+            "top": 0.6706
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.375,
+            "heightRatio": 0.0352,
+            "indentRatio": 0.0107,
+            "railOk": true,
+            "score": 1,
+            "tokenOk": false,
+            "tokenRatio": 0.0049,
+            "top": 0.6992
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": false,
+            "gapRatio": 0.375,
+            "heightRatio": 0.0755,
+            "indentRatio": 0.0059,
+            "railOk": true,
+            "score": 2,
+            "tokenOk": true,
+            "tokenRatio": 0.0381,
+            "top": 0.7383
+          },
+          {
+            "columnIndex": 0,
+            "gapOk": true,
+            "gapRatio": 1.625,
+            "heightRatio": 0.0273,
+            "indentRatio": 0.0049,
+            "railOk": true,
+            "score": 3,
+            "tokenOk": true,
+            "tokenRatio": 0.0117,
+            "top": 0.8307
+          }
+        ],
+        "columns": 1,
+        "edgeAlignmentScore": 0.0,
+        "frame": "original",
+        "gutter": {
+          "baselineP60": 48.4,
+          "candidates": []
+        },
+        "orientationUncertain": false,
+        "regions": 10,
+        "rotated": false,
+        "rotationDirection": null,
+        "selectedByScore": 10,
+        "uprightEvidence": 0.243,
+        "window": {
+          "bottom": 1.0,
+          "left": 0.0,
+          "right": 1.0,
+          "top": 0.0
+        }
+      },
+      "cvOnlyMetric": {
+        "appBoxes": 10,
+        "consistent": false,
+        "fragmentedCount": 2,
+        "iouOk": 2,
+        "matchedIous": [
+          0.7953,
+          0.2609,
+          0.6682
+        ],
+        "reason": "不一致（金标 3 vs 应用 10）"
+      },
+      "file": "IMG20260810012103.jpg",
+      "goldLayout": "single-column",
+      "goldQuestions": 3,
+      "goldTops": [
+        0.0,
+        0.262,
+        0.722
+      ],
+      "sha256": "689fe4f3ecd2ba4b638406bee90ffc16a88a62e1e78f01ae2a49847656f03003",
+      "sourceShape": {
+        "height": 768,
+        "width": 1024
+      },
+      "topMatch": {
+        "matchedCandidates": [
+          0
+        ],
+        "pairs": [
+          {
+            "candidateIndex": 0,
+            "deltaTop": 0.0,
+            "goldIndex": 0
+          }
+        ],
+        "precision": 0.058823529411764705,
+        "recall": 0.3333333333333333
+      }
+    }
+  ],
+  "params": {
+    "auto_orient": false,
+    "block_min_height_px": 8,
+    "block_min_height_ratio": 0.004,
+    "gap_ratio": 1.5,
+    "merge_gap_ratio": 0.02,
+    "min_block_height": 4,
+    "min_both_rows": 0.45,
+    "min_gutter_width": 0.02,
+    "min_score": 2,
+    "min_side_mass": 0.2,
+    "min_valley_gap": 3,
+    "orientation_threshold": -0.08,
+    "probe_height_ratio": 0.35,
+    "rail_tolerance": 0.06,
+    "region_pad_ratio": 0.004,
+    "structure_delta": 20,
+    "structure_valley_ratio": 0.15,
+    "token_max": 0.1,
+    "token_min": 0.008,
+    "valley_ratio": 0.45
+  },
+  "subset": "dev",
+  "tool": {
+    "file": "tools/layout_probe/probe_layout.py",
+    "role": "diagnostic-only（非门、非产品路径）",
+    "sha256": "694ec6bb2247e34086bf8a1bade03762c580cfdaaf86719638606d388bcd0445"
+  },
+  "topTolerance": 0.015
+}

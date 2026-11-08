@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-809cd933df-017	CORRECT		high	力电综合问题按力学平衡思路处理	
+ext-phy-8d383de05b-003	CORRECT		high	横波的质点振动方向与波的传播方向垂直	
+ext-phy-94ce022dcc-004	CORRECT		high	用减速剂获得慢中子、用控制棒调节反应速度	
+ext-phy-97f2929e14-001	CORRECT		high	电荷守恒定律说明电荷只能转移不能创生消灭	
+ext-phy-b378391aba-048	CORRECT		high	按波长由长到短依次为无线电波、红外线、可见光、紫外线、X 射线、γ 射线	
+ext-phy-b6bd732b19-062	CORRECT		high	用高度大时间长、同起点大压小、起点不同先平移的口诀	
+ext-phy-b6bd732b19-074	CORRECT		high	卫星的向心加速度、线速度、角速度（周期）、轨道半径与中心天体质量五个量中任取两个	
+ext-phy-b6bd732b19-080b	CORRECT		high	比较速度分两种情形	节点为各点物理量关系，含变轨实质
+ext-phy-b6bd732b19-118	CORRECT		high	把曲线路径重画成竖直与水平两段折线	
+ext-phy-ba44dd7437-019	CORRECT		high	看坐标轴与图线、推物理规律、与标准函数对比读取斜率与截距的含义	
+ext-phy-bbe34064e5-021	CORRECT		high	多过程问题按「分过程—找衔接速度—各段受力与加速度—选用运动学与牛顿定律」的顺序求解	
+ext-phy-bc8a411bc4-007	CORRECT		high	已知一次感应求二次现象用程序法逐步推演	
+ext-phy-bd20492b92-007	CORRECT		high	在最低点与最高点由合力提供向心力列牛顿第二定律方程	
+ext-phy-bf19e23893-013	CORRECT		high	在匀强磁场中沿两坐标轴分别列动量定理并累加	
+ext-phy-c9f8cb4c96-021	CORRECT		high	半衰期表示放射性元素衰变的快慢	
+ext-phy-d4d535dfea-006	CORRECT		high	一个线圈电流变化产生的变化磁场在另一线圈引起感应电动势	
+ext-phy-dd3e362011-002	CORRECT		high	底边一定的光滑斜面倾角为45°时下滑时间最短	
+ext-phy-df69a5f104-007	CORRECT		medium	星球上空与内部的重力加速度可由万有引力规律求得	节点为万有引力应用（含不同高度g），材料兼含质量求解
+ext-phy-df69a5f104-011	CORRECT		high	引力弹弓效应与利用轨道偏移反推行星内部结构	
+ext-phy-e0dafc554c-004	CORRECT		high	电容的作用是通交流、隔直流、通高频、阻低频	
+ext-phy-e14aad82a5-036	CORRECT		high	靠红外线与超声波到达接收仪的时间差	
+ext-phy-e14aad82a5-042	CORRECT		high	v=v0+at 只适用于匀变速直线运动	
+ext-phy-e14aad82a5-1482	CORRECT		high	纵波是质点振动方向与波的传播方向在同一直线上的波	
+ext-phy-e14aad82a5-423	REBIND	电磁波谱与各波段的特性	high	波长较长的无线电波与红外线易发生干涉、衍射	现绑为麦克斯韦电磁说，材料为各波段特性
+ext-phy-e14aad82a5-636	CORRECT		medium	线速度侧重描述通过弧长的快慢，角速度侧重描述转过角度的快慢	节点为角速度，材料为线/角速度对比
+ext-phy-e14aad82a5-750	CORRECT		high	由轨道异常提出猜想、用万有引力定律计算可能轨道	
+ext-phy-e14aad82a5-829	CORRECT		high	减少量＝初值-末值，增量（变化量）＝末值-初值	
+ext-phy-e14aad82a5-870	REBIND	电功率	medium	电功等于电路两端电压、电流与通电时间的乘积	现绑为电源概念，材料为电功/电功率/焦耳定律
+ext-phy-e3daf4bfd8-001	CORRECT		high	伏安特性曲线、元件的U-I图线与电源的U-I图线分别描述不同的物理关系	
+ext-phy-f978043935-014	REBIND	滑块-小球-弹簧模型	high	题干说压紧到不能再压缩、压缩到最大或伸长到最长	现绑“不锁定”与材料锁定极值态相反
+ext-phy-fc19f3a3a7-042	CORRECT		high	计时点是打点计时器实际打出的点（相邻间隔 0.02 s）	
+ext-phy-fd8da7687f-001	CORRECT		high	比值定义法用两个基本物理量的比定义新物理量	
+ext-phy-fde347e3d9-037	CORRECT		high	通过连续各段相等位移所用时间之比为 1∶(√2-1)∶(√3-√2)∶(2-√3)	
+math-fixed-order-divide-method	REBIND	保序问题与书目插书法	high	部分元素顺序固定时，总数除以定序元素的全排列数	现绑为立体几何方法泛列，材料为定序/保序排列
+math-fx-pingfenxian-dengmianji-fa	CORRECT		high	解出角平分线长 $t$	
+math-fx-sanjiaoxing-neijiaohe-guanxi	REBIND	解三角形常用二级结论	medium	由 $A+B+C=\pi$ 得 $\sin(A+B)=\sin C$	现绑为中线/角平分线定理，材料为内角和三角关系
+math-hj-s212-model-coef	CORRECT		high	给定模型先认清待定系数	
+math-hj-s98-parabola-three-lines	REBIND	直线与圆锥曲线的位置关系	high	过抛物线内部一点与抛物线仅一个公共点的直线有 3 条	现绑为线面平行定义，材料为抛物线与直线交点
+math-kb-derivative-definition-limit	CORRECT		high	f′(x₀) 是平均变化率当 Δx→0 时的极限	
+math-zhengti-huanyuan-t-deng-exchux	CORRECT		high	利用对数运算性质将 $\frac{\mathrm{e}^x}{x}$ 整体换元为 $t$	
+phy-basic-instruments-principle-use	CORRECT		high	打点计时器用 50 Hz 交流电源、先接通电源后释放小车	
+phys-chao-zhong-shi-zhong-pan-duan	REBIND	超重与失重的判断方法	high	加速度有竖直向上分量时物体超重	现绑为加速度方向突变，材料为超失重判断
+phys-fx-limit-thinking-method	CORRECT		high	把题中物理量推向极大、极小或临界极限	
+phys-hj2-anan-fufu-huoyong-cezu	CORRECT		high	内阻已知的电流表可当小量程电压表用	
+phys-hj2-biaomian-kongzhong-dixia-zhonglijiasudu	CORRECT		high	表面 $g=GM/R^2$；距地心 $r=R+h$ 处 $g'=GM/r^2$	节点“天上”boundary 即上空重力加速度
+phys-hj2-chuanlian-binglian-gonglv-fenpei	CORRECT		high	串联电路各电阻消耗功率与电阻成正比	
+phys-hj2-wanyouyinli-chengjiu-haiwangxing	CORRECT		high	利用万有引力定律计算并发现了海王星	
+phys-kb-electromagnetic-wave-theory	CORRECT		high	变化的磁场产生电场，变化的电场产生磁场	
+phys-mo-l07-equilibrium-e	CORRECT		medium	受力分析与共点力的平衡中易混概念辨析的典型误区与正确结论	节点“核心规律”boundary 为受力分析
+wusan-chem-x1c3-hydrolysis-essence	CORRECT		high	盐电离出的弱酸阴离子结合 H⁺、弱碱阳离子结合 OH⁻	

@@ -1,0 +1,128 @@
+{
+    "runId": "dev-hint-prompt-02",
+    "channel": "golden-split-eval-hint-harness-v1",
+    "wireProtocol": "openai-chat-completions-v1",
+    "model": "deepseek-flash",
+    "endpoint": "https://api.deepseek.com",
+    "keySha8": "cd10efbc",
+    "layoutHintArm": true,
+    "divergences": [
+        "transport: plain HTTPS POST instead of gateway authorization pipeline (same requestBody builder, same parseCompletion)",
+        "image egress copy: prepared by caller per EgressImageBudget plan (long edge 2048, JPEG q88, q70 fallback); PIL resampling, not Android Skia bytes; scaledSize re-verified here",
+        "layout hint gray fixtures: PIL BILINEAR to long edge 1024 then ITU-R 601 luma, derived from the egress copy (same frame as the image sent); not Android BitmapFactory bytes"
+    ],
+    "pages": [
+        {
+            "file": "IMG20260810004304.jpg",
+            "record": "IMG20260810004304.json",
+            "status": "OK",
+            "regionCount": 0,
+            "layoutHintChars": "140"
+        },
+        {
+            "file": "IMG20260810004511.jpg",
+            "record": "IMG20260810004511.json",
+            "status": "OK",
+            "regionCount": 2,
+            "layoutHintChars": "113"
+        },
+        {
+            "file": "IMG20260810004854.jpg",
+            "record": "IMG20260810004854.json",
+            "status": "OK",
+            "regionCount": 0,
+            "layoutHintChars": "278"
+        },
+        {
+            "file": "IMG20260810005144.jpg",
+            "record": "IMG20260810005144.json",
+            "status": "OK",
+            "regionCount": 6,
+            "layoutHintChars": "286"
+        },
+        {
+            "file": "IMG20260810005301.jpg",
+            "record": "IMG20260810005301.json",
+            "status": "OK",
+            "regionCount": 2,
+            "layoutHintChars": "286"
+        },
+        {
+            "file": "IMG20260810005605.jpg",
+            "record": "IMG20260810005605.json",
+            "status": "ERROR",
+            "regionCount": 0,
+            "layoutHintChars": "0"
+        },
+        {
+            "file": "IMG20260810005855.jpg",
+            "record": "IMG20260810005855.json",
+            "status": "OK",
+            "regionCount": 2,
+            "layoutHintChars": "258"
+        },
+        {
+            "file": "IMG20260810010306.jpg",
+            "record": "IMG20260810010306.json",
+            "status": "OK",
+            "regionCount": 3,
+            "layoutHintChars": "266"
+        },
+        {
+            "file": "IMG20260810010349.jpg",
+            "record": "IMG20260810010349.json",
+            "status": "OK",
+            "regionCount": 4,
+            "layoutHintChars": "266"
+        },
+        {
+            "file": "IMG20260810010633.jpg",
+            "record": "IMG20260810010633.json",
+            "status": "OK",
+            "regionCount": 0,
+            "layoutHintChars": "258"
+        },
+        {
+            "file": "IMG20260810010859.jpg",
+            "record": "IMG20260810010859.json",
+            "status": "OK",
+            "regionCount": 2,
+            "layoutHintChars": "263"
+        },
+        {
+            "file": "IMG20260810011017.jpg",
+            "record": "IMG20260810011017.json",
+            "status": "OK",
+            "regionCount": 0,
+            "layoutHintChars": "260"
+        },
+        {
+            "file": "IMG20260810011126.jpg",
+            "record": "IMG20260810011126.json",
+            "status": "OK",
+            "regionCount": 0,
+            "layoutHintChars": "266"
+        },
+        {
+            "file": "IMG20260810011248.jpg",
+            "record": "IMG20260810011248.json",
+            "status": "OK",
+            "regionCount": 4,
+            "layoutHintChars": "266"
+        },
+        {
+            "file": "IMG20260810011649.jpg",
+            "record": "IMG20260810011649.json",
+            "status": "OK",
+            "regionCount": 2,
+            "layoutHintChars": "284"
+        },
+        {
+            "file": "IMG20260810012103.jpg",
+            "record": "IMG20260810012103.json",
+            "status": "OK",
+            "regionCount": 3,
+            "layoutHintChars": "259"
+        }
+    ]
+}

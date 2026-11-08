@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+bio-anaerobic-lactic-fermentation	CORRECT		high	动物、乳酸菌、马铃薯块茎等无氧呼吸产生乳酸	
+bio-co2-fertilization-suppress-photorespiration	CORRECT		high	温室增施 CO2 提高 Rubisco 处 CO2/O2 比	
+bio-concept-question-routine	CORRECT		medium	概念题抓住概念的内涵（本质特征）、外延（适用范围）与关键词句	节点为长句作答方法，材料为概念类作答
+bio-feeding-method-scope	REBIND	激素	high	类固醇激素（性激素等）可饲喂；蛋白质类激素被消化酶分解，不可饲喂	现绑胰岛素为例子，材料核心是饲喂法适用范围
+bio-fj-01-pro-metabolism-mistakes	CORRECT		high	原核细胞无线粒体仍可进行有氧呼吸	
+bio-fj-02-nucleic-acid-element-function	CORRECT		high	核酸含C、H、O、N、P，是细胞内携带遗传信息的物质	
+bio-fj-06-metabolic-active-cell-traits	CORRECT		high	代谢旺盛、蛋白质合成量大的细胞核仁大、核孔多、线粒体和核糖体较多	
+bio-fj-07-protoplast-layer	CORRECT		high	原生质层由细胞膜、液泡膜及两层膜之间的细胞质组成	
+bio-fj-08-pasteur-liebig-debate	CORRECT		high	巴斯德认为发酵需要活酵母菌细胞	
+bio-fj-09-glucose-cannot-enter-mito	CORRECT		high	线粒体不能直接利用葡萄糖	
+bio-fj-12-cell-synchronization	CORRECT		high	常用DNA合成抑制剂、秋水仙素和血清饥饿使细胞停留在同一时期	
+bio-fj-12-mitosis-anaphase-feature	CORRECT		high	后期着丝粒分裂，姐妹染色单体分开成为两条染色体并移向两极	
+bio-fj-22-mutation-insertion-deletion-effect	CORRECT		high	碱基对的增添或缺失会影响其位置之后的全部氨基酸序列	
+bio-fj-32-fishery-pest-application	CORRECT		high	捕捞后维持种群数量在K/2左右利于资源恢复	
+bio-fj-33-human-impact-succession	CORRECT		high	人类活动往往会使群落演替按照不同于自然演替的速度和方向进行	
+bio-fx-acetobacter-characters	REBIND	果酒和果醋的制作	high	醋酸菌是好氧原核生物，氧气充足时才能进行醋酸发酵	现绑为传统发酵总论，材料为醋酸菌/果醋
+bio-fx-cam-adaptive-meaning	CORRECT		high	CAM途径是对极度干旱环境的适应	
+bio-fx-constitutive-regulated-secretion	CORRECT		high	高尔基体囊泡可通过持续型与调节型两种途径分泌物质	节点为囊泡运输，材料为分泌类型
+bio-fx-judge-cytokinin-origin	CORRECT		high	细胞分裂素的主要合成部位是根尖	
+bio-fx-judge-synapse-signal	CORRECT		high	突触前膜发生电信号→化学信号转换，突触后膜发生化学信号→电信号转换	
+bio-fx-maternal-effect	CORRECT		high	母性效应是子代表型由母本基因型决定的遗传现象	
+bio-fx-mutation-breeding	CORRECT		high	诱变育种原理是基因突变	节点育种为上位概念，材料为其下位方法
+bio-fx-nucleo-cytoplasmic-sterility	CORRECT		high	只有细胞质基因为S且核基因型为rr时才雄性不育	
+bio-fx-photoinhibition-defense	CORRECT		high	光能过剩破坏PSⅡ使光合效率下降	
+bio-fx-photorespiration-vs-respiration	CORRECT		high	光呼吸与细胞呼吸都消耗O2、释放CO2	节点为光呼吸，材料为与细胞呼吸比较
+bio-fx-primer-design-principles	CORRECT		medium	引物设计需兼顾长度、GC含量、二级结构	节点为PCR技术，同科无引物专点
+bio-fx-recombination-two-sources	CORRECT		high	基因重组来自减数第一次分裂后期非同源染色体的自由组合	
+bio-homologous-recombination-cloning	CORRECT		medium	线性化载体与插入片段两末端各带 15~20 bp 同源序列	节点为基因工程总论，材料为载体构建方法
+bio-kb-dehydration-condensation-peptide-bond	CORRECT		high	一个氨基酸的羧基与另一个氨基酸的氨基连接并脱去一分子水，形成肽键	
+bio-kb-gene-dna-chromosome-relations	CORRECT		high	基因与DNA化学成分相同	
+bio-kb-gene-frequency-calculation-methods	CORRECT		high	常染色体基因频率＝纯合子频率＋1/2杂合子频率	
+bio-kb-lipid-elements-and-solubility	CORRECT		high	脂质主要是C、H、O（有的含N、P）	
+bio-kb-nucleus-distribution-exception	CORRECT		high	高等植物成熟的筛管细胞和哺乳动物成熟的红细胞没有细胞核	
+bio-kb-ph-stability-simulation-experiment	CORRECT		high	比较自来水、缓冲液和肝匀浆中滴加酸碱后的pH变化	
+bio-kb-unicellular-and-plant-level-special	CORRECT		high	单细胞生物无组织、器官、系统层次	
+bio-kb-water-18o-irrigation-judgment	CORRECT		high	用H2(18)O浇灌植物，周围空气中的H2O、O2、CO2都能检测到18O	
+bio-kb2-05-cell-wall	CORRECT		high	植物细胞壁主要成分是纤维素和果胶	
+bio-kb2-10-pigment-bands	CORRECT		high	色素带条数代表色素种类，宽窄代表含量多少	
+bio-kb2-23-adaptation-natural-selection	CORRECT		high	适应的来源是可遗传的变异	
+bio-kb2-26-hormone-regulation-features	CORRECT		high	激素通过体液运输、作用于靶器官靶细胞	
+bio-kb2-30-inward-outward-current	CORRECT		high	内向电流使膜电位去极化	
+bio-kb2-31-auxin-synthesis-transport	CORRECT		high	生长素主要在芽、幼嫩叶和发育中的种子由色氨酸合成	
+bio-kb2-31-hormone-interaction	CORRECT		high	决定器官生长发育的往往不是某种激素的绝对含量，而是不同激素的相对含量	
+bio-kb3-f2-s2-4-n01	CORRECT		high	结构蛋白：许多蛋白质是构成细胞和生物体结构的重要物质	
+bio-kb3-f2-s2-4-n08	CORRECT		high	蛋白质变性是指某些物理化学因素破坏了蛋白质的	
+bio-kb3-f4-s04-n04	CORRECT		high	物镜：低倍镜	
+bio-kb3-f4-s10-n11	CORRECT		high	由多个单糖分子脱水缩合而成	节点为细胞中的糖类，材料为多糖定义
+bio-kb3-f4-s11-n02	CORRECT		high	主要由C、H、O组成，有些脂质还含有N、P	
+bio-kb3-f4-s18-n01	CORRECT		high	细胞膜：也称质膜，它是细胞的边界	
+bio-kb3-f4-s22-n19	CORRECT		high	与能量转换有关的细胞器	节点为细胞器结构与功能

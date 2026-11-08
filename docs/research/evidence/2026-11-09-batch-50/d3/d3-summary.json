@@ -1,0 +1,87 @@
+{
+ "task": "D-3 (3D 检索质量)",
+ "batch": "50",
+ "date": "2026-11-09",
+ "identity": {
+  "pack": "moe-2025-four-subjects-v1 v28 (contentVersion ce8edb8f89d91fe7)",
+  "pack_sha256": "10ede1bf449de38ff21a53d1a13468a82b765dd0d0852dde4af770a1b8ef6670",
+  "dense_vec_sha256": "70329115240fe6beafcb88e6fd85d80585fd64f8b22dbe284730f742b0a2a1a5",
+  "dense_rows": 44121,
+  "dense_pack_sha_matches": true,
+  "golden": "tools/kb_coverage/tables/golden_queries_v2.json sha eabef102… cases=129 chapters=24"
+ },
+ "baseline": {
+  "device_fused_recall_at_5": "117/129 = 0.9069767441860465",
+  "device_fused_mrr": 0.7239018087855298,
+  "device_lexical_recall_at_5": "101/129 = 0.7829457364341085",
+  "source": "docs/kb-acceptance-2026-10-17.md §9/§10 + build/agent-batch30/v24/device-metrics.txt"
+ },
+ "step1_five_reds": {
+  "definition_source": "docs/kb-dense-rebuild-2026-10-01.md:50-64（五条既有红清单）",
+  "classes": [
+   "GoldenRetrievalJvmTest (2 tests)",
+   "ProductionLexicalLegExportTest (1)",
+   "Stage1LexicalLabTest (1)",
+   "Stage2LexicalScoresExportTest (1)",
+   "DenseTokenizerParityTest (7)"
+  ],
+  "command": "./gradlew.bat :core:data:testDebugUnitTest --tests \"*GoldenRetrievalJvmTest*\" --tests \"*ProductionLexicalLegExportTest*\" --tests \"*Stage1LexicalLabTest*\" --tests \"*Stage2LexicalScoresExportTest*\" --tests \"*DenseTokenizerParityTest*\" --console=plain --rerun",
+  "result_before_fix": "BUILD SUCCESSFUL in 2m 13s; 12 tests, 0 failures, 0 errors, 0 skipped",
+  "result_after_fix": "BUILD SUCCESSFUL in 1m 3s; 12 tests, 0 failures, 0 errors, 0 skipped",
+  "note": "五红在批次 13 已按数据变化重钉；本批开工态即为绿，未回退重演历史红态"
+ },
+ "step2_dense_same_source": {
+  "command": "python -X utf8 tools/dense_build/check_asset.py",
+  "rc": 0,
+  "checks": "11/11 OK（sidecar/packSha256/vocab/tokenizer/vec sha/header/count/bytes/layout/layoutSha256/modelManifest）"
+ },
+ "step3_recall_real_fix": {
+  "defect": "召回结果父节点用 readKnowledgeNodesByIds（历史解释路径，刻意不过滤 RETIRED/verification），绕开召回 SQL 的 subject+可信+非 RETIRED 三道过滤；退役/模型候选父节点被披露",
+  "files": [
+   "core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/dao/ProblemOrganizationDao.kt (+readRecallParentKnowledgeNodes)",
+   "core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/RoomKnowledgeBaseStore.kt (parents 改用同作用域查询)"
+  ],
+  "new_test": "core/database/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/KnowledgeRecallParentScopeInstrumentedTest.kt",
+  "red_replay": {
+   "file": "recall-scope-red.txt",
+   "result": "Tests run: 1, Failures: 1; ids=[atomic:candidate-child, atomic:active-child, atomic:retired-child, topic:active, topic:candidate, topic:retired]"
+  },
+  "green": {
+   "file": "recall-scope-green.txt",
+   "result": "OK (1 test)"
+  },
+  "regression": {
+   "KnowledgeSearchIndexCompletenessInstrumentedTest": "OK (7 tests)（recall-completeness-regression.txt）",
+   "five_reds_after_fix": "12/12 绿",
+   "core_database_jvm": "248 tests / 4 failures（全部为无关既有套件：KernelWave0SchemaContractTest、LibraryFtsCountPathQueryCopyContractTest×2、LibraryFtsRankingQueryContractTest；非本次改动触发，未在回退树上重演）"
+  }
+ },
+ "recall_hold": {
+  "jvm_fused_mirror": {
+   "recall_at_5": "117/129 = 0.9069767441860465",
+   "mrr": 0.7239018087855298,
+   "chapters": 24,
+   "chapters_vs_batch30_v24_diff_rc": 0,
+   "file": "jvm-fused-metrics-after-fix.txt"
+  },
+  "device_fused": {
+   "recall_at_5": "117/129 = 0.9069767441860465",
+   "mrr": 0.7239018087855298,
+   "p50_ms": 38,
+   "p95_ms": 58,
+   "max_ms": 94,
+   "over_budget_samples": 0,
+   "dense_leg_live": true,
+   "chapters_vs_batch30_v24_diff_rc": 0,
+   "file": "device-golden-logcat-final.txt"
+  },
+  "device_lexical": "101/129 = 0.7829457364341085; MRR 0.6178294573643413",
+  "thresholds_changed": false,
+  "assertions_relaxed": false
+ },
+ "known_boundaries_confirmed": {
+  "misses": 12,
+  "absent": ["等和线", "活结与死结模型", "力的分解"],
+  "status": "与基线同集（device-fused-misses.txt 12 条）；等和线转内容侧，活结/力的分解并集臂已批21 实测零增益并回滚，不重开"
+ }
+}

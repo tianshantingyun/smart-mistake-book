@@ -1,0 +1,38 @@
+{
+  "fixture_ok": true,
+  "isolation": {
+    "blind_count": 120,
+    "dev_count": 24,
+    "overlap": [],
+    "groups_complete": true
+  },
+  "channel_totals": {
+    "tasks": 120,
+    "facts": 288,
+    "critical_facts": 209,
+    "channel": {
+      "A": 94,
+      "A|B": 116,
+      "A|B|C": 38,
+      "A|C": 40
+    },
+    "critical_channel": {
+      "A": 87,
+      "A|B": 82,
+      "A|C": 40
+    },
+    "tasks_with_critical_a_only": 57,
+    "tasks_with_all_critical_a_only": 27
+  },
+  "channel_map_sha256": "580c2f635ce1f0b5c0e6a05ae11a23b952ebb05354c74e3e487254c8d332f30f",
+  "arms": {
+    "IMAGE_MODEL": {
+      "evaluable": false,
+      "samples": 0
+    },
+    "JS": {
+      "evaluable": false,
+      "samples": 0
+    }
+  }
+}

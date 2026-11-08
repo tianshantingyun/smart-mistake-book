@@ -1,0 +1,27 @@
+{
+    "file": "IMG20260810012103.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 13848,
+    "responseHead": "{\"id\":\"8554297b-d49e-43fa-94f7-6f7983754c3c\",\"object\":\"chat.completion\",\"created\":1794127661,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"NEED_MORE_IMAGE\\\",\\\"issues\\\":[{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":0.22},\\\"message\\\":\\\"顶部题目题干未拍全，缺少前半部分，无法完整转写\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0.72,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"第11题题干及后续问题未拍全，底部截断\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\",\\\"RECAPTURE\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。图片包含物理试卷的一部分。顶部有一道题的一部分，题干不完整（只看到“负方向为正）随位移x的变化图像正确的是”，以及四个图像A-D。这可能是上一道选择题的选项/图像部分，题干在上一页/上方被截断。然后有第10题，完整题干、选项A-D，右侧有图。下面有“三、非选择题：本题共5小题，共57分。”和第11题开头，题干未完全拍全（只到“再插上大头针D，使D挡住A、B、C。”），后面应该还有问题，但图片底部截断。画面包含多道独立题吗？第10题是一道独立题。顶部有一个部分题（可能是第9题？）和第11题部分。如果画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按页面阅读顺序给出每道题的完整外接区域。但这里第10题完整，顶部题和第11题不完整。问题：是否足以完整转写一道或多道独立题？对于第10题，可以完整转写。顶部题不完整，第11题不完整。如果识别出多道题（顶部部分题、第10题、第11题部分），但只有第10题完整。是否需要SPLIT？规则：“若画面包含2到12道互相独立的题，必须返回SPLIT”。画面确实包含多道独立题的部分（顶部一道，第10题，第11题）。但顶部和第11题不完整，无法完整转写。这可能导致NEED_MORE_IMAGE，因为内容未拍全。然而第10题完整。决策应该是SPLIT还是NEED_MORE_IMAGE？需要理解“判断图片是否足以完整转写一道或多道独立题。”如果图片包含多道题但有些未拍全，应该返回NEED_MORE_IMAGE还是SPLIT？规则说若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，并给出每个题的完整外接区域。但这里顶部题和第11题不完整，无法给出完整外接区域（需要包含题干、选项、图形和作答区），而且不完整。可能应该返回NEED_MORE_IMAGE并指出内容未拍全，不进行SPLIT？但是有第10题完整。需要仔细。\\n\\n看图片：顶部题：只看到题干最后一行“负方向为正）随位移x的变化图像正确的是",
+    "decision": "NEED_MORE_IMAGE",
+    "issueCodes": [
+        "KEY_TEXT_UNREADABLE",
+        "KEY_TEXT_UNREADABLE"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "layoutHint": null,
+    "layoutHintChars": 0,
+    "image": {
+        "egressBytes": 524993,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "a18fd0e1e8040c19414ea80071bd3026748f9f99e02121ff4acd2dca8b9a6dbe",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

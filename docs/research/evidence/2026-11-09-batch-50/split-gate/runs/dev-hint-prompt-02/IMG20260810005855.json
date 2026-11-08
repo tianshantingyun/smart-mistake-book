@@ -1,0 +1,40 @@
+{
+    "file": "IMG20260810005855.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 39410,
+    "responseHead": "{\"id\":\"74f71516-48dc-48c2-a88e-01084ab9c268\",\"object\":\"chat.completion\",\"created\":1794128702,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"页面含多道独立题，需拆分\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.02,\\\"top\\\":0.76,\\\"right\\\":0.98,\\\"bottom\\\":1},\\\"message\\\":\\\"第12题选项被页面底部裁掉\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":0.37},{\\\"left\\\":0.01,\\\"top\\\":0.36,\\\"right\\\":0.99,\\\"bottom\\\":0.76}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"We need answer only JSON per schema. Need inspect image. Need decide if multiple independent questions. Image shows chemistry page. Need identify independent questions. Top appears question? There is content starting maybe \\\"碳酸氢钠热稳定性的套管实验...\\\" likely part of a question, with options A-D. Then question 11 explicitly. Then question 12 starts at bottom, but is it complete? Image bottom cuts after line \\\"实验①取反应后的溶液加入二氧化锰，立即产生大量气体；实验②③中红色均不褪去...\\\" and next line truncated? Need determine whether 12 is complete enough? The image includes question 12 stem and partial first part, but options likely below not visible. Since page bottom cuts off, question 12 is incomplete (missing options/key conditions). There are at least 2 independent questions: one unnumbered/top question (maybe question 10? Actually starts with \\\"碳酸氢钠热稳定性的套管实验...\\\" likely question 10",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.0,
+            "top": 0.0,
+            "right": 1.0,
+            "bottom": 0.37
+        },
+        {
+            "left": 0.01,
+            "top": 0.36,
+            "right": 0.99,
+            "bottom": 0.76
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–1.000；单栏；行距约 9px；段落分隔（共 15 处，已截断到 8 条）：y=0.413（谷宽10px，栏1）；y=0.279（谷宽8px，栏1）；y=0.346（谷宽8px，栏1）；y=0.585（谷宽8px，栏1）；y=0.628（谷宽8px，栏1）；y=0.375（谷宽6px，栏1）；y=0.479（谷宽6px，栏1）；y=0.306（谷宽4px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 258,
+    "image": {
+        "egressBytes": 651810,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "629841a70366e5a38adf29a7544c1bbe9ba801e1c52386cb5a6e878331f94686",
+    "promptSha256": "80ce505eee33057d612168d01b024fa44d8dbcb15156c01ebe606e69e3d83206"
+}

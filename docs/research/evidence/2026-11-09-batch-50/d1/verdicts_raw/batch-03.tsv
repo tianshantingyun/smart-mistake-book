@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-che-6a488d0c96-008	CORRECT		high	判断微粒浓度大小前先判断微粒种类	
+ext-che-6c2b1eeb5f-024	CORRECT		high	水的离子积常数KW＝c(H＋)·c(OH－)不仅适用于纯水	
+ext-che-6ebc310976-001b	CORRECT		high	同一元素各种核素化学性质几乎完全相同、物理性质差异较大	
+ext-che-76d46e393c-084	CORRECT		medium	除去Cu2+、Ag+、Pb2+常用H2S或Na2S作沉淀剂	节点为金属硫化物溶解性，材料为沉淀剂选择（含氟化物部分超节点）
+ext-che-791ebce9ad-001b	CORRECT		high	用手在集气瓶口轻轻扇动，仅使极少量气体飘进鼻孔	
+ext-che-87aa1e387e-006c	CORRECT		high	水垢主要成分是CaCO3和Mg(OH)2	
+ext-che-88515626d1-011	CORRECT		high	自然界没有游离态硅；单质硅是半导体、可制光电池	节点为碳硅知识盲点，材料为其存在形态与用途
+ext-che-8cc878ccbe-006	CORRECT		high	固体溶解度是在一定温度下某固体物质在100 g溶剂里达到饱和状态时所溶解的质量	节点为溶解性与溶解度关系，材料为溶解度概念与影响因素
+ext-che-8cf8ecefc2-049	CORRECT		high	净反应速率等于正、逆反应速率之差	
+ext-che-8ec1d166ca-004	CORRECT		medium	加热看蒸发皿与坩埚、量器看精确度、分离看用途、存放看状态与酸碱性	节点“主要仪器”覆盖仪器选择与使用
+ext-che-9129741016-011	CORRECT		high	苯、甲苯、二甲苯、乙苯是重要化工原料	
+ext-che-9a101eff14-001c	CORRECT		high	羰基两端都连烃基时为酮	
+ext-che-9e23c53d78-001b	CORRECT		high	坩埚放在三脚架的泥三角上加热	
+ext-che-a77a9af99b-002b	CORRECT		high	工业上电解饱和食盐水制氯气	
+ext-che-b0216673fb-010	CORRECT		high	抓住能腐蚀玻璃、黄绿色气体等特征性质先锁定一种元素	
+ext-che-b08c6c1c61-013	CORRECT		high	描述反应热时无论用“反应热”“焓变”还是 ΔH，其后所跟数值都要带正负号	
+ext-che-b0e9208ef2-006	CORRECT		high	烧碱是强碱，具吸水性、潮解性与强腐蚀性	
+ext-che-b32088729d-002	CORRECT		high	含α-H的醛在稀碱中加成生成β-羟基醛并脱水成α，β-不饱和醛	
+ext-che-b461f32449-063	CORRECT		medium	通过挤压胶头、打开止水夹或改变温度引发喷泉	材料为装置与引发方法，属喷泉类型原理的实践
+ext-che-b461f32449-108	CORRECT		high	肼是二元弱碱，碱性比氨弱、电离分两步	
+ext-che-b476eb0452-013	CORRECT		high	手性碳原子是连接四个不同原子或原子团的碳原子	
+ext-che-bd9b97b326-009	CORRECT		high	由物质的量（或浓度）-时间图像判断反应物、计量数与可逆性	
+ext-che-be450e5021-009b	CORRECT		high	先由曲线升降确定反应物和生成物	
+ext-che-bfc3bf0f24-004	CORRECT		high	CO具有强还原性，CO2是典型酸性氧化物并具有氧化性	
+ext-che-c6bdf111e0-009	CORRECT		medium	化学性质表现在金属性、非金属性、可燃性、还原性、氧化性、酸碱性、稳定性等	节点讲性质与变化关系，材料为化学性质表现清单
+ext-che-c7c808a506-014	CORRECT		high	归纳有机物制备中的加热方式选择、蒸馏、冷凝回流、防暴沸与提纯流程	
+ext-che-ca61c21e91-016	CORRECT		high	燃烧产物可判断C、H并据质量比较判断是否含氧	
+ext-che-d3a055d224-007	REBIND	依据反应条件判断有机反应类型	high	稀硫酸加热为水解、Cu或Ag催化通O2为醇氧化、光照卤素为侧链取代、FeX3催化为苯环取代	节点名为题目片段，材料是通用判据
+ext-che-d5ea01c68d-097	CORRECT		high	拟卤素题套用卤素反应模板，互化物题先定中心原子化合价再判反应类型	
+ext-che-d8cfaa5609-013	REBIND	抑制-促进水电离平衡的方法	high	酸或碱抑制水的电离，含弱离子的盐水解促进水的电离	材料核心是抑制/促进规律，非酸碱计算
+ext-che-da6274793d-001c	CORRECT		high	组成与原子排列相同但互为镜像而不能重叠的一对分子	
+ext-che-dc424420ff-003	REBIND	常见仪器	high	漏斗、分液漏斗、冷凝管、胶头滴管、干燥管等的用途与操作规范	材料为仪器名称用途与规范，非试剂描述
+ext-che-dc424420ff-028	CORRECT		high	试剂存放看药品状态定口径、瓶塞由酸碱性决定	
+ext-che-e05314cc33-001c	CORRECT		high	氨基酸具有两性并能成肽	
+ext-che-e05314cc33-023c	CORRECT		high	烯烃可被臭氧氧化、被酸性高锰酸钾氧化，也可与含碳碳双键的物质发生双烯合成	节点为烯烃合成原料，材料为其信息反应用于合成
+ext-che-eb1f1b53d7-005	CORRECT		high	酸或碱都抑制水的电离，但水电离出的 c水(H＋)＝c水(OH－)	
+ext-mat-00a81ba144-001	CORRECT		high	公式法、分组求和、裂项相消、错位相减是核心方法	
+ext-mat-04cad33fb4-070	CORRECT		high	夹在二面角内的线段与两个半平面的夹角、与棱的夹角满足三射线定理	
+ext-mat-04cad33fb4-072	CORRECT		high	两异面直线间的距离等于分别取自两直线的点连线在公垂向量上的投影绝对值	
+ext-mat-07f6a9695b-008c	CORRECT		high	给值求值靠观察和差倍半关系配凑角；给值求角按求值、缩范围、定角三步走	
+ext-mat-096426d70c-004	CORRECT		high	人与座位模型的特征是一人一位且有顺序、座位可能空着	
+ext-mat-096426d70c-012	CORRECT		high	把元素标记为数字或字母重新组合	
+ext-mat-096426d70c-042	CORRECT		high	立体染色可以拍扁成平面染色	
+ext-mat-0ba4b783a9-003	CORRECT		high	用单调性、奇偶性、最值或极值的符号确定零点个数	
+ext-mat-11b718ab0f-023c	CORRECT		high	斐波那契数列对 2、3、4 取余得到的余数列呈周期	
+ext-mat-154be3e50d-030	CORRECT		high	过面的外心且垂直于该面的直线上，每一点到该面三个顶点距离相等	
+ext-mat-1c77f133a3-027	CORRECT		medium	含参单调性判定化为不等式恒成立	节点为极值最值等价转化，材料第二类正对应
+ext-mat-289deb9ecd-1828	CORRECT		high	画图时可借助平面图形表示平面	
+ext-mat-289deb9ecd-198	CORRECT		high	把分子配成分母的整数倍与常数之和	
+ext-mat-289deb9ecd-2177	CORRECT		high	结构不良问题要根据所给信息选取适当的条件解决问题	

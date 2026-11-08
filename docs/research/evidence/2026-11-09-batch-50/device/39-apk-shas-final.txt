@@ -1,0 +1,24 @@
+# 批次 50 设备全量：最终用于设备复跑的 APK sha256（本会话实构建）
+# 生成时间：2026-11-08T14:05Z 左右；文件路径相对仓库根。
+
+app/build/outputs/apk/localFirst/debug/app-localFirst-debug.apk
+  43f1fe46651614f081c0d9edb8a4bc0b33988905822868e857b24e25c34a3e8e
+
+app/build/outputs/apk/androidTest/localFirst/debug/app-localFirst-debug-androidTest.apk
+  53a5cab1c820c912b651d271fd0c429adcf26c2ee78d3492a59d120adfe75a32   # 含能力屏整串匹配修复 + 导出背景懒列表滚动修复
+  （中间态 2e32e0856f531c2c88d2921629e0f2deca7958b026f745e29fd6516fdd2afcd9 = 仅能力屏修复）
+
+core/data/build/outputs/apk/androidTest/debug/data-debug-androidTest.apk
+  0013cf379649be86b5f0f0b732296d4b9a0b2fc54d0acccfb4f1b4613a883ee0   # 含 drill 白名单修复
+
+core/database/build/outputs/apk/androidTest/debug/database-debug-androidTest.apk
+  db14c022780bb7577bf2ea4f8f97f31124c32c760fd9cad5b6eb80f8b92cbf92   # 含迁移列清单修复
+
+feature/library/build/outputs/apk/androidTest/debug/library-debug-androidTest.apk
+  14cdea1d4b45ec0d683b27e54d383f56e242a9d8a0af325da774cb408a4fced4
+
+core/export/build/outputs/apk/androidTest/debug/export-debug-androidTest.apk
+  07c713941c524c3b4dcc41fde066c40372698f55ec50af235a4d4c728db181cb
+
+app/build/outputs/apk/localFirst/release/app-localFirst-release.apk
+  1bf98b0029032ecb5c243c3ada3ac19183e53e0a912ab630510da12866d34dec   # 冒烟 + 2h soak

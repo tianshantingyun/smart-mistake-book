@@ -1,0 +1,15 @@
+device_serial=emulator-5590
+sdk=34
+release=14
+page_size=4096
+abi=x86_64
+model=sdk_gphone64_x86_64
+fingerprint=google/sdk_gphone64_x86_64/emu64xa:14/UE1A.230829.050/12077443:userdebug/dev-keys
+is_emulator=1
+packages:
+package:com.tingyun.smartmistakebook.core.database.test
+package:com.tingyun.smartmistakebook.feature.tutor.test
+package:com.tingyun.smartmistakebook.localfirst
+package:com.tingyun.smartmistakebook.localfirst.test
+package:com.tingyun.smartmistakebook.core.data.test
+package:com.tingyun.smartmistakebook.core.export.test
