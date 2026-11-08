@@ -119,6 +119,14 @@ data class StudyReviewOverview(
      * "约 M 天安排完"的覆盖承诺。
      */
     val intakeUnschedulableCount: Int = 0,
+    /**
+     * 容量预览（5b 容量 UI / KD-68 同族）：今日容量、考试缺口、积压追赶状态与逐科名额。
+     *
+     * null = 本轮没有容量事实（考试窗口内没有考试，且积压追赶未规划）——读面必须显示
+     * 如实空态，不得把全零当"今天容量为 0 题"。数据由 `StudySnapshotBuilder` 经排程服务
+     * `reviewCapacityPreview` 派生，与排程侧同一遗忘曲线/考试表/预算口径；UI 只渲染不重算。
+     */
+    val capacity: StudyReviewCapacity? = null,
 ) {
     init {
         require(completionStreakDays >= 0) { "Review completion streak must not be negative" }
@@ -608,6 +616,60 @@ interface StudyExperienceRepository : AutoCloseable {
         sessionId: Long,
         knowledgeNodeId: String,
     ): TutorAssessmentItem?
+
+    /**
+     * KD-67 第二道校准题（批次 50）：把学生显式要求后生成的**第二道题**写进
+     * `(会话, 知识点)` 的校准槽位，返回库里那一行的题面。
+     *
+     * 为什么需要独立方法而不是给 [persistKnowledgeQuizItem] 加参数：会话槽的身份
+     * `(learner, 会话, 知识点)` 是既有生产数据形态，加参数会改变所有既有实现/替身的签名；
+     * 而第二道题本来就应该有一个**不会覆盖第一道题**的独立落点。
+     *
+     * 与 [persistKnowledgeQuizItem] 同语义：同槽同身份首见即真、损坏行覆盖重写、读不回
+     * 返回 null。它**不**改变任何核验/计分判据——新题生成时仍是 `UNKNOWN`，要进任何
+     * ASK 走廊仍须走单列 CAS 升级（来源回执不变）。
+     *
+     * 默认实现返回 null（尚未支持第二槽的实现不假装落库成功；调用方据此按失败出口处置）。
+     */
+    suspend fun persistKnowledgeCalibrationQuizItem(
+        sessionId: Long,
+        knowledgeNodeId: String,
+        item: TutorAssessmentItem,
+    ): TutorAssessmentItem? = null
+
+    /**
+     * 第二道校准题的读回（恢复路径）：按 `(会话, 知识点)` 读校准槽位，绝不退回会话题面槽
+     * （那会把第一道题当成第二道题重新端上屏幕）。
+     *
+     * 默认实现返回 null（= 该实现没有第二槽；与"没有这道题"同一个失败出口）。
+     */
+    suspend fun readPersistedKnowledgeCalibrationQuizItem(
+        sessionId: Long,
+        knowledgeNodeId: String,
+    ): TutorAssessmentItem? = null
+
+    /**
+     * 第二道校准题的作答回写（KD-67 第二道校准题）：与 [submitKnowledgeQuizFeedback]
+     * 同一判分/门控链，但**按题面 id 定位自己的槽位**。
+     *
+     * 为什么必须独立：既有写入口按 `(会话, 知识点)` 读会话题面槽。第二道题与第一道题同属
+     * 一个 `(会话, 知识点)` 而键可以不同——不按题面 id 定位，就会拿第一道题的键去判第二道
+     * 题的作答（键不同 → 误报旧键拒收；键恰好相同 → 用错题面的核验/揭示态放行）。
+     *
+     * 默认实现抛错：未支持第二槽的实现不得静默把作答吞成"没有记录"。
+     */
+    suspend fun submitKnowledgeCalibrationQuizFeedback(
+        requestId: String,
+        knowledgeNodeId: String,
+        itemId: String,
+        correctChoiceId: String,
+        selectedChoiceId: String,
+        occurredAtEpochMillis: Long,
+        conversationId: String,
+    ): KnowledgeQuizFeedbackResult =
+        throw UnsupportedOperationException(
+            "Calibration-question feedback is not implemented by this repository",
+        )
 
     /**
      * KD-67：一次知识点复习刷新的**生产选择装配点**——候选装配 + 先修 join +

@@ -105,6 +105,15 @@ internal class StudySnapshotBuilder(
             learnerSnapshot = projection,
             planningContext = planningContext,
         )
+        // 5b 容量 UI（KD-68 同族）：把考试缺口/积压追赶/逐科名额/今日容量一次算清挂进快照。
+        // 只读派生：不写计划、不改今日引入集合、不改排程语义；预算/考试表/遗忘曲线与
+        // `createReviewPlan` 同一解析入口。已派生的 intake 计数传进去，避免同一事实两次读库。
+        val capacityPreview = plannerService.reviewCapacityPreview(
+            mistakes = mistakes,
+            learnerSnapshot = projection,
+            planningContext = planningContext,
+            precomputedIntakeUnschedulableCount = intakeUnschedulableCount,
+        )
         val referencedKnowledgeNodeIds = buildSet {
             addAll(projection.knowledgeMasteryStates.keys)
             orderedMistakes.forEach { mistake -> addAll(mistake.knowledgeNodeIds) }
@@ -142,6 +151,7 @@ internal class StudySnapshotBuilder(
                 intakeBacklogCount = intakeBacklog.size,
                 intakeMedianEstimateSeconds = intakeBacklog.medianEstimateSeconds(),
                 intakeUnschedulableCount = intakeUnschedulableCount,
+                capacity = capacityPreview.toStudyReviewCapacity(),
             ),
             profile = projection.toProfileOverview(
                 resolvedKnowledgeContexts = resolvedKnowledgeContexts,
