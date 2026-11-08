@@ -1,12 +1,12 @@
 {
  "id": "H-014",
  "verdict": "PASS",
- "run_id": "2026-11-08T02:45:00Z-batch49-repair-line-review-h",
- "reviewer": "batch49-acceptance-ledger-mechanical",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch45-evidence-producer-H"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "cmd:docs/acceptance/evidence/H/logs/h-014.log",
   "test:docs/acceptance/evidence/H/tests/h-aigc-implicit.xml",
@@ -16,14 +16,14 @@
  "evidence_sha256": {
   "docs/acceptance/evidence/H/logs/h-014.log": "424dd11ddfc0bfb03956905b391711c2c36ca2b2a9d91ebbb8c4023e2b9696cb",
   "docs/acceptance/evidence/H/tests/h-aigc-implicit.xml": "9d46048e351dd5cc03e4e464f8865215c9a175ba85ba9750c46ee75590fd0dd6",
-  "core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/pdf/PdfAigcContentPolicy.kt": "0e881f5b60081f19aacc83634f2c2f6cc3d1fec756507764806f18fcdb57bf22",
+  "core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/pdf/PdfAigcContentPolicy.kt": "9c22ecf8490b370dabc0d8690a784006ed0ae4c0dc184c6d15ab8a06f25e16a2",
   "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfEligibility.kt": "c66617068acd735de89bdc1beb30e46745e90d0d939e49e1b6c9165374dd2d54"
  },
  "checks": [
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=H-014; verdict=PASS; line=775; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=H-014; verdict=PASS; line=775; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "cmd_exit",
@@ -43,7 +43,7 @@
   {
    "name": "file_sha256",
    "source": "core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/pdf/PdfAigcContentPolicy.kt",
-   "value": "sha256=0e881f5b60081f19aacc83634f2c2f6cc3d1fec756507764806f18fcdb57bf22"
+   "value": "sha256=9c22ecf8490b370dabc0d8690a784006ed0ae4c0dc184c6d15ab8a06f25e16a2"
   },
   {
    "name": "file_sha256",
@@ -58,9 +58,9 @@
   "result": "recomputed-no-mismatch"
  },
  "review_scope": "single-ledger-row",
- "ledger_batch": 49,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-08T02:45:00Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

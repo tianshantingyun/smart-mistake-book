@@ -1,13 +1,13 @@
 {
  "id": "G-083",
  "verdict": "PASS",
- "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-g",
- "reviewer": "independent-reviewer:g-domain-batch46-line",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch-44-g-evidence-group"
+  "batch50-implementers"
  ],
  "self_review": false,
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "ledger_line": "docs/acceptance/ledger.md#G-083",
  "check": "未跟踪非忽略文件密钥扫描 0（456 个文件）",
  "method": "cmd: python -I tools/ci/g_security_gate.py --topic plaintext_deps （断言 G-083）; test:docs/acceptance/evidence/G/tests/g-plaintext_deps.xml",
@@ -23,7 +23,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=G-083; verdict=PASS; line=754; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=G-083; verdict=PASS; line=754; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "evidence_sha256",
@@ -86,9 +86,9 @@
  },
  "notes": "The gate counts `git status --porcelain` untracked entries (a directory counts once), not files; the check prose says '456 个文件'. Independent scan of 3,610 untracked files under 1 MB found 0 secret hits, so the property holds while the prose metric is loose. 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
  "rebind_from_run_id": "2026-11-05T01:14:36+08:00-batch44-g-evidence",
- "ledger_batch": 46,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-05T11:28:35Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

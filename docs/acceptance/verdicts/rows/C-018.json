@@ -1,12 +1,12 @@
 {
  "id": "C-018",
  "verdict": "PASS",
- "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-c",
- "reviewer": "c-domain-row-reviewer-b46",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch-44-c-domain-evidence-producer"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "test:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.xml",
   "device:docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.device.json",
@@ -21,7 +21,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=C-018; verdict=PASS; line=329; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=C-018; verdict=PASS; line=329; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "xml_aggregate",
@@ -41,7 +41,7 @@
   {
    "name": "device_binding",
    "source": "docs/research/evidence/2026-11-05-batch-44/c-domain/c-visualdrawopspainterinstrumentedtest.device.json",
-   "value": "serial=emulator-5584; boot_id=5a34f877-606b-4e74-b7b8-84f6398faf9d; apk_sha256=c9943728ec7dfb699345f39af311c0c52e183fec70224a4952eae781000dc488; test_apk_sha256=c9943728ec7dfb699345f39af311c0c52e183fec70224a4952eae781000dc488; package=com.tingyun.smartmistakebook.core.data.test; class_filter=com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterInstrumentedTest; counts={\"tests\": 24, \"evaluated\": 24, \"failures\": 0, \"errors\": 0, \"skipped\": 0}; verdict=PASS; sha256=327615f968a9eb8bdb06a38c5cc2e41d18adab653d9002665b80a53a7e9b85c9"
+   "value": "serial=emulator-5584; apk_sha256=c9943728ec7dfb699345f39af311c0c52e183fec70224a4952eae781000dc488; test_apk_sha256=c9943728ec7dfb699345f39af311c0c52e183fec70224a4952eae781000dc488; boot_id=5a34f877-606b-4e74-b7b8-84f6398faf9d; counts={\"errors\": 0, \"evaluated\": 24, \"failures\": 0, \"skipped\": 0, \"tests\": 24}; verdict=PASS; sha256=327615f968a9eb8bdb06a38c5cc2e41d18adab653d9002665b80a53a7e9b85c9"
   },
   {
    "name": "cmd_exit",
@@ -53,9 +53,9 @@
  "notes": "设备证据为批次 44 冻结轮（serial=emulator-5584，boot_id=5a34f877…，core:data test APK c9943728… / app APK 84cae864…）。本轮 adb 实测该 emulator 当前 boot_id=831e5d06…、已装 core:data test APK sha=6119038…、app APK sha=f534b0d…，与证据不一致，故未重跑设备，只做证据文件复算。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
  "review_scope": "single-ledger-row",
  "rebind_from_run_id": "2026-11-04T13:13:39Z-batch44-c-domain",
- "ledger_batch": 46,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-05T11:28:35Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

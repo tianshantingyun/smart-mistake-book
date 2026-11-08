@@ -1,13 +1,13 @@
 {
  "id": "G-056",
  "verdict": "PASS",
- "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-g",
- "reviewer": "independent-reviewer:g-domain-batch46-line",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch-44-g-evidence-group"
+  "batch50-implementers"
  ],
  "self_review": false,
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "ledger_line": "docs/acceptance/ledger.md#G-056",
  "check": "release 合并清单不含 4 个 debug-only 组件（check_release_manifest exit 0）",
  "method": "cmd: python -I tools/ci/g_security_gate.py --topic intent （断言 G-056）; test:docs/acceptance/evidence/G/tests/g-intent.xml",
@@ -23,7 +23,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=G-056; verdict=PASS; line=727; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=G-056; verdict=PASS; line=727; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "evidence_sha256",
@@ -79,9 +79,9 @@
  },
  "notes": "check_release_manifest.py re-ran via the gate (rc=0) and reports 5 debug-only components absent, not 4; the debug-only components are a superset of the 4 named ones, so the property holds. 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
  "rebind_from_run_id": "2026-11-05T01:14:36+08:00-batch44-g-evidence",
- "ledger_batch": 46,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-05T11:28:35Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

@@ -1,12 +1,12 @@
 {
  "id": "H-052",
  "verdict": "PASS",
- "run_id": "2026-11-08T02:45:00Z-batch49-repair-line-review-h",
- "reviewer": "batch49-acceptance-ledger-mechanical",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch45-evidence-producer-H"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "cmd:docs/research/evidence/2026-11-06-batch-46/h-domain/h-052-b46.log",
   "file:docs/ai-content-disclosure-copy.md",
@@ -15,7 +15,7 @@
  ],
  "evidence_sha256": {
   "docs/research/evidence/2026-11-06-batch-46/h-domain/h-052-b46.log": "0a643785f38efc69b15697f07a124c8c6ae193492cfeb1019f5a75b945d62941",
-  "docs/ai-content-disclosure-copy.md": "cd7a74866545ad2740b09cbc68d2a36fa9d985cbdf95c7e6c02e93e6862c6e08",
+  "docs/ai-content-disclosure-copy.md": "ea458a589eaf57f2b0547dadf0e46498846ea22fba03a149cabbbd0a2dd8a93d",
   "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExporter.kt": "f5644b7b58674b4165d4f85d982a38e0bd783d59a42a25d7c52fa0601d38aeeb",
   "docs/research/evidence/2026-11-06-batch-46/gate/h-gate-pytest.xml": "022230996c3cf52e4933a937ddc6ede149dd504c2dde6be7907027e7c8541ad0"
  },
@@ -23,7 +23,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=H-052; verdict=PASS; line=813; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=H-052; verdict=PASS; line=813; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "cmd_exit",
@@ -33,7 +33,7 @@
   {
    "name": "file_sha256",
    "source": "docs/ai-content-disclosure-copy.md",
-   "value": "sha256=cd7a74866545ad2740b09cbc68d2a36fa9d985cbdf95c7e6c02e93e6862c6e08"
+   "value": "sha256=ea458a589eaf57f2b0547dadf0e46498846ea22fba03a149cabbbd0a2dd8a93d"
   },
   {
    "name": "file_sha256",
@@ -48,9 +48,9 @@
   "result": "recomputed-no-mismatch"
  },
  "review_scope": "single-ledger-row",
- "ledger_batch": 49,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-08T02:45:00Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

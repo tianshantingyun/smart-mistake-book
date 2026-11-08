@@ -1,12 +1,12 @@
 {
  "id": "E-071",
  "verdict": "PASS",
- "run_id": "2026-11-05T12:57:37Z-batch47-e-row-specific-repair",
- "reviewer": "batch47-E-row-specific-repairer",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch45-evidence-producer-E"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml",
   "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest.xml",
@@ -17,13 +17,13 @@
   "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseChainTest.xml": "8c8721d14e1c60356cd5e084a4aecb2bd9b1786faab8073f8762bb2953685be7",
   "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ErrorCauseRetractorTest.xml": "0346c672d14829b37b6d1dbd9891a19c93fed6a49fd168e6b714e3b02ce43b5f",
   "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log": "8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972",
-  "core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/dao/ErrorCauseDao.kt": "e86addbb29d58c9dc09988e6f6ffaf899b460dd20cb1ac8029affab0aa627eef"
+  "core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/dao/ErrorCauseDao.kt": "881fd0fdce8f6210ad1a45ccd12cc7f24088e432b496cadf2a974db17451cdeb"
  },
  "checks": [
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=E-071; verdict=PASS; line=562; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=E-071; verdict=PASS; line=562; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "xml_aggregate",
@@ -53,7 +53,7 @@
   {
    "name": "witness_source",
    "source": "core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/dao/ErrorCauseDao.kt",
-   "value": "line_contains=WHERE active_key = :activeKey; sha256=e86addbb29d58c9dc09988e6f6ffaf899b460dd20cb1ac8029affab0aa627eef"
+   "value": "line_contains=WHERE active_key = :activeKey; sha256=881fd0fdce8f6210ad1a45ccd12cc7f24088e432b496cadf2a974db17451cdeb"
   }
  ],
  "basis": "批次 47 / E 域行特有复算（reviewer=batch47-E-row-specific-repairer，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 E-071 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；打开本行 evidence 重算 sha256 与可判定字段；追加的 check 直接断言本行方法点名的测试方法（或源码字段/读侧查询）在当前字节里存在。本文件只对该单行生效。",
@@ -63,9 +63,9 @@
   "result": "recomputed-no-mismatch"
  },
  "review_scope": "single-ledger-row",
- "ledger_batch": 46,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-05T12:57:37Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

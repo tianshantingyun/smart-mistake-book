@@ -1,12 +1,12 @@
 {
  "id": "E-081",
  "verdict": "PASS",
- "run_id": "2026-11-08T02:45:00Z-batch49-ledger-freeze",
- "reviewer": "batch49-acceptance-ledger-mechanical",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch49-implementers"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml",
   "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
@@ -15,7 +15,9 @@
   "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
   "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
   "test:docs/research/evidence/2026-11-08-batch-49/p2-conflict/01-projection-conflict-reproject.xml",
-  "test:docs/research/evidence/2026-11-08-batch-49/p2-conflict/03-conflict-session-state.xml"
+  "test:docs/research/evidence/2026-11-08-batch-49/p2-conflict/03-conflict-session-state.xml",
+  "test:docs/research/evidence/2026-11-09-batch-50/3e/jvm/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
+  "test:docs/research/evidence/2026-11-09-batch-50/kd67/jvm-KnowledgeCalibrationQuestionTest.xml"
  ],
  "evidence_sha256": {
   "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml": "733cbe466f74e52aaf4f21e16faa916b189017cef1b27cd9edec388a13bcd443",
@@ -25,13 +27,15 @@
   "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log": "422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6",
   "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log": "8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972",
   "docs/research/evidence/2026-11-08-batch-49/p2-conflict/01-projection-conflict-reproject.xml": "1609024d7791d04a50fa4b127297a56286f29616bb02a44393c3169ff9236cef",
-  "docs/research/evidence/2026-11-08-batch-49/p2-conflict/03-conflict-session-state.xml": "ef2bb6a25f70e539ae90fab61b721cc17af93301b73cf01d3b6c9be304795778"
+  "docs/research/evidence/2026-11-08-batch-49/p2-conflict/03-conflict-session-state.xml": "ef2bb6a25f70e539ae90fab61b721cc17af93301b73cf01d3b6c9be304795778",
+  "docs/research/evidence/2026-11-09-batch-50/3e/jvm/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml": "93a9d9e1536358dbb15f5b63d0128e48df3a2372ef6e151aa0c44a59b2bab167",
+  "docs/research/evidence/2026-11-09-batch-50/kd67/jvm-KnowledgeCalibrationQuestionTest.xml": "494a8b9eb1f62fc2c570cc099435be82ccbbc76f682c2d3780a19ed0a3f0b939"
  },
  "checks": [
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=E-081; verdict=PASS; line=572; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=E-081; verdict=PASS; line=572; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "xml_aggregate",
@@ -54,6 +58,16 @@
    "value": "tests=8; failures=0; errors=0; skipped=0; sha256=22d46dab72281eca607c055d12a005c4b397d559f1a8ae05ffc2ffb86ce49912"
   },
   {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
+   "value": "exit_markers=[0]; sha256=422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
+   "value": "exit_markers=[0]; sha256=8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972"
+  },
+  {
    "name": "xml_aggregate",
    "source": "docs/research/evidence/2026-11-08-batch-49/p2-conflict/01-projection-conflict-reproject.xml",
    "value": "tests=8; failures=0; errors=0; skipped=0; sha256=1609024d7791d04a50fa4b127297a56286f29616bb02a44393c3169ff9236cef"
@@ -64,22 +78,22 @@
    "value": "tests=6; failures=0; errors=0; skipped=0; sha256=ef2bb6a25f70e539ae90fab61b721cc17af93301b73cf01d3b6c9be304795778"
   },
   {
-   "name": "cmd_exit",
-   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
-   "value": "exit_markers=[0]; sha256=422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-09-batch-50/3e/jvm/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
+   "value": "tests=23; failures=0; errors=0; skipped=0; sha256=93a9d9e1536358dbb15f5b63d0128e48df3a2372ef6e151aa0c44a59b2bab167"
   },
   {
-   "name": "cmd_exit",
-   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
-   "value": "exit_markers=[0]; sha256=8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972"
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-09-batch-50/kd67/jvm-KnowledgeCalibrationQuestionTest.xml",
+   "value": "tests=5; failures=0; errors=0; skipped=0; sha256=494a8b9eb1f62fc2c570cc099435be82ccbbc76f682c2d3780a19ed0a3f0b939"
   }
  ],
- "basis": "机械复算（reviewer=batch49-acceptance-ledger-mechanical，批次49 台账冻结轮，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 E-081 并复算 ledger_sha256=d370ef8ac6774499629443e0e06bce7e241e856af42369fa1a059499dfa75bba；逐个打开本行 evidence 复算 sha256、XML counts、cmd EXIT 与设备绑定。本文件只对该单行生效。",
- "notes": "冲突处置回归：原排序 69 例 + 投影冲突/重整理 8 例 + 冲突卡状态机 6 例。",
+ "basis": "机械复算（批次50 台账轮，reviewer=batch50-acceptance-ledger-mechanical，同一会话脚本，非第二人/第二模型语义复核）：逐条打开本行证据复算 sha256、cmd exit、XML counts、device 绑定，并校验 ledger_row 的行号/verdict/台账 sha。本文件只对该单行生效。；批次50 台账轮重绑：ledger_sha256 已更新为 9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97，本行 checks 与 evidence_sha256 由 batch50 脚本按当前字节复算（reviewer=batch50-acceptance-ledger-mechanical）。",
+ "notes": "批次50 追加：3E 队列回归 23 例 + KD-67 JVM 5 例。",
  "review_scope": "single-ledger-row",
  "review_kind": "mechanical-recompute",
- "ledger_batch": 49,
- "verified_at": "2026-11-08T02:45:00Z",
+ "ledger_batch": 50,
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

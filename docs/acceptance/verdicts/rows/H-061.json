@@ -1,12 +1,12 @@
 {
  "id": "H-061",
  "verdict": "PASS",
- "run_id": "2026-11-06T00:00:00Z-batch47-h-domain-fail-repair",
- "reviewer": "batch47-h-domain-repair-reviewer",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch47-h-domain-fixer"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-gate-b47.log",
   "test:docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-connected-green.xml",
@@ -23,7 +23,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=H-061; verdict=PASS; line=822; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=H-061; verdict=PASS; line=822; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "cmd_exit",
@@ -64,8 +64,8 @@
  },
  "review_scope": "single-ledger-row",
  "review_kind": "mechanical-recompute",
- "ledger_batch": 47,
- "verified_at": "2026-11-06T00:00:00Z",
+ "ledger_batch": 50,
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

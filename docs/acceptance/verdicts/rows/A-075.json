@@ -1,12 +1,12 @@
 {
  "id": "A-075",
  "verdict": "PASS",
- "run_id": "2026-11-05T12:57:41Z-batch47-a-domain-rowspecific",
- "reviewer": "batch47-a-domain-row-reviewer",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch45-evidence-producer-A"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "test:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app-ReviewReminderCoordinatorTest.xml",
   "cmd:docs/research/evidence/2026-11-05-batch-44/a-domain/jvm-app.cmd.log"
@@ -19,7 +19,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=A-075; verdict=PASS; line=206; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=A-075; verdict=PASS; line=206; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "xml_aggregate",
@@ -49,9 +49,9 @@
   "result": "recomputed-no-mismatch"
  },
  "review_scope": "single-ledger-row",
- "ledger_batch": 47,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-05T12:57:41Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

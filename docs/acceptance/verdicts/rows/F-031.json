@@ -4,15 +4,15 @@
  "check": "导出耗时：重复运行",
  "verdict": "PASS",
  "verdict_detail": "证据与行断言一致，复算值见 checks。",
- "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-f",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
  "review_run_id": "2026-11-05T08:00:11Z-batch46-f-domain-row-review",
- "reviewer": "subagent-f-domain-row-reviewer-b46",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch44-f-domain-evidence-track"
+  "batch50-implementers"
  ],
  "self_review": false,
  "ledger": "docs/acceptance/ledger.md",
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
  "method": "3 轮批量 + 3 轮产品 + 2 轮长文档; test: docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-export-batch2.xml",
  "evidence": [
@@ -29,7 +29,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=F-031; verdict=PASS; line=612; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=F-031; verdict=PASS; line=612; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "cmd_exit",
@@ -128,9 +128,9 @@
  ],
  "notes": "本文件只对该单行生效，不构成 F 域或批次整体签字。证据由批次 44 F 域设备轮产出（emulator-5566/5562）；本复核只复算归档证据，未重跑设备。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
  "rebind_from_run_id": "2026-11-04T15:23:00Z-batch44-f-domain-device-run",
- "ledger_batch": 46,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-05T11:28:35Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

@@ -1,12 +1,12 @@
 {
  "id": "E-044",
  "verdict": "PASS",
- "run_id": "2026-11-08T02:45:00Z-batch49-ledger-freeze",
- "reviewer": "batch49-acceptance-ledger-mechanical",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch49-implementers"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.MasteryIntervalMappingTest.xml",
   "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
@@ -23,7 +23,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=E-044; verdict=PASS; line=535; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=E-044; verdict=PASS; line=535; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "xml_aggregate",
@@ -43,15 +43,15 @@
   {
    "name": "device_binding",
    "source": "docs/research/evidence/2026-11-08-batch-49/device/07-instrument-calibration-page.device.json",
-   "value": "serial=emulator-5566; apk_sha256=ebb3aa340f071bb309edb1420220a9530e9734c1f34993fa91d5b8abd2244cee; test_apk_sha256=8629a05dbc7883c33ea9018746cc750d113fba8ac9e5d717a622660aead4d6ea; sha256=68d33e73dd48232d17dd491f4195d2c170368b9e787c46a0673c50d88bc20762"
+   "value": "serial=emulator-5566; apk_sha256=ebb3aa340f071bb309edb1420220a9530e9734c1f34993fa91d5b8abd2244cee; test_apk_sha256=8629a05dbc7883c33ea9018746cc750d113fba8ac9e5d717a622660aead4d6ea; counts={\"errors\": 0, \"evaluated\": 8, \"failures\": 0, \"skipped\": 0, \"tests\": 8}; verdict=PASS; sha256=68d33e73dd48232d17dd491f4195d2c170368b9e787c46a0673c50d88bc20762"
   }
  ],
  "basis": "机械复算（reviewer=batch49-acceptance-ledger-mechanical，批次49 台账冻结轮，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 E-044 并复算 ledger_sha256=d370ef8ac6774499629443e0e06bce7e241e856af42369fa1a059499dfa75bba；逐个打开本行 evidence 复算 sha256、XML counts、cmd EXIT 与设备绑定。本文件只对该单行生效。",
  "notes": "校准页读模型证据：来源判定、同切分损失、21 维与 per-reason 口径 7 例；设备面板 8 例。",
  "review_scope": "single-ledger-row",
  "review_kind": "mechanical-recompute",
- "ledger_batch": 49,
- "verified_at": "2026-11-08T02:45:00Z",
+ "ledger_batch": 50,
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

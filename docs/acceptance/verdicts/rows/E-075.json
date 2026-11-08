@@ -1,57 +1,68 @@
 {
  "id": "E-075",
  "verdict": "PASS",
- "run_id": "2026-11-05T12:57:37Z-batch47-e-row-specific-repair",
- "reviewer": "batch47-E-row-specific-repairer",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch45-evidence-producer-E"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml",
-  "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log"
+  "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
+  "test:docs/research/evidence/2026-11-09-batch-50/3e/jvm/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
+  "device:docs/acceptance/evidence/2026-11-09-batch-50/device/3e-scan.device.json",
+  "file:docs/research/evidence/2026-11-09-batch-50/3e/logs/08-instrument-3e-green-final.log"
  ],
  "evidence_sha256": {
   "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml": "733cbe466f74e52aaf4f21e16faa916b189017cef1b27cd9edec388a13bcd443",
-  "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log": "422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log": "422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6",
+  "docs/research/evidence/2026-11-09-batch-50/3e/jvm/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml": "93a9d9e1536358dbb15f5b63d0128e48df3a2372ef6e151aa0c44a59b2bab167",
+  "docs/acceptance/evidence/2026-11-09-batch-50/device/3e-scan.device.json": "76fa2cc325b003bdc3ef2c5935d1763992f32ea2a4fe98ab9e6229967577649c",
+  "docs/research/evidence/2026-11-09-batch-50/3e/logs/08-instrument-3e-green-final.log": "93c3fe118942000a6a2016df322cda0621c46c178b7610d501356e4451277174"
  },
  "checks": [
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=E-075; verdict=PASS; line=566; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=E-075; verdict=PASS; line=566; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "xml_aggregate",
    "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml",
-   "value": "tests=27; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test; timestamp=2026-11-05T01:14:37.933Z; hostname=TIANSHAN; sha256=733cbe466f74e52aaf4f21e16faa916b189017cef1b27cd9edec388a13bcd443"
-  },
-  {
-   "name": "xml_testcase",
-   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml",
-   "value": "testcases=27; first=same-KC quota is waived while the knowledge node is not yet learned; all_present=True"
+   "value": "tests=27; failures=0; errors=0; skipped=0; sha256=733cbe466f74e52aaf4f21e16faa916b189017cef1b27cd9edec388a13bcd443"
   },
   {
    "name": "cmd_exit",
    "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
-   "value": "exit_markers=[0]; cmd=./gradlew --offline -q :core:domain:test --tests com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest --tests com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest --tests com.t; sha256=422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
+   "value": "exit_markers=[0]; sha256=422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
   },
   {
-   "name": "xml_testcase",
-   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml",
-   "value": "testcases=27; testcase=five thousand item backlog rotates without exceeding the daily budget; present=true; suite=com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test; sha256=733cbe466f74e52aaf4f21e16faa916b189017cef1b27cd9edec388a13bcd443"
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-09-batch-50/3e/jvm/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
+   "value": "tests=23; failures=0; errors=0; skipped=0; sha256=93a9d9e1536358dbb15f5b63d0128e48df3a2372ef6e151aa0c44a59b2bab167"
+  },
+  {
+   "name": "device_binding",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/device/3e-scan.device.json",
+   "value": "serial=emulator-5590; apk_sha256=dc0abe9dc8b39c6eab52ed1e5e2882db7c9868a33a126f2941c549eaf0147a82; test_apk_sha256=dc0abe9dc8b39c6eab52ed1e5e2882db7c9868a33a126f2941c549eaf0147a82; boot_id=31ecd364-6b2a-4e52-9643-23e681696172; counts={\"errors\": 0, \"evaluated\": 4, \"failures\": 0, \"skipped\": 0, \"tests\": 4}; verdict=PASS; sha256=76fa2cc325b003bdc3ef2c5935d1763992f32ea2a4fe98ab9e6229967577649c"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/3e/logs/08-instrument-3e-green-final.log",
+   "value": "sha256=93c3fe118942000a6a2016df322cda0621c46c178b7610d501356e4451277174; bytes=129"
   }
  ],
- "basis": "批次 47 / E 域行特有复算（reviewer=batch47-E-row-specific-repairer，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 E-075 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；打开本行 evidence 重算 sha256 与可判定字段；追加的 check 直接断言本行方法点名的测试方法（或源码字段/读侧查询）在当前字节里存在。本文件只对该单行生效。",
- "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "basis": "机械复算（批次50 台账轮，reviewer=batch50-acceptance-ledger-mechanical，同一会话脚本，非第二人/第二模型语义复核）：逐条打开本行证据复算 sha256、cmd exit、XML counts、device 绑定，并校验 ledger_row 的行号/verdict/台账 sha。本文件只对该单行生效。；批次50 台账轮重绑：ledger_sha256 已更新为 9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97，本行 checks 与 evidence_sha256 由 batch50 脚本按当前字节复算（reviewer=batch50-acceptance-ledger-mechanical）。",
+ "notes": "批次50 追加：3E 全库扫描 5000 候选规模门（JVM 23 例）+ 设备 4 例。",
  "adversarial": {
   "attempted": true,
   "result": "recomputed-no-mismatch"
  },
  "review_scope": "single-ledger-row",
- "ledger_batch": 46,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-05T12:57:37Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

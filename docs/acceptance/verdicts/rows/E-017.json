@@ -1,57 +1,68 @@
 {
  "id": "E-017",
  "verdict": "PASS",
- "run_id": "2026-11-05T12:57:37Z-batch47-e-row-specific-repair",
- "reviewer": "batch47-E-row-specific-repairer",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch45-evidence-producer-E"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest.xml",
-  "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log"
+  "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
+  "device:docs/research/evidence/2026-11-09-batch-50/5b/5b-capacity-section.device.json",
+  "device:docs/research/evidence/2026-11-09-batch-50/5b/5b-intake.device.json",
+  "file:docs/research/evidence/2026-11-09-batch-50/5b/jvm-green.log"
  ],
  "evidence_sha256": {
   "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest.xml": "d42649e5185ca87143a8387156dd190ed21cb047701fc845e311f73d0e9cf13c",
-  "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log": "8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972"
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log": "8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972",
+  "docs/research/evidence/2026-11-09-batch-50/5b/5b-capacity-section.device.json": "8efd15ee274fd0f4660ce8229b27ad974f4d961d0c3176abff71c31705ab32ff",
+  "docs/research/evidence/2026-11-09-batch-50/5b/5b-intake.device.json": "ec52e84816898b20bb24ac3d0b833155f2d0f0cf15ce217366db78b20bdfde3f",
+  "docs/research/evidence/2026-11-09-batch-50/5b/jvm-green.log": "dc150079a965398a8c4f0f1b6c19af6c8f47829535a2a0062b18d970c9150ca0"
  },
  "checks": [
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=E-017; verdict=PASS; line=508; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=E-017; verdict=PASS; line=508; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "xml_aggregate",
    "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest.xml",
-   "value": "tests=6; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest; timestamp=2026-11-05T01:14:55.269Z; hostname=TIANSHAN; sha256=d42649e5185ca87143a8387156dd190ed21cb047701fc845e311f73d0e9cf13c"
-  },
-  {
-   "name": "xml_testcase",
-   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest.xml",
-   "value": "testcases=6; first=preview reports exam deficits and their unmet share honestly; all_present=True"
+   "value": "tests=6; failures=0; errors=0; skipped=0; sha256=d42649e5185ca87143a8387156dd190ed21cb047701fc845e311f73d0e9cf13c"
   },
   {
    "name": "cmd_exit",
    "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-data-jvm.cmd.log",
-   "value": "exit_markers=[0]; cmd=./gradlew --offline -q :core:data:testDebugUnitTest --tests com.tingyun.smartmistakebook.core.data.study.StudySchedulingCalibrationTest --tests com.tingyun.smartmistakebook.core.data.study.ReviewCapac; sha256=8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972"
+   "value": "exit_markers=[0]; sha256=8575bb04e281a1168dd4ffeef1545f9a7bd417afcee910bd35030f2b9c54d972"
   },
   {
-   "name": "xml_testcase",
-   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest.xml",
-   "value": "testcases=6; testcase=facts mirror the forgetting curve exactly; present=true; suite=com.tingyun.smartmistakebook.core.data.study.ReviewCapacityPreviewReaderTest; sha256=d42649e5185ca87143a8387156dd190ed21cb047701fc845e311f73d0e9cf13c"
+   "name": "device_binding",
+   "source": "docs/research/evidence/2026-11-09-batch-50/5b/5b-capacity-section.device.json",
+   "value": "serial=emulator-5590; apk_sha256=518e900eca73518baee816eaa27e7a1fea632121638e8c46a9a0d8932f946805; test_apk_sha256=c5d99a80686b5435ca90398684a45711f7624b078be7309178dc4ecbab255b3f; boot_id=31ecd364-6b2a-4e52-9643-23e681696172; counts={\"errors\": 0, \"evaluated\": 3, \"failures\": 0, \"skipped\": 0, \"tests\": 3}; verdict=PASS; sha256=8efd15ee274fd0f4660ce8229b27ad974f4d961d0c3176abff71c31705ab32ff"
+  },
+  {
+   "name": "device_binding",
+   "source": "docs/research/evidence/2026-11-09-batch-50/5b/5b-intake.device.json",
+   "value": "serial=emulator-5590; apk_sha256=518e900eca73518baee816eaa27e7a1fea632121638e8c46a9a0d8932f946805; test_apk_sha256=c5d99a80686b5435ca90398684a45711f7624b078be7309178dc4ecbab255b3f; boot_id=31ecd364-6b2a-4e52-9643-23e681696172; counts={\"errors\": 0, \"evaluated\": 4, \"failures\": 0, \"skipped\": 0, \"tests\": 4}; verdict=PASS; sha256=ec52e84816898b20bb24ac3d0b833155f2d0f0cf15ce217366db78b20bdfde3f"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/5b/jvm-green.log",
+   "value": "sha256=dc150079a965398a8c4f0f1b6c19af6c8f47829535a2a0062b18d970c9150ca0; bytes=7918"
   }
  ],
- "basis": "批次 47 / E 域行特有复算（reviewer=batch47-E-row-specific-repairer，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 E-017 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；打开本行 evidence 重算 sha256 与可判定字段；追加的 check 直接断言本行方法点名的测试方法（或源码字段/读侧查询）在当前字节里存在。本文件只对该单行生效。",
- "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "basis": "机械复算（批次50 台账轮，reviewer=batch50-acceptance-ledger-mechanical，同一会话脚本，非第二人/第二模型语义复核）：逐条打开本行证据复算 sha256、cmd exit、XML counts、device 绑定，并校验 ledger_row 的行号/verdict/台账 sha。本文件只对该单行生效。；批次50 台账轮重绑：ledger_sha256 已更新为 9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97，本行 checks 与 evidence_sha256 由 batch50 脚本按当前字节复算（reviewer=batch50-acceptance-ledger-mechanical）。",
+ "notes": "批次50 追加：5b 容量预览/积压设备 3+4 例与 JVM 绿。",
  "adversarial": {
   "attempted": true,
   "result": "recomputed-no-mismatch"
  },
  "review_scope": "single-ledger-row",
- "ledger_batch": 46,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-05T12:57:37Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

@@ -1,12 +1,12 @@
 {
  "id": "A-019",
  "verdict": "PASS",
- "run_id": "2026-11-08T02:45:00Z-batch49-ledger-freeze",
- "reviewer": "batch49-acceptance-ledger-mechanical",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch49-implementers"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.xml",
   "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.device.json",
@@ -25,7 +25,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=A-019; verdict=PASS; line=150; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=A-019; verdict=PASS; line=150; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "xml_aggregate",
@@ -40,7 +40,7 @@
   {
    "name": "device_binding",
    "source": "docs/research/evidence/2026-11-08-batch-49/device/06-instrument-green-phase.device.json",
-   "value": "serial=emulator-5566; apk_sha256=ebb3aa340f071bb309edb1420220a9530e9734c1f34993fa91d5b8abd2244cee; test_apk_sha256=8629a05dbc7883c33ea9018746cc750d113fba8ac9e5d717a622660aead4d6ea; sha256=c18dbaa79c5e30296ceaf992253878cf1637f9e8bdaee64901768820ff35571b"
+   "value": "serial=emulator-5566; apk_sha256=ebb3aa340f071bb309edb1420220a9530e9734c1f34993fa91d5b8abd2244cee; test_apk_sha256=8629a05dbc7883c33ea9018746cc750d113fba8ac9e5d717a622660aead4d6ea; counts={\"errors\": 0, \"evaluated\": 8, \"failures\": 0, \"skipped\": 0, \"tests\": 8}; verdict=PASS; sha256=c18dbaa79c5e30296ceaf992253878cf1637f9e8bdaee64901768820ff35571b"
   },
   {
    "name": "file_sha256",
@@ -52,8 +52,8 @@
  "notes": "KD-67 确认卡：行级复核绑定 presenter 14 例与设备 8 例绿跑（同 APK ebb3aa34）；确认只落在屏上题、非键未核验原因不提供确认按钮。",
  "review_scope": "single-ledger-row",
  "review_kind": "mechanical-recompute",
- "ledger_batch": 49,
- "verified_at": "2026-11-08T02:45:00Z",
+ "ledger_batch": 50,
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

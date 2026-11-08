@@ -1,0 +1,89 @@
+{
+ "id": "FIX-023",
+ "verdict": "PASS",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+ "evidence": [
+  "cmd:docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-T04-T05-T07.log#exit=0",
+  "cmd:docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-prove-red.log#exit=0",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/red-kd85-model-text.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/green-kd85-model-text.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/pdf-independent-readback.log",
+  "device:docs/acceptance/evidence/2026-11-09-batch-50/device/aigc-docx-kd85.device.json",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/jvm-core-tests.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/jvm-core-model-final.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-T04-T05-T07.log": "7113def721896cd896b930a294afb90d537315c497f49cf5209842c0017147d0",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-prove-red.log": "34ab2568007b0f1652be56e188a6a9bb862dc18e373685185e9661c43fd6c02d",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/red-kd85-model-text.log": "70a66877846097d2d213b6dc5dffc219065d8f0762c63644782491ebb89bf349",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/green-kd85-model-text.log": "0e8ba95f0a44ed4a7494337fcd81c0ef4514a60aa4b624dea97a94ffc7f11514",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/pdf-independent-readback.log": "a37b5f0b387f9603fae032fcaa28b6845fa6c3b9b13ef6992a280b3d433bc37b",
+  "docs/acceptance/evidence/2026-11-09-batch-50/device/aigc-docx-kd85.device.json": "132ea81331aa1a7207b4e8b65fe3dd5ac4f07d9e48e26aaaf13578ca34f0835d",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/jvm-core-tests.log": "63275b18c4a6b7251db3140a38318d18811c6929e1cd97508475968c486f44f2",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/jvm-core-model-final.log": "55d4b780445570c34cfdf147ba470a0dd09e90ddcfc13fbb9a1f979d70bb4139"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=FIX-023; verdict=PASS; line=1054; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-T04-T05-T07.log",
+   "value": "exit_markers=[0]; sha256=7113def721896cd896b930a294afb90d537315c497f49cf5209842c0017147d0"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-prove-red.log",
+   "value": "exit_markers=[0]; sha256=34ab2568007b0f1652be56e188a6a9bb862dc18e373685185e9661c43fd6c02d"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/red-kd85-model-text.log",
+   "value": "sha256=70a66877846097d2d213b6dc5dffc219065d8f0762c63644782491ebb89bf349; bytes=6135"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/green-kd85-model-text.log",
+   "value": "sha256=0e8ba95f0a44ed4a7494337fcd81c0ef4514a60aa4b624dea97a94ffc7f11514; bytes=3898"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/pdf-independent-readback.log",
+   "value": "sha256=a37b5f0b387f9603fae032fcaa28b6845fa6c3b9b13ef6992a280b3d433bc37b; bytes=1317"
+  },
+  {
+   "name": "device_binding",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/device/aigc-docx-kd85.device.json",
+   "value": "serial=emulator-5590; apk_sha256=a70b9559f93f24bedab3ca31df439e9dd6184a658c83315355f11c8be78ab62d; test_apk_sha256=07c713941c524c3b4dcc41fde066c40372698f55ec50af235a4d4c728db181cb; boot_id=31ecd364-6b2a-4e52-9643-23e681696172; counts={\"errors\": 0, \"evaluated\": 9, \"failures\": 0, \"skipped\": 0, \"tests\": 9}; verdict=PASS; sha256=132ea81331aa1a7207b4e8b65fe3dd5ac4f07d9e48e26aaaf13578ca34f0835d"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/jvm-core-tests.log",
+   "value": "sha256=63275b18c4a6b7251db3140a38318d18811c6929e1cd97508475968c486f44f2; bytes=4784"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/jvm-core-model-final.log",
+   "value": "sha256=55d4b780445570c34cfdf147ba470a0dd09e90ddcfc13fbb9a1f979d70bb4139; bytes=2654"
+  }
+ ],
+ "basis": "机械复算（批次50 台账轮，reviewer=batch50-acceptance-ledger-mechanical，同一会话脚本，非第二人/第二模型语义复核）：逐条打开本行证据复算 sha256、cmd exit、XML counts、device 绑定，并校验 ledger_row 的行号/verdict/台账 sha。本文件只对该单行生效。",
+ "notes": "批次50：FIX-T05 关闭态门；KD-85 红 2/5→绿 5/5，设备 2 例，pypdf 正负读回；prove-red 2/2。",
+ "review_scope": "single-ledger-row",
+ "review_kind": "mechanical-recompute",
+ "ledger_batch": 50,
+ "verified_at": "2026-11-09T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "checks_scope": "row-specific"
+}

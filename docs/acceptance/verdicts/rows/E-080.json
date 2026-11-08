@@ -1,29 +1,33 @@
 {
  "id": "E-080",
  "verdict": "PASS",
- "run_id": "2026-11-08T02:45:00Z-batch49-ledger-freeze",
- "reviewer": "batch49-acceptance-ledger-mechanical",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch49-implementers"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml",
   "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
   "test:docs/research/evidence/2026-11-08-batch-49/jvm/TEST-com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest.xml",
-  "device:docs/research/evidence/2026-11-08-batch-49/device/06-instrument-green-phase.device.json"
+  "device:docs/research/evidence/2026-11-08-batch-49/device/06-instrument-green-phase.device.json",
+  "device:docs/acceptance/evidence/2026-11-09-batch-50/device/kd67-room-e2e.device.json",
+  "file:docs/research/evidence/2026-11-09-batch-50/kd67/e2e-device.txt"
  ],
  "evidence_sha256": {
   "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ReviewPlannerV2Test.xml": "733cbe466f74e52aaf4f21e16faa916b189017cef1b27cd9edec388a13bcd443",
   "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log": "422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6",
   "docs/research/evidence/2026-11-08-batch-49/jvm/TEST-com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest.xml": "0c0eedb612af1c5bc90fd3a66079208215592de499c388ed656b46c2ca2e5d35",
-  "docs/research/evidence/2026-11-08-batch-49/device/06-instrument-green-phase.device.json": "c18dbaa79c5e30296ceaf992253878cf1637f9e8bdaee64901768820ff35571b"
+  "docs/research/evidence/2026-11-08-batch-49/device/06-instrument-green-phase.device.json": "c18dbaa79c5e30296ceaf992253878cf1637f9e8bdaee64901768820ff35571b",
+  "docs/acceptance/evidence/2026-11-09-batch-50/device/kd67-room-e2e.device.json": "5754c8c1db367e7efc6b0110f481d65e41449337e2e65307e3fef9f4a9454eea",
+  "docs/research/evidence/2026-11-09-batch-50/kd67/e2e-device.txt": "12a9741e36319d8ee6944dca8c794b97bfee4c97cc594a9b9a37c1ecb780ae2e"
  },
  "checks": [
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=E-080; verdict=PASS; line=571; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=E-080; verdict=PASS; line=571; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "xml_aggregate",
@@ -31,27 +35,37 @@
    "value": "tests=27; failures=0; errors=0; skipped=0; sha256=733cbe466f74e52aaf4f21e16faa916b189017cef1b27cd9edec388a13bcd443"
   },
   {
-   "name": "xml_aggregate",
-   "source": "docs/research/evidence/2026-11-08-batch-49/jvm/TEST-com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest.xml",
-   "value": "tests=14; failures=0; errors=0; skipped=0; sha256=0c0eedb612af1c5bc90fd3a66079208215592de499c388ed656b46c2ca2e5d35"
-  },
-  {
    "name": "cmd_exit",
    "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
    "value": "exit_markers=[0]; sha256=422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
   },
   {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-08-batch-49/jvm/TEST-com.tingyun.smartmistakebook.feature.review.KnowledgeClarificationPresenterTest.xml",
+   "value": "tests=14; failures=0; errors=0; skipped=0; sha256=0c0eedb612af1c5bc90fd3a66079208215592de499c388ed656b46c2ca2e5d35"
+  },
+  {
    "name": "device_binding",
    "source": "docs/research/evidence/2026-11-08-batch-49/device/06-instrument-green-phase.device.json",
-   "value": "serial=emulator-5566; apk_sha256=ebb3aa340f071bb309edb1420220a9530e9734c1f34993fa91d5b8abd2244cee; test_apk_sha256=8629a05dbc7883c33ea9018746cc750d113fba8ac9e5d717a622660aead4d6ea; sha256=c18dbaa79c5e30296ceaf992253878cf1637f9e8bdaee64901768820ff35571b"
+   "value": "serial=emulator-5566; apk_sha256=ebb3aa340f071bb309edb1420220a9530e9734c1f34993fa91d5b8abd2244cee; test_apk_sha256=8629a05dbc7883c33ea9018746cc750d113fba8ac9e5d717a622660aead4d6ea; counts={\"errors\": 0, \"evaluated\": 8, \"failures\": 0, \"skipped\": 0, \"tests\": 8}; verdict=PASS; sha256=c18dbaa79c5e30296ceaf992253878cf1637f9e8bdaee64901768820ff35571b"
+  },
+  {
+   "name": "device_binding",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/device/kd67-room-e2e.device.json",
+   "value": "serial=emulator-5590; apk_sha256=ba005aa706d5ad039be5e7ab58ff268c551946b1d522195d64a534c8a080629b; test_apk_sha256=ba005aa706d5ad039be5e7ab58ff268c551946b1d522195d64a534c8a080629b; boot_id=31ecd364-6b2a-4e52-9643-23e681696172; counts={\"errors\": 0, \"evaluated\": 3, \"failures\": 0, \"skipped\": 0, \"tests\": 3}; verdict=PASS; sha256=5754c8c1db367e7efc6b0110f481d65e41449337e2e65307e3fef9f4a9454eea"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/kd67/e2e-device.txt",
+   "value": "sha256=12a9741e36319d8ee6944dca8c794b97bfee4c97cc594a9b9a37c1ecb780ae2e; bytes=375"
   }
  ],
- "basis": "机械复算（reviewer=batch49-acceptance-ledger-mechanical，批次49 台账冻结轮，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 E-080 并复算 ledger_sha256=d370ef8ac6774499629443e0e06bce7e241e856af42369fa1a059499dfa75bba；逐个打开本行 evidence 复算 sha256、XML counts、cmd EXIT 与设备绑定。本文件只对该单行生效。",
- "notes": "KD-67 选择/确认证据：澄清状态机 14 例 + 设备确认卡 2 例；确认三重门控（原因/题目身份/已作答）。",
+ "basis": "机械复算（批次50 台账轮，reviewer=batch50-acceptance-ledger-mechanical，同一会话脚本，非第二人/第二模型语义复核）：逐条打开本行证据复算 sha256、cmd exit、XML counts、device 绑定，并校验 ledger_row 的行号/verdict/台账 sha。本文件只对该单行生效。；批次50 台账轮重绑：ledger_sha256 已更新为 9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97，本行 checks 与 evidence_sha256 由 batch50 脚本按当前字节复算（reviewer=batch50-acceptance-ledger-mechanical）。",
+ "notes": "批次50 追加：KD-67 第二道校准题真 Room e2e 3 例。",
  "review_scope": "single-ledger-row",
  "review_kind": "mechanical-recompute",
- "ledger_batch": 49,
- "verified_at": "2026-11-08T02:45:00Z",
+ "ledger_batch": 50,
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

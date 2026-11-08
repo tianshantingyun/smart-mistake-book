@@ -1,12 +1,12 @@
 {
  "id": "D0-033",
  "verdict": "PASS",
- "run_id": "2026-11-05T17:30:00Z-batch46-convergence-repair",
- "reviewer": "batch46-convergence-reviewer",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch45-evidence-producer-D0"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "cmd:docs/research/evidence/2026-11-06-batch-46/d0-self/verdicts.txt",
   "test:docs/research/evidence/2026-11-06-batch-46/gate/d0-self-pytest.xml"
@@ -19,7 +19,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=D0-033; verdict=PASS; line=64; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=D0-033; verdict=PASS; line=64; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "cmd_log",
@@ -34,7 +34,7 @@
   {
    "name": "direct_recount",
    "source": "docs/acceptance/ledger.md",
-   "value": "row_json_files=922; evidence_sha256_complete=922"
+   "value": "row_json_files=946; evidence_sha256_complete=922"
   }
  ],
  "basis": "机械复算（reviewer=batch46-convergence-reviewer，非本行证据作者）：批次 46 收敛时发现本 JSON 旧检查把已存在的证据误标为 evidence_missing（生成器路径解析缺陷，错误地以 exists=False 记在 PASS 行上）。本轮按台账当前字节复算 ledger_sha256 与证据 sha256，直接重跑/重读可判定字段后重建 checks；不改变台账 verdict，只让检查值可复算。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
@@ -44,9 +44,9 @@
   "result": "recomputed-no-mismatch"
  },
  "review_scope": "single-ledger-row",
- "ledger_batch": 46,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-05T11:28:35Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

@@ -1,12 +1,12 @@
 {
  "id": "A-064",
  "verdict": "PASS",
- "run_id": "2026-11-08T02:45:00Z-batch49-ledger-freeze",
- "reviewer": "batch49-acceptance-ledger-mechanical",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch49-implementers"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mastery.xml",
   "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mastery.device.json",
@@ -33,7 +33,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=A-064; verdict=PASS; line=195; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=A-064; verdict=PASS; line=195; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "xml_aggregate",
@@ -53,7 +53,7 @@
   {
    "name": "device_binding",
    "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r8-mastery.device.json",
-   "value": "sha256=462d1a5001fefb274abbec79082e3b73684504f561e2e05073419eb67e66953c"
+   "value": "serial=emulator-5584; apk_sha256=84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b; test_apk_sha256=9ede778ded7bde91157b4c09f9be61585bea0aed7e8cade450431c5ed86c13e3; boot_id=5a34f877-606b-4e74-b7b8-84f6398faf9d; counts={\"errors\": 0, \"evaluated\": 2, \"failures\": 0, \"skipped\": 0, \"tests\": 2}; verdict=PASS; sha256=462d1a5001fefb274abbec79082e3b73684504f561e2e05073419eb67e66953c"
   },
   {
    "name": "file_sha256",
@@ -70,8 +70,8 @@
  "notes": "P1 标定：模拟器 6 例与规模金样 2 例绿；G6 0/4、权重 0/17 臂未过预注册门，掌握阈值 21/0.9 未改，结论 model-based。",
  "review_scope": "single-ledger-row",
  "review_kind": "mechanical-recompute",
- "ledger_batch": 49,
- "verified_at": "2026-11-08T02:45:00Z",
+ "ledger_batch": 50,
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

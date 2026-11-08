@@ -4,17 +4,16 @@
  "verdict": "PASS",
  "verdict_detail": "原行写「计数稳定 12」，实测 6（12 是 soak 口径）。稳定性判据改为可复算形式：运行后快照 6 条 data_app_crash 的时间戳全部早于窗口起点 15:23Z，等价于窗口内新增 0 条，与 anr-crash.cmd.log 的 NEW_EVENTS_IN_WINDOW=0 一致。",
  "domain": "F",
- "run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
  "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
- "reviewer": "subagent-f-domain-fail-fix-b47",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch44-f-domain-evidence-track",
-  "batch46-f-domain-row-reviewer-b46"
+  "batch50-implementers"
  ],
  "self_review": false,
  "ledger": "docs/acceptance/ledger.md",
  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
- "ledger_batch": 47,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
  "independence": {
   "reviewer_role_only": true,
@@ -33,7 +32,7 @@
  },
  "findings": [],
  "caveats": [],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "method": "6 个仪器化套件 + 手工启停后 dropbox data_app_crash 计数稳定 6（原行误写 12）；判据：运行后快照 6 条时间戳全部早于窗口起点 15:23Z，等价于窗口内新增 0 条（anr-crash.cmd.log NEW_EVENTS_IN_WINDOW=0 同值）, device: emulator-5566",
  "evidence": [
   "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log",
@@ -51,7 +50,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=F-067; verdict=PASS; line=648; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=F-067; verdict=PASS; line=648; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "dropbox_app_entries",
@@ -115,5 +114,6 @@
   }
  ],
  "basis": "批次47 复算：重扫 dropbox-after.txt 与 anr-crash.cmd.log。输出 F-067-dropbox-stability.{json,cmd.log}（EXIT=0）。",
- "notes": "本文件只对该单行生效。批次44 未归档窗口前快照；本行改用“时间戳全早于窗口”的等价判据，不声称存在未归档的前快照。"
+ "notes": "本文件只对该单行生效。批次44 未归档窗口前快照；本行改用“时间戳全早于窗口”的等价判据，不声称存在未归档的前快照。",
+ "verified_at": "2026-11-09T00:00:00Z"
 }

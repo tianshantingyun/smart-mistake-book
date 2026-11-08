@@ -1,12 +1,12 @@
 {
  "id": "A-047",
  "verdict": "PASS",
- "run_id": "2026-11-05T12:57:41Z-batch47-a-domain-rowspecific",
- "reviewer": "batch47-a-domain-row-reviewer",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch45-evidence-producer-A"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r6-backup.xml",
   "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r6-backup.device.json",
@@ -21,7 +21,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=A-047; verdict=PASS; line=178; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=A-047; verdict=PASS; line=178; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "xml_aggregate",
@@ -36,7 +36,7 @@
   {
    "name": "device_binding",
    "source": "docs/research/evidence/2026-11-05-batch-44/a-domain/r6-backup.device.json",
-   "value": "serial=emulator-5584; apk_sha256=84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b; test_apk_sha256=9ede778ded7bde91157b4c09f9be61585bea0aed7e8cade450431c5ed86c13e3; counts={\"errors\": 0, \"evaluated\": 11, \"failures\": 0, \"skipped\": 0, \"tests\": 11}; verdict=PASS; boot_id=5a34f877-606b-4e74-b7b8-84f6398faf9d; sha256=a076839a9ee544b67e4e12a49aef745366f253e78212af1e7cf2c8164753e473"
+   "value": "serial=emulator-5584; apk_sha256=84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b; test_apk_sha256=9ede778ded7bde91157b4c09f9be61585bea0aed7e8cade450431c5ed86c13e3; boot_id=5a34f877-606b-4e74-b7b8-84f6398faf9d; counts={\"errors\": 0, \"evaluated\": 11, \"failures\": 0, \"skipped\": 0, \"tests\": 11}; verdict=PASS; sha256=a076839a9ee544b67e4e12a49aef745366f253e78212af1e7cf2c8164753e473"
   },
   {
    "name": "cmd_exit",
@@ -56,9 +56,9 @@
   "result": "recomputed-no-mismatch"
  },
  "review_scope": "single-ledger-row",
- "ledger_batch": 47,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-05T12:57:41Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

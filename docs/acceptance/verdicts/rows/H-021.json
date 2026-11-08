@@ -1,12 +1,12 @@
 {
  "id": "H-021",
  "verdict": "PASS",
- "run_id": "2026-11-08T02:45:00Z-batch49-repair-line-review-h",
- "reviewer": "batch49-acceptance-ledger-mechanical",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch45-evidence-producer-H"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "cmd:docs/acceptance/evidence/H/logs/h-021.log",
   "test:docs/acceptance/evidence/H/tests/h-privacy.xml",
@@ -15,13 +15,13 @@
  "evidence_sha256": {
   "docs/acceptance/evidence/H/logs/h-021.log": "75ae54c76c658850bfcaaad591457fdcf971f2e60868aa9377217de27ebe77ac",
   "docs/acceptance/evidence/H/tests/h-privacy.xml": "a09a51dad6c9e0faa58c2b8a1a036e69fe23ba6e4d0c48a8ae3080f55a25bdf7",
-  "app/src/main/kotlin/com/tingyun/smartmistakebook/SecondaryScreens.kt": "d64919f5a242d9b09678d3071b15b794dab2bcb2dbe4cb3667a419d27844d4d0"
+  "app/src/main/kotlin/com/tingyun/smartmistakebook/SecondaryScreens.kt": "7f36b2063215236765d96c0071925ef0aae55ce3829733acdcd2b0563705fac9"
  },
  "checks": [
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=H-021; verdict=PASS; line=782; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=H-021; verdict=PASS; line=782; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "cmd_exit",
@@ -41,7 +41,7 @@
   {
    "name": "file_sha256",
    "source": "app/src/main/kotlin/com/tingyun/smartmistakebook/SecondaryScreens.kt",
-   "value": "sha256=d64919f5a242d9b09678d3071b15b794dab2bcb2dbe4cb3667a419d27844d4d0"
+   "value": "sha256=7f36b2063215236765d96c0071925ef0aae55ce3829733acdcd2b0563705fac9"
   }
  ],
  "basis": "机械复算（reviewer=batch49-acceptance-ledger-mechanical，批次49 台账冻结轮，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 H-021 并复算 ledger_sha256=d370ef8ac6774499629443e0e06bce7e241e856af42369fa1a059499dfa75bba；逐个打开本行 evidence 复算 sha256、XML counts、cmd EXIT 与设备绑定。本文件只对该单行生效。",
@@ -51,9 +51,9 @@
   "result": "recomputed-no-mismatch"
  },
  "review_scope": "single-ledger-row",
- "ledger_batch": 49,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-08T02:45:00Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

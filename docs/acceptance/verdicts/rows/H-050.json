@@ -1,12 +1,12 @@
 {
  "id": "H-050",
  "verdict": "PASS",
- "run_id": "2026-11-05T08:50:11Z-batch46-line-review-h",
- "reviewer": "batch46-line-reviewer-H",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch45-evidence-producer-H"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "cmd:docs/acceptance/evidence/H/logs/h-050.log",
   "test:docs/acceptance/evidence/H/tests/h-disclaimer.xml",
@@ -15,13 +15,13 @@
  "evidence_sha256": {
   "docs/acceptance/evidence/H/logs/h-050.log": "af5a89beacdc8f6f7a77c9dcff20fdb66fc0501350e4d76964254e26aba06944",
   "docs/acceptance/evidence/H/tests/h-disclaimer.xml": "1dd864f4e490c971f6721ee7c54774b520e0e27bef2433b96e681fbb1b941b4f",
-  "docs/ai-content-disclosure-copy.md": "cd7a74866545ad2740b09cbc68d2a36fa9d985cbdf95c7e6c02e93e6862c6e08"
+  "docs/ai-content-disclosure-copy.md": "ea458a589eaf57f2b0547dadf0e46498846ea22fba03a149cabbbd0a2dd8a93d"
  },
  "checks": [
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=H-050; verdict=PASS; line=811; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=H-050; verdict=PASS; line=811; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "cmd_exit",
@@ -41,7 +41,7 @@
   {
    "name": "file_sha256",
    "source": "docs/ai-content-disclosure-copy.md",
-   "value": "sha256=cd7a74866545ad2740b09cbc68d2a36fa9d985cbdf95c7e6c02e93e6862c6e08"
+   "value": "sha256=ea458a589eaf57f2b0547dadf0e46498846ea22fba03a149cabbbd0a2dd8a93d"
   }
  ],
  "basis": "机械复算（reviewer=batch46-line-reviewer-H，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 H-050 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
@@ -51,9 +51,9 @@
   "result": "recomputed-no-mismatch"
  },
  "review_scope": "single-ledger-row",
- "ledger_batch": 46,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-05T11:28:35Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

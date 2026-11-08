@@ -1,12 +1,12 @@
 {
  "id": "H-034",
  "verdict": "PASS",
- "run_id": "2026-11-05T08:50:11Z-batch46-line-review-h",
- "reviewer": "batch46-line-reviewer-H",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch45-evidence-producer-H"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "cmd:docs/acceptance/evidence/H/logs/h-034.log",
   "test:docs/acceptance/evidence/H/tests/h-data-safety.xml",
@@ -16,14 +16,14 @@
  "evidence_sha256": {
   "docs/acceptance/evidence/H/logs/h-034.log": "762c41d8bd96b53bca05fa02350c358e0a1e6cc57aaf951227653fcea842f12d",
   "docs/acceptance/evidence/H/tests/h-data-safety.xml": "e62932a7408ab9cf3712edd65768ca4299ea592aa73a8b9779f74a2424d3368c",
-  "docs/current/privacy-and-data-safety.md": "c50f5a936a798d88e29312740c15524a63f3671d0029e3aeb324c7b3c679c0cb",
+  "docs/current/privacy-and-data-safety.md": "269f0bcc941c97103e6f569b4fb965e7e9bb0f996d3c3aebbadd4008824ae6ef",
   "core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/telemetry/TelemetryConsent.kt": "a0f85a24188d9c8f3eb0475d032055674ccdfde2776eb45feff0fe2ffe5c7ac1"
  },
  "checks": [
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=H-034; verdict=PASS; line=795; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=H-034; verdict=PASS; line=795; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "cmd_exit",
@@ -43,7 +43,7 @@
   {
    "name": "file_sha256",
    "source": "docs/current/privacy-and-data-safety.md",
-   "value": "sha256=c50f5a936a798d88e29312740c15524a63f3671d0029e3aeb324c7b3c679c0cb"
+   "value": "sha256=269f0bcc941c97103e6f569b4fb965e7e9bb0f996d3c3aebbadd4008824ae6ef"
   },
   {
    "name": "file_sha256",
@@ -58,9 +58,9 @@
   "result": "recomputed-no-mismatch"
  },
  "review_scope": "single-ledger-row",
- "ledger_batch": 46,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-05T11:28:35Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

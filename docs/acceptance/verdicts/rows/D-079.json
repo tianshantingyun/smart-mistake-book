@@ -3,15 +3,15 @@
  "verdict": "PASS",
  "verdict_detail": "PASS_WORKTREE",
  "machine_verdict": "PASS_WORKTREE",
- "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-d",
- "reviewer": "复核 D 域行级",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "reviewer_id": "batch46-d-domain-row-reviewer",
  "authors": [
-  "batch-44-d-domain-implementer"
+  "batch50-implementers"
  ],
  "self_review": false,
  "ledger": "docs/acceptance/ledger.md",
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
  "reviewed_at_utc": "2026-11-05T08:05:09Z",
  "scope": "A–I domain: signed PASS with machine_verdict=PASS_WORKTREE is allowed on a dirty tree; no PASS_HEAD claim",
@@ -27,7 +27,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=D-079; verdict=PASS; line=480; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=D-079; verdict=PASS; line=480; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "check": "source_sha256",
@@ -90,9 +90,9 @@
  "method": "test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/PaperEditModelPortTest.kt#aFlowThatEndsWithoutATerminalStateFailsClosed",
  "check_text": "重试/取消：无终态的流 fail-closed，不把半途结果当成功",
  "rebind_from_run_id": "2026-11-04T14:24:12Z@batch44-d-domain",
- "ledger_batch": 46,
+ "ledger_batch": 50,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-05T11:28:35Z",
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

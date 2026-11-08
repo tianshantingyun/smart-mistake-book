@@ -1,59 +1,61 @@
 {
  "id": "H-018",
- "verdict": "FAIL",
- "run_id": "2026-11-06T00:00:00Z-batch47-h-domain-fail-repair",
- "reviewer": "batch47-h-domain-repair-reviewer",
+ "verdict": "PASS",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch47-h-domain-fixer"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
-  "cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log",
-  "file:docs/known-defects.md",
-  "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt"
+  "cmd:docs/acceptance/evidence/2026-11-09-batch-50/logs/h-018.log#exit=0",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/docx-independent-readback.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/pdf-independent-readback.log",
+  "device:docs/acceptance/evidence/2026-11-09-batch-50/device/aigc-docx-kd85.device.json"
  ],
  "evidence_sha256": {
-  "docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log": "a47f4cd73c4c55fa8f875df77f7210fb39ad0c6d8e4fd011789441527a4d8b0f",
-  "docs/known-defects.md": "17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796",
-  "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt": "dca6437922213c285335fce7320c9fe36a6aa58d9eecd26cfb1fa5bf7b82f441"
+  "docs/acceptance/evidence/2026-11-09-batch-50/logs/h-018.log": "8e804d4cf434f2d35c04aff809287413a068c7f84ea0b54de76cc14bc208f4a4",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/docx-independent-readback.log": "142bba7e0870f8136b0e35b69db8bdf6f190f63a23bcbfac32ef13c94db2da70",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/pdf-independent-readback.log": "a37b5f0b387f9603fae032fcaa28b6845fa6c3b9b13ef6992a280b3d433bc37b",
+  "docs/acceptance/evidence/2026-11-09-batch-50/device/aigc-docx-kd85.device.json": "132ea81331aa1a7207b4e8b65fe3dd5ac4f07d9e48e26aaaf13578ca34f0835d"
  },
  "checks": [
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=H-018; verdict=FAIL; line=779; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=H-018; verdict=PASS; line=779; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "cmd_exit",
-   "source": "docs/research/evidence/2026-11-06-batch-47/h-domain/h-018-b47.log",
-   "value": "exit_markers=[1]; cmd=python -I tools/ci/h_compliance_gate.py --only H-018; sha256=a47f4cd73c4c55fa8f875df77f7210fb39ad0c6d8e4fd011789441527a4d8b0f"
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/logs/h-018.log",
+   "value": "exit_markers=[0]; sha256=8e804d4cf434f2d35c04aff809287413a068c7f84ea0b54de76cc14bc208f4a4"
   },
   {
    "name": "file_sha256",
-   "source": "docs/known-defects.md",
-   "value": "sha256=17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796"
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/docx-independent-readback.log",
+   "value": "sha256=142bba7e0870f8136b0e35b69db8bdf6f190f63a23bcbfac32ef13c94db2da70; bytes=966"
   },
   {
    "name": "file_sha256",
-   "source": "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/DocxMistakeRenderer.kt",
-   "value": "sha256=dca6437922213c285335fce7320c9fe36a6aa58d9eecd26cfb1fa5bf7b82f441"
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/pdf-independent-readback.log",
+   "value": "sha256=a37b5f0b387f9603fae032fcaa28b6845fa6c3b9b13ef6992a280b3d433bc37b; bytes=1317"
   },
   {
-   "name": "contradiction",
-   "source": "docs/acceptance/ledger.md",
-   "value": "python -I tools/ci/h_compliance_gate.py --only H-018；FAIL：DOCX 无文档级 /AIGC、KD-85 模型改卷漏标（KD-84 已修，见 H-061）——缺口仍真实存在，保留 FAIL 不洗绿"
+   "name": "device_binding",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/device/aigc-docx-kd85.device.json",
+   "value": "serial=emulator-5590; apk_sha256=a70b9559f93f24bedab3ca31df439e9dd6184a658c83315355f11c8be78ab62d; test_apk_sha256=07c713941c524c3b4dcc41fde066c40372698f55ec50af235a4d4c728db181cb; boot_id=31ecd364-6b2a-4e52-9643-23e681696172; counts={\"errors\": 0, \"evaluated\": 9, \"failures\": 0, \"skipped\": 0, \"tests\": 9}; verdict=PASS; sha256=132ea81331aa1a7207b4e8b65fe3dd5ac4f07d9e48e26aaaf13578ca34f0835d"
   }
  ],
- "basis": "批次 47 H 域修复后机械复算：三分量缺口中 KD-84 已修（KD-84 closed + H-061 转 PASS），剩余 DOCX 无文档级 /AIGC（DocxMistakeRenderer/MinimalDocxWriter 无 docProps 部件，runbook FIX-T07）与 KD-85 模型改卷漏标（置位点在 feature/tutor 热区，FIX-T05）；门禁 --only H-018 复跑 EXIT=1，保留 FAIL。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。",
- "notes": "保留 FAIL，不洗绿：两个剩余缺口均非本批可闭合（热区/跨线载体选型）。缺陷单与复跑命令见 docs/research/evidence/2026-11-06-batch-47/h-domain/fix-tickets-h47.md。本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
+ "basis": "机械复算（批次50 台账轮，reviewer=batch50-acceptance-ledger-mechanical，同一会话脚本，非第二人/第二模型语义复核）：逐条打开本行证据复算 sha256、cmd exit、XML counts、device 绑定，并校验 ledger_row 的行号/verdict/台账 sha。本文件只对该单行生效。；批次50 台账轮重绑：ledger_sha256 已更新为 9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97，本行 checks 与 evidence_sha256 由 batch50 脚本按当前字节复算（reviewer=batch50-acceptance-ledger-mechanical）。",
+ "notes": "批次50 由 FAIL 转 PASS：DOCX docProps/custom.xml 七键 AIGC + PDF /AIGC + 打印子集重注入；宿主 Python 独立读回。",
  "adversarial": {
   "attempted": true,
   "result": "gap-reconfirmed"
  },
  "review_scope": "single-ledger-row",
  "review_kind": "mechanical-recompute",
- "ledger_batch": 47,
- "verified_at": "2026-11-06T00:00:00Z",
+ "ledger_batch": 50,
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

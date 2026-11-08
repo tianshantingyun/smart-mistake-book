@@ -1,12 +1,12 @@
 {
  "id": "A-021",
  "verdict": "PASS",
- "run_id": "2026-11-08T02:45:00Z-batch49-ledger-freeze",
- "reviewer": "batch49-acceptance-ledger-mechanical",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch49-implementers"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
   "test:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.xml",
   "device:docs/research/evidence/2026-11-05-batch-44/a-domain/r3-selfreport.device.json",
@@ -27,7 +27,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=A-021; verdict=PASS; line=152; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=A-021; verdict=PASS; line=152; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
    "name": "xml_aggregate",
@@ -47,15 +47,15 @@
   {
    "name": "device_binding",
    "source": "docs/research/evidence/2026-11-08-batch-49/device/06-instrument-green-phase.device.json",
-   "value": "serial=emulator-5566; apk_sha256=ebb3aa340f071bb309edb1420220a9530e9734c1f34993fa91d5b8abd2244cee; test_apk_sha256=8629a05dbc7883c33ea9018746cc750d113fba8ac9e5d717a622660aead4d6ea; sha256=c18dbaa79c5e30296ceaf992253878cf1637f9e8bdaee64901768820ff35571b"
+   "value": "serial=emulator-5566; apk_sha256=ebb3aa340f071bb309edb1420220a9530e9734c1f34993fa91d5b8abd2244cee; test_apk_sha256=8629a05dbc7883c33ea9018746cc750d113fba8ac9e5d717a622660aead4d6ea; counts={\"errors\": 0, \"evaluated\": 8, \"failures\": 0, \"skipped\": 0, \"tests\": 8}; verdict=PASS; sha256=c18dbaa79c5e30296ceaf992253878cf1637f9e8bdaee64901768820ff35571b"
   }
  ],
  "basis": "机械复算（reviewer=batch49-acceptance-ledger-mechanical，批次49 台账冻结轮，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 A-021 并复算 ledger_sha256=d370ef8ac6774499629443e0e06bce7e241e856af42369fa1a059499dfa75bba；逐个打开本行 evidence 复算 sha256、XML counts、cmd EXIT 与设备绑定。本文件只对该单行生效。",
  "notes": "冲突处置：投影 CONFLICTED 专用状态与 reprojectAll 全量重放 8 例、冲突卡状态机 6 例、设备 3 例；失败必须提示“没有改变”。",
  "review_scope": "single-ledger-row",
  "review_kind": "mechanical-recompute",
- "ledger_batch": 49,
- "verified_at": "2026-11-08T02:45:00Z",
+ "ledger_batch": 50,
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,

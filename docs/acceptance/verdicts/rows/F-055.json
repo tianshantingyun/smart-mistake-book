@@ -1,52 +1,50 @@
 {
  "id": "F-055",
  "verdict": "PASS",
- "run_id": "2026-11-08T02:45:00Z-batch49-ledger-freeze",
- "reviewer": "batch49-acceptance-ledger-mechanical",
+ "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "reviewer": "batch50-acceptance-ledger-mechanical",
  "authors": [
-  "batch49-implementers"
+  "batch50-implementers"
  ],
- "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
+ "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
  "evidence": [
-  "device:docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv",
-  "file:docs/research/evidence/2026-11-08-batch-49/device/soak/soak.cmd.log",
-  "device:docs/research/evidence/2026-11-08-batch-49/device/00-snapshot-and-device-meta.txt",
-  "file:docs/research/evidence/2026-11-08-batch-49/device/soak/EXIT-CAPTURE-CAVEAT.md"
+  "device:docs/acceptance/evidence/2026-11-09-batch-50/device/soak-b50.device.json",
+  "file:docs/research/evidence/2026-11-09-batch-50/device/soak/soak-samples.csv",
+  "file:docs/research/evidence/2026-11-09-batch-50/device/37-soak-console.log"
  ],
  "evidence_sha256": {
-  "docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv": "4b1e4241d261c36bb0032598524eded8aa04200e11a5a59b4e54f26725b2a474",
-  "docs/research/evidence/2026-11-08-batch-49/device/soak/soak.cmd.log": "617d234542b0bda288a9c2d70f7dd6defaabfa800707a1ddea57355b67397fcc",
-  "docs/research/evidence/2026-11-08-batch-49/device/00-snapshot-and-device-meta.txt": "5a40766148772984aaf138a6b3069369ede760d3db6b88029f8432f0d1598855",
-  "docs/research/evidence/2026-11-08-batch-49/device/soak/EXIT-CAPTURE-CAVEAT.md": "6ec6c0060dbaac29b3fee45e987b2a2130e08247c70c8786a89c7cd7477ce2d2"
+  "docs/acceptance/evidence/2026-11-09-batch-50/device/soak-b50.device.json": "95a912903a01e474de02e77d4f22cac78c309acbade9b6f329ae5fcf442ab55b",
+  "docs/research/evidence/2026-11-09-batch-50/device/soak/soak-samples.csv": "28fe6ef8de48217dfdf185bb2bb544ccecfab42dc954855772960842217e7e13",
+  "docs/research/evidence/2026-11-09-batch-50/device/37-soak-console.log": "1a8221cf1f930c98eb4b54a5e7b85a995a2b285d1a21d7d6a8a66ef211f98b77"
  },
  "checks": [
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=F-055; verdict=PASS; line=636; ledger_sha256=264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8"
+   "value": "id=F-055; verdict=PASS; line=636; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
   },
   {
-   "name": "device_text",
-   "source": "docs/research/evidence/2026-11-08-batch-49/device/00-snapshot-and-device-meta.txt",
-   "value": "key_lines=['02:04-04:04 2h soak on emulator-5590 (117 cycles, no new crash)']; sha256=5a40766148772984aaf138a6b3069369ede760d3db6b88029f8432f0d1598855"
+   "name": "device_binding",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/device/soak-b50.device.json",
+   "value": "serial=emulator-5590; apk_sha256=1bf98b0029032ecb5c243c3ada3ac19183e53e0a912ab630510da12866d34dec; test_apk_sha256=n/a; boot_id=31ecd364-6b2a-4e52-9643-23e681696172; counts={\"errors\": 0, \"evaluated\": 115, \"failures\": 0, \"skipped\": 0, \"tests\": 115}; verdict=PASS; sha256=95a912903a01e474de02e77d4f22cac78c309acbade9b6f329ae5fcf442ab55b"
   },
   {
-   "name": "device_text",
-   "source": "docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv",
-   "value": "key_lines=['ts_utc,elapsed_s,cycle,pid,pss_kb,total_pss_kb,loadavg,dropbox_hits,crash_lines,monkey_rc']; sha256=4b1e4241d261c36bb0032598524eded8aa04200e11a5a59b4e54f26725b2a474"
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/device/soak/soak-samples.csv",
+   "value": "sha256=28fe6ef8de48217dfdf185bb2bb544ccecfab42dc954855772960842217e7e13; bytes=7323"
   },
   {
-   "name": "soak_raw",
-   "source": "docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv",
-   "value": "cycles=117; pids=28350; monkey_rc_nonzero=0; dropbox_first=2; dropbox_last=2; crash_lines_first=19; crash_lines_last=19; sha256=4b1e4241d261c36bb0032598524eded8aa04200e11a5a59b4e54f26725b2a474"
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/device/37-soak-console.log",
+   "value": "sha256=1a8221cf1f930c98eb4b54a5e7b85a995a2b285d1a21d7d6a8a66ef211f98b77; bytes=308"
   }
  ],
- "basis": "机械复算（批次49 修复环）：复核本行 ledger_row、soak CSV 逐轮统计、设备/快照文本与证据 sha256；不再把 soak.cmd.log 的字面量 EXIT=0 当作命令退出证明。",
- "notes": "2h soak 基线重判：批次49 APK ebb3aa34 完整 7200s、117 轮、同一 pid、dropbox/crash 行数无增量（仅 x86_64 模拟器）。；soak.cmd.log 的 EXIT=0 是旧 f-soak.sh 汇总 heredoc 的字面量，不是真实退出码，已改由 soak-samples.csv 逐轮统计判完成性（见 EXIT-CAPTURE-CAVEAT.md）",
+ "basis": "机械复算（批次50 台账轮，reviewer=batch50-acceptance-ledger-mechanical，同一会话脚本，非第二人/第二模型语义复核）：逐条打开本行证据复算 sha256、cmd exit、XML counts、device 绑定，并校验 ledger_row 的行号/verdict/台账 sha。本文件只对该单行生效。；批次50 台账轮重绑：ledger_sha256 已更新为 9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97，本行 checks 与 evidence_sha256 由 batch50 脚本按当前字节复算（reviewer=batch50-acceptance-ledger-mechanical）。",
+ "notes": "批次50：release APK 1bf98b00 完整 7200s/115 轮，0 新 crash/dropbox，pid 未变；仅 x86_64 模拟器。",
  "review_scope": "single-ledger-row",
  "review_kind": "mechanical-recompute",
- "ledger_batch": 49,
- "verified_at": "2026-11-08T02:45:00Z",
+ "ledger_batch": 50,
+ "verified_at": "2026-11-09T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,
