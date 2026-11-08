@@ -1,22 +1,30 @@
 {
   "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "264425f5796f0597e7f3ed8d9b7fe359f112d774eae1e0ab7256c1e9ea9f6ba8",
-  "head": "0515cfb087e0d12afbdff2c739c2993dce5adf99",
-  "dirty_paths": 4908,
+  "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+  "head": "a87fc70d15c8ad726cee17422dbeef0b4977747d",
+  "dirty_paths": 5345,
   "total": 1200,
   "counts": {
-    "PASS": 900,
-    "FAIL": 22,
-    "BLOCKED": 278,
+    "PASS": 933,
+    "FAIL": 13,
+    "BLOCKED": 254,
     "UNVERIFIED": 0
   },
   "state": "FAIL",
-  "pass_with_two_kinds": 900,
-  "pass_with_review": 900,
+  "pass_with_two_kinds": 933,
+  "pass_with_review": 933,
   "pass_without_review": 0,
   "pass_with_invalid_review": 0,
-  "pass_with_row_specific_review": 731,
+  "pass_with_row_specific_review": 655,
   "review_shared_check_groups": [
+    {
+      "fingerprint": "27b3f6e3043257ad987719aecc9c9afa95e3c0455e2542d0cb1c556707bd3d32",
+      "rows": 72
+    },
+    {
+      "fingerprint": "58079366239cca0ed010314407e5c0a2a386ff1e9416c7afe5c90865427b229a",
+      "rows": 11
+    },
     {
       "fingerprint": "d03734e927c5e5026e9b3c01767d0216ebfd52a428d4f286c3f19cd435be49f3",
       "rows": 9
@@ -91,12 +99,13 @@
     }
   ],
   "review_evidence_batches": {
-    "44": 1490,
+    "44": 1206,
     "45": 402,
     "46": 62,
-    "47": 18,
+    "47": 23,
     "48": 3,
-    "49": 28,
+    "49": 24,
+    "50": 392,
     "unlabeled": 384
   },
   "review_validation_errors": [],
@@ -104,6 +113,16 @@
   "acceptance_complete": false,
   "violations": [],
   "warnings": [
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 72 行 PASS 共用 (fp=27b3f6e30432)；行级判别力不成立"
+    },
+    {
+      "id": "",
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 11 行 PASS 共用 (fp=58079366239c)；行级判别力不成立"
+    },
     {
       "id": "",
       "code": "REVIEW_CHECKS_SHARED",

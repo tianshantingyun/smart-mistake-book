@@ -588,3 +588,147 @@ BLOCKED→PASS）；FAIL 23 条原样保留；`--require-complete` **exit 1** �
 不签范围：B49-8 不签什么 1–8 项
 日期：2026-11-08
 ```
+
+---
+
+## 批次 50 报告重生成终裁（2026-11-09，记录员）
+
+> 台账：`docs/acceptance/ledger.md` sha256 `9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97`（1200 行，批次 50 终态；mtime 01:05）。
+> 机器报告：`docs/acceptance/acceptance-report.json` sha256 `59dc796278d933925833ea2e41f3606478f4d28a32a949e3a7b42fd854e49ab5`（head `a87fc70d…`、dirty 5345、exit 1），与 `docs/acceptance/evidence/2026-11-09-batch-50/gate/acceptance-report.json` **逐字节相同**（本轮 `cmp`）。
+> 证据：`docs/research/evidence/2026-11-09-batch-50/`（`EVIDENCE.sha256` 673 项）、`docs/acceptance/evidence/2026-11-09-batch-50/`（`REVIEWS.sha256` 947 项、`GATES.sha256` 35 项）；计划：`.zcode/plans/plan-2026-11-09-batch-50-release.md`。
+> 本段只写终裁结论、复核结果与签字边界；不替代台账、行级 JSON 与原始证据。
+> 本轮记录员**实跑**：`acceptance_report`（含 `--require-complete`）、`acceptance_lint`、`trace_requirements`、`acceptance_init --check`、`REVIEWS/GATES/EVIDENCE` 三份 sha256 清单校验、`cmp` 报告副本、台账逐行 count 复算、runbook 双载体覆盖复算。
+> 本轮**未重跑**：Gradle 单测/强门、设备 instrumented、2h soak、真实 Provider、VLM judge、16KB 运行时、AUD-08 切分门（一次性红线）、`connectedLocalFirstDebugAndroidTest`。相关结论一律标注"读自证据"。
+
+### B50-0. 结论
+
+**批次 50 验收不通过（NOT ACCEPTED）；发版不成立。**
+
+| 项 | 实值 | 判定 |
+|---|---|---|
+| 台账 verdict | **PASS 933 / FAIL 13 / BLOCKED 254 / UNVERIFIED 0**（total 1200） | 非 PASS **267** 行 |
+| `acceptance_report` | exit **1**；`state=FAIL`；`violations=[]`；`pass_with_review=933`、`pass_without_review=0`、`pass_with_invalid_review=0`、`pass_with_row_specific_review=655`、`review_validation_errors=[]` | 证据链本身 0 违规；批次级未收口 |
+| `--require-complete` | exit **1**；`NOT_ACCEPTANCE_COMPLETE (UNVERIFIED=0 FAIL=13 BLOCKED=254)` + `REVIEW_CHECKS_SHARED`（20 组） | 仍不可签字 |
+| 与批次 49 对比 | 900/22/278 → **933/13/254/0**；新增 PASS 33（H 5 + FIX 20 + J 8） | +33 PASS；FAIL −9；BLOCKED −24 |
+| 四门 | 3D `overall_pass=false`；3E `PASS_WITH_FLAGGED_LIMITATION`；MVA `FAIL/NOT_EVALUABLE`；AUD-08 **FAIL** | 四门均未通过（3E 为条件性，不计无条件 PASS） |
+| 产品面 | 5c/5b/6B-3/JS/KD-67 均有落地与测试，但生产闭环残余未消 | 行级/模块级成立，不等于完整产品闭环 |
+| 发布工程 | 本地 AAB 可签名、16KB 静态、vc 101160、mapping 成立；干净树/生产签名/Play/备案 BLOCKED | **发版不成立** |
+
+**13 FAIL 逐行（本轮台账复算）**：F-057 1 条；J-001/J-002/J-020/J-021/J-048/J-052 共 **6** 条；GATE-032/GATE-038/GATE-042/GATE-091/GATE-092/GATE-099 共 **6** 条。合计 13。
+**254 BLOCKED 域分布（本轮复算）**：A 25、B 2、C 2、D 8、E 9、F 32、G 7、H 16、I 37、J 47、FIX 65、GATE 4。
+
+### B50-1. 本轮实跑（逐字命令与 exit）
+
+| # | 命令（逐字或简） | exit | 关键输出 |
+|---:|---|---:|---|
+| 1 | `git rev-parse HEAD` / `git status --porcelain \| wc -l` / `-uall` | 0 | `a87fc70d15c8ad726cee17422dbeef0b4977747d`；**1643** / **5356** |
+| 2 | `sha256sum docs/acceptance/ledger.md` | 0 | `9044a779…45cb97`；1200 行 |
+| 3 | `python -I tools/ci/acceptance_report.py --out build/b50-record/report.json` | **1** | **933/13/254/0**；`state=FAIL`；`violations=[]`；`pass_with_review=933`、invalid=0、without=0、row_specific=**655**；head `a87fc70d`、dirty **5356** |
+| 4 | 同脚本 `--require-complete --out build/b50-record/report-require-complete.json` | **1** | `NOT_ACCEPTANCE_COMPLETE (0/13/254)`；`REVIEW_CHECKS_SHARED` 20 组 |
+| 5 | `python -I tools/ci/acceptance_lint.py --ledger docs/acceptance/ledger.md --out build/b50-record/lint.json` | **1** | total 1200；violations **162**，全部 `EVIDENCE_REUSED`；其中 **22 条**点名 `2026-11-09-batch-50` 证据路径 |
+| 6 | `python -I tools/ci/trace_requirements.py --ledger docs/acceptance/ledger.md --out build/b50-record/trace.json` | **0** | total 1200；gaps **0** |
+| 7 | `python -I tools/ci/acceptance_init.py --check` | **0** | 无输出 |
+| 8 | `sha256sum -c docs/acceptance/evidence/2026-11-09-batch-50/REVIEWS.sha256` | **0** | **947/947 OK**（946 行级 JSON + `verdict.schema.json`） |
+| 9 | `cd docs/acceptance/evidence/2026-11-09-batch-50 && sha256sum -c GATES.sha256` | **1** | **34/35 OK**；`make_verdicts_report.py` FAILED（清单 01:06 冻结、文件 02:06 被修复环改） |
+| 10 | `sha256sum -c docs/research/evidence/2026-11-09-batch-50/EVIDENCE.sha256` | **1** | **670/673 OK**；`d1/REPORT.md`、`device/README.md`、`mva/README.md` FAILED（均 02:05–02:10 被修复环改） |
+| 11 | `cmp docs/acceptance/acceptance-report.json docs/acceptance/evidence/2026-11-09-batch-50/gate/acceptance-report.json` | 0 | **逐字节相同** |
+| 12 | runbook 覆盖（进程内换载体，未改工具） | — | `blocked-runbook.md` **254/254**、missing=[]；默认 `runbook.md` **85/254**、missing 169 |
+| 13 | 台账逐行复算（Python，按竖线分列） | — | 1200 行；933/13/254；13 FAIL 名单与域计数见 B50-0 |
+
+**读自证据、非本轮重跑**：环后强门（7/7 exit 0，只编译/打包；日志 sha `453584f4…`）；10 模块单测（**4294 例 / 11 红 / 0 error / 3 skip / exit 1**；11 红逐名均为既有）；修复环 pytest **145 passed**；设备矩阵与 2h soak；AIGC/隐私/发布读数；D-1/D-2/D-3 与 AUD-08 门值。上述均未在本轮重新执行。
+
+### B50-2. 复核结果（946 份行级复核 + 修复环）
+
+1. **复核链形式有效，但不是语义复核**：933 个 PASS 行全部有行级 JSON，`pass_without_review=0`、`pass_with_invalid_review=0`、`review_validation_errors=[]`；946 份行级 JSON 全部是 `mechanical-recompute`、`independence.independent_agent=false`（本轮逐文件扫描确认），复核人是脚本，不是第二人/第二模型。`pass_with_row_specific_review=655/933`（70.2%），其余 278 行为 shared checks。
+2. **shared checks 未清零**：20 组 ≥5 行共用（**202 行**，最大一组 72 行，指纹 `27b3f6e30432`）；`--require-complete` 仍以 `REVIEW_CHECKS_SHARED` 阻断。组级证据主要来自 B 迁移矩阵、FIX 修复单、AIGC/隐私门面——它们证明"该组检查成立"，不证明"每一行被单独判别"。
+3. **复核证据批次**：`review_evidence_batches` 计 50=**392**、49=24、48=3、47=23、46=62、45=402、44=1206、unlabeled=384；本批新增复核与旧证据复用并存。
+4. **修复环 7 项已修、4 项阻塞**：AUD-08 范围文案、D-1 抽样框漂移量化、重复 finding 硬规则、MVA `citable=false`、κ 披露、Wilson FPC 披露、soak PASS 口径；阻塞=5c 候选生产者、3E 第二档预留份额、JS 生产装配、干净树 release。详见 `repair/REPAIR-RING.md`。
+5. **本轮新发现（登记，不改 verdict）**：
+   - **lint 162 条中 22 条点名批次 50 证据**（批 49 为 144 条且新证据 0 条）；典型 `b-migration-matrix.device.json` 被 72 行 PASS 共用。**不能沿用批 49 的"新证据 0 条入告警"结论**。
+   - **哈希清单滞后 4 项**：GATES 1（`make_verdicts_report.py`）、EVIDENCE 3（`d1/REPORT.md`、`device/README.md`、`mva/README.md`）；均为修复环在 01:06 冻结后改动（02:05–02:10）。是清单滞后，不是证据链违规。
+   - **默认 runbook 载体覆盖 85/254**（计划载体 `blocked-runbook.md` 254/254）；载体错位批次 47 §6.4 已登记，本批未修。
+   - **能力屏测试 hook 由整串等值改 `substring=true`**：属匹配放宽（仍要求"测试通过"主句上屏）；本终裁不把它计入"断言零放宽"。
+6. **独立 + 对抗复核（计划 #41）未执行**：无第二主体语义复核签字件；修复环 findings 的"已独立复核"无独立产物可核。
+
+### B50-3. 四门防洗绿核验
+
+| 门 | 门定义 | 实测 | 结论 | 不得读成 |
+|---|---|---|---|---|
+| **3D D-1** | 分层加权绑定精确率单侧 95% Wilson 下界 ≥0.95；每层护栏 ≥0.90 | 主判据 **0.9756913**（抽样时点）/ **0.9756882**（当前框）PASS；normal 护栏 **0.8979148** FAIL（差 0.2085pp；FPC 0.9005766 PASS）；`overall_pass=false`；κ **NOT RUN**；`labeler_kind=model`、`human_expert=false` | **未过门** | 不读作"3D 通过"；不把 0.9757 当可用门值（κ 前置未过，只是 model-labeled 暂定值）；不把 FPC 口径读成护栏通过 |
+| **3D D-2** | 近重复/超配/容量/历史 type 清零或登记 | 近重复节点级 **0/0**；2 组候选裁决保留/退休（**退休未执行**）；超配 **2,481 节点 / 62,944 条 / 超出前 4 = 53,020**，`RETAIN_NO_CAP` + 2,481 行台账；容量 91 条逐行登记（22/12/44/13）；type 三值外 **0** | 清零/登记 | 不读作"超配已治理"；只读作"保留策略 + 台账"；容量生产器补丁未应用 |
+| **3D D-3** | 五红清零、召回保持 117/129 | 五类 12 例 `--rerun` **12/0/0/0**；dense 11/11；融合 **117/129 = 0.9069767441860465**、MRR **0.7239018087855298**、词面 101/129、p50/p95 38/58ms、overBudget 0、24 章逐章 diff rc=0 | 达成（保持） | 不读作"召回提升"；12 条 MISS 同集、absent 边界不变；MRR 0.7239 是当前值（0.7323 为批 19 旧时点） |
+| **3E** | 队外捞回、F8/F17 封顶、每日/单计划口径 | 设备 **OK(4)**、JVM **23/0**；45 分钟捞回 10（全在今日并集外）；1200s→6 知识槽、第二档 4；口径=每次排计划 ≤10（KD-46）；`PASS_WITH_FLAGGED_LIMITATION` | **条件性通过** | 不读作无条件 PASS：第二档无预留份额，默认 20 分钟可被今日档占满，第二档贡献可为 0 |
+| **MVA** | 120 盲测、首次/预算内/分组/关键错误 | 冻结/隔离成立（120/24 交集 0、288 事实 PASS）；IMG/JS 两臂 **0 可评样本**；确定性检查 `NOT_RUN`；`critical_errors_accepted` 0 但 **`citable=false`**；40 条 critical 全 UNVERIFIED；`evaluable=false` | **FAIL / NOT_EVALUABLE** | 不读作"0% 命中"或"质量通过"；120 题质量结论不存在 |
+| **AUD-08** | ① 题数一致 ≥0.9；③ 切残 ≤0.05；硬红线切残 0 | ① **7/24=0.2917**；② 27/78=0.3462；③ **1/78=0.0128**；硬红线 `fragmentedQuestions=1`；`check_split_gate.py` exit **1**；自动化不启用 | **FAIL** | 不读作"acceptance 只跑一次=held-out 成立"：本批唯一 run，但同一 8 页已在批次 48 消费，held-out 不可恢复（第二次观测）；不把 ③ 过线读成门过 |
+
+**四门汇总口径**：3D 未过（护栏）；3E 条件性通过（有 flagged limitation）；MVA 不可评；AUD-08 失败。**四门没有任何一门可签"通过"。**
+
+### B50-4. 发版判定逐项
+
+| 项 | 实测 | 判定 |
+|---|---|---|
+| **可签名 AAB** | 双 flavor AAB `jarsigner -verify` exit 0；APK v1+v2 true、v3/v4 false；AAB 证书 sha256 `2c8415b2…5eba` = APK 证书；signing 门 exit 0 | **PASS（本地测试 key）**；**生产签名 FAIL/BLOCKED**（J-020/J-021 仍 FAIL，DN `OU=NOT-PLAY-PRODUCTION`） |
+| **16KB** | `zipalign -P 16` Verification successful；apk16k 14/14 `.so` STORED+`offset%16384=0`、`elf_errors: []`；aab16k alignment 2、ABI `{arm64-v8a, x86_64}`、7 库全在 | **静态 PASS**；**运行时 UNVERIFIED**（设备 4096 页/x86_64、API 34；无 arm64 真机） |
+| **versionCode** | `101160 = 100000 + 1160`；合并 manifest / `aapt2 badging` / AAB proto manifest 三处一致；`validateVersionCode` 3 负控红 + 101160 绿；verifier `--expected-code` 双 flavor exit 0 | **PASS（注入与一致性）**；J-048/J-052 仍 FAIL（跨构建单调/历史 AAB 可比未做）；下次必须 >101160 |
+| **mapping** | 140,341,720 B / 968,647 行 / R8 9.3.16；与 AAB 内 `proguard.map` 逐字节同 sha `ce595aa0…277e`；r8 门 exit 0（classes 10661 / renamed 10461 / removed 1199 / negative_control_hits 0） | **PASS** |
+| **干净树** | `identity --require-clean` **exit 1**、`dirty_paths: 4315`（构建时）；当前 `-uall` **5356**；AAB 由脏树构建 | **BLOCKED**（须提交后复跑；不得把本轮包当 HEAD 字节复现） |
+| **AIGC** | 五项（UI 角标 / DOCX `docProps/custom.xml` / KD-85 改卷文本 / KD-84 部分页 / KD-29 材料整理）；`h_compliance_gate --all`：H-052/H-061/H-062 **PASS**、H-053 **门红（占位符/外部未取得；台账行 BLOCKED）**；DOCX/PDF 有独立读回 | **PASS（五项有证据）**；**H-053 外部 BLOCKED** |
+| **隐私** | 9 章政策全文页；未成年人专章补悬空引用 → H-025 **PASS**；data safety 清单落盘；UI dump 扫 ICP/8 位连续数字零命中 | **PARTIAL**：**H-024 公开 URL BLOCKED、H-036 Play 表单 BLOCKED**；备案号/主体/联系方式/模型备案 6 项 BLOCKED |
+| **Play 账号 / 备案号** | 无 Play 账号、无生产 keystore、无备案号；本地 key 明示非 Play | **BLOCKED（外部）** |
+| **商店素材/上架清单** | 证据目录未发现产物 | **BLOCKED（外部）/未产出** |
+
+**总判**：可签名的本地 AAB、16KB 静态、versionCode、mapping 成立；**干净树、生产签名、Play 账号、备案号、公开隐私 URL、H-053 回填未取得**。**发版不成立**。
+
+### B50-5. 签字
+
+**签什么**
+
+1. 结论「**批次 50 验收不通过（NOT ACCEPTED）；发版不成立**」；终态 **933/13/254/0**、`exit=1`、`violations=[]`、`pass_with_invalid_review=0`；13 FAIL 名单与域计数。
+2. 与批次 49 的收敛事实：900/22/278 → 933/13/254；新增 PASS 33（H 5 + FIX 20 + J 8）；**四门无一通过**。
+3. **3D**：D-1 `overall_pass=false`（normal 护栏 0.8979148<0.90；主判据 0.9757 的 κ NOT RUN，只是 model-labeled 暂定值）；抽样框已覆盖、`sample_d1.py --check` match=false/exit 2；D-2 近重复 0/0、超配保留策略 + 2,481 行台账、容量 91 条登记、type 三值外 0；D-3 五红 12/12 绿、117/129 保持。
+4. **3E**：`PASS_WITH_FLAGGED_LIMITATION`（第二档无预留份额）；**不计无条件 PASS**。
+5. **MVA**：`FAIL/NOT_EVALUABLE`（零生图/零真实 Provider/零 VLM judge/零点确定性检查）；`critical_errors_accepted=0` 不可引用；JS 不广告。
+6. **AUD-08**：FAIL（① 7/24=0.2917、③ 1/78=0.0128、硬红线 frag=1）；本批 acceptance 只运行一次，但同一 8 页已在批次 48 消费，held-out 不可恢复。
+7. **产品面**：5c/5b/6B-3/JS/KD-67 的落地与门禁读数；各自残余（生产候选生产者、rebalance 恒 false、真实 Provider 回执、visualEngine 未注入、第二道题 UI 入口）如实登记。
+8. **复核链与修复环**：933/933 有效复核；947/947 REVIEWS；修复环 7 修 4 阻塞；环后强门 7/7 exit 0（只编译/打包）；10 模块 4294/11 红/exit 1（11 红均为既有）。
+9. **发布工程**：本地 AAB 可签名、16KB 静态、vc 101160、mapping 与 AAB 内嵌逐字节一致；本地 key 非 Play 生产身份。
+
+**不签什么**
+
+1. 不签「批次 50 验收通过」或「发版就绪」——`require-complete` 两阻断（FAIL=13、20 组 shared checks）与 254 BLOCKED 未消除。
+2. 不签「四门通过」——3D 护栏 FAIL、3E 条件性、MVA 不可评、AUD-08 FAIL；不把 3E 计无条件 PASS。
+3. 不签「3D D-1 通过」或「0.9757 是可用门值」——κ NOT RUN，只能读作 model-labeled 暂定值；不签「normal 层确定不达标」——护栏差 0.2085pp（1 条判定宽度），但阈值不放宽。
+4. 不签「AUD-08 acceptance 是首次盲测」——同一 8 页已在批次 48 消费；不签「重跑换绿」或第二观测当 held-out。
+5. 不签「MVA 质量通过/0% 命中」——120 题无样本；不签 `critical_errors_accepted=0` 可引用。
+6. 不签「干净树产物」或「HEAD 字节复现」——构建时 4315 脏路径、当前 5356；不签「生产签名/Play 上架/备案号已取得」。
+7. 不签「H-053 已回填」「H-024/H-036 已完成」——外部条件未取得，代码/文档写"尚未取得"。
+8. 不签「行级复核是语义复核」或「shared checks 有行级判别力」——`independent_agent=false`、20 组 202 行共用；不签「独立/对抗复核已完成」（计划 #41 未执行）。
+9. 不签「哈希清单全部通过」——GATES 34/35、EVIDENCE 670/673（4 项滞后）；不签「断言零放宽」——能力屏 hook 由整串等值改 `substring=true`。
+10. 不签「AIGC 导出 background 2 例通过」——2 例 FAIL，该 claim UNVERIFIED。
+
+### B50-6. 产物与哈希（批次 50 终态）
+
+| 产物 | sha256 |
+|---|---|
+| `docs/acceptance/ledger.md`（1200 行） | `9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97` |
+| `docs/acceptance/acceptance-report.json`（= gate 副本，逐字节相同） | `59dc796278d933925833ea2e41f3606478f4d28a32a949e3a7b42fd854e49ab5` |
+| `docs/acceptance/verdicts.md` | `42f58ee159c9b4759998bbac62ceb481a443ecf18f19218a0fee617234f3f718` |
+| `docs/acceptance/domain-index.md` | `9f1a0da37aef531e509c8839e0bbc905ee13ecf0289ef742bd3acc004c30b58c` |
+| `REVIEWS.sha256`（947 项） | `0881a9610fb3cd50fd65a84bd18d9a126372432efb788a87e7c2b319416ef4b1` |
+| `GATES.sha256`（35 项） | `73ad608ae2f46b2b338ef7154148858801b1436bd7a2ce55ba55a97c9818627e` |
+| `EVIDENCE.sha256`（673 项） | `953f1ebbed5a9aea1cbdb9ac4bd910ec6372683983fda530b2bb59a06748537d` |
+
+**证据口径（必须与结论一起读）**
+
+1. `acceptance-report.json` 与 `gate/acceptance-report.json` 逐字节相同；报告头 `head=a87fc70d…`、`dirty=5345` 是生成时点；本轮实跑 `dirty=5356`，差额属共享工作树变动，不影响台账/复核。
+2. 本轮未重跑 Gradle/设备/soak/Provider/VLM/16KB 运行时/切分门；相关计数均来自证据 XML/日志/JSON。
+3. `GATES.sha256` 34/35、`EVIDENCE.sha256` 670/673 的 4 项不匹配是**清单冻结后被修复环改动**（01:06 → 02:05–02:10）；不是内容被篡改，但复现者按旧清单会 exit 1。
+4. 本终裁不把任何 `BLOCKED` 读成通过，不把行级机械复算读成语义复核，不把 model-labeled 读成人工结论，不把脏树产物读成干净树产物，不把本地测试 key 读成 Play 生产身份。
+
+```text
+结论：批次 50 验收不通过（NOT ACCEPTED）；发版不成立
+签字人：批次 50 报告重生成终裁（记录员）
+签署范围：B50-5 签什么 1–9 项
+不签范围：B50-5 不签什么 1–10 项
+日期：2026-11-09
+```
