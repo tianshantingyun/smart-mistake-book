@@ -33,6 +33,27 @@ internal interface ErrorCauseDao {
     @Query("SELECT * FROM error_cause_observation WHERE observation_id = :observationId")
     suspend fun findObservation(observationId: String): ErrorCauseObservationEntity?
 
+    /**
+     * 候选读侧（批次 50 / 5c）：某学习者某道练习单元下仍是 `PROPOSED` 的观察行。
+     *
+     * 只读、无写副作用：候选升标签由 `acceptObservationAndActivateBinding` 单独完成。
+     * 不按修订过滤（SQL 层没有活键概念），由调用方按当前 `scope` 再筛，旧修订的候选
+     * 不得自动继承（R2 I7）。
+     */
+    @Query(
+        """
+        SELECT * FROM error_cause_observation
+        WHERE learner_id = :learnerId
+          AND practice_unit_id = :practiceUnitId
+          AND status = 'PROPOSED'
+        ORDER BY observed_at_epoch_millis DESC, observation_id ASC
+        """,
+    )
+    suspend fun proposedObservations(
+        learnerId: String,
+        practiceUnitId: String,
+    ): List<ErrorCauseObservationEntity>
+
     @Query("SELECT * FROM error_cause_binding WHERE binding_id = :bindingId")
     suspend fun findBinding(bindingId: String): ErrorCauseBindingEntity?
 
