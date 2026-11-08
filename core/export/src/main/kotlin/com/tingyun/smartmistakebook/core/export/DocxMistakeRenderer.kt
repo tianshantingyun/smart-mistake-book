@@ -3,6 +3,8 @@ package com.tingyun.smartmistakebook.core.export
 import com.tingyun.smartmistakebook.core.model.MistakePdfBlockKind
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.model.VisualRole
+import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcContentPolicy
+import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcMetadata
 import java.io.File
 import kotlin.math.roundToInt
 
@@ -74,13 +76,31 @@ internal object DocxMistakeRenderer {
             }
         val images = embeddedImages(input, blocks)
         val documentXml = documentXml(input, blocks, images)
+        // 文档级隐式标识（20258A §6.1）与 PDF 的 `/AIGC` 共用这一次判据：AI 图或模型文本
+        // 任一命中才写；纯用户内容不写（《办法》第十条不得伪造标识）。
+        val labeled = PdfAigcContentPolicy.shouldLabel(
+            hasAiGeneratedImage = input.paintsAiGeneratedImage(),
+            hasModelParsedText = input.hasModelParsedText,
+        )
         val parts = buildList {
-            add(MinimalDocxWriter.contentTypesPart(images.map { it.part.fileExtension }.toSet()))
-            add(MinimalDocxWriter.packageRelsPart())
+            add(
+                MinimalDocxWriter.contentTypesPart(
+                    imageExtensions = images.map { it.part.fileExtension }.toSet(),
+                    includeAigcProperty = labeled,
+                ),
+            )
+            add(MinimalDocxWriter.packageRelsPart(includeAigcProperty = labeled))
             if (images.isNotEmpty()) {
                 add(MinimalDocxWriter.documentRelsPart(images.map(EmbeddedImage::part)))
             }
             add(DocxPart(MinimalDocxWriter.DOCUMENT_PART, MinimalDocxWriter.utf8(documentXml)))
+            if (labeled) {
+                add(
+                    MinimalDocxWriter.customPropertiesPart(
+                        PdfAigcMetadata.document(input.inputSha256).toJson(),
+                    ),
+                )
+            }
             images.forEach { image -> add(DocxPart(image.part.partName, image.part.bytes)) }
         }
         MinimalDocxWriter.write(parts, output)
@@ -240,6 +260,14 @@ internal object DocxMistakeRenderer {
                     )
                 }
             }
+
+        // 显式标识（第四条）：模型产出的文字没有逐图图注可挂，整份文件给一行用户可见说明。
+        // 与隐式 `docProps/custom.xml` 同一判据里的模型文本项，纯用户内容不出现这一行。
+        if (input.hasModelParsedText) {
+            body.append(
+                textParagraph(AI_GENERATED_DOCUMENT_NOTICE, DocxTextStyle.META, typography),
+            )
+        }
 
         blocks.forEach { block ->
             when (block) {

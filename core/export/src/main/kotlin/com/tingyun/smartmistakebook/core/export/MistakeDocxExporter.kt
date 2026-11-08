@@ -68,6 +68,10 @@ class MistakeDocxExporter(context: Context) {
         requireDocxExportDirectory(exportDirectory)
         return ExportRootLock.withLock(exportDirectory) {
             store.cleanupTemporaryDirectories()
+            // 判据代际哨兵与 PDF 侧同名同源：DOCX 的字节也随打标判据变化，旧的无
+            // `docProps/custom.xml` 产物必须在升级后第一次访问时清掉，不能在 TTL 内继续
+            // 被分享出去（与 `MistakePdfExporter.AIGC_POLICY_SENTINEL` 同一失败）。
+            store.ensurePolicyGeneration(MistakePdfExporter.AIGC_POLICY_SENTINEL)
             val now = System.currentTimeMillis()
             store.cleanupPublishedArtifacts(now)
             store.findExisting(input.inputSha256)?.let { existing ->
@@ -107,6 +111,7 @@ class MistakeDocxExporter(context: Context) {
         return try {
             requireDocxExportDirectory(exportDirectory)
             ExportRootLock.withLock(exportDirectory) {
+                store.ensurePolicyGeneration(MistakePdfExporter.AIGC_POLICY_SENTINEL)
                 store.findExact(token) ?: return@withLock null
             }
         } catch (_: Exception) {
@@ -136,6 +141,20 @@ private class DocxArtifactStore(
         children
             .filter { it.name.startsWith(PENDING_DIRECTORY_PREFIX) }
             .forEach(::deleteTemporaryDirectory)
+    }
+
+    /**
+     * 打标策略代际变更的一次性清空（与 PDF 侧同一 `AIGC_POLICY_SENTINEL` 名）。
+     *
+     * 消灭的失败：升级到"DOCX 写 `docProps/custom.xml`"之后，24h TTL 内**旧的无标识
+     * 产物**仍能按同一 `inputSha256` 被 `findExisting` 命中并交付。哨兵最后创建；只删
+     * [publishedArtifacts] 认得的"形状完整的已发布对"，半成品目录保持原样。
+     */
+    fun ensurePolicyGeneration(sentinelName: String) {
+        val sentinel = File(directory, sentinelName)
+        if (sentinel.exists()) return
+        publishedArtifacts().forEach(::deletePublishedArtifact)
+        if (!sentinel.createNewFile() && !sentinel.exists()) publishFailed()
     }
 
     fun cleanupPublishedArtifacts(nowEpochMillis: Long) {

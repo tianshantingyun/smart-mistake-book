@@ -54,6 +54,14 @@ internal object MinimalDocxWriter {
     const val DOCUMENT_PART = "word/document.xml"
     const val DOCUMENT_RELS_PART = "word/_rels/document.xml.rels"
 
+    /**
+     * OOXML 文档级自定义属性部件：TC260-PG-20258A §6.1 规定的 DOCX 隐式标识载体。
+     *
+     * 形状是 `Properties/property[@name="AIGC"]/vt:lpwstr`，值是七键 JSON 字符串
+     * （与 PDF Info `/AIGC` 同一 `PdfAigcMetadata` builder）。
+     */
+    const val CUSTOM_PROPERTIES_PART = "docProps/custom.xml"
+
     private const val FIXED_ENTRY_TIME_MILLIS = 0L
     private const val PACKAGE_RELS_NS =
         "http://schemas.openxmlformats.org/package/2006/relationships"
@@ -63,6 +71,17 @@ internal object MinimalDocxWriter {
         "http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"
     private const val CONTENT_TYPES_NS =
         "http://schemas.openxmlformats.org/package/2006/content-types"
+    private const val CUSTOM_PROPERTIES_NS =
+        "http://schemas.openxmlformats.org/officeDocument/2006/custom-properties"
+    private const val CUSTOM_PROPERTIES_VT_NS =
+        "http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"
+    private const val CUSTOM_PROPERTIES_RELATIONSHIP =
+        "http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties"
+    private const val CUSTOM_PROPERTIES_CONTENT_TYPE =
+        "application/vnd.openxmlformats-officedocument.custom-properties+xml"
+
+    /** OOXML 自定义属性固定的格式 id（Word 自己写的 custom.xml 都是这个值）。 */
+    private const val CUSTOM_PROPERTY_FMTID = "{D5CDD505-2E9C-101B-9397-08002B2CF9AE}"
 
     fun utf8(value: String): ByteArray = value.toByteArray(StandardCharsets.UTF_8)
 
@@ -85,7 +104,10 @@ internal object MinimalDocxWriter {
     }
 
     /** `[Content_Types].xml`：Default 必须在 Override 之前（OPC 架构是 sequence）。 */
-    fun contentTypesPart(imageExtensions: Set<String>): DocxPart {
+    fun contentTypesPart(
+        imageExtensions: Set<String>,
+        includeAigcProperty: Boolean = false,
+    ): DocxPart {
         val defaults = buildString {
             append("<Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/>")
             append("<Default Extension=\"xml\" ContentType=\"application/xml\"/>")
@@ -95,36 +117,74 @@ internal object MinimalDocxWriter {
                 append("\"/>")
             }
         }
+        // 两个 Override 的顺序固定：document 在前、custom-properties 在后（确定性 zip）。
+        val overrides = buildString {
+            append("<Override PartName=\"/${DOCUMENT_PART}\" ContentType=\"")
+            append("application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml")
+            append("\"/>")
+            if (includeAigcProperty) {
+                append("<Override PartName=\"/$CUSTOM_PROPERTIES_PART\" ContentType=\"")
+                append(CUSTOM_PROPERTIES_CONTENT_TYPE)
+                append("\"/>")
+            }
+        }
         return DocxPart(
             name = CONTENT_TYPES_PART,
             bytes = utf8(
                 XML_DECLARATION +
                     "<Types xmlns=\"$CONTENT_TYPES_NS\">" +
                     defaults +
-                    "<Override PartName=\"/${DOCUMENT_PART}\" ContentType=\"" +
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml" +
-                    "\"/></Types>",
+                    overrides +
+                    "</Types>",
             ),
         )
     }
 
     /**
-     * 包级关系：唯一入口 `word/document.xml`。
+     * 包级关系：唯一入口 `word/document.xml`；带 AI 标识时追加 custom-properties 关系。
      *
      * Target 是**相对包根**（`_rels/.rels` 的源就是包本身），必须写完整的
      * `word/document.xml`；写成 `document.xml` 会指向一个不存在的部件，Word 打开时直接
      * 报"文件已损坏"。
      */
-    fun packageRelsPart(): DocxPart = DocxPart(
+    fun packageRelsPart(includeAigcProperty: Boolean = false): DocxPart = DocxPart(
         name = PACKAGE_RELS_PART,
         bytes = utf8(
             XML_DECLARATION +
                 "<Relationships xmlns=\"$PACKAGE_RELS_NS\">" +
                 "<Relationship Id=\"rId1\" Type=\"$OFFICE_DOCUMENT_RELATIONSHIP\" " +
                 "Target=\"$DOCUMENT_PART\"/>" +
+                if (includeAigcProperty) {
+                    "<Relationship Id=\"rId2\" Type=\"$CUSTOM_PROPERTIES_RELATIONSHIP\" " +
+                        "Target=\"$CUSTOM_PROPERTIES_PART\"/>"
+                } else {
+                    ""
+                } +
                 "</Relationships>",
         ),
     )
+
+    /**
+     * 文档级 AI 隐式标识（TC260-PG-20258A §6.1）：
+     * `Properties/property[@name="AIGC"]/vt:lpwstr` 的值是七键 JSON 字符串。
+     *
+     * 值由 [com.tingyun.smartmistakebook.core.model.pdf.PdfAigcMetadata.toJson] 生成——与
+     * PDF Info `/AIGC` **同一个 builder**，不另起字段顺序/校验；这里只做 XML 文本转义。
+     */
+    fun customPropertiesPart(aigcJson: String): DocxPart {
+        require(aigcJson.isNotBlank()) { "An AIGC custom property needs a JSON value" }
+        return DocxPart(
+            name = CUSTOM_PROPERTIES_PART,
+            bytes = utf8(
+                XML_DECLARATION +
+                    "<Properties xmlns=\"$CUSTOM_PROPERTIES_NS\" " +
+                    "xmlns:vt=\"$CUSTOM_PROPERTIES_VT_NS\">" +
+                    "<property fmtid=\"$CUSTOM_PROPERTY_FMTID\" pid=\"2\" name=\"AIGC\">" +
+                    "<vt:lpwstr>${escapeXmlText(aigcJson)}</vt:lpwstr>" +
+                    "</property></Properties>",
+            ),
+        )
+    }
 
     /** 文档级关系：图片部件（没有图片时不写这个部件）。 */
     fun documentRelsPart(images: List<DocxImagePart>): DocxPart {
