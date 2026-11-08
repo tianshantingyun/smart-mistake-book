@@ -1297,3 +1297,24 @@ blocked-runbook.md 载体覆盖 254/254；runbook.md 默认载体 85/254（载�
 - **提交前复核**：重跑 §5.1 的 `acceptance_report`（预期 exit 1、933/13/254/0）、`--require-complete`（预期 exit 1）、`trace_requirements`（0 gaps）；决定是否重生成 `GATES.sha256`/`EVIDENCE.sha256`（当前 34/35、670/673）；提交后按 `release/release-50.md §8.2` 复跑干净树 release 构建。**提交不改变终裁：NOT ACCEPTED 维持。**
 
 
+
+## 9. 主会话收口（2026-11-09）
+
+### 9.1 主会话实跑
+
+| 项 | 结果 |
+|---|---|
+| 单测门（12 模块） | exit=1；9 红全部为 HEAD 既存他线语义（KernelWave0/LibraryFts×3/Gateway×3/profileStrengths/TutorExportSheet） |
+| 强门（两 flavor androidTest 强制重编 + assemble） | **exit=0** |
+| 验收报告 | **PASS 933 / FAIL 13 / BLOCKED 254 / UNVERIFIED 0**；`pass_with_review=933`；exit=1 |
+| 四门 | **3D `PASS main / FAIL guardrail` → overall 不通过（normal 0.8979<0.90）**；3E 不得计无条件 PASS；MVA **FAIL（0 可评样本、零真实 Provider/judge）**；AUD-08 **FAIL（① 7/24=0.2917、③ 1/78=0.0128）** |
+| 发布 | 本地签名 AAB、versionCode 101160、mapping、AAB 16KB 静态校验成立；**干净树构建 BLOCKED（dirty 4315）、生产签名/Play/备案/公开隐私 URL BLOCKED、H-053 未回填** → **发版判定不成立** |
+| 复核 | 本批**无独立/对抗复核产物**（记录 #41 ✗），行级复核 `independent_agent=false`；不得称“已通过双复核” |
+
+### 9.2 交付与残留
+
+- 已落：数据安全机器块修复（?待核）+ 75 迁移/备份设备复现；D-2/D-3 子线；3E 真实队列验证；切分 CV 提示与门读数；MVA harness/两臂/确定性检查（质量门未过）；5c 教学候选面板、5b 容量区块、6B-3 改卷入口、JS math 显式降级/KD-78 ①②、KD-67 第二题；AIGC 五项、隐私政策、发布脚本/本地签名/AAB 校验。
+- 残留：3D D-1 改绑未执行（guardrail 0.8979）、MVA 零真实样本/ VLM judge 未实现、AUD-08 0.2917、干净树/生产签名/Play/备案、独立复核缺失；KD-76/71/73/82 仍 open；JS 不广告。
+- 提交：批次50 共 15 笔（版面/错因/容量/改卷/视觉/AIGC/隐私/发布/台账/行级/证据/记录），已推送 `5a959619`。
+
+**一句话**：本轮把“缺的实现”基本落成了代码与证据，但**四门未过、发布外部项未取得、独立复核缺失**，因此“发版水平”不成立；下一轮应只做四门收口与发布外部项，不再扩功能。
