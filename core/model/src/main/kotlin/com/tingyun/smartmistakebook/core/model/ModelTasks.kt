@@ -206,6 +206,21 @@ data class CaptureAssessmentInput(
      *  NEVER 编码默认值：null 时必须省略字段，保住落库请求的指纹形状稳定。 */
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val userHint: String? = null,
+    /**
+     * 本地版面测量块（`core:model` 的 `LayoutStructure.toPromptBlock()` 产物）。
+     *
+     * **它消灭的具体失败**：切分把页面几何完全交给模型（两栏页被并成一题、暗光页看不出栏谷），
+     * 而应用侧没有任何独立几何事实可以写进请求。本字段是这些测量值进 wire 的**唯一**入口。
+     *
+     * 纪律（与研究 §1.2 一致）：
+     * - 只放**测量值**，不放"这是第几题"之类语义判断，也不放 CV 切出的区域；
+     * - 上限 [MAX_CAPTURE_LAYOUT_HINT_CHARS]，超限**当场拒绝**而不是悄悄截断；
+     * - NEVER 编码默认值：null 时必须省略字段——存量任务行读回重算的指纹才不漂。
+     *   设了值就是一个新请求（同页换提示会重新派发一次），批次 50 记录写明这是预期行为；
+     * - 只在**单页切分**提示词里渲染；多页关系回合不分题，不携带它。
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val layoutHint: String? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.CAPTURE_ASSESS
@@ -225,6 +240,9 @@ data class CaptureAssessmentInput(
         require(imageWidth > 0 && imageHeight > 0) { "Capture assessment dimensions must be positive" }
         require(userHint == null || userHint.length <= MAX_CAPTURE_USER_HINT_CHARS) {
             "Capture user hint must stay within $MAX_CAPTURE_USER_HINT_CHARS characters"
+        }
+        require(layoutHint == null || layoutHint.length <= MAX_CAPTURE_LAYOUT_HINT_CHARS) {
+            "Capture layout hint must stay within $MAX_CAPTURE_LAYOUT_HINT_CHARS characters"
         }
         require(followingSourceAssets.size < MAX_CAPTURE_SOURCE_ASSETS) {
             "Capture page comparison has too many following pages"
@@ -1384,6 +1402,13 @@ private const val MAX_CAPTURE_TOTAL_PIXELS = 160_000_000L
 internal const val MAX_CAPTURE_SOURCE_ASSETS = 8
 /** 评估补充说明的长度上限（跨模块 UI 也要用它做输入限制）。 */
 const val MAX_CAPTURE_USER_HINT_CHARS = 120
+/**
+ * 版面测量块的长度上限，与 `PageStructure.MAX_HINT_CHARS` 同为 1200：
+ * 现有单页切分提示词字面量 567 字符，1200 是它的约 2.1 倍，dev 16 页实测块长 113–286 字符。
+ * 两处数值必须一致（`LayoutHintBudgetAlignmentTest` 钉住），否则渲染端截断、录入端拒绝，
+ * 模型看到的内容与落库指纹对不上。
+ */
+const val MAX_CAPTURE_LAYOUT_HINT_CHARS = 1200
 internal const val MAX_MESSAGE_CHARS = 500
 
 /**
