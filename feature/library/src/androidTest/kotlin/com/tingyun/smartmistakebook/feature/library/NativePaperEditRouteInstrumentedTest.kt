@@ -246,6 +246,49 @@ class NativePaperEditRouteInstrumentedTest {
         composeRule.onNodeWithTag("mistake_detail_edit_paper").assertDoesNotExist()
     }
 
+    @Test
+    fun theMistakeDetailOffersTheAiPaperEntryForTheCurrentRevision() {
+        var requested: MistakeRevisionKey? = null
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                MistakeDetailContent(
+                    state = states.first(),
+                    onBack = {},
+                    onExport = {},
+                    onModelEditPaper = { key -> requested = key },
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("mistake_detail_ai_edit_paper")
+            .performScrollTo()
+            .performClick()
+
+        composeRule.runOnIdle {
+            assertNotNull(requested)
+            assertEquals("entry-a", requested?.entryId)
+            assertEquals("revision-entry-a", requested?.problemRevisionId)
+        }
+    }
+
+    @Test
+    fun aHistoricalRevisionDoesNotOfferTheAiPaperEntry() {
+        composeRule.setContent {
+            SmartMistakeBookTheme {
+                MistakeDetailContent(
+                    state = states.first(),
+                    onBack = {},
+                    onExport = {},
+                    revisionHistory = revisionHistory(),
+                    selectedRevisionId = "revision-1",
+                    onModelEditPaper = {},
+                )
+            }
+        }
+
+        composeRule.onNodeWithTag("mistake_detail_ai_edit_paper").assertDoesNotExist()
+    }
+
     // ---- fixtures ----
 
     private fun readyState(
