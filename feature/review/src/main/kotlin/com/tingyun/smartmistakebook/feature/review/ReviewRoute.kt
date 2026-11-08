@@ -43,8 +43,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.tingyun.smartmistakebook.core.domain.NewIntroductionPolicy
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
+import com.tingyun.smartmistakebook.core.domain.StudyReviewCapacity
 import com.tingyun.smartmistakebook.core.domain.StudyReviewOverview
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
@@ -159,6 +159,15 @@ fun ReviewRoute(
                 )
             }
         }
+        // 5b 容量 UI（KD-68 同族）：今日容量/考试缺口/积压追赶/逐科名额都是快照上的只读事实，
+        // 这里只渲染、不重算。没有容量事实时有今日计划就显示如实空态，绝不报"0 题容量"。
+        if (surfaceState == ReviewSurfaceState.NORMAL || overview.capacity != null) {
+            Spacer(Modifier.height(20.dp))
+            ReviewCapacitySection(
+                capacity = overview.capacity,
+                modifier = Modifier.testTag("review_capacity_section"),
+            )
+        }
         val preview = remember(overview.scheduledPracticeUnitIds, catalog) {
             val byUnit = catalog.associateBy { it.practiceUnitId }
             overview.scheduledPracticeUnitIds.mapNotNull(byUnit::get)
@@ -241,6 +250,8 @@ fun ReviewRoute(
             Spacer(Modifier.height(12.dp))
             IntakeBacklogPreview(
                 backlogCount = overview.intakeBacklogCount,
+                // KD-68：超过整日预算、每日引入永远排不进的题必须单列，不得计入覆盖承诺。
+                unschedulableCount = overview.intakeUnschedulableCount,
                 medianEstimateSeconds = overview.intakeMedianEstimateSeconds,
                 dailyBudgetSeconds = dailyReviewBudgetSeconds,
                 modifier = Modifier.testTag("review_intake_backlog_preview"),
@@ -568,38 +579,115 @@ private fun WeakPointRow(
 
 
 /**
- * Intake-backlog coverage preview (spec batch-intake §6 P3): renders the
- * backlog as a schedule — "每天约 X 题新学，约 M 天覆盖" — computed with the
- * same NewIntroductionPolicy.preview the scheduler uses and the student's
- * daily review budget, so the preview agrees with the schedule.
+ * Intake-backlog coverage preview (spec batch-intake §6 P3 / KD-68): renders the
+ * backlog as a schedule — "每天约 X 题，约 M 天安排完" — but only over the items
+ * the daily policy can actually introduce. Items whose true duration exceeds the
+ * whole daily budget are listed separately as needing a dedicated session
+ * ("需专项会话"), because the daily policy will never introduce them; the copy
+ * never promises them a daily slot.
  */
 @Composable
 private fun IntakeBacklogPreview(
     backlogCount: Int,
+    unschedulableCount: Int,
     medianEstimateSeconds: Int,
     dailyBudgetSeconds: Int = 1200,
     modifier: Modifier = Modifier,
 ) {
-    val estimateSeconds = if (medianEstimateSeconds > 0) medianEstimateSeconds else 60
-    val preview = remember(backlogCount, estimateSeconds, dailyBudgetSeconds) {
-        NewIntroductionPolicy.preview(
+    val copy = remember(backlogCount, unschedulableCount, medianEstimateSeconds, dailyBudgetSeconds) {
+        intakeBacklogCopy(
             backlogCount = backlogCount,
-            typicalItemSeconds = estimateSeconds,
-            timeBudgetSeconds = dailyBudgetSeconds,
+            unschedulableCount = unschedulableCount,
+            medianEstimateSeconds = medianEstimateSeconds,
+            dailyBudgetSeconds = dailyBudgetSeconds,
         )
-    }
-    Column(modifier = modifier.padding(top = 10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    } ?: return
+    Column(modifier = modifier.padding(top = 10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text("新题安排", color = SmartColors.Ink,
             style = MaterialTheme.typography.titleMedium)
         Text(
-            text = androidx.compose.ui.text.buildAnnotatedString {
-                pushStyle(androidx.compose.ui.text.SpanStyle(color = SmartColors.ReadingAccent, fontWeight = FontWeight.SemiBold))
-                append("$backlogCount 题待学")
-                pop()
-                if (preview.daysToCover > 0) append("  ·  每天约 ${preview.perDayItems} 题")
-            },
+            text = copy.headline,
             style = MaterialTheme.typography.bodyMedium,
             color = SmartColors.InkSecondary,
+        )
+        copy.schedulableLine?.let { line ->
+            Text(
+                text = line,
+                style = MaterialTheme.typography.bodySmall,
+                color = SmartColors.InkSecondary,
+            )
+        }
+        copy.unschedulableLine?.let { line ->
+            Text(
+                text = line,
+                style = MaterialTheme.typography.bodySmall,
+                color = SmartColors.ReadingAccent,
+                modifier = Modifier.testTag("review_intake_unschedulable"),
+            )
+        }
+    }
+}
+
+/**
+ * "复习容量"区块（5b 容量 UI）：只渲染快照上的 [StudyReviewCapacity]。
+ *
+ * 没有容量事实（null）时显示如实空态 [ReviewCapacityCopyText.EMPTY_BODY]——不显示
+ * "今日容量 0 题"，也不把"积压追赶未规划"说成"欠账 0 题"。
+ */
+@Composable
+private fun ReviewCapacitySection(
+    capacity: StudyReviewCapacity?,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        PaperDivider()
+        Text(
+            text = ReviewCapacityCopyText.TITLE,
+            style = MaterialTheme.typography.titleMedium,
+            color = SmartColors.Ink,
+        )
+        val copy = remember(capacity) { reviewCapacityCopy(capacity) }
+        if (copy == null) {
+            Text(
+                text = ReviewCapacityCopyText.EMPTY_BODY,
+                style = MaterialTheme.typography.bodySmall,
+                color = SmartColors.InkSecondary,
+                modifier = Modifier.testTag("review_capacity_empty"),
+            )
+            return@Column
+        }
+        Text(
+            text = copy.capacityLine,
+            style = MaterialTheme.typography.bodyMedium,
+            color = SmartColors.Ink,
+            modifier = Modifier.testTag("review_capacity_today"),
+        )
+        Text(
+            text = copy.examLine,
+            style = MaterialTheme.typography.bodySmall,
+            color = SmartColors.InkSecondary,
+            modifier = Modifier.testTag("review_capacity_exam"),
+        )
+        if (copy.subjectLines.isNotEmpty()) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+                modifier = Modifier.testTag("review_capacity_subjects"),
+            ) {
+                copy.subjectLines.forEachIndexed { index, line ->
+                    Text(
+                        text = line,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = SmartColors.InkSecondary,
+                        modifier = Modifier.testTag("review_capacity_subject_$index"),
+                    )
+                }
+            }
+        }
+        Text(
+            text = copy.rebalanceLine,
+            style = MaterialTheme.typography.bodySmall,
+            color = SmartColors.InkSecondary,
+            modifier = Modifier.testTag("review_capacity_rebalance"),
         )
     }
 }
