@@ -1318,3 +1318,14 @@ blocked-runbook.md 载体覆盖 254/254；runbook.md 默认载体 85/254（载�
 - 提交：批次50 共 15 笔（版面/错因/容量/改卷/视觉/AIGC/隐私/发布/台账/行级/证据/记录），已推送 `5a959619`。
 
 **一句话**：本轮把“缺的实现”基本落成了代码与证据，但**四门未过、发布外部项未取得、独立复核缺失**，因此“发版水平”不成立；下一轮应只做四门收口与发布外部项，不再扩功能。
+
+## 10. 主会话纠偏（2026-11-09）：CV 切题算法删除
+
+用户裁定：**切题靠模型识别，算法切分鸡肋，直接删掉**。已执行：
+
+- `git revert 26ee51e1`（-1586 行）：删除 `core/model/.../layout/LayoutStructure.kt`、`PageLayoutHint.kt`、`LayoutHintContractTest`、`LayoutStructureTest`/DevParityHarness、`PageLayoutHintInstrumentedTest`、`CaptureAssessmentLayoutHintPromptTest`；
+- 还原 `OpenAiCompatibleModelGateway.kt` 的 layoutHint 接线（版面测量端口/生产 `AndroidPageLayoutHint` 装配全部移除）；
+- 删除未跟踪的 `GoldenSplitEvalHintChannelHarness.kt` 与 `tools/layout_probe/`；
+- 保留 `docs/research/2026-11-09-split-cv-llm.md` 并在文首标 **REJECTED（仅负结果研究）**。
+
+切题自此只有模型识别一条路径；`AUD-08` 的门值与结论须在模型-only 口径下重测，不能再引用 CV 臂/hint 臂读数。
