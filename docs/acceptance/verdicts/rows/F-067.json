@@ -4,16 +4,16 @@
  "verdict": "PASS",
  "verdict_detail": "原行写「计数稳定 12」，实测 6（12 是 soak 口径）。稳定性判据改为可复算形式：运行后快照 6 条 data_app_crash 的时间戳全部早于窗口起点 15:23Z，等价于窗口内新增 0 条，与 anr-crash.cmd.log 的 NEW_EVENTS_IN_WINDOW=0 一致。",
  "domain": "F",
- "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
  "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
- "reviewer": "batch50-acceptance-ledger-mechanical",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
  "authors": [
   "batch50-implementers"
  ],
  "self_review": false,
  "ledger": "docs/acceptance/ledger.md",
  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
- "ledger_batch": 50,
+ "ledger_batch": 51,
  "review_kind": "mechanical-recompute",
  "independence": {
   "reviewer_role_only": true,
@@ -21,8 +21,8 @@
   "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
  },
  "evidence_freshness": {
-  "current_batch_files": 2,
-  "archived_files": 0,
+  "current_batch_files": 0,
+  "archived_files": 4,
   "basis": "bytes-on-disk"
  },
  "checks_scope": "row-specific",
@@ -32,7 +32,7 @@
  },
  "findings": [],
  "caveats": [],
- "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
  "method": "6 个仪器化套件 + 手工启停后 dropbox data_app_crash 计数稳定 6（原行误写 12）；判据：运行后快照 6 条时间戳全部早于窗口起点 15:23Z，等价于窗口内新增 0 条（anr-crash.cmd.log NEW_EVENTS_IN_WINDOW=0 同值）, device: emulator-5566",
  "evidence": [
   "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.cmd.log",
@@ -50,7 +50,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=F-067; verdict=PASS; line=648; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
+   "value": "id=F-067; verdict=PASS; line=648; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
   {
    "name": "dropbox_app_entries",
@@ -113,7 +113,9 @@
    "sha256": "b677c33f75a94c1ad9a2a4bebd5e046f53f94b863eff9edbb933198b221119cb"
   }
  ],
- "basis": "批次47 复算：重扫 dropbox-after.txt 与 anr-crash.cmd.log。输出 F-067-dropbox-stability.{json,cmd.log}（EXIT=0）。",
- "notes": "本文件只对该单行生效。批次44 未归档窗口前快照；本行改用“时间戳全早于窗口”的等价判据，不声称存在未归档的前快照。",
- "verified_at": "2026-11-09T00:00:00Z"
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "本文件只对该单行生效。批次44 未归档窗口前快照；本行改用“时间戳全早于窗口”的等价判据，不声称存在未归档的前快照。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "verified_at": "2026-11-10T00:00:00Z",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

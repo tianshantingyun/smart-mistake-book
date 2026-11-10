@@ -4,16 +4,16 @@
  "verdict": "PASS",
  "verdict_detail": "原回归行的两侧数字都无原始归档（批次43 518/545/569 与 本轮 516/553/538、p95=127），且「差小于3%」与逐位配对不符（538 vs 569 为 5.4%）。按出口判据补原始输出：批次47 在批次43 同一台 emulator-5584 上用同一 export.test APK 08ea 复跑 3 轮，原始 logcat elapsedMs=490/464/478，三轮均值 544.0 到 477.3ms（-12.25%），无一轮慢于批次43 最慢轮（569）；DB 门同 database.test APK 32235e63 在 5584 6/6 OK、107.6s，原始 logcat 行 p95=55ms（目标 350ms，PerformanceTargets.kt:24）。",
  "domain": "F",
- "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
  "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
- "reviewer": "batch50-acceptance-ledger-mechanical",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
  "authors": [
   "batch50-implementers"
  ],
  "self_review": false,
  "ledger": "docs/acceptance/ledger.md",
  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
- "ledger_batch": 50,
+ "ledger_batch": 51,
  "review_kind": "mechanical-recompute",
  "independence": {
   "reviewer_role_only": true,
@@ -21,8 +21,8 @@
   "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
  },
  "evidence_freshness": {
-  "current_batch_files": 5,
-  "archived_files": 0,
+  "current_batch_files": 0,
+  "archived_files": 5,
   "basis": "bytes-on-disk"
  },
  "checks_scope": "row-specific",
@@ -32,7 +32,7 @@
  },
  "findings": [],
  "caveats": [],
- "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
  "method": "回归对照（同机同 APK 08ea，emulator-5584）：批次43 文档 518/545/569ms vs 批次47 复跑 490/464/478ms（原始 logcat），三轮均值 544.0 到 477.3ms（-12.2%），无一轮慢于批次43 最慢轮；DB 门 PerformanceGateTest（database.test 32235e63）在 5584 6/6 OK 107.6s，p95=55ms 低于 350ms 目标（原始 logcat 落盘）",
  "evidence": [
   "cmd:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.cmd.log",
@@ -52,7 +52,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=F-036; verdict=PASS; line=617; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
+   "value": "id=F-036; verdict=PASS; line=617; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
   {
    "name": "export_rounds",
@@ -146,7 +146,9 @@
    "sha256": "9a2d18b09621d8dd7d9b68ff71cad5102f36f779cae82bd4475ebe23fd27b40a"
   }
  ],
- "basis": "批次47 复跑：export-batch47-r1..3（f47-run-instr.sh）与 db-perf-b47-5584；批次43 基线数值取 docs/research/evidence/2026-11-05-batch-43/ws11-performance.md §2.2（其原始 build 产物未入库，md 为归档记录，sha 已入 recount JSON）。",
- "notes": "本文件只对该单行生效。批次44 在 5566 的 516/553/538 与 p95=127 无原始归档，不再作为回归对照；跨机对照（5566 vs 5584）不构成回归判定。",
- "verified_at": "2026-11-09T00:00:00Z"
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "本文件只对该单行生效。批次44 在 5566 的 516/553/538 与 p95=127 无原始归档，不再作为回归对照；跨机对照（5566 vs 5584）不构成回归判定。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "verified_at": "2026-11-10T00:00:00Z",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

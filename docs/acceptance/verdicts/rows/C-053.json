@@ -1,12 +1,12 @@
 {
  "id": "C-053",
  "verdict": "PASS",
- "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
- "reviewer": "batch50-acceptance-ledger-mechanical",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
  "authors": [
   "batch50-implementers"
  ],
- "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
  "evidence": [
   "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-shot-light-vs-dark.log",
   "cmd:docs/research/evidence/2026-11-05-batch-44/c-domain/c-theme-luminance.log",
@@ -23,7 +23,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=C-053; verdict=PASS; line=364; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
+   "value": "id=C-053; verdict=PASS; line=364; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
   {
    "name": "cmd_exit",
@@ -61,13 +61,13 @@
    "value": "log_baseline_sha=bceb07164929e9f3c573c8aac5748ef337706a68d1b2d360b05bca70d32532ea; actual=bceb07164929e9f3c573c8aac5748ef337706a68d1b2d360b05bca70d32532ea; match=true; log_current_sha=5aa5ca3457dab788c58d2b71e7c62343fa24321810f104c68d6f6d04d1d44473; actual=5aa5ca3457dab788c58d2b71e7c62343fa24321810f104c68d6f6d04d1d44473; match=true"
   }
  ],
- "basis": "机械复算（reviewer=batch49-acceptance-ledger-mechanical，批次49 台账冻结轮，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 C-053 并复算 ledger_sha256=d370ef8ac6774499629443e0e06bce7e241e856af42369fa1a059499dfa75bba；逐个打开本行 evidence 复算 sha256、XML counts、cmd EXIT 与设备绑定。本文件只对该单行生效。",
- "notes": "设备证据为批次 44 冻结轮（serial=emulator-5584，boot_id=5a34f877…，core:data test APK c9943728… / app APK 84cae864…）。本轮 adb 实测该 emulator 当前 boot_id=831e5d06…、已装 core:data test APK sha=6119038…、app APK sha=f534b0d…，与证据不一致，故未重跑设备，只做证据文件复算。 Theme.kt 自证据快照 26f2327 至当前 HEAD 零 diff；截图证据绑定 app APK 84cae864…，生产代码未漂移。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次49 重生成：源文件 sha/字节数按 2026-11-08 当前工作树复算，台账行号与 ledger_sha256 重绑；verdict 与证据路径未改。",
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "设备证据为批次 44 冻结轮（serial=emulator-5584，boot_id=5a34f877…，core:data test APK c9943728… / app APK 84cae864…）。本轮 adb 实测该 emulator 当前 boot_id=831e5d06…、已装 core:data test APK sha=6119038…、app APK sha=f534b0d…，与证据不一致，故未重跑设备，只做证据文件复算。 Theme.kt 自证据快照 26f2327 至当前 HEAD 零 diff；截图证据绑定 app APK 84cae864…，生产代码未漂移。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次49 重生成：源文件 sha/字节数按 2026-11-08 当前工作树复算，台账行号与 ledger_sha256 重绑；verdict 与证据路径未改。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
  "review_scope": "single-ledger-row",
  "rebind_from_run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-c",
- "ledger_batch": 50,
+ "ledger_batch": 51,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-09T00:00:00Z",
+ "verified_at": "2026-11-10T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,
@@ -78,5 +78,7 @@
   "archived_files": 4,
   "basis": "bytes-on-disk"
  },
- "checks_scope": "row-specific"
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

@@ -1,0 +1,68 @@
+{
+ "id": "F-058",
+ "verdict": "PASS",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch51-device-track"
+ ],
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "ledger_batch": 51,
+ "evidence": [
+  "cmd:docs/research/evidence/2026-11-10-batch-51/acceptance/f058-soak-repeat-audit.log",
+  "device:docs/acceptance/evidence/2026-11-09-batch-50/device/soak-b50.device.json",
+  "device:docs/acceptance/evidence/2026-11-10-batch-51/device/soak-b51.device.json",
+  "file:docs/research/evidence/2026-11-09-batch-50/device/37-soak-console.log",
+  "file:docs/research/evidence/2026-11-10-batch-51/device/37-soak-console.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-10-batch-51/acceptance/f058-soak-repeat-audit.log": "4ac2ee2cf53ee49602881b929d6dab2a3068ec17e6592a0090ac2739d2190bed",
+  "docs/acceptance/evidence/2026-11-09-batch-50/device/soak-b50.device.json": "95a912903a01e474de02e77d4f22cac78c309acbade9b6f329ae5fcf442ab55b",
+  "docs/acceptance/evidence/2026-11-10-batch-51/device/soak-b51.device.json": "536a2f5e79d3aeaac74eb295d5f7302312f83f2b7d79325f36f41d88465e7711",
+  "docs/research/evidence/2026-11-09-batch-50/device/37-soak-console.log": "1a8221cf1f930c98eb4b54a5e7b85a995a2b285d1a21d7d6a8a66ef211f98b77",
+  "docs/research/evidence/2026-11-10-batch-51/device/37-soak-console.log": "74bee01d6c44da0551e0d60d3e95bbb9e47c9f8adbc554790bd3847b862cf688"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=F-058; verdict=PASS; line=639; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-10-batch-51/acceptance/f058-soak-repeat-audit.log",
+   "value": "exit_markers=[0]; sha256=4ac2ee2cf53ee49602881b929d6dab2a3068ec17e6592a0090ac2739d2190bed"
+  },
+  {
+   "name": "device_binding",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/device/soak-b50.device.json",
+   "value": "serial=emulator-5590; apk_sha256=1bf98b0029032ecb5c243c3ada3ac19183e53e0a912ab630510da12866d34dec; boot_id=31ecd364-6b2a-4e52-9643-23e681696172; counts={\"tests\":115,\"evaluated\":115,\"failures\":0,\"errors\":0,\"skipped\":0}; verdict=PASS; sha256=95a912903a01e474de02e77d4f22cac78c309acbade9b6f329ae5fcf442ab55b"
+  },
+  {
+   "name": "device_binding",
+   "source": "docs/acceptance/evidence/2026-11-10-batch-51/device/soak-b51.device.json",
+   "value": "serial=emulator-5592; apk_sha256=b6fbd87745c3ba3bc5fc9b63e7830019c9e99682bacc7432d495546ed72ed46f; boot_id=b24f1996-4c2c-4722-9c30-2f6208790c3a; counts={\"tests\":115,\"evaluated\":115,\"failures\":0,\"errors\":0,\"skipped\":0}; verdict=PASS; sha256=536a2f5e79d3aeaac74eb295d5f7302312f83f2b7d79325f36f41d88465e7711"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-10-batch-51/device/37-soak-console.log",
+   "value": "sha256=74bee01d6c44da0551e0d60d3e95bbb9e47c9f8adbc554790bd3847b862cf688; bytes=325"
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "本文件只对该单行生效；不构成域或批次整体签字。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-10T00:00:00Z",
+ "checks_scope": "row-specific",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 3,
+  "archived_files": 2,
+  "basis": "bytes-on-disk"
+ },
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
+}

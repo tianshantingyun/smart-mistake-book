@@ -4,16 +4,16 @@
  "verdict": "PASS",
  "verdict_detail": "原行把冷启 p50 上界写成 2150ms，cold#6 实为 2350ms（gfxinfo.txt 与 gfxinfo-cold6.txt 一致）。按 gfxinfo-cold1..7 重算：p50=450/2050/2150/2100/2000/2350/300，范围 300-2350ms，7/7 轮有 janky 帧；台账已按实测改正。",
  "domain": "F",
- "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
  "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
- "reviewer": "batch50-acceptance-ledger-mechanical",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
  "authors": [
   "batch50-implementers"
  ],
  "self_review": false,
  "ledger": "docs/acceptance/ledger.md",
  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
- "ledger_batch": 50,
+ "ledger_batch": 51,
  "review_kind": "mechanical-recompute",
  "independence": {
   "reviewer_role_only": true,
@@ -21,8 +21,8 @@
   "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
  },
  "evidence_freshness": {
-  "current_batch_files": 2,
-  "archived_files": 0,
+  "current_batch_files": 0,
+  "archived_files": 4,
   "basis": "bytes-on-disk"
  },
  "checks_scope": "row-specific",
@@ -32,7 +32,7 @@
  },
  "findings": [],
  "caveats": [],
- "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
  "method": "gfxinfo 逐轮 Total frames/Janky/50th percentile；冷启 p50 300-2350ms（450/2050/2150/2100/2000/2350/300，批次47 复算与 gfxinfo-cold1..7 一致），7/7 轮有 janky 帧; device: emulator-5566",
  "evidence": [
   "device:docs/research/evidence/2026-11-05-batch-44/f-domain/gfxinfo-cold6.txt",
@@ -50,7 +50,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=F-019; verdict=PASS; line=600; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
+   "value": "id=F-019; verdict=PASS; line=600; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
   {
    "name": "device_text",
@@ -106,7 +106,9 @@
    "sha256": "134d9c43954cb6715d37a64642f24bcbe51e6e5b01b53d7c103590cb1a0d7566"
   }
  ],
- "basis": "批次47 复算：解析 gfxinfo.txt 的 7 个分段与 gfxinfo-cold1..7 逐轮文件，逐轮交叉一致；复算脚本与输出为 docs/research/evidence/2026-11-06-batch-47/f-domain/F-019-gfxinfo-recount.{json,cmd.log}（EXIT=0）。",
- "notes": "本文件只对该单行生效。上界 2150 改为 2350 是按原始证据修正基线记录（fix-tickets-b46 #1 出口判据），不是把失败说成成功。",
- "verified_at": "2026-11-09T00:00:00Z"
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "本文件只对该单行生效。上界 2150 改为 2350 是按原始证据修正基线记录（fix-tickets-b46 #1 出口判据），不是把失败说成成功。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "verified_at": "2026-11-10T00:00:00Z",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

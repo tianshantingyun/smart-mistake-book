@@ -1,12 +1,12 @@
 {
  "id": "F-045",
  "verdict": "PASS",
- "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
- "reviewer": "batch50-acceptance-ledger-mechanical",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
  "authors": [
   "batch50-implementers"
  ],
- "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
  "evidence": [
   "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/preview.cmd.log",
   "test:docs/research/evidence/2026-11-05-batch-44/f-domain/TEST-preview-pdf1.xml",
@@ -23,7 +23,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=F-045; verdict=PASS; line=626; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
+   "value": "id=F-045; verdict=PASS; line=626; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
   {
    "name": "xml_aggregate",
@@ -46,16 +46,23 @@
    "value": "sha256=efaffeef196a1b5e3e4240ed3d3ac13500e25f35ce480ccc618227b88a46e2bc; bytes=2783"
   }
  ],
- "basis": "机械复算（reviewer=batch49-acceptance-ledger-mechanical，批次49 台账冻结轮，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 F-045 并复算 ledger_sha256=d370ef8ac6774499629443e0e06bce7e241e856af42369fa1a059499dfa75bba；逐个打开本行 evidence 复算 sha256、XML counts、cmd EXIT 与设备绑定。本文件只对该单行生效。",
- "notes": "P1 标定规模基准：60/500/5000 三组金样逐位一致 2 例；原预览耗时回归证据保持。",
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "P1 标定规模基准：60/500/5000 三组金样逐位一致 2 例；原预览耗时回归证据保持。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
  "review_scope": "single-ledger-row",
  "review_kind": "mechanical-recompute",
- "ledger_batch": 50,
- "verified_at": "2026-11-09T00:00:00Z",
+ "ledger_batch": 51,
+ "verified_at": "2026-11-10T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,
   "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
  },
- "checks_scope": "row-specific"
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 4,
+  "basis": "bytes-on-disk"
+ }
 }

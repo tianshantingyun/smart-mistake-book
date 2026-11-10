@@ -4,16 +4,16 @@
  "verdict": "PASS",
  "verdict_detail": "本行要求 logcat 与 instr 两类原始输出；批次44 只归档了 instr（原 FAIL 根因）。批次47 用同一 export.test APK 08ea 在 emulator-5584 复跑 r1..r3：每轮 1 条 MistakeBatchPerf 行（elapsedMs=490/464/478）+ 原始 instr（OK (1 test)），全部落盘。",
  "domain": "F",
- "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
  "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
- "reviewer": "batch50-acceptance-ledger-mechanical",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
  "authors": [
   "batch50-implementers"
  ],
  "self_review": false,
  "ledger": "docs/acceptance/ledger.md",
  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
- "ledger_batch": 50,
+ "ledger_batch": 51,
  "review_kind": "mechanical-recompute",
  "independence": {
   "reviewer_role_only": true,
@@ -21,8 +21,8 @@
   "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
  },
  "evidence_freshness": {
-  "current_batch_files": 4,
-  "archived_files": 0,
+  "current_batch_files": 0,
+  "archived_files": 4,
   "basis": "bytes-on-disk"
  },
  "checks_scope": "row-specific",
@@ -32,7 +32,7 @@
  },
  "findings": [],
  "caveats": [],
- "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
  "method": "MistakeBatchPerf logcat 与 am instrument 原始输出：批次44 只有 instr 无 logcat（原 FAIL 根因）；批次47 同 export.test APK 08ea 在 emulator-5584 复跑 r1..r3 各 1 条 MistakeBatchPerf 行（elapsedMs=490/464/478）与原始 instr 落盘; device: emulator-5584",
  "evidence": [
   "device:docs/research/evidence/2026-11-06-batch-47/f-domain/export-batch47-r1.perf.logcat.txt",
@@ -50,7 +50,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=F-034; verdict=PASS; line=615; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
+   "value": "id=F-034; verdict=PASS; line=615; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
   {
    "name": "device_text",
@@ -119,7 +119,9 @@
    "sha256": "01334e52c5681b4d26e2621392c7dde6807d7af027c18d62f5238927c52b0bff"
   }
  ],
- "basis": "批次47 复跑命令：docs/research/evidence/2026-11-06-batch-47/f-domain/f47-run-instr.sh emulator-5584 com.tingyun.smartmistakebook.core.export.test '<class>#batchExportRendersBeyondSingleQuestionPageLimitWithinItsOwnBound' export-batch47-rN <outdir>；logcat -d -v threadtime -s MistakeBatchPerf:I 逐轮落盘。",
- "notes": "本文件只对该单行生效。复跑在 x86_64 API34 模拟器（5584）上，真机/arm64 仍属 F-033 的 BLOCKED，不在本行声称。",
- "verified_at": "2026-11-09T00:00:00Z"
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "本文件只对该单行生效。复跑在 x86_64 API34 模拟器（5584）上，真机/arm64 仍属 F-033 的 BLOCKED，不在本行声称。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "verified_at": "2026-11-10T00:00:00Z",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

@@ -1,15 +1,15 @@
 {
  "id": "FIX-025",
  "verdict": "PASS",
- "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
- "reviewer": "batch50-acceptance-ledger-mechanical",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
  "authors": [
   "batch50-implementers"
  ],
- "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
  "evidence": [
-  "cmd:docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-T04-T05-T07.log#exit=0",
-  "cmd:docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-prove-red.log#exit=0",
+  "cmd:docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-T04-T05-T07.log",
+  "cmd:docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-prove-red.log",
   "file:docs/research/evidence/2026-11-09-batch-50/aigc/red-kd85-model-text.log",
   "file:docs/research/evidence/2026-11-09-batch-50/aigc/green-kd85-model-text.log",
   "file:docs/research/evidence/2026-11-09-batch-50/aigc/pdf-independent-readback.log",
@@ -27,7 +27,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=FIX-025; verdict=PASS; line=1056; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
+   "value": "id=FIX-025; verdict=PASS; line=1056; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
   {
    "name": "cmd_exit",
@@ -60,16 +60,23 @@
    "value": "serial=emulator-5590; apk_sha256=a70b9559f93f24bedab3ca31df439e9dd6184a658c83315355f11c8be78ab62d; test_apk_sha256=07c713941c524c3b4dcc41fde066c40372698f55ec50af235a4d4c728db181cb; boot_id=31ecd364-6b2a-4e52-9643-23e681696172; counts={\"errors\": 0, \"evaluated\": 9, \"failures\": 0, \"skipped\": 0, \"tests\": 9}; verdict=PASS; sha256=132ea81331aa1a7207b4e8b65fe3dd5ac4f07d9e48e26aaaf13578ca34f0835d"
   }
  ],
- "basis": "机械复算（批次50 台账轮，reviewer=batch50-acceptance-ledger-mechanical，同一会话脚本，非第二人/第二模型语义复核）：逐条打开本行证据复算 sha256、cmd exit、XML counts、device 绑定，并校验 ledger_row 的行号/verdict/台账 sha。本文件只对该单行生效。；批次50 台账轮重绑：ledger_sha256 已更新为 9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97，本行 checks 与 evidence_sha256 由 batch50 脚本按当前字节复算（reviewer=batch50-acceptance-ledger-mechanical）。",
- "notes": "批次50：FIX-T05 关闭态门；KD-85 红 2/5→绿 5/5，设备 2 例，pypdf 正负读回；prove-red 2/2。",
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "批次50：FIX-T05 关闭态门；KD-85 红 2/5→绿 5/5，设备 2 例，pypdf 正负读回；prove-red 2/2。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
  "review_scope": "single-ledger-row",
  "review_kind": "mechanical-recompute",
- "ledger_batch": 50,
- "verified_at": "2026-11-09T00:00:00Z",
+ "ledger_batch": 51,
+ "verified_at": "2026-11-10T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,
   "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
  },
- "checks_scope": "row-specific"
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 6,
+  "basis": "bytes-on-disk"
+ }
 }

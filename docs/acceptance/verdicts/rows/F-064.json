@@ -4,16 +4,16 @@
  "verdict": "PASS",
  "verdict_detail": "原行写「app 条目 12 条」，dropbox-after.txt 实测 data_app_* 条目 6 条（全部 data_app_crash，时间 2026-11-03 09:08 x3 与 2026-11-04 07:05-07:09 x3），anr-crash.cmd.log/device.json 同记 6；12 与 soak.device.json 的 dropbox_first 相同，系口径混用。台账改为 6 并写明窗口/过滤口径。",
  "domain": "F",
- "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
  "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
- "reviewer": "batch50-acceptance-ledger-mechanical",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
  "authors": [
   "batch50-implementers"
  ],
  "self_review": false,
  "ledger": "docs/acceptance/ledger.md",
  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
- "ledger_batch": 50,
+ "ledger_batch": 51,
  "review_kind": "mechanical-recompute",
  "independence": {
   "reviewer_role_only": true,
@@ -21,8 +21,8 @@
   "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
  },
  "evidence_freshness": {
-  "current_batch_files": 2,
-  "archived_files": 0,
+  "current_batch_files": 0,
+  "archived_files": 4,
   "basis": "bytes-on-disk"
  },
  "checks_scope": "row-specific",
@@ -32,7 +32,7 @@
  },
  "findings": [],
  "caveats": [],
- "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
  "method": "dropbox 中 app 条目 6 条（data_app_crash：2026-11-03 09:08 三条与 2026-11-04 07:05-07:09 三条，全部早于本轮窗口 15:23Z..15:54Z；原行误写 12 系 soak 口径混用），crash buffer 0 行; device: emulator-5566",
  "evidence": [
   "device:docs/research/evidence/2026-11-05-batch-44/f-domain/anr-crash.device.json",
@@ -50,7 +50,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=F-064; verdict=PASS; line=645; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
+   "value": "id=F-064; verdict=PASS; line=645; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
   {
    "name": "dropbox_app_entries",
@@ -113,7 +113,9 @@
    "sha256": "73e4f19ef0a1943a74d1f43be4abd170dcaf87d18e84eb10d889081e5f985b98"
   }
  ],
- "basis": "批次47 复算：重扫 dropbox-after.txt 的 data_app_* 头（6 条）、logcat-crash.txt（0 行）、窗口起点 15:23Z 前于全部时间戳。输出 F-064-dropbox-recount.{json,cmd.log}（EXIT=0）。",
- "notes": "本文件只对该单行生效。设备时区=UTC（批次47 设备 logcat 与宿主 UTC 逐秒一致），6 条时间戳无论按何种常见时区偏移都早于窗口起点。",
- "verified_at": "2026-11-09T00:00:00Z"
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "本文件只对该单行生效。设备时区=UTC（批次47 设备 logcat 与宿主 UTC 逐秒一致），6 条时间戳无论按何种常见时区偏移都早于窗口起点。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "verified_at": "2026-11-10T00:00:00Z",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

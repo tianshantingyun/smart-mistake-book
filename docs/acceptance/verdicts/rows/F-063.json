@@ -1,12 +1,12 @@
 {
  "id": "F-063",
  "verdict": "PASS",
- "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
- "reviewer": "batch50-acceptance-ledger-mechanical",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
  "authors": [
   "batch50-implementers"
  ],
- "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
  "evidence": [
   "device:docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv",
   "file:docs/research/evidence/2026-11-08-batch-49/device/soak/soak.cmd.log",
@@ -15,7 +15,9 @@
   "file:docs/research/evidence/2026-11-08-batch-49/device/soak/EXIT-CAPTURE-CAVEAT.md",
   "device:docs/acceptance/evidence/2026-11-09-batch-50/device/soak-b50.device.json",
   "file:docs/research/evidence/2026-11-09-batch-50/device/soak/soak-samples.csv",
-  "file:docs/research/evidence/2026-11-09-batch-50/device/37-soak-console.log"
+  "file:docs/research/evidence/2026-11-09-batch-50/device/37-soak-console.log",
+  "device:docs/acceptance/evidence/2026-11-10-batch-51/device/soak-b51.device.json",
+  "file:docs/research/evidence/2026-11-10-batch-51/device/37-soak-console.log"
  ],
  "evidence_sha256": {
   "docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv": "4b1e4241d261c36bb0032598524eded8aa04200e11a5a59b4e54f26725b2a474",
@@ -25,13 +27,15 @@
   "docs/research/evidence/2026-11-08-batch-49/device/soak/EXIT-CAPTURE-CAVEAT.md": "6ec6c0060dbaac29b3fee45e987b2a2130e08247c70c8786a89c7cd7477ce2d2",
   "docs/acceptance/evidence/2026-11-09-batch-50/device/soak-b50.device.json": "95a912903a01e474de02e77d4f22cac78c309acbade9b6f329ae5fcf442ab55b",
   "docs/research/evidence/2026-11-09-batch-50/device/soak/soak-samples.csv": "28fe6ef8de48217dfdf185bb2bb544ccecfab42dc954855772960842217e7e13",
-  "docs/research/evidence/2026-11-09-batch-50/device/37-soak-console.log": "1a8221cf1f930c98eb4b54a5e7b85a995a2b285d1a21d7d6a8a66ef211f98b77"
+  "docs/research/evidence/2026-11-09-batch-50/device/37-soak-console.log": "1a8221cf1f930c98eb4b54a5e7b85a995a2b285d1a21d7d6a8a66ef211f98b77",
+  "docs/acceptance/evidence/2026-11-10-batch-51/device/soak-b51.device.json": "536a2f5e79d3aeaac74eb295d5f7302312f83f2b7d79325f36f41d88465e7711",
+  "docs/research/evidence/2026-11-10-batch-51/device/37-soak-console.log": "74bee01d6c44da0551e0d60d3e95bbb9e47c9f8adbc554790bd3847b862cf688"
  },
  "checks": [
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=F-063; verdict=PASS; line=644; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
+   "value": "id=F-063; verdict=PASS; line=644; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
   {
    "name": "file_sha256",
@@ -74,16 +78,23 @@
    "value": "sha256=1a8221cf1f930c98eb4b54a5e7b85a995a2b285d1a21d7d6a8a66ef211f98b77; bytes=308"
   }
  ],
- "basis": "机械复算（批次50 台账轮，reviewer=batch50-acceptance-ledger-mechanical，同一会话脚本，非第二人/第二模型语义复核）：逐条打开本行证据复算 sha256、cmd exit、XML counts、device 绑定，并校验 ledger_row 的行号/verdict/台账 sha。本文件只对该单行生效。；批次50 台账轮重绑：ledger_sha256 已更新为 9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97，本行 checks 与 evidence_sha256 由 batch50 脚本按当前字节复算（reviewer=batch50-acceptance-ledger-mechanical）。",
- "notes": "批次50：对照批次44 的 2504s FATAL，批次49/50 各 7200s 未复现且同 pid。",
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "批次50：对照批次44 的 2504s FATAL，批次49/50 各 7200s 未复现且同 pid。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
  "review_scope": "single-ledger-row",
  "review_kind": "mechanical-recompute",
- "ledger_batch": 50,
- "verified_at": "2026-11-09T00:00:00Z",
+ "ledger_batch": 51,
+ "verified_at": "2026-11-10T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,
   "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
  },
- "checks_scope": "row-specific"
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "evidence_freshness": {
+  "current_batch_files": 2,
+  "archived_files": 8,
+  "basis": "bytes-on-disk"
+ }
 }

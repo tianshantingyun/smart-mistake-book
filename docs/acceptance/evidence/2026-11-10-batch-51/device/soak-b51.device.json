@@ -1,0 +1,27 @@
+{
+  "serial": "emulator-5592",
+  "boot_id": "b24f1996-4c2c-4722-9c30-2f6208790c3a",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "apk_sha256": "b6fbd87745c3ba3bc5fc9b63e7830019c9e99682bacc7432d495546ed72ed46f",
+  "test_apk_sha256": "n/a",
+  "counts": {
+    "tests": 115,
+    "evaluated": 115,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "verdict": "PASS",
+  "recorded_at": "2026-11-10T01:44:24Z",
+  "duration_target_s": 7200,
+  "cycles": 115,
+  "crash_delta": 0,
+  "dropbox_delta": 0,
+  "monkey_rc_nonzero": 0,
+  "apk_versionCode": 101177,
+  "source_logs": [
+    "docs/research/evidence/2026-11-10-batch-51/device/soak-start.txt",
+    "docs/research/evidence/2026-11-10-batch-51/device/soak/soak-summary.txt",
+    "docs/research/evidence/2026-11-10-batch-51/device/37-soak-console.log"
+  ]
+}

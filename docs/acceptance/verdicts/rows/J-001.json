@@ -1,23 +1,27 @@
 {
  "id": "J-001",
- "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
- "reviewer": "batch50-acceptance-ledger-mechanical",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
  "authors": [
   "batch50-implementers"
  ],
  "verdict": "FAIL",
- "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
  "evidence": [
-  "cmd:docs/research/evidence/2026-11-06-batch-46/j-domain/j-identity.log"
+  "cmd:docs/research/evidence/2026-11-06-batch-46/j-domain/j-identity.log",
+  "file:docs/research/evidence/2026-11-10-batch-51/release/identity-require-clean-strictOffline.json",
+  "file:docs/research/evidence/2026-11-10-batch-51/release/clean-clone-build.log"
  ],
  "evidence_sha256": {
-  "docs/research/evidence/2026-11-06-batch-46/j-domain/j-identity.log": "a795dbc738899ff2f2079b27661868f5679894219d559414c43f0e80858d57eb"
+  "docs/research/evidence/2026-11-06-batch-46/j-domain/j-identity.log": "a795dbc738899ff2f2079b27661868f5679894219d559414c43f0e80858d57eb",
+  "docs/research/evidence/2026-11-10-batch-51/release/identity-require-clean-strictOffline.json": "5812cf669517ff9aa34e253c0898ac471c471b8f18c4da3f9da9c51f46d7b8b7",
+  "docs/research/evidence/2026-11-10-batch-51/release/clean-clone-build.log": "af0b685a3233069726ce19078603a695361f84fab6eda832578433950a3abda5"
  },
  "checks": [
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=J-001; verdict=FAIL; line=942; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
+   "value": "id=J-001; verdict=FAIL; line=942; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
   {
    "name": "cmd_exit",
@@ -45,20 +49,22 @@
    "value": "cmd: python -I tools/ci/j_release_verify.py identity --root . --require-clean"
   }
  ],
- "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
- "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
- "ledger_batch": 50,
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "ledger_batch": 51,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-09T00:00:00Z",
+ "verified_at": "2026-11-10T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,
   "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
  },
  "evidence_freshness": {
-  "current_batch_files": 1,
-  "archived_files": 0,
+  "current_batch_files": 2,
+  "archived_files": 1,
   "basis": "bytes-on-disk"
  },
- "checks_scope": "row-specific"
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

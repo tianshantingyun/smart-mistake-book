@@ -732,3 +732,158 @@ BLOCKED→PASS）；FAIL 23 条原样保留；`--require-complete` **exit 1** �
 不签范围：B50-5 不签什么 1–10 项
 日期：2026-11-09
 ```
+
+---
+
+## 批次 51 报告重生成终裁（2026-11-11，记录员）
+
+> 台账：`docs/acceptance/ledger.md` sha256 `1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48`（1200 数据行，批次 51 终态；本记录员实测）。
+> 机器报告：`docs/acceptance/acceptance-report.json` sha256 `4adaa10a4214efe384db0ec264422ae0891eb240fefe91a872c18a3cab7d45e6`（head `8dd29e96…`、dirty 6477、exit 1），与 `docs/research/evidence/2026-11-10-batch-51/acceptance/acceptance-report.json` **逐字节相同**（本轮 `cmp`）。
+> 证据：`docs/research/evidence/2026-11-10-batch-51/`（acceptance `SHA256SUMS` 26 项；mva-gate `SHA256SUMS` 774 项；release `EVIDENCE.sha256` 56 项）、`docs/acceptance/evidence/2026-11-10-batch-51/`（`REVIEWS.sha256` 948 项、`EVIDENCE.sha256` 2 项）；计划：`.zcode/plans/plan-2026-11-10-batch-51-final.md`。
+> 本段只写终裁结论、复核结果与签字边界；不替代台账、行级 JSON 与原始证据。
+> 本轮记录员**实跑**：`acceptance_report`（含 `--require-complete`）、`acceptance_lint`、`trace_requirements`、`acceptance_init --check`、台账六列逐行复算、5 份 sha256 清单校验、`check_backup_plan_sync.py`、`cmp` 报告副本、3D/AUD-08/MVA 门 JSON 读数、soak summary、release 三产物 sha、`git cat-file -e` 干净树事实。
+> 本轮**未重跑**：Gradle 单测/强门、设备 instrumented、2h soak、真实 Provider、VLM judge、16KB 运行时、AUD-08 切分门（一次性红线）、MVA 门、`connectedLocalFirstDebugAndroidTest`。相关结论一律标注“读自证据”。
+
+### B51-0. 结论
+
+**批次 51 验收不通过（NOT ACCEPTED）；发版不成立。**
+
+| 项 | 实值 | 判定 |
+|---|---|---|
+| 台账 verdict | **PASS 937 / FAIL 10 / BLOCKED 253 / UNVERIFIED 0**（total 1200） | 非 PASS **263** 行 |
+| `acceptance_report` | exit **1**；`state=FAIL`；`violations=[]`；`pass_with_review=937`、`pass_without_review=0`、`pass_with_invalid_review=0`、`pass_with_row_specific_review=659`、`review_validation_errors=[]` | 证据链本身 0 违规；批次级未收口 |
+| `--require-complete` | exit **1**；`NOT_ACCEPTANCE_COMPLETE (UNVERIFIED=0 FAIL=10 BLOCKED=253)` + `REVIEW_CHECKS_SHARED`（20 组） | 仍不可签字 |
+| 与批次 50 对比 | 933/13/254 → **937/10/253/0**；新增 PASS 4（F-058、J-002、J-048、J-052） | +4 PASS；FAIL −3；BLOCKED −1 |
+| 四门 | 3D **FAIL (main)**；3E **设备复验成立但批次级无条件 PASS 未签字**；MVA **FAIL**；AUD-08 **FAIL** | **四门真实 PASS = 0** |
+| 产品面 | JS 不注入/不广告（MVA FAIL）；math 显式降级；KD-76/71/73/82 open、KD-78 closed | 与用户裁定一致 |
+| 发布工程 | 本地 AAB 可签名、16KB 静态、vc 101177、mapping 成立；干净树/生产签名/Play/备案/隐私 URL/图像 provider BLOCKED | **发版不成立** |
+
+**10 FAIL 逐行（本轮台账复算）**：**F-057**；**J-001/J-020/J-021**；**GATE-032/GATE-038/GATE-042/GATE-091/GATE-092/GATE-099**。合计 10。
+**253 BLOCKED 域分布（本轮复算）**：A 25、B 2、C 2、D 8、E 9、F 31、G 7、H 16、I 37、J 47、FIX 65、GATE 4。
+
+### B51-1. 本轮实跑（逐字命令与 exit）
+
+| # | 命令（逐字或简） | exit | 关键输出 |
+|---:|---|---:|---|
+| 1 | `git rev-parse HEAD` / `git status --porcelain \| wc -l` / `-uall` | 0 | `8dd29e963975ff44703f638064322be0e7494f98`；**1633** / **6477** |
+| 2 | `sha256sum docs/acceptance/ledger.md` | 0 | `1161bfc2…20fe48`；1200 数据行（Python 复算） |
+| 3 | `python -I tools/ci/acceptance_report.py --out build/b51-record/report.json` | **1** | **937/10/253/0**；`state=FAIL`；`violations=[]`；`pass_with_review=937`、invalid=0、without=0、row_specific=659；head `8dd29e96`、dirty **6477** |
+| 4 | 同脚本 `--require-complete --out …/report-require-complete.json` | **1** | `NOT_ACCEPTANCE_COMPLETE (0/10/253)`；`REVIEW_CHECKS_SHARED` 20 组 |
+| 5 | `python -I tools/ci/acceptance_lint.py --ledger docs/acceptance/ledger.md --out build/b51-record/lint.json` | **1** | total 1200；violations **162**，全部 `EVIDENCE_REUSED`；点名批次 51 证据 **0** 条、批次 50 证据 **22** 条 |
+| 6 | `python -I tools/ci/trace_requirements.py --ledger docs/acceptance/ledger.md --out build/b51-record/trace.json` | **0** | total 1200；gaps **0** |
+| 7 | `python -I tools/ci/acceptance_init.py --check` | **0** | 无输出 |
+| 8 | 台账六列逐行复算（Python） | — | 1200 行；937/10/253/0；10 FAIL 名单与域分布见 B51-0 |
+| 9 | `sha256sum -c docs/acceptance/evidence/2026-11-10-batch-51/REVIEWS.sha256`（仓根） | **0** | **948/948 OK** |
+| 10 | `sha256sum -c docs/acceptance/evidence/2026-11-10-batch-51/EVIDENCE.sha256` | **0** | **2/2 OK** |
+| 11 | `sha256sum -c docs/research/evidence/2026-11-10-batch-51/acceptance/SHA256SUMS` | **0** | **26/26 OK** |
+| 12 | `sha256sum -c docs/research/evidence/2026-11-10-batch-51/mva-gate/SHA256SUMS` | **0** | **774/774 OK** |
+| 13 | `sha256sum -c docs/research/evidence/2026-11-10-batch-51/release/EVIDENCE.sha256` | **0** | **56/56 OK** |
+| 14 | `cmp docs/acceptance/acceptance-report.json docs/research/evidence/2026-11-10-batch-51/acceptance/acceptance-report.json` | 0 | **逐字节相同** |
+| 15 | 读 `3d-audit/stats.json` | — | `verdict=FAIL (main)`；`lower_95=0.9291236`；`per_layer_guardrail_pass=false`；1501/89/10；overfull 0.9290572 / normal 0.8979148 |
+| 16 | 读 `split/acceptance/gate/gate-report-b51-primary.json` | — | `gate.state=FAIL`、`passed=false`；① 0.7916667 `met=false`、③ 0.0512821 `met=false`、frag=4 |
+| 17 | 读 `mva-gate/gate/readings_digest.json` | — | first/final 0.2667 `met=false`；6/6 组 `met=false`；p95 72,955.1 ms `met=false`；`same_model=true` |
+| 18 | `grep` soak summary | — | `OUTCOME=PASS`；7200s；115 轮；`crash_delta=0 dropbox_delta=0 monkey_rc_nonzero=0` |
+| 19 | `tail docs/research/evidence/2026-11-10-batch-51/device/26-instrument-3e-rerun.log` | — | `OK (4 tests)`、`Time: 6.376`、`EXIT=0` |
+| 20 | `sha256sum` release 三产物 | 0 | APK `b6fbd877…ed46f`、AAB `5221905e…67449`、mapping `80f7127a…c84bf`（967,527 行） |
+| 21 | `git cat-file -e HEAD:core/export/.../AiGeneratedDocumentNotice.kt` | **128** | 文件不在 HEAD；`??`；sha256 `f75ac862…2ac74a1` |
+| 22 | `sha256sum core/data/.../moe-2025-four-subjects-v1.json` | 0 | `aaf81be8…90032`（v29） |
+| 23 | `python -I tools/ci/check_backup_plan_sync.py` | **0** | `PASS 四方一致`；99 表/2 视图/trimOrder 91/masks [9,13,15]/digest `8567faae…`；v4 fixture 3/3 字节一致 |
+
+**读自证据、非本轮重跑**：强门 post-fix 7/7 exit 0（只编译/打包；日志 sha `c67a3419…`）；修复环足迹定向 pytest **126 passed**（日志 sha `248b556d…`）；设备矩阵（迁移 OK20 / 备份 OK34 / trimmer OK10 / rowCounts OK2 / drill 3+1+kill+1 / 3E OK4 / KD-67 OK3 / 6B-3+5c OK24 / 5c+painter OK25 / 5b+AIGC+能力屏 OK17）；2h soak PASS；release 冒烟 vc 101177；3D 复算 `all_match=true`；MVA 工具 84 passed；JS JVM 147/0、Node 94/0。上述均未在本轮重新执行。
+
+### B51-2. 复核结果（947 份行级复核 + 修复环）
+
+1. **复核链形式有效，但不是语义复核**：937 个 PASS 行全部有行级 JSON，`pass_without_review=0`、`pass_with_invalid_review=0`、`review_validation_errors=[]`；本记录员逐文件扫描 **947/947** 份 review JSON：`review_kind=mechanical-recompute`、`independence.independent_agent=false`，复核人是脚本，不是第二人/第二模型。`pass_with_row_specific_review=659/937`，其余为 shared checks。
+2. **shared checks 未清零**：20 组 ≥5 行共用（本记录员复算合计 **202 行**，最大一组 72 行，指纹 `27b3f6e30432`）；`--require-complete` 仍以 `REVIEW_CHECKS_SHARED` 阻断。
+3. **4 个 FAIL→PASS 是机械翻转**：F-058（soak 重复窗口）、J-002（revision=HEAD）、J-048（vc 单调）、J-052（历史 AAB 与现 APK vc 可比）；修复环已在 J-002/J-048/J-052 的 review JSON 加 `prior_verdict=FAIL`、`verdict_flip.semantic_review=false`，历史判词保留、不洗绿。
+4. **修复环 8 修 / 9 阻塞 / 4 低危未改 / 3 正向核实**：3D 事实错误、MVA p95 端到端、MVA 同源披露、MVA 关键错误解释、行级 JSON 自相矛盾、发布 clean-tree 事实、3E 签字状态、AUD-08 项23 已修；无门 PASS、acceptance 切片复用、κ NOT RUN、发布干净树、独立/对抗复核、D-3 召回、3E 未签字如实保留。**修复环没有把任何门从 FAIL 改成 PASS。**
+5. **对抗复核只有“非独立反例扫描”**：`fix-loop/REPAIR-REPORT.md §4` 6 条反例（3D 事实 / MVA p95 / 同源 / 判词 / 发布 / 3E），自标“不是独立复核”；仓内**无独立签名的复核报告文件**，不能签“计划项 42/43 已完成”。
+6. **本轮新发现（登记，不改 verdict）**：KD-46 台账文本仍是旧“每次排计划 ≤10”口径（代码已每日累计）；AUD-08 `gate-report-b51-primary.json` scope 文案仍写“第二次观测”（实为第三次）；`verdicts.md`/`domain-index.md` 仍批次 50 投影（引用旧台账 sha）。三者均为低危文档漂移，不影响门值/台账。
+
+### B51-3. 四门防洗绿核验
+
+| 门 | 门定义 | 实测 | 结论 | 不得读成 |
+|---|---|---|---|---|
+| **3D D-1** | 分层加权精确率单侧 95% Wilson 下界 ≥0.95；每层护栏 ≥0.90 | 主判据 **0.9291236** FAIL；normal 护栏 **0.8979148** FAIL（FPC 0.9005926 并列）；`overall_pass=false`；99 错；κ **NOT RUN**、`human_expert=false` | **FAIL** | 不读作“3D 通过”；不把 0.9403 当可用门值；不把 FPC 护栏读成通过；不把“两轮错误交集 0”读成“43 条已修复”（仅 4 条入样本、同模型复测） |
+| **3D D-2** | 近重复/超配/容量/type 清零或登记 | 近重复 0/0；超配 **2,481 节点/62,944 条/超出 53,020** RETAIN_NO_CAP + 台账；容量 91 行登记；type 三值外 0 | 清零/登记 | 不读作“超配已治理”；退休/废止补丁未执行 |
+| **3D D-3** | 五红清零、召回保持 117/129 | 五红 12/0/0/0；召回 **116/129=0.8992**、MRR 0.7174；1 章下降 | 五红达成；**召回未保持（−1）** | 不读作“召回未降”；117 是目标不是实值 |
+| **3E** | 队外捞回/F8/F17/每日口径 → 无条件 PASS | 设备 **OK(4)**；JVM 3E 11 例 pass；语义=每日实际复习 ≤10；**台账无门行、A-023 BLOCKED** | **批次级无条件 PASS 未签字** | 不读作“3E 已通过”；设备 OK(4) 只是复验读数；残留 R/R2/R3 |
+| **MVA** | 120 盲测：首次≥90%、预算内最终≥95%、每组≥90%、关键错误=0、p95≤30s | **32/120=0.2667**；6/6 组 FAIL；p95 **72.9551s**；RENDERED 95<108；IMG 臂 BLOCKED；判官与作者同源 | **FAIL** | 不读作“不可评”（有真实样本，FAIL 由上界独立成立）；不把 `critical_errors=0` 当能力证据；不把回归集读数当启用依据 |
+| **AUD-08** | ①≥0.9；③≤0.05；切残硬红线=0 | ① **19/24=0.7917**；③ **4/78=0.0513**；frag **4**；`check_split_gate.py` exit **1** | **FAIL** | 不读作“acceptance 只跑一次=held-out 成立”：同一 8 页已三次观测；不把 ③ 单独过线读成门过 |
+
+**四门汇总口径**：3D FAIL；3E 无批次签字；MVA FAIL；AUD-08 FAIL。**四门没有任何一门可签“通过”；计划“至少两门真实 PASS”未达成。**
+
+### B51-4. 发版判定逐项
+
+| 项 | 实测 | 判定 |
+|---|---|---|
+| **可签名 AAB** | 双 flavor AAB `jarsigner -verify` exit 0；APK v1+v2 true；AAB 证书 sha256 `2c8415b2…5eba` = APK；signing 门 exit 0 | **PASS（本地测试 key）**；**生产签名 BLOCKED**（DN `OU=NOT-PLAY-PRODUCTION`；J-020/J-021 FAIL） |
+| **16KB** | `zipalign -P 16` successful；apk16k 14/14 `.so` STORED+`offset%16384=0`、`elf_errors: []`；aab16k alignment 2、ABI `{arm64-v8a,x86_64}`、7 库全在 | **静态 PASS**；**运行时 UNVERIFIED**（仅 4096 页 x86_64 模拟器） |
+| **versionCode** | `101177 = 100000 + 1177`；APK output-metadata / AAB proto manifest / version 门三处一致；负控 3 红；J-048/J-052 机械转 PASS；J-001 仍 FAIL | **PASS（注入与一致性）**；下次必须 **>101177** |
+| **mapping** | 140,191,204 B / 967,527 行 / R8 9.3.16；sha `80f7127a…c84bf`；与 AAB 内嵌 `proguard.map` 同 sha；r8 门 exit 0 | **PASS** |
+| **干净树** | clone 干净、离线配置成功；完整构建 `:core:export` 因 `AI_GENERATED_DOCUMENT_NOTICE` 未解析失败；`git cat-file -e HEAD:<文件>` **exit 128**、文件 `??` | **BLOCKED**（HEAD 自身不可编译；需主会话提交后重跑） |
+| **AIGC** | 本批**未重跑** `h_compliance_gate`；沿用批次 50：H-052/H-061/H-062 PASS、H-053 红；设备 AIGC 标签在 OK(17) 内 | **PASS（沿用）**；**H-053 外部 BLOCKED** |
+| **隐私** | 应用内政策页/data safety 清单在树；备案号等仍“尚未取得”；H-024/H-036/H-053 证据刷新、verdict 不变 | **PARTIAL**：**H-024/H-036 BLOCKED** |
+| **Play 账号 / 生产签名 / 备案号** | 无 Play 凭据、无生产 keystore、无备案号；本地 key 明示非 Play | **BLOCKED（外部）** |
+| **商店素材/上架清单** | 证据目录未发现产物 | **BLOCKED（外部）/未产出** |
+
+**总判**：本地可签名 AAB、16KB 静态、versionCode、mapping 成立；**干净树、生产签名、Play 账号、备案号、公网隐私 URL、图像 provider、H-053 回填未取得**，且 3D/AUD-08/MVA 三门仍 FAIL。**发版不成立。**
+
+### B51-5. 签字
+
+**签什么**
+
+1. 结论「**批次 51 验收不通过（NOT ACCEPTED）；发版不成立**」；终态 **937/10/253/0**、`exit=1`、`violations=[]`、`pass_with_invalid_review=0`；10 FAIL 名单与域计数。
+2. 与批次 50 的收敛事实：933/13/254 → 937/10/253；新增 PASS 4（F-058、J-002、J-048、J-052，均为机械复算）；**四门真实 PASS = 0**。
+3. **3D**：D-1 主判据 0.9291236<0.95、normal 护栏 0.8979148<0.90、`overall_pass=false`、κ NOT RUN（model-labeled）；D-2 四项登记（近重复 0/0、超配 RETAIN_NO_CAP+台账、容量 91 行、type 三值外 0）；D-3 五红 12/12 绿但召回 116/129（−1）。
+4. **3E**：零 schema 每日累计实现、JVM 先红后绿、设备 **OK(4)**；**批次级无条件 PASS 未签字**（台账无门行、A-023 BLOCKED）。
+5. **MVA**：有真实可评样本的 **FAIL**（32/120、6/6 组、p95 72.9551s、RENDERED 95<108）；关键错误 0 不作能力证据；判官/作者同源；IMG 臂 BLOCKED。
+6. **AUD-08**：FAIL（① 19/24、③ 4/78、frag 4）；同一 8 页第三次观测，无“从未看过”的新切片。
+7. **产品面**：MVA 未过 ⇒ JS 不注入/不广告；math 显式降级；KD-76/71/73/82 open、KD-78 closed；本批 JS 子线代码改动 0。
+8. **复核链与修复环**：937/937 有效机械复核；REVIEWS 948/948；修复环 8 修/9 阻塞/4 低危未改；环后强门 7/7 exit 0（只编译/打包）、定向 pytest 126 passed；`acceptance_report` exit 1 未变。
+9. **发布工程**：本地 AAB 可签名、16KB 静态、vc 101177、mapping 与 AAB 内嵌逐字节一致；本地 key 非 Play 生产身份。
+
+**不签什么**
+
+1. 不签「批次 51 验收通过」或「发版就绪」——`require-complete` 两阻断（FAIL=10、20 组 shared checks）与 253 BLOCKED 未消除。
+2. 不签「四门通过」——3D FAIL、3E 无批次签字、MVA FAIL、AUD-08 FAIL；**真实 PASS = 0**；“至少两门 PASS”未达成。
+3. 不签「3D D-1 通过」或「0.9403 是可用门值」——κ NOT RUN，只能读作 model-labeled 暂定值；不签「43 条改绑已修复」——仅 4 条入样本且同模型复测。
+4. 不签「D-3 召回保持 117/129」——实值 116/129（−1）；不签「D-2 已治理」——只登记，退休/废止补丁未执行。
+5. 不签「3E 无条件 PASS」——设备 OK(4) 只是复验读数，台账无门行、A-023 仍 BLOCKED；不签「每日下发 ≤10」——承诺是每日实际复习 ≤10。
+6. 不签「MVA 质量通过/不可评」——有真实样本且 FAIL 由上界独立成立；不签 `critical_errors_accepted=0` 可引用；不签回归集读数作启用依据；不签「判官独立」。
+7. 不签「AUD-08 acceptance 是首次/第二次盲测」——同一 8 页第三次观测；不签「重跑换绿」。
+8. 不签「干净树产物」或「HEAD 字节复现」——HEAD 自身不可编译（`git cat-file -e` exit 128）；不签「生产签名/Play 上架/备案号/隐私 URL 已取得」。
+9. 不签「H-053 已回填」「H-024/H-036 已完成」——外部条件未取得；不签「AIGC 合规门本批已重跑」——本批 NOT RUN。
+10. 不签「行级复核是语义复核」或「shared checks 有行级判别力」——`independent_agent=false`、20 组 202 行共用；不签「独立/对抗复核已完成」——无独立签字件。
+11. 不签「哈希清单有漂移仍可复现」——本批 5 份清单全绿，但 REVIEWS 须在仓根执行；不签「全量单测门通过」——本批未跑 10 模块全量单测。
+
+### B51-6. 产物与哈希（批次 51 终态）
+
+| 产物 | sha256 |
+|---|---|
+| `docs/acceptance/ledger.md`（1200 数据行） | `1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48` |
+| `docs/acceptance/acceptance-report.json`（= `…/acceptance/acceptance-report.json`，逐字节相同） | `4adaa10a4214efe384db0ec264422ae0891eb240fefe91a872c18a3cab7d45e6` |
+| `docs/acceptance/verdicts.md`（**批次 50 投影，未重生成**） | `42f58ee159c9b4759998bbac62ceb481a443ecf18f19218a0fee617234f3f718` |
+| `docs/acceptance/domain-index.md`（**批次 50 投影，未重生成**） | `9f1a0da37aef531e509c8839e0bbc905ee13ecf0289ef742bd3acc004c30b58c` |
+| `docs/acceptance/evidence/2026-11-10-batch-51/REVIEWS.sha256`（948 项） | `360b1c7b3d8f5d3543cd6ea9f8cafc5de8d3a1fc1f1340d8ecd19d46e14232c8` |
+| `docs/acceptance/evidence/2026-11-10-batch-51/EVIDENCE.sha256`（2 项） | `745a4ec0b7296ebacc0e6a3ea411e9bffd630345316b5682e0125fd3a795d94c` |
+| `docs/research/evidence/2026-11-10-batch-51/acceptance/SHA256SUMS`（26 项） | `501911a9360a1e49f266dd456defa45a9307bb0a3b33e8d51d3879d84052b763` |
+| `docs/research/evidence/2026-11-10-batch-51/mva-gate/SHA256SUMS`（774 项） | `596c46524bf99f11d061cac0bf0a1d81b884792bcdbf45041ec40549b9e7e87a` |
+| `docs/research/evidence/2026-11-10-batch-51/release/EVIDENCE.sha256`（56 项） | `2f47a5af0ef1ad55ba08085bbd067767f93938bd80d4d1f771f73ee28110c233` |
+| `docs/research/evidence/2026-11-10-batch-51/3d-audit/stats.json` | `089dad84ac7e3e602166973bcbd7c4ba159128b88dc6b49fad2bd3bd1f92ce11` |
+
+**证据口径（必须与结论一起读）**
+
+1. `acceptance-report.json` 与证据目录副本逐字节相同；报告头 `head=8dd29e96…`、`dirty=6477` 是生成时点（共享工作树会继续增长，不影响台账/复核）。
+2. 本轮未重跑 Gradle/设备/soak/Provider/VLM/16KB 运行时/切分门/MVA 门；相关计数均来自证据 XML/日志/JSON。
+3. 5 份哈希清单本轮全绿（REVIEWS 948/948、验收层 2/2、acceptance 26/26、mva-gate 774/774、release 56/56）；`REVIEWS.sha256` 内路径相对仓根，须在仓根校验。
+4. `verdicts.md`/`domain-index.md` 仍是批次 50 投影（引用旧台账 sha `9044a779…`）；计数以 `ledger.md` + `acceptance-report.json` 为准。
+5. 本终裁不把任何 `BLOCKED` 读成通过，不把行级机械复算读成语义复核，不把 model-labeled 读成人工结论，不把脏树产物读成干净树产物，不把本地测试 key 读成 Play 生产身份，不把 3E 设备 OK(4) 读成无条件门 PASS。
+
+```text
+结论：批次 51 验收不通过（NOT ACCEPTED）；发版不成立
+签字人：批次 51 报告重生成终裁（记录员）
+签署范围：B51-5 签什么 1–9 项
+不签范围：B51-5 不签什么 1–11 项
+日期：2026-11-11
+```

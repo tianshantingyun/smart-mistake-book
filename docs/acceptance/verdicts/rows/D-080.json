@@ -3,15 +3,15 @@
  "verdict": "PASS",
  "verdict_detail": "PASS_WORKTREE",
  "machine_verdict": "PASS_WORKTREE",
- "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
- "reviewer": "batch50-acceptance-ledger-mechanical",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
  "reviewer_id": "batch46-d-domain-row-reviewer",
  "authors": [
   "batch50-implementers"
  ],
  "self_review": false,
  "ledger": "docs/acceptance/ledger.md",
- "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
  "reviewed_at_utc": "2026-11-05T08:05:09Z",
  "scope": "A–I domain: signed PASS with machine_verdict=PASS_WORKTREE is allowed on a dirty tree; no PASS_HEAD claim",
@@ -27,7 +27,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=D-080; verdict=PASS; line=481; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
+   "value": "id=D-080; verdict=PASS; line=481; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
   {
    "check": "source_sha256",
@@ -105,15 +105,15 @@
    "source_binding": "batch45 d-review evidence (committed)"
   }
  ],
- "basis": "机械复算（reviewer=batch49-acceptance-ledger-mechanical，批次49 台账冻结轮，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 D-080 并复算 ledger_sha256=d370ef8ac6774499629443e0e06bce7e241e856af42369fa1a059499dfa75bba；逐个打开本行 evidence 复算 sha256、XML counts、cmd EXIT 与设备绑定。本文件只对该单行生效。",
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
  "contradictions": [],
- "notes": "未在本复核中重跑 Gradle（纪律：Gradle 只在串行门禁阶段）；checks 由归档 XML/CMD 日志/源文件哈希复算。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次49 重生成：源文件 sha/字节数按 2026-11-08 当前工作树复算，台账行号与 ledger_sha256 重绑；verdict 与证据路径未改。",
+ "notes": "未在本复核中重跑 Gradle（纪律：Gradle 只在串行门禁阶段）；checks 由归档 XML/CMD 日志/源文件哈希复算。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次49 重生成：源文件 sha/字节数按 2026-11-08 当前工作树复算，台账行号与 ledger_sha256 重绑；verdict 与证据路径未改。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
  "method": "test: core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiCompatibleModelGatewayTest.kt#credentialRotatedDuringEndpointPreparationFailsClosedBeforeEnqueue",
  "check_text": "重试/取消：准备阶段凭据轮换后在 enqueue 前 fail-closed，不发旧配置请求",
  "rebind_from_run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-d",
- "ledger_batch": 50,
+ "ledger_batch": 51,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-09T00:00:00Z",
+ "verified_at": "2026-11-10T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,
@@ -125,5 +125,7 @@
   "basis": "bytes-on-disk"
  },
  "checks_scope": "row-specific",
- "review_scope": "single-ledger-row"
+ "review_scope": "single-ledger-row",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

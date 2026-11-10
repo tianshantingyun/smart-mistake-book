@@ -1,14 +1,14 @@
 {
  "id": "J-041",
- "run_id": "2026-11-09T00:00:00Z-batch50-ledger",
- "reviewer": "batch50-acceptance-ledger-mechanical",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
  "authors": [
   "batch50-implementers"
  ],
  "verdict": "PASS",
- "ledger_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
  "evidence": [
-  "cmd:docs/acceptance/evidence/2026-11-09-batch-50/logs/j-aab16k.log#exit=0",
+  "cmd:docs/acceptance/evidence/2026-11-09-batch-50/logs/j-aab16k.log",
   "file:docs/research/evidence/2026-11-09-batch-50/release/aab16k-strictOffline.json",
   "test:docs/acceptance/evidence/2026-11-09-batch-50/junit/j-release-verifier.xml"
  ],
@@ -21,7 +21,7 @@
   {
    "name": "ledger_row",
    "source": "docs/acceptance/ledger.md",
-   "value": "id=J-041; verdict=PASS; line=982; ledger_sha256=9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97"
+   "value": "id=J-041; verdict=PASS; line=982; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
   {
    "name": "cmd_exit",
@@ -39,19 +39,19 @@
    "value": "tests=33; failures=0; errors=0; skipped=0; sha256=adeb97faeefa4e7493dc18cc80b98ff2be3173c134837205e4e1ac8e1f3ccf3c"
   }
  ],
- "basis": "机械复算（批次50 台账轮，reviewer=batch50-acceptance-ledger-mechanical，同一会话脚本，非第二人/第二模型语义复核）：逐条打开本行证据复算 sha256、cmd exit、XML counts、device 绑定，并校验 ledger_row 的行号/verdict/台账 sha。本文件只对该单行生效。；批次50 台账轮重绑：ledger_sha256 已更新为 9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97，本行 checks 与 evidence_sha256 由 batch50 脚本按当前字节复算（reviewer=batch50-acceptance-ledger-mechanical）。",
- "notes": "批次50：AAB ABI 集合无 32 位（无 armeabi-v7a/x86）。",
- "ledger_batch": 50,
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "批次50：AAB ABI 集合无 32 位（无 armeabi-v7a/x86）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "ledger_batch": 51,
  "review_kind": "mechanical-recompute",
- "verified_at": "2026-11-09T00:00:00Z",
+ "verified_at": "2026-11-10T00:00:00Z",
  "independence": {
   "reviewer_role_only": true,
   "independent_agent": false,
   "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
  },
  "evidence_freshness": {
-  "current_batch_files": 1,
-  "archived_files": 0,
+  "current_batch_files": 0,
+  "archived_files": 3,
   "basis": "bytes-on-disk"
  },
  "checks_scope": "row-specific",
@@ -63,5 +63,7 @@
    "device_text(j-aab16k.log)"
   ],
   "note": "批次47 WS2：对归档证据逐字节复算通过后追加；判据为该行自己的断言/测试方法名/设备字段，复算口径与 tools/ci/acceptance_review.py check_one 的 device_text/xml_testcase 分支一致，任何人可对同一字节重算。"
- }
+ },
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }
