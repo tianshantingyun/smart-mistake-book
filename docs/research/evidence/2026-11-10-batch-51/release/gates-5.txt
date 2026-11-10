@@ -1,0 +1,10 @@
+=== j_release_verify tests ===
+.................................                                        [100%]
+33 passed in 2.58s
+=== version without expected-code (injected form, expect RED) ===
+EXIT=1
+=== debug APK candidates ===
+app/build/outputs/apk/androidTest/localFirst/debug/app-localFirst-debug-androidTest.apk
+app/build/outputs/apk/androidTest/strictOffline/debug/app-strictOffline-debug-androidTest.apk
+app/build/outputs/apk/localFirst/debug/app-localFirst-debug.apk
+app/build/outputs/apk/strictOffline/debug/app-strictOffline-debug.apk

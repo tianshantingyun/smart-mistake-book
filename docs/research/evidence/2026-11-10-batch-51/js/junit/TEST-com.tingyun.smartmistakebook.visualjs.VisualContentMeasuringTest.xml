@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-11-09T23:05:33.370Z" hostname="TIANSHAN" time="0.052">
+  <properties/>
+  <testcase name="a text entry is measured intrinsically over explicit line breaks" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.031"/>
+  <testcase name="changing the paint flags changes the digest" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.002"/>
+  <testcase name="an over-budget math payload degrades to the text path and the digest records it" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.004"/>
+  <testcase name="sp to du conversion follows fontScale" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.007"/>
+  <testcase name="port batch budgets stay enforced by the port types" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.0"/>
+  <testcase name="a trailing line break yields a deterministic empty final segment" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.0"/>
+  <testcase name="the same payload at a different batch position gets a different content id" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.001"/>
+  <testcase name="the internal layout artifact carries the explicit line ranges and per-line widths" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.0"/>
+  <testcase name="a supported fraction is measured with the shared core-model box lowering" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.0"/>
+  <testcase name="a supported atom is measured with the shared core-model box lowering" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.0"/>
+  <testcase name="an invalid environment fails closed at construction" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.002"/>
+  <testcase name="an empty batch returns an empty result and never touches the measure backend" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.001"/>
+  <testcase name="a changed layout environment changes the digest and the content id" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.001"/>
+  <testcase name="the environment fingerprint pins the replay paint flags" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.001"/>
+  <testcase name="the same batch measured twice yields identical content ids and digests" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.001"/>
+  <testcase name="crlf endings are normalized out of the measured segments" classname="com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

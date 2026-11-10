@@ -1,0 +1,4 @@
+# clean-clone build 2026-11-11T00:11:44+08:00
+HEAD=8dd29e963975ff44703f638064322be0e7494f98
+status=0
+shallow=false

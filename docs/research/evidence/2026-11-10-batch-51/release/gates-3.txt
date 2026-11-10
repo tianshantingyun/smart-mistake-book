@@ -1,0 +1,96 @@
+=== zipalign ===
+zipalign-strictOffline EXIT=0
+zipalign-localFirst EXIT=0
+=== apksigner ===
+apksigner-strictOffline EXIT=0
+apksigner-localFirst EXIT=0
+=== jarsigner ===
+jarsigner-strictOffline EXIT=0
+jarsigner-localFirst EXIT=0
+=== keytool aab ===
+keytool-strictOffline EXIT=0
+keytool-localFirst EXIT=0
+=== aab manifest ===
+{
+  "aab": "app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab",
+  "sha256": "600a8bb05df7d51d85b6f7c9614b7cbf7c45306e23dc12a4370a325cf93597aa",
+  "manifest_entry": "base/manifest/AndroidManifest.xml",
+  "package": "com.tingyun.smartmistakebook.offline",
+  "version_code": 101177,
+  "version_name": "0.2.0-offline",
+  "version_code_sources": {
+    "string": "101177",
+    "compiled_int": 101177
+  },
+  "expected_code": 101177,
+  "expected_name": "0.2.0-offline",
+  "errors": []
+}
+aab-manifest-strictOffline EXIT=0
+{
+  "aab": "app/build/outputs/bundle/localFirstRelease/app-localFirst-release.aab",
+  "sha256": "5221905e321b4b1d44cd0f5576f7530f6d62814627f0de5e583c2dbdfab67449",
+  "manifest_entry": "base/manifest/AndroidManifest.xml",
+  "package": "com.tingyun.smartmistakebook.localfirst",
+  "version_code": 101177,
+  "version_name": "0.2.0-localfirst",
+  "version_code_sources": {
+    "string": "101177",
+    "compiled_int": 101177
+  },
+  "expected_code": 101177,
+  "expected_name": "0.2.0-localfirst",
+  "errors": []
+}
+aab-manifest-localFirst EXIT=0
+=== negative apk16k selftest ===
+{
+  "ok": true,
+  "patched_load_segments": 3,
+  "errors": [
+    "PT_LOAD p_align=0x1000 < 0x4000",
+    "PT_LOAD p_align=0x1000 < 0x4000",
+    "PT_LOAD p_align=0x1000 < 0x4000"
+  ],
+  "target": "lib/arm64-v8a/libLiteRt.so"
+}
+negative-apk16k EXIT=0
+=== negative version off-by-one ===
+{
+  "gradle": {
+    "version_code": null,
+    "version_name": "0.2.0",
+    "abi_filters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "output_metadata": {
+    "versionCode": 101177,
+    "versionName": "0.2.0-offline"
+  },
+  "expected_code": 101178,
+  "errors": [
+    "output-metadata versionCode != --expected-code"
+  ]
+}
+negative-version EXIT=1
+=== negative aab manifest off-by-one ===
+{
+  "aab": "app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab",
+  "sha256": "600a8bb05df7d51d85b6f7c9614b7cbf7c45306e23dc12a4370a325cf93597aa",
+  "manifest_entry": "base/manifest/AndroidManifest.xml",
+  "package": "com.tingyun.smartmistakebook.offline",
+  "version_code": 101177,
+  "version_name": "0.2.0-offline",
+  "version_code_sources": {
+    "string": "101177",
+    "compiled_int": 101177
+  },
+  "expected_code": 101178,
+  "expected_name": null,
+  "errors": [
+    "AAB versionCode 101177 != --expected-code 101178"
+  ]
+}
+negative-aab-manifest EXIT=1

@@ -1,0 +1,23 @@
+batch51 acceptance final verification
+2026-11-10T17:04:02Z
+
+ledger sha256:
+1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48 *docs/acceptance/ledger.md
+
+counts:
+rows 1200 issues 0 {'PASS': 937, 'BLOCKED': 253, 'FAIL': 10}
+
+evidence dirs mtime/count:
+947
+30
+
+git status target paths (M/?? counts):
+      4 ??
+    948 M
+
+report/lint/trace exits:
+acceptance-report.json exit 1 state FAIL violations 0
+acceptance-report-require-complete.json exit 1 state FAIL violations 2
+acceptance-lint.json exit 1 state None violations 162
+acceptance-lint-warn-only.json exit 0 state None violations 0
+trace.json exit 0 state None violations 0

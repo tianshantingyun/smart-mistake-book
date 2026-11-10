@@ -1,0 +1,10 @@
+# APK sha256 (batch51 device run)
+time_utc=2026-11-09T23:22:39Z
+38cb991cf680ce40874da2912c5adb08addcb4884fa1b3cf052b13bf07b1a8b6 *app/build/outputs/apk/localFirst/debug/app-localFirst-debug.apk
+2e32e0856f531c2c88d2921629e0f2deca7958b026f745e29fd6516fdd2afcd9 *app/build/outputs/apk/androidTest/localFirst/debug/app-localFirst-debug-androidTest.apk
+2ae00f060a2f50fdc91218348b80999d44d9233867a28cc3ca2b62cc66069870 *core/data/build/outputs/apk/androidTest/debug/data-debug-androidTest.apk
+5a8ca2b6afe3d2d2c9e321d6079887741ef1e7a14d0d2cbc589c993df71f82b2 *core/database/build/outputs/apk/androidTest/debug/database-debug-androidTest.apk
+63ffb00cdf1b6a8a347d63ce3a1923a6b28e1fdf45a741f6df6a3c28bfaa2d95 *feature/library/build/outputs/apk/androidTest/debug/library-debug-androidTest.apk
+35aaa658b9adab1b940a56ca0b639607529c92883ef428774c1638724a98b9ce *core/export/build/outputs/apk/androidTest/debug/export-debug-androidTest.apk
+b6fbd87745c3ba3bc5fc9b63e7830019c9e99682bacc7432d495546ed72ed46f *app/build/outputs/apk/localFirst/release/app-localFirst-release.apk
+2516876f9bef6e9874ab37c1289920ed83a318c3e0e600f4640951917ad85e9c *core/data/build/outputs/apk/androidTest/debug/data-debug-androidTest.apk

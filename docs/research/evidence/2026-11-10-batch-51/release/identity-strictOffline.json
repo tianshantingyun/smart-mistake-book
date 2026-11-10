@@ -1,0 +1,72 @@
+{
+  "head": "8dd29e963975ff44703f638064322be0e7494f98",
+  "dirty_paths": 5458,
+  "dirty_sample": [
+    " M .gitignore",
+    " M app/src/androidTest/kotlin/com/tingyun/smartmistakebook/CapabilityScreenInstrumentedTest.kt",
+    " M app/src/androidTest/kotlin/com/tingyun/smartmistakebook/MistakeExportNotificationsInstrumentedTest.kt",
+    " M app/src/androidTest/kotlin/com/tingyun/smartmistakebook/ReviewReminderPlatformInstrumentedTest.kt",
+    " M app/src/main/kotlin/com/tingyun/smartmistakebook/ReviewReminderCoordinator.kt",
+    " M app/src/main/kotlin/com/tingyun/smartmistakebook/SchedulingSettingsScreen.kt",
+    " M app/src/main/kotlin/com/tingyun/smartmistakebook/SecondaryScreens.kt",
+    " M app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookApplication.kt",
+    " M app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt",
+    " M app/src/test/kotlin/com/tingyun/smartmistakebook/ReviewReminderCoordinatorTest.kt"
+  ],
+  "apk": {
+    "path": "app/build/outputs/apk/strictOffline/release/app-strictOffline-release.apk",
+    "sha256": "56e41d9c6b612790a92a7b5aa72b3fae30e8d1dbb64c77752ac48466c35988de",
+    "revision": "8dd29e963975ff44703f638064322be0e7494f98",
+    "revision_is_commit": true,
+    "commits_behind_head": 0,
+    "readable": true,
+    "zip_integrity": null,
+    "so_abis": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "aab": {
+    "path": "app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab",
+    "sha256": "600a8bb05df7d51d85b6f7c9614b7cbf7c45306e23dc12a4370a325cf93597aa",
+    "readable": true,
+    "zip_integrity": null,
+    "so_abis": [
+      "arm64-v8a",
+      "x86_64"
+    ],
+    "native_libs": [
+      "libLiteRt.so",
+      "libLiteRtClGlAccelerator.so",
+      "libandroidx.graphics.path.so",
+      "libdatastore_shared_counter.so",
+      "liblitert_jni.so",
+      "libmlkit_google_ocr_pipeline.so",
+      "libquickjs.so"
+    ]
+  },
+  "mapping": {
+    "path": "app/build/outputs/mapping/strictOfflineRelease/mapping.txt",
+    "sha256": "80f7127aeaa17b7902fe89bcdf574bc615908787d3aac9607cd689a65c2c84bf",
+    "classes": 10656,
+    "renamed": 10456,
+    "removed": 1199,
+    "project_classes": 4053,
+    "project_renamed": 4040,
+    "project_removed": 211
+  },
+  "versions": {
+    "gradle": {
+      "version_code": null,
+      "version_name": "0.2.0",
+      "abi_filters": [
+        "arm64-v8a",
+        "x86_64"
+      ]
+    },
+    "output_metadata": {
+      "versionCode": 101177,
+      "versionName": "0.2.0-offline"
+    }
+  }
+}

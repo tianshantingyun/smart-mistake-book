@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.visualjs.VisualJsResultFrameIdentityTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-09T23:05:33.450Z" hostname="TIANSHAN" time="0.001">
+  <properties/>
+  <testcase name="a stale request id frame is dropped" classname="com.tingyun.smartmistakebook.visualjs.VisualJsResultFrameIdentityTest" time="0.0"/>
+  <testcase name="a stale generation frame is dropped" classname="com.tingyun.smartmistakebook.visualjs.VisualJsResultFrameIdentityTest" time="0.0"/>
+  <testcase name="a null request id frame is dropped" classname="com.tingyun.smartmistakebook.visualjs.VisualJsResultFrameIdentityTest" time="0.0"/>
+  <testcase name="a forged caller uid frame is dropped" classname="com.tingyun.smartmistakebook.visualjs.VisualJsResultFrameIdentityTest" time="0.0"/>
+  <testcase name="a frame matching all three identities is accepted" classname="com.tingyun.smartmistakebook.visualjs.VisualJsResultFrameIdentityTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

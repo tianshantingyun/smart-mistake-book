@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-11-09T23:04:20.192Z" hostname="TIANSHAN" time="0.008">
+  <properties/>
+  <testcase name="alpha quantizes by floor not rounding" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" time="0.001"/>
+  <testcase name="a translation loads into the third column" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" time="0.001"/>
+  <testcase name="the perspective row is constant and matrix entries narrow through the bounds gate" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" time="0.001"/>
+  <testcase name="lenient color words and shapes are rejected with a typed code" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" time="0.002"/>
+  <testcase name="a naive row major loading maps the same point differently" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" time="0.0"/>
+  <testcase name="a shear matrix loads into android column order" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" time="0.0"/>
+  <testcase name="the multiplied alpha still fails closed outside the op alpha range" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" time="0.001"/>
+  <testcase name="six and eight digit hex colors parse to argb" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" time="0.0"/>
+  <testcase name="label content dto carries explicit line ranges and replay sizing" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" time="0.002"/>
+  <testcase name="painting failures carry the code prefix and the diagnostics budget" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" time="0.0"/>
+  <testcase name="the replay text paint flags constant is the measure fingerprint default" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" time="0.0"/>
+  <testcase name="an out of range alpha is rejected with a typed code" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" time="0.0"/>
+  <testcase name="an eight digit color alpha multiplies with the op alpha" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

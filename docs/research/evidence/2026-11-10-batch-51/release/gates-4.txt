@@ -1,0 +1,37 @@
+=== identity require-clean (expected RED) ===
+identity-require-clean EXIT=1
+dirty_paths= 5475 revision_is_commit= True behind= 0
+=== artifact sha256 ===
+56e41d9c6b612790a92a7b5aa72b3fae30e8d1dbb64c77752ac48466c35988de *app/build/outputs/apk/strictOffline/release/app-strictOffline-release.apk
+b6fbd87745c3ba3bc5fc9b63e7830019c9e99682bacc7432d495546ed72ed46f *app/build/outputs/apk/localFirst/release/app-localFirst-release.apk
+600a8bb05df7d51d85b6f7c9614b7cbf7c45306e23dc12a4370a325cf93597aa *app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab
+5221905e321b4b1d44cd0f5576f7530f6d62814627f0de5e583c2dbdfab67449 *app/build/outputs/bundle/localFirstRelease/app-localFirst-release.aab
+80f7127aeaa17b7902fe89bcdf574bc615908787d3aac9607cd689a65c2c84bf *app/build/outputs/mapping/strictOfflineRelease/mapping.txt
+80f7127aeaa17b7902fe89bcdf574bc615908787d3aac9607cd689a65c2c84bf *app/build/outputs/mapping/localFirstRelease/mapping.txt
+=== mapping embedded in AAB ===
+app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab ['BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map']
+  BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map 80f7127aeaa17b7902fe89bcdf574bc615908787d3aac9607cd689a65c2c84bf
+app/build/outputs/bundle/localFirstRelease/app-localFirst-release.aab ['BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map']
+  BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map 80f7127aeaa17b7902fe89bcdf574bc615908787d3aac9607cd689a65c2c84bf
+=== local mapping sha ===
+80f7127aeaa17b7902fe89bcdf574bc615908787d3aac9607cd689a65c2c84bf *app/build/outputs/mapping/strictOfflineRelease/mapping.txt
+=== debug merged manifests ===
+app/build/intermediates/merged_manifest/
+app/build/intermediates/merged_manifests/
+app/build/intermediates/merged_manifest/localFirstDebug/processLocalFirstDebugMainManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifest/localFirstDebugAndroidTest/mergeLocalFirstDebugAndroidTestManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifest/localFirstInternal/processLocalFirstInternalMainManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifest/localFirstRelease/processLocalFirstReleaseMainManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifest/strictOfflineBenchmark/processStrictOfflineBenchmarkMainManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifest/strictOfflineDebug/processStrictOfflineDebugMainManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifest/strictOfflineDebugAndroidTest/mergeStrictOfflineDebugAndroidTestManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifest/strictOfflineInternal/processStrictOfflineInternalMainManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifest/strictOfflineRelease/processStrictOfflineReleaseMainManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifest/strictOfflineReleaseAndroidTest/mergeStrictOfflineReleaseAndroidTestManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifests/localFirstDebug/processLocalFirstDebugManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifests/localFirstInternal/processLocalFirstInternalManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifests/localFirstRelease/processLocalFirstReleaseManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifests/strictOfflineBenchmark/processStrictOfflineBenchmarkManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifests/strictOfflineDebug/processStrictOfflineDebugManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifests/strictOfflineInternal/processStrictOfflineInternalManifest/AndroidManifest.xml
+app/build/intermediates/merged_manifests/strictOfflineRelease/processStrictOfflineReleaseManifest/AndroidManifest.xml

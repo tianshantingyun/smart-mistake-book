@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.visualjs.VisualJsFrameQueueTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-09T23:05:33.425Z" hostname="TIANSHAN" time="0.024">
+  <properties/>
+  <testcase name="latest wins replaces the older pending state of the same program without dropping other programs" classname="com.tingyun.smartmistakebook.visualjs.VisualJsFrameQueueTest" time="0.017"/>
+  <testcase name="close latches the queue and completes queued waiters with engine closed" classname="com.tingyun.smartmistakebook.visualjs.VisualJsFrameQueueTest" time="0.001"/>
+  <testcase name="death drain completes queued waiters but the queue still accepts frames for the rebuilt worker" classname="com.tingyun.smartmistakebook.visualjs.VisualJsFrameQueueTest" time="0.001"/>
+  <testcase name="two concurrent requests queue behind one in flight and the third distinct program is rejected busy" classname="com.tingyun.smartmistakebook.visualjs.VisualJsFrameQueueTest" time="0.002"/>
+  <testcase name="a caller cancelled while queued is dequeued and never executed" classname="com.tingyun.smartmistakebook.visualjs.VisualJsFrameQueueTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

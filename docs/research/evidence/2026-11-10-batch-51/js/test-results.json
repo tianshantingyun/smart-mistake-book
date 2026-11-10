@@ -1,0 +1,128 @@
+{
+ "generated_by": "batch-51 js stage (2026-11-10)",
+ "suites": [
+  {
+   "tests": 7,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "name": "com.tingyun.smartmistakebook.core.data.model.FigurePromptCapabilityInjectionTest",
+   "time": "0.123",
+   "file": "TEST-com.tingyun.smartmistakebook.core.data.model.FigurePromptCapabilityInjectionTest.xml"
+  },
+  {
+   "tests": 7,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "name": "com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest",
+   "time": "0.154",
+   "file": "TEST-com.tingyun.smartmistakebook.core.data.model.ProgramSchemaMaxLengthAlignmentTest.xml"
+  },
+  {
+   "tests": 9,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "name": "com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererTest",
+   "time": "0.058",
+   "file": "TEST-com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererTest.xml"
+  },
+  {
+   "tests": 13,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "name": "com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest",
+   "time": "0.008",
+   "file": "TEST-com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsPainterPureTest.xml"
+  },
+  {
+   "tests": 26,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "name": "com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest",
+   "time": "0.047",
+   "file": "TEST-com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest.xml"
+  },
+  {
+   "tests": 35,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "name": "com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest",
+   "time": "0.022",
+   "file": "TEST-com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest.xml"
+  },
+  {
+   "tests": 2,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "name": "com.tingyun.smartmistakebook.visualjs.ConnectStageTimestampsTest",
+   "time": "0.003",
+   "file": "TEST-com.tingyun.smartmistakebook.visualjs.ConnectStageTimestampsTest.xml"
+  },
+  {
+   "tests": 8,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "name": "com.tingyun.smartmistakebook.visualjs.Kd76ReportVerdictTest",
+   "time": "0.02",
+   "file": "TEST-com.tingyun.smartmistakebook.visualjs.Kd76ReportVerdictTest.xml"
+  },
+  {
+   "tests": 16,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "name": "com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest",
+   "time": "0.052",
+   "file": "TEST-com.tingyun.smartmistakebook.visualjs.VisualContentMeasuringTest.xml"
+  },
+  {
+   "tests": 5,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "name": "com.tingyun.smartmistakebook.visualjs.VisualJsFrameQueueTest",
+   "time": "0.024",
+   "file": "TEST-com.tingyun.smartmistakebook.visualjs.VisualJsFrameQueueTest.xml"
+  },
+  {
+   "tests": 5,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "name": "com.tingyun.smartmistakebook.visualjs.VisualJsResultFrameIdentityTest",
+   "time": "0.001",
+   "file": "TEST-com.tingyun.smartmistakebook.visualjs.VisualJsResultFrameIdentityTest.xml"
+  },
+  {
+   "tests": 5,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "name": "com.tingyun.smartmistakebook.visualjs.VisualMeasureEnvironmentBudgetTest",
+   "time": "0.004",
+   "file": "TEST-com.tingyun.smartmistakebook.visualjs.VisualMeasureEnvironmentBudgetTest.xml"
+  },
+  {
+   "tests": 9,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0,
+   "name": "com.tingyun.smartmistakebook.visualjs.VisualMeasuredLayoutInkBoundsTest",
+   "time": "0.004",
+   "file": "TEST-com.tingyun.smartmistakebook.visualjs.VisualMeasuredLayoutInkBoundsTest.xml"
+  }
+ ],
+ "totals": {
+  "tests": 147,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0
+ }
+}

@@ -1,0 +1,11 @@
+duration_target_s=7200
+cycles=115
+pss_samples=115 pss_min_kb=62369 pss_max_kb=108584
+total_pss_min_kb=62691 total_pss_max_kb=108819
+dropbox_first=0 dropbox_last=0
+crash_lines_first=0 crash_lines_last=0
+crash_delta=0 dropbox_delta=0 monkey_rc_nonzero=0
+completed=1
+OUTCOME=PASS
+FAIL_REASONS=none
+EXIT=0
