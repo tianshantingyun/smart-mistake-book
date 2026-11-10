@@ -17,9 +17,11 @@ import com.tingyun.smartmistakebook.core.domain.StudyKnowledgeSubjectCoverage
 import com.tingyun.smartmistakebook.core.domain.StudyKnowledgeSummary
 import com.tingyun.smartmistakebook.core.domain.StudyProfileOverview
 import com.tingyun.smartmistakebook.core.domain.StudyQuestionMemory
+import com.tingyun.smartmistakebook.core.domain.StudyReviewCapacity
 import com.tingyun.smartmistakebook.core.domain.StudyReviewOverview
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionProgress
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionStatus
+import com.tingyun.smartmistakebook.core.domain.StudySubjectCapacity
 import com.tingyun.smartmistakebook.core.model.KnowledgeMasteryState
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshotFreshness
@@ -221,6 +223,8 @@ internal fun ReviewPlanBundle.toOverview(
     intakeMedianEstimateSeconds: Int,
     // KD-68：积压中"整日预算都装不下"的题数（快照读面的事实桶）。
     intakeUnschedulableCount: Int,
+    // 5b 容量 UI：与排程侧同源的容量预览；null = 本轮没有容量事实（不是"容量为 0"）。
+    capacity: StudyReviewCapacity? = null,
 ): StudyReviewOverview {
     val visibleSession = activeSession ?: latestSession
     val effectiveCompletedDays = if (
@@ -255,6 +259,46 @@ internal fun ReviewPlanBundle.toOverview(
         intakeBacklogCount = intakeBacklogCount,
         intakeMedianEstimateSeconds = intakeMedianEstimateSeconds,
         intakeUnschedulableCount = intakeUnschedulableCount,
+        capacity = capacity,
+    )
+}
+
+/**
+ * 5b 容量 UI（KD-68 同族）：把 `core/data` 的容量预览镜像成 `core/domain` 的只读事实。
+ *
+ * `feature` 不能依赖 `core:data`，所以这是 UI 拿到这些读数（而不是自己重算）的唯一通道。
+ *
+ * 没有容量规划时 → null：读取器在"窗口内没有考试且积压追赶未规划"时**不跑**容量调度，
+ * 返回全零（`dailyCapacity == 0`）。这不是"今天容量为 0 题"；读面必须据此显示如实空态。
+ * 判据取读取器自己的两道前置条件（窗口内无考试 + 再平衡未规划），不看
+ * `intakeUnschedulableCount`——那个字段会被调用方在预览之外覆盖（它与容量规划无关），
+ * 不能拿它判断"有没有容量规划"。被规划时 `dailyCapacity` 恒 ≥ 1（预算与中位时长都为正），
+ * 因此 null 与"被规划的零容量"不会混淆。
+ */
+internal fun ReviewCapacityPreview.toStudyReviewCapacity(): StudyReviewCapacity? {
+    if (examSubjectsInWindow == 0 && rebalanceState == RebalancePlanningState.NOT_PLANNED) return null
+    return StudyReviewCapacity(
+        examSubjectsInWindow = examSubjectsInWindow,
+        examDeficitCount = examDeficitCount,
+        examUnmetCount = examUnmetCount,
+        rebalancePlanned = rebalanceState == RebalancePlanningState.PLANNED,
+        rebalanceBacklogCount = rebalanceBacklogCount,
+        rebalanceIneligibleCount = rebalanceIneligibleCount,
+        rebalanceGranted = rebalanceGranted,
+        deduplicatedCount = deduplicatedCount,
+        subjects = subjects.map { subject ->
+            StudySubjectCapacity(
+                subjectId = subject.subjectId,
+                daysUntilExam = subject.daysUntilExam,
+                demand = subject.demand,
+                granted = subject.granted,
+                unmet = subject.unmet,
+                feasibleBeforeExam = subject.feasibleBeforeExam,
+            )
+        },
+        totalGranted = totalGranted,
+        dailyCapacity = dailyCapacity,
+        maxDailyCapacity = maxDailyCapacity,
     )
 }
 

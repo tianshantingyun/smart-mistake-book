@@ -428,6 +428,8 @@ internal class RoomTutorToolRunner(
         }
         val questionText = terms.joinToString(" ")
         val features = KnowledgeSearchFeatureExtractor.fromQuestion(questionText)
+        // B35：召回口改形（candidates + indexComplete）；工具结果形态与条数不变，标记由
+        // 讲题装配层合成披露。
         val nodes = port.readSubjectKnowledgeRecallCandidates(
             subject = subject,
             searchFeatures = features,
@@ -435,7 +437,7 @@ internal class RoomTutorToolRunner(
             limit = MAX_KNOWLEDGE_RECALL_CANDIDATES,
             queryText = questionText,
             // A2：渲染/取材料前显式截到展示条数——工具结果形态与条数不变，512 不进 prompt。
-        ).take(KNOWLEDGE_READ_NODE_LIMIT)
+        ).candidates.take(KNOWLEDGE_READ_NODE_LIMIT)
         if (nodes.isEmpty()) {
             return TutorToolExecution(
                 outcome = TutorToolOutcome(
@@ -804,7 +806,7 @@ internal class RoomTutorToolRunner(
             subject = subject,
             searchFeatures = features,
             limit = MASTERY_FOCUS_RESOLUTION_LIMIT,
-        ).associate { node -> node.knowledgeNodeId to node.displayName }
+        ).candidates.associate { node -> node.knowledgeNodeId to node.displayName }
     }
 
     private fun renderMasteryRead(
