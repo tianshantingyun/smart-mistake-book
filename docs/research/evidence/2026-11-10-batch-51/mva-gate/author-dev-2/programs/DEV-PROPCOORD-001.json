@@ -1,0 +1,13 @@
+{
+    "task_id": "DEV-PROPCOORD-001",
+    "program_id": "mva-DEV-PROPCOORD-001",
+    "source_js": "const visual = {\n  prepare: function (input) { return [{ kind: 'text', payload: '1:1' }]; },\n  render: function (input, metrics) {\n    var w = (input.viewport && input.viewport.widthDu) || 640;\n    var h = (input.viewport && input.viewport.heightDu) || 360;\n    var y = h * 0.6;\n    var x0 = w * 0.12;\n    var x1 = w * 0.88;\n    var xm = (x0 + x1) / 2;\n    var tick = Math.min(h * 0.06, 22);\n    var seg = [['M', x0, y], ['L', x1, y]];\n    var t0 = [['M', x0, y - tick], ['L', x0, y + tick]];\n    var tm = [['M', xm, y - tick], ['L', xm, y + tick]];\n    var t1 = [['M', x1, y - tick], ['L', x1, y + tick]];\n    var ly = Math.max(10, y - tick - 14);\n    return { schemaVersion: 1, sceneId: 'ratio-1-1', revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'seg', commands: seg },\n        { id: 't0', commands: t0 },\n        { id: 'tm', commands: tm },\n        { id: 't1', commands: t1 }\n      ],\n      root: { type: 'group', children: [\n        { type: 'path', pathId: 'seg', fill: '#26354a', stroke: { width: 3, cap: 'round' } },\n        { type: 'path', pathId: 't0', fill: '#26354a', stroke: { width: 3, cap: 'round' } },\n        { type: 'path', pathId: 'tm', fill: '#26354a', stroke: { width: 3, cap: 'round' } },\n        { type: 'path', pathId: 't1', fill: '#26354a', stroke: { width: 3, cap: 'round' } },\n        { type: 'label', contentId: metrics[0].contentId, anchor: { x: xm, y: ly }, hAlign: 'center', vAlign: 'bottom', color: '#26354a' }\n      ] };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

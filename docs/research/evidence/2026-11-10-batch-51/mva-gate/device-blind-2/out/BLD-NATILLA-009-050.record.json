@@ -1,0 +1,81 @@
+{
+  "input_file": "BLD-NATILLA-009.json",
+  "program_sha256": "d44fc7e7f2e05eb8bbd0aca7c29582dc0d1fa69ff1f9159bae4b8668551ff825",
+  "task_id": "BLD-NATILLA-009",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 25,
+  "measurement": [
+    {
+      "contentId": "c0-0edf6a00",
+      "payload": "自由落体示意",
+      "widthDu": 96,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0edf6a003391f5740c5fd6f09969119c9a6935fd3142553994730d755cd8e163"
+    },
+    {
+      "contentId": "c1-54c98eba",
+      "payload": "由静止释放：v₀ = 0",
+      "widthDu": 135.27272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "54c98eba8b30b9c10d104d336cfd686a222363ec52fe601f55a93976fade3699"
+    },
+    {
+      "contentId": "c2-4c94485e",
+      "payload": "v",
+      "widthDu": 7.636363506317139,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4c94485e0c21ae6c41ce1dfe7b6bfaceea5ab68e40a2476f50208e526f506080"
+    },
+    {
+      "contentId": "c3-cd0aa985",
+      "payload": "g",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "cd0aa9856147b6c5b4ff2b7dfee5da20aa38253099ef1b4a64aced233c9afe29"
+    },
+    {
+      "contentId": "c4-2c4e22b7",
+      "payload": "v 与 g 的方向均竖直向下",
+      "widthDu": 172.72727966308594,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2c4e22b7a6fc2ed9de2991b73f9b06031b4c2ada2cd3d789ad38765b04de7eaf"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "6f19299f85d5af70ae3cf32314e4ce6a1565327ff613c935de19ceae3af39ace",
+  "scene_bytes": 1924,
+  "scene_schema_version": 1,
+  "draw_sha256": "ee909c24a930255a6b5fcf9d40243fa7a520c69f46b91ecc00c77cd5f60e609a",
+  "draw_bytes": 2066,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-0edf6a00",
+    "c1-54c98eba",
+    "c2-4c94485e",
+    "c3-cd0aa985",
+    "c4-2c4e22b7"
+  ],
+  "png_sha256": "03845790ef2c320cc676f457f133c2acde63d33ac5c022d66460f89f5879b7c2",
+  "png_bytes": 10128,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 10,
+    "pathCommands": 18,
+    "labels": 5,
+    "ops": 9
+  }
+}

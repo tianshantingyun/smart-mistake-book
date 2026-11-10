@@ -1,0 +1,71 @@
+{
+  "input_file": "BLD-MECHPHASE-010.json",
+  "program_sha256": "070da84427aae015a826e4d004602be1ca15ebb7388584046e9ec689e520d13a",
+  "task_id": "BLD-MECHPHASE-010",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 18,
+  "measurement": [
+    {
+      "contentId": "c0-f003f257",
+      "payload": "木塞受力示意图（示意）",
+      "widthDu": 176,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f003f257246f3d2e4ca537809bab31dd316e2567f84cd9eba3d94f3adc574a21"
+    },
+    {
+      "contentId": "c1-29c27965",
+      "payload": "F（拉力）",
+      "widthDu": 72.7272720336914,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "29c27965218c3f195ab77cd1c6b8266a168bd9d5e623e177b47cbbbd35686826"
+    },
+    {
+      "contentId": "c2-50aef6d9",
+      "payload": "瓶内气压与摩擦的合力",
+      "widthDu": 160,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "50aef6d9617bb5bc220096554fabf6155920d9c884962c0795a145d14045017d"
+    },
+    {
+      "contentId": "c3-7e78a72a",
+      "payload": "木塞",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7e78a72a6e665e9ef8f2853e01bf26812e20db883cf0df8086658caea5096018"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "a146091c7a749ab03286ac6ef98c183e877b65c0283896b8812028abb3529b81",
+  "scene_bytes": 2374,
+  "scene_schema_version": 1,
+  "draw_sha256": "82ab1242d488164213aca5f79c4c81a7f6f537a09881f906b7f2dcbc7cf9ff7f",
+  "draw_bytes": 2369,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-f003f257",
+    "c1-29c27965",
+    "c2-50aef6d9",
+    "c3-7e78a72a"
+  ],
+  "png_sha256": "723a646755c951cba62acc5517f70d77d0f06118030dd54cccf960870e655cc5",
+  "png_bytes": 12902,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 13,
+    "pathCommands": 45,
+    "labels": 4,
+    "ops": 12
+  }
+}

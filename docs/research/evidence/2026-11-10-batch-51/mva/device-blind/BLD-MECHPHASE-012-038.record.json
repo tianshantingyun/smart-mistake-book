@@ -1,0 +1,87 @@
+{
+  "input_file": "BLD-MECHPHASE-012.json",
+  "program_sha256": "75b917e79c5e6359364a3b795d5b0a84a7b177d154b0d6204a7021d3baf3aa88",
+  "task_id": "BLD-MECHPHASE-012",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 36,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "拔塞过程：u = x \/ h",
+      "widthDu": 136.72727966308594,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "804472ae80b08b056ee25e4644ee57b669d48bb0e818a9183caf4f2ec68c20f7"
+    },
+    {
+      "contentId": "c1",
+      "payload": "木塞上移 x = u·h（三段位移按真实比例）",
+      "widthDu": 290.5454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f829a5bb18bb6362ee9a7ce6657d2b128f4e269574d4def85cc6782184f9219c"
+    },
+    {
+      "contentId": "c2",
+      "payload": "u = 0",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4b5968a5bb3f4bd83a77304c529b18ddc7b4f06e0e52db14c474a0f6f47f0558"
+    },
+    {
+      "contentId": "c3",
+      "payload": "u = 1\/2",
+      "widthDu": 50.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3f55abbdc017a90d744db9e7bda43bc196b4800ea88af1120c28a66e8fe05979"
+    },
+    {
+      "contentId": "c4",
+      "payload": "u = 1",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0c3de0b28dde8fc98f9f8d4377bd74394a78d28853bad8b25eaee12255f85414"
+    },
+    {
+      "contentId": "c5",
+      "payload": "瓶口基准线",
+      "widthDu": 80,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9ba2a5da86a964c8e378fc42179eca979b5f373138f2a94f894f0f2d04411958"
+    },
+    {
+      "contentId": "c6",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c7",
+      "payload": "木塞底部到达瓶口",
+      "widthDu": 128,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e6f4a883f603f6435cea12b81cb7b94b67cfd6f3974aec46aa3de48b59772fc0"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

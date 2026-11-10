@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-PROPCOORD-002",
+    "program_id": "mva-BLD-PROPCOORD-002",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '3:1' },\n      { kind: 'text', payload: '3' },\n      { kind: 'text', payload: '1' }\n    ];\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var y = H * 0.58;\n    var x0 = W * 0.12;\n    var x1 = W * 0.88;\n    var xDiv = x0 + (x1 - x0) * 0.75;\n\n    var line = [\n      ['M', x0, y],\n      ['L', x1, y]\n    ];\n    var ticks = [\n      ['M', x0, y - 12],\n      ['L', x0, y + 12],\n      ['M', xDiv, y - 18],\n      ['L', xDiv, y + 18],\n      ['M', x1, y - 12],\n      ['L', x1, y + 12]\n    ];\n\n    return {\n      schemaVersion: 1,\n      sceneId: 'ratio-segment',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [\n        { id: 'line', commands: line },\n        { id: 'ticks', commands: ticks }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'line', fill: '#1f2d3d', stroke: { width: 4 } },\n          { type: 'path', pathId: 'ticks', fill: '#1f2d3d', stroke: { width: 3 } },\n          { type: 'label', contentId: metrics[0].contentId, anchor: { x: (x0 + x1) / 2, y: y - 46 }, hAlign: 'center', vAlign: 'bottom', color: '#1f2d3d' },\n          { type: 'label', contentId: metrics[1].contentId, anchor: { x: (x0 + xDiv) / 2, y: y + 28 }, hAlign: 'center', vAlign: 'top', color: '#1f2d3d' },\n          { type: 'label', contentId: metrics[2].contentId, anchor: { x: (xDiv + x1) / 2, y: y + 28 }, hAlign: 'center', vAlign: 'top', color: '#1f2d3d' }\n        ]\n      }\n    };\n  }\n};\n",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

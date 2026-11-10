@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-DEHANDWR-007",
+    "run_id": "mva-author-blind-120",
+    "model": "deepseek-flash",
+    "prompt_sha256": "4ddc2a5aa04450dd1725e883e079a893562ad01dea540de64b0465a729a9baee",
+    "user_prompt_sha256": "e413edd1e3b676c2615dae4af64c97e605c5133ab197881c717da55db774353d",
+    "elapsed_ms": 2784,
+    "status": "INVALID_PROPOSAL",
+    "http_status": 200,
+    "diagnostics": "InvalidModelResponseException: invalid model response",
+    "response_sha256": "bd58f8f7ee3cfd1e7d11c3fd80404a9972629edb81fb8712fed27dc1578e3c0b",
+    "response_head": "{\"id\":\"76fee83e-3cdc-4d55-a948-7dcd742645cd\",\"object\":\"chat.completion\",\"created\":1794261517,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"NEED_SOURCE\\\",\\\"purpose\\\":\\\"SOURCE_TRANSCRIPTION\\\",\\\"method\\\":null,\\\"reason\\\":\\\"未提供源图OCR或可追溯结构化事实，无法得知第(1)(2)问题干文字、图1几何关系与坐标轴刻度；不得凭空补造印刷内容，故需源证据。\\\",\\\"fidelity\\\":\\\"FAITHFUL\\\",\\\"constraints\\\":[\\\"不得声称查看过原图\\\",\\\"必须保留题干(1)(2)、图1、坐标轴全部已知条件与单位标注\\\",\\\"去除红笔勾、对号、波浪线等手写批注\\\",\\\"不得猜测被遮挡内容或新增事实\\\"],\\\"missingEvidence\\\":[\\\"题干第(1)问印刷原文\\\",\\\"题干第(2)问印刷原文\\\",\\\"图1的点/线/标注及其位置关系\\\",\\\"坐标轴名称、刻度值、单位与范围\\\",\\\"手写批注与印刷内容的分界信息（哪些像素属批注）\\\"]}\",\"reasoning_content\":\"The task: transcribe source image into structured content, removing handwritten annotations, preserving printed content: question (1), question (2), figure 1, coordinate axes. But we have no actual source image — no OCR text provided, no structured facts about the content. The rules say: 源证据不足时返回NEED_SOURCE；不得声称看过原图.\\n\\nWe have zero evidence: no OCR text, no question text, no coordinates. So the correct answer is NEED_SOURCE.\\n\\nOutput shape for NEED_SOURCE — the schema given only shows GENERATE shape. But rules say return NEED_SOURCE when evidence insufficient. I should output a JSON object with decision \\\"NEED_SOURCE\\\". Let me produce something reasonable:\\n\\n{\\\"decision\\\":\\\"NEED_SOURCE\\\",\\\"purpose\\\":\\\"SOURCE_TRANSCRIPTION\\\",\\\"method\\\":null,\\\"reason\\\":\\\"...\\\",\\\"fidelity\\\":\\\"FAITHFUL\\\",\\\"constraints\\\":[],\\\"missing\\\":[...]}\\n\\nI'll keep it minimal and matching spirit.\"},\"logprobs\":null,\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":1552,\"completion_tokens\":396,\"total_tokens\":1948,\"prompt_tokens_details\":{\"cached_tokens\":1408},\"completion_tokens_details\":{\"reasoning_tokens\":199},\"prompt_cache_hit_tokens\":1408,\"prompt_cache_miss_tokens\":144},\"system_fingerprint\":\"bc19ba97cbe016479903222bb1578db6\"}"
+}

@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-014",
+    "program_id": "mva-BLD-SRCREBLD-014",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    var reqs = [];\n    for (var v = -5; v <= 5; v++) {\n      reqs.push({ kind: 'text', payload: String(v) });\n    }\n    return reqs;\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var axisY = Math.round(H * 0.44);\n    var x0 = 64;\n    var x1 = W - 64;\n    var paths = [];\n    var children = [];\n    paths.push({ id: 'axis', commands: visualSdk.polyline([[x0, axisY], [x1, axisY]]) });\n    children.push({ type: 'path', pathId: 'axis', stroke: '#26354a', strokeWidth: 1.5, fill: 'none' });\n    for (var i = 0; i <= 10; i++) {\n      var x = x0 + (x1 - x0) * (i / 10);\n      x = Math.round(x * 100) / 100;\n      paths.push({ id: 'tick' + i, commands: ['M ' + x + ' ' + (axisY - 7), 'L ' + x + ' ' + (axisY + 7)] });\n      children.push({ type: 'path', pathId: 'tick' + i, stroke: '#26354a', strokeWidth: 1.5, fill: 'none' });\n      var text = String(i - 5);\n      var m = metrics && metrics[i] ? metrics[i] : null;\n      var tw = m && typeof m.width === 'number' && m.width > 0 ? m.width : (text.length === 2 ? 18 : 9);\n      children.push({\n        type: 'label',\n        x: Math.round((x - tw / 2) * 100) / 100,\n        y: axisY + 26,\n        text: text,\n        fontSize: 15,\n        fill: '#26354a'\n      });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'axis-source',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: paths,\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

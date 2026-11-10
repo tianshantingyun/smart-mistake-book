@@ -1,0 +1,900 @@
+{
+  "generated_by": "probe_extract.py",
+  "checks": [
+    {
+      "case": "ratio-1to1-correct",
+      "task_id": "BLD-PROPCOORD-001",
+      "expected_accept": true,
+      "accepted": true,
+      "matches_expectation": true,
+      "verified": 3,
+      "mismatches": [],
+      "facts": {
+        "segment_count": 2,
+        "segment_length_ratio": 1.0,
+        "ratio_label": [
+          "1:1"
+        ],
+        "kept_printed_labels": [
+          "1:1"
+        ],
+        "removed_handwriting": [
+          "1:1"
+        ]
+      },
+      "observations": {
+        "labels": [
+          "1:1"
+        ],
+        "anchor_points": [
+          [
+            130.0,
+            138.0
+          ]
+        ],
+        "runs": [
+          {
+            "dir": [
+              1.0,
+              0.0
+            ],
+            "offset": 120.0,
+            "lengths": [
+              90.0,
+              90.0
+            ],
+            "span": [
+              40.0,
+              220.0
+            ]
+          }
+        ],
+        "closed_shapes": 0,
+        "shape_labels": []
+      },
+      "note": "1:1 几何 + 标签都应通过"
+    },
+    {
+      "case": "ratio-2to3-correct",
+      "task_id": "BLD-PROPCOORD-005",
+      "expected_accept": true,
+      "accepted": true,
+      "matches_expectation": true,
+      "verified": 3,
+      "mismatches": [],
+      "facts": {
+        "segment_count": 2,
+        "segment_length_ratio": 0.6666666666666666,
+        "ratio_label": [
+          "2:3"
+        ],
+        "kept_printed_labels": [
+          "2:3"
+        ],
+        "removed_handwriting": [
+          "2:3"
+        ]
+      },
+      "observations": {
+        "labels": [
+          "2:3"
+        ],
+        "anchor_points": [
+          [
+            90.0,
+            138.0
+          ]
+        ],
+        "runs": [
+          {
+            "dir": [
+              1.0,
+              0.0
+            ],
+            "offset": 120.0,
+            "lengths": [
+              40.0,
+              60.0
+            ],
+            "span": [
+              40.0,
+              140.0
+            ]
+          }
+        ],
+        "closed_shapes": 0,
+        "shape_labels": []
+      },
+      "note": "2:3 几何 + 标签都应通过（同一提取器）"
+    },
+    {
+      "case": "ratio-1to1-rotated",
+      "task_id": "BLD-PROPCOORD-001",
+      "expected_accept": true,
+      "accepted": true,
+      "matches_expectation": true,
+      "verified": 3,
+      "mismatches": [],
+      "facts": {
+        "segment_count": 2,
+        "segment_length_ratio": 1.0,
+        "ratio_label": [
+          "1:1"
+        ],
+        "kept_printed_labels": [
+          "1:1"
+        ],
+        "removed_handwriting": [
+          "1:1"
+        ]
+      },
+      "observations": {
+        "labels": [
+          "1:1"
+        ],
+        "anchor_points": [
+          [
+            200.0,
+            120.0
+          ]
+        ],
+        "runs": [
+          {
+            "dir": [
+              0.0,
+              1.0
+            ],
+            "offset": -180.0,
+            "lengths": [
+              90.0,
+              90.0
+            ],
+            "span": [
+              30.0,
+              210.0
+            ]
+          }
+        ],
+        "closed_shapes": 0,
+        "shape_labels": []
+      },
+      "note": "竖直 1:1：按根空间方向判读仍应通过"
+    },
+    {
+      "case": "ratio-1to1-correct",
+      "task_id": "BLD-PROPCOORD-002",
+      "expected_accept": false,
+      "accepted": false,
+      "matches_expectation": true,
+      "verified": 1,
+      "mismatches": [
+        {
+          "key": "segment_length_ratio",
+          "kind": "numeric",
+          "expected": 3.0,
+          "got": 1.0,
+          "critical": true
+        },
+        {
+          "key": "ratio_label",
+          "kind": "label_set",
+          "expected": [
+            "3:1"
+          ],
+          "got": [
+            "1:1"
+          ],
+          "critical": true
+        }
+      ],
+      "facts": {
+        "segment_count": 2,
+        "segment_length_ratio": 1.0,
+        "ratio_label": [
+          "1:1"
+        ],
+        "kept_printed_labels": [
+          "1:1"
+        ],
+        "removed_handwriting": [
+          "1:1"
+        ]
+      },
+      "observations": {
+        "labels": [
+          "1:1"
+        ],
+        "anchor_points": [
+          [
+            130.0,
+            138.0
+          ]
+        ],
+        "runs": [
+          {
+            "dir": [
+              1.0,
+              0.0
+            ],
+            "offset": 120.0,
+            "lengths": [
+              90.0,
+              90.0
+            ],
+            "span": [
+              40.0,
+              220.0
+            ]
+          }
+        ],
+        "closed_shapes": 0,
+        "shape_labels": []
+      },
+      "note": "1:1 图对 3:1 题必须失败"
+    },
+    {
+      "case": "ratio-2to3-correct",
+      "task_id": "BLD-PROPCOORD-001",
+      "expected_accept": false,
+      "accepted": false,
+      "matches_expectation": true,
+      "verified": 1,
+      "mismatches": [
+        {
+          "key": "segment_length_ratio",
+          "kind": "numeric",
+          "expected": 1.0,
+          "got": 0.6666666666666666,
+          "critical": true
+        },
+        {
+          "key": "ratio_label",
+          "kind": "label_set",
+          "expected": [
+            "1:1"
+          ],
+          "got": [
+            "2:3"
+          ],
+          "critical": true
+        }
+      ],
+      "facts": {
+        "segment_count": 2,
+        "segment_length_ratio": 0.6666666666666666,
+        "ratio_label": [
+          "2:3"
+        ],
+        "kept_printed_labels": [
+          "2:3"
+        ],
+        "removed_handwriting": [
+          "2:3"
+        ]
+      },
+      "observations": {
+        "labels": [
+          "2:3"
+        ],
+        "anchor_points": [
+          [
+            90.0,
+            138.0
+          ]
+        ],
+        "runs": [
+          {
+            "dir": [
+              1.0,
+              0.0
+            ],
+            "offset": 120.0,
+            "lengths": [
+              40.0,
+              60.0
+            ],
+            "span": [
+              40.0,
+              140.0
+            ]
+          }
+        ],
+        "closed_shapes": 0,
+        "shape_labels": []
+      },
+      "note": "2:3 图对 1:1 题必须失败"
+    },
+    {
+      "case": "ratio-label-mismatch",
+      "task_id": "BLD-PROPCOORD-001",
+      "expected_accept": false,
+      "accepted": false,
+      "matches_expectation": true,
+      "verified": 2,
+      "mismatches": [
+        {
+          "key": "ratio_label",
+          "kind": "label_set",
+          "expected": [
+            "1:1"
+          ],
+          "got": [
+            "3:1"
+          ],
+          "critical": true
+        }
+      ],
+      "facts": {
+        "segment_count": 2,
+        "segment_length_ratio": 1.0,
+        "ratio_label": [
+          "3:1"
+        ],
+        "kept_printed_labels": [
+          "3:1"
+        ],
+        "removed_handwriting": [
+          "3:1"
+        ]
+      },
+      "observations": {
+        "labels": [
+          "3:1"
+        ],
+        "anchor_points": [
+          [
+            130.0,
+            138.0
+          ]
+        ],
+        "runs": [
+          {
+            "dir": [
+              1.0,
+              0.0
+            ],
+            "offset": 120.0,
+            "lengths": [
+              90.0,
+              90.0
+            ],
+            "span": [
+              40.0,
+              220.0
+            ]
+          }
+        ],
+        "closed_shapes": 0,
+        "shape_labels": []
+      },
+      "note": "几何正确、标签错：只有 label 失败"
+    },
+    {
+      "case": "flow-order-correct",
+      "task_id": "BLD-FLOWFORM-001",
+      "expected_accept": true,
+      "accepted": true,
+      "matches_expectation": true,
+      "verified": 2,
+      "mismatches": [],
+      "facts": {
+        "ratio_label": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "step_count": 3,
+        "step_order": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "kept_printed_labels": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "removed_handwriting": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ]
+      },
+      "observations": {
+        "labels": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "anchor_points": [
+          [
+            180.0,
+            45.0
+          ],
+          [
+            180.0,
+            115.0
+          ],
+          [
+            180.0,
+            185.0
+          ]
+        ],
+        "runs": [
+          {
+            "dir": [
+              1.0,
+              0.0
+            ],
+            "offset": 20.0,
+            "lengths": [
+              240.0
+            ],
+            "span": [
+              60.0,
+              300.0
+            ]
+          },
+          {
+            "dir": [
+              0.0,
+              1.0
+            ],
+            "offset": -300.0,
+            "lengths": [
+              50.0,
+              50.0,
+              50.0
+            ],
+            "span": [
+              20.0,
+              210.0
+            ]
+          },
+          {
+            "dir": [
+              1.0,
+              -0.0
+            ],
+            "offset": 70.0,
+            "lengths": [
+              240.0
+            ],
+            "span": [
+              60.0,
+              300.0
+            ]
+          },
+          {
+            "dir": [
+              1.0,
+              0.0
+            ],
+            "offset": 90.0,
+            "lengths": [
+              240.0
+            ],
+            "span": [
+              60.0,
+              300.0
+            ]
+          },
+          {
+            "dir": [
+              1.0,
+              -0.0
+            ],
+            "offset": 140.0,
+            "lengths": [
+              240.0
+            ],
+            "span": [
+              60.0,
+              300.0
+            ]
+          },
+          {
+            "dir": [
+              1.0,
+              0.0
+            ],
+            "offset": 160.0,
+            "lengths": [
+              240.0
+            ],
+            "span": [
+              60.0,
+              300.0
+            ]
+          },
+          {
+            "dir": [
+              1.0,
+              -0.0
+            ],
+            "offset": 210.0,
+            "lengths": [
+              240.0
+            ],
+            "span": [
+              60.0,
+              300.0
+            ]
+          }
+        ],
+        "closed_shapes": 3,
+        "shape_labels": [
+          [
+            "移项"
+          ],
+          [
+            "合并同类项"
+          ],
+          [
+            "系数化为1"
+          ]
+        ]
+      },
+      "note": "三步卡片顺序正确"
+    },
+    {
+      "case": "flow-order-reversed",
+      "task_id": "BLD-FLOWFORM-001",
+      "expected_accept": false,
+      "accepted": false,
+      "matches_expectation": true,
+      "verified": 1,
+      "mismatches": [
+        {
+          "key": "step_order",
+          "kind": "ordering",
+          "expected": [
+            "移项",
+            "合并同类项",
+            "系数化为1"
+          ],
+          "got": [
+            "系数化为1",
+            "合并同类项",
+            "移项"
+          ],
+          "critical": true
+        }
+      ],
+      "facts": {
+        "ratio_label": [
+          "系数化为1",
+          "合并同类项",
+          "移项"
+        ],
+        "step_count": 3,
+        "step_order": [
+          "系数化为1",
+          "合并同类项",
+          "移项"
+        ],
+        "kept_printed_labels": [
+          "系数化为1",
+          "合并同类项",
+          "移项"
+        ],
+        "removed_handwriting": [
+          "系数化为1",
+          "合并同类项",
+          "移项"
+        ]
+      },
+      "observations": {
+        "labels": [
+          "系数化为1",
+          "合并同类项",
+          "移项"
+        ],
+        "anchor_points": [
+          [
+            180.0,
+            45.0
+          ],
+          [
+            180.0,
+            115.0
+          ],
+          [
+            180.0,
+            185.0
+          ]
+        ],
+        "runs": [
+          {
+            "dir": [
+              1.0,
+              0.0
+            ],
+            "offset": 20.0,
+            "lengths": [
+              240.0
+            ],
+            "span": [
+              60.0,
+              300.0
+            ]
+          },
+          {
+            "dir": [
+              0.0,
+              1.0
+            ],
+            "offset": -300.0,
+            "lengths": [
+              50.0,
+              50.0,
+              50.0
+            ],
+            "span": [
+              20.0,
+              210.0
+            ]
+          },
+          {
+            "dir": [
+              1.0,
+              -0.0
+            ],
+            "offset": 70.0,
+            "lengths": [
+              240.0
+            ],
+            "span": [
+              60.0,
+              300.0
+            ]
+          },
+          {
+            "dir": [
+              1.0,
+              0.0
+            ],
+            "offset": 90.0,
+            "lengths": [
+              240.0
+            ],
+            "span": [
+              60.0,
+              300.0
+            ]
+          },
+          {
+            "dir": [
+              1.0,
+              -0.0
+            ],
+            "offset": 140.0,
+            "lengths": [
+              240.0
+            ],
+            "span": [
+              60.0,
+              300.0
+            ]
+          },
+          {
+            "dir": [
+              1.0,
+              0.0
+            ],
+            "offset": 160.0,
+            "lengths": [
+              240.0
+            ],
+            "span": [
+              60.0,
+              300.0
+            ]
+          },
+          {
+            "dir": [
+              1.0,
+              -0.0
+            ],
+            "offset": 210.0,
+            "lengths": [
+              240.0
+            ],
+            "span": [
+              60.0,
+              300.0
+            ]
+          }
+        ],
+        "closed_shapes": 3,
+        "shape_labels": [
+          [
+            "系数化为1"
+          ],
+          [
+            "合并同类项"
+          ],
+          [
+            "移项"
+          ]
+        ]
+      },
+      "note": "顺序颠倒：ordering 失败、count 仍 3"
+    },
+    {
+      "case": "handwriting-residue-present",
+      "task_id": "BLD-DEHANDWR-001",
+      "expected_accept": false,
+      "accepted": false,
+      "matches_expectation": true,
+      "verified": 1,
+      "mismatches": [
+        {
+          "key": "kept_printed_labels",
+          "kind": "label_set",
+          "expected": [
+            "题干第(1)问",
+            "题干第(2)问",
+            "图1",
+            "坐标轴"
+          ],
+          "got": [
+            "x=5"
+          ],
+          "critical": true
+        }
+      ],
+      "facts": {
+        "ratio_label": [
+          "x=5"
+        ],
+        "kept_printed_labels": [
+          "x=5"
+        ],
+        "removed_handwriting": [
+          "x=5"
+        ]
+      },
+      "observations": {
+        "labels": [
+          "x=5"
+        ],
+        "anchor_points": [
+          [
+            180.0,
+            170.0
+          ]
+        ],
+        "runs": [
+          {
+            "dir": [
+              1.0,
+              0.0
+            ],
+            "offset": 200.0,
+            "lengths": [
+              280.0
+            ],
+            "span": [
+              40.0,
+              320.0
+            ]
+          }
+        ],
+        "closed_shapes": 0,
+        "shape_labels": []
+      },
+      "note": "文本级提取器只能靠 kept_printed_labels 失败；removed_handwriting 仍通过（见 per_fact）"
+    },
+    {
+      "case": "handwriting-residue-absent",
+      "task_id": "BLD-DEHANDWR-001",
+      "expected_accept": false,
+      "accepted": false,
+      "matches_expectation": true,
+      "verified": 1,
+      "mismatches": [
+        {
+          "key": "kept_printed_labels",
+          "kind": "label_set",
+          "expected": [
+            "题干第(1)问",
+            "题干第(2)问",
+            "图1",
+            "坐标轴"
+          ],
+          "got": [
+            "题干第(1)问"
+          ],
+          "critical": true
+        }
+      ],
+      "facts": {
+        "ratio_label": [
+          "题干第(1)问"
+        ],
+        "kept_printed_labels": [
+          "题干第(1)问"
+        ],
+        "removed_handwriting": [
+          "题干第(1)问"
+        ]
+      },
+      "observations": {
+        "labels": [
+          "题干第(1)问"
+        ],
+        "anchor_points": [
+          [
+            180.0,
+            170.0
+          ]
+        ],
+        "runs": [
+          {
+            "dir": [
+              1.0,
+              0.0
+            ],
+            "offset": 200.0,
+            "lengths": [
+              280.0
+            ],
+            "span": [
+              40.0,
+              320.0
+            ]
+          }
+        ],
+        "closed_shapes": 0,
+        "shape_labels": []
+      },
+      "note": "只有 1 个印刷标签：label_set 的 subset 语义如实拒绝（本探针场景不是完整去手写图）"
+    }
+  ],
+  "per_fact_channel_independence": {
+    "geometry_ok_label_wrong__segment_length_ratio": {
+      "value": 1.0,
+      "accepted": true
+    },
+    "geometry_ok_label_wrong__ratio_label": {
+      "value": [
+        "3:1"
+      ],
+      "accepted": false
+    },
+    "residue_present__removed_handwriting_text_level": {
+      "value": [
+        "x=5"
+      ],
+      "accepted": true
+    },
+    "residue_absent__removed_handwriting_text_level": {
+      "value": [
+        "题干第(1)问"
+      ],
+      "accepted": true
+    },
+    "rotated__segment_length_ratio": {
+      "value": 1.0,
+      "accepted": true
+    }
+  },
+  "extractor_negative_control": {
+    "flow-order-correct": {
+      "broken_value": [
+        "移项",
+        "移项",
+        "移项"
+      ],
+      "accepted_without_matrix_stack": false,
+      "note": "不回放 concat 时该事实应判错/缺失"
+    },
+    "ratio-1to1-rotated": {
+      "broken_value": 1.0,
+      "accepted_without_matrix_stack": true,
+      "note": "不回放 concat 时该事实应判错/缺失"
+    }
+  },
+  "all_matches_expectation": true
+}

@@ -1,0 +1,87 @@
+{
+  "input_file": "BLD-FLOWFORM-005.json",
+  "program_sha256": "84b95fa3243228899b88776ffb65ce92acd0f592bf5d95a2c32cc3bdf2d61cb0",
+  "task_id": "BLD-FLOWFORM-005",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 39,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "解一元一次方程 6x + 5 = 2x + 11",
+      "widthDu": 228.36363220214844,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5674c8c7df5915d9b541a9d537cb9807a69450692ec61aa23feb4ae5ec4e05ed"
+    },
+    {
+      "contentId": "c1",
+      "payload": "流程卡",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5119f4f3f467d072e3e24786eacb34e81e6c4c41283745675f752aaa41626d13"
+    },
+    {
+      "contentId": "c2",
+      "payload": "① 移项",
+      "widthDu": 52,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "fec4fac096bc3030427bf119fdbda201bb47abb2ee92678a682a305ba7476bf1"
+    },
+    {
+      "contentId": "c3",
+      "payload": "6x − 2x = 11 − 5",
+      "widthDu": 112.36363983154297,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "db9e836296a844b73e1fa0687db92de025aea8dda13b410cfa8e284cbe2135f7"
+    },
+    {
+      "contentId": "c4",
+      "payload": "② 合并同类项",
+      "widthDu": 100,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "12c93094b17ffc609057212bfb9de4ce20b35e8dddf4e9c7b3f2f6cdf1281294"
+    },
+    {
+      "contentId": "c5",
+      "payload": "4x = 6",
+      "widthDu": 42.90909194946289,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ec3c4b6b036409e324b8c6369f040a930792e9ab821de00f7855e14e02bcbbd9"
+    },
+    {
+      "contentId": "c6",
+      "payload": "③ 系数化为 1",
+      "widthDu": 97.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8dd9937e27a4e982c7e9027c755d0c8fcf6a7b444938e62a28c364c68daaa3b5"
+    },
+    {
+      "contentId": "c7",
+      "payload": "x = 6\/4 = 3\/2",
+      "widthDu": 90.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "523507caed35d640ce640a62650607339c606605b9b02b687cbbef79f234ab65"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

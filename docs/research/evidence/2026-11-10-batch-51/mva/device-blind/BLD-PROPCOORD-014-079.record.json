@@ -1,0 +1,78 @@
+{
+  "input_file": "BLD-PROPCOORD-014.json",
+  "program_sha256": "1e63b56a92aa9b6c92a2d677c0e97daef105701f54f972bf57ccab8b71ed12e9",
+  "task_id": "BLD-PROPCOORD-014",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 23,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c1",
+      "payload": "1",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "contentId": "c2",
+      "payload": "1\/2",
+      "widthDu": 24.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d939926f05444b0f4495fb9629ecbfa80d99a8ec1a20d06800ca5a3d5f4fd276"
+    },
+    {
+      "contentId": "c3",
+      "payload": "2\/3",
+      "widthDu": 24.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "484aa6ccd17c9fe96eb955b9b56ed0c883b275301479deec1b817afe2abdaf72"
+    },
+    {
+      "contentId": "c4",
+      "payload": "① 1\/2",
+      "widthDu": 44.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6f36206cbaa9a23f9746ce58402755915b9b2e2128c85c5188e31c755273fb4f"
+    },
+    {
+      "contentId": "c5",
+      "payload": "② 2\/3",
+      "widthDu": 44.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "098b6f2dee48e9445b22c1188db99200e3f8df361199572044469dfcbf4e0b3d"
+    },
+    {
+      "contentId": "c6",
+      "payload": "从小到大：1\/2 < 2\/3",
+      "widthDu": 145.4545440673828,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9ad96149859f174e0358620b1a320ddbc7207a1cfa9de6e30417b66eb127f8c0"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

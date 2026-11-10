@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-010",
+    "program_id": "mva-BLD-SRCREBLD-010",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    var reqs = [];\n    for (var v = -5; v <= 5; v++) {\n      reqs.push({ kind: 'text', payload: String(v) });\n    }\n    return reqs;\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var m = Math.max(44, Math.round(W * 0.08));\n    var x0 = m;\n    var x1 = W - m;\n    var y = Math.round(H * 0.58);\n\n    var axisCmds = visualSdk.axis({ x0: x0, y0: y, x1: x1, y1: y, ticks: 11, tickLength: 8 });\n\n    var labels = [];\n    var count = 11;\n    for (var i = 0; i < count; i++) {\n      var t = i / (count - 1);\n      var tx = x0 + (x1 - x0) * t;\n      var text = String(-5 + i);\n      var mm = (metrics && metrics[i]) ? metrics[i] : null;\n      var tw = (mm && typeof mm.width === 'number') ? mm.width : text.length * 8;\n      var th = (mm && typeof mm.height === 'number') ? mm.height : 12;\n      labels.push({\n        type: 'label',\n        text: text,\n        x: tx,\n        y: y + 14 + th * 0.85,\n        textAnchor: 'middle',\n        fontSize: 13,\n        fill: '#26354a',\n        meta: { tickIndex: i, tickX: tx, value: -5 + i, measuredWidth: tw }\n      });\n    }\n\n    var children = [{ type: 'path', pathId: 'axis', stroke: '#26354a', strokeWidth: 1.5 }];\n    for (var k = 0; k < labels.length; k++) children.push(labels[k]);\n\n    return {\n      schemaVersion: 1,\n      sceneId: 'axis-minus5-to-5-11ticks',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [{ id: 'axis', commands: axisCmds }],\n      root: { type: 'group', children: children }\n    };\n  }\n};\n",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

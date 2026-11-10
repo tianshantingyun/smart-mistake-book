@@ -1,0 +1,141 @@
+{
+  "input_file": "BLD-MECHPHASE-015.json",
+  "program_sha256": "f54af618f123cc5c6382bb0eed24137b027bb8fc919ef70f9f6943c173bbc56e",
+  "task_id": "BLD-MECHPHASE-015",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 29,
+  "measurement": [
+    {
+      "contentId": "c0-6edb58f1",
+      "payload": "u = x\/h = 0",
+      "widthDu": 74.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6edb58f1e6049583567a58947bae1d81bee6e3ad1e398b6460f0cb5f9f37d76f"
+    },
+    {
+      "contentId": "c1-3bbd5fe3",
+      "payload": "u = x\/h = 1\/2",
+      "widthDu": 90.18181610107422,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3bbd5fe349f038b99769a941a86ff8d2d0ddc958adb5e92515d654d6f84805ba"
+    },
+    {
+      "contentId": "c2-054af393",
+      "payload": "u = x\/h = 1",
+      "widthDu": 74.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "054af39329b2959e04cfade7b9c6a2ee7bf08a5af8cc87df1ed4128f6c068826"
+    },
+    {
+      "contentId": "c3-bc3b5864",
+      "payload": "x = 0",
+      "widthDu": 33.818180084228516,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bc3b5864a25454f5ac9c1ac2c3e54af4498664e94fa952d955f0bfb64ccd57fc"
+    },
+    {
+      "contentId": "c4-0f8db5f4",
+      "payload": "x = h\/2",
+      "widthDu": 49.09090805053711,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0f8db5f46f1cefd917c41ec1372ad02bd1ea12c2bc95b848796f4d7247acc3eb"
+    },
+    {
+      "contentId": "c5-cd71d298",
+      "payload": "x = h",
+      "widthDu": 33.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "cd71d298b0d30dbf4635b7282bb2450197e3cf603d69e78f8b982092493fe81d"
+    },
+    {
+      "contentId": "c6-3989858c",
+      "payload": "瓶口基准线（水平）",
+      "widthDu": 144,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3989858c0f3203c91ab5de2e51ecf57e6f057f84eda3e68a44dfe6ea32818b00"
+    },
+    {
+      "contentId": "c7-7e78a72a",
+      "payload": "木塞",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7e78a72a6e665e9ef8f2853e01bf26812e20db883cf0df8086658caea5096018"
+    },
+    {
+      "contentId": "c8-aaa94026",
+      "payload": "h",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "aaa9402664f1a41f40ebbc52c9993eb66aeb366602958fdfaa283b71e64db123"
+    },
+    {
+      "contentId": "c9-d55aaa22",
+      "payload": "位移 x = u·h",
+      "widthDu": 82.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d55aaa22a21f571e7c6a58e7db9d3861971b58230c1355407b7af1ddfa26bb7e"
+    },
+    {
+      "contentId": "c10-d7253d10",
+      "payload": "u=1 时木塞底部到达瓶口",
+      "widthDu": 174.5454559326172,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d7253d100af797a79ddf931c5e1c8a8f02aa74e1abaea27805d02705c2c5e049"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "9142af7eecbbc7ece02e46015d3712b2c57ec5b40fa59f8b5ae06d722bbcbb2f",
+  "scene_bytes": 4607,
+  "scene_schema_version": 1,
+  "draw_sha256": "8f5318514bebcfadd94afe98316d9997431765cb4b0c89f26116126a1a6111aa",
+  "draw_bytes": 5176,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-6edb58f1",
+    "c1-3bbd5fe3",
+    "c10-d7253d10",
+    "c2-054af393",
+    "c3-bc3b5864",
+    "c4-0f8db5f4",
+    "c5-cd71d298",
+    "c6-3989858c",
+    "c7-7e78a72a",
+    "c8-aaa94026",
+    "c9-d55aaa22"
+  ],
+  "png_sha256": "b8d6adb6c89c78c299d5a5e743ac3f72229d2932ffa659e092860bfe2688965f",
+  "png_bytes": 10231,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 27,
+    "pathCommands": 48,
+    "labels": 11,
+    "ops": 26
+  }
+}

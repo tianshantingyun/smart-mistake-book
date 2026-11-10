@@ -1,0 +1,13 @@
+{
+    "task_id": "DEV-SRCREBLD-002",
+    "program_id": "mva-DEV-SRCREBLD-002",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    var vals = [0, 20, 40, 60, 80, 100];\n    return vals.map(function (v) { return { kind: 'text', payload: String(v) }; });\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var left = Math.max(36, Math.min(64, w * 0.12));\n    var right = left;\n    var x0 = left;\n    var x1 = w - right;\n    if (x1 <= x0 + 20) {\n      x0 = 20;\n      x1 = Math.max(60, w - 20);\n    }\n    var axisY = Math.round(h * 0.58);\n    var axis = visualSdk.axis({\n      x0: x0,\n      y0: axisY,\n      x1: x1,\n      y1: axisY,\n      ticks: 6,\n      tickLength: 8\n    });\n    var children = [\n      { type: 'path', pathId: 'axis', fill: '#26354a', stroke: { width: 2, cap: 'round' } }\n    ];\n    for (var i = 0; i < 6; i++) {\n      var x = x0 + (x1 - x0) * i / 5;\n      var hAlign = i === 0 ? 'left' : (i === 5 ? 'right' : 'center');\n      children.push({\n        type: 'label',\n        contentId: metrics[i].contentId,\n        anchor: { x: x, y: axisY + 14 },\n        hAlign: hAlign,\n        vAlign: 'top',\n        color: '#26354a'\n      });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'axis-0-100',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [{ id: 'axis', commands: axis }],\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

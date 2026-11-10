@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-015",
+    "program_id": "mva-BLD-SRCREBLD-015",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [];\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var margin = Math.min(w, h) * 0.08;\n    var side = Math.min(w - 2 * margin, h - 2 * margin);\n    var x0 = (w - side) / 2;\n    var y0 = (h - side) / 2;\n    var cell = side / 4;\n    var paths = [];\n    var children = [];\n    var i;\n    for (i = 0; i <= 4; i++) {\n      var x = x0 + i * cell;\n      var vId = 'v' + i;\n      paths.push({\n        id: vId,\n        commands: visualSdk.polyline([{ x: x, y: y0 }, { x: x, y: y0 + side }])\n      });\n      children.push({ type: 'path', pathId: vId, stroke: '#26354a', strokeWidth: 1.5, fill: 'none' });\n    }\n    for (i = 0; i <= 4; i++) {\n      var y = y0 + i * cell;\n      var hId = 'h' + i;\n      paths.push({\n        id: hId,\n        commands: visualSdk.polyline([{ x: x0, y: y }, { x: x0 + side, y: y }])\n      });\n      children.push({ type: 'path', pathId: hId, stroke: '#26354a', strokeWidth: 1.5, fill: 'none' });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'grid-4x4',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: paths,\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

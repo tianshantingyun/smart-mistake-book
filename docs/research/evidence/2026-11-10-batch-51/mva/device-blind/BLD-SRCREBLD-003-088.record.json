@@ -1,0 +1,51 @@
+{
+  "input_file": "BLD-SRCREBLD-003.json",
+  "program_sha256": "eb5a02cc3f4e1362164bdd1c39a2822af871d3a8170557db669c6299610783ad",
+  "task_id": "BLD-SRCREBLD-003",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 20,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "入射光线",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c4f46805d1fb5dc58ee23c440f363d509d7803cd9a8a2b31595818d806334177"
+    },
+    {
+      "contentId": "c1",
+      "payload": "法线",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "fd2663572423c5587cc9e4140ed37ef234eae5d340601dcf4c561a189242c008"
+    },
+    {
+      "contentId": "c2",
+      "payload": "反射光线",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8a9b481dfa2e481971bbe1752d0ca7907bde9991d17e4a9431d6e30fb6a69750"
+    },
+    {
+      "contentId": "c3",
+      "payload": "反射角",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7ef4a31258644238dccf086bad04b21dfeb391e301966319ec4e790a7cebb340"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

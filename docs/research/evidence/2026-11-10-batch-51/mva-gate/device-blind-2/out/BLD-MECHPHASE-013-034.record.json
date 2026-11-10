@@ -1,0 +1,101 @@
+{
+  "input_file": "BLD-MECHPHASE-013.json",
+  "program_sha256": "0561772815cb2c01558622c7b0f69755abeb9ac2efa51a1333b5e57c5b889f93",
+  "task_id": "BLD-MECHPHASE-013",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 31,
+  "measurement": [
+    {
+      "contentId": "c0-d1209ff5",
+      "payload": "木塞拔出过程三阶段：木塞相对瓶口基准的位置",
+      "widthDu": 336,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d1209ff58a0aaa79ce893abff243025ae3dd66221f1096960327b1cd49ace8b2"
+    },
+    {
+      "contentId": "c1-6edb58f1",
+      "payload": "u = x\/h = 0",
+      "widthDu": 74.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6edb58f1e6049583567a58947bae1d81bee6e3ad1e398b6460f0cb5f9f37d76f"
+    },
+    {
+      "contentId": "c2-3bbd5fe3",
+      "payload": "u = x\/h = 1\/2",
+      "widthDu": 90.18181610107422,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3bbd5fe349f038b99769a941a86ff8d2d0ddc958adb5e92515d654d6f84805ba"
+    },
+    {
+      "contentId": "c3-054af393",
+      "payload": "u = x\/h = 1",
+      "widthDu": 74.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "054af39329b2959e04cfade7b9c6a2ee7bf08a5af8cc87df1ed4128f6c068826"
+    },
+    {
+      "contentId": "c4-3989858c",
+      "payload": "瓶口基准线（水平）",
+      "widthDu": 144,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3989858c0f3203c91ab5de2e51ecf57e6f057f84eda3e68a44dfe6ea32818b00"
+    },
+    {
+      "contentId": "c5-d0909393",
+      "payload": "u = 1 时，木塞底部到达瓶口基准线",
+      "widthDu": 246.5454559326172,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d09093934bd6589f224a5249650b92c1cd80dff0118c992e9ca5007c0ce27e21"
+    },
+    {
+      "contentId": "c6-3d4e0318",
+      "payload": "x：木塞底部上移量；h：从初始位置到瓶口的位移；三阶段按真实比例：0、h\/2、h",
+      "widthDu": 586.9091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3d4e0318d081b21da19e91841b8483bc9657444fdcd42a3f7200b292f8b98b73"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "3ca8df49134916e8bca8488a40297f457d5e88c40c3b43579b97956ba30bd008",
+  "scene_bytes": 6322,
+  "scene_schema_version": 1,
+  "draw_sha256": "6ea9fa92e6ecf4584b8f19032291441073e7d39e5ae28f876a438828d4e65f73",
+  "draw_bytes": 7374,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-d1209ff5",
+    "c1-6edb58f1",
+    "c2-3bbd5fe3",
+    "c3-054af393",
+    "c4-3989858c",
+    "c5-d0909393",
+    "c6-3d4e0318"
+  ],
+  "png_sha256": "b74229f31ed4629ca52080782eb1a36299a42f2bedd025adb203e0a9660d7a5c",
+  "png_bytes": 19628,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 33,
+    "pathCommands": 74,
+    "labels": 7,
+    "ops": 32
+  }
+}

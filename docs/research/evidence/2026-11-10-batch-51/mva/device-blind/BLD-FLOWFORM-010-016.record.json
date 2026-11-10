@@ -1,0 +1,141 @@
+{
+  "input_file": "BLD-FLOWFORM-010.json",
+  "program_sha256": "1f58362c2b3e550fec456934ab0ed34f14e549706bef3a75873a56cb34c84ff6",
+  "task_id": "BLD-FLOWFORM-010",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 46,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "一元二次方程求根公式",
+      "widthDu": 160,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ee21803d4e0aadd44def73d84248242cc73d8699087d19c66e1b7b7a1fc0fa2d"
+    },
+    {
+      "contentId": "c1",
+      "payload": "3x²",
+      "widthDu": 22.909090042114258,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "940d530af907c11dfed51bcb09c64aa26064131de3570521660375f1bc30b650"
+    },
+    {
+      "contentId": "c2",
+      "payload": " − ",
+      "widthDu": 17.090909957885742,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "1cebb27e0750a45f8d7661c5a86f095a1c5d9a754ad752e1761c37fd69f4a278"
+    },
+    {
+      "contentId": "c3",
+      "payload": "−5x",
+      "widthDu": 26.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "1eaa4d0966d59f4d94d52f9e2c0d4f4c90255508b08e3c586d77f42340684887"
+    },
+    {
+      "contentId": "c4",
+      "payload": "−2",
+      "widthDu": 18.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "34487838e765e9ed56b0b4c52c08a03c2bf4a07bc73115afdb2ea7ae228379ec"
+    },
+    {
+      "contentId": "c5",
+      "payload": " = 0",
+      "widthDu": 25.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "dd1f472591fc4210e8094c4685d46de048e02516c429b66ee601392ef015f06b"
+    },
+    {
+      "contentId": "c6",
+      "payload": "x =",
+      "widthDu": 20.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "180e6929bae4a33240ca19d9d2ee7c07bb6e67e09a038202f9eb536861f4a10d"
+    },
+    {
+      "contentId": "c7",
+      "payload": "−b ± √(b² − 4ac)",
+      "widthDu": 113.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ffcef37d6850ddb77b4f488ed6461649f6b68b10fbcea9cfcd3f6a1e9392d2fb"
+    },
+    {
+      "contentId": "c8",
+      "payload": "2a",
+      "widthDu": 17.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b2239ae33d9bc5614aeb2e439e5032b1fe77c32f7080d3211c1d03f1b17ffcf6"
+    },
+    {
+      "contentId": "c9",
+      "payload": "a = 3",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ede465b6a3ca0c68f27409a325be54c798cd7bb748f45f0dd24e1ba51c50956c"
+    },
+    {
+      "contentId": "c10",
+      "payload": "b = −5",
+      "widthDu": 44,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "98917f6f97a0241cfa91aa374f87eb078cc13cce31aded6e9fdf60ba4e48e5f0"
+    },
+    {
+      "contentId": "c11",
+      "payload": "c = −2",
+      "widthDu": 43.272727966308594,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e153b18c809f9148f5647d25b047668750019784b9ec4cc0e781a9581adc04a4"
+    },
+    {
+      "contentId": "c12",
+      "payload": "判别式",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "af70fbe4af0e02b98503800c2ddebba93cb3a1c17a2e547d2b9f6096438a79d6"
+    },
+    {
+      "contentId": "c13",
+      "payload": "Δ = b² − 4ac = 49",
+      "widthDu": 121.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "83d756e7fb7fac7268272d61c543daa4fbc60615cf115f72b6e5ae359803f008"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com"
+}

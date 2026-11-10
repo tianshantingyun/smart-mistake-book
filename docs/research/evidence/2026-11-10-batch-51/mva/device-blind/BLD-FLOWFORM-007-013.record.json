@@ -1,0 +1,114 @@
+{
+  "input_file": "BLD-FLOWFORM-007.json",
+  "program_sha256": "b708c47bcf5065dda23dba9eaac62a648c0ea465f1a6f60024485a41c98a7871",
+  "task_id": "BLD-FLOWFORM-007",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 46,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "解一元一次方程",
+      "widthDu": 112,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8755b0d18930fabadf1f5e167710a78fc9a257b338a580aae6ece4170d0759d1"
+    },
+    {
+      "contentId": "c1",
+      "payload": "4x+1=1x+9",
+      "widthDu": 79.2727279663086,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "02c079356361524d63014721167eceecf6851a5ab1e6b585caa5d30c2c8097be"
+    },
+    {
+      "contentId": "c2",
+      "payload": "1",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "contentId": "c3",
+      "payload": "移项",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d3672fe82ccbc052805861143d2fb50e4f523e8837d360af1a9c72689172561b"
+    },
+    {
+      "contentId": "c4",
+      "payload": "4x − 1x = 9 − 1",
+      "widthDu": 103.2727279663086,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8a08bc9556e7e9e5d0433e448276ebb098fb2c330b21396cf50506b97c6ef6cb"
+    },
+    {
+      "contentId": "c5",
+      "payload": "2",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "contentId": "c6",
+      "payload": "合并同类项",
+      "widthDu": 80,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "454ab3d6f1f9c0e3d65cf77603a6a49dc652db6e2550c7ccb8037908b2a4ae08"
+    },
+    {
+      "contentId": "c7",
+      "payload": "3x = 8",
+      "widthDu": 42.90909194946289,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c180eb2c99dbaee550c9b4c7ece2b08e1ef9d23c045d2fb446a1c5fca3c54c0d"
+    },
+    {
+      "contentId": "c8",
+      "payload": "3",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+    },
+    {
+      "contentId": "c9",
+      "payload": "系数化为 1",
+      "widthDu": 77.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e6c8746fb2ce805c3c9a1c374dc6dab95585dc742ff4ec365b200b21cc4a1c4f"
+    },
+    {
+      "contentId": "c10",
+      "payload": "x = 8\/3",
+      "widthDu": 49.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c111f081aec5e92eb4f7f626351099be790929021c526bf47adb5a53bc333897"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

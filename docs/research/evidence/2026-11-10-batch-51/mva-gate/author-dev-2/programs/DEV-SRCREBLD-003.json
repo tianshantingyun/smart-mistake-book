@@ -1,0 +1,13 @@
+{
+    "task_id": "DEV-SRCREBLD-003",
+    "program_id": "mva-DEV-SRCREBLD-003",
+    "source_js": "const visual = {\n  prepare: function (input) { return []; },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var margin = Math.min(w, h) * 0.1;\n    var side = Math.min(w, h) - 2 * margin;\n    var x0 = (w - side) / 2;\n    var y0 = (h - side) / 2;\n    var step = side / 4;\n    var paths = [];\n    var children = [];\n    var i, k;\n    for (i = 0; i <= 4; i++) {\n      var x = x0 + i * step;\n      paths.push({ id: 'v' + i, commands: [['M', x, y0], ['L', x, y0 + side]] });\n    }\n    for (i = 0; i <= 4; i++) {\n      var y = y0 + i * step;\n      paths.push({ id: 'h' + i, commands: [['M', x0, y], ['L', x0 + side, y]] });\n    }\n    for (k = 0; k < paths.length; k++) {\n      children.push({ type: 'path', pathId: paths[k].id, fill: '#26354a', stroke: { width: 2 } });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'grid-4x4',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: paths,\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

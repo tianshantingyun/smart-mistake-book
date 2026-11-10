@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-014",
+    "program_id": "mva-BLD-SRCREBLD-014",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    var out = [];\n    for (var i = -5; i <= 5; i++) {\n      out.push({ kind: 'text', payload: String(i) });\n    }\n    return out;\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var x0 = 60;\n    var x1 = w - 60;\n    var cy = Math.round(h * 0.5);\n    var axisCmds = visualSdk.axis({ x0: x0, y0: cy, x1: x1, y1: cy, ticks: 11, tickLength: 10 });\n    var children = [\n      { type: 'path', pathId: 'axis', fill: '#26354a', stroke: { width: 2 } }\n    ];\n    for (var i = 0; i < 11; i++) {\n      var x = x0 + (x1 - x0) * i / 10;\n      children.push({\n        type: 'label',\n        contentId: metrics[i].contentId,\n        anchor: { x: x, y: cy + 16 },\n        hAlign: 'center',\n        vAlign: 'top',\n        color: '#26354a'\n      });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'number-line',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [{ id: 'axis', commands: axisCmds }],\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

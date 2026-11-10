@@ -1,0 +1,159 @@
+{
+  "input_file": "BLD-MECHPHASE-013.json",
+  "program_sha256": "3d6ce8b92ee3d5aee9f6c64039c530d6c05538b3c1e69bf43f7a76a9a2980c9b",
+  "task_id": "BLD-MECHPHASE-013",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 53,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "拔塞过程三阶段：木塞相对瓶口基准线的位置",
+      "widthDu": 320,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "547d84dc9c4bd5e3374a5942b3e1d6ed5fe9453c91c557312271fed27f1055b3"
+    },
+    {
+      "contentId": "c1",
+      "payload": "u = x \/ h",
+      "widthDu": 56.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bdf9e06c87393cfab7b0f70d4c14bffc6b58f9facb49dc10095d5d97ae96a7dd"
+    },
+    {
+      "contentId": "c2",
+      "payload": "u = 0",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4b5968a5bb3f4bd83a77304c529b18ddc7b4f06e0e52db14c474a0f6f47f0558"
+    },
+    {
+      "contentId": "c3",
+      "payload": "u = 1 \/ 2",
+      "widthDu": 58.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6687cc24a8cc5a0e5315dd03ea68710d3f0e6315715fbfb21175feae7557342a"
+    },
+    {
+      "contentId": "c4",
+      "payload": "u = 1",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0c3de0b28dde8fc98f9f8d4377bd74394a78d28853bad8b25eaee12255f85414"
+    },
+    {
+      "contentId": "c5",
+      "payload": "完全插入，底面在瓶口下 h 处",
+      "widthDu": 208.72727966308594,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5aca7722c7e411f8d248fb0c65af69562b8350a119b9214f71e891000ae50d5b"
+    },
+    {
+      "contentId": "c6",
+      "payload": "木塞上移 h \/ 2",
+      "widthDu": 100.36363983154297,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "688aed7acd85a731999d2a7e3cabba22698698b8add7e654d08149080063c98b"
+    },
+    {
+      "contentId": "c7",
+      "payload": "木塞底面到达瓶口基准线",
+      "widthDu": 176,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "138e0608bbdc95150d7854adae1ddf6a8c9ad2ceb315bee71bc8acf459a6b086"
+    },
+    {
+      "contentId": "c8",
+      "payload": "瓶口基准线",
+      "widthDu": 80,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9ba2a5da86a964c8e378fc42179eca979b5f373138f2a94f894f0f2d04411958"
+    },
+    {
+      "contentId": "c9",
+      "payload": "木塞",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7e78a72a6e665e9ef8f2853e01bf26812e20db883cf0df8086658caea5096018"
+    },
+    {
+      "contentId": "c10",
+      "payload": "h",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "aaa9402664f1a41f40ebbc52c9993eb66aeb366602958fdfaa283b71e64db123"
+    },
+    {
+      "contentId": "c11",
+      "payload": "x = 0",
+      "widthDu": 33.818180084228516,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bc3b5864a25454f5ac9c1ac2c3e54af4498664e94fa952d955f0bfb64ccd57fc"
+    },
+    {
+      "contentId": "c12",
+      "payload": "x = h \/ 2",
+      "widthDu": 57.09090805053711,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b0b1934a26ba1836e8984dc58bc1d962e4038ebc9e8ec7a67d69bb820a25f28d"
+    },
+    {
+      "contentId": "c13",
+      "payload": "x = h",
+      "widthDu": 33.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "cd71d298b0d30dbf4635b7282bb2450197e3cf603d69e78f8b982092493fe81d"
+    },
+    {
+      "contentId": "c14",
+      "payload": "u = x \/ h：u 为拔出进度，x 为木塞相对初始位置的上移位移，h 为木塞长度",
+      "widthDu": 526.1818237304688,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "439be616df16452c468ea9f9a5edd6578bc90f5f7754e6d4b8e7b0b0d7f212d6"
+    },
+    {
+      "contentId": "c15",
+      "payload": "三阶段的瓶口基准线保持同一水平高度，木塞上移位移按真实比例 x = 0、h \/ 2、h 绘制。",
+      "widthDu": 626.9091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4b89aa203ae840576ba12e48b62975f2b221c2ca7031be5c3f11a468d6f93173"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"text\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com"
+}

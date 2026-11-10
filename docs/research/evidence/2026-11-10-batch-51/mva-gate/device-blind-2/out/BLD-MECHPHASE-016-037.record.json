@@ -1,0 +1,101 @@
+{
+  "input_file": "BLD-MECHPHASE-016.json",
+  "program_sha256": "f46280562b0eadfc9735a326d025b99463af38d0331ceb491ad5976386199864",
+  "task_id": "BLD-MECHPHASE-016",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 26,
+  "measurement": [
+    {
+      "contentId": "c0-bdf9e06c",
+      "payload": "u = x \/ h",
+      "widthDu": 56.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bdf9e06c87393cfab7b0f70d4c14bffc6b58f9facb49dc10095d5d97ae96a7dd"
+    },
+    {
+      "contentId": "c1-4b5968a5",
+      "payload": "u = 0",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4b5968a5bb3f4bd83a77304c529b18ddc7b4f06e0e52db14c474a0f6f47f0558"
+    },
+    {
+      "contentId": "c2-3f55abbd",
+      "payload": "u = 1\/2",
+      "widthDu": 50.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3f55abbdc017a90d744db9e7bda43bc196b4800ea88af1120c28a66e8fe05979"
+    },
+    {
+      "contentId": "c3-0c3de0b2",
+      "payload": "u = 1",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0c3de0b28dde8fc98f9f8d4377bd74394a78d28853bad8b25eaee12255f85414"
+    },
+    {
+      "contentId": "c4-5f8c8847",
+      "payload": "瓶口基准线（保持水平）",
+      "widthDu": 176,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5f8c8847d2af8bc7aee04779e7f7257b781d9ac57ad314b682759c2f82a41d1a"
+    },
+    {
+      "contentId": "c5-2d711642",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c6-df9cd369",
+      "payload": "位移 x = u·h，木塞底部到基准线距离 =（1 - u）·h，三段按真实比例绘制（示意图）",
+      "widthDu": 586.5454711914062,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "df9cd36992a8e3529e17af9cf0f4e72933c8aa5eb9b90a06147c7731537432c2"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "5bcb2fb53f5f8fb752fe3bc32498b26f840af229f1d9b796b6dbcbe3c57b313c",
+  "scene_bytes": 3579,
+  "scene_schema_version": 1,
+  "draw_sha256": "201fd985ec9a97fef6c30d60d2d10dca14b40ad01f0e517dbe7de0714ec1ded1",
+  "draw_bytes": 4171,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-bdf9e06c",
+    "c1-4b5968a5",
+    "c2-3f55abbd",
+    "c3-0c3de0b2",
+    "c4-5f8c8847",
+    "c5-2d711642",
+    "c6-df9cd369"
+  ],
+  "png_sha256": "e871bd36e554ac132efc321e6705f498d019d8bd5ebfb9588db93552d39da196",
+  "png_bytes": 8620,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 22,
+    "pathCommands": 67,
+    "labels": 7,
+    "ops": 21
+  }
+}

@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-NATILLA-014",
+    "program_id": "mva-BLD-NATILLA-014",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '自由落体示意' },\n      { kind: 'text', payload: '由静止释放' },\n      { kind: 'text', payload: 'v' },\n      { kind: 'text', payload: 'g' },\n      { kind: 'text', payload: 'v 与 g 均竖直向下' }\n    ];\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var cx = W / 2;\n    var ballR = 24;\n    var ballCy = 92;\n    var ball = visualSdk.circle(cx, ballCy, ballR);\n    var vArrow = visualSdk.arrow(cx + 36, ballCy, cx + 36, ballCy + 118, { headLength: 12, headWidth: 8 });\n    var gArrow = visualSdk.arrow(cx - 36, ballCy, cx - 36, ballCy + 118, { headLength: 12, headWidth: 8 });\n    var traj = visualSdk.polyline([[cx, ballCy + ballR], [cx, H - 42]]);\n    var ground = visualSdk.polyline([[W * 0.22, H - 30], [W * 0.78, H - 30]]);\n    return {\n      schemaVersion: 1,\n      sceneId: 'free-fall-schematic',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [\n        { id: 'traj', commands: traj },\n        { id: 'ground', commands: ground },\n        { id: 'ball', commands: ball },\n        { id: 'vArrow', commands: vArrow },\n        { id: 'gArrow', commands: gArrow }\n      ],\n      root: { type: 'group', children: [\n        { type: 'label', text: '自由落体（示意）', x: cx, y: 28, fontSize: 18, fill: '#26354a', textAnchor: 'middle' },\n        { type: 'path', pathId: 'traj', stroke: '#8794a5', strokeWidth: 2, strokeDasharray: '6 6' },\n        { type: 'path', pathId: 'ground', stroke: '#26354a', strokeWidth: 2 },\n        { type: 'path', pathId: 'ball', fill: '#ffffff', stroke: '#26354a', strokeWidth: 3 },\n        { type: 'path', pathId: 'vArrow', stroke: '#1f6feb', strokeWidth: 3 },\n        { type: 'path', pathId: 'gArrow', stroke: '#d9480f', strokeWidth: 3 },\n        { type: 'label', text: 'v', x: cx + 54, y: ballCy + 58, fontSize: 22, fill: '#1f6feb', textAnchor: 'middle', dominantBaseline: 'middle' },\n        { type: 'label', text: 'g', x: cx - 54, y: ballCy + 58, fontSize: 22, fill: '#d9480f', textAnchor: 'middle', dominantBaseline: 'middle' },\n        { type: 'label', text: '由静止释放', x: cx, y: ballCy - 52, fontSize: 16, fill: '#26354a', textAnchor: 'middle' },\n        { type: 'label', text: 'v 与 g 均竖直向下', x: cx, y: H - 8, fontSize: 14, fill: '#26354a', textAnchor: 'middle' }\n      ] }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-009",
+    "program_id": "mva-BLD-SRCREBLD-009",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    var labels = [];\n    for (var i = -5; i <= 5; i++) {\n      labels.push({ kind: 'text', payload: String(i) });\n    }\n    return labels;\n  },\n  render: function (input, metrics) {\n    var width = input.viewport.widthDu;\n    var height = input.viewport.heightDu;\n    var x0 = width * 0.08;\n    var x1 = width * 0.92;\n    var y = height * 0.55;\n    var tick = Math.min(9, height * 0.04);\n    var step = (x1 - x0) / 10;\n    var axisCommands = [['M', x0, y], ['L', x1, y]];\n    var tickCommands = [];\n    var children = [];\n    var labelY = y + tick + 10;\n    for (var i = 0; i < 11; i++) {\n      var x = x0 + step * i;\n      tickCommands.push(['M', x, y - tick], ['L', x, y + tick]);\n      children.push({\n        type: 'label',\n        contentId: metrics[i].contentId,\n        anchor: { x: x, y: labelY },\n        hAlign: 'center',\n        vAlign: 'top',\n        color: '#26354a'\n      });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'number-line-range-minus5-to-5',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: width, height: height },\n      paths: [\n        { id: 'axis', commands: axisCommands },\n        { id: 'ticks', commands: tickCommands }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'axis', fill: '#26354a', stroke: { width: 2, cap: 'round' } },\n          { type: 'path', pathId: 'ticks', fill: '#26354a', stroke: { width: 2, cap: 'round' } }\n        ].concat(children)\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

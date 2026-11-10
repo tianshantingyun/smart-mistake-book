@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-011",
+    "program_id": "mva-BLD-SRCREBLD-011",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '0' },\n      { kind: 'text', payload: '20' },\n      { kind: 'text', payload: '40' },\n      { kind: 'text', payload: '60' },\n      { kind: 'text', payload: '80' },\n      { kind: 'text', payload: '100' }\n    ];\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var margin = Math.max(28, Math.min(80, w * 0.1));\n    var x0 = margin;\n    var x1 = w - margin;\n    var axisY = h * 0.55;\n    var axis = visualSdk.axis({\n      x0: x0,\n      y0: axisY,\n      x1: x1,\n      y1: axisY,\n      ticks: 6,\n      tickLength: 12\n    });\n    var children = [\n      {\n        type: 'path',\n        pathId: 'axis',\n        fill: '#26354a',\n        stroke: { width: 2, cap: 'round' }\n      }\n    ];\n    for (var i = 0; i < metrics.length; i++) {\n      var t = i / (metrics.length - 1);\n      var x = x0 + (x1 - x0) * t;\n      children.push({\n        type: 'label',\n        contentId: metrics[i].contentId,\n        anchor: { x: x, y: axisY + 28 },\n        hAlign: 'center',\n        vAlign: 'top',\n        color: '#26354a'\n      });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'source-axis',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'axis', commands: axis }\n      ],\n      root: {\n        type: 'group',\n        children: children\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

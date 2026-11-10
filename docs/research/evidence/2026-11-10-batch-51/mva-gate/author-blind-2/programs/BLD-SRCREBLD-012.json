@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-012",
+    "program_id": "mva-BLD-SRCREBLD-012",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '-10' },\n      { kind: 'text', payload: '-6' },\n      { kind: 'text', payload: '-2' },\n      { kind: 'text', payload: '2' },\n      { kind: 'text', payload: '6' },\n      { kind: 'text', payload: '10' }\n    ];\n  },\n  render: function (input, metrics) {\n    var w = Number(input.viewport.widthDu) || 800;\n    var h = Number(input.viewport.heightDu) || 400;\n    var margin = Math.max(24, Math.min(w * 0.1, 80));\n    var x0 = margin;\n    var x1 = w - margin;\n    if (x1 <= x0) {\n      x0 = w * 0.05;\n      x1 = w * 0.95;\n    }\n    var y = h * 0.58;\n    if (y > h - 36) {\n      y = Math.max(24, h - 48);\n    }\n    var tickLen = Math.max(5, Math.min(12, h * 0.045));\n    var axisCommands = [['M', x0, y], ['L', x1, y]];\n    var tickCommands = [];\n    var xs = [];\n    var i;\n    for (i = 0; i < 6; i++) {\n      var t = i / 5;\n      var x = x0 + (x1 - x0) * t;\n      xs.push(x);\n      tickCommands.push(['M', x, y - tickLen], ['L', x, y + tickLen]);\n    }\n    var gap = Math.max(4, h * 0.02);\n    var labelY = y + tickLen + gap;\n    var labelVAlign = 'top';\n    if (labelY > h - 10) {\n      labelY = y - tickLen - gap;\n      labelVAlign = 'bottom';\n    }\n    var labelNodes = [];\n    for (i = 0; i < 6; i++) {\n      labelNodes.push({\n        type: 'label',\n        contentId: metrics[i].contentId,\n        anchor: { x: xs[i], y: labelY },\n        hAlign: 'center',\n        vAlign: labelVAlign,\n        color: '#26354a'\n      });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'axis_minus10_to_10_six_ticks',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'axis', commands: axisCommands },\n        { id: 'ticks', commands: tickCommands }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'axis', fill: '#26354a', stroke: { width: 2 } },\n          { type: 'path', pathId: 'ticks', fill: '#26354a', stroke: { width: 2 } }\n        ].concat(labelNodes)\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

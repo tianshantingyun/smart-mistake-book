@@ -1,0 +1,61 @@
+{
+  "input_file": "BLD-MECHPHASE-008.json",
+  "program_sha256": "4edfa0511fbef610a89e0eb056c1db24d1bb41461d373d40e10777afa465bc3a",
+  "task_id": "BLD-MECHPHASE-008",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 19,
+  "measurement": [
+    {
+      "contentId": "c0-f67ab10a",
+      "payload": "F",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f67ab10ad4e4c53121b6a5fe4da9c10ddee905b978d3788d2723d7bfacbe28a9"
+    },
+    {
+      "contentId": "c1-50aef6d9",
+      "payload": "瓶内气压与摩擦的合力",
+      "widthDu": 160,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "50aef6d9617bb5bc220096554fabf6155920d9c884962c0795a145d14045017d"
+    },
+    {
+      "contentId": "c2-7e78a72a",
+      "payload": "木塞",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7e78a72a6e665e9ef8f2853e01bf26812e20db883cf0df8086658caea5096018"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "46282f970efc6bbb2366057864383100428735beaa115934bcf3e87bb37b80fc",
+  "scene_bytes": 1844,
+  "scene_schema_version": 1,
+  "draw_sha256": "b1f85b8ae15351867a7741fd55807f8c3c96db7e4d8b8745120d5687418644b1",
+  "draw_bytes": 1768,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-f67ab10a",
+    "c1-50aef6d9",
+    "c2-7e78a72a"
+  ],
+  "png_sha256": "8efe25f53204bcee71fc798df1e3551159cfd4fd554ddba5814e50b206a0c3d1",
+  "png_bytes": 5214,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 11,
+    "pathCommands": 35,
+    "labels": 3,
+    "ops": 10
+  }
+}

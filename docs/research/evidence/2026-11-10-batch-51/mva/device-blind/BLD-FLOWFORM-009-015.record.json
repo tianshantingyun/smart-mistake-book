@@ -1,0 +1,159 @@
+{
+  "input_file": "BLD-FLOWFORM-009.json",
+  "program_sha256": "3adce87c856784da30514456d05016d77a572cff11df58097cdd04e08a9e29fa",
+  "task_id": "BLD-FLOWFORM-009",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 50,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "一元二次方程求根公式",
+      "widthDu": 160,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ee21803d4e0aadd44def73d84248242cc73d8699087d19c66e1b7b7a1fc0fa2d"
+    },
+    {
+      "contentId": "c1",
+      "payload": "1x²",
+      "widthDu": 22.909090042114258,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c9351f657bc360e42974966e70b55c61f43431adac432b6b5ac24842f89fcf87"
+    },
+    {
+      "contentId": "c2",
+      "payload": "− 4x",
+      "widthDu": 30.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ea97b1fa01b856efa9fd37061e149bbaab86ad13c9cb6ce9f6e695eef76dbddf"
+    },
+    {
+      "contentId": "c3",
+      "payload": "+ 4",
+      "widthDu": 22.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "057c3a5f79f90e84d4238857f05c1cb9b4a8a2e937483ff5625eb3371dfff601"
+    },
+    {
+      "contentId": "c4",
+      "payload": "= 0",
+      "widthDu": 21.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6a99751d93986ab4d3b19c543c9f5f10617378b8af1593fa42edf61e65ee9a78"
+    },
+    {
+      "contentId": "c5",
+      "payload": "a = 1",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b5bc1ffd90912fb18bef6e7d80909192c7a6492896320156d67fbaf104c6544a"
+    },
+    {
+      "contentId": "c6",
+      "payload": "b = −4",
+      "widthDu": 44,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bc34f9d1325efb16b191d503bf3bf0cc2e9b8ae37f28dde50f84bfb81f9cbcee"
+    },
+    {
+      "contentId": "c7",
+      "payload": "c = 4",
+      "widthDu": 34.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "73c34a0803d0f695f2f749e2d3040276520a7468562a29cb48f9d469817d8dd1"
+    },
+    {
+      "contentId": "c8",
+      "payload": "求根公式",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c4b6e90e21f45e51800be5a11f05d227ecbdb5c7dd74a555955d3d7ad3ac9fbd"
+    },
+    {
+      "contentId": "c9",
+      "payload": "x =",
+      "widthDu": 20.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "180e6929bae4a33240ca19d9d2ee7c07bb6e67e09a038202f9eb536861f4a10d"
+    },
+    {
+      "contentId": "c10",
+      "payload": "−b ± √(b² − 4ac)",
+      "widthDu": 113.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ffcef37d6850ddb77b4f488ed6461649f6b68b10fbcea9cfcd3f6a1e9392d2fb"
+    },
+    {
+      "contentId": "c11",
+      "payload": "2a",
+      "widthDu": 17.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b2239ae33d9bc5614aeb2e439e5032b1fe77c32f7080d3211c1d03f1b17ffcf6"
+    },
+    {
+      "contentId": "c12",
+      "payload": "判别式",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "af70fbe4af0e02b98503800c2ddebba93cb3a1c17a2e547d2b9f6096438a79d6"
+    },
+    {
+      "contentId": "c13",
+      "payload": "Δ = b² − 4ac",
+      "widthDu": 86.18181610107422,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "96cfcae8c34d1ef78b2799eb5bb85e272aa9e94ef0680147d383749284361cba"
+    },
+    {
+      "contentId": "c14",
+      "payload": "Δ = (−4)² − 4·1·4 = 16 − 16 = 0",
+      "widthDu": 212,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "1222147a9bc18e95c161b7956dff490031c3312b77b39bbfb336ce5c8683863e"
+    },
+    {
+      "contentId": "c15",
+      "payload": "Δ = 0",
+      "widthDu": 37.09090805053711,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "1933913e295715fbe5b9264ad50d56c964ead41bf906c381ba9fc4b73267576f"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com"
+}

@@ -1,0 +1,131 @@
+{
+  "input_file": "BLD-MECHPHASE-001.json",
+  "program_sha256": "39571bd1bcaec869237995c5412168147713a6d9dcb303006f9f62582f3fc05d",
+  "task_id": "BLD-MECHPHASE-001",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 32,
+  "measurement": [
+    {
+      "contentId": "c0-c4551ed3",
+      "payload": "F(x) = F0(1 - x\/h)",
+      "widthDu": 117.81818389892578,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c4551ed3b1ffe71466f05fa853ece48877fd69e839d98eaacee9c47a6a7a073c"
+    },
+    {
+      "contentId": "c1-2d711642",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c2-f67ab10a",
+      "payload": "F",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f67ab10ad4e4c53121b6a5fe4da9c10ddee905b978d3788d2723d7bfacbe28a9"
+    },
+    {
+      "contentId": "c3-5feceb66",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c4-aaa94026",
+      "payload": "h",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "aaa9402664f1a41f40ebbc52c9993eb66aeb366602958fdfaa283b71e64db123"
+    },
+    {
+      "contentId": "c5-27090263",
+      "payload": "h\/2",
+      "widthDu": 24.363636016845703,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2709026306d1da2d10050002585b869e4524b562c083198b138d630c61900adb"
+    },
+    {
+      "contentId": "c6-3fb8cc13",
+      "payload": "F0",
+      "widthDu": 17.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3fb8cc1315a76758d467993926f56f15cce7244b54213c63314ad4d5d0237d15"
+    },
+    {
+      "contentId": "c7-c579e1ea",
+      "payload": "F0\/2",
+      "widthDu": 33.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c579e1eabf0ecb1aadf46400b1ee92e544025e5948108400cb88e9e2a766894d"
+    },
+    {
+      "contentId": "c8-674f0fbc",
+      "payload": "W = (3\/8) F0 h",
+      "widthDu": 101.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "674f0fbcf80cb5e789d52d56612c0673bcecc9da2114115844bea6b8b7d4fd18"
+    },
+    {
+      "contentId": "c9-117b4817",
+      "payload": "W\/(F0 h) = 3\/8 = 0.375",
+      "widthDu": 161.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "117b4817ef68e2f87b1eca37d69df0da99d2a965b009509128d64211958114b3"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "0a09f0c7cfc50d57e10a6f30057948025bfeb3986661497a896b5bee19388e7b",
+  "scene_bytes": 2846,
+  "scene_schema_version": 1,
+  "draw_sha256": "ad594e99b67ae1598651ec2b15dd657b4a02060721cccb771d8eda26b61c2789",
+  "draw_bytes": 3314,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-c4551ed3",
+    "c1-2d711642",
+    "c2-f67ab10a",
+    "c3-5feceb66",
+    "c4-aaa94026",
+    "c5-27090263",
+    "c6-3fb8cc13",
+    "c7-c579e1ea",
+    "c8-674f0fbc",
+    "c9-117b4817"
+  ],
+  "png_sha256": "c64b9e157f17d31dd4f6edb881850418eb12c905d8e3b622fd795173bdfa2757",
+  "png_bytes": 12637,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 21,
+    "pathCommands": 29,
+    "labels": 10,
+    "ops": 20
+  }
+}

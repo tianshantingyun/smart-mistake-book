@@ -1,0 +1,114 @@
+{
+  "input_file": "BLD-MECHPHASE-018.json",
+  "program_sha256": "2935586efbe8b4783199d4dad79baa57a8c9483b4b9355d62428925c39e67024",
+  "task_id": "BLD-MECHPHASE-018",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 54,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "两列同频同相正弦波及其合成波",
+      "widthDu": 224,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3346325f7ba7d7c81ff7ee961bbe1c301db83b0ef54ce3258f79e45ae927cd83"
+    },
+    {
+      "contentId": "c1",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c2",
+      "payload": "y",
+      "widthDu": 7.636363506317139,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a1fce4363854ff888cff4b8e7875d600c2682390412a8cf79b37d0b11148b0fa"
+    },
+    {
+      "contentId": "c3",
+      "payload": "2.5",
+      "widthDu": 22.545454025268555,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b8736b999909049671d0ea075a42b308a5fbe2df1854899123fe09eb0ee9de61"
+    },
+    {
+      "contentId": "c4",
+      "payload": "1.5",
+      "widthDu": 22.545454025268555,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9f29a130438b81170b92a42650f9a94291ecad60bd47af2a3886e75f7f728725"
+    },
+    {
+      "contentId": "c5",
+      "payload": "4",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a"
+    },
+    {
+      "contentId": "c6",
+      "payload": "合成振幅 4",
+      "widthDu": 77.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b88c3ed0089b05b36c3616930aa061e704e3aace7055114394a8bff83205f51e"
+    },
+    {
+      "contentId": "c7",
+      "payload": "y₁ = 2.5 sin t",
+      "widthDu": 86.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "466ce124c83a3ab6f6c82d2ab790475ad86aecbf4a835320bb105fd65e94db12"
+    },
+    {
+      "contentId": "c8",
+      "payload": "y₂ = 1.5 sin t",
+      "widthDu": 86.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "fb9f8fff2ecd9ddd9b58d4ab66e06e843d3adcbe5473338355a92a034ee03e10"
+    },
+    {
+      "contentId": "c9",
+      "payload": "y = y₁ + y₂ = 4 sin t",
+      "widthDu": 128.36363220214844,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d0c523f026a9a7cf076467741a93c6d4d686afb42071a9811bd08189137023a3"
+    },
+    {
+      "contentId": "c10",
+      "payload": "同频同相",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e2253912cf7b1893b91eae8112ab5a92f800be5cc39ed56720f357516b6f89ce"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

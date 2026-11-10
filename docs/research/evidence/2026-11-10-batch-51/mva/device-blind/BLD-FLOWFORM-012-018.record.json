@@ -1,0 +1,141 @@
+{
+  "input_file": "BLD-FLOWFORM-012.json",
+  "program_sha256": "47bb35bd0fb924ff3c010a5fd19eaee8b71cb7d7d5dd3b129ccd62d3421e4b61",
+  "task_id": "BLD-FLOWFORM-012",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 42,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "1",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "contentId": "c1",
+      "payload": "x²",
+      "widthDu": 13.818181991577148,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f3b5ff1969c6ec2b6cc58a15fc7a6d3dde8d8a8a6c6fdde6deb7548083fa063b"
+    },
+    {
+      "contentId": "c2",
+      "payload": " − 3",
+      "widthDu": 26.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ad739bd70b12934d2e5df3e47db60660097e86e68ea97de9d6500ea233132b35"
+    },
+    {
+      "contentId": "c3",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c4",
+      "payload": " + 2",
+      "widthDu": 26.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "dc3079053e88779d5ab94f568c4b5595f1391cd498f4ab2293c1cc569a927530"
+    },
+    {
+      "contentId": "c5",
+      "payload": " = 0",
+      "widthDu": 25.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "dd1f472591fc4210e8094c4685d46de048e02516c429b66ee601392ef015f06b"
+    },
+    {
+      "contentId": "c6",
+      "payload": "a = 1",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b5bc1ffd90912fb18bef6e7d80909192c7a6492896320156d67fbaf104c6544a"
+    },
+    {
+      "contentId": "c7",
+      "payload": "b = −3",
+      "widthDu": 44,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a8b6eace64134cc0b7cd43448e896fc2f1717f4d786bf98393d100e2389dd5d1"
+    },
+    {
+      "contentId": "c8",
+      "payload": "c = 2",
+      "widthDu": 34.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "85b9dbb990c26403b45db2d44c0833acececdf2772cae09cb89309d4c0867dc8"
+    },
+    {
+      "contentId": "c9",
+      "payload": "−b ± √(b² − 4ac)",
+      "widthDu": 113.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ffcef37d6850ddb77b4f488ed6461649f6b68b10fbcea9cfcd3f6a1e9392d2fb"
+    },
+    {
+      "contentId": "c10",
+      "payload": "2a",
+      "widthDu": 17.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b2239ae33d9bc5614aeb2e439e5032b1fe77c32f7080d3211c1d03f1b17ffcf6"
+    },
+    {
+      "contentId": "c11",
+      "payload": "x =",
+      "widthDu": 20.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "180e6929bae4a33240ca19d9d2ee7c07bb6e67e09a038202f9eb536861f4a10d"
+    },
+    {
+      "contentId": "c12",
+      "payload": "Δ = b² − 4ac = (−3)² − 4·1·2 = 9 − 8",
+      "widthDu": 242.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "28ac055add85cc55c85a808b89d31a8756b68aff7c016cbf992436959edea10e"
+    },
+    {
+      "contentId": "c13",
+      "payload": " = 1",
+      "widthDu": 25.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5d8ed4cd6366028eaf4bd1fa20d10dfd5221199ca5b148983bc28c7db68fbee4"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"text\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com"
+}

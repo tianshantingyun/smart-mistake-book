@@ -1,0 +1,272 @@
+{
+  "generated_by": "tools/figure_eval/author_program_compile_check.mjs",
+  "programs": 19,
+  "status_counts": {
+    "COMPILED": 18,
+    "THROWN": 1
+  },
+  "error_code_counts": {
+    "THROWN": 1
+  },
+  "results": [
+    {
+      "file": "DEV-FLOWFORM-001.json",
+      "task_id": "DEV-FLOWFORM-001",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 16,
+        "pathCommands": 55,
+        "labels": 7,
+        "ops": 15
+      },
+      "pathOps": 8,
+      "labelOps": 7
+    },
+    {
+      "file": "DEV-FLOWFORM-002.json",
+      "task_id": "DEV-FLOWFORM-002",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 26,
+        "pathCommands": 33,
+        "labels": 16,
+        "ops": 25
+      },
+      "pathOps": 9,
+      "labelOps": 16
+    },
+    {
+      "file": "DEV-FLOWFORM-003.json",
+      "task_id": "DEV-FLOWFORM-003",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 23,
+        "pathCommands": 55,
+        "labels": 11,
+        "ops": 22
+      },
+      "pathOps": 11,
+      "labelOps": 11
+    },
+    {
+      "file": "DEV-FLOWFORM-004.json",
+      "task_id": "DEV-FLOWFORM-004",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 26,
+        "pathCommands": 118,
+        "labels": 11,
+        "ops": 25
+      },
+      "pathOps": 14,
+      "labelOps": 11
+    },
+    {
+      "file": "DEV-MECHPHASE-001.json",
+      "task_id": "DEV-MECHPHASE-001",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 18,
+        "pathCommands": 31,
+        "labels": 9,
+        "ops": 17
+      },
+      "pathOps": 8,
+      "labelOps": 9
+    },
+    {
+      "file": "DEV-MECHPHASE-002.json",
+      "task_id": "DEV-MECHPHASE-002",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 9,
+        "pathCommands": 68,
+        "labels": 3,
+        "ops": 8
+      },
+      "pathOps": 5,
+      "labelOps": 3
+    },
+    {
+      "file": "DEV-MECHPHASE-003.json",
+      "task_id": "DEV-MECHPHASE-003",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 33,
+        "pathCommands": 90,
+        "labels": 14,
+        "ops": 32
+      },
+      "pathOps": 18,
+      "labelOps": 14
+    },
+    {
+      "file": "DEV-MECHPHASE-004.json",
+      "task_id": "DEV-MECHPHASE-004",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 18,
+        "pathCommands": 1100,
+        "labels": 6,
+        "ops": 17
+      },
+      "pathOps": 11,
+      "labelOps": 6
+    },
+    {
+      "file": "DEV-NATILLA-001.json",
+      "task_id": "DEV-NATILLA-001",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 19,
+        "pathCommands": 87,
+        "labels": 5,
+        "ops": 18
+      },
+      "pathOps": 13,
+      "labelOps": 5
+    },
+    {
+      "file": "DEV-NATILLA-002.json",
+      "task_id": "DEV-NATILLA-002",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 12,
+        "pathCommands": 32,
+        "labels": 5,
+        "ops": 11
+      },
+      "pathOps": 6,
+      "labelOps": 5
+    },
+    {
+      "file": "DEV-NATILLA-003.json",
+      "task_id": "DEV-NATILLA-003",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 12,
+        "pathCommands": 63,
+        "labels": 4,
+        "ops": 11
+      },
+      "pathOps": 7,
+      "labelOps": 4
+    },
+    {
+      "file": "DEV-NATILLA-004.json",
+      "task_id": "DEV-NATILLA-004",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 16,
+        "pathCommands": 68,
+        "labels": 4,
+        "ops": 15
+      },
+      "pathOps": 11,
+      "labelOps": 4
+    },
+    {
+      "file": "DEV-PROPCOORD-001.json",
+      "task_id": "DEV-PROPCOORD-001",
+      "status": "THROWN",
+      "code": "THROWN",
+      "error": "Unexpected token ';'"
+    },
+    {
+      "file": "DEV-PROPCOORD-002.json",
+      "task_id": "DEV-PROPCOORD-002",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 17,
+        "pathCommands": 26,
+        "labels": 7,
+        "ops": 16
+      },
+      "pathOps": 9,
+      "labelOps": 7
+    },
+    {
+      "file": "DEV-PROPCOORD-003.json",
+      "task_id": "DEV-PROPCOORD-003",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 11,
+        "pathCommands": 30,
+        "labels": 4,
+        "ops": 10
+      },
+      "pathOps": 6,
+      "labelOps": 4
+    },
+    {
+      "file": "DEV-PROPCOORD-004.json",
+      "task_id": "DEV-PROPCOORD-004",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 5,
+        "pathCommands": 18,
+        "labels": 3,
+        "ops": 4
+      },
+      "pathOps": 1,
+      "labelOps": 3
+    },
+    {
+      "file": "DEV-SRCREBLD-002.json",
+      "task_id": "DEV-SRCREBLD-002",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 8,
+        "pathCommands": 15,
+        "labels": 6,
+        "ops": 7
+      },
+      "pathOps": 1,
+      "labelOps": 6
+    },
+    {
+      "file": "DEV-SRCREBLD-003.json",
+      "task_id": "DEV-SRCREBLD-003",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 11,
+        "pathCommands": 20,
+        "labels": 0,
+        "ops": 10
+      },
+      "pathOps": 10,
+      "labelOps": 0
+    },
+    {
+      "file": "DEV-SRCREBLD-004.json",
+      "task_id": "DEV-SRCREBLD-004",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 12,
+        "pathCommands": 121,
+        "labels": 4,
+        "ops": 11
+      },
+      "pathOps": 7,
+      "labelOps": 4
+    }
+  ]
+}

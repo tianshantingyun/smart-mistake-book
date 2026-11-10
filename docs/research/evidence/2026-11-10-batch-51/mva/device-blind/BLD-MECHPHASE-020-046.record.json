@@ -1,0 +1,132 @@
+{
+  "input_file": "BLD-MECHPHASE-020.json",
+  "program_sha256": "29a2a2ac41d0a275c9ed7726e71f156ec5a0e6ad6bc33dece11ca1efbb9367e5",
+  "task_id": "BLD-MECHPHASE-020",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 51,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "两列同频同相正弦波与叠加波",
+      "widthDu": 208,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5a0a4401066f728b3d59b23e87ecc481142567451c2e3e7347cc999b8041d90f"
+    },
+    {
+      "contentId": "c1",
+      "payload": "振幅均为 1.5，合成振幅 3",
+      "widthDu": 183.63636779785156,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "dd3325f65328718168edfd6852c1d1d6c44cff8cb5ad27e68f708558677b8528"
+    },
+    {
+      "contentId": "c2",
+      "payload": "第一列：y₁ = 1.5 sin x",
+      "widthDu": 153.81817626953125,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "32c45cf7ac1c266943e8b587f2fb802993424ef05dc7309888f7df4e7d715645"
+    },
+    {
+      "contentId": "c3",
+      "payload": "第二列：y₂ = 1.5 sin x",
+      "widthDu": 153.81817626953125,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8e9bc4bcd8eb99c54f098c385ea2d5230ae2e2e9c1c6323e043d8756bd777649"
+    },
+    {
+      "contentId": "c4",
+      "payload": "叠加：y = y₁ + y₂ = 3 sin x",
+      "widthDu": 179.27272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2bb6d849885419261b4740d1aca66f08ad214d5133eda22afc59446a2fac98cf"
+    },
+    {
+      "contentId": "c5",
+      "payload": "振幅 1.5",
+      "widthDu": 58.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b2b4010e9837c158b05ac7915a6b35377a333d3d33217db8badddcba3516b87f"
+    },
+    {
+      "contentId": "c6",
+      "payload": "振幅 1.5",
+      "widthDu": 58.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b2b4010e9837c158b05ac7915a6b35377a333d3d33217db8badddcba3516b87f"
+    },
+    {
+      "contentId": "c7",
+      "payload": "合成振幅 3",
+      "widthDu": 77.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d89762da3af31852d533a50c70c3c3ad7c1f0df076b5243e9f34ae6ee42855bd"
+    },
+    {
+      "contentId": "c8",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c9",
+      "payload": "y",
+      "widthDu": 7.636363506317139,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a1fce4363854ff888cff4b8e7875d600c2682390412a8cf79b37d0b11148b0fa"
+    },
+    {
+      "contentId": "c10",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c11",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c12",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

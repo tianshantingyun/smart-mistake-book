@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-DEHANDWR-012",
+    "program_id": "mva-BLD-DEHANDWR-012",
+    "source_js": "const PRINTED_LINES = ['解：设未知数为 x', '由题意列方程', '移项得'];\n\nfunction charWidthEm(ch) {\n  var code = ch.charCodeAt(0);\n  if (code > 0x2e80) return 1.0;\n  if (ch === ' ') return 0.28;\n  if ('ilj.,:;\\'!|'.indexOf(ch) >= 0) return 0.28;\n  if ('mwMW'.indexOf(ch) >= 0) return 0.9;\n  return 0.56;\n}\n\nfunction lineWidthEm(text) {\n  var w = 0;\n  for (var i = 0; i < text.length; i++) w += charWidthEm(text.charAt(i));\n  return w;\n}\n\nconst visual = {\n  prepare: function (input) {\n    return PRINTED_LINES.map(function (t) { return { kind: 'text', payload: t }; });\n  },\n  render: function (input, metrics) {\n    var vw = input.viewport.widthDu;\n    var vh = input.viewport.heightDu;\n    var marginX = Math.max(16, vw * 0.08);\n    var avail = Math.max(40, vw - marginX * 2);\n    var maxEm = 0;\n    for (var i = 0; i < PRINTED_LINES.length; i++) {\n      maxEm = Math.max(maxEm, lineWidthEm(PRINTED_LINES[i]));\n    }\n    var baseFs = Math.max(10, Math.min(26, vh / 12));\n    var fs = Math.min(baseFs, avail / Math.max(1, maxEm));\n    var lineHeight = fs * 1.9;\n    var blockWidth = maxEm * fs;\n    var blockX = marginX + Math.max(0, (avail - blockWidth) / 2);\n    var blockHeight = lineHeight * PRINTED_LINES.length;\n    var topY = Math.max(fs * 1.2, (vh - blockHeight) / 2 + fs);\n    var children = [];\n    for (var j = 0; j < PRINTED_LINES.length; j++) {\n      children.push({\n        type: 'label',\n        x: blockX,\n        y: topY + j * lineHeight,\n        text: PRINTED_LINES[j],\n        fontSize: fs,\n        textAnchor: 'start',\n        fill: '#1b1b1b'\n      });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'source-transcription-erased-answer',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: vw, height: vh },\n      paths: [],\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

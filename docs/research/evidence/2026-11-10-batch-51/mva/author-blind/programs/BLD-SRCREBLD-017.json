@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-017",
+    "program_id": "mva-BLD-SRCREBLD-017",
+    "source_js": "const visual = {\n  prepare: function (input) { return []; },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var cols = 4;\n    var rows = 6;\n    var margin = 24;\n    var cell = Math.min((W - 2 * margin) / cols, (H - 2 * margin) / rows);\n    var gw = cols * cell;\n    var gh = rows * cell;\n    var x0 = (W - gw) / 2;\n    var y0 = (H - gh) / 2;\n    var cmds = [];\n    var i, j, seg;\n    for (i = 0; i <= cols; i++) {\n      var x = x0 + i * cell;\n      seg = visualSdk.polyline([[x, y0], [x, y0 + gh]]);\n      for (j = 0; j < seg.length; j++) { cmds.push(seg[j]); }\n    }\n    for (j = 0; j <= rows; j++) {\n      var y = y0 + j * cell;\n      seg = visualSdk.polyline([[x0, y], [x0 + gw, y]]);\n      for (i = 0; i < seg.length; i++) { cmds.push(seg[i]); }\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'grid-4x6-24',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [{ id: 'grid', commands: cmds }],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'grid', stroke: '#26354a', strokeWidth: 1, fill: 'none' }\n        ]\n      }\n    };\n  },\n};\n",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

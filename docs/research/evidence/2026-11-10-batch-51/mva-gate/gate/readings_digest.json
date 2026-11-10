@@ -1,0 +1,236 @@
+{
+ "author": {
+  "ok_count": 98,
+  "status_counts": {
+   "INVALID_PROPOSAL": 17,
+   "NOT_GENERATE": 5,
+   "OK": 98
+  },
+  "task_count": 120
+ },
+ "author_ok_by_group": {
+  "flow_formula": 20,
+  "handwriting_removal": 2,
+  "mechanics_phases": 20,
+  "natural_illustration": 20,
+  "proportion_coordinates": 20,
+  "source_rebuild": 16
+ },
+ "calibration": {
+  "correct_images": 3,
+  "correct_images_accepted": 3,
+  "generated_by": "tools/figure_eval/mva_vlm_judge.py --calibration",
+  "injected_wrong_value_caught": 3,
+  "injected_wrong_values": 3,
+  "items": 6,
+  "key_sha8": "cd10efbc",
+  "model": "deepseek-flash",
+  "passed": true,
+  "reads_image_correctly": 6
+ },
+ "channel_totals": {
+  "channel": {
+   "A": 94,
+   "A|B": 116,
+   "A|B|C": 38,
+   "A|C": 40
+  },
+  "critical_channel": {
+   "A": 87,
+   "A|B": 82,
+   "A|C": 40
+  },
+  "critical_facts": 209,
+  "facts": 288,
+  "tasks": 120,
+  "tasks_with_all_critical_a_only": 27,
+  "tasks_with_critical_a_only": 57
+ },
+ "compile_check": {
+  "error_code_counts": {
+   "SCENE_NODE_COUNT": 1,
+   "SCENE_PATH_NOT_M_START": 2
+  },
+  "programs": 98,
+  "status_counts": {
+   "COMPILED": 95,
+   "INVALID_SCENE": 3
+  }
+ },
+ "deterministic_checks_all_rendered": {
+  "geometry": 95,
+  "render": 95,
+  "text": 95
+ },
+ "device": {
+  "program_count": 98,
+  "status_counts": {
+   "REJECTED": 3,
+   "RENDERED": 95
+  }
+ },
+ "fixloop": {
+  "batch": 51,
+  "gate_verdict_unchanged": "FAIL",
+  "p95_scope_fix": "adapter_render_only -> request_to_first_image",
+  "p95_source": "gate/mva_preflight.json readings.JS.first_image_p95_ms"
+ },
+ "gate": {
+  "coverage": 0.49166666666666664,
+  "critical_errors": {
+   "citable": true,
+   "interpretation": "critical_errors=0 是结构性结果：本轮无『自我接受后交付』阶段，citable=true 只表示有可评样本，不表示模型未犯关键错误；不得作为独立能力证据。",
+   "met": true,
+   "value": 0,
+   "zero_event_upper_bound_95": 0.024655401055656334
+  },
+  "evaluable_tasks": 59,
+  "final": {
+   "denominator": 120,
+   "met": false,
+   "successes": 32,
+   "value": 0.26666666666666666
+  },
+  "first_pass": {
+   "denominator": 120,
+   "met": false,
+   "successes": 32,
+   "value": 0.26666666666666666
+  },
+  "p95_ms": {
+   "met": false,
+   "note": "端到端口径 = 作者模型 elapsed_ms + 设备渲染延迟；render_only 为并列读数，不参与门判。",
+   "render_only": {
+    "met": true,
+    "samples": 32,
+    "scope": "render_only",
+    "threshold_ms": 30000,
+    "value": 35.14999999999999
+   },
+   "samples": 32,
+   "scope": "request_to_first_image",
+   "threshold_ms": 30000,
+   "value": 72955.09999999999
+  },
+  "p95_ms_pre_fixloop": {
+   "met": true,
+   "note": "修复环前误把适配器渲染延迟当请求→首图；保留原值供对照。",
+   "samples": 32,
+   "scope": "render_only",
+   "threshold_ms": 30000,
+   "value": 35.14999999999999
+  },
+  "per_group": {
+   "flow_formula": {
+    "denominator": 20,
+    "met": false,
+    "successes": 2,
+    "value": 0.1
+   },
+   "handwriting_removal": {
+    "denominator": 20,
+    "met": false,
+    "successes": 0,
+    "value": 0.0
+   },
+   "mechanics_phases": {
+    "denominator": 20,
+    "met": false,
+    "successes": 0,
+    "value": 0.0
+   },
+   "natural_illustration": {
+    "denominator": 20,
+    "met": false,
+    "successes": 14,
+    "value": 0.7
+   },
+   "proportion_coordinates": {
+    "denominator": 20,
+    "met": false,
+    "successes": 1,
+    "value": 0.05
+   },
+   "source_rebuild": {
+    "denominator": 20,
+    "met": false,
+    "successes": 15,
+    "value": 0.75
+   }
+  }
+ },
+ "independence": {
+  "author_model": "deepseek-flash",
+  "judge_model": "deepseek-flash",
+  "note": "判官与作者链同模型（作者 temperature 0.1 / 判官 0.0）；32/120 与 6 组读数为同源自证，不作独立能力证据；门 FAIL 不依赖判官：RENDERED 95/120 < 108 已使首次门必然 FAIL。",
+  "same_model": true
+ },
+ "judge": {
+  "answered_fact_count": 32,
+  "generated_by": "tools/figure_eval/mva_vlm_judge.py",
+  "judge_status_counts": {
+   "OK": 20
+  },
+  "judged_tasks": 20,
+  "key_sha8": "cd10efbc",
+  "model": "deepseek-flash",
+  "tasks_with_images": 98,
+  "unanswered_fact_count": 0
+ },
+ "per_group_detail": {
+  "flow_formula": {
+   "accepted": 2,
+   "author_ok": 20,
+   "evaluable": 12,
+   "rendered": 19,
+   "total": 20
+  },
+  "handwriting_removal": {
+   "accepted": 0,
+   "author_ok": 2,
+   "evaluable": 2,
+   "rendered": 2,
+   "total": 20
+  },
+  "mechanics_phases": {
+   "accepted": 0,
+   "author_ok": 20,
+   "evaluable": 5,
+   "rendered": 18,
+   "total": 20
+  },
+  "natural_illustration": {
+   "accepted": 14,
+   "author_ok": 20,
+   "evaluable": 14,
+   "rendered": 20,
+   "total": 20
+  },
+  "proportion_coordinates": {
+   "accepted": 1,
+   "author_ok": 20,
+   "evaluable": 10,
+   "rendered": 20,
+   "total": 20
+  },
+  "source_rebuild": {
+   "accepted": 15,
+   "author_ok": 16,
+   "evaluable": 16,
+   "rendered": 16,
+   "total": 20
+  }
+ },
+ "upper_bounds": {
+  "author_ok": 98,
+  "final_threshold_count": 114,
+  "first_pass_max_if_all_rendered_pass": 0.7916666666666666,
+  "first_pass_threshold_count": 108,
+  "groups_impossible_by_author": {
+   "handwriting_removal": 2,
+   "source_rebuild": 16
+  },
+  "per_group_threshold_count": 18,
+  "rendered": 95
+ }
+}

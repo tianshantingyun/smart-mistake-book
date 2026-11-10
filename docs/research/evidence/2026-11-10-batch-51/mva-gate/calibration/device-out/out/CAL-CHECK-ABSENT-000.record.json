@@ -1,0 +1,41 @@
+{
+  "input_file": "CAL-CHECK-ABSENT.json",
+  "program_sha256": "9935b7f08a3cac333455e59829f82b9d1b535137ba3ba06c5bdf90fbfd0bef39",
+  "task_id": "CAL-CHECK-ABSENT",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 162,
+  "measurement": [
+    {
+      "contentId": "c0-6b05e48b",
+      "payload": "题面文字",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b05e48b9c68eaadb6202430944d82f2013e31ece543df0b013c580b57dd0b51"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "acea0987cc79dc374335f5fac6a38ac4e71931b3677015289bf6c2e39de44c60",
+  "scene_bytes": 544,
+  "scene_schema_version": 1,
+  "draw_sha256": "84d5c63b946837676c490108be18ae80bf51603d6a05f4ad8fe3105840d3927b",
+  "draw_bytes": 610,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-6b05e48b"
+  ],
+  "png_sha256": "c812c2fd892ff0ca0092c6bac067187bed74d8c8c4c6aac0c08f45ccf0dfec25",
+  "png_bytes": 2911,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 3,
+    "pathCommands": 11,
+    "labels": 1,
+    "ops": 2
+  }
+}

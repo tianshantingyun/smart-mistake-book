@@ -1,0 +1,13 @@
+{
+    "task_id": "DEV-PROPCOORD-001",
+    "program_id": "mva-DEV-PROPCOORD-001",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [{ kind: 'text', payload: '1:1' }];\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n\n    var m = (metrics && metrics[0]) ? metrics[0] : {};\n    var labelW = (typeof m.width === 'number' && m.width > 0) ? m.width\n               : (typeof m.w === 'number' && m.w > 0) ? m.w : 34;\n    var labelH = (typeof m.height === 'number' && m.height > 0) ? m.height\n               : (typeof m.h === 'number' && m.h > 0) ? m.h : 16;\n\n    var padX = Math.max(40, W * 0.12);\n    var y = H * 0.62;\n    var x0 = padX;\n    var x1 = W - padX;\n    var xm = (x0 + x1) / 2;\n    var tick = 9;\n\n    var seg = visualSdk.polyline([[x0, y], [x1, y]]);\n    var tickL = visualSdk.polyline([[x0, y - tick], [x0, y + tick]]);\n    var tickM = visualSdk.polyline([[xm, y - tick], [xm, y + tick]]);\n    var tickR = visualSdk.polyline([[x1, y - tick], [x1, y + tick]]);\n\n    var labelX = xm;\n    var labelY = y - tick - labelH - 14;\n    if (labelY < labelH) { labelY = y + tick + labelH + 14; }\n    if (labelX - labelW / 2 < 4) { labelX = labelW / 2 + 4; }\n    if (labelX + labelW / 2 > W - 4) { labelX = W - labelW / 2 - 4; }\n\n    return {\n      schemaVersion: 1,\n      sceneId: 'ratio-1-1-segment',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [\n        { id: 'segment', commands: seg },\n        { id: 'tickL', commands: tickL },\n        { id: 'tickM', commands: tickM },\n        { id: 'tickR', commands: tickR }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'segment', stroke: '#26354a', strokeWidth: 2 },\n          { type: 'path', pathId: 'tickL', stroke: '#26354a', strokeWidth: 2 },\n          { type: 'path', pathId: 'tickM', stroke: '#26354a', strokeWidth: 2 },\n          { type: 'path', pathId: 'tickR', stroke: '#26354a', strokeWidth: 2 },\n          {\n            type: 'label',\n            text: '1:1',\n            x: labelX,\n            y: labelY,\n            fontSize: 18,\n            anchor: 'middle',\n            baseline: 'alphabetic',\n            fill: '#26354a'\n          }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

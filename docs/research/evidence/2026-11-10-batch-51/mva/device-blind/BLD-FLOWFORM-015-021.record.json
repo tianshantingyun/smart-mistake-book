@@ -1,0 +1,114 @@
+{
+  "input_file": "BLD-FLOWFORM-015.json",
+  "program_sha256": "37f817aee7d95d32c9f9f16922cd86ac964ea3aae9ee6b50a808fcc348395133",
+  "task_id": "BLD-FLOWFORM-015",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 47,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "单位换算表：54 km\/h → m\/s",
+      "widthDu": 208.72727966308594,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a95262fd7605fd603d7d073c473d0db5b15227ca11751f9c8ad2e594af1e3ee5"
+    },
+    {
+      "contentId": "c1",
+      "payload": "换算项目",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "306904e7703c5b55ba9d7bb3f6f1849447fd04b517a884537fa3ba56e929c282"
+    },
+    {
+      "contentId": "c2",
+      "payload": "已知值",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8671c8deb77bec49258295b33f60b68da55bebaffe28dd67b86f4445bf90f6b3"
+    },
+    {
+      "contentId": "c3",
+      "payload": "换算算式（除以 3.6）",
+      "widthDu": 154.5454559326172,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "49053d4b901d6f71a12ed2d06be8a3249797cd91cc1407aa27a3f45b9ad80b64"
+    },
+    {
+      "contentId": "c4",
+      "payload": "换算结果",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "741f5551eac2f9c998df9a01be8b1107988d08ae7c8b04f3b6f6f23f14cf9817"
+    },
+    {
+      "contentId": "c5",
+      "payload": "速度",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0e14d148b46b8c0bcb53c2a69c9cc859763761443121eb2c2dd35bdb814d75b9"
+    },
+    {
+      "contentId": "c6",
+      "payload": "54 km\/h",
+      "widthDu": 59.6363639831543,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "79b61d9e409d040bad7cac08eac583293f1011cbf9892e184579318405e54490"
+    },
+    {
+      "contentId": "c7",
+      "payload": "54 ÷ 3.6",
+      "widthDu": 57.818180084228516,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6776d13049cab564cf5e7705cbf138852918554fc781de2709e09a2a96b68969"
+    },
+    {
+      "contentId": "c8",
+      "payload": "15.0 m\/s",
+      "widthDu": 64.7272720336914,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d7282efe186833528824e7f01a8f44685ca7f57773ebd92e16b827de7219fc29"
+    },
+    {
+      "contentId": "c9",
+      "payload": "依据：1 m\/s = 3.6 km\/h，故把 km\/h 换算成 m\/s 要除以 3.6。",
+      "widthDu": 440,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4aeec6854007d5a408a9208f6f76a7f09f6276ebbd7a4cd0f7ed7f08869b1180"
+    },
+    {
+      "contentId": "c10",
+      "payload": "计算：54 ÷ 3.6 = 15.0（结果保留三位有效数字）。",
+      "widthDu": 354.18182373046875,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7e75a445da9dcbd0f6e29502d29befe64769728650c85d77a94102d210592a3d"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com"
+}

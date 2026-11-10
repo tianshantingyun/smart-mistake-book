@@ -1,0 +1,51 @@
+{
+  "input_file": "BLD-SRCREBLD-001.json",
+  "program_sha256": "a05c1a73d11c76cfb19a34c77ae10dc5a282cdc45d848f80b2b56fd7507fb1a2",
+  "task_id": "BLD-SRCREBLD-001",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 14,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "电源",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "99faf39f8dee3bc3a363d2bb9a378b27ce61745f0e8093a6435a257610eb7ce2"
+    },
+    {
+      "contentId": "c1",
+      "payload": "开关",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "92d9be0a0e94eb16ca28037399f9c5b04f38fce990ffa4d25458773983ea382c"
+    },
+    {
+      "contentId": "c2",
+      "payload": "灯泡",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "dab3ad1f980b65a0fe1cd4a304346f080b2aa5981004eb02a6631906bddfbdc3"
+    },
+    {
+      "contentId": "c3",
+      "payload": "电流表",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0df9b6a88717bc8519a79e9e4bdbadb4403d392f914351be9d124cff29a298be"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase render: SceneSdkError: SCENE_SDK_ARG: polyline point 0 must be an [x, y] pair\n    at SceneSdkError (visual-sdk.js:53:26)\n    at polyline (visual-sdk.js:263:30)\n    at r"
+}

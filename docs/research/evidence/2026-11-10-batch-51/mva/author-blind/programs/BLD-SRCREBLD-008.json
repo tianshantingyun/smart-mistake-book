@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-008",
+    "program_id": "mva-BLD-SRCREBLD-008",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    var labels = ['0', '0.25', '0.5', '0.75', '1'];\n    var reqs = [];\n    for (var i = 0; i < labels.length; i++) {\n      reqs.push({ kind: 'text', payload: labels[i] });\n    }\n    return reqs;\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var labels = ['0', '0.25', '0.5', '0.75', '1'];\n    var pad = Math.max(44, Math.round(w * 0.08));\n    var x0 = pad;\n    var x1 = w - pad;\n    var y = Math.round(h * 0.52);\n    var stroke = '#26354a';\n    var paths = [];\n    var children = [];\n\n    paths.push({ id: 'axis', commands: visualSdk.polyline([[x0, y], [x1, y]]) });\n    children.push({ type: 'path', pathId: 'axis', stroke: stroke, strokeWidth: 2, fill: 'none' });\n\n    var xs = [];\n    for (var i = 0; i < 5; i++) {\n      var x = x0 + (x1 - x0) * i / 4;\n      xs.push(x);\n      var id = 'tick' + i;\n      paths.push({ id: id, commands: visualSdk.polyline([[x, y - 7], [x, y + 7]]) });\n      children.push({ type: 'path', pathId: id, stroke: stroke, strokeWidth: 2, fill: 'none' });\n    }\n\n    for (var j = 0; j < 5; j++) {\n      children.push({\n        type: 'label',\n        text: labels[j],\n        x: xs[j],\n        y: y + 30,\n        textAnchor: 'middle',\n        fontSize: 14,\n        fill: stroke\n      });\n    }\n\n    return {\n      schemaVersion: 1,\n      sceneId: 'axis-0-1',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: paths,\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

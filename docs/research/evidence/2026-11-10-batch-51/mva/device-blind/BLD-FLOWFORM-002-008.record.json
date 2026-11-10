@@ -1,0 +1,87 @@
+{
+  "input_file": "BLD-FLOWFORM-002.json",
+  "program_sha256": "9f758bd607485e8476f485f6aca88e169d474668bd261c31eba53c046df4f865",
+  "task_id": "BLD-FLOWFORM-002",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 35,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "解一元一次方程",
+      "widthDu": 112,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8755b0d18930fabadf1f5e167710a78fc9a257b338a580aae6ece4170d0759d1"
+    },
+    {
+      "contentId": "c1",
+      "payload": "7x+-3=1x+4",
+      "widthDu": 83.63636016845703,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7c87b7c54b078162f89ee7827305cc546dd065bad62354290adf1550b304486d"
+    },
+    {
+      "contentId": "c2",
+      "payload": "第一步 · 移项",
+      "widthDu": 92.36363983154297,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0687b5a61b18d7aae2cc2dda440c7590dcb165d5d601e81cc1aa710dad392c83"
+    },
+    {
+      "contentId": "c3",
+      "payload": "7x-1x=4+3",
+      "widthDu": 74.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9985ab08f426701240bb5248f38657b49c77286b5f09caded7b0979514cda090"
+    },
+    {
+      "contentId": "c4",
+      "payload": "第二步 · 合并同类项",
+      "widthDu": 140.36363220214844,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d5951bb28f8f809d5c0403807bbd3c102dd1c5ad850031ace7b039515120c5b8"
+    },
+    {
+      "contentId": "c5",
+      "payload": "6x=7",
+      "widthDu": 34.90909194946289,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9b7232c94b2ca3d1c1bd978a9dde1826739b272453aac0ab0901a12cba2e9cb1"
+    },
+    {
+      "contentId": "c6",
+      "payload": "第三步 · 系数化为 1",
+      "widthDu": 137.4545440673828,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0a125e9e3066458c61f9c8e6d35e4128501eaee0ada73fafd17e1808bcdaeace"
+    },
+    {
+      "contentId": "c7",
+      "payload": "x=7\/6",
+      "widthDu": 41.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "66c22334615cd730dc12a5c0317e6a10b79fab32e6ad8641d7aacf59b45ed6ad"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com"
+}

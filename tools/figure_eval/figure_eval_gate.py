@@ -977,7 +977,10 @@ def run_fake_evaluation(
             "primary_classification": primary_classification,
             "first_attempt_pass": primary_first_pass,
             "final_accepted": primary_final_accepted,
-            "critical_error_accepted": False,  # 关键不匹配一律不被接受（fail-closed 核验）
+            # 逐记录常量 false：机器自检"关键错误被接受=0"因此结构上恒真，**不可引用为门证据**
+            # （见 machinery_check.critical_error_evidence.citable=False；
+            # 门只认 mva_gate.py 的 critical_error_register）。
+            "critical_error_accepted": False,
             "critical_flagged": primary_critical_flagged,
             "repair_note": primary_note,
             "review_source": task["review_source"],
@@ -1099,6 +1102,16 @@ def run_fake_evaluation(
             "budget_cap_respected": all(r["image_model"]["dispatches_used"] <= cap for r in task_records),
         },
         "quality_gates_are_informational": True,
+        # 批次 50 修复环：exercised_paths.critical_mismatch_accepted_zero 是恒真式——每条记录在
+        # :980 硬编码 critical_error_accepted=False，它只证明"写记录的人没把 critical 标为接受"，
+        # 不是"关键错误未被接受"的产物级核验。任何引用该 0 值的文本都必须带上 citable=false；
+        # MVA 门（90/95/90/0）只认 tools/figure_eval/mva_gate.py 的 critical_error_register。
+        "critical_error_evidence": {
+            "field": "exercised_paths.critical_mismatch_accepted_zero",
+            "citable": False,
+            "reason": ("per-record constant false at :980; NOT product-level evidence; "
+                       "cite mva_gate.py critical_error_register instead"),
+        },
         "verdict": None,  # 下方填
     }
     machinery["verdict"] = "PASS" if all(machinery["exercised_paths"].values()) else "FAIL"

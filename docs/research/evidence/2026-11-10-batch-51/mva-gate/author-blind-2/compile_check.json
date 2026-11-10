@@ -1,0 +1,1365 @@
+{
+  "generated_by": "tools/figure_eval/author_program_compile_check.mjs",
+  "programs": 98,
+  "status_counts": {
+    "COMPILED": 95,
+    "INVALID_SCENE": 3
+  },
+  "error_code_counts": {
+    "SCENE_NODE_COUNT": 1,
+    "SCENE_PATH_NOT_M_START": 2
+  },
+  "results": [
+    {
+      "file": "BLD-DEHANDWR-018.json",
+      "task_id": "BLD-DEHANDWR-018",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 12,
+        "pathCommands": 17,
+        "labels": 4,
+        "ops": 11
+      },
+      "pathOps": 7,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-DEHANDWR-019.json",
+      "task_id": "BLD-DEHANDWR-019",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 5,
+        "pathCommands": 5,
+        "labels": 3,
+        "ops": 4
+      },
+      "pathOps": 1,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-FLOWFORM-001.json",
+      "task_id": "BLD-FLOWFORM-001",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 20,
+        "pathCommands": 55,
+        "labels": 8,
+        "ops": 19
+      },
+      "pathOps": 11,
+      "labelOps": 8
+    },
+    {
+      "file": "BLD-FLOWFORM-002.json",
+      "task_id": "BLD-FLOWFORM-002",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 17,
+        "pathCommands": 46,
+        "labels": 8,
+        "ops": 16
+      },
+      "pathOps": 8,
+      "labelOps": 8
+    },
+    {
+      "file": "BLD-FLOWFORM-003.json",
+      "task_id": "BLD-FLOWFORM-003",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 25,
+        "pathCommands": 90,
+        "labels": 11,
+        "ops": 24
+      },
+      "pathOps": 13,
+      "labelOps": 11
+    },
+    {
+      "file": "BLD-FLOWFORM-004.json",
+      "task_id": "BLD-FLOWFORM-004",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 20,
+        "pathCommands": 87,
+        "labels": 7,
+        "ops": 19
+      },
+      "pathOps": 12,
+      "labelOps": 7
+    },
+    {
+      "file": "BLD-FLOWFORM-005.json",
+      "task_id": "BLD-FLOWFORM-005",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 19,
+        "pathCommands": 72,
+        "labels": 8,
+        "ops": 18
+      },
+      "pathOps": 10,
+      "labelOps": 8
+    },
+    {
+      "file": "BLD-FLOWFORM-006.json",
+      "task_id": "BLD-FLOWFORM-006",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 26,
+        "pathCommands": 65,
+        "labels": 11,
+        "ops": 25
+      },
+      "pathOps": 14,
+      "labelOps": 11
+    },
+    {
+      "file": "BLD-FLOWFORM-007.json",
+      "task_id": "BLD-FLOWFORM-007",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 19,
+        "pathCommands": 58,
+        "labels": 10,
+        "ops": 18
+      },
+      "pathOps": 8,
+      "labelOps": 10
+    },
+    {
+      "file": "BLD-FLOWFORM-008.json",
+      "task_id": "BLD-FLOWFORM-008",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 43,
+        "pathCommands": 53,
+        "labels": 25,
+        "ops": 42
+      },
+      "pathOps": 17,
+      "labelOps": 25
+    },
+    {
+      "file": "BLD-FLOWFORM-009.json",
+      "task_id": "BLD-FLOWFORM-009",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 19,
+        "pathCommands": 36,
+        "labels": 9,
+        "ops": 18
+      },
+      "pathOps": 9,
+      "labelOps": 9
+    },
+    {
+      "file": "BLD-FLOWFORM-010.json",
+      "task_id": "BLD-FLOWFORM-010",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 24,
+        "pathCommands": 65,
+        "labels": 8,
+        "ops": 23
+      },
+      "pathOps": 15,
+      "labelOps": 8
+    },
+    {
+      "file": "BLD-FLOWFORM-011.json",
+      "task_id": "BLD-FLOWFORM-011",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 34,
+        "pathCommands": 142,
+        "labels": 12,
+        "ops": 33
+      },
+      "pathOps": 21,
+      "labelOps": 12
+    },
+    {
+      "file": "BLD-FLOWFORM-012.json",
+      "task_id": "BLD-FLOWFORM-012",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 23,
+        "pathCommands": 20,
+        "labels": 18,
+        "ops": 22
+      },
+      "pathOps": 4,
+      "labelOps": 18
+    },
+    {
+      "file": "BLD-FLOWFORM-013.json",
+      "task_id": "BLD-FLOWFORM-013",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 35,
+        "pathCommands": 22,
+        "labels": 27,
+        "ops": 34
+      },
+      "pathOps": 7,
+      "labelOps": 27
+    },
+    {
+      "file": "BLD-FLOWFORM-014.json",
+      "task_id": "BLD-FLOWFORM-014",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 18,
+        "pathCommands": 8,
+        "labels": 13,
+        "ops": 17
+      },
+      "pathOps": 4,
+      "labelOps": 13
+    },
+    {
+      "file": "BLD-FLOWFORM-015.json",
+      "task_id": "BLD-FLOWFORM-015",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 17,
+        "pathCommands": 19,
+        "labels": 8,
+        "ops": 16
+      },
+      "pathOps": 8,
+      "labelOps": 8
+    },
+    {
+      "file": "BLD-FLOWFORM-016.json",
+      "task_id": "BLD-FLOWFORM-016",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 12,
+        "pathCommands": 24,
+        "labels": 8,
+        "ops": 11
+      },
+      "pathOps": 3,
+      "labelOps": 8
+    },
+    {
+      "file": "BLD-FLOWFORM-017.json",
+      "task_id": "BLD-FLOWFORM-017",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 16,
+        "pathCommands": 23,
+        "labels": 13,
+        "ops": 15
+      },
+      "pathOps": 2,
+      "labelOps": 13
+    },
+    {
+      "file": "BLD-FLOWFORM-018.json",
+      "task_id": "BLD-FLOWFORM-018",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 19,
+        "pathCommands": 45,
+        "labels": 9,
+        "ops": 18
+      },
+      "pathOps": 9,
+      "labelOps": 9
+    },
+    {
+      "file": "BLD-FLOWFORM-019.json",
+      "task_id": "BLD-FLOWFORM-019",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 16,
+        "pathCommands": 26,
+        "labels": 11,
+        "ops": 15
+      },
+      "pathOps": 4,
+      "labelOps": 11
+    },
+    {
+      "file": "BLD-FLOWFORM-020.json",
+      "task_id": "BLD-FLOWFORM-020",
+      "status": "INVALID_SCENE",
+      "code": "SCENE_PATH_NOT_M_START",
+      "error": "SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command"
+    },
+    {
+      "file": "BLD-MECHPHASE-001.json",
+      "task_id": "BLD-MECHPHASE-001",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 21,
+        "pathCommands": 29,
+        "labels": 10,
+        "ops": 20
+      },
+      "pathOps": 10,
+      "labelOps": 10
+    },
+    {
+      "file": "BLD-MECHPHASE-002.json",
+      "task_id": "BLD-MECHPHASE-002",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 17,
+        "pathCommands": 21,
+        "labels": 10,
+        "ops": 16
+      },
+      "pathOps": 6,
+      "labelOps": 10
+    },
+    {
+      "file": "BLD-MECHPHASE-003.json",
+      "task_id": "BLD-MECHPHASE-003",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 18,
+        "pathCommands": 35,
+        "labels": 10,
+        "ops": 17
+      },
+      "pathOps": 7,
+      "labelOps": 10
+    },
+    {
+      "file": "BLD-MECHPHASE-004.json",
+      "task_id": "BLD-MECHPHASE-004",
+      "status": "INVALID_SCENE",
+      "code": "SCENE_PATH_NOT_M_START",
+      "error": "SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command"
+    },
+    {
+      "file": "BLD-MECHPHASE-005.json",
+      "task_id": "BLD-MECHPHASE-005",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 15,
+        "pathCommands": 19,
+        "labels": 9,
+        "ops": 14
+      },
+      "pathOps": 5,
+      "labelOps": 9
+    },
+    {
+      "file": "BLD-MECHPHASE-006.json",
+      "task_id": "BLD-MECHPHASE-006",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 16,
+        "pathCommands": 29,
+        "labels": 7,
+        "ops": 15
+      },
+      "pathOps": 8,
+      "labelOps": 7
+    },
+    {
+      "file": "BLD-MECHPHASE-007.json",
+      "task_id": "BLD-MECHPHASE-007",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 14,
+        "pathCommands": 50,
+        "labels": 4,
+        "ops": 13
+      },
+      "pathOps": 9,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-MECHPHASE-008.json",
+      "task_id": "BLD-MECHPHASE-008",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 11,
+        "pathCommands": 35,
+        "labels": 3,
+        "ops": 10
+      },
+      "pathOps": 7,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-MECHPHASE-009.json",
+      "task_id": "BLD-MECHPHASE-009",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 16,
+        "pathCommands": 45,
+        "labels": 4,
+        "ops": 15
+      },
+      "pathOps": 11,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-MECHPHASE-010.json",
+      "task_id": "BLD-MECHPHASE-010",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 13,
+        "pathCommands": 45,
+        "labels": 4,
+        "ops": 12
+      },
+      "pathOps": 8,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-MECHPHASE-011.json",
+      "task_id": "BLD-MECHPHASE-011",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 11,
+        "pathCommands": 22,
+        "labels": 5,
+        "ops": 10
+      },
+      "pathOps": 5,
+      "labelOps": 5
+    },
+    {
+      "file": "BLD-MECHPHASE-012.json",
+      "task_id": "BLD-MECHPHASE-012",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 26,
+        "pathCommands": 83,
+        "labels": 11,
+        "ops": 25
+      },
+      "pathOps": 14,
+      "labelOps": 11
+    },
+    {
+      "file": "BLD-MECHPHASE-013.json",
+      "task_id": "BLD-MECHPHASE-013",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 33,
+        "pathCommands": 74,
+        "labels": 7,
+        "ops": 32
+      },
+      "pathOps": 25,
+      "labelOps": 7
+    },
+    {
+      "file": "BLD-MECHPHASE-014.json",
+      "task_id": "BLD-MECHPHASE-014",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 33,
+        "pathCommands": 63,
+        "labels": 10,
+        "ops": 32
+      },
+      "pathOps": 22,
+      "labelOps": 10
+    },
+    {
+      "file": "BLD-MECHPHASE-015.json",
+      "task_id": "BLD-MECHPHASE-015",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 27,
+        "pathCommands": 48,
+        "labels": 11,
+        "ops": 26
+      },
+      "pathOps": 15,
+      "labelOps": 11
+    },
+    {
+      "file": "BLD-MECHPHASE-016.json",
+      "task_id": "BLD-MECHPHASE-016",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 22,
+        "pathCommands": 67,
+        "labels": 7,
+        "ops": 21
+      },
+      "pathOps": 14,
+      "labelOps": 7
+    },
+    {
+      "file": "BLD-MECHPHASE-017.json",
+      "task_id": "BLD-MECHPHASE-017",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 28,
+        "pathCommands": 545,
+        "labels": 8,
+        "ops": 27
+      },
+      "pathOps": 19,
+      "labelOps": 8
+    },
+    {
+      "file": "BLD-MECHPHASE-018.json",
+      "task_id": "BLD-MECHPHASE-018",
+      "status": "INVALID_SCENE",
+      "code": "SCENE_NODE_COUNT",
+      "error": "SCENE_NODE_COUNT: scene has more than 256 nodes"
+    },
+    {
+      "file": "BLD-MECHPHASE-019.json",
+      "task_id": "BLD-MECHPHASE-019",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 15,
+        "pathCommands": 1115,
+        "labels": 6,
+        "ops": 14
+      },
+      "pathOps": 8,
+      "labelOps": 6
+    },
+    {
+      "file": "BLD-MECHPHASE-020.json",
+      "task_id": "BLD-MECHPHASE-020",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 18,
+        "pathCommands": 993,
+        "labels": 8,
+        "ops": 17
+      },
+      "pathOps": 9,
+      "labelOps": 8
+    },
+    {
+      "file": "BLD-NATILLA-001.json",
+      "task_id": "BLD-NATILLA-001",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 13,
+        "pathCommands": 60,
+        "labels": 3,
+        "ops": 12
+      },
+      "pathOps": 9,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-NATILLA-002.json",
+      "task_id": "BLD-NATILLA-002",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 15,
+        "pathCommands": 56,
+        "labels": 4,
+        "ops": 14
+      },
+      "pathOps": 10,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-NATILLA-003.json",
+      "task_id": "BLD-NATILLA-003",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 14,
+        "pathCommands": 72,
+        "labels": 4,
+        "ops": 13
+      },
+      "pathOps": 9,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-NATILLA-004.json",
+      "task_id": "BLD-NATILLA-004",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 18,
+        "pathCommands": 85,
+        "labels": 4,
+        "ops": 17
+      },
+      "pathOps": 13,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-NATILLA-005.json",
+      "task_id": "BLD-NATILLA-005",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 17,
+        "pathCommands": 78,
+        "labels": 3,
+        "ops": 16
+      },
+      "pathOps": 13,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-NATILLA-006.json",
+      "task_id": "BLD-NATILLA-006",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 14,
+        "pathCommands": 60,
+        "labels": 3,
+        "ops": 13
+      },
+      "pathOps": 10,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-NATILLA-007.json",
+      "task_id": "BLD-NATILLA-007",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 16,
+        "pathCommands": 57,
+        "labels": 4,
+        "ops": 15
+      },
+      "pathOps": 11,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-NATILLA-008.json",
+      "task_id": "BLD-NATILLA-008",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 8,
+        "pathCommands": 18,
+        "labels": 3,
+        "ops": 7
+      },
+      "pathOps": 4,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-NATILLA-009.json",
+      "task_id": "BLD-NATILLA-009",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 10,
+        "pathCommands": 18,
+        "labels": 5,
+        "ops": 9
+      },
+      "pathOps": 4,
+      "labelOps": 5
+    },
+    {
+      "file": "BLD-NATILLA-010.json",
+      "task_id": "BLD-NATILLA-010",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 11,
+        "pathCommands": 38,
+        "labels": 5,
+        "ops": 10
+      },
+      "pathOps": 5,
+      "labelOps": 5
+    },
+    {
+      "file": "BLD-NATILLA-011.json",
+      "task_id": "BLD-NATILLA-011",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 9,
+        "pathCommands": 18,
+        "labels": 3,
+        "ops": 8
+      },
+      "pathOps": 5,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-NATILLA-012.json",
+      "task_id": "BLD-NATILLA-012",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 12,
+        "pathCommands": 26,
+        "labels": 4,
+        "ops": 11
+      },
+      "pathOps": 7,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-NATILLA-013.json",
+      "task_id": "BLD-NATILLA-013",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 12,
+        "pathCommands": 31,
+        "labels": 4,
+        "ops": 11
+      },
+      "pathOps": 7,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-NATILLA-014.json",
+      "task_id": "BLD-NATILLA-014",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 10,
+        "pathCommands": 22,
+        "labels": 5,
+        "ops": 9
+      },
+      "pathOps": 4,
+      "labelOps": 5
+    },
+    {
+      "file": "BLD-NATILLA-015.json",
+      "task_id": "BLD-NATILLA-015",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 11,
+        "pathCommands": 36,
+        "labels": 4,
+        "ops": 10
+      },
+      "pathOps": 6,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-NATILLA-016.json",
+      "task_id": "BLD-NATILLA-016",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 11,
+        "pathCommands": 42,
+        "labels": 3,
+        "ops": 10
+      },
+      "pathOps": 7,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-NATILLA-017.json",
+      "task_id": "BLD-NATILLA-017",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 14,
+        "pathCommands": 51,
+        "labels": 3,
+        "ops": 13
+      },
+      "pathOps": 10,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-NATILLA-018.json",
+      "task_id": "BLD-NATILLA-018",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 16,
+        "pathCommands": 49,
+        "labels": 4,
+        "ops": 15
+      },
+      "pathOps": 11,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-NATILLA-019.json",
+      "task_id": "BLD-NATILLA-019",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 11,
+        "pathCommands": 73,
+        "labels": 3,
+        "ops": 10
+      },
+      "pathOps": 7,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-NATILLA-020.json",
+      "task_id": "BLD-NATILLA-020",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 19,
+        "pathCommands": 43,
+        "labels": 8,
+        "ops": 18
+      },
+      "pathOps": 10,
+      "labelOps": 8
+    },
+    {
+      "file": "BLD-PROPCOORD-001.json",
+      "task_id": "BLD-PROPCOORD-001",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 8,
+        "pathCommands": 8,
+        "labels": 3,
+        "ops": 7
+      },
+      "pathOps": 4,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-PROPCOORD-002.json",
+      "task_id": "BLD-PROPCOORD-002",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 6,
+        "pathCommands": 8,
+        "labels": 3,
+        "ops": 5
+      },
+      "pathOps": 2,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-PROPCOORD-003.json",
+      "task_id": "BLD-PROPCOORD-003",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 6,
+        "pathCommands": 8,
+        "labels": 1,
+        "ops": 5
+      },
+      "pathOps": 4,
+      "labelOps": 1
+    },
+    {
+      "file": "BLD-PROPCOORD-004.json",
+      "task_id": "BLD-PROPCOORD-004",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 8,
+        "pathCommands": 8,
+        "labels": 3,
+        "ops": 7
+      },
+      "pathOps": 4,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-PROPCOORD-005.json",
+      "task_id": "BLD-PROPCOORD-005",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 5,
+        "pathCommands": 10,
+        "labels": 1,
+        "ops": 4
+      },
+      "pathOps": 3,
+      "labelOps": 1
+    },
+    {
+      "file": "BLD-PROPCOORD-006.json",
+      "task_id": "BLD-PROPCOORD-006",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 5,
+        "pathCommands": 15,
+        "labels": 1,
+        "ops": 4
+      },
+      "pathOps": 3,
+      "labelOps": 1
+    },
+    {
+      "file": "BLD-PROPCOORD-007.json",
+      "task_id": "BLD-PROPCOORD-007",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 15,
+        "pathCommands": 24,
+        "labels": 7,
+        "ops": 14
+      },
+      "pathOps": 7,
+      "labelOps": 7
+    },
+    {
+      "file": "BLD-PROPCOORD-008.json",
+      "task_id": "BLD-PROPCOORD-008",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 11,
+        "pathCommands": 48,
+        "labels": 5,
+        "ops": 10
+      },
+      "pathOps": 5,
+      "labelOps": 5
+    },
+    {
+      "file": "BLD-PROPCOORD-009.json",
+      "task_id": "BLD-PROPCOORD-009",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 13,
+        "pathCommands": 48,
+        "labels": 7,
+        "ops": 12
+      },
+      "pathOps": 5,
+      "labelOps": 7
+    },
+    {
+      "file": "BLD-PROPCOORD-010.json",
+      "task_id": "BLD-PROPCOORD-010",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 13,
+        "pathCommands": 48,
+        "labels": 7,
+        "ops": 12
+      },
+      "pathOps": 5,
+      "labelOps": 7
+    },
+    {
+      "file": "BLD-PROPCOORD-011.json",
+      "task_id": "BLD-PROPCOORD-011",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 15,
+        "pathCommands": 24,
+        "labels": 7,
+        "ops": 14
+      },
+      "pathOps": 7,
+      "labelOps": 7
+    },
+    {
+      "file": "BLD-PROPCOORD-012.json",
+      "task_id": "BLD-PROPCOORD-012",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 11,
+        "pathCommands": 25,
+        "labels": 5,
+        "ops": 10
+      },
+      "pathOps": 5,
+      "labelOps": 5
+    },
+    {
+      "file": "BLD-PROPCOORD-013.json",
+      "task_id": "BLD-PROPCOORD-013",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 11,
+        "pathCommands": 25,
+        "labels": 5,
+        "ops": 10
+      },
+      "pathOps": 5,
+      "labelOps": 5
+    },
+    {
+      "file": "BLD-PROPCOORD-014.json",
+      "task_id": "BLD-PROPCOORD-014",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 13,
+        "pathCommands": 27,
+        "labels": 9,
+        "ops": 12
+      },
+      "pathOps": 3,
+      "labelOps": 9
+    },
+    {
+      "file": "BLD-PROPCOORD-015.json",
+      "task_id": "BLD-PROPCOORD-015",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 10,
+        "pathCommands": 25,
+        "labels": 5,
+        "ops": 9
+      },
+      "pathOps": 4,
+      "labelOps": 5
+    },
+    {
+      "file": "BLD-PROPCOORD-016.json",
+      "task_id": "BLD-PROPCOORD-016",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 13,
+        "pathCommands": 16,
+        "labels": 10,
+        "ops": 12
+      },
+      "pathOps": 2,
+      "labelOps": 10
+    },
+    {
+      "file": "BLD-PROPCOORD-017.json",
+      "task_id": "BLD-PROPCOORD-017",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 8,
+        "pathCommands": 18,
+        "labels": 5,
+        "ops": 7
+      },
+      "pathOps": 2,
+      "labelOps": 5
+    },
+    {
+      "file": "BLD-PROPCOORD-018.json",
+      "task_id": "BLD-PROPCOORD-018",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 8,
+        "pathCommands": 8,
+        "labels": 3,
+        "ops": 7
+      },
+      "pathOps": 4,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-PROPCOORD-019.json",
+      "task_id": "BLD-PROPCOORD-019",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 7,
+        "pathCommands": 26,
+        "labels": 3,
+        "ops": 6
+      },
+      "pathOps": 3,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-PROPCOORD-020.json",
+      "task_id": "BLD-PROPCOORD-020",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 16,
+        "pathCommands": 42,
+        "labels": 12,
+        "ops": 15
+      },
+      "pathOps": 3,
+      "labelOps": 12
+    },
+    {
+      "file": "BLD-SRCREBLD-002.json",
+      "task_id": "BLD-SRCREBLD-002",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 9,
+        "pathCommands": 21,
+        "labels": 3,
+        "ops": 8
+      },
+      "pathOps": 5,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-SRCREBLD-004.json",
+      "task_id": "BLD-SRCREBLD-004",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 13,
+        "pathCommands": 47,
+        "labels": 4,
+        "ops": 12
+      },
+      "pathOps": 8,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-SRCREBLD-005.json",
+      "task_id": "BLD-SRCREBLD-005",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 22,
+        "pathCommands": 50,
+        "labels": 4,
+        "ops": 21
+      },
+      "pathOps": 17,
+      "labelOps": 4
+    },
+    {
+      "file": "BLD-SRCREBLD-008.json",
+      "task_id": "BLD-SRCREBLD-008",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 7,
+        "pathCommands": 13,
+        "labels": 5,
+        "ops": 6
+      },
+      "pathOps": 1,
+      "labelOps": 5
+    },
+    {
+      "file": "BLD-SRCREBLD-009.json",
+      "task_id": "BLD-SRCREBLD-009",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 14,
+        "pathCommands": 24,
+        "labels": 11,
+        "ops": 13
+      },
+      "pathOps": 2,
+      "labelOps": 11
+    },
+    {
+      "file": "BLD-SRCREBLD-010.json",
+      "task_id": "BLD-SRCREBLD-010",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 14,
+        "pathCommands": 24,
+        "labels": 11,
+        "ops": 13
+      },
+      "pathOps": 2,
+      "labelOps": 11
+    },
+    {
+      "file": "BLD-SRCREBLD-011.json",
+      "task_id": "BLD-SRCREBLD-011",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 8,
+        "pathCommands": 15,
+        "labels": 6,
+        "ops": 7
+      },
+      "pathOps": 1,
+      "labelOps": 6
+    },
+    {
+      "file": "BLD-SRCREBLD-012.json",
+      "task_id": "BLD-SRCREBLD-012",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 9,
+        "pathCommands": 14,
+        "labels": 6,
+        "ops": 8
+      },
+      "pathOps": 2,
+      "labelOps": 6
+    },
+    {
+      "file": "BLD-SRCREBLD-013.json",
+      "task_id": "BLD-SRCREBLD-013",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 13,
+        "pathCommands": 15,
+        "labels": 5,
+        "ops": 12
+      },
+      "pathOps": 7,
+      "labelOps": 5
+    },
+    {
+      "file": "BLD-SRCREBLD-014.json",
+      "task_id": "BLD-SRCREBLD-014",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 13,
+        "pathCommands": 25,
+        "labels": 11,
+        "ops": 12
+      },
+      "pathOps": 1,
+      "labelOps": 11
+    },
+    {
+      "file": "BLD-SRCREBLD-015.json",
+      "task_id": "BLD-SRCREBLD-015",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 11,
+        "pathCommands": 20,
+        "labels": 0,
+        "ops": 10
+      },
+      "pathOps": 10,
+      "labelOps": 0
+    },
+    {
+      "file": "BLD-SRCREBLD-016.json",
+      "task_id": "BLD-SRCREBLD-016",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 9,
+        "pathCommands": 18,
+        "labels": 7,
+        "ops": 8
+      },
+      "pathOps": 1,
+      "labelOps": 7
+    },
+    {
+      "file": "BLD-SRCREBLD-017.json",
+      "task_id": "BLD-SRCREBLD-017",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 17,
+        "pathCommands": 29,
+        "labels": 3,
+        "ops": 16
+      },
+      "pathOps": 13,
+      "labelOps": 3
+    },
+    {
+      "file": "BLD-SRCREBLD-018.json",
+      "task_id": "BLD-SRCREBLD-018",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 39,
+        "pathCommands": 180,
+        "labels": 2,
+        "ops": 38
+      },
+      "pathOps": 36,
+      "labelOps": 2
+    },
+    {
+      "file": "BLD-SRCREBLD-019.json",
+      "task_id": "BLD-SRCREBLD-019",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 2,
+        "pathCommands": 18,
+        "labels": 0,
+        "ops": 1
+      },
+      "pathOps": 1,
+      "labelOps": 0
+    },
+    {
+      "file": "BLD-SRCREBLD-020.json",
+      "task_id": "BLD-SRCREBLD-020",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 13,
+        "pathCommands": 24,
+        "labels": 0,
+        "ops": 12
+      },
+      "pathOps": 12,
+      "labelOps": 0
+    }
+  ]
+}

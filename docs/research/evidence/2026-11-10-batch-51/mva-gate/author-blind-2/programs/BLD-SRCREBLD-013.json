@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-013",
+    "program_id": "mva-BLD-SRCREBLD-013",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '0' },\n      { kind: 'text', payload: '0.25' },\n      { kind: 'text', payload: '0.5' },\n      { kind: 'text', payload: '0.75' },\n      { kind: 'text', payload: '1' }\n    ];\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var x0 = Math.round(W * 0.10);\n    var x1 = Math.round(W * 0.94);\n    var y = Math.round(H * 0.55);\n    var tickHalf = Math.max(6, Math.round(H * 0.04));\n    var paths = [];\n    var children = [];\n\n    paths.push({ id: 'axisLine', commands: [['M', x0, y], ['L', x1, y]] });\n    children.push({\n      type: 'path', pathId: 'axisLine', fill: '#26354a',\n      stroke: { width: 2, cap: 'round' }\n    });\n\n    var ah = Math.max(10, Math.round(H * 0.05));\n    var aw = Math.max(5, Math.round(H * 0.025));\n    paths.push({ id: 'arrowHead', commands: [['M', x1 - ah, y - aw], ['L', x1, y], ['L', x1 - ah, y + aw]] });\n    children.push({\n      type: 'path', pathId: 'arrowHead', fill: '#26354a',\n      stroke: { width: 2, cap: 'round', join: 'round' }\n    });\n\n    var xs = [];\n    var i;\n    for (i = 0; i < 5; i++) {\n      var xi = x0 + (x1 - x0) * i / 4;\n      xs.push(xi);\n      var tid = 'tick' + i;\n      paths.push({ id: tid, commands: [['M', xi, y - tickHalf], ['L', xi, y + tickHalf]] });\n      children.push({\n        type: 'path', pathId: tid, fill: '#26354a',\n        stroke: { width: 2, cap: 'round' }\n      });\n    }\n\n    var labelY = y + tickHalf + Math.max(6, Math.round(H * 0.03));\n    for (i = 0; i < 5; i++) {\n      children.push({\n        type: 'label',\n        contentId: metrics[i].contentId,\n        anchor: { x: xs[i], y: labelY },\n        hAlign: 'center',\n        vAlign: 'top',\n        color: '#26354a'\n      });\n    }\n\n    return {\n      schemaVersion: 1,\n      sceneId: 'number-axis-0-to-1',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: paths,\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

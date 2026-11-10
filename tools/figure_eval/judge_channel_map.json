@@ -1,0 +1,2379 @@
+{
+  "facts": [
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-001"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-001"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-002"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-002"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-003"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-003"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-004"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-004"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-005"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-005"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-006"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-006"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-007"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-007"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-008"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-008"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-009"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-009"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-010"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-010"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-011"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-011"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-012"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-012"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-013"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-013"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "task_id": "BLD-DEHANDWR-014"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-014"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "handwriting_removal",
+      "key": "kept_label_count",
+      "kind": "count",
+      "task_id": "BLD-DEHANDWR-015"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_print_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-015"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "handwriting_removal",
+      "key": "kept_label_count",
+      "kind": "count",
+      "task_id": "BLD-DEHANDWR-016"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_print_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-016"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "handwriting_removal",
+      "key": "kept_label_count",
+      "kind": "count",
+      "task_id": "BLD-DEHANDWR-017"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_print_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-017"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "handwriting_removal",
+      "key": "kept_label_count",
+      "kind": "count",
+      "task_id": "BLD-DEHANDWR-018"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_print_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-018"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "handwriting_removal",
+      "key": "kept_label_count",
+      "kind": "count",
+      "task_id": "BLD-DEHANDWR-019"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_print_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-019"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "handwriting_removal",
+      "key": "kept_label_count",
+      "kind": "count",
+      "task_id": "BLD-DEHANDWR-020"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "handwriting_removal",
+      "key": "kept_print_labels",
+      "kind": "label_set",
+      "task_id": "BLD-DEHANDWR-020"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "task_id": "BLD-FLOWFORM-001"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "task_id": "BLD-FLOWFORM-001"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "task_id": "BLD-FLOWFORM-002"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "task_id": "BLD-FLOWFORM-002"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "task_id": "BLD-FLOWFORM-003"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "task_id": "BLD-FLOWFORM-003"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "task_id": "BLD-FLOWFORM-004"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "task_id": "BLD-FLOWFORM-004"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "task_id": "BLD-FLOWFORM-005"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "task_id": "BLD-FLOWFORM-005"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "task_id": "BLD-FLOWFORM-006"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "task_id": "BLD-FLOWFORM-006"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "task_id": "BLD-FLOWFORM-007"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "task_id": "BLD-FLOWFORM-007"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "task_id": "BLD-FLOWFORM-008"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "task_id": "BLD-FLOWFORM-008"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "task_id": "BLD-FLOWFORM-009"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "task_id": "BLD-FLOWFORM-009"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "task_id": "BLD-FLOWFORM-010"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "task_id": "BLD-FLOWFORM-010"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "task_id": "BLD-FLOWFORM-011"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "task_id": "BLD-FLOWFORM-011"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "task_id": "BLD-FLOWFORM-012"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "task_id": "BLD-FLOWFORM-012"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "task_id": "BLD-FLOWFORM-013"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "task_id": "BLD-FLOWFORM-013"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "task_id": "BLD-FLOWFORM-014"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "task_id": "BLD-FLOWFORM-014"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "converted_ms",
+      "kind": "numeric",
+      "task_id": "BLD-FLOWFORM-015"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "flow_formula",
+      "key": "unit_labels",
+      "kind": "label_set",
+      "task_id": "BLD-FLOWFORM-015"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "converted_ms",
+      "kind": "numeric",
+      "task_id": "BLD-FLOWFORM-016"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "flow_formula",
+      "key": "unit_labels",
+      "kind": "label_set",
+      "task_id": "BLD-FLOWFORM-016"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "converted_ms",
+      "kind": "numeric",
+      "task_id": "BLD-FLOWFORM-017"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "flow_formula",
+      "key": "unit_labels",
+      "kind": "label_set",
+      "task_id": "BLD-FLOWFORM-017"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "converted_ms",
+      "kind": "numeric",
+      "task_id": "BLD-FLOWFORM-018"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "flow_formula",
+      "key": "unit_labels",
+      "kind": "label_set",
+      "task_id": "BLD-FLOWFORM-018"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "converted_ms",
+      "kind": "numeric",
+      "task_id": "BLD-FLOWFORM-019"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "flow_formula",
+      "key": "unit_labels",
+      "kind": "label_set",
+      "task_id": "BLD-FLOWFORM-019"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "flow_formula",
+      "key": "converted_ms",
+      "kind": "numeric",
+      "task_id": "BLD-FLOWFORM-020"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "flow_formula",
+      "key": "unit_labels",
+      "kind": "label_set",
+      "task_id": "BLD-FLOWFORM-020"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "area_W_over_F0h_at_half",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-001"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "axis_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-001"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "curve_value_at_x_equals_h",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-001"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "area_W_over_F0h_at_half",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-002"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "axis_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-002"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "curve_value_at_x_equals_h",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-002"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "area_W_over_F0h_at_half",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-003"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "axis_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-003"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "curve_value_at_x_equals_h",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-003"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "area_W_over_F0h_at_half",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-004"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "axis_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-004"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "curve_value_at_x_equals_h",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-004"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "area_W_over_F0h_at_half",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-005"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "axis_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-005"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "curve_value_at_x_equals_h",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-005"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "area_W_over_F0h_at_half",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-006"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "axis_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-006"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "curve_value_at_x_equals_h",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-006"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "force_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-007"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "friction_direction",
+      "kind": "direction",
+      "task_id": "BLD-MECHPHASE-007"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "task_id": "BLD-MECHPHASE-007"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "force_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-008"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "pressure_friction_resultant_direction",
+      "kind": "direction",
+      "task_id": "BLD-MECHPHASE-008"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "pull_direction",
+      "kind": "direction",
+      "task_id": "BLD-MECHPHASE-008"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "force_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-009"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "friction_direction",
+      "kind": "direction",
+      "task_id": "BLD-MECHPHASE-009"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "task_id": "BLD-MECHPHASE-009"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "force_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-010"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "pressure_friction_resultant_direction",
+      "kind": "direction",
+      "task_id": "BLD-MECHPHASE-010"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "pull_direction",
+      "kind": "direction",
+      "task_id": "BLD-MECHPHASE-010"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "force_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-011"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "friction_direction",
+      "kind": "direction",
+      "task_id": "BLD-MECHPHASE-011"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "task_id": "BLD-MECHPHASE-011"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "baseline_label",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-012"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "phase_order",
+      "kind": "ordering",
+      "task_id": "BLD-MECHPHASE-012"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "u_at_half_height",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-012"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "baseline_label",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-013"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "phase_order",
+      "kind": "ordering",
+      "task_id": "BLD-MECHPHASE-013"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "u_at_half_height",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-013"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "baseline_label",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-014"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "phase_order",
+      "kind": "ordering",
+      "task_id": "BLD-MECHPHASE-014"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "u_at_half_height",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-014"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "baseline_label",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-015"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "phase_order",
+      "kind": "ordering",
+      "task_id": "BLD-MECHPHASE-015"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "u_at_half_height",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-015"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "baseline_label",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-016"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "phase_order",
+      "kind": "ordering",
+      "task_id": "BLD-MECHPHASE-016"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "u_at_half_height",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-016"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "resultant_amplitude",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-017"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "wave_count",
+      "kind": "count",
+      "task_id": "BLD-MECHPHASE-017"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "wave_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-017"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "resultant_amplitude",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-018"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "wave_count",
+      "kind": "count",
+      "task_id": "BLD-MECHPHASE-018"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "wave_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-018"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "resultant_amplitude",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-019"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "wave_count",
+      "kind": "count",
+      "task_id": "BLD-MECHPHASE-019"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "wave_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-019"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "mechanics_phases",
+      "key": "resultant_amplitude",
+      "kind": "numeric",
+      "task_id": "BLD-MECHPHASE-020"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "wave_count",
+      "kind": "count",
+      "task_id": "BLD-MECHPHASE-020"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "mechanics_phases",
+      "key": "wave_labels",
+      "kind": "label_set",
+      "task_id": "BLD-MECHPHASE-020"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-001"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-002"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-003"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-004"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-005"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-006"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-007"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-008"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-008"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-008"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-009"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-009"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-009"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-010"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-010"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-010"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-011"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-011"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-011"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-012"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-012"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-012"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-013"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-013"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-013"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-014"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-014"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "task_id": "BLD-NATILLA-014"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "arm_length_ratio",
+      "kind": "numeric",
+      "task_id": "BLD-NATILLA-015"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "lever_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-015"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "arm_length_ratio",
+      "kind": "numeric",
+      "task_id": "BLD-NATILLA-016"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "lever_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-016"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "arm_length_ratio",
+      "kind": "numeric",
+      "task_id": "BLD-NATILLA-017"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "lever_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-017"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "arm_length_ratio",
+      "kind": "numeric",
+      "task_id": "BLD-NATILLA-018"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "lever_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-018"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "arm_length_ratio",
+      "kind": "numeric",
+      "task_id": "BLD-NATILLA-019"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "lever_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-019"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "arm_length_ratio",
+      "kind": "numeric",
+      "task_id": "BLD-NATILLA-020"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "natural_illustration",
+      "key": "lever_labels",
+      "kind": "label_set",
+      "task_id": "BLD-NATILLA-020"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "ratio_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-001"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "segment_count",
+      "kind": "count",
+      "task_id": "BLD-PROPCOORD-001"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "segment_length_ratio",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-001"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "ratio_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-002"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "segment_count",
+      "kind": "count",
+      "task_id": "BLD-PROPCOORD-002"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "segment_length_ratio",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-002"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "ratio_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-003"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "segment_count",
+      "kind": "count",
+      "task_id": "BLD-PROPCOORD-003"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "segment_length_ratio",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-003"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "ratio_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-004"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "segment_count",
+      "kind": "count",
+      "task_id": "BLD-PROPCOORD-004"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "segment_length_ratio",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-004"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "ratio_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-005"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "segment_count",
+      "kind": "count",
+      "task_id": "BLD-PROPCOORD-005"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "segment_length_ratio",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-005"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "ratio_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-006"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "segment_count",
+      "kind": "count",
+      "task_id": "BLD-PROPCOORD-006"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "segment_length_ratio",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-006"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "point_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-007"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "point_x",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-007"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "point_y",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-007"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "point_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-008"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "point_x",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-008"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "point_y",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-008"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "point_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-009"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "point_x",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-009"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "point_y",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-009"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "point_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-010"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "point_x",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-010"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "point_y",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-010"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "point_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-011"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "point_x",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-011"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "point_y",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-011"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "ascending_order",
+      "kind": "ordering",
+      "task_id": "BLD-PROPCOORD-012"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "marked_points",
+      "kind": "count",
+      "task_id": "BLD-PROPCOORD-012"
+    },
+    {
+      "channel": "A",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "value_of_1_3",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-012"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "ascending_order",
+      "kind": "ordering",
+      "task_id": "BLD-PROPCOORD-013"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "marked_points",
+      "kind": "count",
+      "task_id": "BLD-PROPCOORD-013"
+    },
+    {
+      "channel": "A",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "value_of_1_3",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-013"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "ascending_order",
+      "kind": "ordering",
+      "task_id": "BLD-PROPCOORD-014"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "marked_points",
+      "kind": "count",
+      "task_id": "BLD-PROPCOORD-014"
+    },
+    {
+      "channel": "A",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "value_of_1_2",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-014"
+    },
+    {
+      "channel": "A|C",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "ascending_order",
+      "kind": "ordering",
+      "task_id": "BLD-PROPCOORD-015"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "marked_points",
+      "kind": "count",
+      "task_id": "BLD-PROPCOORD-015"
+    },
+    {
+      "channel": "A",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "value_of_1_3",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-015"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "real_distance_cm",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-016"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "scale_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-016"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "real_distance_cm",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-017"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "scale_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-017"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "real_distance_cm",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-018"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "scale_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-018"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "real_distance_cm",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-019"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "scale_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-019"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "proportion_coordinates",
+      "key": "real_distance_cm",
+      "kind": "numeric",
+      "task_id": "BLD-PROPCOORD-020"
+    },
+    {
+      "channel": "A|B",
+      "critical": false,
+      "group": "proportion_coordinates",
+      "key": "scale_label",
+      "kind": "label_set",
+      "task_id": "BLD-PROPCOORD-020"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-001"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "task_id": "BLD-SRCREBLD-001"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-002"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "task_id": "BLD-SRCREBLD-002"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-003"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "task_id": "BLD-SRCREBLD-003"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-004"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "task_id": "BLD-SRCREBLD-004"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-005"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "task_id": "BLD-SRCREBLD-005"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-006"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "task_id": "BLD-SRCREBLD-006"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-007"
+    },
+    {
+      "channel": "A|B",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "task_id": "BLD-SRCREBLD-007"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-008"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-008"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-008"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-009"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-009"
+    },
+    {
+      "channel": "A",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-009"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-010"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-010"
+    },
+    {
+      "channel": "A",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-010"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-011"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-011"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-011"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-012"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-012"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-012"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-013"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-013"
+    },
+    {
+      "channel": "A|B|C",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-013"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-014"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-014"
+    },
+    {
+      "channel": "A",
+      "critical": false,
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-014"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "cell_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-015"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "column_count",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-015"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "row_count",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-015"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "cell_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-016"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "column_count",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-016"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "row_count",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-016"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "cell_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-017"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "column_count",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-017"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "row_count",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-017"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "cell_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-018"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "column_count",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-018"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "row_count",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-018"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "cell_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-019"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "column_count",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-019"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "row_count",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-019"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "cell_count",
+      "kind": "count",
+      "task_id": "BLD-SRCREBLD-020"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "column_count",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-020"
+    },
+    {
+      "channel": "A",
+      "critical": true,
+      "group": "source_rebuild",
+      "key": "row_count",
+      "kind": "numeric",
+      "task_id": "BLD-SRCREBLD-020"
+    }
+  ],
+  "name": "mva_judge_channel_map",
+  "purpose": "A/B/C 通道分配（派生自冻结夹具；不改 120 集本身）",
+  "rules": [
+    {
+      "channel": "A",
+      "kind": "numeric",
+      "predicate": "tolerance <= 1e-6",
+      "why": "1e-9/1e-6 精确值在栅格上不存在（信息不在像素里），只能结构化核验"
+    },
+    {
+      "channel": "A|B",
+      "kind": "numeric",
+      "predicate": "tolerance >= 0.01",
+      "why": "印刷换算值可 OCR 后比对；A 通道仍优先"
+    },
+    {
+      "channel": "A|B",
+      "kind": "label_set",
+      "predicate": "always",
+      "why": "标签可转写为字符串；subset 语义陷阱（多报标签）另记 verified_with_extras"
+    },
+    {
+      "channel": "A|B",
+      "kind": "label_absent",
+      "predicate": "always",
+      "why": "禁写内容做存在性判定；漏读即误过，必须双判"
+    },
+    {
+      "channel": "A|C",
+      "kind": "direction",
+      "predicate": "always",
+      "why": "方向不可转写为字符串；VisionQ 实测 Relation 轴最弱（45.2%）"
+    },
+    {
+      "channel": "A|C",
+      "kind": "ordering",
+      "predicate": "always",
+      "why": "顺序依赖相对位置，需视觉判断"
+    },
+    {
+      "channel": "A|B|C",
+      "kind": "count",
+      "predicate": "expected <= 6",
+      "why": "小计数可目视/OCR/结构化三路"
+    },
+    {
+      "channel": "A",
+      "kind": "count",
+      "predicate": "expected > 6",
+      "why": "大计数不可目视（11–25），只能结构化核验"
+    }
+  ],
+  "schema_version": 1,
+  "totals": {
+    "channel": {
+      "A": 94,
+      "A|B": 116,
+      "A|B|C": 38,
+      "A|C": 40
+    },
+    "critical_channel": {
+      "A": 87,
+      "A|B": 82,
+      "A|C": 40
+    },
+    "critical_facts": 209,
+    "facts": 288,
+    "tasks": 120,
+    "tasks_with_all_critical_a_only": 27,
+    "tasks_with_critical_a_only": 57
+  }
+}

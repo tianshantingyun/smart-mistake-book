@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-013",
+    "program_id": "mva-BLD-SRCREBLD-013",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '0' },\n      { kind: 'text', payload: '0.25' },\n      { kind: 'text', payload: '0.5' },\n      { kind: 'text', payload: '0.75' },\n      { kind: 'text', payload: '1' }\n    ];\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var x0 = Math.round(W * 0.10);\n    var x1 = Math.round(W * 0.90);\n    var y = Math.round(H * 0.50);\n    var labels = ['0', '0.25', '0.5', '0.75', '1'];\n    var stroke = '#26354a';\n    var paths = [];\n    var children = [];\n\n    paths.push({ id: 'axis', commands: visualSdk.polyline([[x0, y], [x1, y]]) });\n    children.push({ type: 'path', pathId: 'axis', stroke: stroke, strokeWidth: 2, fill: 'none' });\n\n    paths.push({ id: 'axisHead', commands: visualSdk.polyline([[x1 - 10, y - 5], [x1, y], [x1 - 10, y + 5]]) });\n    children.push({ type: 'path', pathId: 'axisHead', stroke: stroke, strokeWidth: 2, fill: 'none' });\n\n    for (var i = 0; i < 5; i++) {\n      var x = x0 + (x1 - x0) * i / 4;\n      var tickId = 'tick' + i;\n      paths.push({ id: tickId, commands: visualSdk.polyline([[x, y - 7], [x, y + 7]]) });\n      children.push({ type: 'path', pathId: tickId, stroke: stroke, strokeWidth: 2, fill: 'none' });\n      children.push({\n        type: 'label',\n        text: labels[i],\n        x: x,\n        y: y + 28,\n        fontSize: 14,\n        align: 'center',\n        baseline: 'middle',\n        fill: stroke\n      });\n    }\n\n    return {\n      schemaVersion: 1,\n      sceneId: 'axis-0-1',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: paths,\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

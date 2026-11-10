@@ -1,0 +1,96 @@
+{
+  "input_file": "BLD-FLOWFORM-018.json",
+  "program_sha256": "75c9e65698504d6f273135f016b506a1a4fecde1ff192d5e7c930da7d2cc0826",
+  "task_id": "BLD-FLOWFORM-018",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 33,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "单位换算表",
+      "widthDu": 80,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "fe624f25464bd30fc6c14c5e1abc0fe4000607b0f3da04653bde74b4654c3dc3"
+    },
+    {
+      "contentId": "c1",
+      "payload": "126 km\/h 换算为 m\/s（除以 3.6）",
+      "widthDu": 244.36363220214844,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "06f0f5efd83064b6614f91c6f8ad1b897e300939a9b55bd86d609ad500554f7b"
+    },
+    {
+      "contentId": "c2",
+      "payload": "换算项目",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "306904e7703c5b55ba9d7bb3f6f1849447fd04b517a884537fa3ba56e929c282"
+    },
+    {
+      "contentId": "c3",
+      "payload": "换算算式",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9851098d67efd162340cf73ad7da959b967857ed6ea5f7525424c624cb96a8f4"
+    },
+    {
+      "contentId": "c4",
+      "payload": "换算结果",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "741f5551eac2f9c998df9a01be8b1107988d08ae7c8b04f3b6f6f23f14cf9817"
+    },
+    {
+      "contentId": "c5",
+      "payload": "126 km\/h → m\/s",
+      "widthDu": 121.81818389892578,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0a1b2ac0c25a712fdaf04dbc5827b099edd165821c9ed0dc29d8eb219fb719db"
+    },
+    {
+      "contentId": "c6",
+      "payload": "126 ÷ 3.6 = 35.0",
+      "widthDu": 115.2727279663086,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bff836880f4ebf48b6a20166296ea4db56581443433fa96af21631da325d9811"
+    },
+    {
+      "contentId": "c7",
+      "payload": "35.0 m\/s",
+      "widthDu": 64.7272720336914,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "80f28cb27db6773925f9a8123de8bd7f2d562578c7b82d444d390b3a945648ac"
+    },
+    {
+      "contentId": "c8",
+      "payload": "结果保留三位有效数字",
+      "widthDu": 160,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c917c1751a6ec151a0c303c980e8857edeb311138afbdee7f9961a611674eb4a"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com"
+}

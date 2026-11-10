@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-NATILLA-012",
+    "program_id": "mva-BLD-NATILLA-012",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '小球（自静止释放）' },\n      { kind: 'text', payload: 'v' },\n      { kind: 'text', payload: 'g' },\n      { kind: 'text', payload: 'v 与 g 均竖直向下' }\n    ];\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var cx = w * 0.5;\n    var ballY = h * 0.30;\n    var r = 24;\n    var top = 36;\n    var bottom = h - 36;\n\n    var guide = visualSdk.polyline([[cx, top + 10], [cx, bottom - 10]]);\n    var trail = visualSdk.polyline([[cx, ballY + r + 8], [cx, ballY + r + 58]]);\n    var ball = visualSdk.circle(cx, ballY, r);\n    var vArrow = visualSdk.arrow(cx + 90, h * 0.38, cx + 90, h * 0.70, { headLength: 14, headWidth: 10 });\n    var gArrow = visualSdk.arrow(cx - 90, h * 0.38, cx - 90, h * 0.70, { headLength: 14, headWidth: 10 });\n\n    return {\n      schemaVersion: 1,\n      sceneId: 'free-fall',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'guide', commands: guide },\n        { id: 'trail', commands: trail },\n        { id: 'ball', commands: ball },\n        { id: 'v-arrow', commands: vArrow },\n        { id: 'g-arrow', commands: gArrow }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'guide', stroke: '#9aa9bb', strokeWidth: 1.5, dash: [6, 6] },\n          { type: 'path', pathId: 'trail', stroke: '#9aa9bb', strokeWidth: 1.5, dash: [3, 5] },\n          { type: 'path', pathId: 'ball', stroke: '#1f2a3a', strokeWidth: 2, fill: '#e8eef8' },\n          { type: 'path', pathId: 'v-arrow', stroke: '#1f5fa8', strokeWidth: 3 },\n          { type: 'path', pathId: 'g-arrow', stroke: '#b33a2b', strokeWidth: 3 },\n          { type: 'label', text: '小球（自静止释放）', x: cx, y: ballY - r - 14, fontSize: 16, fill: '#1f2a3a', textAnchor: 'middle' },\n          { type: 'label', text: 'v', x: cx + 102, y: h * 0.56, fontSize: 20, fill: '#1f5fa8', textAnchor: 'start' },\n          { type: 'label', text: 'g', x: cx - 102, y: h * 0.56, fontSize: 20, fill: '#b33a2b', textAnchor: 'end' },\n          { type: 'label', text: 'v 与 g 均竖直向下', x: cx, y: h - 14, fontSize: 15, fill: '#1f2a3a', textAnchor: 'middle' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

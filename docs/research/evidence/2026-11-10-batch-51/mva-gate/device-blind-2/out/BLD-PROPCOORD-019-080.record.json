@@ -1,0 +1,61 @@
+{
+  "input_file": "BLD-PROPCOORD-019.json",
+  "program_sha256": "b02c6c9ad90f653d245fcbcaa88b2636210d8e9a01df6d58f314ade70d953292",
+  "task_id": "BLD-PROPCOORD-019",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 13,
+  "measurement": [
+    {
+      "contentId": "c0-453e7e89",
+      "payload": "图上两地距离 6 厘米",
+      "widthDu": 145.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "453e7e89ea32eb0983fadfe9ed5ebca20ea432d1ab6f8e85c36e3b4a87debb6e"
+    },
+    {
+      "contentId": "c1-a865157b",
+      "payload": "实际距离 150000 厘米",
+      "widthDu": 158.5454559326172,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a865157b9d7971d96aed1a3ac953007da8d0d427e04d1dc30c1f24e471c2c9d2"
+    },
+    {
+      "contentId": "c2-84c99515",
+      "payload": "比例尺 1:25000",
+      "widthDu": 110.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "84c99515259653b50101a791baf772c655061b26a40e6cd2b713ee6b018e3cb2"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "9cc736a0b4c6f09840ba645904ca251dd327b2d68593baeaf41401ffead41862",
+  "scene_bytes": 1665,
+  "scene_schema_version": 1,
+  "draw_sha256": "2ecd897841345cc9ea07ba65b232c20210c18eeb3dfbcdea016eea4e5672cb6e",
+  "draw_bytes": 1772,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-453e7e89",
+    "c1-a865157b",
+    "c2-84c99515"
+  ],
+  "png_sha256": "a799279bb6bfbb3daf2829216838a8508631deefd95386c9a8927c9e4a0ef7e3",
+  "png_bytes": 6388,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 7,
+    "pathCommands": 26,
+    "labels": 3,
+    "ops": 6
+  }
+}

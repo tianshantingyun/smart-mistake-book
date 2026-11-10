@@ -1,0 +1,13 @@
+{
+  "task_id": "FIXTURE-RATIO-1TO1",
+  "program_id": "mva-fixture-ratio",
+  "source_js": "const visual = {\n  prepare: function (input) { return [{ kind: 'text', payload: '1:1' }]; },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu, H = input.viewport.heightDu;\n    var y = H * 0.60, x0 = 40, x1 = W - 40, xm = (x0 + x1) / 2;\n    var bar = [['M', x0, y], ['L', xm, y], ['M', xm, y], ['L', x1, y]];\n    return {\n      schemaVersion: 1,\n      sceneId: 'fixture-ratio-1to1',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [{ id: 'bar', commands: bar }],\n      root: { type: 'group', children: [\n        { type: 'path', pathId: 'bar', fill: '#333333', stroke: { width: 4, cap: 'butt', join: 'miter', miterLimit: 4, dash: null } },\n        { type: 'label', contentId: metrics[0].contentId,\n          anchor: { x: xm, y: y - 18 }, hAlign: 'center', vAlign: 'bottom',\n          color: '#333333' }\n      ] }\n    };\n  }\n};\n",
+  "scene_revision": 1,
+  "seed": 42,
+  "time_ms": 0,
+  "theme": "light",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  }
+}

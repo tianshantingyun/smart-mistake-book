@@ -1,0 +1,281 @@
+{
+  "input_file": "BLD-FLOWFORM-008.json",
+  "program_sha256": "fdb9f26cf617a8c5908679e552c53ec957bb350ac36ef2316491b90f414c8ba8",
+  "task_id": "BLD-FLOWFORM-008",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 56,
+  "measurement": [
+    {
+      "contentId": "c0-ee21803d",
+      "payload": "一元二次方程求根公式",
+      "widthDu": 160,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ee21803d4e0aadd44def73d84248242cc73d8699087d19c66e1b7b7a1fc0fa2d"
+    },
+    {
+      "contentId": "c1-6b86b273",
+      "payload": "1",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "contentId": "c2-f3b5ff19",
+      "payload": "x²",
+      "widthDu": 13.818181991577148,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f3b5ff1969c6ec2b6cc58a15fc7a6d3dde8d8a8a6c6fdde6deb7548083fa063b"
+    },
+    {
+      "contentId": "c3-afba2418",
+      "payload": "−",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "afba2418d6aec23dc4b24c079b26350d3715faa050fa131943ad0b6962f4255a"
+    },
+    {
+      "contentId": "c4-4b227777",
+      "payload": "4",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a"
+    },
+    {
+      "contentId": "c5-2d711642",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c6-a318c242",
+      "payload": "+",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a318c24216defe206feeb73ef5be00033fa9c4a74d0b967f6532a26ca5906d3b"
+    },
+    {
+      "contentId": "c7-4b227777",
+      "payload": "4",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a"
+    },
+    {
+      "contentId": "c8-6a99751d",
+      "payload": "= 0",
+      "widthDu": 21.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6a99751d93986ab4d3b19c543c9f5f10617378b8af1593fa42edf61e65ee9a78"
+    },
+    {
+      "contentId": "c9-180e6929",
+      "payload": "x =",
+      "widthDu": 20.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "180e6929bae4a33240ca19d9d2ee7c07bb6e67e09a038202f9eb536861f4a10d"
+    },
+    {
+      "contentId": "c10-a8952dd6",
+      "payload": "−b",
+      "widthDu": 18.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a8952dd624ff4e8d0261d9d4be6c282c43a15d06903adfe1f7609d080531c218"
+    },
+    {
+      "contentId": "c11-8d3591e5",
+      "payload": "±",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8d3591e55fa8745793d9519955740ddad45bb94dfc191b36c744139c6184c442"
+    },
+    {
+      "contentId": "c12-d4cf3856",
+      "payload": "√(",
+      "widthDu": 14.909090995788574,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4cf3856b072e1655c5b6a271de12838500164ffb45a258e4dbb31ae63c9f6f4"
+    },
+    {
+      "contentId": "c13-db545de0",
+      "payload": "b²",
+      "widthDu": 14.909090995788574,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "db545de070cc676780aadfb2463438eadbdbf0be044532b68dfe0171d16ba1e5"
+    },
+    {
+      "contentId": "c14-afba2418",
+      "payload": "−",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "afba2418d6aec23dc4b24c079b26350d3715faa050fa131943ad0b6962f4255a"
+    },
+    {
+      "contentId": "c15-4b227777",
+      "payload": "4",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a"
+    },
+    {
+      "contentId": "c16-ca978112",
+      "payload": "a",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+    },
+    {
+      "contentId": "c17-2e7d2c03",
+      "payload": "c",
+      "widthDu": 8.363636016845703,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"
+    },
+    {
+      "contentId": "c18-ba5ec51d",
+      "payload": ")",
+      "widthDu": 5.454545497894287,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ba5ec51d07a4ac0e951608704431d59a02b21a4e951acc10505a8dc407c501ee"
+    },
+    {
+      "contentId": "c19-d4735e3a",
+      "payload": "2",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "contentId": "c20-ca978112",
+      "payload": "a",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+    },
+    {
+      "contentId": "c21-b5bc1ffd",
+      "payload": "a = 1",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b5bc1ffd90912fb18bef6e7d80909192c7a6492896320156d67fbaf104c6544a"
+    },
+    {
+      "contentId": "c22-bc34f9d1",
+      "payload": "b = −4",
+      "widthDu": 44,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bc34f9d1325efb16b191d503bf3bf0cc2e9b8ae37f28dde50f84bfb81f9cbcee"
+    },
+    {
+      "contentId": "c23-73c34a08",
+      "payload": "c = 4",
+      "widthDu": 34.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "73c34a0803d0f695f2f749e2d3040276520a7468562a29cb48f9d469817d8dd1"
+    },
+    {
+      "contentId": "c24-0fd98111",
+      "payload": "Δ = b² − 4ac = 0",
+      "widthDu": 112,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0fd98111cc5061818025ec1cf7411f20648ba9b23f59b1f7e5fe76e836af17ff"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "aeae6d5d75e09e065aac1355763e971313e399b3947f8dfa515cd11018bba61c",
+  "scene_bytes": 6455,
+  "scene_schema_version": 1,
+  "draw_sha256": "ebef73bd3589b2c8bdb179ce48ceadd04d810f08f011b942e07f98a47e1eab61",
+  "draw_bytes": 7266,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-ee21803d",
+    "c1-6b86b273",
+    "c10-a8952dd6",
+    "c11-8d3591e5",
+    "c12-d4cf3856",
+    "c13-db545de0",
+    "c14-afba2418",
+    "c15-4b227777",
+    "c16-ca978112",
+    "c17-2e7d2c03",
+    "c18-ba5ec51d",
+    "c19-d4735e3a",
+    "c2-f3b5ff19",
+    "c20-ca978112",
+    "c21-b5bc1ffd",
+    "c22-bc34f9d1",
+    "c23-73c34a08",
+    "c24-0fd98111",
+    "c3-afba2418",
+    "c4-4b227777",
+    "c5-2d711642",
+    "c6-a318c242",
+    "c7-4b227777",
+    "c8-6a99751d",
+    "c9-180e6929"
+  ],
+  "png_sha256": "d4b471f30b3e42dbee3c63001fc337c00408392c76b6cf9cf2ea0138cde3769c",
+  "png_bytes": 11476,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 43,
+    "pathCommands": 53,
+    "labels": 25,
+    "ops": 42
+  }
+}

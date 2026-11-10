@@ -1,0 +1,42 @@
+{
+  "input_file": "BLD-DEHANDWR-018.json",
+  "program_sha256": "beadd7efa36c0b01fd78db97213aaa08cc6d2baff887725c5940493e64630791",
+  "task_id": "BLD-DEHANDWR-018",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 34,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "选择题第1题",
+      "widthDu": 89.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7e547c8813b36e9aaa627c0514fdad97d4f4af291c792d0b74f392b4995f78a2"
+    },
+    {
+      "contentId": "c1",
+      "payload": "选择题第2题",
+      "widthDu": 89.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "24e0ca144d207f019349e45d90c6b0e2b5df5003a91a76b321bcf76dc5c95505"
+    },
+    {
+      "contentId": "c2",
+      "payload": "填空题第3题",
+      "widthDu": 89.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a2f7909b7600e1d746d4c1cc9f1d4ba8a9b49a625c9ef604e1333b7711ad2c73"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"text\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com"
+}

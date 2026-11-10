@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-PROPCOORD-005",
+    "program_id": "mva-BLD-PROPCOORD-005",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [{ kind: 'text', payload: '2:3' }];\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var y = Math.round(H * 0.58);\n    var x0 = Math.round(W * 0.12);\n    var x1 = Math.round(W * 0.88);\n    var xm = Math.round(x0 + (x1 - x0) * 0.4);\n    var seg1 = [['M', x0, y], ['L', xm, y]];\n    var seg2 = [['M', xm, y], ['L', x1, y]];\n    var ticks = [\n      ['M', x0, y - 10], ['L', x0, y + 10],\n      ['M', xm, y - 14], ['L', xm, y + 14],\n      ['M', x1, y - 10], ['L', x1, y + 10]\n    ];\n    return {\n      schemaVersion: 1,\n      sceneId: 'ratio-2-3',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [\n        { id: 'seg1', commands: seg1 },\n        { id: 'seg2', commands: seg2 },\n        { id: 'ticks', commands: ticks }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'seg1', fill: '#2f6fb2', stroke: { width: 6, cap: 'round' } },\n          { type: 'path', pathId: 'seg2', fill: '#d97706', stroke: { width: 6, cap: 'round' } },\n          { type: 'path', pathId: 'ticks', fill: '#26354a', stroke: { width: 2, cap: 'round' } },\n          { type: 'label', contentId: metrics[0].contentId, anchor: { x: Math.round(W / 2), y: y - 34 }, hAlign: 'center', vAlign: 'bottom', color: '#26354a' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

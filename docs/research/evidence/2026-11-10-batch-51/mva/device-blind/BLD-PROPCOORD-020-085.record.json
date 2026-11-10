@@ -1,0 +1,60 @@
+{
+  "input_file": "BLD-PROPCOORD-020.json",
+  "program_sha256": "62efdef9d73f9dbbfdcc2ae382a64e8812d2282d447422450b292ea633b80a00",
+  "task_id": "BLD-PROPCOORD-020",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 17,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "比例尺 1:10000",
+      "widthDu": 110.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "dc74a641096807765e9e2546b027d3933ae03c34e1d55eb265733822db826c85"
+    },
+    {
+      "contentId": "c1",
+      "payload": "图上距离 7 厘米",
+      "widthDu": 113.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "dffedd9f5d61d8761db4c854a5c0c0d91182d80526ef53c2b4df5b80c58f68af"
+    },
+    {
+      "contentId": "c2",
+      "payload": "实际距离 70000 厘米",
+      "widthDu": 149.4545440673828,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "10f087719da4354c024b00a2ed82458ee77016774fbd510f151a3a8103e25971"
+    },
+    {
+      "contentId": "c3",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c4",
+      "payload": "7 厘米",
+      "widthDu": 45.09090805053711,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6e7d31257c978e68ee95fab728c48bba52a1aca9e6bc836e99b70955ffc9bc88"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-PROPCOORD-003",
+    "program_id": "mva-BLD-PROPCOORD-003",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [{ kind: 'text', payload: '4:1' }];\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var x0 = w * 0.12;\n    var x1 = w * 0.88;\n    var y = h * 0.58;\n    var xdiv = x0 + (x1 - x0) * 0.8;\n    var tick = Math.max(8, h * 0.06);\n    var segment = visualSdk.polyline([[x0, y], [x1, y]]);\n    var tickStart = visualSdk.polyline([[x0, y - tick], [x0, y + tick]]);\n    var tickDiv = visualSdk.polyline([[xdiv, y - tick], [xdiv, y + tick]]);\n    var tickEnd = visualSdk.polyline([[x1, y - tick], [x1, y + tick]]);\n    return {\n      schemaVersion: 1,\n      sceneId: 'ratio-4-to-1',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'segment', commands: segment },\n        { id: 'tick-start', commands: tickStart },\n        { id: 'tick-div', commands: tickDiv },\n        { id: 'tick-end', commands: tickEnd }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'segment', fill: '#26354a', stroke: { width: 3, cap: 'round' } },\n          { type: 'path', pathId: 'tick-start', fill: '#26354a', stroke: { width: 2, cap: 'round' } },\n          { type: 'path', pathId: 'tick-div', fill: '#c0392b', stroke: { width: 3, cap: 'round' } },\n          { type: 'path', pathId: 'tick-end', fill: '#26354a', stroke: { width: 2, cap: 'round' } },\n          { type: 'label', contentId: metrics[0].contentId, anchor: { x: (x0 + x1) / 2, y: Math.max(16, y - tick - 12) }, hAlign: 'center', vAlign: 'bottom', color: '#26354a' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

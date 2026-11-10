@@ -1,0 +1,94 @@
+{
+  "generated_by": "tools/figure_eval/author_program_compile_check.mjs",
+  "programs": 6,
+  "status_counts": {
+    "COMPILED": 6
+  },
+  "error_code_counts": {},
+  "results": [
+    {
+      "file": "CAL-CHECK-ABSENT.json",
+      "task_id": "CAL-CHECK-ABSENT",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 3,
+        "pathCommands": 11,
+        "labels": 1,
+        "ops": 2
+      },
+      "pathOps": 1,
+      "labelOps": 1
+    },
+    {
+      "file": "CAL-CHECK-PRESENT.json",
+      "task_id": "CAL-CHECK-PRESENT",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 3,
+        "pathCommands": 3,
+        "labels": 1,
+        "ops": 2
+      },
+      "pathOps": 1,
+      "labelOps": 1
+    },
+    {
+      "file": "CAL-DIR-DOWN.json",
+      "task_id": "CAL-DIR-DOWN",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 3,
+        "pathCommands": 5,
+        "labels": 1,
+        "ops": 2
+      },
+      "pathOps": 1,
+      "labelOps": 1
+    },
+    {
+      "file": "CAL-DIR-UP.json",
+      "task_id": "CAL-DIR-UP",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 3,
+        "pathCommands": 5,
+        "labels": 1,
+        "ops": 2
+      },
+      "pathOps": 1,
+      "labelOps": 1
+    },
+    {
+      "file": "CAL-PHASE-OK.json",
+      "task_id": "CAL-PHASE-OK",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 5,
+        "pathCommands": 5,
+        "labels": 3,
+        "ops": 4
+      },
+      "pathOps": 1,
+      "labelOps": 3
+    },
+    {
+      "file": "CAL-PHASE-REVERSED.json",
+      "task_id": "CAL-PHASE-REVERSED",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 5,
+        "pathCommands": 5,
+        "labels": 3,
+        "ops": 4
+      },
+      "pathOps": 1,
+      "labelOps": 3
+    }
+  ]
+}

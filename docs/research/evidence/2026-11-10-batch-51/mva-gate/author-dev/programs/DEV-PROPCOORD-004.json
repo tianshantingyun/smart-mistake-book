@@ -1,0 +1,13 @@
+{
+    "task_id": "DEV-PROPCOORD-004",
+    "program_id": "mva-DEV-PROPCOORD-004",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '地图比例尺 1:10000' },\n      { kind: 'text', payload: '图上两地距离 7 厘米' },\n      { kind: 'text', payload: '实际距离 70000 厘米' },\n      { kind: 'text', payload: '0' },\n      { kind: 'text', payload: '7 厘米' }\n    ];\n  },\n  render: function (input, metrics) {\n    var W = (input.viewport && input.viewport.widthDu) || 640;\n    var H = (input.viewport && input.viewport.heightDu) || 360;\n    var left = W * 0.12;\n    var right = W * 0.88;\n    var y = H * 0.50;\n    var n = 7;\n    var gap = (right - left) / n;\n    var tickH = Math.max(8, Math.min(18, H * 0.045));\n    var majorH = tickH * 1.6;\n    var labelGap = Math.max(26, H * 0.08);\n    var cmds = [];\n    cmds = cmds.concat(visualSdk.polyline([[left, y], [right, y]]));\n    for (var i = 0; i <= n; i++) {\n      var x = left + gap * i;\n      var h = (i === 0 || i === n) ? majorH : tickH;\n      cmds = cmds.concat(visualSdk.polyline([[x, y - h], [x, y + h]]));\n    }\n    var titleY = H * 0.16;\n    var mapLabelY = y - majorH - labelGap * 0.9;\n    var endLabelY = y + majorH + labelGap * 0.5;\n    var actualLabelY = y + majorH + labelGap * 1.8;\n    var centerX = (left + right) / 2;\n    return {\n      schemaVersion: 1,\n      sceneId: 'scale-segment',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [{ id: 'scale', commands: cmds }],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'scale', fill: '#26354a', stroke: { width: 2 } },\n          { type: 'label', contentId: 'c0', anchor: { x: centerX, y: titleY }, hAlign: 'center', vAlign: 'bottom', color: '#26354a' },\n          { type: 'label', contentId: 'c1', anchor: { x: centerX, y: mapLabelY }, hAlign: 'center', vAlign: 'bottom', color: '#26354a' },\n          { type: 'label', contentId: 'c2', anchor: { x: centerX, y: actualLabelY }, hAlign: 'center', vAlign: 'top', color: '#26354a' },\n          { type: 'label', contentId: 'c3', anchor: { x: left, y: endLabelY }, hAlign: 'center', vAlign: 'top', color: '#26354a' },\n          { type: 'label', contentId: 'c4', anchor: { x: right, y: endLabelY }, hAlign: 'center', vAlign: 'top', color: '#26354a' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

@@ -1,0 +1,12 @@
+{
+  "answered_fact_count": 32,
+  "generated_by": "tools/figure_eval/mva_vlm_judge.py",
+  "judge_status_counts": {
+    "OK": 20
+  },
+  "judged_tasks": 20,
+  "key_sha8": "cd10efbc",
+  "model": "deepseek-flash",
+  "tasks_with_images": 98,
+  "unanswered_fact_count": 0
+}

@@ -1,0 +1,87 @@
+{
+  "input_file": "BLD-MECHPHASE-002.json",
+  "program_sha256": "bcc4322eb4b9962d07de75df3df991a382432818c8158c75c549738e3a1b751a",
+  "task_id": "BLD-MECHPHASE-002",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 29,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "F(x)=F0(1−x\/h)",
+      "widthDu": 106.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "057788f8d7d1f069ca2ba5e3c75200c95d204f6b09f7fe9161da730264828255"
+    },
+    {
+      "contentId": "c1",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c2",
+      "payload": "F",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f67ab10ad4e4c53121b6a5fe4da9c10ddee905b978d3788d2723d7bfacbe28a9"
+    },
+    {
+      "contentId": "c3",
+      "payload": "h\/2",
+      "widthDu": 24.363636016845703,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2709026306d1da2d10050002585b869e4524b562c083198b138d630c61900adb"
+    },
+    {
+      "contentId": "c4",
+      "payload": "h",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "aaa9402664f1a41f40ebbc52c9993eb66aeb366602958fdfaa283b71e64db123"
+    },
+    {
+      "contentId": "c5",
+      "payload": "F0",
+      "widthDu": 17.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3fb8cc1315a76758d467993926f56f15cce7244b54213c63314ad4d5d0237d15"
+    },
+    {
+      "contentId": "c6",
+      "payload": "阴影面积 W = (3\/8)F0h = 0.375F0h",
+      "widthDu": 245.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f86a8dbaf38e132c2afbabfb552bb22686c78e20fdf96b17e893a89c9f289da0"
+    },
+    {
+      "contentId": "c7",
+      "payload": "W\/(F0h) = 3\/8 = 0.375",
+      "widthDu": 157.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a6eb29eae07e9fb66387730a0d04113f936b3bf05d9aef21887e00454d909bbb"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_ARGS: scene.paths[3].commands[4] must be a command array like [\"M\", x, y]\n    at SceneCompileError (visual-compiler.js:72:26)\n    "
+}

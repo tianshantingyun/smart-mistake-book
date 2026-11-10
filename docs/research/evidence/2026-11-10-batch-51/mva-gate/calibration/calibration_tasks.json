@@ -1,0 +1,92 @@
+{
+  "generated_by": "batch51 mva-gate calibration",
+  "purpose": "C 通道注入错值校准：同问题、图上内容正确/错误各一张",
+  "items": [
+    {
+      "id": "dir-ok",
+      "task_id": "CAL-DIR-UP",
+      "statement": "图中画一个竖直向上的箭头。",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "image_truth": "up",
+      "gate_expected": "up",
+      "injected_wrong_value": false
+    },
+    {
+      "id": "dir-wrong",
+      "task_id": "CAL-DIR-DOWN",
+      "statement": "图中画一个竖直向下的箭头（注入错值：期望向上）。",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "image_truth": "down",
+      "gate_expected": "up",
+      "injected_wrong_value": true
+    },
+    {
+      "id": "absent-ok",
+      "task_id": "CAL-CHECK-ABSENT",
+      "statement": "去手写后的干净题面，不得有红笔勾、对号、波浪线。",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "image_truth": [],
+      "gate_expected": [
+        "红笔勾",
+        "对号",
+        "波浪线"
+      ],
+      "injected_wrong_value": false
+    },
+    {
+      "id": "absent-wrong",
+      "task_id": "CAL-CHECK-PRESENT",
+      "statement": "图中含一个红色勾（注入错值：应已去除）。",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "image_truth": [
+        "红笔勾"
+      ],
+      "gate_expected": [
+        "红笔勾",
+        "对号",
+        "波浪线"
+      ],
+      "injected_wrong_value": true
+    },
+    {
+      "id": "phase-ok",
+      "task_id": "CAL-PHASE-OK",
+      "statement": "三个阶段标签从左到右为 u=0、u=1/2、u=1。",
+      "key": "phase_order",
+      "kind": "ordering",
+      "image_truth": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ],
+      "gate_expected": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ],
+      "injected_wrong_value": false
+    },
+    {
+      "id": "phase-wrong",
+      "task_id": "CAL-PHASE-REVERSED",
+      "statement": "三个阶段标签从左到右为 u=1、u=1/2、u=0（注入错值：期望正向）。",
+      "key": "phase_order",
+      "kind": "ordering",
+      "image_truth": [
+        "u=1",
+        "u=1/2",
+        "u=0"
+      ],
+      "gate_expected": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ],
+      "injected_wrong_value": true
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "input_file": "BLD-MECHPHASE-017.json",
+  "program_sha256": "11fd77dba070de717433354306b5b93a2efdcf1ee21477e0040cb616f7864dd5",
+  "task_id": "BLD-MECHPHASE-017",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 51,
+  "measurement": [
+    {
+      "contentId": "c0-ea3292b6",
+      "payload": "y1 = sin θ（振幅 1）",
+      "widthDu": 144.72727966308594,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ea3292b686f2811edb9ffaa3416916c6ff0e7f5b4e13de3719a25491bb9f6b3d"
+    },
+    {
+      "contentId": "c1-3cf68c3e",
+      "payload": "y2 = 0.5 sin θ（振幅 0.5）",
+      "widthDu": 184.72727966308594,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3cf68c3eb196adbe19639561a4302c48f342c81612b1439573eb87587d3fffa3"
+    },
+    {
+      "contentId": "c2-b61e1e48",
+      "payload": "y = y1 + y2（振幅 1.5）",
+      "widthDu": 165.4545440673828,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b61e1e489873530d8257ab475281055edf1a8ae4d765d03760b4e01e107bd204"
+    },
+    {
+      "contentId": "c3-59590d00",
+      "payload": "θ",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "59590d0003ac1e3a2b876cbba12ce3dc1a855f4afee6b0fea49047a22020204b"
+    },
+    {
+      "contentId": "c4-a1fce436",
+      "payload": "y",
+      "widthDu": 7.636363506317139,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a1fce4363854ff888cff4b8e7875d600c2682390412a8cf79b37d0b11148b0fa"
+    },
+    {
+      "contentId": "c5-9f29a130",
+      "payload": "1.5",
+      "widthDu": 22.545454025268555,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9f29a130438b81170b92a42650f9a94291ecad60bd47af2a3886e75f7f728725"
+    },
+    {
+      "contentId": "c6-8997919c",
+      "payload": "−1.5",
+      "widthDu": 31.636363983154297,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8997919c00b30a56ee411a9356cc05a1eaee1e1b90be4bc4b315f0497ddbf92b"
+    },
+    {
+      "contentId": "c7-c4694f2e",
+      "payload": "O",
+      "widthDu": 10.909090995788574,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c4694f2e93d5c4e7d51f9c5deb75e6cc8be5e1114178c6a45b6fc2c566a0aa8c"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "ed2aa2b10c759caa6647d4d3a54217e97a637f286a04a7fd16954a2ff47f1d03",
+  "scene_bytes": 21066,
+  "scene_schema_version": 1,
+  "draw_sha256": "cd4a7b32cd9dfca613b9a2fa5bd2008e1dff432ee04ad2d8ce6a42993248328b",
+  "draw_bytes": 21557,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-ea3292b6",
+    "c1-3cf68c3e",
+    "c2-b61e1e48",
+    "c3-59590d00",
+    "c4-a1fce436",
+    "c5-9f29a130",
+    "c6-8997919c",
+    "c7-c4694f2e"
+  ],
+  "png_sha256": "a387a3c8f04cc294a111f853ccfbfa74eecc4d4e0009b54afdf5866c6af6a8ec",
+  "png_bytes": 13151,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 28,
+    "pathCommands": 545,
+    "labels": 8,
+    "ops": 27
+  }
+}

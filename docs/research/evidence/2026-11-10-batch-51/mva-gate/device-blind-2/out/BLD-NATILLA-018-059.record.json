@@ -1,0 +1,71 @@
+{
+  "input_file": "BLD-NATILLA-018.json",
+  "program_sha256": "9a47bf400edef7a9688a8586f71d59f717775c76e84ecbc19b5a92ea91e6abb3",
+  "task_id": "BLD-NATILLA-018",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 20,
+  "measurement": [
+    {
+      "contentId": "c0-65172d22",
+      "payload": "支点",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "65172d22a0ec7843bd228f123cbf3daa63a50bdc80fb12d9dddb3444eed2caed"
+    },
+    {
+      "contentId": "c1-b2905803",
+      "payload": "动力臂",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b29058030c4dff353520f55c41a233fb52f379466f5f8a19adc33b9b64d1d42a"
+    },
+    {
+      "contentId": "c2-35084bb8",
+      "payload": "阻力臂",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "35084bb84fb450b4b56e54796b02edb20c2f294fd41f84a1064589ebf26061ba"
+    },
+    {
+      "contentId": "c3-933a5225",
+      "payload": "动力臂 : 阻力臂 = 3 : 2",
+      "widthDu": 154.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "933a52252f68f2c64436da6c6eda306e896711f69fb9c9dac232aaf001dc4c37"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "ab25287a5cde085897053bead6ab8c3efbcfd0a02626d5b4b58d5553c68d3971",
+  "scene_bytes": 3613,
+  "scene_schema_version": 1,
+  "draw_sha256": "9d55b8b7c9bc3ca9c16a773c3ddf04c5073970f806159d2d4d507ec828bdab91",
+  "draw_bytes": 3767,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-65172d22",
+    "c1-b2905803",
+    "c2-35084bb8",
+    "c3-933a5225"
+  ],
+  "png_sha256": "799ddc5b391a5270d9d4e9b373d5259825406f0b6c8c7e8f4033534aba1deede",
+  "png_bytes": 19261,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 16,
+    "pathCommands": 49,
+    "labels": 4,
+    "ops": 15
+  }
+}

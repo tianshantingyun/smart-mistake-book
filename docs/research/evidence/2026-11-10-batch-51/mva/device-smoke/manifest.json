@@ -1,0 +1,105 @@
+{
+  "generated_by": "MvaJsArmAdapterInstrumentedTest",
+  "device_model": "sdk_gphone64_x86_64",
+  "device_manufacturer": "Google",
+  "sdk_int": 34,
+  "density": 2.75,
+  "font_scale": 1,
+  "px_per_du": 2,
+  "engine": "QuickJsVisualExecutionEngine (core:data, per-program instance)",
+  "divergences": [
+    "no app VisualJsClientEngine \/ :visual_js isolated process \/ AIDL queue",
+    "measurer is an in-test Paint measurer, not app AndroidVisualContentMeasurer",
+    "one engine instance per program (production runs a resident service)"
+  ],
+  "program_count": 2,
+  "status_counts": {
+    "REJECTED": 2
+  },
+  "records": [
+    {
+      "input_file": "DEV-PROPCOORD-001.json",
+      "program_sha256": "3b2e5608d83567a897d20e39a7822d8efdbf3068f2a2b6e512b620e5516b0182",
+      "task_id": "DEV-PROPCOORD-001",
+      "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+      },
+      "latency_ms": 171,
+      "measurement": [
+        {
+          "contentId": "c0",
+          "payload": "1:1",
+          "widthDu": 22.18181800842285,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "d6b5915c46057bcb005f46f6433df65609dd3a7a57af75ac1a5a4a7c299ebffb"
+        }
+      ],
+      "status": "REJECTED",
+      "reason": "INVALID_SCENE",
+      "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+    },
+    {
+      "input_file": "DEV-PROPCOORD-002.json",
+      "program_sha256": "e1ad4d9c69a2d3d6927ab9290acf08a9ff32ddaf746623de5835cf31d82d59df",
+      "task_id": "DEV-PROPCOORD-002",
+      "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+      },
+      "latency_ms": 34,
+      "measurement": [
+        {
+          "contentId": "c0",
+          "payload": "第二象限",
+          "widthDu": 64,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "30251f0abd6ab02e1475a73e5556d6b35af3993e8c86eddecd613af6c1c09432"
+        },
+        {
+          "contentId": "c1",
+          "payload": "P(-3,2)",
+          "widthDu": 46.90909194946289,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "e7e1aeae1af5f396e8ab57a4d002d05ca7411ce7d5adb625ad18a07544fa8d5f"
+        },
+        {
+          "contentId": "c2",
+          "payload": "x",
+          "widthDu": 8,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+        },
+        {
+          "contentId": "c3",
+          "payload": "y",
+          "widthDu": 7.636363506317139,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "a1fce4363854ff888cff4b8e7875d600c2682390412a8cf79b37d0b11148b0fa"
+        },
+        {
+          "contentId": "c4",
+          "payload": "O",
+          "widthDu": 10.909090995788574,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "c4694f2e93d5c4e7d51f9c5deb75e6cc8be5e1114178c6a45b6fc2c566a0aa8c"
+        }
+      ],
+      "status": "REJECTED",
+      "reason": "INVALID_SCENE",
+      "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-PROPCOORD-006",
+    "program_id": "mva-BLD-PROPCOORD-006",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [{ kind: 'text', payload: '3:1' }];\n  },\n  render: function (input, metrics) {\n    var vw = input.viewport.widthDu;\n    var vh = input.viewport.heightDu;\n    var width = vw > 0 ? vw : 800;\n    var height = vh > 0 ? vh : 600;\n    var marginX = width * 0.15;\n    var x0 = marginX;\n    var x1 = width - marginX;\n    var y = height * 0.56;\n    var total = x1 - x0;\n    var split = x0 + total * 0.75;\n    var barH = Math.max(3, Math.min(width, height) * 0.012);\n    var tickH = barH * 4;\n    var color = '#26354a';\n\n    function rect(x, top, w, h) {\n      return [\n        ['M', x, top],\n        ['L', x + w, top],\n        ['L', x + w, top + h],\n        ['L', x, top + h],\n        ['Z']\n      ];\n    }\n\n    var left = rect(x0, y - barH / 2, split - x0, barH);\n    var right = rect(split, y - barH / 2, x1 - split, barH);\n    var divider = rect(split - barH * 0.75, y - tickH / 2, barH * 1.5, tickH);\n    var labelY = y - Math.max(28, Math.min(width, height) * 0.07);\n\n    return {\n      schemaVersion: 1,\n      sceneId: 'ratio-3-to-1',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: width, height: height },\n      paths: [\n        { id: 'segment-3', commands: left },\n        { id: 'segment-1', commands: right },\n        { id: 'divider', commands: divider }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'segment-3', fill: color },\n          { type: 'path', pathId: 'segment-1', fill: color },\n          { type: 'path', pathId: 'divider', fill: color },\n          {\n            type: 'label',\n            contentId: metrics[0].contentId,\n            anchor: { x: (x0 + x1) / 2, y: labelY },\n            hAlign: 'center',\n            vAlign: 'bottom',\n            color: color\n          }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

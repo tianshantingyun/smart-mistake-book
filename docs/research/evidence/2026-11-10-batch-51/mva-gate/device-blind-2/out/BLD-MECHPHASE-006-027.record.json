@@ -1,0 +1,101 @@
+{
+  "input_file": "BLD-MECHPHASE-006.json",
+  "program_sha256": "0e5a6e7d0b422723d6e32491f5264725def4909da95c778ff87e5b4b2a07c409",
+  "task_id": "BLD-MECHPHASE-006",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 25,
+  "measurement": [
+    {
+      "contentId": "c0-c1e81bcf",
+      "payload": "F₀",
+      "widthDu": 14.545454978942871,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c1e81bcf4fd8482fb23ed16ec6ca6e3f350529ecdc5825e7c3bb54a4e20a2558"
+    },
+    {
+      "contentId": "c1-5feceb66",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c2-27090263",
+      "payload": "h\/2",
+      "widthDu": 24.363636016845703,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2709026306d1da2d10050002585b869e4524b562c083198b138d630c61900adb"
+    },
+    {
+      "contentId": "c3-aaa94026",
+      "payload": "h",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "aaa9402664f1a41f40ebbc52c9993eb66aeb366602958fdfaa283b71e64db123"
+    },
+    {
+      "contentId": "c4-2d711642",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c5-2d9ffcbe",
+      "payload": "F(x)=F₀(1−x\/h)",
+      "widthDu": 103.2727279663086,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d9ffcbeb51e7cf6ec3b0e8bef79d6cd6ed7de80ba0d1b846dfbf05fb508ae7a"
+    },
+    {
+      "contentId": "c6-dfecc64a",
+      "payload": "W\/(F₀h) = 3\/8 = 0.375",
+      "widthDu": 153.81817626953125,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "dfecc64abfb9fe6f42c8d9084507a9b0dabcbcd964a035ace6924594b481e276"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "98e41310308b641bdee4152ffa84f06cd931110b46ff14404d1d1a6e3b5c0fb0",
+  "scene_bytes": 2117,
+  "scene_schema_version": 1,
+  "draw_sha256": "175d2bf9bb09d473016a6170019a96e01e05b0aafbd19d83b0660cfd32651afe",
+  "draw_bytes": 2434,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-c1e81bcf",
+    "c1-5feceb66",
+    "c2-27090263",
+    "c3-aaa94026",
+    "c4-2d711642",
+    "c5-2d9ffcbe",
+    "c6-dfecc64a"
+  ],
+  "png_sha256": "1cc71870dc48e28b470d2bd21788c169f297f1e50dc3af3153eb2b44dbdaa34b",
+  "png_bytes": 11848,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 16,
+    "pathCommands": 29,
+    "labels": 7,
+    "ops": 15
+  }
+}

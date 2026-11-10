@@ -1,0 +1,121 @@
+{
+  "input_file": "BLD-PROPCOORD-014.json",
+  "program_sha256": "ec5fa14eb2d1a16e7fda436d9a4d16fb56821339dc1bd52c9ba376fdc0204336",
+  "task_id": "BLD-PROPCOORD-014",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 31,
+  "measurement": [
+    {
+      "contentId": "c0-71c59edf",
+      "payload": "数轴：标出 1\/2 与 2\/3",
+      "widthDu": 157.4545440673828,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "71c59edf4869dd04cb82006d14110f731009161eade67e7792f171ea01cc0324"
+    },
+    {
+      "contentId": "c1-5feceb66",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c2-8f854692",
+      "payload": "1\/6",
+      "widthDu": 24.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8f854692d8bc8def84a88d511dd150de9dd8b6bfe000d5a417dde49e4a3d12c2"
+    },
+    {
+      "contentId": "c3-0d7f0e33",
+      "payload": "1\/3",
+      "widthDu": 24.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0d7f0e336166042f8cc9e4c20ae427ba367c279d6e3dfd1bd7247b0fbce61d50"
+    },
+    {
+      "contentId": "c4-d939926f",
+      "payload": "1\/2",
+      "widthDu": 24.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d939926f05444b0f4495fb9629ecbfa80d99a8ec1a20d06800ca5a3d5f4fd276"
+    },
+    {
+      "contentId": "c5-484aa6cc",
+      "payload": "2\/3",
+      "widthDu": 24.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "484aa6ccd17c9fe96eb955b9b56ed0c883b275301479deec1b817afe2abdaf72"
+    },
+    {
+      "contentId": "c6-6527243b",
+      "payload": "5\/6",
+      "widthDu": 24.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6527243b137e313aee168954360944e5a3bdd5e700e74a5b1ac6a44bd24dd652"
+    },
+    {
+      "contentId": "c7-6b86b273",
+      "payload": "1",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "contentId": "c8-9ad96149",
+      "payload": "从小到大：1\/2 < 2\/3",
+      "widthDu": 145.4545440673828,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9ad96149859f174e0358620b1a320ddbc7207a1cfa9de6e30417b66eb127f8c0"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "bb962fe9ec37716b253c00c994613e20f49d71daf81859f9f2d4acbd63d25cf8",
+  "scene_bytes": 2396,
+  "scene_schema_version": 1,
+  "draw_sha256": "c271452f63b7ae75c8ecdc90db87cf8cc00d22fa006c806bd7fe4a0fc26d7b93",
+  "draw_bytes": 2615,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-71c59edf",
+    "c1-5feceb66",
+    "c2-8f854692",
+    "c3-0d7f0e33",
+    "c4-d939926f",
+    "c5-484aa6cc",
+    "c6-6527243b",
+    "c7-6b86b273",
+    "c8-9ad96149"
+  ],
+  "png_sha256": "27d64aaa785886d4fd73d760e375e423eb9fbff2045082aa767ddd9e94500722",
+  "png_bytes": 7253,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 13,
+    "pathCommands": 27,
+    "labels": 9,
+    "ops": 12
+  }
+}

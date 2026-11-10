@@ -1,0 +1,2844 @@
+{
+  "generated_by": "probe_decodability.py",
+  "source": "tools/figure_eval/tasks_blind_120.json",
+  "classes": {
+    "A1": "显示列表单独可判（几何/文本）",
+    "A2": "显示列表 + 作者角色声明可判（数值仍由代码算）",
+    "D3": "显示列表不可判（类名/物理单位/栅格语义）"
+  },
+  "totals": {
+    "facts": 288,
+    "by_class": {
+      "A1": 204,
+      "A2": 70,
+      "D3": 14
+    },
+    "critical_by_class": {
+      "A1": 129,
+      "A2": 66,
+      "D3": 14
+    },
+    "tasks": 120,
+    "tasks_all_A": 106,
+    "tasks_all_A1": 64,
+    "tasks_all_A1_ids": [
+      "BLD-DEHANDWR-015",
+      "BLD-DEHANDWR-016",
+      "BLD-DEHANDWR-017",
+      "BLD-DEHANDWR-018",
+      "BLD-DEHANDWR-019",
+      "BLD-DEHANDWR-020",
+      "BLD-FLOWFORM-001",
+      "BLD-FLOWFORM-002",
+      "BLD-FLOWFORM-003",
+      "BLD-FLOWFORM-004",
+      "BLD-FLOWFORM-005",
+      "BLD-FLOWFORM-006",
+      "BLD-FLOWFORM-007",
+      "BLD-FLOWFORM-008",
+      "BLD-FLOWFORM-009",
+      "BLD-FLOWFORM-010",
+      "BLD-FLOWFORM-011",
+      "BLD-FLOWFORM-012",
+      "BLD-FLOWFORM-013",
+      "BLD-FLOWFORM-014",
+      "BLD-FLOWFORM-015",
+      "BLD-FLOWFORM-016",
+      "BLD-FLOWFORM-017",
+      "BLD-FLOWFORM-018",
+      "BLD-FLOWFORM-019",
+      "BLD-FLOWFORM-020",
+      "BLD-NATILLA-001",
+      "BLD-NATILLA-002",
+      "BLD-NATILLA-003",
+      "BLD-NATILLA-004",
+      "BLD-NATILLA-005",
+      "BLD-NATILLA-006",
+      "BLD-NATILLA-007",
+      "BLD-PROPCOORD-001",
+      "BLD-PROPCOORD-002",
+      "BLD-PROPCOORD-003",
+      "BLD-PROPCOORD-004",
+      "BLD-PROPCOORD-005",
+      "BLD-PROPCOORD-006",
+      "BLD-PROPCOORD-016",
+      "BLD-PROPCOORD-017",
+      "BLD-PROPCOORD-018",
+      "BLD-PROPCOORD-019",
+      "BLD-PROPCOORD-020",
+      "BLD-SRCREBLD-001",
+      "BLD-SRCREBLD-002",
+      "BLD-SRCREBLD-003",
+      "BLD-SRCREBLD-004",
+      "BLD-SRCREBLD-005",
+      "BLD-SRCREBLD-006",
+      "BLD-SRCREBLD-007",
+      "BLD-SRCREBLD-008",
+      "BLD-SRCREBLD-009",
+      "BLD-SRCREBLD-010",
+      "BLD-SRCREBLD-011",
+      "BLD-SRCREBLD-012",
+      "BLD-SRCREBLD-013",
+      "BLD-SRCREBLD-014",
+      "BLD-SRCREBLD-015",
+      "BLD-SRCREBLD-016",
+      "BLD-SRCREBLD-017",
+      "BLD-SRCREBLD-018",
+      "BLD-SRCREBLD-019",
+      "BLD-SRCREBLD-020"
+    ],
+    "tasks_with_A2": 42,
+    "tasks_with_D3": 14,
+    "tasks_with_D3_ids": [
+      "BLD-DEHANDWR-001",
+      "BLD-DEHANDWR-002",
+      "BLD-DEHANDWR-003",
+      "BLD-DEHANDWR-004",
+      "BLD-DEHANDWR-005",
+      "BLD-DEHANDWR-006",
+      "BLD-DEHANDWR-007",
+      "BLD-DEHANDWR-008",
+      "BLD-DEHANDWR-009",
+      "BLD-DEHANDWR-010",
+      "BLD-DEHANDWR-011",
+      "BLD-DEHANDWR-012",
+      "BLD-DEHANDWR-013",
+      "BLD-DEHANDWR-014"
+    ],
+    "tasks_all_A_ids": [
+      "BLD-DEHANDWR-015",
+      "BLD-DEHANDWR-016",
+      "BLD-DEHANDWR-017",
+      "BLD-DEHANDWR-018",
+      "BLD-DEHANDWR-019",
+      "BLD-DEHANDWR-020",
+      "BLD-FLOWFORM-001",
+      "BLD-FLOWFORM-002",
+      "BLD-FLOWFORM-003",
+      "BLD-FLOWFORM-004",
+      "BLD-FLOWFORM-005",
+      "BLD-FLOWFORM-006",
+      "BLD-FLOWFORM-007",
+      "BLD-FLOWFORM-008",
+      "BLD-FLOWFORM-009",
+      "BLD-FLOWFORM-010",
+      "BLD-FLOWFORM-011",
+      "BLD-FLOWFORM-012",
+      "BLD-FLOWFORM-013",
+      "BLD-FLOWFORM-014",
+      "BLD-FLOWFORM-015",
+      "BLD-FLOWFORM-016",
+      "BLD-FLOWFORM-017",
+      "BLD-FLOWFORM-018",
+      "BLD-FLOWFORM-019",
+      "BLD-FLOWFORM-020",
+      "BLD-MECHPHASE-001",
+      "BLD-MECHPHASE-002",
+      "BLD-MECHPHASE-003",
+      "BLD-MECHPHASE-004",
+      "BLD-MECHPHASE-005",
+      "BLD-MECHPHASE-006",
+      "BLD-MECHPHASE-007",
+      "BLD-MECHPHASE-008",
+      "BLD-MECHPHASE-009",
+      "BLD-MECHPHASE-010",
+      "BLD-MECHPHASE-011",
+      "BLD-MECHPHASE-012",
+      "BLD-MECHPHASE-013",
+      "BLD-MECHPHASE-014",
+      "BLD-MECHPHASE-015",
+      "BLD-MECHPHASE-016",
+      "BLD-MECHPHASE-017",
+      "BLD-MECHPHASE-018",
+      "BLD-MECHPHASE-019",
+      "BLD-MECHPHASE-020",
+      "BLD-NATILLA-001",
+      "BLD-NATILLA-002",
+      "BLD-NATILLA-003",
+      "BLD-NATILLA-004",
+      "BLD-NATILLA-005",
+      "BLD-NATILLA-006",
+      "BLD-NATILLA-007",
+      "BLD-NATILLA-008",
+      "BLD-NATILLA-009",
+      "BLD-NATILLA-010",
+      "BLD-NATILLA-011",
+      "BLD-NATILLA-012",
+      "BLD-NATILLA-013",
+      "BLD-NATILLA-014",
+      "BLD-NATILLA-015",
+      "BLD-NATILLA-016",
+      "BLD-NATILLA-017",
+      "BLD-NATILLA-018",
+      "BLD-NATILLA-019",
+      "BLD-NATILLA-020",
+      "BLD-PROPCOORD-001",
+      "BLD-PROPCOORD-002",
+      "BLD-PROPCOORD-003",
+      "BLD-PROPCOORD-004",
+      "BLD-PROPCOORD-005",
+      "BLD-PROPCOORD-006",
+      "BLD-PROPCOORD-007",
+      "BLD-PROPCOORD-008",
+      "BLD-PROPCOORD-009",
+      "BLD-PROPCOORD-010",
+      "BLD-PROPCOORD-011",
+      "BLD-PROPCOORD-012",
+      "BLD-PROPCOORD-013",
+      "BLD-PROPCOORD-014",
+      "BLD-PROPCOORD-015",
+      "BLD-PROPCOORD-016",
+      "BLD-PROPCOORD-017",
+      "BLD-PROPCOORD-018",
+      "BLD-PROPCOORD-019",
+      "BLD-PROPCOORD-020",
+      "BLD-SRCREBLD-001",
+      "BLD-SRCREBLD-002",
+      "BLD-SRCREBLD-003",
+      "BLD-SRCREBLD-004",
+      "BLD-SRCREBLD-005",
+      "BLD-SRCREBLD-006",
+      "BLD-SRCREBLD-007",
+      "BLD-SRCREBLD-008",
+      "BLD-SRCREBLD-009",
+      "BLD-SRCREBLD-010",
+      "BLD-SRCREBLD-011",
+      "BLD-SRCREBLD-012",
+      "BLD-SRCREBLD-013",
+      "BLD-SRCREBLD-014",
+      "BLD-SRCREBLD-015",
+      "BLD-SRCREBLD-016",
+      "BLD-SRCREBLD-017",
+      "BLD-SRCREBLD-018",
+      "BLD-SRCREBLD-019",
+      "BLD-SRCREBLD-020"
+    ],
+    "channel_x_class": {
+      "A x A1": 53,
+      "A x A2": 41,
+      "A|B x A1": 102,
+      "A|B x D3": 14,
+      "A|B|C x A1": 38,
+      "A|C x A1": 11,
+      "A|C x A2": 29
+    }
+  },
+  "per_group": {
+    "flow_formula": {
+      "A1": 40
+    },
+    "handwriting_removal": {
+      "A1": 26,
+      "D3": 14
+    },
+    "mechanics_phases": {
+      "A1": 24,
+      "A2": 36
+    },
+    "natural_illustration": {
+      "A1": 20,
+      "A2": 20
+    },
+    "proportion_coordinates": {
+      "A1": 41,
+      "A2": 14
+    },
+    "source_rebuild": {
+      "A1": 53
+    }
+  },
+  "facts": [
+    {
+      "task_id": "BLD-DEHANDWR-001",
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-001",
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-002",
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-002",
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-003",
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-003",
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-004",
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-004",
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-005",
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-005",
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-006",
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-006",
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-007",
+      "group": "handwriting_removal",
+      "key": "kept_printed_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-007",
+      "group": "handwriting_removal",
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-008",
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "夹具值是'红笔勾/对号/波浪线'这类**类名**，不是字面串；文本级判定会把残留判过（探针已实证）"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-008",
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-009",
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "夹具值是'红笔勾/对号/波浪线'这类**类名**，不是字面串；文本级判定会把残留判过（探针已实证）"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-009",
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-010",
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "夹具值是'红笔勾/对号/波浪线'这类**类名**，不是字面串；文本级判定会把残留判过（探针已实证）"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-010",
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-011",
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "夹具值是'红笔勾/对号/波浪线'这类**类名**，不是字面串；文本级判定会把残留判过（探针已实证）"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-011",
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-012",
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "夹具值是'红笔勾/对号/波浪线'这类**类名**，不是字面串；文本级判定会把残留判过（探针已实证）"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-012",
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-013",
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "夹具值是'红笔勾/对号/波浪线'这类**类名**，不是字面串；文本级判定会把残留判过（探针已实证）"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-013",
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-014",
+      "group": "handwriting_removal",
+      "key": "erased_answer",
+      "kind": "label_absent",
+      "class": "D3",
+      "critical": true,
+      "reason": "夹具值是'红笔勾/对号/波浪线'这类**类名**，不是字面串；文本级判定会把残留判过（探针已实证）"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-014",
+      "group": "handwriting_removal",
+      "key": "kept_stem_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-015",
+      "group": "handwriting_removal",
+      "key": "kept_label_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本条数"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-015",
+      "group": "handwriting_removal",
+      "key": "kept_print_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-016",
+      "group": "handwriting_removal",
+      "key": "kept_label_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本条数"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-016",
+      "group": "handwriting_removal",
+      "key": "kept_print_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-017",
+      "group": "handwriting_removal",
+      "key": "kept_label_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本条数"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-017",
+      "group": "handwriting_removal",
+      "key": "kept_print_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-018",
+      "group": "handwriting_removal",
+      "key": "kept_label_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本条数"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-018",
+      "group": "handwriting_removal",
+      "key": "kept_print_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-019",
+      "group": "handwriting_removal",
+      "key": "kept_label_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本条数"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-019",
+      "group": "handwriting_removal",
+      "key": "kept_print_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-020",
+      "group": "handwriting_removal",
+      "key": "kept_label_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本条数"
+    },
+    {
+      "task_id": "BLD-DEHANDWR-020",
+      "group": "handwriting_removal",
+      "key": "kept_print_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-001",
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "闭合卡片数；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-001",
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "class": "A1",
+      "critical": true,
+      "reason": "卡片内标签按卡片中心主散布轴排序；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-002",
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "闭合卡片数；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-002",
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "class": "A1",
+      "critical": true,
+      "reason": "卡片内标签按卡片中心主散布轴排序；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-003",
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "闭合卡片数；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-003",
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "class": "A1",
+      "critical": true,
+      "reason": "卡片内标签按卡片中心主散布轴排序；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-004",
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "闭合卡片数；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-004",
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "class": "A1",
+      "critical": true,
+      "reason": "卡片内标签按卡片中心主散布轴排序；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-005",
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "闭合卡片数；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-005",
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "class": "A1",
+      "critical": true,
+      "reason": "卡片内标签按卡片中心主散布轴排序；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-006",
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "闭合卡片数；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-006",
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "class": "A1",
+      "critical": true,
+      "reason": "卡片内标签按卡片中心主散布轴排序；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-007",
+      "group": "flow_formula",
+      "key": "step_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "闭合卡片数；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-007",
+      "group": "flow_formula",
+      "key": "step_order",
+      "kind": "ordering",
+      "class": "A1",
+      "critical": true,
+      "reason": "卡片内标签按卡片中心主散布轴排序；探针已实跑"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-008",
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-008",
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "公式结果印刷为文本（Δ=…）"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-009",
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-009",
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "公式结果印刷为文本（Δ=…）"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-010",
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-010",
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "公式结果印刷为文本（Δ=…）"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-011",
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-011",
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "公式结果印刷为文本（Δ=…）"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-012",
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-012",
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "公式结果印刷为文本（Δ=…）"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-013",
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-013",
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "公式结果印刷为文本（Δ=…）"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-014",
+      "group": "flow_formula",
+      "key": "coefficient_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-014",
+      "group": "flow_formula",
+      "key": "discriminant",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "公式结果印刷为文本（Δ=…）"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-015",
+      "group": "flow_formula",
+      "key": "converted_ms",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "换算表单元格是印刷文本"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-015",
+      "group": "flow_formula",
+      "key": "unit_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-016",
+      "group": "flow_formula",
+      "key": "converted_ms",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "换算表单元格是印刷文本"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-016",
+      "group": "flow_formula",
+      "key": "unit_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-017",
+      "group": "flow_formula",
+      "key": "converted_ms",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "换算表单元格是印刷文本"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-017",
+      "group": "flow_formula",
+      "key": "unit_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-018",
+      "group": "flow_formula",
+      "key": "converted_ms",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "换算表单元格是印刷文本"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-018",
+      "group": "flow_formula",
+      "key": "unit_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-019",
+      "group": "flow_formula",
+      "key": "converted_ms",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "换算表单元格是印刷文本"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-019",
+      "group": "flow_formula",
+      "key": "unit_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-020",
+      "group": "flow_formula",
+      "key": "converted_ms",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "换算表单元格是印刷文本"
+    },
+    {
+      "task_id": "BLD-FLOWFORM-020",
+      "group": "flow_formula",
+      "key": "unit_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-001",
+      "group": "mechanics_phases",
+      "key": "area_W_over_F0h_at_half",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "填充区域积分 + 轴标定"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-001",
+      "group": "mechanics_phases",
+      "key": "axis_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-001",
+      "group": "mechanics_phases",
+      "key": "curve_value_at_x_equals_h",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "曲线角色 + x=h 参考线的位置"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-002",
+      "group": "mechanics_phases",
+      "key": "area_W_over_F0h_at_half",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "填充区域积分 + 轴标定"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-002",
+      "group": "mechanics_phases",
+      "key": "axis_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-002",
+      "group": "mechanics_phases",
+      "key": "curve_value_at_x_equals_h",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "曲线角色 + x=h 参考线的位置"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-003",
+      "group": "mechanics_phases",
+      "key": "area_W_over_F0h_at_half",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "填充区域积分 + 轴标定"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-003",
+      "group": "mechanics_phases",
+      "key": "axis_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-003",
+      "group": "mechanics_phases",
+      "key": "curve_value_at_x_equals_h",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "曲线角色 + x=h 参考线的位置"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-004",
+      "group": "mechanics_phases",
+      "key": "area_W_over_F0h_at_half",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "填充区域积分 + 轴标定"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-004",
+      "group": "mechanics_phases",
+      "key": "axis_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-004",
+      "group": "mechanics_phases",
+      "key": "curve_value_at_x_equals_h",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "曲线角色 + x=h 参考线的位置"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-005",
+      "group": "mechanics_phases",
+      "key": "area_W_over_F0h_at_half",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "填充区域积分 + 轴标定"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-005",
+      "group": "mechanics_phases",
+      "key": "axis_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-005",
+      "group": "mechanics_phases",
+      "key": "curve_value_at_x_equals_h",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "曲线角色 + x=h 参考线的位置"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-006",
+      "group": "mechanics_phases",
+      "key": "area_W_over_F0h_at_half",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "填充区域积分 + 轴标定"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-006",
+      "group": "mechanics_phases",
+      "key": "axis_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-006",
+      "group": "mechanics_phases",
+      "key": "curve_value_at_x_equals_h",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "曲线角色 + x=h 参考线的位置"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-007",
+      "group": "mechanics_phases",
+      "key": "force_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-007",
+      "group": "mechanics_phases",
+      "key": "friction_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "箭头角色 + 箭头尖端/底边的几何方向"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-007",
+      "group": "mechanics_phases",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-008",
+      "group": "mechanics_phases",
+      "key": "force_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-008",
+      "group": "mechanics_phases",
+      "key": "pressure_friction_resultant_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-008",
+      "group": "mechanics_phases",
+      "key": "pull_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-009",
+      "group": "mechanics_phases",
+      "key": "force_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-009",
+      "group": "mechanics_phases",
+      "key": "friction_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "箭头角色 + 箭头尖端/底边的几何方向"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-009",
+      "group": "mechanics_phases",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-010",
+      "group": "mechanics_phases",
+      "key": "force_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-010",
+      "group": "mechanics_phases",
+      "key": "pressure_friction_resultant_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-010",
+      "group": "mechanics_phases",
+      "key": "pull_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-011",
+      "group": "mechanics_phases",
+      "key": "force_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-011",
+      "group": "mechanics_phases",
+      "key": "friction_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "箭头角色 + 箭头尖端/底边的几何方向"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-011",
+      "group": "mechanics_phases",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-012",
+      "group": "mechanics_phases",
+      "key": "baseline_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-012",
+      "group": "mechanics_phases",
+      "key": "phase_order",
+      "kind": "ordering",
+      "class": "A2",
+      "critical": true,
+      "reason": "阶段标签需要'阶段序列'角色，顺序由锚点位置算"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-012",
+      "group": "mechanics_phases",
+      "key": "u_at_half_height",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "曲线角色 + 高度基准（容器/标尺）"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-013",
+      "group": "mechanics_phases",
+      "key": "baseline_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-013",
+      "group": "mechanics_phases",
+      "key": "phase_order",
+      "kind": "ordering",
+      "class": "A2",
+      "critical": true,
+      "reason": "阶段标签需要'阶段序列'角色，顺序由锚点位置算"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-013",
+      "group": "mechanics_phases",
+      "key": "u_at_half_height",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "曲线角色 + 高度基准（容器/标尺）"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-014",
+      "group": "mechanics_phases",
+      "key": "baseline_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-014",
+      "group": "mechanics_phases",
+      "key": "phase_order",
+      "kind": "ordering",
+      "class": "A2",
+      "critical": true,
+      "reason": "阶段标签需要'阶段序列'角色，顺序由锚点位置算"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-014",
+      "group": "mechanics_phases",
+      "key": "u_at_half_height",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "曲线角色 + 高度基准（容器/标尺）"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-015",
+      "group": "mechanics_phases",
+      "key": "baseline_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-015",
+      "group": "mechanics_phases",
+      "key": "phase_order",
+      "kind": "ordering",
+      "class": "A2",
+      "critical": true,
+      "reason": "阶段标签需要'阶段序列'角色，顺序由锚点位置算"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-015",
+      "group": "mechanics_phases",
+      "key": "u_at_half_height",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "曲线角色 + 高度基准（容器/标尺）"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-016",
+      "group": "mechanics_phases",
+      "key": "baseline_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-016",
+      "group": "mechanics_phases",
+      "key": "phase_order",
+      "kind": "ordering",
+      "class": "A2",
+      "critical": true,
+      "reason": "阶段标签需要'阶段序列'角色，顺序由锚点位置算"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-016",
+      "group": "mechanics_phases",
+      "key": "u_at_half_height",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "曲线角色 + 高度基准（容器/标尺）"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-017",
+      "group": "mechanics_phases",
+      "key": "resultant_amplitude",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "合成曲线角色 + 轴标定"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-017",
+      "group": "mechanics_phases",
+      "key": "wave_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "曲线条数（子路径聚类）"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-017",
+      "group": "mechanics_phases",
+      "key": "wave_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-018",
+      "group": "mechanics_phases",
+      "key": "resultant_amplitude",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "合成曲线角色 + 轴标定"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-018",
+      "group": "mechanics_phases",
+      "key": "wave_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "曲线条数（子路径聚类）"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-018",
+      "group": "mechanics_phases",
+      "key": "wave_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-019",
+      "group": "mechanics_phases",
+      "key": "resultant_amplitude",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "合成曲线角色 + 轴标定"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-019",
+      "group": "mechanics_phases",
+      "key": "wave_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "曲线条数（子路径聚类）"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-019",
+      "group": "mechanics_phases",
+      "key": "wave_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-020",
+      "group": "mechanics_phases",
+      "key": "resultant_amplitude",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "合成曲线角色 + 轴标定"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-020",
+      "group": "mechanics_phases",
+      "key": "wave_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "曲线条数（子路径聚类）"
+    },
+    {
+      "task_id": "BLD-MECHPHASE-020",
+      "group": "mechanics_phases",
+      "key": "wave_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-001",
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-002",
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-003",
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-004",
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-005",
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-006",
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-007",
+      "group": "natural_illustration",
+      "key": "organelle_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-008",
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-008",
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-008",
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-009",
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-009",
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-009",
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-010",
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-010",
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-010",
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-011",
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-011",
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-011",
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-012",
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-012",
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-012",
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-013",
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-013",
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-013",
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-014",
+      "group": "natural_illustration",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-014",
+      "group": "natural_illustration",
+      "key": "vector_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-014",
+      "group": "natural_illustration",
+      "key": "velocity_direction",
+      "kind": "direction",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-NATILLA-015",
+      "group": "natural_illustration",
+      "key": "arm_length_ratio",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "需要标出'支点/动力臂/阻力臂'三个角色，长度由 ops 算"
+    },
+    {
+      "task_id": "BLD-NATILLA-015",
+      "group": "natural_illustration",
+      "key": "lever_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-016",
+      "group": "natural_illustration",
+      "key": "arm_length_ratio",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "需要标出'支点/动力臂/阻力臂'三个角色，长度由 ops 算"
+    },
+    {
+      "task_id": "BLD-NATILLA-016",
+      "group": "natural_illustration",
+      "key": "lever_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-017",
+      "group": "natural_illustration",
+      "key": "arm_length_ratio",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "需要标出'支点/动力臂/阻力臂'三个角色，长度由 ops 算"
+    },
+    {
+      "task_id": "BLD-NATILLA-017",
+      "group": "natural_illustration",
+      "key": "lever_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-018",
+      "group": "natural_illustration",
+      "key": "arm_length_ratio",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "需要标出'支点/动力臂/阻力臂'三个角色，长度由 ops 算"
+    },
+    {
+      "task_id": "BLD-NATILLA-018",
+      "group": "natural_illustration",
+      "key": "lever_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-019",
+      "group": "natural_illustration",
+      "key": "arm_length_ratio",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "需要标出'支点/动力臂/阻力臂'三个角色，长度由 ops 算"
+    },
+    {
+      "task_id": "BLD-NATILLA-019",
+      "group": "natural_illustration",
+      "key": "lever_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-NATILLA-020",
+      "group": "natural_illustration",
+      "key": "arm_length_ratio",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "需要标出'支点/动力臂/阻力臂'三个角色，长度由 ops 算"
+    },
+    {
+      "task_id": "BLD-NATILLA-020",
+      "group": "natural_illustration",
+      "key": "lever_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-001",
+      "group": "proportion_coordinates",
+      "key": "ratio_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-001",
+      "group": "proportion_coordinates",
+      "key": "segment_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "共线分段数（路径结构）；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-001",
+      "group": "proportion_coordinates",
+      "key": "segment_length_ratio",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "折线/子路径的共线边长度比；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-002",
+      "group": "proportion_coordinates",
+      "key": "ratio_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-002",
+      "group": "proportion_coordinates",
+      "key": "segment_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "共线分段数（路径结构）；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-002",
+      "group": "proportion_coordinates",
+      "key": "segment_length_ratio",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "折线/子路径的共线边长度比；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-003",
+      "group": "proportion_coordinates",
+      "key": "ratio_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-003",
+      "group": "proportion_coordinates",
+      "key": "segment_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "共线分段数（路径结构）；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-003",
+      "group": "proportion_coordinates",
+      "key": "segment_length_ratio",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "折线/子路径的共线边长度比；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-004",
+      "group": "proportion_coordinates",
+      "key": "ratio_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-004",
+      "group": "proportion_coordinates",
+      "key": "segment_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "共线分段数（路径结构）；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-004",
+      "group": "proportion_coordinates",
+      "key": "segment_length_ratio",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "折线/子路径的共线边长度比；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-005",
+      "group": "proportion_coordinates",
+      "key": "ratio_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-005",
+      "group": "proportion_coordinates",
+      "key": "segment_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "共线分段数（路径结构）；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-005",
+      "group": "proportion_coordinates",
+      "key": "segment_length_ratio",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "折线/子路径的共线边长度比；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-006",
+      "group": "proportion_coordinates",
+      "key": "ratio_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-006",
+      "group": "proportion_coordinates",
+      "key": "segment_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "共线分段数（路径结构）；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-006",
+      "group": "proportion_coordinates",
+      "key": "segment_length_ratio",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "折线/子路径的共线边长度比；探针已实跑"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-007",
+      "group": "proportion_coordinates",
+      "key": "point_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-007",
+      "group": "proportion_coordinates",
+      "key": "point_x",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "需要'点标记'角色 + 由刻度标签拟合的轴标定"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-007",
+      "group": "proportion_coordinates",
+      "key": "point_y",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-008",
+      "group": "proportion_coordinates",
+      "key": "point_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-008",
+      "group": "proportion_coordinates",
+      "key": "point_x",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "需要'点标记'角色 + 由刻度标签拟合的轴标定"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-008",
+      "group": "proportion_coordinates",
+      "key": "point_y",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-009",
+      "group": "proportion_coordinates",
+      "key": "point_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-009",
+      "group": "proportion_coordinates",
+      "key": "point_x",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "需要'点标记'角色 + 由刻度标签拟合的轴标定"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-009",
+      "group": "proportion_coordinates",
+      "key": "point_y",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-010",
+      "group": "proportion_coordinates",
+      "key": "point_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-010",
+      "group": "proportion_coordinates",
+      "key": "point_x",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "需要'点标记'角色 + 由刻度标签拟合的轴标定"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-010",
+      "group": "proportion_coordinates",
+      "key": "point_y",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-011",
+      "group": "proportion_coordinates",
+      "key": "point_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-011",
+      "group": "proportion_coordinates",
+      "key": "point_x",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "需要'点标记'角色 + 由刻度标签拟合的轴标定"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-011",
+      "group": "proportion_coordinates",
+      "key": "point_y",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": true,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-012",
+      "group": "proportion_coordinates",
+      "key": "ascending_order",
+      "kind": "ordering",
+      "class": "A1",
+      "critical": true,
+      "reason": "数轴标签按 x 排序 + 分数文本解析"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-012",
+      "group": "proportion_coordinates",
+      "key": "marked_points",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "标记形状数（小圆/实心点）"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-012",
+      "group": "proportion_coordinates",
+      "key": "value_of_1_3",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": false,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-013",
+      "group": "proportion_coordinates",
+      "key": "ascending_order",
+      "kind": "ordering",
+      "class": "A1",
+      "critical": true,
+      "reason": "数轴标签按 x 排序 + 分数文本解析"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-013",
+      "group": "proportion_coordinates",
+      "key": "marked_points",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "标记形状数（小圆/实心点）"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-013",
+      "group": "proportion_coordinates",
+      "key": "value_of_1_3",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": false,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-014",
+      "group": "proportion_coordinates",
+      "key": "ascending_order",
+      "kind": "ordering",
+      "class": "A1",
+      "critical": true,
+      "reason": "数轴标签按 x 排序 + 分数文本解析"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-014",
+      "group": "proportion_coordinates",
+      "key": "marked_points",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "标记形状数（小圆/实心点）"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-014",
+      "group": "proportion_coordinates",
+      "key": "value_of_1_2",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": false,
+      "reason": "数轴标定（0/1 刻度）+ 标记点角色"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-015",
+      "group": "proportion_coordinates",
+      "key": "ascending_order",
+      "kind": "ordering",
+      "class": "A1",
+      "critical": true,
+      "reason": "数轴标签按 x 排序 + 分数文本解析"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-015",
+      "group": "proportion_coordinates",
+      "key": "marked_points",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "标记形状数（小圆/实心点）"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-015",
+      "group": "proportion_coordinates",
+      "key": "value_of_1_3",
+      "kind": "numeric",
+      "class": "A2",
+      "critical": false,
+      "reason": "同上"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-016",
+      "group": "proportion_coordinates",
+      "key": "real_distance_cm",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "题面要求在图上**标注**实际距离（如 150000 厘米）→ 解析印刷文本；注意：比例尺×图上长度的几何一致性无 du↔cm 换算，不在此列"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-016",
+      "group": "proportion_coordinates",
+      "key": "scale_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-017",
+      "group": "proportion_coordinates",
+      "key": "real_distance_cm",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "题面要求在图上**标注**实际距离（如 150000 厘米）→ 解析印刷文本；注意：比例尺×图上长度的几何一致性无 du↔cm 换算，不在此列"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-017",
+      "group": "proportion_coordinates",
+      "key": "scale_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-018",
+      "group": "proportion_coordinates",
+      "key": "real_distance_cm",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "题面要求在图上**标注**实际距离（如 150000 厘米）→ 解析印刷文本；注意：比例尺×图上长度的几何一致性无 du↔cm 换算，不在此列"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-018",
+      "group": "proportion_coordinates",
+      "key": "scale_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-019",
+      "group": "proportion_coordinates",
+      "key": "real_distance_cm",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "题面要求在图上**标注**实际距离（如 150000 厘米）→ 解析印刷文本；注意：比例尺×图上长度的几何一致性无 du↔cm 换算，不在此列"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-019",
+      "group": "proportion_coordinates",
+      "key": "scale_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-020",
+      "group": "proportion_coordinates",
+      "key": "real_distance_cm",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "题面要求在图上**标注**实际距离（如 150000 厘米）→ 解析印刷文本；注意：比例尺×图上长度的几何一致性无 du↔cm 换算，不在此列"
+    },
+    {
+      "task_id": "BLD-PROPCOORD-020",
+      "group": "proportion_coordinates",
+      "key": "scale_label",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-001",
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本条数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-001",
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-002",
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本条数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-002",
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-003",
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本条数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-003",
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-004",
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本条数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-004",
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-005",
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本条数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-005",
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-006",
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本条数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-006",
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-007",
+      "group": "source_rebuild",
+      "key": "label_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "可见文本条数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-007",
+      "group": "source_rebuild",
+      "key": "preserved_labels",
+      "kind": "label_set",
+      "class": "A1",
+      "critical": true,
+      "reason": "可见文本集合"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-008",
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-008",
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本：解析文本数值"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-008",
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "垂直于轴的短线段数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-009",
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-009",
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本：解析文本数值"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-009",
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "垂直于轴的短线段数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-010",
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-010",
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本：解析文本数值"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-010",
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "垂直于轴的短线段数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-011",
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-011",
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本：解析文本数值"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-011",
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "垂直于轴的短线段数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-012",
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-012",
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本：解析文本数值"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-012",
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "垂直于轴的短线段数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-013",
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-013",
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本：解析文本数值"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-013",
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "垂直于轴的短线段数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-014",
+      "group": "source_rebuild",
+      "key": "axis_max",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-014",
+      "group": "source_rebuild",
+      "key": "axis_min",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "轴端刻度是印刷文本：解析文本数值"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-014",
+      "group": "source_rebuild",
+      "key": "tick_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": false,
+      "reason": "垂直于轴的短线段数"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-015",
+      "group": "source_rebuild",
+      "key": "cell_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": true,
+      "reason": "闭合格子数（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-015",
+      "group": "source_rebuild",
+      "key": "column_count",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "网格竖线数 − 1（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-015",
+      "group": "source_rebuild",
+      "key": "row_count",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "网格横线数 − 1（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-016",
+      "group": "source_rebuild",
+      "key": "cell_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": true,
+      "reason": "闭合格子数（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-016",
+      "group": "source_rebuild",
+      "key": "column_count",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "网格竖线数 − 1（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-016",
+      "group": "source_rebuild",
+      "key": "row_count",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "网格横线数 − 1（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-017",
+      "group": "source_rebuild",
+      "key": "cell_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": true,
+      "reason": "闭合格子数（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-017",
+      "group": "source_rebuild",
+      "key": "column_count",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "网格竖线数 − 1（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-017",
+      "group": "source_rebuild",
+      "key": "row_count",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "网格横线数 − 1（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-018",
+      "group": "source_rebuild",
+      "key": "cell_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": true,
+      "reason": "闭合格子数（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-018",
+      "group": "source_rebuild",
+      "key": "column_count",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "网格竖线数 − 1（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-018",
+      "group": "source_rebuild",
+      "key": "row_count",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "网格横线数 − 1（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-019",
+      "group": "source_rebuild",
+      "key": "cell_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": true,
+      "reason": "闭合格子数（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-019",
+      "group": "source_rebuild",
+      "key": "column_count",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "网格竖线数 − 1（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-019",
+      "group": "source_rebuild",
+      "key": "row_count",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "网格横线数 − 1（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-020",
+      "group": "source_rebuild",
+      "key": "cell_count",
+      "kind": "count",
+      "class": "A1",
+      "critical": true,
+      "reason": "闭合格子数（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-020",
+      "group": "source_rebuild",
+      "key": "column_count",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "网格竖线数 − 1（几何计数）"
+    },
+    {
+      "task_id": "BLD-SRCREBLD-020",
+      "group": "source_rebuild",
+      "key": "row_count",
+      "kind": "numeric",
+      "class": "A1",
+      "critical": true,
+      "reason": "网格横线数 − 1（几何计数）"
+    }
+  ]
+}

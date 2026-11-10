@@ -1,0 +1,141 @@
+{
+  "input_file": "BLD-FLOWFORM-003.json",
+  "program_sha256": "fb5d7d0b802a3f25dc30a89b318091653638cd178a4eaccf961abb5b5128eadb",
+  "task_id": "BLD-FLOWFORM-003",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 49,
+  "measurement": [
+    {
+      "contentId": "c0-8755b0d1",
+      "payload": "解一元一次方程",
+      "widthDu": 112,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8755b0d18930fabadf1f5e167710a78fc9a257b338a580aae6ece4170d0759d1"
+    },
+    {
+      "contentId": "c1-ed11e6d7",
+      "payload": "原方程：7x+-3=1x+4",
+      "widthDu": 147.63636779785156,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ed11e6d79c7446dcbfb6419681ac5d24f1e90727de9516b73cf8bb34eb1dce5f"
+    },
+    {
+      "contentId": "c2-d3672fe8",
+      "payload": "移项",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d3672fe82ccbc052805861143d2fb50e4f523e8837d360af1a9c72689172561b"
+    },
+    {
+      "contentId": "c3-25fd3e86",
+      "payload": "7x − 1x = 4 + 3",
+      "widthDu": 103.2727279663086,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "25fd3e86150e3862a7939a6d84e442534874ab2be1ac7e2e9bd49a725bfea6d6"
+    },
+    {
+      "contentId": "c4-454ab3d6",
+      "payload": "合并同类项",
+      "widthDu": 80,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "454ab3d6f1f9c0e3d65cf77603a6a49dc652db6e2550c7ccb8037908b2a4ae08"
+    },
+    {
+      "contentId": "c5-89ea95db",
+      "payload": "6x = 7",
+      "widthDu": 42.90909194946289,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "89ea95db15f5b3ba49aa2549e3bf6e04230e117cd5fffe80921a955abb1907ca"
+    },
+    {
+      "contentId": "c6-e6c8746f",
+      "payload": "系数化为 1",
+      "widthDu": 77.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e6c8746fb2ce805c3c9a1c374dc6dab95585dc742ff4ec365b200b21cc4a1c4f"
+    },
+    {
+      "contentId": "c7-d594e134",
+      "payload": "x = 7\/6",
+      "widthDu": 49.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d594e1347f332f952bfecf1f863359f68bfe65a1fe919ecb06d0bd3afb13e8ec"
+    },
+    {
+      "contentId": "c8-6b86b273",
+      "payload": "1",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "contentId": "c9-d4735e3a",
+      "payload": "2",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "contentId": "c10-4e074085",
+      "payload": "3",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "5670794a3b68f41fbf75e278ec6b6e9889d388502fdd250c08f260ee7cd83789",
+  "scene_bytes": 4873,
+  "scene_schema_version": 1,
+  "draw_sha256": "ced44421617571b2e45bb797372db2336948304f3e649c6a2cd9026ec54fe305",
+  "draw_bytes": 5479,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-8755b0d1",
+    "c1-ed11e6d7",
+    "c10-4e074085",
+    "c2-d3672fe8",
+    "c3-25fd3e86",
+    "c4-454ab3d6",
+    "c5-89ea95db",
+    "c6-e6c8746f",
+    "c7-d594e134",
+    "c8-6b86b273",
+    "c9-d4735e3a"
+  ],
+  "png_sha256": "f464150a21b192d4f7a305d457459440531c758cb39feba2756ac00773e6d755",
+  "png_bytes": 10484,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 25,
+    "pathCommands": 90,
+    "labels": 11,
+    "ops": 24
+  }
+}

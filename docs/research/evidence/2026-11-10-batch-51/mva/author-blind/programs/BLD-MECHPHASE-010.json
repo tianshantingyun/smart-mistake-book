@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-MECHPHASE-010",
+    "program_id": "mva-BLD-MECHPHASE-010",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '木塞受力示意' },\n      { kind: 'text', payload: '拉力 F' },\n      { kind: 'text', payload: '瓶内气压与摩擦的合力' }\n    ];\n  },\n  render: function (input, metrics) {\n    var sdk = globalThis.visualSdk;\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var s = Math.min(W / 360, H / 280);\n    var ox = (W - 360 * s) / 2;\n    var oy = (H - 280 * s) / 2;\n    function P(x, y) { return [ox + x * s, oy + y * s]; }\n    function poly(pts) {\n      return sdk.polyline(pts.map(function (p) { return P(p[0], p[1]); }));\n    }\n    function arrow(x1, y1, x2, y2) {\n      var a = P(x1, y1);\n      var b = P(x2, y2);\n      return sdk.arrow(a[0], a[1], b[0], b[1], {});\n    }\n    var cx = 150;\n    var bottle = poly([[cx - 28, 72], [cx - 28, 145], [cx - 72, 178], [cx - 72, 244], [cx + 72, 244], [cx + 72, 178], [cx + 28, 145], [cx + 28, 72]]);\n    var cork = poly([[cx - 22, 60], [cx + 22, 60], [cx + 22, 104], [cx - 22, 104], [cx - 22, 60]]);\n    var pull = arrow(cx, 58, cx, 20);\n    var down = arrow(cx, 110, cx, 172);\n    var t1 = P(16, 26);\n    var t2 = P(160, 44);\n    var t3 = P(cx, 206);\n    return {\n      schemaVersion: 1,\n      sceneId: 'cork-force',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [\n        { id: 'bottle', commands: bottle },\n        { id: 'cork', commands: cork },\n        { id: 'pull', commands: pull },\n        { id: 'down', commands: down }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'bottle', stroke: '#26354a', strokeWidth: 2, fill: '#eef3fa' },\n          { type: 'path', pathId: 'cork', stroke: '#8a6d3b', strokeWidth: 2, fill: '#e6d2ae' },\n          { type: 'path', pathId: 'pull', stroke: '#c0392b', strokeWidth: 2 },\n          { type: 'path', pathId: 'down', stroke: '#1d6fb8', strokeWidth: 2 },\n          { type: 'label', x: t1[0], y: t1[1], text: '木塞受力示意', fontSize: 14 * s, anchor: 'start', fill: '#1f2d3d' },\n          { type: 'label', x: t2[0], y: t2[1], text: '拉力 F', fontSize: 13 * s, anchor: 'start', fill: '#c0392b' },\n          { type: 'label', x: t3[0], y: t3[1], text: '瓶内气压与摩擦的合力', fontSize: 12 * s, anchor: 'middle', fill: '#1d6fb8' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

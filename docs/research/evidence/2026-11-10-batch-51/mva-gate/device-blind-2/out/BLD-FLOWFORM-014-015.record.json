@@ -1,0 +1,161 @@
+{
+  "input_file": "BLD-FLOWFORM-014.json",
+  "program_sha256": "f9d758bda2c4d6dd82e8b528f39f0b38a08acef5016c3c7fcce3551b3fe4b179",
+  "task_id": "BLD-FLOWFORM-014",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 36,
+  "measurement": [
+    {
+      "contentId": "c0-d4735e3a",
+      "payload": "2",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "contentId": "c1-f3b5ff19",
+      "payload": "x²",
+      "widthDu": 13.818181991577148,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f3b5ff1969c6ec2b6cc58a15fc7a6d3dde8d8a8a6c6fdde6deb7548083fa063b"
+    },
+    {
+      "contentId": "c2-6b56a867",
+      "payload": "− 7",
+      "widthDu": 22.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b56a86791deb948db4610ad9f558d94d76843c1473ec3853a6130fc51a7cb41"
+    },
+    {
+      "contentId": "c3-2d711642",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c4-ca86249c",
+      "payload": "+ 3",
+      "widthDu": 22.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ca86249cd5455ab3c8b78784746910777c060c5e83ddd627554b47fc63848abc"
+    },
+    {
+      "contentId": "c5-6a99751d",
+      "payload": "= 0",
+      "widthDu": 21.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6a99751d93986ab4d3b19c543c9f5f10617378b8af1593fa42edf61e65ee9a78"
+    },
+    {
+      "contentId": "c6-d6caeea6",
+      "payload": "a = 2",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d6caeea65266578487abe1370e07a0238918637bd5e81e923e12a24c618ab60e"
+    },
+    {
+      "contentId": "c7-80679850",
+      "payload": "b = −7",
+      "widthDu": 44,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "806798503286778b09794909e15bc3edd323972a41f15bb99d2acb451b969a99"
+    },
+    {
+      "contentId": "c8-46c7044c",
+      "payload": "c = 3",
+      "widthDu": 34.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "46c7044c8b0a3ba6a3ac891861ab9c33aecfb2256765eda0474b7314ff49e2d2"
+    },
+    {
+      "contentId": "c9-180e6929",
+      "payload": "x =",
+      "widthDu": 20.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "180e6929bae4a33240ca19d9d2ee7c07bb6e67e09a038202f9eb536861f4a10d"
+    },
+    {
+      "contentId": "c10-ffcef37d",
+      "payload": "−b ± √(b² − 4ac)",
+      "widthDu": 113.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ffcef37d6850ddb77b4f488ed6461649f6b68b10fbcea9cfcd3f6a1e9392d2fb"
+    },
+    {
+      "contentId": "c11-b2239ae3",
+      "payload": "2a",
+      "widthDu": 17.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b2239ae33d9bc5614aeb2e439e5032b1fe77c32f7080d3211c1d03f1b17ffcf6"
+    },
+    {
+      "contentId": "c12-9f186c06",
+      "payload": "Δ = b² − 4ac = 25",
+      "widthDu": 121.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9f186c0621ac3b09bd7b7b7860ef63a909e0f281b5a855c7d2a8e75ab0065099"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "bd20c7d4be22ca87b429e7f863410870ac16035e6d45e24592c407a8b1aaf7bd",
+  "scene_bytes": 2371,
+  "scene_schema_version": 1,
+  "draw_sha256": "dbcab3a10325aa6676dc2bc665ccf1c87901e2c99d627587c72ebadf8a11c155",
+  "draw_bytes": 2713,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-d4735e3a",
+    "c1-f3b5ff19",
+    "c10-ffcef37d",
+    "c11-b2239ae3",
+    "c12-9f186c06",
+    "c2-6b56a867",
+    "c3-2d711642",
+    "c4-ca86249c",
+    "c5-6a99751d",
+    "c6-d6caeea6",
+    "c7-80679850",
+    "c8-46c7044c",
+    "c9-180e6929"
+  ],
+  "png_sha256": "f7e0b7ed1b717f38f02456a00cec28278b680f041c0a4a2dcc79151352550b45",
+  "png_bytes": 4961,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 18,
+    "pathCommands": 8,
+    "labels": 13,
+    "ops": 17
+  }
+}

@@ -1,0 +1,13 @@
+{
+ "task_id": "CAL-CHECK-PRESENT",
+ "program_id": "cal-CAL-CHECK-PRESENT",
+ "source_js": "const visual = {\n  prepare: function (input) { return [{ kind: 'text', payload: '题面文字' }]; },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu, h = input.viewport.heightDu;\n    return { schemaVersion: 1, sceneId: 'cal', revision: input.revision,\n             viewBox: { x: 0, y: 0, width: w, height: h },\n             paths: [{ id: 'check', commands: visualSdk.polyline([[100, 140], [140, 180], [220, 80]]) }],\n             root: { type: 'group', children: [\n               { type: 'path', pathId: 'check', fill: '#cc2222', stroke: { width: 5 } }, { type: 'label', contentId: metrics[0].contentId, anchor: { x: 180, y: 40 }, hAlign: 'center', vAlign: 'top', color: '#26354a' } ] } };\n  },\n};",
+ "scene_revision": 1,
+ "seed": 42,
+ "time_ms": 0,
+ "theme": "light",
+ "viewport": {
+  "widthDu": 360,
+  "heightDu": 240
+ }
+}

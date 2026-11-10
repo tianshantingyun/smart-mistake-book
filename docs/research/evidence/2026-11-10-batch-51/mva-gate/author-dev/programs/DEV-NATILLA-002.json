@@ -1,0 +1,13 @@
+{
+    "task_id": "DEV-NATILLA-002",
+    "program_id": "mva-DEV-NATILLA-002",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '自由落体示意（非按比例）' },\n      { kind: 'text', payload: '静止释放  v₀ = 0' },\n      { kind: 'text', payload: 'v' },\n      { kind: 'text', payload: 'g' },\n      { kind: 'text', payload: 'v、g 均竖直向下' }\n    ];\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var ball = visualSdk.circle(260, 135, 26);\n    var vArrow = visualSdk.arrow(305, 190, 305, 300, {});\n    var gArrow = visualSdk.arrow(215, 190, 215, 300, {});\n    return {\n      schemaVersion: 1,\n      sceneId: 'free-fall',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'ball', commands: ball },\n        { id: 'v', commands: vArrow },\n        { id: 'g', commands: gArrow }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'ball', fill: '#9ecae1', stroke: { width: 2 } },\n          { type: 'path', pathId: 'v', fill: '#c0392b', stroke: { width: 2 } },\n          { type: 'path', pathId: 'g', fill: '#2c3e50', stroke: { width: 2 } },\n          { type: 'label', contentId: 'c0', anchor: { x: 260, y: 40 }, hAlign: 'center', vAlign: 'middle', color: '#1f2d3d' },\n          { type: 'label', contentId: 'c1', anchor: { x: 260, y: 88 }, hAlign: 'center', vAlign: 'middle', color: '#1f2d3d' },\n          { type: 'label', contentId: 'c2', anchor: { x: 315, y: 245 }, hAlign: 'left', vAlign: 'middle', color: '#c0392b' },\n          { type: 'label', contentId: 'c3', anchor: { x: 205, y: 245 }, hAlign: 'right', vAlign: 'middle', color: '#2c3e50' },\n          { type: 'label', contentId: 'c4', anchor: { x: 260, y: 335 }, hAlign: 'center', vAlign: 'middle', color: '#1f2d3d' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

@@ -1,0 +1,105 @@
+{
+  "input_file": "BLD-MECHPHASE-006.json",
+  "program_sha256": "80142696b5947bfd2fb48b130450933aa64d3234728296f90b3e5cb61cb2d84f",
+  "task_id": "BLD-MECHPHASE-006",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 37,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "F(x)=F₀(1−x\/h)",
+      "widthDu": 103.2727279663086,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d9ffcbeb51e7cf6ec3b0e8bef79d6cd6ed7de80ba0d1b846dfbf05fb508ae7a"
+    },
+    {
+      "contentId": "c1",
+      "payload": "F(x)",
+      "widthDu": 27.636363983154297,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "331980589ed7140f6e496b92bcc006e298d08c14e56119f808b377a5bbae12a0"
+    },
+    {
+      "contentId": "c2",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c3",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c4",
+      "payload": "h\/2",
+      "widthDu": 24.363636016845703,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2709026306d1da2d10050002585b869e4524b562c083198b138d630c61900adb"
+    },
+    {
+      "contentId": "c5",
+      "payload": "h",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "aaa9402664f1a41f40ebbc52c9993eb66aeb366602958fdfaa283b71e64db123"
+    },
+    {
+      "contentId": "c6",
+      "payload": "F₀",
+      "widthDu": 14.545454978942871,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c1e81bcf4fd8482fb23ed16ec6ca6e3f350529ecdc5825e7c3bb54a4e20a2558"
+    },
+    {
+      "contentId": "c7",
+      "payload": "W\/(F₀h)=3\/8=0.375",
+      "widthDu": 137.81817626953125,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "35c72882e7d6b724130a380634b68460fa3490293bc7a6b111af427f6740d150"
+    },
+    {
+      "contentId": "c8",
+      "payload": "阴影面积 W = 3\/8 F₀h",
+      "widthDu": 150.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8a94c7b90e4fd5917b279f5d56895e1990b3319ded9b1a2ff4fb90de587245e9"
+    },
+    {
+      "contentId": "c9",
+      "payload": "0 ≤ x ≤ h",
+      "widthDu": 57.818180084228516,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "12140d4f73da1cc4a9176866a8dc88641f09143e0c380cf538050c4db789f3cc"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com"
+}

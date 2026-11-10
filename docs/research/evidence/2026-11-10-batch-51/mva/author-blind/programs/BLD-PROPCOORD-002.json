@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-PROPCOORD-002",
+    "program_id": "mva-BLD-PROPCOORD-002",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [{ kind: 'text', payload: '3:1' }];\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var x0 = w * 0.12;\n    var x1 = w * 0.88;\n    var y = h * 0.66;\n    var split = x0 + (x1 - x0) * 0.75;\n\n    var segment = visualSdk.polyline([[x0, y], [x1, y]]);\n    var leftTick = visualSdk.polyline([[x0, y - 12], [x0, y + 12]]);\n    var splitTick = visualSdk.polyline([[split, y - 18], [split, y + 18]]);\n    var rightTick = visualSdk.polyline([[x1, y - 12], [x1, y + 12]]);\n\n    var bracketY = h * 0.44;\n    var bracket = visualSdk.polyline([\n      [x0, bracketY + 10],\n      [x0, bracketY],\n      [x1, bracketY],\n      [x1, bracketY + 10]\n    ]);\n\n    var labelX = (x0 + x1) / 2;\n    var labelY = bracketY - 12;\n\n    return {\n      schemaVersion: 1,\n      sceneId: 'ratio-segment',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'segment', commands: segment },\n        { id: 'leftTick', commands: leftTick },\n        { id: 'splitTick', commands: splitTick },\n        { id: 'rightTick', commands: rightTick },\n        { id: 'bracket', commands: bracket }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'segment', stroke: '#1f2d3d', strokeWidth: 4, fill: 'none' },\n          { type: 'path', pathId: 'leftTick', stroke: '#1f2d3d', strokeWidth: 3, fill: 'none' },\n          { type: 'path', pathId: 'splitTick', stroke: '#1f2d3d', strokeWidth: 4, fill: 'none' },\n          { type: 'path', pathId: 'rightTick', stroke: '#1f2d3d', strokeWidth: 3, fill: 'none' },\n          { type: 'path', pathId: 'bracket', stroke: '#1f2d3d', strokeWidth: 2, fill: 'none' },\n          {\n            type: 'label',\n            id: 'ratioLabel',\n            text: '3:1',\n            x: labelX,\n            y: labelY,\n            fontSize: 24,\n            fontWeight: 600,\n            fontFamily: 'sans-serif',\n            textAnchor: 'middle',\n            fill: '#1f2d3d'\n          }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

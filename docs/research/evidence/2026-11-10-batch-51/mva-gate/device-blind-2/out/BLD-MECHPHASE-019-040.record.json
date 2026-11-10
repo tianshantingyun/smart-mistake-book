@@ -1,0 +1,91 @@
+{
+  "input_file": "BLD-MECHPHASE-019.json",
+  "program_sha256": "d5d55ad08267d6ac4f2e6e61c39d4508cf063e7d2f256259025ccaf3e995812c",
+  "task_id": "BLD-MECHPHASE-019",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 84,
+  "measurement": [
+    {
+      "contentId": "c0-4a2f38ee",
+      "payload": "y₁ = 0.8 sin t（振幅 0.8）",
+      "widthDu": 177.4545440673828,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4a2f38ee9303a657a8448143bf80dd4aa53136cbf28bb6777607271cf1accc01"
+    },
+    {
+      "contentId": "c1-10a5b4c5",
+      "payload": "y₂ = 0.4 sin t（振幅 0.4）",
+      "widthDu": 177.4545440673828,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "10a5b4c5ccd22871738d8b4e2ee023dc6a047a9f5c7db59634858e1766b271ba"
+    },
+    {
+      "contentId": "c2-b0d5bf75",
+      "payload": "合成 y = y₁ + y₂（合成振幅 1.2）",
+      "widthDu": 226.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b0d5bf75eb9babfbcf540167825c4d759e7bd754e0e5d9ae60955be9af4ca748"
+    },
+    {
+      "contentId": "c3-e3b98a4d",
+      "payload": "t",
+      "widthDu": 5.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e3b98a4da31a127d4bde6e43033f66ba274cab0eb7eb1c70ec41402bf6273dd8"
+    },
+    {
+      "contentId": "c4-a1fce436",
+      "payload": "y",
+      "widthDu": 7.636363506317139,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a1fce4363854ff888cff4b8e7875d600c2682390412a8cf79b37d0b11148b0fa"
+    },
+    {
+      "contentId": "c5-e2253912",
+      "payload": "同频同相",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e2253912cf7b1893b91eae8112ab5a92f800be5cc39ed56720f357516b6f89ce"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "8a2a7b8414c79c41d4fc6d79333311be50abb15d69a03c72ce6b05501fbf5982",
+  "scene_bytes": 47825,
+  "scene_schema_version": 1,
+  "draw_sha256": "1b3bb70cd85aade3141ac6ea03c3bd55cb2852d6dad3b40db7ff02147a677663",
+  "draw_bytes": 48148,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-4a2f38ee",
+    "c1-10a5b4c5",
+    "c2-b0d5bf75",
+    "c3-e3b98a4d",
+    "c4-a1fce436",
+    "c5-e2253912"
+  ],
+  "png_sha256": "cd2b38cb6ed8ebb9a3801761536b4777eff3381f0fd0252d360643a3036f1385",
+  "png_bytes": 11553,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 15,
+    "pathCommands": 1115,
+    "labels": 6,
+    "ops": 14
+  }
+}

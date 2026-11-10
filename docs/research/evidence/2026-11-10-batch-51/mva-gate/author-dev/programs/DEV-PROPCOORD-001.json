@@ -1,0 +1,13 @@
+{
+    "task_id": "DEV-PROPCOORD-001",
+    "program_id": "mva-DEV-PROPCOORD-001",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [{ kind: 'text', payload: '1:1' }];\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var y = Math.round(H * 0.56);\n    var x0 = Math.round(W * 0.16);\n    var x1 = Math.round(W * 0.84);\n    var xm = Math.round((x0 + x1) / 2);\n    var main = visualSdk.polyline([[x0, y], [x1, y]]);\n    var tick = visualSdk.polyline([[xm, y - 20], [xm, y + 20]]);\n    var capL = visualSdk.polyline([[x0, y - 12], [x0, y + 12]]);\n    var capR = visualSdk.polyline([[x1, y - 12], [x1, y + 12]]);\n    return {\n      schemaVersion: 1,\n      sceneId: 'segment-ratio-1-1',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [\n        { id: 'main', commands: main },\n        { id: 'tick', commands: tick },\n        { id: 'capL', commands: capL },\n        { id: 'capR', commands: capR }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'main', fill: 'none', stroke: { width: 3, color: '#26354a' } },\n          { type: 'path', pathId: 'tick', fill: 'none', stroke: { width: 3, color: '#26354a' } },\n          { type: 'path', pathId: 'capL', fill: 'none', stroke: { width: 3, color: '#26354a' } },\n          { type: 'path', pathId: 'capR', fill: 'none', stroke: { width: 3, color: '#26354a' } },\n          { type: 'label', contentId: 'c0', anchor: { x: xm, y: y - 36 }, hAlign: 'center', vAlign: 'bottom', color: '#b3261e' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

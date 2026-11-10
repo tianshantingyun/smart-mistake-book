@@ -1,0 +1,40 @@
+{
+  "accept_rate_among_evaluable": 0.5319148936170213,
+  "accepted": 25,
+  "adapter_status_counts": {
+    "MISSING": 22,
+    "REJECTED": 3,
+    "RENDERED": 95
+  },
+  "evaluable": 47,
+  "evaluable_coverage": 0.39166666666666666,
+  "fact_class_counts": {
+    "A1": 180,
+    "A2": 56
+  },
+  "gate_readable": false,
+  "generated_by": "tools/figure_eval/mva_facts_run.py",
+  "note": "gate_readable 只在全部题 critical 事实可判（无 D3/A2 缺口）时为真；否则这是 NOT_EVALUABLE/partial 的描述统计，不是 MVA 门值",
+  "rejected_by_facts": 22,
+  "rendered": 95,
+  "tasks": 120,
+  "undecodable_by_key": {
+    "area_W_over_F0h_at_half": 5,
+    "arm_length_ratio": 6,
+    "ascending_order": 1,
+    "curve_value_at_x_equals_h": 5,
+    "friction_direction": 3,
+    "gravity_direction": 10,
+    "phase_order": 5,
+    "point_x": 5,
+    "point_y": 5,
+    "pressure_friction_resultant_direction": 2,
+    "pull_direction": 2,
+    "resultant_amplitude": 3,
+    "segment_length_ratio": 4,
+    "step_order": 7,
+    "u_at_half_height": 5,
+    "velocity_direction": 7,
+    "wave_count": 3
+  }
+}

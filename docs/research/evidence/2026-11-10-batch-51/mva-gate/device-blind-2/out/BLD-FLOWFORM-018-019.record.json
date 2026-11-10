@@ -1,0 +1,121 @@
+{
+  "input_file": "BLD-FLOWFORM-018.json",
+  "program_sha256": "4b6c601624c0a5add21e1c6924769584e7e3c29f490d63cc83f89e9232296762",
+  "task_id": "BLD-FLOWFORM-018",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 30,
+  "measurement": [
+    {
+      "contentId": "c0-fe624f25",
+      "payload": "单位换算表",
+      "widthDu": 80,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "fe624f25464bd30fc6c14c5e1abc0fe4000607b0f3da04653bde74b4654c3dc3"
+    },
+    {
+      "contentId": "c1-bbfdc49d",
+      "payload": "物理量",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bbfdc49d5b6d491eff4495def6d7157f8951918ad7ee11ad115eae02b09c6574"
+    },
+    {
+      "contentId": "c2-9851098d",
+      "payload": "换算算式",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9851098d67efd162340cf73ad7da959b967857ed6ea5f7525424c624cb96a8f4"
+    },
+    {
+      "contentId": "c3-741f5551",
+      "payload": "换算结果",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "741f5551eac2f9c998df9a01be8b1107988d08ae7c8b04f3b6f6f23f14cf9817"
+    },
+    {
+      "contentId": "c4-0e14d148",
+      "payload": "速度",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0e14d148b46b8c0bcb53c2a69c9cc859763761443121eb2c2dd35bdb814d75b9"
+    },
+    {
+      "contentId": "c5-77ad0038",
+      "payload": "126 ÷ 3.6",
+      "widthDu": 66.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "77ad00385f42635026bc50f98619a795f0d2b56dd98a3b5205a6efb24fa0cb11"
+    },
+    {
+      "contentId": "c6-80f28cb2",
+      "payload": "35.0 m\/s",
+      "widthDu": 64.7272720336914,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "80f28cb27db6773925f9a8123de8bd7f2d562578c7b82d444d390b3a945648ac"
+    },
+    {
+      "contentId": "c7-3b536ce1",
+      "payload": "126 km\/h = 126 ÷ 3.6 m\/s = 35.0 m\/s",
+      "widthDu": 266.9090881347656,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3b536ce104a69aa045771a15f1acc31e5e0c70e1b2cc7dac7f7185799abc968f"
+    },
+    {
+      "contentId": "c8-2b91ad6b",
+      "payload": "依据：1 m\/s = 3.6 km\/h，故 km\/h → m\/s 需除以 3.6；结果保留三位有效数字",
+      "widthDu": 552,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2b91ad6bccf0398d695f8fd52e9547b59a335ca7cb732fcf16e948693c8d0b7a"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "61000d2b6d3f1bbf9cbce2616bb43f713275c11c9146c702e2ad9c531da48824",
+  "scene_bytes": 2556,
+  "scene_schema_version": 1,
+  "draw_sha256": "8c142a995eeeda80f5ea31be8df32d7c33c169006dce36ed0384d71882033578",
+  "draw_bytes": 2568,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-fe624f25",
+    "c1-bbfdc49d",
+    "c2-9851098d",
+    "c3-741f5551",
+    "c4-0e14d148",
+    "c5-77ad0038",
+    "c6-80f28cb2",
+    "c7-3b536ce1",
+    "c8-2b91ad6b"
+  ],
+  "png_sha256": "384d067cf6d501431cdc9eb7e7562b1600e3861de00b69d9a2fa852a94011b73",
+  "png_bytes": 7238,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 19,
+    "pathCommands": 45,
+    "labels": 9,
+    "ops": 18
+  }
+}

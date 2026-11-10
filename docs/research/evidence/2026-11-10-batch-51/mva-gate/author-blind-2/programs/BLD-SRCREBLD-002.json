@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-002",
+    "program_id": "mva-BLD-SRCREBLD-002",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: 'O' },\n      { kind: 'text', payload: 'P' },\n      { kind: 'text', payload: 'F' }\n    ];\n  },\n  render: function (input, metrics) {\n    var rod = [['M', 80, 195], ['L', 560, 195], ['L', 560, 205], ['L', 80, 205], ['Z']];\n    var pivot = [['M', 220, 206], ['L', 176, 262], ['L', 264, 262], ['Z']];\n    var oDot = visualSdk.circle(320, 200, 8);\n    var fShaft = [['M', 560, 196], ['L', 560, 104]];\n    var fHead = [['M', 552, 122], ['L', 560, 100], ['L', 568, 122], ['Z']];\n    return {\n      schemaVersion: 1,\n      sceneId: 'lever-source-transcription',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: input.viewport.widthDu, height: input.viewport.heightDu },\n      paths: [\n        { id: 'rod', commands: rod },\n        { id: 'pivot', commands: pivot },\n        { id: 'odot', commands: oDot },\n        { id: 'fshaft', commands: fShaft },\n        { id: 'fhead', commands: fHead }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'rod', fill: '#5B6B82' },\n          { type: 'path', pathId: 'pivot', fill: '#8A94A6' },\n          { type: 'path', pathId: 'odot', fill: '#26354A' },\n          { type: 'path', pathId: 'fshaft', fill: '#C0392B', stroke: { width: 3 } },\n          { type: 'path', pathId: 'fhead', fill: '#C0392B' },\n          { type: 'label', contentId: metrics[0].contentId, anchor: { x: 320, y: 184 }, hAlign: 'center', vAlign: 'bottom', color: '#26354A' },\n          { type: 'label', contentId: metrics[1].contentId, anchor: { x: 220, y: 270 }, hAlign: 'center', vAlign: 'top', color: '#26354A' },\n          { type: 'label', contentId: metrics[2].contentId, anchor: { x: 576, y: 104 }, hAlign: 'left', vAlign: 'middle', color: '#C0392B' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

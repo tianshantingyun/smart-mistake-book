@@ -1,0 +1,51 @@
+{
+  "input_file": "BLD-SRCREBLD-007.json",
+  "program_sha256": "4e05af50d4f71689dcd54e3a5509c523eadf91d36e743be32bcca57c031f0660",
+  "task_id": "BLD-SRCREBLD-007",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 20,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "点A",
+      "widthDu": 26.545454025268555,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9b99b100c2a7077ec25ea2dec95cfea63192aa618ead8c4afbad62fe7077f605"
+    },
+    {
+      "contentId": "c1",
+      "payload": "点B",
+      "widthDu": 25.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d8515371e0c1271ce794a3e16f42a8e2b1b45743d402e30ee33478ea3d0ba8f4"
+    },
+    {
+      "contentId": "c2",
+      "payload": "点C",
+      "widthDu": 26.545454025268555,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2403fad756fef8e829428fc3489980962b432ff82971318cce057c72975cb5bc"
+    },
+    {
+      "contentId": "c3",
+      "payload": "边AB",
+      "widthDu": 36.3636360168457,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "40fa531857a235fcc62c674cbd916ebdf179f35bb96ee720aa3e2cc90bda3146"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-DEHANDWR-019",
+    "program_id": "mva-BLD-DEHANDWR-019",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '选择题第1题' },\n      { kind: 'text', payload: '选择题第2题' },\n      { kind: 'text', payload: '说明：本图为语义清图，仅保留已确认的印刷题号与文字，非原扫描像素修复。' }\n    ];\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var pad = Math.max(16, Math.round(Math.min(W, H) * 0.08));\n\n    var bg = [['M', 0, 0], ['L', W, 0], ['L', W, H], ['L', 0, H], ['Z']];\n\n    var y1 = Math.round(H * 0.32);\n    var y2 = Math.round(H * 0.55);\n    var yNote = Math.round(H * 0.88);\n\n    return {\n      schemaVersion: 1,\n      sceneId: 'semantic-clean-sheet',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [\n        { id: 'sheet-bg', commands: bg }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'sheet-bg', fill: '#FFFFFF' },\n          {\n            type: 'label',\n            contentId: metrics[0].contentId,\n            anchor: { x: pad, y: y1 },\n            hAlign: 'left',\n            vAlign: 'middle',\n            color: '#1A1A1A'\n          },\n          {\n            type: 'label',\n            contentId: metrics[1].contentId,\n            anchor: { x: pad, y: y2 },\n            hAlign: 'left',\n            vAlign: 'middle',\n            color: '#1A1A1A'\n          },\n          {\n            type: 'label',\n            contentId: metrics[2].contentId,\n            anchor: { x: pad, y: yNote },\n            hAlign: 'left',\n            vAlign: 'middle',\n            color: '#6B7280'\n          }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

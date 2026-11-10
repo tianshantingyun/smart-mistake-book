@@ -1,0 +1,81 @@
+{
+  "input_file": "BLD-MECHPHASE-011.json",
+  "program_sha256": "e9605939f22f2a7b57f147368e0ac8410a62846b7c5b49248c15483cc147fbf8",
+  "task_id": "BLD-MECHPHASE-011",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 25,
+  "measurement": [
+    {
+      "contentId": "c0-c0b781dd",
+      "payload": "G（重力，竖直向下）",
+      "widthDu": 154.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c0b781dd25610b6e2ee892764b4dfef510a2c8923ac9badc2543376130b5056b"
+    },
+    {
+      "contentId": "c1-f929890f",
+      "payload": "N（支持力，垂直斜面）",
+      "widthDu": 171.27272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f929890f736a6c0209ccfb03c423dd761d4d4f72afca426537032da9bbf1e6e3"
+    },
+    {
+      "contentId": "c2-187d9140",
+      "payload": "f（摩擦力，沿斜面向上）",
+      "widthDu": 181.4545440673828,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "187d9140fe2c6d5bc6345b790ff76d73d15437e7bc656cb721f5930e3187e0fa"
+    },
+    {
+      "contentId": "c3-391321db",
+      "payload": "30°",
+      "widthDu": 24,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "391321dbab243d2f3c7d2800e154bbd5d7544f458cd3d95417e7db78af0db83c"
+    },
+    {
+      "contentId": "c4-bfc8db0e",
+      "payload": "物块静止",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bfc8db0efc907e51d8bd4894c5df6970db7b0f6ca45243f5ea8445f83fd3827d"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "231c098242d732b2e808a1c0592f5861701740742d37ce08a1431e08d67d9f9c",
+  "scene_bytes": 2267,
+  "scene_schema_version": 1,
+  "draw_sha256": "1760d7e295b3d26cdbfe92c8c69d8903773347ebd82359aca1d4535a6452fd5d",
+  "draw_bytes": 2479,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-c0b781dd",
+    "c1-f929890f",
+    "c2-187d9140",
+    "c3-391321db",
+    "c4-bfc8db0e"
+  ],
+  "png_sha256": "24d5fb54d91897e258b176c7970b8ff13bcf6ff4a89bf53f72b4ff08797a9b63",
+  "png_bytes": 22972,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 11,
+    "pathCommands": 22,
+    "labels": 5,
+    "ops": 10
+  }
+}

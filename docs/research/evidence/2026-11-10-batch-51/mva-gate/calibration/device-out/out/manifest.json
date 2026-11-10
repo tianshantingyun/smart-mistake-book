@@ -1,0 +1,307 @@
+{
+  "generated_by": "MvaJsArmAdapterInstrumentedTest",
+  "device_model": "sdk_gphone64_x86_64",
+  "device_manufacturer": "Google",
+  "sdk_int": 34,
+  "density": 2.75,
+  "font_scale": 1,
+  "px_per_du": 2,
+  "engine": "QuickJsVisualExecutionEngine (core:data, per-program instance)",
+  "divergences": [
+    "no app VisualJsClientEngine \/ :visual_js isolated process \/ AIDL queue",
+    "measurer is an in-test Paint measurer, not app AndroidVisualContentMeasurer",
+    "one engine instance per program (production runs a resident service)"
+  ],
+  "program_count": 6,
+  "status_counts": {
+    "RENDERED": 6
+  },
+  "records": [
+    {
+      "input_file": "CAL-CHECK-ABSENT.json",
+      "program_sha256": "9935b7f08a3cac333455e59829f82b9d1b535137ba3ba06c5bdf90fbfd0bef39",
+      "task_id": "CAL-CHECK-ABSENT",
+      "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+      },
+      "latency_ms": 162,
+      "measurement": [
+        {
+          "contentId": "c0-6b05e48b",
+          "payload": "题面文字",
+          "widthDu": 64,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "6b05e48b9c68eaadb6202430944d82f2013e31ece543df0b013c580b57dd0b51"
+        }
+      ],
+      "status": "RENDERED",
+      "scene_sha256": "acea0987cc79dc374335f5fac6a38ac4e71931b3677015289bf6c2e39de44c60",
+      "scene_bytes": 544,
+      "scene_schema_version": 1,
+      "draw_sha256": "84d5c63b946837676c490108be18ae80bf51603d6a05f4ad8fe3105840d3927b",
+      "draw_bytes": 610,
+      "draw_schema_version": 1,
+      "content_ids": [
+        "c0-6b05e48b"
+      ],
+      "png_sha256": "c812c2fd892ff0ca0092c6bac067187bed74d8c8c4c6aac0c08f45ccf0dfec25",
+      "png_bytes": 2911,
+      "png_width": 720,
+      "png_height": 480,
+      "stats": {
+        "nodes": 3,
+        "pathCommands": 11,
+        "labels": 1,
+        "ops": 2
+      }
+    },
+    {
+      "input_file": "CAL-CHECK-PRESENT.json",
+      "program_sha256": "3cacc1a2b6e8736617ca2ee0d5c4d709eb998da3c7863eb240254aa8d02ff823",
+      "task_id": "CAL-CHECK-PRESENT",
+      "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+      },
+      "latency_ms": 13,
+      "measurement": [
+        {
+          "contentId": "c0-6b05e48b",
+          "payload": "题面文字",
+          "widthDu": 64,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "6b05e48b9c68eaadb6202430944d82f2013e31ece543df0b013c580b57dd0b51"
+        }
+      ],
+      "status": "RENDERED",
+      "scene_sha256": "5a31a1e4cca8ef8f2e8d1d05e87f4e15b8dc36ed71e8d20a48df944d3f0f8650",
+      "scene_bytes": 404,
+      "scene_schema_version": 1,
+      "draw_sha256": "59b8f3fd60c9bccc66259f4674ad9a16983e428518a695cd16ebae54f88b4824",
+      "draw_bytes": 467,
+      "draw_schema_version": 1,
+      "content_ids": [
+        "c0-6b05e48b"
+      ],
+      "png_sha256": "b0e62b127f79ea23178b0e85d87975a701512381b8af2e752d2b786eef013f49",
+      "png_bytes": 4812,
+      "png_width": 720,
+      "png_height": 480,
+      "stats": {
+        "nodes": 3,
+        "pathCommands": 3,
+        "labels": 1,
+        "ops": 2
+      }
+    },
+    {
+      "input_file": "CAL-DIR-DOWN.json",
+      "program_sha256": "df5038869c87657ee9f015434ad64c23371cdf55714b48952838a1eae0b0650e",
+      "task_id": "CAL-DIR-DOWN",
+      "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+      },
+      "latency_ms": 14,
+      "measurement": [
+        {
+          "contentId": "c0-967a206e",
+          "payload": "向下",
+          "widthDu": 32,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "967a206e3aa79adab548a294ba4d4d64a8d4b250f71abe14a23e8ba3f6312fde"
+        }
+      ],
+      "status": "RENDERED",
+      "scene_sha256": "c54ca45bba58a0624ab3a0710525298e1311568b80f01b2344e58f3f092742a5",
+      "scene_bytes": 462,
+      "scene_schema_version": 1,
+      "draw_sha256": "8b80ccfbc72688fedaa7953337f715a7eeba49a49c498b67ad0b8ce77043cb5d",
+      "draw_bytes": 525,
+      "draw_schema_version": 1,
+      "content_ids": [
+        "c0-967a206e"
+      ],
+      "png_sha256": "e1bfcd26e735a8d1ef91b1816f22851121efd5c99ac56dd41035bf17c362da41",
+      "png_bytes": 3130,
+      "png_width": 720,
+      "png_height": 480,
+      "stats": {
+        "nodes": 3,
+        "pathCommands": 5,
+        "labels": 1,
+        "ops": 2
+      }
+    },
+    {
+      "input_file": "CAL-DIR-UP.json",
+      "program_sha256": "3a33af40e02921a140e58df126f0bee3ace080fcce115d6a2679be4de2a46df1",
+      "task_id": "CAL-DIR-UP",
+      "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+      },
+      "latency_ms": 18,
+      "measurement": [
+        {
+          "contentId": "c0-0ad9fc2d",
+          "payload": "向上",
+          "widthDu": 32,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "0ad9fc2dfddab37f7e15fafc3c0bfeed4db93432a45404a7f7ef6c0f0a050bb9"
+        }
+      ],
+      "status": "RENDERED",
+      "scene_sha256": "7762bb8da6a90aec33c6f49de13511dbda46b44e616df94a57d54512cee87576",
+      "scene_bytes": 459,
+      "scene_schema_version": 1,
+      "draw_sha256": "1b1c98253665a1975f6d91546579d25a770378d17af7b44bf80144668b3fd465",
+      "draw_bytes": 522,
+      "draw_schema_version": 1,
+      "content_ids": [
+        "c0-0ad9fc2d"
+      ],
+      "png_sha256": "51c6dedbcf4db115b2a848f2c5aba1177409e30a0e5338e04e76271a268ac845",
+      "png_bytes": 3171,
+      "png_width": 720,
+      "png_height": 480,
+      "stats": {
+        "nodes": 3,
+        "pathCommands": 5,
+        "labels": 1,
+        "ops": 2
+      }
+    },
+    {
+      "input_file": "CAL-PHASE-OK.json",
+      "program_sha256": "260c441ed82d11a17956009ce267a84273318efbfac417aa24335ebad9cf820d",
+      "task_id": "CAL-PHASE-OK",
+      "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+      },
+      "latency_ms": 20,
+      "measurement": [
+        {
+          "contentId": "c0-953a947a",
+          "payload": "u=0",
+          "widthDu": 26.545454025268555,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "953a947a0a53b228142b57831935a639b7fb7deae9d3192750598cd54f5cad24"
+        },
+        {
+          "contentId": "c1-2d4635eb",
+          "payload": "u=1\/2",
+          "widthDu": 42.181819915771484,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "2d4635eb1f3df7a4b0c0a3fe6cc02d8fac6af595d11fadba37e846084baf2a71"
+        },
+        {
+          "contentId": "c2-7fa211ac",
+          "payload": "u=1",
+          "widthDu": 26.545454025268555,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "7fa211acd935f62457ad10c390d8c690f3af35df44f65d9d3097f95010ebfb7d"
+        }
+      ],
+      "status": "RENDERED",
+      "scene_sha256": "c4eab0bfdfb17fc14e716f8baf91d1cfbdc409b826820964621df77cc80eadbe",
+      "scene_bytes": 702,
+      "scene_schema_version": 1,
+      "draw_sha256": "52db3c0bdb3658cd3f741f775bf4807649ba74a7d8c783e70989e18a6360f52b",
+      "draw_bytes": 825,
+      "draw_schema_version": 1,
+      "content_ids": [
+        "c0-953a947a",
+        "c1-2d4635eb",
+        "c2-7fa211ac"
+      ],
+      "png_sha256": "c830888d218dce9ac1bc7aea9688e0be7445fff0e8b422fd30e6b02750ec2649",
+      "png_bytes": 2748,
+      "png_width": 720,
+      "png_height": 480,
+      "stats": {
+        "nodes": 5,
+        "pathCommands": 5,
+        "labels": 3,
+        "ops": 4
+      }
+    },
+    {
+      "input_file": "CAL-PHASE-REVERSED.json",
+      "program_sha256": "a82579fc7b9c0f6466f738f64dbc8da6438375206c675019f90fb1b36e71f166",
+      "task_id": "CAL-PHASE-REVERSED",
+      "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+      },
+      "latency_ms": 21,
+      "measurement": [
+        {
+          "contentId": "c0-953a947a",
+          "payload": "u=0",
+          "widthDu": 26.545454025268555,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "953a947a0a53b228142b57831935a639b7fb7deae9d3192750598cd54f5cad24"
+        },
+        {
+          "contentId": "c1-2d4635eb",
+          "payload": "u=1\/2",
+          "widthDu": 42.181819915771484,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "2d4635eb1f3df7a4b0c0a3fe6cc02d8fac6af595d11fadba37e846084baf2a71"
+        },
+        {
+          "contentId": "c2-7fa211ac",
+          "payload": "u=1",
+          "widthDu": 26.545454025268555,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "7fa211acd935f62457ad10c390d8c690f3af35df44f65d9d3097f95010ebfb7d"
+        }
+      ],
+      "status": "RENDERED",
+      "scene_sha256": "e09dc9c7c21a464f28018d5322a4c1c9ef2bcc9bf5dba378062113088ec14897",
+      "scene_bytes": 702,
+      "scene_schema_version": 1,
+      "draw_sha256": "ae633f3ccb4311e88ae835ecc0c39bb06fdea9b90d5f6232060a93240621e8b5",
+      "draw_bytes": 825,
+      "draw_schema_version": 1,
+      "content_ids": [
+        "c0-953a947a",
+        "c1-2d4635eb",
+        "c2-7fa211ac"
+      ],
+      "png_sha256": "16d515832ef608230f417e990d59aca69cf1de0b06fb88d072e95a28e2ccc801",
+      "png_bytes": 2733,
+      "png_width": 720,
+      "png_height": 480,
+      "stats": {
+        "nodes": 5,
+        "pathCommands": 5,
+        "labels": 3,
+        "ops": 4
+      }
+    }
+  ]
+}

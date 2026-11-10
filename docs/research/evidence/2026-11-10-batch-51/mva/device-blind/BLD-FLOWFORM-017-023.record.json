@@ -1,0 +1,87 @@
+{
+  "input_file": "BLD-FLOWFORM-017.json",
+  "program_sha256": "4f7c06f6165614854e3a2c41d65ba152d549ecb8b2858a2de37258cc925181e2",
+  "task_id": "BLD-FLOWFORM-017",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 28,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "单位换算表",
+      "widthDu": 80,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "fe624f25464bd30fc6c14c5e1abc0fe4000607b0f3da04653bde74b4654c3dc3"
+    },
+    {
+      "contentId": "c1",
+      "payload": "换算项目",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "306904e7703c5b55ba9d7bb3f6f1849447fd04b517a884537fa3ba56e929c282"
+    },
+    {
+      "contentId": "c2",
+      "payload": "换算算式",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9851098d67efd162340cf73ad7da959b967857ed6ea5f7525424c624cb96a8f4"
+    },
+    {
+      "contentId": "c3",
+      "payload": "结果",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bb7ef73495dd8a74eead9a021f2739832271393fe393708fe5c50f995749649f"
+    },
+    {
+      "contentId": "c4",
+      "payload": "72 km\/h → m\/s",
+      "widthDu": 112.7272720336914,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "fd697a1bf425e03778f0b9c49e6db6f58d66b73dc59d5e31ef6089844a9cdf68"
+    },
+    {
+      "contentId": "c5",
+      "payload": "72 ÷ 3.6 = 20.0",
+      "widthDu": 106.18181610107422,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "543c228cf3f838f661a9843505b504abd2a1a211d3588b0816c874464d409857"
+    },
+    {
+      "contentId": "c6",
+      "payload": "20.0 m\/s",
+      "widthDu": 64.7272720336914,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "fd9d2fe7c855f0c861d4b4eea095edb24eabf656729c481db61d69a5fd0e7b48"
+    },
+    {
+      "contentId": "c7",
+      "payload": "按题意：72 ÷ 3.6；结果保留三位有效数字。",
+      "widthDu": 313.81817626953125,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "aecd81c278e2c615b0dc474efd0a99f1149f957951fe5df349d7ecb4a01ee9b8"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}
