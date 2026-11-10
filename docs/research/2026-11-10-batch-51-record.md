@@ -998,7 +998,16 @@
      - `RoomTutorToolRunner.kt` 的 `.associate`/`.candidates` 与召回口改形（B35 wrapper）不一致
        （对应未提交改动在别的文件）。
 - 证据：`release/clean-clone-assemble-b51.log`（`^e:` 行与 BUILD FAILED 原文）。
-- **结论**：`3660daff`/`d2b87009` 的 HEAD **仍非自洽**；干净树 release 构建继续 **BLOCKED**。
+- **第三层（补 5b/B35 两文件后，`661ac211`）**：仍 FAILED `:core:data` ——
+  `RoomBackedStudyExperienceRepository.kt:929/938/956` 使用 `KnowledgeQuizQuestionSlot` 与
+  `slot`/`itemId` 参数，HEAD 的 `KnowledgeQuizItemStore` 尚无这些成员（KD-67 第二道校准题的
+  数据半边未提交）。
+- **停止条件**：已连续补 3 层（export 文件 / DB 端口 23 行 / 5b+B35 48 行），每层都只是把下一个
+  未提交特性暴露出来。这不是「再补一个文件」的问题，而是**HEAD 的已提交调用点引用了一组跨线
+  未提交特性**（5b 容量、B35 召回、KD-67 校准题数据层）。主会话在此停止逐个补文件，转 owner
+  裁定：要么把这些特性连同调用点成组提交，要么回退已提交的调用点。**干净树 release 构建
+  维持 BLOCKED。**
+- **结论**：`3660daff`/`d2b87009`/`661ac211` 的 HEAD **仍非自洽**；干净树 release 构建继续 **BLOCKED**。
   解除条件不是再补一两个文件，而是把 5b 容量预览与 B35 召回改形两组**跨线未提交特性**连同其调用点
   一起提交（或回退已提交的调用点）——属其他线 owner 的决定，主会话未擅自继续提交。
 - 本节使用的签名钥是**一次性本地测试钥**，证书身份与批次 51 脏树产物（`2c8415b2…`）不同；
