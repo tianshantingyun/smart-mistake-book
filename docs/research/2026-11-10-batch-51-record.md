@@ -964,3 +964,43 @@
 - **禁止**：`git add -A`；他线在飞（`ReviewReminder*`、`app/.../visualjs/*InstrumentedTest` 未跟踪件、`knowledge-production/wusan/materials.jsonl`、`tools/kb_build/*`、`tools/kb_coverage/*`、`feature/**` 在飞 M、根目录散件）；`local.properties`；`build/**`；`.tmp/**`；`docs/research/evidence/**/*.log`（除非 owner 决定 `git add -f`）。
 - **提交前复核**：重跑 §5.1 的 `acceptance_report`（预期 exit 1、937/10/253/0）、`--require-complete`（预期 exit 1）、`trace_requirements`（0 gaps）；确认哈希清单 5 份仍全绿；**先提交 `core/export/.../AiGeneratedDocumentNotice.kt` 等“HEAD 引用、工作树未跟踪”必需文件，再做干净 clone 构建**；推送后 `git ls-remote origin refs/heads/main` 实测成功才可写“远端 = 本地”。
 - **提交不改变终裁：NOT ACCEPTED 维持；发版不成立。**
+
+---
+
+## 9. 收口后主会话补验（2026-11-11，提交后）
+
+> 本节在主会话提交并推送 `3660daff` 之后追加；上方子线节与 §0–§8 原文未改。
+> 目的：验证「干净树可构建」这一条是否因补提交 `AiGeneratedDocumentNotice.kt` 而解除。
+
+### 9.1 推送
+
+- `3660daff` 经后台重试第 16 次 `PUSH_OK`，`origin/main = 3660daff`（本地=远端）。
+- 期间 github:443 多次 `Connection reset` / 连接超时；非仓库问题。
+
+### 9.2 干净 clone 定向编译：通过
+
+- clone `D:/smbk-clean-b51-8dd29e96/src` 快进到 `3660daff`，`git status --porcelain` **0 行**，
+  `AiGeneratedDocumentNotice.kt` 已在版本内。
+- `./gradlew.bat --offline :core:export:compileReleaseKotlin` → **BUILD SUCCESSFUL in 49s**
+  （证据 `release/clean-clone-export-b51.log`）。**§4 #5 的「HEAD 缺未跟踪文件」子项解除。**
+
+### 9.3 干净 clone 完整 release 构建：仍 BLOCKED（暴露更深的自洽性缺口）
+
+- `:app:assembleLocalFirstRelease -Psmbk.versionCode=101178`（一次性本地测试钥，DN
+  `OU=NOT-PLAY-PRODUCTION`，不入库）：
+  1. 首次 FAILED `:core:database:compileReleaseKotlin`：`RoomStudyDatabase.kt` 的
+     `paperReviews`/`freezeAnswerManifest`/`readLatestLiveTutorVisualSnapshot` 等 **overrides nothing**
+     —— 对应接口成员只在工作树的 `StudyDatabasePort.kt` + `TutorVisualPort.kt`（未提交）。
+     主会话补提交 23 行接口声明（`d2b87009`）。
+  2. 重跑 FAILED `:core:data:compileReleaseKotlin`：
+     - `StudySnapshotBuilder.kt:154` 向 `ReviewPlanBundle.toOverview` 传 `capacity`，但 HEAD 的
+       `StudyExperienceMappers.kt` 尚无该参数（5b 容量预览的 mapper 半边未提交）；
+     - `RoomTutorToolRunner.kt` 的 `.associate`/`.candidates` 与召回口改形（B35 wrapper）不一致
+       （对应未提交改动在别的文件）。
+- 证据：`release/clean-clone-assemble-b51.log`（`^e:` 行与 BUILD FAILED 原文）。
+- **结论**：`3660daff`/`d2b87009` 的 HEAD **仍非自洽**；干净树 release 构建继续 **BLOCKED**。
+  解除条件不是再补一两个文件，而是把 5b 容量预览与 B35 召回改形两组**跨线未提交特性**连同其调用点
+  一起提交（或回退已提交的调用点）——属其他线 owner 的决定，主会话未擅自继续提交。
+- 本节使用的签名钥是**一次性本地测试钥**，证书身份与批次 51 脏树产物（`2c8415b2…`）不同；
+  两包不可互比，也不构成生产签名证据。
+- 主会话本轮未改任何门值、未重跑四门、未改终裁：**NOT ACCEPTED 维持；发版不成立。**

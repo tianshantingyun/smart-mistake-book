@@ -1,0 +1,67 @@
+Starting a Gradle Daemon (subsequent builds will be faster)
+Calculating task graph as no cached configuration is available for tasks: :core:export:compileReleaseKotlin
+
+> Configure project :app
+WARNING: The option setting 'android.overridePathCheck=true' is experimental.
+The current default is 'false'.
+Add android.sync.suppressAgpWarnings=UNSUPPORTED_PROJECT_OPTION_USE to the gradle.properties file to suppress this warning.
+WARNING: BuildType 'internal' is both debuggable and has 'isMinifyEnabled' set to true.
+All code optimizations and obfuscation are disabled for debuggable builds.
+Add android.sync.suppressAgpWarnings=DEBUGGABLE_AND_MINIFIED_ENABLED to the gradle.properties file to suppress this warning.
+WARNING: BuildType 'internal' is both debuggable and has 'isMinifyEnabled' set to true.
+All code optimizations and obfuscation are disabled for debuggable builds.
+Add android.sync.suppressAgpWarnings=DEBUGGABLE_AND_MINIFIED_ENABLED to the gradle.properties file to suppress this warning.
+
+> Task :core:domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:export:preBuild UP-TO-DATE
+> Task :core:export:preReleaseBuild UP-TO-DATE
+> Task :core:model:processResources NO-SOURCE
+> Task :core:domain:processResources NO-SOURCE
+> Task :core:export:processReleaseNavigationResources UP-TO-DATE
+> Task :core:export:generateReleaseResources UP-TO-DATE
+> Task :core:export:packageReleaseResources UP-TO-DATE
+> Task :core:model:compileKotlin UP-TO-DATE
+> Task :core:model:compileJava NO-SOURCE
+> Task :core:model:classes UP-TO-DATE
+> Task :core:model:jar UP-TO-DATE
+> Task :core:export:parseReleaseLocalResources UP-TO-DATE
+> Task :core:export:generateReleaseRFile UP-TO-DATE
+
+> Task :core:domain:compileKotlin
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/FigureGenerationCoordinator.kt:41:39 Non-public primary constructor is exposed via the generated 'copy()' method of the 'data' class.
+
+The generated 'copy()' will change its visibility in future releases.
+
+To suppress the warning do one of the following:
+- Annotate the data class with the '@ConsistentCopyVisibility' annotation.
+- Use the '-Xconsistent-data-class-copy-visibility' compiler flag.
+- Annotate the data class with the '@ExposedCopyVisibility' annotation 
+  (Discouraged, but can be used to keep binary compatibility).
+
+To learn more, see the documentation of the '@ConsistentCopyVisibility' and '@ExposedCopyVisibility' annotations.
+
+This will become an error in language version 2.5. See https://youtrack.jetbrains.com/issue/KT-11914.
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/HLRPredictionAuditService.kt:138:10 Redundant call of conversion method.
+
+> Task :core:domain:compileJava NO-SOURCE
+> Task :core:domain:classes UP-TO-DATE
+> Task :core:domain:jar
+
+> Task :core:export:compileReleaseKotlin
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePaperDraftStore.kt:340:6 This declaration needs opt-in. Its usage should be marked with '@kotlinx.serialization.ExperimentalSerializationApi' or '@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)'
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePaperDraftStore.kt:340:64 This declaration needs opt-in. Its usage should be marked with '@kotlinx.serialization.ExperimentalSerializationApi' or '@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)'
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePaperDraftStore.kt:340:78 This declaration needs opt-in. Its usage should be marked with '@kotlinx.serialization.ExperimentalSerializationApi' or '@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)'
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePaperDraftStore.kt:340:83 This declaration needs opt-in. Its usage should be marked with '@kotlinx.serialization.ExperimentalSerializationApi' or '@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)'
+
+[Incubating] Problems report is available at: file:///D:/smbk-clean-b51-8dd29e96/src/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 49s
+10 actionable tasks: 3 executed, 7 up-to-date
+Configuration cache entry stored.
