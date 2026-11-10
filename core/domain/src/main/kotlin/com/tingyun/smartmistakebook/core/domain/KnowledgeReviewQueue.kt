@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.domain
 
 import com.tingyun.smartmistakebook.core.model.KnowledgeMasteryState
 import com.tingyun.smartmistakebook.core.model.ProblemMemoryState
+import com.tingyun.smartmistakebook.core.model.ReviewReason
 
 /**
  * 知识点复习队列的一个候选：一个知识点 + 其当前掌握态（供 [KnowledgeNodeScorer.scoreKnowledgeNode]
@@ -67,6 +68,16 @@ data class KnowledgeReviewQueueEntry(
     val displayName: String,
     val masteryScore: Double?,
     val lastEvidenceAtEpochMillis: Long?,
+    /**
+     * 入选理由（[KnowledgeNodeScorer.ScoredKnowledgeNode.reasons]，批次 49 P2-14）。
+     *
+     * 消灭的失败：冲突知识点（`effectiveStatus == CONFLICTED`）在会话里与普通知识点完全
+     * 无区别——学生看不到"最近有波动"，也无法选择先做校准题。理由随队列项一路带到会话，
+     * 卡片判据与排程侧加分的判据因此是**同一份原因**，不是 UI 自己另猜一个阈值。
+     *
+     * 默认空集：既有构造点/替身不提供理由时行为逐字不变（不显示冲突卡）。
+     */
+    val reasons: Set<ReviewReason> = emptySet(),
 ) {
     init {
         require(knowledgeNodeId.isNotBlank()) { "Knowledge review entry id must not be blank" }
@@ -79,6 +90,16 @@ data class KnowledgeReviewQueueEntry(
             "Knowledge review entry evidence time must not be negative"
         }
     }
+
+    /**
+     * 冲突 KC 卡（K5）的唯一触发判据：排程侧判定该点证据互相矛盾。
+     *
+     * 与 [KnowledgeNodeScorer] 的 `masteryRiskFor`（`resolved == CONFLICTED` →
+     * `reasons += CONFLICTED_KNOWLEDGE`）同源；不用 `masteryScore` 阈值另造一条判据
+     * （分数相同不代表证据冲突与否相同）。
+     */
+    val isConflicted: Boolean
+        get() = ReviewReason.CONFLICTED_KNOWLEDGE in reasons
 }
 
 /**
@@ -128,17 +149,19 @@ private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS.toDouble()
  * 多样性（同讲解材料/同科目软降权）+ 难度档轮换（[KnowledgeNodeScorer.DIFFICULTY_CYCLE]
  * 平局时轮换）。已掌握且新鲜的知识点被 scoreKnowledgeNode 跳过（不进队列）。纯函数，不依赖 DB/UI。
  *
- * **两个范围档**（3E 全库薄弱点扫描，2026-10-16 裁定「第二档 = 每日 10 个知识点」；
- * KD-46：队列不落库，实际口径是**每次排计划 ≤10、非严格每日累计**，见
+ * **两个范围档**（3E 全库薄弱点扫描；KD-46 已修为**每日累计** ≤10，见
  * [FULL_LIBRARY_SCAN_DAILY_CAP]）：
  * - [candidates] 第一档 = 今日错题复习队列的题绑定知识点（`extractReviewKnowledgeScope`）；
  * - [fullLibraryScanCandidates] 第二档 = 全库「有绑定题的活跃知识点 ∩ 材料可出题」**减去**今日队列
  *   后的候选（范围条件由 [fullLibraryScanCandidate] 落地，减法由调用方做）。
  *
  * 第二档**先**按分取前 [fullLibraryScanDailyCap] 个（F17 配额；平局按节点 id 定序，纯函数确定），
- * 再与第一档**并集**（同一节点两档都有时以第一档为准），最后是同一套时间预算（F8 预算）+ 多样性
- * 取队。因此最终队列里第二档的条目只少不多：名额封的是"进并集的增量"，不封今日队列那一档
- * （"全库扫描不受今日队列限制"，反过来扫描也不该把今日队列挤掉）。
+ * 再把 [fullLibraryScanReplayCandidates]（当日已复习的点，不占名额）与第一档**并集**
+ * （同一节点两档都有时以第一档为准），最后是同一套时间预算（F8 预算）+ 多样性取队。因此最终
+ * 队列里第二档的新增条目只少不多：名额封的是"进并集的增量"，不封今日队列那一档
+ * （"全库扫描不受今日队列限制"，反过来扫描也不该把今日队列挤掉）。**每日累计的扣减在调用方**
+ * （`StudyReviewPlannerService` 从 `learner_chat_evidence` 派生当日已花费）；本函数保持纯函数，
+ * 只认传入的剩余名额。
  *
  * 与错题排程的一处刻意差异：多样性只做**软降权**、不做"同族已用即停"的硬约束。知识点常共享
  * 一份讲解材料，硬约束会在共用材料时直接截断队列（学生永远只复习到第一个点）。
@@ -160,10 +183,22 @@ fun selectKnowledgeReviewQueue(
     /** 3E 第二档候选（全库扫描）。默认空 = 单档行为逐位不变（既有调用方与用例不受影响）。 */
     fullLibraryScanCandidates: List<KnowledgeReviewCandidate> = emptyList(),
     /**
-     * 第二档每次排计划的名额上限（F17 配额；取值出处与「非严格每日总量」口径见
-     * [FULL_LIBRARY_SCAN_DAILY_CAP] / KD-46）。
+     * 第二档**本次调用可新增**的名额上限（F17 配额；取值出处与「每日累计」口径见
+     * [FULL_LIBRARY_SCAN_DAILY_CAP] / KD-46）。调用方已扣掉当日**已复习**（有
+     * `KNOWLEDGE_QUIZ` 落账）的扫描点——本函数是纯函数、不读账本，只按传入的剩余名额取队。
      */
     fullLibraryScanDailyCap: Int = FULL_LIBRARY_SCAN_DAILY_CAP,
+    /**
+     * 当日**已复习**（有落账）的扫描点：直接回放进并集，**不占** [fullLibraryScanDailyCap]
+     * ——它们是今天已经下发给学生、学生已作答的点，不是"新增补捞"。
+     *
+     * 为什么需要它：扣掉当日花费后，第二次排计划的名额可能已为 0；若没有回放，学生当天
+     * 已复习的那批点会从计划里整体消失（计划只反映"还没复习的剩余名额"，不再反映"今天
+     * 的知识点复习集"）。回放只影响并集成员，不改变名额（名额只封新增）。
+     *
+     * 默认空 = 单档/无账本调用逐位不变（既有调用方与用例不受影响）。
+     */
+    fullLibraryScanReplayCandidates: List<KnowledgeReviewCandidate> = emptyList(),
 ): List<KnowledgeNodeScorer.ScoredKnowledgeNode> {
     require(timeBudgetSeconds >= 0) { "Knowledge review time budget must not be negative" }
     require(fullLibraryScanDailyCap >= 0) { "Full-library scan daily cap must not be negative" }
@@ -179,8 +214,9 @@ fun selectKnowledgeReviewQueue(
         .take(fullLibraryScanDailyCap)
         .map { (_, candidate) -> candidate }
     // 并集：同 id 以第一档（今日队列）那一条为准，且不出现重复节点
-    // （KnowledgeReviewSessionPlan 拒绝重复 id）。
-    val pool = (candidates + scannedPicks)
+    // （KnowledgeReviewSessionPlan 拒绝重复 id）。回放档（当日已复习的扫描点）原样进池、
+    // 不 take（不占名额），是否留在队列由同一把打分核决定（已掌握 → 自动剔除）。
+    val pool = (candidates + fullLibraryScanReplayCandidates + scannedPicks)
         .distinctBy(KnowledgeReviewCandidate::knowledgeNodeId)
         .mapNotNull { candidate ->
             scoredCandidateOf(scorer, candidate, now, prerequisiteStabilityDaysByNode)

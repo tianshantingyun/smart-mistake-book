@@ -131,6 +131,9 @@ import com.tingyun.smartmistakebook.core.database.StudySeedBundle
 import com.tingyun.smartmistakebook.core.database.port.PracticeUnitAssessmentRecord
 import com.tingyun.smartmistakebook.core.database.TransitionModelTaskCommand
 import com.tingyun.smartmistakebook.core.domain.FsrsRating
+import com.tingyun.smartmistakebook.core.domain.FULL_LIBRARY_SCAN_DAILY_CAP
+import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
+import com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity
 import com.tingyun.smartmistakebook.core.domain.ReviewSample
 import com.tingyun.smartmistakebook.core.domain.ReviewSelfReportKey
 import com.tingyun.smartmistakebook.core.domain.StudyDataStatus
@@ -660,6 +663,500 @@ class RoomBackedStudyExperienceRepositoryTest {
                 plan.queue.map { it.knowledgeNodeId },
             )
             assertEquals("链式法则", plan.queue.single().displayName)
+        } finally {
+            repository.close()
+            applicationScope.cancel()
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // 3E 每日累计配额（KD-46 修复）：当日已花费名额从 KNOWLEDGE_QUIZ 账本派生
+    // ------------------------------------------------------------------
+
+    /**
+     * 夹具：20 个「有在册绑定题 + 有可出题材料 + 先修未达门槛」的扫描点。
+     *
+     * 先修 0.2（KF-08 硬过滤）让它们**全部**落在今日错题队列之外——今日计划队列为空，
+     * 于是计划里出现的每个节点都只可能来自全库扫描档（第二档）。节点 id 的字典序就是
+     * 扫描档的确定性平局序（同分同难度时 `thenBy { knowledgeNodeId }`），因此
+     * [DAILY_SCAN_LOW_RANKED_IDS]（17..20）永远不在前 10 个新增里——"已花费 4 → 只剩 6 个
+     * 新增"才可区分于"再取满 10 个"。
+     */
+    private fun FakeStudyDatabasePort.seedDailyScanPool(count: Int = 20) {
+        val prerequisiteId = DAILY_SCAN_PREREQUISITE_ID
+        addKnowledgeNode(prerequisiteId, displayName = "扫描先修")
+        (1..count).forEach { index ->
+            val nodeId = dailyScanNodeId(index)
+            addMistake(
+                MistakeRecord(
+                    entryId = "scan-entry-$index",
+                    problemId = "scan-problem-$index",
+                    problemRevisionId = "scan-revision-$index",
+                    practiceUnitId = "scan-unit-$index",
+                    sourceKey = "capture:scan-$index",
+                    subject = "MATH",
+                    title = "扫描原题 $index",
+                    problemMarkdown = "求复合函数的导数。",
+                    status = "ACTIVE",
+                    createdAtEpochMillis = 1_000L + index,
+                    nextReviewAtEpochMillis = null,
+                    retrievability = null,
+                    knowledgeNodeIds = setOf(nodeId),
+                ),
+            )
+            addKnowledgeNode(nodeId, displayName = "扫描知识点 $index")
+            addPrerequisiteRelation(
+                prerequisiteKnowledgeNodeId = prerequisiteId,
+                dependentKnowledgeNodeId = nodeId,
+            )
+            addBoundTeachingMaterial(
+                materialId = "material:scan-$index",
+                knowledgeNodeId = nodeId,
+                type = "CONCEPT_EXPLANATION",
+                content = "扫描知识点 $index 的判定与用法。",
+            )
+        }
+        publishMasteryStates(
+            mapOf(prerequisiteId to weakPrerequisiteState(prerequisiteId)),
+        )
+    }
+
+    private fun dailyScanNodeId(index: Int): String = "knowledge:scan-%02d".format(index)
+
+    /**
+     * 3E 配额用例的证据行：真实 KNOWLEDGE_QUIZ 落账形态（`created_at` 在窗口内即视为当次作答；
+     * [rejectedReason] 非空 = 被拒观察行，同样计"这次作答发生了"）。
+     */
+    private fun knowledgeQuizEvidenceRow(
+        knowledgeNodeId: String,
+        createdAtEpochMillis: Long,
+        rejectedReason: String? = null,
+    ): LearnerChatEvidenceEntity = LearnerChatEvidenceEntity(
+        evidence_id = "knowledge-quiz:daily-quota:$knowledgeNodeId:$createdAtEpochMillis",
+        learner_id = "learner:local",
+        conversation_id = "knowledge-quiz-review:daily-quota",
+        knowledge_node_id = knowledgeNodeId,
+        direction = "NEGATIVE",
+        // 与生产写口同值：答错走 MasteryWriteGate.negativeWeight() = 0.35；
+        // ChatEvidenceSubmitted 的 MAX_CHAT_EVIDENCE_WEIGHT 也是 0.35（0.5 会被 require 拒绝）。
+        weight = 0.35,
+        reason_markdown = "知识点测验作答",
+        confidence = 1.0,
+        source_kind = StudyDbValue.ChatEvidenceSourceKind.KNOWLEDGE_QUIZ,
+        created_at_epoch_millis = createdAtEpochMillis,
+        rejected_reason = rejectedReason,
+        rejected_at_epoch_millis = rejectedReason?.let { createdAtEpochMillis },
+        anchor_class = "CONFIRMED",
+    )
+
+    /**
+     * 扫描档夹具的共同先修态：保守掌握 0.2（KF-08 硬过滤的输入）。无记忆卡 → 读侧状态
+     * 落到 STALE/LEARNING，与 `FakeStudyDatabasePort.publishMastery` 的既有形状同语义
+     * （那条路径正是既有 3E 用例用来把题挡在今日队列之外的）。
+     */
+    private fun weakPrerequisiteState(knowledgeNodeId: String) = KnowledgeMasteryState(
+        knowledgeNodeId = knowledgeNodeId,
+        masteryScore = 0.2,
+        conservativeMasteryScore = 0.2,
+        evidenceMass = 2.0,
+        status = MasteryStatus.LEARNING,
+        calibrationSupport = CalibrationSupport.SUPPORTED,
+        projectorVersion = LearningProjector.VERSION,
+        checkpointSequence = 1,
+    )
+
+    /**
+     * 已复习扫描点的掌握态结果：S=60 ≥ 21、R=1.0 ≥ 0.9 → 此刻 clearly mastered
+     * （`ClearlyMasteredForSkipPolicy.effectiveStatus`），扫描档不再捞它。
+     */
+    private fun masteredScanState(knowledgeNodeId: String) = KnowledgeMasteryState(
+        knowledgeNodeId = knowledgeNodeId,
+        masteryScore = 0.95,
+        conservativeMasteryScore = 0.9,
+        evidenceMass = 2.0,
+        successWeight = 2.0,
+        memoryStabilityDays = 60.0,
+        memoryDifficulty = 5.0,
+        lastAttemptAtEpochMillis = STUDY_DAY_START_EPOCH_MILLIS,
+        status = MasteryStatus.MASTERED,
+        calibrationSupport = CalibrationSupport.SUPPORTED,
+        projectorVersion = LearningProjector.VERSION,
+        checkpointSequence = 0,
+        lastEvidenceAtEpochMillis = STUDY_DAY_START_EPOCH_MILLIS,
+    )
+
+    /** 先修保持 0.2（今日档的 KF-08 过滤不变），另把 [reviewed] 推到"已掌握且新鲜"。 */
+    private fun scanPoolSnapshotAfterReview(
+        reviewed: Set<String>,
+    ): Map<String, KnowledgeMasteryState> = mapOf(
+        DAILY_SCAN_PREREQUISITE_ID to weakPrerequisiteState(DAILY_SCAN_PREREQUISITE_ID),
+    ) + reviewed.associateWith { masteredScanState(it) }
+
+    /** 计划里来自全库扫描档的节点 = 计划节点 − 今日第一档节点（今日档为空时即全部）。 */
+    private fun KnowledgeReviewSessionPlan.scanNodeIds(
+        todayNodeIds: Set<String> = emptySet(),
+    ): Set<String> = queue.mapTo(linkedSetOf()) { it.knowledgeNodeId } - todayNodeIds
+
+    /** 今日档夹具：一道没有先修门槛的错题 → 真的进今日错题队列（C4 守卫的反向对照）。 */
+    private fun FakeStudyDatabasePort.seedTodayTierNode() {
+        addMistake(
+            MistakeRecord(
+                entryId = "today-tier-entry",
+                problemId = "today-tier-problem",
+                problemRevisionId = "today-tier-revision",
+                practiceUnitId = "today-tier-unit",
+                sourceKey = "capture:today-tier",
+                subject = "MATH",
+                title = "今日档原题",
+                problemMarkdown = "求函数的单调区间。",
+                status = "ACTIVE",
+                createdAtEpochMillis = 1_000,
+                nextReviewAtEpochMillis = null,
+                retrievability = null,
+                knowledgeNodeIds = setOf(TODAY_TIER_NODE_ID),
+            ),
+        )
+        addKnowledgeNode(TODAY_TIER_NODE_ID, displayName = "今日档知识点")
+        addBoundTeachingMaterial(
+            materialId = "material:today-tier",
+            knowledgeNodeId = TODAY_TIER_NODE_ID,
+            type = "CONCEPT_EXPLANATION",
+            content = "今日档知识点的判定与用法。",
+        )
+    }
+
+    /**
+     * KD-46 修复（3E 每日累计，方案 A）：同一天第二次排计划**不得**再取满 10。
+     *
+     * 学生把第一次捞回的 10 个都做了测验（经真实写口落当日 KNOWLEDGE_QUIZ 行 + 掌握态推进），
+     * 第二次排计划时这 10 个已占满当日名额：扫描档只剩回放（已掌握则连回放都不进），
+     * 当日并集 ≤ 10。修复前实现是"每次排计划 ≤10"——第二次会捞回下一批 10 个，并集 20。
+     */
+    @Test
+    fun scanQuotaIsDailyCumulativeAcrossPlanCallsInTheSameStudyDay() = runBlocking {
+        val database = FakeStudyDatabasePort().apply { seedDailyScanPool(count = 20) }
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(
+            database = database,
+            applicationScope = applicationScope,
+            seedCuratedFixture = false,
+            reviewTimeBudgetSeconds = 3_600,
+        )
+        try {
+            repository.initialize()
+            assertTrue(
+                "夹具自证：20 个扫描点都带未达门槛先修，今日错题队列必须为空，实际：" +
+                    database.savedPlans.last().queue.map { it.practiceUnitId },
+                database.savedPlans.last().queue.isEmpty(),
+            )
+            val firstScan = requireNotNull(
+                repository.currentKnowledgeReviewPlan("daily-quota-first", 2_000),
+            ).scanNodeIds()
+            assertEquals(
+                "第一次排计划取满名额（F17）：$firstScan",
+                FULL_LIBRARY_SCAN_DAILY_CAP,
+                firstScan.size,
+            )
+
+            database.recordChatEvidence(
+                firstScan.map { nodeId ->
+                    knowledgeQuizEvidenceRow(nodeId, STUDY_DAY_START_EPOCH_MILLIS + 60_000)
+                },
+            )
+            database.publishMasteryStates(scanPoolSnapshotAfterReview(firstScan))
+
+            val secondScan = requireNotNull(
+                repository.currentKnowledgeReviewPlan("daily-quota-second", 2_000),
+            ).scanNodeIds()
+            assertTrue(
+                "同日第二次排计划不得再取满 10：first=$firstScan second=$secondScan",
+                firstScan.union(secondScan).size <= FULL_LIBRARY_SCAN_DAILY_CAP,
+            )
+            assertTrue(
+                "已复习的扫描点只能回放或消失，不能捞回新的一批：$secondScan",
+                secondScan.all { it in firstScan },
+            )
+        } finally {
+            repository.close()
+            applicationScope.cancel()
+        }
+    }
+
+    /**
+     * 跨学习日重置 + 学习日边界（04:00 日界，半开区间）：前一日最后一毫秒的作答不占今日名额，
+     * 今日 04:00:00.000 整的作答占名额。
+     *
+     * 修复前实现根本不读账本：第三段会照旧取满 10 个"新"点。
+     */
+    @Test
+    fun scanQuotaResetsAtTheStudyDayBoundary() = runBlocking {
+        val database = FakeStudyDatabasePort().apply { seedDailyScanPool(count = 20) }
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(
+            database = database,
+            applicationScope = applicationScope,
+            seedCuratedFixture = false,
+            reviewTimeBudgetSeconds = 3_600,
+        )
+        try {
+            repository.initialize()
+            val firstScan = requireNotNull(
+                repository.currentKnowledgeReviewPlan("daily-quota-boundary-first", 2_000),
+            ).scanNodeIds()
+            assertEquals(FULL_LIBRARY_SCAN_DAILY_CAP, firstScan.size)
+
+            // 昨日最后一毫秒的 4 条作答：在 [学习日起点, +24h) 之外，不占今日名额。
+            database.recordChatEvidence(
+                DAILY_SCAN_LOW_RANKED_IDS.map { nodeId ->
+                    knowledgeQuizEvidenceRow(nodeId, STUDY_DAY_START_EPOCH_MILLIS - 1)
+                },
+            )
+            val afterYesterday = requireNotNull(
+                repository.currentKnowledgeReviewPlan("daily-quota-boundary-yesterday", 2_000),
+            ).scanNodeIds()
+            assertEquals(
+                "跨学习日重置：昨日 23:59:59.999 的作答不占今日名额",
+                firstScan,
+                afterYesterday,
+            )
+
+            // 同一批节点的作答改到今日 04:00:00.000（窗口左端，半开区间包含）：占 4 个名额。
+            database.recordChatEvidence(
+                DAILY_SCAN_LOW_RANKED_IDS.map { nodeId ->
+                    knowledgeQuizEvidenceRow(nodeId, STUDY_DAY_START_EPOCH_MILLIS)
+                },
+            )
+            val afterToday = requireNotNull(
+                repository.currentKnowledgeReviewPlan("daily-quota-boundary-today", 2_000),
+            ).scanNodeIds()
+            assertTrue(
+                "今日窗口起点（含）的作答必须计入已花费：$afterToday",
+                afterToday.containsAll(DAILY_SCAN_LOW_RANKED_IDS),
+            )
+            assertEquals(
+                "已花费 4 → 只再取 6 个新增（不是 10）：$afterToday",
+                6,
+                (afterToday - DAILY_SCAN_LOW_RANKED_IDS).size,
+            )
+            assertEquals(
+                "扫描档总数仍封在 10（4 回放 + 6 新增）：$afterToday",
+                FULL_LIBRARY_SCAN_DAILY_CAP,
+                afterToday.size,
+            )
+        } finally {
+            repository.close()
+            applicationScope.cancel()
+        }
+    }
+
+    /**
+     * 预算/名额不被重复花（"先花掉 4 个就只剩 6 个"）：已作答的点只回放、不再计名额。
+     *
+     * 刻意让已作答的 4 个是**平局序最后 4 位**（17..20，本来进不了前 10 的新增批次）：
+     * "只取 6 个新增"与"再取满 10 个"在这一步才可区分（修复前 (second − spent).size = 10）。
+     */
+    @Test
+    fun scanQuotaSpendsOnlyTheRemainingSlotsWithinTheSameDay() = runBlocking {
+        val database = FakeStudyDatabasePort().apply { seedDailyScanPool(count = 20) }
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(
+            database = database,
+            applicationScope = applicationScope,
+            seedCuratedFixture = false,
+            reviewTimeBudgetSeconds = 3_600,
+        )
+        try {
+            repository.initialize()
+            val firstScan = requireNotNull(
+                repository.currentKnowledgeReviewPlan("daily-quota-slots-first", 2_000),
+            ).scanNodeIds()
+            assertEquals(FULL_LIBRARY_SCAN_DAILY_CAP, firstScan.size)
+            database.recordChatEvidence(
+                DAILY_SCAN_LOW_RANKED_IDS.map { nodeId ->
+                    knowledgeQuizEvidenceRow(nodeId, STUDY_DAY_START_EPOCH_MILLIS + 60_000)
+                },
+            )
+
+            val secondScan = requireNotNull(
+                repository.currentKnowledgeReviewPlan("daily-quota-slots-second", 2_000),
+            ).scanNodeIds()
+            assertEquals(
+                "已花费 4 → 本次只取 6 个新增",
+                6,
+                (secondScan - DAILY_SCAN_LOW_RANKED_IDS).size,
+            )
+            assertTrue(
+                "已作答的点只回放、不再重复计入名额：$secondScan",
+                secondScan.containsAll(DAILY_SCAN_LOW_RANKED_IDS),
+            )
+            assertEquals(
+                "回放 4 + 新增 6 = 名额 10：$secondScan",
+                FULL_LIBRARY_SCAN_DAILY_CAP,
+                secondScan.size,
+            )
+        } finally {
+            repository.close()
+            applicationScope.cancel()
+        }
+    }
+
+    /**
+     * 被拒观察行同样计"这次作答发生了"：门控拒写不删行（`KnowledgeEvidenceWriter` 的
+     * "被拒 ≠ 删除"），配额按实际发生的作答计，宁可少发不再超发。
+     */
+    @Test
+    fun scanQuotaCountsRejectedObservationRowsAsSpent() = runBlocking {
+        val database = FakeStudyDatabasePort().apply { seedDailyScanPool(count = 20) }
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(
+            database = database,
+            applicationScope = applicationScope,
+            seedCuratedFixture = false,
+            reviewTimeBudgetSeconds = 3_600,
+        )
+        try {
+            repository.initialize()
+            val firstScan = requireNotNull(
+                repository.currentKnowledgeReviewPlan("daily-quota-rejected-first", 2_000),
+            ).scanNodeIds()
+            assertEquals(FULL_LIBRARY_SCAN_DAILY_CAP, firstScan.size)
+            database.recordChatEvidence(
+                DAILY_SCAN_LOW_RANKED_IDS.map { nodeId ->
+                    knowledgeQuizEvidenceRow(
+                        knowledgeNodeId = nodeId,
+                        createdAtEpochMillis = STUDY_DAY_START_EPOCH_MILLIS + 60_000,
+                        rejectedReason = "EVIDENCE_IDENTITY_STICKY",
+                    )
+                },
+            )
+
+            val secondScan = requireNotNull(
+                repository.currentKnowledgeReviewPlan("daily-quota-rejected-second", 2_000),
+            ).scanNodeIds()
+            assertEquals(
+                "被拒观察行也占名额：已花费 4 → 只取 6 个新增，实际 $secondScan",
+                6,
+                (secondScan - DAILY_SCAN_LOW_RANKED_IDS).size,
+            )
+        } finally {
+            repository.close()
+            applicationScope.cancel()
+        }
+    }
+
+    /**
+     * 守卫（反向回归）：今日**第一档**错题队列的作答不占扫描名额——"全库扫描不受今日队列限制"
+     * 反过来也成立，扫描不该被今日队列挤掉。
+     */
+    @Test
+    fun scanQuotaDoesNotChargeTodaysFirstTierReviews() = runBlocking {
+        val database = FakeStudyDatabasePort().apply {
+            seedDailyScanPool(count = 20)
+            seedTodayTierNode()
+        }
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(
+            database = database,
+            applicationScope = applicationScope,
+            seedCuratedFixture = false,
+            reviewTimeBudgetSeconds = 3_600,
+        )
+        try {
+            repository.initialize()
+            assertTrue(
+                "夹具自证：今日档知识点必须在今日错题队列里，实际：" +
+                    database.savedPlans.last().queue.map { it.practiceUnitId },
+                database.savedPlans.last().queue.any { it.practiceUnitId == "today-tier-unit" },
+            )
+            database.recordChatEvidence(
+                listOf(
+                    knowledgeQuizEvidenceRow(
+                        TODAY_TIER_NODE_ID,
+                        STUDY_DAY_START_EPOCH_MILLIS + 60_000,
+                    ),
+                ),
+            )
+
+            val plan = requireNotNull(
+                repository.currentKnowledgeReviewPlan("daily-quota-first-tier", 2_000),
+            )
+            val planIds = plan.queue.map { it.knowledgeNodeId }
+            assertTrue("今日档知识点仍在计划里：$planIds", TODAY_TIER_NODE_ID in planIds)
+            assertEquals(
+                "今日第一档的作答不占扫描名额：$planIds",
+                FULL_LIBRARY_SCAN_DAILY_CAP,
+                plan.scanNodeIds(todayNodeIds = setOf(TODAY_TIER_NODE_ID)).size,
+            )
+        } finally {
+            repository.close()
+            applicationScope.cancel()
+        }
+    }
+
+    /**
+     * 失败关死（fail-closed）：账本读失败时**不得**把未知花费当 0 花费（那会超发）——
+     * 本次不取新增扫描点，今日第一档照常；且不得把异常抛给学生。
+     */
+    @Test
+    fun scanQuotaFailsClosedWhenTheEvidenceReadFails() = runBlocking {
+        val database = FakeStudyDatabasePort().apply {
+            seedDailyScanPool(count = 20)
+            seedTodayTierNode()
+            failKnowledgeQuizEvidenceReads = true
+        }
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(
+            database = database,
+            applicationScope = applicationScope,
+            seedCuratedFixture = false,
+            reviewTimeBudgetSeconds = 3_600,
+        )
+        try {
+            repository.initialize()
+            val plan = requireNotNull(
+                repository.currentKnowledgeReviewPlan("daily-quota-read-failure", 2_000),
+            )
+            assertEquals(
+                "账本读失败 → 未知花费按不可再取处理，今日第一档照常",
+                linkedSetOf(TODAY_TIER_NODE_ID),
+                plan.queue.mapTo(linkedSetOf()) { it.knowledgeNodeId },
+            )
+        } finally {
+            repository.close()
+            applicationScope.cancel()
+        }
+    }
+
+    /**
+     * 只读 + 确定性（幂等）：同输入重复调用逐位相同，且配额读口不写任何证据行
+     * （`requestId` 不参与去重——幂等来自"只读 + 确定性"，不是请求 id 记账）。
+     */
+    @Test
+    fun scanQuotaReadIsReadOnlyAndDeterministic() = runBlocking {
+        val database = FakeStudyDatabasePort().apply { seedDailyScanPool(count = 20) }
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(
+            database = database,
+            applicationScope = applicationScope,
+            seedCuratedFixture = false,
+            reviewTimeBudgetSeconds = 3_600,
+        )
+        try {
+            repository.initialize()
+            val evidenceRowsBefore = database.recordedChatEvidence.size
+            val firstIds = requireNotNull(
+                repository.currentKnowledgeReviewPlan("daily-quota-idempotent-a", 2_000),
+            ).queue.map { it.knowledgeNodeId }
+            val secondIds = requireNotNull(
+                repository.currentKnowledgeReviewPlan("daily-quota-idempotent-b", 2_000),
+            ).queue.map { it.knowledgeNodeId }
+            assertEquals(FULL_LIBRARY_SCAN_DAILY_CAP, firstIds.size)
+            assertEquals("同输入重复调用必须逐位相同（只读 + 确定性排序）", firstIds, secondIds)
+            assertEquals(
+                "配额读口只读：排计划不得写任何证据行",
+                evidenceRowsBefore,
+                database.recordedChatEvidence.size,
+            )
         } finally {
             repository.close()
             applicationScope.cancel()
@@ -1903,11 +2400,18 @@ class RoomBackedStudyExperienceRepositoryTest {
         ),
         /** D-M M1：默认把 curated 测试夹具直写进假库（旧 initialFixture 的替代）。 */
         seedCuratedFixture: Boolean = true,
+        /**
+         * 3E 每日扫描配额用例：知识点每项按 `TIER_BASELINE_MEDIUM_SECONDS`=180s 计，
+         * 默认 1200s 只装得下 6 个知识点槽——名额（10）比预算先绑住时测不出配额。
+         * 配额用例显式给 3600s（20 个槽），与生产默认值无关。
+         */
+        reviewTimeBudgetSeconds: Int = 20 * 60,
     ) = RoomBackedStudyExperienceRepository(
         database = database,
         applicationScope = applicationScope,
         clock = clock,
         studyZoneId = ZoneId.of("Asia/Shanghai"),
+        reviewTimeBudgetSeconds = reviewTimeBudgetSeconds,
     ).also { _ ->
         if (seedCuratedFixture) {
             (database as? FakeStudyDatabasePort)?.seedStudyFixture(
@@ -1929,6 +2433,28 @@ class RoomBackedStudyExperienceRepositoryTest {
         /** A captured question bound to a node that has a prerequisite. */
         const val PREREQ_DEPENDENT_UNIT_ID = "unit-prereq"
         const val PREREQ_DEPENDENT_KNOWLEDGE_NODE_ID = "knowledge:math.monotonicity-symbolic"
+
+        // ---- 3E 每日扫描配额（KD-46 修复）夹具 ----
+
+        /** 扫描档 20 个节点的共同先修（0.2 → KF-08 把它们的题全部挡在今日队列之外）。 */
+        const val DAILY_SCAN_PREREQUISITE_ID = "knowledge:scan-prerequisite"
+
+        /**
+         * 扫描档里平局序（= 节点 id 字典序）最后 4 位。它们永远不在"前 10 个新增"里，
+         * 因此"只取 6 个新增"与"再取满 10 个"可区分。
+         */
+        val DAILY_SCAN_LOW_RANKED_IDS: Set<String> =
+            (17..20).mapTo(linkedSetOf()) { "knowledge:scan-%02d".format(it) }
+
+        /** 今日档夹具节点（C4 守卫：今日队列的作答不占扫描名额）。 */
+        const val TODAY_TIER_NODE_ID = "knowledge:today-tier"
+
+        /**
+         * 学习日窗起点 = Asia/Shanghai 2026-01-02 04:00 = 2026-01-01T20:00Z。
+         * `repository()` 的固定时钟 2026-01-02T08:00Z 属同一学习日；边界用例用 ±1ms 分属两日
+         * （日界单源见 `StudyDayMath.DAY_START_OFFSET_MILLIS`）。
+         */
+        const val STUDY_DAY_START_EPOCH_MILLIS = 1_767_297_600_000L
     }
 }
 
@@ -1996,6 +2522,12 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
     var seedCallCount: Int = 0
         private set
     var failProjectionReads: Boolean = false
+
+    /**
+     * 3E 每日扫描配额（KD-46）的失败探针：让当日 KNOWLEDGE_QUIZ 账本读口抛错，
+     * 验证服务层 fail-closed（未知花费 ≠ 0 花费：本次不取新增扫描点，今日第一档照常）。
+     */
+    var failKnowledgeQuizEvidenceReads: Boolean = false
 
     /** S4 探针：一次 drain 调用内重读当前快照的次数（批内复用应把它压到 1）。 */
     var projectionSnapshotReads: Int = 0
@@ -2375,6 +2907,30 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
      */
     override suspend fun readChatEvidenceByLearner(learnerId: String): List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity> =
         recordedChatEvidence.filter { it.learner_id == learnerId }
+
+    /**
+     * 3E 每日扫描配额（KD-46）的读口：与真库查询同语义——按 learner × 通道 × 半开时间窗
+     * 去重取节点。**不过滤拒绝观察行**（被拒也是"这次作答发生了"）。
+     */
+    override suspend fun readChatEvidenceKnowledgeNodeIds(
+        learnerId: String,
+        sourceKind: String,
+        sinceEpochMillisInclusive: Long,
+        untilEpochMillisExclusive: Long,
+    ): List<String> {
+        if (failKnowledgeQuizEvidenceReads) {
+            throw IllegalStateException("simulated knowledge-quiz evidence read failure")
+        }
+        return recordedChatEvidence
+            .filter {
+                it.learner_id == learnerId &&
+                    it.source_kind == sourceKind &&
+                    it.created_at_epoch_millis >= sinceEpochMillisInclusive &&
+                    it.created_at_epoch_millis < untilEpochMillisExclusive
+            }
+            .map { it.knowledge_node_id }
+            .distinct()
+    }
 
     override suspend fun readChatEvidenceByConversation(conversationId: String): List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity> =
         recordedChatEvidence.filter { it.conversation_id == conversationId }

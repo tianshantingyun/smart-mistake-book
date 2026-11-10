@@ -65,6 +65,18 @@ internal class RoomStudyDatabase(
     private val searchIndexCompleteness: KnowledgeSearchIndexCompleteness =
         KnowledgeSearchIndexCompleteness(),
 ) : StudyDatabasePort, MistakeRevisionWritePort {
+    // PR#13（T8 冻结卷面/逐题答案）桥接：merge 时与 B35/ErrorCause 改动同一文件，这里手工并集。
+    private val detailedSolutions = com.tingyun.smartmistakebook.core.database.dao.RoomDetailedSolutionStore(database) { upsertCanonicalSourceAssetRow(it) }
+    override suspend fun freezeAnswerManifest(record: com.tingyun.smartmistakebook.core.database.port.PersistedAnswerManifest) = detailedSolutions.freezeAnswerManifest(record)
+    override suspend fun readAnswerManifest(manifestId: String) = detailedSolutions.readAnswerManifest(manifestId)
+    override fun observeAnswerManifest(manifestId: String) = detailedSolutions.observeAnswerManifest(manifestId)
+    override suspend fun updateAnswerManifest(manifestId: String, expectedVersion: Long, status: com.tingyun.smartmistakebook.core.model.DetailedSolutionPreparationStatus, atEpochMillis: Long) = detailedSolutions.updateAnswerManifest(manifestId, expectedVersion, status, atEpochMillis)
+    override suspend fun createDetailedSolution(record: com.tingyun.smartmistakebook.core.database.port.PersistedDetailedSolution) = detailedSolutions.createDetailedSolution(record)
+    override suspend fun readDetailedSolution(solutionId: String) = detailedSolutions.readDetailedSolution(solutionId)
+    override fun observeDetailedSolutions(solutionIds: List<String>) = detailedSolutions.observeDetailedSolutions(solutionIds)
+    override suspend fun updateDetailedSolution(record: com.tingyun.smartmistakebook.core.database.port.PersistedDetailedSolution) = detailedSolutions.updateDetailedSolution(record)
+    override suspend fun attachDetailedSolutionFigure(solutionId: String, expectedVersion: Long, blockId: String, attemptId: String, asset: CanonicalSourceAssetRecord, atEpochMillis: Long) = detailedSolutions.attachDetailedSolutionFigure(solutionId, expectedVersion, blockId, attemptId, asset, atEpochMillis)
+    override suspend fun verifyDetailedSolutionFigures(solutionId: String) = detailedSolutions.verifyDetailedSolutionFigures(solutionId)
     private val knowledgeResearchReviewStore = RoomKnowledgeResearchReviewStore(database)
 
     private val problemOrganization =
@@ -827,6 +839,10 @@ internal class RoomStudyDatabase(
         require(sourceKey.isNotBlank()) { "sourceKey must not be blank" }
         return database.problemDao().findMistakeBySourceKey(sourceKey)?.toRecord()
     }
+
+    // PR#13（T8）：卷面复核存储入口（手工并集，见类头桥接注释）。
+    override val paperReviews: com.tingyun.smartmistakebook.core.database.dao.PaperReviewStore
+        get() = database.paperReviewDao()
 
     override suspend fun readMistakeDetail(errorBookEntryId: String): MistakeDetailRecord? {
         require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }
@@ -1864,6 +1880,18 @@ internal class RoomStudyDatabase(
     override suspend fun readChatEvidenceByLearner(learnerId: String): List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity> =
         database.chatEvidenceDao().readByLearner(learnerId)
 
+    override suspend fun readChatEvidenceKnowledgeNodeIds(
+        learnerId: String,
+        sourceKind: String,
+        sinceEpochMillisInclusive: Long,
+        untilEpochMillisExclusive: Long,
+    ): List<String> = database.chatEvidenceDao().readKnowledgeNodeIdsBySourceKindBetween(
+        learnerId = learnerId,
+        sourceKind = sourceKind,
+        sinceInclusive = sinceEpochMillisInclusive,
+        untilExclusive = untilEpochMillisExclusive,
+    )
+
     override suspend fun readChatEvidenceByConversation(conversationId: String): List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity> =
         database.chatEvidenceDao().readByConversation(conversationId)
 
@@ -2425,6 +2453,14 @@ internal class RoomStudyDatabase(
         database.errorCauseDao()
             .findActiveBindingWithAcceptedSource(scope.activeKey())
             ?.toRecord()
+
+    // 批次 50 / 5c：详情页候选只读口（PROPOSED 行；按当前修订过滤由调用方做，R2 I7）。
+    override suspend fun readProposedObservations(
+        learnerId: String,
+        practiceUnitId: String,
+    ): List<ErrorCauseObservationRecord> = database.errorCauseDao()
+        .proposedObservations(learnerId, practiceUnitId)
+        .map { it.toRecord() }
 
     override suspend fun acceptObservationAndActivateBinding(
         binding: ErrorCauseBindingRecord,
