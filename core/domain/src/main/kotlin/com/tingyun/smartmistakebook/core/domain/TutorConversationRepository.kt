@@ -188,7 +188,33 @@ data class TutorConversationSnapshot(
     val conversation: TutorConversation,
     val messages: List<TutorMessage>,
     val turns: List<TutorTurnResponse> = emptyList(),
+    val replyVersions: List<TutorReplyVersion> = emptyList(),
 )
+
+data class TutorReplyVersion(
+    val versionId: String,
+    val groupId: String,
+    val conversationId: String,
+    val requestId: String,
+    val ordinal: Int,
+    val selected: Boolean = false,
+    val locked: Boolean = false,
+    val originalRequestId: String = requestId,
+    val bodyMarkdown: String = "",
+    val thinkingMarkdown: String? = null,
+    val toolTraceJson: String? = null,
+    val sourceImageAssetIds: List<String> = emptyList(),
+    val request: com.tingyun.smartmistakebook.core.model.ModelTaskRequest? = null,
+    val output: com.tingyun.smartmistakebook.core.model.ModelTaskOutput? = null,
+    val response: TutorTurnResponse? = null,
+    val createdAtEpochMillis: Long = 0,
+    val provider: com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot? = null,
+)
+
+fun selectedTutorReplyVersions(versions: List<TutorReplyVersion>): List<TutorReplyVersion> =
+    versions.groupBy { it.groupId }.values.map { group ->
+        group.firstOrNull { it.selected } ?: group.minBy { it.ordinal }
+    }
 
 data class CreateTutorConversationCommand(
     val conversationId: String,
@@ -473,6 +499,11 @@ data class ClearTutorConversationDraftCommand(
 }
 
 interface TutorConversationRepository {
+    val supportsReplyVersions: Boolean get() = false
+
+    suspend fun publishReplyVersion(original: TutorReplyVersion, replacement: TutorReplyVersion): Boolean = false
+
+    suspend fun selectReplyVersion(conversationId: String, groupId: String, versionId: String): Boolean = false
     /**
      * 某个会话区里最近的会话（按更新时间倒序）。
      *

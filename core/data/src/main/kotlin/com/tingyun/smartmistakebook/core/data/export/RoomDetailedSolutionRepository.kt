@@ -63,7 +63,7 @@ class RoomDetailedSolutionRepository internal constructor(
                 val documentSha = row.document?.let(DetailedSolutionCodec::documentSha256)
                 val cached = if (freshIntegrityCheck) null else readyDisplays[row.solutionId]?.takeIf { it.documentSha256 == documentSha }
                 var uris = cached?.uris.orEmpty()
-                val valid = row.status == DetailedSolutionPreparationStatus.READY && (cached != null || try {
+                val valid = row.status == DetailedSolutionPreparationStatus.READY && row.document?.let { hasCurrentTeachingIllustration(it) } == true && (cached != null || try {
                     require(database.verifyDetailedSolutionFigures(row.solutionId)); verifyPrepared(row)
                     uris = row.figures.associate { ref -> ref.assetId to assets.localUri(requireNotNull(database.readCanonicalSourceAsset(ref.assetId))) }
                     readyDisplays[row.solutionId] = ReadyDisplay(requireNotNull(documentSha), uris)
@@ -118,8 +118,9 @@ class RoomDetailedSolutionRepository internal constructor(
         val id = detailedSolutionId(question.basis)
         var row = database.readDetailedSolution(id) ?: run {
             val now = clock()
+            val capabilities = figureCapabilities()
             database.createDetailedSolution(PersistedDetailedSolution(id, ModelTaskRequest(requestId = "$id.0",
-                input = DetailedSolutionInput(question.copy(ordinal = 1), promptBody()), occurredAtEpochMillis = now, agentConsentGranted = consent), createdAtEpochMillis = now))
+                input = DetailedSolutionInput(question.copy(ordinal = 1), promptBody(capabilities), capabilities.availableMethods), occurredAtEpochMillis = now, agentConsentGranted = consent), createdAtEpochMillis = now))
         }
         if (row.status == DetailedSolutionPreparationStatus.READY) { verifyPrepared(row); return }
         if (row.status in setOf(DetailedSolutionPreparationStatus.FAILED, DetailedSolutionPreparationStatus.CANCELLED, DetailedSolutionPreparationStatus.STALE)) return
@@ -159,13 +160,19 @@ class RoomDetailedSolutionRepository internal constructor(
                 problemContext = row.input.question.document.title?.take(2_000),
                 prompt = if (capabilities.availableMethods.isEmpty()) null else FigurePromptAssembler.assemble(FigureGenerationPurpose.EXPLANATION, capabilities, budget),
                 sourceKind = FigureGenerationSourceKind.PROBLEM_REVISION, sourceId = question.basis.revisionId,
-                basisFingerprint = detailedSolutionFigureBasis(row.request, output, figure.blockId))
+                lineageFingerprint = detailedSolutionFigureBasis(row.request, output, figure.blockId))
             val result = coordinator.generate(request, figure.proposal)
-            val artifact = result.artifact as? FigureArtifact.ImageAsset
             val attempt = result.attemptId
-            if (artifact == null || attempt == null) { fail(row, result.diagnostics?.take(500) ?: "讲解配图暂时无法生成，请重试"); return }
-            require(artifact.contentSha256 == figureSha256Hex(artifact.imageBytes()))
-            val asset = assets.persist(artifact, attempt, clock())
+            val asset = when (val artifact = result.artifact) {
+                is FigureArtifact.ImageAsset -> {
+                    require(artifact.contentSha256 == figureSha256Hex(artifact.imageBytes()))
+                    attempt?.let { assets.persist(artifact, it, clock()) }
+                }
+                is FigureArtifact.Program -> artifact.previewAssetId?.let { database.readCanonicalSourceAsset(it) }
+                null -> null
+            }
+            if (asset == null || attempt == null) { fail(row, result.diagnostics?.take(500) ?: "讲解配图尚未完成，请重试"); return }
+            assets.verifiedBytes(asset)
             row = database.attachDetailedSolutionFigure(id, row.stateVersion, figure.blockId, attempt, asset, maxOf(clock(), row.updatedAtEpochMillis)) ?: return
         }
         verifyPrepared(row)
@@ -203,9 +210,11 @@ class RoomDetailedSolutionRepository internal constructor(
                     try { val asset = requireNotNull(database.readCanonicalSourceAsset(ref.assetId)); require(asset.contentSha256 == ref.contentSha256); assets.verifiedBytes(asset); true }
                     catch (cancelled: CancellationException) { throw cancelled } catch (_: Exception) { false }
                 }
-                val request = if (current.output != null) current.request else ModelTaskRequest(requestId = "$id.$generation",
-                    input = current.input.copy(figureGenerationPromptBody = promptBody()), occurredAtEpochMillis = clock(), agentConsentGranted = agentConsentGranted)
-                database.updateDetailedSolution(current.copy(request = request, generation = generation, stateVersion = current.stateVersion + 1, figures = intactFigures,
+                val needsEnrichment = current.document?.let { !hasCurrentTeachingIllustration(it) } == true
+                val capabilities = figureCapabilities()
+                val request = if (current.output != null && !needsEnrichment) current.request else ModelTaskRequest(requestId = "$id.$generation",
+                    input = current.input.copy(figureGenerationPromptBody = promptBody(capabilities), availableFigureMethods = capabilities.availableMethods, existingGenericAnswer = current.document ?: current.input.existingGenericAnswer), occurredAtEpochMillis = clock(), agentConsentGranted = agentConsentGranted)
+                database.updateDetailedSolution(current.copy(request = request, output = if (needsEnrichment) null else current.output, generation = generation, stateVersion = current.stateVersion + 1, figures = intactFigures,
                     status = DetailedSolutionPreparationStatus.QUEUED, message = "等待重新准备", updatedAtEpochMillis = maxOf(clock(), current.updatedAtEpochMillis)))
             }
         }
@@ -225,9 +234,14 @@ class RoomDetailedSolutionRepository internal constructor(
         }
     }
 
+    private suspend fun hasCurrentTeachingIllustration(document: DetailedSolutionDocument): Boolean =
+        hasCompleteTeachingIllustration(document) && (document.teachingFigureOmission == null ||
+            FigureGenerationMethod.IMAGE_MODEL !in figureCapabilities().availableMethods)
+
     private suspend fun verifyPrepared(row: PersistedDetailedSolution) {
+        require(hasCurrentTeachingIllustration(requireNotNull(row.document))) { "配图条件已变化，请重新准备" }
         row.figures.forEach { ref -> val asset = requireNotNull(database.readCanonicalSourceAsset(ref.assetId)); require(asset.contentSha256 == ref.contentSha256); assets.verifiedBytes(asset) }
-        require(canReuseSolution(requireNotNull(row.document), row.basis, figuresIntact = true))
+        require(canReuseSolution(requireNotNull(row.document), row.basis, figuresIntact = true, requireTeachingFigure = true))
     }
 
     private suspend fun move(row: PersistedDetailedSolution, status: DetailedSolutionPreparationStatus, message: String): PersistedDetailedSolution? {
@@ -235,8 +249,7 @@ class RoomDetailedSolutionRepository internal constructor(
         return if (database.updateDetailedSolution(next)) next else null
     }
     private suspend fun fail(row: PersistedDetailedSolution, message: String) { move(row, DetailedSolutionPreparationStatus.FAILED, message) }
-    private suspend fun promptBody(): String? {
-        val capabilities = figureCapabilities()
+    private fun promptBody(capabilities: FigureGenerationCapabilities): String? {
         return if (capabilities.availableMethods.isEmpty()) null else FigurePromptAssembler.assemble(FigureGenerationPurpose.EXPLANATION, capabilities, FigureGenerationBudget()).body
     }
 
@@ -253,7 +266,7 @@ class RoomDetailedSolutionRepository internal constructor(
                     return vault.persistCleanImageBytes(artifact.imageBytes(), artifact.mimeType, "DETAILED_SOLUTION", at,
                         GeneratedFigureProvenance(artifact.modelId ?: "unknown", id, artifact.purpose.name), id)
                 }
-            }, { configurationStore?.let { openGuardedFigureImageBackend(it, networkRequestsAllowed) }?.use { FigureGenerationCapabilities.IMAGE_MODEL_ONLY } ?: FigureGenerationCapabilities.NONE })
+            }, { coordinator?.capabilities() ?: configurationStore?.let { openGuardedFigureImageBackend(it, networkRequestsAllowed) }?.use { FigureGenerationCapabilities.IMAGE_MODEL_ONLY } ?: FigureGenerationCapabilities.NONE })
         }
     }
 }

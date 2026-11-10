@@ -31,9 +31,8 @@ private const val FOOTER_RESERVE_BELOW_TEXT = 10f
  * （[MistakePdfExportInput.solutionImages]），独立成区排在答案区之后；没有讲解图时仍按
  * `unsupportedRequestedFeatures` fail-closed 跳过（不留占位脏字）。
  *
- * T7（2026-10-25）起每张 AI 生成图（CLEAN_IMAGE/TUTOR_EXPLANATION，判据见
- * [isAiGeneratedExportImage]）图下带一行固定图注"本图由 AI 生成"（《生成合成内容标识办法》
- * 第四条第二款）；图注是渲染时派生，不进导出输入与指纹。
+ * 普通卷面的 AI 图片图注由 [isAiGeneratedExportImage] 判定并派生。
+ * 详细答案按其内容规范排版，只呈现题号、解题内容和必要图注。
  */
 internal object MistakePdfPagePlanner {
     const val PAGE_WIDTH = 595
@@ -150,16 +149,19 @@ internal object MistakePdfPagePlanner {
                 }
                 add(spacer(typography))
             }
-            orderedBlocks(questionAreaBlocks(input.blocks), layout).forEach { block ->
+            orderedBlocks(questionAreaBlocks(input), layout).forEach { block ->
                 when (block) {
                     is MistakePdfBlock.Image -> {
                         val size = cleanImageSizes[block.localUri]
                             ?: throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID)
-                        add(line(block.title, PdfLineStyle.SECTION_HEADING, typography, keepWithNext = true))
-                        val width = imageWidth(size, layout, typography, geometry)
-                        add(PdfPlannedItem.Image(size.layoutHeight(width), width, localUri = block.localUri))
+                        if (block.title.isNotBlank()) add(line(block.title, PdfLineStyle.SECTION_HEADING, typography, keepWithNext = true))
+                        val isAnswer = input.artifactRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS
+                        val width = if (isAnswer) detailedAnswerImageWidth(size.widthPx, size.heightPx,
+                            geometry.columnWidthPt, geometry.contentHeightPt, layout.imageScale)
+                            else imageWidth(size, layout, typography, geometry)
+                        add(PdfPlannedItem.Image(size.layoutHeight(width), width, localUri = block.localUri, centered = isAnswer))
                         // T7：批量卷面图块按角色显式标识（null = 旧块按题目区图处理）。
-                        if (isAiGeneratedExportImage(block.role)) {
+                        if (!isAnswer && isAiGeneratedExportImage(block.role)) {
                             add(line(AI_GENERATED_IMAGE_CAPTION, PdfLineStyle.META, typography))
                         }
                     }
@@ -184,7 +186,7 @@ internal object MistakePdfPagePlanner {
                         if (block.latex.isNotBlank()) {
                             addFormula(block.latex, block.display, measure, typography, geometry)
                         }
-                        if (block.alternativeText.isNotBlank()) {
+                        if (input.artifactRole != com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS && block.alternativeText.isNotBlank()) {
                             addWrapped(
                                 "读作：${block.alternativeText}",
                                 PdfLineStyle.META,
@@ -371,9 +373,9 @@ internal object MistakePdfPagePlanner {
      * 资格层不会产出这种块（讲解图在 [MistakePdfExportInput.solutionImages] 里），这里是
      * 二道闸——即使有人把讲解图塞进块序列，也不会出现在题目区。
      */
-    private fun questionAreaBlocks(blocks: List<MistakePdfBlock>): List<MistakePdfBlock> =
-        blocks.filterNot { block ->
-            block is MistakePdfBlock.Image && block.role == VisualRole.TUTOR_EXPLANATION.name
+    private fun questionAreaBlocks(input: MistakePdfExportInput): List<MistakePdfBlock> =
+        input.blocks.filterNot { block ->
+            block is MistakePdfBlock.Image && !input.includesBodyImage(block.role)
         }
 
     /**
@@ -494,7 +496,9 @@ internal object MistakePdfPagePlanner {
         geometry: PdfPageGeometry,
     ) {
         val fontSizePx = typography.textSize(PdfLineStyle.FORMULA)
-        val metrics = MathMetrics.of(fontSizePx)
+        val metrics = MathMetrics.of(fontSizePx).copy(measureTextWidth = { text, size ->
+            measure.measureMathText(text, size)
+        })
         val box = CanvasMathBoxRenderer.buildMathBox(latex, metrics)
         if (box == null) {
             val formula = if (display) latex else "\$$latex\$"
@@ -622,6 +626,7 @@ internal data class PdfPageGeometry(
 /** 生产实现（Paint）/ JVM 用例的确定性假测量都要满足的折行宽度读口。 */
 internal fun interface PdfTextMeasure {
     fun measure(text: String, start: Int, end: Int, style: PdfLineStyle): Float
+    fun measureMathText(text: String, fontSize: Float): Float = text.length * fontSize * .5f
 }
 
 /**
@@ -696,6 +701,7 @@ internal sealed interface PdfPlannedItem {
         val width: Float,
         override val column: Int = 0,
         val localUri: String? = null,
+        val centered: Boolean = false,
     ) : PdfPlannedItem
 
     /** 练习卷作答空白区：细线框，[rows] 个书写行。 */

@@ -443,7 +443,7 @@ private fun KnowledgeReviewEntryCard(
         elevation = 0.dp,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             SubjectIcon(
@@ -529,7 +529,7 @@ private fun PaperReviewAction(text: String, icon: ImageVector, onClick: () -> Un
     enabled: Boolean, modifier: Modifier = Modifier,
     iconTint: androidx.compose.ui.graphics.Color = SmartColors.InkSecondary) {
     TextButton(onClick = onClick, enabled = enabled, modifier = modifier.heightIn(min = 48.dp),
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.textButtonColors(contentColor = SmartColors.Ink)) {
         Icon(icon, null, tint = if (enabled) iconTint else SmartColors.InkMuted, modifier = Modifier.size(22.dp))
         Spacer(Modifier.width(10.dp))

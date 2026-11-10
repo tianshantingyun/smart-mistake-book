@@ -46,7 +46,7 @@ class FigurePromptCapabilityInjectionTest {
     )
 
     @Test
-    fun imageModelOnlyAssembleBodyIsByteIdenticalToThePreWaveBody() {
+    fun imageModelOnlyAssembleBodyIncludesRequiredTeachingPolicy() {
         val prompt = FigurePromptAssembler.assemble(
             purpose = FigureGenerationPurpose.EXPLANATION,
             capabilities = FigureGenerationCapabilities.IMAGE_MODEL_ONLY,
@@ -57,7 +57,7 @@ class FigurePromptCapabilityInjectionTest {
     }
 
     @Test
-    fun imageModelOnlyTutorToolBodyIsByteIdenticalToThePreWaveBody() {
+    fun imageModelOnlyTutorToolBodyIncludesRequiredTeachingPolicy() {
         val prompt = FigurePromptAssembler.assembleForTutorTool(
             budget = FigureGenerationBudget(),
         )
@@ -78,16 +78,18 @@ class FigurePromptCapabilityInjectionTest {
             "正文必须注入程序形状：${prompt.body}",
             prompt.body.contains("const visual = { prepare(input), render(input, metrics) }"),
         )
-        // SDK 签名（6 原语逐个出现）。
+        // SDK 签名（全部原语逐个出现）。
         FigurePromptAssembler.JS_SDK_SIGNATURES.forEach { signature ->
             assertTrue("正文必须注入 SDK 签名 $signature：${prompt.body}", prompt.body.contains(signature))
         }
         // 最小样例（SDK 原语直取、数轴+圆）。
         assertTrue(
             "正文必须注入最小样例：${prompt.body}",
-            prompt.body.contains("visualSdk.axis({ x0: 24, y0: 180, x1: 300, y1: 180, ticks: 4 })"),
+            prompt.body.contains("visualSdk.lineSegments(pts)"),
         )
-        assertTrue(prompt.body.contains("visualSdk.circle(160, 84, 26)"))
+        assertTrue(prompt.body.contains("y = x²"))
+        assertTrue(prompt.body.contains("width:2.4,cap:'round'"))
+        assertFalse(prompt.body.contains("stroke: '#"))
         // 输出与预算按方法分支（消灭"本波次只有图像模型方法"的广告-正文漂移）。
         assertTrue(
             "JS 可用时输出段必须指名独立 program 字段：${prompt.body}",
@@ -220,6 +222,7 @@ class FigurePromptCapabilityInjectionTest {
             "\n" +
             "## 统一规则（所有入口共用的同一份正文）\n" +
             "先判断当前目标是否需要生成图。纯文字/公式能充分完成目标时不必生图；若需要图，先确认源证据和约束足够，再从 availableMethods 中选择方法，给出简短理由和对应payload。通常，精确几何/比例/坐标、文字公式标注、可编辑或参数交互优先结构化程序绘图；照片质感、复杂自然形态、写实艺术视觉或原像素编辑优先图像模型。不要把“转写/重绘/去手写”一律送图像模型，也不要把“讲解图/科学图”一律送结构化程序。若只是语义重建，不必保留照片纹理；若必须保留原像素，不得把重新绘制称为像素恢复。忠实转写/重建必须保留原题文字、标注、关系、单位和全部已知条件，不得猜测被遮挡内容或增加事实。源证据不足时返回NEED_SOURCE，只有真正已授权、已提供的原图或足够的可追溯结构化证据可作为依据。教学示意可简化或添加辅助元素，但须明确是示意，不能改写原题事实。选择图像模型就返回EDIT或GENERATE及具体imagePrompt；不要把图像API执行模型当作还会调用其他工具的规划模型。失败后先看failureDiagnostics和剩余能力/预算。可以修复当前方法，也可以在满足原要求的前提下在同一生图操作内重新选择另一可用方法并说明理由；客户端不会替你暗换后端。不能用换方法绕过授权、预算、缺失证据或必需交互要求，也不能静默降低质量目标。同一幅图只有明确支持分层合成时才可拆分子图；不能假定该能力存在。\n" +
+            "教学讲解与详细答案必须穿插有意义的配图，表达与相邻段落有关的关系或变化，禁止装饰图和文字段落截图。检查坐标轴、单位、方向、点线关系、标签与字号可读性。简单图在结构化程序绘图真实可用时必须用它完成；只有确需图像模型的复杂图且宿主确认该能力不可用才可省略，并说明具体原因。普通执行失败必须修复或明确标记未完成。\n" +
             "\n" +
             "## 当前任务\n" +
             "purpose（宿主冻结，不可改写）：EXPLANATION\n" +
@@ -259,6 +262,7 @@ class FigurePromptCapabilityInjectionTest {
             "\n" +
             "## 统一规则（所有入口共用的同一份正文）\n" +
             "先判断当前目标是否需要生成图。纯文字/公式能充分完成目标时不必生图；若需要图，先确认源证据和约束足够，再从 availableMethods 中选择方法，给出简短理由和对应payload。通常，精确几何/比例/坐标、文字公式标注、可编辑或参数交互优先结构化程序绘图；照片质感、复杂自然形态、写实艺术视觉或原像素编辑优先图像模型。不要把“转写/重绘/去手写”一律送图像模型，也不要把“讲解图/科学图”一律送结构化程序。若只是语义重建，不必保留照片纹理；若必须保留原像素，不得把重新绘制称为像素恢复。忠实转写/重建必须保留原题文字、标注、关系、单位和全部已知条件，不得猜测被遮挡内容或增加事实。源证据不足时返回NEED_SOURCE，只有真正已授权、已提供的原图或足够的可追溯结构化证据可作为依据。教学示意可简化或添加辅助元素，但须明确是示意，不能改写原题事实。选择图像模型就返回EDIT或GENERATE及具体imagePrompt；不要把图像API执行模型当作还会调用其他工具的规划模型。失败后先看failureDiagnostics和剩余能力/预算。可以修复当前方法，也可以在满足原要求的前提下在同一生图操作内重新选择另一可用方法并说明理由；客户端不会替你暗换后端。不能用换方法绕过授权、预算、缺失证据或必需交互要求，也不能静默降低质量目标。同一幅图只有明确支持分层合成时才可拆分子图；不能假定该能力存在。\n" +
+            "教学讲解与详细答案必须穿插有意义的配图，表达与相邻段落有关的关系或变化，禁止装饰图和文字段落截图。检查坐标轴、单位、方向、点线关系、标签与字号可读性。简单图在结构化程序绘图真实可用时必须用它完成；只有确需图像模型的复杂图且宿主确认该能力不可用才可省略，并说明具体原因。普通执行失败必须修复或明确标记未完成。\n" +
             "\n" +
             "## 当前任务的用途映射（kind 只表示用途，不表示方法）\n" +
             "- SOURCE_RECONSTRUCTION：目标：重建干净题面（去手写/规范重绘）；保留原题文字、标注、单位与点线关系，不增加题意之外的符号。\n" +

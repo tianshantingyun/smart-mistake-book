@@ -71,26 +71,26 @@ fun WorkspaceSheet(
     )) {
         val dismissDistance = with(LocalDensity.current) { 64.dp.toPx() }
         var dragged by remember { mutableFloatStateOf(0f) }
-        val sheetShape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp)
+        val sheetShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
         BoxWithConstraints(Modifier.fillMaxSize().imePadding().statusBarsPadding().padding(top = 8.dp)
             .claudeDismissOnEscape(onDismiss = onDismiss), contentAlignment = Alignment.BottomCenter) {
             Surface(modifier.widthIn(max = 600.dp).fillMaxWidth().heightIn(max = maxHeight)
                 .claudeModalEntrance(fromBottom = true)
                 .claudeSurfaceShadow(sheetShape, ClaudeSurfaceDepth.FLOATING), color = SmartColors.ContentSurface,
                 shape = sheetShape,
-                border = BorderStroke(1.dp, SmartColors.Divider), shadowElevation = 0.dp) {
+                border = BorderStroke(.5.dp, SmartColors.Divider), shadowElevation = 0.dp) {
                 Column {
                     androidx.compose.foundation.layout.Box(Modifier.fillMaxWidth().height(24.dp).pointerInput(onDismiss, dismissDistance) {
                         detectVerticalDragGestures(onDragStart = { dragged = 0f }, onDragEnd = {
                             if (dragged > dismissDistance) onDismiss(); dragged = 0f
                         }, onDragCancel = { dragged = 0f }) { _, amount -> dragged = (dragged + amount).coerceAtLeast(0f) }
                     }, contentAlignment = Alignment.Center) {
-                        Surface(Modifier.width(32.dp).height(4.dp), color = SmartColors.Track, shape = RoundedCornerShape(2.dp)) {}
+                        Surface(Modifier.width(28.dp).height(3.dp), color = SmartColors.Track, shape = RoundedCornerShape(2.dp)) {}
                     }
                     Row(Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp, top = 6.dp),
                         verticalAlignment = Alignment.CenterVertically) {
                         if (icon != null) Box(
-                            Modifier.padding(end = 12.dp).size(36.dp).clip(RoundedCornerShape(10.dp)).background(SmartColors.JadeSoft),
+                            Modifier.padding(end = 12.dp).size(32.dp).clip(RoundedCornerShape(10.dp)).background(SmartColors.JadeSoft),
                             contentAlignment = Alignment.Center,
                         ) { Icon(icon, null, Modifier.size(20.dp), tint = SmartColors.JadeDark) }
                         Text(title, titleModifier.weight(1f).semantics { heading() }, color = SmartColors.Ink,
@@ -129,7 +129,7 @@ fun WorkspaceChoiceRow(
     Surface(modifier.fillMaxWidth().selectable(selected, role = Role.RadioButton, onClick = onClick),
         shape = RoundedCornerShape(14.dp),
         color = if (motion) fill else targetFill,
-        border = BorderStroke(1.dp, if (selected) SmartColors.Jade.copy(alpha = .45f) else SmartColors.Divider)) {
+        border = BorderStroke(if (selected) 1.dp else .5.dp, if (selected) SmartColors.Jade.copy(alpha = .45f) else SmartColors.Divider)) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             RadioButton(selected, onClick = null)

@@ -36,6 +36,7 @@ import com.tingyun.smartmistakebook.core.domain.VisualContentKind
  *
  * **不可变性**：纯只读 data class；度量产出后不再变（契约"不可变布局 artifact"）。
  */
+@kotlinx.serialization.Serializable
 data class VisualMeasuredLayoutArtifact(
     /** 条目种类；降级 math 保留 MATH（摘要按 kind 区分，R2 §3.1）。 */
     val kind: VisualContentKind,
@@ -102,6 +103,7 @@ data class VisualMeasuredLayoutArtifact(
     }
 
     /** 一行显式段：payload 的 `[start, endExclusive)` 字符区间 + 该段 advance 宽（du）。 */
+    @kotlinx.serialization.Serializable
     data class Line(
         val start: Int,
         val endExclusive: Int,
@@ -121,6 +123,7 @@ data class VisualMeasuredLayoutArtifact(
      * 墨迹矩形（du，盒顶原点、y 向下）。**允许负坐标/越出布局盒**（无包含不变式，见
      * [inkBounds] KDoc）；仅要求有序（left ≤ right、top ≤ bottom）与有限。
      */
+    @kotlinx.serialization.Serializable
     data class InkRect(
         val left: Float,
         val top: Float,

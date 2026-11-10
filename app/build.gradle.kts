@@ -32,6 +32,7 @@ android {
         // longer acceptance labels).
         versionCode = 2
         versionName = "0.2.0"
+        buildConfigField("String", "VISUAL_RUNTIME_VERSION", "\"quickjs-kt-android-${libs.versions.quickjs.kt.android.get()}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -167,6 +168,7 @@ tasks.configureEach {
 }
 
 dependencies {
+    implementation(libs.kotlinx.serialization.json)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(project(":core:model"))
     implementation(project(":core:domain"))

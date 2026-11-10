@@ -292,6 +292,8 @@ class SmartMistakeBookApplication : Application() {
      */
     @Volatile
     private var attachedImageCoordinator: FigureGenerationCoordinator? = null
+    internal var visualJsFigureHost: com.tingyun.smartmistakebook.visualjs.VisualJsFigureHost? = null
+        private set
 
     private val restartReason = MutableStateFlow<String?>(null)
     internal val databaseRestartReason: StateFlow<String?> = restartReason
@@ -351,6 +353,9 @@ class SmartMistakeBookApplication : Application() {
             // Stage-3 稠密腿（可选）：装配失败/未启用即返回 null，检索退回纯词面。
             // 总开关在 core:data 的 DenseRecallAssembly.ENABLED（一行回退）。
             database = StudyDatabaseFactory.open(this, denseRerank = DenseRecallAssembly.reranker(this))
+            val jsHost = com.tingyun.smartmistakebook.visualjs.VisualJsFigureHost(this)
+            visualJsFigureHost = jsHost
+            runBlocking { jsHost.prepare() }
             schedulingSettingsStore = DataStoreSchedulingSettingsStore(this, dataStoreScope)
             // Settings are read synchronously to mirror the synchronous database
             // open above; a scheduling-flag flip applies on the next launch so a
@@ -376,13 +381,14 @@ class SmartMistakeBookApplication : Application() {
             // 4E WG-08 T1b：`FigureGenerationCoordinationFactory` 已把审计记录器接到这个
             // 共享 coordinator 上（operation/attempt 两张表）。审计只写证据，预算权威仍是
             // 派发账本；写不进审计不影响生成结论。
-            val figureGenerationCoordinator = modelConfigurationStore?.let { configurationStore ->
-                FigureGenerationCoordinationFactory.create(
+            val figureGenerationCoordinator = FigureGenerationCoordinationFactory.create(
                     database = database,
-                    configurationStore = configurationStore,
+                    configurationStore = modelConfigurationStore,
                     networkRequestsAllowed = capabilities.networkRequestsAllowed,
+                    visualEngine = jsHost.engine,
+                    visualFrameInputs = jsHost,
+                    jsArtifacts = jsHost.artifactAdapter(this, database),
                 )
-            }
             attachedImageCoordinator = figureGenerationCoordinator
             // 同一份净化引擎既给保存路径（captureRepository.cleanRedraw）也给用户显式重绘：
             // 两者共享同一 coordinator（凭证门/预算账本/审计记录）与同一套派发父操作。
@@ -503,6 +509,7 @@ class SmartMistakeBookApplication : Application() {
             modelTaskRepository = ModelTaskRepositoryFactory.create(
                 database = database,
                 gateway = gateway,
+                figureCapabilities = { figureGenerationCoordinator.capabilities() },
                 // 工具环里的 KNOWLEDGE_READ 读这个就绪位：内容没就位时回"还在准备"，
                 // 而不是"知识库里没有匹配的知识点"（D-Q3 的六号消费点）。
                 knowledgeBaseAvailability = knowledgeBaseAvailability,
@@ -1186,6 +1193,7 @@ class SmartMistakeBookApplication : Application() {
         )
 
     override fun onTerminate() {
+        visualJsFigureHost?.close()
         studyRepository.close()
         database.close()
         applicationScope.cancel()

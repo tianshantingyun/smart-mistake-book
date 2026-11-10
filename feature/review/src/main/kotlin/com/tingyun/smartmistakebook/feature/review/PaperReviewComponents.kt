@@ -90,7 +90,7 @@ internal fun PaperPhotoCard(photo: PaperReviewPhoto, index: Int, onImage: (Strin
 @Composable
 internal fun PaperCheckRow(label: String, checked: Boolean, enabled: Boolean, onChange: (Boolean) -> Unit) {
     Row(Modifier.fillMaxWidth().background(if (checked) SmartColors.JadeSoft else androidx.compose.ui.graphics.Color.Transparent,
-        RoundedCornerShape(10.dp)).toggleable(checked, enabled = enabled, role = Role.Checkbox, onValueChange = onChange),
+        RoundedCornerShape(12.dp)).toggleable(checked, enabled = enabled, role = Role.Checkbox, onValueChange = onChange),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Checkbox(checked, null, enabled = enabled)
         Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)

@@ -248,6 +248,7 @@ internal fun TutorChatExchange(
      */
     replyActionTestTag: String? = null,
     modifier: Modifier = Modifier,
+    showCopyAction: Boolean = true,
 ) {
     val input = task.request.input as TutorRespondInput
     val output = task.output as? TutorRespondOutput
@@ -306,6 +307,8 @@ internal fun TutorChatExchange(
                 TutorSurfaceAssistantReply(
                     bodyMarkdown = assistantBodyMarkdown,
                     thinkingMarkdown = assistantThinkingMarkdown,
+                    figureAssetIds = assistantFigureAssetIds,
+                    figureAssetResolver = figureAssetResolver,
                     // B1：这一轮查阅了什么的痕迹，跟着这一轮的回复一起出现（不混进思考卡）。
                     toolTraceJson = assistantToolTraceJson,
                     testTag = replyTestTag,
@@ -313,18 +316,6 @@ internal fun TutorChatExchange(
                     // （"精确底部进视口"才落账，见 TutorSolutionExposureTracker）。
                     bottomAnchor = assistantBottomModifier.takeIf { ready.solutionRevealed },
                     extras = {
-                        // A2：本轮生成图的持久引用 → 可展开图卡（在兼容配图之前；两者可以并存，
-                        // 但新配图一律走工具链，见 F4 的偏好句）。
-                        figureAssetResolver?.let { resolver ->
-                            assistantFigureAssetIds
-                                .takeIf { it.isNotEmpty() }
-                                ?.let { assetIds ->
-                                    GeneratedFiguresSection(
-                                        assetIds = assetIds,
-                                        resolveAsset = resolver,
-                                    )
-                                }
-                        }
                         attachedImageResolver?.let { resolver ->
                             // 生产解析器同时实现 AttachedImageResolutionPort：旧函数类型
                             // 让面板/路由无需改签名，这里做能力检测拿到真实原因与重生成；
@@ -388,7 +379,7 @@ internal fun TutorChatExchange(
                         // （只有可重试的那一轮才有），所以这一条不会长出一个点了没反应的按钮。
                         TutorReplyActionBar(
                             shape = tutorReplyActionShape(
-                                bodyMarkdown = assistantBodyMarkdown,
+                                bodyMarkdown = assistantBodyMarkdown.takeIf { showCopyAction },
                                 retryable = interactionEnabled && task.canRetryTutorResponse(),
                             ),
                             onRetry = onRetry,

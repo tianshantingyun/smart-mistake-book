@@ -53,6 +53,7 @@ object FigurePromptAssembler {
             appendLine()
             appendLine("## 统一规则（所有入口共用的同一份正文）")
             appendLine(SHARED_RULES)
+            appendLine("教学讲解与详细答案必须穿插有意义的配图，表达与相邻段落有关的关系或变化，禁止装饰图和文字段落截图。检查坐标轴、单位、方向、点线关系、标签与字号可读性。简单图在结构化程序绘图真实可用时必须用它完成；只有确需图像模型的复杂图且宿主确认该能力不可用才可省略，并说明具体原因。普通执行失败必须修复或明确标记未完成。")
             appendLine()
             appendLine("## 当前任务")
             appendLine("purpose（宿主冻结，不可改写）：${purpose.name}")
@@ -143,6 +144,7 @@ object FigurePromptAssembler {
             appendLine()
             appendLine("## 统一规则（所有入口共用的同一份正文）")
             appendLine(SHARED_RULES)
+            appendLine("教学讲解与详细答案必须穿插有意义的配图，表达与相邻段落有关的关系或变化，禁止装饰图和文字段落截图。检查坐标轴、单位、方向、点线关系、标签与字号可读性。简单图在结构化程序绘图真实可用时必须用它完成；只有确需图像模型的复杂图且宿主确认该能力不可用才可省略，并说明具体原因。普通执行失败必须修复或明确标记未完成。")
             appendLine()
             appendLine("## 当前任务的用途映射（kind 只表示用途，不表示方法）")
             purposes.forEach { purpose ->
@@ -244,30 +246,38 @@ object FigurePromptAssembler {
         "visualSdk.arrow(x1, y1, x2, y2, o)",
         "visualSdk.axis(o)（o={x0, y0, x1, y1, ticks?, tickLength?}）",
         "visualSdk.polyline(points)",
+        "visualSdk.lineSegments(points)",
         "visualSdk.random()",
     )
 
     /**
-     * 最小样例（判据"含样例"）：数轴 + 圆，SDK 原语直取、≤15 行；**不含任何交互面**
+     * 完整教学样例：函数曲线、区间、面积和原生标签；**不含任何交互面**
      * （契约 §3.2 静态程序只需 prepare/render；场景对象不含未启用的可选键）。形状与
      * `QuickJsVisualExecutionEngineInstrumentedTest` 的设备夹具同构（render 返回 SceneV1、
      * path 节点按 pathId 引用 paths 定义）。
      */
     private val JS_STATIC_SAMPLE: String = """
-        const visual = {
-          prepare: function (input) { return []; },
-          render: function (input, metrics) {
-            var axis = visualSdk.axis({ x0: 24, y0: 180, x1: 300, y1: 180, ticks: 4 });
-            var dot = visualSdk.circle(160, 84, 26);
-            return { schemaVersion: 1, sceneId: 'fig', revision: input.revision,
-                     viewBox: { x: 0, y: 0, width: input.viewport.widthDu,
-                                height: input.viewport.heightDu },
-                     paths: [{ id: 'axis', commands: axis }, { id: 'dot', commands: dot }],
-                     root: { type: 'group', children: [
-                       { type: 'path', pathId: 'axis', stroke: '#26354a' },
-                       { type: 'path', pathId: 'dot', stroke: '#26354a' } ] } };
-          },
-        };
+const visual = {
+ prepare: function () { return ['0','1','2','x','y','y = x²','(2,4)','面积 = 8/3','4'].map(function(t){return {kind:'text',payload:t};}); },
+ render: function(i,m) {
+  var w=i.viewport.widthDu,h=i.viewport.heightDu,x0=46,y0=h-40,pw=w-94,ph=h-85;
+  function X(x){return x0+x*pw/2.4;} function Y(y){return y0-y*ph/5;}
+  var paths=[],nodes=[];
+  function p(id,cmd,color,stroke){paths.push({id:id,commands:cmd});var n={type:'path',pathId:id,fill:color};if(stroke)n.stroke=stroke;nodes.push(n);}
+  function t(k,x,y,ha,va){nodes.push({type:'label',contentId:m[k].contentId,anchor:{x:x,y:y},hAlign:ha||'left',vAlign:va||'top',color:'#34424A'});}
+  var pts=[];for(var k=0;k<=64;k++){var x=2*k/64;pts.push([X(x),Y(x*x)]);}
+  var area=visualSdk.polyline(pts);area.push(['L',X(2),Y(0)],['Z']);p('area',area,'#DCEEE7');
+  p('x',visualSdk.axis({x0:x0,y0:y0,x1:w-16,y1:y0}),'#4A5660',{width:1.3});
+  p('y',visualSdk.axis({x0:x0,y0:y0,x1:x0,y1:22}),'#4A5660',{width:1.3});
+  p('limit',visualSdk.lineSegments([[X(2),Y(0)],[X(2),Y(4)]]),'#77858B',{width:1.2,dash:[4,4]});
+  p('curve',visualSdk.lineSegments(pts),'#246D63',{width:2.4,cap:'round'});
+  p('point',visualSdk.circle(X(2),Y(4),3),'#246D63');
+  t(0,x0-8,y0+8,'right');t(1,X(1),y0+8,'center');t(2,X(2),y0+8,'center');
+  t(3,w-12,y0+8,'right');t(4,x0-12,5,'right');t(5,X(1.1),Y(3.8),'center');
+  t(6,X(2)+7,Y(4)-9);t(7,X(1.6),Y(1.2),'center');t(8,x0-8,Y(4),'right','middle');
+  return {schemaVersion:1,sceneId:'quadratic-area',revision:i.revision,background:'#FFFFFF',viewBox:{x:0,y:0,width:w,height:h},paths:paths,root:{type:'group',children:nodes}};
+ }
+};
     """.trimIndent()
 
     private fun jsStaticContract(): String = buildString {
@@ -279,9 +289,23 @@ object FigurePromptAssembler {
             "revision=input.revision、viewBox={x,y,width,height}（width/height 取 input.viewport 的 " +
             "widthDu/heightDu）、paths=[{ id, commands }]、root（group/path/label 节点树，" +
             "path 节点用 pathId 引用 paths 里的定义）。")
+        appendLine("path 的颜色由 fill 指定；stroke 必须是对象，例如 { width: 1.5 }，不能写颜色字符串。" +
+            "当前描边复用 fill 的颜色，描边节点必须同时指定 fill。曲线、虚线与空心轮廓用 " +
+            "visualSdk.lineSegments(points) 将采样点连接成独立开放线段，避免自动闭合填充。面积区域单独构造闭合多边形。")
+        appendLine("题目级图解：函数和物理坐标图用数学坐标到画布坐标的投影，按实际定义域采样 32—96 点；" +
+            "分段函数和渐近线两侧分别绘制，不能跨不连续点连线。轴必须有物理量、必要单位、方向、关键刻度和解释区间，" +
+            "面积图应明确积分/做功区间及阴影含义。受力图的每个箭头都表示实际方向，标签与作用对象对应。" +
+            "比例图标明分类、比例或数量及图例，用文字和线型支持灰度打印。关系图用连线表达具体条件或因果。")
+        appendLine("先选能回答当前疑问的图形表征，再安排对象、连线与原生标注。可组合任意 M/L/C/Z 路径、" +
+            "分组和标签；坐标轴与圆是基础构件。图不能只有孤立线条或重复题干。适配实际 viewport，留出标签边距；" +
+            "prepare 用 text 或 latex 声明全部标签，render 使用 metrics 的 contentId、widthDu、heightDu 排列，" +
+            "不能猜测文字宽度。长推导保留正文，图中只放必要标记。")
+        appendLine("label 节点必须含 type='label'、contentId=metrics[n].contentId、anchor={x,y}、" +
+            "hAlign（left/center/right）、vAlign（top/middle/bottom）和 color。文字必须来自 prepare 声明，" +
+            "垂直居中使用 middle。分组为 {type:'group', children:[...]}。")
         appendLine("SDK 原语（globalThis.visualSdk，冻结只读，都返回 M/L/C/Z 路径命令数组）：" +
             JS_SDK_SIGNATURES.joinToString(separator = "、"))
-        appendLine("最小样例（数轴 + 圆）：")
+        appendLine("完整样例（函数曲线、区间与面积；实际数据和标注从当前题面推导）：")
         appendLine(JS_STATIC_SAMPLE)
     }
 

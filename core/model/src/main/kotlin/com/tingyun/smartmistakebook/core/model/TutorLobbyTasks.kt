@@ -72,6 +72,9 @@ data class TutorLobbyInput(
      * **空载体必须抹平**（`bf8be888`）：空列表在指纹路径里不落键。
      */
     val requestedLocalActions: List<TutorLocalActionRequest> = emptyList(),
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val figureGenerationCapabilities: FigureGenerationCapabilities? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_LOBBY
@@ -251,6 +254,12 @@ data class TutorLobbyOutput(
     /** 执行器累积的动作交接；不属于模型 wire 输出，仍由本地准入选出一张确认卡。 */
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val requestedLocalActions: List<TutorLocalActionRequest> = emptyList(),
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val teachingFigureOmission: TeachingFigureOmission? = null,
+    /** Host trace retained with completion so process recovery preserves the same figure references. */
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val deliveryToolTraceJson: String? = null,
 ) : ModelTaskOutput {
     init {
         conversationId.requireSafeModelText(

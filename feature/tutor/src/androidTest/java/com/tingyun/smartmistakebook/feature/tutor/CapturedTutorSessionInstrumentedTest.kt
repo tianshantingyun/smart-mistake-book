@@ -226,9 +226,10 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
         }
 
         composeRule.onNodeWithText("完整主解法内容").assertDoesNotExist()
-        composeRule.onNodeWithTag("captured_tutor_submit_choice").assertDoesNotExist()
-        composeRule.onNodeWithContentDescription("选择并提交：先减后增").assertExists()
+        composeRule.onNodeWithTag("captured_tutor_submit_choice").assertIsNotEnabled()
+        composeRule.onNodeWithContentDescription("选择答案：先减后增").assertExists()
         composeRule.onNodeWithTag("captured_tutor_choice_choice-2").performScrollTo().performClick()
+        composeRule.onNodeWithTag("captured_tutor_submit_choice").performScrollTo().performClick()
         composeRule.onNodeWithText("你把正负关系反过来了。").performScrollTo().assertExists()
         composeRule.onNodeWithText("完整主解法内容").assertDoesNotExist()
         composeRule.onNodeWithText("查看完整讲解").performScrollTo().performClick()
@@ -257,12 +258,15 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
         composeRule.onNodeWithTag("captured_tutor_choice_choice-2")
             .performScrollTo()
             .performTouchInput { doubleClick() }
+        composeRule.runOnIdle { assertEquals(emptyList<String>(), submittedChoiceIds) }
+        composeRule.onNodeWithTag("captured_tutor_submit_choice")
+            .performScrollTo().performTouchInput { doubleClick() }
 
         composeRule.runOnIdle {
             assertEquals(listOf("choice-2"), submittedChoiceIds)
         }
         composeRule.onNodeWithTag("captured_tutor_choice_choice-2").assertIsNotEnabled()
-        composeRule.onNodeWithTag("captured_tutor_submit_choice").assertDoesNotExist()
+        composeRule.onNodeWithTag("captured_tutor_submit_choice").assertIsNotEnabled()
     }
 
     @Test
@@ -284,7 +288,8 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
         composeRule.onNodeWithTag("captured_tutor_choice_choice-2")
             .performScrollTo()
             .performClick()
-            .assertIsNotEnabled()
+        composeRule.onNodeWithTag("captured_tutor_submit_choice").performScrollTo().performClick()
+        composeRule.onNodeWithTag("captured_tutor_choice_choice-2").assertIsNotEnabled()
         composeRule.runOnIdle { assertEquals(listOf("choice-2"), submittedChoiceIds) }
 
         restorationTester.emulateSavedInstanceStateRestore()
@@ -315,7 +320,8 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
         composeRule.onNodeWithTag("captured_tutor_choice_choice-2")
             .performScrollTo()
             .performClick()
-            .assertIsNotEnabled()
+        composeRule.onNodeWithTag("captured_tutor_submit_choice").performScrollTo().performClick()
+        composeRule.onNodeWithTag("captured_tutor_choice_choice-2").assertIsNotEnabled()
 
         // The repository call has returned, but Room's observed row has not arrived yet.
         composeRule.runOnIdle { interactionBusy.value = false }
@@ -424,6 +430,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
             .performScrollTo()
             .performClick()
         // 写入还挂在闸门上：选项仍是锁定的（既有乐观锁语义，行到达前不重复提交）。
+        composeRule.onNodeWithTag("captured_tutor_submit_choice").performScrollTo().performClick()
         composeRule.onNodeWithTag("captured_tutor_choice_choice-2").assertIsNotEnabled()
 
         // 写入失败：命令要报错，界面要解锁——不留一个等不到任何东西的 pending。
@@ -738,6 +745,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
         }
 
         composeRule.onNodeWithTag("captured_tutor_choice_choice-2").performScrollTo().performClick()
+        composeRule.onNodeWithTag("captured_tutor_submit_choice").performScrollTo().performClick()
         composeRule.onNodeWithText("你把正负关系反过来了。").assertExists()
 
         composeRule.runOnIdle {
@@ -748,7 +756,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
         composeRule.onNodeWithTag("captured_tutor_choice_choice-2")
             .performScrollTo()
             .assertIsEnabled()
-        composeRule.onNodeWithTag("captured_tutor_submit_choice").assertDoesNotExist()
+        composeRule.onNodeWithTag("captured_tutor_submit_choice").assertIsNotEnabled()
         composeRule.onNodeWithText("你把正负关系反过来了。").assertDoesNotExist()
     }
 
@@ -1400,6 +1408,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
             .performScrollTo()
             .assertIsEnabled()
             .performClick()
+        composeRule.onNodeWithTag("captured_tutor_submit_choice").performScrollTo().performClick()
         composeRule.waitUntil(timeoutMillis = 5_000) {
             interactions.responses.value.singleOrNull()?.selectedChoiceId == "choice-2"
         }
@@ -1454,6 +1463,7 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
             .performScrollTo()
             .assertIsEnabled()
             .performClick()
+        composeRule.onNodeWithTag("captured_tutor_submit_choice").performScrollTo().performClick()
         composeRule.waitUntil(timeoutMillis = 5_000) {
             interactions.responses.value.singleOrNull()?.selectedChoiceId == "choice-2"
         }

@@ -31,6 +31,8 @@ import kotlinx.coroutines.flow.Flow
  * Read-only port for tutor conversation operations.
  */
 interface TutorReadPort {
+    fun observeTutorReplyVersions(conversationId: String): Flow<List<com.tingyun.smartmistakebook.core.database.TutorReplyVersionRecord>> =
+        kotlinx.coroutines.flow.flowOf(emptyList())
     fun observeTutorTurnResponses(sessionId: String): Flow<List<TutorTurnResponseRecord>>
 
     /** 某个会话区（AGENT / REVIEW_*）里最近的会话；跨区不可见（K1 会话区隔离）。 */
@@ -47,6 +49,12 @@ interface TutorReadPort {
  * Write port for tutor conversation operations.
  */
 interface TutorWritePort {
+    suspend fun publishTutorReplyVersion(original: com.tingyun.smartmistakebook.core.database.TutorReplyVersionRecord,
+        replacement: com.tingyun.smartmistakebook.core.database.TutorReplyVersionRecord): Boolean = false
+
+    suspend fun selectTutorReplyVersion(conversationId: String, groupId: String, versionId: String): Boolean = false
+
+    suspend fun saveTutorReplyVersionAnswer(versionId: String, expected: String?, responseJson: String, updatedAt: Long, allowLockedReveal: Boolean = false): Boolean = false
     suspend fun createTutorConversation(
         command: CreateTutorConversationDatabaseCommand,
     ): TutorConversationRecord

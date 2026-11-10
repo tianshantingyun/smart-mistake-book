@@ -20,6 +20,9 @@ import com.tingyun.smartmistakebook.core.model.TutorMoveType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
+import com.tingyun.smartmistakebook.core.model.TutorConversationIds
 import kotlinx.coroutines.withContext
 
 internal class RoomTutorInteractionRepository(
@@ -28,13 +31,32 @@ internal class RoomTutorInteractionRepository(
 ) : TutorInteractionRepository {
     override fun observe(sessionId: String): Flow<List<TutorTurnResponse>> {
         require(sessionId.isNotBlank())
-        return database.observeTutorTurnResponses(sessionId).map { records ->
-            records.map(TutorTurnResponseRecord::toDomain)
+        return combine(database.observeTutorTurnResponses(sessionId),
+            database.observeTutorReplyVersions(TutorConversationIds.captured(sessionId))) { records, versions ->
+            projectReplyVersionResponses(records.map(TutorTurnResponseRecord::toDomain), versions.map { it.toDomainVersion() })
         }
     }
 
     override suspend fun recordChoice(command: RecordTutorChoiceCommand): TutorTurnResponse =
         withContext(Dispatchers.IO) {
+            if (command.replyVersionId != null) {
+                return@withContext updateVersionAnswer(command.sessionId, requireNotNull(command.replyVersionId)) { previous ->
+                    if (previous?.hasChoicePayload == true) {
+                        require(previous.selectedChoiceId == command.selectedChoiceId) { "This version already has an answer" }
+                        previous
+                    } else TutorTurnResponse(
+                        sessionId = command.sessionId, questionDocumentId = command.questionDocumentId,
+                        revisionNumber = command.revisionNumber, cycleOrdinal = command.cycleOrdinal,
+                        turnOrdinal = command.turnOrdinal, diagnosticStemMarkdown = command.diagnosticStemMarkdown,
+                        selectedChoiceId = command.selectedChoiceId, selectedChoiceMarkdown = command.selectedChoiceMarkdown,
+                        selectionWasCorrect = command.selectionWasCorrect, feedbackMarkdown = command.feedbackMarkdown,
+                        requestedMove = previous?.requestedMove, solutionRevealed = previous?.solutionRevealed == true,
+                        submittedAtEpochMillis = previous?.submittedAtEpochMillis ?: command.occurredAtEpochMillis,
+                        updatedAtEpochMillis = command.occurredAtEpochMillis, replyVersionId = command.replyVersionId,
+                        choiceSubmittedAtEpochMillis = command.occurredAtEpochMillis,
+                    )
+                }
+            }
             database.recordTutorChoice(
                 PersistTutorChoiceCommand(
                     sessionId = command.sessionId,
@@ -55,6 +77,15 @@ internal class RoomTutorInteractionRepository(
     override suspend fun recordMove(command: RecordTutorMoveCommand): TutorTurnResponse =
         withContext(Dispatchers.IO) {
             require(command.requestedMove != TutorMoveType.REVEAL_SOLUTION)
+            if (command.replyVersionId != null) {
+                return@withContext updateVersionAnswer(command.sessionId, requireNotNull(command.replyVersionId)) { previous ->
+                    previous?.copy(requestedMove = command.requestedMove, updatedAtEpochMillis = command.occurredAtEpochMillis)
+                        ?: TutorTurnResponse(command.sessionId, command.questionDocumentId, command.revisionNumber,
+                            command.cycleOrdinal, command.turnOrdinal, null, null, null, null, null,
+                            requestedMove = command.requestedMove, submittedAtEpochMillis = command.occurredAtEpochMillis,
+                            updatedAtEpochMillis = command.occurredAtEpochMillis, replyVersionId = command.replyVersionId)
+                }
+            }
             database.recordTutorMove(
                 PersistTutorMoveCommand(
                     sessionId = command.sessionId,
@@ -70,6 +101,15 @@ internal class RoomTutorInteractionRepository(
 
     override suspend fun revealSolution(command: RevealTutorSolutionCommand): TutorTurnResponse =
         withContext(Dispatchers.IO) {
+            if (command.replyVersionId != null) {
+                return@withContext updateVersionAnswer(command.sessionId, requireNotNull(command.replyVersionId), allowLockedReveal = true) { previous ->
+                    previous?.copy(solutionRevealed = true, updatedAtEpochMillis = command.occurredAtEpochMillis)
+                        ?: TutorTurnResponse(command.sessionId, command.questionDocumentId, command.revisionNumber,
+                            command.cycleOrdinal, command.turnOrdinal, null, null, null, null, null,
+                            solutionRevealed = true, submittedAtEpochMillis = command.occurredAtEpochMillis,
+                            updatedAtEpochMillis = command.occurredAtEpochMillis, replyVersionId = command.replyVersionId)
+                }
+            }
             database.revealTutorSolution(
                 PersistTutorRevealCommand(
                     learnerId = learnerId,
@@ -82,6 +122,25 @@ internal class RoomTutorInteractionRepository(
                 ),
             ).toDomain()
         }
+
+    private suspend fun updateVersionAnswer(
+        sessionId: String,
+        versionId: String,
+        allowLockedReveal: Boolean = false,
+        transform: (TutorTurnResponse?) -> TutorTurnResponse,
+    ): TutorTurnResponse {
+        val version = database.observeTutorReplyVersions(TutorConversationIds.captured(sessionId)).first()
+            .single { it.versionId == versionId }
+        check(version.selected && (allowLockedReveal || !version.locked)) { "This reply version is read-only" }
+        val response = transform(version.responseJson?.let(::decodeReplyVersionResponse))
+        val plan = version.toDomainVersion().request?.input as? com.tingyun.smartmistakebook.core.model.TutorPlanInput
+        require(plan != null && plan.sessionId == response.sessionId &&
+            plan.questionDocument.id == response.questionDocumentId && plan.draftRevisionNumber == response.revisionNumber &&
+            plan.cycleOrdinal == response.cycleOrdinal && plan.turnOrdinal == response.turnOrdinal)
+        check(database.saveTutorReplyVersionAnswer(versionId, version.responseJson,
+            encodeReplyVersionResponse(response), response.updatedAtEpochMillis, allowLockedReveal)) { "Reply version changed before saving" }
+        return response.copy(replyVersionId = versionId)
+    }
 
     override suspend fun recordSolutionExposure(command: RecordTutorSolutionExposureCommand) {
         withContext(Dispatchers.IO) {
@@ -191,4 +250,50 @@ internal fun TutorTurnResponseRecord.toDomain() = TutorTurnResponse(
 object TutorInteractionRepositoryFactory {
     fun create(database: StudyDatabasePort): TutorInteractionRepository =
         RoomTutorInteractionRepository(database)
+}
+
+@kotlinx.serialization.Serializable
+private data class ReplyVersionResponsePayload(
+    val sessionId: String,
+    val questionDocumentId: String,
+    val revisionNumber: Int,
+    val cycleOrdinal: Int,
+    val turnOrdinal: Int,
+    val diagnosticStemMarkdown: String?,
+    val selectedChoiceId: String?,
+    val selectedChoiceMarkdown: String?,
+    val selectionWasCorrect: Boolean?,
+    val feedbackMarkdown: String?,
+    val requestedMove: String?,
+    val solutionRevealed: Boolean,
+    val submittedAtEpochMillis: Long,
+    val updatedAtEpochMillis: Long,
+    val choiceSubmittedAtEpochMillis: Long?,
+)
+
+internal fun encodeReplyVersionResponse(response: TutorTurnResponse): String =
+    kotlinx.serialization.json.Json.encodeToString(
+        ReplyVersionResponsePayload.serializer(),
+        ReplyVersionResponsePayload(
+            response.sessionId, response.questionDocumentId, response.revisionNumber,
+            response.cycleOrdinal, response.turnOrdinal, response.diagnosticStemMarkdown,
+            response.selectedChoiceId, response.selectedChoiceMarkdown, response.selectionWasCorrect,
+            response.feedbackMarkdown, response.requestedMove?.name, response.solutionRevealed,
+            response.submittedAtEpochMillis, response.updatedAtEpochMillis, response.choiceSubmittedAtEpochMillis,
+        ),
+    )
+
+internal fun decodeReplyVersionResponse(json: String): TutorTurnResponse {
+    val payload = kotlinx.serialization.json.Json.decodeFromString(ReplyVersionResponsePayload.serializer(), json)
+    return with(payload) {
+        TutorTurnResponse(
+            sessionId = sessionId, questionDocumentId = questionDocumentId, revisionNumber = revisionNumber,
+            cycleOrdinal = cycleOrdinal, turnOrdinal = turnOrdinal, diagnosticStemMarkdown = diagnosticStemMarkdown,
+            selectedChoiceId = selectedChoiceId, selectedChoiceMarkdown = selectedChoiceMarkdown,
+            selectionWasCorrect = selectionWasCorrect, feedbackMarkdown = feedbackMarkdown,
+            requestedMove = requestedMove?.let(TutorMoveType::valueOf), solutionRevealed = solutionRevealed,
+            submittedAtEpochMillis = submittedAtEpochMillis, updatedAtEpochMillis = updatedAtEpochMillis,
+            choiceSubmittedAtEpochMillis = choiceSubmittedAtEpochMillis,
+        )
+    }
 }

@@ -100,12 +100,22 @@ internal abstract class TutorConversationDao {
         JOIN canonical_source_asset c ON c.source_asset_id = a.output_asset_id
         WHERE o.source_kind = 'TUTOR_MESSAGE' AND (o.source_id = :requestId OR o.operation_id = :operationId)
           AND a.status = 'SUCCEEDED' AND c.source_asset_id = :assetId
-          AND c.source_type = 'GENERATED_FIGURE'
+          AND (
+            (a.method = 'IMAGE_MODEL' AND c.source_type = 'GENERATED_FIGURE')
+            OR (a.method = 'JS' AND c.source_type = 'LOCAL_VISUAL_PREVIEW' AND EXISTS (
+              SELECT 1 FROM tutor_visual_snapshot s
+              JOIN tutor_visual_program p ON p.program_id = s.program_id
+              WHERE s.preview_asset_id = c.source_asset_id AND s.status = 'LIVE'
+                AND p.basis_fingerprint = o.basis_fingerprint
+                AND p.role = CASE WHEN o.purpose IN ('EXPLANATION', 'ILLUSTRATION')
+                    THEN 'TUTOR_EXPLANATION' ELSE 'QUESTION_DIAGRAM' END
+            ))
+          )
           AND o.purpose IN ('SOURCE_TRANSCRIPTION', 'SOURCE_RECONSTRUCTION', 'PIXEL_CLEANUP', 'EXPLANATION', 'ILLUSTRATION')
         """)
     protected abstract suspend fun admittedFigureRoles(requestId: String?, assetId: String, operationId: String?): List<String>
 
-    private suspend fun assistantFigureLinks(
+    internal suspend fun assistantFigureLinks(
         command: AppendTutorAssistantMessageDatabaseCommand,
     ): List<TutorMessageSourceAssetEntity> {
         val basisRevisionId = findConversation(command.conversationId)?.anchorProblemRevisionId

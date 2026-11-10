@@ -334,6 +334,7 @@ internal fun buildTutorPlanRequest(
         atEpochMillis = occurredAtEpochMillis,
     )
     val input = TutorPlanInput(
+        figureGenerationCapabilities = provider.figureGenerationCapabilities,
         sessionId = question.sessionId,
         draftRevisionNumber = question.revisionNumber,
         subject = question.subject,
@@ -462,6 +463,7 @@ internal fun buildTutorRespondRequest(
     val hasAttachment = attachedQuestion != null
     val effectiveSubject = if (hasAttachment) attachedQuestion.subject.name else question.subject
     val input = TutorRespondInput(
+        figureGenerationCapabilities = provider.figureGenerationCapabilities,
         sessionId = question.sessionId,
         draftRevisionNumber = question.revisionNumber,
         subject = effectiveSubject,

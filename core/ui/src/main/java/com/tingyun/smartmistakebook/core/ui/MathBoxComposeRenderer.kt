@@ -1,12 +1,17 @@
 package com.tingyun.smartmistakebook.core.ui
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -55,7 +60,13 @@ fun MathFormulaBox(
     val box = remember(formula, fontSizePx) {
         val result = parseAndBuildBox(formula)
         result.node?.let { node ->
-            val metrics = MathMetrics.of(fontSizePx)
+            val paint = android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+            val metrics = MathMetrics.of(fontSizePx).copy(measureTextWidth = { text, size ->
+                paint.textSize = size
+                paint.typeface = android.graphics.Typeface.create(android.graphics.Typeface.SERIF,
+                    if (text.length == 1 && text[0] in 'a'..'z') android.graphics.Typeface.ITALIC else android.graphics.Typeface.NORMAL)
+                paint.measureText(text) + size * .04f
+            })
             val laid = MathBoxBuilder.buildBox(node, metrics)
             // Re-check the layout budget at the effective font size; a huge
             // font scale can push a budget-valid formula past the layout cap.
@@ -75,9 +86,11 @@ fun MathFormulaBox(
     }
 
     val laidOut = box ?: return
-    Box(modifier = modifier) {
+    Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Canvas(
             modifier = Modifier
+                .semantics { contentDescription = fallbackText ?: formula }
+                .horizontalScroll(rememberScrollState())
                 .size(
                     width = with(density) { laidOut.width.toDp() },
                     height = with(density) { laidOut.height.toDp() },
@@ -102,14 +115,18 @@ private fun DrawScope.drawMathBox(
             android.graphics.Paint().apply {
                 this.color = color.toArgbInt()
                 textSize = box.height
+                typeface = android.graphics.Typeface.create(android.graphics.Typeface.SERIF,
+                    if (box.content.length == 1 && box.content[0] in 'a'..'z') android.graphics.Typeface.ITALIC else android.graphics.Typeface.NORMAL)
                 isAntiAlias = true
             },
         )
 
         is MathBox.HBox -> {
             var cursorX = origin.x
-            box.children.forEach { child ->
-                drawMathBox(child, Offset(cursorX, origin.y), color, strokeWidth)
+            box.children.forEachIndexed { index, child ->
+                val position = box.childPositions?.get(index)
+                drawMathBox(child, Offset(position?.let { origin.x + it.x } ?: cursorX,
+                    origin.y + (position?.y ?: (box.baseline - child.baseline))), color, strokeWidth)
                 cursorX += child.width
             }
         }
@@ -126,7 +143,7 @@ private fun DrawScope.drawMathBox(
         is MathBox.FractionBox -> {
             val num = box.numerator
             val den = box.denominator
-            val barY = origin.y + den.height + 1f
+            val barY = origin.y + (box.barY ?: (den.height + 1f))
             drawLine(
                 color = color,
                 start = Offset(origin.x, barY),
@@ -143,7 +160,7 @@ private fun DrawScope.drawMathBox(
             )
             drawMathBox(
                 den,
-                Offset(origin.x + (box.width - den.width) / 2f, origin.y + den.height + 2f),
+                Offset(origin.x + (box.width - den.width) / 2f, origin.y + (box.denominatorY ?: (den.height + 2f))),
                 color,
                 strokeWidth,
             )

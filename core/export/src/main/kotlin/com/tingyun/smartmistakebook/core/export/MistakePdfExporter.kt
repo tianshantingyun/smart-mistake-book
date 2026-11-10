@@ -239,7 +239,7 @@ internal fun MistakePdfExportInput.paintsAiGeneratedImage(): Boolean {
         solutionImages.any { image -> isAiGeneratedExportImage(image.role) }
     val blockFigures = blocks
         .filterIsInstance<MistakePdfBlock.Image>()
-        .filterNot { block -> block.role == VisualRole.TUTOR_EXPLANATION.name }
+        .filter { block -> includesBodyImage(block.role) }
         .any { block -> isAiGeneratedExportImage(block.role) }
     return question || solution || blockFigures
 }

@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip as MaterialFilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -50,10 +49,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
@@ -66,9 +67,9 @@ fun ClaudeFilterChip(
     enabled: Boolean = true,
     leadingIcon: (@Composable () -> Unit)? = null,
     trailingIcon: (@Composable () -> Unit)? = null,
-    shape: Shape = RoundedCornerShape(8.dp),
+    shape: Shape = RoundedCornerShape(10.dp),
     colors: SelectableChipColors = FilterChipDefaults.filterChipColors(
-        containerColor = Ink.copy(alpha = .04f), labelColor = InkSecondary,
+        containerColor = SubtleSurface, labelColor = InkSecondary,
         selectedContainerColor = JadeSoft, selectedLabelColor = JadeActive,
     ),
     elevation: SelectableChipElevation? = null,
@@ -102,24 +103,31 @@ fun ClaudeSegmentedControl(
     }
     val direction = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1 else 1
     val motion = LocalClaudeMotionEnabled.current
+    val textMeasurer = rememberTextMeasurer()
+    val density = LocalDensity.current
+    val labelStyle = ClaudeLayout.ControlText.copy(fontWeight = FontWeight.Medium)
+    val widestLabel = segments.maxOf { segment ->
+        textMeasurer.measure(AnnotatedString(segment.label), style = labelStyle,
+            maxLines = 1, softWrap = false).size.width
+    }
+    val minimumCellWidth = maxOf(76.dp, with(density) { widestLabel.toDp() } + 24.dp)
+    val shape = RoundedCornerShape(12.dp)
     BoxWithConstraints(modifier.fillMaxWidth()) {
-        // Let enlarged labels wrap inside the cell before introducing horizontal overflow.
-        val minCell = 76.dp
-        val cellWidth = maxOf((maxWidth - 2.dp) / segments.size, minCell)
+        val cellWidth = maxOf((maxWidth - 2.dp) / segments.size, minimumCellWidth)
         val selectedIndex = segments.indexOfFirst { it.id == selectedId }
         val thumbOffset by animateDpAsState(cellWidth * selectedIndex.coerceAtLeast(0),
             animationSpec = if (motion) tween(ClaudeMotion.SnapMillis, easing = ClaudeMotion.Snap) else androidx.compose.animation.core.snap(),
             label = "cds-segment-thumb")
         Box(Modifier.horizontalScroll(rememberScrollState())) {
             Box(Modifier.width(cellWidth * segments.size + 2.dp).height(IntrinsicSize.Min)
-                .background(Ink.copy(alpha = .06f), CircleShape).padding(1.dp)) {
+                .background(SubtleSurface, RoundedCornerShape(14.dp)).padding(1.dp)) {
                 val targetOffset = cellWidth * selectedIndex.coerceAtLeast(0)
                 val boundedOffset = (if (motion) thumbOffset else targetOffset)
                     .coerceIn(0.dp, cellWidth * (segments.size - 1))
                 if (selectedIndex >= 0) Box(Modifier.matchParentSize().padding(start = boundedOffset,
                     end = cellWidth * (segments.size - 1) - boundedOffset)
-                    .shadow(2.dp, CircleShape).background(ContentSurface, CircleShape)
-                    .border(.5.dp, Ink.copy(alpha = .08f), CircleShape))
+                    .background(ContentSurface, shape)
+                    .border(.5.dp, SmartColors.Divider, shape))
                 Row(Modifier.selectableGroup()) {
                     segments.forEachIndexed { index, segment ->
                         val selected = segment.id == selectedId
@@ -146,16 +154,17 @@ fun ClaudeSegmentedControl(
                                     }
                                 }
                             }
-                            .clip(CircleShape)
+                            .clip(shape)
                             .then(if (focused && enabled) Modifier.border(2.dp,
-                                claudeFocusIndicatorColor(ContentSurface), CircleShape) else Modifier)
+                                claudeFocusIndicatorColor(ContentSurface), shape) else Modifier)
                             .selectable(selected, enabled, Role.Tab) {
                                 if (!selected) onSelect(segment.id)
                             }.testTag(segment.testTag).padding(horizontal = 8.dp, vertical = 8.dp),
                             contentAlignment = Alignment.Center) {
                             Text(segment.label, color = if (selected) Ink else InkSecondary,
                                 style = ClaudeLayout.ControlText,
-                                fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal)
+                                fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal,
+                                maxLines = 1, softWrap = false)
                         }
                     }
                 }

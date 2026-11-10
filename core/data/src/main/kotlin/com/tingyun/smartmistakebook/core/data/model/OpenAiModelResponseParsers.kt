@@ -469,6 +469,7 @@ internal fun JsonObject.toTutorPlan(
             suggestedMoves = suggestedMoves,
             thinkingMarkdown = optionalString("thinkingMarkdown"),
         ),
+        teachingFigureOmission = optionalTeachingFigureOmission(),
         modelVersion = modelVersion,
         cycleOrdinal = input.cycleOrdinal,
         turnOrdinal = input.turnOrdinal,
@@ -524,6 +525,7 @@ internal fun JsonObject.toTutorRespond(
         thinkingMarkdown = optionalString("thinkingMarkdown"),
         attachedImages = optionalArray("attachedImages").map(JsonElement::toAttachedImage),
         boundQuestion = boundQuestion,
+        teachingFigureOmission = optionalTeachingFigureOmission(),
         modelVersion = modelVersion,
     )
 }
@@ -644,6 +646,7 @@ internal fun JsonObject.toTutorLobby(
         // fail-closed 拒（与"未知键一律拒"同一条纪律，不是"忽略一下"）。
         // Respond/Plan 的 attachedImages 是另一回事：它们是无工具端点时的兼容 fallback，仍解析仍渲染。
         localActions = optionalArray("localActions").map(JsonElement::toLocalActionRequest),
+        teachingFigureOmission = optionalTeachingFigureOmission(),
         modelVersion = modelVersion,
     )
 }
@@ -717,6 +720,7 @@ internal val TUTOR_DEBRIEF_WIRE_KEYS = setOf(
     "teachingFocusLabels",
 )
 internal val TUTOR_PLAN_WIRE_KEYS = setOf(
+    "teachingFigureOmission",
     "openingMarkdown",
     "diagnosticQuestion",
     "solutionMarkdown",
@@ -730,6 +734,7 @@ internal val TUTOR_PLAN_WIRE_KEYS = setOf(
 )
 internal val TUTOR_RESPOND_WIRE_KEYS =
     setOf(
+        "teachingFigureOmission",
         "intentDecision",
         "messageMarkdown",
         "solutionRevealed",
@@ -779,7 +784,7 @@ internal fun JsonObject.toBoundQuestionDeclaration(): TutorRoundQuestionDeclarat
  * 模型输入"静默放进来。移除后模型吐 `attachedImages` 即未知键 → 整条输出无效（fail-closed）。
  */
 internal val TUTOR_LOBBY_WIRE_KEYS =
-    setOf("intentDecision", "messageMarkdown", "thinkingMarkdown", "localActions")
+    setOf("intentDecision", "messageMarkdown", "thinkingMarkdown", "localActions", "teachingFigureOmission")
 internal val ATTACHED_IMAGE_WIRE_KEYS =
     setOf("imageId", "kind", "description", "accessibilityText")
 
@@ -824,3 +829,14 @@ internal fun JsonObject.toTutorDebrief(
         modelVersion = modelVersion,
     )
 }
+
+private fun JsonObject.optionalTeachingFigureOmission(): com.tingyun.smartmistakebook.core.model.TeachingFigureOmission? =
+    this["teachingFigureOmission"]?.takeUnless { it is kotlinx.serialization.json.JsonNull }?.let {
+        val value = it.objectValue()
+        value.requireOnlyKeys(setOf("instructionalTarget", "jsLimitation", "reason"))
+        com.tingyun.smartmistakebook.core.model.TeachingFigureOmission(
+            value.requiredString("instructionalTarget"),
+            value.requiredString("jsLimitation"),
+            value.requiredString("reason"),
+        )
+    }

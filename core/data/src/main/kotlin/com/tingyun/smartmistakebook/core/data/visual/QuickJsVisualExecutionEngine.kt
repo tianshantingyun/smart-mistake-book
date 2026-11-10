@@ -454,7 +454,13 @@ class QuickJsVisualExecutionEngine(
                     "transaction result discarded: the hard deadline fired during the compile phase",
                 )
             }
-            return commitRendered(checkedSceneJson, contentIds, drawCommandsJson, request.viewport)
+            val committed = commitRendered(checkedSceneJson, contentIds, drawCommandsJson, request.viewport)
+            return if (committed is VisualExecutionResult.Rendered) {
+                require(entries.size == measured.entries.size)
+                committed.copy(contents = entries.zip(measured.entries) { declaration, metric ->
+                    com.tingyun.smartmistakebook.core.domain.VisualRenderedContent(declaration, metric)
+                })
+            } else committed
         } catch (outcome: PhaseRejection) {
             return outcome.outcome
         } catch (budget: IllegalArgumentException) {

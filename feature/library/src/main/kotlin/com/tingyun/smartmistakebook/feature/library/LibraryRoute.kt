@@ -108,6 +108,7 @@ fun LibraryRoute(
     onOpenExportResults: () -> Unit,
     onOpenItem: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onOpenAssembly: ((Map<String, String>) -> Unit)? = null,
 ) {
     val libraryViewModel: LibraryViewModel = viewModel()
     LaunchedEffect(catalogRepository, entries) {
@@ -145,11 +146,12 @@ fun LibraryRoute(
         onToggleFavorite = libraryViewModel::toggleFavorite,
         viewModel = libraryViewModel,
         modifier = modifier,
+        onOpenAssembly = onOpenAssembly,
     )
 }
 
 @Composable
-private fun LibraryContent(
+internal fun LibraryContent(
     mistakeCount: Int,
     usePaging: Boolean,
     mistakeDetailRepository: MistakeDetailRepository?,
@@ -162,6 +164,8 @@ private fun LibraryContent(
     onToggleFavorite: (String, Boolean) -> Unit,
     viewModel: LibraryViewModel,
     modifier: Modifier,
+    assembly: PaperAssemblyViewModel? = null,
+    onOpenAssembly: ((Map<String, String>) -> Unit)? = null,
 ) {
     val uiState = viewModel.uiState
     val focusManager = LocalFocusManager.current
@@ -193,7 +197,7 @@ private fun LibraryContent(
     ) {
         item(key = "library_header") {
             Column {
-                LibraryPageHeader(
+                if (assembly == null) LibraryPageHeader(
                     showCapture = emptyState != LibraryEmptyState.CATALOG_EMPTY,
                     onCapture = onCapture,
                     onOpenResults = onOpenExportResults,
@@ -213,7 +217,7 @@ private fun LibraryContent(
                             .testTag("library_pending_tasks"),
                     )
                 }
-                ArchivedEntriesSection(
+                if (assembly == null) ArchivedEntriesSection(
                     repository = mistakeDetailRepository,
                     onRestore = { entryId ->
                         scope.launch {
@@ -225,7 +229,8 @@ private fun LibraryContent(
                     },
                 )
                 if (emptyState == LibraryEmptyState.CATALOG_EMPTY) {
-                    EmptyLibraryResult(emptyState, canClear = false, onCapture = onCapture, onClear = {})
+                    if (assembly == null) EmptyLibraryResult(emptyState, canClear = false, onCapture = onCapture, onClear = {})
+                    else com.tingyun.smartmistakebook.core.ui.WorkspaceNotice("错题本还没有题目，录入后即可组卷。")
                 } else {
                     Spacer(Modifier.height(8.dp))
                     LibrarySearchField(
@@ -240,15 +245,23 @@ private fun LibraryContent(
                         filterCount = LibraryFacet.entries.count { uiState.selections.selectedOptionId(it) != null } +
                             if (uiState.timeRange != LibraryTimeRange.ALL) 1 else 0,
                         expanded = filtersExpanded,
-                        canExport = !loading && visibleMistakeCount > 0 &&
-                            (pagingItems?.itemCount ?: uiState.visibleMistakes.size) > 0,
+                        canExport = assembly == null && (onOpenAssembly != null ||
+                            !loading && visibleMistakeCount > 0 &&
+                            (pagingItems?.itemCount ?: uiState.visibleMistakes.size) > 0),
                         onToggleFilters = {
                             focusManager.clearFocus()
                             filtersExpanded = !filtersExpanded
                         },
                         onExport = {
                             // Export the full current query, including pages not loaded on screen.
-                            viewModel.exportVisible(MAX_LIBRARY_BATCH_EXPORT_QUESTIONS, onExportVisible)
+                            if (assembly != null) Unit else onOpenAssembly?.invoke(buildMap {
+                                put("query", uiState.query)
+                                put("sort", uiState.sort.name)
+                                put("time", uiState.timeRange.name)
+                                LibraryFacet.entries.forEach { facet ->
+                                    uiState.selections.selectedOptionId(facet)?.let { put(facet.name, it) }
+                                }
+                            }) ?: viewModel.exportVisible(MAX_LIBRARY_BATCH_EXPORT_QUESTIONS, onExportVisible)
                         },
                     )
                     AnimatedVisibility(visible = filtersExpanded) {
@@ -315,8 +328,10 @@ private fun LibraryContent(
                 key = pagingItems.itemKey { it.entryId },
                 contentType = pagingItems.itemContentType { _ -> "library_item" },
             ) { index ->
-                val mistake = pagingItems[index]?.toLibraryMistake()
+                val catalogItem = pagingItems[index]
+                val mistake = catalogItem?.toLibraryMistake()
                 if (mistake != null) {
+                    assembly?.let { SelectionControl(it, mistake.id, catalogItem?.problemRevisionId) }
                     LibraryQuestionCard(
                         mistake = mistake,
                         modifier = Modifier.animateItem(fadeInSpec = itemFade, placementSpec = itemPlacement, fadeOutSpec = itemFade),
@@ -333,6 +348,7 @@ private fun LibraryContent(
                 items = uiState.visibleMistakes,
                 key = LibraryMistake::id,
             ) { mistake ->
+                assembly?.let { SelectionControl(it, mistake.id) }
                 LibraryQuestionCard(
                     mistake = mistake,
                     modifier = Modifier.animateItem(fadeInSpec = itemFade, placementSpec = itemPlacement, fadeOutSpec = itemFade),

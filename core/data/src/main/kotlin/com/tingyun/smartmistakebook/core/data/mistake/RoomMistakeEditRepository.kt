@@ -204,13 +204,19 @@ class RoomMistakeEditRepository internal constructor(
                 problemContext = job.input.draft.document.title?.take(2_000),
                 prompt = if (capabilities.availableMethods.isEmpty()) null else FigurePromptAssembler.assemble(purpose, capabilities, budget),
                 sourceKind = FigureGenerationSourceKind.PROBLEM_REVISION, sourceId = job.input.basis.revisionId,
-                basisFingerprint = mistakeEditFigureBasis(ModelTaskFingerprint.of(job.request), output, change.blockId))
+                lineageFingerprint = mistakeEditFigureBasis(ModelTaskFingerprint.of(job.request), output, change.blockId))
             val result = coordinator.generate(request, change.proposal)
-            val artifact = result.artifact as? FigureArtifact.ImageAsset
             val attemptId = result.attemptId
-            if (artifact == null || attemptId == null) { move(job, MistakeEditJobStatus.UNAVAILABLE, result.diagnostics?.take(500) ?: "当前无法生成这张配图，请检查模型能力后重试"); return }
-            require(artifact.contentSha256 == figureSha256Hex(artifact.imageBytes()))
-            val asset = assets.persist(artifact, attemptId, clock())
+            val asset = when (val artifact = result.artifact) {
+                is FigureArtifact.ImageAsset -> {
+                    require(artifact.contentSha256 == figureSha256Hex(artifact.imageBytes()))
+                    attemptId?.let { assets.persist(artifact, it, clock()) }
+                }
+                is FigureArtifact.Program -> artifact.previewAssetId?.let { database.readCanonicalSourceAsset(it) }
+                null -> null
+            }
+            if (asset == null || attemptId == null) { move(job, MistakeEditJobStatus.UNAVAILABLE, result.diagnostics?.take(500) ?: "配图尚未完成，请重试"); return }
+            assets.verifiedBytes(asset)
             job = database.attachMistakeEditFigure(id, job.stateVersion, change.blockId, attemptId, asset, maxOf(clock(), job.updatedAtEpochMillis)) ?: return
         }
         move(job, MistakeEditJobStatus.READY, "修改建议已就绪，请预览后采用")
@@ -255,7 +261,7 @@ class RoomMistakeEditRepository internal constructor(
                         GeneratedFigureProvenance(artifact.modelId ?: "unknown", id, artifact.purpose.name), id)
                 }
             }, figureCapabilities = {
-                configurationStore?.let { openGuardedFigureImageBackend(it, networkRequestsAllowed) }?.use { FigureGenerationCapabilities.IMAGE_MODEL_ONLY }
+                coordinator?.capabilities() ?: configurationStore?.let { openGuardedFigureImageBackend(it, networkRequestsAllowed) }?.use { FigureGenerationCapabilities.IMAGE_MODEL_ONLY }
                     ?: FigureGenerationCapabilities.NONE
             }, scope = applicationScope)
         }

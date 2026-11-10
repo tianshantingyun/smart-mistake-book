@@ -129,7 +129,7 @@ fun WorkspacePageHeader(
     Surface(modifier.fillMaxWidth(), color = Color.Transparent, contentColor = SmartColors.Ink) {
         BoxWithConstraints(
             Modifier.padding(
-                top = if (compact) 20.dp else 28.dp,
+                top = if (compact) 16.dp else 24.dp,
                 bottom = if (compact) 12.dp else 16.dp,
             ),
         ) {
@@ -174,7 +174,7 @@ fun WorkspacePanel(
     val shape = RoundedCornerShape(if (surfaced) SmartDimens.SurfaceRadius else 0.dp)
     Surface(modifier.fillMaxWidth().then(if (surfaced && raised) Modifier.claudeSurfaceShadow(shape) else Modifier), shape = shape,
         color = containerColor, contentColor = Ink,
-        border = if (surfaced) BorderStroke(1.dp, SmartColors.Divider) else null, shadowElevation = 0.dp) {
+        border = if (surfaced) BorderStroke(.5.dp, SmartColors.Divider) else null, shadowElevation = 0.dp) {
         Column {
             if (!surfaced) PaperDivider()
             Column(Modifier.fillMaxWidth().padding(resolvedPadding),

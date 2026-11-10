@@ -14,7 +14,7 @@ import kotlin.math.roundToInt
  *
  * **Word 侧的如实降级**（与 PDF 的差异都记录在这里，供批记录/后续批量核对）：
  * - 公式：PDF 画 MathBox；Word 写 LaTeX 文本（display=false 时按规划器的口径包 `$…$`），
- *   非空 alternativeText 追加"读作：…"一行——内容不丢，字形不做矢量排版；
+ *   普通卷面可追加非空 alternativeText，详细答案省去朗读文字；
  * - 图形（[MistakePdfBlock.Figure]）：PDF 画矢量图形；Word 写标题 + 无障碍文字说明，
  *   不嵌图片、不留占位脏字；
  * - 作答空白区（练习卷的 AnswerBlank）：Word 侧不含（细线框是画布产物，Word 没有对应项）；
@@ -70,7 +70,7 @@ internal object DocxMistakeRenderer {
         // WG-07：解析区角色的图块不进题目区（与 PDF 计划器同一过滤；资格层也不会产出这种块）。
         val blocks = orderedBlocks(input.blocks, input.layout)
             .filterNot { block ->
-                block is MistakePdfBlock.Image && block.role == VisualRole.TUTOR_EXPLANATION.name
+                block is MistakePdfBlock.Image && !input.includesBodyImage(block.role)
             }
         val images = embeddedImages(input, blocks)
         val documentXml = documentXml(input, blocks, images)
@@ -173,6 +173,7 @@ internal object DocxMistakeRenderer {
     private fun imageExtent(
         layout: MistakePdfLayout,
         image: DocxImagePart,
+        detailedAnswer: Boolean = false,
     ): Pair<Long, Long> {
         val marginTwips = layout.marginPt.toLong() * TWIPS_PER_POINT
         val contentTwips = PAGE_WIDTH_TWIPS - marginTwips * 2
@@ -180,6 +181,13 @@ internal object DocxMistakeRenderer {
             (contentTwips - COLUMN_GAP_TWIPS) / 2
         } else {
             contentTwips
+        }
+        if (detailedAnswer) {
+            val widthPt = detailedAnswerImageWidth(image.widthPx, image.heightPx,
+                columnTwips.toFloat() / TWIPS_PER_POINT,
+                (PAGE_HEIGHT_TWIPS - marginTwips * 2).toFloat() / TWIPS_PER_POINT, layout.imageScale)
+            val widthEmu = (widthPt * TWIPS_PER_POINT * EMU_PER_TWIP).toLong().coerceAtLeast(1L)
+            return widthEmu to (widthEmu * image.heightPx / image.widthPx).coerceAtLeast(1L)
         }
         val naturalWidthEmu =
             (columnTwips * layout.imageScale).roundToInt().toLong() * EMU_PER_TWIP
@@ -204,6 +212,7 @@ internal object DocxMistakeRenderer {
     ): String {
         val typography = DocxTypography(input.layout.fontScale)
         val imagesByUri = images.associateBy(EmbeddedImage::uri)
+        val isDetailedAnswer = input.artifactRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS
         var drawingId = 0
         val body = StringBuilder()
 
@@ -229,9 +238,10 @@ internal object DocxMistakeRenderer {
                     ),
                 )
                 drawingId += 1
-                val (cx, cy) = imageExtent(input.layout, embedded.part)
+                val (cx, cy) = imageExtent(input.layout, embedded.part, isDetailedAnswer)
                 body.append(
-                    MinimalDocxWriter.inlineImageParagraph(embedded.part, drawingId, cx, cy),
+                    MinimalDocxWriter.inlineImageParagraph(embedded.part, drawingId, cx, cy,
+                                centered = isDetailedAnswer),
                 )
                 // T7：题目区生成图（CLEAN_IMAGE；旧调用方 null 按题目图处理）图下显式标识。
                 if (isAiGeneratedExportImage(input.questionImageRole)) {
@@ -252,7 +262,7 @@ internal object DocxMistakeRenderer {
                         val formula = if (block.display) block.latex else "\$${block.latex}\$"
                         body.append(textParagraph(formula, DocxTextStyle.FORMULA, typography))
                     }
-                    if (block.alternativeText.isNotBlank()) {
+                    if (!isDetailedAnswer && block.alternativeText.isNotBlank()) {
                         body.append(
                             textParagraph(
                                 "读作：${block.alternativeText}",
@@ -286,12 +296,13 @@ internal object DocxMistakeRenderer {
                     }
                     imagesByUri[block.localUri]?.let { embedded ->
                         drawingId += 1
-                        val (cx, cy) = imageExtent(input.layout, embedded.part)
+                        val (cx, cy) = imageExtent(input.layout, embedded.part, isDetailedAnswer)
                         body.append(
-                            MinimalDocxWriter.inlineImageParagraph(embedded.part, drawingId, cx, cy),
+                            MinimalDocxWriter.inlineImageParagraph(embedded.part, drawingId, cx, cy,
+                                centered = isDetailedAnswer),
                         )
                         // T7：批量卷面图块按角色显式标识（null = 旧块按题目区图处理）。
-                        if (isAiGeneratedExportImage(block.role)) {
+                        if (!isDetailedAnswer && isAiGeneratedExportImage(block.role)) {
                             body.append(
                                 textParagraph(AI_GENERATED_IMAGE_CAPTION, DocxTextStyle.META, typography),
                             )
@@ -303,7 +314,7 @@ internal object DocxMistakeRenderer {
                     block.title?.takeIf(String::isNotBlank)?.let { title ->
                         body.append(textParagraph(title, DocxTextStyle.HEADING, typography))
                     }
-                    if (block.alternativeText.isNotBlank()) {
+                    if (!isDetailedAnswer && block.alternativeText.isNotBlank()) {
                         body.append(textParagraph(block.alternativeText, DocxTextStyle.BODY, typography))
                     }
                 }
@@ -321,9 +332,10 @@ internal object DocxMistakeRenderer {
                 val embedded = imagesByUri[image.localUri]
                     ?: throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID)
                 drawingId += 1
-                val (cx, cy) = imageExtent(input.layout, embedded.part)
+                val (cx, cy) = imageExtent(input.layout, embedded.part, isDetailedAnswer)
                 body.append(
-                    MinimalDocxWriter.inlineImageParagraph(embedded.part, drawingId, cx, cy),
+                    MinimalDocxWriter.inlineImageParagraph(embedded.part, drawingId, cx, cy,
+                                centered = isDetailedAnswer),
                 )
                 // T7：讲解图（TUTOR_EXPLANATION，只由生成路径产出）逐图显式标识。
                 if (isAiGeneratedExportImage(image.role)) {

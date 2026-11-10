@@ -438,7 +438,10 @@ internal class RoomStudyDatabase(
 
     override fun observeTutorTurnResponses(sessionId: String): Flow<List<TutorTurnResponseRecord>> {
         require(sessionId.isNotBlank())
-        return database.tutorInteractionDao().observe(sessionId)
+        return kotlinx.coroutines.flow.combine(database.tutorInteractionDao().observe(sessionId),
+            database.tutorReplyVersionDao().observe(com.tingyun.smartmistakebook.core.model.TutorConversationIds.captured(sessionId))) { legacy, versions ->
+            projectTutorReplyVersionTurnRecords(legacy, versions)
+        }
     }
 
     override fun observeRecentTutorConversations(
@@ -1394,6 +1397,28 @@ internal class RoomStudyDatabase(
         return database.problemDraftTransactionDao().readTutorSession(sessionId)
     }
 
+    override fun observeTutorReplyVersions(conversationId: String): Flow<List<TutorReplyVersionRecord>> =
+        database.tutorReplyVersionDao().observe(conversationId)
+
+    override suspend fun publishTutorReplyVersion(original: TutorReplyVersionRecord, replacement: TutorReplyVersionRecord): Boolean {
+        val encodedAssets = org.json.JSONArray(replacement.sourceAssetIdsJson)
+        val assets = List(encodedAssets.length()) { encodedAssets.getString(it) }
+        require(assets.size <= 9 && assets.distinct().size == assets.size)
+        val links = database.tutorConversationDao().assistantFigureLinks(AppendTutorAssistantMessageDatabaseCommand(
+            conversationId = original.conversationId, messageId = original.groupId, replyToMessageId = null,
+            bodyMarkdown = replacement.bodyMarkdown, logicalOperationId = replacement.requestId,
+            status = "SUCCEEDED", createdAtEpochMillis = replacement.createdAtEpochMillis,
+            completedAtEpochMillis = replacement.createdAtEpochMillis, errorCode = null,
+            sourceImageAssetIds = assets, toolTraceJson = replacement.toolTraceJson))
+        return database.tutorReplyVersionDao().publish(original, replacement, links)
+    }
+
+    override suspend fun selectTutorReplyVersion(conversationId: String, groupId: String, versionId: String): Boolean =
+        database.tutorReplyVersionDao().select(conversationId, groupId, versionId)
+
+    override suspend fun saveTutorReplyVersionAnswer(versionId: String, expected: String?, responseJson: String, updatedAt: Long, allowLockedReveal: Boolean): Boolean =
+        database.tutorReplyVersionDao().saveAnswer(versionId, expected, responseJson, updatedAt, allowLockedReveal)
+
     override suspend fun createTutorConversation(
         command: CreateTutorConversationDatabaseCommand,
     ): TutorConversationRecord = database.tutorConversationDao().createConversation(command)
@@ -2181,6 +2206,23 @@ internal class RoomStudyDatabase(
 
     // ---- D-02（批次 30）：视觉身份不可变 + STAGING→LIVE + 正文/trace/link 同事务 ----
 
+    override suspend fun commitGeneratedVisualArtifact(
+        command: CommitGeneratedVisualArtifactCommand,
+    ): TutorVisualSnapshotRecord = database.withWriteTransaction {
+        val staged = stageTutorVisualSnapshot(command.staging)
+        val dao = database.tutorVisualDao()
+        val snapshot = requireNotNull(dao.findSnapshot(staged.snapshotId))
+        if (snapshot.status != TutorVisualStatus.LIVE) {
+            check(dao.promoteSnapshot(snapshot.snapshotId, TutorVisualStatus.STAGING,
+                TutorVisualStatus.LIVE, snapshot.createdAtEpochMillis) == 1)
+        }
+        if (command.demoteCheckpointSnapshotIds.isNotEmpty()) {
+            dao.demoteLatestCheckpoints(command.staging.program.programId,
+                command.demoteCheckpointSnapshotIds, TutorVisualCheckpointKind.LATEST)
+        }
+        requireNotNull(dao.findSnapshot(staged.snapshotId)).toRecord()
+    }
+
     override suspend fun stageTutorVisualSnapshot(
         command: StageTutorVisualSnapshotCommand,
     ): TutorVisualSnapshotRecord = database.withWriteTransaction {
@@ -2716,3 +2758,36 @@ internal class RoomStudyDatabase(
 }
 
 
+
+
+private fun projectTutorReplyVersionTurnRecords(
+    legacy: List<TutorTurnResponseRecord>,
+    versions: List<TutorReplyVersionRecord>,
+): List<TutorTurnResponseRecord> {
+    val selected = versions.filter { it.selected }
+    val planInputs = selected.mapNotNull { version ->
+        version.requestJson?.let { org.json.JSONObject(it).optJSONObject("input") }
+            ?.takeIf { it.optString("type") == "tutor_plan" }
+    }
+    val retained = legacy.filterNot { response -> planInputs.any { input ->
+        input.optString("sessionId") == response.sessionId && input.optInt("draftRevisionNumber") == response.revisionNumber &&
+            input.optJSONObject("questionDocument")?.optString("id") == response.questionDocumentId &&
+            input.optInt("cycleOrdinal") == response.cycleOrdinal && input.optInt("turnOrdinal") == response.turnOrdinal
+    } }
+    val answers = selected.mapNotNull { version -> version.responseJson?.let { encoded ->
+        val json = org.json.JSONObject(encoded)
+        fun optionalText(name: String) = if (json.isNull(name)) null else json.getString(name)
+        TutorTurnResponseRecord(
+            sessionId = json.getString("sessionId"), questionDocumentId = json.getString("questionDocumentId"),
+            revisionNumber = json.getInt("revisionNumber"), cycleOrdinal = json.getInt("cycleOrdinal"),
+            turnOrdinal = json.getInt("turnOrdinal"), diagnosticStemMarkdown = optionalText("diagnosticStemMarkdown"),
+            selectedChoiceId = optionalText("selectedChoiceId"), selectedChoiceMarkdown = optionalText("selectedChoiceMarkdown"),
+            selectionWasCorrect = if (json.isNull("selectionWasCorrect")) null else json.getBoolean("selectionWasCorrect"),
+            feedbackMarkdown = optionalText("feedbackMarkdown"), requestedMove = optionalText("requestedMove"),
+            solutionRevealed = json.getBoolean("solutionRevealed"),
+            submittedAtEpochMillis = json.getLong("submittedAtEpochMillis"), updatedAtEpochMillis = json.getLong("updatedAtEpochMillis"),
+            choiceSubmittedAtEpochMillis = if (json.isNull("choiceSubmittedAtEpochMillis")) null else json.getLong("choiceSubmittedAtEpochMillis"),
+        )
+    } }
+    return (retained + answers).sortedWith(compareBy({ it.cycleOrdinal }, { it.turnOrdinal }))
+}

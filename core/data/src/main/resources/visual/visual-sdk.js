@@ -269,6 +269,17 @@
       return commands;
     },
 
+    /** Open line segments keep a sampled curve unfilled under the V1 paint contract. */
+    lineSegments: function (points) {
+      var polyline = visualSdk.polyline(points);
+      var commands = [];
+      for (var i = 1; i < polyline.length; i += 1) {
+        commands.push(['M', polyline[i - 1][1], polyline[i - 1][2]],
+          ['L', polyline[i][1], polyline[i][2]]);
+      }
+      return commands;
+    },
+
     /**
      * 确定性随机：bootstrap 捕获的宿主注入 PRNG（java.util.Random(seed)，每阶段从
      * input.seed 重放）。程序不得依赖本调用次数跨 prepare/render 一致——两阶段各自重放。

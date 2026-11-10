@@ -61,6 +61,21 @@ import org.junit.Test
 class FigureGenerationCoordinatorTest {
 
     @Test
+    fun hostLineageDoesNotReplaceTheMethodPayloadValidation() = runBlocking {
+        val recorder = RecordingAuditRecorder()
+        val engine = RecordingVisualEngine()
+        val coordinator = DefaultFigureGenerationCoordinator(ledger = RecordingLedger(), openBackend = { null },
+            audit = recorder, visualEngine = engine, visualFrameInputs = frameInputs())
+        val request = jsRequest().copy(lineageFingerprint = "a".repeat(64))
+        val result = coordinator.generate(request, jsProposal(request))
+        assertEquals(FigureGenerationStatus.GENERATED, result.status)
+        assertEquals("a".repeat(64), recorder.operations.single().basisFingerprint)
+        val mismatch = request.copy(operationId = "other-op", basisFingerprint = "b".repeat(64))
+        assertEquals(FigureGenerationStatus.REJECTED, coordinator.generate(mismatch, jsProposal(mismatch)).status)
+        assertEquals(1, engine.requests.size)
+    }
+
+    @Test
     fun aPolicyRejectionTouchesNeitherTheLedgerNorTheBackend() = runBlocking {
         val ledger = RecordingLedger()
         val channel = RecordingChannel(ledger.events)

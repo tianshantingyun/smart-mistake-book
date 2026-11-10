@@ -192,10 +192,10 @@ internal fun MistakeAgentEditSheet(
 
 @Composable
 private fun AgentEditCheckRow(label: String, checked: Boolean, enabled: Boolean = true, onToggle: () -> Unit) {
-    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+    Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
         .background(if (checked) SmartColors.JadeSoft else SmartColors.SubtleSurface)
         .toggleable(checked, enabled = enabled, role = Role.Checkbox, onValueChange = { onToggle() })
-        .padding(horizontal = 8.dp, vertical = 4.dp),
+        .padding(horizontal = 12.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Checkbox(checked, null, enabled = enabled)
         Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = Ink)

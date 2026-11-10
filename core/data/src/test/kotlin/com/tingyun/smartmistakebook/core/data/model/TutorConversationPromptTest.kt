@@ -76,6 +76,19 @@ class TutorConversationPromptTest {
     )
 
     @Test
+    fun mathExamplesCannotCompleteAnIllustratedReply() {
+        org.junit.Assert.assertEquals(emptyList<String>(), tutorTeachingFigureReferences("$$\nx=1\n\n[[figure:math]]\n\n$$"))
+    }
+
+    @Test
+    fun illustrationCompletionUsesWholeVisibleParagraphs() {
+        org.junit.Assert.assertEquals(listOf("a"), tutorTeachingFigureReferences("说明\n\n[[figure:a]]\n\n后文"))
+        org.junit.Assert.assertEquals(emptyList<String>(), tutorTeachingFigureReferences(
+            "```text\n\n[[figure:a]]\n\n```\n\n> [[figure:b]]\n\n- [[figure:c]]\n\n正文 [[figure:d]]"))
+        org.junit.Assert.assertEquals(emptyList<String>(), tutorTeachingFigureReferences("\\[\\[figure:a]]"))
+    }
+
+    @Test
     fun consecutiveTurnsShareAStablePrefixSoUpstreamCachingCanHit() {
         val history = listOf(historyEntry("你好", "你好，你想做什么？"))
         val first = lobby(studentMessage = "解一下这个题吧", priorMessages = history)

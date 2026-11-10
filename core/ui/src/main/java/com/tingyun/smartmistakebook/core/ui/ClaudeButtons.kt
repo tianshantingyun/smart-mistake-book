@@ -3,7 +3,6 @@ package com.tingyun.smartmistakebook.core.ui
 // Native port of Caho1/open-claude-ui CdsButton.tsx, c1f923ae (MIT, Copyright 2026 Caho1).
 // Full upstream license is bundled at assets/open-source/open-claude-ui-LICENSE.txt.
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
@@ -70,7 +69,7 @@ private fun ClaudeAction(
             disabledContentColor = InkMuted,
         )
         ActionVariant.SECONDARY -> ButtonDefaults.buttonColors(
-            containerColor = if (hovered) Ink.copy(alpha = .05f) else Color.Transparent,
+            containerColor = if (hovered) Ink.copy(alpha = .05f) else SubtleSurface,
             contentColor = Ink,
             disabledContainerColor = Color.Transparent,
             disabledContentColor = InkMuted,

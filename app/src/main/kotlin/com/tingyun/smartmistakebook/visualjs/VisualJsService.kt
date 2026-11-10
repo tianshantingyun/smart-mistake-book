@@ -127,6 +127,21 @@ class VisualJsService : Service() {
         warmUpOnJsExecutor()
     }
 
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // Serialize with execution so each frame keeps one complete native measurement environment.
+        jsExecutor.execute {
+            try {
+                val measurer = visualContentMeasurerForService(resources)
+                measurer.warmUpProbe()
+                contentMeasurer.set(measurer)
+            } catch (failure: Exception) {
+                Log.w(TAG, "visual_js measurement configuration refresh failed", failure)
+                killSelf("measurement configuration refresh failed")
+            }
+        }
+    }
+
     /**
      * 一次性引擎装载 warm-up：真实 `QuickJs.create`（libquickjs.so 装载 + 运行时表
      * 预热）+ 一次空程序 evaluate，完成置 [ready]。

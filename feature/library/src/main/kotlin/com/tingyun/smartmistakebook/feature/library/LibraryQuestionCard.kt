@@ -55,10 +55,10 @@ internal fun LibraryQuestionCard(
 ) {
     ClaudeCard(
         onClick = onClick,
-        modifier = modifier.fillMaxWidth().padding(bottom = 10.dp).testTag("library_item_${mistake.id}"),
-        shape = RoundedCornerShape(10.dp),
+        modifier = modifier.fillMaxWidth().padding(bottom = 12.dp).testTag("library_item_${mistake.id}"),
+        shape = RoundedCornerShape(16.dp),
         bordered = true,
-        elevation = 1.dp,
+        elevation = 0.dp,
     ) {
         Column {
             LibraryInlineImages(

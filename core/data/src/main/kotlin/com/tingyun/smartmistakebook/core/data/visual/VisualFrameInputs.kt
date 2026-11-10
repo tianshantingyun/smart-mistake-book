@@ -17,6 +17,7 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationRequest
  * 提供——它们由协调器从 proposal 派生（程序身份必须与源码同源，见 `figureJsBasisFingerprint`）。
  */
 fun interface VisualFrameInputs {
+    fun available(): Boolean = true
     /** 为这次生成冻结一帧输入。返回 null 表示本机此刻给不出可信帧（协调器如实回 UNAVAILABLE）。 */
     fun forGeneration(
         request: FigureGenerationRequest,
@@ -30,9 +31,11 @@ data class VisualFrameSnapshot(
     val theme: String,
     val seed: Long,
     val timeMs: Long,
+    val fontScaleMilli: Int = 1_000,
 ) {
     init {
         require(theme.isNotBlank()) { "A visual frame needs a theme" }
         require(timeMs >= 0L) { "A visual frame time must not be negative" }
+        require(fontScaleMilli > 0)
     }
 }

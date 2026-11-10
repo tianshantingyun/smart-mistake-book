@@ -108,9 +108,9 @@ fun ClaudeSettingsRow(
     Column(Modifier.fillMaxWidth()) {
     Row(modifier.fillMaxWidth().defaultMinSize(minHeight = 72.dp).clip(RoundedCornerShape(10.dp))
         .claudeInteractiveRow(onClick).semantics(mergeDescendants = true) {}
-        .padding(horizontal = 8.dp, vertical = 12.dp),
+        .padding(horizontal = 12.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Box(Modifier.size(36.dp).clip(RoundedCornerShape(10.dp)).background(iconContainerColor),
+        Box(Modifier.size(36.dp).clip(RoundedCornerShape(12.dp)).background(iconContainerColor),
             contentAlignment = Alignment.Center) {
             Icon(icon, null, Modifier.size(SmartIconSizes.Standard), tint = iconTint)
         }
@@ -121,6 +121,6 @@ fun ClaudeSettingsRow(
         }
         Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, Modifier.size(SmartIconSizes.Small), tint = InkSecondary)
     }
-    if (showDivider) PaperDivider(Modifier.padding(start = 56.dp, end = 8.dp))
+    if (showDivider) PaperDivider(Modifier.padding(start = 60.dp, end = 12.dp))
     }
 }

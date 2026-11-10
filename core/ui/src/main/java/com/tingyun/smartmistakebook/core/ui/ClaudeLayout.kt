@@ -11,13 +11,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 object ClaudeLayout {
-    val ComposerRadius = 20.dp
-    val ComposerPadding = 14.dp
-    val ComposerGap = 8.dp
+    val ComposerRadius = 22.dp
+    val ComposerPadding = 12.dp
+    val ComposerGap = 4.dp
     val ComposerText = TextStyle(fontSize = 15.sp, lineHeight = 21.sp)
     val HeaderText = TextStyle(fontSize = 14.sp, lineHeight = 20.sp, fontWeight = FontWeight.Medium)
     val ControlText = TextStyle(fontSize = 12.sp, lineHeight = 18.sp, fontWeight = FontWeight.Medium)
-    val MessageRadius = 18.dp
+    val MessageRadius = 16.dp
     val MessagePaddingX = 16.dp
     val MessagePaddingY = 12.dp
     const val MessageWidthFraction = .85f

@@ -116,7 +116,7 @@ private fun LearningMasteryEntry(
     Column(modifier = modifier.fillMaxWidth()) {
         SectionHeader(title = "学习掌握")
         Spacer(Modifier.height(8.dp))
-        WorkspacePanel(contentPadding = PaddingValues(vertical = 4.dp), containerColor = SmartColors.ContentSurface) {
+        WorkspacePanel(contentPadding = PaddingValues(vertical = 6.dp), containerColor = SmartColors.ContentSurface) {
             SettingsRow(
                 title = "查看全部知识点",
                 subtitle = learningMasterySubtitle(overview),
@@ -320,7 +320,7 @@ private fun SettingsSection(
     Column(modifier = modifier.fillMaxWidth()) {
         SectionHeader(title = "学习偏好")
         Spacer(Modifier.height(8.dp))
-        WorkspacePanel(contentPadding = PaddingValues(vertical = 4.dp), containerColor = SmartColors.ContentSurface) {
+        WorkspacePanel(contentPadding = PaddingValues(vertical = 6.dp), containerColor = SmartColors.ContentSurface) {
             Column {
                 SettingsRow(
                     title = "提醒与复习偏好",
@@ -342,14 +342,14 @@ private fun SettingsSection(
         Spacer(Modifier.height(24.dp))
         SectionHeader(title = "应用与数据")
         Spacer(Modifier.height(8.dp))
-        WorkspacePanel(contentPadding = PaddingValues(vertical = 4.dp), containerColor = SmartColors.ContentSurface) {
+        WorkspacePanel(contentPadding = PaddingValues(vertical = 6.dp), containerColor = SmartColors.ContentSurface) {
             Column {
                 SettingsRow(
                     title = "模型设置",
                     subtitle = capabilitySubtitle,
                     icon = Icons.Outlined.Memory,
-                    iconContainerColor = SmartColors.AgentSurface,
-                    iconTint = SmartColors.AgentAccent,
+                    iconContainerColor = SmartColors.LearningSurface,
+                    iconTint = SmartColors.LearningAccent,
                     onClick = onOpenCapability,
                     modifier = Modifier.testTag("profile_capability_setting"),
                 )

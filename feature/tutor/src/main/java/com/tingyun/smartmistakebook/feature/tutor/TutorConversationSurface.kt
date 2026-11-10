@@ -57,6 +57,8 @@ import androidx.compose.material3.MaterialTheme
 import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import com.tingyun.smartmistakebook.core.ui.claudeGlassSource
+import androidx.compose.animation.animateContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.movableContentOf
@@ -531,6 +533,23 @@ internal fun TutorConversationFrame(
     var handledBlockToken by remember(listState) { mutableStateOf<Any?>(null) }
     var programmaticFollow by remember(listState) { mutableStateOf(false) }
     var composerHeightPx by remember { mutableStateOf(0) }
+    var headerHeightPx by remember { mutableStateOf(0) }
+    var readingCompact by remember(listState) { mutableStateOf(false) }
+    var inputExpanded by remember(listState) { mutableStateOf(false) }
+    val glass = com.tingyun.smartmistakebook.core.ui.rememberClaudeGlassState()
+    LaunchedEffect(listState) {
+        var previous = listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
+        snapshotFlow { Triple(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset, listState.isScrollInProgress) }
+            .collect { (index, offset, scrolling) ->
+                val backwards = index < previous.first || index == previous.first && offset < previous.second
+                if (scrolling && !programmaticFollow && backwards) {
+                    readingCompact = true
+                    inputExpanded = false
+                }
+                if (index == 0 && offset < 24) readingCompact = false
+                previous = index to offset
+            }
+    }
     var viewportHeightPx by remember { mutableStateOf(0) }
     val userDragging by listState.interactionSource.collectIsDraggedAsState()
     val density = LocalDensity.current
@@ -592,39 +611,32 @@ internal fun TutorConversationFrame(
             .toInt().coerceIn(1, 4)
         val startPageTopPadding = if (maxHeight > 600.dp) 32.dp else 8.dp
         val composerBlock: @Composable () -> Unit = {
-            Surface(color = Paper, modifier = Modifier.onSizeChanged { composerHeightPx = it.height }) {
+            com.tingyun.smartmistakebook.core.ui.ClaudeGlassSurface(glass,
+                modifier = Modifier.onSizeChanged { composerHeightPx = it.height }) {
                 Column(Modifier.fillMaxWidth().padding(horizontal = if (composerInList) 0.dp else SmartDimens.ContentHorizontalPadding, vertical = 8.dp)) {
-                    CompositionLocalProvider(LocalTutorInputMaxLines provides visibleInputLines) { renderComposer() }
+                    CompositionLocalProvider(
+                        LocalTutorInputMaxLines provides visibleInputLines,
+                        com.tingyun.smartmistakebook.core.ui.LocalClaudeReadingCompact provides (readingCompact && !inputExpanded),
+                        com.tingyun.smartmistakebook.core.ui.LocalClaudeExpandReadingInput provides { inputExpanded = true },
+                    ) { renderComposer() }
                 }
             }
         }
-        Column(
-            modifier = Modifier
-                .widthIn(max = SmartDimens.MaximumContentWidth)
-                .fillMaxSize(),
+        Box(
+            modifier = Modifier.widthIn(max = SmartDimens.MaximumContentWidth).fillMaxSize(),
         ) {
-            Column(
-                modifier = Modifier.padding(
-                    start = SmartDimens.ContentHorizontalPadding,
-                    top = 0.dp,
-                    end = SmartDimens.ContentHorizontalPadding,
-                ),
-            ) {
-                header()
-            }
             LazyColumn(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .compositeReadingSource(glass, !composerInList)
                     .onSizeChanged { viewportHeightPx = it.height }
-                    .testTag("tutor_conversation_list")
-                    .then(listViewportModifier),
+                    .testTag("tutor_conversation_list"),
                 state = listState,
                 contentPadding = PaddingValues(
                     start = SmartDimens.ContentHorizontalPadding,
-                    top = 12.dp,
+                    top = with(density) { headerHeightPx.toDp() } + 12.dp,
                     end = SmartDimens.ContentHorizontalPadding,
-                    bottom = 12.dp,
+                    bottom = if (composerInList) 12.dp else with(density) { composerHeightPx.toDp() } + 12.dp,
                 ),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
@@ -651,7 +663,21 @@ internal fun TutorConversationFrame(
                     }
                 }
             }
-            if (!composerInList && composer != null) composerBlock()
+            // Exposure uses only the unobscured reading window, excluding both glass bars.
+            Box(Modifier.fillMaxSize().padding(
+                top = with(density) { headerHeightPx.toDp() },
+                bottom = if (composerInList) 0.dp else with(density) { composerHeightPx.toDp() },
+            ).then(listViewportModifier))
+            com.tingyun.smartmistakebook.core.ui.ClaudeGlassSurface(glass,
+                modifier = Modifier.align(Alignment.TopCenter).fillMaxWidth()
+                    .onSizeChanged { headerHeightPx = it.height }) {
+                Column(Modifier.fillMaxWidth().padding(horizontal = SmartDimens.ContentHorizontalPadding)
+                    .animateReadingBars()) {
+                    CompositionLocalProvider(com.tingyun.smartmistakebook.core.ui.LocalClaudeReadingCompact provides readingCompact) { header() }
+                }
+            }
+            if (!composerInList && composer != null) Box(Modifier.align(Alignment.BottomCenter).fillMaxWidth()
+                .animateReadingBars()) { composerBlock() }
         }
         if (!followsTail && initialTailPositioned) {
             ScrollToBottomButton(
@@ -724,14 +750,17 @@ internal fun TutorChatComposer(
     tools: (@Composable () -> Unit)? = null,
 ) {
     var focused by remember { mutableStateOf(false) }
+    val expandInput = com.tingyun.smartmistakebook.core.ui.LocalClaudeExpandReadingInput.current
+    val compact = com.tingyun.smartmistakebook.core.ui.LocalClaudeReadingCompact.current &&
+        !focused && value.isBlank() && attachmentCount == 0
     val sendInteraction = remember { MutableInteractionSource() }
     val sendPressed by sendInteraction.collectIsPressedAsState()
     val motionEnabled = com.tingyun.smartmistakebook.core.ui.LocalClaudeMotionEnabled.current
     val sendScale by animateFloatAsState(if (sendPressed && motionEnabled) .98f else 1f,
         com.tingyun.smartmistakebook.core.ui.ClaudeMotion.pressSpec(motionEnabled, sendPressed), label = "composer_send_press")
-    val shadowStrength by animateFloatAsState(if (!enabled) .35f else if (focused) .85f else .45f,
+    val shadowStrength by animateFloatAsState(if (!enabled) .2f else if (focused) .6f else .28f,
         com.tingyun.smartmistakebook.core.ui.ClaudeMotion.spec(motionEnabled, 220), label = "composer-focus-shadow")
-    val outlineColor by androidx.compose.animation.animateColorAsState(if (focused) JadeActive else Outline,
+    val outlineColor by androidx.compose.animation.animateColorAsState(if (focused) JadeActive else SmartColors.InputOutline,
         com.tingyun.smartmistakebook.core.ui.ClaudeMotion.spec(motionEnabled, 220), label = "composer-focus-outline")
     var editorValue by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(value, TextRange(value.length)))
@@ -754,9 +783,9 @@ internal fun TutorChatComposer(
     val shape = RoundedCornerShape(ClaudeLayout.ComposerRadius)
     Column(modifier = modifier.fillMaxWidth()
         .claudeSurfaceShadow(shape, ClaudeSurfaceDepth.COMPOSER, emphasis = shadowStrength)
-        .background(if (enabled) ContentSurface else SubtleSurface, shape)
-        .border(1.dp, outlineColor, shape)
-        .padding(ClaudeLayout.ComposerPadding)) {
+        .background((if (enabled) ContentSurface else SubtleSurface).copy(alpha = .50f), shape)
+        .border(if (focused) 1.dp else .5.dp, outlineColor, shape)
+        .padding(if (compact) 8.dp else ClaudeLayout.ComposerPadding)) {
         attachmentPreview?.invoke()
         BasicTextField(
             value = editorValue,
@@ -771,13 +800,13 @@ internal fun TutorChatComposer(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 48.dp)
-                .onFocusChanged { focused = it.isFocused }
+                .onFocusChanged { focused = it.isFocused; if (it.isFocused) expandInput() }
                 .testTag("tutor_chat_composer"),
             enabled = enabled,
             textStyle = ClaudeLayout.ComposerText.copy(color = Ink),
             cursorBrush = SolidColor(JadeActive),
             minLines = 1,
-            maxLines = LocalTutorInputMaxLines.current,
+            maxLines = if (compact) 1 else LocalTutorInputMaxLines.current,
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
             keyboardActions = KeyboardActions(
                 onSend = { sendIfReady() },
@@ -791,6 +820,7 @@ internal fun TutorChatComposer(
                 }
             },
         )
+        if (!compact) {
         Spacer(Modifier.height(ClaudeLayout.ComposerGap))
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween) {
@@ -823,5 +853,15 @@ internal fun TutorChatComposer(
                 }
             }
         }
+        }
     }
 }
+
+
+private fun Modifier.compositeReadingSource(state: com.tingyun.smartmistakebook.core.ui.ClaudeGlassState, enabled: Boolean): Modifier =
+    if (enabled) claudeGlassSource(state) else this
+
+@Composable
+private fun Modifier.animateReadingBars(): Modifier = animateContentSize(
+    animationSpec = com.tingyun.smartmistakebook.core.ui.ClaudeMotion.spec(
+        com.tingyun.smartmistakebook.core.ui.LocalClaudeMotionEnabled.current, 180))

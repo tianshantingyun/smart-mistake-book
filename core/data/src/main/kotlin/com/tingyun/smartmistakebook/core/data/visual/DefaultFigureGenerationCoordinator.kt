@@ -20,6 +20,7 @@ import com.tingyun.smartmistakebook.core.domain.VisualExecutionRejection
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionRequest
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionResult
 import com.tingyun.smartmistakebook.core.model.FigureArtifact
+import com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities
 import com.tingyun.smartmistakebook.core.model.FigureDispatchParent
 import com.tingyun.smartmistakebook.core.model.FigureGenerationDecision
 import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
@@ -168,7 +169,15 @@ class DefaultFigureGenerationCoordinator internal constructor(
      * 状态边界（进程内、有界键窗口）见该类 KDoc。
      */
     private val localBudgets: FigureOperationLocalBudgets = FigureOperationLocalBudgets(),
+    private val jsArtifacts: JsFigureArtifactAdapter? = null,
 ) : FigureGenerationCoordinator {
+    override suspend fun capabilities(): FigureGenerationCapabilities {
+        val image = openBackend()?.use { FigureGenerationCapabilities.IMAGE_MODEL_ONLY }
+            ?: FigureGenerationCapabilities.NONE
+        return if (visualEngine != null && jsArtifacts != null && visualFrameInputs?.available() == true) {
+            image.copy(availableMethods = image.availableMethods + FigureGenerationMethod.JS)
+        } else image
+    }
 
     override suspend fun generate(
         request: FigureGenerationRequest,
@@ -331,7 +340,7 @@ class DefaultFigureGenerationCoordinator internal constructor(
         try {
             state.begin()
             state.beginLocalAttempt(FigureGenerationMethod.JS, sourceSha)
-            val programId = visualProgramId(request.operationId, program)
+            val programId = jsArtifacts?.programId(request, proposal) ?: visualProgramId(request.operationId, program)
             // A-10：JS 阶段墙钟按"execute 前后两次 now 读数差"记账——两次读数之间只有
             // engine.execute（审计写入在两侧），注入 now 时该差值是确定性的。取消路径
             // 不记账（操作正在被拆除），如实登记为边界。
@@ -342,7 +351,7 @@ class DefaultFigureGenerationCoordinator internal constructor(
                         programId = programId,
                         sourceJs = program,
                         sceneRevision = VISUAL_SCENE_REVISION,
-                        stateJson = null,
+                        stateJson = if (jsArtifacts != null) "{}" else null,
                         viewport = frame.viewport,
                         timeMs = frame.timeMs,
                         seed = frame.seed,
@@ -372,17 +381,27 @@ class DefaultFigureGenerationCoordinator internal constructor(
             localBudgets.recordJsWallClock(request.operationId, now() - executionStartedAt)
             return when (execution) {
                 is VisualExecutionResult.Rendered -> {
+                    val artifact = try {
+                        jsArtifacts?.publish(request, proposal, frame, execution)
+                            ?: FigureArtifact.Program(request.purpose, programId, program)
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (failure: Exception) {
+                        val diagnostics = boundedFailure(failure)
+                        state.failAttempt(diagnostics)
+                        return outcome(request, proposal, FigureGenerationStatus.FAILED,
+                            diagnostics = diagnostics, attemptId = state.attemptId)
+                    }
                     localBudgets.recordFinalFigure(request.operationId)
                     state.succeed()
+                    artifact.previewAssetId?.let { assetId ->
+                        state.attemptId?.let { attempt -> audit.attachOutputAsset(attempt, assetId) }
+                    }
                     outcome(
                         request = request,
                         proposal = proposal,
                         status = FigureGenerationStatus.GENERATED,
-                        artifact = FigureArtifact.Program(
-                            purpose = request.purpose,
-                            programId = programId,
-                            sourceJs = program,
-                        ),
+                        artifact = artifact,
                         attemptId = state.attemptId,
                     )
                 }
@@ -781,7 +800,7 @@ class DefaultFigureGenerationCoordinator internal constructor(
                 is FigureDispatchParent.ModelTask -> parent.requestId
                 is FigureDispatchParent.CleanRedrawTask -> parent.taskId
             },
-            basisFingerprint = basisFingerprint ?: when (proposal.method) {
+            basisFingerprint = lineageFingerprint ?: basisFingerprint ?: when (proposal.method) {
                 // A-08：JS 的 imagePrompt 恒为 null，旧回退会让两个不同 program 得到同一
                 // input_fingerprint；JS 一律用 program 参与规范化（源码即输入）。
                 FigureGenerationMethod.JS -> figureJsBasisFingerprint(
@@ -875,6 +894,7 @@ private suspend fun <T> auditWrite(block: suspend () -> T): T? =
  */
 object FigureGenerationCoordinationFactory {
     val unavailable: FigureGenerationCoordinator = object : FigureGenerationCoordinator {
+        override suspend fun capabilities() = FigureGenerationCapabilities.NONE
         override suspend fun generate(request: FigureGenerationRequest, proposal: FigureGenerationProposal) = FigureGenerationOutcome(
             request.operationId, request.purpose, proposal.method, FigureGenerationStatus.UNAVAILABLE,
             diagnostics = "当前没有可用的绘图能力，请检查模型设置")
@@ -885,20 +905,22 @@ object FigureGenerationCoordinationFactory {
      */
     fun create(
         database: StudyDatabasePort,
-        configurationStore: ModelConfigurationStore,
+        configurationStore: ModelConfigurationStore?,
         networkRequestsAllowed: Boolean,
         visualEngine: VisualExecutionEngine? = null,
         visualFrameInputs: VisualFrameInputs? = null,
+        jsArtifacts: JsFigureArtifactAdapter? = null,
     ): FigureGenerationCoordinator = DefaultFigureGenerationCoordinator(
         ledger = RoomFigureDispatchLedger(database),
         openBackend = {
-            openGuardedFigureImageBackend(
-                configurationStore = configurationStore,
+            configurationStore?.let { store -> openGuardedFigureImageBackend(
+                configurationStore = store,
                 networkRequestsAllowed = networkRequestsAllowed,
-            )
+            ) }
         },
         audit = RoomFigureGenerationAuditRecorder(database),
         visualEngine = visualEngine,
         visualFrameInputs = visualFrameInputs,
+        jsArtifacts = jsArtifacts,
     )
 }

@@ -139,8 +139,13 @@ object MathTokenizer {
                 remaining.startsWith("\\") -> {
                     val match = COMMAND_PATTERN.find(remaining)
                     if (match != null) {
-                        tokens.add(MathToken.Command(match.groupValues[1]))
+                        val name = match.groupValues[1]
+                        if (name !in setOf("left", "right", "displaystyle", "textstyle", "limits")) {
+                            tokens.add(MathToken.Command(name))
+                        }
                         pos += match.value.length
+                    } else if (remaining.length > 1 && remaining[1] in ",;:! ") {
+                        pos += 2
                     } else {
                         pos++
                     }
@@ -272,7 +277,8 @@ object MathParser {
                     val (exp, nextPos) = parseAtom(tokens, current + 1)
                     if (items.isNotEmpty()) {
                         val base = items.removeAt(items.lastIndex)
-                        items.add(MathNode.Superscript(base, exp))
+                        items.add(if (base is MathNode.Subscript) MathNode.SuperscriptSubscript(base.base, exp, base.index)
+                            else MathNode.Superscript(base, exp))
                     }
                     current = nextPos
                 }
@@ -280,7 +286,8 @@ object MathParser {
                     val (idx, nextPos) = parseAtom(tokens, current + 1)
                     if (items.isNotEmpty()) {
                         val base = items.removeAt(items.lastIndex)
-                        items.add(MathNode.Subscript(base, idx))
+                        items.add(if (base is MathNode.Superscript) MathNode.SuperscriptSubscript(base.base, base.exponent, idx)
+                            else MathNode.Subscript(base, idx))
                     }
                     current = nextPos
                 }
@@ -365,6 +372,7 @@ object MathParser {
                 val (_, pos1) = parseAtom(tokens, pos)
                 MathNode.Row(emptyList()) to pos1
             }
+            "boxed" -> parseAtom(tokens, pos)
             "text" -> {
                 val (content, pos1) = parseAtom(tokens, pos)
                 val text = when (content) {

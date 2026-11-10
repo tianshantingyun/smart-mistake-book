@@ -63,7 +63,7 @@ fun DetailedAnswerPreviewSheet(
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(if (ready) "${preparation.items.size} 题答案已准备好" else "已准备 $completed/${preparation.items.size} 题",
                         style = MaterialTheme.typography.titleSmall, color = Ink)
-                    Text("按本次卷面的题号和版本排列。原题之后更新，也不会替换这里的内容。", style = MaterialTheme.typography.bodySmall, color = InkSecondary)
+                    Text("按本次组卷题号排列。", style = MaterialTheme.typography.bodySmall, color = InkSecondary)
                     if (!ready && !stopped && preparation.status != DetailedSolutionPreparationStatus.STALE) {
                         LinearProgressIndicator(Modifier.fillMaxWidth(), color = SmartColors.LearningAccent)
                         ClaudeTextButton(onStop, enabled = !busy) { Text("停止准备") }
@@ -74,9 +74,8 @@ fun DetailedAnswerPreviewSheet(
             preparation.items.forEach { item ->
                 var expanded by rememberSaveable(group.manifestId, item.ordinal) { mutableStateOf(item.ordinal == 1) }
                 val canExpand = item.document != null
-                val question = preparation.manifest.questions.single { it.ordinal == item.ordinal }
                 MistakeSectionCard(
-                    title = "第 ${item.ordinal} 题 · 第 ${question.revisionNumber} 版",
+                    title = "第 ${item.ordinal} 题",
                     headerColor = SmartColors.LearningSurface,
                 ) {
                     Row(Modifier.fillMaxWidth().then(if (canExpand) Modifier.clickable(role = Role.Button) { expanded = !expanded } else Modifier)
@@ -96,13 +95,16 @@ fun DetailedAnswerPreviewSheet(
                     ClaudeDisclosure(canExpand && expanded) {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             item.document?.let { document ->
-                                Text((if (document.origin == SolutionOrigin.MODEL) "智能体生成" else "已有解答") +
-                                    (if (document.verification == SolutionVerification.VERIFIED) " · 已核对" else " · 未经独立核对"),
-                                    style = MaterialTheme.typography.labelMedium, color = InkSecondary)
+                                document.teachingFigureOmission?.let { omission ->
+                                    WorkspaceNotice(
+                                        "${omission.reason}\n${omission.jsLimitation}",
+                                        tone = WorkspaceNoticeTone.INFO,
+                                    )
+                                }
                                 StructuredContentRenderer(document.steps, choicesEnabled = false, storedFigures = document.figures,
-                                    figureUri = { item.figureUris[it.assetId] })
+                                    figureUri = { item.figureUris[it.assetId] }, showStoredFigureCaptions = true)
                                 Text("最终答案", style = MaterialTheme.typography.titleSmall, color = Ink)
-                                SafeMarkdownText(document.finalAnswerMarkdown, MaterialTheme.typography.bodyLarge)
+                                com.tingyun.smartmistakebook.core.ui.TutorReplyMarkdown(document.finalAnswerMarkdown)
                             }
                         }
                     }

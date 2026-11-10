@@ -1,6 +1,9 @@
+@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+
 package com.tingyun.smartmistakebook.core.model
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -33,6 +36,16 @@ fun detailedSolutionFigureBasis(request: ModelTaskRequest, output: DetailedSolut
     (ModelTaskFingerprint.of(request) + "\n" + figureSha256Hex(ModelTaskCodec.encodeOutput(output).toByteArray(Charsets.UTF_8)) + "\n" + blockId).toByteArray(Charsets.UTF_8))
 
 @Serializable
+data class TeachingFigureOmission(val instructionalTarget: String, val jsLimitation: String, val reason: String) {
+    init {
+        listOf(instructionalTarget, jsLimitation, reason).forEach {
+            require(it.isNotBlank() && it.length <= 400)
+            requireEditText(it, 400)
+        }
+    }
+}
+
+@Serializable
 data class DetailedSolutionDocument(
     val basis: SolutionBasis,
     val finalAnswerMarkdown: String,
@@ -42,8 +55,11 @@ data class DetailedSolutionDocument(
     val verification: SolutionVerification,
     val requiredFigureBlockIds: Set<String> = emptySet(),
     val protocolVersion: String = DETAILED_SOLUTION_PROTOCOL_VERSION,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val teachingFigureOmission: TeachingFigureOmission? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val imageModelUnavailableAtPreparation: Boolean = false,
 ) {
     init {
+        require(teachingFigureOmission == null || imageModelUnavailableAtPreparation)
         require(protocolVersion == DETAILED_SOLUTION_PROTOCOL_VERSION)
         requireEditText(finalAnswerMarkdown, 8_000)
         require(finalAnswerMarkdown.isNotBlank() && steps.blocks.size in 1..96)
@@ -65,10 +81,23 @@ data class DetailedSolutionDocument(
 
 /** Figure integrity is a host fact; a DTO carrying a SHA never verifies a file by itself. */
 fun canReuseSolution(document: DetailedSolutionDocument, target: SolutionBasis,
-    figuresIntact: Boolean = document.figures.isEmpty(), revoked: Boolean = false): Boolean =
-    !revoked && document.basis == target && document.protocolVersion == DETAILED_SOLUTION_PROTOCOL_VERSION &&
+    figuresIntact: Boolean = document.figures.isEmpty(), revoked: Boolean = false, requireTeachingFigure: Boolean = false): Boolean =
+    (!requireTeachingFigure || hasCompleteTeachingIllustration(document)) && !revoked && document.basis == target && document.protocolVersion == DETAILED_SOLUTION_PROTOCOL_VERSION &&
         document.finalAnswerMarkdown.isNotBlank() && document.steps.blocks.isNotEmpty() && figuresIntact &&
         document.figures.map { it.blockId }.toSet() == document.requiredFigureBlockIds
+
+/** Strict readiness for new answer exports, independent of historic document decoding. */
+fun hasCompleteTeachingIllustration(document: DetailedSolutionDocument): Boolean =
+    document.requiredFigureBlockIds.isNotEmpty() ||
+        (document.teachingFigureOmission != null && document.imageModelUnavailableAtPreparation)
+
+/** Allows a retry to add diagrams while retaining the exact generic answer as frozen input. */
+fun canEnrichGenericSolution(existing: DetailedSolutionDocument, input: DetailedSolutionInput): Boolean =
+    existing.basis == input.question.basis && existing.figures.isEmpty() &&
+        (!hasCompleteTeachingIllustration(existing) ||
+            (existing.teachingFigureOmission != null && FigureGenerationMethod.IMAGE_MODEL in input.availableFigureMethods.orEmpty())) &&
+        input.existingGenericAnswer == existing &&
+        input.availableFigureMethods != null
 
 @Serializable
 data class FrozenExportQuestion(
@@ -134,12 +163,20 @@ data class FrozenAnswerManifest(
 }
 
 @Serializable @SerialName("mistake_solution")
-data class DetailedSolutionInput(val question: FrozenExportQuestion, val figureGenerationPromptBody: String? = null) : ModelTaskInput {
+data class DetailedSolutionInput(
+    val question: FrozenExportQuestion,
+    val figureGenerationPromptBody: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val availableFigureMethods: Set<FigureGenerationMethod>? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val existingGenericAnswer: DetailedSolutionDocument? = null,
+) : ModelTaskInput {
     override val kind: ModelTaskKind get() = ModelTaskKind.MISTAKE_SOLUTION
     override val subjectId: String get() = question.basis.revisionId
     override val isAgentConsentEligible: Boolean get() = true
     override val requestsImageBytes: Boolean get() = question.sourceImages.isNotEmpty()
-    init { require(figureGenerationPromptBody == null || figureGenerationPromptBody.length in 1..FigureGenerationPrompt.MAX_BODY_CHARS) }
+    init {
+        require(figureGenerationPromptBody == null || figureGenerationPromptBody.length in 1..FigureGenerationPrompt.MAX_BODY_CHARS)
+        require(existingGenericAnswer == null || existingGenericAnswer.basis == question.basis)
+    }
 }
 
 @Serializable

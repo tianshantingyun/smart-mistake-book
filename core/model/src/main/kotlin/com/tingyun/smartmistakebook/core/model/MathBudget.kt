@@ -220,6 +220,7 @@ data class MathMetrics(
     val lineSpacing: Float,
     val fracLineThickness: Float,
     val radicalExtraHeight: Float,
+    val measureTextWidth: ((text: String, fontSize: Float) -> Float)? = null,
 ) {
     companion object {
         /** The historical default: 16px text at 1x density. */
@@ -277,13 +278,18 @@ sealed interface MathBox {
         val content: String,
     ) : MathBox
 
+    data class ChildPosition(val x: Float, val y: Float)
+
     /** A horizontal arrangement of boxes. */
     data class HBox(
         val children: List<MathBox>,
         override val width: Float,
         override val height: Float,
         override val baseline: Float,
-    ) : MathBox
+        val childPositions: List<ChildPosition>? = null,
+    ) : MathBox {
+        init { require(childPositions == null || childPositions.size == children.size) }
+    }
 
     /** A vertical arrangement of boxes. */
     data class VBox(
@@ -300,6 +306,8 @@ sealed interface MathBox {
         override val width: Float,
         override val height: Float,
         override val baseline: Float,
+        val barY: Float? = null,
+        val denominatorY: Float? = null,
     ) : MathBox
 
     /** A radical (square root) box. */
@@ -367,21 +375,23 @@ object MathBoxBuilder {
     }
 
     private fun buildAtomBox(node: MathNode.Atom, metrics: MathMetrics): MathBox.Leaf {
-        val width = node.symbol.length * metrics.charWidth
+        val width = metrics.measureTextWidth?.invoke(node.symbol, metrics.charHeight)
+            ?: (node.symbol.length * metrics.charWidth)
         return MathBox.Leaf(
             width = width,
             height = metrics.charHeight,
-            baseline = metrics.charHeight * 0.4f,
+            baseline = metrics.charHeight * 0.8f,
             content = node.symbol,
         )
     }
 
     private fun buildTextBox(node: MathNode.Text, metrics: MathMetrics): MathBox.Leaf {
-        val width = node.value.length * metrics.charWidth
+        val width = metrics.measureTextWidth?.invoke(node.value, metrics.charHeight)
+            ?: (node.value.length * metrics.charWidth)
         return MathBox.Leaf(
             width = width,
             height = metrics.charHeight,
-            baseline = metrics.charHeight * 0.4f,
+            baseline = metrics.charHeight * 0.8f,
             content = node.value,
         )
     }
@@ -391,7 +401,8 @@ object MathBoxBuilder {
         val denBox = buildBox(node.denominator, metrics)
         val width = maxOf(numBox.width, denBox.width) + 2 * metrics.charWidth
         val height = numBox.height + denBox.height + metrics.lineSpacing + metrics.fracLineThickness
-        val baseline = denBox.height + metrics.lineSpacing / 2 + metrics.fracLineThickness / 2
+        val barY = numBox.height + metrics.lineSpacing / 2 + metrics.fracLineThickness / 2
+        val baseline = barY + metrics.charHeight * 0.3f
 
         return MathBox.FractionBox(
             numerator = numBox,
@@ -399,6 +410,8 @@ object MathBoxBuilder {
             width = width,
             height = height,
             baseline = baseline,
+            barY = barY,
+            denominatorY = numBox.height + metrics.lineSpacing + metrics.fracLineThickness,
         )
     }
 
@@ -418,50 +431,35 @@ object MathBoxBuilder {
         )
     }
 
-    private fun buildSuperscriptBox(node: MathNode.Superscript, metrics: MathMetrics): MathBox {
-        val baseBox = buildBox(node.base, metrics)
-        val expBox = buildBox(node.exponent, metrics)
-        val width = baseBox.width + expBox.width * 0.7f
-        val height = baseBox.height + expBox.height * 0.6f
-        val baseline = baseBox.baseline
+    private fun buildSuperscriptBox(node: MathNode.Superscript, metrics: MathMetrics): MathBox =
+        buildScriptBox(node.base, node.exponent, null, metrics)
 
-        return MathBox.HBox(
-            children = listOf(baseBox, expBox),
-            width = width,
-            height = height,
-            baseline = baseline,
-        )
-    }
+    private fun buildSubscriptBox(node: MathNode.Subscript, metrics: MathMetrics): MathBox =
+        buildScriptBox(node.base, null, node.index, metrics)
 
-    private fun buildSubscriptBox(node: MathNode.Subscript, metrics: MathMetrics): MathBox {
-        val baseBox = buildBox(node.base, metrics)
-        val indexBox = buildBox(node.index, metrics)
-        val width = baseBox.width + indexBox.width * 0.7f
-        val height = baseBox.height + indexBox.height * 0.6f
-        val baseline = baseBox.baseline + indexBox.height * 0.6f
+    private fun buildSuperscriptSubscriptBox(node: MathNode.SuperscriptSubscript, metrics: MathMetrics): MathBox =
+        buildScriptBox(node.base, node.exponent, node.index, metrics)
 
-        return MathBox.HBox(
-            children = listOf(baseBox, indexBox),
-            width = width,
-            height = height,
-            baseline = baseline,
-        )
-    }
-
-    private fun buildSuperscriptSubscriptBox(node: MathNode.SuperscriptSubscript, metrics: MathMetrics): MathBox {
-        val baseBox = buildBox(node.base, metrics)
-        val expBox = node.exponent?.let { buildBox(it, metrics) }
-        val indexBox = node.index?.let { buildBox(it, metrics) }
-        val width = baseBox.width + maxOf(expBox?.width ?: 0f, indexBox?.width ?: 0f) * 0.7f
-        val height = baseBox.height + maxOf(expBox?.height ?: 0f, indexBox?.height ?: 0f) * 0.6f
-        val baseline = baseBox.baseline + (indexBox?.height ?: 0f) * 0.6f
-
-        return MathBox.HBox(
-            children = listOfNotNull(baseBox, expBox, indexBox),
-            width = width,
-            height = height,
-            baseline = baseline,
-        )
+    private fun buildScriptBox(base: MathNode, exponent: MathNode?, index: MathNode?, metrics: MathMetrics): MathBox {
+        val script = metrics.copy(charWidth = metrics.charWidth * .72f, charHeight = metrics.charHeight * .72f,
+            lineSpacing = metrics.lineSpacing * .72f, fracLineThickness = metrics.fracLineThickness * .72f,
+            radicalExtraHeight = metrics.radicalExtraHeight * .72f)
+        val baseBox = buildBox(base, metrics)
+        val superscript = exponent?.let { buildBox(it, script) }
+        val subscript = index?.let { buildBox(it, script) }
+        val baseY = (superscript?.height ?: 0f) * .6f
+        val scriptX = baseBox.width + metrics.charWidth * .12f
+        val children = mutableListOf<MathBox>(baseBox)
+        val positions = mutableListOf(MathBox.ChildPosition(0f, baseY))
+        superscript?.let { children += it; positions += MathBox.ChildPosition(scriptX, 0f) }
+        subscript?.let {
+            children += it
+            positions += MathBox.ChildPosition(scriptX, baseY + baseBox.baseline + metrics.charHeight * .12f)
+        }
+        return MathBox.HBox(children,
+            width = scriptX + maxOf(superscript?.width ?: 0f, subscript?.width ?: 0f),
+            height = children.indices.maxOf { positions[it].y + children[it].height },
+            baseline = baseY + baseBox.baseline, childPositions = positions)
     }
 
     private fun buildDelimitedBox(node: MathNode.Delimited, metrics: MathMetrics): MathBox {
@@ -561,41 +559,37 @@ object MathBoxBuilder {
         )
     }
 
-    private fun buildGroupBox(node: MathNode.Group, metrics: MathMetrics): MathBox {
-        val childBoxes = node.children.map { buildBox(it, metrics) }
-        val totalWidth = childBoxes.sumOf { it.width.toDouble() }.toFloat()
-        val maxHeight = childBoxes.maxOfOrNull { it.height } ?: 0f
-        val maxBaseline = childBoxes.maxOfOrNull { it.baseline } ?: 0f
-
-        return MathBox.HBox(
-            children = childBoxes,
-            width = totalWidth,
-            height = maxHeight,
-            baseline = maxBaseline,
-        )
-    }
+    private fun buildGroupBox(node: MathNode.Group, metrics: MathMetrics): MathBox =
+        buildHorizontalBox(node.children.map { buildBox(it, metrics) }) { 0f }
 
     private fun buildRowBox(node: MathNode.Row, metrics: MathMetrics): MathBox {
-        val childBoxes = node.items.map { buildBox(it, metrics) }
-        val totalWidth = childBoxes.sumOf { it.width.toDouble() }.toFloat() +
-            (childBoxes.size - 1) * metrics.charWidth
-        val maxHeight = childBoxes.maxOfOrNull { it.height } ?: 0f
-        val maxBaseline = childBoxes.maxOfOrNull { it.baseline } ?: 0f
+        fun needsSpace(item: MathNode): Boolean = item is MathNode.Operator ||
+            item is MathNode.Atom && item.symbol in setOf("=", "+", "-", "−", "≤", "≥", "<", ">", "≠", "≈", "→", "⇌", "×", "·")
+        return buildHorizontalBox(node.items.map { buildBox(it, metrics) }) { index ->
+            if (index > 0 && (needsSpace(node.items[index - 1]) || needsSpace(node.items[index])))
+                metrics.charWidth * .4f else 0f
+        }
+    }
 
-        return MathBox.HBox(
-            children = childBoxes,
-            width = totalWidth,
-            height = maxHeight,
-            baseline = maxBaseline,
-        )
+    private fun buildHorizontalBox(children: List<MathBox>, gapBefore: (Int) -> Float): MathBox {
+        val baseline = children.maxOfOrNull { it.baseline } ?: 0f
+        val descent = children.maxOfOrNull { it.height - it.baseline } ?: 0f
+        var x = 0f
+        val positions = children.mapIndexed { index, child ->
+            x += gapBefore(index)
+            MathBox.ChildPosition(x, baseline - child.baseline).also { x += child.width }
+        }
+        return MathBox.HBox(children, width = x,
+            height = baseline + descent, baseline = baseline, childPositions = positions)
     }
 
     private fun buildOperatorBox(node: MathNode.Operator, metrics: MathMetrics): MathBox.Leaf {
-        val width = node.symbol.length * metrics.charWidth + metrics.charWidth
+        val width = (metrics.measureTextWidth?.invoke(node.symbol, metrics.charHeight)
+            ?: (node.symbol.length * metrics.charWidth)) + metrics.charWidth
         return MathBox.Leaf(
             width = width,
             height = metrics.charHeight,
-            baseline = metrics.charHeight * 0.4f,
+            baseline = metrics.charHeight * 0.8f,
             content = node.symbol,
         )
     }

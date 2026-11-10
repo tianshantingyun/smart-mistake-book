@@ -6,6 +6,23 @@ import org.junit.Test
 
 class StreamingBlocksTest {
     @Test
+    fun streamingFiguresShowPreparationWhileCodeAndSpacingStayLiteral() {
+        assertEquals("正在准备配图…", tutorStreamingDisplayText("[[figure:asset-a]]"))
+        assertEquals("正在准备思考题…", tutorStreamingDisplayText("[[question]]"))
+        val literal = "```text\n[[figure:asset-a]]\n```\n"
+        assertEquals(literal, tutorStreamingDisplayText(literal))
+        assertEquals("继续输入 ", tutorStreamingDisplayText("继续输入 "))
+    }
+
+    @Test
+    fun tildeFencesAndLongerBacktickFencesKeepLiteralMathTogether() {
+        val tilde = "~~~text\n§§x^2§§\n\n仍在代码里\n~~~".replace('§', '$')
+        assertEquals(listOf(tilde), splitStreamingBlocks("$tilde\n\n后文").completed)
+        val backticks = "````text\n```\n\n仍在代码里\n````"
+        assertEquals(listOf(backticks), splitStreamingBlocks("$backticks\n\n后文").completed)
+    }
+
+    @Test
     fun blankLinesCloseBlocksAndTheGrowingTailStaysSeparate() {
         val blocks = splitStreamingBlocks("第一段讲完了。\n\n第二段还在继")
 

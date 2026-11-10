@@ -44,11 +44,11 @@ fun Modifier.claudeSurfaceShadow(
     val strength = emphasis.coerceIn(0f, 1.5f)
     return dropShadow(shape, Shadow(
         radius = if (floating) 6.dp else 2.dp,
-        color = Ink.copy(alpha = .045f * strength),
+        color = Ink.copy(alpha = .025f * strength),
         offset = DpOffset(0.dp, if (floating) 2.dp else 1.dp),
     )).dropShadow(shape, Shadow(
         radius = if (floating) 24.dp else if (composer) 20.dp else 8.dp,
-        color = Ink.copy(alpha = (if (floating) .12f else if (composer) .055f else .065f) * strength),
+        color = Ink.copy(alpha = (if (floating) .085f else if (composer) .045f else .025f) * strength),
         offset = DpOffset(0.dp, if (floating) 8.dp else if (composer) 4.dp else 2.dp),
     ))
 }
@@ -101,9 +101,9 @@ fun ClaudeCard(
     val motion = LocalClaudeMotionEnabled.current
     val targetFill = if (pressed) SubtleSurface else if (hovered) Paper else ContentSurface
     val targetShadow = when {
-        pressed -> .7f
-        hovered || focused -> 1.15f
-        else -> 1f
+        pressed -> .45f
+        hovered || focused -> .9f
+        else -> .65f
     }
     val duration = if (pressed) ClaudeMotion.PressMillis else ClaudeMotion.ReleaseMillis
     val fill = if (motion) animateColorAsState(targetFill, ClaudeMotion.spec(true, duration),
@@ -114,7 +114,7 @@ fun ClaudeCard(
         Surface(onClick = onClick, modifier = modifier.then(if (elevation > 0.dp)
             Modifier.claudeSurfaceShadow(shape, emphasis = shadowStrength) else Modifier), shape = shape, color = fill,
             border = if (focused) BorderStroke(2.dp, claudeFocusIndicatorColor(fill))
-                else if (bordered) BorderStroke(1.dp, Ink.copy(alpha = .1f)) else null,
+                else if (bordered) BorderStroke(.5.dp, SmartColors.Divider) else null,
             shadowElevation = 0.dp,
             interactionSource = source, content = content)
     }

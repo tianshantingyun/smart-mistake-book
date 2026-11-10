@@ -222,6 +222,17 @@ data class StageTutorVisualSnapshotCommand(
     }
 }
 
+/** A final local drawing owned by a generated asset, including non-chat exports. */
+data class CommitGeneratedVisualArtifactCommand(
+    val staging: StageTutorVisualSnapshotCommand,
+    val demoteCheckpointSnapshotIds: List<String> = emptyList(),
+) {
+    init {
+        require(staging.snapshot.previewAssetId != null) { "A published static drawing needs its frozen preview" }
+        require(demoteCheckpointSnapshotIds.none(String::isBlank))
+    }
+}
+
 /**
  * S4（设计 §3.3）：**首张可见图与 assistant message/正文/tool trace/link 同一个事务**。
  *

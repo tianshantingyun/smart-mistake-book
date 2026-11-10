@@ -53,6 +53,8 @@ import kotlinx.coroutines.CancellationException
  */
 fun interface TutorFigureGenerator {
     suspend fun generate(request: TutorFigureRequest): TutorFigureResult
+    fun supports(method: com.tingyun.smartmistakebook.core.model.FigureGenerationMethod): Boolean =
+        method == com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL
 }
 
 /**
@@ -92,6 +94,8 @@ data class TutorFigureRequest(
     val problemContext: String? = null,
     /** 父模型任务 requestId；null = 直调（账本会拒绝，不出网）。 */
     val parentOperationId: String? = null,
+    val method: com.tingyun.smartmistakebook.core.model.FigureGenerationMethod = com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL,
+    val program: String? = null,
 ) {
     init {
         require(description.isNotBlank()) { "A figure request needs a non-blank description" }
@@ -102,7 +106,7 @@ data class TutorFigureRequest(
         }
         // EDIT 的语义就是"基于已授权源图"：没有源图就不可能成立，必须在构造层拒绝，
         // 而不是让生成器带着空源图走到通道。
-        require(imageOperation != FigureImageOperation.EDIT || sourceSheet != null) {
+        require(method == com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.JS || imageOperation != FigureImageOperation.EDIT || sourceSheet != null) {
             "An EDIT figure request requires the current problem's canonical source sheet"
         }
         imagePrompt?.let { prompt ->
@@ -314,7 +318,44 @@ internal class ConfiguredTutorFigureGenerator(
             now = now,
         )
 
+    override fun supports(method: com.tingyun.smartmistakebook.core.model.FigureGenerationMethod): Boolean =
+        method == com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL || coordinator != null
+
+    private suspend fun generateJs(request: TutorFigureRequest): TutorFigureResult {
+        val parent = request.parentOperationId ?: return failed("绘图请求缺少所属讲解")
+        val program = request.program?.takeIf(String::isNotBlank) ?: return failed("绘图程序为空")
+        val purpose = request.kind.figureGenerationPurpose()
+        val operationId = requireNotNull(request.sharedFigureOperationId())
+        val capabilities = effectiveCoordinator.capabilities()
+        val fidelity = if (request.kind == TutorFigureKind.REDRAW_PROBLEM) FigureFidelity.FAITHFUL else FigureFidelity.ILLUSTRATIVE
+        val budget = sharedOperationFigureBudget(reserveChatFinalAnswer = true)
+        val generationRequest = FigureGenerationRequest(
+            operationId, purpose, FigureGenerationTarget(fidelity, requiresCompleteLabels = true),
+            capabilities, budget, FigureDispatchParent.ModelTask(parent, reserveChatFinalAnswer = true),
+            problemContext = request.problemContext,
+            prompt = FigurePromptAssembler.assemble(purpose, capabilities, budget),
+            sourceKind = FigureGenerationSourceKind.TUTOR_MESSAGE, sourceId = parent,
+            basisFingerprint = com.tingyun.smartmistakebook.core.model.figureJsBasisFingerprint(operationId, null, program),
+        )
+        val result = effectiveCoordinator.generate(generationRequest,
+            com.tingyun.smartmistakebook.core.model.FigureGenerationProposal(
+                decision = com.tingyun.smartmistakebook.core.model.FigureGenerationDecision.GENERATE,
+                purpose = purpose, method = com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.JS,
+                reason = request.description, fidelity = fidelity, program = program,
+            ))
+        val artifact = result.artifact as? FigureArtifact.Program
+        val asset = artifact?.previewAssetId?.let { lookupGenerated(it) }
+        if (artifact?.snapshotId != null && asset != null && isIntact(asset)) {
+            return TutorFigureResult(asset.sourceAssetId, TutorFigureStatus.GENERATED,
+                generatedNow = false, operationId = operationId)
+        }
+        return if (result.status == FigureGenerationStatus.UNAVAILABLE) TutorFigureResult(
+            null, TutorFigureStatus.UNAVAILABLE, diagnostics = result.diagnostics, operationId = operationId)
+        else failed(result.diagnostics ?: "JS 配图未完成，请重试", operationId)
+    }
+
     override suspend fun generate(request: TutorFigureRequest): TutorFigureResult {
+        if (request.method == com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.JS) return generateJs(request)
         // 先解析请求与幂等键（纯本地）：命中缓存时**不需要凭证**，也不再出网。
         val channelRequest = request.toChannelRequest()
             ?: return failed("源图读取失败，未生成（不把被替换的字节发出去）")
@@ -327,7 +368,7 @@ internal class ConfiguredTutorFigureGenerator(
             format = channelRequest.outputFormat,
         )
         // 稳定逻辑操作 id：不含 method，换方法/重试沿用同一个身份。
-        val operationId = "figure-op:${request.kind.name}:$figureId"
+        val operationId = request.sharedFigureOperationId() ?: "figure-op:${request.kind.name}:$figureId"
         val existing = lookupGenerated(figureId)
         if (existing != null) {
             // 行在但文件坏了：不出网、不重付（"一次生成一次付费"是硬规则），如实失败。
@@ -572,4 +613,9 @@ internal class ConfiguredTutorFigureGenerator(
             diagnostics = diagnostics?.take(TutorFigureResult.MAX_DIAGNOSTICS_CHARS),
             operationId = operationId,
         )
+}
+
+private fun TutorFigureRequest.sharedFigureOperationId(): String? = parentOperationId?.let { parent ->
+    val identity = "$parent|${kind.name}|$description|${sourceSheet?.contentSha256.orEmpty()}"
+    "figure-op:${kind.name}:" + figureSha256Hex(identity.toByteArray(Charsets.UTF_8))
 }

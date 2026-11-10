@@ -2,6 +2,8 @@ package com.tingyun.smartmistakebook.core.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.EncodeDefault
+import kotlinx.serialization.ExperimentalSerializationApi
 
 /** Coarse, privacy-preserving evidence disclosed for one tutor plan. */
 @Serializable
@@ -258,6 +260,8 @@ data class TutorPlanInput(
      */
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val visualContext: TutorVisualContext? = null,
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val figureGenerationCapabilities: FigureGenerationCapabilities? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_PLAN
@@ -488,6 +492,8 @@ data class TutorRespondInput(
     /** 4E WG-04b（schema 18）：与 [TutorPlanInput.visualContext] 同一口径。 */
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val visualContext: TutorVisualContext? = null,
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val figureGenerationCapabilities: FigureGenerationCapabilities? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_RESPOND
@@ -907,6 +913,13 @@ data class TutorPlanOutput(
      * `TutorChatConversation`/`AttachedImagesSection`；Plan 输出没有配图渲染面，历史如此）。
      */
     val attachedImages: List<AttachedImage> = emptyList(),
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val teachingFigureOmission: TeachingFigureOmission? = null,
+    /** Host trace retained with completion so process recovery preserves the same figure references. */
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val deliveryToolTraceJson: String? = null,
 ) : ModelTaskOutput {
     init {
         sessionId.requireSafeModelText("Tutor output session id", ModelTaskRequest.MAX_ID_CHARS, false)
@@ -960,6 +973,13 @@ data class TutorRespondOutput(
      */
     val boundQuestion: TutorRoundQuestionDeclaration? = null,
     val modelVersion: String,
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val teachingFigureOmission: TeachingFigureOmission? = null,
+    /** Host trace retained with completion so process recovery preserves the same figure references. */
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val deliveryToolTraceJson: String? = null,
 ) : ModelTaskOutput {
     init {
         sessionId.requireSafeModelText("Tutor response output session id", ModelTaskRequest.MAX_ID_CHARS, false)

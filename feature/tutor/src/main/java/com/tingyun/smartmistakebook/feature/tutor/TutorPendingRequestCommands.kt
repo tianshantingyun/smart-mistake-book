@@ -378,6 +378,7 @@ internal class TutorPendingRequestCoordinator(
             admission = admission,
             occurredAtEpochMillis = System.currentTimeMillis(),
         ) ?: return false
+        if (!suspension.request.isPending()) return false
         updateState { state ->
             state.copy(
                 pendingRequestCards = (state.pendingRequestCards + suspension.request)

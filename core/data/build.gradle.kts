@@ -204,6 +204,7 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:domain"))
     implementation(project(":core:database"))
+    implementation("org.commonmark:commonmark:0.21.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.exifinterface)

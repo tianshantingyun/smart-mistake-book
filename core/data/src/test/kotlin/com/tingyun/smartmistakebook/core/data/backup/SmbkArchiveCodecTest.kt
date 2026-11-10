@@ -44,11 +44,13 @@ class SmbkArchiveCodecTest {
         val manifest = json.decodeFromString(SmbkManifest.serializer(), manifestText(bytes))
         val errorTables = setOf("error_cause_observation", "error_cause_binding")
         val paperTables = setOf("paper_review", "paper_review_question", "paper_review_photo")
+        val replyTables = setOf("tutor_reply_group", "tutor_reply_version", "tutor_reply_version_answer")
         val historical = listOf(
             Triple(4, ClosureRuleTables.v4.rowCountKeys, 91),
             Triple(5, ClosureRuleTables.v5.rowCountKeys, 92),
-            Triple(4, SmbkSelectionPlan.rowCountKeys - errorTables - paperTables, 94),
-            Triple(5, SmbkSelectionPlan.rowCountKeys - errorTables, 97),
+            Triple(6, ClosureRuleTables.v6.rowCountKeys, 99),
+            Triple(4, SmbkSelectionPlan.rowCountKeys - replyTables - errorTables - paperTables, 94),
+            Triple(5, SmbkSelectionPlan.rowCountKeys - replyTables - errorTables, 97),
         )
         historical.forEach { (version, keys, expectedSize) ->
             val oldCounts = keys.associateWith { 0L }
@@ -1627,7 +1629,7 @@ class SmbkArchiveCodecTest {
             // 键集合门在摘要/投影校验之前：92 键的 v4 声明必须按"91 表"拒绝。
             "rowCounts" to base.copy(rowCounts = emptyRowCounts(), closureDigest = "0".repeat(64)),
             "closureVersion" to base.copy(closureVersion = 3),
-            "closureVersion" to base.copy(closureVersion = 7),
+            "closureVersion" to base.copy(closureVersion = 8),
             "knowledge_search_material_feature" to base.copy(
                 rowCounts = base.rowCounts.toMutableMap().apply {
                     put("knowledge_search_material_feature", 1L)

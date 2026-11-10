@@ -27,6 +27,10 @@ internal data class TutorConversationUiState(
     val conversationId: String = "",
     val conversation: TutorConversation? = null,
     val messages: List<TutorMessage> = emptyList(),
+    val replyVersions: List<com.tingyun.smartmistakebook.core.domain.TutorReplyVersion> = emptyList(),
+    val viewedReplyVersions: Map<String, String> = emptyMap(),
+    val replyChoiceDrafts: Map<String, String> = emptyMap(),
+    val regeneratingRequestId: String? = null,
     /** 大厅任务台账（K1a 之后只提供状态、失败卡与在途判定；正文一律从消息行来）。 */
     val tasks: List<ModelTaskSnapshot> = emptyList(),
     val draft: String = "",

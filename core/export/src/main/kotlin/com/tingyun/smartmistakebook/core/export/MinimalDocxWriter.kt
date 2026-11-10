@@ -156,12 +156,15 @@ internal object MinimalDocxWriter {
         drawingId: Int,
         extentCx: Long,
         extentCy: Long,
+        centered: Boolean = false,
     ): String {
         require(drawingId > 0) { "A drawing id must be positive" }
         require(extentCx > 0 && extentCy > 0) { "A drawing extent must be positive" }
         val name = image.partName.substringAfterLast('/')
         return buildString {
-            append("<w:p><w:r><w:drawing>")
+            append("<w:p>")
+            if (centered) append("<w:pPr><w:jc w:val=\"center\"/></w:pPr>")
+            append("<w:r><w:drawing>")
             append("<wp:inline distT=\"0\" distB=\"0\" distL=\"0\" distR=\"0\">")
             append("<wp:extent cx=\"").append(extentCx).append("\" cy=\"").append(extentCy).append("\"/>")
             append("<wp:docPr id=\"").append(drawingId).append("\" name=\"")
