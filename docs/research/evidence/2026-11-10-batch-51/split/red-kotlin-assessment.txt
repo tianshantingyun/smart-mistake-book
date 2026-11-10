@@ -1,0 +1,120 @@
+Calculating task graph as no cached configuration is available for tasks: :core:data:testDebugUnitTest --tests *Assessment*
+
+> Configure project :app
+WARNING: The option setting 'android.overridePathCheck=true' is experimental.
+The current default is 'false'.
+Add android.sync.suppressAgpWarnings=UNSUPPORTED_PROJECT_OPTION_USE to the gradle.properties file to suppress this warning.
+WARNING: BuildType 'internal' is both debuggable and has 'isMinifyEnabled' set to true.
+All code optimizations and obfuscation are disabled for debuggable builds.
+Add android.sync.suppressAgpWarnings=DEBUGGABLE_AND_MINIFIED_ENABLED to the gradle.properties file to suppress this warning.
+WARNING: BuildType 'internal' is both debuggable and has 'isMinifyEnabled' set to true.
+All code optimizations and obfuscation are disabled for debuggable builds.
+Add android.sync.suppressAgpWarnings=DEBUGGABLE_AND_MINIFIED_ENABLED to the gradle.properties file to suppress this warning.
+
+> Task :core:model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:data:preBuild UP-TO-DATE
+> Task :core:domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:database:preBuild UP-TO-DATE
+> Task :core:database:preDebugBuild UP-TO-DATE
+> Task :core:data:preDebugBuild UP-TO-DATE
+> Task :core:domain:processResources NO-SOURCE
+> Task :core:model:processResources NO-SOURCE
+> Task :core:data:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:data:patchLitertApiAar UP-TO-DATE
+> Task :core:data:javaPreCompileDebug UP-TO-DATE
+> Task :core:database:javaPreCompileDebug UP-TO-DATE
+> Task :core:database:processDebugNavigationResources UP-TO-DATE
+> Task :core:data:generateDebugResources UP-TO-DATE
+> Task :core:database:generateDebugResources UP-TO-DATE
+> Task :core:data:processDebugNavigationResources UP-TO-DATE
+> Task :core:data:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :core:database:packageDebugResources UP-TO-DATE
+> Task :core:data:packageDebugResources UP-TO-DATE
+> Task :core:model:compileKotlin UP-TO-DATE
+> Task :core:database:parseDebugLocalResources UP-TO-DATE
+> Task :core:data:parseDebugLocalResources UP-TO-DATE
+> Task :core:model:compileJava NO-SOURCE
+> Task :core:model:classes UP-TO-DATE
+> Task :core:database:generateDebugRFile UP-TO-DATE
+> Task :core:data:generateDebugRFile UP-TO-DATE
+> Task :core:model:jar UP-TO-DATE
+> Task :core:database:kspDebugKotlin UP-TO-DATE
+> Task :core:domain:compileKotlin UP-TO-DATE
+> Task :core:domain:compileJava NO-SOURCE
+> Task :core:domain:classes UP-TO-DATE
+> Task :core:domain:jar UP-TO-DATE
+> Task :core:database:compileDebugKotlin UP-TO-DATE
+> Task :core:database:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:database:copyRoomSchemas NO-SOURCE
+> Task :core:database:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:database:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:database:processDebugJavaRes UP-TO-DATE
+> Task :core:data:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :core:data:compileDebugKotlin UP-TO-DATE
+> Task :core:data:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:data:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:data:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:data:processDebugJavaRes UP-TO-DATE
+
+> Task :core:data:compileDebugUnitTestKotlin
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/BundledKnowledgeNodesContractTest.kt:90:20 Redundant creation of Json format. Creating instances for each usage can be slow.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/ProductionLexicalLegExportTest.kt:147:9 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'File?'.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/Stage2LexicalScoresExportTest.kt:136:9 Only safe (?.) or non-null asserted (!!.) calls are allowed on a nullable receiver of type 'File?'.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/GoldenSplitEvalChannelHarness.kt:88:17 Redundant creation of Json format. Creating instances for each usage can be slow.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/GoldenSplitEvalChannelHarness.kt:114:13 Redundant creation of Json format. Creating instances for each usage can be slow.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ImageDispatchReservationGuardTest.kt:215:30 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/ImageDispatchReservationGuardTest.kt:220:30 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiImageGenerationChannelTest.kt:104:47 This 'copy()' exposes the non-public primary constructor of a 'data class'. See the appropriate 'data class' documentation or contact the 'data class' author for migration guidance. This will become an error in language version 2.5. See https://youtrack.jetbrains.com/issue/KT-11914.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiImageGenerationChannelTest.kt:112:54 This 'copy()' exposes the non-public primary constructor of a 'data class'. See the appropriate 'data class' documentation or contact the 'data class' author for migration guidance. This will become an error in language version 2.5. See https://youtrack.jetbrains.com/issue/KT-11914.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/LongRangeSampleLedgerReadTest.kt:98:28 Unnecessary non-null assertion (!!) on a non-null receiver of type 'LongRangeSampleLedgerReport'.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/ReviewCapacitySchedulerTest.kt:92:27 Unnecessary non-null assertion (!!) on a non-null receiver of type 'RebalancePlan'.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepositoryTest.kt:4214:26 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepositoryTest.kt:4285:26 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepositoryTest.kt:4289:26 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepositoryTest.kt:4291:26 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepositoryTest.kt:4293:26 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomTutorToolRunnerTest.kt:1751:36 Unnecessary safe call on a non-null receiver of type 'TutorToolFigureTrace'.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/visual/FigureGenerationEntrySourceTest.kt:162:28 Unnecessary non-null assertion (!!) on a non-null receiver of type 'Pair<String, String>'.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/visual/TutorVisualPreviewAssemblyTest.kt:289:30 Unnecessary non-null assertion (!!) on a non-null receiver of type 'String'.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/visual/VisualDrawOpsPainterPureTest.kt:210:20 Check for instance is always 'true'.
+w: file:///D:/smart%20mistake%20book/core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/visual/VisualMeasuredLayoutArtifactTest.kt:62:41 Unnecessary non-null assertion (!!) on a non-null receiver of type 'List<VisualMeasuredLayoutArtifact.Line>'.
+
+> Task :core:data:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:data:processDebugUnitTestJavaRes UP-TO-DATE
+
+> Task :core:data:testDebugUnitTest
+
+OpenAiCaptureAssessmentAdapterTest > single page prompt states the six split rules and region bounds FAILED
+    java.lang.AssertionError at OpenAiCaptureAssessmentAdapterTest.kt:163
+
+OpenAiCaptureAssessmentAdapterTest > single page prompt pins the five assessment wire keys and forbids type FAILED
+    java.lang.AssertionError at OpenAiCaptureAssessmentAdapterTest.kt:145
+
+OpenAiCaptureAssessmentAdapterTest > single page prompt ships a shape example FAILED
+    java.lang.AssertionError at OpenAiCaptureAssessmentAdapterTest.kt:154
+
+15 tests completed, 3 failed
+
+> Task :core:data:testDebugUnitTest FAILED
+
+[Incubating] Problems report is available at: file:///D:/smart%20mistake%20book/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':core:data:testDebugUnitTest'.
+> There were failing tests. See the report at: file:///D:/smart%20mistake%20book/core/data/build/reports/tests/testDebugUnitTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.6.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 18s
+31 actionable tasks: 2 executed, 29 up-to-date
+Configuration cache entry stored.
+EXIT=1

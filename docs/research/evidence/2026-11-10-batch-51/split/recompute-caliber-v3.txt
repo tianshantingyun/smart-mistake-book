@@ -1,0 +1,458 @@
+== batch48_all_24
+   app=docs/research/evidence/2026-11-07-batch-48/splitter/app-split-golden-v2-final.json
+   golden=tools/split_golden/tables/split_golden_v2.json
+   decisionSource=export caliber=v3 singleQuestionUnverified=0
+   old v2 ¢Ù = 10/24 = 0.4167
+   new v3 ¢Ù = 10/24 = 0.4167
+   ¢Û = 3/78 = 0.0385; fragmented=3
+   abstain=5 pages=['IMG20260810004511.jpg', 'IMG20260810004854.jpg', 'IMG20260810004952.jpg', 'IMG20260810005605.jpg', 'IMG20260810010633.jpg']
+   notEvaluable=2 pages=['IMG20260810005144.jpg', 'IMG20260810011358.jpg']
+   changedPagesV2=[]
+   missingAppPages=[]
+     IMG20260810003928.jpg    gold=4 app=4  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810004304.jpg    gold=1 app=0  class=ACCEPTED_NO_SPLIT      v2=T v3=T status='OK' decision='PASS'
+     IMG20260810004353.jpg    gold=2 app=2  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810004511.jpg    gold=3 app=0  class=ABSTAIN                v2=F v3=F status='OK' decision='NEED_MORE_IMAGE'
+     IMG20260810004854.jpg    gold=2 app=0  class=ABSTAIN                v2=F v3=F status='OK' decision='NEED_MORE_IMAGE'
+     IMG20260810004952.jpg    gold=2 app=0  class=ABSTAIN                v2=F v3=F status='OK' decision='NEED_MORE_IMAGE'
+     IMG20260810005144.jpg    gold=7 app=0  class=NOT_EVALUABLE_CHANNEL  v2=F v3=F status='ERROR' decision=None
+     IMG20260810005301.jpg    gold=3 app=3  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810005605.jpg    gold=2 app=0  class=ABSTAIN                v2=F v3=F status='OK' decision='NEED_MORE_IMAGE'
+     IMG20260810005711.jpg    gold=3 app=3  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810005855.jpg    gold=3 app=3  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810010034.jpg    gold=6 app=5  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810010202.jpg    gold=3 app=3  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810010306.jpg    gold=4 app=3  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810010349.jpg    gold=4 app=4  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810010633.jpg    gold=3 app=0  class=ABSTAIN                v2=F v3=F status='OK' decision='NEED_MORE_IMAGE'
+     IMG20260810010859.jpg    gold=4 app=3  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810011017.jpg    gold=3 app=0  class=ACCEPTED_NO_SPLIT      v2=F v3=F status='OK' decision='PASS'
+     IMG20260810011126.jpg    gold=2 app=0  class=ACCEPTED_NO_SPLIT      v2=F v3=F status='OK' decision='PASS'
+     IMG20260810011248.jpg    gold=5 app=4  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810011358.jpg    gold=5 app=0  class=NOT_EVALUABLE_CHANNEL  v2=F v3=F status='ERROR' decision=None
+     IMG20260810011649.jpg    gold=3 app=2  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810011800.jpg    gold=1 app=0  class=ACCEPTED_NO_SPLIT      v2=T v3=T status='OK' decision='PASS'
+     IMG20260810012103.jpg    gold=3 app=3  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+
+== batch48_acceptance_8
+   app=docs/research/evidence/2026-11-07-batch-48/splitter/acceptance-once-01-export.json
+   golden=docs/research/evidence/2026-11-07-batch-48/splitter/golden-v2-acceptance-slice.json
+   decisionSource=export caliber=v3 singleQuestionUnverified=0
+   old v2 ¢Ù = 5/8 = 0.6250
+   new v3 ¢Ù = 5/8 = 0.6250
+   ¢Û = 3/26 = 0.1154; fragmented=3
+   abstain=1 pages=['IMG20260810004952.jpg']
+   notEvaluable=1 pages=['IMG20260810011358.jpg']
+   changedPagesV2=[]
+   missingAppPages=[]
+     IMG20260810003928.jpg    gold=4 app=4  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810004353.jpg    gold=2 app=2  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810004952.jpg    gold=2 app=0  class=ABSTAIN                v2=F v3=F status='OK' decision='NEED_MORE_IMAGE'
+     IMG20260810005711.jpg    gold=3 app=3  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810010034.jpg    gold=6 app=5  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810010202.jpg    gold=3 app=3  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810011358.jpg    gold=5 app=0  class=NOT_EVALUABLE_CHANNEL  v2=F v3=F status='ERROR' decision=None
+     IMG20260810011800.jpg    gold=1 app=0  class=ACCEPTED_NO_SPLIT      v2=T v3=T status='OK' decision='PASS'
+
+== batch50_all_24
+   app=docs/research/evidence/2026-11-09-batch-50/split-gate/app-split-b50-final.json
+   golden=tools/split_golden/tables/split_golden_v2.json
+   decisionSource=export caliber=v3 singleQuestionUnverified=0
+   old v2 ¢Ù = 7/24 = 0.2917
+   new v3 ¢Ù = 6/24 = 0.2500
+   ¢Û = 1/78 = 0.0128; fragmented=1
+   abstain=2 pages=['IMG20260810004854.jpg', 'IMG20260810005605.jpg']
+   notEvaluable=5 pages=['IMG20260810004952.jpg', 'IMG20260810010306.jpg', 'IMG20260810010633.jpg', 'IMG20260810011017.jpg', 'IMG20260810011800.jpg']
+   changedPagesV2=['IMG20260810011800.jpg']
+   missingAppPages=[]
+     IMG20260810003928.jpg    gold=4 app=4  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810004304.jpg    gold=1 app=0  class=ACCEPTED_NO_SPLIT      v2=T v3=T status='OK' decision='PASS'
+     IMG20260810004353.jpg    gold=2 app=2  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810004511.jpg    gold=3 app=2  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810004854.jpg    gold=2 app=0  class=ABSTAIN                v2=F v3=F status='OK' decision='NEED_MORE_IMAGE'
+     IMG20260810004952.jpg    gold=2 app=0  class=NOT_EVALUABLE_CHANNEL  v2=F v3=F status='ERROR' decision=None
+     IMG20260810005144.jpg    gold=7 app=0  class=SPLIT_UNUSABLE         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810005301.jpg    gold=3 app=2  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810005605.jpg    gold=2 app=0  class=ABSTAIN                v2=F v3=F status='OK' decision='NEED_MORE_IMAGE'
+     IMG20260810005711.jpg    gold=3 app=2  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810005855.jpg    gold=3 app=3  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810010034.jpg    gold=6 app=5  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810010202.jpg    gold=3 app=2  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810010306.jpg    gold=4 app=0  class=NOT_EVALUABLE_CHANNEL  v2=F v3=F status='ERROR' decision=None
+     IMG20260810010349.jpg    gold=4 app=4  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810010633.jpg    gold=3 app=0  class=NOT_EVALUABLE_CHANNEL  v2=F v3=F status='ERROR' decision=None
+     IMG20260810010859.jpg    gold=4 app=3  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810011017.jpg    gold=3 app=0  class=NOT_EVALUABLE_CHANNEL  v2=F v3=F status='ERROR' decision=None
+     IMG20260810011126.jpg    gold=2 app=0  class=ACCEPTED_NO_SPLIT      v2=F v3=F status='OK' decision='PASS'
+     IMG20260810011248.jpg    gold=5 app=4  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810011358.jpg    gold=5 app=4  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810011649.jpg    gold=3 app=2  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810011800.jpg    gold=1 app=0  class=NOT_EVALUABLE_CHANNEL  v2=T v3=F status='ERROR' decision=None
+     IMG20260810012103.jpg    gold=3 app=3  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+
+== batch50_acceptance_8
+   app=docs/research/evidence/2026-11-09-batch-50/split-gate/exports/acceptance-b50-01-export.json
+   golden=docs/research/evidence/2026-11-09-batch-50/split-gate/tables/golden-v2-acceptance-slice.json
+   decisionSource=export caliber=v3 singleQuestionUnverified=0
+   old v2 ¢Ù = 3/8 = 0.3750
+   new v3 ¢Ù = 2/8 = 0.2500
+   ¢Û = 1/26 = 0.0385; fragmented=1
+   abstain=0 pages=[]
+   notEvaluable=2 pages=['IMG20260810004952.jpg', 'IMG20260810011800.jpg']
+   changedPagesV2=['IMG20260810011800.jpg']
+   missingAppPages=[]
+     IMG20260810003928.jpg    gold=4 app=4  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810004353.jpg    gold=2 app=2  class=ACCEPTED_SPLIT         v2=T v3=T status='OK' decision='SPLIT'
+     IMG20260810004952.jpg    gold=2 app=0  class=NOT_EVALUABLE_CHANNEL  v2=F v3=F status='ERROR' decision=None
+     IMG20260810005711.jpg    gold=3 app=2  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810010034.jpg    gold=6 app=5  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810010202.jpg    gold=3 app=2  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810011358.jpg    gold=5 app=4  class=ACCEPTED_SPLIT         v2=F v3=F status='OK' decision='SPLIT'
+     IMG20260810011800.jpg    gold=1 app=0  class=NOT_EVALUABLE_CHANNEL  v2=T v3=F status='ERROR' decision=None
+
+== device_v1_7
+   app=build/split-eval/app-split.json
+   golden=tools/split_golden/tables/split_golden_v1.json
+   decisionSource=absent caliber=v2-fallback singleQuestionUnverified=2
+   old v2 ¢Ù = 4/7 = 0.5714
+   new v3 ¢Ù = 4/7 = 0.5714
+   ¢Û = 0/16 = 0.0000; fragmented=0
+   abstain=0 pages=[]
+   notEvaluable=0 pages=[]
+   changedPagesV2=[]
+   missingAppPages=[]
+     IMG20260810003928.jpg    gold=4 app=4  class=V2_FALLBACK            v2=T v3=T status=None decision=None
+     IMG20260810004304.jpg    gold=1 app=0  class=V2_FALLBACK            v2=T v3=T status=None decision=None
+     IMG20260810004353.jpg    gold=2 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810005605.jpg    gold=2 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810010349.jpg    gold=4 app=4  class=V2_FALLBACK            v2=T v3=T status=None decision=None
+     IMG20260810011126.jpg    gold=2 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810011800.jpg    gold=1 app=0  class=V2_FALLBACK            v2=T v3=T status=None decision=None
+
+== device_v2_24
+   app=build/split-eval/app-split.json
+   golden=tools/split_golden/tables/split_golden_v2.json
+   decisionSource=absent caliber=v2-fallback singleQuestionUnverified=2
+   old v2 ¢Ù = 4/24 = 0.1667
+   new v3 ¢Ù = 4/24 = 0.1667
+   ¢Û = 0/78 = 0.0000; fragmented=0
+   abstain=0 pages=[]
+   notEvaluable=0 pages=[]
+   changedPagesV2=[]
+   missingAppPages=['IMG20260810004511.jpg', 'IMG20260810004854.jpg', 'IMG20260810004952.jpg', 'IMG20260810005144.jpg', 'IMG20260810005301.jpg', 'IMG20260810005711.jpg', 'IMG20260810005855.jpg', 'IMG20260810010034.jpg', 'IMG20260810010202.jpg', 'IMG20260810010306.jpg', 'IMG20260810010633.jpg', 'IMG20260810010859.jpg', 'IMG20260810011017.jpg', 'IMG20260810011248.jpg', 'IMG20260810011358.jpg', 'IMG20260810011649.jpg', 'IMG20260810012103.jpg']
+     IMG20260810003928.jpg    gold=4 app=4  class=V2_FALLBACK            v2=T v3=T status=None decision=None
+     IMG20260810004304.jpg    gold=1 app=0  class=V2_FALLBACK            v2=T v3=T status=None decision=None
+     IMG20260810004353.jpg    gold=2 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810004511.jpg    gold=3 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810004854.jpg    gold=2 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810004952.jpg    gold=2 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810005144.jpg    gold=7 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810005301.jpg    gold=3 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810005605.jpg    gold=2 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810005711.jpg    gold=3 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810005855.jpg    gold=3 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810010034.jpg    gold=6 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810010202.jpg    gold=3 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810010306.jpg    gold=4 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810010349.jpg    gold=4 app=4  class=V2_FALLBACK            v2=T v3=T status=None decision=None
+     IMG20260810010633.jpg    gold=3 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810010859.jpg    gold=4 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810011017.jpg    gold=3 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810011126.jpg    gold=2 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810011248.jpg    gold=5 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810011358.jpg    gold=5 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810011649.jpg    gold=3 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+     IMG20260810011800.jpg    gold=1 app=0  class=V2_FALLBACK            v2=T v3=T status=None decision=None
+     IMG20260810012103.jpg    gold=3 app=0  class=V2_FALLBACK            v2=F v3=F status=None decision=None
+
+JSON_SUMMARY
+{
+  "batch48_acceptance_8": {
+    "abstain": {
+      "count": 1,
+      "pages": [
+        "IMG20260810004952.jpg"
+      ],
+      "rate": 0.125
+    },
+    "app": "docs/research/evidence/2026-11-07-batch-48/splitter/acceptance-once-01-export.json",
+    "caliber": "v3",
+    "changedPagesV2": [],
+    "countExactV2": {
+      "denominator": 8,
+      "successes": 5,
+      "value": 0.625
+    },
+    "countExactV3": {
+      "denominator": 8,
+      "successes": 5,
+      "value": 0.625
+    },
+    "decisionSource": "export",
+    "fragment": {
+      "denominator": 26,
+      "successes": 3,
+      "thresholdSensitivity": {
+        "0.3": 3,
+        "0.4": 3,
+        "0.5": 3,
+        "0.6": 2
+      },
+      "value": 0.11538461538461539
+    },
+    "golden": "docs/research/evidence/2026-11-07-batch-48/splitter/golden-v2-acceptance-slice.json",
+    "missingAppPages": [],
+    "notEvaluable": {
+      "count": 1,
+      "pages": [
+        "IMG20260810011358.jpg"
+      ],
+      "rate": 0.125
+    },
+    "singleQuestionUnverifiedCount": 0
+  },
+  "batch48_all_24": {
+    "abstain": {
+      "count": 5,
+      "pages": [
+        "IMG20260810004511.jpg",
+        "IMG20260810004854.jpg",
+        "IMG20260810004952.jpg",
+        "IMG20260810005605.jpg",
+        "IMG20260810010633.jpg"
+      ],
+      "rate": 0.20833333333333334
+    },
+    "app": "docs/research/evidence/2026-11-07-batch-48/splitter/app-split-golden-v2-final.json",
+    "caliber": "v3",
+    "changedPagesV2": [],
+    "countExactV2": {
+      "denominator": 24,
+      "successes": 10,
+      "value": 0.4166666666666667
+    },
+    "countExactV3": {
+      "denominator": 24,
+      "successes": 10,
+      "value": 0.4166666666666667
+    },
+    "decisionSource": "export",
+    "fragment": {
+      "denominator": 78,
+      "successes": 3,
+      "thresholdSensitivity": {
+        "0.3": 3,
+        "0.4": 3,
+        "0.5": 3,
+        "0.6": 2
+      },
+      "value": 0.038461538461538464
+    },
+    "golden": "tools/split_golden/tables/split_golden_v2.json",
+    "missingAppPages": [],
+    "notEvaluable": {
+      "count": 2,
+      "pages": [
+        "IMG20260810005144.jpg",
+        "IMG20260810011358.jpg"
+      ],
+      "rate": 0.08333333333333333
+    },
+    "singleQuestionUnverifiedCount": 0
+  },
+  "batch50_acceptance_8": {
+    "abstain": {
+      "count": 0,
+      "pages": [],
+      "rate": 0.0
+    },
+    "app": "docs/research/evidence/2026-11-09-batch-50/split-gate/exports/acceptance-b50-01-export.json",
+    "caliber": "v3",
+    "changedPagesV2": [
+      "IMG20260810011800.jpg"
+    ],
+    "countExactV2": {
+      "denominator": 8,
+      "successes": 3,
+      "value": 0.375
+    },
+    "countExactV3": {
+      "denominator": 8,
+      "successes": 2,
+      "value": 0.25
+    },
+    "decisionSource": "export",
+    "fragment": {
+      "denominator": 26,
+      "successes": 1,
+      "thresholdSensitivity": {
+        "0.3": 1,
+        "0.4": 1,
+        "0.5": 1,
+        "0.6": 0
+      },
+      "value": 0.038461538461538464
+    },
+    "golden": "docs/research/evidence/2026-11-09-batch-50/split-gate/tables/golden-v2-acceptance-slice.json",
+    "missingAppPages": [],
+    "notEvaluable": {
+      "count": 2,
+      "pages": [
+        "IMG20260810004952.jpg",
+        "IMG20260810011800.jpg"
+      ],
+      "rate": 0.25
+    },
+    "singleQuestionUnverifiedCount": 0
+  },
+  "batch50_all_24": {
+    "abstain": {
+      "count": 2,
+      "pages": [
+        "IMG20260810004854.jpg",
+        "IMG20260810005605.jpg"
+      ],
+      "rate": 0.08333333333333333
+    },
+    "app": "docs/research/evidence/2026-11-09-batch-50/split-gate/app-split-b50-final.json",
+    "caliber": "v3",
+    "changedPagesV2": [
+      "IMG20260810011800.jpg"
+    ],
+    "countExactV2": {
+      "denominator": 24,
+      "successes": 7,
+      "value": 0.2916666666666667
+    },
+    "countExactV3": {
+      "denominator": 24,
+      "successes": 6,
+      "value": 0.25
+    },
+    "decisionSource": "export",
+    "fragment": {
+      "denominator": 78,
+      "successes": 1,
+      "thresholdSensitivity": {
+        "0.3": 3,
+        "0.4": 1,
+        "0.5": 1,
+        "0.6": 0
+      },
+      "value": 0.01282051282051282
+    },
+    "golden": "tools/split_golden/tables/split_golden_v2.json",
+    "missingAppPages": [],
+    "notEvaluable": {
+      "count": 5,
+      "pages": [
+        "IMG20260810004952.jpg",
+        "IMG20260810010306.jpg",
+        "IMG20260810010633.jpg",
+        "IMG20260810011017.jpg",
+        "IMG20260810011800.jpg"
+      ],
+      "rate": 0.20833333333333334
+    },
+    "singleQuestionUnverifiedCount": 0
+  },
+  "device_v1_7": {
+    "abstain": {
+      "count": 0,
+      "pages": [],
+      "rate": 0.0
+    },
+    "app": "build/split-eval/app-split.json",
+    "caliber": "v2-fallback",
+    "changedPagesV2": [],
+    "countExactV2": {
+      "denominator": 7,
+      "successes": 4,
+      "value": 0.5714285714285714
+    },
+    "countExactV3": {
+      "denominator": 7,
+      "successes": 4,
+      "value": 0.5714285714285714
+    },
+    "decisionSource": "absent",
+    "fragment": {
+      "denominator": 16,
+      "successes": 0,
+      "thresholdSensitivity": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "value": 0.0
+    },
+    "golden": "tools/split_golden/tables/split_golden_v1.json",
+    "missingAppPages": [],
+    "notEvaluable": {
+      "count": 0,
+      "pages": [],
+      "rate": 0.0
+    },
+    "singleQuestionUnverifiedCount": 2
+  },
+  "device_v2_24": {
+    "abstain": {
+      "count": 0,
+      "pages": [],
+      "rate": 0.0
+    },
+    "app": "build/split-eval/app-split.json",
+    "caliber": "v2-fallback",
+    "changedPagesV2": [],
+    "countExactV2": {
+      "denominator": 24,
+      "successes": 4,
+      "value": 0.16666666666666666
+    },
+    "countExactV3": {
+      "denominator": 24,
+      "successes": 4,
+      "value": 0.16666666666666666
+    },
+    "decisionSource": "absent",
+    "fragment": {
+      "denominator": 78,
+      "successes": 0,
+      "thresholdSensitivity": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "value": 0.0
+    },
+    "golden": "tools/split_golden/tables/split_golden_v2.json",
+    "missingAppPages": [
+      "IMG20260810004511.jpg",
+      "IMG20260810004854.jpg",
+      "IMG20260810004952.jpg",
+      "IMG20260810005144.jpg",
+      "IMG20260810005301.jpg",
+      "IMG20260810005711.jpg",
+      "IMG20260810005855.jpg",
+      "IMG20260810010034.jpg",
+      "IMG20260810010202.jpg",
+      "IMG20260810010306.jpg",
+      "IMG20260810010633.jpg",
+      "IMG20260810010859.jpg",
+      "IMG20260810011017.jpg",
+      "IMG20260810011248.jpg",
+      "IMG20260810011358.jpg",
+      "IMG20260810011649.jpg",
+      "IMG20260810012103.jpg"
+    ],
+    "notEvaluable": {
+      "count": 0,
+      "pages": [],
+      "rate": 0.0
+    },
+    "singleQuestionUnverifiedCount": 2
+  }
+}
+EXIT=0

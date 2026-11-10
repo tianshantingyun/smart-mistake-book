@@ -1,0 +1,1 @@
+com.tingyun.smartmistakebook.core.data.model.OpenAiCaptureAssessmentAdapterTest: tests=9 failures=0 errors=0 skipped=0 time=0.179s timestamp=2026-11-09T20:52:32Z

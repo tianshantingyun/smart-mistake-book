@@ -56,6 +56,9 @@ class GoldenSplitEvalChannelHarness {
     /** 唯一允许的端点主机（SSRF 边界；与批次 48 Provider 冒烟同一主机）。 */
     private val allowedBaseUrl = "https://api.deepseek.com"
 
+    /** 原始回包留痕上限（批次 51 dev 调参；单页回包远小于此值，超出即异常）。 */
+    private val MAX_RAW_RESPONSE_CHARS = 200_000
+
     @Test
     fun exportGoldenPageSplits() {
         val outDirEnv = System.getenv("SPLIT_EVAL_OUT_DIR")
@@ -186,6 +189,8 @@ class GoldenSplitEvalChannelHarness {
                 put("status", JsonPrimitive("HTTP_ERROR"))
                 put("httpStatus", JsonPrimitive(status))
                 put("errorHead", JsonPrimitive(body.take(400)))
+                // 批次 51 dev 调参：原始回包全文留痕（模型输出，无凭据；供逐轮归因与复算）。
+                put("responseRaw", JsonPrimitive(body.take(MAX_RAW_RESPONSE_CHARS)))
                 put("elapsedMs", JsonPrimitive(elapsed))
                 put("image", buildJsonObject {
                     put("egressBytes", JsonPrimitive(egressBytes.size))
@@ -195,7 +200,8 @@ class GoldenSplitEvalChannelHarness {
                 })
             }
         } else {
-            // 诊断留痕：原始回包头部（模型输出，无凭据；只进 run 记录，不进仓内证据目录之外）。
+            // 诊断留痕：原始回包（模型输出，无凭据；只进 run 记录）。批次 51 起保留全文，
+            // 供 dev 调参逐轮归因（旧字段 responseHead 只留 1600 字符，无法复盘契约拒收细节）。
             val responseHead = body.take(1600)
             // 生产同一解析入口：非流式回包 → content JSON → CaptureAssessment 契约校验。
             val output = protocol.parseCompletion(body, input, modelVersion = modelId)
@@ -208,6 +214,7 @@ class GoldenSplitEvalChannelHarness {
                 put("httpStatus", JsonPrimitive(status))
                 put("elapsedMs", JsonPrimitive(elapsed))
                 put("responseHead", JsonPrimitive(responseHead))
+                put("responseRaw", JsonPrimitive(body.take(MAX_RAW_RESPONSE_CHARS)))
                 put("decision", JsonPrimitive(assessment.decision.name))
                 put("issueCodes", buildJsonArray {
                     assessment.issues.forEach { add(JsonPrimitive(it.code.name)) }
@@ -244,6 +251,8 @@ class GoldenSplitEvalChannelHarness {
                 put("errorType", JsonPrimitive(failure::class.simpleName ?: "Exception"))
                 put("errorMessage", JsonPrimitive((failure.message ?: "").take(400)))
                 put("responseHead", JsonPrimitive(lastResponseBody.take(1600)))
+                // 契约拒收（InvalidModelResponseException）时全文回包是唯一归因材料。
+                put("responseRaw", JsonPrimitive(lastResponseBody.take(MAX_RAW_RESPONSE_CHARS)))
             }
         }
     }
