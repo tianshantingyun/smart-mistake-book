@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-che-9075c91126-004	CORRECT		high	收集方法由气体密度与溶解性决定，NH3 密度比空气小不能用向上排空气法。	
+ext-bio-1e2cbd06a1-014	CORRECT		high	稀释涂布平板法将菌液梯度稀释后涂布培养，一个菌落来源于稀释液中的一个活菌	
+ext-che-0cb7cd248f-010b	CORRECT		high	澄清共价晶体是三维共价键网状巨分子、化学式仅表示原子个数比、稀有气体晶体不是共价晶体。	
+chem-molecular-stability-vs-bp	CORRECT		high	分子晶体稳定性由化学键键能决定，熔沸点由分子间作用力决定。	
+ext-che-7b047ad8e8-039	CORRECT		high	MnO42- 仅在强碱性条件下稳定、其他条件易歧化。	
+bio-mo-nerve-049	CORRECT		medium	皮肤血管舒张、血流量增多，汗腺分泌增多，散热增加	
+ext-phy-9f96c338bd-013	CORRECT		high	处于某能级的氢原子吸收光子时，要么吸收恰好符合能级差的光子而跃迁，要么吸收足以使其电离的光子	
+ext-phy-596412a76c-003	CORRECT		high	弹力与伸长量的图线为过原点的直线，说明弹性限度内弹力与伸长量成正比	
+math-fx-shulie-fangsuo-mubiao-daoyu-shidu	CORRECT		high	数列放缩由目标不等式决定方向与幅度：放缩后必须可求和（或可化简），过度放缩使不等式失真，需调整精度。	
+ext-phy-cc009368ca-008	CORRECT		medium	把自由落体改为物体沿圆弧面下滑或在斜面上运动，仍通过比较势能减少量与动能增加量验证守恒。	
+ext-che-68501225af-013	CORRECT		high	可由物质的质量与物质的量之比、或由微粒数目与阿伏加德罗常数求出摩尔质量。	
+ext-bio-c8bf53bb7f-003	CORRECT		high	相对性状、性状分离、显隐性、等位基因、纯合子与杂合子、各类交配方式是遗传分析的基础概念。	
+ext-che-2c017ad5a8-021b	CORRECT		medium	质量守恒、电子守恒（氧化剂得电子总数等于还原剂失电子总数）、电荷守恒是配平与计算的根本依据	
+ext-che-da6274793d-001c	CORRECT		high	组成与原子排列相同但互为镜像而不能重叠的一对分子	
+ext-phy-079f340009-001	CORRECT		high	把光电效应产生的电子当作带电粒子，分析它在电场与磁场中的运动。	
+bio-fj-20-accurate-replication-reason	REBIND	dna的复制	medium	双螺旋结构提供精确模板，碱基互补配对原则保证复制准确进行。	材料讲复制准确性原因与复制条件，属DNA的复制；现绑只讲双螺旋结构
+ext-mat-8f0b93ee7a-004	CORRECT		high	平面内任意向量都可用一组不共线基底唯一地线性表示。	
+ext-che-786c31d6e4-006	CORRECT		high	锂电池是可充电的二次电池；O2作正极时电极反应式随介质不同而不同，不能混用介质离子。	
+ext-che-002c4fed68-003	CORRECT		high	Kw 的含义与温度影响、水的离子积曲线分析以及水电离出的离子浓度计算。	
+ext-bio-5f510cdc4a-616	CORRECT		high	细胞增殖通过细胞分裂增加细胞数量，包括物质准备和细胞分裂两个连续过程，不同细胞的分裂方式不同。	
+math-liexiang-gongshi-4nfang-jian-1	CORRECT		high	两因子相差 2，裂项系数为 $\frac{1}{2}$。	
+ext-phy-f019f84af8-007	CORRECT		medium	已知天体表面重力加速度 g 与天体半径 R 时，由 GMm/R²＝mg 得天体质量 M＝gR²/G	
+ext-bio-348a59d147-001	CORRECT		high	精(卵)原细胞经有丝分裂产生，精(卵)细胞经减数分裂产生；减Ⅰ同源染色体分离、减Ⅱ姐妹染色单体分开。	
+phys-hj2-pv-tuxiang-relxue-zonghe	CORRECT		high	$p-V$ 图线与 $V$ 轴围成的面积表示功，结合温度变化判断内能增减，再由 $ΔU=W+Q$ 定吸放热。	
+math-gap-mathematical-induction	CORRECT		high	数学归纳法用“验证起始值成立＋由 n=k 成立推出 n=k+1 成立”两步，证明对从起始值起的所有自然数命题成立。	
+ext-mat-1e342fdc44-007	CORRECT		medium	定义域相同且对应法则相同才是同一函数，两个条件缺一不可	
+ext-mat-6f48c400b4-030	CORRECT		high	两个等高的几何体若在同高处截得的截面面积总相等，则体积相等	
+ext-phy-89557832bd-038	CORRECT		medium	x－m 图线后半弯曲是所测质量过大使橡皮筋超过弹性限度、弹力与伸长量不再成正比	
+ext-mat-380795a552-021	CORRECT		high	配凑法求最值先对代数式作恒等变形，凑出和或积为常数的两项，再用基本不等式求最值。	
+ext-mat-2fc4d7ddd5-006	CORRECT		high	先用面面垂直得线面垂直，再用线面垂直得线线垂直，最后作出点到平面的距离。	
+ext-bio-bea581efd1-014	CORRECT		high	先用低倍镜找到叶绿体再换高倍镜观察其形态与分布。	
+ext-che-cb564345f7-020b	CORRECT		medium	空气把还原产物FeCl2重新氧化为FeCl3，FeCl3得以循环参与反应，从而减少氧化剂用量。	
+phys-hj2-jiaoliu-sizhi-yingyong-duizhao	CORRECT		high	瞬时值算受力、峰值算耐压、有效值算热效应与读数、平均值算电荷量。	
+bio-mo-gene-010	CORRECT		high	“联会”是减Ⅰ前期同源染色体两两配对的行为，而“四分体”是“联会”行为造成的结果。	
+ext-phy-bd2eaa7f72-011	CORRECT		high	先按运动效果分解、再分别对两个方向列式，并抓住两个分运动的等时性作为解题关键。	
+ext-phy-11a829af71-024	CORRECT		high	三种情形共同构成牛顿力学的理论边界；在宏观、低速、弱引力场情形下，相对论与量子力学的修正可以忽略。	
+ext-mat-1684834e32-001d	CORRECT		high	球心到两底面距离相等，为两底面外心连线的中点：R²＝r²＋(h/2)²。	
+ext-phy-14007d0207-014	REBIND	关联速度的分析-运动分解的核心思想	high	关联速度的核心思想是沿绳（杆）方向的速度分量大小相等，把实际速度分解到沿约束方向与垂直约束方向即可建立约束方程。	材料主知识点是关联速度（沿绳杆分速度相等）；现绑是小船渡河的运动分解
+ext-phy-100c90511b-010	CORRECT		high	万有引力是作用力与反作用力，重力只是它的一个分力；均质球壳空腔内引力为零。	
+ext-che-1c401f4315-036	CORRECT		medium	同一原电池、同一电解池及串联电路中各电极的得失电子数均相等。	
+ext-bio-5eb3d3d99c-006	CORRECT		high	胰岛素是唯一可降低血糖浓度的激素,胰高血糖素、肾上腺素、糖皮质激素、甲状腺激素等多种激素均可提高血糖浓度。	
+ext-che-5c62da9e03-2652	CORRECT		high	卤素原子、羟基、羧基、醛基、硝基及碳碳双键、三键都是常见官能团。	
+ext-phy-142d74029b-004b	CORRECT		high	弹簧发生弹性形变时弹力与形变量成正比，即 F=kx，其中 x 是形变量而不是弹簧形变后的长度。	
+bio-fj-12-surface-volume-ratio	REBIND	细胞不能无限长大的原因	high	细胞越大表面积与体积比越小，物质运输效率越低；细胞太小则空间不足。	材料讲细胞大小与表面积体积比、细胞不能无限小的原因；现绑是多样性统一性
+ext-mat-4f10ce7f32-024	CORRECT		high	抽象函数等式问题的通法：先对自变量赋值求出关键函数值，再由赋值所得关系判断奇偶性、周期性等性质，最后借性质求目标。	
+ext-phy-b55bb3fdba-009	CORRECT		high	少力情形用矢量合成法（平行四边形或三角形法则），多力复杂情形用正交分解法	
+ext-phy-a23820308c-017b	CORRECT		high	闭合并联支路后总电阻减小、总电流增大，半偏时电阻箱分得的电流比电流表大，故电阻箱的阻值小于电流表内阻。	
+phys-hj2-li-gainian-jiben-xingzhi	CORRECT		high	力是物体间的相互作用，具有物质性、相互性、矢量性、独立性，效果是改变运动状态或使物体形变。	
+ext-mat-91e0c2ace8-123	CORRECT		medium	把分子分母都拆成对称韦达部分与非对称余项，大比值型的结果只由余项的系数比决定。	
+ext-phy-04489b97eb-008	CORRECT		high	初速度为零的匀加速运动中速度、位移与时间的四组比例关系	

@@ -13134,7 +13134,7 @@
    "contentId": "ext-che-789339a0b0-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:新型无机非金属材料",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硅酸盐",
      "role": "PRIMARY"
     }
    ]
@@ -35122,7 +35122,7 @@
    "contentId": "ext-che-80dc9e8d0c-006",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞中粒子数目、配位数、坐标与密度的计算",
      "role": "PRIMARY"
     }
    ]

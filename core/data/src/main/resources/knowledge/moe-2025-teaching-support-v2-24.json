@@ -19555,7 +19555,7 @@
    "contentId": "ext-che-d8cfaa5609-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:酸或碱溶液中水电离程度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:抑制-促进水电离平衡的方法",
      "role": "PRIMARY"
     }
    ]
@@ -45637,7 +45637,7 @@
    "contentId": "ext-che-5c62da9e03-2705",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见官能团",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:依据官能团分类",
      "role": "PRIMARY"
     }
    ]

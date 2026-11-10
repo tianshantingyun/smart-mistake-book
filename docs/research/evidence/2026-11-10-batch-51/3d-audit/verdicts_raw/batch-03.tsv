@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-bio-6cfe212f65-005	CORRECT		high	该实验的自变量是不同溶液与滴加酸或碱的量，因变量是溶液pH的变化	
+ext-phy-895e882223-029	REBIND	动量守恒定律	medium	取三个小球整体为系统时，系统所受外力之和为零，满足动量守恒条件	主知识点是动量守恒的系统选择与条件，非系统/内力定义
+ext-che-cb0f101582-020	CORRECT		high	使品红溶液褪色的是 SO2，不褪色的是 CO2	
+ext-che-e28044054a-015	CORRECT		high	随 pH 增大只减不增的为弱酸分子曲线	
+ext-che-01eb9ee365-016	CORRECT		high	防暴沸：加热液体时加入沸石（或碎瓷片）防止溶液暴沸	
+ext-che-988f19d372-017	CORRECT		high	误认为纯固体和纯液体不会改变化学反应速率	
+ext-che-fcefe15f87-006	CORRECT		high	根据键能计算：ΔH等于反应物键能之和减去生成物键能之和	
+ext-che-da762160bd-002	CORRECT		high	葡萄糖属于多羟基醛，官能团有—OH、—CHO，既有醇的性质又有醛的性质	
+ext-bio-238fb113b2-037	CORRECT		high	细胞凋亡一定引起细胞死亡，细胞自噬不一定引起细胞死亡	
+ext-mat-5aa2879816-019	CORRECT		high	这两个端点值就是分类讨论的分界	
+phys-fx-uniform-field-three-inferences	CORRECT		medium	中点电势为两端电势的平均值	
+ext-phy-9fe9f2553b-002	CORRECT		high	F-t 图线与 t 轴围成的面积表示力的冲量	
+math-kb-angle-vs-vector-angle-range-note	CORRECT		medium	异面直线角与线面角需取绝对值或用正弦转化	
+ext-che-96397bfcc6-010	CORRECT		high	判断依据：是否有新物质生成	
+bio-fj-22-cancer-cell-features	CORRECT		high	细胞膜上糖蛋白等物质减少，细胞间黏着性降低	
+ext-phy-f1ba14a26a-001b	CORRECT		high	冲量是力与作用时间的乘积	
+ext-che-7e30229d54-001	CORRECT		high	晶体硅为灰黑色固体、硬度大、熔点高，用作半导体材料	
+ext-che-796aef76a7-047	CORRECT		medium	水洗净——洗涤；细研水飞——粉碎后加水溶解；去石澄清——过滤；慢火熬干——蒸发	
+ext-phy-596412a76c-014	CORRECT		high	图像斜率绝对值的倒数表示弹簧的劲度系数	
+ext-phy-927f3e4f03-017	CORRECT		high	轻杆可同时提供拉力与支持力，故最高点速度可以小于 √(gL)，也可以为0	
+ext-che-e4981d27ca-042	CORRECT		high	滴定终点溶液不一定呈中性	
+ext-phy-3b5678cdcd-005	CORRECT		high	力与位移成锐角做正功、成直角不做功、成钝角做负功	
+ext-mat-10f3e6982f-004	CORRECT		high	标准五步依次是去分母、去括号、移项、合并同类项、系数化为1	
+ext-che-d931f0e7db-004b	CORRECT		high	第四步写出电极反应式并遵循原子守恒和电荷守恒	
+ext-phy-e14aad82a5-817	CORRECT		high	位于对称中心处的点电荷 q 受力对称，合力为零	
+ext-bio-5f510cdc4a-1482	CORRECT		high	性别比例是种群中雌雄个体数目的比例	
+math-hj-hechajiao-gongshi	CORRECT		high	$\cos(\alpha\pm\beta)=\cos\alpha\cos\beta\mp\sin\alpha\sin\beta$	
+ext-che-5c62da9e03-2375	REBIND	实验综合题答题模板	medium	按实验操作、现象描述、得出结论三个层次组织离子检验的规范表述	主知识点是离子检验答题表述模板，非检验方法/干扰排除
+ext-che-aaecb28e19-001b	CORRECT		high	铁与非金属、水蒸气、酸和盐溶液反应，与强氧化剂反应生成＋3价	
+ext-phy-264caef48f-002b	CORRECT		high	坐标系用来精确描述物体的位置及位置变化	
+ext-mat-95e236319c-004	CORRECT		high	两向量数量积为零等价于两向量垂直	
+ext-phy-5bd23e8a22-002	CORRECT		high	比较碰撞前后系统的总动量是否相等	
+ext-bio-34e20389c5-035	CORRECT		medium	数学模型有公式法和曲线图法两种表现形式	
+ext-mat-5b737469ca-007	CORRECT		medium	结合线面平行的性质可得	
+ext-mat-f56d27f574-017	CORRECT		high	椭圆定义可用于求标准方程，以及求焦点三角形的周长、面积	
+ext-mat-418086fcde-005	CORRECT		high	圆内两条弦被交点 P 分成的两段乘积相等	
+ext-mat-7f338dff1b-001	CORRECT		high	对同一图形中的两个三角形分别用余弦定理建立等量关系	
+ext-bio-cc2cdaecdd-007	CORRECT		medium	毕希纳证明酵母细胞中的某些物质能够在酵母细胞破碎后继续起到催化作用	
+ext-mat-3d4d9a72fa-004b	CORRECT		high	画几何体的直观图一般采用斜二测画法	
+ext-mat-39eb64a895-001	CORRECT		high	用非对称韦达关系证明另一条直线过定点	
+cmp-che-02518	CORRECT		high	Al(OH)3只溶于强酸和强碱，不溶于弱碱	
+ext-mat-20fbdf1375-001	CORRECT		high	用语言、符号或式子表达的、可以判断真假的陈述句叫作命题	
+ext-bio-856f649d12-011	CORRECT		high	碳达峰是二氧化碳排放量由增转降的历史拐点	
+ext-phy-30c268c451-033	CORRECT		medium	克服摩擦力做的功 Wf＝μmgcosθ·s＝μmg·x	
+chem-fx-ruo-tong-ru-shui-zhong-f25x04	REBIND	氮氧化物与氧气混合溶于水的计算	high	若NO、NO2、O2通入水中，当V(NO)︰V(NO2)︰V(O2)=1︰1︰1时，恰好转化为HNO3	主知识点是氮氧化物与O2混合溶于水计算，非NO检验收集
+ext-mat-838ef80618-006b	CORRECT		high	棱锥的各侧棱相交于一点（顶点），但不一定相等	
+chem-hj-f109-shengwen-kw-zhongxingdian	CORRECT		high	升温促进水的电离，Kw 增大，中性溶液的 pH 小于 7	
+ext-mat-9bf5abe569-001b	CORRECT		high	当幂指数大于零时，幂函数在正半轴单调递增	
+ext-mat-39e7a6e009-033	CORRECT		high	直接构造函数法：把所证不等式移项化为一个函数的符号问题	
+math-a2b2jian-c2-xingshi-huaweijiao	CORRECT		high	形式用余弦定理化边为角	

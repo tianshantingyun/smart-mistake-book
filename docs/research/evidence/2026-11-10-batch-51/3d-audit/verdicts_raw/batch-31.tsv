@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-mat-97ff2b48ab-010	CORRECT		high	由通项等式筛选出公共项，确定新数列的首项与公差或公比后求和	
+ext-mat-08f3e1d47e-027	CORRECT		high	含参方程在区间上有解（有零点）求参数，可把参数分离成 a＝g(x)	
+ext-mat-ab2173ce7f-026	CORRECT		high	处理上切线、下切线型新定义题：先按定义所需的斜率取一条切线并设出切点、写出切线方程	
+ext-phy-c9f8cb4c96-011	CORRECT		high	同位素是质子数相同而中子数不同的原子核	
+ext-che-97a64ae5f0-025	CORRECT		medium	镁单质用于制造信号弹和焰火；镁合金用于制造火箭、导弹和飞机部件	
+ext-mat-7b16748403-001	CORRECT		low	球的切、接问题的关键点是利用转化思想，把问题转化为平面问题或特殊几何体来解决	
+ext-bio-3481f17f61-043	CORRECT		high	原核细胞不遵循孟德尔遗传定律、自然条件下主要发生基因突变	
+ext-che-86a0fcc39c-016	CORRECT		high	多液电池基于多种电解质溶液的离子定向移动形成内部电流	
+bio-mo-cell-148	CORRECT		high	对于绿色植物来说，产生ATP的生理作用是呼吸作用和光合作用，场所是细胞质基质、线粒体和叶绿体	
+ext-mat-df313ce801-001b	CORRECT		high	|x|>a（a>0）的解集为(-∞，-a)∪(a，+∞)	
+bio-mo-cell-engineering-042	CORRECT		medium	在自然条件下，哺乳动物的受精在输卵管内完成	
+ext-bio-5f510cdc4a-109	CORRECT		high	非生物的物质和能量是生态系统的基石	
+ext-phy-f20f32bc6e-014	CORRECT		high	滑块—摆球模型水平方向动量守恒、竖直方向不守恒，系统机械能守恒	
+ext-phy-e14aad82a5-249b	CORRECT		high	安培定则用于由电流方向判断磁场方向	
+ext-phy-5788d44c37-002	REBIND	连接体的运动特点	medium	轻绳：伸直状态下两端的连接体沿绳方向的速度大小总是相等	材料主讲四类连接的速度关系（与目标边界近逐字一致），非受力方向
+ext-bio-eabc50819c-001	CORRECT		high	有氧呼吸产生的CO2可使澄清石灰水变浑浊、使溴麝香草酚蓝溶液由蓝变绿再变黄	
+ext-che-d5446e6215-026	CORRECT		high	卤素互化物：由两种卤素互相结合而成的物质（如IBr、ICl、BrF3、ClF3），性质与卤素单质相似	
+ext-phy-6efd8aadb1-006	CORRECT		high	爱因斯坦光电效应方程：$E_k=h\nu-W_0$	
+ext-bio-23404bac23-076	CORRECT		medium	洋葱鳞片叶外表皮细胞无叶绿体、具有大液泡，可用于观察质壁分离，不可用于观察有丝分裂	
+ext-mat-26ca2e9f28-004b	CORRECT		high	数量积最值（范围）的解法：①坐标法——通过建立直角坐标系	
+ext-phy-d4d535dfea-018	CORRECT		high	只要导体棒受恒定外力，导体棒必做匀变速运动	
+ext-che-754d8480e3-004b	CORRECT		high	超分子是两种或更多种分子依靠分子间相互作用聚集而成的分子聚集体	
+ext-mat-118c2f3ecc-018	CORRECT		high	由 |cosθ|=S′/S 求出二面角的余弦值	
+ext-che-0488c28b9a-007	CORRECT		high	氧化铝是白色难熔的两性氧化物，既能与酸又能与碱反应	
+ext-che-4e9dd91b85-006b	CORRECT		high	将铂丝（或光洁无锈的铁丝）用盐酸洗净后，在酒精灯外焰上灼烧至与原来的火焰颜色相同	
+ext-mat-f009d4785c-021b	CORRECT		high	相邻两条对称轴之间的距离＝T/2	
+ext-phy-c6475f9319-008	CORRECT		high	碰撞问题必须同时遵守三条原则	
+ext-che-73b7eaed81-003	CORRECT		high	Fe3+ 有较强氧化性，能与还原性离子反应而不能大量共存	
+ext-bio-5f510cdc4a-173	CORRECT		medium	显微镜成的像为上下、左右均颠倒的虚像	
+bio-fj-12-mitosis-anaphase-feature	CORRECT		high	后期着丝粒分裂，姐妹染色单体分开成为两条染色体并移向两极，染色体数目加倍	
+ext-phy-9d4e47b803-018	CORRECT		high	带电粒子在磁场中运动的四种常见多解问题	
+phys-hj2-likuang-dianchang-san-da-guandian-chuli	REBIND	动力学三大观点的基本理解和应用	medium	带电粒子在电场中的综合问题按动力学、能量、动量三大观点选择规律列方程求解	材料讲力电综合/电场中三大观点的选用，不涉电磁感应
+ext-che-9075c91126-025b	CORRECT		high	待沸腾平息后加入固体，防止沸腾时加入安息香固体引起暴沸	
+ext-che-4dd2e79693-115c	CORRECT		high	通过核磁共振氢谱有几组峰，可推知有几种化学环境的氢原子	
+ext-bio-c4cd60180f-019	CORRECT		high	中央液泡逐渐变大、颜色逐渐变浅	
+ext-phy-3c79595ae6-002	CORRECT		medium	判断两个力的冲量是否相同，要看这两个力的冲量大小是否相等、方向是否相同	
+ext-bio-0b30bf1136-030	CORRECT		high	糖类在供应充足时可以大量转化为脂肪；脂肪一般只在糖类代谢发生障碍、供能不足时才分解供能	
+ext-mat-d526b3fb2b-002b	CORRECT		high	所有的幂函数在 $(0，+\infty)$ 上都有定义，并且图象都经过点 $(1，1)$	
+ext-mat-8f627a441d-005	CORRECT		medium	通径：过双曲线的一个焦点且与实轴垂直的弦的长为 2b²/a	
+ext-phy-f92f54bc97-002	CORRECT		high	并联电路的总电阻小于其中任一支路的电阻	
+ext-phy-e14aad82a5-099	CORRECT		high	物体加速度的大小跟它受到的作用力成正比，跟它的质量成反比	
+ext-che-da2d86034b-193	CORRECT		high	有机化合物制备实验的四步分析	
+ext-che-eb0d587e69-015	CORRECT		high	焰色试验是灼烧时使火焰呈特殊颜色以判断金属元素的定性操作（物理变化）	
+ext-bio-bc5463a953-018b	CORRECT		high	生物体基因的碱基序列保持不变，但基因表达和表型发生可遗传变化的现象	
+ext-che-74930030ed-003	CORRECT		high	中学化学中常见的既能与盐酸反应、又能与NaOH溶液反应的物质	
+ext-bio-71f37f4190-002	REBIND	蛋白质的盐析变性与水解的辨析	medium	蛋白质变性指在物理或化学因素作用下空间构象被破坏，理化性质改变、生物活性丧失，一般不断裂肽键	材料主讲蛋白质变性（空间结构/肽键），非结构与多样性
+ext-mat-b1aceeb4bf-005b	REBIND	求函数解析式的常用方法	medium	已知复合函数 $f(g(x))$ 的表达式，且该表达式容易配凑成关于 $g(x)$ 的运算形式时，用配凑法求 $f(x)$ 的解析式	材料主讲配凑法求解析式，非换元法的反解步骤
+ext-phy-b3bbcd47f8-051	CORRECT		high	相邻两圈的半径之差等于一个波长	
+ext-phy-51ad0f83fc-042	CORRECT		high	气体体积迅速膨胀、对外做功，由 ΔU＝Q＋W 得内能减小，温度随之降低	
+ext-che-c0f8c1e205-008	CORRECT		high	化学反应方向的判据指出的仅仅是在一定条件下化学反应自发进行的趋势	

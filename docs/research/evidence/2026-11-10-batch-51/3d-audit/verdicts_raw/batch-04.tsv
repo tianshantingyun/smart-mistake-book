@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-bio-5f510cdc4a-292	CORRECT		high	受体具有专一性，化学本质可能为糖蛋白，也可能为糖脂。	
+ext-phy-e14aad82a5-461b	CORRECT		medium	口袋法与隔离法靠收集或隔离保证研究对象质量不变	
+ext-mat-289deb9ecd-770	CORRECT		high	结构不良问题指已知条件或所求结论开放	
+ext-che-af5d7e549d-026	CORRECT		high	氧化反应指有机物分子中加氧或去氢的反应	
+ext-phy-206fb04353-093	CORRECT		high	纸带法用平均速度代替瞬时速度 光电门法用挡光时间与宽度求速度。	
+ext-che-1c0bbd9879-025	CORRECT		high	等效平衡须满足：同一条件、同一可逆反应	
+ext-bio-05929c6cf6-006	CORRECT		high	指细胞在没有氧气参与的情况下，葡萄糖等有机物经过不完全分解，释放出少量能量的过程。	
+ext-mat-e43e351fb8-002	CORRECT		high	设法把已知量与未知量集中到同一个三角形中	
+cmp-che-01993	CORRECT		high	①选择依据：变色要灵敏、变色范围要小	
+ext-phy-07fe781982-027	CORRECT		high	数学归纳法由前几次碰撞归纳出等差或等比规律再用数列求和	
+ext-bio-baae300ab4-003	CORRECT		high	信息获取与加工能力包括信息识别与提取、信息转化与整合	
+ext-bio-1a6b8873af-009	CORRECT		medium	② 赤霉素：合成部位为幼芽、幼根、未成熟的种子	
+ext-che-b4833240af-003	CORRECT		high	一要注意歧化反应：如Cl2与H2O或NaOH发生歧化反应时	
+ext-phy-d48c41dd01-003	CORRECT		high	判断某个力是否存在有三种方法：假设法	
+ext-phy-47424f3a0e-008	CORRECT		high	系统所受合外力等于系统内各物体的质量与其加速度乘积的矢量和	
+bio-mo-evolution-026	CORRECT		medium	既要看能否产生后代，又要看后代是否可育	
+ext-phy-4425390676-002b	CORRECT		high	作用力与反作用力作用在两个物体上、性质相同、同时存在	
+ext-che-47ea1b8664-019	CORRECT		high	必须先加KSCN再加氯水	
+chem-hj2-qingjian-biaoshi-yingxiang	CORRECT		high	氢键用X—H…Y表示（X、Y为N、O、F）	
+ext-phy-939e54d44e-014	CORRECT		high	若轨迹半径等于磁场圆半径（R=r），则都从同一点离开磁场，即磁聚焦	
+ext-che-5c62da9e03-1697	CORRECT		high	盛放强氧化剂的试剂瓶不能用橡胶塞	
+ext-mat-2f222387d3-104	CORRECT		high	同构前用单调性化简不等式时，必须检查括号内代数式是否落在单调区间内	
+ext-phy-40cefc92bb-001	CORRECT		high	处理方法通常是整体法和隔离法交替使用	
+ext-phy-7dba225a31-003	CORRECT		medium	偶然误差由偶然因素造成、无明显倾向可用取平均值减小	
+ext-mat-1f6f9c8ac4-003b	CORRECT		high	P(B|A)：在A发生的条件下B发生的概率	
+ext-phy-4dd4b74876-021	CORRECT		high	先找出对象，明确过程，然后分析原理，选定公式，最后列式	
+ext-mat-87b4284fc6-054b	CORRECT		high	期望是线性的：E(aX＋b)＝aE(X)＋b	
+phys-fx-spring-stiffness-graph-method	CORRECT		medium	$F$-$x$ 图线斜率即劲度系数 k	
+ext-mat-d268df9242-014	CORRECT		high	先猜后证，即先观察与尝试给出条件再证明	
+ext-che-6ebc310976-003	CORRECT		medium	核外电子按能量不同分成能层，同一能层的电子又被分成不同能级	
+chem-fx-gong-ye-wei-qi-zhong-de-chang-yong-jia-f25x03	CORRECT		high	NO2、NO的混合气体能被足量烧碱溶液完全吸收的条件是 n(NO2)≥n(NO)	
+ext-phy-eae497a6e5-003	CORRECT		high	上升与下降经过同一段所用时间相等	
+ext-phy-f73ef620eb-009	CORRECT		high	匀强电场中两点间的电势差等于电场强度与这两点沿电场方向的距离的乘积	
+ext-mat-e99f917373-007	CORRECT		high	复数与复平面的点和向量一一对应	
+ext-phy-e14aad82a5-045b	CORRECT		high	匀变速运动中中间时刻的瞬时速度等于该段位移的平均速度	
+ext-bio-47476dac87-007b	CORRECT		high	分泌蛋白的信号序列在内质网中被剪切掉了	
+ext-che-b7cfdfda64-004	CORRECT		high	SO2 是无色、有刺激性气味的有毒气体	
+bio-mo-cell-023	CORRECT		medium	C、H、O、N所占质量分数大小关系也不一定相同	
+bio-fj-32-quadrat-method	CORRECT		high	样方法适用于植物和活动能力弱、活动范围小的动物	
+ext-che-b7725e82a9-010	CORRECT		high	在同温同压下，相同体积的任何气体都含有相同数目的分子	
+ext-mat-97ff2b48ab-007	CORRECT		high	等差乘等比型数列的前n项和可写成 (An+B)q^n-B 的形式	
+math-mo-jinsi-jisuan-gongshizu	CORRECT		high	只在自变量足够小时保证精度	
+ext-phy-40156b795a-010	CORRECT		high	光的干涉、衍射、偏振现象证明光具有波动性	
+ext-bio-5f510cdc4a-174	CORRECT		high	放大倍数＝物镜放大倍数×目镜放大倍数	
+ext-che-a988fb0714-005	REBIND	氮族元素及其化合物	medium	砷有灰砷、黑砷、黄砷三种同素异形体	材料讲砷及其化合物的性质；现绑「化合物」只讲化合物定义与分类，改绑氮族元素及其化合物
+ext-che-e53f690aae-005	CORRECT		high	归一法：一看单位是否一致	
+chem-hj-lusu-lizi-jianyan	CORRECT		high	沉淀法：加稀硝酸酸化的 AgNO3 溶液	
+ext-mat-550f58da7b-021	CORRECT		medium	非零向量垂直的充要条件是数量积为零	
+ext-mat-ff9207a63a-001b	CORRECT		high	范围小的条件能推出范围大的条件	
+ext-phy-206fb04353-007b	CORRECT		high	按重力、场力、接触力（弹力、摩擦力）的顺序逐项分析	

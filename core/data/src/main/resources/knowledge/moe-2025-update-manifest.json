@@ -1,8 +1,8 @@
 {
  "schemaVersion": 2,
  "packId": "moe-2025-four-subjects-v1",
- "version": 28,
- "contentVersion": "ce8edb8f89d91fe7",
+ "version": 29,
+ "contentVersion": "5f164dab812c5e03",
  "retired": [
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA分子的多样性与特异性",
@@ -1167,6 +1167,12 @@
    "supersededBy": null,
    "kind": "DELETE",
    "reason": "题干壳：材料已全部归位真节点"
+  },
+  {
+   "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:一种药物中间体-h-的合成路线如下",
+   "supersededBy": null,
+   "kind": "DELETE",
+   "reason": "批次51 3D 改绑后孤点：唯一材料 ext-che-d3a055d224-007 已按 B50-D1 改绑到「依据反应条件判断有机反应类型」；节点名本身是题干片段（原判定 note：节点名为题目片段，材料是通用判据），无材料绑定、不构成知识点"
   },
   {
    "nodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:丁达尔效应",

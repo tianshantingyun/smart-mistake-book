@@ -1,0 +1,40 @@
+# 别名/索引容量饱和（v29 包复算，诊断口径）
+
+命令（仓库根）：
+
+```
+python -I -X utf8 build/b51-d2d3-scratch/saturation.py
+```
+
+口径：按 `KnowledgeSearchFeatureExtractor.fromNode` 的 v1 形状把每个原子节点的
+`name + sorted(aliases) + boundary` 切成片段（`[^\p{L}\p{N}]+`），数片段数是否超过
+`MAX_SEARCH_FRAGMENTS = 16`。这是 **KD-24** 的“别名截断”面；切片按 Python 正则近似
+Kotlin 的 `\p{L}\p{N}`（CJK/拉丁/希腊/西里尔覆盖），**只做计数登记，不做判定**。
+
+输出（本会话实跑）：
+
+```
+nodes=3279
+fragments>16 (name+aliases+boundary)=2487 (75.85%)
+  alias-only overload (name+aliases>16)=1284
+  boundary-driven only=1203
+nodes with >=40 aliases=158
+  worst (104, 182, 'BIOLOGY', '有氧呼吸')
+  worst (103, 175, 'BIOLOGY', '影响光合作用强度的环境因素')
+  worst (97, 159, 'BIOLOGY', '原核细胞和真核细胞')
+  worst (97, 151, 'BIOLOGY', '细胞器的结构和功能')
+  worst (96, 202, 'BIOLOGY', '实验-检测生物组织中的糖类-脂肪和蛋白质')
+  worst (94, 140, 'CHEMISTRY', '阿伏加德罗常数')
+  worst (93, 132, 'BIOLOGY', '细胞膜的结构和功能')
+  worst (92, 166, 'BIOLOGY', '细胞中的脂质')
+  worst (91, 128, 'CHEMISTRY', '化工流程题的分析模型')
+  worst (84, 138, 'PHYSICS', '板块模型')
+```
+
+读法与边界：
+
+- **75.85% 节点（2,487/3,279）片段数 >16**，其中 **1,284 个是“纯名称+别名”就超**
+  （与 KD-24 口径更正的 18.51% 同类；本包更大），1,203 个是 boundary 带入后超。
+- 这些节点必然有一部分别名/边界不进生产词面索引（v1 生产形状，KD-24 已登记 open）。
+- 本文件**不是**新缺陷判定，也不改任何绑定/别名；它只把 D-2「超配」与 D-3 单题翻转
+  的共同结构面（别名容量 >> 索引容量）量化登记。

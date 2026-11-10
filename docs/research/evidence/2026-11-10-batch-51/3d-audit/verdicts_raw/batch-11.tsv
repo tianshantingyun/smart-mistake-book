@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-81ab54030c-003b	CORRECT		high	**位移**：由初位置指向末位置的有向线段，它是矢量，方向由初位置指向末位置。	
+ext-che-f1f02182e1-008	CORRECT		high	“煎炼”对应蒸发结晶、“渍”对应浸取、“蒸烧”对应蒸馏	
+ext-phy-fc6ffa52f7-005	CORRECT		medium	③同速率轻绳连接体：分别对两物体隔离分析，应用牛顿第二定律结合正交分解法进行求解。	
+ext-bio-14c84889a6-013	CORRECT		high	核孔是某些大分子物质出入细胞核的通道，小分子物质是经过核膜出入细胞核的。	
+ext-mat-572b7c1235-001	CORRECT		high	结合整数条件，由单调性与关键点取值推理自变量的整数取值范围。	
+ext-che-31d241a8d1-005	CORRECT		high	防倒吸装置分为肚容式、接收式和隔离式三类	
+ext-che-5c62da9e03-1637	CORRECT		high	基因工程是用类似工程设计的方法，把来源不同的目的基因在体外重组并导入宿主细胞 DNA 中	
+ext-che-c8e4e37deb-019b	CORRECT		high	此例中氨气不与四氯化碳反应、不溶于四氯化碳，故四氯化碳层可以防止倒吸。	
+chem-hj-nongdu-jisuan-yicuo	CORRECT		high	溶液体积不能用溶剂体积与溶质体积之和代替，应用溶液质量除以密度。	
+ext-phy-7bd52b56f2-004	CORRECT		high	直到不挂槽码时小车能沿木板做匀速直线运动（纸带点迹间距均匀）	
+ext-phy-d625775dcf-009c	CORRECT		high	关系式：$U=Ed$，其中 d 为匀强电场中两点沿电场方向的距离。	
+phys-capacitor-rod-charge-not-zero	REBIND	电磁感应中的电容器问题	medium	导体棒最终匀速运动时 $I=0$，但电容器所带电荷量不为零：$q=CU_C=CBLv$。	讲电磁感应中杆与电容器的收尾状态，属该点；现绑为直流含容电路稳态
+ext-mat-05dee76010-019	CORRECT		high	嵌套型零点问题中先由零点总数确定各水平线与图象应有的交点分布，再解参数并核对。	
+ext-mat-6056c4f67d-002b	CORRECT		medium	解 $f(u)<f(v)$ 时必须确认 $f$ 的单调性成立，并结合定义域列出不等式。	
+ext-bio-1de8d85aa8-013b	CORRECT		medium	用片段缺失体的表型差异缩小基因所在区域	
+ext-bio-1f50dcaea2-028	CORRECT		high	提取病毒核酸后分别用DNA酶、RNA酶处理，再分别注射宿主观察发病情况，可判断该病毒的遗传物质是DNA还是RNA。	
+ext-mat-67879b3ebb-003	CORRECT		high	则 $y=f(g(x))$ 是以 $u$ 为中间变量的复合函数，其导数为 $y'_x=y'_u\cdot u'_x$	
+ext-phy-18cd4d7b47-048	CORRECT		high	电荷量 q＝平均I·Δt，代入后 q＝ΔΦ/R总（N 匝为 q＝NΔΦ/R总）	
+ext-che-be4cb87ed3-023	CORRECT		high	加稀HCl使c(H+)增大，平衡左移，抑制BiONO3生成。	
+phys-hj2-fangsuo-yuan-moxing	CORRECT		high	以入射点为定点、圆心在 $PP'$ 上作出一系列大小不同的轨迹圆，从圆的缩放中找临界条件	
+phys-hj2-zigan-hugan-ziganxishu	CORRECT		high	自感：由于通过导体自身的电流变化而产生的电磁感应现象	
+ext-che-a2ca03a8e1-005	CORRECT		high	利用周期表比较同周期或同主族元素性质并推测未知元素性质	
+ext-mat-97ff2b48ab-002	CORRECT		high	**并项求和**：针对通项含正负交替项的数列，把相邻项合并后可化为定值或易于求和的形式	
+ext-mat-096426d70c-002	CORRECT		high	**第一步定性**：判断问题是有序还是无序	
+ext-bio-85c5450274-017	CORRECT		high	n个碱基对可有4^n种碱基排列顺序，决定了DNA的多样性	
+ext-phy-b8618b8235-001c	CORRECT		high	求速度：中间各点的瞬时速度用该点两侧相邻时段内的平均速度代替	
+ext-che-5c8ab8324c-039	CORRECT		high	电解电解质型：如盐酸、CuCl2溶液，电解质本身被电解、浓度减小	
+chem-hj-pinghengxian-l-tuxiang	CORRECT		medium	L 线左上方（如 E 点）：A 的百分含量大于同压强下平衡值，反应正向进行，v正>v逆。	
+ext-mat-f276582c49-009	CORRECT		high	讨论指数函数的单调性及值域问题时，当底数 a 的大小不确定	
+ext-bio-2097a27bee-001	CORRECT		high	有同源染色体且不联会的为有丝分裂前期，同源染色体联会形成四分体的为减数分裂I前期	
+math-kb-arithmetic-operation-subsequence-property	CORRECT		high	每隔相同项数抽取的子数列仍是等差数列，公差为 $kd$	
+ext-che-70e7fe12d5-008	CORRECT		high	氯胺包括一氯胺NH2Cl、二氯胺NHCl2和三氯胺NCl3	
+ext-phy-3edb60db02-004	REBIND	单位制	medium	②基本单位：基本物理量的单位，力学中的基本量有三个，分别是质量、长度和时间	讲单位制构成与基本单位、导出单位划分，归「单位制」更贴；现绑仅覆盖常见导出单位
+ext-mat-b434ab451b-006	CORRECT		high	超几何分布描述的是不放回抽样问题，随机变量为抽到的某类个体的个数。	
+ext-phy-59dd10c06b-016	CORRECT		high	同一次实验中两次把橡皮条拉长后的结点（小圆环）所处的位置 $O$ 点必须保持不变	
+ext-phy-fb6571b7ed-001	CORRECT		high	放电过程中电容器储存的电场能逐渐转化为线圈的磁场能	
+ext-che-2297bcc4eb-005	CORRECT		high	臭氧杀菌能力强且不影响水质，可用于饮用水的杀菌消毒。	
+ext-che-5c62da9e03-1870	CORRECT		high	这类离子反应发生的条件：生成难溶性物质（沉淀）	
+ext-che-93a78062b4-021	CORRECT		high	共价化合物的形成过程表示为：原子的电子式→共价化合物的电子式	
+ext-bio-36ad3728f2-006	CORRECT		medium	胰岛素与细胞膜上的胰岛素受体结合后促使ATP水解	
+ext-mat-f609e50b38-001	CORRECT		high	从第三项起每一项等于它前面相邻两项的和。	
+ext-bio-5f510cdc4a-216	CORRECT		high	细胞中大多数无机盐以离子形式存在，少数构成细胞内某些化合物。	
+phys-hj2-zhengti-geri-jiaoti-yunyong	CORRECT		high	先整体求加速度，后隔离求内力	
+ext-phy-0f7a57f761-027	CORRECT		high	随着速度增大a逐渐减小；当牵引力等于阻力时a=0	
+ext-bio-b7bfc5543d-010b	CORRECT		high	突然停止光照时NADPH、ATP下降，C3增加、C5下降。	
+phys-fx-paper-tape-data-processing	REBIND	纸带在力学实验中的应用分析	medium	纸带按相等时间间隔打点，用中间时刻速度等于平均速度求各点速度	讲纸带数据的瞬时速度与逐差法处理，属纸带力学实验，非竖直上抛
+ext-che-20d30e5ba6-010b	CORRECT		high	增大反应物的浓度可以加快化学反应速率，减小反应物的浓度则减慢	
+ext-bio-7ffb5d551a-039	CORRECT		high	竞争性抑制剂由于与底物竞争酶的活性位点，因此其抑制作用可以通过增大底物的浓度来抵消。	
+ext-bio-acffd40782-001	CORRECT		high	选取具有一对相对性状的纯合亲本杂交得F1，F1全表现显性性状	
+ext-bio-8511a381b0-021	CORRECT		medium	脂质体到达靶细胞后可能与其细胞膜发生融合，也可能以胞吞方式将携带的药物运入细胞。	

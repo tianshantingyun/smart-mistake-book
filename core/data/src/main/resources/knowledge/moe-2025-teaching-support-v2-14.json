@@ -20802,7 +20802,7 @@
    "contentId": "ext-che-3713da16bf-132",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞中粒子数目、配位数、坐标与密度的计算",
      "role": "PRIMARY"
     }
    ]
@@ -52657,7 +52657,7 @@
    "contentId": "ext-phy-0b2ace4bef-016",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁波",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁波谱与各波段的特性",
      "role": "PRIMARY"
     }
    ]

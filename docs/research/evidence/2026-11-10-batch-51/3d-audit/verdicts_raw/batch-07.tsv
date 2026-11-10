@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-che-23cc3489fa-007	CORRECT		high	SO3是硫酸的酸酐，强烈吸水并与水剧烈反应生成硫酸。	
+ext-bio-400171cfa4-011	CORRECT		high	只有地理隔离而无生殖隔离可能产生亚种但不产生新物种；生殖隔离才是物种形成的标志。	
+ext-mat-289deb9ecd-1128b	CORRECT		high	转化为函数用函数性质；作差比较 a_(n+1)−a_n 与 0；作商比较 a_(n+1)/a_n 与 1。	
+chem-hj2-fangchengshi-jisuan-shaoliang-guoliang	REBIND	物质的量在化学方程式计算中的应用	medium	①判断少量与过量：将两反应物的量按计量数之比比较，用少量物质为标准计算。	材料主讲方程式计算的规范与过量判断，现绑审题条件不符
+phys-mo-l17-kepler-gravitation-b-4	REBIND	牛顿力学的局限性	medium	牛顿力学适用于宏观低速，高速运动需用相对论时空观。	材料讲牛顿力学局限与相对论初步，现绑动力学模型不符
+ext-che-fd6686f3a9-002b	CORRECT		high	实验室禁止手触口尝药品、禁止用燃着的酒精灯引燃另一盏、加热试管时管口不得对人。	
+ext-mat-550f58da7b-029	CORRECT		medium	垂直的充要条件是数量积为零，按定坐标、代公式、解方程三步即可求出参数，多参数时结合其他条件联立。	
+ext-phy-e4ad3c1c83-031	CORRECT		high	给出由表面重力加速度或环绕天体轨道参量求中心天体质量的方法。	
+ext-che-146a413810-014	CORRECT		high	碱与碱混合时是OH－在混合，H＋浓度必须由Kw换算得到	
+ext-che-5c62da9e03-999	CORRECT		high	键长越短键能越大，共价键越稳定。	
+ext-che-5c62da9e03-1398	CORRECT		high	状态：常温下除 CH3Cl、CH3CH2Cl、CH2=CHCl 等少数为气体外，其余为液体或固体。	
+ext-phy-eed17c1c1b-005	CORRECT		high	合力介于两力之差与两力之和之间 夹角越大合力越小	
+ext-phy-abd2cc56e9-006	CORRECT		high	用三角函数性质求极值：正弦函数在角度为90度时取最大值1，余弦函数在角度为0度时取最大值1。	
+phys-hall-voltage-formula	CORRECT		high	霍尔元件在与磁场、电流方向都垂直的方向上出现电势差（霍尔电压 $U$）。	
+ext-che-45e2028183-003b	CORRECT		high	氯气与水、碱（含漂白粉制备）发生的歧化反应及其产物	
+ext-bio-af14c05939-010	CORRECT		high	盐析不改变空间结构，变性改变空间结构但肽键一般不断裂，水解在蛋白酶作用下肽键断裂。	
+ext-bio-b20165289a-004b	CORRECT		high	核孔实现核质之间频繁的物质交换和信息交流，其数量与细胞代谢强度呈正相关。	
+ext-bio-1e23a952bc-048	CORRECT		medium	配子多样性加上受精作用中雌雄配子随机结合使后代多样。	
+ext-mat-289deb9ecd-1422	CORRECT		medium	把 Y=bx+a+e（E(e)=0，D(e)=σ²）称为 Y 关于 x 的一元线性回归模型，并规定各量的名称。	
+ext-che-5c62da9e03-1190	REBIND	芳香烃	high	芳香族化合物、芳香烃、苯的同系物三者是逐层包含的关系：苯的同系物属于芳香烃，芳香烃属于芳香族化合物。	材料讲芳香族/芳香烃/苯同系物包含关系，属芳香烃节点
+ext-mat-7862d6615f-010	CORRECT		high	等差基本量问题按“梳理条件与目标→选关联公式→按独立条件数列方程（组）→求解并验证隐含条件”推进。	
+ext-mat-289deb9ecd-1425	CORRECT		medium	残差＝观测值−预测值；可用残差图、残差平方和、决定系数 R² 三个途径比较模型的拟合效果，R² 越大、残差平方和越小拟合越好。	
+math-divider-direct-method	CORRECT		high	n 个相同元素排成一排形成 n−1 个空隙，插 m−1 块隔板，方法数 $C_{n-1}^{m-1}$。	
+ext-phy-688332d4d3-001c	CORRECT		high	轨道共面同向、周期 24 h、高度约 3.6×10⁷ m、速率约 3.1 km/s	
+ext-phy-3a6293013c-002	CORRECT		medium	误差是测量值与真实值之差，比较准确度要用相对误差。	
+ext-che-988f19d372-018	CORRECT		high	增大压强不一定加快反应速率、温度改变时正逆反应速率同增同减而不是一增一减。	
+ext-che-05206b7726-004	CORRECT		high	晶胞是描述晶体结构的基本单元，数量巨大的晶胞无隙并置构成晶体，一般为平行六面体	
+ext-che-1e82fabdbf-028	CORRECT		high	酸溶液中水电离出的 c(H+) 等于溶液中的 c(OH−)=Kw/c(H+)；碱溶液中等于溶液中的 c(H+)；比较水的电离程度看这一数值，越大电离程度越大。	
+ext-che-c6bdf111e0-003b	CORRECT		high	大多数非金属氧化物是酸性氧化物（CO2、SO2、SO3、N2O5），某些金属氧化物（Mn2O7）也是酸性氧化物；非金属氧化物不一定是酸性氧化物，酸性氧化物不一定是非金属氧化物。	
+ext-mat-8bf9b4a14a-003	CORRECT		high	由p与q的推出关系判定充分、必要、充要及既不充分也不必要条件。	
+chem-hj-chuantong-guisuanyan-cailiao	CORRECT		high	陶瓷、玻璃、水泥都是硅酸盐材料，玻璃由纯碱石灰石石英砂制得。	
+ext-mat-d526b3fb2b-001	CORRECT		medium	由指数式定义对数，对数式与指数式可互化，并有四条基本性质	
+ext-phy-99da78975a-031	CORRECT		high	粒子在两板间（电场与磁场正交）恰好做匀速直线运动，说明电场力与洛伦兹力平衡 qE＝qvB，故能通过的速率 v＝E/B，与电荷量、质量无关。	
+ext-phy-551bc5aa06-050	CORRECT		high	相邻两次冲日的时间间隔由会合条件决定——地球比该地外行星多环绕一整圈；由此得行星周期越大间隔越短，再由开普勒第三定律知轨道半径最大者周期最大。	
+phys-hj-044-whole-isolate-method	CORRECT		high	各物体加速度相同时，先用整体法由 $F=ma$ 求加速度，再隔离某一物体用牛顿第二定律求内力；求某一外力时可先隔离求加速度再用整体法。	
+ext-mat-cf783367fa-010b	CORRECT		high	等差数列取指数得等比数列，正项等比数列取对数得等差数列。	
+ext-che-95860fb410-007	CORRECT		high	碳碳单键可绕轴旋转、两端所连原子或原子团因而可能共面也可能不共面；直线与平面连接时直线在该平面上（如苯乙炔全共面）；平面与平面、平面与甲基经单键相连时可以重合但不一定重合，甲基的一个氢原子可能暂时处于该平面上。	
+ext-phy-e14aad82a5-870	CORRECT		medium	电功率是电流在一段电路中所做的功与通电时间之比，P=W/t=UI，表示电流做功的快慢。	
+ext-mat-c3ee76ccd9-026	CORRECT		medium	正四面体的内切球与外接球同心且在体高上；设高 h、内切球半径 r、外接球半径 R，则 R+r=h，再由底面外接圆半径列勾股关系解得 r=h/4、R=3h/4。	
+ext-che-a4da4e924e-003b	CORRECT		high	Al2O3是白色难溶于水的固体，熔点高、硬度大，既能与强酸反应又能与强碱反应，属于两性氧化物。	
+ext-che-d8cfaa5609-015	CORRECT		high	有离子参加或生成的反应是离子反应，本质是离子数目或种类改变，可归纳为五类条件	
+ext-mat-289deb9ecd-1239	CORRECT		high	导数的极限式可写成多种等价形式，关键是自变量之差与函数值之差相互对应。	
+bio-kb3-f4-s07-n07	CORRECT		high	②试剂：质量浓度为0.01 g/mL苏丹Ⅲ染液。	
+ext-che-dd8113ff75-022b	CORRECT		high	催化剂能改变反应的活化能，但不能改变反应的ΔH，因此只改变反应快慢、不改变反应的热效应。	
+chem-hj2-wuzhide-nongdu-tezheng-liutiao	CORRECT		high	cB=nB/V溶液，V是溶液体积；溶液均一，取出任意部分浓度不变；离子浓度按化学式比例计算。	
+ext-phy-e7ae1dda3f-007	CORRECT		medium	原线圈串联元件与含二极管电路的变压器分析要点	
+ext-mat-dc82490e60-006	CORRECT		high	双曲线上点 $P$ 与两焦点构成的三角形，面积 $S=\frac{b^2}{\tan\frac{\theta}{2}}$（$\theta=\angle F_1PF_2$）	
+ext-phy-8d588dd233-015	CORRECT		high	已平衡摩擦力时，改变小车总质量不需要重新平衡摩擦力，因为平衡条件中两边都含小车质量、可以消去。	
+ext-che-034cbfd131-004c	CORRECT		high	用水杨酸与乙酸酐在浓硫酸催化下水浴加热制乙酰水杨酸，经抽滤、碳酸氢钠提纯得产品。	
+ext-phy-ae0c6c08de-017	CORRECT		high	沙漠近地面热空气密度小、折射率小，远处物体射来的光在近地面层发生全反射，逆着反射光看到倒立虚像；海面附近冷空气密度大、折射率大，形成正立虚像。	

@@ -1,0 +1,18 @@
+{
+ "full_table_rows": 9616,
+ "rebound": 0,
+ "skipped": 9606,
+ "bad_to": [
+  "材料 bio-kb3-f5-s5-2-n11 不存在",
+  "材料 bio-kb3-f5-s5-2-n11 不存在",
+  "材料 ext-che-024618b63e-024 不存在",
+  "材料 ext-mat-d526615395-002c 不存在",
+  "材料 ext-che-df6d15950b-027 不存在",
+  "材料 ext-che-479d4a456d-003 不存在",
+  "材料 ext-phy-34c8589ff9-004 不存在",
+  "材料 ext-che-479d4a456d-005 不存在",
+  "材料 ext-che-f6a9a7f531-022 不存在",
+  "材料 ext-che-4e68d6cc38-010 不存在"
+ ],
+ "note": "全表 --write 被改前已存在的失效行拒绝（exit 1）；本次用同一 rebind() 以 40 行 scoped 输入应用，未改这 10 行。"
+}

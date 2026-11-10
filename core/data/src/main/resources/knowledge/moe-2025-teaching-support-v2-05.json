@@ -10451,7 +10451,7 @@
    "contentId": "bio-kb3-f5-s5-2-n06",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的合成和利用",
      "role": "PRIMARY"
     }
    ]
@@ -21353,7 +21353,7 @@
    "contentId": "bio-kb3-f4-s53-n03",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-观察根尖分生区组织细胞的有丝分裂",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:有丝分裂",
      "role": "PRIMARY"
     }
    ]
@@ -25447,7 +25447,7 @@
    "contentId": "bio-fx-acetobacter-characters",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:传统发酵技术",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:果酒和果醋的制作",
      "role": "PRIMARY"
     }
    ]
@@ -38603,7 +38603,7 @@
    "contentId": "bio-mo-genetic-engineering-008",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA的粗提取与鉴定",
      "role": "PRIMARY"
     }
    ]
@@ -41501,7 +41501,7 @@
    "contentId": "bio-mo-cell-091",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的基本单位-氨基酸",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:核糖体",
      "role": "PRIMARY"
     }
    ]

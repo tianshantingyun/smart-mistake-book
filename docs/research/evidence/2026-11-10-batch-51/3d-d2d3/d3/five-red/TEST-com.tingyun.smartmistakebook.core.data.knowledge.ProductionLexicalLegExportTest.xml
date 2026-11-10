@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.knowledge.ProductionLexicalLegExportTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-09T17:43:37.243Z" hostname="TIANSHAN" time="0.496">
+  <properties/>
+  <testcase name="exportProductionV1LexicalScoresAsFusionInput" classname="com.tingyun.smartmistakebook.core.data.knowledge.ProductionLexicalLegExportTest" time="0.496"/>
+  <system-out><![CDATA[production-lexical-leg: 文件=D:\smart mistake book\build\production-lexical-leg.tsv
+production-lexical-leg: 行数=39462 查询数=129 空特征查询=0 单题最大命中数=32
+production-lexical-leg: 回读重算生产 v1(D1 形) 主集=0.7829457364341085 (101/129) MRR=0.6184754521963827 逐章最小=0.0
+production-lexical-leg: 与 golden-jvm-metrics.txt B 段对账：逐章 24 条、MISS 28 条全部一致
+production-lexical-leg: 配套查询表=D:\smart mistake book\build\production-lexical-leg-queries.tsv
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-aa63783d0c-003	CORRECT		high	① 实验目的：探究弹簧弹力与弹簧形变量的定量关系，学会用列表法和图像法处理实验数据。	
+chem-enthalpy-hess-cycle-method	CORRECT		high	核心：同一反应不同途径的反应热总和相等（盖斯定律）。	
+ext-che-b461f32449-012	CORRECT		high	向无色气体中通入氧气或空气，气体变为红棕色即可判定	
+ext-che-2a6b2482d9-002	CORRECT		medium	铝是地壳中含量最多的金属元素，位于第三周期ⅢA族，易失3个电子	
+ext-che-5191e6c020-012	CORRECT		high	屠呦呦用乙醚提取出具有高效抗疟作用的青蒿素	
+ext-che-59d225cbf6-012	CORRECT		high	滴加顺序不同、溶液组成不同时沉淀量随碱量变化的图像分析	
+ext-che-ea3ea77a38-096	REBIND	电子转移	high	该反应是歧化反应：一部分溴的价态降低（生成NaBr）、另一部分升高（生成NaBrO3），故3mol Br2参与反应时电子转移为5mol。	单反应歧化转移电子数判断，非多反应电子守恒计算
+ext-mat-291d8c846f-046	CORRECT		high	通过比较第 n 项与相邻两项的大小，解不等式组锁定比前后项都大（或小）的项，即为最值项。	
+ext-che-95860fb410-002	CORRECT		medium	1. 碳原子数≤10，依次用甲、乙、丙、丁、戊、己、庚、辛、壬、癸表示	
+ext-mat-550f58da7b-005	CORRECT		high	向量加法满足交换律与结合律；减法定义为加上相反向量，作图口诀是“共起点、连终点、指向被减”。	
+ext-phy-2cb73c5406-016	CORRECT		high	两物体速度关联的实质：沿绳（或沿杆）方向的分速度大小相等。	
+ext-bio-158fcb02b3-002	CORRECT		high	食物链第一营养级的生物减少，相关生物都减少	
+ext-phy-b6bd732b19-042b	CORRECT		high	板块模型（叠块模型）的临界问题中，题干常隐含“当两物体接触面的摩擦力为最大静摩擦力时，两者恰好要相对滑动”。	
+ext-bio-c1fc984e29-010	CORRECT		medium	液滴移动法需设置对照组：处理方式是放置死亡的植物，目的是排除温度、气压等物理因素引起的气体体积膨胀	
+ext-phy-88d2614b96-007	CORRECT		medium	单摆由摆球沿与摆线垂直方向（即切向）的重力分力提供，注意它不是摆球所受的合外力。	
+ext-che-561c522b89-006	CORRECT		medium	—OH 连到苯环上属于酚，连到链烃基或脂环烃基上为醇。	
+ext-mat-560ed1c6b3-006	CORRECT		high	乘法：根指数不变，被开方数相乘，再把结果化成最简二次根式。	
+ext-che-5c62da9e03-1263	CORRECT		high	化学键越强、成键原子的质量越小，吸收峰频率就越高	
+ext-mat-289deb9ecd-143	CORRECT		high	与一元二次不等式有关的恒（能）成立问题，可借助二次函数的图象求解	
+bio-fx-assimilation-fates	CORRECT		high	同化量＝摄入量－粪便量，其去向包括呼吸散失、流向下一营养级、流向分解者和未被利用。	
+ext-che-b461f32449-102	CORRECT		high	核心工具是两个守恒与一个关系：得失电子守恒、氮原子守恒	
+ext-bio-61401994ab-021c	CORRECT		medium	显性基因的累加效应：A与B的作用效果相同，但显性基因越多，效果越强。	
+bio-fj-03-phospholipid-membrane	CORRECT		high	磷脂是组成生物膜（核膜、细胞膜和细胞器膜）的重要成分。	
+ext-mat-289deb9ecd-569	CORRECT		high	分三步：把几何元素化为向量、作向量运算、把运算结果翻译成几何关系；常用基底法与坐标法。	
+ext-phy-6ac803ba9e-022	CORRECT		medium	时间最短要求工件全程加速：由该加速度与带长算出一直加速到顶端的末速度，带速不小于它即可实现。	
+wusan-che-v-01230ccc	CORRECT		high	要检验碳碳双键，应先用弱氧化剂（银氨溶液或新制 Cu(OH)2）将醛基氧化，酸化后再用酸性 KMnO4 溶液或溴水检验碳碳双键。	
+math-fx-ab-yu-ba-bijiao	CORRECT		high	2. 构造 $f(x)=\dfrac{\ln x}{x}$：$f'(x)=\dfrac{1-\ln x}{x^2}$，在 $(0,e)$ 递增、$(e,+\infty)$ 递减	
+ext-che-02c28605ed-027	CORRECT		high	Fe2＋具有还原性，与NO3−(H＋)、ClO−、MnO4−(H＋)等氧化性离子不能大量共存。	
+ext-che-545c4e7cb5-023	CORRECT		medium	含电离平衡与沉淀溶解平衡、铵盐煅烧分解等非氧化还原反应，可通过平衡移动方向与原子守恒书写。	
+ext-che-4112b48508-008b	CORRECT		high	晶体投影问题本质上是把三维空间晶体结构中的微粒投影到二维平面上	
+ext-che-bd9b97b326-009	CORRECT		high	由物质的量（或浓度）-时间图像判断反应物、计量数与可逆性	
+ext-mat-62da49d986-004	CORRECT		high	焦点位置决定了标准方程的形式（四类形式中选一）。	
+math-hj-tuoyuan-jihe-xingzhi	REBIND	椭圆	medium	范围 $|x|\le a$，$|y|\le b$；对称轴为坐标轴、对称中心为原点；顶点 $\left(\pm a,0\right),\left(0,\pm b\right)$；离心率 $e=\frac{c}{a}\in(0,1)$，$e$ 越大椭圆越扁。	材料讲椭圆范围/对称/顶点/离心率等几何性质，现绑仅离心率
+ext-phy-0dcf503813-011	CORRECT		high	安装时注意使光源、透镜、滤光片、单缝、双缝的中心均在遮光筒的中心轴线上，并使单缝、双缝平行且间距适当。	
+ext-che-210ca53193-005	CORRECT		high	漂白粉主要成分是CaCl2和Ca(ClO)2，有效成分是Ca(ClO)2	
+bio-fj-11-leaf-area-index	CORRECT		high	叶面积系数超过一定值后，群体光合不再增加而呼吸继续增加，干物质积累速率降低。	
+ext-phy-c9f8cb4c96-013	CORRECT		medium	①结合能：原子核是核子凭借核力结合在一起构成的，要把它们分开也需要能量，这就是原子核的结合能。	
+ext-che-7bb59b3d12-004	CORRECT		high	用乙醇和浓硫酸（体积比约1∶3）加热到170℃制乙烯，浓硫酸作催化剂和脱水剂，温度计插入反应液中控制液温170℃，排水集气法收集。	
+bio-mo-cell-063	CORRECT		high	1. 生物大分子以碳链为基本骨架，碳是生命的核心元素。	
+ext-bio-5f510cdc4a-1484	CORRECT		high	存活曲线是生态学依照物种的个体从幼年到老年所能存活的比率做出的统计曲线。	
+ext-che-5c62da9e03-1288	NONE		medium	烷基：烷烃分子中去掉一个氢原子后剩余的基团；烃基：烃分子中去掉一个氢原子后剩余的基团。	讲烷基、烃基的定义与实例，非命名规则；同科无对应节点，建议新建
+ext-mat-7680e8fc69-025	CORRECT		high	基本结论：(a+b)^n 的展开式共有 n+1 项，所有二项式系数之和为 2^n。	
+ext-che-1b5c8b791f-003b	CORRECT		high	反应热的五种算法、平衡常数的三条关系、电化学电荷守恒、速率常数与平衡常数的关系、难溶电解质的溶解与转化。	
+ext-che-81b85d96e3-052	CORRECT		high	转化率有未达到平衡的转化率和已达到平衡的平衡转化率，审题时必须注意转化率是否为平衡转化率。	
+ext-che-ce7e144b5c-010b	CORRECT		high	含义：如果改变影响化学平衡的条件之一（如温度、压强以及参加反应的化学物质的浓度），平衡将向着能够减弱这种改变的方向移动。	
+ext-mat-87321c536b-002b	CORRECT		high	解决思路：先准确理解新定义，把定义中的文字条件翻译成数学式子（多为函数性质、不等式或方程）；再把新问题转化为已学过的知识和方法，例如单调性、奇偶性、周期性、零点、恒成立等问题；最后利用函数性质求解。	
+ext-phy-c4605806a7-014	CORRECT		high	1. 轻绳、轻杆、接触面间的弹力属于微小形变产生的弹力，不发生明显形变就能产生弹力，当状态发生变化时弹力会突变。	
+ext-che-66299cdda0-017	CORRECT		medium	常用氧化性顺序：KMnO4>MnO2>Cl2>Br2>Fe3＋>I2。	
+ext-phy-658ce60b0a-046	CORRECT		medium	因此U-x图线为直线，其斜率正比于Iρ/S：对横截面相同的两段导体，图线斜率之比等于电阻率之比。	
+phys-kb-newton-second-law	CORRECT		high	加速度与合外力成正比、与质量成反比，方向与合外力相同。	

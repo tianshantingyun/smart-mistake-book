@@ -14631,7 +14631,7 @@
    "contentId": "ext-mat-abf14fbf11-013",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的向量条件转化",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:圆的参数方程",
      "role": "PRIMARY"
     }
    ]
@@ -47084,7 +47084,7 @@
    "contentId": "ext-phy-f978043935-014",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:弹簧不锁定模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:滑块-小球-弹簧模型",
      "role": "PRIMARY"
     }
    ]

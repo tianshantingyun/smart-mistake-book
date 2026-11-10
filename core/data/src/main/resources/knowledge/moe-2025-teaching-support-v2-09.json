@@ -26941,7 +26941,7 @@
    "contentId": "ext-phy-fffc8cde9c-003c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁波",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁波谱与各波段的特性",
      "role": "PRIMARY"
     }
    ]
@@ -39292,7 +39292,7 @@
    "contentId": "ext-mat-fe0e9d84cf-008c",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:由线-面关系误解向量关系",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:忽视异面直线的夹角与向量的夹角范围不同",
      "role": "PRIMARY"
     }
    ]

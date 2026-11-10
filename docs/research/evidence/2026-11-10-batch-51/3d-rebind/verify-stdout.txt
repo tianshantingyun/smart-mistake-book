@@ -1,0 +1,87 @@
+{
+ "counts": {
+  "nodes": 3279,
+  "materials": 64850,
+  "bindings": 64850,
+  "materials_before": 64853
+ },
+ "dangling": [],
+ "unbound_materials": [],
+ "rebind_expected": 40,
+ "drop_expected": 3,
+ "bad_rebind": [],
+ "bad_drop": [],
+ "pack_identity": {
+  "packId": "moe-2025-four-subjects-v1",
+  "taxonomyVersion": "moe-2025-four-subjects-v1",
+  "packId_eq_taxonomyVersion": true,
+  "schemaVersion": 2,
+  "coverage": {
+   "baselineId": "moe-high-school-2017-2025",
+   "catalogLevel": "PARTIAL",
+   "teachingSupportLevel": "PARTIAL"
+  },
+  "index_packId": "moe-2025-four-subjects-v1",
+  "index_packId_eq_packId": true,
+  "sidecar_count": 25
+ },
+ "manifest": {
+  "packId": "moe-2025-four-subjects-v1",
+  "packId_eq_packId": true,
+  "schemaVersion": 2,
+  "version": 29,
+  "contentVersion": "5f164dab812c5e03",
+  "contentVersion_recomputed": "5f164dab812c5e03",
+  "retired_count": 1223,
+  "last_retired": {
+   "nodeId": "kb:moe-2025-four-subjects-v1:physics:topic:物理选择性必修第二册·第三四章·交变电流与电磁波·4 电磁波的发现及应用",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:physics:topic:物理必修第三册·第十三章（安培力/洛伦兹力/感应定律见选择性必修第二册）·磁场与电磁感应·4 电磁波的发现及应用",
+   "kind": "MERGE",
+   "reason": "批次11 F2 2026-10-14：kit-03#24 迁入（1 点）"
+  }
+ },
+ "staging_equals_shipped_bytes": true,
+ "pack_sha256": "aaf81be884933b9105db737feee3eb3d84ff440c53f0e2d01c806aafd3790032",
+ "ok": true
+}
+changed files: 40
+   shipped moe-2025-four-subjects-v1.json [4538305, 4537418]
+   shipped moe-2025-update-manifest.json [581672, 582131]
+   shipped moe-2025-teaching-support-v2-01.json [5441757, 5441689]
+   shipped moe-2025-teaching-support-v2-02.json [4709354, 4709372]
+   shipped moe-2025-teaching-support-v2-03.json [4484958, 4483530]
+   shipped moe-2025-teaching-support-v2-04.json [5432278, 5429586]
+   shipped moe-2025-teaching-support-v2-05.json [4435446, 4435405]
+   shipped moe-2025-teaching-support-v2-06.json [4722413, 4722410]
+   shipped moe-2025-teaching-support-v2-07.json [10018673, 10018694]
+   shipped moe-2025-teaching-support-v2-09.json [4917487, 4917534]
+   shipped moe-2025-teaching-support-v2-11.json [4835943, 4835940]
+   shipped moe-2025-teaching-support-v2-12.json [4904817, 4904801]
+   shipped moe-2025-teaching-support-v2-14.json [4872671, 4872734]
+   shipped moe-2025-teaching-support-v2-15.json [4814760, 4814712]
+   shipped moe-2025-teaching-support-v2-16.json [4726072, 4726098]
+   shipped moe-2025-teaching-support-v2-17.json [4712810, 4712825]
+   shipped moe-2025-teaching-support-v2-19.json [4737099, 4737105]
+   shipped moe-2025-teaching-support-v2-23.json [4486678, 4486665]
+   shipped moe-2025-teaching-support-v2-24.json [4345079, 4345080]
+   staging moe-2025-four-subjects-v1.json [4538305, 4537418]
+   staging moe-2025-update-manifest.json [581672, 582131]
+   staging moe-2025-teaching-support-v2-01.json [5441757, 5441689]
+   staging moe-2025-teaching-support-v2-02.json [4709354, 4709372]
+   staging moe-2025-teaching-support-v2-03.json [4484958, 4483530]
+   staging moe-2025-teaching-support-v2-04.json [5432278, 5429586]
+   staging moe-2025-teaching-support-v2-05.json [4435446, 4435405]
+   staging moe-2025-teaching-support-v2-06.json [4722413, 4722410]
+   staging moe-2025-teaching-support-v2-07.json [10018673, 10018694]
+   staging moe-2025-teaching-support-v2-09.json [4917487, 4917534]
+   staging moe-2025-teaching-support-v2-11.json [4835943, 4835940]
+   staging moe-2025-teaching-support-v2-12.json [4904817, 4904801]
+   staging moe-2025-teaching-support-v2-14.json [4872671, 4872734]
+   staging moe-2025-teaching-support-v2-15.json [4814760, 4814712]
+   staging moe-2025-teaching-support-v2-16.json [4726072, 4726098]
+   staging moe-2025-teaching-support-v2-17.json [4712810, 4712825]
+   staging moe-2025-teaching-support-v2-19.json [4737099, 4737105]
+   staging moe-2025-teaching-support-v2-23.json [4486678, 4486665]
+   staging moe-2025-teaching-support-v2-24.json [4345079, 4345080]
+   table tools\kb_build\tables\material_rebind.csv [2727116, 2736544]
+   table tools\kb_build\tables\material_bindings.csv [162130, 162275]

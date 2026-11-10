@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-d930bdd3d9-008	CORRECT		medium	计算法：若两个力 F1、F2 的夹角为 θ，则合力的大小可由余弦定理得到	
+ext-mat-91e0c2ace8-109b	CORRECT		high	设 I 是焦点三角形 $PF_1F_2$ 的内心，顶角平分线 PI 交 $F_1F_2$ 于点 Q	
+ext-mat-289deb9ecd-1307	CORRECT		high	分类加法计数原理是分类完成、类类相加，每一类中的方法都能独立完成这件事	
+ext-bio-58af510b8f-012	CORRECT		high	语言功能是人脑特有的高级功能，涉及人类的听、说、读、写	
+ext-phy-7d94f8baf8-001	CORRECT		medium	传送带问题从动力学角度（受力与位移关系）和能量角度（做功、生热、多耗电能）两方面分析；注意速度相同时摩擦力往往突变	
+ext-mat-096426d70c-004	CORRECT		high	人与座位模型的基本特征有五点：一人一位；位置之间有顺序；座位可能空着；不一定所有人都来坐、来的是谁也不确定；必要时把座位与人对调理解，剩余座位随人一起排列	
+ext-bio-5f510cdc4a-100	CORRECT		high	方式：半保留复制，新合成的每个DNA分子中都保留了原来DNA分子中的一条链	
+chem-fx-chang-yong-de-kong-zhi-fan-ying-tiao-j-f56x03	REBIND	调节pH分离提纯金属离子	medium	调节溶液的pH。常用于使某些金属离子形成氢氧化物沉淀	材料讲调pH使金属离子沉淀且不引入新杂质，属该节点，非速率与平衡条件选择
+ext-phy-612c1aa440-005b	CORRECT		high	1.以恒定功率启动：P额一定，v 增大则牵引力 F＝P额/v 减小，a＝(F－f)/m 减小，机车做加速度逐渐减小的加速运动	
+ext-bio-1b337b6e38-013	CORRECT		high	导致配子染色体数目异常的两类原因：减数第一次分裂时同源染色体未分离，或减数第二次分裂时姐妹染色单体未分离	
+ext-phy-c491e1cc4d-003	CORRECT		medium	在重力场与匀强电场的复合场中，把重力与电场力合成得到“等效重力”，与等效重力方向相反、关于圆心对称的那一点就是等效最高点	
+ext-che-5c62da9e03-1115	CORRECT		high	组成：化学式为 CH4·nH2O，甲烷分子藏在水分子笼中	
+ext-che-5c62da9e03-1758	CORRECT		high	①物质氧化性、还原性的判断：如探究 SO₂ 具有还原性，可将气体通入酸性 KMnO₄ 溶液中观察是否褪色	
+ext-mat-289deb9ecd-1295	CORRECT		high	①定义：对于具有单个极值的函数，若它在极值点左右两侧的增减速度不一样，函数图象就不具备轴对称性；对在 (a,b) 上只有一个极值点 x0 的可导函数，设零点为 x1、x2 且 a＜x1＜x0＜x2，若 (x1+x2)/2≠x0 则称 f(x) 在 (a,b) 上极值点偏移	
+ext-che-b05ffc606b-028	CORRECT		medium	醛基官能团能被弱氧化剂氧化而碳碳双键不能被弱氧化剂氧化，只能被强氧化剂氧化，可以用银氨溶液或新制Cu(OH)2悬浊液检验醛基	
+ext-bio-dd094faf39-019	CORRECT		medium	核基因父母各半，质基因几乎全由卵细胞提供	
+ext-che-9b3a0addbb-021	CORRECT		high	按溶解电离的计量比设浓度：CaF2 溶解在纯水中时 2c(Ca2＋)＝c(F－)，令 c(Ca2＋)＝s，则 c(F－)＝2s，代入 Ksp(CaF2)＝c(Ca2＋)·c2(F－) 得 Ksp＝4s3	
+ext-phy-e14aad82a5-036	CORRECT		high	靠红外线与超声波到达接收仪的时间差、或超声波的往返时间确定物体在两个位置的距离，再由位移与时间求平均速度	
+ext-bio-2572fc572d-010	CORRECT		high	组织细胞生活的内环境是组织液；血细胞生活在血浆中；毛细血管壁细胞生活在血浆和组织液中；毛细淋巴管壁细胞生活在淋巴和组织液中；淋巴细胞和吞噬细胞生活在淋巴和血浆中	
+ext-phy-1d1f4d4ca8-025	CORRECT		high	电池实际容量等于正常工作状态下放出的总电荷量，由 Q=It 可知 I-t 图线与时间轴所围面积即电荷量，用数格法求面积即可估算容量	
+ext-che-3ca2d97c66-023	CORRECT		high	定义：由两种或两种以上的分子通过分子间相互作用形成的分子聚集体，定义中的分子是广义的、包括离子	
+ext-che-6711cf9801-013	CORRECT		medium	1. 取代反应中，每取代1 mol氢原子，需要1 mol X2(Cl2、Br2等)	
+ext-che-6711cf9801-008	CORRECT		high	煤由有机物和少量无机物组成的复杂混合物，主要含碳，还含氢、氧、氮、硫等元素	
+ext-che-72704fa3a9-011	CORRECT		high	1. 解答燃料电池题目要注意介质是什么（电解质溶液还是熔融盐或氧化物）；通入负极的物质为燃料，通入正极的物质为氧化剂	
+ext-che-e10749660f-035	CORRECT		medium	溶解性：难溶于水的金属氢氧化物、卤化物、氰化物可溶于氨水或过量OH⁻、Cl⁻、Br⁻、I⁻、CN⁻溶液，形成可溶性配合物	
+bio-kb2-07-transport-examples	CORRECT		high	葡萄糖：进入红细胞为协助扩散，进入小肠绒毛上皮细胞和肾小管重吸收为主动运输	
+math-mo-biaomianji-cemian-zhoujiemian	CORRECT		high	1. 旋转体表面积问题注意轴截面及侧面展开图的应用，弄清底面半径、母线长与侧面展开图中边的关系（如圆锥侧面展开为扇形，弧长等于底面周长）	
+ext-phy-70937c509a-009	CORRECT		high	适用条件是温度保持不变，所以操作要缓慢，才能保证温度不变	
+ext-mat-289deb9ecd-1327	CORRECT		high	组合：一般地，从 n 个不同元素中取出 m（m≤n）个元素作为一组，叫做从 n 个不同元素中取出 m 个元素的一个组合	
+phys-hj-051-inclined-belt-analysis	CORRECT		high	沿带向上：$v_0<v$ 时受沿带向上的摩擦力，$a=μg·cosθ-g·sinθ$ 匀加速	
+ext-bio-9be955ed5e-013	CORRECT		high	①定义法：具有相对性状的两纯合亲本杂交，子代只表现一种性状，则子代表现出的性状为显性性状（如DD×dd→Dd，高茎为显性）	
+ext-che-6e671fea2f-001b	CORRECT		high	①沉淀法（AgNO3溶液）：取少量未知液，先加稀硝酸酸化，再滴加AgNO3溶液，根据沉淀颜色判断——白色沉淀为Cl⁻（AgCl）、淡黄色沉淀为Br⁻（AgBr）、黄色沉淀为I⁻（AgI）	
+ext-che-888287a37e-002	CORRECT		medium	处理方法：一般根据气体的相关性质，使其转化为非气态物质或无毒物质，如酸性有毒气体用碱溶液吸收、可燃性气体用点燃等措施	
+ext-phy-51fcc0ac18-015	CORRECT		high	③ 实质：热力学第二定律的每一种表述都揭示大量分子参与的宏观过程的方向性，说明自然界中一切涉及热现象的宏观过程都具有方向性	
+ext-mat-91e0c2ace8-013	CORRECT		high	**半周期推导周期的三种常用形式**（推导方法都是用 $x+a$ 替换 $x$）	
+ext-mat-689414977f-006b	CORRECT		medium	1. 已知一角的三角函数值(sin α，cos α，tan α)中任意两个的符号，可分别确定出角的终边所在的可能位置	
+bio-kb3-f4-s60-n02	CORRECT		high	(1)概念：由基因所决定的细胞自动结束生命的过程。由于细胞凋亡受到严格的由遗传机制决定的程序性调控，所以它是一种程序性死亡	
+chem-fx-nan-rong-xing-de-jian-yi-fen-jie-sheng-f16x02	REBIND	横向变化体现了同价态不同的类别-氧化物-碱-盐-物质之间的转化	medium	③难溶性的碱易分解生成对应的氧化物，但难溶性的碱性氧化物一般不与水反应生成对应的碱。	材料即该节点第(3)条难溶碱分解规律，非铁的氢氧化物专述
+ext-mat-8ae7e0e6e7-080	CORRECT		high	3. 收口：由祖暅原理两几何体体积相等，而柱体体积＝S曲边三角形OAB×AA₁，故该面积等于参照体的体积（块内即四棱锥体积）	
+ext-mat-3c87121d3d-003	CORRECT		medium	把上式展开并与原方程逐项比较系数，就得到 $n$ 次方程根与系数的关系	
+ext-che-d16fbcdb5f-004	CORRECT		high	强弱取决于得失电子的难易程度，与得失电子数目无关	
+ext-phy-21d4982874-017	CORRECT		high	1. 只有直通道 $PQ$ 内有电场，离子在该段受电场力做匀加速直线运动，电场力做功、动能增加	
+ext-mat-08768ec9b7-002b	CORRECT		high	随机变量的方差和标准差都反映了随机变量取值偏离均值的平均程度；方差或标准差越小，则偏离变量的平均程度越小	
+ext-che-5eee866c61-008	CORRECT		high	1. 步骤④配系数：确定氧化剂、还原剂、氧化产物、还原产物的化学计量数，观察法配平其他物质的化学计量数	
+ext-mat-78a2338ccf-010b	CORRECT		high	求导化简、令导数为零求根、由导数符号判断极值类型、代入原函数求极值	
+ext-phy-6bd83bb4f5-001	CORRECT		high	①定义：如果物体在运动方向上所受的力与它偏离平衡位置位移的大小成正比，并且总是指向平衡位置，这样的运动就是简谐运动	
+ext-phy-d609e69fac-006	CORRECT		high	② 完全非弹性碰撞：碰撞结束后两物体合二为一、以同一速度运动，动能损失最大，碰后共同速度由动量守恒定律求出	
+ext-che-08374701a7-017	CORRECT		high	书写试剂时必须使用规范名称并点明关键规格，例如：无水硫酸铜（不能用“硫酸铜”）	
+ext-phy-934e377dcb-020	CORRECT		high	定义与特点：物体在共点力作用下始终处于平衡状态，但某些力的大小或方向随外界条件（角度、位置）缓慢变化，过程缓慢可视为准静态，始终满足ΣFx＝0与ΣFy＝0	
+ext-phy-0c4e83f322-034	CORRECT		high	图线与 x 轴围成的面积表示电势差，面积的正负表示始末两点电势的高低	

@@ -1,0 +1,70 @@
+{
+ "commands": [
+  {
+   "cmd": "python -I -X utf8 tools/dense_build/export_bge_int8.py --skip-export --threads 16",
+   "exit": 0,
+   "key_readings": [
+    "向量集 44117 条（canonical 3279 + alias 40838；包 3279 节点），查询 129 条",
+    "门（cosine ≥ 0.999）：{\"fp32_docs\": true, \"fp32_queries\": true, \"int8_docs\": true, \"int8_queries\": true}"
+   ]
+  },
+  {
+   "cmd": "python -I -X utf8 tools/dense_build/pack_dense_asset.py",
+   "exit": 0,
+   "key_readings": [
+    "落盘 44117 行 × 512 维 int8，sha256=ed866a6251371c3d90789d4d68b5ebd2cf284ec2ee45009fb55d37065df0b033",
+    "量化还原对拍：逐行 cosine 最小=0.999746978（门 0.9990）"
+   ]
+  },
+  {
+   "cmd": "python -I -X utf8 tools/dense_build/gen_dense_device_fixture.py",
+   "exit": 0,
+   "key_readings": [
+    "scan 4 条查询 / 3279 个节点行",
+    "asset sha256=ed866a6251371c3d90789d4d68b5ebd2cf284ec2ee45009fb55d37065df0b033"
+   ]
+  },
+  {
+   "cmd": "python -I -X utf8 tools/dense_build/stage3_device_sim.py",
+   "exit": 0,
+   "key_readings": [
+    "端侧算法（词面召回域内排序）：{\"main\": 0.8992248062015504, \"hits\": 116, \"total\": 129}",
+    "离线参考 refFusedD1：{\"main\": 0.9147286821705426, \"hits\": 118, \"total\": 129}",
+    "与离线参考逐题比对：命中丢失 2 条 [(58, ...), (97, 超重与失重的判断方法)]"
+   ]
+  }
+ ],
+ "files": {
+  "core/data/src/main/resources/knowledge/dense/bge-small-zh-int8.vec": {
+   "head_bytes": 26087046,
+   "head_sha256": "70329115240fe6beafcb88e6fd85d80585fd64f8b22dbe284730f742b0a2a1a5",
+   "now_bytes": 26084526,
+   "now_sha256": "ed866a6251371c3d90789d4d68b5ebd2cf284ec2ee45009fb55d37065df0b033"
+  },
+  "core/data/src/main/resources/knowledge/dense/bge-small-zh-int8.vec.json": {
+   "head_bytes": 3719,
+   "head_sha256": "f0c947950554a7f368fcdfbe3e94e3352d31cfa4653d6ff83da9b082012070e8",
+   "now_bytes": 3799,
+   "now_sha256": "4f68c3085cbe5a75bfe81dc9656275e5b06473636dfedccffde7f2043431264f"
+  },
+  "tools/dense_build/model-manifest.json": {
+   "head_bytes": 25912,
+   "head_sha256": "af3fbcb50f3f23faa1ead8c667402e5cc37db4a1b43c591bec3758c6a8c876cc",
+   "now_bytes": 26498,
+   "now_sha256": "e014aa256707fa289cc9aa50a5668746b1b6e3ba269ab7493103421ec86af0f1"
+  },
+  "core/data/src/test/resources/dense/dense-scan-reference.txt": {
+   "head_bytes": 436696,
+   "head_sha256": "7a945aeebea321bf65ba282c47df292718da8592fcd8a4bb93ef6059025c0ba4",
+   "now_bytes": 436550,
+   "now_sha256": "e0b30dd5ca8f4456677e245a993e2a38d47ad25b4e46cd260091fedf343ad4d2"
+  },
+  "core/data/src/test/resources/dense/dense-device-order-reference.txt": {
+   "head_bytes": 223285,
+   "head_sha256": "9fe7ffc366af58833068c2eb03dc49b345cdecef5c381976d924ea4b6f622fdb",
+   "now_bytes": 223023,
+   "now_sha256": "905bfea1afeafdd7eabb3cd1f94638e57d82a6bf4c6e6d6671b85c58c7ad6029"
+  }
+ },
+ "note": "旧 .vec 为 git HEAD 字节；新 .vec 由 pack_dense_asset.py 生成，未手写任何 hash。"
+}

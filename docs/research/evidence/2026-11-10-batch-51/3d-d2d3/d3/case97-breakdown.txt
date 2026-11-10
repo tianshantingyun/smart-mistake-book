@@ -1,0 +1,28 @@
+==================== 58 求f(x)=(x^2+x+1)/(x+1)（x≠-1）的值域，我设了y整理出关于x的一元二次方程，然后呢？ expected 判别式法-主要用于含有二次的分式函数-形如
+1 复数范围内解方程 lex 11.0 dn 0.9147 ln 1.0 fused 0.9573
+2 复数范围内一元二次方程的根 lex 9.0 dn 1.0 ln 0.8 fused 0.9
+3 二次函数的零点分布 lex 9.0 dn 0.9173 ln 0.8 fused 0.8586
+4 一元二次方程根的判定与韦达定理 lex 9.0 dn 0.8824 ln 0.8 fused 0.8412
+5 余弦定理 lex 9.0 dn 0.8806 ln 0.8 fused 0.8403
+6 实系数一元二次方程的根与韦达定理 lex 9.0 dn 0.8532 ln 0.8 fused 0.8266
+7 圆的一般方程 lex 8.0 dn 0.8767 ln 0.7 fused 0.7884
+8 判别式法：主要用于含有二次的分式函数，形如： lex 8.0 dn 0.7281 ln 0.7 fused 0.714
+9 一元二次不等式 lex 5.0 dn 0.9547 ln 0.4 fused 0.6774
+10 含参一元二次不等式的解法 lex 6.0 dn 0.8001 ln 0.5 fused 0.65
+EXPECTED pos 8 lex 8.0 dn 0.7281 ln 0.7 fused 0.714
+dense raw min/max 0.1927 0.7154 expected raw 0.5733
+lex min/max 1.0 11.0
+==================== 97 电梯向上减速的过程中，我处于超重还是失重？判断到底看加速度还是看速度方向？ expected 超重与失重的判断方法
+1 力、加速度与速度的关系 lex 10.0 dn 0.831 ln 1.0 fused 0.9155
+2 匀变速直线运动 lex 10.0 dn 0.8225 ln 1.0 fused 0.9113
+3 超重 lex 10.0 dn 0.6731 ln 1.0 fused 0.8365
+4 速度、速度的变化量、加速度的比较 lex 8.0 dn 0.7433 ln 0.7778 fused 0.7606
+5 变轨过程分析 lex 8.0 dn 0.6536 ln 0.7778 fused 0.7157
+6 加速度方向突变 lex 8.0 dn 0.6032 ln 0.7778 fused 0.6905
+7 超重与失重的判断方法 lex 4.0 dn 1.0 ln 0.3333 fused 0.6667
+8 斜面模型 lex 9.0 dn 0.4116 ln 0.8889 fused 0.6503
+9 由简谐运动图像获取信息 lex 10.0 dn 0.294 ln 1.0 fused 0.647
+10 曲线运动 lex 7.0 dn 0.6007 ln 0.6667 fused 0.6337
+EXPECTED pos 7 lex 4.0 dn 1.0 ln 0.3333 fused 0.6667
+dense raw min/max 0.213 0.7852 expected raw 0.7852
+lex min/max 1.0 10.0

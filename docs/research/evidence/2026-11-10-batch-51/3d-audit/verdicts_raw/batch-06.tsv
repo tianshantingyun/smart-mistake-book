@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-che-78beaac7a8-015	NONE		low	Fe、Fe2＋、Fe3＋的相互转化条件以及价类二维图中三类变化的含义	主为铁三角+三类变化，现绑仅斜向一类；本包无对应节点
+ext-mat-6b581c0987-003b	CORRECT		high	翻折前后在同一面内的量不发生变化	
+ext-phy-e14aad82a5-423	CORRECT		high	波长较长的无线电波和红外线易发生干涉、衍射现象；波长较短的 X 射线、γ 射线穿透能力较强	
+ext-bio-5f510cdc4a-641	REBIND	减数分裂细胞中染色体-dna数量变化规律	medium	二看法区分三条曲线：一看斜线，无斜线的是染色体；有斜线时二看起点，起点为0的是染色单体，起点非0的是核DNA分子	主为数量变化曲线判读，非分裂图像判断
+ext-phy-e3af220d30-011	CORRECT		high	依据合加速度的特点以及合加速度与合初速度的方向关系，判断合运动的运动性质	
+ext-phy-a8cab79186-006b	CORRECT		medium	闭合瞬间：电容器相当于通路（正在充电），线圈相当于断路（自感电动势阻碍电流增大）	
+ext-phy-bb84aa4cd5-002b	CORRECT		high	基本单位和导出单位一起就组成了单位制	
+ext-phy-03b9349251-003	CORRECT		high	力的图示需要标度和刻线，能表示出力的大小；力的示意图不需要标度，主要表示存在这个力及其方向	
+ext-mat-62c1414e2e-018	CORRECT		high	求等差数列的通项公式，核心是求出首项 $a_1$ 与公差 $d$，再代入 $a_n=a_1+(n-1)d$	
+bio-kb-protoplast-vs-protoplast-layer	CORRECT		high	原生质层：成熟植物细胞的细胞膜、液泡膜以及两层膜之间的细胞质	
+bio-mo-population-007	CORRECT		high	年龄组成并不决定种群密度的变化：年龄组成只是预测种群密度的变化趋势	
+ext-phy-3d0f385573-003	CORRECT		medium	综合运用牛顿运动定律和匀变速直线运动公式，注意受力分析要全面	
+math-hj-jieju-yixiang-bie	CORRECT		medium	“截距”是直线与坐标轴交点的坐标值，可正、可负、可为零	
+ext-bio-4d7da8cb4e-002b	CORRECT		high	血红蛋白是主要存在于脊椎动物红细胞中的一种携氧蛋白质，由珠蛋白和血红素组成	
+ext-phy-e4b3b251e9-023	CORRECT		high	向心力 F=man=mv²/R=mω²R=4mπ²f²R	
+ext-phy-e14aad82a5-239	CORRECT		high	电动势：在电源内部非静电力所做的功 W非 与所移动电荷量 q 的比值	
+ext-phy-bf0fd75088-014	REBIND	能量图像的斜率意义	high	E-h 图线为直线，斜率 dE/dh=f 即阻力大小	主为能量图像斜率求力，非功能关系分析
+ext-phy-3f87e2a35b-009	REBIND	求解电能的思路-x1	medium	电流恒定时用 Q＝I²Rt；电流变化时用克服安培力做的功 Q＝W克安	主为电磁感应中焦耳热/电能求法，非焦耳定律本身
+ext-phy-5aff2fc1d4-020b	CORRECT		high	原子的能量也只能取一系列特定的值，这些量子化的能量值叫作能级	
+ext-phy-1dbc2880eb-033b	CORRECT		medium	用动能定理 $W=qU=\Delta E_k$ 可知该段动能变化量越大	
+chem-purity-formula	CORRECT		high	纯度（质量分数）=被测组分质量/样品总质量×100%	
+ext-bio-bfbb639c07-026	CORRECT		high	位于非同源染色体上的非等位基因随非同源染色体的自由组合而发生重组	
+ext-che-309fd84b7e-006	CORRECT		high	构造原理揭示了原子核外电子的能级分布，其中存在能级交错现象	
+ext-mat-ed0cdb9e41-014	CORRECT		high	几何意义：|a×b| 等于以 a、b 为邻边的平行四边形的面积	
+ext-che-48dbe17522-014	CORRECT		high	消耗HCl使该平衡正向移动，可以增大该反应的转化率	
+bio-fj-02-inorganic-salt-form	CORRECT		medium	大多数无机盐以离子形式存在	
+ext-che-b30096fd06-001c	CORRECT		high	验证某无色气体为NO的方法是向该无色气体中通入O2（或空气），无色气体变为红棕色	
+ext-che-e1f44db337-029b	NONE		medium	根据相邻曲线的交点，可计算配合物形成过程中的各级平衡常数	本包无配位平衡/稳定常数节点，需新建点
+ext-phy-373ec7d57a-005	CORRECT		high	瓦解的临界条件是“赤道”上的物体所受星球的引力恰好提供向心力	
+math-hj-s54-complex-ops	CORRECT		high	$i^2=-1$，$i$ 的幂以4为周期	
+ext-che-b0471d5c46-006	REBIND	氧化性-还原性强弱的比较	high	判断依据：只要满足氧化性——氧化剂＞氧化产物、还原性——还原剂＞还原产物，氧化还原反应就能发生	主为强弱比较依据与顺序，非三类易错认识
+ext-che-10fd6d055d-012	CORRECT		high	平衡移动方向由 v′(正) 与 v′(逆) 的相对大小决定	
+ext-che-b1c5a62780-001b	CORRECT		medium	自然界消耗 CO2 的主要反应：①溶于江水、海水中 CO2＋H2O=H2CO3	
+ext-bio-f13ea98370-022	CORRECT		medium	实验选材的巧妙之处：①水绵的叶绿体呈螺旋带状分布，便于观察	
+ext-che-f602061ba2-006	CORRECT		high	影响物质体积大小的三个因素：①粒子的数目（即物质的量的多少）；②粒子本身的大小（物质的本性）	
+ext-bio-f0a380006b-028	CORRECT		high	顺浓度梯度、需转运蛋白、不消耗能量为协助扩散	
+ext-bio-ef246a12be-003	CORRECT		high	依据功能分类：细胞的主要能源物质如葡萄糖	
+ext-bio-1e2461181a-013	CORRECT		high	种子萌发时的呼吸方式随吸水与O2供应情况分三个阶段	
+ext-che-5c62da9e03-032	CORRECT		high	微溶物分三种情形：出现在生成物中写化学式	
+ext-phy-4bbcb096e6-001	CORRECT		high	充、放电电流都是由大逐渐减小到零，电流方向相反	
+ext-mat-ab5d38dc6c-003	CORRECT		high	用向量法求异面直线所成角的一般步骤：①建立空间直角坐标系	
+phys-particle-linear-methods	CORRECT		high	功能观点：有其他力做功时 $W_{合} = F_{合}d = (mv^2 − mv_0^2)/2$	
+ext-mat-8b5d6111fa-002b	CORRECT		high	用换元法求值域或解析式时，一定要根据原函数和定义域求出新变量的范围	
+chem-fx-cong-hai-shui-zhong-ti-qu-wu-zhi-di-si-f21x08	CORRECT		high	海水中提取溴和碘的反应都是将其-1价离子氧化成单质	
+ext-che-c16f7b5af8-012	CORRECT		high	新制的氢氧化铜悬浊液具有弱氧化性，可用来检验醛基	
+ext-mat-289deb9ecd-1010	CORRECT		high	与圆 x²+y²=r² 相切于点 (x1,y1) 的切线方程是 x1x+y1y=r²	
+math-fx-yuxian-pan-xingzhuang	REBIND	三角形形状的判断	high	由余弦值的正负定锐直钝（$b^2+c^2-a^2$ 的符号），由边（角）相等关系定等腰等边	主为边角关系判形状，非解三角形定理/中线
+ext-bio-5b6cb16a7f-031	CORRECT		medium	避开同尾酶 某两种酶是同尾酶 切割后会产生相同的黏性末端	
+ext-che-b2a838f776-004	CORRECT		high	某气体的分压＝气体总压强×该气体的体积分数（或物质的量分数）	
+che-so2-so3-structure-hybridization	CORRECT		high	中心硫原子的价层电子对数为 3（2 个 σ 键＋1 对孤对电子）	

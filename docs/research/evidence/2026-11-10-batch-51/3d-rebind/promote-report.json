@@ -1,0 +1,57 @@
+  OK   moe-2025-four-subjects-v1.json
+  OK   moe-2025-teaching-support-v2-01.json
+  OK   moe-2025-teaching-support-v2-02.json
+  OK   moe-2025-teaching-support-v2-03.json
+  OK   moe-2025-teaching-support-v2-04.json
+  OK   moe-2025-teaching-support-v2-05.json
+  OK   moe-2025-teaching-support-v2-06.json
+  OK   moe-2025-teaching-support-v2-07.json
+  OK   moe-2025-teaching-support-v2-08.json
+  OK   moe-2025-teaching-support-v2-09.json
+  OK   moe-2025-teaching-support-v2-10.json
+  OK   moe-2025-teaching-support-v2-11.json
+  OK   moe-2025-teaching-support-v2-12.json
+  OK   moe-2025-teaching-support-v2-13.json
+  OK   moe-2025-teaching-support-v2-14.json
+  OK   moe-2025-teaching-support-v2-15.json
+  OK   moe-2025-teaching-support-v2-16.json
+  OK   moe-2025-teaching-support-v2-17.json
+  OK   moe-2025-teaching-support-v2-18.json
+  OK   moe-2025-teaching-support-v2-19.json
+  OK   moe-2025-teaching-support-v2-20.json
+  OK   moe-2025-teaching-support-v2-21.json
+  OK   moe-2025-teaching-support-v2-22.json
+  OK   moe-2025-teaching-support-v2-23.json
+  OK   moe-2025-teaching-support-v2-24.json
+  OK   moe-2025-teaching-support-v2-25.json
+  OK   moe-2025-teaching-support-v2-index.json
+  OK   moe-2025-update-manifest.json
+{
+ "root": "D:\\smart mistake book\\build\\kb-staging",
+ "sections": {
+  "gates": {
+   "ok": true,
+   "failed": []
+  },
+  "consistency": {
+   "ok": true,
+   "failed": {}
+  },
+  "roundtrip": {
+   "ok": true,
+   "failed_files": 0
+  },
+  "manifest": {
+   "ok": true,
+   "new_version": 29,
+   "flattened": 0,
+   "upgraded": false
+  }
+ },
+ "ok": true,
+ "written": 28,
+ "contentVersion": "5f164dab812c5e03",
+ "version": 29,
+ "flattened": 0,
+ "packSha256": "aaf81be884933b9105db737feee3eb3d84ff440c53f0e2d01c806aafd3790032"
+}

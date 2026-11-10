@@ -22420,7 +22420,7 @@
    "contentId": "phys-hj2-yehzhu-fengbi-yaqiang-yaodian",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:气体压强",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:液柱模型",
      "role": "PRIMARY"
     }
    ]
@@ -31597,7 +31597,7 @@
    "contentId": "phys-hj3-resistivity-exp-dataprocess",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:数据处理-x1",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:测量金属丝的电阻率实验",
      "role": "PRIMARY"
     }
    ]

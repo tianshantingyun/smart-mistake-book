@@ -1,0 +1,53 @@
+[
+ {
+  "cmd": "python -I -X utf8 tools/ci/check_pack_sync.py",
+  "exit": 0,
+  "stdout_tail": [
+   "OK   release：aaf81be884933b91…（D:\\smart mistake book\\core\\data\\src\\main\\resources\\knowledge\\moe-2025-four-subjects-v1.json）",
+   "  OK   staging：aaf81be884933b91…（D:\\smart mistake book\\build\\kb-staging\\moe-2025-four-subjects-v1.json）",
+   "  OK   sidecar：packSha256=aaf81be884933b91…（bge-small-zh-int8.vec.json）",
+   "  OK   staging==release：staging aaf81be884933b91… vs release aaf81be884933b91…",
+   "  OK   sidecar==release：旁车 aaf81be884933b91… vs release aaf81be884933b91…",
+   "  OK   sidecar==staging：旁车 aaf81be884933b91… vs staging aaf81be884933b91…",
+   "PASS 三方一致：release == staging == 旁车 (aaf81be884933b91…)"
+  ],
+  "stderr_tail": []
+ },
+ {
+  "cmd": "python -I -X utf8 tools/dense_build/check_asset.py",
+  "exit": 0,
+  "stdout_tail": [
+   "OK   sidecar：bge-small-zh-int8.vec.json",
+   "  OK   packSha256：当前包 sha256=aaf81be884933b91；旁车记录=aaf81be884933b91",
+   "  OK   vocab:vocab：当前 bge-small-zh-v1.5-vocab.txt sha256=45bbac6b341c319a；旁车记录 sha256=45bbac6b341c319a",
+   "  OK   vocab:tokenizer：当前 bge-small-zh-v1.5-tokenizer.json sha256=48cea5d44424912a；旁车记录 tokenizerJsonSha256=48cea5d44424912a",
+   "  OK   vectorSha256：当前 .vec sha256=ed866a6251371c3d；旁车记录=ed866a6251371c3d",
+   "  OK   vectorHeader：头：dim=512 count=44117 version=1；旁车：dim=512 count=44117",
+   "  OK   vectorCount：头 count=44117；旁车 vectorCount=44117",
+   "  OK   vectorBytes：文件 26084526 B；头自述 26084526 B",
+   "  OK   layout：ids 与包布局逐条一致（44117 条向量）",
+   "  OK   layoutSha256：当前包布局 sha256=2c8b72b340733105；旁车 corpus.layoutSha256=2c8b72b340733105",
+   "  OK   modelManifest：清单三方一致=[('vocabSha256', True), ('sidecarOnnxInt8Sha256', True), ('onnxBytes', True)]；onnx 在位并复核哈希"
+  ],
+  "stderr_tail": []
+ },
+ {
+  "cmd": "python -I -X utf8 tools/ci/run_kb_checks.py",
+  "exit": 0,
+  "stdout_tail": [
+   "  OK   moe-2025-teaching-support-v2-24.json",
+   "  OK   moe-2025-teaching-support-v2-25.json",
+   "  OK   moe-2025-teaching-support-v2-index.json",
+   "  OK   moe-2025-update-manifest.json",
+   "kb checks（D:\\smart mistake book\\build\\kb-staging）：",
+   "  OK   gates",
+   "  OK   consistency",
+   "  OK   roundtrip",
+   "  OK   manifest",
+   "  OK   dense",
+   "  OK   judgment_drift",
+   "  INFO report_only（boundary_map 只报数；material_bindings 三桶见 F9 门）：boundary_map 生效 18/18（stale 0、missing 0）；material_bindings 生效 597 / 欠账 0 / 材料缺 1 / 节点缺 0 / 空 0（共 598；F9 门基线 节点缺/空/欠账 ≤ 0/0/0）；三值外 type 0 ≤ 基线 0"
+  ],
+  "stderr_tail": []
+ }
+]

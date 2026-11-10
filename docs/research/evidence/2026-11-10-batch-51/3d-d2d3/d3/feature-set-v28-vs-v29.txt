@@ -1,0 +1,46 @@
+=== v28: aliases=40 fragments=70 selected=16 features=147 matched=7
+  matched: ['判断', '加速', '加速度', '失重', '方向', '超重', '速度']
+  selected fragments:
+    HIT 且方向向下这一种情形
+    HIT 超重与失重的判断方法
+    HIT 超重
+        考点二
+    HIT 失重与完全失重的判断
+        fn
+    HIT 超重与失重
+        第四章
+    HIT 失重
+    HIT 视重与超重失重
+        f
+    HIT 系统中的超重与失重
+    HIT 失重与完全失重的产生条件与视重关系
+    HIT 受力角度与加速度角度
+    HIT 超重失重的判断依据与常见误解
+    HIT 斜向加速度要取其在竖直方向的投影
+  word 加速: in_features=True in_query=True
+  word 加速度: in_features=True in_query=True
+  word 速度: in_features=True in_query=True
+  word 方向: in_features=True in_query=True
+=== v29: aliases=41 fragments=72 selected=16 features=151 matched=4
+  matched: ['判断', '失重', '方向', '超重']
+  selected fragments:
+    HIT 且方向向下这一种情形
+    HIT 超重与失重的判断方法
+    HIT 失重与完全失重的产生条件
+    HIT 对超重和失重的理解
+    HIT 超重与失重的判断
+    HIT 失重现象的动力学分析
+        图线
+    HIT 超重与失重判断的三点提醒
+        物理必修第一册
+    HIT 失重
+    HIT 实重视重与超重失重的判断
+        t
+        视重
+    HIT 超重
+    HIT 超重与失重的判据及完全失重
+    HIT 超重失重中重力不变与判断依据
+  word 加速: in_features=False in_query=True
+  word 加速度: in_features=False in_query=True
+  word 速度: in_features=False in_query=True
+  word 方向: in_features=True in_query=True

@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-9f94434cdc-017	CORRECT		high	①气体体积变大时，气体对外界做功，W 取负值。	
+ext-phy-e14aad82a5-1435	CORRECT		high	讨论二：两物体质量相等时，两者速度交换。	
+ext-che-5c62da9e03-500	CORRECT		high	该步的起始态物质为 COOH*+H*+H2O*、产物为 COOH*+2H*+OH*，对应的反应为 H2O* 分解为 H* 和 OH*，是决速步。	
+bio-kb3-f4-s16-n10	CORRECT		high	项目：结构；DNA：一般呈规则双螺旋结构；RNA：常呈单链结构。	
+chem-fx-bo-li-yi-qi-de-xi-di-f65x11	CORRECT		high	(1)洗净的标准：玻璃仪器内壁附着均匀的水膜，既不聚集成滴，也不成股流下。	
+ext-mat-62c1414e2e-008b	CORRECT		high	当等差数列的公差与首项异号时，$S_n$ 先增后减或先减后增，最值出现在正负项分界处。	
+ext-bio-df5a1763b4-057	CORRECT		high	反应实质是还原糖中的醛基被Cu(OH)2氧化，Cu(OH)2被还原成Cu2O	
+ext-phy-7a8d42b6f9-002	CORRECT		high	适用条件：①公式适用于质点间的相互作用；②质量分布均匀的球体可视为质点	
+ext-phy-5420556702-003	CORRECT		high	用刻度尺测出弹簧在不同钩码拉力下的伸长量 x	
+ext-che-e043032ef4-008	CORRECT		medium	硅酸盐中Si、O构成硅氧四面体（Si居中、O在四个顶角），四面体通过共用顶角氧连成链状或网状。	
+ext-phy-14acc6af8a-013c	CORRECT		medium	图线的斜率等于加速度：斜率的绝对值表示加速度大小，正负表示加速度方向	
+ext-che-ded43bede2-009b	CORRECT		high	连续型：反应生成的离子能继续与剩余（过量）的反应物反应，因而离子方程式与用量有关。	
+ext-bio-808baa0568-009	CORRECT		high	无机盐大多数以离子形式存在，含量为1%～1.5%	
+ext-phy-385fa2d320-004	CORRECT		high	以恒定功率启动：功率不变，速度增大则牵引力减小、加速度减小	
+phys-hj3-electric-work-heat-pure-circuit	CORRECT		high	非纯电阻电路（电动机、电解槽等）：电能除转化为内能外还转化为其他形式的能	
+ext-che-4394d32277-049	CORRECT		medium	晶胞类型与配位数：简单立方为 6，面心立方为 12，体心立方为 8。	
+ext-bio-cd4e7c5dc7-026	CORRECT		high	生物大分子的特点是以碳链为基本骨架。	
+ext-che-594d9258ef-029	REBIND	电荷守恒在离子推断中的应用	medium	当阴离子种类已确定、按题意溶液中只可能再存在一种阳离子时，由电荷守恒断定该阳离子必含（如必含 Na⁺）	材料为离子推断用电荷守恒定必含阳离子；现绑限于由反应产物判断
+ext-bio-42d655b54e-002	CORRECT		medium	机制：全日照下高温、强光导致气孔关闭，CO2供应不足，光合作用减弱、净光合速率下降，即午休现象。	
+ext-phy-718f63a369-002	CORRECT		high	1. 线速度与角速度：$v=\omega r$	
+ext-che-5c62da9e03-407	CORRECT		high	一级处理的目的是除去不溶解的污染物，方法为物理法。	
+ext-phy-e14aad82a5-083	REBIND	力的分解	medium	当已知合力 F 的大小及一个分力 F₁ 的大小时，另一个分力 F₂ 最小的条件是：分力 F₁ 与合力 F 同方向。	材料讲分力最小的极值条件，非解的个数讨论；应归力的分解
+ext-phy-51ad0f83fc-028	CORRECT		high	内能变化量 ΔU：由气体温度变化分析，温度升高内能增加 ΔU>0，温度降低内能减少 ΔU<0	
+ext-phy-60010662e7-006	CORRECT		high	作用对象：一对平衡力作用在同一个物体上，作用力与反作用力作用在两个相互作用的不同物体上。	
+ext-che-fb8cf14cff-037	CORRECT		high	2.情形二：与卤素原子相连的碳有邻位碳原子，但邻位碳原子上无氢原子，不能消去。	
+ext-che-ab1d25f9f1-001	CORRECT		high	取放坩埚必须使用坩埚钳；加热完的坩埚应放在陶土网上冷却。	
+ext-mat-7c4b964403-001	CORRECT		medium	若 $D_1E\bot AF$ 且 $F$ 在侧面 $BCC_1B_1$ 内，则 $F$ 的轨迹是线段 $GH$。	
+bio-fx-judge-metabolism-site	REBIND	内环境	high	提示：细胞代谢发生在细胞内，细胞质基质是新陈代谢的主要场所。	材料讲内环境与细胞质基质、内环境成分判断；现绑为细胞器结构与功能
+ext-mat-d6fcc88eb2-002	CORRECT		high	在平面中A，B，C三点共线的充要条件是：OP＝xOA＋yOB（其中x＋y＝1），O为平面内任意一点。	
+ext-mat-763f91af9a-005	CORRECT		high	均值是一个确定的数，等于随机变量各个取值以相应概率为权的加权平均数	
+bio-fj-13-grasshopper-meiosis-observation	CORRECT		high	1. 选材：雄性个体生殖器官（花药、睾丸），精子数量多	
+phys-hj3-block-curve-surface-model	CORRECT		high	滑块冲上光滑的四分之一圆弧或曲面（曲面可动）时，滑块上升到最高点与曲面在水平方向具有共同速度。	
+ext-mat-728e5c1c2a-006b	CORRECT		high	2. **列方程组**：由实部与实部相等、虚部与虚部相等，得到关于参数的方程组。	
+bio-kb3-f4-s44-n05	CORRECT		high	无氧呼吸过程中的能量转化只在第一阶段释放少量能量，释放的能量只有少部分储存在ATP中，大部分以热能的形式散失	
+ext-mat-d04314ab0b-012	CORRECT		high	全期望公式把无条件期望拆成各条件下期望按概率加权之和，常用于逐阶段演化的随机过程。	
+ext-mat-0518eb7f45-019	CORRECT		high	第二步：把各极值与两个端点的函数值放在一起比较，其中最大的一个是最大值，最小的一个是最小值。	
+ext-mat-1ea3d2382f-001	CORRECT		high	1. 基本不等式：√(ab)≤(a＋b)/2，成立条件 a>0，b>0；等号成立条件是当且仅当 a＝b 时。	
+ext-mat-af2ee2d3f0-038	CORRECT		medium	当已知角的终边落在一条直线上时，该直线含两条射线，终边可能落在其中任一条上。	
+ext-che-fef615606b-015	CORRECT		medium	2. 判据：要证明沉淀转化，必须保证生成新沉淀所需的离子只能由原沉淀溶解提供	
+ext-che-1422ee20c2-007b	REBIND	实验综合题答题模板	high	实验题中问“这样做的目的是什么”，可对照常见的操作—目的对照表直接作答。	材料为实验操作目的答题模板；现绑实验方案设计明确排除具体操作细节
+ext-bio-78a30dbb2e-034	CORRECT		high	形状：能量在流动中总是逐级递减，故能量金字塔通常都是上窄下宽的正金字塔形	
+ext-bio-d4037f8f5d-005b	CORRECT		high	细菌不一定是分解者：硝化细菌、光合细菌是生产者，寄生细菌是消费者，腐生细菌是分解者。	
+ext-bio-451d5c3142-010	CORRECT		high	n对等位基因（完全显性、独立遗传）时的规律：F1产生2ⁿ种配子，F2的基因型有3ⁿ种、表型有2ⁿ种	
+math-hj-s21-composite-linear	CORRECT		high	设 $f(x)=kx+b$，代入 $f(f(x))=k^2x+kb+b$，与已知的一次式对比系数解 $k,b$（可能两组解，需检验）。	
+ext-mat-289deb9ecd-902	CORRECT		medium	①点面距：n 是平面 α 的法向量且 A 在 α 内，则 P 到 α 的距离 PQ=|AP·n|/|n|	
+ext-mat-dd6cfe18fa-008	CORRECT		high	集合具有确定性、互异性和无序性	
+ext-phy-c13fb9b7d7-007	CORRECT		high	1. 图像法：F－x 图像中图线与 x 轴所围“面积”的代数和表示该段位移内做的功	
+ext-mat-91e0c2ace8-049	CORRECT		high	**1. 拆角**：对于计算与化简题，若涉及非特殊角或无法直接套用公式，可先寻找角的关系	
+chem-fx-rong-yu-xi-f27x04	REBIND	硝酸	high	(5)Cu溶于稀HNO3：3Cu+8H++2NO=3Cu2++2NO↑+4H2O；	材料为硝酸与铜、炭反应的方程式（强氧化性）；现绑为物质显色原因
+ext-bio-ef3d2926e7-011	CORRECT		high	分解组合法把子代表型比例拆成各对分离比再组合	

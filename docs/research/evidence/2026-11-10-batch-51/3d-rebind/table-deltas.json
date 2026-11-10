@@ -1,0 +1,47 @@
+{
+ "tools/kb_build/tables/material_rebind.csv": {
+  "head_sha256": "b8d16b914fa8c6457f6a54ee6f4551d9817b6eebb1f122292af64f6726058bc3",
+  "now_sha256": "5288c2204cd6825bb007fd252597ac3caece302593028db88a00415cc5e3ea43",
+  "head_bytes": 2727116,
+  "now_bytes": 2736544,
+  "head_rows": 9576,
+  "now_rows": 9616,
+  "crlf_now": 0
+ },
+ "tools/kb_build/tables/material_bindings.csv": {
+  "head_sha256": "2553d17f08fea577d7e04e7a18d99392d2af6a35ba8eec0ec14b6cef91963f09",
+  "now_sha256": "1108e7c1152828b2609219bcc89320283fceb3304341b4cffdd6fdeb40e63887",
+  "head_bytes": 162130,
+  "now_bytes": 162275,
+  "head_rows": 598,
+  "now_rows": 598,
+  "crlf_now": 0
+ },
+ "tools/kb_build/tables/point_delete.csv": {
+  "head_sha256": "aa8a8350ed3ab9ca7faa56b99fb1511539409867eecbbced24b6de9de7ff6f5b",
+  "now_sha256": "d13eda271a8391fc4ce2b83e7978bb65a9fdd4ca4bdafb88a4199194dfd65eb7",
+  "head_bytes": 30201,
+  "now_bytes": 30539,
+  "head_rows": 249,
+  "now_rows": 250,
+  "crlf_now": 0
+ },
+ "tools/kb_build/tables/alias_map.csv": {
+  "head_sha256": "207d205f48b7e0a064e47c4f4d7da82e39593c9653138ce4aa52d2cd5cfc705d",
+  "now_sha256": "dc6311a1d2718e97ad2de2c4be269646661df8d4e4ef45a083ea867239baa08b",
+  "head_bytes": 2943173,
+  "now_bytes": 2942896,
+  "head_rows": 37561,
+  "now_rows": 37559,
+  "crlf_now": 0
+ },
+ "tools/kb_build/tables/chapter_by_node.csv": {
+  "head_sha256": "e99c405acdede188932b16ffeface4dd76cd63c782148f83b2a1a1a26a005aab",
+  "now_sha256": "af587fa7017ba44a9f9d396161c1e2409e8d8f17fa65fbc2f006b40506201b9b",
+  "head_bytes": 242917,
+  "now_bytes": 242763,
+  "head_rows": 1704,
+  "now_rows": 1703,
+  "crlf_now": 0
+ }
+}

@@ -1,0 +1,528 @@
+{
+ "counts": {
+  "nodes": 3279,
+  "materials": 64850,
+  "bindings": 64850,
+  "materials_before": 64853
+ },
+ "dangling": [],
+ "unbound_materials": [],
+ "rebind_expected": 40,
+ "drop_expected": 3,
+ "bad_rebind": [],
+ "bad_drop": [],
+ "pack_identity": {
+  "packId": "moe-2025-four-subjects-v1",
+  "taxonomyVersion": "moe-2025-four-subjects-v1",
+  "packId_eq_taxonomyVersion": true,
+  "schemaVersion": 2,
+  "coverage": {
+   "baselineId": "moe-high-school-2017-2025",
+   "catalogLevel": "PARTIAL",
+   "teachingSupportLevel": "PARTIAL"
+  },
+  "index_packId": "moe-2025-four-subjects-v1",
+  "index_packId_eq_packId": true,
+  "sidecar_count": 25
+ },
+ "manifest": {
+  "packId": "moe-2025-four-subjects-v1",
+  "packId_eq_packId": true,
+  "schemaVersion": 2,
+  "version": 29,
+  "contentVersion": "5f164dab812c5e03",
+  "contentVersion_recomputed": "5f164dab812c5e03",
+  "retired_count": 1223,
+  "last_retired": {
+   "nodeId": "kb:moe-2025-four-subjects-v1:physics:topic:物理选择性必修第二册·第三四章·交变电流与电磁波·4 电磁波的发现及应用",
+   "supersededBy": "kb:moe-2025-four-subjects-v1:physics:topic:物理必修第三册·第十三章（安培力/洛伦兹力/感应定律见选择性必修第二册）·磁场与电磁感应·4 电磁波的发现及应用",
+   "kind": "MERGE",
+   "reason": "批次11 F2 2026-10-14：kit-03#24 迁入（1 点）"
+  }
+ },
+ "staging_equals_shipped_bytes": true,
+ "changed_files": [
+  {
+   "kind": "shipped",
+   "file": "moe-2025-four-subjects-v1.json",
+   "bytes": [
+    4538305,
+    4537418
+   ],
+   "sha256": [
+    "10ede1bf449de38ff21a53d1a13468a82b765dd0d0852dde4af770a1b8ef6670",
+    "aaf81be884933b9105db737feee3eb3d84ff440c53f0e2d01c806aafd3790032"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-update-manifest.json",
+   "bytes": [
+    581672,
+    582131
+   ],
+   "sha256": [
+    "d69ebb8b949d8b3cab1b1d92bc627c2aadd813186f53de300c4c899927d031a4",
+    "a710d814d52fe91b1964ea49e4806d312562a0d977fdd38b2a3985de49cd3711"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-01.json",
+   "bytes": [
+    5441757,
+    5441689
+   ],
+   "sha256": [
+    "48914f3676222a0509fa09a30f051312383742e314daa1d43875a4ee41e549d9",
+    "09753a7f70042dcbf9de20534b8ef0fe184fd33d9da29b7ab1b3ae2ec7276bba"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-02.json",
+   "bytes": [
+    4709354,
+    4709372
+   ],
+   "sha256": [
+    "d7b11f02e1e81820258622b6b2b86551e7ccf9b7efb8249a838ad45066b49543",
+    "bd9d92befa2e70f7423c91bcab8f97fad9f4977eca734fe22b540250369fb590"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-03.json",
+   "bytes": [
+    4484958,
+    4483530
+   ],
+   "sha256": [
+    "6b9a3df7041d4e1e87bf8fcdca55526cbcfb97633c72810bdf85e0df6337e777",
+    "29ef2ce21e97acd28ad2e84eb7ceda916f7735599517478f45f208bc1b423c44"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-04.json",
+   "bytes": [
+    5432278,
+    5429586
+   ],
+   "sha256": [
+    "8825ebc738f028ff307cce4d672d291e130d39baaaeaadbcbdba59d215c65f46",
+    "da37170fc059127f55247d02b145d14236dbe3d52c8a5db4e4f9694271047d4c"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-05.json",
+   "bytes": [
+    4435446,
+    4435405
+   ],
+   "sha256": [
+    "349cfbcb032ec2ffa818536ffb46549c7228c8a9b8e43d65443417b3c932c188",
+    "3de8e27e1f5cd59ad07be9e4245a610dc35ce22da5914b9b87b7b68207deb6f0"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-06.json",
+   "bytes": [
+    4722413,
+    4722410
+   ],
+   "sha256": [
+    "315b27044638884ad0dd063047de8ad8d5bd45ebab54486ed039a7229989d8a3",
+    "2e19c912df465cc559144d515215feb0ef282c71847ec057797cb715425ebcb1"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-07.json",
+   "bytes": [
+    10018673,
+    10018694
+   ],
+   "sha256": [
+    "6b76cd821f08e0eeb44d70e6c10d6e3455502ccd247ce4975964d181232c4581",
+    "157b42a5ee98a9cc3ffcc5ce55c5857d07b340c02e2a8e43543c39e0eae80e9e"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-09.json",
+   "bytes": [
+    4917487,
+    4917534
+   ],
+   "sha256": [
+    "7b69608f5fa13b7bcc39d3b10a845745ed1884fc76053c6c98a64341b7ad34d5",
+    "53671c3096eca51eca3eb5c4a927bb676fbd899917c70b731a3162fdeb823769"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-11.json",
+   "bytes": [
+    4835943,
+    4835940
+   ],
+   "sha256": [
+    "4a44f95c8b87b3ef8987ebe19dca3d5c269f871aa54daad270e39fa0c8c34d35",
+    "aa888b394bd38310653ef9a9f5eb5405aa5ed418a3cedf5e8c973e03a6dc459f"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-12.json",
+   "bytes": [
+    4904817,
+    4904801
+   ],
+   "sha256": [
+    "2e365970763041dcc767726836cf08588683457c3181396fbf8f58aea68fac2d",
+    "ae251beca400ded2d16c2b11dd943eb694bf17ad8b7129f7abe257cd8617c676"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-14.json",
+   "bytes": [
+    4872671,
+    4872734
+   ],
+   "sha256": [
+    "0aa11eb0022833e738cef851ddcee5d19f03500d1172ee545a55c4721e2a1338",
+    "2bb5d59947bfdd35067dca89d4825333492a534906f883ceff66de5466968251"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-15.json",
+   "bytes": [
+    4814760,
+    4814712
+   ],
+   "sha256": [
+    "b101bbb69f45a5af8806c19a9e85ba451309b2dbc3e2d552bff16d5db47474e1",
+    "b27aaec227aefb55f2e294a67926deaf0520f82ec5c42d52d90c95da5e93d0f1"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-16.json",
+   "bytes": [
+    4726072,
+    4726098
+   ],
+   "sha256": [
+    "116f65560367ac1a37fae26e130e6be8a78856bfd5943451b840f6d95a4bc6c1",
+    "387784d839b3cf6ed3368bcf8dbd1e00fd952d11ce572c385fb5fb82b2423bf9"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-17.json",
+   "bytes": [
+    4712810,
+    4712825
+   ],
+   "sha256": [
+    "f34359cef01495a65b8bfc4ab44a0c7947788545e03774833df483ec20deabb0",
+    "181e699cb73dfeb65b365bfef628b5701656527dfd4c955f782e17cefe69a171"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-19.json",
+   "bytes": [
+    4737099,
+    4737105
+   ],
+   "sha256": [
+    "f64169ccd6adf765fc4b55a4784e1c5e247923c4b09352fa0bd1480a94302cbc",
+    "86150fda42a3705e99bc62341c0ca255a1abc3625b486f8d3e9ca62c56685959"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-23.json",
+   "bytes": [
+    4486678,
+    4486665
+   ],
+   "sha256": [
+    "b5123a93de1a2d105f7187e3a01ecbd0837ffd8014d206b9bf5e1ee10f7457e4",
+    "39047bf49d936ab855bb42e609dea7feba1ffc2be3cc4a9bb33bb862a4c78d8d"
+   ]
+  },
+  {
+   "kind": "shipped",
+   "file": "moe-2025-teaching-support-v2-24.json",
+   "bytes": [
+    4345079,
+    4345080
+   ],
+   "sha256": [
+    "9559d5001aa68e9a8cd61bffafd530315517177c30662fe16e9b8afffc3cb393",
+    "87af1a6ddf701cc04aef02e01c1cb21f913d0dbf0f2c8adbc8e74c768cff1ccc"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-four-subjects-v1.json",
+   "bytes": [
+    4538305,
+    4537418
+   ],
+   "sha256": [
+    "10ede1bf449de38ff21a53d1a13468a82b765dd0d0852dde4af770a1b8ef6670",
+    "aaf81be884933b9105db737feee3eb3d84ff440c53f0e2d01c806aafd3790032"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-update-manifest.json",
+   "bytes": [
+    581672,
+    582131
+   ],
+   "sha256": [
+    "d69ebb8b949d8b3cab1b1d92bc627c2aadd813186f53de300c4c899927d031a4",
+    "a710d814d52fe91b1964ea49e4806d312562a0d977fdd38b2a3985de49cd3711"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-01.json",
+   "bytes": [
+    5441757,
+    5441689
+   ],
+   "sha256": [
+    "48914f3676222a0509fa09a30f051312383742e314daa1d43875a4ee41e549d9",
+    "09753a7f70042dcbf9de20534b8ef0fe184fd33d9da29b7ab1b3ae2ec7276bba"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-02.json",
+   "bytes": [
+    4709354,
+    4709372
+   ],
+   "sha256": [
+    "d7b11f02e1e81820258622b6b2b86551e7ccf9b7efb8249a838ad45066b49543",
+    "bd9d92befa2e70f7423c91bcab8f97fad9f4977eca734fe22b540250369fb590"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-03.json",
+   "bytes": [
+    4484958,
+    4483530
+   ],
+   "sha256": [
+    "6b9a3df7041d4e1e87bf8fcdca55526cbcfb97633c72810bdf85e0df6337e777",
+    "29ef2ce21e97acd28ad2e84eb7ceda916f7735599517478f45f208bc1b423c44"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-04.json",
+   "bytes": [
+    5432278,
+    5429586
+   ],
+   "sha256": [
+    "8825ebc738f028ff307cce4d672d291e130d39baaaeaadbcbdba59d215c65f46",
+    "da37170fc059127f55247d02b145d14236dbe3d52c8a5db4e4f9694271047d4c"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-05.json",
+   "bytes": [
+    4435446,
+    4435405
+   ],
+   "sha256": [
+    "349cfbcb032ec2ffa818536ffb46549c7228c8a9b8e43d65443417b3c932c188",
+    "3de8e27e1f5cd59ad07be9e4245a610dc35ce22da5914b9b87b7b68207deb6f0"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-06.json",
+   "bytes": [
+    4722413,
+    4722410
+   ],
+   "sha256": [
+    "315b27044638884ad0dd063047de8ad8d5bd45ebab54486ed039a7229989d8a3",
+    "2e19c912df465cc559144d515215feb0ef282c71847ec057797cb715425ebcb1"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-07.json",
+   "bytes": [
+    10018673,
+    10018694
+   ],
+   "sha256": [
+    "6b76cd821f08e0eeb44d70e6c10d6e3455502ccd247ce4975964d181232c4581",
+    "157b42a5ee98a9cc3ffcc5ce55c5857d07b340c02e2a8e43543c39e0eae80e9e"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-09.json",
+   "bytes": [
+    4917487,
+    4917534
+   ],
+   "sha256": [
+    "7b69608f5fa13b7bcc39d3b10a845745ed1884fc76053c6c98a64341b7ad34d5",
+    "53671c3096eca51eca3eb5c4a927bb676fbd899917c70b731a3162fdeb823769"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-11.json",
+   "bytes": [
+    4835943,
+    4835940
+   ],
+   "sha256": [
+    "4a44f95c8b87b3ef8987ebe19dca3d5c269f871aa54daad270e39fa0c8c34d35",
+    "aa888b394bd38310653ef9a9f5eb5405aa5ed418a3cedf5e8c973e03a6dc459f"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-12.json",
+   "bytes": [
+    4904817,
+    4904801
+   ],
+   "sha256": [
+    "2e365970763041dcc767726836cf08588683457c3181396fbf8f58aea68fac2d",
+    "ae251beca400ded2d16c2b11dd943eb694bf17ad8b7129f7abe257cd8617c676"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-14.json",
+   "bytes": [
+    4872671,
+    4872734
+   ],
+   "sha256": [
+    "0aa11eb0022833e738cef851ddcee5d19f03500d1172ee545a55c4721e2a1338",
+    "2bb5d59947bfdd35067dca89d4825333492a534906f883ceff66de5466968251"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-15.json",
+   "bytes": [
+    4814760,
+    4814712
+   ],
+   "sha256": [
+    "b101bbb69f45a5af8806c19a9e85ba451309b2dbc3e2d552bff16d5db47474e1",
+    "b27aaec227aefb55f2e294a67926deaf0520f82ec5c42d52d90c95da5e93d0f1"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-16.json",
+   "bytes": [
+    4726072,
+    4726098
+   ],
+   "sha256": [
+    "116f65560367ac1a37fae26e130e6be8a78856bfd5943451b840f6d95a4bc6c1",
+    "387784d839b3cf6ed3368bcf8dbd1e00fd952d11ce572c385fb5fb82b2423bf9"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-17.json",
+   "bytes": [
+    4712810,
+    4712825
+   ],
+   "sha256": [
+    "f34359cef01495a65b8bfc4ab44a0c7947788545e03774833df483ec20deabb0",
+    "181e699cb73dfeb65b365bfef628b5701656527dfd4c955f782e17cefe69a171"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-19.json",
+   "bytes": [
+    4737099,
+    4737105
+   ],
+   "sha256": [
+    "f64169ccd6adf765fc4b55a4784e1c5e247923c4b09352fa0bd1480a94302cbc",
+    "86150fda42a3705e99bc62341c0ca255a1abc3625b486f8d3e9ca62c56685959"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-23.json",
+   "bytes": [
+    4486678,
+    4486665
+   ],
+   "sha256": [
+    "b5123a93de1a2d105f7187e3a01ecbd0837ffd8014d206b9bf5e1ee10f7457e4",
+    "39047bf49d936ab855bb42e609dea7feba1ffc2be3cc4a9bb33bb862a4c78d8d"
+   ]
+  },
+  {
+   "kind": "staging",
+   "file": "moe-2025-teaching-support-v2-24.json",
+   "bytes": [
+    4345079,
+    4345080
+   ],
+   "sha256": [
+    "9559d5001aa68e9a8cd61bffafd530315517177c30662fe16e9b8afffc3cb393",
+    "87af1a6ddf701cc04aef02e01c1cb21f913d0dbf0f2c8adbc8e74c768cff1ccc"
+   ]
+  },
+  {
+   "kind": "table",
+   "file": "tools\\kb_build\\tables\\material_rebind.csv",
+   "bytes": [
+    2727116,
+    2736544
+   ],
+   "sha256": [
+    "b8d16b914fa8c6457f6a54ee6f4551d9817b6eebb1f122292af64f6726058bc3",
+    "5288c2204cd6825bb007fd252597ac3caece302593028db88a00415cc5e3ea43"
+   ]
+  },
+  {
+   "kind": "table",
+   "file": "tools\\kb_build\\tables\\material_bindings.csv",
+   "bytes": [
+    162130,
+    162275
+   ],
+   "sha256": [
+    "2553d17f08fea577d7e04e7a18d99392d2af6a35ba8eec0ec14b6cef91963f09",
+    "1108e7c1152828b2609219bcc89320283fceb3304341b4cffdd6fdeb40e63887"
+   ]
+  }
+ ],
+ "pack_sha256": "aaf81be884933b9105db737feee3eb3d84ff440c53f0e2d01c806aafd3790032",
+ "ok": true
+}

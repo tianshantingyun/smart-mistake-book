@@ -1,0 +1,134 @@
+{
+ "command": ":core:data:testDebugUnitTest --rerun (18 classes)",
+ "classes": [
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.ReviewedTeachingMaterialSidecarBindingVerdictTest",
+   "tests": 10,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.BundledKnowledgeNodesContractTest",
+   "tests": 5,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.BundledTeachingMaterialsContractTest",
+   "tests": 1,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.FourSubjectRetrievalBenchmarkTest",
+   "tests": 1,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.GoldenRetrievalJvmTest",
+   "tests": 2,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.KnowledgeCoverageContractTest",
+   "tests": 3,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.ProductionLexicalLegExportTest",
+   "tests": 1,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.ReviewedKnowledgePackJsonCodecTest",
+   "tests": 16,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.ReviewedKnowledgeUpdateManifestJsonCodecTest",
+   "tests": 6,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.ReviewedTeachingMaterialSidecarProvenanceTest",
+   "tests": 10,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.Stage1LexicalLabTest",
+   "tests": 1,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.Stage2LexicalScoresExportTest",
+   "tests": 1,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.TeachingSidecarIndexTest",
+   "tests": 1,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseAssetProvenanceTest",
+   "tests": 2,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseFusionTest",
+   "tests": 3,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseLayoutIdentityTest",
+   "tests": 4,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseRecallRerankerTest",
+   "tests": 5,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  },
+  {
+   "class": "com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseVectorAssetTest",
+   "tests": 5,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 0
+  }
+ ],
+ "total": 77,
+ "failures": 0,
+ "errors": 0
+}

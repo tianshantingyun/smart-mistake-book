@@ -7253,7 +7253,7 @@
    "contentId": "ext-che-52e4b9ee73-017",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:vsepr模型",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:中心原子杂化类型的判断",
      "role": "PRIMARY"
     }
    ]
@@ -8656,7 +8656,7 @@
    "contentId": "ext-che-dc424420ff-003",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验试剂与仪器的规范描述",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见仪器",
      "role": "PRIMARY"
     }
    ]
@@ -48239,7 +48239,7 @@
    "contentId": "ext-bio-c1fc984e29-004",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:物理模型的构建方法",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:辨析真正光合速率-净光合速率和呼吸速率",
      "role": "PRIMARY"
     }
    ]
