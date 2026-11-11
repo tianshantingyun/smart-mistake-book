@@ -101,7 +101,7 @@ T5 新增 `REPLAY_TEXT_PAINT_FLAGS` 于 `:78`。形状门现位于 `VisualDrawOp
    app/src/androidTest/.../visualjs` 输出为空（本轮实跑），即两套件源码自批次 28 绿跑后零改动；
    其 13/13、2/2 对现树仍是有效的不回退基线（仍须按 §6 重跑取新证据）。
 
-补充：批次 28 的 painter JVM 纯测 10 例（`VisualDrawOpsPainterPureTest.kt`）不在本判据面（JVM 门由脚本执行）。
+补充：批次 28 的 painter JVM 纯测 10 例（`VisualDrawOpsPainterPureTest.kt`）不在本判据面（JVM 门由脚本执行）。（批次 30 T12 计数回改：该文件现树 **13** 例，批次 29 T5 已 +3；JVM 门仍未在本轮复跑。）
 
 ### 3.1 原阻断已处置：T5 三例已改写，现树判据 = 24 例
 

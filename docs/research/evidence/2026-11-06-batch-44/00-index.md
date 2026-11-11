@@ -155,7 +155,9 @@
 
 ## 7. 全部 E 文件 sha256 清单
 
-机器清单文件：`E-FILES-SHA256.txt`（本节表的同内容，`sha256sum` 格式；sha256 `c2305e415fdbde4eb9eeda87a118a0acf1cebbcf0ba0222d23a803f1389bcf5e`，`sha256sum -c` 35/35 OK）；目录全量清单：`DIR-SHA256.txt`（144 文件，由 `tools/ci/acceptance_hash_manifest.py --root docs/research/evidence/2026-11-06-batch-44 --out … --self-hash` 生成，`--verify` 复核 **OK**，命令见 §9-6）。
+机器清单文件：`E-FILES-SHA256.txt`（本节表的同内容，`sha256sum` 格式；**批次 45 收尾重生成**，自身 sha256 `71eab13bb0e368fce8f8fb5e40303b8432d7751dbea6b3213b85a094dd683dc5`，`sha256sum -c` **35/35 OK**）；目录全量清单：`DIR-SHA256.txt`（**157 条 / 目录 158 个文件**，清单自身不计入；由 `tools/ci/acceptance_hash_manifest.py --root docs/research/evidence/2026-11-06-batch-44 --out … --self-hash` 重新生成，`--verify` 复核 **OK**，命令见 §9-6）。
+
+> **重生成说明（2026-11-05 13:40 +0800，最终一次）**：批次 44 版本有 4 条绑定失效——`ledger.md`、`verdicts.md`、`runbook.md` 已由批次 45 改写，`e-domain/00-index.md` 由本会话追加 §9。批次 44 的原始绑定值只存在于 git 历史（`git show 87604198:docs/research/evidence/2026-11-06-batch-44/E-FILES-SHA256.txt`）；下表给的是**当前字节**。旧值 `e139b03e…` 不是当前台账，任何“670 PASS / 0 违规”的引用仍属旧字节，见 §6.4 与 `docs/research/2026-11-06-batch-45-baseline.md`。
 
 | sha256 | E 文件 |
 |---|---|
@@ -169,10 +171,10 @@
 | `a523510295e4df7bdbbc0a062f932cf9198be9ab07c5a3fde24f102841f61adb` | `docs/research/evidence/2026-11-06-batch-44/acceptance/replay-drill.log` |
 | `418a5c17f33c70e99b0cc0a07fce69191489cfedc94164bfa903785777c5bd4b` | `docs/research/evidence/2026-11-06-batch-44/acceptance/init-check.log` |
 | `59950b941167346966503a64ab1580cf35b1e4c8b5e2308a857d4c4e0bb0633c` | `docs/research/evidence/2026-11-06-batch-44/acceptance/ledger-shape.log` |
-| `e139b03e8b9a005af73d658333f7721907b7e6976718106934c00e096a3eb675` | `docs/acceptance/ledger.md` |
-| `749c794b0d6b64f7afc261faa7433165d6a41bcc865f18ae79c0df767a15b0d8` | `docs/acceptance/verdicts.md` |
+| `bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686` | `docs/acceptance/ledger.md`（批次 45 版；旧 `e139b03e…` 见 git 历史） |
+| `9cbfe1b947f7439f23e7bf0ac793441952d63699e1a72d4930755faaa3a4d28c` | `docs/acceptance/verdicts.md` |
 | `03df1e31b7015f393527ecc51515ab13b673c502e9197b3285e3fd69364aebc8` | `docs/acceptance/dod.md` |
-| `f9f0998538c7f3fb9269ae7797b7f88d9219a441fb34fcb5f861847ccc3647df` | `docs/acceptance/runbook.md` |
+| `ab8a1a93137ada138eb8fd5d14f0443a5f1b81195882668b51581a66836abf0b` | `docs/acceptance/runbook.md` |
 | `3c653bd3c55824ba0284892757cf5df7ef602b86f8a7068d79e7d09ce1918840` | `docs/acceptance/ledger.schema.json` |
 | `02fd732993c128de8ae4ad628314033e8d5580347f917e612c5be9d08254c2df` | `docs/acceptance/verdicts/README.md` |
 | `172d17ef0cffbfa9fab8543144663d7a5a784175104b4db7e65be65b40f91328` | `docs/research/evidence/2026-11-06-batch-44/device-track/00-index.md` |
@@ -183,7 +185,7 @@
 | `940cc589bcba86270ec61b1cc84654f966c50827ed0011707b4ee222f6e25953` | `docs/research/evidence/2026-11-05-batch-44/a-domain/adversarial-attempts.md` |
 | `5ddbf3b93a64c0f65c7a94c02ed215ab6c520d0003ec9936ee6bd282b2134d8a` | `docs/research/evidence/2026-11-05-batch-44/b-domain/00-index.md` |
 | `721345089457c2527d533d0305209c964005ec517931ed5ec8f18914f78bb47e` | `docs/research/evidence/2026-11-05-batch-44/c-domain/00-index.md` |
-| `bf312be605b8cfef5b0334d64779a90327376d0f8b82698407ee97d730b78955` | `docs/research/evidence/2026-11-05-batch-44/e-domain/00-index.md` |
+| `353229ab0355bb3d532301b725d99420f99e42d963c2ca97f0d9506a89540a34` | `docs/research/evidence/2026-11-05-batch-44/e-domain/00-index.md`（批次 45 追加 §9） |
 | `8982306415a5600be81ef7b0ed998d77f3b7363447afab46a631e98255e50a96` | `docs/research/evidence/2026-11-05-batch-44/f-domain/00-index.md` |
 | `526b3b1002820bc73722a710b31921a1921f5a5bbd994bfc6d463d910d3e035d` | `docs/research/evidence/2026-11-05-batch-44/j-domain/00-index.md` |
 | `14f33886823680817d2da8a3f213c25459a932fe7c68135c50d73caf7018d721` | `docs/acceptance/evidence/G/hashes.sha256` |
@@ -195,7 +197,7 @@
 | `b5b6adc64bbafc2282ada5a6b3315b84231554664690f1b41be0e96be2132794` | `build/batch44-unit.log`（gitignored，仅登记） |
 | `bb70eee3b4d01fa67c6930a767aefc328dd2595f7b2fcee3027a9fc639d6e6f0` | `build/batch44-strong.log`（gitignored，仅登记） |
 
-- 以上 35 条均为本轮 `sha256sum` 实算（§9-2）；**清单只覆盖 E 文档**，不覆盖各域原始 XML/日志/PNG 与 G/H 设备 JSON；本目录全量覆盖见 `DIR-SHA256.txt`（144 文件，含本索引）。
+- 以上 35 条为 **2026-11-05 13:40 +0800 最终重生成时**的 `sha256sum` 实算（§9-2）；**清单只覆盖 E 文档**，不覆盖各域原始 XML/日志/PNG 与 G/H 设备 JSON；本目录全量覆盖见 `DIR-SHA256.txt`（**157 条 / 158 个文件**，含本索引）。
 - 哈希只绑定「本轮读取时刻的字节」；共享工作树仍在被并发写入（§2），复算不一致时先比 mtime/内容，不直接判文件被改。
 
 ## 8. 脱敏扫描（本目录 + 被索引的外目录，本轮实跑）
@@ -262,5 +264,5 @@ grep -RInE 'sk-[A-Za-z0-9_-]{8,}|AIza…|ghp_…|Bearer …' <各证据根>
 
 ## 11. 体量自查
 
-- 落盘后实测：`wc -lc docs/research/evidence/2026-11-06-batch-44/00-index.md` → **266 行 / 30,999 B**（含本行；均低于 R4 上限 400 行 / 65,536 B）；         清单见 §7 与 E-FILES-SHA256.txt。
+- 落盘后实测（2026-11-05 13:41 +0800，批次 45 收尾追加 §7 重生成说明后）：`wc -lc docs/research/evidence/2026-11-06-batch-44/00-index.md` → **268 行 / 31,867 B**（含本行；均低于 R4 上限 400 行 / 65,536 B）；清单见 §7 与 E-FILES-SHA256.txt。
 - 目录：本文件 + `device-track/00-index.md` + `research-crosscheck.md` = **3 个 `.md`**；另有 `E-FILES-SHA256.txt`、`DIR-SHA256.txt` 两个清单。

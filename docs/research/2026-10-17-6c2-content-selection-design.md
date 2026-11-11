@@ -569,7 +569,7 @@ digest = SHA-256(  "smbk-selection-v1\n"
 ## 附录 A · 类别 → 表（机器可读，唯一数据源）
 
 > **历史版本**：本附录是 schema 66 的机器清单（84 表 / 90 边），已被 §9 的 v2（schema 69）与
-> v3（schema 70）取代；保留为研究证据，实施不得据此写代码。当前清单以 §9.11 的 `6c2-plan-v3` 块为准。
+> v3（schema 70）取代；保留为研究证据，实施不得据此写代码。当前清单以 §9.14 的 `6c2-plan-v3` 块为准。
 
 > 本块由自检脚本解析（`<!-- 6c2-plan:begin -->` 标记内）。改动只改这里，
 > 然后重跑附录 E 的校验——脚本会把「文档」与「Room schema 导出的真实 FK 图」逐条对拍。
@@ -1644,14 +1644,15 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
 10. **三项裁定（2026-10-23 已裁）**：mask 8/0 拒绝与派生恒裁+恢复后重建已是用户裁定后的实施事实
     （§9.9），不再是“先按 a 实现”的默认；其余未决项照旧不得默认。
 
-### 9.11 机器可读清单 v3
+### 9.11 机器可读清单（历史 v5，schema 73；当前 v3 见 §9.14）
 
-> 解析标记：`<!-- 6c2-plan-v3:begin -->` / `<!-- 6c2-plan-v3:end -->`。旧的 `6c2-plan-v2`（schema 69）
-> 内容已就地升为 v3；`6c2-plan`（schema 66）标记保留为历史块，当前实现只读 v3。`closureVersion=3`
-> 与本块同源；`identityHash` 必须等于 `71.json` 的 `database.identityHash`。
+> 解析标记（单一）：§9.14 的 `6c2-plan-v3` begin/end 两行，内容随
+> KSP 导出物同步（当前 schema 75 / closure 6）。`6c2-plan`（schema 66）与本节 `6c2-plan-v5`
+> （schema 73）只作历史块保留，**不再驱动门禁**。当前 `identityHash` 必须等于 `75.json` 的
+> `database.identityHash`，`closureVersion` 与本块同源。
 > 2026-10-24 回写：本块已由批次 18 实施为 `SmbkSelectionPlan.kt`，`SmbkSelectionPlanTest`（
 > `plan data matches the section 9_11 machine block field for field`）断言两处逐字段同源——改本块即改
-> 代码契约。`maskPolicy`/`derivedPolicy` 已按 2026-10-23 裁定回写；`openMasks` 键名与 0/8 两项是测试
+> 代码契约（2026-11-08 批次 50 起，本节块冻结为 v5 历史，契约由 §9.14 的 v3 块承担）。`maskPolicy`/`derivedPolicy` 已按 2026-10-23 裁定回写；`openMasks` 键名与 0/8 两项是测试
 > 解析契约保留，其 `state` 已由设计期 `OPEN` 改为 `REJECTED`。
 > 2026-10-29 批次 30 / D-01 回写：schema 70 新增视觉四表后同步升 v3——86→90 表、78→82 裁剪项、
 > ISSUE_BOOK 30→31、SESSIONS 6→7、SPLIT 5→7、软引用 20→21、`closureVersion` 2→3；新增
@@ -1662,7 +1663,7 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
 > 只有 `schemaVersion` 70→71 与 `identityHash` 换成 KSP 生成值（`714c0ecb…`，与 `71.json`、
 > `StudyDatabase_Impl.kt` 的 `RoomOpenDelegate` 同值，不得估算）。
 
-<!-- 6c2-plan-v3:begin -->
+<!-- 6c2-plan-v5:begin -->
 ```json
 {
   "closureVersion": 5,
@@ -2307,20 +2308,24 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
   }
 }
 ```
-<!-- 6c2-plan-v4:end -->
+<!-- 6c2-plan-v5:end -->
 
 
 ## 9.14 schema 73：纸质复习持久化
 
-纸卷、题目快照与作答照片属于 MASTERY。原始照片作为规范资产进入备份与孤儿引用判定。历史机器块保留，以下 v5 是当前清单。
+纸卷、题目快照与作答照片属于 MASTERY。原始照片作为规范资产进入备份与孤儿引用判定。历史机器块保留，以下 `6c2-plan-v3`（parser 契约名沿用 v3，内容 schema 75 / closure 6）是当前清单。
 
-<!-- 6c2-plan-v6:begin -->
+<!-- 6c2-plan-v3:begin -->
 ```json
 {
   "closureVersion": 6,
   "schemaVersion": 75,
   "identityHash": "f9a3d1c9ea8ef83d7222721ad1015a51",
-  "note": "schema 74: reconciled v73 layouts; durable paper review, frozen questions and original answer photographs",
+  "views": [
+    "library_catalog",
+    "knowledge_question_lattice"
+  ],
+  "note": "schema 75：v74 对账 v73 布局，v75 为 UI 分支补回错因账本两表（74→75 只跑 ERROR_CAUSE_MIGRATION_72_73）；99 表 / 2 视图 / closure 6。纸卷、冻结题目与原始作答照片属于 MASTERY。",
   "categories": {
     "ISSUE_BOOK": {
       "bit": 1,
@@ -2983,7 +2988,8 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
   }
 }
 ```
-<!-- 6c2-plan-v6:end -->
+<!-- 6c2-plan-v3:end -->
 
 
 2026-11-05：机器清单版本同步至74。73→74修复同号不同结构的升级冲突，完整目标schema的表、列、外键和identityHash与当前73相同；本次只同步版本闸门，不改变备份类别/裁剪顺序/图片包含规则。历史段落仍保留原版本背景。
+2026-11-08（批次 50）：parser 契约标记统一为单一 `6c2-plan-v3:begin/end`，内容按 KSP `75.json` 同步（99 表 / 2 视图 / closure 6 / identity `f9a3d1c9…`）；§9.11 旧块冻结为 `6c2-plan-v5` 历史块，`check_backup_plan_sync.py` 只解析 v3 块。

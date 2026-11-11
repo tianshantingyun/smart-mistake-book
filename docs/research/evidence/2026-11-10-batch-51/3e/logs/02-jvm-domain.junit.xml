@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" tests="24" skipped="0" failures="0" errors="0" timestamp="2026-11-09T19:10:13.875Z" hostname="TIANSHAN" time="0.029">
+  <properties/>
+  <testcase name="scoresKnowledgeNodesWithAMasteryDerivedDifficultyBand" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="aZeroDailyCapDisablesTheSecondTierEntirely" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.003"/>
+  <testcase name="timeBudgetDropsMergedTierEntriesAlike" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.002"/>
+  <testcase name="fullLibraryScanCandidateStaysOutOfScopeWithoutBoundQuestionsOrMaterial" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.001"/>
+  <testcase name="ordersRiskyNodesByDescendingScore" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="scanQuotaIsPerPlanNotADailyAccumulator" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.001"/>
+  <testcase name="scoreKnowledgeNodeUsesRecallRiskWhenProvided" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="todayQueueEntryWinsWhenTheSameNodeIsInBothTiers" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="knowledgeRecallRiskAggregatesTheWeakestBoundItemAndSkipsUnknownOnes" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.001"/>
+  <testcase name="sessionPlanAcceptsNoEvidenceNodeAsUnknown" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.001"/>
+  <testcase name="sessionPlanRejectsDuplicateNodes" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="cyclesDifficultyBandsWhenScoresTie" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="emptyOrAllMasteredCandidatesYieldsEmptyQueue" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.001"/>
+  <testcase name="skipsMasteredNodesAndKeepsRiskyOnes" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="recoversWeakNodesThatAreNotInTodaysQueue" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="interleavesSubjectsWhenMaterialsAlreadyDiffer" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="neverDropsNodesWhenEveryCandidateSharesOneMaterial" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="sessionPlanRejectsBlankEntryFields" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="interleavesTeachingMaterialsInsteadOfQuizzingTheSameMaterialBackToBack" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="knowledgeRecallRiskUsesTheMinimumOverBoundItems" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="respectsTheTimeBudget" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="capsTheFullLibraryScanAtTheDailyCap" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.001"/>
+  <testcase name="replayCandidatesJoinThePoolWithoutConsumingTheRemainingCap" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.0"/>
+  <testcase name="fiveThousandFullLibraryScanCandidatesStayWithinTheDailyCapAndScaleGate" classname="com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest" time="0.018"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

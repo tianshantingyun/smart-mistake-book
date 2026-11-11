@@ -1,8 +1,10 @@
 # 批次 44 全部 E 文件 sha256 清单（E-FILES-SHA256.txt）
-# 生成口径：sha256sum 实测（2026-11-05 06:2x +0800，共享工作树只读）
-# 覆盖范围：00-index.md §0/§7 登记的 35 个 E 文件（含 gitignored 的双门日志，仅登记不背书）
-# 校验：sha256sum -c E-FILES-SHA256.txt（在仓库根执行；build/*.log 被 gitignore 但不影响本地校验）
-# 说明：哈希绑定本轮读取时刻的字节；共享树仍在并发写入，复算不一致先比 mtime
+# 生成口径：sha256sum 等价逐文件实算（批次 45 收尾最终重生成，2026-11-05 13:40 +0800，仓库根执行）
+# 覆盖范围：与批次 44 版本相同的 35 个 E 路径（含 gitignored 的双门日志，仅登记不背书）
+# 重生成原因：批次 45 改了 ledger.md / verdicts.md / runbook.md / e-domain/00-index.md 的字节；
+#             旧清单 31/35 OK、4 FAILED，不能再用作“当前字节”的追溯凭据。
+# 校验：sha256sum -c docs/research/evidence/2026-11-06-batch-44/E-FILES-SHA256.txt（仓库根执行）
+# 说明：哈希只绑定生成时刻的字节；共享树仍在并发写入，复算不一致先比 mtime/内容。
 244cff7b3429e6e014c89fcf41d2e94e2fc71b618f86f1c71e474161704634a0  docs/research/evidence/2026-11-06-batch-44/acceptance-report.json
 130358529e6555180e97483345055f0ecbde193e773e0905c90fe442f7bb0972  docs/research/evidence/2026-11-06-batch-44/acceptance/gates-final.log
 bf86d867f0230ac5e552e0b177808b6c99a38bdc8e2ddf4b62e31cb8c6ef9fe2  docs/research/evidence/2026-11-06-batch-44/acceptance/report.json
@@ -13,10 +15,10 @@ e26e529365b49a47ba81c1b057a4a1425de48c540f1e646cea02421306e3309c  docs/research/
 a523510295e4df7bdbbc0a062f932cf9198be9ab07c5a3fde24f102841f61adb  docs/research/evidence/2026-11-06-batch-44/acceptance/replay-drill.log
 418a5c17f33c70e99b0cc0a07fce69191489cfedc94164bfa903785777c5bd4b  docs/research/evidence/2026-11-06-batch-44/acceptance/init-check.log
 59950b941167346966503a64ab1580cf35b1e4c8b5e2308a857d4c4e0bb0633c  docs/research/evidence/2026-11-06-batch-44/acceptance/ledger-shape.log
-e139b03e8b9a005af73d658333f7721907b7e6976718106934c00e096a3eb675  docs/acceptance/ledger.md
-749c794b0d6b64f7afc261faa7433165d6a41bcc865f18ae79c0df767a15b0d8  docs/acceptance/verdicts.md
+bb25ef2360562de4f00f9a49e2b0b5aed576d77500ce1bc7dcba64c4879ea686  docs/acceptance/ledger.md
+9cbfe1b947f7439f23e7bf0ac793441952d63699e1a72d4930755faaa3a4d28c  docs/acceptance/verdicts.md
 03df1e31b7015f393527ecc51515ab13b673c502e9197b3285e3fd69364aebc8  docs/acceptance/dod.md
-f9f0998538c7f3fb9269ae7797b7f88d9219a441fb34fcb5f861847ccc3647df  docs/acceptance/runbook.md
+ab8a1a93137ada138eb8fd5d14f0443a5f1b81195882668b51581a66836abf0b  docs/acceptance/runbook.md
 3c653bd3c55824ba0284892757cf5df7ef602b86f8a7068d79e7d09ce1918840  docs/acceptance/ledger.schema.json
 02fd732993c128de8ae4ad628314033e8d5580347f917e612c5be9d08254c2df  docs/acceptance/verdicts/README.md
 172d17ef0cffbfa9fab8543144663d7a5a784175104b4db7e65be65b40f91328  docs/research/evidence/2026-11-06-batch-44/device-track/00-index.md
@@ -27,7 +29,7 @@ f9f0998538c7f3fb9269ae7797b7f88d9219a441fb34fcb5f861847ccc3647df  docs/acceptanc
 940cc589bcba86270ec61b1cc84654f966c50827ed0011707b4ee222f6e25953  docs/research/evidence/2026-11-05-batch-44/a-domain/adversarial-attempts.md
 5ddbf3b93a64c0f65c7a94c02ed215ab6c520d0003ec9936ee6bd282b2134d8a  docs/research/evidence/2026-11-05-batch-44/b-domain/00-index.md
 721345089457c2527d533d0305209c964005ec517931ed5ec8f18914f78bb47e  docs/research/evidence/2026-11-05-batch-44/c-domain/00-index.md
-bf312be605b8cfef5b0334d64779a90327376d0f8b82698407ee97d730b78955  docs/research/evidence/2026-11-05-batch-44/e-domain/00-index.md
+353229ab0355bb3d532301b725d99420f99e42d963c2ca97f0d9506a89540a34  docs/research/evidence/2026-11-05-batch-44/e-domain/00-index.md
 8982306415a5600be81ef7b0ed998d77f3b7363447afab46a631e98255e50a96  docs/research/evidence/2026-11-05-batch-44/f-domain/00-index.md
 526b3b1002820bc73722a710b31921a1921f5a5bbd994bfc6d463d910d3e035d  docs/research/evidence/2026-11-05-batch-44/j-domain/00-index.md
 14f33886823680817d2da8a3f213c25459a932fe7c68135c50d73caf7018d721  docs/acceptance/evidence/G/hashes.sha256

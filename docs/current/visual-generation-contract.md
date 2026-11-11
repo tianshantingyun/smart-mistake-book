@@ -99,13 +99,14 @@ SceneV1：`schemaVersion, sceneId, revision, viewBox, background, paths[], root,
 - label 引用已度量 contentId，包含 anchor、offset、水平/垂直对齐、rotation、颜色、朗读顺序。compiler 一次算出最终位置，不由 Compose/PDF 各自猜 baseline。第一版无自动标签避让优化器，JS 根据真实 metrics 布局；原生检查越界并给诊断。
 - `1 du=1 dp`，屏宽变化和 fontScale 变化重新布局；字号使用允许字体的 sizeSp，原生解析成 du。学科量纲留在 state，与绘图坐标分离。根变换只做一次 du→px。数学 y 轴朝上由 JS 显式变换，标签投影后放置以免倒置。
 
-**DrawOps V1.1 生成门与回放语义（2026-10-28 批次 29 T5 落码、T6 台账同步，[KD-78](../known-defects.md)）.** 以下五条把"两道生成门（`visual-compiler.js` 与原生 `VisualDrawOpsParser`/`VisualDrawOpsValidator`）与回放 painter"钉成同词；回放侧对应门保留为绕过生成门的兜底，不自愈：
+**DrawOps V1.1 生成门与回放语义（2026-10-28 批次 29 T5 落码、T6 台账同步，[KD-78](../known-defects.md)；第六条为批次 50 math 显式降级裁定）.** 以下六条把"两道生成门（`visual-compiler.js` 与原生 `VisualDrawOpsParser`/`VisualDrawOpsValidator`）与回放 painter"钉成同词；回放侧对应门保留为绕过生成门的兜底，不自愈：
 
 - **8 位色 alpha**：`#RRGGBBAA` 的末两位是色内 alpha，**可**与 op/组 alpha 相乘——回放有效 alpha = `floor(colorA × op.alpha)`（`colorA ∈ [0,255]`；6 位色取 255，等价 `floor((colorA/255) × op.alpha × 255)`）；painter 在 `setColor` 之后以该值 `setAlpha`。因此 `#RRGGBBAA` 与组 alpha 是乘法，不是"组 alpha 覆盖色内 alpha"。
 - **dash 形状**：`dash` 必须为**偶数项且 ≥2**；奇数或 <2（含空数组 `[]`）在两道生成门即拒（码 `PAINTER_DASH_ODD`），回放侧同码兜底（AOSP `DashPathEffect` 构造器对 `length<2` 抛无码 `ArrayIndexOutOfBoundsException`，奇数进 native 行为无规约）。
 - **stroke-only**：`stroke` 无 color 字段，路径**必须有 `fill`**（stroke 色取 fill 色）；`fill=null && stroke!=null` 在两道生成门即拒（码 `PAINTER_STROKE_WITHOUT_FILL`），回放侧同码兜底。
 - **度量/回放 Paint flags**：度量环境指纹包含 `paintFlags`（`typefaceId|sizeSp|density|fontScale|locale|paintFlags`），**固定值 0**（AA/locale/subpixel 全关的 MVA 取舍）——它**不是**平台 `Paint()` 的构造默认：API 34 实测默认为 **1283**（`ANTI_ALIAS|FILTER_BITMAP|DEV_KERN|EMBEDDED_BITMAP`，批次 29 设备证据 R1）。度量侧 `forEnvironment` 与回放侧 `textPaint` 都必须在构造后**显式** `flags = 0`（`DEFAULT_PAINT_FLAGS` / `REPLAY_TEXT_PAINT_FLAGS`）；装配时校验实际度量 Paint 的 flags 与指纹一致（不一致 fail-closed），回放侧同值并与指纹同值——改任一侧必须同时改另一侧与指纹。
 - **hitRegions**：`hitRegions[]` **可非空**——编译器/解析器只做数组 + 预算校验并透传进 DrawOps 文档；屏与 PDF 的 painter 都**不绘制**命中区，命中测试由交互层按同一变换/clip/逆变换消费（批次 29 §1.1 裁定 1）。空数组仍合法，非空不是错误，也不得在回放侧被当作绘图 op。此前"hitRegions 必须为空"的口径作废。
+- **math 盒回放（批次 50 裁定：V1 显式降级）**：未降级 math 的冻结布局 artifact 只携 width/height/baseline（`lines=null`），**不携 MathBox、也不携原文**；回放 painter 对 `VisualLabelContent.Math` 以 `PAINTER_LABEL_MATH` **fail-closed**（显式产品降级，不是待办占位）。契约降级的 math（解析/预算失败 → 原文透传）已经是 text 布局（`degraded=true`），按普通 label 回放。解锁盒回放的前置：artifact 形状携盒或原文 + 布局环境，且与 core/ui Compose lowering、core/export `CanvasMathBoxRenderer` 几何逐点对齐；**不得新增第三套公式/坐标走查**。
 
 RenderScene 是校验后的不可变显示列表：固定路径、矩阵/裁剪、已放置 glyph/line/path 或文本 artifact、语义与命中区。不可包含函数、脚本或回调代码。`core:model` 的协议与 compiler 不依赖 Compose；`core:visual` 的 AndroidScenePainter 共用于 Compose nativeCanvas 和 PDF page.canvas。
 

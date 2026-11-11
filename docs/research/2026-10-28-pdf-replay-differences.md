@@ -4,6 +4,8 @@
 输入（本会话逐字读过）：计划全文；`docs/current/visual-generation-contract.md` PDF 段（`:99,:102,:115,:192`）；`docs/known-defects.md` KD-78（`:2869-2882`）；`docs/research/2026-10-28-painter-design.md` 全文；`docs/research/2026-10-28-batch-29-baseline.md` §5/§8/§11；树内 painter 三文件与设备轨用例；AOSP `PdfDocument.java`/`Canvas.java`/`PdfDocument.cpp`/`PdfRenderer.java`（raw 实读）；Skia `src/pdf/*`（raw 实读）；`notofonts/noto-cjk` 文件字节。
 产出性质：**设计 + 来源**。本会话未改任何 Kotlin/JS/资源文件、未运行 Gradle、未上设备；本文档是唯一写盘产物。
 
+> **更正注记（批次 30 T12，2026-10-29；只读）**：本文档 §7 初稿曾断定 `PdfDocument.writeTo()` 的 OutputStream `IOException` 会逃回 Java、由调用方 `catch (IOException)` 折成 `PAINTER_PDF_IO`。**该结论已被批次 29 设备轨否证**：API 34 的 native `SkJavaOutputStream::write` 在 OutputStream 抛出 Java 异常时执行 `ExceptionDescribe()` → `ExceptionClear()`，异常不逃回 Java，`writeTo` 正常返回（void，无失败标志），写盘失败被静默当成成功（fail-open）。据此登记 **KD-79（高，open）**（`docs/known-defects.md` KD-79）；现 §7.2 第 4 条与 §7.3 已改为 `PdfWriteFailureTrackingStream` + 回读失败记录口径，原"catch 可捕获"结论**作废**。修复后的设备绿轮（API 34 复跑 PDF 13 例，`pdfWriteFailureIsCoded` 绿）在批次 30 T12 核对时点**未出数**，KD-79 维持 open。
+
 ---
 
 ## 0. 结论摘要（T3/T4 直接可用的十条）

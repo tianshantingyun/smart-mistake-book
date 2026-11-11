@@ -11,7 +11,7 @@
 
 ## 0. 结论摘要
 
-1. **两侧不是同一个栅格器**：写侧是 Skia（`PdfDocument` → `SkPDF::MakeDocument`，AOSP `PdfDocument.cpp:22,89`），栅格化侧是 PDFium（`PdfRenderer` → `FPDF_RenderPageBitmapWithMatrix`，`PdfRenderer.cpp:82-107`；构建链 `libs/hwui/Android.bp:438` 链 `libpdfium`）。因此"逐像素完全相等"是**错误判据**（跨栅格器必红，且无法归因）。本门是**相对门**：只证"PDF 路径相对屏路径没有引入新偏差"，屏侧本身的正确性由 painter 套件（设备 19 例 + JVM 10 例）负责。
+1. **两侧不是同一个栅格器**：写侧是 Skia（`PdfDocument` → `SkPDF::MakeDocument`，AOSP `PdfDocument.cpp:22,89`），栅格化侧是 PDFium（`PdfRenderer` → `FPDF_RenderPageBitmapWithMatrix`，`PdfRenderer.cpp:82-107`；构建链 `libs/hwui/Android.bp:438` 链 `libpdfium`）。因此"逐像素完全相等"是**错误判据**（跨栅格器必红，且无法归因）。本门是**相对门**：只证"PDF 路径相对屏路径没有引入新偏差"，屏侧本身的正确性由 painter 套件负责（**批次 30 T12 现树实测：设备 24 例 + JVM 纯测 13 例**；原文"设备 19 例 + JVM 10 例"为批次 28 时点，批次 29 设备实跑为 21 例，修复后设备复跑未出数）。
 2. **文本必错于逐像素**：屏侧 `textPaint = Paint()` 后**显式** `flags = REPLAY_TEXT_PAINT_FLAGS`（0，AA 关；平台 `Paint()` 构造默认是 1283，含 AA，见 KD-78 ④ 设备证据，`VisualDrawOpsPainter.kt:50-54,266-286`）；PDF 写侧把字体**规范化成 AA + 无 hinting + 线性度量**（`SkPDFFont.cpp:166-172` 的 `setBaselineSnap(false)`/`setEdging(kAntiAlias)`/`setHinting(kNone)`/`setLinearMetrics(true)`）；栅格化侧再用 PDFium 的 AA，display 模式还会追加 `FPDF_LCD_TEXT`（`PdfRenderer.cpp:85-90`，LCD 子像素彩边）。→ 文本必须用**轮廓剖面 / 质心 / 墨量**度量，不能用逐像素色差。
 3. **栅格化模式选 `RENDER_MODE_FOR_PRINT`**：它只置 `FPDF_PRINTING`、**不**置 `FPDF_LCD_TEXT`（`PdfRenderer.cpp:85-90`），避免把 LCD 子像素彩边当成"PDF 与屏不一致"，这是**测量仪器的选择**，不是产品行为。
 4. **归一**：两侧都落到同一像素网格（夹具 48×32 du @ 4 px/du = 192×128 px；PDF 页 48×32 pt，`PdfRenderer` 变换 `scale(4)`）。DPI 在比较中被**完全消去**——比的是像素网格，不是物理尺寸（§3.2）。
@@ -77,7 +77,7 @@
 
 ### 1.5 仓内已钉 / 未钉（本设计的边界）
 
-- 已钉（设备 19 例 + JVM 10 例）：屏侧矩阵列序、嵌套 clip、组内 label、alpha floor、背景、状态隔离、stroke 相位、dash 残尾、fail-closed 七码；同设备同指令**逐位相等**（`VisualDrawOpsPainterInstrumentedTest.kt:133-152`）。契约 `:115` 记 17/17 绿，修复轮新增 2 例设备复跑 UNVERIFIED（批次 28 遗留①）。
+- 已钉（**批次 30 T12 现树实测：设备 24 例 + JVM 纯测 13 例**；原文"设备 19 例 + JVM 10 例"为批次 28 时点，批次 29 设备实跑 21 例，修复后设备复跑未出数）：屏侧矩阵列序、嵌套 clip、组内 label、alpha floor、背景、状态隔离、stroke 相位、dash 残尾、fail-closed 七码；同设备同指令**逐位相等**（`VisualDrawOpsPainterInstrumentedTest.kt:133-152`）。契约 `:115` 记 17/17 绿，修复轮新增 2 例设备复跑 UNVERIFIED（批次 28 遗留①）。
 - 未钉：**PDF 回放**（T3 的 `VisualDrawOpsPdfPainter` 尚未在树，计划 §1.6 落位 `core:data` visual 包）；KD-78 四缺口生成侧仍放行（`docs/known-defects.md:2869-2882`）；measure/replay flags 不在度量指纹（KD-78 ④）。
 
 ---

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" tests="40" skipped="0" failures="1" errors="0" timestamp="2026-11-09T19:12:07.191Z" hostname="TIANSHAN" time="0.251">
+  <properties/>
+  <testcase name="thePrerequisiteMaterialIsLookedUpUnderThePrerequisiteNodeSubject" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.024"/>
+  <testcase name="explicitFixtureSeedsFiveProblemsAndFourEntriesWithoutInventingHistory" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.006"/>
+  <testcase name="profileStrengthsDropForgottenAndPrerequisiteSuppressedNodes" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.004">
+    <failure message="java.lang.AssertionError: expected:&lt;[knowledge:m1:math.read-monotonicity-from-graph]&gt; but was:&lt;null&gt;" type="java.lang.AssertionError">java.lang.AssertionError: expected:&lt;[knowledge:m1:math.read-monotonicity-from-graph]&gt; but was:&lt;null&gt;
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.failNotEquals(Assert.java:835)
+	at org.junit.Assert.assertEquals(Assert.java:120)
+	at org.junit.Assert.assertEquals(Assert.java:146)
+	at com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest$profileStrengthsDropForgottenAndPrerequisiteSuppressedNodes$1.invokeSuspend(RoomBackedStudyExperienceRepositoryTest.kt:1967)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:100)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:256)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:54)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlockingImpl(Builders.kt:30)
+	at kotlinx.coroutines.BuildersKt.runBlockingImpl(Unknown Source)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK(Builders.concurrent.kt:172)
+	at kotlinx.coroutines.BuildersKt.runBlockingK(Unknown Source)
+	at kotlinx.coroutines.BuildersKt__Builders_concurrentKt.runBlockingK$default(Builders.concurrent.kt:157)
+	at kotlinx.coroutines.BuildersKt.runBlockingK$default(Unknown Source)
+	at com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest.profileStrengthsDropForgottenAndPrerequisiteSuppressedNodes(RoomBackedStudyExperienceRepositoryTest.kt:1918)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestExecutor.runRequest(JUnitTestExecutor.java:175)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestExecutor.accept(JUnitTestExecutor.java:84)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestExecutor.accept(JUnitTestExecutor.java:47)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestDefinitionProcessor.processTestDefinition(AbstractJUnitTestDefinitionProcessor.java:65)
+	at org.gradle.api.internal.tasks.testing.SuiteTestDefinitionProcessor.processTestDefinition(SuiteTestDefinitionProcessor.java:53)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.gradle.internal.dispatch.MethodInvocation.invokeOn(MethodInvocation.java:77)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:28)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:19)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:88)
+	at jdk.proxy2/jdk.proxy2.$Proxy6.processTestDefinition(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$2.run(TestWorker.java:178)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:126)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:103)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:63)
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:122)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:72)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+</failure>
+  </testcase>
+  <testcase name="scanQuotaFailsClosedWhenTheEvidenceReadFails" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.017"/>
+  <testcase name="aWeakPrerequisiteWithNoReviewedMaterialOffersNoRemediation" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.004"/>
+  <testcase name="a hinted response after the reveal stays priced by the reveal" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.025"/>
+  <testcase name="currentKnowledgeReviewPlanScansTheLibraryEvenWhenTodaysQueueIsEmpty" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.004"/>
+  <testcase name="leechedProblemOffersItsMisconceptionMaterialBeforeTheNextAttempt" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.01"/>
+  <testcase name="self report writes self-reported evidence, advances the session and is idempotent" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.012"/>
+  <testcase name="an incorrect response after the reveal is priced as incorrect-after-reveal" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.006"/>
+  <testcase name="theDailyPlanGatesOutAQuestionWhosePrerequisiteIsMissing" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.003"/>
+  <testcase name="reviewAnswerAtomicallyAdvancesAndReplaysAcrossLocalMidnight" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.007"/>
+  <testcase name="scanQuotaReadIsReadOnlyAndDeterministic" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.006"/>
+  <testcase name="theDailyPlanLeavesAQuestionAloneWhenItsPrerequisitesAreReady" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.004"/>
+  <testcase name="unboundMistakeMaterializesThePseudoBucketWhenPlanning" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.002"/>
+  <testcase name="aMissingPrerequisiteOffersThatPrerequisitesMaterialBesideTheQuestion" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.004"/>
+  <testcase name="scanQuotaDoesNotChargeTodaysFirstTierReviews" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.004"/>
+  <testcase name="repeatedCaptureMovesTheExistingMistakeForwardInReview" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.003"/>
+  <testcase name="projectionFailureClearsInteractiveDecisionsAndReviewSessionProjection" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.004"/>
+  <testcase name="scanQuotaResetsAtTheStudyDayBoundary" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.008"/>
+  <testcase name="learningLedgerHeadChangeRefreshesCurrentQuestionMemoryWithoutAnotherMutation" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.006"/>
+  <testcase name="scanQuotaIsDailyCumulativeAcrossPlanCallsInTheSameStudyDay" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.007"/>
+  <testcase name="a plan written by another planner version is replanned instead of continued" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.005"/>
+  <testcase name="a hinted incorrect response is priced as incorrect-after-hint" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.005"/>
+  <testcase name="a hinted correct response is priced as correct-after-hint" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.005"/>
+  <testcase name="scanQuotaCountsRejectedObservationRowsAsSpent" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.006"/>
+  <testcase name="the default plan is stamped by V2 and never carries the retired V1 version string" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.004"/>
+  <testcase name="currentKnowledgeReviewPlanCoversTodaysQueuePlusTheFullLibraryScan" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.004"/>
+  <testcase name="calibrationReportWiresResolvedShadowPredictions" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.004"/>
+  <testcase name="initializePublishesGroupedKnowledgeCoverageWithoutLearningEvidence" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.003"/>
+  <testcase name="aProblemWhosePrerequisitesAreReadyOffersNoRemediation" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.004"/>
+  <testcase name="capturedMistakeWithoutAnswerKeyIsScheduledFromItsSavedTranscription" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.002"/>
+  <testcase name="aQuestionWithNoRecordedPrerequisiteOffersNoRemediation" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.003"/>
+  <testcase name="scanQuotaSpendsOnlyTheRemainingSlotsWithinTheSameDay" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.004"/>
+  <testcase name="productionDefaultInitializeKeepsAFreshDatabaseEmpty" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.003"/>
+  <testcase name="a plan from the current planner version is kept as today's plan" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.004"/>
+  <testcase name="reviewSessionProgressAndCompletionComeBackFromPersistence" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.01"/>
+  <testcase name="hint count reaches the prediction audit outcome" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.006"/>
+  <testcase name="a correct response after the answer was revealed is priced as post-reveal" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.006"/>
+  <testcase name="aHealthyProblemIsNotForcedIntoReTeaching" classname="com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

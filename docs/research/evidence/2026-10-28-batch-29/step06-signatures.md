@@ -75,7 +75,8 @@ SIGSEGV 0 / CANNOT LINK 0 / failed to map 0 / death not confirmed 0。
 | `terminate(generation` | 0 |
 | `the host unbound the visual_js worker` | 1 |
 | `due to start instr` | 0 |
-| 四类杀因之和 | **1 ≠ 14**（13 个杀因不可归入四类：12 warm-up fail + 1 AMS `isolated not needed`） |
+| 四类杀因之和 | **1 ≠ 14**（13 个杀因不可归入四类：**12 warm-up fail + 1 `the host unbound the visual_js worker`**；AMS `isolated not needed` 另有 **2** 行，是系统侧 `isolated … not needed` 日志、不是杀因） |
+| 记账更正（批次 30 T12，2026-10-29） | 原文写"12 warm-up + 1 AMS `isolated not needed`"与 raw log 不符：raw log 实测 `the host unbound`=1、`isolated not needed`=2（重跑命令见批 30 T12 附录）。杀因 13 = 12 + 1 unbound；`isolated not needed` 2 行不参与杀因求和。worker 收口 FAIL 判定不变 |
 | 存活 worker | 空（PASS） |
 
 - Race 面：`Start proc .*:visual_js` = 0（符合 fake binder 判据）。

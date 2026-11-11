@@ -6,6 +6,7 @@
 >
 > 计划对照：`.zcode/plans/plan-2026-10-29-batch-30-device-persist-fixes.md:34`（任务 12）与 `:46`（验收：KD 按证据裁决、不虚报）。
 > 基线对照：`docs/research/2026-10-29-batch-30-baseline.md` §3（在树修复锚点）与 §4（设备证据计数 vs 现树计数）。
+> **批次 31 后续**：同类记录见 `docs/research/2026-10-29-batch-31-t12-doc-consistency.md`。本文的 parity **11 例**、PDF 16、painter 24 是批次 30 时点；批次 31 现树 parity 已因 `calibrated-r1` 新增 N09–N12 变为 **15 例**，其余计数不变。
 
 ---
 
