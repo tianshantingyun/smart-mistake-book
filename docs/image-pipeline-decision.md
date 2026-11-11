@@ -1,107 +1,23 @@
-# Image Pipeline Decision
+# 统一生图路线决策
 
-> **Status: CONFIRMED DIRECTION (partially implemented — see the status note in `image-pipeline-spec.md`).**
-> This records the agreed technical direction for turning a photographed
-> problem into a clean, printable problem PDF, and for generating tutoring
-> figures. It describes the *target* architecture, not current code. Items are
-> marked **[existing]** where the capability already exists in the codebase and
-> **[to-add]** where it does not. As of 2026-09-09 the classify → redraw spine
-> runs in production (`decideAndRedraw` + `ConfiguredCleanImageGenerator`); the
-> MCP figure path and the local typesetter remain **[to-add]**.
+更新：2026-10-18。JS和IMAGE_MODEL是生图的两种方法，所有生图入口共同判定、生成、验证和记录，由模型按实际目标/能力选择。正式统一接线与JS后端未实施。
 
-## Goal
+权威规则见[统一提示词](current/figure-generation-prompt-policy.md)，工程约束见[图形契约](current/visual-generation-contract.md)，批次见[4E](superpowers/plans/2026-10-18-flexible-js-drawing-implementation.md)。
 
-A user photographs a problem and uploads it. The system must produce:
+## 方法偏好与例外
 
-1. a **clean, handwriting-free, printable problem PDF** saved to the mistake
-   book, and
-2. tutoring figures generated on demand while the model explains the problem.
+精确关系、公式标签、可编辑和交互通常优先JS；照片纹理、复杂自然形态、写实艺术或原像素编辑通常优先图像模型。上述仅为偏好，不按转写/重绘/去手写/讲解/插画写死方法。JS可生成干净题图，图像模型可生成讲解图；是否满足原像素保真或语义重建目标须明确。
 
-All understanding and explanation is owned by **a multimodal model**. Figures
-are produced by an **image-to-image MCP server**.
-（**2026-10-11 注记**：此句已被取代——独立 MCP 进程整体删除；图的唯一来源 = **App 内通道**
-（`OpenAiImageGenerationChannel`（`/v1/images/edits` + `/v1/images/generations`）+ cleanRedraw
-装配 + `GENERATE_FIGURE` 工具面）。下文含 "MCP" 的条目均按此口径阅读。）
+所有入口进入同一FigureGenerationCoordinator。模型可以根据诊断，在原操作预算/授权内修复或换方法，无需新增逐图确认；客户端不暗换，不静默降低目标。缺证据时保留原图，不造被遮挡内容。
 
-## Architecture
+## 统一口径
 
-```
-user photographs problem
-        │
-        ▼
-multimodal model  (brain: reads the problem, judges its type, explains it)
-        │
-        ├─ [WITH FIGURE]  → MCP image-to-image  ← receives the photo
-        │        └→ renders a clean, handwriting-free problem figure
-        │             └→ clean problem figure PDF  → mistake book
-        │
-        ├─ [TEXT-ONLY]   → multimodal reads structured content (incl. LaTeX)
-        │        └→ local typesetter (NOT a figure renderer) → clean problem
-        │             └→ problem PDF  → mistake book
-        │
-        └─ [EXPLAINING]  → multimodal leads the explanation
-                 └→ needs a tutoring figure → MCP image-to-image
-```
+两方法均记录生图attempt/产物，外部图像请求与文本token/费用另记；JS动画、预览、缓存和重复导出不重复计数。operationId不含method，换方法不能重置派发。图像生成/编辑需补接统一远程ledger，不能沿用未计入的旁路。
 
-## Decisions
+纯文字/公式转写仍可只输出结构化内容；需要产图时才判定。problemKind不是生成与否或方法的唯一开关。照片净化既有edits可复用为IMAGE_MODEL适配器，不能成为A10永久指定路线。图像API收到具体执行提示，不收到让它调用JS的规划协议。
 
-### 1. Multimodal model is the brain
-Reads the problem, understands it, classifies whether it has a figure,
-decides what figures to generate, and explains it. It owns all understanding
-and explanation. **[existing]** (the codebase has `OpenAiCompatibleModelGateway`
-as a multimodal read channel; `ModelTaskRegistry`/`ModelTasks` model the tasks).
+## 历史与技术边界
 
-### 2. All figures go to an image-to-image MCP server
-Any figure — the clean redraw of a photographed figure, or a tutoring figure
-the model decides to generate — is produced by an image-to-image MCP server.
-This is the **only figure-producing path**. **[to-add]** (no MCP client exists
-in code; MCP is a runtime/configured capability).
+本次用户决定同时取代“重绘一律生图模型”和“重绘一律JS/照片永远edits”的未来要求。已有源码/探针/历史提交照实保留；旧文档的路线推断以新prompt优先。QuickJS固定源码隔离/16KB门是JS后端约束，不约束所有用途选择。
 
-- The MCP server must be **image-to-image** (it receives the original photo
-  and redraws a clean version). It must **not** be text-to-image only — an
-  image-to-image model is required to keep the photographed problem intact
-  while removing handwriting.
-
-### 3. The local **scientific-figure renderer is abandoned**
-The previous ad-hoc figure-rendering pipeline (semantic apparatus renderers,
-hand-authored geometry) was dropped: it was unreliable, slow, and could not
-faithfully reproduce the real-world figures in the photographs (measured ~30 %
-similarity on a chemistry-apparatus figure). **All figure generation therefore
-goes through MCP.** **[existing, now unused]** the `FigureSchema` /
-`DeterministicPdfFigureRenderer` paths remain in the codebase but are not the
-target for figure generation.
-
-- **"Typesetter" is not a figure renderer.** The pure-text branch needs to lay
-  out text and formulas (LaTeX) into a clean problem sheet. That is *typesetting*
-  (reliable, deterministic) and is distinct from *figure rendering* (drawing a
-  diagram). The typesetter is kept; the scientific-figure renderer is not.
-
-### 4. OCR is dropped
-The multimodal model reads text, formulas, and figures directly and is both
-faster and less error-prone on formulas than a separate OCR pass. A dedicated
-local OCR is therefore not part of the pipeline. **[to-remove]** the existing
-ML Kit OCR (`mlkit-text-recognition-chinese`) integration is not part of the
-target image pipeline.
-
-### 5. Routing: text-only vs with-figure
-- **[WITH FIGURE]** the *figure* goes to MCP image-to-image; the model reads the
-  text itself.
-- **[TEXT-ONLY]** no MCP. The multimodal model reads the problem into
-  structured content (including LaTeX formulas), and the local typesetter lays
-  it out into a clean problem sheet/PDF.
-
-## Boundaries (clarified)
-
-- **Figure renderer (draw a diagram) → abandoned, all via MCP.**
-- **Typesetter (lay out text/formulas) → kept, used for the text-only branch.**
-- **MCP must be image-to-image** (redraw the photographed problem cleanly),
-  not text-to-image.
-- **OCR is dropped**; the multimodal model reads everything.
-
-## Cost risk (accepted)
-
-Because MCP image-to-image is the only figure path and depends on an
-image-capable model, cost concentrates there (the user chooses the model
-provider, so cost follows the user's scenario: high-volume text-only is cheap
-via the typesetter; figure-heavy or low-frequency-high-quality relies on the
-image model).
+不复活退役MCP，不新增TUTOR_VISUAL_GENERATE/REVIEW模型任务，不强制传统OCR校对。旧图可读，历史打开/导出不隐式出网；明确重新生成统一入管线。

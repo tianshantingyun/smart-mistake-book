@@ -1,5 +1,7 @@
 # 阶段 4A · 错题本与录入 完成记录 · 2026-10-03
 
+> **2026-10-18 绘图路线更新：** 所有生图入口统一判定，由模型按共享规则选择JS或图像模型；两者均为生图方式，正式统一接线待实施。当前约束见[教学图形契约](../current/visual-generation-contract.md)。本文既有日期、提交、测试、缺陷与旧方案作为历史事实保留，不代表新路线已实现。
+
 > 依据：主线 4A 行（`docs/REFACTOR-MASTER-LINE.md`）、phasing（`docs/superpowers/specs/2026-09-25-agent-first-refactor-phasing.md:38`）、
 > L1–L7 定稿裁定（`docs/agent-first-refactor-decisions-2026-09-23.md:1058-1068`）、阶段计划 `docs/research/2026-10-03-stage4a-plan.md`（`af530add`）。
 > **用户 2026-10-03 四项裁定**：下一阶段=4A；L1–L7 全做、四批；仅 S17 随 4A（S18/S20 留 3C 尾）；L7 取 **A 形态**（应用内落盘 + 完成通知 + 成果入口）。

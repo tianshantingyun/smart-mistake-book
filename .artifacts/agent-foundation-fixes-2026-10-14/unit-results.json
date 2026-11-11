@@ -1,0 +1,37 @@
+[
+  {
+    "module": "core/model",
+    "tests": 418,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "module": "core/domain",
+    "tests": 566,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "module": "core/database",
+    "tests": 182,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "module": "core/data",
+    "tests": 749,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "module": "feature/tutor",
+    "tests": 210,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+]

@@ -1,147 +1,29 @@
-# Image Pipeline Specification
+# 统一生图实施规格
 
-> **Status: IMPLEMENTATION SPEC (direction confirmed; partially implemented).**
-> Companion to `docs/image-pipeline-decision.md` (the decision record). This
-> spec turns the confirmed direction into a buildable design. Items tagged
-> **[verified]** were confirmed by external research or existing code;
-> **[to-verify]** are open items (model reliability/cost) that need a pilot.
->
-> **What actually runs today (2026-09-09):** the read/classify/redraw spine is
-> wired. `RoomCaptureWorkflowRepository.decideAndRedraw` runs one
-> `IMAGE_PIPELINE_CLASSIFY` round on the committed photo under the global model
-> consent, and a `WITH_FIGURE` answer schedules `ConfiguredCleanImageGenerator`
-> (`CleanImageGenerator`) to redraw and attach the clean figure. `TEXT_ONLY`
-> problems keep the original photo and go through the existing parse → typeset → PDF path, so no
-> separate clean-sheet object is needed.（注：路线以 `docs/image-pipeline-decision.md` 为准——**OCR
-> 已裁**、多模态模型读取一切；此处"OCR/parse"字样系陈旧表述，2026-10-11 订正。）
-> The `ImageCleanSheet`/`ImageCleanSheetOrchestrator` pair this spec originally
-> sketched was never called by production code and was removed on 2026-09-09
-> (see git history). Still **not implemented**: the tutor "explaining" branch 的
-> 规范图——**走 App 内 `GENERATE_FIGURE` 工具面（生图模型），不走独立 MCP 进程**
-> （`tools/image-mcp-server/` 已于 2026-10-11 删除）——and any MathBox-style local typesetter of its own.
+更新：2026-10-18。状态：统一提示词与方案已定，生产接线待实施。以[统一提示词](current/figure-generation-prompt-policy.md)、[运行契约](current/visual-generation-contract.md)、[实施计划](superpowers/plans/2026-10-18-flexible-js-drawing-implementation.md)为准。
 
-## 1. Goal & architecture (recap)
+## 1. 业务协议
 
-Turn a photographed problem into a clean, handwriting-free, printable problem
-PDF for the mistake book, and generate tutoring figures while a multimodal
-model explains.
+method仅JS/IMAGE_MODEL，purpose与method正交。所有转写、净化、重绘、讲解/插画请求使用FigureGenerationRequest/Proposal；decision=GENERATE/NO_FIGURE/NEED_SOURCE/UNAVAILABLE。JS带完整program；IMAGE_MODEL带EDIT/GENERATE与imagePrompt。兼容executionMode映射至LOCAL_JS/IMAGE_EDIT/IMAGE_GENERATE，PREPARE_SOURCE是准备步骤，不是方法。
 
-```
-user photographs problem
-        │
-        ▼
-multimodal model (brain: read / classify / explain)          [read via chat-completions, image input]
-        │
-        ├─ [WITH FIGURE] → figure goes to MCP image-to-image  [gpt-image-2 via /v1/images/edits]
-        │        └→ clean problem figure → problem PDF → mistake book
-        ├─ [TEXT-ONLY] → multimodal reads structured content (Math AST / LaTeX)
-        │        └→ local typesetter (MathBox) → clean problem → problem PDF
-        └─ [EXPLAINING] → multimodal leads explanation
-                 └→ tutoring figure → MCP image-to-image
-```
+GENERATE_FIGURE工具、CAPTURE_PARSE、IMAGE_PIPELINE_CLASSIFY、保存净化和显式重新生成共同调用FigureGenerationCoordinator；讲题工具名仍是GENERATE_FIGURE。problemKind不再硬定生成或后端，已有proposal不重复分类。角色与subject绑定由宿主派生，模型不提供数据库对象、文件或URL。
 
-**Models are split (per decision):**
-- **Read / classify / explain**: any image-capable multimodal model the user
-  configures (via the existing `OpenAiCompatibleModelGateway`, chat-completions,
-  image input). **[verified]** the gateway already reads `ApprovedImage` →
-  `EncodedImage` (base64) into the request.
-- **Generate figures**: GPT image 2, exposed as an **MCP server** (figure
-  generation is deliberately separated into MCP).（**2026-10-11 注记**：渠道已改——图为
-  **App 内通道**产出（`OpenAiImageGenerationChannel` + `GENERATE_FIGURE` 工具面）；独立 MCP
-  进程已删除。下文 MCP 字样按此口径阅读。） **[verified]** `gpt-image-2`
-  via `POST /v1/images/edits` (multipart: `images[]` input + `prompt`, output
-  image base64).
+## 2. 判定与提示词
 
-## 2. Direction A — image-to-image generation (MCP + gpt-image-2)
+提示词正文只维护一份，各入口动态注入相同policyVersion、availableMethods、sourceAccess、requirements、budget、diagnostics。精确/交互通常JS优先，像素质感通常图像模型优先，均允许例外。模型可在原预算/授权内修复或换方法，不新增确认；客户端不得暗换。生产只广告实际已接通的方法。
 
-**[verified]**
-- Endpoint `POST /v1/images/edits`; multipart form:
-  - `images[]`: the source photo (base64 data URL or file id), max 20 MB each,
-    up to 16 images
-  - `prompt`: edit instruction, 1–32000 chars
-  - `model: gpt-image-2`; `size` (auto / 1024×1024 / 1536×1024 / 1024×1536);
-    `quality` (low/medium/high/auto); `output_format` (png/jpeg/webp); `n` (1–10)
-  - Response: `b64_json` (base64 image). `url` is unsupported for GPT models.
-- MCP exposure: an MCP server wrapping this endpoint is the single figure path.
-  （**2026-10-11 注记**：已改——单一路径 = App 内 `OpenAiImageGenerationChannel`；独立 MCP
-  进程已删除。）
-  Takes the photo + an instruction like "remove handwritten marks, keep printed
-  problem text verbatim, redraw clean"; returns the clean image.
+native/兼容JSON/转写parser都验证同型proposal；原生SSE先补完整参数聚合，Responses/Anthropic/Gemini继续各自RouteB。选择模型与图像执行API提示分离，后者只接具体内容、源图与约束。
 
-**[to-verify] — the open risk**
-- gpt-image-2 is a **generative redraw**, not pixel-level restoration. It
-  re-renders text, so dense printed pages risk character drift / alteration.
-  **No documented guarantee** that it "erases handwriting while preserving
-  printed text exactly". **Decision (accepted):** we accept a high-quality
-  generative redraw (semantically correct, clean) rather than pixel-exact
-  restoration — because the shared "takes GPT image 2 as the model" decision
-  treats correctness of the redrawn problem (not photoreal restorations) as
-  the goal. **Must pilot with real scanned samples** before shipping, and use
-  `quality:"high"` with explicit "preserve printed text, remove only
-  handwriting" phrasing.
+## 3. 执行与验收
 
-## 3. Direction B — multimodal read / classify / explain
+JS后端按固定QuickJS隔离/预算/场景/共享排版契约；图像后端复用已验证API并写canonical资产。两者统一源证据、业务质量、状态、缓存和引用；JS导出PNG仍记JS。忠实转写不能造事实，像素编辑和语义重建不能偷换目标。
 
-**[verified] — all present in code:**
-- `OpenAiCompatibleModelGateway`: multimodal (image-capable) adapter. Reads
-  image bytes via `RestrictedModelAssetSource`, attaches images to the request
-  (`OpenAiModelProtocol.requestBody(..., images = images)`).
-- Existing `ModelTaskKind` set covers the needed verbs:
-  - `CAPTURE_ASSESS` / `CAPTURE_PARSE` — read the photographed problem
-  - `TUTOR_PLAN` / `TUTOR_RESPOND` — explain
-  - `TUTOR_VISUAL_GENERATE` / `TUTOR_VISUAL_REVIEW` — decide/review a figure
+公共operation/attempt+JS程序/快照/引用共六张拟新增表，旧clean_redraw_task关联共用操作并保留续跑/去重/SUPERSEDED。operationId不含method，缓存/attempt含method。Room67→下一空闲版68、请求17→18或顺延，备份/GC/旧指纹同步。
 
-**Design (build on existing, do not fork):**
-- The multimodal model reads the problem (image input), classifies it as
-  **with-figure** vs **text-only**, and (for text-only) emits structured
-  content (Math AST via the existing `MathAst`/`MathBox` pipeline).
-- For "with-figure", the model emits a routing decision: the **figure** goes to
-  MCP gpt-image-2; the model reads the text itself.
-- For explaining, the model decides what tutoring figures it needs and emits
-  them to MCP. **The model owns the routing decisions** (it decided the figure
-  vs text-only split, and decides when to generate a tutoring figure).
+两方法都计生图attempt/产物，外部图像调用/token/费用另记；缓存/动画/预览不重复计数。图像生成/编辑补接最多6次Provider模型执行的持久ledger；讲题留终答，独立净化终态本地保存不留聊天位。方法切换不能绕过父预算或另建同图新操作。
 
-## 4. Direction C — text-only problem typesetter
+## 4. 消费与交付
 
-**[verified]** the in-house `MathBox` pipeline
-(`Tokenizer→Parser→AST→Budget→BoxLayout→Compose draw`) renders the full
-high-school formula set: Fraction, Radical, Superscript/Subscript, Matrix,
-Cases, AlignedRows. `MathFormulaBox` is a `@Composable` drawing true fraction
-bars, radical signs, matrices.
+FigureArtifact类型化引用vector/program快照或raster资产；旧图片继续可读。题面与讲解role隔离，PDF默认题目区不能含答案图。新导出优先对应规范产物，vector/PNG不得重复画；导出/历史打开不触发生成。
 
-**Design:** for text-only problems, no MCP. The multimodal model reads the
-problem into structured content (Math AST), and **MathBox lays it out** into a
-clean problem sheet. No external LaTeX→image library is needed — MathBox is
-Compose-native, offline, and already covers the formula grammar. (An external
-library is only warranted if a formula grammar beyond MathBox crops up; not
-expected for high-school.)
-
-## 5. Routing summary
-
-| Case | Read / understand | Produce figure | Produce text/formula sheet |
-|---|---|---|---|
-| With figure | multimodal (image input) | MCP gpt-image-2 | — |
-| Text-only | multimodal | — | MathBox typesetter |
-| Explaining (tutoring fig) | multimodal decides | MCP gpt-image-2 | — |
-
-## 6. Open items to verify (pilot before ship)
-
-1. **gpt-image-2 document-cleanup fidelity** — does it erase handwriting and
-   keep printed text? (generative redraw, risk of character drift). Pilot with
-   real scanned problems.
-2. **Cost / latency** of gpt-image-2 (`$30/M` image output, standard; Org
-   verification required before use; rate limits Tier1=5→Tier5=250 IPM).
-3. **MCP server implementation** — what the figure-generation MCP server is
-   (self-hosted wrapper around `/v1/images/edits`, or an existing one).
-   （**2026-10-11 注记**：该开放项已终结——wrapper 曾是 `tools/image-mcp-server`，现整体
-   删除；实现面 = App 内通道。）
-
-## 7. Implementation phases (suggested)
-
-1. Pilot: gpt-image-2 cleanup fidelity on real problem photos. Gate on this.
-2. MCP figure server (wrap `/v1/images/edits`).
-3. Read/classify: multimodal task that outputs with-figure vs text-only, and
-   (text-only) structured Math content.
-4. Typesetter wiring: MathBox → clean problem sheet.
-5. End-to-end: photograph → clean problem PDF into mistake book + tutoring
-   figure path.
+4E.1先统一所有入口，再按实际能力启用JS静态；4E.2交互/表单，4E.3复杂源/保真。未过能力门不广告，不因用途写死后端。共同验“转写可JS”“讲解可图像模型”“双向换方法同operation”“TEXT_ONLY也按需生成”“两方法都记生图”“所有入口同prompt”。设备/真实Provider/质量门不得由文档测试替代。
