@@ -911,12 +911,12 @@ data class TutorPlanOutput(
      * `TutorChatConversation`/`AttachedImagesSection`；Plan 输出没有配图渲染面，历史如此）。
      */
     val attachedImages: List<AttachedImage> = emptyList(),
-    @OptIn(ExperimentalSerializationApi::class)
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val teachingFigureOmission: TeachingFigureOmission? = null,
     /** Host trace retained with completion so process recovery preserves the same figure references. */
-    @OptIn(ExperimentalSerializationApi::class)
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val deliveryToolTraceJson: String? = null,
 ) : ModelTaskOutput {
     init {
@@ -971,12 +971,12 @@ data class TutorRespondOutput(
      */
     val boundQuestion: TutorRoundQuestionDeclaration? = null,
     val modelVersion: String,
-    @OptIn(ExperimentalSerializationApi::class)
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val teachingFigureOmission: TeachingFigureOmission? = null,
     /** Host trace retained with completion so process recovery preserves the same figure references. */
-    @OptIn(ExperimentalSerializationApi::class)
-    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val deliveryToolTraceJson: String? = null,
 ) : ModelTaskOutput {
     init {
