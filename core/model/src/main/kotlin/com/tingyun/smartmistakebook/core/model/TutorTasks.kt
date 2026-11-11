@@ -144,6 +144,11 @@ data class TutorKnowledgeEvidence(
     }
 
     companion object {
+        /**
+         * 知识标签的字符预算（KD-38）：解析期对模型的 `inferredKnowledgeLabels` /
+         * `targetedEvidenceLabels` 先按它收敛，构造器仍严格（见 [TutorSuggestedMove.MAX_LABEL_CHARS]
+         * 的同一纪律）。
+         */
         const val MAX_LABEL_CHARS = 96
         const val MAX_DISCLOSED_EVIDENCE_MASS = 100.0
         const val MAX_DISCLOSED_OBSERVATIONS = 100
@@ -193,6 +198,12 @@ data class TutorSuggestedMove(
     }
 
     companion object {
+        /**
+         * 动作标签的字符预算（KD-38）。**解析期按这个预算收敛、构造器守完整性**：解析器对模型
+         * 吐出的 `nextMoves[].label` 先 `take(MAX_LABEL_CHARS)`，构造器仍严格校验（它同时守
+         * 数据库回读与本地构造）——绕过解析器的超长标签照旧被拒（超预算专用异常）。
+         * 提示词同步声明了这个预算（计划规则 12 / 回应规则 8），改数必须同时改提示词并 bump 版本。
+         */
         const val MAX_LABEL_CHARS = 32
     }
 }
@@ -203,6 +214,7 @@ data class TutorSuggestedMove(
  */
 @Serializable
 @SerialName("tutor_plan")
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 data class TutorPlanInput(
     val sessionId: String,
     val draftRevisionNumber: Int,
@@ -220,6 +232,32 @@ data class TutorPlanInput(
     val priorTurns: List<TutorTurnHistoryEntry> = emptyList(),
     /** Stored model advisories (teaching focus / misconception) for this question. */
     val priorTeachingAdvisories: List<String> = emptyList(),
+    /**
+     * 全 5 工具面（D8：Plan 复用 Respond 的工具环）：非空即启用工具协议。
+     * 与 [TutorRespondInput.toolDeclarations] 同一口径、同一组轮次校验。
+     */
+    val toolDeclarations: List<TutorToolName> = emptyList(),
+    /** Results of prior tool rounds; round 1 dispatch always leaves this empty. */
+    val toolRoundResults: List<TutorToolRoundResult> = emptyList(),
+    /**
+     * 本会话已披露的知识点代号条目（单一代号通道，D5）。派发时由 feature 提供
+     * **未赋码**条目（[TutorKnowledgeCode.code] = null：当前题确认绑定 / 检索候选 / 前置），
+     * core:data 的会话注册表在派生前按首现顺序赋码 K1..Kn 并回写输入（持久化形状即赋码
+     * 形状，会话内稳定）。空 = 本轮没有任何预披露（拍照检索零命中即空注入，维持现状语义）。
+     */
+    val knowledgeCodes: List<TutorKnowledgeCode> = emptyList(),
+    /**
+     * 教学材料**加载失败**（区别于"检索零命中"的合法空注入）：true 时 prompt 显式披露
+     * "教学材料未加载"，模型不得假装手里有资料。加载成功但零命中时保持 false。
+     */
+    val teachingReferencesLoadFailed: Boolean = false,
+    /**
+     * 4E WG-04b（请求 schema 18）：有界视觉上下文（最近一份程序源码 / 当前 state /
+     * 截断诊断 / 能力版本）。null 时不落键（`EncodeDefault(NEVER)`），旧行指纹不变；
+     * 非空即另一次逻辑输入。
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val visualContext: TutorVisualContext? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_PLAN
@@ -227,8 +265,16 @@ data class TutorPlanInput(
     override val isAgentConsentEligible: Boolean
         get() = true
 
+    /**
+     * `model_task` 的槽键主语 = **会话 id**（K1c）：一个会话一个模型任务槽空间。
+     *
+     * 此前这里返回讲题会话 id，而 `tutor_message` 的唯一键是 `(conversation_id, ordinal)`——
+     * 两个键空间并存，槽位与消息各按各的号走。K1 之后"会话"只有一个身份（会话行），
+     * 槽键与消息键统一到同一个 id 空间；讲题会话 id 与会话 id 的对应关系是仓库既有约定
+     * （`TutorConversationIds.captured`），可确定性派生，不需要额外持久化。
+     */
     override val subjectId: String
-        get() = sessionId
+        get() = TutorConversationIds.captured(sessionId)
 
     init {
         sessionId.requireSafeModelText("Tutor session id", ModelTaskRequest.MAX_ID_CHARS, false)
@@ -280,11 +326,53 @@ data class TutorPlanInput(
         require(priorTurns.map(TutorTurnHistoryEntry::turnOrdinal) == (1 until turnOrdinal).toList()) {
             "Tutor history ordinals must be contiguous"
         }
+        // 工具环（D8：Plan 复用 Respond 的工具环）——与 TutorRespondInput 的同名校验逐条同参。
+        require(toolDeclarations.size <= MAX_TOOL_DECLARATIONS) {
+            "Tutor plan declares too many tools"
+        }
+        require(toolDeclarations.distinct().size == toolDeclarations.size) {
+            "Tutor plan tool declarations must be distinct"
+        }
+        require(toolRoundResults.size <= TutorToolRoundResult.MAX_TOOL_ROUNDS) {
+            "Tutor plan carries too many tool rounds"
+        }
+        require(toolRoundResults.isEmpty() || toolDeclarations.isNotEmpty()) {
+            "Tutor plan tool rounds require declared tools"
+        }
+        require(
+            toolRoundResults.map(TutorToolRoundResult::roundOrdinal) ==
+                (1..toolRoundResults.size).toList(),
+        ) { "Tutor plan tool round ordinals must be sequential from one" }
+        // 单一代号通道（D5）：披露集有界、节点与代号各自不重。
+        require(knowledgeCodes.size <= MAX_SESSION_KNOWLEDGE_CODES) {
+            "Tutor plan discloses too many knowledge codes"
+        }
+        require(
+            knowledgeCodes.map(TutorKnowledgeCode::knowledgeNodeId).distinct().size ==
+                knowledgeCodes.size,
+        ) { "Tutor plan knowledge-code node ids must be unique" }
+        require(
+            knowledgeCodes.mapNotNull(TutorKnowledgeCode::code).distinct().size ==
+                knowledgeCodes.count { it.code != null },
+        ) { "Tutor plan knowledge-code values must be unique" }
     }
 
     companion object {
         const val MAX_RELEVANT_EVIDENCE = 12
-        const val MAX_TEACHING_REFERENCES = 4
+
+        /**
+         * 讲解材料的**唯一**约束：总字符预算。**条数不设上限**。
+         *
+         * 此前还有一条 `MAX_TEACHING_REFERENCES = 4` 的条数上限，于是真正卡住内容的始终是它、
+         * 而不是预算：内置包 10356 条材料实测 `markdownChars` 中位数 195，4 条典型材料合计
+         * 约 780 字符，20000 的预算连 4% 都用不到——预算写了却从未生效，而"每节点最多 4 条"
+         * 却让 649 个超配节点的材料永远送不到模型。
+         *
+         * 去掉条数上限后预算才开始做真实工作。取值依据（同一份实测）：
+         * min 64 / p50 195 / p90 295 / p99 463 / max 1029。20000 可容纳约 103 条典型材料；
+         * 单节点材料字符合计最大 18885（"光合作用与细胞呼吸过程"节点 97 条），仍在预算内。
+         * 典型情形一题绑定 5 个中位节点约 3800 字符，余量充足。
+         */
         const val MAX_TEACHING_REFERENCE_MARKDOWN_CHARS = 20_000
         const val MAX_SUBJECT_CHARS = 32
         const val MAX_TURNS = 4
@@ -326,6 +414,7 @@ data class TutorChatHistoryEntry(
  */
 @Serializable
 @SerialName("tutor_respond")
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 data class TutorRespondInput(
     val sessionId: String,
     val draftRevisionNumber: Int,
@@ -341,12 +430,64 @@ data class TutorRespondInput(
     val studentMessage: String,
     val visibleTutorContextMarkdown: String? = null,
     val priorMessages: List<TutorChatHistoryEntry> = emptyList(),
+    /**
+     * 更早轮次的确定性摘要（超出预算被挤出原样窗口的那些轮）：让模型知道前面聊过什么、
+     * 已经给过什么结论，而不是让它们无声消失。为空表示没有轮次被挤出。
+     */
+    val priorDigest: String? = null,
     val requestedMove: TutorMoveType? = null,
-    val studentImageAssetRefs: List<String> = emptyList(),  // 新增：当前消息的图片
+    /**
+     * 当前消息附带的规范资产 id（按选择顺序，最多
+     * [TutorChatHistoryEntry.MAX_IMAGE_ASSETS_PER_MESSAGE] 张）。空表示纯文字。
+     * 图片只随本条消息出网，历史轮次不带图。
+     */
+    val studentImageAssetRefs: List<String> = emptyList(),
     /** Non-empty enables the tool protocol for this dispatch (spec §3.1). */
     val toolDeclarations: List<TutorToolName> = emptyList(),
     /** Results of prior tool rounds; round 1 dispatch always leaves this empty. */
     val toolRoundResults: List<TutorToolRoundResult> = emptyList(),
+    /**
+     * 本轮派发前本地组好的候选菜单（显式添加的题 + 上一轮绑定的题 + 本地文本检索前 N 条），
+     * 供模型判"这一轮在说哪一道（或不指任何一道）"。空表示本地没有任何候选——此时本轮
+     * 必然是无题轮（[TutorRespondOutput.boundQuestion] 不可能通过本地校验）。
+     */
+    val boundQuestionCandidates: List<RelatedProblemCandidate> = emptyList(),
+    /**
+     * 本轮**请求侧已经知道**的题锚：派发前本地就能确定"这一轮在说哪一道"的那道题。
+     * 与 [boundQuestionCandidates] 的区别是**层级**——菜单是"模型能指哪几道"的选项集（候选），
+     * 这个字段是本地已经确定下来的那一轮题锚（绑定）。
+     *
+     * 两条来源，按优先级（与 `TutorRoundQuestionBindingPolicy.assembleCandidates` 前两条来源同序）：
+     * 1. 学生本轮显式把这题带进来（加号里的"从错题库选择"、六条深链入口）——学生的动作本身就是锚；
+     * 2. 上一轮已经过本地两条校验的绑定（跨轮延续，`docs/tutor-surface-unification.md` §5.4）。
+     *
+     * 都没有就是 null —— **真的无题轮**。
+     *
+     * 2026-09-21 裁定（ADR 0001 / D6）之后它的消费面收窄：不再参与写工具准入（无题轮不再
+     * 结构性拒写），仍是**轮次绑定基底**——答案暴露守卫（F3 双层，`canExposeSolutionFor` +
+     * `requiresRoundQuestionBinding`）与候选菜单的第二来源。F1 的历史背景：模型声明只是
+     * "这一轮有没有题"的一条来源，原生 `tool_calls` 路由 content=null 时复述不是必然的，
+     * 本地已知锚避免把"解析路由"误当"语义事实"。
+     */
+    val knownRoundQuestion: RelatedProblemCandidate? = null,
+    /**
+     * 学生**本轮显式添加**的题（加号里的"从错题库选择"）：它成为本轮要讲的题——提示词的
+     * confirmedQuestion/科目跟随它，学习证据/审校资料/代号表按"不属于这轮"清空（拿会话题的
+     * 证据去讲另一道题是错配），答案暴露与写工具的门控仍按本轮题锚走。
+     *
+     * 与 [knownRoundQuestion] 的分工：后者是"请求侧已知题锚"（显式添加或上一轮延续，绑定基底），
+     * 本字段只标记"学生这一轮的动作就是讲这道题"——上一轮延续不产生它（那属于模型的语义
+     * 延续，提示词重对齐留到后续批次）。空表示本轮没有显式添加（会话题照常）。
+     */
+    val attachedQuestion: AttachedRoundQuestion? = null,
+    /**
+     * 本会话已披露的知识点代号条目（单一代号通道，D5）；与 [TutorPlanInput.knowledgeCodes]
+     * 同一口径——派发时未赋码（code = null），core:data 会话注册表派生前赋码回写。
+     */
+    val knowledgeCodes: List<TutorKnowledgeCode> = emptyList(),
+    /** 4E WG-04b（schema 18）：与 [TutorPlanInput.visualContext] 同一口径。 */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val visualContext: TutorVisualContext? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_RESPOND
@@ -354,8 +495,17 @@ data class TutorRespondInput(
     override val isAgentConsentEligible: Boolean
         get() = true
 
+    /** 槽键主语 = 会话 id（K1c），与 [TutorPlanInput.subjectId] 同一口径。 */
     override val subjectId: String
-        get() = sessionId
+        get() = TutorConversationIds.captured(sessionId)
+
+    /**
+     * 消息带图时要求 provider 具备图片输入能力。Respond 属于 agent-eligible，
+     * 所以这一位会同时驱动出网许可判定（`requiresImageInput`）与图片读取计划；
+     * capture 题图走的正是同一条全局同意通道，因此不需要逐次披露清单。
+     */
+    override val requestsImageBytes: Boolean
+        get() = studentImageAssetRefs.isNotEmpty()
 
     init {
         sessionId.requireSafeModelText("Tutor response session id", ModelTaskRequest.MAX_ID_CHARS, false)
@@ -397,6 +547,11 @@ data class TutorRespondInput(
                 message.studentMessage.length + message.assistantMarkdown.length
             } <= MAX_PRIOR_MESSAGE_CHARS,
         ) { "Tutor response prior chat exceeds its total text budget" }
+        priorDigest?.requireSafeModelText(
+            "Tutor response prior digest",
+            MAX_PRIOR_DIGEST_CHARS,
+            true,
+        )
         require(studentImageAssetRefs.size <= TutorChatHistoryEntry.MAX_IMAGE_ASSETS_PER_MESSAGE) {
             "Too many images in current message (max ${TutorChatHistoryEntry.MAX_IMAGE_ASSETS_PER_MESSAGE})"
         }
@@ -418,6 +573,25 @@ data class TutorRespondInput(
         ) {
             "Tutor response tool round ordinals must be sequential from one"
         }
+        require(boundQuestionCandidates.size <= MAX_BOUND_QUESTION_CANDIDATES) {
+            "Tutor response carries too many bound-question candidates"
+        }
+        require(
+            boundQuestionCandidates.map { it.problemId to it.problemRevisionId }.distinct().size ==
+                boundQuestionCandidates.size,
+        ) { "Tutor response bound-question candidates must be unique per revision" }
+        require(
+            knownRoundQuestion == null ||
+                boundQuestionCandidates.any { candidate ->
+                    candidate.problemId == knownRoundQuestion.problemId &&
+                        candidate.problemRevisionId == knownRoundQuestion.problemRevisionId
+                },
+        ) { "A known round question must be one of this round's candidates" }
+        require(
+            attachedQuestion == null ||
+                (knownRoundQuestion?.problemId == attachedQuestion.problemId &&
+                    knownRoundQuestion?.problemRevisionId == attachedQuestion.problemRevisionId),
+        ) { "An explicitly attached question must be this round's known anchor" }
     }
 
     companion object {
@@ -425,6 +599,100 @@ data class TutorRespondInput(
         const val MAX_VISIBLE_CONTEXT_CHARS = 12_000
         const val MAX_PRIOR_MESSAGES = 8
         const val MAX_PRIOR_MESSAGE_CHARS = 24_000
+
+        /** 候选菜单上限：与 `ProblemOrganizationInput.MAX_RELATION_CANDIDATES` 同一口径。 */
+        const val MAX_BOUND_QUESTION_CANDIDATES = 8
+
+        /**
+         * 早期对话摘要的长度上限。摘要是"要点提示"，不该反过来挤占原样保留的轮次，
+         * 所以它远小于原样窗口；生成端（`TutorChatDigest`）另有一条更紧的上限。
+         */
+        const val MAX_PRIOR_DIGEST_CHARS = 2_000
+    }
+}
+
+/**
+ * 学生**显式**把一道错题加进当前轮次的完整身份：题面 + 修订号 + 科目。
+ *
+ * 它是"本轮要讲的题"的请求侧来源（[TutorRespondInput.attachedQuestion]），与候选菜单里的
+ * [RelatedProblemCandidate] 同源（同一道题的同一修订），但多带候选菜单不需要的
+ * `revisionNumber`（答案暴露与题面身份要用）。[toCandidate] 是两者之间的唯一换算。
+ */
+@Serializable
+data class AttachedRoundQuestion(
+    val problemId: String,
+    val problemRevisionId: String,
+    val revisionNumber: Int,
+    val subject: SubjectKind,
+    val title: String,
+    val questionDocument: QuestionDocument,
+) {
+    init {
+        problemId.requireSafeModelText("Attached question id", ModelTaskRequest.MAX_ID_CHARS, false)
+        problemRevisionId.requireSafeModelText(
+            "Attached question revision id",
+            ModelTaskRequest.MAX_ID_CHARS,
+            false,
+        )
+        require(revisionNumber > 0) { "Attached question revision number must be positive" }
+        title.requireSafeModelText("Attached question title", RelatedProblemCandidate.MAX_TITLE_CHARS, false)
+        require(questionDocument.blocks.isNotEmpty()) { "An attached question needs question content" }
+    }
+
+    fun toCandidate(): RelatedProblemCandidate = RelatedProblemCandidate(
+        problemId = problemId,
+        problemRevisionId = problemRevisionId,
+        subject = subject,
+        title = title,
+        questionDocument = questionDocument,
+    )
+}
+
+/**
+ * 模型对"这一轮在说哪一道题"的声明。**声明本身不授予任何权限**：本地还要核两条——
+ * 候选必须在派发前的菜单内（按 problemId + problemRevisionId 精确匹配），并且
+ * [anchorTerms] 每一条都要在学生这一轮的消息里逐字出现、且至少一条能在该题自身
+ * （标题或题面）里找到。核不过就是无题轮。
+ *
+ * [anchorTerms] 沿用当年意图授权里 actionIsBoundTo / lookupTerms 的逐字锚纪律：
+ * 模型给出词、本地逐字比对，模型不能只给一个"我觉得是这道"的判断。
+ *
+ * @property problemId 声明指向的题目 id；必须在本地候选菜单内。
+ * @property problemRevisionId 声明指向的题面修订 id；同一道题的不同修订不算命中。
+ * @property anchorTerms 学生消息里逐字出现、且能在该题自身文本里找到的词，至少一条。
+ */
+@Serializable
+data class TutorRoundQuestionDeclaration(
+    val problemId: String,
+    val problemRevisionId: String,
+    val anchorTerms: List<String> = emptyList(),
+) {
+    init {
+        problemId.requireSafeModelText(
+            "Tutor round question id",
+            ModelTaskRequest.MAX_ID_CHARS,
+            false,
+        )
+        problemRevisionId.requireSafeModelText(
+            "Tutor round question revision",
+            ModelTaskRequest.MAX_ID_CHARS,
+            false,
+        )
+        require(anchorTerms.size <= MAX_ANCHOR_TERMS) {
+            "Tutor round question declaration carries too many anchor terms"
+        }
+        anchorTerms.forEach { term ->
+            term.requireSafeModelText("Tutor round question anchor", MAX_ANCHOR_TERM_CHARS, false)
+        }
+    }
+
+    companion object {
+        const val MAX_ANCHOR_TERMS = 4
+        /**
+         * 题锚词的字符预算（KD-38）：解析期按它收敛（截断后仍是学生原话的前缀，逐字锚照旧核得上），
+         * 构造器仍严格——它同时守数据库回读。
+         */
+        const val MAX_ANCHOR_TERM_CHARS = 64
     }
 }
 
@@ -441,9 +709,26 @@ fun TutorRespondInput.studentAuthorizedSolutionRequest(): Boolean {
         SOLUTION_REQUEST_NEGATIONS.none(normalized::contains)
 }
 
-/** Shared defense-in-depth boundary for validation, rendering, exposure recording, and history. */
-fun TutorRespondOutput.canExposeSolutionFor(input: TutorRespondInput): Boolean =
-    solutionRevealed &&
+/**
+ * Shared defense-in-depth boundary for validation, rendering, exposure recording, and history.
+ *
+ * 除五项身份精确匹配之外，**新轮次**还要求本轮确实有绑定题（[boundQuestion] 非 null，即那一轮的
+ * 声明通过了本地两条校验）：无题轮永不产生答案暴露记录——暴露记录是"学生看过这道题的答案"的
+ * 证据，锚不到题就没有主人。
+ *
+ * @param requiresRoundQuestionBinding 本轮所在的行是否受"每轮绑定"约束
+ *   （[ModelTaskRequest.requiresRoundQuestionBinding]）。旧 schema 行里"有没有题、是哪道题"这一维
+ *   根本不存在——它们的输出没有 [boundQuestion] 字段，判据就只能是当年那套（身份 + 学生明确
+ *   索要）。若对旧行也要求绑定，那些**真的展示过完整解答并已记为 RESPOND_REPLY 暴露**的历史
+ *   回复会在升级后不再被认作已暴露，持久化曝光行会被候选键过滤掉：正文被换成"还没有完整看到"，
+ *   会话记忆一起回退。绑定新规只往前适用。
+ */
+fun TutorRespondOutput.canExposeSolutionFor(
+    input: TutorRespondInput,
+    requiresRoundQuestionBinding: Boolean,
+): Boolean =
+    (!requiresRoundQuestionBinding || boundQuestion != null) &&
+        solutionRevealed &&
         input.studentAuthorizedSolutionRequest() &&
         sessionId == input.sessionId &&
         draftRevisionNumber == input.draftRevisionNumber &&
@@ -529,10 +814,6 @@ data class TutorTurnPlan(
     val openingMarkdown: String,
     /** Optional interaction about the confirmed question; explanation-only turns omit it. */
     val diagnosticItem: TutorAssessmentItem? = null,
-    /** Optional single local-rendered scene; the complete Markdown solution remains the fallback. */
-    val visualScene: TutorVisualScene? = null,
-    /** Optional asynchronous v2 visual request; text remains immediately usable without it. */
-    val visualRequest: TutorVisualGenerationRequest? = null,
     val solutionMarkdown: String,
     val alternateMethodMarkdown: String,
     val difficultyReasonMarkdown: String,
@@ -543,9 +824,6 @@ data class TutorTurnPlan(
     val thinkingMarkdown: String? = null,
 ) {
     init {
-        require(visualScene == null || visualRequest == null) {
-            "A tutor turn cannot return a legacy scene and an asynchronous visual request together"
-        }
         openingMarkdown.requireTutorMarkdown("Tutor opening", MAX_OPENING_CHARS)
         solutionMarkdown.requireTutorMarkdown("Tutor solution", MAX_SOLUTION_CHARS)
         alternateMethodMarkdown.requireTutorMarkdown("Tutor alternate method", MAX_SOLUTION_CHARS)
@@ -621,6 +899,13 @@ data class TutorPlanOutput(
     val modelVersion: String,
     val cycleOrdinal: Int = 1,
     val turnOrdinal: Int = 1,
+    /**
+     * **兼容字段**（4B A1 起）：生图进工具环（`GENERATE_FIGURE`）之后，模型申请配图的主路径是
+     * 工具调用；本字段保留为**无工具端点时的 fallback**——仍解析，不删（A6：不误删兼容面）。
+     *
+     * **Plan 侧只解析、不渲染**（F6 订正：唯一渲染消费者是 Respond 的
+     * `TutorChatConversation`/`AttachedImagesSection`；Plan 输出没有配图渲染面，历史如此）。
+     */
     val attachedImages: List<AttachedImage> = emptyList(),
 ) : ModelTaskOutput {
     init {
@@ -655,20 +940,28 @@ data class TutorRespondOutput(
     val messageMarkdown: String,
     /** True only when this exact reply displays the current question's answer or full solution. */
     val solutionRevealed: Boolean = false,
-    val visualScene: TutorVisualScene? = null,
-    val visualRequest: TutorVisualGenerationRequest? = null,
     val suggestedMoves: List<TutorSuggestedMove> = emptyList(),
     val intentDecision: TutorIntentDecision = TutorIntentDecision.ambiguousDefault(),
     /** Optional student-visible reasoning trace; folded by default, never re-fed to the model. */
     val thinkingMarkdown: String? = null,
-    /** Optional locally-rendered figures the model asked for; drawn after the body, never in markdown. */
+    /**
+     * **兼容字段**（4B A1 起）：生图进工具环（`GENERATE_FIGURE`）之后，模型申请配图的主路径是
+     * 工具调用；本字段保留为**无工具端点时的 fallback**——仍解析、仍渲染
+     * （`TutorChatConversation` 的 `AttachedImagesSection`），不删（A6：不误删兼容面）。
+     */
     val attachedImages: List<AttachedImage> = emptyList(),
+    /**
+     * **本轮真正绑定的题**；null 表示无题轮。
+     *
+     * 只在解析层写入：模型声明先经 `TutorRoundQuestionBindingPolicy.resolve`（候选必须在派发前
+     * 的菜单内、锚词必须逐字可核对），核过才落到这里，核不过就是 null。唯一的生产者是
+     * `OpenAiModelResponseParsers.toTutorRespond`，所以下游（门控、暴露、落库、渲染）可以把它
+     * 当作"已校验的本轮绑定"读，不必各自再判一次。
+     */
+    val boundQuestion: TutorRoundQuestionDeclaration? = null,
     val modelVersion: String,
 ) : ModelTaskOutput {
     init {
-        require(visualScene == null || visualRequest == null) {
-            "A tutor response cannot return a legacy scene and an asynchronous visual request together"
-        }
         sessionId.requireSafeModelText("Tutor response output session id", ModelTaskRequest.MAX_ID_CHARS, false)
         require(draftRevisionNumber > 0) {
             "Tutor response output draft revision must be positive"
@@ -774,30 +1067,6 @@ private fun String.requireTutorRespondText(label: String, maxChars: Int) {
     requireTutorSceneText(label, maxChars, true)
 }
 
-internal fun requireTutorSceneHeader(
-    sceneId: String,
-    title: String,
-    schemaVersion: Int,
-    expectedSchemaVersion: Int = TutorVisualScene.SCHEMA_VERSION,
-) {
-    sceneId.requireTutorSceneId("Tutor visual scene id")
-    title.requireTutorSceneText("Tutor visual scene title", TutorVisualScene.MAX_TITLE_CHARS, false)
-    require(schemaVersion == expectedSchemaVersion) {
-        "Unsupported tutor visual scene schema version"
-    }
-}
-
-internal fun String.requireTutorSceneId(label: String) {
-    requireSafeModelText(label, ModelTaskRequest.MAX_ID_CHARS, false)
-}
-
-internal fun String.requireTutorSceneFormula(label: String) {
-    requireTutorSceneText(label, TutorVisualScene.MAX_FORMULA_CHARS, false)
-    require(!RestrictedFormulaText.hasUnsupportedCommand(this)) {
-        "$label contains an unsupported formula command"
-    }
-}
-
 internal fun String.requireTutorSceneText(label: String, maxChars: Int, allowLineBreaks: Boolean) {
     requireSafeModelText(label, maxChars, allowLineBreaks)
     StudentFacingLanguagePolicy.requirePlainLanguage(this, label)
@@ -807,17 +1076,6 @@ internal fun String.requireTutorSceneText(label: String, maxChars: Int, allowLin
     require(!TUTOR_SCENE_REFERENCE_LINK.containsMatchIn(this)) { "$label contains a reference link" }
     require(!TUTOR_SCENE_IMAGE_MARKER.containsMatchIn(this)) { "$label contains image markup" }
     require(!SafeInlineMarkdown.BARE_URL.containsMatchIn(this)) { "$label contains a URL" }
-}
-
-internal fun requireUniqueTutorSceneIds(sceneId: String, itemIds: List<String>) {
-    val allIds = listOf(sceneId) + itemIds
-    require(allIds.distinct().size == allIds.size) { "Tutor visual scene ids must be unique" }
-}
-
-internal fun requireTutorSceneTextBudget(parts: List<String>) {
-    require(parts.sumOf(String::length) <= TutorVisualScene.MAX_TOTAL_TEXT_CHARS) {
-        "Tutor visual scene exceeds its total text budget"
-    }
 }
 
 private val TUTOR_SCENE_HTML = Regex("(?is)<!--|<\\s*/?\\s*[a-z][^>]*>")
