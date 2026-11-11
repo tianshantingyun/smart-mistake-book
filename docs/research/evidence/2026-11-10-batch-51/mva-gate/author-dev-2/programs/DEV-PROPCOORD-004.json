@@ -1,0 +1,13 @@
+{
+    "task_id": "DEV-PROPCOORD-004",
+    "program_id": "mva-DEV-PROPCOORD-004",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '比例尺 1:10000' },\n      { kind: 'text', payload: '图上距离 7 厘米' },\n      { kind: 'text', payload: '实际距离 70000 厘米' }\n    ];\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var x0 = W * 0.14;\n    var x1 = W * 0.86;\n    var y = H * 0.54;\n    var tick = Math.min(18, H * 0.06);\n    var cmds = [['M', x0, y], ['L', x1, y]];\n    for (var i = 0; i <= 7; i++) {\n      var x = x0 + (x1 - x0) * i / 7;\n      var th = (i === 0 || i === 7) ? tick * 1.25 : tick;\n      cmds.push(['M', x, y - th]);\n      cmds.push(['L', x, y + th]);\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'scale-segment',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [\n        { id: 'segment', commands: cmds }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'segment', fill: '#26354a', stroke: { width: 2, cap: 'round', join: 'round' } },\n          { type: 'label', contentId: metrics[0].contentId, anchor: { x: W / 2, y: H * 0.18 }, hAlign: 'center', vAlign: 'middle', color: '#26354a' },\n          { type: 'label', contentId: metrics[1].contentId, anchor: { x: W / 2, y: y - tick - 20 }, hAlign: 'center', vAlign: 'bottom', color: '#26354a' },\n          { type: 'label', contentId: metrics[2].contentId, anchor: { x: W / 2, y: y + tick + 20 }, hAlign: 'center', vAlign: 'top', color: '#26354a' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuites tests="17" failures="0" errors="0" skipped="0" time="31.257" timestamp="2026-11-08T11:00:18" hostname="localhost">
+  <testsuite name="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelInstrumentedTest" tests="7" failures="0" errors="0" skipped="0" time="10.731" timestamp="2026-11-08T11:00:18" hostname="localhost">
+    <properties>
+      <property name="device" value="ui_motion_20261107(AVD) - 14" />
+      <property name="flavor" value="" />
+      <property name="project" value=":feature:library" />
+    </properties>
+    <testcase name="aModelPreviewIsShownBeforeAdoptionAndOnlyAdoptionChangesThePaper" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelInstrumentedTest" time="2.727" />
+    <testcase name="withoutConsentTheSectionExplainsWhyItCannotRun" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelInstrumentedTest" time="0.936" />
+    <testcase name="cancellingAPreviewKeepsThePaperUntouched" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelInstrumentedTest" time="1.503" />
+    <testcase name="changingTheInstructionInvalidatesTheOldPreview" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelInstrumentedTest" time="1.592" />
+    <testcase name="aRejectedModelReplyKeepsThePaperAndTheStudentsInstruction" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelInstrumentedTest" time="1.435" />
+    <testcase name="theAiSectionIsNotAdvertisedWithoutAModelPort" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelInstrumentedTest" time="0.845" />
+    <testcase name="aManualEditWhileWaitingPreventsTheStalePreviewFromBeingApplied" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditModelInstrumentedTest" time="1.693" />
+  </testsuite>
+  <testsuite name="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" tests="10" failures="0" errors="0" skipped="0" time="12.577" timestamp="2026-11-08T11:00:18" hostname="localhost">
+    <properties>
+      <property name="device" value="ui_motion_20261107(AVD) - 14" />
+      <property name="flavor" value="" />
+      <property name="project" value=":feature:library" />
+    </properties>
+    <testcase name="theMistakeDetailOffersTheNativeEditEntryForTheCurrentRevision" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" time="0.905" />
+    <testcase name="uneditedNativeExportMatchesTheNormalBatchSnapshot" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" time="1.968" />
+    <testcase name="aHistoricalRevisionDoesNotOfferPaperEditing" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" time="0.777" />
+    <testcase name="theExportHubDoesNotGuessWhereAnEditedPaperComesFrom" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" time="1.343" />
+    <testcase name="noEditableQuestionIsExplainedInsteadOfShowingAnEmptyEditor" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" time="1.377" />
+    <testcase name="theMistakeDetailOffersTheAiPaperEntryForTheCurrentRevision" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" time="0.809" />
+    <testcase name="theExportHubOffersTheNativeEditEntryWithTheSourcesSuppliedByTheCaller" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" time="1.435" />
+    <testcase name="editingATitleRecomputesTheFingerprintWithoutTouchingTheSourceQuestion" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" time="1.467" />
+    <testcase name="aBlankTitleFailsClosedBeforeAnyExportSheetOpens" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" time="1.125" />
+    <testcase name="aHistoricalRevisionDoesNotOfferTheAiPaperEntry" classname="com.tingyun.smartmistakebook.feature.library.NativePaperEditRouteInstrumentedTest" time="1.371" />
+  </testsuite>
+</testsuites>

@@ -1,0 +1,171 @@
+{
+  "input_file": "BLD-FLOWFORM-006.json",
+  "program_sha256": "3276663ad79721ba59b4dee5d316aada90ef1753b3bbcc8720afcf14f742009c",
+  "task_id": "BLD-FLOWFORM-006",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 39,
+  "measurement": [
+    {
+      "contentId": "c0-8755b0d1",
+      "payload": "解一元一次方程",
+      "widthDu": 112,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8755b0d18930fabadf1f5e167710a78fc9a257b338a580aae6ece4170d0759d1"
+    },
+    {
+      "contentId": "c1-598473a5",
+      "payload": "5x + 2 = 2x + 8",
+      "widthDu": 103.2727279663086,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "598473a5a715bc28adb71609452aecbf717c21adae852d2aec40490b5d1b01a8"
+    },
+    {
+      "contentId": "c2-6b86b273",
+      "payload": "1",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "contentId": "c3-d3672fe8",
+      "payload": "移项",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d3672fe82ccbc052805861143d2fb50e4f523e8837d360af1a9c72689172561b"
+    },
+    {
+      "contentId": "c4-eb85e2cb",
+      "payload": "5x - 2x = 8 - 2",
+      "widthDu": 93.81818389892578,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "eb85e2cbe2a77a9cf6e5a1ecdfe734f9ee32dfd058a07a0c1725bff0fa8449b8"
+    },
+    {
+      "contentId": "c5-5c7a0a03",
+      "payload": "把含 x 的项移到左边，常数项移到右边",
+      "widthDu": 272,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5c7a0a03d0105661db6619079b81b58a4c8235944d7ce17cf56f9a8ad54ada9f"
+    },
+    {
+      "contentId": "c6-d4735e3a",
+      "payload": "2",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "contentId": "c7-454ab3d6",
+      "payload": "合并同类项",
+      "widthDu": 80,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "454ab3d6f1f9c0e3d65cf77603a6a49dc652db6e2550c7ccb8037908b2a4ae08"
+    },
+    {
+      "contentId": "c8-0dc46402",
+      "payload": "3x = 6",
+      "widthDu": 42.90909194946289,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0dc46402e6dfa33a231a5d3a1d60f495529cbb9bbc374978ccc1792474dd9c50"
+    },
+    {
+      "contentId": "c9-d8e976b1",
+      "payload": "合并 x 项与常数项",
+      "widthDu": 128,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d8e976b10c8332ae725b333710e0c7f58a1bd9fee5f3d5a8b809930c226d4ac5"
+    },
+    {
+      "contentId": "c10-4e074085",
+      "payload": "3",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+    },
+    {
+      "contentId": "c11-e6c8746f",
+      "payload": "系数化为 1",
+      "widthDu": 77.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e6c8746fb2ce805c3c9a1c374dc6dab95585dc742ff4ec365b200b21cc4a1c4f"
+    },
+    {
+      "contentId": "c12-1431b986",
+      "payload": "x = 2",
+      "widthDu": 33.818180084228516,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "1431b986377b5430f01fd6900d873fa289d546f304bc58c18d42492f87f54016"
+    },
+    {
+      "contentId": "c13-62a8fd49",
+      "payload": "两边同时除以 3",
+      "widthDu": 109.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "62a8fd49b28710664848848f8a548c40e0269d62817a33859a8dc2d521e4a3e5"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "217f1906a0d7fe9fe6d187062a57454574a3c134dff04a845bac15ec65a0c327",
+  "scene_bytes": 4037,
+  "scene_schema_version": 1,
+  "draw_sha256": "970cefca8f10c2982bfcb0ee01671cc72bcfb0a7a59efd341e31ee5612d7a5b9",
+  "draw_bytes": 4091,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-8755b0d1",
+    "c1-598473a5",
+    "c10-4e074085",
+    "c11-e6c8746f",
+    "c12-1431b986",
+    "c13-62a8fd49",
+    "c2-6b86b273",
+    "c3-d3672fe8",
+    "c4-eb85e2cb",
+    "c5-5c7a0a03",
+    "c6-d4735e3a",
+    "c7-454ab3d6",
+    "c8-0dc46402",
+    "c9-d8e976b1"
+  ],
+  "png_sha256": "1b016bc07d4d8c7c3297f130a991e45dfbdfef048e07b45200a3c81a8a0df949",
+  "png_bytes": 11970,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 26,
+    "pathCommands": 65,
+    "labels": 11,
+    "ops": 25
+  }
+}

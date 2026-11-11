@@ -1,0 +1,101 @@
+{
+  "ledger_before_sha256": "9044a7794dda196c6fc22c8e989a33099482ef26399e13ffbcbe28c0f045cb97",
+  "ledger_after_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+  "counts_before": {
+    "PASS": 933,
+    "FAIL": 13,
+    "BLOCKED": 254,
+    "UNVERIFIED": 0
+  },
+  "counts_after": {
+    "PASS": 937,
+    "FAIL": 10,
+    "BLOCKED": 253,
+    "UNVERIFIED": 0
+  },
+  "new_pass_rows": [
+    "F-058",
+    "J-002",
+    "J-048",
+    "J-052"
+  ],
+  "report": {
+    "exit": 1,
+    "state": "FAIL",
+    "violations": 0,
+    "warnings": 20,
+    "pass_with_review": 937,
+    "pass_without_review": 0,
+    "pass_with_invalid_review": 0,
+    "pass_with_row_specific_review": 659,
+    "review_shared_check_groups": 20,
+    "head": "8dd29e963975ff44703f638064322be0e7494f98",
+    "dirty_paths": 6451
+  },
+  "require_complete": {
+    "exit": 1,
+    "codes": [
+      "NOT_ACCEPTANCE_COMPLETE",
+      "REVIEW_CHECKS_SHARED"
+    ],
+    "unverified": 0,
+    "acceptance_complete": false
+  },
+  "lint": {
+    "exit": 1,
+    "violations": 162,
+    "codes": {
+      "EVIDENCE_REUSED": 162
+    },
+    "warnings": 162
+  },
+  "lint_warn_only": {
+    "exit": 0,
+    "ok": true
+  },
+  "trace": {
+    "exit": 0,
+    "gaps": 0,
+    "ok": true
+  },
+  "manifests": {
+    "REVIEWS_entries": 948,
+    "acceptance_evidence_entries": 2,
+    "research_evidence_entries": 24,
+    "mismatches": 0
+  },
+  "gates": {
+    "3d": {
+      "verdict": "FAIL",
+      "weighted": 0.9403574,
+      "wilson_lower_fpc": 0.9291236,
+      "normal_no_fpc": 0.8979148,
+      "errors": 99
+    },
+    "3e": {
+      "device": "OK (4 tests)",
+      "ledger_gate_row": false,
+      "unconditional_pass_claimed": false
+    },
+    "mva": {
+      "verdict": "FAIL",
+      "first_final": 0.2667,
+      "rendered_upper_bound": "95/120",
+      "groups_failed": "6/6",
+      "p95_end_to_end_s": 72.9551,
+      "img_arm": "BLOCKED"
+    },
+    "aud08": {
+      "verdict": "FAIL",
+      "count_exact": "19/24=0.7917",
+      "fragment_rate": "4/78=0.0513",
+      "fragmented_questions": 4,
+      "gate_exit": 1
+    }
+  },
+  "not_run": [
+    "Gradle/device/soak/provider/MVA judge/AUD-08 split gate (read from sub-line evidence)",
+    "second-person or second-model semantic review",
+    "verdicts.md / domain-index.md batch51 projection"
+  ]
+}

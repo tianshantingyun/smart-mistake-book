@@ -27,7 +27,7 @@ class AcceptanceInitTest(unittest.TestCase):
     def _run(self, ledger: Path, *extra: str) -> subprocess.CompletedProcess:
         return subprocess.run(
             [sys.executable, "-I", str(SCRIPT), "--ledger", str(ledger), *extra],
-            capture_output=True, text=True, cwd=str(REPO),
+            capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(REPO),
         )
 
     def test_generates_1200_rows_with_expected_domains(self) -> None:

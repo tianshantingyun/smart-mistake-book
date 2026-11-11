@@ -1,0 +1,22 @@
+{
+  "serial": "emulator-5590",
+  "boot_id": "31ecd364-6b2a-4e52-9643-23e681696172",
+  "package": "com.tingyun.smartmistakebook.localfirst.test",
+  "apk_sha256": "a70b9559f93f24bedab3ca31df439e9dd6184a658c83315355f11c8be78ab62d",
+  "test_apk_sha256": "f11374a468fbf33601e91c2fb8333b4244e5be96a1f1e6bdf3c7ea1d3b9e46d2",
+  "test_apk_sha256_feature_tutor": "b9d056a42c87df682f0578838f5b61c4bfd1e2b611d587382cf491043934fdaa",
+  "class_filter": "AiContentLabelsInstrumentedTest + TutorAiGeneratedLabelInstrumentedTest",
+  "counts": {
+    "tests": 6,
+    "evaluated": 6,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "verdict": "PASS",
+  "recorded_at": "2026-11-09T00:00:00Z",
+  "source_logs": [
+    "docs/research/evidence/2026-11-09-batch-50/aigc/green-ui-app-labels.log",
+    "docs/research/evidence/2026-11-09-batch-50/aigc/green-ui-tutor-label.log"
+  ]
+}

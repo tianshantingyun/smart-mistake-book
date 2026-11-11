@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-009",
+    "program_id": "mva-BLD-SRCREBLD-009",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    var labels = ['-5','-4','-3','-2','-1','0','1','2','3','4','5'];\n    return labels.map(function (t) { return { kind: 'text', payload: t }; });\n  },\n  render: function (input, metrics) {\n    var labels = ['-5','-4','-3','-2','-1','0','1','2','3','4','5'];\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var marginX = Math.max(44, w * 0.08);\n    var x0 = marginX;\n    var x1 = w - marginX;\n    var y = Math.round(h * 0.52);\n    var tickHalf = 7;\n    var labelGap = 26;\n    var cmds = [];\n    cmds = cmds.concat(visualSdk.polyline([[x0, y], [x1, y]]));\n    var labelNodes = [];\n    var ms = metrics || [];\n    for (var i = 0; i < 11; i++) {\n      var x = x0 + (x1 - x0) * i / 10;\n      cmds = cmds.concat(visualSdk.polyline([[x, y - tickHalf], [x, y + tickHalf]]));\n      var m = ms[i] || {};\n      var node = {\n        type: 'label',\n        x: x,\n        y: y + labelGap,\n        text: labels[i],\n        fontSize: 16,\n        fontFamily: 'sans-serif',\n        textAnchor: 'middle',\n        fill: '#26354a'\n      };\n      if (m.width) node.width = m.width;\n      if (m.height) node.height = m.height;\n      labelNodes.push(node);\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'axis-minus5-to-5',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [{ id: 'axisTicks', commands: cmds }],\n      root: { type: 'group', children: [\n        { type: 'path', pathId: 'axisTicks', stroke: '#26354a', strokeWidth: 1.5, fill: 'none' },\n        { type: 'group', children: labelNodes }\n      ] }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

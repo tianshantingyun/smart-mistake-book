@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-NATILLA-011",
+    "program_id": "mva-BLD-NATILLA-011",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '自由落体示意' },\n      { kind: 'text', payload: '由静止释放' },\n      { kind: 'text', payload: 'v' },\n      { kind: 'text', payload: 'g' },\n      { kind: 'text', payload: 'v、g 均竖直向下' }\n    ];\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var cx = w * 0.42;\n    var ballR = Math.max(14, Math.min(w, h) * 0.07);\n    var ballY = h * 0.38;\n    var releaseY = h * 0.16;\n    var guideBottom = ballY - ballR - 8;\n    var vStartY = ballY + ballR + 10;\n    var vEndY = Math.min(h - 34, vStartY + h * 0.34);\n    var gX = cx + Math.max(70, w * 0.18);\n    var gStartY = ballY + 4;\n    var gEndY = Math.min(h - 34, gStartY + h * 0.30);\n    var guide = visualSdk.polyline([[cx, releaseY], [cx, guideBottom]]);\n    var ball = visualSdk.circle(cx, ballY, ballR);\n    var vArrow = visualSdk.arrow(cx, vStartY, cx, vEndY, {});\n    var gArrow = visualSdk.arrow(gX, gStartY, gX, gEndY, {});\n    return {\n      schemaVersion: 1,\n      sceneId: 'free-fall-schematic',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'guide', commands: guide },\n        { id: 'ball', commands: ball },\n        { id: 'v-arrow', commands: vArrow },\n        { id: 'g-arrow', commands: gArrow }\n      ],\n      root: { type: 'group', children: [\n        { type: 'path', pathId: 'guide', stroke: '#8a96a8', strokeWidth: 1.5, strokeDasharray: '4 5' },\n        { type: 'path', pathId: 'ball', fill: '#ffffff', stroke: '#26354a', strokeWidth: 2 },\n        { type: 'path', pathId: 'v-arrow', stroke: '#1f5fbf', strokeWidth: 2.5 },\n        { type: 'path', pathId: 'g-arrow', stroke: '#c0392b', strokeWidth: 2.5 },\n        { type: 'label', text: '自由落体示意', x: w * 0.5, y: 30, fontSize: 18, textAnchor: 'middle', fill: '#26354a', fontWeight: 'bold' },\n        { type: 'label', text: '由静止释放', x: cx + 10, y: releaseY + 4, fontSize: 13, textAnchor: 'start', fill: '#5b6675' },\n        { type: 'label', text: 'v', x: cx + 10, y: vEndY - 4, fontSize: 16, textAnchor: 'start', fill: '#1f5fbf', fontWeight: 'bold' },\n        { type: 'label', text: 'g', x: gX + 10, y: gEndY - 4, fontSize: 16, textAnchor: 'start', fill: '#c0392b', fontWeight: 'bold' },\n        { type: 'label', text: 'v、g 均竖直向下', x: w * 0.5, y: h - 18, fontSize: 13, textAnchor: 'middle', fill: '#5b6675' }\n      ] }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

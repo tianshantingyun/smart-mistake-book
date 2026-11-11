@@ -1,0 +1,192 @@
+{
+  "cells": {
+    "no_equal_time": {
+      "g6-runs.csv": {
+        "count": 12,
+        "status": "INSUFFICIENT_DATA"
+      },
+      "weight-runs.csv": {
+        "count": 46,
+        "status": "INSUFFICIENT_DATA"
+      }
+    }
+  },
+  "g6": {
+    "0.150000": {
+      "endpoint": false,
+      "median": -0.033333,
+      "n": 6,
+      "pass_effect_only": false,
+      "positive": 2,
+      "status": "INSUFFICIENT_DATA"
+    },
+    "0.250000": {
+      "endpoint": false,
+      "median": 0.0500005,
+      "n": 6,
+      "pass_effect_only": false,
+      "positive": 4,
+      "status": "INSUFFICIENT_DATA"
+    },
+    "0.350000": {
+      "endpoint": false,
+      "median": 0.016666499999999973,
+      "n": 8,
+      "pass_effect_only": false,
+      "positive": 4,
+      "status": "MEASURED"
+    },
+    "0.500000": {
+      "endpoint": true,
+      "median": 0.033333,
+      "n": 8,
+      "pass_effect_only": false,
+      "positive": 5,
+      "status": "MEASURED"
+    }
+  },
+  "rule": {
+    "frozen_by": "prereg §4.3 / §5.4",
+    "min_effect_one_kc": 0.03333333333333333,
+    "min_n": 8,
+    "sign_consistency": 8
+  },
+  "weights": {
+    "W/diversity/x0.75": {
+      "endpoint": true,
+      "median": 0.06666650000000002,
+      "n": 8,
+      "pass_effect_only": false,
+      "positive": 6,
+      "status": "MEASURED"
+    },
+    "W/diversity/x0.875": {
+      "endpoint": false,
+      "median": 0.09999999999999998,
+      "n": 5,
+      "pass_effect_only": false,
+      "positive": 4,
+      "status": "INSUFFICIENT_DATA"
+    },
+    "W/diversity/x1.125": {
+      "endpoint": false,
+      "median": -0.03333300000000006,
+      "n": 7,
+      "pass_effect_only": false,
+      "positive": 3,
+      "status": "INSUFFICIENT_DATA"
+    },
+    "W/diversity/x1.25": {
+      "endpoint": true,
+      "median": 0.0500005,
+      "n": 4,
+      "pass_effect_only": false,
+      "positive": 2,
+      "status": "INSUFFICIENT_DATA"
+    },
+    "W/due/x0.75": {
+      "endpoint": true,
+      "median": 0.10000000000000003,
+      "n": 6,
+      "pass_effect_only": false,
+      "positive": 4,
+      "status": "INSUFFICIENT_DATA"
+    },
+    "W/due/x0.875": {
+      "endpoint": false,
+      "median": 0.08333350000000006,
+      "n": 6,
+      "pass_effect_only": false,
+      "positive": 5,
+      "status": "INSUFFICIENT_DATA"
+    },
+    "W/due/x1.125": {
+      "endpoint": false,
+      "median": 0.06666700000000003,
+      "n": 7,
+      "pass_effect_only": false,
+      "positive": 6,
+      "status": "INSUFFICIENT_DATA"
+    },
+    "W/due/x1.25": {
+      "endpoint": true,
+      "median": 0.0833335,
+      "n": 8,
+      "pass_effect_only": false,
+      "positive": 6,
+      "status": "MEASURED"
+    },
+    "W/exam/x0.875": {
+      "endpoint": true,
+      "median": 0.0,
+      "n": 10,
+      "pass_effect_only": false,
+      "positive": 3,
+      "status": "MEASURED"
+    },
+    "W/exam/x1.125": {
+      "endpoint": false,
+      "median": 0.0,
+      "n": 10,
+      "pass_effect_only": false,
+      "positive": 4,
+      "status": "MEASURED"
+    },
+    "W/exam/x1.25": {
+      "endpoint": true,
+      "median": 0.033333500000000016,
+      "n": 10,
+      "pass_effect_only": false,
+      "positive": 6,
+      "status": "MEASURED"
+    },
+    "W/kc-drop/x0.75": {
+      "endpoint": true,
+      "median": 0.06666700000000003,
+      "n": 9,
+      "pass_effect_only": false,
+      "positive": 6,
+      "status": "MEASURED"
+    },
+    "W/kc-drop/x0.875": {
+      "endpoint": false,
+      "median": 0.06666650000000007,
+      "n": 8,
+      "pass_effect_only": false,
+      "positive": 5,
+      "status": "MEASURED"
+    },
+    "W/weak/x0.75": {
+      "endpoint": true,
+      "median": 0.09999999999999998,
+      "n": 2,
+      "pass_effect_only": false,
+      "positive": 1,
+      "status": "INSUFFICIENT_DATA"
+    },
+    "W/weak/x0.875": {
+      "endpoint": false,
+      "median": 0.01666650000000003,
+      "n": 6,
+      "pass_effect_only": false,
+      "positive": 3,
+      "status": "INSUFFICIENT_DATA"
+    },
+    "W/weak/x1.125": {
+      "endpoint": false,
+      "median": 0.0833335,
+      "n": 8,
+      "pass_effect_only": false,
+      "positive": 6,
+      "status": "MEASURED"
+    },
+    "W/weak/x1.25": {
+      "endpoint": true,
+      "median": 0.0833335,
+      "n": 10,
+      "pass_effect_only": false,
+      "positive": 7,
+      "status": "MEASURED"
+    }
+  }
+}

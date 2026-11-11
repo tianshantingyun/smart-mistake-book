@@ -1,0 +1,16 @@
+soak_start_utc=2026-11-08T13:52:08Z
+duration_target_s=7200
+apk=app/build/outputs/apk/localFirst/release/app-localFirst-release.apk
+apk_sha256=1bf98b0029032ecb5c243c3ada3ac19183e53e0a912ab630510da12866d34dec
+apk_versionCode=101160
+apk_versionName=0.2.0-localfirst
+package=com.tingyun.smartmistakebook.localfirst
+device=emulator-5590
+sdk=34
+page_size=4096
+abi=x86_64
+boot_id=31ecd364-6b2a-4e52-9643-23e681696172
+db_state=empty
+db_state_note=release APK 不可调试（run-as 不可用）；debug→release 签名不同必须 uninstall，7 条用户库被清；装机前备份 .tmp/device-backup-2150/smart-mistake-book.db sha256=684229351b84ae402b85abf6ff439a1b7f8e5bc9e80d68177e904cbc0fc40d56
+harness=docs/research/evidence/2026-11-09-batch-50/device/35-soak-script.sh（沿用批次 49 f-soak.sh 判据）
+soak_note=monkey 全程驱动 release 真实 UI；周期采样 PSS/loadavg/dropbox/crash；未达时长、新 crash、新 dropbox、monkey 非零 → FAIL

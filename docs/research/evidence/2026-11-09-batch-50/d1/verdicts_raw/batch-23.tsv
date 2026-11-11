@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-mat-9aa21e29dc-005	CORRECT		high	给出二次不等式恒成立或解集为空时系数满足的条件	
+ext-mat-9aa21e29dc-013	CORRECT		high	高次不等式先移项、因式分解求出全部根	
+ext-mat-9b495e96c5-001	CORRECT		high	到两定点距离之和为常数时，按常数与焦距的大小关系判定轨迹	
+ext-mat-9d8541e663-009	CORRECT		high	给出识别对数型函数图象的抓手以及把方程不等式转化为图象问题的思路	
+ext-mat-9e21a7e47c-005	CORRECT		high	把 $a_{n+1}=pa_n+q$、$pa_n+q^n$、$ka_n+pn+q$、分式型、幂型这五类递推式	
+ext-mat-a096d24e7d-031	CORRECT		high	一元二次不等式恒成立可分在 R 上恒成立、在给定区间上恒成立、给定参数范围三类	
+ext-mat-a177c9a92e-024	CORRECT		high	由通项变号位置或二次函数配方确定前n项和取最值时的项数	
+ext-mat-a2faf0058d-003	CORRECT		high	区间上单调则最值在两个端点	
+ext-mat-a346d033eb-001b	CORRECT		high	由外到内逐层求导并把各层导数相乘	
+ext-mat-a356a31c16-002	CORRECT		high	区间上的平均变化（快慢、强弱）对应割线的斜率	节点为导数几何意义，材料为割线/切线解读
+ext-mat-a56cce28f2-003	CORRECT		high	分段给出的数列递增，要求各段分别递增且段间衔接处左段末项小于右段首项	节点为数列单调性与最值
+ext-mat-a6198e8d9b-001	CORRECT		high	平面内与一个定点F和一条定直线l（l不经过点F）距离相等的点的轨迹是抛物线	
+ext-mat-a61c6728ea-022	CORRECT		high	处理0比0型与无穷比无穷型极限求参数范围	
+ext-mat-a66468915c-037	CORRECT		high	相邻连续 k 项乘积恒为常数时	
+ext-mat-a88de4b133-001	CORRECT		high	导函数的零点存在但难以求出具体值时称“隐零点”	
+ext-mat-ad7beaa0fd-001	CORRECT		high	同底数幂相乘除、幂的乘方与分数指数幂的互化规则	
+ext-mat-adbd00e6ee-044	CORRECT		high	样本相关系数r刻画两变量的线性相关程度	
+ext-mat-ae00af8fdd-006	CORRECT		high	标准方程直接读出圆心与半径	
+ext-mat-aea9ac4cd1-008	CORRECT		high	看最值定振幅与平衡位置、看周期定角频率、看特殊点定初相	
+ext-mat-aea9ac4cd1-019	CORRECT		high	先判断整体角随自变量的增减	
+ext-mat-b06a314ec8-007b	CORRECT		high	对两组数，按同序、任一排列、逆序相乘求和分别得顺序和、乱序和、反序和	
+ext-mat-b3060e015c-002	CORRECT		high	求 n 的最值化归为解不等式或利用单调性	
+ext-mat-b3337aed08-010	CORRECT		high	Sm、S2m－Sm、S3m－S2m 成等差	
+ext-mat-b34deaaa90-004	CORRECT		high	已知正弦、余弦、正切之一求另外两个值	
+ext-mat-b6860cf087-016	CORRECT		high	先由关系式算出若干项、观察项的重复规律归纳出周期	
+ext-mat-b6fbcfd043-016	CORRECT		high	角标和相等则项的积相等	
+ext-mat-b708ea2fb8-004	CORRECT		high	把方程根的个数问题分离参数后化为一条曲线与一条水平直线的交点个数	
+ext-mat-b8191f82ad-003	CORRECT		high	按导函数零点有无、零点是否落在定义域内、多个零点之间的大小关系依次展开讨论	
+ext-mat-b8191f82ad-003c	CORRECT		high	把不在同一单调区间的自变量转化到一起再比较	
+ext-mat-b910ed2279-001b	CORRECT		high	非负性、规范性、互斥可加与对立互补	
+ext-mat-b94940ccbb-003	CORRECT		high	给出正弦定理内容与常见边角互化变形	
+ext-mat-bb4895ddb1-026	CORRECT		high	把含三角函数的向量坐标化为正弦型函数再研究其性质	
+ext-mat-bd4f859f45-005	CORRECT		high	动点到两定点距离之差的绝对值为定值3且小于两定点距离4	节点为轨迹方程
+ext-mat-c3339a5f32-006b	CORRECT		high	面积可用底乘高的一半、两边及其夹角正弦之积的一半	
+ext-mat-c4d84b071a-004	CORRECT		high	判断分段函数在 R 上单调要从整体考虑	
+ext-mat-c7fa965086-003	CORRECT		high	直线上升是匀速增长、增长量固定	
+ext-mat-c94bc82d48-028	CORRECT		high	先由面积累加确定百分位数所在区间	节点为百分位数
+ext-mat-cbe7ab4957-001b	CORRECT		high	把要比较的两个式子变形为同一函数在不同自变量处的函数值	
+ext-mat-cc379bd50e-006	CORRECT		high	形如 an+1−an=f(n) 的“变差数列”用恒等式累加求通项	
+ext-mat-cc379bd50e-038	CORRECT		high	用待定系数法构造等比数列求解 an+1=pan+q 型递推	
+ext-mat-cc54b6bd75-002	CORRECT		high	和差公式是三角恒等变换的基础	
+ext-mat-cc8d549df8-001	CORRECT		high	在区间上自变量增大函数值也增大即为增函数	
+ext-mat-cc8d549df8-001c	CORRECT		high	存在非零常数 T 使 f(x+T)=f(x) 恒成立即为周期函数	
+ext-mat-cddc19f701-005	CORRECT		high	把 sinα+2cosα 写成 √5sin(α+φ)	
+ext-mat-cf877175e4-003b	CORRECT		high	平均数取算术平均；中位数取排序后中间位置的数	
+ext-mat-d020b2809a-043	CORRECT		high	求一点关于某条直线的对称点，只需抓住中点与斜率两个关键	
+ext-mat-d03d335e13-001b	CORRECT		high	当不等式既有指数型成分又有对数型成分时	
+ext-mat-d03d335e13-003	CORRECT		high	由端点处等号成立（$h(0)=0$）得必要条件	
+ext-mat-d04314ab0b-008	CORRECT		high	判断是否属于独立重复试验后求出参数 n 与 p	
+ext-mat-d1097fb408-007	CORRECT		high	前n项和、次n项和与再n项和依次成等比数列且公比为q的n次幂	

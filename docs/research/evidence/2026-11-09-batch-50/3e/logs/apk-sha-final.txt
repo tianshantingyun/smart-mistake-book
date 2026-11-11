@@ -1,0 +1,1 @@
+dc0abe9dc8b39c6eab52ed1e5e2882db7c9868a33a126f2941c549eaf0147a82 *core/data/build/outputs/apk/androidTest/debug/data-debug-androidTest.apk

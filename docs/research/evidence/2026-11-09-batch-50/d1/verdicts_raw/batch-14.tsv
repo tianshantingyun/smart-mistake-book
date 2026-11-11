@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-che-161dacb6f6-035	CORRECT		high	酸雨（SO2、NOx；烟气脱硫脱硝）	
+ext-che-161dacb6f6-036	CORRECT		high	绿色化学的核心是从源头上减少或消除工业生产对环境的污染	
+ext-che-161dacb6f6-065	CORRECT		high	酸性溶液：使甲基橙变红	节点为离子共存要点，材料为酸碱性信息
+ext-che-161dacb6f6-076	CORRECT		high	浓盐酸、浓硝酸的溶质要拆而浓硫酸不拆	
+ext-che-161dacb6f6-097	CORRECT		high	由方程式比较：氧化性——氧化剂>氧化产物	
+ext-che-16414d5f4e-002	CORRECT		high	速率通常用单位时间内反应物浓度的减少或生成物浓度的增加表示	
+ext-che-181247b2ab-002	CORRECT		high	由 Ksp 求离子浓度比值、控制 pH 分离离子	
+ext-che-181247b2ab-003	CORRECT		high	温度、浓度、同离子与反应离子对平衡的影响	节点为影响因素，材料含转化与图像
+ext-che-1880b6dbb6-146	CORRECT		high	多重平衡体系中，当外界因素（例如温度、压强等）变化时	
+ext-che-1a9ac8e309-025	CORRECT		high	沉淀转化反应的平衡常数等于两种沉淀溶度积之比	
+ext-che-1b23d3e496-005c	CORRECT		high	电子均不能通过电解质溶液	
+ext-che-1d09ecb78a-023	CORRECT		high	盐类水解可用于判断离子能否大量共存	
+ext-che-1d09ecb78a-024	CORRECT		high	利用水解可制备胶体、作净水剂、除杂	
+ext-che-1d3390924f-071	CORRECT		high	离子晶体机械性能硬而脆	
+ext-che-1e4007bdad-001b	CORRECT		high	焰色试验属于元素的性质	
+ext-che-1e82fabdbf-009	CORRECT		high	酸或碱抑制水的电离，酸溶液中求c(OH−)	
+ext-che-1ebd01f384-006	CORRECT		high	按温度、离子浓度、沉淀本身、无关电解质四类因素分别判断	
+ext-che-223f2a1a32-035	CORRECT		high	配位键由提供孤电子对和空轨道形成	
+ext-che-2297bcc4eb-006	CORRECT		high	标变价、列得失、求总数、配系数、查守恒五步配平法	
+ext-che-22e4da5a7a-003	CORRECT		high	无催化剂时ΔH=正反应活化能-逆反应活化能	节点为反应热，材料为其与活化能关系
+ext-che-23cc3489fa-023c	CORRECT		high	取样加稀硫酸或稀盐酸，把气体通入品红溶液	
+ext-che-2540022b42-004	CORRECT		high	用可逆符号、不标气体沉淀符号	
+ext-che-27a88d9430-004	CORRECT		high	合成含多个官能团的有机物时，先把非目标官能团转化为不受该反应影响的基团	
+ext-che-27e1898f80-029	CORRECT		high	滴入同体积 AgNO3 时消耗多的离子剩余浓度更小	
+ext-che-28c092c1c4-014	CORRECT		high	O2、CO2、SO2、Cl2、NH3、H2各有特征的检验方法	
+ext-che-29b4143ea2-001b	CORRECT		high	说明湿法炼铜与高温炼铜的原理以及粗铜电解精炼的过程	
+ext-che-2a2518de47-021	CORRECT		high	加聚产物主链全为碳	
+ext-che-2ae6f40e31-007	CORRECT		high	从客观事实、符号使用、化学式书写、漏写离子反应、电荷守恒、反应物配比六个方面	
+ext-che-2c017ad5a8-014	CORRECT		high	由方程式（氧化剂＞氧化产物）、反应条件与剧烈程度	
+ext-che-2c177d17ea-020	CORRECT		high	实验室安全措施包括防倒吸、防堵塞、防污染、防爆炸、防暴沸	
+ext-che-2c2c95102b-005	CORRECT		high	电极名称看反应类型、双液电池的优点与电子离子移动的分界	
+ext-che-2d35cc3e9a-004	CORRECT		high	恒温恒压下ΔH－TΔS＜0反应正向自发	
+ext-che-2d6cf03b75-003	CORRECT		high	工艺流程题按“看原料、看目的、看箭头、看三线、找信息、关注所加物质的作用”六步破题	
+ext-che-2f6707a1ef-037	CORRECT		medium	铝在冷浓硫酸中表面生成致密氧化物膜而钝化	材料为铁/铝钝化辨析，节点即钝化专题
+ext-che-309fd84b7e-005c	CORRECT		high	电子云是概率密度分布的形象化描述	
+ext-che-32f17b8b6e-013	CORRECT		high	加入MnSO4使c(SO42-)增大，平衡向生成CaSO4的方向（正向）移动	
+ext-che-348b584e74-032	CORRECT		high	先假设反应物完全转化算出该组分的浓度极值	
+ext-che-35a3f6f8bc-006c	CORRECT		high	晶体中原子的配位数指该原子最接近且等距离的同种原子数目	
+ext-che-366722558b-015b	REBIND	功能高分子材料	high	高吸水性树脂靠主链上的强亲水基团吸水	现绑为高分子结构与性质，同科有功能高分子材料专点
+ext-che-3713da16bf-071	CORRECT		high	不同杂化轨道类型的键角大小为sp>sp²>sp³	
+ext-che-3713da16bf-132	REBIND	晶胞中粒子数目、配位数、坐标与密度的计算	high	已知立方晶胞边长a、原子半径r时	现绑为晶胞密度，材料为原子间距与边长
+ext-che-3784e0daa3-002	CORRECT		high	一般情况下，负极的金属活动性比正极的金属活动性强	
+ext-che-394fc0226d-006	CORRECT		high	第一电离能的定义、同周期与同主族的变化趋势	
+ext-che-39e870c108-008	CORRECT		high	按找变价、判类型、分升降、定其他四步分析氧化还原反应概念	
+ext-che-3a8fd8d517-030	REBIND	聚合反应	medium	缩聚反应是由一种或一种以上单体相互结合生成聚合物，同时有小分子生成的反应	现绑为聚合方程式书写，材料为缩聚概念/类型/单体
+ext-che-3b3b553aaf-025	CORRECT		high	地壳含量最高 O、次 Si、金属中最高 Al	
+ext-che-3bca327ab1-004	CORRECT		high	按电极产物把电解分为电解水型、电解电解质型、放氢生碱型、放氧生酸型	
+ext-che-3bcf48151c-002	CORRECT		high	盐按组成酸碱性分四类	
+ext-che-3c9ebedbe6-092	CORRECT		high	用可逆号、Fe(OH)3后注明胶体、注明加热条件	
+ext-che-3d3f5180b2-010	CORRECT		high	归纳流程题中洗涤、控温、减压、气体氛围等设问的标准作答角度	

@@ -1,0 +1,14 @@
+{
+  "input_file": "BLD-SRCREBLD-019.json",
+  "program_sha256": "08ee37cb4e7f83dcde98a186ff12f1d333942b13503feb9ba03cbb5b169f58a2",
+  "task_id": "BLD-SRCREBLD-019",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 11,
+  "measurement": [],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com"
+}

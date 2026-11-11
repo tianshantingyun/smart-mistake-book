@@ -428,6 +428,8 @@ internal class RoomTutorToolRunner(
         }
         val questionText = terms.joinToString(" ")
         val features = KnowledgeSearchFeatureExtractor.fromQuestion(questionText)
+        // B35：召回口改形（candidates + indexComplete）；工具结果形态与条数不变，标记由
+        // 讲题装配层合成披露。
         val nodes = port.readSubjectKnowledgeRecallCandidates(
             subject = subject,
             searchFeatures = features,

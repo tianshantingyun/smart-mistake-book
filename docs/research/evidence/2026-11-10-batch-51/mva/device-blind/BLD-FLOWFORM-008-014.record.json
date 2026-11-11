@@ -1,0 +1,231 @@
+{
+  "input_file": "BLD-FLOWFORM-008.json",
+  "program_sha256": "f2eefcacfc35bc501d34970e022dbbf831c2cf68b347f9d9fefcb7ed06e15217",
+  "task_id": "BLD-FLOWFORM-008",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 82,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "一元二次方程求根公式",
+      "widthDu": 160,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ee21803d4e0aadd44def73d84248242cc73d8699087d19c66e1b7b7a1fc0fa2d"
+    },
+    {
+      "contentId": "c1",
+      "payload": "1",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "contentId": "c2",
+      "payload": "x²",
+      "widthDu": 13.818181991577148,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f3b5ff1969c6ec2b6cc58a15fc7a6d3dde8d8a8a6c6fdde6deb7548083fa063b"
+    },
+    {
+      "contentId": "c3",
+      "payload": " − 4",
+      "widthDu": 26.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b86cb68478582bbc4e83359775c91730466fe4820d61a212c11ec265b003f21c"
+    },
+    {
+      "contentId": "c4",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c5",
+      "payload": " + 4",
+      "widthDu": 26.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e7321fd1eb056915590357e491814c98c1038da1ace9c22f52dd4996c9a84b8b"
+    },
+    {
+      "contentId": "c6",
+      "payload": " = 0",
+      "widthDu": 25.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "dd1f472591fc4210e8094c4685d46de048e02516c429b66ee601392ef015f06b"
+    },
+    {
+      "contentId": "c7",
+      "payload": "a = 1",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b5bc1ffd90912fb18bef6e7d80909192c7a6492896320156d67fbaf104c6544a"
+    },
+    {
+      "contentId": "c8",
+      "payload": "b = −4",
+      "widthDu": 44,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bc34f9d1325efb16b191d503bf3bf0cc2e9b8ae37f28dde50f84bfb81f9cbcee"
+    },
+    {
+      "contentId": "c9",
+      "payload": "c = 4",
+      "widthDu": 34.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "73c34a0803d0f695f2f749e2d3040276520a7468562a29cb48f9d469817d8dd1"
+    },
+    {
+      "contentId": "c10",
+      "payload": "x =",
+      "widthDu": 20.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "180e6929bae4a33240ca19d9d2ee7c07bb6e67e09a038202f9eb536861f4a10d"
+    },
+    {
+      "contentId": "c11",
+      "payload": "−",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "afba2418d6aec23dc4b24c079b26350d3715faa050fa131943ad0b6962f4255a"
+    },
+    {
+      "contentId": "c12",
+      "payload": "b",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d"
+    },
+    {
+      "contentId": "c13",
+      "payload": " ± ",
+      "widthDu": 16.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c2d1faee276efe2a5571c5c2321581fb4f1fdd0430beadb88b7491b53a43f932"
+    },
+    {
+      "contentId": "c14",
+      "payload": "√",
+      "widthDu": 9.454545021057129,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4ba002bdd74ed597330cab2461ee5a85c1343c981402f2ede74b2ef3dd9c21d8"
+    },
+    {
+      "contentId": "c15",
+      "payload": "b²",
+      "widthDu": 14.909090995788574,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "db545de070cc676780aadfb2463438eadbdbf0be044532b68dfe0171d16ba1e5"
+    },
+    {
+      "contentId": "c16",
+      "payload": " − 4",
+      "widthDu": 26.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b86cb68478582bbc4e83359775c91730466fe4820d61a212c11ec265b003f21c"
+    },
+    {
+      "contentId": "c17",
+      "payload": "a",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+    },
+    {
+      "contentId": "c18",
+      "payload": "c",
+      "widthDu": 8.363636016845703,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"
+    },
+    {
+      "contentId": "c19",
+      "payload": "2",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "contentId": "c20",
+      "payload": "a",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+    },
+    {
+      "contentId": "c21",
+      "payload": "代入 a = 1，b = −4，c = 4",
+      "widthDu": 180.72727966308594,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8405b0c3f8b69aee095bc2264c0822d331da771b9de60ccc8f2f8f41cdc312bd"
+    },
+    {
+      "contentId": "c22",
+      "payload": "Δ = b² − 4ac = (−4)² − 4·1·4 = 16 − 16",
+      "widthDu": 261.0909118652344,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "43c65859f26c645fb41d7c4d3895a58c90be7dd8a05f5b9ecd44da3cee7a4cfa"
+    },
+    {
+      "contentId": "c23",
+      "payload": "= 0",
+      "widthDu": 21.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6a99751d93986ab4d3b19c543c9f5f10617378b8af1593fa42edf61e65ee9a78"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"text\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com"
+}

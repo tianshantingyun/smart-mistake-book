@@ -1,0 +1,82 @@
+{
+ "id": "FIX-035",
+ "verdict": "PASS",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "evidence": [
+  "cmd:docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-T04-T05-T07.log",
+  "cmd:docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-prove-red.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/red-docx-docprops.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/green-docx-docprops.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/docx-independent-readback.log",
+  "test:docs/acceptance/evidence/2026-11-09-batch-50/junit/fix-relapse-aigc-closed.xml"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-T04-T05-T07.log": "7113def721896cd896b930a294afb90d537315c497f49cf5209842c0017147d0",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-prove-red.log": "34ab2568007b0f1652be56e188a6a9bb862dc18e373685185e9661c43fd6c02d",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/red-docx-docprops.log": "5f8582b36b530416f3ecabbd6208decbdfa0652fc6128453ed16a6023ada1e86",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/green-docx-docprops.log": "9a8c9ab924ec9f28b72e857675819dd4bda295a8422af0374a2a56bae37db927",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/docx-independent-readback.log": "142bba7e0870f8136b0e35b69db8bdf6f190f63a23bcbfac32ef13c94db2da70",
+  "docs/acceptance/evidence/2026-11-09-batch-50/junit/fix-relapse-aigc-closed.xml": "e4043128503ad1a8a3329246b9c7c802a14fc44483f3730708dd41a398339464"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=FIX-035; verdict=PASS; line=1066; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-T04-T05-T07.log",
+   "value": "exit_markers=[0]; sha256=7113def721896cd896b930a294afb90d537315c497f49cf5209842c0017147d0"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/fix-relapse-prove-red.log",
+   "value": "exit_markers=[0]; sha256=34ab2568007b0f1652be56e188a6a9bb862dc18e373685185e9661c43fd6c02d"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/red-docx-docprops.log",
+   "value": "sha256=5f8582b36b530416f3ecabbd6208decbdfa0652fc6128453ed16a6023ada1e86; bytes=2378"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/green-docx-docprops.log",
+   "value": "sha256=9a8c9ab924ec9f28b72e857675819dd4bda295a8422af0374a2a56bae37db927; bytes=4543"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/docx-independent-readback.log",
+   "value": "sha256=142bba7e0870f8136b0e35b69db8bdf6f190f63a23bcbfac32ef13c94db2da70; bytes=966"
+  },
+  {
+   "name": "xml_aggregate",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/junit/fix-relapse-aigc-closed.xml",
+   "value": "tests=6; failures=0; errors=0; skipped=0; sha256=e4043128503ad1a8a3329246b9c7c802a14fc44483f3730708dd41a398339464"
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "批次50：FIX-T07 关闭态门；DOCX docProps/custom.xml 七键 AIGC，宿主独立读回正负；prove-red 2/2。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "review_scope": "single-ledger-row",
+ "review_kind": "mechanical-recompute",
+ "ledger_batch": 51,
+ "verified_at": "2026-11-10T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 6,
+  "basis": "bytes-on-disk"
+ }
+}

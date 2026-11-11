@@ -1,0 +1,26 @@
+source lines: 162 - 196
+chars: 1710
+sha256: 2fa068970407c2fc9dad7ec09aa4b99f6010c8fb705bcfad88cef2e212e854c4
+contains 'json': True
+contains 'JSON': True
+contains 'type': True
+contains '不得返回type': True
+contains '题号': True
+contains '双栏': True
+contains '边缘': True
+contains '80%': True
+contains '2到12': True
+contains '整页只有一道题时返回PASS': True
+contains '示例': True
+contains '"decision":"SPLIT"': True
+contains 'decision': True
+contains 'issues': True
+contains 'suggestedActions': True
+contains 'questionRegions': True
+contains 'followingPageRelations': True
+contains '0.08': True
+contains '0.04': True
+contains '0.006': True
+--- prompt text ---
+判断这张题图是否足以完整转写、画面里有几道互相独立的题；若足以转写且有多道题，给出每道题的区域。只返回一个JSON对象，顶层恰好五个键：decision、issues、suggestedActions、questionRegions、followingPageRelations；不得返回type、schema、version或任何其他键（把请求的response_format（json_object）抄进结果会被整轮丢弃）。decision只取PASS/RECAPTURE/NEED_MORE_IMAGE/SPLIT；issues每项只含code、severity、region、message，code只取MISSING_OPTIONS/KEY_TEXT_UNREADABLE/GLARE_COVERS_FORMULA/OCCLUDED/MULTIPLE_QUESTIONS，severity只取BLOCKING或REVIEW，message为简短中文；suggestedActions只取RECAPTURE/ADD_IMAGE/CONTINUE_ANYWAY；region只含left、top、right、bottom四个0到1的数，左上为原点、y轴向下，保留3位小数，且left<right、top<bottom。示例（只示形状）：{"decision":"SPLIT","issues":[{"code":"MULTIPLE_QUESTIONS","severity":"BLOCKING","region":{"left":0.040,"top":0.080,"right":0.960,"bottom":0.360},"message":"本页有2道独立题"}],"suggestedActions":[],"questionRegions":[{"left":0.040,"top":0.080,"right":0.960,"bottom":0.360},{"left":0.040,"top":0.380,"right":0.960,"bottom":0.660}],"followingPageRelations":[]}先按阅读顺序数可见题号（1. 2. 3. 或 (1)(2) 或 ①②），questionRegions的项数必须等于题号数；同一题的多个小问、共用材料的多问算一道题。双栏页面先左栏自上而下、再右栏；同一栏内的框不得跨过分栏线；题干与选项分处两栏时，取覆盖该题全部可见内容的最小外接矩形（允许跨栏）；不得把一道题拆成两块，也不得把两栏的两道题并进一个框。框贴可见内容外缘，含题干、选项、图形与作答区；不含页眉、页码、装订线与红笔批注；不得返回覆盖整页或包含多道题的框；区域两两重叠不得超过较小框面积的80%。题号与题干主体可见即视为完整题，页面边缘被裁切也照常成框；只有题干主体或关键条件确在画面外时才返回NEED_MORE_IMAGE，并在issues中至少给出一条issue、用region标出缺失位置。decision与区域：只有SPLIT带questionRegions；PASS、RECAPTURE、NEED_MORE_IMAGE必须返回空数组。整页只有一道题时返回PASS与空数组，不要为凑数把一题拆成两块。2到12道独立题必须返回SPLIT，并把MULTIPLE_QUESTIONS标为BLOCKING；每个区域宽度至少0.08、高度至少0.04、面积至少0.006；超过12道时不要合并题目，仍按题给框（本地会拒绝采用，不猜）。suggestedActions与decision必须自洽：RECAPTURE必须含RECAPTURE并至少给出一条issue；NEED_MORE_IMAGE必须含ADD_IMAGE并至少给出一条issue；PASS不得含BLOCKING级issues，也不得建议RECAPTURE或ADD_IMAGE。同一道题跨页不算多题，内容未拍全时返回NEED_MORE_IMAGE。followingPageRelations必须返回空数组。
+EXIT=0

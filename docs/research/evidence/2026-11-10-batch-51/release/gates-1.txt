@@ -1,0 +1,358 @@
+{
+  "gradle": {
+    "version_code": null,
+    "version_name": "0.2.0",
+    "abi_filters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "output_metadata": {
+    "versionCode": 101177,
+    "versionName": "0.2.0-offline"
+  },
+  "expected_code": 101177,
+  "errors": []
+}
+version-strictOffline EXIT=0
+{
+  "gradle": {
+    "version_code": null,
+    "version_name": "0.2.0",
+    "abi_filters": [
+      "arm64-v8a",
+      "x86_64"
+    ]
+  },
+  "output_metadata": {
+    "versionCode": 101177,
+    "versionName": "0.2.0-localfirst"
+  },
+  "expected_code": 101177,
+  "errors": []
+}
+version-localFirst EXIT=0
+{
+  "apk": "app/build/outputs/apk/strictOffline/release/app-strictOffline-release.apk",
+  "files": [
+    {
+      "name": "lib/arm64-v8a/libLiteRt.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 5392000,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libLiteRtClGlAccelerator.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 2827264,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libandroidx.graphics.path.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 10096,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libdatastore_shared_counter.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 10360,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/liblitert_jni.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 530776,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libmlkit_google_ocr_pipeline.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 11064544,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libquickjs.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 924936,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libLiteRt.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 7385808,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libLiteRtClGlAccelerator.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 3417232,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libandroidx.graphics.path.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 10760,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libdatastore_shared_counter.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 9424,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/liblitert_jni.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 529168,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libmlkit_google_ocr_pipeline.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 11626128,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libquickjs.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 911248,
+      "elf_errors": []
+    }
+  ],
+  "errors": [],
+  "total": 14
+}
+apk16k-strictOffline EXIT=0
+{
+  "apk": "app/build/outputs/apk/localFirst/release/app-localFirst-release.apk",
+  "files": [
+    {
+      "name": "lib/arm64-v8a/libLiteRt.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 5392000,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libLiteRtClGlAccelerator.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 2827264,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libandroidx.graphics.path.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 10096,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libdatastore_shared_counter.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 10360,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/liblitert_jni.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 530776,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libmlkit_google_ocr_pipeline.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 11064544,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libquickjs.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 924936,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libLiteRt.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 7385808,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libLiteRtClGlAccelerator.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 3417232,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libandroidx.graphics.path.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 10760,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libdatastore_shared_counter.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 9424,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/liblitert_jni.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 529168,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libmlkit_google_ocr_pipeline.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 11626128,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libquickjs.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 911248,
+      "elf_errors": []
+    }
+  ],
+  "errors": [],
+  "total": 14
+}
+apk16k-localFirst EXIT=0
+{
+  "aab": "app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab",
+  "sha256": "600a8bb05df7d51d85b6f7c9614b7cbf7c45306e23dc12a4370a325cf93597aa",
+  "abi_set": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "native_libs": [
+    "libLiteRt.so",
+    "libLiteRtClGlAccelerator.so",
+    "libandroidx.graphics.path.so",
+    "libdatastore_shared_counter.so",
+    "liblitert_jni.so",
+    "libmlkit_google_ocr_pipeline.so",
+    "libquickjs.so"
+  ],
+  "alignment": 2,
+  "errors": []
+}
+aab16k-strictOffline EXIT=0
+{
+  "aab": "app/build/outputs/bundle/localFirstRelease/app-localFirst-release.aab",
+  "sha256": "5221905e321b4b1d44cd0f5576f7530f6d62814627f0de5e583c2dbdfab67449",
+  "abi_set": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "native_libs": [
+    "libLiteRt.so",
+    "libLiteRtClGlAccelerator.so",
+    "libandroidx.graphics.path.so",
+    "libdatastore_shared_counter.so",
+    "liblitert_jni.so",
+    "libmlkit_google_ocr_pipeline.so",
+    "libquickjs.so"
+  ],
+  "alignment": 2,
+  "errors": []
+}
+aab16k-localFirst EXIT=0
+{
+  "mapping": "app/build/outputs/mapping/strictOfflineRelease/mapping.txt",
+  "classes": 10656,
+  "renamed": 10456,
+  "removed": 1199,
+  "samples": [
+    {
+      "source": "com.tingyun.smartmistakebook.BackgroundWriterQuiesceKt$quiesceApplicationScopeWriters$1",
+      "target": "lt",
+      "hits": 1
+    },
+    {
+      "source": "com.tingyun.smartmistakebook.BatchImportDriverWorker$doWork$1",
+      "target": "ww",
+      "hits": 1
+    },
+    {
+      "source": "com.tingyun.smartmistakebook.CapabilityFormViewModel",
+      "target": "k70",
+      "hits": 1
+    },
+    {
+      "source": "com.tingyun.smartmistakebook.CapabilityOperation",
+      "target": "l70",
+      "hits": 2
+    },
+    {
+      "source": "com.tingyun.smartmistakebook.ComposableSingletons$KnowledgeStarFieldKt$$ExternalSyntheticLambda2",
+      "target": "uv0",
+      "hits": 1
+    }
+  ],
+  "negative_control_hits": 0,
+  "errors": []
+}
+r8-strictOffline EXIT=0
+{
+  "mapping": "app/build/outputs/mapping/localFirstRelease/mapping.txt",
+  "classes": 10656,
+  "renamed": 10456,
+  "removed": 1199,
+  "samples": [
+    {
+      "source": "com.tingyun.smartmistakebook.BackgroundWriterQuiesceKt$quiesceApplicationScopeWriters$1",
+      "target": "lt",
+      "hits": 1
+    },
+    {
+      "source": "com.tingyun.smartmistakebook.BatchImportDriverWorker$doWork$1",
+      "target": "ww",
+      "hits": 1
+    },
+    {
+      "source": "com.tingyun.smartmistakebook.CapabilityFormViewModel",
+      "target": "k70",
+      "hits": 1
+    },
+    {
+      "source": "com.tingyun.smartmistakebook.CapabilityOperation",
+      "target": "l70",
+      "hits": 2
+    },
+    {
+      "source": "com.tingyun.smartmistakebook.ComposableSingletons$KnowledgeStarFieldKt$$ExternalSyntheticLambda2",
+      "target": "uv0",
+      "hits": 1
+    }
+  ],
+  "negative_control_hits": 0,
+  "errors": []
+}
+r8-localFirst EXIT=0

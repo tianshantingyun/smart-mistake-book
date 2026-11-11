@@ -1,68 +1,72 @@
 {
-  "id": "H-062",
-  "verdict": "FAIL",
-  "run_id": "2026-11-06T00:00:00Z-batch47-h-domain-fail-repair",
-  "reviewer": "batch47-h-domain-repair-reviewer",
-  "authors": [
-    "batch47-h-domain-fixer"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "cmd:docs/research/evidence/2026-11-06-batch-47/h-domain/h-062-b47.log",
-    "file:docs/known-defects.md",
-    "file:core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-06-batch-47/h-domain/h-062-b47.log": "4f111aca60eb561f716e8859f3e03435a4c1079f341a4769d89af135286a0ed5",
-    "docs/known-defects.md": "17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796",
-    "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt": "be7819ec4500fbbc37fde65a61f787bf7355de78d015e00c888e1ddf00b029a2"
+ "id": "H-062",
+ "verdict": "PASS",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "evidence": [
+  "cmd:docs/acceptance/evidence/2026-11-09-batch-50/logs/h-062.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/green-kd85-model-text.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/pdf-independent-readback.log",
+  "device:docs/acceptance/evidence/2026-11-09-batch-50/device/aigc-docx-kd85.device.json"
+ ],
+ "evidence_sha256": {
+  "docs/acceptance/evidence/2026-11-09-batch-50/logs/h-062.log": "783801d61663e57d2759d6ab3697e2544c3181ee0ca4bd4a9c7a4e98bad9ff73",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/green-kd85-model-text.log": "0e8ba95f0a44ed4a7494337fcd81c0ef4514a60aa4b624dea97a94ffc7f11514",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/pdf-independent-readback.log": "a37b5f0b387f9603fae032fcaa28b6845fa6c3b9b13ef6992a280b3d433bc37b",
+  "docs/acceptance/evidence/2026-11-09-batch-50/device/aigc-docx-kd85.device.json": "132ea81331aa1a7207b4e8b65fe3dd5ac4f07d9e48e26aaaf13578ca34f0835d"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=H-062; verdict=PASS; line=823; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=H-062; verdict=FAIL; line=823; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-47/h-domain/h-062-b47.log",
-      "value": "exit_markers=[1]; cmd=python -I tools/ci/h_compliance_gate.py --only H-062; sha256=4f111aca60eb561f716e8859f3e03435a4c1079f341a4769d89af135286a0ed5"
-    },
-    {
-      "name": "file_sha256",
-      "source": "docs/known-defects.md",
-      "value": "sha256=17395822eb7fca6249b179058f678ec0950a918cc324654e1c5e0b4be1820796"
-    },
-    {
-      "name": "file_sha256",
-      "source": "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt",
-      "value": "sha256=be7819ec4500fbbc37fde65a61f787bf7355de78d015e00c888e1ddf00b029a2"
-    },
-    {
-      "name": "contradiction",
-      "source": "docs/acceptance/ledger.md",
-      "value": "python -I tools/ci/h_compliance_gate.py --only H-062；FAIL：KD-85 open，置位点在 feature/tutor 热区需主会话授权——KD-85 Progress（批次 47）与 gate 复跑 EXIT=1 证实缺口仍在，保留 FAIL 不洗绿"
-    }
-  ],
-  "basis": "批次 47 机械复算：MistakePdfPaperEdit.toDraft() 仍纯透传 hasModelParsedText（KD-85 open），修复落点 TutorPaperEditApplier.apply 属 feature/tutor 热区禁改；门禁 --only H-062 复跑 EXIT=1，保留 FAIL。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。",
-  "notes": "保留 FAIL，不洗绿：出口=主会话授权热区后按 KD-85 方案 ① 落 modelTextApplied 置位（runbook FIX-T05）。门禁已加防漂移条件（KD-85 closed + 置位落码同时成立才允许转绿）。本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "adversarial": {
-    "attempted": true,
-    "result": "gap-reconfirmed"
+  {
+   "name": "cmd_exit",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/logs/h-062.log",
+   "value": "exit_markers=[0]; sha256=783801d61663e57d2759d6ab3697e2544c3181ee0ca4bd4a9c7a4e98bad9ff73"
   },
-  "review_scope": "single-ledger-row",
-  "review_kind": "mechanical-recompute",
-  "ledger_batch": 47,
-  "verified_at": "2026-11-06T00:00:00Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/green-kd85-model-text.log",
+   "value": "sha256=0e8ba95f0a44ed4a7494337fcd81c0ef4514a60aa4b624dea97a94ffc7f11514; bytes=3898"
   },
-  "evidence_freshness": {
-    "current_batch_files": 3,
-    "archived_files": 0,
-    "basis": "bytes-on-disk"
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/pdf-independent-readback.log",
+   "value": "sha256=a37b5f0b387f9603fae032fcaa28b6845fa6c3b9b13ef6992a280b3d433bc37b; bytes=1317"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "device_binding",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/device/aigc-docx-kd85.device.json",
+   "value": "serial=emulator-5590; apk_sha256=a70b9559f93f24bedab3ca31df439e9dd6184a658c83315355f11c8be78ab62d; test_apk_sha256=07c713941c524c3b4dcc41fde066c40372698f55ec50af235a4d4c728db181cb; boot_id=31ecd364-6b2a-4e52-9643-23e681696172; counts={\"errors\": 0, \"evaluated\": 9, \"failures\": 0, \"skipped\": 0, \"tests\": 9}; verdict=PASS; sha256=132ea81331aa1a7207b4e8b65fe3dd5ac4f07d9e48e26aaaf13578ca34f0835d"
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "批次50 由 FAIL 转 PASS：KD-85 modelTextApplied 并入 toDraft；pypdf 读回模型改写→/AIGC、手工编辑→无。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "adversarial": {
+  "attempted": true,
+  "result": "gap-reconfirmed"
+ },
+ "review_scope": "single-ledger-row",
+ "review_kind": "mechanical-recompute",
+ "ledger_batch": 51,
+ "verified_at": "2026-11-10T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 4,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

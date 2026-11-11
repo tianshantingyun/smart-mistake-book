@@ -1,0 +1,71 @@
+{
+  "input_file": "BLD-NATILLA-015.json",
+  "program_sha256": "71f18bef2ebfd7713ecd0cec2cfbd3e1c95f139bd28df46a293921889a0d1b5d",
+  "task_id": "BLD-NATILLA-015",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 17,
+  "measurement": [
+    {
+      "contentId": "c0-65172d22",
+      "payload": "支点",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "65172d22a0ec7843bd228f123cbf3daa63a50bdc80fb12d9dddb3444eed2caed"
+    },
+    {
+      "contentId": "c1-35084bb8",
+      "payload": "阻力臂",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "35084bb84fb450b4b56e54796b02edb20c2f294fd41f84a1064589ebf26061ba"
+    },
+    {
+      "contentId": "c2-b2905803",
+      "payload": "动力臂",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b29058030c4dff353520f55c41a233fb52f379466f5f8a19adc33b9b64d1d42a"
+    },
+    {
+      "contentId": "c3-a1aca9fd",
+      "payload": "石头",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a1aca9fd68a97328d9741dfa6f2ec4f1e411c460998d6c120f30e0c9173182cc"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "be23ea7968aa9f9849848da45fae301cafa445513470b84b1cce2dfe0f96dadf",
+  "scene_bytes": 2192,
+  "scene_schema_version": 1,
+  "draw_sha256": "be900e29dffb8a8fa9c3c26124b9532bb44ac4ed21ae247ce624ff4d17551051",
+  "draw_bytes": 2418,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-65172d22",
+    "c1-35084bb8",
+    "c2-b2905803",
+    "c3-a1aca9fd"
+  ],
+  "png_sha256": "009a709d6bddf28e8f022a5f53245e9098b6b910fd0d384cca0d3297ae0c79fe",
+  "png_bytes": 10684,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 11,
+    "pathCommands": 36,
+    "labels": 4,
+    "ops": 10
+  }
+}

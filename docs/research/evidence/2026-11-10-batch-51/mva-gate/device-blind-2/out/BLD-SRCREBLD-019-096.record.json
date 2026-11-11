@@ -1,0 +1,29 @@
+{
+  "input_file": "BLD-SRCREBLD-019.json",
+  "program_sha256": "41e39640d2e3e3505dfa615980571e320087c089d6ae3550c7e4e8154efc4373",
+  "task_id": "BLD-SRCREBLD-019",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 12,
+  "measurement": [],
+  "status": "RENDERED",
+  "scene_sha256": "73d8169e0815015f623dd68f111bd0a792736edfb78cba95ba1bec4080b9b5b2",
+  "scene_bytes": 782,
+  "scene_schema_version": 1,
+  "draw_sha256": "21daa859382e4295c5d844c27181c9bce15b177af0e83f7fc7e7674f3d0b426b",
+  "draw_bytes": 796,
+  "draw_schema_version": 1,
+  "content_ids": [],
+  "png_sha256": "97658bd5b939ed04021da0023156f737aad472dcbc0b1604f6fc95e87960e036",
+  "png_bytes": 3214,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 2,
+    "pathCommands": 18,
+    "labels": 0,
+    "ops": 1
+  }
+}

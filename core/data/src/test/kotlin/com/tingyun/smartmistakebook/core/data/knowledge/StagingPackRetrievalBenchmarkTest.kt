@@ -4,6 +4,10 @@ import org.junit.Assume.assumeTrue
 import org.junit.Test
 import java.io.File
 
+/** 主包 codec 当前为字符串入口；测试直接传字符串（流式入口未落地，见 codec 注释）。 */
+private fun decodePack(raw: String): KnowledgeBasePack =
+    ReviewedKnowledgePackJsonCodec.decode(raw)
+
 /**
  * 暂存包的检索评测：题面与判分口径与 [FourSubjectRetrievalBenchmarkTest] **完全共用**
  * （[RetrievalBenchmark]），只是把包从"打进 APK 的成品包"换成 `tools/kb_build` 生成到
@@ -48,7 +52,7 @@ class StagingPackRetrievalBenchmarkTest {
         )
 
         // 走同一个解码器：顺带覆盖"绑定指向不存在的节点 ⇒ 整包解码失败"这条硬约束。
-        val pack = ReviewedKnowledgePackJsonCodec.decode(file!!.readText(Charsets.UTF_8))
+        val pack = decodePack(file!!.readText(Charsets.UTF_8))
         val candidates = RetrievalBenchmark.atomicNodes(pack.nodes)
         val result = RetrievalBenchmark.run(candidates)
         println(RetrievalBenchmark.report("四科真实检索评测 (暂存包·按科隔离)", result))

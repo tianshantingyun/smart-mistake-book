@@ -4,12 +4,15 @@ import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.domain.CalibrationInput
 import com.tingyun.smartmistakebook.core.domain.CalibrationReportBuilder
 import com.tingyun.smartmistakebook.core.domain.ChatEvidenceGateCalibration
+import com.tingyun.smartmistakebook.core.domain.FsrsParameterFit
 import com.tingyun.smartmistakebook.core.domain.FsrsParameterOptimizer
 import com.tingyun.smartmistakebook.core.domain.FsrsScheduleMath
 import com.tingyun.smartmistakebook.core.domain.HLRPredictionAuditService
 import com.tingyun.smartmistakebook.core.domain.OptimalRetention
 import com.tingyun.smartmistakebook.core.domain.PlannedReasonCalibration
 import com.tingyun.smartmistakebook.core.domain.ReviewSample
+import com.tingyun.smartmistakebook.core.domain.SchedulingCalibrationView
+import com.tingyun.smartmistakebook.core.domain.SchedulingCalibrationViewBuilder
 import com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationHarness
 import com.tingyun.smartmistakebook.core.domain.fittableReviewSamples
 import com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationReport
@@ -55,6 +58,20 @@ internal class StudySchedulingCalibration(
 
     suspend fun plannedReasonCalibrations(): List<PlannedReasonCalibration> =
         SchedulingEvaluationHarness.calibratePlannedReasons(reviewLogSink.reviewSamples())
+
+    /**
+     * 校准可见页的一次装配（批次 49 P2-12）。
+     *
+     * 读的都是既有读面：review_log（唯一属主 [ReviewLogSink]）+ 设置存储里的当前参数与
+     * 拟合记录；不含任何新 DAO 方法、不写任何东西。装配口径在
+     * [SchedulingCalibrationViewBuilder]（纯函数，有 JVM 用例）。
+     */
+    suspend fun schedulingCalibrationView(): SchedulingCalibrationView =
+        SchedulingCalibrationViewBuilder.build(
+            samples = reviewLogSink.reviewSamples(),
+            storedParameters = schedulingSettingsStore?.optimizedParameters?.first(),
+            lastFit = schedulingSettingsStore?.parameterFit?.first(),
+        )
 
 
     suspend fun chatEvidenceGateCalibration(): ChatEvidenceGateCalibration.GateCalibrationReport? {
@@ -120,7 +137,22 @@ internal class StudySchedulingCalibration(
             )
             return null
         }
+        val adoptedLoss = candidateLoss ?: return null
         store.setOptimizedParameters(result.parameters)
+        // 批次 49 P2-12：参数写入后立刻记下"这次拟合的时点/样本/验证损失与基线"。
+        // 只写参数的话，页面的"最近拟合"在重启后只能显示"—"；顺序是 先参数、后记录，
+        // 因为 setOptimizedParameters 会清掉旧记录（旧时点不得贴到新参数上）。
+        store.recordParameterFit(
+            FsrsParameterFit(
+                adoptedAtEpochMillis = clock.millis(),
+                sampleCount = result.sampleCount,
+                validationLogLoss = adoptedLoss,
+                baselineValidationLogLoss = FsrsParameterOptimizer.validationLogLoss(
+                    fittingSamples,
+                    FsrsScheduleMath.DEFAULT_PARAMETERS,
+                ),
+            ),
+        )
         return result
     }
 

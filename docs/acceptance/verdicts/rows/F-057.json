@@ -1,117 +1,100 @@
 {
-  "id": "F-057",
-  "check": "长时 2h：超限",
-  "verdict": "FAIL",
-  "verdict_detail": "2h 内 FATAL 超限路径命中（SchedulingSettingsScreen.kt:74 → SchedulingOptions 越界）。根因已修（587098f1），但修复后无设备复跑证明超限路径不再命中，按 fix-tickets-b46 #7 出口判据维持 FAIL。",
-  "run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
-  "review_run_id": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
-  "reviewer": "subagent-f-domain-fail-fix-b47",
-  "authors": [
-    "batch44-f-domain-evidence-track",
-    "batch46-f-domain-row-reviewer-b46"
-  ],
-  "self_review": false,
-  "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "head": "39d8c75aebbf0b5f0acf4053d559fe35cf175145",
-  "method": "2h 内至少 1 次 FATAL EXCEPTION（SchedulingSettingsScreen.kt:74 到 SchedulingOptions 越界），超限路径命中；批次47 复核：根因已修（587098f1），修复后 2h 复跑未做，超限路径不再命中无设备证据，维持 FAIL（缺陷单 FIX-T01/soak）",
-  "evidence": [
-    "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log",
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json",
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt",
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-dropbox.txt",
-    "test:docs/research/evidence/2026-11-06-batch-45/fix/xml/TEST-com.tingyun.smartmistakebook.SchedulingRetentionSliderValueTest.xml"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log": "784db0248ec327f4a8c2ce24e5bd88d745894880e9fa09e61f2d9f609000893c",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json": "071f247a9c5582be98b79d7155e98ec62108605a17f2fd1f9739f484b2a0b3d7",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt": "9bfb6239e5b435147e8154a0e7f9e687774af7cc7b8a8cc8e3c55b15fcf5e58e",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-dropbox.txt": "22f795896dd6bab17fed59209fec52c95b391c4f73a28dfc624e0e01cd6ed91f",
-    "docs/research/evidence/2026-11-06-batch-45/fix/xml/TEST-com.tingyun.smartmistakebook.SchedulingRetentionSliderValueTest.xml": "0338196472fc725fc9b6def67c54bfcab72441c464b78511d7f41e35971a7ff6"
+ "id": "F-057",
+ "verdict": "FAIL",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "evidence": [
+  "file:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log",
+  "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json",
+  "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt",
+  "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-dropbox.txt",
+  "test:docs/research/evidence/2026-11-06-batch-45/fix/xml/TEST-com.tingyun.smartmistakebook.SchedulingRetentionSliderValueTest.xml",
+  "device:docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv",
+  "file:docs/research/evidence/2026-11-09-batch-50/device/soak/soak-samples.csv",
+  "device:docs/acceptance/evidence/2026-11-09-batch-50/device/soak-b50.device.json",
+  "device:docs/acceptance/evidence/2026-11-10-batch-51/device/soak-b51.device.json",
+  "file:docs/research/evidence/2026-11-10-batch-51/device/37-soak-console.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log": "784db0248ec327f4a8c2ce24e5bd88d745894880e9fa09e61f2d9f609000893c",
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json": "071f247a9c5582be98b79d7155e98ec62108605a17f2fd1f9739f484b2a0b3d7",
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt": "9bfb6239e5b435147e8154a0e7f9e687774af7cc7b8a8cc8e3c55b15fcf5e58e",
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-dropbox.txt": "22f795896dd6bab17fed59209fec52c95b391c4f73a28dfc624e0e01cd6ed91f",
+  "docs/research/evidence/2026-11-06-batch-45/fix/xml/TEST-com.tingyun.smartmistakebook.SchedulingRetentionSliderValueTest.xml": "0338196472fc725fc9b6def67c54bfcab72441c464b78511d7f41e35971a7ff6",
+  "docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv": "4b1e4241d261c36bb0032598524eded8aa04200e11a5a59b4e54f26725b2a474",
+  "docs/research/evidence/2026-11-09-batch-50/device/soak/soak-samples.csv": "28fe6ef8de48217dfdf185bb2bb544ccecfab42dc954855772960842217e7e13",
+  "docs/acceptance/evidence/2026-11-09-batch-50/device/soak-b50.device.json": "95a912903a01e474de02e77d4f22cac78c309acbade9b6f329ae5fcf442ab55b",
+  "docs/acceptance/evidence/2026-11-10-batch-51/device/soak-b51.device.json": "536a2f5e79d3aeaac74eb295d5f7302312f83f2b7d79325f36f41d88465e7711",
+  "docs/research/evidence/2026-11-10-batch-51/device/37-soak-console.log": "74bee01d6c44da0551e0d60d3e95bbb9e47c9f8adbc554790bd3847b862cf688"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=F-057; verdict=FAIL; line=638; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=F-057; verdict=FAIL; line=638; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "cmd_exit",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log",
-      "observed": {
-        "exit_markers": [
-          0
-        ],
-        "result": [],
-        "tests": []
-      },
-      "expect": {
-        "exit": 0
-      },
-      "pass": true,
-      "sha256": "784db0248ec327f4a8c2ce24e5bd88d745894880e9fa09e61f2d9f609000893c"
-    },
-    {
-      "name": "device_binding",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json",
-      "observed": {
-        "serial": "emulator-5566",
-        "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac"
-      },
-      "expect": null,
-      "pass": true,
-      "sha256": "071f247a9c5582be98b79d7155e98ec62108605a17f2fd1f9739f484b2a0b3d7"
-    },
-    {
-      "name": "evidence_exists",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-dropbox.txt",
-      "observed": {
-        "exists": true,
-        "bytes": 631803
-      },
-      "expect": null,
-      "pass": true,
-      "sha256": "22f795896dd6bab17fed59209fec52c95b391c4f73a28dfc624e0e01cd6ed91f"
-    },
-    {
-      "name": "xml_counts",
-      "target": "docs/research/evidence/2026-11-06-batch-45/fix/xml/TEST-com.tingyun.smartmistakebook.SchedulingRetentionSliderValueTest.xml",
-      "observed": {
-        "tests": 4,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      },
-      "expect": null,
-      "pass": true,
-      "sha256": "0338196472fc725fc9b6def67c54bfcab72441c464b78511d7f41e35971a7ff6"
-    },
-    {
-      "name": "soak_summary",
-      "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt",
-      "value": "fatal_in_window=1; frame=SchedulingSettingsScreen.kt:74; fix_commit=587098f1; overlimit_path_recheck_after_fix=none"
-    }
-  ],
-  "basis": "机械复算（reviewer=subagent-f-domain-fail-fix-b47）：核对崩溃证据与修复状态；verdict 维持 FAIL，不复用单测证据替代长时设备观测。",
-  "ledger_batch": 47,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T13:35:00Z-batch47-f-domain-fail-fix",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log",
+   "value": "sha256=784db0248ec327f4a8c2ce24e5bd88d745894880e9fa09e61f2d9f609000893c; bytes=325"
   },
-  "evidence_freshness": {
-    "current_batch_files": 1,
-    "archived_files": 0,
-    "basis": "bytes-on-disk"
+  {
+   "name": "device_binding",
+   "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.device.json",
+   "value": "serial=emulator-5566; apk_sha256=b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac; counts=null; sha256=071f247a9c5582be98b79d7155e98ec62108605a17f2fd1f9739f484b2a0b3d7"
   },
-  "checks_scope": "row-specific",
-  "adversarial": {
-    "attempted": true,
-    "result": "fail-retained"
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-logcat.txt",
+   "value": "sha256=9bfb6239e5b435147e8154a0e7f9e687774af7cc7b8a8cc8e3c55b15fcf5e58e; bytes=9983"
   },
-  "findings": [],
-  "caveats": [],
-  "notes": "缺陷单 FIX-T01/soak；与 F-055 同一复跑命令；复跑判据=2h 窗口内 FATAL/ANR 新增 0 且 dropbox app 计数无新增。"
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-crash-dropbox.txt",
+   "value": "sha256=22f795896dd6bab17fed59209fec52c95b391c4f73a28dfc624e0e01cd6ed91f; bytes=631803"
+  },
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-06-batch-45/fix/xml/TEST-com.tingyun.smartmistakebook.SchedulingRetentionSliderValueTest.xml",
+   "value": "tests=4; failures=0; errors=0; skipped=0; sha256=0338196472fc725fc9b6def67c54bfcab72441c464b78511d7f41e35971a7ff6"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-08-batch-49/device/soak/soak-samples.csv",
+   "value": "sha256=4b1e4241d261c36bb0032598524eded8aa04200e11a5a59b4e54f26725b2a474; bytes=7684"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/device/soak/soak-samples.csv",
+   "value": "sha256=28fe6ef8de48217dfdf185bb2bb544ccecfab42dc954855772960842217e7e13; bytes=7323"
+  },
+  {
+   "name": "device_binding",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/device/soak-b50.device.json",
+   "value": "serial=emulator-5590; apk_sha256=1bf98b0029032ecb5c243c3ada3ac19183e53e0a912ab630510da12866d34dec; test_apk_sha256=n/a; boot_id=31ecd364-6b2a-4e52-9643-23e681696172; counts={\"errors\": 0, \"evaluated\": 115, \"failures\": 0, \"skipped\": 0, \"tests\": 115}; verdict=PASS; sha256=95a912903a01e474de02e77d4f22cac78c309acbade9b6f329ae5fcf442ab55b"
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "批次50：证据换绑/机械复核重建；结论以台账 verdict 与证据复算为准。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "review_scope": "single-ledger-row",
+ "review_kind": "mechanical-recompute",
+ "ledger_batch": 51,
+ "verified_at": "2026-11-10T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "evidence_freshness": {
+  "current_batch_files": 2,
+  "archived_files": 8,
+  "basis": "bytes-on-disk"
+ }
 }

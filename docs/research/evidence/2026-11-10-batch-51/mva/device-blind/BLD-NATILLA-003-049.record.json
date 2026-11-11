@@ -1,0 +1,51 @@
+{
+  "input_file": "BLD-NATILLA-003.json",
+  "program_sha256": "8e48fd846e17fd24e3f149f393f68db922fd5d0b598e700853eb28d0467c3105",
+  "task_id": "BLD-NATILLA-003",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 23,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "植物细胞（示意）",
+      "widthDu": 128,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bb321eac4b8cf60db86edf2545fc34bc184bca162f51175cd2a6f5a69c4811f9"
+    },
+    {
+      "contentId": "c1",
+      "payload": "细胞壁",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a3e4188b7451a430315aac941eb7b5abb96f4d58155450a55dfedda93633df82"
+    },
+    {
+      "contentId": "c2",
+      "payload": "液泡",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c1cf4a9c99de599825d5c4013ddf67b4a9b55ad5cb6696ef57a4d30b2f09e3d5"
+    },
+    {
+      "contentId": "c3",
+      "payload": "细胞核",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "25604ac98a14b903cb1d50c585bb7ca537c71171beb5010e7aa5ae718577e3e4"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

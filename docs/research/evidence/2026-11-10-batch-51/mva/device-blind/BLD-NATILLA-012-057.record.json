@@ -1,0 +1,51 @@
+{
+  "input_file": "BLD-NATILLA-012.json",
+  "program_sha256": "b3db7ea44d1aa90cbcd67bcf4a74acdf63a4ddef889522ca1a725bd73f487025",
+  "task_id": "BLD-NATILLA-012",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 18,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "小球（自静止释放）",
+      "widthDu": 144,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a80b7057ed195b47e55ed259321a7a7af45fca776a871b3cb344a6ab9398f0f0"
+    },
+    {
+      "contentId": "c1",
+      "payload": "v",
+      "widthDu": 7.636363506317139,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4c94485e0c21ae6c41ce1dfe7b6bfaceea5ab68e40a2476f50208e526f506080"
+    },
+    {
+      "contentId": "c2",
+      "payload": "g",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "cd0aa9856147b6c5b4ff2b7dfee5da20aa38253099ef1b4a64aced233c9afe29"
+    },
+    {
+      "contentId": "c3",
+      "payload": "v 与 g 均竖直向下",
+      "widthDu": 124.7272720336914,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f3bb25cdb8214f12c2ed14792950ad253c3440c4d92bdb70c66cf1fb43b28fc5"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

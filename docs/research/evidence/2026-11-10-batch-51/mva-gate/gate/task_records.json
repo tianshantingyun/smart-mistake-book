@@ -1,0 +1,3941 @@
+[
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 9943,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "segment_length_ratio"
+    ],
+    "end_to_end_latency_ms": 9962,
+    "evaluable": false,
+    "facts": {
+      "ratio_label": [
+        "1",
+        "1:1"
+      ],
+      "segment_count": 1
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 19,
+    "mismatches": [],
+    "missing_keys": [
+      "segment_length_ratio"
+    ],
+    "render_latency_ms": 19,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-001",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 26637,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "segment_length_ratio"
+    ],
+    "end_to_end_latency_ms": 26652,
+    "evaluable": false,
+    "facts": {
+      "ratio_label": [
+        "3:1",
+        "3",
+        "1"
+      ],
+      "segment_count": 1
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 15,
+    "mismatches": [],
+    "missing_keys": [
+      "segment_length_ratio"
+    ],
+    "render_latency_ms": 15,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-002",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 23595,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "segment_length_ratio"
+    ],
+    "end_to_end_latency_ms": 23606,
+    "evaluable": false,
+    "facts": {
+      "ratio_label": [
+        "4:1"
+      ],
+      "segment_count": 1
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 11,
+    "mismatches": [],
+    "missing_keys": [
+      "segment_length_ratio"
+    ],
+    "render_latency_ms": 11,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-003",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 16533,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "segment_length_ratio"
+    ],
+    "end_to_end_latency_ms": 16549,
+    "evaluable": false,
+    "facts": {
+      "ratio_label": [
+        "7",
+        "3",
+        "7:3"
+      ],
+      "segment_count": 1
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 16,
+    "mismatches": [],
+    "missing_keys": [
+      "segment_length_ratio"
+    ],
+    "render_latency_ms": 16,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-004",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 11895,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 11909,
+    "evaluable": true,
+    "facts": {
+      "ratio_label": [
+        "2:3"
+      ],
+      "segment_count": 2,
+      "segment_length_ratio": 0.6707317073170732
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 14,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 0.6666666666666666,
+        "got": 0.6707317073170732,
+        "key": "segment_length_ratio",
+        "kind": "numeric"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 14,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-005",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 18744,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 18757,
+    "evaluable": true,
+    "facts": {
+      "ratio_label": [
+        "3:1"
+      ],
+      "segment_count": 2,
+      "segment_length_ratio": 3.0
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 13,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 13,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-006",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 21405,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "point_x",
+      "point_y"
+    ],
+    "end_to_end_latency_ms": 21428,
+    "evaluable": false,
+    "facts": {
+      "point_label": [
+        "y",
+        "x",
+        "O",
+        "P(5,5)",
+        "第一象限",
+        "5"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 23,
+    "mismatches": [],
+    "missing_keys": [
+      "point_x",
+      "point_y"
+    ],
+    "render_latency_ms": 23,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-007",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 27889,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "point_x",
+      "point_y"
+    ],
+    "end_to_end_latency_ms": 27910,
+    "evaluable": false,
+    "facts": {
+      "point_label": [
+        "x",
+        "y",
+        "O",
+        "P(-2,-3)",
+        "第三象限"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 21,
+    "mismatches": [],
+    "missing_keys": [
+      "point_x",
+      "point_y"
+    ],
+    "render_latency_ms": 21,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-008",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 24012,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "point_x",
+      "point_y"
+    ],
+    "end_to_end_latency_ms": 24038,
+    "evaluable": false,
+    "facts": {
+      "point_label": [
+        "x",
+        "y",
+        "O",
+        "P(6,-2)",
+        "第四象限",
+        "6",
+        "-2"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 26,
+    "mismatches": [],
+    "missing_keys": [
+      "point_x",
+      "point_y"
+    ],
+    "render_latency_ms": 26,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-009",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 35053,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "point_x",
+      "point_y"
+    ],
+    "end_to_end_latency_ms": 35077,
+    "evaluable": false,
+    "facts": {
+      "point_label": [
+        "P(-3,2)",
+        "第二象限",
+        "x",
+        "y",
+        "O",
+        "-3",
+        "2"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 24,
+    "mismatches": [],
+    "missing_keys": [
+      "point_x",
+      "point_y"
+    ],
+    "render_latency_ms": 24,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-010",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 50476,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "point_x",
+      "point_y"
+    ],
+    "end_to_end_latency_ms": 50496,
+    "evaluable": false,
+    "facts": {
+      "point_label": [
+        "x",
+        "y",
+        "O",
+        "-2",
+        "-3",
+        "P(-2,-3)",
+        "第三象限"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 20,
+    "mismatches": [],
+    "missing_keys": [
+      "point_x",
+      "point_y"
+    ],
+    "render_latency_ms": 20,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-011",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 48319,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "ascending_order"
+    ],
+    "end_to_end_latency_ms": 48339,
+    "evaluable": false,
+    "facts": {
+      "marked_points": 2,
+      "value_of_1_3": 0.3333333333063962
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 20,
+    "mismatches": [],
+    "missing_keys": [
+      "ascending_order"
+    ],
+    "render_latency_ms": 20,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-012",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 17751,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 17780,
+    "evaluable": true,
+    "facts": {
+      "ascending_order": [
+        "0",
+        "1"
+      ],
+      "marked_points": 2,
+      "value_of_1_3": 0.3333333332776267
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 29,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "1/3",
+          "1/2"
+        ],
+        "got": [
+          "0",
+          "1"
+        ],
+        "key": "ascending_order",
+        "kind": "ordering"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 29,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-013",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 24356,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 24387,
+    "evaluable": true,
+    "facts": {
+      "ascending_order": [
+        "1/2",
+        "2/3"
+      ],
+      "marked_points": 0,
+      "value_of_1_2": 0.5000000000206251
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 31,
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": 2,
+        "got": 0,
+        "key": "marked_points",
+        "kind": "count"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 31,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-014",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 20988,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 21011,
+    "evaluable": true,
+    "facts": {
+      "ascending_order": [
+        "0",
+        "1"
+      ],
+      "marked_points": 2,
+      "value_of_1_3": 0.33333333333333326
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 23,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "1/3",
+          "1/2"
+        ],
+        "got": [
+          "0",
+          "1"
+        ],
+        "key": "ascending_order",
+        "kind": "ordering"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 23,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-015",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 27951,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 27974,
+    "evaluable": true,
+    "facts": {
+      "real_distance_cm": 150000.0,
+      "scale_label": [
+        "比例尺 1:25000",
+        "图上距离 6 厘米",
+        "实际距离 150000 厘米",
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6 厘米"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 23,
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "1:25000"
+        ],
+        "got": [
+          "比例尺 1:25000",
+          "图上距离 6 厘米",
+          "实际距离 150000 厘米",
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6 厘米"
+        ],
+        "key": "scale_label",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 23,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-016",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 14461,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 14479,
+    "evaluable": true,
+    "facts": {
+      "real_distance_cm": 70000.0,
+      "scale_label": [
+        "比例尺 1:10000",
+        "图上距离 7 厘米",
+        "0",
+        "7",
+        "实际距离 70000 厘米"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 18,
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "1:10000"
+        ],
+        "got": [
+          "比例尺 1:10000",
+          "图上距离 7 厘米",
+          "0",
+          "7",
+          "实际距离 70000 厘米"
+        ],
+        "key": "scale_label",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-017",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 11855,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 11868,
+    "evaluable": true,
+    "facts": {
+      "real_distance_cm": 200000.0,
+      "scale_label": [
+        "比例尺 1:50000",
+        "图上距离 4 厘米",
+        "实际距离 200000 厘米"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 13,
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "1:50000"
+        ],
+        "got": [
+          "比例尺 1:50000",
+          "图上距离 4 厘米",
+          "实际距离 200000 厘米"
+        ],
+        "key": "scale_label",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 13,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-018",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 16456,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 16469,
+    "evaluable": true,
+    "facts": {
+      "real_distance_cm": 150000.0,
+      "scale_label": [
+        "图上两地距离 6 厘米",
+        "实际距离 150000 厘米",
+        "比例尺 1:25000"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 13,
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "1:25000"
+        ],
+        "got": [
+          "图上两地距离 6 厘米",
+          "实际距离 150000 厘米",
+          "比例尺 1:25000"
+        ],
+        "key": "scale_label",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 13,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-019",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 29191,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 29216,
+    "evaluable": true,
+    "facts": {
+      "real_distance_cm": 70000.0,
+      "scale_label": [
+        "比例尺 1:10000",
+        "单位：厘米",
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "图上距离 7 厘米",
+        "实际距离 70000 厘米"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "proportion_coordinates",
+    "judge_facts": {},
+    "latency_ms": 25,
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "1:10000"
+        ],
+        "got": [
+          "比例尺 1:10000",
+          "单位：厘米",
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "图上距离 7 厘米",
+          "实际距离 70000 厘米"
+        ],
+        "key": "scale_label",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 25,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-020",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 81744,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "end_to_end_latency_ms": 81776,
+    "evaluable": false,
+    "facts": {
+      "axis_labels": [
+        "F(x) = F0(1 - x/h)",
+        "x",
+        "F",
+        "0",
+        "h",
+        "h/2",
+        "F0",
+        "F0/2",
+        "W = (3/8) F0 h",
+        "W/(F0 h) = 3/8 = 0.375"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {},
+    "latency_ms": 32,
+    "mismatches": [],
+    "missing_keys": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "render_latency_ms": 32,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-001",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 43580,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "end_to_end_latency_ms": 43609,
+    "evaluable": false,
+    "facts": {
+      "axis_labels": [
+        "F(x) = F₀(1 - x/h)",
+        "F(x)",
+        "F₀",
+        "F₀/2",
+        "0",
+        "h/2",
+        "h",
+        "x",
+        "W = 3/8 F₀h = 0.375 F₀h",
+        "W"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {},
+    "latency_ms": 29,
+    "mismatches": [],
+    "missing_keys": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "render_latency_ms": 29,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-002",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 48518,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "end_to_end_latency_ms": 48549,
+    "evaluable": false,
+    "facts": {
+      "axis_labels": [
+        "F(x)=F0(1-x/h)",
+        "x",
+        "F(x)",
+        "h",
+        "h/2",
+        "F0",
+        "F0/2",
+        "W/(F0h)=3/8=0.375",
+        "0≤x≤h",
+        "阴影面积 W"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {},
+    "latency_ms": 31,
+    "mismatches": [],
+    "missing_keys": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "render_latency_ms": 31,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-003",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "author_elapsed_ms": 31116,
+    "author_status": "OK",
+    "end_to_end_latency_ms": 31144,
+    "evaluable": false,
+    "group": "mechanics_phases",
+    "latency_ms": 28,
+    "reason": "渲染未产出 DrawOps",
+    "render_latency_ms": 28,
+    "task_id": "BLD-MECHPHASE-004",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 41941,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "end_to_end_latency_ms": 41975,
+    "evaluable": false,
+    "facts": {
+      "axis_labels": [
+        "F(x)=F₀(1-x/h), 0≤x≤h",
+        "x",
+        "F(x)",
+        "F₀",
+        "h",
+        "h/2",
+        "0",
+        "阴影面积",
+        "W/(F₀h) = 3/8 = 0.375"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {},
+    "latency_ms": 34,
+    "mismatches": [],
+    "missing_keys": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "render_latency_ms": 34,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-005",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 46693,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "end_to_end_latency_ms": 46718,
+    "evaluable": false,
+    "facts": {
+      "axis_labels": [
+        "F₀",
+        "0",
+        "h/2",
+        "h",
+        "x",
+        "F(x)=F₀(1-x/h)",
+        "W/(F₀h) = 3/8 = 0.375"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {},
+    "latency_ms": 25,
+    "mismatches": [],
+    "missing_keys": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "render_latency_ms": 25,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-006",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 57829,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 57852,
+    "evaluable": true,
+    "facts": {
+      "force_labels": [
+        "G",
+        "N",
+        "f",
+        "30°"
+      ],
+      "friction_direction": "along_incline_up",
+      "gravity_direction": "down"
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {
+      "friction_direction": "along_incline_up",
+      "gravity_direction": "down"
+    },
+    "latency_ms": 23,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "重力G",
+          "支持力N",
+          "摩擦力f"
+        ],
+        "got": [
+          "G",
+          "N",
+          "f",
+          "30°"
+        ],
+        "key": "force_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 23,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-007",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 43966,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 43985,
+    "evaluable": true,
+    "facts": {
+      "force_labels": [
+        "F",
+        "瓶内气压与摩擦的合力",
+        "木塞"
+      ],
+      "pressure_friction_resultant_direction": "down",
+      "pull_direction": "up"
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {
+      "pressure_friction_resultant_direction": "down",
+      "pull_direction": "up"
+    },
+    "latency_ms": 19,
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "拉力F"
+        ],
+        "got": [
+          "F",
+          "瓶内气压与摩擦的合力",
+          "木塞"
+        ],
+        "key": "force_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 19,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-008",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 52871,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 52893,
+    "evaluable": true,
+    "facts": {
+      "force_labels": [
+        "30°",
+        "G",
+        "N",
+        "f"
+      ],
+      "friction_direction": "along_incline_up",
+      "gravity_direction": "down"
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {
+      "friction_direction": "along_incline_up",
+      "gravity_direction": "down"
+    },
+    "latency_ms": 22,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "重力G",
+          "支持力N",
+          "摩擦力f"
+        ],
+        "got": [
+          "30°",
+          "G",
+          "N",
+          "f"
+        ],
+        "key": "force_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 22,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-009",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 80194,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 80212,
+    "evaluable": true,
+    "facts": {
+      "force_labels": [
+        "木塞受力示意图（示意）",
+        "F（拉力）",
+        "瓶内气压与摩擦的合力",
+        "木塞"
+      ],
+      "pressure_friction_resultant_direction": "down",
+      "pull_direction": "up"
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {
+      "pressure_friction_resultant_direction": "down",
+      "pull_direction": "up"
+    },
+    "latency_ms": 18,
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "拉力F"
+        ],
+        "got": [
+          "木塞受力示意图（示意）",
+          "F（拉力）",
+          "瓶内气压与摩擦的合力",
+          "木塞"
+        ],
+        "key": "force_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-010",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 78508,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 78533,
+    "evaluable": true,
+    "facts": {
+      "force_labels": [
+        "G（重力，竖直向下）",
+        "N（支持力，垂直斜面）",
+        "f（摩擦力，沿斜面向上）",
+        "30°",
+        "物块静止"
+      ],
+      "friction_direction": "along_incline_up",
+      "gravity_direction": "down"
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {
+      "friction_direction": "along_incline_up",
+      "gravity_direction": "down"
+    },
+    "latency_ms": 25,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "重力G",
+          "支持力N",
+          "摩擦力f"
+        ],
+        "got": [
+          "G（重力，竖直向下）",
+          "N（支持力，垂直斜面）",
+          "f（摩擦力，沿斜面向上）",
+          "30°",
+          "物块静止"
+        ],
+        "key": "force_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 25,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-011",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 127069,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "u_at_half_height"
+    ],
+    "end_to_end_latency_ms": 127112,
+    "evaluable": false,
+    "facts": {
+      "baseline_label": [
+        "h",
+        "x",
+        "拔塞过程三阶段（示意）",
+        "u = x / h = 0, 1/2, 1",
+        "位移按比例；u=1 时木塞底部到达瓶口",
+        "瓶口基准线",
+        "初始底部位",
+        "u = 0",
+        "u = 1/2",
+        "u = 1"
+      ],
+      "phase_order": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {
+      "phase_order": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ]
+    },
+    "latency_ms": 43,
+    "mismatches": [],
+    "missing_keys": [
+      "u_at_half_height"
+    ],
+    "render_latency_ms": 43,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-012",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 107285,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "u_at_half_height"
+    ],
+    "end_to_end_latency_ms": 107316,
+    "evaluable": false,
+    "facts": {
+      "baseline_label": [
+        "木塞拔出过程三阶段：木塞相对瓶口基准的位置",
+        "u = x/h = 0",
+        "u = x/h = 1/2",
+        "u = x/h = 1",
+        "瓶口基准线（水平）",
+        "u = 1 时，木塞底部到达瓶口基准线",
+        "x：木塞底部上移量；h：从初始位置到瓶口的位移；三阶段按真实比例：0、h/2、h"
+      ],
+      "phase_order": [
+        "u=x/h=0",
+        "u=x/h=1/2",
+        "u=x/h=1"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {
+      "phase_order": [
+        "u=x/h=0",
+        "u=x/h=1/2",
+        "u=x/h=1"
+      ]
+    },
+    "latency_ms": 31,
+    "mismatches": [],
+    "missing_keys": [
+      "u_at_half_height"
+    ],
+    "render_latency_ms": 31,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-013",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 66171,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "u_at_half_height"
+    ],
+    "end_to_end_latency_ms": 66205,
+    "evaluable": false,
+    "facts": {
+      "baseline_label": [
+        "拔塞过程三阶段",
+        "u = x / h",
+        "瓶口基准线",
+        "位移按真实比例",
+        "u = 0",
+        "x = 0",
+        "u = 1/2",
+        "x = h/2",
+        "u = 1",
+        "x = h"
+      ],
+      "phase_order": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {
+      "phase_order": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ]
+    },
+    "latency_ms": 34,
+    "mismatches": [],
+    "missing_keys": [
+      "u_at_half_height"
+    ],
+    "render_latency_ms": 34,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-014",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 67572,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "u_at_half_height"
+    ],
+    "end_to_end_latency_ms": 67601,
+    "evaluable": false,
+    "facts": {
+      "baseline_label": [
+        "u = x/h = 0",
+        "x = 0",
+        "u = x/h = 1/2",
+        "x = h/2",
+        "u = x/h = 1",
+        "x = h",
+        "瓶口基准线（水平）",
+        "木塞",
+        "h",
+        "位移 x = u·h",
+        "u=1 时木塞底部到达瓶口"
+      ],
+      "phase_order": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {
+      "phase_order": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ]
+    },
+    "latency_ms": 29,
+    "mismatches": [],
+    "missing_keys": [
+      "u_at_half_height"
+    ],
+    "render_latency_ms": 29,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-015",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 54556,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "u_at_half_height"
+    ],
+    "end_to_end_latency_ms": 54582,
+    "evaluable": false,
+    "facts": {
+      "baseline_label": [
+        "u = x / h",
+        "u = 0",
+        "u = 1/2",
+        "u = 1",
+        "瓶口基准线（保持水平）",
+        "x",
+        "位移 x = u·h，木塞底部到基准线距离 =（1 - u）·h，三段按真实比例绘制（示意图）"
+      ],
+      "phase_order": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {
+      "phase_order": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ]
+    },
+    "latency_ms": 26,
+    "mismatches": [],
+    "missing_keys": [
+      "u_at_half_height"
+    ],
+    "render_latency_ms": 26,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-016",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 51013,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "resultant_amplitude"
+    ],
+    "end_to_end_latency_ms": 51064,
+    "evaluable": false,
+    "facts": {
+      "wave_count": 2,
+      "wave_labels": [
+        "y1 = sin θ（振幅 1）",
+        "y2 = 0.5 sin θ（振幅 0.5）",
+        "y = y1 + y2（振幅 1.5）",
+        "1.5",
+        "-1.5",
+        "O",
+        "θ",
+        "y"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {
+      "wave_count": 2
+    },
+    "latency_ms": 51,
+    "mismatches": [],
+    "missing_keys": [
+      "resultant_amplitude"
+    ],
+    "render_latency_ms": 51,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-017",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_NODE_COUNT: scene has more than 256 nodes\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-compiler.js:78:28)\n  ",
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "author_elapsed_ms": 92317,
+    "author_status": "OK",
+    "end_to_end_latency_ms": 92403,
+    "evaluable": false,
+    "group": "mechanics_phases",
+    "latency_ms": 86,
+    "reason": "渲染未产出 DrawOps",
+    "render_latency_ms": 86,
+    "task_id": "BLD-MECHPHASE-018",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 41339,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "resultant_amplitude"
+    ],
+    "end_to_end_latency_ms": 41423,
+    "evaluable": false,
+    "facts": {
+      "wave_count": 2,
+      "wave_labels": [
+        "y₁ = 0.8 sin t（振幅 0.8）",
+        "y₂ = 0.4 sin t（振幅 0.4）",
+        "合成 y = y₁ + y₂（合成振幅 1.2）",
+        "t",
+        "y",
+        "同频同相"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {
+      "wave_count": 2
+    },
+    "latency_ms": 84,
+    "mismatches": [],
+    "missing_keys": [
+      "resultant_amplitude"
+    ],
+    "render_latency_ms": 84,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-019",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 44931,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "resultant_amplitude"
+    ],
+    "end_to_end_latency_ms": 44994,
+    "evaluable": false,
+    "facts": {
+      "wave_count": 2,
+      "wave_labels": [
+        "y₁、y₂：振幅各 1.5（两曲线重合）",
+        "y₁ + y₂：振幅 3",
+        "3",
+        "1.5",
+        "-1.5",
+        "-3",
+        "O",
+        "x"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "mechanics_phases",
+    "judge_facts": {
+      "wave_count": 2
+    },
+    "latency_ms": 63,
+    "mismatches": [],
+    "missing_keys": [
+      "resultant_amplitude"
+    ],
+    "render_latency_ms": 63,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-020",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 85429,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "step_order"
+    ],
+    "end_to_end_latency_ms": 85465,
+    "evaluable": false,
+    "facts": {
+      "step_count": 9
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 36,
+    "mismatches": [],
+    "missing_keys": [
+      "step_order"
+    ],
+    "render_latency_ms": 36,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-001",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 42951,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "step_order"
+    ],
+    "end_to_end_latency_ms": 42988,
+    "evaluable": false,
+    "facts": {
+      "step_count": 6
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 37,
+    "mismatches": [],
+    "missing_keys": [
+      "step_order"
+    ],
+    "render_latency_ms": 37,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-002",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 55846,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "step_order"
+    ],
+    "end_to_end_latency_ms": 55895,
+    "evaluable": false,
+    "facts": {
+      "step_count": 9
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 49,
+    "mismatches": [],
+    "missing_keys": [
+      "step_order"
+    ],
+    "render_latency_ms": 49,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-003",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 30513,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "step_order"
+    ],
+    "end_to_end_latency_ms": 30549,
+    "evaluable": false,
+    "facts": {
+      "step_count": 8
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 36,
+    "mismatches": [],
+    "missing_keys": [
+      "step_order"
+    ],
+    "render_latency_ms": 36,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-004",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 24770,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "step_order"
+    ],
+    "end_to_end_latency_ms": 24802,
+    "evaluable": false,
+    "facts": {
+      "step_count": 6
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 32,
+    "mismatches": [],
+    "missing_keys": [
+      "step_order"
+    ],
+    "render_latency_ms": 32,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-005",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 54691,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "step_order"
+    ],
+    "end_to_end_latency_ms": 54730,
+    "evaluable": false,
+    "facts": {
+      "step_count": 10
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 39,
+    "mismatches": [],
+    "missing_keys": [
+      "step_order"
+    ],
+    "render_latency_ms": 39,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-006",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 53007,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "step_order"
+    ],
+    "end_to_end_latency_ms": 53038,
+    "evaluable": false,
+    "facts": {
+      "step_count": 6
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 31,
+    "mismatches": [],
+    "missing_keys": [
+      "step_order"
+    ],
+    "render_latency_ms": 31,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-007",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 97970,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 98026,
+    "evaluable": true,
+    "facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式",
+        "1",
+        "x²",
+        "-",
+        "4",
+        "x",
+        "+",
+        "= 0",
+        "x =",
+        "-b",
+        "±",
+        "√(",
+        "b²",
+        "a",
+        "c",
+        ")",
+        "2",
+        "a = 1",
+        "b = -4",
+        "c = 4",
+        "Δ = b² - 4ac = 0"
+      ],
+      "discriminant": 0.0
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 56,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "a",
+          "b",
+          "c"
+        ],
+        "got": [
+          "一元二次方程求根公式",
+          "1",
+          "x²",
+          "-",
+          "4",
+          "x",
+          "+",
+          "= 0",
+          "x =",
+          "-b",
+          "±",
+          "√(",
+          "b²",
+          "a",
+          "c",
+          ")",
+          "2",
+          "a = 1",
+          "b = -4",
+          "c = 4",
+          "Δ = b² - 4ac = 0"
+        ],
+        "key": "coefficient_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 56,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-008",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 76793,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 76821,
+    "evaluable": true,
+    "facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式图示",
+        "1x² - 4x + 4 = 0",
+        "x = (-b ± √(b² - 4ac)) / (2a)",
+        "b = -4",
+        "c = 4",
+        "a = 1",
+        "判别式：Δ = b² - 4ac",
+        "Δ = (-4)² - 4·1·4 = 16 - 16 = 0",
+        "x = (-(-4) ± √0) / (2·1) = (4 ± 0) / 2 = 2"
+      ],
+      "discriminant": 0.0
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 28,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "a",
+          "b",
+          "c"
+        ],
+        "got": [
+          "一元二次方程求根公式图示",
+          "1x² - 4x + 4 = 0",
+          "x = (-b ± √(b² - 4ac)) / (2a)",
+          "b = -4",
+          "c = 4",
+          "a = 1",
+          "判别式：Δ = b² - 4ac",
+          "Δ = (-4)² - 4·1·4 = 16 - 16 = 0",
+          "x = (-(-4) ± √0) / (2·1) = (4 ± 0) / 2 = 2"
+        ],
+        "key": "coefficient_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 28,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-009",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 64868,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 64898,
+    "evaluable": true,
+    "facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式",
+        "3x² - 5x - 2 = 0",
+        "x = (-b ± √(b² - 4ac)) / (2a)",
+        "a = 3",
+        "b = -5",
+        "c = -2",
+        "Δ = b² - 4ac = 49",
+        "判别式"
+      ],
+      "discriminant": 49.0
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 30,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "a",
+          "b",
+          "c"
+        ],
+        "got": [
+          "一元二次方程求根公式",
+          "3x² - 5x - 2 = 0",
+          "x = (-b ± √(b² - 4ac)) / (2a)",
+          "a = 3",
+          "b = -5",
+          "c = -2",
+          "Δ = b² - 4ac = 49",
+          "判别式"
+        ],
+        "key": "coefficient_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 30,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-010",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 78793,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 78836,
+    "evaluable": true,
+    "facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式",
+        "2x²",
+        "+ 4x",
+        "- 6",
+        "= 0",
+        "a = 2",
+        "b = 4",
+        "c = -6",
+        "求根公式",
+        "x = ( -b ± √(b² - 4ac) ) / (2a)",
+        "Δ = b² - 4ac = 64",
+        "代入：Δ = 4² - 4·2·(-6) = 16 + 48 = 64"
+      ],
+      "discriminant": 64.0
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 43,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "a",
+          "b",
+          "c"
+        ],
+        "got": [
+          "一元二次方程求根公式",
+          "2x²",
+          "+ 4x",
+          "- 6",
+          "= 0",
+          "a = 2",
+          "b = 4",
+          "c = -6",
+          "求根公式",
+          "x = ( -b ± √(b² - 4ac) ) / (2a)",
+          "Δ = b² - 4ac = 64",
+          "代入：Δ = 4² - 4·2·(-6) = 16 + 48 = 64"
+        ],
+        "key": "coefficient_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 43,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-011",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 77095,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 77134,
+    "evaluable": true,
+    "facts": {
+      "coefficient_labels": [
+        "一元二次方程：1x² - 3x + 2 = 0",
+        "求根公式",
+        "x =",
+        "-",
+        "b",
+        "±",
+        "√(",
+        "b²",
+        "- 4",
+        "a",
+        "c",
+        ")",
+        "2",
+        "a = 1",
+        "b = -3",
+        "c = 2",
+        "Δ = b² - 4ac = 1"
+      ],
+      "discriminant": 1.0
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 39,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 39,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-012",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 128074,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 128129,
+    "evaluable": true,
+    "facts": {
+      "coefficient_labels": [
+        "2",
+        "x²",
+        "-7",
+        "x",
+        "+",
+        "3",
+        "=",
+        "0",
+        "a = 2",
+        "b = -7",
+        "c = 3",
+        "x =",
+        "-",
+        "b",
+        "±",
+        "√(",
+        "² - 4",
+        "a",
+        "c",
+        ")",
+        "Δ = b² - 4ac",
+        "= (-7)² - 4·2·3",
+        "= 49 - 24",
+        "Δ = 25"
+      ],
+      "discriminant": 25.0
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 55,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 55,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-013",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 44508,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 44544,
+    "evaluable": true,
+    "facts": {
+      "coefficient_labels": [
+        "2",
+        "x²",
+        "- 7",
+        "x",
+        "+ 3",
+        "= 0",
+        "a = 2",
+        "b = -7",
+        "c = 3",
+        "x =",
+        "-b ± √(b² - 4ac)",
+        "2a",
+        "Δ = b² - 4ac = 25"
+      ],
+      "discriminant": 25.0
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 36,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "a",
+          "b",
+          "c"
+        ],
+        "got": [
+          "2",
+          "x²",
+          "- 7",
+          "x",
+          "+ 3",
+          "= 0",
+          "a = 2",
+          "b = -7",
+          "c = 3",
+          "x =",
+          "-b ± √(b² - 4ac)",
+          "2a",
+          "Δ = b² - 4ac = 25"
+        ],
+        "key": "coefficient_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 36,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-014",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 37753,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 37780,
+    "evaluable": true,
+    "facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "速度单位换算",
+        "换算项目",
+        "换算算式",
+        "换算结果",
+        "54 km/h → m/s",
+        "54 ÷ 3.6",
+        "15.0 m/s",
+        "换算依据：1 m/s = 3.6 km/h，故 km/h 数值除以 3.6；结果保留三位有效数字。"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 27,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 15.0,
+        "got": 3.6,
+        "key": "converted_ms",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "km/h",
+          "m/s"
+        ],
+        "got": [
+          "速度单位换算",
+          "换算项目",
+          "换算算式",
+          "换算结果",
+          "54 km/h → m/s",
+          "54 ÷ 3.6",
+          "15.0 m/s",
+          "换算依据：1 m/s = 3.6 km/h，故 km/h 数值除以 3.6；结果保留三位有效数字。"
+        ],
+        "key": "unit_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 27,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-015",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 16872,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 16899,
+    "evaluable": true,
+    "facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "单位换算表：km/h 换算为 m/s",
+        "原值",
+        "换算算式（除以 3.6）",
+        "结果（三位有效数字）",
+        "54 km/h",
+        "54 ÷ 3.6",
+        "15.0 m/s",
+        "依据：m/s = (km/h) ÷ 3.6"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 27,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 15.0,
+        "got": 3.6,
+        "key": "converted_ms",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "km/h",
+          "m/s"
+        ],
+        "got": [
+          "单位换算表：km/h 换算为 m/s",
+          "原值",
+          "换算算式（除以 3.6）",
+          "结果（三位有效数字）",
+          "54 km/h",
+          "54 ÷ 3.6",
+          "15.0 m/s",
+          "依据：m/s = (km/h) ÷ 3.6"
+        ],
+        "key": "unit_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 27,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-016",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 26095,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 26131,
+    "evaluable": true,
+    "facts": {
+      "converted_ms": 20.0,
+      "unit_labels": [
+        "单位换算表",
+        "72 km/h 换算为 m/s（除以 3.6）",
+        "项目",
+        "内容",
+        "已知量",
+        "v = 72 km/h",
+        "换算关系",
+        "1 m/s = 3.6 km/h",
+        "换算算式",
+        "72 ÷ 3.6 = 20.0",
+        "结果",
+        "20.0 m/s",
+        "结果保留三位有效数字"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 36,
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "km/h",
+          "m/s"
+        ],
+        "got": [
+          "单位换算表",
+          "72 km/h 换算为 m/s（除以 3.6）",
+          "项目",
+          "内容",
+          "已知量",
+          "v = 72 km/h",
+          "换算关系",
+          "1 m/s = 3.6 km/h",
+          "换算算式",
+          "72 ÷ 3.6 = 20.0",
+          "结果",
+          "20.0 m/s",
+          "结果保留三位有效数字"
+        ],
+        "key": "unit_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 36,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-017",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 24491,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 24521,
+    "evaluable": true,
+    "facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "单位换算表",
+        "物理量",
+        "换算算式",
+        "换算结果",
+        "速度",
+        "126 ÷ 3.6",
+        "35.0 m/s",
+        "126 km/h = 126 ÷ 3.6 m/s = 35.0 m/s",
+        "依据：1 m/s = 3.6 km/h，故 km/h → m/s 需除以 3.6；结果保留三位有效数字"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 30,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 35.0,
+        "got": 3.6,
+        "key": "converted_ms",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "km/h",
+          "m/s"
+        ],
+        "got": [
+          "单位换算表",
+          "物理量",
+          "换算算式",
+          "换算结果",
+          "速度",
+          "126 ÷ 3.6",
+          "35.0 m/s",
+          "126 km/h = 126 ÷ 3.6 m/s = 35.0 m/s",
+          "依据：1 m/s = 3.6 km/h，故 km/h → m/s 需除以 3.6；结果保留三位有效数字"
+        ],
+        "key": "unit_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 30,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-018",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 50621,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 50661,
+    "evaluable": true,
+    "facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "速度单位换算表",
+        "原始值",
+        "换算关系",
+        "换算算式",
+        "换算结果",
+        "90 km/h",
+        "km/h ÷ 3.6 = m/s",
+        "90 ÷ 3.6",
+        "25.0 m/s",
+        "换算依据：1 m/s = 3.6 km/h",
+        "结果保留三位有效数字"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "flow_formula",
+    "judge_facts": {},
+    "latency_ms": 40,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 25.0,
+        "got": 3.6,
+        "key": "converted_ms",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "km/h",
+          "m/s"
+        ],
+        "got": [
+          "速度单位换算表",
+          "原始值",
+          "换算关系",
+          "换算算式",
+          "换算结果",
+          "90 km/h",
+          "km/h ÷ 3.6 = m/s",
+          "90 ÷ 3.6",
+          "25.0 m/s",
+          "换算依据：1 m/s = 3.6 km/h",
+          "结果保留三位有效数字"
+        ],
+        "key": "unit_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 40,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-019",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "author_elapsed_ms": 32981,
+    "author_status": "OK",
+    "end_to_end_latency_ms": 33014,
+    "evaluable": false,
+    "group": "flow_formula",
+    "latency_ms": 33,
+    "reason": "渲染未产出 DrawOps",
+    "render_latency_ms": 33,
+    "task_id": "BLD-FLOWFORM-020",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "source_rebuild",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-SRCREBLD-001",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 19551,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 19569,
+    "evaluable": true,
+    "facts": {
+      "label_count": 3,
+      "preserved_labels": [
+        "O",
+        "P",
+        "F"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 18,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "重心O",
+          "支点P",
+          "拉力F"
+        ],
+        "got": [
+          "O",
+          "P",
+          "F"
+        ],
+        "key": "preserved_labels",
+        "kind": "label_set"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-002",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "NOT_GENERATE",
+    "evaluable": false,
+    "group": "source_rebuild",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-SRCREBLD-003",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 51073,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 51093,
+    "evaluable": true,
+    "facts": {
+      "label_count": 4,
+      "preserved_labels": [
+        "入射光线",
+        "法线",
+        "反射光线",
+        "反射角"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 20,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 20,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-004",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 39396,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 39420,
+    "evaluable": true,
+    "facts": {
+      "label_count": 4,
+      "preserved_labels": [
+        "灯泡",
+        "电流表",
+        "电源",
+        "开关"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 24,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 24,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-005",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "NOT_GENERATE",
+    "evaluable": false,
+    "group": "source_rebuild",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-SRCREBLD-006",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "source_rebuild",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-SRCREBLD-007",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 6725,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 6740,
+    "evaluable": true,
+    "facts": {
+      "axis_max": 1.0,
+      "axis_min": 0.0,
+      "tick_count": 5
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 15,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 15,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-008",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 13055,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 13077,
+    "evaluable": true,
+    "facts": {
+      "axis_max": 5.0,
+      "axis_min": -5.0,
+      "tick_count": 11
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 22,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 22,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-009",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 29249,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 29281,
+    "evaluable": true,
+    "facts": {
+      "axis_max": 5.0,
+      "axis_min": -5.0,
+      "tick_count": 11
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 32,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 32,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-010",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 10435,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 10455,
+    "evaluable": true,
+    "facts": {
+      "axis_max": 100.0,
+      "axis_min": 0.0,
+      "tick_count": 6
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 20,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 20,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-011",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 22312,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 22330,
+    "evaluable": true,
+    "facts": {
+      "axis_max": 10.0,
+      "axis_min": -10.0,
+      "tick_count": 6
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 18,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-012",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 12633,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 12650,
+    "evaluable": true,
+    "facts": {
+      "axis_max": 1.0,
+      "axis_min": 0.0,
+      "tick_count": 5
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 17,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 17,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-013",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 6188,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 6214,
+    "evaluable": true,
+    "facts": {
+      "axis_max": 5.0,
+      "axis_min": -5.0,
+      "tick_count": 11
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 26,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 26,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-014",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 8655,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 8666,
+    "evaluable": true,
+    "facts": {
+      "cell_count": 16,
+      "column_count": 4.0,
+      "row_count": 4.0
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 11,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 11,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-015",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 14754,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 14773,
+    "evaluable": true,
+    "facts": {
+      "cell_count": 12,
+      "column_count": 4.0,
+      "row_count": 3.0
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 19,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 19,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-016",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 12904,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 12922,
+    "evaluable": true,
+    "facts": {
+      "cell_count": 24,
+      "column_count": 4.0,
+      "row_count": 6.0
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 18,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-017",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 23534,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 23553,
+    "evaluable": true,
+    "facts": {
+      "cell_count": 24,
+      "column_count": 4.0,
+      "row_count": 6.0
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 19,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 19,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-018",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 7029,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 7041,
+    "evaluable": true,
+    "facts": {
+      "cell_count": 12,
+      "column_count": 4.0,
+      "row_count": 3.0
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 12,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 12,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-019",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 8709,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 8723,
+    "evaluable": true,
+    "facts": {
+      "cell_count": 25,
+      "column_count": 5.0,
+      "row_count": 5.0
+    },
+    "geometry_ok": true,
+    "group": "source_rebuild",
+    "judge_facts": {},
+    "latency_ms": 14,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 14,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-020",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-001",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-002",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "NOT_GENERATE",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-003",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "NOT_GENERATE",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-004",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-005",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-006",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "NOT_GENERATE",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-007",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-008",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-009",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-010",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-011",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-012",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-013",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-014",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-015",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-016",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-017",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 20429,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 20600,
+    "evaluable": true,
+    "facts": {
+      "kept_label_count": 4,
+      "kept_print_labels": [
+        "选择题　第1题",
+        "选择题　第2题",
+        "填空题　第3题",
+        "语义清图 · 非原像素修复"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "handwriting_removal",
+    "judge_facts": {},
+    "latency_ms": 171,
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "选择题第1题",
+          "选择题第2题",
+          "填空题第3题"
+        ],
+        "got": [
+          "选择题　第1题",
+          "选择题　第2题",
+          "填空题　第3题",
+          "语义清图 · 非原像素修复"
+        ],
+        "key": "kept_print_labels",
+        "kind": "label_set"
+      },
+      {
+        "critical": false,
+        "expected": 3,
+        "got": 4,
+        "key": "kept_label_count",
+        "kind": "count"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 171,
+    "render_ok": true,
+    "task_id": "BLD-DEHANDWR-018",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 19413,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 19446,
+    "evaluable": true,
+    "facts": {
+      "kept_label_count": 3,
+      "kept_print_labels": [
+        "选择题第1题",
+        "选择题第2题",
+        "说明：本图为语义清图，仅保留已确认的印刷题号与文字，非原扫描像素修复。"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "handwriting_removal",
+    "judge_facts": {},
+    "latency_ms": 33,
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": 2,
+        "got": 3,
+        "key": "kept_label_count",
+        "kind": "count"
+      }
+    ],
+    "missing_keys": [],
+    "render_latency_ms": 33,
+    "render_ok": true,
+    "task_id": "BLD-DEHANDWR-019",
+    "text_ok": true,
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_status": "MISSING",
+    "author_status": "INVALID_PROPOSAL",
+    "evaluable": false,
+    "group": "handwriting_removal",
+    "reason": "适配器没有该题 record",
+    "task_id": "BLD-DEHANDWR-020",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 59471,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 59494,
+    "evaluable": true,
+    "facts": {
+      "organelle_labels": [
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {},
+    "latency_ms": 23,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 23,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-001",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 57963,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 57984,
+    "evaluable": true,
+    "facts": {
+      "organelle_labels": [
+        "植物细胞结构示意图",
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {},
+    "latency_ms": 21,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 21,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-002",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 66632,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 66652,
+    "evaluable": true,
+    "facts": {
+      "organelle_labels": [
+        "植物细胞结构（示意图）",
+        "细胞壁",
+        "液泡",
+        "细胞核"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {},
+    "latency_ms": 20,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 20,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-003",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 69516,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 69536,
+    "evaluable": true,
+    "facts": {
+      "organelle_labels": [
+        "植物细胞结构示意图",
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {},
+    "latency_ms": 20,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 20,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-004",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 59280,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 59299,
+    "evaluable": true,
+    "facts": {
+      "organelle_labels": [
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {},
+    "latency_ms": 19,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 19,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-005",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 59519,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 59537,
+    "evaluable": true,
+    "facts": {
+      "organelle_labels": [
+        "细胞壁",
+        "液泡",
+        "细胞核"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {},
+    "latency_ms": 18,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-006",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 39119,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 39137,
+    "evaluable": true,
+    "facts": {
+      "organelle_labels": [
+        "植物细胞结构示意",
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {},
+    "latency_ms": 18,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-007",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 30737,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 30754,
+    "evaluable": true,
+    "facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "v",
+        "g",
+        "v₀ = 0（由静止释放）"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {
+      "gravity_direction": "down",
+      "velocity_direction": "down"
+    },
+    "latency_ms": 17,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 17,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-008",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 26824,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 26849,
+    "evaluable": true,
+    "facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体示意",
+        "由静止释放：v₀ = 0",
+        "v",
+        "g",
+        "v 与 g 的方向均竖直向下"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {
+      "gravity_direction": "down",
+      "velocity_direction": "down"
+    },
+    "latency_ms": 25,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 25,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-009",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 45866,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 45887,
+    "evaluable": true,
+    "facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体（示意）",
+        "静止释放",
+        "v",
+        "g",
+        "v、g 均竖直向下"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {
+      "gravity_direction": "down",
+      "velocity_direction": "down"
+    },
+    "latency_ms": 21,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 21,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-010",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 31325,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 31341,
+    "evaluable": true,
+    "facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "v",
+        "g",
+        "静止释放"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {
+      "gravity_direction": "down",
+      "velocity_direction": "down"
+    },
+    "latency_ms": 16,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 16,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-011",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 46331,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 46350,
+    "evaluable": true,
+    "facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体示意",
+        "静止释放",
+        "v",
+        "g"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {
+      "gravity_direction": "down",
+      "velocity_direction": "down"
+    },
+    "latency_ms": 19,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 19,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-012",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 40542,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 40561,
+    "evaluable": true,
+    "facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体（示意）",
+        "静止释放",
+        "v",
+        "g"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {
+      "gravity_direction": "down",
+      "velocity_direction": "down"
+    },
+    "latency_ms": 19,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 19,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-013",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 27046,
+    "author_status": "OK",
+    "critical_missing_keys": [],
+    "end_to_end_latency_ms": 27064,
+    "evaluable": true,
+    "facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体",
+        "静止释放",
+        "v",
+        "g",
+        "v、g 均竖直向下"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {
+      "gravity_direction": "down",
+      "velocity_direction": "down"
+    },
+    "latency_ms": 18,
+    "mismatches": [],
+    "missing_keys": [],
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-014",
+    "text_ok": true,
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 53790,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "arm_length_ratio"
+    ],
+    "end_to_end_latency_ms": 53807,
+    "evaluable": false,
+    "facts": {
+      "lever_labels": [
+        "支点",
+        "阻力臂",
+        "动力臂",
+        "石头"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {},
+    "latency_ms": 17,
+    "mismatches": [],
+    "missing_keys": [
+      "arm_length_ratio"
+    ],
+    "render_latency_ms": 17,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-015",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 82664,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "arm_length_ratio"
+    ],
+    "end_to_end_latency_ms": 82682,
+    "evaluable": false,
+    "facts": {
+      "lever_labels": [
+        "支点",
+        "动力臂",
+        "阻力臂"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {},
+    "latency_ms": 18,
+    "mismatches": [],
+    "missing_keys": [
+      "arm_length_ratio"
+    ],
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-016",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 115766,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "arm_length_ratio"
+    ],
+    "end_to_end_latency_ms": 115784,
+    "evaluable": false,
+    "facts": {
+      "lever_labels": [
+        "动力臂",
+        "阻力臂",
+        "支点"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {},
+    "latency_ms": 18,
+    "mismatches": [],
+    "missing_keys": [
+      "arm_length_ratio"
+    ],
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-017",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 120917,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "arm_length_ratio"
+    ],
+    "end_to_end_latency_ms": 120937,
+    "evaluable": false,
+    "facts": {
+      "lever_labels": [
+        "支点",
+        "动力臂",
+        "阻力臂",
+        "动力臂 : 阻力臂 = 3 : 2"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {},
+    "latency_ms": 20,
+    "mismatches": [],
+    "missing_keys": [
+      "arm_length_ratio"
+    ],
+    "render_latency_ms": 20,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-018",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 36975,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "arm_length_ratio"
+    ],
+    "end_to_end_latency_ms": 36993,
+    "evaluable": false,
+    "facts": {
+      "lever_labels": [
+        "支点",
+        "动力臂",
+        "阻力臂"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {},
+    "latency_ms": 18,
+    "mismatches": [],
+    "missing_keys": [
+      "arm_length_ratio"
+    ],
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-019",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_diagnostics": "",
+    "adapter_reason": null,
+    "adapter_status": "RENDERED",
+    "author_elapsed_ms": 107369,
+    "author_status": "OK",
+    "critical_missing_keys": [
+      "arm_length_ratio"
+    ],
+    "end_to_end_latency_ms": 107390,
+    "evaluable": false,
+    "facts": {
+      "lever_labels": [
+        "支点",
+        "动力臂",
+        "阻力臂",
+        "5份",
+        "2份",
+        "撬棒",
+        "石头",
+        "动力臂 : 阻力臂 = 5 : 2"
+      ]
+    },
+    "geometry_ok": true,
+    "group": "natural_illustration",
+    "judge_facts": {},
+    "latency_ms": 21,
+    "mismatches": [],
+    "missing_keys": [
+      "arm_length_ratio"
+    ],
+    "render_latency_ms": 21,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-020",
+    "text_ok": true,
+    "verdict": "NOT_EVALUABLE"
+  }
+]

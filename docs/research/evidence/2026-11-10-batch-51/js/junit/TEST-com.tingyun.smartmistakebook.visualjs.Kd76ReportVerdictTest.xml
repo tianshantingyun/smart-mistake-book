@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.visualjs.Kd76ReportVerdictTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-11-09T23:05:33.346Z" hostname="TIANSHAN" time="0.02">
+  <properties/>
+  <testcase name="constants mirror the pre-registered gate" classname="com.tingyun.smartmistakebook.visualjs.Kd76ReportVerdictTest" time="0.0"/>
+  <testcase name="p95 above the gate is fail not pass" classname="com.tingyun.smartmistakebook.visualjs.Kd76ReportVerdictTest" time="0.012"/>
+  <testcase name="short sample is not evaluable and never renders pass" classname="com.tingyun.smartmistakebook.visualjs.Kd76ReportVerdictTest" time="0.001"/>
+  <testcase name="g1 red is not evaluable and never renders pass" classname="com.tingyun.smartmistakebook.visualjs.Kd76ReportVerdictTest" time="0.0"/>
+  <testcase name="missing p95 is not evaluable" classname="com.tingyun.smartmistakebook.visualjs.Kd76ReportVerdictTest" time="0.0"/>
+  <testcase name="twenty samples at or under the gate pass" classname="com.tingyun.smartmistakebook.visualjs.Kd76ReportVerdictTest" time="0.001"/>
+  <testcase name="thresholds cannot be overridden through the api" classname="com.tingyun.smartmistakebook.visualjs.Kd76ReportVerdictTest" time="0.0"/>
+  <testcase name="all not-evaluable reasons are reported together" classname="com.tingyun.smartmistakebook.visualjs.Kd76ReportVerdictTest" time="0.006"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

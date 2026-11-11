@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.feature.review.KnowledgeConflictSessionStateTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-07T16:44:07.563Z" hostname="TIANSHAN" time="0.068">
+  <properties/>
+  <testcase name="continuingReviewDismissesTheCardWithoutCalibrationIntent" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeConflictSessionStateTest" time="0.015"/>
+  <testcase name="aConflictedNodeShowsTheCardWithoutRequiringAnAction" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeConflictSessionStateTest" time="0.001"/>
+  <testcase name="startCalibrationMarksTheNodeWithoutAdvancingOrBlocking" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeConflictSessionStateTest" time="0.0"/>
+  <testcase name="loadCurrentQuizIsNotGatedByTheConflictCard" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeConflictSessionStateTest" time="0.051"/>
+  <testcase name="processRestoreKeepsTheChoiceAndTheNodeReasons" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeConflictSessionStateTest" time="0.001"/>
+  <testcase name="theNextNodeStartsWithItsOwnConflictState" classname="com.tingyun.smartmistakebook.feature.review.KnowledgeConflictSessionStateTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

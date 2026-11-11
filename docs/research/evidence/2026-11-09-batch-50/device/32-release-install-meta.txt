@@ -1,0 +1,3 @@
+    versionCode=101160 minSdk=23 targetSdk=36
+    versionName=0.2.0-localfirst
+      firstInstallTime=2026-11-08 13:50:34

@@ -1,0 +1,35 @@
+{
+  "mapping": "app/build/outputs/mapping/strictOfflineRelease/mapping.txt",
+  "classes": 10661,
+  "renamed": 10461,
+  "removed": 1199,
+  "samples": [
+    {
+      "source": "com.tingyun.smartmistakebook.BackgroundWriterQuiesceKt$quiesceApplicationScopeWriters$1",
+      "target": "mt",
+      "hits": 1
+    },
+    {
+      "source": "com.tingyun.smartmistakebook.BatchImportDriverWorker$doWork$1",
+      "target": "xw",
+      "hits": 1
+    },
+    {
+      "source": "com.tingyun.smartmistakebook.CapabilityFormViewModel",
+      "target": "l70",
+      "hits": 1
+    },
+    {
+      "source": "com.tingyun.smartmistakebook.CapabilityOperation",
+      "target": "m70",
+      "hits": 2
+    },
+    {
+      "source": "com.tingyun.smartmistakebook.ComposableSingletons$KnowledgeStarFieldKt$$ExternalSyntheticLambda2",
+      "target": "vv0",
+      "hits": 1
+    }
+  ],
+  "negative_control_hits": 0,
+  "errors": []
+}

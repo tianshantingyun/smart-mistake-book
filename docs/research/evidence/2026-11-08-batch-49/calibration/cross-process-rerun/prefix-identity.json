@@ -1,0 +1,17 @@
+{
+  "checks": [
+    {"layer": "dev", "seed": 101, "truth_arm": "W-slip", "horizon_days": 30, "review_log_prefix_equal": true, "daily_workload_prefix_equal": true, "review_rows_in_short_run": 437},
+    {"layer": "dev", "seed": 101, "truth_arm": "W-slip", "horizon_days": 60, "review_log_prefix_equal": true, "daily_workload_prefix_equal": true, "review_rows_in_short_run": 972},
+    {"layer": "dev", "seed": 101, "truth_arm": "W-slip", "horizon_days": 90, "review_log_prefix_equal": true, "daily_workload_prefix_equal": true, "review_rows_in_short_run": 1539},
+    {"layer": "dev", "seed": 101, "truth_arm": "W-decay", "horizon_days": 30, "review_log_prefix_equal": true, "daily_workload_prefix_equal": true, "review_rows_in_short_run": 381},
+    {"layer": "dev", "seed": 101, "truth_arm": "W-decay", "horizon_days": 60, "review_log_prefix_equal": true, "daily_workload_prefix_equal": true, "review_rows_in_short_run": 888},
+    {"layer": "dev", "seed": 101, "truth_arm": "W-decay", "horizon_days": 90, "review_log_prefix_equal": true, "daily_workload_prefix_equal": true, "review_rows_in_short_run": 1422},
+    {"layer": "holdout", "seed": 901, "truth_arm": "W-slip", "horizon_days": 30, "review_log_prefix_equal": true, "daily_workload_prefix_equal": true, "review_rows_in_short_run": 388},
+    {"layer": "holdout", "seed": 901, "truth_arm": "W-slip", "horizon_days": 60, "review_log_prefix_equal": true, "daily_workload_prefix_equal": true, "review_rows_in_short_run": 936},
+    {"layer": "holdout", "seed": 901, "truth_arm": "W-slip", "horizon_days": 90, "review_log_prefix_equal": true, "daily_workload_prefix_equal": true, "review_rows_in_short_run": 1508},
+    {"layer": "holdout", "seed": 901, "truth_arm": "W-decay", "horizon_days": 30, "review_log_prefix_equal": true, "daily_workload_prefix_equal": true, "review_rows_in_short_run": 404},
+    {"layer": "holdout", "seed": 901, "truth_arm": "W-decay", "horizon_days": 60, "review_log_prefix_equal": true, "daily_workload_prefix_equal": true, "review_rows_in_short_run": 957},
+    {"layer": "holdout", "seed": 901, "truth_arm": "W-decay", "horizon_days": 90, "review_log_prefix_equal": true, "daily_workload_prefix_equal": true, "review_rows_in_short_run": 1542}
+  ],
+  "all_equal": true
+}

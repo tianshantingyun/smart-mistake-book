@@ -1,0 +1,70 @@
+{
+  "track": "device-full",
+  "batch": "50",
+  "date": "2026-11-08/09",
+  "role": "设备工程师（设备全量) ",
+  "snapshot": {
+    "head": "a87fc70d15c8ad726cee17422dbeef0b4977747d",
+    "dirty_porcelain_lines_at_start": 688,
+    "dirty_uall_paths_at_start": 4336,
+    "tracked_diff_sha256": "8992552bacaae8386835ea269ca459d702ae424d036d6246ba55f1667c886b66",
+    "untracked_list_sha256": "0495fa0484da033ce3ec2f80497b584215f0e1657f61da1667d92201b2403a0d",
+    "tree_state": "dirty (HEAD + 他线在飞改动)；非干净树产物",
+    "source_changed_during_run": "app/core/feature 源树内 .kt/.kts 与资源在快照后零改动（mtime 核查）；但开工 tracked_diff_sha256 8992552b… 收工不能复现（排除本轨 3 处测试改动后 1467713e…；status 688→690=688+3−1，1 条他线路径被回写干净，未定位）。绑定以 HEAD + APK sha 为权威。"
+  },
+  "device": {
+    "serial": "emulator-5590",
+    "kind": "emulator (non-debuggable release soak; 非真机)",
+    "sdk": 34,
+    "release": "14",
+    "abi": "x86_64",
+    "page_size": 4096,
+    "boot_id": "31ecd364-6b2a-4e52-9643-23e681696172"
+  },
+  "apk_sha256": {
+    "app_debug_localfirst": "43f1fe46651614f081c0d9edb8a4bc0b33988905822868e857b24e25c34a3e8e",
+    "app_androidTest_final": "2e32e0856f531c2c88d2921629e0f2deca7958b026f745e29fd6516fdd2afcd9",
+    "core_data_androidTest_final": "0013cf379649be86b5f0f0b732296d4b9a0b2fc54d0acccfb4f1b4613a883ee0",
+    "core_database_androidTest_final": "db14c022780bb7577bf2ea4f8f97f31124c32c760fd9cad5b6eb80f8b92cbf92",
+    "feature_library_androidTest": "14cdea1d4b45ec0d683b27e54d383f56e242a9d8a0af325da774cb408a4fced4",
+    "core_export_androidTest": "07c713941c524c3b4dcc41fde066c40372698f55ec50af235a4d4c728db181cb",
+    "app_release_localfirst": "1bf98b0029032ecb5c243c3ada3ac19183e53e0a912ab630510da12866d34dec"
+  },
+  "results": [
+    {"item": "migration 1..75 (FullMigrationMatrixInstrumentedTest, 20 tests)", "status": "PASS", "detail": "首跑 19/20：1 例旧列清单红 → 同步 75.json 实体 12 列 → 单例绿 → 整类 OK (20 tests), Time 553.379", "logs": ["05-instrument-migration-matrix.log", "07-instrument-migration-export-record-green.log", "47-instrument-migration-matrix-final.log"]},
+    {"item": "backup 34 (BackupRestoreInstrumentedTest)", "status": "PASS", "detail": "OK (34 tests)", "logs": ["14-instrument-com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest-on-synced-apk.log"]},
+    {"item": "trimmer (BackupSnapshotTrimmerInstrumentedTest, 10 tests)", "status": "PASS", "detail": "OK (10 tests)", "logs": ["14-instrument-com.tingyun.smartmistakebook.core.data.backup.BackupSnapshotTrimmerInstrumentedTest-on-synced-apk.log"]},
+    {"item": "rowCounts (BackupRowCountsCoverageInstrumentedTest, 2 tests)", "status": "PASS", "detail": "OK (2 tests)", "logs": ["14-instrument-com.tingyun.smartmistakebook.core.data.backup.BackupRowCountsCoverageInstrumentedTest-on-synced-apk.log"]},
+    {"item": "drill (DeviceMigrationDrillInstrumentedTest, 6 tests)", "status": "PASS", "detail": "3 mask 首跑红（settings 六键白名单 vs 生产七键）→ 同步 → OK(3)；corrupted ✓；kill-stage 设计性进程死亡 (shortMsg=Process crashed)；restore-from-handoff OK(1)", "logs": ["11-instrument-drill-optin.log", "13-instrument-drill-masks-green.log", "15-instrument-drill-killstage.log", "16-instrument-drill-restore-handoff.log"]},
+    {"item": "KD-67 second calibration question (Room e2e, 3 tests)", "status": "PASS", "detail": "OK (3 tests)；第二道题的生成/上屏/作答 UI 无生产入口（kd67 证据 §5），未验", "logs": ["18-instrument-kd67-room-e2e.log"]},
+    {"item": "6B-3 paper edit UI (17) + 5c error cause panel (7)", "status": "PASS", "detail": "OK (24 tests)；真实 app 入口 AI 改卷面 chip + AI 区可见", "logs": ["19-instrument-library-6b3-5c.log", "31-ui-paperedit-ai.xml/png"]},
+    {"item": "5c real-repo write seam (1) + JS painter replay (24)", "status": "PASS", "detail": "OK (25 tests)", "logs": ["24-instrument-5c-realrepo-js-painter.log"]},
+    {"item": "5b capacity / intake preview / AIGC labels / capability screen (17)", "status": "PASS", "detail": "首跑 15/17（能力屏整串匹配红 2）→ 改 substring → OK (17 tests)；真实复习页容量空态与今日预览可见", "logs": ["21-instrument-app-5b-aigc-capability.log", "23-instrument-app-5b-aigc-capability-green.log", "27-ui-home.xml/png"]},
+    {"item": "AIGC export module (32 tests)", "status": "PASS", "detail": "OK (32 tests)", "logs": ["17-instrument-export-all.log"]},
+    {"item": "AIGC export UI: delivery 2 + notifications 2 + flags 2", "status": "PASS", "detail": "delivery OK；notifications 拒绝态需 pm revoke + -e smb_notifications_denied=true，按 harness 重跑 OK (2 tests)；flags OK (2 tests)", "logs": ["25-instrument-aigc-export-ui-js-flags.log", "26-instrument-notifications-denied.log"]},
+    {"item": "export background 2 tests", "status": "FAIL", "detail": "waitForTag(library_item_entry:m1:closed-interval-extrema) 20s 超时；该条目在库且真实 app 上滑可见（44），改 performScrollToNode 两次仍红（43/46），实验改动已 revert；claim UNVERIFIED（Compose 分页懒列表测试力学）", "logs": ["25-instrument-aigc-export-ui-js-flags.log", "41-instrument-export-background-after-scroll.log", "43-instrument-export-background-retry.log", "46-instrument-export-background-scroll-click.log", "44-ui-library-bottom.xml/png"]},
+    {"item": "JS advertised?", "status": "NOT_APPLICABLE", "detail": "JS 未广告：生产 6 处能力集合全 IMAGE_MODEL_ONLY，无 JS 能力串；生产装配三参、无引擎回 UNAVAILABLE", "logs": ["20-js-not-advertised-grep.txt"]},
+    {"item": "release APK install smoke (versionCode 101160)", "status": "PASS", "detail": "install Success；versionCode=101160/versionName=0.2.0-localfirst；四 tab 渲染；FATAL EXCEPTION 计数 0", "logs": ["32-release-install-meta.txt", "33-release-home.xml/png", "34-release-tab-*.xml/png"]},
+    {"item": "2h soak (release APK)", "status": "PASS", "detail": "duration_target_s=7200, cycles=115, completed=1, crash_delta=0, dropbox_delta=0, monkey_rc_nonzero=0, TOTAL PSS 64720→100634 KB, pid 未变（无重启）", "logs": ["soak/soak-summary.txt", "soak/soak-samples.csv", "37-soak-console.log"]}
+  ],
+  "files_changed": [
+    "core/database/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/FullMigrationMatrixInstrumentedTest.kt (+5: 期望列清单补 group_id/artifact_role)",
+    "core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/backup/DeviceMigrationDrillInstrumentedTest.kt (+8/-4: settings 白名单补 dailyReviewMinutes；该文件开工时已是他线 M)",
+    "app/src/androidTest/kotlin/com/tingyun/smartmistakebook/CapabilityScreenInstrumentedTest.kt (+14/-3: 整串匹配→substring + 常量)"
+  ],
+  "reverted": [
+    "app/src/androidTest/kotlin/com/tingyun/smartmistakebook/MistakeExportBackgroundInstrumentedTest.kt（滚动 helper 实验，未转绿，已 revert；git status 0 行）"
+  ],
+  "unverified": [
+    "MistakeExportBackgroundInstrumentedTest 2 例（导出不随页面丢）未转绿 → claim UNVERIFIED",
+    "未上真机；无 arm64 设备；16KB 运行时未验（4096 页/x86_64）",
+    "5c 确认/撤销注入走查未复跑（5c 线自有证据）",
+    "KD-67 第二道题生成/上屏/作答 UI 不存在（kd67 证据 §5）",
+    "AIGC 真实文件设备第三方阅读器打开未验；真实 Provider 改卷回执未验",
+    "2h soak 只覆盖 release + 空库组合"
+  ],
+  "harness_notes": [
+    "全部设备用例走 adb install + am instrument；未跑 connected*AndroidTest（计划禁令）",
+    "soak 使用 35-soak-script.sh（沿用批次 49 f-soak.sh 判据）；pss_kb(smaps_rollup) 本机读不到，以 dumpsys meminfo TOTAL PSS 为准"
+  ]
+}

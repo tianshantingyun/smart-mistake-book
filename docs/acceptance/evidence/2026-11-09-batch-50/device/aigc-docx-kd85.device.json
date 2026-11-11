@@ -1,0 +1,21 @@
+{
+  "serial": "emulator-5590",
+  "boot_id": "31ecd364-6b2a-4e52-9643-23e681696172",
+  "package": "com.tingyun.smartmistakebook.core.export.test",
+  "apk_sha256": "a70b9559f93f24bedab3ca31df439e9dd6184a658c83315355f11c8be78ab62d",
+  "test_apk_sha256": "07c713941c524c3b4dcc41fde066c40372698f55ec50af235a4d4c728db181cb",
+  "class_filter": "KD-84 print subset (7) + KD-85 model text (2)",
+  "counts": {
+    "tests": 9,
+    "evaluated": 9,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "verdict": "PASS",
+  "recorded_at": "2026-11-09T00:00:00Z",
+  "source_logs": [
+    "docs/research/evidence/2026-11-09-batch-50/aigc/green-device-kd84-print-subset.log",
+    "docs/research/evidence/2026-11-09-batch-50/aigc/green-device-kd85.log"
+  ]
+}

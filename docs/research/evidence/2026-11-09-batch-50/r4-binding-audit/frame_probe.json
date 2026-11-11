@@ -1,0 +1,63 @@
+{
+ "pack_id": "moe-2025-four-subjects-v1",
+ "scope": {
+  "sidecar_index": "moe-2025-teaching-support-v2-index.json",
+  "pack_id": "moe-2025-four-subjects-v1",
+  "sidecars": 25,
+  "materials": 64853,
+  "bindings": 64853,
+  "excluded_sidecars": [
+   {
+    "path": "core/data/src/main/resources/knowledge/moe-2020-teaching-support-v1.json",
+    "pack_id": "moe-2020-foundation-v1",
+    "materials": 2,
+    "bindings": 4,
+    "reason": "packId 不在成品包 sidecar 索引内；层名单（超配/薄料）不描述该包的节点空间"
+   }
+  ]
+ },
+ "excluded_sidecars": [
+  {
+   "path": "core/data/src/main/resources/knowledge/moe-2020-teaching-support-v1.json",
+   "pack_id": "moe-2020-foundation-v1",
+   "materials": 2,
+   "bindings": 4,
+   "reason": "packId 不在成品包 sidecar 索引内；层名单（超配/薄料）不描述该包的节点空间"
+  }
+ ],
+ "overfull_csv": {
+  "rows": 63102,
+  "unique_node_ids": 2482
+ },
+ "overfull_ids_missing_from_pack": 0,
+ "overfull_missing_examples": [],
+ "thin_csv": null,
+ "thin_error": "D:\\smart mistake book\\knowledge-production\\node-material-gaps-2026-10-10.csv 有 11 行解析不到当前包的节点（例：CHEMISTRY/焰色反应, CHEMISTRY/若上述题目中的-1-4-改成一定温度下的恒压密闭容器-结果又如何, CHEMISTRY/若某溶液中既含又含-请设计实验检验混合溶液中是否存在, MATH/数据线性变换的平均数与方差, MATH/辨-易混易错-辨析易混易错知识点-夯实基础）——名单已过期，分层权重不可信，先修名单来源",
+ "layers": {
+  "overfull": {
+   "size": 62948,
+   "nodes": 2482
+  },
+  "thin": {
+   "size": 0,
+   "nodes": 0
+  },
+  "normal": {
+   "size": 1905,
+   "nodes": 798
+  }
+ },
+ "total_bindings": 64853,
+ "weights": {
+  "overfull": 0.9706258769833316,
+  "thin": 0.0,
+  "normal": 0.029374123016668467
+ },
+ "overfull_risk_substrata": {
+  "no_gt4": 48115,
+  "no_le4": 8872,
+  "yes_le4": 1034,
+  "yes_gt4": 4916
+ },
+ "overfull_bindings_without_risk_label": 11
+}

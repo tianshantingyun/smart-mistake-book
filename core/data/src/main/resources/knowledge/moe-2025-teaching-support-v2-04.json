@@ -3448,7 +3448,7 @@
    "contentId": "chem-fx-dian-rong-zhi-wei-f51x05",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶质为酸的溶液-oh-全部来自水的电离",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液中微粒浓度大小的比较",
      "role": "PRIMARY"
     }
    ]
@@ -3587,29 +3587,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:中和滴定",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "chem-fx-yan-dao-qi-zhong-de-shi-zhu-yao-de-da-f51x12",
-   "subject": "CHEMISTRY",
-   "type": "METHOD_MODEL",
-   "title": "烟道气中的NOx是主要的大气污染物之一",
-   "summaryMarkdown": "10．烟道气中的NOx是主要的大气污染物之一，为了监测其含量，选用如下采样和检测方法。",
-   "applicabilityMarkdown": "复习相关考点、解答对应试题时使用。",
-   "contentMarkdown": "10．烟道气中的NOx是主要的大气污染物之一，为了监测其含量，选用如下采样和检测方法。",
-   "boundaryMarkdown": "该结论为一般规律归纳，个别特例需结合具体物质的性质与反应条件单独判断。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "registry-kb-chemistry-methods:chemistry",
-   "sourceLocator": "化学方法类《（重点·方法·点拨）第48讲 酸碱中和滴定及拓展应用- （学生版）》",
-   "reviewedAtEpochMillis": 1784908800000,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "chem-fx-yan-dao-qi-zhong-de-shi-zhu-yao-de-da-f51x12",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:nox是汽车尾气中的主要污染物之一",
      "role": "PRIMARY"
     }
    ]
@@ -5633,7 +5610,7 @@
    "contentId": "chem-fx-dian-fen-he-xian-wei-su-yin-tong-shi-z-f62x02",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:淀粉-或纤维素-中含有的羟基数为3n",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:同分异构现象和同分异构体",
      "role": "PRIMARY"
     }
    ]
@@ -6370,29 +6347,6 @@
    "bindings": [
     {
      "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机合成路线的推断方法",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
-   "slug": "chem-fx-you-ji-hua-he-wu-de-ming-ming-jie-gou-f64x10",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "有机化合物的命名、结构简式的书写、有机化学方",
-   "summaryMarkdown": "1．有机化合物的命名、结构简式的书写、有机化学方程式的书写等。",
-   "applicabilityMarkdown": "有机推断、官能团性质判断与方程式书写时使用。",
-   "contentMarkdown": "1．有机化合物的命名、结构简式的书写、有机化学方程式的书写等。",
-   "boundaryMarkdown": "该结论为一般规律归纳，个别特例需结合具体物质的性质与反应条件单独判断。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "registry-kb-chemistry-methods:chemistry",
-   "sourceLocator": "化学方法类《（重点·方法·点拨）第61讲 有机合成与推断综合题突破- （学生版）》",
-   "reviewedAtEpochMillis": 1784908800000,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "chem-fx-you-ji-hua-he-wu-de-ming-ming-jie-gou-f64x10",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机化合物的空间结构",
      "role": "PRIMARY"
     }
    ]
@@ -9359,7 +9313,7 @@
    "contentId": "chem-fx-rong-ye-he-xi-yan-suan-jia-f76x07",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:既能跟稀盐酸反应-又能跟氢氧化钠溶液反应的化合物是",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存",
      "role": "PRIMARY"
     }
    ]
@@ -15500,7 +15454,7 @@
    "contentId": "bio-feeding-method-scope",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:胰岛素",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:biology:atomic:激素",
      "role": "PRIMARY"
     }
    ]

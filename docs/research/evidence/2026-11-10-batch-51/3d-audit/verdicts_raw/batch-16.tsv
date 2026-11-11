@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-mat-a0656377b5-004	CORRECT		high	把含参方程整理成 $k=g(x)$ 的形式，使参数单独成为常数，方程解的个数就等于水平直线 $y=k$ 与 $y=g(x)$ 图象的交点个数	
+bio-kb3-f1-s1-2-n06	CORRECT		high	原来目镜10×物镜10×，现在目镜10×物镜40×，与原来相比放大了4倍，那么：（1）原来一行能看到8个细胞，现为2个	
+ext-mat-728e5c1c2a-013	CORRECT		high	2. **三角形式配合棣莫弗定理**：若复数是 $r(\cos\theta+i\sin\theta)$ 的形式，则它的 $n$ 次幂等于模的 $n$ 次方与角度的 $n$ 倍组成的三角形式，即模取 $n$ 次方、辐角乘以 $n$	
+phys-hj3-belt-model-scenarios	REBIND	传送带模型	medium	水平带按初速与带速比较分类；倾斜带按 $\mu$ 与 $\tan\theta$ 大小及运动方向分类	材料讲水平与倾斜两类传送带，现绑仅倾斜传送带
+ext-che-5c62da9e03-029	CORRECT		medium	分类不能只看直径：教材按分散质微粒直径分类，但判断溶液还是胶体还须看微粒结构	
+ext-mat-221256755a-005	CORRECT		medium	两个同频的余弦（或正弦）相加时用和差化积化为一个余弦，便于求值域与单调区间	
+ext-mat-e43e351fb8-006b	CORRECT		high	先用定理边角互化化简条件，再把待求量化为角的三角函数，依据锐角等限制确定角的区间后求范围	
+math-hj-dandiaoxing-dingyi	CORRECT		high	对区间 $D$ 内任意 $x_1<x_2$：若 $f(x_1)<f(x_2)$ 则 $f(x)$ 在 $D$ 上单调递增，若 $f(x_1)>f(x_2)$ 则单调递减；此时 $D$ 叫单调区间	
+ext-mat-f1abbcb86a-010	CORRECT		high	恒成立问题可用切线放缩把含参超越不等式化为含参一次不等式，再定临界值并验证两侧	
+bio-kb2-22-cancer-mechanism	CORRECT		high	细胞癌变是原癌基因和抑癌基因发生突变导致生长分裂失控的结果	
+ext-che-7b047ad8e8-003	CORRECT		high	原料顺序：先向饱和食盐水中通入氨气，再通入二氧化碳	
+chem-kb-molar-concentration-definition	CORRECT		high	cB＝n(B)/V，单位mol/L；式中V是溶液的体积，不是溶剂体积，也不是溶质与溶剂体积之和	
+bio-fx-euk-gene-processing	CORRECT		high	2. 转录时内含子和外显子都转录，形成前体mRNA	
+ext-che-b15ead938d-011	CORRECT		high	在稀硫酸中 $Cu_2O$ 的铜元素发生歧化，一部分被还原为单质铜、一部分被氧化为 $Cu^{2+}$，生成的 $CuSO_4$ 使溶液显蓝色；而单质铜不与稀硫酸反应，溶液不变蓝	
+ext-phy-e14aad82a5-1547	CORRECT		high	这是两条尺度不同的主线：宇宙演化讲整体从大爆炸到星系形成，恒星演化讲单个恒星从星云到终点的历程，不能混成一条链	
+ext-che-2c177d17ea-035	CORRECT		high	NH3（碱性气体）：能使湿润的红色石蕊试纸变蓝；用蘸有浓盐酸的玻璃棒靠近，能产生白烟	
+ext-phy-a2009e69a2-006	CORRECT		high	3. 接法选择：此时应把电压表直接并在待测电阻两端，即采用电流表外接法，使电压测量值不含电流表的分压	
+ext-bio-5f510cdc4a-069	CORRECT		medium	结论：酶的催化作用需要适宜的pH，pH偏低或偏高都会影响酶的活性	
+ext-mat-54e322dad1-003	CORRECT		high	全称量词 短语“所有的”“任意一个”在逻辑中称为全称量词 记作符号 $\forall$	
+ext-bio-248a054779-015	CORRECT		medium	不要认为“基因突变的积累”是细胞癌变的唯一途径；原核细胞无染色质，相关机制不能套用；表观修饰影响的是转录水平，而不是碱基序列	
+ext-bio-5f510cdc4a-241	CORRECT		medium	维生素D的作用是促进钙、磷的吸收而不是直接构成骨骼；它的化学本质是固醇，可从食物中获取，也可由皮肤经紫外线照射合成	
+ext-che-735d3d72c5-003	REBIND	元素周期律的内容及实质	medium	②同周期元素从左到右核电荷数增大、原子半径减小，原子核对最外层电子吸引能力增强，第一电离能和电负性呈增大趋势，金属性减弱、非金属性增强	材料讲周期律递变与金属性比较，现绑仅电负性一项性质
+math-hj-zhixian-yu-yuanzhui-quxian-weihi	CORRECT		high	抛物线与平行于其对称轴的直线只有一个交点	
+math-hj-s15-chain	CORRECT		high	$\dfrac{2ab}{a+b}\le\sqrt{ab}\le\dfrac{a+b}{2}\le\sqrt{\dfrac{a^2+b^2}{2}}$（$a,b>0$），当且仅当 $a=b$ 时各等号成立	
+ext-mat-bed3adfdd6-003	CORRECT		high	求离心率范围时把条件化为关于 a、c 的不等式：椭圆由定义与基本不等式得 |PF1|·|PF2|≤a²（|PF1|=|PF2| 时取等），双曲线右支上的点满足 |PF2|≥c−a	
+ext-phy-6815564a42-029	CORRECT		high	① 实验器材创新：利用喷水法、频闪照相法、用传感器和计算机都可以描绘物体做平抛运动的轨迹	
+ext-che-5c62da9e03-762	CORRECT		high	溶解性差异：FeS、ZnS 可溶解在稀盐酸、稀硫酸中，如 FeS＋2H⁺＝Fe²⁺＋H₂S↑；CuS、Ag₂S 等不溶于盐酸或稀硫酸	
+bio-textbook-gene-engineering-uses-medicine-agri	CORRECT		high	1. 医药：把人胰岛素基因导入大肠杆菌/酵母菌，工业化生产重组人胰岛素（首个商品化基因工程药物）；还有干扰素、乙肝疫苗、人生长激素	
+bio-fj-16-n-pair-f2-phenotype-formula	CORRECT		high	1. F2表型种类=2^n，比例=(3:1)^n	
+ext-mat-4abdf67350-002	CORRECT		high	**对称点处的切线关系**：若函数图象关于点 $(m，n)$ 对称，则对称中心两侧的任意一对对称点 $P$、$Q$ 具有切线斜率对称性：	
+ext-che-dd8113ff75-023	CORRECT		high	1. 对于反应aA＋bB===gG＋hH，v＝k·c^a(A)·c^b(B)，其中k为速率常数	
+ext-bio-37ccea940d-010	CORRECT		high	1.间接途径：基因通过控制酶的合成来控制代谢过程，进而控制生物体的性状	
+ext-che-0e0ef6766a-002	CORRECT		high	电冶是利用电解熔融盐或熔融氧化物的方法来冶炼活泼金属Na、Mg、Al等	
+ext-bio-4afd849310-002b	CORRECT		medium	免疫学应用包括免疫预防、免疫诊断和免疫治疗	
+ext-phy-e2116ebad4-001	CORRECT		high	1. 叠加场：电场、磁场、重力场共存，或其中某两场共存	
+ext-bio-03dce24682-008	CORRECT		high	密度制约因素：食物和天敌等生物因素对种群数量的作用强度与该种群的密度是相关的	
+ext-bio-5f510cdc4a-840	REBIND	细胞分裂中的同位素标记分析	medium	2. 第一次分裂：DNA复制一次，每条染色体含两条杂合的姐妹染色单体，分裂产生的子染色体都带有标记	材料讲细胞分裂中染色体标记规律，属该题型族而非方法层面
+ext-che-45e2028183-005	CORRECT		high	- 弱酸性：$HClO \rightleftharpoons H^+ + ClO^-$，酸性比碳酸弱，故漂白液与 $CO_2$ 反应可生成 $HClO$	
+ext-mat-a7f9dd0e7e-054b	CORRECT		high	在平面α内任选一点A求出向量PA，求出平面α的法向量n，则点P到平面α的距离 d=|PA·n|/|n|	
+wusan-chem-b1c3-aluminium-physical	CORRECT		high	物理性质：银白色、有金属光泽的固体，密度、硬度较小，导电性、导热性、延展性良好	
+ext-mat-289deb9ecd-1110	CORRECT		high	①假设存在：假设所探究的量存在，并把它当成已知条件来用；	
+ext-phy-b87511d8bf-004	CORRECT		high	1. 选纸带：一般要多打出几条纸带，从中选出打点清晰、点的分布符合规律的纸带分析	
+ext-bio-27fc03d1fa-001	CORRECT		high	①上浮原理：光照下叶片光合作用产生的O2大于有氧呼吸消耗的O2，使叶肉细胞间隙充满了气体、浮力增大，叶片上浮	
+ext-bio-2b08d14a8c-022	CORRECT		high	与体外有机物燃烧相比，有氧呼吸具有以下特点：过程温和；有机物中的能量经过一系列化学反应逐步释放；释放的能量有相当一部分储存在ATP中（并非全部），大部分能量以热能形式散失	
+ext-che-5c62da9e03-285	CORRECT		high	Cl⁻：加入AgNO₃溶液后再加稀HNO₃，产生不溶于稀HNO₃的白色沉淀，反应为Ag⁺＋Cl⁻＝AgCl↓	
+ext-bio-cc95475ecb-065	CORRECT		medium	②叶绿素的组成元素为C、H、O、N、Mg，类胡萝卜素的组成元素仅有C、H、O，故土壤中缺少Mg可以使植株叶片黄化	
+ext-phy-0c678abf60-007	CORRECT		high	对象：有些选择题只要求判断两物理量的比值关系，有些本身就是估算题，有些只要求研究某个物理量的取值范围	
+bio-fj-09-anaerobic-respiration-definition	CORRECT		high	无氧呼吸是在无氧条件下通过酶的催化作用，把有机物不彻底氧化分解并释放少量能量的过程	
+ext-che-c6bdf111e0-011	CORRECT		high	2. 分类：根据分散质粒子的大小（本质区别）将分散系分为溶液、浊液和胶体	
+ext-che-5c62da9e03-462	CORRECT		high	定义前提：不发生化学反应且物质的聚集状态不变；物质吸收热量、温度每升高 1 K 时所吸收的热量称为该物质的热容，符号 C，单位 J·K^-1	

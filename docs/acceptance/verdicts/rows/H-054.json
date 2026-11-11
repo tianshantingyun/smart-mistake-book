@@ -1,68 +1,70 @@
 {
-  "id": "H-054",
-  "verdict": "PASS",
-  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-h",
-  "reviewer": "batch46-line-reviewer-H",
-  "authors": [
-    "batch45-evidence-producer-H"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "cmd:docs/acceptance/evidence/H/logs/h-054.log",
-    "test:docs/acceptance/evidence/H/tests/h-disclaimer.xml",
-    "file:docs/ai-content-disclosure-copy.md"
-  ],
-  "evidence_sha256": {
-    "docs/acceptance/evidence/H/logs/h-054.log": "3fc372c99c9c0f2c58f86da745410e2ceb7e087ac5519f361626dbf77de944fe",
-    "docs/acceptance/evidence/H/tests/h-disclaimer.xml": "1dd864f4e490c971f6721ee7c54774b520e0e27bef2433b96e681fbb1b941b4f",
-    "docs/ai-content-disclosure-copy.md": "cd7a74866545ad2740b09cbc68d2a36fa9d985cbdf95c7e6c02e93e6862c6e08"
+ "id": "H-054",
+ "verdict": "PASS",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "evidence": [
+  "cmd:docs/acceptance/evidence/H/logs/h-054.log",
+  "test:docs/acceptance/evidence/H/tests/h-disclaimer.xml",
+  "file:docs/ai-content-disclosure-copy.md"
+ ],
+ "evidence_sha256": {
+  "docs/acceptance/evidence/H/logs/h-054.log": "3fc372c99c9c0f2c58f86da745410e2ceb7e087ac5519f361626dbf77de944fe",
+  "docs/acceptance/evidence/H/tests/h-disclaimer.xml": "1dd864f4e490c971f6721ee7c54774b520e0e27bef2433b96e681fbb1b941b4f",
+  "docs/ai-content-disclosure-copy.md": "ea458a589eaf57f2b0547dadf0e46498846ea22fba03a149cabbbd0a2dd8a93d"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=H-054; verdict=PASS; line=815; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=H-054; verdict=PASS; line=815; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/acceptance/evidence/H/logs/h-054.log",
-      "value": "exit_markers=[0]; cmd=n/a; sha256=3fc372c99c9c0f2c58f86da745410e2ceb7e087ac5519f361626dbf77de944fe"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/acceptance/evidence/H/tests/h-disclaimer.xml",
-      "value": "tests=9; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T01:48:26.622570+08:00; hostname=tianshan; sha256=1dd864f4e490c971f6721ee7c54774b520e0e27bef2433b96e681fbb1b941b4f"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/acceptance/evidence/H/tests/h-disclaimer.xml",
-      "value": "testcases=9; first=test_h046_three_copy_tiers_exist; all_present=True"
-    },
-    {
-      "name": "file_sha256",
-      "source": "docs/ai-content-disclosure-copy.md",
-      "value": "sha256=cd7a74866545ad2740b09cbc68d2a36fa9d985cbdf95c7e6c02e93e6862c6e08"
-    }
-  ],
-  "basis": "机械复算（reviewer=batch46-line-reviewer-H，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 H-054 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "adversarial": {
-    "attempted": true,
-    "result": "recomputed-no-mismatch"
+  {
+   "name": "cmd_exit",
+   "source": "docs/acceptance/evidence/H/logs/h-054.log",
+   "value": "exit_markers=[0]; cmd=n/a; sha256=3fc372c99c9c0f2c58f86da745410e2ceb7e087ac5519f361626dbf77de944fe"
   },
-  "review_scope": "single-ledger-row",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/acceptance/evidence/H/tests/h-disclaimer.xml",
+   "value": "tests=9; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T01:48:26.622570+08:00; hostname=tianshan; sha256=1dd864f4e490c971f6721ee7c54774b520e0e27bef2433b96e681fbb1b941b4f"
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 3,
-    "basis": "bytes-on-disk"
+  {
+   "name": "xml_testcase",
+   "source": "docs/acceptance/evidence/H/tests/h-disclaimer.xml",
+   "value": "testcases=9; first=test_h046_three_copy_tiers_exist; all_present=True"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "file_sha256",
+   "source": "docs/ai-content-disclosure-copy.md",
+   "value": "sha256=ea458a589eaf57f2b0547dadf0e46498846ea22fba03a149cabbbd0a2dd8a93d"
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "adversarial": {
+  "attempted": true,
+  "result": "recomputed-no-mismatch"
+ },
+ "review_scope": "single-ledger-row",
+ "ledger_batch": 51,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-10T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 3,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

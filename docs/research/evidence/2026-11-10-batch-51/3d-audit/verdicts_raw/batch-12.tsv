@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-1dbc2880eb-031c	REBIND	求解非点电荷电场强度的四种方法	medium	取走极小一块面积时可用补偿法判断场强大小与方向。	现绑为场强定义；材料讲球壳场分布与补偿法求场强
+ext-bio-5f510cdc4a-989	CORRECT		high	把两种生物的DNA加热成单链后混合复性，互补程度越高、杂种DNA的熔解温度越高，说明亲缘关系越近。	
+bio-kb2-05-model-types	CORRECT		high	类型包括物理模型、概念模型、数学模型等；沃森和克里克制作的DNA双螺旋结构模型属于物理模型。	
+ext-bio-b343c4715e-008	CORRECT		high	中心法则包含DNA复制、转录到RNA、翻译到蛋白质。	
+ext-che-d63da64959-038b	CORRECT		high	电子对构型与分子构型不一定相同（4 对电子中有孤电子对时由四面体变为 V 形）；判断只针对中心原子。	
+ext-che-76fd5cd2f3-028	CORRECT		high	钠久置空气中依次生成 Na2O（表面变暗）、NaOH（潮解出现液滴）、Na2CO3·10H2O（白色块状），最后风化失去结晶水变为白色 Na2CO3 粉末。	
+ext-phy-86ca34034b-016	CORRECT		medium	v0>v时：若μ<tanθ则一直加速，加速度大小为gsinθ－μgcosθ	
+ext-mat-865d6c3591-001b	CORRECT		high	y=a^x（a>0 且 a≠1）叫指数函数，定义域为 R、值域为 (0，+∞)，过定点 (0，1)，单调性由底数决定。	
+ext-che-4112b48508-001b	REBIND	晶胞组成的计算-均摊法	low	**均摊法计数**：处于晶胞顶点、棱、面、体心的微粒对晶胞的贡献分别为 1/8、1/4、1/2、1	现绑边界明确不含微粒数计算；材料近半讲均摊法计数
+ext-bio-5f510cdc4a-891	CORRECT		medium	三过程在场所、模板、原料、条件、产物、特点与遗传信息传递上各不相同	
+ext-phy-9fe9f2553b-013	CORRECT		high	弹簧压缩至最短时弹簧连接的两物体速度相同，此时弹簧的弹性势能最大	
+ext-mat-c1ac34d96f-006	CORRECT		high	比较圆心到直线的距离 $d$ 与圆的半径 $r$ 的大小关系（$d<r$ 相交、$d=r$ 相切、$d>r$ 相离）。	
+ext-che-a49c7ca023-004b	CORRECT		high	由反应可知酸性：H2CO3>H2SiO3，非金属性：C>Si	
+chem-hj2-jishi-fuhao-guifan-jisuan	REBIND	根据化学方程式计算的步骤	low	设未知数直接用物理量符号并注明物质，如设参加反应盐酸的体积为V[HCl(aq)]。	现绑为守恒法；材料讲计算符号与单位书写规范
+ext-phy-959364601d-004b	CORRECT		high	只有静电力做功时，由动能定理知 Ek－x 图像的切线斜率表示静电力。	
+ext-bio-49d040f65d-023	CORRECT		high	表格数据题先读考查要求（选项或设问），再带着目标回到表格定向取数，避免逐格通读被无关数据带偏。	
+ext-mat-fbaf2a917e-010	CORRECT		high	分类要“不重不漏”：每一类都能独立完成这件事，且任意两类之间没有重复的完成方式；	
+ext-phy-bf0fd75088-021	CORRECT		high	系统摩擦生热 Q=f·Δx，Δx=x块−x板 是相对位移	
+ext-mat-6e41720d4b-003	CORRECT		high	先把复数化为 a＋bi（a，b∈R）的代数形式，以确定实部与虚部	
+ext-mat-e657b040d6-002	CORRECT		high	正方体或长方体的外接球球心是体对角线中点，体对角线为球的一条直径	
+ext-che-5fce0adee9-002	CORRECT		high	几种离子在同一溶液中能大量共存，就是指离子之间不发生任何反应	
+ext-phy-c4605806a7-015	CORRECT		high	先用整体法求出加速度，再隔离合适的研究对象用牛顿第二定律求作用力	
+ext-bio-64a3002892-134	REBIND	目的基因插入方向的鉴定（PCR与酶切）	high	正反向连接会改变酶切位点组合，选能区分两种方向的限制酶，比较电泳片段长度即可判断。	材料讲插入方向鉴定的酶切方法，归方向鉴定节点而非限制酶本身
+ext-phy-b6bd732b19-126	CORRECT		high	电压表用串联大电阻分压改装、电流表用并联小电阻分流改装	
+ext-mat-54bbe673d9-007b	CORRECT		high	球心是上下底面外心连线的中点	
+ext-phy-e05e2e89ca-003	CORRECT		high	把两个质量相等的小球分别放在两个小槽中，且到转轴（圆心）的距离即圆周运动半径相同	
+ext-bio-cc2cdaecdd-013	CORRECT		high	生物功能：酶起催化作用，激素起调节作用。	
+ext-phy-934e377dcb-001c	CORRECT		high	自然界存在四种基本相互作用：引力相互作用、电磁相互作用、强相互作用和弱相互作用。	
+ext-phy-8d4b740a45-011	CORRECT		high	多运动过程的连接点的速度是联系两个运动过程的纽带，对连接点速度的求解往往是解题的关键	
+ext-bio-362fa1edab-072	CORRECT		high	探究是主动运输还是被动运输：通过控制是否供应能量（如是否抑制细胞呼吸）比较运输速率。	
+ext-phy-becbecccb1-002	CORRECT		high	测量误差出现在哪一位，读数就应读到哪一位。	
+ext-che-3638d9188e-010b	CORRECT		high	液体混合物：氨水、氯水、王水、水玻璃、福尔马林、浓硫酸、盐酸、汽油、植物油、胶体。	
+ext-mat-e099a16c22-005	CORRECT		high	设角 α 终边上任取一点 P(x，y)，r＝|OP|＝√(x²＋y²)，则 sinα＝y/r，cosα＝x/r，tanα＝y/x。	
+ext-che-24addc2820-018b	CORRECT		high	手性碳原子：一个碳原子连有 4 个不同的原子或原子团。	
+ext-mat-fd8c38ecf5-014	CORRECT		high	每个条件都要独立检验，不能因为某个条件看起来合适就直接采用	
+ext-phy-e14aad82a5-532	CORRECT		high	把某些难以直接准确测量的微小量累积后测量求平均，能减小相对误差	
+ext-mat-4308c78446-026	REBIND	常见抽象函数模型与特征式	high	正比例函数 f(x)＝kx（k≠0），对应 f(x±y)＝f(x)±f(y)。	材料讲由函数方程识别抽象函数模型，属抽象函数模型与特征式
+ext-che-0cc28049e6-015	CORRECT		high	侧链烃基使苯环上邻、对位的氢更活泼，更易被取代。	
+ext-phy-9142eeb79f-022	CORRECT		high	摩擦角——全反力与支持力的最大夹角，用 φ 表示	
+ext-che-5c62da9e03-1146	CORRECT		high	在室温或接近室温时呈液态的盐类物质，一般由有机阳离子和无机阴离子组成。	
+ext-che-287f03dd74-020b	CORRECT		high	含氯物质的价态跃迁规律：Cl−(电解)→Cl2→ClO−(碱吸收)→ClO3−(热电解)→ClO2(还原氧化)	
+ext-bio-56a480d9bd-013	CORRECT		high	移码突变：插入或缺失1个、2个甚至多个碱基（但非3个碱基或3的整数倍的碱基），导致mRNA的密码子读框错位	
+ext-phy-0bcb98ef89-015	CORRECT		high	动能和势能也随时间做周期性变化，其变化周期为 T/2。	
+ext-che-0aa2005f3f-024	CORRECT		medium	判断微粒浓度比值时可将浓度之比化为物质的量之比、用假设法（如无限稀释）判断变化方向	
+ext-mat-841e4d221f-001	CORRECT		high	破题的关键是建立“几何翻译—模型匹配—代数执行”的三步思维链	
+ext-mat-5123855c5d-001	CORRECT		high	把“有交点、偶函数、在某点取最值”等函数条件翻译成代数条件	
+ext-bio-5f63b792b6-007	CORRECT		high	不同基因之间的连锁程度不同，是由于不同基因在染色体上的距离不同。	
+ext-mat-73b3ac55a6-002	CORRECT		high	Δ＞0相交（两个公共点）；Δ＝0相切；Δ＜0相离。	
+ext-mat-d0371ff66a-007	CORRECT		high	和差型e^a±a>b±ln b：同左构造f(x)=e^x±x	
+ext-mat-c6fb60ea8c-002	CORRECT		high	爪形三角形的特征是三角形内部有一条线段把图形分成两个小三角形	

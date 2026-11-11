@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseTokenizerParityTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-08T07:07:54.947Z" hostname="TIANSHAN" time="0.067">
+  <properties/>
+  <testcase name="every fixture case matches the Python reference token ids" classname="com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseTokenizerParityTest" time="0.042"/>
+  <testcase name="shipped vocab is byte identical to the frozen copy and matches its recorded sha" classname="com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseTokenizerParityTest" time="0.006"/>
+  <testcase name="every stage probe matches the reference normalizer and pre-tokenizer" classname="com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseTokenizerParityTest" time="0.008"/>
+  <testcase name="blank input encodes to the bare special pair without failing" classname="com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseTokenizerParityTest" time="0.003"/>
+  <testcase name="word piece scans code points not utf16 units, including unpaired surrogates" classname="com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseTokenizerParityTest" time="0.002"/>
+  <testcase name="encodePadded pads on the right with the pad id and refuses too small a window" classname="com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseTokenizerParityTest" time="0.003"/>
+  <testcase name="truncation keeps the special token budget and the tail separator" classname="com.tingyun.smartmistakebook.core.data.knowledge.dense.DenseTokenizerParityTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

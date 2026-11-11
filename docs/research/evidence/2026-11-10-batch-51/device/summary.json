@@ -1,0 +1,163 @@
+{
+  "track": "device",
+  "batch": 51,
+  "date": "2026-11-10",
+  "role": "设备工程师（设备全量轨；串行独占设备；绑 APK sha 与源快照）",
+  "snapshot": {
+    "head": "8dd29e963975ff44703f638064322be0e7494f98",
+    "head_subject": "docs: 记 CV 切题算法删除与切题只走模型识别（批次50 纠偏；2 文件）",
+    "dirty_porcelain_lines": 683,
+    "dirty_uall_paths": 5418,
+    "modified_count": 201,
+    "untracked_count": 5217,
+    "tracked_diff_sha256": "9f8b705c9be2e4d880c26fe6fd4dc203446ffc17ed8cae491e533a1cc16756fe",
+    "snapshot_time_utc": "2026-11-09T23:18:40Z",
+    "note": "脏工作树构建；源码绑定以 HEAD + APK sha 为权威"
+  },
+  "device": {
+    "primary": {
+      "serial": "emulator-5590",
+      "avd": "ui_motion_20261107",
+      "sdk": 34,
+      "release": "14",
+      "abi": "x86_64",
+      "page_size": 4096,
+      "boot_id": "31ecd364-6b2a-4e52-9643-23e681696172",
+      "is_emulator": 1
+    },
+    "soak": {
+      "serial": "emulator-5592",
+      "avd": "ui_teaching_20261108",
+      "sdk": 34,
+      "release": "14",
+      "abi": "x86_64",
+      "page_size": 4096,
+      "boot_id": "b24f1996-4c2c-4722-9c30-2f6208790c3a",
+      "is_emulator": 1
+    },
+    "kind": "emulator (non-production)"
+  },
+  "apk_sha256": {
+    "app_debug": "38cb991cf680ce40874da2912c5adb08addcb4884fa1b3cf052b13bf07b1a8b6",
+    "app_androidTest": "2e32e0856f531c2c88d2921629e0f2deca7958b026f745e29fd6516fdd2afcd9",
+    "core_data_androidTest_first": "2ae00f060a2f50fdc91218348b80999d44d9233867a28cc3ca2b62cc66069870",
+    "core_data_androidTest_after_fixture_fix": "2516876f9bef6e9874ab37c1289920ed83a318c3e0e600f4640951917ad85e9c",
+    "core_database_androidTest": "5a8ca2b6afe3d2d2c9e321d6079887741ef1e7a14d0d2cbc589c993df71f82b2",
+    "feature_library_androidTest": "63ffb00cdf1b6a8a347d63ce3a1923a6b28e1fdf45a741f6df6a3c28bfaa2d95",
+    "core_export_androidTest": "35aaa658b9adab1b940a56ca0b639607529c92883ef428774c1638724a98b9ce",
+    "release_apk": "b6fbd87745c3ba3bc5fc9b63e7830019c9e99682bacc7432d495546ed72ed46f"
+  },
+  "results": [
+    {
+      "item": "four-way backup plan sync (check_backup_plan_sync.py)",
+      "status": "PASS",
+      "detail": "EXIT=0; PASS 四方一致; schema 75 / 99 tables / 2 views / trimOrder 91 / masks [9,13,15] / digest 8567faae...",
+      "logs": ["07-check-backup-plan-sync.log"]
+    },
+    {
+      "item": "migration 1..75 (FullMigrationMatrixInstrumentedTest, 20 tests)",
+      "status": "PASS",
+      "detail": "OK (20 tests), Time 1,446.843s",
+      "logs": ["05-instrument-migration-matrix.log"]
+    },
+    {
+      "item": "backup 34 (BackupRestoreInstrumentedTest)",
+      "status": "PASS",
+      "detail": "OK (34 tests), Time 51.031s",
+      "logs": ["08-instrument-backup-34.log"]
+    },
+    {
+      "item": "trimmer (BackupSnapshotTrimmerInstrumentedTest, 10 tests)",
+      "status": "PASS",
+      "detail": "OK (10 tests), Time 209.429s",
+      "logs": ["09-instrument-trimmer.log"]
+    },
+    {
+      "item": "rowCounts (BackupRowCountsCoverageInstrumentedTest, 2 tests)",
+      "status": "PASS",
+      "detail": "OK (2 tests), Time 3.093s",
+      "logs": ["10-instrument-rowcounts.log"]
+    },
+    {
+      "item": "device migration drill (DeviceMigrationDrillInstrumentedTest, masks 15/9/13 + corrupted + kill-stage + restore)",
+      "status": "PASS",
+      "detail": "masks OK (3); corrupted OK (1); kill-stage shortMsg=Process crashed. (by design); restore-from-handoff OK (1)",
+      "logs": ["11-instrument-drill-masks.log", "12-instrument-drill-corrupted.log", "13-instrument-drill-killstage.log", "14-instrument-drill-restore-handoff.log"]
+    },
+    {
+      "item": "3E daily-cumulative quota device re-verification (StudyReviewPlanner3EScanInstrumentedTest, 4 tests)",
+      "status": "PASS",
+      "detail": "first run 3/4 (fixture weight 0.5 > cap 0.35) -> fixed test-only fixture weight to 0.35 -> OK (4 tests), Time 6.376s",
+      "logs": ["20-instrument-3e-daily-cap.log", "25-build-data-androidtest-after-fix.log", "26-instrument-3e-rerun.log"]
+    },
+    {
+      "item": "KD-67 calibration question Room e2e (3 tests)",
+      "status": "PASS",
+      "detail": "OK (3 tests), Time 1.962s",
+      "logs": ["21-instrument-kd67.log"]
+    },
+    {
+      "item": "6B-3 paper edit UI + 5c error-cause panel (24 tests)",
+      "status": "PASS",
+      "detail": "OK (24 tests), Time 32.839s",
+      "logs": ["22-instrument-library-6b3-5c.log"]
+    },
+    {
+      "item": "5c real-repo write seam + JS replay painter (25 tests)",
+      "status": "PASS",
+      "detail": "OK (25 tests), Time 1.333s",
+      "logs": ["23-instrument-5c-realrepo-js-painter.log"]
+    },
+    {
+      "item": "5b capacity / intake preview / AIGC labels / capability screen (17 tests)",
+      "status": "PASS",
+      "detail": "OK (17 tests), Time 36.361s",
+      "logs": ["24-instrument-app-5b-aigc-capability.log"]
+    },
+    {
+      "item": "R8 release build + release APK install smoke",
+      "status": "PASS",
+      "detail": "assembleLocalFirstRelease BUILD SUCCESSFUL; versionCode 101177; install Success; cold start 1629ms; 4 tabs + 3 deep screens render; crash 0 / FATAL 0 / ANR 0",
+      "logs": ["06-build-release-r8.log", "50-release-install.log", "51-release-launch.log", "52-release-home.png", "52-release-home.xml", "53-release-tab-agent.png", "54-release-tab-library.png", "55-release-tab-profile.png", "56-release-scheduling.png", "57-release-privacy.png", "58-release-storage.png"]
+    },
+    {
+      "item": "2h soak (release APK versionCode 101177)",
+      "status": "PASS",
+      "detail": "OUTCOME=PASS EXIT=0; 7200s, 115 cycles, pid 13400 stable, TOTAL PSS 62,691->108,819 KB (record-only), crash_delta 0, dropbox_delta 0, monkey_rc_nonzero 0",
+      "logs": ["soak-start.txt", "soak/soak-summary.txt", "37-soak-console.log", "soak/soak-samples.csv"]
+    },
+    {
+      "item": "JVM 3E counterpart (RoomBackedStudyExperienceRepositoryTest, 40 tests)",
+      "status": "FAIL",
+      "detail": "1/40 failed: profileStrengthsDropForgottenAndPrerequisiteSuppressedNodes (profile.knowledgePrerequisites[...] null, RoomBackedStudyExperienceRepositoryTest.kt:1969). All 11 3E scan/quota tests pass. Failure is unrelated to the fixture edit (helper usage only at lines 863/911/926/976/1025/1073) and reproduces deterministically in isolation (28-jvm-profile-test-isolated.log: tests=1 failures=1).",
+      "logs": ["27-jvm-3e-room-backed-test.log", "28-jvm-profile-test-isolated.log"]
+    }
+  ],
+  "files_changed": [
+    {
+      "path": "core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/study/StudyReviewPlanner3EScanInstrumentedTest.kt",
+      "change": "line 700 fixture weight 0.5 -> 0.35 (+2 comment lines)",
+      "reason": "fixture violated ChatEvidenceSubmitted.MAX_CHAT_EVIDENCE_WEIGHT=0.35; production writer uses 0.35"
+    },
+    {
+      "path": "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepositoryTest.kt",
+      "change": "line 740 fixture weight 0.5 -> 0.35 (+2 comment lines)",
+      "reason": "same fixture defect on JVM copy"
+    }
+  ],
+  "unverified": [
+    "real device / arm64 / 16KB runtime (only x86_64 API34 emulators with PAGE_SIZE 4096)",
+    "clean-tree rebuild/recompute (all readings from dirty worktree bound by HEAD + APK sha)",
+    "full JVM unit-test gate / lint / strong gates (not this track)",
+    "core:export instrumented tests (test APK built, not run this track)",
+    "any connected*AndroidTest Gradle device task (plan prohibition)",
+    "Play Console / ICP filing / production signing / image provider (external BLOCKED)",
+    "soak has no ANR/memory/battery thresholds; PASS only means no new crash/dropbox and monkey rc=0 for 7200s"
+  ],
+  "harness_notes": [
+    "all device runs use raw adb install + am instrument; no connected Gradle tasks",
+    "secrets: release signing env from .tmp/release-signing/release-signing.env; values never printed or stored",
+    "soak harness is evidence/35-soak-script.sh (same criteria as batch50); run on emulator-5592 with stay-on",
+    "adb root was executed on emulator-5592 to inspect the freshly seeded DB; this made smaps_rollup Pss readable (pss_samples=115)"
+  ]
+}

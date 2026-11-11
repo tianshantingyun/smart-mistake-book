@@ -1,0 +1,96 @@
+{
+  "input_file": "BLD-PROPCOORD-018.json",
+  "program_sha256": "652b3dd1cbb16b7d3b501933f56be67b987150487d1ebbf5044d11354f0bab49",
+  "task_id": "BLD-PROPCOORD-018",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 25,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "比例尺 1:50000（示意图）",
+      "widthDu": 190.5454559326172,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "76bac2477856736fb73fb916a8fc358ccaa9ab4036a6a0a7140efb0cf6a8e517"
+    },
+    {
+      "contentId": "c1",
+      "payload": "图上距离 4 厘米",
+      "widthDu": 113.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "87c8698708b9e0381ef0f638226132d50142b9aa9695d0b18a3eddb49f1e2707"
+    },
+    {
+      "contentId": "c2",
+      "payload": "实际距离 200000 厘米",
+      "widthDu": 158.5454559326172,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "322332b09b6ab5a98468c36ee74b3ae3ab93f540360db5c9d47188d13e2a6cb8"
+    },
+    {
+      "contentId": "c3",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c4",
+      "payload": "1",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "contentId": "c5",
+      "payload": "2",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "contentId": "c6",
+      "payload": "3",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+    },
+    {
+      "contentId": "c7",
+      "payload": "4",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a"
+    },
+    {
+      "contentId": "c8",
+      "payload": "厘米",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a49e3437fbb1c44d00834616de717f8dc7169c76957ac2d7b409232546e40008"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

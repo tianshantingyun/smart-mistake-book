@@ -1,0 +1,8 @@
+档位=bge-small-zh-v1.5（dim=512）
+float32 累加自证：前 20 行 accumulate ≡ 显式循环（逐位一致）
+端侧算法（词面召回域内排序）：{"main": 0.8992248062015504, "hits": 116, "chapterMin": 0.0, "mrr": 0.7174418604651163, "total": 129}
+端侧算法（整科域排序）：      {"main": 0.8992248062015504, "hits": 116, "chapterMin": 0.0, "mrr": 0.7174418604651163, "total": 129}
+离线参考 refFusedD1：         {"main": 0.9147286821705426, "hits": 118, "chapterMin": 0.5, "mrr": 0.7170542635658915, "total": 129}
+离线参考 refLexicalOnlyD1：   {"main": 0.7829457364341085, "hits": 101, "chapterMin": 0.0, "mrr": 0.6223514211886305, "total": 129}
+与离线参考逐题比对：top-5 成员不同 12/129、名次不同 6/129、命中丢失 2 条 [(58, '判别式法-主要用于含有二次的分式函数-形如'), (97, '超重与失重的判断方法')]
+落盘：core/data/src/test/resources/dense/dense-device-order-reference.txt（4 条查询）

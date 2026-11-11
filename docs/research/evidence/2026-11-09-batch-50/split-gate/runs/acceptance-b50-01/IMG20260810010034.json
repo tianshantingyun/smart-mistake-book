@@ -1,0 +1,57 @@
+{
+    "file": "IMG20260810010034.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 27726,
+    "responseHead": "{\"id\":\"e48d598b-1911-4f1d-9cdb-315dfc05c03e\",\"object\":\"chat.completion\",\"created\":1794129405,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.03,\\\"top\\\":0.10,\\\"right\\\":0.99,\\\"bottom\\\":0.99},\\\"message\\\":\\\"画面包含第3至7题共5道独立题，需要拆分\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.04,\\\"top\\\":0.112,\\\"right\\\":0.98,\\\"bottom\\\":0.226},{\\\"left\\\":0.04,\\\"top\\\":0.238,\\\"right\\\":0.99,\\\"bottom\\\":0.475},{\\\"left\\\":0.04,\\\"top\\\":0.486,\\\"right\\\":0.93,\\\"bottom\\\":0.600},{\\\"left\\\":0.04,\\\"top\\\":0.612,\\\"right\\\":0.98,\\\"bottom\\\":0.838},{\\\"left\\\":0.04,\\\"top\\\":0.842,\\\"right\\\":0.93,\\\"bottom\\\":0.990}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。画面包含从顶部残留上一题选项C/D，到第3、4、5、6(1)(2)、7题。第3题是完整独立题，第4题完整独立题，第5题完整独立题，第6题包含(1)(2)两小问，但通常算一道独立题？需要判断是否多道独立题。题目要求：若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按页面阅读顺序给出每道题的完整外接区域。这里显然有第3、4、5、6、7题，可能5道独立题。顶部还有上一题选项C/D残余，但不能算完整题。需要返回SPLIT，并标MULTIPLE_QUESTIONS BLOCKING。questionRegions给出每道题完整外接区域。需要坐标0-1。图片尺寸约1536x2048? 但给纸面范围x0.004–1.000, y0–0.799，注意图片实际整高包含纸面到0.799? 视觉图像内容全幅。坐标按图像归一化。需要估计题目区域。\\n\\n我们需要仔细确定每道题边界：\\n- 第3题：从 y约0.118（题干\\\"3. 函数...\\\"）到 y约0.230（选项D行底）。顶部残留的C/D属于第2题选项，不属于第3题。第3题区域 left约0.04, top约0.118, right约0.93, bottom约0.232。但是右侧有红笔批改和手写，包含作答区？题目完整外接区域应包含题干、选项、图形和作答区。第3题选项行右侧有红笔答案D和勾，属于批改，不属于题块？但作答区在题干右侧括号。可包含右侧。left 0.04 right 0.96 top 0.112 bottom 0.235。\\n- 第4题：题干 y约0.245到选项D y约0.478? 需要看：第4题从\\\"4.【多选题】...\\\" y约0.245，选项A/B y",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.04,
+            "top": 0.112,
+            "right": 0.98,
+            "bottom": 0.226
+        },
+        {
+            "left": 0.04,
+            "top": 0.238,
+            "right": 0.99,
+            "bottom": 0.475
+        },
+        {
+            "left": 0.04,
+            "top": 0.486,
+            "right": 0.93,
+            "bottom": 0.6
+        },
+        {
+            "left": 0.04,
+            "top": 0.612,
+            "right": 0.98,
+            "bottom": 0.838
+        },
+        {
+            "left": 0.04,
+            "top": 0.842,
+            "right": 0.93,
+            "bottom": 0.99
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 5,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.004–1.000，y=0.000–0.799；单栏；行距约 10px；段落分隔（共 11 处，已截断到 8 条）：y=0.250（谷宽17px，栏1）；y=0.114（谷宽15px，栏1）；y=0.031（谷宽13px，栏1）；y=0.293（谷宽7px，栏1）；y=0.000（谷宽5px，栏1）；y=0.162（谷宽0px，栏1）；y=0.202（谷宽0px，栏1）；y=0.393（谷宽0px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 261,
+    "image": {
+        "egressBytes": 485774,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "e4e5d0760dd7b475edaa34d15a76bb367ff6a55bd8ab07e67ed1de6169bd6d88",
+    "promptSha256": "0d1cdac193f5420512054943954bc8c596a7c2a1b9133d010698ad548053a9d5"
+}

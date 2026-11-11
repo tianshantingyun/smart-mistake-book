@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-26a9bdfe30-026	CORRECT		high	用注射器（针筒）封闭空气 探究一定质量气体在等温条件下压强与体积关系的实验	
+ext-mat-1a5cd8bfab-010	CORRECT		medium	双曲线中c的平方等于a的平方加b的平方，与椭圆的关系式容易混淆。	
+ext-phy-2123a18d29-006	CORRECT		high	变力做功无法用功的公式直接求解时，可用动能定理由恒力做功与初末动能反求变力做的功	
+ext-bio-26746c92ba-139	CORRECT		medium	引物的 G+C 含量以 40%～60% 为宜、碱基随机分布，不能形成发卡结构	
+ext-phy-d8098ad0ee-022	CORRECT		high	接触脱离看弹力为零，相对滑动看静摩擦力最大，绳断松弛看张力，收尾速度看加速度为零。	
+ext-phy-263d48f1a1-006	CORRECT		high	匝数比不变时输入电压决定输出电压；负载变化使输出电流变化，进而决定输入电流与输入功率。	
+ext-mat-bf85b94c83-021	CORRECT		medium	② 取各因式的系数：由二项式的通项取对应次数的系数（块内二次项、一次项、常数项的系数依次为 10、－5、1）。	
+ext-mat-0da7e2399c-007	CORRECT		medium	把拱形、杯口等实际轮廓放进坐标系，设标准方程并用边界点定参数，再求目标位置的坐标。	
+bio-kb-secretory-protein-synthesis-transport	CORRECT		high	分泌蛋白在核糖体合成，经内质网、高尔基体加工，经囊泡运至细胞膜胞吐出细胞，由线粒体供能。	
+ext-bio-46cc65dedf-009	CORRECT		high	每个小桶内彩球数量必须相等，因为杂种F1(Dd)产生比例相等的两种配子	
+phys-mo-l17-kepler-gravitation-b-3	CORRECT		high	由表面重力或卫星环绕参量求中心天体质量，结合体积求密度。	
+bio-fj-08-optimal-temperature-measurement	CORRECT		high	在一定范围内设置多个温度梯度测酶活性，出现峰值即为最适温度，否则扩大范围。	
+phys-mo-l31-mechanical-wave-b-3	CORRECT		high	障碍物或孔的尺寸比波长小或相差不多时发生明显衍射。	
+bio-mo-cell-080	CORRECT		high	细胞膜的流动性是由于组成细胞膜的分子（磷脂分子及大多蛋白质分子）的运动所致，所以，流动性属于细胞膜的结构特点。	
+ext-phy-504a241474-012	REBIND	测电阻方法体系与选择	low	伏安法测电阻实验的原理、操作与数据处理的题。	主点为伏安法测电阻实验整体，现绑只覆盖接法选择这一环
+ext-mat-9e21a7e47c-010c	CORRECT		high	直观理解：往糖水里加糖（分子分母同加正数），糖水更甜（分数变大）。	
+chem-kb-molecular-polarity-judgment	CORRECT		high	极性分子：正电中心与负电中心不重合；非极性分子：正负电中心重合。	
+ext-phy-18235fe94d-009	CORRECT		high	由μ与tanθ的关系判断物块在斜面上的五种运动状态及各自加速度表达式	
+ext-che-9075c91126-027	CORRECT		medium	在水中加入盐会使水的凝固点降低、沸点升高，故反应温度保持在 －5 ℃ 左右时水浴选用冰盐水浴。	
+ext-phy-c41826321a-011	CORRECT		high	可以把速度、边长、电阻等推向极大或极小，快速完成定性判断。	
+ext-phy-47a448da0e-023	CORRECT		high	匀质球壳空腔内任意位置质点受到球壳的万有引力合力为零；匀质球体内部距球心 r 处的质点所受的万有引力等于半径为 r 的同心球体对它的引力。	
+ext-bio-554c7d71bf-011	CORRECT		medium	人鼠细胞融合后两种荧光均匀分布，证明细胞膜具有一定的流动性	
+ext-che-084a704b8f-003	CORRECT		high	氢氧化铜与碱式碳酸铜受热分解且溶于酸，无水硫酸铜遇水变蓝只用于检验水。	
+ext-phy-2422726855-013	CORRECT		high	逆向思维把末状态当初始状态反向推理、对称性分析利用几何或时间对称简化问题、极限思想用极端假设分析临界状态。	
+ext-che-3638d9188e-014	CORRECT		high	丁达尔效应、电泳与聚沉的判断与解释	
+ext-bio-05929c6cf6-021	CORRECT		medium	装置一用NaOH吸收CO2、液滴移动反映O2吸收量，装置二液滴移动反映CO2与O2的差值	
+ext-phy-e4d0febe04-004	CORRECT		high	以平行四边形对角线为合力理论值并与实测合力比较，用三个相同和三个适当控制误差。	
+ext-mat-6ad55e9212-002	CORRECT		high	重心、外心、内心、垂心各有确定的向量特征式，可据此判断点的性质或求参数。	
+ext-che-a49c7ca023-004c	CORRECT		high	Si晶体用作半导体材料（硅芯片、太阳能电池板）；SiO2用于光导纤维与光学仪器；新型陶瓷分耐高温结构陶瓷、压电陶瓷、透明陶瓷、超导陶瓷。	
+chem-hj-na-yu-youchun-benfen-yisuan	CORRECT		high	钠与乙醇、苯酚、乙酸反应依次越来越剧烈，反映羟基氢活泼性增强。	
+ext-phy-d6ae65db32-006	CORRECT		high	瞬时值用于某时刻的受力计算，峰值用于讨论电容器击穿电压，平均值用于计算通过导线横截面的电荷量，有效值用于与热效应有关的计算。	
+ext-mat-4727e299b1-001	CORRECT		high	由函数解析式选择对应图象时，按奇偶性、特殊点函数值的正负、单调性与变化趋势、零点与极值点的顺序逐层排除。	
+ext-mat-535fa671a7-003	CORRECT		high	按一个或多个变量把总体划分成若干子总体（层），每个个体属于且仅属于一个层；在各层中独立进行简单随机抽样，再把各层样本合为总样本。	
+ext-bio-ea337c4a7b-026	CORRECT		medium	爆发式物种形成主要通过染色体变异形成新物种，可在较短时间内形成生殖隔离。	
+ext-mat-289deb9ecd-863	CORRECT		high	两非零向量数量积为零即垂直；证空间两直线垂直可转化为证两方向向量的数量积为零。	
+ext-mat-418086fcde-046	CORRECT		medium	焦点三角形中，椭圆的焦半径之积与面积满足 S=½|PF1||PF2|sinθ=b²tan(θ/2)（θ=∠F1PF2）	
+phys-hj2-feizixing-it-tuxiang-yichu	CORRECT		high	伏安特性曲线为过原点直线的元件适用欧姆定律（线性元件）；弯曲的为非线性元件，某点电阻用 $U/I$ 计算。	
+ext-phy-dbe393d33c-008	CORRECT		high	已知分运动求合运动叫合成、已知合运动求分运动叫分解，位移、速度、加速度都遵循平行四边形定则。	
+ext-che-9b4026fa03-002	CORRECT		high	书写配平陌生氧化还原方程式遵循四步法原则，常用化合价升降法、整体零价法和逆向配平法。	
+ext-mat-d5ea8bcaad-003	CORRECT		high	设 f(x)=ax³+bx²+cx+d（a>0），对应方程 f(x)=0 的根的情况由导函数与极值决定。	
+ext-bio-f4cb500ed8-005	CORRECT		high	可用分离比直接推算，也可用配子概率相乘再相加。	
+ext-phy-7c281e2eb1-004	CORRECT		high	力的分解是力的合成的逆运算，同样遵循平行四边形定则或三角形定则，同一个力可以有无数种分解方式。	
+ext-bio-c5d2807923-088	CORRECT		high	温度影响种子萌发、生长、开花结果和叶的衰老脱落等生命活动，植物分布的地域性很大程度上由温度决定。	
+bio-rate-keyword-fixation-utilization	CORRECT		high	'CO2 固定/利用/消耗速率''O2 产生速率''有机物制造速率'均指真光合。	
+ext-mat-3d4d9a72fa-001	CORRECT		high	柱、锥、台、球的结构特征与球的截面性质是空间几何体识别的基础	
+ext-mat-9291b86a1a-003c	CORRECT		high	「过」点处的切线中该点不一定是切点，切线至少有一条（可能不止一条）。	
+math-sphere-tangency-axis-section-method	CORRECT		high	几何体与球相切问题，作出过球心的轴截面，将空间关系降为平面中圆与多边形的关系。	
+ext-mat-5ea74eccc8-001	CORRECT		high	步骤：先确定函数定义域，再求导并通分合并、因式分解。	
+ext-bio-b1dbe11e89-016	CORRECT		high	静息电位由K⁺外流形成，动作电位由细胞外Na⁺内流形成	
+ext-phy-41052fd08f-004	CORRECT		high	按周期性分段研究并把a-t图像转化为v-t图像，用斜率与面积分析运动	

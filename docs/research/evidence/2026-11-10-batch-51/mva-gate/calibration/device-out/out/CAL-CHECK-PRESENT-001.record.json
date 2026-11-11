@@ -1,0 +1,41 @@
+{
+  "input_file": "CAL-CHECK-PRESENT.json",
+  "program_sha256": "3cacc1a2b6e8736617ca2ee0d5c4d709eb998da3c7863eb240254aa8d02ff823",
+  "task_id": "CAL-CHECK-PRESENT",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 13,
+  "measurement": [
+    {
+      "contentId": "c0-6b05e48b",
+      "payload": "题面文字",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b05e48b9c68eaadb6202430944d82f2013e31ece543df0b013c580b57dd0b51"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "5a31a1e4cca8ef8f2e8d1d05e87f4e15b8dc36ed71e8d20a48df944d3f0f8650",
+  "scene_bytes": 404,
+  "scene_schema_version": 1,
+  "draw_sha256": "59b8f3fd60c9bccc66259f4674ad9a16983e428518a695cd16ebae54f88b4824",
+  "draw_bytes": 467,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-6b05e48b"
+  ],
+  "png_sha256": "b0e62b127f79ea23178b0e85d87975a701512381b8af2e752d2b786eef013f49",
+  "png_bytes": 4812,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 3,
+    "pathCommands": 3,
+    "labels": 1,
+    "ops": 2
+  }
+}

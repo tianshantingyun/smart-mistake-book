@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-e14aad82a5-1214	CORRECT		high	x-t 图像表示位移随时间变化的情况而不是轨迹	
+ext-phy-e14aad82a5-1288	CORRECT		high	速度反向延长线交水平位移于中点	
+ext-phy-e14aad82a5-1431	CORRECT		high	根据选定的实验方案设计数据记录表格	
+ext-phy-e14aad82a5-1510	CORRECT		high	波的频率可理解为单位时间内通过介质中某点的完整波形个数	
+ext-phy-e14aad82a5-1551	CORRECT		high	书写核反应方程要熟记常见粒子符号	
+ext-phy-e14aad82a5-245b	CORRECT		high	能量在转化或转移中总量保持不变	
+ext-phy-e14aad82a5-351	CORRECT		high	分析按受力、运动、选规律三步推进	
+ext-phy-e14aad82a5-357b	CORRECT		high	感应电流方向与磁通量变化不易直接联系	
+ext-phy-e14aad82a5-361	CORRECT		high	磁通量大时变化量不一定大、变化量大时变化率不一定大	
+ext-phy-e14aad82a5-368b	CORRECT		high	图像类型包括 B-t、Φ-t、E-t、I-t、F-t	
+ext-phy-e14aad82a5-741	CORRECT		high	常规物体之间的万有引力极小	
+ext-phy-e14aad82a5-864	CORRECT		high	I=E/(R+r) 与 U外=E-Ir	
+ext-phy-e14aad82a5-894	CORRECT		high	匀速转动摇把使振子做受迫振动，稳定后振子振动频率与摇把转动频率相同	
+ext-phy-e14aad82a5-908	CORRECT		high	路程为 4A 或 2A 时所用时间确定	
+ext-phy-e14aad82a5-911	CORRECT		high	等效摆长是摆动圆弧的圆心到小球球心的距离	
+ext-phy-e14aad82a5-930	CORRECT		high	频率相同、相位差恒定、振动方向相同的两列波叠加时出现稳定的加强区与减弱区	
+ext-phy-e14aad82a5-979	CORRECT		high	自感电动势 E=LΔI/Δt	
+ext-phy-e14aad82a5-980	CORRECT		high	通电时自感电动势与原电流方向相反	
+ext-phy-e3515b0d3f-006	CORRECT		high	待测电阻阻值远大于电流表内阻时采用电流表内接法	
+ext-phy-e3515b0d3f-016	CORRECT		high	先记下待测电阻接入时的电流表示数	
+ext-phy-e3b62fec14-031	CORRECT		high	各器件中心共轴、单缝与双缝平行且间距适当	
+ext-phy-e4b3b251e9-018	CORRECT		high	加速度向上时 FN=mg+ma>mg 为超重	
+ext-phy-e4b3b251e9-035	CORRECT		high	动能 Ek=½mv² 是标量	
+ext-phy-e4b3b251e9-042	CORRECT		high	简谐运动位移 x=Asin(ωt+φ0)	
+ext-phy-e4b3b251e9-070	CORRECT		high	由阿伏加德罗常数 NA=6.02×10²³ mol⁻¹ 估算微观量时	
+ext-phy-e8220d0798-002	CORRECT		high	机械波波速只由介质决定，频率由波源决定且跨介质不变	
+ext-phy-e90311505f-008	CORRECT		high	动量守恒可写成 p=p′（前后总动量相等）	
+ext-phy-e94765fbff-015	CORRECT		high	碰前碰后速度除用光电门、平抛运动测定外	
+ext-phy-e96c3ec184-012	CORRECT		high	匀速圆周运动的合力提供向心力	
+ext-phy-ea35cd0649-003	CORRECT		high	填补法把有缺口的带电圆环、圆板或半球面补全为完整形体再相减	
+ext-phy-ea59d87d1e-007	CORRECT		high	场强等于试探电荷所受静电力与它的电荷量之比	
+ext-phy-ec3402c050-021	CORRECT		high	刚性绳（或接触面）形变不明显	
+ext-phy-ecde1aee5b-027	CORRECT		high	F－t图像由力求加速度并分析各段运动情况	
+ext-phy-eede7ba2b8-002	CORRECT		high	一切物体都在辐射电磁波，黑体辐射的强度按波长的分布只由温度决定	
+ext-phy-f019f84af8-006	CORRECT		high	万有引力定律 F＝Gm1m2/r²	
+ext-phy-f027928826-005	CORRECT		high	振动图像表示位移随时间变化的规律、是一条正弦曲线	
+ext-phy-f2d6b70eec-022	CORRECT		high	匀强电场与重力场共存时，把二者合成为等效重力	
+ext-phy-f31a978e96-005	CORRECT		high	用磁传感器记录磁感应强度随时间的变化	
+ext-phy-f38666a18a-008	CORRECT		high	匀速圆周运动的周期性使物体的空间位置具有时间上的重复性	
+ext-phy-f507e6a65e-003	CORRECT		high	可用起始点到第n点、任取两点或图像法三种方式验证机械能守恒	
+ext-phy-f6d8b7d8c2-008	CORRECT		high	双棒与导轨构成回路时安培力充当内力	
+ext-phy-f70627f2f0-003	CORRECT		high	摩擦力的突变分两类	
+ext-phy-f73ef620eb-008b	CORRECT		high	等势面是电势相等的点组成的面，与电场线垂直	
+ext-phy-f88d1938f5-009	CORRECT		high	由平衡条件或牛顿第二定律反求静摩擦力的大小	
+ext-phy-f93a6bf7ce-014	CORRECT		high	自由落体是初速度为零、只受重力的匀加速直线运动	
+ext-phy-f93ff4fa94-008b	CORRECT		high	黑洞是密度极大、引力极大的天体，光都无法逃逸	
+ext-phy-fb23e0c4e3-004	CORRECT		high	归纳追及相遇问题的实质、一个临界条件与两个等量关系	
+ext-phy-fbb2e35070-004	CORRECT		high	任意两个连续相等时间间隔T内的位移之差为恒量aT²	
+ext-phy-fbb7496651-006	CORRECT		high	在连续相等的时间 T 内位移之差是一个恒量	
+ext-phy-fcca252fba-020	CORRECT		high	取下玻璃砖连AB、CD交边界于O与O′	

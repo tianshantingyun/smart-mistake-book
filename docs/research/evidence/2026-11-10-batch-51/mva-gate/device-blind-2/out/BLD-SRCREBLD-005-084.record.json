@@ -1,0 +1,71 @@
+{
+  "input_file": "BLD-SRCREBLD-005.json",
+  "program_sha256": "f49d93984fa14f91ff82bdc334ba567754fde489fe9680fcef16afc2b298d109",
+  "task_id": "BLD-SRCREBLD-005",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 24,
+  "measurement": [
+    {
+      "contentId": "c0-99faf39f",
+      "payload": "电源",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "99faf39f8dee3bc3a363d2bb9a378b27ce61745f0e8093a6435a257610eb7ce2"
+    },
+    {
+      "contentId": "c1-92d9be0a",
+      "payload": "开关",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "92d9be0a0e94eb16ca28037399f9c5b04f38fce990ffa4d25458773983ea382c"
+    },
+    {
+      "contentId": "c2-dab3ad1f",
+      "payload": "灯泡",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "dab3ad1f980b65a0fe1cd4a304346f080b2aa5981004eb02a6631906bddfbdc3"
+    },
+    {
+      "contentId": "c3-0df9b6a8",
+      "payload": "电流表",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0df9b6a88717bc8519a79e9e4bdbadb4403d392f914351be9d124cff29a298be"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "3efe8c92d6ec1198f0c2f8bc5a1573cbc3292ed3a2fa2b42cc3b90e112057455",
+  "scene_bytes": 4699,
+  "scene_schema_version": 1,
+  "draw_sha256": "54ddb25c28d08f67c6c3712cb6309d4effdc5217ef12b2636ef80fd1d51444d5",
+  "draw_bytes": 4883,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-99faf39f",
+    "c1-92d9be0a",
+    "c2-dab3ad1f",
+    "c3-0df9b6a8"
+  ],
+  "png_sha256": "b2a46e2824887ce9dac825ba565d365d86b7157d976abc55127025db59024d52",
+  "png_bytes": 8941,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 22,
+    "pathCommands": 50,
+    "labels": 4,
+    "ops": 21
+  }
+}

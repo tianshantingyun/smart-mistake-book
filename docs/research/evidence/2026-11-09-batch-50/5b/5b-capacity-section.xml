@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="5b-capacity-section" tests="3" failures="0" errors="0" skipped="0" hostname="emulator-5590" timestamp="2026-11-08T10:24:07Z">
+  <testcase classname="com.tingyun.smartmistakebook.ReviewCapacitySectionInstrumentedTest" name="anEmptyLibraryDoesNotShowACapacityReadout" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewCapacitySectionInstrumentedTest" name="plannedCapacityRendersTodayCapacityExamGapAndPerSubjectReadout" time="0">
+  </testcase>
+  <testcase classname="com.tingyun.smartmistakebook.ReviewCapacitySectionInstrumentedTest" name="noCapacityFactsShowAnHonestEmptyStateInsteadOfZeroCapacity" time="0">
+  </testcase>
+</testsuite>

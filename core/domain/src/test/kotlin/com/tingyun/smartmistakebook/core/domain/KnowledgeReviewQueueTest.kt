@@ -515,6 +515,111 @@ class KnowledgeReviewQueueTest {
     }
 
     /**
+     * **纯函数**口径（KD-46 修复后的分层）：`selectKnowledgeReviewQueue` 没有"今日已扫"状态——
+     * 它只认调用方传入的 `fullLibraryScanDailyCap`（剩余名额）与回放档。每调用一次最多从
+     * [fullLibraryScanCandidates] 取 cap 个；同一天第二次调用能取多少，取决于调用方把 cap
+     * 扣到多少（`StudyReviewPlannerService` 从 KNOWLEDGE_QUIZ 账本扣减当日已花费）。
+     *
+     * 因此本用例把**纯函数**的实际语义写死：无隐藏状态、同输入逐位相同、cap 是"本次新增上限"。
+     * "每日累计 ≤10"由服务层用例钉
+     * （`RoomBackedStudyExperienceRepositoryTest.scanQuota*`），不是本函数的状态。
+     */
+    @Test
+    fun scanQuotaIsPerPlanNotADailyAccumulator() {
+        val scanned = (1..20).map { index ->
+            val id = "kc-daily-%02d".format(index)
+            candidate(
+                id = id,
+                material = "material-$index",
+                state = mastery(id, MasteryStatus.CONFLICTED),
+            )
+        }
+        fun run(pool: List<KnowledgeReviewCandidate>) = selectKnowledgeReviewQueue(
+            scorer = scorer,
+            candidates = emptyList(),
+            now = now,
+            timeBudgetSeconds = 3_600,
+            fullLibraryScanCandidates = pool,
+        )
+        val first = run(scanned)
+        assertEquals(FULL_LIBRARY_SCAN_DAILY_CAP, first.size)
+        val firstIds = first.mapTo(
+            linkedSetOf(),
+            KnowledgeNodeScorer.ScoredKnowledgeNode::knowledgeNodeId,
+        )
+        // 纯函数无状态：同输入重算逐位相同（不存在隐藏的"今日已扫集合"）。
+        assertEquals(
+            firstIds,
+            run(scanned).mapTo(
+                linkedSetOf(),
+                KnowledgeNodeScorer.ScoredKnowledgeNode::knowledgeNodeId,
+            ),
+        )
+        // 纯函数不记账：第一批移出候选池后同日重排，cap 仍取满 10 —— 当日累计是否被封在 10
+        // 由调用方（服务层）扣减 cap 决定，不是本函数的状态。
+        val second = run(scanned.filterNot { it.knowledgeNodeId in firstIds })
+        assertEquals(FULL_LIBRARY_SCAN_DAILY_CAP, second.size)
+        val secondIds = second.mapTo(
+            linkedSetOf(),
+            KnowledgeNodeScorer.ScoredKnowledgeNode::knowledgeNodeId,
+        )
+        assertTrue("两批不得重叠", firstIds.intersect(secondIds).isEmpty())
+        assertEquals(
+            "cap 是「本次调用可新增」的上限：纯函数两次调用各取 10（每日累计由服务层扣减）",
+            2 * FULL_LIBRARY_SCAN_DAILY_CAP,
+            (firstIds + secondIds).size,
+        )
+    }
+
+    /**
+     * 每日累计（KD-46 修复）的域层规则：回放档（当日已复习的扫描点）原样进并集、**不占名额**；
+     * 名额只封新增。剩余名额为 0 时队列里仍保留当日已复习的那批点（否则学生会看到计划凭空消失）。
+     *
+     * 消灭的失败：只扣名额不回放，第二次排计划会把"今天已经复习过的点"整体从计划里抹掉；
+     * 若让回放也占名额，调用方扣到 7 的剩余名额会被 3 个回放吃掉，本次只能再新增 4 个——
+     * 同一批复习会被二次收费（少发），而名额语义本是"每日**新增** ≤10。
+     */
+    @Test
+    fun replayCandidatesJoinThePoolWithoutConsumingTheRemainingCap() {
+        val replayed = (1..3).map { index ->
+            val id = "kc-replay-%02d".format(index)
+            candidate(
+                id = id,
+                material = "material-replay-$index",
+                state = mastery(id, MasteryStatus.CONFLICTED),
+            )
+        }
+        val fresh = (1..5).map { index ->
+            val id = "kc-fresh-%02d".format(index)
+            candidate(
+                id = id,
+                material = "material-fresh-$index",
+                state = mastery(id, MasteryStatus.CONFLICTED),
+            )
+        }
+        fun run(cap: Int) = selectKnowledgeReviewQueue(
+            scorer = scorer,
+            candidates = emptyList(),
+            now = now,
+            timeBudgetSeconds = 3_600,
+            fullLibraryScanCandidates = fresh,
+            fullLibraryScanDailyCap = cap,
+            fullLibraryScanReplayCandidates = replayed,
+        ).mapTo(linkedSetOf(), KnowledgeNodeScorer.ScoredKnowledgeNode::knowledgeNodeId)
+
+        assertEquals(
+            "回放不占名额：剩余 10 时回放 3 + 新增 5 全部进池",
+            (replayed + fresh).mapTo(linkedSetOf(), KnowledgeReviewCandidate::knowledgeNodeId),
+            run(FULL_LIBRARY_SCAN_DAILY_CAP),
+        )
+        assertEquals(
+            "剩余名额 0 = 只回放当日已复习的扫描点，不取任何新增",
+            replayed.mapTo(linkedSetOf(), KnowledgeReviewCandidate::knowledgeNodeId),
+            run(0),
+        )
+    }
+
+    /**
      * 规模门（S9/S17 纪律的 JVM 侧形态，同 `ReviewPlannerScaleBenchmarkTest` 的口径）：
      * 全库 5000 个扫描候选，只按分取前 N、且整体在宽门内跑完——它钉的是"扫描不因库规模变成
      * 逐节点/二次方开销"，不是微基准标定值。预热 2 次取 best-of-3，门给 1500ms（实际约几十毫秒）。

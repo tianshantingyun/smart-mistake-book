@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="b49-review-window-red-old-sql" tests="1" failures="1" errors="0" skipped="0" hostname="emulator-5566" timestamp="2026-11-07T13:50:18Z">
+  <testcase classname="com.tingyun.smartmistakebook.core.database.MasterySchedulingMigrationInstrumentedTest" name="recentReviewLogWindowKeepsTheNewestRowsInAscendingOrder" time="0">
+    <failure message="instrumentation failure">java.lang.AssertionError: expected:&lt;[2000, 3000]&gt; but was:&lt;[1000, 2000]&gt;
+</failure>
+  </testcase>
+</testsuite>

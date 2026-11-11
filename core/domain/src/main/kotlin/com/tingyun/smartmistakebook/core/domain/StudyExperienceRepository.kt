@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.model.CalibrationReport
 import com.tingyun.smartmistakebook.core.model.LearningEvidenceReason
 import com.tingyun.smartmistakebook.core.model.LearningModelVersion
 import com.tingyun.smartmistakebook.core.model.MasteryStatus
+import com.tingyun.smartmistakebook.core.model.ProjectionStatus
 import com.tingyun.smartmistakebook.core.model.ReviewReason
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
@@ -16,6 +17,28 @@ enum class StudyDataStatus {
     LOADING,
     READY,
     ERROR,
+}
+
+/**
+ * 投影级冲突的**专用**读面事实（批次 49 P2-13）。
+ *
+ * 消灭的失败：投影排空在账本冲突/缺口处失败时，读面此前只剩 `StudyDataStatus.ERROR` +
+ * 一句 `failureMessage`——学生看到的东西与"数据库暂时打不开"完全一样，既不知道是投影与
+ * 账本对不上，也没有任何"重新整理"的出路。本对象把失败的原因**按投影状态分类**，让
+ * 读面能说清"哪一类不一致"，并把 [StudyExperienceRepository.reprojectAll] 作为唯一的
+ * 修复动作接出去。
+ *
+ * 只承载状态、不承载技术 message：学生可读的原因句由 UI 按状态翻译（同一状态同一句话），
+ * 技术细节仍留在 `failureMessage`/日志里。`CURRENT` 不是一种问题，构造即拒绝。
+ */
+data class StudyProjectionIssue(
+    val status: ProjectionStatus,
+) {
+    init {
+        require(status != ProjectionStatus.CURRENT) {
+            "A projection issue must name a non-current projection status"
+        }
+    }
 }
 
 data class StudyCatalogEntry(
@@ -96,6 +119,14 @@ data class StudyReviewOverview(
      * "约 M 天安排完"的覆盖承诺。
      */
     val intakeUnschedulableCount: Int = 0,
+    /**
+     * 容量预览（5b 容量 UI / KD-68 同族）：今日容量、考试缺口、积压追赶状态与逐科名额。
+     *
+     * null = 本轮没有容量事实（考试窗口内没有考试，且积压追赶未规划）——读面必须显示
+     * 如实空态，不得把全零当"今天容量为 0 题"。数据由 `StudySnapshotBuilder` 经排程服务
+     * `reviewCapacityPreview` 派生，与排程侧同一遗忘曲线/考试表/预算口径；UI 只渲染不重算。
+     */
+    val capacity: StudyReviewCapacity? = null,
 ) {
     init {
         require(completionStreakDays >= 0) { "Review completion streak must not be negative" }
@@ -213,6 +244,12 @@ data class StudyExperienceSnapshot(
     val tutorDecision: AdaptiveDecision? = null,
     val tutorExampleSaved: Boolean = false,
     val failureMessage: String? = null,
+    /**
+     * 投影专用冲突（批次 49 P2-13）：非 null = 本次失败是**投影/账本级**的，读面必须显示
+     * 专用状态、原因与"重新整理"，不得退化成通用错误。null = 没有已知的投影级问题
+     * （普通失败仍走 [failureMessage]）。
+     */
+    val projectionIssue: StudyProjectionIssue? = null,
 ) {
     init {
         require(pendingCorrectionCount >= 0) { "Pending correction count must not be negative" }
@@ -527,11 +564,12 @@ interface StudyExperienceRepository : AutoCloseable {
     /**
      * 今天知识点复习计划（spec dual-review-entry §3.2）：范围 = **今日错题复习队列的题绑定
      * 知识点**（[extractReviewKnowledgeScope]，第一档）∪ **全库薄弱点扫描**（第二档：有绑定题的
-     * 活跃知识点 ∩ 材料可出题，减去今日队列，每次排计划 ≤ [FULL_LIBRARY_SCAN_DAILY_CAP] 个
-     * （非严格每日总量，KD-46）；3E，
-     * 2026-10-16 裁定）。两档并集后用与错题同构的打分（[KnowledgeNodeScorer.scoreKnowledgeNode]
-     * + [selectKnowledgeReviewQueue]）在时间预算内排出有序队列。今日错题队列为空**不影响**第二档
-     * （"全库扫描，不受今日队列限制"）。空队列 = 今日无待复习知识点（全已掌握/新鲜/无可出题材料）。
+     * 活跃知识点 ∩ 材料可出题，减去今日队列，**每个学习日累计** ≤ [FULL_LIBRARY_SCAN_DAILY_CAP]
+     * 个新增（KD-46 批次 51 修复：当日已花费名额从既有 `KNOWLEDGE_QUIZ` 作答账本派生，零 schema；
+     * 当日已复习的扫描点回放但不占名额）；3E，2026-10-16 裁定）。两档并集后用与错题同构的打分
+     * （[KnowledgeNodeScorer.scoreKnowledgeNode] + [selectKnowledgeReviewQueue]）在时间预算内排出
+     * 有序队列。今日错题队列为空**不影响**第二档（"全库扫描，不受今日队列限制"）。空队列 =
+     * 今日无待复习知识点（全已掌握/新鲜/无可出题材料）。
      * 返回 null = 今日无复习计划或学习记录不可用。
      */
     suspend fun currentKnowledgeReviewPlan(
@@ -580,6 +618,112 @@ interface StudyExperienceRepository : AutoCloseable {
         knowledgeNodeId: String,
     ): TutorAssessmentItem?
 
+    /**
+     * KD-67 第二道校准题（批次 50）：把学生显式要求后生成的**第二道题**写进
+     * `(会话, 知识点)` 的校准槽位，返回库里那一行的题面。
+     *
+     * 为什么需要独立方法而不是给 [persistKnowledgeQuizItem] 加参数：会话槽的身份
+     * `(learner, 会话, 知识点)` 是既有生产数据形态，加参数会改变所有既有实现/替身的签名；
+     * 而第二道题本来就应该有一个**不会覆盖第一道题**的独立落点。
+     *
+     * 与 [persistKnowledgeQuizItem] 同语义：同槽同身份首见即真、损坏行覆盖重写、读不回
+     * 返回 null。它**不**改变任何核验/计分判据——新题生成时仍是 `UNKNOWN`，要进任何
+     * ASK 走廊仍须走单列 CAS 升级（来源回执不变）。
+     *
+     * 默认实现返回 null（尚未支持第二槽的实现不假装落库成功；调用方据此按失败出口处置）。
+     */
+    suspend fun persistKnowledgeCalibrationQuizItem(
+        sessionId: Long,
+        knowledgeNodeId: String,
+        item: TutorAssessmentItem,
+    ): TutorAssessmentItem? = null
+
+    /**
+     * 第二道校准题的读回（恢复路径）：按 `(会话, 知识点)` 读校准槽位，绝不退回会话题面槽
+     * （那会把第一道题当成第二道题重新端上屏幕）。
+     *
+     * 默认实现返回 null（= 该实现没有第二槽；与"没有这道题"同一个失败出口）。
+     */
+    suspend fun readPersistedKnowledgeCalibrationQuizItem(
+        sessionId: Long,
+        knowledgeNodeId: String,
+    ): TutorAssessmentItem? = null
+
+    /**
+     * 第二道校准题的作答回写（KD-67 第二道校准题）：与 [submitKnowledgeQuizFeedback]
+     * 同一判分/门控链，但**按题面 id 定位自己的槽位**。
+     *
+     * 为什么必须独立：既有写入口按 `(会话, 知识点)` 读会话题面槽。第二道题与第一道题同属
+     * 一个 `(会话, 知识点)` 而键可以不同——不按题面 id 定位，就会拿第一道题的键去判第二道
+     * 题的作答（键不同 → 误报旧键拒收；键恰好相同 → 用错题面的核验/揭示态放行）。
+     *
+     * 默认实现抛错：未支持第二槽的实现不得静默把作答吞成"没有记录"。
+     */
+    suspend fun submitKnowledgeCalibrationQuizFeedback(
+        requestId: String,
+        knowledgeNodeId: String,
+        itemId: String,
+        correctChoiceId: String,
+        selectedChoiceId: String,
+        occurredAtEpochMillis: Long,
+        conversationId: String,
+    ): KnowledgeQuizFeedbackResult =
+        throw UnsupportedOperationException(
+            "Calibration-question feedback is not implemented by this repository",
+        )
+
+    /**
+     * KD-67：一次知识点复习刷新的**生产选择装配点**——候选装配 + 先修 join +
+     * `AdaptiveQuestionSelector` 决策，并把 `CLARIFY_OR_CONFIRM` 的澄清载荷交给
+     * [clarificationConsumer]（`AdaptiveSelectionAssembler.selectAndConsume`）。
+     *
+     * 为什么必须在这里：选择需要学习者的投影快照（掌握度/投影状态/决策水位），而
+     * `LearnerSnapshot` 的现读只在数据层可达；feature/app 自己拼一个空快照会让"已掌握跳过"
+     * 与预测走廊静默失效。返回的决策只作展示/诊断，**不**决定题目是否出——未核验题面仍会被
+     * 出给学生，核验升级只能走单列 CAS。
+     *
+     * 默认实现返回 null（旧替身/未接线实现不产生决策，也不假装选择成功）。
+     * null 也可能是读取失败：调用方按"没有决策"处理，不阻塞复习。
+     */
+    suspend fun selectKnowledgeReviewQuestion(
+        sessionId: Long,
+        knowledgeNodeId: String,
+        clarificationConsumer: AdaptiveClarificationConsumer,
+        /**
+         * 本次选择走的走廊（批次 49 P2-14）：默认 FOUNDATION（正常复习）。
+         *
+         * 冲突 KC 卡片的"先做校准题"把这里换成 CALIBRATION——不是另开一条出题路径，
+         * 而是让学生**显式选择**用选择器已有的校准走廊（`ASK_CALIBRATION`）评估本次题面。
+         * 默认值保证既有调用方逐字不变。
+         */
+        requestedTargetKind: AdaptiveTargetKind = AdaptiveTargetKind.FOUNDATION,
+        /**
+         * 学生**显式要求**出一道题（"先做校准题"）时为 true。
+         *
+         * 选择器把 `userRequestedQuestion=false` 一律判成 `QUESTION_NOT_REQUESTED`（fail-closed：
+         * 未经请求不得把另一道候选题顶到学生面前）。默认 false 保证既有 KD-67 诊断调用逐字不变；
+         * 只有 K5 卡的"先做校准题"会把它置 true。
+         */
+        userRequestedQuestion: Boolean = false,
+    ): AdaptiveDecision? = null
+
+    /**
+     * 投影级冲突的**唯一修复动作**（批次 49 P2-13，"重新整理"）：强制从不可变学习账本
+     * 全量重放投影，不看增量批次的停止原因。
+     *
+     * 为什么需要它：`drain()` 只在"投影自报过期/版本不符"时自动重放；账本在增量批次里
+     * 报冲突（[ProjectionBatchStopReason.CONFLICT]）时它会抛错，且**不会**再试一次重放。
+     * 账本仍是不可变真值时，重放能把这版投影重新算对；账本自身不完整时，重放会以同一个
+     * [StudyProjectionIssue] 如实失败，而不是假装修好。
+     *
+     * 语义：成功后快照变为 `READY` 且 [StudyExperienceSnapshot.projectionIssue] 清空；
+     * 失败按投影级失败发布（[StudyExperienceSnapshot.projectionIssue] 保留/更新）并上抛。
+     *
+     * 默认实现抛错：旧替身不实现时不得静默"什么都没做"（那会让"重新整理"按钮永远假成功）。
+     */
+    suspend fun reprojectAll(): Unit =
+        throw UnsupportedOperationException("Projection reprojection is not implemented by this repository")
+
     /** The learner's stored teaching advisories, newest first (read side). */
     fun observeTeachingAdvisories(practiceUnitId: String?): Flow<List<TeachingAdvisoryRecord>>
 
@@ -618,6 +762,17 @@ interface StudyExperienceRepository : AutoCloseable {
 
     /** Per-planned-reason realized recall (spec §6 recalibration, advisory). */
     suspend fun plannedReasonCalibrations(): List<PlannedReasonCalibration> = emptyList()
+
+    /**
+     * 校准可见页的**一次装配**读口（批次 49 P2-12）：当前生效的 21 维参数、参数来源、
+     * 最近拟合记录、可预测样本数、当前参数 vs 默认参数在同一验证桶上的 logLoss、
+     * 按理由校准、G6 幅度与排程器版本。
+     *
+     * 为什么一个口而不是六个：页面上的数字必须在同一时刻、同一批 review_log 上算，
+     * 分开读会让"参数"与"它的验证损失"来自两个时点。
+     * 默认 null = 该实现不提供校准视图（页面如实显示不可用）。
+     */
+    suspend fun schedulingCalibrationView(): SchedulingCalibrationView? = null
 
     /**
      * AUD-17 合格长程样本台账（**只读分类视图**，批次 20 / T9 为 Wave X 准备）：review_log
@@ -781,6 +936,20 @@ interface SchedulingSettingsStore {
 
     /** Non-null once [FsrsParameterOptimizer] produced a candidate parameter set. */
     val optimizedParameters: Flow<DoubleArray?>
+
+    /**
+     * 最近一次**成功采纳**的拟合记录（时间/样本/验证损失）；null = 本机没有拟合记录。
+     *
+     * 校准可见页（批次 49 P2-12）必须能说出"这组参数是什么时候、用多少样本拟合出来的"。
+     * 只存参数本身（[optimizedParameters]）回答不了这个问题：进程重启后时间信息就没了。
+     * 备份恢复写入的参数没有本地拟合记录，因此页面来源显示为"已导入"而不是本地拟合。
+     *
+     * 默认 null/无操作 = 旧替身不提供该记录，页面如实显示"没有拟合记录"，不假装拟合过。
+     */
+    val parameterFit: Flow<FsrsParameterFit?> get() = kotlinx.coroutines.flow.flowOf(null)
+
+    /** 写入（或清除）[parameterFit]；与 [setOptimizedParameters] 同一存储。 */
+    suspend fun recordParameterFit(fit: FsrsParameterFit?) = Unit
 
     suspend fun setOptimizedParameters(parameters: DoubleArray?)
 }

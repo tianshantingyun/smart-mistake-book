@@ -1,0 +1,47 @@
+{
+    "file": "IMG20260810012103.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 26619,
+    "responseHead": "{\"id\":\"c0f4c2e4-34ff-4552-b049-11dd4a25c939\",\"object\":\"chat.completion\",\"created\":1794128227,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"画面含多道独立题，需分割\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":0.08},\\\"message\\\":\\\"顶部题干上方文字未入镜，无法完整转写\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.86,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"第11题后续内容未拍全\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.02,\\\"top\\\":0.0,\\\"right\\\":0.99,\\\"bottom\\\":0.245},{\\\"left\\\":0.02,\\\"top\\\":0.245,\\\"right\\\":0.99,\\\"bottom\\\":0.665},{\\\"left\\\":0.02,\\\"top\\\":0.665,\\\"right\\\":0.99,\\\"bottom\\\":1.0}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足够完整转写一道或多道独立题。需要返回JSON schema。观察图片：包含至少几道题？顶部是一道选择题（题号未显示，可能是第？题），题干部分在顶部被截断？图片顶部显示“负方向为正）随位移x的变化图像正确的是” 上方似乎有截断内容？这是某题的后半部分，选项A-D是四个图像，题干不完整（缺少前面描述）。这算一道题但内容未拍全（顶部被截断），因此问题可能MISSING? 还有第10题完整（题干+选项+图），第11题开始。图片中有多道独立题：顶部那道（可能第9题？）和10、11。需要SPLIT如果2-12道独立题。但顶部题目不完整，可能属于同一页的上一题，题干不全。第10题完整；第11题题干开始但可能未结束（选项/后续未拍全）。图片底部截断第11题，所以第11题内容未拍全，可能需要ADD_IMAGE/NEED_MORE_IMAGE？ 但规则：若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按阅读顺序给出每道题完整外接区域... 否则questionRegions空。 同时还有内容未拍全时返回NEED_MORE_IMAGE。需要决策可能SPLIT还是NEED_MORE_IMAGE？ 需要综合。图片包含多道独立题且需要分割，但某些题不完整。decision可能SPLIT（因为多题）。issues包括",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "KEY_TEXT_UNREADABLE",
+        "KEY_TEXT_UNREADABLE"
+    ],
+    "regions": [
+        {
+            "left": 0.02,
+            "top": 0.0,
+            "right": 0.99,
+            "bottom": 0.245
+        },
+        {
+            "left": 0.02,
+            "top": 0.245,
+            "right": 0.99,
+            "bottom": 0.665
+        },
+        {
+            "left": 0.02,
+            "top": 0.665,
+            "right": 0.99,
+            "bottom": 1.0
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–1.000；单栏；行距约 9px；段落分隔（共 15 处，已截断到 8 条）：y=0.592（谷宽23px，栏1）；y=0.671（谷宽11px，栏1）；y=0.424（谷宽9px，栏1）；y=0.831（谷宽9px，栏1）；y=0.444（谷宽8px，栏1）；y=0.299（谷宽7px，栏1）；y=0.335（谷宽7px，栏1）；y=0.366（谷宽5px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 259,
+    "image": {
+        "egressBytes": 524993,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "24f90e1fb1fb48e8053b69da9d7154420f9303da807ca894ca46d9a9c6b6cc65",
+    "promptSha256": "fb84f98a4dca3d0c1b71cd8cf9aec553149199b0339374b27df870c1db2ec2ee"
+}

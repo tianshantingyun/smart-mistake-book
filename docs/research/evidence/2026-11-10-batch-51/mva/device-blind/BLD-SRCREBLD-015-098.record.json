@@ -1,0 +1,14 @@
+{
+  "input_file": "BLD-SRCREBLD-015.json",
+  "program_sha256": "f7ef95d4b8d315cc48ddbb7e80fa2ba04327440d25b60d4ce4e5b2122c286922",
+  "task_id": "BLD-SRCREBLD-015",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 7,
+  "measurement": [],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase render: SceneSdkError: SCENE_SDK_ARG: polyline point 0 must be an [x, y] pair\n    at SceneSdkError (visual-sdk.js:53:26)\n    at polyline (visual-sdk.js:263:30)\n    at r"
+}

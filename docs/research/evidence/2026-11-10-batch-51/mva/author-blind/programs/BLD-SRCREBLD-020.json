@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-020",
+    "program_id": "mva-BLD-SRCREBLD-020",
+    "source_js": "const visual = {\n  prepare: function (input) { return []; },\n  render: function (input, metrics) {\n    var vw = input.viewport.widthDu;\n    var vh = input.viewport.heightDu;\n    var n = 5;\n    var margin = 24;\n    var size = Math.min(vw - 2 * margin, vh - 2 * margin);\n    if (!(size > 0)) { size = Math.min(vw, vh) * 0.8; }\n    var x0 = (vw - size) / 2;\n    var y0 = (vh - size) / 2;\n    var cell = size / n;\n    var cmds = [];\n    for (var i = 0; i <= n; i++) {\n      var x = x0 + i * cell;\n      cmds.push('M', x, y0, 'L', x, y0 + size);\n      var y = y0 + i * cell;\n      cmds.push('M', x0, y, 'L', x0 + size, y);\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'grid-5x5',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: vw, height: vh },\n      paths: [{ id: 'grid', commands: cmds }],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'grid', stroke: '#26354a', strokeWidth: 1.5, fill: 'none' }\n        ]\n      }\n    };\n  }\n};\n",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-012",
+    "program_id": "mva-BLD-SRCREBLD-012",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    var values = [-10, -6, -2, 2, 6, 10];\n    var reqs = [];\n    for (var i = 0; i < values.length; i++) {\n      reqs.push({ kind: 'text', payload: String(values[i]) });\n    }\n    return reqs;\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var margin = Math.max(26, Math.min(60, w * 0.1));\n    var left = margin;\n    var right = w - margin;\n    var y = Math.round(h * 0.55);\n    var values = [-10, -6, -2, 2, 6, 10];\n    var n = values.length;\n    var fontSize = Math.max(12, Math.min(20, Math.round(h * 0.045)));\n    var tickLen = Math.max(5, Math.round(fontSize * 0.45));\n    var labelY = Math.min(h - 4, y + tickLen + 10 + fontSize);\n    var axisCmds = visualSdk.polyline([[left, y], [right, y]]);\n    var tickCmds = [];\n    var labels = [];\n    for (var i = 0; i < n; i++) {\n      var x = left + (right - left) * i / (n - 1);\n      var tick = visualSdk.polyline([[x, y - tickLen], [x, y + tickLen]]);\n      for (var j = 0; j < tick.length; j++) {\n        tickCmds.push(tick[j]);\n      }\n      labels.push({\n        type: 'label',\n        x: x,\n        y: labelY,\n        text: String(values[i]),\n        fontSize: fontSize,\n        fill: '#26354a',\n        textAnchor: 'middle'\n      });\n    }\n    var children = [\n      { type: 'path', pathId: 'axis', stroke: '#26354a', strokeWidth: 2 },\n      { type: 'path', pathId: 'ticks', stroke: '#26354a', strokeWidth: 2 }\n    ];\n    for (var k = 0; k < labels.length; k++) {\n      children.push(labels[k]);\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'source-axis-transcription',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'axis', commands: axisCmds },\n        { id: 'ticks', commands: tickCmds }\n      ],\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

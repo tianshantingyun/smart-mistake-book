@@ -1,97 +1,96 @@
 {
-  "id": "E-009",
-  "verdict": "PASS",
-  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-e",
-  "reviewer": "batch46-line-reviewer-E",
-  "authors": [
-    "batch45-evidence-producer-E"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest.xml",
-    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest.xml",
-    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ForgettingCurveTest.xml",
-    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsParameterRecoveryTest.xml",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest.xml": "58419bfa0a238f7886036947619eb0f3c44613ab3608a590bb28523fe44ba080",
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest.xml": "20e3d0f7a99fd5d6e3a148137dbc9fbb9d7c985f4bcce2fa42ddf4027bd98e5e",
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ForgettingCurveTest.xml": "39b255fcfdb831344962d4fe2e400ec08ec762169aa6d5d3b810d871edc25e72",
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsParameterRecoveryTest.xml": "42a86ca18689468fee0d4952b68c2374e4817ea5a0288d4ff70ca09278881ad1",
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log": "422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
+ "id": "E-009",
+ "verdict": "PASS",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "evidence": [
+  "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest.xml",
+  "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest.xml",
+  "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ForgettingCurveTest.xml",
+  "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsParameterRecoveryTest.xml",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
+  "test:docs/research/evidence/2026-11-08-batch-49/jvm/TEST-com.tingyun.smartmistakebook.core.domain.simulation.SimulatedLearnerTest.xml",
+  "file:docs/research/evidence/2026-11-08-batch-49/calibration/g6-decisions.json",
+  "file:docs/research/evidence/2026-11-08-batch-49/calibration/weight-decisions.json"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest.xml": "58419bfa0a238f7886036947619eb0f3c44613ab3608a590bb28523fe44ba080",
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest.xml": "20e3d0f7a99fd5d6e3a148137dbc9fbb9d7c985f4bcce2fa42ddf4027bd98e5e",
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ForgettingCurveTest.xml": "39b255fcfdb831344962d4fe2e400ec08ec762169aa6d5d3b810d871edc25e72",
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsParameterRecoveryTest.xml": "42a86ca18689468fee0d4952b68c2374e4817ea5a0288d4ff70ca09278881ad1",
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log": "422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6",
+  "docs/research/evidence/2026-11-08-batch-49/jvm/TEST-com.tingyun.smartmistakebook.core.domain.simulation.SimulatedLearnerTest.xml": "96c34233d019637af2706f6e41ce4ce38d11ac243e1e315169df76d6b28e1d06",
+  "docs/research/evidence/2026-11-08-batch-49/calibration/g6-decisions.json": "20ffc2a194ddd02b04148a839e39aac9128280060b9bc8daf8d0a814f47acdfa",
+  "docs/research/evidence/2026-11-08-batch-49/calibration/weight-decisions.json": "2d734e682a074afcbb6d9fcc7a7ccfb4995579f09023564569db16b447be20ba"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=E-009; verdict=PASS; line=500; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=E-009; verdict=PASS; line=500; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest.xml",
-      "value": "tests=23; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest; timestamp=2026-11-05T01:14:37.623Z; hostname=TIANSHAN; sha256=58419bfa0a238f7886036947619eb0f3c44613ab3608a590bb28523fe44ba080"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest.xml",
-      "value": "testcases=23; first=same day success never lowers stability; all_present=True"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest.xml",
-      "value": "tests=7; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest; timestamp=2026-11-05T01:14:37.420Z; hostname=TIANSHAN; sha256=20e3d0f7a99fd5d6e3a148137dbc9fbb9d7c985f4bcce2fa42ddf4027bd98e5e"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest.xml",
-      "value": "testcases=7; first=cross day again resets the graduation success streak; all_present=True"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ForgettingCurveTest.xml",
-      "value": "tests=4; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.domain.ForgettingCurveTest; timestamp=2026-11-05T01:14:36.882Z; hostname=TIANSHAN; sha256=39b255fcfdb831344962d4fe2e400ec08ec762169aa6d5d3b810d871edc25e72"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ForgettingCurveTest.xml",
-      "value": "testcases=4; first=retention is ninety percent after one stability interval; all_present=True"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsParameterRecoveryTest.xml",
-      "value": "tests=1; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.domain.FsrsParameterRecoveryTest; timestamp=2026-11-05T01:14:36.972Z; hostname=TIANSHAN; sha256=42a86ca18689468fee0d4952b68c2374e4817ea5a0288d4ff70ca09278881ad1"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsParameterRecoveryTest.xml",
-      "value": "testcases=1; first=fitted w20 recovers the generating decay from synthetic review data; all_present=True"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
-      "value": "exit_markers=[0]; cmd=./gradlew --offline -q :core:domain:test --tests com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest --tests com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest --tests com.t; sha256=422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
-    }
-  ],
-  "basis": "机械复算（reviewer=batch46-line-reviewer-E，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 E-009 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "adversarial": {
-    "attempted": true,
-    "result": "recomputed-no-mismatch"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest.xml",
+   "value": "tests=23; failures=0; errors=0; skipped=0; sha256=58419bfa0a238f7886036947619eb0f3c44613ab3608a590bb28523fe44ba080"
   },
-  "review_scope": "single-ledger-row",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest.xml",
+   "value": "tests=7; failures=0; errors=0; skipped=0; sha256=20e3d0f7a99fd5d6e3a148137dbc9fbb9d7c985f4bcce2fa42ddf4027bd98e5e"
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 5,
-    "basis": "bytes-on-disk"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.ForgettingCurveTest.xml",
+   "value": "tests=4; failures=0; errors=0; skipped=0; sha256=39b255fcfdb831344962d4fe2e400ec08ec762169aa6d5d3b810d871edc25e72"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.FsrsParameterRecoveryTest.xml",
+   "value": "tests=1; failures=0; errors=0; skipped=0; sha256=42a86ca18689468fee0d4952b68c2374e4817ea5a0288d4ff70ca09278881ad1"
+  },
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-08-batch-49/jvm/TEST-com.tingyun.smartmistakebook.core.domain.simulation.SimulatedLearnerTest.xml",
+   "value": "tests=6; failures=0; errors=0; skipped=0; sha256=96c34233d019637af2706f6e41ce4ce38d11ac243e1e315169df76d6b28e1d06"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
+   "value": "exit_markers=[0]; sha256=422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-08-batch-49/calibration/g6-decisions.json",
+   "value": "sha256=20ffc2a194ddd02b04148a839e39aac9128280060b9bc8daf8d0a814f47acdfa; bytes=3018"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-08-batch-49/calibration/weight-decisions.json",
+   "value": "sha256=2d734e682a074afcbb6d9fcc7a7ccfb4995579f09023564569db16b447be20ba; bytes=6157"
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "P1 标定回归：FSRS 四类 35 例 + 模拟器 6 例；预注册门未通过，行为维持现值（常量/版本/金样未动）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "review_scope": "single-ledger-row",
+ "review_kind": "mechanical-recompute",
+ "ledger_batch": 51,
+ "verified_at": "2026-11-10T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 8,
+  "basis": "bytes-on-disk"
+ }
 }

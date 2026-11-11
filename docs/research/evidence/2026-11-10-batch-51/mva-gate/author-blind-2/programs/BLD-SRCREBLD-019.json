@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-019",
+    "program_id": "mva-BLD-SRCREBLD-019",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [];\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var cols = 4;\n    var rows = 3;\n    var margin = Math.min(w, h) * 0.12;\n    var availW = w - margin * 2;\n    var availH = h - margin * 2;\n    var cell = Math.min(availW / cols, availH / rows);\n    var gridW = cell * cols;\n    var gridH = cell * rows;\n    var x0 = (w - gridW) / 2;\n    var y0 = (h - gridH) / 2;\n    var cmds = [];\n    var c, r, x, y;\n    for (c = 0; c <= cols; c++) {\n      x = x0 + c * cell;\n      cmds.push(['M', x, y0]);\n      cmds.push(['L', x, y0 + gridH]);\n    }\n    for (r = 0; r <= rows; r++) {\n      y = y0 + r * cell;\n      cmds.push(['M', x0, y]);\n      cmds.push(['L', x0 + gridW, y]);\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'grid-3x4',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [{ id: 'grid', commands: cmds }],\n      root: {\n        type: 'group',\n        children: [\n          {\n            type: 'path',\n            pathId: 'grid',\n            fill: '#26354a',\n            stroke: { width: 2, cap: 'round', join: 'round' }\n          }\n        ]\n      }\n    };\n  }\n};\n",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

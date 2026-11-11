@@ -1,0 +1,131 @@
+{
+  "input_file": "BLD-PROPCOORD-016.json",
+  "program_sha256": "ce99b9f0464308d874008859418e69fc24fb8ec7caea4a1af1f307018e857cf9",
+  "task_id": "BLD-PROPCOORD-016",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 23,
+  "measurement": [
+    {
+      "contentId": "c0-84c99515",
+      "payload": "比例尺 1:25000",
+      "widthDu": 110.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "84c99515259653b50101a791baf772c655061b26a40e6cd2b713ee6b018e3cb2"
+    },
+    {
+      "contentId": "c1-ebdbced0",
+      "payload": "图上距离 6 厘米",
+      "widthDu": 113.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ebdbced091ae1ce82a602c5863f858cd290cc5631ac1106a90e02ea1a9e8950b"
+    },
+    {
+      "contentId": "c2-a865157b",
+      "payload": "实际距离 150000 厘米",
+      "widthDu": 158.5454559326172,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a865157b9d7971d96aed1a3ac953007da8d0d427e04d1dc30c1f24e471c2c9d2"
+    },
+    {
+      "contentId": "c3-5feceb66",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c4-6b86b273",
+      "payload": "1",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "contentId": "c5-d4735e3a",
+      "payload": "2",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "contentId": "c6-4e074085",
+      "payload": "3",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+    },
+    {
+      "contentId": "c7-4b227777",
+      "payload": "4",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a"
+    },
+    {
+      "contentId": "c8-ef2d127d",
+      "payload": "5",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"
+    },
+    {
+      "contentId": "c9-ca9a9395",
+      "payload": "6 厘米",
+      "widthDu": 45.09090805053711,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ca9a9395281015a058ed4758a85246659f1998687f64fb6c1edad21532fc688c"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "2832c0c6d145b4ff05338b3e3444d5e9ced539cc99236b936b8261e71eecbb84",
+  "scene_bytes": 1801,
+  "scene_schema_version": 1,
+  "draw_sha256": "ddd1638c571fdfb7fb9227f01776d1a34881c2462ed9080c74390f45cd1697c0",
+  "draw_bytes": 2134,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-84c99515",
+    "c1-ebdbced0",
+    "c2-a865157b",
+    "c3-5feceb66",
+    "c4-6b86b273",
+    "c5-d4735e3a",
+    "c6-4e074085",
+    "c7-4b227777",
+    "c8-ef2d127d",
+    "c9-ca9a9395"
+  ],
+  "png_sha256": "73f975dc0e8ded5d97f0777bc671a07fb16d568ff94d24e23810c8fe53c7702c",
+  "png_bytes": 5006,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 13,
+    "pathCommands": 16,
+    "labels": 10,
+    "ops": 12
+  }
+}

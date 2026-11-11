@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-mat-768ef6f016-009	CORRECT		high	sinα±cosα 与 sinαcosα 之间的平方桥梁	
+ext-mat-76c6e60a3e-015	CORRECT		high	数域是对加、减、乘、除（除数非零）都封闭的数集	
+ext-mat-77b1811524-018	CORRECT		high	贝叶斯公式反映条件概率、全概率公式及乘法公式之间的关系	
+ext-mat-7862d6615f-015	CORRECT		high	判定等差不能只验证前 3 项、须对任意 n 成立	
+ext-mat-7923de8033-030	CORRECT		high	中点弦问题可用根与系数的关系法或点差法处理	
+ext-mat-7925b80c7b-003	CORRECT		high	忽略角终边所在象限 忽视角的取值范围导致符号取舍错误	
+ext-mat-7b16748403-008	CORRECT		high	给出圆锥外接球满足的关系式	
+ext-mat-7b31fe325e-007	CORRECT		high	给出五点法、对称轴处取最值、平移规律与先伸缩后平移的注意事项	
+ext-mat-7c2c113f0b-003	CORRECT		high	建系求方向向量与法向量，用向量夹角的正弦值求线面角	
+ext-mat-7c4b964403-002b	CORRECT		high	动点在某平面内且满足与某平面平行时	
+ext-mat-7cab59a74e-001c	CORRECT		high	四组积化和差与四组和差化积公式	
+ext-mat-7d4877601e-002	CORRECT		high	两向量共线可用唯一的实数倍数表示	
+ext-mat-7ea20c956b-003	CORRECT		high	给出对数函数的定义及随底数变化的单调性与定点	节点为对数函数概念，材料含图象性质
+ext-mat-7f3d9b6870-036	CORRECT		high	作商法要求各项为正，函数单调不代表数列单调	
+ext-mat-801d9175a9-006	CORRECT		high	证线面平行：先在平面内找（作）出与已知直线平行的直线	
+ext-mat-8068a7c589-002	CORRECT		high	双曲线的焦点到其渐近线的距离等于b	
+ext-mat-80b39bd663-035	CORRECT		high	等差数列问题可按“基本量—性质—设而不求”三级策略选择解法	
+ext-mat-8254934632-015	CORRECT		high	棱切球的球心到多面体各棱距离相等	
+ext-mat-849007b4e5-001b	CORRECT		high	均值（数学期望）的定义、反映取值平均水平的意义	
+ext-mat-870676fbb1-001	CORRECT		high	极值点左右增减速度不同导致图象不对称	
+ext-mat-882bce0494-003	CORRECT		high	中点坐标是两端点坐标的平均值，重心坐标是三顶点坐标的平均值	
+ext-mat-8894b5bf9a-018	CORRECT		high	对任意 x1 都存在 x2 使 f(x1)＝g(x2) 的等式型双参问题	
+ext-mat-8d4604e62a-001	CORRECT		high	零点＝使 f(x)＝0 的实数 x	
+ext-mat-91df0e1322-006	CORRECT		high	由导数为零求参数后必须检验两侧符号并核对极大极小的类型	
+ext-mat-91e0c2ace8-088b	CORRECT		high	对棱相等的四面体补成长方体	
+ext-mat-91e0c2ace8-095	CORRECT		high	动点轨迹为圆的五种隐藏条件	
+ext-mat-91e0c2ace8-102b	CORRECT		high	用离心率表示与对称两点连线斜率之积	
+ext-mat-91e0c2ace8-117b	CORRECT		high	把二次曲线方程中的 $x^2$ 换成 $x_0x$	
+ext-mat-91e0c2ace8-123b	CORRECT		high	对含 $x-a$、$y-b$ 与 $y_1$、$y_2$ 交叉的非对称式，平方后用曲线方程把 $y^2$ 代换	
+ext-mat-91e0c2ace8-126	CORRECT		high	部分元素顺序固定时，用除序法 $\frac{A_n^n}{A_m^m}$、空位法 $A_n^{n-m}$ 或插入法	
+ext-mat-9207e8ebfd-039	CORRECT		high	从备选解析式里挑出与给定图象匹配的那个	
+ext-mat-92807b6177-001b	CORRECT		high	同号两数取倒数后不等号方向改变	
+ext-mat-93e7d67ed2-014	CORRECT		high	把圆锥曲线方程中的二次项按半代换可统一写出其切线方程与切点弦方程	
+ext-mat-94595037ea-001	CORRECT		high	函数是集合 A 到集合 B 的对应关系	
+ext-mat-94a86de707-002	CORRECT		high	上凸函数用 f(x)≤切线且 f(x) 大于割线，下凸函数方向相反	
+ext-mat-94f34323d2-010	CORRECT		high	条件概率等于两事件同时发生的概率与条件事件概率之比	
+ext-mat-95e236319c-003b	CORRECT		high	用法向量夹角的余弦求出二面角的余弦后可取正值再求正弦	
+ext-mat-95e236319c-016	CORRECT		high	平面图形翻折成立体图形后，原有的垂直关系不再是“同一个平面内”的结论	
+ext-mat-95f2ccd476-003	CORRECT		high	面面平行的判定定理与性质定理的内容及符号表示	
+ext-mat-9677f16419-012b	CORRECT		high	比较大小或解对数不等式优先利用对数函数的单调性	
+ext-mat-97911b611b-031	CORRECT		high	把新定义翻译成相邻两项与常数的大小关系	
+ext-mat-982c247417-001	CORRECT		high	数列是从正整数集或其有限子集到实数集的函数	
+ext-mat-98974bc4a8-009	CORRECT		high	利用单调性解含 f 的不等式时最容易忽视定义域	
+ext-mat-98974bc4a8-010	CORRECT		high	偶函数比较两处函数值时，把括号内的变量都加绝对值	
+ext-mat-98e813b184-002	CORRECT		high	从定义域、值域、最小正周期、对称轴与对称中心、单调区间、奇偶性六个方面对照	
+ext-mat-98e813b184-003c	CORRECT		high	在 $\triangle ABC$ 中已知 $a$、$b$ 和 $A$ 时	
+ext-mat-98e813b184-008b	CORRECT		high	解法一用补角关系	
+ext-mat-998c4867dc-003b	CORRECT		high	求交集要理解“且”与“所有”	
+ext-mat-99d8d4b088-002b	CORRECT		high	由包含关系求参数时必须优先讨论子集为空集的情形	
+ext-mat-9a44f0ca2c-002b	CORRECT		high	圆上的动点到已知直线的距离最大值是 d+r、最小值是 |d-r|	

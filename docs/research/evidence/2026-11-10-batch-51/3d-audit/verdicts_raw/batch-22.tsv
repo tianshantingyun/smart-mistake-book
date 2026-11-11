@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+phys-hj3-pendulum-g-exp-error	CORRECT		high	系统误差主要来自单摆模型本身；图像法处理数据可减小误差且直观。	
+ext-che-ac039fce3c-001b	CORRECT		medium	单体、链节、聚合度的含义，合成高分子的加聚与缩聚两个基本反应。	材料兼讲高分子结构术语，主知识点仍是加聚与缩聚
+ext-mat-7ca7b4e9a1-004	CORRECT		high	x²＋y²＝r² 上切点 (x0，y0) 的切线 x0x＋y0y＝r²；标准方程圆有对应形式，亦可用留一代一。	
+ext-phy-d6c64111cd-064	CORRECT		medium	未知结果时按“一次电流方向→一次电流大小变化→一次电流磁通量变化→二次感应电流方向”四步正向推。	材料为二次感应的程序法，属现绑分析节点范围内
+ext-bio-b30a4e9c78-001	CORRECT		high	加热致死的S型细菌含转化因子使R型转化为S型	
+ext-che-a3585e40e3-004	CORRECT		high	把少量物质定为 1 mol，按组成比例确定过量物质的离子数目再配平。	
+ext-phy-6f89ebd59e-015	CORRECT		high	传送带的功等于作用力与传送带位移的乘积，摩擦生热由摩擦力与相对位移决定。	
+ext-phy-4b9ca03ec9-015	CORRECT		high	系统与外界由体积、压强、温度等状态参量描述；平衡态是状态参量稳定的状态，属动态平衡的理想情况。	
+ext-che-a5d1d51c9c-044	CORRECT		medium	常温稀 NaOH 中 Cl2 歧化生成 NaClO（漂白液有效成分）；加热浓 KOH 中 Cl2 歧化生成 KClO3。产物差异由反应温度和碱的浓度决定。	Cl2制次氯酸盐/氯酸盐属含氯物转化路径
+ext-mat-e4c87437a2-005b	CORRECT		high	已知三角形两边及夹角，求内角平分线长；或已知角平分线长反求边。	
+ext-mat-560ed1c6b3-009	CORRECT		high	偶次根式要求被开方数大于等于零，只用平方去根号会把被开方数为负的无效点留在解集里。	
+ext-mat-289deb9ecd-1161	CORRECT		high	任意项由 a_m·q^{n−m} 得到；下标和相等则对应项之积相等；取倒数、取绝对值、隔项取项仍成等比。	
+ext-phy-f869288c0f-003	CORRECT		medium	碰撞持续时间极短、内力远大于外力，可认为系统动量守恒	材料讲碰撞特点与动量守恒，含时间极短这一核心
+ext-mat-74c1b7b2e3-001b	CORRECT		high	先设切点坐标，写出含切点的切线方程，再把已知点代入求切点，最后写出切线方程。	
+ext-bio-ef3d2926e7-001	CORRECT		high	F1产生4种等比例配子，受精随机，F2有9种基因型、4种表型，比例为9比3比3比1。	
+bio-kb3-f4-s11-n05	CORRECT		high	C、H、O：①脂肪是由三分子脂肪酸与一分子甘油发生反应而形成的酯，即三酰甘油(又称甘油三酯)。	
+ext-phy-9d5df4738c-054	CORRECT		high	把不易测量的物理量转换成易于测量的物理量进行测量，再反求待测物理量的值。	
+ext-bio-f424594cfa-012	CORRECT		high	交感神经使瞳孔扩张、心跳加快等，副交感神经作用相反，二者协同使机体更精确地适应环境。	
+ext-phy-bb9f538752-006	CORRECT		high	弹簧实验中F-x图线的斜率等于劲度系数，读斜率时要注意横轴取伸长量、单位必须统一。	
+ext-phy-2248b2c9f7-008b	CORRECT		high	两个中心天体的质量之比等于轨道半径之比的立方乘以周期反比的平方。	
+ext-bio-bda81526c3-001c	CORRECT		high	肽类激素作为第一信使与靶细胞膜上的特异性受体结合（G蛋白偶联受体），经G蛋白转换为胞内第二信使，使靶细胞发生相应生理生化反应。	
+ext-phy-6d8ca521d5-074	CORRECT		high	某物理量变化使物体所处的平衡状态「恰好出现」或「恰好不出现」即为临界问题，常用「刚好」「恰能」「恰好」等描述；常见临界有摩擦力达到最大静摩擦力、绳拉力为零、支持力为零三类。	
+ext-phy-81ab54030c-003	CORRECT		high	描述物体运动时必须先选定参考系，选择不同参考系结论可能不同。	
+phys-hj2-qianliang-dian-2mm-yuanyin	CORRECT		medium	第 1、2 点间距约 2 mm（50 Hz）说明第一个点对应自由下落起点（初速度为零）；间距明显偏大说明先放纸带后通电。	纸带选取是该实验方案的操作组成部分
+ext-phy-d160864baa-005	CORRECT		high	结论法中的串联与并联是广义的：混联电路中要从电源出发看元件能否与变阻器连成一个回路，能连成回路的是串联（变化相反）、不能连成回路的是并联（变化相同）。	
+ext-phy-45823c0ea2-028	CORRECT		high	归纳 F-t、F-x、a-F 图像的求解思路及面积、斜率的含义。	
+ext-phy-9a6dd971a7-007c	CORRECT		medium	两物体间有摩擦力则一定有弹力；有弹力则不一定有摩擦力。	摩擦力有无与弹力依存属摩擦力概念内涵
+ext-che-5c62da9e03-072	CORRECT		high	铁与O₂、盐酸稀硫酸、过量稀硝酸、硫酸铜溶液反应的方程式与离子方程式	
+ext-mat-66cdd05410-009	CORRECT		high	把非等比的递推式经待定系数或同除变形，化成等比的辅助数列，再反推原数列的通项。	
+ext-phy-16fb5aea45-027	CORRECT		high	类平抛与平抛规律形式相同，区别在运动平面、初速度方向和加速度三处。	
+chem-kb-periodic-table-four-relations	CORRECT		high	电子层数、质子数、最外层电子数、化合价与周期表位置的四个换算关系。	
+ext-phy-c78a6fa9b9-004	CORRECT		high	在只有重力或弹力做功的物体系统内，动能与势能互相转化而总的机械能保持不变；表达式为 Ek1+Ep1=Ek2+Ep2，守恒条件是只有重力或弹力做功。	
+ext-phy-55a10ea88b-028	CORRECT		medium	水平距离 L 固定、倾角可变的光滑斜面，下滑时间 t²＝2L/(gsinθcosθ)＝4L/(gsin2θ)，θ＝45° 时时间最短。	由sin2θ≤1求极值，属三角极值方法的应用
+ext-phy-e14aad82a5-1277	CORRECT		high	与电源相连时电压 U 不变，与电源断开时电荷量 Q 不变，两类情形的推理链不同。	
+ext-phy-6c6c77d797-042	CORRECT		medium	B 最大、磁通量最大处若图线斜率为零则电动势为零；B 为零而斜率绝对值最大处电动势最大。	比较Φ大小与变化率对电动势的决定作用
+ext-che-08374701a7-016	CORRECT		high	性质探究、反应原理探究、影响因素探究三类课题的设计思路，以及探究验证实验必须遵守的检验顺序。	
+chem-hj-yanse-shiyan	CORRECT		high	金属元素灼烧使火焰呈特殊颜色，属物理变化，可检验金属元素。	
+bio-fx-transcription-coupled-repair	CORRECT		high	DNA损伤较大时，修复因子Mfd识别并结合滞留的RNA聚合酶，招募修复因子和DNA聚合酶等进行修复。	
+ext-phy-4f36f4e53d-003	CORRECT		high	两辆相同的小车同时启动、同时停止，运动时间相同，因此位移之比等于加速度之比，可用于探究加速度与质量、力的关系。	
+ext-che-5c62da9e03-2653	CORRECT		high	氢氧根整体带负电荷，羟基、羧基中的羟基是不带电的原子团。	
+ext-phy-ef84b6f859-001	CORRECT		high	逆向思维是沿物理过程发生的相反方向 由结果探索原因的思维方法 即把末态当成初态 初态当成末态进行反向研究	
+chem-hj-danyi-rongye-ph-jisuan	CORRECT		high	由浓度求 c(H+) 或 c(OH-)，再取负对数求 pH。	
+ext-bio-caaf561994-002	CORRECT		high	荧光标记技术用荧光基团标记识别分子以提供被检测对象的信号，原位杂交定位技术用带标记的核酸探针与染色体 DNA 杂交实现基因定位。	
+phys-hj2-pingdong-qiege-blv-sitexing	CORRECT		high	$E=Blv$ 要求 $B、l、v$ 相互垂直，$l$ 为有效长度，$v$ 是相对磁场的速度，可算瞬时值。	
+phys-hj-049-horizontal-belt-analysis	CORRECT		high	物块 $v_0=0$ 或 $v_0<v$ 时受向前的滑动摩擦力做匀加速；$v_0>v$ 时受向后的滑动摩擦力做匀减速；共速后随带匀速或摩擦力再突变。	
+ext-phy-206fb04353-087	CORRECT		high	从分子动理论到气体实验定律与热力学定律 串起热学主干。	
+ext-phy-5ec6530849-001	CORRECT		high	已知受力求运动、已知运动求受力，两类问题都以加速度为桥梁，分别做好受力分析与运动过程分析，再由运动学公式和牛顿运动定律列方程。	
+ext-mat-77b1811524-009	CORRECT		high	定义法检验P(AB)=P(A)P(B)；按事件本身性质直接判定是否相互影响；条件概率法用P(B|A)=P(B)。	
+ext-phy-e14aad82a5-829	CORRECT		high	减少量＝初值-末值，增量（变化量）＝末值-初值；同一过程的减少量与增量互为相反数，用哪个口径决定了表达式的正负。	
+ext-bio-c5d2807923-009	CORRECT		medium	通过增设未接触尖端的琼脂块作对照，排除琼脂本身对胚芽鞘生长的影响。	詹森实验属生长素发现历程，节点边界涵盖

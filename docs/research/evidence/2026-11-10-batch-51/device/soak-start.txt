@@ -1,0 +1,15 @@
+soak_start_utc=2026-11-09T23:44:06Z
+duration_target_s=7200
+apk=app/build/outputs/apk/localFirst/release/app-localFirst-release.apk
+apk_sha256=b6fbd87745c3ba3bc5fc9b63e7830019c9e99682bacc7432d495546ed72ed46f
+apk_versionCode=101177
+apk_versionName=0.2.0-localfirst
+package=com.tingyun.smartmistakebook.localfirst
+device=emulator-5592
+sdk=34
+page_size=4096
+abi=x86_64
+boot_id=b24f1996-4c2c-4722-9c30-2f6208790c3a
+db_state=first-run seeded (fresh install; app storage screen=380.7 MiB; DB file=399163392 B at 2026-11-09 23:42)
+harness=docs/research/evidence/2026-11-10-batch-51/device/35-soak-script.sh (same criteria as batch50 35-soak-script.sh)
+soak_note=monkey drives real release UI; periodic PSS/loadavg/dropbox/crash sampling; duration_not_reached/new_crash_lines/new_dropbox_entries/monkey_nonzero_exit -> FAIL

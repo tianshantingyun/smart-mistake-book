@@ -1,0 +1,9 @@
+# device probe 2026-11-11T00:21:28+08:00
+adb-path=C:/Android/Sdk/platform-tools/adb.exe (not on shell PATH)
+List of devices attached
+emulator-5592	device
+
+serial=emulator-5592
+PAGE_SIZE=4096
+abi=x86_64
+sdk=34

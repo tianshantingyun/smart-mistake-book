@@ -1,0 +1,96 @@
+{
+  "input_file": "BLD-MECHPHASE-001.json",
+  "program_sha256": "71134436c17945a76ad41759893d0f24a17a8431c10ef80980871f8bed099a3b",
+  "task_id": "BLD-MECHPHASE-001",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 34,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "F(x) = F0 (1 - x\/h)",
+      "widthDu": 121.81818389892578,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c7c7955694ccfd7d0e466fe238938443fafa0a8441bda049bd29b24b908ed9af"
+    },
+    {
+      "contentId": "c1",
+      "payload": "F",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f67ab10ad4e4c53121b6a5fe4da9c10ddee905b978d3788d2723d7bfacbe28a9"
+    },
+    {
+      "contentId": "c2",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c3",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c4",
+      "payload": "h\/2",
+      "widthDu": 24.363636016845703,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2709026306d1da2d10050002585b869e4524b562c083198b138d630c61900adb"
+    },
+    {
+      "contentId": "c5",
+      "payload": "h",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "aaa9402664f1a41f40ebbc52c9993eb66aeb366602958fdfaa283b71e64db123"
+    },
+    {
+      "contentId": "c6",
+      "payload": "F0",
+      "widthDu": 17.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3fb8cc1315a76758d467993926f56f15cce7244b54213c63314ad4d5d0237d15"
+    },
+    {
+      "contentId": "c7",
+      "payload": "F0\/2",
+      "widthDu": 33.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c579e1eabf0ecb1aadf46400b1ee92e544025e5948108400cb88e9e2a766894d"
+    },
+    {
+      "contentId": "c8",
+      "payload": "S = 3\/8 F0 h = 0.375 F0 h",
+      "widthDu": 177.4545440673828,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a24ca92e236f94a34ee6f2246350c263107e55e78179e91f14ce7a0a80466cf2"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai"
+}

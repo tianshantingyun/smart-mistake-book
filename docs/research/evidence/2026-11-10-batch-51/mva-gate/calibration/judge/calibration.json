@@ -1,0 +1,140 @@
+{
+  "correct_images": 3,
+  "correct_images_accepted": 3,
+  "generated_by": "tools/figure_eval/mva_vlm_judge.py --calibration",
+  "injected_wrong_value_caught": 3,
+  "injected_wrong_values": 3,
+  "items": 6,
+  "key_sha8": "cd10efbc",
+  "model": "deepseek-flash",
+  "passed": true,
+  "reads_image_correctly": 6,
+  "results": [
+    {
+      "error": null,
+      "gate_check_accepted": true,
+      "gate_expected": "up",
+      "id": "dir-ok",
+      "image_truth": "up",
+      "injected_wrong_value": false,
+      "injected_wrong_value_caught": true,
+      "judge_elapsed_ms": 1848,
+      "judge_value": "up",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "reads_image_correctly": true,
+      "task_id": "CAL-DIR-UP"
+    },
+    {
+      "error": null,
+      "gate_check_accepted": false,
+      "gate_expected": "up",
+      "id": "dir-wrong",
+      "image_truth": "down",
+      "injected_wrong_value": true,
+      "injected_wrong_value_caught": true,
+      "judge_elapsed_ms": 1475,
+      "judge_value": "down",
+      "key": "gravity_direction",
+      "kind": "direction",
+      "reads_image_correctly": true,
+      "task_id": "CAL-DIR-DOWN"
+    },
+    {
+      "error": null,
+      "gate_check_accepted": true,
+      "gate_expected": [
+        "红笔勾",
+        "对号",
+        "波浪线"
+      ],
+      "id": "absent-ok",
+      "image_truth": [],
+      "injected_wrong_value": false,
+      "injected_wrong_value_caught": true,
+      "judge_elapsed_ms": 1417,
+      "judge_value": [],
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "reads_image_correctly": true,
+      "task_id": "CAL-CHECK-ABSENT"
+    },
+    {
+      "error": null,
+      "gate_check_accepted": false,
+      "gate_expected": [
+        "红笔勾",
+        "对号",
+        "波浪线"
+      ],
+      "id": "absent-wrong",
+      "image_truth": [
+        "红笔勾"
+      ],
+      "injected_wrong_value": true,
+      "injected_wrong_value_caught": true,
+      "judge_elapsed_ms": 11944,
+      "judge_value": [
+        "红笔勾"
+      ],
+      "key": "removed_handwriting",
+      "kind": "label_absent",
+      "reads_image_correctly": true,
+      "task_id": "CAL-CHECK-PRESENT"
+    },
+    {
+      "error": null,
+      "gate_check_accepted": true,
+      "gate_expected": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ],
+      "id": "phase-ok",
+      "image_truth": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ],
+      "injected_wrong_value": false,
+      "injected_wrong_value_caught": true,
+      "judge_elapsed_ms": 1271,
+      "judge_value": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ],
+      "key": "phase_order",
+      "kind": "ordering",
+      "reads_image_correctly": true,
+      "task_id": "CAL-PHASE-OK"
+    },
+    {
+      "error": null,
+      "gate_check_accepted": false,
+      "gate_expected": [
+        "u=0",
+        "u=1/2",
+        "u=1"
+      ],
+      "id": "phase-wrong",
+      "image_truth": [
+        "u=1",
+        "u=1/2",
+        "u=0"
+      ],
+      "injected_wrong_value": true,
+      "injected_wrong_value_caught": true,
+      "judge_elapsed_ms": 1161,
+      "judge_value": [
+        "u=1",
+        "u=1/2",
+        "u=0"
+      ],
+      "key": "phase_order",
+      "kind": "ordering",
+      "reads_image_correctly": true,
+      "task_id": "CAL-PHASE-REVERSED"
+    }
+  ]
+}

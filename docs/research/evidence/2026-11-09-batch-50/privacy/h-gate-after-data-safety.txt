@@ -1,0 +1,10 @@
+H-028 PASS 首装 UNKNOWN=OFF，构建开关默认 false
+H-029 PASS v1 端点为空的 fail-closed 上传门
+H-030 PASS 属性袋无自由文本字段，键集白名单固定
+H-031 PASS 14 岁以下与 14–17 均要求监护人确认；未披露年龄 fail-closed
+H-032 PASS 政策版本/哈希一致才放行；撤回与年龄门有用例
+H-033 PASS check_telemetry_compliance exit=0；note: V9 is source-level only; merged-manifest/aapt2 and device packet capture are separate evidence levels (R5 §4.2).
+H-034 PASS data safety“未收集”与 v1 无上传端点一致
+H-035 PASS 系统备份/迁移关闭，全部域排除；备份仅走用户显式导出
+H-036 FAIL Play Console data safety 表单需开发者账号与已发布 URL，外部阻塞
+EXIT=1

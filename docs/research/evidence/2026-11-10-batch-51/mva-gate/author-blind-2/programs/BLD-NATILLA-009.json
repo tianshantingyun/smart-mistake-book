@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-NATILLA-009",
+    "program_id": "mva-BLD-NATILLA-009",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '自由落体示意' },\n      { kind: 'text', payload: '由静止释放：v₀ = 0' },\n      { kind: 'text', payload: 'v' },\n      { kind: 'text', payload: 'g' },\n      { kind: 'text', payload: 'v 与 g 的方向均竖直向下' }\n    ];\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var cx = W * 0.5;\n    var r = Math.min(W * 0.12, 28);\n    var ballY = H * 0.24;\n    var vX = cx + r * 0.5;\n    var gX = cx - r * 0.5;\n    var vTip = ballY + H * 0.40;\n    var gTip = ballY + H * 0.24;\n    var traj = [['M', cx, ballY - r - 26], ['L', cx, ballY + H * 0.50]];\n    var vArrow = visualSdk.arrow(vX, ballY, vX, vTip, {});\n    var gArrow = visualSdk.arrow(gX, ballY, gX, gTip, {});\n    return {\n      schemaVersion: 1,\n      sceneId: 'free-fall',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [\n        { id: 'traj', commands: traj },\n        { id: 'ball', commands: visualSdk.circle(cx, ballY, r) },\n        { id: 'vArrow', commands: vArrow },\n        { id: 'gArrow', commands: gArrow }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'traj', fill: '#9AA7B8', stroke: { width: 1.5, cap: 'round', dash: [7, 7] } },\n          { type: 'path', pathId: 'ball', fill: '#26354A', stroke: { width: 2 } },\n          { type: 'path', pathId: 'vArrow', fill: '#C0392B', stroke: { width: 2, cap: 'round', join: 'round' } },\n          { type: 'path', pathId: 'gArrow', fill: '#1F6FB2', stroke: { width: 2, cap: 'round', join: 'round' } },\n          { type: 'label', contentId: metrics[0].contentId, anchor: { x: cx, y: H * 0.05 }, hAlign: 'center', vAlign: 'top', color: '#26354A' },\n          { type: 'label', contentId: metrics[1].contentId, anchor: { x: cx, y: ballY - r - 28 }, hAlign: 'center', vAlign: 'bottom', color: '#26354A' },\n          { type: 'label', contentId: metrics[2].contentId, anchor: { x: vX + 12, y: ballY + H * 0.30 }, hAlign: 'left', vAlign: 'middle', color: '#C0392B' },\n          { type: 'label', contentId: metrics[3].contentId, anchor: { x: gX - 12, y: ballY + H * 0.15 }, hAlign: 'right', vAlign: 'middle', color: '#1F6FB2' },\n          { type: 'label', contentId: metrics[4].contentId, anchor: { x: cx, y: H * 0.94 }, hAlign: 'center', vAlign: 'middle', color: '#26354A' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

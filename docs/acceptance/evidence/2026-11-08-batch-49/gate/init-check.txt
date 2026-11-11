@@ -1,0 +1,3 @@
+$ python -I tools/ci/acceptance_init.py --check
+(no output)
+INIT_EXIT=0

@@ -1,0 +1,23 @@
+device_serial=emulator-5590
+avd=ui_motion_20261107
+sdk=34
+release=14
+page_size=4096
+abi=x86_64
+model=sdk_gphone64_x86_64
+fingerprint=google/sdk_gphone64_x86_64/emu64xa:14/UE1A.230829.050/12077443:userdebug/dev-keys
+is_emulator=1
+boot_id=31ecd364-6b2a-4e52-9643-23e681696172
+--- device 2 ---
+device_serial=emulator-5592
+avd=ui_teaching_20261108
+sdk=34
+boot_id=b24f1996-4c2c-4722-9c30-2f6208790c3a
+--- installed pkgs before ---
+package:com.tingyun.smartmistakebook.core.data.test
+package:com.tingyun.smartmistakebook.core.database.test
+package:com.tingyun.smartmistakebook.core.export.test
+package:com.tingyun.smartmistakebook.feature.library.test
+package:com.tingyun.smartmistakebook.feature.tutor.test
+package:com.tingyun.smartmistakebook.localfirst
+package:com.tingyun.smartmistakebook.localfirst.test

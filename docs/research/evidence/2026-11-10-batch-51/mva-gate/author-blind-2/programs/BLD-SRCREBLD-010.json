@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-010",
+    "program_id": "mva-BLD-SRCREBLD-010",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    var labels = [];\n    for (var i = -5; i <= 5; i++) {\n      labels.push({ kind: 'text', payload: String(i) });\n    }\n    return labels;\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var margin = Math.min(Math.max(18, w * 0.08), w * 0.25);\n    var left = margin;\n    var right = w - margin;\n    var span = right - left;\n    var y = h * 0.46;\n    var tickLen = Math.max(6, Math.min(16, h * 0.045));\n    var labelGap = Math.max(4, Math.min(14, h * 0.03));\n    var axisCommands = [['M', left, y], ['L', right, y]];\n    var tickCommands = [];\n    var xs = [];\n    for (var i = 0; i < 11; i++) {\n      var x = left + span * (i / 10);\n      xs.push(x);\n      tickCommands.push(['M', x, y - tickLen / 2]);\n      tickCommands.push(['L', x, y + tickLen / 2]);\n    }\n    var children = [\n      { type: 'path', pathId: 'axis', fill: '#26354A', stroke: { width: 2 } },\n      { type: 'path', pathId: 'ticks', fill: '#26354A', stroke: { width: 2 } }\n    ];\n    for (var j = 0; j < 11; j++) {\n      children.push({\n        type: 'label',\n        contentId: metrics[j].contentId,\n        anchor: { x: xs[j], y: y + tickLen / 2 + labelGap },\n        hAlign: 'center',\n        vAlign: 'top',\n        color: '#26354A'\n      });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'source-axis-5-to-5',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'axis', commands: axisCommands },\n        { id: 'ticks', commands: tickCommands }\n      ],\n      root: { type: 'group', children: children }\n    };\n  }\n};\n",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

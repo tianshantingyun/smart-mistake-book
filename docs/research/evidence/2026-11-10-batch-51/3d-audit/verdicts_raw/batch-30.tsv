@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-che-51e65d8cb6-007	CORRECT		high	离子交换膜又叫隔膜，由高分子特殊材料制成。	
+ext-phy-04bdc21177-020	CORRECT		medium	①系统总能量的变化量等于系统从外界吸收的热量与外界对系统做的功之和，即ΔE=Q+W。	ΔE=Q+W取对象时的下位方法
+ext-phy-baf18087a8-004	CORRECT		high	一个处于量子数为 n 的能级的氢原子，跃迁时发出可能的光谱线最多为 $n－1$ 条	
+ext-bio-2fb4d651c5-049	CORRECT		high	生物膜系统各生物膜在成分上具有相似性，主要成分都是脂质和蛋白质	
+phys-kb-long-distance-power-transmission	CORRECT		high	提高输电电压以减小线路电流，从而减少损耗。	
+ext-mat-289deb9ecd-156	CORRECT		high	实数集R可表示为(-∞,+∞)，其中∞是符号而不是数	
+ext-che-5c62da9e03-1456	CORRECT		high	成键依据是电荷分布而非原子种类，判断产物时必须先判断各键的极性方向。	
+ext-mat-672db6028f-014	CORRECT		high	利用圆锥曲线的性质，如椭圆的最大角、通径、三角形中的边角关系、曲线上点到焦点距离的范围等，建立不等式或不等式组来求解离心率的范围。	
+ext-che-fe38fc6798-011	CORRECT		high	热的纯碱溶液去油污效果更好	
+phys-lianjieti-jiasudu-butong-zhengshi	CORRECT		high	应用整体法需要在方程中写出 $ma_1$、$ma_2$	
+ext-mat-b94940ccbb-011	CORRECT		high	已知两边及一边的对角，用正弦定理解三角形时必须讨论解的个数，可能有一解、两解或无解。	
+ext-mat-550f58da7b-026	CORRECT		high	再通过累加各次位移向量得到总位移向量的坐标	
+ext-che-4e1924ed00-015	CORRECT		high	容量瓶是配制一定物质的量浓度溶液的专用仪器，瓶上标有温度、容积和刻度线	
+ext-mat-a741dfd133-001b	CORRECT		high	分式不等式必须考虑分母不为零，不可两边同时乘分母	
+ext-mat-a7ea55f5bb-002b	CORRECT		high	若 OP=x·OA+y·OB 且 x+y=1，则 P、A、B 三点共线；反之亦然。	
+ext-mat-8e37273f9f-011b	CORRECT		low	数列可以看作一个关于n（n∈N*）的函数，因此它具备函数的某些性质。	函数视角属概念；单调/周期另有专点
+ext-mat-e99f917373-001	CORRECT		high	数量积由模与夹角余弦定义（坐标下为对应坐标乘积之和）	
+chem-fx-yuan-zi-jing-ti-f35x05	CORRECT		high	每个Si与_4__个O以共价键结合，硅原子轨道均为_sp3__杂化，形成正四面体结构	
+ext-bio-8c6f4cf660-017	CORRECT		high	大分子与膜上的受体蛋白结合，细胞膜内陷形成小囊包围大分子。	
+ext-bio-2572fc572d-022	CORRECT		high	人体细胞外液的温度一般维持在37℃左右，属于内环境的理化性质之一。	
+chem-hj-liusuan-gen-jianyan	CORRECT		high	先加盐酸的目的：排除 CO32-、SO32-、Ag+ 等离子的干扰。	
+ext-che-a4da4e924e-004b	CORRECT		high	Al3+ 与水发生水解反应 Al3++3H2O 可逆生成 Al(OH)3（胶体）+3H+	
+ext-mat-d68ad97a21-007	CORRECT		high	积化和差把乘积化为和差：$\sin\alpha\cos\beta=\dfrac{1}{2}[\sin(\alpha+\beta)+\sin(\alpha-\beta)]$	
+ext-bio-5f510cdc4a-859	CORRECT		medium	启动子位于基因首端，是能与RNA聚合酶结合并能起始mRNA合成的序列	含原核基因结构；主体仍是启动子/终止子
+ext-phy-2e944c227b-004	CORRECT		high	单向的匀减速直线运动可看作初速度为零的反向匀加速直线运动，这就是逆向思维法	
+ext-mat-9783060ed3-006	CORRECT		high	由已知条件依次求出数列的前几项，由前几项的重复规律确定周期	
+ext-che-dcb14ed85a-013	CORRECT		high	这些误判都源于用单一现象直接下结论	
+ext-mat-847100604b-007	CORRECT		high	周期方面：正弦、余弦型函数 $y=A\sin(\omega x+\varphi)$ 与 $y=A\cos(\omega x+\varphi)$ 的最小正周期为 $\dfrac{2\pi}{|\omega|}$	
+ext-mat-78a2338ccf-008	CORRECT		high	求形如 $y=A\sin(\omega x+\varphi)$ 的函数的单调区间时，一般利用复合函数的单调性原理同增异减。	
+ext-bio-5f510cdc4a-1287	CORRECT		high	免疫活性物质：抗体、细胞因子、溶菌酶等，由免疫细胞或其他细胞产生的发挥免疫作用的物质。	
+ext-mat-f604c3778c-048	CORRECT		medium	①目标先行：根据要证明的不等式合理构建一个新的不等式，而不是只从已知条件单向推导。	双变量不等式思路；后半交极值点偏移
+ext-che-7f2e13df1b-040	CORRECT		high	肼（N2H4）分子中含N—N单键，是二元弱碱，碱性比NH3弱	
+ext-mat-289deb9ecd-595	CORRECT		high	思路一：把平面图形拆分成若干个三角形，在各个三角形内利用正、余弦定理求解。	
+ext-phy-4e2f064c7f-004	CORRECT		high	球体模型：把分子看成球形，分子直径 $d$ 与一个分子的体积 $V_{0}$ 满足 $V_{0}=\dfrac{1}{6}\pi d^{3}$	
+ext-phy-3c80e69263-024	CORRECT		high	若电流表读数几乎没变、电压表示数变化明显，说明电流表分压明显	
+ext-che-96397bfcc6-023	CORRECT		high	①概念：一种（或多种）物质分散到另一种（或多种）物质中所得到的体系。	
+ext-mat-863d9ef1bf-004	CORRECT		high	向量 $b$ 与非零向量 $a$ 共线的充要条件是存在唯一一个实数 $\lambda$，使 $b=\lambda a$。	
+ext-che-5c62da9e03-1829	CORRECT		high	由一种元素组成的物质不一定是单质，还可能是混合物，如由 O₂ 和 O₃ 组成的物质属于混合物。	
+ext-phy-4b6b3a59dc-011b	CORRECT		high	其波长 $\lambda=\frac{h}{p}$，其中 $p$ 为运动物体的动量，$h$ 为普朗克常量，这种波称为物质波（德布罗意波）	
+ext-bio-d9f5ec82ec-034	CORRECT		high	切除引物后子链比母链短一截，这是端粒DNA每次细胞分裂后缩短的原因，可由端粒酶延长。	
+ext-bio-5f510cdc4a-1209	CORRECT		high	胰高血糖素主要作用于肝，促进肝糖原分解成葡萄糖和非糖物质转变成糖	
+ext-che-a8962bf640-007	CORRECT		high	①实验开始：先通入N2排出装置内的空气，再加热。	
+ext-che-394d61720c-009	CORRECT		high	物理变化没有新物质生成，化学变化有新物质生成，这是最根本的判别标准。	
+chem-hj-no-de-huanyuanxing-buchong	CORRECT		high	NO 既有氧化性又有还原性，以还原性为主	
+ext-che-6973381fce-017b	CORRECT		medium	工业制硝酸：NH3 催化氧化生成 NO（4NH3＋5O2＝4NO＋6H2O）	制法属硝酸知识；节点边界偏性质
+ext-bio-5f510cdc4a-1569	CORRECT		high	分布：极度干旱区，降水稀少且分布不均匀	
+ext-che-29f0189476-061	CORRECT		medium	①判据：电解所需电压由两极反应物的性质决定	能耗判据属电解原理；边界未列应用
+ext-phy-ecd3843aab-003	CORRECT		high	物体的内能与物体的温度和体积都有关	
+ext-mat-06d9bbe626-001c	CORRECT		high	性质 3：如果事件 $A$ 与事件 $B$ 互斥，那么 $P(A\cup B)=P(A)+P(B)$	
+ext-phy-b1c1d14402-017	CORRECT		high	磁流体发电机是把内能（等离子体动能）转化为电能的装置	

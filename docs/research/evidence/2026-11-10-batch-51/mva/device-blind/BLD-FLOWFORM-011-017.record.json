@@ -1,0 +1,168 @@
+{
+  "input_file": "BLD-FLOWFORM-011.json",
+  "program_sha256": "82aed033e2feb03802010ff424f57bd933a40f79d6e12e4a613c20d0328728c8",
+  "task_id": "BLD-FLOWFORM-011",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 62,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "一元二次方程求根公式",
+      "widthDu": 160,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ee21803d4e0aadd44def73d84248242cc73d8699087d19c66e1b7b7a1fc0fa2d"
+    },
+    {
+      "contentId": "c1",
+      "payload": "2",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "contentId": "c2",
+      "payload": "x²",
+      "widthDu": 13.818181991577148,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f3b5ff1969c6ec2b6cc58a15fc7a6d3dde8d8a8a6c6fdde6deb7548083fa063b"
+    },
+    {
+      "contentId": "c3",
+      "payload": " + ",
+      "widthDu": 17.090909957885742,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "46209f696e32b54882cbbb06054295c2e76bed8fdce51d1e567894325c8fac99"
+    },
+    {
+      "contentId": "c4",
+      "payload": "4",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a"
+    },
+    {
+      "contentId": "c5",
+      "payload": "x ",
+      "widthDu": 12,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2ac3e029f2ae0ed36a9af34bd225e889df2818556266577aeb79530d6c14a8b3"
+    },
+    {
+      "contentId": "c6",
+      "payload": "−6",
+      "widthDu": 18.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b2450907b1466231266403f6513a312ad940a1d3ea8969f191a6331d2df6a31"
+    },
+    {
+      "contentId": "c7",
+      "payload": " = 0",
+      "widthDu": 25.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "dd1f472591fc4210e8094c4685d46de048e02516c429b66ee601392ef015f06b"
+    },
+    {
+      "contentId": "c8",
+      "payload": "x = (−b ± √(b² − 4ac)) \/ (2a)",
+      "widthDu": 192.36363220214844,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "731bd88c85ec501c79725260e312cb900471d2d0f04101d435a2e0800f8660af"
+    },
+    {
+      "contentId": "c9",
+      "payload": "a = 2",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d6caeea65266578487abe1370e07a0238918637bd5e81e923e12a24c618ab60e"
+    },
+    {
+      "contentId": "c10",
+      "payload": "b = 4",
+      "widthDu": 34.90909194946289,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "fbd5acbad31d6b83e49b1c8f77689595c4c2add38f1fca71bad99ef7be58ca34"
+    },
+    {
+      "contentId": "c11",
+      "payload": "c = −6",
+      "widthDu": 43.272727966308594,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e839510cb67ddee3544eb91c2bd359ec2268878272bd861fcb6aec8185ca3cf6"
+    },
+    {
+      "contentId": "c12",
+      "payload": "Δ = b² − 4ac = 4² − 4·2·(−6) = 16 + 48 = 64",
+      "widthDu": 296,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a63effb31fc0b5778f371c7d246bbdd18c12c547c547c0752b97ac2ed808295b"
+    },
+    {
+      "contentId": "c13",
+      "payload": "方程",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4693cb34aa53110c2beeed8e7665754201dcef9f391a0c58442d8f3ba93b4c95"
+    },
+    {
+      "contentId": "c14",
+      "payload": "求根公式",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c4b6e90e21f45e51800be5a11f05d227ecbdb5c7dd74a555955d3d7ad3ac9fbd"
+    },
+    {
+      "contentId": "c15",
+      "payload": "判别式",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "af70fbe4af0e02b98503800c2ddebba93cb3a1c17a2e547d2b9f6096438a79d6"
+    },
+    {
+      "contentId": "c16",
+      "payload": "示意：依据题面给定条件重建",
+      "widthDu": 208,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "1575eaa7eab868336a5f09bf2e11c2e000e0dd94d488b4422bef041e149e01ae"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

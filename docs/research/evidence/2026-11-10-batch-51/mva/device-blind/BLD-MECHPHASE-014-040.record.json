@@ -1,0 +1,150 @@
+{
+  "input_file": "BLD-MECHPHASE-014.json",
+  "program_sha256": "bbb0cc41bb46886fda45a7a48e982918ab34487bae9f32fef052c7a3df5d4aee",
+  "task_id": "BLD-MECHPHASE-014",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 53,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "拔塞过程：木塞相对瓶口基准线的位置（三个阶段）",
+      "widthDu": 368,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9dc1e5e75aa1d05d702eafce02ca15660e6002658d1a28c3c0d30a2b3eae6663"
+    },
+    {
+      "contentId": "c1",
+      "payload": "u = x\/h",
+      "widthDu": 48.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a1f807db50be35fb0ca282c4a5e3b44806d7b09df7f06a3ba87b650e0e155f0d"
+    },
+    {
+      "contentId": "c2",
+      "payload": "u = 0",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4b5968a5bb3f4bd83a77304c529b18ddc7b4f06e0e52db14c474a0f6f47f0558"
+    },
+    {
+      "contentId": "c3",
+      "payload": "u = 1\/2",
+      "widthDu": 50.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3f55abbdc017a90d744db9e7bda43bc196b4800ea88af1120c28a66e8fe05979"
+    },
+    {
+      "contentId": "c4",
+      "payload": "u = 1",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0c3de0b28dde8fc98f9f8d4377bd74394a78d28853bad8b25eaee12255f85414"
+    },
+    {
+      "contentId": "c5",
+      "payload": "x = 0",
+      "widthDu": 33.818180084228516,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bc3b5864a25454f5ac9c1ac2c3e54af4498664e94fa952d955f0bfb64ccd57fc"
+    },
+    {
+      "contentId": "c6",
+      "payload": "x = h\/2",
+      "widthDu": 49.09090805053711,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0f8db5f46f1cefd917c41ec1372ad02bd1ea12c2bc95b848796f4d7247acc3eb"
+    },
+    {
+      "contentId": "c7",
+      "payload": "x = h",
+      "widthDu": 33.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "cd71d298b0d30dbf4635b7282bb2450197e3cf603d69e78f8b982092493fe81d"
+    },
+    {
+      "contentId": "c8",
+      "payload": "h",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "aaa9402664f1a41f40ebbc52c9993eb66aeb366602958fdfaa283b71e64db123"
+    },
+    {
+      "contentId": "c9",
+      "payload": "瓶口基准线（水平）",
+      "widthDu": 144,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3989858c0f3203c91ab5de2e51ecf57e6f057f84eda3e68a44dfe6ea32818b00"
+    },
+    {
+      "contentId": "c10",
+      "payload": "u = 1 时木塞底部到达瓶口基准线",
+      "widthDu": 230.5454559326172,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e97589f7b3233447e923ba04c00dc384c5c78ade622d1f8557bb16568995b5ce"
+    },
+    {
+      "contentId": "c11",
+      "payload": "示意：木塞长度 = h，u = 0 时塞顶与瓶口齐平；三阶段位移依次为 0、h\/2、h",
+      "widthDu": 542.1818237304688,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9d142163ff0ea569ed5db0f1c07ebb0c08b697427ef7d4c52948f9da16657a27"
+    },
+    {
+      "contentId": "c12",
+      "payload": "塞底距基准线 = h",
+      "widthDu": 121.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "79b080fc107a9a2ad9328edcd1573557abab5fd69e23ad30ad4989a53611c1ca"
+    },
+    {
+      "contentId": "c13",
+      "payload": "塞底距基准线 = h\/2",
+      "widthDu": 137.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "62d2662d968ad594c74d99d2d76a5a3079c379776df799b5a5404cc82159c422"
+    },
+    {
+      "contentId": "c14",
+      "payload": "塞底与基准线齐平",
+      "widthDu": 128,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "479eefec83c9a6d82b59bdd5123a3b91335e15aa5e973d4ead369e76dffbaa59"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

@@ -1,0 +1,14 @@
+{
+  "input_file": "BLD-SRCREBLD-016.json",
+  "program_sha256": "37a560edd35d4e2f509499d29c1c2892301b2cffce3796326326d68104eacf4c",
+  "task_id": "BLD-SRCREBLD-016",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 11,
+  "measurement": [],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

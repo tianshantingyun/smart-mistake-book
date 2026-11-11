@@ -1,0 +1,42 @@
+{
+  "input_file": "BLD-MECHPHASE-008.json",
+  "program_sha256": "6950bd0fa72870cd6c5960d470dc49550db43925d290232a7fb1583d55f72103",
+  "task_id": "BLD-MECHPHASE-008",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 19,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "拉力 F",
+      "widthDu": 44.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2541943c7a42a377e1587dd3ca6389b6122fe2eb6195d154d4a75580d6f4c87a"
+    },
+    {
+      "contentId": "c1",
+      "payload": "瓶内气压与摩擦的合力",
+      "widthDu": 160,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "50aef6d9617bb5bc220096554fabf6155920d9c884962c0795a145d14045017d"
+    },
+    {
+      "contentId": "c2",
+      "payload": "木塞",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7e78a72a6e665e9ef8f2853e01bf26812e20db883cf0df8086658caea5096018"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

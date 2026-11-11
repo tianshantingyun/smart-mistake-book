@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-9142eeb79f-010	CORRECT		high	受力不在同一平面时，分别在竖直平面与水平面内列平衡方程	
+ext-phy-9142eeb79f-015b	CORRECT		high	摩擦力在竖直与水平方向都有分量，须用几何关系分别求出再矢量合成	节点为摩擦力
+ext-phy-9172e6988f-011	CORRECT		high	把速度和洛伦兹力分解到两个方向	
+ext-phy-91bf9c2046-005	CORRECT		high	平衡状态指物体静止或做匀速直线运动	
+ext-phy-92264196f9-004	CORRECT		high	在匀质球体内部距球心 r 处的质点受到的万有引力	
+ext-phy-924170e5b1-012	CORRECT		high	关联速度问题按判断合速度方向 定分速度方向 建立分速度关系 写出两物体速度关系四步求解	
+ext-phy-924259a8ae-005	CORRECT		high	加正向电压时光电流先随电压增大而增大	
+ext-phy-925746f040-004b	CORRECT		high	误区是认为分子间只有引力或只有斥力	
+ext-phy-934e377dcb-015	CORRECT		high	外力增大到等于最大静摩擦力时物体处于临界状态	
+ext-phy-938410d364-011	CORRECT		high	估测电阻后选择合适量程、进行欧姆调零	
+ext-phy-9484d1c1f4-016	CORRECT		high	粒子在正交匀强电场与磁场中沿直线运动时	
+ext-phy-9579268f6f-004	CORRECT		high	内能是物体内所有分子热运动动能与分子势能的总和	
+ext-phy-95c6559a86-003	CORRECT		high	以“恰好”“最大”“至少”等字眼为突破口寻找临界点	
+ext-phy-996080a9eb-006	CORRECT		high	在同一坐标系中画出元件的伏安特性曲线与电源的 U–I 直线	
+ext-phy-9a6dd971a7-010	CORRECT		high	归纳判断静摩擦力有无及方向的假设法、状态法与牛顿第三定律法	
+ext-phy-9cd09b0a35-001b	CORRECT		high	速度反向延长线过水平位移中点 速度角与位移角满足正切二倍关系	
+ext-phy-9d4e47b803-021b	CORRECT		high	把洛伦兹力沿两坐标轴分解后列动量定理	
+ext-phy-9eb7acc526-018	CORRECT		high	传感器的内阻会并入测得的内阻	
+ext-phy-9f6711c952-003	CORRECT		high	按磁通量变化的原因分三种情况列式	
+ext-phy-9f96c338bd-038	CORRECT		high	核反应分为衰变、人工转变、重核裂变与轻核聚变四类	
+ext-phy-9f96c338bd-040	CORRECT		high	用 ΔE＝Δmc²（Δm 取 kg）或 ΔE＝Δm×931.5 MeV/u	
+ext-phy-9fe9f2553b-018	CORRECT		high	系统初始静止且合外力为零，人船位移之比等于质量的反比	
+ext-phy-a00ea22fa8-003	CORRECT		high	多过程问题按“拆分子过程→各子过程受力与运动分析	
+ext-phy-a06efabe52-002	CORRECT		high	解折射类问题的常规思路是画光路图、找边角关系、用折射率公式求解	
+ext-phy-a15b40d7cc-003	CORRECT		high	运动不需要力维持 力是产生加速度的原因	
+ext-phy-a15b40d7cc-007	CORRECT		high	加速度与合外力成正比且与质量成反比 方向与合外力相同	
+ext-phy-a23820308c-001	CORRECT		high	用多用电表欧姆挡粗测电阻的操作流程与注意事项	
+ext-phy-a257a561e3-005	CORRECT		high	卫星之间用万有引力提供向心力比较	
+ext-phy-a37431286e-004	CORRECT		high	处理动力学的a-F、v-t、v²-x等图像应先建立函数关系	
+ext-phy-a676bd1881-007b	CORRECT		high	机械波的波速由介质决定	
+ext-phy-a8cab79186-020	CORRECT		high	把电磁感应图像题按图像随什么变化分类	
+ext-phy-a8cab79186-022	CORRECT		high	按认图像 析过程 判方向 写函数 作判断五步处理电磁感应图像题	
+ext-phy-a8e443c60d-104	CORRECT		high	同时释放与同时射出两球可分别验证竖直分运动为自由落体	
+ext-phy-aaa052605b-002	CORRECT		high	按水平竖直分解、按沿斜面与垂直斜面分解	
+ext-phy-ac2ffd3fa4-001	CORRECT		high	出现“最大”“最小”“刚好”等关键词常隐藏摩擦力突变的临界问题	
+ext-phy-adb97b2219-011	CORRECT		medium	等离子体在磁场中偏转使两极板带电极板间形成电势差	节点“仪器介绍”boundary 即磁流体发电机
+ext-phy-adbc125449-003	CORRECT		high	归纳追及相遇的物理分析法与判断能否追上的临界条件法	
+ext-phy-afa44298fc-004	CORRECT		high	电阻表刻度是左大右小、左密右疏的反刻度	
+ext-phy-b1c1d14402-009	CORRECT		high	把回旋加速器中的运动分为磁场中的圆周运动与盒缝中的加速两段分别计算再求和	
+ext-phy-b21ed83d33-001	CORRECT		high	充电电流由大变小至零、电压升到电源电压	
+ext-phy-b2b9d903be-003	CORRECT		high	按问题特征选择规律	
+ext-phy-b3ebfebb30-001	CORRECT		high	共速时摩擦力突变以及划痕长度与相对位移的区别	
+ext-phy-b3fa63a9b6-020	CORRECT		high	F-t 图线与时间轴围成的面积等于该力在这段时间内的冲量	
+ext-phy-b6bd732b19-023	CORRECT		high	追及相遇问题最常见的错误是没有考虑前车刹停	
+ext-phy-b6bd732b19-132	CORRECT		high	方向相同而速率不同的粒子射入磁场时	
+ext-phy-b6bd732b19-138	CORRECT		high	粒子先垂直电场线进入匀强电场做类平抛、再进入匀强磁场做圆周运动时	
+ext-phy-b6bd732b19-165	CORRECT		high	垂直界面入射时入射光反射光折射光共线	
+ext-phy-b6bd732b19-174	CORRECT		high	充放气问题的本质是气体转移、总质量不变	
+ext-phy-b6feafc5c0-005b	CORRECT		high	超重是视重大于实重、加速度向上	
+ext-phy-b758f2214b-002	CORRECT		high	功的定义、做功的两个必要条件	

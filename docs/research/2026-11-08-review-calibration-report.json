@@ -1,0 +1,1409 @@
+{
+  "meta": {
+    "batch": "49",
+    "document": "docs/research/2026-11-08-review-calibration-report.md",
+    "model_based": true,
+    "prereg": "docs/research/2026-11-08-review-calibration-prereg.md",
+    "prereg_sha256": "042776e829fe943a736007074ef77ac0e191f7bbeca0169b58d3d1a3be96b843",
+    "prereg_sha256_verified_in_report_session": true,
+    "head": "ba7b5624ea0c2bc3f09dcee247f5852e4f428122",
+    "head_verified_in_report_session": true,
+    "file_sha256": {
+      "ReviewPlannerV2.kt": "ed6ae4e50147fc0f76580f5185cf0f8b9f8c7fc8e395db3fc7a9eda7fdc9651c",
+      "AlgorithmConstants.kt": "e695418f5a24f56ab38ec11d44dd84f7030423c69bb57fd27942e34a36ccfd84",
+      "ReviewPlanner.kt": "62143174c3a4086b745044cc0a5b69275fce9810b93dcac35b88b4610d0320f2",
+      "ClearlyMasteredForSkipPolicy.kt": "3cb0af7c7c199a98dec451338288dccad469d6db47aaf5cec1b214c80098599d",
+      "SchedulingEvaluation.kt": "e0f3f26aaac5dd1545bfa8eb8fda2e3fd37d8dd4b3dc9aba66e5b0fe780f7338",
+      "ReviewPlannerScaleBenchmarkTest.kt": "d72a2ed9aa8bc91f6471d75a0905475c5788af9f4a20c336d23e97c9a0342560",
+      "StudyReviewPlannerService.kt": "2bd8c40bb6352e5dd01b8a0998b9f7843d2c32a2d6c8602b073f3673f4d6948d",
+      "SimulatedLearner.kt": "62d1eeac482ab165e26920a5665d3e54719334dc3674b235a3149d88b63e65ef",
+      "SimulatedLearnerTest.kt": "94a27fae700e681f08b5542df68de813bb86c111bdee7cd2ab9f37eebd99212e"
+    },
+    "file_sha256_baseline_before_seam": {
+      "ReviewPlannerV2.kt": "ee89aba3dfeb079812b72bf3808b9acc564c7d159743e1577da86de97cc20ecf",
+      "AlgorithmConstants.kt": "e695418f5a24f56ab38ec11d44dd84f7030423c69bb57fd27942e34a36ccfd84",
+      "ReviewPlanner.kt": "e5d66b5b00a22b6dac6fc0d32c3af54658b0f0f8428df74febb458e1ac0bfbfa",
+      "SimulatedLearner.kt": "d170338b35152f1adc0ef1d32e34a60fd896b696cb68fbf36483475f655cc2dc"
+    },
+    "file_sha256_verified_in_report_session": true,
+    "holdout_run_id": "batch49-holdout-20261107T1455Z",
+    "holdout_run_id_proves_single_execution": false,
+    "holdout_run_id_note": "cross-process-rerun 复用了同一 id（环境变量固定）；单次性以两份 manifest 的 started_at/run 数 + 逐位相同 digest 为证据",
+    "primary_metric": "exam_subject_coverage_in_window",
+    "g6_grid": [
+      0.15,
+      0.25,
+      0.35,
+      0.5
+    ],
+    "g6_baseline_f": 0.0,
+    "weight_grid": [
+      0.75,
+      0.875,
+      1.0,
+      1.125,
+      1.25
+    ],
+    "rho_grid": [
+      1.0,
+      0.975,
+      0.95,
+      0.925,
+      0.9,
+      0.875,
+      0.85,
+      0.825,
+      0.8,
+      0.775,
+      0.75
+    ],
+    "equal_time_tolerance": 0.015,
+    "brier_delta_tolerance": 0.005,
+    "dev_seeds": [
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110
+    ],
+    "holdout_seeds": [
+      901,
+      902,
+      903,
+      904,
+      905,
+      906,
+      907,
+      908,
+      909,
+      910
+    ],
+    "simulations": {
+      "physical_runs": 3120,
+      "logical_runs": 3334,
+      "prereg_budget_range": "1380-1480",
+      "budget_deviation": "约 2.1-2.3 倍；权重臂按预注册 5.3 套 rho 网格产生额外 run，8.1 的 run 矩阵低估了这部分",
+      "started_at": "2026-11-07T14:42:43.934111700Z",
+      "finished_at": "2026-11-07T14:53:37.908183600Z",
+      "wall_clock_seconds": 653
+    },
+    "thresholds_evaluated_not_changed": [
+      [
+        21.0,
+        0.9
+      ],
+      [
+        14.0,
+        0.9
+      ],
+      [
+        21.0,
+        0.85
+      ]
+    ],
+    "decision_authority": "预注册 4.3（G6）/ 5.4（权重）；默认分支 = KEEP",
+    "report_session_ran_gradle": false,
+    "report_session_ran_simulation": false,
+    "report_session_touched_device_or_real_db": false
+  },
+  "g6": {
+    "verdict": "KEEP_0.50 (no arm passed the pre-registered gate)",
+    "adopted_f": null,
+    "current_value": 0.5,
+    "recommended_value": 0.5,
+    "action": "KEEP_CURRENT",
+    "grid_endpoint_excluded": true,
+    "no_equal_time_cells": 22,
+    "arms": [
+      {
+        "id": "G6/A1",
+        "f": 0.15,
+        "median_delta": "-0x1.1111111111108p-5",
+        "positive": 3,
+        "n": 6,
+        "dev_median_delta": "0x0.0p0",
+        "dev_positive": 3,
+        "dev_n": 7,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "UNDERPOWERED",
+        "bootstrap_ci95": [
+          "-0x1.ddddddddddde4p-4",
+          "0x1.ddddddddddddcp-4"
+        ],
+        "median_delta_decimal": -0.033333,
+        "dev_median_delta_decimal": 0.0,
+        "bootstrap_ci95_decimal": [
+          -0.116667,
+          0.116667
+        ]
+      },
+      {
+        "id": "G6/A2",
+        "f": 0.25,
+        "median_delta": "0x1.999999999999p-5",
+        "positive": 4,
+        "n": 6,
+        "dev_median_delta": "0x1.111111111111p-6",
+        "dev_positive": 4,
+        "dev_n": 8,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "UNDERPOWERED",
+        "bootstrap_ci95": [
+          "-0x1.1111111111114p-4",
+          "0x1.3333333333336p-3"
+        ],
+        "median_delta_decimal": 0.05,
+        "dev_median_delta_decimal": 0.016667,
+        "bootstrap_ci95_decimal": [
+          -0.066667,
+          0.15
+        ]
+      },
+      {
+        "id": "G6/A3",
+        "f": 0.35,
+        "median_delta": "0x1.111111111111p-6",
+        "positive": 4,
+        "n": 8,
+        "dev_median_delta": "0x1.1111111111108p-5",
+        "dev_positive": 5,
+        "dev_n": 8,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "median_delta_below_one_kc",
+        "bootstrap_ci95": [
+          "-0x1.111111111111p-4",
+          "0x1.1111111111108p-4"
+        ],
+        "median_delta_decimal": 0.016667,
+        "dev_median_delta_decimal": 0.033333,
+        "bootstrap_ci95_decimal": [
+          -0.066667,
+          0.066667
+        ]
+      },
+      {
+        "id": "G6/A4",
+        "f": 0.5,
+        "median_delta": "0x1.1111111111118p-5",
+        "positive": 5,
+        "n": 8,
+        "dev_median_delta": "0x1.11111111111p-5",
+        "dev_positive": 5,
+        "dev_n": 7,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "sign_consistency_below_8_of_10",
+        "bootstrap_ci95": [
+          "-0x1.11111111111p-5",
+          "0x1.111111111110cp-3"
+        ],
+        "median_delta_decimal": 0.033333,
+        "dev_median_delta_decimal": 0.033333,
+        "bootstrap_ci95_decimal": [
+          -0.033333,
+          0.133333
+        ]
+      }
+    ],
+    "holdout_per_seed_delta": [
+      {
+        "seed": 901,
+        "f=0.150000": {
+          "hex": "-0x1.111111111111p-4",
+          "decimal": -0.066667
+        },
+        "f=0.250000": {
+          "hex": "-0x1.111111111111p-4",
+          "decimal": -0.066667
+        },
+        "f=0.350000": {
+          "hex": "-0x1.111111111111p-4",
+          "decimal": -0.066667
+        },
+        "f=0.500000": {
+          "hex": null,
+          "decimal": null
+        }
+      },
+      {
+        "seed": 902,
+        "f=0.150000": {
+          "hex": null,
+          "decimal": null
+        },
+        "f=0.250000": {
+          "hex": null,
+          "decimal": null
+        },
+        "f=0.350000": {
+          "hex": "0x1.111111111111p-4",
+          "decimal": 0.066667
+        },
+        "f=0.500000": {
+          "hex": "0x1.999999999999p-4",
+          "decimal": 0.1
+        }
+      },
+      {
+        "seed": 903,
+        "f=0.150000": {
+          "hex": "0x1.9999999999998p-4",
+          "decimal": 0.1
+        },
+        "f=0.250000": {
+          "hex": "0x1.999999999999cp-3",
+          "decimal": 0.2
+        },
+        "f=0.350000": {
+          "hex": "0x0.0p0",
+          "decimal": 0.0
+        },
+        "f=0.500000": {
+          "hex": "0x1.dddddddddddep-3",
+          "decimal": 0.233333
+        }
+      },
+      {
+        "seed": 904,
+        "f=0.150000": {
+          "hex": null,
+          "decimal": null
+        },
+        "f=0.250000": {
+          "hex": null,
+          "decimal": null
+        },
+        "f=0.350000": {
+          "hex": "0x1.111111111111p-5",
+          "decimal": 0.033333
+        },
+        "f=0.500000": {
+          "hex": "0x1.111111111111p-5",
+          "decimal": 0.033333
+        }
+      },
+      {
+        "seed": 905,
+        "f=0.150000": {
+          "hex": "-0x1.5555555555558p-3",
+          "decimal": -0.166667
+        },
+        "f=0.250000": {
+          "hex": "0x1.11111111111p-5",
+          "decimal": 0.033333
+        },
+        "f=0.350000": {
+          "hex": "0x0.0p0",
+          "decimal": 0.0
+        },
+        "f=0.500000": {
+          "hex": "0x0.0p0",
+          "decimal": 0.0
+        }
+      },
+      {
+        "seed": 906,
+        "f=0.150000": {
+          "hex": null,
+          "decimal": null
+        },
+        "f=0.250000": {
+          "hex": null,
+          "decimal": null
+        },
+        "f=0.350000": {
+          "hex": null,
+          "decimal": null
+        },
+        "f=0.500000": {
+          "hex": "-0x1.11111111111p-5",
+          "decimal": -0.033333
+        }
+      },
+      {
+        "seed": 907,
+        "f=0.150000": {
+          "hex": "0x1.0p-53",
+          "decimal": 0.0
+        },
+        "f=0.250000": {
+          "hex": "0x1.99999999999ap-4",
+          "decimal": 0.1
+        },
+        "f=0.350000": {
+          "hex": "0x1.111111111111p-5",
+          "decimal": 0.033333
+        },
+        "f=0.500000": {
+          "hex": "0x1.111111111112p-5",
+          "decimal": 0.033333
+        }
+      },
+      {
+        "seed": 908,
+        "f=0.150000": {
+          "hex": null,
+          "decimal": null
+        },
+        "f=0.250000": {
+          "hex": "0x1.111111111111p-4",
+          "decimal": 0.066667
+        },
+        "f=0.350000": {
+          "hex": "0x1.1111111111108p-4",
+          "decimal": 0.066667
+        },
+        "f=0.500000": {
+          "hex": "0x1.111111111110cp-3",
+          "decimal": 0.133333
+        }
+      },
+      {
+        "seed": 909,
+        "f=0.150000": {
+          "hex": "-0x1.1111111111118p-4",
+          "decimal": -0.066667
+        },
+        "f=0.250000": {
+          "hex": "-0x1.1111111111118p-4",
+          "decimal": -0.066667
+        },
+        "f=0.350000": {
+          "hex": "-0x1.1111111111118p-4",
+          "decimal": -0.066667
+        },
+        "f=0.500000": {
+          "hex": "-0x1.111111111111p-5",
+          "decimal": -0.033333
+        }
+      },
+      {
+        "seed": 910,
+        "f=0.150000": {
+          "hex": "0x1.111111111111p-3",
+          "decimal": 0.133333
+        },
+        "f=0.250000": {
+          "hex": null,
+          "decimal": null
+        },
+        "f=0.350000": {
+          "hex": null,
+          "decimal": null
+        },
+        "f=0.500000": {
+          "hex": null,
+          "decimal": null
+        }
+      }
+    ]
+  },
+  "weights": {
+    "verdict": "KEEP_ALL_CURRENT_WEIGHTS",
+    "adopted": null,
+    "passing": 0,
+    "at_most_one_coordinate": true,
+    "adopted_coordinate": null,
+    "arms": [
+      {
+        "id": "W/due/x0.75",
+        "coordinate": "due",
+        "multiplier": 0.75,
+        "median_delta": "0x1.999999999999cp-4",
+        "positive": 4,
+        "n": 6,
+        "dev_median_delta": "0x1.9999999999998p-4",
+        "dev_positive": 4,
+        "dev_n": 5,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "UNDERPOWERED",
+        "bootstrap_ci95": [
+          "-0x1.9999999999998p-4",
+          "0x1.bbbbbbbbbbbbcp-3"
+        ],
+        "median_delta_decimal": 0.1,
+        "dev_median_delta_decimal": 0.1,
+        "bootstrap_ci95_decimal": [
+          -0.1,
+          0.216667
+        ]
+      },
+      {
+        "id": "W/due/x0.875",
+        "coordinate": "due",
+        "multiplier": 0.875,
+        "median_delta": "0x1.555555555555cp-4",
+        "positive": 5,
+        "n": 6,
+        "dev_median_delta": "0x1.9999999999998p-4",
+        "dev_positive": 4,
+        "dev_n": 6,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "UNDERPOWERED",
+        "bootstrap_ci95": [
+          "-0x1.5555555555558p-4",
+          "0x1.111111111111p-3"
+        ],
+        "median_delta_decimal": 0.083333,
+        "dev_median_delta_decimal": 0.1,
+        "bootstrap_ci95_decimal": [
+          -0.083333,
+          0.133333
+        ]
+      },
+      {
+        "id": "W/due/x1.125",
+        "coordinate": "due",
+        "multiplier": 1.125,
+        "median_delta": "0x1.111111111111p-4",
+        "positive": 6,
+        "n": 7,
+        "dev_median_delta": "0x1.1111111111118p-4",
+        "dev_positive": 4,
+        "dev_n": 7,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "UNDERPOWERED",
+        "bootstrap_ci95": [
+          "0x1.111111111111p-5",
+          "0x1.9999999999998p-4"
+        ],
+        "median_delta_decimal": 0.066667,
+        "dev_median_delta_decimal": 0.066667,
+        "bootstrap_ci95_decimal": [
+          0.033333,
+          0.1
+        ]
+      },
+      {
+        "id": "W/due/x1.25",
+        "coordinate": "due",
+        "multiplier": 1.25,
+        "median_delta": "0x1.555555555555cp-4",
+        "positive": 6,
+        "n": 8,
+        "dev_median_delta": "0x1.1111111111108p-5",
+        "dev_positive": 5,
+        "dev_n": 8,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "sign_consistency_below_8_of_10",
+        "bootstrap_ci95": [
+          "-0x1.111111111111p-5",
+          "0x1.1111111111114p-3"
+        ],
+        "median_delta_decimal": 0.083333,
+        "dev_median_delta_decimal": 0.033333,
+        "bootstrap_ci95_decimal": [
+          -0.033333,
+          0.133333
+        ]
+      },
+      {
+        "id": "W/weak/x0.75",
+        "coordinate": "weak",
+        "multiplier": 0.75,
+        "median_delta": "0x1.9999999999998p-4",
+        "positive": 1,
+        "n": 2,
+        "dev_median_delta": "-0x1.111111111112p-5",
+        "dev_positive": 0,
+        "dev_n": 1,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "UNDERPOWERED",
+        "bootstrap_ci95": [
+          "-0x1.9999999999998p-4",
+          "0x1.3333333333332p-2"
+        ],
+        "median_delta_decimal": 0.1,
+        "dev_median_delta_decimal": -0.033333,
+        "bootstrap_ci95_decimal": [
+          -0.1,
+          0.3
+        ]
+      },
+      {
+        "id": "W/weak/x0.875",
+        "coordinate": "weak",
+        "multiplier": 0.875,
+        "median_delta": "0x1.111111111112p-6",
+        "positive": 3,
+        "n": 6,
+        "dev_median_delta": "0x1.1111111111108p-4",
+        "dev_positive": 3,
+        "dev_n": 5,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "UNDERPOWERED",
+        "bootstrap_ci95": [
+          "-0x1.5555555555558p-4",
+          "0x1.dddddddddddd8p-4"
+        ],
+        "median_delta_decimal": 0.016667,
+        "dev_median_delta_decimal": 0.066667,
+        "bootstrap_ci95_decimal": [
+          -0.083333,
+          0.116667
+        ]
+      },
+      {
+        "id": "W/weak/x1.125",
+        "coordinate": "weak",
+        "multiplier": 1.125,
+        "median_delta": "0x1.555555555555cp-4",
+        "positive": 6,
+        "n": 8,
+        "dev_median_delta": "0x1.111111111111p-3",
+        "dev_positive": 6,
+        "dev_n": 7,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "sign_consistency_below_8_of_10",
+        "bootstrap_ci95": [
+          "-0x1.111111111112p-5",
+          "0x1.111111111110cp-3"
+        ],
+        "median_delta_decimal": 0.083333,
+        "dev_median_delta_decimal": 0.133333,
+        "bootstrap_ci95_decimal": [
+          -0.033333,
+          0.133333
+        ]
+      },
+      {
+        "id": "W/weak/x1.25",
+        "coordinate": "weak",
+        "multiplier": 1.25,
+        "median_delta": "0x1.5555555555558p-4",
+        "positive": 7,
+        "n": 10,
+        "dev_median_delta": "0x0.0p0",
+        "dev_positive": 4,
+        "dev_n": 9,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "sign_consistency_below_8_of_10",
+        "bootstrap_ci95": [
+          "-0x1.0p-53",
+          "0x1.3333333333336p-3"
+        ],
+        "median_delta_decimal": 0.083333,
+        "dev_median_delta_decimal": 0.0,
+        "bootstrap_ci95_decimal": [
+          -0.0,
+          0.15
+        ]
+      },
+      {
+        "id": "W/exam/x0.875",
+        "coordinate": "exam",
+        "multiplier": 0.875,
+        "median_delta": "0x0.0p0",
+        "positive": 3,
+        "n": 10,
+        "dev_median_delta": "0x0.0p0",
+        "dev_positive": 1,
+        "dev_n": 10,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "median_delta_below_one_kc",
+        "bootstrap_ci95": [
+          "0x0.0p0",
+          "0x1.111111111112p-5"
+        ],
+        "median_delta_decimal": 0.0,
+        "dev_median_delta_decimal": 0.0,
+        "bootstrap_ci95_decimal": [
+          0.0,
+          0.033333
+        ]
+      },
+      {
+        "id": "W/exam/x1.125",
+        "coordinate": "exam",
+        "multiplier": 1.125,
+        "median_delta": "0x0.0p0",
+        "positive": 4,
+        "n": 10,
+        "dev_median_delta": "0x0.0p0",
+        "dev_positive": 4,
+        "dev_n": 10,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "median_delta_below_one_kc",
+        "bootstrap_ci95": [
+          "0x0.0p0",
+          "0x1.1111111111118p-5"
+        ],
+        "median_delta_decimal": 0.0,
+        "dev_median_delta_decimal": 0.0,
+        "bootstrap_ci95_decimal": [
+          0.0,
+          0.033333
+        ]
+      },
+      {
+        "id": "W/exam/x1.25",
+        "coordinate": "exam",
+        "multiplier": 1.25,
+        "median_delta": "0x1.111111111111p-5",
+        "positive": 6,
+        "n": 10,
+        "dev_median_delta": "0x0.0p0",
+        "dev_positive": 2,
+        "dev_n": 10,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "median_delta_below_one_kc",
+        "bootstrap_ci95": [
+          "0x0.0p0",
+          "0x1.99999999999ap-5"
+        ],
+        "median_delta_decimal": 0.033333,
+        "dev_median_delta_decimal": 0.0,
+        "bootstrap_ci95_decimal": [
+          0.0,
+          0.05
+        ]
+      },
+      {
+        "id": "W/kc-drop/x0.75",
+        "coordinate": "kc-drop",
+        "multiplier": 0.75,
+        "median_delta": "0x1.111111111111p-4",
+        "positive": 6,
+        "n": 9,
+        "dev_median_delta": "0x1.1111111111108p-5",
+        "dev_positive": 2,
+        "dev_n": 4,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "sign_consistency_below_8_of_10",
+        "bootstrap_ci95": [
+          "-0x1.1111111111114p-3",
+          "0x1.111111111111p-3"
+        ],
+        "median_delta_decimal": 0.066667,
+        "dev_median_delta_decimal": 0.033333,
+        "bootstrap_ci95_decimal": [
+          -0.133333,
+          0.133333
+        ]
+      },
+      {
+        "id": "W/kc-drop/x0.875",
+        "coordinate": "kc-drop",
+        "multiplier": 0.875,
+        "median_delta": "0x1.1111111111114p-4",
+        "positive": 5,
+        "n": 8,
+        "dev_median_delta": "0x1.111111111111p-4",
+        "dev_positive": 3,
+        "dev_n": 6,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "sign_consistency_below_8_of_10",
+        "bootstrap_ci95": [
+          "0x0.0p0",
+          "0x1.5555555555554p-3"
+        ],
+        "median_delta_decimal": 0.066667,
+        "dev_median_delta_decimal": 0.066667,
+        "bootstrap_ci95_decimal": [
+          0.0,
+          0.166667
+        ]
+      },
+      {
+        "id": "W/diversity/x0.75",
+        "coordinate": "diversity",
+        "multiplier": 0.75,
+        "median_delta": "0x1.1111111111114p-4",
+        "positive": 7,
+        "n": 8,
+        "dev_median_delta": "0x0.0p0",
+        "dev_positive": 4,
+        "dev_n": 9,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "sign_consistency_below_8_of_10",
+        "bootstrap_ci95": [
+          "0x1.0p-53",
+          "0x1.111111111111p-3"
+        ],
+        "median_delta_decimal": 0.066667,
+        "dev_median_delta_decimal": 0.0,
+        "bootstrap_ci95_decimal": [
+          0.0,
+          0.133333
+        ]
+      },
+      {
+        "id": "W/diversity/x0.875",
+        "coordinate": "diversity",
+        "multiplier": 0.875,
+        "median_delta": "0x1.9999999999998p-4",
+        "positive": 4,
+        "n": 5,
+        "dev_median_delta": "0x1.11111111111p-6",
+        "dev_positive": 3,
+        "dev_n": 6,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "UNDERPOWERED",
+        "bootstrap_ci95": [
+          "-0x1.111111111111p-5",
+          "0x1.1111111111112p-2"
+        ],
+        "median_delta_decimal": 0.1,
+        "dev_median_delta_decimal": 0.016667,
+        "bootstrap_ci95_decimal": [
+          -0.033333,
+          0.266667
+        ]
+      },
+      {
+        "id": "W/diversity/x1.125",
+        "coordinate": "diversity",
+        "multiplier": 1.125,
+        "median_delta": "-0x1.111111111112p-5",
+        "positive": 3,
+        "n": 7,
+        "dev_median_delta": "0x1.11111111111p-6",
+        "dev_positive": 2,
+        "dev_n": 4,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "UNDERPOWERED",
+        "bootstrap_ci95": [
+          "-0x1.5555555555554p-3",
+          "0x1.999999999999cp-3"
+        ],
+        "median_delta_decimal": -0.033333,
+        "dev_median_delta_decimal": 0.016667,
+        "bootstrap_ci95_decimal": [
+          -0.166667,
+          0.2
+        ]
+      },
+      {
+        "id": "W/diversity/x1.25",
+        "coordinate": "diversity",
+        "multiplier": 1.25,
+        "median_delta": "0x1.99999999999a8p-5",
+        "positive": 2,
+        "n": 4,
+        "dev_median_delta": "0x1.111111111110cp-3",
+        "dev_positive": 4,
+        "dev_n": 4,
+        "guard_ok": false,
+        "pass": false,
+        "reason": "UNDERPOWERED",
+        "bootstrap_ci95": [
+          "-0x1.999999999999p-4",
+          "0x1.999999999999cp-3"
+        ],
+        "median_delta_decimal": 0.05,
+        "dev_median_delta_decimal": 0.133333,
+        "bootstrap_ci95_decimal": [
+          -0.1,
+          0.2
+        ]
+      }
+    ],
+    "coordinate_recommendations": [
+      {
+        "coordinate": "due",
+        "current": 5.0,
+        "source": "AlgorithmConstants.kt:114",
+        "recommended": 5.0,
+        "action": "KEEP_CURRENT",
+        "reason": "最好臂 x1.25 中位 +0.0833，但符号 6/8、护栏不过、且为网格端点"
+      },
+      {
+        "coordinate": "weakness",
+        "current": 3.0,
+        "source": "AlgorithmConstants.kt:115",
+        "recommended": 3.0,
+        "action": "KEEP_CURRENT",
+        "reason": "x1.25 7/10 最接近，仍差 1 个 world 且为端点；x0.75 只有 n=2"
+      },
+      {
+        "coordinate": "exam",
+        "current": 2.0,
+        "source": "AlgorithmConstants.kt:119",
+        "recommended": 2.0,
+        "action": "KEEP_CURRENT",
+        "reason": "三臂中位都 <= 1 KC；x1.25 在 dev 只有 2/10 同号（方向不一致）"
+      },
+      {
+        "coordinate": "kc-drop",
+        "current": 2.5,
+        "source": "ReviewPlannerV2.kt:53 DEFAULT_KC_DROP_WEIGHT（单源；旧 ReviewPlanner.kt:22 已删）",
+        "recommended": 2.5,
+        "action": "KEEP_CURRENT",
+        "reason": "x0.75 6/9 且为端点；x0.875 5/8"
+      },
+      {
+        "coordinate": "diversity",
+        "current": {
+          "family": 0.3,
+          "source": 0.2,
+          "max_penalty": 1.5
+        },
+        "source": "AlgorithmConstants.kt:123-125",
+        "recommended": "不变",
+        "action": "KEEP_CURRENT",
+        "reason": "x0.75 7/8 最接近但为端点且 CI 下界为 0；x1.125 中位为负"
+      },
+      {
+        "coordinate": "avoidance",
+        "current": 1.0,
+        "source": "AlgorithmConstants.kt:118",
+        "recommended": 1.0,
+        "action": "NOT_MEASURED",
+        "reason": "模拟里 ReviewCandidate.avoidance 恒为 false"
+      }
+    ]
+  },
+  "mastery_thresholds": {
+    "change_proposed": false,
+    "candidates": [
+      {
+        "id": "T0",
+        "stability_days": 21.0,
+        "retention": 0.9,
+        "status": "CURRENT"
+      },
+      {
+        "id": "T1",
+        "stability_days": 14.0,
+        "retention": 0.9,
+        "status": "READING_ONLY"
+      },
+      {
+        "id": "T2",
+        "stability_days": 21.0,
+        "retention": 0.85,
+        "status": "READING_ONLY"
+      }
+    ],
+    "aggregate_note": "threshold-readings.json 的 n=20 合并 dev+holdout；逐层原始行见 thresholds.csv",
+    "aggregates": [
+      {
+        "truth_arm": "W-decay",
+        "policy": "T0",
+        "day": 30,
+        "n": 20,
+        "coverage_median": 1.0,
+        "coverage_min": 0,
+        "coverage_max": 2,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": false
+      },
+      {
+        "truth_arm": "W-decay",
+        "policy": "T0",
+        "day": 60,
+        "n": 20,
+        "coverage_median": 2.0,
+        "coverage_min": 1,
+        "coverage_max": 4,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": false
+      },
+      {
+        "truth_arm": "W-decay",
+        "policy": "T0",
+        "day": 90,
+        "n": 20,
+        "coverage_median": 5.0,
+        "coverage_min": 2,
+        "coverage_max": 7,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": false
+      },
+      {
+        "truth_arm": "W-decay",
+        "policy": "T0",
+        "day": 120,
+        "n": 20,
+        "coverage_median": 6.0,
+        "coverage_min": 3,
+        "coverage_max": 9,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": false
+      },
+      {
+        "truth_arm": "W-decay",
+        "policy": "T1",
+        "day": 30,
+        "n": 20,
+        "coverage_median": 2.0,
+        "coverage_min": 0,
+        "coverage_max": 4,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": false
+      },
+      {
+        "truth_arm": "W-decay",
+        "policy": "T1",
+        "day": 60,
+        "n": 20,
+        "coverage_median": 3.5,
+        "coverage_min": 1,
+        "coverage_max": 8,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": false
+      },
+      {
+        "truth_arm": "W-decay",
+        "policy": "T1",
+        "day": 90,
+        "n": 20,
+        "coverage_median": 7.0,
+        "coverage_min": 4,
+        "coverage_max": 12,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": false
+      },
+      {
+        "truth_arm": "W-decay",
+        "policy": "T1",
+        "day": 120,
+        "n": 20,
+        "coverage_median": 9.0,
+        "coverage_min": 4,
+        "coverage_max": 11,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": false
+      },
+      {
+        "truth_arm": "W-decay",
+        "policy": "T2",
+        "day": 30,
+        "n": 20,
+        "coverage_median": 1.0,
+        "coverage_min": 0,
+        "coverage_max": 2,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": false
+      },
+      {
+        "truth_arm": "W-decay",
+        "policy": "T2",
+        "day": 60,
+        "n": 20,
+        "coverage_median": 2.0,
+        "coverage_min": 1,
+        "coverage_max": 4,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": false
+      },
+      {
+        "truth_arm": "W-decay",
+        "policy": "T2",
+        "day": 90,
+        "n": 20,
+        "coverage_median": 5.0,
+        "coverage_min": 2,
+        "coverage_max": 9,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": false
+      },
+      {
+        "truth_arm": "W-decay",
+        "policy": "T2",
+        "day": 120,
+        "n": 20,
+        "coverage_median": 6.0,
+        "coverage_min": 3,
+        "coverage_max": 10,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": false
+      },
+      {
+        "truth_arm": "W-slip",
+        "policy": "T0",
+        "day": 30,
+        "n": 20,
+        "coverage_median": 1.0,
+        "coverage_min": 0,
+        "coverage_max": 3,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": true
+      },
+      {
+        "truth_arm": "W-slip",
+        "policy": "T0",
+        "day": 60,
+        "n": 20,
+        "coverage_median": 2.5,
+        "coverage_min": 0,
+        "coverage_max": 6,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": true
+      },
+      {
+        "truth_arm": "W-slip",
+        "policy": "T0",
+        "day": 90,
+        "n": 20,
+        "coverage_median": 4.0,
+        "coverage_min": 0,
+        "coverage_max": 8,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": true
+      },
+      {
+        "truth_arm": "W-slip",
+        "policy": "T0",
+        "day": 120,
+        "n": 20,
+        "coverage_median": 6.0,
+        "coverage_min": 2,
+        "coverage_max": 11,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": true
+      },
+      {
+        "truth_arm": "W-slip",
+        "policy": "T1",
+        "day": 30,
+        "n": 20,
+        "coverage_median": 2.0,
+        "coverage_min": 0,
+        "coverage_max": 5,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": true
+      },
+      {
+        "truth_arm": "W-slip",
+        "policy": "T1",
+        "day": 60,
+        "n": 20,
+        "coverage_median": 5.0,
+        "coverage_min": 1,
+        "coverage_max": 9,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": true
+      },
+      {
+        "truth_arm": "W-slip",
+        "policy": "T1",
+        "day": 90,
+        "n": 20,
+        "coverage_median": 8.0,
+        "coverage_min": 5,
+        "coverage_max": 11,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": true
+      },
+      {
+        "truth_arm": "W-slip",
+        "policy": "T1",
+        "day": 120,
+        "n": 20,
+        "coverage_median": 9.0,
+        "coverage_min": 3,
+        "coverage_max": 12,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": true
+      },
+      {
+        "truth_arm": "W-slip",
+        "policy": "T2",
+        "day": 30,
+        "n": 20,
+        "coverage_median": 1.0,
+        "coverage_min": 0,
+        "coverage_max": 3,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": true
+      },
+      {
+        "truth_arm": "W-slip",
+        "policy": "T2",
+        "day": 60,
+        "n": 20,
+        "coverage_median": 2.5,
+        "coverage_min": 0,
+        "coverage_max": 6,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": true
+      },
+      {
+        "truth_arm": "W-slip",
+        "policy": "T2",
+        "day": 90,
+        "n": 20,
+        "coverage_median": 5.0,
+        "coverage_min": 1,
+        "coverage_max": 8,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": true
+      },
+      {
+        "truth_arm": "W-slip",
+        "policy": "T2",
+        "day": 120,
+        "n": 20,
+        "coverage_median": 7.0,
+        "coverage_min": 2,
+        "coverage_max": 11,
+        "misjudge_rate_median": 0.0,
+        "structural_zero": true
+      }
+    ],
+    "retention_note": "锚点第 30 天；holdout 层分母仅 1-2 个 KC；第 30 天掌握集为空时记 null",
+    "constraint": "ask 硬约束：21 天 / 0.9 不改；本批不产生提案"
+  },
+  "guards": {
+    "G1_daily_budget": "PASS：21/21 臂 overrun_strict = overrun_tolerance = 0",
+    "G2_non_exam_starvation": "VIOLATED：每个臂至少 1 个 holdout world 违反",
+    "G3_kc_gap_p95": "VIOLATED：多数臂；基线 kcGapP95 在 7/10 holdout world 就是 90 天",
+    "G4_brier_delta": "PASS：21/21 臂 |median brier delta| <= 0.0076（最差为改善方向）",
+    "reachability": "无任何臂能在 10 个 holdout world 上同时过 G2 与 G3 —— 本世界形状下门不可达"
+  },
+  "mechanism": {
+    "beam_step_cap": {
+      "constant": "ReviewPlannerV2.kt:1133 MAX_BEAM_STEPS = 20",
+      "applied_at": "ReviewPlannerV2.kt:192 maxSteps = minOf(MAX_BEAM_STEPS, timeBudgetSeconds / minDuration)",
+      "observed": "每个臂、每层 max_daily_items 中位都是 20.0；典型 world 有 22-31 天顶着 20 题上限",
+      "reading": "G6 的扩容增量买不到更多选题步数，只改变同样的 20 题里选哪些"
+    },
+    "baseline_y": {
+      "dev": {
+        "min": 0.666667,
+        "median": 0.733333,
+        "max": 0.8
+      },
+      "holdout": {
+        "min": 0.566667,
+        "median": 0.733333,
+        "max": 0.833333
+      }
+    },
+    "no_equal_time": {
+      "g6_holdout": "12/40",
+      "weights_holdout": "46/170",
+      "g6_all": "22/80",
+      "weights_all": "92/340"
+    }
+  },
+  "decision": {
+    "constants_changed": false,
+    "version_bump": false,
+    "version": "review-planner-v4",
+    "golden_regenerated": false,
+    "golden_note": "若采纳 G6，三组金样应零差异（金样夹具显式传 budgetSeconds = 1800，预注册 11.3）；本批未采纳，故未重生成",
+    "model_based": true
+  },
+  "machine_checks": [
+    {
+      "id": "1",
+      "rule": "预注册未被篡改",
+      "status": "PASS",
+      "ran_in_report_session": true
+    },
+    {
+      "id": "2",
+      "rule": "代码基线可复现",
+      "status": "PARTIAL",
+      "ran_in_report_session": true,
+      "note": "报告时点：manifest 的 9 个文件哈希全部匹配；最终树漂移 2 处：StudyReviewPlannerService.kt 2bd8c40b→1cedc668（P2-14，报告后）、driver 6f2ec17a→d9e649a1（门禁后，不在钉表）。最终 driver 复跑 g6/weight/threshold 等 9 份产物与归档逐位相同（repair/calibration-driver-drift.md）；G6/权重/金样只依赖 ReviewPlannerV2.kt（仍匹配），裁决不受影响。"
+    },
+    {
+      "id": "3",
+      "rule": "种子层不混用",
+      "status": "NOT_RUN_IN_REPORT_SESSION",
+      "ran_in_report_session": false
+    },
+    {
+      "id": "4",
+      "rule": "同 seed 逐位一致",
+      "status": "PASS",
+      "ran_in_report_session": true,
+      "note": "determinism.json 3/3；本会话跨进程比对 7/7 与 28/28 digest 相同"
+    },
+    {
+      "id": "5",
+      "rule": "默认臂 == 基线（seam S3）",
+      "status": "NOT_RUN_IN_REPORT_SESSION",
+      "ran_in_report_session": false
+    },
+    {
+      "id": "6",
+      "rule": "golden 世界进 CI",
+      "status": "NOT_RUN_IN_REPORT_SESSION",
+      "ran_in_report_session": false,
+      "note": "SimulationDeterminismContractTest 钉 55fe92cc...aacfe（seed=5001/60 天/120 题）"
+    },
+    {
+      "id": "7",
+      "rule": "前缀同一性",
+      "status": "PASS",
+      "ran_in_report_session": true,
+      "note": "120/120"
+    },
+    {
+      "id": "8",
+      "rule": "日预算不超发",
+      "status": "PASS",
+      "ran_in_report_session": true
+    },
+    {
+      "id": "9",
+      "rule": "等时合格率已报",
+      "status": "PASS",
+      "ran_in_report_session": true
+    },
+    {
+      "id": "10",
+      "rule": "无数据写 null",
+      "status": "PASS",
+      "ran_in_report_session": true
+    },
+    {
+      "id": "11",
+      "rule": "holdout 只跑一次",
+      "status": "PARTIAL_VIOLATION_REGISTERED",
+      "ran_in_report_session": true,
+      "note": "cross-process-rerun 重跑了 holdout seed 901（digest 相同）；run id 复用，不能证明单次执行"
+    },
+    {
+      "id": "12",
+      "rule": "掌握阈值未动",
+      "status": "PASS",
+      "ran_in_report_session": true,
+      "note": "AlgorithmConstants.kt 哈希等于实验前基线；实测 21.0 / 0.9"
+    },
+    {
+      "id": "13",
+      "rule": "金样差异被记录",
+      "status": "NOT_APPLICABLE",
+      "ran_in_report_session": true
+    },
+    {
+      "id": "14",
+      "rule": "裁决函数可复算",
+      "status": "PASS",
+      "ran_in_report_session": true,
+      "note": "recompute_decisions.py：n/guard/pass 21/21 全等；median 差 <= 1e-6（CSV 6 位小数）；positive 在 2 个臂上差 1（f=0.15、diversity x0.75），根因是 |delta|~1e-16 被舍成 0，以全精度 JSON 为准"
+    }
+  ],
+  "data_quality": [
+    {
+      "issue": "落盘 CSV 只有 6 位小数",
+      "effect": "|delta| < 1e-6 不可分辨；1 处 world（seed 907, f=0.15）的全精度差 0x1.0p-53 在 CSV 显示为 0",
+      "impact": "严格 delta>0 会把浮点尘记成正号，2 个臂的 positive 计数 +1；均远低于门 8，不改任何裁决",
+      "recommendation": "下批预注册给 delta>0 加数值门槛（如 1e-9）"
+    },
+    {
+      "issue": "threshold-readings.json 的 n=20 合并 dev+holdout",
+      "effect": "聚合值不是 holdout-only；逐层原始值在 thresholds.csv"
+    },
+    {
+      "issue": "W-slip 误判率结构性为 0",
+      "effect": "该臂读数无信息量；JSON 标 structural_zero=true"
+    },
+    {
+      "issue": "holdout_run_id 两次相同",
+      "effect": "id 不能证明单次执行；改用两份 manifest 的 started_at/run 数 + digest 逐位相同作证据"
+    }
+  ],
+  "blocked": [
+    {
+      "item": "真库 per-reason / G6 因果效应",
+      "status": "BLOCKED",
+      "reason": "本批零真库样本、无反事实"
+    },
+    {
+      "item": "A 线 FSRS 拟合与 fsrsBeatsBaseline 上线门",
+      "status": "BLOCKED_NOT_RUN",
+      "reason": "driver manifest：A-line not run in this ask"
+    },
+    {
+      "item": "参数可辨识性 / 参数恢复",
+      "status": "BLOCKED",
+      "reason": "predictableSampleCount 千级 < 5000"
+    },
+    {
+      "item": "avoidance 权重",
+      "status": "NOT_MEASURABLE",
+      "reason": "模拟候选 avoidance 恒 false"
+    },
+    {
+      "item": "A0（无考试记录臂）",
+      "status": "NOT_RUN",
+      "reason": "无考试窗口时 Y 无定义"
+    },
+    {
+      "item": "容量预览路径的 G6 净效应",
+      "status": "OUT_OF_SCOPE",
+      "reason": "模拟只走计划队列路径"
+    }
+  ],
+  "unverified": [
+    "异机 / 异 JDK 复现",
+    "本报告会话未跑 Gradle；测试计数来自执行者 XML 记录",
+    "设备 / UI / soak（计划 P3，不在本报告范围）"
+  ],
+  "reproduce": [
+    "python -I -X utf8 report-recompute/recompute_decisions.py g6-runs.csv weight-runs.csv",
+    "python -I -X utf8 report-recompute/supplementary_readings.py",
+    "python -I -X utf8 report-recompute/arm_tables.py",
+    "python -I -X utf8 build_report_json.py > ../../../../2026-11-08-review-calibration-report.json",
+    "sha256sum docs/research/2026-11-08-review-calibration-prereg.md",
+    "git rev-parse HEAD"
+  ],
+  "post_report_drift": {
+    "registered_at": "2026-11-08T06:20:00Z",
+    "registered_by": "batch49-repair",
+    "note": "报告/门禁之后代码再发生两处字节变化；meta/run-manifest 的 file_sha256 保持报告时点值，本字段登记最终树与影响。",
+    "files": {
+      "StudyReviewPlannerService.kt": {
+        "report_sha256": "2bd8c40bb6352e5dd01b8a0998b9f7843d2c32a2d6c8602b073f3673f4d6948d",
+        "final_tree_sha256": "1cedc66844261a044bd55487cdedc496a33af2bb61ce686e0977072883cc1bbf",
+        "cause": "P2-14 在报告后加入 reasons = scored.reasons（:944），把实际选中理由写进返回",
+        "affects_g6_weight_golden_decision": false,
+        "why_not_affect": "G6/权重/金样只依赖 ReviewPlannerV2.kt（ed6ae4e5…，最终树仍匹配）；本文件只在服务层透传 reasons"
+      },
+      "ReviewCalibrationExperimentTest.kt": {
+        "report_sha256": "6f2ec17aceb06b13…c8d74a",
+        "final_tree_sha256": "d9e649a1e7760a7d1a990a2c42db52a389dca072a5cc8761c0cb38386afdb5c6",
+        "cause": "driver 在 unit/strong gate、设备绿跑、acceptance 索引之后被改（mtime 11-08 05:11）；不在 manifest 钉表",
+        "reproduction": "docs/research/evidence/2026-11-08-batch-49/repair/calibration-driver-drift.md"
+      }
+    },
+    "reproduction": {
+      "command": "BATCH49_CALIBRATION=run BATCH49_CALIBRATION_OUT=build/repair/calibration-rerun ./gradlew :core:domain:test --tests '*ReviewCalibrationExperimentTest' --rerun-tasks",
+      "exit_code": 0,
+      "wall_clock_seconds": 709,
+      "artifacts_identical_to_archive": [
+        "g6-runs.csv",
+        "weight-runs.csv",
+        "thresholds.csv",
+        "g6-decisions.json",
+        "weight-decisions.json",
+        "threshold-readings.json",
+        "prefix-identity.json",
+        "determinism.json",
+        "confirmation.json"
+      ],
+      "manifest_file_sha256_matches": "8/9（仅 StudyReviewPlannerService.kt 漂移）",
+      "holdout_note": "复跑覆盖 holdout seeds 901–910，仅用于逐位复现；digest 与归档相同、未改变任何裁决；holdout_run_id 使用新随机值"
+    }
+  }
+}

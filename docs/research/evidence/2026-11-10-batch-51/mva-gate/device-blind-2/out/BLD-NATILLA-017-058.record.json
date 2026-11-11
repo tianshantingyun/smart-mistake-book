@@ -1,0 +1,61 @@
+{
+  "input_file": "BLD-NATILLA-017.json",
+  "program_sha256": "875e3a3cbbd27523a1967f8940e311eb2ef25c73335a0bf78a4b7a5d791a191a",
+  "task_id": "BLD-NATILLA-017",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 18,
+  "measurement": [
+    {
+      "contentId": "c0-b2905803",
+      "payload": "动力臂",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b29058030c4dff353520f55c41a233fb52f379466f5f8a19adc33b9b64d1d42a"
+    },
+    {
+      "contentId": "c1-35084bb8",
+      "payload": "阻力臂",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "35084bb84fb450b4b56e54796b02edb20c2f294fd41f84a1064589ebf26061ba"
+    },
+    {
+      "contentId": "c2-65172d22",
+      "payload": "支点",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "65172d22a0ec7843bd228f123cbf3daa63a50bdc80fb12d9dddb3444eed2caed"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "0f5d665fb75001d2dfc92c853e7b079a9e1ee68a35e5c59fa60c31ef01ebdaa1",
+  "scene_bytes": 2823,
+  "scene_schema_version": 1,
+  "draw_sha256": "fbf6ba8a571459bd62e17114d8c7e895b1523a263038ab737c40fba6ac00ea92",
+  "draw_bytes": 3140,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-b2905803",
+    "c1-35084bb8",
+    "c2-65172d22"
+  ],
+  "png_sha256": "37cba2cfae99450a78d09520773df92224b6e9da6ae24ba065dabd84303513c9",
+  "png_bytes": 17133,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 14,
+    "pathCommands": 51,
+    "labels": 3,
+    "ops": 13
+  }
+}

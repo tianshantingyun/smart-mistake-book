@@ -1,0 +1,61 @@
+{
+ "id": "J-022",
+ "verdict": "PASS",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "evidence": [
+  "cmd:docs/acceptance/evidence/2026-11-09-batch-50/logs/j-022-negative-signing.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/release/validateReleaseSigning-missing-env.log",
+  "test:docs/acceptance/evidence/2026-11-09-batch-50/junit/j-release-verifier.xml"
+ ],
+ "evidence_sha256": {
+  "docs/acceptance/evidence/2026-11-09-batch-50/logs/j-022-negative-signing.log": "6eb12e9b1e9c53b1c1ac4c310661823d7fc7ea434057786e80d9af8ef426b6fe",
+  "docs/research/evidence/2026-11-09-batch-50/release/validateReleaseSigning-missing-env.log": "49b652dc21d03aec98a951dfca52cfbab93a23fdef1638a78218e01b7e45808a",
+  "docs/acceptance/evidence/2026-11-09-batch-50/junit/j-release-verifier.xml": "adeb97faeefa4e7493dc18cc80b98ff2be3173c134837205e4e1ac8e1f3ccf3c"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=J-022; verdict=PASS; line=963; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/logs/j-022-negative-signing.log",
+   "value": "exit_markers=[0]; sha256=6eb12e9b1e9c53b1c1ac4c310661823d7fc7ea434057786e80d9af8ef426b6fe"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/release/validateReleaseSigning-missing-env.log",
+   "value": "sha256=49b652dc21d03aec98a951dfca52cfbab93a23fdef1638a78218e01b7e45808a; bytes=2474"
+  },
+  {
+   "name": "xml_aggregate",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/junit/j-release-verifier.xml",
+   "value": "tests=33; failures=0; errors=0; skipped=0; sha256=adeb97faeefa4e7493dc18cc80b98ff2be3173c134837205e4e1ac8e1f3ccf3c"
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "批次50：缺四变量负控实跑，Gradle exit 1；包装日志断言失败后以 EXIT=0 记录负控通过。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "review_scope": "single-ledger-row",
+ "review_kind": "mechanical-recompute",
+ "ledger_batch": 51,
+ "verified_at": "2026-11-10T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 3,
+  "basis": "bytes-on-disk"
+ }
+}

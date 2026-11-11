@@ -1,0 +1,9 @@
+{
+  "root": ".",
+  "base": 100000,
+  "commit_count": 1160,
+  "shallow": false,
+  "version_code": 101160,
+  "formula": "version_code = 100000 + commit_count",
+  "errors": []
+}

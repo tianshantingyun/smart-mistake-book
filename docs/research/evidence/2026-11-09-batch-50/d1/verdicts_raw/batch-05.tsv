@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-mat-b1b2d080b9-002	CORRECT		high	设一般式代入已知条件建立方程组	
+ext-mat-b3fe1d3a45-009b	CORRECT		high	建系的前提是三轴两两垂直	
+ext-mat-b83bf084cf-003	CORRECT		high	三角形内一点 O 满足 S△BOC·OA+S△AOC·OB+S△AOB·OC=0	
+ext-mat-c532147adc-020	CORRECT		high	把向量条件转化为目标函数	
+ext-mat-d4a295c8a0-009	CORRECT		high	形如二次与二次（或二次与一次）的商式求最值时，优先换元	
+ext-mat-d5ea8bcaad-003	CORRECT		high	a>0时由 b²-3ac 与两极值乘积的符号判断	
+ext-mat-d7a6b10530-005	CORRECT		high	三角形的外心、垂心和重心都在同一条直线上	
+ext-mat-da9a8db676-005	CORRECT		high	中线把三角形分成两个三角形	
+ext-mat-de151e7d39-037	CORRECT		high	n 个元素的全排列中每个元素都不在原位的排列称为错排	
+ext-mat-df64d7f791-045	CORRECT		high	把两个函数的零点全解出来	
+ext-mat-e371ea33c9-030	CORRECT		high	4 个球放入 4 个盒的四类计数	
+ext-mat-e4c87437a2-005b	CORRECT		high	把 $S_{\triangle ABC}$ 拆成两个小三角形面积之和	
+ext-mat-e657b040d6-032	CORRECT		high	用球心到底面的距离与底面半径的勾股关系把圆锥体积化为高的单变量函数	
+ext-mat-e88490161b-003	CORRECT		high	重心、外心、内心的定义、几何性质以及各自的向量刻画方式	
+ext-mat-f3f3d324ae-006	CORRECT		high	下凸函数的图象在任意切线的上方、上凸函数的图象在任意切线的下方	
+ext-mat-f80078ac75-009b	CORRECT		high	斐波那契数列取模后的余数列呈固定周期	
+ext-mat-fc6bdef64d-044	CORRECT		high	双曲线与已知椭圆共焦点时，先由椭圆定出半焦距 c	
+ext-mat-fe0e9d84cf-008c	REBIND	忽视异面直线的夹角与向量的夹角范围不同	high	异面直线所成角不超过九十度，而两向量夹角可到一百八十度	现绑为线面关系易错，材料是异面直线与向量夹角范围
+ext-phy-079f340009-001	CORRECT		high	把光电效应产生的电子当作带电粒子，分析它在电场与磁场中的运动	
+ext-phy-100c90511b-008	CORRECT		high	LISA空间引力波天文台的探测原理与物理基础	
+ext-phy-100c90511b-016	CORRECT		high	情景命题还以双星或多星系统、引力探测技术（天琴计划）、掩星探测技术为背景	
+ext-phy-11a829af71-018	CORRECT		high	把天体的运动看成是匀速圆周运动	
+ext-phy-11a829af71-024	CORRECT		high	归纳牛顿力学失效的三种情形	
+ext-phy-1467c820b7-007	CORRECT		high	测折射率时入射点选得离棱角太近会使玻璃内光路变短而增大误差	
+ext-phy-199b7507b8-029	CORRECT		high	安培力与运动方向相反且随速度减小而减小	节点“两种运动状态”覆盖非平衡态动态分析
+ext-phy-199b7507b8-031	CORRECT		high	安培力随速度增大而增大	节点“两种运动状态”覆盖非平衡态动态分析
+ext-phy-1e9381a0e1-018	CORRECT		high	激光是传播方向、偏振与相位完全相同的人工相干光	
+ext-phy-206fb04353-011c	CORRECT		high	用直尺圆规按比例作图	
+ext-phy-206fb04353-026	CORRECT		high	用功能关系与动量两条主线把力学的能量观与动量观串成一张体系图	
+ext-phy-2248b2c9f7-017c	CORRECT		high	四星系统有正方形顶点型与中央加三环绕型两类	
+ext-phy-2a5119abec-004	CORRECT		high	柔软细绳只能发生拉伸形变、对其他物体产生沿绳收缩方向的拉力	节点为轻杆形变，材料以绳杆对比讲杆
+ext-phy-2aea59cfe3-005c	CORRECT		high	把不规范的电路图化为规范电路	
+ext-phy-2cea5a0fdb-039	CORRECT		high	竖直面（竖直墙壁、竖直硬纸板）约束下的平抛运动通常水平位移是确定的	
+ext-phy-2cea5a0fdb-045	NONE		medium	平抛小球恰好沿切线进入圆轨道时	平抛切向进入圆轨道；同科无对应节点（现绑为竖直面约束）
+ext-phy-3ccc1c7739-008	CORRECT		high	归纳竖直或水平位移受限时平抛运动的四类约束形式与临界判断	
+ext-phy-3edb60db02-004	CORRECT		high	由基本单位和导出单位组成单位制	节点为导出单位，材料含单位制总述
+ext-phy-40c2c629c7-041	CORRECT		high	多次循环运动达到稳定速度时，对单个循环应用动能定理	
+ext-phy-454a86eab0-005	CORRECT		high	计时点是打点计时器打出的原始点迹，计数点是人为选取的点	
+ext-phy-4dae20b240-015	CORRECT		high	改用已知内阻的电表串联（并联）定值电阻代作另一表使用	
+ext-phy-50f4201a84-008	CORRECT		high	用两辆相同小车同时启动、同时停止	
+ext-phy-55278ae69f-020	CORRECT		high	沿初速度方向不受力做匀速直线运动	
+ext-phy-5788d44c37-002	CORRECT		high	连接体是运动状态相同的整体	节点为连接体受力特点，材料含速度/弹力特点
+ext-phy-5870475655-016	CORRECT		high	处理电磁感应动力学问题的一般思路是“先电后力”	
+ext-phy-5f75307df4-021	CORRECT		high	牛顿力学只适用于宏观、低速运动	
+ext-phy-658ce60b0a-037	CORRECT		high	串联部分电流相同，由P＝I²R知功率与电阻成正比	
+ext-phy-69ce327dcf-009	CORRECT		high	“时间极短”是碰撞问题的隐含条件	
+ext-phy-70b1a8d48b-006	CORRECT		high	1919 年卢瑟福用 α 粒子轰击氮核发现质子	
+ext-phy-71042757f4-051	CORRECT		high	空间站用旋转舱模拟地面重力	节点为航天圆周运动情景，材料为旋转舱情景
+ext-phy-7b614c35cb-021	CORRECT		high	将待测量与已知的标准量进行直接或间接的比较	
+ext-phy-7bd52b56f2-007	CORRECT		high	用两辆相同小车同时运动	

@@ -1,0 +1,289 @@
+{
+  "all_matches_expectation": true,
+  "checks": [
+    {
+      "case": "ratio-1to1-correct",
+      "task": "BLD-PROPCOORD-001",
+      "want": true,
+      "got": true,
+      "ok": true,
+      "mismatch_keys": [],
+      "facts": {
+        "segment_count": 2,
+        "segment_length_ratio": 1.0,
+        "ratio_label": [
+          "1:1"
+        ],
+        "kept_printed_labels": [
+          "1:1"
+        ],
+        "removed_handwriting": [
+          "1:1"
+        ]
+      }
+    },
+    {
+      "case": "ratio-2to3-correct",
+      "task": "BLD-PROPCOORD-005",
+      "want": true,
+      "got": true,
+      "ok": true,
+      "mismatch_keys": [],
+      "facts": {
+        "segment_count": 2,
+        "segment_length_ratio": 0.6666666666666666,
+        "ratio_label": [
+          "2:3"
+        ],
+        "kept_printed_labels": [
+          "2:3"
+        ],
+        "removed_handwriting": [
+          "2:3"
+        ]
+      }
+    },
+    {
+      "case": "ratio-1to1-rotated",
+      "task": "BLD-PROPCOORD-001",
+      "want": true,
+      "got": true,
+      "ok": true,
+      "mismatch_keys": [],
+      "facts": {
+        "segment_count": 2,
+        "segment_length_ratio": 1.0,
+        "ratio_label": [
+          "1:1"
+        ],
+        "kept_printed_labels": [
+          "1:1"
+        ],
+        "removed_handwriting": [
+          "1:1"
+        ]
+      }
+    },
+    {
+      "case": "ratio-1to1-correct",
+      "task": "BLD-PROPCOORD-002",
+      "want": false,
+      "got": false,
+      "ok": true,
+      "mismatch_keys": [
+        "segment_length_ratio",
+        "ratio_label"
+      ],
+      "facts": {
+        "segment_count": 2,
+        "segment_length_ratio": 1.0,
+        "ratio_label": [
+          "1:1"
+        ],
+        "kept_printed_labels": [
+          "1:1"
+        ],
+        "removed_handwriting": [
+          "1:1"
+        ]
+      }
+    },
+    {
+      "case": "ratio-2to3-correct",
+      "task": "BLD-PROPCOORD-001",
+      "want": false,
+      "got": false,
+      "ok": true,
+      "mismatch_keys": [
+        "segment_length_ratio",
+        "ratio_label"
+      ],
+      "facts": {
+        "segment_count": 2,
+        "segment_length_ratio": 0.6666666666666666,
+        "ratio_label": [
+          "2:3"
+        ],
+        "kept_printed_labels": [
+          "2:3"
+        ],
+        "removed_handwriting": [
+          "2:3"
+        ]
+      }
+    },
+    {
+      "case": "ratio-label-mismatch",
+      "task": "BLD-PROPCOORD-001",
+      "want": false,
+      "got": false,
+      "ok": true,
+      "mismatch_keys": [
+        "ratio_label"
+      ],
+      "facts": {
+        "segment_count": 2,
+        "segment_length_ratio": 1.0,
+        "ratio_label": [
+          "3:1"
+        ],
+        "kept_printed_labels": [
+          "3:1"
+        ],
+        "removed_handwriting": [
+          "3:1"
+        ]
+      }
+    },
+    {
+      "case": "flow-order-correct",
+      "task": "BLD-FLOWFORM-001",
+      "want": true,
+      "got": true,
+      "ok": true,
+      "mismatch_keys": [],
+      "facts": {
+        "ratio_label": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "step_count": 3,
+        "step_order": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "kept_printed_labels": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "removed_handwriting": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ]
+      }
+    },
+    {
+      "case": "flow-order-reversed",
+      "task": "BLD-FLOWFORM-001",
+      "want": false,
+      "got": false,
+      "ok": true,
+      "mismatch_keys": [
+        "step_order"
+      ],
+      "facts": {
+        "ratio_label": [
+          "系数化为1",
+          "合并同类项",
+          "移项"
+        ],
+        "step_count": 3,
+        "step_order": [
+          "系数化为1",
+          "合并同类项",
+          "移项"
+        ],
+        "kept_printed_labels": [
+          "系数化为1",
+          "合并同类项",
+          "移项"
+        ],
+        "removed_handwriting": [
+          "系数化为1",
+          "合并同类项",
+          "移项"
+        ]
+      }
+    },
+    {
+      "case": "handwriting-residue-present",
+      "task": "BLD-DEHANDWR-001",
+      "want": false,
+      "got": false,
+      "ok": true,
+      "mismatch_keys": [
+        "kept_printed_labels"
+      ],
+      "facts": {
+        "ratio_label": [
+          "x=5"
+        ],
+        "kept_printed_labels": [
+          "x=5"
+        ],
+        "removed_handwriting": [
+          "x=5"
+        ]
+      }
+    },
+    {
+      "case": "handwriting-residue-absent",
+      "task": "BLD-DEHANDWR-001",
+      "want": false,
+      "got": false,
+      "ok": true,
+      "mismatch_keys": [
+        "kept_printed_labels"
+      ],
+      "facts": {
+        "ratio_label": [
+          "题干第(1)问"
+        ],
+        "kept_printed_labels": [
+          "题干第(1)问"
+        ],
+        "removed_handwriting": [
+          "题干第(1)问"
+        ]
+      }
+    }
+  ],
+  "per_fact_channel_independence": {
+    "geometry_ok_label_wrong__segment_length_ratio": {
+      "value": 1.0,
+      "accepted": true
+    },
+    "geometry_ok_label_wrong__ratio_label": {
+      "value": [
+        "3:1"
+      ],
+      "accepted": false
+    },
+    "residue_present__removed_handwriting_text_level": {
+      "value": [
+        "x=5"
+      ],
+      "accepted": true
+    },
+    "residue_absent__removed_handwriting_text_level": {
+      "value": [
+        "题干第(1)问"
+      ],
+      "accepted": true
+    },
+    "rotated__segment_length_ratio": {
+      "value": 1.0,
+      "accepted": true
+    }
+  },
+  "extractor_negative_control": {
+    "flow-order-correct": {
+      "broken_value": [
+        "移项",
+        "移项",
+        "移项"
+      ],
+      "accepted_without_matrix_stack": false,
+      "note": "不回放 concat 时该事实应判错/缺失"
+    },
+    "ratio-1to1-rotated": {
+      "broken_value": 1.0,
+      "accepted_without_matrix_stack": true,
+      "note": "不回放 concat 时该事实应判错/缺失"
+    }
+  }
+}

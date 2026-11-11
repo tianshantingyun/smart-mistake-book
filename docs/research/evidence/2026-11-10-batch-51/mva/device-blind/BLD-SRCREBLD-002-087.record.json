@@ -1,0 +1,42 @@
+{
+  "input_file": "BLD-SRCREBLD-002.json",
+  "program_sha256": "5ef59b65ca6db65aac0a0db6fc80241804fe15f4797df29f116ac24dcf32d65f",
+  "task_id": "BLD-SRCREBLD-002",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 15,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "重心O",
+      "widthDu": 42.90909194946289,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b450e5cdbc53a6506fafecf11650f2bdc49e0289916acb1e8a90680829dc647d"
+    },
+    {
+      "contentId": "c1",
+      "payload": "支点P",
+      "widthDu": 42.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "13a538d88ab210b07bf886adb38b826e2320d2dfeb51c8667b1d3c23be736d20"
+    },
+    {
+      "contentId": "c2",
+      "payload": "拉力F",
+      "widthDu": 40.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3011ef2e8d8d4541a798025762d420f5138951f33fba0eaf5b9e908a08a1a750"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_STYLE_COLOR: scene.root.children[0].fill must be \"#RRGGBB\" or \"#RRGGBBAA\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fa"
+}

@@ -1,0 +1,61 @@
+{
+  "input_file": "BLD-NATILLA-006.json",
+  "program_sha256": "1d2b3544a3e3664bd484380fec9fd4389f3d661c41723a3dfc1fbd3124aec3d1",
+  "task_id": "BLD-NATILLA-006",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 18,
+  "measurement": [
+    {
+      "contentId": "c0-a3e4188b",
+      "payload": "细胞壁",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a3e4188b7451a430315aac941eb7b5abb96f4d58155450a55dfedda93633df82"
+    },
+    {
+      "contentId": "c1-c1cf4a9c",
+      "payload": "液泡",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c1cf4a9c99de599825d5c4013ddf67b4a9b55ad5cb6696ef57a4d30b2f09e3d5"
+    },
+    {
+      "contentId": "c2-25604ac9",
+      "payload": "细胞核",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "25604ac98a14b903cb1d50c585bb7ca537c71171beb5010e7aa5ae718577e3e4"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "2f39ef6bed45bb2d852b42429bd61de3533967356f6679cf470921b838e786a1",
+  "scene_bytes": 3404,
+  "scene_schema_version": 1,
+  "draw_sha256": "73538d39a644da788f7d38d4c7bae7d8bad2bc45407a3e0ac0d066edd5af735d",
+  "draw_bytes": 3343,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-a3e4188b",
+    "c1-c1cf4a9c",
+    "c2-25604ac9"
+  ],
+  "png_sha256": "cb5ef41a6dc05ab6f44a0af9cd6a7f0a29be6317a628a755a0a980b1994d93c3",
+  "png_bytes": 23786,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 14,
+    "pathCommands": 60,
+    "labels": 3,
+    "ops": 13
+  }
+}

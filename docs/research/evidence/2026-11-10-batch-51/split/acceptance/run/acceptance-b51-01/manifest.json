@@ -1,0 +1,62 @@
+{
+    "runId": "acceptance-b51-01",
+    "channel": "golden-split-eval-harness-v1",
+    "wireProtocol": "openai-chat-completions-v1",
+    "model": "deepseek-flash",
+    "endpoint": "https://api.deepseek.com",
+    "keySha8": "cd10efbc",
+    "divergences": [
+        "transport: plain HTTPS POST instead of gateway authorization pipeline (same requestBody builder, same parseCompletion)",
+        "image egress copy: prepared by caller per EgressImageBudget plan (long edge 2048, JPEG q88, q70 fallback); PIL resampling, not Android Skia bytes; scaledSize re-verified here"
+    ],
+    "pages": [
+        {
+            "file": "IMG20260810003928.jpg",
+            "record": "IMG20260810003928.json",
+            "status": "OK",
+            "regionCount": 4
+        },
+        {
+            "file": "IMG20260810004353.jpg",
+            "record": "IMG20260810004353.json",
+            "status": "OK",
+            "regionCount": 2
+        },
+        {
+            "file": "IMG20260810004952.jpg",
+            "record": "IMG20260810004952.json",
+            "status": "OK",
+            "regionCount": 3
+        },
+        {
+            "file": "IMG20260810005711.jpg",
+            "record": "IMG20260810005711.json",
+            "status": "OK",
+            "regionCount": 3
+        },
+        {
+            "file": "IMG20260810010034.jpg",
+            "record": "IMG20260810010034.json",
+            "status": "OK",
+            "regionCount": 6
+        },
+        {
+            "file": "IMG20260810010202.jpg",
+            "record": "IMG20260810010202.json",
+            "status": "OK",
+            "regionCount": 3
+        },
+        {
+            "file": "IMG20260810011358.jpg",
+            "record": "IMG20260810011358.json",
+            "status": "OK",
+            "regionCount": 5
+        },
+        {
+            "file": "IMG20260810011800.jpg",
+            "record": "IMG20260810011800.json",
+            "status": "OK",
+            "regionCount": 0
+        }
+    ]
+}

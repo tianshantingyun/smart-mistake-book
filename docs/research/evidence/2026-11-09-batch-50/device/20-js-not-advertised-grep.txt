@@ -1,0 +1,6 @@
+core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/capture/ConfiguredCleanImageGenerator.kt:95:        val capabilities = FigureGenerationCapabilities.IMAGE_MODEL_ONLY
+core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/export/RoomDetailedSolutionRepository.kt:256:            }, { configurationStore?.let { openGuardedFigureImageBackend(it, networkRequestsAllowed) }?.use { FigureGenerationCapabilities.IMAGE_MODEL_ONLY } ?: FigureGenerationCapabilities.NONE })
+core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/mistake/RoomMistakeEditRepository.kt:258:                configurationStore?.let { openGuardedFigureImageBackend(it, networkRequestsAllowed) }?.use { FigureGenerationCapabilities.IMAGE_MODEL_ONLY }
+core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/AttachedImageGenerator.kt:144:        val capabilities = FigureGenerationCapabilities.IMAGE_MODEL_ONLY
+core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/FigurePromptAssembler.kt:124:        capabilities: FigureGenerationCapabilities = FigureGenerationCapabilities.IMAGE_MODEL_ONLY,
+core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/TutorFigureGenerator.kt:372:        val capabilities = FigureGenerationCapabilities.IMAGE_MODEL_ONLY

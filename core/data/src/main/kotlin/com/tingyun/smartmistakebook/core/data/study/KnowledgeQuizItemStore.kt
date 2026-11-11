@@ -23,10 +23,11 @@ import kotlinx.serialization.json.Json
  * 外键指向 `assessment_evidence_snapshot`，而后者只随 practice unit 存在，知识点复习的题
  * 没有 practice unit。
  *
- * 身份与不可变：一行 = 一个 `(learner, 会话, 知识点)` 的题面。会话分量让"同一会话重试读回
- * 同一道题"与"隔日新会话生成新题"各自成立；不可变让"首见即真"成为可依赖的语义——同身份
- * 的第二笔写入撞 [ImmutablePayloadConflictException] 时，本题面**不是**被覆盖，而是回读
- * 既有行，屏幕上的题面与库里的题面因此不可能分叉。
+ * 身份与不可变：一行 = 一个 `(learner, 会话, 知识点, 槽位)` 的题面。会话分量让"同一会话
+ * 重试读回同一道题"与"隔日新会话生成新题"各自成立；槽位分量（KD-67 第二道校准题）让
+ * 学生显式要求的第二道题有**自己的行**——与会话题面互不覆盖、各自独立核验。不可变让
+ * "首见即真"成为可依赖的语义——同身份的第二笔写入撞 [ImmutablePayloadConflictException]
+ * 时，本题面**不是**被覆盖，而是回读既有行，屏幕上的题面与库里的题面因此不可能分叉。
  *
  * 损坏（KD-41）：`options_snapshot`/`answer_spec_snapshot` 解不开、或 schema 不是本题面版本时
  * 既不是"已有可用题面"、也不是"没有题面"——是"**不可复用**的一行"。读口照旧返回 null
@@ -39,8 +40,12 @@ internal class KnowledgeQuizItemStore(
 ) {
 
     /** 读回该会话该知识点已持久化的题面；无行或损坏 = null。 */
-    suspend fun read(sessionId: Long, knowledgeNodeId: String): TutorAssessmentItem? {
-        val stored = readSnapshot(sessionId, knowledgeNodeId)?.item ?: return null
+    suspend fun read(
+        sessionId: Long,
+        knowledgeNodeId: String,
+        slot: KnowledgeQuizQuestionSlot = KnowledgeQuizQuestionSlot.REVIEW,
+    ): TutorAssessmentItem? {
+        val stored = readSnapshot(sessionId, knowledgeNodeId, slot)?.item ?: return null
         // PRD-02：题面快照一字不改；但**读给会话**的题面要带上账本里最新有效的键替代，
         // 否则 UI 的本地判题（`item.evaluateChoice`）与写入口的更正键会分叉，ViewModel 的
         // 判答一致性校验会当场失败。没有更正时行为逐位不变。
@@ -80,12 +85,17 @@ internal class KnowledgeQuizItemStore(
      * 行在那 id / revision / 键载荷 schema 就报得出，题面本身读不回时 `item == null`
      * ——坏行如实说坏，不猜题面（与 [read] 同一次解析，屏幕与审计面读到的题面不可能分叉）。
      */
-    suspend fun readSnapshot(sessionId: Long, knowledgeNodeId: String): KnowledgeQuizItemSnapshotView? {
+    suspend fun readSnapshot(
+        sessionId: Long,
+        knowledgeNodeId: String,
+        slot: KnowledgeQuizQuestionSlot = KnowledgeQuizQuestionSlot.REVIEW,
+    ): KnowledgeQuizItemSnapshotView? {
         val record = database.findAssessmentItemSnapshot(
             assessmentItemSnapshotId = knowledgeQuizItemSnapshotId(
                 learnerId = learnerId,
                 sessionId = sessionId,
                 knowledgeNodeId = knowledgeNodeId,
+                slot = slot,
             ),
         ) ?: return null
         val spec = answerSpec(record)
@@ -100,27 +110,64 @@ internal class KnowledgeQuizItemStore(
     }
 
     /**
+     * 按**题面 id** 读回该知识点两个槽位中对应的那一行（KD-67 第二道校准题）。
+     *
+     * 消灭的失败：答案键写入/确认的既有读口按 `(会话, 知识点)` 取**会话题面槽**。第二道
+     * 校准题与第一道题在同一个 `(会话, 知识点)` 下，键可以不同——继续读第一槽就会拿第一道
+     * 题的键去判第二道题的作答、或把第二道题的确认来源校验到第一行上。调用方已经知道
+     * 它要处理哪道题（证据行/更正命令里带着题面 id）时，必须按 id 定位，不能按槽猜。
+     *
+     * 两槽都读不到该 id（含行损坏、题面解不开）→ null：调用方按"这道题不在了"的失败出口
+     * 处置，不退回读另一道题顶替。
+     */
+    suspend fun readSnapshotForItem(
+        sessionId: Long,
+        knowledgeNodeId: String,
+        itemId: String,
+    ): KnowledgeQuizItemSnapshotView? {
+        for (slot in KnowledgeQuizQuestionSlot.entries) {
+            val view = readSnapshot(sessionId, knowledgeNodeId, slot) ?: continue
+            if (view.item?.id == itemId) return view
+        }
+        return null
+    }
+
+    /**
      * 落库并回读：返回库里那一行的题面。同身份已有**可复用**行时返回既有行（首见即真）；
      * 既有行损坏时**覆盖重写**为 `item` 并回读（KD-41，重试因此可恢复）。
      *
      * null = 该行最终仍读不出来（本次要写的题面自己就解不开、或冲突根本不是本 id 的行引起的）
      * ——调用方按失败出口处置，不拿内存里的题面顶替库里的题面。
+     *
+     * [verificationStatus]（KD-67）：调用方已知的键核验状态。默认 `UNKNOWN` 保持模型生成
+     * 题面的既有语义（没有独立支持）；调用方有独立核验/用户确认依据时可显式写入。
+     * 损坏行重写时**不会**把库内已有的已核验状态降回 `UNKNOWN`：修复口只修内容，
+     * 状态列的原值是另一条事实（谁确认过这道题），不能被"重试出题"顺手抹掉。
      */
     suspend fun save(
         sessionId: Long,
         knowledgeNodeId: String,
         item: TutorAssessmentItem,
         occurredAtEpochMillis: Long,
+        verificationStatus: String = StudyDbValue.VerificationStatus.UNKNOWN,
+        /**
+         * 落库槽位（KD-67 第二道校准题）：默认 [KnowledgeQuizQuestionSlot.REVIEW]，
+         * 既有调用方/既有行身份逐字不变。第二道题写 [KnowledgeQuizQuestionSlot.CALIBRATION]，
+         * 两槽各自的不可变闸、损坏行修复与核验状态互不影响。
+         */
+        slot: KnowledgeQuizQuestionSlot = KnowledgeQuizQuestionSlot.REVIEW,
     ): TutorAssessmentItem? {
         val snapshotId = knowledgeQuizItemSnapshotId(
             learnerId = learnerId,
             sessionId = sessionId,
             knowledgeNodeId = knowledgeNodeId,
+            slot = slot,
         )
         val incoming = record(
             snapshotId = snapshotId,
             item = item,
             occurredAtEpochMillis = occurredAtEpochMillis,
+            verificationStatus = verificationStatus,
         )
         try {
             database.saveAssessmentItemSnapshot(incoming)
@@ -133,16 +180,30 @@ internal class KnowledgeQuizItemStore(
             //   题面永远显示不出来。损坏行没有可保护的内容，原地覆盖重写，让重试有出路。
             val existing = database.findAssessmentItemSnapshot(snapshotId)
             if (existing != null && decode(existing) == null) {
-                database.overwriteAssessmentItemSnapshot(incoming)
+                // 损坏行身上唯一值得保留的元数据就是核验状态：调用方没显式给新状态时，
+                // 沿用库里的值（KD-67：一次已经发生的确认不因重试而消失）。
+                val effectiveStatus = if (verificationStatus == StudyDbValue.VerificationStatus.UNKNOWN) {
+                    existing.verificationStatus
+                } else {
+                    verificationStatus
+                }
+                database.overwriteAssessmentItemSnapshot(
+                    if (effectiveStatus == incoming.verificationStatus) {
+                        incoming
+                    } else {
+                        incoming.copy(verificationStatus = effectiveStatus)
+                    },
+                )
             }
         }
-        return read(sessionId, knowledgeNodeId)
+        return read(sessionId, knowledgeNodeId, slot)
     }
 
     private fun record(
         snapshotId: String,
         item: TutorAssessmentItem,
         occurredAtEpochMillis: Long,
+        verificationStatus: String,
     ): AssessmentItemSnapshotSeedRecord = AssessmentItemSnapshotSeedRecord(
         assessmentItemSnapshotId = snapshotId,
         itemRevision = ITEM_REVISION,
@@ -170,10 +231,11 @@ internal class KnowledgeQuizItemStore(
         ),
         // PRD-02：**两轴拆分**。`scoringMode = AUTO_VERIFIED` 只声明"对错可由本地
         // `selectedChoiceId == correctChoiceId` 机械确定"；它**不**表示键本身已被独立核验。
-        // 模型生成的题面没有独立支持，故 `verificationStatus = UNKNOWN`——写入口据此只保留
+        // 模型生成的题面没有独立支持，故调用方默认传 `UNKNOWN`——写入口据此只保留
         // 会话反馈与真实选择，不新增数值掌握证据（要计分须先把该行升级为 VERIFIED/
-        // USER_ASSERTED，例如用户明确更正或独立核验流程）。
-        verificationStatus = StudyDbValue.VerificationStatus.UNKNOWN,
+        // USER_ASSERTED，例如用户明确更正或独立核验流程）。KD-67：状态不再是写死的常量，
+        // 已核验的题面（重写/迁移）可以如实写回自己的状态。
+        verificationStatus = verificationStatus,
         assessmentEligibility = StudyDbValue.AssessmentEligibility.SESSION_ONLY,
         scoringMode = StudyDbValue.ScoringMode.AUTO_VERIFIED,
         // 题面不依赖学习快照版本，也不参与投影检查点：两列落固定标记与 0，不伪造一个投影位点。
@@ -233,12 +295,18 @@ internal class KnowledgeQuizItemStore(
             explicitNulls = true
             ignoreUnknownKeys = false
         }
-        val answerSpecJson = Json {
-            encodeDefaults = true
-            explicitNulls = true
-            ignoreUnknownKeys = false
-        }
+        val answerSpecJson = knowledgeQuizAnswerSpecJson
     }
+}
+
+/**
+ * 键载荷的 JSON 口径（单源）：写口与 [knowledgeQuizAnswerSpecOf] 必须逐字段一致，
+ * 否则"写进去解得开、读出来解不开"会变成一行静默损坏。
+ */
+private val knowledgeQuizAnswerSpecJson = Json {
+    encodeDefaults = true
+    explicitNulls = true
+    ignoreUnknownKeys = false
 }
 
 /**
@@ -264,6 +332,19 @@ internal data class KnowledgeQuizItemSnapshotView(
 )
 
 /**
+ * 一行呈现快照的**键载荷**（`answer_spec_snapshot` 解码结果）；解不开/版本不认识 = null。
+ *
+ * 核验升级的来源校验需要"这道题的 itemId 与当前标准答案"，而它只需要读列、不需要题面
+ * 可读（题面可读性由升级口单独判）。放在这里而不是让调用方各自 decode：键载荷的 schema
+ * 闸只该有一处。
+ */
+internal fun knowledgeQuizAnswerSpecOf(
+    record: AssessmentItemSnapshotSeedRecord,
+): KnowledgeQuizAnswerSpec? = runCatching {
+    knowledgeQuizAnswerSpecJson.decodeFromString(KnowledgeQuizAnswerSpec.serializer(), record.answerSpecSnapshot)
+}.getOrNull()
+
+/**
  * 一道知识点复习题面的行身份：`(learner, 会话, 知识点)`。
  *
  * learner 进 id 的理由：这张表没有 learner 列（呈现内容本身与学习者无关），而"哪一场会话
@@ -275,6 +356,56 @@ internal fun knowledgeQuizItemSnapshotId(
     sessionId: Long,
     knowledgeNodeId: String,
 ): String = "knowledge-quiz-item:$learnerId:$sessionId:$knowledgeNodeId"
+
+/**
+ * 知识点复习题面的**槽位**（KD-67 第二道校准题）。
+ *
+ * 一个 `(learner, 会话, 知识点)` 过去只允许一道题面（单槽）。冲突 KC 卡的「先做校准题」
+ * 语义是"真正多出一道题"时，第二道题必须有**自己的行**：与第一道同名会把选择器的候选
+ * 去重/答案键更正前缀/证据身份全部撞在一起；覆盖第一道则让学生刚答过的题面消失。
+ *
+ * 槽位只区分**呈现行身份**，不改变任何核验/计分判据：两个槽各自独立核验、独立降级。
+ */
+enum class KnowledgeQuizQuestionSlot {
+    /** 本次会话的常规复习题面（`knowledge-quiz-item:<learner>:<会话>:<节点>`，既有身份不变）。 */
+    REVIEW,
+
+    /** 学生显式要求后生成的第二道校准题（`knowledge-quiz-item-calibration:...`）。 */
+    CALIBRATION,
+}
+
+/** 槽位限定的题面行身份；[KnowledgeQuizQuestionSlot.REVIEW] 与既有函数逐字一致。 */
+internal fun knowledgeQuizItemSnapshotId(
+    learnerId: String,
+    sessionId: Long,
+    knowledgeNodeId: String,
+    slot: KnowledgeQuizQuestionSlot,
+): String = when (slot) {
+    KnowledgeQuizQuestionSlot.REVIEW ->
+        knowledgeQuizItemSnapshotId(learnerId, sessionId, knowledgeNodeId)
+
+    KnowledgeQuizQuestionSlot.CALIBRATION ->
+        knowledgeQuizCalibrationItemSnapshotId(learnerId, sessionId, knowledgeNodeId)
+}
+
+/** 第二道校准题的题面行身份（与会话题面行**不同**的独立身份）。 */
+internal fun knowledgeQuizCalibrationItemSnapshotId(
+    learnerId: String,
+    sessionId: Long,
+    knowledgeNodeId: String,
+): String = "knowledge-quiz-item-calibration:$learnerId:$sessionId:$knowledgeNodeId"
+
+/**
+ * 第二道校准题的**题面 id**（`TutorAssessmentItem.id`）。
+ *
+ * 为什么必须与会话题面 id（`knowledge-quiz:item:<节点>`）不同，而不是复用同一 id：
+ * 1. 选择器要求候选 `assessmentItemId` 唯一（`AdaptiveSelectionRequest` init）——
+ *    两道题同 id 会在装配面被去重，第二道题结构上不可能被选中；
+ * 2. 答案键更正的机器前缀是 `answer-key-correction:<itemId>:<键>:`，同 id 会让两道题的
+ *    键替代流互相污染，一道题的确认被当成另一道题的历史事实。
+ */
+fun knowledgeQuizCalibrationItemId(knowledgeNodeId: String): String =
+    "knowledge-quiz:calibration:$knowledgeNodeId"
 
 /**
  * 题面里的答案规格（`answer_spec_snapshot` 列的内容）：选项在 `options_snapshot` 列，

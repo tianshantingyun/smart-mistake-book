@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-NATILLA-013",
+    "program_id": "mva-BLD-NATILLA-013",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '自由落体' },\n      { kind: 'text', payload: '由静止释放' },\n      { kind: 'text', payload: 'v' },\n      { kind: 'text', payload: 'g' },\n      { kind: 'text', payload: 'v、g 均竖直向下' }\n    ];\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var cx = w * 0.42;\n    var cy = h * 0.30;\n    var r = Math.max(14, Math.min(w, h) * 0.075);\n    var startY = cy + r + 10;\n    var vx = cx - r * 1.5;\n    var gx = cx + r * 1.5;\n    var vLen = h * 0.26;\n    var gLen = h * 0.21;\n    var vEndY = startY + vLen;\n    var gEndY = startY + gLen;\n    var ball = visualSdk.circle(cx, cy, r);\n    var vArrow = visualSdk.arrow(vx, startY, vx, vEndY, {});\n    var gArrow = visualSdk.arrow(gx, startY, gx, gEndY, {});\n    return {\n      schemaVersion: 1,\n      sceneId: 'freefall-schematic',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'ball', commands: ball },\n        { id: 'vArrow', commands: vArrow },\n        { id: 'gArrow', commands: gArrow }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'ball', stroke: '#26354a', strokeWidth: 2.5, fill: '#dbe7f7' },\n          { type: 'path', pathId: 'vArrow', stroke: '#1f6feb', strokeWidth: 2.5 },\n          { type: 'path', pathId: 'gArrow', stroke: '#d9480f', strokeWidth: 2.5 },\n          { type: 'label', text: '自由落体', x: w / 2, y: 30, anchor: 'middle', fontSize: 20, fill: '#26354a' },\n          { type: 'label', text: '由静止释放', x: cx, y: cy - r - 14, anchor: 'middle', fontSize: 15, fill: '#26354a' },\n          { type: 'label', text: 'v', x: vx - 12, y: startY + vLen / 2 + 5, anchor: 'end', fontSize: 20, fill: '#1f6feb' },\n          { type: 'label', text: 'g', x: gx + 12, y: startY + gLen / 2 + 5, anchor: 'start', fontSize: 20, fill: '#d9480f' },\n          { type: 'label', text: 'v、g 均竖直向下', x: w / 2, y: h - 24, anchor: 'middle', fontSize: 14, fill: '#26354a' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

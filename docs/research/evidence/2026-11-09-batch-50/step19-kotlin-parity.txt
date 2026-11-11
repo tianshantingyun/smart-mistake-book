@@ -1,0 +1,22 @@
+# 批次 50 item19 · Kotlin 参考实现与 Python 探针对拍
+# 命令（仓根）：bash tools/layout_probe/compile_and_run.sh
+# 夹具：build/layout-probe/gray/*.gray（probe_layout.py --dump-gray 生成，同一次解码/缩放）
+# 编译器：kotlin-compiler-embeddable 2.3.21（Gradle 缓存；与仓内 kotlin 版本一致）
+# 结论：columns 一致 16/16；blocks 差值 ≤2 的页 16/16；hint 字符 113–286
+
+IMG20260810004304.jpg python(columns=1,blocks=1) kotlin(columns=1,blocks=1,hintChars=113) match=yes
+IMG20260810004511.jpg python(columns=1,blocks=1) kotlin(columns=1,blocks=1,hintChars=113) match=yes
+IMG20260810004854.jpg python(columns=2,blocks=14) kotlin(columns=2,blocks=14,hintChars=278) match=yes
+IMG20260810005144.jpg python(columns=2,blocks=59) kotlin(columns=2,blocks=60,hintChars=286) match=yes
+IMG20260810005301.jpg python(columns=2,blocks=56) kotlin(columns=2,blocks=56,hintChars=286) match=yes
+IMG20260810005605.jpg python(columns=1,blocks=14) kotlin(columns=1,blocks=14,hintChars=266) match=yes
+IMG20260810005855.jpg python(columns=1,blocks=26) kotlin(columns=1,blocks=26,hintChars=260) match=yes
+IMG20260810010306.jpg python(columns=1,blocks=15) kotlin(columns=1,blocks=17,hintChars=266) match=yes
+IMG20260810010349.jpg python(columns=1,blocks=16) kotlin(columns=1,blocks=18,hintChars=266) match=yes
+IMG20260810010633.jpg python(columns=1,blocks=9) kotlin(columns=1,blocks=11,hintChars=258) match=yes
+IMG20260810010859.jpg python(columns=1,blocks=19) kotlin(columns=1,blocks=20,hintChars=263) match=yes
+IMG20260810011017.jpg python(columns=1,blocks=20) kotlin(columns=1,blocks=22,hintChars=261) match=yes
+IMG20260810011126.jpg python(columns=1,blocks=16) kotlin(columns=1,blocks=16,hintChars=265) match=yes
+IMG20260810011248.jpg python(columns=1,blocks=12) kotlin(columns=1,blocks=12,hintChars=266) match=yes
+IMG20260810011649.jpg python(columns=2,blocks=20) kotlin(columns=2,blocks=22,hintChars=282) match=yes
+IMG20260810012103.jpg python(columns=1,blocks=17) kotlin(columns=1,blocks=17,hintChars=259) match=yes

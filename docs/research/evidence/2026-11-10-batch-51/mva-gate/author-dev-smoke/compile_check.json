@@ -1,0 +1,34 @@
+{
+  "generated_by": "tools/figure_eval/author_program_compile_check.mjs",
+  "programs": 2,
+  "status_counts": {
+    "COMPILED": 1,
+    "INVALID_SCENE": 1
+  },
+  "error_code_counts": {
+    "SCENE_STYLE_COLOR": 1
+  },
+  "results": [
+    {
+      "file": "DEV-PROPCOORD-001.json",
+      "task_id": "DEV-PROPCOORD-001",
+      "status": "INVALID_SCENE",
+      "code": "SCENE_STYLE_COLOR",
+      "error": "SCENE_STYLE_COLOR: scene.root.children[0].fill must be \"#RRGGBB\" or \"#RRGGBBAA\""
+    },
+    {
+      "file": "DEV-PROPCOORD-002.json",
+      "task_id": "DEV-PROPCOORD-002",
+      "status": "COMPILED",
+      "code": "OK",
+      "stats": {
+        "nodes": 18,
+        "pathCommands": 58,
+        "labels": 7,
+        "ops": 17
+      },
+      "pathOps": 10,
+      "labelOps": 7
+    }
+  ]
+}

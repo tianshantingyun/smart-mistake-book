@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-e14aad82a5-210	CORRECT		medium	电子设备外套金属壳（如通信电缆外层包金属线）	
+ext-mat-6bfb0a7194-004	CORRECT		high	方向角：正北或正南方向线与目标方向线所成的锐角	
+ext-phy-454a86eab0-005	CORRECT		high	计时点是打点计时器打出的原始点迹，计数点是人为选取的点	
+ext-phy-e19794d12b-020	CORRECT		high	静止卫星的轨道平面与赤道共面且与地球自转的方向相同	
+ext-phy-59dd10c06b-015b	CORRECT		high	悬挂钩码数量过多，导致弹簧的形变过大，超出其弹性限度	
+ext-phy-fcb7cd26a9-006b	REBIND	等分法	medium	匀强电场中沿同一方向相同距离的电势差相等	讲电势等分法求电势与场强，非求电场线
+ext-bio-3d00ff9c08-001	REBIND	种间关系	high	区分原始合作和互利共生：原始合作双方离开后仍可独立生活	主为种间关系判别；种间关系节点明收此族
+ext-bio-cc2cdaecdd-008	CORRECT		high	绝大多数酶是蛋白质，少数是RNA	
+ext-mat-91e0c2ace8-029b	CORRECT		medium	由泰勒公式得到的几个重要不等式	
+ext-phy-251b3e2133-004	CORRECT		high	图线的斜率 $k$ 表示加速度的两倍	
+ext-phy-368f95cfea-034	CORRECT		medium	全反射现象中光在同种均匀介质中的传播速度不发生变化	
+ext-phy-8fb3f6d3ff-001	CORRECT		high	沿电场线方向电势逐渐降低	
+bio-fj-02-c-h-o-n-most-4	REBIND	组成细胞的元素	medium	细胞中含量最多的4种元素：C、H、O、N	主为元素相对含量与基本元素，属组成细胞的元素
+ext-che-49f597eb1a-002	CORRECT		high	硫大量用于制造硫酸、硫化天然橡胶	
+ext-mat-289deb9ecd-1237	CORRECT		medium	f′(x) 是 f(x) 的导函数，是一个随 x 变化的变量	
+ext-mat-94595037ea-006b	CORRECT		high	若函数 f(x) 满足 f(a＋x)＋f(a－x)＝2b，则函数图象关于点 (a，b) 对称	
+ext-phy-e14aad82a5-1482	CORRECT		high	纵波是质点振动方向与波的传播方向在同一直线上的波	
+ext-phy-f24e6e96eb-008	CORRECT		high	要分步列式、不要写连等式	
+ext-phy-69ce327dcf-017	CORRECT		high	弹簧压缩至最短时，弹簧连接的两物体速度相同	
+phys-fx-symmetry-method-four-types	CORRECT		medium	利用现象、结构、几何关系、场的对称性化简	
+ext-mat-5348e026b1-005	CORRECT		high	先求反面全部都不满足的范围，再对全集取补集	
+ext-che-32288a7360-007	CORRECT		high	复合判据：ΔH−TΔS＜0，反应正向自发进行	
+phys-hj2-anan-fufu-huoyong-cezu	CORRECT		high	内阻已知的电流表可当小量程电压表用	
+ext-che-d9699faeed-001	CORRECT		high	硫与变价金属反应时生成低价盐	
+ext-phy-3f2d808d81-019	CORRECT		high	瓦解的临界条件是赤道上的物体所受星球的引力恰好提供向心力	
+ext-che-4c62461890-042	CORRECT		high	控制温度 400~500℃、远高于室温是为了加快反应速率并使催化剂保持高活性	
+ext-mat-8681bab01e-002	CORRECT		high	利用正弦定理、余弦定理把所求量转化为关于某个角的三角函数	
+bio-adrenal-cortex-glucocorticoid	REBIND	血糖平衡的调节	medium	糖皮质激素（皮质醇）作用：促进蛋白质/脂肪分解转化为糖（糖异生）→升高血糖	主为糖皮质激素升糖作用，血糖平衡调节节点明列该激素
+ext-phy-339303ae36-014	CORRECT		high	多解来自时间与空间的周期性以及传播方向、振动方向的双向性	
+ext-bio-248a054779-003b	CORRECT		medium	两条子链反向平行，延伸方向都是 5'→3'	
+ext-bio-aeb446a4b5-009	CORRECT		high	由于解离过程中细胞已经死亡，因此在显微镜下并不能观察到细胞的动态分裂过程	
+ext-che-93a78062b4-012	CORRECT		medium	离子键通常由活泼金属与活泼非金属经电子得失形成	
+ext-che-5a4a0aa09d-007	CORRECT		high	等质量且实验式相同的物质含有的原子数相同	
+chem-fx-tong-wen-tong-ya-tong-ti-ji-de-ren-he-f04x06	CORRECT		high	同温、同压、同体积的任何气体的分子数相等	
+ext-mat-cc4711f7f2-020	CORRECT		high	把 ω 与单调性、对称性、零点、最值、极值的联系转化为关于 ω 的不等式	
+ext-che-7cbc95ae4a-014	CORRECT		medium	比较微粒半径或推断元素时使用	
+bio-consanguinity-multiplier	REBIND	遗传病的检测和预防	medium	近亲婚配患儿概率与随机婚配之比通常为数十倍	主为近亲婚配风险与避免近亲结婚，属遗传病预防
+ext-che-c0b9fecf2c-021	CORRECT		high	减压蒸馏通过降低压强降低沸点	
+ext-bio-61401994ab-003	REBIND	孟德尔规律的应用	medium	遗传规律可用于杂交育种	主为遗传规律在育种与遗传咨询中的应用
+bio-kb2-26-thyroid-hierarchy	CORRECT		high	下丘脑—垂体—甲状腺轴分级调控甲状腺激素分泌	
+ext-bio-cdea66a95d-023	CORRECT		high	ATP 与 ADP 之间迅速、持续地相互转化	
+ext-mat-b8191f82ad-028	CORRECT		high	把已知的导数不等式按和差、乘积、商、幂次与指数型结构配对	
+ext-phy-cebfcf3898-016	REBIND	卫星中的超重与失重现象	medium	航天员受到地球的引力与座舱对他的支持力，两个力的合力提供他随航天器一起运行的向心力	主为航天器完全失重的受力机制，属卫星失重现象
+ext-mat-d68ad97a21-016	CORRECT		high	把非特殊角通过拆分、组合转化为特殊角的和、差、倍、半	
+ext-che-42a49bf87e-012b	CORRECT		high	酶是一种生物催化剂，催化作用特点：条件温和	
+bio-fx-meiosis-1-abnormal-rule	CORRECT		high	减数分裂Ⅰ后期同源染色体移向同一极	
+ext-mat-eaff69ddfa-002	CORRECT		medium	客观题重点：主要考查空间几何体的表面积、体积以及与球相关的问题	
+ext-mat-90eeb471fa-004b	CORRECT		medium	构造函数法：把数列的通项公式看作函数	
+ext-phy-2859ecfaab-019	CORRECT		high	用数学归纳法由前几次的结果推出通项	
+ext-che-923cf868a0-009	REBIND	锂电池与锂离子电池	medium	锂电池：以金属锂或锂合金为负极材料、使用非水电解质溶液	主为锂电池/锂离子电池/浓差电池；二次电池仅铅蓄电池

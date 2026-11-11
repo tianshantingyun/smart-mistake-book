@@ -1,0 +1,51 @@
+{
+  "input_file": "BLD-MECHPHASE-007.json",
+  "program_sha256": "4d4bf4325c0bb3d7436a16d377a457ce478a5798cd972f6ecc94d82509815b63",
+  "task_id": "BLD-MECHPHASE-007",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 21,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "G",
+      "widthDu": 10.909090995788574,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "333e0a1e27815d0ceee55c473fe3dc93d56c63e3bee2b3b4aee8eed6d70191a3"
+    },
+    {
+      "contentId": "c1",
+      "payload": "N",
+      "widthDu": 11.272727012634277,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8ce86a6ae65d3692e7305e2c58ac62eebd97d3d943e093f577da25c36988246b"
+    },
+    {
+      "contentId": "c2",
+      "payload": "f",
+      "widthDu": 5.454545497894287,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "252f10c83610ebca1a059c0bae8255eba2f95be4d1d7bcfa89d7248a82d9f111"
+    },
+    {
+      "contentId": "c3",
+      "payload": "30°",
+      "widthDu": 24,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "391321dbab243d2f3c7d2800e154bbd5d7544f458cd3d95417e7db78af0db83c"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai"
+}

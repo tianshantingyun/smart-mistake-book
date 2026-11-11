@@ -1,0 +1,12 @@
+  MISS [BIOLOGY] 两株相对性状的豌豆杂交，只长出4粒种子且全是圆粒，能说圆粒一定是显性吗？ | expectedSlug=性状显隐性的判断 | chapter=生物学必修2·第一章·遗传的基本规律 | rank=7
+  MISS [CHEMISTRY] 工业上制金属钠为什么电解熔融氯化钠，而不电解饱和食盐水？ | expectedSlug=电解原理易错点 | chapter=化学必修第一册·第三章·铁与金属材料 | rank=13
+  MISS [CHEMISTRY] 苯的二氯代物有 3 种，那四氯代物有几种？我不想一个个画，有没有换元法的巧办法？ | expectedSlug=同分异构现象和同分异构体 | chapter=化学必修第二册·第七章·有机化合物 | rank=12
+  MISS [MATH] f(x)是R上的奇函数，当x>0时f(x)=x^2+1，求f(-1)的值。 | expectedSlug=利用奇偶性求值-将待求函数值或不等式利用奇偶性转化为已知区间上的函数值求解 | chapter=数学必修第一册·第三章·函数的概念与性质 | rank=8
+  MISS [MATH] y=|f(x)|的图象是怎么由y=f(x)的图象得到的？那y=f(|x|)呢？ | expectedSlug=函数图象的翻折变换 | chapter=数学必修第一册·第三章·函数的概念与性质 | rank=16
+  MISS [MATH] 已知f(x)+f(-x)=2x+1，怎么求f(x)的解析式？我总觉得还差一个方程。 | expectedSlug=方程组法-主要解决已知与-的方程-求解析式 | chapter=数学必修第一册·第三章·函数的概念与性质 | rank=11
+  MISS [MATH] 求f(x)=(x^2+x+1)/(x+1)（x≠-1）的值域，我设了y整理出关于x的一元二次方程，然后呢？ | expectedSlug=判别式法-主要用于含有二次的分式函数-形如 | chapter=数学必修第一册·第三章·函数的概念与性质 | rank=8
+  MISS [MATH] 在△ABC中 AP=xAB+yAC，x+y=1 时 P 在直线 BC 上，那 x+y=1/2 时 P 跑到哪儿去了？ | expectedSlug=等和线 | chapter=数学必修第二册·第六章·平面向量 | rank=absent
+  MISS [MATH] 已知数列通项a_n=-n²+10n，哪一项最大？ | expectedSlug=数列的单调性与最值问题 | chapter=数学选择性必修第二册·第四章·数列 | rank=8
+  MISS [PHYSICS] 一幅画用绳子穿过可在横杆上滑动的小环吊着，两边拉力相等吗？若绳直接打结固定在墙上呢？ | expectedSlug=活结与死结模型 | chapter=物理必修第一册·第三章·相互作用 | rank=absent
+  MISS [PHYSICS] 一盏灯被两根绳子吊着，每根绳的拉力都比灯的重力大，为什么？重力该怎么分？ | expectedSlug=力的分解 | chapter=物理必修第一册·第三章·相互作用 | rank=absent
+  MISS [PHYSICS] 小球用绳吊着，再用一个水平力慢慢把它推出去，缓慢过程中绳的拉力怎么变？ | expectedSlug=共点力的动态平衡 | chapter=物理必修第一册·第三章·相互作用 | rank=51

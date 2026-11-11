@@ -1,0 +1,1774 @@
+{
+  "BLD-DEHANDWR-018": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "kept_label_count": 4,
+      "kept_print_labels": [
+        "选择题　第1题",
+        "选择题　第2题",
+        "填空题　第3题",
+        "语义清图 · 非原像素修复"
+      ]
+    },
+    "first_attempt_facts": {
+      "kept_label_count": 4,
+      "kept_print_labels": [
+        "选择题　第1题",
+        "选择题　第2题",
+        "填空题　第3题",
+        "语义清图 · 非原像素修复"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 20600,
+    "render_latency_ms": 171,
+    "render_ok": true,
+    "task_id": "BLD-DEHANDWR-018",
+    "text_ok": true
+  },
+  "BLD-DEHANDWR-019": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "kept_label_count": 3,
+      "kept_print_labels": [
+        "选择题第1题",
+        "选择题第2题",
+        "说明：本图为语义清图，仅保留已确认的印刷题号与文字，非原扫描像素修复。"
+      ]
+    },
+    "first_attempt_facts": {
+      "kept_label_count": 3,
+      "kept_print_labels": [
+        "选择题第1题",
+        "选择题第2题",
+        "说明：本图为语义清图，仅保留已确认的印刷题号与文字，非原扫描像素修复。"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 19446,
+    "render_latency_ms": 33,
+    "render_ok": true,
+    "task_id": "BLD-DEHANDWR-019",
+    "text_ok": true
+  },
+  "BLD-FLOWFORM-008": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式",
+        "1",
+        "x²",
+        "-",
+        "4",
+        "x",
+        "+",
+        "= 0",
+        "x =",
+        "-b",
+        "±",
+        "√(",
+        "b²",
+        "a",
+        "c",
+        ")",
+        "2",
+        "a = 1",
+        "b = -4",
+        "c = 4",
+        "Δ = b² - 4ac = 0"
+      ],
+      "discriminant": 0.0
+    },
+    "first_attempt_facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式",
+        "1",
+        "x²",
+        "-",
+        "4",
+        "x",
+        "+",
+        "= 0",
+        "x =",
+        "-b",
+        "±",
+        "√(",
+        "b²",
+        "a",
+        "c",
+        ")",
+        "2",
+        "a = 1",
+        "b = -4",
+        "c = 4",
+        "Δ = b² - 4ac = 0"
+      ],
+      "discriminant": 0.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 98026,
+    "render_latency_ms": 56,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-008",
+    "text_ok": true
+  },
+  "BLD-FLOWFORM-009": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式图示",
+        "1x² - 4x + 4 = 0",
+        "x = (-b ± √(b² - 4ac)) / (2a)",
+        "b = -4",
+        "c = 4",
+        "a = 1",
+        "判别式：Δ = b² - 4ac",
+        "Δ = (-4)² - 4·1·4 = 16 - 16 = 0",
+        "x = (-(-4) ± √0) / (2·1) = (4 ± 0) / 2 = 2"
+      ],
+      "discriminant": 0.0
+    },
+    "first_attempt_facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式图示",
+        "1x² - 4x + 4 = 0",
+        "x = (-b ± √(b² - 4ac)) / (2a)",
+        "b = -4",
+        "c = 4",
+        "a = 1",
+        "判别式：Δ = b² - 4ac",
+        "Δ = (-4)² - 4·1·4 = 16 - 16 = 0",
+        "x = (-(-4) ± √0) / (2·1) = (4 ± 0) / 2 = 2"
+      ],
+      "discriminant": 0.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 76821,
+    "render_latency_ms": 28,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-009",
+    "text_ok": true
+  },
+  "BLD-FLOWFORM-010": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式",
+        "3x² - 5x - 2 = 0",
+        "x = (-b ± √(b² - 4ac)) / (2a)",
+        "a = 3",
+        "b = -5",
+        "c = -2",
+        "Δ = b² - 4ac = 49",
+        "判别式"
+      ],
+      "discriminant": 49.0
+    },
+    "first_attempt_facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式",
+        "3x² - 5x - 2 = 0",
+        "x = (-b ± √(b² - 4ac)) / (2a)",
+        "a = 3",
+        "b = -5",
+        "c = -2",
+        "Δ = b² - 4ac = 49",
+        "判别式"
+      ],
+      "discriminant": 49.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 64898,
+    "render_latency_ms": 30,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-010",
+    "text_ok": true
+  },
+  "BLD-FLOWFORM-011": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式",
+        "2x²",
+        "+ 4x",
+        "- 6",
+        "= 0",
+        "a = 2",
+        "b = 4",
+        "c = -6",
+        "求根公式",
+        "x = ( -b ± √(b² - 4ac) ) / (2a)",
+        "Δ = b² - 4ac = 64",
+        "代入：Δ = 4² - 4·2·(-6) = 16 + 48 = 64"
+      ],
+      "discriminant": 64.0
+    },
+    "first_attempt_facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式",
+        "2x²",
+        "+ 4x",
+        "- 6",
+        "= 0",
+        "a = 2",
+        "b = 4",
+        "c = -6",
+        "求根公式",
+        "x = ( -b ± √(b² - 4ac) ) / (2a)",
+        "Δ = b² - 4ac = 64",
+        "代入：Δ = 4² - 4·2·(-6) = 16 + 48 = 64"
+      ],
+      "discriminant": 64.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 78836,
+    "render_latency_ms": 43,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-011",
+    "text_ok": true
+  },
+  "BLD-FLOWFORM-012": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "coefficient_labels": [
+        "一元二次方程：1x² - 3x + 2 = 0",
+        "求根公式",
+        "x =",
+        "-",
+        "b",
+        "±",
+        "√(",
+        "b²",
+        "- 4",
+        "a",
+        "c",
+        ")",
+        "2",
+        "a = 1",
+        "b = -3",
+        "c = 2",
+        "Δ = b² - 4ac = 1"
+      ],
+      "discriminant": 1.0
+    },
+    "first_attempt_facts": {
+      "coefficient_labels": [
+        "一元二次方程：1x² - 3x + 2 = 0",
+        "求根公式",
+        "x =",
+        "-",
+        "b",
+        "±",
+        "√(",
+        "b²",
+        "- 4",
+        "a",
+        "c",
+        ")",
+        "2",
+        "a = 1",
+        "b = -3",
+        "c = 2",
+        "Δ = b² - 4ac = 1"
+      ],
+      "discriminant": 1.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 77134,
+    "render_latency_ms": 39,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-012",
+    "text_ok": true
+  },
+  "BLD-FLOWFORM-013": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "coefficient_labels": [
+        "2",
+        "x²",
+        "-7",
+        "x",
+        "+",
+        "3",
+        "=",
+        "0",
+        "a = 2",
+        "b = -7",
+        "c = 3",
+        "x =",
+        "-",
+        "b",
+        "±",
+        "√(",
+        "² - 4",
+        "a",
+        "c",
+        ")",
+        "Δ = b² - 4ac",
+        "= (-7)² - 4·2·3",
+        "= 49 - 24",
+        "Δ = 25"
+      ],
+      "discriminant": 25.0
+    },
+    "first_attempt_facts": {
+      "coefficient_labels": [
+        "2",
+        "x²",
+        "-7",
+        "x",
+        "+",
+        "3",
+        "=",
+        "0",
+        "a = 2",
+        "b = -7",
+        "c = 3",
+        "x =",
+        "-",
+        "b",
+        "±",
+        "√(",
+        "² - 4",
+        "a",
+        "c",
+        ")",
+        "Δ = b² - 4ac",
+        "= (-7)² - 4·2·3",
+        "= 49 - 24",
+        "Δ = 25"
+      ],
+      "discriminant": 25.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 128129,
+    "render_latency_ms": 55,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-013",
+    "text_ok": true
+  },
+  "BLD-FLOWFORM-014": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "coefficient_labels": [
+        "2",
+        "x²",
+        "- 7",
+        "x",
+        "+ 3",
+        "= 0",
+        "a = 2",
+        "b = -7",
+        "c = 3",
+        "x =",
+        "-b ± √(b² - 4ac)",
+        "2a",
+        "Δ = b² - 4ac = 25"
+      ],
+      "discriminant": 25.0
+    },
+    "first_attempt_facts": {
+      "coefficient_labels": [
+        "2",
+        "x²",
+        "- 7",
+        "x",
+        "+ 3",
+        "= 0",
+        "a = 2",
+        "b = -7",
+        "c = 3",
+        "x =",
+        "-b ± √(b² - 4ac)",
+        "2a",
+        "Δ = b² - 4ac = 25"
+      ],
+      "discriminant": 25.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 44544,
+    "render_latency_ms": 36,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-014",
+    "text_ok": true
+  },
+  "BLD-FLOWFORM-015": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "速度单位换算",
+        "换算项目",
+        "换算算式",
+        "换算结果",
+        "54 km/h → m/s",
+        "54 ÷ 3.6",
+        "15.0 m/s",
+        "换算依据：1 m/s = 3.6 km/h，故 km/h 数值除以 3.6；结果保留三位有效数字。"
+      ]
+    },
+    "first_attempt_facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "速度单位换算",
+        "换算项目",
+        "换算算式",
+        "换算结果",
+        "54 km/h → m/s",
+        "54 ÷ 3.6",
+        "15.0 m/s",
+        "换算依据：1 m/s = 3.6 km/h，故 km/h 数值除以 3.6；结果保留三位有效数字。"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 37780,
+    "render_latency_ms": 27,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-015",
+    "text_ok": true
+  },
+  "BLD-FLOWFORM-016": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "单位换算表：km/h 换算为 m/s",
+        "原值",
+        "换算算式（除以 3.6）",
+        "结果（三位有效数字）",
+        "54 km/h",
+        "54 ÷ 3.6",
+        "15.0 m/s",
+        "依据：m/s = (km/h) ÷ 3.6"
+      ]
+    },
+    "first_attempt_facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "单位换算表：km/h 换算为 m/s",
+        "原值",
+        "换算算式（除以 3.6）",
+        "结果（三位有效数字）",
+        "54 km/h",
+        "54 ÷ 3.6",
+        "15.0 m/s",
+        "依据：m/s = (km/h) ÷ 3.6"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 16899,
+    "render_latency_ms": 27,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-016",
+    "text_ok": true
+  },
+  "BLD-FLOWFORM-017": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "converted_ms": 20.0,
+      "unit_labels": [
+        "单位换算表",
+        "72 km/h 换算为 m/s（除以 3.6）",
+        "项目",
+        "内容",
+        "已知量",
+        "v = 72 km/h",
+        "换算关系",
+        "1 m/s = 3.6 km/h",
+        "换算算式",
+        "72 ÷ 3.6 = 20.0",
+        "结果",
+        "20.0 m/s",
+        "结果保留三位有效数字"
+      ]
+    },
+    "first_attempt_facts": {
+      "converted_ms": 20.0,
+      "unit_labels": [
+        "单位换算表",
+        "72 km/h 换算为 m/s（除以 3.6）",
+        "项目",
+        "内容",
+        "已知量",
+        "v = 72 km/h",
+        "换算关系",
+        "1 m/s = 3.6 km/h",
+        "换算算式",
+        "72 ÷ 3.6 = 20.0",
+        "结果",
+        "20.0 m/s",
+        "结果保留三位有效数字"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 26131,
+    "render_latency_ms": 36,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-017",
+    "text_ok": true
+  },
+  "BLD-FLOWFORM-018": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "单位换算表",
+        "物理量",
+        "换算算式",
+        "换算结果",
+        "速度",
+        "126 ÷ 3.6",
+        "35.0 m/s",
+        "126 km/h = 126 ÷ 3.6 m/s = 35.0 m/s",
+        "依据：1 m/s = 3.6 km/h，故 km/h → m/s 需除以 3.6；结果保留三位有效数字"
+      ]
+    },
+    "first_attempt_facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "单位换算表",
+        "物理量",
+        "换算算式",
+        "换算结果",
+        "速度",
+        "126 ÷ 3.6",
+        "35.0 m/s",
+        "126 km/h = 126 ÷ 3.6 m/s = 35.0 m/s",
+        "依据：1 m/s = 3.6 km/h，故 km/h → m/s 需除以 3.6；结果保留三位有效数字"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 24521,
+    "render_latency_ms": 30,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-018",
+    "text_ok": true
+  },
+  "BLD-FLOWFORM-019": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "速度单位换算表",
+        "原始值",
+        "换算关系",
+        "换算算式",
+        "换算结果",
+        "90 km/h",
+        "km/h ÷ 3.6 = m/s",
+        "90 ÷ 3.6",
+        "25.0 m/s",
+        "换算依据：1 m/s = 3.6 km/h",
+        "结果保留三位有效数字"
+      ]
+    },
+    "first_attempt_facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "速度单位换算表",
+        "原始值",
+        "换算关系",
+        "换算算式",
+        "换算结果",
+        "90 km/h",
+        "km/h ÷ 3.6 = m/s",
+        "90 ÷ 3.6",
+        "25.0 m/s",
+        "换算依据：1 m/s = 3.6 km/h",
+        "结果保留三位有效数字"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 50661,
+    "render_latency_ms": 40,
+    "render_ok": true,
+    "task_id": "BLD-FLOWFORM-019",
+    "text_ok": true
+  },
+  "BLD-MECHPHASE-007": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "force_labels": [
+        "G",
+        "N",
+        "f",
+        "30°"
+      ],
+      "friction_direction": "along_incline_up",
+      "gravity_direction": "down"
+    },
+    "first_attempt_facts": {
+      "force_labels": [
+        "G",
+        "N",
+        "f",
+        "30°"
+      ],
+      "friction_direction": "along_incline_up",
+      "gravity_direction": "down"
+    },
+    "geometry_ok": true,
+    "latency_ms": 57852,
+    "render_latency_ms": 23,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-007",
+    "text_ok": true
+  },
+  "BLD-MECHPHASE-008": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "force_labels": [
+        "F",
+        "瓶内气压与摩擦的合力",
+        "木塞"
+      ],
+      "pressure_friction_resultant_direction": "down",
+      "pull_direction": "up"
+    },
+    "first_attempt_facts": {
+      "force_labels": [
+        "F",
+        "瓶内气压与摩擦的合力",
+        "木塞"
+      ],
+      "pressure_friction_resultant_direction": "down",
+      "pull_direction": "up"
+    },
+    "geometry_ok": true,
+    "latency_ms": 43985,
+    "render_latency_ms": 19,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-008",
+    "text_ok": true
+  },
+  "BLD-MECHPHASE-009": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "force_labels": [
+        "30°",
+        "G",
+        "N",
+        "f"
+      ],
+      "friction_direction": "along_incline_up",
+      "gravity_direction": "down"
+    },
+    "first_attempt_facts": {
+      "force_labels": [
+        "30°",
+        "G",
+        "N",
+        "f"
+      ],
+      "friction_direction": "along_incline_up",
+      "gravity_direction": "down"
+    },
+    "geometry_ok": true,
+    "latency_ms": 52893,
+    "render_latency_ms": 22,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-009",
+    "text_ok": true
+  },
+  "BLD-MECHPHASE-010": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "force_labels": [
+        "木塞受力示意图（示意）",
+        "F（拉力）",
+        "瓶内气压与摩擦的合力",
+        "木塞"
+      ],
+      "pressure_friction_resultant_direction": "down",
+      "pull_direction": "up"
+    },
+    "first_attempt_facts": {
+      "force_labels": [
+        "木塞受力示意图（示意）",
+        "F（拉力）",
+        "瓶内气压与摩擦的合力",
+        "木塞"
+      ],
+      "pressure_friction_resultant_direction": "down",
+      "pull_direction": "up"
+    },
+    "geometry_ok": true,
+    "latency_ms": 80212,
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-010",
+    "text_ok": true
+  },
+  "BLD-MECHPHASE-011": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "force_labels": [
+        "G（重力，竖直向下）",
+        "N（支持力，垂直斜面）",
+        "f（摩擦力，沿斜面向上）",
+        "30°",
+        "物块静止"
+      ],
+      "friction_direction": "along_incline_up",
+      "gravity_direction": "down"
+    },
+    "first_attempt_facts": {
+      "force_labels": [
+        "G（重力，竖直向下）",
+        "N（支持力，垂直斜面）",
+        "f（摩擦力，沿斜面向上）",
+        "30°",
+        "物块静止"
+      ],
+      "friction_direction": "along_incline_up",
+      "gravity_direction": "down"
+    },
+    "geometry_ok": true,
+    "latency_ms": 78533,
+    "render_latency_ms": 25,
+    "render_ok": true,
+    "task_id": "BLD-MECHPHASE-011",
+    "text_ok": true
+  },
+  "BLD-NATILLA-001": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "organelle_labels": [
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "first_attempt_facts": {
+      "organelle_labels": [
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 59494,
+    "render_latency_ms": 23,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-001",
+    "text_ok": true
+  },
+  "BLD-NATILLA-002": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "organelle_labels": [
+        "植物细胞结构示意图",
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "first_attempt_facts": {
+      "organelle_labels": [
+        "植物细胞结构示意图",
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 57984,
+    "render_latency_ms": 21,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-002",
+    "text_ok": true
+  },
+  "BLD-NATILLA-003": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "organelle_labels": [
+        "植物细胞结构（示意图）",
+        "细胞壁",
+        "液泡",
+        "细胞核"
+      ]
+    },
+    "first_attempt_facts": {
+      "organelle_labels": [
+        "植物细胞结构（示意图）",
+        "细胞壁",
+        "液泡",
+        "细胞核"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 66652,
+    "render_latency_ms": 20,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-003",
+    "text_ok": true
+  },
+  "BLD-NATILLA-004": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "organelle_labels": [
+        "植物细胞结构示意图",
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "first_attempt_facts": {
+      "organelle_labels": [
+        "植物细胞结构示意图",
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 69536,
+    "render_latency_ms": 20,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-004",
+    "text_ok": true
+  },
+  "BLD-NATILLA-005": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "organelle_labels": [
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "first_attempt_facts": {
+      "organelle_labels": [
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 59299,
+    "render_latency_ms": 19,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-005",
+    "text_ok": true
+  },
+  "BLD-NATILLA-006": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "organelle_labels": [
+        "细胞壁",
+        "液泡",
+        "细胞核"
+      ]
+    },
+    "first_attempt_facts": {
+      "organelle_labels": [
+        "细胞壁",
+        "液泡",
+        "细胞核"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 59537,
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-006",
+    "text_ok": true
+  },
+  "BLD-NATILLA-007": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "organelle_labels": [
+        "植物细胞结构示意",
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "first_attempt_facts": {
+      "organelle_labels": [
+        "植物细胞结构示意",
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 39137,
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-007",
+    "text_ok": true
+  },
+  "BLD-NATILLA-008": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "v",
+        "g",
+        "v₀ = 0（由静止释放）"
+      ],
+      "velocity_direction": "down"
+    },
+    "first_attempt_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "v",
+        "g",
+        "v₀ = 0（由静止释放）"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "latency_ms": 30754,
+    "render_latency_ms": 17,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-008",
+    "text_ok": true
+  },
+  "BLD-NATILLA-009": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体示意",
+        "由静止释放：v₀ = 0",
+        "v",
+        "g",
+        "v 与 g 的方向均竖直向下"
+      ],
+      "velocity_direction": "down"
+    },
+    "first_attempt_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体示意",
+        "由静止释放：v₀ = 0",
+        "v",
+        "g",
+        "v 与 g 的方向均竖直向下"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "latency_ms": 26849,
+    "render_latency_ms": 25,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-009",
+    "text_ok": true
+  },
+  "BLD-NATILLA-010": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体（示意）",
+        "静止释放",
+        "v",
+        "g",
+        "v、g 均竖直向下"
+      ],
+      "velocity_direction": "down"
+    },
+    "first_attempt_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体（示意）",
+        "静止释放",
+        "v",
+        "g",
+        "v、g 均竖直向下"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "latency_ms": 45887,
+    "render_latency_ms": 21,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-010",
+    "text_ok": true
+  },
+  "BLD-NATILLA-011": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "v",
+        "g",
+        "静止释放"
+      ],
+      "velocity_direction": "down"
+    },
+    "first_attempt_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "v",
+        "g",
+        "静止释放"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "latency_ms": 31341,
+    "render_latency_ms": 16,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-011",
+    "text_ok": true
+  },
+  "BLD-NATILLA-012": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体示意",
+        "静止释放",
+        "v",
+        "g"
+      ],
+      "velocity_direction": "down"
+    },
+    "first_attempt_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体示意",
+        "静止释放",
+        "v",
+        "g"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "latency_ms": 46350,
+    "render_latency_ms": 19,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-012",
+    "text_ok": true
+  },
+  "BLD-NATILLA-013": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体（示意）",
+        "静止释放",
+        "v",
+        "g"
+      ],
+      "velocity_direction": "down"
+    },
+    "first_attempt_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体（示意）",
+        "静止释放",
+        "v",
+        "g"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "latency_ms": 40561,
+    "render_latency_ms": 19,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-013",
+    "text_ok": true
+  },
+  "BLD-NATILLA-014": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体",
+        "静止释放",
+        "v",
+        "g",
+        "v、g 均竖直向下"
+      ],
+      "velocity_direction": "down"
+    },
+    "first_attempt_facts": {
+      "gravity_direction": "down",
+      "vector_labels": [
+        "自由落体",
+        "静止释放",
+        "v",
+        "g",
+        "v、g 均竖直向下"
+      ],
+      "velocity_direction": "down"
+    },
+    "geometry_ok": true,
+    "latency_ms": 27064,
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-NATILLA-014",
+    "text_ok": true
+  },
+  "BLD-PROPCOORD-005": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "ratio_label": [
+        "2:3"
+      ],
+      "segment_count": 2,
+      "segment_length_ratio": 0.6707317073170732
+    },
+    "first_attempt_facts": {
+      "ratio_label": [
+        "2:3"
+      ],
+      "segment_count": 2,
+      "segment_length_ratio": 0.6707317073170732
+    },
+    "geometry_ok": true,
+    "latency_ms": 11909,
+    "render_latency_ms": 14,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-005",
+    "text_ok": true
+  },
+  "BLD-PROPCOORD-006": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "ratio_label": [
+        "3:1"
+      ],
+      "segment_count": 2,
+      "segment_length_ratio": 3.0
+    },
+    "first_attempt_facts": {
+      "ratio_label": [
+        "3:1"
+      ],
+      "segment_count": 2,
+      "segment_length_ratio": 3.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 18757,
+    "render_latency_ms": 13,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-006",
+    "text_ok": true
+  },
+  "BLD-PROPCOORD-013": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "ascending_order": [
+        "0",
+        "1"
+      ],
+      "marked_points": 2,
+      "value_of_1_3": 0.3333333332776267
+    },
+    "first_attempt_facts": {
+      "ascending_order": [
+        "0",
+        "1"
+      ],
+      "marked_points": 2,
+      "value_of_1_3": 0.3333333332776267
+    },
+    "geometry_ok": true,
+    "latency_ms": 17780,
+    "render_latency_ms": 29,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-013",
+    "text_ok": true
+  },
+  "BLD-PROPCOORD-014": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "ascending_order": [
+        "1/2",
+        "2/3"
+      ],
+      "marked_points": 0,
+      "value_of_1_2": 0.5000000000206251
+    },
+    "first_attempt_facts": {
+      "ascending_order": [
+        "1/2",
+        "2/3"
+      ],
+      "marked_points": 0,
+      "value_of_1_2": 0.5000000000206251
+    },
+    "geometry_ok": true,
+    "latency_ms": 24387,
+    "render_latency_ms": 31,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-014",
+    "text_ok": true
+  },
+  "BLD-PROPCOORD-015": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "ascending_order": [
+        "0",
+        "1"
+      ],
+      "marked_points": 2,
+      "value_of_1_3": 0.33333333333333326
+    },
+    "first_attempt_facts": {
+      "ascending_order": [
+        "0",
+        "1"
+      ],
+      "marked_points": 2,
+      "value_of_1_3": 0.33333333333333326
+    },
+    "geometry_ok": true,
+    "latency_ms": 21011,
+    "render_latency_ms": 23,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-015",
+    "text_ok": true
+  },
+  "BLD-PROPCOORD-016": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "real_distance_cm": 150000.0,
+      "scale_label": [
+        "比例尺 1:25000",
+        "图上距离 6 厘米",
+        "实际距离 150000 厘米",
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6 厘米"
+      ]
+    },
+    "first_attempt_facts": {
+      "real_distance_cm": 150000.0,
+      "scale_label": [
+        "比例尺 1:25000",
+        "图上距离 6 厘米",
+        "实际距离 150000 厘米",
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6 厘米"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 27974,
+    "render_latency_ms": 23,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-016",
+    "text_ok": true
+  },
+  "BLD-PROPCOORD-017": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "real_distance_cm": 70000.0,
+      "scale_label": [
+        "比例尺 1:10000",
+        "图上距离 7 厘米",
+        "0",
+        "7",
+        "实际距离 70000 厘米"
+      ]
+    },
+    "first_attempt_facts": {
+      "real_distance_cm": 70000.0,
+      "scale_label": [
+        "比例尺 1:10000",
+        "图上距离 7 厘米",
+        "0",
+        "7",
+        "实际距离 70000 厘米"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 14479,
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-017",
+    "text_ok": true
+  },
+  "BLD-PROPCOORD-018": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "real_distance_cm": 200000.0,
+      "scale_label": [
+        "比例尺 1:50000",
+        "图上距离 4 厘米",
+        "实际距离 200000 厘米"
+      ]
+    },
+    "first_attempt_facts": {
+      "real_distance_cm": 200000.0,
+      "scale_label": [
+        "比例尺 1:50000",
+        "图上距离 4 厘米",
+        "实际距离 200000 厘米"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 11868,
+    "render_latency_ms": 13,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-018",
+    "text_ok": true
+  },
+  "BLD-PROPCOORD-019": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "real_distance_cm": 150000.0,
+      "scale_label": [
+        "图上两地距离 6 厘米",
+        "实际距离 150000 厘米",
+        "比例尺 1:25000"
+      ]
+    },
+    "first_attempt_facts": {
+      "real_distance_cm": 150000.0,
+      "scale_label": [
+        "图上两地距离 6 厘米",
+        "实际距离 150000 厘米",
+        "比例尺 1:25000"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 16469,
+    "render_latency_ms": 13,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-019",
+    "text_ok": true
+  },
+  "BLD-PROPCOORD-020": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "real_distance_cm": 70000.0,
+      "scale_label": [
+        "比例尺 1:10000",
+        "单位：厘米",
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "图上距离 7 厘米",
+        "实际距离 70000 厘米"
+      ]
+    },
+    "first_attempt_facts": {
+      "real_distance_cm": 70000.0,
+      "scale_label": [
+        "比例尺 1:10000",
+        "单位：厘米",
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "图上距离 7 厘米",
+        "实际距离 70000 厘米"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 29216,
+    "render_latency_ms": 25,
+    "render_ok": true,
+    "task_id": "BLD-PROPCOORD-020",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-002": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "label_count": 3,
+      "preserved_labels": [
+        "O",
+        "P",
+        "F"
+      ]
+    },
+    "first_attempt_facts": {
+      "label_count": 3,
+      "preserved_labels": [
+        "O",
+        "P",
+        "F"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 19569,
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-002",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-004": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "label_count": 4,
+      "preserved_labels": [
+        "入射光线",
+        "法线",
+        "反射光线",
+        "反射角"
+      ]
+    },
+    "first_attempt_facts": {
+      "label_count": 4,
+      "preserved_labels": [
+        "入射光线",
+        "法线",
+        "反射光线",
+        "反射角"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 51093,
+    "render_latency_ms": 20,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-004",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-005": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "label_count": 4,
+      "preserved_labels": [
+        "灯泡",
+        "电流表",
+        "电源",
+        "开关"
+      ]
+    },
+    "first_attempt_facts": {
+      "label_count": 4,
+      "preserved_labels": [
+        "灯泡",
+        "电流表",
+        "电源",
+        "开关"
+      ]
+    },
+    "geometry_ok": true,
+    "latency_ms": 39420,
+    "render_latency_ms": 24,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-005",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-008": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "axis_max": 1.0,
+      "axis_min": 0.0,
+      "tick_count": 5
+    },
+    "first_attempt_facts": {
+      "axis_max": 1.0,
+      "axis_min": 0.0,
+      "tick_count": 5
+    },
+    "geometry_ok": true,
+    "latency_ms": 6740,
+    "render_latency_ms": 15,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-008",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-009": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "axis_max": 5.0,
+      "axis_min": -5.0,
+      "tick_count": 11
+    },
+    "first_attempt_facts": {
+      "axis_max": 5.0,
+      "axis_min": -5.0,
+      "tick_count": 11
+    },
+    "geometry_ok": true,
+    "latency_ms": 13077,
+    "render_latency_ms": 22,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-009",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-010": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "axis_max": 5.0,
+      "axis_min": -5.0,
+      "tick_count": 11
+    },
+    "first_attempt_facts": {
+      "axis_max": 5.0,
+      "axis_min": -5.0,
+      "tick_count": 11
+    },
+    "geometry_ok": true,
+    "latency_ms": 29281,
+    "render_latency_ms": 32,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-010",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-011": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "axis_max": 100.0,
+      "axis_min": 0.0,
+      "tick_count": 6
+    },
+    "first_attempt_facts": {
+      "axis_max": 100.0,
+      "axis_min": 0.0,
+      "tick_count": 6
+    },
+    "geometry_ok": true,
+    "latency_ms": 10455,
+    "render_latency_ms": 20,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-011",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-012": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "axis_max": 10.0,
+      "axis_min": -10.0,
+      "tick_count": 6
+    },
+    "first_attempt_facts": {
+      "axis_max": 10.0,
+      "axis_min": -10.0,
+      "tick_count": 6
+    },
+    "geometry_ok": true,
+    "latency_ms": 22330,
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-012",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-013": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "axis_max": 1.0,
+      "axis_min": 0.0,
+      "tick_count": 5
+    },
+    "first_attempt_facts": {
+      "axis_max": 1.0,
+      "axis_min": 0.0,
+      "tick_count": 5
+    },
+    "geometry_ok": true,
+    "latency_ms": 12650,
+    "render_latency_ms": 17,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-013",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-014": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "axis_max": 5.0,
+      "axis_min": -5.0,
+      "tick_count": 11
+    },
+    "first_attempt_facts": {
+      "axis_max": 5.0,
+      "axis_min": -5.0,
+      "tick_count": 11
+    },
+    "geometry_ok": true,
+    "latency_ms": 6214,
+    "render_latency_ms": 26,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-014",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-015": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "cell_count": 16,
+      "column_count": 4.0,
+      "row_count": 4.0
+    },
+    "first_attempt_facts": {
+      "cell_count": 16,
+      "column_count": 4.0,
+      "row_count": 4.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 8666,
+    "render_latency_ms": 11,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-015",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-016": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "cell_count": 12,
+      "column_count": 4.0,
+      "row_count": 3.0
+    },
+    "first_attempt_facts": {
+      "cell_count": 12,
+      "column_count": 4.0,
+      "row_count": 3.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 14773,
+    "render_latency_ms": 19,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-016",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-017": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "cell_count": 24,
+      "column_count": 4.0,
+      "row_count": 6.0
+    },
+    "first_attempt_facts": {
+      "cell_count": 24,
+      "column_count": 4.0,
+      "row_count": 6.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 12922,
+    "render_latency_ms": 18,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-017",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-018": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "cell_count": 24,
+      "column_count": 4.0,
+      "row_count": 6.0
+    },
+    "first_attempt_facts": {
+      "cell_count": 24,
+      "column_count": 4.0,
+      "row_count": 6.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 23553,
+    "render_latency_ms": 19,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-018",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-019": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "cell_count": 12,
+      "column_count": 4.0,
+      "row_count": 3.0
+    },
+    "first_attempt_facts": {
+      "cell_count": 12,
+      "column_count": 4.0,
+      "row_count": 3.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 7041,
+    "render_latency_ms": 12,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-019",
+    "text_ok": true
+  },
+  "BLD-SRCREBLD-020": {
+    "accepted_self_report": false,
+    "critical_error_register": [],
+    "final_facts": {
+      "cell_count": 25,
+      "column_count": 5.0,
+      "row_count": 5.0
+    },
+    "first_attempt_facts": {
+      "cell_count": 25,
+      "column_count": 5.0,
+      "row_count": 5.0
+    },
+    "geometry_ok": true,
+    "latency_ms": 8723,
+    "render_latency_ms": 14,
+    "render_ok": true,
+    "task_id": "BLD-SRCREBLD-020",
+    "text_ok": true
+  }
+}

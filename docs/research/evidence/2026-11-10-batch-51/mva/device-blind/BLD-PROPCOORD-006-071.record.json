@@ -1,0 +1,24 @@
+{
+  "input_file": "BLD-PROPCOORD-006.json",
+  "program_sha256": "02fae22ca7f55d9dcec2005fb8fdd0547d3a3005b7bc09f2a454846e4f48adda",
+  "task_id": "BLD-PROPCOORD-006",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 16,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "3:1",
+      "widthDu": 22.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "59a5a0c7c39734d9c3359438fe114555c618f012aea84f3e4933246f7795575d"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-e3daf4bfd8-002	CORRECT		high	元件图线上某点与原点连线的斜率表示电阻的倒数，电源图线的纵轴截距为电动势、斜率绝对值为内阻，图线与坐标轴围成的面积表示功率。	
+bio-mo-evolution-015	CORRECT		high	不同物种之间、生物与无机环境之间在相互影响中不断进化和发展，这就是协同进化。	
+ext-bio-8d62859b94-011	CORRECT		high	从山脚到山顶的植被垂直分布属于不同的群落，不是群落的垂直结构	
+ext-mat-06a62d7c01-006	CORRECT		high	向量由大小和方向确定，模指长度；零向量、单位向量、平行（共线）向量、相等向量、相反向量各有明确的长度与方向要求。	
+phys-hj2-sange-ziyou-dianhehe-pingheng-moxing	CORRECT		high	三个自由点电荷平衡满足“两同夹异、两大夹小、近小远大”，每一点电荷处其余两点电荷的合场强为零。	
+chem-hj-youji-fenli-tichun-fangfa	CORRECT		high	蒸馏分离沸点差大的液体，重结晶提纯固体，萃取分液分离互不相溶体系。	
+ext-mat-450188d41e-006	CORRECT		high	切弦互化、和积转化与常值代换是同角三角函数化简的三种常用手段。	
+ext-che-a2ca03a8e1-018	CORRECT		high	同种元素阴离子半径大于原子、原子大于阳离子，能层结构相同的离子核电荷数越大半径越小	
+ext-che-9bf6d767cc-010	CORRECT		high	喷泉靠瓶内外短时间内形成较大压强差、由大气压把液体压入烧瓶；围绕如何制造压强差衍生出多套装置。	
+ext-che-9eab10e965-008	CORRECT		high	反应能否自发需综合考虑焓变和熵变；复合判据ΔH－TΔS<0的反应不一定能够实际发生，只指出自发进行的趋势，还要考虑快慢。	
+ext-phy-67f8b3e8ea-005	CORRECT		high	解圆周运动临界问题的顺序：先确定研究对象受力、看哪些力提供向心力与哪些力可能突变，注意静摩擦力随转速的变化，关注静摩擦力最大的临界状态。	
+ext-che-e5ccf9cc1e-004	CORRECT		high	烷烃按最长碳链并含支链最多选主链、从离支链最近一端编号；含官能团物质选含官能团的最长碳链并让官能团位次最小；酯按某酸某酯命名。	
+ext-phy-eb0776923d-011	CORRECT		high	线速度、角速度、周期、频率与向心加速度之间由半径相联系，其中向心加速度可由多个表达式表示。	
+phys-hj2-jiasudu-sudu-duibi	CORRECT		high	加速度描述速度变化的快慢，方向与 $Δv$ 相同、由合力决定，与 $v$、$Δv$、$Δt$ 无关。	
+ext-mat-f658425edc-002	CORRECT		high	坐标轴上的点、底面上的点和投影位置特殊的点可直接读出坐标，其余的点用中点公式或向量关系计算。	
+phys-hj3-critical-track-tangent-boundary	CORRECT		high	刚好穿出（穿不出）边界的条件是轨迹与边界相切；弧长越长（圆心角越大）时间越长。	
+ext-bio-ebc176cd18-029	CORRECT		medium	复制以DNA两条链为模板、转录以一条链为模板、翻译以mRNA为模板，配对方式与场所各不相同。	
+ext-che-5c62da9e03-2254	CORRECT		high	离子键较牢固使离子化合物熔点一般较高，在水溶液中或熔化时离子键被破坏而导电，故都是电解质。	
+ext-bio-fe7aeee6be-019	CORRECT		high	光、CO2浓度、含水量与植物激素对气孔开闭的调节，以及叶面积系数与产量的关系。	
+ext-phy-e14aad82a5-862	CORRECT		high	输出功率最大时可从三个等价角度描述：R=r、U外=U内=E/2、I=E/(2r)。	
+ext-che-3079478842-001	CORRECT		high	头碰头重叠为σ键、肩并肩为π键；单键是σ键，双键含1个π键，三键含2个π键。	
+ext-mat-a35205a6a4-008b	CORRECT		medium	过圆外一点P(x0，y0)引圆的切线，切线长：①圆为一般方程x2＋y2＋Dx＋Ey＋F＝0时，d＝√(x0²＋y0²＋Dx0＋Ey0＋F)	
+ext-mat-0518eb7f45-026	CORRECT		high	三次函数存在三个零点（对应三次方程有三个实根）等价于它既有极大值又有极小值，且极大值大于零、极小值小于零。	
+ext-phy-9885683808-001b	CORRECT		high	游标卡尺由主尺与游标尺组成，利用两者单位刻度的差值制成，读数等于主尺整毫米数加上游标尺对齐格数乘精确度。	
+ext-mat-6b39ecfc03-005	CORRECT		high	凹函数满足中点不等式 f((x1＋x2)/2)≤(f(x1)＋f(x2))/2，进而 f(均值)≤函数值的均值；加权形式同向，凸函数反向。	
+ext-mat-30218d3ab5-007	CORRECT		high	向量a(a≠0)与b共线的充要条件是：存在唯一一个实数λ，使b=λa。	
+ext-mat-df0ef0eda7-007	CORRECT		high	方程 f(x)=m 有两个不相等的实数根等价于曲线 y=f(x) 与直线 y=m 有两个交点；把 x 的区间换成相位 t=ωx+φ 后画基本正弦（余弦）曲线，由交点个数读参数的临界值（极值点处）确定范围。	
+ext-che-c875a39900-008	CORRECT		high	Mn2＋ 的还原性随溶液碱性的增强而增强，故碱性条件下更容易被氧化剂氧化。	
+ext-che-5c62da9e03-1476	NONE		medium	羧酸具有弱酸性与酸的通性、能发生酯化反应（羧脱羟基、醇脱氢）；酯难溶于水且密度一般比水小、能水解；油脂在碱性条件下水解称为皂化反应、加氢称为氢化或硬化；酰胺能在酸或碱条件下水解。	四类物质性质图谱跨羧酸/酯/油脂/酰胺多节点，现绑羧酸仅总论，无单一同科节点覆盖
+ext-che-e8fbafa6a3-013	CORRECT		high	同一周期和同一主族元素在半径、得失电子能力与金属性非金属性上的递变	
+math-liexiang-gongshi-jiecheng	CORRECT		high	$n\cdot n!=(n+1)!-n!$。	
+ext-bio-92da75f520-002	CORRECT		high	非同源染色体上的非等位基因自由组合	
+ext-mat-728e5c1c2a-014b	CORRECT		high	实系数方程用判别式与求根公式，复系数方程改用配方或公式法，韦达定理始终成立。	
+chem-hj2-lv-danzhi-dunhua	CORRECT		high	铝是地壳中含量最多的金属，表面致密氧化膜使其抗腐蚀；常温在浓硫酸、浓硝酸中钝化，还能与NaOH溶液反应。	
+ext-bio-3438a4b8d2-012	CORRECT		high	氨基酸之间形成氢键使肽链盘曲、折叠形成一定空间结构，含两条或多条肽链的蛋白质通过二硫键等化学键结合。	
+math-mo-yueya-dingli	CORRECT		high	直角三角形两直角边上的月牙面积之和等于直角三角形的面积。	
+ext-bio-ed2dad3ac8-061	CORRECT		medium	以XY型为例，X染色体上的隐性基因可使雄配子（花粉）致死，从而改变后代性别比例与性状分离比。	
+ext-che-4dd2e79693-114	CORRECT		high	苯环一取代只有1种位置，二取代有邻间对3种，三取代按取代基异同分为3、6、10种。	
+ext-bio-9861591320-046	CORRECT		high	可大幅缩短年限、后代为纯合子能稳定遗传，并使隐性性状容易显现。	
+ext-che-745c00885b-008	CORRECT		high	按数 σ 键电子对、算孤电子对、定 VSEPR 模型、略去孤电子对四步确定空间结构。	
+ext-bio-2e2f39614d-004b	CORRECT		high	解读一条mRNA上结合多个核糖体的模型，并辨析启动子与起始密码子等易混概念。	
+ext-che-1b5c8b791f-003	CORRECT		high	平衡常数只受温度影响，酸式盐的酸碱性要比较 Ka 与 Kh，银镜反应不一定说明是醛。	
+ext-che-00be305a22-005c	REBIND	常规图像解题分析	medium	分析图像时，应注意图像中的变化量是平衡量还是非平衡量，其变化是由平衡移动引起的，还是由反应速率改变引起的，两者不可混淆。	材料讲图像题的速率/平衡视角判断，属常规图像解题分析，不属工业平衡工程因素
+ext-che-3f355ed99d-015	CORRECT		high	氟、溴、碘及其化合物的特殊性质与保存使用要求	
+ext-bio-ac3d94686c-060	CORRECT		high	生物分类从大到小为界、门、纲、目、科、属、种，同属的两种生物相似性很大	
+phys-mo-particle-3d-b	CORRECT		high	速度与磁场成一般夹角时分解为沿线与圆周两个分运动。	
+wusan-chem-b2c5-ammonium-salt	CORRECT		high	铵盐一般是白色易溶于水的固体，与碱加热放出氨气、受热易分解，可用浓 NaOH 与湿润红色石蕊试纸检验。	
+chem-fx-jian-yan-shu-song-lv-qi-de-guan-dao-sh-f73x10	CORRECT		high	可用蘸有氨水的棉棒检验(NH3与HCl或Cl2反应生成NH4Cl固体，观察到有大量的白烟生成)。	
+ext-che-45d8808041-005	CORRECT		high	反应热只取决于始态与终态而与途径无关	
+ext-mat-ab2173ce7f-018	CORRECT		high	求约束条件下的可能极值点：先构造拉格朗日辅助函数，再对各变量求偏导并令其为零，解方程组所得的点即可能极值点。	

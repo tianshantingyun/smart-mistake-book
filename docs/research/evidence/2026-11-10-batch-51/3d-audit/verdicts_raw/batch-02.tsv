@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+math-hj-mianmian-pingxing-panding	CORRECT		medium	面内两相交线都平行于另一面，则两面平行。	
+ext-che-5c62da9e03-2017	CORRECT		high	Na2CO3 遇水生成 Na2CO3·H2O、Na2CO3·7H2O、Na2CO3·10H2O 三种结晶水合物。	
+ext-bio-991abe863c-003	CORRECT		high	在形成配子时，成对的遗传因子彼此分离，分别进入不同的配子中	
+ext-che-ca93296112-087b	CORRECT		high	陶瓷以黏土为主要原料，黏土的主要成分为含水的铝硅酸盐	
+ext-che-5892d1ea1a-013	REBIND	多重平衡中的产物调控与选择性	high	④多重平衡体系中，随着温度的升高，如果两种物质的选择性之和等于 100%，那么二者的选择性变化曲线呈镜像对称。	材料讲选择性规律与镜像对称，不属平衡常数计算技巧；应归产物调控与选择性。
+ext-che-067cb2c820-011	REBIND	简单有机物同分异构体的书写	medium	第一步碳链异构：写出对应碳数烷烃的全部碳架	四步法按碳链→位置→类别通式书写，非限定条件三步法；应归简单有机物异构书写。
+ext-mat-b6fbcfd043-024c	CORRECT		high	等比中项有两解是因为 G²＝a·b 只确定 |G|。	
+wusan-che-v-0438a1fb	CORRECT		high	在一定条件（恒温恒容或恒温恒压）下，以不同投料方式进行同一可逆反应，达到平衡时同种物质的百分含量（质量分数、物质的量分数等）相同，这样的平衡互称等效平衡。	
+ext-bio-2572fc572d-023	CORRECT		high	细胞可直接与内环境（组织液、血浆、淋巴液）进行物质交换，养料和O2经内环境进入细胞，废物经内环境排出。	
+ext-phy-57694a080c-022	CORRECT		high	两物体速度相等，往往就是能否追上、能否相遇或两者距离最大、最小的临界条件	
+ext-bio-bdcefb18a4-009	CORRECT		medium	无丝分裂、有丝分裂和减数分裂是真核细胞的分裂方式，二分裂属于原核细胞。	
+ext-phy-e14aad82a5-042	CORRECT		high	v=v0+at 只适用于匀变速直线运动	
+ext-mat-6714eb56e0-008	CORRECT		high	先由两点确定一条直线，再证明其他各点都在这条直线上	
+ext-phy-14007d0207-012	CORRECT		high	垂直落至斜面：末速度方向垂直斜面，速度分量满足tanβ＝gt/v0	
+ext-che-02e43d3aeb-004d	CORRECT		high	微生物电池中利用微生物辅助进行电化学反应，微生物在电极上催化有机物的氧化反应，把化学能转化为电能。	
+ext-che-0012df4ce9-010	CORRECT		high	本质区别是有无新物质生成：化学变化有新物质生成	
+ext-mat-450188d41e-005	CORRECT		high	零点存在定理：若函数在闭区间上图象连续不断且两端点函数值异号，则该区间内存在零点使函数值为零。	
+bio-kb-saturated-unsaturated-fatty-acid	CORRECT		medium	饱和脂肪酸：长链中碳原子之间都以单键连接	
+bio-fj-24-internal-environment-function	REBIND	细胞生活的环境	medium	内环境是细胞与外界环境交换的媒介，不是细胞直接与外界交换。	材料讲内环境的作用与物质交换路径，不属稳态调节；应归细胞生活的环境。
+ext-che-347258cd54-008	CORRECT		high	蛋白质由C、H、O、N、S等元素组成，由氨基酸缩聚而成，属天然有机高分子。	
+ext-mat-7d274edea0-036b	CORRECT		medium	解含参不等式常用参变分离，把分离出的一侧看作新函数，用导数画出草图，再把不等式放到图象上等价求解。	
+ext-bio-8d62859b94-006	CORRECT		high	① 原始合作：两种生物共同生活时双方受益，分开后各自也能独立生活	
+ext-bio-f7bf8a79a5-040	REBIND	光反应	medium	光照下NADP+得到电子和H+生成NADPH	材料讲光反应中NADP+受电子生成NADPH，非经典实验方法与结论；应归光反应。
+ext-bio-a484ce8179-016	CORRECT		high	数量关系：一条染色体上有多个基因。	
+ext-phy-e14aad82a5-459b	CORRECT		medium	找对象：根据题意，选出所研究的某一部分一定质量的气体。	
+ext-phy-a23820308c-007	CORRECT		high	内阻已知的电流表可以当作电压表使用	
+ext-che-1286e228d0-013	CORRECT		high	工业上用 98.3% 的硫酸吸收 $SO_3$，可以避免用水吸收 $SO_3$ 产生的酸雾腐蚀设备	
+ext-che-aacf5540df-005	CORRECT		medium	Cu 的 3d 能级达到全充满 3d10、4s 达到半充满 4s1 时更稳定	
+ext-che-5c62da9e03-810	CORRECT		medium	碱性锌锰电池不易发生电解质溶液的泄漏，因为负极改装在电池的内部。	
+ext-phy-0763583702-007	CORRECT		high	轨道半径 $r=\dfrac{mv}{qB}$ 随之改变，但周期 $T=\dfrac{2\pi m}{qB}$ 只由比荷与磁感应强度决定	
+ext-phy-199b7507b8-029	CORRECT		medium	速度减小使电流与安培力同步减小，由 F＝ma 知加速度也减小，故棒做加速度减小的减速运动。	
+ext-phy-07a38c118f-002	CORRECT		high	系统内能的变化量，等于外界传给它的热量与外界对它做功之和	
+ext-mat-401d59aac7-006	CORRECT		high	利用指数、对数运算解决实际问题时：①认清所给函数模型、变量、参数；②利用待定系数法确定参数的值；③解决问题。	
+ext-bio-400171cfa4-005	CORRECT		high	拉马克进化学说（第一个进化理论）：用进废退和获得性遗传是生物不断进化的主要原因	
+ext-mat-c462d9a85d-016	CORRECT		high	边角边：直接用余弦定理求第三边，结果唯一，只有 1 个解。	
+phys-combined-field-solving-steps	CORRECT		high	找关键：确定带电粒子经过边界的位置及速度，进而确定运动过程	
+ext-phy-b378391aba-049	CORRECT		high	红外线：具有热效应，用于红外遥感。	
+ext-che-95860fb410-002c	CORRECT		high	系统命名法：以苯环作为母体，其他基团作为取代基	
+ext-phy-1c267134b6-016	CORRECT		high	在近地点A点火加速，所需向心力变大而做离心运动进入椭圆轨道Ⅱ	
+ext-bio-36daaa0e4a-001c	CORRECT		high	着丝粒排列在赤道板上，是观察染色体形态、数目的最佳时期。	
+ext-bio-ca4b35945b-004	CORRECT		high	结构通式以中心碳原子连接氨基（-NH2）、羧基（-COOH）、一个氢原子和一个侧链基团R。	
+ext-che-25917695d0-006b	CORRECT		high	俗名烧碱、火碱或苛性钠，白色固体，易溶于水并放出大量的热	
+ext-bio-8b1fe58522-006	CORRECT		high	管家基因指所有细胞均表达、维持生命活动所必需的基因	
+ext-mat-025bf5a476-013c	CORRECT		high	把三角形内角当任意角，自变量范围被放大，最值随之求错。	
+ext-che-092d33b24d-004	CORRECT		high	电离是电解质在水溶液中或熔化状态下离解成自由移动离子的过程	
+ext-mat-33c5ca3402-012	CORRECT		high	双曲线的焦点到任意一条渐近线的距离等于 $b$	
+ext-mat-289deb9ecd-648	CORRECT		high	圆台也可以看成直角梯形沿垂直于底边的腰所在直线为旋转轴	
+ext-che-7f2e13df1b-047	CORRECT		medium	1.审题阶段：提取实验目的、给定试剂/装置与数据呈现形式	
+ext-mat-6a2e9cacfa-013b	CORRECT		high	共轭运算可以与四则运算交换次序	
+ext-phy-268894f92c-001	CORRECT		high	即合外力做的功等于动能的变化量 这就是动能定理	

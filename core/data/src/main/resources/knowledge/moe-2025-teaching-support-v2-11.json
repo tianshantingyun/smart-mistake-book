@@ -1926,7 +1926,7 @@
    "contentId": "ext-phy-e14aad82a5-870",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电路中的基本概念",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电功率",
      "role": "PRIMARY"
     }
    ]
@@ -32953,7 +32953,7 @@
    "contentId": "ext-che-5c62da9e03-1332",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:一般步骤",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:一些有机物的命名",
      "role": "PRIMARY"
     }
    ]

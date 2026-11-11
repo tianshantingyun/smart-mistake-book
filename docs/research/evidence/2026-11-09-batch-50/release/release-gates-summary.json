@@ -1,0 +1,105 @@
+{
+  "batch": 50,
+  "plan_items": [35, 36, 37],
+  "date": "2026-11-08",
+  "git": {
+    "head": "a87fc70d15c8ad726cee17422dbeef0b4977747d",
+    "commit_count": 1160,
+    "shallow": false,
+    "dirty_porcelain_lines": 683,
+    "dirty_uall_paths": 4315,
+    "clean_tree": false,
+    "note": "产物由脏树构建；apk 内嵌 revision 只是 HEAD sha，不代表所编代码。干净树复跑 BLOCKED until commit."
+  },
+  "version_code": {
+    "scheme": "N = 100000 + git rev-list --count HEAD",
+    "derived": 101160,
+    "commit_count": 1160,
+    "derivation_tool": "tools/ci/release_version_code.py (shallow repo refuses a number; 4 unit tests)",
+    "derivation_output": "release/version-code-derivation.json",
+    "injected_via": "-Psmbk.versionCode",
+    "gradle_default_for_non_release": 2,
+    "version_name": "0.2.0 (+ -offline / -localfirst)",
+    "gradle_task": "validateVersionCode",
+    "gradle_red": {"missing_P": 1, "non_integer": 1, "out_of_range": 1},
+    "gradle_green": {"101160": 0},
+    "verifier_gate": {
+      "command": "j_release_verify.py version --expected-code 101160",
+      "strictOffline_exit": 0,
+      "localFirst_exit": 0,
+      "payload_gradle_version_code": null,
+      "payload_output_metadata_versionCode": 101160
+    }
+  },
+  "keystore": {
+    "path": ".tmp/release-signing/smbk-local-release.keystore",
+    "format": "PKCS12",
+    "alias": "smbk-local-release",
+    "key": "RSA 4096 SHA384withRSA self-signed",
+    "dn": "CN=SmartMistakeBook Local Release, OU=NOT-PLAY-PRODUCTION, O=SmartMistakeBook, C=CN",
+    "sha256": "2c8415b260dc6b645a33497077c819ddc2cbb85eaab7f00f2d87424becad5eba",
+    "not_before": "2026-11-08T21:03:04",
+    "not_after": "2054-03-26T21:03:04",
+    "play_production_identity": false,
+    "gitignored_by": ".gitignore:9:.tmp/",
+    "tracked_keystores_in_repo": 0,
+    "password_stored_in": ".tmp/release-signing/release-signing.env (ignored; not printed in evidence)"
+  },
+  "build": {
+    "command": "./gradlew.bat --console=plain --no-daemon :app:assembleStrictOfflineRelease :app:bundleStrictOfflineRelease :app:assembleLocalFirstRelease :app:bundleLocalFirstRelease -Psmbk.versionCode=101160",
+    "exit": 0,
+    "duration": "4m 56s",
+    "tasks": "481 actionable tasks: 178 executed, 303 up-to-date",
+    "log": "release/build-release.log",
+    "aggregate_command": "./gradlew.bat --console=plain --no-daemon :app:assembleRelease :app:bundleRelease -Psmbk.versionCode=101160",
+    "aggregate_exit": 0,
+    "aggregate_duration": "15s",
+    "aggregate_tasks": "481 actionable tasks: 6 executed, 475 up-to-date (all Release variants)",
+    "aggregate_artifacts_byte_identical": true,
+    "aggregate_log": "release/build-aggregate-release.log"
+  },
+  "artifacts": {
+    "apk": [
+      {"path": "app/build/outputs/apk/strictOffline/release/app-strictOffline-release.apk", "bytes": 156231853, "sha256": "67413eadebde2329e3c24f7196f610b01a75fa0bb7981d7afebafbacd1ba8e1f", "versionCode": 101160, "versionName": "0.2.0-offline"},
+      {"path": "app/build/outputs/apk/localFirst/release/app-localFirst-release.apk", "bytes": 156232415, "sha256": "1bf98b0029032ecb5c243c3ada3ac19183e53e0a912ab630510da12866d34dec", "versionCode": 101160, "versionName": "0.2.0-localfirst"}
+    ],
+    "aab": [
+      {"path": "app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab", "bytes": 125574691, "sha256": "edaf058ded0de18e1706c971d726174ed08b13467bd65af7c0902ed251fe3d88", "versionCode": 101160, "versionName": "0.2.0-offline", "package": "com.tingyun.smartmistakebook.offline"},
+      {"path": "app/build/outputs/bundle/localFirstRelease/app-localFirst-release.aab", "bytes": 125575234, "sha256": "48b8a6ddc6cb4efc7615d681399b13ef49fb8d00ab109bf9e9cadbe860d03462", "versionCode": 101160, "versionName": "0.2.0-localfirst", "package": "com.tingyun.smartmistakebook.localfirst"}
+    ],
+    "mapping": [
+      {"path": "app/build/outputs/mapping/strictOfflineRelease/mapping.txt", "bytes": 140341720, "lines": 968647, "sha256": "ce595aa09168d19ed2c93faf28f8334acd47b6fd88c1627e4a3286496377277e", "compiler": "R8 9.3.16"},
+      {"path": "app/build/outputs/mapping/localFirstRelease/mapping.txt", "bytes": 140341720, "sha256": "ce595aa09168d19ed2c93faf28f8334acd47b6fd88c1627e4a3286496377277e"}
+    ]
+  },
+  "gates": {
+    "apksigner": {"strictOffline": {"exit": 0, "v1": true, "v2": true, "v3": false, "v4": false, "cert_sha256": "2c8415b260dc6b645a33497077c819ddc2cbb85eaab7f00f2d87424becad5eba"}, "localFirst": {"exit": 0, "v1": true, "v2": true, "v3": false, "v4": false, "cert_sha256": "2c8415b260dc6b645a33497077c819ddc2cbb85eaab7f00f2d87424becad5eba"}},
+    "jarsigner_aab": {"strictOffline": 0, "localFirst": 0},
+    "keytool_aab_cert_sha256": "2C:84:15:B2:60:DC:6B:64:5A:33:49:70:77:C8:19:DD:C2:CB:B8:5E:AA:B7:F0:0F:2D:87:42:4B:EC:AD:5E:BA",
+    "signing_gate": {"strictOffline": {"exit": 0, "errors": []}, "localFirst": {"exit": 0, "errors": []}},
+    "zipalign_16k": {"strictOffline": {"exit": 0, "last_line": "Verification successful"}, "localFirst": {"exit": 0, "last_line": "Verification successful"}},
+    "apk16k": {"strictOffline": {"exit": 0, "native_libs": 14, "abis": ["arm64-v8a", "x86_64"], "errors": []}, "localFirst": {"exit": 0, "native_libs": 14, "abis": ["arm64-v8a", "x86_64"], "errors": []}},
+    "aab16k": {"strictOffline": {"exit": 0, "alignment": 2, "abi_set": ["arm64-v8a", "x86_64"], "errors": []}, "localFirst": {"exit": 0, "alignment": 2, "abi_set": ["arm64-v8a", "x86_64"], "errors": []}},
+    "aab_manifest_version": {"strictOffline": {"exit": 0, "version_code": 101160, "version_name": "0.2.0-offline", "sources_equal": true}, "localFirst": {"exit": 0, "version_code": 101160, "version_name": "0.2.0-localfirst", "sources_equal": true}},
+    "r8_mapping_binding": {"strictOffline": {"exit": 0, "classes": 10661, "renamed": 10461, "removed": 1199, "negative_control_hits": 0}, "localFirst": {"exit": 0}},
+    "mapping_embedded_in_aab_equal": {"strictOffline": true, "localFirst": true},
+    "identity_require_clean": {"exit": 1, "dirty_paths": 4315, "expected": "red on dirty tree; rerun after commit"}
+  },
+  "negative_controls": {
+    "version_expected_101161": 1,
+    "aab_manifest_expected_101161": 1,
+    "apk16k_selftest": {"exit": 0, "ok": true, "errors": ["PT_LOAD p_align=0x1000 < 0x4000", "PT_LOAD p_align=0x1000 < 0x4000", "PT_LOAD p_align=0x1000 < 0x4000"]},
+    "signing_debug_apk_vs_release_aab": {"exit": 1, "error": "APK/AAB signer identity differs: apk=26466dbfb132af68 aab=2c8415b260dc6b64"},
+    "validate_release_signing_missing_env": 1
+  },
+  "unverified_or_blocked": [
+    "clean-tree release build (tree dirty 683; rerun after commit)",
+    "artifact identity binding to HEAD bytes (dirty build; revision embedded but code not committed)",
+    "bundletool dump config official AAB cross-check (no executable bundletool-all on host)",
+    "16KB runtime (only device PAGE_SIZE=4096, x86_64, API 34; no arm64 device)",
+    "Play production signing identity / App Signing decision / upload cert fingerprint (external)",
+    "App filing number / Play developer account / privacy policy hosting URL (external)",
+    "aab16k --selftest does not exist (gap registered, not implemented)",
+    "paired versionCode artifacts (upgrade/downgrade/rollback) not produced"
+  ]
+}

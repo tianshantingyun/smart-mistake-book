@@ -1,0 +1,9 @@
+43f1fe46651614f081c0d9edb8a4bc0b33988905822868e857b24e25c34a3e8e *app/build/outputs/apk/localFirst/debug/app-localFirst-debug.apk
+f11374a468fbf33601e91c2fb8333b4244e5be96a1f1e6bdf3c7ea1d3b9e46d2 *app/build/outputs/apk/androidTest/localFirst/debug/app-localFirst-debug-androidTest.apk
+b67452830223068b040926ae8dcc775b2600eefc40bb9caebea2305c275f612c *core/data/build/outputs/apk/androidTest/debug/data-debug-androidTest.apk
+9ce5855e50b9411c2247a12596bcbe66dc462855bd4045c2211b32c4d7263633 *core/database/build/outputs/apk/androidTest/debug/database-debug-androidTest.apk
+14cdea1d4b45ec0d683b27e54d383f56e242a9d8a0af325da774cb408a4fced4 *feature/library/build/outputs/apk/androidTest/debug/library-debug-androidTest.apk
+07c713941c524c3b4dcc41fde066c40372698f55ec50af235a4d4c728db181cb *core/export/build/outputs/apk/androidTest/debug/export-debug-androidTest.apk
+db14c022780bb7577bf2ea4f8f97f31124c32c760fd9cad5b6eb80f8b92cbf92 *core/database/build/outputs/apk/androidTest/debug/database-debug-androidTest.apk
+0013cf379649be86b5f0f0b732296d4b9a0b2fc54d0acccfb4f1b4613a883ee0 *core/data/build/outputs/apk/androidTest/debug/data-debug-androidTest.apk
+2e32e0856f531c2c88d2921629e0f2deca7958b026f745e29fd6516fdd2afcd9 *app/build/outputs/apk/androidTest/localFirst/debug/app-localFirst-debug-androidTest.apk

@@ -1,0 +1,12 @@
+e: file:///D:/smart%20mistake%20book/app/src/test/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopyTest.kt:37:52 Unresolved reference 'PrivacyPolicyCopy'.
+e: file:///D:/smart%20mistake%20book/app/src/test/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopyTest.kt:41:52 Unresolved reference 'PrivacyPolicyCopy'.
+e: file:///D:/smart%20mistake%20book/app/src/test/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopyTest.kt:43:22 Unresolved reference 'PrivacyPolicyCopy'.
+e: file:///D:/smart%20mistake%20book/app/src/test/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopyTest.kt:44:36 Unresolved reference 'PrivacyPolicyCopy'.
+e: file:///D:/smart%20mistake%20book/app/src/test/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopyTest.kt:45:36 Unresolved reference 'PrivacyPolicyCopy'.
+e: file:///D:/smart%20mistake%20book/app/src/test/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopyTest.kt:50:22 Unresolved reference 'PrivacyPolicyCopy'.
+e: file:///D:/smart%20mistake%20book/app/src/test/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopyTest.kt:50:79 Unresolved reference 'it'.
+e: file:///D:/smart%20mistake%20book/app/src/test/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopyTest.kt:52:9 Unresolved reference 'PrivacyPolicyCopy'.
+e: file:///D:/smart%20mistake%20book/app/src/test/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopyTest.kt:52:70 Cannot infer type for value parameter 'section'. Specify it explicitly.
+e: file:///D:/smart%20mistake%20book/app/src/test/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopyTest.kt:53:38 Unresolved reference 'title'.
+e: file:///D:/smart%20mistake%20book/app/src/test/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopyTest.kt:53:60 Unresolved reference 'paragraphs'.
+e: file:///D:/smart%20mistake%20book/app/src/test/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopyTest.kt:54:21 Unresolved reference 'paragraphs'.

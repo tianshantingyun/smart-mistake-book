@@ -1,0 +1,54 @@
+{
+    "file": "IMG20260810003928.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 29057,
+    "responseHead": "{\"id\":\"286ffc46-152e-4f62-895a-34210f88124c\",\"object\":\"chat.completion\",\"created\":1794129278,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"页面含4道独立选择题，需拆分\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.85,\\\"top\\\":0.18,\\\"right\\\":1,\\\"bottom\\\":0.36},\\\"message\\\":\\\"第1题D选项图像与文字被右边缘裁切，无法完整转写\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.55,\\\"top\\\":0.4,\\\"right\\\":1,\\\"bottom\\\":0.48},\\\"message\\\":\\\"第2题B选项右侧电子排布式被截断\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.86,\\\"top\\\":0.5,\\\"right\\\":1,\\\"bottom\\\":0.59},\\\"message\\\":\\\"第2题D选项电子云轮廓图右侧被裁切\\\"}],\\\"suggestedActions\\\":[\\\"RECAPTURE\\\",\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.02,\\\"top\\\":0.15,\\\"right\\\":1,\\\"bottom\\\":0.36},{\\\"left\\\":0.02,\\\"top\\\":0.36,\\\"right\\\":1,\\\"bottom\\\":0.6},{\\\"left\\\":0.02,\\\"top\\\":0.6,\\\"right\\\":1,\\\"bottom\\\":0.73},{\\\"left\\\":0.02,\\\"top\\\":0.73,\\\"right\\\":1,\\\"bottom\\\":0.94}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否能完整转写一道或多道独立题。图像是一页化学试卷，含4道选择题（第1-4题）。要求：若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按阅读顺序给出每道题完整外接区域。其他decision空questionRegions。这里显然有4道独立题。需要输出SPLIT。需要检查是否有问题：题目1的D选项被截断？图像右侧边缘可能截断选项D内容，只显示“D. ”然后图像截断？看图片：第1题选项表格有四个图像，D列图像部分被右侧裁掉？选项D文字也截断？图片右侧边缘在D选项中间，可能看不到完整D选项。第1题D选项的文物图可能被裁掉，文字“D. ”后不可见。这是MISSING_OPTIONS/KEY_TEXT_UNREADABLE? 需要标BLOCKING或REVIEW？题面要求判断是否足以完整转写一道",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "MISSING_OPTIONS",
+        "KEY_TEXT_UNREADABLE",
+        "OCCLUDED"
+    ],
+    "regions": [
+        {
+            "left": 0.02,
+            "top": 0.15,
+            "right": 1.0,
+            "bottom": 0.36
+        },
+        {
+            "left": 0.02,
+            "top": 0.36,
+            "right": 1.0,
+            "bottom": 0.6
+        },
+        {
+            "left": 0.02,
+            "top": 0.6,
+            "right": 1.0,
+            "bottom": 0.73
+        },
+        {
+            "left": 0.02,
+            "top": 0.73,
+            "right": 1.0,
+            "bottom": 0.94
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 4,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–1.000；单栏；行距约 16px；段落分隔（共 14 处，已截断到 8 条）：y=0.963（谷宽25px，栏1）；y=0.688（谷宽15px，栏1）；y=0.722（谷宽14px，栏1）；y=0.797（谷宽13px，栏1）；y=0.833（谷宽12px，栏1）；y=0.873（谷宽10px，栏1）；y=0.652（谷宽9px，栏1）；y=0.615（谷宽3px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 264,
+    "image": {
+        "egressBytes": 514114,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "8318eca8bcb08118361888f6fbcf8123e0e77c3e0243daa390968cad3754fbf1",
+    "promptSha256": "d2c9285a502d5bcbb41dd4b9434b55cf9ce21a3374f586f97cd3d2a61e287f6e"
+}

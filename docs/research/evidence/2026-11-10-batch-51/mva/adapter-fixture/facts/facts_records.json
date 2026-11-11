@@ -1,0 +1,26 @@
+[
+  {
+    "adapter_latency_ms": 159,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "ratio_label": "DECODED",
+      "segment_count": "DECODED",
+      "segment_length_ratio": "DECODED"
+    },
+    "facts": {
+      "ratio_label": [
+        "1:1"
+      ],
+      "segment_count": 2,
+      "segment_length_ratio": 1.0
+    },
+    "figure_type": "ratio_bar",
+    "group": "proportion_coordinates",
+    "mismatches": [],
+    "task_id": "FIXTURE-RATIO-1TO1",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  }
+]

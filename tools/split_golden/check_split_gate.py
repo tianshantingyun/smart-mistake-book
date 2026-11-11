@@ -202,8 +202,12 @@ SCOPE_REASONS_V1 = (
 SCOPE_REASONS_V2 = (
     "金标 v2 的 24 页是 155 页数据集按步长 6 的系统抽样，不是概率样本；"
     "标注为单模型盲标（G1，model-labeled），无人工专家复核，坐标为模型估读（±0.01–0.02）",
-    "v2 已做 dev/acceptance（16/8）切分：dev 16 页参与了切分修复调参，acceptance 8 页"
-    "只复算一次；门值不外推为未参与调参页面的准确率",
+    # 2026-11-09 修复环：旧文案写"acceptance 8 页只复算一次"，会被读成全局一次性；
+    # 事实是同一 8 页已在批次 48 的 acceptance-once-01 消费过（本批是第二次观测），
+    # held-out 属性不可恢复。只把"本批唯一 run"写进范围声明，门值/阈值不变。
+    "v2 已做 dev/acceptance（16/8）切分：dev 16 页参与了切分修复调参；acceptance 8 页"
+    "在本批只运行一次（唯一 run）。但同一 8 页已在批次 48 的 acceptance-once-01 被消费过，"
+    "held-out 属性不可恢复（本批是第二次观测）；门值不外推为未参与调参页面的准确率",
 )
 
 
@@ -340,6 +344,13 @@ def _run_gate(golden: Path, sidecar: Path, app: Path,
     report["appSource"] = measure_app.get("source")
     report["measure"] = {"reportSchemaVersion": measure_report.get("reportSchemaVersion"),
                          "caliber": measure_report.get("caliber"),
+                         "decisionSource": measure_report.get("decisionSource"),
+                         # 批次 51 口径 v3：弃答/通道不可评/旧口径对照随门报告留档（不参与门式）。
+                         "abstain": measure_report.get("abstain"),
+                         "notEvaluable": measure_report.get("notEvaluable"),
+                         "countExactV2": measure_report.get("countExactV2"),
+                         "singleQuestionUnverifiedCount":
+                             measure_report.get("singleQuestionUnverifiedCount"),
                          "missingAppPages": measure_report.get("missingAppPages"),
                          "extraAppPages": measure_report.get("extraAppPages")}
     return report

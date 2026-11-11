@@ -1,0 +1,10 @@
+切分金标门判定（AUD-08）：FAIL（exit 1）
+  金标：tools\split_golden\tables\split_golden_v2.json（sha256 03b1eeccbbde19e5ab2e67d5e7de9bf1c1f2b1d8124c3e4b1e6cfe2091e18e54，冻结校验 PASS（子步骤）；证据等级 G1）
+  应用导出：docs\research\evidence\2026-11-10-batch-51\split\acceptance\gate\merged-24-primary.json（sha256 e8ea2e464c67d368c7b8e884476639ea7a57ebc24b1c6f7ecb379118f03b431c）
+  ① countExactRate = 19/24 = 0.7917 （门 0.7917 >= 0.9 → 未过）
+  ③ fragmentRate = 4/78 = 0.0513 （门 0.0513 <= 0.05 → 未过）
+  门判定：FAIL（阈值出处见 GATE.md；改值须先裁定并留旧值对照）
+  自动化：门后自动化不启用（裁定 37 / 4C③：门不过不允许自动入库，切残不得自动入库）。本门脚本不切任何产品开关；开启门后自动化须另立产品裁定（4C③）。
+  已落盘 --report-json: docs\research\evidence\2026-11-10-batch-51\split\acceptance\gate\gate-report-b51-primary.json
+  已落盘 --evidence-out: docs\research\evidence\2026-11-10-batch-51\split\acceptance\gate\gate-evidence-b51-primary.md
+  已落盘 --rulings-out: docs\research\evidence\2026-11-10-batch-51\split\acceptance\gate\rulings-primary\20261109T211214Z-6c3b607d.json

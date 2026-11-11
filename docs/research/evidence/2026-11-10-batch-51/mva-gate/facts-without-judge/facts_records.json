@@ -1,0 +1,4376 @@
+[
+  {
+    "adapter_latency_ms": 19,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "segment_length_ratio"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "ratio_label": "DECODED",
+      "segment_count": "DECODED",
+      "segment_length_ratio": "UNDECODABLE"
+    },
+    "facts": {
+      "ratio_label": [
+        "1",
+        "1:1"
+      ],
+      "segment_count": 1
+    },
+    "figure_type": "ratio_bar",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 1.0,
+        "got": null,
+        "key": "segment_length_ratio",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": 2,
+        "got": 1,
+        "key": "segment_count",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-001",
+    "undecodable": {
+      "segment_length_ratio": "主游程有 1 段，不是可判的两段比例"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 15,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "segment_length_ratio"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "ratio_label": "DECODED",
+      "segment_count": "DECODED",
+      "segment_length_ratio": "UNDECODABLE"
+    },
+    "facts": {
+      "ratio_label": [
+        "3:1",
+        "3",
+        "1"
+      ],
+      "segment_count": 1
+    },
+    "figure_type": "ratio_bar",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 3.0,
+        "got": null,
+        "key": "segment_length_ratio",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": 2,
+        "got": 1,
+        "key": "segment_count",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-002",
+    "undecodable": {
+      "segment_length_ratio": "主游程有 1 段，不是可判的两段比例"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 11,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "segment_length_ratio"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "ratio_label": "DECODED",
+      "segment_count": "DECODED",
+      "segment_length_ratio": "UNDECODABLE"
+    },
+    "facts": {
+      "ratio_label": [
+        "4:1"
+      ],
+      "segment_count": 1
+    },
+    "figure_type": "ratio_bar",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 4.0,
+        "got": null,
+        "key": "segment_length_ratio",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": 2,
+        "got": 1,
+        "key": "segment_count",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-003",
+    "undecodable": {
+      "segment_length_ratio": "主游程有 1 段，不是可判的两段比例"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 16,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "segment_length_ratio"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "ratio_label": "DECODED",
+      "segment_count": "DECODED",
+      "segment_length_ratio": "UNDECODABLE"
+    },
+    "facts": {
+      "ratio_label": [
+        "7",
+        "3",
+        "7:3"
+      ],
+      "segment_count": 1
+    },
+    "figure_type": "ratio_bar",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 2.3333333333333335,
+        "got": null,
+        "key": "segment_length_ratio",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": 2,
+        "got": 1,
+        "key": "segment_count",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-004",
+    "undecodable": {
+      "segment_length_ratio": "主游程有 1 段，不是可判的两段比例"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 14,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "ratio_label": "DECODED",
+      "segment_count": "DECODED",
+      "segment_length_ratio": "DECODED"
+    },
+    "facts": {
+      "ratio_label": [
+        "2:3"
+      ],
+      "segment_count": 2,
+      "segment_length_ratio": 0.6707317073170732
+    },
+    "figure_type": "ratio_bar",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 0.6666666666666666,
+        "got": 0.6707317073170732,
+        "key": "segment_length_ratio",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-005",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 13,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "ratio_label": "DECODED",
+      "segment_count": "DECODED",
+      "segment_length_ratio": "DECODED"
+    },
+    "facts": {
+      "ratio_label": [
+        "3:1"
+      ],
+      "segment_count": 2,
+      "segment_length_ratio": 3.0
+    },
+    "figure_type": "ratio_bar",
+    "group": "proportion_coordinates",
+    "mismatches": [],
+    "task_id": "BLD-PROPCOORD-006",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 23,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "point_x",
+      "point_y"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "point_label": "DECODED",
+      "point_x": "UNDECODABLE",
+      "point_y": "UNDECODABLE"
+    },
+    "facts": {
+      "point_label": [
+        "y",
+        "x",
+        "O",
+        "P(5,5)",
+        "第一象限",
+        "5"
+      ]
+    },
+    "figure_type": "coordinate_point_plot",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 5.0,
+        "got": null,
+        "key": "point_x",
+        "kind": "numeric"
+      },
+      {
+        "critical": true,
+        "expected": 5.0,
+        "got": null,
+        "key": "point_y",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-007",
+    "undecodable": {
+      "point_x": "图上没有可用的数值刻度行（至少 2 个数值标签且位置有跨度）",
+      "point_y": "图上没有可用的数值刻度列（至少 2 个数值标签且位置有跨度）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 21,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "point_x",
+      "point_y"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "point_label": "DECODED",
+      "point_x": "UNDECODABLE",
+      "point_y": "UNDECODABLE"
+    },
+    "facts": {
+      "point_label": [
+        "x",
+        "y",
+        "O",
+        "P(-2,-3)",
+        "第三象限"
+      ]
+    },
+    "figure_type": "coordinate_point_plot",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": -2.0,
+        "got": null,
+        "key": "point_x",
+        "kind": "numeric"
+      },
+      {
+        "critical": true,
+        "expected": -3.0,
+        "got": null,
+        "key": "point_y",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-008",
+    "undecodable": {
+      "point_x": "图上没有可用的数值刻度行（至少 2 个数值标签且位置有跨度）",
+      "point_y": "图上没有可用的数值刻度列（至少 2 个数值标签且位置有跨度）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 26,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "point_x",
+      "point_y"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "point_label": "DECODED",
+      "point_x": "UNDECODABLE",
+      "point_y": "UNDECODABLE"
+    },
+    "facts": {
+      "point_label": [
+        "x",
+        "y",
+        "O",
+        "P(6,-2)",
+        "第四象限",
+        "6",
+        "-2"
+      ]
+    },
+    "figure_type": "coordinate_point_plot",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 6.0,
+        "got": null,
+        "key": "point_x",
+        "kind": "numeric"
+      },
+      {
+        "critical": true,
+        "expected": -2.0,
+        "got": null,
+        "key": "point_y",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-009",
+    "undecodable": {
+      "point_x": "图上没有可用的数值刻度行（至少 2 个数值标签且位置有跨度）",
+      "point_y": "图上没有可用的数值刻度列（至少 2 个数值标签且位置有跨度）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 24,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "point_x",
+      "point_y"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "point_label": "DECODED",
+      "point_x": "UNDECODABLE",
+      "point_y": "UNDECODABLE"
+    },
+    "facts": {
+      "point_label": [
+        "P(-3,2)",
+        "第二象限",
+        "x",
+        "y",
+        "O",
+        "-3",
+        "2"
+      ]
+    },
+    "figure_type": "coordinate_point_plot",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": -3.0,
+        "got": null,
+        "key": "point_x",
+        "kind": "numeric"
+      },
+      {
+        "critical": true,
+        "expected": 2.0,
+        "got": null,
+        "key": "point_y",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-010",
+    "undecodable": {
+      "point_x": "图上没有可用的数值刻度行（至少 2 个数值标签且位置有跨度）",
+      "point_y": "图上没有可用的数值刻度列（至少 2 个数值标签且位置有跨度）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 20,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "point_x",
+      "point_y"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "point_label": "DECODED",
+      "point_x": "UNDECODABLE",
+      "point_y": "UNDECODABLE"
+    },
+    "facts": {
+      "point_label": [
+        "x",
+        "y",
+        "O",
+        "-2",
+        "-3",
+        "P(-2,-3)",
+        "第三象限"
+      ]
+    },
+    "figure_type": "coordinate_point_plot",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": -2.0,
+        "got": null,
+        "key": "point_x",
+        "kind": "numeric"
+      },
+      {
+        "critical": true,
+        "expected": -3.0,
+        "got": null,
+        "key": "point_y",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-011",
+    "undecodable": {
+      "point_x": "图上没有可用的数值刻度行（至少 2 个数值标签且位置有跨度）",
+      "point_y": "图上没有可用的数值刻度列（至少 2 个数值标签且位置有跨度）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 20,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "ascending_order"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "ascending_order": "UNDECODABLE",
+      "marked_points": "DECODED",
+      "value_of_1_3": "DECODED"
+    },
+    "facts": {
+      "marked_points": 2,
+      "value_of_1_3": 0.3333333333063962
+    },
+    "figure_type": "number_line",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "1/3",
+          "1/2"
+        ],
+        "got": null,
+        "key": "ascending_order",
+        "kind": "ordering"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-012",
+    "undecodable": {
+      "ascending_order": "可排序的成员标签少于 2 个（角色未声明）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 29,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "ascending_order": "DECODED",
+      "marked_points": "DECODED",
+      "value_of_1_3": "DECODED"
+    },
+    "facts": {
+      "ascending_order": [
+        "0",
+        "1"
+      ],
+      "marked_points": 2,
+      "value_of_1_3": 0.3333333332776267
+    },
+    "figure_type": "number_line",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "1/3",
+          "1/2"
+        ],
+        "got": [
+          "0",
+          "1"
+        ],
+        "key": "ascending_order",
+        "kind": "ordering"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-013",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 31,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "ascending_order": "DECODED",
+      "marked_points": "DECODED",
+      "value_of_1_2": "DECODED"
+    },
+    "facts": {
+      "ascending_order": [
+        "1/2",
+        "2/3"
+      ],
+      "marked_points": 0,
+      "value_of_1_2": 0.5000000000206251
+    },
+    "figure_type": "number_line",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": 2,
+        "got": 0,
+        "key": "marked_points",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-014",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 23,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "ascending_order": "DECODED",
+      "marked_points": "DECODED",
+      "value_of_1_3": "DECODED"
+    },
+    "facts": {
+      "ascending_order": [
+        "0",
+        "1"
+      ],
+      "marked_points": 2,
+      "value_of_1_3": 0.33333333333333326
+    },
+    "figure_type": "number_line",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "1/3",
+          "1/2"
+        ],
+        "got": [
+          "0",
+          "1"
+        ],
+        "key": "ascending_order",
+        "kind": "ordering"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-015",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 23,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "real_distance_cm": "DECODED",
+      "scale_label": "DECODED"
+    },
+    "facts": {
+      "real_distance_cm": 150000.0,
+      "scale_label": [
+        "比例尺 1:25000",
+        "图上距离 6 厘米",
+        "实际距离 150000 厘米",
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6 厘米"
+      ]
+    },
+    "figure_type": "map_scale_segment",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "1:25000"
+        ],
+        "got": [
+          "比例尺 1:25000",
+          "图上距离 6 厘米",
+          "实际距离 150000 厘米",
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6 厘米"
+        ],
+        "key": "scale_label",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-016",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 18,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "real_distance_cm": "DECODED",
+      "scale_label": "DECODED"
+    },
+    "facts": {
+      "real_distance_cm": 70000.0,
+      "scale_label": [
+        "比例尺 1:10000",
+        "图上距离 7 厘米",
+        "0",
+        "7",
+        "实际距离 70000 厘米"
+      ]
+    },
+    "figure_type": "map_scale_segment",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "1:10000"
+        ],
+        "got": [
+          "比例尺 1:10000",
+          "图上距离 7 厘米",
+          "0",
+          "7",
+          "实际距离 70000 厘米"
+        ],
+        "key": "scale_label",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-017",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 13,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "real_distance_cm": "DECODED",
+      "scale_label": "DECODED"
+    },
+    "facts": {
+      "real_distance_cm": 200000.0,
+      "scale_label": [
+        "比例尺 1:50000",
+        "图上距离 4 厘米",
+        "实际距离 200000 厘米"
+      ]
+    },
+    "figure_type": "map_scale_segment",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "1:50000"
+        ],
+        "got": [
+          "比例尺 1:50000",
+          "图上距离 4 厘米",
+          "实际距离 200000 厘米"
+        ],
+        "key": "scale_label",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-018",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 13,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "real_distance_cm": "DECODED",
+      "scale_label": "DECODED"
+    },
+    "facts": {
+      "real_distance_cm": 150000.0,
+      "scale_label": [
+        "图上两地距离 6 厘米",
+        "实际距离 150000 厘米",
+        "比例尺 1:25000"
+      ]
+    },
+    "figure_type": "map_scale_segment",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "1:25000"
+        ],
+        "got": [
+          "图上两地距离 6 厘米",
+          "实际距离 150000 厘米",
+          "比例尺 1:25000"
+        ],
+        "key": "scale_label",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-019",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 25,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "real_distance_cm": "DECODED",
+      "scale_label": "DECODED"
+    },
+    "facts": {
+      "real_distance_cm": 70000.0,
+      "scale_label": [
+        "比例尺 1:10000",
+        "单位：厘米",
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "图上距离 7 厘米",
+        "实际距离 70000 厘米"
+      ]
+    },
+    "figure_type": "map_scale_segment",
+    "group": "proportion_coordinates",
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "1:10000"
+        ],
+        "got": [
+          "比例尺 1:10000",
+          "单位：厘米",
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "图上距离 7 厘米",
+          "实际距离 70000 厘米"
+        ],
+        "key": "scale_label",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-PROPCOORD-020",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 32,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "area_W_over_F0h_at_half": "UNDECODABLE",
+      "axis_labels": "DECODED",
+      "curve_value_at_x_equals_h": "UNDECODABLE"
+    },
+    "facts": {
+      "axis_labels": [
+        "F(x) = F0(1 - x/h)",
+        "x",
+        "F",
+        "0",
+        "h",
+        "h/2",
+        "F0",
+        "F0/2",
+        "W = (3/8) F0 h",
+        "W/(F0 h) = 3/8 = 0.375"
+      ]
+    },
+    "figure_type": "function_area_plot",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 0.375,
+        "got": null,
+        "key": "area_W_over_F0h_at_half",
+        "kind": "numeric"
+      },
+      {
+        "critical": true,
+        "expected": [
+          "F/F₀",
+          "x/h"
+        ],
+        "got": [
+          "F(x) = F0(1 - x/h)",
+          "x",
+          "F",
+          "0",
+          "h",
+          "h/2",
+          "F0",
+          "F0/2",
+          "W = (3/8) F0 h",
+          "W/(F0 h) = 3/8 = 0.375"
+        ],
+        "key": "axis_labels",
+        "kind": "label_set"
+      },
+      {
+        "critical": true,
+        "expected": 0.0,
+        "got": null,
+        "key": "curve_value_at_x_equals_h",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-001",
+    "undecodable": {
+      "area_W_over_F0h_at_half": "area_W_over_F0h_at_half 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "curve_value_at_x_equals_h": "curve_value_at_x_equals_h 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 29,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "area_W_over_F0h_at_half": "UNDECODABLE",
+      "axis_labels": "DECODED",
+      "curve_value_at_x_equals_h": "UNDECODABLE"
+    },
+    "facts": {
+      "axis_labels": [
+        "F(x) = F₀(1 - x/h)",
+        "F(x)",
+        "F₀",
+        "F₀/2",
+        "0",
+        "h/2",
+        "h",
+        "x",
+        "W = 3/8 F₀h = 0.375 F₀h",
+        "W"
+      ]
+    },
+    "figure_type": "function_area_plot",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 0.375,
+        "got": null,
+        "key": "area_W_over_F0h_at_half",
+        "kind": "numeric"
+      },
+      {
+        "critical": true,
+        "expected": [
+          "F/F₀",
+          "x/h"
+        ],
+        "got": [
+          "F(x) = F₀(1 - x/h)",
+          "F(x)",
+          "F₀",
+          "F₀/2",
+          "0",
+          "h/2",
+          "h",
+          "x",
+          "W = 3/8 F₀h = 0.375 F₀h",
+          "W"
+        ],
+        "key": "axis_labels",
+        "kind": "label_set"
+      },
+      {
+        "critical": true,
+        "expected": 0.0,
+        "got": null,
+        "key": "curve_value_at_x_equals_h",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-002",
+    "undecodable": {
+      "area_W_over_F0h_at_half": "area_W_over_F0h_at_half 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "curve_value_at_x_equals_h": "curve_value_at_x_equals_h 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 31,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "area_W_over_F0h_at_half": "UNDECODABLE",
+      "axis_labels": "DECODED",
+      "curve_value_at_x_equals_h": "UNDECODABLE"
+    },
+    "facts": {
+      "axis_labels": [
+        "F(x)=F0(1-x/h)",
+        "x",
+        "F(x)",
+        "h",
+        "h/2",
+        "F0",
+        "F0/2",
+        "W/(F0h)=3/8=0.375",
+        "0≤x≤h",
+        "阴影面积 W"
+      ]
+    },
+    "figure_type": "function_area_plot",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 0.375,
+        "got": null,
+        "key": "area_W_over_F0h_at_half",
+        "kind": "numeric"
+      },
+      {
+        "critical": true,
+        "expected": [
+          "F/F₀",
+          "x/h"
+        ],
+        "got": [
+          "F(x)=F0(1-x/h)",
+          "x",
+          "F(x)",
+          "h",
+          "h/2",
+          "F0",
+          "F0/2",
+          "W/(F0h)=3/8=0.375",
+          "0≤x≤h",
+          "阴影面积 W"
+        ],
+        "key": "axis_labels",
+        "kind": "label_set"
+      },
+      {
+        "critical": true,
+        "expected": 0.0,
+        "got": null,
+        "key": "curve_value_at_x_equals_h",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-003",
+    "undecodable": {
+      "area_W_over_F0h_at_half": "area_W_over_F0h_at_half 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "curve_value_at_x_equals_h": "curve_value_at_x_equals_h 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-004",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_latency_ms": 34,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "area_W_over_F0h_at_half": "UNDECODABLE",
+      "axis_labels": "DECODED",
+      "curve_value_at_x_equals_h": "UNDECODABLE"
+    },
+    "facts": {
+      "axis_labels": [
+        "F(x)=F₀(1-x/h), 0≤x≤h",
+        "x",
+        "F(x)",
+        "F₀",
+        "h",
+        "h/2",
+        "0",
+        "阴影面积",
+        "W/(F₀h) = 3/8 = 0.375"
+      ]
+    },
+    "figure_type": "function_area_plot",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 0.375,
+        "got": null,
+        "key": "area_W_over_F0h_at_half",
+        "kind": "numeric"
+      },
+      {
+        "critical": true,
+        "expected": [
+          "F/F₀",
+          "x/h"
+        ],
+        "got": [
+          "F(x)=F₀(1-x/h), 0≤x≤h",
+          "x",
+          "F(x)",
+          "F₀",
+          "h",
+          "h/2",
+          "0",
+          "阴影面积",
+          "W/(F₀h) = 3/8 = 0.375"
+        ],
+        "key": "axis_labels",
+        "kind": "label_set"
+      },
+      {
+        "critical": true,
+        "expected": 0.0,
+        "got": null,
+        "key": "curve_value_at_x_equals_h",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-005",
+    "undecodable": {
+      "area_W_over_F0h_at_half": "area_W_over_F0h_at_half 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "curve_value_at_x_equals_h": "curve_value_at_x_equals_h 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 25,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "area_W_over_F0h_at_half",
+      "curve_value_at_x_equals_h"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "area_W_over_F0h_at_half": "UNDECODABLE",
+      "axis_labels": "DECODED",
+      "curve_value_at_x_equals_h": "UNDECODABLE"
+    },
+    "facts": {
+      "axis_labels": [
+        "F₀",
+        "0",
+        "h/2",
+        "h",
+        "x",
+        "F(x)=F₀(1-x/h)",
+        "W/(F₀h) = 3/8 = 0.375"
+      ]
+    },
+    "figure_type": "function_area_plot",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 0.375,
+        "got": null,
+        "key": "area_W_over_F0h_at_half",
+        "kind": "numeric"
+      },
+      {
+        "critical": true,
+        "expected": [
+          "F/F₀",
+          "x/h"
+        ],
+        "got": [
+          "F₀",
+          "0",
+          "h/2",
+          "h",
+          "x",
+          "F(x)=F₀(1-x/h)",
+          "W/(F₀h) = 3/8 = 0.375"
+        ],
+        "key": "axis_labels",
+        "kind": "label_set"
+      },
+      {
+        "critical": true,
+        "expected": 0.0,
+        "got": null,
+        "key": "curve_value_at_x_equals_h",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-006",
+    "undecodable": {
+      "area_W_over_F0h_at_half": "area_W_over_F0h_at_half 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "curve_value_at_x_equals_h": "curve_value_at_x_equals_h 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 23,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "friction_direction",
+      "gravity_direction"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "force_labels": "DECODED",
+      "friction_direction": "UNDECODABLE",
+      "gravity_direction": "UNDECODABLE"
+    },
+    "facts": {
+      "force_labels": [
+        "G",
+        "N",
+        "f",
+        "30°"
+      ]
+    },
+    "figure_type": "force_diagram_incline",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": "along_incline_up",
+        "got": null,
+        "key": "friction_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "gravity_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": [
+          "重力G",
+          "支持力N",
+          "摩擦力f"
+        ],
+        "got": [
+          "G",
+          "N",
+          "f",
+          "30°"
+        ],
+        "key": "force_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-007",
+    "undecodable": {
+      "friction_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "gravity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 19,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "pressure_friction_resultant_direction",
+      "pull_direction"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "force_labels": "DECODED",
+      "pressure_friction_resultant_direction": "UNDECODABLE",
+      "pull_direction": "UNDECODABLE"
+    },
+    "facts": {
+      "force_labels": [
+        "F",
+        "瓶内气压与摩擦的合力",
+        "木塞"
+      ]
+    },
+    "figure_type": "force_diagram_cork",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "pressure_friction_resultant_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": "up",
+        "got": null,
+        "key": "pull_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "拉力F"
+        ],
+        "got": [
+          "F",
+          "瓶内气压与摩擦的合力",
+          "木塞"
+        ],
+        "key": "force_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-008",
+    "undecodable": {
+      "pressure_friction_resultant_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "pull_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 22,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "friction_direction",
+      "gravity_direction"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "force_labels": "DECODED",
+      "friction_direction": "UNDECODABLE",
+      "gravity_direction": "UNDECODABLE"
+    },
+    "facts": {
+      "force_labels": [
+        "30°",
+        "G",
+        "N",
+        "f"
+      ]
+    },
+    "figure_type": "force_diagram_incline",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": "along_incline_up",
+        "got": null,
+        "key": "friction_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "gravity_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": [
+          "重力G",
+          "支持力N",
+          "摩擦力f"
+        ],
+        "got": [
+          "30°",
+          "G",
+          "N",
+          "f"
+        ],
+        "key": "force_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-009",
+    "undecodable": {
+      "friction_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "gravity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 18,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "pressure_friction_resultant_direction",
+      "pull_direction"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "force_labels": "DECODED",
+      "pressure_friction_resultant_direction": "UNDECODABLE",
+      "pull_direction": "UNDECODABLE"
+    },
+    "facts": {
+      "force_labels": [
+        "木塞受力示意图（示意）",
+        "F（拉力）",
+        "瓶内气压与摩擦的合力",
+        "木塞"
+      ]
+    },
+    "figure_type": "force_diagram_cork",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "pressure_friction_resultant_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": "up",
+        "got": null,
+        "key": "pull_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "拉力F"
+        ],
+        "got": [
+          "木塞受力示意图（示意）",
+          "F（拉力）",
+          "瓶内气压与摩擦的合力",
+          "木塞"
+        ],
+        "key": "force_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-010",
+    "undecodable": {
+      "pressure_friction_resultant_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "pull_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 25,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "friction_direction",
+      "gravity_direction"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "force_labels": "DECODED",
+      "friction_direction": "UNDECODABLE",
+      "gravity_direction": "UNDECODABLE"
+    },
+    "facts": {
+      "force_labels": [
+        "G（重力，竖直向下）",
+        "N（支持力，垂直斜面）",
+        "f（摩擦力，沿斜面向上）",
+        "30°",
+        "物块静止"
+      ]
+    },
+    "figure_type": "force_diagram_incline",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": "along_incline_up",
+        "got": null,
+        "key": "friction_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "gravity_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": [
+          "重力G",
+          "支持力N",
+          "摩擦力f"
+        ],
+        "got": [
+          "G（重力，竖直向下）",
+          "N（支持力，垂直斜面）",
+          "f（摩擦力，沿斜面向上）",
+          "30°",
+          "物块静止"
+        ],
+        "key": "force_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-011",
+    "undecodable": {
+      "friction_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "gravity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 43,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "phase_order",
+      "u_at_half_height"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "baseline_label": "DECODED",
+      "phase_order": "UNDECODABLE",
+      "u_at_half_height": "UNDECODABLE"
+    },
+    "facts": {
+      "baseline_label": [
+        "h",
+        "x",
+        "拔塞过程三阶段（示意）",
+        "u = x / h = 0, 1/2, 1",
+        "位移按比例；u=1 时木塞底部到达瓶口",
+        "瓶口基准线",
+        "初始底部位",
+        "u = 0",
+        "u = 1/2",
+        "u = 1"
+      ]
+    },
+    "figure_type": "cork_phase_diagram",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "u=0",
+          "u=1/2",
+          "u=1"
+        ],
+        "got": null,
+        "key": "phase_order",
+        "kind": "ordering"
+      },
+      {
+        "critical": true,
+        "expected": 0.5,
+        "got": null,
+        "key": "u_at_half_height",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "瓶口基准"
+        ],
+        "got": [
+          "h",
+          "x",
+          "拔塞过程三阶段（示意）",
+          "u = x / h = 0, 1/2, 1",
+          "位移按比例；u=1 时木塞底部到达瓶口",
+          "瓶口基准线",
+          "初始底部位",
+          "u = 0",
+          "u = 1/2",
+          "u = 1"
+        ],
+        "key": "baseline_label",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-012",
+    "undecodable": {
+      "phase_order": "phase_order 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "u_at_half_height": "u_at_half_height 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 31,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "phase_order",
+      "u_at_half_height"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "baseline_label": "DECODED",
+      "phase_order": "UNDECODABLE",
+      "u_at_half_height": "UNDECODABLE"
+    },
+    "facts": {
+      "baseline_label": [
+        "木塞拔出过程三阶段：木塞相对瓶口基准的位置",
+        "u = x/h = 0",
+        "u = x/h = 1/2",
+        "u = x/h = 1",
+        "瓶口基准线（水平）",
+        "u = 1 时，木塞底部到达瓶口基准线",
+        "x：木塞底部上移量；h：从初始位置到瓶口的位移；三阶段按真实比例：0、h/2、h"
+      ]
+    },
+    "figure_type": "cork_phase_diagram",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "u=0",
+          "u=1/2",
+          "u=1"
+        ],
+        "got": null,
+        "key": "phase_order",
+        "kind": "ordering"
+      },
+      {
+        "critical": true,
+        "expected": 0.5,
+        "got": null,
+        "key": "u_at_half_height",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "瓶口基准"
+        ],
+        "got": [
+          "木塞拔出过程三阶段：木塞相对瓶口基准的位置",
+          "u = x/h = 0",
+          "u = x/h = 1/2",
+          "u = x/h = 1",
+          "瓶口基准线（水平）",
+          "u = 1 时，木塞底部到达瓶口基准线",
+          "x：木塞底部上移量；h：从初始位置到瓶口的位移；三阶段按真实比例：0、h/2、h"
+        ],
+        "key": "baseline_label",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-013",
+    "undecodable": {
+      "phase_order": "phase_order 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "u_at_half_height": "u_at_half_height 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 34,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "phase_order",
+      "u_at_half_height"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "baseline_label": "DECODED",
+      "phase_order": "UNDECODABLE",
+      "u_at_half_height": "UNDECODABLE"
+    },
+    "facts": {
+      "baseline_label": [
+        "拔塞过程三阶段",
+        "u = x / h",
+        "瓶口基准线",
+        "位移按真实比例",
+        "u = 0",
+        "x = 0",
+        "u = 1/2",
+        "x = h/2",
+        "u = 1",
+        "x = h"
+      ]
+    },
+    "figure_type": "cork_phase_diagram",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "u=0",
+          "u=1/2",
+          "u=1"
+        ],
+        "got": null,
+        "key": "phase_order",
+        "kind": "ordering"
+      },
+      {
+        "critical": true,
+        "expected": 0.5,
+        "got": null,
+        "key": "u_at_half_height",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "瓶口基准"
+        ],
+        "got": [
+          "拔塞过程三阶段",
+          "u = x / h",
+          "瓶口基准线",
+          "位移按真实比例",
+          "u = 0",
+          "x = 0",
+          "u = 1/2",
+          "x = h/2",
+          "u = 1",
+          "x = h"
+        ],
+        "key": "baseline_label",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-014",
+    "undecodable": {
+      "phase_order": "phase_order 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "u_at_half_height": "u_at_half_height 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 29,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "phase_order",
+      "u_at_half_height"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "baseline_label": "DECODED",
+      "phase_order": "UNDECODABLE",
+      "u_at_half_height": "UNDECODABLE"
+    },
+    "facts": {
+      "baseline_label": [
+        "u = x/h = 0",
+        "x = 0",
+        "u = x/h = 1/2",
+        "x = h/2",
+        "u = x/h = 1",
+        "x = h",
+        "瓶口基准线（水平）",
+        "木塞",
+        "h",
+        "位移 x = u·h",
+        "u=1 时木塞底部到达瓶口"
+      ]
+    },
+    "figure_type": "cork_phase_diagram",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "u=0",
+          "u=1/2",
+          "u=1"
+        ],
+        "got": null,
+        "key": "phase_order",
+        "kind": "ordering"
+      },
+      {
+        "critical": true,
+        "expected": 0.5,
+        "got": null,
+        "key": "u_at_half_height",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "瓶口基准"
+        ],
+        "got": [
+          "u = x/h = 0",
+          "x = 0",
+          "u = x/h = 1/2",
+          "x = h/2",
+          "u = x/h = 1",
+          "x = h",
+          "瓶口基准线（水平）",
+          "木塞",
+          "h",
+          "位移 x = u·h",
+          "u=1 时木塞底部到达瓶口"
+        ],
+        "key": "baseline_label",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-015",
+    "undecodable": {
+      "phase_order": "phase_order 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "u_at_half_height": "u_at_half_height 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 26,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "phase_order",
+      "u_at_half_height"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "baseline_label": "DECODED",
+      "phase_order": "UNDECODABLE",
+      "u_at_half_height": "UNDECODABLE"
+    },
+    "facts": {
+      "baseline_label": [
+        "u = x / h",
+        "u = 0",
+        "u = 1/2",
+        "u = 1",
+        "瓶口基准线（保持水平）",
+        "x",
+        "位移 x = u·h，木塞底部到基准线距离 =（1 - u）·h，三段按真实比例绘制（示意图）"
+      ]
+    },
+    "figure_type": "cork_phase_diagram",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "u=0",
+          "u=1/2",
+          "u=1"
+        ],
+        "got": null,
+        "key": "phase_order",
+        "kind": "ordering"
+      },
+      {
+        "critical": true,
+        "expected": 0.5,
+        "got": null,
+        "key": "u_at_half_height",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "瓶口基准"
+        ],
+        "got": [
+          "u = x / h",
+          "u = 0",
+          "u = 1/2",
+          "u = 1",
+          "瓶口基准线（保持水平）",
+          "x",
+          "位移 x = u·h，木塞底部到基准线距离 =（1 - u）·h，三段按真实比例绘制（示意图）"
+        ],
+        "key": "baseline_label",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-016",
+    "undecodable": {
+      "phase_order": "phase_order 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "u_at_half_height": "u_at_half_height 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 51,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "resultant_amplitude"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "resultant_amplitude": "UNDECODABLE",
+      "wave_count": "UNDECODABLE",
+      "wave_labels": "DECODED"
+    },
+    "facts": {
+      "wave_labels": [
+        "y1 = sin θ（振幅 1）",
+        "y2 = 0.5 sin θ（振幅 0.5）",
+        "y = y1 + y2（振幅 1.5）",
+        "1.5",
+        "-1.5",
+        "O",
+        "θ",
+        "y"
+      ]
+    },
+    "figure_type": "wave_superposition",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 1.5,
+        "got": null,
+        "key": "resultant_amplitude",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": 2,
+        "got": null,
+        "key": "wave_count",
+        "kind": "count"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "合成"
+        ],
+        "got": [
+          "y1 = sin θ（振幅 1）",
+          "y2 = 0.5 sin θ（振幅 0.5）",
+          "y = y1 + y2（振幅 1.5）",
+          "1.5",
+          "-1.5",
+          "O",
+          "θ",
+          "y"
+        ],
+        "key": "wave_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-017",
+    "undecodable": {
+      "resultant_amplitude": "resultant_amplitude 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "wave_count": "曲线子路径聚类未实现（wave_count 需按 C 段极值分组）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_NODE_COUNT: scene has more than 256 nodes\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-compiler.js:78:28)\n  ",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-018",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_latency_ms": 84,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "resultant_amplitude"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "resultant_amplitude": "UNDECODABLE",
+      "wave_count": "UNDECODABLE",
+      "wave_labels": "DECODED"
+    },
+    "facts": {
+      "wave_labels": [
+        "y₁ = 0.8 sin t（振幅 0.8）",
+        "y₂ = 0.4 sin t（振幅 0.4）",
+        "合成 y = y₁ + y₂（合成振幅 1.2）",
+        "t",
+        "y",
+        "同频同相"
+      ]
+    },
+    "figure_type": "wave_superposition",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 1.2000000000000002,
+        "got": null,
+        "key": "resultant_amplitude",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": 2,
+        "got": null,
+        "key": "wave_count",
+        "kind": "count"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "合成"
+        ],
+        "got": [
+          "y₁ = 0.8 sin t（振幅 0.8）",
+          "y₂ = 0.4 sin t（振幅 0.4）",
+          "合成 y = y₁ + y₂（合成振幅 1.2）",
+          "t",
+          "y",
+          "同频同相"
+        ],
+        "key": "wave_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-019",
+    "undecodable": {
+      "resultant_amplitude": "resultant_amplitude 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "wave_count": "曲线子路径聚类未实现（wave_count 需按 C 段极值分组）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 63,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "resultant_amplitude"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "resultant_amplitude": "UNDECODABLE",
+      "wave_count": "UNDECODABLE",
+      "wave_labels": "DECODED"
+    },
+    "facts": {
+      "wave_labels": [
+        "y₁、y₂：振幅各 1.5（两曲线重合）",
+        "y₁ + y₂：振幅 3",
+        "3",
+        "1.5",
+        "-1.5",
+        "-3",
+        "O",
+        "x"
+      ]
+    },
+    "figure_type": "wave_superposition",
+    "group": "mechanics_phases",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 3.0,
+        "got": null,
+        "key": "resultant_amplitude",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": 2,
+        "got": null,
+        "key": "wave_count",
+        "kind": "count"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "合成"
+        ],
+        "got": [
+          "y₁、y₂：振幅各 1.5（两曲线重合）",
+          "y₁ + y₂：振幅 3",
+          "3",
+          "1.5",
+          "-1.5",
+          "-3",
+          "O",
+          "x"
+        ],
+        "key": "wave_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-MECHPHASE-020",
+    "undecodable": {
+      "resultant_amplitude": "resultant_amplitude 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "wave_count": "曲线子路径聚类未实现（wave_count 需按 C 段极值分组）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 36,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "step_order"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "step_count": "DECODED",
+      "step_order": "UNDECODABLE"
+    },
+    "facts": {
+      "step_count": 9
+    },
+    "figure_type": "flow_card",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "got": null,
+        "key": "step_order",
+        "kind": "ordering"
+      },
+      {
+        "critical": false,
+        "expected": 3,
+        "got": 9,
+        "key": "step_count",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-001",
+    "undecodable": {
+      "step_order": "卡片内标签数不唯一：[8, 1, 1, 2, 2, 2, 2, 2, 2]（不猜）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 37,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "step_order"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "step_count": "DECODED",
+      "step_order": "UNDECODABLE"
+    },
+    "facts": {
+      "step_count": 6
+    },
+    "figure_type": "flow_card",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "got": null,
+        "key": "step_order",
+        "kind": "ordering"
+      },
+      {
+        "critical": false,
+        "expected": 3,
+        "got": 6,
+        "key": "step_count",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-002",
+    "undecodable": {
+      "step_order": "卡片内标签数不唯一：[2, 0, 2, 0, 2, 0]（不猜）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 49,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "step_order"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "step_count": "DECODED",
+      "step_order": "UNDECODABLE"
+    },
+    "facts": {
+      "step_count": 9
+    },
+    "figure_type": "flow_card",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "got": null,
+        "key": "step_order",
+        "kind": "ordering"
+      },
+      {
+        "critical": false,
+        "expected": 3,
+        "got": 9,
+        "key": "step_count",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-003",
+    "undecodable": {
+      "step_order": "卡片内标签数不唯一：[3, 0, 1, 3, 0, 1, 3, 0, 1]（不猜）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 36,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "step_order"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "step_count": "DECODED",
+      "step_order": "UNDECODABLE"
+    },
+    "facts": {
+      "step_count": 8
+    },
+    "figure_type": "flow_card",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "got": null,
+        "key": "step_order",
+        "kind": "ordering"
+      },
+      {
+        "critical": false,
+        "expected": 3,
+        "got": 8,
+        "key": "step_count",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-004",
+    "undecodable": {
+      "step_order": "卡片内标签数不唯一：[7, 0, 2, 0, 2, 0, 2, 0]（不猜）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 32,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "step_order"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "step_count": "DECODED",
+      "step_order": "UNDECODABLE"
+    },
+    "facts": {
+      "step_count": 6
+    },
+    "figure_type": "flow_card",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "got": null,
+        "key": "step_order",
+        "kind": "ordering"
+      },
+      {
+        "critical": false,
+        "expected": 3,
+        "got": 6,
+        "key": "step_count",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-005",
+    "undecodable": {
+      "step_order": "卡片内标签数不唯一：[2, 2, 2, 2, 2, 2]（不猜）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 39,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "step_order"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "step_count": "DECODED",
+      "step_order": "UNDECODABLE"
+    },
+    "facts": {
+      "step_count": 10
+    },
+    "figure_type": "flow_card",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "got": null,
+        "key": "step_order",
+        "kind": "ordering"
+      },
+      {
+        "critical": false,
+        "expected": 3,
+        "got": 10,
+        "key": "step_count",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-006",
+    "undecodable": {
+      "step_order": "卡片内标签数不唯一：[1, 3, 0, 1, 3, 0, 1, 3, 0, 1]（不猜）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 31,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "step_order"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "step_count": "DECODED",
+      "step_order": "UNDECODABLE"
+    },
+    "facts": {
+      "step_count": 6
+    },
+    "figure_type": "flow_card",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "移项",
+          "合并同类项",
+          "系数化为1"
+        ],
+        "got": null,
+        "key": "step_order",
+        "kind": "ordering"
+      },
+      {
+        "critical": false,
+        "expected": 3,
+        "got": 6,
+        "key": "step_count",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-007",
+    "undecodable": {
+      "step_order": "卡片内标签数不唯一：[3, 1, 3, 1, 3, 1]（不猜）"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 56,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "coefficient_labels": "DECODED",
+      "discriminant": "DECODED"
+    },
+    "facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式",
+        "1",
+        "x²",
+        "-",
+        "4",
+        "x",
+        "+",
+        "= 0",
+        "x =",
+        "-b",
+        "±",
+        "√(",
+        "b²",
+        "a",
+        "c",
+        ")",
+        "2",
+        "a = 1",
+        "b = -4",
+        "c = 4",
+        "Δ = b² - 4ac = 0"
+      ],
+      "discriminant": 0.0
+    },
+    "figure_type": "formula_render",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "a",
+          "b",
+          "c"
+        ],
+        "got": [
+          "一元二次方程求根公式",
+          "1",
+          "x²",
+          "-",
+          "4",
+          "x",
+          "+",
+          "= 0",
+          "x =",
+          "-b",
+          "±",
+          "√(",
+          "b²",
+          "a",
+          "c",
+          ")",
+          "2",
+          "a = 1",
+          "b = -4",
+          "c = 4",
+          "Δ = b² - 4ac = 0"
+        ],
+        "key": "coefficient_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-008",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 28,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "coefficient_labels": "DECODED",
+      "discriminant": "DECODED"
+    },
+    "facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式图示",
+        "1x² - 4x + 4 = 0",
+        "x = (-b ± √(b² - 4ac)) / (2a)",
+        "b = -4",
+        "c = 4",
+        "a = 1",
+        "判别式：Δ = b² - 4ac",
+        "Δ = (-4)² - 4·1·4 = 16 - 16 = 0",
+        "x = (-(-4) ± √0) / (2·1) = (4 ± 0) / 2 = 2"
+      ],
+      "discriminant": 0.0
+    },
+    "figure_type": "formula_render",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "a",
+          "b",
+          "c"
+        ],
+        "got": [
+          "一元二次方程求根公式图示",
+          "1x² - 4x + 4 = 0",
+          "x = (-b ± √(b² - 4ac)) / (2a)",
+          "b = -4",
+          "c = 4",
+          "a = 1",
+          "判别式：Δ = b² - 4ac",
+          "Δ = (-4)² - 4·1·4 = 16 - 16 = 0",
+          "x = (-(-4) ± √0) / (2·1) = (4 ± 0) / 2 = 2"
+        ],
+        "key": "coefficient_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-009",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 30,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "coefficient_labels": "DECODED",
+      "discriminant": "DECODED"
+    },
+    "facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式",
+        "3x² - 5x - 2 = 0",
+        "x = (-b ± √(b² - 4ac)) / (2a)",
+        "a = 3",
+        "b = -5",
+        "c = -2",
+        "Δ = b² - 4ac = 49",
+        "判别式"
+      ],
+      "discriminant": 49.0
+    },
+    "figure_type": "formula_render",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "a",
+          "b",
+          "c"
+        ],
+        "got": [
+          "一元二次方程求根公式",
+          "3x² - 5x - 2 = 0",
+          "x = (-b ± √(b² - 4ac)) / (2a)",
+          "a = 3",
+          "b = -5",
+          "c = -2",
+          "Δ = b² - 4ac = 49",
+          "判别式"
+        ],
+        "key": "coefficient_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-010",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 43,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "coefficient_labels": "DECODED",
+      "discriminant": "DECODED"
+    },
+    "facts": {
+      "coefficient_labels": [
+        "一元二次方程求根公式",
+        "2x²",
+        "+ 4x",
+        "- 6",
+        "= 0",
+        "a = 2",
+        "b = 4",
+        "c = -6",
+        "求根公式",
+        "x = ( -b ± √(b² - 4ac) ) / (2a)",
+        "Δ = b² - 4ac = 64",
+        "代入：Δ = 4² - 4·2·(-6) = 16 + 48 = 64"
+      ],
+      "discriminant": 64.0
+    },
+    "figure_type": "formula_render",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "a",
+          "b",
+          "c"
+        ],
+        "got": [
+          "一元二次方程求根公式",
+          "2x²",
+          "+ 4x",
+          "- 6",
+          "= 0",
+          "a = 2",
+          "b = 4",
+          "c = -6",
+          "求根公式",
+          "x = ( -b ± √(b² - 4ac) ) / (2a)",
+          "Δ = b² - 4ac = 64",
+          "代入：Δ = 4² - 4·2·(-6) = 16 + 48 = 64"
+        ],
+        "key": "coefficient_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-011",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 39,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "coefficient_labels": "DECODED",
+      "discriminant": "DECODED"
+    },
+    "facts": {
+      "coefficient_labels": [
+        "一元二次方程：1x² - 3x + 2 = 0",
+        "求根公式",
+        "x =",
+        "-",
+        "b",
+        "±",
+        "√(",
+        "b²",
+        "- 4",
+        "a",
+        "c",
+        ")",
+        "2",
+        "a = 1",
+        "b = -3",
+        "c = 2",
+        "Δ = b² - 4ac = 1"
+      ],
+      "discriminant": 1.0
+    },
+    "figure_type": "formula_render",
+    "group": "flow_formula",
+    "mismatches": [],
+    "task_id": "BLD-FLOWFORM-012",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 55,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "coefficient_labels": "DECODED",
+      "discriminant": "DECODED"
+    },
+    "facts": {
+      "coefficient_labels": [
+        "2",
+        "x²",
+        "-7",
+        "x",
+        "+",
+        "3",
+        "=",
+        "0",
+        "a = 2",
+        "b = -7",
+        "c = 3",
+        "x =",
+        "-",
+        "b",
+        "±",
+        "√(",
+        "² - 4",
+        "a",
+        "c",
+        ")",
+        "Δ = b² - 4ac",
+        "= (-7)² - 4·2·3",
+        "= 49 - 24",
+        "Δ = 25"
+      ],
+      "discriminant": 25.0
+    },
+    "figure_type": "formula_render",
+    "group": "flow_formula",
+    "mismatches": [],
+    "task_id": "BLD-FLOWFORM-013",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 36,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "coefficient_labels": "DECODED",
+      "discriminant": "DECODED"
+    },
+    "facts": {
+      "coefficient_labels": [
+        "2",
+        "x²",
+        "- 7",
+        "x",
+        "+ 3",
+        "= 0",
+        "a = 2",
+        "b = -7",
+        "c = 3",
+        "x =",
+        "-b ± √(b² - 4ac)",
+        "2a",
+        "Δ = b² - 4ac = 25"
+      ],
+      "discriminant": 25.0
+    },
+    "figure_type": "formula_render",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "a",
+          "b",
+          "c"
+        ],
+        "got": [
+          "2",
+          "x²",
+          "- 7",
+          "x",
+          "+ 3",
+          "= 0",
+          "a = 2",
+          "b = -7",
+          "c = 3",
+          "x =",
+          "-b ± √(b² - 4ac)",
+          "2a",
+          "Δ = b² - 4ac = 25"
+        ],
+        "key": "coefficient_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-014",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 27,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "converted_ms": "DECODED",
+      "unit_labels": "DECODED"
+    },
+    "facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "速度单位换算",
+        "换算项目",
+        "换算算式",
+        "换算结果",
+        "54 km/h → m/s",
+        "54 ÷ 3.6",
+        "15.0 m/s",
+        "换算依据：1 m/s = 3.6 km/h，故 km/h 数值除以 3.6；结果保留三位有效数字。"
+      ]
+    },
+    "figure_type": "conversion_table",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 15.0,
+        "got": 3.6,
+        "key": "converted_ms",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "km/h",
+          "m/s"
+        ],
+        "got": [
+          "速度单位换算",
+          "换算项目",
+          "换算算式",
+          "换算结果",
+          "54 km/h → m/s",
+          "54 ÷ 3.6",
+          "15.0 m/s",
+          "换算依据：1 m/s = 3.6 km/h，故 km/h 数值除以 3.6；结果保留三位有效数字。"
+        ],
+        "key": "unit_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-015",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 27,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "converted_ms": "DECODED",
+      "unit_labels": "DECODED"
+    },
+    "facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "单位换算表：km/h 换算为 m/s",
+        "原值",
+        "换算算式（除以 3.6）",
+        "结果（三位有效数字）",
+        "54 km/h",
+        "54 ÷ 3.6",
+        "15.0 m/s",
+        "依据：m/s = (km/h) ÷ 3.6"
+      ]
+    },
+    "figure_type": "conversion_table",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 15.0,
+        "got": 3.6,
+        "key": "converted_ms",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "km/h",
+          "m/s"
+        ],
+        "got": [
+          "单位换算表：km/h 换算为 m/s",
+          "原值",
+          "换算算式（除以 3.6）",
+          "结果（三位有效数字）",
+          "54 km/h",
+          "54 ÷ 3.6",
+          "15.0 m/s",
+          "依据：m/s = (km/h) ÷ 3.6"
+        ],
+        "key": "unit_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-016",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 36,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "converted_ms": "DECODED",
+      "unit_labels": "DECODED"
+    },
+    "facts": {
+      "converted_ms": 20.0,
+      "unit_labels": [
+        "单位换算表",
+        "72 km/h 换算为 m/s（除以 3.6）",
+        "项目",
+        "内容",
+        "已知量",
+        "v = 72 km/h",
+        "换算关系",
+        "1 m/s = 3.6 km/h",
+        "换算算式",
+        "72 ÷ 3.6 = 20.0",
+        "结果",
+        "20.0 m/s",
+        "结果保留三位有效数字"
+      ]
+    },
+    "figure_type": "conversion_table",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": [
+          "km/h",
+          "m/s"
+        ],
+        "got": [
+          "单位换算表",
+          "72 km/h 换算为 m/s（除以 3.6）",
+          "项目",
+          "内容",
+          "已知量",
+          "v = 72 km/h",
+          "换算关系",
+          "1 m/s = 3.6 km/h",
+          "换算算式",
+          "72 ÷ 3.6 = 20.0",
+          "结果",
+          "20.0 m/s",
+          "结果保留三位有效数字"
+        ],
+        "key": "unit_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-017",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 30,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "converted_ms": "DECODED",
+      "unit_labels": "DECODED"
+    },
+    "facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "单位换算表",
+        "物理量",
+        "换算算式",
+        "换算结果",
+        "速度",
+        "126 ÷ 3.6",
+        "35.0 m/s",
+        "126 km/h = 126 ÷ 3.6 m/s = 35.0 m/s",
+        "依据：1 m/s = 3.6 km/h，故 km/h → m/s 需除以 3.6；结果保留三位有效数字"
+      ]
+    },
+    "figure_type": "conversion_table",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 35.0,
+        "got": 3.6,
+        "key": "converted_ms",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "km/h",
+          "m/s"
+        ],
+        "got": [
+          "单位换算表",
+          "物理量",
+          "换算算式",
+          "换算结果",
+          "速度",
+          "126 ÷ 3.6",
+          "35.0 m/s",
+          "126 km/h = 126 ÷ 3.6 m/s = 35.0 m/s",
+          "依据：1 m/s = 3.6 km/h，故 km/h → m/s 需除以 3.6；结果保留三位有效数字"
+        ],
+        "key": "unit_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-018",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 40,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "converted_ms": "DECODED",
+      "unit_labels": "DECODED"
+    },
+    "facts": {
+      "converted_ms": 3.6,
+      "unit_labels": [
+        "速度单位换算表",
+        "原始值",
+        "换算关系",
+        "换算算式",
+        "换算结果",
+        "90 km/h",
+        "km/h ÷ 3.6 = m/s",
+        "90 ÷ 3.6",
+        "25.0 m/s",
+        "换算依据：1 m/s = 3.6 km/h",
+        "结果保留三位有效数字"
+      ]
+    },
+    "figure_type": "conversion_table",
+    "group": "flow_formula",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 25.0,
+        "got": 3.6,
+        "key": "converted_ms",
+        "kind": "numeric"
+      },
+      {
+        "critical": false,
+        "expected": [
+          "km/h",
+          "m/s"
+        ],
+        "got": [
+          "速度单位换算表",
+          "原始值",
+          "换算关系",
+          "换算算式",
+          "换算结果",
+          "90 km/h",
+          "km/h ÷ 3.6 = m/s",
+          "90 ÷ 3.6",
+          "25.0 m/s",
+          "换算依据：1 m/s = 3.6 km/h",
+          "结果保留三位有效数字"
+        ],
+        "key": "unit_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-FLOWFORM-019",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-020",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-SRCREBLD-001",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_latency_ms": 18,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "label_count": "DECODED",
+      "preserved_labels": "DECODED"
+    },
+    "facts": {
+      "label_count": 3,
+      "preserved_labels": [
+        "O",
+        "P",
+        "F"
+      ]
+    },
+    "figure_type": "labeled_source_rebuild",
+    "group": "source_rebuild",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "重心O",
+          "支点P",
+          "拉力F"
+        ],
+        "got": [
+          "O",
+          "P",
+          "F"
+        ],
+        "key": "preserved_labels",
+        "kind": "label_set"
+      }
+    ],
+    "task_id": "BLD-SRCREBLD-002",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-SRCREBLD-003",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_latency_ms": 20,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "label_count": "DECODED",
+      "preserved_labels": "DECODED"
+    },
+    "facts": {
+      "label_count": 4,
+      "preserved_labels": [
+        "入射光线",
+        "法线",
+        "反射光线",
+        "反射角"
+      ]
+    },
+    "figure_type": "labeled_source_rebuild",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-004",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 24,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "label_count": "DECODED",
+      "preserved_labels": "DECODED"
+    },
+    "facts": {
+      "label_count": 4,
+      "preserved_labels": [
+        "灯泡",
+        "电流表",
+        "电源",
+        "开关"
+      ]
+    },
+    "figure_type": "labeled_source_rebuild",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-005",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-SRCREBLD-006",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-SRCREBLD-007",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_latency_ms": 15,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "axis_max": "DECODED",
+      "axis_min": "DECODED",
+      "tick_count": "DECODED"
+    },
+    "facts": {
+      "axis_max": 1.0,
+      "axis_min": 0.0,
+      "tick_count": 5
+    },
+    "figure_type": "axis_rebuild",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-008",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 22,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "axis_max": "DECODED",
+      "axis_min": "DECODED",
+      "tick_count": "DECODED"
+    },
+    "facts": {
+      "axis_max": 5.0,
+      "axis_min": -5.0,
+      "tick_count": 11
+    },
+    "figure_type": "axis_rebuild",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-009",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 32,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "axis_max": "DECODED",
+      "axis_min": "DECODED",
+      "tick_count": "DECODED"
+    },
+    "facts": {
+      "axis_max": 5.0,
+      "axis_min": -5.0,
+      "tick_count": 11
+    },
+    "figure_type": "axis_rebuild",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-010",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 20,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "axis_max": "DECODED",
+      "axis_min": "DECODED",
+      "tick_count": "DECODED"
+    },
+    "facts": {
+      "axis_max": 100.0,
+      "axis_min": 0.0,
+      "tick_count": 6
+    },
+    "figure_type": "axis_rebuild",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-011",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 18,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "axis_max": "DECODED",
+      "axis_min": "DECODED",
+      "tick_count": "DECODED"
+    },
+    "facts": {
+      "axis_max": 10.0,
+      "axis_min": -10.0,
+      "tick_count": 6
+    },
+    "figure_type": "axis_rebuild",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-012",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 17,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "axis_max": "DECODED",
+      "axis_min": "DECODED",
+      "tick_count": "DECODED"
+    },
+    "facts": {
+      "axis_max": 1.0,
+      "axis_min": 0.0,
+      "tick_count": 5
+    },
+    "figure_type": "axis_rebuild",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-013",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 26,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "axis_max": "DECODED",
+      "axis_min": "DECODED",
+      "tick_count": "DECODED"
+    },
+    "facts": {
+      "axis_max": 5.0,
+      "axis_min": -5.0,
+      "tick_count": 11
+    },
+    "figure_type": "axis_rebuild",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-014",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 11,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "cell_count": "DECODED",
+      "column_count": "DECODED",
+      "row_count": "DECODED"
+    },
+    "facts": {
+      "cell_count": 16,
+      "column_count": 4.0,
+      "row_count": 4.0
+    },
+    "figure_type": "grid_redraw",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-015",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 19,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "cell_count": "DECODED",
+      "column_count": "DECODED",
+      "row_count": "DECODED"
+    },
+    "facts": {
+      "cell_count": 12,
+      "column_count": 4.0,
+      "row_count": 3.0
+    },
+    "figure_type": "grid_redraw",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-016",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 18,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "cell_count": "DECODED",
+      "column_count": "DECODED",
+      "row_count": "DECODED"
+    },
+    "facts": {
+      "cell_count": 24,
+      "column_count": 4.0,
+      "row_count": 6.0
+    },
+    "figure_type": "grid_redraw",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-017",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 19,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "cell_count": "DECODED",
+      "column_count": "DECODED",
+      "row_count": "DECODED"
+    },
+    "facts": {
+      "cell_count": 24,
+      "column_count": 4.0,
+      "row_count": 6.0
+    },
+    "figure_type": "grid_redraw",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-018",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 12,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "cell_count": "DECODED",
+      "column_count": "DECODED",
+      "row_count": "DECODED"
+    },
+    "facts": {
+      "cell_count": 12,
+      "column_count": 4.0,
+      "row_count": 3.0
+    },
+    "figure_type": "grid_redraw",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-019",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 14,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "cell_count": "DECODED",
+      "column_count": "DECODED",
+      "row_count": "DECODED"
+    },
+    "facts": {
+      "cell_count": 25,
+      "column_count": 5.0,
+      "row_count": 5.0
+    },
+    "figure_type": "grid_redraw",
+    "group": "source_rebuild",
+    "mismatches": [],
+    "task_id": "BLD-SRCREBLD-020",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-001",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-002",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-003",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-004",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-005",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-006",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-007",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-008",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-009",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-010",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-011",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-012",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-013",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-014",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-015",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-016",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-017",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_latency_ms": 171,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "kept_label_count": "DECODED",
+      "kept_print_labels": "DECODED"
+    },
+    "facts": {
+      "kept_label_count": 4,
+      "kept_print_labels": [
+        "选择题　第1题",
+        "选择题　第2题",
+        "填空题　第3题",
+        "语义清图 · 非原像素修复"
+      ]
+    },
+    "figure_type": "scan_stain_cleanup",
+    "group": "handwriting_removal",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": [
+          "选择题第1题",
+          "选择题第2题",
+          "填空题第3题"
+        ],
+        "got": [
+          "选择题　第1题",
+          "选择题　第2题",
+          "填空题　第3题",
+          "语义清图 · 非原像素修复"
+        ],
+        "key": "kept_print_labels",
+        "kind": "label_set"
+      },
+      {
+        "critical": false,
+        "expected": 3,
+        "got": 4,
+        "key": "kept_label_count",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-DEHANDWR-018",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 33,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "kept_label_count": "DECODED",
+      "kept_print_labels": "DECODED"
+    },
+    "facts": {
+      "kept_label_count": 3,
+      "kept_print_labels": [
+        "选择题第1题",
+        "选择题第2题",
+        "说明：本图为语义清图，仅保留已确认的印刷题号与文字，非原扫描像素修复。"
+      ]
+    },
+    "figure_type": "scan_stain_cleanup",
+    "group": "handwriting_removal",
+    "mismatches": [
+      {
+        "critical": false,
+        "expected": 2,
+        "got": 3,
+        "key": "kept_label_count",
+        "kind": "count"
+      }
+    ],
+    "task_id": "BLD-DEHANDWR-019",
+    "undecodable": {},
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-020",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_latency_ms": 23,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "organelle_labels": "DECODED"
+    },
+    "facts": {
+      "organelle_labels": [
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "figure_type": "plant_cell_illustration",
+    "group": "natural_illustration",
+    "mismatches": [],
+    "task_id": "BLD-NATILLA-001",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 21,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "organelle_labels": "DECODED"
+    },
+    "facts": {
+      "organelle_labels": [
+        "植物细胞结构示意图",
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "figure_type": "plant_cell_illustration",
+    "group": "natural_illustration",
+    "mismatches": [],
+    "task_id": "BLD-NATILLA-002",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 20,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "organelle_labels": "DECODED"
+    },
+    "facts": {
+      "organelle_labels": [
+        "植物细胞结构（示意图）",
+        "细胞壁",
+        "液泡",
+        "细胞核"
+      ]
+    },
+    "figure_type": "plant_cell_illustration",
+    "group": "natural_illustration",
+    "mismatches": [],
+    "task_id": "BLD-NATILLA-003",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 20,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "organelle_labels": "DECODED"
+    },
+    "facts": {
+      "organelle_labels": [
+        "植物细胞结构示意图",
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "figure_type": "plant_cell_illustration",
+    "group": "natural_illustration",
+    "mismatches": [],
+    "task_id": "BLD-NATILLA-004",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 19,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "organelle_labels": "DECODED"
+    },
+    "facts": {
+      "organelle_labels": [
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "figure_type": "plant_cell_illustration",
+    "group": "natural_illustration",
+    "mismatches": [],
+    "task_id": "BLD-NATILLA-005",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 18,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "organelle_labels": "DECODED"
+    },
+    "facts": {
+      "organelle_labels": [
+        "细胞壁",
+        "液泡",
+        "细胞核"
+      ]
+    },
+    "figure_type": "plant_cell_illustration",
+    "group": "natural_illustration",
+    "mismatches": [],
+    "task_id": "BLD-NATILLA-006",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 18,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [],
+    "evaluable": true,
+    "fact_status": {
+      "organelle_labels": "DECODED"
+    },
+    "facts": {
+      "organelle_labels": [
+        "植物细胞结构示意",
+        "细胞壁",
+        "细胞核",
+        "液泡"
+      ]
+    },
+    "figure_type": "plant_cell_illustration",
+    "group": "natural_illustration",
+    "mismatches": [],
+    "task_id": "BLD-NATILLA-007",
+    "undecodable": {},
+    "verdict": "ACCEPTED"
+  },
+  {
+    "adapter_latency_ms": 17,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "gravity_direction",
+      "velocity_direction"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "gravity_direction": "UNDECODABLE",
+      "vector_labels": "DECODED",
+      "velocity_direction": "UNDECODABLE"
+    },
+    "facts": {
+      "vector_labels": [
+        "v",
+        "g",
+        "v₀ = 0（由静止释放）"
+      ]
+    },
+    "figure_type": "free_fall_illustration",
+    "group": "natural_illustration",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "velocity_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "gravity_direction",
+        "kind": "direction"
+      }
+    ],
+    "task_id": "BLD-NATILLA-008",
+    "undecodable": {
+      "gravity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "velocity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 25,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "gravity_direction",
+      "velocity_direction"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "gravity_direction": "UNDECODABLE",
+      "vector_labels": "DECODED",
+      "velocity_direction": "UNDECODABLE"
+    },
+    "facts": {
+      "vector_labels": [
+        "自由落体示意",
+        "由静止释放：v₀ = 0",
+        "v",
+        "g",
+        "v 与 g 的方向均竖直向下"
+      ]
+    },
+    "figure_type": "free_fall_illustration",
+    "group": "natural_illustration",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "velocity_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "gravity_direction",
+        "kind": "direction"
+      }
+    ],
+    "task_id": "BLD-NATILLA-009",
+    "undecodable": {
+      "gravity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "velocity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 21,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "gravity_direction",
+      "velocity_direction"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "gravity_direction": "UNDECODABLE",
+      "vector_labels": "DECODED",
+      "velocity_direction": "UNDECODABLE"
+    },
+    "facts": {
+      "vector_labels": [
+        "自由落体（示意）",
+        "静止释放",
+        "v",
+        "g",
+        "v、g 均竖直向下"
+      ]
+    },
+    "figure_type": "free_fall_illustration",
+    "group": "natural_illustration",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "velocity_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "gravity_direction",
+        "kind": "direction"
+      }
+    ],
+    "task_id": "BLD-NATILLA-010",
+    "undecodable": {
+      "gravity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "velocity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 16,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "gravity_direction",
+      "velocity_direction"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "gravity_direction": "UNDECODABLE",
+      "vector_labels": "DECODED",
+      "velocity_direction": "UNDECODABLE"
+    },
+    "facts": {
+      "vector_labels": [
+        "v",
+        "g",
+        "静止释放"
+      ]
+    },
+    "figure_type": "free_fall_illustration",
+    "group": "natural_illustration",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "velocity_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "gravity_direction",
+        "kind": "direction"
+      }
+    ],
+    "task_id": "BLD-NATILLA-011",
+    "undecodable": {
+      "gravity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "velocity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 19,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "gravity_direction",
+      "velocity_direction"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "gravity_direction": "UNDECODABLE",
+      "vector_labels": "DECODED",
+      "velocity_direction": "UNDECODABLE"
+    },
+    "facts": {
+      "vector_labels": [
+        "自由落体示意",
+        "静止释放",
+        "v",
+        "g"
+      ]
+    },
+    "figure_type": "free_fall_illustration",
+    "group": "natural_illustration",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "velocity_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "gravity_direction",
+        "kind": "direction"
+      }
+    ],
+    "task_id": "BLD-NATILLA-012",
+    "undecodable": {
+      "gravity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "velocity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 19,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "gravity_direction",
+      "velocity_direction"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "gravity_direction": "UNDECODABLE",
+      "vector_labels": "DECODED",
+      "velocity_direction": "UNDECODABLE"
+    },
+    "facts": {
+      "vector_labels": [
+        "自由落体（示意）",
+        "静止释放",
+        "v",
+        "g"
+      ]
+    },
+    "figure_type": "free_fall_illustration",
+    "group": "natural_illustration",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "velocity_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "gravity_direction",
+        "kind": "direction"
+      }
+    ],
+    "task_id": "BLD-NATILLA-013",
+    "undecodable": {
+      "gravity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "velocity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 18,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "gravity_direction",
+      "velocity_direction"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "gravity_direction": "UNDECODABLE",
+      "vector_labels": "DECODED",
+      "velocity_direction": "UNDECODABLE"
+    },
+    "facts": {
+      "vector_labels": [
+        "自由落体",
+        "静止释放",
+        "v",
+        "g",
+        "v、g 均竖直向下"
+      ]
+    },
+    "figure_type": "free_fall_illustration",
+    "group": "natural_illustration",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "velocity_direction",
+        "kind": "direction"
+      },
+      {
+        "critical": true,
+        "expected": "down",
+        "got": null,
+        "key": "gravity_direction",
+        "kind": "direction"
+      }
+    ],
+    "task_id": "BLD-NATILLA-014",
+    "undecodable": {
+      "gravity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器",
+      "velocity_direction": "direction 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 17,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "arm_length_ratio"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "arm_length_ratio": "UNDECODABLE",
+      "lever_labels": "DECODED"
+    },
+    "facts": {
+      "lever_labels": [
+        "支点",
+        "阻力臂",
+        "动力臂",
+        "石头"
+      ]
+    },
+    "figure_type": "lever_illustration",
+    "group": "natural_illustration",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 2.0,
+        "got": null,
+        "key": "arm_length_ratio",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-NATILLA-015",
+    "undecodable": {
+      "arm_length_ratio": "arm_length_ratio 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 18,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "arm_length_ratio"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "arm_length_ratio": "UNDECODABLE",
+      "lever_labels": "DECODED"
+    },
+    "facts": {
+      "lever_labels": [
+        "支点",
+        "动力臂",
+        "阻力臂"
+      ]
+    },
+    "figure_type": "lever_illustration",
+    "group": "natural_illustration",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 2.5,
+        "got": null,
+        "key": "arm_length_ratio",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-NATILLA-016",
+    "undecodable": {
+      "arm_length_ratio": "arm_length_ratio 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 18,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "arm_length_ratio"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "arm_length_ratio": "UNDECODABLE",
+      "lever_labels": "DECODED"
+    },
+    "facts": {
+      "lever_labels": [
+        "动力臂",
+        "阻力臂",
+        "支点"
+      ]
+    },
+    "figure_type": "lever_illustration",
+    "group": "natural_illustration",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 4.0,
+        "got": null,
+        "key": "arm_length_ratio",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-NATILLA-017",
+    "undecodable": {
+      "arm_length_ratio": "arm_length_ratio 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 20,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "arm_length_ratio"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "arm_length_ratio": "UNDECODABLE",
+      "lever_labels": "DECODED"
+    },
+    "facts": {
+      "lever_labels": [
+        "支点",
+        "动力臂",
+        "阻力臂",
+        "动力臂 : 阻力臂 = 3 : 2"
+      ]
+    },
+    "figure_type": "lever_illustration",
+    "group": "natural_illustration",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 1.5,
+        "got": null,
+        "key": "arm_length_ratio",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-NATILLA-018",
+    "undecodable": {
+      "arm_length_ratio": "arm_length_ratio 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 18,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "arm_length_ratio"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "arm_length_ratio": "UNDECODABLE",
+      "lever_labels": "DECODED"
+    },
+    "facts": {
+      "lever_labels": [
+        "支点",
+        "动力臂",
+        "阻力臂"
+      ]
+    },
+    "figure_type": "lever_illustration",
+    "group": "natural_illustration",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 2.0,
+        "got": null,
+        "key": "arm_length_ratio",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-NATILLA-019",
+    "undecodable": {
+      "arm_length_ratio": "arm_length_ratio 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  },
+  {
+    "adapter_latency_ms": 21,
+    "adapter_status": "RENDERED",
+    "blocking_undecodable": [
+      "arm_length_ratio"
+    ],
+    "evaluable": false,
+    "fact_status": {
+      "arm_length_ratio": "UNDECODABLE",
+      "lever_labels": "DECODED"
+    },
+    "facts": {
+      "lever_labels": [
+        "支点",
+        "动力臂",
+        "阻力臂",
+        "5份",
+        "2份",
+        "撬棒",
+        "石头",
+        "动力臂 : 阻力臂 = 5 : 2"
+      ]
+    },
+    "figure_type": "lever_illustration",
+    "group": "natural_illustration",
+    "mismatches": [
+      {
+        "critical": true,
+        "expected": 2.5,
+        "got": null,
+        "key": "arm_length_ratio",
+        "kind": "numeric"
+      }
+    ],
+    "task_id": "BLD-NATILLA-020",
+    "undecodable": {
+      "arm_length_ratio": "arm_length_ratio 需要作者角色声明（A2）；本批未实现该角色的解码器"
+    },
+    "verdict": "REJECTED"
+  }
+]

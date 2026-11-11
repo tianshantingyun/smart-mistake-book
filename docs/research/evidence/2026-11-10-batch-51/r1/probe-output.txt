@@ -1,0 +1,198 @@
+# R1 探针输出（批次 51 · 2026-11-10）
+
+本文件是 `docs/research/2026-11-10-split-metric-prompt.md` 中数字的**原样输出**。全部命令只读仓内文件，
+零写仓（唯一写盘是仓外临时测试文件 `C:/tmp/r1-probe/test_split_caliber_v3.py`）。
+运行环境：Git Bash / Python 3（仓内 `python`），工作目录 `D:/smart mistake book`。
+
+---
+
+## 1. 当前口径探针：单题页规则与「0 框」不可区分
+
+```text
+$ python -I -c "import sys;sys.path.insert(0,'tools/split_golden');import measure_split_accuracy as M; ..."
+
+--- count_verdict probe (current behavior) ---
+count_verdict(gold=1, app=0) -> (True, '一致（单题页：不拆分=期望）')
+count_verdict(gold=1, app=1) -> (False, '不一致（单题页却被拆 1 块）')
+count_verdict(gold=2, app=0) -> (False, '不一致（金标 2 vs 应用 0，漏拆）')
+count_verdict(gold=2, app=2) -> (True, '一致')
+--- per-page verdicts ---
+PASS.jpg True 一致（单题页：不拆分=期望） decision= None status= None
+ERROR.jpg True 一致（单题页：不拆分=期望） decision= None status= None
+--- aggregate ---
+countExact {'successes': 2, 'denominator': 2, 'value': 1.0} gatePassed True
+page row keys: ['appBoxes', 'appBoxesSha256', 'appJobId', 'appJobPageCountMatches',
+ 'appJobQuestionCountMatches', 'appNameSource', 'appPageId', 'appPageIdKind', 'appPageIndex',
+ 'appPageMissing', 'appProvenance', 'consistent', 'file', 'fragmentPiecesByGoldIndex',
+ 'fragmentedByThreshold', 'fragmentedCount', 'fragmentedGoldIndices', 'goldBoxesSha256',
+ 'goldQuestions', 'iouOk', 'legacyConsistent', 'matchedIous', 'reason', 'unmatchedAppBoxCount']
+```
+
+读法：一页 `PASS + OK`、一页 `ERROR + 无判定`，两页都是"单题金标 + 0 框" ⇒ 现行代码 ① = 2/2 = 1.0、
+`gatePassed = True`。行键里没有 `decision`/`outcomeStatus`（`PROVENANCE_KEYS` 未透传）。
+
+---
+
+## 2. 批次 50 逐页分类（decision / outcomeStatus，实读导出）
+
+```text
+$ python -I -c "... 读 split_golden_v2.json 与 app-split-b50-final.json 逐页打印 ..."
+
+file                       sl   gold app decision       status
+IMG20260810003928.jpg      acc     4   4 SPLIT          OK
+IMG20260810004304.jpg      dev     1   0 PASS           OK
+IMG20260810004353.jpg      acc     2   2 SPLIT          OK
+IMG20260810004511.jpg      dev     3   2 SPLIT          OK
+IMG20260810004854.jpg      dev     2   0 NEED_MORE_IMAGE OK
+IMG20260810004952.jpg      acc     2   0 None           ERROR
+IMG20260810005144.jpg      dev     7   0 SPLIT          OK
+IMG20260810005301.jpg      dev     3   2 SPLIT          OK
+IMG20260810005605.jpg      dev     2   0 NEED_MORE_IMAGE OK
+IMG20260810005711.jpg      acc     3   2 SPLIT          OK
+IMG20260810005855.jpg      dev     3   3 SPLIT          OK
+IMG20260810010034.jpg      acc     6   5 SPLIT          OK
+IMG20260810010202.jpg      acc     3   2 SPLIT          OK
+IMG20260810010306.jpg      dev     4   0 None           ERROR
+IMG20260810010349.jpg      dev     4   4 SPLIT          OK
+IMG20260810010633.jpg      dev     3   0 None           ERROR
+IMG20260810010859.jpg      dev     4   3 SPLIT          OK
+IMG20260810011017.jpg      dev     3   0 None           ERROR
+IMG20260810011126.jpg      dev     2   0 PASS           OK
+IMG20260810011248.jpg      dev     5   4 SPLIT          OK
+IMG20260810011358.jpg      acc     5   4 SPLIT          OK
+IMG20260810011649.jpg      dev     3   2 SPLIT          OK
+IMG20260810011800.jpg      acc     1   0 None           ERROR
+IMG20260810012103.jpg      dev     3   3 SPLIT          OK
+```
+
+形状摘要（同一命令）：
+
+```text
+gold pages 24 boxes 78; split dev 16 acc 8; evidenceGradeLevel G1
+single-question gold pages: 2 ['IMG20260810004304.jpg', 'IMG20260810011800.jpg']
+questionCount distribution {1: 2, 2: 5, 3: 9, 4: 4, 5: 2, 6: 1, 7: 1}
+app decisions Counter({'SPLIT': 15, None: 5, 'PASS': 2, 'NEED_MORE_IMAGE': 2})
+app status    Counter({'OK': 19, 'ERROR': 5})
+```
+
+---
+
+## 3. 新旧口径复算（批次 48 / 50）
+
+```text
+$ python -I -c "... classify + 旧口径/ v3 两套 ① 计算 ..."
+
+batch48: all 10/24 -> v3 10/24 (0.4167); acceptance 5/8 -> v3 5/8
+batch50: all 7/24 -> v3 6/24 (0.2500); acceptance 3/8 -> v3 2/8
+```
+
+批次 50 分类计数与分母拆分：
+
+```text
+class counts: {'ACCEPTED_SPLIT': 14, 'ACCEPTED_NO_SPLIT': 2, 'ABSTAIN': 2,
+               'NOT_EVALUABLE_CHANNEL': 5, 'SPLIT_UNUSABLE': 1}
+current ① = 7/24 = 0.2917
+rule A  ① = 6/24 = 0.2500
+per-protocol (exclude abstain+channel) ① = 6/17 = 0.3529   ← 只作对照：排除分母会抬分，故不采用
+abstain pages: ['IMG20260810004854.jpg', 'IMG20260810005605.jpg']
+channel pages: ['IMG20260810004952.jpg', 'IMG20260810010306.jpg', 'IMG20260810010633.jpg',
+                'IMG20260810011017.jpg', 'IMG20260810011800.jpg']
+split-unusable: ['IMG20260810005144.jpg']
+```
+
+---
+
+## 4. 通道失败的原始回包（只抄 300 字符以内，无凭据）
+
+```text
+== IMG20260810011800.jpg ERROR InvalidModelResponseException invalid model response
+   head: {"id":"714f6c21-...","object":"chat.completion","model":"deepseek-flash",
+   "choices":[{"index":0,"message":{"role":"assistant","content":"{\"type\":\"json_object\",
+   \"decision\":\"PASS\",\"issues\":[],\"suggestedActions\":[],\"questionRegions\":[],\"followin
+== IMG20260810004952.jpg ERROR InvalidModelResponseException invalid model response
+   head: ... \"content\":\"{\\\"type\\\":\\\"json_object\\\",\\\"decision\\\":\\\"NEED_MORE_IMAGE\\\",...
+== IMG20260810011017.jpg ERROR IllegalArgumentException A missing-image decision must suggest adding an image
+   head: ... \"content\":\"{\\\"decision\\\":\\\"NEED_MORE_IMAGE\\\",\\\"issues\\\":[{\\\"code\\\":\\\"OCCLUDED\\\",...
+== IMG20260810010306.jpg ERROR InvalidModelResponseException invalid model response
+   head: ... \"content\":\"{\\\"type\\\":\\\"json_object\\\",\\\"decision\\\":\\\"SPLIT\\\",...
+== IMG20260810010633.jpg ERROR InvalidModelResponseException invalid model response
+   head: ... \"content\":\"{\\\"type\\\":\\\"json_object\\\",\\\"decision\\\":\\\"SPLIT\\\",...
+```
+
+读法：4 页是顶层多一个 `type` 键（值与请求 `response_format.type` 同形），1 页是 NEED_MORE_IMAGE
+未带 ADD_IMAGE。011800 的模型判断本身是 PASS——被拒收后产品 0 框，旧口径仍记"一致"。
+
+---
+
+## 5. 先红后绿用例（仓外临时文件）
+
+```text
+$ cd /c/tmp/r1-probe && python -I -m unittest discover -s . -p "test_split_caliber_v3.py" -v
+
+test_abstention_page_class_is_explicit (...) ... FAIL
+test_aggregate_reports_abstain_and_not_evaluable (...) ... FAIL
+test_abstention_is_not_a_success (...) ... FAIL
+test_channel_error_is_not_a_success (...) ... FAIL
+test_pass_with_empty_regions_is_consistent (...) ... ok
+test_thresholds_and_denominator_unchanged (...) ... ok
+
+AssertionError: 'ABSTAIN' != None : 弃答必须单列，不得折算成 0 框
+AssertionError: 'abstain' not found in {'countExact': {'successes': 1, 'denominator': 3, 'value': 0.3333333333333333},
+  'iou': {...}, 'fragment': {'successes': 1, 'denominator': 6, 'value': 0.16666666666666666, ...},
+  'countRate': 0.3333333333333333, 'iouRate': ..., 'fragmentRate': ..., 'legacyCountExact': {...},
+  'changedPages': [], 'pageCount': 3, 'totalGoldQuestions': 6, 'gates': {...}, 'gatePassed': False, ...}
+AssertionError: True is not false : NEED_MORE_IMAGE 不是「不切=期望」，不得记一致
+AssertionError: True is not false : 通道拒收（0 框）不得被单题页规则当成 PASS 记一致
+
+Ran 6 tests in 0.002s
+FAILED (failures=4)
+```
+
+---
+
+## 6. 基线（工具面全绿）
+
+```text
+$ python -m unittest discover -s tools/tests -t tools -p "test_split_gate.py"
+.............................................................
+----------------------------------------------------------------------
+Ran 61 tests in 2.940s
+
+OK
+
+$ python -I tools/ci/check_eval_label_leakage.py --paths tools/split_golden
+结果面向禁令自查（只报不改）：读取评测集标签来调参的静态检查
+  扫描 4 个候选脚本；protected 标签读者 2 个
+  未发现 LABEL_DERIVED_THRESHOLD / LABEL_DERIVED_PARAM_OUTPUT；无阈值覆盖面告警
+  error 0 / warning 0 → exit 0
+  说明：静态检查不覆盖动态路径/跨仓库生成/git 历史改值；clean ≠ 正确性证明。
+```
+
+---
+
+## 7. 提示词字数与 sha（从源码字面量还原）
+
+```text
+$ python -I -c "... 取 OpenAiModelTaskAdapters.kt:161-173 的字符串字面量并拼接 ..."
+lines used: 161 - 173
+chars: 567
+contains json: False
+contains type 白名单: False
+sha256: 31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d
+```
+
+与批次 50 acceptance 协议冻结值对照（`acceptance-protocol.md:14`）：
+`31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d` —— 逐字节一致。
+
+---
+
+## 8. Wilson 区间（描述性，非门）
+
+```text
+$ python -I -c "from check_split_gate import wilson95 ..."
+8/8=1.0000  wilson95 0.6756-1.0000
+15/16=0.9375 wilson95 0.7167-0.9889
+18/20=0.9000 wilson95 0.6990-0.9721
+22/24=0.9167 wilson95 0.7415-0.9768
+20/22=0.9091 wilson95 0.7218-0.9747
+```

@@ -1,0 +1,62 @@
+{
+  "inputs": {
+    "b50_errors": "docs/research/evidence/2026-11-09-batch-50/d1/errors.csv",
+    "b50_sample": "docs/research/evidence/2026-11-09-batch-50/d1/sample.csv",
+    "b51_sample": "docs/research/evidence/2026-11-10-batch-51/3d-audit/sample.csv",
+    "b51_judgments": "docs/research/evidence/2026-11-10-batch-51/3d-audit/judgments.csv",
+    "b51_errors": "docs/research/evidence/2026-11-10-batch-51/3d-audit/errors.csv"
+  },
+  "counts": {
+    "b50_errors": 43,
+    "b51_sample": 1600,
+    "b51_judgments": 1600,
+    "b51_errors": 99
+  },
+  "b50_errors_in_b51_sample": 4,
+  "b50_errors_in_b51_sample_all_correct": true,
+  "b50_errors_intersect_b51_errors": 0,
+  "sample_overlap": 68,
+  "sample_overlap_denominator": 1600,
+  "rows": [
+    {
+      "material_slug": "ext-bio-3a60560995-011",
+      "b50_layer": "overfull",
+      "b50_verdict": "REBIND",
+      "b50_target_node_slug": "管家基因与奢侈基因",
+      "b51_layer": "normal",
+      "b51_verdict": "CORRECT",
+      "b51_confidence": "high",
+      "layer_changed": true
+    },
+    {
+      "material_slug": "ext-phy-e14aad82a5-423",
+      "b50_layer": "normal",
+      "b50_verdict": "REBIND",
+      "b50_target_node_slug": "电磁波谱与各波段的特性",
+      "b51_layer": "normal",
+      "b51_verdict": "CORRECT",
+      "b51_confidence": "high",
+      "layer_changed": false
+    },
+    {
+      "material_slug": "ext-phy-e14aad82a5-870",
+      "b50_layer": "normal",
+      "b50_verdict": "REBIND",
+      "b50_target_node_slug": "电功率",
+      "b51_layer": "overfull",
+      "b51_verdict": "CORRECT",
+      "b51_confidence": "medium",
+      "layer_changed": true
+    },
+    {
+      "material_slug": "math-fx-sanjiaoxing-neijiaohe-guanxi",
+      "b50_layer": "normal",
+      "b50_verdict": "REBIND",
+      "b50_target_node_slug": "解三角形常用二级结论",
+      "b51_layer": "normal",
+      "b51_verdict": "CORRECT",
+      "b51_confidence": "medium",
+      "layer_changed": false
+    }
+  ]
+}

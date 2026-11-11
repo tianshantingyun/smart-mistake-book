@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-DEHANDWR-009",
+    "program_id": "mva-BLD-DEHANDWR-009",
+    "source_js": "var PRINTED_LINES = [\n  '解：设未知数为 x',\n  '由题意列方程',\n  '移项得'\n];\n\nconst visual = {\n  prepare: function (input) {\n    return PRINTED_LINES.map(function (line) {\n      return { kind: 'text', payload: line };\n    });\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var fontSize = Math.max(16, Math.min(26, Math.floor(W / 22)));\n    var lineHeight = fontSize * 1.8;\n    var startX = Math.max(32, Math.min(72, W * 0.12));\n    var startY = Math.max(48, Math.min(110, H * 0.22));\n    var children = [];\n    for (var i = 0; i < PRINTED_LINES.length; i++) {\n      children.push({\n        type: 'label',\n        x: startX,\n        y: startY + i * lineHeight,\n        text: PRINTED_LINES[i],\n        fontSize: fontSize,\n        fontFamily: 'sans-serif',\n        fontWeight: 'normal',\n        fill: '#1f2937',\n        textAnchor: 'start',\n        dominantBaseline: 'alphabetic'\n      });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'clean-printed-solution',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [],\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

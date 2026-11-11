@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-mat-1f3d900388-001	CORRECT		high	含 $n$ 个元素的集合	
+ext-mat-2053532d52-006	CORRECT		high	可由散点图走向、样本相关系数的正负与绝对值	
+ext-mat-2111cf48d8-056	CORRECT		high	形如 kx－y－2k＋1＝0 的含参直线	
+ext-mat-2560e5dd33-010	CORRECT		high	「过」型切线：设切点、写斜率与切线方程	
+ext-mat-25b9f5dd05-002b	CORRECT		medium	真数必须大于0，底数大于0且不等于1	节点为底数讨论易错，材料为真数/底数范围
+ext-mat-26a4840df9-008b	CORRECT		high	顶点 C 的纵坐标与弦 AB 中点 M 的纵坐标相同	
+ext-mat-279a8decaa-021	CORRECT		high	求出 A、ω、φ 后，需用图象上另一个未使用过的特殊点代入解析式验证	
+ext-mat-279d68b99b-022	CORRECT		high	解数列不等式恒成立，常分离参数转为求最值	
+ext-mat-289deb9ecd-1078	CORRECT		high	左右（上下）焦点对应的准线为 x=±a²/c	节点为第二定义，材料为准线对应关系
+ext-mat-289deb9ecd-1087	CORRECT		high	抛物线焦点弦与两端点处两条切线围成的三角形	
+ext-mat-289deb9ecd-118b	CORRECT		high	拆是把分式分离成整式与真分式之和再拆项	
+ext-mat-289deb9ecd-130b	CORRECT		high	a、b、c 均为正实数时 a³+b³+c³≥3abc	
+ext-mat-289deb9ecd-132	CORRECT		high	从读题、建模、用基本不等式求最值到还原作答的完整流程	
+ext-mat-289deb9ecd-1378	CORRECT		high	X 是随机变量则 Y=f(X) 也是随机变量	
+ext-mat-289deb9ecd-1389b	CORRECT		high	从含 M 件次品的 N 件产品中不放回抽取 n 件	
+ext-mat-289deb9ecd-1623	CORRECT		high	由函数在定义域各部分上的单调性判断图象是上升还是下降	
+ext-mat-289deb9ecd-1726	CORRECT		high	y=f(x+a)+b 的图象由 y=f(x) 先左右平移	
+ext-mat-289deb9ecd-1847	CORRECT		high	第0与第100百分位数分别是数据的最小数与最大数	
+ext-mat-289deb9ecd-192	CORRECT		high	按给定关系式是“和型”还是“积型”选择相应的作差变形路径	
+ext-mat-289deb9ecd-193	CORRECT		high	单调性法、配方法、图象法、基本不等式法与换元法及其适用对象	
+ext-mat-289deb9ecd-220	CORRECT		medium	按 α 为自然数、非正整数、分数 p/q 三类给出定义域的确定办法	节点为幂函数图象性质，材料为定义域分类
+ext-mat-289deb9ecd-223	CORRECT		high	第一象限内直线 x=1 右侧图象从上到下 α 由大变小	
+ext-mat-289deb9ecd-223b	CORRECT		high	若区间内任意两点的函数值中点小于中点函数值，则图象上凸	
+ext-mat-289deb9ecd-454	CORRECT		high	1 可代换为 sin²α+cos²α	
+ext-mat-289deb9ecd-469	CORRECT		high	y=sin(x+φ) 由 y=sinx 左右平移 |φ| 得到	
+ext-mat-289deb9ecd-618c	CORRECT		high	z1、z2、z1+z2 与原点构成平行四边形 OACB	
+ext-mat-289deb9ecd-660	CORRECT		high	五种正多面体的面数、棱数、顶点数一览	
+ext-mat-289deb9ecd-734	CORRECT		high	斜线与其在平面上的射影所成的角叫直线与平面所成的角	
+ext-mat-289deb9ecd-749	CORRECT		high	在二面角棱上取点，分别在两个半平面内作棱的垂线得到平面角	
+ext-mat-289deb9ecd-756	CORRECT		high	先作点 P 到平面 α 的垂线 PO	
+ext-mat-289deb9ecd-853	CORRECT		high	以 O 为起点、OA、OB、OC 为三条棱作平行六面体	
+ext-mat-289deb9ecd-982	CORRECT		high	关于 x 轴、y 轴、y=x、y=−x 以及水平、竖直直线的对称点坐标	
+ext-mat-28e2984d93-011	CORRECT		high	极值点不是点、极值是局部概念等五个要点	
+ext-mat-29726b01ae-002	CORRECT		high	作差法：作差→变形→定号→结论	
+ext-mat-29726b01ae-002b	CORRECT		high	把待比较的两式看作同一个函数在两个不同自变量处的函数值	
+ext-mat-2c4c1b3df0-003	CORRECT		high	重心、垂心、内心、外心的向量特征各不相同	
+ext-mat-2e0a8cd097-066	CORRECT		high	a·b 可写成 |a| 与 b 在 a 方向上投影的乘积	
+ext-mat-2e862d8595-003	CORRECT		high	f 单调递增处 f′ 图象在 x 轴上方	
+ext-mat-2f222387d3-037	CORRECT		high	用导数求单调区间或判断单调性时，先定定义域	
+ext-mat-2f286365d8-015c	CORRECT		high	抓第一象限内 x＝1、y＝1、y＝x 三条线	
+ext-mat-2fb7765687-001	CORRECT		high	描点法与图象变换法作图	
+ext-mat-32cc3e08f6-013	CORRECT		high	pk 在 k 越过 (n+1)p 之前递增、之后递减	
+ext-mat-3312adec25-006	CORRECT		high	用对勾函数模型解决实际问题时要注意函数的定义域	
+ext-mat-338167e90a-002b	CORRECT		high	由 $f'(x_0)=0$ 及 $x_0$ 两侧导数的符号变化判断极大（小）值	
+ext-mat-33b01ebb11-002	CORRECT		high	曲线、切线、切点同时满足的三条关系	
+ext-mat-33ca557683-015	CORRECT		high	角化边看边的约束、边化角配内角和、恒等变换后看值域	
+ext-mat-342cc181b5-007	CORRECT		high	比较指对混合数时可用切线放缩	
+ext-mat-34f359a453-002b	CORRECT		high	n 个正数的算术平均数不小于几何平均数	
+ext-mat-361d925c60-005b	CORRECT		high	从圆外一点引两条切线时切点弦所在直线的方程	
+ext-mat-370783e3ec-004	CORRECT		high	证线面垂直可用判定定理、垂直传递、面面平行性质或面面垂直性质	

@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-che-34927cbadd-008	CORRECT		high	＋1 价的铜有较强的还原性，易被氧化剂氧化为 ＋2 价	
+ext-phy-0f172913a9-007	CORRECT		high	输送功率一定时，输电电压提高到原来的 $n$ 倍，线上损耗功率降为原来的 $1/n^2$	
+ext-mat-a9d200e235-001b	CORRECT		high	权方和不等式：设 $x_1$、$x_2$ 与 $y_1$、$y_2$ 均为正数	
+ext-mat-91e0c2ace8-101	CORRECT		high	化为关于离心率 e 的不等式组，结合 $e\in(0，1)$ 解出范围	
+bio-mo-nerve-042	REBIND	神经系统的分级调节	medium	生理或病理现象：植物人；神经中枢参与（损伤）：大脑皮层损伤、小脑功能退化、但下丘脑、脑干、脊髓功能正常	主点是中枢损伤与功能对应，属分级调节，非言语区等高级功能
+ext-phy-bfbeb9d7d0-007	CORRECT		high	①平均值法——力随时间均匀变化（为时间的一次函数）时，I＝(F1＋F2)t/2	
+ext-mat-19a0d4ddca-003	CORRECT		high	夹角公式：cos⟨a，b⟩=(a1b1+a2b2+a3b3)/(|a||b|)	
+ext-mat-762de6bea5-002	CORRECT		high	再代入直线方程得定点坐标	
+ext-phy-e219890fe7-024	CORRECT		high	电场力、重力并存：电场力与重力的合力 F等效 为恒力	
+ext-che-27fd5f3de3-002b	CORRECT		high	质量分数与物质的量浓度的换算：c=1000ρw/M	
+ext-bio-172295ebf0-013	NONE		medium	介绍锌稳态、关键代谢物、骨矿化前体与金属间化合物抗肿瘤四项研究情境	四项前沿研究情境拼合，无可归入单一知识点；现绑元素组成不成立
+ext-che-1d6b8dba66-004	CORRECT		high	硝酸无论浓、稀都具有强氧化性，而且浓度越大氧化性越强	
+ext-mat-289deb9ecd-004d	CORRECT		high	弧长 l=nπR/180=αR；面积 S=nπR²/360=αR²/2=lR/2	
+ext-bio-85c5450274-071	CORRECT		high	基因组测序需测 24 条（22 条常染色体＋X、Y）	
+chem-hj-tong-huahewu-yongtu	CORRECT		high	Cu2O：砖红色难溶固体，与非氧化性酸歧化	
+ext-che-1422ee20c2-058	CORRECT		medium	继续加氨水，沉淀溶解得到深蓝色溶液，生成配离子	
+ext-che-0ba5e16be6-154	CORRECT		high	沉淀析出线：由 Ksp=c(Mn+)·[c(OH-)]^m 取负对数整理得 -lg c(Mn+)=m·pH+常数	
+ext-che-d65db2fbb2-004b	CORRECT		high	三类计算都以体系已达沉淀溶解平衡为前提	
+ext-bio-1288e946fc-041	CORRECT		high	用完全培养液与缺素培养液培养植物，比较两组植物的生长发育状况	
+ext-bio-dd21898197-011	CORRECT		high	干细胞是动物和人体内仍保留的少数具有分裂和分化能力的细胞	
+ext-bio-23404bac23-051	CORRECT		high	其他原核生物包括支原体（最小、无细胞壁）、衣原体、立克次氏体、放线菌等	
+ext-bio-7c44b1b379-010	CORRECT		high	男患者的母亲和女儿一定患病	
+phys-fx-turntable-critical-friction	CORRECT		high	临界：$f_{max}=\mu mg$，$\omega_c=\sqrt{\frac{\mu g}{r}}$	
+ext-che-46df50a2d0-016	CORRECT		high	化学性质：不能发生银镜反应，不能被新制Cu(OH)2氧化；能发生加成反应	
+ext-che-36827105a2-003	CORRECT		high	湿法炼铜：$Fe+CuSO_4=FeSO_4+Cu$	
+ext-mat-9230558bf8-001	CORRECT		medium	若 $f(x+a)=-f(x)$，则周期为 $2a$	
+phys-hj3-transformer-special-cases	REBIND	变压器	medium	多个副线圈：电压关系 $\frac{U_1}{n_1}=\frac{U_2}{n_2}=\frac{U_3}{n_3}=\cdots$，电流关系 $I_1n_1=I_2n_2+I_3n_3+\cdots$	主点是多副线圈/原线圈串联/二极管等特殊变压器电路，非两类动态分析
+ext-mat-7acb98c659-041	CORRECT		high	分式型数列放缩先定方向（证“和小于”用放大式、证“和大于”用缩小式）	
+ext-mat-dbdbf8f5ab-004	CORRECT		medium	拆中线：AD 为 BC 边上的中线，把中线写成两向量的半和 AD=(AB＋AC)/2	
+ext-mat-f56d27f574-034	CORRECT		high	直接法：分别求出 a 与 c，代入离心率公式 e＝c/a 求解	
+ext-bio-6f22c00705-016	CORRECT		high	特点：半保留复制、边解旋边复制	
+ext-bio-5f510cdc4a-116	CORRECT		high	判断生产者看是否为自养型生物	
+ext-mat-9e21a7e47c-009	CORRECT		high	把通项的分母放小（把通项放大）成等差数列的形式	
+ext-mat-9e49a3663f-011b	CORRECT		high	M 在以原点为圆心、3 为半径的圆上	
+ext-phy-0c0cd60d2b-003	CORRECT		high	把题面逐句拆成关键表述，逐条写出它给出的物理量或由此确定的物理关系	
+ext-mat-95f2ccd476-005	CORRECT		high	由直线与平面平行的判定定理得出结论，并写清“平面外直线、平面内直线、两直线平行”三个条件	
+ext-phy-2d4b4a2ad0-002	CORRECT		high	其引力势能 Ep＝－GMm/r	
+ext-mat-7a07afff81-021	CORRECT		high	线面平行 l∥α ⇔ a⊥u ⇔ a·u=0	
+ext-bio-1e8b534995-009	CORRECT		high	气体组成为95%空气和5%CO₂	
+ext-bio-9861591320-005	CORRECT		high	在细胞或细胞器水平上进行操作的技术	
+ext-mat-d430726a65-001b	CORRECT		high	等比数列的通项公式：an＝a1·q^(n－1)	
+ext-mat-18a7938d50-002c	CORRECT		high	双曲线同支的焦点弦中最短的是通径	
+ext-bio-3481f17f61-051	CORRECT		medium	换高倍镜口诀找、移、转、调	
+ext-che-1422ee20c2-062	CORRECT		medium	设计一个“配离子解离 + 沉淀生成”的反应	
+ext-che-60bd9bec4e-014	CORRECT		high	被保护的金属作正极，活泼性更强的金属作负极	
+ext-che-1d3390924f-077	CORRECT		high	大多数晶体是离子晶体与共价晶体之间的过渡晶体	
+math-fx-dengbi-gongshi-xingzhi	CORRECT		medium	下标和相等的两项积相等	
+ext-phy-1467c820b7-007	CORRECT		high	入射点要远离棱角	
+ext-phy-21d4982874-046	CORRECT		high	即 $qBx=mv_{x0}-mv_x$、$qBy=mv_y-mv_{y0}$	
+ext-mat-289deb9ecd-550	CORRECT		high	在斜坐标系中，设 a=(x1,y1)、b=(x2,y2)	

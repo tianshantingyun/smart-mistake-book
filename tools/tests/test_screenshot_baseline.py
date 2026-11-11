@@ -70,7 +70,7 @@ class ScreenshotBaselineTest(unittest.TestCase):
                     [sys.executable, "-I", str(SCRIPT), "compare",
                      "--baseline", str(base), "--current", str(current),
                      "--out", str(out), "--max-mae", "0", "--max-changed-ratio", "0"],
-                    capture_output=True, text=True, cwd=str(REPO),
+                    capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(REPO),
                 )
                 self.assertEqual(proc.returncode, expected, proc.stdout + proc.stderr)
                 self.assertTrue(json.loads(out.read_text(encoding="utf-8"))["ok"] is (expected == 0))

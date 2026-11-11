@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-311bab1429-045	CORRECT		high	先用 Q=CU 算出初、末状态电荷量 Q1、Q2	
+ext-phy-323d2d6698-004c	CORRECT		high	位移中点瞬时速度公式对匀加速、匀减速均适用	
+ext-phy-32af80d1f1-005	CORRECT		high	先分析已知量与待求量、据所涉物理量选合适公式	
+ext-phy-339303ae36-003	CORRECT		high	经Δt后振动图像延续而形状不变，波的图像沿传播方向平移Δx=vΔt	
+ext-phy-347b2210ae-001	CORRECT		high	滑块与木板在摩擦力作用下发生相对滑动、具有不同的加速度	
+ext-phy-34cce387c8-004	CORRECT		high	滑块上升到最大高度时二者具有共同水平速度	
+ext-phy-37c0adbbbb-043	CORRECT		medium	圆筒内无场匀速、缝隙中逐次加速	节点为带电粒子在电场中运动总论，同科无直线加速器专点
+ext-phy-3a47acf6b5-002	CORRECT		high	相互作用中恰好不相撞、相距最近或最远、恰上升到最高点等临界状态的共同求解关键是两物体速度相等	
+ext-phy-3ab0cff4be-001	CORRECT		high	简谐运动是物体所受的力与偏离平衡位置的位移大小成正比	
+ext-phy-3b150cf87f-012	CORRECT		high	磁铁靠近线圈时磁通量增大，线圈有缩小的趋势	节点为楞次定律阻碍含义
+ext-phy-3b5678cdcd-019	CORRECT		high	先匀加速，功率达到额定值后转为加速度减小的加速	
+ext-phy-3b5e90662b-002	CORRECT		high	减速类问题可用平均速度法、逆向思维法、图像法速解	
+ext-phy-3bfbe3b7fd-001	CORRECT		high	力是物体间的相互作用，其效果是形变与改变运动状态	
+ext-phy-3c6d193b61-004b	CORRECT		high	归纳全反射的两个条件、临界光线的处理以及全反射棱镜与光导纤维的应用	
+ext-phy-3f19f48ee6-001d	CORRECT		high	匀变速直线运动中速度与位移的关系式为v²－v0²＝2ax	
+ext-phy-3f6fbdc7c2-003d	CORRECT		high	由活塞、液柱相联系的两部分气体	
+ext-phy-406a61629e-005	CORRECT		high	让小球从斜槽末端水平抛出，用平抛的水平射程代替速度	
+ext-phy-40f610d3a4-006	CORRECT		high	速度是位移与时间的比值、是矢量，速率是瞬时速度的大小	
+ext-phy-42ea281c88-006	CORRECT		high	剪断（或释放）连接体的瞬间轻弹簧的弹力保持不变	
+ext-phy-438be413f7-001c	CORRECT		high	隔离法求系统内力，整体法求系统外力或共同加速度	
+ext-phy-438be413f7-010	CORRECT		high	支持力与滑动摩擦力的合力称为全反力	
+ext-phy-44013235b9-009	CORRECT		high	爆炸过程内力远大于外力、可近似认为系统动量守恒	
+ext-phy-445f88143b-006	CORRECT		high	平行四边形定则用两邻边间的对角线表示合力	
+ext-phy-44ca2e1d25-002	CORRECT		high	动量的定义、表达式、单位与方向	
+ext-phy-4616661c34-004	CORRECT		high	该实验的创新集中在四方面	
+ext-phy-463833891b-006	CORRECT		high	分别按匝数比不变与负载电阻不变两种情形	
+ext-phy-47424f3a0e-006	CORRECT		high	先确定研究对象，再分析受力与运动情况并选取正方向或建立坐标系	
+ext-phy-47a448da0e-024	CORRECT		high	已知天体表面的重力加速度 g 与天体半径 R	
+ext-phy-47fa574305-028	CORRECT		high	滑轮（活结）两侧绳的张力大小相等	
+ext-phy-48d2ba4e1c-003b	CORRECT		high	布朗运动是悬浮微粒的无规则运动	
+ext-phy-49afd547de-016	CORRECT		high	小球落在竖直弹簧上后先加速后减速	节点为弹簧振子模型
+ext-phy-4b9ca03ec9-002	CORRECT		high	不同物质互相接触时彼此进入对方叫扩散	
+ext-phy-4e2f064c7f-010	CORRECT		high	表面张力使液面收缩到表面积最小	
+ext-phy-5054216307-010	CORRECT		high	通过绳或杆连接的物体沿绳或杆方向的分速度大小相等	
+ext-phy-51ad0f83fc-004	CORRECT		high	分子永不停息地做无规则运动且温度越高越剧烈	
+ext-phy-51ad0f83fc-055	CORRECT		high	等压图为平行 T 轴的水平线、等容线是延长线过坐标原点的直线	
+ext-phy-5227cb2f8e-034	CORRECT		high	两棒都在磁场中时安培力使快者减速、慢者加速	
+ext-phy-52be526b12-022	CORRECT		high	由图像判断各状态参量变化，由体积变化定做功、由温度变化定内能	
+ext-phy-53f04fba0b-006	CORRECT		high	先由v－t图像判断带电粒子加速还是减速	
+ext-phy-548b1275c5-007	CORRECT		high	外力变化到极限值时摩擦力会发生突变	
+ext-phy-54b327a147-006	CORRECT		high	用刻度尺测量长度时读数要估读到分度值的下一位	
+ext-phy-55278ae69f-003	CORRECT		high	把平抛运动分解为水平匀速与竖直自由落体	
+ext-phy-556c15f240-022	CORRECT		high	已知内阻的电表可借助定值电阻等效变换为另一种电表	
+ext-phy-560bf47aaa-001	CORRECT		high	动力学观点、能量观点、动量观点各有适用条件	
+ext-phy-56d13ed09a-007	CORRECT		high	按图像类型分别用好斜率、截距与面积的意义	
+ext-phy-5737269c83-016	CORRECT		high	等温时压强与体积成反比，等容时压强与热力学温度成正比	
+ext-phy-5870475655-005	CORRECT		high	自感系数由线圈本身决定	
+ext-phy-58af31764b-034	CORRECT		high	两球从同一高度做平抛运动，下落时间相同，水平射程与初速度成正比	
+ext-phy-5a5050007c-003	CORRECT		high	看图先确认坐标轴与单位，再抓交点、转折点、渐近线	
+ext-phy-5aff2fc1d4-002	CORRECT		high	能完全吸收各种波长电磁波而不发生反射的物体叫黑体	

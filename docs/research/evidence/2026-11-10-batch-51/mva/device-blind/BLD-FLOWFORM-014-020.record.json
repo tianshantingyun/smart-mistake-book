@@ -1,0 +1,249 @@
+{
+  "input_file": "BLD-FLOWFORM-014.json",
+  "program_sha256": "b11b869556e3666cf630e46612365342f65520c8fae37b861f5805dd2f6e34d8",
+  "task_id": "BLD-FLOWFORM-014",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 66,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "x =",
+      "widthDu": 20.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "180e6929bae4a33240ca19d9d2ee7c07bb6e67e09a038202f9eb536861f4a10d"
+    },
+    {
+      "contentId": "c1",
+      "payload": "−b",
+      "widthDu": 18.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a8952dd624ff4e8d0261d9d4be6c282c43a15d06903adfe1f7609d080531c218"
+    },
+    {
+      "contentId": "c2",
+      "payload": " ± ",
+      "widthDu": 16.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c2d1faee276efe2a5571c5c2321581fb4f1fdd0430beadb88b7491b53a43f932"
+    },
+    {
+      "contentId": "c3",
+      "payload": "b²",
+      "widthDu": 14.909090995788574,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "db545de070cc676780aadfb2463438eadbdbf0be044532b68dfe0171d16ba1e5"
+    },
+    {
+      "contentId": "c4",
+      "payload": " − 4",
+      "widthDu": 26.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b86cb68478582bbc4e83359775c91730466fe4820d61a212c11ec265b003f21c"
+    },
+    {
+      "contentId": "c5",
+      "payload": "a",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+    },
+    {
+      "contentId": "c6",
+      "payload": "c",
+      "widthDu": 8.363636016845703,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"
+    },
+    {
+      "contentId": "c7",
+      "payload": "2",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "contentId": "c8",
+      "payload": "a",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+    },
+    {
+      "contentId": "c9",
+      "payload": "2",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "contentId": "c10",
+      "payload": "x²",
+      "widthDu": 13.818181991577148,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f3b5ff1969c6ec2b6cc58a15fc7a6d3dde8d8a8a6c6fdde6deb7548083fa063b"
+    },
+    {
+      "contentId": "c11",
+      "payload": " − ",
+      "widthDu": 17.090909957885742,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "1cebb27e0750a45f8d7661c5a86f095a1c5d9a754ad752e1761c37fd69f4a278"
+    },
+    {
+      "contentId": "c12",
+      "payload": "7",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451"
+    },
+    {
+      "contentId": "c13",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c14",
+      "payload": " + ",
+      "widthDu": 17.090909957885742,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "46209f696e32b54882cbbb06054295c2e76bed8fdce51d1e567894325c8fac99"
+    },
+    {
+      "contentId": "c15",
+      "payload": "3",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+    },
+    {
+      "contentId": "c16",
+      "payload": " = 0",
+      "widthDu": 25.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "dd1f472591fc4210e8094c4685d46de048e02516c429b66ee601392ef015f06b"
+    },
+    {
+      "contentId": "c17",
+      "payload": "Δ = ",
+      "widthDu": 28,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e3c41c3813d0a9dc81ccbf4baf416cea818c2a1c19f657d33343da68f24b25b5"
+    },
+    {
+      "contentId": "c18",
+      "payload": "b²",
+      "widthDu": 14.909090995788574,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "db545de070cc676780aadfb2463438eadbdbf0be044532b68dfe0171d16ba1e5"
+    },
+    {
+      "contentId": "c19",
+      "payload": " − 4",
+      "widthDu": 26.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b86cb68478582bbc4e83359775c91730466fe4820d61a212c11ec265b003f21c"
+    },
+    {
+      "contentId": "c20",
+      "payload": "a",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+    },
+    {
+      "contentId": "c21",
+      "payload": "c",
+      "widthDu": 8.363636016845703,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"
+    },
+    {
+      "contentId": "c22",
+      "payload": " = 25",
+      "widthDu": 34.90909194946289,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "982e39910b18c2bb190b2402ff26e6ce2685edf883a4fd6fe3f03ed44333abd1"
+    },
+    {
+      "contentId": "c23",
+      "payload": "a = 2",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d6caeea65266578487abe1370e07a0238918637bd5e81e923e12a24c618ab60e"
+    },
+    {
+      "contentId": "c24",
+      "payload": "b = −7",
+      "widthDu": 44,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "806798503286778b09794909e15bc3edd323972a41f15bb99d2acb451b969a99"
+    },
+    {
+      "contentId": "c25",
+      "payload": "c = 3",
+      "widthDu": 34.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "46c7044c8b0a3ba6a3ac891861ab9c33aecfb2256765eda0474b7314ff49e2d2"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai"
+}

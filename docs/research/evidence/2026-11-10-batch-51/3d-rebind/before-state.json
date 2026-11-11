@@ -1,0 +1,624 @@
+{
+ "pack": {
+  "packId": "moe-2025-four-subjects-v1",
+  "taxonomyVersion": "moe-2025-four-subjects-v1",
+  "schemaVersion": 2,
+  "coverage": {
+   "baselineId": "moe-high-school-2017-2025",
+   "catalogLevel": "PARTIAL",
+   "teachingSupportLevel": "PARTIAL"
+  },
+  "sourceUri": null,
+  "sha256": "10ede1bf449de38ff21a53d1a13468a82b765dd0d0852dde4af770a1b8ef6670"
+ },
+ "counts": {
+  "nodes": 3280,
+  "materials": 64853,
+  "bindings": 64853,
+  "materials_without_binding": 0
+ },
+ "items": [
+  {
+   "material_slug": "chem-fx-dian-fen-he-xian-wei-su-yin-tong-shi-z-f62x02",
+   "layer": "normal",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "淀粉-或纤维素-中含有的羟基数为3n",
+   "target_node_slug": "同分异构现象和同分异构体",
+   "confidence": "high",
+   "evidence_quote": "淀粉和纤维素因通式中n值不同，不是同分异构体。",
+   "sidecar": "moe-2025-teaching-support-v2-04.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:淀粉-或纤维素-中含有的羟基数为3n"
+   ]
+  },
+  {
+   "material_slug": "chem-fx-dian-rong-zhi-wei-f51x05",
+   "layer": "normal",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "溶质为酸的溶液-oh-全部来自水的电离",
+   "target_node_slug": "溶液中微粒浓度大小的比较",
+   "confidence": "high",
+   "evidence_quote": "a点，溶质为CH3COONa、CH3COOH。",
+   "sidecar": "moe-2025-teaching-support-v2-04.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶质为酸的溶液-oh-全部来自水的电离"
+   ]
+  },
+  {
+   "material_slug": "chem-fx-rong-ye-he-xi-yan-suan-jia-f76x07",
+   "layer": "normal",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "既能跟稀盐酸反应-又能跟氢氧化钠溶液反应的化合物是",
+   "target_node_slug": "离子共存",
+   "confidence": "high",
+   "evidence_quote": "加CaCl2溶液产生白色沉淀，再加盐酸沉淀溶解，产生无色无味气体",
+   "sidecar": "moe-2025-teaching-support-v2-04.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:既能跟稀盐酸反应-又能跟氢氧化钠溶液反应的化合物是"
+   ]
+  },
+  {
+   "material_slug": "chem-fx-wei-guan-you-jiu-hua-xue-jian-duan-lie-f07x04",
+   "layer": "normal",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "物质的化学键",
+   "target_node_slug": "化学反应的本质",
+   "confidence": "high",
+   "evidence_quote": "有旧化学键断裂，同时有新化学键形成的是化学变化，本质是原子的重新组合",
+   "sidecar": "moe-2025-teaching-support-v2-03.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的化学键"
+   ]
+  },
+  {
+   "material_slug": "chem-fx-yan-dao-qi-zhong-de-shi-zhu-yao-de-da-f51x12",
+   "layer": "normal",
+   "subject": "CHEMISTRY",
+   "verdict": "NONE",
+   "current_node_slug": "nox是汽车尾气中的主要污染物之一",
+   "target_node_slug": "",
+   "confidence": "high",
+   "evidence_quote": "为了监测其含量，选用如下采样和检测方法",
+   "sidecar": "moe-2025-teaching-support-v2-04.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:nox是汽车尾气中的主要污染物之一"
+   ]
+  },
+  {
+   "material_slug": "chem-hj2-liu-danxiangsi-xiangrong-jieshi",
+   "layer": "normal",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "忽视溶液中水的存在",
+   "target_node_slug": "硫及其化合物之间的转化规律",
+   "confidence": "medium",
+   "evidence_quote": "S有S2、S4、S6、S8等同素异形体，加热转化属化学变化",
+   "sidecar": "moe-2025-teaching-support-v2-03.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:忽视溶液中水的存在"
+   ]
+  },
+  {
+   "material_slug": "chem-hj2-mei-dan-dian-fanshi-ranshao",
+   "layer": "normal",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "铁粉与硫粉在空气中混合燃烧时-可能发生哪些反应",
+   "target_node_slug": "镁的化学性质",
+   "confidence": "high",
+   "evidence_quote": "镁是第三周期ⅡA族活泼金属，在空气中燃烧生成MgO和Mg3N2的混合物",
+   "sidecar": "moe-2025-teaching-support-v2-03.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁粉与硫粉在空气中混合燃烧时-可能发生哪些反应"
+   ]
+  },
+  {
+   "material_slug": "ext-che-5c62da9e03-1332",
+   "layer": "normal",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "一般步骤",
+   "target_node_slug": "一些有机物的命名",
+   "confidence": "high",
+   "evidence_quote": "烯烃、炔烃命名与烷烃命名在主链选择、编号依据与名称书写三方面不同",
+   "sidecar": "moe-2025-teaching-support-v2-11.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:一般步骤"
+   ]
+  },
+  {
+   "material_slug": "ext-che-5c62da9e03-2705",
+   "layer": "normal",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "常见官能团",
+   "target_node_slug": "依据官能团分类",
+   "confidence": "medium",
+   "evidence_quote": "官能团决定物质的主要化学性质",
+   "sidecar": "moe-2025-teaching-support-v2-24.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见官能团"
+   ]
+  },
+  {
+   "material_slug": "ext-che-d3a055d224-007",
+   "layer": "normal",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "一种药物中间体-h-的合成路线如下",
+   "target_node_slug": "依据反应条件判断有机反应类型",
+   "confidence": "high",
+   "evidence_quote": "稀硫酸加热为水解、Cu或Ag催化通O2为醇氧化、光照卤素为侧链取代、FeX3催化为苯环取代",
+   "sidecar": "moe-2025-teaching-support-v2-06.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:一种药物中间体-h-的合成路线如下"
+   ]
+  },
+  {
+   "material_slug": "ext-che-d8cfaa5609-013",
+   "layer": "normal",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "酸或碱溶液中水电离程度的计算",
+   "target_node_slug": "抑制-促进水电离平衡的方法",
+   "confidence": "high",
+   "evidence_quote": "酸或碱抑制水的电离，含弱离子的盐水解促进水的电离",
+   "sidecar": "moe-2025-teaching-support-v2-24.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:酸或碱溶液中水电离程度的计算"
+   ]
+  },
+  {
+   "material_slug": "ext-che-dc424420ff-003",
+   "layer": "normal",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "实验试剂与仪器的规范描述",
+   "target_node_slug": "常见仪器",
+   "confidence": "high",
+   "evidence_quote": "漏斗、分液漏斗、冷凝管、胶头滴管、干燥管等的用途与操作规范",
+   "sidecar": "moe-2025-teaching-support-v2-16.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:实验试剂与仪器的规范描述"
+   ]
+  },
+  {
+   "material_slug": "ext-mat-abf14fbf11-013",
+   "layer": "normal",
+   "subject": "MATH",
+   "verdict": "REBIND",
+   "current_node_slug": "圆锥曲线中的向量条件转化",
+   "target_node_slug": "圆的参数方程",
+   "confidence": "high",
+   "evidence_quote": "圆上的动点用参数式设出后，向量数量积化为 A sin(θ+φ)+B 的形式",
+   "sidecar": "moe-2025-teaching-support-v2-23.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:math:atomic:圆锥曲线中的向量条件转化"
+   ]
+  },
+  {
+   "material_slug": "ext-mat-fe0e9d84cf-008c",
+   "layer": "normal",
+   "subject": "MATH",
+   "verdict": "REBIND",
+   "current_node_slug": "由线-面关系误解向量关系",
+   "target_node_slug": "忽视异面直线的夹角与向量的夹角范围不同",
+   "confidence": "high",
+   "evidence_quote": "异面直线所成角不超过九十度，而两向量夹角可到一百八十度",
+   "sidecar": "moe-2025-teaching-support-v2-09.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:math:atomic:由线-面关系误解向量关系"
+   ]
+  },
+  {
+   "material_slug": "ext-phy-2cea5a0fdb-045",
+   "layer": "normal",
+   "subject": "PHYSICS",
+   "verdict": "NONE",
+   "current_node_slug": "平抛与竖直面结合问题",
+   "target_node_slug": "",
+   "confidence": "medium",
+   "evidence_quote": "平抛小球恰好沿切线进入圆轨道时",
+   "sidecar": "moe-2025-teaching-support-v2-19.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:physics:atomic:平抛与竖直面结合问题"
+   ]
+  },
+  {
+   "material_slug": "ext-phy-e14aad82a5-423",
+   "layer": "normal",
+   "subject": "PHYSICS",
+   "verdict": "REBIND",
+   "current_node_slug": "电磁说-麦克斯韦认为光是一种电磁波",
+   "target_node_slug": "电磁波谱与各波段的特性",
+   "confidence": "high",
+   "evidence_quote": "波长较长的无线电波与红外线易发生干涉、衍射",
+   "sidecar": "moe-2025-teaching-support-v2-12.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:physics:atomic:电磁说-麦克斯韦认为光是一种电磁波"
+   ]
+  },
+  {
+   "material_slug": "ext-phy-e14aad82a5-870",
+   "layer": "normal",
+   "subject": "PHYSICS",
+   "verdict": "REBIND",
+   "current_node_slug": "电路中的基本概念",
+   "target_node_slug": "电功率",
+   "confidence": "medium",
+   "evidence_quote": "电功等于电路两端电压、电流与通电时间的乘积",
+   "sidecar": "moe-2025-teaching-support-v2-11.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:physics:atomic:电路中的基本概念"
+   ]
+  },
+  {
+   "material_slug": "ext-phy-f978043935-014",
+   "layer": "normal",
+   "subject": "PHYSICS",
+   "verdict": "REBIND",
+   "current_node_slug": "弹簧不锁定模型",
+   "target_node_slug": "滑块-小球-弹簧模型",
+   "confidence": "high",
+   "evidence_quote": "题干说压紧到不能再压缩、压缩到最大或伸长到最长",
+   "sidecar": "moe-2025-teaching-support-v2-23.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:physics:atomic:弹簧不锁定模型"
+   ]
+  },
+  {
+   "material_slug": "math-fixed-order-divide-method",
+   "layer": "normal",
+   "subject": "MATH",
+   "verdict": "REBIND",
+   "current_node_slug": "点-方法技巧-点拨解题方法-练一题通一类",
+   "target_node_slug": "保序问题与书目插书法",
+   "confidence": "high",
+   "evidence_quote": "部分元素顺序固定时，总数除以定序元素的全排列数",
+   "sidecar": "moe-2025-teaching-support-v2-01.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:math:atomic:点-方法技巧-点拨解题方法-练一题通一类"
+   ]
+  },
+  {
+   "material_slug": "math-fx-sanjiaoxing-neijiaohe-guanxi",
+   "layer": "normal",
+   "subject": "MATH",
+   "verdict": "REBIND",
+   "current_node_slug": "解三角形的常用定理",
+   "target_node_slug": "解三角形常用二级结论",
+   "confidence": "medium",
+   "evidence_quote": "由 $A+B+C=\\pi$ 得 $\\sin(A+B)=\\sin C$",
+   "sidecar": "moe-2025-teaching-support-v2-01.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:math:atomic:解三角形的常用定理"
+   ]
+  },
+  {
+   "material_slug": "math-hj-s98-parabola-three-lines",
+   "layer": "normal",
+   "subject": "MATH",
+   "verdict": "REBIND",
+   "current_node_slug": "线面平行的定义-一条直线与一个平面无公共点-不相交",
+   "target_node_slug": "直线与圆锥曲线的位置关系",
+   "confidence": "high",
+   "evidence_quote": "过抛物线内部一点与抛物线仅一个公共点的直线有 3 条",
+   "sidecar": "moe-2025-teaching-support-v2-01.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:math:atomic:线面平行的定义-一条直线与一个平面无公共点-不相交"
+   ]
+  },
+  {
+   "material_slug": "phys-chao-zhong-shi-zhong-pan-duan",
+   "layer": "normal",
+   "subject": "PHYSICS",
+   "verdict": "REBIND",
+   "current_node_slug": "加速度方向突变",
+   "target_node_slug": "超重与失重的判断方法",
+   "confidence": "high",
+   "evidence_quote": "加速度有竖直向上分量时物体超重",
+   "sidecar": "moe-2025-teaching-support-v2-01.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:physics:atomic:加速度方向突变"
+   ]
+  },
+  {
+   "material_slug": "bio-feeding-method-scope",
+   "layer": "overfull",
+   "subject": "BIOLOGY",
+   "verdict": "REBIND",
+   "current_node_slug": "胰岛素",
+   "target_node_slug": "激素",
+   "confidence": "high",
+   "evidence_quote": "类固醇激素（性激素等）可饲喂；蛋白质类激素被消化酶分解，不可饲喂",
+   "sidecar": "moe-2025-teaching-support-v2-04.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:biology:atomic:胰岛素"
+   ]
+  },
+  {
+   "material_slug": "bio-fx-acetobacter-characters",
+   "layer": "overfull",
+   "subject": "BIOLOGY",
+   "verdict": "REBIND",
+   "current_node_slug": "传统发酵技术",
+   "target_node_slug": "果酒和果醋的制作",
+   "confidence": "high",
+   "evidence_quote": "醋酸菌是好氧原核生物，氧气充足时才能进行醋酸发酵",
+   "sidecar": "moe-2025-teaching-support-v2-05.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:biology:atomic:传统发酵技术"
+   ]
+  },
+  {
+   "material_slug": "bio-kb3-f4-s53-n03",
+   "layer": "overfull",
+   "subject": "BIOLOGY",
+   "verdict": "REBIND",
+   "current_node_slug": "实验-观察根尖分生区组织细胞的有丝分裂",
+   "target_node_slug": "有丝分裂",
+   "confidence": "high",
+   "evidence_quote": "有丝分裂各时期的特点(以高等植物细胞为例)",
+   "sidecar": "moe-2025-teaching-support-v2-05.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:biology:atomic:实验-观察根尖分生区组织细胞的有丝分裂"
+   ]
+  },
+  {
+   "material_slug": "bio-kb3-f5-s5-2-n06",
+   "layer": "overfull",
+   "subject": "BIOLOGY",
+   "verdict": "REBIND",
+   "current_node_slug": "atp的结构",
+   "target_node_slug": "atp的合成和利用",
+   "confidence": "high",
+   "evidence_quote": "ATP是驱动细胞生命活动的直接能源物质",
+   "sidecar": "moe-2025-teaching-support-v2-05.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构"
+   ]
+  },
+  {
+   "material_slug": "bio-mo-cell-091",
+   "layer": "overfull",
+   "subject": "BIOLOGY",
+   "verdict": "REBIND",
+   "current_node_slug": "蛋白质的基本单位-氨基酸",
+   "target_node_slug": "核糖体",
+   "confidence": "high",
+   "evidence_quote": "核糖体是氨基酸脱水缩合形成蛋白质的场所",
+   "sidecar": "moe-2025-teaching-support-v2-05.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的基本单位-氨基酸"
+   ]
+  },
+  {
+   "material_slug": "bio-mo-genetic-engineering-008",
+   "layer": "overfull",
+   "subject": "BIOLOGY",
+   "verdict": "REBIND",
+   "current_node_slug": "基因工程",
+   "target_node_slug": "DNA的粗提取与鉴定",
+   "confidence": "high",
+   "evidence_quote": "DNA不溶于酒精，但某些蛋白质溶于酒精",
+   "sidecar": "moe-2025-teaching-support-v2-05.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程"
+   ]
+  },
+  {
+   "material_slug": "chem-fx-you-ji-hua-he-wu-de-ming-ming-jie-gou-f64x10",
+   "layer": "overfull",
+   "subject": "CHEMISTRY",
+   "verdict": "NONE",
+   "current_node_slug": "有机化合物的空间结构",
+   "target_node_slug": "",
+   "confidence": "high",
+   "evidence_quote": "有机化合物的命名、结构简式的书写、有机化学方程式的书写等",
+   "sidecar": "moe-2025-teaching-support-v2-04.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机化合物的空间结构"
+   ]
+  },
+  {
+   "material_slug": "chem-fx-zai-biao-zhun-zhuang-kuang-xia-f01x08",
+   "layer": "overfull",
+   "subject": "CHEMISTRY",
+   "verdict": "NONE",
+   "current_node_slug": "看-气体-是否处于-标准状况-0-101kpa",
+   "target_node_slug": "",
+   "confidence": "high",
+   "evidence_quote": "在标准状况下，将含a L NO2和b L NO的混合气体通入625 g质量分数为21.2%的纯碱溶液中",
+   "sidecar": "moe-2025-teaching-support-v2-03.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:看-气体-是否处于-标准状况-0-101kpa"
+   ]
+  },
+  {
+   "material_slug": "ext-bio-3a60560995-011",
+   "layer": "overfull",
+   "subject": "BIOLOGY",
+   "verdict": "REBIND",
+   "current_node_slug": "细胞分化",
+   "target_node_slug": "管家基因与奢侈基因",
+   "confidence": "high",
+   "evidence_quote": "前者所有细胞均表达，后者特异性表达",
+   "sidecar": "moe-2025-teaching-support-v2-17.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:biology:atomic:细胞分化"
+   ]
+  },
+  {
+   "material_slug": "ext-bio-c1fc984e29-004",
+   "layer": "overfull",
+   "subject": "BIOLOGY",
+   "verdict": "REBIND",
+   "current_node_slug": "物理模型的构建方法",
+   "target_node_slug": "辨析真正光合速率-净光合速率和呼吸速率",
+   "confidence": "high",
+   "evidence_quote": "以气体交换箭头模型表示总光合等于净光合加呼吸",
+   "sidecar": "moe-2025-teaching-support-v2-16.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:biology:atomic:物理模型的构建方法"
+   ]
+  },
+  {
+   "material_slug": "ext-che-366722558b-015b",
+   "layer": "overfull",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "合成高分子的结构和性质",
+   "target_node_slug": "功能高分子材料",
+   "confidence": "high",
+   "evidence_quote": "高吸水性树脂靠主链上的强亲水基团吸水",
+   "sidecar": "moe-2025-teaching-support-v2-15.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:合成高分子的结构和性质"
+   ]
+  },
+  {
+   "material_slug": "ext-che-3713da16bf-132",
+   "layer": "overfull",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "晶胞密度的计算",
+   "target_node_slug": "晶胞中粒子数目、配位数、坐标与密度的计算",
+   "confidence": "high",
+   "evidence_quote": "已知立方晶胞边长a、原子半径r时",
+   "sidecar": "moe-2025-teaching-support-v2-14.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算"
+   ]
+  },
+  {
+   "material_slug": "ext-che-3a8fd8d517-030",
+   "layer": "overfull",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "合成高分子反应的化学方程式的书写",
+   "target_node_slug": "聚合反应",
+   "confidence": "medium",
+   "evidence_quote": "缩聚反应是由一种或一种以上单体相互结合生成聚合物，同时有小分子生成的反应",
+   "sidecar": "moe-2025-teaching-support-v2-15.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:合成高分子反应的化学方程式的书写"
+   ]
+  },
+  {
+   "material_slug": "ext-che-52e4b9ee73-017",
+   "layer": "overfull",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "vsepr模型",
+   "target_node_slug": "中心原子杂化类型的判断",
+   "confidence": "high",
+   "evidence_quote": "杂化轨道数等于价层电子对数",
+   "sidecar": "moe-2025-teaching-support-v2-16.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:vsepr模型"
+   ]
+  },
+  {
+   "material_slug": "ext-che-789339a0b0-016",
+   "layer": "overfull",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "新型无机非金属材料",
+   "target_node_slug": "硅酸盐",
+   "confidence": "high",
+   "evidence_quote": "无机非金属材料一般含有硅、氧元素",
+   "sidecar": "moe-2025-teaching-support-v2-07.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:新型无机非金属材料"
+   ]
+  },
+  {
+   "material_slug": "ext-che-80dc9e8d0c-006",
+   "layer": "overfull",
+   "subject": "CHEMISTRY",
+   "verdict": "REBIND",
+   "current_node_slug": "晶胞密度的计算",
+   "target_node_slug": "晶胞中粒子数目、配位数、坐标与密度的计算",
+   "confidence": "high",
+   "evidence_quote": "晶胞计算分为计算晶体密度、计算微粒间距离和计算原子空间利用率三类",
+   "sidecar": "moe-2025-teaching-support-v2-07.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算"
+   ]
+  },
+  {
+   "material_slug": "ext-phy-0b2ace4bef-016",
+   "layer": "overfull",
+   "subject": "PHYSICS",
+   "verdict": "REBIND",
+   "current_node_slug": "电磁波",
+   "target_node_slug": "电磁波谱与各波段的特性",
+   "confidence": "medium",
+   "evidence_quote": "按波长或频率的大小把电磁波排列成谱叫电磁波谱",
+   "sidecar": "moe-2025-teaching-support-v2-14.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:physics:atomic:电磁波"
+   ]
+  },
+  {
+   "material_slug": "ext-phy-fffc8cde9c-003c",
+   "layer": "overfull",
+   "subject": "PHYSICS",
+   "verdict": "REBIND",
+   "current_node_slug": "电磁波",
+   "target_node_slug": "电磁波谱与各波段的特性",
+   "confidence": "medium",
+   "evidence_quote": "按波长由长到短排列的电磁波谱",
+   "sidecar": "moe-2025-teaching-support-v2-09.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:physics:atomic:电磁波"
+   ]
+  },
+  {
+   "material_slug": "phys-hj2-yehzhu-fengbi-yaqiang-yaodian",
+   "layer": "overfull",
+   "subject": "PHYSICS",
+   "verdict": "REBIND",
+   "current_node_slug": "气体压强",
+   "target_node_slug": "液柱模型",
+   "confidence": "high",
+   "evidence_quote": "以液柱为对象列平衡方程求气体压强",
+   "sidecar": "moe-2025-teaching-support-v2-02.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:physics:atomic:气体压强"
+   ]
+  },
+  {
+   "material_slug": "phys-hj3-resistivity-exp-dataprocess",
+   "layer": "overfull",
+   "subject": "PHYSICS",
+   "verdict": "REBIND",
+   "current_node_slug": "数据处理-x1",
+   "target_node_slug": "测量金属丝的电阻率实验",
+   "confidence": "high",
+   "evidence_quote": "求 $R$ 可多次计算取平均或用 $U\\text{-}I$ 图线斜率",
+   "sidecar": "moe-2025-teaching-support-v2-02.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:physics:atomic:数据处理-x1"
+   ]
+  },
+  {
+   "material_slug": "phys-pingpao-sudu-fen-liang-pian-xiang-jiao",
+   "layer": "overfull",
+   "subject": "PHYSICS",
+   "verdict": "REBIND",
+   "current_node_slug": "平抛运动的两个重要结论",
+   "target_node_slug": "平抛运动",
+   "confidence": "medium",
+   "evidence_quote": "水平速度 $v_x=v_0$，竖直速度 $v_y=gt$",
+   "sidecar": "moe-2025-teaching-support-v2-01.json",
+   "before_bindings": [
+    "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动的两个重要结论"
+   ]
+  }
+ ]
+}

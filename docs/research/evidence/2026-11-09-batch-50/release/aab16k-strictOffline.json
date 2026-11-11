@@ -1,0 +1,19 @@
+{
+  "aab": "app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab",
+  "sha256": "edaf058ded0de18e1706c971d726174ed08b13467bd65af7c0902ed251fe3d88",
+  "abi_set": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "native_libs": [
+    "libLiteRt.so",
+    "libLiteRtClGlAccelerator.so",
+    "libandroidx.graphics.path.so",
+    "libdatastore_shared_counter.so",
+    "liblitert_jni.so",
+    "libmlkit_google_ocr_pipeline.so",
+    "libquickjs.so"
+  ],
+  "alignment": 2,
+  "errors": []
+}

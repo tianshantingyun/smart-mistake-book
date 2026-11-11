@@ -472,6 +472,12 @@ class VisualDrawOpsPainterInstrumentedTest {
         }
         assertEquals(PAINTER_LABEL_MATH, failure.code)
         assertTrue(failure.message!!.contains("ops[0]"))
+        // 批次 50：V1 math 盒回放是**显式产品降级**（不是"本批未做"）。诊断必须点名
+        // degrade 语义，否则调用方/台账无法区分"暂时没写"与"契约上就不画"。
+        assertTrue(
+            "math degrade diagnostic must name the explicit degrade, got: ${failure.message}",
+            failure.message!!.contains("explicitly degraded"),
+        )
     }
 
     @Test

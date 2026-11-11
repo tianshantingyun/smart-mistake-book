@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-e14aad82a5-325c	CORRECT		high	由qBv=qE=qU/d得v=U/(dB)，流量Q=πdU/(4B)，与U成正比	
+ext-che-2c2c95102b-009c	CORRECT		high	同一电池在不同介质中的电极反应式不同	
+ext-che-04aaa82aef-009	CORRECT		high	碱性歧化：3S＋6OH－===2S2－＋SO32－＋3H2O。	
+ext-mat-289deb9ecd-1845	CORRECT		high	按各组成部分所占比例算出各扇形的圆心角度数	
+ext-mat-aea9ac4cd1-004	CORRECT		medium	定义域为全体实数，值域由振幅与上下平移决定，周期由ω决定，奇偶性由初相φ决定	同一函数的性质，节点为其图象节
+ext-che-f8568a6373-004b	CORRECT		high	逐滴加入少量 FeCl3 饱和溶液，继续煮沸至液体呈红褐色即停止加热	
+ext-bio-5459fe25cc-010	CORRECT		high	多样性：碱基排列顺序千变万化，构成了DNA的多样性	
+ext-phy-2a265f56ec-003	CORRECT		high	静摩擦力在零与最大静摩擦力之间取值（0<F≤Fmax）	
+ext-che-5c62da9e03-129b	CORRECT		medium	2NaOH＋SiO₂＝Na₂SiO₃＋H₂O	玻璃塞问题源于SiO2与碱反应，属其化学性质
+ext-mat-555709725e-002c	CORRECT		high	f′(x)>0 不是增函数的必要条件	
+ext-phy-e14aad82a5-1270	CORRECT		high	电容器所带的电荷量 Q 与电容器两极板间的电势差 U 之比，叫作电容器的电容	
+chem-kb-nh3-lab-preparation-details	CORRECT		high	干燥用碱石灰；不能用浓硫酸，也不能用无水CaCl2	
+ext-phy-99a2f4cb2c-012	CORRECT		medium	在一维情况下各个矢量必须选同一个正方向	力电综合中的动量观点，属三大观点应用
+ext-bio-53ea16f9ff-014	CORRECT		high	温度通过影响酶活性影响细胞呼吸速率	
+ext-mat-ce96a2d8c2-003	CORRECT		high	使这两个圆的圆幂相等的点的集合是一条直线	
+bio-kb3-f4-s22-n09	CORRECT		high	特点：动物细胞和低等植物细胞特有的细胞器	
+ext-mat-565d53fbaf-002	CORRECT		high	给出幂的对数性质的形式化表达及其常用推广形式与运算顺序	
+ext-bio-a9e2b937a1-013	CORRECT		high	膜蛋白的作用：识别作用，如糖蛋白；传递信息，如受体蛋白	
+ext-mat-dfc0540292-020	CORRECT		high	配凑只是变形手段，用完后必须检查基本不等式的三个条件	
+ext-mat-2aa92da930-003b	CORRECT		high	由条件解出参数后要代回原集合检验，若出现两个相同元素则该值舍去	
+ext-phy-31184ae199-004	CORRECT		high	观察电容器的充电现象并将结果记录在表格中	
+ext-che-5c62da9e03-2402	CORRECT		medium	氨水显碱性，能使无色酚酞溶液变红或使红色石蕊试纸变蓝	氨水为氨与水反应产物，属氨的化学性质
+bio-mo-plant-hormone-026	CORRECT		high	植物生长发育的调控，是由基因表达调控、激素调节和环境因素调节共同完成的	
+ext-che-bb47d80700-004	CORRECT		medium	有机反应条件常对应固定反应类型：光照是烷烃或烷基上氢被取代的条件	显色现象为邻近知识，主体为反应条件推断
+bio-fj-04-amino-acid-transport	REBIND	主动运输	low	跨膜运输：细胞膜上的载体蛋白（如小肠上皮细胞吸收氨基酸为主动运输）	材料讲氨基酸跨膜(主动)与tRNA胞内运输，非氨基酸结构
+bio-fj-03-fat-not-macromolecule	CORRECT		medium	脂肪由甘油和脂肪酸连接而成，不是生物大分子，但仍以碳链为骨架	判定生物大分子范围，属该节点概念边界
+ext-che-bc23c25828-002b	CORRECT		high	铁屑要过量，防止生成的Fe2+被空气中的氧气氧化	
+ext-phy-7b614c35cb-020	CORRECT		high	将一些抽象的、看不见摸不着的物理现象或不易直接测量的物理量，转换为直观的、易观察的现象或量来研究	
+ext-phy-2e6c3f80cc-028	CORRECT		medium	由竖直方向的位移差 Δy＝gT² 求出 g	手机连拍为自由落体测g的变式方法
+ext-mat-c94d5bfb9d-020	CORRECT		high	任意-任意型不等式 f(x1)≤g(x2) 等价于 f 的最大值不超过 g 的最小值	
+ext-bio-d836b53afc-001	CORRECT		high	达尔文、鲍森·詹森、拜尔、温特的系列实验逐步证明尖端产生化学物质引起弯曲生长	
+ext-phy-4dd4b74876-010	CORRECT		high	采用隔离法分析单个物体时，一般先从动能定理或动量定理的角度思考	
+ext-phy-3c80e69263-007	CORRECT		high	电源的总功率：任意电路P总＝IE＝IU外＋IU内＝P出＋P内	
+bio-mo-cell-079	CORRECT		high	糖蛋白的位置只位于细胞膜的外侧，内侧不存在	
+ext-phy-6d8ca521d5-032	CORRECT		high	两个共点力：合力范围 |F_1−F_2|≤F_合≤F_1＋F_2	
+ext-mat-3ac9e93917-001c	CORRECT		high	若两集合互为子集，则两个集合相等	
+ext-che-5c62da9e03-116	CORRECT		high	原理：2NH₄Cl＋Ca(OH)₂＝CaCl₂＋2NH₃↑＋2H₂O（加热）	
+ext-phy-46ed0e1aec-016	CORRECT		high	在等效最高点由等效重力提供向心力时速度最小	
+ext-mat-04cad33fb4-029	CORRECT		high	若f(x+a)=f(x)，则周期为a	
+ext-mat-c20768bd3a-035	CORRECT		high	即 B 到两定点 A、C 的距离之比为定值，轨迹是阿波罗尼斯圆	
+math-han-fuyihao-liexiang-zhengfu-jiaoti	CORRECT		high	利用裂项相消法求和时，通过 $(-1)^n$ 实现正负交替	
+ext-bio-9afe4c6e87-006	CORRECT		high	一个基因控制多种性状（基因的多效性）	
+ext-bio-f94276f113-018	CORRECT		medium	自交法，F1自交后代性状分离比为9:3:3:1则遵循自由组合定律	验证方法属遗传学实验设计
+ext-phy-5bb53c755c-045	CORRECT		high	待油酸薄膜形状稳定后把玻璃板放在浅盘上，用彩笔把薄膜形状画在玻璃板上	
+ext-phy-bf912285f2-007	CORRECT		medium	瞬时速度是状态量，表示物体在某一位置或某一时刻的运动快慢	节点名逐字匹配；boundary混入加速度内容
+ext-phy-9ee212847a-005	CORRECT		high	图线与 x 轴围成的“面积”表示两点间电势差	
+phys-hj2-youbmogu-shiyan-yuanli	CORRECT		high	油酸在水面上形成单分子层油膜，膜厚即分子直径 $d=V/S$	
+ext-che-25917695d0-014	CORRECT		high	碱金属的密度一般随核电荷数的增大而增大，但钾的密度比钠的小	
+ext-che-4e5c3df05f-008	CORRECT		high	水分子稳定性好是由分子内 O—H 共价键的键能决定的，与分子间形成的氢键无关	
+chem-hj2-tangou-tie-tangou-yuanyin	CORRECT		medium	瓷坩埚含SiO2，高温下SiO2+2NaOH=Na2SiO3+H2O，坩埚被腐蚀，所以熔融NaOH用铁坩埚	坩埚材质选择属坩埚使用主要操作要求

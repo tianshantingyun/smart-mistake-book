@@ -1,0 +1,78 @@
+{
+  "input_file": "BLD-PROPCOORD-007.json",
+  "program_sha256": "ae6f532b38788cea65c96b6bb9c53250286640f3cc1c28435ee4c92436b7feb8",
+  "task_id": "BLD-PROPCOORD-007",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 25,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "P(5,5)",
+      "widthDu": 42.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3ce25e6c1501427e6318a30349177053bb4769aa664b4608305a1fad8ad6244e"
+    },
+    {
+      "contentId": "c1",
+      "payload": "第一象限",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c52c8d6b3106d8c18609858d3ea1d9c19594b7d9d395376328a2b894e0d91381"
+    },
+    {
+      "contentId": "c2",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c3",
+      "payload": "y",
+      "widthDu": 7.636363506317139,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a1fce4363854ff888cff4b8e7875d600c2682390412a8cf79b37d0b11148b0fa"
+    },
+    {
+      "contentId": "c4",
+      "payload": "O",
+      "widthDu": 10.909090995788574,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c4694f2e93d5c4e7d51f9c5deb75e6cc8be5e1114178c6a45b6fc2c566a0aa8c"
+    },
+    {
+      "contentId": "c5",
+      "payload": "5",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"
+    },
+    {
+      "contentId": "c6",
+      "payload": "5",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai"
+}

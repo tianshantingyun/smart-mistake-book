@@ -1,0 +1,63 @@
+{
+    "file": "IMG20260810005144.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 50572,
+    "responseHead": "{\"id\":\"8bb95104-3dbd-47cd-93e0-999c69075f18\",\"object\":\"chat.completion\",\"created\":1794128610,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.025,\\\"top\\\":0.0,\\\"right\\\":0.925,\\\"bottom\\\":0.995},\\\"message\\\":\\\"画面含多道彼此独立的题，需按题拆分。\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.025,\\\"top\\\":0.145,\\\"right\\\":0.470,\\\"bottom\\\":0.315},{\\\"left\\\":0.025,\\\"top\\\":0.390,\\\"right\\\":0.470,\\\"bottom\\\":0.780},{\\\"left\\\":0.025,\\\"top\\\":0.775,\\\"right\\\":0.470,\\\"bottom\\\":0.995},{\\\"left\\\":0.500,\\\"top\\\":0.000,\\\"right\\\":0.925,\\\"bottom\\\":0.150},{\\\"left\\\":0.500,\\\"top\\\":0.235,\\\"right\\\":0.925,\\\"bottom\\\":0.500},{\\\"left\\\":0.500,\\\"top\\\":0.515,\\\"right\\\":0.925,\\\"bottom\\\":0.995}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"We need answer only JSON schema exactly five keys. Need decide image contains many independent questions? Need parse. Image is a page of biology exercise with left and right columns, questions numbered 11-15 plus maybe top items from previous question? We need determine if enough complete transcription. Need identify independent questions. There are at least 11,12,13,14,15 and maybe top continuation of earlier numbered? At very top left options A-D likely previous question 10? Since no stem visible? Also top right options B,C,D maybe continuation of same previous question? Need careful.\\n\\nNeed determine decision. If 2-12 independent questions, must SPLIT, MULTIPLE_QUESTIONS blocking, questionRegions ea",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.025,
+            "top": 0.145,
+            "right": 0.47,
+            "bottom": 0.315
+        },
+        {
+            "left": 0.025,
+            "top": 0.39,
+            "right": 0.47,
+            "bottom": 0.78
+        },
+        {
+            "left": 0.025,
+            "top": 0.775,
+            "right": 0.47,
+            "bottom": 0.995
+        },
+        {
+            "left": 0.5,
+            "top": 0.0,
+            "right": 0.925,
+            "bottom": 0.15
+        },
+        {
+            "left": 0.5,
+            "top": 0.235,
+            "right": 0.925,
+            "bottom": 0.5
+        },
+        {
+            "left": 0.5,
+            "top": 0.515,
+            "right": 0.925,
+            "bottom": 0.995
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 6,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–0.897；双栏，栏间空白位于 x=0.467–0.504；行距约 9px；段落分隔（共 54 处，已截断到 8 条）：y=0.017（谷宽18px，栏1）；y=0.401（谷宽15px，栏2）；y=0.012（谷宽14px，栏2）；y=0.429（谷宽14px，栏2）；y=0.087（谷宽11px，栏2）；y=0.327（谷宽11px，栏1）；y=0.421（谷宽11px，栏1）；y=0.444（谷宽11px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 286,
+    "image": {
+        "egressBytes": 722393,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "2904254375666b2cb2fa47794e9bf52df274adc82f34fbb69a7685d92814a10b",
+    "promptSha256": "5d2147a62e4093b062629e54425fbc3b2a304a83888d6911862ab3742c78beb9"
+}

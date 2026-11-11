@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+chem-hj-fanyingsulv-biaoshi	CORRECT		high	用单位时间内浓度变化表示反应速率	
+chem-hj-gaochun-gui-zhifa	CORRECT		high	焦炭还原 SiO2 得粗硅	
+chem-hj-guizhong-qihua-guilv	CORRECT		high	归中为高价+低价→中间价，歧化为中间价→高价+低价	
+chem-hj-jian-jixing	CORRECT		high	不同种元素原子间形成极性键，同种元素原子间形成非极性键	
+chem-hj-lizi-fanying-tiaojian	CORRECT		high	离子反应的条件是生成难溶物、难电离物、挥发性物或发生电子转移、络合	
+chem-hj-lv-yushui-jie-suanyan-fanying	CORRECT		high	铝片投入 NH4Cl 溶液产生氢气	
+chem-hj-qimixing-jiancha-sifa	CORRECT		high	气密性检查有微热法、液差法、滴液法、抽气吹气法	
+chem-hj-rongjie-ronghua-huaxuejian-bianhua	CORRECT		high	离子化合物溶于水或熔化均破坏离子键	
+chem-hj-shiyang-fangan-pingjia-sijiaodu	CORRECT		high	评价实验方案从可行性、绿色化学、安全性、规范性四方面进行	
+chem-hj-xiangsi-xiangrong	CORRECT		high	极性溶质易溶于极性溶剂，非极性溶质易溶于非极性溶剂	
+chem-hj-zhonghe-dingding-wucha	CORRECT		high	由 V标准 的偏大偏小判断 c待测 偏差	
+chem-hj2-erjiaxi-sanzhong-yigouti	CORRECT		medium	二甲苯有邻、间、对三种同分异构体	材料兼含苯同系物命名，节点覆盖同分异构体
+chem-hj2-piaobai-xingzhi-wuzhi-bijiao	CORRECT		high	SO2与有色物化合成不稳定无色物（可逆），HClO氧化漂白（不可逆）	
+chem-hj2-pingheng-changshu-k-hanyi	CORRECT		high	K是平衡时生成物浓度幂之积与反应物浓度幂之积的比值	节点为K与Q表达式，材料为K含义
+chem-hj2-qiti-moer-tiji-lv	CORRECT		high	标况下气体摩尔体积约22.4 L/mol	
+chem-hj2-zhonghe-diding-quxian-wudian	CORRECT		high	滴定曲线抓起点、半中和点、恰好中和点、过量点和终点五点	节点为“四点”法，材料为五点扩展
+chem-hj2-zhouqibiao-jiegou-yiwcuo	CORRECT		high	门捷列夫首张周期表按相对原子质量编排而非原子序数	
+chem-inert-gas-rate-effect	CORRECT		high	恒温恒容充惰气各组分分压不变速率不变	
+chem-iron-dilute-nitric-acid-quantity	CORRECT		high	硝酸过量生成Fe3+，铁过量（硝酸不足）生成Fe2+	
+chem-kb-dilution-ph-rules	CORRECT		high	强酸稀释10n倍pH增大n，弱酸增大不足n	
+chem-kb-electrolyte-judgment-boundary	CORRECT		high	电解质概念仅对化合物而言	
+chem-kb-same-period-trend	CORRECT		high	同周期从左到右原子半径减小	
+chem-kb-sodium-air-exposure-chain	CORRECT		high	钠表面变暗→变稀→白色块状→白色粉末	
+chem-kb-successive-ionization-energy	CORRECT		high	同种元素逐级电离能越来越大	
+chem-kb-unfamiliar-equation-writing-steps	CORRECT		high	按写两剂、推产物、配电子、配电荷、配原子、查规范六步书写	
+chem-mo-qiangruo-guilv	CORRECT		high	由强制弱	
+chem-parallel-measurement-average	CORRECT		high	平行测定2~3次取平均值	
+cmp-che-02503	CORRECT		high	浓硫酸不拆而浓盐酸与浓硝酸要拆	
+ext-bio-035ebaef9d-001	CORRECT		high	无氧呼吸第一阶段与有氧呼吸相同	
+ext-bio-035ebaef9d-012	CORRECT		high	有氧呼吸第三阶段在线粒体内膜上进行	
+ext-bio-03c8a668fe-005b	CORRECT		high	有氧呼吸第一阶段在细胞质基质、后两阶段在线粒体	
+ext-bio-04367dcc90-007	CORRECT		high	多肽及蛋白质类激素、氨基酸衍生物类激素等含氮类激素	
+ext-bio-0770685097-052	CORRECT		high	自由扩散与协助扩散速率随浓度差增大而增大并受载体限制	
+ext-bio-07c46f02a2-020	CORRECT		high	细胞免疫针对靶细胞、衰老损伤细胞、癌细胞和异体器官移植的细胞	
+ext-bio-0b30bf1136-031	CORRECT		high	细胞呼吸是糖类、脂肪和蛋白质代谢的枢纽	
+ext-bio-0c2f4eacc5-013	CORRECT		high	水以自由水和结合水两种形式存在	
+ext-bio-0c6eef6074-003	CORRECT		high	氨基酸的种类、数目、排列顺序与肽链的空间结构共同决定多样性	
+ext-bio-0f1df948bc-008	CORRECT		high	无氧呼吸的[H]和ATP都由第一阶段在细胞质基质中产生	
+ext-bio-104664970d-090	CORRECT		high	根茎中感受重力的细胞将重力信号转为生长素分布不均衡	
+ext-bio-121dbc60f9-028	CORRECT		high	病毒没有细胞结构，一般由核酸和蛋白质外壳组成	
+ext-bio-1288e946fc-013	CORRECT		high	细胞中常见元素有20多种	
+ext-bio-1288e946fc-046	CORRECT		high	蛋白质与双缩脲试剂反应呈紫色	
+ext-bio-13c16a9f45-065	CORRECT		high	隔离的实质、地理隔离与生殖隔离及生殖隔离的三种情况	
+ext-bio-16634b9b2a-071	CORRECT		high	线粒体是双层膜细胞器	
+ext-bio-1df296bf12-005	CORRECT		high	先判断是否为伴Y，再判显隐性	
+ext-bio-1fc19d707a-013	CORRECT		high	生态系统中的信息包括物理信息、化学信息与行为信息	
+ext-bio-20423534c9-003	CORRECT		high	细胞壁对进出细胞的物质没有选择性	
+ext-bio-20423534c9-022	CORRECT		high	细胞膜上的蛋白质有受体蛋白、识别蛋白、酶蛋白、载体蛋白和通道蛋白等	
+ext-bio-23404bac23-057	CORRECT		high	带「菌」字的不一定都是细菌	
+ext-bio-243272e045-009	CORRECT		high	A与B作用效果相同，显性基因越多效果越强	

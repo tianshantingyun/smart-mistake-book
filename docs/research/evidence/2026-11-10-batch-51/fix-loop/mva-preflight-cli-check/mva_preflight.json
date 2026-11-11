@@ -1,0 +1,443 @@
+{
+  "channel_map": {
+    "bytes": 56652,
+    "sha256": "580c2f635ce1f0b5c0e6a05ae11a23b952ebb05354c74e3e487254c8d332f30f"
+  },
+  "channel_totals": {
+    "channel": {
+      "A": 94,
+      "A|B": 116,
+      "A|B|C": 38,
+      "A|C": 40
+    },
+    "critical_channel": {
+      "A": 87,
+      "A|B": 82,
+      "A|C": 40
+    },
+    "critical_facts": 209,
+    "facts": 288,
+    "tasks": 120,
+    "tasks_with_all_critical_a_only": 27,
+    "tasks_with_critical_a_only": 57
+  },
+  "fixture": {
+    "files": {
+      "tasks_blind_120.json": {
+        "group_counts": {
+          "flow_formula": 20,
+          "handwriting_removal": 20,
+          "mechanics_phases": 20,
+          "natural_illustration": 20,
+          "proportion_coordinates": 20,
+          "source_rebuild": 20
+        },
+        "sha256": "8b9567e12d4e18e2f0814caa93c4c2f733e0a861ee125240b53b13def36fa647",
+        "task_count": 120
+      },
+      "tasks_dev_24.json": {
+        "group_counts": {
+          "flow_formula": 4,
+          "handwriting_removal": 4,
+          "mechanics_phases": 4,
+          "natural_illustration": 4,
+          "proportion_coordinates": 4,
+          "source_rebuild": 4
+        },
+        "sha256": "9fbb9067c37bedcc9629c3b286d3f84aeffdb000a6dbff43650d6ccf73bdcefb",
+        "task_count": 24
+      }
+    },
+    "frozen_at": "2026-10-25T00:00:00+08:00",
+    "generator_sha256": "630b3c0e680b86f85765c8514ae20413d681ad0a25df9b5d366e15fe5e798cf4",
+    "generator_sha_matches": true,
+    "manifest": {
+      "files": {
+        "tasks_blind_120.json": {
+          "group_counts": {
+            "flow_formula": 20,
+            "handwriting_removal": 20,
+            "mechanics_phases": 20,
+            "natural_illustration": 20,
+            "proportion_coordinates": 20,
+            "source_rebuild": 20
+          },
+          "sha256": "8b9567e12d4e18e2f0814caa93c4c2f733e0a861ee125240b53b13def36fa647",
+          "task_count": 120
+        },
+        "tasks_dev_24.json": {
+          "group_counts": {
+            "flow_formula": 4,
+            "handwriting_removal": 4,
+            "mechanics_phases": 4,
+            "natural_illustration": 4,
+            "proportion_coordinates": 4,
+            "source_rebuild": 4
+          },
+          "sha256": "9fbb9067c37bedcc9629c3b286d3f84aeffdb000a6dbff43650d6ccf73bdcefb",
+          "task_count": 24
+        }
+      },
+      "frozen_at": "2026-10-25T00:00:00+08:00",
+      "generator_sha256": "630b3c0e680b86f85765c8514ae20413d681ad0a25df9b5d366e15fe5e798cf4",
+      "manifest_version": 1,
+      "policy": "评测门每次运行前校验下列 sha256；不一致即拒绝运行（防面向结果改夹具）。变更任务集必须重新冻结：重跑 build_frozen_tasks.py 并在新 frozen_at 下留审计记录。"
+    },
+    "manifest_generator_sha256": "630b3c0e680b86f85765c8514ae20413d681ad0a25df9b5d366e15fe5e798cf4",
+    "manifest_sha_verified": true
+  },
+  "fixture_sanity": {
+    "facts_checked": 288,
+    "status": "PASS"
+  },
+  "generated_by": "tools/figure_eval/mva_gate.py",
+  "isolation": {
+    "blind_count": 120,
+    "blind_group_counts": {
+      "flow_formula": 20,
+      "handwriting_removal": 20,
+      "mechanics_phases": 20,
+      "natural_illustration": 20,
+      "proportion_coordinates": 20,
+      "source_rebuild": 20
+    },
+    "dev_count": 24,
+    "dev_in_denominator": false,
+    "groups_complete": true,
+    "overlap": []
+  },
+  "readings": {
+    "IMAGE_MODEL": {
+      "arm": "IMAGE_MODEL",
+      "coverage": 0.0,
+      "critical_errors_accepted": {
+        "citable": false,
+        "met": false,
+        "note": "无样本时 0 条不可引用（此时计数为 0 只因没有产物）；figure_eval_gate.py:980 的 critical_error_accepted=False 是恒真式，不得作为本门证据",
+        "register": [],
+        "source": {
+          "file": "docs/superpowers/specs/2026-10-19-product-readiness-design.md",
+          "quote": "关键题意错误被接受=0、越权/超预算/恢复重复外发=0",
+          "section": "§6"
+        },
+        "threshold": 0,
+        "value": 0,
+        "zero_event_upper_bound_95": null
+      },
+      "denominator": 120,
+      "deterministic_checks": {
+        "geometry": 0,
+        "note": "渲染/几何/文字三类确定性检查按记录里的 render_ok/geometry_ok/text_ok 计数",
+        "render": 0,
+        "status": "NOT_RUN",
+        "text": 0
+      },
+      "evaluable": false,
+      "first_image_p95_ms": {
+        "met": false,
+        "render_only": {
+          "met": false,
+          "samples": 0,
+          "scope": "render_only",
+          "threshold_ms": 120000,
+          "value": null
+        },
+        "samples": 0,
+        "scope": "request_to_first_image",
+        "source": {
+          "also_stated_in": {
+            "file": "docs/superpowers/plans/2026-10-19-product-readiness-followup-plan.md",
+            "line": ":134",
+            "quote": "JS路径p95≤30秒、IMAGE_MODEL路径≤120秒为首批目标"
+          },
+          "file": "docs/superpowers/specs/2026-10-19-product-readiness-design.md",
+          "quote": "≤120秒（IMAGE_MODEL路径）",
+          "section": "§6"
+        },
+        "threshold_ms": 120000,
+        "value": null
+      },
+      "first_pass_rate": {
+        "denominator": 120,
+        "informational_only": true,
+        "met": false,
+        "samples": 0,
+        "source": {
+          "also_stated_in": {
+            "file": "docs/superpowers/plans/2026-10-19-product-readiness-followup-plan.md",
+            "line": ":133",
+            "quote": "依设计§6执行首次≥90%/预算内≥95%/分组≥90%、关键错误接受=0门，记录比例/分母/区间"
+          },
+          "file": "docs/superpowers/specs/2026-10-19-product-readiness-design.md",
+          "quote": "首次合格≥90%，原预算内最终合格≥95%，每组最终≥90%（首批质量目标，工程启用标准，尚未实测）",
+          "section": "§6 统一生图的质量与启用"
+        },
+        "successes": 0,
+        "threshold": 0.9,
+        "value": null,
+        "wilson95": [
+          null,
+          null
+        ]
+      },
+      "per_group_final": {
+        "all_met": false,
+        "groups": {
+          "flow_formula": {
+            "denominator": 20,
+            "met": false,
+            "samples": 0,
+            "successes": 0,
+            "threshold": 0.9,
+            "value": null
+          },
+          "handwriting_removal": {
+            "denominator": 20,
+            "met": false,
+            "samples": 0,
+            "successes": 0,
+            "threshold": 0.9,
+            "value": null
+          },
+          "mechanics_phases": {
+            "denominator": 20,
+            "met": false,
+            "samples": 0,
+            "successes": 0,
+            "threshold": 0.9,
+            "value": null
+          },
+          "natural_illustration": {
+            "denominator": 20,
+            "met": false,
+            "samples": 0,
+            "successes": 0,
+            "threshold": 0.9,
+            "value": null
+          },
+          "proportion_coordinates": {
+            "denominator": 20,
+            "met": false,
+            "samples": 0,
+            "successes": 0,
+            "threshold": 0.9,
+            "value": null
+          },
+          "source_rebuild": {
+            "denominator": 20,
+            "met": false,
+            "samples": 0,
+            "successes": 0,
+            "threshold": 0.9,
+            "value": null
+          }
+        },
+        "source": {
+          "file": "docs/superpowers/specs/2026-10-19-product-readiness-design.md",
+          "quote": "每组最终≥90%",
+          "section": "§6"
+        },
+        "threshold": 0.9
+      },
+      "reason": "两臂均未产出带事实的样本：IMAGE_MODEL 无图像后端、JS 臂无引擎适配器/事实提取器（本机不可生成）；无样本记 null，不记 0 命中",
+      "samples": 0,
+      "within_budget_final_rate": {
+        "denominator": 120,
+        "informational_only": true,
+        "met": false,
+        "samples": 0,
+        "source": {
+          "file": "docs/superpowers/specs/2026-10-19-product-readiness-design.md",
+          "quote": "原预算内最终合格≥95%",
+          "section": "§6"
+        },
+        "successes": 0,
+        "threshold": 0.95,
+        "value": null,
+        "wilson95": [
+          null,
+          null
+        ]
+      }
+    },
+    "JS": {
+      "arm": "JS",
+      "coverage": 0.0,
+      "critical_errors_accepted": {
+        "citable": false,
+        "met": false,
+        "note": "无样本时 0 条不可引用（此时计数为 0 只因没有产物）；figure_eval_gate.py:980 的 critical_error_accepted=False 是恒真式，不得作为本门证据",
+        "register": [],
+        "source": {
+          "file": "docs/superpowers/specs/2026-10-19-product-readiness-design.md",
+          "quote": "关键题意错误被接受=0、越权/超预算/恢复重复外发=0",
+          "section": "§6"
+        },
+        "threshold": 0,
+        "value": 0,
+        "zero_event_upper_bound_95": null
+      },
+      "denominator": 120,
+      "deterministic_checks": {
+        "geometry": 0,
+        "note": "渲染/几何/文字三类确定性检查按记录里的 render_ok/geometry_ok/text_ok 计数",
+        "render": 0,
+        "status": "NOT_RUN",
+        "text": 0
+      },
+      "evaluable": false,
+      "first_image_p95_ms": {
+        "met": false,
+        "render_only": {
+          "met": false,
+          "samples": 0,
+          "scope": "render_only",
+          "threshold_ms": 30000,
+          "value": null
+        },
+        "samples": 0,
+        "scope": "request_to_first_image",
+        "source": {
+          "also_stated_in": {
+            "file": "docs/superpowers/plans/2026-10-19-product-readiness-followup-plan.md",
+            "line": ":134",
+            "quote": "JS路径p95≤30秒、IMAGE_MODEL路径≤120秒为首批目标"
+          },
+          "file": "docs/superpowers/specs/2026-10-19-product-readiness-design.md",
+          "quote": "首张合格图p95≤30秒（JS路径）",
+          "section": "§6"
+        },
+        "threshold_ms": 30000,
+        "value": null
+      },
+      "first_pass_rate": {
+        "denominator": 120,
+        "informational_only": true,
+        "met": false,
+        "samples": 0,
+        "source": {
+          "also_stated_in": {
+            "file": "docs/superpowers/plans/2026-10-19-product-readiness-followup-plan.md",
+            "line": ":133",
+            "quote": "依设计§6执行首次≥90%/预算内≥95%/分组≥90%、关键错误接受=0门，记录比例/分母/区间"
+          },
+          "file": "docs/superpowers/specs/2026-10-19-product-readiness-design.md",
+          "quote": "首次合格≥90%，原预算内最终合格≥95%，每组最终≥90%（首批质量目标，工程启用标准，尚未实测）",
+          "section": "§6 统一生图的质量与启用"
+        },
+        "successes": 0,
+        "threshold": 0.9,
+        "value": null,
+        "wilson95": [
+          null,
+          null
+        ]
+      },
+      "per_group_final": {
+        "all_met": false,
+        "groups": {
+          "flow_formula": {
+            "denominator": 20,
+            "met": false,
+            "samples": 0,
+            "successes": 0,
+            "threshold": 0.9,
+            "value": null
+          },
+          "handwriting_removal": {
+            "denominator": 20,
+            "met": false,
+            "samples": 0,
+            "successes": 0,
+            "threshold": 0.9,
+            "value": null
+          },
+          "mechanics_phases": {
+            "denominator": 20,
+            "met": false,
+            "samples": 0,
+            "successes": 0,
+            "threshold": 0.9,
+            "value": null
+          },
+          "natural_illustration": {
+            "denominator": 20,
+            "met": false,
+            "samples": 0,
+            "successes": 0,
+            "threshold": 0.9,
+            "value": null
+          },
+          "proportion_coordinates": {
+            "denominator": 20,
+            "met": false,
+            "samples": 0,
+            "successes": 0,
+            "threshold": 0.9,
+            "value": null
+          },
+          "source_rebuild": {
+            "denominator": 20,
+            "met": false,
+            "samples": 0,
+            "successes": 0,
+            "threshold": 0.9,
+            "value": null
+          }
+        },
+        "source": {
+          "file": "docs/superpowers/specs/2026-10-19-product-readiness-design.md",
+          "quote": "每组最终≥90%",
+          "section": "§6"
+        },
+        "threshold": 0.9
+      },
+      "reason": "两臂均未产出带事实的样本：IMAGE_MODEL 无图像后端、JS 臂无引擎适配器/事实提取器（本机不可生成）；无样本记 null，不记 0 命中",
+      "samples": 0,
+      "within_budget_final_rate": {
+        "denominator": 120,
+        "informational_only": true,
+        "met": false,
+        "samples": 0,
+        "source": {
+          "file": "docs/superpowers/specs/2026-10-19-product-readiness-design.md",
+          "quote": "原预算内最终合格≥95%",
+          "section": "§6"
+        },
+        "successes": 0,
+        "threshold": 0.95,
+        "value": null,
+        "wilson95": [
+          null,
+          null
+        ]
+      }
+    }
+  },
+  "schema_version": 1,
+  "statistics": {
+    "wilson95_at_thresholds": {
+      "108/120 (0.90)": [
+        0.8333168001483641,
+        0.9418669830068925
+      ],
+      "114/120 (0.95)": [
+        0.8951958053541377,
+        0.9768859506955258
+      ],
+      "119/120": [
+        0.9543025846256777,
+        0.9985274821693252
+      ],
+      "20/20 (0.90 group)": [
+        0.8388698745050667,
+        1.0
+      ]
+    },
+    "zero_event_upper_bound_95": {
+      "n=120": 0.024655401055656334,
+      "n=20": 0.13910834066826516,
+      "n=209": 0.01423140958268787
+    }
+  }
+}

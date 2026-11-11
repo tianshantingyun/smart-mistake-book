@@ -1,0 +1,8 @@
+
+com.tingyun.smartmistakebook.core.database.KnowledgeRecallParentScopeInstrumentedTest:.
+
+Time: 0.43
+
+OK (1 test)
+
+

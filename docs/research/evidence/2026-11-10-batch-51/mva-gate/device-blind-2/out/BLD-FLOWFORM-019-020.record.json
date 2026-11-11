@@ -1,0 +1,141 @@
+{
+  "input_file": "BLD-FLOWFORM-019.json",
+  "program_sha256": "0330fddab4b93000272a3ff15de7f158496ec5bf1b81457820c4e4bbb35f927d",
+  "task_id": "BLD-FLOWFORM-019",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 40,
+  "measurement": [
+    {
+      "contentId": "c0-d9e22b5f",
+      "payload": "速度单位换算表",
+      "widthDu": 112,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d9e22b5f56e577d5a70a8a769c84b715ea1f6ad24e6ebedae7dea46190759c60"
+    },
+    {
+      "contentId": "c1-74d205a9",
+      "payload": "原始值",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "74d205a9890c61470a0e690617eaa5421440d32c3e390a0515ead02e86c1a04f"
+    },
+    {
+      "contentId": "c2-20f58bcd",
+      "payload": "换算关系",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "20f58bcd5a34ee178c4c2c84b4c1e59c3435081d5c1f418c7e56d217ef1d5d01"
+    },
+    {
+      "contentId": "c3-9851098d",
+      "payload": "换算算式",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9851098d67efd162340cf73ad7da959b967857ed6ea5f7525424c624cb96a8f4"
+    },
+    {
+      "contentId": "c4-741f5551",
+      "payload": "换算结果",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "741f5551eac2f9c998df9a01be8b1107988d08ae7c8b04f3b6f6f23f14cf9817"
+    },
+    {
+      "contentId": "c5-a742adcb",
+      "payload": "90 km\/h",
+      "widthDu": 59.6363639831543,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a742adcbf638e57b89302d1c2e7f2733f125e5c6e4ac971e24ff515dc2fcdfbc"
+    },
+    {
+      "contentId": "c6-d2a536f6",
+      "payload": "km\/h ÷ 3.6 = m\/s",
+      "widthDu": 122.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d2a536f6f8871e9ca9e5719b5beb5ef7de663e32a059214820713df54e4fdc0e"
+    },
+    {
+      "contentId": "c7-dfaf1864",
+      "payload": "90 ÷ 3.6",
+      "widthDu": 57.818180084228516,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "dfaf1864a7719b1114e9dc1bef40b1328ba2481f10da2aab4c0a4c8a527bfcd9"
+    },
+    {
+      "contentId": "c8-109499bd",
+      "payload": "25.0 m\/s",
+      "widthDu": 64.7272720336914,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "109499bd45c708ee327353e591bccc40ed7c112917937a589df857b4016dd70a"
+    },
+    {
+      "contentId": "c9-047af7eb",
+      "payload": "换算依据：1 m\/s = 3.6 km\/h",
+      "widthDu": 202.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "047af7eb8309a89ebf5dadb448b07bde168c03e0a75f926a5b0c0d768aa22011"
+    },
+    {
+      "contentId": "c10-c917c175",
+      "payload": "结果保留三位有效数字",
+      "widthDu": 160,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c917c1751a6ec151a0c303c980e8857edeb311138afbdee7f9961a611674eb4a"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "8be93f4f6f211b109d444384bfd7153d75a2097c93e428ca70a4f656b945143e",
+  "scene_bytes": 2687,
+  "scene_schema_version": 1,
+  "draw_sha256": "3260221377abc89427d94f82ea7b39e84e19c9dda61d91b231220487bcdd5066",
+  "draw_bytes": 2868,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-d9e22b5f",
+    "c1-74d205a9",
+    "c10-c917c175",
+    "c2-20f58bcd",
+    "c3-9851098d",
+    "c4-741f5551",
+    "c5-a742adcb",
+    "c6-d2a536f6",
+    "c7-dfaf1864",
+    "c8-109499bd",
+    "c9-047af7eb"
+  ],
+  "png_sha256": "6f980dbf7e1dbd39dab04c1fe86bfb2ad7b02e09285c4f7dfa44a511e355ee02",
+  "png_bytes": 9732,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 16,
+    "pathCommands": 26,
+    "labels": 11,
+    "ops": 15
+  }
+}

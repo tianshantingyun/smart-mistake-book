@@ -1,0 +1,28 @@
+{
+ "frozen_at_utc": "2026-11-09T17:20:53Z",
+ "source_path": "build/kb-staging/overfull_nodes.csv",
+ "snapshot_path": "docs/research/evidence/2026-11-10-batch-51/3d-audit/frame/overfull_nodes.snapshot.csv",
+ "sha256": "ce7d6823787204640a646854561ea85cbbf4f19c48a0809754a3b0f419c69d9d",
+ "bytes": 15892450,
+ "rows_parsed_by_csv": 62944,
+ "distinct_nodes": 2481,
+ "columns": [
+  "node_id",
+  "subject",
+  "chapter",
+  "node_name",
+  "material_count",
+  "verdict_keep_or_move",
+  "rank",
+  "role",
+  "type",
+  "title",
+  "material_slug",
+  "chars",
+  "weak_match"
+ ],
+ "source_mtime_utc": "2026-11-08T07:20:55Z",
+ "frozen_by": "D-2 (batch 51, 3d-d2d3 subline)",
+ "rule": "FROZEN: no script may rewrite build/kb-staging/overfull_nodes.csv. D-2 audit is read-only over this snapshot.",
+ "stale_relative_to_pack": "generated 2026-11-08 against v28 pack sha 10ede1bf..., i.e. BEFORE the batch-51 P1 rebind (v29 sha aaf81be8...); membership is the pre-rebind frame by instruction"
+}

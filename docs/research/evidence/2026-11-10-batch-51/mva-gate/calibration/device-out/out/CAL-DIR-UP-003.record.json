@@ -1,0 +1,41 @@
+{
+  "input_file": "CAL-DIR-UP.json",
+  "program_sha256": "3a33af40e02921a140e58df126f0bee3ace080fcce115d6a2679be4de2a46df1",
+  "task_id": "CAL-DIR-UP",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 18,
+  "measurement": [
+    {
+      "contentId": "c0-0ad9fc2d",
+      "payload": "向上",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0ad9fc2dfddab37f7e15fafc3c0bfeed4db93432a45404a7f7ef6c0f0a050bb9"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "7762bb8da6a90aec33c6f49de13511dbda46b44e616df94a57d54512cee87576",
+  "scene_bytes": 459,
+  "scene_schema_version": 1,
+  "draw_sha256": "1b1c98253665a1975f6d91546579d25a770378d17af7b44bf80144668b3fd465",
+  "draw_bytes": 522,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-0ad9fc2d"
+  ],
+  "png_sha256": "51c6dedbcf4db115b2a848f2c5aba1177409e30a0e5338e04e76271a268ac845",
+  "png_bytes": 3171,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 3,
+    "pathCommands": 5,
+    "labels": 1,
+    "ops": 2
+  }
+}

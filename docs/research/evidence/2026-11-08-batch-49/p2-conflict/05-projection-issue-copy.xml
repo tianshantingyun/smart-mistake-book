@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.StudyProjectionIssueCopyTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-07T16:52:25.367Z" hostname="TIANSHAN" time="0.013">
+  <properties/>
+  <testcase name="conflictAndGapExplainDifferentLedgerFacts" classname="com.tingyun.smartmistakebook.StudyProjectionIssueCopyTest" time="0.006"/>
+  <testcase name="everyIssueOffersTheSingleReprojectActionAndItsConsequence" classname="com.tingyun.smartmistakebook.StudyProjectionIssueCopyTest" time="0.004"/>
+  <testcase name="currentIsNotAnIssue" classname="com.tingyun.smartmistakebook.StudyProjectionIssueCopyTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,42 @@
+{
+  "input_file": "BLD-NATILLA-016.json",
+  "program_sha256": "a4b938909b3483454a961e0e18f87fb233b2f45c19b579d1ac2c20735213d663",
+  "task_id": "BLD-NATILLA-016",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 16,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "支点",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "65172d22a0ec7843bd228f123cbf3daa63a50bdc80fb12d9dddb3444eed2caed"
+    },
+    {
+      "contentId": "c1",
+      "payload": "动力臂",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b29058030c4dff353520f55c41a233fb52f379466f5f8a19adc33b9b64d1d42a"
+    },
+    {
+      "contentId": "c2",
+      "payload": "阻力臂",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "35084bb84fb450b4b56e54796b02edb20c2f294fd41f84a1064589ebf26061ba"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

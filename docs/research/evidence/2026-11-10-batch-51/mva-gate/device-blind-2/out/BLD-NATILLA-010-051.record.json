@@ -1,0 +1,81 @@
+{
+  "input_file": "BLD-NATILLA-010.json",
+  "program_sha256": "d4491de62249563c1fca8c6f2998a2817a88d64f23a09c8e4211a685bd436d67",
+  "task_id": "BLD-NATILLA-010",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 21,
+  "measurement": [
+    {
+      "contentId": "c0-4a2ddc2e",
+      "payload": "自由落体（示意）",
+      "widthDu": 128,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4a2ddc2e48a72f30b3d96343875c2e4b3facb71bea82277790cf347f76af93a3"
+    },
+    {
+      "contentId": "c1-7d6e9417",
+      "payload": "静止释放",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7d6e941771f3749d1183733087185837a55e91ee24bac0e8173e945e4220db40"
+    },
+    {
+      "contentId": "c2-4c94485e",
+      "payload": "v",
+      "widthDu": 7.636363506317139,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4c94485e0c21ae6c41ce1dfe7b6bfaceea5ab68e40a2476f50208e526f506080"
+    },
+    {
+      "contentId": "c3-cd0aa985",
+      "payload": "g",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "cd0aa9856147b6c5b4ff2b7dfee5da20aa38253099ef1b4a64aced233c9afe29"
+    },
+    {
+      "contentId": "c4-a1335835",
+      "payload": "v、g 均竖直向下",
+      "widthDu": 116.7272720336914,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a1335835c6ea6d1f8bdd2b59ff531c18188b5c0f383fea906cea9913a92c4980"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "cd51a1b73ff9cd8ce8965f46fe1307bffc0214efd1da11d2ad4767c1a8be507f",
+  "scene_bytes": 2386,
+  "scene_schema_version": 1,
+  "draw_sha256": "9c5fcf7b12e6b6e3d1703e2196b01c794de5d3e4324525d402abc82676feec13",
+  "draw_bytes": 2563,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-4a2ddc2e",
+    "c1-7d6e9417",
+    "c2-4c94485e",
+    "c3-cd0aa985",
+    "c4-a1335835"
+  ],
+  "png_sha256": "327bc014b71e681755739eec1313c12b797254d79f0f6e0cb23997abf723847b",
+  "png_bytes": 10735,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 11,
+    "pathCommands": 38,
+    "labels": 5,
+    "ops": 10
+  }
+}

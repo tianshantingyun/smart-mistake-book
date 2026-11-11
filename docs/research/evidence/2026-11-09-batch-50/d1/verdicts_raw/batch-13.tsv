@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-bio-e826695713-013	CORRECT		high	生物膜系统由细胞膜、细胞器膜和核膜等结构共同构成	
+ext-bio-e84690a130-001	CORRECT		high	基因在染色体上，红眼白眼基因只位于X染色体上	
+ext-bio-eb79ea3493-017	CORRECT		high	调查方法为抽样检测法	
+ext-bio-ebddc22a2c-042	CORRECT		high	从结构、基本单位、碱基与功能比较DNA和RNA	
+ext-bio-ee8881e72d-090	CORRECT		high	T-DNA 插入突变体的基因组上已带 T-DNA 原有的标记基因	
+ext-bio-ef6d3dfbc8-002	CORRECT		high	糖类的元素组成、主要功能与三类划分	
+ext-bio-f07805646d-010	CORRECT		high	低温诱导多倍体的原理、实验操作注意事项以及与秋水仙素诱导的比较	
+ext-bio-f190afa853-008b	CORRECT		high	免疫细胞清除靶细胞属于细胞凋亡	
+ext-bio-f242e60624-012	CORRECT		high	高尔基体由单层膜围成的扁平囊和大小不等的囊泡组成	
+ext-bio-f305df32f5-021b	CORRECT		high	自交不亲和指能形成正常雌雄配子却缺乏自花传粉结实能力的自交不育性	
+ext-bio-f30a783d56-008	CORRECT		high	F2中表型与亲本相同者为亲本类型，与亲本不同者为重组类型	
+ext-bio-f30a783d56-015	CORRECT		high	控制不同性状的遗传因子互不干扰	
+ext-bio-f424594cfa-025	CORRECT		high	在中枢神经系统参与下，机体对内外刺激作出的规律性应答称为反射	
+ext-bio-f424594cfa-042	CORRECT		high	条件反射使机体具有更强的预见性、灵活性和适应性	节点为反射总论，材料为条件反射意义
+ext-bio-f512e9d923-003	CORRECT		high	细胞中的化合物分为无机化合物（水、无机盐）和有机化合物	
+ext-bio-f5ba648636-020	CORRECT		high	食物链是生产者所固定的物质与能量经取食和被食关系传递	
+ext-bio-f5ba648636-021	CORRECT		high	每条食物链总是从生产者开始、到不被其他动物所食的动物结束	
+ext-bio-f773153f74-036	CORRECT		high	主发酵完成酵母菌的繁殖（需要氧气）、大部分糖的分解和代谢物的生成	节点为发酵工程，材料为其应用阶段
+ext-bio-f8a6a12adc-012	CORRECT		high	外源基因整合到宿主细胞染色体上的位置是随机的	
+ext-bio-f8a6a12adc-033	CORRECT		high	用双纯合亲本杂交得F1、F1自交统计F2表现型及比例	
+ext-bio-f8c668ad2c-010b	CORRECT		high	分裂间期完成 DNA 复制与有关蛋白质合成并适度生长	
+ext-bio-f94276f113-008	CORRECT		high	F1全为黄色圆粒说明黄、圆为显性	
+ext-bio-f94276f113-013	CORRECT		high	控制不同性状的遗传因子的分离和组合互不干扰	
+ext-bio-f94276f113-018	CORRECT		high	可用自交法（9:3:3:1）、测交法（1:1:1:1）、花粉鉴定法、单倍体育种法	
+ext-che-01eb9ee365-019c	CORRECT		high	试剂的混合顺序：先加入乙醇，然后边振荡试管边慢慢加入浓硫酸	
+ext-che-020cba294a-003b	CORRECT		high	用化合价变化判断四种基本反应类型是否属于氧化还原反应	
+ext-che-0236d4838a-006	CORRECT		medium	酸性随价态升高而增强、氧化性随价态升高而减弱	节点为次氯酸及其盐，材料为氯含氧酸系列
+ext-che-025991b0ba-003	CORRECT		high	依溶质溶解度随温度变化的大小选择蒸发结晶或冷却结晶	
+ext-che-0269f99d81-011	CORRECT		high	等效平衡的定义以及恒温恒容、恒温恒压、体积不变反应下的判断规则	
+ext-che-02c28605ed-015	CORRECT		high	Fe3+有较强氧化性，遇KSCN变红，且极易水解	
+ext-che-03eac4cd30-003	CORRECT		high	两种氢氧化物的颜色、稳定性与Fe(OH)2制备的原理和成功关键	
+ext-che-042f4a1023-003	CORRECT		medium	乙醇制乙烯需控温170℃，电石制乙炔需控速并用CuSO4除杂	材料兼含乙烯制法，节点为乙炔制法
+ext-che-05e84f721c-005	CORRECT		high	凡符合 (CO)m(H2)n 组成的物质燃烧产物通过足量 Na2O2 后固体恰好增重原质量	节点为过氧化钠，材料为增重规律
+ext-che-05e84f721c-011	CORRECT		high	碱金属在密度、保存、与氧气氮气反应、超氧化物、锂的对角线相似等方面的七条「特殊」	
+ext-che-07f8494b58-011	CORRECT		high	利用与某物质浓度或质量相关的性质测速率	
+ext-che-07f8494b58-023	CORRECT		high	活化能之差即焓变，催化剂只降活化能而不改变化学平衡与反应热	节点为催化剂影响，材料含活化能关系
+ext-che-09c8182c15-002	CORRECT		high	绿矾、铁铵矾、赤血盐、高铁酸钾的性质与应用	
+ext-che-0bc465bc23-003	CORRECT		high	归纳促进和抑制水电离的常见措施	
+ext-che-0cb7cd248f-012	CORRECT		high	石墨层内sp2杂化形成平面网状结构、层间靠范德华力	
+ext-che-0e0ef6766a-001b	CORRECT		high	汇总五种判断阴、阳极的依据以及两极的放电顺序与例外情况	
+ext-che-0f5d5e7383-014	CORRECT		high	共价晶体中原子间以共价键结合成空间网状结构	
+ext-che-10fd6d055d-012b	CORRECT		high	转折点前后分别表示未达平衡与已达平衡	
+ext-che-1174d75281-013	CORRECT		high	判断出反应物、生成物和催化剂后即可写出总反应方程式	
+ext-che-11b4051cb6-015b	CORRECT		high	燃料电池的电极不参与反应、有很强的催化活性、起导电作用	
+ext-che-1200d1919b-002	CORRECT		high	Fe2＋遇H2O2、Cl2、HNO3、酸性KMnO4等强氧化剂被氧化为Fe3＋	
+ext-che-1236f199f4-009	CORRECT		high	鉴别晶体与非晶体：观察是否有规则几何外形	
+ext-che-1422ee20c2-050	CORRECT		medium	分水器不断把生成的水分离出去	节点为乙酸乙酯制备，材料为分水器/平衡移动
+ext-che-146a413810-014	CORRECT		high	碱与碱混合时是OH－在混合	
+ext-che-15c287c4f8-016b	CORRECT		high	把量少的物质定为1 mol（少定）	
+ext-che-15fcabc7cf-034	CORRECT		high	硒碲氢化物的酸性、还原性与氧化物的氧化性	

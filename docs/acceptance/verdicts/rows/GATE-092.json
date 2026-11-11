@@ -1,78 +1,64 @@
 {
-  "id": "GATE-092",
-  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-gate",
-  "reviewer": "batch46-line-reviewer-GATE",
-  "authors": [
-    "batch45-evidence-producer-GATE"
-  ],
-  "verdict": "FAIL",
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "cmd:docs/research/evidence/2026-11-06-batch-46/gate/aud08-split-gate.txt",
-    "test:docs/research/evidence/2026-11-06-batch-46/gate/split-gate-pytest.xml"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-06-batch-46/gate/aud08-split-gate.txt": "c89b2a6e1f6b56e717bec798921622a16af0557b0e165b3221295341a116bbbd",
-    "docs/research/evidence/2026-11-06-batch-46/gate/split-gate-pytest.xml": "067adfa01a3ea79668b6343d3e20541405e5bb6bdb93518502c61858accf7992"
+ "id": "GATE-092",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "verdict": "FAIL",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "evidence": [
+  "file:docs/research/evidence/2026-11-10-batch-51/split/acceptance/gate/gate-report-b51-primary.json",
+  "file:docs/research/evidence/2026-11-10-batch-51/split/acceptance/gate/gate-evidence-b51-primary.md",
+  "file:docs/research/evidence/2026-11-10-batch-51/split/acceptance/gate/merged-24-primary.json",
+  "file:docs/research/evidence/2026-11-10-batch-51/split/acceptance/gate/gate-primary.stdout.txt"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-10-batch-51/split/acceptance/gate/gate-report-b51-primary.json": "485cb62e49affce95f8642bfc99d120b38ee722ecfbf10aa98b564e70e2e1224",
+  "docs/research/evidence/2026-11-10-batch-51/split/acceptance/gate/gate-evidence-b51-primary.md": "214e7a381306f6cff1a707af88e2ea0f5b0d207841ef851484cb9e55ef19d377",
+  "docs/research/evidence/2026-11-10-batch-51/split/acceptance/gate/merged-24-primary.json": "e8ea2e464c67d368c7b8e884476639ea7a57ebc24b1c6f7ecb379118f03b431c",
+  "docs/research/evidence/2026-11-10-batch-51/split/acceptance/gate/gate-primary.stdout.txt": "28b51ef4ff6acffba445711e648b6900e68d10b2764681ab8b5765e2f340db7b"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=GATE-092; verdict=FAIL; line=1223; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=GATE-092; verdict=FAIL; line=1223; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-46/gate/aud08-split-gate.txt",
-      "value": "exit_markers=[1]; cmd=n/a; sha256=c89b2a6e1f6b56e717bec798921622a16af0557b0e165b3221295341a116bbbd"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-06-batch-46/gate/split-gate-pytest.xml",
-      "value": "tests=61; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T16:52:41.993422+08:00; hostname=tianshan; sha256=067adfa01a3ea79668b6343d3e20541405e5bb6bdb93518502c61858accf7992"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-06-batch-46/gate/split-gate-pytest.xml",
-      "value": "testcases=61; first=test_count_exact_at_0_9_passes; all_present=True"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-45/gate/aud08-split-gate.txt",
-      "value": "exit_markers=[1]; cmd=n/a; sha256=e9c011da6062ed10e87480bf474dcb9c0f555b00bd968b833075f0d2accb57ab"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-06-batch-45/gate/split-gate-pytest.xml",
-      "value": "tests=61; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T10:35:23.586362+08:00; hostname=tianshan; sha256=b98b538912212a240c43da56d210cefb15f3209907ffcb4b597fe5bf5c1f86bd"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-06-batch-45/gate/split-gate-pytest.xml",
-      "value": "testcases=61; first=test_count_exact_at_0_9_passes; all_present=True"
-    },
-    {
-      "name": "contradiction",
-      "source": "docs/acceptance/ledger.md",
-      "value": "cmd: python -I tools/split_golden/check_split_gate.py"
-    }
-  ],
-  "basis": "复核判 FAIL：本行声称与归档证据矛盾或未被证据见证（详见 checks.contradiction 与 notes）。ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "行级复核判 FAIL，保留原判词并登记矛盾，不洗绿。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "regenerated_by": "batch46-report-regenerator",
-  "regeneration_note": "报告重生成：移除假检查 evidence_missing exists=False（aud08-split-gate.txt 实际存在，sha c89b2a6e，exit=1 仍红）。verdict 未改（FAIL）。",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-10-batch-51/split/acceptance/gate/gate-report-b51-primary.json",
+   "value": "sha256=485cb62e49affce95f8642bfc99d120b38ee722ecfbf10aa98b564e70e2e1224; bytes=39512"
   },
-  "evidence_freshness": {
-    "current_batch_files": 2,
-    "archived_files": 0,
-    "basis": "bytes-on-disk"
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-10-batch-51/split/acceptance/gate/gate-evidence-b51-primary.md",
+   "value": "sha256=214e7a381306f6cff1a707af88e2ea0f5b0d207841ef851484cb9e55ef19d377; bytes=6162"
   },
-  "checks_scope": "shared-suite"
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-10-batch-51/split/acceptance/gate/merged-24-primary.json",
+   "value": "sha256=e8ea2e464c67d368c7b8e884476639ea7a57ebc24b1c6f7ecb379118f03b431c; bytes=17052"
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "批次50：切残率单条过线但硬红线未满足；门后自动化保持关闭。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "regenerated_by": "batch46-report-regenerator",
+ "regeneration_note": "报告重生成：移除假检查 evidence_missing exists=False（aud08-split-gate.txt 实际存在，sha c89b2a6e，exit=1 仍红）。verdict 未改（FAIL）。",
+ "ledger_batch": 51,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-10T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 4,
+  "archived_files": 0,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

@@ -1,0 +1,211 @@
+{
+  "input_file": "BLD-FLOWFORM-012.json",
+  "program_sha256": "de38a03b48e93c9737104891e8a1db27b27c1cf451a81ecc1e0835a2bf012824",
+  "task_id": "BLD-FLOWFORM-012",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 39,
+  "measurement": [
+    {
+      "contentId": "c0-cf5e7ec1",
+      "payload": "一元二次方程：1x² − 3x + 2 = 0",
+      "widthDu": 221.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "cf5e7ec1535c04b05ad54ece7dc5d81d097aaff07491ab8c2c8c96aa7e078f9f"
+    },
+    {
+      "contentId": "c1-c4b6e90e",
+      "payload": "求根公式",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c4b6e90e21f45e51800be5a11f05d227ecbdb5c7dd74a555955d3d7ad3ac9fbd"
+    },
+    {
+      "contentId": "c2-180e6929",
+      "payload": "x =",
+      "widthDu": 20.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "180e6929bae4a33240ca19d9d2ee7c07bb6e67e09a038202f9eb536861f4a10d"
+    },
+    {
+      "contentId": "c3-afba2418",
+      "payload": "−",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "afba2418d6aec23dc4b24c079b26350d3715faa050fa131943ad0b6962f4255a"
+    },
+    {
+      "contentId": "c4-3e23e816",
+      "payload": "b",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d"
+    },
+    {
+      "contentId": "c5-8d3591e5",
+      "payload": "±",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8d3591e55fa8745793d9519955740ddad45bb94dfc191b36c744139c6184c442"
+    },
+    {
+      "contentId": "c6-d4cf3856",
+      "payload": "√(",
+      "widthDu": 14.909090995788574,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4cf3856b072e1655c5b6a271de12838500164ffb45a258e4dbb31ae63c9f6f4"
+    },
+    {
+      "contentId": "c7-db545de0",
+      "payload": "b²",
+      "widthDu": 14.909090995788574,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "db545de070cc676780aadfb2463438eadbdbf0be044532b68dfe0171d16ba1e5"
+    },
+    {
+      "contentId": "c8-4f2ad448",
+      "payload": "− 4",
+      "widthDu": 22.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4f2ad448b5d4049024070ca0970278f3ba1257634611c00209d8db6b99e86a4a"
+    },
+    {
+      "contentId": "c9-ca978112",
+      "payload": "a",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+    },
+    {
+      "contentId": "c10-2e7d2c03",
+      "payload": "c",
+      "widthDu": 8.363636016845703,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"
+    },
+    {
+      "contentId": "c11-ba5ec51d",
+      "payload": ")",
+      "widthDu": 5.454545497894287,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ba5ec51d07a4ac0e951608704431d59a02b21a4e951acc10505a8dc407c501ee"
+    },
+    {
+      "contentId": "c12-d4735e3a",
+      "payload": "2",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "contentId": "c13-ca978112",
+      "payload": "a",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ca978112ca1bbdcafac231b39a23dc4da786eff8147c4e72b9807785afee48bb"
+    },
+    {
+      "contentId": "c14-b5bc1ffd",
+      "payload": "a = 1",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b5bc1ffd90912fb18bef6e7d80909192c7a6492896320156d67fbaf104c6544a"
+    },
+    {
+      "contentId": "c15-a8b6eace",
+      "payload": "b = −3",
+      "widthDu": 44,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a8b6eace64134cc0b7cd43448e896fc2f1717f4d786bf98393d100e2389dd5d1"
+    },
+    {
+      "contentId": "c16-85b9dbb9",
+      "payload": "c = 2",
+      "widthDu": 34.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "85b9dbb990c26403b45db2d44c0833acececdf2772cae09cb89309d4c0867dc8"
+    },
+    {
+      "contentId": "c17-7f2bfe7d",
+      "payload": "Δ = b² − 4ac = 1",
+      "widthDu": 112,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7f2bfe7d0f1715dc2db7908af7c87feb811ee530178593f322aaf5ec0f99cb92"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "03f2b49517c84b8e32f991c57ef9031a8b65d5cadf16d1994f1c1ce0be6eddaa",
+  "scene_bytes": 3127,
+  "scene_schema_version": 1,
+  "draw_sha256": "9a388f3d1cf7201c6eb72a181a04f899a30225fbc895d5d8de61831817ff34db",
+  "draw_bytes": 3660,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-cf5e7ec1",
+    "c1-c4b6e90e",
+    "c10-2e7d2c03",
+    "c11-ba5ec51d",
+    "c12-d4735e3a",
+    "c13-ca978112",
+    "c14-b5bc1ffd",
+    "c15-a8b6eace",
+    "c16-85b9dbb9",
+    "c17-7f2bfe7d",
+    "c2-180e6929",
+    "c3-afba2418",
+    "c4-3e23e816",
+    "c5-8d3591e5",
+    "c6-d4cf3856",
+    "c7-db545de0",
+    "c8-4f2ad448",
+    "c9-ca978112"
+  ],
+  "png_sha256": "1978153365e4d03fc65994d060f7a7b2a15cf1f9d8a194a71a46723989ca437c",
+  "png_bytes": 5664,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 23,
+    "pathCommands": 20,
+    "labels": 18,
+    "ops": 22
+  }
+}

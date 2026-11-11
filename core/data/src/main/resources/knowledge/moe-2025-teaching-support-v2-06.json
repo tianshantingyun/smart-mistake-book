@@ -6132,7 +6132,7 @@
    "contentId": "ext-che-d3a055d224-007",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:一种药物中间体-h-的合成路线如下",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:依据反应条件判断有机反应类型",
      "role": "PRIMARY"
     }
    ]

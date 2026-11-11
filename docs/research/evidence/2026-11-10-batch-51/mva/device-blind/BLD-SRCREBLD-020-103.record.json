@@ -1,0 +1,14 @@
+{
+  "input_file": "BLD-SRCREBLD-020.json",
+  "program_sha256": "6f61671ed8cfbc91df28a89dff4ed22419c6fd22a3725c5a6ae3d5ecc2ff9efc",
+  "task_id": "BLD-SRCREBLD-020",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 9,
+  "measurement": [],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai"
+}

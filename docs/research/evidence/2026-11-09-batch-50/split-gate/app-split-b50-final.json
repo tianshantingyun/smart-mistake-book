@@ -1,0 +1,580 @@
+{
+ "pages": [
+  {
+   "boxesSha256": "6069920635a8fdddee11e0c12564edc3095dca7012b08423d0310d2778accdf7",
+   "decision": "SPLIT",
+   "file": "IMG20260810003928.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "acceptance",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810003928.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 4,
+   "questions": [
+    {
+     "bottom": 0.36,
+     "left": 0.02,
+     "right": 1.0,
+     "top": 0.15
+    },
+    {
+     "bottom": 0.6,
+     "left": 0.02,
+     "right": 1.0,
+     "top": 0.36
+    },
+    {
+     "bottom": 0.73,
+     "left": 0.02,
+     "right": 1.0,
+     "top": 0.6
+    },
+    {
+     "bottom": 0.94,
+     "left": 0.02,
+     "right": 1.0,
+     "top": 0.73
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "PASS",
+   "file": "IMG20260810004304.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004304.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "e2cfdddaa7e2a86e939a0021bb22c9f8a21b96874be69b629658547e771f8054",
+   "decision": "SPLIT",
+   "file": "IMG20260810004353.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "acceptance",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004353.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.99,
+     "left": 0.24,
+     "right": 0.99,
+     "top": 0.02
+    },
+    {
+     "bottom": 0.86,
+     "left": 0.0,
+     "right": 0.24,
+     "top": 0.0
+    }
+   ]
+  },
+  {
+   "boxesSha256": "d569901118e57673b541028bc5339ad3fd1e34337443bb5d74d23fad707b033a",
+   "decision": "SPLIT",
+   "file": "IMG20260810004511.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004511.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.995,
+     "left": 0.24,
+     "right": 0.58,
+     "top": 0.03
+    },
+    {
+     "bottom": 0.995,
+     "left": 0.58,
+     "right": 0.995,
+     "top": 0.03
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810004854.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004854.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": null,
+   "file": "IMG20260810004952.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "acceptance",
+   "outcomeStatus": "ERROR",
+   "pageId": "IMG20260810004952.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "SPLIT",
+   "file": "IMG20260810005144.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005144.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "fe427b530a35a5f8dc2b651d463cd2188cf5aee40769ff496b7d883e7c8d2c91",
+   "decision": "SPLIT",
+   "file": "IMG20260810005301.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005301.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.89,
+     "left": 0.02,
+     "right": 0.46,
+     "top": 0.05
+    },
+    {
+     "bottom": 0.89,
+     "left": 0.48,
+     "right": 0.96,
+     "top": 0.17
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810005605.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005605.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "bde51f2318dbd512590f2b3b89f72f0f1758cf6bc74c0ad5484a7e741f49c2f4",
+   "decision": "SPLIT",
+   "file": "IMG20260810005711.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "acceptance",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005711.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.445,
+     "left": 0.06,
+     "right": 0.93,
+     "top": 0.02
+    },
+    {
+     "bottom": 0.8,
+     "left": 0.07,
+     "right": 0.9,
+     "top": 0.445
+    }
+   ]
+  },
+  {
+   "boxesSha256": "be72f6a70da003015995222642bfd734afb6e9e7fb0240b7cc6abad7e77735b9",
+   "decision": "SPLIT",
+   "file": "IMG20260810005855.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005855.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.39,
+     "left": 0.07,
+     "right": 0.96,
+     "top": 0.0
+    },
+    {
+     "bottom": 0.865,
+     "left": 0.07,
+     "right": 0.96,
+     "top": 0.39
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.07,
+     "right": 0.96,
+     "top": 0.865
+    }
+   ]
+  },
+  {
+   "boxesSha256": "8bb621b58fca723de407c9b9208877b933f739536df6615c2bc82c97176f82aa",
+   "decision": "SPLIT",
+   "file": "IMG20260810010034.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "acceptance",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010034.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 5,
+   "questions": [
+    {
+     "bottom": 0.226,
+     "left": 0.04,
+     "right": 0.98,
+     "top": 0.112
+    },
+    {
+     "bottom": 0.475,
+     "left": 0.04,
+     "right": 0.99,
+     "top": 0.238
+    },
+    {
+     "bottom": 0.6,
+     "left": 0.04,
+     "right": 0.93,
+     "top": 0.486
+    },
+    {
+     "bottom": 0.838,
+     "left": 0.04,
+     "right": 0.98,
+     "top": 0.612
+    },
+    {
+     "bottom": 0.99,
+     "left": 0.04,
+     "right": 0.93,
+     "top": 0.842
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4d9a9e96bd305e900e5c46ffab4fa711c2b905d0c7f7c17763a47c41af1fe3a6",
+   "decision": "SPLIT",
+   "file": "IMG20260810010202.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "acceptance",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010202.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.56,
+     "left": 0.03,
+     "right": 0.98,
+     "top": 0.16
+    },
+    {
+     "bottom": 0.9,
+     "left": 0.03,
+     "right": 0.98,
+     "top": 0.6
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": null,
+   "file": "IMG20260810010306.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "ERROR",
+   "pageId": "IMG20260810010306.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "1b2946f90d32d8fc50d2ca8b795ffa2e93ec657cf70e6c87b709985f3cdcb0b2",
+   "decision": "SPLIT",
+   "file": "IMG20260810010349.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010349.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 4,
+   "questions": [
+    {
+     "bottom": 0.16,
+     "left": 0.08,
+     "right": 1.0,
+     "top": 0.0
+    },
+    {
+     "bottom": 0.405,
+     "left": 0.08,
+     "right": 1.0,
+     "top": 0.18
+    },
+    {
+     "bottom": 0.645,
+     "left": 0.08,
+     "right": 1.0,
+     "top": 0.43
+    },
+    {
+     "bottom": 0.8,
+     "left": 0.08,
+     "right": 1.0,
+     "top": 0.66
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": null,
+   "file": "IMG20260810010633.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "ERROR",
+   "pageId": "IMG20260810010633.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "823520ad45a77393bfebcd9cf14bcea8dacbd50f86adf0dc9fe5aab15399d51d",
+   "decision": "SPLIT",
+   "file": "IMG20260810010859.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010859.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.27,
+     "left": 0.13,
+     "right": 0.94,
+     "top": 0.045
+    },
+    {
+     "bottom": 0.705,
+     "left": 0.13,
+     "right": 0.95,
+     "top": 0.345
+    },
+    {
+     "bottom": 0.85,
+     "left": 0.13,
+     "right": 0.94,
+     "top": 0.7
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": null,
+   "file": "IMG20260810011017.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "ERROR",
+   "pageId": "IMG20260810011017.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "PASS",
+   "file": "IMG20260810011126.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011126.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "d9930250f83ee4e95fc036c6e89406ab8a9ef31014509a05358d3255d351e626",
+   "decision": "SPLIT",
+   "file": "IMG20260810011248.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011248.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 4,
+   "questions": [
+    {
+     "bottom": 0.42,
+     "left": 0.02,
+     "right": 0.88,
+     "top": 0.33
+    },
+    {
+     "bottom": 0.49,
+     "left": 0.02,
+     "right": 0.86,
+     "top": 0.43
+    },
+    {
+     "bottom": 0.66,
+     "left": 0.02,
+     "right": 0.94,
+     "top": 0.5
+    },
+    {
+     "bottom": 0.87,
+     "left": 0.02,
+     "right": 0.98,
+     "top": 0.75
+    }
+   ]
+  },
+  {
+   "boxesSha256": "bc24c60ce9f0a8ac889a61789f66fe5ddf8361f393f22207284d55acf13f128e",
+   "decision": "SPLIT",
+   "file": "IMG20260810011358.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "acceptance",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011358.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 4,
+   "questions": [
+    {
+     "bottom": 0.36,
+     "left": 0.6,
+     "right": 1.0,
+     "top": 0.02
+    },
+    {
+     "bottom": 0.52,
+     "left": 0.4,
+     "right": 0.78,
+     "top": 0.08
+    },
+    {
+     "bottom": 0.74,
+     "left": 0.22,
+     "right": 0.56,
+     "top": 0.14
+    },
+    {
+     "bottom": 0.94,
+     "left": 0.06,
+     "right": 0.36,
+     "top": 0.22
+    }
+   ]
+  },
+  {
+   "boxesSha256": "58fef3bd3c15f4f801086c30d27cd52ba32180735c77ecc274994c2e51231721",
+   "decision": "SPLIT",
+   "file": "IMG20260810011649.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011649.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.965,
+     "left": 0.255,
+     "right": 0.795,
+     "top": 0.06
+    },
+    {
+     "bottom": 0.99,
+     "left": 0.01,
+     "right": 0.25,
+     "top": 0.055
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": null,
+   "file": "IMG20260810011800.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "acceptance",
+   "outcomeStatus": "ERROR",
+   "pageId": "IMG20260810011800.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "323f4733019b5341ee922ce07007f37ab393287583c0bea141939d5c6881eceb",
+   "decision": "SPLIT",
+   "file": "IMG20260810012103.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "origin": "dev",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810012103.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.245,
+     "left": 0.02,
+     "right": 0.99,
+     "top": 0.0
+    },
+    {
+     "bottom": 0.665,
+     "left": 0.02,
+     "right": 0.99,
+     "top": 0.245
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.02,
+     "right": 0.99,
+     "top": 0.665
+    }
+   ]
+  }
+ ],
+ "schemaVersion": 2,
+ "source": {
+  "acceptance": {
+   "exportSha256": "cb40fb13613b813ed6f846061e3c43d31f442c616319481f5f89ff7f792332a2",
+   "layoutHintArm": true,
+   "runId": "acceptance-b50-01"
+  },
+  "channel": "batch50-split-gate-final（dev-final + acceptance-once 合并；非设备 DB 导出）",
+  "dev": {
+   "exportSha256": "cac791de32650991b9071a6aa35b0538095d55e7f60f41155ab2752d8122aa51",
+   "layoutHintArm": true,
+   "runId": "dev-hint-01"
+  },
+  "divergences": [
+   "transport: plain HTTPS POST instead of gateway authorization pipeline (same requestBody builder, same parseCompletion)",
+   "image egress copy: prepared by caller per EgressImageBudget plan (long edge 2048, JPEG q88, q70 fallback); PIL resampling, not Android Skia bytes; scaledSize re-verified here",
+   "layout hint gray fixtures: PIL BILINEAR to long edge 1024 then ITU-R 601 luma, derived from the egress copy (same frame as the image sent); not Android BitmapFactory bytes"
+  ],
+  "keySha8": "cd10efbc",
+  "model": "deepseek-flash",
+  "note": "两块各自单次运行；acceptance 只此一次。合并只做页级拼接，不改任何框。"
+ }
+}

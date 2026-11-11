@@ -1,0 +1,28 @@
+{
+    "file": "IMG20260810004854.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 29977,
+    "responseHead": "{\"id\":\"703d77ac-99ef-407f-afa7-39fa20fd5302\",\"object\":\"chat.completion\",\"created\":1794128580,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"NEED_MORE_IMAGE\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.6,\\\"right\\\":0.55,\\\"bottom\\\":1.0},\\\"message\\\":\\\"第4题选项未完整入镜\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.55,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":0.62},\\\"message\\\":\\\"右侧题缺少题干和A-C选项\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"REVIEW\\\",\\\"region\\\":{\\\"left\\\":0.34,\\\"top\\\":0.05,\\\"right\\\":0.55,\\\"bottom\\\":0.98},\\\"message\\\":\\\"红笔手写与圈划遮挡部分区域\\\"}],\\\"suggestedActions\\\":[\\\"RECAPTURE\\\",\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答用户。需要判断图片是否足以完整转写一道或多道独立题。必须只返回 JSON，顶层键仅 decision, issues, suggestedActions, questionRegions, followingPageRelations。不得添加 type。必须遵守 schema? 用户说必须只返回符合要求JSON。我们需要查看图像内容。图像是横向拍摄？内容似乎是选择题？需要判断是否包含2到12道独立题。图像中可见题目文本：选项 D、E、F、G、H？以及第4题？画面主要是某道选择题的选项部分？需要分析是否完整题目。图像显示页面旋转90度？文字方向竖向？实际内容 OCR：右侧列? 我们需判断是否多道独立题。图片中可见 \\\"D. 蛋白质和核酸具有多样性的原因之一是都具有千差万别的空间结构\\\" \\\"E. 核酸中核苷酸的排列顺序能够决定蛋白质中氨基酸的排列顺序\\\" \\\"F. 蛋白质和核酸在合成时都需要模板、能量和酶\\\" \\\"G. 蛋白质合成需要核酸参与,核酸合成不需要蛋白质参与\\\" \\\"H. 真核细胞的核中有DNA—蛋白质复合物,而原核细胞的拟核中没有[全国Ⅰ卷]\\\" 然后左侧有 \\\"4. [2025·辽宁大连一模] 生物体内有许多蛋白质含有除氨基酸外的其他化学成分作为其结构的一部分,若非蛋白成分是核酸,这种蛋白质称为核蛋白。下列相关叙述错误的是\\\" 下面可能选项？ 图片底部有红笔手写和圈。看起来是两道题？可能第4题题干和选项在左边？ D-H 可能是前一道题（第3题？）的选项？ 等等，选项 D-H 连续，说明这可能是上一题的选项 D 到 H？中国高中生物选择题通常四个选项 A-D，不会到H。但这里D-H可能是二卷？ 图像中 \\\"D. 蛋白质和核酸具有多样性的原因之一是都具有千差万别的空间结构\\\" ... \\\"H. 真核细胞的核中有 DNA—蛋白质复",
+    "decision": "NEED_MORE_IMAGE",
+    "issueCodes": [
+        "MISSING_OPTIONS",
+        "MISSING_OPTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–0.830，y=0.000–1.000；双栏，栏间空白位于 x=0.521–0.546；行距约 4px；段落分隔（共 16 处，已截断到 8 条）：y=0.000（谷宽9px，栏1）；y=0.267（谷宽6px，栏2）；y=0.172（谷宽5px，栏2）；y=0.312（谷宽5px，栏2）；y=0.055（谷宽4px，栏1）；y=0.220（谷宽4px，栏2）；y=0.359（谷宽4px，栏2）；y=0.404（谷宽3px，栏2）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 278,
+    "image": {
+        "egressBytes": 559057,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "da93e442a31eba04c7f08678651ad358324301a34c94d23aeb028128e9df2448",
+    "promptSha256": "4e8775d61be57d50526d534713755153b4b4a8c474b8c63378eb76626acf033e"
+}

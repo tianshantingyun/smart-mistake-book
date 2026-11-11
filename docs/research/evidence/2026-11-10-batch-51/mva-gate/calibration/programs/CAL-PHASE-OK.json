@@ -1,0 +1,13 @@
+{
+ "task_id": "CAL-PHASE-OK",
+ "program_id": "cal-CAL-PHASE-OK",
+ "source_js": "const visual = {\n  prepare: function (input) { return [{ kind: 'text', payload: 'u=0' }, { kind: 'text', payload: 'u=1/2' }, { kind: 'text', payload: 'u=1' }]; },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu, h = input.viewport.heightDu;\n    return { schemaVersion: 1, sceneId: 'cal', revision: input.revision,\n             viewBox: { x: 0, y: 0, width: w, height: h },\n             paths: [{ id: 'axis', commands: visualSdk.axis({ x0: 60, y0: 160, x1: 300, y1: 160, ticks: 0 }) }],\n             root: { type: 'group', children: [\n               { type: 'path', pathId: 'axis', fill: '#26354a', stroke: { width: 2 } }, { type: 'label', contentId: metrics[0].contentId, anchor: { x: 60, y: 180 }, hAlign: 'center', vAlign: 'top', color: '#26354a' }, { type: 'label', contentId: metrics[1].contentId, anchor: { x: 180, y: 180 }, hAlign: 'center', vAlign: 'top', color: '#26354a' }, { type: 'label', contentId: metrics[2].contentId, anchor: { x: 300, y: 180 }, hAlign: 'center', vAlign: 'top', color: '#26354a' } ] } };\n  },\n};",
+ "scene_revision": 1,
+ "seed": 42,
+ "time_ms": 0,
+ "theme": "light",
+ "viewport": {
+  "widthDu": 360,
+  "heightDu": 240
+ }
+}

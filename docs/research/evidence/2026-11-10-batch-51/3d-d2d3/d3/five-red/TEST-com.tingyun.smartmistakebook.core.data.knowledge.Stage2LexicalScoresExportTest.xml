@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.knowledge.Stage2LexicalScoresExportTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-09T17:44:08.123Z" hostname="TIANSHAN" time="1.171">
+  <properties/>
+  <testcase name="exportArmAFts5ScoresAsFusionInput" classname="com.tingyun.smartmistakebook.core.data.knowledge.Stage2LexicalScoresExportTest" time="1.171"/>
+  <system-out><![CDATA[stage2-lexical-export: 文件=D:\smart mistake book\build\stage2-dense-offline-lexical.tsv
+stage2-lexical-export: 行数=39462 查询数=129 空洞查询=0
+stage2-lexical-export: 回读重算臂 A 主集=0.7829457364341085 (101/129) MRR=0.6291989664082688
+stage2-lexical-export: 与 stage1-metrics-A.txt 对账：逐章行 24 条、MISS 28 条全部一致
+stage2-lexical-export: 配套查询表=D:\smart mistake book\build\stage2-dense-offline-lexical-queries.tsv
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

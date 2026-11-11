@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-bio-8f68ef0765-006	CORRECT		medium	酶能降低活化能使反应速率加快，缩短达到平衡的时间，但不改变化学反应方向和平衡点。	
+ext-che-20d30e5ba6-002	CORRECT		high	各物质的物质的量变化量之比、物质的量浓度变化量之比和化学反应速率之比都等于方程式中的化学计量数之比	
+bio-mo-heredity-022	CORRECT		medium	（1）选用了正确的实验材料：豌豆；（2）用统计学方法对结果进行分析；（3）科学地设计了实验的程序	
+ext-phy-32af80d1f1-005	CORRECT		high	选择公式时先分析已知量和待求量，根据所涉及的物理量选择合适的公式求解，使问题简化。	
+ext-bio-1b77d6527c-010	CORRECT		medium	H+顺浓度梯度回流释放能量合成ATP，故电子传递链把H+泵入膜间隙的运输方式为主动运输。	
+math-hj-s75-plane-plane-vertical	REBIND	面面垂直性质的应用	low	性质：$\alpha\perp\beta$，$\alpha\cap\beta=l$，$a\subset\alpha$，$a\perp l\Rightarrow a\perp\beta$。	材料主为面面垂直的性质（含交线推论），现绑只收判定定理
+ext-bio-93316d600e-001b	CORRECT		high	取样方法:通常采用取样器取样。	
+ext-che-5c62da9e03-071	CORRECT		medium	铁是银白色固体，熔点1538 ℃，沸点2861 ℃，密度7.87 g/cm³。	
+ext-phy-5bd33e706b-008	CORRECT		high	第三步按增反减同确定感应电流的磁场方向	
+wusan-mat-v-27ebab7e	CORRECT		high	空集是任何集合的子集，是任何非空集合的真子集，因此讨论集合间的关系时必须先单独考虑 A 为空集的情形。	
+ext-phy-7b9e454c44-020	CORRECT		medium	两先两后：实验中应先接通电源、后让小车运动；实验完毕应先断开电源、后取下纸带。	
+chem-hj-lizi-fangchengshi-yiyi	CORRECT		high	写（化学方程式）、拆（易溶强电解质拆成离子）、删（删去两边相同的离子）、查（原子守恒、电荷守恒）。	
+ext-che-7d4ebc406b-012	CORRECT		medium	干燥的红色（或装置 A 中）布条不褪色，湿润的红色（或装置 B 中）布条褪色，说明 Cl2 无漂白性，Cl2 与水反应生成的 HClO 有漂白性。	
+ext-phy-b1c9ef1623-003	CORRECT		high	出现动能增加量大于势能减少量时，只能从人为修改实验数据、或交流电频率不等于 50 Hz	
+ext-phy-b0e295f813-017	CORRECT		high	爆炸前后系统总动量不变，一般以爆炸前整体速度为初动量	
+ext-phy-206fb04353-009b	CORRECT		high	对于匀质绳索的平衡问题 可以选择合适的一段或几段进行受力分析计算	
+ext-phy-86c723ba5d-006b	CORRECT		high	同一轴转动的物体上各点的角速度相等，周期也就相等。	
+ext-mat-2fd5b879a7-003	CORRECT		high	函数的零点个数即函数图象与 x 轴交点的个数。	
+ext-che-fea8efcb69-003	CORRECT		high	化学方程式中各物质的化学计量数之比等于各物质的物质的量之比	
+ext-che-5c62da9e03-1416	CORRECT		high	R—X + NaOH --水/Δ--> R—OH + NaX。	
+ext-phy-e14aad82a5-736	CORRECT		medium	普遍性：万有引力不仅存在于太阳与行星、地球与月球之间，宇宙间任何两个有质量的物体之间都存在着这种相互吸引的力。	
+ext-phy-1bbb2dfb90-014	CORRECT		medium	a＝F/m是加速度的决定式，a的大小由合外力F和质量m决定，且a∝F，a∝1/m。	
+ext-phy-c117854fa6-003	CORRECT		high	第一宇宙速度是近地卫星的环绕速度，也是人造地球卫星的最小发射速度	
+ext-phy-a8cab79186-036	CORRECT		high	等距无外力：速度相同（两杆最终共速 回路电流为零）。	
+ext-phy-e14aad82a5-451	CORRECT		medium	描述气体状态的参量为体积、压强和温度	
+ext-phy-e2b7cab0ed-003	CORRECT		high	水平方向为匀速直线运动，竖直方向为自由落体运动，实际运动（合运动）是两者的合成。	
+ext-mat-04db4c6b00-002	CORRECT		high	解方程 $f'(x)=0$，求出函数定义域内的所有根	
+ext-phy-bc7bad627d-027	CORRECT		high	以入射点 P 为定点，将半径放缩作轨迹圆，轨迹圆的圆心都在同一条直线上。	
+ext-bio-1e23a952bc-039	REBIND	配子来源的判断	medium	来自同一个初级精母细胞的两组精细胞染色体组成互补	现绑为减数分裂过程；材料讲精细胞来源的互补判断
+ext-mat-b5910b42d5-003	CORRECT		high	等比数列 $\{a_n\}$ 中若 $m+n=p+q$（各项下标为正整数），则 $a_m\cdot a_n=a_p\cdot a_q$。	
+ext-bio-26746c92ba-040	CORRECT		high	Aa连续自交后代的基因型比例为 AA∶Aa∶aa=(2^n－1)∶2∶(2^n－1)	
+ext-phy-166e540bc2-014	CORRECT		high	先确定相遇点与各自的运动时间，再对每个物体分别写出水平、竖直方向的分位移方程，联立求解。	
+ext-bio-fe7aeee6be-005	CORRECT		high	真光合速率（总光合速率）＝净光合速率＋呼吸速率。	
+ext-che-34ce14a118-010	CORRECT		high	Na2CO3必须在BaCl2之后加入，若两者互换，过量的Ba2+就无法除去。	
+ext-phy-2f72d4bf8f-005b	CORRECT		high	关联热力学第一定律 $\Delta U=W+Q$，分析内能、功与热量的关系。	
+ext-mat-83d3cfab3d-007	CORRECT		high	确定换元对象（如令 $t=\sin x$ 或 $t=\sin x+\cos x$），并明确新元的取值范围	
+ext-phy-71f609071a-004	CORRECT		high	两种打点计时器的打点周期均为0.02s，记录的信息是位置、时刻、位移和时间。	
+ext-mat-5617acb096-002	CORRECT		high	极大值点、极小值点统称极值点，极大值、极小值统称极值。	
+ext-mat-63db0a8b06-030	REBIND	与距离有关的最值问题	medium	周长的最小值就是两对称点 B、C 之间的距离，用两点间距离公式算出。	现绑限单动点单次对称；材料为两动点两次对称的周长最值
+ext-phy-6bd7680fd3-009	CORRECT		high	瞬时速度是状态量，与位置和时刻有关，表示物体在某一位置或某一时刻的运动快慢程度	
+ext-bio-ec9b2217ea-011	REBIND	适应的普遍性与相对性	medium	适应的特点：普遍性指生物与环境相适应的情况是普遍存在的；相对性指适应与否是相对于环境而言的	材料主为适应的概念与普遍性/相对性；现绑只收两学说比较
+ext-phy-70e7677943-002b	CORRECT		high	运动时间由位移和加速度共同决定，位移最短时加速度并非最大	
+ext-che-5c62da9e03-2706	REBIND	单糖	medium	葡萄糖分子中的醛基能与银氨溶液产生光亮银镜、与新制氢氧化铜产生砖红色沉淀、使酸性高锰酸钾溶液褪色；羟基能与金属钠反应放出氢气、与乙酸发生酯化反应。	材料主为葡萄糖官能团的性质；现绑是通用预测方法，归单糖
+ext-phy-370fdfaa09-010	CORRECT		high	结论：E测<E真，r测<r真。	
+ext-bio-6f769aa6e2-005	CORRECT		medium	初生演替是指在从未被植物覆盖或原有植被被彻底消灭的地方发生的演替	
+ext-bio-85e02e27c3-008	CORRECT		high	会聚学说认为，内脏与体表的痛觉信号会聚到同一中枢通路，大脑误认为痛觉来自体表。	
+ext-mat-dc82490e60-008	CORRECT		high	两者焦距相同、渐近线相同，但实轴长与虚轴长互换，离心率一般不同	
+ext-mat-41753f9fde-001	CORRECT		high	圆锥曲线（椭圆、双曲线、抛物线）内接直角三角形的斜边过定点。	
+ext-phy-91b4e2887e-003	CORRECT		high	向心力：是效果力，只改变线速度的方向、不改变线速度的大小	
+ext-bio-5f510cdc4a-884	CORRECT		high	DNA复制用解旋酶、DNA聚合酶，配对为A—T、T—A、G—C、C—G	

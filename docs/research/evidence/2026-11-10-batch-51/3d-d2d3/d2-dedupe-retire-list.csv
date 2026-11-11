@@ -1,0 +1,2 @@
+cluster_id,node_id,node_slug,subject,slug,kept_slug,verdict,reason,title,content_len,protected,title_mentioned_in
+50af104ae054,kb:moe-2025-four-subjects-v1:chemistry:atomic:纯净物,纯净物,CHEMISTRY,ext-che-2728b2ed9a-016,ext-che-4f82967fc2-009,RETIRE,near-duplicate,从组成、熔沸点、性质区分纯净物与混合物（第03讲 盐类的水解·思维建模）,72,False,

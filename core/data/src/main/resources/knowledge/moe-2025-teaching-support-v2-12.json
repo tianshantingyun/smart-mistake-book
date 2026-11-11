@@ -21595,7 +21595,7 @@
    "contentId": "ext-phy-e14aad82a5-423",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁说-麦克斯韦认为光是一种电磁波",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁波谱与各波段的特性",
      "role": "PRIMARY"
     }
    ]

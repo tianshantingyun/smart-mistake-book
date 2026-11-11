@@ -1,0 +1,284 @@
+{
+ "frozen_nodes": 2481,
+ "v29_nodes": 2483,
+ "dropped_from_overfull": [
+  "kb:moe-2025-four-subjects-v1:physics:atomic:数据处理-x1"
+ ],
+ "added_to_overfull": [
+  "kb:moe-2025-four-subjects-v1:biology:atomic:管家基因与奢侈基因",
+  "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学反应的本质",
+  "kb:moe-2025-four-subjects-v1:physics:atomic:电磁波谱与各波段的特性"
+ ],
+ "material_count_changed": [
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:DNA的粗提取与鉴定",
+   "frozen_count": 7,
+   "v29_count": 8
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的合成和利用",
+   "frozen_count": 70,
+   "v29_count": 71
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:atp的结构",
+   "frozen_count": 42,
+   "v29_count": 41
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:传统发酵技术",
+   "frozen_count": 42,
+   "v29_count": 41
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:基因工程",
+   "frozen_count": 83,
+   "v29_count": 82
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:实验-观察根尖分生区组织细胞的有丝分裂",
+   "frozen_count": 72,
+   "v29_count": 71
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:有丝分裂",
+   "frozen_count": 110,
+   "v29_count": 111
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:果酒和果醋的制作",
+   "frozen_count": 17,
+   "v29_count": 18
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:核糖体",
+   "frozen_count": 11,
+   "v29_count": 12
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:激素",
+   "frozen_count": 47,
+   "v29_count": 48
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:物理模型的构建方法",
+   "frozen_count": 9,
+   "v29_count": 8
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:细胞分化",
+   "frozen_count": 68,
+   "v29_count": 67
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:胰岛素",
+   "frozen_count": 18,
+   "v29_count": 17
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:蛋白质的基本单位-氨基酸",
+   "frozen_count": 58,
+   "v29_count": 57
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:biology:atomic:辨析真正光合速率-净光合速率和呼吸速率",
+   "frozen_count": 85,
+   "v29_count": 86
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:vsepr模型",
+   "frozen_count": 72,
+   "v29_count": 71
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:一些有机物的命名",
+   "frozen_count": 21,
+   "v29_count": 22
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:中心原子杂化类型的判断",
+   "frozen_count": 52,
+   "v29_count": 53
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:依据反应条件判断有机反应类型",
+   "frozen_count": 16,
+   "v29_count": 17
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:依据官能团分类",
+   "frozen_count": 48,
+   "v29_count": 49
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:功能高分子材料",
+   "frozen_count": 5,
+   "v29_count": 6
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合成高分子反应的化学方程式的书写",
+   "frozen_count": 26,
+   "v29_count": 25
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合成高分子的结构和性质",
+   "frozen_count": 64,
+   "v29_count": 63
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:同分异构现象和同分异构体",
+   "frozen_count": 31,
+   "v29_count": 32
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:常见仪器",
+   "frozen_count": 56,
+   "v29_count": 57
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:抑制-促进水电离平衡的方法",
+   "frozen_count": 9,
+   "v29_count": 10
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:新型无机非金属材料",
+   "frozen_count": 28,
+   "v29_count": 27
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞中粒子数目、配位数、坐标与密度的计算",
+   "frozen_count": 7,
+   "v29_count": 9
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:晶胞密度的计算",
+   "frozen_count": 45,
+   "v29_count": 43
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:有机化合物的空间结构",
+   "frozen_count": 7,
+   "v29_count": 6
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:溶液中微粒浓度大小的比较",
+   "frozen_count": 53,
+   "v29_count": 54
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:看-气体-是否处于-标准状况-0-101kpa",
+   "frozen_count": 35,
+   "v29_count": 34
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硅酸盐",
+   "frozen_count": 19,
+   "v29_count": 20
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫及其化合物之间的转化规律",
+   "frozen_count": 61,
+   "v29_count": 62
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:离子共存",
+   "frozen_count": 34,
+   "v29_count": 35
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:聚合反应",
+   "frozen_count": 15,
+   "v29_count": 16
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:chemistry:atomic:镁的化学性质",
+   "frozen_count": 22,
+   "v29_count": 23
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:math:atomic:圆的参数方程",
+   "frozen_count": 11,
+   "v29_count": 12
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:math:atomic:忽视异面直线的夹角与向量的夹角范围不同",
+   "frozen_count": 6,
+   "v29_count": 7
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:math:atomic:直线与圆锥曲线的位置关系",
+   "frozen_count": 48,
+   "v29_count": 49
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动",
+   "frozen_count": 59,
+   "v29_count": 60
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动与斜面的结合分析",
+   "frozen_count": 77,
+   "v29_count": 78
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动的两个重要结论",
+   "frozen_count": 57,
+   "v29_count": 56
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:physics:atomic:气体压强",
+   "frozen_count": 47,
+   "v29_count": 46
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:physics:atomic:测量金属丝的电阻率实验",
+   "frozen_count": 47,
+   "v29_count": 48
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:physics:atomic:液柱模型",
+   "frozen_count": 39,
+   "v29_count": 40
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:physics:atomic:滑块-小球-弹簧模型",
+   "frozen_count": 51,
+   "v29_count": 52
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:physics:atomic:电功率",
+   "frozen_count": 19,
+   "v29_count": 20
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:physics:atomic:电磁波",
+   "frozen_count": 41,
+   "v29_count": 39
+  },
+  {
+   "node_id": "kb:moe-2025-four-subjects-v1:physics:atomic:超重与失重的判断方法",
+   "frozen_count": 74,
+   "v29_count": 75
+  }
+ ],
+ "frozen_summary": {
+  "nodes_over_4": 2481,
+  "materials_in_overfull": 62944,
+  "bindings_beyond_4": 53020,
+  "zero_2gram_total": 5954,
+  "zero_2gram_excess": 4918
+ },
+ "v29_summary": {
+  "nodes_over_4": 2483,
+  "materials_in_overfull": 62969,
+  "bindings_beyond_4": 53037,
+  "nodes_ge_4": 2657,
+  "nodes_eq_4": 174,
+  "max_material_count": 146,
+  "zero_2gram_total": 5952,
+  "zero_2gram_excess": 4918,
+  "materials_total": 64850,
+  "nodes_with_bindings": 3279
+ },
+ "note": "冻结框由任务书要求在 D-2 开工时快照（v28 时代产物，2026-11-08）；v29 复算只作差异登记，不替换冻结框、不写 build/kb-staging/overfull_nodes.csv"
+}

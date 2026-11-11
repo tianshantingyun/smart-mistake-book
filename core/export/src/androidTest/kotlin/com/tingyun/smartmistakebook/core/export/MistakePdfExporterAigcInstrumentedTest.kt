@@ -43,11 +43,13 @@ import org.junit.runner.RunWith
  * 覆盖：
  * 1. 真实 `MistakePdfExporter.prepare`（含 CLEAN_IMAGE）产物带 `/AIGC`，`PdfRenderer` 打开页数不变，
  *    且注入前后原始字节前缀逐字节相同（显式图注因此逐位不变）；
- * 2. 纯用户内容的真实导出读不到 `/AIGC`；
+ * 2. 纯用户内容的真实导出读不到 `/AIGC`（且输入层 `hasModelParsedText == false`）；
+ * 2b. **只含模型解析文本、无任何图**的真实导出带 `/AIGC`（KD-75 C2，与 1 共用同一注入点）；
  * 3. 同输入二次 `prepare` 命中缓存且只有一个 `/AIGC`；
- * 4. 旧的无标记同键产物 + 旧 token：`reopenVerified` 返回 null，随后 `prepare` 重建带标记；
- * 5. 打印整份保留 `/AIGC`，部分页 `writeSubset` 丢失文档级 `/AIGC`（现状登记，重注入落在
- *    `MistakePdfDelivery.kt`，本批禁改）。
+ * 4. 旧的无标记同键产物 + 旧 token：`reopenVerified` 返回 null，随后 `prepare` 重建带标记
+ *    （含"仅模型文本"输入的同构用例）；
+ * 5. 打印整份与部分页都保留同一份文档级 `/AIGC`（KD-84：子集缓冲后按 prepared 的 JSON
+ *    重注入，`ProduceID` 与输入指纹一致；产物落盘供宿主 pypdf 独立读回）。
  *
  * **独立读者（pypdf）不在本类断言**：设备落盘路径由 `evidence=` 日志给出，宿主侧执行
  * `python -I -c "import pypdf,sys; r=pypdf.PdfReader(sys.argv[1]); print(r.metadata)" <file>`。
@@ -120,9 +122,11 @@ class MistakePdfExporterAigcInstrumentedTest {
 
     @Test
     fun pureUserContentExportHasNoAigcInfoEntry() {
-        val prepared = MistakePdfExporter(context).prepare(plainInput())
+        val input = plainInput()
+        val prepared = MistakePdfExporter(context).prepare(input)
         val bytes = prepared.file.readBytes()
 
+        assertFalse("a pure user document must not claim model parsed text", input.hasModelParsedText)
         assertTrue(prepared.verifyIntegrity())
         assertNull("a pure user document must not carry /AIGC", PdfAigcReader.readLatestAigc(bytes))
         assertFalse(PdfAigcReader.readInfoStrings(bytes).containsKey("AIGC"))
@@ -130,6 +134,39 @@ class MistakePdfExporterAigcInstrumentedTest {
         val evidence = File(evidenceDirectory, "pure-user-unlabeled.pdf")
         evidence.writeBytes(bytes)
         Log.i(TAG, "case=pure-user bytes=${bytes.size} evidence=${evidence.absolutePath}")
+    }
+
+    /**
+     * KD-75 C2 的设备侧正向：**没有任何图**、只有模型解析文本的真实导出必须带 `/AIGC`。
+     *
+     * 独立读者纪律：产物落在 `evidence=` 路径，宿主侧用 pypdf 读回
+     * （`python -I -c "import pypdf,sys; print(pypdf.PdfReader(sys.argv[1]).metadata)" <file>`）。
+     */
+    @Test
+    fun modelParsedTextOnlyExportIsLabeled() {
+        val input = eligibleInputWithModelParsedText()
+        assertFalse("the fixture must not carry any AI image", input.paintsAiGeneratedImage())
+
+        val prepared = MistakePdfExporter(context).prepare(input)
+
+        assertTrue(prepared.verifyIntegrity())
+        assertEquals(input.inputSha256, prepared.file.parentFile?.name)
+        val labeled = prepared.file.readBytes()
+        val readBackValue = PdfAigcReader.readLatestAigc(labeled)
+        assertNotNull("model parsed text alone must carry /AIGC on device", readBackValue)
+        val readBack = readBackValue!!
+        assertEquals(PdfAigcMetadata.LABEL_AI_GENERATED, readBack.label)
+        assertEquals(PdfAigcMetadata.DEFAULT_CONTENT_PRODUCER, readBack.contentProducer)
+        assertEquals(input.inputSha256, readBack.produceId)
+        assertEquals(1, PdfAigcReader.readLatestAigcKeyCount(labeled))
+
+        val evidence = File(evidenceDirectory, "model-text-labeled.pdf")
+        evidence.writeBytes(labeled)
+        Log.i(
+            TAG,
+            "case=model-text pages=${prepared.pageCount} sha256=${prepared.sha256} " +
+                "evidence=${evidence.absolutePath}",
+        )
     }
 
     @Test
@@ -156,46 +193,58 @@ class MistakePdfExporterAigcInstrumentedTest {
     fun oldUnmarkedArtifactUnderTheSameKeyIsRejectedAndRebuiltWithAigc() {
         val png = writeSolidPng()
         try {
-            val aiInput = eligibleInputWithCleanImage(png, extraBlocks = emptyList())
-            val exportRoot = File(context.cacheDir, MistakePdfExporter.EXPORT_DIRECTORY).apply { mkdirs() }
-            // 代际哨兵由第一次 prepare/reopenVerified 创建；本用例必须从"上一代"开始。
-            File(exportRoot, MistakePdfExporter.AIGC_POLICY_SENTINEL).delete()
-
-            val staleDirectory = File(exportRoot, aiInput.inputSha256).apply { check(mkdirs()) }
-            val stalePdf = File(staleDirectory, PREPARED_PDF_FILE_NAME)
-            DeterministicMistakePdfRenderer.render(plainInput(), stalePdf)
-            val staleSha = sha256File(stalePdf)
-            File(staleDirectory, PREPARED_DIGEST_FILE_NAME)
-                .writeText("$staleSha\n", Charsets.US_ASCII)
-            assertNull("the stale artifact must start unlabelled", PdfAigcReader.readLatestAigc(stalePdf.readBytes()))
-
-            val oldToken = PreparedMistakePdfToken(
-                inputSha256 = aiInput.inputSha256,
-                pdfSha256 = staleSha,
-                pageCount = pageCountOf(stalePdf),
-            )
-            val exporter = MistakePdfExporter(context)
-
-            assertNull(
-                "an old token must not reopen a pre-generation unlabelled artifact",
-                exporter.reopenVerified(oldToken),
-            )
-            assertFalse("the sentinel cleanup must delete the stale published pair", staleDirectory.exists())
-
-            val rebuilt = exporter.prepare(aiInput)
-
-            assertTrue(rebuilt.verifyIntegrity())
-            assertEquals(PdfAigcMetadata.LABEL_AI_GENERATED, PdfAigcReader.readLatestAigc(rebuilt.file.readBytes())!!.label)
-            assertEquals(aiInput.inputSha256, PdfAigcReader.readLatestAigc(rebuilt.file.readBytes())!!.produceId)
-            assertTrue(File(exportRoot, MistakePdfExporter.AIGC_POLICY_SENTINEL).isFile)
-            Log.i(TAG, "case=stale-token staleSha=$staleSha rebuiltSha=${rebuilt.sha256}")
+            staleUnlabelledArtifactIsRejectedAndRebuilt(eligibleInputWithCleanImage(png, emptyList()))
         } finally {
             png.delete()
         }
     }
 
+    /**
+     * 同键旧无标产物必须被拒的**第二类输入**：只含模型解析文本、无图（KD-75 C2）。
+     * 消灭的失败：C2 判据在 `prepare` 生效，但旧包复用/`reopenVerified` 路径仍放行无标产物。
+     */
     @Test
-    fun wholePrintKeepsAigcWhilePartialPrintDropsTheDocumentLevelEntry() {
+    fun modelParsedTextArtifactUnderTheOldKeyIsRejectedAndRebuiltWithAigc() {
+        staleUnlabelledArtifactIsRejectedAndRebuilt(eligibleInputWithModelParsedText())
+    }
+
+    private fun staleUnlabelledArtifactIsRejectedAndRebuilt(input: MistakePdfExportInput) {
+        val exportRoot = File(context.cacheDir, MistakePdfExporter.EXPORT_DIRECTORY).apply { mkdirs() }
+        // 代际哨兵由第一次 prepare/reopenVerified 创建；本用例必须从"上一代"开始。
+        File(exportRoot, MistakePdfExporter.AIGC_POLICY_SENTINEL).delete()
+
+        val staleDirectory = File(exportRoot, input.inputSha256).apply { check(mkdirs()) }
+        val stalePdf = File(staleDirectory, PREPARED_PDF_FILE_NAME)
+        DeterministicMistakePdfRenderer.render(plainInput(), stalePdf)
+        val staleSha = sha256File(stalePdf)
+        File(staleDirectory, PREPARED_DIGEST_FILE_NAME)
+            .writeText("$staleSha\n", Charsets.US_ASCII)
+        assertNull("the stale artifact must start unlabelled", PdfAigcReader.readLatestAigc(stalePdf.readBytes()))
+
+        val oldToken = PreparedMistakePdfToken(
+            inputSha256 = input.inputSha256,
+            pdfSha256 = staleSha,
+            pageCount = pageCountOf(stalePdf),
+        )
+        val exporter = MistakePdfExporter(context)
+
+        assertNull(
+            "an old token must not reopen a pre-generation unlabelled artifact",
+            exporter.reopenVerified(oldToken),
+        )
+        assertFalse("the sentinel cleanup must delete the stale published pair", staleDirectory.exists())
+
+        val rebuilt = exporter.prepare(input)
+
+        assertTrue(rebuilt.verifyIntegrity())
+        assertEquals(PdfAigcMetadata.LABEL_AI_GENERATED, PdfAigcReader.readLatestAigc(rebuilt.file.readBytes())!!.label)
+        assertEquals(input.inputSha256, PdfAigcReader.readLatestAigc(rebuilt.file.readBytes())!!.produceId)
+        assertTrue(File(exportRoot, MistakePdfExporter.AIGC_POLICY_SENTINEL).isFile)
+        Log.i(TAG, "case=stale-token staleSha=$staleSha rebuiltSha=${rebuilt.sha256}")
+    }
+
+    @Test
+    fun wholePrintAndPartialPrintBothKeepTheDocumentLevelAigcEntry() {
         val png = writeSolidPng()
         try {
             val input = eligibleInputWithCleanImage(
@@ -230,17 +279,24 @@ class MistakePdfExporterAigcInstrumentedTest {
                     )
                 }
                 assertEquals(1, pageCountOf(subset))
-                // 现状登记：writeSubset 逐页重绘进新 PdfDocument，新文档只有 Skia 的 /Info（无 /AIGC）。
-                // 处置（缓冲子集 → 按 prepared 的 /AIGC 重注入 → 一次写出）落在 MistakePdfDelivery.kt，
-                // 该文件本批禁改；本条断言在重注入落地时必须改为"读回同一份 JSON"。
-                assertNull(
-                    "known gap: partial-page print loses the document-level /AIGC until relabel lands",
-                    PdfAigcReader.readLatestAigc(subset.readBytes()),
+                // KD-84：子集必须在写出一并带上与整份导出同一份文档级 /AIGC。
+                val subsetBytes = subset.readBytes()
+                val subsetReadBack = PdfAigcReader.readLatestAigc(subsetBytes)
+                assertNotNull(
+                    "partial-page print must keep the document-level /AIGC",
+                    subsetReadBack,
                 )
+                assertEquals(PdfAigcMetadata.LABEL_AI_GENERATED, subsetReadBack!!.label)
+                assertEquals(prepared.inputSha256, subsetReadBack.produceId)
+                assertEquals(1, PdfAigcReader.readLatestAigcKeyCount(subsetBytes))
+                assertEquals(1, pageCountOf(subset))
+                val subsetEvidence = File(evidenceDirectory, "print-subset-relabeled.pdf")
+                subsetEvidence.writeBytes(subsetBytes)
                 Log.i(
                     TAG,
-                    "case=print whole=${whole.length()} subset=${subset.length()} " +
-                        "subsetPages=1 evidence=${whole.absolutePath}",
+                    "case=print whole=${whole.length()} subset=${subsetBytes.size} " +
+                        "subsetPages=1 subsetEvidence=${subsetEvidence.absolutePath} " +
+                        "wholeEvidence=${whole.absolutePath}",
                 )
             } finally {
                 whole.delete()
@@ -289,9 +345,20 @@ class MistakePdfExporterAigcInstrumentedTest {
         ) as MistakePdfEligibilityResult.Eligible
         ).input
 
+    private fun eligibleInputWithModelParsedText(): MistakePdfExportInput = (
+        MistakePdfEligibility.check(
+            readyState(
+                blocks = listOf(ContentBlock.Paragraph("stem", "模型解析出的题干文字。")),
+                source = MistakeSourceSet.Missing,
+                provenance = QuestionBlockProvenance.MODEL_DOCUMENT_PARSE,
+            ),
+        ) as MistakePdfEligibilityResult.Eligible
+        ).input
+
     private fun readyState(
         blocks: List<ContentBlock>,
         source: MistakeSourceSet,
+        provenance: QuestionBlockProvenance = QuestionBlockProvenance.USER_CORRECTION,
     ): MistakeDetailState.Ready {
         val unique = UUID.randomUUID().toString()
         return MistakeDetailState.Ready(
@@ -319,8 +386,14 @@ class MistakePdfExporterAigcInstrumentedTest {
                         sourceAssetId = "source-$unique",
                         sourceRegion = NormalizedSourceRegion(0.0, 0.0, 1.0, 1.0),
                         writingLayer = WritingLayer.PRINTED,
-                        provenance = QuestionBlockProvenance.USER_CORRECTION,
+                        provenance = provenance,
                         reviewStatus = QuestionBlockReviewStatus.USER_CONFIRMED,
+                        // 非用户来源缺 producerVersion 会被 validateForCommit 拒绝。
+                        producerVersion = if (provenance == QuestionBlockProvenance.MODEL_DOCUMENT_PARSE) {
+                            "model-test-1"
+                        } else {
+                            null
+                        },
                     )
                 },
             ),

@@ -1,73 +1,75 @@
 {
-  "id": "E-083",
-  "verdict": "PASS",
-  "run_id": "2026-11-05T12:57:37Z-batch47-e-row-specific-repair",
-  "reviewer": "batch47-E-row-specific-repairer",
-  "authors": [
-    "batch45-evidence-producer-E"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml": "67f3d656ff428a1927c4487a3d4d7c5203dc5c8f32ee1f839cd5c345387bc3f8",
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log": "422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6",
-    "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log": "0a8c050416784b2859e9c316299c225e2d767ee4141808c048cea457d2b4fa68"
+ "id": "E-083",
+ "verdict": "PASS",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "evidence": [
+  "test:docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml": "67f3d656ff428a1927c4487a3d4d7c5203dc5c8f32ee1f839cd5c345387bc3f8",
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log": "422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6",
+  "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log": "0a8c050416784b2859e9c316299c225e2d767ee4141808c048cea457d2b4fa68"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=E-083; verdict=PASS; line=574; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=E-083; verdict=PASS; line=574; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml",
-      "value": "tests=5; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.domain.StudyDayMathTest; timestamp=2026-11-05T01:14:38.957Z; hostname=TIANSHAN; sha256=67f3d656ff428a1927c4487a3d4d7c5203dc5c8f32ee1f839cd5c345387bc3f8"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml",
-      "value": "testcases=5; first=crossing the 4am study day boundary is what starts a new day; all_present=True"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
-      "value": "exit_markers=[0]; cmd=./gradlew --offline -q :core:domain:test --tests com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest --tests com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest --tests com.t; sha256=422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log",
-      "value": "exit_markers=[0]; cmd=bash docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe-run.sh; sha256=0a8c050416784b2859e9c316299c225e2d767ee4141808c048cea457d2b4fa68"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml",
-      "value": "testcases=5; testcase=crossing the 4am study day boundary is what starts a new day; present=true; suite=com.tingyun.smartmistakebook.core.domain.StudyDayMathTest; sha256=67f3d656ff428a1927c4487a3d4d7c5203dc5c8f32ee1f839cd5c345387bc3f8"
-    }
-  ],
-  "basis": "批次 47 / E 域行特有复算（reviewer=batch47-E-row-specific-repairer，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 E-083 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；打开本行 evidence 重算 sha256 与可判定字段；追加的 check 直接断言本行方法点名的测试方法（或源码字段/读侧查询）在当前字节里存在。本文件只对该单行生效。",
-  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "adversarial": {
-    "attempted": true,
-    "result": "recomputed-no-mismatch"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml",
+   "value": "tests=5; failures=0; errors=0; skipped=0; suite=com.tingyun.smartmistakebook.core.domain.StudyDayMathTest; timestamp=2026-11-05T01:14:38.957Z; hostname=TIANSHAN; sha256=67f3d656ff428a1927c4487a3d4d7c5203dc5c8f32ee1f839cd5c345387bc3f8"
   },
-  "review_scope": "single-ledger-row",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T12:57:37Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "xml_testcase",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml",
+   "value": "testcases=5; first=crossing the 4am study day boundary is what starts a new day; all_present=True"
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 3,
-    "basis": "bytes-on-disk"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-domain-jvm.cmd.log",
+   "value": "exit_markers=[0]; cmd=./gradlew --offline -q :core:domain:test --tests com.tingyun.smartmistakebook.core.domain.FsrsScheduleMathTest --tests com.tingyun.smartmistakebook.core.domain.FsrsProjectionBehaviorTest --tests com.t; sha256=422929e2277e259eb16bd9c7d84c063f9817b3d6b4d70cdef673e7223cd51ac6"
   },
-  "checks_scope": "row-specific"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe.cmd.log",
+   "value": "exit_markers=[0]; cmd=bash docs/research/evidence/2026-11-05-batch-44/e-domain/e-domain-probe-run.sh; sha256=0a8c050416784b2859e9c316299c225e2d767ee4141808c048cea457d2b4fa68"
+  },
+  {
+   "name": "xml_testcase",
+   "source": "docs/research/evidence/2026-11-05-batch-44/e-domain/TEST-com.tingyun.smartmistakebook.core.domain.StudyDayMathTest.xml",
+   "value": "testcases=5; testcase=crossing the 4am study day boundary is what starts a new day; present=true; suite=com.tingyun.smartmistakebook.core.domain.StudyDayMathTest; sha256=67f3d656ff428a1927c4487a3d4d7c5203dc5c8f32ee1f839cd5c345387bc3f8"
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "adversarial": {
+  "attempted": true,
+  "result": "recomputed-no-mismatch"
+ },
+ "review_scope": "single-ledger-row",
+ "ledger_batch": 51,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-10T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 3,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

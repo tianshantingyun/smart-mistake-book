@@ -1,0 +1,87 @@
+{
+ "identity": {
+  "release_pack_sha256": "aaf81be884933b9105db737feee3eb3d84ff440c53f0e2d01c806aafd3790032",
+  "staging_pack_sha256": "aaf81be884933b9105db737feee3eb3d84ff440c53f0e2d01c806aafd3790032",
+  "staging_equals_release": true,
+  "pack_path": "core\\data\\src\\main\\resources\\knowledge\\moe-2025-four-subjects-v1.json",
+  "frozen_frame": "docs\\research\\evidence\\2026-11-10-batch-51\\3d-audit\\frame\\overfull_nodes.snapshot.csv",
+  "frozen_frame_sha256": "ce7d6823787204640a646854561ea85cbbf4f19c48a0809754a3b0f419c69d9d",
+  "frozen_frame_sha_expected": "ce7d6823787204640a646854561ea85cbbf4f19c48a0809754a3b0f419c69d9d",
+  "staging_overfull_sha256": "ce7d6823787204640a646854561ea85cbbf4f19c48a0809754a3b0f419c69d9d",
+  "staging_overfull_equals_frozen": true
+ },
+ "materials_total": 64850,
+ "nodes_total": 3279,
+ "overfull_frozen_frame": {
+  "definition": "(subject,slug) 聚合、每条材料只计首个绑定、>4 条（工具口径）",
+  "source": "docs/research/evidence/2026-11-10-batch-51/3d-audit/frame/overfull_nodes.snapshot.csv（sha256 冻结；**未重写** build/kb-staging/overfull_nodes.csv）",
+  "nodes_over_4": 2481,
+  "materials_in_overfull": 62944,
+  "bindings_beyond_4": 53020,
+  "max_material_count": 146,
+  "max_node": "MATH/三角函数的图象与性质",
+  "zero_2gram_total": 5954,
+  "zero_2gram_excess": 4918,
+  "triage": {
+   "priority_review": 49,
+   "review": 1009,
+   "none": 1423
+  },
+  "retention_policy": "RETAIN_NO_CAP：运行时无每节点条数门（1,024 行整批上界 + 20,000 字符预算按排序装填），全部材料保留、不解绑、不物删；分诊标记只决定复核顺序",
+  "ledger": "d2-overfull-ledger-frozen-frame.csv"
+ },
+ "overfull_recompute_v29": {
+  "source": "当前 shipped pack（release == staging）+ 卷索引枚举，工具同口径只读复算",
+  "detail": "overfull_recompute_v29.csv",
+  "summary": {
+   "nodes_over_4": 2483,
+   "materials_in_overfull": 62969,
+   "bindings_beyond_4": 53037,
+   "nodes_ge_4": 2657,
+   "nodes_eq_4": 174,
+   "max_material_count": 146,
+   "zero_2gram_total": 5952,
+   "zero_2gram_excess": 4918,
+   "materials_total": 64850,
+   "nodes_with_bindings": 3279
+  },
+  "divergence_vs_frozen_frame": "frame-divergence.json"
+ },
+ "capacity": {
+  "rows": 91,
+  "already_in_pack_same_node": 22,
+  "in_pack_other_node": 12,
+  "not_admitted_historical": 44,
+  "obsolete_node": 13,
+  "node_missing": 21,
+  "disposition": "逐行登记；不补、不删",
+  "producer_premise": "tools/kb_build/merge_candidate_verdicts.py:165 MAX_VISIBLE = 4 与 :209-216 ≥4 即拦——运行时无该门，规则已废止",
+  "producer_patch": "批次50 补丁 d2-capacity-deprecation.patch 仍 NOT_APPLIED（在飞文件不抢占）",
+  "ledger": "d2-capacity-dispositions.csv"
+ },
+ "near_duplicate": {
+  "candidate_rows": 2,
+  "candidate_materials_in_pack": 2,
+  "pack_node_scan": "见 d2-near-dup-scan.json（tools/kb_build.scan_duplicate_nodes）",
+  "material_level_scan": "见 d2-dedupe-dryrun.json（tools/kb_coverage.dedupe_near_dup_materials --dry-run）",
+  "dispositions": {
+   "乙烯是石油化工最基本的原料之一": "ADJUDICATED_RETIRE_DEFERRED",
+   "特殊的棱柱和棱锥": "ADJUDICATED_RETIRE_DEFERRED"
+  },
+  "retire_deferred": [
+   "cmp-che-02639",
+   "cmp-mat-00065"
+  ],
+  "ledger": "d2-near-dup-dispositions.csv"
+ },
+ "type": {
+  "materials_total": 64850,
+  "outside_3_value_set": 0,
+  "outside_distribution": {},
+  "materialize_TYPES": "tools/kb_coverage/materialize.py:66 = 3 值",
+  "merge_TYPES": "tools/kb_coverage/merge_text_judgments.py:47 = 3 值",
+  "protocol": "docs/kb-chunk-judgment-protocol.md:62/90 = 3 值",
+  "single_source": true,
+  "ledger": "d2-type-distribution.csv"
+ }
+}

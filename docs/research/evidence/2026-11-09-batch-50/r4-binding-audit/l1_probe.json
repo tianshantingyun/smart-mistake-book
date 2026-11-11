@@ -1,0 +1,161 @@
+{
+ "release_dir": "D:\\smart mistake book\\core\\data\\src\\main\\resources\\knowledge",
+ "pack_id": "moe-2025-four-subjects-v1",
+ "sidecars": [
+  {
+   "name": "moe-2025-teaching-support-v2-01.json",
+   "bytes": 5441757,
+   "sha256": "48914f3676222a0509fa09a30f051312383742e314daa1d43875a4ee41e549d9"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-02.json",
+   "bytes": 4709354,
+   "sha256": "d7b11f02e1e81820258622b6b2b86551e7ccf9b7efb8249a838ad45066b49543"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-03.json",
+   "bytes": 4484958,
+   "sha256": "6b9a3df7041d4e1e87bf8fcdca55526cbcfb97633c72810bdf85e0df6337e777"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-04.json",
+   "bytes": 5432278,
+   "sha256": "8825ebc738f028ff307cce4d672d291e130d39baaaeaadbcbdba59d215c65f46"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-05.json",
+   "bytes": 4435446,
+   "sha256": "349cfbcb032ec2ffa818536ffb46549c7228c8a9b8e43d65443417b3c932c188"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-06.json",
+   "bytes": 4722413,
+   "sha256": "315b27044638884ad0dd063047de8ad8d5bd45ebab54486ed039a7229989d8a3"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-07.json",
+   "bytes": 10018673,
+   "sha256": "6b76cd821f08e0eeb44d70e6c10d6e3455502ccd247ce4975964d181232c4581"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-08.json",
+   "bytes": 4908176,
+   "sha256": "e9e32476ea1187eaa17998e611d4303380858cd427320d4fd2fb31628aeec0bd"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-09.json",
+   "bytes": 4917487,
+   "sha256": "7b69608f5fa13b7bcc39d3b10a845745ed1884fc76053c6c98a64341b7ad34d5"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-10.json",
+   "bytes": 4737609,
+   "sha256": "387cb12487059a9968e6f9942aa90f6b32c9e925a8a667bf1a27675c943d434d"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-11.json",
+   "bytes": 4835943,
+   "sha256": "4a44f95c8b87b3ef8987ebe19dca3d5c269f871aa54daad270e39fa0c8c34d35"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-12.json",
+   "bytes": 4904817,
+   "sha256": "2e365970763041dcc767726836cf08588683457c3181396fbf8f58aea68fac2d"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-13.json",
+   "bytes": 4845324,
+   "sha256": "b5b22b7f73b69a4c9a3d0ec5815efd9227288fd8205690dfbda496cd13b3b4fa"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-14.json",
+   "bytes": 4872671,
+   "sha256": "0aa11eb0022833e738cef851ddcee5d19f03500d1172ee545a55c4721e2a1338"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-15.json",
+   "bytes": 4814760,
+   "sha256": "b101bbb69f45a5af8806c19a9e85ba451309b2dbc3e2d552bff16d5db47474e1"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-16.json",
+   "bytes": 4726072,
+   "sha256": "116f65560367ac1a37fae26e130e6be8a78856bfd5943451b840f6d95a4bc6c1"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-17.json",
+   "bytes": 4712810,
+   "sha256": "f34359cef01495a65b8bfc4ab44a0c7947788545e03774833df483ec20deabb0"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-18.json",
+   "bytes": 4583141,
+   "sha256": "f48aa05c6781d1a2d6eaddadb26c7ad51a12b9f4991f049cd72572ead27a4910"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-19.json",
+   "bytes": 4737099,
+   "sha256": "f64169ccd6adf765fc4b55a4784e1c5e247923c4b09352fa0bd1480a94302cbc"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-20.json",
+   "bytes": 4671816,
+   "sha256": "56b85a4cd476e60b2b377ed63c96d8cd1d3b1608445dd2e032ebdea12c415220"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-21.json",
+   "bytes": 4652840,
+   "sha256": "477ba1ee99d1cbb46ae9ebdd6f313b65523dbaef1c106c82415bdef6f3ca3c53"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-22.json",
+   "bytes": 4269804,
+   "sha256": "b1a213fcf4f32b9728e2198ad615357df45ccbc2c214e3c66c5cddf7935b277a"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-23.json",
+   "bytes": 4486678,
+   "sha256": "b5123a93de1a2d105f7187e3a01ecbd0837ffd8014d206b9bf5e1ee10f7457e4"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-24.json",
+   "bytes": 4345079,
+   "sha256": "9559d5001aa68e9a8cd61bffafd530315517177c30662fe16e9b8afffc3cb393"
+  },
+  {
+   "name": "moe-2025-teaching-support-v2-25.json",
+   "bytes": 302998,
+   "sha256": "858e58d25cafc10ae76a952c8666be7caa87bdf66c046deb021d1ef1f7708d82"
+  }
+ ],
+ "nodes": 3280,
+ "materials": 64853,
+ "bindings": 64853,
+ "materials_zero_binding": 0,
+ "materials_multi_binding": 0,
+ "dangling_bindings": 0,
+ "cross_subject_bindings": 0,
+ "cross_subject_examples": [],
+ "nodes_with_bindings": 3280,
+ "binding_per_node": {
+  "min": 1,
+  "p50": 13,
+  "mean": 19.7723,
+  "max": 146,
+  "gt4": 2481
+ },
+ "material_type_top": [
+  [
+   "CONCEPT_EXPLANATION",
+   35486
+  ],
+  [
+   "METHOD_MODEL",
+   25437
+  ],
+  [
+   "MISCONCEPTION_GUIDE",
+   3930
+  ]
+ ]
+}

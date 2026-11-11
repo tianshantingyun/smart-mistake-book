@@ -1,0 +1,151 @@
+{
+  "input_file": "BLD-FLOWFORM-011.json",
+  "program_sha256": "97db2f08b4e343357d84ae4a67a81774a872018e6d81f6faae34aef3c786c044",
+  "task_id": "BLD-FLOWFORM-011",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 43,
+  "measurement": [
+    {
+      "contentId": "c0-ee21803d",
+      "payload": "一元二次方程求根公式",
+      "widthDu": 160,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ee21803d4e0aadd44def73d84248242cc73d8699087d19c66e1b7b7a1fc0fa2d"
+    },
+    {
+      "contentId": "c1-d4f88cde",
+      "payload": "2x²",
+      "widthDu": 22.909090042114258,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4f88cde2aac4702680982446c13c2eae185ca819f86146c279b0c977050b121"
+    },
+    {
+      "contentId": "c2-5607c5b2",
+      "payload": "+ 4x",
+      "widthDu": 30.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5607c5b211dfa7e2b3fda5bfc24408a46ef3bdba3501b55acdd11802011a73c0"
+    },
+    {
+      "contentId": "c3-ecb20d72",
+      "payload": "− 6",
+      "widthDu": 22.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ecb20d723791921c4aabcf90f588d38a6970d6c5936237ab52e9196d5aa10d64"
+    },
+    {
+      "contentId": "c4-6a99751d",
+      "payload": "= 0",
+      "widthDu": 21.81818199157715,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6a99751d93986ab4d3b19c543c9f5f10617378b8af1593fa42edf61e65ee9a78"
+    },
+    {
+      "contentId": "c5-d6caeea6",
+      "payload": "a = 2",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d6caeea65266578487abe1370e07a0238918637bd5e81e923e12a24c618ab60e"
+    },
+    {
+      "contentId": "c6-fbd5acba",
+      "payload": "b = 4",
+      "widthDu": 34.90909194946289,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "fbd5acbad31d6b83e49b1c8f77689595c4c2add38f1fca71bad99ef7be58ca34"
+    },
+    {
+      "contentId": "c7-e839510c",
+      "payload": "c = −6",
+      "widthDu": 43.272727966308594,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e839510cb67ddee3544eb91c2bd359ec2268878272bd861fcb6aec8185ca3cf6"
+    },
+    {
+      "contentId": "c8-c4b6e90e",
+      "payload": "求根公式",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c4b6e90e21f45e51800be5a11f05d227ecbdb5c7dd74a555955d3d7ad3ac9fbd"
+    },
+    {
+      "contentId": "c9-8a5c8186",
+      "payload": "x = ( −b ± √(b² − 4ac) ) \/ (2a)",
+      "widthDu": 200.36363220214844,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8a5c81869cc5901a7aa56b718004920f416b8a0a66e7d5d673d1a34ef0c8c1a0"
+    },
+    {
+      "contentId": "c10-827af153",
+      "payload": "Δ = b² − 4ac = 64",
+      "widthDu": 121.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "827af1534f181bda0cd9d4246d9a707025233c0cc61295bcb21d99995aa3fa98"
+    },
+    {
+      "contentId": "c11-f05cd2ca",
+      "payload": "代入：Δ = 4² − 4·2·(−6) = 16 + 48 = 64",
+      "widthDu": 269.0909118652344,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f05cd2cac4567249d3b2cb912b0ba7ca7f9097344d79347e3cc01120679ac7e9"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "71a030a2aa82febf66a30ad028a29e03cf2e3065404e7a63891170ac8fc74084",
+  "scene_bytes": 8306,
+  "scene_schema_version": 1,
+  "draw_sha256": "026a78564c0098ba86ba10ebe8f567f108188b7d25df54ba42b7bf9cff816f0b",
+  "draw_bytes": 9783,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-ee21803d",
+    "c1-d4f88cde",
+    "c10-827af153",
+    "c11-f05cd2ca",
+    "c2-5607c5b2",
+    "c3-ecb20d72",
+    "c4-6a99751d",
+    "c5-d6caeea6",
+    "c6-fbd5acba",
+    "c7-e839510c",
+    "c8-c4b6e90e",
+    "c9-8a5c8186"
+  ],
+  "png_sha256": "55a6c98ab6480c2c63f43dcf7c9ed70e3d1cc23de41ea0b66dfae6c8b1e5bbdb",
+  "png_bytes": 23384,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 34,
+    "pathCommands": 142,
+    "labels": 12,
+    "ops": 33
+  }
+}

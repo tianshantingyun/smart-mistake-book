@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-baf18087a8-012	CORRECT		high	核反应方程遵循的规律是质量数守恒与电荷数守恒，据此可以确定未知粒子或配平方程。	
+ext-bio-3a60560995-011	CORRECT		high	管家基因：所有细胞均表达，其产物是对维持细胞基本生命活动所必需的	
+bio-kb3-f2-s2-1-n12	CORRECT		medium	双缩脲试剂成分含量是0.1g/mL NaOH、0.01g/mL CuSO₄，用法先加A液，后加B液，不需加热。	
+cmp-mat-00342	CORRECT		high	空间直角坐标系要求三条坐标轴两两垂直，题目未直接给出垂直条件时必须先证明，不能凭图形直观建系。	
+ext-che-cb1f9ebb32-009	CORRECT		high	一个可逆反应已经达到平衡后，一旦温度、压强或浓度等条件发生变化，正、逆反应的速率不再相等，化学平衡就会发生移动	
+wusan-phy-x3c5-natural-radioactivity	CORRECT		high	α 射线是高速氦核流、β 射线是高速电子流、γ 射线是光子流；电离本领与穿透本领的顺序相反。	
+ext-phy-09c12a6763-013	CORRECT		high	单摆的回复力由重力沿轨迹切线的分力提供，绳张力与重力沿绳方向的分力共同提供向心力。	
+chem-hj-pingheng-panduan-fangfa	CORRECT		high	用“速率相等”和“变量不变”两大标准判断反应是否达到平衡。	
+ext-che-b2f7df8b97-014	CORRECT		high	向AlCl3溶液中逐滴加NaOH先生成白色沉淀后沉淀溶解	
+ext-mat-289deb9ecd-1498	CORRECT		high	正面考虑的情况较多、较复杂，或问题含有至多、至少、存在唯一、不存在等词语时，可否定已知条件、先求反面的参数范围，再取补集。	
+ext-mat-0d2e1dffea-002b	CORRECT		high	函数的定义域是使函数有意义的自变量的取值范围。	
+ext-che-88e3593dfc-009b	CORRECT		medium	原电池的正极和负极与电极材料的性质有关，也与电解质溶液有关，不要形成活泼电极一定作负极的固定思维。	
+ext-bio-87ebe669c6-009	CORRECT		medium	子代不患病（完全正常）概率 = 不患甲病概率 × 不患乙病概率。	
+ext-phy-e6cf82a3cc-001	CORRECT		high	多过程中每一阶段适用的气体定律不同，如等温、等压、等容，必须逐段判断状态变化类型再选用相应定律，不能全程套用同一个关系。	
+ext-phy-445f88143b-008	CORRECT		high	两个力的合力唯一确定，但一个力的两个分力不一定唯一确定	
+ext-bio-b1dbe11e89-012	CORRECT		medium	钙依赖的NO合酶催化生成NO，再回到突触前——构成正反馈调节。	
+ext-phy-e14aad82a5-247b	CORRECT		high	图线斜率的倒数为电源电动势、纵轴截距为 r/E。	
+ext-che-8cc878ccbe-001	CORRECT		high	物质的量浓度表示单位体积溶液中所含溶质B的物质的量，单位为mol每升。	
+chem-fx-zhu-yao-hua-xue-fan-ying-f17x06	CORRECT		medium	②沉淀Mg2+：Mg2++Ca(OH)2=Mg(OH)2+Ca2+	
+ext-bio-8921fde1b5-003	CORRECT		high	酵母菌在有氧和无氧条件下都能生存，属于兼性厌氧菌。	
+ext-che-88473bffb5-028	CORRECT		high	羟基（氨基）处于相邻位置时容易形成分子内氢键，占用了氢键给体与受体，分子间作用力被削弱，沸点较低。	
+ext-mat-de2261e44c-001	CORRECT		high	函数的最值必在下列各点中取得：导数为零的点、导数不存在的点、端点。	
+ext-mat-597c9f8f89-001b	CORRECT		high	把恒成立、能成立问题转化为求函数的最值，再解参数的不等式。	
+ext-mat-32c4934a98-002b	CORRECT		high	互斥＝各事件所含结果的集合交集为空；对立＝事件所含结果的集合是全集中的补集。	
+phys-vt-drawing-notes	CORRECT		high	作v-t图像要注意进入电场的时刻、斜率表示加速度（同加速度图线平行）、面积表示位移可判最终位置。	
+ext-mat-68eaf46072-002b	CORRECT		high	①椭圆定义的应用主要有：求椭圆的标准方程，求焦点三角形的周长、面积及求弦长、最值和离心率等	
+ext-che-5c62da9e03-1795	CORRECT		medium	商余法：烃的相对分子质量/12→商为 C 原子数，余数为 H 原子数	
+ext-mat-a22a478340-008	CORRECT		high	基本量运算按所求量分四类：求公差d或项数n、求通项、求特定项、求前n项和，核心是方程思想与a1、d两个基本元素。	
+ext-mat-58873bc0ba-001	CORRECT		high	复数相等：a＋bi＝c＋di当且仅当a＝c且b＝d；a＋bi与a－bi互为共轭复数。	
+phys-fx-nuclear-particle-field-motion	CORRECT		high	核反应产生的带电粒子进入电场按类平抛或动能定理处理，进入磁场由洛伦兹力提供向心力做匀速圆周运动。	
+ext-che-9d9489b3be-003b	CORRECT		high	强电解质在水中完全电离且无电离平衡，弱电解质只部分电离且存在电离平衡。	
+ext-mat-289deb9ecd-668b	CORRECT		high	棱柱、棱锥、棱台与圆柱、圆锥、圆台、球的表面积与体积公式，台体公式可退化出柱体与锥体。	
+ext-mat-41ab94b34f-002c	CORRECT		high	截距是直线与坐标轴交点的坐标值，它可正、可负，也可以是零；而距离是一个非负数	
+ext-bio-5d3bead25e-004b	CORRECT		high	直接原因（四要素）：氨基酸种类不同、氨基酸数目不同、氨基酸排列顺序不同、肽链的盘曲折叠方式及其形成的空间结构千差万别	
+ext-mat-1c74215608-003	CORRECT		high	若题目条件与结论有明显的几何特征，可考虑利用圆锥曲线的定义和图象的有关性质来求解，即几何法。	
+ext-phy-7b849791ee-013	CORRECT		high	有效长度：公式E=Blv中的l为有效长度，即导体两端点连线在垂直于速度方向上的投影长度。	
+ext-che-947add6b4a-022	CORRECT		high	碱溶法：铝土矿（主要含 $Al_2O_3$，杂质 $Fe_2O_3$、$SiO_2$）加 NaOH 溶液时 $Al_2O_3$、$SiO_2$ 溶解	
+ext-che-5c62da9e03-2273	CORRECT		high	判据一：原子序数小于或等于 5 的元素的原子一般不能达到 8 电子结构	
+ext-phy-a8e443c60d-109	CORRECT		high	分别作Fn-ω²、Fn-r、Fn-m图像，由图像是否为直线判断正比关系并得出结论。	
+ext-mat-685901daa3-001	CORRECT		high	二维形式：(a²+b²)(c²+d²)≥(ac+bd)²，当且仅当 ad=bc 时取等	
+ext-phy-e14aad82a5-118	CORRECT		high	当 v2>v1 时，可使合速度方向垂直于河岸，船头向上游偏	
+ext-phy-e14aad82a5-823	CORRECT		high	示波管沿管轴依次是电子枪、偏转电极与荧光屏	
+ext-che-5c62da9e03-1757	REBIND	研究物质性质的基本程序	high	①研究物质性质的基本方法：观察法、实验法、分类法、比较法等。②研究物质性质的基本程序：观察物质的外观特征（颜色、气味、存在状态等）→预测物质性质	材料讲研究物质性质的基本方法与四步程序，另有同名专门节点；现绑为具体验证实验的易错点
+ext-che-8ec1d166ca-003	CORRECT		high	在整套实验装置的最后横放，既可以吸收多余的尾气、防止污染空气，又可以阻挡外界空气中的干扰气体	
+ext-bio-8a225a99ac-030	CORRECT		high	组成多糖、蛋白质、核酸的基本单位分别是单糖、氨基酸和核苷酸，这些基本单位称为单体，生物大分子是由许多单体连接成的多聚体	
+chem-hj2-xiaosuan-yu-jinshu-guilv	CORRECT		high	浓硝酸生成NO2、稀硝酸生成NO，用电子守恒和原子守恒计算	
+ext-phy-41da651af0-008	CORRECT		high	一旦向心力突然消失，物体就会沿切线方向飞出；若向心力不足，即合外力小于物体做圆周运动所需的向心力，物体将逐渐远离圆心做离心运动。	
+bio-kb2-11-c4-plants	CORRECT		high	C4途径：叶肉细胞中PEP固定CO2生成C4化合物→进入维管束鞘细胞释放CO2→参与卡尔文循环	
+ext-phy-bda1e7049d-002	CORRECT		high	若连接体内各物体具有共同加速度，可以把它们看成一个整体，分析整体受到的外力，应用牛顿第二定律求出加速度。	
+ext-mat-4dcda249d0-001b	CORRECT		high	不等式具有对称性、传递性、可加性、可乘性，以及同向可加性、同向同正可乘性与同正可乘方性。	

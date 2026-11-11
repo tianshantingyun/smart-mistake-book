@@ -25,7 +25,7 @@ def _run(*args: str) -> tuple[subprocess.CompletedProcess, dict | None]:
         out = Path(td) / "meta.json"
         proc = subprocess.run(
             [sys.executable, "-I", str(SCRIPT), *args, "--out", str(out)],
-            capture_output=True, text=True, cwd=str(REPO),
+            capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(REPO),
         )
         data = json.loads(out.read_text(encoding="utf-8")) if out.exists() else None
         return proc, data

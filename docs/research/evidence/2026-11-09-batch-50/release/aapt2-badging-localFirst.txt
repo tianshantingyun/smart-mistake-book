@@ -1,0 +1,3 @@
+package: name='com.tingyun.smartmistakebook.localfirst' versionCode='101160' versionName='0.2.0-localfirst' platformBuildVersionName='17' platformBuildVersionCode='37' compileSdkVersion='37' compileSdkVersionCodename='17'
+targetSdkVersion:'36'
+native-code: 'arm64-v8a' 'x86_64'

@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-PROPCOORD-004",
+    "program_id": "mva-BLD-PROPCOORD-004",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '7' },\n      { kind: 'text', payload: '3' },\n      { kind: 'text', payload: '7:3' }\n    ];\n  },\n  render: function (input, metrics) {\n    var ms = (metrics && metrics.length) ? metrics : [];\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var left = W * 0.12;\n    var right = W * 0.88;\n    var span = right - left;\n    var y = H * 0.5;\n    var split = left + span * 0.7;\n    var tick = Math.max(8, Math.min(H * 0.07, 16));\n    var labelY = y - tick - 12;\n    var smallSize = 16;\n    var ratioSize = 20;\n    var leadBottom = y + tick * 1.4 + 14;\n\n    var paths = [\n      { id: 'seg', commands: visualSdk.polyline([[left, y], [right, y]]) },\n      { id: 'tickL', commands: visualSdk.polyline([[left, y - tick], [left, y + tick]]) },\n      { id: 'tickR', commands: visualSdk.polyline([[right, y - tick], [right, y + tick]]) },\n      { id: 'tickS', commands: visualSdk.polyline([[split, y - tick * 1.4], [split, y + tick * 1.4]]) },\n      { id: 'lead', commands: visualSdk.polyline([[split, y + tick * 1.4], [split, leadBottom]]) }\n    ];\n\n    return {\n      schemaVersion: 1,\n      sceneId: 'ratio-7-3',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: paths,\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'seg', stroke: '#26354a', strokeWidth: 2 },\n          { type: 'path', pathId: 'tickL', stroke: '#26354a', strokeWidth: 2 },\n          { type: 'path', pathId: 'tickR', stroke: '#26354a', strokeWidth: 2 },\n          { type: 'path', pathId: 'tickS', stroke: '#c2410c', strokeWidth: 2 },\n          { type: 'path', pathId: 'lead', stroke: '#c2410c', strokeWidth: 1 },\n          { type: 'label', x: (left + split) / 2, y: labelY, text: '7', fontSize: smallSize, anchor: 'middle', fill: '#26354a' },\n          { type: 'label', x: (split + right) / 2, y: labelY, text: '3', fontSize: smallSize, anchor: 'middle', fill: '#26354a' },\n          { type: 'label', x: split, y: leadBottom + ratioSize, text: '7:3', fontSize: ratioSize, anchor: 'middle', fill: '#c2410c' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

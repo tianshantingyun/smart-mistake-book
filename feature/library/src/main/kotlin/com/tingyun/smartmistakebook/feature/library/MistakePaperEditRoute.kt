@@ -29,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -42,6 +43,7 @@ import com.tingyun.smartmistakebook.core.export.MistakePdfBlock
 import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
 import com.tingyun.smartmistakebook.core.export.MistakePdfPaperQuestion
 import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
+import com.tingyun.smartmistakebook.core.model.PaperEditModelPort
 import com.tingyun.smartmistakebook.core.model.VisualRole
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
@@ -52,6 +54,7 @@ import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.ReferenceEditorPage
 import com.tingyun.smartmistakebook.core.ui.InlineActionButton
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.launch
 
 /**
  * 原生卷面编辑入口（6B-2 / T6）。
@@ -72,6 +75,12 @@ import kotlinx.coroutines.CancellationException
  *   （一道都不能导出）时页面如实说明，不摆一个空编辑器。
  * @param onExport 确认后的交付回调：草稿 + 学生在原生格式 sheet 里选的格式。装配处负责
  *   `startMistakeExportEdited` 与导航到「导出成果」。
+ * @param modelPort 6B-3 自然语言改卷端口（批次 50）；null = 这个入口不接模型，页面不摆 AI 区。
+ *   端口只收 `core:model` 类型，生产实现 `RepositoryPaperEditModelPort` 由 app 装配。
+ * @param modelConsentGranted 应用层"配置了模型 = 同意"的实值；false 时入口只如实说明并给
+ *   设置入口，不提交请求——不广告未启用的能力。
+ * @param initialModelEdit 详情页「AI 改卷面」进入时展开 AI 区；卷面页自己的 chip 也可展开。
+ * @param onOpenModelSettings 未启用模型时的设置入口；null 时只显示说明。
  */
 @Composable
 fun MistakePaperEditRoute(
@@ -81,6 +90,10 @@ fun MistakePaperEditRoute(
     onExport: (MistakePaperDraft, MistakeExportFormat) -> Unit,
     modifier: Modifier = Modifier,
     onPrepareDetailedAnswers: ((MistakePaperDraft, MistakeExportFormat) -> Unit)? = null,
+    modelPort: PaperEditModelPort? = null,
+    modelConsentGranted: Boolean = false,
+    initialModelEdit: Boolean = false,
+    onOpenModelSettings: (() -> Unit)? = null,
 ) {
     val latestLoadPaper by rememberUpdatedState(loadPaper)
     val latestOnExport by rememberUpdatedState(onExport)
@@ -94,6 +107,16 @@ fun MistakePaperEditRoute(
     var edit by remember(stateKey) { mutableStateOf<MistakePdfPaperEdit?>(null) }
     var formatSheetOpen by rememberSaveable(stateKey) { mutableStateOf(false) }
     var message by remember(stateKey) { mutableStateOf<String?>(null) }
+    // 6B-3：AI 区是**一次性预览**状态，不跨进程保存（预览绑定具体卷面实例）。
+    val modelScope = rememberCoroutineScope()
+    var modelSectionOpen by rememberSaveable(stateKey) { mutableStateOf(initialModelEdit) }
+    var modelInstruction by rememberSaveable(stateKey) { mutableStateOf("") }
+    var modelBusy by remember(stateKey) { mutableStateOf(false) }
+    var modelPreview by remember(stateKey) {
+        mutableStateOf<NativePaperEditPreview.Ready?>(null)
+    }
+    var modelMessage by remember(stateKey) { mutableStateOf<String?>(null) }
+    var modelMessageIsError by remember(stateKey) { mutableStateOf(false) }
 
     LaunchedEffect(stateKey) {
         loadState = NativePaperEditLoadState.Loading
@@ -118,6 +141,87 @@ fun MistakePaperEditRoute(
             // 这里统一按"暂时没有可编辑卷面"如实说明，并保留返回。
             NativePaperEditLoadState.Unavailable
         }
+    }
+
+    fun requestModelPreview(paper: MistakePdfPaperEdit) {
+        val port = modelPort ?: return
+        if (modelBusy) return
+        if (!modelConsentGranted) {
+            modelMessage = "还没有启用模型：先在设置里配置模型，才能让 AI 改卷面。"
+            modelMessageIsError = true
+            return
+        }
+        if (paper.hasBlankText) {
+            modelMessage = "卷面里有必填文字被清空，填上后才能让 AI 改卷面。"
+            modelMessageIsError = true
+            return
+        }
+        val revision = try {
+            NativePaperEditModel.revisionFor(paper)
+        } catch (_: IllegalArgumentException) {
+            modelMessage = "这份卷面暂时不能交给模型；卷面保持原样。"
+            modelMessageIsError = true
+            return
+        }
+        modelBusy = true
+        modelPreview = null
+        modelMessage = null
+        modelMessageIsError = false
+        // 提交时冻结这次要求：等待期间输入框里的后续编辑不应改变已经发出的任务。
+        val instruction = modelInstruction
+        modelScope.launch {
+            val outcome = NativePaperEditModel.request(
+                port = port,
+                paper = paper,
+                instruction = instruction,
+                paperId = NativePaperEditModel.paperIdFor(requestedIds),
+                revision = revision,
+                agentConsentGranted = modelConsentGranted,
+            )
+            modelBusy = false
+            when (outcome) {
+                is NativePaperEditPreview.Ready -> {
+                    if (edit !== paper) {
+                        // 等待期间学生手动改过卷面：他的改动优先，这次结果丢弃。
+                        modelMessage = "卷面在等待时被改过，这次结果没有采用（卷面保持你改后的样子）。"
+                        modelMessageIsError = true
+                    } else {
+                        modelPreview = outcome
+                        modelMessage = "模型给出了可执行的修改（${outcome.commandCount} 条命令，" +
+                            "${outcome.diffs.size} 处变化），核对后采用或取消。"
+                        modelMessageIsError = false
+                    }
+                }
+                is NativePaperEditPreview.Rejected -> {
+                    modelMessage = outcome.reason
+                    modelMessageIsError = true
+                }
+            }
+        }
+    }
+
+    fun adoptModelPreview(paper: MistakePdfPaperEdit) {
+        val preview = modelPreview ?: return
+        when (val result = NativePaperEditModel.adopt(paper, preview)) {
+            is NativePaperEditAdoption.Adopted -> {
+                edit = result.edit
+                modelPreview = null
+                modelMessage = "已采用这次修改（${preview.diffs.size} 处变化）；" +
+                    "确认导出时按这份卷面生成。"
+                modelMessageIsError = false
+            }
+            is NativePaperEditAdoption.Stale -> {
+                modelPreview = null
+                modelMessage = result.reason
+                modelMessageIsError = true
+            }
+        }
+    }
+
+    fun cancelModelPreview() {
+        modelPreview = null
+        modelMessage = "已取消这次修改，卷面保持原样。"
+        modelMessageIsError = false
     }
 
     val referenceImages = edit?.questions.orEmpty().flatMap { question ->
@@ -169,6 +273,39 @@ fun MistakePaperEditRoute(
                         modifier = Modifier.testTag("native_paper_edit_omitted"),
                         color = InkSecondary,
                         style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+                if (modelPort != null) {
+                    Spacer(Modifier.height(8.dp))
+                    val preview = modelPreview
+                    NativePaperEditModelSection(
+                        expanded = modelSectionOpen,
+                        onToggle = { modelSectionOpen = !modelSectionOpen },
+                        instruction = modelInstruction,
+                        onInstructionChange = { value ->
+                            modelInstruction = value.take(NativePaperEditModel.MAX_INSTRUCTION_CHARS)
+                            // 要求一变，旧预览就不再对应当前这句话：清掉，避免"按旧要求采用"。
+                            if (modelPreview != null) {
+                                modelPreview = null
+                                modelMessage = "修改要求已改，请重新生成预览。"
+                                modelMessageIsError = false
+                            } else if (modelMessageIsError) {
+                                // 旧的拒绝说明不再对应当前这句要求。
+                                modelMessage = null
+                                modelMessageIsError = false
+                            }
+                        },
+                        portAvailable = true,
+                        consentGranted = modelConsentGranted,
+                        busy = modelBusy,
+                        preview = preview,
+                        previewStale = preview != null && current !== preview.baseline,
+                        message = modelMessage,
+                        messageIsError = modelMessageIsError,
+                        onGenerate = { requestModelPreview(current) },
+                        onAdopt = { adoptModelPreview(current) },
+                        onCancel = ::cancelModelPreview,
+                        onOpenModelSettings = onOpenModelSettings,
                     )
                 }
                 Spacer(Modifier.height(4.dp))

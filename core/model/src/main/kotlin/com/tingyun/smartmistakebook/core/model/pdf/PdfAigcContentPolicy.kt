@@ -25,8 +25,12 @@ object PdfAigcContentPolicy {
      * 判据/注入行为的代际。改判据、改写入范围、改注入算法都必须 +1；缓存哨兵名与导出指纹
      * 都从它派生（`MistakePdfExporter.AIGC_POLICY_SENTINEL`、`exportFingerprintPolicyTag()`），
      * 三处不一致时 `MistakePdfExporterAigcJvmTest` 的「三方一致」用例会红。
+     *
+     * 3 = KD-85：卷面自然语言改卷产生的模型文字进入判据（
+     * `MistakePdfPaperEdit.modelTextApplied`）。同一份"纯用户来源 + 模型改写"的输入在升级前后
+     * 产物字节不同（之前无 `/AIGC`），旧产物必须由哨兵清掉，不能靠 TTL 自然过期。
      */
-    const val GENERATION: Int = 2
+    const val GENERATION: Int = 3
 
     /** 与 `core:model` 的 `QuestionBlockProvenance.MODEL_DOCUMENT_PARSE` 同名对齐。 */
     const val MODEL_DOCUMENT_PARSE_PROVENANCE: String = "MODEL_DOCUMENT_PARSE"

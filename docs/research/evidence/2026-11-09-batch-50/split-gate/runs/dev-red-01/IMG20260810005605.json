@@ -1,0 +1,27 @@
+{
+    "file": "IMG20260810005605.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 12974,
+    "responseHead": "{\"id\":\"4aa902f8-cb5a-4d7a-ae9a-63e4234039a1\",\"object\":\"chat.completion\",\"created\":1794127327,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"NEED_MORE_IMAGE\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.03,\\\"top\\\":0.22,\\\"right\\\":0.95,\\\"bottom\\\":0.42},\\\"message\\\":\\\"顶部仅有D、E选项，缺少A—C及对应题干\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.05,\\\"top\\\":0.86,\\\"right\\\":0.95,\\\"bottom\\\":1.0},\\\"message\\\":\\\"底部题2(2)被页面裁切，无法完整转写\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\",\\\"RECAPTURE\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足够完整转写一道或多道独立题。图片是一页书/练习册局部。可见内容：顶部是选项D和E，属于上一道选择题的选项？然后有标题“二、金属氢化物的还原性”，接着一段文字说明，然后“2. 根据金属氢化物的特点解答下列问题。”包含(1)(2)小问。注意图片底部截断，内容未拍全：底部(2)开始“NaH在无水条件下可作为某些钢铁制品的脱锈剂（铁锈的成分表示为F...)”被截断。顶部有D、E选项，缺失A、B、C？实际上图片顶部从D开始，上一题可能包含A-C选项未在画面内。这是问题：是否足以完整转写一道或多道独立题？需要判断decision。画面包含多道独立题吗？看起来顶部是上一道题的选项D、E，然后是一个新的大题“二、金属氢化物的还原性”和题2。题2包含(1)(2)小问，是一道独立题（或大题）。而顶部D/E可能属于前一道题，且缺失选项。题目跨页不算多题；内容未拍全返回NEED_MORE_IMAGE。这里底部截断，内容未拍全。顶部缺失选项。所以可能NEED_MORE_IMAGE。也可以判为MULTIPLE_QUESTIONS? 但图片包含至少两道：顶部的上一题选项（不完整）和题2。但顶部只有D/E，不能构成完整题。题2不完整。需要更多图像。decision应为NEED_MORE_IMAGE。issues: MISSING_OPTIONS? 顶部缺失A-C，code MISSING_OPTIONS severity BLOCKING? 但那是上一题，可能不需要转写？如果决定只转写题2，则题2底部截断，需要更多图。还有KEY_TEXT_UNREADABLE? 手写和印刷可读。OCCLUDED? 没有遮挡。MULTIPLE_QUESTIONS? 可能有上一题和题2，但上一题不完整。严格：若画面包含2到12道互相独立的题，必须返回SPLIT。画面中是否能识别2道独立题？顶部D/E属于某题，但题干不在画面，无法独立转写；题2是一道。所以不是2道完整独立题。应NEED_MORE_IMAGE。questionRegions空。suggestedActions ADD_IMAGE? 需要更多图像，可以ADD_IM",
+    "decision": "NEED_MORE_IMAGE",
+    "issueCodes": [
+        "MISSING_OPTIONS",
+        "KEY_TEXT_UNREADABLE"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "layoutHint": null,
+    "layoutHintChars": 0,
+    "image": {
+        "egressBytes": 580162,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "ee939e529934cc16ddb69406f84bcc9105b6e10056268a120e54981c5c424ec0",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

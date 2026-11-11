@@ -1,0 +1,20 @@
+# baseline 2026-11-10T23:28:49+08:00
+HEAD=8dd29e963975ff44703f638064322be0e7494f98
+shallow=false
+porcelain=683
+porcelain-uall=5443
+commit-count=1177
+release-env-vars-present=0
+tracked-keystores=0
+keystore-files:
+total 77
+drwxr-xr-x 1 听云 197121     0 Nov  8 21:16 ./
+drwxr-xr-x 1 听云 197121     0 Nov  8 21:49 ../
+-rw-r--r-- 1 听云 197121 63300 Nov  8 21:08 build-release.log
+-rw-r--r-- 1 听云 197121   305 Nov  8 21:03 release-signing.env
+-rw-r--r-- 1 听云 197121  4464 Nov  8 21:03 smbk-local-release.keystore
+target-path-status:
+java-procs:
+62320 org.gradle.launcher.daemon.bootstrap.GradleDaemon
+36220 jdk.jcmd/sun.tools.jps.Jps
+adb-devices:

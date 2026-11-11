@@ -1,0 +1,24 @@
+{
+  "input_file": "DEV-PROPCOORD-001.json",
+  "program_sha256": "3b2e5608d83567a897d20e39a7822d8efdbf3068f2a2b6e512b620e5516b0182",
+  "task_id": "DEV-PROPCOORD-001",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 171,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "1:1",
+      "widthDu": 22.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d6b5915c46057bcb005f46f6433df65609dd3a7a57af75ac1a5a4a7c299ebffb"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

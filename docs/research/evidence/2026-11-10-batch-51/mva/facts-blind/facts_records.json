@@ -1,0 +1,1050 @@
+[
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-001",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-002",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-003",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-004",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-005",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-006",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-007",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[2].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-008",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-009",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-010",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-011",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase render: SceneSdkError: SCENE_SDK_ARG: o.tickLength must be within (0, 100]\n    at SceneSdkError (visual-sdk.js:53:26)\n    at axis (visual-sdk.js:222:30)\n    at render (",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-012",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_STYLE_COLOR: scene.root.children[0].fill must be \"#RRGGBB\" or \"#RRGGBBAA\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fa",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-013",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-014",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-015",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-016",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-017",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-018",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-019",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-PROPCOORD-020",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-001",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_ARGS: scene.paths[3].commands[4] must be a command array like [\"M\", x, y]\n    at SceneCompileError (visual-compiler.js:72:26)\n    ",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-002",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-003",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"fillOpacity\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-004",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-005",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-006",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-007",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-008",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-009",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-010",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-011",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-012",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"text\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-013",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-014",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-015",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-016",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-017",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-018",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-019",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-MECHPHASE-020",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-001",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-002",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"text\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-003",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-004",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-005",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-006",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-007",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"text\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-008",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-009",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-010",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-011",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"text\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-012",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"text\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-013",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-014",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-015",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-016",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-017",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-018",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-019",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-FLOWFORM-020",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase render: SceneSdkError: SCENE_SDK_ARG: polyline point 0 must be an [x, y] pair\n    at SceneSdkError (visual-sdk.js:53:26)\n    at polyline (visual-sdk.js:263:30)\n    at r",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-001",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_STYLE_COLOR: scene.root.children[0].fill must be \"#RRGGBB\" or \"#RRGGBBAA\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fa",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-002",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-003",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-004",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-SRCREBLD-005",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-SRCREBLD-006",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-007",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-008",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-009",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-010",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-011",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-012",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-013",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[1].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-014",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase render: SceneSdkError: SCENE_SDK_ARG: polyline point 0 must be an [x, y] pair\n    at SceneSdkError (visual-sdk.js:53:26)\n    at polyline (visual-sdk.js:263:30)\n    at r",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-015",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-016",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-017",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-018",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-019",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-SRCREBLD-020",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-001",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-002",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-003",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-004",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-005",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-006",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-007",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-DEHANDWR-008",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"x\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-compil",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-DEHANDWR-009",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"x\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-compil",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-DEHANDWR-010",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-DEHANDWR-011",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"x\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-compil",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-DEHANDWR-012",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-013",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-DEHANDWR-014",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-015",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-016",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-017",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"text\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-DEHANDWR-018",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-019",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-DEHANDWR-020",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-001",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-002",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-003",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-004",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-005",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-006",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_status": "MISSING",
+    "evaluable": false,
+    "reason": "适配器没有该题的 record（未渲染或未跑）",
+    "task_id": "BLD-NATILLA-007",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-008",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_TYPE: scene.root.children[0].stroke must be an object\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-009",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-010",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-011",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-012",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-013",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"text\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-014",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-015",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-016",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_ARGS: scene.paths[2].commands[8] must be a command array like [\"M\", x, y]\n    at SceneCompileError (visual-compiler.js:72:26)\n    ",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-017",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-018",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-019",
+    "verdict": "NOT_EVALUABLE"
+  },
+  {
+    "adapter_reason": "INVALID_SCENE",
+    "adapter_status": "REJECTED",
+    "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis",
+    "evaluable": false,
+    "reason": "渲染未产出场景（无事实可判）",
+    "task_id": "BLD-NATILLA-020",
+    "verdict": "NOT_EVALUABLE"
+  }
+]

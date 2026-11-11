@@ -1,0 +1,19 @@
+{
+  "aab": "app/build/outputs/bundle/localFirstRelease/app-localFirst-release.aab",
+  "sha256": "48b8a6ddc6cb4efc7615d681399b13ef49fb8d00ab109bf9e9cadbe860d03462",
+  "abi_set": [
+    "arm64-v8a",
+    "x86_64"
+  ],
+  "native_libs": [
+    "libLiteRt.so",
+    "libLiteRtClGlAccelerator.so",
+    "libandroidx.graphics.path.so",
+    "libdatastore_shared_counter.so",
+    "liblitert_jni.so",
+    "libmlkit_google_ocr_pipeline.so",
+    "libquickjs.so"
+  ],
+  "alignment": 2,
+  "errors": []
+}

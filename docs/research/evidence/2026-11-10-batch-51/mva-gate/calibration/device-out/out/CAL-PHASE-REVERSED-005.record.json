@@ -1,0 +1,61 @@
+{
+  "input_file": "CAL-PHASE-REVERSED.json",
+  "program_sha256": "a82579fc7b9c0f6466f738f64dbc8da6438375206c675019f90fb1b36e71f166",
+  "task_id": "CAL-PHASE-REVERSED",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 21,
+  "measurement": [
+    {
+      "contentId": "c0-953a947a",
+      "payload": "u=0",
+      "widthDu": 26.545454025268555,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "953a947a0a53b228142b57831935a639b7fb7deae9d3192750598cd54f5cad24"
+    },
+    {
+      "contentId": "c1-2d4635eb",
+      "payload": "u=1\/2",
+      "widthDu": 42.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d4635eb1f3df7a4b0c0a3fe6cc02d8fac6af595d11fadba37e846084baf2a71"
+    },
+    {
+      "contentId": "c2-7fa211ac",
+      "payload": "u=1",
+      "widthDu": 26.545454025268555,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7fa211acd935f62457ad10c390d8c690f3af35df44f65d9d3097f95010ebfb7d"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "e09dc9c7c21a464f28018d5322a4c1c9ef2bcc9bf5dba378062113088ec14897",
+  "scene_bytes": 702,
+  "scene_schema_version": 1,
+  "draw_sha256": "ae633f3ccb4311e88ae835ecc0c39bb06fdea9b90d5f6232060a93240621e8b5",
+  "draw_bytes": 825,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-953a947a",
+    "c1-2d4635eb",
+    "c2-7fa211ac"
+  ],
+  "png_sha256": "16d515832ef608230f417e990d59aca69cf1de0b06fb88d072e95a28e2ccc801",
+  "png_bytes": 2733,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 5,
+    "pathCommands": 5,
+    "labels": 3,
+    "ops": 4
+  }
+}

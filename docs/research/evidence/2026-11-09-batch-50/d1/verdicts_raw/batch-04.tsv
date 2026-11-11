@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-mat-289deb9ecd-300	CORRECT		high	由函数零点（方程根）所在区间求参数范围	节点即直接法：零点存在定理构建不等式
+ext-mat-289deb9ecd-626	CORRECT		high	复数可化为 z=r(cosθ+isinθ)	
+ext-mat-289deb9ecd-645	CORRECT		high	有一个面是多边形、其余各面都是有一个公共顶点的三角形	
+ext-mat-289deb9ecd-828	CORRECT		high	建立概率模型、进行模拟试验、统计试验结果	
+ext-mat-289deb9ecd-978	CORRECT		high	先用中点坐标公式求中点，再由与 P₁P₂ 的斜率关系定出斜率	
+ext-mat-2e229aa964-008	CORRECT		high	把椭圆上的点设为参数形式	
+ext-mat-2edb5cbbd7-002	CORRECT		high	圆锥曲线上弦XY的中点为Q	
+ext-mat-309a83acf0-002b	CORRECT		high	把平面几何条件转化为边角关系	
+ext-mat-3a9971122f-001	CORRECT		high	解一元一次不等式与解一元一次方程的步骤基本相同	
+ext-mat-41753f9fde-002	CORRECT		high	用对角线乘积的一半求垂直弦四边形的面积	
+ext-mat-418086fcde-064	CORRECT		high	把直线与曲线联立，用韦达定理把向量条件整体化为参数的表达式	
+ext-mat-44ecc96edc-001b	CORRECT		high	向量垂直化数量积为零 向量共线化坐标交叉积为零	
+ext-mat-48011a67f7-030	CORRECT		high	由根与系数的关系（两根之和）求出另一根	
+ext-mat-510c066544-005	CORRECT		high	定义直接应用、变形匹配与分段函数可导性判断是导数定义类问题的三种基本解法	
+ext-mat-53175e5c31-001c	CORRECT		high	处理两条弦长的和差、比值、倒数和等组合目标时的六步流程	
+ext-mat-560ed1c6b3-009	CORRECT		high	偶次根式要求被开方数大于等于零	
+ext-mat-5da2863e40-002	CORRECT		high	一次函数看k的符号；指数函数看底数与1的大小	
+ext-mat-6056c4f67d-005	CORRECT		high	先求内层值域再求外层最值	
+ext-mat-65910b0851-001	CORRECT		high	二次根式要求被开方数非负	
+ext-mat-65910b0851-002	CORRECT		high	先由被开方数非负确定定义域，再按右端正负决定能否平方	
+ext-mat-66cdd05410-038	CORRECT		high	等差数列的若干项成等比、或等比数列的若干项成等差时	
+ext-mat-66cdd05410-040	CORRECT		high	类比由 $S_n$ 求 $a_n$	
+ext-mat-6a2e9cacfa-013	CORRECT		high	把向量 (x，y) 绕起点逆时针旋转 θ 角	
+ext-mat-728e5c1c2a-006b	CORRECT		high	把等式两边化为代数形式，再用实部与实部相等、虚部与虚部相等列方程组求参数	
+ext-mat-755964c345-008	CORRECT		high	等腰三角形中三个心都在对称轴上，欧拉线即底边BC的垂直平分线	
+ext-mat-7680e8fc69-016	CORRECT		high	只许向右、向上走的网格中	
+ext-mat-8020ee4da4-003	CORRECT		high	三次方程 f(x)=c 有三个不同实根	
+ext-mat-841e4d221f-001	CORRECT		high	几何翻译—模型匹配—代数执行	
+ext-mat-91e0c2ace8-010b	CORRECT		high	任何定义域关于原点对称的函数都能写成一个偶函数与一个奇函数之和	
+ext-mat-91e0c2ace8-034	CORRECT		high	把 $f(x)$ 拆成 $g(x)-h(x)$	
+ext-mat-91e0c2ace8-056	CORRECT		high	用一组基向量把同一个向量表示两次	
+ext-mat-91e0c2ace8-057	CORRECT		high	选基向量、写出待求向量的两种表示	
+ext-mat-91e0c2ace8-071b	CORRECT		high	形如 $a_{n+1}+a_n=An+B$ 的和数列是隔项等差数列	
+ext-mat-91e0c2ace8-074c	CORRECT		high	证明 $a_n=\frac{1}{q^n-m}$	
+ext-mat-91e0c2ace8-079c	CORRECT		high	把正四面体每条棱三等分并截去四个顶点处的小正四面体	
+ext-mat-91e0c2ace8-082b	CORRECT		high	用四点共圆、正弦定理与余弦定理	
+ext-mat-91e0c2ace8-090b	CORRECT		high	多动点问题先选一个主动点固定其余动点	
+ext-mat-91e0c2ace8-107	CORRECT		medium	以焦点弦为直径的圆与准线相切时，切点与焦点的连线垂直于该焦点弦	材料为焦点弦性质，节点焦点三角形 boundary 覆盖焦点弦/焦半径
+ext-mat-91e0c2ace8-126b	CORRECT		high	把相同元素先当作互不相同来排列，再除以各组相同元素内部的全排列	
+ext-mat-9d0de1f972-013	CORRECT		high	实系数一元二次方程在复数范围内用求根公式或复数相等定义求解	
+ext-mat-9d8541e663-011	CORRECT		high	利用单调性去对数符号的方法以及真数大于零与底数讨论两个约束	
+ext-mat-a05a4f5163-007	CORRECT		high	二面角是从一条直线出发的两个半平面组成的图形	
+ext-mat-a106f78e40-002b	CORRECT		high	由 f(x1)+f(x2)=常数	
+ext-mat-a3d2384411-027	CORRECT		high	放出的界接不上目标	
+ext-mat-a3d2384411-030	CORRECT		high	用递推公式直接对项作放大或缩小	
+ext-mat-a58254c1b5-002	CORRECT		high	用凸函数的切线与割线估计函数图象与水平线交点的横坐标	
+ext-mat-a876e30316-066	CORRECT		high	一个三角形的用色可决定其余顶点	
+ext-mat-abf14fbf11-013	REBIND	圆的参数方程	high	圆上的动点用参数式设出后，向量数量积化为 A sin(θ+φ)+B 的形式	材料为圆的参数化求数量积，非圆锥曲线韦达转化
+ext-mat-af704204df-003	CORRECT		high	配方目标确定、对象多样	
+ext-mat-b1aceeb4bf-006	CORRECT		high	设 t=g(x) 反解 x 代入已知表达式得 f(t)	

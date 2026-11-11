@@ -1,0 +1,29 @@
+{
+  "line": "weights",
+  "seam": "ReviewScoringWeights (prereg §5.1)",
+  "model_based": true,
+  "grid": [0.75, 0.875, 1.0, 1.125, 1.25],
+  "arms": [
+    {"id": "W/due/x0.75", "coordinate": "due", "multiplier": 0.750000, "median_delta": null, "positive": 0, "n": 0, "dev_median_delta": null, "dev_positive": 0, "dev_n": 0, "guard_ok": true, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/due/x0.875", "coordinate": "due", "multiplier": 0.875000, "median_delta": "-0x1.999999999999cp-3", "positive": 0, "n": 1, "dev_median_delta": "0x1.111111111111p-3", "dev_positive": 1, "dev_n": 1, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/due/x1.125", "coordinate": "due", "multiplier": 1.125000, "median_delta": "-0x1.111111111111p-4", "positive": 0, "n": 1, "dev_median_delta": "0x1.99999999999ap-4", "dev_positive": 1, "dev_n": 1, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/due/x1.25", "coordinate": "due", "multiplier": 1.250000, "median_delta": null, "positive": 0, "n": 0, "dev_median_delta": "0x1.111111111111p-5", "dev_positive": 1, "dev_n": 1, "guard_ok": true, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/weak/x0.75", "coordinate": "weak", "multiplier": 0.750000, "median_delta": "-0x1.9999999999998p-4", "positive": 0, "n": 1, "dev_median_delta": "-0x1.111111111112p-5", "dev_positive": 0, "dev_n": 1, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/weak/x0.875", "coordinate": "weak", "multiplier": 0.875000, "median_delta": null, "positive": 0, "n": 0, "dev_median_delta": "0x1.99999999999ap-4", "dev_positive": 1, "dev_n": 1, "guard_ok": true, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/weak/x1.125", "coordinate": "weak", "multiplier": 1.125000, "median_delta": "-0x1.999999999999cp-3", "positive": 0, "n": 1, "dev_median_delta": "0x1.555555555555p-3", "dev_positive": 1, "dev_n": 1, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/weak/x1.25", "coordinate": "weak", "multiplier": 1.250000, "median_delta": "-0x1.111111111111p-5", "positive": 0, "n": 1, "dev_median_delta": "-0x1.111111111113p-5", "dev_positive": 0, "dev_n": 1, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/exam/x0.875", "coordinate": "exam", "multiplier": 0.875000, "median_delta": "-0x1.111111111111p-5", "positive": 0, "n": 1, "dev_median_delta": "0x0.0p0", "dev_positive": 0, "dev_n": 1, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/exam/x1.125", "coordinate": "exam", "multiplier": 1.125000, "median_delta": "-0x1.111111111111p-5", "positive": 0, "n": 1, "dev_median_delta": "0x1.111111111111p-5", "dev_positive": 1, "dev_n": 1, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/exam/x1.25", "coordinate": "exam", "multiplier": 1.250000, "median_delta": "0x0.0p0", "positive": 0, "n": 1, "dev_median_delta": "0x0.0p0", "dev_positive": 0, "dev_n": 1, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/kc-drop/x0.75", "coordinate": "kc-drop", "multiplier": 0.750000, "median_delta": "-0x1.1111111111114p-3", "positive": 0, "n": 1, "dev_median_delta": "-0x1.0p-53", "dev_positive": 0, "dev_n": 1, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/kc-drop/x0.875", "coordinate": "kc-drop", "multiplier": 0.875000, "median_delta": "0x0.0p0", "positive": 0, "n": 1, "dev_median_delta": "0x1.111111111111p-3", "dev_positive": 1, "dev_n": 1, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/diversity/x0.75", "coordinate": "diversity", "multiplier": 0.750000, "median_delta": "0x1.111111111112p-5", "positive": 1, "n": 1, "dev_median_delta": "0x0.0p0", "dev_positive": 0, "dev_n": 1, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/diversity/x0.875", "coordinate": "diversity", "multiplier": 0.875000, "median_delta": null, "positive": 0, "n": 0, "dev_median_delta": null, "dev_positive": 0, "dev_n": 0, "guard_ok": true, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/diversity/x1.125", "coordinate": "diversity", "multiplier": 1.125000, "median_delta": "-0x1.999999999999cp-3", "positive": 0, "n": 1, "dev_median_delta": "0x0.0p0", "dev_positive": 0, "dev_n": 1, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null},
+    {"id": "W/diversity/x1.25", "coordinate": "diversity", "multiplier": 1.250000, "median_delta": "-0x1.111111111111p-4", "positive": 0, "n": 1, "dev_median_delta": "0x1.1111111111108p-4", "dev_positive": 1, "dev_n": 1, "guard_ok": false, "pass": false, "reason": "UNDERPOWERED", "bootstrap_ci95": null}
+  ],
+  "passing": 0,
+  "adopted": null,
+  "note": "至多采纳 1 个坐标；本批未见任何坐标过门时维持全部现值（预注册 §5.4）",
+  "verdict": "KEEP_ALL_CURRENT_WEIGHTS"
+}

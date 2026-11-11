@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-016",
+    "program_id": "mva-BLD-SRCREBLD-016",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '1' },\n      { kind: 'text', payload: '2' },\n      { kind: 'text', payload: '3' },\n      { kind: 'text', payload: '4' },\n      { kind: 'text', payload: '1' },\n      { kind: 'text', payload: '2' },\n      { kind: 'text', payload: '3' }\n    ];\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var cols = 4;\n    var rows = 3;\n    var cell = Math.min((W - 120) / cols, (H - 120) / rows);\n    if (!(cell > 10)) { cell = 10; }\n    var gridW = cell * cols;\n    var gridH = cell * rows;\n    var x0 = (W - gridW) / 2 + 12;\n    var y0 = (H - gridH) / 2 + 12;\n    if (x0 < 38) { x0 = 38; }\n    if (y0 < 38) { y0 = 38; }\n\n    var cmds = [];\n    var i, j;\n    for (i = 0; i <= cols; i++) {\n      var x = x0 + i * cell;\n      cmds.push(['M', x, y0]);\n      cmds.push(['L', x, y0 + gridH]);\n    }\n    for (j = 0; j <= rows; j++) {\n      var y = y0 + j * cell;\n      cmds.push(['M', x0, y]);\n      cmds.push(['L', x0 + gridW, y]);\n    }\n\n    var ink = '#26354a';\n    var children = [\n      { type: 'path', pathId: 'grid', fill: ink, stroke: { width: 2, cap: 'butt', join: 'miter' } }\n    ];\n\n    for (i = 0; i < cols; i++) {\n      children.push({\n        type: 'label',\n        contentId: metrics[i].contentId,\n        anchor: { x: x0 + (i + 0.5) * cell, y: y0 - 10 },\n        hAlign: 'center',\n        vAlign: 'bottom',\n        color: ink\n      });\n    }\n    for (j = 0; j < rows; j++) {\n      children.push({\n        type: 'label',\n        contentId: metrics[cols + j].contentId,\n        anchor: { x: x0 - 12, y: y0 + (j + 0.5) * cell },\n        hAlign: 'right',\n        vAlign: 'middle',\n        color: ink\n      });\n    }\n\n    return {\n      schemaVersion: 1,\n      sceneId: 'grid-3x4',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [{ id: 'grid', commands: cmds }],\n      root: { type: 'group', children: children }\n    };\n  }\n};\n",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

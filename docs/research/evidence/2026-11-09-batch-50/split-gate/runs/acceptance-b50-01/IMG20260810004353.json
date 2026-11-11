@@ -1,0 +1,40 @@
+{
+    "file": "IMG20260810004353.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 35114,
+    "responseHead": "{\"id\":\"fd550f83-5d81-4900-92ca-f26e2aa10d9e\",\"object\":\"chat.completion\",\"created\":1794129306,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"画面含第14、15两道独立题，需拆分。\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":0.24,\\\"bottom\\\":0.86},\\\"message\\\":\\\"第15题左侧及图15疑似未拍全，文字被裁切。\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.24,\\\"top\\\":0.02,\\\"right\\\":0.99,\\\"bottom\\\":0.99},{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":0.24,\\\"bottom\\\":0.86}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片是否足够完整转写一道或多道独立题。图片显示两题：14题完整，包括题干、小问、图；15题开始，但只看到题干部分被截断？需要仔细看图。图片旋转了90度？实际内容竖向排列。图片中右侧（上方？）有14.（13分）题，包含完整题干、小问(1)(2)(3)和图14图，图在下方/左下方。左侧有15.（18分）题开头：“15.（18分）如图15所示为半径为R的透明球过圆心O的截面，已知透明球的半径为R，折射率为n。其中AB ... 球面P有一个点光源，其中从D点折射出的光线的反向延长线刚好交于A...” 图片左边缘可能截断？ 看图片：最左边有部分文字被裁掉，15题题干可见到“其中AB”然后换行“? ... 的球面P有一个点光源，其中从D点...”，但左侧边缘似乎有文字被切掉。图片右边有“重庆市育才中学校”顶部。整体图片包含两题，15题未拍全？ 需要判断decision。如果有2到12道互相独立题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按阅读顺序给出每道题完整外接区域。虽然15题内容被截断/未完整? 图片中15题似乎只有部分题干，小问和图形可能未拍到（在左侧更外面）。但图片包含两道题，应该SPLIT。可是如果内容未拍全，是否需要NEED_MORE_IMAGE？ 规则：若画面包含2到12道互相独立题，必须返回SPLIT。同一道题跨页不算多题，内容未拍全时返回NEED_MORE_IMAGE。这里画面包含两题，15题内容未拍全，但14题完整。问题要求判断图片是否足以完整转写一道或多道独立题。返回decision PASS/RECAPTURE/NEED_MORE_IMAGE/SPLIT。优先SPLIT? 如果包含多题，必须SPLIT。 需要看15题是否算一道独立题且内容未全，但画面确实包含两道题。可以返回SPLIT，同时issues中MULTIPLE_QUESTIONS BLOCKING",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [
+        {
+            "left": 0.24,
+            "top": 0.02,
+            "right": 0.99,
+            "bottom": 0.99
+        },
+        {
+            "left": 0.0,
+            "top": 0.0,
+            "right": 0.24,
+            "bottom": 0.86
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–1.000；单栏；行距约 24px；段落分隔（共 3 处）：y=0.035（谷宽7px，栏1）；y=0.000（谷宽4px，栏1）；y=0.055（谷宽3px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 158,
+    "image": {
+        "egressBytes": 536313,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "5776b23f691af0a18e3f4b5863eb9678fcdde48df5e7a7b79243c650c0c9fbc8",
+    "promptSha256": "0ea2e8f82e4052c70b4072da80e12cf37d8f273213103c32daa78142a60e4868"
+}

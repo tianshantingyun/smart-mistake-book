@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-mat-2c11ea7e88-013	CORRECT		medium	数量仅含大小，可以比较大小；向量含大小和方向，不能直接比较大小	
+ext-phy-3c79595ae6-006	CORRECT		high	物体所受合外力的冲量等于它动量的变化量，表达式是矢量式。	
+ext-phy-88334db513-014	CORRECT		high	第一宇宙速度7.9 km/s是近地圆轨道的最大环绕速度也是最小发射速度	
+math-hj-s16-abs-ineq	CORRECT		high	|x|<a 解在两点之间，|x|>a 解在两点之外（a>0）。	
+ext-che-b32088729d-025	CORRECT		high	这类碱是缚酸剂而非催化剂	
+ext-che-978b9fc014-002	CORRECT		high	含氯消毒剂、过氧化物类及其它消毒剂、漂白剂的分类与代表物质。	
+ext-bio-8d62859b94-029	CORRECT		high	演替发生的原因是影响群落的因素常处于变化中	
+ext-bio-752fa807bd-015	CORRECT		high	光照减弱时C3增多C5减少，CO2减少时C3减少C5增多	
+ext-phy-616869c7e3-035	CORRECT		high	图线斜率不变说明电动势不变；截距增大说明内阻增大	
+ext-phy-71042757f4-051	CORRECT		high	要求支持力等于mg，即mg＝mrω²	
+ext-che-841d0e5e17-011	CORRECT		high	阳极反应为2H2O－4e－=4H＋＋O2↑，阴极反应为2H2O＋2e－=2OH－＋H2↑	
+ext-che-5c2f3249ea-002	CORRECT		high	探究性综合实验题的命题特点以及物质制备探究与性质探究两大类型	
+chem-fx-ci-lei-tu-xiang-yi-ban-zong-zuo-biao-b-f47x05	REBIND	含量-或转化率-时间-温度-压强-图像	medium	用“先拐先平，数值大”的规律判断不同曲线表示温度或压强的大小	材料实为化学平衡含量-时间图像判读（先拐先平），非实验识图集合
+ext-che-8cc878ccbe-018	REBIND	溶液中粒子等量关系-三大守恒	medium	溶液中所有阳离子所带正电荷总数与所有阴离子所带负电荷总数相等	主知识点是电解质溶液电荷守恒，非物质的量浓度表示与换算
+ext-che-f668f4f6c0-006	CORRECT		medium	画原电池装置图的四个常见失分点：	
+math-mo-tiji-sifang	CORRECT		high	求空间几何体体积的常用方法：1. 公式法：规则几何体直接套用体积公式。	
+cmp-che-02997	CORRECT		high	1 mol 过氧化钠转移 1 mol 电子	
+ext-che-88e3593dfc-017	CORRECT		high	燃料电池是将燃料燃烧的化学能直接转化为电能的装置	
+ext-bio-8d79fbce11-008	CORRECT		medium	实验结果是做实验得到的真实结果（实际的实验现象）	
+ext-che-5c62da9e03-176	CORRECT		high	三关注决定哪些物理量是变量、哪些是不变量，从而决定某物理量能否作为平衡标志	
+ext-che-6e91a986ef-027	CORRECT		high	pH 升高使锗的存在形式改变、难以配位，萃取率下降	
+ext-che-16e0c69752-016	CORRECT		high	运动状态数等于电子数	
+ext-phy-e14aad82a5-065	CORRECT		medium	仅根据弹簧弹力大小的变化无法确定弹簧长度的变化	
+ext-phy-65f1cbed8b-005	CORRECT		high	配速法把粒子的初速度分解为两个分速度	
+ext-phy-206fb04353-119	CORRECT		medium	导线切割磁感线产生的感应电动势 $E=Blv$	
+ext-mat-36c90540ae-002c	CORRECT		high	区间 I 叫做 y=f(x) 的单调区间	
+ext-mat-5cfdd43c14-007	CORRECT		high	正态曲线是单峰的，关于直线 x=μ 对称	
+math-hj-s102-permutation-combination	CORRECT		high	组合与顺序无关	
+ext-che-93a78062b4-107	CORRECT		high	分子的极性是分子中化学键极性的向量和	
+ext-mat-9f34974bc4-002b	CORRECT		high	椭圆是到两定点距离之和为常数的点的轨迹	
+ext-che-a4a15056db-033	CORRECT		medium	—CHO与C==C共存时：要检验C==C双键的存在，必须先用弱氧化剂将—CHO氧化后，再用强氧化剂检验C==C	
+ext-che-862daf9cec-031b	CORRECT		high	合成氨采用略大于 1∶3 的氮氢比、10~30 MPa、400~500 ℃ 与铁触媒	
+ext-bio-59d64086e3-001b	CORRECT		high	加入 DNA 的实验组能使 R 型细菌转化为 S 型细菌	
+ext-phy-3a8af85e91-002	CORRECT		high	合力与分力是等效替代关系	
+ext-phy-b61822db21-002	CORRECT		high	本实验把油酸分子视为紧密排列的单分子层	
+wusan-che-v-b77b3f80	CORRECT		high	多元醇分子内脱水则生成环醚	
+ext-phy-b969b189dc-002	CORRECT		high	各种创新改变的只是摆长与周期的测量方式，核心仍是 T＝2π√(l/g)	
+ext-bio-04aafd05b8-049	CORRECT		high	细胞多样性形成的直接原因是构成细胞的蛋白质分子不同，根本原因是基因的选择性表达	
+ext-bio-8c5f3169c5-002b	CORRECT		high	植物把从环境中吸收的过量 Cl⁻ 储存在液泡中	
+ext-phy-9d4e47b803-002	CORRECT		high	磁感线是为形象描述磁场而假想的有方向的曲线	
+ext-mat-289deb9ecd-1523	CORRECT		high	如果和 x+y 等于定值 S，那么当 x=y 时积 xy 有最大值 S²/4	
+ext-che-5c62da9e03-1866	CORRECT		high	能导电的物质必须具有能自由移动的、带电荷的粒子	
+ext-phy-af45d1db73-006	CORRECT		high	要保证斜槽末端的切线水平，以保证小球的初速度水平	
+chem-oxidant-fe2-to-fe3-purpose	REBIND	有关铁及其化合物的除杂	high	Fe3+更易在较低pH下水解沉淀完全，故先氧化再调pH除铁	讲Fe2+氧化后调pH除铁及试剂选择，属铁及其化合物除杂
+ext-phy-bb84aa4cd5-004	CORRECT		high	牛顿第二定律具有同体性、独立性、瞬时性与矢量性	
+ext-mat-289deb9ecd-547	CORRECT		medium	由平面向量数量积及向量模的坐标表示可得 |a·b|≤|a||b|	
+ext-phy-a6f0685cca-004b	CORRECT		high	频率相同、相位差恒定、振动方向相同的两列波才能产生稳定干涉	
+ext-bio-1e8b534995-008	CORRECT		high	动物细胞培养只能获得细胞或细胞产物、不能获得完整个体	
+ext-che-ea3ea77a38-041	CORRECT		high	氧化性指物质得电子的性质或能力，还原性指物质失电子的性质或能力	
+phys-hj-107-inclined-slot-momentum-exp	CORRECT		high	由平抛等时性验证 $m_1·OP=m_1·OM+m_2·ON$	

@@ -8956,7 +8956,7 @@
    "contentId": "math-fixed-order-divide-method",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:点-方法技巧-点拨解题方法-练一题通一类",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:保序问题与书目插书法",
      "role": "PRIMARY"
     }
    ]
@@ -29058,7 +29058,7 @@
    "contentId": "math-hj-s98-parabola-three-lines",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:线面平行的定义-一条直线与一个平面无公共点-不相交",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:直线与圆锥曲线的位置关系",
      "role": "PRIMARY"
     }
    ]
@@ -31818,7 +31818,7 @@
    "contentId": "math-fx-sanjiaoxing-neijiaohe-guanxi",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解三角形的常用定理",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:math:atomic:解三角形常用二级结论",
      "role": "PRIMARY"
     }
    ]
@@ -46147,7 +46147,7 @@
    "contentId": "phys-chao-zhong-shi-zhong-pan-duan",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:加速度方向突变",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:超重与失重的判断方法",
      "role": "PRIMARY"
     }
    ]
@@ -46814,7 +46814,7 @@
    "contentId": "phys-pingpao-sudu-fen-liang-pian-xiang-jiao",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动的两个重要结论",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:physics:atomic:平抛运动",
      "role": "PRIMARY"
     }
    ]

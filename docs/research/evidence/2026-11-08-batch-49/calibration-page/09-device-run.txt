@@ -1,0 +1,8 @@
+
+com.tingyun.smartmistakebook.SchedulingCalibrationSectionInstrumentedTest:........
+
+Time: 13.873
+
+OK (8 tests)
+
+

@@ -1,0 +1,17 @@
+{
+  "aab": "app/build/outputs/bundle/strictOfflineRelease/app-strictOffline-release.aab",
+  "sha256": "edaf058ded0de18e1706c971d726174ed08b13467bd65af7c0902ed251fe3d88",
+  "manifest_entry": "base/manifest/AndroidManifest.xml",
+  "package": "com.tingyun.smartmistakebook.offline",
+  "version_code": 101160,
+  "version_name": "0.2.0-offline",
+  "version_code_sources": {
+    "string": "101160",
+    "compiled_int": 101160
+  },
+  "expected_code": 101161,
+  "expected_name": null,
+  "errors": [
+    "AAB versionCode 101160 != --expected-code 101161"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+    "file": "IMG20260810004304.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 2590,
+    "responseHead": "{\"id\":\"9dc53ca3-1431-4554-8a93-a7c32c23a805\",\"object\":\"chat.completion\",\"created\":1794254489,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断题图：图片是一页化学试题，似乎只有一道大题16，包含多个小问。需要确定是否整页只有一道题。可见题号16，材料、装置图、下问(1)(3)(4)，还有后续计算，都是同一道16题。页面右侧有竖排“化学试题 第6页 共8页”页眉页脚。只有一道题 => PASS，空questionRegions。issues需要空？PASS不得含BLOCKING issues。可能没有issue。decision PASS，issues空数组，suggestedActions空数组，questionRegions空，followingPageRelations空。但需考虑图片旋转90度？不影响。是否存在其他题残段？右侧页边有文字“已知：... 达到滴定终点的现象为 ... DCDMH质量分数为...”这些是16题的子问，不是独立题。没有其他题号。因此 PASS。需要输出顶层恰好五个键。JSON。确保无其他键。使用中文issues为空。可以。\"},\"logprobs\":null,\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":2099,\"completion_tokens\":248,\"total_tokens\":2347,\"prompt_tokens_details\":{\"cached_tokens\":256},\"completion_tokens_details\":{\"reasoning_tokens\":218},\"prompt_cache_hit_tokens\":256,\"prompt_cache_miss_tokens\":1843},\"system_fingerprint\":\"bc19ba97cbe016479903222bb1578db6\"}",
+    "responseRaw": "{\"id\":\"9dc53ca3-1431-4554-8a93-a7c32c23a805\",\"object\":\"chat.completion\",\"created\":1794254489,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断题图：图片是一页化学试题，似乎只有一道大题16，包含多个小问。需要确定是否整页只有一道题。可见题号16，材料、装置图、下问(1)(3)(4)，还有后续计算，都是同一道16题。页面右侧有竖排“化学试题 第6页 共8页”页眉页脚。只有一道题 => PASS，空questionRegions。issues需要空？PASS不得含BLOCKING issues。可能没有issue。decision PASS，issues空数组，suggestedActions空数组，questionRegions空，followingPageRelations空。但需考虑图片旋转90度？不影响。是否存在其他题残段？右侧页边有文字“已知：... 达到滴定终点的现象为 ... DCDMH质量分数为...”这些是16题的子问，不是独立题。没有其他题号。因此 PASS。需要输出顶层恰好五个键。JSON。确保无其他键。使用中文issues为空。可以。\"},\"logprobs\":null,\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":2099,\"completion_tokens\":248,\"total_tokens\":2347,\"prompt_tokens_details\":{\"cached_tokens\":256},\"completion_tokens_details\":{\"reasoning_tokens\":218},\"prompt_cache_hit_tokens\":256,\"prompt_cache_miss_tokens\":1843},\"system_fingerprint\":\"bc19ba97cbe016479903222bb1578db6\"}",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 499971,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "7f7ad0bcab6bf72456ec644b902648ea127ce3e0c2cd30cb201d0945d144ba24",
+    "promptSha256": "2c698d1b1d22b168f795135907a662fffccfacc5eea5a9b8c97c55f75ba5ab98"
+}

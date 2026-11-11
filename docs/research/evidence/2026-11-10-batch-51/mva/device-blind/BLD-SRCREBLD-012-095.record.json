@@ -1,0 +1,69 @@
+{
+  "input_file": "BLD-SRCREBLD-012.json",
+  "program_sha256": "6aba750e620cbe9494580af29795e89413686e96235efad36619a6356eb51b34",
+  "task_id": "BLD-SRCREBLD-012",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 18,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "-10",
+      "widthDu": 22.545454025268555,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c171d4ec282b23db89a99880cd624e9ba2940c1d894783602edab5d7481dc1ea"
+    },
+    {
+      "contentId": "c1",
+      "payload": "-6",
+      "widthDu": 13.454545021057129,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "03b26944890929ff751653acb2f2af795cee38f937f379f52ed654a68ce91216"
+    },
+    {
+      "contentId": "c2",
+      "payload": "-2",
+      "widthDu": 13.454545021057129,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "cf3bae39dd692048a8bf961182e6a34dfd323eeb0748e162eaf055107f1cb873"
+    },
+    {
+      "contentId": "c3",
+      "payload": "2",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35"
+    },
+    {
+      "contentId": "c4",
+      "payload": "6",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e7f6c011776e8db7cd330b54174fd76f7d0216b612387a5ffcfb81e6f0919683"
+    },
+    {
+      "contentId": "c5",
+      "payload": "10",
+      "widthDu": 18.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

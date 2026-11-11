@@ -1,0 +1,96 @@
+{
+ "id": "FIX-083",
+ "verdict": "PASS",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "evidence": [
+  "cmd:docs/acceptance/evidence/2026-11-09-batch-50/logs/fix-t17.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/red-ui-app-labels.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/red-ui-tutor-label.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/green-ui-app-labels.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/green-ui-tutor-label.log",
+  "device:docs/acceptance/evidence/2026-11-09-batch-50/device/aigc-ui-labels.device.json",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/jvm-core-model-final.log",
+  "file:docs/research/evidence/2026-11-09-batch-50/aigc/jvm-review-tests.log"
+ ],
+ "evidence_sha256": {
+  "docs/acceptance/evidence/2026-11-09-batch-50/logs/fix-t17.log": "79dedcf7848a8270da78b969d7076abebbd1a2f50833025c2ff8fe2555aee85c",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/red-ui-app-labels.log": "8cab9d3fc9894ddd51c8677306ca74ac4e31fa2bc054ab91bf8a098c53c051bf",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/red-ui-tutor-label.log": "2977a8c84625bb39aaef3ec6b0b88c52c606af12625358f4eef53bb9ca69805c",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/green-ui-app-labels.log": "1a6fdab27b96833e4c33b1b91da235ee379ec8bc9833c06803c766cffcf3ceaf",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/green-ui-tutor-label.log": "7e170cd7f14253d4702b6644ee8c1e038738a964efcd282ba15a03b9b79cf4ad",
+  "docs/acceptance/evidence/2026-11-09-batch-50/device/aigc-ui-labels.device.json": "d75e77c7145789e6fa2d0029ff7ec493a774225d0cc774e5a2177f4ccff310d2",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/jvm-core-model-final.log": "55d4b780445570c34cfdf147ba470a0dd09e90ddcfc13fbb9a1f979d70bb4139",
+  "docs/research/evidence/2026-11-09-batch-50/aigc/jvm-review-tests.log": "1084d4a50a329bf2eb87c3b1cae69703fc4e58c11cbd5262f60d1e60abe1e52e"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=FIX-083; verdict=PASS; line=1114; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
+  },
+  {
+   "name": "cmd_exit",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/logs/fix-t17.log",
+   "value": "exit_markers=[0]; sha256=79dedcf7848a8270da78b969d7076abebbd1a2f50833025c2ff8fe2555aee85c"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/red-ui-app-labels.log",
+   "value": "sha256=8cab9d3fc9894ddd51c8677306ca74ac4e31fa2bc054ab91bf8a098c53c051bf; bytes=8369"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/red-ui-tutor-label.log",
+   "value": "sha256=2977a8c84625bb39aaef3ec6b0b88c52c606af12625358f4eef53bb9ca69805c; bytes=3034"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/green-ui-app-labels.log",
+   "value": "sha256=1a6fdab27b96833e4c33b1b91da235ee379ec8bc9833c06803c766cffcf3ceaf; bytes=2967"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/green-ui-tutor-label.log",
+   "value": "sha256=7e170cd7f14253d4702b6644ee8c1e038738a964efcd282ba15a03b9b79cf4ad; bytes=1619"
+  },
+  {
+   "name": "device_binding",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/device/aigc-ui-labels.device.json",
+   "value": "serial=emulator-5590; apk_sha256=a70b9559f93f24bedab3ca31df439e9dd6184a658c83315355f11c8be78ab62d; test_apk_sha256=f11374a468fbf33601e91c2fb8333b4244e5be96a1f1e6bdf3c7ea1d3b9e46d2; boot_id=31ecd364-6b2a-4e52-9643-23e681696172; counts={\"errors\": 0, \"evaluated\": 6, \"failures\": 0, \"skipped\": 0, \"tests\": 6}; verdict=PASS; sha256=d75e77c7145789e6fa2d0029ff7ec493a774225d0cc774e5a2177f4ccff310d2"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/jvm-core-model-final.log",
+   "value": "sha256=55d4b780445570c34cfdf147ba470a0dd09e90ddcfc13fbb9a1f979d70bb4139; bytes=2654"
+  },
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/aigc/jvm-review-tests.log",
+   "value": "sha256=1084d4a50a329bf2eb87c3b1cae69703fc4e58c11cbd5262f60d1e60abe1e52e; bytes=6514"
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "批次50：FIX-T17 关闭态门；AIGC 显式角标 app 4 例 + tutor 2 例；feature:tutor 唯一红为既有无关用例。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "review_scope": "single-ledger-row",
+ "review_kind": "mechanical-recompute",
+ "ledger_batch": 51,
+ "verified_at": "2026-11-10T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 8,
+  "basis": "bytes-on-disk"
+ }
+}

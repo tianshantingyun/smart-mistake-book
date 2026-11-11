@@ -1,0 +1,101 @@
+{
+  "input_file": "BLD-PROPCOORD-007.json",
+  "program_sha256": "5ce7593ca952bedd5acd176fcf76aa77fea91a8c78dc1737725f56d940f7db67",
+  "task_id": "BLD-PROPCOORD-007",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 23,
+  "measurement": [
+    {
+      "contentId": "c0-a1fce436",
+      "payload": "y",
+      "widthDu": 7.636363506317139,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a1fce4363854ff888cff4b8e7875d600c2682390412a8cf79b37d0b11148b0fa"
+    },
+    {
+      "contentId": "c1-2d711642",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c2-c4694f2e",
+      "payload": "O",
+      "widthDu": 10.909090995788574,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c4694f2e93d5c4e7d51f9c5deb75e6cc8be5e1114178c6a45b6fc2c566a0aa8c"
+    },
+    {
+      "contentId": "c3-3ce25e6c",
+      "payload": "P(5,5)",
+      "widthDu": 42.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3ce25e6c1501427e6318a30349177053bb4769aa664b4608305a1fad8ad6244e"
+    },
+    {
+      "contentId": "c4-c52c8d6b",
+      "payload": "第一象限",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c52c8d6b3106d8c18609858d3ea1d9c19594b7d9d395376328a2b894e0d91381"
+    },
+    {
+      "contentId": "c5-ef2d127d",
+      "payload": "5",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"
+    },
+    {
+      "contentId": "c6-ef2d127d",
+      "payload": "5",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "843482bd44bd3588bbdb824e45fa874bea4eb85c397f7dcf17abd076594d3c51",
+  "scene_bytes": 2764,
+  "scene_schema_version": 1,
+  "draw_sha256": "8892e535e10ddb196c202dc50f08e2ba725b3708a37ac97b0e71e938c2100f2c",
+  "draw_bytes": 3093,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-a1fce436",
+    "c1-2d711642",
+    "c2-c4694f2e",
+    "c3-3ce25e6c",
+    "c4-c52c8d6b",
+    "c5-ef2d127d",
+    "c6-ef2d127d"
+  ],
+  "png_sha256": "95d6e9eee999a06899efc3ccc478a008cc488ad04efa6db6885ec96393c25bc3",
+  "png_bytes": 6788,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 15,
+    "pathCommands": 24,
+    "labels": 7,
+    "ops": 14
+  }
+}

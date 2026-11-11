@@ -1,0 +1,32 @@
+{
+  "ledger": "docs/research/evidence/2026-11-08-batch-49/lint-prefix/sample-ledger.md",
+  "total": 4,
+  "violations": [
+    {
+      "id": "E-999",
+      "code": "UNVERIFIED_AS_PASS",
+      "detail": "检查列以 UNVERIFIED 开头，或方法/证据文本含 UNVERIFIED"
+    },
+    {
+      "id": "E-997",
+      "code": "UNVERIFIED_AS_PASS",
+      "detail": "检查列以 UNVERIFIED 开头，或方法/证据文本含 UNVERIFIED"
+    },
+    {
+      "id": "E-996",
+      "code": "UNVERIFIED_AS_PASS",
+      "detail": "检查列以 UNVERIFIED 开头，或方法/证据文本含 UNVERIFIED"
+    }
+  ],
+  "warnings": [],
+  "reuse": [
+    {
+      "target": "docs/research/evidence/2026-11-08-batch-49/lint-prefix/fake-cmd.txt",
+      "count": 4
+    }
+  ],
+  "reuse_warn_threshold": 5,
+  "warn_only": true,
+  "ok": false,
+  "exit_code": 1
+}

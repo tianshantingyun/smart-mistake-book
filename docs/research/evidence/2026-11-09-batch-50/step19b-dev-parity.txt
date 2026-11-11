@@ -1,0 +1,28 @@
+批次 50 · item 21 证据：dev 16 页 Kotlin 生产实现 × Python 探针逐页对拍
+生成命令：
+  ./gradlew :core:model:test --tests "com.tingyun.smartmistakebook.core.model.layout.LayoutStructureDevParityHarness" --console=plain
+输入（均 build/ 下 gitignored 产物，item 19 探针命令导出）：
+  .gray 夹具 build/layout-probe/gray/*.gray
+  参考读数 build/layout-probe/dev-dump.json
+  金标     tools/split_golden/tables/split_golden_v2.json（split.dev 16 页）
+断言：① 栏数逐页 == 探针；② 行带块数与探针偏差 ≤2；③ 提示块非空且 ≤1200 字符；
+      ④ 栏判与金标 layout 不一致的页 ⊆ {04854, 11649}；⑤ 栏判一致页数 ≥14/16；⑥ 候选命中 >0
+结论行：LayoutStructureDevParityHarness PASS（1 test / 0 failures）
+
+[layout-dev] IMG20260810004304.jpg columns=1 blocks=1 pitch=0 candidates=1 goldQuestions=1 hintChars=113
+[layout-dev] IMG20260810004511.jpg columns=1 blocks=1 pitch=0 candidates=1 goldQuestions=3 hintChars=113
+[layout-dev] IMG20260810004854.jpg columns=2 blocks=14 pitch=5 candidates=14 goldQuestions=2 hintChars=278
+[layout-dev] IMG20260810005144.jpg columns=2 blocks=60 pitch=9 candidates=60 goldQuestions=7 hintChars=286
+[layout-dev] IMG20260810005301.jpg columns=2 blocks=56 pitch=8 candidates=56 goldQuestions=3 hintChars=286
+[layout-dev] IMG20260810005605.jpg columns=1 blocks=14 pitch=20 candidates=14 goldQuestions=2 hintChars=266
+[layout-dev] IMG20260810005855.jpg columns=1 blocks=26 pitch=8 candidates=26 goldQuestions=3 hintChars=260
+[layout-dev] IMG20260810010306.jpg columns=1 blocks=17 pitch=23 candidates=17 goldQuestions=4 hintChars=266
+[layout-dev] IMG20260810010349.jpg columns=1 blocks=18 pitch=13 candidates=18 goldQuestions=4 hintChars=266
+[layout-dev] IMG20260810010633.jpg columns=1 blocks=11 pitch=5 candidates=11 goldQuestions=3 hintChars=258
+[layout-dev] IMG20260810010859.jpg columns=1 blocks=20 pitch=7 candidates=20 goldQuestions=4 hintChars=263
+[layout-dev] IMG20260810011017.jpg columns=1 blocks=22 pitch=4 candidates=22 goldQuestions=3 hintChars=261
+[layout-dev] IMG20260810011126.jpg columns=1 blocks=16 pitch=12 candidates=16 goldQuestions=2 hintChars=265
+[layout-dev] IMG20260810011248.jpg columns=1 blocks=12 pitch=25 candidates=12 goldQuestions=5 hintChars=266
+[layout-dev] IMG20260810011649.jpg columns=2 blocks=22 pitch=4 candidates=22 goldQuestions=3 hintChars=282
+[layout-dev] IMG20260810012103.jpg columns=1 blocks=17 pitch=8 candidates=17 goldQuestions=3 hintChars=259
+[layout-dev] summary pages=16 columnMismatches=2[IMG20260810004854.jpg, IMG20260810011649.jpg] blockDeltaMax=2 hintChars=113..286 candidates=313 goldQuestions=50 candidateHits=34 candidatePrecision=0.1086

@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-PROPCOORD-004",
+    "program_id": "mva-BLD-PROPCOORD-004",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '7' },\n      { kind: 'text', payload: '3' },\n      { kind: 'text', payload: '7:3' }\n    ];\n  },\n  render: function (input, metrics) {\n    var baseline = visualSdk.polyline([[80, 140], [520, 140]]);\n    var leftTick = visualSdk.polyline([[80, 126], [80, 154]]);\n    var splitTick = visualSdk.polyline([[388, 126], [388, 154]]);\n    var rightTick = visualSdk.polyline([[520, 126], [520, 154]]);\n    return {\n      schemaVersion: 1,\n      sceneId: 'ratio-7-3',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: input.viewport.widthDu, height: input.viewport.heightDu },\n      paths: [\n        { id: 'baseline', commands: baseline },\n        { id: 'leftTick', commands: leftTick },\n        { id: 'splitTick', commands: splitTick },\n        { id: 'rightTick', commands: rightTick }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'baseline', fill: '#26354a', stroke: { width: 3, cap: 'round' } },\n          { type: 'path', pathId: 'leftTick', fill: '#26354a', stroke: { width: 2, cap: 'round' } },\n          { type: 'path', pathId: 'splitTick', fill: '#26354a', stroke: { width: 2, cap: 'round' } },\n          { type: 'path', pathId: 'rightTick', fill: '#26354a', stroke: { width: 2, cap: 'round' } },\n          { type: 'label', contentId: metrics[0].contentId, anchor: { x: 234, y: 120 }, hAlign: 'center', vAlign: 'bottom', color: '#26354a' },\n          { type: 'label', contentId: metrics[1].contentId, anchor: { x: 454, y: 120 }, hAlign: 'center', vAlign: 'bottom', color: '#26354a' },\n          { type: 'label', contentId: metrics[2].contentId, anchor: { x: 300, y: 70 }, hAlign: 'center', vAlign: 'bottom', color: '#b23a2b' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

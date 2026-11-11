@@ -1,0 +1,26 @@
+{
+  "serial": "emulator-5566",
+  "apk_sha256": "ebb3aa340f071bb309edb1420220a9530e9734c1f34993fa91d5b8abd2244cee",
+  "test_apk_sha256": "8629a05dbc7883c33ea9018746cc750d113fba8ac9e5d717a622660aead4d6ea",
+  "counts": {
+    "tests": 8,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "evaluated": 8
+  },
+  "verdict": "PASS",
+  "review_kind": "derived-device-binding",
+  "derived_by": "batch49-acceptance-ledger",
+  "note": "counts 由同目录 am instrument 原始日志逐字转写（OK (8 tests)）；serial/apk_sha256 不在该日志中，取自 device/00-snapshot-and-device-meta.txt 的构建/安装记录与 02:03-02:05 green run 时间线，不是从该日志转写。source_log_sha256 只绑定 counts 来源。",
+  "binding_provenance": {
+    "counts": "derived_from: 06-instrument-green-phase.log（逐字 OK (8 tests)）",
+    "serial": "00-snapshot-and-device-meta.txt：DEVICE 5566 + 02:03-02:05 green run 时间线；不在 instrument 日志中",
+    "apk_sha256": "00-snapshot-and-device-meta.txt：APK HASHES + INSTALLED APK SHA（设备回读一致）；不在 instrument 日志中",
+    "test_apk_sha256": "00-snapshot-and-device-meta.txt：APK HASHES；不在 instrument 日志中",
+    "source_log_sha256_meaning": "只证明侧车指向这份 instrument 日志字节，不证明 serial/APK 来自该日志"
+  },
+  "run_id": "2026-11-08T02:03:55Z-batch49-device-green",
+  "derived_from": "docs/research/evidence/2026-11-08-batch-49/device/06-instrument-green-phase.log",
+  "source_log_sha256": "be925358b44ecec34efdd8c5fcc99ff76a96cbf6903d70e89c70c8e335cc0e46"
+}

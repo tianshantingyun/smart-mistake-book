@@ -1,0 +1,81 @@
+{
+  "input_file": "BLD-SRCREBLD-013.json",
+  "program_sha256": "b1e124b294b31d97107e8d14b3bedbc993fd4d9cf65b242e7b24fe724cc7f9cf",
+  "task_id": "BLD-SRCREBLD-013",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 17,
+  "measurement": [
+    {
+      "contentId": "c0-5feceb66",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c1-a30a0433",
+      "payload": "0.25",
+      "widthDu": 31.636363983154297,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a30a043314fa89294fa2c1c989a01fbb5329e5c085a5c5a8d27317656de24ae0"
+    },
+    {
+      "contentId": "c2-d2cbad71",
+      "payload": "0.5",
+      "widthDu": 22.545454025268555,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d2cbad71ff333de67d07ec676e352ab7f38248eb69c942950157220607c55e84"
+    },
+    {
+      "contentId": "c3-ce5d3aa7",
+      "payload": "0.75",
+      "widthDu": 31.636363983154297,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ce5d3aa79ae56155078af52e8fac68eb2d0a78489f82bc26c1e1bbc667ba9fde"
+    },
+    {
+      "contentId": "c4-6b86b273",
+      "payload": "1",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "15dae6430e3fcbe88b79b1af55c669e22407720ade7b62355396c79135272959",
+  "scene_bytes": 1802,
+  "scene_schema_version": 1,
+  "draw_sha256": "f0ec861a10bf4b4e9b36455bf1ca22ad8407e32afb95b7c255675e0bb8c1c807",
+  "draw_bytes": 2019,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-5feceb66",
+    "c1-a30a0433",
+    "c2-d2cbad71",
+    "c3-ce5d3aa7",
+    "c4-6b86b273"
+  ],
+  "png_sha256": "e7bbe9e8179d826f82a73ebcb627826798e14a4a5d5f2235e8146b5eb553ac15",
+  "png_bytes": 2628,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 13,
+    "pathCommands": 15,
+    "labels": 5,
+    "ops": 12
+  }
+}

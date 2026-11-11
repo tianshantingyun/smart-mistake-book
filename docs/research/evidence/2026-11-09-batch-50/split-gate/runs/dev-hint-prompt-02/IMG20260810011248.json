@@ -1,0 +1,52 @@
+{
+    "file": "IMG20260810011248.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 41035,
+    "responseHead": "{\"id\":\"db9a2a6e-bb74-4be7-becf-1d2935be3fef\",\"object\":\"chat.completion\",\"created\":1794128940,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":1},\\\"message\\\":\\\"页面包含第12、13、14、15题等多个独立题目，需分题处理。\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":1,\\\"bottom\\\":0.22},\\\"message\\\":\\\"页面顶部仅见B-D选项，题干和A选项未拍全。\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\",\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.02,\\\"top\\\":0.305,\\\"right\\\":0.99,\\\"bottom\\\":0.38},{\\\"left\\\":0.02,\\\"top\\\":0.39,\\\"right\\\":0.99,\\\"bottom\\\":0.455},{\\\"left\\\":0.005,\\\"top\\\":0.485,\\\"right\\\":0.99,\\\"bottom\\\":0.7},{\\\"left\\\":0.02,\\\"top\\\":0.765,\\\"right\\\":0.99,\\\"bottom\\\":0.92}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"We need answer JSON only. Need determine if image sufficient. It shows page fragment: top has options B,C,D of a previous question, missing A and stem likely off-image. Then section 三 fill-in 3 questions: 12,13,14 complete? 12 complete, 13 complete, 14 complete. Then section 四 15 complete. So multiple independent questions? We have independent questions 12,13,14,15, plus fragment of preceding multiple choice (only options B-D) likely a question but incomplete. Need decision? Rules: If picture contains 2-12 independent questions must return SPLIT, mark MULTIPLE_QUESTIONS BLOCKING, questionRegions per question. But also content not fully captured returns NEED_MORE_IMAGE. Her",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.02,
+            "top": 0.305,
+            "right": 0.99,
+            "bottom": 0.38
+        },
+        {
+            "left": 0.02,
+            "top": 0.39,
+            "right": 0.99,
+            "bottom": 0.455
+        },
+        {
+            "left": 0.005,
+            "top": 0.485,
+            "right": 0.99,
+            "bottom": 0.7
+        },
+        {
+            "left": 0.02,
+            "top": 0.765,
+            "right": 0.99,
+            "bottom": 0.92
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 4,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–1.000；单栏；行距约 25px；段落分隔（共 13 处，已截断到 8 条）：y=0.466（谷宽29px，栏1）；y=0.159（谷宽27px，栏1）；y=0.276（谷宽26px，栏1）；y=0.736（谷宽26px，栏1）；y=0.094（谷宽25px，栏1）；y=0.600（谷宽25px，栏1）；y=0.809（谷宽25px，栏1）；y=0.875（谷宽21px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 266,
+    "image": {
+        "egressBytes": 527976,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "983ac73f995f700530607781f6740823b307ddcf0848eac3c9a0fd099b368604",
+    "promptSha256": "e6c889c1cc15ef1eb246d82a03d7a910bddaa4be3ea04399f6014ee8e9e32dd5"
+}

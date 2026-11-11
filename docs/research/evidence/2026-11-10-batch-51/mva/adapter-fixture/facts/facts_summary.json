@@ -1,0 +1,19 @@
+{
+  "accept_rate_among_evaluable": 1.0,
+  "accepted": 1,
+  "adapter_status_counts": {
+    "RENDERED": 1
+  },
+  "evaluable": 1,
+  "evaluable_coverage": 1.0,
+  "fact_class_counts": {
+    "A1": 3
+  },
+  "gate_readable": true,
+  "generated_by": "tools/figure_eval/mva_facts_run.py",
+  "note": "gate_readable 只在全部题 critical 事实可判（无 D3/A2 缺口）时为真；否则这是 NOT_EVALUABLE/partial 的描述统计，不是 MVA 门值",
+  "rejected_by_facts": 0,
+  "rendered": 1,
+  "tasks": 1,
+  "undecodable_by_key": {}
+}

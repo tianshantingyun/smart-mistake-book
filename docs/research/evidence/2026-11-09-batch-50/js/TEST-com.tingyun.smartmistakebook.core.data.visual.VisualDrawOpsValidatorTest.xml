@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" tests="35" skipped="0" failures="0" errors="0" timestamp="2026-11-08T11:19:47.267Z" hostname="TIANSHAN" time="0.024">
+  <properties/>
+  <testcase name="an unclosed save is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.006"/>
+  <testcase name="too many hit regions are rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.001"/>
+  <testcase name="replayed path commands over the budget are rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.006"/>
+  <testcase name="a matrix with an out of bound entry is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="duplicate hit region ids are rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a label referencing content outside the frozen set is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.003"/>
+  <testcase name="an unknown fill rule is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a q command must not survive into draw ops" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="an over budget payload is rejected without parsing" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.002"/>
+  <testcase name="a singular matrix is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a prototype chain key in hit region rule is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a stroke only path is rejected at the generation gate" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="an out of range alpha is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a bad fill color is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a restore without save is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="an empty compiled document parses into a typed document" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.001"/>
+  <testcase name="a fake consumer reads typed draw instructions" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="an unknown op is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a non json payload is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="odd short and empty dashes are rejected at the generation gate" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.002"/>
+  <testcase name="an eight digit fill color stays in the typed document for the replay alpha rule" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a draw schema version other than one is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a viewBox that does not echo the viewport is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.001"/>
+  <testcase name="an arc command must not survive into draw ops" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="stats that do not match the recount are rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a path without any paint is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a path not starting with m is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a label position outside the coordinate bound is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a prototype chain key in stroke cap is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="stats lying about the replay count are rejected even under the budget" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="node stats over the scene budget are rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.001"/>
+  <testcase name="a matrix that is not six numbers is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="an unknown field is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="rejections carry the typed code discipline" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <testcase name="a miter limit below one is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsValidatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

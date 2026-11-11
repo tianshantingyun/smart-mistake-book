@@ -1,0 +1,27 @@
+  OK   closureVersion: code==block：code=6 block=6
+  OK   schemaVersion: code==block==75.json：code=75 block=75 schema=75
+  OK   identityHash: code==block==75.json：code=f9a3d1c9ea8ef83d7222721ad1015a51 block=f9a3d1c9ea8ef83d7222721ad1015a51 schema=f9a3d1c9ea8ef83d7222721ad1015a51
+  OK   table list: code==block==75.json：code=99 block=99 schema=99; code-only=[] schema-only=[]
+  OK   table count == 99：code=99 schema=99
+  OK   alwaysTables: code==block：code=7 block=7
+  OK   derivedTables: code==block：code=2 block=2
+  OK   splitTables: code==block：code=7 block=7
+  OK   rebuildTables: code==block：code=1 block=1
+  OK   trimOrder: code==block：code=91 block=91
+  OK   views: code==block==75.json：code=['library_catalog', 'knowledge_question_lattice'] schema=['library_catalog', 'knowledge_question_lattice'] block=['library_catalog', 'knowledge_question_lattice']
+  OK   category ISSUE_BOOK：code=(1,错题本,35) block=(1,错题本,35)
+  OK   category MASTERY：code=(2,掌握库,40) block=(2,掌握库,40)
+  OK   category SESSIONS：code=(4,会话,7) block=(4,会话,7)
+  OK   category IMAGES：code=(8,图片,1) block=(8,图片,1)
+  OK   allowedMasks == block maskPolicy.closedMasks：code=[9, 13, 15] block=[15, 13, 9]
+  OK   digest: recomputed==test golden==block golden：recomputed=8567faae0e90ad4b720eab9fb4ceda82ce90fdb14e7c8ec4dc8309a520fb286c test=8567faae0e90ad4b720eab9fb4ceda82ce90fdb14e7c8ec4dc8309a520fb286c block=8567faae0e90ad4b720eab9fb4ceda82ce90fdb14e7c8ec4dc8309a520fb286c
+  OK   v4: 91 keys and delta == {+error_cause+interior, -material_feature}：keys=91 added=['detailed_solution', 'detailed_solution_manifest', 'error_cause_binding', 'error_cause_observation', 'mistake_edit_job', 'mistake_export_group', 'paper_review', 'paper_review_photo', 'paper_review_question'] dropped=['knowledge_search_material_feature']
+  OK   v4: frozen closure/prefix/trim limit：closure=4 prefix=smbk-selection-v4 trimLimit=83
+  OK   v4: empty-full digest golden：recomputed=ee9a1b4d3f0ea7ed44eeec773f459df9d55c5df3abda32a69c62f7fdfac6b006 pinned=ee9a1b4d3f0ea7ed44eeec773f459df9d55c5df3abda32a69c62f7fdfac6b006
+  OK   v4 fixture: bytes == golden == sidecar：3 夹具字节与 sidecar/golden 逐位一致
+  OK   v4 fixture golden: declared shape matches frozen rule：closure=4 prefix=smbk-selection-v4 schema=72 mask=15 keys=91
+  OK   v4 fixture golden: closureDigest recomputed from rowCounts：recomputed=49b5ab83fd2090b628d87d5cf59156c7c71413e940ae62b1a3ad45ab27f697d4 golden=49b5ab83fd2090b628d87d5cf59156c7c71413e940ae62b1a3ad45ab27f697d4
+  OK   v4 fixture golden: rowCountsSha256 recomputed：recomputed=9d2a64fb05e1 golden=9d2a64fb05e1
+  OK   v4 fixture: payload database bytes == golden：payload=1904640B/1904640B sha=ce54c8246ed4
+PASS 四方一致（code / §9.14 机器块 / golden / 75.json）
+GATE_EXIT=0

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-11-09T23:04:20.123Z" hostname="TIANSHAN" time="0.058">
+  <properties/>
+  <testcase name="the preview scale policy is density independent and bounded by the policy edge" classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererTest" time="0.001"/>
+  <testcase name="draw commands that fail the recovery recheck are refused with the painter code" classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererTest" time="0.046"/>
+  <testcase name="the policy value stays within the hard cap of the byte gate" classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererTest" time="0.001"/>
+  <testcase name="a full-canvas preview is refused by the pixel budget before any write" classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererTest" time="0.003"/>
+  <testcase name="the exact 4 MP preview alone is admitted and one du pixel more is refused" classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererTest" time="0.0"/>
+  <testcase name="a math box label refuses the whole preview with the fail-closed boundary code" classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererTest" time="0.005"/>
+  <testcase name="a full-canvas viewport alone exceeds the preview budget even without measured entries" classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererTest" time="0.0"/>
+  <testcase name="null measured entries degrade to preview-only admission - channel A registered semantics" classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererTest" time="0.0"/>
+  <testcase name="request validation refuses out-of-budget viewports and duplicate label keys" classname="com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

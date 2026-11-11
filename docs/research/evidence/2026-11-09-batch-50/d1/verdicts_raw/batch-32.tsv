@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+phys-fx-magnetic-focus-defocus	CORRECT		high	圆形匀强磁场中当轨迹圆半径等于磁场区域圆半径时	
+phys-fx-pendulum-error-analysis	CORRECT		high	常见误差：把线长当摆长使 g 偏小	
+phys-fx-straight-boundary-symmetric-exit	CORRECT		high	粒子从直线边界垂直于磁感线射入匀强磁场	
+phys-fx-vertical-circle-rod-model	CORRECT		high	轻杆（双轨道）支撑模型最高点临界速度为零	
+phys-fx-voltmeter-voltmeter-method	CORRECT		high	已知内阻的电压表可当电流表使用	
+phys-gas-thermo-solving-workflow	CORRECT		medium	确定研究对象→两类分析	材料兼含气体定律与热一律，节点仅气体定律
+phys-hj-024-equivalent-substitution-method	CORRECT		high	力的合成实验的核心思想	
+phys-hj-033-newton-second-law-scope	CORRECT		high	牛顿第二定律只适用于相对地面静止或匀速直线运动的惯性参考系	
+phys-hj-059-curved-motion-condition	CORRECT		high	物体所受合外力方向与速度方向不在同一直线上时做曲线运动	
+phys-hj-150-capacitor-structure-charge	CORRECT		high	两个彼此绝缘又相距很近的导体构成的元件	
+phys-hj2-chuansongdai-henhen-changdu	CORRECT		high	一次相对滑动时划痕等于 $|x_{传}-x_{物}|$	
+phys-hj2-dianrongqi-bang-liangzhong-moxing	CORRECT		high	充电式棒减速至匀速	
+phys-hj2-gongdianli-pingheng-tiaojian	CORRECT		high	共点力是作用于同一点或作用线交于一点的力	
+phys-hj2-guanlian-sudu-shenggan	CORRECT		high	物体实际速度是合速度，沿绳（杆）方向的分速度大小相等	
+phys-hj2-lianjieti-lali-fenpei	CORRECT		high	两物块用轻绳（杆）连接一起加速时	
+phys-hj2-lianjieti-yundong-tedian	CORRECT		high	轻绳伸直时两端物体沿绳方向速度相等	节点为连接体运动特点
+phys-hj2-neineng-yu-jixieneng-qufen	CORRECT		high	内能由温度、体积、物质的量决定	节点为内能
+phys-hj2-shangbiaomian-guanghua-xiaoche-zhuangban	CORRECT		high	小车上表面光滑时物块在水平方向不受力、速度不变	
+phys-hj2-xiaochuan-duhe-moxing	CORRECT		high	船头垂直河岸渡河时间最短	
+phys-hj2-yehzhu-fengbi-yaqiang-yaodian	REBIND	液柱模型	high	以液柱为对象列平衡方程求气体压强	现绑为气体压强概念，同科有液柱模型专点
+phys-hj3-binding-energy-mass-defect	CORRECT		high	质能方程 $E=mc^2$；质量亏损对应释放核能	
+phys-hj3-bulb-volt-ampere-exp	CORRECT		high	电流表外接、滑动变阻器分压接法	
+phys-hj3-half-deflection-method	CORRECT		high	电流表半偏法要求 $R_1\gg R_A$	
+phys-hj3-liquid-column-pressure-method	CORRECT		high	以液柱为对象列平衡方程，注意重力压强	
+phys-hj3-pendulum-force-features	CORRECT		high	最高点 $F_向=0$、$F_T=mg\cos\theta$	
+phys-hj3-power-instant-avg	CORRECT		high	瞬时功率用 $P=Fv\cos\theta$	
+phys-hj3-resistivity-exp-dataprocess	REBIND	测量金属丝的电阻率实验	high	求 $R$ 可多次计算取平均或用 $U\text{-}I$ 图线斜率	现绑为热学/光学数据处理，材料为电阻率实验数据处理
+phys-hj3-rope-end-velocity-model	CORRECT		high	物体实际速度为合速度，沿绳（杆）方向的分速度大小相等	
+phys-hj3-satellite-parameters-vs-radius	CORRECT		high	$v=\sqrt{\frac{GM}{r}}$、$\omega$、$a_n$ 随 $r$ 增大而减小	
+phys-hj3-vertical-circular-rope-rod	CORRECT		high	绳模型最高点 $v\ge\sqrt{gr}$，杆模型最高点 $v\ge 0$ 即可	
+phys-hj3-wave-multi-solution-factors	CORRECT		high	时间与空间的周期性、传播方向与振动方向的双向性造成波的问题多解	
+phys-kb-double-rod-model-em	CORRECT		high	无外力等距双棒系统动量守恒，最终两棒共速	
+phys-kb-dynamics-two-bridge	CORRECT		high	加速度是联系力和运动的桥梁，连接点速度是联系各过程的桥梁	
+phys-kb-free-fall-motion	CORRECT		high	自由落体是初速度为零、加速度为 g 的匀加速直线运动	
+phys-mo-collision-critical-n	CORRECT		high	碰撞中的临界及多次碰撞问题中计算注意事项的典型误区与正确结论	
+phys-mo-dyn-energy-n	CORRECT		high	动力学和能量观点的综合应用中计算注意事项的典型误区与正确结论	
+phys-mo-l13-curved-motion-e2	CORRECT		high	曲线运动与运动的合成与分解中易混概念辨析的典型误区与正确结论（第 2 部分）	
+phys-mo-l21-mech-energy-b-3	CORRECT		high	发生弹性形变的物体因弹力相互作用而具有的势能	
+phys-mo-l27-three-views-e3	CORRECT		high	三大观点解决力学问题中易混概念辨析的典型误区与正确结论（第 3 部分）	
+phys-mo-l46-magnetic-field-e2	CORRECT		medium	磁场及其对电流的作用中易混概念辨析的典型误区与正确结论（第 2 部分）	材料兼含安培力与磁感应强度，节点为磁场基本概念
+phys-photoelectron-is-electron	CORRECT		high	光电效应中飞出的“光电子”是从金属表面逸出的电子	
+phys-pingpao-sudu-fen-liang-pian-xiang-jiao	REBIND	平抛运动	medium	水平速度 $v_x=v_0$，竖直速度 $v_y=gt$	材料为平抛速度分量基础，非“两个重要结论”
+phys-transformer-voltage-relation	CORRECT		high	$\frac{U_1}{U_2}=\frac{n_1}{n_2}$，与副线圈的个数无关	
+phys-vt-mianji-wei-yi	CORRECT		high	v-t图线与t轴围成的面积表示位移	
+phys-xiepao-xie-jiao-fen-jie	CORRECT		high	将斜抛分解为沿初速度方向的匀速直线运动和竖直方向的自由落体运动	
+phys-xiepao-zheng-jiao-fen-jie	CORRECT		high	将斜抛速度按水平和竖直分解	
+wusan-che-v-b499b64e	CORRECT		high	苯环可卤代、硝化、磺化、加成	
+wusan-chem-b1c3-ferric-chloride-etching	CORRECT		high	电子工业用 FeCl₃ 溶液腐蚀铜箔	节点为铁盐
+wusan-chem-x3c3-acid-ester-pitfall	CORRECT		high	1 mol 酚酯在 NaOH 溶液中水解要消耗 2 mol NaOH	
+wusan-phy-v-f88776fe	CORRECT		high	人船系统初动量为零	

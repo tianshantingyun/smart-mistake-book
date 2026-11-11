@@ -1,0 +1,105 @@
+{
+  "input_file": "BLD-MECHPHASE-018.json",
+  "program_sha256": "49fe3d4c2f5cb5a4198e397d50fc5405ef82d429b4533d36a7968a37320e3f5d",
+  "task_id": "BLD-MECHPHASE-018",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 86,
+  "measurement": [
+    {
+      "contentId": "c0-a1fce436",
+      "payload": "y",
+      "widthDu": 7.636363506317139,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a1fce4363854ff888cff4b8e7875d600c2682390412a8cf79b37d0b11148b0fa"
+    },
+    {
+      "contentId": "c1-e3b98a4d",
+      "payload": "t",
+      "widthDu": 5.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e3b98a4da31a127d4bde6e43033f66ba274cab0eb7eb1c70ec41402bf6273dd8"
+    },
+    {
+      "contentId": "c2-5feceb66",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c3-2617fcb9",
+      "payload": "π",
+      "widthDu": 9.454545021057129,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2617fcb92baa83a96341de050f07a3186657090881eae6b833f66a035600f35a"
+    },
+    {
+      "contentId": "c4-5bab6cda",
+      "payload": "2π",
+      "widthDu": 18.545454025268555,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5bab6cdae6b273db01857d5b52123463b5a3385e2634e9bc20b42fdf37ad1ba8"
+    },
+    {
+      "contentId": "c5-018f74ac",
+      "payload": "y₁（振幅 2.5）",
+      "widthDu": 104,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "018f74ac477db5b23aef103485521f98878fa75caed58c27f34e465076b1cf88"
+    },
+    {
+      "contentId": "c6-db03f40e",
+      "payload": "y₂（振幅 1.5）",
+      "widthDu": 104,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "db03f40ea1dba07a43c25683ae4d941b8bfe228547c0862a84e4b334816dddd1"
+    },
+    {
+      "contentId": "c7-c274ca26",
+      "payload": "y₁ + y₂（振幅 4）",
+      "widthDu": 121.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c274ca26604c6482b06b90a3eba4bb8c4169c486538e2229adebbf910e143d3e"
+    },
+    {
+      "contentId": "c8-b88c3ed0",
+      "payload": "合成振幅 4",
+      "widthDu": 77.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b88c3ed0089b05b36c3616930aa061e704e3aace7055114394a8bff83205f51e"
+    },
+    {
+      "contentId": "c9-5abac020",
+      "payload": "示意：同频同相，归一化时间轴",
+      "widthDu": 224,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5abac02038d183b783a7b57426b0b7ff0fc1d3552cb19e778a0ea4df98680d42"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_NODE_COUNT: scene has more than 256 nodes\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-compiler.js:78:28)\n  "
+}

@@ -1,0 +1,24 @@
+{
+    "file": "IMG20260810011126.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 22318,
+    "responseHead": "{\"id\":\"619d832c-6b46-4897-825f-512dfaed497f\",\"object\":\"chat.completion\",\"created\":1794128918,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。需要返回严格JSON，只有五个键：decision, issues, suggestedActions, questionRegions, followingPageRelations。\\n\\n分析图片：可见页面左半部分主要是一道物理题（多选题），题干是“【跟进训练】（多选）如图所示，下列说法正确的有（ ）”，下面有图甲乙丙丁，选项A-D。图片顶部有上一道题的选项C、D（C. 两镜片没有任何变化 D. 左镜片变暗，右镜片变亮）以及手写圈。左侧有栏外文字（可能是另一栏课本内容）。右侧页面有另一列内容，可见“2. 解决... (1) 波... (2) 波... (3) 双... n越... (4) 不变 3.不同...”，是另一页或另一栏的题/内容，不完整？需要判断独立题数量。主要清晰大题是一道。顶部C/D属于前一道题的选项，但前一道题题干和选项A/B未显示，只在图片顶部露出选项C/D，无法完整转写前一道题。右侧栏有内容，但题目可能不完整，且被页面边缘裁切，不可读全。根据要求：页面边缘被裁切但可见题目的题干与选项完整时不算未拍全；只有题目本身缺少题干、关键条件或选项时才返回NEED_MORE_IMAGE。顶部前一道题只露出选项C和D，没有题干和A/B，应该视为不完整题，但这是画面边缘裁切导致缺少题干/选项。是否应该返回NEED_MORE_IMAGE？还是只关注主要完整题？需要判断图片是否足以完整转写一道或多道独立题。图片中间完整一道题：题干+图+选项A-D，完整。因此可以转写这道题。顶部残缺前题不属于可完整转写的题。是否因为同一页面包含不完整前题而需要重新拍摄/补图？问题要求判断图片是否足以完整转写一道或多道独立题。如果只完整转写一道题，PASS？但顶部残缺选项可能干扰。根据规则，只有题目本身缺少题干、关键条件或选项时才返回NEED_MORE_IMAGE。这里完整题不缺少；残缺题不是我们选择的题。但若页面包含另一题不完整，是否应该返回NEED_MORE_IMAGE？需要看“判断图片是否足以完整转写一道或多道独立题”意味着如果画面中有不完整的题，可能需补充。但可以只转写完整题？通常错题本组件可能要求识别所有独立题；如果有多道独立题必须SPLIT，但这里顶部前题不完整，右侧题不完整。多个不完整题不满足2到12道互相独立的完整题，因此不SPLIT。主要完整题一道。是否PASS取决于是否要判定图片可用。存在顶部残缺前题，但主要内容清晰。可以PASS，issues可能包含OCCLUDED或KEY_TEXT_UNREADABLE？顶部C/D清晰可读但不是完整题。右栏边缘有文字，部分可读但不完整。题面没有遮挡，主要题公式图可读。手写笔迹覆盖在题干右侧和选项B旁，但未遮挡关键内容？题干预留括号和手写答案“AD”，有红笔圈“跟进训练”和“干涉”圈；不影响转写。图甲有公式标注 n_air=1, n_water=4/3, θ0, r等清晰。选项C有手写圈在“干涉”上，但文字可辨认。图片整体清晰。",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–1.000；单栏；行距约 14px；段落分隔（共 16 处，已截断到 8 条）：y=0.391（谷宽25px，栏1）；y=0.525（谷宽23px，栏1）；y=0.664（谷宽15px，栏1）；y=0.571（谷宽14px，栏1）；y=0.655（谷宽14px，栏1）；y=0.714（谷宽13px，栏1）；y=0.759（谷宽13px，栏1）；y=0.374（谷宽10px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 266,
+    "image": {
+        "egressBytes": 621145,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "cc720fe37d91deb8123f1d8cb499cceb1a64aa52d8d05a48c97cdef74fddcfef",
+    "promptSha256": "55cf8dee2af9422b9d4af512d51cc4b1202a7aca29b6c5ac4df3ef76ede9c561"
+}

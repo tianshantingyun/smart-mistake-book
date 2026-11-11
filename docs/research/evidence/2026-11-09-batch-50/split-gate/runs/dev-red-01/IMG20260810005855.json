@@ -1,0 +1,46 @@
+{
+    "file": "IMG20260810005855.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 28835,
+    "responseHead": "{\"id\":\"3a710fe9-1b93-4bb5-9550-8bc41d19a8cb\",\"object\":\"chat.completion\",\"created\":1794127340,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"画面包含多道独立题，需按题拆分。\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.03,\\\"top\\\":0.86,\\\"right\\\":0.98,\\\"bottom\\\":1.0},\\\"message\\\":\\\"第12题下方被裁切，选项区域未完整显示。\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\",\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.03,\\\"top\\\":0.0,\\\"right\\\":0.98,\\\"bottom\\\":0.34},{\\\"left\\\":0.03,\\\"top\\\":0.35,\\\"right\\\":0.98,\\\"bottom\\\":0.86},{\\\"left\\\":0.03,\\\"top\\\":0.86,\\\"right\\\":0.98,\\\"bottom\\\":1.0}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们 need answer JSON only. Need inspect image. Need decide. Image contains at least parts of 3 questions: top question likely number 10? Question about 碳酸氢钠热稳定性 with options A-D, starts mid? At top cropped: \\\"碳酸氢钠热稳定性的套管实验。请观察如图所示的实验装置，分析实验原理。下列说法错误的是\\\" Options A-D. Seems complete question text except maybe initial number/truncated left? The top left has cut characters, but enough? It includes all options and diagram partly? The diagram at top right shows apparatus, but maybe only partial? Need assess if enough to complete transcribe one or more independent questions. Image includes Q10 (?) full options and diagram? At very top, image crops top of apparatus and maybe question beginning. There is partial diagram (试管?) and 清石灰水. Might be suf",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.03,
+            "top": 0.0,
+            "right": 0.98,
+            "bottom": 0.34
+        },
+        {
+            "left": 0.03,
+            "top": 0.35,
+            "right": 0.98,
+            "bottom": 0.86
+        },
+        {
+            "left": 0.03,
+            "top": 0.86,
+            "right": 0.98,
+            "bottom": 1.0
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "layoutHint": null,
+    "layoutHintChars": 0,
+    "image": {
+        "egressBytes": 651810,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "b812b41e0bc7fe2c6da759d0d622199bd84497098c0470cbfc586230671a13bb",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

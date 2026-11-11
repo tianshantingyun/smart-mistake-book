@@ -1,17 +1,17 @@
 {
-  "bytes": 26087046,
+  "bytes": 26084526,
   "corpus": {
-    "aliasVectors": 40841,
-    "atomicNodes": 3280,
-    "canonicalVectors": 3280,
+    "aliasVectors": 40838,
+    "atomicNodes": 3279,
+    "canonicalVectors": 3279,
     "includeTopics": false,
-    "layoutSha256": "1aa8142e381d1b2b40b2ba3d5eec2783e5781830321613fcb78fff7f61e9d75c",
+    "layoutSha256": "2c8b72b340733105d557609e375025c9a6ef5b68b0d320ad8cd6e99ec06c623e",
     "layoutSource": "spec §2.2；与离线臂 stage2_common.build_vector_layout 同序",
     "nodeScore": "max over the node's vectors (canonicalName + aliases) cosine",
-    "vectorCount": 44121
+    "vectorCount": 44117
   },
   "format": {
-    "count": 44121,
+    "count": 44117,
     "dim": 512,
     "dtype": "int8-per-vector-f32-scale",
     "dtypeCode": 1,
@@ -50,7 +50,7 @@
   },
   "packId": "moe-2025-four-subjects-v1",
   "packPath": "core/data/src/main/resources/knowledge/moe-2025-four-subjects-v1.json",
-  "packSha256": "10ede1bf449de38ff21a53d1a13468a82b765dd0d0852dde4af770a1b8ef6670",
+  "packSha256": "aaf81be884933b9105db737feee3eb3d84ff440c53f0e2d01c806aafd3790032",
   "productionLexicalLeg": {
     "note": "生产 v1 词面腿（COUNT(DISTINCT feature)，行序 = 生产排序）",
     "path": "build/production-lexical-leg.tsv",
@@ -65,11 +65,11 @@
     "roundtripCosineMedianVsInt8Model": 0.9998918175697327,
     "roundtripCosineMinVsInt8Model": 0.9997469782829285,
     "scaleRule": "scale[r] = max(abs(v_r))/127 ; value = int8 * scale[r]",
-    "scalesBytes": 176484,
+    "scalesBytes": 176468,
     "vsFp32ReferencePath": "build/dense-model/fp32-docs.npy"
   },
   "regeneratedFrom": "python tools/dense_build/export_bge_int8.py --model bge-small-zh-v1.5",
-  "sha256": "70329115240fe6beafcb88e6fd85d80585fd64f8b22dbe284730f742b0a2a1a5",
+  "sha256": "ed866a6251371c3d90789d4d68b5ebd2cf284ec2ee45009fb55d37065df0b033",
   "vocab": {
     "note": "词表冻结副本两档共享：bge-base-zh-v1.5 与 bge-small-zh-v1.5 的 vocab.txt 逐字节相同（sha256 45bbac6b…，实测 2026-09-25），逐条 token id 亦相同（export 侧对 333 条冻结 fixture 当场对拍）",
     "path": "tools/dense_build/vocab/bge-small-zh-v1.5-vocab.txt",

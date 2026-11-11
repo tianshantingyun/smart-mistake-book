@@ -1,0 +1,10 @@
+{
+ "egressBytes": 565447,
+ "egressHeight": 2048,
+ "egressWidth": 1536,
+ "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88",
+ "sourceBytes": 8236330,
+ "sourceFile": "C:\\Users\\听云\\Pictures\\错题数据集\\IMG20260810004511.jpg",
+ "sourceHeight": 4096,
+ "sourceWidth": 3072
+}

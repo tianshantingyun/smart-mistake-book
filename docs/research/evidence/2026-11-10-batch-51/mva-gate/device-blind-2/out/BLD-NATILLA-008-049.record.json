@@ -1,0 +1,61 @@
+{
+  "input_file": "BLD-NATILLA-008.json",
+  "program_sha256": "395cd6ee5bc2fa699b12b6296ce1ec981a57e8ede6ba8a49f240fb73a1cd3cf2",
+  "task_id": "BLD-NATILLA-008",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 17,
+  "measurement": [
+    {
+      "contentId": "c0-4c94485e",
+      "payload": "v",
+      "widthDu": 7.636363506317139,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4c94485e0c21ae6c41ce1dfe7b6bfaceea5ab68e40a2476f50208e526f506080"
+    },
+    {
+      "contentId": "c1-cd0aa985",
+      "payload": "g",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "cd0aa9856147b6c5b4ff2b7dfee5da20aa38253099ef1b4a64aced233c9afe29"
+    },
+    {
+      "contentId": "c2-5fb7cc5c",
+      "payload": "v₀ = 0（由静止释放）",
+      "widthDu": 151.27272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5fb7cc5cc10989edfabe907591b11105e4eb089a5b459094abe676393c06469a"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "dcec07f089f86a44ec2ce9366b3027097ef60ad12b0c728a582d31d4f86e6806",
+  "scene_bytes": 1907,
+  "scene_schema_version": 1,
+  "draw_sha256": "8f5c2c23d0064edda9bf4e9616e30f72be5bbcd772db65967d36f12c4c98f503",
+  "draw_bytes": 1958,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-4c94485e",
+    "c1-cd0aa985",
+    "c2-5fb7cc5c"
+  ],
+  "png_sha256": "fe01c20630dba37675634d44efdac2e03419ff680988de1281afbdaa20018721",
+  "png_bytes": 7680,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 8,
+    "pathCommands": 18,
+    "labels": 3,
+    "ops": 7
+  }
+}

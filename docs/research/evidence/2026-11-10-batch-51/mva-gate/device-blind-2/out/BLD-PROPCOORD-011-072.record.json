@@ -1,0 +1,101 @@
+{
+  "input_file": "BLD-PROPCOORD-011.json",
+  "program_sha256": "d90b2a1b9b343de09d0f8566adc35bae88b918cdab10ae377b20e993520d7301",
+  "task_id": "BLD-PROPCOORD-011",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 20,
+  "measurement": [
+    {
+      "contentId": "c0-2d711642",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    },
+    {
+      "contentId": "c1-a1fce436",
+      "payload": "y",
+      "widthDu": 7.636363506317139,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a1fce4363854ff888cff4b8e7875d600c2682390412a8cf79b37d0b11148b0fa"
+    },
+    {
+      "contentId": "c2-c4694f2e",
+      "payload": "O",
+      "widthDu": 10.909090995788574,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c4694f2e93d5c4e7d51f9c5deb75e6cc8be5e1114178c6a45b6fc2c566a0aa8c"
+    },
+    {
+      "contentId": "c3-cf3bae39",
+      "payload": "-2",
+      "widthDu": 13.454545021057129,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "cf3bae39dd692048a8bf961182e6a34dfd323eeb0748e162eaf055107f1cb873"
+    },
+    {
+      "contentId": "c4-615bdd17",
+      "payload": "-3",
+      "widthDu": 13.454545021057129,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "615bdd17c2556f82f384392ea8557f8cc88b03501c759e23093ab0b2a9b5cd48"
+    },
+    {
+      "contentId": "c5-4ce600d1",
+      "payload": "P(-2,-3)",
+      "widthDu": 51.272727966308594,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4ce600d1719650e9faebf39360e4a34bb0709b5d265e921cf5b7dacc002b9ce6"
+    },
+    {
+      "contentId": "c6-2f42f50e",
+      "payload": "第三象限",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2f42f50e05ad766e4976af155378c3f53b856356d49984caf5f327f7688abed7"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "072b71eacfcaef4e86feb1f5589a8c7aad4f441cddd1325c962fa0a8795940f5",
+  "scene_bytes": 2781,
+  "scene_schema_version": 1,
+  "draw_sha256": "23a475b5f27ddb660924726291fd619479f53dc9f6ca3d8bac5d20cf62859e62",
+  "draw_bytes": 3034,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-2d711642",
+    "c1-a1fce436",
+    "c2-c4694f2e",
+    "c3-cf3bae39",
+    "c4-615bdd17",
+    "c5-4ce600d1",
+    "c6-2f42f50e"
+  ],
+  "png_sha256": "edbd03603503509026cf3ba9a23e0f124526b237ee9aafbe02fd1ff7b37c7c8d",
+  "png_bytes": 6872,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 15,
+    "pathCommands": 24,
+    "labels": 7,
+    "ops": 14
+  }
+}

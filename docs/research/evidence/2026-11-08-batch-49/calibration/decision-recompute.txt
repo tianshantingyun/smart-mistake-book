@@ -1,0 +1,28 @@
+== G6 (holdout, equal-time arms) ==
+  f=0.150000 n=6   median=-0.033333              positive=2   status=INSUFFICIENT_DATA  pass_effect_only=False
+  f=0.250000 n=6   median=0.0500005              positive=4   status=INSUFFICIENT_DATA  pass_effect_only=False
+  f=0.350000 n=8   median=0.016666499999999973   positive=4   status=MEASURED           pass_effect_only=False
+  f=0.500000 n=8   median=0.033333               positive=5   status=MEASURED           pass_effect_only=False
+  -> effect-only adopt: None (guards G1-G4 are the guard_ok column in g6-runs.csv)
+== weights (holdout, equal-time arms) ==
+  W/diversity/x0.75    n=8   median=0.06666650000000002    positive=6   status=MEASURED           pass_effect_only=False
+  W/diversity/x0.875   n=5   median=0.09999999999999998    positive=4   status=INSUFFICIENT_DATA  pass_effect_only=False
+  W/diversity/x1.125   n=7   median=-0.03333300000000006   positive=3   status=INSUFFICIENT_DATA  pass_effect_only=False
+  W/diversity/x1.25    n=4   median=0.0500005              positive=2   status=INSUFFICIENT_DATA  pass_effect_only=False
+  W/due/x0.75          n=6   median=0.10000000000000003    positive=4   status=INSUFFICIENT_DATA  pass_effect_only=False
+  W/due/x0.875         n=6   median=0.08333350000000006    positive=5   status=INSUFFICIENT_DATA  pass_effect_only=False
+  W/due/x1.125         n=7   median=0.06666700000000003    positive=6   status=INSUFFICIENT_DATA  pass_effect_only=False
+  W/due/x1.25          n=8   median=0.0833335              positive=6   status=MEASURED           pass_effect_only=False
+  W/exam/x0.875        n=10  median=0.0                    positive=3   status=MEASURED           pass_effect_only=False
+  W/exam/x1.125        n=10  median=0.0                    positive=4   status=MEASURED           pass_effect_only=False
+  W/exam/x1.25         n=10  median=0.033333500000000016   positive=6   status=MEASURED           pass_effect_only=False
+  W/kc-drop/x0.75      n=9   median=0.06666700000000003    positive=6   status=MEASURED           pass_effect_only=False
+  W/kc-drop/x0.875     n=8   median=0.06666650000000007    positive=5   status=MEASURED           pass_effect_only=False
+  W/weak/x0.75         n=2   median=0.09999999999999998    positive=1   status=INSUFFICIENT_DATA  pass_effect_only=False
+  W/weak/x0.875        n=6   median=0.01666650000000003    positive=3   status=INSUFFICIENT_DATA  pass_effect_only=False
+  W/weak/x1.125        n=8   median=0.0833335              positive=6   status=MEASURED           pass_effect_only=False
+  W/weak/x1.25         n=10  median=0.0833335              positive=7   status=MEASURED           pass_effect_only=False
+  -> effect-only passing arms: 0
+== cross-check vs report JSON ==
+  recorded adopted_f = None; independent recompute effect-only adopted = None
+  NOTE: this recompute covers effect size + sign + n only; guardrails come from the guard_ok column.

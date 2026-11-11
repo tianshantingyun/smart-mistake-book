@@ -189,6 +189,34 @@ internal abstract class ChatEvidenceDao {    /**
         sourceKind: String,
     ): Long?
 
+    /**
+     * 某学习日窗内、某写通道**已作答**的知识点（去重）。
+     *
+     * 用途 = 3E / F17 每日全库扫描配额（KD-46 每日累计）：当日已花费的扫描名额由既有作答账本
+     * 派生，不新增表、不新增列。窗口是半开区间 `[sinceInclusive, untilExclusive)`——学习日
+     * 起点 04:00 由调用方按 `StudyDayMath` 算好，本查询只做时间比较。
+     *
+     * 只按 `(learner_id, created_at_epoch_millis)` 索引取行，不拉整张证据表
+     * （同 [lastAcceptedAtForKc] 的批量口径）。
+     *
+     * **不**过滤 `rejected_reason`：被拒观察行也是"学生这次作答发生了"的事实（"被拒 ≠ 删除"，
+     * 见 `KnowledgeEvidenceWriter`），配额按实际发生的作答计，宁可少发不再超发。
+     */
+    @Query(
+        """
+        SELECT DISTINCT knowledge_node_id FROM learner_chat_evidence
+        WHERE learner_id = :learnerId AND source_kind = :sourceKind
+          AND created_at_epoch_millis >= :sinceInclusive
+          AND created_at_epoch_millis < :untilExclusive
+        """,
+    )
+    abstract suspend fun readKnowledgeNodeIdsBySourceKindBetween(
+        learnerId: String,
+        sourceKind: String,
+        sinceInclusive: Long,
+        untilExclusive: Long,
+    ): List<String>
+
     /** Accepted writes by the learner since [sinceEpochMillis] (learner rolling-window quota). */
     @Query(
         """

@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+bio-kb-enzyme-hormone-antibody-nature-judgment	CORRECT		high	大多数酶是蛋白质、少数是RNA；只有部分激素是蛋白质类；酶可重复利用。	node 为酶与激素比较，材料核心一致（抗体为附带辨析）
+bio-kb-housekeeping-and-luxury-genes	CORRECT		high	所有细胞都表达的基因是管家基因，只在特定细胞表达的基因是奢侈基因。	
+bio-kb-hypothesis-deduction-method	CORRECT		medium	观察现象提出问题→分析问题提出假说→根据假说演绎推理→实验验证→得出结论。	材料为假说—演绎法整体流程，现绑为其演绎推理环节；同科无更贴切节点
+bio-textbook-biological-weapons-ban	CORRECT		high	1972 年《禁止生物武器公约》签署国承诺在任何情况下不发展、不生产、不储存生物武器	
+che-value-of-structure-research	CORRECT		high	结构决定性质，研究结构可解释和预测物质的性质	
+chem-fx-di-si-bu-f03x10	CORRECT		high	检查是否含碳碳双键（判断顺反异构）或手性碳（判断对映异构）	材料为判断步骤片段，核心正是顺反/对映异构判断
+chem-fx-dian-fen-he-xian-wei-su-yin-tong-shi-z-f62x02	REBIND	同分异构现象和同分异构体	high	淀粉和纤维素因通式中n值不同，不是同分异构体。	材料讲淀粉/纤维素非同分异构体，未涉及羟基计数
+chem-fx-dian-rong-zhi-wei-f51x05	REBIND	溶液中微粒浓度大小的比较	high	a点，溶质为CH3COONa、CH3COOH。	材料讲缓冲溶液离子浓度大小，非酸溶液水电离
+chem-fx-fan-ying-wu-de-zhuan-hua-lv-f44x01	CORRECT		high	反应物的转化率：×100%=×100%	
+chem-fx-fan-ying-yuan-li-f14x02	CORRECT		high	产生NaHCO3的反应：NH3+NaCl+CO2+H2O=NaHCO3↓+NH4Cl	
+chem-fx-heng-rong-mi-bi-rong-qi-zhong-an-bu-to-f44x07	CORRECT		medium	恒容密闭容器中按不同进料比充入和其	节点名不完整，但 boundary 正是恒容平衡体系
+chem-fx-rong-ye-he-xi-yan-suan-jia-f76x07	REBIND	离子共存	high	加CaCl2溶液产生白色沉淀，再加盐酸沉淀溶解，产生无色无味气体	材料讲CO3^2-与Ca2+/H+不能共存，非Al等与盐酸反应
+chem-fx-shi-yan-yu-fen-xi-yao-dian-f03x19	CORRECT		medium	产物检验：烯烃用溴水/酸性KMnO₄，醛用银氨溶液/新制Cu(OH)₂，卤代烃先水解再加AgNO₃	材料兼有反应条件与产物检验，节点覆盖有机检验
+chem-fx-wei-guan-you-jiu-hua-xue-jian-duan-lie-f07x04	REBIND	化学反应的本质	high	有旧化学键断裂，同时有新化学键形成的是化学变化，本质是原子的重新组合	材料讲化学变化本质（旧键断裂/新键形成）
+chem-fx-yan-dao-qi-zhong-de-shi-zhu-yao-de-da-f51x12	NONE		high	为了监测其含量，选用如下采样和检测方法	仅题干导语，无采样检测方法内容
+chem-fx-zhi-han-yi-zhong-yuan-su-de-wu-zhi-bu-f07x02	CORRECT		high	只含一种元素的物质不一定是纯净物，如O2和O3组成的混合气体	
+chem-fx-zhu-yao-yong-tu-f13x04	CORRECT		high	用于制玻璃、制肥皂、合成洗涤剂、造纸、纺织、石油、冶金等工业中	
+chem-hj-yaopin-baocun-jiufang	CORRECT		medium	按防氧化、防 CO2、防挥发、防燃烧、防分解、防水解、防腐蚀、防黏结等保存试剂	节点为“在化学研究中”集合点，boundary 明列试剂保存
+chem-hj2-liu-danxiangsi-xiangrong-jieshi	REBIND	硫及其化合物之间的转化规律	medium	S有S2、S4、S6、S8等同素异形体，加热转化属化学变化	材料讲硫的存在/同素异形体与相似相溶；相似相溶无专点
+chem-hj2-mei-dan-dian-fanshi-ranshao	REBIND	镁的化学性质	high	镁是第三周期ⅡA族活泼金属，在空气中燃烧生成MgO和Mg3N2的混合物	材料讲镁的性质与燃烧，非铁硫反应
+chem-hj2-yanjiuxingzhi-jiben-fangfa	CORRECT		medium	研究物质性质用观察法、实验法、分类法、比较法	节点为化学研究集合点，材料为其下研究方法
+chem-impossible-one-step-conversions	CORRECT		high	CuO、CaO等不与水反应成碱；无驱动力的盐-盐转化不能一步实现	
+chem-inquiry-experiment-steps	CORRECT		high	明确探究目的→寻找关键变量→对照异同得出结论	
+chem-kb-thermochemical-equation-writing	CORRECT		high	写配平方程式后标物质状态、反应条件、ΔH及数值	
+cmp-che-01993	CORRECT		medium	指示剂要变色灵敏、范围小且与滴定终点酸碱性一致	节点“实验用品”boundary 明列指示剂选择
+cmp-che-02001	CORRECT		high	溶质为酸的溶液中 OH－ 只来自水的电离	
+cmp-che-02317	CORRECT		high	判断溶液中微粒种类要先写全该溶液的全部电离方程式	
+cmp-che-02397	CORRECT		high	CaCO3(SiO2) 加足量 NaOH 溶液、SiO2(CaCO3) 加足量稀盐酸、SiO2(NH4Cl) 直接加热	
+cmp-che-03070	CORRECT		medium	中和滴定所选指示剂应变色灵敏、变色范围小	节点“实验用品”boundary 明列指示剂选择
+ext-bio-0692c5511d-034	CORRECT		high	生物分类从大到小的等级依次为界、门、纲、目、科、属、种	
+ext-bio-10b69e6f40-029	CORRECT		high	因果推理含由因到果与由果溯因，关键是找到证据搭建因果桥梁	
+ext-bio-1288e946fc-041	CORRECT		high	用完全培养液与缺素培养液对照	
+ext-bio-1b7c6d66e4-009	CORRECT		high	合理密植通过让作物充分利用光能与土壤矿质元素、改善田间通风补充CO2来提高光合产量	
+ext-bio-1f50dcaea2-008	CORRECT		high	先设法把DNA与蛋白质（或其他组分）分开，再分别观察各自的效应	
+ext-bio-2c7b19ac87-001	CORRECT		high	论证由论点、证据和支持构成	
+ext-bio-322566a33d-008	CORRECT		high	在较小的种群中，偶然事件往往引起种群基因频率发生较大变化	
+ext-bio-3a8f544154-010	CORRECT		medium	生态足迹衡量人类对生态的影响，生态工程遵循自生、协调等原理	材料兼含生态工程原理，节点覆盖生态足迹/全球问题为主
+ext-bio-554c7d71bf-018	CORRECT		high	制备细胞膜应选哺乳动物成熟红细胞	
+ext-bio-5f510cdc4a-1172	CORRECT		high	呼吸中枢分布在大脑皮层、脑干和脊髓	
+ext-bio-5f510cdc4a-1203	CORRECT		high	含氮激素作为第一信使与靶细胞膜受体结合，经cAMP第二信使把信息传入细胞内	
+ext-bio-5f510cdc4a-1975	CORRECT		high	两者都要经体外受精、早期胚胎培养和胚胎移植，都是有性生殖	
+ext-bio-5f510cdc4a-1986	CORRECT		high	生物安全指国家能有效防范和应对危险生物因子及相关因子的威胁	
+ext-bio-5f510cdc4a-280	CORRECT		high	可按元素组成、功能和单体种类判断有机物类别	
+ext-bio-6078f22570-013	CORRECT		high	表格类实验结果题按审清题意、分析数据、联系知识、准确作答四步解读	
+ext-bio-6522315ec7-013	CORRECT		high	粗纤维与细纤维的传入信号在脊髓后角竞争「闸门」	
+ext-bio-87ebe669c6-019	CORRECT		high	把每个选项当作已知条件代入题干	
+ext-bio-89d8f5bffe-076	CORRECT		high	「□」表示男性，「○」表示女性	
+ext-bio-8c5f3169c5-008d	CORRECT		high	突变型线粒体DNA积累超过阈值才引起功能异常	
+ext-bio-8f71bb2208-001	CORRECT		high	当生态足迹总量的增速大于生态承载力总量的增速时出现生态赤字	
+ext-bio-909f478399-001b	CORRECT		high	只在某类细胞中特异性表达的基因如卵清蛋白基因、胰岛素基因	

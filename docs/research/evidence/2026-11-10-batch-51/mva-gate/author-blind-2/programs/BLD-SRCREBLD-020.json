@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-020",
+    "program_id": "mva-BLD-SRCREBLD-020",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [];\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var n = 5;\n    var margin = Math.min(W, H) * 0.08;\n    var size = Math.min(W - margin * 2, H - margin * 2);\n    if (!(size > 0)) {\n      size = Math.min(W, H) * 0.8;\n    }\n    var x0 = (W - size) / 2;\n    var y0 = (H - size) / 2;\n    var step = size / n;\n    var paths = [];\n    var children = [];\n    var i;\n    for (i = 0; i <= n; i++) {\n      var x = x0 + i * step;\n      var vid = 'grid-v-' + i;\n      paths.push({ id: vid, commands: [['M', x, y0], ['L', x, y0 + size]] });\n      children.push({ type: 'path', pathId: vid, fill: '#26354A', stroke: { width: 2, cap: 'butt' } });\n    }\n    for (i = 0; i <= n; i++) {\n      var y = y0 + i * step;\n      var hid = 'grid-h-' + i;\n      paths.push({ id: hid, commands: [['M', x0, y], ['L', x0 + size, y]] });\n      children.push({ type: 'path', pathId: hid, fill: '#26354A', stroke: { width: 2, cap: 'butt' } });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'grid-5x5',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: paths,\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

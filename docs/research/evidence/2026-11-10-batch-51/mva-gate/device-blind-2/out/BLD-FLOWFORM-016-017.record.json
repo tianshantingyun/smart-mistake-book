@@ -1,0 +1,111 @@
+{
+  "input_file": "BLD-FLOWFORM-016.json",
+  "program_sha256": "68e299fa35869c2ec67121be5b9f758b7520bf299ded1e42e4bb886617eb9ee5",
+  "task_id": "BLD-FLOWFORM-016",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 27,
+  "measurement": [
+    {
+      "contentId": "c0-3e55584d",
+      "payload": "单位换算表：km\/h 换算为 m\/s",
+      "widthDu": 218.5454559326172,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3e55584d4d4bfd9cb4fed1fe6bbe2a19a1d3805fdbbd9189a85f64673837d967"
+    },
+    {
+      "contentId": "c1-2b120ab3",
+      "payload": "原值",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2b120ab364663cd5dabac323cd52e8fe1736ea0a9357e30786ef4f354d31035a"
+    },
+    {
+      "contentId": "c2-49053d4b",
+      "payload": "换算算式（除以 3.6）",
+      "widthDu": 154.5454559326172,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "49053d4b901d6f71a12ed2d06be8a3249797cd91cc1407aa27a3f45b9ad80b64"
+    },
+    {
+      "contentId": "c3-207b2b07",
+      "payload": "结果（三位有效数字）",
+      "widthDu": 160,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "207b2b07e77a94bf908c5fb6fd2d9d38c7069cfb75570dab8f63f17d264f3f15"
+    },
+    {
+      "contentId": "c4-79b61d9e",
+      "payload": "54 km\/h",
+      "widthDu": 59.6363639831543,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "79b61d9e409d040bad7cac08eac583293f1011cbf9892e184579318405e54490"
+    },
+    {
+      "contentId": "c5-6776d130",
+      "payload": "54 ÷ 3.6",
+      "widthDu": 57.818180084228516,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6776d13049cab564cf5e7705cbf138852918554fc781de2709e09a2a96b68969"
+    },
+    {
+      "contentId": "c6-d7282efe",
+      "payload": "15.0 m\/s",
+      "widthDu": 64.7272720336914,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d7282efe186833528824e7f01a8f44685ca7f57773ebd92e16b827de7219fc29"
+    },
+    {
+      "contentId": "c7-1b03712d",
+      "payload": "依据：m\/s = (km\/h) ÷ 3.6",
+      "widthDu": 181.81817626953125,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "1b03712d2d99e50dc1f75baec09e95625b8adf6d9ae2b260700853479b3ba0e3"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "5df85061921f935d8862afb5db3369e2685a1c091f4c2ab338299bc696c796bc",
+  "scene_bytes": 1804,
+  "scene_schema_version": 1,
+  "draw_sha256": "9966f3febdaf209ea318a11603667f491af9f48d5337319e6f89f54ad0d20f43",
+  "draw_bytes": 2005,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-3e55584d",
+    "c1-2b120ab3",
+    "c2-49053d4b",
+    "c3-207b2b07",
+    "c4-79b61d9e",
+    "c5-6776d130",
+    "c6-d7282efe",
+    "c7-1b03712d"
+  ],
+  "png_sha256": "824f92c16f5f96ce40e091a615dd66d0ca608caa7fa57abdef138d11d32edb89",
+  "png_bytes": 7306,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 12,
+    "pathCommands": 24,
+    "labels": 8,
+    "ops": 11
+  }
+}

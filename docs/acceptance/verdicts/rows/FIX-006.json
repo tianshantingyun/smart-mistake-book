@@ -1,61 +1,63 @@
 {
-  "id": "FIX-006",
-  "verdict": "PASS",
-  "run_id": "2026-11-05T08:50:11Z-batch46-line-review-fix",
-  "reviewer": "batch46-line-reviewer-FIX",
-  "authors": [
-    "batch45-evidence-producer-FIX"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "cmd:docs/research/evidence/2026-11-06-batch-45/fix/logs/FIX-T02.log",
-    "test:docs/research/evidence/2026-11-06-batch-45/fix/xml/FIX-T02.xml"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-06-batch-45/fix/logs/FIX-T02.log": "81c4e9a5168bba6f3d0ed366e916e5c618a174fae9b58e03acb69b10ece6dfff",
-    "docs/research/evidence/2026-11-06-batch-45/fix/xml/FIX-T02.xml": "a0beb74a3396c434954f8b4fa9ed3a727c75593fa9cd140f676a3877f74935e8"
+ "id": "FIX-006",
+ "verdict": "PASS",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "evidence": [
+  "cmd:docs/research/evidence/2026-11-06-batch-45/fix/logs/FIX-T02.log",
+  "test:docs/research/evidence/2026-11-06-batch-45/fix/xml/FIX-T02.xml"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-06-batch-45/fix/logs/FIX-T02.log": "81c4e9a5168bba6f3d0ed366e916e5c618a174fae9b58e03acb69b10ece6dfff",
+  "docs/research/evidence/2026-11-06-batch-45/fix/xml/FIX-T02.xml": "a0beb74a3396c434954f8b4fa9ed3a727c75593fa9cd140f676a3877f74935e8"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=FIX-006; verdict=PASS; line=1037; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=FIX-006; verdict=PASS; line=1037; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-45/fix/logs/FIX-T02.log",
-      "value": "exit_markers=[0]; cmd=n/a; sha256=81c4e9a5168bba6f3d0ed366e916e5c618a174fae9b58e03acb69b10ece6dfff"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-06-batch-45/fix/xml/FIX-T02.xml",
-      "value": "tests=3; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T09:56:45.940841+08:00; hostname=tianshan; sha256=a0beb74a3396c434954f8b4fa9ed3a727c75593fa9cd140f676a3877f74935e8"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-06-batch-45/fix/xml/FIX-T02.xml",
-      "value": "testcases=3; first=test_fixed_gates_are_green_on_current_tree; all_present=True"
-    }
-  ],
-  "basis": "机械复算（reviewer=batch46-line-reviewer-FIX，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 FIX-006 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "adversarial": {
-    "attempted": true,
-    "result": "recomputed-no-mismatch"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-06-batch-45/fix/logs/FIX-T02.log",
+   "value": "exit_markers=[0]; cmd=n/a; sha256=81c4e9a5168bba6f3d0ed366e916e5c618a174fae9b58e03acb69b10ece6dfff"
   },
-  "review_scope": "single-ledger-row",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-06-batch-45/fix/xml/FIX-T02.xml",
+   "value": "tests=3; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-05T09:56:45.940841+08:00; hostname=tianshan; sha256=a0beb74a3396c434954f8b4fa9ed3a727c75593fa9cd140f676a3877f74935e8"
   },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 2,
-    "basis": "bytes-on-disk"
-  },
-  "checks_scope": "shared-suite"
+  {
+   "name": "xml_testcase",
+   "source": "docs/research/evidence/2026-11-06-batch-45/fix/xml/FIX-T02.xml",
+   "value": "testcases=3; first=test_fixed_gates_are_green_on_current_tree; all_present=True"
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "adversarial": {
+  "attempted": true,
+  "result": "recomputed-no-mismatch"
+ },
+ "review_scope": "single-ledger-row",
+ "ledger_batch": 51,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-10T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 2,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "shared-suite",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

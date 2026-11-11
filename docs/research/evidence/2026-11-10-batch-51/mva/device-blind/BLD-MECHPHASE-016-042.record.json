@@ -1,0 +1,105 @@
+{
+  "input_file": "BLD-MECHPHASE-016.json",
+  "program_sha256": "271d7723dd96a9ac494009904b9f94127890d39bf3fd597c0a8c1cfc96f0e55e",
+  "task_id": "BLD-MECHPHASE-016",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 39,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "u = x \/ h",
+      "widthDu": 56.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bdf9e06c87393cfab7b0f70d4c14bffc6b58f9facb49dc10095d5d97ae96a7dd"
+    },
+    {
+      "contentId": "c1",
+      "payload": "瓶口基准线",
+      "widthDu": 80,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9ba2a5da86a964c8e378fc42179eca979b5f373138f2a94f894f0f2d04411958"
+    },
+    {
+      "contentId": "c2",
+      "payload": "u = 0",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4b5968a5bb3f4bd83a77304c529b18ddc7b4f06e0e52db14c474a0f6f47f0558"
+    },
+    {
+      "contentId": "c3",
+      "payload": "u = 1\/2",
+      "widthDu": 50.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3f55abbdc017a90d744db9e7bda43bc196b4800ea88af1120c28a66e8fe05979"
+    },
+    {
+      "contentId": "c4",
+      "payload": "u = 1",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0c3de0b28dde8fc98f9f8d4377bd74394a78d28853bad8b25eaee12255f85414"
+    },
+    {
+      "contentId": "c5",
+      "payload": "h",
+      "widthDu": 8.727272987365723,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "aaa9402664f1a41f40ebbc52c9993eb66aeb366602958fdfaa283b71e64db123"
+    },
+    {
+      "contentId": "c6",
+      "payload": "x = 0",
+      "widthDu": 33.818180084228516,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bc3b5864a25454f5ac9c1ac2c3e54af4498664e94fa952d955f0bfb64ccd57fc"
+    },
+    {
+      "contentId": "c7",
+      "payload": "x = h\/2",
+      "widthDu": 49.09090805053711,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0f8db5f46f1cefd917c41ec1372ad02bd1ea12c2bc95b848796f4d7247acc3eb"
+    },
+    {
+      "contentId": "c8",
+      "payload": "x = h",
+      "widthDu": 33.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "cd71d298b0d30dbf4635b7282bb2450197e3cf603d69e78f8b982092493fe81d"
+    },
+    {
+      "contentId": "c9",
+      "payload": "u = 1 时木塞底部到达瓶口基准线",
+      "widthDu": 230.5454559326172,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "e97589f7b3233447e923ba04c00dc384c5c78ade622d1f8557bb16568995b5ce"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

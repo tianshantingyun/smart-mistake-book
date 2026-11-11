@@ -6,9 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tingyun.smartmistakebook.core.domain.AdaptiveDecisionKind
 import com.tingyun.smartmistakebook.core.domain.KnowledgeQuizFeedbackResult
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueEntry
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
+import com.tingyun.smartmistakebook.core.model.ReviewReason
 import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -141,6 +143,143 @@ internal class KnowledgeReviewSessionViewModel(
     val canContinue: Boolean
         get() = currentEntry != null &&
             submitStatus == KnowledgeQuizSubmitStatus.RECORDED
+
+    /**
+     * 已处理过冲突卡（点了「先做校准题」或「仍然复习」）的节点。持久化在
+     * SavedStateHandle：进程重建/旋转后同一张卡不重弹（与既有的会话持久化纪律一致）。
+     */
+    private var conflictHandledNodeIds by mutableStateOf(restoredNodeIds(CONFLICT_HANDLED_KEY))
+
+    /** 学生显式选择本次按校准题处理的节点（持久化，重建后仍是同一场会话的选择）。 */
+    private var calibrationRequestedNodeIds by mutableStateOf(
+        restoredNodeIds(CALIBRATION_REQUESTED_KEY),
+    )
+
+    /**
+     * 当前知识点的冲突 KC 卡是否显示（K5）：有冲突证据，且学生还没处理过这张卡。
+     * 卡是解释 + 可选动作，不参与 [canContinue]/取题/作答的任何判据（不阻断）。
+     */
+    val showConflictCard: Boolean
+        get() {
+            val nodeId = currentEntry?.knowledgeNodeId ?: return false
+            return currentEntry?.isConflicted == true && nodeId !in conflictHandledNodeIds
+        }
+
+    /**
+     * 本次该知识点是否按"校准题"处理：学生点过「先做校准题」。
+     * 只改变选择的走廊（`AdaptiveTargetKind.CALIBRATION`），不推进队列、不改变作答口径。
+     */
+    val calibrationRequested: Boolean
+        get() = currentEntry?.knowledgeNodeId in calibrationRequestedNodeIds
+
+    /**
+     * 选择器返回的校准决策（批次 49 修复环）。null + [calibrationDecisionStatus] ==
+     * [KnowledgeCalibrationDecisionStatus.READY] 表示返回了 null（降级为普通复习）。
+     *
+     * 消灭的失败：app 层调 `selectKnowledgeReviewQuestion(CALIBRATION)` 后丢弃返回值，
+     * 屏幕只能笼统说「按校准题处理」——学生无法知道选择器是否真的给出校准题。
+     */
+    var calibrationDecision: KnowledgeCalibrationDecision? by mutableStateOf(
+        restoredCalibrationDecision(),
+    )
+        private set
+
+    var calibrationDecisionStatus: KnowledgeCalibrationDecisionStatus by mutableStateOf(
+        restoredCalibrationDecisionStatus(),
+    )
+        private set
+
+    /**
+     * 「先做校准题」的选择动作：记录意图 + 把选择器的真实结果带回会话状态。
+     *
+     * [select] 由 app 层注入（真实实现 = `selectKnowledgeReviewQuestion(CALIBRATION)`）；
+     * 返回 null / 抛异常都落到 [KnowledgeCalibrationDecisionStatus.FAILED]，不伪造
+     * ASK_CALIBRATION，也不因此阻断正常复习。结果持久化在 SavedStateHandle：重建后
+     * 仍是同一场会话的同一条决策。
+     */
+    fun requestCalibrationQuestion(
+        entry: KnowledgeReviewQueueEntry,
+        select: suspend (KnowledgeReviewQueueEntry) -> KnowledgeCalibrationDecision?,
+    ) {
+        if (entry.knowledgeNodeId != currentEntry?.knowledgeNodeId) return
+        calibrationDecision = null
+        calibrationDecisionStatus = KnowledgeCalibrationDecisionStatus.SELECTING
+        viewModelScope.launch {
+            try {
+                val decision = select(entry)
+                if (decision == null) {
+                    recordCalibrationFailure()
+                } else {
+                    calibrationDecision = decision
+                    calibrationDecisionStatus = KnowledgeCalibrationDecisionStatus.READY
+                    savedStateHandle[CALIBRATION_DECISION_KEY] = decision.serialized()
+                }
+            } catch (cancelled: CancellationException) {
+                calibrationDecisionStatus = KnowledgeCalibrationDecisionStatus.IDLE
+                throw cancelled
+            } catch (_: Exception) {
+                recordCalibrationFailure()
+            }
+        }
+    }
+
+    private fun recordCalibrationFailure() {
+        calibrationDecision = null
+        calibrationDecisionStatus = KnowledgeCalibrationDecisionStatus.FAILED
+        savedStateHandle[CALIBRATION_DECISION_KEY] = CALIBRATION_DECISION_FAILED
+    }
+
+    /**
+     * 「先做校准题」：记录本次节点的校准意图并收起卡。
+     *
+     * 不推进队列、不清题面——校准题就是这一次的题；屏幕上会显示"本次按校准题处理"，
+     * 让选择可见、可核对。非冲突节点调用是 no-op（卡本来就不该出现）。
+     */
+    fun startCalibration() {
+        val entry = currentEntry ?: return
+        if (!entry.isConflicted) return
+        markConflictHandled(entry.knowledgeNodeId)
+        calibrationRequestedNodeIds = calibrationRequestedNodeIds + entry.knowledgeNodeId
+        savedStateHandle[CALIBRATION_REQUESTED_KEY] =
+            ArrayList(calibrationRequestedNodeIds)
+    }
+
+    /** 「仍然复习」：收起卡，不写任何校准意图（默认语义 = 正常复习）。 */
+    fun dismissConflictCard() {
+        val entry = currentEntry ?: return
+        if (!entry.isConflicted) return
+        markConflictHandled(entry.knowledgeNodeId)
+    }
+
+    private fun markConflictHandled(knowledgeNodeId: String) {
+        conflictHandledNodeIds = conflictHandledNodeIds + knowledgeNodeId
+        savedStateHandle[CONFLICT_HANDLED_KEY] = ArrayList(conflictHandledNodeIds)
+    }
+
+    private fun restoredNodeIds(key: String): Set<String> =
+        savedStateHandle.get<ArrayList<String>>(key)?.toSet().orEmpty()
+
+    private fun restoredCalibrationDecision(): KnowledgeCalibrationDecision? {
+        val raw = savedStateHandle.get<String>(CALIBRATION_DECISION_KEY) ?: return null
+        if (raw == CALIBRATION_DECISION_FAILED) return null
+        return KnowledgeCalibrationDecision.parse(raw)
+    }
+
+    private fun restoredCalibrationDecisionStatus(): KnowledgeCalibrationDecisionStatus {
+        val raw = savedStateHandle.get<String>(CALIBRATION_DECISION_KEY)
+            ?: return KnowledgeCalibrationDecisionStatus.IDLE
+        return if (raw == CALIBRATION_DECISION_FAILED) {
+            KnowledgeCalibrationDecisionStatus.FAILED
+        } else {
+            KnowledgeCalibrationDecisionStatus.READY
+        }
+    }
+
+    private fun clearCalibrationDecision() {
+        calibrationDecision = null
+        calibrationDecisionStatus = KnowledgeCalibrationDecisionStatus.IDLE
+        savedStateHandle.remove<String>(CALIBRATION_DECISION_KEY)
+    }
 
     /** 末项已回写，或已前进至队尾（包括跳过末项）；跳过不伪造作答判决。 */
     val completed: Boolean
@@ -359,6 +498,7 @@ internal class KnowledgeReviewSessionViewModel(
         savedStateHandle.remove<String>(FEEDBACK_RESULT_KEY)
         updateLoadStatus(KnowledgeQuizLoadStatus.IDLE)
         updateSubmitStatus(KnowledgeQuizSubmitStatus.IDLE)
+        clearCalibrationDecision()
     }
 
     private fun isLastIndex(index: Int): Boolean = index == queueSize - 1
@@ -377,6 +517,12 @@ internal class KnowledgeReviewSessionViewModel(
                             displayName = values[2],
                             masteryScore = values[3].takeIf(String::isNotEmpty)?.toDouble(),
                             lastEvidenceAtEpochMillis = values[4].takeIf(String::isNotEmpty)?.toLong(),
+                            // 第 6 列 = 入选理由（逗号分隔的枚举名）。恢复它，冲突 KC 卡
+                            // 才能在同一次会话的进程重建后仍判断出"这个点有冲突证据"。
+                            reasons = values[5]
+                                .split(',')
+                                .filter(String::isNotEmpty)
+                                .mapTo(linkedSetOf()) { ReviewReason.valueOf(it) },
                         )
                     },
                 ).queue
@@ -395,6 +541,7 @@ internal class KnowledgeReviewSessionViewModel(
                 add(entry.displayName)
                 add(entry.masteryScore?.toString().orEmpty())
                 add(entry.lastEvidenceAtEpochMillis?.toString().orEmpty())
+                add(entry.reasons.joinToString(",") { it.name })
             }
         }
         return plan.queue.toList()
@@ -478,20 +625,128 @@ internal class KnowledgeReviewSessionViewModel(
 
     internal companion object {
         const val CURRENT_INDEX_KEY = "kq_current_index"
-        const val SESSION_QUEUE_KEY = "kq_session_queue_v1"
+        /**
+         * v2（批次 49 P2-14）：队列项多了"入选理由"一列（冲突 KC 卡的判据）。
+         * 不原地改 v1 的列数——旧进程留下的 5 列快照按 6 列切会错位，宁可不认它
+         * （回落到按当前计划重建队列），也不把理由错配到另一个节点上。
+         */
+        const val SESSION_QUEUE_KEY = "kq_session_queue_v2"
         const val SESSION_STARTED_AT_KEY = "kq_session_started_at"
         const val LOAD_STATUS_KEY = "kq_load_status"
         const val SELECTED_CHOICE_KEY = "kq_selected_choice"
         const val SUBMITTED_CHOICE_KEY = "kq_submitted_choice"
         const val SUBMIT_STATUS_KEY = "kq_submit_status"
         const val FEEDBACK_RESULT_KEY = "kq_feedback_result"
-        private const val QUEUE_ENTRY_FIELD_COUNT = 5
+        /** 已处理（点了任一动作）的冲突节点：重建后不重弹同一张卡。 */
+        const val CONFLICT_HANDLED_KEY = "kq_conflict_handled"
+        /** 学生显式选择"先做校准题"的节点：重建后仍是同一场会话的选择。 */
+        const val CALIBRATION_REQUESTED_KEY = "kq_calibration_requested"
+
+        /**
+         * 选择器校准决策（批次 49 修复环）。值为 [KnowledgeCalibrationDecision.serialized]
+         * 或 [CALIBRATION_DECISION_FAILED]；重建后仍显示同一条选择结果。
+         */
+        const val CALIBRATION_DECISION_KEY = "kq_calibration_decision"
+        private const val CALIBRATION_DECISION_FAILED = "FAILED"
+        private const val QUEUE_ENTRY_FIELD_COUNT = 6
         private val NODE_STATE_KEYS = listOf(
             LOAD_STATUS_KEY,
             SELECTED_CHOICE_KEY,
             SUBMITTED_CHOICE_KEY,
             SUBMIT_STATUS_KEY,
             FEEDBACK_RESULT_KEY,
+            CALIBRATION_DECISION_KEY,
         )
+    }
+}
+
+
+/**
+ * 「先做校准题」的选择结果（批次 49 修复环）。
+ *
+ * 消灭的失败：`SmartMistakeBookRoot` 调 `selectKnowledgeReviewQuestion(CALIBRATION)`
+ * 后把 `AdaptiveDecision` 丢弃，屏幕只能笼统显示「本次按校准题处理」。学生与验收都
+ * 无法知道选择器是否真的给出校准题面——按钮看起来生效、实际决策没人消费。
+ *
+ * 本类型把决策原样带回 feature 侧，由会话状态机持久化并显示：
+ * - `decisionKind == ASK_CALIBRATION` 且 [selectedAssessmentItemId] 非空 = 选择器给出了
+ *   校准题面（现有候选池里是本次会话已落库的那道题）；
+ * - 其余决策（CLARIFY/NO_SAFE/SKIP/ASK）= 选择器未给出校准题面，屏幕必须如实说明，
+ *   不能继续显示「按校准题处理」而不说结果。
+ *
+ * 刻意不带写入能力：确认/升级仍走既有单列 CAS，本对象只读。
+ */
+data class KnowledgeCalibrationDecision(
+    val decisionKind: AdaptiveDecisionKind,
+    val reasonCodes: Set<String>,
+    val selectedAssessmentItemId: String?,
+) {
+    /** 选择器是否真的选中了一道校准题面。 */
+    val isCalibrationQuestion: Boolean
+        get() = decisionKind == AdaptiveDecisionKind.ASK_CALIBRATION &&
+            !selectedAssessmentItemId.isNullOrBlank()
+
+    /** SavedStateHandle 持久化形态；reason code 是常量名，不含分隔符。 */
+    fun serialized(): String =
+        "${decisionKind.name}|${reasonCodes.sorted().joinToString(",")}|" +
+            selectedAssessmentItemId.orEmpty()
+
+    companion object {
+        fun parse(raw: String): KnowledgeCalibrationDecision? {
+            val parts = raw.split('|', limit = 3)
+            if (parts.size != 3) return null
+            val kind = runCatching { AdaptiveDecisionKind.valueOf(parts[0]) }.getOrNull()
+                ?: return null
+            val reasons = parts[1].split(',').filter(String::isNotEmpty).toSet()
+            return KnowledgeCalibrationDecision(
+                decisionKind = kind,
+                reasonCodes = reasons,
+                selectedAssessmentItemId = parts[2].takeIf(String::isNotEmpty),
+            )
+        }
+    }
+}
+
+/** 会话屏上「本次按校准题处理」一行的状态。 */
+internal enum class KnowledgeCalibrationDecisionStatus {
+    /** 卡还没点，或本节点没有校准请求。 */
+    IDLE,
+
+    /** 已点「先做校准题」，选择器调用进行中。 */
+    SELECTING,
+
+    /** 选择器返回了决策（是否给出校准题面由 [KnowledgeCalibrationDecision] 决定）。 */
+    READY,
+
+    /** 选择器调用失败/返回 null：本次仍按正常复习记录。 */
+    FAILED,
+}
+
+/**
+ * 校准状态文案（纯函数，JVM 可测）。
+ *
+ * 文案是**行为承诺**：READY 且未选中时明确说「未给出校准题」，避免把「按校准题处理」
+ * 读成「多了一道校准题」；这正是不再写「校准题只多问一道」的原因。
+ */
+internal fun knowledgeCalibrationStatusText(
+    status: KnowledgeCalibrationDecisionStatus,
+    decision: KnowledgeCalibrationDecision?,
+): String = when (status) {
+    KnowledgeCalibrationDecisionStatus.IDLE ->
+        "本次按校准题处理：作答仍计入这个知识点的掌握度。"
+    KnowledgeCalibrationDecisionStatus.SELECTING ->
+        "本次按校准题处理：正在按校准走廊选择…"
+    KnowledgeCalibrationDecisionStatus.FAILED ->
+        "本次按校准题处理；校准选择没有完成，本次仍按正常复习记录。"
+    KnowledgeCalibrationDecisionStatus.READY -> when {
+        decision == null ->
+            "本次按校准题处理；没有拿到校准决策，本次仍按正常复习记录。"
+        decision.isCalibrationQuestion ->
+            "本次按校准题处理：选择器已选中校准题面（${decision.selectedAssessmentItemId}）。" +
+                "作答仍计入这个知识点的掌握度。"
+        else ->
+            "本次按校准题处理；选择器未给出校准题" +
+                "（${decision.reasonCodes.sorted().joinToString("、").ifEmpty { "无原因码" }}），" +
+                "本次仍按正常复习记录。"
     }
 }

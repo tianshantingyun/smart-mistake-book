@@ -1,0 +1,51 @@
+{
+  "input_file": "BLD-DEHANDWR-008.json",
+  "program_sha256": "df5b1c9e9a3b01fac4b1bc0d9e3ec4847fe35014221b916ab7b28799b64f57c7",
+  "task_id": "BLD-DEHANDWR-008",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 157,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "解：设未知数为 x",
+      "widthDu": 124,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a4968c7ef7330c147672cd63cee5810b40726c0436985d14e6d131c262d7bfbb"
+    },
+    {
+      "contentId": "c1",
+      "payload": "由题意列方程",
+      "widthDu": 96,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b9563210a63847e8c2b5ae0c7a5a7687178c83d7641f0c88803b7e096236e21a"
+    },
+    {
+      "contentId": "c2",
+      "payload": "移项得",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3868d2aea230f259a5403c364f8fdff6cb2561cb74e76f9189b8c64f764f6f6c"
+    },
+    {
+      "contentId": "c3",
+      "payload": "（原图中学生手写作答已擦除）",
+      "widthDu": 224,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4f3a055e976263488aeb9a6123bb2b83558f01ca8070fdcf19b4480e4e534bdd"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

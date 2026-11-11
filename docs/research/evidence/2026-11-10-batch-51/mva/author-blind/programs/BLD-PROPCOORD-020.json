@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-PROPCOORD-020",
+    "program_id": "mva-BLD-PROPCOORD-020",
+    "source_js": "const visual = { prepare: function (input) { return [{ kind: 'text', payload: '比例尺 1:10000' }, { kind: 'text', payload: '图上距离 7 厘米' }, { kind: 'text', payload: '实际距离 70000 厘米' }, { kind: 'text', payload: '0' }, { kind: 'text', payload: '7 厘米' }]; }, render: function (input, metrics) { var W = input.viewport.widthDu; var H = input.viewport.heightDu; var left = W * 0.12; var right = W * 0.88; var y = H * 0.52; var n = 7; var seg = (right - left) / n; var fs = Math.max(13, Math.min(22, W * 0.034)); var small = Math.max(11, Math.min(18, W * 0.026)); var paths = []; var children = []; paths.push({ id: 'baseline', commands: visualSdk.polyline([[left, y], [right, y]]) }); children.push({ type: 'path', pathId: 'baseline', stroke: '#26354a', strokeWidth: 2 }); for (var i = 0; i <= n; i++) { var x = left + i * seg; var h = (i === 0 || i === n) ? H * 0.055 : H * 0.03; var id = 'tick' + i; paths.push({ id: id, commands: visualSdk.polyline([[x, y - h], [x, y + h]]) }); children.push({ type: 'path', pathId: id, stroke: '#26354a', strokeWidth: (i === 0 || i === n) ? 2 : 1.5 }); } children.push({ type: 'label', text: '比例尺 1:10000', x: W / 2, y: H * 0.16, fontSize: fs, anchor: 'middle', fill: '#26354a' }); children.push({ type: 'label', text: '0', x: left, y: y + H * 0.10, fontSize: small, anchor: 'middle', fill: '#26354a' }); children.push({ type: 'label', text: '7 厘米', x: right, y: y + H * 0.10, fontSize: small, anchor: 'middle', fill: '#26354a' }); children.push({ type: 'label', text: '图上距离 7 厘米', x: W / 2, y: y + H * 0.20, fontSize: fs, anchor: 'middle', fill: '#26354a' }); children.push({ type: 'label', text: '实际距离 70000 厘米', x: W / 2, y: y + H * 0.31, fontSize: fs, anchor: 'middle', fill: '#26354a' }); return { schemaVersion: 1, sceneId: 'scale-line-1-10000', revision: input.revision, viewBox: { x: 0, y: 0, width: W, height: H }, paths: paths, root: { type: 'group', children: children } }; } };",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

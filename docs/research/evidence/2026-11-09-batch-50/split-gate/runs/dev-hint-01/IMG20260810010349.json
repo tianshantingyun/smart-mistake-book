@@ -1,0 +1,53 @@
+{
+    "file": "IMG20260810010349.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 36890,
+    "responseHead": "{\"id\":\"d1e92777-8b28-45f1-b988-7e555a55fdbe\",\"object\":\"chat.completion\",\"created\":1794127972,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":0.8},\\\"message\\\":\\\"画面含15—18共4道独立题，需先分割\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.85,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":0.12},\\\"message\\\":\\\"15题右侧题干被边缘裁切，缺少α、β范围\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.88,\\\"top\\\":0.31,\\\"right\\\":1.0,\\\"bottom\\\":0.39},\\\"message\\\":\\\"16题D选项右侧被边缘裁切，内容不完整\\\"}],\\\"suggestedActions\\\":[\\\"RECAPTURE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.08,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":0.16},{\\\"left\\\":0.08,\\\"top\\\":0.18,\\\"right\\\":1.0,\\\"bottom\\\":0.405},{\\\"left\\\":0.08,\\\"top\\\":0.43,\\\"right\\\":1.0,\\\"bottom\\\":0.645},{\\\"left\\\":0.08,\\\"top\\\":0.66,\\\"right\\\":1.0,\\\"bottom\\\":0.80}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足够完整转写一道或多道独立题。图片包含多道题：顶部15.（残缺？）有题号15，内容部分被截断上边，但有15题的主体和答案手写；16题完整；17题完整（有选项A-D？D被截断右边缘？）；18题完整。画面中明显有2-12道互相独立的题：15、16、17、18，共4道。需要返回SPLIT，MULTIPLE_QUESTIONS BLOCKING，questionRegions按阅读顺序给每道题完整外接区域。还要检查其他问题：顶部15题可能上边缘被裁剪？题号15上面有点内容？图片顶部有部分手写和括号，题号15在y约0.01，题干“15.(2022·浙江)若...”完整可见？右边缘有部分截断？15题右侧手写答案到“cos2β=”完整，右边缘有部分符号可能被截。16题右侧选项D被截断！D. 后面内容只显示“2”和分数线？看图片：16题选项D在右边缘，仅显示“D.”和部分数字？右侧被裁切，可能D选项不完整。这属于MISSING_OPTIONS? 或者OCCLUDED? 图片右边缘裁切导致D选项不完整。17题D选项也被右边缘截断（D. 3? 看起来D.3可能完整？右边缘切断？D. 3 后面有斜线？）。18题完整。需要决定是直接SPLIT还是RECAPTURE? ",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "KEY_TEXT_UNREADABLE",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.08,
+            "top": 0.0,
+            "right": 1.0,
+            "bottom": 0.16
+        },
+        {
+            "left": 0.08,
+            "top": 0.18,
+            "right": 1.0,
+            "bottom": 0.405
+        },
+        {
+            "left": 0.08,
+            "top": 0.43,
+            "right": 1.0,
+            "bottom": 0.645
+        },
+        {
+            "left": 0.08,
+            "top": 0.66,
+            "right": 1.0,
+            "bottom": 0.8
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 4,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–0.864；单栏；行距约 15px；段落分隔（共 19 处，已截断到 8 条）：y=0.436（谷宽27px，栏1）；y=0.791（谷宽25px，栏1）；y=0.856（谷宽25px，栏1）；y=0.258（谷宽21px，栏1）；y=0.325（谷宽19px，栏1）；y=0.509（谷宽18px，栏1）；y=0.282（谷宽17px，栏1）；y=0.140（谷宽15px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 266,
+    "image": {
+        "egressBytes": 420535,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "a3be9cfb447428d5893b5ad229188ceee97f50ef467432643f48d4cf21e31d7a",
+    "promptSha256": "9c90196965830c29349a19b1b9e0edb1c6a8ff694c85f393fc4ea0e0e21ffeef"
+}

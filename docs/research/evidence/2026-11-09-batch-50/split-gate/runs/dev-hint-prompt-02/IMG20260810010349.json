@@ -1,0 +1,52 @@
+{
+    "file": "IMG20260810010349.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 83226,
+    "responseHead": "\n{\"id\":\"5ca858c0-8f1c-44bc-813d-72de5959b770\",\"object\":\"chat.completion\",\"created\":1794128754,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.1,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":0.85},\\\"message\\\":\\\"页面含第15至18题，共4道独立题，需拆分。\\\"},{\\\"code\\\":\\\"KEY_TEXT_UNREADABLE\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.7,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":0.13},\\\"message\\\":\\\"第15题右侧关键条件被裁切，α、β范围不完整。\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\",\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.1,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":0.13},{\\\"left\\\":0.14,\\\"top\\\":0.19,\\\"right\\\":1.0,\\\"bottom\\\":0.46},{\\\"left\\\":0.14,\\\"top\\\":0.47,\\\"right\\\":1.0,\\\"bottom\\\":0.71},{\\\"left\\\":0.1,\\\"top\\\":0.72,\\\"right\\\":1.0,\\\"bottom\\\":0.84}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答用户要求：判断图片是否足以完整转写一道或多道独立题，返回JSON。需要分析图片内容并按照规则。必须只返回JSON对象，仅五个键：decision, issues, suggestedActions, questionRegions, followingPageRelations。需要判断是否有2到12道互相独立的题。图片中可见题号15、16、17、18，其中15部分在顶部被裁切？图片顶部显示“15. (2022·浙江)若3sin α - sin β = √10, α...”，左侧有被裁掉的括号和“则”之类。16完整题干和选项A-D但D选项右边缘被裁切？17题干及选项，D选项被裁切？18题干完整但右侧答案手写；题号18被红圈。图片包含多道独立题（15,16,17,18），至少4道。根据规则：若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按页面阅读顺序给出每道题的完整外接区域，包含题干、选项、图形和作答区，区域之间不得大面积重叠。其他decision必须空。题目跨页不算多题，内容未拍全时返回NEED_MORE_IMAGE。页面边缘被裁切但可见题干与选项完整时不算未拍全；只有题目本身缺少题干、关键条件或选项时才返回NEED_MORE_IMAGE。这里图片包含多道独立题，必须SPLIT。尽管顶部15被裁切（题号15顶部部分文字和开头可能不全？题干可见“15.(2022·浙江)若3sin α - sin β = √10, α...”然后下一",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "KEY_TEXT_UNREADABLE"
+    ],
+    "regions": [
+        {
+            "left": 0.1,
+            "top": 0.0,
+            "right": 1.0,
+            "bottom": 0.13
+        },
+        {
+            "left": 0.14,
+            "top": 0.19,
+            "right": 1.0,
+            "bottom": 0.46
+        },
+        {
+            "left": 0.14,
+            "top": 0.47,
+            "right": 1.0,
+            "bottom": 0.71
+        },
+        {
+            "left": 0.1,
+            "top": 0.72,
+            "right": 1.0,
+            "bottom": 0.84
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 4,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–0.864；单栏；行距约 15px；段落分隔（共 19 处，已截断到 8 条）：y=0.436（谷宽27px，栏1）；y=0.791（谷宽25px，栏1）；y=0.856（谷宽25px，栏1）；y=0.258（谷宽21px，栏1）；y=0.325（谷宽19px，栏1）；y=0.509（谷宽18px，栏1）；y=0.282（谷宽17px，栏1）；y=0.140（谷宽15px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 266,
+    "image": {
+        "egressBytes": 420535,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "c4024bc1ca098fdca06b20793567b8826a3f77f376c7d94f83713282956ed4bb",
+    "promptSha256": "b722ba9b7e3c4b5ae6c2063cbe40d1186f3b989a072265bccd4a9e4a63d0da6d"
+}

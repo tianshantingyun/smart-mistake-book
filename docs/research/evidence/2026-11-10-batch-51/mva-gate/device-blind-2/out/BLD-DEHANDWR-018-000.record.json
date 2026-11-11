@@ -1,0 +1,71 @@
+{
+  "input_file": "BLD-DEHANDWR-018.json",
+  "program_sha256": "bfcefbc869d5955cb501249f30a6ca5685eb513ec5a0a7e0ebda49a2858a85af",
+  "task_id": "BLD-DEHANDWR-018",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 171,
+  "measurement": [
+    {
+      "contentId": "c0-2789601e",
+      "payload": "语义清图 · 非原像素修复",
+      "widthDu": 172.36363220214844,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2789601e0c463335395828b7c3de8128ffcf7808ef675409b0c23d850ec05ff3"
+    },
+    {
+      "contentId": "c1-451d3ea2",
+      "payload": "选择题　第1题",
+      "widthDu": 105.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "451d3ea2397868e599fc78065b7114ec4ea8f6368f7619ec5aeeaa6c5dd76011"
+    },
+    {
+      "contentId": "c2-9fc40b67",
+      "payload": "选择题　第2题",
+      "widthDu": 105.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9fc40b67d1c7b37477946f6e787948874e4600e1b16a279395f40d04c7caeb6b"
+    },
+    {
+      "contentId": "c3-36add322",
+      "payload": "填空题　第3题",
+      "widthDu": 105.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "36add322435ba1ff6e9a744232349d9ba1d31039028108972f2bbd1d9fb59662"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "11ec437da03ef16683c7c25c08f6f961fcfea1efc05023ecf6cdbf376028f771",
+  "scene_bytes": 1822,
+  "scene_schema_version": 1,
+  "draw_sha256": "37170ddd574d753f149e7a364294673deef5ccd29c069cc9276e665d4f0664cd",
+  "draw_bytes": 2108,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-2789601e",
+    "c1-451d3ea2",
+    "c2-9fc40b67",
+    "c3-36add322"
+  ],
+  "png_sha256": "93d86906659d568bd7f2a050626878a133b3963c3659a1869338dd6f6bb3ce97",
+  "png_bytes": 6963,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 12,
+    "pathCommands": 17,
+    "labels": 4,
+    "ops": 11
+  }
+}

@@ -6,6 +6,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/** B35 臂2：主包 codec 入口改流式（b34 §1.4）；测试字符串经此包一层字节流。 */
+/** 主包/侧车 codec 当前为字符串入口；测试直接传字符串（流式入口未落地，见 codec 注释）。 */
+private fun decodeSidecar(raw: String, pack: KnowledgeBasePack): ReviewedTeachingMaterialSidecar =
+    ReviewedTeachingMaterialSidecarJsonCodec.decode(raw, pack)
+
+private fun decodePack(raw: String): KnowledgeBasePack =
+    ReviewedKnowledgePackJsonCodec.decode(raw)
+
 /**
  * F8·③ 材料侧 AI/provenance 字段：侧车 schema 4 的**必填**三键。
  *
@@ -178,7 +186,7 @@ class ReviewedTeachingMaterialSidecarProvenanceTest {
         schemaVersion: Int,
         provenance: String = "",
         bindings: String = plainBinding,
-    ): ReviewedTeachingMaterialSidecar = ReviewedTeachingMaterialSidecarJsonCodec.decode(
+    ): ReviewedTeachingMaterialSidecar = decodeSidecar(
         sidecarJson(schemaVersion, provenance, bindings),
         targetPack(),
     )
@@ -195,7 +203,7 @@ class ReviewedTeachingMaterialSidecarProvenanceTest {
         """"contentId":"$contentId","""
 
     private fun targetPack(): KnowledgeBasePack =
-        ReviewedKnowledgePackJsonCodec.decode(
+        decodePack(
             requireNotNull(
                 requireNotNull(
                     ReviewedTeachingMaterialSidecarProvenanceTest::class.java.classLoader,

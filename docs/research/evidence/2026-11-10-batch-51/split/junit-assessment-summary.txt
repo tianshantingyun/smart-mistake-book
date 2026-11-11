@@ -1,0 +1,10 @@
+OpenAiCaptureAssessmentAdapterTest tests=9 failures=0 errors=0 skipped=0
+- page relation prompt forbids splitting and keeps the relation rules
+- top level type key still rejects the whole response
+- single page prompt states the six split rules and region bounds
+- prompt omits the user hint section when no hint is given
+- prompt injects the user hint as a scope-bound instruction
+- prompt keeps hint text inside quotation isolation
+- single page prompt pins the five assessment wire keys and forbids type
+- single page prompt ships a shape example
+- page relation response keeps page wide question regions parseable

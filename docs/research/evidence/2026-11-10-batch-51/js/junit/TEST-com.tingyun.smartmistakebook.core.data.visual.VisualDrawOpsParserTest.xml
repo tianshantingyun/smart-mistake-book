@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" tests="26" skipped="0" failures="0" errors="0" timestamp="2026-11-09T23:04:20.204Z" hostname="TIANSHAN" time="0.047">
+  <properties/>
+  <testcase name="a malformed text still reports not json rather than a duplicate key" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.001"/>
+  <testcase name="serializing a document whose stats disagree with its ops is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.008"/>
+  <testcase name="serializing a stroke only path is rejected by the same generation gate" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.0"/>
+  <testcase name="a duplicate object key is rejected with its own code" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.001"/>
+  <testcase name="a string where a number belongs is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.0"/>
+  <testcase name="a rendered without draw commands is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.0"/>
+  <testcase name="the pinned kotlinx json tree parser silently keeps the last duplicate key" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.0"/>
+  <testcase name="a rendered parses without a viewport because the engine gate already checked it" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.002"/>
+  <testcase name="a missing stroke field is rejected instead of defaulting it" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.001"/>
+  <testcase name="a missing hit region field is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.0"/>
+  <testcase name="a wrongly shaped field is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.0"/>
+  <testcase name="a rendered shell version mismatch is rejected before parsing" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.001"/>
+  <testcase name="a wrong schema version is rejected with its own code" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.0"/>
+  <testcase name="every serialized document is parseable by the same parser" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.002"/>
+  <testcase name="path commands with the exact arity are still accepted" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.001"/>
+  <testcase name="serializing an odd dash is rejected by the same generation gate" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.0"/>
+  <testcase name="a missing op field is rejected instead of defaulting it" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.0"/>
+  <testcase name="unknown fields and unknown ops keep their codes" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.001"/>
+  <testcase name="a missing root field is rejected with the missing field code" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.0"/>
+  <testcase name="a rendered label outside the frozen ids is still rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.001"/>
+  <testcase name="serializing a non finite number is a bounded rejection, not an exception" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.0"/>
+  <testcase name="a compiler shaped text round trips through the typed document" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.001"/>
+  <testcase name="a duplicate key inside a string value is not a duplicate" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.0"/>
+  <testcase name="oversized arrays are rejected under their own budget codes" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.014"/>
+  <testcase name="a path command with extra or missing components is rejected" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.008"/>
+  <testcase name="draw ops survive a json round trip with every number bit for bit" classname="com.tingyun.smartmistakebook.core.data.visual.VisualDrawOpsParserTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

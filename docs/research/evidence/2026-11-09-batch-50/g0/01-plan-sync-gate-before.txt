@@ -1,0 +1,14 @@
+# 修复前（本会话首跑，未改任何文件）
+
+命令与输出（2026-11-08，工作树为批次 50 开工时的既有脏状态）：
+
+```text
+$ python -I tools/ci/check_backup_plan_sync.py
+ERROR 无法建立可比事实：设计件必须恰有一个 6c2-plan-v3 机器块，实际 0
+EXIT=2
+```
+
+说明：这条输出是本会话**修复前**的真实首跑，已随修复消失，不能再用当前树复现；
+修复后的同一命令输出见 `01-plan-sync-gate-after.txt`（`GATE_EXIT=0`）。
+`pytest tools/tests/test_backup_plan_sync.py` 修复前为 **6 failed, 2 passed**
+（另见 `docs/research/2026-11-09-batch-50-baseline.md` §2.4 的同读数）。

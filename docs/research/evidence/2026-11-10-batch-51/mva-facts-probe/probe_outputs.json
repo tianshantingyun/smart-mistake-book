@@ -1,0 +1,1722 @@
+{
+  "generated_by": "probe_compile.mjs",
+  "compiler": "core/data/src/main/resources/visual/visual-compiler.js",
+  "expect": {
+    "sceneRevision": 1,
+    "viewport": {
+      "widthDu": 360,
+      "heightDu": 240
+    }
+  },
+  "cases": [
+    {
+      "name": "ratio-1to1-correct",
+      "note": "两段各 90 du；标签 \"1:1\"",
+      "scene": {
+        "schemaVersion": 1,
+        "sceneId": "probe-ratio-1to1",
+        "revision": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "width": 360,
+          "height": 240
+        },
+        "paths": [
+          {
+            "id": "bar",
+            "commands": [
+              [
+                "M",
+                40,
+                120
+              ],
+              [
+                "L",
+                130,
+                120
+              ],
+              [
+                "M",
+                130,
+                120
+              ],
+              [
+                "L",
+                220,
+                120
+              ]
+            ]
+          }
+        ],
+        "root": {
+          "type": "group",
+          "children": [
+            {
+              "type": "path",
+              "id": "bar-segments",
+              "pathId": "bar",
+              "fill": "#333333",
+              "stroke": {
+                "width": 4,
+                "cap": "butt",
+                "join": "miter",
+                "miterLimit": 4,
+                "dash": null
+              }
+            },
+            {
+              "type": "label",
+              "id": "ratio-label",
+              "contentId": "c-ratio",
+              "anchor": {
+                "x": 130,
+                "y": 138
+              },
+              "hAlign": "center",
+              "vAlign": "top",
+              "color": "#333333"
+            }
+          ]
+        }
+      },
+      "metrics": [
+        {
+          "contentId": "c-ratio",
+          "widthDu": 24,
+          "heightDu": 14,
+          "baselineDu": 11,
+          "fontSizeSp": 14,
+          "digest": "probe:c-ratio"
+        }
+      ],
+      "contents": {
+        "c-ratio": "1:1"
+      },
+      "drawOps": {
+        "drawSchemaVersion": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 240
+        },
+        "background": null,
+        "ops": [
+          {
+            "op": "path",
+            "path": [
+              [
+                "M",
+                40,
+                120
+              ],
+              [
+                "L",
+                130,
+                120
+              ],
+              [
+                "M",
+                130,
+                120
+              ],
+              [
+                "L",
+                220,
+                120
+              ]
+            ],
+            "fill": "#333333",
+            "stroke": {
+              "width": 4,
+              "cap": "butt",
+              "join": "miter",
+              "miterLimit": 4,
+              "dash": null
+            },
+            "alpha": 1
+          },
+          {
+            "op": "label",
+            "contentId": "c-ratio",
+            "x": 118,
+            "y": 149,
+            "rotationDeg": 0,
+            "hAlign": "center",
+            "vAlign": "top",
+            "color": "#333333",
+            "alpha": 1
+          }
+        ],
+        "hitRegions": [],
+        "stats": {
+          "nodes": 3,
+          "pathCommands": 4,
+          "labels": 1,
+          "ops": 2
+        }
+      }
+    },
+    {
+      "name": "ratio-2to3-correct",
+      "note": "两段 40/60 du；标签 \"2:3\"",
+      "scene": {
+        "schemaVersion": 1,
+        "sceneId": "probe-ratio-2to3",
+        "revision": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "width": 360,
+          "height": 240
+        },
+        "paths": [
+          {
+            "id": "bar",
+            "commands": [
+              [
+                "M",
+                40,
+                120
+              ],
+              [
+                "L",
+                80,
+                120
+              ],
+              [
+                "M",
+                80,
+                120
+              ],
+              [
+                "L",
+                140,
+                120
+              ]
+            ]
+          }
+        ],
+        "root": {
+          "type": "group",
+          "children": [
+            {
+              "type": "path",
+              "id": "bar-segments",
+              "pathId": "bar",
+              "fill": "#333333",
+              "stroke": {
+                "width": 4,
+                "cap": "butt",
+                "join": "miter",
+                "miterLimit": 4,
+                "dash": null
+              }
+            },
+            {
+              "type": "label",
+              "id": "ratio-label",
+              "contentId": "c-ratio",
+              "anchor": {
+                "x": 90,
+                "y": 138
+              },
+              "hAlign": "center",
+              "vAlign": "top",
+              "color": "#333333"
+            }
+          ]
+        }
+      },
+      "metrics": [
+        {
+          "contentId": "c-ratio",
+          "widthDu": 24,
+          "heightDu": 14,
+          "baselineDu": 11,
+          "fontSizeSp": 14,
+          "digest": "probe:c-ratio"
+        }
+      ],
+      "contents": {
+        "c-ratio": "2:3"
+      },
+      "drawOps": {
+        "drawSchemaVersion": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 240
+        },
+        "background": null,
+        "ops": [
+          {
+            "op": "path",
+            "path": [
+              [
+                "M",
+                40,
+                120
+              ],
+              [
+                "L",
+                80,
+                120
+              ],
+              [
+                "M",
+                80,
+                120
+              ],
+              [
+                "L",
+                140,
+                120
+              ]
+            ],
+            "fill": "#333333",
+            "stroke": {
+              "width": 4,
+              "cap": "butt",
+              "join": "miter",
+              "miterLimit": 4,
+              "dash": null
+            },
+            "alpha": 1
+          },
+          {
+            "op": "label",
+            "contentId": "c-ratio",
+            "x": 78,
+            "y": 149,
+            "rotationDeg": 0,
+            "hAlign": "center",
+            "vAlign": "top",
+            "color": "#333333",
+            "alpha": 1
+          }
+        ],
+        "hitRegions": [],
+        "stats": {
+          "nodes": 3,
+          "pathCommands": 4,
+          "labels": 1,
+          "ops": 2
+        }
+      }
+    },
+    {
+      "name": "ratio-label-mismatch",
+      "note": "两段各 90 du（几何正确）；标签写成 \"3:1\"",
+      "scene": {
+        "schemaVersion": 1,
+        "sceneId": "probe-ratio-labelbad",
+        "revision": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "width": 360,
+          "height": 240
+        },
+        "paths": [
+          {
+            "id": "bar",
+            "commands": [
+              [
+                "M",
+                40,
+                120
+              ],
+              [
+                "L",
+                130,
+                120
+              ],
+              [
+                "M",
+                130,
+                120
+              ],
+              [
+                "L",
+                220,
+                120
+              ]
+            ]
+          }
+        ],
+        "root": {
+          "type": "group",
+          "children": [
+            {
+              "type": "path",
+              "id": "bar-segments",
+              "pathId": "bar",
+              "fill": "#333333",
+              "stroke": {
+                "width": 4,
+                "cap": "butt",
+                "join": "miter",
+                "miterLimit": 4,
+                "dash": null
+              }
+            },
+            {
+              "type": "label",
+              "id": "ratio-label",
+              "contentId": "c-ratio",
+              "anchor": {
+                "x": 130,
+                "y": 138
+              },
+              "hAlign": "center",
+              "vAlign": "top",
+              "color": "#333333"
+            }
+          ]
+        }
+      },
+      "metrics": [
+        {
+          "contentId": "c-ratio",
+          "widthDu": 24,
+          "heightDu": 14,
+          "baselineDu": 11,
+          "fontSizeSp": 14,
+          "digest": "probe:c-ratio"
+        }
+      ],
+      "contents": {
+        "c-ratio": "3:1"
+      },
+      "drawOps": {
+        "drawSchemaVersion": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 240
+        },
+        "background": null,
+        "ops": [
+          {
+            "op": "path",
+            "path": [
+              [
+                "M",
+                40,
+                120
+              ],
+              [
+                "L",
+                130,
+                120
+              ],
+              [
+                "M",
+                130,
+                120
+              ],
+              [
+                "L",
+                220,
+                120
+              ]
+            ],
+            "fill": "#333333",
+            "stroke": {
+              "width": 4,
+              "cap": "butt",
+              "join": "miter",
+              "miterLimit": 4,
+              "dash": null
+            },
+            "alpha": 1
+          },
+          {
+            "op": "label",
+            "contentId": "c-ratio",
+            "x": 118,
+            "y": 149,
+            "rotationDeg": 0,
+            "hAlign": "center",
+            "vAlign": "top",
+            "color": "#333333",
+            "alpha": 1
+          }
+        ],
+        "hitRegions": [],
+        "stats": {
+          "nodes": 3,
+          "pathCommands": 4,
+          "labels": 1,
+          "ops": 2
+        }
+      }
+    },
+    {
+      "name": "ratio-1to1-rotated",
+      "note": "两段各 90 du，但经 matrix [0,1,-1,0,180,120] 旋转成竖直",
+      "scene": {
+        "schemaVersion": 1,
+        "sceneId": "probe-ratio-rotated",
+        "revision": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "width": 360,
+          "height": 240
+        },
+        "paths": [
+          {
+            "id": "bar",
+            "commands": [
+              [
+                "M",
+                -90,
+                0
+              ],
+              [
+                "L",
+                0,
+                0
+              ],
+              [
+                "M",
+                0,
+                0
+              ],
+              [
+                "L",
+                90,
+                0
+              ]
+            ]
+          }
+        ],
+        "root": {
+          "type": "group",
+          "children": [
+            {
+              "type": "group",
+              "id": "rot-90",
+              "matrix": [
+                0,
+                1,
+                -1,
+                0,
+                180,
+                120
+              ],
+              "children": [
+                {
+                  "type": "path",
+                  "id": "bar-rotated",
+                  "pathId": "bar",
+                  "fill": "#333333",
+                  "stroke": {
+                    "width": 4,
+                    "cap": "butt",
+                    "join": "miter",
+                    "miterLimit": 4,
+                    "dash": null
+                  }
+                }
+              ]
+            },
+            {
+              "type": "label",
+              "id": "ratio-label",
+              "contentId": "c-ratio",
+              "anchor": {
+                "x": 200,
+                "y": 120
+              },
+              "hAlign": "left",
+              "vAlign": "middle",
+              "color": "#333333"
+            }
+          ]
+        }
+      },
+      "metrics": [
+        {
+          "contentId": "c-ratio",
+          "widthDu": 24,
+          "heightDu": 14,
+          "baselineDu": 11,
+          "fontSizeSp": 14,
+          "digest": "probe:c-ratio"
+        }
+      ],
+      "contents": {
+        "c-ratio": "1:1"
+      },
+      "drawOps": {
+        "drawSchemaVersion": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 240
+        },
+        "background": null,
+        "ops": [
+          {
+            "op": "save"
+          },
+          {
+            "op": "concat",
+            "m": [
+              0,
+              1,
+              -1,
+              0,
+              180,
+              120
+            ]
+          },
+          {
+            "op": "path",
+            "path": [
+              [
+                "M",
+                -90,
+                0
+              ],
+              [
+                "L",
+                0,
+                0
+              ],
+              [
+                "M",
+                0,
+                0
+              ],
+              [
+                "L",
+                90,
+                0
+              ]
+            ],
+            "fill": "#333333",
+            "stroke": {
+              "width": 4,
+              "cap": "butt",
+              "join": "miter",
+              "miterLimit": 4,
+              "dash": null
+            },
+            "alpha": 1
+          },
+          {
+            "op": "restore"
+          },
+          {
+            "op": "label",
+            "contentId": "c-ratio",
+            "x": 200,
+            "y": 124,
+            "rotationDeg": 0,
+            "hAlign": "left",
+            "vAlign": "middle",
+            "color": "#333333",
+            "alpha": 1
+          }
+        ],
+        "hitRegions": [],
+        "stats": {
+          "nodes": 4,
+          "pathCommands": 4,
+          "labels": 1,
+          "ops": 5
+        }
+      }
+    },
+    {
+      "name": "flow-order-correct",
+      "note": "卡片自上而下即正确顺序；矩形经 concat 平移",
+      "scene": {
+        "schemaVersion": 1,
+        "sceneId": "probe-flow-ok",
+        "revision": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "width": 360,
+          "height": 240
+        },
+        "paths": [
+          {
+            "id": "card",
+            "commands": [
+              [
+                "M",
+                60,
+                0
+              ],
+              [
+                "L",
+                300,
+                0
+              ],
+              [
+                "L",
+                300,
+                50
+              ],
+              [
+                "L",
+                60,
+                50
+              ],
+              [
+                "Z"
+              ]
+            ]
+          }
+        ],
+        "root": {
+          "type": "group",
+          "children": [
+            {
+              "type": "group",
+              "id": "card-group-0",
+              "matrix": [
+                1,
+                0,
+                0,
+                1,
+                0,
+                20
+              ],
+              "children": [
+                {
+                  "type": "path",
+                  "id": "card-0",
+                  "pathId": "card",
+                  "fill": "#eef2f7",
+                  "stroke": {
+                    "width": 1,
+                    "cap": "butt",
+                    "join": "miter",
+                    "miterLimit": 4,
+                    "dash": null
+                  }
+                }
+              ]
+            },
+            {
+              "type": "label",
+              "id": "step-label-0",
+              "contentId": "c-step-0",
+              "anchor": {
+                "x": 180,
+                "y": 45
+              },
+              "hAlign": "center",
+              "vAlign": "middle",
+              "color": "#1f2933"
+            },
+            {
+              "type": "group",
+              "id": "card-group-1",
+              "matrix": [
+                1,
+                0,
+                0,
+                1,
+                0,
+                90
+              ],
+              "children": [
+                {
+                  "type": "path",
+                  "id": "card-1",
+                  "pathId": "card",
+                  "fill": "#eef2f7",
+                  "stroke": {
+                    "width": 1,
+                    "cap": "butt",
+                    "join": "miter",
+                    "miterLimit": 4,
+                    "dash": null
+                  }
+                }
+              ]
+            },
+            {
+              "type": "label",
+              "id": "step-label-1",
+              "contentId": "c-step-1",
+              "anchor": {
+                "x": 180,
+                "y": 115
+              },
+              "hAlign": "center",
+              "vAlign": "middle",
+              "color": "#1f2933"
+            },
+            {
+              "type": "group",
+              "id": "card-group-2",
+              "matrix": [
+                1,
+                0,
+                0,
+                1,
+                0,
+                160
+              ],
+              "children": [
+                {
+                  "type": "path",
+                  "id": "card-2",
+                  "pathId": "card",
+                  "fill": "#eef2f7",
+                  "stroke": {
+                    "width": 1,
+                    "cap": "butt",
+                    "join": "miter",
+                    "miterLimit": 4,
+                    "dash": null
+                  }
+                }
+              ]
+            },
+            {
+              "type": "label",
+              "id": "step-label-2",
+              "contentId": "c-step-2",
+              "anchor": {
+                "x": 180,
+                "y": 185
+              },
+              "hAlign": "center",
+              "vAlign": "middle",
+              "color": "#1f2933"
+            }
+          ]
+        }
+      },
+      "metrics": [
+        {
+          "contentId": "c-step-0",
+          "widthDu": 28,
+          "heightDu": 14,
+          "baselineDu": 11,
+          "fontSizeSp": 14,
+          "digest": "probe:c-step-0"
+        },
+        {
+          "contentId": "c-step-1",
+          "widthDu": 84,
+          "heightDu": 14,
+          "baselineDu": 11,
+          "fontSizeSp": 14,
+          "digest": "probe:c-step-1"
+        },
+        {
+          "contentId": "c-step-2",
+          "widthDu": 84,
+          "heightDu": 14,
+          "baselineDu": 11,
+          "fontSizeSp": 14,
+          "digest": "probe:c-step-2"
+        }
+      ],
+      "contents": {
+        "c-step-0": "移项",
+        "c-step-1": "合并同类项",
+        "c-step-2": "系数化为1"
+      },
+      "drawOps": {
+        "drawSchemaVersion": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 240
+        },
+        "background": null,
+        "ops": [
+          {
+            "op": "save"
+          },
+          {
+            "op": "concat",
+            "m": [
+              1,
+              0,
+              0,
+              1,
+              0,
+              20
+            ]
+          },
+          {
+            "op": "path",
+            "path": [
+              [
+                "M",
+                60,
+                0
+              ],
+              [
+                "L",
+                300,
+                0
+              ],
+              [
+                "L",
+                300,
+                50
+              ],
+              [
+                "L",
+                60,
+                50
+              ],
+              [
+                "Z"
+              ]
+            ],
+            "fill": "#eef2f7",
+            "stroke": {
+              "width": 1,
+              "cap": "butt",
+              "join": "miter",
+              "miterLimit": 4,
+              "dash": null
+            },
+            "alpha": 1
+          },
+          {
+            "op": "restore"
+          },
+          {
+            "op": "label",
+            "contentId": "c-step-0",
+            "x": 166,
+            "y": 49,
+            "rotationDeg": 0,
+            "hAlign": "center",
+            "vAlign": "middle",
+            "color": "#1f2933",
+            "alpha": 1
+          },
+          {
+            "op": "save"
+          },
+          {
+            "op": "concat",
+            "m": [
+              1,
+              0,
+              0,
+              1,
+              0,
+              90
+            ]
+          },
+          {
+            "op": "path",
+            "path": [
+              [
+                "M",
+                60,
+                0
+              ],
+              [
+                "L",
+                300,
+                0
+              ],
+              [
+                "L",
+                300,
+                50
+              ],
+              [
+                "L",
+                60,
+                50
+              ],
+              [
+                "Z"
+              ]
+            ],
+            "fill": "#eef2f7",
+            "stroke": {
+              "width": 1,
+              "cap": "butt",
+              "join": "miter",
+              "miterLimit": 4,
+              "dash": null
+            },
+            "alpha": 1
+          },
+          {
+            "op": "restore"
+          },
+          {
+            "op": "label",
+            "contentId": "c-step-1",
+            "x": 138,
+            "y": 119,
+            "rotationDeg": 0,
+            "hAlign": "center",
+            "vAlign": "middle",
+            "color": "#1f2933",
+            "alpha": 1
+          },
+          {
+            "op": "save"
+          },
+          {
+            "op": "concat",
+            "m": [
+              1,
+              0,
+              0,
+              1,
+              0,
+              160
+            ]
+          },
+          {
+            "op": "path",
+            "path": [
+              [
+                "M",
+                60,
+                0
+              ],
+              [
+                "L",
+                300,
+                0
+              ],
+              [
+                "L",
+                300,
+                50
+              ],
+              [
+                "L",
+                60,
+                50
+              ],
+              [
+                "Z"
+              ]
+            ],
+            "fill": "#eef2f7",
+            "stroke": {
+              "width": 1,
+              "cap": "butt",
+              "join": "miter",
+              "miterLimit": 4,
+              "dash": null
+            },
+            "alpha": 1
+          },
+          {
+            "op": "restore"
+          },
+          {
+            "op": "label",
+            "contentId": "c-step-2",
+            "x": 138,
+            "y": 189,
+            "rotationDeg": 0,
+            "hAlign": "center",
+            "vAlign": "middle",
+            "color": "#1f2933",
+            "alpha": 1
+          }
+        ],
+        "hitRegions": [],
+        "stats": {
+          "nodes": 10,
+          "pathCommands": 15,
+          "labels": 3,
+          "ops": 15
+        }
+      }
+    },
+    {
+      "name": "flow-order-reversed",
+      "note": "标签文本与位置同时颠倒",
+      "scene": {
+        "schemaVersion": 1,
+        "sceneId": "probe-flow-bad",
+        "revision": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "width": 360,
+          "height": 240
+        },
+        "paths": [
+          {
+            "id": "card",
+            "commands": [
+              [
+                "M",
+                60,
+                0
+              ],
+              [
+                "L",
+                300,
+                0
+              ],
+              [
+                "L",
+                300,
+                50
+              ],
+              [
+                "L",
+                60,
+                50
+              ],
+              [
+                "Z"
+              ]
+            ]
+          }
+        ],
+        "root": {
+          "type": "group",
+          "children": [
+            {
+              "type": "group",
+              "id": "card-group-0",
+              "matrix": [
+                1,
+                0,
+                0,
+                1,
+                0,
+                20
+              ],
+              "children": [
+                {
+                  "type": "path",
+                  "id": "card-0",
+                  "pathId": "card",
+                  "fill": "#eef2f7",
+                  "stroke": {
+                    "width": 1,
+                    "cap": "butt",
+                    "join": "miter",
+                    "miterLimit": 4,
+                    "dash": null
+                  }
+                }
+              ]
+            },
+            {
+              "type": "label",
+              "id": "step-label-0",
+              "contentId": "c-step-0",
+              "anchor": {
+                "x": 180,
+                "y": 45
+              },
+              "hAlign": "center",
+              "vAlign": "middle",
+              "color": "#1f2933"
+            },
+            {
+              "type": "group",
+              "id": "card-group-1",
+              "matrix": [
+                1,
+                0,
+                0,
+                1,
+                0,
+                90
+              ],
+              "children": [
+                {
+                  "type": "path",
+                  "id": "card-1",
+                  "pathId": "card",
+                  "fill": "#eef2f7",
+                  "stroke": {
+                    "width": 1,
+                    "cap": "butt",
+                    "join": "miter",
+                    "miterLimit": 4,
+                    "dash": null
+                  }
+                }
+              ]
+            },
+            {
+              "type": "label",
+              "id": "step-label-1",
+              "contentId": "c-step-1",
+              "anchor": {
+                "x": 180,
+                "y": 115
+              },
+              "hAlign": "center",
+              "vAlign": "middle",
+              "color": "#1f2933"
+            },
+            {
+              "type": "group",
+              "id": "card-group-2",
+              "matrix": [
+                1,
+                0,
+                0,
+                1,
+                0,
+                160
+              ],
+              "children": [
+                {
+                  "type": "path",
+                  "id": "card-2",
+                  "pathId": "card",
+                  "fill": "#eef2f7",
+                  "stroke": {
+                    "width": 1,
+                    "cap": "butt",
+                    "join": "miter",
+                    "miterLimit": 4,
+                    "dash": null
+                  }
+                }
+              ]
+            },
+            {
+              "type": "label",
+              "id": "step-label-2",
+              "contentId": "c-step-2",
+              "anchor": {
+                "x": 180,
+                "y": 185
+              },
+              "hAlign": "center",
+              "vAlign": "middle",
+              "color": "#1f2933"
+            }
+          ]
+        }
+      },
+      "metrics": [
+        {
+          "contentId": "c-step-0",
+          "widthDu": 84,
+          "heightDu": 14,
+          "baselineDu": 11,
+          "fontSizeSp": 14,
+          "digest": "probe:c-step-0"
+        },
+        {
+          "contentId": "c-step-1",
+          "widthDu": 84,
+          "heightDu": 14,
+          "baselineDu": 11,
+          "fontSizeSp": 14,
+          "digest": "probe:c-step-1"
+        },
+        {
+          "contentId": "c-step-2",
+          "widthDu": 28,
+          "heightDu": 14,
+          "baselineDu": 11,
+          "fontSizeSp": 14,
+          "digest": "probe:c-step-2"
+        }
+      ],
+      "contents": {
+        "c-step-0": "系数化为1",
+        "c-step-1": "合并同类项",
+        "c-step-2": "移项"
+      },
+      "drawOps": {
+        "drawSchemaVersion": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 240
+        },
+        "background": null,
+        "ops": [
+          {
+            "op": "save"
+          },
+          {
+            "op": "concat",
+            "m": [
+              1,
+              0,
+              0,
+              1,
+              0,
+              20
+            ]
+          },
+          {
+            "op": "path",
+            "path": [
+              [
+                "M",
+                60,
+                0
+              ],
+              [
+                "L",
+                300,
+                0
+              ],
+              [
+                "L",
+                300,
+                50
+              ],
+              [
+                "L",
+                60,
+                50
+              ],
+              [
+                "Z"
+              ]
+            ],
+            "fill": "#eef2f7",
+            "stroke": {
+              "width": 1,
+              "cap": "butt",
+              "join": "miter",
+              "miterLimit": 4,
+              "dash": null
+            },
+            "alpha": 1
+          },
+          {
+            "op": "restore"
+          },
+          {
+            "op": "label",
+            "contentId": "c-step-0",
+            "x": 138,
+            "y": 49,
+            "rotationDeg": 0,
+            "hAlign": "center",
+            "vAlign": "middle",
+            "color": "#1f2933",
+            "alpha": 1
+          },
+          {
+            "op": "save"
+          },
+          {
+            "op": "concat",
+            "m": [
+              1,
+              0,
+              0,
+              1,
+              0,
+              90
+            ]
+          },
+          {
+            "op": "path",
+            "path": [
+              [
+                "M",
+                60,
+                0
+              ],
+              [
+                "L",
+                300,
+                0
+              ],
+              [
+                "L",
+                300,
+                50
+              ],
+              [
+                "L",
+                60,
+                50
+              ],
+              [
+                "Z"
+              ]
+            ],
+            "fill": "#eef2f7",
+            "stroke": {
+              "width": 1,
+              "cap": "butt",
+              "join": "miter",
+              "miterLimit": 4,
+              "dash": null
+            },
+            "alpha": 1
+          },
+          {
+            "op": "restore"
+          },
+          {
+            "op": "label",
+            "contentId": "c-step-1",
+            "x": 138,
+            "y": 119,
+            "rotationDeg": 0,
+            "hAlign": "center",
+            "vAlign": "middle",
+            "color": "#1f2933",
+            "alpha": 1
+          },
+          {
+            "op": "save"
+          },
+          {
+            "op": "concat",
+            "m": [
+              1,
+              0,
+              0,
+              1,
+              0,
+              160
+            ]
+          },
+          {
+            "op": "path",
+            "path": [
+              [
+                "M",
+                60,
+                0
+              ],
+              [
+                "L",
+                300,
+                0
+              ],
+              [
+                "L",
+                300,
+                50
+              ],
+              [
+                "L",
+                60,
+                50
+              ],
+              [
+                "Z"
+              ]
+            ],
+            "fill": "#eef2f7",
+            "stroke": {
+              "width": 1,
+              "cap": "butt",
+              "join": "miter",
+              "miterLimit": 4,
+              "dash": null
+            },
+            "alpha": 1
+          },
+          {
+            "op": "restore"
+          },
+          {
+            "op": "label",
+            "contentId": "c-step-2",
+            "x": 166,
+            "y": 189,
+            "rotationDeg": 0,
+            "hAlign": "center",
+            "vAlign": "middle",
+            "color": "#1f2933",
+            "alpha": 1
+          }
+        ],
+        "hitRegions": [],
+        "stats": {
+          "nodes": 10,
+          "pathCommands": 15,
+          "labels": 3,
+          "ops": 15
+        }
+      }
+    },
+    {
+      "name": "handwriting-residue-present",
+      "note": "禁写内容以文本 label 形式残留",
+      "scene": {
+        "schemaVersion": 1,
+        "sceneId": "probe-hw-bad",
+        "revision": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "width": 360,
+          "height": 240
+        },
+        "paths": [
+          {
+            "id": "base",
+            "commands": [
+              [
+                "M",
+                40,
+                200
+              ],
+              [
+                "L",
+                320,
+                200
+              ]
+            ]
+          }
+        ],
+        "root": {
+          "type": "group",
+          "children": [
+            {
+              "type": "path",
+              "id": "base-line",
+              "pathId": "base",
+              "fill": "#333333",
+              "stroke": {
+                "width": 2,
+                "cap": "butt",
+                "join": "miter",
+                "miterLimit": 4,
+                "dash": null
+              }
+            },
+            {
+              "type": "label",
+              "id": "the-label",
+              "contentId": "c-hw",
+              "anchor": {
+                "x": 180,
+                "y": 170
+              },
+              "hAlign": "center",
+              "vAlign": "bottom",
+              "color": "#333333"
+            }
+          ]
+        }
+      },
+      "metrics": [
+        {
+          "contentId": "c-hw",
+          "widthDu": 36,
+          "heightDu": 14,
+          "baselineDu": 11,
+          "fontSizeSp": 14,
+          "digest": "probe:c-hw"
+        }
+      ],
+      "contents": {
+        "c-hw": "x=5"
+      },
+      "drawOps": {
+        "drawSchemaVersion": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 240
+        },
+        "background": null,
+        "ops": [
+          {
+            "op": "path",
+            "path": [
+              [
+                "M",
+                40,
+                200
+              ],
+              [
+                "L",
+                320,
+                200
+              ]
+            ],
+            "fill": "#333333",
+            "stroke": {
+              "width": 2,
+              "cap": "butt",
+              "join": "miter",
+              "miterLimit": 4,
+              "dash": null
+            },
+            "alpha": 1
+          },
+          {
+            "op": "label",
+            "contentId": "c-hw",
+            "x": 162,
+            "y": 167,
+            "rotationDeg": 0,
+            "hAlign": "center",
+            "vAlign": "bottom",
+            "color": "#333333",
+            "alpha": 1
+          }
+        ],
+        "hitRegions": [],
+        "stats": {
+          "nodes": 3,
+          "pathCommands": 2,
+          "labels": 1,
+          "ops": 2
+        }
+      }
+    },
+    {
+      "name": "handwriting-residue-absent",
+      "note": "图中只有印刷标签；无 \"x=5\"",
+      "scene": {
+        "schemaVersion": 1,
+        "sceneId": "probe-hw-ok",
+        "revision": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "width": 360,
+          "height": 240
+        },
+        "paths": [
+          {
+            "id": "base",
+            "commands": [
+              [
+                "M",
+                40,
+                200
+              ],
+              [
+                "L",
+                320,
+                200
+              ]
+            ]
+          }
+        ],
+        "root": {
+          "type": "group",
+          "children": [
+            {
+              "type": "path",
+              "id": "base-line",
+              "pathId": "base",
+              "fill": "#333333",
+              "stroke": {
+                "width": 2,
+                "cap": "butt",
+                "join": "miter",
+                "miterLimit": 4,
+                "dash": null
+              }
+            },
+            {
+              "type": "label",
+              "id": "the-label",
+              "contentId": "c-hw",
+              "anchor": {
+                "x": 180,
+                "y": 170
+              },
+              "hAlign": "center",
+              "vAlign": "bottom",
+              "color": "#333333"
+            }
+          ]
+        }
+      },
+      "metrics": [
+        {
+          "contentId": "c-hw",
+          "widthDu": 96,
+          "heightDu": 14,
+          "baselineDu": 11,
+          "fontSizeSp": 14,
+          "digest": "probe:c-hw"
+        }
+      ],
+      "contents": {
+        "c-hw": "题干第(1)问"
+      },
+      "drawOps": {
+        "drawSchemaVersion": 1,
+        "viewBox": {
+          "x": 0,
+          "y": 0,
+          "w": 360,
+          "h": 240
+        },
+        "background": null,
+        "ops": [
+          {
+            "op": "path",
+            "path": [
+              [
+                "M",
+                40,
+                200
+              ],
+              [
+                "L",
+                320,
+                200
+              ]
+            ],
+            "fill": "#333333",
+            "stroke": {
+              "width": 2,
+              "cap": "butt",
+              "join": "miter",
+              "miterLimit": 4,
+              "dash": null
+            },
+            "alpha": 1
+          },
+          {
+            "op": "label",
+            "contentId": "c-hw",
+            "x": 132,
+            "y": 167,
+            "rotationDeg": 0,
+            "hAlign": "center",
+            "vAlign": "bottom",
+            "color": "#333333",
+            "alpha": 1
+          }
+        ],
+        "hitRegions": [],
+        "stats": {
+          "nodes": 3,
+          "pathCommands": 2,
+          "labels": 1,
+          "ops": 2
+        }
+      }
+    }
+  ]
+}

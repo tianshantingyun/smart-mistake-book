@@ -255,6 +255,11 @@ object FigurePromptAssembler {
      * （契约 §3.2 静态程序只需 prepare/render；场景对象不含未启用的可选键）。形状与
      * `QuickJsVisualExecutionEngineInstrumentedTest` 的设备夹具同构（render 返回 SceneV1、
      * path 节点按 pathId 引用 paths 定义）。
+     *
+     * **可编译性是硬约束**（批次 51 修复）：path 节点必须带 `fill` 颜色源（KD-78 ①
+     * `PAINTER_STROKE_WITHOUT_FILL`）且 `stroke` 是 `{ width }` 对象（编译器 `requireStroke`），
+     * 文字必须走 prepare → metrics 并以 `contentId/anchor/hAlign/vAlign/color` 引用。样例
+     * 若不可编译，模型照抄即系统性失败（见 `tools/figure_eval/test_prompt_sample_compiles.py`）。
      */
     private val JS_STATIC_SAMPLE: String = """
 const visual = {
@@ -283,9 +288,10 @@ const visual = {
     private fun jsStaticContract(): String = buildString {
         appendLine("程序形状：const visual = { prepare(input), render(input, metrics) }；" +
             "静态程序只需这两个函数，本机不执行交互面。")
-        appendLine("prepare(input) 返回内容度量请求的数组（纯几何图返回 []；含文字/公式时返回 " +
-            "[{ kind: 'text', payload: '...' }]，宿主原生度量后以 metrics 回给 render）。" +
-            "render(input, metrics) 返回 SceneV1 场景对象：schemaVersion=1、sceneId、" +
+        appendLine("prepare(input) 返回 [{ kind: 'text', payload: '...' }]（纯几何图返回 []）；" +
+            "宿主原生度量后以 metrics 回给 render，第 i 项文字用 contentId: metrics[i].contentId " +
+            "引用（宿主生成的 id，不要硬编码）。")
+        appendLine("render(input, metrics) 返回 SceneV1 场景对象：schemaVersion=1、sceneId、" +
             "revision=input.revision、viewBox={x,y,width,height}（width/height 取 input.viewport 的 " +
             "widthDu/heightDu）、paths=[{ id, commands }]、root（group/path/label 节点树，" +
             "path 节点用 pathId 引用 paths 里的定义）。")
@@ -303,8 +309,17 @@ const visual = {
         appendLine("label 节点必须含 type='label'、contentId=metrics[n].contentId、anchor={x,y}、" +
             "hAlign（left/center/right）、vAlign（top/middle/bottom）和 color。文字必须来自 prepare 声明，" +
             "垂直居中使用 middle。分组为 {type:'group', children:[...]}。")
+        appendLine("节点字段（编译器严格拒绝未知字段）：path={type:'path', pathId, fill, stroke?}；" +
+            "fill 必填且为 '#RRGGBB' 或 '#RRGGBBAA'（不得写 'none' 或颜色名）；stroke 可选且必须是" +
+            "对象 {width:>0, cap?, join?, dash?}（stroke 内不得写 color，描边颜色取 fill）。" +
+            "label={type:'label', contentId, anchor:{x,y}, hAlign:'left'|'center'|'right', " +
+            "vAlign:'top'|'middle'|'bottom', color:'#RRGGBB'}（不得写 text/x/y/fontSize）。")
+        appendLine("paths[].commands 必须是数组：['M',x,y]、['L',x,y]、['C',x1,y1,x2,y2,x,y]、" +
+            "['Q',cx,cy,x,y]、['Z']；不要拼接字符串。")
         appendLine("SDK 原语（globalThis.visualSdk，冻结只读，都返回 M/L/C/Z 路径命令数组）：" +
-            JS_SDK_SIGNATURES.joinToString(separator = "、"))
+            JS_SDK_SIGNATURES.joinToString(separator = "、") +
+            "。约束：axis 端点不重合、ticks 为 [0,64] 整数、tickLength∈(0,100]；arrow 头尾不重合；" +
+            "polyline 每点为 [x,y]；坐标/半径必须在 ±100000 内。")
         appendLine("完整样例（函数曲线、区间与面积；实际数据和标注从当前题面推导）：")
         appendLine(JS_STATIC_SAMPLE)
     }

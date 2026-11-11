@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-DEHANDWR-008",
+    "program_id": "mva-BLD-DEHANDWR-008",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '解：设未知数为 x' },\n      { kind: 'text', payload: '由题意列方程' },\n      { kind: 'text', payload: '移项得' },\n      { kind: 'text', payload: '（原图中学生手写作答已擦除）' }\n    ];\n  },\n  render: function (input, metrics) {\n    var m = metrics || [];\n    var lines = ['解：设未知数为 x', '由题意列方程', '移项得'];\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var x = 68;\n    var y = 80;\n    var gap = 24;\n    var lastY = y;\n    var children = [];\n    var i;\n    for (i = 0; i < lines.length; i++) {\n      var info = m[i] || {};\n      var h = info.height || 26;\n      children.push({\n        type: 'label',\n        x: x,\n        y: y,\n        text: lines[i],\n        fontSize: 20,\n        fill: '#1f2a37'\n      });\n      lastY = y;\n      y = y + h + gap;\n    }\n    var noteY = Math.min(H - 22, lastY + 56);\n    children.push({\n      type: 'label',\n      x: x,\n      y: noteY,\n      text: '（原图中学生手写作答已擦除）',\n      fontSize: 13,\n      fill: '#8a93a0'\n    });\n    var frame = visualSdk.polyline([\n      [16, 16], [W - 16, 16], [W - 16, H - 16], [16, H - 16], [16, 16]\n    ]);\n    var accent = visualSdk.polyline([\n      [44, 52], [44, lastY + 10]\n    ]);\n    var root = {\n      type: 'group',\n      children: [\n        { type: 'path', pathId: 'frame', stroke: '#c7d0da', strokeWidth: 1 },\n        { type: 'path', pathId: 'accent', stroke: '#4a90d9', strokeWidth: 3 }\n      ]\n    };\n    for (i = 0; i < children.length; i++) {\n      root.children.push(children[i]);\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'source-transcription-clean',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [\n        { id: 'frame', commands: frame },\n        { id: 'accent', commands: accent }\n      ],\n      root: root\n    };\n  }\n};\n",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

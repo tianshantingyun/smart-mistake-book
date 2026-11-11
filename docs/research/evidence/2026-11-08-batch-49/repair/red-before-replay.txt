@@ -1,0 +1,71 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+_ F057VerdictTest.test_over_limit_row_keeps_the_positive_criterion_and_fails __
+
+self = <tests.test_batch49_repair_invariants.F057VerdictTest testMethod=test_over_limit_row_keeps_the_positive_criterion_and_fails>
+
+    def test_over_limit_row_keeps_the_positive_criterion_and_fails(self):
+        fields = _fields(_row("| F-057 |"))
+        verdict = fields[-1]
+        method = fields[3]
+        evidence = fields[4]
+    
+>       self.assertEqual("FAIL", verdict,
+                         "����·��δ���в��ü� PASS���о�������Ҫ������ 1 �� FATAL / ����·�����С�")
+E       AssertionError: 'FAIL' != 'PASS'
+E       - FAIL
+E       + PASS
+E        : ����·��δ���в��ü� PASS���о�������Ҫ������ 1 �� FATAL / ����·�����С�
+
+tools\tests\test_batch49_repair_invariants.py:48: AssertionError
+_ SoakExitEvidenceTest.test_rows_do_not_claim_cmd_exit_from_the_caveated_log __
+
+self = <tests.test_batch49_repair_invariants.SoakExitEvidenceTest testMethod=test_rows_do_not_claim_cmd_exit_from_the_caveated_log>
+
+    def test_rows_do_not_claim_cmd_exit_from_the_caveated_log(self):
+        for row_id in ("F-055", "F-063"):
+            data = json.loads((ROWS / f"{row_id}.json").read_text(encoding="utf-8"))
+            names = [c.get("name") or c.get("check") for c in data["checks"]]
+>           self.assertNotIn(
+                "cmd_exit", names,
+                f"{row_id}: soak.cmd.log �� EXIT=0 �ǽű��������������� cmd_exit ֤��",
+            )
+E           AssertionError: 'cmd_exit' unexpectedly found in ['cmd_exit'] : F-055: soak.cmd.log �� EXIT=0 �ǽű��������������� cmd_exit ֤��
+
+tools\tests\test_batch49_repair_invariants.py:76: AssertionError
+_ SoakExitEvidenceTest.test_script_records_a_real_status_instead_of_the_literal _
+
+self = <tests.test_batch49_repair_invariants.SoakExitEvidenceTest testMethod=test_script_records_a_real_status_instead_of_the_literal>
+
+    def test_script_records_a_real_status_instead_of_the_literal(self):
+        text = (SOAK / "f-soak.sh").read_text(encoding="utf-8")
+>       self.assertNotIn('"EXIT=0"]', text,
+                         "�ɽű�������д EXIT=0������44 �� 2504s FATAL Ҳ��ʾ EXIT=0")
+E       AssertionError: '"EXIT=0"]' unexpectedly found in '#!/usr/bin/env bash\nset -u\n# old summary: unconditional literal EXIT=0\npython -I - "$CSV" "$OUT/soak-summary.txt" "$DURATION" <<\'PY\'\nimport csv, sys\nfrom pathlib import Path\nrows=list(csv.DictReader(open(sys.argv[1],encoding=\'utf-8\')))\nlines=[f"cycles={len(rows)}", "EXIT=0"]\nPath(sys.argv[2]).write_text("\\n".join(lines)+"\\n",encoding=\'utf-8\')\nprint("\\n".join(lines))\nPY\n' : �ɽű�������д EXIT=0������44 �� 2504s FATAL Ҳ��ʾ EXIT=0
+
+tools\tests\test_batch49_repair_invariants.py:65: AssertionError
+_ DeviceBindingProvenanceTest.test_sidecars_do_not_claim_serial_apk_from_the_instrument_log _
+
+self = <tests.test_batch49_repair_invariants.DeviceBindingProvenanceTest testMethod=test_sidecars_do_not_claim_serial_apk_from_the_instrument_log>
+
+    def test_sidecars_do_not_claim_serial_apk_from_the_instrument_log(self):
+        for name in ("06-instrument-green-phase.device.json",
+                     "07-instrument-calibration-page.device.json"):
+            data = json.loads((DEVICE / name).read_text(encoding="utf-8"))
+            note = data.get("note", "")
+>           self.assertNotIn(
+                "����תд counts/serial/APK sha", note,
+                f"{name}: instrument ��־ֻ������/Time/OK��û�� serial �� APK sha",
+            )
+E           AssertionError: '����תд counts/serial/APK sha' unexpectedly found in '��ͬĿ¼ am instrument ԭʼ��־����תд counts/serial/APK sha�������µ�һ���豸����' : 06-instrument-green-phase.device.json: instrument ��־ֻ������/Time/OK��û�� serial �� APK sha
+
+tools\tests\test_batch49_repair_invariants.py:93: AssertionError
+=========================== short test summary info ===========================
+FAILED tools/tests/test_batch49_repair_invariants.py::F057VerdictTest::test_over_limit_row_keeps_the_positive_criterion_and_fails
+FAILED tools/tests/test_batch49_repair_invariants.py::SoakExitEvidenceTest::test_rows_do_not_claim_cmd_exit_from_the_caveated_log
+FAILED tools/tests/test_batch49_repair_invariants.py::SoakExitEvidenceTest::test_script_records_a_real_status_instead_of_the_literal
+FAILED tools/tests/test_batch49_repair_invariants.py::DeviceBindingProvenanceTest::test_sidecars_do_not_claim_serial_apk_from_the_instrument_log
+4 failed in 0.16s
+
+
+RED_RUN_EXIT 1

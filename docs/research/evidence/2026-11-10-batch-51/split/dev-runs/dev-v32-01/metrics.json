@@ -1,0 +1,836 @@
+{
+  "abstain": {
+    "count": 0,
+    "pages": [],
+    "rate": 0.0
+  },
+  "app": {
+    "appSchemaVersion": 2,
+    "boxCount": 48,
+    "bytes": 12735,
+    "exists": true,
+    "file": "export.json",
+    "pageCount": 16,
+    "sha256": "ff4df0586331da74d9a171e2c78f190e46a8ccd5153cc6fa4a9a0b2435912809",
+    "source": {
+      "dbSha256": null,
+      "dbUserVersion": null,
+      "nameSourceCounts": null,
+      "pageMap": null,
+      "payloadSha256": null,
+      "present": true,
+      "producerContract": null,
+      "producerSha256": null,
+      "snapshotIdentitySha256": null,
+      "snapshotMode": null
+    }
+  },
+  "automation": {
+    "enabled": false,
+    "ruling": "门后自动化不启用（裁定 37 / 4C③：门不过不允许自动入库，切残不得自动入库）。本脚本不切任何产品开关。"
+  },
+  "caliber": "v3",
+  "changedPages": [
+    "IMG20260810004304.jpg"
+  ],
+  "changedPagesV2": [],
+  "countExactV2": {
+    "denominator": 16,
+    "successes": 13,
+    "value": 0.8125
+  },
+  "decisionSource": "export",
+  "extraAppPages": [],
+  "gatePassed": false,
+  "gates": {
+    "count": {
+      "met": false,
+      "threshold": 0.9
+    },
+    "fragment": {
+      "met": true,
+      "threshold": 0.05
+    }
+  },
+  "golden": {
+    "bytes": 11703,
+    "file": "golden-v2-dev-slice.json",
+    "pageCount": 16,
+    "questionCount": 52,
+    "sha256": "eb75fc5422549bbafedacd45d04c8647eb7b9fccf5f59ce04de66d9aedd78ce9"
+  },
+  "integrityMismatchPages": [],
+  "legacyCountExact": {
+    "denominator": 16,
+    "successes": 12,
+    "value": 0.75
+  },
+  "metrics": {
+    "countExact": {
+      "denominator": 16,
+      "successes": 13,
+      "value": 0.8125
+    },
+    "fragment": {
+      "denominator": 52,
+      "successes": 2,
+      "thresholdSensitivity": {
+        "0.3": 3,
+        "0.4": 3,
+        "0.5": 2,
+        "0.6": 0
+      },
+      "value": 0.038461538461538464
+    },
+    "iou": {
+      "denominator": 52,
+      "informationalOnly": true,
+      "successes": 33,
+      "threshold": 0.5,
+      "value": 0.6346153846153846
+    }
+  },
+  "missingAppPages": [],
+  "notEvaluable": {
+    "count": 0,
+    "pages": [],
+    "rate": 0.0
+  },
+  "pages": [
+    {
+      "appBoxes": 0,
+      "appBoxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "appDecision": "PASS",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810004304.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": true,
+      "consistentV2": true,
+      "file": "IMG20260810004304.jpg",
+      "fragmentPiecesByGoldIndex": [
+        0
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "a4bc16fe5da7dff27b99528b8651d3176165bda513df0834719c4e0b161a9585",
+      "goldQuestions": 1,
+      "iouOk": 0,
+      "legacyConsistent": false,
+      "matchedIous": [
+        null
+      ],
+      "pageClass": "ACCEPTED_NO_SPLIT",
+      "questionCountForMetric": "none",
+      "reason": "一致（PASS：整页一道题，无需切分）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 3,
+      "appBoxesSha256": "ee5e8425b6cadebfd08dbabcb93b304d25339e1086efcfdf94814820a6e5c4cb",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810004511.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": true,
+      "consistentV2": true,
+      "file": "IMG20260810004511.jpg",
+      "fragmentPiecesByGoldIndex": [
+        0,
+        3,
+        0
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 1,
+        "0.4": 1,
+        "0.5": 1,
+        "0.6": 0
+      },
+      "fragmentedCount": 1,
+      "fragmentedGoldIndices": [
+        1
+      ],
+      "goldBoxesSha256": "abe7ec92070374cc9b61a8fb6bee5bcd3f74739b2c44962cc6a53e4de6dd88ed",
+      "goldQuestions": 3,
+      "iouOk": 0,
+      "legacyConsistent": true,
+      "matchedIous": [
+        0.0470859400724399,
+        0.30854957773551717,
+        0.16808420157346374
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 3,
+      "reason": "一致（SPLIT，区域可用且题数相同）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 2,
+      "appBoxesSha256": "163265a766bae35a2243c960827337c48275f63f6e113b7af64e8172a051a5ba",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810004854.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": true,
+      "consistentV2": true,
+      "file": "IMG20260810004854.jpg",
+      "fragmentPiecesByGoldIndex": [
+        2,
+        0
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 1,
+        "0.4": 1,
+        "0.5": 1,
+        "0.6": 0
+      },
+      "fragmentedCount": 1,
+      "fragmentedGoldIndices": [
+        0
+      ],
+      "goldBoxesSha256": "0af324f8938b1ad7c59ca1c7a3daa674c3051a69c16ac963fb3358796337d8da",
+      "goldQuestions": 2,
+      "iouOk": 0,
+      "legacyConsistent": true,
+      "matchedIous": [
+        0.4277602523659306,
+        0.13896776348755632
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 2,
+      "reason": "一致（SPLIT，区域可用且题数相同）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 6,
+      "appBoxesSha256": "886bef79f05d50357045815813f296ff16e00428e4af73cf2a8f48f0e4c5fbc4",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810005144.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": false,
+      "consistentV2": false,
+      "file": "IMG20260810005144.jpg",
+      "fragmentPiecesByGoldIndex": [
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "d050098abaf9c8cdecdcf04749e0577f0086d8259c2a7a92983773a4dd1dc86c",
+      "goldQuestions": 7,
+      "iouOk": 6,
+      "legacyConsistent": false,
+      "matchedIous": [
+        0.6795533133042345,
+        0.6715991589637798,
+        0.788891813635167,
+        0.80464824120603,
+        null,
+        0.5539045436642916,
+        0.8242650247159832
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 6,
+      "reason": "不一致（金标 7 vs 应用 6）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 2,
+      "appBoxesSha256": "8483ec4947e7807870159c3a31837c685de5e89f87e6889fb8d4ba95e646397a",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810005301.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": false,
+      "consistentV2": false,
+      "file": "IMG20260810005301.jpg",
+      "fragmentPiecesByGoldIndex": [
+        0,
+        0,
+        1
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "5a7a52ec5161403fa6bd73a68ec9b92fb1b7e78079ea71cf723ea3a7c9ce6c88",
+      "goldQuestions": 3,
+      "iouOk": 1,
+      "legacyConsistent": false,
+      "matchedIous": [
+        0.42963821295223376,
+        null,
+        0.8652083504336644
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 2,
+      "reason": "不一致（金标 3 vs 应用 2）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 2,
+      "appBoxesSha256": "f936a4ec6d98cc478b177b760c260c5ffd7c4b468e36ef185badf9f9e51f4df7",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810005605.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": true,
+      "consistentV2": true,
+      "file": "IMG20260810005605.jpg",
+      "fragmentPiecesByGoldIndex": [
+        1,
+        1
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "2dd8774e31f2733a6fb3b733f3e56cd7c18f99d4416bd913d20758207ef75603",
+      "goldQuestions": 2,
+      "iouOk": 2,
+      "legacyConsistent": true,
+      "matchedIous": [
+        0.8383838383838385,
+        0.5966702851867258
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 2,
+      "reason": "一致（SPLIT，区域可用且题数相同）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 3,
+      "appBoxesSha256": "7f393e1eeb21569f7dfee938ae1b41f03e9a453cc5c4967ad9629ac114c743ba",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810005855.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": true,
+      "consistentV2": true,
+      "file": "IMG20260810005855.jpg",
+      "fragmentPiecesByGoldIndex": [
+        1,
+        1,
+        1
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "83bee7eba3903c937c8d9bf6c65d8c197d746bff1de2b8a8d40df0bcb5cd39c9",
+      "goldQuestions": 3,
+      "iouOk": 3,
+      "legacyConsistent": true,
+      "matchedIous": [
+        0.8469890706479032,
+        0.7818593404331946,
+        0.5643643465909088
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 3,
+      "reason": "一致（SPLIT，区域可用且题数相同）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 4,
+      "appBoxesSha256": "1e4ed167d7fbe835a52f971590cf8e39f0d040af5f4ab5129af9805d7b536873",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810010306.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": true,
+      "consistentV2": true,
+      "file": "IMG20260810010306.jpg",
+      "fragmentPiecesByGoldIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "994cb87f6722458edf65955ff7c3a7829cd880ba15dfd9d3345aee049e9d620f",
+      "goldQuestions": 4,
+      "iouOk": 4,
+      "legacyConsistent": true,
+      "matchedIous": [
+        0.6241610738255033,
+        0.863483146067416,
+        0.8944286791910628,
+        0.7453124999999998
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 4,
+      "reason": "一致（SPLIT，区域可用且题数相同）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 4,
+      "appBoxesSha256": "a2a0a0811b210af139aba15868539520c3f224345f426bb592c2c1a28eec7004",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810010349.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": true,
+      "consistentV2": true,
+      "file": "IMG20260810010349.jpg",
+      "fragmentPiecesByGoldIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "db939d026762bd41496a35c6fa16389819f6d08932d0ff99b923d15dd535b84a",
+      "goldQuestions": 4,
+      "iouOk": 4,
+      "legacyConsistent": true,
+      "matchedIous": [
+        0.803129074315515,
+        0.6801068739373332,
+        0.7100142382534406,
+        0.7547169811320751
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 4,
+      "reason": "一致（SPLIT，区域可用且题数相同）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 3,
+      "appBoxesSha256": "29f258c49131641088492d320e9df977f781c72c26b908391197f25557313f65",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810010633.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": true,
+      "consistentV2": true,
+      "file": "IMG20260810010633.jpg",
+      "fragmentPiecesByGoldIndex": [
+        1,
+        1,
+        1
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "45487e593818aa52104489a0e5ff86525b502fd6eab308cd745d44fbe9252646",
+      "goldQuestions": 3,
+      "iouOk": 2,
+      "legacyConsistent": true,
+      "matchedIous": [
+        0.37842289970635284,
+        0.7254712140720447,
+        0.6811865996078764
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 3,
+      "reason": "一致（SPLIT，区域可用且题数相同）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 4,
+      "appBoxesSha256": "365b75fd51cf5a721e95c1dede46ffa38e5eee23725c61e964ef6e2e51eab11b",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810010859.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": true,
+      "consistentV2": true,
+      "file": "IMG20260810010859.jpg",
+      "fragmentPiecesByGoldIndex": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "767ad22cd464c2788e6635715b0b5660569b3df15b1a5f1b855306be096f53fc",
+      "goldQuestions": 4,
+      "iouOk": 3,
+      "legacyConsistent": true,
+      "matchedIous": [
+        0.6764705882352939,
+        0.7279827069242031,
+        0.8102893890675239,
+        0.4372335386072951
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 4,
+      "reason": "一致（SPLIT，区域可用且题数相同）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 2,
+      "appBoxesSha256": "c6e953e118b16bbb885d9b44f6e4eeacef129b20a54c31485761b8726aaf6b5c",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810011017.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": false,
+      "consistentV2": false,
+      "file": "IMG20260810011017.jpg",
+      "fragmentPiecesByGoldIndex": [
+        0,
+        1,
+        1
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "1fe17b9a0d9b2019bdd4f18502ff395789365739b5ca2df3873cc9a0818ca21f",
+      "goldQuestions": 3,
+      "iouOk": 1,
+      "legacyConsistent": false,
+      "matchedIous": [
+        null,
+        0.5856164383561644,
+        0.47276599230076194
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 2,
+      "reason": "不一致（金标 3 vs 应用 2）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 2,
+      "appBoxesSha256": "b8495cb175f9226f6c92037d3b06da74441106f1b8fe4bf0941ee6aa6e80b319",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810011126.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": true,
+      "consistentV2": true,
+      "file": "IMG20260810011126.jpg",
+      "fragmentPiecesByGoldIndex": [
+        1,
+        1
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "1d24765e8c2f897ddee874baed31556d2d44f505feeb8e63053ac7a06e1cdd6b",
+      "goldQuestions": 2,
+      "iouOk": 2,
+      "legacyConsistent": true,
+      "matchedIous": [
+        0.701970443349754,
+        0.7483582304972216
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 2,
+      "reason": "一致（SPLIT，区域可用且题数相同）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 5,
+      "appBoxesSha256": "9707da2de49a045d975838ba8fe013c8e31b7cae255f0bff9b549c06e93e5450",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810011248.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": true,
+      "consistentV2": true,
+      "file": "IMG20260810011248.jpg",
+      "fragmentPiecesByGoldIndex": [
+        1,
+        1,
+        0,
+        1,
+        1
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "ab94824be62228cb0b27f61e297b5dfdaa09189a929e2ce43ea712d7324486b2",
+      "goldQuestions": 5,
+      "iouOk": 3,
+      "legacyConsistent": true,
+      "matchedIous": [
+        0.7432490355765109,
+        0.4605572077007358,
+        0.0,
+        0.8131711593250054,
+        0.6593120222376648
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 5,
+      "reason": "一致（SPLIT，区域可用且题数相同）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 3,
+      "appBoxesSha256": "f9376c2dc0bd2c08b4ef9acaf121a173c459f0232c519465394c9959b420413d",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810011649.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": true,
+      "consistentV2": true,
+      "file": "IMG20260810011649.jpg",
+      "fragmentPiecesByGoldIndex": [
+        0,
+        1,
+        0
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 1,
+        "0.4": 1,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "efbbe989642b9ab3c86b675d0961b5b05ea94275ee27929243a699b9703d6267",
+      "goldQuestions": 3,
+      "iouOk": 0,
+      "legacyConsistent": true,
+      "matchedIous": [
+        0.0,
+        0.42845176601982404,
+        0.0
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 3,
+      "reason": "一致（SPLIT，区域可用且题数相同）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    },
+    {
+      "appBoxes": 3,
+      "appBoxesSha256": "3ade37db78f875fcb6d52177e178bac69807c2d678d34cfd974b30ea9ea1b0a8",
+      "appDecision": "SPLIT",
+      "appJobId": null,
+      "appJobPageCountMatches": null,
+      "appJobQuestionCountMatches": null,
+      "appNameSource": "golden_split_eval_harness",
+      "appOutcomeStatus": "OK",
+      "appPageId": "IMG20260810012103.jpg",
+      "appPageIdKind": "golden-page-file",
+      "appPageIndex": null,
+      "appPageMissing": false,
+      "appProvenance": true,
+      "consistent": true,
+      "consistentV2": true,
+      "file": "IMG20260810012103.jpg",
+      "fragmentPiecesByGoldIndex": [
+        1,
+        1,
+        0
+      ],
+      "fragmentedByThreshold": {
+        "0.3": 0,
+        "0.4": 0,
+        "0.5": 0,
+        "0.6": 0
+      },
+      "fragmentedCount": 0,
+      "fragmentedGoldIndices": [],
+      "goldBoxesSha256": "86a0c13a3a7c7d62baf2a57d2e25ebc2a1e09e2dd7cfff1a1d8394cc9e1c4620",
+      "goldQuestions": 3,
+      "iouOk": 2,
+      "legacyConsistent": true,
+      "matchedIous": [
+        0.9101486748545571,
+        0.7246058514393285,
+        0.48868786549707605
+      ],
+      "pageClass": "ACCEPTED_SPLIT",
+      "questionCountForMetric": 3,
+      "reason": "一致（SPLIT，区域可用且题数相同）",
+      "singleQuestionUnverified": false,
+      "unmatchedAppBoxCount": 0
+    }
+  ],
+  "reportSchemaVersion": 1,
+  "singleQuestionUnverifiedCount": 0,
+  "singleQuestionUnverifiedPages": []
+}

@@ -1,0 +1,60 @@
+{
+  "input_file": "BLD-NATILLA-010.json",
+  "program_sha256": "d1ed48c1b7c91765919e98855a5f3b0d6912fb0985b1ea28d0feb763655aea76",
+  "task_id": "BLD-NATILLA-010",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 24,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "自由落体",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bc75f425a7cd988b81d0576bdc0ed978b41ada63fe3bf32edeb35f987da3bf4d"
+    },
+    {
+      "contentId": "c1",
+      "payload": "静止 v₀=0",
+      "widthDu": 67.2727279663086,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ef9c053289248dc6d96ecaf9dc2fa8cc40b8a4a13ba2f81b70434ca0858ffc72"
+    },
+    {
+      "contentId": "c2",
+      "payload": "v",
+      "widthDu": 7.636363506317139,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4c94485e0c21ae6c41ce1dfe7b6bfaceea5ab68e40a2476f50208e526f506080"
+    },
+    {
+      "contentId": "c3",
+      "payload": "g",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "cd0aa9856147b6c5b4ff2b7dfee5da20aa38253099ef1b4a64aced233c9afe29"
+    },
+    {
+      "contentId": "c4",
+      "payload": "v、g 方向均竖直向下",
+      "widthDu": 148.72727966308594,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a01a462c95072c128ef14c3bdd36f4d1c3b87ce90d43669c2b95196c57e24753"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"strokeWidth\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (vis"
+}

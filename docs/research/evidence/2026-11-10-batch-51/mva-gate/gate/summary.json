@@ -1,0 +1,47 @@
+{
+  "adapter_status_counts": {
+    "MISSING": 22,
+    "REJECTED": 3,
+    "RENDERED": 95
+  },
+  "author_status_counts": {
+    "INVALID_PROPOSAL": 17,
+    "NOT_GENERATE": 5,
+    "OK": 98
+  },
+  "evaluable_by_group": {
+    "flow_formula": 12,
+    "handwriting_removal": 2,
+    "mechanics_phases": 5,
+    "natural_illustration": 14,
+    "proportion_coordinates": 10,
+    "source_rebuild": 16
+  },
+  "evaluable_coverage": 0.49166666666666664,
+  "evaluable_tasks": 59,
+  "gate_readable": false,
+  "generated_by": "tools/figure_eval/mva_gate_run.py",
+  "judge_answered_facts": 32,
+  "missing_facts_by_key": {
+    "area_W_over_F0h_at_half": 5,
+    "arm_length_ratio": 6,
+    "ascending_order": 1,
+    "curve_value_at_x_equals_h": 5,
+    "point_x": 5,
+    "point_y": 5,
+    "resultant_amplitude": 3,
+    "segment_length_ratio": 4,
+    "step_order": 7,
+    "u_at_half_height": 5
+  },
+  "note": "gate_readable 只在全部题 critical 事实可判时为真；否则这是 NOT_EVALUABLE/partial 的回归集描述统计，不是启用门值",
+  "tasks": 120,
+  "total_by_group": {
+    "flow_formula": 20,
+    "handwriting_removal": 20,
+    "mechanics_phases": 20,
+    "natural_illustration": 20,
+    "proportion_coordinates": 20,
+    "source_rebuild": 20
+  }
+}

@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-che-e6f066644f-002b	CORRECT		high	判断离子能否大量共存可归纳为一色、二性、三特殊、四反应	
+ext-che-e80478c4ef-018	CORRECT		high	用量筒量取待稀释溶液时仰视读数使n偏大、浓度偏大	
+ext-che-e8fbafa6a3-002	CORRECT		high	周期和族的编排原则、周期与族的划分	
+ext-che-e8fbafa6a3-013	CORRECT		high	同一周期和同一主族元素在半径、得失电子能力与金属性非金属性上的递变	
+ext-che-e98756c68f-007	CORRECT		high	水解的典型应用：加酸抑制配制中的水解	
+ext-che-e9d119178a-003	CORRECT		high	广口瓶与细口瓶按所存药品状态选择	
+ext-che-ea3ea77a38-066	CORRECT		high	遵循质量守恒、电子守恒与电荷守恒	节点为电子守恒原理，材料含三守恒
+ext-che-ea3ea77a38-107	CORRECT		high	判断水是否作氧化剂、是否表现氧化性，看水中氢、氧的化合价有无变化	
+ext-che-eb0d587e69-015	CORRECT		high	焰色试验是灼烧时使火焰呈特殊颜色以判断金属元素的定性操作	
+ext-che-ef695f366a-001	CORRECT		medium	铁的原子结构、化学性质及铁氧化物的物理化学性质	材料兼含铁氧化物，节点为铁单质性质
+ext-che-efbac613e4-023	CORRECT		high	基元反应的速率方程由反应物浓度幂的乘积表示	
+ext-che-efd9b57fc1-001	CORRECT		high	电离平衡常数Ka反映弱电解质电离程度的大小	
+ext-che-f09bbbc493-016	CORRECT		high	以c=n/V为理论依据	
+ext-che-f1813fe38f-001	CORRECT		high	同位素化学性质几乎完全相同、物理性质不同	
+ext-che-f1f02182e1-005	CORRECT		high	融化结冰、研磨、溶解属于物理变化	
+ext-che-f397b6e873-052	CORRECT		high	说明苯的同系物硝化、卤代发生在苯环上的原因及可发生的加成反应	
+ext-che-f668f4f6c0-003	CORRECT		high	按反应、电极、闭合回路三个角度判断装置能否构成原电池	
+ext-che-fbecdc2b14-005	CORRECT		high	复杂反应由若干基元反应组成	
+ext-che-fd9babf818-004	CORRECT		high	铵盐大多是白色固体、绝大多数易溶于水	
+ext-che-fea8efcb69-006	CORRECT		high	以反应前后某物理量的理论差量与实际差量成正比列式计算	
+ext-mat-01ac5a5c3b-056	CORRECT		high	求 f(x)＝log2(g(x)) 的单调区间要先解 g(x) 大于 0 得定义域	
+ext-mat-025bf5a476-009	CORRECT		high	忽略 ω 的正负会让单调区间完全相反	
+ext-mat-02bd1f379c-003b	CORRECT		high	出现 f(f(a)) 形式时应从内到外依次求值	
+ext-mat-0498809dac-002d	CORRECT		high	一是零点存在定理	
+ext-mat-04cad33fb4-030	CORRECT		high	由含常数和的等式判断轴对称或点对称	
+ext-mat-04f7dd8847-003	CORRECT		high	$1+\sin2\alpha=(\sin\alpha+\cos\alpha)^2$	
+ext-mat-04f7dd8847-008b	CORRECT		high	直角三角形中两锐角互余，正切互为倒数	
+ext-mat-053085a4fb-002b	CORRECT		high	y＝x＋1/x 的单调递增区间为 (－∞，－1] 和 [1，＋∞)	
+ext-mat-05dee76010-004	CORRECT		high	归纳指数、对数、幂函数之间的对称与反函数关系	
+ext-mat-06a62d7c01-017	CORRECT		high	判断概念类命题要同时看大小与方向	
+ext-mat-06d5c5e7e3-001c	CORRECT		high	不能认为 y＝tan x 在定义域上为增函数	
+ext-mat-0872521155-010	CORRECT		high	四组诱导公式都保持函数名不变	
+ext-mat-0962dc7db9-010	CORRECT		high	导函数零点不可求时用特值试探或虚设代换	
+ext-mat-09a201875c-009	CORRECT		high	抽象函数求值与比大小要用函数方程	
+ext-mat-09afd8b211-002	CORRECT		high	裂项前裂几项后面就裂几项	
+ext-mat-0adf547d3e-011	CORRECT		high	切点弦 AB 就是该圆与原圆的公共弦	
+ext-mat-0badd52b6c-003	CORRECT		high	在直线 x＝1 的右侧：a＞1 时底数越大图象越靠近 x 轴	
+ext-mat-0badd52b6c-003c	CORRECT		high	形如 y＝log_a x（a＞0 且 a≠1）的函数叫做对数函数	
+ext-mat-0c3dcd79a1-001	CORRECT		high	用斜率或一般式系数判定两直线相交、平行、重合	
+ext-mat-129ff77647-006	CORRECT		high	给出圆柱、圆锥、圆台、球的母线特征	
+ext-mat-12fc4a929a-005	CORRECT		high	给出不等式的对称、传递、可加、可乘及同向运算性质	
+ext-mat-17ae7aa955-001	CORRECT		high	斜二测画法通过把两轴夹角改为45度或135度	
+ext-mat-191907ea54-014	CORRECT		high	全称量词指“所有的”“任意一个”这类短语	
+ext-mat-195c3bdcec-002	CORRECT		high	平移只改自变量本身（左加右减与 x 的系数有关）	
+ext-mat-19ebd75f68-004	CORRECT		high	P(AB)=P(A)P(B) 时 A、B 相互独立	
+ext-mat-19ebd75f68-011	CORRECT		high	互斥指不能同时发生，独立指一方不影响另一方概率	
+ext-mat-1a1cc76f2d-018	CORRECT		high	由不动点方程cx²＋(d－a)x－b＝0的根的情形	
+ext-mat-1a1cc76f2d-038	CORRECT		high	形如 a(n+1)-5a(n)+4a(n-1)=0 的二阶递推	
+ext-mat-1a4f09793a-001	CORRECT		high	集合中的元素具有确定性、互异性与无序性	
+ext-mat-1bc6f5a026-002	CORRECT		high	描点法作图四步	

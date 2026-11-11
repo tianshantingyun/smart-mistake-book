@@ -1,0 +1,61 @@
+{
+  "input_file": "BLD-PROPCOORD-002.json",
+  "program_sha256": "8f3d4ede7c759013e88bfb94c8beb2d92ee6d435bea545e0ed35e151a54ea2a0",
+  "task_id": "BLD-PROPCOORD-002",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 15,
+  "measurement": [
+    {
+      "contentId": "c0-59a5a0c7",
+      "payload": "3:1",
+      "widthDu": 22.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "59a5a0c7c39734d9c3359438fe114555c618f012aea84f3e4933246f7795575d"
+    },
+    {
+      "contentId": "c1-4e074085",
+      "payload": "3",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+    },
+    {
+      "contentId": "c2-6b86b273",
+      "payload": "1",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "51a0207d4496b8af4c7150d8b064bf0f11794fdcb6b4f9d9666dd0d3ea086e41",
+  "scene_bytes": 960,
+  "scene_schema_version": 1,
+  "draw_sha256": "1029188bb0453c7ec5f87fef3d6dd3928b9ea4e9221b6f0039860641b03a615c",
+  "draw_bytes": 1089,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-59a5a0c7",
+    "c1-4e074085",
+    "c2-6b86b273"
+  ],
+  "png_sha256": "52bfb42e8b4838b061dccc10a58632d0fea0e84615f1ec8f95700862c09fb32b",
+  "png_bytes": 2448,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 6,
+    "pathCommands": 8,
+    "labels": 3,
+    "ops": 5
+  }
+}

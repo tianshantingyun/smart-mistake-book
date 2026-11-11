@@ -1,0 +1,51 @@
+{
+  "input_file": "BLD-NATILLA-017.json",
+  "program_sha256": "fe5f7885f4cb527f10207a3968093c335240da76f85a1be658886ecf572d2007",
+  "task_id": "BLD-NATILLA-017",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 22,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "支点",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "65172d22a0ec7843bd228f123cbf3daa63a50bdc80fb12d9dddb3444eed2caed"
+    },
+    {
+      "contentId": "c1",
+      "payload": "动力臂",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b29058030c4dff353520f55c41a233fb52f379466f5f8a19adc33b9b64d1d42a"
+    },
+    {
+      "contentId": "c2",
+      "payload": "阻力臂",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "35084bb84fb450b4b56e54796b02edb20c2f294fd41f84a1064589ebf26061ba"
+    },
+    {
+      "contentId": "c3",
+      "payload": "动力臂与阻力臂长度比 = 4 : 1",
+      "widthDu": 206.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "46bc3b96b90fd786706e298933118325779c41c43a234b6d01b6e490273455e0"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_ARGS: scene.paths[2].commands[8] must be a command array like [\"M\", x, y]\n    at SceneCompileError (visual-compiler.js:72:26)\n    "
+}

@@ -1,0 +1,152 @@
+{
+ "audit_id": "B50-D1-2026-11-08",
+ "generated_by": "docs/research/evidence/2026-11-09-batch-50/d1/frame_drift_check.py",
+ "checker_sha256": "08f720e426b6c68b7a0f9b2c5217a0c2c64861759dd3be4dff127b9185c9c738",
+ "sampling_frame": {
+  "path": "build/kb-staging/overfull_nodes.csv",
+  "sha256": "fce8269c74140081382362f4a1c28ce695a226db8636aec0bd612975f7cedfec",
+  "rows": 63102,
+  "unique_node_ids": 2482,
+  "layer_size": 62948,
+  "provenance": "manifest.json frame.layers.overfull.list / .size（抽样时点读数）"
+ },
+ "current_frame": {
+  "path": "build/kb-staging/overfull_nodes.csv",
+  "sha256": "ce7d6823787204640a646854561ea85cbbf4f19c48a0809754a3b0f419c69d9d",
+  "rows": 62944,
+  "unique_node_ids": 2481,
+  "layer_size": 62944,
+  "provenance": "frame_drift_check.py 实读当前 build/kb-staging/overfull_nodes.csv + 现行包绑定"
+ },
+ "delta": {
+  "rows": -158,
+  "unique_node_ids": -1,
+  "layer_size": -4
+ },
+ "replay": {
+  "command": "python -I -X utf8 docs/research/evidence/2026-11-09-batch-50/d1/sample_d1.py --check",
+  "exit": 2,
+  "stdout": "{\"check\": \"sample_keys\", \"match\": false, \"expected\": 1600, \"actual\": 1600}",
+  "stderr": "",
+  "match": false
+ },
+ "sample_layer_mismatches": 0,
+ "sample_layer_mismatch_examples": [],
+ "resample_under_current_frame": {
+  "different_keys": 879,
+  "total_keys": 1600
+ },
+ "estimate_under_current_frame": {
+  "point": 0.9821630298422428,
+  "se": 0.0033829014742417537,
+  "n_eff": 1530.8264930683808,
+  "lower_95": 0.975688200072439,
+  "main_pass": true,
+  "guardrail_nofpc_pass": false,
+  "guardrail_fpc_pass": true,
+  "per_layer": {
+   "overfull": {
+    "N": 62944,
+    "n": 1300,
+    "correct": 1279,
+    "p": 0.9838461538461538,
+    "weight": 0.9705641990347401,
+    "fpc": 0.9793622801582385,
+    "guardrail_nofpc": {
+     "n": 1300,
+     "k": 1279,
+     "lower": 0.9770088445338914,
+     "pass": true
+    },
+    "guardrail_fpc": {
+     "n_eff": 1327.3943936149503,
+     "k_eff": 1305.9518687950165,
+     "lower": 0.9770916796180908,
+     "pass": true
+    }
+   },
+   "normal": {
+    "N": 1909,
+    "n": 300,
+    "correct": 278,
+    "p": 0.9266666666666666,
+    "weight": 0.029435800965259894,
+    "fpc": 0.8432914046121593,
+    "guardrail_nofpc": {
+     "n": 300,
+     "k": 278,
+     "lower": 0.8979148347511259,
+     "pass": false
+    },
+    "guardrail_fpc": {
+     "n_eff": 355.74891236793036,
+     "k_eff": 329.66065879428214,
+     "lower": 0.9005708241640439,
+     "pass": true
+    }
+   }
+  }
+ },
+ "estimate_under_sampling_frame": {
+  "point": 0.9821665565557136,
+  "se": 0.0033830036607307647,
+  "n_eff": 1530.4368543831492,
+  "lower_95": 0.975691305961763,
+  "main_pass": true,
+  "guardrail_nofpc_pass": false,
+  "guardrail_fpc_pass": true,
+  "per_layer": {
+   "overfull": {
+    "N": 62948,
+    "n": 1300,
+    "correct": 1279,
+    "p": 0.9838461538461538,
+    "weight": 0.9706258769833316,
+    "fpc": 0.9793635915929274,
+    "guardrail_nofpc": {
+     "n": 1300,
+     "k": 1279,
+     "lower": 0.9770088445338914,
+     "pass": true
+    },
+    "guardrail_fpc": {
+     "n_eff": 1327.392616143265,
+     "k_eff": 1305.9501200363354,
+     "lower": 0.9770916743351645,
+     "pass": true
+    }
+   },
+   "normal": {
+    "N": 1905,
+    "n": 300,
+    "correct": 278,
+    "p": 0.9266666666666666,
+    "weight": 0.029374123016668467,
+    "fpc": 0.8429621848739496,
+    "guardrail_nofpc": {
+     "n": 300,
+     "k": 278,
+     "lower": 0.8979148347511259,
+     "pass": false
+    },
+    "guardrail_fpc": {
+     "n_eff": 355.8878504672897,
+     "k_eff": 329.78940809968844,
+     "lower": 0.9005765917383107,
+     "pass": true
+    }
+   }
+  }
+ },
+ "self_check_against_stats": {
+  "main_lower_match": true,
+  "normal_guardrail_nofpc_match": true
+ },
+ "stats_json_baseline": {
+  "main_lower_95": 0.975691305961763,
+  "main_pass": true,
+  "guardrail_nofpc_pass": false,
+  "normal_guardrail_lower": 0.8979148347511259
+ },
+ "conclusion_unchanged": true
+}

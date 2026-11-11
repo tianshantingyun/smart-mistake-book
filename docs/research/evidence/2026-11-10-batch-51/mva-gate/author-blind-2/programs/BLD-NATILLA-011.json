@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-NATILLA-011",
+    "program_id": "mva-BLD-NATILLA-011",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: 'v' },\n      { kind: 'text', payload: 'g' },\n      { kind: 'text', payload: '静止释放' }\n    ];\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var ball = visualSdk.circle(150, 110, 24);\n    var vShaft = visualSdk.polyline([[150, 142], [150, 255]]);\n    var vHead = [['M', 150, 272], ['L', 138, 250], ['L', 162, 250], ['Z']];\n    var gShaft = visualSdk.polyline([[245, 80], [245, 188]]);\n    var gHead = [['M', 245, 205], ['L', 233, 183], ['L', 257, 183], ['Z']];\n    return {\n      schemaVersion: 1,\n      sceneId: 'free-fall',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'ball', commands: ball },\n        { id: 'vShaft', commands: vShaft },\n        { id: 'vHead', commands: vHead },\n        { id: 'gShaft', commands: gShaft },\n        { id: 'gHead', commands: gHead }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'ball', fill: '#e6a23c' },\n          { type: 'path', pathId: 'vShaft', fill: '#26354a', stroke: { width: 3, cap: 'round' } },\n          { type: 'path', pathId: 'vHead', fill: '#26354a' },\n          { type: 'path', pathId: 'gShaft', fill: '#26354a', stroke: { width: 3, cap: 'round' } },\n          { type: 'path', pathId: 'gHead', fill: '#26354a' },\n          { type: 'label', contentId: metrics[0].contentId, anchor: { x: 162, y: 205 }, hAlign: 'left', vAlign: 'middle', color: '#26354a' },\n          { type: 'label', contentId: metrics[1].contentId, anchor: { x: 257, y: 140 }, hAlign: 'left', vAlign: 'middle', color: '#26354a' },\n          { type: 'label', contentId: metrics[2].contentId, anchor: { x: 150, y: 78 }, hAlign: 'center', vAlign: 'bottom', color: '#26354a' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

@@ -1,0 +1,131 @@
+{
+  "track": "3E",
+  "batch": "2026-11-09-batch-50",
+  "gate": {
+    "name": "3E 全库薄弱点扫描 / 队列 / 预算",
+    "criteria": [
+      "弱掌握点离开今日错题并集仍可被捞回",
+      "F8/F17 封顶生效",
+      "每日/单计划口径（KD-46）"
+    ],
+    "thresholds_changed": false,
+    "cap_value": 10,
+    "cap_source": "core/domain/src/main/kotlin/com/tingyun/smartmistakebook/core/domain/KnowledgeReviewFullLibraryScan.kt:30",
+    "verdict": "PASS_WITH_FLAGGED_LIMITATION",
+    "verdict_detail": "三条判据在真 Room 设备与 JVM 双读数上成立；但第二档无预留份额（并集按分取队），默认 20 分钟预算下今日档可占满知识点槽位使第二档贡献为 0（README §5 R1，产品判断，未改语义）"
+  },
+  "device": {
+    "serial": "emulator-5590",
+    "kind": "emulator",
+    "model": "sdk_gphone64_x86_64",
+    "sdk": 34,
+    "abi": "x86_64",
+    "physical_device": false,
+    "test_apk_sha256": "dc0abe9dc8b39c6eab52ed1e5e2882db7c9868a33a126f2941c549eaf0147a82",
+    "test_package": "com.tingyun.smartmistakebook.core.data.test",
+    "runner": "androidx.test.runner.AndroidJUnitRunner",
+    "command": "adb -s emulator-5590 shell am instrument -w -e class com.tingyun.smartmistakebook.core.data.study.StudyReviewPlanner3EScanInstrumentedTest com.tingyun.smartmistakebook.core.data.test/androidx.test.runner.AndroidJUnitRunner",
+    "red_phase": {
+      "log": "logs/01-instrument-3e-scan-existing.log",
+      "result": "Tests run: 3,  Failures: 3",
+      "time": "1.54",
+      "cause": "夹具过期（BudgetResolution 后构造预算被设置默认 1200s 覆盖；ea4348f9 后知识点队列预算改为当日计划预算）——非实现缺陷，生产码零改动"
+    },
+    "green_phase": {
+      "log": "logs/08-instrument-3e-green-final.log",
+      "result": "OK (4 tests)",
+      "time": "3.668",
+      "cases": [
+        "fullLibraryScanRecallsWeakNodesOutsideTodaysQueueUpToTheDailyCap",
+        "knowledgeQueueStopsAtTheTimeBudgetWhenItBindsBeforeTheDailyCap",
+        "scanQuotaIsPerPlanNotADailyCumulativeTotal",
+        "noExamDayPlanIsFingerprintIdenticalToAnOutOfWindowExamPlan"
+      ]
+    },
+    "fixture": {
+      "knowledge_nodes": 127,
+      "in_book_units": 126,
+      "weak_nodes": 120,
+      "today_nodes": 2,
+      "strong_negative_nodes": 3,
+      "no_material_negative_nodes": 1,
+      "material_only_negative_nodes": 1,
+      "scan_rows_expected": 126,
+      "clock": "2026-01-02T08:00:00Z",
+      "zone": "Asia/Shanghai",
+      "mistake_seconds_personalized": 600,
+      "knowledge_item_seconds": 180,
+      "budgets_seconds": { "full": 2700, "tight": 1200, "fingerprint": 1200 }
+    },
+    "observed": {
+      "full_budget_today_plan_items": 4,
+      "full_budget_knowledge_queue_items": 14,
+      "full_budget_recovered_outside": 10,
+      "full_budget_weak_outside_pool": 118,
+      "tight_budget_today_plan_items": 2,
+      "tight_budget_knowledge_queue_items": 6,
+      "tight_budget_recovered_outside": 4,
+      "per_plan_two_plans_cumulative_unique": 20,
+      "note": "以上为用例断言所钉的值（全部在绿跑中断言成立），非独立计时/采样"
+    }
+  },
+  "jvm": {
+    "domain": {
+      "command": "./gradlew :core:domain:test --tests \"com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest\" --console=plain",
+      "log": "logs/06-jvm-domain-knowledge-review-queue.log",
+      "xml": "jvm/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml",
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "time_s": 0.357,
+      "cases_of_interest": {
+        "scanQuotaIsPerPlanNotADailyAccumulator": "0.005",
+        "fiveThousandFullLibraryScanCandidatesStayWithinTheDailyCapAndScaleGate": "0.044",
+        "capsTheFullLibraryScanAtTheDailyCap": "0.000",
+        "aZeroDailyCapDisablesTheSecondTierEntirely": "0.021"
+      },
+      "note": "--tests 不可用于 :core:domain:testDebugUnitTest（委托包装任务，core/domain/build.gradle.kts:22-28），故用 :core:domain:test"
+    },
+    "data": {
+      "command": "./gradlew :core:data:testDebugUnitTest --tests \"...RoomBackedStudyExperienceRepositoryTest\" --tests \"...StudyReviewPlannerExamWindowTest\" --tests \"...StudyReviewPlannerServiceCapacityPreviewTest\" --console=plain",
+      "log": "logs/09-jvm-data-3e-classes.log",
+      "classes": {
+        "RoomBackedStudyExperienceRepositoryTest": { "tests": 33, "failures": 1, "failure": "profileStrengthsDropForgottenAndPrerequisiteSuppressedNodes", "attributed_to_3e": false, "note": "既有失败（批次 49 记录同项），与两档/预算/名额无交集；未修、未记通过" },
+        "StudyReviewPlannerExamWindowTest": { "tests": 8, "failures": 0 },
+        "StudyReviewPlannerServiceCapacityPreviewTest": { "tests": 4, "failures": 0 }
+      },
+      "three_e_methods_passing": [
+        "currentKnowledgeReviewPlanCoversTodaysQueuePlusTheFullLibraryScan",
+        "currentKnowledgeReviewPlanScansTheLibraryEvenWhenTodaysQueueIsEmpty"
+      ]
+    }
+  },
+  "artifacts_sha256": {
+    "logs/01-instrument-3e-scan-existing.log": "0bee5507c24a2dfd665a002070dafe4ba9e38574c7118b2e59ee2766fc65d402",
+    "logs/08-instrument-3e-green-final.log": "93c3fe118942000a6a2016df322cda0621c46c178b7610d501356e4451277174",
+    "logs/06-jvm-domain-knowledge-review-queue.log": "fe8fe6dcaaeb0872e5414a18ff7e08635a5badbe64a8f7814f0dc69bd6f12a93",
+    "logs/09-jvm-data-3e-classes.log": "58ddc63ce0633f73451b6036d1ee6d336989cd0a94ddea69f105512fb64c8027",
+    "jvm/TEST-com.tingyun.smartmistakebook.core.domain.KnowledgeReviewQueueTest.xml": "93a9d9e1536358dbb15f5b63d0128e48df3a2372ef6e151aa0c44a59b2bab167",
+    "jvm/TEST-com.tingyun.smartmistakebook.core.data.study.RoomBackedStudyExperienceRepositoryTest.xml": "199653840b86540abb2616293de649ec1a9058e3bc563493a1b1b3073516f36c",
+    "jvm/TEST-com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerExamWindowTest.xml": "2e3dee3cbd3b16bb87fc9d4618a775679599085440896f3baf7f4404abb7efc9",
+    "jvm/TEST-com.tingyun.smartmistakebook.core.data.study.StudyReviewPlannerServiceCapacityPreviewTest.xml": "5c8410f97b4efb6c9ed3e8a1b1b80ab7b7f5502689be9f9ab31ec0de8a1080d7"
+  },
+  "snapshot": {
+    "git_head": "a87fc70d15c8ad726cee17422dbeef0b4977747d",
+    "branch": "main",
+    "time_local": "2026-11-08 15:59:54 +0800",
+    "file": "00-snapshot.txt"
+  },
+  "unverified": [
+    "真机（仅 emulator-5590 / x86_64 / API 34）",
+    "2h soak",
+    "connectedLocalFirstDebugAndroidTest（计划禁令，未跑）",
+    "生产用户真实库导出数据（种子为确定性合成内容）",
+    "设备侧扫描 SQL 的独立耗时（只记录整组 Time: 3.668，含建库/播种）",
+    "RoomBackedStudyExperienceRepositoryTest#profileStrengthsDropForgottenAndPrerequisiteSuppressedNodes 的根因（既有失败，未归因本轨）"
+  ],
+  "production_code_changed": false,
+  "kb_content_changed": false,
+  "git_added_or_committed": false
+}

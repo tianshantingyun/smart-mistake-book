@@ -2066,6 +2066,18 @@ internal class RoomStudyDatabase(
     override suspend fun readChatEvidenceByLearner(learnerId: String): List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity> =
         database.chatEvidenceDao().readByLearner(learnerId)
 
+    override suspend fun readChatEvidenceKnowledgeNodeIds(
+        learnerId: String,
+        sourceKind: String,
+        sinceEpochMillisInclusive: Long,
+        untilEpochMillisExclusive: Long,
+    ): List<String> = database.chatEvidenceDao().readKnowledgeNodeIdsBySourceKindBetween(
+        learnerId = learnerId,
+        sourceKind = sourceKind,
+        sinceInclusive = sinceEpochMillisInclusive,
+        untilExclusive = untilEpochMillisExclusive,
+    )
+
     override suspend fun readChatEvidenceByConversation(conversationId: String): List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity> =
         database.chatEvidenceDao().readByConversation(conversationId)
 
@@ -2640,6 +2652,14 @@ internal class RoomStudyDatabase(
         database.errorCauseDao()
             .findActiveBindingWithAcceptedSource(scope.activeKey())
             ?.toRecord()
+
+    // 批次 50 / 5c：详情页候选只读口（PROPOSED 行；按当前修订过滤由调用方做，R2 I7）。
+    override suspend fun readProposedObservations(
+        learnerId: String,
+        practiceUnitId: String,
+    ): List<ErrorCauseObservationRecord> = database.errorCauseDao()
+        .proposedObservations(learnerId, practiceUnitId)
+        .map { it.toRecord() }
 
     override suspend fun acceptObservationAndActivateBinding(
         binding: ErrorCauseBindingRecord,

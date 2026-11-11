@@ -1,0 +1,4 @@
+missing-P EXIT=1
+noninteger EXIT=1
+outofrange EXIT=1
+valid EXIT=0

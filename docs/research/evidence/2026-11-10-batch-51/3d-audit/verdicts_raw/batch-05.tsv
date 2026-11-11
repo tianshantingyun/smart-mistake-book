@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-3696d5ee88-007	CORRECT		high	斜抛运动常用两类分解：正交分解法	
+ext-phy-e219890fe7-004b	CORRECT		high	B 与 S 垂直时 Φ＝BS；不垂直时 Φ＝BS⊥＝BScosθ	
+chem-fx-qi-ti-de-chu-za-fang-fa-f28x04	REBIND	写出除去下列气体中混有的杂质-括号内为杂质-可采取的方法	high	除杂原则：①不损失主体气体；②不引入新的杂质气体	现绑为闻气体方法，材料讲气体除杂试剂选择与原则
+ext-mat-43ca698f76-001	CORRECT		high	用单位方向向量与投影向量把点到直线的距离化为	
+ext-bio-85c5450274-012	CORRECT		medium	基本骨架由脱氧核糖和磷酸组成排列在外侧、具有亲水性；碱基具有疏水性位于内侧	
+ext-bio-145e4cd04c-032	CORRECT		high	初始转录本须经转录后加工才能用于翻译	
+ext-mat-d5ea8bcaad-002	CORRECT		high	任何三次函数图象都有对称中心	
+ext-mat-e28ab47eaa-044	CORRECT		high	含参式是幂函数时先按定义令系数为 1 解出参数	
+ext-che-c2b485f93d-035	CORRECT		high	判断共线共面前先圈定题干限定词	
+ext-phy-1712b4399f-004b	CORRECT		high	轨迹圆半径等于磁场区域圆半径时，平行射入的粒子会聚于同一点（磁聚焦）	
+ext-mat-75d5c5ac0b-010	CORRECT		medium	把“过点可作 n 条切线”转化为含参方程根的个数	
+phys-double-rod-energy-constant-force	CORRECT		high	恒力 $F$ 做的功转化为两杆的动能和内能	
+ext-mat-289deb9ecd-168	CORRECT		medium	换元法：令 t=g(x) 反解出 x 关于 t 的表达式	
+bio-mo-immunity-019	CORRECT		high	如果自身免疫反应对组织和器官造成损伤并出现了症状，就称为自身免疫病	
+ext-phy-f48e1ce511-010	CORRECT		high	原子核自发地放出 α 粒子或 β 粒子，变成另一种原子核的变化称为原子核的衰变	
+ext-phy-e14aad82a5-201	CORRECT		high	三点共线、两同夹异、两大夹小	
+ext-bio-3e86f5b183-002	CORRECT		high	生态位是物种在群落中的地位或作用	
+ext-che-f8568a6373-016b	CORRECT		high	强电解质的电离用等号连接，弱电解质的电离用可逆号连接	
+ext-che-4aca25a694-011	CORRECT		high	若溶液呈酸性，先求溶液中 $c(H^+)$	
+chem-fx-yi-zhi-f55x03	CORRECT		high	曲线上方的点为不饱和溶液	
+phys-hj2-li-de-tushi-shiyitu	CORRECT		medium	力的图示：用一条带箭头的线段（按选定标度）表示力的大小、方向、作用点	节点boundary为圆环轨道内容（疑错置）；名称与材料一致
+ext-che-5c62da9e03-2061	CORRECT		medium	用金属网罩罩住酒精灯的外焰，可把火焰热量集中到被加热物体上	
+ext-phy-b499bf2257-105	CORRECT		high	y=y₀+L·tanθ，其中L为屏到偏转电场的水平距离	
+ext-phy-1b4d7be486-001	CORRECT		high	若两个正数的积为定值，当两数相等时，和最小	
+chem-kb-subgroup-zero-valence-config	REBIND	原子结构与元素周期表的关系	high	0族为ns2np6，ⅠB、ⅡB最外层ns电子数等于族序数	现绑VSEPR构型，材料讲价层电子排布判族
+chem-hj2-wukan-rehuaxue-zhengwu	CORRECT		high	一看：是否标注各物质的聚集状态	
+ext-mat-af791ee0ba-003	CORRECT		medium	分式不等式：先移项使右边为 0，再通分并把分子、分母分解因式	
+ext-mat-7334a68e82-002	CORRECT		high	把量词关系转化为最值关系	
+ext-che-76fd5cd2f3-046	CORRECT		medium	同浓度的碳酸钠和碳酸氢钠溶液中，碳酸根离子水解程度更大、碱性更强	
+ext-mat-418086fcde-082	CORRECT		high	优先几何分析、弱化代数硬算	
+ext-mat-1a41d4f137-005b	CORRECT		high	易错二：使用基本不等式不严谨，未满足『一正二定三相等』	
+ext-che-72b20828f8-012	CORRECT		high	汇总排布式书写的四个要点、Cr 与 Cu 特例及价层电子的含义	
+ext-che-15fcabc7cf-001b	CORRECT		high	饱和食盐水先通入氨气，再通入二氧化碳	
+ext-phy-f79c5cbe5c-001	CORRECT		high	改变物体内能有两种方式：做功和传热	
+ext-mat-cdf551a3e4-019	CORRECT		high	求y＝Asin(ωx+φ)、y＝Acos(ωx+φ)（ω＞0）的单调区间时把ωx＋φ视为一个整体	
+ext-bio-5f510cdc4a-1089	CORRECT		medium	红细胞内的碳酸酐酶使二氧化碳与水结合生成碳酸	
+math-hj-s12-judge-set	REBIND	充分条件与必要条件的判断	high	A⫋B 时 A 是 B 的充分不必要条件	现绑为求参数，材料是集合包含关系判定充要条件
+phys-hj3-wave-particle-duality-angles	CORRECT		high	个别光子表现为粒子性、大量表现为波动性	
+ext-bio-362fa1edab-057	CORRECT		high	主动运输能主动选择吸收所需营养物质，排出代谢废物和对细胞有害的物质	
+phys-fx-block-plank-solve-key	REBIND	板块模型	medium	由滑块与木板的相对运动判断板间摩擦力方向	现绑临界/动量能量，材料为板块模型受力与位移
+ext-phy-5969dc8eeb-011	CORRECT		high	摩擦力产生必须同时满足接触挤压、接触面粗糙与有相对运动或相对运动趋势三个条件	
+bio-kb3-f4-s06-n07	CORRECT		medium	类型：有机化合物；化合物：蛋白质；质量分数/%：占7～10	
+ext-mat-39c496a7c2-010b	CORRECT		high	f(x＋a)＝f(a－x) 等价于图象关于 x＝a 对称	
+ext-phy-06222c9a25-002	CORRECT		high	若滑块与木板同向运动，两者位移之差等于板长	
+math-mo-kexi-zhongzhi	CORRECT		high	柯西中值定理：设 $f(x)$、$g(x)$ 在 $[a,b]$ 上连续	
+ext-mat-4d3c73742d-003	CORRECT		high	经验回归直线过样本中心点（x̄，ȳ）	
+ext-mat-016b8d47a6-002	CORRECT		high	不等式恒成立可转化为参数与函数最值的大小关系	
+ext-mat-347cb02bf5-002c	REBIND	复数的四则运算	medium	(1±i)²＝±2i 与两个 (1±i) 分式的值是最常用的化简速记	现绑i^n周期，材料是(1±i)²与分式运算速记
+ext-bio-8c5f3169c5-017	CORRECT		high	初级生产量由净初级生产量和呼吸消耗组成	
+ext-phy-99a715fe4f-006	CORRECT		high	改以 1/M 为横轴作 a-1/M 图像，图线为过原点的直线	

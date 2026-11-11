@@ -1,0 +1,40 @@
+{
+    "file": "IMG20260810004511.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 40297,
+    "responseHead": "{\"id\":\"7cf518b9-2259-4d71-a13d-30953169aba3\",\"object\":\"chat.completion\",\"created\":1794127170,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.18,\\\"top\\\":0.05,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"画面包含第9、10两道独立题，应拆分。\\\"},{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.55,\\\"top\\\":0.35,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"第10题选项不完整，右侧或下部被裁切。\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.22,\\\"top\\\":0.05,\\\"right\\\":0.56,\\\"bottom\\\":1.0},{\\\"left\\\":0.56,\\\"top\\\":0.05,\\\"right\\\":1.0,\\\"bottom\\\":1.0}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON only.需要判断图片。图片逆时针旋转了，内容是一页题，似乎包含第9题多选完整选项ABCD，第10题多选题干及选项？但图片右边缘/顶部？需要仔细看。用户要求是否足以完整转写一道或多道独立题。图片显示：左侧被裁切? 图片是纵向但文字旋转90度。可见内容：从左侧开始有 C. 根据小概率值... D... 属于上一题选项，接着 9.(多选) 传承红色文化... 题目完，有选项 A? B? C? D? 部分混乱：题目下方选项 A? 实际上在9题题干后：A. 7名同学站成一排，小明、小红、小华必须从左到右的顺序站位，则不同的站法种数为840。B. ... 小红两人相邻，则不同的排法种数为720。C. 小明、小红两人不相邻，则不同的排法种数为480。D. 7名同学分成三组（每组至少两人），进行三种不同的训练，则有630种不同的训练方法。选？有手写C? 然后10题 (多选) 甲、乙两人进行象棋比赛... 题干完整？可见：“赛前每人发3枚筹码.一局后负的一方，需将自己的1枚筹码给对方；若平局，双方的筹码不动，当一方无筹码时，比赛结束，另一方最终获胜.由以往两人的比赛结果可知，在一局中甲胜的概率为0.3，乙胜的概率为0.2.用P_i(i=0,1,...,6)表示“在甲所得筹码为i枚时，最终甲获胜的概率”，则 [ ]” 然后下方可见 A. 第一局比赛后甲的筹码个数记为X，则期望E(X)=3.1 ... 还有BC？图片下方/右侧被裁切：可见“第四局比赛后，比赛结束的概率为0.0405”？这是C/D选项？图片右边界可能截断部分选项，且左边有上一题选项C,D。第9题完整？第10题选项显示部分：A完整（第一局比赛后甲的筹码个数记为X，则期望E(X)=3.1）；下方文字“四局比赛后，比赛结束的概率为0.0405”可能是D? 左侧还有手写？需要判断是否存在缺失选项。图片右侧和底部裁切，第10题选项不完整。此外包含2道独立题（9和10）",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "MISSING_OPTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.22,
+            "top": 0.05,
+            "right": 0.56,
+            "bottom": 1.0
+        },
+        {
+            "left": 0.56,
+            "top": 0.05,
+            "right": 1.0,
+            "bottom": 1.0
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 2,
+    "layoutHint": null,
+    "layoutHintChars": 0,
+    "image": {
+        "egressBytes": 565447,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "e87f5262ebd762c2ba7e699e9193e13f8b60a42f2adcf18dec04f86cd57b936b",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

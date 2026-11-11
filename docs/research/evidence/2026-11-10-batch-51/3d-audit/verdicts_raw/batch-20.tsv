@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-phy-59dd10c06b-009b	CORRECT		high	5.检查与研究对象接触的周围物体，防止漏力或多力。	
+phys-hj3-ohmmeter-usage-rules	CORRECT		high	测电阻须断开原电路、换挡必调零、读数乘倍率、手指不碰表笔金属杆。	
+ext-che-c978b64494-031	CORRECT		medium	溶解后依次用稍过量BaCl2、Na2CO3、NaOH除去SO42-、Ca2+、Mg2+并过滤	
+ext-mat-9207e8ebfd-039	CORRECT		high	从备选解析式里挑出与给定图象匹配的那个：先看图象在原点等关键点处有无定义、对照各选项的定义域排除	
+ext-mat-75a1a41dd4-007	CORRECT		high	把向量坐标与正弦余弦相乘相加得到的三角函数，可化为一个正弦型函数	
+ext-mat-7364440aa4-002	CORRECT		high	一是移项构造差函数求最值，二是把复杂函数拆成两个易求最值的函数分别比较。	
+ext-che-a4f995ac24-003	CORRECT		high	格氏试剂与水、卤代烃、二氧化碳、甲醛反应可分别得到烷烃、增长碳链的烷烃、羧酸和伯醇。	
+ext-mat-c2b7a9eb0d-004	CORRECT		high	把方程写成 a0 乘以各因式 (x－xi) 的乘积并比较系数，可推出三次方程三根的和、两两积与乘积。	
+ext-mat-04622e0ad2-004	CORRECT		high	证面面平行可用判定定理、垂直传递性与平行传递性。	
+bio-mo-cell-engineering-061	CORRECT		medium	滋养层：囊胚时期沿透明带内壁扩展和排列的、个体较小的细胞	
+ext-bio-f588dc8d58-005	CORRECT		high	说明生长素低浓度促进、高浓度抑制的特点及不同器官、生物、细胞对生长素敏感程度的差异。	
+ext-che-d23d27f750-005b	CORRECT		high	电子式用点或叉表示原子最外层电子，需注意分布与括号。	
+ext-bio-d9f5ec82ec-007	REBIND	核苷酸	high	DNA的组成元素为C、H、O、N、P，单体是4种脱氧核苷酸，彼此差别在含氮碱基。	材料讲组成元素与脱氧核苷酸单体，非双螺旋结构
+ext-mat-97911b611b-031	CORRECT		high	把新定义翻译成相邻两项与常数的大小关系，再按 n 的奇偶分两类解不等式。	
+ext-bio-598fee4795-019	CORRECT		high	松土增大土壤空隙，增强根呼吸进而促进矿质元素吸收	
+chem-fx-heng-rong-mi-bi-rong-qi-zhong-an-bu-to-f44x07	NONE		medium	②恒容密闭容器中按不同进料比充入和其，测定温度下体系达平衡时的	残缺题干，变量与结论缺失，无可判定知识点
+ext-mat-a7b2307c11-004	CORRECT		high	第 n 组含 n 个数时，前 n−1 组共有 n(n−1)/2 项，故第 n 组首项是原数列第 n(n−1)/2+1 项	
+ext-che-5c8ab8324c-108	CORRECT		high	判断时先看需要阻止哪种离子通过、再需要允许哪种离子通过	
+ext-che-095a44dcdd-013	CORRECT		high	由强酸制弱酸判断产物：CO2通入NaClO、苯酚钠溶液时只生成HCO3−，与用量无关。	
+ext-che-e47f5611e7-003c	CORRECT		high	蒸馏法、电渗析法、离子交换法淡化海水的原理	
+math-fangshuo-bimian-guodufangshuo	CORRECT		medium	放缩不能过于宽松，否则推不出目标结论。	
+ext-phy-2b63d7a05b-007c	CORRECT		high	人与船相互作用时系统动量守恒，两者位移大小之和等于船长，位移与质量成反比。	
+ext-phy-a0d29f0a48-031	CORRECT		high	重力、弹力、静电力、分子力做功对应相应势能的减少量	
+ext-phy-ce9f317a5b-003	CORRECT		high	先建立函数关系再读图，并特别注意图像的临界点与交点	
+ext-che-e10749660f-005	CORRECT		high	晶胞是描述晶体结构的基本单元、晶体中最小的重复结构单元	
+ext-phy-ecde1aee5b-006	CORRECT		high	轻杆平动时连接体具有相同的平动速度，轻杆转动时连接体的速度、加速度一般不同。	
+ext-phy-19584f213c-001c	CORRECT		high	只有重力或弹力做功时动能与势能相互转化而总机械能不变	
+math-binomial-solution-steps	CORRECT		high	识别模型、求单次概率、算各值概率、写分布列四步求解。	
+math-hj-s11-subset-count	REBIND	子集的个数问题	high	n 元集合共有 $2^n$ 个子集，真子集与非空子集各 $2^n-1$ 个	材料讲子集个数公式，与n次方根性质无关
+ext-bio-964376c6e3-074	CORRECT		high	配子致死是致死遗传因子在配子时期发挥作用、不能形成含某种遗传因子的配子	
+ext-phy-7e00772931-004	CORRECT		high	变力做功无法直接用功的公式求解时，对过程列动能定理	
+ext-bio-cb4d97d37d-002b	CORRECT		high	描述种群数量变化常用数学模型，步骤为发现问题—提出假设—数学表达—检验修正	
+ext-phy-d625775dcf-011	CORRECT		high	由电荷正负与电场线方向确定场强与加速度大小	
+ext-bio-e3a300b276-005	CORRECT		high	位于性染色体上的基因控制的性状在遗传上总与性别相关联	
+bio-fx-sodium-potassium-pump-detail	CORRECT		high	Na+-K+泵每次把3个Na+泵出细胞、2个K+泵入细胞，均为逆浓度梯度的主动运输。	
+ext-che-1b66b297bd-002b	REBIND	结晶方法的选择与操作	high	溶解度受温度影响小的溶质用蒸发结晶，影响大的用降温结晶	材料讲蒸发结晶与降温结晶的选择，非蒸发浓缩操作
+ext-che-4c36fb1017-027	CORRECT		high	按化学计量数之比投料时，达平衡时两反应物的转化率相等	
+ext-mat-756b0344d1-002	CORRECT		high	把对数平均不等式改写成三条斜率的比较	
+bio-fj-20-franklin-diffraction-evidence	CORRECT		medium	威尔金斯和富兰克林提供的DNA衍射图谱表明DNA分子呈螺旋结构，是双螺旋模型构建的重要依据。	
+ext-phy-6f83133765-089	CORRECT		high	保证气体质量不变靠橡胶套与柱塞封闭空气柱	
+ext-che-af5d7e549d-079b	CORRECT		high	饱和一元醛与酮的组成通式均为CnH2nO。	
+ext-che-029c690d39-020	CORRECT		medium	热还原制取金属时，还原剂的选择除考虑价格外，还要看是否引入新杂质、产物是否便于分离提纯。	
+ext-che-a13e903c71-019	CORRECT		high	含硫物质转化遵循台阶式升降、相邻价态不氧化还原和归中规律。	
+phys-hj3-xt-vt-image-compare	CORRECT		high	两类图像外形可能相同但物理意义完全不同，先看纵轴再下结论。	
+ext-che-d46a1fe501-013b	CORRECT		high	Fe2+与氧化性离子、Fe3+与还原性和水解相互促进的离子、Fe3+与SCN-在溶液中都不能大量共存。	
+ext-che-da6274793d-007b	CORRECT		high	配位键是共用电子对由一方单独提供的特殊共价键	
+ext-che-5c62da9e03-2753	CORRECT		high	「酯」是无机含氧酸或有机酸与醇通过酯化反应生成的一类有机物	
+ext-bio-2b57888b0f-011	CORRECT		high	显性纯合子育种可用连续自交法或株系法	
+chem-hj-rongjiedu-gainian-yinsu	REBIND	固体和气体的溶解度	high	固体溶解度指一定温度下 100 g 水中达到饱和所溶的质量；气体溶解度随温度升高减小。	材料讲溶解度概念与影响因素，非溶解性等级关系
+ext-phy-7a8d42b6f9-001	CORRECT		high	天体运动模型研究自然天体与人造天体问题，核心是万有引力提供向心力。	

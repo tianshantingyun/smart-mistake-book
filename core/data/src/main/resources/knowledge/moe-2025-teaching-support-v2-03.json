@@ -34447,7 +34447,7 @@
    "contentId": "chem-hj2-liu-danxiangsi-xiangrong-jieshi",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:忽视溶液中水的存在",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:硫及其化合物之间的转化规律",
      "role": "PRIMARY"
     }
    ]
@@ -35459,7 +35459,7 @@
    "contentId": "chem-hj2-mei-dan-dian-fanshi-ranshao",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:铁粉与硫粉在空气中混合燃烧时-可能发生哪些反应",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:镁的化学性质",
      "role": "PRIMARY"
     }
    ]
@@ -37581,29 +37581,6 @@
    ]
   },
   {
-   "slug": "chem-fx-zai-biao-zhun-zhuang-kuang-xia-f01x08",
-   "subject": "CHEMISTRY",
-   "type": "CONCEPT_EXPLANATION",
-   "title": "在标准状况下",
-   "summaryMarkdown": "在标准状况下，将含a L NO2和b L NO的混合气体通入625 g质量分数为21.2%的纯碱溶液中，恰好完全被吸收，且吸收液质量增加44 g。",
-   "applicabilityMarkdown": "复习“(选择题1~11题，每小题6分，共66分)”相关考点、解答对应试题时使用。",
-   "contentMarkdown": "在标准状况下，将含a L NO2和b L NO的混合气体通入625 g质量分数为21.2%的纯碱溶液中，恰好完全被吸收，且吸收液质量增加44 g。",
-   "boundaryMarkdown": "该结论为一般规律归纳，个别特例需结合具体物质的性质与反应条件单独判断。",
-   "derivationKind": "REVIEWED_SYNTHESIS",
-   "sourceId": "registry-kb-chemistry-methods:chemistry",
-   "sourceLocator": "化学方法类《第二章 第8讲 化学计算的常用方法（学生版）》",
-   "reviewedAtEpochMillis": 1784908800000,
-   "contentAttribute": "AI_SYNTHESIZED",
-   "contentProvider": "moe-2025-four-subjects-v1",
-   "contentId": "chem-fx-zai-biao-zhun-zhuang-kuang-xia-f01x08",
-   "bindings": [
-    {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:看-气体-是否处于-标准状况-0-101kpa",
-     "role": "PRIMARY"
-    }
-   ]
-  },
-  {
    "slug": "chem-fx-ben-de-tong-xi-wu-de-ming-ming-f02x01",
    "subject": "CHEMISTRY",
    "type": "CONCEPT_EXPLANATION",
@@ -39185,7 +39162,7 @@
    "contentId": "chem-fx-wei-guan-you-jiu-hua-xue-jian-duan-lie-f07x04",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:物质的化学键",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:化学反应的本质",
      "role": "PRIMARY"
     }
    ]

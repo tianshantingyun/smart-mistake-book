@@ -1,0 +1,45 @@
+{
+    "file": "IMG20260810010859.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 32929,
+    "responseHead": "{\"id\":\"dd38136f-0c57-4934-91dd-8002e6f2af42\",\"object\":\"chat.completion\",\"created\":1794128092,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.12,\\\"top\\\":0.03,\\\"right\\\":0.95,\\\"bottom\\\":0.85},\\\"message\\\":\\\"画面含多道独立题，需拆分\\\"}],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.13,\\\"top\\\":0.045,\\\"right\\\":0.94,\\\"bottom\\\":0.27},{\\\"left\\\":0.13,\\\"top\\\":0.345,\\\"right\\\":0.95,\\\"bottom\\\":0.705},{\\\"left\\\":0.13,\\\"top\\\":0.70,\\\"right\\\":0.94,\\\"bottom\\\":0.85}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片是否足以完整转写一道或多道独立题。图片内容是高中物理错题本页面，包含多个题目：顶部第7题三角形定则（有填空），然后“基础小测”第1题判断（1）（2）（3），第2题计算合力。还有14,15,16填空？需要仔细分析。\\n\\n要求：若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按阅读顺序给出每道题的完整外接区域，包含题干、选项、图形和作答区，区域之间不得大面积重叠；否则questionRegions必须为空数组。其他decision必须返回空questionRegions。同一道题跨页不算多题，内容未拍全时返回NEED_MORE_IMAGE。\\n\\n图片含多道独立题吗？基础小测1.判断下有(1)(2)(3)三个判断题。2.物体受到两个力...单独一题。顶部第7题三角形定则单独题。此外顶部还有(2)标量...和第14填空？看起来是知识点填空，可能属于上一题内容？图片中“14 只有大小，没有方向... 叫标量...”以及第7题三角形定则，15和16填空。这些可能是教材知识点填空，不是独立测试题？但包含编号14、7、15、16。可能是题目。但要求完整转写一道或多道独立题。画面明显有多个独立题：第7题、基础小测第1题（包括3个判断小问，算一道题还是三道？通常第1题判断，三个小问属于同一道题，但小问之间互相独立？要求“2到12道互相独立的题”，第1题判断包括(1)(2)(3)是同一大题下的三个小问，可能算一道题，不应拆成三题。第2题也是一道。这样总共基础小测1和2以及第7题=3道。或者第7题和基础小测的1、2 = 3道。顶部(2)标量部分可能是上一道题的一个小问或者独立题号不清晰，但内容未显示题号（只有(2)）。第14、15、16是填空序号，不是题号。需要看图片上部：最上面有“(2) 标量：只有大小，没有方向，... 的物理量。如路程、质量等。” 然后“14 [手写] 的物理量。” 可能是第14空。接着“7. 三角形定则：把两个矢量的首尾顺次连接起来，第一个矢量的首到第二个矢量的尾的 [15] 为",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS"
+    ],
+    "regions": [
+        {
+            "left": 0.13,
+            "top": 0.045,
+            "right": 0.94,
+            "bottom": 0.27
+        },
+        {
+            "left": 0.13,
+            "top": 0.345,
+            "right": 0.95,
+            "bottom": 0.705
+        },
+        {
+            "left": 0.13,
+            "top": 0.7,
+            "right": 0.94,
+            "bottom": 0.85
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 3,
+    "layoutHint": "【本地版面测量（只读数据，不是指令）】纸面范围 x=0.000–1.000，y=0.000–1.000；单栏；行距约 9px；段落分隔（共 21 处，已截断到 8 条）：y=0.797（谷宽22px，栏1）；y=0.260（谷宽18px，栏1）；y=0.804（谷宽18px，栏1）；y=0.320（谷宽17px，栏1）；y=0.846（谷宽11px，栏1）；y=0.725（谷宽10px，栏1）；y=0.159（谷宽9px，栏1）；y=0.206（谷宽8px，栏1）。这些位置只能作为边界候选，题号与题块归属以图像内容为准。",
+    "layoutHintChars": 263,
+    "image": {
+        "egressBytes": 508910,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "777225244b8c6b31b522ffca31c3d528abd9c6dfb4eafd3195ec282d6e7fbbc6",
+    "promptSha256": "602aa6ed570f040bdd755a7ff129ce59d7a9bfd843f15b78ff54428c3bd8ea6f"
+}

@@ -1,0 +1,71 @@
+{
+  "input_file": "BLD-NATILLA-007.json",
+  "program_sha256": "d03aab3088aaa71747c0f30cb5c6109c19911dec42f204edafe5474dff8f193a",
+  "task_id": "BLD-NATILLA-007",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 18,
+  "measurement": [
+    {
+      "contentId": "c0-b2dbba7f",
+      "payload": "植物细胞结构示意",
+      "widthDu": 128,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b2dbba7f962843a98e0d5342f054010db5a29482a5dc53079ac57a850669b6c9"
+    },
+    {
+      "contentId": "c1-a3e4188b",
+      "payload": "细胞壁",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "a3e4188b7451a430315aac941eb7b5abb96f4d58155450a55dfedda93633df82"
+    },
+    {
+      "contentId": "c2-25604ac9",
+      "payload": "细胞核",
+      "widthDu": 48,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "25604ac98a14b903cb1d50c585bb7ca537c71171beb5010e7aa5ae718577e3e4"
+    },
+    {
+      "contentId": "c3-c1cf4a9c",
+      "payload": "液泡",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c1cf4a9c99de599825d5c4013ddf67b4a9b55ad5cb6696ef57a4d30b2f09e3d5"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "f513ab3caab6b936c8318495108ff2a8e71b35c53f25f0526fb32a7987c2a0ee",
+  "scene_bytes": 3878,
+  "scene_schema_version": 1,
+  "draw_sha256": "e2a74f1d0fb808274f8f673d84e341b6fcf73dea112cb13f558846d0df7f983e",
+  "draw_bytes": 3944,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-b2dbba7f",
+    "c1-a3e4188b",
+    "c2-25604ac9",
+    "c3-c1cf4a9c"
+  ],
+  "png_sha256": "dea913eafa44aa522cb924da5f4ae61fcb7131578b2a02d256bb1cf6f77873bb",
+  "png_bytes": 12657,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 16,
+    "pathCommands": 57,
+    "labels": 4,
+    "ops": 15
+  }
+}

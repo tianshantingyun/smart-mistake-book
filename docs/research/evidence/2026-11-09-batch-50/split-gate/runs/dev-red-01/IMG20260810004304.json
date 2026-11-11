@@ -1,0 +1,24 @@
+{
+    "file": "IMG20260810004304.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 5918,
+    "responseHead": "{\"id\":\"197b6bf8-3375-434d-bbae-81e2f9a9aec1\",\"object\":\"chat.completion\",\"created\":1794127164,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要判断图片是否足以完整转写一道或多道独立题。图片是一页化学试题，横向旋转。看起来是一整道大题，题号16，包含题干、装置图、若干小问。画面只有这一道题。需要检查是否完整可读，有无缺失选项、关键文字不可读、眩光覆盖公式、遮挡、多题。看起来完整覆盖整道题，文字可读。虽然有手写笔记，但未遮挡关键内容。图片边缘可能有些部分被截断？顶部和底部内容完整？图片中有页眉“化学试题 第6页，共8页”。题目从16开始，一直到最后，应该是完整的一道题。但注意图片拍摄角度倾斜，文字横向，不过可读。需要判断是否需要重新拍摄。由于图像旋转90度，文字可读。有没有关键文字不可读？部分公式手写有点遮挡但可辨认。题目要求：判断图片是否足以完整转写一道或多道独立题。如果只有一道题且完整可读，decision PASS。但这里题目较长，有小问，没有独立多题。需要检查图片是否完整包含所有内容：左侧有题号16和题干，包括DCDMH结构、装置图，右侧有(1)(2)(3)(4)小问，最后有①已知、②空白实验，结尾“DCDMH的质量分数为______”。页面底部可能有内容？看起来最后一行被截断？在图片右侧，最后有“DCDMH的质量分数为______（用含有a、c、V1、V2的代数式表示）。” 以及红色批改。基本完整。但页面顶部上方没有内容。这张照片包含整道题。decision PASS。issues空数组，suggestedActions空数组？但要求suggestedActions数组，如果PASS可以空数组。questionRegions空数组。followingPageRelations空数组。必须只返回JSON。注意schema：fields: decision, issues, suggestedActions, questionRegions, followingPageRelations. 需要输出json_object。所以返回{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\\n\\n需要仔细考虑：图片中是否有“MULTIPLE_QUESTIONS”? 只有一道题16，包含多个小问，不算独立题。符合PASS。是否需要指出图像旋转？不在schema中。跳过。可能MISSING_OPTIONS? 化学题没有选项？有些填空，不是选择题。所以无。KEY_TEXT_UNREADABLE? 顶部有化学式小字可读。手写笔记覆盖了一些，但关键文字可见。GLARE? 无明显眩光。OCCLUDED? 没有遮挡。所以PASS。返回JSON。\"},\"logprobs\":null,\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":1347,\"completion_tokens\":608,\"total_tokens\":1955,\"prompt_tok",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "layoutHint": null,
+    "layoutHintChars": 0,
+    "image": {
+        "egressBytes": 499971,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "c2a8b5115d3d4955f7785fa17facd4b50df75861ca3d264d8a1f1765464a36a7",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

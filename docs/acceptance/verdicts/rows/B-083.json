@@ -1,98 +1,58 @@
 {
-  "id": "B-083",
-  "verdict": "PASS",
-  "run_id": "2026-11-05T20:56:14+08:00-batch47-line-review-b",
-  "reviewer": "batch47-line-reviewer-B",
-  "authors": [
-    "batch45-evidence-producer-B"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "test:docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-restore.xml",
-    "device:docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-restore.device.json",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-plan-gate.log",
-    "test:docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-plan-sync.xml"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-restore.xml": "e7d6aa7166fb16e1a1da97b3d2fcaf5caabf6593cad903f5b4562fe96463d0c6",
-    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-restore.device.json": "fc5396f872361f6cf360c047f9218a86adf2dc34cd5dee2d0d2f905a34c7c478",
-    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-plan-gate.log": "0fed1b40d85fb9a35f598881b083ea144140c4337b871a1ada9f26283756cfd3",
-    "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-plan-sync.xml": "e2bf0df60c7e787bdb5bf301e5914edec8fa994749adde7ec64f2b8e6c0fa610"
+ "id": "B-083",
+ "verdict": "PASS",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "evidence": [
+  "device:docs/acceptance/evidence/2026-11-09-batch-50/device/b-backup-34.device.json",
+  "file:docs/research/evidence/2026-11-09-batch-50/device/14-instrument-com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest-on-synced-apk.log"
+ ],
+ "evidence_sha256": {
+  "docs/acceptance/evidence/2026-11-09-batch-50/device/b-backup-34.device.json": "4c23d8094246454fc20aa1e600a2c8f71abbbf09ffb4d14c01fc4be8c9b8a7c4",
+  "docs/research/evidence/2026-11-09-batch-50/device/14-instrument-com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest-on-synced-apk.log": "13fbf5d58173327584af0a18fc10dfe0955f24bcdf6a5756b6482180274037ad"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=B-083; verdict=PASS; line=304; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=B-083; verdict=PASS; line=304; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-restore.xml",
-      "value": "tests=48; failures=0; errors=0; skipped=0; suite=b-backup-restore; timestamp=2026-11-04T11:44:54Z; hostname=emulator-5566; sha256=e7d6aa7166fb16e1a1da97b3d2fcaf5caabf6593cad903f5b4562fe96463d0c6"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-restore.xml",
-      "value": "testcases=48; first=deleteAllDataClearsThePendingRestoreIndexRebuildMarker; all_present=True"
-    },
-    {
-      "name": "device_binding",
-      "source": "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-restore.device.json",
-      "value": "serial=emulator-5566; apk_sha256=c9943728ec7dfb699345f39af311c0c52e183fec70224a4952eae781000dc488; test_apk_sha256=c9943728ec7dfb699345f39af311c0c52e183fec70224a4952eae781000dc488; counts={\"errors\": 0, \"evaluated\": 48, \"failures\": 0, \"skipped\": 0, \"tests\": 48}; verdict=PASS; boot_id=d8f39d06-ec64-4bd7-96f3-7846250d6fb9; sha256=fc5396f872361f6cf360c047f9218a86adf2dc34cd5dee2d0d2f905a34c7c478"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-plan-gate.log",
-      "value": "exit_markers=[0]; cmd=n/a; sha256=0fed1b40d85fb9a35f598881b083ea144140c4337b871a1ada9f26283756cfd3"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-plan-sync.xml",
-      "value": "tests=8; failures=0; errors=0; skipped=0; suite=pytest; timestamp=2026-11-04T19:50:24.677979+08:00; hostname=tianshan; sha256=e2bf0df60c7e787bdb5bf301e5914edec8fa994749adde7ec64f2b8e6c0fa610"
-    },
-    {
-      "name": "xml_testcase",
-      "source": "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-plan-sync.xml",
-      "value": "testcases=8; first=test_identity_hash_drift_exits_one; all_present=True"
-    },
-    {
-      "name": "testcase_presence",
-      "path": "docs/research/evidence/2026-11-05-batch-44/b-domain/b-backup-restore.xml",
-      "tests": 48,
-      "failures": 0,
-      "errors": 0,
-      "skipped": 0,
-      "testcases_recounted": 48,
-      "primary": "subsetNineRestoreReportsSelectionTrimsDerivedIndexAndRebuildsAfterReopen",
-      "sha256": "e7d6aa7166fb16e1a1da97b3d2fcaf5caabf6593cad903f5b4562fe96463d0c6",
-      "secondary": [
-        "subsetThirteenRestoreKeepsSessionsAndStillTrimsDerivedIndex",
-        "fullSelectionPackageAlsoTrimsDerivedRowsAndRestoreKeepsThemEmpty",
-        "legacyV2ArchiveWithoutSelectionRestoresAsFullAndTrimsDerivedIndex",
-        "oldSchemaArchiveMigratesOnRestore",
-        "schema68ArchiveRestoresAndMigratesToCurrentVersion"
-      ]
-    }
-  ],
-  "basis": "机械复算（reviewer=batch47-line-reviewer-B，同一会话脚本，非第二人/第二模型）：批次47 WS2 从 docs/acceptance/ledger.md 读入 B-083，复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256，并对本行 method 列声明的测试方法在该 XML 中的存在性、以及该 suite 的 tests/failures/errors/skipped 做字节级复算（primary=subsetNineRestoreReportsSelectionTrimsDerivedIndexAndRebuildsAfterReopen）。本文件只对该单行生效；未重跑设备，设备项以归档证据为准。",
-  "notes": "本文件只对该单行生效，不构成域或批次整体签字。复核只证明证据存在、字节未变、可判定字段为绿；未重跑的设备/构建项以归档证据为准。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "adversarial": {
-    "attempted": true,
-    "result": "recomputed-no-mismatch"
+  {
+   "name": "device_binding",
+   "source": "docs/acceptance/evidence/2026-11-09-batch-50/device/b-backup-34.device.json",
+   "value": "serial=emulator-5590; apk_sha256=0013cf379649be86b5f0f0b732296d4b9a0b2fc54d0acccfb4f1b4613a883ee0; test_apk_sha256=0013cf379649be86b5f0f0b732296d4b9a0b2fc54d0acccfb4f1b4613a883ee0; boot_id=31ecd364-6b2a-4e52-9643-23e681696172; counts={\"errors\": 0, \"evaluated\": 34, \"failures\": 0, \"skipped\": 0, \"tests\": 34}; verdict=PASS; sha256=4c23d8094246454fc20aa1e600a2c8f71abbbf09ffb4d14c01fc4be8c9b8a7c4"
   },
-  "review_scope": "single-ledger-row",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T20:56:14Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
-  },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 4,
-    "basis": "bytes-on-disk"
-  },
-  "checks_scope": "row-specific"
+  {
+   "name": "file_sha256",
+   "source": "docs/research/evidence/2026-11-09-batch-50/device/14-instrument-com.tingyun.smartmistakebook.core.data.backup.BackupRestoreInstrumentedTest-on-synced-apk.log",
+   "value": "sha256=13fbf5d58173327584af0a18fc10dfe0955f24bcdf6a5756b6482180274037ad; bytes=25582"
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "批次50：schema 75 设备矩阵换绑（迁移 1..75/备份 34/trimmer 10/rowCounts 2/drill 4 绿）；旧 v73 证据只作历史。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "adversarial": {
+  "attempted": true,
+  "result": "recomputed-no-mismatch"
+ },
+ "review_scope": "single-ledger-row",
+ "ledger_batch": 51,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-10T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 2,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

@@ -1,0 +1,45 @@
+# 阶段开工前快照（本子线开工时实跑；他线 M 文件不抢占）
+ M core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/GoldenRetrievalInstrumentedTest.kt
+ M core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/KnowledgeContextRetrievalInstrumentedTest.kt
+ M core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/KnowledgeContextRetriever.kt
+ M core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/GoldenRetrievalJvmTest.kt
+ M core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/RoomTutorKnowledgeContextLoaderTest.kt
+ M core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/dense/DenseRecallRerankerTest.kt
+ M core/database/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/KnowledgeGroundingMigrationInstrumentedTest.kt
+ M core/database/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/KnowledgeSearchIndexCompletenessInstrumentedTest.kt
+ M core/database/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/KnowledgeSearchIndexRebuildChunkingInstrumentedTest.kt
+ M core/database/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/KnowledgeSearchIndexStateMigrationInstrumentedTest.kt
+ M core/database/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/MasterySchedulingMigrationInstrumentedTest.kt
+ M core/database/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/PseudoUnclassifiedBucketInstrumentedTest.kt
+ M core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/KnowledgeSearchIndexBuilder.kt
+ M core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/KnowledgeSearchIndexCompleteness.kt
+ M core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/RoomKnowledgeBaseStore.kt
+ M core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/RoomStudyDatabase.kt
+ M core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/StudyDatabasePort.kt
+ M core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/dao/PendingCaptureDao.kt
+ M core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/dao/ProblemOrganizationDao.kt
+ M core/database/src/main/kotlin/com/tingyun/smartmistakebook/core/database/port/TutorVisualPort.kt
+ M tools/kb_build/merge_candidate_verdicts.py
+ M tools/kb_build/new_content.py
+ M tools/kb_coverage/judge_ledger.py
+ M tools/kb_coverage/materialize.py
+ M tools/kb_coverage/office_extract.py
+?? core/data/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/data/knowledge/KnowledgeFirstQueryProbeInstrumentedTest.kt
+?? core/database/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/KnowledgeRecallParentScopeInstrumentedTest.kt
+?? core/database/src/androidTest/kotlin/com/tingyun/smartmistakebook/core/database/TutorVisualSavedProblemRetentionInstrumentedTest.kt
+?? knowledge-production/candidate-merge/_b020_dump.txt
+?? tools/kb_build/_check_p0018.py
+?? tools/kb_build/merge_head_b26.py
+?? tools/kb_coverage/_chem_nodes_tmp.txt
+?? tools/kb_coverage/_ph_all.tmp.txt
+?? tools/kb_coverage/_slice9_dump.txt
+?? tools/kb_coverage/_slice_dump_1.txt
+?? tools/kb_coverage/_tmp_chem_nodes_3.txt
+?? tools/kb_coverage/check483.py
+?? tools/kb_coverage/content_identity.py
+?? tools/kb_coverage/judgment_flow.py
+?? tools/kb_coverage/routing_eval_v2.py
+?? tools/kb_coverage/tables/_node_usage.txt
+?? tools/kb_coverage/tables/bio_slugs.txt
+?? tools/kb_coverage/tables/mechanical_skips.csv
+?? tools/kb_coverage/tables/slice02_dump.txt

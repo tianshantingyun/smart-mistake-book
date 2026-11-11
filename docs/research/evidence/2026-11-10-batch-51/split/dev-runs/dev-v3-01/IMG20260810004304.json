@@ -1,0 +1,23 @@
+{
+    "file": "IMG20260810004304.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 6956,
+    "responseHead": "{\"id\":\"1c12cfdc-290d-4b6e-8c4d-40c3a1122e19\",\"object\":\"chat.completion\",\"created\":1794253668,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答用户：判断题图是否足以完整转写、画面里有几道互相独立的题；若足以转写且有多道题，给出每道题的区域。只返回JSON，顶层五个键。需要识别图片内容。\\n\\n图片是化学试题，旋转90度。需要按阅读顺序数可见题号。图片显示：16. (14分) 高效广谱的氟胺型缓释消毒剂二氯海因 DCDMH... 这是一道题，题号16，包含(1)(2)(3)(4)小问，共用材料。整页似乎只有一道题（16题），但页面显示第6页共8页，只有第16题。需要判断是否足以完整转写。图片被旋转，但可见全部？看一下图片：左侧是题目16的题干和装置图；右侧是问题(1)(2)(3)(4)部分。图片边缘：顶部（原页左侧？）有“16. (14分) 高效广谱的氟胺型... M=197 g·mol⁻¹”等，底部有页码“化学试题 第6页，共8页”。右侧边缘是否截断？图片拍摄整页，似乎内容完整，但可能有部分被遮挡？图片右下角有手写计算和红笔批改，不影响。题干包含装置图，图有部分被红笔标注。题目完整包括(1)-(4)。关键文本是否可读？大部分可读，但旋转后有些小字。需要判断是否足以完整转写。题干中“常温下是白色晶体，熔点为132℃，微溶于水，易溶于有机溶剂。以5,5-二甲基海因（DMH，白色晶体，熔点178℃，可溶于水，易溶于有机溶剂）为原料制备DCDMH的装置如下(部分夹持装置略)。” 可读。装置图有甲乙丙丁标注，瓶内试剂“浓盐酸”、“KMnO4”、“NaOH溶液”、“5,5-二甲基海因”等。问题(1): 仪器丁的名称是____，其中盛放的试剂为____。 (2): 丙装置采用的控温方式为____，乙装置中长颈漏斗的作用是____。 (3): 丙中生成了DCDMH的化学方程式为____。 (4): 为测定所制产品中DCDMH的含量进行如下实验：... 可读。但是题中有手写内容遮挡？红色笔迹覆盖部分，但关键印刷文字基本可见。是否完整转写？可能足以。需要判断decision：只有一道题，且完整 -> PASS，空questionRegions，空followingPageRelations。但issues? 如果有轻微问题如红笔批注遮挡？规则：PASS不得含BLOCKING级issues，也不得建议RECAPTURE或ADD_IMAGE。可以包含REVIEW级issue？PASS可以含非BLOCKING issues？可能。需要判断是否足以完整转写。画面里有几道互相独立的题？1道（16题）。整页只有一道题返回PASS与空数组。issues可以为空。suggestedActions空。followingPageRelations空。decision PASS，questionRegions []。\\n\\n但是需要仔细：图片中是否有第二道题？因为页面仅显示了第16题，下方有“化学试题 第6页，共8页”，没有其他题号。所以只有一道。整页只有一道题 -> PASS。\\n\\n需要确认是否完整。图片顶部/右侧是否截掉题干开头？图片旋转90度，当前显示横向，原页可能是竖版。查看图",
+    "responseRaw": "{\"id\":\"1c12cfdc-290d-4b6e-8c4d-40c3a1122e19\",\"object\":\"chat.completion\",\"created\":1794253668,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答用户：判断题图是否足以完整转写、画面里有几道互相独立的题；若足以转写且有多道题，给出每道题的区域。只返回JSON，顶层五个键。需要识别图片内容。\\n\\n图片是化学试题，旋转90度。需要按阅读顺序数可见题号。图片显示：16. (14分) 高效广谱的氟胺型缓释消毒剂二氯海因 DCDMH... 这是一道题，题号16，包含(1)(2)(3)(4)小问，共用材料。整页似乎只有一道题（16题），但页面显示第6页共8页，只有第16题。需要判断是否足以完整转写。图片被旋转，但可见全部？看一下图片：左侧是题目16的题干和装置图；右侧是问题(1)(2)(3)(4)部分。图片边缘：顶部（原页左侧？）有“16. (14分) 高效广谱的氟胺型... M=197 g·mol⁻¹”等，底部有页码“化学试题 第6页，共8页”。右侧边缘是否截断？图片拍摄整页，似乎内容完整，但可能有部分被遮挡？图片右下角有手写计算和红笔批改，不影响。题干包含装置图，图有部分被红笔标注。题目完整包括(1)-(4)。关键文本是否可读？大部分可读，但旋转后有些小字。需要判断是否足以完整转写。题干中“常温下是白色晶体，熔点为132℃，微溶于水，易溶于有机溶剂。以5,5-二甲基海因（DMH，白色晶体，熔点178℃，可溶于水，易溶于有机溶剂）为原料制备DCDMH的装置如下(部分夹持装置略)。” 可读。装置图有甲乙丙丁标注，瓶内试剂“浓盐酸”、“KMnO4”、“NaOH溶液”、“5,5-二甲基海因”等。问题(1): 仪器丁的名称是____，其中盛放的试剂为____。 (2): 丙装置采用的控温方式为____，乙装置中长颈漏斗的作用是____。 (3): 丙中生成了DCDMH的化学方程式为____。 (4): 为测定所制产品中DCDMH的含量进行如下实验：... 可读。但是题中有手写内容遮挡？红色笔迹覆盖部分，但关键印刷文字基本可见。是否完整转写？可能足以。需要判断decision：只有一道题，且完整 -> PASS，空questionRegions，空followingPageRelations。但issues? 如果有轻微问题如红笔批注遮挡？规则：PASS不得含BLOCKING级issues，也不得建议RECAPTURE或ADD_IMAGE。可以包含REVIEW级issue？PASS可以含非BLOCKING issues？可能。需要判断是否足以完整转写。画面里有几道互相独立的题？1道（16题）。整页只有一道题返回PASS与空数组。issues可以为空。suggestedActions空。followingPageRelations空。decision PASS，questionRegions []。\\n\\n但是需要仔细：图片中是否有第二道题？因为页面仅显示了第16题，下方有“化学试题 第6页，共8页”，没有其他题号。所以只有一道。整页只有一道题 -> PASS。\\n\\n需要确认是否完整。图片顶部/右侧是否截掉题干开头？图片旋转90度，当前显示横向，原页可能是竖版。查看图片：在左侧（原页顶部）有“16. (14分) 高效广谱的...”完整。没有截断。图片底部（原页右侧）有“DCDMH的质量分数为____（用含有a、c、V1、V2的代数式表示）。” 完整。右侧有手写答案和红叉。题目完整。PASS。\\n\\n输出JSON只含五个键。issues空数组，suggestedActions空数组，questionRegions空数组，followingPageRelations空数组。decision PASS。\\n\\n需要确保不返回额外键。只返回JSON对象。使用中文？issues为空。\\n\\n最终。\"},\"logprobs\":null,\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":1924,\"completion_tokens\":918,\"total_tokens\":2842,\"prompt_tokens_details\":{\"cached_tokens\":0},\"completion_tokens_details\":{\"reasoning_tokens\":888},\"prompt_cache_hit_tokens\":0,\"prompt_cache_miss_tokens\":1924},\"system_fingerprint\":\"bc19ba97cbe016479903222bb1578db6\"}",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "image": {
+        "egressBytes": 499971,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "2a54e7db4e4e16d6e7c3f815868701541a06a36ddc540a76489d6a56ace492d2",
+    "promptSha256": "2fa068970407c2fc9dad7ec09aa4b99f6010c8fb705bcfad88cef2e212e854c4"
+}

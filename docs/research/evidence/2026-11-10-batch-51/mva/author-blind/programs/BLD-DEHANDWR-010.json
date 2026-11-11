@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-DEHANDWR-010",
+    "program_id": "mva-BLD-DEHANDWR-010",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '解：设未知数为 x' },\n      { kind: 'text', payload: '由题意列方程' },\n      { kind: 'text', payload: '移项得' }\n    ];\n  },\n  render: function (input, metrics) {\n    var lines = ['解：设未知数为 x', '由题意列方程', '移项得'];\n    var startX = 28;\n    var startY = 48;\n    var lineHeight = 34;\n    var fontSize = 20;\n    var children = [];\n    for (var i = 0; i < lines.length; i++) {\n      children.push({\n        type: 'label',\n        x: startX,\n        y: startY + i * lineHeight,\n        text: lines[i],\n        fontSize: fontSize,\n        fill: '#1f2937',\n        anchor: 'start',\n        fontFamily: 'sans-serif'\n      });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'source-transcription-clean',\n      revision: input.revision,\n      viewBox: {\n        x: 0,\n        y: 0,\n        width: input.viewport.widthDu,\n        height: input.viewport.heightDu\n      },\n      paths: [],\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

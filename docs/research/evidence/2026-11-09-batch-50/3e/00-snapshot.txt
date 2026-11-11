@@ -1,0 +1,16 @@
+# 3E 证据快照（批次 50）
+
+date_local: 2026-11-08 15:59:54 +0800
+git_head: a87fc70d15c8ad726cee17422dbeef0b4977747d
+git_branch: main
+
+## device
+sdk_gphone64_x86_64
+34
+x86_64
+serial: emulator-5590
+
+## apk
+dc0abe9dc8b39c6eab52ed1e5e2882db7c9868a33a126f2941c549eaf0147a82 *core/data/build/outputs/apk/androidTest/debug/data-debug-androidTest.apk
+package: com.tingyun.smartmistakebook.core.data.test
+runner: androidx.test.runner.AndroidJUnitRunner

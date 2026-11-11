@@ -507,7 +507,6 @@ class DocxMistakeRendererTest {
         userNote: String? = null,
         layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
     ): MistakePdfExportInput = MistakePdfExportInput(
-        hasModelParsedText = false,
         errorBookEntryId = "entry-1",
         problemId = "problem-1",
         problemRevisionId = "revision-3",
@@ -518,6 +517,7 @@ class DocxMistakeRendererTest {
         documentTitle = documentTitle,
         blocks = blocks,
         questionDocumentSha256 = "a".repeat(64),
+        hasModelParsedText = false,
         inputSha256 = "b".repeat(64),
         cleanImageLocalUri = cleanImageLocalUri,
         cleanImageSha256 = cleanImageSha256,

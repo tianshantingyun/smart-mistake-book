@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-che-e47f5611e7-004d	CORRECT		high	分析用途必须落到具体性质上（还原性、吸附性、密度、耐高温等）	
+ext-phy-e4b3b251e9-029	CORRECT		high	轨道半径越大，v、ω、an 越小、T 越大，即越高越慢	
+ext-che-b476eb0452-028b	CORRECT		high	金刚石中每个碳与相邻 4 个碳以共价键形成正四面体	
+ext-mat-c20768bd3a-043	CORRECT		high	若圆 C：x2＋y2＝R2 是椭圆 Γ 的蒙日圆，则 R2＝a2＋b2	
+ext-phy-69ce327dcf-005	CORRECT		high	物体的动量变化量一定时，力的作用时间越短，力就越大	
+ext-mat-75a1a41dd4-006	CORRECT		high	三角形内三点角相等的点，布洛卡角满足余切等于三个内角余切之和	
+ext-phy-0bd5511ff8-041	CORRECT		high	洛埃镜方案用直射光与平面镜反射光叠加形成干涉，等效双缝间距 d=2h	
+ext-mat-dfdcf2e28b-002	CORRECT		high	在同一个式子中采用的度量制度必须一致，不可混用	
+ext-bio-4e8dccf192-013	REBIND	生物体内水的产生与消耗	low	利用（主要和物质水解有关）：肝糖原的水解、ATP的水解	主为水的消耗(利用)与调节，现绑仅理化特性；调节另属平衡调节点
+ext-phy-7cf9151a63-006c	CORRECT		high	大头针要竖直插、各针之间与针到入射点的距离要稍大	
+ext-phy-e4b3b251e9-024	CORRECT		high	卫星绕地球、行星绕恒星做匀速圆周运动的向心力由万有引力提供	
+ext-phy-e14aad82a5-1481	CORRECT		high	振动方向与波的传播方向垂直，这样的波叫横波	
+ext-che-5c62da9e03-1244	CORRECT		high	定性分析：用化学方法测定有机物的元素组成	
+ext-phy-94d395511a-003b	CORRECT		medium	当合力大于零而小于所需向心力时，物体逐渐远离圆心做离心运动	
+ext-che-ae3f5c9d23-004	CORRECT		high	根据外接电源：正极接阳极，负极接阴极	
+ext-bio-5f510cdc4a-280	CORRECT		medium	根据元素组成判断：糖类（几丁质除外）、脂肪、固醇含C、H、O	
+ext-phy-2aea59cfe3-004	CORRECT		high	只有直线段才表示电阻恒定，曲线段的电阻随状态变化	
+ext-phy-a31635ac1d-002	CORRECT		high	读数最后的零不能丢	
+math-kb-function-symmetry-axis-point	CORRECT		high	f(a+x)=f(a−x) 关于直线 x=a 对称	
+ext-phy-e14aad82a5-034	CORRECT		high	图线与横轴所围面积表示位移	
+ext-phy-93f3e60581-004	CORRECT		low	对热力学第一定律 ΔU＝Q＋W 各量正负号的判断依赖口诀而非过程分析	
+ext-phy-816a89e3d6-017	CORRECT		high	当F＝F阻时a＝0、v达到最大并保持匀速，vm＝P/F阻	
+phy-household-circuit-safe-electricity	CORRECT		high	三孔插座按左零右火上接地接线	
+ext-mat-191907ea54-026	CORRECT		high	r 是 p 的必要不充分条件，说明 p 能推出 r 而 r 不能推出 p，故 A 是 C 的真子集	
+ext-phy-247d86a9ba-053	CORRECT		high	物体仍能保持静止状态，但物体受到的静摩擦力的大小或方向发生了突变	
+ext-phy-2f72d4bf8f-001	CORRECT		medium	识图的核心是围绕轴、斜率、面积、截距、特殊点五大要素	
+ext-phy-fcca252fba-001	CORRECT		high	必须用总滴数求平均值以减小单滴体积的误差	
+chem-fx-pu-tong-bo-li-f73x11	CORRECT		high	有机玻璃：有机高分子材料，主要成分：聚甲基丙烯酸甲酯	
+ext-che-88515626d1-017	CORRECT		high	原硅酸分子之间失去水，生成一系列的酸（多硅酸）	
+phys-extreme-method-rheostat	CORRECT		high	可将滑动变阻器的滑片分别滑至两个极端，使其接入电路的电阻最大或为零去讨论	
+ext-che-4d5462b130-016	CORRECT		high	可被醛基还原生成Cu2O砖红色沉淀	
+ext-phy-0377c73fb1-034	CORRECT		high	不论负载电阻R如何变化，U2不变	
+ext-mat-80d87235fd-005b	CORRECT		medium	双曲线x²/a²－y²/b²＝1（a>b>0）的两条互相垂直的切线PA、PB交点P的轨迹是蒙日圆	
+ext-phy-4b3cbfeb92-002	CORRECT		high	在单向直线运动中，位移的大小等于路程	
+ext-bio-c02c7a633d-017	REBIND	多倍体	medium	秋水仙素（化学）可作用于萌发的种子或幼苗；低温（物理）主要作用于幼苗	主为两种诱导方法作用对象对比(多倍体形成)，非实验试剂流程
+ext-mat-0b256c86ab-001	CORRECT		high	直线 l 与平面 α 没有公共点，则称直线 l 与平面 α 平行	
+ext-mat-289deb9ecd-452	CORRECT		high	逆用：cosαcosβ+sinαsinβ=cos(α−β) 等	
+ext-bio-5f510cdc4a-076	CORRECT		high	成熟生殖细胞中的染色体数目比原始生殖细胞的减少一半	
+ext-mat-035b51ac17-005	CORRECT		high	定义法（证明 an+1−an 为常数）	
+ext-che-bbe7a1bbd2-002	CORRECT		medium	c、d 装置：用于吸收极易溶且溶解很快的气体，如 HCl、HBr、NH3	
+ext-mat-91e0c2ace8-029	CORRECT		high	函数在 $x_0$ 处可展成 $n$ 次多项式与余项之和	
+ext-che-2f2f54aaff-010	CORRECT		high	电子大多按一定能级顺序填充，填满一个能级再填一个新能级	
+ext-mat-6b95393714-006	CORRECT		medium	用待定系数法把 x⁴＋3x³＋2x²－2x－4 分解为 (x－1)(x＋2)(x²＋2x＋2)	
+ext-bio-645f709d4d-015	CORRECT		medium	显性性状是一对相对性状的纯合亲本杂交时F1中显现出来的性状	
+ext-phy-7d72032965-008	CORRECT		medium	无电压时油滴匀速下落，重力与空气阻力 f=kv 平衡	
+math-hj-s13-compare-diff	CORRECT		medium	作差后通分、因式分解或配方，化为常数加减平方和的形式	
+ext-che-6fc1ebbbcb-010b	CORRECT		high	羧酸与醇反应时，一般情况下羧酸脱去羟基（—OH），醇脱去羟基上的氢	
+ext-che-5c8ab8324c-011	CORRECT		high	电解质溶液：LiPF6的碳酸酯溶液（无水）	
+ext-che-bd2f42069a-029	CORRECT		high	密闭固定容积容器中充入氦气（或不参与反应的气体）压强增大、但参与反应的各物质浓度不变、反应速率不变	
+ext-mat-289deb9ecd-1096	CORRECT		high	以抛物线的顶点为坐标原点，对称轴为一条坐标轴	

@@ -8,6 +8,13 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+/** 主包/侧车 codec 当前为字符串入口；测试直接传字符串（流式入口未落地，见 codec 注释）。 */
+private fun decodeSidecar(raw: String, pack: KnowledgeBasePack): ReviewedTeachingMaterialSidecar =
+    ReviewedTeachingMaterialSidecarJsonCodec.decode(raw, pack)
+
+private fun decodePack(raw: String): KnowledgeBasePack =
+    ReviewedKnowledgePackJsonCodec.decode(raw)
+
 /**
  * D-0 绑定可信度字段（内核侧批 1）：侧车 schema 3 的可选裁定三元组。
  *
@@ -222,13 +229,13 @@ class ReviewedTeachingMaterialSidecarBindingVerdictTest {
     private fun decodeSchemaVersioned(
         schemaVersion: Int,
         bindings: String,
-    ): ReviewedTeachingMaterialSidecar = ReviewedTeachingMaterialSidecarJsonCodec.decode(
+    ): ReviewedTeachingMaterialSidecar = decodeSidecar(
         sidecarJson(schemaVersion, bindings),
         targetPack(),
     )
 
     private fun targetPack(): KnowledgeBasePack =
-        ReviewedKnowledgePackJsonCodec.decode(
+        decodePack(
             requireNotNull(
                 requireNotNull(ReviewedTeachingMaterialSidecarBindingVerdictTest::class.java.classLoader)
                     .getResourceAsStream("knowledge/moe-2020-foundation-v1.json"),

@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-SRCREBLD-016",
+    "program_id": "mva-BLD-SRCREBLD-016",
+    "source_js": "const visual = {\n  prepare: function (input) { return []; },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var m = Math.min(W, H) * 0.08;\n    var s = Math.min((W - 2 * m) / 4, (H - 2 * m) / 3);\n    var gw = s * 4;\n    var gh = s * 3;\n    var x0 = (W - gw) / 2;\n    var y0 = (H - gh) / 2;\n    var cmds = [];\n    var i, x, y;\n    for (i = 0; i <= 4; i++) {\n      x = x0 + i * s;\n      cmds = cmds.concat(visualSdk.polyline([[x, y0], [x, y0 + gh]]));\n    }\n    for (i = 0; i <= 3; i++) {\n      y = y0 + i * s;\n      cmds = cmds.concat(visualSdk.polyline([[x0, y], [x0 + gw, y]]));\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'grid-3x4',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [{ id: 'grid', commands: cmds }],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'grid', stroke: '#26354a', strokeWidth: 1.5, fill: 'none' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

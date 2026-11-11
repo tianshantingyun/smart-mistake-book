@@ -120,6 +120,10 @@ import kotlinx.serialization.json.put
 import okio.ByteString.Companion.toByteString
 
 internal fun JsonObject.toAssessment(modelVersion: String): CaptureAssessment {
+    // 批次 51 AUD-08：模型偶尔把请求的 response_format（{"type":"json_object"}）抄进结果。
+    // 修复在提示词侧（显式白名单 + 示例 + 禁止 type 键）；这里仍保持硬白名单——放宽会变成
+    // 「静默接受任意键」，`type` 键缺陷就退化成任意键漂移都能进产品。回归钉子见
+    // OpenAiCaptureAssessmentAdapterTest.`top level type key still rejects the whole response`。
     requireOnlyKeys(CAPTURE_ASSESSMENT_WIRE_KEYS)
     val decision = enumValue<CaptureAssessmentDecision>(requiredString("decision"))
     val issues = array("issues").map { item ->

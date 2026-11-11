@@ -1,0 +1,111 @@
+{
+  "input_file": "BLD-MECHPHASE-020.json",
+  "program_sha256": "3ebdb7869109f2a1f41ac678e7be3d8ef320487b125156e89da85d0bfed08487",
+  "task_id": "BLD-MECHPHASE-020",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 63,
+  "measurement": [
+    {
+      "contentId": "c0-98a3b693",
+      "payload": "y₁、y₂：振幅各 1.5（两曲线重合）",
+      "widthDu": 245.4545440673828,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "98a3b693eb585dacaf918bc20a097b3121c16a615af6ed90c79a587aca1e074a"
+    },
+    {
+      "contentId": "c1-9721f45e",
+      "payload": "y₁ + y₂：振幅 3",
+      "widthDu": 105.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9721f45ef32b24e1b58cadf049d30a44b7b24f1bebe091bccdc3ef57221316f0"
+    },
+    {
+      "contentId": "c2-4e074085",
+      "payload": "3",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+    },
+    {
+      "contentId": "c3-9f29a130",
+      "payload": "1.5",
+      "widthDu": 22.545454025268555,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9f29a130438b81170b92a42650f9a94291ecad60bd47af2a3886e75f7f728725"
+    },
+    {
+      "contentId": "c4-8997919c",
+      "payload": "−1.5",
+      "widthDu": 31.636363983154297,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8997919c00b30a56ee411a9356cc05a1eaee1e1b90be4bc4b315f0497ddbf92b"
+    },
+    {
+      "contentId": "c5-1d1de0da",
+      "payload": "−3",
+      "widthDu": 18.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "1d1de0da1640e0529400ff57e316bec0c2ddc2440bac07d80b78f6791baeef17"
+    },
+    {
+      "contentId": "c6-c4694f2e",
+      "payload": "O",
+      "widthDu": 10.909090995788574,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c4694f2e93d5c4e7d51f9c5deb75e6cc8be5e1114178c6a45b6fc2c566a0aa8c"
+    },
+    {
+      "contentId": "c7-2d711642",
+      "payload": "x",
+      "widthDu": 8,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "edaecbe0989ea194456d5fc6b36701f0146847e32e511df546d1e0492d79aad6",
+  "scene_bytes": 34764,
+  "scene_schema_version": 1,
+  "draw_sha256": "8691e5c5c99a0d880c3fc2ddb888ec227b9a620fdc877fe96797b1e630e45e7a",
+  "draw_bytes": 35159,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-98a3b693",
+    "c1-9721f45e",
+    "c2-4e074085",
+    "c3-9f29a130",
+    "c4-8997919c",
+    "c5-1d1de0da",
+    "c6-c4694f2e",
+    "c7-2d711642"
+  ],
+  "png_sha256": "13fe46e13a64373ef3308cbc47437a98b2797b9d2e33e701d71e0fe1a6726104",
+  "png_bytes": 16015,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 18,
+    "pathCommands": 993,
+    "labels": 8,
+    "ops": 17
+  }
+}

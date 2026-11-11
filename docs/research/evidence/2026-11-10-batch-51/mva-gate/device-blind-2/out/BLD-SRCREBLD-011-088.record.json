@@ -1,0 +1,91 @@
+{
+  "input_file": "BLD-SRCREBLD-011.json",
+  "program_sha256": "9bae8c09363336b9eb3b998e583c6e7cbeadde09b1b08a7b42feb5fe7e6bf108",
+  "task_id": "BLD-SRCREBLD-011",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 20,
+  "measurement": [
+    {
+      "contentId": "c0-5feceb66",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c1-f5ca38f7",
+      "payload": "20",
+      "widthDu": 18.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f5ca38f748a1d6eaf726b8a42fb575c3c71f1864a8143301782de13da2d9202b"
+    },
+    {
+      "contentId": "c2-d59eced1",
+      "payload": "40",
+      "widthDu": 18.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d59eced1ded07f84c145592f65bdf854358e009c5cd705f5215bf18697fed103"
+    },
+    {
+      "contentId": "c3-39fa9ec1",
+      "payload": "60",
+      "widthDu": 18.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "39fa9ec190eee7b6f4dff1100d6343e10918d044c75eac8f9e9a2596173f80c9"
+    },
+    {
+      "contentId": "c4-48449a14",
+      "payload": "80",
+      "widthDu": 18.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "48449a14a4ff7d79bb7a1b6f3d488eba397c36ef25634c111b49baf362511afc"
+    },
+    {
+      "contentId": "c5-ad573668",
+      "payload": "100",
+      "widthDu": 27.272727966308594,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ad57366865126e55649ecb23ae1d48887544976efea46a48eb5d85a6eeb4d306"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "1eff52b572544362ff0a8d75379274d603215923b1b8af173cec7ccae85c5d80",
+  "scene_bytes": 1245,
+  "scene_schema_version": 1,
+  "draw_sha256": "f72d71d90ea3428ab3a3d26249a59e69a23f316c47d45659509103ba1b261831",
+  "draw_bytes": 1439,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-5feceb66",
+    "c1-f5ca38f7",
+    "c2-d59eced1",
+    "c3-39fa9ec1",
+    "c4-48449a14",
+    "c5-ad573668"
+  ],
+  "png_sha256": "f18e5f06c441a7e2aa338fef7e97884051ada40230d65f3bb3060f4a4a140359",
+  "png_bytes": 3082,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 8,
+    "pathCommands": 15,
+    "labels": 6,
+    "ops": 7
+  }
+}

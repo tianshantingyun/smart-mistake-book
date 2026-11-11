@@ -1,0 +1,114 @@
+{
+  "input_file": "BLD-FLOWFORM-003.json",
+  "program_sha256": "e40a6d7bd27494a9ec8c38ca635779b03343c0d63d71429f24f768a6abaef770",
+  "task_id": "BLD-FLOWFORM-003",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 44,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "解一元一次方程",
+      "widthDu": 112,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8755b0d18930fabadf1f5e167710a78fc9a257b338a580aae6ece4170d0759d1"
+    },
+    {
+      "contentId": "c1",
+      "payload": "7x+-3=1x+4",
+      "widthDu": 83.63636016845703,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7c87b7c54b078162f89ee7827305cc546dd065bad62354290adf1550b304486d"
+    },
+    {
+      "contentId": "c2",
+      "payload": "第1步 移项",
+      "widthDu": 77.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c0f43c40be7b88b30c37fc72a6f0ad698aefd91b943a22aa308e541509f8f3a9"
+    },
+    {
+      "contentId": "c3",
+      "payload": "7x-1x=4+3",
+      "widthDu": 74.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9985ab08f426701240bb5248f38657b49c77286b5f09caded7b0979514cda090"
+    },
+    {
+      "contentId": "c4",
+      "payload": "把 1x 移到左边、-3 移到右边",
+      "widthDu": 203.63636779785156,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "81c284d1d4b4612af44d9624851c482771e1fa2aaec3b0641918042d8da454c0"
+    },
+    {
+      "contentId": "c5",
+      "payload": "第2步 合并同类项",
+      "widthDu": 125.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d71da9d6a73f98005c35f46e572497d7c48302221667296ab54e05b56806efe0"
+    },
+    {
+      "contentId": "c6",
+      "payload": "6x=7",
+      "widthDu": 34.90909194946289,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9b7232c94b2ca3d1c1bd978a9dde1826739b272453aac0ab0901a12cba2e9cb1"
+    },
+    {
+      "contentId": "c7",
+      "payload": "左边 7x-1x=6x，右边 4+3=7",
+      "widthDu": 197.4545440673828,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "df5a31201a5c0ea1bbe1c4954a4cdb806af403db3a781f9161c6ea210a823b93"
+    },
+    {
+      "contentId": "c8",
+      "payload": "第3步 系数化为 1",
+      "widthDu": 122.18181610107422,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "577b6af2cbcdc3ee8ad48d5527b95354fbe97c513fe527e6d70cd2192c13ea55"
+    },
+    {
+      "contentId": "c9",
+      "payload": "x=7\/6",
+      "widthDu": 41.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "66c22334615cd730dc12a5c0317e6a10b79fab32e6ad8641d7aacf59b45ed6ad"
+    },
+    {
+      "contentId": "c10",
+      "payload": "两边同时除以 6",
+      "widthDu": 109.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "59ad0d0caed23d1bba6862938699dd0b5729ce57ab207438d4db1bdb2f8ed698"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_FIELD_UNKNOWN: scene.root.children[0]: unknown field \"text\"\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fail (visual-com"
+}

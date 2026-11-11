@@ -1,22 +1,30 @@
 {
   "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "head": "3007a2bcef719150e1710737fc3f13c7b2938266",
-  "dirty_paths": 5045,
+  "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+  "head": "8dd29e963975ff44703f638064322be0e7494f98",
+  "dirty_paths": 6460,
   "total": 1200,
   "counts": {
-    "PASS": 898,
-    "FAIL": 23,
-    "BLOCKED": 279,
+    "PASS": 937,
+    "FAIL": 10,
+    "BLOCKED": 253,
     "UNVERIFIED": 0
   },
   "state": "FAIL",
-  "pass_with_two_kinds": 898,
-  "pass_with_review": 898,
+  "pass_with_two_kinds": 937,
+  "pass_with_review": 937,
   "pass_without_review": 0,
   "pass_with_invalid_review": 0,
-  "pass_with_row_specific_review": 729,
+  "pass_with_row_specific_review": 659,
   "review_shared_check_groups": [
+    {
+      "fingerprint": "27b3f6e3043257ad987719aecc9c9afa95e3c0455e2542d0cb1c556707bd3d32",
+      "rows": 72
+    },
+    {
+      "fingerprint": "58079366239cca0ed010314407e5c0a2a386ff1e9416c7afe5c90865427b229a",
+      "rows": 11
+    },
     {
       "fingerprint": "d03734e927c5e5026e9b3c01767d0216ebfd52a428d4f286c3f19cd435be49f3",
       "rows": 9
@@ -91,29 +99,31 @@
     }
   ],
   "review_evidence_batches": {
-    "44": 1488,
+    "44": 1206,
     "45": 402,
     "46": 62,
-    "47": 18,
+    "47": 23,
     "48": 3,
+    "49": 24,
+    "50": 396,
+    "51": 24,
     "unlabeled": 384
   },
   "review_validation_errors": [],
   "unverified": 0,
   "acceptance_complete": false,
-  "violations": [
+  "violations": [],
+  "warnings": [
     {
       "id": "",
-      "code": "NOT_ACCEPTANCE_COMPLETE",
-      "detail": "UNVERIFIED=0 FAIL=23 BLOCKED=279"
+      "code": "REVIEW_CHECKS_SHARED",
+      "detail": "同一组非 ledger_row checks 被 72 行 PASS 共用 (fp=27b3f6e30432)；行级判别力不成立"
     },
     {
       "id": "",
       "code": "REVIEW_CHECKS_SHARED",
-      "detail": "18 组非 ledger_row checks 被 ≥5 行共用，行级判别力不成立"
-    }
-  ],
-  "warnings": [
+      "detail": "同一组非 ledger_row checks 被 11 行 PASS 共用 (fp=58079366239c)；行级判别力不成立"
+    },
     {
       "id": "",
       "code": "REVIEW_CHECKS_SHARED",

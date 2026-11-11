@@ -1,0 +1,111 @@
+{
+  "input_file": "BLD-FLOWFORM-001.json",
+  "program_sha256": "d4b8d5032611ba32fb8e475a2e938fdb151b63279731856ba0912f4492718da3",
+  "task_id": "BLD-FLOWFORM-001",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 36,
+  "measurement": [
+    {
+      "contentId": "c0-8755b0d1",
+      "payload": "解一元一次方程",
+      "widthDu": 112,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8755b0d18930fabadf1f5e167710a78fc9a257b338a580aae6ece4170d0759d1"
+    },
+    {
+      "contentId": "c1-f5d8f484",
+      "payload": "6x+5=2x+11",
+      "widthDu": 88.36363983154297,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "f5d8f484747e9485de34dab8401a4a70c0ada06ab00882c0e74585e6470148e2"
+    },
+    {
+      "contentId": "c2-bd52912c",
+      "payload": "1. 移项",
+      "widthDu": 49.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bd52912cb1c1d3b799aeb5331a6673daa79471eb21fe135686c307cb204c4327"
+    },
+    {
+      "contentId": "c3-598315ee",
+      "payload": "6x-2x=11-5",
+      "widthDu": 78.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "598315ee831cdf6f80f2d38204403de32e97c4a20adc1bdbd6bb372039debf5c"
+    },
+    {
+      "contentId": "c4-c823e323",
+      "payload": "2. 合并同类项",
+      "widthDu": 97.45454406738281,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c823e32370358db9eb8ec7b2a69d0c68a9ac57a2e5165abdc1777d2d5db1a574"
+    },
+    {
+      "contentId": "c5-3e179257",
+      "payload": "4x=6",
+      "widthDu": 34.90909194946289,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "3e179257e998bb41ecca07dfbbd98bf1592cd81350f0b22716072e5e0bfd260e"
+    },
+    {
+      "contentId": "c6-25d3c84d",
+      "payload": "3. 系数化为 1",
+      "widthDu": 94.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "25d3c84de9e620c33345df6fec76c018ea870d0543ec448646cc915fec3964af"
+    },
+    {
+      "contentId": "c7-ae568b07",
+      "payload": "x=6\/4=3\/2",
+      "widthDu": 74.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "ae568b07ed0804288393af1fcf3e54c33aa3c2a1e805511ceaba4567af317a6b"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "5daaf1b0302d549d4e26c933539945ecaeca296b625462ec9747a3f43ccf6ccc",
+  "scene_bytes": 2849,
+  "scene_schema_version": 1,
+  "draw_sha256": "45d0f7e1543e04f8d8aba9d2a99eef1b10205e248fbcad2f8a809b1fcae94d75",
+  "draw_bytes": 3039,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-8755b0d1",
+    "c1-f5d8f484",
+    "c2-bd52912c",
+    "c3-598315ee",
+    "c4-c823e323",
+    "c5-3e179257",
+    "c6-25d3c84d",
+    "c7-ae568b07"
+  ],
+  "png_sha256": "878de2a52fb87e95b581630fd9eb0000d01f077a287e2566f0b9afa6d9338fc7",
+  "png_bytes": 8785,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 20,
+    "pathCommands": 55,
+    "labels": 8,
+    "ops": 19
+  }
+}

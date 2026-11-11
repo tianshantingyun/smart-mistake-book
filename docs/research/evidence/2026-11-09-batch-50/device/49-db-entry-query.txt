@@ -1,0 +1,2 @@
+entry:m1:closed-interval-extrema|ACTIVE|1767225600000
+7

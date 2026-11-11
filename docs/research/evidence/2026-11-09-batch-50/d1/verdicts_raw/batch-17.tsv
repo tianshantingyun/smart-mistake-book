@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-che-70b3da757b-005	CORRECT		high	正、逆反应 K 互为倒数	节点为平衡常数，材料为书写形式关系
+ext-che-70e7fe12d5-030	CORRECT		high	卤素互化物由两种卤素结合而成	
+ext-che-72704fa3a9-019	CORRECT		high	有机物燃料（CxHyOz）在负极放电时用零价法算转移电子数	
+ext-che-72913a9286-003	CORRECT		high	不同类别物质所含化学键类型有规律性对应	
+ext-che-72913a9286-022b	CORRECT		high	氢键由强电负性原子上的氢与另一电负性原子间形成	
+ext-che-74ae5b408a-007b	CORRECT		high	沉淀转化的实质是沉淀溶解平衡的移动	
+ext-che-7645e88401-035b	CORRECT		high	归纳体心立方、面心立方与金刚石晶胞的俯视图与体对角线方向投影图特征	
+ext-che-76d46e393c-037	CORRECT		high	改进装置围绕隔绝空气（氧气）设计	
+ext-che-76d46e393c-045	CORRECT		high	铁为0价、主要表现还原性	
+ext-che-76fd5cd2f3-028	CORRECT		high	钠久置空气中依次生成 Na2O（表面变暗）	
+ext-che-77309177ec-017	CORRECT		high	勒夏特列原理中的“减弱”只能减弱改变而不能消除或扭转改变	
+ext-che-789339a0b0-016	REBIND	硅酸盐	high	无机非金属材料一般含有硅、氧元素	现绑为新型无机非金属材料，材料为传统硅酸盐材料总论
+ext-che-796aef76a7-110	CORRECT		high	做离子共存题先把无色、使酚酞变红、离子浓度比等条件翻译成溶液性质	
+ext-che-7b047ad8e8-027	CORRECT		high	蒸发结晶适用于溶解度随温度变化不大的物质	节点为分离提纯，材料为结晶/蒸馏/离子交换
+ext-che-7b0b7fb3d2-001	CORRECT		high	按反应物状态和反应条件把气体发生装置分为固体+固体加热	
+ext-che-7b8481db6d-003	CORRECT		high	说明 Mn(Ⅵ) 的歧化、KMnO4 的不稳定性	
+ext-che-7bbf0904a5-001b	CORRECT		high	不同温度下气态烃完全燃烧前后气体总体积变化的判断依据	
+ext-che-7cbc95ae4a-040	CORRECT		high	同周期第一电离能总体从左向右增大	
+ext-che-8004f74991-006	CORRECT		high	稀释前后：溶质质量守恒 m1w1＝m2w2	
+ext-che-80145e06f0-012	CORRECT		high	大π键记作 πm^n	
+ext-che-80dc9e8d0c-006	REBIND	晶胞中粒子数目、配位数、坐标与密度的计算	high	晶胞计算分为计算晶体密度、计算微粒间距离和计算原子空间利用率三类	现绑仅密度，同科有覆盖三类计算的节点
+ext-che-83155cdbae-012b	CORRECT		high	按「……存在……平衡，……（条件）……（变化），使平衡向……方向移动，……（结论）」的句式	
+ext-che-838ea97329-004	CORRECT		high	混合气体的总压等于相同温度下各组分气体的分压之和	
+ext-che-854aa60f86-016	CORRECT		high	比较含氢键物质的熔沸点先数每个分子平均形成的氢键数目	节点为分子间作用力对性质影响
+ext-che-85df884e05-018	CORRECT		high	主要仪器有托盘天平、烧杯、玻璃棒、容量瓶、胶头滴管和量筒	
+ext-che-8c7b6cf5e0-006b	CORRECT		high	金属靠自由电子导电、溶液靠自由移动离子导电	
+ext-che-8cf031c9fe-012	CORRECT		high	氢氟酸不能盛于玻璃瓶、NaOH不能用玻璃塞	
+ext-che-8e817255da-007	CORRECT		high	利用气体溶解或反应造成烧瓶内外压强差	
+ext-che-923cf868a0-007	CORRECT		high	二次电池的定义以及铅酸蓄电池放电、充电时的电极反应与总反应	
+ext-che-935096865b-004b	CORRECT		high	反应物起始比等于化学计量数比时转化率相等	
+ext-che-93a78062b4-043	CORRECT		high	汇总电负性差、键型判断与羧酸酸性关系	
+ext-che-93a78062b4-100	CORRECT		high	给出由空间结构、夹角与价电子对数判断杂化类型的模型	
+ext-che-95860fb410-012	CORRECT		high	命名一般步骤为选母体、编序号、写名称	
+ext-che-96397bfcc6-004	CORRECT		high	交叉分类法对同一事物用两种或以上标准分类	
+ext-che-978cc4f08a-007	CORRECT		high	配平氧化还原反应方程式要同时满足电子守恒、离子反应的电荷守恒与质量守恒	
+ext-che-97a64ae5f0-014b	CORRECT		high	通入CO2依次与Ba(OH)2、NaOH、Na[Al(OH)4]、Na2CO3、BaCO3反应	
+ext-che-988f19d372-014	CORRECT		high	基元反应与反应历程的含义、决速步骤的判断	
+ext-che-9988a80fe3-015	CORRECT		high	少量 CO2 通入 NaR 溶液生成 NaHCO3 而不是 Na2CO3	
+ext-che-9c04589159-004	CORRECT		high	方程组法按已知量列方程，极值法构造两个极端，平均值法由平均值锁定范围	
+ext-che-9d9489b3be-005	CORRECT		high	导电能力由单位体积内自由移动离子的数目与所带电荷数共同决定	
+ext-che-9e056d3f59-001	CORRECT		high	可从三条途径鉴别Na2CO3与NaHCO3	
+ext-che-9e23c53d78-003	CORRECT		high	粗量器（托盘天平、量筒）读数到小数点后一位	
+ext-che-9e7ce76868-033	CORRECT		high	苯环上两个取代基有 3 种位置关系	
+ext-che-9eab10e965-011	CORRECT		high	可逆、气体体积减小、放热且熵减	
+ext-che-9fb72b1c9b-019	CORRECT		high	简易量热计的内筒与外壳之间要有隔热层并填满	节点为中和热，材料为量热计装置
+ext-che-a13e903c71-011	CORRECT		high	浓硫酸与金属反应既显强氧化性又显酸性	
+ext-che-a771e3357c-016	CORRECT		high	羧酸以羧基为官能团	
+ext-che-a8915bbd80-013c	CORRECT		high	向饱和食盐水先通氨再通CO2析出NaHCO3	
+ext-che-aa83e6fece-004	CORRECT		high	按物质组成可从不同角度分类	
+ext-che-aa83e6fece-009	CORRECT		high	判断物理变化与化学变化的核心依据是有无新物质生成	

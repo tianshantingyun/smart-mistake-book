@@ -16,6 +16,11 @@
 
 ## blocked_by 七类总索引（批次 47；280 行全覆盖）
 
+> **批次 48 更新（2026-11-07）**：① Provider 组 D-089 依 E-48-D-DEV-01 改判 PASS 并移出 BLOCKED 集合
+> （280→279）；D-082..D-090 其余 8 行 blocked_by 更新（key 已具备+协议冒烟 PASS，剩余条件逐行登记）。
+> ② arm64 组 21 行 blocked_by 改「用户裁定豁免（2026-11-06，adjudication.md 追加裁定①）」注记，
+> verdict 维持 BLOCKED，不伪造 PASS。本表下方行数为批次 47 基线值。
+
 > 基线：`docs/acceptance/ledger.md`。本轮读取时工作树台账 sha256 `2944eb50…`，
 > 且经 `git show HEAD:docs/acceptance/ledger.md` 对比核实：**BLOCKED 集合与批次 46 终态
 > （sha `19ea6b57…`）逐行相同**——两边都是 280 行、成员完全一致（0 增 0 减）。
@@ -31,7 +36,7 @@
 
 | 侧 | 类 | 行数 | 谁能解锁（责任人） | 行清单 |
 |---|---|---:|---|---|
-| 外部 | Provider | 17 | Provider 账号持有人（密钥只经设备输入）；内部发布负责人执行取证 | 见 §1 |
+| 外部 | Provider | 16（批次48：17−D-089 转PASS） | Provider 账号持有人（密钥只经设备输入）；内部发布负责人执行取证 | 见 §1 |
 | 外部 | 签名 | 20 | 发布密钥持有人 + 主会话（配 `RELEASE_*`，门禁阶段复跑） | 见 §2 |
 | 外部 | arm64 | 21 | 设备持有人（arm64 真机 / 16KB 页设备；x86_64 宿主不能起 arm64 AVD） | 见 §3 |
 | 外部 | 金标 | 37 | 用户/他线（标注员、第二人/第二模型复核、人工语感/视觉评审） | 见 §4 |
@@ -42,9 +47,9 @@
 外部合计 **146**，内部合计 **134**，合计 **280**；逐域核对：A25/B2/C2/D9/E9/F33/FIX85/G7/GATE4/H19/I37/J48
 （与台账逐域 `BLOCKED` 计数相等，见文末核对命令）。
 
-### §1 Provider（外部，17 行）
+### §1 Provider（外部，批次 48 起 16 行；批次 47 基线 17 行）
 
-- **缺失条件**：真实 Provider 账号 + Base URL + 模型 ID + API Key。runbook §9.4 已核实：代码无读取
+- **缺失条件**：真实 Provider 账号 + Base URL + 模型 ID + API Key。runbook §9.4 已核实：代码无读取（**批次 48 进展**：key 已具备且协议冒烟 PASS（E-48-PROV-01）；产品路径设备取证 E-48-D-DEV-01 完成设置保存+两次能力测试 PASS+题图 CAPTURE_ASSESS SUCCEEDED；D-089 证据绑定行据此改判 PASS，其余行 blocked_by 已更新、verdict 维持 BLOCKED）
   `*_API_KEY` 环境变量的入口，真实凭据只能经设备 `模型设置` 输入；`strictOffline` 变体未启用模型服务，
   须用 `localFirst`。
 - **命令要点**：门禁阶段 `./gradlew :app:assembleLocalFirstDebug` → `adb -s <serial> install -r` →
@@ -53,7 +58,7 @@
   重试对账、派遣 ≤6、原文只进受控缝隙、证据头四项、D-090 口径行）；证据含 run-id/APK sha/serial，
   全文无密钥片段。
 - **责任人**：外部=Provider 账号持有人；内部=发布负责人（执行与取证）。
-- **行**：A-010、D-082、D-083、D-084、D-085、D-086、D-087、D-088、D-089、D-090、G-036、I-061、
+- **行**（批次 48 起，D-089 已转 PASS 移出）：A-010、D-082、D-083、D-084、D-085、D-086、D-087、D-088、D-090、G-036、I-061、
   FIX-036、FIX-037、FIX-038、FIX-039、FIX-040（FIX 五行=FIX-T08）。
 
 ### §2 签名（外部，20 行）
@@ -69,9 +74,9 @@
   FIX-046、FIX-047、FIX-048、FIX-049、FIX-050（FIX-T10）、
   FIX-071、FIX-072、FIX-073、FIX-074、FIX-075（FIX-T15）。
 
-### §3 arm64（外部，21 行）
+### §3 arm64（外部，21 行；批次 48 起为用户裁定豁免注记组）
 
-- **缺失条件**：arm64 真机或镜像（两台在线设备均 x86_64；x86_64 宿主不能起 arm64 AVD）、
+- **缺失条件**：arm64 真机或镜像（两台在线设备均 x86_64；x86_64 宿主不能起 arm64 AVD）、（**批次 48 裁定**：用户裁定豁免（2026-11-06，adjudication.md 追加裁定①）——「arm64/真机」条件不再构成发版阻塞；21 行 blocked_by 已改豁免注记，verdict 维持 BLOCKED，不伪造 PASS；若设备到位仍可按本节复跑后正常改判）
   16384 页设备。
 - **命令要点**：换 arm64 真机后按 runbook §9.2 的 arm64/16KB 组重跑安装/冷启/16KB 运行时/native 装载；
   F 域按 `docs/research/evidence/2026-11-05-batch-44/f-domain/00-index.md` §7 重跑冷启/首帧/导出/

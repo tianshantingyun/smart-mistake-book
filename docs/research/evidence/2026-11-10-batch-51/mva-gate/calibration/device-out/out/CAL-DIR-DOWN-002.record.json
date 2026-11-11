@@ -1,0 +1,41 @@
+{
+  "input_file": "CAL-DIR-DOWN.json",
+  "program_sha256": "df5038869c87657ee9f015434ad64c23371cdf55714b48952838a1eae0b0650e",
+  "task_id": "CAL-DIR-DOWN",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 14,
+  "measurement": [
+    {
+      "contentId": "c0-967a206e",
+      "payload": "向下",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "967a206e3aa79adab548a294ba4d4d64a8d4b250f71abe14a23e8ba3f6312fde"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "c54ca45bba58a0624ab3a0710525298e1311568b80f01b2344e58f3f092742a5",
+  "scene_bytes": 462,
+  "scene_schema_version": 1,
+  "draw_sha256": "8b80ccfbc72688fedaa7953337f715a7eeba49a49c498b67ad0b8ce77043cb5d",
+  "draw_bytes": 525,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-967a206e"
+  ],
+  "png_sha256": "e1bfcd26e735a8d1ef91b1816f22851121efd5c99ac56dd41035bf17c362da41",
+  "png_bytes": 3130,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 3,
+    "pathCommands": 5,
+    "labels": 1,
+    "ops": 2
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "generated_by": "MvaJsArmAdapterInstrumentedTest",
+  "device_model": "sdk_gphone64_x86_64",
+  "device_manufacturer": "Google",
+  "sdk_int": 34,
+  "density": 2.75,
+  "font_scale": 1,
+  "px_per_du": 2,
+  "engine": "QuickJsVisualExecutionEngine (core:data, per-program instance)",
+  "divergences": [
+    "no app VisualJsClientEngine \/ :visual_js isolated process \/ AIDL queue",
+    "measurer is an in-test Paint measurer, not app AndroidVisualContentMeasurer",
+    "one engine instance per program (production runs a resident service)"
+  ],
+  "program_count": 1,
+  "status_counts": {
+    "RENDERED": 1
+  },
+  "records": [
+    {
+      "input_file": "ratio-1to1.json",
+      "program_sha256": "60ecd0478975bf7cfdba6ae89b3ddffc5cad86f3bfe019034f9dcf9325f81384",
+      "task_id": "FIXTURE-RATIO-1TO1",
+      "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+      },
+      "latency_ms": 161,
+      "measurement": [
+        {
+          "contentId": "c0",
+          "payload": "1:1",
+          "widthDu": 22.18181800842285,
+          "heightDu": 18.75,
+          "baselineDu": 14.84375,
+          "fontSizeSp": 16,
+          "digest": "d6b5915c46057bcb005f46f6433df65609dd3a7a57af75ac1a5a4a7c299ebffb"
+        }
+      ],
+      "status": "RENDERED",
+      "scene_sha256": "d41c95f0d61f32f2a8762de6966492e069f586ab77014fde1344b8a0ac32a0bb",
+      "scene_bytes": 479,
+      "scene_schema_version": 1,
+      "draw_sha256": "d8a923a2704c46e33ee872de15ab303480af027f72d93acdcf454ed15998c223",
+      "draw_bytes": 483,
+      "draw_schema_version": 1,
+      "content_ids": [
+        "c0"
+      ],
+      "png_sha256": "5299bdc6ecee5626992237bec49ef982e1fa5a5338ee7ee441b0dc23fc201e82",
+      "png_bytes": 1616,
+      "png_width": 720,
+      "png_height": 480,
+      "stats": {
+        "nodes": 3,
+        "pathCommands": 4,
+        "labels": 1,
+        "ops": 2
+      }
+    }
+  ]
+}

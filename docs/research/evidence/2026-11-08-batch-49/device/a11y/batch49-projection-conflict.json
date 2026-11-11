@@ -1,0 +1,23 @@
+{
+  "clickable": 1,
+  "colors": null,
+  "colors_sha256": null,
+  "contrast": {
+    "measured": 0,
+    "min_ratio": null,
+    "pairs": [],
+    "reason": "no colors input",
+    "status": "UNVERIFIED",
+    "threshold": 4.5
+  },
+  "density_dpi": 420,
+  "dump": "docs\\research\\evidence\\2026-11-08-batch-49\\device\\a11y\\batch49\\batch49-projection-conflict.xml",
+  "dump_sha256": "d0b95cd10849367ea97d76fa43708ef199eba7ba8480ae5fb172bfa97f610be1",
+  "min_dp": 48.0,
+  "min_dp_source": 48.0,
+  "nodes": 15,
+  "ok": false,
+  "structural_ok": true,
+  "violation_codes": [],
+  "violations": []
+}

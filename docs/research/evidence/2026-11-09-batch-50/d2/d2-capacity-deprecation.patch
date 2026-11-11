@@ -1,0 +1,51 @@
+# D-2 容量拦截规则废止补丁（批次 50，未应用）
+#
+# 状态：NOT_APPLIED / UNVERIFIED。目标文件 tools/kb_build/merge_candidate_verdicts.py 在
+# 本批开工时已是 M（他线候选区去重改动在飞），按协作规则不整文件抢占，只出补丁 + 判据。
+#
+# 改动一句话：`MAX_VISIBLE = 4` 不再阻断补料，只登记「超配节点上的新料」后照常入列。
+# 运行时依据：核心取数上界 = 1,024 行（KnowledgePort.kt:133 区域）、展示由 20,000 字符
+# 预算按（角色秩→type→title→materialId）逐条装填（TutorTeachingReferenceSelector），
+# 不存在每节点条数门 —— `MAX_VISIBLE` 的「新料不可见」前提不成立。
+#
+# 应用判据（缺一不可，应用后必须实跑）：
+# 1) 先更新 tools/tests/test_kb_merge_candidate_verdicts.py：凡断言「容量拦截的行不进入
+#    materials」的用例，改为断言「进入 materials 且 capacity_blocked 有登记行」——这是
+#    有意的语义变更，必须在测试名/注释写明，禁止只删断言。
+# 2) 冻结输入重跑工具到 scratch 目录：capacity_blocked 行仍存在（注册），但 91 条历史
+#    候选行中仍存在对应输入的条目应出现在 materials（逐条集合断言；预期不再被 return 拦截）。
+# 3) `PYTHONPATH=tools python -m kb_build.promote --dry-run` 全绿（23/23），材料数按新增
+#    条数增长、无悬空绑定。
+# 4) summary.json 的 capacity_blocked 语义改为「超配观察（informational）」，不得再作为
+#    「不入包」的依据；消费方（若有）逐处改读。
+# 5) 上述 1–4 全绿才算应用完成；只有补丁、未跑 1–4 时，D-2 容量项只能记「已登记」，
+#    不得记为「已废止」。
+#
+--- a/tools/kb_build/merge_candidate_verdicts.py
++++ b/tools/kb_build/merge_candidate_verdicts.py
+@@ -204,20 +204,22 @@
+                 "reason": "与既有补料完全重复（同节点+同标题+同正文），只留第一条",
+             })
+             return
+         node_slug = material["bindings"][0]["knowledgeNodeId"].split(":")[-1]
+         key = (material["subject"], node_slug)
+         if counts.get(key, 0) >= MAX_VISIBLE:
++            # D-2（批次 50）：`MAX_VISIBLE = 4` 的运行时前提已被推翻——运行时没有每节点条数门
++            # （整批取数上界 1,024 行 + 20,000 字符预算按排序装填），新料并非「不可见」。
++            # 该规则不再**阻断**补料：只登记「超配节点上的新料」供内容线分诊，然后照常入列。
+             capacity_blocked.append({
+                 "source": tag, "subject": material["subject"], "node_slug": node_slug,
+                 "slug": material["slug"], "title": material["title"],
+                 "existing_materials": counts.get(key, 0),
+-                "reason": f"节点已有 {counts.get(key, 0)} 条材料（≥{MAX_VISIBLE}，新料不可见）——"
+-                          "先清理该节点内的跑题材料再补，不硬塞",
++                "reason": f"节点已有 {counts.get(key, 0)} 条材料（≥{MAX_VISIBLE}）；"
++                          "仅登记（运行时无每节点条数门），不拦截",
+             })
+-            return
+         counts[key] = counts.get(key, 0) + 1
+         seen_payload[payload] = material["slug"]
+         materials.append(material)
+ 
+     for row in dir_rows:
+         verdict = (row.get("verdict") or "").strip()

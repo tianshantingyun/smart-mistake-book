@@ -11,6 +11,15 @@ plugins {
 // 消灭的具体失败：为了跑两例 release 往返而不得不改全局测试变体，导致日常 debug 轨被顺手改道。
 val r04TestBuildType = providers.gradleProperty("smbk.testBuildType").orNull ?: "debug"
 
+// 版本号（批次 50 发布线）：release 包 versionCode 的唯一权威来源 = 构建参数 -Psmbk.versionCode=N。
+// 发布脚本按 N = 100000 + git rev-list --count HEAD 推导（干净树没有 .git，算号必须在脚本里，
+// 见 docs/research/2026-11-09-release-signing.md §3）。缺省 2 只为让 debug/internal/benchmark
+// 与历史行为零变化；release 打包由 validateVersionCode fail-closed 拦下缺参/非整数/越界。
+// 消灭的具体失败：手改字面量忘记升号 → Play 以"versionCode 已用过"拒收；两个提交产出同号。
+// 不在配置期读 git：干净树无 .git、CI shallow 会得 1、configuration cache 可能复用旧号。
+val smbkVersionCodeRaw: String? = providers.gradleProperty("smbk.versionCode").orNull
+val smbkVersionCode: Int = smbkVersionCodeRaw?.toIntOrNull() ?: 2
+
 android {
     namespace = "com.tingyun.smartmistakebook"
     compileSdk = 37
@@ -30,7 +39,8 @@ android {
         // RELEASE.md gate 7: bumped for the first post-audit build. The stale
         // "phase0" suffix is gone (scenario-registry: old Phase labels are no
         // longer acceptance labels).
-        versionCode = 2
+        // 批次 50：不再手写字面量；release 由 -Psmbk.versionCode 注入（见文件头 val 注释）。
+        versionCode = smbkVersionCode
         versionName = "0.2.0"
         buildConfigField("String", "VISUAL_RUNTIME_VERSION", "\"quickjs-kt-android-${libs.versions.quickjs.kt.android.get()}\"")
 
@@ -158,12 +168,33 @@ tasks.register("validateReleaseSigning") {
     }
 }
 
+// versionCode 的 fail-closed 门：与 validateReleaseSigning 同形（同一组 release 打包任务前挂载）。
+// 缺 -Psmbk.versionCode、传了非整数、或超出 Play 允许范围时在打包前失败，错误文本直接点名参数。
+tasks.register("validateVersionCode") {
+    val raw = smbkVersionCodeRaw
+    doLast {
+        if (raw.isNullOrBlank()) {
+            throw GradleException(
+                "Release build requires -Psmbk.versionCode=N " +
+                    "(N = 100000 + git rev-list --count HEAD; see " +
+                    "docs/research/2026-11-09-release-signing.md §3)",
+            )
+        }
+        val code = raw.toIntOrNull()
+            ?: throw GradleException("smbk.versionCode is not an integer: $raw")
+        if (code !in 1..2_100_000_000) {
+            throw GradleException("smbk.versionCode out of Play range 1..2100000000: $code")
+        }
+    }
+}
+
 // Apply release signing before release bundle/assemble tasks run.
 tasks.configureEach {
     if (name.contains("Release", ignoreCase = true) &&
         (name.startsWith("bundle") || name.startsWith("assemble") || name.startsWith("package"))
     ) {
         dependsOn("validateReleaseSigning")
+        dependsOn("validateVersionCode")
     }
 }
 

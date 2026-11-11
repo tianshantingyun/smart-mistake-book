@@ -221,6 +221,23 @@ interface ModelTaskDatabasePort {
     suspend fun readChatEvidenceByLearner(learnerId: String): List<com.tingyun.smartmistakebook.core.database.entity.LearnerChatEvidenceEntity>
 
     /**
+     * 某一学习日窗内、某写通道已作答的知识点（去重）。
+     *
+     * 用途 = 3E / F17 每日全库扫描配额（KD-46 每日累计）：当日已花费的名额从既有作答账本
+     * `learner_chat_evidence` 派生，**零 schema**。窗口为半开区间
+     * `[sinceEpochMillisInclusive, untilEpochMillisExclusive)`；`sourceKind` 取
+     * [StudyDbValue.ChatEvidenceSourceKind]（与写入侧同源，避免字面量漂移）。
+     *
+     * 只读、无副作用；实现走 `(learner_id, created_at_epoch_millis)` 索引。
+     */
+    suspend fun readChatEvidenceKnowledgeNodeIds(
+        learnerId: String,
+        sourceKind: String,
+        sinceEpochMillisInclusive: Long,
+        untilEpochMillisExclusive: Long,
+    ): List<String>
+
+    /**
      * Chat evidence for one conversation (research tutor-evidence-gate §4):
      * the gate reads this to enforce the same-KC cooldown and the
      * per-conversation write quota before accepting a MASTERY_UPDATE write.

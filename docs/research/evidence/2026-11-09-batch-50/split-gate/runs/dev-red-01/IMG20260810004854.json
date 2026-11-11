@@ -1,0 +1,27 @@
+{
+    "file": "IMG20260810004854.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 24188,
+    "responseHead": "{\"id\":\"ea5a8e53-afad-4ff5-b4d1-c073005fe5c7\",\"object\":\"chat.completion\",\"created\":1794127210,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"NEED_MORE_IMAGE\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MISSING_OPTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.62,\\\"right\\\":0.58,\\\"bottom\\\":1.0},\\\"message\\\":\\\"第4题选项未拍全\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.82,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"上方题目题干及A-C选项未拍全\\\"}],\\\"suggestedActions\\\":[\\\"RECAPTURE\\\",\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片是否足以完整转写一道或多道独立题。图片：看起来是生物选择题/选项，文字竖向排列？图像旋转了90度？需要识别页面内容。图中可见选项 D、E、F、G、H? 以及第4题。似乎一道选择题的多个选项，从D到H？可能是多选题？需要判断是否完整。题面可能从D开始，缺少A/B/C？图片显示右侧有 D. 蛋白质和核酸具有多样性的原因之一是都具有千差万别的空间结构。E. 核酸中核苷酸的排列顺序能够决定蛋白质中氨基酸的排列顺序。F. 蛋白质和核酸在合成时都需要模板、能量和酶。G. 蛋白质合成需要核酸参与，核酸合成不需要蛋白质参与。H. 真核细胞的核中有DNA—蛋白质复合物，而原核细胞的拟核中没有[全国I卷]。然后第4题：[2025·辽宁大连一模] 生物体内有许多蛋白质含有除氨基酸外的其他化学成分作为其结构的一部分，若非蛋白成分是核酸，这种蛋白质称为核蛋白。下列相关叙述错误的是 ... 图片下方被截断，选项可能未显示完？需要看：第4题题干及“下列相关叙述错误的是”之后没有选项可见，只有下面部分？图片左侧有“白。下列相关叙述错误的是”这一行，可能第4题的选项在更下方被裁掉？ 这张图片只拍到了题干，没有拍到选项？ 也许选项在左边被截断：左侧有文字“一部分,若非蛋白成分是核酸,这种蛋白质称为核蛋白。下列相关叙述错误的是”紧接着往下可能还有选项，但图片下边缘截断。需要判断是否完整转写一道题。图片上方 D-H 可能是上一道题的选项（第3题?），下方是第4题题干，选项未完整显示。因此可能包含多道独立题？ 上方选项D-H属于一道题的一部分，下方第4题是另一道题，且第4题选项缺失。如果画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按阅读顺序给出每道题完整外接区域。但这里上方题目可能不完整（缺少题干和A-C），下方题目也不完整（缺少选项）。是否存在两道独立题？ 图像左侧似乎有“4. [2025·辽宁大连一模] ...”是第4题。上方D-H选项可能是第3题的选项，跨页？ 同一道题跨页不算多题，内容未拍全返回NEED_MORE_IMAGE。图片中第4题选项未拍全；上方题只看",
+    "decision": "NEED_MORE_IMAGE",
+    "issueCodes": [
+        "MISSING_OPTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "layoutHint": null,
+    "layoutHintChars": 0,
+    "image": {
+        "egressBytes": 559057,
+        "egressWidth": 2048,
+        "egressHeight": 1536,
+        "sourceWidth": 4096,
+        "sourceHeight": 3072,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "f8af1f9a10a608e226ae98f5c99ae43559815a7689a5f13702b5b7f21b89b305",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

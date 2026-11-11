@@ -1,0 +1,8 @@
+
+com.tingyun.smartmistakebook.core.data.knowledge.GoldenRetrievalInstrumentedTest:.
+
+Time: 75.909
+
+OK (1 test)
+
+

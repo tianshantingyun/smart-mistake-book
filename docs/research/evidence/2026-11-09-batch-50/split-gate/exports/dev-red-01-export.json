@@ -1,0 +1,428 @@
+{
+ "pages": [
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "PASS",
+   "file": "IMG20260810004304.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004304.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "43ed8a2dcc501b76a8938afa803e22065dcd8a182fd17ef220f81e3eae66bbfa",
+   "decision": "SPLIT",
+   "file": "IMG20260810004511.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004511.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 1.0,
+     "left": 0.22,
+     "right": 0.56,
+     "top": 0.05
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.56,
+     "right": 1.0,
+     "top": 0.05
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810004854.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004854.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "98bae2a8b511fd1e3daaf1da0cd8a664a62e48874039f32b4d6856aaacfd2056",
+   "decision": "SPLIT",
+   "file": "IMG20260810005144.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005144.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 5,
+   "questions": [
+    {
+     "bottom": 0.34,
+     "left": 0.02,
+     "right": 0.5,
+     "top": 0.15
+    },
+    {
+     "bottom": 0.82,
+     "left": 0.02,
+     "right": 0.5,
+     "top": 0.34
+    },
+    {
+     "bottom": 0.99,
+     "left": 0.02,
+     "right": 0.5,
+     "top": 0.82
+    },
+    {
+     "bottom": 0.39,
+     "left": 0.5,
+     "right": 0.93,
+     "top": 0.15
+    },
+    {
+     "bottom": 0.99,
+     "left": 0.5,
+     "right": 0.93,
+     "top": 0.39
+    }
+   ]
+  },
+  {
+   "boxesSha256": "fcca3dcea39186b068336ff52a430a387db38891c3c83aae0bd8a670a7339aa3",
+   "decision": "SPLIT",
+   "file": "IMG20260810005301.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005301.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.97,
+     "left": 0.03,
+     "right": 0.5,
+     "top": 0.04
+    },
+    {
+     "bottom": 0.97,
+     "left": 0.505,
+     "right": 0.94,
+     "top": 0.04
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810005605.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005605.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "04544a0fd9697c541a128804a7203602dc80347dfab3c1aa3ff4118e59db8d85",
+   "decision": "SPLIT",
+   "file": "IMG20260810005855.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005855.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.34,
+     "left": 0.03,
+     "right": 0.98,
+     "top": 0.0
+    },
+    {
+     "bottom": 0.86,
+     "left": 0.03,
+     "right": 0.98,
+     "top": 0.35
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.03,
+     "right": 0.98,
+     "top": 0.86
+    }
+   ]
+  },
+  {
+   "boxesSha256": "6f86ac5cb2670bf310764b61d7553ee8c51224184c0c847ea578aba5688bc1e6",
+   "decision": "SPLIT",
+   "file": "IMG20260810010306.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010306.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 4,
+   "questions": [
+    {
+     "bottom": 0.25,
+     "left": 0.06,
+     "right": 0.92,
+     "top": 0.135
+    },
+    {
+     "bottom": 0.365,
+     "left": 0.06,
+     "right": 0.98,
+     "top": 0.255
+    },
+    {
+     "bottom": 0.555,
+     "left": 0.06,
+     "right": 0.95,
+     "top": 0.375
+    },
+    {
+     "bottom": 0.84,
+     "left": 0.06,
+     "right": 0.95,
+     "top": 0.57
+    }
+   ]
+  },
+  {
+   "boxesSha256": "2662b2b152e8a1800666bcd7af29c899ff6b9635597b7ef7d9bc2df46f6cb970",
+   "decision": "SPLIT",
+   "file": "IMG20260810010349.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010349.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 4,
+   "questions": [
+    {
+     "bottom": 0.17,
+     "left": 0.08,
+     "right": 1.0,
+     "top": 0.0
+    },
+    {
+     "bottom": 0.43,
+     "left": 0.1,
+     "right": 1.0,
+     "top": 0.17
+    },
+    {
+     "bottom": 0.7,
+     "left": 0.08,
+     "right": 1.0,
+     "top": 0.43
+    },
+    {
+     "bottom": 0.86,
+     "left": 0.08,
+     "right": 1.0,
+     "top": 0.7
+    }
+   ]
+  },
+  {
+   "boxesSha256": "f6a80bae645de815e0a279c5761ac9894459d3696ab5c605de7390f4dad26f24",
+   "decision": "SPLIT",
+   "file": "IMG20260810010633.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010633.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 5,
+   "questions": [
+    {
+     "bottom": 0.23,
+     "left": 0.16,
+     "right": 0.82,
+     "top": 0.05
+    },
+    {
+     "bottom": 0.72,
+     "left": 0.09,
+     "right": 0.8,
+     "top": 0.26
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.09,
+     "right": 0.73,
+     "top": 0.74
+    },
+    {
+     "bottom": 0.54,
+     "left": 0.77,
+     "right": 1.0,
+     "top": 0.24
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.77,
+     "right": 1.0,
+     "top": 0.55
+    }
+   ]
+  },
+  {
+   "boxesSha256": "92e3b724ee49c1bb1cf9f45e00f1aa9c2985ebdf87ebc262b84b85cfc6c71d73",
+   "decision": "SPLIT",
+   "file": "IMG20260810010859.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010859.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.3,
+     "left": 0.17,
+     "right": 0.91,
+     "top": 0.07
+    },
+    {
+     "bottom": 0.59,
+     "left": 0.16,
+     "right": 0.91,
+     "top": 0.34
+    },
+    {
+     "bottom": 0.81,
+     "left": 0.16,
+     "right": 0.93,
+     "top": 0.6
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810011017.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011017.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "PASS",
+   "file": "IMG20260810011126.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011126.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "ab443fbab4b8d3e04f01f6466b888440e1974ee4d925d317272b8980be855221",
+   "decision": "SPLIT",
+   "file": "IMG20260810011248.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011248.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 4,
+   "questions": [
+    {
+     "bottom": 0.385,
+     "left": 0.06,
+     "right": 0.87,
+     "top": 0.265
+    },
+    {
+     "bottom": 0.49,
+     "left": 0.06,
+     "right": 0.86,
+     "top": 0.39
+    },
+    {
+     "bottom": 0.725,
+     "left": 0.045,
+     "right": 0.95,
+     "top": 0.505
+    },
+    {
+     "bottom": 0.97,
+     "left": 0.055,
+     "right": 0.97,
+     "top": 0.79
+    }
+   ]
+  },
+  {
+   "boxesSha256": "417c4b257e67947a91cb1ce33485aade046c8db53db56ea3a382ebbeb092110b",
+   "decision": "SPLIT",
+   "file": "IMG20260810011649.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011649.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.58,
+     "left": 0.0,
+     "right": 0.75,
+     "top": 0.0
+    },
+    {
+     "bottom": 1.0,
+     "left": 0.0,
+     "right": 0.38,
+     "top": 0.58
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810012103.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810012103.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  }
+ ],
+ "schemaVersion": 2,
+ "source": {
+  "channel": "golden-split-eval-hint-harness-v1（JVM harness；非设备 DB 导出，如实标注）",
+  "divergences": [
+   "transport: plain HTTPS POST instead of gateway authorization pipeline (same requestBody builder, same parseCompletion)",
+   "image egress copy: prepared by caller per EgressImageBudget plan (long edge 2048, JPEG q88, q70 fallback); PIL resampling, not Android Skia bytes; scaledSize re-verified here",
+   "layout hint gray fixtures: PIL BILINEAR to long edge 1024 then ITU-R 601 luma, derived from the egress copy (same frame as the image sent); not Android BitmapFactory bytes"
+  ],
+  "endpoint": "https://api.deepseek.com",
+  "keySha8": "cd10efbc",
+  "layoutHintArm": false,
+  "model": "deepseek-flash",
+  "pageRecordSha256": {
+   "IMG20260810004304.jpg": "24b3beb91e7eb82bece65a0b9af4790fffafbd1f9ba625e8091574787022c98c",
+   "IMG20260810004511.jpg": "99010d571b5b0b3f2284ab16ca3d072be0e486399c7acc5c5955b1da3320ebdc",
+   "IMG20260810004854.jpg": "4aa91e6bd4437a16901a5d1e89b1be5e4ea25eca1a0a05b069ec65949cc7efc7",
+   "IMG20260810005144.jpg": "fd72779065b0ca0c048b809e41b772547392cd26718bc4df4e69ef959c04ea6c",
+   "IMG20260810005301.jpg": "433baf6d7b6409880bf5cd71ee02c0486dcc90f6fe321ceaec3313f8738b7ce7",
+   "IMG20260810005605.jpg": "d5282c5f767ec15497250877f651eeead4c28f901595d0b22504d22904debb6b",
+   "IMG20260810005855.jpg": "1cf09201e08fb4204f80976428f696eae531f1783e06b6cb54a6fca05ab87dfa",
+   "IMG20260810010306.jpg": "e846e670c91bda8703b31efedc202ed9f4d18f112e21ab50dac1574e4690791f",
+   "IMG20260810010349.jpg": "4ef2d110c1adcf0def048001b33dda0f06b359c298a8d8ef685b39bef40b8aca",
+   "IMG20260810010633.jpg": "6bc4d22027d9046656673f593058ff6aa901650e5a521ab4aa3e3e816e3d9977",
+   "IMG20260810010859.jpg": "be206ff86321a7ebf3d432dda7c893a4c52ab0fe01fafcc7da9bcc3d6c997526",
+   "IMG20260810011017.jpg": "c714386a81da6439c0a7aa2974fca69047010e5a1297c8a2a538f61408f81ba8",
+   "IMG20260810011126.jpg": "2253e8ac25efc19f8540ad0a635a3a4413e45d02feab3c819b2c1e58be7c0e6f",
+   "IMG20260810011248.jpg": "b08cbd77cf2be33fed01250338dcc805ac5b939751ad41ddc4101aa496042b9b",
+   "IMG20260810011649.jpg": "f8688475648ada6a6991797c1ab6fd06b74d681b1e8761e1a25d9fc1c8c8f9b6",
+   "IMG20260810012103.jpg": "293ef217baab2a8d0b43af1a2d2a2fb88182f5cb217caf52278377cee4a302e6"
+  },
+  "runId": "dev-red-01",
+  "runManifestSha256": "f7276106c6a10cd11d0b219eb87d574002c1b1b49530af9a8e277deaa61ccc07",
+  "wireProtocol": "openai-chat-completions-v1"
+ }
+}

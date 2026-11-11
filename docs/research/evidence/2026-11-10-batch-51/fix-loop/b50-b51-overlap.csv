@@ -1,0 +1,5 @@
+material_slug,b50_layer,b50_verdict,b50_target_node_slug,b51_layer,b51_verdict,b51_confidence,layer_changed
+ext-bio-3a60560995-011,overfull,REBIND,管家基因与奢侈基因,normal,CORRECT,high,True
+ext-phy-e14aad82a5-423,normal,REBIND,电磁波谱与各波段的特性,normal,CORRECT,high,False
+ext-phy-e14aad82a5-870,normal,REBIND,电功率,overfull,CORRECT,medium,True
+math-fx-sanjiaoxing-neijiaohe-guanxi,normal,REBIND,解三角形常用二级结论,normal,CORRECT,medium,False

@@ -1,0 +1,59 @@
+{
+  "caliber": "v3",
+  "decisionSource": "export",
+  "gate": {
+    "count": {
+      "comparison": ">=",
+      "met": false,
+      "threshold": 0.9,
+      "value": 0.25
+    },
+    "fragment": {
+      "comparison": "<=",
+      "met": true,
+      "threshold": 0.05,
+      "value": 0.01282051282051282
+    },
+    "passed": false,
+    "state": "FAIL"
+  },
+  "hardRedLines": {
+    "fragmentedQuestions": {
+      "required": 0,
+      "satisfied": false,
+      "value": 1
+    }
+  },
+  "measure": {
+    "abstain": {
+      "count": 2,
+      "pages": [
+        "IMG20260810004854.jpg",
+        "IMG20260810005605.jpg"
+      ],
+      "rate": 0.08333333333333333
+    },
+    "caliber": "v3",
+    "countExactV2": {
+      "denominator": 24,
+      "successes": 7,
+      "value": 0.2916666666666667
+    },
+    "decisionSource": "export",
+    "extraAppPages": [],
+    "missingAppPages": [],
+    "notEvaluable": {
+      "count": 5,
+      "pages": [
+        "IMG20260810004952.jpg",
+        "IMG20260810010306.jpg",
+        "IMG20260810010633.jpg",
+        "IMG20260810011017.jpg",
+        "IMG20260810011800.jpg"
+      ],
+      "rate": 0.20833333333333334
+    },
+    "reportSchemaVersion": 1,
+    "singleQuestionUnverifiedCount": 0
+  }
+}

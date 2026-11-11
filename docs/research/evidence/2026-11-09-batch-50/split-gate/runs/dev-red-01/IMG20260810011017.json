@@ -1,0 +1,27 @@
+{
+    "file": "IMG20260810011017.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 26699,
+    "responseHead": "{\"id\":\"cc76333a-9506-4e12-8332-829274b11346\",\"object\":\"chat.completion\",\"created\":1794127541,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"NEED_MORE_IMAGE\\\",\\\"issues\\\":[{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0,\\\"top\\\":0,\\\"right\\\":0.26,\\\"bottom\\\":0.9},\\\"message\\\":\\\"左侧另一题被裁切，题干不完整\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.25,\\\"top\\\":0,\\\"right\\\":0.7,\\\"bottom\\\":0.05},\\\"message\\\":\\\"顶部仅残留上一题选项\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片是否足够完整转写一道或多道独立题。图片是一页练习册，右侧和中间有一道完整题“跟进训练2”，但左侧边缘和顶部有另一道题的残余内容（左上和左侧有文字和图形，跨页/被截断）；右侧主体有一道完整题。顶部有 C. v=1.0 m/s D. v=1.5 m/s 等选项，可能是上一题选项，属于另一题部分。画面包含不止一道题吗？需要分析。\\n\\n用户要求：判断图片是否足以完整转写一道或多道独立题。若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按页面阅读顺序给出每道题的完整外接区域，包含题干、选项、图形和作答区，区域之间不得大面积重叠；否则questionRegions必须为空数组。其他decision必须返回空questionRegions。同一道题跨页不算多题，内容未拍全时返回NEED_MORE_IMAGE。\\n\\n图片：中间和右侧完整显示一道题：[跟进训练2] (2025·山东省潍坊市高三三模) 如图所示... 求 (1)(2)(3)。题目完整可见？题干全部可见，图形可见，问题可见。手写答案。这道题区域大约是 x 0.25-0.95, y 0.04-0.98? 包含题干、图、问题、作答区（下方手写）。但左侧被裁切部分有另一道题的内容：顶部左边“...大小为B。放置，接入轨道初速度v0沿导...最终恰好停在...之间的阻值为...数为μ。MN=...速度为g,试求：” 以及左侧有图（P、×、P1等）、下面有“安培力；小v1；时间t。”等。这明显是另一道题，且被裁切不完整。所以画面包含至少两道独立题：左侧/上方的题（不完整）和右侧完整的“跟进训练2”。但是否能算“2到12道互相独立的题”必须SPLIT？如果包含多题，即使一题不完整？要求若画面包含2到12道互相独立的题，必须返回SPLIT。这里画面确实包含两道独立题（左侧残题和右侧完整题）。但左侧残题不完整，可能也应该返回NEED_MORE_IMAGE？需要看决策优先级。SPLIT用于多题场景；但左侧题内容未拍全，可能建议ADD_IMAGE，同时SPLIT？decision只能是单个。需要判断主要问题是什么。图片主体是一道完整题，左侧有跨页残题",
+    "decision": "NEED_MORE_IMAGE",
+    "issueCodes": [
+        "OCCLUDED",
+        "OCCLUDED"
+    ],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "layoutHint": null,
+    "layoutHintChars": 0,
+    "image": {
+        "egressBytes": 578751,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "4b188fbbb1201ff73be0f9a0c78778449e4aa756742feb94cda0f8e10682b6f1",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

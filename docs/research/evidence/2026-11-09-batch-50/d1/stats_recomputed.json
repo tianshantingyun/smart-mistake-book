@@ -1,0 +1,37 @@
+{
+ "computed": {
+  "point": 0.9821665565557136,
+  "se": 0.0033830036607307647,
+  "n_eff": 1530.4368543831492,
+  "lower_95": 0.975691305961763,
+  "per_layer": {
+   "overfull": {
+    "N": 62948,
+    "n": 1300,
+    "correct": 1279,
+    "p": 0.9838461538461538,
+    "wilson_lower_95": 0.9770088445338914
+   },
+   "normal": {
+    "N": 1905,
+    "n": 300,
+    "correct": 278,
+    "p": 0.9266666666666666,
+    "wilson_lower_95": 0.8979148347511259
+   }
+  },
+  "pass_main": true,
+  "pass_guardrail": false
+ },
+ "checks": {
+  "point": true,
+  "se": true,
+  "n_eff": true,
+  "lower_95": true,
+  "pass_main": true,
+  "pass_guardrail": true,
+  "layer_overfull_correct": true,
+  "layer_normal_correct": true
+ },
+ "all_match": true
+}

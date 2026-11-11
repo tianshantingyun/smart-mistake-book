@@ -1,0 +1,18 @@
+{
+  "serial": "emulator-5590",
+  "boot_id": "31ecd364-6b2a-4e52-9643-23e681696172",
+  "package": "com.tingyun.smartmistakebook.core.export.test",
+  "apk_sha256": "43f1fe46651614f081c0d9edb8a4bc0b33988905822868e857b24e25c34a3e8e",
+  "test_apk_sha256": "07c713941c524c3b4dcc41fde066c40372698f55ec50af235a4d4c728db181cb",
+  "class_filter": "core:export androidTest suite",
+  "counts": {
+    "tests": 32,
+    "evaluated": 32,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "verdict": "PASS",
+  "recorded_at": "2026-11-09T00:00:00Z",
+  "source_log": "docs/research/evidence/2026-11-09-batch-50/device/17-instrument-export-all.log"
+}

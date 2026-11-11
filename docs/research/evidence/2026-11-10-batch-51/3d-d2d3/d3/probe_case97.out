@@ -1,0 +1,19 @@
+golden case #97: expectedSlug=超重与失重的判断方法
+alias diff [超重与失重的判断方法]: v28=40 v29=41 added=['超重与失重的判断（看加速度方向）'] removed=[] name_same=True boundary_same=True
+alias diff [加速度方向突变]: v28=3 v29=2 added=[] removed=['超重与失重的判断（看加速度方向）'] name_same=True boundary_same=True
+
+-- node-side index features (v1 rules: 16 fragments / 192 features) --
+v28(HEAD): aliases=40 fragments=70 selected=16 features=147 matched=7
+  matched features: ['判断', '加速', '加速度', '失重', '方向', '超重', '速度']
+  acceleration terms in features: 加速=True 加速度=True 速度=True
+  selected fragments: ['且方向向下这一种情形', '超重与失重的判断方法', '超重', '考点二', '失重与完全失重的判断', 'fn', '超重与失重', '第四章', '失重', '视重与超重失重', 'f', '系统中的超重与失重', '失重与完全失重的产生条件与视重关系', '受力角度与加速度角度', '超重失重的判断依据与常见误解', '斜向加速度要取其在竖直方向的投影']
+v29(now): aliases=41 fragments=72 selected=16 features=151 matched=4
+  matched features: ['判断', '失重', '方向', '超重']
+  acceleration terms in features: 加速=False 加速度=False 速度=False
+  selected fragments: ['且方向向下这一种情形', '超重与失重的判断方法', '失重与完全失重的产生条件', '对超重和失重的理解', '超重与失重的判断', '失重现象的动力学分析', '图线', '超重与失重判断的三点提醒', '物理必修第一册', '失重', '实重视重与超重失重的判断', 't', '视重', '超重', '超重与失重的判据及完全失重', '超重失重中重力不变与判断依据']
+
+-- isolation: v29 dense + candidate domain fixed; only the expected node's lex count swapped --
+v29 lexical (Kotlin leg): rank=7 lex=4.0 dn=1.0000 ln=0.3333 fused=0.6667
+  top8: [('力、加速度与速度的关系', 10.0), ('匀变速直线运动', 10.0), ('超重', 10.0), ('速度、速度的变化量、加速度的比较', 8.0), ('变轨过程分析', 8.0), ('加速度方向突变', 8.0), ('超重与失重的判断方法', 4.0), ('斜面模型', 9.0)]
+only expected-node count 4->7: rank=4 lex=7.0 dn=1.0000 ln=0.6667 fused=0.8333
+  top8: [('力、加速度与速度的关系', 10.0), ('匀变速直线运动', 10.0), ('超重', 10.0), ('超重与失重的判断方法', 7.0), ('速度、速度的变化量、加速度的比较', 8.0), ('变轨过程分析', 8.0), ('加速度方向突变', 8.0), ('斜面模型', 9.0)]

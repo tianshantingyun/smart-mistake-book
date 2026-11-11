@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.data.study
 import com.tingyun.smartmistakebook.core.database.ImmutablePayloadConflictException
 import com.tingyun.smartmistakebook.core.database.MistakeRecord
 import com.tingyun.smartmistakebook.core.database.AttemptCorrectionRecord
+import com.tingyun.smartmistakebook.core.database.ProjectionCasConflictException
 import com.tingyun.smartmistakebook.core.database.ReviewAttemptUndoCommand
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
 import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
@@ -12,6 +13,10 @@ import com.tingyun.smartmistakebook.core.database.ReviewSessionRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.domain.OptimalRetention
+import com.tingyun.smartmistakebook.core.domain.AdaptiveClarificationConsumer
+import com.tingyun.smartmistakebook.core.domain.AdaptiveDecision
+import com.tingyun.smartmistakebook.core.domain.AdaptiveTargetKind
+import com.tingyun.smartmistakebook.core.domain.EloCorrectnessPredictor
 import com.tingyun.smartmistakebook.core.domain.KnowledgeQuizFeedbackResult
 import com.tingyun.smartmistakebook.core.domain.KnowledgeReviewSessionPlan
 import com.tingyun.smartmistakebook.core.domain.ChatEvidenceGateCalibration
@@ -35,6 +40,7 @@ import com.tingyun.smartmistakebook.core.domain.StudyReviewUndoResult
 import com.tingyun.smartmistakebook.core.domain.KnowledgeQuestionLatticeRow
 import com.tingyun.smartmistakebook.core.domain.PlannedReasonCalibration
 import com.tingyun.smartmistakebook.core.domain.SourceCalibration
+import com.tingyun.smartmistakebook.core.domain.SchedulingCalibrationView
 import com.tingyun.smartmistakebook.core.domain.SchedulingEvaluationReport
 import com.tingyun.smartmistakebook.core.domain.SchedulingOptions
 import com.tingyun.smartmistakebook.core.domain.SchedulingSettingsStore
@@ -48,6 +54,7 @@ import com.tingyun.smartmistakebook.core.domain.StudyDataStatus
 import com.tingyun.smartmistakebook.core.domain.StudyExperienceRepository
 import com.tingyun.smartmistakebook.core.domain.StudyExperienceSnapshot
 import com.tingyun.smartmistakebook.core.domain.StudyKnowledgeCoverageOverview
+import com.tingyun.smartmistakebook.core.domain.StudyProjectionIssue
 import com.tingyun.smartmistakebook.core.domain.StudyReviewOverview
 import com.tingyun.smartmistakebook.core.domain.StudyReviewChoiceSubmissionResult
 import com.tingyun.smartmistakebook.core.domain.StudyReviewSessionProgress
@@ -66,6 +73,7 @@ import com.tingyun.smartmistakebook.core.model.CalibrationReport
 import com.tingyun.smartmistakebook.core.model.LearningModelVersion
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentValidator
 import com.tingyun.smartmistakebook.core.model.LearnerSnapshot
+import com.tingyun.smartmistakebook.core.model.ProjectionStatus
 import com.tingyun.smartmistakebook.core.model.VerifiedTeachingArtifact
 import java.time.Clock
 import java.time.ZoneId
@@ -907,6 +915,91 @@ class RoomBackedStudyExperienceRepository(
         knowledgeNodeId = knowledgeNodeId,
     )
 
+    // ---- KD-67 第二道校准题（批次 50）：独立槽位，不覆盖会话题面 ----
+
+    override suspend fun persistKnowledgeCalibrationQuizItem(
+        sessionId: Long,
+        knowledgeNodeId: String,
+        item: TutorAssessmentItem,
+    ): TutorAssessmentItem? = quizItemStore.save(
+        sessionId = sessionId,
+        knowledgeNodeId = knowledgeNodeId,
+        item = item,
+        occurredAtEpochMillis = clock.millis(),
+        slot = KnowledgeQuizQuestionSlot.CALIBRATION,
+    )
+
+    override suspend fun readPersistedKnowledgeCalibrationQuizItem(
+        sessionId: Long,
+        knowledgeNodeId: String,
+    ): TutorAssessmentItem? = quizItemStore.read(
+        sessionId = sessionId,
+        knowledgeNodeId = knowledgeNodeId,
+        slot = KnowledgeQuizQuestionSlot.CALIBRATION,
+    )
+
+    override suspend fun submitKnowledgeCalibrationQuizFeedback(
+        requestId: String,
+        knowledgeNodeId: String,
+        itemId: String,
+        correctChoiceId: String,
+        selectedChoiceId: String,
+        occurredAtEpochMillis: Long,
+        conversationId: String,
+    ): KnowledgeQuizFeedbackResult = quizFeedbackWriter.submit(
+        requestId = requestId,
+        knowledgeNodeId = knowledgeNodeId,
+        correctChoiceId = correctChoiceId,
+        selectedChoiceId = selectedChoiceId,
+        occurredAtEpochMillis = occurredAtEpochMillis,
+        conversationId = conversationId,
+        itemId = itemId,
+    )
+
+    /**
+     * KD-67 生产装配点：一次复习刷新的选择决策 + 澄清消费。
+     *
+     * 不写库、不调模型：装配器只读既有读面（台账/快照/错题/先修图），选择器是纯函数。
+     * 决策失败原样上抛（`loadLearningLedger` 等读失败由装配器内部 fail-closed 成 null
+     * 预测，先修图读失败则上抛）——调用方把"没有决策"当降级，不把它当"已掌握"。
+     */
+    override suspend fun selectKnowledgeReviewQuestion(
+        sessionId: Long,
+        knowledgeNodeId: String,
+        clarificationConsumer: AdaptiveClarificationConsumer,
+        requestedTargetKind: AdaptiveTargetKind,
+        userRequestedQuestion: Boolean,
+    ): AdaptiveDecision? {
+        val assembler = AdaptiveSelectionAssembler(
+            database = database,
+            learnerId = learnerId,
+            predictor = EloCorrectnessPredictor(),
+        )
+        return assembler.selectAndConsume(
+            sessionId = sessionId,
+            learnerSnapshot = currentLearnerSnapshot(),
+            targetKnowledgeNodeIds = setOf(knowledgeNodeId),
+            requestedTargetKind = requestedTargetKind,
+            decisionAtEpochMillis = clock.millis(),
+            clarificationConsumer = clarificationConsumer,
+            userRequestedQuestion = userRequestedQuestion,
+        ).decision
+    }
+
+    /**
+     * 批次 49 P2-13 "重新整理"：强制全量重放投影。
+     *
+     * 动作本身只做一件事——把不可变账本重新算成投影（委托 [StudyProjectionDrainer.reproject]，
+     * 不新增 DAO 方法）。重算后照常用同一套快照装配发布读面：成功 = `READY` 且投影专用状态
+     * 清空；失败 = 由 [publishFailure] 保留/更新投影专用状态并上抛。
+     */
+    override suspend fun reprojectAll(): Unit = runOperation {
+        projectionDrainer.reproject()
+        latestMistakes = database.observeMistakes().first()
+        initialized = true
+        publishReadySnapshot(latestMistakes)
+    }
+
     override suspend fun evaluateSchedulingModels(): SchedulingEvaluationReport? =
         calibration.evaluateSchedulingModels()
 
@@ -915,6 +1008,10 @@ class RoomBackedStudyExperienceRepository(
 
     override suspend fun plannedReasonCalibrations(): List<PlannedReasonCalibration> =
         calibration.plannedReasonCalibrations()
+
+    /** 批次 49 P2-12：校准可见页的一次装配（纯读，不新增 DAO 方法）。 */
+    override suspend fun schedulingCalibrationView(): SchedulingCalibrationView =
+        calibration.schedulingCalibrationView()
 
     /** AUD-17 台账只读出口（批次 20 / T9）：委托 review_log 的唯一属主，纯读派生。 */
     override suspend fun longRangeSampleLedger(): LongRangeSampleLedgerReport =
@@ -1118,6 +1215,10 @@ class RoomBackedStudyExperienceRepository(
     private fun publishFailure(failure: Throwable) {
         // 状态行向学生承诺"不会用空白结果替代已有记录"：ERROR 时保留最近一次
         // 复习概览（含旧队列展示），只标记投影不再是最新的。
+        //
+        // 批次 49 P2-13：投影/账本级的失败带专用状态。保留上一次的专用状态是刻意的——
+        // 后续一笔无关的写失败不能把"重新整理"这条出路抹掉；反过来，普通失败
+        // （数据库 IO 等）不得被说成投影冲突，所以只有已知的投影级异常才映射。
         _snapshot.value = _snapshot.value.copy(
             status = StudyDataStatus.ERROR,
             review = _snapshot.value.review,
@@ -1125,7 +1226,16 @@ class RoomBackedStudyExperienceRepository(
             tutorPracticeUnitId = null,
             tutorDecision = null,
             failureMessage = failure.message ?: failure::class.java.simpleName,
+            projectionIssue = failure.asProjectionIssue() ?: _snapshot.value.projectionIssue,
         )
+    }
+
+    /** 投影级异常 → 专用读面状态；其他失败返回 null（不冒充冲突）。 */
+    private fun Throwable.asProjectionIssue(): StudyProjectionIssue? = when (this) {
+        is StudyProjectionUnavailableException -> StudyProjectionIssue(status)
+        // 乐观并发重试耗尽 = 投影无法收敛到账本（其它写入者一直在推进）。
+        is ProjectionCasConflictException -> StudyProjectionIssue(ProjectionStatus.CONFLICTED)
+        else -> null
     }
 
     companion object {

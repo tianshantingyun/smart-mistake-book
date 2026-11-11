@@ -1,0 +1,13 @@
+{
+ "task_id": "CAL-CHECK-ABSENT",
+ "program_id": "cal-CAL-CHECK-ABSENT",
+ "source_js": "const visual = {\n  prepare: function (input) { return [{ kind: 'text', payload: '题面文字' }]; },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu, h = input.viewport.heightDu;\n    return { schemaVersion: 1, sceneId: 'cal', revision: input.revision,\n             viewBox: { x: 0, y: 0, width: w, height: h },\n             paths: [{ id: 'axis', commands: visualSdk.axis({ x0: 60, y0: 160, x1: 300, y1: 160, ticks: 4 }) }],\n             root: { type: 'group', children: [\n               { type: 'path', pathId: 'axis', fill: '#26354a', stroke: { width: 2 } }, { type: 'label', contentId: metrics[0].contentId, anchor: { x: 180, y: 40 }, hAlign: 'center', vAlign: 'top', color: '#26354a' } ] } };\n  },\n};",
+ "scene_revision": 1,
+ "seed": 42,
+ "time_ms": 0,
+ "theme": "light",
+ "viewport": {
+  "widthDu": 360,
+  "heightDu": 240
+ }
+}

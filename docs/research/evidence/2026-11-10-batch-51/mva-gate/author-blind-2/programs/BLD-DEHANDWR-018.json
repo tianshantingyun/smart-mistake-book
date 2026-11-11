@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-DEHANDWR-018",
+    "program_id": "mva-BLD-DEHANDWR-018",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '语义清图 · 非原像素修复' },\n      { kind: 'text', payload: '选择题　第1题' },\n      { kind: 'text', payload: '选择题　第2题' },\n      { kind: 'text', payload: '填空题　第3题' }\n    ];\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var mx = W * 0.07;\n    var my = H * 0.06;\n    var left = mx + W * 0.07;\n    var right = W - mx - W * 0.07;\n    var top = my + H * 0.13;\n    var blockH = (H - my - H * 0.16 - top) / 3;\n    var paths = [];\n    var nodes = [];\n\n    paths.push({ id: 'page', commands: [['M', mx, my], ['L', W - mx, my], ['L', W - mx, H - my], ['L', mx, H - my], ['Z']] });\n    nodes.push({ type: 'path', pathId: 'page', fill: '#FFFFFF', stroke: { width: 2 } });\n\n    for (var i = 0; i < 3; i++) {\n      var y = top + i * blockH;\n      paths.push({ id: 'rule' + i, commands: [['M', left, y + 4], ['L', right, y + 4]] });\n      nodes.push({ type: 'path', pathId: 'rule' + i, fill: '#9AA3B2', stroke: { width: 1 } });\n      paths.push({ id: 'bar' + i, commands: [['M', left - 10, y - 22], ['L', left - 10, y + 4]] });\n      nodes.push({ type: 'path', pathId: 'bar' + i, fill: '#2C3E5A', stroke: { width: 2 } });\n      nodes.push({ type: 'label', contentId: metrics[i + 1].contentId, anchor: { x: left, y: y - 6 }, hAlign: 'left', vAlign: 'bottom', color: '#1F2430' });\n    }\n\n    nodes.push({ type: 'label', contentId: metrics[0].contentId, anchor: { x: (left + right) / 2, y: H - my - 8 }, hAlign: 'center', vAlign: 'bottom', color: '#6B7280' });\n\n    return { schemaVersion: 1, sceneId: 'clean-page', revision: input.revision, viewBox: { x: 0, y: 0, width: W, height: H }, paths: paths, root: { type: 'group', children: nodes } };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

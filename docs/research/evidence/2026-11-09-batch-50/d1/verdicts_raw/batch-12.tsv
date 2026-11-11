@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-bio-8bcb1453da-011	CORRECT		high	减数分裂适用于进行有性生殖的生物	
+ext-bio-8c5f3169c5-010	CORRECT		high	看到自交子代中某隐性纯合类型（如 $aabb$）占 1/16	
+ext-bio-8c5f3169c5-013	CORRECT		high	B细胞活化需要抗原刺激和辅助性T细胞两个信号	
+ext-bio-8c5f3169c5-015	CORRECT		high	把捕获到的幼体数与成体数相加	
+ext-bio-8d62859b94-002	CORRECT		medium	群落是在相同时间聚集在一定地域中各种生物种群的集合	节点为群落结构，材料为群落概念与研究范围
+ext-bio-93ef78797d-042	CORRECT		high	植物雌雄两性机能正常但不能自花授粉或同品系内异花授粉	
+ext-bio-93ef78797d-044	CORRECT		high	花粉表型由单倍体花粉(配子体)自身的S基因型决定	
+ext-bio-95a4c3c5ab-001	CORRECT		high	液滴移动法须用死亡植物设对照校正物理误差	
+ext-bio-9861591320-012	CORRECT		high	生长素/细胞分裂素比值约1促愈伤组织形成	
+ext-bio-9869eb9e2d-004	CORRECT		high	从分子水平和个体生物学水平两个层次检验目的基因	
+ext-bio-99a17e2515-026	CORRECT		high	杂交育种、单倍体育种与多倍体育种的三类典型误判及纠正	
+ext-bio-a31d151554-003b	CORRECT		high	隔离是物种形成的必要条件	
+ext-bio-a484ce8179-006	CORRECT		high	类比推理得出的结论并不具有逻辑的必然性	
+ext-bio-a633a0fe9e-004	CORRECT		high	F1均为黄色圆粒，F2出现重组类型	
+ext-bio-a6acb8e8f4-016	CORRECT		high	强调物质循环与废物利用对应循环原理	
+ext-bio-a77993e4a4-004	CORRECT		high	光呼吸消耗ATP和NADPH并可减轻强光伤害	
+ext-bio-a7eccbb0d1-003	CORRECT		high	两类抑制剂在结合部位、与底物结构关系和能否被底物浓度解除上的差别	
+ext-bio-acffd40782-036	CORRECT		high	不完全连锁时大部分配子正常、少数发生互换	
+ext-bio-aeb446a4b5-008	CORRECT		high	根尖分生区细胞分裂旺盛、染色体易被碱性染料着色	
+ext-bio-b0d7cc0b7d-028	CORRECT		high	比值由1降为1/2再回到1对应复制与着丝粒分裂	
+ext-bio-b30a4e9c78-004	CORRECT		high	转化的实质是基因重组，加热并不使DNA完全失活	
+ext-bio-b49ee25874-002	CORRECT		high	病毒没有细胞结构，一般由核酸和蛋白质组成	
+ext-bio-b75d0f5764-081	CORRECT		high	化学渗透假说以电子传递泵H+、膜阻H+回流、H+回流合成ATP三步解释ATP的生成	
+ext-bio-b7b14638ac-017	CORRECT		high	染色体发生倒位后，同源染色体联会时形成倒位环	
+ext-bio-b959bdf257-012	CORRECT		high	基因突变通常发生在分裂间期，配子与体细胞突变的遗传情况不同	
+ext-bio-b959bdf257-080	CORRECT		high	卡诺氏液、酒精、盐酸、清水和甲紫溶液各有固定、解离、漂洗与染色作用	
+ext-bio-b9f847e11d-007	CORRECT		high	光敏色素吸收红光和远红光调节植物发育	
+ext-bio-bd72c2b129-013	CORRECT		high	按物质类型、运输方向、载体、动力与实例汇总	
+ext-bio-bfbb639c07-089	CORRECT		high	多倍体形成原因及低温诱导比例、杂种与同源四倍体育性差的成因	
+ext-bio-c1fc984e29-004	REBIND	辨析真正光合速率-净光合速率和呼吸速率	high	以气体交换箭头模型表示总光合等于净光合加呼吸	现绑为物理模型构建，材料为三种光合速率辨析
+ext-bio-c244f5f146-013	CORRECT		high	核酸包括DNA和RNA两类	
+ext-bio-c4cd60180f-012	CORRECT		high	细胞膜相当半透膜、细胞质与外界溶液存在浓度差	
+ext-bio-c4cd60180f-022	CORRECT		high	植物细胞是活的、有大液泡（成熟）、外界溶液浓度大于细胞液浓度	
+ext-bio-c51579eaa2-010	CORRECT		high	按亲子代基因型、细胞分裂方式和分裂图像三条线索判断等位基因差异	
+ext-bio-ca4b35945b-027	CORRECT		high	以C、N原子数守恒推算氨基酸数	
+ext-bio-cb4d97d37d-002	CORRECT		high	初捕标记M只，重捕n只其中带标记m只	
+ext-bio-cc2cdaecdd-058	CORRECT		high	ATP与ADP的相互转化时刻不停并处于动态平衡	
+ext-bio-cc95475ecb-045	CORRECT		high	CO2释放量为O2吸收量2倍时，无氧呼吸强度是有氧呼吸的3倍	
+ext-bio-cd4e7c5dc7-024	CORRECT		medium	DNA是主要的遗传物质，RNA可作为遗传物质	节点为RNA结构功能，材料兼含DNA功能
+ext-bio-cda93b042c-020	CORRECT		high	P点前由横坐标因子限制，Q点后受其他因子限制	
+ext-bio-cfff2e6c9b-002c	CORRECT		high	感觉中枢在大脑皮层，调节中枢在下丘脑	
+ext-bio-d1950c7b5a-021	CORRECT		high	模板来自亲代噬菌体DNA，原料与核糖体均由大肠杆菌提供	
+ext-bio-d2d8e68a91-032	CORRECT		high	光反应在类囊体薄膜上生成氧气、ATP和NADPH	
+ext-bio-dab302784a-002b	CORRECT		high	同源染色体是减数分裂中能配对的两条染色体	
+ext-bio-dab302784a-017	CORRECT		high	每条染色体上DNA含量在间期复制后加倍	
+ext-bio-dd094faf39-019	CORRECT		high	核基因父母各半，质基因几乎全由卵细胞提供	
+ext-bio-deeb03011d-018	CORRECT		high	处理部位为插条基部	
+ext-bio-deeb03011d-023	CORRECT		high	光作为一种信号影响、调控植物生长发育的全过程	
+ext-bio-e7c2bc6f26-012	CORRECT		high	区分一项操作属于基因工程还是蛋白质工程	
+ext-bio-e826695713-012	CORRECT		high	分泌蛋白在游离核糖体上开始多肽链合成	

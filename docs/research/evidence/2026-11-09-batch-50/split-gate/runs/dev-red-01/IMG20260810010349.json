@@ -1,0 +1,52 @@
+{
+    "file": "IMG20260810010349.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 30484,
+    "responseHead": "{\"id\":\"cafa463c-b2f7-4b75-b445-1101fbee32f6\",\"object\":\"chat.completion\",\"created\":1794127415,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"SPLIT\\\",\\\"issues\\\":[{\\\"code\\\":\\\"MULTIPLE_QUESTIONS\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.0,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":1.0},\\\"message\\\":\\\"画面包含第15至18题共4道独立题，需拆分\\\"},{\\\"code\\\":\\\"OCCLUDED\\\",\\\"severity\\\":\\\"BLOCKING\\\",\\\"region\\\":{\\\"left\\\":0.84,\\\"top\\\":0.44,\\\"right\\\":1.0,\\\"bottom\\\":0.58},\\\"message\\\":\\\"第17题等式右端被画面边缘裁切，公式不完整\\\"}],\\\"suggestedActions\\\":[\\\"ADD_IMAGE\\\"],\\\"questionRegions\\\":[{\\\"left\\\":0.08,\\\"top\\\":0.0,\\\"right\\\":1.0,\\\"bottom\\\":0.17},{\\\"left\\\":0.1,\\\"top\\\":0.17,\\\"right\\\":1.0,\\\"bottom\\\":0.43},{\\\"left\\\":0.08,\\\"top\\\":0.43,\\\"right\\\":1.0,\\\"bottom\\\":0.7},{\\\"left\\\":0.08,\\\"top\\\":0.7,\\\"right\\\":1.0,\\\"bottom\\\":0.86}],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON。需要判断图片是否足以完整转写一道或多道独立题。图中包含第15题（顶部不完整？题干从15. (2022·浙江)若3sin α−sin β=√10, α=π/2? 实际上似乎被截断，图像顶部只显示部分15题，可能题干不完整？第16题完整选择题有选项A-D，D选项部分被右侧裁切？图片右侧边缘显示D. 2/5? 需要检查。第17题也是选择题，选项A-D，D.3被右边缘截掉部分？可见D. 3。题干有cos? 在右侧有“cos”可能被裁？第18题填空题完整？底部有页码343。图中可见独立题15、16、17、18，共4题。横向页面有左侧装订线/边缘，题目纵向排列。需要返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING。issues还可能包括右侧边缘裁切导致选项D不完整？以及第15题顶部题干可能拍不全。需要判断是否足以完整转写。根据要求，如果画面包含2到12道互相独立的题必须返回SPLIT。即使内容不完全？decision优先SPLIT？需要决定。图中4道独立题，需SPLIT。questionRegions按阅读顺序每道题完整外接区域，包括题干选项图形作答区。需要给出坐标。\\n\\n还要issues数组：MULTIPLE_QUESTIONS BLOCKING，可能还有KEY_TEXT_UNREADABLE? 右侧裁剪？题16的D选项只显示D. 2/5? 看右边缘。图片宽度1080。右侧边缘在第16题D选项处能看见 \\\"D. 2\\\" 和部分5？在右上红勾旁边，D.后面有分子2，分母5部分被裁？实际上右边缘显示 D. 2/5 但可能被裁掉一点。第17题D. 3完整？右边缘显示“D. ",
+    "decision": "SPLIT",
+    "issueCodes": [
+        "MULTIPLE_QUESTIONS",
+        "OCCLUDED"
+    ],
+    "regions": [
+        {
+            "left": 0.08,
+            "top": 0.0,
+            "right": 1.0,
+            "bottom": 0.17
+        },
+        {
+            "left": 0.1,
+            "top": 0.17,
+            "right": 1.0,
+            "bottom": 0.43
+        },
+        {
+            "left": 0.08,
+            "top": 0.43,
+            "right": 1.0,
+            "bottom": 0.7
+        },
+        {
+            "left": 0.08,
+            "top": 0.7,
+            "right": 1.0,
+            "bottom": 0.86
+        }
+    ],
+    "usableSplitRegionSet": true,
+    "appliedRegionCount": 4,
+    "layoutHint": null,
+    "layoutHintChars": 0,
+    "image": {
+        "egressBytes": 420535,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "c0d11949176a01e154d948d7ac03a3ec78f263aa160a017426e9c5c50905e19f",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

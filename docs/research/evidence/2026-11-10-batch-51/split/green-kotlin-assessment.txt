@@ -1,0 +1,67 @@
+Reusing configuration cache.
+> Task :core:database:preBuild UP-TO-DATE
+> Task :core:domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:data:preBuild UP-TO-DATE
+> Task :core:data:preDebugUnitTestBuild UP-TO-DATE
+> Task :core:data:preDebugBuild UP-TO-DATE
+> Task :core:model:processResources NO-SOURCE
+> Task :core:domain:processResources NO-SOURCE
+> Task :core:database:preDebugBuild UP-TO-DATE
+> Task :core:data:javaPreCompileDebug UP-TO-DATE
+> Task :core:data:generateDebugResources UP-TO-DATE
+> Task :core:data:processDebugNavigationResources UP-TO-DATE
+> Task :core:database:processDebugNavigationResources UP-TO-DATE
+> Task :core:database:generateDebugResources UP-TO-DATE
+> Task :core:data:patchLitertApiAar UP-TO-DATE
+> Task :core:data:javaPreCompileDebugUnitTest UP-TO-DATE
+> Task :core:database:javaPreCompileDebug UP-TO-DATE
+> Task :core:data:packageDebugResources UP-TO-DATE
+> Task :core:database:packageDebugResources UP-TO-DATE
+> Task :core:model:compileKotlin UP-TO-DATE
+> Task :core:database:parseDebugLocalResources UP-TO-DATE
+> Task :core:data:parseDebugLocalResources UP-TO-DATE
+> Task :core:model:compileJava NO-SOURCE
+> Task :core:database:generateDebugRFile UP-TO-DATE
+> Task :core:model:classes UP-TO-DATE
+> Task :core:model:jar UP-TO-DATE
+> Task :core:database:kspDebugKotlin UP-TO-DATE
+> Task :core:data:generateDebugRFile UP-TO-DATE
+> Task :core:domain:compileKotlin UP-TO-DATE
+> Task :core:domain:compileJava NO-SOURCE
+> Task :core:domain:classes UP-TO-DATE
+> Task :core:data:generateDebugUnitTestStubRFile UP-TO-DATE
+> Task :core:domain:jar UP-TO-DATE
+> Task :core:database:compileDebugKotlin UP-TO-DATE
+> Task :core:database:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:database:copyRoomSchemas NO-SOURCE
+> Task :core:database:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :core:database:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :core:database:processDebugJavaRes UP-TO-DATE
+
+> Task :core:data:compileDebugKotlin
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiImageGenerationChannel.kt:158:33 Unnecessary safe call on a non-null receiver of type 'ResponseBody'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiModelResponseParsers.kt:579:13 Unnecessary safe call on a non-null receiver of type 'JsonArray'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/RoomModelTaskRepository.kt:1050:13 'when' is exhaustive so 'else' is redundant here.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/RoomModelTaskRepository.kt:1091:13 'when' is exhaustive so 'else' is redundant here.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/KnowledgeQuizFeedbackWriter.kt:166:25 Unnecessary safe call on a non-null receiver of type 'TutorAssessmentItem'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepository.kt:532:13 Unnecessary safe call on a non-null receiver of type 'Map<String, ProblemMemoryState>'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepository.kt:610:13 Unnecessary safe call on a non-null receiver of type 'Map<String, ProblemMemoryState>'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepository.kt:702:13 Unnecessary safe call on a non-null receiver of type 'Map<String, ProblemMemoryState>'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepository.kt:757:47 'suspend fun readAttemptP0(attemptId: String): PersistedAttemptP0?' is deprecated. P0 inspection only; keep data-layer wiring behind the repository boundary.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomTutorToolRunner.kt:1203:43 Unnecessary safe call on a non-null receiver of type 'ProblemDraftRecord'.
+w: file:///D:/smart%20mistake%20book/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/StudyAnswerRevealService.kt:34:13 Unnecessary safe call on a non-null receiver of type 'Map<String, ProblemMemoryState>'.
+
+> Task :core:data:compileDebugJavaWithJavac NO-SOURCE
+> Task :core:data:processDebugJavaRes UP-TO-DATE
+> Task :core:data:bundleLibRuntimeToJarDebug
+> Task :core:data:bundleLibCompileToJarDebug
+> Task :core:data:compileDebugUnitTestKotlin UP-TO-DATE
+> Task :core:data:compileDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :core:data:processDebugUnitTestJavaRes UP-TO-DATE
+> Task :core:data:testDebugUnitTest
+
+BUILD SUCCESSFUL in 14s
+31 actionable tasks: 4 executed, 27 up-to-date
+Configuration cache entry reused.
+EXIT=0

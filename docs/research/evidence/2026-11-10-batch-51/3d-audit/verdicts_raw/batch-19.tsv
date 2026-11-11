@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+math-fx-fushu-jihe-yiyi	CORRECT		high	复数与复平面内点 $(a,b)$、向量 $\overrightarrow{OZ}$ 一一对应；$|z|$ 表示点到原点距离，$|z_1-z_2|$ 表示两点距离。	
+ext-che-e97f67e9ed-010b	CORRECT		high	一找氧化剂还原剂与产物，二定变价原子得失电子数，三按物质的量与化合价变化值列等式。	
+math-jihua-hengdengshi-gongshi	CORRECT		high	极化恒等式：$\vec{a}\cdot\vec{b}=\frac{1}{4}\left(|\vec{a}+\vec{b}|^2-|\vec{a}-\vec{b}|^2\right)$。	
+chem-fx-xiang-guan-gai-nian-f10x02	CORRECT		high	(1)氧化性是指得电子的性质(或能力)；还原性是指失电子的性质(或能力)。	
+ext-che-3b6c218622-015	CORRECT		high	固体电解质电池、微生物燃料电池、太阳能转化电池、液流储能电池的导电与工作原理	
+ext-phy-e14aad82a5-361b	CORRECT		medium	因导体与磁场间相对运动而产生的感应电动势叫动生电动势，其实质是磁场对随导体运动的自由电荷的洛伦兹力使其沿导体运动的结果。	
+ext-che-9c04589159-002	CORRECT		high	反应物过量时以少量物质为标准计算，不纯物质必须先换算为纯净物的量。	
+ext-bio-600cbbd3f6-020c	CORRECT		low	三者生殖方式不同：试管动物为有性生殖、克隆动物为无性繁殖、转基因动物为有性生殖	材料为三种动物技术对比，跨胚胎工程/细胞工程/基因工程；现绑节点覆盖体外受精与胚胎移植部分。
+ext-bio-9847f272f3-006	CORRECT		medium	注意“DNA复制了n次”与“第n次复制”的区别：前者包括所有的复制，后者只包括第n次的复制，两者的消耗量公式不同。	
+bio-kb-respiration-special-judgments	CORRECT		low	脂肪作底物耗氧大于产CO2；蛔虫和成熟红细胞只进行无氧呼吸；部分原核生物可有氧呼吸。	节点名同为呼吸类型判断，但节点边界为装置液滴法，材料为特殊生物与底物的经验判定。
+ext-mat-463094f8d7-002	REBIND	已知函数零点求参数的方法	high	根据零点个数求参数可用分离参数、零点存在性定理或分类讨论。	材料讲由零点情况求参数范围；现绑节点只讲判定零点个数的两条主线。
+ext-che-fc8bdccb8f-020	CORRECT		high	稀释相同倍数时强酸pH变化大、弱酸变化小，且等体积等pH时弱酸能中和的碱更多。	
+ext-bio-653738a349-022b	CORRECT		medium	理性设计耐热酶时，选择空间上离半胱氨酸更近、且保守度低的氨基酸位点进行替换，既易形成二硫键提升耐热性，又对酶功能影响较小。	
+ext-bio-a9273cee3f-001	CORRECT		medium	光呼吸可消耗多余的ATP和NADPH，减轻对叶绿体的伤害。	
+ext-che-28c092c1c4-014	CORRECT		high	O2用带火星木条复燃；CO2使澄清石灰水变浑浊	
+ext-phy-3b5e90662b-001	CORRECT		high	若刹车时间小于题目所给时间，则不能用题目所给的时间计算位移，应按汽车停下来所经历的时间计算。	
+ext-che-87fdb465a4-017	CORRECT		high	按布朗斯特-劳里质子理论，自偶电离产生的离子决定非水溶剂中的酸碱	
+ext-mat-289deb9ecd-296	CORRECT		high	一次函数 f(x)=kx+b（k≠0）；反比例函数 f(x)=k/x+b（k≠0）；二次函数 f(x)=ax²+bx+c（a≠0）	
+ext-phy-934e377dcb-001b	CORRECT		high	力的三要素是大小、方向、作用点；力的作用效果是使物体发生形变或改变物体的运动状态。	
+ext-mat-00692f9740-010	CORRECT		high	判定全称量词命题为真，需要推理证明（或用已学定义、定理）；判断其为假，只需举出一个反例。	
+ext-phy-8e2be4d749-007b	CORRECT		medium	电场强度的叠加遵循平行四边形定则，处理复杂情形时有四种常用技巧	
+ext-phy-f65f89778f-005	CORRECT		high	①分类：固体分为晶体和非晶体两类，晶体又分为单晶体和多晶体。	
+ext-mat-0518eb7f45-023	CORRECT		high	指对数式比较大小的难点是把各式中共同的量换成变量、构造函数，再用导数研究该函数的单调性	
+ext-phy-c4605806a7-014b	CORRECT		high	整体法用于各物体加速度相同且不求内部作用力，隔离法用于加速度不同或需求内部作用力，两者可交替运用。	
+ext-mat-289deb9ecd-2177	CORRECT		medium	与数列有关的结构不良问题是新高考中出现的一种新题型，需要根据所提供的信息，选取适当的条件解决问题	
+ext-mat-47f6cc7b06-005	CORRECT		high	先把边比化为角比并求出角的范围，再把目标式换成新元 $t$ 的对勾函数形式，用单调性求取值范围并注意端点开闭。	
+bio-mo-cell-142	CORRECT		high	酶的作用是通过降低化学反应活化能加快反应速率而起催化作用。	
+ext-phy-c694ee939c-009b	CORRECT		high	液体与固体接触的薄层叫附着层．附着层内分子的受力情况决定了是否浸润．	
+ext-che-8179029ae7-011	CORRECT		low	皂化后加入饱和NaCl溶液或者NaCl颗粒，作用是降低高级脂肪酸盐的溶解度，使混合物分层（盐析），从而分离出肥皂。	节点边界为硬水去污与合成洗涤剂，材料讲肥皂制取盐析；同属肥皂知识但边界未直接覆盖。
+ext-phy-e14aad82a5-636	CORRECT		medium	角速度侧重于描述物体绕着圆心转过角度的快慢程度。	
+ext-che-d5446e6215-082	CORRECT		medium	浓硫酸可用于干燥SO2气体，因为二者硫元素处于相邻价态，不发生氧化还原反应。	
+ext-che-5c62da9e03-2417	CORRECT		low	无机非金属材料的通性：耐高温、耐腐蚀、硬度高。	材料讲无机非金属材料通性，节点为新型材料类别判断；方向相关但节点更窄。
+phys-hj2-weixing-biangui-lixin-jinxin	CORRECT		high	比较万有引力 $GMm/r^2$ 与所需向心力 $mv^2/r$ 的大小，决定离心、近心或圆周。	
+math-fx-sanjiaoxing-neijiaohe-guanxi	CORRECT		medium	$\sin(A+B)=\sin(\pi-C)=\sin C$；$\cos(A+B)=\cos(\pi-C)=-\cos C$。	
+ext-che-4ed85678e7-020b	CORRECT		medium	1. 用「===」而不用可逆符号。	
+ext-phy-b6bd732b19-150	CORRECT		high	（1）共同速度：以两棒为系统，安培力是内力、系统合外力为零，由动量守恒有 $m_2v_0=(m_1+m_2)v_{共}$。	
+ext-bio-5f510cdc4a-904	CORRECT		high	管家基因是在所有细胞中都表达的基因	
+ext-mat-54bbe673d9-005	CORRECT		high	处理内切球的四条抓手：球心在过切点且与切面垂直的直线上、球心到各面的距离相等	
+phys-hj3-e-field-image-types	CORRECT		high	2.$\varphi\text{-}x$ 图像：斜率的绝对值等于场强 $E$，斜率正负反映场强方向	
+ext-che-1d4b3bfdba-017	CORRECT		high	同分异构体可能属于不同类物质（如丙烯与环丙烷），而同系物一定属于同类物质	
+chem-kb-periodic-table-layout	CORRECT		high	周期：把电子层数相同的元素，按原子序数递增的顺序从左至右排成横行。	
+ext-mat-f720be0b99-001b	REBIND	线面角的定义与求法	high	平面的斜线与它在平面上的射影所成的角即线面角，范围为 0° 到 90°。	材料讲线面角的定义与范围；现绑节点只讲向量法求解，定义与范围另立节点。
+ext-mat-5044f690bd-005	CORRECT		high	如果命题“若 $p$，则 $q$”为真命题，那么 $p$ 是 $q$ 的充分条件	
+ext-che-1422ee20c2-009b	REBIND	胶体	medium	分离胶体与溶液要用**半透膜渗析**；从溶胶中分离固体产品要用**高速离心**而不是过滤。	材料讲过滤/渗析/离心分离胶体；现绑节点限电泳/聚沉/丁达尔，渗析属「胶体」节点。
+chem-hj-fuhe-panju-deltag	CORRECT		high	复合判据：恒温恒压下 ΔH-TΔS<0，反应正向自发	
+ext-che-e4981d27ca-079	CORRECT		high	一般认为残留在溶液中的离子浓度不超过1×10^-5 mol/L时沉淀完全。	
+ext-che-7fec9bf513-005	CORRECT		high	混合后溶液体积发生改变时，c1V1＋c2V2＝c混V混，其中 V混 为混合后溶液的体积。	
+ext-phy-b499bf2257-133	CORRECT		high	类比开普勒第二定律：轨道上任意两点满足 v_A·r1 = v_B·r2	
+ext-phy-9d4e47b803-019	CORRECT		high	叠加场指电场与磁场（或再加重力场）重叠在同一区域，分析时先归纳粒子受到的力，再判断运动性质。	
+ext-mat-991fbb472d-006	CORRECT		medium	由终边上点的坐标满足 |y|≤r 与 |x|≤r，直接推出 -1≤sin α≤1 与 -1≤cos α≤1。	

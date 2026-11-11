@@ -1,0 +1,320 @@
+{
+ "pages": [
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "PASS",
+   "file": "IMG20260810004304.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004304.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "5edb1d7f9b45004bdf52d40bacde4f1972110c2a824b3e26b5c8ed6280b771a2",
+   "decision": "SPLIT",
+   "file": "IMG20260810004511.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004511.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.95,
+     "left": 0.3,
+     "right": 0.66,
+     "top": 0.04
+    },
+    {
+     "bottom": 0.99,
+     "left": 0.66,
+     "right": 0.995,
+     "top": 0.02
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810004854.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810004854.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "d53e4d87e9d9874fa96f10179a9333203582f2ad69007b1bb616590e14a189ea",
+   "decision": "SPLIT",
+   "file": "IMG20260810005144.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005144.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 5,
+   "questions": [
+    {
+     "bottom": 0.334,
+     "left": 0.035,
+     "right": 0.493,
+     "top": 0.132
+    },
+    {
+     "bottom": 0.71,
+     "left": 0.035,
+     "right": 0.493,
+     "top": 0.34
+    },
+    {
+     "bottom": 0.905,
+     "left": 0.035,
+     "right": 0.493,
+     "top": 0.712
+    },
+    {
+     "bottom": 0.452,
+     "left": 0.505,
+     "right": 0.97,
+     "top": 0.132
+    },
+    {
+     "bottom": 0.945,
+     "left": 0.505,
+     "right": 0.97,
+     "top": 0.468
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "SPLIT",
+   "file": "IMG20260810005301.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005301.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810005605.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005605.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810005855.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810005855.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "dbb55beac1d99f2200b096b6058ebca3d0e80fd065305973d817bf3c918a25a9",
+   "decision": "SPLIT",
+   "file": "IMG20260810010306.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010306.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.3,
+     "left": 0.045,
+     "right": 0.92,
+     "top": 0.15
+    },
+    {
+     "bottom": 0.555,
+     "left": 0.045,
+     "right": 0.995,
+     "top": 0.3
+    },
+    {
+     "bottom": 0.84,
+     "left": 0.045,
+     "right": 0.95,
+     "top": 0.58
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810010349.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010349.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810010633.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010633.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "ad1631c863136df76852cafb158d66c01689da9368921071e62850c0229af661",
+   "decision": "SPLIT",
+   "file": "IMG20260810010859.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810010859.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 3,
+   "questions": [
+    {
+     "bottom": 0.255,
+     "left": 0.14,
+     "right": 0.95,
+     "top": 0.075
+    },
+    {
+     "bottom": 0.585,
+     "left": 0.1,
+     "right": 0.86,
+     "top": 0.325
+    },
+    {
+     "bottom": 0.76,
+     "left": 0.1,
+     "right": 0.95,
+     "top": 0.59
+    }
+   ]
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810011017.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011017.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810011126.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011126.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+   "decision": "NEED_MORE_IMAGE",
+   "file": "IMG20260810011248.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011248.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 0,
+   "questions": []
+  },
+  {
+   "boxesSha256": "599977e84dee5c6e426ad75e662c024fa74e611470097fdf0b4628701eb3146f",
+   "decision": "SPLIT",
+   "file": "IMG20260810011649.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810011649.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.96,
+     "left": 0.2,
+     "right": 0.72,
+     "top": 0.1
+    },
+    {
+     "bottom": 0.94,
+     "left": 0.03,
+     "right": 0.19,
+     "top": 0.64
+    }
+   ]
+  },
+  {
+   "boxesSha256": "630cd321b7905dcd883b49b459447094ebe610551e4ef3d3a86b7f3c815fc111",
+   "decision": "SPLIT",
+   "file": "IMG20260810012103.jpg",
+   "nameSource": "golden_split_eval_harness",
+   "outcomeStatus": "OK",
+   "pageId": "IMG20260810012103.jpg",
+   "pageIdKind": "golden-page-file",
+   "questionCount": 2,
+   "questions": [
+    {
+     "bottom": 0.6,
+     "left": 0.018,
+     "right": 0.965,
+     "top": 0.245
+    },
+    {
+     "bottom": 0.99,
+     "left": 0.02,
+     "right": 0.97,
+     "top": 0.688
+    }
+   ]
+  }
+ ],
+ "schemaVersion": 2,
+ "source": {
+  "channel": "golden-split-eval-harness-v1（JVM harness；非设备 DB 导出，如实标注）",
+  "divergences": [
+   "transport: plain HTTPS POST instead of gateway authorization pipeline (same requestBody builder, same parseCompletion)",
+   "image egress copy: prepared by caller per EgressImageBudget plan (long edge 2048, JPEG q88, q70 fallback); PIL resampling, not Android Skia bytes; scaledSize re-verified here"
+  ],
+  "endpoint": "https://api.deepseek.com",
+  "keySha8": "cd10efbc",
+  "model": "deepseek-flash",
+  "pageRecordSha256": {
+   "IMG20260810004304.jpg": "5585864797f8040d6f745281ab1fa789c3772ff7d39f8ff05747f30cbeb80132",
+   "IMG20260810004511.jpg": "779a3eb255cb39d1e96219990e8bf75c6272d9717516b193509193d75c8205ef",
+   "IMG20260810004854.jpg": "33426b011a3f15ee497b84d4eec379c47fa127b92c1b66de71c6a1e22ad3498f",
+   "IMG20260810005144.jpg": "eb9a6e34a9fb0fb7bf2c6b324524bca95e8f5c5fff251606775cca58f8fe3722",
+   "IMG20260810005301.jpg": "f50059c581d5499eb3b31c47896f5b54be925c09a9bb99db60d0250cde6814d7",
+   "IMG20260810005605.jpg": "1d70b146ceb3009af41a743b2a923097e58987ced38de75a6b91e76e0a177710",
+   "IMG20260810005855.jpg": "0d099f575553186ffb646aa05f61fe8e686509efddcde916afe090262a2fdc62",
+   "IMG20260810010306.jpg": "ab23bbbc4eaa2e75e625e49b282b7bd017a21eb67332652f48b9380658e01b6f",
+   "IMG20260810010349.jpg": "1434e3d4539f57477a733221adbe8ef1191baec08958324eef9ae1e6d0a6b210",
+   "IMG20260810010633.jpg": "759ab45f8d8ff67333cf099a605b418e1a7ecbc33fc1e41c69c8f830283d7ead",
+   "IMG20260810010859.jpg": "9b23a74fe570901d8773f56ca31af67425ce7233edd592167c1f96f3d97ff619",
+   "IMG20260810011017.jpg": "d1c215ccdb1eeae922910137dc63d5a786a96b3ed9059c56f56a08c86c23e672",
+   "IMG20260810011126.jpg": "53c867bf2c326886081aacd214a2ee4feaeb732d059fa7add96186f8aecb9961",
+   "IMG20260810011248.jpg": "259dc78305d0a4d7bfba367edce4be86350b4e6ed3a261dd0ee926c70b197321",
+   "IMG20260810011649.jpg": "b91bc0936506ca9e998f859f21bab2f274b029485f811cc889fdec7640bdadf1",
+   "IMG20260810012103.jpg": "e0b099f113dbefa1602c273612ba2fd6c617c659cfe15f4a97f9943b4a046433"
+  },
+  "runId": "dev-v3-01",
+  "runManifestSha256": "6147ae6c66c49bada20ce1d77a5bbb2168d1916ee50e73e9342e1757d5dc5f7e",
+  "wireProtocol": "openai-chat-completions-v1"
+ }
+}

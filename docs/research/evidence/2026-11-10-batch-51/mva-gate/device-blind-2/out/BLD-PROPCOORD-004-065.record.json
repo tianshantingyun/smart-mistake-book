@@ -1,0 +1,61 @@
+{
+  "input_file": "BLD-PROPCOORD-004.json",
+  "program_sha256": "6249b8694d03a587ef295287eb17bedfa84a1b43d7c39d45ac2e695f5c146caa",
+  "task_id": "BLD-PROPCOORD-004",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 16,
+  "measurement": [
+    {
+      "contentId": "c0-7902699b",
+      "payload": "7",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451"
+    },
+    {
+      "contentId": "c1-4e074085",
+      "payload": "3",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce"
+    },
+    {
+      "contentId": "c2-111c309f",
+      "payload": "7:3",
+      "widthDu": 22.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "111c309fc0cfd2b772a26b9c6f05c0e3b19eaa2ccf302881b9eed7faeab435f0"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "3c2acd3c06ca9ca00f0b9cf2f1426438fa3e6475c7bec1771c2cb7cbace7556e",
+  "scene_bytes": 1110,
+  "scene_schema_version": 1,
+  "draw_sha256": "53e39a774131b9ae1effaae3636fc6242c1550de1782d075f3080cce5117cd17",
+  "draw_bytes": 1229,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-7902699b",
+    "c1-4e074085",
+    "c2-111c309f"
+  ],
+  "png_sha256": "057a6460df1dedf3800ae1b1de9ecef999640c6581833161b805646ceeb594f4",
+  "png_bytes": 2118,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 8,
+    "pathCommands": 8,
+    "labels": 3,
+    "ops": 7
+  }
+}

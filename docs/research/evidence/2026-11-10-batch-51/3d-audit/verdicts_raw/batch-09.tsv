@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-mat-4d0dc296b1-047	CORRECT		medium	由基本不等式得cosB≥1/2，再由余弦在(0，π)上单调递减得0<B≤π/3	
+ext-mat-d04314ab0b-010b	CORRECT		medium	由散点图选定函数类型，换元把非线性回归化为线性回归，再用最小二乘估计求方程并作预报。	
+cmp-che-02991	CORRECT		high	题干只给出物质的量浓度而未给溶液体积时，溶质的物质的量无法确定，不能把溶液体积默认成 1 L。	
+ext-mat-289deb9ecd-597	CORRECT		high	所选条件必须使问题可解；选定后各小问都要以该条件为前提，不能中途更换，不同条件会得到不同结果。	
+wusan-phy-v-27ffb1e3	CORRECT		high	汽液动态平衡时汽的压强叫饱和汽压；同温度下饱和汽压与体积无关，温度升高饱和汽压增大，湿度用相对湿度描述。	
+ext-phy-199b7507b8-042	CORRECT		high	导体棒在磁场中往复运动时每经过一次都产生感应电流与焦耳热，机械能不断减小	
+ext-che-b476eb0452-010b	CORRECT		high	能量相近的原子轨道重新组合成等数目、能量相同的杂化轨道，杂化轨道数等于参与杂化的原子轨道数之和。	
+ext-mat-afa056735e-002d	CORRECT		high	确定函数单调性的四种方法：①定义法；②导数法；③图象法；④性质法。	
+ext-bio-5f510cdc4a-1110	CORRECT		medium	神经元是神经系统结构与功能的基本单位：树突是胞体向外伸出的树枝状突起	
+ext-che-5792a432da-005b	NONE		medium	按有无外接电源及装置特征判定电化学装置类型。	主知识点为四类电化学装置判定，现绑电解池仅覆盖其一，同科无对应节点
+chem-hj-co-co2-chuzha-fangfa	CORRECT		high	按杂质性质选择 NaOH、灼热 CuO、灼热铜网、饱和 NaHSO3、饱和 NaHCO3 等除杂。	
+ext-mat-12fc4a929a-029	CORRECT		high	三个数满足 a＞b＞c 且 a＋b＋c＝0 时，最大数 a 必大于 0、最小数 c 必小于 0，但中间数 b 与 0 的大小关系不能确定	
+math-mo-xiangliang-jihe-sanbuv2	CORRECT		high	几何问题向量化的三步：转化—运算—翻译回几何结论。	
+math-mo-sanjiao-jiaodu-yinhan	CORRECT		medium	由函数值、内角和、锐角三角形条件缩小角的范围；解三角形注意大边对大角。	
+ext-che-cbef2f78bd-008	CORRECT		high	可溶性强电解质拆写成离子；难溶盐、弱电解质、单质、氧化物、气体、络合物直接写化学式。	
+ext-phy-82507563a5-009	CORRECT		high	平衡摩擦力的做法是垫高木板一端后不挂绳、用手轻拨小车，直到打点计时器打出一系列点迹距离均匀的点	
+ext-bio-f6e4b10342-008	CORRECT		high	演绎推理是由一般到特殊的推理方法，与归纳法相对，其推论前提与结论之间的联系是必然的，属于确实性推理。	
+ext-mat-1a5cd8bfab-004	CORRECT		high	m、n均为正数且m不等于n时，方程表示椭圆。	
+ext-mat-d04314ab0b-009	CORRECT		high	利用正态曲线的对称性、总面积为 1 与三段特殊概率，把所求区间向已知区间转化。	
+ext-che-161dacb6f6-040	CORRECT		medium	药物的设计与合成：如对青蒿素分子进行结构修饰和改造得到一系列抗疟疾新药	
+ext-bio-6f769aa6e2-007c	CORRECT		high	营养级只针对生产者和消费者 分解者、非生物的物质和能量都不占营养级	
+ext-bio-ebddc22a2c-038	CORRECT		high	核苷酸经脱水缩合以磷酸二酯键连接成核苷酸链，进而形成核酸。	
+ext-phy-3abd4c34f3-011	CORRECT		high	四种典型的临界条件：接触与脱离的临界条件是弹力等于零	
+ext-mat-0e56aad79f-053	NONE		medium	椭圆、双曲线、抛物线的定义、方程与几何性质。	主知识点为三曲线定义与几何性质，现绑综合问题不含，同科无对应节点
+ext-che-d5446e6215-045	CORRECT		high	因此实验室用Na2SO3与70%的硫酸反应制取SO2。	
+ext-bio-6245ee3104-005	CORRECT		medium	孟德尔根据假说设计测交实验，推出测交后代中高茎与矮茎植株的数量比应为1比1。	
+ext-phy-1bfa2523c2-023	CORRECT		medium	简谐运动由系统本身性质决定，即固有周期 T0 和固有频率 f0；受迫振动由驱动力的周期和频率决定，即 T=T驱、f=f驱。	
+ext-che-e05314cc33-046	CORRECT		high	中心原子的杂化类型由价层电子对数决定：价层电子对数 = σ 键电子对数 + 孤电子对数	
+ext-mat-bbc6d1bfca-007	CORRECT		high	焦点在 x 轴的双曲线，顶点为 (−a，0)、(a，0)，实半轴长 a、虚半轴长 b，实轴长 2a、虚轴长 2b。	
+phys-hj3-equivalent-source-idea	CORRECT		high	一个电源（$E、r$）与电阻串联：等效电动势 $E'=E$，等效内阻 $r'=r+R$。	
+mat-data-acquisition-channels	CORRECT		high	统计报表与年鉴是制度化的间接来源；社会调查、试验设计直接收集数据	
+ext-mat-01682e3f73-051	CORRECT		medium	值域为 R 的条件是外层对数函数能取到全体实数，即真数必须取遍 (0，＋∞) 的所有正数	
+chem-hj-f084-fangchengshi-jisuan-zhuyi	CORRECT		high	化学方程式表示参加反应的纯净物之间的量的关系，不纯物质的量必须换算成纯净物的量	
+ext-phy-89752a9c75-002	CORRECT		high	重力做功与路径无关，只与初、末位置的高度差有关。	
+ext-bio-a77993e4a4-013	REBIND	影响光合作用强度的环境因素	medium	温度过高时为降低蒸腾作用，部分气孔关闭，CO2供应不足，暗反应速率降低	现绑只覆盖光照与CO2两类胁迫，本条为温度胁迫，改绑环境因素节点
+ext-mat-9c17f83578-001	NONE		medium	遇到中线或定比分点可用向量法、双余弦法、平行四边形法则或倍长中线法，其中向量法与双余弦法是通性通法	主知识点为中线四法综述，现绑仅含平行四边形恒等式一法，同科无对应节点
+ext-che-83155cdbae-009	CORRECT		high	误区一：误认为水解平衡向正向移动，离子的水解程度一定增大	
+ext-phy-136b08240d-002b	CORRECT		high	运动的合成：已知分运动求合运动；运动的分解：已知合运动求分运动。	
+ext-che-a836b38e59-004	CORRECT		high	共价键的本质：原子间通过共用电子对所形成的相互作用。	
+ext-che-1d38b24eda-009b	CORRECT		high	银量法：利用Ag+与卤素离子生成难溶卤化银来测定Cl-、Br-、I-	
+ext-che-66d446c7f1-003	CORRECT		high	物质的量是表示含有一定数目粒子的集合体的物理量，符号n，单位摩尔（mol）	
+phys-induced-emf-b-changing	CORRECT		high	当磁感应强度 $B$ 随时间 $t$ 变化时，产生的是感生电动势，求解公式为 $E=nS\frac{\Delta B}{\Delta t}$。	
+ext-phy-8d588dd233-019	CORRECT		high	利用力传感器探究，力传感器示数的两倍就等于小车所受到的拉力。	
+ext-mat-252d9e743d-002c	CORRECT		high	升幂：1－cos α＝2sin2(α/2)；1＋cos α＝2cos2(α/2)	
+ext-bio-158acc839a-011	REBIND	渗透压	medium	故1 mol·L⁻¹ NaCl溶液的渗透压大于1 mol·L⁻¹蔗糖溶液，对细胞的失水作用更强。	现绑质壁分离明确不含渗透压定量比较，改绑渗透压节点
+ext-phy-c9f8cb4c96-020	CORRECT		medium	②常用公式：n＝N(1/2)^(t/T)，m＝M(1/2)^(t/T)	
+ext-bio-02a053bbf3-002b	CORRECT		high	着丝粒是自动分裂的，与纺锤丝的牵引无关。	
+bio-fx-crispr-components	CORRECT		high	CRISPR/Cas9由向导RNA和Cas9核酸酶组成，向导RNA定位、Cas9切割使DNA双链断裂。	
+ext-phy-88e7c41275-005	CORRECT		high	分析动力学图像的方法：分清图像的类别，明确横、纵坐标所代表的物理量及其意义，掌握图像所反映的物理过程。	
+ext-che-6ec5a415b0-019	CORRECT		high	产率＝实际产量÷理论产量×100%；理论产量必须以不足量反应物为准	

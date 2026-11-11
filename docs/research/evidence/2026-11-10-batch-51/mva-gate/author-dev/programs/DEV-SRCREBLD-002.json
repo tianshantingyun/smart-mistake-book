@@ -1,0 +1,13 @@
+{
+    "task_id": "DEV-SRCREBLD-002",
+    "program_id": "mva-DEV-SRCREBLD-002",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    var labels = ['0', '20', '40', '60', '80', '100'];\n    var reqs = [];\n    for (var i = 0; i < labels.length; i++) {\n      reqs.push({ kind: 'text', payload: labels[i] });\n    }\n    return reqs;\n  },\n  render: function (input, metrics) {\n    var W = input.viewport.widthDu;\n    var H = input.viewport.heightDu;\n    var labels = ['0', '20', '40', '60', '80', '100'];\n    var padX = Math.max(56, W * 0.12);\n    var left = padX;\n    var right = W - padX;\n    var axisY = H * 0.55;\n    var tickLen = Math.max(6, Math.min(12, H * 0.05));\n    var cmds = visualSdk.polyline([[left, axisY], [right, axisY]]);\n    var xs = [];\n    for (var i = 0; i < labels.length; i++) {\n      var x = left + (right - left) * i / (labels.length - 1);\n      xs.push(x);\n      cmds = cmds.concat(visualSdk.polyline([[x, axisY - tickLen], [x, axisY + tickLen]]));\n    }\n    var children = [];\n    children.push({ type: 'path', pathId: 'axis', fill: '#26354a', stroke: { width: 2 } });\n    for (var j = 0; j < labels.length; j++) {\n      children.push({\n        type: 'label',\n        contentId: 'c' + j,\n        anchor: { x: xs[j], y: axisY + tickLen + 8 },\n        hAlign: 'center',\n        vAlign: 'top',\n        color: '#26354a'\n      });\n    }\n    return {\n      schemaVersion: 1,\n      sceneId: 'source-axis',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: W, height: H },\n      paths: [{ id: 'axis', commands: cmds }],\n      root: { type: 'group', children: children }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

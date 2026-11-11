@@ -1,0 +1,105 @@
+{
+  "apk": "app/build/outputs/apk/localFirst/release/app-localFirst-release.apk",
+  "files": [
+    {
+      "name": "lib/arm64-v8a/libLiteRt.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 5392000,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libLiteRtClGlAccelerator.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 2827264,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libandroidx.graphics.path.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 10096,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libdatastore_shared_counter.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 10360,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/liblitert_jni.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 530776,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libmlkit_google_ocr_pipeline.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 11064544,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/arm64-v8a/libquickjs.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 924936,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libLiteRt.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 7385808,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libLiteRtClGlAccelerator.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 3417232,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libandroidx.graphics.path.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 10760,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libdatastore_shared_counter.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 9424,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/liblitert_jni.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 529168,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libmlkit_google_ocr_pipeline.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 11626128,
+      "elf_errors": []
+    },
+    {
+      "name": "lib/x86_64/libquickjs.so",
+      "stored": true,
+      "offset_mod_16384": 0,
+      "size": 911248,
+      "elf_errors": []
+    }
+  ],
+  "errors": [],
+  "total": 14
+}

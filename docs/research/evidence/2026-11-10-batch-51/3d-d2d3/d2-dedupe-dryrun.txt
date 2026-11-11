@@ -1,0 +1,5 @@
+材料 64850 / 节点 3279；候选对 173；簇 50；拟退休 1；SKIP 20；受保护锚点 10；标题别名唯一支撑保护 35535；金标节点 128（3852 条材料）；THIN 节点 438（633 条材料）；保护合计 37536；标题告警 0（45.6s）
+→ build\b51-d2d3-scratch\dedupe\dedupe-clusters.csv
+→ build\b51-d2d3-scratch\dedupe\retire-list.csv
+→ build\b51-d2d3-scratch\dedupe\plan.json
+{"alias_protected": 35535, "anchors": 10, "clusters": 50, "golden_nodes": 128, "golden_protected": 3852, "materials": 64850, "nodes": 3279, "pairs": 173, "protected_total": 37536, "retire": 1, "skip": 20, "thin_nodes": 438, "thin_protected": 633, "title_mentioned_in_tests": 0}

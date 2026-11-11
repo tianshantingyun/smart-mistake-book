@@ -1,0 +1,75 @@
+baseline kc_gap_p95 per holdout seed: {'901': 34.0, '902': 90.0, '903': 90.0, '904': 90.0, '905': 90.0, '906': 90.0, '907': 90.0, '908': 26.0, '909': 90.0, '910': 78.0}
+
+== G6 (holdout, equal-time arms) ==
+arm                     n noeq      median  pos  G1 G2 G3 G4 guard  endpoint pass  driver reason
+f=0.15                  6    4   -0.033333    2  T  F  F  T  False  False    False 6/6    UNDERPOWERED   [brierΔmed=-0.0032]
+f=0.25                  6    4   +0.050001    4  T  F  F  T  False  False    False 6/6    UNDERPOWERED   [brierΔmed=-0.0024]
+f=0.35                  8    2   +0.016666    4  T  F  F  T  False  False    False 8/8    median_delta_below_one_kc   [brierΔmed=+0.0011]
+f=0.50                  8    2   +0.033333    5  T  F  F  T  False  True     False 8/8    median_delta_below_one_kc   [brierΔmed=+0.0042]
+
+  G3 violations f=0.15: seed=901 gap=90 base=34
+  G2 violations f=0.15: [('907', 'subject-1'), ('909', 'subject-2')]
+  G3 violations f=0.25: seed=901 gap=90 base=34, seed=908 gap=90 base=26
+  G2 violations f=0.25: [('907', 'subject-4'), ('909', 'subject-2')]
+  G3 violations f=0.35: seed=901 gap=90 base=34, seed=908 gap=90 base=26
+  G2 violations f=0.35: [('907', 'subject-0'), ('909', 'subject-2')]
+  G3 violations f=0.50: seed=908 gap=40 base=26
+  G2 violations f=0.50: [('907', 'subject-4'), ('909', 'subject-2')]
+
+  -> pass=NONE
+
+== weights (holdout, equal-time arms) ==
+arm                     n noeq      median  pos  G1 G2 G3 G4 guard  endpoint pass  driver reason
+W/due/x0.75             6    4   +0.100000    4  T  F  T  T  False  True     False 6/6    UNDERPOWERED   [brierΔmed=+0.0037]
+W/due/x0.875            6    4   +0.083334    5  T  F  F  T  False  False    False 6/6    UNDERPOWERED   [brierΔmed=-0.0001]
+W/due/x1.125            7    3   +0.066667    6  T  F  F  T  False  False    False 7/7    UNDERPOWERED   [brierΔmed=+0.0040]
+W/due/x1.25             8    2   +0.083334    6  T  F  F  T  False  True     False 8/8    sign_consistency_below_8_of_10   [brierΔmed=+0.0020]
+W/weak/x0.75            2    8   +0.100000    1  T  F  F  T  False  True     False 2/2    UNDERPOWERED   [brierΔmed=-0.0076]
+W/weak/x0.875           6    4   +0.016667    3  T  F  F  T  False  False    False 6/6    UNDERPOWERED   [brierΔmed=-0.0042]
+W/weak/x1.125           8    2   +0.083334    6  T  F  F  T  False  False    False 8/8    sign_consistency_below_8_of_10   [brierΔmed=+0.0018]
+W/weak/x1.25           10    0   +0.083334    7  T  F  F  T  False  True     False 10/10  sign_consistency_below_8_of_10   [brierΔmed=-0.0009]
+W/exam/x0.875          10    0   +0.000000    3  T  T  F  T  False  True     False 10/10  median_delta_below_one_kc   [brierΔmed=-0.0020]
+W/exam/x1.125          10    0   +0.000000    4  T  F  F  T  False  False    False 10/10  median_delta_below_one_kc   [brierΔmed=+0.0000]
+W/exam/x1.25           10    0   +0.033334    6  T  F  F  T  False  True     False 10/10  sign_consistency_below_8_of_10   [brierΔmed=-0.0032]
+W/kc-drop/x0.75         9    1   +0.066667    6  T  F  F  T  False  True     False 9/9    sign_consistency_below_8_of_10   [brierΔmed=-0.0074]
+W/kc-drop/x0.875        8    2   +0.066667    5  T  F  F  T  False  False    False 8/8    sign_consistency_below_8_of_10   [brierΔmed=-0.0020]
+W/diversity/x0.75       8    2   +0.066667    6  T  F  F  T  False  True     False 8/8    sign_consistency_below_8_of_10   [brierΔmed=-0.0011]
+W/diversity/x0.875      5    5   +0.100000    4  T  F  T  T  False  False    False 5/5    UNDERPOWERED   [brierΔmed=-0.0011]
+W/diversity/x1.125      7    3   -0.033333    3  T  F  F  T  False  False    False 7/7    UNDERPOWERED   [brierΔmed=+0.0040]
+W/diversity/x1.25       4    6   +0.050001    2  T  T  F  T  False  True     False 4/4    UNDERPOWERED   [brierΔmed=-0.0029]
+
+  G2 violations W/due/x0.75: [('904', 'subject-4;subject-3'), ('905', 'subject-4')]
+  G3 violations W/due/x0.875: seed=901 gap=52 base=34, seed=910 gap=90 base=78
+  G2 violations W/due/x0.875: [('904', 'subject-4'), ('909', 'subject-0')]
+  G3 violations W/due/x1.125: seed=901 gap=48 base=34, seed=908 gap=39 base=26
+  G2 violations W/due/x1.125: [('901', 'subject-1'), ('902', 'subject-1'), ('903', 'subject-4'), ('908', 'subject-4')]
+  G3 violations W/due/x1.25: seed=908 gap=50 base=26
+  G2 violations W/due/x1.25: [('903', 'subject-2'), ('904', 'subject-4'), ('907', 'subject-3'), ('908', 'subject-4')]
+  G3 violations W/weak/x0.75: seed=901 gap=90 base=34
+  G2 violations W/weak/x0.75: [('901', 'subject-2')]
+  G3 violations W/weak/x0.875: seed=908 gap=29 base=26, seed=910 gap=90 base=78
+  G2 violations W/weak/x0.875: [('903', 'subject-3'), ('910', 'subject-2')]
+  G3 violations W/weak/x1.125: seed=901 gap=90 base=34, seed=908 gap=90 base=26, seed=910 gap=90 base=78
+  G2 violations W/weak/x1.125: [('901', 'subject-4'), ('903', 'subject-4'), ('904', 'subject-4'), ('907', 'subject-4'), ('908', 'subject-4')]
+  G3 violations W/weak/x1.25: seed=901 gap=90 base=34, seed=908 gap=90 base=26
+  G2 violations W/weak/x1.25: [('901', 'subject-4'), ('905', 'subject-2;subject-3'), ('906', 'subject-2')]
+  G3 violations W/exam/x0.875: seed=901 gap=90 base=34
+  G3 violations W/exam/x1.125: seed=901 gap=90 base=34
+  G2 violations W/exam/x1.125: [('902', 'subject-1'), ('907', 'subject-1')]
+  G3 violations W/exam/x1.25: seed=901 gap=90 base=34, seed=908 gap=27 base=26
+  G2 violations W/exam/x1.25: [('907', 'subject-4;subject-1')]
+  G3 violations W/kc-drop/x0.75: seed=901 gap=90 base=34, seed=910 gap=90 base=78
+  G2 violations W/kc-drop/x0.75: [('901', 'subject-2'), ('904', 'subject-4'), ('910', 'subject-0')]
+  G3 violations W/kc-drop/x0.875: seed=901 gap=46 base=34, seed=908 gap=44 base=26, seed=910 gap=90 base=78
+  G2 violations W/kc-drop/x0.875: [('903', 'subject-4'), ('904', 'subject-1;subject-3'), ('905', 'subject-2;subject-4'), ('908', 'subject-4'), ('910', 'subject-2')]
+  G3 violations W/diversity/x0.75: seed=901 gap=46 base=34, seed=908 gap=90 base=26, seed=910 gap=90 base=78
+  G2 violations W/diversity/x0.75: [('903', 'subject-4'), ('910', 'subject-2')]
+  G2 violations W/diversity/x0.875: [('909', 'subject-0;subject-2')]
+  G3 violations W/diversity/x1.125: seed=901 gap=59 base=34, seed=908 gap=90 base=26
+  G2 violations W/diversity/x1.125: [('901', 'subject-4'), ('905', 'subject-4'), ('908', 'subject-2;subject-4')]
+  G3 violations W/diversity/x1.25: seed=901 gap=46 base=34
+
+  -> pass=NONE
+
+  holdout rows: g6-runs.csv=40, weight-runs.csv=170
+  NO_EQUAL_TIME (y 空) 合计: g6=12, w=46

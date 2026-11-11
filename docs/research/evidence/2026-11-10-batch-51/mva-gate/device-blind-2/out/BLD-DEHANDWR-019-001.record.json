@@ -1,0 +1,61 @@
+{
+  "input_file": "BLD-DEHANDWR-019.json",
+  "program_sha256": "94eb837be9237dea6b207ac3f74603406224c343d0264992f9ba3f777a6d8984",
+  "task_id": "BLD-DEHANDWR-019",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 33,
+  "measurement": [
+    {
+      "contentId": "c0-7e547c88",
+      "payload": "选择题第1题",
+      "widthDu": 89.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "7e547c8813b36e9aaa627c0514fdad97d4f4af291c792d0b74f392b4995f78a2"
+    },
+    {
+      "contentId": "c1-24e0ca14",
+      "payload": "选择题第2题",
+      "widthDu": 89.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "24e0ca144d207f019349e45d90c6b0e2b5df5003a91a76b321bcf76dc5c95505"
+    },
+    {
+      "contentId": "c2-1d5a160e",
+      "payload": "说明：本图为语义清图，仅保留已确认的印刷题号与文字，非原扫描像素修复。",
+      "widthDu": 560,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "1d5a160e736367a2caceeff133a343ae807c41b28b316a46c0c55f26cbe14710"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "ffa05b5cf4c4a2ae674d895161eadf55eaa000514adba7acf46066078faf739b",
+  "scene_bytes": 661,
+  "scene_schema_version": 1,
+  "draw_sha256": "8cf43c2792983576040f1b9762540072b4a6da707d02825a1eaafe3d33358fa6",
+  "draw_bytes": 698,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-7e547c88",
+    "c1-24e0ca14",
+    "c2-1d5a160e"
+  ],
+  "png_sha256": "747b0cd2addf28b902b7e0874f22007dcfde049ded5ec9c6774f05ec8dff8a78",
+  "png_bytes": 6504,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 5,
+    "pathCommands": 5,
+    "labels": 3,
+    "ops": 4
+  }
+}

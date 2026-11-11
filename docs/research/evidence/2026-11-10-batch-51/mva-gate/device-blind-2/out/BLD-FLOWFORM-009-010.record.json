@@ -1,0 +1,121 @@
+{
+  "input_file": "BLD-FLOWFORM-009.json",
+  "program_sha256": "42e5ef99e4a4b0c122b70365b3038ebf8c9a82c86433541e7797778d0147c194",
+  "task_id": "BLD-FLOWFORM-009",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 28,
+  "measurement": [
+    {
+      "contentId": "c0-fedebccc",
+      "payload": "一元二次方程求根公式图示",
+      "widthDu": 192,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "fedebccc56e19e459ae798ba4012a98809ee5c36581afcd2445c17cd5ebe009f"
+    },
+    {
+      "contentId": "c1-12c34e34",
+      "payload": "1x² − 4x + 4 = 0",
+      "widthDu": 109.09091186523438,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "12c34e340089f0432056d08ba6f2890c4d1d375fba217cfdf26518cb9b307e13"
+    },
+    {
+      "contentId": "c2-731bd88c",
+      "payload": "x = (−b ± √(b² − 4ac)) \/ (2a)",
+      "widthDu": 192.36363220214844,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "731bd88c85ec501c79725260e312cb900471d2d0f04101d435a2e0800f8660af"
+    },
+    {
+      "contentId": "c3-bc34f9d1",
+      "payload": "b = −4",
+      "widthDu": 44,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bc34f9d1325efb16b191d503bf3bf0cc2e9b8ae37f28dde50f84bfb81f9cbcee"
+    },
+    {
+      "contentId": "c4-73c34a08",
+      "payload": "c = 4",
+      "widthDu": 34.181819915771484,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "73c34a0803d0f695f2f749e2d3040276520a7468562a29cb48f9d469817d8dd1"
+    },
+    {
+      "contentId": "c5-b5bc1ffd",
+      "payload": "a = 1",
+      "widthDu": 34.54545593261719,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b5bc1ffd90912fb18bef6e7d80909192c7a6492896320156d67fbaf104c6544a"
+    },
+    {
+      "contentId": "c6-8f37f025",
+      "payload": "判别式：Δ = b² − 4ac",
+      "widthDu": 150.18182373046875,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8f37f0257e309e96d94e57f75c1aed48c209e3ab1a826c07479fe09ec8586507"
+    },
+    {
+      "contentId": "c7-1222147a",
+      "payload": "Δ = (−4)² − 4·1·4 = 16 − 16 = 0",
+      "widthDu": 212,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "1222147a9bc18e95c161b7956dff490031c3312b77b39bbfb336ce5c8683863e"
+    },
+    {
+      "contentId": "c8-b937a0dd",
+      "payload": "x = (−(−4) ± √0) \/ (2·1) = (4 ± 0) \/ 2 = 2",
+      "widthDu": 269.0909118652344,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "b937a0dd7b9abd9fa4b103055c4e536685ab8c736631823296dee3374db2a668"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "a8c18f3fa5c2f81ac671bdcc7ad0a8a30d9b54fcf328ed7fc03f504919a83a6c",
+  "scene_bytes": 3657,
+  "scene_schema_version": 1,
+  "draw_sha256": "418a7d88087bdcc4eb01d580bb8623a534217986ad93326141f16e6ed65da2a6",
+  "draw_bytes": 3824,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-fedebccc",
+    "c1-12c34e34",
+    "c2-731bd88c",
+    "c3-bc34f9d1",
+    "c4-73c34a08",
+    "c5-b5bc1ffd",
+    "c6-8f37f025",
+    "c7-1222147a",
+    "c8-b937a0dd"
+  ],
+  "png_sha256": "e36277b28678e95829052090cd96b9a7308364218e96f72e75320e3f77360252",
+  "png_bytes": 10906,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 19,
+    "pathCommands": 36,
+    "labels": 9,
+    "ops": 18
+  }
+}

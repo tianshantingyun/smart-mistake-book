@@ -1,0 +1,51 @@
+{
+  "input_file": "BLD-SRCREBLD-018.json",
+  "program_sha256": "c57cd3f231a84cd9dfab8433e4a2953b95aa04b81066ea4c632c2a631070e3d3",
+  "task_id": "BLD-SRCREBLD-018",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 19,
+  "measurement": [
+    {
+      "contentId": "c0-9ee192e3",
+      "payload": "4 列",
+      "widthDu": 29.090909957885742,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9ee192e3ef58994affcdd49436307ff2ff4bbb02be945593f81347eaa55e5a11"
+    },
+    {
+      "contentId": "c1-799cb78e",
+      "payload": "6 行 · 共 24 格",
+      "widthDu": 99.63636016845703,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "799cb78eaddfa76923f5754f9c426cbdfc92eaa75716374ed57e1c6712e20cde"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "221092c2bc4823b0a8a5cc36ac9a8bed941781ebb6f1d21c0ab4e34afb29711d",
+  "scene_bytes": 6167,
+  "scene_schema_version": 1,
+  "draw_sha256": "b6cba1172633b8220189e3f9362eccbaca3123ff9014f38e36006d1f5e7a9cf4",
+  "draw_bytes": 5439,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-9ee192e3",
+    "c1-799cb78e"
+  ],
+  "png_sha256": "6b81ecb3e0ee4cc867a1744fd0ff7ef8418c6e5e536f9f6047dad59f95b3d46a",
+  "png_bytes": 5064,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 39,
+    "pathCommands": 180,
+    "labels": 2,
+    "ops": 38
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "serial": "emulator-5590",
+  "boot_id": "31ecd364-6b2a-4e52-9643-23e681696172",
+  "apk_sha256": "518e900eca73518baee816eaa27e7a1fea632121638e8c46a9a0d8932f946805",
+  "test_apk_sha256": "c5d99a80686b5435ca90398684a45711f7624b078be7309178dc4ecbab255b3f",
+  "package": "com.tingyun.smartmistakebook.offline.test",
+  "runner": "androidx.test.runner.AndroidJUnitRunner",
+  "class_filter": "com.tingyun.smartmistakebook.ReviewIntakeBacklogPreviewInstrumentedTest",
+  "counts": {
+    "tests": 4,
+    "evaluated": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "verdict": "PASS",
+  "reason": "all passed",
+  "recorded_at": "2026-11-08T10:23:55Z"
+}

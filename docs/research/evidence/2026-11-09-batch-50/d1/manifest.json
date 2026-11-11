@@ -1,0 +1,173 @@
+{
+ "audit_id": "B50-D1-2026-11-08",
+ "generated_by": "docs/research/evidence/2026-11-09-batch-50/d1/sample_d1.py",
+ "sampler_sha256": "7a5fbdef4775adc0c1cd40a45caeee9b28057b8f3a7d07a2cee7ec2abe0157aa",
+ "pack": {
+  "dir": "core/data/src/main/resources/knowledge",
+  "pack_id": "moe-2025-four-subjects-v1",
+  "pack_scope_sha256": "859ae71e64fcee0ba96113b5f9572f8af209219fac613d1c5fd759b18bc7a481",
+  "scope_files": [
+   {
+    "file": "moe-2025-four-subjects-v1.json",
+    "sha256": "10ede1bf449de38ff21a53d1a13468a82b765dd0d0852dde4af770a1b8ef6670"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-index.json",
+    "sha256": "2da0b9c5702c708723e4129fba3eda6e34875271ea07422f2aa9fb9981145b92"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-01.json",
+    "sha256": "48914f3676222a0509fa09a30f051312383742e314daa1d43875a4ee41e549d9"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-02.json",
+    "sha256": "d7b11f02e1e81820258622b6b2b86551e7ccf9b7efb8249a838ad45066b49543"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-03.json",
+    "sha256": "6b9a3df7041d4e1e87bf8fcdca55526cbcfb97633c72810bdf85e0df6337e777"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-04.json",
+    "sha256": "8825ebc738f028ff307cce4d672d291e130d39baaaeaadbcbdba59d215c65f46"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-05.json",
+    "sha256": "349cfbcb032ec2ffa818536ffb46549c7228c8a9b8e43d65443417b3c932c188"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-06.json",
+    "sha256": "315b27044638884ad0dd063047de8ad8d5bd45ebab54486ed039a7229989d8a3"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-07.json",
+    "sha256": "6b76cd821f08e0eeb44d70e6c10d6e3455502ccd247ce4975964d181232c4581"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-08.json",
+    "sha256": "e9e32476ea1187eaa17998e611d4303380858cd427320d4fd2fb31628aeec0bd"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-09.json",
+    "sha256": "7b69608f5fa13b7bcc39d3b10a845745ed1884fc76053c6c98a64341b7ad34d5"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-10.json",
+    "sha256": "387cb12487059a9968e6f9942aa90f6b32c9e925a8a667bf1a27675c943d434d"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-11.json",
+    "sha256": "4a44f95c8b87b3ef8987ebe19dca3d5c269f871aa54daad270e39fa0c8c34d35"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-12.json",
+    "sha256": "2e365970763041dcc767726836cf08588683457c3181396fbf8f58aea68fac2d"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-13.json",
+    "sha256": "b5b22b7f73b69a4c9a3d0ec5815efd9227288fd8205690dfbda496cd13b3b4fa"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-14.json",
+    "sha256": "0aa11eb0022833e738cef851ddcee5d19f03500d1172ee545a55c4721e2a1338"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-15.json",
+    "sha256": "b101bbb69f45a5af8806c19a9e85ba451309b2dbc3e2d552bff16d5db47474e1"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-16.json",
+    "sha256": "116f65560367ac1a37fae26e130e6be8a78856bfd5943451b840f6d95a4bc6c1"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-17.json",
+    "sha256": "f34359cef01495a65b8bfc4ab44a0c7947788545e03774833df483ec20deabb0"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-18.json",
+    "sha256": "f48aa05c6781d1a2d6eaddadb26c7ad51a12b9f4991f049cd72572ead27a4910"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-19.json",
+    "sha256": "f64169ccd6adf765fc4b55a4784e1c5e247923c4b09352fa0bd1480a94302cbc"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-20.json",
+    "sha256": "56b85a4cd476e60b2b377ed63c96d8cd1d3b1608445dd2e032ebdea12c415220"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-21.json",
+    "sha256": "477ba1ee99d1cbb46ae9ebdd6f313b65523dbaef1c106c82415bdef6f3ca3c53"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-22.json",
+    "sha256": "b1a213fcf4f32b9728e2198ad615357df45ccbc2c214e3c66c5cddf7935b277a"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-23.json",
+    "sha256": "b5123a93de1a2d105f7187e3a01ecbd0837ffd8014d206b9bf5e1ee10f7457e4"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-24.json",
+    "sha256": "9559d5001aa68e9a8cd61bffafd530315517177c30662fe16e9b8afffc3cb393"
+   },
+   {
+    "file": "moe-2025-teaching-support-v2-25.json",
+    "sha256": "858e58d25cafc10ae76a952c8666be7caa87bdf66c046deb021d1ef1f7708d82"
+   }
+  ],
+  "nodes": 3280,
+  "materials": 64853,
+  "bindings": 64853
+ },
+ "frame": {
+  "layers": {
+   "overfull": {
+    "size": 62948,
+    "weight": 0.9706258769833316,
+    "list": {
+     "path": "build/kb-staging/overfull_nodes.csv",
+     "rows": 63102,
+     "unique_node_ids": 2482,
+     "sha256": "fce8269c74140081382362f4a1c28ce695a226db8636aec0bd612975f7cedfec"
+    }
+   },
+   "normal": {
+    "size": 1905,
+    "weight": 0.029374123016668467
+   }
+  },
+  "total": 64853,
+  "thin": {
+   "path": "knowledge-production/node-material-gaps-2026-10-10.csv",
+   "exists": true,
+   "rows": 333,
+   "unresolved": 11,
+   "examples": [
+    "CHEMISTRY/焰色反应",
+    "CHEMISTRY/若上述题目中的-1-4-改成一定温度下的恒压密闭容器-结果又如何",
+    "CHEMISTRY/若某溶液中既含又含-请设计实验检验混合溶液中是否存在",
+    "MATH/数据线性变换的平均数与方差",
+    "MATH/辨-易混易错-辨析易混易错知识点-夯实基础"
+   ],
+   "sha256": "7cf475a5ee9bc69359a0f26762979125ebd98b46428c9a0dcc6f49595636fef4",
+   "decision": "名单失效 -> 不用 thin 层；按 R2 §1.4(b) 改 2 层（overfull/normal）并登记"
+  }
+ },
+ "sampling": {
+  "unit": "一条绑定（1 材料 1 绑定）",
+  "seed": "148a5f126b7a6e3203a4520d273dd84694bdf10e9faac12f9f851c2d4ffd48b3",
+  "seed_rule": "sha256(pack_scope_sha256 + '|' + audit_id)",
+  "order": "层内按 sha256(seed|layer|material_slug) 升序",
+  "start": "int(sha256(seed|layer|start)[:8],16) mod floor(N_layer/n_layer)",
+  "index": "idx_i = start + floor(i*N_layer/n_layer), i=0..n_layer-1",
+  "randomness": "none（确定性哈希顺序 + 哈希起点；无 RNG 状态）"
+ },
+ "sample": {
+  "overfull": 1300,
+  "normal": 300,
+  "total": 1600,
+  "fixed": true,
+  "early_stop": false
+ }
+}

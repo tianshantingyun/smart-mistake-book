@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-PROPCOORD-001",
+    "program_id": "mva-BLD-PROPCOORD-001",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [\n      { kind: 'text', payload: '1' },\n      { kind: 'text', payload: '1' },\n      { kind: 'text', payload: '1:1' }\n    ];\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var x0 = w * 0.16;\n    var x1 = w * 0.84;\n    var y = h * 0.56;\n    var mid = (x0 + x1) / 2;\n\n    var line = visualSdk.polyline([[x0, y], [x1, y]]);\n    var divider = visualSdk.polyline([[mid, y - 20], [mid, y + 20]]);\n    var leftTick = visualSdk.polyline([[x0, y - 9], [x0, y + 9]]);\n    var rightTick = visualSdk.polyline([[x1, y - 9], [x1, y + 9]]);\n\n    return {\n      schemaVersion: 1,\n      sceneId: 'equal-segment-ratio',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'line', commands: line },\n        { id: 'divider', commands: divider },\n        { id: 'leftTick', commands: leftTick },\n        { id: 'rightTick', commands: rightTick }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'line', fill: '#26354a', stroke: { width: 4, cap: 'round', join: 'round' } },\n          { type: 'path', pathId: 'divider', fill: '#26354a', stroke: { width: 3, cap: 'round', join: 'round' } },\n          { type: 'path', pathId: 'leftTick', fill: '#26354a', stroke: { width: 2, cap: 'round', join: 'round' } },\n          { type: 'path', pathId: 'rightTick', fill: '#26354a', stroke: { width: 2, cap: 'round', join: 'round' } },\n          { type: 'label', contentId: metrics[0].contentId, anchor: { x: (x0 + mid) / 2, y: y - 28 }, hAlign: 'center', vAlign: 'bottom', color: '#26354a' },\n          { type: 'label', contentId: metrics[1].contentId, anchor: { x: (mid + x1) / 2, y: y - 28 }, hAlign: 'center', vAlign: 'bottom', color: '#26354a' },\n          { type: 'label', contentId: metrics[2].contentId, anchor: { x: w / 2, y: y + 36 }, hAlign: 'center', vAlign: 'top', color: '#26354a' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

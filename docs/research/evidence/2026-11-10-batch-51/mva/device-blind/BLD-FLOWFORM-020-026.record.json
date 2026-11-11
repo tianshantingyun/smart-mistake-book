@@ -1,0 +1,96 @@
+{
+  "input_file": "BLD-FLOWFORM-020.json",
+  "program_sha256": "4a5c812942b89ead3fabbf0603c7555e31285074177d81e75e892dbbecdb9d25",
+  "task_id": "BLD-FLOWFORM-020",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 29,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "单位换算表",
+      "widthDu": 80,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "fe624f25464bd30fc6c14c5e1abc0fe4000607b0f3da04653bde74b4654c3dc3"
+    },
+    {
+      "contentId": "c1",
+      "payload": "项目",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "79f326be4409d51fe60f4edc03b20c4b94de952d626e1616790e7b2384f08f00"
+    },
+    {
+      "contentId": "c2",
+      "payload": "换算算式",
+      "widthDu": 64,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "9851098d67efd162340cf73ad7da959b967857ed6ea5f7525424c624cb96a8f4"
+    },
+    {
+      "contentId": "c3",
+      "payload": "结果",
+      "widthDu": 32,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "bb7ef73495dd8a74eead9a021f2739832271393fe393708fe5c50f995749649f"
+    },
+    {
+      "contentId": "c4",
+      "payload": "90 km\/h → m\/s",
+      "widthDu": 112.7272720336914,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "26689ef3b1875df03ff4c61b01e51860e1c17af1bd9de5a24ccba3b1bca3e687"
+    },
+    {
+      "contentId": "c5",
+      "payload": "90 km\/h ÷ 3.6",
+      "widthDu": 99.2727279663086,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "62a7dabdfbd60cc49730c453654e463e96f3fbf786a29d3fac3d4e367285fb8f"
+    },
+    {
+      "contentId": "c6",
+      "payload": "25.0 m\/s",
+      "widthDu": 64.7272720336914,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "109499bd45c708ee327353e591bccc40ed7c112917937a589df857b4016dd70a"
+    },
+    {
+      "contentId": "c7",
+      "payload": "换算依据：1 m\/s = 3.6 km\/h",
+      "widthDu": 202.90908813476562,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "047af7eb8309a89ebf5dadb448b07bde168c03e0a75f926a5b0c0d768aa22011"
+    },
+    {
+      "contentId": "c8",
+      "payload": "结果保留三位有效数字",
+      "widthDu": 160,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "c917c1751a6ec151a0c303c980e8857edeb311138afbdee7f9961a611674eb4a"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase compile: SceneCompileError: SCENE_PATH_NOT_M_START: scene.paths[0].commands must start with an \"M\" command\n    at SceneCompileError (visual-compiler.js:72:26)\n    at fai"
+}

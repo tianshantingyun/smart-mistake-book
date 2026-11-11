@@ -1,61 +1,63 @@
 {
-  "id": "GATE-035",
-  "verdict": "PASS",
-  "run_id": "2026-11-05T17:30:00Z-batch46-convergence-repair",
-  "reviewer": "batch46-convergence-reviewer",
-  "authors": [
-    "batch45-evidence-producer-GATE"
-  ],
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "evidence": [
-    "cmd:docs/research/evidence/2026-11-06-batch-46/gate/pass-with-review-check.log",
-    "test:docs/research/evidence/2026-11-06-batch-46/gate/tools-report.xml"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-06-batch-46/gate/pass-with-review-check.log": "74cc0b5917cc1f7efe984d6029e5280384a8ef0fb98c69a034cb157e85a02209",
-    "docs/research/evidence/2026-11-06-batch-46/gate/tools-report.xml": "d3429133cd275f980fc5b11370a15e8e092e53f8b0c5106c148a5a27af8fe58a"
+ "id": "GATE-035",
+ "verdict": "PASS",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "evidence": [
+  "cmd:docs/research/evidence/2026-11-06-batch-46/gate/pass-with-review-check.log",
+  "test:docs/research/evidence/2026-11-06-batch-46/gate/tools-report.xml"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-06-batch-46/gate/pass-with-review-check.log": "74cc0b5917cc1f7efe984d6029e5280384a8ef0fb98c69a034cb157e85a02209",
+  "docs/research/evidence/2026-11-06-batch-46/gate/tools-report.xml": "d3429133cd275f980fc5b11370a15e8e092e53f8b0c5106c148a5a27af8fe58a"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=GATE-035; verdict=PASS; line=1166; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=GATE-035; verdict=PASS; line=1166; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "cmd_exit",
-      "source": "docs/research/evidence/2026-11-06-batch-46/gate/pass-with-review-check.log",
-      "value": "exit_markers=[0]; observed='PASS 888 pass_with_review 888 pass_without_review 0'; sha256=74cc0b5917cc1f7efe984d6029e5280384a8ef0fb98c69a034cb157e85a02209"
-    },
-    {
-      "name": "direct_recount",
-      "source": "docs/acceptance/ledger.md",
-      "value": "pass=897; pass_with_review=888; pass_without_review=0; recount_note=batch47-re-executed-after-F-G-H-fix-rows"
-    },
-    {
-      "name": "xml_aggregate",
-      "source": "docs/research/evidence/2026-11-06-batch-46/gate/tools-report.xml",
-      "value": "tests=44; failures=0; errors=0; skipped=0; src_sha256=d3429133cd275f980fc5b11370a15e8e092e53f8b0c5106c148a5a27af8fe58a"
-    }
-  ],
-  "basis": "机械复算（reviewer=batch46-convergence-reviewer，非本行证据作者）：批次 46 收敛时发现本 JSON 旧检查把已存在的证据误标为 evidence_missing（生成器路径解析缺陷，错误地以 exists=False 记在 PASS 行上）。本轮按台账当前字节复算 ledger_sha256 与证据 sha256，直接重跑/重读可判定字段后重建 checks；不改变台账 verdict，只让检查值可复算。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "notes": "本文件只对该单行生效；旧 JSON 引用了错误路径并记 exists=False，本轮按台账证据重建。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次47 重新执行 direct_recount（台账计数随 F/G 域修复行变化）。",
-  "adversarial": {
-    "attempted": true,
-    "result": "recomputed-no-mismatch"
+  {
+   "name": "cmd_exit",
+   "source": "docs/research/evidence/2026-11-06-batch-46/gate/pass-with-review-check.log",
+   "value": "exit_markers=[0]; observed='PASS 888 pass_with_review 888 pass_without_review 0'; sha256=74cc0b5917cc1f7efe984d6029e5280384a8ef0fb98c69a034cb157e85a02209"
   },
-  "review_scope": "single-ledger-row",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+  {
+   "name": "direct_recount",
+   "source": "docs/acceptance/ledger.md",
+   "value": "pass=937; pass_with_review=937; pass_without_review=0; recount_note=batch51-rebound"
   },
-  "evidence_freshness": {
-    "current_batch_files": 2,
-    "archived_files": 0,
-    "basis": "bytes-on-disk"
-  },
-  "checks_scope": "row-specific"
+  {
+   "name": "xml_aggregate",
+   "source": "docs/research/evidence/2026-11-06-batch-46/gate/tools-report.xml",
+   "value": "tests=44; failures=0; errors=0; skipped=0; src_sha256=d3429133cd275f980fc5b11370a15e8e092e53f8b0c5106c148a5a27af8fe58a"
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "notes": "本文件只对该单行生效；旧 JSON 引用了错误路径并记 exists=False，本轮按台账证据重建。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次47 重新执行 direct_recount（台账计数随 F/G 域修复行变化）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "adversarial": {
+  "attempted": true,
+  "result": "recomputed-no-mismatch"
+ },
+ "review_scope": "single-ledger-row",
+ "ledger_batch": 51,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-10T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 2,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }

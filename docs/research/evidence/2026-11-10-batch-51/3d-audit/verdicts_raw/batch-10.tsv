@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+ext-bio-7e0d298ef7-032	CORRECT		high	15N标记DNA后在14N培养液中完成一次正常减数分裂，子细胞中的所有染色体都含15N。	
+ext-bio-5f510cdc4a-1974	CORRECT		high	我国科学家用4种小分子化合物把小鼠成纤维细胞诱导成化学诱导多能干细胞	
+ext-phy-3bed292a14-007	CORRECT		medium	匀变速直线运动中相邻相等时间间隔内的位移差为恒量，Δx＝aT²	
+ext-phy-ce9f317a5b-001	CORRECT		high	动力学问题中常见的图像有 $v-t$ 图像、$a-t$ 图像、$F-t$ 图像、$F-a$ 图像等	
+ext-che-df611941e3-014	CORRECT		high	滤液中加入铵盐固体并搅拌，反应完毕后蒸发浓缩、冷却结晶，得到硫酸亚铁铵晶体。	
+ext-mat-31be25e678-009	CORRECT		high	若 m＋n＝p＋q，则 am·an＝ap·aq	
+ext-che-9a4f3ee0bb-024	CORRECT		high	离子均由高浓度一侧移向低浓度一侧；阴离子移向负极区域，阳离子移向正极区域。	
+ext-phy-8176333801-019b	CORRECT		high	忽略中心天体自转影响时，由 GMm/R²＝mg 整理可得 GM＝gR²。	
+ext-bio-b5ecd037eb-002	CORRECT		high	③新细胞是由老细胞分裂产生的。	
+ext-phy-2992bd4196-013	CORRECT		high	如果在静摩擦力作用下不能保持相对静止，则物体将继续受滑动摩擦力作用，但其方向发生改变。	
+ext-che-161dacb6f6-020	CORRECT		high	强水性最烈、能蚀五金、惟玻璃可盛，为HNO3，属于酸、含氧酸、一元强酸	
+ext-che-5c62da9e03-1219	CORRECT		high	书写方法：先写出可能的碳架异构，再书写官能团位置异构。	
+ext-mat-98e813b184-009c	CORRECT		high	在只知道中线长与角的条件下求角平分线长	
+ext-phy-230d941764-030	CORRECT		high	在波的叠加中，质点的位移等于这几列波单独传播时引起的位移的矢量和。	
+ext-bio-cd4e7c5dc7-004	CORRECT		high	至少含有一个氨基（-NH2）和一个羧基（-COOH），且都连在同一个碳原子上	
+ext-che-132fa7a532-014	CORRECT		high	NaHCO3与盐酸立即产生气泡；Na2CO3中逐滴加入盐酸先生成HCO3－再放出CO2。	
+ext-mat-4f090e41dc-038	CORRECT		medium	把两个极值点看成同一个方程的两根，用韦达定理把根与参数联系起来，再消元把双变量化为单个变量的函数。	
+math-lengtai-waijieqiu-qiuxin-weizhi	CORRECT		high	正三棱台（或圆台）的外接球球心在上、下底面中心连线所在直线上，有可能在体内，也可能在体外。	
+bio-fj-04-nucleotide-base-counts	CORRECT		medium	细胞生物（原核、真核）：含DNA和RNA，核苷酸8种，碱基5种，遗传物质是DNA。	
+ext-che-4d4ca1f7d2-002	CORRECT		high	见光易分解的物质应盛在棕色瓶中，放置于阴凉处，如AgNO3、浓HNO3。	
+ext-phy-5870475655-006b	CORRECT		high	整个导体回路的电阻一般很小，感应电流很大，故金属块的发热功率很大。	
+chem-hj-lizi-zucheng-peibi-xing	CORRECT		high	少量物质定为 1 mol，其组成离子按化学式配比参与反应。	
+ext-mat-41a1313963-008	CORRECT		medium	两条对称性联立可推出周期性，例如函数既有对称轴又有对称中心时，周期为二者距离的4倍。	
+ext-mat-625c3a0cab-005	CORRECT		high	点A(x0,y0)关于点P(m,n)的对称点为(2m-x0,2n-y0)	
+ext-bio-5f510cdc4a-1467	CORRECT		high	样方内所调查植物的个体无论大小都要计数；若有正好在边界线上的，应遵循计上不计下、计左不计右的原则	
+ext-mat-04cad33fb4-032	CORRECT		high	当函数的复合形式具有奇偶性并另有一条对称关系时，可推得原函数的周期。	
+ext-phy-eb0776923d-013	CORRECT		high	分析物体的受力情况，画出受力示意图，确定向心力的来源（破题关键）	
+ext-mat-7bd65f2c88-002d	CORRECT		high	利用复数相等 a＋bi＝c＋di 列方程时，注意 a、b、c、d∈R 的前提条件	
+bio-selfing-n-homozygote-ratio	CORRECT		high	纯合子比例 = 1−(1/2)^n；显性纯合子比例 = 隐性纯合子比例 = [1−(1/2)^n]×1/2（对称分配）。	
+ext-mat-0fd9f7fa13-001	CORRECT		high	1－cos α＝2sin²(α/2)；1＋cos α＝2cos²(α/2)	
+ext-mat-36915e6090-002b	CORRECT		high	当指数函数的底数a的大小不确定时，需分a>1和0<a<1两种情况进行讨论。	
+ext-bio-d5ee2ca482-013	CORRECT		medium	生态平衡的特征包括结构平衡、功能平衡和收支平衡。	
+ext-phy-89eca2c78e-029	CORRECT		high	分：将全过程进行分解，分析每个子过程对应的基本规律。	
+ext-che-8cf031c9fe-011	CORRECT		high	自然界中无游离态的硅，硅是良好半导体材料、可制光电池	
+bio-mo-cell-103	CORRECT		medium	模型的形式很多，包括物理模型、概念模型、数学模型等。	
+ext-che-1a9ac8e309-013	REBIND	溶度积	high	溶液中各离子浓度幂之积为常数，叫溶度积常数（简称溶度积），用Ksp表示	正文讲Ksp定义/表达式/意义，不属影响因素；溶度积节点正对此
+ext-che-0cc28049e6-005b	CORRECT		high	100℃以上水为气态时，体积变化只与氢原子数有关	
+ext-che-5c62da9e03-2334	REBIND	硫及其化合物之间的转化规律	high	转化关系：FeS → H₂S → NaHS → Na₂S → CuS。	正文为-2价硫各物质的转化关系，非金属硫化物溶解性；改绑硫转化规律
+ext-phy-6cc808578b-003b	CORRECT		high	初速度为零的匀加速直线运动有四个常用比例式，可大幅简化计算。	
+ext-phy-7bd52b56f2-007	CORRECT		high	两车同时从静止开始运动、同时停止，运动时间相同，由 x＝½at² 可知两车的位移之比等于加速度之比	
+ext-mat-309a83acf0-002b	CORRECT		high	把平面几何中的知识（相似三角形的边角关系、平行四边形的性质、角平分线的性质、共线点的位置关系等）与正弦定理、余弦定理有机结合	
+ext-che-c16497c974-009	CORRECT		high	等效平衡分为恒温恒容气体分子数不等、恒温恒容气体分子数相等、恒温恒压三类	
+ext-mat-d7a6b10530-005	CORRECT		high	三角形的外心（三边垂直平分线交点）、垂心（三条高所在直线交点）、重心（三条中线交点）三点共线，这条直线叫做该三角形的欧拉线。	
+ext-bio-a524cd8215-002b	CORRECT		high	通常一个mRNA分子上可以相继结合多个核糖体，同时进行多条肽链的合成。	
+ext-bio-cebcb9d917-008b	CORRECT		medium	不饱和脂肪酸的熔点低、不容易凝固，含量高时可增加细胞膜的流动性	
+ext-phy-5054216307-003	CORRECT		high	合力与速度成锐角时，沿速度方向的分力与速度同向，速率增大	
+bio-fj-11-compensation-saturation-shift	CORRECT		high	适当提高温度：净积累面积减少，补偿点右移，饱和点左移。	
+ext-mat-37119cada9-003	CORRECT		medium	数量积等于两向量对应坐标乘积之和	
+ext-che-382d2c8951-006b	CORRECT		high	硝酸无论浓、稀都具有强氧化性，而且浓度越大，氧化性越强。	
+ext-phy-cd68d18dae-029	CORRECT		high	合速度是该物体被绳（杆）拉动的实际运动速度，对应平行四边形对角线。	

@@ -1,0 +1,11 @@
+# 设备全量快照（批次 51）
+time_utc=2026-11-09T23:18:40Z local=2026-11-10 07:18:40 +0800
+HEAD=8dd29e963975ff44703f638064322be0e7494f98
+HEAD_subject=docs: 记 CV 切题算法删除与切题只走模型识别（批次50 纠偏；2 文件）
+branch=## main...origin/main
+dirty_porcelain_lines=683
+dirty_uall_paths=5418
+tracked_diff_sha256=9f8b705c9be2e4d880c26fe6fd4dc203446ffc17ed8cae491e533a1cc16756fe
+untracked_list_sha256=ef6f9d7a3eb696482d82675f36ba12aaf62d221fbf3e8a0885730b9299f0f62a
+untracked_count=5217
+modified_count=201

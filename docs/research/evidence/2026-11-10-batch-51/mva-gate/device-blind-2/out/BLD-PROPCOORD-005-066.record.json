@@ -1,0 +1,41 @@
+{
+  "input_file": "BLD-PROPCOORD-005.json",
+  "program_sha256": "4054c1b8c2b21d6253afc82150486fff5b155c7f0ea87ad79f16143b34d95d90",
+  "task_id": "BLD-PROPCOORD-005",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 14,
+  "measurement": [
+    {
+      "contentId": "c0-8e0375ad",
+      "payload": "2:3",
+      "widthDu": 22.18181800842285,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "8e0375adfc1f456327247b91b11520cf9c2616e04503a43a71873485a07a6542"
+    }
+  ],
+  "status": "RENDERED",
+  "scene_sha256": "8bf29bd6f25b45ad866a559b73b6c6d001870cdd55306f30f6eb1703af02a17a",
+  "scene_bytes": 746,
+  "scene_schema_version": 1,
+  "draw_sha256": "cc3d54efeb59d5ec8976667ccc9bb1ab033a02e3396383dd6a91383b4e589136",
+  "draw_bytes": 830,
+  "draw_schema_version": 1,
+  "content_ids": [
+    "c0-8e0375ad"
+  ],
+  "png_sha256": "10f0b0b677a461f64dfae13c9f6911f6686a707452b36655238ed47d5e8db6cc",
+  "png_bytes": 2438,
+  "png_width": 720,
+  "png_height": 480,
+  "stats": {
+    "nodes": 5,
+    "pathCommands": 10,
+    "labels": 1,
+    "ops": 4
+  }
+}

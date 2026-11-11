@@ -40,9 +40,13 @@ import kotlinx.coroutines.sync.withLock
  * 模型**：本类只做读侧装配与预测填充，`AdaptiveQuestionSelector` 本体一行不改，
  * 决策族（ASK/NO_SAFE_CANDIDATE/…）仍是它的确定性函数。
  *
- * 候选池（两个来源）：
+ * 候选池（三个来源）：
  * 1. **知识点复习题快照**——本批只装**当次会话池**（`readSnapshot(当前会话, 节点)`
  *    可读即候选）；"跨会话复用旧题面"是 R5 提案 §5 登记的未裁项，本批不代裁；
+ * 1b. **第二道校准题快照**（KD-67，批次 50）——同一 `(会话, 知识点)` 的 CALIBRATION 槽位。
+ *    只有学生显式要求（「先做校准题」）后才会被写；装配时标成
+ *    `AdaptiveTargetKind.CALIBRATION`，让选择器已有的校准走廊能选到它。未核验的第二道题
+ *    仍 `contentVerified=false`，**不因"学生点过按钮"放行**；
  * 2. **既有 itemFamily 映射的错题**——itemFamilyId 与 `StudyReviewPlannerService`
  *    :373 同源（`saved-question:<practiceUnitId>`），空绑定的 pseudo 兜底形态同源
  *    （:366-374）但**不物化**（`ensurePseudoKnowledgeBinding` 是写口，装配面禁写；
@@ -76,9 +80,16 @@ import kotlinx.coroutines.sync.withLock
  * 未升级的候选仍落到 `CLARIFY_OR_CONFIRM`。批次 22 T4 已补上解除死端所需的两块**核心侧**
  * 拼图：[KnowledgeQuizItemVerificationUpgrader]（UNKNOWN → VERIFIED/USER_ASSERTED 的显式
  * 写方 API + 单列 CAS 端口）与 [AdaptiveClarificationConsumer]（domain 消费端口）+ 本类的
- * [select]/[selectAndConsume] 输出接线位。**仍未接通**：确认流的生产调用点、Room 侧单列
- * UPDATE adapter、feature 侧消费者实现——KD-67 保持 open。不得为接通而放宽
- * `contentVerified` 判据。测试
+ * [select]/[selectAndConsume] 输出接线位。**批次 49 已接通生产调用点**：
+ * `SmartMistakeBookRoot` 装配 `KnowledgeClarificationPresenter` 作为 consumer，确认卡的
+ * 确认路径先写账本用户断言再走单列 CAS 升级；`KnowledgeCalibrationPresenter` 侧的
+ * CALIBRATION 决策也已由会话状态机消费并显示。**仍未跑**：真实 selector → presenter →
+ * 状态流 + 真 Room 确认/升级的端到端（设备用例仍从屏幕公开入口注入状态），登记在
+ * `docs/research/evidence/2026-11-08-batch-49/repair/unit-gate-and-kd67-blockers.md` §3。
+ * **批次 50 已补真 Room e2e 的数据侧**：`KnowledgeCalibrationQuestionRoomE2eInstrumentedTest`
+ * 在真库上跑「账本写 → 单列 CAS → 下次装配 contentVerified=true」，并让校准走廊选中
+ * 第二道题；仍未接的是 presenter + 屏幕状态流的真实入口（UI 仍注入态）。
+ * 不得为接通而放宽 `contentVerified` 判据。测试
  * `assembled production candidates stay fail-closed to clarify until verified` 钉住未升级出口，
  * `upgraded user asserted candidate enters the ask corridor with the existing elo predictor`
  * 钉住升级后的可进 ASK 路径。
@@ -150,7 +161,8 @@ class AdaptiveSelectionAssembler(
      * - `informationValue`/`fatigueCost`：本读面没有信息量/疲劳模型 → 0.0（不声称；
      *   未核验候选本就进不了打分面）。
      * - `targetKind`：FOUNDATION（知识点复习/错题重做的基准意图；其余意图没有证据来源，
-     *   不虚构映射）。
+     *   不虚构映射）。第二道校准题槽位标 `CALIBRATION`——它对应学生显式点过的「先做校准题」
+     *   （选择器要求 `userRequestedQuestion=true` 才进任何 ASK 分支），不是新意图的虚构映射。
      * - 多节点候选（错题可绑多节点）没有单一预测键 → `predictedCorrectness = null`
      *   （不做跨节点聚合猜测）；错题预测的 optionsCount 取 null（猜测修正关闭）。
      *
@@ -168,31 +180,47 @@ class AdaptiveSelectionAssembler(
         val candidates = mutableListOf<AdaptiveQuestionCandidate>()
 
         for (knowledgeNodeId in targetKnowledgeNodeIds.sorted()) {
-            val row = database.findAssessmentItemSnapshot(
-                assessmentItemSnapshotId = knowledgeQuizItemSnapshotId(learnerId, sessionId, knowledgeNodeId),
-            ) ?: continue
-            // 损坏/缺失行不可复用 → 无候选（读口语义：绝不猜一个题面出来）。
-            val item = itemStore.readSnapshot(sessionId, knowledgeNodeId)?.item ?: continue
-            if (!seenItemIds.add(item.id)) continue
-            val verified = row.verificationStatus == StudyDbValue.VerificationStatus.VERIFIED ||
-                row.verificationStatus == StudyDbValue.VerificationStatus.USER_ASSERTED
-            // answer_reveal_state 列值字面（写口单源 KnowledgeQuizItemStore.ANSWER_REVEAL_STATE_HIDDEN，
-            // 该常量为 private，故此处按列值比较；漂移会被 Store 写入侧单源拦住）。
-            val revealed = row.answerRevealState != QUIZ_REVEAL_STATE_HIDDEN
-            val candidateNodeIds = item.knowledgeNodeIds.ifEmpty { setOf(knowledgeNodeId) }
-            candidates += AdaptiveQuestionCandidate(
-                assessmentItemId = item.id,
-                knowledgeNodeIds = candidateNodeIds,
-                itemFamilyId = item.id,
-                targetKind = AdaptiveTargetKind.FOUNDATION,
-                contentVerified = verified,
-                answerWouldBeRevealed = revealed,
-                informationValue = 0.0,
-                // 单节点候选才可按该节点出预测；Elo 状态不可得 → 全部 null（fail-closed）。
-                predictedCorrectness = eloState
-                    ?.takeIf { candidateNodeIds.size == 1 }
-                    ?.let { predictor.predictInterval(it, candidateNodeIds.single(), item.choices.size, decisionAtEpochMillis) },
-            )
+            // KD-67 第二道校准题（批次 50）：同一 `(会话, 知识点)` 现在最多两个槽位——
+            // 会话题面（REVIEW，既有身份不变）与学生显式要求后生成的第二道校准题
+            // （CALIBRATION，独立行身份）。两槽都装配，但**目标类型不同**：第二道题标成
+            // CALIBRATION，选择器的 `selectCalibration` 才可能选到它；会话题面保持
+            // FOUNDATION（既有行为逐字不变）。核验判据两槽各自现读，不共享状态。
+            for (slot in KnowledgeQuizQuestionSlot.entries) {
+                val row = database.findAssessmentItemSnapshot(
+                    assessmentItemSnapshotId = knowledgeQuizItemSnapshotId(
+                        learnerId = learnerId,
+                        sessionId = sessionId,
+                        knowledgeNodeId = knowledgeNodeId,
+                        slot = slot,
+                    ),
+                ) ?: continue
+                // 损坏/缺失行不可复用 → 无候选（读口语义：绝不猜一个题面出来）。
+                val item = itemStore.readSnapshot(sessionId, knowledgeNodeId, slot)?.item ?: continue
+                if (!seenItemIds.add(item.id)) continue
+                val verified = row.verificationStatus == StudyDbValue.VerificationStatus.VERIFIED ||
+                    row.verificationStatus == StudyDbValue.VerificationStatus.USER_ASSERTED
+                // answer_reveal_state 列值字面（写口单源 KnowledgeQuizItemStore.ANSWER_REVEAL_STATE_HIDDEN，
+                // 该常量为 private，故此处按列值比较；漂移会被 Store 写入侧单源拦住）。
+                val revealed = row.answerRevealState != QUIZ_REVEAL_STATE_HIDDEN
+                val candidateNodeIds = item.knowledgeNodeIds.ifEmpty { setOf(knowledgeNodeId) }
+                candidates += AdaptiveQuestionCandidate(
+                    assessmentItemId = item.id,
+                    knowledgeNodeIds = candidateNodeIds,
+                    itemFamilyId = item.id,
+                    targetKind = if (slot == KnowledgeQuizQuestionSlot.CALIBRATION) {
+                        AdaptiveTargetKind.CALIBRATION
+                    } else {
+                        AdaptiveTargetKind.FOUNDATION
+                    },
+                    contentVerified = verified,
+                    answerWouldBeRevealed = revealed,
+                    informationValue = 0.0,
+                    // 单节点候选才可按该节点出预测；Elo 状态不可得 → 全部 null（fail-closed）。
+                    predictedCorrectness = eloState
+                        ?.takeIf { candidateNodeIds.size == 1 }
+                        ?.let { predictor.predictInterval(it, candidateNodeIds.single(), item.choices.size, decisionAtEpochMillis) },
+                )
+            }
         }
 
         val mistakes = readOrNull { database.observeMistakes().first() } ?: emptyList()

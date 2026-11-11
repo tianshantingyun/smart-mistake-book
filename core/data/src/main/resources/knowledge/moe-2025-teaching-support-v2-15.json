@@ -1429,7 +1429,7 @@
    "contentId": "ext-che-366722558b-015b",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合成高分子的结构和性质",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:功能高分子材料",
      "role": "PRIMARY"
     }
    ]
@@ -47981,7 +47981,7 @@
    "contentId": "ext-che-3a8fd8d517-030",
    "bindings": [
     {
-     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:合成高分子反应的化学方程式的书写",
+     "knowledgeNodeId": "kb:moe-2025-four-subjects-v1:chemistry:atomic:聚合反应",
      "role": "PRIMARY"
     }
    ]

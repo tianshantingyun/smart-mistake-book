@@ -1,0 +1,48 @@
+{
+  "batch": "49",
+  "model_based": true,
+  "holdout_run_id": "batch49-holdout-1794088985575",
+  "primary_metric": "exam_subject_coverage_in_window",
+  "prereg_sha256": "042776e829fe943a736007074ef77ac0e191f7bbeca0169b58d3d1a3be96b843",
+  "head": "0515cfb087e0d12afbdff2c739c2993dce5adf99",
+  "file_sha256": {
+    "ReviewPlannerV2.kt": "ed6ae4e50147fc0f76580f5185cf0f8b9f8c7fc8e395db3fc7a9eda7fdc9651c",
+    "AlgorithmConstants.kt": "e695418f5a24f56ab38ec11d44dd84f7030423c69bb57fd27942e34a36ccfd84",
+    "ReviewPlanner.kt": "62143174c3a4086b745044cc0a5b69275fce9810b93dcac35b88b4610d0320f2",
+    "ClearlyMasteredForSkipPolicy.kt": "3cb0af7c7c199a98dec451338288dccad469d6db47aaf5cec1b214c80098599d",
+    "SchedulingEvaluation.kt": "e0f3f26aaac5dd1545bfa8eb8fda2e3fd37d8dd4b3dc9aba66e5b0fe780f7338",
+    "ReviewPlannerScaleBenchmarkTest.kt": "d72a2ed9aa8bc91f6471d75a0905475c5788af9f4a20c336d23e97c9a0342560",
+    "StudyReviewPlannerService.kt": "1cedc66844261a044bd55487cdedc496a33af2bb61ce686e0977072883cc1bbf",
+    "SimulatedLearner.kt": "62d1eeac482ab165e26920a5665d3e54719334dc3674b235a3149d88b63e65ef",
+    "SimulatedLearnerTest.kt": "94a27fae700e681f08b5542df68de813bb86c111bdee7cd2ab9f37eebd99212e"
+  },
+  "g6_grid": [0.15, 0.25, 0.35, 0.5],
+  "g6_baseline_f": 0.0,
+  "weight_grid": [0.75, 0.875, 1.0, 1.125, 1.25],
+  "thresholds_evaluated_not_changed": [[21.0, 0.9], [14.0, 0.9], [21.0, 0.85]],
+  "rho_grid": [1.0, 0.975, 0.95, 0.925, 0.9, 0.875, 0.85, 0.825, 0.8, 0.775, 0.75],
+  "equal_time_tolerance": "0x1.eb851eb851eb8p-7",
+  "brier_delta_tolerance": "0x1.47ae147ae147bp-8",
+  "dev_seeds": [101, 102, 103, 104, 105, 106, 107, 108, 109, 110],
+  "holdout_seeds": [901, 902, 903, 904, 905, 906, 907, 908, 909, 910],
+  "worlds_per_layer": 10,
+  "simulation_runs_physical": 3120,
+  "simulation_runs_logical": 3334,
+  "expected_runs_per_world_from_prereg": "69-74 (extra rho scans for unequal weight arms are新增)",
+  "started_at": "2026-11-07T22:03:05.585545800Z",
+  "finished_at": "2026-11-07T22:14:54.841821600Z",
+  "wall_clock_seconds": 709,
+  "output_dir": "D:\\smart mistake book\\build\\repair\\calibration-rerun",
+  "known_deviations": [
+    "weight-line requires the §5.1 injection seam; seam landed per prereg §5.1 contract, so ReviewPlannerV2.kt / ReviewPlanner.kt / SimulatedLearner.kt hashes differ from prereg §1.1 (baseline digests still pinned in file_sha256_baseline)",
+    "W-slip misjudgment rate is a structural zero (truth decay == product decay), not evidence",
+    "A-line FSRS fitting (§7) not run in this ask; not part of the named scan set",
+    "real-database samples not touched -> BLOCKED, no numbers invented"
+  ],
+  "file_sha256_baseline": {
+    "ReviewPlannerV2.kt": "ee89aba3dfeb079812b72bf3808b9acc564c7d159743e1577da86de97cc20ecf",
+    "AlgorithmConstants.kt": "e695418f5a24f56ab38ec11d44dd84f7030423c69bb57fd27942e34a36ccfd84",
+    "ReviewPlanner.kt": "e5d66b5b00a22b6dac6fc0d32c3af54658b0f0f8428df74febb458e1ac0bfbfa",
+    "SimulatedLearner.kt": "d170338b35152f1adc0ef1d32e34a60fd896b696cb68fbf36483475f655cc2dc"
+  }
+}

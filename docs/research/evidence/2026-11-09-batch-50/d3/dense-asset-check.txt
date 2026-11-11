@@ -1,0 +1,12 @@
+  OK   sidecar：bge-small-zh-int8.vec.json
+  OK   packSha256：当前包 sha256=10ede1bf449de38f；旁车记录=10ede1bf449de38f
+  OK   vocab:vocab：当前 bge-small-zh-v1.5-vocab.txt sha256=45bbac6b341c319a；旁车记录 sha256=45bbac6b341c319a
+  OK   vocab:tokenizer：当前 bge-small-zh-v1.5-tokenizer.json sha256=48cea5d44424912a；旁车记录 tokenizerJsonSha256=48cea5d44424912a
+  OK   vectorSha256：当前 .vec sha256=70329115240fe6be；旁车记录=70329115240fe6be
+  OK   vectorHeader：头：dim=512 count=44121 version=1；旁车：dim=512 count=44121
+  OK   vectorCount：头 count=44121；旁车 vectorCount=44121
+  OK   vectorBytes：文件 26087046 B；头自述 26087046 B
+  OK   layout：ids 与包布局逐条一致（44121 条向量）
+  OK   layoutSha256：当前包布局 sha256=1aa8142e381d1b2b；旁车 corpus.layoutSha256=1aa8142e381d1b2b
+  OK   modelManifest：清单三方一致=[('vocabSha256', True), ('sidecarOnnxInt8Sha256', True), ('onnxBytes', True)]；onnx 在位并复核哈希
+RC=0

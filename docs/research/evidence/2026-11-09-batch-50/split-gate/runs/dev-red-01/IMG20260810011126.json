@@ -1,0 +1,24 @@
+{
+    "file": "IMG20260810011126.jpg",
+    "status": "OK",
+    "httpStatus": 200,
+    "elapsedMs": 16594,
+    "responseHead": "{\"id\":\"dc52c97e-4e0a-4d6c-967b-67ec217140da\",\"object\":\"chat.completion\",\"created\":1794127568,\"model\":\"deepseek-flash\",\"choices\":[{\"index\":0,\"message\":{\"role\":\"assistant\",\"content\":\"{\\\"decision\\\":\\\"PASS\\\",\\\"issues\\\":[],\\\"suggestedActions\\\":[\\\"CONTINUE_ANYWAY\\\"],\\\"questionRegions\\\":[],\\\"followingPageRelations\\\":[]}\",\"reasoning_content\":\"我们需要回答JSON，判断图片是否足以完整转写一道或多道独立题。需要分析图像。图像看起来是课本/练习册页面，主要内容是中间一道多选题，带甲乙丙丁四幅图，题干“（多选）如图所示，下列说法正确的有（ ）”，四个选项A-D，完整可见。但图像顶部有之前题目的C D选项残留，左侧边栏有文字，右侧有另一页/题目的部分文字“2.解决... (1)波... (2)波... λ0f，(3)... n越... (4)...不变 3.不同...”等。画面包含多道独立题？需要判断。用户规则：若画面包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按页面阅读顺序给出每道题的完整外接区域，包含题干、选项、图形和作答区，区域之间不得大面积重叠；否则questionRegions为空数组。其他decision必须返回空questionRegions。\\n\\n图像中明显中心题是完整的一道（跟进训练多选）。顶部有上一题的选项C/D，没有题干，是另一题的部分。右侧是另一页/栏的题目部分，可能是2.解决...以及3.不同...，不完整。左侧是边栏知识点文字，不是独立题。问题：画面是否包含2到12道互相独立的题？如果只看可辨认的独立题：中心题是一道完整题；顶部选项属于另一题但只看到C/D，可能不完整；右侧有“2.解决...”和“3.不同...”可能是独立题但被裁切/不完整。规则：若画面包含2到12道互相独立的题，必须SPLIT。但这里如果包含多道，但其中大部分不完整，是否需要NEED_MORE_IMAGE？需要选decision。需要判断图片是否足以完整转写一道或多道独立题。中心题完整，可以转写。顶部C/D不是完整题；右侧内容不完整。如果只考虑完整独立题，则只有1道。decision可以PASS，issue可能有MULTIPLE_QUESTIONS? 但规则强制若包含2到12道互相独立的题必须SPLIT。画面包含中心完整题和顶部/右侧残题，是否算“包含”多道独立题？通常错题本判断，页面包含多题时SPLIT。这里中心题与右侧另一页题目区域不同，可能拍照范围包含了两页/栏。右侧其实有题号2和3，明显是另外的题目，虽然内容被裁切。顶部C/D是上一题的一部分。可能画面包含多道题（至少中心题 + 右侧2、3题），应SPLIT? 但questionRegions需要给出每道题的完整外接区域，包含题干、选项、图形和作答区。对于不完整的题，无法给完整外接区域。规则说若包含2到12道互相独立的题，必须返回SPLIT，将MULTIPLE_QUESTIONS标为BLOCKING，questionRegions按页面阅读顺序给出每道题的完整外接区域。这里右侧题不完整，可能不能给完整区域。也可以返回NEED_MORE_IMAGE因为内容未拍全。但中心题足以完整转写一道。问题：“判断图片是否足以完整转写一道或多道独立题。” 中心题可以完整转写。图片里还有别的题不完",
+    "decision": "PASS",
+    "issueCodes": [],
+    "regions": [],
+    "usableSplitRegionSet": false,
+    "appliedRegionCount": 0,
+    "layoutHint": null,
+    "layoutHintChars": 0,
+    "image": {
+        "egressBytes": 621145,
+        "egressWidth": 1536,
+        "egressHeight": 2048,
+        "sourceWidth": 3072,
+        "sourceHeight": 4096,
+        "mode": "JVM_EQUIVALENT_DOWNSCALE_Q88"
+    },
+    "requestBodySha256": "6af44ca044fe79be6d317460021d7e5ed3680c7bed0949d25123d06d49313163",
+    "promptSha256": "31aef2ab0f07b8d3e3337d4f64009e9bf3bdd08d1050d3e784990ac8a9bb496d"
+}

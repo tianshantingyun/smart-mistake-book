@@ -1,0 +1,51 @@
+{
+  "input_file": "BLD-PROPCOORD-012.json",
+  "program_sha256": "57c3493b491ab077491f7937ec16f5ad1e938de3c951689a8a834acd9c16a1da",
+  "task_id": "BLD-PROPCOORD-012",
+  "viewport": {
+    "widthDu": 360,
+    "heightDu": 240
+  },
+  "latency_ms": 22,
+  "measurement": [
+    {
+      "contentId": "c0",
+      "payload": "0",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "contentId": "c1",
+      "payload": "1\/3",
+      "widthDu": 24.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "0d7f0e336166042f8cc9e4c20ae427ba367c279d6e3dfd1bd7247b0fbce61d50"
+    },
+    {
+      "contentId": "c2",
+      "payload": "1\/2",
+      "widthDu": 24.727272033691406,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "d939926f05444b0f4495fb9629ecbfa80d99a8ec1a20d06800ca5a3d5f4fd276"
+    },
+    {
+      "contentId": "c3",
+      "payload": "1",
+      "widthDu": 9.090909004211426,
+      "heightDu": 18.75,
+      "baselineDu": 14.84375,
+      "fontSizeSp": 16,
+      "digest": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    }
+  ],
+  "status": "REJECTED",
+  "reason": "INVALID_SCENE",
+  "diagnostics": "scene rejected in phase render: SceneSdkError: SCENE_SDK_ARG: o.tickLength must be within (0, 100]\n    at SceneSdkError (visual-sdk.js:53:26)\n    at axis (visual-sdk.js:222:30)\n    at render ("
+}

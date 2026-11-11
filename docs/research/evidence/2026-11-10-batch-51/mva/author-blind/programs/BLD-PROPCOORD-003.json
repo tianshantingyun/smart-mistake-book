@@ -1,0 +1,13 @@
+{
+    "task_id": "BLD-PROPCOORD-003",
+    "program_id": "mva-BLD-PROPCOORD-003",
+    "source_js": "const visual = {\n  prepare: function (input) {\n    return [{ kind: 'text', payload: '4:1' }];\n  },\n  render: function (input, metrics) {\n    var w = input.viewport.widthDu;\n    var h = input.viewport.heightDu;\n    var x1 = Math.max(24, w * 0.12);\n    var x2 = Math.min(w - 24, w * 0.88);\n    if (x2 <= x1) { x1 = 12; x2 = w - 12; }\n    var y = h * 0.55;\n    var divX = x1 + (x2 - x1) * 4 / 5;\n    var tick = Math.max(6, Math.min(12, h * 0.04));\n    var labelX = (x1 + x2) / 2;\n    var labelY = y - tick - Math.max(16, h * 0.05);\n    if (labelY < 18) { labelY = y + tick + Math.max(18, h * 0.05); }\n    labelY = Math.min(h - 12, Math.max(18, labelY));\n    var segment = visualSdk.polyline([[x1, y], [x2, y]]);\n    var divider = visualSdk.polyline([[divX, y - tick], [divX, y + tick]]);\n    return {\n      schemaVersion: 1,\n      sceneId: 'ratio-segment',\n      revision: input.revision,\n      viewBox: { x: 0, y: 0, width: w, height: h },\n      paths: [\n        { id: 'segment', commands: segment },\n        { id: 'divider', commands: divider }\n      ],\n      root: {\n        type: 'group',\n        children: [\n          { type: 'path', pathId: 'segment', stroke: '#1f2937', strokeWidth: 3, fill: 'none' },\n          { type: 'path', pathId: 'divider', stroke: '#1f2937', strokeWidth: 3, fill: 'none' },\n          { type: 'label', text: '4:1', x: labelX, y: labelY, fontSize: 18, fill: '#111827', textAnchor: 'middle' }\n        ]\n      }\n    };\n  }\n};",
+    "scene_revision": 1,
+    "seed": 42,
+    "time_ms": 0,
+    "theme": "light",
+    "viewport": {
+        "widthDu": 360,
+        "heightDu": 240
+    }
+}

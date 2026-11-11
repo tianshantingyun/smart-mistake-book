@@ -38,7 +38,7 @@ def _run(tmp: Path, ledger: Path, *extra: str) -> tuple[subprocess.CompletedProc
     proc = subprocess.run(
         [sys.executable, "-I", str(SCRIPT), "--ledger", str(ledger),
          "--repo-root", str(tmp), "--out", str(out), "--partial", *extra],
-        capture_output=True, text=True, cwd=str(REPO),
+        capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(REPO),
     )
     data = json.loads(out.read_text(encoding="utf-8")) if out.exists() else None
     return proc, data
@@ -51,7 +51,7 @@ class AcceptanceLintTest(unittest.TestCase):
         proc = subprocess.run(
             [sys.executable, "-I", str(SCRIPT), "--ledger", str(FAKE_GREEN),
              "--repo-root", str(REPO), "--out", str(out), "--partial"],
-            capture_output=True, text=True, cwd=str(REPO),
+            capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(REPO),
         )
         self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
         data = json.loads(out.read_text(encoding="utf-8"))
@@ -64,7 +64,7 @@ class AcceptanceLintTest(unittest.TestCase):
         proc = subprocess.run(
             [sys.executable, "-I", str(SCRIPT), "--ledger", str(FAKE_GREEN_41),
              "--repo-root", str(REPO), "--out", str(out), "--partial"],
-            capture_output=True, text=True, cwd=str(REPO),
+            capture_output=True, text=True, encoding="utf-8", errors="replace", cwd=str(REPO),
         )
         self.assertEqual(proc.returncode, 1, proc.stdout + proc.stderr)
         data = json.loads(out.read_text(encoding="utf-8"))

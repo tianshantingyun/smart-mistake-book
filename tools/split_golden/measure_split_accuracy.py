@@ -7,7 +7,26 @@
 口径一变无从核查；且 v1 口径把**单题页结构上不可能拆分**记成模型不一致，门被定义缺陷
 压低（题数一致率分子少了 2 页，见下）。
 
-## 口径（v2，2026-10-14 修正 ①；阈值不动：① 0.9 / ③ 0.05）
+## 口径（v3，2026-11-10 批次 51；阈值与分母不动：① 0.9 / ③ 0.05）
+
+v3 只改「0 框」的解释，不改任何阈值或分母：逐页先按导出判定分类，再判一致。
+- `ACCEPTED_SPLIT`：`outcomeStatus=OK` + `decision=SPLIT` + 2..12 个可用区域 ⇒ 题数相等才一致。
+- `ACCEPTED_NO_SPLIT`：`OK` + `PASS` + 0 框 ⇒ 单题金标页（`questionCount<2`）一致；多题页不一致
+  （模型把 N 题读成整页 1 题）。PASS 是「整页一题、无需切分」的**被接受判定**，必须记满分。
+- `SPLIT_UNUSABLE`：`OK` + `SPLIT` 但 0 框（消费侧 `isUsableSplitRegionSet` 判不可用）⇒ 不一致
+  （产品没切成任何东西，不是弃答）。
+- `ABSTAIN`：`OK` + `RECAPTURE`/`NEED_MORE_IMAGE` ⇒ 题数记 `null`（不是 0），单列 `abstain`；
+  进 ① 按 ITT 记不一致（样本是「每页至少一道完整可见题」的条件样本，弃答按定义就是错判）。
+- `NOT_EVALUABLE_CHANNEL`：`outcomeStatus != OK`、无 `decision`、契约整轮拒收 ⇒ 单列
+  `notEvaluable`；进 ① 按 ITT 记不一致（产品这一页什么都没给用户）。
+- `MISSING_APP`：导出缺该页 ⇒ 不一致（`GATE.md`「缺页就是漏」）。
+- `V2_FALLBACK`：**整份导出**没有 `decision`/`outcomeStatus`（历史设备导出
+  `export_split_eval.py` 的 SELECT 不含这两列）⇒ 回落 v2 规则；单题页标
+  `singleQuestionUnverified`，报告计 `singleQuestionUnverifiedCount` 且 `caliber="v2-fallback"`
+  （不得声称 v3 严格口径）。按页回落会让判定型导出里缺页/失败页重新变成假阳性，故只按整份导出回落。
+分母恒为可比金标页数；弃答与通道失败都不剔除（剔除分母等于奖励多弃答）。
+
+## 口径（v2，历史；保留为 countExactV2 对照，2026-10-14 修正 ①）
 
 ① 题数完全一致率 countExactRate = 一致页数 / 可比金标页数
    - 多题金标页（questionCount >= 2）：应用区域数 == 金标题数 ⇒ 一致，否则不一致（原口径）。
@@ -15,7 +34,8 @@
      （`isUsableSplitRegionSet()` 要求区域数 ∈ 2..12，见 core/domain/src/main/kotlin/
      com/tingyun/smartmistakebook/core/domain/CaptureWorkflowRepository.kt:375-382），
      单题页结构上不会产生合法拆分：应用输出 0 区域 ⇒ 一律记一致；> 0 区域 ⇒ 记不一致。
-     （v1 把「金标 1 vs 应用 0」按数值不等记不一致——是定义错，不是模型错。）
+     （v1 把「金标 1 vs 应用 0」按数值不等记不一致——是定义错，不是模型错。
+      v3 起这条只在 `V2_FALLBACK` 的历史导出上生效；有判定字段时只有被接受的 PASS 才记一致。）
 
 ② 边界 IoU≥0.5 题占比 iouRate = IoU≥0.5 的配对金标题数 / 金标总题数（分母=金标题数）。
    每页做最大权一对一（1:1）配对（以配对 IoU 之和最大为目标）；应用框少于金标时，
@@ -81,7 +101,20 @@ BOX_KEYS = ("left", "top", "right", "bottom")
 # 应用导出可携带的页级溯源键（export_split_eval.py 写出）；缺省一律记 null，不猜。
 PROVENANCE_KEYS = ("nameSource", "jobId", "pageIndex", "sourceUri", "jobStatus", "pageCount",
                    # v2 起：稳定页 id 与 job 计数一致性（只透传，不进口径）
-                   "pageId", "pageIdKind", "integrity")
+                   "pageId", "pageIdKind", "integrity",
+                   # v3 起：harness 导出逐页写判定；设备导出没有这两列 ⇒ 整份回落 v2。
+                   "outcomeStatus", "decision")
+
+# 口径 v3 的逐页页类（只分类，不参与任何阈值）。
+PAGE_CLASS_ACCEPTED_SPLIT = "ACCEPTED_SPLIT"
+PAGE_CLASS_SPLIT_UNUSABLE = "SPLIT_UNUSABLE"
+PAGE_CLASS_ACCEPTED_NO_SPLIT = "ACCEPTED_NO_SPLIT"
+PAGE_CLASS_ABSTAIN = "ABSTAIN"
+PAGE_CLASS_NOT_EVALUABLE_CHANNEL = "NOT_EVALUABLE_CHANNEL"
+PAGE_CLASS_MISSING_APP = "MISSING_APP"
+PAGE_CLASS_V2_FALLBACK = "V2_FALLBACK"
+ABSTAIN_DECISIONS = ("RECAPTURE", "NEED_MORE_IMAGE")
+SPLIT_REGION_COUNT_RANGE = (2, 12)
 
 # 自动化裁定（既有裁定 37 / 4C③，本脚本只声明、不执行——没有任何产品开关可切）。
 AUTOMATION_RULING = ("门后自动化不启用（裁定 37 / 4C③：门不过不允许自动入库，切残不得自动入库）。"
@@ -295,8 +328,8 @@ def fragment_pieces(gold_boxes: list[dict], app_boxes: list[dict],
 
 # ---------------------------------------------------------------- 口径判定
 
-def count_verdict(gold_count: int, app_count: int) -> tuple[bool, str]:
-    """① 修正口径：单题金标页（<2）期望「不拆分」。返回 (是否一致, 说明)。"""
+def count_verdict_v2(gold_count: int, app_count: int) -> tuple[bool, str]:
+    """历史口径：只看两个整数（单题页 0 框即一致）。保留为 v3 的 `countExactV2` 对照。"""
     if gold_count < 2:
         if app_count == 0:
             return True, "一致（单题页：不拆分=期望）"
@@ -306,6 +339,63 @@ def count_verdict(gold_count: int, app_count: int) -> tuple[bool, str]:
     if app_count == 0:
         return False, f"不一致（金标 {gold_count} vs 应用 0，漏拆）"
     return False, f"不一致（金标 {gold_count} vs 应用 {app_count}）"
+
+
+def classify_page(gold_count: int, app_count: int, decision: object,
+                  outcome_status: object, app_page_missing: bool) -> str:
+    """口径 v3 逐页页类（判定输入只来自导出，不猜）。"""
+    if app_page_missing:
+        return PAGE_CLASS_MISSING_APP
+    if outcome_status != "OK":
+        return PAGE_CLASS_NOT_EVALUABLE_CHANNEL
+    if decision is None:
+        return PAGE_CLASS_NOT_EVALUABLE_CHANNEL
+    if decision == "SPLIT":
+        minimum, maximum = SPLIT_REGION_COUNT_RANGE
+        # 导出只写消费侧判「可用」之后的区域（assemble_export.py:33-41）；0 框 =
+        # 模型想切但区域被整组拒绝（如 005144 的互相重叠框），不是弃答。
+        return (PAGE_CLASS_ACCEPTED_SPLIT if minimum <= app_count <= maximum
+                else PAGE_CLASS_SPLIT_UNUSABLE)
+    if decision == "PASS":
+        return PAGE_CLASS_ACCEPTED_NO_SPLIT
+    if decision in ABSTAIN_DECISIONS:
+        return PAGE_CLASS_ABSTAIN
+    return PAGE_CLASS_NOT_EVALUABLE_CHANNEL
+
+
+def count_verdict(gold_count: int, app_count: int,
+                  decision: object = None, outcome_status: object = None,
+                  app_page_missing: bool = False,
+                  decision_source: str = "export") -> tuple[bool, str]:
+    """① 判定（v3）：返回 (是否一致, 说明)。
+
+    `decision_source="absent"` 只用于整份导出没有判定字段的历史设备导出：行为逐字
+    回落 [count_verdict_v2]，避免把「未知」当「不一致」改写历史读数。
+    """
+    if decision_source == "absent":
+        return count_verdict_v2(gold_count, app_count)
+    page_class = classify_page(gold_count, app_count, decision, outcome_status,
+                               app_page_missing)
+    if page_class == PAGE_CLASS_ACCEPTED_SPLIT:
+        if app_count == gold_count:
+            return True, "一致（SPLIT，区域可用且题数相同）"
+        if app_count == 0:
+            return False, f"不一致（金标 {gold_count} vs 应用 0，漏拆）"
+        return False, f"不一致（金标 {gold_count} vs 应用 {app_count}）"
+    if page_class == PAGE_CLASS_ACCEPTED_NO_SPLIT:
+        if gold_count < 2 and app_count == 0:
+            return True, "一致（PASS：整页一道题，无需切分）"
+        return False, f"不一致（PASS 把 {gold_count} 道题读成整页 1 道）"
+    if page_class == PAGE_CLASS_SPLIT_UNUSABLE:
+        return False, "不一致（SPLIT 但区域不可用：产品未切）"
+    if page_class == PAGE_CLASS_ABSTAIN:
+        return False, f"不一致（弃答 {decision}，按 ITT 计）"
+    if page_class == PAGE_CLASS_NOT_EVALUABLE_CHANNEL:
+        detail = f"status={outcome_status!r}, decision={decision!r}"
+        return False, f"不一致（通道不可评：{detail}，按 ITT 计）"
+    if page_class == PAGE_CLASS_MISSING_APP:
+        return False, "不一致（应用缺该页，按 0 框计）"
+    return False, "不一致（未知页类）"
 
 
 def format_iou_column(gold_boxes: list[dict], matched: dict[int, float]) -> str:
@@ -318,7 +408,8 @@ def format_iou_column(gold_boxes: list[dict], matched: dict[int, float]) -> str:
 # ---------------------------------------------------------------- 口径计算（人读与 --json 单一事实源）
 
 def _page_metric(page: dict, app_boxes: list[dict], app_page_missing: bool,
-                 app_provenance: dict | None = None) -> dict:
+                 app_provenance: dict | None = None,
+                 decision_source: str = "export") -> dict:
     """单页 ①②③ 计算（唯一实现；人读逐页行与 --json 报告都消费它）。
 
     `app_provenance` 只透传导出器写的来源（nameSource/jobId/...）；缺失即 null/False，
@@ -337,17 +428,45 @@ def _page_metric(page: dict, app_boxes: list[dict], app_page_missing: bool,
                        if count >= 2)
         for threshold in FRAGMENT_THRESHOLDS
     }
-    ok, reason = count_verdict(gold_count, len(app_boxes))
-    legacy_ok = (gold_count == len(app_boxes))
     provenance = app_provenance or {}
+    decision = provenance.get("decision")
+    outcome_status = provenance.get("outcomeStatus")
+    strict = decision_source != "absent"
+    ok, reason = count_verdict(gold_count, len(app_boxes), decision=decision,
+                               outcome_status=outcome_status,
+                               app_page_missing=app_page_missing,
+                               decision_source=decision_source)
+    v2_ok, _v2_reason = count_verdict_v2(gold_count, len(app_boxes))
+    single_unverified = (not strict) and gold_count < 2
+    page_class = (classify_page(gold_count, len(app_boxes), decision, outcome_status,
+                                app_page_missing)
+                  if strict else PAGE_CLASS_V2_FALLBACK)
+    # 题数口径的显式取值：弃答/通道失败/缺页是 `null`（没有判定），不是 0 框；
+    # PASS 是 "none"（整页不拆分）。框集仍如实记 appBoxes，供 ②/③ 使用。
+    if page_class == PAGE_CLASS_ACCEPTED_SPLIT:
+        metric_question_count: object = len(app_boxes)
+    elif page_class == PAGE_CLASS_ACCEPTED_NO_SPLIT:
+        metric_question_count = "none"
+    elif page_class == PAGE_CLASS_SPLIT_UNUSABLE:
+        metric_question_count = 0
+    elif page_class == PAGE_CLASS_V2_FALLBACK:
+        metric_question_count = len(app_boxes)
+    else:
+        metric_question_count = None
     integrity = provenance.get("integrity")
     return {
         "file": page["file"],
         "goldQuestions": gold_count,
         "appBoxes": len(app_boxes),
+        "questionCountForMetric": metric_question_count,
         "consistent": ok,
+        "consistentV2": v2_ok,
         "reason": reason,
-        "legacyConsistent": legacy_ok,
+        "pageClass": page_class,
+        "appDecision": decision,
+        "appOutcomeStatus": outcome_status,
+        "singleQuestionUnverified": single_unverified,
+        "legacyConsistent": (gold_count == len(app_boxes)),
         "matchedIous": [matched.get(index) for index in range(len(gold_boxes))],
         "iouOk": iou_ok,
         "fragmentedCount": len(fragmented),
@@ -383,9 +502,18 @@ def _aggregate(rows: list[dict], app_pages: list[dict] | None) -> dict:
     page_count = len(rows)
     total_gold_questions = sum(row["goldQuestions"] for row in rows)
     consistent_pages = sum(1 for row in rows if row["consistent"])
+    v2_consistent_pages = sum(1 for row in rows if row["consistentV2"])
     legacy_consistent_pages = sum(1 for row in rows if row["legacyConsistent"])
     changed_pages = [row["file"] for row in rows
                      if row["consistent"] != row["legacyConsistent"]]
+    changed_pages_v2 = [row["file"] for row in rows
+                        if row["consistent"] != row["consistentV2"]]
+    abstain_pages = [row["file"] for row in rows
+                     if row["pageClass"] == PAGE_CLASS_ABSTAIN]
+    not_evaluable_pages = [row["file"] for row in rows
+                           if row["pageClass"] == PAGE_CLASS_NOT_EVALUABLE_CHANNEL]
+    single_unverified_pages = [row["file"] for row in rows
+                               if row["singleQuestionUnverified"]]
     iou_ok_total = sum(row["iouOk"] for row in rows)
     fragment_total = sum(row["fragmentedCount"] for row in rows)
     fragment_by_threshold = {
@@ -393,6 +521,7 @@ def _aggregate(rows: list[dict], app_pages: list[dict] | None) -> dict:
         for threshold in FRAGMENT_THRESHOLDS
     }
     count_rate = consistent_pages / page_count if page_count else 0.0
+    v2_count_rate = v2_consistent_pages / page_count if page_count else 0.0
     iou_rate = iou_ok_total / total_gold_questions if total_gold_questions else 0.0
     fragment_rate = fragment_total / total_gold_questions if total_gold_questions else 0.0
     legacy_count_rate = legacy_consistent_pages / page_count if page_count else 0.0
@@ -403,9 +532,15 @@ def _aggregate(rows: list[dict], app_pages: list[dict] | None) -> dict:
     integrity_mismatch_pages = [row["file"] for row in rows
                                 if row["appJobQuestionCountMatches"] is False
                                 or row["appJobPageCountMatches"] is False]
+    decision_source = ("absent" if rows and all(
+        row["pageClass"] == PAGE_CLASS_V2_FALLBACK for row in rows) else "export")
+    caliber = "v2-fallback" if decision_source == "absent" else "v3"
     return {
         "countExact": {"successes": consistent_pages, "denominator": page_count,
                        "value": count_rate},
+        # 旧口径整份样本重算（只作对照；不参与门式）。
+        "countExactV2": {"successes": v2_consistent_pages, "denominator": page_count,
+                         "value": v2_count_rate},
         "iou": {"successes": iou_ok_total, "denominator": total_gold_questions,
                 "value": iou_rate, "threshold": IOU_THRESHOLD,
                 "informationalOnly": True},
@@ -418,6 +553,15 @@ def _aggregate(rows: list[dict], app_pages: list[dict] | None) -> dict:
         "legacyCountExact": {"successes": legacy_consistent_pages,
                              "denominator": page_count, "value": legacy_count_rate},
         "changedPages": changed_pages,
+        "changedPagesV2": changed_pages_v2,
+        "abstain": {"count": len(abstain_pages), "pages": abstain_pages,
+                    "rate": len(abstain_pages) / page_count if page_count else 0.0},
+        "notEvaluable": {"count": len(not_evaluable_pages), "pages": not_evaluable_pages,
+                         "rate": len(not_evaluable_pages) / page_count if page_count else 0.0},
+        "singleQuestionUnverifiedCount": len(single_unverified_pages),
+        "singleQuestionUnverifiedPages": single_unverified_pages,
+        "caliber": caliber,
+        "decisionSource": decision_source,
         "pageCount": page_count,
         "totalGoldQuestions": total_gold_questions,
         "gates": {"count": {"threshold": COUNT_GATE, "met": count_rate >= COUNT_GATE},
@@ -483,21 +627,32 @@ def build_report(golden_path: Path, golden_pages: list[dict], app_path: Path) ->
     app_exists = app_path.is_file()
     report: dict = {
         "reportSchemaVersion": 1,
-        "caliber": "v2",
+        "caliber": "v3",
         "golden": _describe_golden(golden_path, golden_pages),
         "app": _describe_app(app_path, None),
         "automation": {"enabled": False, "ruling": AUTOMATION_RULING},
     }
     if not app_exists:
         report.update({"pages": [], "metrics": None, "gates": None, "gatePassed": None,
-                       "legacyCountExact": None, "changedPages": [],
+                       "legacyCountExact": None, "countExactV2": None,
+                       "changedPages": [], "changedPagesV2": [],
+                       "abstain": None, "notEvaluable": None,
+                       "singleQuestionUnverifiedCount": None,
+                       "singleQuestionUnverifiedPages": [],
+                       "decisionSource": None,
                        "missingAppPages": [], "extraAppPages": []})
         return report
     app_pages, app_provenance, app_source, app_schema_version = _load_app_document(app_path)
+    # 回落是**整份导出**的属性：设备导出的 SELECT 不含 decision/outcomeStatus。
+    # 按页回落会让判定型导出里的缺页（无页记录 ⇒ 无判定字段）重新变成假阳性。
+    decision_source = ("export" if any(
+        "decision" in provenance or "outcomeStatus" in provenance
+        for provenance in app_provenance.values()) else "absent")
     app_by_file = {page["file"]: page["boxes"] for page in app_pages}
     rows = [_page_metric(page, app_by_file.get(page["file"], []),
                          page["file"] not in app_by_file,
-                         app_provenance.get(page["file"]))
+                         app_provenance.get(page["file"]),
+                         decision_source=decision_source)
             for page in golden_pages]
     report["app"] = _describe_app(app_path, app_pages, app_source, app_schema_version)
     report["pages"] = rows
@@ -507,7 +662,15 @@ def build_report(golden_path: Path, golden_pages: list[dict], app_path: Path) ->
     report["gates"] = agg["gates"]
     report["gatePassed"] = agg["gatePassed"]
     report["legacyCountExact"] = agg["legacyCountExact"]
+    report["countExactV2"] = agg["countExactV2"]
     report["changedPages"] = agg["changedPages"]
+    report["changedPagesV2"] = agg["changedPagesV2"]
+    report["abstain"] = agg["abstain"]
+    report["notEvaluable"] = agg["notEvaluable"]
+    report["singleQuestionUnverifiedCount"] = agg["singleQuestionUnverifiedCount"]
+    report["singleQuestionUnverifiedPages"] = agg["singleQuestionUnverifiedPages"]
+    report["caliber"] = agg["caliber"]
+    report["decisionSource"] = agg["decisionSource"]
     report["missingAppPages"] = agg["missingAppPages"]
     report["extraAppPages"] = agg["extraAppPages"]
     report["integrityMismatchPages"] = agg["integrityMismatchPages"]
@@ -524,7 +687,7 @@ def _print_json_error(message: str, code: int) -> int:
 # ---------------------------------------------------------------- 主流程
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description="切分准确率度量（4C② 门；口径 v2）")
+    parser = argparse.ArgumentParser(description="切分准确率度量（4C② 门；口径 v3，历史导出回落 v2）")
     parser.add_argument("--golden", type=Path, default=DEFAULT_GOLDEN)
     parser.add_argument("--app", type=Path, default=DEFAULT_APP)
     parser.add_argument("--json", action="store_true",
@@ -554,7 +717,8 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2))
         return 0 if report["app"]["exists"] else 3
 
-    print("切分准确率度量（4C② 门，口径 v2：单题金标页期望=不拆分；阈值 0.9 / 0.05 未动）")
+    print("切分准确率度量（4C② 门，口径 v3：单题页只有被接受的不拆分才一致；"
+          "阈值 0.9 / 0.05 未动）")
     print("数据源")
     print(f"  金标：{args.golden}（{args.golden.stat().st_size} B，"
           f"{len(golden_pages)} 页 / {sum(len(p['boxes']) for p in golden_pages)} 题）")
@@ -566,20 +730,26 @@ def main(argv: list[str] | None = None) -> int:
         return 3
 
     try:
-        app_pages = load_app(args.app)
+        app_pages, app_provenance, _app_source, _app_schema_version = \
+            _load_app_document(args.app)
     except DataError as failure:
         print(f"切分准确率度量 FAIL：{failure}")
         return 2
 
+    decision_source = ("export" if any(
+        "decision" in provenance or "outcomeStatus" in provenance
+        for provenance in app_provenance.values()) else "absent")
     app_by_file = {page["file"]: page["boxes"] for page in app_pages}
     print(f"  应用：{args.app}（{args.app.stat().st_size} B，"
-          f"{len(app_pages)} 页 / {sum(len(p['boxes']) for p in app_pages)} 框；设备 DB 快照）")
+          f"{len(app_pages)} 页 / {sum(len(p['boxes']) for p in app_pages)} 框；"
+          f"判定字段：{'有（严格 v3）' if decision_source == 'export' else '无（整份回落 v2）'}）")
 
     # ------------------------------------------------------------ 逐页
     print()
     print("逐页明细（按金标页序；配对 = 该页最大权 1:1 配对的金标题 IoU，'—'=未配对）")
-    header = (f"{'file':<24} | {'金标题数':>6} | {'应用题数':>6} | {'①一致性(v2)':<26}"
-              f" | {'配对 IoU（按金标题序）':<34} | {'≥0.5':>4} | {'切残':>4}")
+    header = (f"{'file':<24} | {'金标题数':>6} | {'应用题数':>6} | {'页类':<22}"
+              f" | {'①一致性(v3)':<30} | {'配对 IoU（按金标题序）':<34}"
+              f" | {'≥0.5':>4} | {'切残':>4}")
     print(header)
     print("-" * len(header))
 
@@ -587,11 +757,13 @@ def main(argv: list[str] | None = None) -> int:
     for page in golden_pages:
         name = page["file"]
         has_app_page = name in app_by_file
-        row = _page_metric(page, app_by_file.get(name, []), not has_app_page)
+        row = _page_metric(page, app_by_file.get(name, []), not has_app_page,
+                           app_provenance.get(name),
+                           decision_source=decision_source)
         rows.append(row)
         suffix = "" if has_app_page else "（应用缺该页，按 0 框计）"
         print(f"{row['file']:<24} | {row['goldQuestions']:>6} | {row['appBoxes']:>6} |"
-              f" {row['reason']:<26}"
+              f" {row['pageClass']:<22} | {row['reason']:<30}"
               f" | {format_iou_column(page['boxes'], _matched_from_row(row)):<34} |"
               f" {row['iouOk']:>4} | {row['fragmentedCount']:>4}{suffix}")
 
@@ -607,13 +779,31 @@ def main(argv: list[str] | None = None) -> int:
           f" = {count_rate:.4f}")
     print(f"     门：{count_rate:.4f} >= {COUNT_GATE} ->"
           f" {'过' if count_rate >= COUNT_GATE else '未过'}")
+    print(f"     口径：{agg['caliber']}（判定字段来源：{agg['decisionSource']}；"
+          "单题页只有被接受的 PASS 才记一致）")
+    if agg["countExactV2"]["value"] != count_rate:
+        print(f"     旧口径（v2，0 框即单题一致）同一样本对照 = "
+              f"{agg['countExactV2']['successes']}/{agg['countExactV2']['denominator']}"
+              f" = {agg['countExactV2']['value']:.4f}；v3 改判页"
+              f"（{len(agg['changedPagesV2'])} 页）："
+              + "、".join(agg["changedPagesV2"]))
+    print(f"  弃答（RECAPTURE/NEED_MORE_IMAGE）：{agg['abstain']['count']}/"
+          f"{agg['pageCount']} = {agg['abstain']['rate']:.4f}"
+          "（只报数、不设门；进 ① 按 ITT 记不一致）")
+    print(f"  通道不可评（status!=OK/无判定/契约拒收）：{agg['notEvaluable']['count']}/"
+          f"{agg['pageCount']} = {agg['notEvaluable']['rate']:.4f}"
+          "（按 ITT 记不一致）")
+    if agg["singleQuestionUnverifiedCount"]:
+        print(f"注意：{agg['singleQuestionUnverifiedCount']} 页单题页没有 decision/outcomeStatus"
+              "（历史设备导出），已回落 v2 并计入 singleQuestionUnverifiedCount；"
+              f"caliber={agg['caliber']}，不得声称 v3 严格口径")
     if agg["legacyCountExact"]["value"] != count_rate:
         print(f"     原口径（v1，数值相等即一致）对照 = "
               f"{agg['legacyCountExact']['successes']}/{agg['legacyCountExact']['denominator']}"
               f" = {agg['legacyCountExact']['value']:.4f}；改判页（{len(agg['changedPages'])} 页）："
               + "、".join(agg["changedPages"]))
-        print("     差异原因：单题金标页（questionCount<2）结构上不会产生合法拆分"
-              "（应用最小拆分为 2 块），v1 按数值不等记不一致是定义错。")
+        print("     差异原因：v1 把单题页「金标 1 vs 应用 0」按数值不等记不一致（定义错）；"
+              "v3 还纠正弃答/通道失败被记一致的假阳性（见上两行）。")
     print(f"  ② 边界 IoU≥0.5 题占比 iouRate = {agg['iou']['successes']}/{agg['iou']['denominator']}"
           f" = {agg['iouRate']:.4f}（只度量，不设门）")
     print(f"  ③ 切残率 fragmentRate = {agg['fragment']['successes']}/{agg['fragment']['denominator']}"

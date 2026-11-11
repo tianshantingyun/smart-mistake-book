@@ -371,3 +371,19 @@ assertEquals(3, blocks.size)
 
 
 大字体截图追加修正已实施。ClaudeSegmentedControl 使用文字测量值计算最小单元宽度，标签保持单行，溢出可横向滚动。选中面改为12dp小圆角，移除常态阴影。既有大字体原生用例增加四字标签单行高度检查，避免“掌握程度”再次拆行撑高。
+
+
+## UI 基准合入主分支
+
+本次整合 UI 分支 d6917dc7 与主分支 ef6a9d97。解决绘图提示词、RoomStudyDatabase、StudyDatabasePort 与导出策略测试的显式冲突，修复自动合并产生的重复参数和重复属性。绘图保留教学样例及完整约束，PDF缓存使用主分支第3代内容策略和本版第5版布局身份。
+
+主分支已提交的 App 入口依赖尚未提交的知识复习确认与校准回调。使用主工作树的对应实现补齐已有 KnowledgeReviewSessionScreen、KnowledgeReviewSessionViewModel 及其现有测试。校准决策类型与状态文案放入现有 ViewModel 文件，保留本版题面面板视觉。整合仅涉及这些必要接线，主工作树仍有615项未提交改动待后续收口。
+
+本轮验证通过
+
+- :app:assembleLocalFirstDebug 构建成功。
+- 共享UI单测72项、导出定向单测28项、绘图提示词单测7项、知识复习ViewModel单测23项，共130项、0失败。
+- JS生产编译器检查96项通过，绘图提示词样例生产编译检查1项通过。
+- 相对 origin/main 的本次增量差异检查通过。主分支原有验收证据包含空白格式告警，证据内容沿用原提交。
+
+证据位于已授权的 library-interior-implementation-2026-10-31 目录，主日志为 ui-merge-1111-build5.log，补充 ui-merge-1111-visual.log 与 ui-merge-1111-prompt.log。完整应用设备验收继续按前文记录跟进。

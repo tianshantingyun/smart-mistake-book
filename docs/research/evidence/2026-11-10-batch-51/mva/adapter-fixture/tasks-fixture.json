@@ -1,0 +1,44 @@
+{
+  "tasks": [
+    {
+      "task_id": "FIXTURE-RATIO-1TO1",
+      "set": "blind",
+      "group": "proportion_coordinates",
+      "group_name": "比例/坐标",
+      "figure_type": "ratio_bar",
+      "sample_category_4e": "截图1 比例条（3:1/1:1 精确比例、标签可读，非截图图片）",
+      "problem_statement": "画一条线段并分成两段，使两段长度比为 1:1；在图中以可读标签标注比值 “1:1”，不得用照片截图充当。",
+      "fact_expectations": [
+        {
+          "kind": "numeric",
+          "key": "segment_length_ratio",
+          "expected": 1.0,
+          "tolerance": 1e-09,
+          "critical": true
+        },
+        {
+          "kind": "label_set",
+          "key": "ratio_label",
+          "expected": [
+            "1:1"
+          ],
+          "critical": true
+        },
+        {
+          "kind": "count",
+          "key": "segment_count",
+          "expected": 2,
+          "critical": false
+        }
+      ],
+      "requires_figure": true,
+      "native_form_separate": false,
+      "review_source": {
+        "annotator": "model_annotated",
+        "human_expert": false,
+        "model_note": "冻结时按题族参数生成事实预期；无人工专家复核",
+        "evidence_limitation": "模型标注，无人工专家；分歧未决不计合格（PRD-09 :132）"
+      }
+    }
+  ]
+}

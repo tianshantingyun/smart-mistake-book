@@ -1,0 +1,51 @@
+material_slug	verdict	target_node_slug	confidence	evidence_quote	note
+bio-animal-cell-hypertonic-shrink	CORRECT		high	动物细胞没有细胞壁，置高渗液中外渗失水，细胞皱缩但不发生质壁分离。	
+ext-mat-8b5f712f59-009	CORRECT		high	线面角θ的正弦值等于直线的方向向量a与平面的法向量n所成角余弦值的绝对值	
+ext-phy-70b6217ce6-003c	CORRECT		high	巴耳末系是氢原子光谱在可见光区的谱线	
+ext-phy-9d4e47b803-004	CORRECT		high	磁通量等于磁感应强度与垂直于磁场方向的有效面积的乘积，是标量且有正负。	
+ext-mat-221256755a-001	CORRECT		medium	已知变换后的解析式求原函数时，把每一步变换反过来做（左↔右、伸长↔缩短），并把 x 换成相应的形式。	
+ext-che-681ce160ae-002	CORRECT		high	Ksp 由难溶物质本身的性质决定；外因只受温度影响，溶解吸热时升高温度使 Ksp 增大。	
+ext-mat-04cad33fb4-040	CORRECT		high	在驻点处用二阶导的符号判定极值：f″(x0)<0 取极大值，f″(x0)>0 取极小值。	
+ext-mat-91ebf73640-001c	CORRECT		high	含“任意”“所有”的命题为全称量词命题，其否定是存在量词命题。	
+chem-thiosulfate-acid-decomposition	REBIND	臭氧与硫代硫酸盐的性质	medium	S2O32-遇强酸分解出淡黄色沉淀S和刺激性气体SO2。	材料讲硫代硫酸盐遇酸分解生成S和SO2，非浓硫酸转化为SO2
+ext-phy-8a3ed74025-001	CORRECT		high	黑体辐射电磁波的强度按波长的分布只与黑体的温度有关	
+math-mo-tuoyuan-jiaodianxian-diancha	CORRECT		high	焦点弦长 $\frac{2ab^2}{a^2-c^2\cos^2\theta}$；中点弦斜率 $k=-\frac{b^2x_0}{a^2y_0}$。	
+ext-che-da7f3982cb-010b	CORRECT		high	控制反应条件是为了促进有利反应、抑制有害反应，需综合考虑速率、限度、设备与技术等因素。	
+ext-che-e2fc9d535c-015	CORRECT		high	金属冶炼的实质、一般步骤及按活动性选择冶炼方法	
+ext-mat-d9c8b9ca68-011	CORRECT		high	配凑是把相关代数式适当变形，通过添项、拆项等方法凑成和为定值或积为定值的形式，从而能用基本不等式求最值。	
+ext-mat-0268d7cd0a-011	CORRECT		medium	由图象求 y＝Asin(ωx+φ) 时，先用图上一对相邻对称轴与对称中心的水平距离（等于四分之一周期）定出周期与 ω，再把最高点坐标代入定 φ。	
+ext-bio-8f6ba48539-030	CORRECT		high	用棋盘法配对F1的雌雄配子，得F2基因型DD:Dd:dd=1:2:1、表现型高茎:矮茎=3:1。	
+ext-mat-4d38307a1f-002d	CORRECT		high	对于分配问题，一般先分组再分配，注意平均分组与不平均分组的区别，避免重复或遗漏。	
+ext-bio-5970056f1a-027	CORRECT		high	从转基因生物提取DNA或mRNA，用相关引物进行PCR或RT-PCR扩增，经琼脂糖凝胶电泳鉴定	
+ext-phy-4658ce6c97-023	CORRECT		high	巴耳末系是氢原子光谱在可见光区的一组谱线	
+ext-bio-5f510cdc4a-383	CORRECT		high	溶质不能通过半透膜时，比较两侧溶液的物质的量浓度即可判断水的扩散方向与液面升降	
+math-mo-touying-shu-yu-xiangliang	CORRECT		high	投影是一个实数 $|b|\cos\theta$，投影向量是 $\frac{a\cdot b}{|a|^2}a$，二者不能混用。	
+ext-bio-f242e60624-003	CORRECT		high	起始用较低离心速率沉降较大颗粒，再逐渐提高离心速率逐级分离较小颗粒	
+chem-kb-redox-concept-essence	CORRECT		high	有电子转移的反应是氧化还原反应，特征是化合价变化，本质是电子转移。	
+ext-mat-f2e67fdb50-002b	CORRECT		high	相同元素之间无区别，其排列问题实质是组合问题，不能按互异元素的排列计数。	
+ext-mat-289deb9ecd-2257	CORRECT		high	令 P(X=k)/P(X=k−1)≥1 解出 k 的范围，得到 P(X=k) 的单调区间。	
+ext-che-d62612a9e4-003	CORRECT		high	试剂要便于控制速率且产物纯净，装配顺序为自下而上、从左到右	
+ext-mat-59393eb93c-001b	CORRECT		high	按一个或多个变量把总体划分成若干子总体(层)，在每个子总体中独立进行简单随机抽样	
+ext-bio-a32e2f5823-009b	CORRECT		medium	脂肪等脂质不属于生物大分子	
+ext-che-5c62da9e03-390	CORRECT		high	改变压强对无气体参与的反应的化学反应速率无影响	
+ext-che-999808f4d5-006c	CORRECT		high	若产生H2的体积之比远小于1，说明与酸反应时Al过量、H＋不足	
+phys-mo-l13-curved-motion-b-2	CORRECT		high	位移、速度、加速度的合成分解遵循平行四边形定则，各分运动独立、等时。	
+phys-hj2-dengxiao-tidai-cezu	CORRECT		high	用电阻箱替代待测电阻且使电流（电压）表示数不变，则电阻箱阻值等于待测电阻。	
+bio-mo-ecosystem-034	CORRECT		high	生态系统中的组分越多，食物网越复杂，其自我调节能力就越强，抵抗力稳定性就越高	
+chem-impossible-one-step-conversions	CORRECT		high	CuO、CaO等不与水反应成碱；无驱动力的盐-盐转化不能一步实现。	
+ext-mat-5c2ca38fc3-022	CORRECT		high	先看参数在导函数解析式中的位置，优先尝试分离参数，把问题转化为求对应函数的最值	
+ext-bio-636de2a928-001	CORRECT		high	把杂交子代与亲本之一反复回交，可逐代提高某一亲本的优良性状基因频率	
+ext-phy-75f319193e-002	CORRECT		high	简谐运动是所受的力与偏离平衡位置的位移成正比且总指向平衡位置的运动	
+ext-che-688f01431f-007	CORRECT		high	升高温度或使用催化剂都能加快化学反应速率，催化剂同等程度影响正逆反应速率。	
+ext-bio-f37689ac02-003b	CORRECT		high	基因工程只能生产自然界已有的蛋白质，蛋白质工程可制造自然界不存在的蛋白质	
+ext-mat-91e0c2ace8-123b	CORRECT		medium	对含 $x-a$、$y-b$ 与 $y_1$、$y_2$ 交叉的非对称式，平方后用曲线方程把 $y^2$ 代换，化为对称式。	
+chem-fx-di-si-bu-f03x10	CORRECT		high	检查是否含碳碳双键（判断顺反异构）或手性碳（判断对映异构）	
+ext-che-59c5af4ca5-006	CORRECT		high	腐蚀是金属或合金与周围物质反应而损耗；本质为金属失电子被氧化，分化学腐蚀与电化学腐蚀	
+ext-che-022fc6418a-014b	CORRECT		high	用 Fe2＋＋2OH－ 制备 Fe(OH)2，关键是不含 O2 并在密闭、隔绝空气体系中完成。	
+ext-mat-92e12b85b9-040	CORRECT		high	过椭圆焦点且斜率为 k 的弦长公式	
+ext-phy-45823c0ea2-008	CORRECT		high	给出牛顿第二定律的表达式中各量对应关系及矢量合成法、正交分解法的使用要点。	
+ext-mat-04bcef1091-004	CORRECT		high	柯西不等式可推广到 n 元一般形式，取等条件是各分量成比例。	
+ext-mat-a84590bff2-001	CORRECT		high	立体几何的四个基本事实及其推出的三个确定平面的推论。	
+ext-mat-289deb9ecd-1496	CORRECT		medium	元素有限时一一列举出来进行运算；元素离散时常用 Venn 图求解。	
+ext-mat-cdf551a3e4-005	CORRECT		high	正弦（余弦）曲线相邻两条对称轴距离的2倍、相邻一条对称轴与一个对称中心距离的4倍、正切曲线相邻两个对称中心距离的2倍，都等于一个周期	
+ext-mat-5d36002ff1-009	CORRECT		high	导数为正函数递增、导数为负函数递减，个别点导数为零不影响单调性	

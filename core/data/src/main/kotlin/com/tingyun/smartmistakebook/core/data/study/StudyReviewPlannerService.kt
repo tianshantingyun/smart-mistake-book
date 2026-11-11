@@ -51,6 +51,14 @@ import kotlinx.coroutines.flow.first
  * planning stays auditable without the repository's snapshot orchestration
  * around it.
  */
+/**
+ * 预算解析口径：生产 = 设置存储优先（学生改的每日时长必须生效），构造参数只是
+ * store 为 null 时的回退；`CONSTRUCTOR_ONLY` 只给“按显式预算验证 G6/配额数学”的
+ * 夹具用（`SchedulingOptions` 的最小粒度是 5 分钟，装不下 60/120 秒的边界用例）。
+ * 两种口径都只有这一处解析，preview/plan/intake 共用。
+ */
+internal enum class BudgetResolution { SETTINGS_THEN_CONSTRUCTOR, CONSTRUCTOR_ONLY }
+
 internal class StudyReviewPlannerService(
     private val database: StudyDatabasePort,
     private val learnerId: String,
@@ -69,6 +77,7 @@ internal class StudyReviewPlannerService(
     private val predictionAuditSink: PredictionAuditSink,
     private val knowledgePrerequisites: KnowledgePrerequisiteReader,
     private val learnerSnapshot: suspend () -> LearnerSnapshot,
+    private val budgetResolution: BudgetResolution = BudgetResolution.SETTINGS_THEN_CONSTRUCTOR,
 ) {
 
     /**
@@ -105,8 +114,11 @@ internal class StudyReviewPlannerService(
      * 同一份快照派生。原实现每个候选调一次考前权重、每次 `store.exams.first()`
      * （N 次流读取），最近考试再读一次。
      */
-    private suspend fun dailyReviewBudgetSeconds(): Int =
-        schedulingSettingsStore?.options?.first()?.dailyReviewBudgetSeconds ?: reviewTimeBudgetSeconds
+    private suspend fun dailyReviewBudgetSeconds(): Int = when (budgetResolution) {
+        BudgetResolution.CONSTRUCTOR_ONLY -> reviewTimeBudgetSeconds
+        BudgetResolution.SETTINGS_THEN_CONSTRUCTOR ->
+            schedulingSettingsStore?.options?.first()?.dailyReviewBudgetSeconds ?: reviewTimeBudgetSeconds
+    }
 
     private suspend fun readExams(): List<ExamCalendarEntry> =
         schedulingSettingsStore?.exams?.first().orEmpty()
@@ -351,6 +363,13 @@ internal class StudyReviewPlannerService(
         p50DurationSeconds: Int = LogDurationModel.TIER_BASELINE_MEDIUM_SECONDS,
         rebalanceEnabled: Boolean = false,
         remainingStudyDays: Int = 0,
+        /**
+         * 调用方已派生好的不可调度新题数（`StudySnapshotBuilder` 每轮快照都先算过一次）：
+         * 传入时本方法不再重复读考试表/难度档，也保证快照上的
+         * `intakeUnschedulableCount` 与预览里的同一字段是**同一份**派生（不出现两个数）。
+         * null = 本方法自己派生（既有调用方/测试逐字不变）。
+         */
+        precomputedIntakeUnschedulableCount: Int? = null,
     ): ReviewCapacityPreview {
         val todayEpochDay = planningContext.localDate.toEpochDay()
         val exams = readExams()
@@ -366,16 +385,19 @@ internal class StudyReviewPlannerService(
                 .toInstant()
                 .toEpochMilli() - 1
         }
+        // 预算与 createReviewPlan/intake 同一解析入口（设置存储优先）；修复前这里用构造
+        // 参数，导致“预览按 120s、真实计划按 1200s”的口径分叉。
+        val baseBudgetSeconds = dailyReviewBudgetSeconds()
         val effectiveBudgetSeconds = examCapacityBudgetSeconds(
             exams = exams,
             localDayEpochDay = todayEpochDay,
-            baseBudgetSeconds = reviewTimeBudgetSeconds,
+            baseBudgetSeconds = baseBudgetSeconds,
         )
         // 考试爬坡已经把今天的预算抬到 effectiveBudgetSeconds；门面不得在它之上再乘一次
         // 1.5（会到基准的 2.25×）。爬坡生效时把"今天的绝对上限"显式传进去；无爬坡时传
         // null，保留 F9 的 1.5× 积压成长。
         val growthCeilingBudgetSeconds =
-            effectiveBudgetSeconds.takeIf { it > reviewTimeBudgetSeconds }
+            effectiveBudgetSeconds.takeIf { it > baseBudgetSeconds }
         val subjectByPracticeUnit = mistakes.associate { it.practiceUnitId to it.subject }
         val capacityPreview = ReviewCapacityPreviewReader(
             forgettingCurve = ForgettingCurve(decay = planningDecay),
@@ -397,7 +419,7 @@ internal class StudyReviewPlannerService(
             .sortedBy(MistakeRecord::practiceUnitId)
             .distinctBy(MistakeRecord::practiceUnitId)
             .filter { learnerSnapshot.problemMemoryStates[it.practiceUnitId] == null }
-        val intakeUnschedulableCount = intakeUnschedulableCount(
+        val intakeUnschedulableCount = precomputedIntakeUnschedulableCount ?: intakeUnschedulableCount(
             intakeBacklog = intakeBacklog,
             learnerSnapshot = learnerSnapshot,
             planningContext = planningContext,
@@ -770,6 +792,9 @@ internal class StudyReviewPlannerService(
         return PlanningContext(
             localDate = localDate,
             planningAtEpochMillis = maxOf(startOfDay, learnerSnapshot.decisionWatermarkEpochMillis),
+            // 3E 每日扫描配额（KD-46）的账本窗口起点：与今日错题计划同一个学习日键
+            // （04:00 日界，`StudyDayMath` 单源）。全仓 PlanningContext 构造点唯一。
+            studyDayStartEpochMillis = startOfDay,
         )
     }
 
@@ -777,7 +802,29 @@ internal class StudyReviewPlannerService(
     internal data class PlanningContext(
         val localDate: LocalDate,
         val planningAtEpochMillis: Long,
+        /** 学习日起点（本地 04:00）的 epoch millis；当日账本窗口 = `[起点, 起点 + 24h)`。 */
+        val studyDayStartEpochMillis: Long,
     )
+
+    /**
+     * 当日在知识点测验通道**已作答**（有 `KNOWLEDGE_QUIZ` 落账）的知识点。
+     *
+     * 3E 每日扫描配额（KD-46 修复）的唯一读口：不新增表/列，从既有作答账本
+     * `learner_chat_evidence` 按学习日半开窗 `[04:00, +24h)` 去重派生（走
+     * `(learner_id, created_at_epoch_millis)` 索引，不拉整表）。拒绝观察行同样计入
+     * （"被拒 ≠ 删除"：那次作答确实发生了）。
+     *
+     * 异常不在本函数里吞：调用方按 fail-closed 处理（未知花费 ≠ 0 花费）。
+     */
+    private suspend fun knowledgeQuizNodesReviewedToday(
+        planningContext: PlanningContext,
+    ): Set<String> = database.readChatEvidenceKnowledgeNodeIds(
+        learnerId = learnerId,
+        sourceKind = StudyDbValue.ChatEvidenceSourceKind.KNOWLEDGE_QUIZ,
+        sinceEpochMillisInclusive = planningContext.studyDayStartEpochMillis,
+        untilEpochMillisExclusive =
+            planningContext.studyDayStartEpochMillis + AlgorithmConstants.DAY_MILLIS,
+    ).toSet()
 
 
     suspend fun currentKnowledgeReviewPlan(
@@ -798,10 +845,10 @@ internal class StudyReviewPlannerService(
 
         // 范围 = **今日错题队列的题绑定知识点（第一档）** ∪ **全库扫描（第二档，3E）**。
         // 第二档 = 全库「有绑定题的活跃知识点 ∩ 材料可出题」− 今日队列（范围条件在
-        // `fullLibraryScanCandidate`），先按分取前 FULL_LIBRARY_SCAN_DAILY_CAP 个，再与第一档
-        // 并集，在 reviewTimeBudgetSeconds 内取队 —— 名额（F17 配额）+ 时间（F8 预算）双封顶
-        // （2026-10-16 裁定「第二档 = 每日 10 个知识点，时间预算沿用 20 分钟」；KD-46：队列不
-        // 落库，实际口径是每次排计划 ≤10、非严格每日累计）。
+        // `fullLibraryScanCandidate`），在「当日**剩余**名额」内按分取新增、并把当日已复习的扫描点
+        // 回放进并集，最后在 reviewTimeBudgetSeconds 内取队 —— 名额（F17 配额，**每日累计** ≤10）
+        // + 时间（F8 预算）双封顶（2026-10-16 裁定「第二档 = 每日 10 个知识点，时间预算沿用 20 分钟」；
+        // KD-46 的「每次排计划 ≤10」近似已在本批修为每日累计，见 FULL_LIBRARY_SCAN_DAILY_CAP）。
         //
         // 今日队列**为空不再是短路条件**：第二档存在的意义就是"不受今日队列限制"
         // （`docs/research/2026-10-11-new-stages-spec.md` §3E、主线 3E 行）。今日没有到期的错题
@@ -876,6 +923,33 @@ internal class StudyReviewPlannerService(
         }
         val candidateIds = todayCandidateIds + scanCandidates.mapTo(linkedSetOf()) { it.knowledgeNodeId }
         if (candidateIds.isEmpty()) return KnowledgeReviewSessionPlan()
+
+        // ---- F17 每日累计配额（KD-46 修复）：当日已花费名额从 KNOWLEDGE_QUIZ 账本派生 ----
+        // 名额封的是"当日**新增**补捞"：当日已作答、且不属于今日第一档（今日错题队列）的节点算
+        // 已花费；`remainingScanSlots` = 本次还能新增几个。今日第一档的作答**不**占名额
+        // （"全库扫描不受今日队列限制"的反向：扫描也不该被今日队列挤掉）。
+        // 账本读失败 → fail-closed（remaining = 0：本次不取新增，今日第一档照常）——**不得**把
+        // 未知花费当成 0 花费（那会超发）。协程取消原样上抛。
+        val quizzedToday = try {
+            knowledgeQuizNodesReviewedToday(planningContext)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Throwable) {
+            android.util.Log.w(
+                "StudyReviewPlannerService",
+                "knowledge-quiz quota read failed; full-library scan is fail-closed for this plan",
+                failure,
+            )
+            null
+        }
+        val spentToday = quizzedToday?.minus(todayCandidateIds)
+        val remainingScanSlots = spentToday
+            ?.let { (FULL_LIBRARY_SCAN_DAILY_CAP - it.size).coerceAtLeast(0) }
+            ?: 0
+        // 回放 = 当日已复习、且仍在扫描候选里的点（已掌握/退役的会被打分核自动剔除，名额不补）；
+        // 新增 = 扫描候选里当日还没复习过的点。只有"新增"受剩余名额约束。
+        val spentScanCandidates = scanCandidates.filter { it.knowledgeNodeId in spentToday.orEmpty() }
+        val freshScanCandidates = scanCandidates.filterNot { it.knowledgeNodeId in spentToday.orEmpty() }
         // KF-16 读侧接线（裁决 28）：知识点先修稳定度表——先修未恢复的点按有效稳定度压制，
         // 不被"已掌握则跳过"的判据放行（此前 `prerequisiteStabilityDays` 全仓无生产调用点）。
         // 两档共用同一张图：图按科目分组、内部分块（256/查询），不是逐节点往返。
@@ -902,12 +976,13 @@ internal class StudyReviewPlannerService(
             now = planningContext.planningAtEpochMillis,
             timeBudgetSeconds = currentPlan.plan.timeBudgetSeconds,
             prerequisiteStabilityDaysByNode = prerequisiteStabilityDaysByNode,
-            fullLibraryScanCandidates = scanCandidates,
-            fullLibraryScanDailyCap = FULL_LIBRARY_SCAN_DAILY_CAP,
+            fullLibraryScanCandidates = freshScanCandidates,
+            fullLibraryScanDailyCap = remainingScanSlots,
+            fullLibraryScanReplayCandidates = spentScanCandidates,
         )
         if (selected.isEmpty()) return KnowledgeReviewSessionPlan()
         // 会话条目只需要**入选**节点的名字与科目：今日档已解析，扫描档在这里补解析
-        // （≤ 每次排计划的名额，KD-46），
+        // （≤ 当日剩余名额 + 回放，KD-46 每日累计），
         // 不把全库节点拖进上下文解析（那是 O(库规模) 的读）。
         val selectedIds = selected.mapTo(linkedSetOf()) { it.knowledgeNodeId }
         val scannedSubjectByNode = scanCandidates
@@ -929,6 +1004,9 @@ internal class StudyReviewPlannerService(
                         ?: scored.knowledgeNodeId,
                     masteryScore = state?.masteryScore,
                     lastEvidenceAtEpochMillis = state?.lastEvidenceAtEpochMillis,
+                    // 批次 49 P2-14：把排程侧的真实理由带到会话——冲突 KC 卡的触发判据
+                    // 与这里给该点加分的判据同源（`KnowledgeNodeScorer.masteryRiskFor`）。
+                    reasons = scored.reasons,
                 )
             },
         )

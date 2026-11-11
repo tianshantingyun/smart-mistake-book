@@ -33,6 +33,19 @@ interface ErrorCausePort {
     suspend fun readActiveBinding(scope: ErrorCauseScope): ErrorCauseBindingRecord? =
         throw UnsupportedOperationException("This StudyDatabasePort implementation does not support error-cause bindings")
 
+    /**
+     * 候选读侧：某学习者某道练习单元下仍是 `PROPOSED` 的 observation（只读，不迁移状态）。
+     *
+     * **为什么按 learner+unit 而不是按 scope 查**：SQL 层没有 `problem_revision_id` 的活键概念，
+     * 调用方（详情页）要自己按当前 `scope` 过滤——旧修订的候选不得自动继承（R2 I7）。
+     * 读候选**不产生任何写**：候选升为标签只走用户确认或 D-1c 门。
+     */
+    suspend fun readProposedObservations(
+        learnerId: String,
+        practiceUnitId: String,
+    ): List<ErrorCauseObservationRecord> =
+        throw UnsupportedOperationException("This StudyDatabasePort implementation does not support error-cause observations")
+
     /** 自动落账/用户确认：observation PROPOSED→ACCEPTED + 插 ACTIVE binding，同一事务。 */
     suspend fun acceptObservationAndActivateBinding(
         binding: ErrorCauseBindingRecord,

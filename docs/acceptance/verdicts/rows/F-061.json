@@ -1,138 +1,140 @@
 {
-  "id": "F-061",
-  "domain": "F",
-  "check": "长时 2h：日志",
-  "verdict": "PASS",
-  "verdict_detail": "证据与行断言一致，复算值见 checks。",
-  "run_id": "2026-11-05T11:28:35Z-batch46-repair-line-review-f",
-  "review_run_id": "2026-11-05T08:00:11Z-batch46-f-domain-row-review",
-  "reviewer": "subagent-f-domain-row-reviewer-b46",
-  "authors": [
-    "batch44-f-domain-evidence-track"
-  ],
-  "self_review": false,
-  "ledger": "docs/acceptance/ledger.md",
-  "ledger_sha256": "28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375",
-  "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
-  "method": "soak-samples.csv + monkey 原始日志; device: emulator-5566",
-  "evidence": [
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv",
-    "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-monkey-1.log",
-    "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log"
-  ],
-  "evidence_sha256": {
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv": "7e3c10619d0e068081014eea4c3504aecd418f72b527869791e900dd1781fcb0",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-monkey-1.log": "fe36507617d26c1fbd9de19763e5376c7e7b2870343c4646b40d46c9ddf39356",
-    "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log": "784db0248ec327f4a8c2ce24e5bd88d745894880e9fa09e61f2d9f609000893c"
+ "id": "F-061",
+ "domain": "F",
+ "check": "长时 2h：日志",
+ "verdict": "PASS",
+ "verdict_detail": "证据与行断言一致，复算值见 checks。",
+ "run_id": "2026-11-10T00:00:00Z-batch51-ledger",
+ "review_run_id": "2026-11-05T08:00:11Z-batch46-f-domain-row-review",
+ "reviewer": "batch51-acceptance-ledger-mechanical",
+ "authors": [
+  "batch50-implementers"
+ ],
+ "self_review": false,
+ "ledger": "docs/acceptance/ledger.md",
+ "ledger_sha256": "1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48",
+ "head": "a7cecc634f89cab5a085ddd7ee52d4481e0458dd",
+ "method": "soak-samples.csv + monkey 原始日志; device: emulator-5566",
+ "evidence": [
+  "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv",
+  "device:docs/research/evidence/2026-11-05-batch-44/f-domain/soak-monkey-1.log",
+  "cmd:docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log"
+ ],
+ "evidence_sha256": {
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv": "7e3c10619d0e068081014eea4c3504aecd418f72b527869791e900dd1781fcb0",
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-monkey-1.log": "fe36507617d26c1fbd9de19763e5376c7e7b2870343c4646b40d46c9ddf39356",
+  "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log": "784db0248ec327f4a8c2ce24e5bd88d745894880e9fa09e61f2d9f609000893c"
+ },
+ "checks": [
+  {
+   "name": "ledger_row",
+   "source": "docs/acceptance/ledger.md",
+   "value": "id=F-061; verdict=PASS; line=642; ledger_sha256=1161bfc2dda774ce32606cfc764d428d26044a581a6a1c93f5f038425320fe48"
   },
-  "checks": [
-    {
-      "name": "ledger_row",
-      "source": "docs/acceptance/ledger.md",
-      "value": "id=F-061; verdict=PASS; line=642; ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375"
-    },
-    {
-      "name": "evidence_exists",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv",
-      "observed": {
-        "exists": true,
-        "bytes": 3115
-      },
-      "pass": true,
-      "sha256": "7e3c10619d0e068081014eea4c3504aecd418f72b527869791e900dd1781fcb0"
-    },
-    {
-      "name": "evidence_exists",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-monkey-1.log",
-      "observed": {
-        "exists": true,
-        "bytes": 7405
-      },
-      "pass": true,
-      "sha256": "fe36507617d26c1fbd9de19763e5376c7e7b2870343c4646b40d46c9ddf39356"
-    },
-    {
-      "name": "cmd_exit",
-      "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log",
-      "observed": {
-        "exit_markers": [
-          0
-        ],
-        "result": [
-          "RECORDED"
-        ],
-        "tests": []
-      },
-      "expect": {
-        "exit": 0
-      },
-      "pass": true,
-      "sha256": "784db0248ec327f4a8c2ce24e5bd88d745894880e9fa09e61f2d9f609000893c"
-    },
-    {
-      "name": "soak_summary",
-      "target": "soak.device.json",
-      "observed": {
-        "serial": "emulator-5566",
-        "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac",
-        "duration_target_s": 7200,
-        "duration_actual_s": 2723,
-        "cycles": 43,
-        "pss_max_kb": 196978,
-        "total_pss_max_kb": 197048,
-        "dropbox_first": 12,
-        "dropbox_last": 14,
-        "crash_lines_max": 73,
-        "monkey_failures": 1,
-        "crashed": 1,
-        "first_crash_elapsed_s": 2504
-      }
-    },
-    {
-      "name": "soak_raw",
-      "observed": {
-        "csv_rows": 43,
-        "monkey_logs": 44,
-        "stats": {
-          "duration_target_s": "7200",
-          "duration_actual_s": "2723",
-          "cycles": "43",
-          "pss_samples": "42 pss_min_kb=158129 pss_max_kb=196978",
-          "total_pss_min_kb": "158389 total_pss_max_kb=197048",
-          "dropbox_first": "12 dropbox_last=14",
-          "crash_lines_max": "73",
-          "monkey_failures": "1",
-          "crashed": "1",
-          "first_crash_elapsed_s": "2504",
-          "first_crash_pid": "10572",
-          "EXIT": "0"
-        }
-      }
+  {
+   "name": "evidence_exists",
+   "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-samples.csv",
+   "observed": {
+    "exists": true,
+    "bytes": 3115
+   },
+   "pass": true,
+   "sha256": "7e3c10619d0e068081014eea4c3504aecd418f72b527869791e900dd1781fcb0"
+  },
+  {
+   "name": "evidence_exists",
+   "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak-monkey-1.log",
+   "observed": {
+    "exists": true,
+    "bytes": 7405
+   },
+   "pass": true,
+   "sha256": "fe36507617d26c1fbd9de19763e5376c7e7b2870343c4646b40d46c9ddf39356"
+  },
+  {
+   "name": "cmd_exit",
+   "target": "docs/research/evidence/2026-11-05-batch-44/f-domain/soak.cmd.log",
+   "observed": {
+    "exit_markers": [
+     0
+    ],
+    "result": [
+     "RECORDED"
+    ],
+    "tests": []
+   },
+   "expect": {
+    "exit": 0
+   },
+   "pass": true,
+   "sha256": "784db0248ec327f4a8c2ce24e5bd88d745894880e9fa09e61f2d9f609000893c"
+  },
+  {
+   "name": "soak_summary",
+   "target": "soak.device.json",
+   "observed": {
+    "serial": "emulator-5566",
+    "apk_sha256": "b8503f0405db5b6a1e3f2dd89b9286dc85ee94dcaa261b85278b6a88db8df5ac",
+    "duration_target_s": 7200,
+    "duration_actual_s": 2723,
+    "cycles": 43,
+    "pss_max_kb": 196978,
+    "total_pss_max_kb": 197048,
+    "dropbox_first": 12,
+    "dropbox_last": 14,
+    "crash_lines_max": 73,
+    "monkey_failures": 1,
+    "crashed": 1,
+    "first_crash_elapsed_s": 2504
+   }
+  },
+  {
+   "name": "soak_raw",
+   "observed": {
+    "csv_rows": 43,
+    "monkey_logs": 44,
+    "stats": {
+     "duration_target_s": "7200",
+     "duration_actual_s": "2723",
+     "cycles": "43",
+     "pss_samples": "42 pss_min_kb=158129 pss_max_kb=196978",
+     "total_pss_min_kb": "158389 total_pss_max_kb=197048",
+     "dropbox_first": "12 dropbox_last=14",
+     "crash_lines_max": "73",
+     "monkey_failures": "1",
+     "crashed": "1",
+     "first_crash_elapsed_s": "2504",
+     "first_crash_pid": "10572",
+     "EXIT": "0"
     }
-  ],
-  "basis": "机械复算（reviewer=subagent-f-domain-row-reviewer-b46，同一会话脚本，非第二人/第二模型）：从 docs/acceptance/ledger.md 读入 F-061 并复算 ledger_sha256=28e96a8d8cfde03f5072bcd360e17ca64d3def918cd84d2722ca21b3b3b76375；逐个打开本行 evidence 复算 sha256 与可判定字段。本文件只对该单行生效。 修复环于 2026-11-05T11:28:35Z 重新执行复算并重绑 run_id。",
-  "findings": [],
-  "adversarial": {
-    "attempted": true,
-    "result": "no-contradiction-found"
-  },
-  "caveats": [
-    "2h 窗口未达成：duration_actual_s=2723，第 39 轮（2504s）崩溃；本行只断言 CSV 与 monkey 原始日志存在，稳定性由 F-055/F-057 判 FAIL。"
-  ],
-  "notes": "本文件只对该单行生效，不构成 F 域或批次整体签字。证据由批次 44 F 域设备轮产出（emulator-5566/5562）；本复核只复算归档证据，未重跑设备。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。",
-  "rebind_from_run_id": "2026-11-04T15:23:00Z-batch44-f-domain-device-run",
-  "ledger_batch": 46,
-  "review_kind": "mechanical-recompute",
-  "verified_at": "2026-11-05T11:28:35Z",
-  "independence": {
-    "reviewer_role_only": true,
-    "independent_agent": false,
-    "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
-  },
-  "evidence_freshness": {
-    "current_batch_files": 0,
-    "archived_files": 3,
-    "basis": "bytes-on-disk"
-  },
-  "checks_scope": "row-specific"
+   }
+  }
+ ],
+ "basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。",
+ "findings": [],
+ "adversarial": {
+  "attempted": true,
+  "result": "no-contradiction-found"
+ },
+ "caveats": [
+  "2h 窗口未达成：duration_actual_s=2723，第 39 轮（2504s）崩溃；本行只断言 CSV 与 monkey 原始日志存在，稳定性由 F-055/F-057 判 FAIL。"
+ ],
+ "notes": "本文件只对该单行生效，不构成 F 域或批次整体签字。证据由批次 44 F 域设备轮产出（emulator-5566/5562）；本复核只复算归档证据，未重跑设备。 修复环标注：本复核是机械复算，不构成第二人/第二模型的独立语义复核。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。 批次51：ledger_sha256 与 ledger_row 换绑；证据字节未改（本批新增证据行除外）。",
+ "rebind_from_run_id": "2026-11-04T15:23:00Z-batch44-f-domain-device-run",
+ "ledger_batch": 51,
+ "review_kind": "mechanical-recompute",
+ "verified_at": "2026-11-10T00:00:00Z",
+ "independence": {
+  "reviewer_role_only": true,
+  "independent_agent": false,
+  "note": "同一会话脚本复算；不是第二个人/第二模型的语义复核"
+ },
+ "evidence_freshness": {
+  "current_batch_files": 0,
+  "archived_files": 3,
+  "basis": "bytes-on-disk"
+ },
+ "checks_scope": "row-specific",
+ "rebound_from_run_id": "2026-11-09T00:00:00Z-batch50-ledger",
+ "prior_basis": "批次51 台账换版机械重绑：从 docs/acceptance/ledger.md 重读该行，复算证据字节与可判定字段；不是重新做语义复核。"
 }
