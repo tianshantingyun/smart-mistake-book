@@ -59,3 +59,13 @@
 4. 主工作树仍有临时产物未入库（不属于产品源码）。
 5. 四门与发版终裁不变：3D/3E/MVA/AUD-08 均未真实通过，发版不成立。
 6. lifecycle 2.8.3 依赖校验和为单来源（Google Maven 下载产物），未第二来源交叉核验。
+
+## 6. 与远端 main 的最终合并（2026-11-12 收口）
+
+- 推送时远端已前进 2 个提交（`1bc59d68 merge: 合并 UI 基准与主分支收口`、`f1c087fc feat(settings): 接入独立生图模型配置`）。按纪律 **merge，不 rebase**。
+- 合并冲突 4 处（FigurePromptAssembler / RoomStudyDatabase / StudyDatabasePort / AIGC 测试），全部保留本地统一版（最新世代且已通过构建）。
+- 自动合并后在 `KnowledgeReviewSessionViewModel` 出现重复声明（Git 未报冲突）；该文件取合并前统一版 `110fe428`，其余远端设置功能保留。
+- **最终 main `aeb004fe` 干净 clone 全量 release 构建：BUILD SUCCESSFUL in 2m 57s。**
+- 推送结果：`f1c087fc..aeb004fe  main -> main`，远端 = 本地。
+- 最终版本构成：新 main 最新世代（主工作树 105 个 Kotlin 文件 + 工具/文档）+ UI 视觉基准（未冲突页面/主题）+ plans；kernel 分支未并入。
+- 工作树仅余临时产物未跟踪；tracked 工作树 0 脏行（`.gitignore` 已提交）。
