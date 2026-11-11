@@ -1196,3 +1196,8 @@ data class TutorDebriefOutput(
         const val MAX_MISCONCEPTION_CHARS = 1_000
     }
 }
+
+/** 审计分支的 Visual 场景 id 校验：与 `requireSafeModelText` 同一判据（ID 上限、非空）。 */
+internal fun String.requireTutorSceneId(label: String) {
+    requireSafeModelText(label, ModelTaskRequest.MAX_ID_CHARS, false)
+}
