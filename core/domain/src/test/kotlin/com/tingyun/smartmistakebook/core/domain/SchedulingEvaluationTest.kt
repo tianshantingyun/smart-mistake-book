@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.domain
 
+import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -145,6 +146,55 @@ class SchedulingEvaluationHarnessTest {
             "optimized ${result.trainLogLoss} should not exceed default $defaultLoss",
             result.trainLogLoss <= defaultLoss + 0.05,
         )
+    }
+
+    /**
+     * 审计 S-10：**同一批数据上再拟一次，不得把现行参数换掉**。
+     *
+     * 这是"写回只会让留出损失变小"最锋利的一格：夹具先拟一次得到 `fitted`，再以 `fitted`
+     * 作为现行参数拟第二次。同一批样本、同一套过程、同样的迭代次数 ⇒ 第二次不可能更好，
+     * 因此必须原样返回 incumbent，并把 `adopted` 置为 false。
+     *
+     * 修复前这里必然失败：写回条件是"比**出厂默认**好"，而 `fit` 的择优基准就是出厂默认，
+     * 于是第二次拟合照旧被采纳——`parameters` 变成第二次那组，虽然它与 incumbent 几乎重合，
+     * **但没有任何东西保证这一点**（真实场景里两批数据不同，差距就是实打实的退步）。
+     */
+    @Test
+    fun `a refit on the same data never replaces the parameters it started from`() {
+        val samples = biasedHistory(correctStabilityGrowth = true, cardCount = 30)
+        val fitted = FsrsParameterOptimizer.optimize(samples, iterations = 12)
+        assertEquals(FsrsParameterOptimizer.Mode.FULL_FIT, fitted.mode)
+        // **夹具的判别力前置**（四路审查 review-tests 带出）：这条用例的全部内容是"第二次不该被采纳"，
+        // 而"永不被采纳"的实现（把比较反向、或成功路径硬写 adopted = false）同样能让它变绿
+        // ——那时它证明的是"参数永久冻结"被当成正确行为。所以先要求夹具**真的产生过一次采纳**：
+        // 这一条红了，说明下面那条拒绝断言问的不是同一个问题。
+        assertTrue(
+            "夹具必须真的产生过一次采纳，否则下面的拒绝断言是空的",
+            fitted.adopted,
+        )
+
+        val second = FsrsParameterOptimizer.optimize(
+            samples = samples,
+            incumbent = fitted.parameters,
+            iterations = 12,
+        )
+
+        assertFalse(
+            "第二次拟合没有在留出尾段上更优，就不该被采纳",
+            second.adopted,
+        )
+        assertEquals(
+            "被拒时 mode 仍然如实描述这次尝试的范围（拟合了多少 ≠ 采不采纳）",
+            fitted.mode,
+            second.mode,
+        )
+        assertEquals(
+            "被拒时 `optimizedParameterIndices` 同样描述这次尝试，而不是被清空",
+            fitted.optimizedParameterIndices,
+            second.optimizedParameterIndices,
+        )
+        assertArrayEquals(fitted.parameters, second.parameters, 1e-12)
+        assertEquals(fitted.validationLogLoss, second.validationLogLoss, 1e-12)
     }
 
     @Test
