@@ -28,6 +28,7 @@ import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -143,7 +144,7 @@ internal fun attachedImageFailureMessage(state: AttachedImageRenderState.Failed)
     }
 
 /**
- * 讲题回复附加图锚点：默认折叠为一行缩略摘要（图标 + 图题），点击展开为 [BoundedLocalImage]。
+ * 历史讲题回复的附加图默认展开，保留原图题与显式重新生成入口。
  * 图以 [imageLocalUri]（本地 file/content）渲染，绝不联网。
  *
  * KD-58：[onRegenerate] 是**显式用户动作**——只有用户点“重新生成”才会进入共享 coordinator；
@@ -156,7 +157,7 @@ fun AttachedImageCard(
     modifier: Modifier = Modifier,
     onRegenerate: (() -> Unit)? = null,
 ) {
-    var expanded by rememberSaveable(image.imageId) { mutableStateOf(false) }
+    var expanded by rememberSaveable(image.imageId) { mutableStateOf(true) }
     var viewing by rememberSaveable(image.imageId, state) { mutableStateOf(false) }
     var localLoadState by remember(image.imageId, state) { mutableStateOf(LocalImageLoadState.LOADING) }
     // A URI resolving successfully does not guarantee that its bytes can still be decoded.
@@ -315,79 +316,53 @@ fun GeneratedFigureCard(
     assetId: String,
     state: AttachedImageRenderState,
     modifier: Modifier = Modifier,
+    figureNumber: Int? = null,
+    caption: String? = null,
+    onReload: (() -> Unit)? = null,
+    maxImageHeight: androidx.compose.ui.unit.Dp = 520.dp,
 ) {
-    var expanded by rememberSaveable(assetId) { mutableStateOf(false) }
-    var viewing by rememberSaveable(assetId, state) { mutableStateOf(false) }
-    Column(
+    var viewing by rememberSaveable(assetId) { mutableStateOf(false) }
+    var decodeVersion by remember(assetId) { mutableStateOf(0) }
+    var decodeFailed by remember(assetId, state) { mutableStateOf(false) }
+    val description = caption ?: figureNumber?.let { "图 $it" } ?: "讲解配图"
+    androidx.compose.material3.Surface(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+        color = SmartColors.FigureSurface,
+        border = androidx.compose.foundation.BorderStroke(.5.dp, SmartColors.Divider),
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .clickable { expanded = !expanded }
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = 48.dp)
-                .padding(vertical = 2.dp),
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Image,
-                contentDescription = "本轮生成的配图",
-                tint = InkSecondary,
-                modifier = Modifier.size(16.dp),
-            )
-            Text(
-                text = if (expanded) "已展开" else "配图",
-                color = InkSecondary,
-                style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.padding(horizontal = 6.dp),
-            )
-            // 显式角标：GENERATE_FIGURE 的产物是模型生成的图片，卡头常驻标识。
-            AiContentBadge(
-                text = AI_GENERATED_LABEL,
-                modifier = Modifier
-                    .padding(end = 6.dp)
-                    .testTag("generated_figure_ai_label_$assetId"),
-            )
-            Icon(
-                imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                contentDescription = if (expanded) "收起图" else "展开图",
-                tint = InkSecondary,
-                modifier = Modifier.size(16.dp),
-            )
-        }
-        AnimatedVisibility(
-            visible = expanded,
-        ) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             when (state) {
-                is AttachedImageRenderState.Ready -> Column {
-                    BoundedLocalImage(
-                    imageUri = state.localUri,
-                    contentDescription = "本轮生成的配图",
-                    expanded = expanded,
-                    modifier = Modifier.fillMaxWidth(),
-                    )
-                    InlineActionButton("查看大图", { viewing = true })
+                is AttachedImageRenderState.Ready -> {
+                    key(assetId, decodeVersion) {
+                        BoundedLocalImage(
+                            imageUri = state.localUri,
+                            contentDescription = description,
+                            expanded = true,
+                            expandedMaxHeight = maxImageHeight,
+                            modifier = Modifier.fillMaxWidth().clickable(
+                                onClickLabel = "放大查看配图", onClick = { viewing = true }),
+                            onLoadStateChange = { decodeFailed = it == LocalImageLoadState.UNAVAILABLE },
+                        )
+                    }
+                    caption?.takeIf(String::isNotBlank)?.let { text ->
+                        Text(figureNumber?.let { "图 $it · $text" } ?: text,
+                            style = MaterialTheme.typography.bodySmall, color = InkSecondary)
+                    }
+                    if (decodeFailed) InlineActionButton("重新加载", { decodeVersion += 1 })
                 }
-
                 AttachedImageRenderState.Generating -> Text(
-                    text = "配图正在读取…",
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(vertical = 8.dp),
-                )
-
-                is AttachedImageRenderState.Failed -> Text(
-                    text = "配图暂不可用。",
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(vertical = 8.dp),
-                )
+                    "正在读取配图…", color = InkSecondary, style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(vertical = 12.dp))
+                is AttachedImageRenderState.Failed -> {
+                    Text("配图暂不可用", color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+                    onReload?.let { InlineActionButton("重新加载", it) }
+                }
             }
         }
     }
     if (viewing && state is AttachedImageRenderState.Ready) {
-        LocalImageViewer(state.localUri, "本轮生成的配图", { viewing = false })
+        LocalImageViewer(state.localUri, description, { viewing = false })
     }
 }
 
@@ -407,12 +382,15 @@ internal class GeneratedFigureAssetCache(
     /** 已解析过的状态（组合的初始态用它，避免先闪一下"生成中"）。 */
     fun cached(assetId: String): AttachedImageRenderState? = states[assetId]
 
+    fun invalidate(assetId: String) { states.remove(assetId) }
+
     /** 解析一次并记住；同一 id 的后续调用直接返回缓存。 */
     suspend fun stateOf(assetId: String): AttachedImageRenderState {
         states[assetId]?.let { return it }
-        val state = attachedImageRenderState(
-            runCatching { resolveAsset(assetId) }.getOrNull(),
-        )
+        val uri = try { resolveAsset(assetId) }
+        catch (cancelled: CancellationException) { throw cancelled }
+        catch (_: Exception) { null }
+        val state = attachedImageRenderState(uri)
         states[assetId] = state
         return state
     }
@@ -502,16 +480,19 @@ fun GeneratedFiguresSection(
     assetIds: List<String>,
     resolveAsset: suspend (String) -> String?,
     modifier: Modifier = Modifier,
+    firstFigureNumber: Int = 1,
+    captions: Map<String, String> = emptyMap(),
 ) {
     val cache = remember(resolveAsset) { GeneratedFigureAssetCache(resolveAsset) }
-    var states by remember(assetIds) {
+    val scope = rememberCoroutineScope()
+    var states by remember(assetIds, cache) {
         mutableStateOf<Map<String, AttachedImageRenderState>>(
             assetIds.associateWith { assetId ->
                 cache.cached(assetId) ?: AttachedImageRenderState.Generating
             },
         )
     }
-    LaunchedEffect(assetIds) {
+    LaunchedEffect(assetIds, cache) {
         assetIds.forEach { assetId ->
             if (states[assetId] is AttachedImageRenderState.Ready) return@forEach
             states = states + (assetId to AttachedImageRenderState.Generating)
@@ -519,10 +500,19 @@ fun GeneratedFiguresSection(
         }
     }
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        assetIds.forEach { assetId ->
+        assetIds.forEachIndexed { index, assetId ->
             GeneratedFigureCard(
                 assetId = assetId,
                 state = states[assetId] ?: AttachedImageRenderState.Generating,
+                figureNumber = firstFigureNumber + index,
+                caption = captions[assetId],
+                onReload = {
+                    scope.launch {
+                        cache.invalidate(assetId)
+                        states = states + (assetId to AttachedImageRenderState.Generating)
+                        states = states + (assetId to cache.stateOf(assetId))
+                    }
+                },
             )
         }
     }
