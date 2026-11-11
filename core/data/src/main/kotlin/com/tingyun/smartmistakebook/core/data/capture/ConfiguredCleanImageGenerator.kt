@@ -35,9 +35,8 @@ import java.util.Arrays
 import kotlinx.coroutines.CancellationException
 
 /**
- * Production [CleanImageGenerator] that reuses the model configuration the user
- * already entered for chat (the same baseUrl + API key leased atomically from
- * [ModelConfigurationStore]).
+ * Production [CleanImageGenerator] that leases the configured image endpoint and key
+ * atomically from [ModelConfigurationStore].
  *
  * 4E.1：净化不再是"自己开一个 edits 通道"的独立路径——它构造统一
  * [FigureGenerationRequest] + IMAGE_MODEL proposal，转调 app 注入的
@@ -48,7 +47,7 @@ import kotlinx.coroutines.CancellationException
  * Gating (a redraw is only attempted when adding to the mistake book):
  *  - no network-capable flavor            → decline (null)
  *  - no configured credential            → decline (null)
- *  - capability test never ran or did not verify image input → decline (null)
+ *  - image credential rejected by the shared gate → decline (null)
  *
  * A3：这三条判定的**唯一实现**是 [resolveImageCredential]（本类只调用它，不再内联一份）——
  * 与配图链（`AttachedImageGeneratorFactory` / `ConfiguredTutorFigureGenerator`）同一道门。
@@ -179,9 +178,10 @@ internal class ConfiguredCleanImageGenerator(
             Arrays.fill(keyChars, '\u0000')
             credential.apiKey.close()
         }
+        val imageModelId = if (configurationStore.isImageGenerationStore) configuration.modelId
+            else OpenAiImageGenerationChannel.DEFAULT_MODEL_ID
         val configurationFingerprint = imageGenerationConfigurationFingerprint(
-            configuration.baseUrl,
-            OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
+            configuration.baseUrl, imageModelId,
         )
         return try {
             FigureImageBackend(
@@ -193,6 +193,7 @@ internal class ConfiguredCleanImageGenerator(
                         baseUrl = configuration.baseUrl,
                         authorization = "Bearer ${String(keyChars)}",
                         configurationFingerprint = configurationFingerprint,
+                        modelId = imageModelId,
                     )
                 },
                 closeAction = closeAction,
@@ -219,6 +220,13 @@ internal class ConfiguredCleanImageGenerator(
             authorization: String,
             configurationFingerprint: String,
         ): ImageGenerationChannel = create(baseUrl, authorization)
+
+        suspend fun create(
+            baseUrl: String,
+            authorization: String,
+            configurationFingerprint: String,
+            modelId: String,
+        ): ImageGenerationChannel = create(baseUrl, authorization, configurationFingerprint)
     }
 
     private companion object {
@@ -256,10 +264,18 @@ internal object GuardedEditsChannelFactory : ConfiguredCleanImageGenerator.Chann
         baseUrl: String,
         authorization: String,
         configurationFingerprint: String,
+    ): ImageGenerationChannel = create(baseUrl, authorization, configurationFingerprint, OpenAiImageGenerationChannel.DEFAULT_MODEL_ID)
+
+    override suspend fun create(
+        baseUrl: String,
+        authorization: String,
+        configurationFingerprint: String,
+        modelId: String,
     ): ImageGenerationChannel {
         val endpoint = resolveGuardedEdits(baseUrl)
         return OpenAiImageGenerationChannel(
             baseUrl = endpoint.baseUrl,
+            modelId = modelId,
             client = endpoint.client,
             authorization = authorization,
             configurationFingerprint = configurationFingerprint,

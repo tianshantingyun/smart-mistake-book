@@ -36,6 +36,7 @@ import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import com.tingyun.smartmistakebook.core.model.figureUsageUtf8Bytes
 import java.util.Arrays
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.first
 
 /**
  * A1（阶段 4B）：工具环 `GENERATE_FIGURE` 的执行缝。
@@ -186,7 +187,7 @@ enum class TutorFigureStatus {
  * 每个生成参数都必须进键——缺一个就可能在参数已经变化时命中旧图，或者反过来对同一个请求
  * 重复出网、重复付费。这里比设计口径多带两样**同样是生成参数**的东西：
  * - `kind`：同 prompt 的两种图是两件事（重绘 vs 文生图）；
- * - `model`：模型换了就是另一次生成（当前恒为 [OpenAiImageGenerationChannel.DEFAULT_MODEL_ID]，
+ * - `model`：使用当前生图模型，已有产物使用其记录的实际模型（旧配置沿用默认模型，
  *   带上它保证将来换模型时旧图不会被误命中）。
  * size/quality 取的是**真正发给 provider 的值**（与 [OpenAiImageGenerationChannel] 共用
  * [imageGenerationSizeFor] / [IMAGE_GENERATION_QUALITY]），不是本地参数的代理。
@@ -359,7 +360,11 @@ internal class ConfiguredTutorFigureGenerator(
         // 先解析请求与幂等键（纯本地）：命中缓存时**不需要凭证**，也不再出网。
         val channelRequest = request.toChannelRequest()
             ?: return failed("源图读取失败，未生成（不把被替换的字节发出去）")
-        val figureId = tutorFigureFingerprintId(
+        val configuredImageModel = if (configurationStore.isImageGenerationStore) {
+            configurationStore.configuration.first().modelId.ifBlank { OpenAiImageGenerationChannel.DEFAULT_MODEL_ID }
+        } else OpenAiImageGenerationChannel.DEFAULT_MODEL_ID
+        fun figureIdFor(modelId: String) = tutorFigureFingerprintId(
+            modelId = modelId,
             kind = request.kind,
             sourceImageSha256 = request.sourceSheet?.contentSha256,
             prompt = channelRequest.prompt,
@@ -367,6 +372,7 @@ internal class ConfiguredTutorFigureGenerator(
             quality = IMAGE_GENERATION_QUALITY,
             format = channelRequest.outputFormat,
         )
+        val figureId = figureIdFor(configuredImageModel)
         // 稳定逻辑操作 id：不含 method，换方法/重试沿用同一个身份。
         val operationId = request.sharedFigureOperationId() ?: "figure-op:${request.kind.name}:$figureId"
         val existing = lookupGenerated(figureId)
@@ -378,7 +384,7 @@ internal class ConfiguredTutorFigureGenerator(
             return TutorFigureResult(
                 figureId = existing.sourceAssetId,
                 status = TutorFigureStatus.GENERATED,
-                model = OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
+                model = configuredImageModel,
                 generatedNow = false,
                 operationId = operationId,
             )
@@ -445,12 +451,18 @@ internal class ConfiguredTutorFigureGenerator(
             reason = "入口适配层：本波次唯一已接通的方法是图像模型",
         )
         val outcome = effectiveCoordinator.generate(generationRequest, proposal)
-        return outcome.toTutorFigureResult(figureId = figureId, operationId = operationId)
+        val producedModel = (outcome.artifact as? FigureArtifact.ImageAsset)?.modelId
+        val finalFigureId = if (configurationStore.isImageGenerationStore && producedModel != null) {
+            figureIdFor(producedModel)
+        } else figureId
+        return outcome.toTutorFigureResult(figureId = finalFigureId, operationId = operationId,
+            requestedModelId = configuredImageModel)
     }
 
     private suspend fun FigureGenerationOutcome.toTutorFigureResult(
         figureId: String,
         operationId: String,
+        requestedModelId: String,
     ): TutorFigureResult {
         // 块体（不是表达式体）：分支里有多处早退 return（产物/落盘失败），
         // 表达式体不允许显式 return。
@@ -467,7 +479,7 @@ internal class ConfiguredTutorFigureGenerator(
                         now(),
                         figureId,
                         GeneratedFigureProvenance(
-                            model = artifact.modelId ?: OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
+                            model = artifact.modelId ?: requestedModelId,
                             figureId = figureId,
                             purpose = purpose.name,
                         ),
@@ -485,7 +497,7 @@ internal class ConfiguredTutorFigureGenerator(
                 TutorFigureResult(
                     figureId = persisted.sourceAssetId,
                     status = TutorFigureStatus.GENERATED,
-                    model = artifact.modelId ?: OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
+                    model = artifact.modelId ?: requestedModelId,
                     generatedNow = status == FigureGenerationStatus.GENERATED,
                     operationId = operationId,
                 )
@@ -576,9 +588,10 @@ internal class ConfiguredTutorFigureGenerator(
             Arrays.fill(keyChars, '\u0000')
             credential.apiKey.close()
         }
+        val imageModelId = if (configurationStore.isImageGenerationStore) configuration.modelId
+            else OpenAiImageGenerationChannel.DEFAULT_MODEL_ID
         val configurationFingerprint = imageGenerationConfigurationFingerprint(
-            configuration.baseUrl,
-            OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
+            configuration.baseUrl, imageModelId,
         )
         return try {
             FigureImageBackend(
@@ -590,6 +603,7 @@ internal class ConfiguredTutorFigureGenerator(
                         baseUrl = configuration.baseUrl,
                         authorization = "Bearer ${String(keyChars)}",
                         configurationFingerprint = configurationFingerprint,
+                        modelId = imageModelId,
                     )
                 },
                 closeAction = closeAction,

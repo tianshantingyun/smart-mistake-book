@@ -192,6 +192,8 @@ class OpenAiImageGenerationChannelTest {
 
     @Test
     fun `generates a text-to-image figure via the generations endpoint`() = runBlocking {
+        channel = OpenAiImageGenerationChannel(baseUrl = server.url("/v1").toString().removeSuffix("/"),
+            modelId = "configured-image-model", client = okhttp3.OkHttpClient())
         val png = byteArrayOf(0x89.toByte(), 0x50, 0x4E, 0x47, 9, 8, 7)
         val b64 = Base64.getEncoder().encodeToString(png)
         server.enqueue(
@@ -210,7 +212,7 @@ class OpenAiImageGenerationChannelTest {
         val recorded = server.takeRequest()
         assertEquals("/v1/images/generations", recorded.path)
         val bodyText = recorded.body.readUtf8()
-        assertTrue(bodyText.contains("gpt-image-2"))
+        assertTrue(bodyText.contains("configured-image-model"))
         assertTrue(bodyText.contains("抛物线"))
         assertTrue(result.imageBytes.contentEquals(png))
         assertEquals("image/png", result.mimeType)

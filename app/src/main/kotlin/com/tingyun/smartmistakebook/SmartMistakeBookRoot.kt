@@ -1770,6 +1770,7 @@ internal fun SmartMistakeBookRoot(
                     capabilities = capabilities,
                     configurationStore = application.modelConfigurationStore,
                     capabilityTester = application.modelCapabilityTester,
+                    imageConfigurationStore = application.imageModelConfigurationStore,
                     calibrationReportProvider = { application.studyRepository.calibrationReport() },
                     sourceCalibrationProvider = { application.studyRepository.sourceCalibrations() },
                     // 批次 49 P2-12：校准可见页。读走仓库一次装配；写复用既有两条路径

@@ -134,18 +134,21 @@ internal fun CapabilityScreen(
     onOptimizeSchedulingParameters: (suspend () -> Boolean)? = null,
     /** 复用 `SchedulingSettingsStore.setOptimizedParameters(null)`。 */
     onResetSchedulingParameters: (suspend () -> Unit)? = null,
+    imageConfigurationStore: ModelConfigurationStore? = null,
 ) {
+    var imageMode by rememberSaveable { mutableStateOf(false) }
+    val selectedConfigurationStore = if (imageMode) imageConfigurationStore else configurationStore
     val context = LocalContext.current
     DisposableEffect(Unit) {
         val window = context.findActivity()?.window
         window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         onDispose { window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) }
     }
-    val form: CapabilityFormViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+    val form: CapabilityFormViewModel = androidx.lifecycle.viewmodel.compose.viewModel(key = if (imageMode) "image-model-form" else "tutor-model-form")
     val screenScope = form.operationScope
-    val loadedConfiguration = configurationStore?.configuration
-        ?.collectAsStateWithLifecycle(initialValue = null)
-        ?.value
+    val loadedConfiguration = androidx.compose.runtime.key(selectedConfigurationStore) {
+        selectedConfigurationStore?.configuration?.collectAsStateWithLifecycle(initialValue = null)?.value
+    }
     val configuration = loadedConfiguration ?: ModelConfigurationSnapshot()
     var provider by form::provider
     var baseUrl by form::baseUrl
@@ -185,13 +188,25 @@ internal fun CapabilityScreen(
         androidx.activity.compose.BackHandler(enabled = committing) { }
         SecondaryHeader(title = "模型设置", onBack = { if (!committing) onBack() })
 
-        if (capabilities.networkRequestsAllowed && configurationStore != null) {
+        if (imageConfigurationStore != null) {
+            com.tingyun.smartmistakebook.core.ui.ClaudeSegmentedControl(
+                segments = listOf(
+                    com.tingyun.smartmistakebook.core.ui.ClaudeSegment("tutor", "讲题模型", "capability_tab_tutor"),
+                    com.tingyun.smartmistakebook.core.ui.ClaudeSegment("image", "生图模型", "capability_tab_image"),
+                ), selectedId = if (imageMode) "image" else "tutor",
+                onSelect = { imageMode = it == "image" },
+                enabled = operation == CapabilityOperation.IDLE,
+            )
+        }
+        if (capabilities.networkRequestsAllowed && selectedConfigurationStore != null) {
             Spacer(Modifier.height(16.dp))
             WorkspacePanel(containerColor = SmartColors.ContentSurface) {
                 Column {
-                    SettingsSectionTitle("模型服务")
+                    SettingsSectionTitle(if (imageMode) "生图服务" else "模型服务")
+                    if (imageMode) Text("用于题图整理与讲解配图 · OpenAI 兼容接口",
+                        color = InkSecondary, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp))
                     Text(
-                        text = "直接连接所选服务商，费用由你的服务商账户承担。",
+                        text = if (imageMode) "费用由所选服务商收取。" else "直接连接所选服务商，费用由你的服务商账户承担。",
                         modifier = Modifier
                             .padding(top = 8.dp)
                             .testTag("capability_direct_connection_notice"),
@@ -199,13 +214,14 @@ internal fun CapabilityScreen(
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(
-                        text = "API Key 安全保存在本机，仅用于连接服务商，不作为内容发送给模型。",
+                        text = if (imageMode) "密钥加密保存在本机。" else "API Key 安全保存在本机，仅用于连接服务商，不作为内容发送给模型。",
                         modifier = Modifier
                             .padding(top = 4.dp, bottom = 10.dp)
                             .testTag("capability_secret_notice"),
                         color = InkSecondary,
                         style = MaterialTheme.typography.bodyMedium,
                     )
+                    if (!imageMode) {
                     Text(
                         text = "接口协议（须与服务商一致）",
                         modifier = Modifier
@@ -224,6 +240,7 @@ internal fun CapabilityScreen(
                         enabled = formEnabled,
                         modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp).testTag("capability_protocol_group"),
                     )
+                    }
                     OutlinedTextField(
                         value = provider,
                         onValueChange = {
@@ -247,7 +264,7 @@ internal fun CapabilityScreen(
                             .fillMaxWidth()
                             .padding(top = 10.dp)
                             .testTag("capability_model_id"),
-                        label = { Text("模型 ID") },
+                        label = { Text(if (imageMode) "生图模型 ID" else "模型 ID") },
                         enabled = formEnabled,
                         singleLine = true,
                     )
@@ -261,7 +278,8 @@ internal fun CapabilityScreen(
                             .fillMaxWidth()
                             .padding(top = 10.dp)
                             .testTag("capability_base_url"),
-                        label = { Text("Base URL（${protocol.baseUrlHint()}）") },
+                        label = { Text(if (imageMode) "Base URL" else "Base URL（${protocol.baseUrlHint()}）") },
+                        placeholder = { Text("https://api.example.com/v1") },
                         enabled = formEnabled,
                         singleLine = true,
                     )
@@ -276,6 +294,9 @@ internal fun CapabilityScreen(
                             .padding(top = 10.dp)
                             .testTag("capability_api_key"),
                         label = { Text("API Key") },
+                        placeholder = {
+                            if (imageMode) Text(if (configuration.isConfigured) "密钥已保存，更新时重新填写" else "输入 API Key")
+                        },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         visualTransformation = PasswordVisualTransformation(),
                         enabled = formEnabled,
@@ -300,7 +321,7 @@ internal fun CapabilityScreen(
                                 val sourceChars = submittedApiKey.toCharArray()
                                 val secret = ModelApiKey.from(sourceChars)
                                 try {
-                                    val result = configurationStore.save(
+                                    val result = selectedConfigurationStore.save(
                                         update = ModelConfigurationUpdate(
                                             provider = submittedProvider,
                                             baseUrl = submittedBaseUrl,
@@ -310,7 +331,7 @@ internal fun CapabilityScreen(
                                         apiKey = secret,
                                     )
                                     operationMessage = result.toUserMessage(
-                                        successMessage = "配置已保存在本机，请继续测试模型。",
+                                        successMessage = if (imageMode) "生图配置已保存在本机。" else "配置已保存在本机，请继续测试模型。",
                                     )
                                     if (result is ModelConfigurationMutationResult.Success) apiKey = ""
                                 } catch (cancelled: CancellationException) {
@@ -336,7 +357,8 @@ internal fun CapabilityScreen(
             Spacer(Modifier.height(16.dp))
             WorkspacePanel(containerColor = SmartColors.ContentSurface) {
                 Column {
-                    SettingsSectionTitle("连接与能力测试")
+                    SettingsSectionTitle(if (imageMode) "配置管理" else "连接与能力测试")
+                    if (!imageMode) {
                     Text(
                         text = "测试仅发送内置样例，不发送你的题目或学习记录。",
                         modifier = Modifier.padding(top = 12.dp),
@@ -380,6 +402,9 @@ internal fun CapabilityScreen(
                             },
                         )
                     }
+                    } else Text(
+                        if (configuration.isConfigured) "已保存 · 生成配图时使用此配置" else "填写并保存生图服务配置",
+                        color = InkSecondary, style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 8.dp))
                     OutlinedButton(
                         onClick = { confirmClear = true },
                         enabled = formEnabled &&
@@ -414,7 +439,7 @@ internal fun CapabilityScreen(
                 style = MaterialTheme.typography.bodyLarge,
             )
         }
-        if (calibrationReportProvider != null) {
+        if (!imageMode && calibrationReportProvider != null) {
             Spacer(Modifier.height(16.dp))
             WorkspacePanel(containerColor = SmartColors.ContentSurface) {
                 Column {
@@ -509,7 +534,7 @@ internal fun CapabilityScreen(
         }
         // 批次 49 P2-12：复习排程校准。入口留在能力页，不新建导航体系；两个动作都复用
         // 既有写路径（采纳门在数据层），页面只负责触发与刷新。
-        if (schedulingCalibrationProvider != null) {
+        if (!imageMode && schedulingCalibrationProvider != null) {
             Spacer(Modifier.height(16.dp))
             WorkspacePanel(modifier = Modifier.testTag("capability_scheduling_calibration")) {
                 SchedulingCalibrationSection(
@@ -521,8 +546,8 @@ internal fun CapabilityScreen(
         }
     }
     // 确认框放在函数末尾（而非列内），因为它只在配置存在时可达：触发它的按钮本身
-    // 就在 `configurationStore != null` 的作用域里，这里把非空条件带上一并收窄。
-    if (confirmClear && configurationStore != null) {
+    // 就在 `selectedConfigurationStore != null` 的作用域里，这里把非空条件带上一并收窄。
+    if (confirmClear && selectedConfigurationStore != null) {
         AlertDialog(
             onDismissRequest = { confirmClear = false },
             title = { Text("清除本机配置与密钥？") },
@@ -540,7 +565,7 @@ internal fun CapabilityScreen(
                         operationMessage = null
                         screenScope.launch {
                             try {
-                                operationMessage = configurationStore.clear().toUserMessage(
+                                operationMessage = selectedConfigurationStore.clear().toUserMessage(
                                     successMessage = "本机配置与密钥已清除。",
                                     storageUnavailableMessage = "本机安全存储暂不可用，配置未清除，密钥仍在。",
                                 )
