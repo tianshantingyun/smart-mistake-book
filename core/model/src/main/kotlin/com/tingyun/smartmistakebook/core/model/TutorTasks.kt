@@ -1222,17 +1222,6 @@ internal fun String.requireTutorSceneFormula(label: String) {
     }
 }
 
-internal fun String.requireTutorSceneText(label: String, maxChars: Int, allowLineBreaks: Boolean) {
-    requireSafeModelText(label, maxChars, allowLineBreaks)
-    StudentFacingLanguagePolicy.requirePlainLanguage(this, label)
-    require(!TUTOR_SCENE_HTML.containsMatchIn(this)) { "$label contains HTML" }
-    require(!TUTOR_SCENE_CODE_MARKUP.containsMatchIn(this)) { "$label contains code markup" }
-    require(!TUTOR_SCENE_MARKDOWN_LINK.containsMatchIn(this)) { "$label contains a Markdown link" }
-    require(!TUTOR_SCENE_REFERENCE_LINK.containsMatchIn(this)) { "$label contains a reference link" }
-    require(!TUTOR_SCENE_IMAGE_MARKER.containsMatchIn(this)) { "$label contains image markup" }
-    require(!SafeInlineMarkdown.BARE_URL.containsMatchIn(this)) { "$label contains a URL" }
-}
-
 internal fun requireUniqueTutorSceneIds(sceneId: String, itemIds: List<String>) {
     val allIds = listOf(sceneId) + itemIds
     require(allIds.distinct().size == allIds.size) { "Tutor visual scene ids must be unique" }
@@ -1243,13 +1232,3 @@ internal fun requireTutorSceneTextBudget(parts: List<String>) {
         "Tutor visual scene exceeds its total text budget"
     }
 }
-
-private val TUTOR_SCENE_HTML = Regex("(?is)<!--|<\\s*/?\\s*[a-z][^>]*>")
-private val TUTOR_SCENE_CODE_MARKUP = Regex("`|~~~")
-private val TUTOR_SCENE_MARKDOWN_LINK = Regex(
-    """!?\[[^\r\n]{0,256}]\s*\([^\r\n)]{0,2048}\)""",
-)
-private val TUTOR_SCENE_REFERENCE_LINK = Regex(
-    """\[[^\r\n]{1,256}]\s*\[[^\r\n]{0,256}]""",
-)
-private val TUTOR_SCENE_IMAGE_MARKER = Regex("!\\s*\\[")
