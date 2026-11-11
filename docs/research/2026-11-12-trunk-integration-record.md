@@ -69,3 +69,15 @@
 - 推送结果：`f1c087fc..aeb004fe  main -> main`，远端 = 本地。
 - 最终版本构成：新 main 最新世代（主工作树 105 个 Kotlin 文件 + 工具/文档）+ UI 视觉基准（未冲突页面/主题）+ plans；kernel 分支未并入。
 - 工作树仅余临时产物未跟踪；tracked 工作树 0 脏行（`.gitignore` 已提交）。
+
+## 7. kernel-readiness 最终处置（2026-11-12，main 89fb2ebd）
+
+- 采用「撤销 revert」恢复该 merge 的祖先关系，再把**代码层整体回到 main**（61 个仍取分支内容的
+  文件全部 checkout 回 `2cddcf42`，含模型/排程/UI/构建脚本/依赖校验和）。
+- 保留分支的 **docs/ADR/审计报告/计划**（0001–0003 ADR、replay 可信度计划、状态页工具文档等）。
+- 干净 clone 全量 release 构建：**BUILD SUCCESSFUL in 3m 7s**；`89fb2ebd` 已推送
+  （`2cddcf42..89fb2ebd  main -> main`），tracked 工作树 0 脏行。
+- **该分支的 44 个审计提交的代码改动未应用**（模型/排程/UI 世代与统一版不兼容），
+  需 owner 在新 main 上按审计项 rebase；文档层已入主干。
+- 至此工作树分支（plans/UI/kernel）在 main 历史中均有合并祖先；`ui-rebuild`（无工作树、
+  落后 1187 提交）不在本次范围。
