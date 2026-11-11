@@ -66,6 +66,18 @@ ONNX_MODEL = Path("build/dense-model/bge-small-zh-v1.5-int8.onnx")
 THRESHOLD = 0.999
 ALIGNMENT_FLOOR = 0.9999  # 行对齐自检的下限（低于它说明 npy 与模型/文本脱节）
 
+
+def rooted(root: Path, relative: Path) -> Path:
+    """把本脚本声明的**仓库相对**路径接到本次解析出的 root 上。
+
+    脚本允许在任意 cwd 下调起（root 由 `dense_asset.repo_root` 解析，cwd 非仓库根时兜底到
+    脚本所属仓库）；上面这些路径常量保持**相对形态**——它们同时被写进 fixture 的溯源字段
+    （`encoder-parity.json` 的 path 字段），必须与"从仓库根跑"时代的记录逐字一致，
+    不能写成机器相关的绝对路径（那是把本机目录结构冻进随包测试件）。
+    """
+    return root.joinpath(*relative.parts)
+
+
 BACKSLASH = chr(92)
 ESCAPES = {BACKSLASH: BACKSLASH, "t": "\t", "n": "\n", "r": "\r"}
 UNESCAPES = {v: k for k, v in ESCAPES.items()}
@@ -107,9 +119,9 @@ def cosine(left: np.ndarray, right: np.ndarray) -> float:
     )
 
 
-def load_tokenizer_fixture():
+def load_tokenizer_fixture(root: Path):
     rows = []
-    for line in TOKENIZER_FIXTURE.read_text(encoding="utf-8").split("\n"):
+    for line in rooted(root, TOKENIZER_FIXTURE).read_text(encoding="utf-8").split("\n"):
         if not line or line.startswith("#"):
             continue
         fields = line.split("\t")
@@ -147,7 +159,7 @@ def main() -> int:
     ONNX_MODEL = Path(D.model_paths(profile)["int8"])
     print("档位=%s（dim=%d）" % (profile["key"], DIM))
 
-    rows = load_tokenizer_fixture()
+    rows = load_tokenizer_fixture(root)
     queries = [r for r in rows if r["kind"] == "query"]
     surfaces = [r for r in rows if r["kind"] == "surface"]
     print("文本来源：query=%d surface=%d" % (len(queries), len(surfaces)))
@@ -159,8 +171,8 @@ def main() -> int:
         # 200 是**本 fixture 自己的抽样规模**（节点名/别名抽 200 条），与判官条数无关。
         raise SystemExit("surface 行应为 200，实测 %d" % len(surfaces))
 
-    query_ref = np.load(QUERY_REF).astype(np.float32)
-    doc_ref = np.load(DOC_REF, mmap_mode="r")
+    query_ref = np.load(rooted(root, QUERY_REF)).astype(np.float32)
+    doc_ref = np.load(rooted(root, DOC_REF), mmap_mode="r")
     if query_ref.shape != (golden_count, DIM):
         raise SystemExit("int8-queries.npy 形状不符：%s（应 %d 行）" % (query_ref.shape, golden_count))
     if doc_ref.shape[1] != DIM:
@@ -169,7 +181,7 @@ def main() -> int:
     # ---- 行对齐自检：现场重跑 int8 ONNX（同一份模型文件），与 npy 逐行比 cosine ----
     import onnxruntime as ort
 
-    session = ort.InferenceSession(str(ONNX_MODEL), providers=["CPUExecutionProvider"])
+    session = ort.InferenceSession(str(rooted(root, ONNX_MODEL)), providers=["CPUExecutionProvider"])
     print("ORT %s，模型 %s" % (ort.__version__, ONNX_MODEL))
 
     def encode(ids):
@@ -203,7 +215,7 @@ def main() -> int:
     if min(alignment) < ALIGNMENT_FLOOR:
         raise SystemExit("行对齐自检未过 %.6f（fixture 不产出）" % ALIGNMENT_FLOOR)
 
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    rooted(root, OUT_DIR).mkdir(parents=True, exist_ok=True)
     lines = []
     for index, row in enumerate(rows):
         lines.append("\t".join((
@@ -212,8 +224,8 @@ def main() -> int:
             escape(row["text"]),
             str(row["referenceRow"]),
         )))
-    OUT_CASES.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    OUT_VECTORS.write_bytes(vectors.astype("<f4").tobytes(order="C"))
+    rooted(root, OUT_CASES).write_text("\n".join(lines) + "\n", encoding="utf-8")
+    rooted(root, OUT_VECTORS).write_bytes(vectors.astype("<f4").tobytes(order="C"))
     meta = {
         "generatedBy": "python tools/dense_build/gen_device_parity_fixture.py",
         "threshold": THRESHOLD,
@@ -223,31 +235,31 @@ def main() -> int:
         "byKind": {"query": len(queries), "surface": len(surfaces)},
         "textSource": {
             "path": str(TOKENIZER_FIXTURE),
-            "sha256": sha256_file(TOKENIZER_FIXTURE),
+            "sha256": sha256_file(rooted(root, TOKENIZER_FIXTURE)),
             "note": "query 行含 BGE 查询前缀；surface 行是向量集原文（节点名/别名）",
         },
         "referenceVectors": {
-            "queries": {"path": str(QUERY_REF), "sha256": sha256_file(QUERY_REF)},
-            "docs": {"path": str(DOC_REF), "sha256": sha256_file(DOC_REF)},
+            "queries": {"path": str(QUERY_REF), "sha256": sha256_file(rooted(root, QUERY_REF))},
+            "docs": {"path": str(DOC_REF), "sha256": sha256_file(rooted(root, DOC_REF))},
             "producer": "onnxruntime " + ort.__version__ + " on " + str(ONNX_MODEL),
-            "modelSha256": sha256_file(ONNX_MODEL),
+            "modelSha256": sha256_file(rooted(root, ONNX_MODEL)),
         },
-        "golden": {"path": str(GOLDEN), "sha256": sha256_file(GOLDEN)},
+        "golden": {"path": str(GOLDEN), "sha256": sha256_file(rooted(root, GOLDEN))},
         "alignmentSelfCheck": {
             "note": "用同一份 int8 ONNX 现场重跑 fixture 的 ids，与冻结 npy 逐行比 cosine",
             "min": min(alignment),
             "median": float(np.median(alignment)),
             "floor": ALIGNMENT_FLOOR,
         },
-        "casesFile": {"path": str(OUT_CASES), "sha256": sha256_file(OUT_CASES)},
+        "casesFile": {"path": str(OUT_CASES), "sha256": sha256_file(rooted(root, OUT_CASES))},
         "vectorsFile": {
             "path": str(OUT_VECTORS),
-            "sha256": sha256_file(OUT_VECTORS),
+            "sha256": sha256_file(rooted(root, OUT_VECTORS)),
             "layout": "little-endian float32, row-major, N×%d" % DIM,
             "l2NormRange": [norm_min, norm_max],
         },
     }
-    OUT_META.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    rooted(root, OUT_META).write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("写出：%s / %s / %s" % (OUT_CASES, OUT_VECTORS, OUT_META))
     print("vectors sha256=%s" % meta["vectorsFile"]["sha256"])
     return 0

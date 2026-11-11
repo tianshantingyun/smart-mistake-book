@@ -508,6 +508,181 @@ class MeasureJsonTest(SplitGateTestBase):
         self.assertFalse(report["automation"]["enabled"])
 
 
+# ---------------------------------------------------------------- 口径 v3（批次 51）
+
+def write_app_with_decisions(path: Path, pages: list[dict]) -> None:
+    """harness 导出形态：每页带 outcomeStatus / decision（设备导出没有这两个字段）。"""
+    path.write_text(json.dumps({"schemaVersion": 2, "pages": pages},
+                               ensure_ascii=False), encoding="utf-8", newline="")
+
+
+def write_legacy_app(path: Path, pages: list[tuple[str, list[dict]]]) -> None:
+    """历史设备导出形态：只有 file/questions，无判定字段 ⇒ 口径 v3 必须回落 v2 并计数。"""
+    write_app(path, pages)
+
+
+def golden_page(name: str, count: int) -> dict:
+    boxes = [_box(0.05, 0.05 + 0.45 * index, 0.9, 0.4 + 0.45 * index)
+             for index in range(count)]
+    return {"file": name, "questionCount": count, "boxes": boxes}
+
+
+class CaliberV3Test(SplitGateTestBase):
+    """口径 v3：0 框不再自动等于 PASS；单题页只有「被接受的不拆分」才记一致。
+
+    它消灭的具体失败（批次 51 R1 §2.2）：`count_verdict` 只看框数时，通道拒收
+    （`{"type":"json_object",...}` 被 requireOnlyKeys 整轮丢弃）与弃答
+    （NEED_MORE_IMAGE/RECAPTURE）都被单题页规则记成「一致」，门给了分而产品什么都没给。
+    """
+
+    def _run(self, golden: dict, app: dict) -> dict:
+        golden_path = self.tmp / "golden_v3.json"
+        app_path = self.tmp / "app_v3.json"
+        write_json(golden_path, golden)
+        write_json(app_path, app)
+        import io
+        from contextlib import redirect_stdout
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = M.main(["--golden", str(golden_path), "--app", str(app_path), "--json"])
+        self.assertEqual(0, code, buffer.getvalue())
+        return json.loads(buffer.getvalue())
+
+    def _mixed(self) -> tuple[dict, dict]:
+        golden = {"pages": [
+            golden_page("P1_pass_single.jpg", 1),
+            golden_page("P2_error_single.jpg", 1),
+            golden_page("P3_abstain_single.jpg", 1),
+            golden_page("P4_pass_multi.jpg", 2),
+            golden_page("P5_split_unusable.jpg", 2),
+            golden_page("P6_missing_single.jpg", 1),
+        ]}
+        app = {"schemaVersion": 2, "pages": [
+            {"file": "P1_pass_single.jpg", "outcomeStatus": "OK", "decision": "PASS",
+             "questions": []},
+            {"file": "P2_error_single.jpg", "outcomeStatus": "ERROR", "decision": None,
+             "questions": []},
+            {"file": "P3_abstain_single.jpg", "outcomeStatus": "OK",
+             "decision": "NEED_MORE_IMAGE", "questions": []},
+            {"file": "P4_pass_multi.jpg", "outcomeStatus": "OK", "decision": "PASS",
+             "questions": []},
+            {"file": "P5_split_unusable.jpg", "outcomeStatus": "OK", "decision": "SPLIT",
+             "questions": []},
+        ]}
+        return golden, app
+
+    def test_accepted_pass_on_single_question_page_is_consistent(self):
+        report = self._run(
+            {"pages": [golden_page("S.jpg", 1)]},
+            {"schemaVersion": 2, "pages": [
+                {"file": "S.jpg", "outcomeStatus": "OK", "decision": "PASS",
+                 "questions": []},
+            ]},
+        )
+        row = report["pages"][0]
+        self.assertTrue(row["consistent"])
+        self.assertEqual("ACCEPTED_NO_SPLIT", row["pageClass"])
+        self.assertEqual("none", row["questionCountForMetric"])
+        self.assertFalse(row["singleQuestionUnverified"])
+        self.assertEqual(1, report["metrics"]["countExact"]["successes"])
+
+    def test_channel_error_is_not_a_success(self):
+        report = self._run(
+            {"pages": [golden_page("E.jpg", 1)]},
+            {"schemaVersion": 2, "pages": [
+                {"file": "E.jpg", "outcomeStatus": "ERROR", "decision": None,
+                 "questions": []},
+            ]},
+        )
+        row = report["pages"][0]
+        self.assertFalse(row["consistent"], "通道拒收（0 框）不得被单题页规则记一致")
+        self.assertEqual("NOT_EVALUABLE_CHANNEL", row["pageClass"])
+        self.assertIsNone(row["questionCountForMetric"])
+        self.assertEqual("ERROR", row["appOutcomeStatus"])
+        self.assertEqual(0, report["metrics"]["countExact"]["successes"])
+        self.assertEqual(1, report["notEvaluable"]["count"])
+
+    def test_abstention_is_not_a_success(self):
+        report = self._run(
+            {"pages": [golden_page("A.jpg", 1)]},
+            {"schemaVersion": 2, "pages": [
+                {"file": "A.jpg", "outcomeStatus": "OK", "decision": "NEED_MORE_IMAGE",
+                 "questions": []},
+            ]},
+        )
+        row = report["pages"][0]
+        self.assertFalse(row["consistent"], "NEED_MORE_IMAGE 不是「不切=期望」，不得记一致")
+        self.assertEqual("ABSTAIN", row["pageClass"])
+        self.assertIsNone(row["questionCountForMetric"])
+        self.assertEqual(0, row["appBoxes"])
+        self.assertEqual(1, report["abstain"]["count"])
+        self.assertEqual(["A.jpg"], report["abstain"]["pages"])
+
+    def test_missing_page_is_a_leak_in_decision_bearing_export(self):
+        report = self._run(
+            {"pages": [golden_page("M1.jpg", 1), golden_page("M2.jpg", 1)]},
+            {"schemaVersion": 2, "pages": [
+                {"file": "M1.jpg", "outcomeStatus": "OK", "decision": "PASS",
+                 "questions": []},
+            ]},
+        )
+        missing = [row for row in report["pages"] if row["file"] == "M2.jpg"][0]
+        self.assertFalse(missing["consistent"], "缺页就是漏：判定型导出里缺页不得记一致")
+        self.assertEqual("MISSING_APP", missing["pageClass"])
+        self.assertIsNone(missing["questionCountForMetric"])
+        self.assertEqual(1, report["metrics"]["countExact"]["successes"])
+        self.assertEqual(2, report["metrics"]["countExact"]["denominator"])
+
+    def test_legacy_export_without_decisions_falls_back_to_v2_and_counts(self):
+        golden_path = self.tmp / "legacy_golden.json"
+        app_path = self.tmp / "legacy_app.json"
+        write_json(golden_path, {"pages": [golden_page("L1.jpg", 1),
+                                           golden_page("L2.jpg", 2)]})
+        write_legacy_app(app_path, [("L1.jpg", [])])
+        import io
+        from contextlib import redirect_stdout
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            code = M.main(["--golden", str(golden_path), "--app", str(app_path), "--json"])
+        self.assertEqual(0, code, buffer.getvalue())
+        report = json.loads(buffer.getvalue())
+        row = [entry for entry in report["pages"] if entry["file"] == "L1.jpg"][0]
+        self.assertTrue(row["consistent"], "无判定字段时回落 v2：单题页 0 框仍按旧规则记一致")
+        self.assertEqual("V2_FALLBACK", row["pageClass"])
+        self.assertTrue(row["singleQuestionUnverified"])
+        self.assertEqual(1, report["singleQuestionUnverifiedCount"])
+        self.assertEqual("v2-fallback", report["caliber"])
+        self.assertEqual(report["metrics"]["countExact"], report["countExactV2"])
+
+    def test_aggregate_separates_abstain_not_evaluable_and_v2_comparison(self):
+        golden, app = self._mixed()
+        report = self._run(golden, app)
+        self.assertEqual(6, report["metrics"]["countExact"]["denominator"],
+                         "分母恒为可比金标页数，弃答/不可评不得剔除")
+        self.assertEqual(1, report["metrics"]["countExact"]["successes"])
+        self.assertEqual(4, report["countExactV2"]["successes"])
+        self.assertEqual(6, report["countExactV2"]["denominator"])
+        self.assertEqual(["P2_error_single.jpg", "P3_abstain_single.jpg",
+                          "P6_missing_single.jpg"], report["changedPagesV2"])
+        self.assertEqual(1, report["abstain"]["count"])
+        self.assertEqual(1, report["notEvaluable"]["count"])
+        self.assertEqual("v3", report["caliber"])
+        self.assertEqual(0, report["singleQuestionUnverifiedCount"])
+
+    def test_thresholds_and_gate_formula_unchanged(self):
+        golden, app = self._mixed()
+        report = self._run(golden, app)
+        self.assertEqual(0.9, M.COUNT_GATE)
+        self.assertEqual(0.05, M.FRAGMENT_GATE)
+        self.assertEqual(0.9, report["gates"]["count"]["threshold"])
+        self.assertEqual(0.05, report["gates"]["fragment"]["threshold"])
+        value = report["metrics"]["countExact"]["value"]
+        fragment_value = report["metrics"]["fragment"]["value"]
+        self.assertEqual(value >= 0.9 and fragment_value <= 0.05,
+                         report["gatePassed"])
+        self.assertEqual(8, report["metrics"]["fragment"]["denominator"])
+
+
 # ---------------------------------------------------------------- 导出器
 
 class ExportSplitEvalTest(SplitGateTestBase):

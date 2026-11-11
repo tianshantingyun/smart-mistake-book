@@ -4,15 +4,15 @@
 
 ## 它消灭的具体失败
 
-KD-80 类漂移已经出现过三次：`SmbkSelectionPlan.kt`、设计件 §9.11 机器块、
-`SmbkSelectionPlanTest` 的 golden、`73.json`（Room/KSP 导出物）任一处单独改动，
-其余三处仍能各自"自洽"——单测只比其中两处，于是"清单说 92 表、导出物有 93 表"
+KD-80 类漂移已经出现过三次：`SmbkSelectionPlan.kt`、设计件 §9.14 机器块、
+`SmbkSelectionPlanTest` 的 golden、`75.json`（Room/KSP 导出物）任一处单独改动，
+其余三处仍能各自"自洽"——单测只比其中两处，于是"清单说 98 表、导出物有 99 表"
 可以静默存在到成包/恢复阶段。本脚本把四处钉在一起，任一处不等即非零退出：
 
     SmbkSelectionPlan.kt 常量/表清单
-        == 设计件 §9.11 `6c2-plan-v3` 机器块
+        == 设计件 §9.14 `6c2-plan-v3` 机器块（parser 契约名沿用 v3，内容随 KSP 同步）
         == SmbkSelectionPlanTest 的空库全选 golden（并按同算法独立复算）
-        == core/database/schemas/.../73.json
+        == core/database/schemas/.../75.json
 
 另外校验 closure 4 的冻结规则表（WS1 item 5）：v4 键集合 = v5 − 错因两表 +
 `knowledge_search_material_feature`（91 键）、裁剪上限 83、v4 摘要 golden 固定。
@@ -53,7 +53,7 @@ REPO = Path(__file__).resolve().parents[2]
 PLAN_PATH = "core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/backup/SmbkSelectionPlan.kt"
 RULES_PATH = "core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/backup/ClosureRuleTables.kt"
 TEST_PATH = "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/backup/SmbkSelectionPlanTest.kt"
-SCHEMA_PATH = "core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/73.json"
+SCHEMA_PATH = "core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/75.json"
 DESIGN_PATH = "docs/research/2026-10-17-6c2-content-selection-design.md"
 
 MACHINE_BLOCK = re.compile(
@@ -181,13 +181,17 @@ def parse_rules(path: Path) -> dict:
     if not (closure and prefix and trim_size):
         raise ParseError("ClosureRuleTables.v4 缺少 closureVersion/digestPrefix/trimOrderSize")
     error_cause_section = text[text.index("errorCauseTables"):text.index("materialFeatureTable")]
-    material_section = text[text.index("materialFeatureTable"):text.index("val v5")]
+    # materialFeatureTable 的声明止于 interiorTables 之前；否则会把 interior 表名一并算进来。
+    material_section = text[text.index("materialFeatureTable"):text.index("interiorTables")]
+    interior_section = text[text.index("interiorTables"):text.index("val v5")]
     return {
         "closureVersion": int(closure.group(1)),
         "digestPrefix": prefix.group(1),
         "trimOrderSize": int(trim_size.group(1)),
         "errorCauseTables": _strings(error_cause_section),
         "materialFeatureTables": _strings(material_section),
+        # closure 5 新增、closure 6 仍保留的内部表：v4 冻结键集合必须同时剔除它们。
+        "interiorTables": _strings(interior_section),
     }
 
 
@@ -244,10 +248,10 @@ def evaluate(repo: Path = REPO) -> dict:
     # ---- 1. 版本三元组 ----
     record("closureVersion: code==block", plan["closureVersion"] == block["closureVersion"],
            f"code={plan['closureVersion']} block={block['closureVersion']}")
-    record("schemaVersion: code==block==73.json",
+    record("schemaVersion: code==block==75.json",
            plan["schemaVersion"] == block["schemaVersion"] == schema["version"],
            f"code={plan['schemaVersion']} block={block['schemaVersion']} schema={schema['version']}")
-    record("identityHash: code==block==73.json",
+    record("identityHash: code==block==75.json",
            plan["identityHash"] == block["identityHash"] == schema["identityHash"],
            f"code={plan['identityHash']} block={block['identityHash']} "
            f"schema={schema['identityHash']}")
@@ -258,13 +262,13 @@ def evaluate(repo: Path = REPO) -> dict:
         + block["alwaysTables"] + block["derivedTables"] + block["splitTables"]
     )
     schema_tables = [entity["tableName"] for entity in schema["entities"]]
-    record("table list: code==block==73.json",
+    record("table list: code==block==75.json",
            plan["allTables"] == block_tables and sorted(plan["allTables"]) == sorted(schema_tables),
            f"code={len(plan['allTables'])} block={len(block_tables)} "
            f"schema={len(schema_tables)}; "
            f"code-only={sorted(set(plan['allTables']) - set(schema_tables))} "
            f"schema-only={sorted(set(schema_tables) - set(plan['allTables']))}")
-    record("table count == 92", len(plan["allTables"]) == 92 == len(schema_tables),
+    record("table count == 99", len(plan["allTables"]) == 99 == len(schema_tables),
            f"code={len(plan['allTables'])} schema={len(schema_tables)}")
 
     for key, label in (
@@ -277,8 +281,8 @@ def evaluate(repo: Path = REPO) -> dict:
     ):
         if key == "views":
             schema_views = [view["viewName"] for view in schema.get("views", [])]
-            record(f"{label}: code==73.json", plan[key] == schema_views,
-                   f"code={plan[key]} schema={schema_views}")
+            record(f"{label}: code==block==75.json", plan[key] == schema_views == block[key],
+                   f"code={plan[key]} schema={schema_views} block={block[key]}")
         else:
             record(f"{label}: code==block", plan[key] == block[key],
                    f"code={len(plan[key])} block={len(block[key])}")
@@ -299,7 +303,7 @@ def evaluate(repo: Path = REPO) -> dict:
     zero_counts = {table: 0 for table in plan["allTables"]}
     recomputed = digest(plan["digestPrefix"], plan["closureVersion"],
                         list(plan["enum"]), plan["assetPolicy"], zero_counts)
-    published = block["digest"]["goldenEmptyFull"]["sha256"]
+    published = block["digest"]["emptyFullSelectionGolden"]
     record("digest: recomputed==test golden==block golden",
            recomputed == test_golden == published,
            f"recomputed={recomputed} test={test_golden} block={published}")
@@ -308,14 +312,16 @@ def evaluate(repo: Path = REPO) -> dict:
     code_tables = set(plan["allTables"])
     material = set(rules["materialFeatureTables"])
     error_cause = set(rules["errorCauseTables"])
-    v4_tables = (code_tables - error_cause) | material
-    record("v4: 91 keys and delta == {+error_cause, -material_feature}",
+    interior = set(rules["interiorTables"])
+    v4_added = error_cause | interior
+    v4_tables = (code_tables - v4_added) | material
+    record("v4: 91 keys and delta == {+error_cause+interior, -material_feature}",
            len(v4_tables) == 91
-           and error_cause <= code_tables
+           and v4_added <= code_tables
            and material.isdisjoint(code_tables)
-           and (code_tables - v4_tables) == error_cause
+           and (code_tables - v4_tables) == v4_added
            and (v4_tables - code_tables) == material,
-           f"keys={len(v4_tables)} added={sorted(error_cause)} "
+           f"keys={len(v4_tables)} added={sorted(v4_added)} "
            f"dropped={sorted(material)}")
     record("v4: frozen closure/prefix/trim limit",
            rules["closureVersion"] == 4 and rules["digestPrefix"] == "smbk-selection-v4"
@@ -418,7 +424,7 @@ def main(argv: list[str] | None = None) -> int:
             mark = "OK  " if check["ok"] else "FAIL"
             print(f"  {mark} {check['name']}：{check['detail']}")
         if result["ok"]:
-            print("PASS 四方一致（code / §9.11 / golden / 73.json）")
+            print("PASS 四方一致（code / §9.14 机器块 / golden / 75.json）")
         else:
             print(f"FAIL {len(result['failed'])} 项不一致")
     if any(check["name"] == "files" for check in result["failed"]):

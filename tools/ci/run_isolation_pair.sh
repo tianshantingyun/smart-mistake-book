@@ -38,6 +38,15 @@
 # `tools/ci/visual_js_isolation_methods.txt`；两臂同时漏跑同一批方法时，观察并集
 # 不能自证完整，缺清单/缺方法都必须判 UNCONVERGED。
 #
+# witness（批次 43 / WS3 item 19/21）：每次 `am instrument` 注入 `smb.witness.run=<label>`
+# 与 `smb.witness.expected_tests`，并把设备侧 `files/isolation-witness/<label>/witness.jsonl`
+# 拉回 `$OUT_DIR/<label>.witness.jsonl`；随后用
+# `tools/ci/isolation_witness_check.py --require-executed` 单列退出码（写进 manifest 的
+# `witness,<label>,<exit>,<path>` 行）。它回答"这一例到底跑没跑"，而不是放宽配对判定。
+# 被测 app APK 的 sha 走宿主侧摘要（`-e smb.witness.apk_sha256`）；设备侧不重算 190 MB
+# 的 base.apk——流式摘要的耗时在慢设备上不可预期（批次 43 probe-01 进程在 @BeforeClass
+# 阶段死亡、无 witness 行；ANR 原文 `Timed out while trying to bind`，与哈希的因果未证）。
+#
 # 用法（仓库根）：
 #   export PATH="$PATH:/c/Android/Sdk/platform-tools"
 #   tools/ci/run_isolation_pair.sh --serial emulator-5584 \
@@ -70,6 +79,11 @@ ON_COMPONENT="${SMB_ON_COMPONENT:-com.tingyun.smartmistakebook.offline.test/andr
 OFF_APK="${SMB_OFF_APK:-}"
 ON_APK="${SMB_ON_APK:-}"
 EXPECTED_METHODS="${SMB_EXPECTED_METHODS:-$REPO_ROOT/tools/ci/visual_js_isolation_methods.txt}"
+EXPECTED_TESTS=0
+WITNESS_CHECKER="$REPO_ROOT/tools/ci/isolation_witness_check.py"
+# 被测 app APK 的 sha：给了臂产物就用宿主侧摘要（设备侧不算——190 MB 的流式摘要在慢设备上
+# 耗时不可预期，probe-01 的 ANR 因果未证）。没有产物时设备侧记 unavailable。
+WITNESS_APK_SHA=""
 FLOOR=""
 SKIP_GATE=0
 GATE_SAMPLES=30
@@ -170,6 +184,7 @@ fi
 if ! grep -qE '^[^#[:space:]]' "$EXPECTED_METHODS"; then
   die "expected methods file is empty: $EXPECTED_METHODS"
 fi
+EXPECTED_TESTS=$(grep -cvE '^[[:space:]]*(#|$)' "$EXPECTED_METHODS")
 
 mkdir -p "$OUT_DIR"
 OUT_DIR="$(cd "$OUT_DIR" && pwd)"
@@ -281,15 +296,23 @@ for round in $(seq 1 "$ROUNDS"); do
     reason_arg=$(cat "$OUT_DIR/gate-pre-$label.reason")
 
     "$ADB" -s "$SERIAL" logcat -c >/dev/null 2>&1 || true
+    if [ "$arm" = "OFF" ]; then WITNESS_APK_SHA="$OFF_APK_SHA"; else WITNESS_APK_SHA="$ON_APK_SHA"; fi
+    WITNESS_ARGS=(-e smb.witness.run "$label" -e smb.witness.expected_tests "$EXPECTED_TESTS")
+    # 空值不能直接跟在 `-e` 后面：am 会把下一个 token 当 VALUE（批次 43 的 am 参数形状）。
+    if [ -n "$WITNESS_APK_SHA" ]; then WITNESS_ARGS+=(-e smb.witness.apk_sha256 "$WITNESS_APK_SHA"); fi
     log "round=$round arm=$arm instrument (gate=$gate_arg)"
     timeout "$ROUND_TIMEOUT" "$ADB" -s "$SERIAL" shell am instrument -r -w --no-window-animation \
       -e class "$TEST_CLASS" \
       -e smb.lowload.gate "$gate_arg" \
       -e smb.lowload.reason "$reason_arg" \
       -e smb.t4.arm "$arm" \
+      "${WITNESS_ARGS[@]}" \
       "$component" > "$OUT_DIR/$label.instrument.log" 2>&1
     instrument_code=$?
     "$ADB" -s "$SERIAL" logcat -d -v time > "$OUT_DIR/$label.logcat" 2>/dev/null || true
+    # witness：run-as 只对 debug 包可用；拉取失败不改变本轮结论，只让检查器判 WITNESS_UNAVAILABLE。
+    "$ADB" -s "$SERIAL" exec-out run-as "$TARGET_PACKAGE" \
+      cat "files/isolation-witness/$label/witness.jsonl" > "$OUT_DIR/$label.witness.jsonl" 2>/dev/null || true
 
     log "round=$round arm=$arm post-gate (post-settle=${POST_SETTLE}s)"
     if [ "$POST_SETTLE" -gt 0 ]; then
@@ -306,8 +329,21 @@ for round in $(seq 1 "$ROUNDS"); do
     fi
     printf 'run,%s,%s,%s,%s,%s,%s\n' "$round" "$arm" "$window" "$instrument_code" \
       "$OUT_DIR/$label.instrument.log" "$OUT_DIR/$label.logcat" >> "$MANIFEST"
+    # witness 检查：`--require-executed` 把"15 例全 -4"从 `OK (15 tests)` 里剥出来；
+    # 退出码只记录，不改变配对报告（后者仍是 F7 的 fail-closed 判定）。
+    witness_code=99
+    if [ -s "$OUT_DIR/$label.witness.jsonl" ]; then
+      python -I "$WITNESS_CHECKER" \
+        --witness "$(win_path "$OUT_DIR/$label.witness.jsonl")" \
+        --stream "$(win_path "$OUT_DIR/$label.instrument.log")" \
+        --logcat "$(win_path "$OUT_DIR/$label.logcat")" \
+        --out "$(win_path "$OUT_DIR/$label.witness-check.json")" \
+        --require-executed >/dev/null 2>&1
+      witness_code=$?
+    fi
+    printf 'witness,%s,%s,%s\n' "$label" "$witness_code" "$OUT_DIR/$label.witness.jsonl" >> "$MANIFEST"
     RUN_ARGS+=("--run" "arm=$arm,round=$round,window=$window,log=$(win_path "$OUT_DIR/$label.instrument.log"),logcat=$(win_path "$OUT_DIR/$label.logcat")")
-    log "round=$round arm=$arm window=$window instrument_exit=$instrument_code"
+    log "round=$round arm=$arm window=$window instrument_exit=$instrument_code witness_exit=$witness_code"
   done
 done
 

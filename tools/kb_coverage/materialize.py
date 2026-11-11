@@ -86,11 +86,13 @@ def _source_entry(top_dir: str, subject: str) -> dict:
     return {
         "sourceId": sid,
         "subject": subject,
-        "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+        # 桌面原始资料是第三方教辅、没有公开可核 URI：按导入契约标「来源不明（占位）」类，
+        # sourceUri 留空（不填 example.edu 假地址），权利状态保持 REFERENCE_ONLY。
+        "sourceType": "UNVERIFIED_PLACEHOLDER",
         "title": f"桌面教辅资料 · {top_dir}",
         "publisher": "教辅汇编（桌面原始资料）",
         "edition": "2026/2027版",
-        "sourceUri": "https://www.example.edu/desktop-kb-source",
+        "sourceUri": None,
         "licenseStatus": "REFERENCE_ONLY",
         "contentFingerprint": hashlib.sha256(f"{top_dir}|{subject}".encode("utf-8")).hexdigest().upper(),
         # 源导入时间取过去时刻：契约要求 material.reviewedAt >= source.importedAt，
@@ -99,7 +101,7 @@ def _source_entry(top_dir: str, subject: str) -> dict:
         "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
         "licenseExpression": None,
         "licenseUri": None,
-        "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考。",
+        "attributionText": "桌面教辅资料直抽改写（REVIEWED_SYNTHESIS），仅内部教学参考；仅参考、独立重写，不保存原文。",
     }
 
 

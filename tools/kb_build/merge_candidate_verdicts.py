@@ -35,6 +35,7 @@ import csv
 import json
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -54,6 +55,11 @@ MAT_COLS = ["idx", "slug", "subject", "verdict", "node_slug", "covering_material
 SUBJ3 = {"MATH": "mat", "PHYSICS": "phy", "CHEMISTRY": "che", "BIOLOGY": "bio"}
 _STRIP = re.compile(r"[^0-9A-Za-z\u4e00-\u9fff]+")
 VALID_KINDS = {"CONCEPT", "PROCEDURE", "REASONING", "REPRESENTATION", "EXPERIMENT"}
+
+
+def norm_key(text: str) -> str:
+    """去重口径：NFKC + 去所有空白（与 prep/裁决同一口径，不引入模糊匹配）。"""
+    return re.sub(r"\s+", "", unicodedata.normalize("NFKC", text or ""))
 
 
 def sidecar_source_id(registry_id: str, subject: str) -> str:
@@ -173,6 +179,8 @@ def build(root: Path, verdicts_dir: Path | None = None,
     quarantine: list[dict] = []
     placement: list[dict] = []
     capacity_blocked: list[dict] = []
+    duplicate_dropped: list[dict] = []
+    seen_payload: dict[tuple[str, str, str, str], str] = {}
     used_point_slugs: set[tuple[str, str]] = set()
 
     def add_material(material: dict, tag: str, extra: dict) -> None:
@@ -183,6 +191,18 @@ def build(root: Path, verdicts_dir: Path | None = None,
         if errs:
             quarantine.append({"source": tag, "slug": material["slug"],
                                "reasons": "; ".join(errs[:3])})
+            return
+        # 跨批同源重复条目（知识清单多份文档同文）会产出完全相同的补料——
+        # 只留第一条并登记，避免同一节点塞两条同题同文的材料（合规规范 §4.5 去重判据）。
+        payload = (material["subject"],
+                   material["bindings"][0]["knowledgeNodeId"].split(":")[-1],
+                   norm_key(material["title"]), norm_key(material["contentMarkdown"]))
+        if payload in seen_payload:
+            duplicate_dropped.append({
+                "source": tag, "slug": material["slug"], "kept_slug": seen_payload[payload],
+                "node_slug": payload[1], "title": material["title"],
+                "reason": "与既有补料完全重复（同节点+同标题+同正文），只留第一条",
+            })
             return
         node_slug = material["bindings"][0]["knowledgeNodeId"].split(":")[-1]
         key = (material["subject"], node_slug)
@@ -196,6 +216,7 @@ def build(root: Path, verdicts_dir: Path | None = None,
             })
             return
         counts[key] = counts.get(key, 0) + 1
+        seen_payload[payload] = material["slug"]
         materials.append(material)
 
     for row in dir_rows:
@@ -283,9 +304,22 @@ def build(root: Path, verdicts_dir: Path | None = None,
         else:
             quarantine.append({"source": tag, "slug": slug, "reasons": f"未知 verdict {verdict!r}"})
 
+    near: dict[tuple[str, str, str], list[str]] = {}
+    for material in materials:
+        node = material["bindings"][0]["knowledgeNodeId"].split(":")[-1]
+        near.setdefault((material["subject"], node, norm_key(material["title"])),
+                        []).append(material["slug"])
+    near_duplicate_review = [
+        {"subject": key[0], "node_slug": key[1], "title_key": key[2], "slugs": ";".join(slugs),
+         "reason": "同节点同标题但正文不同——入包前人工复核是否互补（合规规范 §4.5）"}
+        for key, slugs in sorted(near.items()) if len(slugs) > 1
+    ]
+
     return {"errors": errors, "materials": materials, "new_points": new_points,
             "coverage": coverage, "rejects": rejects, "quarantine": quarantine,
             "placement": placement, "capacity_blocked": capacity_blocked,
+            "duplicate_dropped": duplicate_dropped,
+            "near_duplicate_review": near_duplicate_review,
             "counts": {"dir_rows": len(dir_rows), "mat_rows": len(mat_rows)}}
 
 
@@ -315,12 +349,18 @@ def write_all(root: Path, out_dir: Path, built: dict) -> None:
     dump_csv("quarantine.csv", built["quarantine"], ["source", "slug", "reasons"])
     dump_csv("capacity_blocked.csv", built["capacity_blocked"],
              ["source", "subject", "node_slug", "slug", "title", "existing_materials", "reason"])
+    dump_csv("duplicate_dropped.csv", built["duplicate_dropped"],
+             ["source", "slug", "kept_slug", "node_slug", "title", "reason"])
+    dump_csv("near_duplicate_review.csv", built["near_duplicate_review"],
+             ["subject", "node_slug", "title_key", "slugs", "reason"])
     summary = {
         "dir_rows": built["counts"]["dir_rows"], "mat_rows": built["counts"]["mat_rows"],
         "authored_materials": len(built["materials"]), "new_points": len(built["new_points"]),
         "coverage": len(built["coverage"]), "rejects": len(built["rejects"]),
         "quarantine": len(built["quarantine"]), "placement_review": len(built["placement"]),
         "capacity_blocked": len(built["capacity_blocked"]),
+        "duplicate_dropped": len(built["duplicate_dropped"]),
+        "near_duplicate_review": len(built["near_duplicate_review"]),
         "header_errors": built["errors"],
     }
     (out_dir / "summary.json").write_text(

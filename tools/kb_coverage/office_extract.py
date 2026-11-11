@@ -27,10 +27,12 @@ import csv
 import hashlib
 import json
 import re
+import shutil
 import zipfile
 from pathlib import Path
 
 from kb_coverage import extraction_state as es
+from kb_coverage.content_identity import content_sha
 from kb_coverage.pool_path import POOL_PATH
 
 CHUNKS = POOL_PATH
@@ -171,8 +173,13 @@ def extract_file(rel_path: str, subject: str) -> list[dict]:
 
 
 def _fp(text: str) -> str:
-    """内容指纹：只取 CJK 字符后哈希——学生版/教师版排版差异不挡住去重。"""
-    return hashlib.sha256("".join(CJK.findall(text)).encode("utf-8")).hexdigest()
+    """内容指纹 = **全内容** sha256（NFC + LF 规范化，见 content_identity）。
+
+    旧实现只哈希 CJK 字符，公式/数字/拉丁字母变化不可见（`$x=1$`→`$x=2$`
+    仍是同一指纹），判定账本会漏掉“内容已改”。现在全文参与哈希；
+    换行与 Unicode 组合形式按 content_identity 的规范化口径处理。
+    """
+    return content_sha(text)
 
 
 def load_chunks() -> list[dict]:
@@ -182,15 +189,40 @@ def load_chunks() -> list[dict]:
 
 
 def _seen_keys() -> tuple[set[tuple[str, str]], set[str]]:
+    """已有池的键与**全内容**指纹。
+
+    旧池行的 `fp` 是 CJK-only 历史值，不能直接拿来和新口径比较；有 `text` 的
+    行一律按当前口径重算，保证“同一全文”仍能去重。无 `text` 时退回存量 `fp`
+    （只可能是手工/迁移行）。
+    """
     keys: set[tuple[str, str]] = set()
     fps: set[str] = set()
     for c in load_chunks():
         keys.add((c["rel_path"], c["chunk_id"]))
-        fps.add(c.get("fp", ""))
+        text = c.get("text")
+        if isinstance(text, str):
+            fps.add(content_sha(text))
+        elif c.get("fp"):
+            fps.add(c["fp"])
     return keys, fps
 
 
-def run(subject: str | None, limit: int | None) -> dict:
+def _file_signature(path: Path) -> tuple[int, int]:
+    stat = path.stat()
+    return stat.st_size, stat.st_mtime_ns
+
+
+def backup_pool() -> Path | None:
+    """写前备份：已有非空块池复制为 `<pool>.bak`。"""
+    if not CHUNKS.exists() or CHUNKS.stat().st_size == 0:
+        return None
+    dest = CHUNKS.with_name(CHUNKS.name + ".bak")
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(CHUNKS, dest)
+    return dest
+
+
+def run(subject: str | None, limit: int | None, *, backup: bool = True) -> dict:
     states = es.load_states()
     seen, seen_fps = _seen_keys()
     files = [r for r in states.values()
@@ -199,9 +231,17 @@ def run(subject: str | None, limit: int | None) -> dict:
     files.sort(key=lambda r: r["rel_path"])
     if limit:
         files = files[:limit]
-    stats = {"scanned": 0, "ok": 0, "error": 0, "chunks": 0, "deduped": 0, "skipped_seen": 0}
+    before = _file_signature(CHUNKS) if CHUNKS.exists() else None
+    backup_path = backup_pool() if backup else None
+    stats = {"scanned": 0, "ok": 0, "error": 0, "chunks": 0, "deduped": 0,
+             "skipped_seen": 0, "backup": str(backup_path) if backup_path else ""}
     with CHUNKS.open("a", encoding="utf-8") as fh:
         for r in files:
+            # 写前守卫：打开 append 后、写任何一行前核对块池签名；别线写入即拒写。
+            if before is not None and _file_signature(CHUNKS) != before:
+                raise RuntimeError(
+                    f"块池在抽取期间被其他进程改写，拒绝追加：{CHUNKS}"
+                    f"（写前备份：{backup_path}）")
             stats["scanned"] += 1
             rel = r["rel_path"]
             try:
@@ -215,6 +255,9 @@ def run(subject: str | None, limit: int | None) -> dict:
             for c in new:
                 fh.write(json.dumps(c, ensure_ascii=False) + "\n")
                 seen_fps.add(c["fp"])
+            if new:
+                # 自己的追加是预期变化：更新签名，下一步继续拿它当“外部是否改写”的基线。
+                before = _file_signature(CHUNKS)
             stats["chunks"] += len(new)
             stats["deduped"] += len(chunks) - len(new)
             if not new and chunks:

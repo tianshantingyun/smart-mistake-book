@@ -103,18 +103,21 @@ def make_source(subject: str, materials: list[dict] | None = None) -> dict:
     return {
         "sourceId": sid,
         "subject": subject,
-        "sourceType": "AUTHORIZED_EDUCATION_MATERIAL",
+        # 五三精讲册是第三方作品、没有公开可核 URI：按导入契约标「来源不明（占位）」类，
+        # sourceUri 留空（**不填 example.edu 之类的假地址**），权利状态保持 REFERENCE_ONLY。
+        # 来源定位只落在各条材料的 sourceLocator（页码）。
+        "sourceType": "UNVERIFIED_PLACEHOLDER",
         "title": SOURCE_TITLE_TMPL.format(cn=SUBJECT_CN[subject]),
         "publisher": SOURCE_PUBLISHER,
         "edition": "2027版",
-        "sourceUri": "https://www.example.edu/material",
+        "sourceUri": None,
         "licenseStatus": "REFERENCE_ONLY",
         "contentFingerprint": digest,
         "importedAtEpochMillis": 1789200000000,
         "contentUsePolicy": "REVIEWED_SYNTHESIS_ONLY",
         "licenseExpression": None,
         "licenseUri": None,
-        "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文。",
+        "attributionText": "结构化总结（REVIEWED_SYNTHESIS），非原文；仅参考、独立重写，不保存原文。",
     }
 
 

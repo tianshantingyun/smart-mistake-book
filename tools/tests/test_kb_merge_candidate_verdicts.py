@@ -199,5 +199,28 @@ class MergeCandidateVerdictsTest(unittest.TestCase):
         self.assertEqual(["cmp-mat-00003"], slugs)  # 只剩绑新点的那条
 
 
+    def test_identical_drafts_deduped(self):
+        """跨批同源条目产出的完全相同补料只留第一条，其余进 duplicate_dropped。"""
+        _write_csv(self.vdir / "dir_batch_900.csv", DIR_COLS, [
+            _row(DIR_COLS, {"idx": "901", "subject": "MATH", "name": "甲", "verdict": "GAP",
+                            "node_slug": "node-a", "material_title": "同题补料",
+                            "material_type": "METHOD_MODEL", "material_summary": "s",
+                            "material_content": "同一段结论。", "material_boundary": "b",
+                            "evidence": "e1"}),
+            _row(DIR_COLS, {"idx": "902", "subject": "MATH", "name": "乙", "verdict": "GAP",
+                            "node_slug": "node-a", "material_title": "同题补料",
+                            "material_type": "METHOD_MODEL", "material_summary": "s",
+                            "material_content": "同一段结论。", "material_boundary": "b",
+                            "evidence": "e2"}),
+        ])
+        built = self._build()
+        self.assertEqual(1, len(built["duplicate_dropped"]))
+        self.assertEqual("cmp-mat-00902", built["duplicate_dropped"][0]["slug"])
+        self.assertEqual("cmp-mat-00901", built["duplicate_dropped"][0]["kept_slug"])
+        slugs = [m["slug"] for m in built["materials"]]
+        self.assertIn("cmp-mat-00901", slugs)
+        self.assertNotIn("cmp-mat-00902", slugs)
+
+
 if __name__ == "__main__":
     unittest.main()

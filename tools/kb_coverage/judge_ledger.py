@@ -366,6 +366,46 @@ def claim(
         return out
 
 
+def claim_one(
+    conn: sqlite3.Connection,
+    work_key: str,
+    *,
+    owner: str,
+    lease_seconds: int = 300,
+    now: datetime | str | None = None,
+) -> dict[str, Any] | None:
+    """原子领取**指定** work_key（单块 worker / 判定结账用）。
+
+    与 `claim` 同一套状态机：只领取 pending、未被取代、租约已过期的行；成功时
+    attempts+1 并写租约。不可领取时返回 None（不改变行），不存在时抛 KeyError。
+    """
+    work_key = _nonempty("work_key", work_key)
+    owner = _nonempty("owner", owner)
+    stamp = _now(now)
+    expires = _lease_expiry(now, lease_seconds)
+    with _immediate(conn):
+        row = conn.execute(
+            "SELECT * FROM block_ledger WHERE work_key = ?", (work_key,)).fetchone()
+        if row is None:
+            raise KeyError(f"账本无此 work_key：{work_key}")
+        if row["superseded_by"] is not None:
+            return None
+        if row["status"] != "pending":
+            return None
+        if row["lease_expires_at"] is not None and row["lease_expires_at"] > stamp:
+            return None
+        conn.execute(
+            """UPDATE block_ledger
+               SET lease_owner = ?, lease_expires_at = ?, attempts = attempts + 1,
+                   updated_at = ?
+               WHERE work_key = ?""",
+            (owner, expires, stamp, work_key),
+        )
+        fresh = conn.execute(
+            "SELECT * FROM block_ledger WHERE work_key = ?", (work_key,)).fetchone()
+        return dict(fresh)
+
+
 def judge(
     conn: sqlite3.Connection,
     work_key: str,

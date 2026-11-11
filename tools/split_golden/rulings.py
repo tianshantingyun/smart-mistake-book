@@ -98,7 +98,10 @@ def _ruling(row: dict, *, generated_at_utc: str, level: str | None,
         "gold": {"questionCount": row["goldQuestions"],
                  "boxesSha256": row["goldBoxesSha256"]},
         "app": {"boxCount": row["appBoxes"],
-                "boxesSha256": row["appBoxesSha256"]},
+                "boxesSha256": row["appBoxesSha256"],
+                # 批次 51 口径 v3：逐页判定必须随裁定留档（加法字段；设备导出两者为 null）。
+                "appDecision": row.get("appDecision"),
+                "pageClass": row.get("pageClass")},
         "diff": {
             "countDelta": row["appBoxes"] - row["goldQuestions"],
             "countVerdict": "CONSISTENT" if row["consistent"] else "INCONSISTENT_COUNT",

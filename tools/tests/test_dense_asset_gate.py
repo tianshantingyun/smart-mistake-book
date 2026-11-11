@@ -142,7 +142,7 @@ class DenseAssetGateTest(unittest.TestCase):
         self._first_non_empty_point(payload)["name"] = "函数的概念（改）"
         result, mutated_sha, ids_stable = self._evaluate_mutated_pack(payload, "n1.json")
         self.assertTrue(ids_stable, "N1 前提：ids 序列必须与基线完全相同")
-        self.assertEqual(mutated_sha, "28fc9985374da6cbde5944d1c856a07e9e90d543cc2d92d8020e51850c4c9296",
+        self.assertEqual(mutated_sha, "8f680a58f595d4cf9e56e64f8022a7d054962c31790b5cce876c7b59e2ce3a0a",
                          "N1 的 layoutSha256 与预注册冻结值不符（跨语言序列化漂移或主包已变）")
         self.assertOnlyLayoutShaFailed(result)
 
@@ -155,7 +155,7 @@ class DenseAssetGateTest(unittest.TestCase):
         self.assertEqual(len(point["aliases"]), alias_count, "N2 前提：别名条数必须不变")
         result, mutated_sha, ids_stable = self._evaluate_mutated_pack(payload, "n2.json")
         self.assertTrue(ids_stable, "N2 前提：ids 序列必须与基线完全相同")
-        self.assertEqual(mutated_sha, "235faec73c011bc7fec8c3154a23b33763b0c6d9aee25463942fb49f8eea6494",
+        self.assertEqual(mutated_sha, "07fd852ab68fb90896b9acb72860ffecfd3caa2ddda767189c222e03b1620909",
                          "N2 的 layoutSha256 与预注册冻结值不符（跨语言序列化漂移或主包已变）")
         self.assertOnlyLayoutShaFailed(result)
 
@@ -170,7 +170,7 @@ class DenseAssetGateTest(unittest.TestCase):
         aliases[0], aliases[1] = aliases[1], aliases[0]
         result, mutated_sha, ids_stable = self._evaluate_mutated_pack(payload, "n3.json")
         self.assertTrue(ids_stable, "N3 前提：ids 序列必须与基线完全相同")
-        self.assertEqual(mutated_sha, "ca519f35e78b6c96a8c9dd9e9eae0845bb10e5e0e2dbd052b796510bbe774d3d",
+        self.assertEqual(mutated_sha, "419983ca958628ddbdf42c29322e8ae2a502be420c2c1ef1ded88fbf780177b9",
                          "N3 的 layoutSha256 与预注册冻结值不符（有序摘要退化成了集合摘要？）")
         self.assertOnlyLayoutShaFailed(result)
 

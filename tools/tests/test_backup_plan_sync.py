@@ -84,16 +84,30 @@ class BackupPlanSyncGateTest(unittest.TestCase):
             self._copy_tree(root)
             design = root / G.DESIGN_PATH
             text = design.read_text(encoding="utf-8")
-            self.assertIn('"identityHash": "1d086050204a0da1ed6b6e3299dd9733"', text)
+            self.assertIn('"identityHash": "f9a3d1c9ea8ef83d7222721ad1015a51"', text)
             design.write_text(
                 text.replace(
-                    '"identityHash": "1d086050204a0da1ed6b6e3299dd9733"',
+                    '"identityHash": "f9a3d1c9ea8ef83d7222721ad1015a51"',
                     '"identityHash": "00000000000000000000000000000000"',
                     1,
                 ),
                 encoding="utf-8",
             )
             self.assertEqual(1, G.main(["--repo", str(root)]))
+
+    def test_machine_block_marker_drift_exits_two(self) -> None:
+        """v3 begin/end 不成对（本轮 KD-80 复发形态）不得被当成"一致"。"""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._copy_tree(root)
+            design = root / G.DESIGN_PATH
+            text = design.read_text(encoding="utf-8")
+            self.assertIn("\n<!-- 6c2-plan-v3:end -->\n", text)
+            design.write_text(
+                text.replace("\n<!-- 6c2-plan-v3:end -->\n", "\n<!-- 6c2-plan-v3:closed -->\n", 1),
+                encoding="utf-8",
+            )
+            self.assertEqual(2, G.main(["--repo", str(root)]))
 
     def test_v4_fixture_byte_drift_is_detected(self) -> None:
         """重打包/篡改冻结夹具字节必须被门抓住（此前门完全不读夹具）。"""
