@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.tingyun.smartmistakebook.core.model.ReadableMathText
 
 /**
@@ -31,6 +32,38 @@ internal sealed interface TutorProseSegment {
  */
 internal fun splitTutorProseSegments(markdown: String): List<TutorProseSegment> {
     if (markdown.isEmpty()) return emptyList()
+    val literal = BooleanArray(markdown.length)
+    val offsets = buildList {
+        add(0)
+        markdown.forEachIndexed { index, character -> if (character == '\n') add(index + 1) }
+    }
+    val document = org.commonmark.parser.Parser.builder()
+        .includeSourceSpans(org.commonmark.parser.IncludeSourceSpans.BLOCKS_AND_INLINES).build().parse(markdown)
+    document.accept(object : org.commonmark.node.AbstractVisitor() {
+        private fun protect(node: org.commonmark.node.Node) {
+            node.sourceSpans.forEach { span ->
+                val start = offsets[span.lineIndex] + span.columnIndex
+                for (position in start until (start + span.length).coerceAtMost(markdown.length)) literal[position] = true
+            }
+        }
+        override fun visit(node: org.commonmark.node.Code) = protect(node)
+        override fun visit(node: org.commonmark.node.FencedCodeBlock) = protect(node)
+        override fun visit(node: org.commonmark.node.IndentedCodeBlock) = protect(node)
+    })
+    fun escaped(position: Int): Boolean {
+        var index = position - 1
+        while (index >= 0 && markdown[index] == '\\') index--
+        return (position - index - 1) % 2 == 1
+    }
+    fun closingDelimiter(start: Int, delimiter: String, multiline: Boolean): Int {
+        var end = markdown.indexOf(delimiter, start)
+        while (end >= 0) {
+            if (!multiline && '\n' in markdown.substring(start, end)) return -1
+            if (!literal[end] && !escaped(end)) return end
+            end = markdown.indexOf(delimiter, end + delimiter.length)
+        }
+        return -1
+    }
     val segments = ArrayList<TutorProseSegment>()
     val text = StringBuilder()
     var index = 0
@@ -41,26 +74,48 @@ internal fun splitTutorProseSegments(markdown: String): List<TutorProseSegment> 
         }
     }
     while (index < markdown.length) {
-        if (markdown.startsWith("$$", index)) {
-            val end = markdown.indexOf("$$", index + 2)
+        if (literal[index] || escaped(index)) {
+            text.append(markdown[index++])
+            continue
+        }
+        val displayOpen = when {
+            markdown.startsWith("$$", index) -> "$$"
+            markdown.startsWith("\\[", index) -> "\\["
+            else -> null
+        }
+        if (displayOpen != null) {
+            val close = if (displayOpen == "$$") "$$" else "\\]"
+            val end = closingDelimiter(index + 2, close, multiline = true)
             if (end > index + 2) {
                 flushText()
                 segments.add(TutorProseSegment.DisplayMath(markdown.substring(index + 2, end)))
                 index = end + 2
+            } else {
+                text.append(displayOpen)
+                index += 2
+            }
+            continue
+        }
+        val inlineOpen = when {
+            markdown[index] == '$' -> "$"
+            markdown.startsWith("\\(", index) -> "\\("
+            else -> null
+        }
+        if (inlineOpen != null) {
+            val close = if (inlineOpen == "$") "$" else "\\)"
+            val start = index + inlineOpen.length
+            val end = closingDelimiter(start, close, multiline = false)
+            if (end > start && markdown.substring(start, end).isNotBlank()) {
+                // Entities preserve mathematical comparisons without making them Markdown HTML.
+                val readable = ReadableMathText.formula(markdown.substring(start, end))
+                    .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                    .replace("*", "\\*").replace("_", "\\_")
+                text.append(readable)
+                index = end + close.length
                 continue
             }
         }
-        if (markdown[index] == '$' && (index == 0 || markdown[index - 1] != '\\')) {
-            val end = markdown.indexOf('$', index + 1)
-            val inner = if (end > index + 1) markdown.substring(index + 1, end) else null
-            if (inner != null && '\n' !in inner && inner.isNotBlank()) {
-                text.append(ReadableMathText.formula(inner))
-                index = end + 1
-                continue
-            }
-        }
-        text.append(markdown[index])
-        index += 1
+        text.append(markdown[index++])
     }
     flushText()
     return segments
@@ -88,10 +143,10 @@ fun TutorReplyMarkdown(
                     modifier = Modifier
                         .fillMaxWidth()
                         .testTag("tutor_reply_formula")
-                        .padding(vertical = 2.dp),
+                        .padding(vertical = 10.dp),
                     color = Ink,
                     fallbackText = ReadableMathText.formula(segment.latex),
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    fontSize = 20.sp,
                 )
             }
         }

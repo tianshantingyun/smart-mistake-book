@@ -3,6 +3,26 @@ package com.tingyun.smartmistakebook.core.database
 import com.tingyun.smartmistakebook.core.database.dao.TUTOR_CONVERSATION_AREA_AGENT
 import com.tingyun.smartmistakebook.core.database.dao.TUTOR_INTERACTION_MODE_NORMAL
 
+data class TutorReplyVersionRecord(
+    val versionId: String,
+    val groupId: String,
+    val conversationId: String,
+    val requestId: String,
+    val ordinal: Int,
+    val originalRequestId: String,
+    val bodyMarkdown: String,
+    val thinkingMarkdown: String?,
+    val toolTraceJson: String?,
+    val sourceAssetIdsJson: String,
+    val requestJson: String?,
+    val outputJson: String?,
+    val createdAtEpochMillis: Long,
+    val selected: Boolean = false,
+    val locked: Boolean = false,
+    val responseJson: String? = null,
+    val providerJson: String? = null,
+)
+
 data class TutorConversationRecord(
     val conversationId: String,
     /** 会话区（K1）：会话按栏隔离的判别列。 */

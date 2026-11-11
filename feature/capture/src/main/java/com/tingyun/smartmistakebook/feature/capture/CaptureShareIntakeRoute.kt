@@ -1,23 +1,17 @@
 package com.tingyun.smartmistakebook.feature.capture
 
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNotice
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNoticeTone
+import com.tingyun.smartmistakebook.core.ui.InlineActionButton
+import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
 import androidx.compose.foundation.layout.heightIn
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material3.Icon
-import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -191,7 +184,7 @@ fun CaptureShareIntakeRoute(
         )
         Spacer(Modifier.height(14.dp))
         when (val current = routeState) {
-            CaptureShareRouteState.Working -> {
+            CaptureShareRouteState.Working -> WorkspacePanel(containerColor = SmartColors.SubtleSurface) {
                 Text(
                     text = "正在接收分享的文件…",
                     style = MaterialTheme.typography.titleSmall,
@@ -261,79 +254,50 @@ private fun CaptureShareFailureCard(
     onManualEntry: () -> Unit,
     onDismiss: () -> Unit,
 ) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag("share_intake_rejected"),
-        color = SmartColors.ErrorWarm.copy(alpha = 0.10f),
-        shape = RoundedCornerShape(10.dp),
-        border = androidx.compose.foundation.BorderStroke(
-            1.dp,
-            SmartColors.ErrorWarm.copy(alpha = 0.45f),
-        ),
+    WorkspacePanel(
+        modifier = Modifier.testTag("share_intake_rejected"),
+        containerColor = SmartColors.ContentSurface,
     ) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Text(
-                text = "这次分享没有导入",
-                style = MaterialTheme.typography.titleSmall,
-                color = SmartColors.Ink,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodySmall,
-                color = SmartColors.InkSecondary,
-            )
-            Text(
-                text = "原文件还在原来的位置；也可以直接从录入页手动选图。",
-                style = MaterialTheme.typography.labelSmall,
-                color = SmartColors.InkSecondary,
-            )
-            if (retryable) {
-                PrimaryActionButton(
-                    text = "再试一次",
-                    onClick = onRetry,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .testTag("share_intake_retry"),
-                )
-            }
-            OutlineActionChip(
-                text = "去手动录入",
-                onClick = onManualEntry,
+        WorkspaceNotice(
+            message = message,
+            title = "这次分享没有导入",
+            tone = WorkspaceNoticeTone.ERROR,
+        )
+        Text(
+            text = "原文件还在原来的位置；也可以直接从录入页手动选图。",
+            style = MaterialTheme.typography.labelSmall,
+            color = SmartColors.InkSecondary,
+        )
+        if (retryable) {
+            PrimaryActionButton(
+                text = "再试一次",
+                onClick = onRetry,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
-                    .testTag("share_intake_manual"),
-            )
-            OutlineActionChip(
-                text = "关闭",
-                onClick = onDismiss,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .testTag("share_intake_close"),
+                    .heightIn(min = 48.dp)
+                    .testTag("share_intake_retry"),
             )
         }
+        OutlineActionChip(
+            text = "去手动录入",
+            onClick = onManualEntry,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 48.dp)
+                .testTag("share_intake_manual"),
+        )
+        InlineActionButton(
+            text = "关闭",
+            onClick = onDismiss,
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 48.dp)
+                .testTag("share_intake_close"),
+        )
     }
 }
 
 @Composable
 private fun CaptureShareHeader(onBack: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = 58.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(onClick = onBack, modifier = Modifier.size(48.dp)) {
-            Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = "返回")
-        }
-        Spacer(Modifier.size(4.dp))
-        Text("接收分享", style = MaterialTheme.typography.headlineSmall)
-    }
+    ClaudePageHeader("接收分享", onBack = onBack)
 }

@@ -8,6 +8,9 @@ import androidx.compose.animation.core.snap
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,8 +66,9 @@ fun ClaudeCopyButton(text: String, modifier: Modifier = Modifier, label: String 
             "已复制" -> successColor
             else -> contentColor
         }
-        if (feedback == "已复制") Icon(Icons.Outlined.Check, contentDescription = null,
-            tint = tint, modifier = Modifier.size(14.dp).alpha(feedbackAlpha))
+        Icon(if (feedback == "已复制") Icons.Outlined.Check else Icons.Outlined.ContentCopy,
+            contentDescription = null, tint = tint, modifier = Modifier.size(15.dp))
+        Spacer(Modifier.width(5.dp))
         Text(feedback ?: label, style = ClaudeLayout.ControlText,
             modifier = Modifier.alpha(feedbackAlpha), color = tint)
     }

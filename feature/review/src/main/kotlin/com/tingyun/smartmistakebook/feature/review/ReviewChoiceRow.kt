@@ -1,8 +1,8 @@
 package com.tingyun.smartmistakebook.feature.review
 
+import com.tingyun.smartmistakebook.core.ui.claudeInteractiveRow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -59,10 +59,14 @@ internal fun ReviewChoiceRow(
         isSubmittedSelection && isCorrect -> SmartColors.Jade
         isSubmittedSelection -> SmartColors.ErrorWarm
         isSelected -> SmartColors.Jade
-        else -> SmartColors.Outline
+        else -> SmartColors.Divider
     }
-    val backgroundColor = if (isSelected) SmartColors.JadeSoft else SmartColors.Paper
-    val shape = RoundedCornerShape(8.dp)
+    val backgroundColor = when {
+        isSubmittedSelection && !isCorrect -> SmartColors.ErrorSurface
+        isSelected -> SmartColors.JadeSoft
+        else -> SmartColors.ContentSurface
+    }
+    val shape = RoundedCornerShape(14.dp)
     val stateLabel = when {
         isSubmittedSelection && isCorrect -> "已提交，回答正确"
         isSubmittedSelection -> "已提交，需要修正"
@@ -79,10 +83,14 @@ internal fun ReviewChoiceRow(
             .clip(shape)
             .background(backgroundColor)
             .border(1.dp, outlineColor, shape)
-            .clickable(
+            .claudeInteractiveRow(
+                onClick = { onSelect(choice.id) },
+                selected = isSelected,
+                selectedFill = backgroundColor,
                 enabled = enabled && !isSubmitted,
                 role = Role.RadioButton,
-            ) { onSelect(choice.id) }
+                shape = shape,
+            )
             .semantics {
                 role = Role.RadioButton
                 selected = isSelected
@@ -97,6 +105,7 @@ internal fun ReviewChoiceRow(
             modifier = Modifier
                 .size(badgeSize)
                 .clip(CircleShape)
+                .background(if (isSelected) SmartColors.JadeSoft else SmartColors.SubtleSurface)
                 .border(1.dp, outlineColor, CircleShape),
             contentAlignment = Alignment.Center,
         ) {

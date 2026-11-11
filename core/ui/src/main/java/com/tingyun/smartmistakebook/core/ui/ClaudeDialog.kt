@@ -59,7 +59,7 @@ fun ClaudeAlertDialog(
     icon: (@Composable () -> Unit)? = null,
     title: (@Composable () -> Unit)? = null,
     text: (@Composable () -> Unit)? = null,
-    shape: Shape = RoundedCornerShape(18.dp),
+    shape: Shape = RoundedCornerShape(20.dp),
     containerColor: Color = ContentSurface,
     iconContentColor: Color = JadeActive,
     titleContentColor: Color = Ink,
@@ -76,8 +76,8 @@ fun ClaudeAlertDialog(
             Surface(modifier.widthIn(max = 520.dp).fillMaxWidth().heightIn(max = maxHeight)
                 .claudeModalEntrance().claudeSurfaceShadow(shape, ClaudeSurfaceDepth.FLOATING),
                 shape = shape, color = containerColor, tonalElevation = tonalElevation,
-                border = BorderStroke(1.dp, SmartColors.Divider), shadowElevation = 0.dp) {
-                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                border = BorderStroke(.5.dp, SmartColors.Divider), shadowElevation = 0.dp) {
+                Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         if (dangerConfirm) {

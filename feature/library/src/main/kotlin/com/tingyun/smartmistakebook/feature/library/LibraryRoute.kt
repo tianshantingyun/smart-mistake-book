@@ -1,11 +1,12 @@
 package com.tingyun.smartmistakebook.feature.library
 
 import androidx.compose.foundation.background
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
@@ -108,6 +108,7 @@ fun LibraryRoute(
     onOpenExportResults: () -> Unit,
     onOpenItem: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onOpenAssembly: ((Map<String, String>) -> Unit)? = null,
 ) {
     val libraryViewModel: LibraryViewModel = viewModel()
     LaunchedEffect(catalogRepository, entries) {
@@ -145,11 +146,12 @@ fun LibraryRoute(
         onToggleFavorite = libraryViewModel::toggleFavorite,
         viewModel = libraryViewModel,
         modifier = modifier,
+        onOpenAssembly = onOpenAssembly,
     )
 }
 
 @Composable
-private fun LibraryContent(
+internal fun LibraryContent(
     mistakeCount: Int,
     usePaging: Boolean,
     mistakeDetailRepository: MistakeDetailRepository?,
@@ -162,8 +164,11 @@ private fun LibraryContent(
     onToggleFavorite: (String, Boolean) -> Unit,
     viewModel: LibraryViewModel,
     modifier: Modifier,
+    assembly: PaperAssemblyViewModel? = null,
+    onOpenAssembly: ((Map<String, String>) -> Unit)? = null,
 ) {
     val uiState = viewModel.uiState
+    val focusManager = LocalFocusManager.current
     val motion = LocalClaudeMotionEnabled.current
     val itemFade = if (motion) tween<Float>(ClaudeMotion.PageMillis, easing = ClaudeMotion.Enter) else null
     val itemPlacement = if (motion) tween<IntOffset>(220, easing = ClaudeMotion.Expand) else null
@@ -192,7 +197,7 @@ private fun LibraryContent(
     ) {
         item(key = "library_header") {
             Column {
-                LibraryPageHeader(
+                if (assembly == null) LibraryPageHeader(
                     showCapture = emptyState != LibraryEmptyState.CATALOG_EMPTY,
                     onCapture = onCapture,
                     onOpenResults = onOpenExportResults,
@@ -212,7 +217,7 @@ private fun LibraryContent(
                             .testTag("library_pending_tasks"),
                     )
                 }
-                ArchivedEntriesSection(
+                if (assembly == null) ArchivedEntriesSection(
                     repository = mistakeDetailRepository,
                     onRestore = { entryId ->
                         scope.launch {
@@ -224,12 +229,14 @@ private fun LibraryContent(
                     },
                 )
                 if (emptyState == LibraryEmptyState.CATALOG_EMPTY) {
-                    EmptyLibraryResult(emptyState, canClear = false, onCapture = onCapture, onClear = {})
+                    if (assembly == null) EmptyLibraryResult(emptyState, canClear = false, onCapture = onCapture, onClear = {})
+                    else com.tingyun.smartmistakebook.core.ui.WorkspaceNotice("错题本还没有题目，录入后即可组卷。")
                 } else {
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(8.dp))
                     LibrarySearchField(
                         query = uiState.query,
                         onQueryChange = viewModel::updateQuery,
+                        onFocus = { filtersExpanded = false },
                     )
                     Spacer(Modifier.height(4.dp))
                     LibraryResultToolbar(
@@ -238,22 +245,28 @@ private fun LibraryContent(
                         filterCount = LibraryFacet.entries.count { uiState.selections.selectedOptionId(it) != null } +
                             if (uiState.timeRange != LibraryTimeRange.ALL) 1 else 0,
                         expanded = filtersExpanded,
-                        canExport = !loading && visibleMistakeCount > 0 &&
-                            (pagingItems?.itemCount ?: uiState.visibleMistakes.size) > 0,
-                        onToggleFilters = { filtersExpanded = !filtersExpanded },
+                        canExport = assembly == null && (onOpenAssembly != null ||
+                            !loading && visibleMistakeCount > 0 &&
+                            (pagingItems?.itemCount ?: uiState.visibleMistakes.size) > 0),
+                        onToggleFilters = {
+                            focusManager.clearFocus()
+                            filtersExpanded = !filtersExpanded
+                        },
                         onExport = {
                             // Export the full current query, including pages not loaded on screen.
-                            viewModel.exportVisible(MAX_LIBRARY_BATCH_EXPORT_QUESTIONS, onExportVisible)
+                            if (assembly != null) Unit else onOpenAssembly?.invoke(buildMap {
+                                put("query", uiState.query)
+                                put("sort", uiState.sort.name)
+                                put("time", uiState.timeRange.name)
+                                LibraryFacet.entries.forEach { facet ->
+                                    uiState.selections.selectedOptionId(facet)?.let { put(facet.name, it) }
+                                }
+                            }) ?: viewModel.exportVisible(MAX_LIBRARY_BATCH_EXPORT_QUESTIONS, onExportVisible)
                         },
-                    )
-                    LibrarySelectedFilters(
-                        state = uiState,
-                        onRemoveFacet = { viewModel.toggleFilter(it, null) },
-                        onRemoveTimeRange = { viewModel.selectTimeRange(LibraryTimeRange.ALL) },
                     )
                     AnimatedVisibility(visible = filtersExpanded) {
                         Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
-                            .background(SmartColors.ContentSurface).padding(12.dp)) {
+                            .background(SmartColors.ContentSurface).padding(10.dp)) {
                             FacetTabs(activeFacet = uiState.activeFacet, onSelect = viewModel::selectFacet)
                             FacetOptions(
                                 facet = uiState.activeFacet,
@@ -271,6 +284,11 @@ private fun LibraryContent(
                             }
                         }
                     }
+                    LibrarySelectedFilters(
+                        state = uiState,
+                        onRemoveFacet = { viewModel.toggleFilter(it, null) },
+                        onRemoveTimeRange = { viewModel.selectTimeRange(LibraryTimeRange.ALL) },
+                    )
                     // 收藏开关的写失败必须看得见（默默回弹会把"没写进去"说成"写进去了"）。
                     uiState.favoriteNotice?.let { notice ->
                         Spacer(Modifier.height(6.dp))
@@ -310,8 +328,10 @@ private fun LibraryContent(
                 key = pagingItems.itemKey { it.entryId },
                 contentType = pagingItems.itemContentType { _ -> "library_item" },
             ) { index ->
-                val mistake = pagingItems[index]?.toLibraryMistake()
+                val catalogItem = pagingItems[index]
+                val mistake = catalogItem?.toLibraryMistake()
                 if (mistake != null) {
+                    assembly?.let { SelectionControl(it, mistake.id, catalogItem?.problemRevisionId) }
                     LibraryQuestionCard(
                         mistake = mistake,
                         modifier = Modifier.animateItem(fadeInSpec = itemFade, placementSpec = itemPlacement, fadeOutSpec = itemFade),
@@ -328,6 +348,7 @@ private fun LibraryContent(
                 items = uiState.visibleMistakes,
                 key = LibraryMistake::id,
             ) { mistake ->
+                assembly?.let { SelectionControl(it, mistake.id) }
                 LibraryQuestionCard(
                     mistake = mistake,
                     modifier = Modifier.animateItem(fadeInSpec = itemFade, placementSpec = itemPlacement, fadeOutSpec = itemFade),
@@ -359,6 +380,7 @@ private fun LibraryContent(
 private fun LibrarySearchField(
     query: String,
     onQueryChange: (String) -> Unit,
+    onFocus: () -> Unit,
 ) {
     OutlinedTextField(
         value = query,
@@ -366,6 +388,7 @@ private fun LibrarySearchField(
         modifier = Modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 56.dp)
+            .onFocusChanged { if (it.isFocused) onFocus() }
             .testTag("library_search_field"),
         singleLine = true,
         placeholder = { Text("搜索题目、板块或知识点", style = MaterialTheme.typography.bodyMedium,
@@ -467,16 +490,16 @@ private fun filterTag(facet: LibraryFacet, option: LibraryFacetOption): String =
 }
 
 /** 排序控件（阶段 4A 批 1 · L5）：只有"最近更新"（默认）与"最近录入"两值。 */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun LibrarySortControl(
     sort: LibrarySort,
     onSelect: (LibrarySort) -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
+    androidx.compose.foundation.layout.FlowRow(
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         LibrarySort.entries.forEach { option ->
             OutlineActionChip(
@@ -495,16 +518,16 @@ private fun sortLabel(sort: LibrarySort): String = when (sort) {
 }
 
 /** 「录入时间段」控件：档位在查询层落成创建时间的绝对起止。 */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 private fun LibraryTimeRangeControl(
     timeRange: LibraryTimeRange,
     onSelect: (LibraryTimeRange) -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
+    androidx.compose.foundation.layout.FlowRow(
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         LibraryTimeRange.entries.forEach { option ->
             OutlineActionChip(

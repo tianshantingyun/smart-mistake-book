@@ -7,10 +7,10 @@ import java.security.MessageDigest
  *
  * 唯一数据源：`docs/research/2026-10-17-6c2-content-selection-design.md` §9.14 的
  * `<!-- 6c2-plan-v5:begin -->` 机器块；表/视图/FK 的事实源是 Room 导出物
- * `core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/75.json`
+ * `core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/76.json`
  * （`database.version=74`、`identityHash=4d2c8e0f…`）。本文件不新增规则：类别、闭包、
  * 裁剪顺序、软引用、资产根、kind 谓词全部逐项对应机器块，`SmbkSelectionPlanTest`
- * 反向解析机器块与 `75.json` 断言两处同源。
+ * 反向解析机器块与 `76.json` 断言两处同源。
  *
  * schema 73 已增加纸卷、固定题目快照与原始作答照片，照片属于复习记录的资产根。
  *
@@ -38,21 +38,21 @@ import java.security.MessageDigest
  */
 object SmbkSelectionPlan {
 
-    /** 机器块 `schemaVersion`，同时是 `75.json` 的 `database.version`。 */
-    const val SCHEMA_VERSION: Int = 75
+    /** 机器块 `schemaVersion`，同时是 `76.json` 的 `database.version`。 */
+    const val SCHEMA_VERSION: Int = 76
 
     /**
-     * 机器块 `identityHash`，必须与 `75.json` 的 `database.identityHash` 相等。
-     * 只能取 KSP 构建产物（`StudyDatabase_Impl.kt` 的 `RoomOpenDelegate` 与 `75.json` 同值），
+     * 机器块 `identityHash`，必须与 `76.json` 的 `database.identityHash` 相等。
+     * 只能取 KSP 构建产物（`StudyDatabase_Impl.kt` 的 `RoomOpenDelegate` 与 `76.json` 同值），
      * 不得估算或手写。
      */
-    const val IDENTITY_HASH: String = "f9a3d1c9ea8ef83d7222721ad1015a51"
+    const val IDENTITY_HASH: String = "5e6ec85c861c772d5106a5c2d771d5bb"
 
     /** 规则表版本；只在规则表变化时 bump，不是 schemaVersion 的别名。 */
-    const val CLOSURE_VERSION: Int = 6
+    const val CLOSURE_VERSION: Int = 7
 
     /** digest 前缀，与 closureVersion=5 绑定。 */
-    const val CLOSURE_DIGEST_PREFIX: String = "smbk-selection-v6"
+    const val CLOSURE_DIGEST_PREFIX: String = "smbk-selection-v7"
 
     /** 四项用户类别全选。 */
     const val FULL_MASK: Int = 15
@@ -157,6 +157,9 @@ object SmbkSelectionPlan {
         SmbkSelectionCategory.SESSIONS to listOf(
             "tutor_conversation",
             "tutor_message",
+            "tutor_reply_group",
+            "tutor_reply_version",
+            "tutor_reply_version_answer",
             "tutor_message_visual",
             "tutor_message_source_asset",
             "agent_pending_request",
@@ -208,7 +211,7 @@ object SmbkSelectionPlan {
 
     /**
      * 89 项裁剪顺序（子表先于父表）。= 97 − 7 ALWAYS − 1 `library_search_fts`；
-     * 派生表在列（本批恒裁）。逐边拓扑合法性由测试按 `75.json` 的真实 FK 图校验。
+     * 派生表在列（本批恒裁）。逐边拓扑合法性由测试按 `76.json` 的真实 FK 图校验。
      */
     val trimOrder: List<String> = listOf(
         "paper_review_photo",
@@ -220,6 +223,9 @@ object SmbkSelectionPlan {
         "problem_revision_visual",
         "tutor_visual_snapshot",
         "tutor_visual_program",
+        "tutor_reply_version_answer",
+        "tutor_reply_version",
+        "tutor_reply_group",
         "tutor_message_source_asset",
         "tutor_message",
         "split_import_question",
@@ -573,20 +579,20 @@ object SmbkSelectionPlan {
 
     init {
         require(allTables.size == allTables.toSet().size) { "表被重复归类：$allTables" }
-        require(allTables.size == 99) { "schema 75 应有 99 张表，实际 ${allTables.size}" }
-        require(views.size == 2) { "schema 75 应有 2 个视图，实际 ${views.size}" }
+        require(allTables.size == 102) { "schema 76 应有 102 张表，实际 ${allTables.size}" }
+        require(views.size == 2) { "schema 76 应有 2 个视图，实际 ${views.size}" }
         require(categoryTables[SmbkSelectionCategory.ISSUE_BOOK]?.size == 35) { "ISSUE_BOOK 应为 35 张表" }
         require(categoryTables[SmbkSelectionCategory.MASTERY]?.size == 40) { "MASTERY 应为 40 张表" }
-        require(categoryTables[SmbkSelectionCategory.SESSIONS]?.size == 7) { "SESSIONS 应为 7 张表" }
+        require(categoryTables[SmbkSelectionCategory.SESSIONS]?.size == 10) { "SESSIONS 应为 10 张表" }
         require(categoryTables[SmbkSelectionCategory.IMAGES]?.size == 1) { "IMAGES 应为 1 张表" }
         require(alwaysTables.size == 7) { "ALWAYS 应为 7 张表" }
         require(derivedTables.size == 2) { "DERIVED 应为 2 张表" }
         require(splitTables.size == 7) { "SPLIT 应为 7 张表" }
-        require(trimOrder.size == 91) { "裁剪顺序应为 91 项，实际 ${trimOrder.size}" }
+        require(trimOrder.size == 94) { "裁剪顺序应为 94 项，实际 ${trimOrder.size}" }
         require(trimOrder.size == trimOrder.toSet().size) { "裁剪顺序有重复项" }
         require(
             trimOrder.toSet() == allTables.toSet() - alwaysTables.toSet() - rebuildTables.toSet(),
-        ) { "裁剪顺序必须恰好覆盖 99 表 − ALWAYS − FTS" }
+        ) { "裁剪顺序必须恰好覆盖 102 表 − ALWAYS − FTS" }
         require(derivedTables.all { it in trimOrder }) { "派生表按本批裁定必须恒裁" }
         require(expectedClosure.size == 6) { "类别闭包应为 6 条边" }
         require(softReferences.size == 24) { "软引用应为 24 条" }
@@ -597,7 +603,7 @@ object SmbkSelectionPlan {
         require(allowedMasks == setOf(9, 13, 15)) { "本批只允许 9/13/15" }
     }
 
-    /** 表 → 归属桶；未知表返回 null（调用方对 `75.json` 漂移 fail-closed）。 */
+    /** 表 → 归属桶；未知表返回 null（调用方对 `76.json` 漂移 fail-closed）。 */
     fun bucketOf(table: String): SmbkTableBucket? = tableBucketIndex[table]
 
     /** 用户类别表的类别；ALWAYS/DERIVED/SPLIT 或未知表返回 null。 */
@@ -694,10 +700,10 @@ object SmbkSelectionPlan {
             .joinToString(separator = "") { byte -> "%02x".format(byte.toInt() and 0xff) }
     }
 
-    /** Read frozen historical backup rules; all new archives use closure 6. */
+    /** Read frozen historical backup rules; all new archives use closure 7. */
     fun rowCountKeysForRead(closureVersion: Int): Set<String> = when (closureVersion) {
         CLOSURE_VERSION -> rowCountKeys
-        4, 5 -> requireNotNull(ClosureRuleTables.of(closureVersion)).rowCountKeys
+        4, 5, 6 -> requireNotNull(ClosureRuleTables.of(closureVersion)).rowCountKeys
         else -> error("不支持的备份规则版本：$closureVersion")
     }
 }

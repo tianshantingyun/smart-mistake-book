@@ -19,6 +19,48 @@ import org.junit.Test
 class TutorToolTraceTest {
 
     @Test
+    fun missingTeachingFiguresSurviveStorageWithoutInventingToolCalls() {
+        val review = reviewTutorTeachingFigures(emptyList(), null, FigureGenerationCapabilities.NONE, null)
+        assertEquals(TutorTeachingFigureStatus.INCOMPLETE, review.status)
+        val trace = TutorTurnToolTrace(teachingFigureReview = review)
+        assertEquals(trace, decodeTutorTurnToolTrace(encodeTutorTurnToolTrace(trace)))
+        val display = tutorToolTraceDisplay(trace)
+        assertEquals("", display.headline)
+        assertTrue(display.teachingFigureNote!!.contains("配图尚未完成"))
+        assertFalse(display.hasDetails)
+    }
+
+    @Test
+    fun completedFiguresRequireThisTurnsSuccessfulTeachingReference() {
+        val figure = TutorToolFigureTrace(kind = TutorFigureKind.GENERATE_PROCESS, figureId = "fig-1",
+            method = FigureGenerationMethod.JS)
+        val trace = TutorTurnToolTrace(listOf(TutorToolTraceEntry(tool = TutorToolName.GENERATE_FIGURE,
+            ok = true, figure = figure)))
+        val caps = FigureGenerationCapabilities(availableMethods = setOf(FigureGenerationMethod.JS))
+        assertEquals(TutorTeachingFigureStatus.COMPLETE,
+            reviewTutorTeachingFigures(listOf("fig-1"), trace, caps, null).status)
+        assertEquals(TutorTeachingFigureStatus.INCOMPLETE,
+            reviewTutorTeachingFigures(listOf("other-turn"), trace, caps, null).status)
+        assertEquals(TutorTeachingFigureStatus.INCOMPLETE,
+            reviewTutorTeachingFigures(emptyList(), trace, caps, null).status)
+    }
+
+    @Test
+    fun complexOmissionRequiresActualCapabilitiesAndCannotExcuseFailedJs() {
+        val omission = TeachingFigureOmission("辨认真实组织形态", "需表达显微照片纹理", "图像模型未配置")
+        val caps = FigureGenerationCapabilities(availableMethods = setOf(FigureGenerationMethod.JS))
+        assertEquals(TutorTeachingFigureStatus.OMITTED,
+            reviewTutorTeachingFigures(emptyList(), null, caps, omission).status)
+        assertEquals(TutorTeachingFigureStatus.INCOMPLETE,
+            reviewTutorTeachingFigures(emptyList(), null, FigureGenerationCapabilities.IMAGE_MODEL_ONLY, omission).status)
+        val failure = TutorTurnToolTrace(listOf(TutorToolTraceEntry(tool = TutorToolName.GENERATE_FIGURE,
+            ok = false, errorKind = "figure_failed", figure = TutorToolFigureTrace(
+                kind = TutorFigureKind.GENERATE_PROCESS, method = FigureGenerationMethod.JS))))
+        assertEquals(TutorTeachingFigureStatus.INCOMPLETE,
+            reviewTutorTeachingFigures(emptyList(), failure, caps, omission).status)
+    }
+
+    @Test
     fun anEmptyTraceIsNeverStored() {
         assertNull(encodeTutorTurnToolTrace(TutorTurnToolTrace()))
         assertNull(decodeTutorTurnToolTrace(null))

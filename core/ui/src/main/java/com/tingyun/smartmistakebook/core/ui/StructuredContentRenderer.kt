@@ -79,6 +79,7 @@ fun StructuredContentRenderer(
     onChoiceSelected: (groupId: String, choiceId: String) -> Unit = { _, _ -> },
     storedFigures: List<com.tingyun.smartmistakebook.core.model.StoredFigureReference> = emptyList(),
     figureUri: (com.tingyun.smartmistakebook.core.model.StoredFigureReference) -> String? = { null },
+    showStoredFigureCaptions: Boolean = false,
 ) {
     // Sanitization is bounded; avoiding the raw document as a remember key also avoids a deep
     // data-class equality walk over an attacker-sized list during recomposition.
@@ -100,7 +101,14 @@ fun StructuredContentRenderer(
                 val storedFigure = storedFigures.singleOrNull { it.blockId == block.id }
                 if (storedFigure != null) {
                     val uri = figureUri(storedFigure)
-                    if (uri != null) BoundedLocalImage(imageUri = uri, contentDescription = "题目配图", expanded = true, modifier = Modifier.fillMaxWidth())
+                    if (uri != null && showStoredFigureCaptions) GeneratedFigureCard(
+                        assetId = storedFigure.assetId,
+                        modifier = Modifier.fillMaxWidth(.9f * .5f).align(androidx.compose.ui.Alignment.CenterHorizontally),
+                        state = AttachedImageRenderState.Ready(uri),
+                        maxImageHeight = minOf(300.dp, androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.dp * .36f) * .5f,
+                        caption = (block as? ContentBlock.Paragraph)?.markdown,
+                    )
+                    else if (uri != null) BoundedLocalImage(imageUri = uri, contentDescription = "题目配图", expanded = true, modifier = Modifier.fillMaxWidth())
                     else Text("配图暂时无法读取", color = InkSecondary, style = MaterialTheme.typography.bodySmall)
                 }
                 if (storedFigure == null) {

@@ -77,7 +77,7 @@ class KnowledgeSearchIndexCompletenessInstrumentedTest {
             searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion(text),
             limit = 64,
             queryText = text,
-        ).map(KnowledgeNodeSeedRecord::knowledgeNodeId)
+        ).candidates.map(KnowledgeNodeSeedRecord::knowledgeNodeId)
 
     @Test
     fun firstColdRecallRunsTheGateAndLaterRecallsIssueNoVerificationQueries() = runBlocking {

@@ -42,6 +42,7 @@ android {
         // 批次 50：不再手写字面量；release 由 -Psmbk.versionCode 注入（见文件头 val 注释）。
         versionCode = smbkVersionCode
         versionName = "0.2.0"
+        buildConfigField("String", "VISUAL_RUNTIME_VERSION", "\"quickjs-kt-android-${libs.versions.quickjs.kt.android.get()}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -198,6 +199,7 @@ tasks.configureEach {
 }
 
 dependencies {
+    implementation(libs.kotlinx.serialization.json)
     coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(project(":core:model"))
     implementation(project(":core:domain"))

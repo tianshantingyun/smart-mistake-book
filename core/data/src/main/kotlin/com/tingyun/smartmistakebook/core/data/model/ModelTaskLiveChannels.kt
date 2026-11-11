@@ -62,6 +62,13 @@ internal class ModelTaskToolTraceStore {
     fun current(requestId: String): TutorTurnToolTrace? =
         decodeTutorTurnToolTrace(traces.value[requestId])
 
+    fun completeFigures(requestId: String, review: com.tingyun.smartmistakebook.core.model.TutorTeachingFigureReview) {
+        traces.update { current ->
+            val trace = decodeTutorTurnToolTrace(current[requestId]) ?: TutorTurnToolTrace()
+            current + (requestId to requireNotNull(encodeTutorTurnToolTrace(trace.copy(teachingFigureReview = review))))
+        }
+    }
+
     /**
      * 把一轮的工具执行并进痕迹。
      *

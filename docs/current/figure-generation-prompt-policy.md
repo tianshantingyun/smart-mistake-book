@@ -115,3 +115,12 @@ JS可用时，组装器同时提供已实现的VisualProgram/Scene schema、SDK�
 - 模型输出、原生工具/兼容JSON、转写parser、净化作业、ledger、缓存/引用、导出消费者一起验证，不能只改一句提示词后宣称接线完成。
 
 2026-10-19质量补充：共享正文增加图义规则，方法选择/operation/预算语义不变。正式装配时记录prompt版本与正文摘要；当前仍为未接入的v1设计稿。启用按[产品闭环设计§6](../superpowers/specs/2026-10-19-product-readiness-design.md#6-统一生图的质量与启用)和PRD-09测真实质量，不因schema/渲染通过就标数学正确。
+
+
+## 2026-11-08 讲解与通用答案补充
+
+个性化聊天讲解和通用导出答案分别生成。不得将聊天记录作为标准答案。两者均要求与相关段落穿插的、有教学意义的图。简单图在 JS 真实接通后必须用 JS。禁止装饰图、段落截图，检查轴、单位、方向、关系、标签和可读性。模型自检不能证明学科正确。
+
+新导出任务冻结真实 availableFigureMethods。缺图不得静默 READY，唯一例外为确需图像模型的复杂图且宿主确认 IMAGE_MODEL 不可用。teachingFigureOmission 保存 instructionalTarget、jsLimitation、reason，单项最多 400 字，imageModelUnavailableAtPreparation 保存能力事实。历史答案保持可读。复杂性的说明仍来自模型，尚需独立学科质量验证。
+
+宿主不得广告未装配的 JS 引擎。2026-11-08 App 已通过 VisualJsFigureHost 注入隔离引擎、冻结绘图环境和 JsFigureArtifactAdapter，能力广告仍以实际 prepare 结果为准。独立模拟器已运行函数面积、木塞受力、性状比例三类人工编写程序，验证执行、原生标签度量、快照落盘及消息读取。该结果证明运行链路，真实模型首次出图率与学科正确率仍待独立评估。聊天工具成功结果只暴露已提交本地资产标记 [[figure:actualLocalId]]，模型在相关段落后使用，禁止编造引用、远程链接或 HTML。

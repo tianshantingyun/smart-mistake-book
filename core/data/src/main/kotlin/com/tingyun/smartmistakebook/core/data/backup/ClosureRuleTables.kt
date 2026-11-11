@@ -53,8 +53,10 @@ internal object ClosureRuleTables {
     /** closure 4 的恒裁派生表；closure 5 随 KB 32B 回滚删除。 */
     private val materialFeatureTable: Set<String> = setOf("knowledge_search_material_feature")
 
-    /** 现行规则（closure 5 / schema 73）：唯一可写版本。 */
-    val v6 = SmbkClosureRule(
+    private val replyVersionTables = setOf("tutor_reply_group", "tutor_reply_version", "tutor_reply_version_answer")
+
+    /** Current schema includes complete reply versions and independent answers. */
+    val v7 = SmbkClosureRule(
         closureVersion = SmbkSelectionPlan.CLOSURE_VERSION,
         digestPrefix = SmbkSelectionPlan.CLOSURE_DIGEST_PREFIX,
         rowCountKeys = SmbkSelectionPlan.rowCountKeys,
@@ -63,11 +65,14 @@ internal object ClosureRuleTables {
         droppedTables = emptySet(),
     )
 
+    val v6 = SmbkClosureRule(6, "smbk-selection-v6", SmbkSelectionPlan.rowCountKeys - replyVersionTables,
+        SmbkSelectionPlan.trimOrder.size - replyVersionTables.size, replyVersionTables, emptySet())
+
     private val interiorTables = setOf("mistake_edit_job", "detailed_solution_manifest", "detailed_solution", "mistake_export_group", "paper_review", "paper_review_question", "paper_review_photo")
-    val v5 = SmbkClosureRule(5, "smbk-selection-v5", SmbkSelectionPlan.rowCountKeys - interiorTables,
-        84, interiorTables, emptySet())
-    private val v5Ui = SmbkClosureRule(5, "smbk-selection-v5", SmbkSelectionPlan.rowCountKeys - errorCauseTables,
-        89, errorCauseTables, emptySet())
+    val v5 = SmbkClosureRule(5, "smbk-selection-v5", SmbkSelectionPlan.rowCountKeys - replyVersionTables - interiorTables,
+        84, interiorTables + replyVersionTables, emptySet())
+    private val v5Ui = SmbkClosureRule(5, "smbk-selection-v5", SmbkSelectionPlan.rowCountKeys - replyVersionTables - errorCauseTables,
+        89, errorCauseTables + replyVersionTables, emptySet())
 
     /**
      * closure 4（schema 72）的冻结快照：91 键 / 83 裁剪项 / `smbk-selection-v4`。
@@ -77,25 +82,25 @@ internal object ClosureRuleTables {
     val v4 = SmbkClosureRule(
         closureVersion = 4,
         digestPrefix = "smbk-selection-v4",
-        rowCountKeys = SmbkSelectionPlan.rowCountKeys - errorCauseTables - interiorTables + materialFeatureTable,
+        rowCountKeys = SmbkSelectionPlan.rowCountKeys - replyVersionTables - errorCauseTables - interiorTables + materialFeatureTable,
         trimOrderSize = 83,
-        addedTables = errorCauseTables + interiorTables,
+        addedTables = errorCauseTables + interiorTables + replyVersionTables,
         droppedTables = materialFeatureTable,
     )
 
     private val paperTables = setOf("paper_review", "paper_review_question", "paper_review_photo")
-    private val v4Ui = SmbkClosureRule(4, "smbk-selection-v4", SmbkSelectionPlan.rowCountKeys - errorCauseTables - paperTables,
-        86, errorCauseTables + paperTables, emptySet())
+    private val v4Ui = SmbkClosureRule(4, "smbk-selection-v4", SmbkSelectionPlan.rowCountKeys - replyVersionTables - errorCauseTables - paperTables,
+        86, errorCauseTables + paperTables + replyVersionTables, emptySet())
 
     init {
         check(v4.rowCountKeys.size == 91) { "closure 4 must declare 91 row-count keys" }
-        check(v6.rowCountKeys.size == SmbkSelectionPlan.allTables.size) {
+        check(v7.rowCountKeys.size == SmbkSelectionPlan.allTables.size) {
             "closure 6 row-count keys must match the current table list"
         }
-        check(v4.droppedTables.all { it !in v6.rowCountKeys }) {
+        check(v4.droppedTables.all { it !in v7.rowCountKeys }) {
             "Dropped tables must be absent from the current rule table"
         }
-        check(v4.addedTables.all { it in v6.rowCountKeys }) {
+        check(v4.addedTables.all { it in v7.rowCountKeys }) {
             "Added tables must be present in the current rule table"
         }
     }
@@ -104,7 +109,8 @@ internal object ClosureRuleTables {
     fun of(closureVersion: Int, keys: Set<String>? = null): SmbkClosureRule? = when (closureVersion) {
         v4.closureVersion -> if (keys == v4Ui.rowCountKeys) v4Ui else v4
         5 -> if (keys == v5Ui.rowCountKeys) v5Ui else v5
-        v6.closureVersion -> v6
+        6 -> v6
+        7 -> v7
         else -> null
     }
 

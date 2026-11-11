@@ -84,6 +84,7 @@ internal fun buildTutorLobbyRequest(
         )
     }
     val input = TutorLobbyInput(
+        figureGenerationCapabilities = provider.figureGenerationCapabilities,
         conversationId = conversationId,
         messageOrdinal = messageOrdinal,
         studentMessage = studentMessage,

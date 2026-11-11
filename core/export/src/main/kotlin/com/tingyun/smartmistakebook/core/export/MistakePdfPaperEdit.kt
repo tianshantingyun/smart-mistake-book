@@ -516,7 +516,7 @@ internal fun paperContentFingerprint(
     layout: MistakePdfLayout,
     questions: List<MistakePdfPaperQuestion>,
 ): String = exportFingerprint(
-    "mistake-paper-edit-v1",
+    "mistake-paper-edit-v2-math-layout",
     sourceInputSha256,
     layout.canonicalForm(),
     questions.size.toString(),

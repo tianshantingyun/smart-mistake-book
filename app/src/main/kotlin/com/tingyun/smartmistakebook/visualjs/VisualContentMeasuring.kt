@@ -86,6 +86,9 @@ internal class AndroidVisualContentMeasurer(
                     baselineDu = artifact.baselineDu,
                     fontSizeSp = artifact.fontSizeSp,
                     digest = artifact.digest,
+                    layoutJson = kotlinx.serialization.json.Json.encodeToString(
+                        VisualMeasuredLayoutArtifact.serializer(), artifact),
+                    fontScaleMilli = kotlin.math.round(environment.fontScale * 1_000).toInt(),
                 )
             },
         )

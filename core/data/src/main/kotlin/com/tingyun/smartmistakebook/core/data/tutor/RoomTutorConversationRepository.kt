@@ -39,10 +39,24 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import com.tingyun.smartmistakebook.core.database.TutorReplyVersionRecord
+import com.tingyun.smartmistakebook.core.domain.TutorReplyVersion
+import com.tingyun.smartmistakebook.core.domain.selectedTutorReplyVersions
+import com.tingyun.smartmistakebook.core.model.ModelTaskCodec
 
 internal class RoomTutorConversationRepository(
     private val database: StudyDatabasePort,
 ) : TutorConversationRepository {
+    override val supportsReplyVersions: Boolean = true
+
+    override suspend fun publishReplyVersion(original: TutorReplyVersion, replacement: TutorReplyVersion): Boolean =
+        withContext(Dispatchers.IO) { database.publishTutorReplyVersion(original.toVersionRecord(), replacement.toVersionRecord()) }
+
+    override suspend fun selectReplyVersion(conversationId: String, groupId: String, versionId: String): Boolean =
+        withContext(Dispatchers.IO) { database.selectTutorReplyVersion(conversationId, groupId, versionId) }
     /**
      * 某个会话区里最近的会话（按更新时间倒序）。**按区过滤在 SQL 里**（`conversation_area`），
      * 不是读回来再筛：分区后"最近 N 条"必须仍然是本区的最近 N 条，而不是被别的区的行挤掉的
@@ -70,7 +84,8 @@ internal class RoomTutorConversationRepository(
         return combine(
             database.observeTutorConversation(conversationId),
             database.observeTutorMessages(conversationId),
-        ) { conversation, records ->
+            database.observeTutorReplyVersions(conversationId),
+        ) { conversation, records, versionRecords ->
             conversation?.let { row ->
                 val conversationRecords = records.filterNot { record -> record.isTutorRoundRow }
                 val assetIdsByMessage = if (conversationRecords.isEmpty()) {
@@ -83,7 +98,15 @@ internal class RoomTutorConversationRepository(
                         valueTransform = { link -> link.sourceAssetId },
                     )
                 }
-                row.toConversationSnapshot(records, assetIdsByMessage)
+                val versions = versionRecords.map(TutorReplyVersionRecord::toDomainVersion)
+                val selected = selectedTutorReplyVersions(versions).associateBy { it.groupId }
+                val snapshot = row.toConversationSnapshot(records, assetIdsByMessage)
+                snapshot.copy(replyVersions = versions, messages = snapshot.messages.map { message ->
+                    selected[message.messageId]?.let { version ->
+                        message.copy(logicalOperationId = version.requestId, bodyMarkdown = version.bodyMarkdown, thinkingMarkdown = version.thinkingMarkdown,
+                            toolTraceJson = version.toolTraceJson, sourceImageAssetIds = version.sourceImageAssetIds)
+                    } ?: message
+                }, turns = projectReplyVersionResponses(snapshot.turns, versions))
             }
         }
     }
@@ -185,6 +208,27 @@ internal class RoomTutorConversationRepository(
             )
         }
     }
+}
+
+internal fun TutorReplyVersion.toVersionRecord() = TutorReplyVersionRecord(versionId, groupId, conversationId,
+    requestId, ordinal, originalRequestId, bodyMarkdown, thinkingMarkdown, toolTraceJson,
+    Json.encodeToString(sourceImageAssetIds), request?.let(ModelTaskCodec::encodeRequest),
+    output?.let(ModelTaskCodec::encodeOutput), createdAtEpochMillis, selected, locked,
+    response?.let(::encodeReplyVersionResponse), provider?.let(ModelTaskCodec::encodeProvider))
+
+internal fun TutorReplyVersionRecord.toDomainVersion() = TutorReplyVersion(versionId, groupId, conversationId,
+    requestId, ordinal, selected, locked, originalRequestId, bodyMarkdown, thinkingMarkdown, toolTraceJson,
+    Json.decodeFromString(sourceAssetIdsJson), requestJson?.let(ModelTaskCodec::decodeRequest),
+    outputJson?.let(ModelTaskCodec::decodeOutput), responseJson?.let(::decodeReplyVersionResponse)?.copy(replyVersionId = versionId),
+    createdAtEpochMillis, providerJson?.let(ModelTaskCodec::decodeProvider))
+
+internal fun projectReplyVersionResponses(legacy: List<TutorTurnResponse>, versions: List<TutorReplyVersion>): List<TutorTurnResponse> {
+    val selected = selectedTutorReplyVersions(versions)
+    val inputs = selected.mapNotNull { it.request?.input as? com.tingyun.smartmistakebook.core.model.TutorPlanInput }
+    return (legacy.filterNot { response -> inputs.any { input ->
+        input.sessionId == response.sessionId && input.questionDocument.id == response.questionDocumentId &&
+            input.draftRevisionNumber == response.revisionNumber && input.cycleOrdinal == response.cycleOrdinal && input.turnOrdinal == response.turnOrdinal
+    } } + selected.mapNotNull { it.response }).sortedWith(compareBy({ it.cycleOrdinal }, { it.turnOrdinal }))
 }
 
 /**

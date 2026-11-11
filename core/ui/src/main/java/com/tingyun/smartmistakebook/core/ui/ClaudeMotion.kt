@@ -14,7 +14,6 @@ import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -37,9 +36,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.animation.core.animateFloatAsState
 
-/** Only consumed motion roles. Durations are source values; pixels and typography never animate. */
+/** Shared timings for control feedback and disclosure. */
 object ClaudeMotion {
-    const val PressMillis = 150
+    const val PressMillis = 100
+    const val ReleaseMillis = 180
     const val SnapMillis = 120
     const val RevealMillis = 200
     const val PageMillis = 180
@@ -52,17 +52,17 @@ object ClaudeMotion {
     fun <T> spec(enabled: Boolean, duration: Int = SnapMillis): FiniteAnimationSpec<T> =
         if (enabled) tween(duration, easing = Swift) else snap()
 
-    /** Upstream 320/28/1 release spring, with a short direct press and no delayed click. */
+    /** A bounded release keeps repeated taps quiet and settles on the latest state. */
     fun pressSpec(enabled: Boolean, pressed: Boolean): FiniteAnimationSpec<Float> = when {
         !enabled -> snap()
-        pressed -> tween(SnapMillis, easing = Snap)
-        else -> spring(dampingRatio = .783f, stiffness = 320f)
+        pressed -> tween(PressMillis, easing = Swift)
+        else -> tween(ReleaseMillis, easing = Swift)
     }
 
-    /** Keep total travel within 2dp, including wide buttons and entry cards. */
+    /** Keep total travel within 1dp, including wide buttons and entry cards. */
     internal fun pressedScale(longestEdgeDp: Float): Float =
         if (longestEdgeDp.isFinite() && longestEdgeDp > 0f) {
-            (1f - 2f / longestEdgeDp).coerceIn(.96f, 1f)
+            (1f - 1f / longestEdgeDp).coerceIn(.96f, 1f)
         } else 1f
 }
 
@@ -115,9 +115,10 @@ fun Modifier.claudeModalEntrance(fromBottom: Boolean = false): Modifier {
         label = "cds-modal-entrance")
     val travel = with(LocalDensity.current) { 12.dp.toPx() }
     return graphicsLayer {
-        alpha = fraction
-        translationY = if (fromBottom) travel * (1f - fraction) else 0f
-        scaleX = if (fromBottom) 1f else .95f + .05f * fraction
+        val visibleFraction = if (enabled) fraction else 1f
+        alpha = visibleFraction
+        translationY = if (fromBottom) travel * (1f - visibleFraction) else 0f
+        scaleX = if (fromBottom) 1f else .985f + .015f * visibleFraction
         scaleY = scaleX
     }
 }

@@ -111,6 +111,7 @@ class MistakePdfLayoutTest {
     fun `the export input refuses an invalid layout before rendering`() {
         val failure = assertThrows(IllegalArgumentException::class.java) {
             MistakePdfExportInput(
+                hasModelParsedText = false,
                 errorBookEntryId = "entry-1",
                 problemId = "problem-1",
                 problemRevisionId = "revision-1",

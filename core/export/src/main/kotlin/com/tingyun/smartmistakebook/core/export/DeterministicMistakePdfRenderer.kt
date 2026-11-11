@@ -41,7 +41,7 @@ internal object DeterministicMistakePdfRenderer {
             }
             input.blocks
                 .filterIsInstance<MistakePdfBlock.Image>()
-                .filterNot { block -> block.role == VisualRole.TUTOR_EXPLANATION.name }
+                .filter { block -> input.includesBodyImage(block.role) }
                 .forEach { block -> add(block.localUri) }
         }.distinct().associateWith { uri ->
             val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
@@ -112,7 +112,8 @@ internal object DeterministicMistakePdfRenderer {
                             val bitmap = item.localUri?.let(::decodeCleanImage)
                                 ?: throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID)
                             try {
-                                val bounds = RectF(left, top, left + item.width, top + item.height)
+                                val imageLeft = if (item.centered) left + (geometry.columnWidthPt - item.width) / 2f else left
+                                val bounds = RectF(imageLeft, top, imageLeft + item.width, top + item.height)
                                 page.canvas.drawBitmap(
                                     bitmap,
                                     null,
@@ -213,6 +214,9 @@ internal object DeterministicMistakePdfRenderer {
 
         override fun measure(text: String, start: Int, end: Int, style: PdfLineStyle): Float =
             paints.getOrPut(style) { paintFor(style, typography) }.measureText(text, start, end)
+
+        override fun measureMathText(text: String, fontSize: Float): Float =
+            CanvasMathBoxRenderer.measureTextWidth(text, fontSize)
     }
 
     private fun paintFor(style: PdfLineStyle, typography: PdfTypography) =

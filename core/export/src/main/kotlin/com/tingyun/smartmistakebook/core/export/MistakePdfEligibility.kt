@@ -176,6 +176,7 @@ object MistakePdfEligibility {
                 errorBookEntryId = identity.errorBookEntryId,
                 problemId = identity.problemId,
                 problemRevisionId = identity.problemRevisionId,
+                sourceRevisionId = identity.problemRevisionId,
                 revisionNumber = identity.revisionNumber,
                 title = identity.title,
                 subject = identity.subject,
@@ -186,6 +187,17 @@ object MistakePdfEligibility {
                 cleanImageSha256 = questionImage?.contentSha256,
                 cleanImageByteSize = questionImage?.byteSize,
                 questionImageRole = questionImage?.role,
+                sourceImages = (listOfNotNull(questionImage) + storedAssets.values.filterNotNull())
+                    .filter { it.role == VisualRole.CLEAN_IMAGE.name || it.role == VisualRole.QUESTION_DIAGRAM.name }
+                    .distinctBy { it.sourceAssetId }
+                    .mapNotNull { asset ->
+                        // Images outside model transport limits can still be printed locally.
+                        runCatching {
+                            com.tingyun.smartmistakebook.core.model.ModelEgressAssetGrant(
+                                asset.sourceAssetId, asset.contentSha256, asset.byteSize, asset.width, asset.height,
+                            )
+                        }.getOrNull()
+                    },
                 solutionImages = solutionImages.map { asset ->
                     MistakePdfExportImage(
                         role = asset.role,
@@ -469,7 +481,7 @@ internal fun ByteArray.toHex(): String = joinToString(separator = "") { byte ->
  * （KD-75 的 reopen condition 明写"旧缓存指纹已升版且无旧无标识产物"）。
  */
 internal fun exportFingerprintPolicyTag(): String =
-    "mistake-export-v4-aigc-gen-${PdfAigcContentPolicy.GENERATION}"
+    "mistake-export-v5-math-layout-aigc-gen-${PdfAigcContentPolicy.GENERATION}"
 
 internal fun exportFingerprint(vararg values: String): String {
     val digest = MessageDigest.getInstance("SHA-256")
@@ -483,3 +495,8 @@ internal fun exportFingerprint(vararg values: String): String {
     }
     return digest.digest().toHex()
 }
+
+/** Detailed answers own their illustrated body; question papers keep answer figures hidden. */
+internal fun MistakePdfExportInput.includesBodyImage(role: String?): Boolean =
+    role != VisualRole.TUTOR_EXPLANATION.name ||
+        artifactRole == com.tingyun.smartmistakebook.core.model.MistakeExportArtifactRole.DETAILED_ANSWERS

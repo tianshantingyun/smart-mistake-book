@@ -771,11 +771,14 @@ class BackupSnapshotTrimmer(
             """
             INSERT OR IGNORE INTO smbk_kept_snapshot(snapshot_id)
             SELECT current_snapshot_id FROM tutor_message_visual WHERE CAST(? AS INTEGER) = 1
+            UNION SELECT snapshot_id FROM tutor_visual_snapshot
+                  WHERE preview_asset_id IN (SELECT source_asset_id FROM tutor_message_source_asset)
+                    AND CAST(? AS INTEGER) = 1
             UNION SELECT snapshot_id FROM problem_revision_visual WHERE CAST(? AS INTEGER) = 1
             UNION SELECT snapshot_id FROM tutor_visual_snapshot
                   WHERE checkpoint_kind = 'INITIAL'
             """.trimIndent(),
-            arrayOf<Any?>(sessionsFlag, issueFlag),
+            arrayOf<Any?>(sessionsFlag, sessionsFlag, issueFlag),
         )
 
         database.execSQL(

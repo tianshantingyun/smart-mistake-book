@@ -28,6 +28,13 @@ object FigureGenerationPolicyVersion {
     const val VALUE: String = "figure-generation-policy-v1"
 }
 
+fun ModelTaskInput.figureCapabilitiesSnapshot(): FigureGenerationCapabilities? = when (this) {
+    is TutorPlanInput -> figureGenerationCapabilities
+    is TutorRespondInput -> figureGenerationCapabilities
+    is TutorLobbyInput -> figureGenerationCapabilities
+    else -> null
+}
+
 /** 生图方法（与用途正交）。 */
 @Serializable
 enum class FigureGenerationMethod {
@@ -132,6 +139,7 @@ data class FigureGenerationTarget(
  * [availableMethods] **只能填真实已接通的方法**：未接 QuickJS 时不得包含 [FigureGenerationMethod.JS]，
  * 未验证图像接口时不得包含 IMAGE_MODEL。客户端只据此校验，不按科目/入口改选。
  */
+@Serializable
 data class FigureGenerationCapabilities(
     val availableMethods: Set<FigureGenerationMethod> = emptySet(),
     val supportsImageEditing: Boolean = false,
@@ -350,8 +358,11 @@ data class FigureGenerationRequest(
      * 只在源图字节真的出网后由派发路径产出。
      */
     val visualSourceBasis: VisualSourceBasis? = null,
+    /** Host-owned task/output lineage, distinct from the method payload fingerprint. */
+    val lineageFingerprint: String? = null,
 ) {
     init {
+        require(lineageFingerprint == null || lineageFingerprint.matches(Regex("[a-f0-9]{64}")))
         require(operationId.isNotBlank()) { "A figure operation id must not be blank" }
         require(sourceId == null || sourceId.isNotBlank()) {
             "A figure source id must be null or non-blank"
@@ -518,12 +529,13 @@ sealed interface FigureArtifact {
                 "model=$modelId, assetId=$assetId, bytes=$byteSize)"
     }
 
-    /** JS 程序/快照（下一波）。 */
+    /** JS 程序、已保存快照及本地预览。 */
     class Program(
         override val purpose: FigureGenerationPurpose,
         val programId: String,
         val sourceJs: String,
         val snapshotId: String? = null,
+        val previewAssetId: String? = null,
     ) : FigureArtifact {
         override val method: FigureGenerationMethod = FigureGenerationMethod.JS
 
@@ -532,6 +544,9 @@ sealed interface FigureArtifact {
             require(sourceJs.isNotBlank()) { "A visual program needs source" }
             require(snapshotId == null || snapshotId.isNotBlank()) {
                 "A visual snapshot id must be null or non-blank"
+            }
+            require(previewAssetId == null || (previewAssetId.isNotBlank() && snapshotId != null)) {
+                "A visual preview must reference a saved snapshot"
             }
         }
     }

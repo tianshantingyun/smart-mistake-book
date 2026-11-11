@@ -191,6 +191,7 @@ data class VisualContentMeasureEntry(
     }
 }
 
+@kotlinx.serialization.Serializable
 enum class VisualContentKind {
     TEXT,
     MATH,
@@ -216,6 +217,8 @@ data class VisualMeasuredContent(
     val baselineDu: Float,
     val fontSizeSp: Float,
     val digest: String,
+    val layoutJson: String? = null,
+    val fontScaleMilli: Int? = null,
 ) {
     init {
         require(contentId.isNotBlank()) { "A measured content id must not be blank" }
@@ -224,10 +227,17 @@ data class VisualMeasuredContent(
         require(baselineDu.isFinite() && baselineDu >= 0f) { "A measured baseline must be finite and non-negative" }
         require(fontSizeSp.isFinite() && fontSizeSp >= 0f) { "A measured font size must be finite and non-negative" }
         require(digest.isNotBlank()) { "A measured content needs a digest" }
+        require(layoutJson == null || layoutJson.length <= VisualExecutionBudget.MAX_TRANSACTION_JSON_BYTES)
+        require(fontScaleMilli == null || fontScaleMilli > 0)
     }
 }
 
 /** 执行结果：成功渲染，或有界拒绝。不设"部分成功/截断"形态（契约 §4：超限不截断成"正确图"）。 */
+data class VisualRenderedContent(
+    val declaration: VisualContentMeasureEntry,
+    val measured: VisualMeasuredContent,
+)
+
 sealed interface VisualExecutionResult {
     /**
      * 渲染成功：经实现校验的场景 JSON + 编译产出的 DrawOps 指令序列（批次 27 T1；契约
@@ -244,8 +254,13 @@ sealed interface VisualExecutionResult {
         val contentIds: Set<String>,
         val drawCommandsJson: String? = null,
         val drawSchemaVersion: Int = 1,
+        val contents: List<VisualRenderedContent> = emptyList(),
     ) : VisualExecutionResult {
         init {
+            require(contents.size <= VisualExecutionBudget.MAX_CONTENT_REQUESTS)
+            require(contents.sumOf { it.declaration.payload.length } <= VisualExecutionBudget.MAX_CONTENT_TOTAL_CHARS)
+            require(contents.isEmpty() || contents.map { it.measured.contentId }.toSet() == contentIds)
+            require(contents.map { it.measured.contentId }.distinct().size == contents.size)
             require(sceneJson.isNotEmpty()) { "A rendered scene needs its payload" }
             require(sceneSchemaVersion >= 1) { "A scene schema version starts at 1" }
             require(figureUsageUtf8Bytes(sceneJson) <= VisualExecutionBudget.MAX_TRANSACTION_JSON_BYTES) {

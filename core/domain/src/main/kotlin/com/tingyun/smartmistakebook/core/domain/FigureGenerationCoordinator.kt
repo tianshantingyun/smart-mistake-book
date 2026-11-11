@@ -23,6 +23,8 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationRequest
  * 便于 domain/feature 层只依赖抽象。
  */
 interface FigureGenerationCoordinator {
+    suspend fun capabilities(): com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities =
+        com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities.IMAGE_MODEL_ONLY
     suspend fun generate(
         request: FigureGenerationRequest,
         proposal: FigureGenerationProposal,

@@ -144,10 +144,14 @@ fun PaperReviewRoute(
                             modifier = Modifier.testTag("paper_review_empty"),
                         )
                     }
-                    else -> items(papers!!, key = { it.paperId }) { paper -> ClaudeCard(onClick = { selected = paper.paperId }, modifier = Modifier.fillMaxWidth()) {
-                        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    else -> items(papers!!, key = { it.paperId }) { paper -> ClaudeCard(onClick = { selected = paper.paperId }, modifier = Modifier.fillMaxWidth(), bordered = true, elevation = 0.dp) {
+                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text(paperDateTime(paper.createdAtEpochMillis), style = MaterialTheme.typography.titleMedium)
-                            Text("${paper.questions.size} 道题 · ${paperStatus(paper)}", color = SmartColors.InkSecondary)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Icon(Icons.Outlined.Description, null, Modifier.size(16.dp), tint = SmartColors.InkSecondary)
+                                Text("${paper.questions.size} 道题 · ${paperStatus(paper)}", color = SmartColors.InkSecondary,
+                                    style = MaterialTheme.typography.bodySmall)
+                            }
                             LinearProgressIndicator(progress = { if (paper.questions.isEmpty()) 0f else paper.completedCount.toFloat() / paper.questions.size }, modifier = Modifier.fillMaxWidth())
                             Text("已计入 ${paper.completedCount} / ${paper.questions.size} · ${paper.photos.size} 张作答照片", style = MaterialTheme.typography.bodySmall, color = SmartColors.InkSecondary)
                         }
@@ -158,12 +162,17 @@ fun PaperReviewRoute(
                 val paper = current
                 val question = paper.questions.firstOrNull { it.ordinal == ordinal }
                 item {
-                    WorkspaceJourney(listOf("打印纸卷", "回传作答", "核对结果"), phase.coerceAtLeast(0),
-                        onStepClick = { phase = it }, enabled = !busy)
-                    Text("${paper.questions.size} 道题 · 已计入 ${paper.completedCount} 道", Modifier.padding(top = 8.dp), color = SmartColors.InkSecondary, style = MaterialTheme.typography.bodySmall)
+                    WorkspacePanel(containerColor = SmartColors.SubtleSurface) {
+                        Text(paperDateTime(paper.createdAtEpochMillis), style = MaterialTheme.typography.labelMedium,
+                            color = SmartColors.InkSecondary)
+                        WorkspaceJourney(listOf("打印纸卷", "回传作答", "核对结果"), phase.coerceAtLeast(0),
+                            onStepClick = { phase = it }, enabled = !busy)
+                        Text("${paper.questions.size} 道题 · 已计入 ${paper.completedCount} 道",
+                            color = SmartColors.InkSecondary, style = MaterialTheme.typography.bodySmall)
+                    }
                 }
                 when (phase) {
-                    0 -> item { WorkspacePanel {
+                    0 -> item { WorkspacePanel(containerColor = SmartColors.ContentSurface) {
                         Icon(Icons.Outlined.Print, null, tint = SmartColors.JadeDark)
                         Text("先把原卷打印出来", style = MaterialTheme.typography.titleLarge)
                         Text("${paperDateTime(paper.createdAtEpochMillis)}生成 · 作答后回到这里回传", color = SmartColors.InkSecondary)
@@ -178,10 +187,10 @@ fun PaperReviewRoute(
                         InlineActionButton(if (externalBusy) "正在准备答案…" else "另存详细答案", { vm.clearMessage(); onDismissExternalMessage(); onDetailedAnswers(paper.paperId) }, enabled = !busy)
                         PaperDivider()
                         Text("已在纸上完成作答？", style = MaterialTheme.typography.titleSmall)
-                        PrimaryActionButton("回传作答照片", { phase = 1 }, enabled = !busy, modifier = Modifier.fillMaxWidth())
+                        OutlineActionChip("回传作答照片", { phase = 1 }, enabled = !busy, modifier = Modifier.fillMaxWidth())
                     } }
                     1 -> {
-                        item { WorkspacePanel {
+                        item { WorkspacePanel(containerColor = SmartColors.ContentSurface) {
                             Icon(Icons.Outlined.AddPhotoAlternate, null, tint = SmartColors.JadeDark)
                             Text("回传纸上作答", style = MaterialTheme.typography.titleLarge)
                             Text("上传整卷照片，或逐题补充。原始照片完整保留。", color = SmartColors.InkSecondary)
@@ -195,7 +204,7 @@ fun PaperReviewRoute(
                         items(paper.photos, key = { it.photoId }) { photo -> PaperPhotoCard(photo, paper.photos.indexOf(photo), { uri, label -> viewer = uri to label }) }
                     }
                     else -> {
-                        item { WorkspacePanel {
+                        item { WorkspacePanel(containerColor = SmartColors.SubtleSurface) {
                             Text("逐题核对", style = MaterialTheme.typography.titleMedium)
                             FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 paper.questions.forEachIndexed { index, q -> OutlineActionChip("${index + 1}${if (q.applied) " ✓" else ""}", { ordinal = q.ordinal }, selected = ordinal == q.ordinal, enabled = !busy) }

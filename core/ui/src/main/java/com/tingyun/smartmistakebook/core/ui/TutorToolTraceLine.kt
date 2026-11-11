@@ -55,6 +55,7 @@ fun TutorToolTraceLine(
     testTag: String = "tutor_tool_trace",
 ) {
     val shown = display ?: return
+    if (shown.headline.isBlank() && shown.teachingFigureNote == null) return
     // 展开状态跨重建保留（与思考卡同一手法）：转屏不该把学生刚点开的明细收回去。
     var expanded by rememberSaveable { mutableStateOf(false) }
     val expandable = shown.hasDetails
@@ -64,37 +65,47 @@ fun TutorToolTraceLine(
             .testTag(testTag),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = if (expandable) SmartDimens.MinimumTouchTarget else 24.dp)
-                .then(if (expandable) Modifier.claudeInteractiveRow(
-                    onClick = { expanded = !expanded },
-                    onClickLabel = if (expanded) "收起查阅明细" else "展开查阅明细",
-                ) else Modifier)
-                .semantics {
-                    if (expandable) {
-                        stateDescription = if (expanded) "明细已展开" else "明细已收起"
-                    }
-                }
-                .padding(vertical = 2.dp),
-        ) {
+        shown.teachingFigureNote?.let { note ->
             Text(
-                text = shown.headline,
+                text = note,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 color = InkSecondary,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodySmall,
             )
-            if (expandable) {
-                Icon(
-                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = null,
-                    tint = InkSecondary,
-                    modifier = Modifier
-                        .padding(start = 2.dp)
-                        .size(14.dp),
+        }
+        if (shown.headline.isNotBlank()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .defaultMinSize(minHeight = if (expandable) SmartDimens.MinimumTouchTarget else 24.dp)
+                    .then(if (expandable) Modifier.claudeInteractiveRow(
+                        onClick = { expanded = !expanded },
+                        onClickLabel = if (expanded) "收起查阅明细" else "展开查阅明细",
+                    ) else Modifier)
+                    .semantics {
+                        if (expandable) {
+                            stateDescription = if (expanded) "明细已展开" else "明细已收起"
+                        }
+                    }
+                    .padding(vertical = 2.dp),
+            ) {
+                Text(
+                    text = shown.headline,
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
                 )
+                if (expandable) {
+                    Icon(
+                        imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                        contentDescription = null,
+                        tint = InkSecondary,
+                        modifier = Modifier
+                            .padding(start = 2.dp)
+                            .size(14.dp),
+                    )
+                }
             }
         }
         AnimatedVisibility(

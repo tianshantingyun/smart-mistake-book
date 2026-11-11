@@ -27,6 +27,7 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskRemoteDispatchPolicy
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
 import com.tingyun.smartmistakebook.core.model.ModelTaskStage
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
+import com.tingyun.smartmistakebook.core.model.isTutorReplyRegeneration
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -200,7 +201,8 @@ internal abstract class ModelTaskTransactionDao {
             requestSnapshot = requestSnapshot,
             taskKind = command.request.input.kind.name,
             subjectId = command.request.input.subjectId,
-            tutorResponseOrdinal = (command.request.input as? TutorRespondInput)?.responseOrdinal,
+            tutorResponseOrdinal = (command.request.input as? TutorRespondInput)?.responseOrdinal
+                ?.takeUnless { command.request.isTutorReplyRegeneration },
             status = ModelTaskStatus.WAITING_FOR_MODEL.name,
             stateVersion = 0,
             stage = ModelTaskStage.WAITING.name,
@@ -426,7 +428,8 @@ internal abstract class ModelTaskTransactionDao {
 private fun ModelTaskEntity.sameImmutableRequest(other: ModelTaskEntity): Boolean =
     if (
         taskKind == ModelTaskKind.TUTOR_RESPOND.name &&
-        other.taskKind == ModelTaskKind.TUTOR_RESPOND.name
+        other.taskKind == ModelTaskKind.TUTOR_RESPOND.name &&
+        !requestId.startsWith("tutor-regen:")
     ) {
         sameImmutableTutorResponse(other)
     } else {
@@ -488,6 +491,7 @@ private fun ModelTaskEntity.buildSnapshot(verifyIntegrity: Boolean): ModelTaskSn
     val request = ModelTaskCodec.decodeRequest(requestSnapshot)
     if (verifyIntegrity) {
         val expectedTutorResponseOrdinal = (request.input as? TutorRespondInput)?.responseOrdinal
+            ?.takeUnless { request.isTutorReplyRegeneration }
         if (
             request.input.kind.name != taskKind ||
             request.input.subjectId != subjectId ||

@@ -56,11 +56,11 @@ class PseudoUnclassifiedBucketInstrumentedTest {
             )
             assertTrue(
                 "同文本的 CURATED 节点必须被召回（证明查询词命中）：$recalled",
-                recalled.any { node -> node.knowledgeNodeId == TWIN_ID },
+                recalled.candidates.any { node -> node.knowledgeNodeId == TWIN_ID },
             )
             assertFalse(
                 "未分类桶是 MODEL_CANDIDATE，不得进召回面：$recalled",
-                recalled.any { node -> node.knowledgeNodeId == BUCKET_ID },
+                recalled.candidates.any { node -> node.knowledgeNodeId == BUCKET_ID },
             )
 
             // 桶只作证据兜底落点：按 id 读回仍存在（历史解释路径不过滤）。

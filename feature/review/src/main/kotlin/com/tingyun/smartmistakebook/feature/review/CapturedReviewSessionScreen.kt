@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Icon
 import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
@@ -196,16 +195,10 @@ fun CapturedReviewSessionScreen(
             )
         }
         Spacer(Modifier.height(10.dp))
-        LinearProgressIndicator(
-            progress = { safeQueuePosition.toFloat() / safeQueueSize.toFloat() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(5.dp),
-            color = SmartColors.Jade,
-            trackColor = SmartColors.Track,
+        ReviewSessionProgress(
+            label = "第 $safeQueuePosition / $safeQueueSize 题 · 重做已保存的原题",
+            progress = safeQueuePosition.toFloat() / safeQueueSize.toFloat(),
         )
-        Spacer(Modifier.height(12.dp))
-        LocalModeLine(text = "第 $safeQueuePosition / $safeQueueSize 题 · 重做已保存的原题")
         PaperDivider(Modifier.padding(vertical = 18.dp))
         SectionHeader(title = entry.title)
         Spacer(Modifier.height(12.dp))

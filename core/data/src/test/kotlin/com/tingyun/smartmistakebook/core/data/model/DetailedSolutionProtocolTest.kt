@@ -23,4 +23,32 @@ class DetailedSolutionProtocolTest {
         assertTrue(runCatching { OpenAiDetailedSolutionProtocol.parse(Json.parseToJsonElement(wire.dropLast(1) + """, "verification":"VERIFIED"}""").jsonObject, input, "model") }.isFailure)
         assertTrue(runCatching { OpenAiDetailedSolutionProtocol.parse(Json.parseToJsonElement("""{"steps":[]}""").jsonObject, input, "model") }.isFailure)
     }
+    @Test fun frozenCapabilitiesPreventSilentTextOnlyCompletion() {
+        val current = input.copy(availableFigureMethods = setOf(FigureGenerationMethod.JS))
+        assertTrue(runCatching { OpenAiDetailedSolutionProtocol.parse(Json.parseToJsonElement(wire).jsonObject, current, "model") }.isFailure)
+    }
+
+    @Test fun omissionRequiresActualImageModelAbsence() {
+        val payload = Json.parseToJsonElement(wire.dropLast(1) + """, "teachingFigureOmission":{"instructionalTarget":"structure","jsLimitation":"complex natural morphology","reason":"image model unavailable"}}""").jsonObject
+        assertTrue(runCatching { OpenAiDetailedSolutionProtocol.parse(payload, input, "model") }.isFailure)
+        assertTrue(runCatching { OpenAiDetailedSolutionProtocol.parse(payload, input.copy(availableFigureMethods = setOf(FigureGenerationMethod.IMAGE_MODEL)), "model") }.isFailure)
+        val result = OpenAiDetailedSolutionProtocol.parse(payload, input.copy(availableFigureMethods = setOf(FigureGenerationMethod.JS)), "model")
+        assertTrue(result.document.imageModelUnavailableAtPreparation)
+        assertEquals("structure", result.document.teachingFigureOmission?.instructionalTarget)
+    }
+    @Test fun unavailableRuntimeCannotClaimComplexOmission() {
+        val payload = Json.parseToJsonElement(wire.dropLast(1) + """, "teachingFigureOmission":{"instructionalTarget":"structure","jsLimitation":"complex natural morphology","reason":"image model unavailable"}}""").jsonObject
+        assertTrue(runCatching { OpenAiDetailedSolutionProtocol.parse(payload, input.copy(availableFigureMethods = emptySet()), "model") }.isFailure)
+    }
+
+    @Test fun promptExposesOptionalOmissionAndRetainsGenericEnrichmentContext() {
+        val existing = OpenAiDetailedSolutionProtocol.parse(Json.parseToJsonElement(wire).jsonObject, input, "old-model").document
+        val enriched = input.copy(existingGenericAnswer = existing, availableFigureMethods = emptySet())
+        val prompt = OpenAiDetailedSolutionProtocol.prompt(enriched)
+        assertTrue(prompt.contains("teachingFigureOmission"))
+        assertTrue(prompt.contains(existing.finalAnswerMarkdown))
+        assertTrue(prompt.contains("jsLimitation"))
+        val changed = Json.parseToJsonElement(wire.replace("1+1=2", "changed") .dropLast(1) + """, "teachingFigureOmission":{"instructionalTarget":"structure","jsLimitation":"complex morphology","reason":"unavailable"}}""").jsonObject
+        assertTrue(runCatching { OpenAiDetailedSolutionProtocol.parse(changed, enriched.copy(availableFigureMethods = setOf(FigureGenerationMethod.JS)), "new-model") }.isFailure)
+    }
 }

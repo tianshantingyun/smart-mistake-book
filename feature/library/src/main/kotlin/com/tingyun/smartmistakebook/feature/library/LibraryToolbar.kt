@@ -19,7 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.LibraryBooks
 import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.outlined.ExpandMore
@@ -61,7 +61,7 @@ internal fun LibraryPageHeader(
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val showFileLabel = maxWidth >= 320.dp && LocalDensity.current.fontScale <= 1.2f
         com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader(
-            title = "错题本", subtitle = "原题、笔记与复习记录", actions = {
+            title = "错题本", subtitle = "原题、笔记与复习记录", compact = true, actions = {
                 TextButton(
                     onClick = onOpenResults,
                     modifier = Modifier.defaultMinSize(minHeight = 48.dp).testTag("library_export_results")
@@ -131,12 +131,12 @@ internal fun LibraryResultToolbar(
         if (canExport) {
             TextButton(onClick = onExport,
                 modifier = Modifier.defaultMinSize(minHeight = 48.dp)
-                    .testTag("library_export_visible").semantics { contentDescription = "导出当前 $count 道" },
+                    .testTag("library_export_visible").semantics { contentDescription = "打开组卷选题" },
                 colors = ButtonDefaults.textButtonColors(contentColor = SmartColors.Ink),
                 contentPadding = PaddingValues(horizontal = 8.dp)) {
-                Icon(Icons.Outlined.FileDownload, contentDescription = null, modifier = Modifier.size(18.dp))
+                Icon(Icons.Outlined.LibraryBooks, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(4.dp))
-                Text("导出", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+                Text("组卷", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
             }
         }
     }

@@ -1,3 +1,5 @@
+@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+
 package com.tingyun.smartmistakebook.core.model
 
 import java.nio.charset.StandardCharsets
@@ -138,6 +140,8 @@ data class ProviderCapabilitySnapshot(
     val isDemo: Boolean = false,
     val executionLocation: ModelExecutionLocation = ModelExecutionLocation.EXTERNAL_PROVIDER,
     val providerConfigurationVersion: String = "unspecified-v1",
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val figureGenerationCapabilities: FigureGenerationCapabilities? = null,
 ) {
     init {
         providerId.requireSafeModelText(
@@ -821,8 +825,17 @@ object ModelTaskFingerprint {
  * of those changes creates a fresh remote-dispatch budget. Only the immutable typed task input
  * participates in this fingerprint.
  */
+val ModelTaskRequest.isTutorReplyRegeneration: Boolean
+    get() = requestId.startsWith("tutor-regen:") && input.kind in setOf(
+        ModelTaskKind.TUTOR_PLAN, ModelTaskKind.TUTOR_RESPOND, ModelTaskKind.TUTOR_LOBBY)
+
 object ModelTaskLogicalOperationFingerprint {
-    fun of(request: ModelTaskRequest): String = of(request.input)
+    fun of(request: ModelTaskRequest): String {
+        if (!request.isTutorReplyRegeneration) return of(request.input)
+        return MessageDigest.getInstance("SHA-256")
+            .digest((operationPayload(request.input) + "\n" + request.requestId).toByteArray(StandardCharsets.UTF_8))
+            .joinToString(separator = "") { byte -> "%02x".format(byte) }
+    }
 
     fun of(input: ModelTaskInput): String = MessageDigest.getInstance("SHA-256")
         .digest(operationPayload(input).toByteArray(StandardCharsets.UTF_8))

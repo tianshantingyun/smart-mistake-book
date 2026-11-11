@@ -22,11 +22,11 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 /**
- * **6C-2 schema 75 机器清单的同源契约**。
+ * **6C-2 schema 76 机器清单的同源契约**。
  *
  * 三份事实互相钉住：
- * 1. `75.json`（Room 导出物）：97 表 / 2 视图 / 113 条 FK 边；
- * 2. 设计 §9.14 的 `<!-- 6c2-plan-v6:begin -->` 机器块（唯一数据源）；
+ * 1. `76.json`（Room 导出物）：97 表 / 2 视图 / 113 条 FK 边；
+ * 2. 设计 §9.14 的 `<!-- 6c2-plan-v7:begin -->` 机器块（唯一数据源）；
  * 3. [SmbkSelectionPlan]（实施读的那份数据）。
  *
  * `73.json` 与 `identityHash` 由门禁 KSP 构建生成；生成前本类中依赖导出物的用例
@@ -42,7 +42,7 @@ import java.nio.file.Paths
  */
 class SmbkSelectionPlanTest {
 
-    // ---- 1. schema 75 的事实 ----
+    // ---- 1. schema 76 的事实 ----
 
     @Test
     fun `edit and solution tasks follow issue book selection`() {
@@ -54,16 +54,16 @@ class SmbkSelectionPlanTest {
     }
 
     @Test
-    fun `schema 75 exports 99 tables 2 views and 123 foreign keys matching the plan identity`() {
-        assertEquals("schema 版本", 75, database.int("version"))
+    fun `schema 76 exports 102 tables 2 views and 126 foreign keys matching the plan identity`() {
+        assertEquals("schema 版本", 76, database.int("version"))
         assertEquals(SmbkSelectionPlan.SCHEMA_VERSION, database.int("version"))
         assertEquals(SmbkSelectionPlan.IDENTITY_HASH, database.string("identityHash"))
-        assertEquals("Room entity 数", 99, entities.size)
+        assertEquals("Room entity 数", 102, entities.size)
         assertEquals("视图数", 2, schemaViews.size)
-        assertEquals("FK 边数", 123, fkEdges.size)
+        assertEquals("FK 边数", 126, fkEdges.size)
 
         assertEquals("视图不参与裁剪但清单必须列出", schemaViews, SmbkSelectionPlan.views)
-        assertEquals("97 表 = 类别 81 + ALWAYS 7 + DERIVED 2 + SPLIT 7", 99, SmbkSelectionPlan.allTables.size)
+        assertEquals("97 表 = 类别 81 + ALWAYS 7 + DERIVED 2 + SPLIT 7", 102, SmbkSelectionPlan.allTables.size)
     }
 
     // ---- 2. 每表恰好归类一次 ----
@@ -75,17 +75,17 @@ class SmbkSelectionPlanTest {
         val classified = userTables + SmbkSelectionPlan.alwaysTables +
             SmbkSelectionPlan.derivedTables + SmbkSelectionPlan.splitTables
 
-        assertEquals("归类总数", 99, classified.size)
+        assertEquals("归类总数", 102, classified.size)
         assertEquals("不允许一张表落在两个桶里", classified.size, classified.toSet().size)
-        assertEquals("归类集合必须与 75.json 的表集合相等", schemaTables.toSet(), classified.toSet())
+        assertEquals("归类集合必须与 76.json 的表集合相等", schemaTables.toSet(), classified.toSet())
         assertEquals("rowCounts 键集合 = 97 表", schemaTables.toSet(), SmbkSelectionPlan.rowCountKeys)
-        assertEquals(99, SmbkSelectionPlan.rowCountKeys.size)
+        assertEquals(102, SmbkSelectionPlan.rowCountKeys.size)
 
         assertEquals(
             mapOf(
                 SmbkSelectionCategory.ISSUE_BOOK to 35,
                 SmbkSelectionCategory.MASTERY to 40,
-                SmbkSelectionCategory.SESSIONS to 7,
+                SmbkSelectionCategory.SESSIONS to 10,
                 SmbkSelectionCategory.IMAGES to 1,
             ),
             SmbkSelectionPlan.categoryTables.mapValues { it.value.size },
@@ -112,9 +112,9 @@ class SmbkSelectionPlanTest {
     // ---- 3. 裁剪顺序 ----
 
     @Test
-    fun `trim order covers exactly 91 tables and is a child before parent topological order`() {
+    fun `trim order covers exactly 94 tables and is a child before parent topological order`() {
         val order = SmbkSelectionPlan.trimOrder
-        assertEquals("89 = 97 − 7 ALWAYS − 1 FTS", 91, order.size)
+        assertEquals("102 - 7 ALWAYS - 1 FTS", 94, order.size)
         assertEquals("裁剪顺序不允许重复", order.size, order.toSet().size)
 
         val expectedTables = SmbkSelectionPlan.allTables.toSet() -
@@ -155,7 +155,7 @@ class SmbkSelectionPlanTest {
             SmbkClosureEdge(SmbkSelectionCategory.SESSIONS, SmbkSelectionCategory.ISSUE_BOOK),
             SmbkClosureEdge(SmbkSelectionCategory.SESSIONS, SmbkSelectionCategory.IMAGES),
         )
-        assertEquals("从 75.json FK 边折叠出的类别闭包", expected, folded)
+        assertEquals("从 76.json FK 边折叠出的类别闭包", expected, folded)
         assertEquals("机器块的 6 条边", expected, SmbkSelectionPlan.expectedClosure.toSet())
         assertEquals(6, folded.size)
     }
@@ -185,7 +185,7 @@ class SmbkSelectionPlanTest {
     // ---- 5. 软引用 ----
 
     @Test
-    fun `twenty four soft references resolve against schema 75 and never shadow a hard foreign key`() {
+    fun `twenty four soft references resolve against schema 76 and never shadow a hard foreign key`() {
         val refs = SmbkSelectionPlan.softReferences
         assertEquals("v5 软引用 24 条", 24, refs.size)
         assertEquals("同一 (table,column) 不能列两次", 24, refs.map { it.table to it.column }.toSet().size)
@@ -208,10 +208,10 @@ class SmbkSelectionPlanTest {
         }.toSet()
 
         refs.forEach { ref ->
-            assertTrue("软引用源表不存在于 75.json：${ref.table}", ref.table in schemaTables)
+            assertTrue("软引用源表不存在于 76.json：${ref.table}", ref.table in schemaTables)
             if (!ref.virtual) {
                 assertTrue(
-                    "软引用源列不存在于 75.json：${ref.table}.${ref.column}",
+                    "软引用源列不存在于 76.json：${ref.table}.${ref.column}",
                     ref.column in columnsByTable.getValue(ref.table),
                 )
                 assertFalse(
@@ -398,7 +398,7 @@ class SmbkSelectionPlanTest {
     @Test
     fun `empty full selection digest matches the published golden`() {
         val rowCounts = SmbkSelectionPlan.rowCountKeys.associateWith { 0L }
-        assertEquals("rowCounts 必须覆盖 99 表", 99, rowCounts.size)
+        assertEquals("rowCounts 必须覆盖 102 表", 102, rowCounts.size)
 
         val digest = SmbkSelectionPlan.closureDigest(
             categories = SmbkSelectionCategory.entries.toSet(),
@@ -421,7 +421,7 @@ class SmbkSelectionPlanTest {
     }
 
     @Test
-    fun `digest refuses row counts that do not cover all 99 tables`() {
+    fun `digest refuses row counts that do not cover all 102 tables`() {
         val complete = SmbkSelectionPlan.rowCountKeys.associateWith { 0L }
 
         val missing = assertThrows(IllegalArgumentException::class.java) {
@@ -638,7 +638,7 @@ class SmbkSelectionPlanTest {
         const val GRADLE_ROOT_MARKER = "settings.gradle.kts"
         const val PARENT_SEGMENT = "." + "."
         const val CURRENT_SCHEMA_PATH =
-            "core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/75.json"
+            "core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/76.json"
         const val DESIGN_PATH = "docs/research/2026-10-17-6c2-content-selection-design.md"
 
         /**
@@ -647,10 +647,10 @@ class SmbkSelectionPlanTest {
          * `a8d4de2d…` 用同一脚本可逐字复现（2026-11-02 复核轮实算），证明复算与实现同算法。
          */
         const val GOLDEN_EMPTY_FULL_DIGEST =
-            "8567faae0e90ad4b720eab9fb4ceda82ce90fdb14e7c8ec4dc8309a520fb286c"
+            "b9d0f5ed9c844863f1b029f6556e995543a4c9d0b10aed2e322b2ffee5cb9fa4"
 
         val MACHINE_BLOCK = Regex(
-            "<!-- 6c2-plan-v6:begin -->\\s*```json\\s*(\\{.*?})\\s*```\\s*<!-- 6c2-plan-v6:end -->",
+            "<!-- 6c2-plan-v7:begin -->\\s*```json\\s*(\\{.*?})\\s*```\\s*<!-- 6c2-plan-v7:end -->",
             RegexOption.DOT_MATCHES_ALL,
         )
 

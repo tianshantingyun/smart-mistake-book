@@ -1,5 +1,18 @@
 package com.tingyun.smartmistakebook.core.data.model
 
+import org.commonmark.node.Paragraph
+import org.commonmark.parser.IncludeSourceSpans
+import org.commonmark.parser.Parser
+import com.tingyun.smartmistakebook.core.model.encodeTutorTurnToolTrace
+import com.tingyun.smartmistakebook.core.model.reviewTutorTeachingFigures
+import com.tingyun.smartmistakebook.core.model.TutorMessageIntent
+import com.tingyun.smartmistakebook.core.model.TutorTeachingFigureStatus
+import com.tingyun.smartmistakebook.core.model.TutorTeachingFigureReview
+import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
+import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
+import com.tingyun.smartmistakebook.core.model.ModelTaskOutput
+import com.tingyun.smartmistakebook.core.model.figureCapabilitiesSnapshot
+
 import com.tingyun.smartmistakebook.core.database.CreateModelTaskCommand
 import com.tingyun.smartmistakebook.core.database.ReserveModelTaskRemoteDispatchCommand
 import com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot
@@ -75,6 +88,8 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -108,6 +123,7 @@ class RoomModelTaskRepository internal constructor(
      * 否则模型连这枚工具都看不到（不是先广告、再回一句"不可用"）。
      */
     private val figureGenerator: TutorFigureGenerator? = null,
+    private val figureCapabilities: (suspend () -> com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities)? = null,
 ) : ModelTaskRepository {
     internal val toolRunner = RoomTutorToolRunner(database, knowledgeBaseAvailability, figureGenerator)
 
@@ -131,7 +147,9 @@ class RoomModelTaskRepository internal constructor(
      */
     private val toolTraces = ModelTaskToolTraceStore()
 
-    override suspend fun capabilities(): ProviderCapabilitySnapshot = gateway.capabilities()
+    override suspend fun capabilities(): ProviderCapabilitySnapshot = gateway.capabilities().let { provider ->
+        if (figureCapabilities == null) provider else provider.copy(figureGenerationCapabilities = figureCapabilities.invoke())
+    }
 
     override fun observe(requestId: String): Flow<ModelTaskSnapshot?> =
         database.observeModelTask(requestId)
@@ -139,7 +157,10 @@ class RoomModelTaskRepository internal constructor(
     override fun observeLiveText(requestId: String): Flow<ModelLiveText?> =
         liveTexts.observe(requestId)
 
-    override fun observeToolTrace(requestId: String): Flow<String?> = toolTraces.observe(requestId)
+    override fun observeToolTrace(requestId: String): Flow<String?> =
+        combine(toolTraces.observe(requestId), database.observeModelTask(requestId)) { live, snapshot ->
+            live ?: snapshot?.takeIf { it.status == ModelTaskStatus.SUCCEEDED }?.output?.deliveryTraceOrNull()
+        }.distinctUntilChanged()
 
     override fun observeBySubject(
         subjectId: String,
@@ -485,6 +506,9 @@ class RoomModelTaskRepository internal constructor(
                     calls = permissionRounds.executable,
                     authorizedTools = authorization.allowedTools,
                     disclosedKnowledgeCodes = disclosedKnowledgeCodes,
+                    javascriptReady = figureGenerator != null &&
+                        com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.JS in
+                        request.input.figureCapabilitiesSnapshot()?.availableMethods.orEmpty(),
                     runTool = { call, allowsExtendedResult ->
                         toolRunner.runTraced(
                             call,
@@ -704,11 +728,23 @@ class RoomModelTaskRepository internal constructor(
             if (validationIssues.isNotEmpty()) {
                 throw InvalidProviderProtocol("模型输出格式不符合当前题目任务")
             }
+            val figureReview = reviewTeachingFigures(current.request, event.output)
+            if (figureReview != null) toolTraces.completeFigures(current.request.requestId, figureReview)
+            val deliveryTrace = toolTraces.current(current.request.requestId)?.let(
+                ::encodeTutorTurnToolTrace)
+            val completedOutput = when (val output = event.output) {
+                is TutorPlanOutput -> output.copy(deliveryToolTraceJson = deliveryTrace)
+                is TutorRespondOutput -> output.copy(deliveryToolTraceJson = deliveryTrace)
+                is TutorLobbyOutput -> output.copy(deliveryToolTraceJson = deliveryTrace)
+                else -> output
+            }
             transition(
                 current = current,
                 nextStatus = ModelTaskStatus.SUCCEEDED,
                 stage = ModelTaskStage.COMPLETE,
-                userMessage = when (current.request.input) {
+                userMessage = if (figureReview?.status == TutorTeachingFigureStatus.INCOMPLETE) {
+                    "正文已保存，配图未完成"
+                } else when (current.request.input) {
                     is com.tingyun.smartmistakebook.core.model.DetailedSolutionInput -> "详细答案已准备好，请预览后导出"
                     is com.tingyun.smartmistakebook.core.model.MistakeEditInput -> when ((event.output as? com.tingyun.smartmistakebook.core.model.MistakeEditOutput)?.suggestion?.decision) {
                         com.tingyun.smartmistakebook.core.model.MistakeEditDecision.NO_CHANGE -> "当前无需修改"
@@ -728,7 +764,7 @@ class RoomModelTaskRepository internal constructor(
                     is PaperEditInput -> "卷面修改建议已生成，请确认后再应用"
                 },
                 provider = current.provider,
-                output = event.output,
+                output = completedOutput,
             )
         }
         is ModelGatewayEvent.Failed -> {
@@ -748,6 +784,27 @@ class RoomModelTaskRepository internal constructor(
                 failure = event.failure,
             )
         }
+    }
+
+    private fun reviewTeachingFigures(
+        request: ModelTaskRequest,
+        output: ModelTaskOutput,
+    ): TutorTeachingFigureReview? {
+        val capabilities = request.input.figureCapabilitiesSnapshot() ?: return null
+        val content = when (output) {
+            is TutorPlanOutput -> output.plan.openingMarkdown to output.teachingFigureOmission
+            is TutorRespondOutput -> {
+                if (output.intentDecision.intent !in TEACHING_INTENTS) return null
+                output.messageMarkdown to output.teachingFigureOmission
+            }
+            is TutorLobbyOutput -> {
+                if (output.intentDecision.intent !in TEACHING_INTENTS) return null
+                output.messageMarkdown to output.teachingFigureOmission
+            }
+            else -> return null
+        }
+        return reviewTutorTeachingFigures(
+            tutorTeachingFigureReferences(content.first), toolTraces.current(request.requestId), capabilities, content.second)
     }
 
     private suspend fun transitionRemoteFailure(
@@ -790,7 +847,7 @@ class RoomModelTaskRepository internal constructor(
         userMessage: String,
         attemptCount: Int = current.attemptCount,
         provider: com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot? = null,
-        output: com.tingyun.smartmistakebook.core.model.ModelTaskOutput? = null,
+        output: ModelTaskOutput? = null,
         failure: ModelTaskFailure? = null,
     ): ModelTaskSnapshot = database.transitionModelTask(
         TransitionModelTaskCommand(
@@ -942,6 +999,8 @@ class RoomModelTaskRepository internal constructor(
         input: ModelTaskInput,
         declaredProvider: ProviderCapabilitySnapshot,
     ): Set<TutorToolName> {
+        val methods = input.figureCapabilitiesSnapshot()?.availableMethods
+        val jsReady = figureGenerator != null && com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.JS in methods.orEmpty()
         // 空声明 = 入口没有限制（旧请求/首轮默认）：先补页面默认声明面，再按就绪位裁。
         // 空列表被当成“没有任何工具”会让首轮模型完全看不到工具，模型仍可能按旧提示词
         // 申请工具，工具环却把它当未声明丢弃（批次 16 设备用例暴露）。
@@ -965,13 +1024,15 @@ class RoomModelTaskRepository internal constructor(
         }
         return TutorCapabilitySnapshot.forRound(effectiveInput)
             .withDependencies(
-                imageBackendReady = figureGenerator != null && declaredProvider.supportsImageInput,
+                imageBackendReady = figureGenerator != null && (methods?.contains(
+                    com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL)
+                    ?: declaredProvider.supportsImageInput),
                 knowledgeMaterialReady = knowledgeBaseAvailability.value.isReady,
                 // A-05：JS 双就绪位（引擎 ready + 度量 ready）的**生产装配值尚未接线**——
                 // 真实引擎/度量器由 L3 引擎装配批注入（与 availableMethods 接通同批裁定）。
                 // 显式 false = 现状逐位不变：没接引擎/度量器时 JS 不进广告面；接线时只改这里。
-                jsEngineReady = false,
-                jsMeasurementReady = false,
+                jsEngineReady = jsReady,
+                jsMeasurementReady = jsReady,
             )
             .tools
     }
@@ -1138,11 +1199,13 @@ object ModelTaskRepositoryFactory {
          * 工具回可见的"不可用"结果。生产在 app 里装配（`TutorFigureGeneratorFactory`）。
          */
         figureGenerator: TutorFigureGenerator? = null,
+        figureCapabilities: (suspend () -> com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities)? = null,
     ): ModelTaskRepository = RoomModelTaskRepository(
         database = database,
         gateway = gateway,
         knowledgeBaseAvailability = knowledgeBaseAvailability,
         figureGenerator = figureGenerator,
+        figureCapabilities = figureCapabilities,
     )
 }
 
@@ -1190,3 +1253,43 @@ private const val CANCELLED_TRANSITION_ATTEMPTS = 4
 private const val TUTOR_TOOL_TRACE_DONE_FALLBACK = "已查阅"
 
 private val processActiveOperations = ConcurrentHashMap<String, CompletableDeferred<Unit>>()
+
+private val TEACHING_INTENTS = setOf(
+    TutorMessageIntent.CURRENT_QUESTION_HELP,
+    TutorMessageIntent.AMBIGUOUS,
+)
+
+/** Mirrors the document renderer: a whole top-level paragraph, never a quoted/code example. */
+internal fun tutorTeachingFigureReferences(markdown: String): List<String> {
+    val document = Parser.builder()
+        .includeSourceSpans(IncludeSourceSpans.BLOCKS).build().parse(markdown)
+    val offsets = buildList {
+        add(0)
+        markdown.forEachIndexed { index, character -> if (character == '\n') add(index + 1) }
+    }
+    val references = mutableListOf<String>()
+    var displayMathDelimiter: String? = null
+    var node = document.firstChild
+    val pattern = Regex("\\[\\[figure:([^\\s\\[\\]]{1,256})]]")
+    while (node != null) {
+        if (node is Paragraph && node.sourceSpans.isNotEmpty()) {
+            val first = node.sourceSpans.first()
+            val last = node.sourceSpans.last()
+            val text = markdown.substring(offsets[first.lineIndex] + first.columnIndex,
+                offsets[last.lineIndex] + last.columnIndex + last.length)
+            val inMath = displayMathDelimiter != null
+            displayMathDelimiter = com.tingyun.smartmistakebook.core.model.SafeInlineMarkdown
+                .displayMathDelimiterAfter(text, displayMathDelimiter)
+            if (!inMath) pattern.matchEntire(text.trim())?.let { references += it.groupValues[1] }
+        }
+        node = node.next
+    }
+    return references
+}
+
+private fun ModelTaskOutput.deliveryTraceOrNull(): String? = when (this) {
+    is TutorPlanOutput -> deliveryToolTraceJson
+    is TutorRespondOutput -> deliveryToolTraceJson
+    is TutorLobbyOutput -> deliveryToolTraceJson
+    else -> null
+}
