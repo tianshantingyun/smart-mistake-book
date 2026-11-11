@@ -236,9 +236,19 @@ class ConfiguredCleanImageGeneratorTest {
         )
     }
 
+    @Test
+    fun dedicatedImageCredentialsWorkWithoutAChatCapabilityProbe() = runBlocking {
+        val store = FakeStore(true, configuration(null), isImageGenerationStore = true)
+        val credential = com.tingyun.smartmistakebook.core.data.model.resolveImageCredential(store, true)
+        assertTrue(credential != null)
+        credential?.apiKey?.close()
+        assertTrue(com.tingyun.smartmistakebook.core.data.model.resolveImageCredential(store, false) == null)
+    }
+
     private class FakeStore(
         private val credentialAvailable: Boolean,
         snapshot: ModelConfigurationSnapshot,
+        override val isImageGenerationStore: Boolean = false,
     ) : ModelConfigurationStore {
         private val state = MutableStateFlow(snapshot)
         override val configuration: Flow<ModelConfigurationSnapshot> = state

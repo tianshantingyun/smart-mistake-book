@@ -431,6 +431,22 @@ class ConfiguredTutorFigureGeneratorTest {
 
     // -----------------------------------------------------------------
 
+    @Test
+    fun anImageKeepsItsActualModelInTheCacheIdentity() = runBlocking {
+        val requests = mutableListOf<ImageGenerationRequest>()
+        val generator = generator(imageModelId = "new-image-model", capability = null,
+            channelFactory = ChannelFactory { _, _ -> FakeChannel(requests = requests, modelVersion = OpenAiImageGenerationChannel.DEFAULT_MODEL_ID) })
+        val result = generator.generate(TutorFigureRequest(TutorFigureKind.GENERATE_PROCESS, "画一条数轴"))
+        assertEquals(TutorFigureStatus.GENERATED, result.status)
+        val sent = requests.single()
+        val actualId = FingerprintArgs(prompt = sent.prompt,
+            size = imageGenerationSizeFor(sent.maxDimension), format = sent.outputFormat).id()
+        assertEquals(actualId, result.figureId)
+        assertEquals(OpenAiImageGenerationChannel.DEFAULT_MODEL_ID, result.model)
+        assertNotEquals(FingerprintArgs(prompt = sent.prompt, size = imageGenerationSizeFor(sent.maxDimension),
+            format = sent.outputFormat, modelId = "new-image-model").id(), result.figureId)
+    }
+
     private fun generator(
         networkRequestsAllowed: Boolean = true,
         credentialAvailable: Boolean = true,
@@ -449,10 +465,12 @@ class ConfiguredTutorFigureGeneratorTest {
         },
         channelFactory: ChannelFactory = ChannelFactory { _, _ -> FakeChannel() },
         coordinator: FigureGenerationCoordinator? = null,
+        imageModelId: String? = null,
     ) = ConfiguredTutorFigureGenerator(
         configurationStore = FakeStore(
             credentialAvailable = credentialAvailable,
-            snapshot = configuration(capability),
+            snapshot = configuration(capability).let { if (imageModelId == null) it else it.copy(modelId = imageModelId) },
+            isImageGenerationStore = imageModelId != null,
         ),
         networkRequestsAllowed = networkRequestsAllowed,
         readSourceBytes = readSourceBytes,
@@ -533,6 +551,7 @@ class ConfiguredTutorFigureGeneratorTest {
         private val requests: MutableList<ImageGenerationRequest> = mutableListOf(),
         private val failure: Boolean = false,
         private val onGenerate: () -> Unit = {},
+        private val modelVersion: String = "",
     ) : ImageGenerationChannel {
         override suspend fun redrawClean(
             request: ImageRedrawRequest,
@@ -548,7 +567,7 @@ class ConfiguredTutorFigureGeneratorTest {
             requests += request
             prompts += request.prompt
             if (failure) throw ImageGenerationException("provider down")
-            return ImageRedrawResult(imageBytes = byteArrayOf(1, 2, 3), mimeType = "image/png")
+            return ImageRedrawResult(imageBytes = byteArrayOf(1, 2, 3), mimeType = "image/png", modelVersion = modelVersion)
         }
     }
 
@@ -562,6 +581,7 @@ class ConfiguredTutorFigureGeneratorTest {
     private class FakeStore(
         private val credentialAvailable: Boolean,
         snapshot: ModelConfigurationSnapshot,
+        override val isImageGenerationStore: Boolean = false,
     ) : ModelConfigurationStore {
         private val state = MutableStateFlow(snapshot)
         override val configuration: Flow<ModelConfigurationSnapshot> = state

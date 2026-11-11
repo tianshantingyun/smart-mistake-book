@@ -4,15 +4,8 @@ import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
 import com.tingyun.smartmistakebook.core.domain.ModelCredentialReadResult
 
 /**
- * Shared credential gate for the image-to-image / generation channels: returns
- * the available credential (with a verified image-capable model) or null when
- * networking is not allowed / no credential is configured / the capability test
- * did not confirm image input.
- *
- * A3：这是门的**唯一实现**。`ConfiguredCleanImageGenerator` 曾内联抄一份同样的判定
- * （本 KDoc 当时写的是"mirrors the gating in the clean-redraw generator"——方向已反过来），
- * 现在三条图片链都调用本函数：保存时重绘、`attachedImages` 兼容配图、4B A1 的
- * `GENERATE_FIGURE` 工具。
+ * Leases credentials for the shared image coordinator. Dedicated image settings use the
+ * OpenAI-compatible image protocol. Legacy stores retain their image-input verification gate.
  */
 internal suspend fun resolveImageCredential(
     configurationStore: ModelConfigurationStore,
@@ -21,7 +14,14 @@ internal suspend fun resolveImageCredential(
     if (!networkRequestsAllowed) return null
     val read = configurationStore.readCredential()
     val available = read as? ModelCredentialReadResult.Available ?: return null
-    val verification = available.configuration.capabilityVerification
-    if (verification == null || !verification.supportsImageInput) return null
+    val configuration = available.configuration
+    val allowed = if (configurationStore.isImageGenerationStore) {
+        configuration.isConfigured && configuration.modelId.isNotBlank() &&
+            configuration.protocol == com.tingyun.smartmistakebook.core.model.ModelProviderProtocol.DEFAULT
+    } else configuration.capabilityVerification?.supportsImageInput == true
+    if (!allowed) {
+        available.apiKey.close()
+        return null
+    }
     return available
 }

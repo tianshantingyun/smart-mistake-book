@@ -9,6 +9,7 @@ import com.tingyun.smartmistakebook.core.data.capture.AndroidCanonicalAssetVault
 import com.tingyun.smartmistakebook.core.data.capture.canonicalAssetFileIsIntact
 import com.tingyun.smartmistakebook.core.data.knowledge.BundledKnowledgePackResources
 import com.tingyun.smartmistakebook.core.data.settings.MODEL_SECRET_KEY_ALIAS
+import com.tingyun.smartmistakebook.core.data.settings.IMAGE_MODEL_SECRET_KEY_ALIAS
 import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
@@ -1058,8 +1059,8 @@ class AndroidBackupRepository(
         // sweep previously missed the entry and left the key behind.
         try {
             val keyStore = java.security.KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
-            if (keyStore.containsAlias(MODEL_SECRET_KEY_ALIAS)) {
-                keyStore.deleteEntry(MODEL_SECRET_KEY_ALIAS)
+            for (alias in listOf(MODEL_SECRET_KEY_ALIAS, IMAGE_MODEL_SECRET_KEY_ALIAS)) {
+                if (keyStore.containsAlias(alias)) keyStore.deleteEntry(alias)
             }
         } catch (_: Exception) {
             // Keystore may not be accessible; continue cleanup

@@ -47,14 +47,19 @@ class DataStoreModelConfigurationStore(
     context: Context,
     scope: CoroutineScope,
     clock: () -> Long = System::currentTimeMillis,
+    override val isImageGenerationStore: Boolean = false,
 ) : ModelConfigurationStore {
     private val delegate = StoreDelegate(
         dataStore = PreferenceDataStoreFactory.create(
             corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() },
             scope = scope,
-            produceFile = { context.applicationContext.preferencesDataStoreFile(DATASTORE_FILE) },
+            produceFile = { context.applicationContext.preferencesDataStoreFile(if (isImageGenerationStore) "image_model_configuration.preferences_pb" else DATASTORE_FILE) },
         ),
-        vault = AndroidKeystoreModelSecretVault(context.applicationContext),
+        vault = if (isImageGenerationStore) AndroidKeystoreModelSecretVault(
+            context.applicationContext,
+            keyAlias = IMAGE_MODEL_SECRET_KEY_ALIAS,
+            secretFile = java.io.File(context.applicationContext.noBackupFilesDir, "model-secrets/image-api-key-v1.bin"),
+        ) else AndroidKeystoreModelSecretVault(context.applicationContext),
         clock = clock,
         generationSource = { UUID.randomUUID().toString() },
     )

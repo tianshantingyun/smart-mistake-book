@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.provider.MediaStore
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
@@ -48,6 +49,83 @@ class CapabilityScreenInstrumentedTest {
 
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Test
+    fun realImageAndTutorSettingsKeepCredentialsIndependent() = kotlinx.coroutines.runBlocking {
+        val base = androidx.test.core.app.ApplicationProvider.getApplicationContext<android.content.Context>()
+        val root = java.io.File(base.cacheDir, "image-config-test-${java.util.UUID.randomUUID()}")
+        val isolated = object : android.content.ContextWrapper(base) {
+            override fun getApplicationContext(): android.content.Context = this
+            override fun getFilesDir() = java.io.File(root, "files").also { check(it.isDirectory || it.mkdirs()) }
+            override fun getNoBackupFilesDir() = java.io.File(root, "no-backup").also { check(it.isDirectory || it.mkdirs()) }
+        }
+        val job = kotlinx.coroutines.SupervisorJob()
+        val scope = kotlinx.coroutines.CoroutineScope(job + kotlinx.coroutines.Dispatchers.IO)
+        val tutor = com.tingyun.smartmistakebook.core.data.settings.DataStoreModelConfigurationStore(isolated, scope)
+        val image = com.tingyun.smartmistakebook.core.data.settings.DataStoreModelConfigurationStore(isolated, scope, isImageGenerationStore = true)
+        suspend fun save(store: ModelConfigurationStore, key: String, model: String) {
+            val secret = ModelApiKey.from(key.toCharArray())
+            try {
+                val result = store.save(ModelConfigurationUpdate("service", "https://example.com/v1", model), secret)
+                org.junit.Assert.assertTrue(result is ModelConfigurationMutationResult.Success)
+            } finally { secret.close() }
+        }
+        suspend fun assertKey(store: ModelConfigurationStore, expected: String) {
+            val credential = store.readCredential() as ModelCredentialReadResult.Available
+            val chars = credential.apiKey.copyChars()
+            try { assertEquals(expected, String(chars)) }
+            finally { chars.fill('\u0000'); credential.apiKey.close() }
+        }
+        try {
+            save(tutor, "tutor-key", "tutor-model")
+            save(image, "image-key", "image-model")
+            assertKey(tutor, "tutor-key")
+            assertKey(image, "image-key")
+            image.clear()
+            assertKey(tutor, "tutor-key")
+            assertEquals(ModelCredentialReadResult.Missing, image.readCredential())
+            save(image, "image-key-2", "image-model-2")
+            tutor.clear()
+            assertKey(image, "image-key-2")
+        } finally {
+            image.clear(); tutor.clear()
+            job.cancel()
+        }
+    }
+
+    @Test
+    fun imageSettingsUseTheirOwnFormAndKeepChatDrafts() {
+        val tutor = FakeStore(configuration())
+        val image = FakeStore(configuration().copy(provider = "生图服务", modelId = "image-model", configurationVersion = "image-v1"))
+        composeRule.setContent {
+            com.tingyun.smartmistakebook.core.ui.SmartMistakeBookTheme {
+                CapabilityScreen(
+                    capabilities = AppCapabilitySnapshot(networkMode = NetworkMode.LOCAL_FIRST,
+                        cameraCaptureAvailable = true, trustedOcrAvailable = false,
+                        tutorTeachingEnabled = true, remoteModelConfigured = true),
+                    configurationStore = tutor, imageConfigurationStore = image,
+                    capabilityTester = null, onBack = {},
+                )
+            }
+        }
+        composeRule.onNodeWithTag("capability_tab_image").performScrollTo().performClick()
+        composeRule.onNodeWithTag("capability_provider").assertTextContains("生图服务")
+        composeRule.waitForIdle()
+        captureCurrentScreen("image-model-settings-1112.png")
+        composeRule.onNodeWithTag("capability_tab_tutor").performScrollTo().performClick()
+        composeRule.onNodeWithTag("capability_provider").performScrollTo().performTextReplacement("讲题草稿")
+        composeRule.onNodeWithTag("capability_tab_image").performScrollTo().performClick()
+        composeRule.onNodeWithTag("capability_provider").performScrollTo().assertTextContains("生图服务")
+        composeRule.onNodeWithTag("capability_model_id").assertTextContains("image-model")
+        composeRule.onNodeWithTag("capability_test").assertDoesNotExist()
+        composeRule.onNodeWithTag("capability_provider").performTextReplacement("生图草稿")
+        composeRule.onNodeWithTag("capability_api_key").performScrollTo().performTextReplacement("test-image-key")
+        composeRule.onNodeWithTag("capability_save").performScrollTo().performClick()
+        composeRule.waitUntil(5000) { image.state.value.provider == "生图草稿" }
+        composeRule.runOnIdle { assertEquals("兼容服务", tutor.state.value.provider) }
+        composeRule.onNodeWithTag("capability_tab_tutor").performScrollTo().performClick()
+        composeRule.onNodeWithTag("capability_provider").performScrollTo().assertTextContains("讲题草稿")
+    }
 
     @Test
     fun syntheticTestRunsOnlyAfterTapAndShowsTheByokBoundary() {
@@ -285,14 +363,13 @@ class CapabilityScreenInstrumentedTest {
         }
     }
 
-    private fun captureCurrentScreen() {
+    private fun captureCurrentScreen(displayName: String = "capability-config-current.png") {
         val resolver = InstrumentationRegistry.getInstrumentation()
             .targetContext
             .contentResolver
         val collection = MediaStore.Images.Media.getContentUri(
             MediaStore.VOLUME_EXTERNAL_PRIMARY,
         )
-        val displayName = "capability-config-current.png"
         val relativePath = "Pictures/SmartMistakeBookQA/"
         resolver.delete(
             collection,
@@ -351,7 +428,13 @@ class CapabilityScreenInstrumentedTest {
         override suspend fun save(
             update: ModelConfigurationUpdate,
             apiKey: ModelApiKey,
-        ): ModelConfigurationMutationResult = error("Not used")
+        ): ModelConfigurationMutationResult {
+            state.value = state.value.copy(provider = update.provider, baseUrl = update.baseUrl,
+                modelId = update.modelId, protocol = update.protocol, isConfigured = true,
+                configurationVersion = state.value.configurationVersion + "-saved",
+                updatedAtEpochMillis = state.value.updatedAtEpochMillis + 1)
+            return ModelConfigurationMutationResult.Success(state.value)
+        }
 
         override suspend fun rotateApiKey(apiKey: ModelApiKey): ModelConfigurationMutationResult =
             error("Not used")

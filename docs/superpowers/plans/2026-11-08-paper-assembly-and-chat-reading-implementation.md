@@ -371,3 +371,43 @@ assertEquals(3, blocks.size)
 
 
 大字体截图追加修正已实施。ClaudeSegmentedControl 使用文字测量值计算最小单元宽度，标签保持单行，溢出可横向滚动。选中面改为12dp小圆角，移除常态阴影。既有大字体原生用例增加四字标签单行高度检查，避免“掌握程度”再次拆行撑高。
+
+
+## UI 基准合入主分支
+
+本次整合 UI 分支 d6917dc7 与主分支 ef6a9d97。解决绘图提示词、RoomStudyDatabase、StudyDatabasePort 与导出策略测试的显式冲突，修复自动合并产生的重复参数和重复属性。绘图保留教学样例及完整约束，PDF缓存使用主分支第3代内容策略和本版第5版布局身份。
+
+主分支已提交的 App 入口依赖尚未提交的知识复习确认与校准回调。使用主工作树的对应实现补齐已有 KnowledgeReviewSessionScreen、KnowledgeReviewSessionViewModel 及其现有测试。校准决策类型与状态文案放入现有 ViewModel 文件，保留本版题面面板视觉。整合仅涉及这些必要接线，主工作树仍有615项未提交改动待后续收口。
+
+本轮验证通过
+
+- :app:assembleLocalFirstDebug 构建成功。
+- 共享UI单测72项、导出定向单测28项、绘图提示词单测7项、知识复习ViewModel单测23项，共130项、0失败。
+- JS生产编译器检查96项通过，绘图提示词样例生产编译检查1项通过。
+- 相对 origin/main 的本次增量差异检查通过。主分支原有验收证据包含空白格式告警，证据内容沿用原提交。
+
+证据位于已授权的 library-interior-implementation-2026-10-31 目录，主日志为 ui-merge-1111-build5.log，补充 ui-merge-1111-visual.log 与 ui-merge-1111-prompt.log。完整应用设备验收继续按前文记录跟进。
+
+
+## 生图配置 UI 与生产接线（2026-11-12）
+
+- [x] 在已有 CapabilityScreen 与应用路由增加讲题/生图切换，分别保留表单草稿、保存和清除反馈。
+- [x] 扩展已有 DataStoreModelConfigurationStore，使用独立配置文件、密文文件与 Keystore 别名。全量删除补齐生图密钥清理。
+- [x] 生产共享协调器、题图整理、讲题与配图入口接入 imageModelConfigurationStore，图像通道按保存的模型 ID 请求，并在配置指纹中绑定该模型。
+- [x] 保留旧存储与通道工厂调用兼容。题卡配图缓存的模型身份跟随独立配置。
+- [x] App 和 App AndroidTest 包构建成功。定向单测47项通过，包括自定义图像模型 ID 进入模拟HTTP请求、旧调用兼容、独立图像凭证和配置校验。
+- [x] 用户授权新增独立 image_model_20261112 模拟器，在 emulator-5594 安装完整开发应用并通过3项原生检查，覆盖表单切换、草稿保留、保存到正确存储、保存期间控件锁定、两份真实加密存储分别清除。
+
+独立存储原生测试放入现有 App 测试文件。core:data 原生测试包存在主分支知识召回返回类型未迁移的编译问题，本轮相同存储行为通过 App 原生测试验证。
+
+证据位于既有 library-interior-implementation-2026-10-31 目录，构建日志为 image-settings-1112-delivery-build.log，单测日志为 image-settings-1112-channel-tests.log，原生日志为 image-settings-1112-native-final.log，截图为 image-model-settings-1112.png。截图使用生产组件与示例配置。真实服务商连通性需要配置有效凭证后验证。
+
+
+完整应用入口追加走查通过。emulator-5594 从 MainActivity 进入“我的→模型设置→生图模型”，UI 层级包含生图服务、服务商、生图模型ID、Base URL、API Key、保存与清除配置等控件，初始空配置正确提示填写。XML证据为 image-settings-live.xml。生产页启用 FLAG_SECURE，展示用截图 image-model-settings-1112.png 来自原生组件测试的示例配置。
+
+
+### 生图配置推进主分支前的后端核对
+
+已核对 UI→独立配置存储→凭证读取→共享协调器→OpenAI图像通道→规范资产的接线。生图模型 ID 同时进入实际HTTP请求、配置指纹及讲题配图缓存身份。能力声明读取共享协调器，题图整理、讲题配图、详细答案及智能体修改共用同一生图后端。服务商未在响应中附模型信息时使用本次请求模型；已有产物带模型信息时按其实际模型建立缓存身份，覆盖配置变更和重放返回历史模型的情况。
+
+追加回归通过61项定向单测，含讲题生图适配器与产物模型缓存身份。完整 App 与原生测试包构建通过，3项原生配置测试复核通过。真实服务商连通性仍需有效凭证验证。证据为 image-settings-align-1112-final.log 与 image-settings-align-1112-native.log。

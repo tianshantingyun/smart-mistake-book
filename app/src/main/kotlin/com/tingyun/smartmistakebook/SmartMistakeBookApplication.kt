@@ -390,7 +390,7 @@ class SmartMistakeBookApplication : Application() {
             // 派发账本；写不进审计不影响生成结论。
             val figureGenerationCoordinator = FigureGenerationCoordinationFactory.create(
                     database = database,
-                    configurationStore = modelConfigurationStore,
+                    configurationStore = imageModelConfigurationStore,
                     networkRequestsAllowed = capabilities.networkRequestsAllowed,
                     visualEngine = jsHost.engine,
                     visualFrameInputs = jsHost,
@@ -399,7 +399,7 @@ class SmartMistakeBookApplication : Application() {
             attachedImageCoordinator = figureGenerationCoordinator
             // 同一份净化引擎既给保存路径（captureRepository.cleanRedraw）也给用户显式重绘：
             // 两者共享同一 coordinator（凭证门/预算账本/审计记录）与同一套派发父操作。
-            val cleanImageGenerator = modelConfigurationStore?.let { store ->
+            val cleanImageGenerator = imageModelConfigurationStore?.let { store ->
                 figureGenerationCoordinator?.let { coordinator ->
                     ConfiguredCleanImageGeneratorFactory.create(
                         configurationStore = store,
@@ -520,11 +520,11 @@ class SmartMistakeBookApplication : Application() {
                 // 工具环里的 KNOWLEDGE_READ 读这个就绪位：内容没就位时回"还在准备"，
                 // 而不是"知识库里没有匹配的知识点"（D-Q3 的六号消费点）。
                 knowledgeBaseAvailability = knowledgeBaseAvailability,
-                // 4B A1：工具环生图（GENERATE_FIGURE）复用同一份模型凭证与 SSRF 防护通道；
+                // 4B A1：工具环生图（GENERATE_FIGURE）使用独立生图配置与共享 SSRF 防护通道；
                 // 没配模型时整条链保持 null（工具回"不可用"，不静默假成功）。
                 // 4E.1：统一转调共享 coordinator（policy/ledger/图像通道）。
                 // A2：生成结果登记 canonical 行（幂等键派生的 id），同键重放不再出网付费。
-                figureGenerator = modelConfigurationStore?.let { configurationStore ->
+                figureGenerator = imageModelConfigurationStore?.let { configurationStore ->
                     figureGenerationCoordinator?.let { coordinator ->
                         TutorFigureGeneratorFactory.create(
                             context = this,
@@ -1175,6 +1175,12 @@ class SmartMistakeBookApplication : Application() {
         }
     }
 
+    val imageModelConfigurationStore: ModelConfigurationStore? by lazy {
+        if (capabilities.networkRequestsAllowed) {
+            DataStoreModelConfigurationStore(this, dataStoreScope, isImageGenerationStore = true)
+        } else null
+    }
+
     val modelCapabilityTester: ModelCapabilityTester? by lazy {
         modelConfigurationStore?.let(ConfiguredModelCapabilityTesterFactory::create)
     }
@@ -1192,7 +1198,7 @@ class SmartMistakeBookApplication : Application() {
         AttachedImageGeneratorFactory.create(
             context = this,
             database = database,
-            configurationStore = modelConfigurationStore,
+            configurationStore = imageModelConfigurationStore,
             networkRequestsAllowed = capabilities.networkRequestsAllowed,
             resolveCurrentSheetBytes = resolveCurrentSheetBytes,
             // 与工具环/净化共用同一个 coordinator；null = 没有配置模型，重生成不可用。

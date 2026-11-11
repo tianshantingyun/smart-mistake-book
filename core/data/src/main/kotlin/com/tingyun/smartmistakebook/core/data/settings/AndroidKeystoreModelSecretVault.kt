@@ -36,6 +36,7 @@ import kotlinx.coroutines.withContext
  * that sweep is exactly how the alias survived deletion once already.
  */
 internal const val MODEL_SECRET_KEY_ALIAS = "smart_mistake_book_model_api_key_v2"
+internal const val IMAGE_MODEL_SECRET_KEY_ALIAS = "smart_mistake_book_image_model_api_key_v1"
 
 internal data class ModelSecretBinding(
     val generationId: String,

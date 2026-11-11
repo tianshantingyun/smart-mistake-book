@@ -200,6 +200,8 @@ sealed interface ModelCredentialReadResult {
 }
 
 interface ModelConfigurationStore {
+    val isImageGenerationStore: Boolean get() = false
+
     /**
      * Presentation-only metadata and configured state. It never emits API-key material.
      *

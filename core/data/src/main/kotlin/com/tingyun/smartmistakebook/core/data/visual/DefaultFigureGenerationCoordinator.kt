@@ -88,9 +88,11 @@ internal suspend fun openGuardedFigureImageBackend(
             credential.apiKey.close()
         }
     }
+    val imageModelId = if (configurationStore.isImageGenerationStore) configuration.modelId
+        else OpenAiImageGenerationChannel.DEFAULT_MODEL_ID
     val configurationFingerprint = imageGenerationConfigurationFingerprint(
         configuration.baseUrl,
-        OpenAiImageGenerationChannel.DEFAULT_MODEL_ID,
+        imageModelId,
     )
     return FigureImageBackend(
         configurationFingerprint = configurationFingerprint,
@@ -99,6 +101,7 @@ internal suspend fun openGuardedFigureImageBackend(
                 val endpoint = resolveGuardedEdits(configuration.baseUrl)
                 OpenAiImageGenerationChannel(
                     baseUrl = endpoint.baseUrl,
+                    modelId = imageModelId,
                     client = endpoint.client,
                     authorization = "Bearer ${String(keyChars)}",
                     // 与预留使用同一份配置指纹（不依赖端点规范化后的字符串）。
