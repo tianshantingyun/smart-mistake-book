@@ -1,0 +1,170 @@
+{
+  "environment": {
+    "node": "v26.4.0",
+    "platform": "win32",
+    "engine": "quickjs-emscripten@0.32.0",
+    "guestHeapMiB": 8,
+    "guestEvaluationDeadlineMs": 100,
+    "outerDeadlineMs": 3000
+  },
+  "limits": {
+    "source": 16000,
+    "bytes": 180000,
+    "ops": 400,
+    "vertices": 4000,
+    "coordinate": 10000
+  },
+  "scenes": [
+    {
+      "id": "work",
+      "frames": 11,
+      "shapes": [
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13,
+        13
+      ],
+      "wallMs": 82
+    },
+    {
+      "id": "cork",
+      "frames": 11,
+      "shapes": [
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        11,
+        10
+      ],
+      "wallMs": 353
+    },
+    {
+      "id": "waves",
+      "frames": 11,
+      "shapes": [
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7,
+        7
+      ],
+      "wallMs": 382
+    }
+  ],
+  "tests": [
+    {
+      "name": "host capabilities absent",
+      "passed": true,
+      "ok": true,
+      "wallMs": 346,
+      "value": [
+        "undefined",
+        "undefined",
+        "undefined",
+        "undefined",
+        "undefined",
+        "undefined"
+      ]
+    },
+    {
+      "name": "infinite loop interrupted",
+      "passed": true,
+      "ok": false,
+      "error": "interrupted",
+      "wallMs": 442
+    },
+    {
+      "name": "heap allocation rejected",
+      "passed": true,
+      "ok": false,
+      "error": "out of memory",
+      "wallMs": 376
+    },
+    {
+      "name": "NaN rejected after serialization",
+      "passed": true,
+      "ok": false,
+      "error": "non-finite or out-of-range coordinate",
+      "wallMs": 356
+    },
+    {
+      "name": "unbounded coordinates rejected",
+      "passed": true,
+      "ok": false,
+      "error": "non-finite or out-of-range coordinate",
+      "wallMs": 359
+    },
+    {
+      "name": "shape budget enforced",
+      "passed": true,
+      "ok": false,
+      "error": "shape budget exceeded",
+      "wallMs": 350
+    },
+    {
+      "name": "HTML label remains text",
+      "passed": true,
+      "ok": true,
+      "wallMs": 354
+    },
+    {
+      "name": "external resource style rejected",
+      "passed": true,
+      "ok": false,
+      "error": "invalid color",
+      "wallMs": 353
+    },
+    {
+      "name": "hostile style property rejected",
+      "passed": true,
+      "ok": false,
+      "error": "unknown shape property",
+      "wallMs": 349
+    },
+    {
+      "name": "fresh context isolates mutation",
+      "passed": true,
+      "ok": true,
+      "wallMs": 371,
+      "value": 1
+    },
+    {
+      "name": "outer watchdog works",
+      "passed": true,
+      "ok": false,
+      "error": "outer process watchdog terminated execution",
+      "wallMs": 367
+    },
+    {
+      "name": "upstream native operation regression probe",
+      "passed": true,
+      "ok": false,
+      "error": "outer process watchdog terminated execution",
+      "wallMs": 2011
+    },
+    {
+      "name": "deterministic repeated scene",
+      "passed": true
+    }
+  ],
+  "scope": "Desktop feasibility only; not Android performance or a security audit. Preview switches precomputed isolated frames."
+}
