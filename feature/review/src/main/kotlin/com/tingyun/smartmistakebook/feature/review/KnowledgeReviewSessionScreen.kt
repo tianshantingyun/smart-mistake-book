@@ -322,7 +322,7 @@ private fun KnowledgeQuizContent(
     // 改正对话框打开时按当前题面现读的键版本（题面切换时重置，避免把上一题的版本带过来）。
     var loadedKeyVersion by remember(item.id) { mutableStateOf<Long?>(null) }
     val keyVersionScope = rememberCoroutineScope()
-    WorkspacePanel(containerColor = SmartColors.ContentSurface) {
+    WorkspacePanel {
         Column {
             SafeMarkdownText(
                 markdown = item.stemMarkdown,
