@@ -224,12 +224,6 @@ internal fun TutorModelPanel(
     }.collectAsState(initial = emptyList())
     val sessionImageEnabled = imageIntake != null
     val currentProvider = state.provider
-    val displayVersions = state.displayReplyVersions()
-    val displayMessages = state.displayMessages()
-    val displayResponses = persistedResponses.filterNot { response -> displayVersions.any { version ->
-        (version.request?.input as? TutorPlanInput)?.let { input -> response.cycleOrdinal == input.cycleOrdinal &&
-            response.turnOrdinal == input.turnOrdinal && response.questionDocumentId == input.questionDocument.id } == true
-    } } + com.tingyun.smartmistakebook.core.domain.selectedTutorReplyVersions(displayVersions).mapNotNull { it.response }
     val conversationProjection = remember(
         question.sessionId,
         question.revisionNumber,
@@ -238,12 +232,11 @@ internal fun TutorModelPanel(
         persistedRespondTasks,
         persistedResponses,
         state.messages,
-        state.replyVersions,
     ) {
         buildTutorConversationProjection(
             question = question,
-            planTasks = projectTutorReplyVersionTasks(persistedTasks, state.replyVersions, ModelTaskKind.TUTOR_PLAN),
-            respondTasks = projectTutorReplyVersionTasks(persistedRespondTasks, state.replyVersions, ModelTaskKind.TUTOR_RESPOND),
+            planTasks = persistedTasks,
+            respondTasks = persistedRespondTasks,
             responses = persistedResponses,
             messages = state.messages,
         )
@@ -251,11 +244,7 @@ internal fun TutorModelPanel(
     val tutorTasks = conversationProjection.planTasks
     val tutorResponses = conversationProjection.responses
     val tutorRespondTasks = conversationProjection.respondTasks
-    val displayedProjection = buildTutorConversationProjection(question,
-        projectTutorReplyVersionTasks(persistedTasks, displayVersions, ModelTaskKind.TUTOR_PLAN),
-        projectTutorReplyVersionTasks(persistedRespondTasks, displayVersions, ModelTaskKind.TUTOR_RESPOND),
-        displayResponses, displayMessages)
-    val timeline = displayedProjection.timeline
+    val timeline = conversationProjection.timeline
     // Deliberately process-only: an answer is not durably unlocked until its exact bottom is visible.
     var planSolutionPreviewKeys by remember(
         question.sessionId,
@@ -264,21 +253,12 @@ internal fun TutorModelPanel(
     ) { mutableStateOf(emptySet<PlanSolutionPreviewKey>()) }
     val solutionExposureTracker = rememberTutorSolutionExposureTracker(
         question = question,
-        timeline = timeline.filter { item ->
-            val requestId = when (item) {
-                is TutorConversationTimelineItem.Plan -> item.task.request.requestId
-                is TutorConversationTimelineItem.Reply -> item.task.request.requestId
-                is TutorConversationTimelineItem.ChoiceFeedback -> item.planTask?.request?.requestId
-            }
-            state.replyVersions.none { it.requestId == requestId && !it.selected }
-        },
+        timeline = timeline,
         responses = tutorResponses,
         previewKeys = planSolutionPreviewKeys,
         longTermWritesBlocked = longTermWritesBlocked,
         interactions = interactions,
         clock = clock,
-        replyVersionIds = state.replyVersions.associate { it.requestId to it.versionId },
-        replyVersions = state.replyVersions,
     )
     val answerExposureKeys = solutionExposureTracker.answerExposureKeys
     val currentCycle = conversationProjection.currentCycle
@@ -414,8 +394,7 @@ internal fun TutorModelPanel(
      */
     val liveStopAction: (() -> Unit)? = activeLiveTurn?.let { active ->
         {
-            if (isTutorRegeneration(active.requestId)) viewModel.onStopRegenerating()
-            else viewModel.onStopTutoringTurn(
+            viewModel.onStopTutoringTurn(
                 requestId = active.requestId,
                 conversationId = TutorConversationIds.captured(question.sessionId),
                 // 停止补的那条助手行回复的是这一轮的学生行：消息 id 由请求 id 派生
@@ -538,7 +517,7 @@ internal fun TutorModelPanel(
         (task.request.input as? TutorPlanInput)?.turnOrdinal == currentHistory.size + 1
     }
     val currentPlanOutput = observedTask.output as? TutorPlanOutput
-    val chatSending = state.regeneratingRequestId != null || state.sending || latestRespondTasks.any { task ->
+    val chatSending = state.sending || latestRespondTasks.any { task ->
         currentProvider?.let(task::matchesTutorProvider) == true &&
             task.status.isTutorExecutionPending()
     }
@@ -804,7 +783,6 @@ internal fun TutorModelPanel(
                 executeTurn(cycle, memory, messages, turns)
             },
             interactions = interactions,
-            replyVersionId = { state.replyVersions.firstOrNull { it.selected && it.requestId == observedTask.request.requestId }?.versionId },
         ),
     )
 
@@ -914,7 +892,7 @@ internal fun TutorModelPanel(
             when (timelineItem) {
                 is TutorConversationTimelineItem.Plan -> {
                     val taskInput = timelineItem.task.request.input as TutorPlanInput
-                    val response = displayedProjection.responsesByTurn[
+                    val response = conversationProjection.responsesByTurn[
                         TutorTurnKey(taskInput.cycleOrdinal, taskInput.turnOrdinal)
                     ]
                     val isCurrentTurn = taskInput.cycleOrdinal == currentInput.cycleOrdinal &&
@@ -925,9 +903,6 @@ internal fun TutorModelPanel(
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     TutorTaskContent(
                         task = timelineItem.task,
-                        showCopyAction = timelineItem.message == null,
-                        savedDraftChoiceId = state.replyChoiceDrafts[timelineItem.task.request.requestId],
-                        onDraftChoiceChanged = { viewModel.onReplyChoiceDraft(timelineItem.task.request.requestId, it) },
                         response = response,
                         // 正文从消息行来（K1a）；旧行没有消息行时才回落账本。
                         openingMarkdown = timelineItem.bodyMarkdown,
@@ -942,8 +917,7 @@ internal fun TutorModelPanel(
                             ?.let { it in planSolutionPreviewKeys } == true,
                         awaitingContinuation = false,
                         // 提示和追问只是追加消息，不会结束当前诊断轮。
-                        interactionEnabled = isCurrentTurn && !chatSending && displayVersions.none {
-                            it.selected && it.requestId == timelineItem.task.request.requestId && it.locked },
+                        interactionEnabled = isCurrentTurn && !chatSending,
                         executionMatchesCurrentProvider = executionMatches,
                         splitChoiceFeedback = true,
                         interactionBusy = state.interactionBusy,
@@ -975,20 +949,14 @@ internal fun TutorModelPanel(
                     val output = timelineItem.planTask?.output as? TutorPlanOutput
                     val isCurrentTurn = response.cycleOrdinal == currentInput.cycleOrdinal &&
                         response.turnOrdinal == currentInput.turnOrdinal
-                    val planMessage = timeline.filterIsInstance<TutorConversationTimelineItem.Plan>()
-                        .firstOrNull { it.task.request.requestId == timelineItem.planTask?.request?.requestId }?.message
                     if (output != null) {
                         TutorChoiceFeedbackContent(
                             output = output,
                             response = response,
-                            figureAssetIds = planMessage?.sourceImageAssetIds.orEmpty(),
-                            figureAssetResolver = imageIntake?.let { intake -> { id: String -> intake.resolveImageUri(id) } },
-                            toolTraceJson = planMessage?.toolTraceJson,
                             solutionRevealPreviewed = timelineItem.planTask
                                 .toPlanSolutionPreviewKey()
                                 ?.let { it in planSolutionPreviewKeys } == true,
-                            interactionEnabled = isCurrentTurn && !chatSending && displayVersions.none {
-                                it.selected && it.requestId == timelineItem.planTask?.request?.requestId && it.locked },
+                            interactionEnabled = isCurrentTurn && !chatSending,
                             interactionBusy = state.interactionBusy,
                             interactionError = state.interactionError.takeIf { isCurrentTurn },
                             onContinue = ::continueCurrentTurn,
@@ -1026,7 +994,6 @@ internal fun TutorModelPanel(
                     }
                     TutorChatExchange(
                         task = timelineItem.task,
-                        showCopyAction = timelineItem.message == null,
                         // 气泡与正文的唯一来源是消息行（K1a）；旧行由时间线项回落到账本/派发原文。
                         studentBodyMarkdown = timelineItem.studentBodyMarkdown,
                         assistantBodyMarkdown = timelineItem.bodyMarkdown,
@@ -1069,35 +1036,6 @@ internal fun TutorModelPanel(
                     }
                 }
             }
-
-            val replyMessage = when (timelineItem) {
-                is TutorConversationTimelineItem.Plan -> timelineItem.message
-                is TutorConversationTimelineItem.Reply -> timelineItem.message
-                else -> null
-            }
-            val replyTask = when (timelineItem) {
-                is TutorConversationTimelineItem.Plan -> timelineItem.task
-                is TutorConversationTimelineItem.Reply -> timelineItem.task
-                else -> null
-            }
-            val displayedResponse = when (timelineItem) {
-                is TutorConversationTimelineItem.Plan -> (timelineItem.task.request.input as TutorPlanInput).let { input ->
-                    displayedProjection.responsesByTurn[TutorTurnKey(input.cycleOrdinal, input.turnOrdinal)]
-                }
-                else -> null
-            }
-            TutorReplyVersionsBar(replyMessage, displayVersions,
-                latest = replyMessage != null && state.messages.lastOrNull()?.messageId == replyMessage.messageId &&
-                    conversations?.supportsReplyVersions == true,
-                busy = state.regeneratingRequestId != null, onSelect = viewModel::onSelectReplyVersion,
-                onRegenerate = { replyMessage?.let { viewModel.onRegenerateReply(it, replyTask) } },
-                onStop = viewModel::onStopRegenerating,
-                regenerateEnabled = replyTask != null && state.provider?.supports(replyTask.request.input.kind) == true &&
-                    !chatSending && state.pendingRequestCards.isEmpty(),
-                copyTestTag = if (timelineItem is TutorConversationTimelineItem.Plan) "captured_tutor_plan_actions_copy"
-                    else "tutor_chat_message_actions_${(replyTask?.request?.input as? TutorRespondInput)?.responseOrdinal}_copy",
-                copyText = replyMessage?.let { tutorReplyCopyText(it, replyTask, displayedResponse,
-                    replyTask?.toPlanSolutionPreviewKey()?.let { key -> key in planSolutionPreviewKeys } == true) })
         }
     }
 }
