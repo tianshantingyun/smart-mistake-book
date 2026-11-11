@@ -23,8 +23,9 @@ data class TutorTurnToolTrace(
     val entries: List<TutorToolTraceEntry> = emptyList(),
     /** 因体积上限被丢掉的条目数；> 0 时详情里标注"另有 N 项未记录"。 */
     val omittedCount: Int = 0,
+    val teachingFigureReview: TutorTeachingFigureReview? = null,
 ) {
-    val isEmpty: Boolean get() = entries.isEmpty()
+    val isEmpty: Boolean get() = entries.isEmpty() && teachingFigureReview == null
 
     /** 这一轮发起了几次调用 = 折叠态那行小字里的「N 项」。 */
     val callCount: Int get() = entries.size
@@ -32,6 +33,40 @@ data class TutorTurnToolTrace(
     init {
         require(omittedCount >= 0) { "Omitted tool trace entries must not be negative" }
     }
+}
+
+@Serializable
+enum class TutorTeachingFigureStatus { COMPLETE, INCOMPLETE, OMITTED }
+
+/** Host-owned delivery status, independent of whether the model finished its text. */
+@Serializable
+data class TutorTeachingFigureReview(
+    val status: TutorTeachingFigureStatus,
+    val omission: TeachingFigureOmission? = null,
+) {
+    init {
+        require((status == TutorTeachingFigureStatus.OMITTED) == (omission != null))
+    }
+}
+
+fun reviewTutorTeachingFigures(
+    references: List<String>,
+    trace: TutorTurnToolTrace?,
+    capabilities: FigureGenerationCapabilities,
+    omission: TeachingFigureOmission?,
+): TutorTeachingFigureReview {
+    val entries = trace?.entries.orEmpty()
+    val validIds = entries.filter { it.ok && it.figure?.kind == TutorFigureKind.GENERATE_PROCESS }
+        .mapNotNull { it.figure?.figureId }.toSet()
+    if (references.isNotEmpty() && references.all { it in validIds }) {
+        return TutorTeachingFigureReview(TutorTeachingFigureStatus.COMPLETE)
+    }
+    val jsFailed = entries.any { !it.ok && it.figure?.method == FigureGenerationMethod.JS }
+    val mayOmit = FigureGenerationMethod.JS in capabilities.availableMethods &&
+        FigureGenerationMethod.IMAGE_MODEL !in capabilities.availableMethods && !jsFailed &&
+        references.isEmpty() && validIds.isEmpty() && omission != null
+    return if (mayOmit) TutorTeachingFigureReview(TutorTeachingFigureStatus.OMITTED, omission)
+    else TutorTeachingFigureReview(TutorTeachingFigureStatus.INCOMPLETE)
 }
 
 /**
@@ -127,7 +162,7 @@ data class TutorToolFigureTrace(
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.ALWAYS)
     val generatedNow: Boolean = false,
     /**
-     * 4E WG-04b：这次调用**实际执行**的方法（本波次只可能是 IMAGE_MODEL）。null = 旧痕迹
+     * 4E WG-04b：这次调用**实际执行**的方法（JS 或 IMAGE_MODEL）。null = 旧痕迹
      * （批次 1/2 写下的行没有这个键），不把缺失猜成任何一种方法。
      */
     val method: FigureGenerationMethod? = null,
@@ -137,6 +172,8 @@ data class TutorToolFigureTrace(
     val operationId: String? = null,
     /** 这次逻辑操作的终态（GENERATED/CACHED/NEED_SOURCE/...）；null = 旧痕迹。 */
     val status: FigureGenerationStatus? = null,
+    /** The bounded instructional description from the successful local request. */
+    val caption: String? = null,
 ) {
     init {
         require(figureId == null || figureId.isNotBlank()) {
@@ -148,15 +185,23 @@ data class TutorToolFigureTrace(
         require(figureId != null || !generatedNow) {
             "Only a generated figure can claim a fresh generation"
         }
-        // JS 未接通：痕迹记录的是实际执行的方法，不可能出现 JS。
-        require(method == null || method == FigureGenerationMethod.IMAGE_MODEL) {
-            "A figure trace can only record the actually executed image-model method"
+        require(method != FigureGenerationMethod.JS || (!generatedNow && model == null)) {
+            "Local JS drawing must not claim an image model or a paid remote dispatch"
         }
         require(operationId == null || operationId.isNotBlank()) {
             "A figure trace operation id must be null or non-blank"
         }
+        require(caption == null || (caption.isNotBlank() && caption.length <= 200 && caption.none(Char::isISOControl)))
     }
 }
+
+fun tutorFigureCaptions(toolTraceJson: String?): Map<String, String> =
+    decodeTutorTurnToolTrace(toolTraceJson)?.entries.orEmpty().filter { it.ok }
+        .mapNotNull { entry ->
+            val figure = entry.figure ?: return@mapNotNull null
+            val id = figure.figureId ?: return@mapNotNull null
+            figure.caption?.let { id to it }
+        }.toMap()
 
 /**
  * 一行痕迹的**存储上限**（字节意义上的字符数）。正常一轮最多 5 轮 × 3 次调用，条数有天然上界；
@@ -186,7 +231,7 @@ fun encodeTutorTurnToolTrace(
     while (true) {
         val encoded = tutorToolTraceJson.encodeToString(
             TutorTurnToolTrace.serializer(),
-            TutorTurnToolTrace(entries = entries, omittedCount = omitted),
+            trace.copy(entries = entries, omittedCount = omitted),
         )
         if (encoded.length <= maxChars || entries.size <= 1) return encoded
         entries = entries.dropLast(1)
@@ -199,7 +244,7 @@ fun decodeTutorTurnToolTrace(json: String?): TutorTurnToolTrace? {
     val text = json?.takeIf(String::isNotBlank) ?: return null
     return runCatching {
         tutorToolTraceJson.decodeFromString(TutorTurnToolTrace.serializer(), text)
-    }.getOrNull()?.takeIf { trace -> trace.entries.isNotEmpty() }
+    }.getOrNull()?.takeUnless { trace -> trace.isEmpty }
 }
 
 /**
@@ -245,6 +290,7 @@ data class TutorToolTraceDisplay(
     val headline: String,
     val rows: List<TutorToolTraceRow>,
     val omittedCount: Int = 0,
+    val teachingFigureNote: String? = null,
 ) {
     /** 有没有可展开的明细：只有折叠态那行字时不给展开出口（不给假按钮）。 */
     val hasDetails: Boolean get() = rows.isNotEmpty()
@@ -256,9 +302,16 @@ data class TutorToolTraceDisplay(
 
 /** 把痕迹变成可渲染的形状：学生看到的每个字都在这里一次性定下来。 */
 fun tutorToolTraceDisplay(trace: TutorTurnToolTrace): TutorToolTraceDisplay = TutorToolTraceDisplay(
-    headline = tutorToolTraceHeadline(trace),
+    headline = if (trace.entries.isEmpty()) "" else tutorToolTraceHeadline(trace),
     rows = trace.entries.map { entry -> entry.toDisplayRow() },
     omittedCount = trace.omittedCount,
+    teachingFigureNote = when (trace.teachingFigureReview?.status) {
+        TutorTeachingFigureStatus.INCOMPLETE -> "正文已保留，配图尚未完成。可重试本轮回复。"
+        TutorTeachingFigureStatus.OMITTED -> trace.teachingFigureReview.omission?.let {
+            "复杂配图暂缺 · ${it.instructionalTarget}\n${it.reason}\n${it.jsLimitation}"
+        }
+        else -> null
+    },
 )
 
 private fun TutorToolTraceEntry.toDisplayRow(): TutorToolTraceRow = TutorToolTraceRow(

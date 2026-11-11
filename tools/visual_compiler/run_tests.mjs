@@ -571,6 +571,16 @@ function testSdk() {
     const subpaths = cmds.filter((c) => c[0] === 'M').length;
     check('sdk/axis subpaths (line+head barbs+ticks)', subpaths === 1 + 1 + 2, `got ${subpaths}`);
   }
+  // Open sampled curves must not acquire a filled closing polygon in the V1 painter.
+  {
+    const context = makeContext({ withSdk: true });
+    const sdk = vm.runInContext('visualSdk', context);
+    const commands = sdk.lineSegments([[0, 0], [10, 5], [20, 0]]);
+    check('sdk/lineSegments shape', JSON.stringify(commands) ===
+      JSON.stringify([['M', 0, 0], ['L', 10, 5], ['M', 10, 5], ['L', 20, 0]]));
+    try { sdk.lineSegments([[0, 0], [Infinity, 5]]); check('sdk/lineSegments finite guard', false); }
+    catch { check('sdk/lineSegments finite guard', true); }
+  }
   // polyline：采样折线。
   {
     const cmds = sdk.polyline([[0, 0], [10, 5], [20, 0]]);

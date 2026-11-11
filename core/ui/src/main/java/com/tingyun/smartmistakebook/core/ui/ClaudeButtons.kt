@@ -35,6 +35,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
@@ -58,6 +59,8 @@ private fun ClaudeAction(
 ) {
     val source = interactionSource ?: remember { MutableInteractionSource() }
     val hovered by source.collectIsHoveredAsState()
+    val pressed by source.collectIsPressedAsState()
+    val motion = LocalClaudeMotionEnabled.current
     val resolvedColors = colors ?: when (variant) {
         ActionVariant.PRIMARY -> ButtonDefaults.buttonColors(
             containerColor = if (hovered) JadeActive else Jade,
@@ -66,7 +69,7 @@ private fun ClaudeAction(
             disabledContentColor = InkMuted,
         )
         ActionVariant.SECONDARY -> ButtonDefaults.buttonColors(
-            containerColor = if (hovered) Ink.copy(alpha = .05f) else Color.Transparent,
+            containerColor = if (hovered) Ink.copy(alpha = .05f) else SubtleSurface,
             contentColor = Ink,
             disabledContainerColor = Color.Transparent,
             disabledContentColor = InkMuted,
@@ -77,19 +80,28 @@ private fun ClaudeAction(
             disabledContentColor = InkMuted,
         )
     }
+    val targetContainer = if (pressed && enabled) {
+        Ink.copy(alpha = .05f).compositeOver(resolvedColors.containerColor)
+    } else resolvedColors.containerColor
+    val container = if (motion) animateColorAsState(
+        targetContainer,
+        ClaudeMotion.spec(true, if (pressed) ClaudeMotion.PressMillis else ClaudeMotion.ReleaseMillis),
+        label = "cds-button-fill",
+    ).value else targetContainer
+    val feedbackColors = resolvedColors.copy(containerColor = container)
     val feedback = modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
-        .claudeActionFeedback(source, enabled, shape, resolvedColors.containerColor)
+        .claudeActionFeedback(source, enabled, shape, feedbackColors.containerColor)
     CompositionLocalProvider(
         LocalMinimumInteractiveComponentSize provides 48.dp,
         LocalRippleConfiguration provides null,
     ) {
         if (variant == ActionVariant.GHOST) {
             MaterialTextButton(onClick = onClick, modifier = feedback, enabled = enabled,
-                shape = shape, colors = resolvedColors, border = border,
+                shape = shape, colors = feedbackColors, border = border,
                 contentPadding = contentPadding, interactionSource = source, content = content)
         } else {
             MaterialButton(onClick = onClick, modifier = feedback, enabled = enabled,
-                shape = shape, colors = resolvedColors, elevation = elevation, border = border,
+                shape = shape, colors = feedbackColors, elevation = elevation, border = border,
                 contentPadding = contentPadding, interactionSource = source, content = content)
         }
     }
@@ -116,7 +128,11 @@ private fun Modifier.claudeActionFeedback(
     val scale by animateFloatAsState(if (pressed && enabled && motion) ClaudeMotion.pressedScale(longestEdgeDp) else 1f,
         ClaudeMotion.pressSpec(motion, pressed && enabled), label = "cds-button-press")
     return onSizeChanged { longestEdgeDp = maxOf(it.width, it.height) / density }
-        .graphicsLayer { scaleX = scale; scaleY = scale }
+        .graphicsLayer {
+            val settledScale = if (motion) scale else 1f
+            scaleX = settledScale
+            scaleY = settledScale
+        }
         .then(if (focused && enabled) Modifier.border(2.dp, claudeFocusIndicatorColor(containerColor), shape) else Modifier)
 }
 

@@ -12,6 +12,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 
+internal fun tutorStreamingDisplayText(markdown: String): String {
+    val blocks = parseTutorMessageDocument(markdown)
+    if (blocks.none { it is TutorMessageBlock.Figure || it == TutorMessageBlock.Question }) return markdown
+    return blocks.joinToString("\n\n") { block ->
+        when (block) {
+            is TutorMessageBlock.Markdown -> block.text
+            is TutorMessageBlock.Figure -> "正在准备配图…"
+            TutorMessageBlock.Question -> "正在准备思考题…"
+        }
+    }
+}
+
 /**
  * 生成中的回答正文：逐 token 增长时，已完成的块走完整渲染（markdown + 公式），尾块走宽容
  * 纯文本。
@@ -30,17 +42,17 @@ fun TutorStreamingReply(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        blocks.completed.forEach { block ->
-            key(block) { TutorReplyMarkdown(block) }
+        blocks.completed.forEachIndexed { index, block ->
+            key(index) { TutorReplyMarkdown(tutorStreamingDisplayText(block)) }
         }
         if (blocks.tail.isNotBlank()) {
             Text(
-                text = blocks.tail,
+                text = tutorStreamingDisplayText(blocks.tail),
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("tutor_streaming_tail"),
                 color = Ink,
-                style = MaterialTheme.typography.bodyMedium,
+                style = TutorMarkdownTokens.body,
             )
         }
     }

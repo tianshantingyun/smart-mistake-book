@@ -17,6 +17,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import com.tingyun.smartmistakebook.core.ui.ClaudeFilterChip as FilterChip
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.ui.text.font.FontWeight
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNotice
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNoticeTone
 import androidx.compose.material3.MaterialTheme
 import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
 import androidx.compose.material3.Switch
@@ -136,13 +141,14 @@ internal fun ReminderScreen(
     RootPageColumn {
         SecondaryHeader(title = "复习提醒", onBack = onBack)
         Spacer(Modifier.height(16.dp))
-        WorkspacePanel {
+        WorkspacePanel(containerColor = SmartColors.ContentSurface) {
             Column {
                 SettingsSectionTitle("复习节奏")
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp),
+                        .padding(top = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f)) {
@@ -154,6 +160,8 @@ internal fun ReminderScreen(
                                 "关闭后仍可随时从“复习”栏开始"
                             },
                             color = InkSecondary,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(top = 4.dp),
                         )
                         if (suggestedMinute != null) {
                             Text(
@@ -195,6 +203,7 @@ internal fun ReminderScreen(
                         .padding(top = 12.dp)
                         .testTag("reminder_time_value"),
                     style = MaterialTheme.typography.displayMedium,
+                    fontWeight = FontWeight.Medium,
                     color = com.tingyun.smartmistakebook.core.ui.SmartColors.JadeDark,
                 )
                 Text("选择提醒时间，或自定义。", color = InkSecondary)
@@ -257,10 +266,10 @@ internal fun ReminderScreen(
                 }
 
                 if (preferences.enabled && !permissionGranted) {
-                    Text(
+                    WorkspaceNotice(
                         "提醒设置已保留。请开启系统通知权限以接收提醒。",
                         modifier = Modifier.padding(top = 16.dp),
-                        color = InkSecondary,
+                        tone = WorkspaceNoticeTone.WARNING,
                     )
                     OutlinedButton(
                         onClick = openNotificationSettings,
@@ -275,21 +284,13 @@ internal fun ReminderScreen(
                 }
 
                 statusMessage?.let { message ->
-                    Text(
-                        message,
-                        modifier = Modifier.padding(top = 12.dp),
-                        color = InkSecondary,
-                    )
+                    WorkspaceNotice(message, modifier = Modifier.padding(top = 12.dp))
                 }
 
             }
         }
         Spacer(Modifier.height(16.dp))
-        Text(
-            "提醒不会改变复习安排。锁屏不显示具体题目，也不会在后台调用模型。",
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        WorkspaceNotice("提醒不会改变复习安排。锁屏不显示具体题目，也不会在后台调用模型。")
     }
 }
 

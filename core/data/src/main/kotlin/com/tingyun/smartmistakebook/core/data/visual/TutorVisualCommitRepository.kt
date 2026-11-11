@@ -285,6 +285,33 @@ class TutorVisualCommitRepository(
         }
     }
 
+    /** Publishes a frozen preview without creating an artificial conversation message. */
+    suspend fun commitGeneratedArtifact(
+        program: TutorVisualProgramInput,
+        snapshot: TutorVisualSnapshotInput,
+        ownerRequestId: String,
+    ): TutorVisualSnapshotRecord = checkpointPlanLock.withLock {
+        requireS0(program, snapshot)
+        val now = clock()
+        val programWrite = program.toWrite(now)
+        val snapshotWrite = snapshot.toWrite(programWrite.programId, now)
+        val plan = planCheckpoint(programWrite.programId, snapshot, snapshotWrite.snapshotId)
+        translateFullDisk {
+            database.commitGeneratedVisualArtifact(
+                com.tingyun.smartmistakebook.core.database.CommitGeneratedVisualArtifactCommand(
+                    StageTutorVisualSnapshotCommand(
+                        programWrite, snapshotWrite.copy(checkpointKind = plan.incomingKind), ownerRequestId,
+                        evictCheckpointSnapshotIds = plan.evictUnpinnedSnapshotIds,
+                        stagingLeaseExpiredBeforeEpochMillis = now - stagingLeaseMillis,
+                        perProgramBudgetBytes = retentionPolicy.perProgramBudgetBytes,
+                        globalBudgetBytes = retentionPolicy.globalBudgetBytes,
+                    ),
+                    demoteCheckpointSnapshotIds = plan.demoteToIntermediate,
+                ),
+            )
+        }
+    }
+
     /**
      * S4：**一次提交**完成 assistant 正文/trace + 首张可见图。
      *

@@ -1,5 +1,8 @@
 package com.tingyun.smartmistakebook.feature.review
 
+import androidx.compose.material3.ButtonDefaults
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNotice
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNoticeTone
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -773,10 +776,9 @@ internal fun ReviewSelfReportReceipt(
     modifier: Modifier = Modifier,
 ) {
     val result = recorded ?: return
-    Text(
-        text = selfReportRecordedMessage(key = result.key, evidenceReason = result.evidenceReason),
-        style = MaterialTheme.typography.bodyMedium,
-        color = SmartColors.JadeDark,
+    WorkspaceNotice(
+        message = selfReportRecordedMessage(key = result.key, evidenceReason = result.evidenceReason),
+        tone = WorkspaceNoticeTone.SUCCESS,
         modifier = modifier.testTag("review_self_report_receipt"),
     )
 }
@@ -798,8 +800,11 @@ private fun SelfReportKeyButton(
             .heightIn(min = 64.dp)
             .testTag(tag),
         shape = RoundedCornerShape(12.dp),
+        colors = ButtonDefaults.outlinedButtonColors(
+            containerColor = if (selected) SmartColors.JadeSoft else SmartColors.ContentSurface,
+        ),
         border = BorderStroke(
-            width = if (selected) 2.dp else 1.dp,
+            width = 1.dp,
             color = if (selected) SmartColors.JadeDark else SmartColors.Track,
         ),
     ) {

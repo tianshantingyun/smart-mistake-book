@@ -24,30 +24,30 @@ class MathContentLoweringTest {
     fun `golden lowering - atom boxes at the canonical 16px metrics`() {
         val result = MathContentLowering.lower("x", fontSizePx = 16f)
         val box = (result as MathContentLowering.Result.Box).box
-        // 宽 = 1×0.5×16 = 8；高 = 16；baseline = 0.4×16 = 6.4（MathBoxGoldenTest 同源公式）。
+        // 字形基线保留 20% 字号的下伸空间。
         assertEquals(8f, box.width, 1e-3f)
         assertEquals(16f, box.height, 1e-3f)
-        assertEquals(6.4f, box.baseline, 1e-3f)
+        assertEquals(12.8f, box.baseline, 1e-3f)
     }
 
     @Test
     fun `golden lowering - fraction boxes at the canonical 16px metrics`() {
         val result = MathContentLowering.lower("\\frac{1}{2}", fontSizePx = 16f)
         val box = (result as MathContentLowering.Result.Box).box
-        // width = max(8,8) + 2×8 = 24；height = 16+16+4+1 = 37；baseline = 16+2+0.5 = 18.5。
+        // 分数横线对齐数学轴，基线在横线下方 0.3em。
         assertEquals(24f, box.width, 1e-3f)
         assertEquals(37f, box.height, 1e-3f)
-        assertEquals(18.5f, box.baseline, 1e-3f)
+        assertEquals(23.3f, box.baseline, 1e-3f)
     }
 
     @Test
     fun `golden lowering - radical boxes at the canonical 16px metrics`() {
         val result = MathContentLowering.lower("\\sqrt{x}", fontSizePx = 16f)
         val box = (result as MathContentLowering.Result.Box).box
-        // width = 8 + 2×8 = 24；height = 16 + 4 = 20；baseline = 6.4 + 4 = 10.4。
+        // 根号为被开方数预留 4px 顶部空间。
         assertEquals(24f, box.width, 1e-3f)
         assertEquals(20f, box.height, 1e-3f)
-        assertEquals(10.4f, box.baseline, 1e-3f)
+        assertEquals(16.8f, box.baseline, 1e-3f)
     }
 
     // ------------------------------------------------ 未知 TeX 语义（宽容解析不是失败面）

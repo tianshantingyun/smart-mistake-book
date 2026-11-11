@@ -52,17 +52,18 @@ fun DetailedAnswerPreviewSheet(
                 Text("正在读取本次卷面…", color = InkSecondary)
             }
         } else {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                MistakeExportFormat.entries.forEach { format ->
-                    FilterChip(group.format == format, { onChangeFormat(format) }, { Text(format.studentLabel) }, enabled = !busy)
-                }
-            }
+            ClaudeSegmentedControl(
+                segments = MistakeExportFormat.entries.map { ClaudeSegment(it.token, it.studentLabel) },
+                selectedId = group.format.token,
+                onSelect = { token -> MistakeExportFormat.entries.firstOrNull { it.token == token }?.let(onChangeFormat) },
+                enabled = !busy,
+            )
             if (group.format == MistakeExportFormat.DOCX) Text(mistakeExportFormatDocxNotice, style = MaterialTheme.typography.bodySmall, color = InkSecondary)
             Surface(color = SmartColors.LearningSurface, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(if (ready) "${preparation.items.size} 题答案已准备好" else "已准备 $completed/${preparation.items.size} 题",
                         style = MaterialTheme.typography.titleSmall, color = Ink)
-                    Text("按本次卷面的题号和版本排列。原题之后更新，也不会替换这里的内容。", style = MaterialTheme.typography.bodySmall, color = InkSecondary)
+                    Text("按本次组卷题号排列。", style = MaterialTheme.typography.bodySmall, color = InkSecondary)
                     if (!ready && !stopped && preparation.status != DetailedSolutionPreparationStatus.STALE) {
                         LinearProgressIndicator(Modifier.fillMaxWidth(), color = SmartColors.LearningAccent)
                         ClaudeTextButton(onStop, enabled = !busy) { Text("停止准备") }
@@ -73,12 +74,13 @@ fun DetailedAnswerPreviewSheet(
             preparation.items.forEach { item ->
                 var expanded by rememberSaveable(group.manifestId, item.ordinal) { mutableStateOf(item.ordinal == 1) }
                 val canExpand = item.document != null
-                val question = preparation.manifest.questions.single { it.ordinal == item.ordinal }
-                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                MistakeSectionCard(
+                    title = "第 ${item.ordinal} 题",
+                    headerColor = SmartColors.LearningSurface,
+                ) {
                     Row(Modifier.fillMaxWidth().then(if (canExpand) Modifier.clickable(role = Role.Button) { expanded = !expanded } else Modifier)
                         .padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text("第 ${item.ordinal} 题 · 第 ${question.revisionNumber} 版", style = MaterialTheme.typography.titleMedium, color = Ink)
                             Text(when (item.status) {
                                 DetailedSolutionPreparationStatus.READY -> "已准备好"
                                 DetailedSolutionPreparationStatus.QUEUED -> "等待准备"
@@ -93,17 +95,19 @@ fun DetailedAnswerPreviewSheet(
                     ClaudeDisclosure(canExpand && expanded) {
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             item.document?.let { document ->
-                                Text((if (document.origin == SolutionOrigin.MODEL) "智能体生成" else "已有解答") +
-                                    (if (document.verification == SolutionVerification.VERIFIED) " · 已核对" else " · 未经独立核对"),
-                                    style = MaterialTheme.typography.labelMedium, color = InkSecondary)
+                                document.teachingFigureOmission?.let { omission ->
+                                    WorkspaceNotice(
+                                        "${omission.reason}\n${omission.jsLimitation}",
+                                        tone = WorkspaceNoticeTone.INFO,
+                                    )
+                                }
                                 StructuredContentRenderer(document.steps, choicesEnabled = false, storedFigures = document.figures,
-                                    figureUri = { item.figureUris[it.assetId] })
+                                    figureUri = { item.figureUris[it.assetId] }, showStoredFigureCaptions = true)
                                 Text("最终答案", style = MaterialTheme.typography.titleSmall, color = Ink)
-                                SafeMarkdownText(document.finalAnswerMarkdown, MaterialTheme.typography.bodyLarge)
+                                com.tingyun.smartmistakebook.core.ui.TutorReplyMarkdown(document.finalAnswerMarkdown)
                             }
                         }
                     }
-                    PaperDivider()
                 }
             }
             if (ready) Row(Modifier.fillMaxWidth().toggleable(acknowledged, enabled = !busy, role = Role.Checkbox, onValueChange = { acknowledged = it }), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {

@@ -11,7 +11,7 @@ class InteractionAndMasteryVisualTest {
         for (edge in listOf(24f, 48f, 120f, 320f, 600f)) {
             val scale = ClaudeMotion.pressedScale(edge)
             assertTrue(scale in .96f..1f)
-            assertTrue("Wide controls must not jump", edge * (1f - scale) <= 2.001f)
+            assertTrue("Wide controls must not jump", edge * (1f - scale) <= 1.001f)
         }
         assertTrue(ClaudeMotion.pressedScale(320f) > ClaudeMotion.pressedScale(48f))
     }

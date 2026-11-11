@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.model
 
+import com.tingyun.smartmistakebook.core.model.figureCapabilitiesSnapshot
+
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationSnapshot
 import com.tingyun.smartmistakebook.core.domain.ModelConfigurationStore
 import com.tingyun.smartmistakebook.core.domain.ModelCredentialReadResult
@@ -129,7 +131,8 @@ internal object OpenAiModelProtocol {
          * 之前，生产装配**不得**传这个参数。
          */
         figureMethods: Set<com.tingyun.smartmistakebook.core.model.FigureGenerationMethod> =
-            setOf(com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL),
+            input.figureCapabilitiesSnapshot()?.availableMethods
+                ?: setOf(com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL),
     ): String = encodeRequestBody(
         modelId = modelId,
         input = input,
@@ -161,7 +164,8 @@ internal object OpenAiModelProtocol {
         stream: Boolean = false,
         enableNativeTools: Boolean = false,
         figureMethods: Set<com.tingyun.smartmistakebook.core.model.FigureGenerationMethod> =
-            setOf(com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL),
+            input.figureCapabilitiesSnapshot()?.availableMethods
+                ?: setOf(com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL),
     ): String {
         val taskPrompt = OpenAiModelTaskAdapters.prompt(input)
         val content = buildJsonArray {

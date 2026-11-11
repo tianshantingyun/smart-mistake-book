@@ -38,6 +38,7 @@ internal suspend fun tutorToolRoundOutcomes(
     disclosedKnowledgeCodes: Set<String>,
     runTool: suspend (TutorToolCall, Boolean) -> TutorToolExecution,
     consumeExtendedResult: () -> Unit,
+    javascriptReady: Boolean = false,
 ): List<TutorToolExecution> {
     var extendedResultUsed = false
     return calls.map { call ->
@@ -55,7 +56,7 @@ internal suspend fun tutorToolRoundOutcomes(
             // 真实的远程付费派发 + 一条 method=IMAGE_MODEL 的假痕迹。执行器
             // （`RoomTutorToolRunner.generateFigure`）另有同一道门作第二道防线，直调
             // `runTraced` 的调用者也进不了图像生成器。执行器接线后，两支改为路由到 JS 分支。
-            isJavascriptFigureCall(call) -> TutorToolExecution(
+            isJavascriptFigureCall(call) && !javascriptReady -> TutorToolExecution(
                 TutorToolOutcome(
                     tool = call.tool,
                     ok = false,

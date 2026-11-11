@@ -17,12 +17,18 @@ import androidx.compose.ui.unit.sp
  * 数据层已保证正文不含 URL/HTML/图片，故这里不再单独做安全判定。
  */
 object TutorMarkdownTokens {
+    fun heading(level: Int): TextStyle = TextStyle(
+        fontFamily = FontFamily.SansSerif,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = when (level) { 1 -> 22.sp; 2 -> 18.sp; else -> 16.sp },
+        lineHeight = when (level) { 1 -> 32.sp; 2 -> 28.sp; else -> 26.sp },
+    )
     /** 行内正文基线。 */
     val body: TextStyle = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
-        lineHeight = 25.6.sp,
+        lineHeight = 26.sp,
     )
 
     /** 行内 `**加粗**`：依靠字重区分重点，保留长段落的阅读底色。 */

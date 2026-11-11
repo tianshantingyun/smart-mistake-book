@@ -461,8 +461,9 @@ private fun ReadyDetail(
                 contentDescription = "继续或开始讲解这道错题",
             )
         }
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(24.dp))
         MistakeSectionCard("题面", modifier = Modifier.testTag("mistake_detail_question_module"),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 16.dp, vertical = 20.dp),
             headerColor = SmartColors.LearningSurface) {
             StructuredContentRenderer(
                 document = state.questionDocument.document.let { document ->
@@ -477,7 +478,7 @@ private fun ReadyDetail(
                         ?.location?.let { (it as? MistakeSourceLocation.Available)?.localUri }
                 },
             )
-            PaperDivider()
+            PaperDivider(Modifier.padding(top = 12.dp, bottom = 4.dp))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 if (!isViewingHistoricalRevision && onEdit != null) {
@@ -522,7 +523,7 @@ private fun ReadyDetail(
             isHistorical = isViewingHistoricalRevision,
         )
         if (!isViewingHistoricalRevision && repository != null) {
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(20.dp))
             MistakeUserNoteCard(
                 entryId = state.detail.identity.errorBookEntryId,
                 note = state.detail.userNote,
@@ -1183,7 +1184,7 @@ private fun SourceAssetSection(
     if (assets.isEmpty()) return
     val title = if (isExplanation) "讲解图" else "原图"
     val tag = if (isExplanation) "mistake_detail_explanation" else "mistake_detail_source"
-    Spacer(Modifier.height(16.dp))
+    Spacer(Modifier.height(20.dp))
     MistakeSectionCard(
         title = if (assets.size > 1) "$title · ${assets.size} 张" else title,
         modifier = Modifier.testTag("${tag}_section"),

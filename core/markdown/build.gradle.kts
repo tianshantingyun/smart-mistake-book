@@ -18,7 +18,7 @@ dependencies {
     api(platform(libs.compose.bom))
     api("com.halilibo.compose-richtext:richtext-ui:0.17.0")
     implementation("io.coil-kt:coil-compose:2.4.0")
-    implementation("org.commonmark:commonmark:0.21.0")
+    api("org.commonmark:commonmark:0.21.0")
     implementation("org.commonmark:commonmark-ext-gfm-tables:0.21.0")
     implementation("org.commonmark:commonmark-ext-gfm-strikethrough:0.21.0")
     implementation("org.commonmark:commonmark-ext-autolink:0.21.0")

@@ -26,6 +26,22 @@ object SafeInlineMarkdown {
         "(?i)(?:\\b(?:https?|ftp|file|mailto|data|javascript):\\S*|\\bwww\\.[^\\s]+)",
     )
 
+    /** Tracks display math across CommonMark paragraphs without interpreting code blocks. */
+    fun displayMathDelimiterAfter(paragraph: String, initial: String?): String? {
+        var closing = initial
+        paragraph.lineSequence().forEach { line ->
+            val text = line.trim()
+            if (closing != null) {
+                if (text.contains(requireNotNull(closing))) closing = null
+            } else if (text.startsWith("$$") && !text.drop(2).contains("$$")) {
+                closing = "$$"
+            } else if (text.startsWith("\\[") && !text.drop(2).contains("\\]")) {
+                closing = "\\]"
+            }
+        }
+        return closing
+    }
+
     fun requiresPlainTextFallback(value: String): Boolean {
         val bounded = value.take(StructuredContentLimits.MAX_TEXT_CHARS)
         return html.containsMatchIn(bounded) ||

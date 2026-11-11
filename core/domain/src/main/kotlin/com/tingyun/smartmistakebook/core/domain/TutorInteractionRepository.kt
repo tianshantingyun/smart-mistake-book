@@ -22,6 +22,7 @@ data class TutorTurnResponse(
     val updatedAtEpochMillis: Long,
     val choiceSubmittedAtEpochMillis: Long? =
         submittedAtEpochMillis.takeIf { diagnosticStemMarkdown != null },
+    val replyVersionId: String? = null,
 ) {
     init {
         require(sessionId.isNotBlank() && questionDocumentId.isNotBlank())
@@ -111,6 +112,7 @@ data class RecordTutorChoiceCommand(
     val selectionWasCorrect: Boolean,
     val feedbackMarkdown: String,
     val occurredAtEpochMillis: Long,
+    val replyVersionId: String? = null,
 ) {
     init {
         require(sessionId.isNotBlank() && questionDocumentId.isNotBlank())
@@ -129,6 +131,7 @@ data class RecordTutorMoveCommand(
     val turnOrdinal: Int,
     val requestedMove: TutorMoveType,
     val occurredAtEpochMillis: Long,
+    val replyVersionId: String? = null,
 ) {
     init {
         require(sessionId.isNotBlank() && questionDocumentId.isNotBlank())
@@ -145,6 +148,7 @@ data class RevealTutorSolutionCommand(
     val cycleOrdinal: Int,
     val turnOrdinal: Int,
     val occurredAtEpochMillis: Long,
+    val replyVersionId: String? = null,
 ) {
     init {
         require(sessionId.isNotBlank() && questionDocumentId.isNotBlank())

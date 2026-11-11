@@ -1100,7 +1100,7 @@ internal class RoomTutorToolRunner(
         // 生产唯一调用点已过轮次层同名门；这道门保护直调 `runTraced` 的调用者（测试、
         // 未来接线），否则 JS 会落进图像生成器 = 一次真实远程 IMAGE_MODEL 派发 +
         // 一条 method=IMAGE_MODEL 的假痕迹。
-        if (call.figureMethod == FigureGenerationMethod.JS) {
+        if (call.figureMethod == FigureGenerationMethod.JS && figureGenerator?.supports(FigureGenerationMethod.JS) != true) {
             return TutorToolExecution(
                 TutorToolOutcome(
                     tool = call.tool,
@@ -1143,7 +1143,9 @@ internal class RoomTutorToolRunner(
         // （GENERATE_PROCESS 也一样：没有题锚的过程图只是一次无锚点的付费生成），
         // 按 K2a 回 ok=true 空范围、**不调用生成器**。
         val draft = currentDraft(context)
-        val sourceSheet = when (operation) {
+        val sourceSheet = if (call.figureMethod == FigureGenerationMethod.JS) {
+            if (kind == TutorFigureKind.REDRAW_PROBLEM) draft?.sourceAsset else null
+        } else when (operation) {
             FigureImageOperation.EDIT -> {
                 if (draft == null) {
                     return emptyScopeFigure(
@@ -1195,6 +1197,8 @@ internal class RoomTutorToolRunner(
                 TutorFigureRequest(
                     kind = kind,
                     description = description,
+                    method = call.figureMethod ?: FigureGenerationMethod.IMAGE_MODEL,
+                    program = call.figureProgram,
                     imageOperation = operation,
                     // 模型给的具体提示词原样交给图像 API；null = 旧调用沿用历史指令。
                     imagePrompt = call.figureImagePrompt,
@@ -1228,10 +1232,11 @@ internal class RoomTutorToolRunner(
             figureId = result.figureId,
             model = result.model,
             generatedNow = result.generatedNow,
-            method = FigureGenerationMethod.IMAGE_MODEL,
+            method = call.figureMethod ?: FigureGenerationMethod.IMAGE_MODEL,
             purpose = purpose,
             operationId = result.operationId,
             status = result.traceStatus(),
+            caption = description.takeIf { result.figureId != null },
         )
         return when (result.status) {
             TutorFigureStatus.GENERATED -> TutorToolExecution(
@@ -1241,7 +1246,9 @@ internal class RoomTutorToolRunner(
                     // F1：只回 id + 状态。图以折叠配图卡渲染在本轮回复下方（A2 的渲染路径），
                     // 但模型自己看不到图的内容，所以仍不得复述图里画了什么。
                     summaryMarkdown = "配图已生成（id：${result.figureId}，状态：已生成）。" +
-                        "不要再申请同一张图。",
+                        "不要再申请同一张图。" +
+                        result.figureId?.takeIf { it.length in 1..128 && it.matches(Regex("[A-Za-z0-9_.:-]+")) }
+                            ?.let { " 在相关讲解段落后单独放置 [[figure:$it]]，只可原样使用这个本地标记。" }.orEmpty(),
                 ),
                 figure = figureTrace,
             )

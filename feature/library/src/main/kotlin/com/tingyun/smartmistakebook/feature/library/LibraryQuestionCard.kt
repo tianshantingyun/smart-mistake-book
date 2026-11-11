@@ -56,9 +56,9 @@ internal fun LibraryQuestionCard(
     ClaudeCard(
         onClick = onClick,
         modifier = modifier.fillMaxWidth().padding(bottom = 12.dp).testTag("library_item_${mistake.id}"),
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(16.dp),
         bordered = true,
-        elevation = 1.dp,
+        elevation = 0.dp,
     ) {
         Column {
             LibraryInlineImages(
@@ -75,7 +75,7 @@ internal fun LibraryQuestionCard(
                     if (mistake.summary.isNotBlank() && mistake.summary.trim() != mistake.title.trim()) Text(
                         text = mistake.summary,
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.Normal,
                         color = SmartColors.Ink,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
                         maxLines = 3,
@@ -83,7 +83,7 @@ internal fun LibraryQuestionCard(
                     )
                 },
             )
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
         }
     }
 }
@@ -99,8 +99,8 @@ private fun LibraryCardHeading(
         if (mistake.isFavorite) SmartColors.Jade else SmartColors.InkSecondary,
         label = "library-favorite-color", durationMillis = ClaudeMotion.PressMillis,
     )
-    Row(Modifier.fillMaxWidth().padding(bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f).padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Row(Modifier.fillMaxWidth().padding(bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f).padding(top = 10.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(mistake.title,
                 style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp, lineHeight = 24.sp),
                 fontWeight = FontWeight.SemiBold,
@@ -143,13 +143,6 @@ private fun LibraryCardMetadata(mistake: LibraryMistake, source: String) {
 
 @Composable
 internal fun LibraryMasteryBadge(mastery: MasteryState) {
-    val background = libraryStateColor(when (mastery) {
-        MasteryState.LEARNING -> SmartColors.LearningSurface
-        MasteryState.MASTERED -> SmartColors.JadeSoft
-        MasteryState.CONFLICTED -> SmartColors.ErrorSurface
-        MasteryState.STALE -> SmartColors.PendingSurface
-        MasteryState.UNKNOWN -> Color.Transparent
-    }, label = "library-mastery-surface")
     val tint = libraryStateColor(when (mastery) {
         MasteryState.LEARNING -> SmartColors.LearningAccent
         MasteryState.MASTERED -> SmartColors.JadeDark
@@ -164,12 +157,10 @@ internal fun LibraryMasteryBadge(mastery: MasteryState) {
         MasteryState.CONFLICTED -> Icons.Outlined.ErrorOutline
         MasteryState.STALE -> Icons.Outlined.Schedule
     }
-    Surface(color = background, shape = MaterialTheme.shapes.extraSmall) {
-        Row(Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            Icon(icon, null, modifier = Modifier.size(12.dp), tint = tint)
-            Text(mastery.label, style = MaterialTheme.typography.labelMedium, color = SmartColors.Ink)
-        }
+    Row(verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Icon(icon, null, modifier = Modifier.size(14.dp), tint = tint)
+        Text(mastery.label, style = MaterialTheme.typography.labelMedium, color = tint)
     }
 }
 

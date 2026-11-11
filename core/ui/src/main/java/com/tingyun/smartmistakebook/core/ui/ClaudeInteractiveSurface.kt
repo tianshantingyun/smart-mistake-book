@@ -44,11 +44,11 @@ fun Modifier.claudeSurfaceShadow(
     val strength = emphasis.coerceIn(0f, 1.5f)
     return dropShadow(shape, Shadow(
         radius = if (floating) 6.dp else 2.dp,
-        color = Ink.copy(alpha = .045f * strength),
+        color = Ink.copy(alpha = .025f * strength),
         offset = DpOffset(0.dp, if (floating) 2.dp else 1.dp),
     )).dropShadow(shape, Shadow(
         radius = if (floating) 24.dp else if (composer) 20.dp else 8.dp,
-        color = Ink.copy(alpha = (if (floating) .12f else if (composer) .055f else .065f) * strength),
+        color = Ink.copy(alpha = (if (floating) .085f else if (composer) .045f else .025f) * strength),
         offset = DpOffset(0.dp, if (floating) 8.dp else if (composer) 4.dp else 2.dp),
     ))
 }
@@ -68,13 +68,17 @@ fun Modifier.claudeInteractiveRow(
     val pressed by source.collectIsPressedAsState()
     val hovered by source.collectIsHoveredAsState()
     val focused by source.collectIsFocusedAsState()
-    val fill by animateColorAsState(when {
+    val motion = LocalClaudeMotionEnabled.current
+    val targetFill = when {
         !enabled -> Color.Transparent
-        pressed -> Ink.copy(alpha = .10f)
+        pressed -> Ink.copy(alpha = .07f)
         selected -> selectedFill
-        hovered -> Ink.copy(alpha = .05f)
+        hovered -> Ink.copy(alpha = .04f)
         else -> Color.Transparent
-    }, ClaudeMotion.spec(LocalClaudeMotionEnabled.current), label = "cds-row-fill")
+    }
+    val fill = if (motion) animateColorAsState(targetFill,
+        ClaudeMotion.spec(true, if (pressed) ClaudeMotion.PressMillis else ClaudeMotion.ReleaseMillis),
+        label = "cds-row-fill").value else targetFill
     return defaultMinSize(minHeight = 48.dp).clip(shape).background(fill)
         .then(if (focused && enabled) Modifier.border(2.dp, claudeFocusIndicatorColor(fill), shape) else Modifier)
         .clickable(source, indication = null, enabled = enabled, role = role, onClickLabel = onClickLabel, onClick = onClick)
@@ -95,18 +99,22 @@ fun ClaudeCard(
     val hovered by source.collectIsHoveredAsState()
     val focused by source.collectIsFocusedAsState()
     val motion = LocalClaudeMotionEnabled.current
-    val fill by animateColorAsState(if (pressed) SubtleSurface else if (hovered) Paper else ContentSurface,
-        ClaudeMotion.spec(motion), label = "cds-card-fill")
-    val shadowStrength by animateFloatAsState(when {
-        pressed -> .55f
-        hovered || focused -> 1.35f
-        else -> 1f
-    }, ClaudeMotion.spec(motion, ClaudeMotion.RevealMillis), label = "cds-card-shadow")
+    val targetFill = if (pressed) SubtleSurface else if (hovered) Paper else ContentSurface
+    val targetShadow = when {
+        pressed -> .45f
+        hovered || focused -> .9f
+        else -> .65f
+    }
+    val duration = if (pressed) ClaudeMotion.PressMillis else ClaudeMotion.ReleaseMillis
+    val fill = if (motion) animateColorAsState(targetFill, ClaudeMotion.spec(true, duration),
+        label = "cds-card-fill").value else targetFill
+    val shadowStrength = if (motion) animateFloatAsState(targetShadow, ClaudeMotion.spec(true, duration),
+        label = "cds-card-shadow").value else targetShadow
     CompositionLocalProvider(LocalRippleConfiguration provides null) {
         Surface(onClick = onClick, modifier = modifier.then(if (elevation > 0.dp)
             Modifier.claudeSurfaceShadow(shape, emphasis = shadowStrength) else Modifier), shape = shape, color = fill,
             border = if (focused) BorderStroke(2.dp, claudeFocusIndicatorColor(fill))
-                else if (bordered) BorderStroke(1.dp, Ink.copy(alpha = .1f)) else null,
+                else if (bordered) BorderStroke(.5.dp, SmartColors.Divider) else null,
             shadowElevation = 0.dp,
             interactionSource = source, content = content)
     }

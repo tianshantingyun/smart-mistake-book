@@ -16,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Icon
 import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -253,19 +252,9 @@ private fun ReviewSessionContent(
     ) {
         SessionHeader(onBack = onBack, subject = artifact.subject)
         Spacer(Modifier.height(10.dp))
-        LinearProgressIndicator(
-            progress = { safeQueuePosition.toFloat() / safeQueueSize.toFloat() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(5.dp),
-            color = SmartColors.Jade,
-            trackColor = SmartColors.Track,
-        )
-        Spacer(Modifier.height(12.dp))
-        Text(
-            text = "第 $safeQueuePosition / $safeQueueSize 题",
-            color = SmartColors.InkSecondary,
-            style = MaterialTheme.typography.labelMedium,
+        ReviewSessionProgress(
+            label = "第 $safeQueuePosition / $safeQueueSize 题",
+            progress = safeQueuePosition.toFloat() / safeQueueSize.toFloat(),
         )
         // 先重教、再练（spec §2.16）：leech 卡在这里停住，不露出题干。学员确认后才继续，
         // 于是"重教"不是一段可以划过去的说明，而是进入本次作答的必经步骤。
@@ -494,19 +483,9 @@ private fun ReviewSelfReportSessionContent(
     RootPageColumn(modifier = modifier.testTag("review_self_report_root")) {
         SessionHeader(onBack = onBack, subject = artifact.subject)
         Spacer(Modifier.height(10.dp))
-        LinearProgressIndicator(
-            progress = { safeQueuePosition.toFloat() / safeQueueSize.toFloat() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(5.dp),
-            color = SmartColors.Jade,
-            trackColor = SmartColors.Track,
-        )
-        Spacer(Modifier.height(12.dp))
-        Text(
-            text = "第 $safeQueuePosition / $safeQueueSize 题",
-            color = SmartColors.InkSecondary,
-            style = MaterialTheme.typography.labelMedium,
+        ReviewSessionProgress(
+            label = "第 $safeQueuePosition / $safeQueueSize 题",
+            progress = safeQueuePosition.toFloat() / safeQueueSize.toFloat(),
         )
         val opening = reTeachOpening
         if (opening != null && !selectionViewModel.reTeachAcknowledged) {

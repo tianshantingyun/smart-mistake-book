@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook
 
+import com.tingyun.smartmistakebook.visualjs.trackFigureViewport
+
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.layout.Row
 import androidx.compose.animation.EnterTransition
@@ -545,6 +547,7 @@ internal fun SmartMistakeBookRoot(
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
+            .trackFigureViewport(application.visualJsFigureHost)
             .background(Paper)
             .semantics { testTagsAsResourceId = true },
         containerColor = Paper,
@@ -898,15 +901,10 @@ internal fun SmartMistakeBookRoot(
                     // L7：批量导出改为"入队后即可离开"。PRD-04/T4：上限内先弹格式 sheet，
                     // 确认后才入队并跳「导出成果」；超限/没有题仍然不下单，把原因带到
                     // 「导出成果」里如实说清楚。
-                    onExportVisible = { candidates ->
-                        if (candidates is LibraryExportCandidates.Candidates) {
-                            pendingExportTarget = PendingExportTarget.Batch(candidates.entryIds)
-                        } else {
-                            pendingExportNotice = libraryExportRejectionNotice(candidates)
-                            navController.navigate(Routes.ExportResults) {
-                                launchSingleTop = true
-                            }
-                        }
+                    onExportVisible = {},
+                    onOpenAssembly = { filters ->
+                        navController.currentBackStackEntry?.savedStateHandle?.set("assembly_filters", HashMap(filters))
+                        navController.navigate("paper-assembly")
                     },
                     onOpenExportResults = {
                         pendingExportNotice = null
@@ -916,6 +914,17 @@ internal fun SmartMistakeBookRoot(
                     },
                     onOpenItem = { itemId -> navController.navigate(Routes.mistakeDetail(itemId)) },
                     modifier = Modifier.testTag("root_library"),
+                )
+            }
+            composable("paper-assembly") {
+                com.tingyun.smartmistakebook.feature.library.PaperAssemblyRoute(
+                    initialFilters = navController.previousBackStackEntry?.savedStateHandle?.get<HashMap<String, String>>("assembly_filters").orEmpty(),
+                    entries = experience.catalog,
+                    catalogRepository = application.libraryCatalogRepository,
+                    mistakeDetailRepository = application.mistakeDetailRepository,
+                    onBack = { navController.popBackStack() },
+                    onOpenItem = { navController.navigate(Routes.mistakeDetail(it)) },
+                    onEdit = { navController.navigate(mistakePaperEditRoute(it)) },
                 )
             }
             composable(Routes.Profile) {
@@ -1913,10 +1922,18 @@ internal fun SmartMistakeBookRoot(
                         schedulingScope.launch {
                             try {
                                 application.schedulingSettingsStore.setOptions(updated)
-                                schedulingMessage = "已保存，新的每日时长用于下一次生成的计划。"
+                            } catch (cancelled: CancellationException) { throw cancelled }
+                            catch (_: Exception) {
+                                schedulingMessage = "保存失败，请重试。"
+                                return@launch
+                            }
+                            schedulingMessage = "已保存，新的每日时长用于下一次生成的计划。"
+                            try {
                                 repository.refresh()
                             } catch (cancelled: CancellationException) { throw cancelled }
-                            catch (_: Exception) { schedulingMessage = "保存失败，请重试；原有设置已保留。" }
+                            catch (_: Exception) {
+                                schedulingMessage = "设置已保存，复习列表暂未刷新，请稍后重试。"
+                            }
                         }
                     },
                     onAddExam = { entry ->

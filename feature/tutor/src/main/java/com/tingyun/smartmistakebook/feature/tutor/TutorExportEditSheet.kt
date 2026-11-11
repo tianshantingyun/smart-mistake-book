@@ -6,6 +6,9 @@ import com.tingyun.smartmistakebook.core.ui.WorkspaceSheet
 import com.tingyun.smartmistakebook.core.ui.WorkspaceNotice
 import com.tingyun.smartmistakebook.core.ui.WorkspaceNoticeTone
 import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.ContentSurface
+import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton
 
 
 import com.tingyun.smartmistakebook.core.ui.ErrorText
@@ -89,12 +92,11 @@ internal fun TutorExportEditSheet(
                 onClick = onBack,
                 modifier = Modifier.testTag("tutor_export_edit_back"),
             )
-            OutlineActionChip(
-                text = "先不用",
+            ClaudeTextButton(
                 enabled = !modelEditBusy,
                 onClick = onDismiss,
                 modifier = Modifier.testTag("tutor_export_edit_dismiss"),
-            )
+            ) { Text("先不用") }
         },
     ) {
         WorkspaceNotice(
@@ -106,37 +108,39 @@ internal fun TutorExportEditSheet(
 
         // 6B-3：自然语言改卷（只在这条入口接上模型端口时出现）。
         if (modelEditAvailable) {
-            Text(
-                text = "用一句话改卷面",
-                modifier = Modifier.testTag("tutor_export_edit_ai_section"),
-                color = Ink,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Medium,
-            )
-            OutlinedTextField(
-                value = instruction,
-                onValueChange = onInstructionChange,
-                label = { Text("例如：删掉第二题，把第一题标题改短一点") },
-                enabled = !modelEditBusy,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("tutor_export_edit_ai_instruction"),
-            )
-            Text(
-                text = "AI 仅能移出题目、加回已移出的题、调整顺序和" +
-                    "修改文字。修改备注需开启「含备注」。不能改图，也不影响错题本。",
-                modifier = Modifier.testTag("tutor_export_edit_ai_hint"),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-            )
-            PrimaryActionButton(
-                text = if (modelEditBusy) "正在改卷面…" else "让 AI 改卷面",
-                onClick = onModelEdit,
-                enabled = instruction.isNotBlank() && !modelEditBusy,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("tutor_export_edit_ai_apply"),
-            )
+            WorkspacePanel(containerColor = SmartColors.AgentSurface) {
+                Text(
+                    text = "用一句话改卷面",
+                    modifier = Modifier.testTag("tutor_export_edit_ai_section"),
+                    color = SmartColors.AgentAccent,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Medium,
+                )
+                OutlinedTextField(
+                    value = instruction,
+                    onValueChange = onInstructionChange,
+                    label = { Text("例如：删掉第二题，把第一题标题改短一点") },
+                    enabled = !modelEditBusy,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("tutor_export_edit_ai_instruction"),
+                )
+                Text(
+                    text = "AI 仅能移出题目、加回已移出的题、调整顺序和" +
+                        "修改文字。修改备注需开启「含备注」。不能改图，也不影响错题本。",
+                    modifier = Modifier.testTag("tutor_export_edit_ai_hint"),
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                PrimaryActionButton(
+                    text = if (modelEditBusy) "正在改卷面…" else "让 AI 改卷面",
+                    onClick = onModelEdit,
+                    enabled = instruction.isNotBlank() && !modelEditBusy,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("tutor_export_edit_ai_apply"),
+                )
+            }
         }
         modelEditMessage?.let { message ->
             WorkspaceNotice(
@@ -231,6 +235,7 @@ private fun PaperQuestionEditor(
     onNoteChange: (String) -> Unit,
 ) {
     WorkspacePanel(
+        containerColor = ContentSurface,
         modifier = Modifier
             .fillMaxWidth()
             .testTag("tutor_export_edit_question_${question.entryId}"),
@@ -238,8 +243,8 @@ private fun PaperQuestionEditor(
         Text(
             text = "第 ${index + 1} 题",
             modifier = Modifier.fillMaxWidth(),
-            color = Ink,
-            style = MaterialTheme.typography.labelLarge,
+            color = SmartColors.JadeDark,
+            style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Medium,
         )
         FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {

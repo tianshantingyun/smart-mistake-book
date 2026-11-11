@@ -24,7 +24,8 @@ internal fun splitStreamingBlocks(markdown: String): StreamingBlocks {
     if (markdown.isBlank()) return StreamingBlocks(emptyList(), "")
     val completed = ArrayList<String>()
     val current = StringBuilder()
-    var fenceOpen = false
+    var fenceMarker: Char? = null
+    var fenceLength = 0
     var displayMathOpen = false
 
     fun flushBlock() {
@@ -34,13 +35,21 @@ internal fun splitStreamingBlocks(markdown: String): StreamingBlocks {
 
     for (line in markdown.split('\n')) {
         val trimmed = line.trim()
-        if (trimmed.startsWith("```")) {
-            fenceOpen = !fenceOpen
-        } else if (!fenceOpen && trimmed.startsWith("$$")) {
+        val marker = trimmed.firstOrNull()?.takeIf { it == '`' || it == '~' }
+        val markerLength = if (marker == null) 0 else trimmed.takeWhile { it == marker }.length
+        val fenceOpen = fenceMarker != null
+        if (fenceOpen) {
+            if (marker == fenceMarker && markerLength >= fenceLength && trimmed.drop(markerLength).isBlank()) {
+                fenceMarker = null
+            }
+        } else if (!displayMathOpen && markerLength >= 3 && line.takeWhile { it == ' ' }.length <= 3) {
+            fenceMarker = marker
+            fenceLength = markerLength
+        } else if (trimmed.startsWith("$$")) {
             val closedOnSameLine = trimmed.length > 4 && trimmed.endsWith("$$")
             if (!closedOnSameLine) displayMathOpen = !displayMathOpen
         }
-        if (trimmed.isEmpty() && !fenceOpen && !displayMathOpen) {
+        if (trimmed.isEmpty() && fenceMarker == null && !displayMathOpen) {
             flushBlock()
             continue
         }

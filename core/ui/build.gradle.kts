@@ -16,6 +16,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.haze)
     implementation(project(":core:model"))
     implementation(project(":core:domain"))
     api(platform(libs.compose.bom))

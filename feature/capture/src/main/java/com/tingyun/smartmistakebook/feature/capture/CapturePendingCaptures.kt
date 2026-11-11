@@ -236,22 +236,22 @@ private fun PendingCaptureRow(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("capture_pending_${item.draftId}"),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(16.dp),
         color = SmartColors.ContentSurface,
-        shadowElevation = 1.dp,
+        shadowElevation = 0.dp,
     ) {
         Column {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = 68.dp)
-                    .claudeInteractiveRow(onClick = onClick, shape = RoundedCornerShape(20.dp))
+                    .claudeInteractiveRow(onClick = onClick, shape = RoundedCornerShape(16.dp))
                     .padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Surface(shape = RoundedCornerShape(14.dp),
                     color = if (needsAttention) ErrorWarm.copy(alpha = .10f) else JadeSoft) {
-                    Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
+                    Box(Modifier.size(32.dp), contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = when {
                                 needsAttention -> Icons.Outlined.WarningAmber
@@ -260,7 +260,7 @@ private fun PendingCaptureRow(
                                 else -> Icons.Outlined.Schedule
                             },
                             contentDescription = null,
-                            modifier = Modifier.size(22.dp),
+                            modifier = Modifier.size(18.dp),
                             tint = if (needsAttention) ErrorWarm else JadeActive,
                         )
                     }
@@ -286,8 +286,6 @@ private fun PendingCaptureRow(
                         ),
                         color = if (needsAttention) ErrorText else InkSecondary,
                         style = MaterialTheme.typography.bodySmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = listOfNotNull(
@@ -312,7 +310,7 @@ private fun PendingCaptureRow(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 4.dp, bottom = 2.dp),
+                    .padding(horizontal = 8.dp),
                 horizontalArrangement = Arrangement.End,
             ) {
                 TextButton(
@@ -320,7 +318,7 @@ private fun PendingCaptureRow(
                     enabled = discardEnabled,
                     modifier = Modifier.testTag("capture_pending_discard_${item.draftId}"),
                 ) {
-                    Text("移出待处理", color = ErrorText)
+                    Text("移出待处理", color = InkSecondary)
                 }
             }
         }

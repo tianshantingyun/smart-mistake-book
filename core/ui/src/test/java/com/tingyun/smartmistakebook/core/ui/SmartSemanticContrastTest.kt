@@ -20,6 +20,15 @@ class SmartSemanticContrastTest {
         assertTrue(contrast(SmartColors.OnJade, SmartColors.Jade) >= 4.5f)
     }
 
+    @Test fun editorialSurfacesKeepReadableTextAndQuietInputBoundaries() {
+        for (surface in listOf(SmartColors.QuestionSurface, SmartColors.FigureSurface, SmartColors.ReadingSurface)) {
+            assertTrue(contrast(SmartColors.Ink, surface) >= 4.5f)
+            assertTrue(contrast(SmartColors.InkSecondary, surface) >= 4.5f)
+        }
+        assertTrue(contrast(SmartColors.ReadingAccent, SmartColors.ReadingSurface) >= 4.5f)
+        assertTrue(SmartColors.InputOutline.luminance() > SmartColors.Outline.luminance())
+    }
+
     private fun contrast(first: Color, second: Color): Float {
         val a = first.luminance()
         val b = second.luminance()

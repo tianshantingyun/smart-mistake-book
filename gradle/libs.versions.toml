@@ -1,4 +1,5 @@
 [versions]
+haze = "1.7.2"
 agp = "9.3.0"
 kotlin = "2.3.21"
 compose-bom = "2026.06.00"
@@ -65,6 +66,7 @@ work = "2.10.5"
 richtext = "0.17.0"
 
 [libraries]
+haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }

@@ -34,6 +34,12 @@ internal object CanvasMathBoxRenderer {
         return box.takeIf { MathBudget.checkLayoutSize(it.width, it.height, metrics) == null }
     }
 
+    fun measureTextWidth(text: String, fontSize: Float): Float = Paint(Paint.ANTI_ALIAS_FLAG).run {
+        textSize = fontSize
+        typeface = mathTypeface(text)
+        measureText(text) + fontSize * .04f
+    }
+
     /** Draws a pre-built [box] layout tree onto [canvas]. */
     fun drawBox(
         canvas: Canvas,
@@ -48,11 +54,13 @@ internal object CanvasMathBoxRenderer {
 
             is MathBox.HBox -> {
                 var cursorX = origin.x
-                box.children.forEach { child ->
+                box.children.forEachIndexed { index, child ->
+                    val position = box.childPositions?.get(index)
                     drawBox(
                         canvas = canvas,
                         box = child,
-                        origin = CanvasPoint(cursorX, origin.y),
+                        origin = CanvasPoint(position?.let { origin.x + it.x } ?: cursorX,
+                            origin.y + (position?.y ?: (box.baseline - child.baseline))),
                         color = color,
                         strokeWidth = strokeWidth,
                         metrics = metrics,
@@ -79,7 +87,7 @@ internal object CanvasMathBoxRenderer {
             is MathBox.FractionBox -> {
                 val numerator = box.numerator
                 val denominator = box.denominator
-                val barY = origin.y + denominator.height + 1f
+                val barY = origin.y + (box.barY ?: (denominator.height + 1f))
                 drawLine(
                     canvas,
                     CanvasPoint(origin.x, barY),
@@ -103,7 +111,7 @@ internal object CanvasMathBoxRenderer {
                     box = denominator,
                     origin = CanvasPoint(
                         origin.x + (box.width - denominator.width) / 2f,
-                        origin.y + denominator.height + 2f,
+                        origin.y + (box.denominatorY ?: (denominator.height + 2f)),
                     ),
                     color = color,
                     strokeWidth = strokeWidth,
@@ -299,11 +307,14 @@ internal object CanvasMathBoxRenderer {
     ) {
         val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             this.color = color
-            textSize = metrics.charHeight
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+            textSize = box.height
+            typeface = mathTypeface(box.content)
         }
         canvas.drawText(box.content, origin.x, origin.y + box.baseline, paint)
     }
+
+    private fun mathTypeface(text: String): Typeface = Typeface.create(Typeface.SERIF,
+        if (text.length == 1 && text[0] in 'a'..'z') Typeface.ITALIC else Typeface.NORMAL)
 
     private fun drawLine(
         canvas: Canvas,

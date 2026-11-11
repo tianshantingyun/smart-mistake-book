@@ -48,13 +48,15 @@ import kotlinx.coroutines.CancellationException
 /** Visible pages read their saved local pictures; there is no generation or write port. */
 @Composable
 internal fun LibraryInlineImages(
-    mistake: LibraryMistake,
+    mistake: LibraryMistake?,
     repository: MistakeDetailRepository?,
     modifier: Modifier = Modifier,
     captionContent: @Composable (String, (@Composable () -> Unit)?) -> Unit = { text, action ->
         SourceCaption(text, action)
     },
     fallbackContent: @Composable () -> Unit = {},
+    entryId: String = requireNotNull(mistake).id,
+    title: String = mistake?.title ?: "题目",
 ) {
     if (repository == null) {
         Column(modifier) {
@@ -63,10 +65,10 @@ internal fun LibraryInlineImages(
         }
         return
     }
-    val preview by key(repository, mistake.id, mistake.imageVersionKey) {
+    val preview by key(repository, entryId, mistake?.imageVersionKey) {
         produceState<InlineImagesState>(InlineImagesState.Loading) {
             try {
-                repository.observeQuestionImages(mistake.id).collect { value = InlineImagesState.Images(it) }
+                repository.observeQuestionImages(entryId).collect { value = InlineImagesState.Images(it) }
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (_: Exception) {
@@ -94,7 +96,7 @@ internal fun LibraryInlineImages(
                 }
                 current.assets.forEachIndexed { index, asset ->
                     key(asset.sourceAssetId) {
-                        InlineImage(asset, "${mistake.title}，第${index + 1}张题图", index + 1, current.assets.size,
+                        InlineImage(asset, "${title}，第${index + 1}张题图", index + 1, current.assets.size,
                             captionContent = { source, action ->
                                 if (index == 0) captionContent(source, action) else SourceCaption(source, action)
                             },

@@ -120,7 +120,16 @@ internal class RoomDetailedSolutionStore(
             require(current.status in setOf(DetailedSolutionPreparationStatus.FAILED, DetailedSolutionPreparationStatus.CANCELLED))
             require(record.status == DetailedSolutionPreparationStatus.QUEUED)
             require(ModelTaskLogicalOperationFingerprint.of(current.request) == ModelTaskLogicalOperationFingerprint.of(record.request))
-            if (current.output != null) require(record.output == current.output && record.request == current.request) else require(record.output == null)
+            if (current.output != null) {
+                if (record.output == null) {
+                    require(current.figures.isEmpty() && record.figures.isEmpty())
+                    require(canEnrichGenericSolution(requireNotNull(current.document), record.input))
+                    require(record.request.requestId != current.request.requestId)
+                    require(record.request.agentConsentGranted)
+                } else {
+                    require(record.output == current.output && record.request == current.request)
+                }
+            } else require(record.output == null)
         } else {
             require(record.figures == current.figures)
             require(record.generation == current.generation && record.request == current.request)

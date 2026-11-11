@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.ui.text.font.FontWeight
+import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.WorkspaceNotice
 import androidx.compose.material3.MaterialTheme
 import com.tingyun.smartmistakebook.core.ui.ClaudeSecondaryButton as OutlinedButton
 import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
@@ -84,7 +87,7 @@ internal fun SchedulingSettingsScreen(
         )
         Spacer(Modifier.height(12.dp))
 
-        WorkspacePanel {
+        WorkspacePanel(containerColor = SmartColors.ContentSurface) {
             var minutes by rememberSaveable(options.dailyReviewMinutes) { mutableStateOf(options.dailyReviewMinutes.toString()) }
             SettingsSectionTitle("每日预计复习时长")
             Text("${options.dailyReviewMinutes} 分钟 / 天", style = MaterialTheme.typography.headlineSmall,
@@ -109,15 +112,16 @@ internal fun SchedulingSettingsScreen(
                 modifier = Modifier.fillMaxWidth().testTag("scheduling_save_daily_minutes"))
             Text("系统按题目难度估算题量，实际用时可能不同；考试期会适当增加复习安排。",
                 color = InkSecondary, style = MaterialTheme.typography.bodySmall)
-            settingsMessage?.let { Text(it, color = InkSecondary, style = MaterialTheme.typography.bodySmall) }
+            settingsMessage?.let { WorkspaceNotice(it) }
         }
         Spacer(Modifier.height(16.dp))
-        WorkspacePanel {
+        WorkspacePanel(containerColor = SmartColors.ContentSurface) {
             Column {
                 SettingsSectionTitle(title = "记忆目标")
                 Text(
                     text = "${(options.desiredRetention * 100).roundToInt()}%",
-                    color = com.tingyun.smartmistakebook.core.ui.SmartColors.LearningAccent,
+                    color = SmartColors.JadeDark,
+                    fontWeight = FontWeight.Medium,
                     style = MaterialTheme.typography.displaySmall,
                     modifier = Modifier.padding(top = 12.dp).testTag("scheduling_retention_label"),
                 )
@@ -149,7 +153,7 @@ internal fun SchedulingSettingsScreen(
         }
         Spacer(Modifier.height(16.dp))
 
-        WorkspacePanel {
+        WorkspacePanel(containerColor = SmartColors.ContentSurface) {
             Column {
                 SettingsSectionTitle(title = "考试日历")
                 Text(
@@ -202,7 +206,9 @@ private fun ExamCalendarEditor(
         }
     }
 
-    Spacer(Modifier.height(8.dp))
+    if (exams.isNotEmpty()) {
+        PaperDivider(Modifier.padding(vertical = 16.dp))
+    }
     OutlinedTextField(
         value = subject,
         onValueChange = { subject = it },
@@ -251,8 +257,11 @@ private fun ExamCalendarEditor(
             daysFromNow = "30"
         },
         enabled = canAdd,
-        modifier = Modifier.testTag("exam_add_button"),
+        modifier = Modifier.fillMaxWidth().testTag("exam_add_button"),
     ) {
         Text("添加考试")
     }
 }
+
+internal fun retentionFromSlider(value: Float): Double =
+    value.toDouble().coerceIn(0.7, 0.97)

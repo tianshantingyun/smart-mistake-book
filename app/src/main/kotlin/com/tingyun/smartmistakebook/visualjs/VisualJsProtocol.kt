@@ -216,6 +216,19 @@ internal object VisualJsProtocol {
                 .put(KEY_CONTENT_IDS, JSONArray(result.contentIds.sorted()))
                 .put(KEY_DRAW_COMMANDS, result.drawCommandsJson ?: JSONObject.NULL)
                 .put(KEY_DRAW_SCHEMA, result.drawSchemaVersion)
+                .put("contents", JSONArray().apply {
+                    result.contents.forEach { content -> put(JSONObject()
+                        .put("kind", content.declaration.kind.name)
+                        .put("payload", content.declaration.payload)
+                        .put("id", content.measured.contentId)
+                        .put("width", content.measured.widthDu)
+                        .put("height", content.measured.heightDu)
+                        .put("baseline", content.measured.baselineDu)
+                        .put("size", content.measured.fontSizeSp)
+                        .put("digest", content.measured.digest)
+                        .put("layout", content.measured.layoutJson ?: JSONObject.NULL)
+                        .put("fontScale", content.measured.fontScaleMilli ?: JSONObject.NULL)) }
+                })
 
             is VisualExecutionResult.Rejected -> JSONObject()
                 .put(KEY_REASON, result.reason.name)
@@ -287,6 +300,25 @@ internal object VisualJsProtocol {
                     root.optString(KEY_DRAW_COMMANDS, "").ifEmpty { null }
                 },
                 drawSchemaVersion = root.optInt(KEY_DRAW_SCHEMA, 1),
+                contents = root.optJSONArray("contents")?.let { array ->
+                    require(array.length() <= com.tingyun.smartmistakebook.core.domain.VisualExecutionBudget.MAX_CONTENT_REQUESTS)
+                    List(array.length()) { index ->
+                        val item = array.getJSONObject(index)
+                        com.tingyun.smartmistakebook.core.domain.VisualRenderedContent(
+                            com.tingyun.smartmistakebook.core.domain.VisualContentMeasureEntry(
+                                com.tingyun.smartmistakebook.core.domain.VisualContentKind.valueOf(item.getString("kind")),
+                                item.getString("payload"),
+                            ),
+                            com.tingyun.smartmistakebook.core.domain.VisualMeasuredContent(
+                                item.getString("id"), item.getDouble("width").toFloat(),
+                                item.getDouble("height").toFloat(), item.getDouble("baseline").toFloat(),
+                                item.getDouble("size").toFloat(), item.getString("digest"),
+                                if (item.isNull("layout")) null else item.getString("layout"),
+                                if (item.isNull("fontScale")) null else item.getInt("fontScale"),
+                            ),
+                        )
+                    }
+                }.orEmpty(),
             )
         } catch (failure: JSONException) {
             VisualExecutionResult.Rejected(

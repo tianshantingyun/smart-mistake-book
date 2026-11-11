@@ -104,9 +104,9 @@ class MathBudgetEnforcementTest {
 
     @Test
     fun `layout width budget is enforced`() {
-        // 240 atoms + 239 spaces = 479 tokens; the inter-item gaps push the
-        // laid-out width past MAX_BOX_WIDTH_CHARS.
-        val formula = ("x ".repeat(239)) + "x"
+        // 400 tokens remain below the token budget. Binary-operator spacing
+        // pushes the resulting layout past MAX_BOX_WIDTH_CHARS.
+        val formula = "x+".repeat(200)
         assertBudgetError(formula, "布局过宽")
     }
 

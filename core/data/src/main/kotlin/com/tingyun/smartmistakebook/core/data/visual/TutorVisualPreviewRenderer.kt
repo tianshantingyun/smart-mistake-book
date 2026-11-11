@@ -44,6 +44,7 @@ public data class TutorVisualPreviewRequest(
     val createdAtEpochMillis: Long,
     val labels: List<TutorVisualPreviewLabel> = emptyList(),
     val measuredEntries: List<VisualMeasuredContent>? = null,
+    val preferredPxPerDu: Float = 1f,
 ) {
     init {
         require(viewportWidthDu in 1..VisualExecutionBudget.MAX_CANVAS_EDGE_DU) {
@@ -53,6 +54,7 @@ public data class TutorVisualPreviewRequest(
             "A preview viewport height must be within the canvas budget, got $viewportHeightDu"
         }
         require(fontScaleMilli >= 1) { "A preview font scale must be positive, got $fontScaleMilli" }
+        require(preferredPxPerDu.isFinite() && preferredPxPerDu in 1f..3f)
         require(createdAtEpochMillis >= 0L) {
             "A preview timestamp must not be negative, got $createdAtEpochMillis"
         }
@@ -170,7 +172,8 @@ internal const val PREVIEW_RENDER_FAILED = "PREVIEW_RENDER_FAILED"
  * 得到同一 px 尺寸、同一 PNG 字节。4096² du 满幅画布 → 1600² px（10.24 MB），16 MiB 门
  * 必然放行；越线请求由门拒绝（策略不缩采样、不静默降质）。
  */
-internal fun previewPxPerDu(viewportWidthDu: Int, viewportHeightDu: Int): Float {
+internal fun previewPxPerDu(viewportWidthDu: Int, viewportHeightDu: Int, preferredPxPerDu: Float = 1f): Float {
+    require(preferredPxPerDu.isFinite() && preferredPxPerDu in 1f..3f)
     require(
         TutorVisualPreviewRendererFactory.PREVIEW_EDGE_PX in
             1..TutorVisualPreviewRendererFactory.MAX_PREVIEW_EDGE_PX,
@@ -180,7 +183,7 @@ internal fun previewPxPerDu(viewportWidthDu: Int, viewportHeightDu: Int): Float 
             "is exactly the 16 MiB gate; beyond it every full-canvas preview degrades silently)"
     }
     val maxEdgeDu = maxOf(viewportWidthDu, viewportHeightDu)
-    return min(1f, TutorVisualPreviewRendererFactory.PREVIEW_EDGE_PX.toFloat() / maxEdgeDu)
+    return min(preferredPxPerDu, TutorVisualPreviewRendererFactory.PREVIEW_EDGE_PX.toFloat() / maxEdgeDu)
 }
 
 /**
@@ -325,7 +328,7 @@ internal class TutorVisualPreviewRendererImpl(
 
         // 5) 定界策略 + **先门后分配**（M-03 接线点，VisualLayoutBudget.kt:108-128 的约定：
         //    "分配不发生"）。
-        val pxPerDu = pxPerDuOverride ?: previewPxPerDu(request.viewportWidthDu, request.viewportHeightDu)
+        val pxPerDu = pxPerDuOverride ?: previewPxPerDu(request.viewportWidthDu, request.viewportHeightDu, request.preferredPxPerDu)
         val widthPx = ceil(request.viewportWidthDu * pxPerDu).toInt()
         val heightPx = ceil(request.viewportHeightDu * pxPerDu).toInt()
         try {

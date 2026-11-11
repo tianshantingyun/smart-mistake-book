@@ -1,5 +1,8 @@
 package com.tingyun.smartmistakebook.feature.review
 
+import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
+import com.tingyun.smartmistakebook.core.ui.ClaudeCard
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -32,7 +35,6 @@ import androidx.compose.material.icons.outlined.Bolt
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -108,7 +110,7 @@ fun ReviewRoute(
     ) {
         ReviewGreeting()
         Spacer(Modifier.height(28.dp))
-        Column(Modifier.fillMaxWidth()) {
+        WorkspacePanel(containerColor = SmartColors.ContentSurface, raised = true) {
             Column {
                 if (surfaceState == ReviewSurfaceState.NORMAL) {
                     ReviewSummary(overview)
@@ -189,7 +191,8 @@ fun ReviewRoute(
                     )
                     Spacer(Modifier.width(18.dp))
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text(question.title, style = MaterialTheme.typography.titleMedium, color = SmartColors.Ink)
+                        Text(question.title, style = MaterialTheme.typography.titleSmall, color = SmartColors.Ink,
+                            maxLines = 2, overflow = TextOverflow.Ellipsis)
                         Text(question.subject.studentSubjectLabel(), style = MaterialTheme.typography.bodySmall,
                             color = question.subject.studentSubjectAccentColor())
                     }
@@ -443,21 +446,22 @@ private fun KnowledgeReviewEntryCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
+    ClaudeCard(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = SmartColors.LearningSurface,
+        bordered = true,
+        elevation = 0.dp,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            modifier = Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             SubjectIcon(
                 icon = Icons.AutoMirrored.Outlined.ShowChart,
                 contentDescription = "知识点复习",
                 modifier = Modifier.size(44.dp),
-                containerColor = SmartColors.ContentSurface,
+                containerColor = SmartColors.LearningSurface,
                 tint = SmartColors.LearningAccent,
             )
             Spacer(Modifier.width(14.dp))
@@ -470,7 +474,7 @@ private fun KnowledgeReviewEntryCard(
                 )
                 Spacer(Modifier.height(3.dp))
                 Text(
-                    text = "建议先复习知识点：$knowledgeCount 个",
+                    text = "$knowledgeCount 个知识点 · 巩固概念后再练题",
                     style = MaterialTheme.typography.bodySmall,
                     color = SmartColors.InkSecondary,
                 )
@@ -511,20 +515,22 @@ private fun ReviewGreeting() {
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ReviewSummary(overview: StudyReviewOverview) {
-    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(20.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(if (overview.completedToday) "今日已完成" else "今日待复习",
-                style = MaterialTheme.typography.titleMedium, color = SmartColors.Ink)
-            Spacer(Modifier.width(8.dp))
-            Text("${overview.scheduledCount}题", color = SmartColors.Jade,
-                style = MaterialTheme.typography.headlineMedium)
-        }
-        Row(Modifier.align(Alignment.CenterVertically), verticalAlignment = Alignment.CenterVertically) {
-            Icon(Icons.Outlined.Schedule, null, tint = SmartColors.InkSecondary, modifier = Modifier.size(18.dp))
-            Spacer(Modifier.width(6.dp))
-            Text("预计 ${(overview.estimatedSeconds + 59) / 60} 分钟",
-                style = MaterialTheme.typography.bodyMedium, color = SmartColors.InkSecondary)
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(if (overview.completedToday) "今日已完成" else "今日待复习",
+            style = MaterialTheme.typography.labelLarge, color = SmartColors.InkSecondary)
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("${overview.scheduledCount}", color = SmartColors.Ink,
+                    style = MaterialTheme.typography.displaySmall)
+                Text("道题", Modifier.padding(bottom = 5.dp), color = SmartColors.InkSecondary,
+                    style = MaterialTheme.typography.bodyMedium)
+            }
+            Row(Modifier.align(Alignment.CenterVertically), verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Outlined.Schedule, null, tint = SmartColors.InkSecondary, modifier = Modifier.size(16.dp))
+                Spacer(Modifier.width(6.dp))
+                Text("预计 ${(overview.estimatedSeconds + 59) / 60} 分钟",
+                    style = MaterialTheme.typography.bodySmall, color = SmartColors.InkSecondary)
+            }
         }
     }
 }
@@ -534,7 +540,7 @@ private fun PaperReviewAction(text: String, icon: ImageVector, onClick: () -> Un
     enabled: Boolean, modifier: Modifier = Modifier,
     iconTint: androidx.compose.ui.graphics.Color = SmartColors.InkSecondary) {
     TextButton(onClick = onClick, enabled = enabled, modifier = modifier.heightIn(min = 48.dp),
-        shape = RoundedCornerShape(10.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.textButtonColors(contentColor = SmartColors.Ink)) {
         Icon(icon, null, tint = if (enabled) iconTint else SmartColors.InkMuted, modifier = Modifier.size(22.dp))
         Spacer(Modifier.width(10.dp))
@@ -564,7 +570,7 @@ private fun WeakPointRow(
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                color = accent,
+                color = SmartColors.Ink,
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(Modifier.height(3.dp))

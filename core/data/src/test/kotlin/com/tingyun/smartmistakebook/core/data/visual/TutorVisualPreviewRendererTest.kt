@@ -95,6 +95,14 @@ class TutorVisualPreviewRendererTest {
     // ------------------------------------------------------------ N5 的 JVM 半边：满幅预览准入拒绝
 
     @Test
+    fun teachingPreviewCanUseDeterministicThreeTimesResolutionWithinTheExistingCap() {
+        assertEquals(3f, previewPxPerDu(360, 240, 3f))
+        assertEquals(1600f / 720f, previewPxPerDu(720, 480, 3f))
+        assertEquals(1600f / 4096f, previewPxPerDu(4096, 4096, 3f))
+        assertEquals(1f, previewPxPerDu(360, 240))
+    }
+
+    @Test
     fun `a full-canvas preview is refused by the pixel budget before any write`() = runBlocking {
         val (renderer, recorder) = renderer()
 

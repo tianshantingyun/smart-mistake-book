@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.border
@@ -60,38 +61,42 @@ fun AiReplyRichMarkdown(
         return
     }
 
-    SetupMaterial3RichText {
-        RichText(
-            modifier = modifier,
-            style = RichTextStyle(
-                stringStyle = RichTextStringStyle(
-                    boldStyle = TutorMarkdownTokens.strong,
-                    italicStyle = TutorMarkdownTokens.emphasis,
-                    codeStyle = TutorMarkdownTokens.code,
-                ),
-                codeBlockStyle = CodeBlockStyle(
-                    textStyle = TextStyle(
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Normal,
-                        fontSize = 13.sp,
-                        color = Color(0xFFE5E5E5),
-                        lineHeight = 20.sp,
+    ProvideTextStyle(TutorMarkdownTokens.body.copy(color = Ink)) {
+        SetupMaterial3RichText {
+            RichText(
+                modifier = modifier,
+                style = RichTextStyle(
+                    paragraphSpacing = 12.sp,
+                    headingStyle = { level, _ -> TutorMarkdownTokens.heading(level) },
+                    stringStyle = RichTextStringStyle(
+                        boldStyle = TutorMarkdownTokens.strong,
+                        italicStyle = TutorMarkdownTokens.emphasis,
+                        codeStyle = TutorMarkdownTokens.code,
                     ),
-                    wordWrap = true,
-                    modifier = Modifier
-                        .background(
-                            color = Color(0xFF0D0D0C),
-                            shape = RoundedCornerShape(12.dp),
-                        ).border(1.dp, Color(0xFF262626), RoundedCornerShape(12.dp)),
+                    codeBlockStyle = CodeBlockStyle(
+                        textStyle = TextStyle(
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 13.sp,
+                            color = Color(0xFFE5E5E5),
+                            lineHeight = 20.sp,
+                        ),
+                        wordWrap = true,
+                        modifier = Modifier
+                            .background(
+                                color = Color(0xFF0D0D0C),
+                                shape = RoundedCornerShape(12.dp),
+                            ).border(1.dp, Color(0xFF262626), RoundedCornerShape(12.dp)),
+                    ),
                 ),
-            ),
-        ) {
-            Markdown(
-                content = markdown,
-                markdownParseOptions = MarkdownParseOptions(autolink = false),
-                onLinkClicked = { /* fail-closed：no-op，链接惰性 */ },
-                codeBlockContent = { literal, language -> ClaudeCodeBlock(literal, language) },
-            )
+            ) {
+                Markdown(
+                    content = markdown,
+                    markdownParseOptions = MarkdownParseOptions(autolink = false),
+                    onLinkClicked = { /* fail-closed：no-op，链接惰性 */ },
+                    codeBlockContent = { literal, language -> ClaudeCodeBlock(literal, language) },
+                )
+            }
         }
     }
 }

@@ -139,7 +139,7 @@ import com.tingyun.smartmistakebook.core.database.entity.ProblemRevisionVisualEn
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualProgramEntity
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualSnapshotEntity
 
-internal const val STUDY_DATABASE_VERSION = 75
+internal const val STUDY_DATABASE_VERSION = 76
 
 /** Split-import status values mirrored into [SplitImportMigration]. */
 internal object SplitImportLedgerStrings {
@@ -221,6 +221,9 @@ internal object SplitImportLedgerStrings {
         AppliedTutorAnswerExposureRecordEntity::class,
         TutorConversationEntity::class,
         TutorMessageEntity::class,
+        com.tingyun.smartmistakebook.core.database.entity.TutorReplyGroupEntity::class,
+        com.tingyun.smartmistakebook.core.database.entity.TutorReplyVersionEntity::class,
+        com.tingyun.smartmistakebook.core.database.entity.TutorReplyVersionAnswerEntity::class,
         TutorMessageSourceAssetEntity::class,
         BatchImportJobEntity::class,
         BatchImportPageEntity::class,
@@ -309,6 +312,7 @@ internal abstract class StudyDatabase : RoomDatabase() {
     abstract fun tutorExposureDao(): TutorExposureDao
 
     abstract fun tutorConversationDao(): TutorConversationDao
+    abstract fun tutorReplyVersionDao(): com.tingyun.smartmistakebook.core.database.dao.TutorReplyVersionDao
 
     abstract fun agentPendingRequestDao(): AgentPendingRequestDao
 
@@ -429,6 +433,7 @@ object StudyDatabaseFactory {
             PAPER_REVIEW_MIGRATION_72_73,
             LIBRARY_INTERIOR_MIGRATION_73_74,
             UI_INTEGRATION_MIGRATION_74_75,
+            TUTOR_REPLY_VERSION_MIGRATION_75_76,
         )
             .setDriver(AndroidSQLiteDriver())
             .build()

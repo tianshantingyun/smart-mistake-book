@@ -26,6 +26,32 @@ import org.junit.Test
 
 class MistakePdfEligibilityTest {
     @Test
+    fun eligibleTextQuestionRetainsItsRevisionWhenFrozenForPaperReview() {
+        val input = eligibleInput(readyState(blocks = listOf(ContentBlock.Paragraph("stem", "题目"))))
+
+        val frozen = MistakePdfPaperEdit.fromInputs(listOf(input)).toDraft().frozenQuestions.single()
+
+        assertEquals("revision-1", frozen.basis.revisionId)
+        assertEquals("entry-1", frozen.entryId)
+    }
+
+    @Test
+    fun frozenQuestionUsesTheExportedImageIdentityAndLeavesCameraEvidenceOut() {
+        val state = readyState(
+            blocks = listOf(ContentBlock.Paragraph("stem", "题目")),
+            source = MistakeSourceSet.Present(listOf(
+                sourceAsset("CAMERA", "original", "file:///original.png"),
+                sourceAsset("CLEAN_IMAGE", "clean", "file:///clean.png"),
+            )),
+        )
+
+        val frozen = MistakePdfPaperEdit.fromInputs(listOf(eligibleInput(state))).toDraft().frozenQuestions.single()
+
+        assertEquals(listOf("clean"), frozen.sourceImages.map { it.assetId })
+        assertEquals("clean", frozen.figures.single().assetId)
+    }
+
+    @Test
     fun readyConfirmedSupportedDocumentMapsWithoutFallbackMarkdown() {
         val state = readyState(
             blocks = listOf(

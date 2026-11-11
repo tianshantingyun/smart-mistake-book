@@ -21,6 +21,9 @@ import com.tingyun.smartmistakebook.core.database.TutorVisualTurnCommitRecord
  * （`FakeStudyDatabasePort` 等）伪造一个"看起来成功"的空实现——静默成功比编译失败更难查。
  */
 interface TutorVisualPort {
+    suspend fun commitGeneratedVisualArtifact(
+        command: com.tingyun.smartmistakebook.core.database.CommitGeneratedVisualArtifactCommand,
+    ): TutorVisualSnapshotRecord = throw UnsupportedOperationException("Generated visual publication is unavailable")
 
     /**
      * S2 + S3：写入不可变 program 与 STAGING 快照（不可见，尚未被任何消息引用）。
