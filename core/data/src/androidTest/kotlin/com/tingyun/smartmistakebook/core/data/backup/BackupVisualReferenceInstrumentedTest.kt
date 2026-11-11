@@ -2,13 +2,17 @@ package com.tingyun.smartmistakebook.core.data.backup
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import android.graphics.Bitmap
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.tingyun.smartmistakebook.core.data.capture.readVerifiedCanonicalAssetBytes
 import com.tingyun.smartmistakebook.core.data.study.seedStudyFacts
 import com.tingyun.smartmistakebook.core.data.visual.TutorVisualCommitRepository
+import com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewAssetPersister
 import com.tingyun.smartmistakebook.core.data.visual.TutorVisualProgramInput
 import com.tingyun.smartmistakebook.core.data.visual.TutorVisualSnapshotInput
 import com.tingyun.smartmistakebook.core.database.AppendTutorAssistantMessageDatabaseCommand
+import com.tingyun.smartmistakebook.core.database.CanonicalSourceAssetRecord
 import com.tingyun.smartmistakebook.core.database.CreateTutorConversationDatabaseCommand
 import com.tingyun.smartmistakebook.core.database.ErrorBookEntrySeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
@@ -19,6 +23,7 @@ import com.tingyun.smartmistakebook.core.database.StageTutorVisualSnapshotComman
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudySeedBundle
+import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.TutorVisualIdentity
 import com.tingyun.smartmistakebook.core.database.TutorVisualProgramWrite
 import com.tingyun.smartmistakebook.core.database.TutorVisualSnapshotWrite
@@ -26,9 +31,11 @@ import com.tingyun.smartmistakebook.core.domain.BackupContentCategory
 import com.tingyun.smartmistakebook.core.domain.BackupOptions
 import com.tingyun.smartmistakebook.core.domain.BackupSelection
 import kotlinx.coroutines.runBlocking
+import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -56,6 +63,12 @@ import java.util.zip.ZipOutputStream
  * 3. 子集 13 保留消息 link，但裁掉未被引用的 STAGING 中间态（`M=2`，`S={S1,S2,S3}`）；
  * 4. 归档库与恢复库按主键逐行内容相等，且两库 `integrity_check=ok`；
  * 5. 第三方重裁包删掉被 link 引用的快照后，恢复必须在交换前拒绝（`foreign_key_check`），原库不动。
+ *
+ * 批次 38 / D-04 再加三个**预览资产**用例（第六类引用站点）：
+ * 6. 预览 PNG 与 program/快照**同包**走归档→恢复全程，恢复后字节仍可逐位核对；
+ * 7. 第三方缺页包删掉预览资产条目（manifest/checksums 如实重写、包自洽）后，
+ *    恢复必须被 DB→资产闭合在交换前拒绝，原库不动；
+ * 8. 被引用的预览字节在**成包侧**缺失时，成包必须失败（不发半包）。
  *
  * 期望集合用 Kotlin 从**源行**按裁剪公式计算（不复制 SQL）；数据库内自洽检查走只读连接，
  * 不复制主文件字节（WAL 中已提交的行只在连接视图里可见）。用例只新增文件，不改 34 例基线。
@@ -260,6 +273,157 @@ class BackupVisualReferenceInstrumentedTest {
             )
         } finally {
             runCatching { store.close() }
+        }
+    }
+
+    // ------------------------------------------------------------------ 6（D-04）
+
+    /**
+     * D-04：预览 PNG 与 program/快照**同包**走归档→恢复全程。
+     *
+     * 消灭的失败：第六类引用站点（`tutor_visual_snapshot.preview_asset_id`）此前只有 SQL
+     * 谓词与 DB 行级校验（V-R10），没有一条用**已知源数据**证明预览资产字节真的跟着快照
+     * 进包、恢复后仍逐位一致——一旦成包侧漏收第六类站点，用户得到的是一次"恢复成功"
+     * 的缺预览数据集（AUD-05 的预览变体），没有任何测试会红。
+     */
+    @Test
+    fun previewAssetRidesWithProgramAndSnapshotThroughArchiveAndRestore() = runBlocking {
+        val store = openSeededStore()
+        var previewRecord: CanonicalSourceAssetRecord? = null
+        try {
+            val seeded = seedSnapshotWithPreview(store)
+            previewRecord = seeded.previewRecord
+            val record = seeded.previewRecord
+
+            val archive = createArchive(store, BackupSelection.FULL)
+
+            // 包内资产条目：存在，且字节与资产行 sha 逐位一致。
+            val entryName = "assets/" + record.relativePath.substringAfterLast('/')
+            val archivedBytes = zipEntryBytes(archive, entryName)
+            assertEquals(
+                "包内预览字节必须与资产行 sha 逐位一致",
+                record.contentSha256,
+                sha256Hex(archivedBytes),
+            )
+            // 包内库：program、快照、preview 引用、预览资产行同在。
+            val archivedDb = extractArchiveDatabaseFile(archive)
+            val archivedPreview = readPreviewAssetIds(archivedDb)
+            assertEquals("归档库必须保留快照的预览引用", setOf(seeded.snapshotId), archivedPreview.keys)
+            assertEquals(
+                "归档库的 preview_asset_id 必须指向预览资产行",
+                record.sourceAssetId,
+                archivedPreview.getValue(seeded.snapshotId),
+            )
+            assertEquals(
+                "归档库的预览资产行必须是 LOCAL_VISUAL_PREVIEW",
+                StudyDbValue.SourceAssetType.LOCAL_VISUAL_PREVIEW,
+                readCanonicalAssetType(archivedDb, record.sourceAssetId),
+            )
+
+            store.close()
+            restore(archive)
+
+            // 恢复后：引用完整（V-R10 同源判定）+ 资产行在库 + 字节逐位可解析。
+            val restoredFile = context.getDatabasePath(databaseName)
+            assertEquals(
+                "恢复后全库不得产生不变量违规（含 V-R10 预览引用）",
+                emptyList<String>(),
+                readVisualRows(restoredFile).violations,
+            )
+            assertEquals(
+                "恢复后的预览资产行必须是 LOCAL_VISUAL_PREVIEW",
+                StudyDbValue.SourceAssetType.LOCAL_VISUAL_PREVIEW,
+                readCanonicalAssetType(restoredFile, record.sourceAssetId),
+            )
+            val restoredBytes = readVerifiedCanonicalAssetBytes(context, record)
+            assertNotNull("恢复后的预览字节必须可解析", restoredBytes)
+            assertEquals("恢复后的预览字节长度与资产行一致", record.byteSize, restoredBytes!!.size.toLong())
+            assertEquals("恢复后的预览字节 sha 与资产行一致", record.contentSha256, sha256Hex(restoredBytes))
+        } finally {
+            runCatching { store.close() }
+            previewRecord?.let { record -> File(context.filesDir, record.relativePath).delete() }
+        }
+    }
+
+    // ------------------------------------------------------------------ 7（D-04）
+
+    /**
+     * D-04：第三方缺页包删掉预览资产条目后，恢复必须在**交换前**拒绝。
+     *
+     * 消灭的失败：与用例 5 同型，但截的是**资产字节**而非 DB 行——manifest/checksums 被
+     * 如实重写（包自洽），只有 DB→资产闭合（`verifyStagedAssetClosure`）能抓住"库引用了
+     * 包内没有的预览图"。没有这条用例，闭合门对第六类站点的拒收只是纸面语义。
+     */
+    @Test
+    fun repackedArchiveMissingPreviewAssetBytesIsRejectedBeforeSwap() = runBlocking {
+        val store = openSeededStore()
+        var previewRecord: CanonicalSourceAssetRecord? = null
+        try {
+            val seeded = seedSnapshotWithPreview(store)
+            previewRecord = seeded.previewRecord
+            val archive = createArchive(store, BackupSelection.FULL)
+            val entryName = "assets/" + seeded.previewRecord.relativePath.substringAfterLast('/')
+
+            val lyingArchive = repackWithoutAssetEntry(archive, entryName)
+
+            val failure = assertThrows(BackupRestoreException::class.java) {
+                runBlocking {
+                    AndroidBackupRepository(context, store)
+                        .restore(ByteArrayInputStream(lyingArchive))
+                }
+            }
+            assertTrue(
+                "拒因必须点名包内缺预览字节：${failure.message}",
+                failure.message.orEmpty().contains("缺失"),
+            )
+            assertEquals("拒绝后原库不动", 1, store.countMistakes())
+            assertEquals(
+                "拒绝后源库的预览资产行仍在",
+                seeded.previewRecord.sourceAssetId,
+                store.readCanonicalSourceAsset(seeded.previewRecord.sourceAssetId)?.sourceAssetId,
+            )
+        } finally {
+            runCatching { store.close() }
+            previewRecord?.let { record -> File(context.filesDir, record.relativePath).delete() }
+        }
+    }
+
+    // ------------------------------------------------------------------ 8（D-04）
+
+    /**
+     * D-04：被引用的预览字节在**成包侧**缺失时，成包必须失败。
+     *
+     * 消灭的失败：vault 文件被外力清掉（清缓存/搬移）后，若成包静默跳过缺失的引用，
+     * 归档就成了一份"恢复必失败"的半包——`resolveReferencedAssetFiles` 的 fail-closed
+     * 只对第六类站点在 SQL 上成立，没有已知源数据用它翻过红。
+     */
+    @Test
+    fun createArchiveFailsWhenReferencedPreviewBytesAreMissing() = runBlocking {
+        val store = openSeededStore()
+        var previewRecord: CanonicalSourceAssetRecord? = null
+        try {
+            val seeded = seedSnapshotWithPreview(store)
+            previewRecord = seeded.previewRecord
+            check(
+                File(context.filesDir, seeded.previewRecord.relativePath).delete(),
+            ) { "测试前置：预览文件应存在可删" }
+
+            val failure = assertThrows(IllegalStateException::class.java) {
+                runBlocking { createArchive(store, BackupSelection.FULL) }
+            }
+            assertTrue(
+                "成包必须因引用字节缺失而失败：${failure.message}",
+                failure.message.orEmpty().contains("备份未完成"),
+            )
+            assertEquals("失败后源库不动", 1, store.countMistakes())
+            assertEquals(
+                "失败后源库的预览资产行仍在",
+                seeded.previewRecord.sourceAssetId,
+                store.readCanonicalSourceAsset(seeded.previewRecord.sourceAssetId)?.sourceAssetId,
+            )
+        } finally {
+            runCatching { store.close() }
+            previewRecord?.let { record -> File(context.filesDir, record.relativePath).delete() }
         }
     }
 
@@ -1128,6 +1292,181 @@ class BackupVisualReferenceInstrumentedTest {
                         zipOutput.closeEntry()
                     }
                 zipOutput.putNextEntry(ZipEntry("checksums.sha256"))
+                zipOutput.write(checksums.toString().toByteArray(Charsets.UTF_8))
+                zipOutput.closeEntry()
+            }
+            return output.toByteArray()
+        } finally {
+            staging.deleteRecursively()
+        }
+    }
+
+    // ------------------------------------------------------------ preview fixture & probes（D-04）
+
+    private data class PreviewSeededFixture(
+        val snapshotId: String,
+        val previewRecord: CanonicalSourceAssetRecord,
+    )
+
+    /**
+     * D-04 源数据：一条**带预览引用**的 LIVE 快照。预览资产走唯一写口
+     * （`TutorVisualPreviewAssetPersister.forProduction`）落成 canonical 资产
+     * （LOCAL_VISUAL_PREVIEW，内容寻址），再把 id 传给快照提交——写侧语义就是
+     * "先字节、再登记行、最后快照引用"。
+     */
+    private suspend fun seedSnapshotWithPreview(store: StudyDatabasePort): PreviewSeededFixture {
+        store.createTutorConversation(conversationCommand())
+        val preview = TutorVisualPreviewAssetPersister
+            .forProduction(context, store)
+            .persist(previewPngBytes(), NOW)
+        val registered = store.readCanonicalSourceAsset(preview.sourceAssetId)
+        checkNotNull(registered) { "预览资产行必须已登记" }
+        assertEquals(
+            "预览资产行必须是 LOCAL_VISUAL_PREVIEW",
+            StudyDbValue.SourceAssetType.LOCAL_VISUAL_PREVIEW,
+            registered.sourceType,
+        )
+
+        val repository = TutorVisualCommitRepository(
+            database = store,
+            freeSpaceBytes = { Long.MAX_VALUE },
+            clock = { NOW },
+        )
+        val committed = repository.commitAssistantTurnWithVisual(
+            message = assistantCommand("message-d04-preview"),
+            program = programInput(sourceJs = "draw(preview);", basis = "basis-batch38-d04"),
+            snapshot = snapshotInput("v").copy(previewAssetId = preview.sourceAssetId),
+            ownerRequestId = "owner-d04-preview",
+        )
+        assertEquals(
+            "提交记录必须带回预览引用",
+            preview.sourceAssetId,
+            committed.snapshot.previewAssetId,
+        )
+        return PreviewSeededFixture(committed.snapshot.snapshotId, preview)
+    }
+
+    /** 设备上现编码一张小 PNG（不内嵌字节字面量——PNG 合法性由平台编码器保证）。 */
+    private fun previewPngBytes(): ByteArray {
+        val bitmap = Bitmap.createBitmap(2, 2, Bitmap.Config.ARGB_8888)
+        return try {
+            bitmap.eraseColor(0xFF336699.toInt())
+            val output = ByteArrayOutputStream()
+            check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)) { "预览 PNG 编码失败" }
+            output.toByteArray()
+        } finally {
+            bitmap.recycle()
+        }
+    }
+
+    /** 归档里恰好一个指定条目；缺失/重复都当场失败（不做第二次匹配的猜谜）。 */
+    private fun zipEntryBytes(archive: ByteArray, entryName: String): ByteArray {
+        var found: ByteArray? = null
+        ZipInputStream(ByteArrayInputStream(archive)).use { zip ->
+            while (true) {
+                val entry = zip.nextEntry ?: break
+                if (entry.name == entryName) {
+                    check(found == null) { "归档条目重复：$entryName" }
+                    found = zip.readBytes()
+                }
+                zip.closeEntry()
+            }
+        }
+        return checkNotNull(found) { "归档缺少条目 $entryName" }
+    }
+
+    /** 快照 → 预览引用（只读快查；V-R10 的同源判定走 [readVisualRows].violations）。 */
+    private fun readPreviewAssetIds(file: File): Map<String, String> =
+        SQLiteDatabase.openDatabase(file.absolutePath, null, SQLiteDatabase.OPEN_READONLY).use { db ->
+            db.rawQuery(
+                "SELECT snapshot_id, preview_asset_id FROM tutor_visual_snapshot " +
+                    "WHERE preview_asset_id IS NOT NULL",
+                null,
+            ).use { cursor ->
+                buildMap {
+                    while (cursor.moveToNext()) put(cursor.getString(0), cursor.getString(1))
+                }
+            }
+        }
+
+    private fun readCanonicalAssetType(file: File, assetId: String): String? =
+        SQLiteDatabase.openDatabase(file.absolutePath, null, SQLiteDatabase.OPEN_READONLY).use { db ->
+            db.rawQuery(
+                "SELECT source_type FROM canonical_source_asset WHERE source_asset_id = ?",
+                arrayOf(assetId),
+            ).use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
+        }
+
+    /**
+     * 第三方缺页包夹具：解开合法 v3 包，删掉一个资产条目，并**如实**重写 manifest 的
+     * `files`/`referencedAssets`/`assetCount` 与 `checksums.sha256`——包自洽，但包内库
+     * 仍引用那张图。只有恢复侧的 DB→资产闭合（`verifyStagedAssetClosure`）能抓住，
+     * 与 [repackWithModifiedDatabase]（改库行）互补。
+     */
+    private fun repackWithoutAssetEntry(archive: ByteArray, entryName: String): ByteArray {
+        val staging = File(context.cacheDir, "d04-repack-${System.nanoTime()}").apply { mkdirs() }
+        try {
+            ZipInputStream(ByteArrayInputStream(archive)).use { zip ->
+                while (true) {
+                    val entry = zip.nextEntry ?: break
+                    if (entry.name == entryName) {
+                        zip.closeEntry()
+                        continue
+                    }
+                    val target = File(staging, entry.name)
+                    target.parentFile?.mkdirs()
+                    target.outputStream().use { output -> output.write(zip.readBytes()) }
+                    zip.closeEntry()
+                }
+            }
+            val databaseFile = File(staging, SmbkArchiveCodec.DATABASE_ENTRY)
+            check(databaseFile.isFile) { "归档缺少 ${SmbkArchiveCodec.DATABASE_ENTRY}" }
+            // 本夹具不重写设置条目：本测试的装配不写设置（2 参构造），包里不该有 settings。
+            check(!File(staging, SmbkArchiveCodec.SETTINGS_ENTRY).isFile) {
+                "本夹具未预期 settings 条目"
+            }
+
+            val manifest = JSONObject(manifestJson(archive))
+            val files = manifest.getJSONArray("files")
+            val keptFiles = JSONArray()
+            val checksums = StringBuilder()
+            for (index in 0 until files.length()) {
+                val record = files.getJSONObject(index)
+                if (record.getString("path") == entryName) continue
+                keptFiles.put(record)
+                if (checksums.isNotEmpty()) checksums.append('\n')
+                checksums.append(record.getString("sha256"))
+                    .append(" *")
+                    .append(record.getString("path"))
+            }
+            manifest.put("files", keptFiles)
+
+            val referenced = manifest.getJSONArray("referencedAssets")
+            val keptReferenced = JSONArray()
+            for (index in 0 until referenced.length()) {
+                val path = referenced.getString(index)
+                if (path != entryName) keptReferenced.put(path)
+            }
+            manifest.put("referencedAssets", keptReferenced)
+            manifest.put("assetCount", manifest.getInt("assetCount") - 1)
+
+            val output = ByteArrayOutputStream()
+            ZipOutputStream(output).use { zipOutput ->
+                zipOutput.putNextEntry(ZipEntry(SmbkArchiveCodec.MANIFEST_ENTRY))
+                zipOutput.write(manifest.toString().toByteArray(Charsets.UTF_8))
+                zipOutput.closeEntry()
+                zipOutput.putNextEntry(ZipEntry(SmbkArchiveCodec.DATABASE_ENTRY))
+                zipOutput.write(databaseFile.readBytes())
+                zipOutput.closeEntry()
+                File(staging, "assets").listFiles().orEmpty()
+                    .filter { it.isFile }
+                    .sortedBy { it.name }
+                    .forEach { asset ->
+                        zipOutput.putNextEntry(ZipEntry("assets/${asset.name}"))
+                        zipOutput.write(asset.readBytes())
+                        zipOutput.closeEntry()
+                    }
+                zipOutput.putNextEntry(ZipEntry(SmbkArchiveCodec.CHECKSUM_ENTRY))
                 zipOutput.write(checksums.toString().toByteArray(Charsets.UTF_8))
                 zipOutput.closeEntry()
             }

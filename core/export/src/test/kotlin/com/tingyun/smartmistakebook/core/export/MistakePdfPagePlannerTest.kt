@@ -22,6 +22,45 @@ class MistakePdfPagePlannerTest {
     }
 
     @Test
+    fun `practice questions do not reveal prior selections or disabled controls`() {
+        listOf(MistakePdfLayout.TEMPLATE_COMPACT, MistakePdfLayout.TEMPLATE_PRACTICE_SHEET).forEach { template ->
+            val source = input(
+                blocks = listOf(
+                    MistakePdfBlock.ChoiceGroup(
+                        id = "choice", prompt = "选择答案", enabled = false,
+                        choices = listOf(
+                            MistakePdfChoice("a", "答案甲", selected = true, enabled = false),
+                            MistakePdfChoice("b", "答案乙", selected = false, enabled = true),
+                        ),
+                    ),
+                ),
+                layout = MistakePdfLayout(templateId = template, includeAnswer = false),
+            )
+            val lines = MistakePdfPagePlanner.plan(source, measure).pages.flatten()
+                .filterIsInstance<PdfPlannedItem.Line>()
+
+            assertEquals(listOf("A. 答案甲", "B. 答案乙"), lines.filter { it.style == PdfLineStyle.CHOICE }.map { it.text })
+            assertFalse(lines.any { it.text == "答案" })
+        }
+    }
+
+    @Test
+    fun `answer export keeps the recorded choice only in the separate answer area`() {
+        val source = input(
+            blocks = listOf(
+                MistakePdfBlock.ChoiceGroup(
+                    id = "choice", prompt = "选择答案", enabled = true,
+                    choices = listOf(MistakePdfChoice("b", "答案乙", selected = true, enabled = true)),
+                ),
+            ),
+            layout = MistakePdfLayout(includeAnswer = true),
+        )
+        val lines = MistakePdfPagePlanner.plan(source, measure).pages.flatten().filterIsInstance<PdfPlannedItem.Line>()
+        assertEquals(listOf("A. 答案乙"), lines.filter { it.style == PdfLineStyle.CHOICE }.map { it.text })
+        assertTrue(lines.dropWhile { it.text != "答案" }.any { it.text == "1. A. 答案乙" })
+    }
+
+    @Test
     fun `a short document plans one page in reading order`() {
         val input = input(
             blocks = listOf(
@@ -221,6 +260,7 @@ class MistakePdfPagePlannerTest {
         maxPages: Int = MistakePdfExportLimits.MAX_BATCH_PAGES,
         maxRenderedLines: Int = MistakePdfExportLimits.MAX_BATCH_RENDERED_LINES,
         cleanImageLocalUri: String? = null,
+        layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
     ): MistakePdfExportInput = MistakePdfExportInput(
         errorBookEntryId = "entry-test",
         problemId = "problem-test",
@@ -232,10 +272,12 @@ class MistakePdfPagePlannerTest {
         documentTitle = null,
         blocks = blocks,
         questionDocumentSha256 = "0".repeat(64),
+        hasModelParsedText = false,
         inputSha256 = "1".repeat(64),
         maxPages = maxPages,
         maxRenderedLines = maxRenderedLines,
         maxPdfBytes = MistakePdfExportLimits.MAX_BATCH_PDF_BYTES,
         cleanImageLocalUri = cleanImageLocalUri,
+        layout = layout,
     )
 }

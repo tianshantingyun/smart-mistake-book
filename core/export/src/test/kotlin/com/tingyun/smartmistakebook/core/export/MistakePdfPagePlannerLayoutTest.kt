@@ -466,6 +466,7 @@ class MistakePdfPagePlannerLayoutTest {
         documentTitle = null,
         blocks = blocks,
         questionDocumentSha256 = "0".repeat(64),
+        hasModelParsedText = false,
         inputSha256 = "1".repeat(64),
         maxPages = MistakePdfExportLimits.MAX_BATCH_PAGES,
         maxRenderedLines = MistakePdfExportLimits.MAX_BATCH_RENDERED_LINES,

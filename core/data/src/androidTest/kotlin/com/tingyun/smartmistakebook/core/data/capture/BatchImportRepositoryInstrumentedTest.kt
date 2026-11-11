@@ -787,6 +787,14 @@ class BatchImportRepositoryInstrumentedTest {
             val reviewJob = checkNotNull(
                 SplitImportRepositoryFactory.createConcrete(database).readImport(splitJobId),
             )
+            val sourceBitmap = context.contentResolver.openInputStream(Uri.parse(reviewJob.sourceUri))
+                ?.use(BitmapFactory::decodeStream)
+            assertTrue(
+                "The completed batch must keep the original image openable for split review",
+                sourceBitmap != null,
+            )
+            sourceBitmap?.recycle()
+            assertTrue(database.hasRetainedBatchImportSourceUri(checkNotNull(reviewJob.sourceUri)))
             assertTrue(reviewJob.questions.isNotEmpty())
             val linkedDraftIds = reviewJob.questions.map { checkNotNull(it.splitDraftId) }
             assertEquals(
@@ -798,6 +806,14 @@ class BatchImportRepositoryInstrumentedTest {
                 val resumable = checkNotNull(captureRepository(database).readPendingCapture(draftId))
                 assertTrue(resumable.sourcePages.isNotEmpty())
             }
+            assertTrue(
+                SplitImportRepositoryFactory.createConcrete(database)
+                    .abandon(splitJobId, System.currentTimeMillis()),
+            )
+            assertFalse(
+                "A finished review no longer retains its staging image",
+                database.hasRetainedBatchImportSourceUri(checkNotNull(reviewJob.sourceUri)),
+            )
         } finally {
             processingScope.cancel()
         }

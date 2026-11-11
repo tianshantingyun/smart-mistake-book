@@ -562,6 +562,55 @@ class ModelTaskRepositoryInstrumentedTest {
     }
 
     @Test
+    fun studentStopCancelsTheOwnerAndDoesNotRestartAWaitingCollector() = runBlocking {
+        val ownerStarted = CompletableDeferred<Unit>()
+        val ownerStopped = CompletableDeferred<Unit>()
+        val gatewayExecutions = AtomicInteger()
+        val delegate = FakeModelGateway(stepDelayMillis = 0)
+        val repository = RoomModelTaskRepository(
+            database = database,
+            gateway = object : ModelGateway {
+                override suspend fun capabilities() = delegate.capabilities()
+
+                override fun execute(execution: ModelGatewayExecution) = flow<ModelGatewayEvent> {
+                    gatewayExecutions.incrementAndGet()
+                    try {
+                        emit(ModelGatewayEvent.Started(delegate.capabilities()))
+                        ownerStarted.complete(Unit)
+                        awaitCancellation()
+                    } finally {
+                        ownerStopped.complete(Unit)
+                    }
+                }
+            },
+            knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+        )
+        val owner = launch { repository.execute(request()).toList() }
+        withTimeout(10_000) { ownerStarted.await() }
+        val waiterObservedRunning = CompletableDeferred<Unit>()
+        val waiter = async {
+            repository.execute(request()).onEach { snapshot ->
+                if (snapshot.status == ModelTaskStatus.RUNNING) waiterObservedRunning.complete(Unit)
+            }.toList()
+        }
+        try {
+            withTimeout(10_000) { waiterObservedRunning.await() }
+            repository.cancel(request().requestId)
+
+            assertTrue(
+                "停止必须取消真正执行网关的协程",
+                withTimeoutOrNull(1_000) { ownerStopped.await(); true } ?: false,
+            )
+            assertEquals(ModelTaskStatus.CANCELLED, database.readModelTask(request().requestId)?.status)
+            assertEquals(ModelTaskStatus.CANCELLED, withTimeout(10_000) { waiter.await().last() }.status)
+            assertEquals("学生停止后等待者不得再派发", 1, gatewayExecutions.get())
+        } finally {
+            owner.cancelAndJoin()
+            waiter.cancelAndJoin()
+        }
+    }
+
+    @Test
     fun liveTextStreamsWithoutPersistingFramesOrBlowingTheEventBudget() = runBlocking {
         // 逐 token 通道存在的理由：走持久化快照的每一帧都要落库、且单任务事件数有上限，
         // 于是长回答会被"模型返回了过多状态事件"直接打死。判据不是拍一个数字，而是

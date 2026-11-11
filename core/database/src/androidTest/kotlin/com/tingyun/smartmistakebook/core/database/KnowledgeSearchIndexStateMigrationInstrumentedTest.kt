@@ -118,7 +118,7 @@ class KnowledgeSearchIndexStateMigrationInstrumentedTest {
                         "根据导数符号判断函数的单调递增区间",
                     ),
                     limit = 10,
-                )
+                ).candidates
                 assertTrue(
                     "node must be recalled after rebuild",
                     recalled.map(KnowledgeNodeSeedRecord::knowledgeNodeId).contains(node.knowledgeNodeId),
@@ -166,7 +166,7 @@ class KnowledgeSearchIndexStateMigrationInstrumentedTest {
                         "根据导数符号判断函数的单调递增区间",
                     ),
                     limit = 10,
-                )
+                ).candidates
                 assertEquals(recalled, recalledAgain)
                 assertRaw(context, databaseName) { database ->
                     val featureCount = database.rawQuery(

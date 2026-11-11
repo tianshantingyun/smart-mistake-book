@@ -6,7 +6,9 @@ package com.tingyun.smartmistakebook.core.domain
  * 选择器已经能确定性地说"这些目标里还有未核验的题面，需要澄清/确认"
  * （`AdaptiveDecisionKind.CLARIFY_OR_CONFIRM`），但此前 feature/app 没有任何实现方：
  * 决策被算出来就丢掉了——这正是 KD-67 的 fail-closed 死端之一。本接口是该决策在
- * domain 层的消费端口；确认卡/补题入口在 feature 侧实现它（本批不建 UI，见 KD-67）。
+ * domain 层的消费端口；确认卡在 feature 侧已由 `KnowledgeClarificationPresenter` 实现，
+ * 生产调用点见 `SmartMistakeBookRoot`（批次 49）。仍未跑的是真 Room 端到端，见
+ * `docs/research/evidence/2026-11-08-batch-49/repair/unit-gate-and-kd67-blockers.md` §3。
  *
  * 实现方约束：
  * - 只会在选择器返回 `CLARIFY_OR_CONFIRM` 且确实存在未核验目标候选时收到调用；

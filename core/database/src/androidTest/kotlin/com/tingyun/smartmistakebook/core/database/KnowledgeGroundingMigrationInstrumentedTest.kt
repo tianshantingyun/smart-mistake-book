@@ -155,7 +155,7 @@ class KnowledgeGroundingMigrationInstrumentedTest {
                     "根据导函数符号求原函数的单调递增区间。",
                 ),
                 limit = 64,
-            )
+            ).candidates
             migrated.close()
 
             assertEquals(listOf("knowledge:math:derivative"), recalled.map { it.knowledgeNodeId })

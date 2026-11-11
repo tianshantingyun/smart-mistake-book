@@ -307,13 +307,17 @@ class StrictOfflineRelayoutDeviceVectorInstrumentedTest {
             // 交互真的流进了引擎：两帧的视口/时间轴按注入次序逐一到达（拖动帧 300×200，
             // 播放帧 timeMs 61_000）。登记边界：本夹具 program 不消费 timeMs（V01 程序
             // 同构），播放帧的"场景随时间变"没有可断言面，如实以帧到达序列为证。
+            // 批次 39 收尾轮 A 类夹具修正：`listOf(300, 200, 1_000L)` 的公共类型被推断为
+            // Long（javap 实证 `Boxing.boxLong` 三处），而帧记录是 Int/Int/Long 的装箱
+            // （`List<Any>`），元素级 `Integer(300).equals(Long(300)) == false`。断言语义
+            // 不变（同值同序），只把实收数值统一成 Long 再比较，避免比较装箱类型。
             assertEquals(
                 "两帧必须按次序真实到达引擎（拖动换视口 + 播放推进时间轴）",
                 listOf(
-                    listOf(300, 200, 1_000L),
-                    listOf(300, 200, 61_000L),
+                    listOf(300L, 200L, 1_000L),
+                    listOf(300L, 200L, 61_000L),
                 ),
-                counting.executedFrames,
+                counting.executedFrames.map { frame -> frame.map { (it as Number).toLong() } },
             )
             // 重布局真的"重新布局"了：拖动帧场景（300×200）≠ 持久快照的场景（360×240）
             // ——不是把持久快照原样重放一遍。

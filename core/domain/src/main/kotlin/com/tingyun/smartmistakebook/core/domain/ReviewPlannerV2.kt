@@ -14,6 +14,47 @@ import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 
 /**
+ * 排程打分权重的**注入 seam**（批次 49 / P1-9；预注册
+ * `docs/research/2026-11-08-review-calibration-prereg.md` §5.1 的冻结契约）。
+ *
+ * 存在理由（它消灭的具体失败）：此前 10 个权重是 [ReviewPlannerV2] 内的
+ * `private const val`、`ReviewPlanner` 里另有一个 `internal const val KC_DROP_WEIGHT`，
+ * 构造器没有任何权重入口——于是"5 个坐标 × 17 个非空臂"的标定实验**一条都跑不了**
+ * （预注册 §10 #1 只能标 `BLOCKED: NO_INJECTION_SEAM`）。
+ *
+ * 默认值逐位等于现行常量，故 `ReviewPlannerV2()` 与
+ * `ReviewPlannerV2(scoring = ReviewScoringWeights.DEFAULT)` 的计划输出**逐位相同**
+ * （seam 机检 S1–S3）；因此本 seam **不** bump [ReviewPlannerV2.VERSION]。
+ * 只在采纳非默认权重时才 bump（预注册 §11）。
+ */
+data class ReviewScoringWeights(
+    val dueWeight: Double = AlgorithmConstants.ReviewScoring.DUE_WEIGHT,
+    val weaknessWeight: Double = AlgorithmConstants.ReviewScoring.WEAKNESS_WEIGHT,
+    val lapseWeight: Double = AlgorithmConstants.ReviewScoring.LAPSE_WEIGHT,
+    val repeatMistakeWeight: Double = AlgorithmConstants.ReviewScoring.REPEAT_MISTAKE_WEIGHT,
+    val avoidanceWeight: Double = AlgorithmConstants.ReviewScoring.AVOIDANCE_WEIGHT,
+    val examWeight: Double = AlgorithmConstants.ReviewScoring.EXAM_WEIGHT,
+    val waitingWeight: Double = AlgorithmConstants.ReviewScoring.WAITING_WEIGHT,
+    val familyPenaltyWeight: Double = AlgorithmConstants.ReviewScoring.FAMILY_PENALTY_WEIGHT,
+    val sourcePenaltyWeight: Double = AlgorithmConstants.ReviewScoring.SOURCE_PENALTY_WEIGHT,
+    val maxDiversityPenalty: Double = AlgorithmConstants.ReviewScoring.MAX_DIVERSITY_PENALTY,
+    /**
+     * Spec 5 KC 掉档压力权重。原定义在 `ReviewPlanner.kt` 的
+     * `internal const val KC_DROP_WEIGHT = 2.5`，迁入这里以满足"权重表单源"
+     * （预注册 §5.1、§11 第 1 步）；数值不变。
+     */
+    val kcDropWeight: Double = DEFAULT_KC_DROP_WEIGHT,
+) {
+    companion object {
+        /** 默认权重 = 现行产品值；单源：本数据类（其余 10 个默认值直接取 `AlgorithmConstants.ReviewScoring`）。 */
+        val DEFAULT: ReviewScoringWeights = ReviewScoringWeights()
+
+        /** KC 掉档压力权重（spec 5）的唯一字面量。 */
+        const val DEFAULT_KC_DROP_WEIGHT: Double = 2.5
+    }
+}
+
+/**
  * Review Planner V2 with enhanced scheduling algorithms:
  *
  * - Dynamic diversity penalties based on real-time queue composition
@@ -30,6 +71,7 @@ import java.security.MessageDigest
 class ReviewPlannerV2(
     private val forgettingCurve: ForgettingCurve = ForgettingCurve(),
     private val durationModel: LogDurationModel = LogDurationModel(),
+    private val scoring: ReviewScoringWeights = ReviewScoringWeights.DEFAULT,
 ) {
     fun plan(request: ReviewPlanningRequest): ReviewPlan {
         require(request.learnerSnapshot.freshness == LearnerSnapshotFreshness.CURRENT) {
@@ -438,8 +480,8 @@ class ReviewPlannerV2(
         usedFamilies: Map<String, Int>,
     ): Double {
         val familyCount = usedFamilies[candidate.candidate.itemFamilyId] ?: 0
-        return (familyCount * FAMILY_PENALTY_WEIGHT)
-            .coerceAtMost(MAX_DIVERSITY_PENALTY)
+        return (familyCount * scoring.familyPenaltyWeight)
+            .coerceAtMost(scoring.maxDiversityPenalty)
     }
 
     /**
@@ -452,8 +494,8 @@ class ReviewPlannerV2(
         val sourceCount = candidate.candidate.sourceBundleId
             ?.let { usedSources[it] }
             ?: 0
-        return (sourceCount * SOURCE_PENALTY_WEIGHT)
-            .coerceAtMost(MAX_DIVERSITY_PENALTY)
+        return (sourceCount * scoring.sourcePenaltyWeight)
+            .coerceAtMost(scoring.maxDiversityPenalty)
     }
 
     private fun scoreCandidate(
@@ -657,14 +699,14 @@ class ReviewPlannerV2(
 
         // Compute final score
         val score = (
-            DUE_WEIGHT * dueRisk +
-                WEAKNESS_WEIGHT * weakness +
-                LAPSE_WEIGHT * lapseScore +
-                REPEAT_MISTAKE_WEIGHT * candidate.repeatMistakePriority +
-                AVOIDANCE_WEIGHT * (if (candidate.avoidance) 1.0 else 0.0) +
-                KC_DROP_WEIGHT * kcDropPressure +
-                EXAM_WEIGHT * candidate.examPriority +
-                WAITING_WEIGHT * waitingScore
+            scoring.dueWeight * dueRisk +
+                scoring.weaknessWeight * weakness +
+                scoring.lapseWeight * lapseScore +
+                scoring.repeatMistakeWeight * candidate.repeatMistakePriority +
+                scoring.avoidanceWeight * (if (candidate.avoidance) 1.0 else 0.0) +
+                scoring.kcDropWeight * kcDropPressure +
+                scoring.examWeight * candidate.examPriority +
+                scoring.waitingWeight * waitingScore
             ).coerceAtLeast(0.0) * leechRankFactor
 
         return ScoredCandidate(
@@ -1078,16 +1120,9 @@ class ReviewPlannerV2(
             AlgorithmConstants.ReviewScoring.EARLY_REVIEW_MAX_RETRIEVABILITY
         private const val MAX_WEAKNESS_ONLY_SHARE = 0.25
         private const val WEAKNESS_SHARE_PENALTY = 3.0
-        private const val DUE_WEIGHT = AlgorithmConstants.ReviewScoring.DUE_WEIGHT
-        private const val WEAKNESS_WEIGHT = AlgorithmConstants.ReviewScoring.WEAKNESS_WEIGHT
-        private const val LAPSE_WEIGHT = AlgorithmConstants.ReviewScoring.LAPSE_WEIGHT
-        private const val REPEAT_MISTAKE_WEIGHT = AlgorithmConstants.ReviewScoring.REPEAT_MISTAKE_WEIGHT
-        private const val AVOIDANCE_WEIGHT = AlgorithmConstants.ReviewScoring.AVOIDANCE_WEIGHT
-        private const val EXAM_WEIGHT = AlgorithmConstants.ReviewScoring.EXAM_WEIGHT
-        private const val WAITING_WEIGHT = AlgorithmConstants.ReviewScoring.WAITING_WEIGHT
-        private const val FAMILY_PENALTY_WEIGHT = AlgorithmConstants.ReviewScoring.FAMILY_PENALTY_WEIGHT
-        private const val SOURCE_PENALTY_WEIGHT = AlgorithmConstants.ReviewScoring.SOURCE_PENALTY_WEIGHT
-        private const val MAX_DIVERSITY_PENALTY = AlgorithmConstants.ReviewScoring.MAX_DIVERSITY_PENALTY
+        // 打分权重（due/weakness/lapse/repeat/avoidance/kc-drop/exam/waiting/family/source/
+        // maxDiversity）不再在本文件写第二份：单源为 `ReviewScoringWeights.DEFAULT`
+        // （批次 49 P1-9 seam，预注册 §5.1）。
         /** Hard constraint (audit §7.2): same-subject consecutive run limit. */
         private const val MAX_SAME_SUBJECT_RUN = 3
         private val DAY_MILLIS = AlgorithmConstants.DAY_MILLIS.toDouble()

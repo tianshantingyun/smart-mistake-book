@@ -32,7 +32,7 @@ import java.security.MessageDigest
  *    而不是"某次构建顺手打进来的别的包"；
  * 3. 负向样本（自洽伪造行数 / 被删表非空 / 载荷翻位）各一条，fail-closed 且在交换前拒绝。
  *
- * 本测试证明：真 v4 包 → 恢复 → 72→73 迁移 → DAO 可读、旧行不丢、错因两表为空、
+ * 本测试证明：真 v4 包 → 恢复 → 72→75 迁移 → DAO 可读、旧行不丢、错因两表为空、
  * 被删表 0 行。它**不**证明"生产 `create()` 能写出 v4 形态包"——写侧只写 v5。
  */
 @RunWith(AndroidJUnit4::class)
@@ -63,7 +63,7 @@ class BackupV4PackRestoreInstrumentedTest {
             sha256Hex(bytes),
         )
 
-        // 先建一份真实 73 活库（Room 懒开库：读一次才落文件），恢复才有
+        // 先建一份真实当前 schema（75）活库（Room 懒开库：读一次才落文件），恢复才有
         // "迁移后版本 == 实时版本"的对照。
         createLiveSchema73Database()
 
@@ -71,13 +71,13 @@ class BackupV4PackRestoreInstrumentedTest {
         assertEquals("v4 包必须按 mask=15 回执", 15, receipt.selection?.mask)
         assertEquals("v4 回执必须报告其事实上的 schema 版本", 72, receipt.databaseSchemaVersion)
 
-        // 迁移发生在下一次开库（Room 的 onUpgrade）；开一次让 72→73 真跑完。
+        // 迁移发生在下一次开库（Room 的 onUpgrade）；开一次让 72→75 真跑完。
         // 能开成功本身就是 Room 迁移后的 TableInfo 校验通过（不是 SQL 级"能读"）。
         val reopened = StudyDatabaseFactory.open(context, databaseName)
         try {
             assertEquals(
-                "Room 连接上读到的版本必须是 73（DAO 侧可读）",
-                73,
+                "Room 连接上读到的版本必须是当前 schema（DAO 侧可读）",
+                SmbkSelectionPlan.SCHEMA_VERSION,
                 reopened.readDatabaseVersion(),
             )
             assertEquals(
@@ -90,7 +90,11 @@ class BackupV4PackRestoreInstrumentedTest {
         }
 
         val restoredFile = context.getDatabasePath(databaseName)
-        assertEquals("迁移后 user_version 必须是 73", 73L, userVersion(restoredFile))
+        assertEquals(
+            "迁移后 user_version 必须是当前 schema",
+            SmbkSelectionPlan.SCHEMA_VERSION.toLong(),
+            userVersion(restoredFile),
+        )
         assertEquals("problem 旧行不得丢", 1L, rowCount(restoredFile, "problem"))
         assertEquals("attempt_submission 两行不得丢", 2L, rowCount(restoredFile, "attempt_submission"))
         assertEquals("knowledge_node 旧行不得丢", 1L, rowCount(restoredFile, "knowledge_node"))
@@ -204,7 +208,7 @@ class BackupV4PackRestoreInstrumentedTest {
         }
     }
 
-    /** Room 懒开库：必须读一次才会把 schema 73 的库文件落到磁盘。 */
+    /** Room 懒开库：必须读一次才会把当前 schema 的库文件落到磁盘。 */
     private suspend fun createLiveSchema73Database() {
         val database = StudyDatabaseFactory.open(context, databaseName)
         try {

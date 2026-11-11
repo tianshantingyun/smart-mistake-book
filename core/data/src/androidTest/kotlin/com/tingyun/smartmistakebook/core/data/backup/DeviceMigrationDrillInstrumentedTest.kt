@@ -395,7 +395,7 @@ class DeviceMigrationDrillInstrumentedTest {
                 subject = "MATH",
                 searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion("函数"),
                 limit = 10,
-            )
+            ).candidates
             assertTrue(
                 "重建后 MATH 必须能检索到恢复进来的知识点，实际 ${recalledMath.map { it.knowledgeNodeId }}",
                 recalledMath.any { it.knowledgeNodeId == MATH_KNOWLEDGE_NODE_ID },
@@ -404,7 +404,7 @@ class DeviceMigrationDrillInstrumentedTest {
                 subject = "PHYSICS",
                 searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion("力学"),
                 limit = 10,
-            )
+            ).candidates
             assertTrue(
                 "重建后 PHYSICS 必须能检索到恢复进来的知识点，实际 ${recalledPhysics.map { it.knowledgeNodeId }}",
                 recalledPhysics.any { it.knowledgeNodeId == PHYSICS_KNOWLEDGE_NODE_ID },
@@ -420,7 +420,7 @@ class DeviceMigrationDrillInstrumentedTest {
 
     /**
      * Phase 2c.1 同口径的逐表对拍，但对象换成**恢复后的库**：对拍范围是 schema 机器清单
-     * [SmbkSelectionPlan.allTables]（86 张，`library_search_fts` 虚拟表本体在内、其 FTS4
+     * [SmbkSelectionPlan.allTables]（90 张，`library_search_fts` 虚拟表本体在内、其 FTS4
      * 影子表是模块内部件不在清单）∪ 清单声明键；表不在恢复库里按实测 0 对拍。
      * 另加一个方向：恢复库里凡**既不在机器清单、也不是虚拟表影子/Room 元数据**的用户表
      * 必须为 0 行（堵"夹带一张清单外的表"）。
@@ -521,7 +521,7 @@ class DeviceMigrationDrillInstrumentedTest {
                     val iterator = settings.keys()
                     while (iterator.hasNext()) keys += iterator.next()
                     assertEquals(
-                        "settings.json 只允许携带偏好六键（保持率/考试日历/FSRS 参数/提醒两键/版本）",
+                        "settings.json 只允许携带偏好七键（保持率/每日复习分钟/考试日历/FSRS 参数/提醒两键/版本）",
                         PREFERENCE_ONLY_SETTINGS_KEYS,
                         keys,
                     )
@@ -852,6 +852,10 @@ class DeviceMigrationDrillInstrumentedTest {
         val PREFERENCE_ONLY_SETTINGS_KEYS = setOf(
             "schemaVersion",
             "desiredRetention",
+            // 批次 50 设备全量：`SmbkSettingsDocumentV1`（SETTINGS_SCHEMA_VERSION=2）已把
+            // dailyReviewMinutes 作为偏好写入 settings.json（生产写侧 AndroidBackupRepository.kt:297），
+            // 旧白名单停在 v1 六键 → 三条 drill 必红。这里只同步白名单到当前文档（等值关系不变）。
+            "dailyReviewMinutes",
             "examCalendar",
             "optimizedFsrsParameters",
             "reviewReminderEnabled",

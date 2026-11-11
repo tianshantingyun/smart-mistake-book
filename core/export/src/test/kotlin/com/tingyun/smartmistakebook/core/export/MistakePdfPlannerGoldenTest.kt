@@ -21,6 +21,12 @@ import org.junit.Test
  * "本实现单机登记"（退化方案），不是与改前 PDF 的逐位对拍；默认版式与改前等价的
  * 主要证据是**逐项内容断言 + 常量读码**，摘要用于钉住今后不再漂移。字体/系统相关的
  * 字节层对拍见 `MistakePdfDeliveryRegressionInstrumentedTest` 的仪器化用例。
+ *
+ * **2026-10-16 重登记（UV-10 用户可见修复）**：题面选项行不再打印 `[已选]/[不可选]`
+ * 状态后缀（`docs/research/2026-10-16-user-visible-followup-audit.md` UV-10："PDF 关闭
+ * 答案区，题面仍打印'已选'，影响重新练习"）。逐项内容断言按实得更新、摘要随之重登记；
+ * **已选信息没有丢**——它只出现在答案区（练习卷期望里的 `1. B. 先减后增`），对应
+ * `MistakePdfPagePlannerTest` 的两条用例分别钉住"题面不露状态"与"答案区仍露选择"。
  */
 class MistakePdfPlannerGoldenTest {
 
@@ -42,7 +48,7 @@ class MistakePdfPlannerGoldenTest {
                 "line/SPACER/8.00/false/0/",
                 "line/BODY/18.00/false/0/下列哪个正确？",
                 "line/CHOICE/18.00/false/0/A. 单调递增",
-                "line/CHOICE/18.00/false/0/B. 先减后增 [已选]",
+                "line/CHOICE/18.00/false/0/B. 先减后增",
                 "line/SPACER/8.00/false/0/",
                 "figure/figure/SymbolTable/102.00/499.00/0",
                 "line/SPACER/8.00/false/0/",
@@ -71,7 +77,7 @@ class MistakePdfPlannerGoldenTest {
                 "line/SPACER/8.00/false/0/",
                 "line/BODY/18.00/false/0/下列哪个正确？",
                 "line/CHOICE/18.00/false/0/A. 单调递增",
-                "line/CHOICE/18.00/true/0/B. 先减后增 [已选]",
+                "line/CHOICE/18.00/true/0/B. 先减后增",
                 "blank/2/36.00/0",
                 "line/SPACER/8.00/false/0/",
                 "figure/figure/SymbolTable/102.00/499.00/0",
@@ -155,6 +161,7 @@ class MistakePdfPlannerGoldenTest {
             ),
         ),
         questionDocumentSha256 = "0".repeat(64),
+        hasModelParsedText = false,
         inputSha256 = "1".repeat(64),
         layout = layout,
     )
@@ -166,12 +173,15 @@ class MistakePdfPlannerGoldenTest {
          *
          * 修复轮 P2-1 把布局身份改成无损位表示（`imageScaleBits`），摘要随之重登记；
          * 逐项内容断言未变。
+         *
+         * 2026-10-16 UV-10（题面选项行去掉状态后缀）再次重登记：本次逐项内容断言也变了
+         * （`B. 先减后增` 不再带 ` [已选]`），摘要与内容同源更新，非"只改摘要迁就实现"。
          */
         const val DEFAULT_PLAN_GOLDEN_SHA256 =
-            "b2cb5e067a053c9f2ca41ceb814ff4d8ec71a61effc2712af3f66f9ba34400ee"
+            "2ba874cc9b3341cbaee1d19142953da8ecc646bc9953771ed29c26a35aff61c0"
 
         /** 练习卷版式（作答空白区 + 答案区）的本实现单机登记（同上，P2-1 后重登记）。 */
         const val PRACTICE_PLAN_GOLDEN_SHA256 =
-            "0a8dfa0d8e7797b2f0f554352d81adf8de97986e4b4048f8dbc59376433d6a75"
+            "d9f928e1c35ba74d002779ae819e93893aa8143569d5cb2c970cd18778c5f819"
     }
 }

@@ -130,6 +130,18 @@ internal object MistakePdfPagePlanner {
                         geometry.columnWidthPt,
                     )
                 }
+            // 显式标识（第四条）：模型产出的文字没有图注可挂，整份文件在首屏给一行说明。
+            // 判据与 `labelPdfInPlace` 的模型文本项同源（`hasModelParsedText`）；纯用户内容
+            // 不出现这一行（第十条不得伪造标识）。
+            if (input.hasModelParsedText) {
+                addWrapped(
+                    AI_GENERATED_DOCUMENT_NOTICE,
+                    PdfLineStyle.META,
+                    measure,
+                    typography,
+                    geometry.columnWidthPt,
+                )
+            }
             add(spacer(typography))
             if (cleanImageSize != null) {
                 // 4E WG-07：题目区图 = CLEAN_IMAGE（旧调用方 null 同义），其次 QUESTION_DIAGRAM。

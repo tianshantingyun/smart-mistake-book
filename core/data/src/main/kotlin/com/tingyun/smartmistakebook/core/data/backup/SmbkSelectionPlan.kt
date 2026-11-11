@@ -3,19 +3,19 @@ package com.tingyun.smartmistakebook.core.data.backup
 import java.security.MessageDigest
 
 /**
- * 6C-2 内容选择备份的 **schema 74 机器清单**（v5）。
+ * 6C-2 内容选择备份的 **schema 75 机器清单**（closure 6；parser 契约名沿用 `6c2-plan-v3`）。
  *
  * 唯一数据源：`docs/research/2026-10-17-6c2-content-selection-design.md` §9.14 的
- * `<!-- 6c2-plan-v5:begin -->` 机器块；表/视图/FK 的事实源是 Room 导出物
+ * `<!-- 6c2-plan-v3:begin -->` 机器块；表/视图/FK 的事实源是 Room 导出物
  * `core/database/schemas/com.tingyun.smartmistakebook.core.database.StudyDatabase/75.json`
- * （`database.version=74`、`identityHash=4d2c8e0f…`）。本文件不新增规则：类别、闭包、
+ * （`database.version=75`、`identityHash=f9a3d1c9…`）。本文件不新增规则：类别、闭包、
  * 裁剪顺序、软引用、资产根、kind 谓词全部逐项对应机器块，`SmbkSelectionPlanTest`
  * 反向解析机器块与 `75.json` 断言两处同源。
  *
  * schema 73 已增加纸卷、固定题目快照与原始作答照片，照片属于复习记录的资产根。
  *
- * 97 张表的归属（每表恰好一次）：
- * - [SmbkSelectionCategory] 四类：35 + 38 + 7 + 1；
+ * 99 张表的归属（每表恰好一次）：
+ * - [SmbkSelectionCategory] 四类：35 + 40 + 7 + 1；
  * - [alwaysTables] 7 张恒随包；
  * - [derivedTables] 2 张派生索引（本批裁定恒裁，恢复完成后按科后台重建）；
  * - [splitTables] 7 张按行筛选（`model_task*` 按 `task_kind`，`figure_generation_*` 按来源类别 +
@@ -51,7 +51,7 @@ object SmbkSelectionPlan {
     /** 规则表版本；只在规则表变化时 bump，不是 schemaVersion 的别名。 */
     const val CLOSURE_VERSION: Int = 6
 
-    /** digest 前缀，与 closureVersion=5 绑定。 */
+    /** digest 前缀，与 closureVersion=6 绑定。 */
     const val CLOSURE_DIGEST_PREFIX: String = "smbk-selection-v6"
 
     /** 四项用户类别全选。 */

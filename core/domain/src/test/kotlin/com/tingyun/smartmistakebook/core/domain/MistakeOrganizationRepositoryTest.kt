@@ -15,7 +15,8 @@ class MistakeOrganizationRepositoryTest {
         val selection = ProblemOrganizationSelection(emptySet(), emptySet(), knowledgeSelections = setOf(a, b))
         assertEquals(setOf(a, b), selection.knowledgeSelections)
         assertTrue(runCatching {
-            ProblemOrganizationSelection((0 until 31).toSet(), emptySet(), knowledgeSelections = setOf(a, b))
+            // 上限 = MAX_TOTAL_CLASSIFICATIONS(32)：32 个合法、33 个越界（旧断言 31 早于上限放宽）。
+            ProblemOrganizationSelection((0 until 33).toSet(), emptySet(), knowledgeSelections = setOf(a, b))
         }.isFailure)
         assertTrue(runCatching {
             ProblemOrganizationSelection(emptySet(), emptySet(), knowledgeSelections = setOf(a, a.copy(taxonomyVersion = "v2")))

@@ -12,6 +12,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -33,9 +34,10 @@ import org.junit.runner.RunWith
  * 2. [aWarmRebuildDeletesAndRewritesInSeveralChunks]：整科换血的**删除**同样分块、重复重建幂等；
  * 3. [cancellingAtAChunkBoundaryLeavesNoAnchorAndARerunConverges]：块间取消 → 已提交的块留下、
  *    **锚点不写**、重跑收敛（"未完成不写锚点"）；
- * 4. [aPartialRebuildUnderACurrentAnchorIsRepairedByTheReadPath]：分块引入的另一种中间态
- *    （锚点本已当前、索引只写了一半）**不会被当成完整**——读路径的「已索引 ≥ 已审校」门
- *    会判不完整并只补缺补回来（这条同时把"读路径自愈一字未改"钉住）。
+ * 4. [aPartialRebuildUnderACurrentAnchorIsFlaggedByTheReadPathAndRepairedByTheStartupHeal]：
+ *    分块引入的另一种中间态（锚点本已当前、索引只写了一半）**不会被当成完整**——B35 读路径
+ *    只读化后：召回带显式降级标记（indexComplete=false），写侧修复在导入路径启动自愈
+ *    （`healKnowledgeSearchIndex` 只补缺分支）收敛。
  *
  * 夹具 130 个节点（> 分块上限 64）：节点数若不大于上限，用例 1 会红——那正是要拦的形态
  * （单块重建就是 KD-51 的改前形态）。直接用 DAO 造节点，不走内容调和链：本类只测重建，
@@ -189,7 +191,7 @@ class KnowledgeSearchIndexRebuildChunkingInstrumentedTest {
     }
 
     @Test
-    fun aPartialRebuildUnderACurrentAnchorIsRepairedByTheReadPath() = runBlocking {
+    fun aPartialRebuildUnderACurrentAnchorIsFlaggedByTheReadPathAndRepairedByTheStartupHeal() = runBlocking {
         val opened = open()
         opened.database.problemOrganizationDao().insertKnowledgeNodes(fixtureNodes())
         // ① 先完整跑一次：锚点落成"当前"（安装期换血 / 节点改名后的现实形态）。
@@ -230,23 +232,43 @@ class KnowledgeSearchIndexRebuildChunkingInstrumentedTest {
             .take(64)
             .toSet()
 
-        // ③ 读路径（真实召回入口）：锚点当前 + 计数不满足「已索引 ≥ 已审校」⇒ 只补缺。
+        // ③ 读路径（真实召回入口）**只读**（B35 §1.1）：锚点当前 + 已索引 < 已审校 ⇒
+        //    不补、不重建，查询照常返回（子集），但**必须带显式降级标记**——静默空/静默子集
+        //    是 G3 的硬失败口径；B35 前本用例在此处被读路径只补缺补回来。
         val recalled = opened.readSubjectKnowledgeRecallCandidates(
             subject = SUBJECT,
             searchFeatures = queryFeatures,
             limit = FIXTURE_NODE_COUNT,
         )
-        assertTrue(
-            "补缺后这个节点必须真的可召回（残缺状态下它一条特征行都没有）；node=$missingNodeId",
-            recalled.any { it.knowledgeNodeId == missingNodeId },
+        assertFalse(
+            "残缺索引不得报完整（标记判据不得放宽，IMPORTING 判 INSTALLED 是最不可接受的变绿）",
+            recalled.indexComplete,
         )
+        assertFalse(
+            "读路径不再补缺：缺失节点此刻不得出现在召回里；node=$missingNodeId",
+            recalled.candidates.any { node -> node.knowledgeNodeId == missingNodeId },
+        )
+
+        // ④ 导入路径启动自愈（旧读路径写自愈体的唯一落点，B35 §1.1-2）：同版本缺 ⇒ 事务内
+        //    只补缺，行集收敛、锚点不动。
+        opened.healKnowledgeSearchIndex(SUBJECT)
         assertEquals(
-            "读路径必须把它补回来（或下一次整科重建收敛），行集与一次跑完逐位相同",
+            "启动自愈必须把残缺行集补到与一次跑完逐位相同",
             expected,
             storedFeatureRows(),
         )
+        val healed = opened.readSubjectKnowledgeRecallCandidates(
+            subject = SUBJECT,
+            searchFeatures = queryFeatures,
+            limit = FIXTURE_NODE_COUNT,
+        )
+        assertTrue(
+            "自愈后缺失节点必须可召回；node=$missingNodeId",
+            healed.candidates.any { node -> node.knowledgeNodeId == missingNodeId },
+        )
+        assertTrue("自愈后该科判定完整", healed.indexComplete)
         assertEquals(
-            "锚点保持当前（补缺走的是读路径的写事务，不推进锚点）",
+            "补缺走的是只补缺分支，不推进锚点",
             KnowledgeSearchFeatureExtractor.INDEX_VERSION,
             anchorVersion(),
         )

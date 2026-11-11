@@ -206,7 +206,7 @@ class Stage2LexicalScoresExportTest {
         // 这是数据变化导致的期望漂移，不是检索退化；判据（容差 0.0、top-5、命中定义）一律未动。
         assertEquals("回读重算的臂 A 主集命中数应为 101/129（判官 v2 + v28 包实测）", 101, hits)
         assertEquals("回读重算的臂 A 主集 Recall@5 应为 0.7829457364341085", ARM_A_MAIN, main, 0.0)
-        assertEquals("回读重算的臂 A MRR 应为 0.6233850129198968", ARM_A_MRR, mrr, 0.0)
+        assertEquals("回读重算的臂 A MRR 应为 0.6291989664082688", ARM_A_MRR, mrr, 0.0)
 
         // ---- 与 build/stage1-metrics-A.txt 逐行对账（含逐题 MISS 的集合与 rank） ----
         val metricsFile = File(repoRoot, "build/stage1-metrics-A.txt")
@@ -330,7 +330,10 @@ class Stage2LexicalScoresExportTest {
          * **0.6118863049095608**（量源 = 本轮导出的 TSV 回读重算；命中 101 → 100）。
          */
         const val ARM_A_MAIN = 0.7829457364341085
-        const val ARM_A_MRR = 0.6233850129198968
+        // 2026-11-10 批次51 3D 改绑后重钉：主集仍 101/129；MRR 0.6233850129198968 →
+        // 0.6291989664082688（量源 = 本轮失败信息 `expected:<0.6233850129198968> but
+        // was:<0.6291989664082688>`）。判据与容差未动。
+        const val ARM_A_MRR = 0.6291989664082688
 
         const val ATOMIC_SUFFIX = ":atomic:"
     }

@@ -54,10 +54,10 @@ class DenseLayoutIdentityTest {
     fun `layout sha256 matches sidecar pack and vector row order`() {
         val rows = layoutRows(pack)
 
-        // 1) 行集规模（预注册 §1.4 冻结读数）
-        assertEquals("布局行数与以包为准的冻结读数不符", 44_121, rows.size)
-        assertEquals("canonical 行数不符", 3_280, rows.count { it.kind == "canonical" })
-        assertEquals("alias 行数不符", 40_841, rows.count { it.kind == "alias" })
+        // 1) 行集规模（预注册 §1.4 冻结读数；批次51 3D 改绑后重钉：44,121 → 44,117）
+        assertEquals("布局行数与以包为准的冻结读数不符", 44_117, rows.size)
+        assertEquals("canonical 行数不符", 3_279, rows.count { it.kind == "canonical" })
+        assertEquals("alias 行数不符", 40_838, rows.count { it.kind == "alias" })
 
         // 2) 基线摘要与 Python 权威实现逐字符相同（跨语言钉住序列化）
         val computed = layoutSha256(rows)
@@ -91,7 +91,7 @@ class DenseLayoutIdentityTest {
         val mutated = mutateFirstNonEmptyPoint(pack) { point ->
             JsonObject(point.toMutableMap().apply { put("name", JsonPrimitive("函数的概念（改）")) })
         }
-        assertOnlyLayoutChanged(mutated, "28fc9985374da6cbde5944d1c856a07e9e90d543cc2d92d8020e51850c4c9296")
+        assertOnlyLayoutChanged(mutated, "8f680a58f595d4cf9e56e64f8022a7d054962c31790b5cce876c7b59e2ce3a0a")
     }
 
     @Test
@@ -102,7 +102,7 @@ class DenseLayoutIdentityTest {
             assertEquals("N2 前提：别名条数必须不变", aliases.size, replaced.size)
             point.withAliases(replaced)
         }
-        assertOnlyLayoutChanged(mutated, "235faec73c011bc7fec8c3154a23b33763b0c6d9aee25463942fb49f8eea6494")
+        assertOnlyLayoutChanged(mutated, "07fd852ab68fb90896b9acb72860ffecfd3caa2ddda767189c222e03b1620909")
     }
 
     @Test
@@ -113,7 +113,7 @@ class DenseLayoutIdentityTest {
             val swapped = aliases.toMutableList().also { it[0] = aliases[1]; it[1] = aliases[0] }
             point.withAliases(swapped)
         }
-        assertOnlyLayoutChanged(mutated, "ca519f35e78b6c96a8c9dd9e9eae0845bb10e5e0e2dbd052b796510bbe774d3d")
+        assertOnlyLayoutChanged(mutated, "419983ca958628ddbdf42c29322e8ae2a502be420c2c1ef1ded88fbf780177b9")
     }
 
     /**
@@ -258,6 +258,6 @@ class DenseLayoutIdentityTest {
         const val PACK_PATH = "knowledge/moe-2025-four-subjects-v1.json"
 
         /** 预注册 §1.4 冻结基线（Python 侧实算，两端必须逐字符相同）。 */
-        const val BASELINE_LAYOUT_SHA256 = "1aa8142e381d1b2b40b2ba3d5eec2783e5781830321613fcb78fff7f61e9d75c"
+        const val BASELINE_LAYOUT_SHA256 = "2c8b72b340733105d557609e375025c9a6ef5b68b0d320ad8cd6e99ec06c623e"
     }
 }

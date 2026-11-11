@@ -11,8 +11,10 @@ import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.database.StudySeedBundle
+import com.tingyun.smartmistakebook.core.domain.ReviewSelfReportKey
 import com.tingyun.smartmistakebook.core.domain.StudyAnswerRevealRequest
 import com.tingyun.smartmistakebook.core.domain.StudyChoiceSubmission
+import com.tingyun.smartmistakebook.core.domain.StudySelfReportedReviewSubmission
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint
@@ -219,6 +221,69 @@ class StudySubmissionWithoutFixtureInstrumentedTest {
             assertFalse("未验证的答案键不能被当成可信答案", stored.isTrusted)
             assertNull("没有可信答案时不得编造答案文本", stored.answerMarkdown)
             assertNull(stored.explanationMarkdown)
+        } finally {
+            repository.close()
+            database.close()
+            applicationScope.cancel()
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    /**
+     * F1 回归（PRD-05）：自评先建 presentation，随后 UI 展示已存答案会按**同一个
+     * presentationId** 写 reveal。两次写入必须绑定同一个 `assessment_snapshot_id`；
+     * 否则真库的 `loadOrCreatePresentation` 抛 `assessment_presentation`，UI 落
+     * `review_reveal_write_failed`（设备验收里 good 键与旋转两例的确定性失败）。
+     */
+    @Test
+    fun selfReportThenRevealOnTheSamePresentationSharesOneEvidenceSnapshot() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "prd05-self-report-reveal-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        val database: StudyDatabasePort = StudyDatabaseFactory.open(context, databaseName)
+        val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = RoomBackedStudyExperienceRepository(
+            database = database,
+            applicationScope = applicationScope,
+        )
+        try {
+            seedStudyFacts(context, database, databaseName, machineCheckableSeed())
+            repository.initialize()
+            val started = requireNotNull(
+                repository.startOrResumeReviewSession("prd05-self-report-reveal-start", START_AT),
+            )
+            val practiceUnitId = requireNotNull(
+                repository.snapshot.value.review.scheduledPracticeUnitIds.singleOrNull(),
+            )
+            val presentationId = "presentation:prd05-self-report-reveal"
+
+            val selfReport = repository.submitReviewSelfReport(
+                StudySelfReportedReviewSubmission(
+                    requestId = "prd05-self-report-reveal-1",
+                    sessionId = started.sessionId,
+                    expectedStateVersion = started.stateVersion,
+                    presentationId = presentationId,
+                    practiceUnitId = practiceUnitId,
+                    key = ReviewSelfReportKey.GOOD,
+                    responseOrdinal = 1,
+                    durationSeconds = 10,
+                    occurredAtEpochMillis = START_AT + 1_000,
+                ),
+            )
+            assertTrue("自评必须落成一次 attempt", selfReport.created)
+
+            val reveal = repository.revealAnswer(
+                StudyAnswerRevealRequest(
+                    requestId = "prd05-self-report-reveal-1:reveal",
+                    presentationId = presentationId,
+                    practiceUnitId = practiceUnitId,
+                    occurredAtEpochMillis = START_AT + 2_000,
+                ),
+            )
+            assertTrue(
+                "自评后的 reveal 必须成功复用同一 presentation 的快照（不得抛 assessment_presentation）",
+                reveal.created,
+            )
         } finally {
             repository.close()
             database.close()

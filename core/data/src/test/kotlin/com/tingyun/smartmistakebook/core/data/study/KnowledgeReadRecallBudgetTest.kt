@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialNodeBindingRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeTeachingMaterialRecord
 import com.tingyun.smartmistakebook.core.database.MAX_KNOWLEDGE_RECALL_CANDIDATES
+import com.tingyun.smartmistakebook.core.database.port.KnowledgeRecallResult
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.model.KnowledgeMaterialNodeRole
 import com.tingyun.smartmistakebook.core.model.KnowledgeTeachingMaterialType
@@ -44,7 +45,7 @@ class KnowledgeReadRecallBudgetTest {
             searchFeatures: Set<String>,
             limit: Int,
             queryText: String?,
-        ): List<KnowledgeNodeSeedRecord> {
+        ): KnowledgeRecallResult {
             recallLimits += limit
             recallQueryTexts += queryText
             return super.readSubjectKnowledgeRecallCandidates(

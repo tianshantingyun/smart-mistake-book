@@ -26,6 +26,7 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
 import com.tingyun.smartmistakebook.core.model.FigureGenerationTarget
 import com.tingyun.smartmistakebook.core.model.FigureImageOperation
 import com.tingyun.smartmistakebook.core.model.FigureSourceEvidence
+import com.tingyun.smartmistakebook.core.model.figureBasisFingerprint
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.runBlocking
@@ -305,7 +306,7 @@ class FigureGenerationAuditRecorderTest {
         FigureGenerationPolicy.imageModelProposal(
             request = request,
             imageOperation = FigureImageOperation.EDIT,
-            imagePrompt = "基于已授权原图重建干净题面。",
+            imagePrompt = IMAGE_PROMPT,
             reason = "测试",
         )
 
@@ -316,7 +317,7 @@ class FigureGenerationAuditRecorderTest {
         sourceId: String? = "revision-1",
         basisFingerprint: String? = BASIS,
     ): FigureGenerationRequest = FigureGenerationRequest(
-        operationId = "op-1",
+        operationId = OPERATION_ID,
         purpose = purpose,
         target = FigureGenerationTarget(fidelity = FigureFidelity.FAITHFUL),
         capabilities = FigureGenerationCapabilities.IMAGE_MODEL_ONLY,
@@ -548,7 +549,23 @@ class FigureGenerationAuditRecorderTest {
 
     private companion object {
         const val NOW = 1_700_000_000_000L
-        val BASIS = "b".repeat(64)
+
+        /** 与 [request] 的 operationId、[imageProposal] 的 imagePrompt 同源，防两处漂移。 */
+        const val OPERATION_ID = "op-1"
+        const val IMAGE_PROMPT = "基于已授权原图重建干净题面。"
         val SOURCE_BYTES = "source-photo".toByteArray()
+
+        /**
+         * A-08（批次34）之后显式 basis 必须过方法一致复核：占位假指纹（旧 `"b".repeat(64)`）
+         * 会被 [FigureGenerationPolicy] 以 BASIS_FINGERPRINT_MISMATCH 拒掉。这里按三入口的
+         * 同一构造算出真指纹；五个钉点（审计两行携带同一 BASIS、无 recorder 时结果逐位
+         * 不变、事件序列、审计计数不进预算、取消原样抛出）的断言全部原样，只换夹具
+         * 常量的构造方式。
+         */
+        val BASIS = figureBasisFingerprint(
+            operationId = OPERATION_ID,
+            sourceSha256 = figureSha256Hex(SOURCE_BYTES),
+            imagePrompt = IMAGE_PROMPT,
+        )
     }
 }

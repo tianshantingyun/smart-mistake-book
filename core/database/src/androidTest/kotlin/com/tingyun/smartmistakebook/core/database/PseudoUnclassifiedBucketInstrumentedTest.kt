@@ -53,7 +53,7 @@ class PseudoUnclassifiedBucketInstrumentedTest {
                 subject = "MATH",
                 searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion("未归类知识点"),
                 limit = 10,
-            )
+            ).candidates
             assertTrue(
                 "同文本的 CURATED 节点必须被召回（证明查询词命中）：$recalled",
                 recalled.any { node -> node.knowledgeNodeId == TWIN_ID },

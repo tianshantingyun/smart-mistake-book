@@ -6,6 +6,10 @@ import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationSource
 import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationSourceVerifier
 import com.tingyun.smartmistakebook.core.domain.AnswerKeyVerificationUpgradeRejection
 import com.tingyun.smartmistakebook.core.model.AnswerKeyVerification
+import com.tingyun.smartmistakebook.core.model.ChatEvidenceSubmitted
+import com.tingyun.smartmistakebook.core.model.EvidenceCorrection
+import com.tingyun.smartmistakebook.core.model.EvidenceCorrectionKind
+import com.tingyun.smartmistakebook.core.model.LearningEvidenceDirection
 import java.util.concurrent.atomic.AtomicInteger
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
@@ -483,4 +487,144 @@ class KnowledgeQuizItemVerificationUpgraderTest {
         const val DEFAULT_OPTIONS =
             """[{"id":"A","markdown":"正确项"},{"id":"B","markdown":"干扰项"}]"""
     }
+
+    /**
+     * KD-67 生产回执校验（批次 49）：`UserAssertion.confirmationId` 必须指向账本里一条真实的
+     * **用户断言当前答案**的记录，而不是任意非空字符串。
+     *
+     * 消灭的失败：端口有契约没有生产实现时，确认流只有两条路——把自造 id 当回执（升级口
+     * 被绕过），或在生产里永远 `SOURCE_NOT_VERIFIED`（学生点了确认、状态却没变）。
+     */
+    @Test
+    fun `the ledger verifier accepts the learners own asserted key receipt`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val id = snapshotId()
+        database.assessmentItemSnapshots[id] = row()
+        val assertionId = "knowledge-quiz:review:5000:item:kc-a:A:key-fix:A"
+        database.projectionLedger = listOf(
+            ledgerEvent(
+                ChatEvidenceSubmitted(
+                    evidenceId = assertionId,
+                    conversationId = "knowledge-quiz-review:5000",
+                    knowledgeNodeId = nodeId,
+                    direction = LearningEvidenceDirection.POSITIVE,
+                    weight = 0.18,
+                    reasonMarkdown = knowledgeQuizKeyCorrectionReasonPrefix(
+                        itemId = "knowledge-quiz:item:$nodeId",
+                        newCorrectChoiceId = "A",
+                    ) + "学生确认答案",
+                    confidence = 0.95,
+                    occurredAtEpochMillis = 12_000L,
+                    eventSequence = 1L,
+                ),
+            ),
+        )
+        val verifier = LedgerAnswerKeyVerificationSourceVerifier(database, learnerId)
+
+        assertTrue(
+            verifier.verify(userAssertion(confirmationId = assertionId), learnerId, id),
+        )
+        assertFalse(
+            "同一学习者但没有这条回执的自造 id 不得通过",
+            verifier.verify(userAssertion(confirmationId = "forged:never-issued"), learnerId, id),
+        )
+    }
+
+    @Test
+    fun `the ledger verifier rejects a receipt asserting a different key`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val id = snapshotId()
+        database.assessmentItemSnapshots[id] = row()
+        // 学生把答案改成了 B；这条记录断言的是 B，不是题面当前的 A。
+        val assertionId = "knowledge-quiz:review:5000:item:kc-a:B:key-fix:B"
+        database.projectionLedger = listOf(
+            ledgerEvent(
+                ChatEvidenceSubmitted(
+                    evidenceId = assertionId,
+                    conversationId = "knowledge-quiz-review:5000",
+                    knowledgeNodeId = nodeId,
+                    direction = LearningEvidenceDirection.NEGATIVE,
+                    weight = 0.35,
+                    reasonMarkdown = knowledgeQuizKeyCorrectionReasonPrefix(
+                        itemId = "knowledge-quiz:item:$nodeId",
+                        newCorrectChoiceId = "B",
+                    ) + "学生改正答案键",
+                    confidence = 0.95,
+                    occurredAtEpochMillis = 12_000L,
+                    eventSequence = 1L,
+                ),
+            ),
+        )
+        val verifier = LedgerAnswerKeyVerificationSourceVerifier(database, learnerId)
+
+        assertFalse(
+            "断言了另一个键的记录不是'确认当前答案'",
+            verifier.verify(userAssertion(confirmationId = assertionId), learnerId, id),
+        )
+    }
+
+    @Test
+    fun `the ledger verifier rejects an assertion the learner later superseded`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val id = snapshotId()
+        database.assessmentItemSnapshots[id] = row()
+        val assertionId = "knowledge-quiz:review:5000:item:kc-a:A:key-fix:A"
+        database.projectionLedger = listOf(
+            ledgerEvent(
+                ChatEvidenceSubmitted(
+                    evidenceId = assertionId,
+                    conversationId = "knowledge-quiz-review:5000",
+                    knowledgeNodeId = nodeId,
+                    direction = LearningEvidenceDirection.POSITIVE,
+                    weight = 0.18,
+                    reasonMarkdown = knowledgeQuizKeyCorrectionReasonPrefix(
+                        itemId = "knowledge-quiz:item:$nodeId",
+                        newCorrectChoiceId = "A",
+                    ) + "学生确认答案",
+                    confidence = 0.95,
+                    occurredAtEpochMillis = 12_000L,
+                    eventSequence = 1L,
+                ),
+            ),
+            ledgerEvent(
+                EvidenceCorrection(
+                    correctionId = "key-void:req-9:$assertionId",
+                    targetEvidenceId = assertionId,
+                    kind = EvidenceCorrectionKind.VOID,
+                    replacementDirection = LearningEvidenceDirection.NONE,
+                    replacementWeight = 0.0,
+                    reasonMarkdown = "撤销确认",
+                    occurredAtEpochMillis = 13_000L,
+                    eventSequence = 2L,
+                ),
+            ),
+        )
+        val verifier = LedgerAnswerKeyVerificationSourceVerifier(database, learnerId)
+
+        assertFalse(
+            "被撤销的断言 = 学生收回了确认，不得再作为来源",
+            verifier.verify(userAssertion(confirmationId = assertionId), learnerId, id),
+        )
+    }
+
+    @Test
+    fun `the ledger verifier refuses independent verification because no production record source exists`() =
+        runBlocking {
+            val database = FakeStudyDatabasePort()
+            val id = snapshotId()
+            database.assessmentItemSnapshots[id] = row()
+
+            val verifier = LedgerAnswerKeyVerificationSourceVerifier(database, learnerId)
+
+            assertFalse(
+                "没有独立核验记录库时宁可不可达，也不拿自造 id 冒充",
+                verifier.verify(independentVerification(), learnerId, id),
+            )
+        }
+
+    private fun ledgerEvent(event: com.tingyun.smartmistakebook.core.model.LearningLedgerEvent) =
+        com.tingyun.smartmistakebook.core.database.PersistedLearningLedgerEvent(
+            event = event,
+            canonicalFingerprint = "fingerprint:${event.ledgerEventId}",
+        )
 }

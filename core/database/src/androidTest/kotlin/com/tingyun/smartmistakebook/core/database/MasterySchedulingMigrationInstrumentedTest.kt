@@ -123,6 +123,57 @@ class MasterySchedulingMigrationInstrumentedTest {
     }
 
     /**
+     * P0-2「review_log 最近窗口」的设备级钉值：3 行 + limit=2 必须返回**最新**两行且
+     * **升序**。修复前 DAO 是 `ORDER BY reviewed_at_utc ASC LIMIT :limit`，同样数据会
+     * 返回最早两行（rating 1、2），与 `optimizeSchedulingParameters` 的
+     * “most recent window”口径相反——这正是本用例要消灭的失败。
+     */
+    @Test
+    fun recentReviewLogWindowKeepsTheNewestRowsInAscendingOrder() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val port = StudyDatabaseFactory.openInMemory(context)
+        try {
+            seedContentChain(port)
+            port.recordReviewLogEntries(
+                listOf(
+                    reviewLogRow(at = 1_000L, rating = 1, sourceId = "attempt-window-oldest"),
+                    reviewLogRow(at = 2_000L, rating = 2, sourceId = "attempt-window-middle"),
+                    reviewLogRow(at = 3_000L, rating = 3, sourceId = "attempt-window-newest"),
+                ),
+            )
+
+            val samples = port.readReviewLogSamples("learner:local", limit = 2)
+
+            assertEquals(2, samples.size)
+            // 最新两行（2s、3s），不是最早两行（1s、2s）。
+            assertEquals(
+                listOf(2_000L, 3_000L),
+                samples.map { it.reviewedAtEpochMillis },
+            )
+            // 顺序仍是升序（内层 DESC 取窗、外层 ASC 返回）。
+            assertEquals(listOf(2, 3), samples.map { it.rating })
+        } finally {
+            port.close()
+        }
+    }
+
+    private fun reviewLogRow(at: Long, rating: Int, sourceId: String): ReviewLogEntry = ReviewLogEntry(
+        learnerId = "learner:local",
+        practiceUnitId = "unit-pseudo-test",
+        rating = rating,
+        deltaTDays = 1.0,
+        durationMs = 30_000,
+        reviewedAtEpochMillis = at,
+        sourceKind = "SELF_REPORT",
+        sourceId = sourceId,
+        evidenceWeight = 0.8,
+        schedulingEligible = true,
+        timeBucket = "MORNING",
+        state = 2,
+        recordedAtEpochMillis = at,
+    )
+
+    /**
      * The pseudo binding foreign-keys onto practice_unit, which chains up to
      * problem_revision and problem; seed the minimal content chain first.
      */

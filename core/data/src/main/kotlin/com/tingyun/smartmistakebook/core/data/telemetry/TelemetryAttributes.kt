@@ -5,6 +5,8 @@ package com.tingyun.smartmistakebook.core.data.telemetry
  * 这些枚举的 `wireName` 是批次 JSON 中唯一允许出现的属性值。
  */
 enum class TelemetryStage(val wireName: String) {
+    /** 首次/升级后知识库安装（解析 + 调和）；与检索阶段共用 `kb_stage_duration_ms`。 */
+    INSTALL("install"),
     FEATURE_EXTRACT("feature_extract"),
     SQL_RECALL("sql_recall"),
     DENSE_ENCODE("dense_encode"),
@@ -23,6 +25,8 @@ enum class TelemetryOutcome(val wireName: String) {
 }
 
 enum class TelemetryTrigger(val wireName: String) {
+    /** 知识库安装不是学生查询；单独一档，避免把安装耗时混进 tutor/review。 */
+    INSTALL("install"),
     TUTOR("tutor"),
     REVIEW("review"),
     PREDISCLOSURE("predisclosure"),

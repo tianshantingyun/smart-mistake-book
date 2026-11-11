@@ -16,7 +16,10 @@ import android.print.PrintAttributes
 import android.print.PrintDocumentAdapter
 import android.print.PrintDocumentInfo
 import androidx.core.content.FileProvider
+import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcInjectionException
+import com.tingyun.smartmistakebook.core.model.pdf.PdfAigcInjector
 import java.io.BufferedInputStream
+import java.io.ByteArrayOutputStream
 import java.io.Closeable
 import java.io.File
 import java.io.FileInputStream
@@ -255,8 +258,16 @@ internal object PreparedPdfPrintWriter {
                         }
                     }
                     if (!cancellationSignal.isCanceled) {
+                        // KD-84：部分页子集必须保留 prepared 的文档级 `/AIGC`。先缓冲成字节，
+                        // 按原产物的同一份 JSON 重注入，再一次性写出——逐页重绘的新 PdfDocument
+                        // 本身只有 Skia /Info，Info 字典不随页内容复制。
+                        val subsetBytes = ByteArrayOutputStream().use { buffer ->
+                            document.writeTo(buffer)
+                            buffer.toByteArray()
+                        }
+                        val labeled = relabelSubset(prepared, subsetBytes)
                         FileOutputStream(destination.fileDescriptor).use { output ->
-                            document.writeTo(output)
+                            output.write(labeled)
                             output.flush()
                         }
                     }
@@ -266,6 +277,25 @@ internal object PreparedPdfPrintWriter {
             }
         } finally {
             source.close()
+        }
+    }
+
+    /**
+     * KD-84：把已经写在 prepared 产物上的文档级 `/AIGC` 原样重注入到部分页子集。
+     *
+     * 消灭的失败：同一份内容整份打印带机器可读隐式标识，学生只打印选中页后输出物却失去它。
+     * 未打标的 prepared（纯用户内容）返回原字节——不把用户内容误标成 AI 生成。
+     * 打标产物读不回或注入失败即抛错（打印适配器转成写失败），不产出无标识的半成品。
+     */
+    internal fun relabelSubset(prepared: PreparedMistakePdf, subsetBytes: ByteArray): ByteArray {
+        val metadataJson = prepared.aigcMetadataJson ?: return subsetBytes
+        if (subsetBytes.size.toLong() > MistakePdfExportLimits.MAX_PDF_BYTES) {
+            throw MistakePdfExportException(MistakePdfExportFailure.PDF_SIZE_LIMIT_EXCEEDED)
+        }
+        return try {
+            PdfAigcInjector().inject(subsetBytes, metadataJson)
+        } catch (failure: PdfAigcInjectionException) {
+            throw MistakePdfExportException(MistakePdfExportFailure.GENERATED_PDF_INVALID, failure)
         }
     }
 

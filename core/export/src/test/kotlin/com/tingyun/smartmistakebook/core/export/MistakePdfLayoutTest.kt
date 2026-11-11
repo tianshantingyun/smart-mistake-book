@@ -121,6 +121,7 @@ class MistakePdfLayoutTest {
                 documentTitle = null,
                 blocks = listOf(MistakePdfBlock.Paragraph(id = "p1", text = "题目")),
                 questionDocumentSha256 = "0".repeat(64),
+                hasModelParsedText = false,
                 inputSha256 = "1".repeat(64),
                 layout = MistakePdfLayout(marginPt = 100),
             )

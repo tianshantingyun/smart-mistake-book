@@ -478,14 +478,14 @@ class BackupRestoreInstrumentedTest {
     }
 
     /**
-     * 68 旧包（图生成审计表还不存在）恢复后必须由 Room 迁移到 69：旧题原样保留，两张新表
-     * 建出来且为空。
+     * 68 旧包（图生成审计表与视觉四表都还不存在）恢复后必须由 Room 迁移到**当前版本**
+     * （`SmbkSelectionPlan.SCHEMA_VERSION`，现为 70）：旧题原样保留，新表建出来且为空。
      *
      * 这是 T5 与 T1a 的接缝用例：迁移没注册、或恢复只在验证副本上迁移而没落到实际库上，
-     * 这个用例会直接失败。旧包没有 attempt 行，所以恢复前的资产闭合不受影响。
+     * 这个用例会直接失败。旧包没有 attempt/视觉行，所以恢复前的资产闭合不受影响。
      */
     @Test
-    fun schema68ArchiveRestoresAndMigratesTo69() = runBlocking {
+    fun schema68ArchiveRestoresAndMigratesToCurrentVersion() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val sourceName = "schema-68-source-${System.nanoTime()}.db"
         val backupDirectory = File(context.filesDir, "backup-schema-68").apply { mkdirs() }
@@ -587,7 +587,7 @@ class BackupRestoreInstrumentedTest {
             try {
                 assertEquals(
                     "68 旧包恢复后必须由 Room 迁移到当前版本",
-                    69,
+                    SmbkSelectionPlan.SCHEMA_VERSION,
                     restored.readDatabaseVersion(),
                 )
                 assertEquals("旧题必须保留", 1, restored.countMistakes())

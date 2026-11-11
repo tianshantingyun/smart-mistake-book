@@ -36,6 +36,14 @@ import org.junit.Test
  * 负例取 **16385**（而非恰 16384）个 4 字节字符：16384 × 4 = 65536 字节恰在门的上界，
  * 门按 `≤`/`!(>)` 计含边界——16384 个 4 字节字符是**正例**（见 [theWorstCaseFourByteProgramAtTheAdvertisedBoundPassesBothGates]），
  * "16384 码点合法却被字节门拒"在新广告面下按定义不存在（这正是本修复消灭的失败）。
+ *
+ * 批次 38（KD-82 残余半边，2026-11-01）：imagePrompt 与 program 同一派生对齐——
+ * `maxLength = MAX_IMAGE_PROMPT_UTF8_BYTES / 4` = 1024 码点（本地 4096 字节门不动：
+ * `TutorToolLoop`/`FigureGenerationPolicy`/`TutorFigureGenerator` 三个执行点零改动）。
+ * 派生关系与 program 半边逐条镜像：schema 合法（≤1024 码点）⇒ UTF-8 ≤ 4×1024 = 4096 字节
+ * （含边界）⇒ 必过本地字节门；本地门拒绝的串（> 4096 字节）码点必 > 1024，schema 同样
+ * 不合法。新增三例（ASCII 上界正例 / 4 字节恰边界正例 / 超面负例 fail-closed）与 program
+ * 半边的三例逐一镜像；边界 37 例遗留的"imagePrompt 钉 4096"按本批裁定翻转为新派生面。
  */
 class ProgramSchemaMaxLengthAlignmentTest {
 
@@ -158,11 +166,13 @@ class ProgramSchemaMaxLengthAlignmentTest {
             "码点广告面 × 最坏 4 字节密度必须不越过本地字节门",
             programMaxLength * 4 <= FigureGenerationPolicy.MAX_PROGRAM_UTF8_BYTES,
         )
-        // 本批裁定只动 program：imagePrompt 的 4096 码点面原样（对 4096 字节门仍有最坏 4×
-        // 过度广告，残余按台账登记），不得被顺手改掉。
-        assertEquals(
-            FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES,
-            properties["imagePrompt"]!!.jsonObject["maxLength"]!!.jsonPrimitive.int,
+        // 批次 38（KD-82 残余半边）：imagePrompt 与 program 同一派生 ⌊4096/4⌋ = 1024——
+        // 码点语义下的字节安全上界；4096 字节门本身不动。
+        val imagePromptMaxLength = properties["imagePrompt"]!!.jsonObject["maxLength"]!!.jsonPrimitive.int
+        assertEquals(FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES / 4, imagePromptMaxLength)
+        assertTrue(
+            "imagePrompt 码点广告面 × 最坏 4 字节密度必须不越过本地字节门",
+            imagePromptMaxLength * 4 <= FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES,
         )
     }
 
@@ -211,6 +221,69 @@ class ProgramSchemaMaxLengthAlignmentTest {
         assertTrue(
             "拒绝信息必须按 UTF-8 字节计数：$message",
             message.contains("${FigureGenerationPolicy.MAX_PROGRAM_UTF8_BYTES} UTF-8 bytes"),
+        )
+    }
+
+    // ---- KD-82 残余半边（批次 38）：imagePrompt 与 program 同一派生 ----
+
+    /** imagePrompt 的码点广告面 = 字节门 ÷ 最坏 4 字节密度（与 program 半边同一派生）。 */
+    private val imagePromptSchemaMaxLength = FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES / 4
+
+    private fun figureImageArguments(imagePrompt: String): JsonObject = buildJsonObject {
+        put("terms", buildJsonArray { })
+        put("rationale", "图形是这道题的理解关键")
+        put("kind", "GENERATE_PROCESS")
+        put("description", "按提示词生成过程图")
+        put("method", "IMAGE_MODEL")
+        put("imageOperation", "GENERATE")
+        put("imagePrompt", imagePrompt)
+    }
+
+    @Test
+    fun aFullAsciiImagePromptAtTheAdvertisedBoundPassesSchemaAndTheLocalByteGate() {
+        // 正例：1024 个 ASCII 字符 = 1024 码点（= 广告面，schema 合法）
+        // = 1024 UTF-8 字节（远低于 4096 字节门）——schema 合法且本地门放行。
+        val imagePrompt = "a".repeat(imagePromptSchemaMaxLength)
+
+        assertEquals(imagePromptSchemaMaxLength, imagePrompt.length)
+        assertEquals(imagePromptSchemaMaxLength, figureUsageUtf8Bytes(imagePrompt))
+
+        val call = routeACall(figureImageArguments(imagePrompt = imagePrompt))
+        assertEquals(imagePrompt, call.figureImagePrompt)
+    }
+
+    @Test
+    fun theWorstCaseFourByteImagePromptAtTheAdvertisedBoundPassesBothGates() {
+        // 边界例（对齐的钉子）：1024 个 4 字节字符（U+1D54F）= 1024 码点（= 广告面，
+        // schema 合法）= 4096 UTF-8 字节，恰在字节门上界（门按含边界计）——
+        // "schema 合法 ⇒ 本地通过"在最坏非 ASCII 密度下仍成立。
+        val imagePrompt = "𝕏".repeat(imagePromptSchemaMaxLength)
+
+        assertEquals(imagePromptSchemaMaxLength, imagePrompt.codePointCount(0, imagePrompt.length))
+        assertEquals(FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES, figureUsageUtf8Bytes(imagePrompt))
+
+        val call = routeACall(figureImageArguments(imagePrompt = imagePrompt))
+        assertEquals(imagePrompt, call.figureImagePrompt)
+    }
+
+    @Test
+    fun anImagePromptPastTheAdvertisedBoundIsRejectedFailClosedWithTheByteCount() {
+        // 负例：1025 个 4 字节字符 = 1025 码点（> 广告面 1024——旧的 4096 码点广告面
+        // 曾把它当合法）= 4100 UTF-8 字节（> 4096 字节门）。本地门按字节拒绝且错误信息
+        // 带字节计数，schema 也不再广告这个串。
+        val imagePrompt = "𝕏".repeat(imagePromptSchemaMaxLength + 1)
+
+        assertEquals(imagePromptSchemaMaxLength + 1, imagePrompt.codePointCount(0, imagePrompt.length))
+        assertTrue(
+            "负例必须真实越过本地字节门",
+            figureUsageUtf8Bytes(imagePrompt) > FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES,
+        )
+
+        val rejected = runCatching { routeACall(figureImageArguments(imagePrompt = imagePrompt)) }
+        val message = requireNotNull(rejected.exceptionOrNull()?.message)
+        assertTrue(
+            "拒绝信息必须按 UTF-8 字节计数：$message",
+            message.contains("${FigureGenerationPolicy.MAX_IMAGE_PROMPT_UTF8_BYTES} UTF-8 bytes"),
         )
     }
 }

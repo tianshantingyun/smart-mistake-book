@@ -28,9 +28,10 @@ internal data class CanonicalSourceAssetRow(
 @Dao
 internal interface PendingCaptureDao {
     /**
-     * 孤儿候选 = **五类引用形态**都不指向它的规范资产行。
+     * 孤儿候选 = **六类引用形态**都不指向它的规范资产行。
      *
-     * 第五支是 4E WG-08 的图生成尝试产物（`figure_generation_attempt.output_asset_id`）。
+     * 第五支是 4E WG-08 的图生成尝试产物（`figure_generation_attempt.output_asset_id`）；
+     * 第六支是批次 30/D-01 的视觉快照预览（`tutor_visual_snapshot.preview_asset_id`）。
      * pin 策略写在这里，清理与备份都读同一份判定：
      * - `SUCCEEDED`：成功产物必须 pin；
      * - `RUNNING`：产物可能已在落盘后回填、终态还没写（进程被杀），按"可恢复"pin——
@@ -41,7 +42,7 @@ internal interface PendingCaptureDao {
      *   不能当孤儿回收。故这里刻意**不按 status 过滤**——引用是物理的，不是状态的。
      *
      * 批次 19 T2-5（I5 单源化）：查询文本整体取自
-     * [CanonicalAssetReferenceSites.FIND_UNREFERENCED_CANONICAL_ASSETS_SQL]——五站点谓词
+     * [CanonicalAssetReferenceSites.FIND_UNREFERENCED_CANONICAL_ASSETS_SQL]——六站点谓词
      * 只有那一处定义，备份裁剪器（`BackupSnapshotTrimmer`）的 I5 对拍由同一谓词生成。
      */
     @Query(CanonicalAssetReferenceSites.FIND_UNREFERENCED_CANONICAL_ASSETS_SQL)
@@ -51,7 +52,7 @@ internal interface PendingCaptureDao {
      * 全表资产行。**本身不含任何引用口径**——它与 [findUnreferencedCanonicalAssets] 相减
      * 得到的那一份才是"仍被引用"（见 `RoomStudyDatabase.readReferencedCanonicalAssets`）。
      *
-     * 这样引用口径仍然只有一处（上面那条五类 NOT EXISTS，含图生成尝试产物）：清理认领与
+     * 这样引用口径仍然只有一处（上面那条六类 NOT EXISTS，含图生成尝试产物与视觉预览）：清理认领与
      * 备份成包读的是同一个判定的两侧，将来新增引用形态时不会出现"清理不删、备份却漏收"的
      * 半截口径。
      */

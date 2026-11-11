@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.data.study.FakeStudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeRelationRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
+import com.tingyun.smartmistakebook.core.database.port.KnowledgeRecallResult
 import com.tingyun.smartmistakebook.core.domain.KnowledgeBaseAvailability
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCodeRole
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -198,6 +199,6 @@ class RoomTutorKnowledgeContextLoaderTest {
             searchFeatures: Set<String>,
             limit: Int,
             queryText: String?,
-        ): List<KnowledgeNodeSeedRecord> = throw IllegalStateException("boom")
+        ): KnowledgeRecallResult = throw IllegalStateException("boom")
     }
 }

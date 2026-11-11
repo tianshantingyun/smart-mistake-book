@@ -11,6 +11,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -128,6 +129,63 @@ class OpenAiCaptureAssessmentAdapterTest {
 
         assertEquals(21, output.assessment.questionRegions.size)
         assertEquals(listOf(CapturePageRelation.UNSURE), output.assessment.followingPageRelations)
+    }
+
+    /**
+     * 批次 51 AUD-08：Chat Completions 只有 `json_object`（没有 `json_schema`），提示词是
+     * 唯一的键约束手段；解析器白名单仍是硬约束，两者不可互换。
+     */
+    @Test
+    fun `single page prompt pins the five assessment wire keys and forbids type`() {
+        val prompt = OpenAiModelTaskAdapters.prompt(assessmentInput(userHint = null))
+
+        CAPTURE_ASSESSMENT_WIRE_KEYS.forEach { key ->
+            assertTrue("提示词缺少顶层键 $key", prompt.contains(key))
+        }
+        assertTrue(prompt.contains("不得返回type"))
+        assertTrue(prompt.contains("其他键"))
+    }
+
+    @Test
+    fun `single page prompt ships a shape example`() {
+        val prompt = OpenAiModelTaskAdapters.prompt(assessmentInput(userHint = null))
+
+        // DeepSeek JSON Output：提示词必须出现 json 并给出期望格式的示例。
+        assertTrue(prompt.contains("示例"))
+        assertTrue(prompt.contains("\"decision\":\"SPLIT\""))
+        assertTrue(prompt.contains("\"questionRegions\""))
+    }
+
+    @Test
+    fun `single page prompt states the six split rules and region bounds`() {
+        val prompt = OpenAiModelTaskAdapters.prompt(assessmentInput(userHint = null))
+
+        assertTrue("题号枚举", prompt.contains("题号"))
+        assertTrue("多栏", prompt.contains("双栏"))
+        assertTrue("边缘裁切", prompt.contains("边缘"))
+        assertTrue("整页框/重叠上限", prompt.contains("80%"))
+        assertTrue("区域数量契约", prompt.contains("2到12"))
+        assertTrue("单题页 PASS", prompt.contains("整页只有一道题时返回PASS"))
+    }
+
+    /**
+     * 回归钉子：`type` 键的修复只在提示词侧（不把请求的 response_format 抄进结果）；
+     * 解析器必须继续整轮拒收，否则白名单会退化成「静默接受任意键」。
+     */
+    @Test
+    fun `top level type key still rejects the whole response`() {
+        val payload = buildJsonObject {
+            put("type", "json_object")
+            put("decision", "PASS")
+            put("issues", buildJsonArray { })
+            put("suggestedActions", buildJsonArray { })
+            put("questionRegions", buildJsonArray { })
+            put("followingPageRelations", buildJsonArray { })
+        }
+
+        assertThrows(InvalidModelResponseException::class.java) {
+            OpenAiModelTaskAdapters.parse(payload, assessmentInput(userHint = null), "fixture-v1")
+        }
     }
 
     private fun relationAssessmentInput(userHint: String?) = CaptureAssessmentInput(

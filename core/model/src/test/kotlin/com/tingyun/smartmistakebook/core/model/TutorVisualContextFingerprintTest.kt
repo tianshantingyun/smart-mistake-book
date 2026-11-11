@@ -60,9 +60,12 @@ class TutorVisualContextFingerprintTest {
     )
 
     @Test
-    fun theRequestSchemaIsEighteen() {
-        assertEquals(18, ModelTaskRequest.CURRENT_SCHEMA_VERSION)
+    fun theRequestSchemaIsNineteenAfterThePaperEditKind() {
+        // 批次 40 / WS4：新增 PaperEditInput（新 sealed 子类型）把请求 schema 从 18 推到 19。
+        // 这是**重钉**，不是放宽：visual context 仍停在 18（它引人的形状没有变化）。
+        assertEquals(19, ModelTaskRequest.CURRENT_SCHEMA_VERSION)
         assertEquals(18, ModelTaskRequest.TUTOR_VISUAL_CONTEXT_SCHEMA_VERSION)
+        assertEquals(19, ModelTaskRequest.PAPER_EDIT_SCHEMA_VERSION)
     }
 
     @Test

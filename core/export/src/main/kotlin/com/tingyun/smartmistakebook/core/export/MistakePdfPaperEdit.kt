@@ -30,6 +30,16 @@ class MistakePdfPaperEdit private constructor(
     val questions: List<MistakePdfPaperQuestion>,
     /** 选题时因"暂时不能导出"被略过的条数（如实展示，不静默吞掉）。 */
     val omittedCount: Int = 0,
+    /**
+     * 模型改卷是否把**模型产出的文字**写进了这份卷面（KD-85）。
+     *
+     * 只由 [withModelTextApplied] 置位——生产唯一调用点是 `TutorPaperEditApplier`，且仅在
+     * 真正写入了非空模型文字的文本命令上调用；手工编辑方法（[withQuestionTitle] 等）**绝不**
+     * 置位，否则会把学生自己的修改伪标成 AI 生成（《办法》第十条）。
+     *
+     * 它是"这份卷面副本"的来源事实，不是错题条目的属性：不落库、不写回题面文档。
+     */
+    val modelTextApplied: Boolean = false,
 ) {
     init {
         require(questions.isNotEmpty()) { "A paper edit needs at least one question" }
@@ -198,6 +208,28 @@ class MistakePdfPaperEdit private constructor(
         it.copy(note = note?.takeIf(String::isNotBlank))
     }
 
+    /**
+     * 标记这份卷面副本含**模型写入的文字**（KD-85）。
+     *
+     * 生产唯一调用点是 `TutorPaperEditApplier`：它只在真正的文本命令（标题/段落/选项/备注）
+     * 成功改变了卷面时调用。**手工编辑路径不得调用**——学生自己改的字被标成 AI 生成违反
+     * 《办法》第十条；那条路径因此不经过本方法，`toDraft()` 也只在
+     * `sourceInput.hasModelParsedText || modelTextApplied` 时才判为模型文本。
+     */
+    fun withModelTextApplied(): MistakePdfPaperEdit =
+        if (modelTextApplied) {
+            this
+        } else {
+            MistakePdfPaperEdit(
+                layout = layout,
+                sourceInputs = sourceInputs,
+                sourceQuestions = sourceQuestions,
+                questions = questions,
+                omittedCount = omittedCount,
+                modelTextApplied = true,
+            )
+        }
+
     /** 生成可入队的卷面草稿；未编辑时与正常批量导出逐位一致。 */
     fun toDraft(): MistakePaperDraft {
         require(!hasBlankText) { "A paper with blank required text cannot be exported" }
@@ -249,7 +281,9 @@ class MistakePdfPaperEdit private constructor(
             },
             layout = layout,
             userNote = sourceInput.userNote,
-            hasModelParsedText = sourceInput.hasModelParsedText,
+            // KD-85：来源本身含模型解析文本，或这次卷面编辑写入了模型文字，任一成立即判为
+            // 模型文本——模型改写后的文字进入导出文件时必须与模型解析文本同一判据。
+            hasModelParsedText = sourceInput.hasModelParsedText || modelTextApplied,
             sourceRevisionId = sourceInput.sourceRevisionId,
             sourceImages = sourceInput.sourceImages,
             artifactRole = sourceInput.artifactRole,
@@ -285,6 +319,8 @@ class MistakePdfPaperEdit private constructor(
             sourceQuestions = sourceQuestions,
             questions = next,
             omittedCount = omittedCount,
+            // 来源位必须随每一次结构编辑继续前进：删/加/调序不能把它洗回 false。
+            modelTextApplied = modelTextApplied,
         )
 
     companion object {

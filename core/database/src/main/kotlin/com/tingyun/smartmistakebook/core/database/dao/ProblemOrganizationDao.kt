@@ -405,6 +405,31 @@ internal interface ProblemOrganizationDao {
     @Query("SELECT * FROM knowledge_node WHERE knowledge_node_id IN (:ids)")
     suspend fun readKnowledgeNodesByIds(ids: Set<String>): List<KnowledgeNodeEntity>
 
+    /**
+     * 召回的父节点（「matched 优先、父 topic 随后」里的后半段）：**与召回 SQL 同一作用域**。
+     *
+     * 消灭的失败（D-3 批次 50 实测）：召回结果的子节点走
+     * [searchSubjectKnowledgeRecallCandidates]（`subject + 可信 + 非 RETIRED` 三道过滤），
+     * 父节点却走历史解释路径 [readKnowledgeNodesByIds]（**刻意不过滤**）——已退役主题、
+     * 模型候选主题会随 active 子节点一起被披露给上层。修复前仪器化用例实测
+     * ids 含 `topic:retired` / `topic:candidate`。
+     *
+     * 只用于当前工作路径；历史解释（旧标签、掌握度）仍用 [readKnowledgeNodesByIds]。
+     */
+    @Query(
+        """
+        SELECT * FROM knowledge_node
+        WHERE knowledge_node_id IN (:ids)
+          AND subject = :subject
+          AND verification_status IN ('CURATED', 'SOURCE_GROUNDED', 'USER_CONFIRMED')
+          AND status != 'RETIRED'
+        """,
+    )
+    suspend fun readRecallParentKnowledgeNodes(
+        ids: Set<String>,
+        subject: String,
+    ): List<KnowledgeNodeEntity>
+
     // ---- 内容调和用的读/写面（见 BundledKnowledgeBaseInstaller）----
 
     /**

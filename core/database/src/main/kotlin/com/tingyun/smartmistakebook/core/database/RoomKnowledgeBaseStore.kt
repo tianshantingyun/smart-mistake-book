@@ -281,9 +281,16 @@ internal class RoomKnowledgeBaseStore(
         val rows = dao.searchSubjectKnowledgeRecallCandidates(subject, searchFeatures, limit)
         val matched = rerankMatchOrder(subject, queryText, rows)
         val matchedIds = matched.mapTo(hashSetOf(), KnowledgeNodeEntity::knowledgeNodeId)
-        val parents = dao.readKnowledgeNodesByIds(
-            matched.mapNotNullTo(hashSetOf(), KnowledgeNodeEntity::parentKnowledgeNodeId) - matchedIds,
-        )
+        // 父节点是**当前工作**上下文：与召回 SQL 同一作用域（subject + 可信 + 非 RETIRED）。
+        // 不能用 readKnowledgeNodesByIds——那是历史解释路径，会把退役/模型候选父节点带回来
+        // （D-3 批次 50 仪器化用例先红：ids 含 topic:retired / topic:candidate）。
+        val parentIds =
+            matched.mapNotNullTo(hashSetOf(), KnowledgeNodeEntity::parentKnowledgeNodeId) - matchedIds
+        val parents = if (parentIds.isEmpty()) {
+            emptyList()
+        } else {
+            dao.readRecallParentKnowledgeNodes(parentIds, subject)
+        }
         return KnowledgeRecallResult(
             candidates = (matched + parents)
                 .distinctBy(KnowledgeNodeEntity::knowledgeNodeId)

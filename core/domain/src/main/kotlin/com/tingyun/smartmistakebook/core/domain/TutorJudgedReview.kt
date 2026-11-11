@@ -22,7 +22,10 @@ data class TutorJudgedReviewSettlement(
     val requestId: String,
     /** 复习会话 id（不是讲题会话 id）。 */
     val sessionId: String,
-    /** 复习会话的版本号，用来锁定队列里被结算的那一项。 */
+    /**
+     * 复习会话的写入版本（写事务 CAS 用），**不是队列序号**：undo 会让版本继续递增而
+     * `currentOrdinal` 回退，两者因此解耦；被结算的那一项由 [practiceUnitId] 在计划里定位。
+     */
     val expectedStateVersion: Long,
     val practiceUnitId: String,
     val presentationId: String,

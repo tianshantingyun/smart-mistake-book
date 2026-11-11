@@ -77,7 +77,7 @@ class KnowledgeSearchIndexCompletenessInstrumentedTest {
             searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion(text),
             limit = 64,
             queryText = text,
-        ).map(KnowledgeNodeSeedRecord::knowledgeNodeId)
+        ).candidates.map(KnowledgeNodeSeedRecord::knowledgeNodeId)
 
     @Test
     fun firstColdRecallRunsTheGateAndLaterRecallsIssueNoVerificationQueries() = runBlocking {
@@ -155,18 +155,27 @@ class KnowledgeSearchIndexCompletenessInstrumentedTest {
     }
 
     /**
-     * **canary**：把失效接线摘掉（`invalidationEnabled=false`，测试开关）重跑同一场景——
-     * 新确认的节点在召回里**不可见**。它把"主用例的绿色来自失效接线"变成可复跑的断言、
-     * 而不是一次手工验证；实现若把失效改成空操作（或接线被摘），canary 先红。
+     * **canary（B35 后语义更新，2026-11-07）**：把失效接线摘掉（`invalidationEnabled=false`，
+     * 测试开关）重跑同一场景。
+     *
+     * 改前前提：整理确认**不建特征行**、靠读时自愈补——摘掉失效接线，缓存带着"完整"旧判定
+     * 放行，新确认节点从此不可见（canary 断言"不可见"）。B35 §1.2 **消灭了这个前提**：
+     * 确认路径在同一写事务内补写特征行（`insertKnowledgeSearchFeatures`），"确认后无特征行
+     * 靠读路径补"的失败不复存在——所以"摘掉接线 ⇒ 不可见"不再是真命题。
+     *
+     * 现在钉的是新机制的**成因**：即使失效接线被摘（最不利条件），新确认节点仍**立即可见**
+     * ——可见性由 §1.2 的同事务特征写入承载，不依赖失效接线。若 §1.2 的同事务写入被摘
+     * （回归），本用例与主用例一起红。
      */
     @Test
-    fun missingInvalidationWireCanaryHidesTheNewlyConfirmedNode() = runBlocking {
+    fun confirmedNodeStaysRecallableEvenWithTheInvalidationWireRemoved() = runBlocking {
         val store = open(KnowledgeSearchIndexCompleteness(invalidationEnabled = false))
 
         val ids = confirmationScenario(store)
 
-        assertFalse(
-            "canary 失效：撤掉失效接线后新节点仍可见——主用例的绿色不再能证明接线的存在；ids=$ids",
+        assertTrue(
+            "B35 §1.2 后：摘掉失效接线新确认节点仍必须可见（可见性由同事务特征写入承载，" +
+                "不再依赖读路径自愈/失效接线）；ids=$ids",
             ids.contains(CONFIRMED_BETA_ID),
         )
         assertTrue(
@@ -329,14 +338,24 @@ class KnowledgeSearchIndexCompletenessInstrumentedTest {
             dao.countIndexedKnowledgeNodesBySubject("MATH"),
         )
 
+        // B35 读路径只读化：召回只核验（下发计数标签、判不完整），不再就地补缺。
         val recalled = recall(store, "判断函数单调性")
-        assertTrue(
-            "门被 I>R 骗过时这个已审校节点永远不补索引、不可召回；ids=$recalled",
+        assertFalse(
+            "读路径不再补缺：门判不完整时召回不写库、缺失节点此刻不可见；ids=$recalled",
             recalled.contains(REVIEWED_ID),
         )
         assertTrue(
-            "走的是计数门并落到只补缺：计数标签必须被下发；实际=${cache.issuedVerificationQueries.toList()}",
+            "走的是计数门：计数标签必须被下发；实际=${cache.issuedVerificationQueries.toList()}",
             cache.issuedVerificationQueries.contains(SearchIndexVerificationQueries.COUNT_INDEXED),
+        )
+
+        // 写侧修复的唯一落点 = 导入路径启动自愈（B35 §1.1-2）：同版本缺 ⇒ 事务内只补缺，
+        // 补完之后这个已审校节点必须可召回——I>R 仍骗不过门（计数排掉未审校行）。
+        store.healKnowledgeSearchIndex("MATH")
+        val healed = recall(store, "判断函数单调性")
+        assertTrue(
+            "自愈补缺后这个已审校节点必须可召回；ids=$healed",
+            healed.contains(REVIEWED_ID),
         )
     }
 

@@ -45,9 +45,29 @@ internal object KnowledgeContextRetriever {
         relations: List<KnowledgeNodeRelationRecord> = emptyList(),
         questionText: String,
         limit: Int,
-    ): List<KnowledgeNodeSeedRecord> {
+    ): List<KnowledgeNodeSeedRecord> = selectDetailed(candidates, relations, questionText, limit).nodes
+
+    /**
+     * [select] 的同序实现，额外返回“是否发生精排零命中/主题回退”。
+     *
+     * 只暴露选择结果的事实，不改选择规则：`nodes` 与旧 [select] 逐元素相同，供遥测在
+     * 不改变注入语义的前提下记录空结果率（R5 §1.1 的 `no_relevant_hit` / `fallback`）。
+     */
+    internal fun selectDetailed(
+        candidates: List<KnowledgeNodeSeedRecord>,
+        relations: List<KnowledgeNodeRelationRecord> = emptyList(),
+        questionText: String,
+        limit: Int,
+    ): KnowledgeSelection {
         require(limit > 0) { "Knowledge context limit must be positive" }
-        if (candidates.isEmpty()) return emptyList()
+        if (candidates.isEmpty()) {
+            return KnowledgeSelection(
+                nodes = emptyList(),
+                hadCandidates = false,
+                rankedAtomsEmpty = false,
+                fellBackToTopic = false,
+            )
+        }
 
         val trusted = candidates.filter { node -> node.verificationStatus in TRUSTED_STATUSES }
         val byId = trusted.associateBy(KnowledgeNodeSeedRecord::knowledgeNodeId)
@@ -71,11 +91,17 @@ internal object KnowledgeContextRetriever {
             .toList()
 
         if (rankedAtoms.isEmpty()) {
-            return trusted.asSequence()
+            val topics = trusted.asSequence()
                 .filter { it.granularity == KnowledgeNodeGranularity.TOPIC.name }
                 .sortedWith(compareBy(KnowledgeNodeSeedRecord::canonicalName, KnowledgeNodeSeedRecord::knowledgeNodeId))
                 .take(limit)
                 .toList()
+            return KnowledgeSelection(
+                nodes = topics,
+                hadCandidates = true,
+                rankedAtomsEmpty = true,
+                fellBackToTopic = true,
+            )
         }
 
         val selected = LinkedHashMap<String, KnowledgeNodeSeedRecord>(limit)
@@ -92,7 +118,12 @@ internal object KnowledgeContextRetriever {
                 additions.forEach { selected[it.knowledgeNodeId] = it }
             }
         }
-        return selected.values.toList()
+        return KnowledgeSelection(
+            nodes = selected.values.toList(),
+            hadCandidates = true,
+            rankedAtomsEmpty = false,
+            fellBackToTopic = false,
+        )
     }
 
     private fun relevance(
@@ -137,6 +168,13 @@ internal object KnowledgeContextRetriever {
         }
         return false
     }
+
+    internal data class KnowledgeSelection(
+        val nodes: List<KnowledgeNodeSeedRecord>,
+        val hadCandidates: Boolean,
+        val rankedAtomsEmpty: Boolean,
+        val fellBackToTopic: Boolean,
+    )
 
     private data class ScoredNode(val node: KnowledgeNodeSeedRecord, val score: Int)
 

@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.study
 
+import com.tingyun.smartmistakebook.core.data.model.FIGURE_METHOD_UNAVAILABLE
+import com.tingyun.smartmistakebook.core.data.model.JS_FIGURE_UNAVAILABLE_SUMMARY
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureGenerator
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureRequest
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureResult
@@ -23,6 +25,7 @@ import com.tingyun.smartmistakebook.core.model.TutorToolName
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -251,5 +254,44 @@ class TutorFigureProposalExecutionTest {
         )
 
         assertEquals(FigureGenerationStatus.CACHED, requireNotNull(execution.figure).status)
+    }
+
+    /**
+     * A-02 第二道门：直调 `runTraced`（绕过轮次层）的 `method=JS` 也必须在执行器层
+     * fail-closed——不得落进图像生成器（那是一次真实远程派发 + 一条 method=IMAGE_MODEL
+     * 的假痕迹）。
+     */
+    @Test
+    fun aJavascriptCallIsRejectedByTheExecutorBeforeAnyGeneratorDispatch() = runBlocking {
+        var generatorCalls = 0
+        val runner = RoomTutorToolRunner(
+            FigurePort(draft(sourceSheet()), sessionRecord("draft-figure")),
+            MutableStateFlow(KnowledgeBaseAvailability.Ready),
+            TutorFigureGenerator {
+                generatorCalls += 1
+                TutorFigureResult(
+                    figureId = "should-not-exist",
+                    status = TutorFigureStatus.GENERATED,
+                )
+            },
+        )
+
+        val execution = runner.runTraced(
+            TutorToolCall(
+                tool = TutorToolName.GENERATE_FIGURE,
+                rationale = "图形是这道题的理解关键",
+                figureKind = TutorFigureKind.GENERATE_PROCESS,
+                figureDescription = "画一条数轴，标出导数为正、负的区间",
+                figureMethod = FigureGenerationMethod.JS,
+                figureProgram = "export default { draw() {} }",
+            ),
+            context(),
+        )
+
+        assertEquals("JS 不得触达图像生成器", 0, generatorCalls)
+        assertFalse(execution.outcome.ok)
+        assertEquals(FIGURE_METHOD_UNAVAILABLE, execution.outcome.errorKind)
+        assertEquals(JS_FIGURE_UNAVAILABLE_SUMMARY, execution.outcome.summaryMarkdown)
+        assertNull("执行器层 fail-closed 不产生图像痕迹", execution.figure)
     }
 }

@@ -56,7 +56,10 @@ class DenseVectorAssetTest {
         // 三方一致（批次28 dense.log 的 post-sha 表）。上一代（批次13 v16）为 3,245。
         // 2026-10-31 批次30 promote v24：节点数不变（3,280），资产按新包重打 44,121 行
         // （3,280 + 40,841 别名；v24 只改内容/别名，未增删节点）——本断言值不变。
-        assertEquals(3280, asset.nodeCount)
+        // 2026-11-10 批次51 3D 改绑：40 条改绑 + 3 条撤料 + 1 个题干孤点删除 ⇒ 3,280 → 3,279；
+        // 资产按新包重打 44,117 行（3,279 + 40,838 别名）。量源 = 旁车 corpus.atomicNodes
+        // 实测 3,279、资产头 count 44,117 三方一致。
+        assertEquals(3279, asset.nodeCount)
     }
 
     @Test
@@ -118,7 +121,9 @@ class DenseVectorAssetTest {
         // 2026-10-31 批次28 promote v23 再重钉：3,245 → 3,280（量源 = 随批重生成的
         // dense-scan-reference.txt 逐 [node] 行实测合计 3,280，4 条 scan 的 514/1,019/856/891
         // 之和）。上一代（批次13 v16）为 3,245。
-        assertEquals("节点行总数变了", 3280, scans.sumOf { it.expected.size })
+        // 2026-11-10 批次51 3D 改绑后重钉：3,280 → 3,279（量源 = 随批重生成的
+        // dense-scan-reference.txt 逐 [node] 行实测合计 3,279）。
+        assertEquals("节点行总数变了", 3279, scans.sumOf { it.expected.size })
         for (scan in scans) {
             val scores = asset.nodeScores(scan.query, scan.subject.lowercase())
             assertEquals("scan#${scan.index} 学科=${scan.subject} 的节点数", scan.expected.size, scores.size)

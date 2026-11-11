@@ -1685,6 +1685,11 @@ class FullMigrationMatrixInstrumentedTest {
                     "failure_message",
                     "created_at_epoch_millis",
                     "finished_at_epoch_millis",
+                    // 批次 50 设备全量：`MistakeExportRecordEntity` 在 T10 组导出后新增这两列
+                    //（schema 75 的 75.json 逐位一致），旧硬编码列表停在 v61 形状 → 断言必红。
+                    // 这里只把期望列表同步到当前实体（等值关系不变，未放宽）。
+                    "group_id",
+                    "artifact_role",
                 ),
                 columnNames(connection, "mistake_export_record"),
             )

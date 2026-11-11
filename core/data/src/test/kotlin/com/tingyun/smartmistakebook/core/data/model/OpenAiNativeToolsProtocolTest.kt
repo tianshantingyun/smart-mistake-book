@@ -321,6 +321,24 @@ class OpenAiNativeToolsProtocolTest {
     }
 
     @Test
+    fun nativeMasteryReadPreservesTheExtendedResultRequest() {
+        val output = OpenAiModelProtocol.parseResponse(
+            responseBody = toolCallEnvelope(
+                """
+                {"role":"assistant","content":null,
+                 "tool_calls":[{"id":"call_mastery","type":"function",
+                   "function":{"name":"MASTERY_READ",
+                     "arguments":"{\"terms\":[\"K1\"],\"rationale\":\"读取更完整的掌握情况\",\"extendedResult\":true}"}}]}
+                """.trimIndent(),
+            ),
+            input = respondInput(),
+            modelVersion = "test-model-v1",
+        ) as TutorToolRequestsOutput
+
+        assertTrue("原生路由必须保留模型申请的扩展结果预算", output.calls.single().extendedResult)
+    }
+
+    @Test
     fun contentNullNativeToolCallsDeriveLobbyIntentFromKind() {
         // 标准原生 tool_calls：content=null，无意图信封 → 从 dispatch kind 推导。
         val envelope = toolCallEnvelope(

@@ -19,7 +19,10 @@ import com.tingyun.smartmistakebook.core.model.LearningEvidenceDirection
  * reason. Not a mechanical gate.
  */
 internal const val KC_DROP_MASTERY_THRESHOLD = 0.6
-internal const val KC_DROP_WEIGHT = 2.5
+
+// `KC_DROP_WEIGHT` 已迁入 `ReviewScoringWeights.DEFAULT_KC_DROP_WEIGHT`（批次 49 P1-9 seam，
+// 预注册 §5.1 / §11）：权重表必须单源，否则"改一处、另一处照旧跑"。
+// 判据阈值 `KC_DROP_MASTERY_THRESHOLD` 不是权重，留在原处。
 
 internal fun kcMasteryDropPressure(
     masteryStates: List<com.tingyun.smartmistakebook.core.model.KnowledgeMasteryState>,

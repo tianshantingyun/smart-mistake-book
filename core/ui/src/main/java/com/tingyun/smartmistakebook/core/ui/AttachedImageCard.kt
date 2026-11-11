@@ -205,6 +205,14 @@ fun AttachedImageCard(
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.weight(1f).padding(horizontal = 6.dp),
             )
+            // 显式角标（《办法》第四条）：重绘图与过程图都是模型生成图；标在卡头，
+            // 收起状态下也可见，不依赖用户展开图片才看到。
+            AiContentBadge(
+                text = AI_GENERATED_LABEL,
+                modifier = Modifier
+                    .padding(end = 6.dp)
+                    .testTag("attached_image_ai_label_${image.imageId}"),
+            )
             Icon(
                 imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                 contentDescription = if (expanded) "收起图" else "展开图",
@@ -333,6 +341,13 @@ fun GeneratedFigureCard(
                 color = InkSecondary,
                 style = MaterialTheme.typography.labelSmall,
                 modifier = Modifier.padding(horizontal = 6.dp),
+            )
+            // 显式角标：GENERATE_FIGURE 的产物是模型生成的图片，卡头常驻标识。
+            AiContentBadge(
+                text = AI_GENERATED_LABEL,
+                modifier = Modifier
+                    .padding(end = 6.dp)
+                    .testTag("generated_figure_ai_label_$assetId"),
             )
             Icon(
                 imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,

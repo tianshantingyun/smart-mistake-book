@@ -125,7 +125,7 @@ class GoldenRetrievalInstrumentedTest {
                 subject = probe.subject,
                 searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion(probe.query),
                 limit = SCORED_TOP_K,
-            ).map { DenseRecallCandidate(it.knowledgeNodeId, 1) }
+            ).candidates.map { DenseRecallCandidate(it.knowledgeNodeId, 1) }
             assertTrue("探测用候选为空，无法判断稠密腿是否可用", probeCandidates.isNotEmpty())
             val probeOrder = activeReranker.order(probe.subject, probe.query, probeCandidates)
             assertNotNull(
@@ -172,7 +172,7 @@ class GoldenRetrievalInstrumentedTest {
                         // RoomMistakeOrganizationRepository / RoomTutorToolRunner）；不传 ⇒
                         // store 按契约走词面次序，本测试就不是"融合路由"了。
                         queryText = case.query,
-                    )
+                    ).candidates
                     elapsedMillis += (SystemClock.elapsedRealtimeNanos() - started) / 1_000_000
                     assertTrue(
                         "${case.subject} 召回出现跨科节点（披露边界被破坏）",
@@ -217,7 +217,7 @@ class GoldenRetrievalInstrumentedTest {
                         limit = RECALL_DEPTH,
                         // 词面臂：不传 queryText（纯词面次序），别的口径与融合臂逐字相同。
                         queryText = null,
-                    )
+                    ).candidates
                     elapsedMillisLexical += (SystemClock.elapsedRealtimeNanos() - started) / 1_000_000
                     assertTrue(
                         "${case.subject} 词面臂召回出现跨科节点（披露边界被破坏）",
@@ -275,7 +275,7 @@ class GoldenRetrievalInstrumentedTest {
                     searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion(s.query),
                     limit = RECALL_DEPTH,
                     queryText = s.query,
-                )
+                ).candidates
                 // `take` 不能省：store 返回"matched 优先 + 父节点随后"，序列可长过深度，
                 // 不截断就会报出超过声明深度的名次（2026-09-23 实测过一次 rank=284>256）。
                 val probeRank = probe.take(MISS_PROBE_LIMIT).indexOfFirst {
@@ -297,7 +297,7 @@ class GoldenRetrievalInstrumentedTest {
                     searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion(s.query),
                     limit = RECALL_DEPTH,
                     queryText = null,
-                )
+                ).candidates
                 val probeRank = probeLexical.take(MISS_PROBE_LIMIT).indexOfFirst {
                     it.knowledgeNodeId.endsWith(ATOMIC_SUFFIX + s.expectedSlug)
                 }.let { if (it < 0) 0 else it + 1 }

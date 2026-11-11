@@ -353,7 +353,8 @@ class TutorVisualRebuildRestoreInstrumentedTest {
 
     /**
      * 重放腿用**合法 DrawOps 文档**（解析器同一套生成门会复算 stats 并校验 `#RRGGBB` 色）——
-     * 文档形状与 `VisualSnapshotRestoreTest` 的 pathDocument 同源；`fill` 不同 = 内容不同 =
+     * 字段形状与 `VisualSnapshotRestoreTest` 的 pathDocument 同源；本文件的路径改为闭合三角形
+     * （见 [pathDocument]：开口两点线段零面积，落不下可断言的墨）。`fill` 不同 = 内容不同 =
      * 另一张快照（内容参与 snapshotId 派生）。
      */
     private fun snapshotInput(
@@ -381,12 +382,21 @@ class TutorVisualRebuildRestoreInstrumentedTest {
         questionVerificationStatus = "NOT_CHECKED",
     )
 
-    /** viewBox 与快照视口同尺寸（painter 按 viewBox 投影——保持一致）。 */
+    /**
+     * viewBox 与快照视口同尺寸（painter 按 viewBox 投影——保持一致）。
+     *
+     * 三角形**闭合**（M/L/L/Z）：本套件的回放断言是"恢复出的文档真的留下墨水"。
+     * 原夹具是 `M 0,0 L 10,10` 的开口两点线段——即使 `fill` 非空，开放路径被隐式闭合后
+     * 面积为零，`Paint.Style.FILL` 不落任何像素，批次 44 C-065 因此把"恢复无墨"误判为
+     * 产品静默空转（`c-restore-single-rerun.log`）。闭合轮廓让该断言恢复分辨力：
+     * 文档为空或恢复退化成空转时仍然无墨、用例仍然红。
+     */
     private fun pathDocument(fill: String): String =
         """{"drawSchemaVersion":1,"viewBox":{"x":0.0,"y":0.0,"w":$REPLAY_VIEW_WIDTH.0,""" +
             """"h":$REPLAY_VIEW_HEIGHT.0},"background":null,"ops":[{"op":"path",""" +
-            """"path":[["M",0.0,0.0],["L",10.0,10.0]],"fill":"$fill","stroke":null,"alpha":1.0}],""" +
-            """"hitRegions":[],"stats":{"nodes":1,"pathCommands":2,"labels":0,"ops":1}}"""
+            """"path":[["M",0.0,0.0],["L",10.0,0.0],["L",10.0,10.0],["Z"]],"fill":"$fill",""" +
+            """"stroke":null,"alpha":1.0}],""" +
+            """"hitRegions":[],"stats":{"nodes":1,"pathCommands":4,"labels":0,"ops":1}}"""
 
     private fun densityOf(): Float =
         ApplicationProvider.getApplicationContext<Context>().resources.displayMetrics.density

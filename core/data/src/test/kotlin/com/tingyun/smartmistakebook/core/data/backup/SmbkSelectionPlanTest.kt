@@ -25,15 +25,15 @@ import java.nio.file.Paths
  * **6C-2 schema 75 机器清单的同源契约**。
  *
  * 三份事实互相钉住：
- * 1. `75.json`（Room 导出物）：97 表 / 2 视图 / 113 条 FK 边；
- * 2. 设计 §9.14 的 `<!-- 6c2-plan-v6:begin -->` 机器块（唯一数据源）；
+ * 1. `75.json`（Room 导出物）：99 表 / 2 视图 / 123 条 FK 边；
+ * 2. 设计 §9.14 的 `<!-- 6c2-plan-v3:begin -->` 机器块（唯一数据源；parser 契约名沿用 v3）；
  * 3. [SmbkSelectionPlan]（实施读的那份数据）。
  *
- * `73.json` 与 `identityHash` 由门禁 KSP 构建生成；生成前本类中依赖导出物的用例
+ * `75.json` 与 `identityHash` 由门禁 KSP 构建生成；生成前本类中依赖导出物的用例
  * 以 `assumeTrue` 跳过（不是伪造通过），生成后必须真实执行。
  *
  * 这里断言的是**结构性同源**：每张表恰好归类一次、裁剪顺序是真实 FK 图上的合法拓扑序、
- * 闭包能从 74 的 FK 边折叠出 6 条、软引用 24 条且不误把硬 FK 当软引用、空库全选 digest
+ * 闭包能从 75 的 FK 边折叠出 6 条、软引用 24 条且不误把硬 FK 当软引用、空库全选 digest
  * 逐字命中 golden、非法 mask（含产品裁定拒绝的 0/8）不静默补齐。
  *
  * 本批产品裁定覆盖机器块里仍标 `OPEN` 的两项：mask=8/0 拒绝；派生索引恒裁。
@@ -642,15 +642,14 @@ class SmbkSelectionPlanTest {
         const val DESIGN_PATH = "docs/research/2026-10-17-6c2-content-selection-design.md"
 
         /**
-         * §9.7 空库、全选、assetPolicy=INCLUDED 的 v5 golden（rebase 后 92 表，closureVersion=5）。
-         * 用与 [SmbkSelectionPlan.closureDigest] 相同的 SHA-256 载荷独立复算；旧 93 表 golden
-         * `a8d4de2d…` 用同一脚本可逐字复现（2026-11-02 复核轮实算），证明复算与实现同算法。
+         * §9.7 空库、全选、assetPolicy=INCLUDED 的 v6 golden（99 表，closureVersion=6）。
+         * 与 [SmbkSelectionPlan.closureDigest] 的 SHA-256 载荷独立复算相等（批次 50 G0 实算）。
          */
         const val GOLDEN_EMPTY_FULL_DIGEST =
             "8567faae0e90ad4b720eab9fb4ceda82ce90fdb14e7c8ec4dc8309a520fb286c"
 
         val MACHINE_BLOCK = Regex(
-            "<!-- 6c2-plan-v6:begin -->\\s*```json\\s*(\\{.*?})\\s*```\\s*<!-- 6c2-plan-v6:end -->",
+            "<!-- 6c2-plan-v3:begin -->\\s*```json\\s*(\\{.*?})\\s*```\\s*<!-- 6c2-plan-v3:end -->",
             RegexOption.DOT_MATCHES_ALL,
         )
 

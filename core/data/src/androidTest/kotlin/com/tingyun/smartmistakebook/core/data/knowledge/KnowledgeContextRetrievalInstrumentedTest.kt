@@ -80,7 +80,7 @@ class KnowledgeContextRetrievalInstrumentedTest {
                     limit = 64,
                     // 生产调用点传 queryText（稠密腿的输入）；不传就是词面次序，不是新路由。
                     queryText = case.question,
-                )
+                ).candidates
                 val selected = KnowledgeContextRetriever.select(
                     candidates = candidates,
                     questionText = case.question,
@@ -156,7 +156,7 @@ class KnowledgeContextRetrievalInstrumentedTest {
                         "已知导函数符号变化，判断原函数的单调递增区间。",
                     ),
                     limit = 512,
-                )
+                ).candidates
                 val candidateMillis = elapsedMillis(candidateStarted)
                 val relationStarted = SystemClock.elapsedRealtimeNanos()
                 val relations = store.readKnowledgeNodeRelationsForDependents(

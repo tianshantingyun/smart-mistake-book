@@ -15,10 +15,11 @@ import kotlin.coroutines.coroutineContext
  * `RoomKnowledgeBaseStore` 的读时自愈里抽出来，供两个调用方共用——
  *
  * ① **内容安装**（`RoomKnowledgeContentReconciler`）：安装期就把索引建好。此前锚点只在
- * 首访问的 `ensureKnowledgeSearchIndex` 里写，于是首查要现场做一次整科重建——审计与桌面
+ * 首访问的读路径自愈里写，于是首查要现场做一次整科重建——审计与桌面
  * 复现都把「首访问整科重建」列为召回路径秒级长尾（16.6s max）的最可疑来源；
- * ② 读时自愈兜底（抽取规则 `KnowledgeSearchFeatureExtractor.INDEX_VERSION` 变更、
- * 锚点缺失/不等时仍要整科换血）。
+ * ② **导入路径启动自愈**兜底（B35 起，读路径只读化：抽取规则
+ * `KnowledgeSearchFeatureExtractor.INDEX_VERSION` 变更、锚点缺失/不等时仍要整科换血，
+ * 写侧唯一调用点 = `RoomKnowledgeBaseStore.healKnowledgeSearchIndex`）。
  *
  * **KD-51（2026-10-17）：重建从「一条长写事务」改成「读相 + 分块短写事务」。**
  * 改前的形态是 `COUNT + 整科 DELETE + 一次性 INSERT 全科特征行` 全在一个写事务里；
@@ -39,8 +40,9 @@ import kotlin.coroutines.coroutineContext
  *    与旧 `DELETE ... WHERE subject = ?` 相同（id 集在同一读快照内覆盖该科全部特征行）。
  * 2. **锚点最后写**（`knowledge_search_index_state`）：**锚点当前 ⟺ 这次重建完整跑完**。
  *    所有块都提交之后，锚点才在自己的短事务里推进。
- * 3. **跳过判据与读路径自愈不动**：contentVersion 快路径、INDEX_VERSION 锚点、内存完整性
- *    缓存三道门，以及 `RoomKnowledgeBaseStore.ensureKnowledgeSearchIndex` 的形态一字未改。
+ * 3. **跳过判据不动**：contentVersion 快路径、INDEX_VERSION 锚点、内存完整性
+ *    缓存三道门形态未变；B35 起写侧修复统一走导入路径启动自愈
+ *    （`RoomKnowledgeBaseStore.healKnowledgeSearchIndex`），读路径只读核验。
  *
  * **崩溃/取消的中间态**（分块引入，如实登记）：取消会带走已提交的块、不回滚，可能留下
  * ① 锚点没推进（本就不当前 ⇒ 下次读时自愈整科重跑，与改前一致）；或 ② 锚点**本已当前**
@@ -185,6 +187,13 @@ internal class KnowledgeSearchIndexBuilder(
                     "insertMs=${insertNano / 1_000_000} " +
                     "deleteMs=${deleteNano / 1_000_000} anchorMs=${anchorNano / 1_000_000}",
             )
+            // B35 §1.4 观测面（tag 固定 KnowledgeImport）：rebuildSubject 返回后的固定锚点行。
+            // 只读局部变量，不写库、不参与断言；是崩溃注入 kill 点 17（第一科重建）与分段
+            // 证据的触发标记，所以放在 rebuild 完成点、不改任何写入顺序。
+            Log.d(
+                KNOWLEDGE_IMPORT_TAG,
+                "feature index rebuilt subject=$subject",
+            )
         } finally {
             searchIndexCompleteness.invalidate(subject)
         }
@@ -231,6 +240,11 @@ private const val REBUILD_NODE_CHUNK_SIZE = 64
  * "JSON 解析 vs 整科重建 vs 其余调和"的耗时分解，供设备轨（T8）与桌面复现直接读数。
  */
 private const val TAG = "KnowledgeIndexRebuild"
+
+/**
+ * B35 §1.4 观测面的固定 tag（导入期观测行统一用它，字段顺序冻结）。
+ */
+internal const val KNOWLEDGE_IMPORT_TAG = "KnowledgeImport"
 
 /**
  * 节点 → 搜索特征行。S21 与构建器同置一处：改前这三个私有扩展只服务

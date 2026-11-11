@@ -250,8 +250,12 @@ class MistakePaperDraftStore(
          *
          * 旧 v1 草稿**显式拒绝**（而不是靠"缺键 → 默认 false"隐式降级）——否则含模型解析
          * 文本的旧草稿会被重新导出成无 `/AIGC` 的 PDF，且没有任何一处会报错。
+         *
+         * 3 = KD-85：`hasModelParsedText` 的**写入语义**变了（模型改卷文本也置真）。旧 v2
+         * 草稿里的 `false` 对"纯用户来源 + 模型改写"的卷面已经不是一个可信事实，必须显式
+         * 拒绝重建，不能靠读回一个过期的 false 继续导出无标文件。
          */
-        const val FORMAT_VERSION = 2
+        const val FORMAT_VERSION = 3
         const val DRAFT_SUFFIX = ".draft"
         const val MAX_DRAFT_BYTES = 8L * 1024L * 1024L
         const val DRAFT_TTL_MILLIS = 48L * 60L * 60L * 1000L
@@ -354,8 +358,9 @@ private data class PaperInputDto(
     val blocks: List<PaperBlockDto>,
     val questionDocumentSha256: String,
     /**
-     * 模型解析文本事实（KD-75 C2）。**无默认值**：旧草稿（FORMAT_VERSION 1）靠版本门拒绝，
-     * 不靠"缺键 → 默认 false"静默降级（那会把含模型文本的旧草稿重新导出成无标 PDF）。
+     * 模型文本事实（KD-75 C2 的解析文本 + KD-85 的模型改卷文本）。**无默认值**：旧草稿
+     * （FORMAT_VERSION 1/2）靠版本门拒绝，不靠"缺键/旧值 → false"静默降级（那会把含模型
+     * 文本的旧草稿重新导出成无标 PDF/DOCX）。
      */
     val hasModelParsedText: Boolean,
     val inputSha256: String,
