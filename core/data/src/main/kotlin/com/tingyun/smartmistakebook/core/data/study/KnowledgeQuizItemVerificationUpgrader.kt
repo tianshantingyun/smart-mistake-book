@@ -182,7 +182,8 @@ sealed interface KnowledgeQuizItemVerificationUpgradeOutcome {
  * 单列 CAS）已于批次 23 T2 接线；UI/会话流与生产调用点仍未接（KD-67 ①③）。
  *
  * 完整判定链（每一环都 fail-closed）：
- * 1. 按 `(learner, 会话, 知识点)` 读既有快照行；无行 → [SnapshotNotFound]；
+ * 1. 按 `(learner, 会话, 知识点, 槽位)` 读既有快照行；无行 → [SnapshotNotFound]；
+ *    槽位默认 REVIEW（会话题面），第二道校准题必须显式传 CALIBRATION；
  * 2. 行内状态串必须是可识别的 `UNKNOWN`/`VERIFIED`/`USER_ASSERTED`；无法识别 → 拒绝
  *    （按"不是 UNKNOWN"处理，绝不把脏值升级成已核验）；
  * 3. 题面必须读得回（与 PRD-02 `mayWriteNumericEvidence` 的 `itemReadable` 同源）；
@@ -228,13 +229,19 @@ class KnowledgeQuizItemVerificationUpgrader(
         knowledgeNodeId: String,
         targetVerification: AnswerKeyVerification,
         source: AnswerKeyVerificationSource,
+        /**
+         * 要升级的题面槽位（KD-67 第二道校准题）：默认 [KnowledgeQuizQuestionSlot.REVIEW]，
+         * 既有确认流（会话题面）逐字不变；第二道校准题必须显式传 CALIBRATION——否则
+         * "确认第二道题"会升级到第一道题的行上（学生确认了 A 题、库里的 B 题被标成已核验）。
+         */
+        slot: KnowledgeQuizQuestionSlot = KnowledgeQuizQuestionSlot.REVIEW,
     ): KnowledgeQuizItemVerificationUpgradeOutcome {
         require(knowledgeNodeId.isNotBlank()) { "Knowledge node id must not be blank" }
         require(targetVerification != AnswerKeyVerification.UNKNOWN) {
             "Verification upgrade target must be VERIFIED or USER_ASSERTED"
         }
 
-        val snapshotId = knowledgeQuizItemSnapshotId(learnerId, sessionId, knowledgeNodeId)
+        val snapshotId = knowledgeQuizItemSnapshotId(learnerId, sessionId, knowledgeNodeId, slot)
         val row = database.findAssessmentItemSnapshot(snapshotId)
             ?: return KnowledgeQuizItemVerificationUpgradeOutcome.SnapshotNotFound
         val currentVerification = row.verificationStatus.toAnswerKeyVerification()
@@ -243,7 +250,7 @@ class KnowledgeQuizItemVerificationUpgrader(
             )
         // 坏题面不得被标成已核验（同 PRD-02 的 itemReadable 轴）。读口本身不猜题面。
         val itemReadable = KnowledgeQuizItemStore(database, learnerId)
-            .readSnapshot(sessionId, knowledgeNodeId)
+            .readSnapshot(sessionId, knowledgeNodeId, slot)
             ?.item != null
         if (!itemReadable) {
             return KnowledgeQuizItemVerificationUpgradeOutcome.SnapshotUnreadable

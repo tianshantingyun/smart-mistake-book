@@ -71,6 +71,13 @@ internal class KnowledgeQuizFeedbackWriter(
         selectedChoiceId: String,
         occurredAtEpochMillis: Long,
         conversationId: String,
+        /**
+         * 本次作答的题面 id（KD-67 第二道校准题）。null = 既有行为：按 `(会话, 知识点)`
+         * 读**会话题面槽**。第二道校准题与会话题面同属一个 `(会话, 知识点)` 但键可以不同，
+         * 不传它就会拿第一道题的键去判第二道题的作答（键不同 → 误报"旧键"拒收；键恰好
+         * 相同 → 用错题面的核验/揭示态放行）。调用方知道自己在答哪道题时必须传。
+         */
+        itemId: String? = null,
     ): KnowledgeQuizFeedbackResult {
         val isCorrect = selectedChoiceId == correctChoiceId
         val verdict = knowledgeQuizMasteryVerdict(isCorrect)
@@ -98,14 +105,21 @@ internal class KnowledgeQuizFeedbackWriter(
         // 争议按题面 id 匹配；题面 id 可能含冒号，必须用**完整前缀**判断（下面拿到题面后做）。
 
         // 两轴判定：题面读得回、键与本题面一致、且键有独立支持才允许数值证据。
+        // 已知题面 id（第二道校准题）时按 id 定位到自己的槽位，绝不退回会话题面槽。
         val sessionId = knowledgeQuizSessionIdOf(conversationId)
-        val snapshot = sessionId?.let { itemStore.readSnapshot(it, knowledgeNodeId) }
+        val snapshot = sessionId?.let { sid ->
+            if (itemId == null) {
+                itemStore.readSnapshot(sid, knowledgeNodeId)
+            } else {
+                itemStore.readSnapshotForItem(sid, knowledgeNodeId, itemId)
+            }
+        }
         val snapshotItem = snapshot?.item
-        val itemId = snapshotItem?.id
-        if (itemId != null && existingRows.any {
+        val snapshotItemId = snapshotItem?.id
+        if (snapshotItemId != null && existingRows.any {
                 it.isDisputeObservationFor(
                     knowledgeNodeId = knowledgeNodeId,
-                    itemId = itemId,
+                    itemId = snapshotItemId,
                 )
             }
         ) {
@@ -707,12 +721,13 @@ class AnswerKeyCorrectionWriter(
             }
             // 新键必须是该题面真实存在的选项；否则 UI 的本地判题永远判不对。
             // 优先用**目标证据行自己的会话**（原始作答会话），不依赖调用方传对会话 id。
+            // 题面按命令里的 itemId 定位槽位（第二道校准题与话题面可以不同键）。
             val sessionId = knowledgeQuizSessionIdOf(target.conversation_id)
                 ?: knowledgeQuizSessionIdOf(command.conversationId)
-            val storedItem = sessionId?.let {
-                KnowledgeQuizItemStore(database, learnerId)
-                    .readSnapshot(it, target.knowledge_node_id)
-                    ?.item
+            val storedItem = sessionId?.let { sid ->
+                val store = KnowledgeQuizItemStore(database, learnerId)
+                store.readSnapshotForItem(sid, target.knowledge_node_id, itemId)?.item
+                    ?: store.readSnapshot(sid, target.knowledge_node_id)?.item
             }
             if (storedItem != null && storedItem.choices.none { it.id == newCorrectChoiceId }) {
                 return rejected("ANSWER_KEY_CHOICE_NOT_IN_ITEM")
@@ -839,10 +854,11 @@ class AnswerKeyCorrectionWriter(
         // 题面读得回、知识点真实锚定——否则就会借“改键”把证据写进不存在的节点。
         val sessionId = knowledgeQuizSessionIdOf(observation.conversation_id)
             ?: knowledgeQuizSessionIdOf(command.conversationId)
-        val storedItem = sessionId?.let {
-            KnowledgeQuizItemStore(database, learnerId)
-                .readSnapshot(it, observation.knowledge_node_id)
-                ?.item
+        val storedItem = sessionId?.let { sid ->
+            val store = KnowledgeQuizItemStore(database, learnerId)
+            // 按命令里的 itemId 定位槽位：第二道校准题的断言不得拿会话题面的选项集校验。
+            store.readSnapshotForItem(sid, observation.knowledge_node_id, itemId)?.item
+                ?: store.readSnapshot(sid, observation.knowledge_node_id)?.item
         } ?: return rejected("ANSWER_KEY_ITEM_UNREADABLE")
         if (storedItem.choices.none { it.id == newCorrectChoiceId }) {
             return rejected("ANSWER_KEY_CHOICE_NOT_IN_ITEM")
