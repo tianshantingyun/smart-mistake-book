@@ -1008,6 +1008,16 @@
   裁定：要么把这些特性连同调用点成组提交，要么回退已提交的调用点。**干净树 release 构建
   维持 BLOCKED。**
 - **结论**：`3660daff`/`d2b87009`/`661ac211` 的 HEAD **仍非自洽**；干净树 release 构建继续 **BLOCKED**。
+- **第四层（补 KD-67 数据层后，`4f82da12`）**：`core:data` 已编译通过，失败推进到 `:app`
+  `SmartMistakeBookRoot.kt`：`onClarificationNewQuestion`/`onClarificationCancel`/
+  `onRequestCalibrationQuiz` 参数不存在、`KnowledgeCalibrationDecision` 未解析。对应签名在
+  `feature/review/KnowledgeReviewSessionScreen.kt`/`ViewModel.kt` 与未跟踪的
+  `KnowledgeCalibrationDecision.kt`。
+- **边界（主会话停手）**：`feature/review/*` 与 `app/.../SmartMistakeBookRoot.kt` 在开工快照里
+  就是脏的，属 UI/JS 会话在飞热区；按协作红线不整文件抢占、不替其提交。**干净树 release
+  构建的剩余阻断在 app/UI 层，须 UI 会话把 KD-67 确认卡/校准题 UI 半边提交后再重跑。**
+- 主会话本轮已完成：`core:export`/`core:database`/`core:data` 三层的自洽性修复（4 笔），
+  并实证 `core:data` 可编译；未触碰 UI 热区、未改任何门值。
   解除条件不是再补一两个文件，而是把 5b 容量预览与 B35 召回改形两组**跨线未提交特性**连同其调用点
   一起提交（或回退已提交的调用点）——属其他线 owner 的决定，主会话未擅自继续提交。
 - 本节使用的签名钥是**一次性本地测试钥**，证书身份与批次 51 脏树产物（`2c8415b2…`）不同；

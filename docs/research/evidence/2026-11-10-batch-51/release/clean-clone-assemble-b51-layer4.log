@@ -1,0 +1,507 @@
+Starting a Gradle Daemon (subsequent builds will be faster)
+Reusing configuration cache.
+> Task :core:domain:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :feature:review:preBuild UP-TO-DATE
+> Task :feature:tutor:generateReleaseAssets UP-TO-DATE
+> Task :core:data:generateReleaseAssets UP-TO-DATE
+> Task :core:ui:preBuild UP-TO-DATE
+> Task :feature:capture:generateReleaseAssets UP-TO-DATE
+> Task :core:markdown:generateReleaseAssets UP-TO-DATE
+> Task :core:ui:generateReleaseAssets UP-TO-DATE
+> Task :core:data:preBuild UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :core:database:generateReleaseAssets UP-TO-DATE
+> Task :feature:profile:preBuild UP-TO-DATE
+> Task :core:model:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:export:generateReleaseAssets UP-TO-DATE
+> Task :feature:review:generateReleaseAssets UP-TO-DATE
+> Task :core:database:preBuild UP-TO-DATE
+> Task :core:export:preBuild UP-TO-DATE
+> Task :feature:profile:generateReleaseAssets UP-TO-DATE
+> Task :feature:library:preBuild UP-TO-DATE
+> Task :feature:tutor:preBuild UP-TO-DATE
+> Task :core:markdown:preBuild UP-TO-DATE
+> Task :app:generateLocalFirstReleaseAssets UP-TO-DATE
+> Task :feature:capture:preBuild UP-TO-DATE
+> Task :feature:library:generateReleaseAssets UP-TO-DATE
+> Task :feature:capture:preReleaseBuild UP-TO-DATE
+> Task :feature:library:preReleaseBuild UP-TO-DATE
+> Task :app:preLocalFirstReleaseBuild UP-TO-DATE
+> Task :core:data:preReleaseBuild UP-TO-DATE
+> Task :feature:profile:preReleaseBuild UP-TO-DATE
+> Task :core:database:preReleaseBuild UP-TO-DATE
+> Task :core:export:preReleaseBuild UP-TO-DATE
+> Task :core:markdown:preReleaseBuild UP-TO-DATE
+> Task :feature:tutor:preReleaseBuild UP-TO-DATE
+> Task :core:ui:preReleaseBuild UP-TO-DATE
+> Task :feature:review:preReleaseBuild UP-TO-DATE
+> Task :app:validateVersionCode
+> Task :app:validateReleaseSigning
+> Task :core:model:processResources NO-SOURCE
+> Task :core:domain:processResources NO-SOURCE
+> Task :feature:capture:prepareLintJarForPublish UP-TO-DATE
+> Task :core:database:prepareLintJarForPublish UP-TO-DATE
+> Task :core:export:prepareLintJarForPublish UP-TO-DATE
+> Task :core:data:prepareLintJarForPublish UP-TO-DATE
+> Task :core:ui:prepareLintJarForPublish UP-TO-DATE
+> Task :core:data:prepareReleaseArtProfile UP-TO-DATE
+> Task :core:export:prepareReleaseArtProfile UP-TO-DATE
+> Task :core:markdown:prepareLintJarForPublish UP-TO-DATE
+> Task :core:database:prepareReleaseArtProfile UP-TO-DATE
+> Task :core:data:patchLitertApiAar UP-TO-DATE
+> Task :core:markdown:prepareReleaseArtProfile UP-TO-DATE
+> Task :feature:library:prepareLintJarForPublish UP-TO-DATE
+> Task :core:markdown:extractProguardFiles UP-TO-DATE
+> Task :feature:library:extractProguardFiles UP-TO-DATE
+> Task :core:ui:extractProguardFiles UP-TO-DATE
+> Task :feature:capture:extractProguardFiles UP-TO-DATE
+> Task :app:extractProguardFiles UP-TO-DATE
+> Task :core:database:extractProguardFiles UP-TO-DATE
+> Task :core:export:extractProguardFiles UP-TO-DATE
+> Task :core:data:extractProguardFiles UP-TO-DATE
+> Task :core:markdown:processReleaseNavigationResources UP-TO-DATE
+> Task :core:markdown:generateReleaseResources UP-TO-DATE
+> Task :feature:capture:processReleaseNavigationResources UP-TO-DATE
+> Task :feature:review:prepareReleaseArtProfile UP-TO-DATE
+> Task :feature:capture:generateReleaseResources UP-TO-DATE
+> Task :core:data:processReleaseNavigationResources UP-TO-DATE
+> Task :core:data:generateReleaseResources UP-TO-DATE
+> Task :feature:tutor:prepareReleaseArtProfile UP-TO-DATE
+> Task :core:ui:generateReleaseResources UP-TO-DATE
+> Task :feature:profile:prepareReleaseArtProfile UP-TO-DATE
+> Task :feature:capture:prepareReleaseArtProfile UP-TO-DATE
+> Task :core:database:generateReleaseResources UP-TO-DATE
+> Task :feature:library:prepareReleaseArtProfile UP-TO-DATE
+> Task :core:database:processReleaseNavigationResources UP-TO-DATE
+> Task :core:ui:prepareReleaseArtProfile UP-TO-DATE
+> Task :core:ui:processReleaseNavigationResources UP-TO-DATE
+> Task :feature:review:generateReleaseResources UP-TO-DATE
+> Task :feature:review:processReleaseNavigationResources UP-TO-DATE
+> Task :core:export:generateReleaseResources UP-TO-DATE
+> Task :core:export:processReleaseNavigationResources UP-TO-DATE
+> Task :feature:tutor:generateReleaseResources UP-TO-DATE
+> Task :feature:tutor:processReleaseNavigationResources UP-TO-DATE
+> Task :feature:library:generateReleaseResources UP-TO-DATE
+> Task :feature:library:processReleaseNavigationResources UP-TO-DATE
+> Task :feature:profile:generateReleaseResources UP-TO-DATE
+> Task :feature:tutor:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :feature:library:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :core:export:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :core:ui:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :core:data:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :app:mergeLocalFirstReleaseJniLibFolders UP-TO-DATE
+> Task :feature:review:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :feature:profile:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :core:database:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :core:markdown:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :feature:capture:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :feature:profile:processReleaseNavigationResources UP-TO-DATE
+> Task :core:export:mergeReleaseNativeLibs NO-SOURCE
+> Task :core:markdown:mergeReleaseNativeLibs NO-SOURCE
+> Task :feature:review:mergeReleaseNativeLibs NO-SOURCE
+> Task :core:ui:mergeReleaseNativeLibs NO-SOURCE
+> Task :feature:capture:mergeReleaseNativeLibs NO-SOURCE
+> Task :feature:profile:mergeReleaseNativeLibs NO-SOURCE
+> Task :core:data:mergeReleaseNativeLibs NO-SOURCE
+> Task :feature:tutor:mergeReleaseNativeLibs NO-SOURCE
+> Task :core:database:mergeReleaseNativeLibs NO-SOURCE
+> Task :feature:library:mergeReleaseNativeLibs NO-SOURCE
+> Task :core:markdown:javaPreCompileRelease UP-TO-DATE
+> Task :feature:capture:javaPreCompileRelease UP-TO-DATE
+> Task :feature:review:javaPreCompileRelease UP-TO-DATE
+> Task :feature:tutor:javaPreCompileRelease UP-TO-DATE
+> Task :core:export:javaPreCompileRelease UP-TO-DATE
+> Task :core:data:javaPreCompileRelease UP-TO-DATE
+> Task :feature:library:javaPreCompileRelease UP-TO-DATE
+> Task :core:ui:javaPreCompileRelease UP-TO-DATE
+> Task :feature:profile:javaPreCompileRelease UP-TO-DATE
+> Task :feature:capture:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :core:export:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :core:ui:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :core:markdown:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :core:data:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :feature:tutor:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :feature:review:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :feature:profile:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :feature:library:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :core:database:copyReleaseJniLibsProjectOnly UP-TO-DATE
+> Task :app:generateLocalFirstReleaseBuildConfig UP-TO-DATE
+> Task :app:javaPreCompileLocalFirstRelease UP-TO-DATE
+> Task :app:generateLocalFirstReleaseResources UP-TO-DATE
+> Task :core:markdown:writeReleaseAarMetadata UP-TO-DATE
+> Task :core:export:writeReleaseAarMetadata UP-TO-DATE
+> Task :core:ui:writeReleaseAarMetadata UP-TO-DATE
+> Task :feature:review:writeReleaseAarMetadata UP-TO-DATE
+> Task :feature:capture:writeReleaseAarMetadata UP-TO-DATE
+> Task :feature:profile:writeReleaseAarMetadata UP-TO-DATE
+> Task :app:mapLocalFirstReleaseSourceSetPaths UP-TO-DATE
+> Task :core:database:extractDeepLinksRelease UP-TO-DATE
+> Task :core:ui:extractDeepLinksRelease UP-TO-DATE
+> Task :core:markdown:extractDeepLinksRelease UP-TO-DATE
+> Task :core:data:processReleaseManifest UP-TO-DATE
+> Task :feature:library:extractDeepLinksRelease UP-TO-DATE
+> Task :core:database:processReleaseManifest UP-TO-DATE
+> Task :core:data:extractDeepLinksRelease UP-TO-DATE
+> Task :core:export:extractDeepLinksRelease UP-TO-DATE
+> Task :app:extractDeepLinksLocalFirstRelease UP-TO-DATE
+> Task :feature:capture:extractDeepLinksRelease UP-TO-DATE
+> Task :feature:profile:extractDeepLinksRelease UP-TO-DATE
+> Task :core:export:processReleaseManifest UP-TO-DATE
+> Task :core:ui:processReleaseManifest UP-TO-DATE
+> Task :app:createLocalFirstReleaseCompatibleScreenManifests UP-TO-DATE
+> Task :feature:review:extractDeepLinksRelease UP-TO-DATE
+> Task :feature:tutor:extractDeepLinksRelease UP-TO-DATE
+> Task :feature:capture:processReleaseManifest UP-TO-DATE
+> Task :feature:library:processReleaseManifest UP-TO-DATE
+> Task :core:export:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :core:data:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :core:database:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :feature:capture:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :core:markdown:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :core:ui:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :feature:library:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :feature:review:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :feature:profile:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :feature:tutor:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :feature:profile:processReleaseManifest UP-TO-DATE
+> Task :core:markdown:processReleaseManifest UP-TO-DATE
+> Task :feature:review:processReleaseManifest UP-TO-DATE
+> Task :feature:tutor:processReleaseManifest UP-TO-DATE
+> Task :core:database:javaPreCompileRelease UP-TO-DATE
+> Task :core:markdown:mergeReleaseAssets UP-TO-DATE
+> Task :core:export:mergeReleaseAssets UP-TO-DATE
+> Task :core:database:mergeReleaseAssets UP-TO-DATE
+> Task :feature:profile:mergeReleaseAssets UP-TO-DATE
+> Task :app:mergeLocalFirstReleaseStartupProfile UP-TO-DATE
+> Task :feature:capture:mergeReleaseAssets UP-TO-DATE
+> Task :core:data:mergeReleaseAssets UP-TO-DATE
+> Task :core:ui:mergeReleaseAssets UP-TO-DATE
+> Task :feature:library:mergeReleaseAssets UP-TO-DATE
+> Task :feature:review:mergeReleaseAssets UP-TO-DATE
+> Task :feature:profile:extractProguardFiles UP-TO-DATE
+> Task :feature:profile:prepareLintJarForPublish UP-TO-DATE
+> Task :feature:tutor:mergeReleaseAssets UP-TO-DATE
+> Task :feature:review:extractProguardFiles UP-TO-DATE
+> Task :feature:review:prepareLintJarForPublish UP-TO-DATE
+> Task :feature:tutor:prepareLintJarForPublish UP-TO-DATE
+> Task :feature:tutor:extractProguardFiles UP-TO-DATE
+> Task :core:data:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :feature:review:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :feature:capture:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :feature:profile:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :feature:library:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :feature:tutor:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :core:ui:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :core:export:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :core:database:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :core:markdown:extractDeepLinksForAarRelease UP-TO-DATE
+> Task :core:database:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :core:export:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :core:data:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :core:markdown:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :core:ui:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :feature:capture:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :feature:library:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :feature:profile:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :feature:review:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :feature:tutor:writeReleaseLintModelMetadata UP-TO-DATE
+> Task :app:validateSigningLocalFirstRelease UP-TO-DATE
+> Task :app:writeLocalFirstReleaseAppMetadata UP-TO-DATE
+> Task :app:writeLocalFirstReleaseSigningConfigVersions UP-TO-DATE
+> Task :feature:tutor:packageReleaseResources UP-TO-DATE
+> Task :feature:profile:packageReleaseResources UP-TO-DATE
+> Task :feature:library:packageReleaseResources UP-TO-DATE
+> Task :core:data:packageReleaseResources UP-TO-DATE
+> Task :feature:capture:packageReleaseResources UP-TO-DATE
+> Task :core:ui:packageReleaseResources UP-TO-DATE
+> Task :core:database:packageReleaseResources UP-TO-DATE
+> Task :core:markdown:packageReleaseResources UP-TO-DATE
+> Task :feature:review:packageReleaseResources UP-TO-DATE
+> Task :core:export:packageReleaseResources UP-TO-DATE
+> Task :feature:tutor:writeReleaseAarMetadata UP-TO-DATE
+> Task :core:database:writeReleaseAarMetadata UP-TO-DATE
+> Task :feature:library:writeReleaseAarMetadata UP-TO-DATE
+> Task :core:data:writeReleaseAarMetadata UP-TO-DATE
+> Task :core:data:compileReleaseLibraryResources UP-TO-DATE
+> Task :app:packageLocalFirstReleaseResources UP-TO-DATE
+> Task :core:database:compileReleaseLibraryResources UP-TO-DATE
+> Task :core:export:compileReleaseLibraryResources UP-TO-DATE
+> Task :core:markdown:compileReleaseLibraryResources UP-TO-DATE
+> Task :core:ui:compileReleaseLibraryResources UP-TO-DATE
+> Task :feature:library:compileReleaseLibraryResources UP-TO-DATE
+> Task :feature:capture:compileReleaseLibraryResources UP-TO-DATE
+> Task :feature:review:compileReleaseLibraryResources UP-TO-DATE
+> Task :feature:profile:compileReleaseLibraryResources UP-TO-DATE
+> Task :feature:tutor:compileReleaseLibraryResources UP-TO-DATE
+> Task :app:collectLocalFirstReleaseDependencies UP-TO-DATE
+> Task :app:sdkLocalFirstReleaseDependencyData UP-TO-DATE
+> Task :feature:library:parseReleaseLocalResources UP-TO-DATE
+> Task :core:export:parseReleaseLocalResources UP-TO-DATE
+> Task :core:ui:parseReleaseLocalResources UP-TO-DATE
+> Task :core:data:parseReleaseLocalResources UP-TO-DATE
+> Task :core:markdown:parseReleaseLocalResources UP-TO-DATE
+> Task :feature:review:parseReleaseLocalResources UP-TO-DATE
+> Task :feature:capture:parseReleaseLocalResources UP-TO-DATE
+> Task :feature:tutor:parseReleaseLocalResources UP-TO-DATE
+> Task :feature:profile:parseReleaseLocalResources UP-TO-DATE
+> Task :core:database:parseReleaseLocalResources UP-TO-DATE
+> Task :core:model:compileKotlin UP-TO-DATE
+> Task :feature:library:generateReleaseRFile UP-TO-DATE
+> Task :feature:profile:generateReleaseRFile UP-TO-DATE
+> Task :core:export:generateReleaseRFile UP-TO-DATE
+> Task :core:ui:generateReleaseRFile UP-TO-DATE
+> Task :core:database:generateReleaseRFile UP-TO-DATE
+> Task :feature:capture:generateReleaseRFile UP-TO-DATE
+> Task :feature:review:generateReleaseRFile UP-TO-DATE
+> Task :core:data:generateReleaseRFile UP-TO-DATE
+> Task :feature:tutor:generateReleaseRFile UP-TO-DATE
+> Task :core:model:compileJava NO-SOURCE
+> Task :core:model:classes UP-TO-DATE
+> Task :core:markdown:generateReleaseRFile UP-TO-DATE
+> Task :core:model:jar UP-TO-DATE
+> Task :core:database:checkReleaseAarMetadata UP-TO-DATE
+> Task :core:export:checkReleaseAarMetadata UP-TO-DATE
+> Task :core:domain:compileKotlin UP-TO-DATE
+> Task :core:domain:compileJava NO-SOURCE
+> Task :core:domain:classes UP-TO-DATE
+> Task :core:domain:jar UP-TO-DATE
+> Task :feature:tutor:checkReleaseAarMetadata UP-TO-DATE
+> Task :feature:capture:checkReleaseAarMetadata UP-TO-DATE
+> Task :feature:library:checkReleaseAarMetadata UP-TO-DATE
+> Task :feature:review:checkReleaseAarMetadata UP-TO-DATE
+> Task :feature:profile:checkReleaseAarMetadata UP-TO-DATE
+> Task :core:ui:checkReleaseAarMetadata UP-TO-DATE
+> Task :core:markdown:checkReleaseAarMetadata UP-TO-DATE
+> Task :core:database:kspReleaseKotlin UP-TO-DATE
+> Task :app:checkLocalFirstReleaseAarMetadata UP-TO-DATE
+> Task :core:export:extractReleaseAnnotations UP-TO-DATE
+> Task :core:database:extractReleaseAnnotations UP-TO-DATE
+> Task :core:markdown:extractReleaseAnnotations UP-TO-DATE
+> Task :app:processLocalFirstReleaseNavigationResources UP-TO-DATE
+> Task :app:parseLocalFirstReleaseLocalResources UP-TO-DATE
+> Task :core:export:compileReleaseKotlin UP-TO-DATE
+> Task :app:mergeLocalFirstReleaseAssets UP-TO-DATE
+> Task :app:generateLocalFirstReleaseRFile UP-TO-DATE
+> Task :app:compileLocalFirstReleaseNavigationResources UP-TO-DATE
+> Task :core:export:compileReleaseJavaWithJavac NO-SOURCE
+> Task :core:export:processReleaseJavaRes UP-TO-DATE
+> Task :core:export:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :app:compressLocalFirstReleaseAssets UP-TO-DATE
+> Task :core:export:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :core:export:createFullJarRelease UP-TO-DATE
+> Task :core:export:mergeReleaseJavaResource UP-TO-DATE
+> Task :core:export:syncReleaseLibJars UP-TO-DATE
+> Task :core:export:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :core:export:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :core:data:checkReleaseAarMetadata UP-TO-DATE
+> Task :core:export:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :app:extractLocalFirstReleaseVersionControlInfo
+> Task :core:export:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :app:mergeLocalFirstReleaseArtProfile UP-TO-DATE
+> Task :app:checkLocalFirstReleaseDuplicateClasses UP-TO-DATE
+> Task :app:mergeLocalFirstReleaseResources UP-TO-DATE
+> Task :app:expandLocalFirstReleaseL8ArtProfileWildcards UP-TO-DATE
+> Task :app:mergeLocalFirstReleaseNativeLibs UP-TO-DATE
+> Task :core:markdown:compileReleaseKotlin UP-TO-DATE
+> Task :core:database:compileReleaseKotlin UP-TO-DATE
+> Task :core:markdown:compileReleaseJavaWithJavac NO-SOURCE
+> Task :core:database:compileReleaseJavaWithJavac NO-SOURCE
+> Task :core:markdown:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :core:database:copyRoomSchemas NO-SOURCE
+> Task :app:stripLocalFirstReleaseDebugSymbols UP-TO-DATE
+> Task :core:database:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :core:database:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :core:markdown:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :app:processLocalFirstReleaseMainManifest UP-TO-DATE
+> Task :core:markdown:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :core:database:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :app:extractLocalFirstReleaseNativeSymbolTables UP-TO-DATE
+> Task :core:markdown:processReleaseJavaRes UP-TO-DATE
+> Task :core:export:generateReleaseLintModel UP-TO-DATE
+> Task :core:export:generateReleaseLintVitalModel UP-TO-DATE
+> Task :core:export:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :core:database:processReleaseJavaRes UP-TO-DATE
+> Task :core:markdown:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :app:processLocalFirstReleaseManifest UP-TO-DATE
+> Task :core:database:createFullJarRelease UP-TO-DATE
+> Task :core:markdown:createFullJarRelease UP-TO-DATE
+> Task :app:mergeLocalFirstReleaseNativeDebugMetadata NO-SOURCE
+> Task :core:database:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :core:database:mergeReleaseJavaResource UP-TO-DATE
+> Task :core:markdown:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :core:database:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :core:markdown:mergeReleaseJavaResource UP-TO-DATE
+> Task :app:processLocalFirstReleaseManifestForPackage UP-TO-DATE
+> Task :core:markdown:syncReleaseLibJars UP-TO-DATE
+> Task :core:markdown:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :core:database:syncReleaseLibJars UP-TO-DATE
+> Task :core:database:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :core:ui:extractReleaseAnnotations UP-TO-DATE
+> Task :core:database:generateReleaseLintModel UP-TO-DATE
+> Task :core:database:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :core:database:generateReleaseLintVitalModel UP-TO-DATE
+> Task :core:ui:compileReleaseKotlin UP-TO-DATE
+> Task :core:markdown:generateReleaseLintModel UP-TO-DATE
+> Task :core:ui:compileReleaseJavaWithJavac NO-SOURCE
+> Task :core:markdown:generateReleaseLintVitalModel UP-TO-DATE
+> Task :core:markdown:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :core:ui:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :core:ui:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :core:ui:processReleaseJavaRes UP-TO-DATE
+> Task :core:ui:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :core:ui:createFullJarRelease UP-TO-DATE
+> Task :core:ui:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :core:ui:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :core:ui:mergeReleaseJavaResource UP-TO-DATE
+> Task :core:ui:syncReleaseLibJars UP-TO-DATE
+> Task :core:ui:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :feature:profile:extractReleaseAnnotations UP-TO-DATE
+> Task :feature:tutor:extractReleaseAnnotations UP-TO-DATE
+> Task :feature:library:extractReleaseAnnotations UP-TO-DATE
+> Task :feature:review:extractReleaseAnnotations UP-TO-DATE
+> Task :feature:capture:extractReleaseAnnotations UP-TO-DATE
+> Task :feature:profile:compileReleaseKotlin UP-TO-DATE
+> Task :feature:profile:compileReleaseJavaWithJavac NO-SOURCE
+> Task :feature:profile:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :feature:profile:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :feature:profile:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :feature:profile:processReleaseJavaRes UP-TO-DATE
+> Task :feature:profile:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :feature:profile:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :feature:profile:createFullJarRelease UP-TO-DATE
+> Task :feature:profile:mergeReleaseJavaResource UP-TO-DATE
+> Task :feature:profile:syncReleaseLibJars UP-TO-DATE
+> Task :feature:profile:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :core:ui:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :core:ui:generateReleaseLintVitalModel UP-TO-DATE
+> Task :core:ui:generateReleaseLintModel UP-TO-DATE
+> Task :feature:library:compileReleaseKotlin UP-TO-DATE
+> Task :feature:review:compileReleaseKotlin UP-TO-DATE
+> Task :feature:review:compileReleaseJavaWithJavac NO-SOURCE
+> Task :feature:library:compileReleaseJavaWithJavac NO-SOURCE
+> Task :feature:review:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :feature:review:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :feature:library:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :feature:review:processReleaseJavaRes UP-TO-DATE
+> Task :feature:library:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :feature:review:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :feature:library:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :feature:library:processReleaseJavaRes UP-TO-DATE
+> Task :feature:tutor:compileReleaseKotlin UP-TO-DATE
+> Task :feature:capture:compileReleaseKotlin UP-TO-DATE
+> Task :feature:library:createFullJarRelease UP-TO-DATE
+> Task :feature:review:createFullJarRelease UP-TO-DATE
+> Task :feature:library:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :feature:library:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :feature:capture:compileReleaseJavaWithJavac NO-SOURCE
+> Task :feature:tutor:compileReleaseJavaWithJavac NO-SOURCE
+> Task :feature:review:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :feature:review:mergeReleaseJavaResource UP-TO-DATE
+> Task :feature:library:mergeReleaseJavaResource UP-TO-DATE
+> Task :feature:review:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :feature:profile:generateReleaseLintModel UP-TO-DATE
+> Task :feature:profile:generateReleaseLintVitalModel UP-TO-DATE
+> Task :feature:capture:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :feature:profile:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :feature:tutor:bundleLibCompileToJarRelease UP-TO-DATE
+> Task :feature:capture:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :feature:capture:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :feature:tutor:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :feature:tutor:bundleLibRuntimeToJarRelease UP-TO-DATE
+> Task :feature:capture:processReleaseJavaRes UP-TO-DATE
+> Task :feature:tutor:processReleaseJavaRes UP-TO-DATE
+> Task :feature:library:syncReleaseLibJars UP-TO-DATE
+> Task :feature:review:syncReleaseLibJars UP-TO-DATE
+> Task :feature:capture:createFullJarRelease UP-TO-DATE
+> Task :feature:capture:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :feature:tutor:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :feature:capture:mergeReleaseConsumerProguardFiles UP-TO-DATE
+> Task :feature:tutor:exportReleaseConsumerProguardFiles UP-TO-DATE
+> Task :feature:tutor:createFullJarRelease UP-TO-DATE
+> Task :feature:tutor:mergeReleaseJavaResource UP-TO-DATE
+> Task :feature:library:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :feature:review:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :feature:capture:mergeReleaseJavaResource UP-TO-DATE
+> Task :feature:capture:syncReleaseLibJars UP-TO-DATE
+> Task :feature:capture:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :feature:tutor:syncReleaseLibJars UP-TO-DATE
+> Task :feature:tutor:bundleReleaseLocalLintAar UP-TO-DATE
+> Task :feature:review:generateReleaseLintVitalModel UP-TO-DATE
+> Task :feature:review:generateReleaseLintModel UP-TO-DATE
+> Task :feature:tutor:generateReleaseLintVitalModel UP-TO-DATE
+> Task :feature:library:generateReleaseLintModel UP-TO-DATE
+> Task :feature:review:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :feature:library:generateReleaseLintVitalModel UP-TO-DATE
+> Task :feature:capture:generateReleaseLintModel UP-TO-DATE
+> Task :feature:tutor:generateReleaseLintModel UP-TO-DATE
+> Task :feature:capture:generateReleaseLintVitalModel UP-TO-DATE
+> Task :feature:capture:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :feature:library:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :feature:tutor:lintVitalAnalyzeRelease UP-TO-DATE
+> Task :app:compileLocalFirstReleaseAidl UP-TO-DATE
+> Task :app:processLocalFirstReleaseResources UP-TO-DATE
+> Task :core:data:extractReleaseAnnotations
+> Task :core:data:compileReleaseKotlin
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiImageGenerationChannel.kt:158:33 Unnecessary safe call on a non-null receiver of type 'ResponseBody'.
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/OpenAiModelResponseParsers.kt:583:13 Unnecessary safe call on a non-null receiver of type 'JsonArray'.
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/RoomModelTaskRepository.kt:1050:13 'when' is exhaustive so 'else' is redundant here.
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/RoomModelTaskRepository.kt:1091:13 'when' is exhaustive so 'else' is redundant here.
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/KnowledgeQuizFeedbackWriter.kt:166:25 Unnecessary safe call on a non-null receiver of type 'TutorAssessmentItem'.
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepository.kt:532:13 Unnecessary safe call on a non-null receiver of type 'Map<String, ProblemMemoryState>'.
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepository.kt:610:13 Unnecessary safe call on a non-null receiver of type 'Map<String, ProblemMemoryState>'.
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepository.kt:702:13 Unnecessary safe call on a non-null receiver of type 'Map<String, ProblemMemoryState>'.
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomBackedStudyExperienceRepository.kt:757:47 'suspend fun readAttemptP0(attemptId: String): PersistedAttemptP0?' is deprecated. P0 inspection only; keep data-layer wiring behind the repository boundary.
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomTutorToolRunner.kt:1203:43 Unnecessary safe call on a non-null receiver of type 'ProblemDraftRecord'.
+w: file:///D:/smbk-clean-b51-8dd29e96/src/core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/StudyAnswerRevealService.kt:34:13 Unnecessary safe call on a non-null receiver of type 'Map<String, ProblemMemoryState>'.
+
+> Task :core:data:compileReleaseJavaWithJavac NO-SOURCE
+> Task :core:data:mergeReleaseGeneratedProguardFiles
+> Task :core:data:mergeReleaseConsumerProguardFiles
+> Task :core:data:exportReleaseConsumerProguardFiles
+> Task :core:data:bundleLibCompileToJarRelease
+> Task :core:data:bundleLibRuntimeToJarRelease
+> Task :core:data:processReleaseJavaRes
+> Task :core:data:createFullJarRelease
+> Task :core:data:generateReleaseLintModel
+> Task :core:data:generateReleaseLintVitalModel
+> Task :core:data:mergeReleaseJavaResource
+> Task :core:data:syncReleaseLibJars
+> Task :core:data:bundleReleaseLocalLintAar
+
+> Task :app:compileLocalFirstReleaseKotlin
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:132:52 Unresolved reference 'KnowledgeCalibrationDecision'.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1238:37 No parameter with name 'clarificationState' found.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1239:37 No parameter with name 'onClarificationConfirm' found.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1240:45 Cannot infer type for value parameter 'candidateId'. Specify it explicitly.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1241:45 Cannot infer type for value parameter 'correctChoiceId'. Specify it explicitly.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1242:45 Cannot infer type for value parameter 'selectedChoiceId'. Specify it explicitly.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1251:45 Return type mismatch: expected '??? (Unknown type for value parameter it)', actual 'Unit'.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1257:45 Return type mismatch: expected '??? (Unknown type for value parameter it)', actual 'Unit'.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1384:37 No parameter with name 'onClarificationNewQuestion' found.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1389:37 No parameter with name 'onClarificationCancel' found.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1399:37 No parameter with name 'onRequestCalibrationQuiz' found.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1399:66 Cannot infer type for value parameter 'conflictedEntry'. Specify it explicitly.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1405:60 Suspend function 'suspend fun selectKnowledgeReviewQuestion(sessionId: Long, knowledgeNodeId: String, clarificationConsumer: AdaptiveClarificationConsumer, requestedTargetKind: AdaptiveTargetKind = ..., userRequestedQuestion: Boolean = ...): AdaptiveDecision?' can only be called from a coroutine or another suspend function.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1408:73 Unresolved reference 'knowledgeNodeId'.
+e: file:///D:/smbk-clean-b51-8dd29e96/src/app/src/main/kotlin/com/tingyun/smartmistakebook/SmartMistakeBookRoot.kt:1417:53 Unresolved reference 'KnowledgeCalibrationDecision'.
+
+> Task :app:compileLocalFirstReleaseKotlin FAILED
+> Task :core:data:lintVitalAnalyzeRelease
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileLocalFirstReleaseKotlin' (registered by plugin 'com.android.internal.application').
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.btapi.BuildToolsApiCompilationWork
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1m 31s
+394 actionable tasks: 19 executed, 375 up-to-date
+Configuration cache entry reused.
+ASSEMBLE_EXIT=1
