@@ -60,7 +60,7 @@ internal class StudyAnswerRevealService(
                 // 按本档排除。
                 sourceKind = ReviewLogSink.SOURCE_KIND_REVEAL,
                 sourceId = writeResult.outcome.outcomeId,
-                priorMemory = priorMemory,
+                previousReviewedAtEpochMillis = priorMemory?.lastReviewedAtEpochMillis,
             )
         }
         return StudyAnswerRevealResult(
