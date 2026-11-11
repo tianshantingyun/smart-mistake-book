@@ -43,7 +43,7 @@ class ReviewPlannerV2(
         // Apply the personalized duration model: each candidate's static
         // estimated duration is replaced by the learner-bucket prediction.
         val scored = request.candidates.mapNotNull { candidate ->
-            scoreCandidate(candidate, request.learnerSnapshot, now, request.zoneId, request.knowledgePrerequisites)
+            scoreCandidate(candidate, request.learnerSnapshot, now, request.knowledgePrerequisites)
                 ?.withModeledDuration(durationModel, request.learnerSnapshot.learnerId)
         }
 
@@ -460,7 +460,6 @@ class ReviewPlannerV2(
         candidate: ReviewCandidate,
         snapshot: LearnerSnapshot,
         now: Long,
-        zoneId: java.time.ZoneId,
         knowledgePrerequisites: Map<String, Set<String>> = emptyMap(),
     ): ScoredCandidate? {
         // Spec 2.16: leeched cards are paused from regular scheduling until a
@@ -504,7 +503,7 @@ class ReviewPlannerV2(
             }
             memory.nextReviewAtEpochMillis <= now -> {
                 reasons += ReviewReason.DUE_RECALL_RISK
-                val estimate = forgettingCurve.estimateAt(memory, now, zoneId)
+                val estimate = forgettingCurve.estimateAt(memory, now)
                 if (estimate.clockAnomaly == ClockAnomaly.TIME_ROLLBACK) {
                     reasons += ReviewReason.CLOCK_ANOMALY
                 }
@@ -519,7 +518,7 @@ class ReviewPlannerV2(
                 retentionRisk + (overdueDays / 30.0).coerceAtMost(1.0)
             }
             else -> {
-                val estimate = forgettingCurve.estimateAt(memory, now, zoneId)
+                val estimate = forgettingCurve.estimateAt(memory, now)
                 if (estimate.clockAnomaly == ClockAnomaly.TIME_ROLLBACK) {
                     reasons += ReviewReason.CLOCK_ANOMALY
                     1.0
@@ -642,7 +641,7 @@ class ReviewPlannerV2(
         } || (
             ReviewReason.EXAM_PRIORITY in reasons &&
                 (memory?.let { memoryState ->
-                    forgettingCurve.estimateAt(memoryState, now, zoneId)
+                    forgettingCurve.estimateAt(memoryState, now)
                         .takeIf { it.clockAnomaly != ClockAnomaly.TIME_ROLLBACK }
                         ?.probability
                 } ?: 0.0) < EARLY_REVIEW_MAX_RETRIEVABILITY

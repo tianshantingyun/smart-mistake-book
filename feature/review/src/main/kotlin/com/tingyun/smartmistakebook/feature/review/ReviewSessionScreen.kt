@@ -821,7 +821,7 @@ private fun RecordedAttemptFeedback(
  * reveal 充当重教开场，学员随后的独立作答会被污染成"看答案后作答"，重教反而毁掉证据。
  */
 @Composable
-internal fun ReTeachOpeningCard(
+private fun ReTeachOpeningCard(
     opening: ReTeachOpening,
     onAcknowledge: () -> Unit,
 ) {
@@ -874,7 +874,7 @@ internal fun ReTeachOpeningCard(
  * 同等醒目，否则每个有前置缺口的题都会看起来像一道关卡。
  */
 @Composable
-internal fun PrerequisiteRemediationCard(remediation: PrerequisiteRemediation) {
+private fun PrerequisiteRemediationCard(remediation: PrerequisiteRemediation) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
