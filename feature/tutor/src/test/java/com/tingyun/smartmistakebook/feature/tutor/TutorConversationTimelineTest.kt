@@ -49,28 +49,6 @@ import org.junit.Test
 class TutorConversationTimelineTest {
     private val question = question()
 
-    @Test fun followUpRevealTargetsTheSelectedPlanVersionEvenWhenThatPlanIsNotInTheVisibleTimeline() {
-        val plan = planTask("plan-version-two", 100)
-        val reply = respondTask("follow-up", 200, studentMessage = "请告诉我答案。", solutionRevealed = true)
-        val version = com.tingyun.smartmistakebook.core.domain.TutorReplyVersion(
-            versionId = "v2", groupId = "reply", conversationId = plan.request.input.subjectId,
-            requestId = plan.request.requestId, ordinal = 2, selected = true, locked = true,
-            request = plan.request, output = plan.output)
-        val targets = buildTutorSolutionExposureTargets(
-            timeline = listOf(TutorConversationTimelineItem.Reply(reply)), responses = emptyList(),
-            previewKeys = emptySet(), longTermWritesBlocked = false, replyVersions = listOf(version))
-        assertEquals("v2", targets.single().pendingRevealCommand?.replyVersionId)
-    }
-
-    @Test fun copyingAnUnansweredPlanDoesNotExposeItsHiddenSolution() {
-        val task = planTask("copy-plan", 100)
-        val message = TutorMessage("reply", task.request.input.subjectId, 1, TutorMessageRole.ASSISTANT,
-            "讲解", status = TutorMessageStatus.SUCCEEDED, logicalOperationId = task.request.requestId,
-            replyToMessageId = null, createdAtEpochMillis = 100, completedAtEpochMillis = 100, errorCode = null)
-        val text = tutorReplyCopyText(message, task)
-        assertEquals("讲解", text)
-    }
-
     @Test
     fun planRetriesKeepOnlyTheNewestAttemptForEachCycleAndTurn() {
         val oldAttempt = planTask(

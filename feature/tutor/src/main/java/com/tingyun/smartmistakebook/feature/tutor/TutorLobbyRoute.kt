@@ -320,31 +320,21 @@ internal fun TutorLobbyRoute(
             // 整条会话都列出来（B6）：长会话里前面的轮次不能被静默截掉——学生往上翻，
             // 讲过的每一轮都还在。
             items(
-                items = state.displayMessages(),
+                items = state.messages,
                 key = { it.messageId },
             ) { message ->
                 TutorSurfaceMessageItem(
                     message = message,
-                    showCopyAction = false,
                     imageIntake = imageIntake,
                     onOpenCapabilitySettings = onOpenCapabilitySettings,
                     resendTarget = message.resendTargetOrNull(state.messages),
                     onResend = viewModel::onResendMessage,
                     // 统一动作条（A2）：成功 / 已停止 / 失败三种状态共用同一个「重试」，目标都是
                     // 它回复的那条学生消息（= 重发同类请求，同一逻辑操作的下一次尝试）。
-                    retryTarget = message.retryTargetOrNull(state.messages).takeUnless { message.status == TutorMessageStatus.SUCCEEDED },
+                    retryTarget = message.retryTargetOrNull(state.messages),
                     onRetry = viewModel::onResendMessage,
                     modifier = Modifier.padding(top = 12.dp),
                 )
-                TutorReplyVersionsBar(message, state.displayReplyVersions(),
-                    latest = state.messages.lastOrNull()?.messageId == message.messageId && conversations.supportsReplyVersions,
-                    busy = state.regeneratingRequestId != null, onSelect = viewModel::onSelectReplyVersion,
-                    onRegenerate = { viewModel.onRegenerateReply(message) }, onStop = viewModel::onStopRegenerating,
-                    regenerateEnabled = state.provider?.supports(ModelTaskKind.TUTOR_LOBBY) == true && !state.sending && state.pendingRequestCards.isEmpty(),
-                    copyTestTag = "tutor_lobby_message_actions_copy")
-            }
-            if (state.regeneratingRequestId != null) {
-                item("tutor_regenerating_status") { Text("正在重新生成…", color = InkSecondary) }
             }
             if (state.resumeStalledTurnVisible) {
                 item(key = "lobby-stalled") {

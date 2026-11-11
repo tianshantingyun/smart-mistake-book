@@ -1,14 +1,11 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.platform.LocalFocusManager
-
-import com.tingyun.smartmistakebook.core.ui.ContentSurface
-import com.tingyun.smartmistakebook.core.ui.SmartColors
-import androidx.compose.foundation.BorderStroke
+import com.tingyun.smartmistakebook.core.ui.SubtleSurface
 
 import com.tingyun.smartmistakebook.core.ui.claudeInteractiveRow
+import androidx.compose.ui.graphics.Color
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -108,7 +105,6 @@ internal fun TutorMistakePickerDialog(
     onDismiss: () -> Unit, testTagPrefix: String,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
-    val focusManager = LocalFocusManager.current
     var subject by rememberSaveable { mutableStateOf<String?>(null) }
     var chapter by rememberSaveable { mutableStateOf<String?>(null) }
     var chapterLabel by rememberSaveable { mutableStateOf("") }
@@ -165,16 +161,11 @@ internal fun TutorMistakePickerDialog(
                     modifier = Modifier.testTag("${testTagPrefix}_picker_clear_query"),
                 ) { Icon(Icons.Outlined.Close, "清空搜索") }
             },
-            modifier = Modifier.fillMaxWidth()
-                .onFocusChanged { if (it.isFocused) expanded = false }
-                .testTag("${testTagPrefix}_picker_query"))
+            modifier = Modifier.fillMaxWidth().testTag("${testTagPrefix}_picker_query"))
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(if (result.loading) "正在筛选…" else "${result.total} 道题", Modifier.weight(1f),
                 style = MaterialTheme.typography.labelMedium, color = InkSecondary)
-            TextButton(onClick = {
-                focusManager.clearFocus()
-                expanded = !expanded
-            }) { Text(if (expanded) "收起筛选" else "筛选") }
+            TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "收起筛选" else "筛选") }
             if (filtered) TextButton(onClick = { query = ""; subject = null; chapter = null; mastery = null; favorite = false; days = null }) { Text("清空") }
         }
         if (filtered && !expanded) Text(buildList {
@@ -252,16 +243,16 @@ private fun MistakePickerRow(
     testTag: String,
 ) {
     Surface(
-        color = ContentSurface,
-        shape = RoundedCornerShape(12.dp),
-        border = BorderStroke(1.dp, SmartColors.Divider),
+        color = Color.Transparent,
+        shape = RoundedCornerShape(16.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .claudeInteractiveRow(onClick, shape = RoundedCornerShape(12.dp))
+            .background(SubtleSurface, RoundedCornerShape(16.dp))
+            .claudeInteractiveRow(onClick, shape = RoundedCornerShape(16.dp))
             .testTag(testTag),
     ) {
         Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            verticalArrangement = Arrangement.spacedBy(4.dp)) {
             val repository = LocalTutorMistakeRepository.current
             var previewUnavailable by remember(repository, entry.entryId, entry.problemRevisionId) { mutableStateOf(false) }
             val images by produceState<List<Pair<String, String>>?>(null, repository, entry.entryId, entry.problemRevisionId) {
@@ -274,12 +265,22 @@ private fun MistakePickerRow(
                 } catch (cancelled: CancellationException) { throw cancelled }
                 catch (_: Exception) { previewUnavailable = true; value = emptyList() }
             }
+            if (images == null) Row(Modifier.fillMaxWidth().height(72.dp),
+                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                ClaudeQuietDots()
+                Text("正在读取题图…", color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+            }
+            images?.forEachIndexed { index, (_, uri) ->
+                BoundedLocalImage(imageUri = uri, contentDescription = "${entry.title}，第${index + 1}张题图",
+                    expanded = true, expandedMaxHeight = 240.dp,
+                    modifier = Modifier.fillMaxWidth().testTag("${testTag}_image_$index"))
+            }
+            if (previewUnavailable) Text("题图暂时无法读取", color = InkSecondary, style = MaterialTheme.typography.bodySmall)
             Text(
                 text = entry.title,
                 style = MaterialTheme.typography.titleSmall,
                 color = Ink,
                 maxLines = 2,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             )
             val meta = buildList {
                 if (entry.subject.isNotBlank()) add(com.tingyun.smartmistakebook.core.model.SubjectKind.entries
@@ -294,17 +295,6 @@ private fun MistakePickerRow(
                     color = InkSecondary,
                 )
             }
-            if (images == null) Row(Modifier.fillMaxWidth().height(72.dp),
-                verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ClaudeQuietDots()
-                Text("正在读取题图…", color = InkSecondary, style = MaterialTheme.typography.bodySmall)
-            }
-            images?.forEachIndexed { index, (_, uri) ->
-                BoundedLocalImage(imageUri = uri, contentDescription = "${entry.title}，第${index + 1}张题图",
-                    expanded = true, expandedMaxHeight = 240.dp,
-                    modifier = Modifier.fillMaxWidth().testTag("${testTag}_image_$index"))
-            }
-            if (previewUnavailable) Text("题图暂时无法读取", color = InkSecondary, style = MaterialTheme.typography.bodySmall)
             if (images?.isEmpty() == true && entry.problemMarkdown.isNotBlank()) Text(
                 com.tingyun.smartmistakebook.core.model.ReadableMathText.inlineMarkdown(entry.problemMarkdown, lineBreakReplacement = ' '),
                 color = InkSecondary, style = MaterialTheme.typography.bodySmall, maxLines = 3,

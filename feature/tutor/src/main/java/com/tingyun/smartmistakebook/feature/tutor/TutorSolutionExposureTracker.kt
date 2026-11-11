@@ -51,8 +51,6 @@ internal fun rememberTutorSolutionExposureTracker(
     longTermWritesBlocked: Boolean,
     interactions: TutorInteractionRepository,
     clock: () -> Long,
-    replyVersionIds: Map<String, String> = emptyMap(),
-    replyVersions: List<com.tingyun.smartmistakebook.core.domain.TutorReplyVersion> = emptyList(),
 ): TutorSolutionExposureTracker {
     val documentId = question.questionDocument.document.id
     val answerExposureKeysState = remember(
@@ -83,14 +81,12 @@ internal fun rememberTutorSolutionExposureTracker(
             longTermWritesBlocked = longTermWritesBlocked,
         )
     }
-    val targets = remember(timeline, responses, previewKeys, longTermWritesBlocked, replyVersionIds, replyVersions) {
+    val targets = remember(timeline, responses, previewKeys, longTermWritesBlocked) {
         buildTutorSolutionExposureTargets(
             timeline = timeline,
             responses = responses,
             previewKeys = previewKeys,
             longTermWritesBlocked = longTermWritesBlocked,
-            replyVersionIds = replyVersionIds,
-            replyVersions = replyVersions,
         )
     }
     val currentClock by rememberUpdatedState(clock)

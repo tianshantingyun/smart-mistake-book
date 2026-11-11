@@ -13,10 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.StopCircle
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -25,7 +21,7 @@ import androidx.compose.runtime.Composable
 import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
 import com.tingyun.smartmistakebook.core.ui.ClaudeCopyButton
 import com.tingyun.smartmistakebook.core.ui.ClaudeQuietDots
-import com.tingyun.smartmistakebook.core.ui.SmartColors
+import com.tingyun.smartmistakebook.core.ui.SubtleSurface
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -176,8 +172,7 @@ internal fun tutorReplyActionShape(
     stopped: Boolean = false,
     retryable: Boolean = false,
 ): TutorReplyActionShape = TutorReplyActionShape(
-    copyText = bodyMarkdown?.takeIf(String::isNotBlank)
-        ?.let { com.tingyun.smartmistakebook.core.ui.tutorMessageCopyText(it) },
+    copyText = bodyMarkdown?.takeIf(String::isNotBlank),
     stoppedLabel = TUTOR_SURFACE_STOPPED_LABEL.takeIf { stopped },
     retryLabel = TUTOR_SURFACE_RETRY_LABEL.takeIf { retryable },
 )
@@ -257,13 +252,8 @@ internal fun TutorSurfaceStudentBubble(
             modifier = Modifier
                 .widthIn(max = maxWidth * ClaudeLayout.MessageWidthFraction)
                 .testTag(testTag),
-            color = SmartColors.JadeSoft.copy(alpha = 0.6f),
-            shape = RoundedCornerShape(
-                topStart = ClaudeLayout.MessageRadius,
-                topEnd = ClaudeLayout.MessageRadius,
-                bottomEnd = 6.dp,
-                bottomStart = ClaudeLayout.MessageRadius,
-            ),
+            color = SubtleSurface,
+            shape = RoundedCornerShape(ClaudeLayout.MessageRadius),
         ) {
             Column(modifier = Modifier.padding(horizontal = ClaudeLayout.MessagePaddingX, vertical = ClaudeLayout.MessagePaddingY)) {
                 if (imageAssetIds.isNotEmpty() && imageIntake != null) {
@@ -308,8 +298,6 @@ internal fun TutorSurfaceAssistantReply(
      * 整行不渲染。它与思考卡是**两件东西**，各自一行——思考是模型在推理，查阅是它对外做的事。
      */
     toolTraceJson: String? = null,
-    figureAssetIds: List<String> = emptyList(),
-    figureAssetResolver: (suspend (String) -> String?)? = null,
     progress: TutorSurfaceProgress? = null,
     failure: TutorSurfaceFailure? = null,
     /** 非 null 时在回复末尾放一个 1dp 的定位点（答案曝光的"底部进视口"判据挂在它上面）。 */
@@ -325,7 +313,7 @@ internal fun TutorSurfaceAssistantReply(
             modifier = Modifier
                 .fillMaxWidth()
                 .testTag(testTag),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (bodyMarkdown != null) {
                 ThinkingCollapsibleCard(
@@ -333,9 +321,7 @@ internal fun TutorSurfaceAssistantReply(
                     thinking = thinkingCollapsed,
                 )
                 TutorToolTraceLine(display = rememberTutorToolTraceDisplay(toolTraceJson))
-                TutorPrompt(text = bodyMarkdown, modifier = Modifier.fillMaxWidth(),
-                    figureAssetIds = figureAssetIds, figureAssetResolver = figureAssetResolver,
-                    figureCaptions = com.tingyun.smartmistakebook.core.model.tutorFigureCaptions(toolTraceJson))
+                TutorPrompt(text = bodyMarkdown, modifier = Modifier.fillMaxWidth())
             }
             progress?.let { line ->
                 Row(
@@ -409,7 +395,6 @@ internal fun TutorSurfaceMessageItem(
     progressTestTag: String = "tutor_lobby_task_progress",
     resendTestTag: String = "tutor_lobby_resend",
     actionBarTestTag: String = "tutor_lobby_message_actions",
-    showCopyAction: Boolean = true,
 ) {
     if (message.role == TutorMessageRole.STUDENT) {
         TutorSurfaceStudentBubble(
@@ -426,8 +411,6 @@ internal fun TutorSurfaceMessageItem(
     when (message.status) {
         TutorMessageStatus.SUCCEEDED -> TutorSurfaceAssistantReply(
             bodyMarkdown = message.bodyMarkdown,
-            figureAssetIds = message.sourceImageAssetIds,
-            figureAssetResolver = imageIntake?.let { intake -> { id -> intake.resolveImageUri(id) } },
             modifier = modifier,
             thinkingMarkdown = message.thinkingMarkdown,
             // B1：这一轮查阅了什么，随对话流一起出现、重开会话照样在（痕迹存在消息行上）。
@@ -436,7 +419,7 @@ internal fun TutorSurfaceMessageItem(
             extras = {
                 TutorReplyActionBar(
                     shape = tutorReplyActionShape(
-                        bodyMarkdown = message.bodyMarkdown.takeIf { showCopyAction },
+                        bodyMarkdown = message.bodyMarkdown,
                         retryable = retryTarget != null,
                     ),
                     onRetry = { retryTarget?.let(onRetry) },
@@ -517,55 +500,5 @@ internal fun TutorSurfaceMessageItem(
             modifier = modifier,
             testTag = progressTestTag,
         )
-    }
-}
-
-
-@Composable
-@OptIn(ExperimentalLayoutApi::class)
-internal fun TutorReplyVersionsBar(
-    message: TutorMessage?,
-    versions: List<com.tingyun.smartmistakebook.core.domain.TutorReplyVersion>,
-    latest: Boolean,
-    busy: Boolean,
-    onSelect: (com.tingyun.smartmistakebook.core.domain.TutorReplyVersion) -> Unit,
-    onRegenerate: () -> Unit,
-    onStop: () -> Unit,
-    regenerateEnabled: Boolean = true,
-    copyTestTag: String = "tutor_reply_copy",
-    copyText: String? = null,
-) {
-    if (message == null || message.role != TutorMessageRole.ASSISTANT || message.status != TutorMessageStatus.SUCCEEDED) return
-    val group = versions.filter { it.groupId == message.messageId }.sortedBy { it.ordinal }
-    val selected = group.indexOfFirst { it.selected }.coerceAtLeast(0)
-    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
-        itemVerticalAlignment = Alignment.CenterVertically, verticalArrangement = Arrangement.spacedBy(0.dp)) {
-        ClaudeCopyButton(copyText ?: tutorReplyCopyText(message),
-            modifier = Modifier.testTag(copyTestTag))
-        if (group.size > 1) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-            com.tingyun.smartmistakebook.core.ui.ClaudeIconButton(onClick = { onSelect(group[selected - 1]) }, enabled = selected > 0 && !busy,
-                modifier = Modifier.size(48.dp).testTag("tutor_version_previous")) {
-                androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.AutoMirrored.Outlined.KeyboardArrowLeft,
-                    "上一版", tint = InkSecondary, modifier = Modifier.size(18.dp))
-            }
-            Text("${selected + 1}/${group.size}", color = InkSecondary, style = ClaudeLayout.ControlText,
-                modifier = Modifier.testTag("tutor_version_position"))
-            com.tingyun.smartmistakebook.core.ui.ClaudeIconButton(onClick = { onSelect(group[selected + 1]) }, enabled = selected < group.lastIndex && !busy,
-                modifier = Modifier.size(48.dp).testTag("tutor_version_next")) {
-                androidx.compose.material3.Icon(androidx.compose.material.icons.Icons.AutoMirrored.Outlined.KeyboardArrowRight,
-                    "下一版", tint = InkSecondary, modifier = Modifier.size(18.dp))
-            }
-            }
-        }
-        if (latest) {
-            com.tingyun.smartmistakebook.core.ui.ClaudeTextButton(onClick = if (busy) onStop else onRegenerate,
-                enabled = busy || regenerateEnabled, modifier = Modifier.testTag("tutor_reply_regenerate")) {
-                androidx.compose.material3.Icon(if (busy) androidx.compose.material.icons.Icons.Outlined.StopCircle
-                    else androidx.compose.material.icons.Icons.Outlined.Refresh, null, Modifier.size(16.dp), tint = InkSecondary)
-                Text(if (busy) "停止生成" else "重新生成", color = InkSecondary, style = ClaudeLayout.ControlText,
-                    modifier = Modifier.padding(start = 5.dp))
-            }
-        } else if (group.isNotEmpty()) Text("只读", color = InkSecondary, style = ClaudeLayout.ControlText)
     }
 }

@@ -201,7 +201,7 @@ class TutorExportSheetTest {
         assertNull(exportFormatNotice(MistakeExportFormat.PDF))
         val notice = requireNotNull(exportFormatNotice(MistakeExportFormat.DOCX))
         assertTrue(notice.contains("文字说明代替图形"))
-        assertTrue(notice.contains("不含作答区"))
+        assertTrue(notice.contains("作答空白区"))
         assertTrue(notice.contains("打印"))
     }
 

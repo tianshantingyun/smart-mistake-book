@@ -51,8 +51,7 @@ internal sealed interface TutorConversationTimelineItem {
          */
         override val stableId: String =
             "choice:${response.questionDocumentId}:${response.revisionNumber}:" +
-                "${response.cycleOrdinal}:${response.turnOrdinal}" +
-                response.replyVersionId?.let { ":$it" }.orEmpty()
+                "${response.cycleOrdinal}:${response.turnOrdinal}"
     }
 
     data class Reply(
@@ -288,9 +287,7 @@ private fun buildExactTutorConversationTimeline(
                 TutorConversationTimelineItem.Reply(
                     task = task,
                     message = messages.assistantTurnOf(task.request.requestId),
-                    studentMessage = messages.assistantTurnOf(task.request.requestId)?.replyToMessageId?.let { replyId ->
-                        messages.firstOrNull { it.messageId == replyId }
-                    } ?: messages.studentTurnOf(task.request.requestId),
+                    studentMessage = messages.studentTurnOf(task.request.requestId),
                 ),
             )
         }

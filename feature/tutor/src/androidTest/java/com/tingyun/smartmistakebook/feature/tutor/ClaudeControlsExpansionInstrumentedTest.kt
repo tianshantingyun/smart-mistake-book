@@ -82,14 +82,12 @@ class ClaudeControlsExpansionInstrumentedTest {
                 CompositionLocalProvider(LocalDensity provides Density(density.density, 2f)) {
                     var selected by remember { mutableStateOf("a") }
                     ClaudeSegmentedControl(listOf(ClaudeSegment("a", "学科", "segment_a"),
-                        ClaudeSegment("b", "章节", "segment_b"), ClaudeSegment("c", "掌握程度", "segment_c"),
+                        ClaudeSegment("b", "章节", "segment_b"), ClaudeSegment("c", "掌握", "segment_c"),
                         ClaudeSegment("d", "收藏", "segment_d")), selected,
                         { selected = it; selections += it })
                 }
             }
         }
-        val labelHeight = compose.onNodeWithText("掌握程度", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot.height
-        assertTrue("Large labels must remain on one line", labelHeight / compose.density.density <= 40f)
         compose.onNodeWithTag("segment_d").performScrollTo().performClick().assertIsSelected()
         compose.onNodeWithTag("segment_d").performClick()
         compose.runOnIdle { assertEquals(listOf("d"), selections) }

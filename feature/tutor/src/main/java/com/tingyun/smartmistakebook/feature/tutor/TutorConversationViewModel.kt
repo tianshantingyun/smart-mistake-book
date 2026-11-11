@@ -66,7 +66,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -167,8 +166,6 @@ internal class TutorConversationViewModel(
     val uiState: StateFlow<TutorConversationUiState> = _uiState.asStateFlow()
 
     private var draftPersistJob: Job? = null
-    private val regenerationCompletionMutex = kotlinx.coroutines.sync.Mutex()
-    private val completedRegenerationBookkeeping = mutableSetOf<String>()
 
     /**
      * 草稿的本地编辑版本（PRD-08）：随实例状态保存，用来判断"恢复输入 / 内存里的新输入"是否
@@ -243,7 +240,6 @@ internal class TutorConversationViewModel(
                         state.copy(
                             conversation = snapshot?.conversation,
                             messages = snapshot?.messages.orEmpty(),
-                            replyVersions = snapshot?.replyVersions.orEmpty(),
                             // 模式的行是权威（切换落库之后以它为准）；没有行时按会话区默认。
                             interactionMode = snapshot?.conversation?.interactionMode
                                 ?: defaultTutorInteractionMode(conversationArea),
@@ -266,35 +262,10 @@ internal class TutorConversationViewModel(
                     }
                 }
                 .collect { persisted ->
-                    val tasks = tutorLobbyConversationTasks(persisted.filterNot { isTutorRegeneration(it.request.requestId) })
+                    val tasks = tutorLobbyConversationTasks(persisted)
                     updateState { state -> state.copy(tasks = tasks) }
                     observeLiveTurn(_uiState.value.conversationId, tasks)
                 }
-        }
-        viewModelScope.launch {
-            _uiState.map { it.conversationId }.distinctUntilChanged().flatMapLatest { id ->
-                if (id.isBlank()) flowOf(emptyList()) else kotlinx.coroutines.flow.combine(
-                    modelTasks.observeBySubject(id, ModelTaskKind.TUTOR_PLAN),
-                    modelTasks.observeBySubject(id, ModelTaskKind.TUTOR_RESPOND),
-                    modelTasks.observeBySubject(id, ModelTaskKind.TUTOR_LOBBY),
-                ) { plans, replies, lobby -> plans + replies + lobby }
-            }.collect { tasks ->
-                tasks.filter { isTutorRegeneration(it.request.requestId) && it.status == ModelTaskStatus.SUCCEEDED }
-                    .forEach { task ->
-                        try {
-                            completeRegeneratedReply(task)
-                        } catch (cancelled: CancellationException) { throw cancelled }
-                        catch (failure: Exception) { android.util.Log.w("TutorVersions", "Reply version recovery failed", failure) }
-                    }
-                val pending = tasks.lastOrNull { isTutorRegeneration(it.request.requestId) && it.status.isTutorExecutionPending() }
-                if (pending != null && _uiState.value.regeneratingRequestId == null) {
-                    updateState { it.copy(regeneratingRequestId = pending.request.requestId, sending = true) }
-                    viewModelScope.launch {
-                        try { modelTasks.execute(pending.request).collect { } }
-                        finally { updateState { it.copy(regeneratingRequestId = null, sending = false) } }
-                    }
-                }
-            }
         }
         viewModelScope.launch { reloadDraftFromConversationRow() }
         viewModelScope.launch { restorePendingAttachedQuestion() }
@@ -998,120 +969,6 @@ internal class TutorConversationViewModel(
     // 持有者（C2）。这里只留入口——薄的委托，不放逻辑，也就不再有第二份实现可以漂移。
 
     fun onSubmitDraft() = sendCommands.onSubmitDraft()
-
-    fun onReplyChoiceDraft(requestId: String, choiceId: String?) {
-        updateState { it.copy(replyChoiceDrafts = if (choiceId == null) it.replyChoiceDrafts - requestId
-            else it.replyChoiceDrafts + (requestId to choiceId)) }
-    }
-
-    fun onSelectReplyVersion(version: com.tingyun.smartmistakebook.core.domain.TutorReplyVersion) {
-        if (_uiState.value.regeneratingRequestId != null || _uiState.value.sending) return
-        if (version.locked) {
-            updateState { it.copy(viewedReplyVersions = it.viewedReplyVersions + (version.groupId to version.versionId)) }
-        } else viewModelScope.launch {
-            if (conversations.selectReplyVersion(version.conversationId, version.groupId, version.versionId)) {
-                updateState { it.copy(viewedReplyVersions = it.viewedReplyVersions - version.groupId) }
-            }
-        }
-    }
-
-    fun onRegenerateReply(message: TutorMessage, sourceTask: com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot? = null) {
-        val current = _uiState.value
-        val provider = current.provider ?: return
-        if (current.sending || current.regeneratingRequestId != null || !conversations.supportsReplyVersions ||
-            current.pendingRequestCards.isNotEmpty()) return
-        if (current.messages.lastOrNull { it.role != TutorMessageRole.LOCAL_EVENT }?.messageId != message.messageId) return
-        val requestId = tutorRegenerationPrefix(message.messageId) + java.util.UUID.randomUUID()
-        updateState { it.copy(regeneratingRequestId = requestId, sending = true, error = null) }
-        viewModelScope.launch {
-            try {
-                val source = checkNotNull(sourceTask?.request
-                    ?: current.replyVersions.firstOrNull { it.groupId == message.messageId && it.selected }?.request
-                    ?: message.logicalOperationId?.let { modelTasks.observe(it).first()?.request }
-                    ?: current.tasks.lastOrNull { task ->
-                        val input = task.request.input as? com.tingyun.smartmistakebook.core.model.TutorLobbyInput
-                        val student = current.messages.firstOrNull { it.messageId == message.replyToMessageId }
-                        task.status == ModelTaskStatus.SUCCEEDED && input?.messageOrdinal == student?.ordinal
-                    }?.request)
-                require(source.input.subjectId == current.conversationId)
-                val lobby = source.input is com.tingyun.smartmistakebook.core.model.TutorLobbyInput
-                if (!provider.supports(source.input.kind) ||
-                    (!lobby && !tutorAgentChatEnabled(provider, source.input.kind))) return@launch
-                val now = System.currentTimeMillis()
-                val external = provider.executionLocation == com.tingyun.smartmistakebook.core.model.ModelExecutionLocation.EXTERNAL_PROVIDER
-                val manifest = source.egressManifest?.takeIf { lobby && external }?.copy(
-                    authorizationId = "authorization:$requestId", approvedAtEpochMillis = now,
-                    providerId = provider.providerId, modelId = provider.modelId,
-                    providerConfigurationVersion = provider.providerConfigurationVersion)
-                if (lobby && external && manifest == null) return@launch
-                val input = when (val original = source.input) {
-                    is com.tingyun.smartmistakebook.core.model.TutorPlanInput -> original.copy(figureGenerationCapabilities = provider.figureGenerationCapabilities)
-                    is com.tingyun.smartmistakebook.core.model.TutorRespondInput -> original.copy(figureGenerationCapabilities = provider.figureGenerationCapabilities)
-                    else -> original
-                }
-                val request = source.copy(schemaVersion = com.tingyun.smartmistakebook.core.model.ModelTaskRequest.CURRENT_SCHEMA_VERSION,
-                    requestId = requestId, input = input, occurredAtEpochMillis = now,
-                    egressManifest = manifest, agentConsentGranted = external && !lobby)
-                updateState { it.copy(sendState = TutorSendState(
-                    phase = com.tingyun.smartmistakebook.core.domain.TutorSendPhase.DISPATCHING,
-                    logicalOperationId = requestId, messageId = message.messageId)) }
-                var terminal = false
-                modelTasks.execute(request).collect { task ->
-                    if (terminal) return@collect
-                    if (task.status == com.tingyun.smartmistakebook.core.model.ModelTaskStatus.SUCCEEDED) {
-                        terminal = true
-                        check(completeRegeneratedReply(task))
-                    } else if (task.status == com.tingyun.smartmistakebook.core.model.ModelTaskStatus.RETRYABLE_FAILURE ||
-                        task.status == com.tingyun.smartmistakebook.core.model.ModelTaskStatus.PERMANENT_FAILURE) {
-                        terminal = true
-                        error("Regeneration failed")
-                    }
-                }
-            } catch (cancelled: kotlinx.coroutines.CancellationException) {
-                throw cancelled
-            } catch (_: Exception) {
-                updateState { it.copy(error = com.tingyun.smartmistakebook.core.model.appFailure(
-                    code = com.tingyun.smartmistakebook.core.model.AppFailureCode.NETWORK_UNAVAILABLE,
-                    title = "重新生成未完成", message = "原回复已保留，请重试。", dataPreserved = true)) }
-            } finally {
-                updateState { it.copy(regeneratingRequestId = null, sending = false) }
-            }
-        }
-    }
-
-    private suspend fun completeRegeneratedReply(task: com.tingyun.smartmistakebook.core.model.ModelTaskSnapshot): Boolean =
-        regenerationCompletionMutex.withLock {
-            val conversationId = task.request.input.subjectId
-            if (!publishRegeneratedTutorTurn(conversations, modelTasks, conversationId, task)) return@withLock false
-            if (task.request.requestId in completedRegenerationBookkeeping) return@withLock true
-            val snapshot = conversations.observeConversation(conversationId).first() ?: return@withLock false
-            val version = snapshot.replyVersions.firstOrNull { it.requestId == task.request.requestId && it.selected && !it.locked }
-                ?: return@withLock true
-            val requestId = task.request.requestId
-            updateState { it.copy(sendState = TutorSendState(
-                phase = com.tingyun.smartmistakebook.core.domain.TutorSendPhase.DISPATCHING,
-                logicalOperationId = requestId, messageId = version.groupId)) }
-            val lobbyInput = task.request.input as? com.tingyun.smartmistakebook.core.model.TutorLobbyInput
-            val lobbyOutput = task.output as? com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
-            val attached = lobbyInput?.sourceImageAssetRefs?.map { it.assetId }
-                ?: (task.request.input as? com.tingyun.smartmistakebook.core.model.TutorRespondInput)?.studentImageAssetRefs.orEmpty()
-            val suspended = pendingRequestCoordinator.suspendRequestedActionsIfAny(
-                conversationId = conversationId,
-                requestedActions = lobbyInput?.requestedLocalActions.orEmpty() + lobbyOutput?.requestedLocalActions.orEmpty() +
-                    lobbyOutput?.localActions.orEmpty(),
-                attachedImageAssetIds = attached,
-                toolTrace = decodeTutorTurnToolTrace(toolTraceJsonFor(modelTasks, requestId)))
-            if (!suspended) updateState { it.copy(sendState = TutorSendState(
-                phase = com.tingyun.smartmistakebook.core.domain.TutorSendPhase.COMPLETED,
-                logicalOperationId = requestId, messageId = version.groupId)) }
-            completedRegenerationBookkeeping += requestId
-            true
-        }
-
-    fun onStopRegenerating() {
-        val requestId = _uiState.value.regeneratingRequestId ?: return
-        viewModelScope.launch { modelTasks.cancel(requestId) }
-    }
 
     fun onRetryFailedMessage() = sendCommands.onRetryFailedMessage()
 

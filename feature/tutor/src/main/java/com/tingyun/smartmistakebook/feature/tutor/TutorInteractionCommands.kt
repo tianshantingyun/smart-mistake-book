@@ -69,7 +69,6 @@ internal class TutorInteractionCommands(
                             selectionWasCorrect = submittedEvaluation.isCorrect,
                             feedbackMarkdown = requireNotNull(submittedEvaluation.choice.feedbackMarkdown),
                             occurredAtEpochMillis = sink.clock(),
-                            replyVersionId = sink.replyVersionId(),
                         ),
                     )
                 }
@@ -112,7 +111,6 @@ internal class TutorInteractionCommands(
                         turnOrdinal = input.turnOrdinal,
                         requestedMove = requestedMove,
                         occurredAtEpochMillis = sink.clock(),
-                        replyVersionId = sink.replyVersionId(),
                     ),
                 )
                 val nextHistory = sink.currentCycleResponses()
@@ -179,5 +177,4 @@ internal class TutorInteractionSink(
         List<TutorTurnHistoryEntry>,
     ) -> Unit,
     val interactions: TutorInteractionRepository,
-    val replyVersionId: () -> String? = { null },
 )

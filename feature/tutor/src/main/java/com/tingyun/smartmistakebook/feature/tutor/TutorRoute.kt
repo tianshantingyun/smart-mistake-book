@@ -30,7 +30,6 @@ import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
 import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -192,16 +191,7 @@ internal fun TutorPageHeader(
             Icon(Icons.Outlined.Tune, contentDescription = "讲题能力设置", tint = iconTint, modifier = Modifier.size(20.dp))
         }
     }
-    if (com.tingyun.smartmistakebook.core.ui.LocalClaudeReadingCompact.current) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            if (onBack != null) IconButton(onClick = onBack) {
-                Icon(Icons.AutoMirrored.Outlined.ArrowBack, "返回", tint = iconTint)
-            }
-            Text("讲题", modifier = Modifier.weight(1f).padding(vertical = 12.dp),
-                style = ClaudeLayout.HeaderText, color = Ink)
-            actions()
-        }
-    } else if (rootHeader) {
+    if (rootHeader) {
         WorkspacePageHeader(
             title = "讲题", modifier = Modifier.padding(vertical = 8.dp), actions = actions,
         )
@@ -219,14 +209,8 @@ internal fun TutorPageHeader(
  * 一旦出现 HTML/链接/远程图片就自动退回受限文本，不需要每个调用点各自把关。
  */
 @Composable
-internal fun TutorPrompt(
-    text: String,
-    modifier: Modifier = Modifier,
-    figureAssetIds: List<String> = emptyList(),
-    figureAssetResolver: (suspend (String) -> String?)? = null,
-    figureCaptions: Map<String, String> = emptyMap(),
-) {
-    Column(modifier = modifier.fillMaxWidth(),
+internal fun TutorPrompt(text: String, modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxWidth().padding(start = ClaudeLayout.AssistantInset),
         verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Box(Modifier.size(24.dp),
@@ -235,11 +219,8 @@ internal fun TutorPrompt(
             }
             Text("讲题助手", color = Ink, style = ClaudeLayout.ControlText)
         }
-        com.tingyun.smartmistakebook.core.ui.TutorMessageDocument(
+        TutorReplyMarkdown(
             markdown = text,
-            figureAssetIds = figureAssetIds,
-            resolveFigure = figureAssetResolver,
-            figureCaptions = figureCaptions,
             modifier = Modifier.fillMaxWidth(),
         )
     }

@@ -103,17 +103,9 @@ internal fun buildTutorSolutionExposureTargets(
     responses: List<TutorTurnResponse>,
     previewKeys: Set<PlanSolutionPreviewKey>,
     longTermWritesBlocked: Boolean,
-    replyVersionIds: Map<String, String> = emptyMap(),
-    replyVersions: List<com.tingyun.smartmistakebook.core.domain.TutorReplyVersion> = emptyList(),
 ): List<TutorSolutionExposureTarget> {
     if (longTermWritesBlocked) return emptyList()
     val responsesByTurn = responses.associateBy(TutorTurnResponse::turnIdentity)
-    val planVersionsByTurn = timeline.filterIsInstance<TutorConversationTimelineItem.Plan>().mapNotNull { item ->
-        val input = item.task.request.input as? TutorPlanInput ?: return@mapNotNull null
-        replyVersionIds[item.task.request.requestId]?.let { input.turnIdentity() to it }
-    }.toMap() + replyVersions.filter { it.selected }.mapNotNull { version ->
-        (version.request?.input as? TutorPlanInput)?.let { it.turnIdentity() to version.versionId }
-    }.toMap()
     return timeline.mapNotNull { item ->
         when (item) {
             is TutorConversationTimelineItem.Plan -> {
@@ -146,7 +138,6 @@ internal fun buildTutorSolutionExposureTargets(
                             cycleOrdinal = input.cycleOrdinal,
                             turnOrdinal = input.turnOrdinal,
                             occurredAtEpochMillis = 0,
-                            replyVersionId = replyVersionIds[task.request.requestId].takeIf { task.request.input is TutorPlanInput },
                         ).takeIf { previewed && response?.solutionRevealed != true },
                     )
                 } else {
@@ -173,7 +164,6 @@ internal fun buildTutorSolutionExposureTargets(
                             cycleOrdinal = item.response.cycleOrdinal,
                             turnOrdinal = item.response.turnOrdinal,
                             occurredAtEpochMillis = 0,
-                            replyVersionId = replyVersionIds[task.request.requestId].takeIf { task.request.input is TutorPlanInput },
                         ).takeIf { previewed && !item.response.solutionRevealed },
                     )
                 } else {
@@ -210,7 +200,6 @@ internal fun buildTutorSolutionExposureTargets(
                             cycleOrdinal = input.cycleOrdinal,
                             turnOrdinal = input.turnOrdinal,
                             occurredAtEpochMillis = 0,
-                            replyVersionId = planVersionsByTurn[input.turnIdentity()],
                         ).takeIf { response?.solutionRevealed != true },
                         // 附加轮：揭示照做（学生该看到所附之题的答案），但**不落账**。
                         recordsExposure = input.attachedQuestion == null,

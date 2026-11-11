@@ -1,15 +1,12 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.JadeActive
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.shape.CircleShape
-import com.tingyun.smartmistakebook.core.ui.SmartColors
-import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -83,18 +80,10 @@ fun TutorHistoryRoute(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Box(
-                    Modifier.padding(bottom = 20.dp).size(56.dp)
-                        .background(SmartColors.AgentSurface, CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(Icons.Outlined.ChatBubbleOutline, null, Modifier.size(24.dp),
-                        tint = SmartColors.AgentAccent)
-                }
                 Text(
                     text = "还没有讲题记录",
-                    color = Ink,
-                    style = MaterialTheme.typography.titleMedium,
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.bodyLarge,
                 )
                 Text(
                     text = "从拍题或选择一道错题开始",
@@ -107,7 +96,7 @@ fun TutorHistoryRoute(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(0.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 items(
                     items = visible,
@@ -174,7 +163,7 @@ private fun TutorHistoryRow(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("tutor_history_row_${conversation.conversationId}"),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(0.dp),
         bordered = false,
         elevation = 0.dp,
     ) {
@@ -182,35 +171,25 @@ private fun TutorHistoryRow(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(Modifier.padding(start = 8.dp).size(36.dp)
-                .background(SmartColors.AgentSurface, CircleShape),
-                contentAlignment = Alignment.Center) {
-                Icon(Icons.Outlined.ChatBubbleOutline, null, Modifier.size(18.dp),
-                    tint = SmartColors.AgentAccent)
-            }
+            Icon(Icons.Outlined.ChatBubbleOutline, null, Modifier.padding(start = 16.dp).size(20.dp),
+                tint = JadeActive)
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 12.dp, vertical = 14.dp),
+                    .padding(horizontal = 12.dp, vertical = 16.dp),
             ) {
                 Text(
                     text = tutorConversationTitle(conversation),
                     color = Ink,
                     style = MaterialTheme.typography.titleSmall,
                     maxLines = 2,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                 )
-                Row(Modifier.padding(top = 6.dp), verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Box(Modifier.size(5.dp).background(
-                        if (conversation.status == TutorConversationStatus.ACTIVE) SmartColors.JadeActive
-                        else SmartColors.InkMuted, CircleShape))
-                    Text(
-                        text = historySubtitle(conversation),
-                        color = InkSecondary,
-                        style = ClaudeLayout.ControlText,
-                    )
-                }
+                Text(
+                    text = historySubtitle(conversation),
+                    color = InkSecondary,
+                    style = ClaudeLayout.ControlText,
+                    modifier = Modifier.padding(top = 4.dp),
+                )
             }
             if (conversation.status != TutorConversationStatus.ARCHIVED) {
                 IconButton(
@@ -236,7 +215,6 @@ private fun TutorHistoryRow(
             }
         }
     }
-    PaperDivider(Modifier.padding(start = 56.dp))
 }
 
 /**

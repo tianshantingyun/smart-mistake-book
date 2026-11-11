@@ -1,8 +1,6 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.background
-import com.tingyun.smartmistakebook.core.ui.SmartColors
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Box
@@ -68,7 +66,6 @@ internal fun TutorInteractionModeSwitch(
         modifier = modifier
             .widthIn(max = 180.dp)
             .heightIn(min = 48.dp)
-            .background(SmartColors.AgentSurface, RoundedCornerShape(12.dp))
             .claudeInteractiveRow(onClick = { expanded = true }, onClickLabel = "选择回答方式")
             .padding(horizontal = 8.dp)
             .testTag(TUTOR_MODE_SWITCH_TAG)
@@ -82,7 +79,7 @@ internal fun TutorInteractionModeSwitch(
                 TutorInteractionMode.GUIDED -> Icons.Outlined.School
             },
             contentDescription = null,
-            tint = SmartColors.AgentAccent,
+            tint = InkSecondary,
             modifier = Modifier.size(16.dp),
         )
         Text(

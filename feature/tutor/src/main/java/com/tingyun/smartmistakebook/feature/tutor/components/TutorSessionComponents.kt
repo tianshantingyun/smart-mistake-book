@@ -1,8 +1,6 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
 import com.tingyun.smartmistakebook.core.ui.ErrorText
-import com.tingyun.smartmistakebook.core.ui.SmartColors
-import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,7 +29,7 @@ import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
-import com.tingyun.smartmistakebook.core.ui.TutorReplyMarkdown
+import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
 
 @Composable
 internal fun TutorStoredChoiceFeedback(
@@ -40,8 +38,7 @@ internal fun TutorStoredChoiceFeedback(
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = if (response.selectionWasCorrect == false) ErrorText.copy(alpha = 0.05f)
-            else JadeSoft.copy(alpha = 0.28f),
+        color = JadeSoft.copy(alpha = 0.28f),
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(1.dp, Outline),
     ) {
@@ -54,23 +51,26 @@ internal fun TutorStoredChoiceFeedback(
                 color = InkSecondary,
                 style = MaterialTheme.typography.labelMedium,
             )
-            TutorReplyMarkdown(
+            SafeMarkdownText(
                 markdown = requireNotNull(response.diagnosticStemMarkdown),
+                style = MaterialTheme.typography.bodySmall,
             )
-            TutorReplyMarkdown(
+            SafeMarkdownText(
                 markdown = requireNotNull(response.selectedChoiceMarkdown),
+                style = MaterialTheme.typography.bodyMedium,
             )
             Text(
                 text = if (response.selectionWasCorrect == true) {
                     "判断正确"
                 } else {
-                    "再看一下这一步"
+                    "这里暴露了关键分叉"
                 },
                 color = if (response.selectionWasCorrect == true) JadeActive else ErrorText,
                 style = MaterialTheme.typography.labelLarge,
             )
-            TutorReplyMarkdown(
+            SafeMarkdownText(
                 markdown = requireNotNull(response.feedbackMarkdown),
+                style = MaterialTheme.typography.bodySmall,
             )
         }
     }
@@ -111,9 +111,6 @@ internal fun TutorTaskContent(
     onOpenModelSettings: () -> Unit,
     solutionBottomModifier: Modifier,
     modifier: Modifier = Modifier,
-    showCopyAction: Boolean = true,
-    savedDraftChoiceId: String? = null,
-    onDraftChoiceChanged: ((String?) -> Unit)? = null,
 ) {
     val requiresModelSettings = task.failure?.code?.requiresModelSettings() == true
     when (task.status) {
@@ -137,9 +134,6 @@ internal fun TutorTaskContent(
                     output = output,
                     modifier = modifier,
                     openingMarkdown = openingMarkdown,
-                    showCopyAction = showCopyAction,
-                    savedDraftChoiceId = savedDraftChoiceId,
-                    onDraftChoiceChanged = onDraftChoiceChanged,
                     toolTraceJson = toolTraceJson,
                     figureAssetIds = figureAssetIds,
                     figureAssetResolver = figureAssetResolver,
@@ -228,17 +222,19 @@ internal fun TutorModelStatusCard(
     actionLabel: String? = null,
     onAction: () -> Unit = {},
 ) {
-    WorkspacePanel(
+    Surface(
         modifier = modifier
             .fillMaxWidth()
             .testTag("captured_tutor_model_status"),
-        containerColor = SmartColors.AgentSurface,
+        color = JadeSoft.copy(alpha = 0.45f),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, Outline),
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(title, color = SmartColors.AgentAccent, style = MaterialTheme.typography.titleSmall)
+            Text(title, color = Ink, style = MaterialTheme.typography.titleMedium)
             Text(detail, color = InkSecondary, style = MaterialTheme.typography.bodyMedium)
             actionLabel?.let { label ->
                 OutlineActionChip(text = label, onClick = onAction)

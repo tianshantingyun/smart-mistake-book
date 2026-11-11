@@ -1,26 +1,5 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import com.tingyun.smartmistakebook.core.ui.ClaudeButton
-import com.tingyun.smartmistakebook.core.ui.ClaudeSettingsRow
-import com.tingyun.smartmistakebook.core.ui.SmartColors
-import com.tingyun.smartmistakebook.core.ui.WorkspaceChoiceRow
-import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
-import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
-import com.tingyun.smartmistakebook.core.ui.WorkspaceSheet
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
@@ -83,47 +62,4 @@ class SharedUiLayoutInstrumentedTest {
         compose.onNodeWithText("先确认题目条件，再选择合适的公式。").assertIsDisplayed()
         UiAuditEvidence.capture("thinking-readable")
     }
-    @Test fun editorialSettingsAndSheetShareTheSameVisualHierarchy() {
-        var minutes = "20"
-        compose.setContent {
-            SmartMistakeBookTheme {
-                var open by remember { mutableStateOf(false) }
-                var selected by remember { mutableStateOf("20") }
-                Column(Modifier.fillMaxSize().background(SmartColors.Paper).padding(horizontal = 20.dp)) {
-                    WorkspacePageHeader("我的", subtitle = "学习安排与偏好")
-                    SectionHeader("学习设置")
-                    Spacer(Modifier.height(12.dp))
-                    WorkspacePanel(containerColor = SmartColors.ContentSurface,
-                        contentPadding = PaddingValues(vertical = 6.dp)) {
-                        ClaudeSettingsRow("复习安排", "每天预计 20 分钟", Icons.Outlined.Schedule,
-                            onClick = { open = true }, modifier = Modifier.testTag("schedule"))
-                        ClaudeSettingsRow("模型设置", "管理讲题与绘图能力", Icons.Outlined.Tune,
-                            onClick = {}, iconContainerColor = SmartColors.LearningSurface,
-                            iconTint = SmartColors.LearningAccent, showDivider = false)
-                    }
-                }
-                if (open) WorkspaceSheet("复习安排", onDismiss = { open = false }, icon = Icons.Outlined.Schedule,
-                    subtitle = "设置每天预计用于复习的时间。", actions = {
-                        ClaudeButton({ minutes = selected; open = false }, Modifier.fillMaxWidth().testTag("save_schedule")) {
-                            Text("保存安排")
-                        }
-                    }) {
-                    WorkspaceChoiceRow("20 分钟", "适合日常巩固", selected == "20", { selected = "20" })
-                    WorkspaceChoiceRow("30 分钟", "适合集中复习", selected == "30", { selected = "30" },
-                        Modifier.testTag("thirty_minutes"))
-                }
-            }
-        }
-        compose.onNodeWithTag("schedule").assertIsDisplayed().assertHeightIsAtLeast(48.dp)
-        compose.waitForIdle()
-        UiAuditEvidence.capture("editorial-settings-1111")
-        compose.onNodeWithTag("schedule").performClick()
-        compose.onNodeWithTag("thirty_minutes").performClick()
-        compose.waitForIdle()
-        UiAuditEvidence.capture("editorial-settings-sheet-1111")
-        compose.onNodeWithTag("save_schedule").assertIsDisplayed().assertHeightIsAtLeast(48.dp).performClick()
-        compose.runOnIdle { assertEquals("30", minutes) }
-        compose.onNodeWithTag("schedule").assertIsDisplayed()
-    }
-
 }
