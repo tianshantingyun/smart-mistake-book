@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceAsset
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceLocation
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceSet
+import com.tingyun.smartmistakebook.core.model.VisualRole
 import java.io.File
 import java.security.MessageDigest
 import org.junit.Assert.assertEquals
@@ -51,6 +52,40 @@ class SavedMistakeSheetBytesTest {
         )
     }
 
+    /**
+     * F10：讲解图（TUTOR_EXPLANATION）不是题面。没有题目区图时返回 null——
+     * 不许把讲解过程图当"当前题面"交给图像模型重绘。
+     */
+    @Test
+    fun tutorExplanationIsNeverUsedAsTheSheetToRedraw() {
+        val explanation = asset(role = VisualRole.TUTOR_EXPLANATION.name, available = true)
+
+        assertNull(
+            sheetSourceAsset(MistakeSourceSet.Present(listOf(explanation))),
+        )
+    }
+
+    /** 旧库多张历史重绘：当前题面取创建时间最新的那张。 */
+    @Test
+    fun theNewestCleanSheetIsTheOneRedrawn() {
+        val older = asset(
+            role = CLEAN_PROBLEM_SHEET_ROLE,
+            available = true,
+            sourceAssetId = "asset-clean-old",
+            createdAtEpochMillis = 1_000L,
+        )
+        val newer = asset(
+            role = CLEAN_PROBLEM_SHEET_ROLE,
+            available = true,
+            sourceAssetId = "asset-clean-new",
+            createdAtEpochMillis = 2_000L,
+        )
+
+        val picked = sheetSourceAsset(MistakeSourceSet.Present(listOf(older, newer)))
+
+        assertEquals(newer.sourceAssetId, picked?.sourceAssetId)
+    }
+
     @Test
     fun theSheetFileMapsToACanonicalRecordUnderTheVaultDirectory() {
         // A3：域资产 + 本机文件 → 规范记录（vault.resolve 的输入）。相对路径由"文件相对
@@ -96,9 +131,11 @@ class SavedMistakeSheetBytesTest {
         role: String,
         available: Boolean,
         bytes: ByteArray = "canonical".toByteArray(Charsets.UTF_8),
+        sourceAssetId: String = "asset-$role",
+        createdAtEpochMillis: Long = 1,
     ) = MistakeSourceAsset(
         role = role,
-        sourceAssetId = "asset-$role",
+        sourceAssetId = sourceAssetId,
         contentSha256 = MessageDigest.getInstance("SHA-256")
             .digest(bytes)
             .joinToString("") { "%02x".format(it) },
@@ -107,7 +144,7 @@ class SavedMistakeSheetBytesTest {
         width = 64,
         height = 64,
         sourceType = "CAPTURE",
-        createdAtEpochMillis = 1,
+        createdAtEpochMillis = createdAtEpochMillis,
         location = if (available) {
             MistakeSourceLocation.Available("file:///data/user/0/app/files/assets/$role.png")
         } else {

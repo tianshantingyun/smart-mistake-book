@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.outlined.EditNote
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Print
 import androidx.compose.material.icons.outlined.DashboardCustomize
 import androidx.compose.material.icons.Icons
@@ -121,11 +122,21 @@ fun MistakeDetailRoute(
      * 历史版本只读，不显示该入口。null = 装配处未接线，页面不摆一个点了没反应的按钮。
      */
     onEditPaper: ((MistakeRevisionKey) -> Unit)? = null,
+    /**
+     * 6B-3 自然语言改卷入口（批次 50）：当前版本打开卷面页并展开 AI 区。
+     * 与 [onEditPaper] 是**同一条卷面链**的两个入口（直接手改 / 一句话改）；历史版本只读。
+     */
+    onModelEditPaper: ((MistakeRevisionKey) -> Unit)? = null,
     /** 知识能力就绪位（D-Q3）：未就绪时智能整理如实说"准备中"，不发起、也不误报模型未配置。 */
     knowledgeBaseAvailability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
     modifier: Modifier = Modifier,
     agentEdits: com.tingyun.smartmistakebook.core.domain.MistakeEditRepository? = null,
     modelEgressAllowed: Boolean = false,
+    /**
+     * 5c 错因候选面板（批次 50）：装配处提供内容，页面只决定**位置**与**可见条件**
+     * （只对当前版本显示；历史版本只读，不挂候选面板）。null = 未接线，页面不摆空壳。
+     */
+    errorCausePanel: (@Composable (MistakeDetailIdentity) -> Unit)? = null,
 ) {
     var selectedRevisionId by rememberSaveable(errorBookEntryId) {
         mutableStateOf<String?>(null)
@@ -207,9 +218,11 @@ fun MistakeDetailRoute(
         onOpenModelSettings = onOpenModelSettings,
         onEditRequested = { editing = true },
         onEditPaper = onEditPaper,
+        onModelEditPaper = onModelEditPaper,
         revisionNotice = savedRevisionNotice,
         modifier = modifier,
         knowledgeBaseAvailability = knowledgeBaseAvailability,
+        errorCausePanel = errorCausePanel,
     )
 }
 
@@ -232,9 +245,11 @@ internal fun MistakeDetailContent(
     onOpenModelSettings: () -> Unit = {},
     onEditRequested: (() -> Unit)? = null,
     onEditPaper: ((MistakeRevisionKey) -> Unit)? = null,
+    onModelEditPaper: ((MistakeRevisionKey) -> Unit)? = null,
     revisionNotice: String? = null,
     knowledgeBaseAvailability: KnowledgeBaseAvailability = KnowledgeBaseAvailability.Ready,
     modifier: Modifier = Modifier,
+    errorCausePanel: (@Composable (MistakeDetailIdentity) -> Unit)? = null,
 ) {
     RootPageColumn(
         modifier = modifier.testTag("mistake_detail_screen"),
@@ -292,7 +307,11 @@ internal fun MistakeDetailContent(
                 onEditPaper = onEditPaper?.let { callback ->
                     { callback(checkNotNull(state.exportRevisionKeyOrNull())) }
                 },
+                onModelEditPaper = onModelEditPaper?.let { callback ->
+                    { callback(checkNotNull(state.exportRevisionKeyOrNull())) }
+                },
                 knowledgeBaseAvailability = knowledgeBaseAvailability,
+                errorCausePanel = errorCausePanel,
             )
             is MistakeDetailState.Legacy -> LegacyDetail(state.detail)
             is MistakeDetailState.CorruptSnapshot -> CorruptDetail(state.identity)
@@ -385,7 +404,9 @@ private fun ReadyDetail(
     onOpenModelSettings: () -> Unit,
     onEdit: (() -> Unit)?,
     onEditPaper: (() -> Unit)?,
+    onModelEditPaper: (() -> Unit)?,
     knowledgeBaseAvailability: KnowledgeBaseAvailability,
+    errorCausePanel: (@Composable (MistakeDetailIdentity) -> Unit)? = null,
 ) {
     Column(
         modifier = Modifier.testTag("mistake_detail_ready"),
@@ -477,6 +498,15 @@ private fun ReadyDetail(
                         icon = Icons.Outlined.DashboardCustomize,
                     )
                 }
+                // 6B-3：同一条卷面链的"一句话改"入口；打开卷面页并展开 AI 区。
+                if (!isViewingHistoricalRevision && onModelEditPaper != null) {
+                    InlineActionButton(
+                        text = "AI 改卷面",
+                        onClick = onModelEditPaper,
+                        modifier = Modifier.testTag("mistake_detail_ai_edit_paper"),
+                        icon = Icons.Outlined.AutoAwesome,
+                    )
+                }
             }
             // 4E WG-06 T3：用户显式重绘只对当前版本开放；历史版本只读（旧修订的结果已 SUPERSEDED）。
             if (!isViewingHistoricalRevision && repository != null && repository.supportsExplicitRedraw()) {
@@ -511,6 +541,11 @@ private fun ReadyDetail(
                     onArchived = onBack,
                 )
             }
+        }
+        // 5c 错因候选面板（批次 50）：只挂当前版本；历史版本只读，不挂。
+        if (!isViewingHistoricalRevision && errorCausePanel != null) {
+            Spacer(Modifier.height(10.dp))
+            errorCausePanel(state.detail.identity)
         }
         // 讲解图在独立模块直接呈现，不混进题目图片区。
         ExplanationSourceSection(

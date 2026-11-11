@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
+import com.tingyun.smartmistakebook.core.ui.AI_GENERATED_LABEL
+import com.tingyun.smartmistakebook.core.ui.AiContentBadge
 import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -112,6 +114,12 @@ internal fun TutorTurnContent(
             TutorReplyActionBar(
                 shape = tutorReplyActionShape(bodyMarkdown = markdown),
                 testTagPrefix = planActionTestTag,
+            )
+            // 显式标识（《办法》第四条）：这条回复的正文由模型生成；标在正文之后、动作条之下，
+            // 滚动到回复尾部即可看到（与 R3 §4.1 "每条 AI 回复尾部小字"的通行形态一致）。
+            AiContentBadge(
+                text = AI_GENERATED_LABEL,
+                modifier = Modifier.testTag("tutor_ai_generated_label"),
             )
         }
         // B1：这一轮查阅了什么，单独一行小字（不混进思考卡），点开看明细。

@@ -18,6 +18,10 @@ import org.junit.runner.RunWith
 /**
  * 导出通知的两态（阶段 4A 批 4 · L7）：**授权 → 两态都如实**；
  * **未授权（Android 13+）→ 不硬要权限、不发通知**，结果仍落在「已导出的文件」的应用内入口。
+ *
+ * 拒绝态的运行前提（撤销运行期权限会杀进程，不能在测试进程内自我 revoke）：
+ * 先 `adb shell pm revoke <pkg> android.permission.POST_NOTIFICATIONS`，再带
+ * `-e smb_notifications_denied=true` 启动。类级直接跑会在该用例 fail-closed。
  */
 @RunWith(AndroidJUnit4::class)
 class MistakeExportNotificationsInstrumentedTest {
@@ -64,44 +68,44 @@ class MistakeExportNotificationsInstrumentedTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val manager = context.getSystemService(NotificationManager::class.java)
         manager.cancelAll()
-        revokeNotificationPermission(context.packageName)
-        try {
-            assertFalse(context.canPostNotificationsOnChannel(MISTAKE_EXPORT_CHANNEL_ID))
-            val notifications = MistakeExportNotifications(context)
-
-            // 不弹权限请求、不抛异常、不留下任何通知：结果仍在应用内入口。
-            notifications.postSucceeded(
-                exportId = "export-notify-denied-success",
-                displayName = "错题-函数单调区间-第3版.pdf",
-            )
-            notifications.postFailed(
-                exportId = "export-notify-denied-failed",
-                failureMessage = "这版题面还不完整，暂时无法导出。",
-            )
-            SystemClock.sleep(200)
-            assertTrue(
-                "未授权时不许有导出通知",
-                manager.activeNotifications.none { notification ->
-                    val title = notification.notification.extras
-                        .getString(Notification.EXTRA_TITLE)
-                    title == "A4 导出已完成" || title == "这次导出没有完成"
-                },
-            )
-        } finally {
-            // 后续用例（复习提醒等）需要权限回到授权态。
-            grantNotificationPermission(context.packageName)
+        // Android 在撤销运行期权限时会杀掉目标进程；在测试进程内自我 revoke 会
+        // 让本次 instrumentation 以 "Process crashed." 收尾（批次 44 A 域实测）。
+        // 因此拒绝态必须由外部在启动 instrumentation 之前设置，并用参数声明；
+        // 缺失该参数时直接失败，而不是 assumeTrue 跳过（跳过不计通过）。
+        check(permissionWasRevokedBeforeLaunch()) {
+            "拒绝态用例必须在启动前由外部执行 pm revoke，并传 " +
+                "-e smb_notifications_denied=true"
         }
-    }
+        assertFalse(context.canPostNotificationsOnChannel(MISTAKE_EXPORT_CHANNEL_ID))
+        val notifications = MistakeExportNotifications(context)
 
-    private fun grantNotificationPermission(packageName: String) {
-        InstrumentationRegistry.getInstrumentation().uiAutomation.grantRuntimePermission(
-            packageName,
-            Manifest.permission.POST_NOTIFICATIONS,
+        // 不弹权限请求、不抛异常、不留下任何通知：结果仍在应用内入口。
+        notifications.postSucceeded(
+            exportId = "export-notify-denied-success",
+            displayName = "错题-函数单调区间-第3版.pdf",
+        )
+        notifications.postFailed(
+            exportId = "export-notify-denied-failed",
+            failureMessage = "这版题面还不完整，暂时无法导出。",
+        )
+        SystemClock.sleep(200)
+        assertTrue(
+            "未授权时不许有导出通知",
+            manager.activeNotifications.none { notification ->
+                val title = notification.notification.extras
+                    .getString(Notification.EXTRA_TITLE)
+                title == "A4 导出已完成" || title == "这次导出没有完成"
+            },
         )
     }
 
-    private fun revokeNotificationPermission(packageName: String) {
-        InstrumentationRegistry.getInstrumentation().uiAutomation.revokeRuntimePermission(
+    private fun permissionWasRevokedBeforeLaunch(): Boolean =
+        InstrumentationRegistry.getArguments()
+            .getString("smb_notifications_denied")
+            ?.toBooleanStrictOrNull() == true
+
+    private fun grantNotificationPermission(packageName: String) {
+        InstrumentationRegistry.getInstrumentation().uiAutomation.grantRuntimePermission(
             packageName,
             Manifest.permission.POST_NOTIFICATIONS,
         )

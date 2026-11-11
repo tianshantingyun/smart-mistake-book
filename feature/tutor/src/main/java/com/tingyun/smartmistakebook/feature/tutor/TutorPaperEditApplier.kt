@@ -48,13 +48,24 @@ internal object TutorPaperEditApplier {
             return TutorPaperEditApplication.Rejected("模型没有给出可执行的修改。")
         }
         var current = paper
+        // KD-85：模型真正写进卷面的文本才置位；纯删题/调序/无操作命令不置位
+        // （没有 AI 文字进入文件，标成 AI 生成是《办法》第十条的伪造标识）。
+        var modelTextEntered = false
         commands.forEachIndexed { index, command ->
             when (val step = applyOne(current, command)) {
-                is Step.Ok -> current = step.edit
+                is Step.Ok -> {
+                    if (command.entersModelText() && step.edit.questions != current.questions) {
+                        modelTextEntered = true
+                    }
+                    current = step.edit
+                }
                 is Step.Bad -> return TutorPaperEditApplication.Rejected(
                     "第 ${index + 1} 条命令：${step.reason}",
                 )
             }
+        }
+        if (modelTextEntered) {
+            current = current.withModelTextApplied()
         }
         val draft = runCatching { current.toDraft() }.getOrElse {
             // 入口已按块类型挡住空必填文字；走到这里说明还有未覆盖的形状，fail-closed。
@@ -194,6 +205,24 @@ internal object TutorPaperEditApplier {
         val question = paper.questions.firstOrNull { it.entryId == entryId }
             ?: return Step.Bad("卷面上没有 entryId=$entryId 的题。")
         return block(question)
+    }
+
+    /**
+     * 这条命令会不会把**非空模型文字**写进卷面（KD-85 的置位判据）。
+     *
+     * 只看命令类型与写入值：删题/加回/调序不进入文字，清空备注/空题干也不产生新文字。
+     * 命令是否真的改变了卷面由调用方另行比较（`questions != before`）——同一句话重复下发
+     * 不算"写入了模型文字"。
+     */
+    private fun PaperEditCommand.entersModelText(): Boolean = when (this) {
+        is PaperEditCommand.SetQuestionTitle -> title.isNotBlank()
+        is PaperEditCommand.SetBlockText -> text.isNotBlank()
+        is PaperEditCommand.SetChoiceText -> text.isNotBlank()
+        is PaperEditCommand.SetNote -> note.isNotBlank()
+        is PaperEditCommand.RemoveQuestion,
+        is PaperEditCommand.RestoreQuestion,
+        is PaperEditCommand.MoveQuestion,
+        -> false
     }
 
     private sealed interface Step {

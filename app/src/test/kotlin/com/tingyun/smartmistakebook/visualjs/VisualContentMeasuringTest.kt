@@ -42,6 +42,22 @@ class VisualContentMeasuringTest {
             lineMetricCalls++
             return VisualTextLineMetricsPx(ascentPx = -20f, descentPx = 5f)
         }
+
+        override fun textInkBoundsPx(
+            payload: String,
+            start: Int,
+            endExclusive: Int,
+        ): VisualTextInkBoundsPx {
+            // 确定性墨迹：自绘制左缘 0 起、右缘 = 段 advance 宽 -1 px、基线上 4 px 到基线下 2 px
+            // （getTextBounds 隐式原点口径：top ≤ 0 在基线上、bottom ≥ 0 在基线下）。
+            val width = (endExclusive - start) * 10f
+            return VisualTextInkBoundsPx(
+                left = 0f,
+                top = -4f,
+                right = (width - 1f).coerceAtLeast(0f),
+                bottom = 2f,
+            )
+        }
     }
 
     // density=2, fontScale=1, sizeSp=16 → 规范字号 32 px；du = px / 2。

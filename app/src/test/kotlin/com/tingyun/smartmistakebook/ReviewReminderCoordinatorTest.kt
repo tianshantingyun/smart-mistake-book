@@ -108,7 +108,7 @@ class ReviewReminderCoordinatorTest {
     }
 
     @Test
-    fun disabledOrPermissionRevokedCancelsWithoutPosting() = runBlocking {
+    fun disabledCancelsWhileABlockedChannelRetainsTheNextAlarmWithoutPosting() = runBlocking {
         val disabledRepository = FakeRepository(ReviewReminderPreferences(enabled = false))
         val disabledSystem = FakeSystem()
         coordinator(disabledRepository, disabledSystem)
@@ -120,8 +120,24 @@ class ReviewReminderCoordinatorTest {
         val blockedSystem = FakeSystem(canPost = false)
         coordinator(blockedRepository, blockedSystem)
             .handleBroadcast(Intent.ACTION_BOOT_COMPLETED)
-        assertTrue(blockedSystem.cancelled)
+        assertFalse(blockedSystem.cancelled)
+        assertEquals(Instant.parse("2026-07-21T20:30:00Z").toEpochMilli(), blockedSystem.scheduledAt)
         assertFalse(blockedSystem.notificationPosted)
+    }
+
+    @Test
+    fun aTemporarilyBlockedChannelKeepsTomorrowScheduledAndRecoversWithoutPreferenceChanges() = runBlocking {
+        val repository = FakeRepository(ReviewReminderPreferences(enabled = true))
+        val system = FakeSystem(canPost = false)
+        coordinator(repository, system).handleBroadcast(ReviewReminderContract.ACTION_DAILY_REMINDER)
+
+        assertFalse(system.notificationPosted)
+        assertEquals(Instant.parse("2026-07-21T20:30:00Z").toEpochMilli(), system.scheduledAt)
+        system.canPost = true
+        coordinator(repository, system, nowEpochMillis = now + 86_400_000L)
+            .handleBroadcast(ReviewReminderContract.ACTION_DAILY_REMINDER)
+        assertEquals(1, system.notificationPostCount)
+        assertEquals(Instant.parse("2026-07-22T20:30:00Z").toEpochMilli(), system.scheduledAt)
     }
 
     private fun coordinator(
@@ -162,7 +178,7 @@ class ReviewReminderCoordinatorTest {
     }
 
     private class FakeSystem(
-        private val canPost: Boolean = true,
+        var canPost: Boolean = true,
     ) : ReviewReminderSystem {
         var scheduledAt: Long? = null
         var cancelled = false

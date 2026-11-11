@@ -72,6 +72,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.tingyun.smartmistakebook.core.data.model.RepositoryPaperEditModelPort
 import com.tingyun.smartmistakebook.core.data.study.AnswerKeyCorrectionCommand
 import com.tingyun.smartmistakebook.core.data.study.AnswerKeyCorrectionStatus
 import com.tingyun.smartmistakebook.core.data.study.AnswerKeyCorrectionWriter
@@ -283,8 +284,9 @@ private fun clarificationCorrectionRejectionText(reason: String?): String = when
  * 顺序即卷面顺序。id 之间用单元分隔符拼接后整体做一次 URI 编码：Navigation 解码一次，
  * 这里只解一次，与 `Routes.mistakeDetail` 同一层数（多编/少编都会让 id 对不上）。
  */
-private const val MistakePaperEditRoutePattern = "mistake/paper-edit/{entryIds}"
+private const val MistakePaperEditRoutePattern = "mistake/paper-edit/{entryIds}?ai={ai}"
 private const val MistakePaperEditEntryIdsArgument = "entryIds"
+private const val MistakePaperEditAiArgument = "ai"
 private const val MistakePaperEditSeparator = "\u001F"
 
 private fun encodeMistakePaperEditEntryIds(entryIds: List<String>): String =
@@ -301,8 +303,9 @@ private fun decodeMistakePaperEditEntryIds(raw: String?): List<String> =
         .filter(String::isNotEmpty)
         .distinct()
 
-private fun mistakePaperEditRoute(entryIds: List<String>): String =
-    "mistake/paper-edit/" + Uri.encode(encodeMistakePaperEditEntryIds(entryIds))
+private fun mistakePaperEditRoute(entryIds: List<String>, modelEdit: Boolean = false): String =
+    "mistake/paper-edit/" + Uri.encode(encodeMistakePaperEditEntryIds(entryIds)) +
+        if (modelEdit) "?$MistakePaperEditAiArgument=1" else ""
 
 @Composable
 internal fun SmartMistakeBookRoot(
@@ -1605,12 +1608,21 @@ internal fun SmartMistakeBookRoot(
                         nullable = true
                         defaultValue = null
                     },
+                    navArgument(MistakePaperEditAiArgument) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
                 ),
             ) { entry ->
                 val rawEntryIds = entry.arguments
                     ?.getString(MistakePaperEditEntryIdsArgument)
                 val requestedEntryIds = remember(rawEntryIds) {
                     decodeMistakePaperEditEntryIds(rawEntryIds)
+                }
+                // 6B-3：改卷端口只在这里装配一次（无状态）；UI 只看见 core:model 的接口。
+                val paperEditModelPort = remember(application) {
+                    RepositoryPaperEditModelPort(application.modelTaskRepository)
                 }
                 MistakePaperEditRoute(
                     onPrepareDetailedAnswers = { draft, format -> beginDetailedAnswers(format) { draft } },
@@ -1629,6 +1641,12 @@ internal fun SmartMistakeBookRoot(
                             launchSingleTop = true
                         }
                     },
+                    // 「配置了模型 = 同意」的应用层实值；false 时 AI 区只给设置入口，不发请求。
+                    modelPort = paperEditModelPort,
+                    modelConsentGranted = modelConfiguration.isConfigured,
+                    initialModelEdit =
+                        entry.arguments?.getString(MistakePaperEditAiArgument) == "1",
+                    onOpenModelSettings = { navController.navigate(Routes.Capability) },
                     modifier = Modifier.testTag("root_native_paper_edit"),
                 )
             }
@@ -1736,6 +1754,14 @@ internal fun SmartMistakeBookRoot(
                             launchSingleTop = true
                         }
                     },
+                    // 6B-3：同一条卷面链的"一句话改"入口；打开卷面页并展开 AI 区。
+                    onModelEditPaper = { key ->
+                        navController.navigate(
+                            mistakePaperEditRoute(listOf(key.entryId), modelEdit = true),
+                        ) {
+                            launchSingleTop = true
+                        }
+                    },
                     onTutor = { key ->
                         navController.navigate(Routes.mistakeTutor(key)) {
                             launchSingleTop = true
@@ -1746,6 +1772,15 @@ internal fun SmartMistakeBookRoot(
                     },
                     knowledgeBaseAvailability = knowledgeBaseAvailability,
                     onOpenModelSettings = { navController.navigate(Routes.Capability) },
+                    // 5c（批次 50）：详情页的错因教学候选面板。只对当前版本显示；
+                    // 数据走 ErrorCauseReviewService（读候选/现行标签，确认→USER_CONFIRMED，
+                    // 撤销→撤回行+VOIDED），模型自动落账仍由门挡在数据层。
+                    errorCausePanel = { identity ->
+                        MistakeErrorCausePanelHost(
+                            service = application.errorCauseReviewService,
+                            identity = identity,
+                        )
+                    },
                 )
             }
             composable(Routes.MistakeTutor) { entry ->

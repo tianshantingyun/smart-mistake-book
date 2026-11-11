@@ -38,6 +38,14 @@ import org.junit.Rule
 import org.junit.Test
 
 class CapabilityScreenInstrumentedTest {
+    /**
+     * 批次 50 设备全量：生产文案在同一 `Text` 里紧跟 `editCapabilityDescription()`
+     *（`SecondaryScreens.kt:599`，T4 起恒非空）→ 旧的整串等值匹配永远找不到节点
+     *（首跑 `Expected exactly '1' node`，本用例因此红了 7 天）。这里改成"必须包含探针通过主句"，
+     * 主语仍是"测试通过上屏"，不涉及把失败当通过。
+     */
+    private val PROBE_PASSED_COPY = "测试通过：图片读取和讲解都可用。"
+
     @get:Rule
     val composeRule = createComposeRule()
 
@@ -80,7 +88,7 @@ class CapabilityScreenInstrumentedTest {
 
         composeRule.onNodeWithTag("capability_test").performScrollTo().performClick()
         composeRule.waitUntil(timeoutMillis = 5_000) { testCalls == 1 }
-        composeRule.onNodeWithText("测试通过：图片读取和讲解都可用。")
+        composeRule.onNodeWithText(PROBE_PASSED_COPY, substring = true)
             .performScrollTo()
             .assertExists()
     }
@@ -127,13 +135,13 @@ class CapabilityScreenInstrumentedTest {
         composeRule.onNodeWithText("正在测试").assertExists()
 
         result.complete(ModelCapabilityTestResult.Completed(verification(initial)))
-        composeRule.onNodeWithText("测试通过：图片读取和讲解都可用。")
+        composeRule.onNodeWithText(PROBE_PASSED_COPY, substring = true)
             .performScrollTo()
             .assertExists()
         composeRule.onNodeWithTag("capability_provider")
             .performScrollTo()
             .performTextReplacement("另一服务商")
-        composeRule.onNodeWithText("测试通过：图片读取和讲解都可用。")
+        composeRule.onNodeWithText(PROBE_PASSED_COPY, substring = true)
             .assertDoesNotExist()
     }
 

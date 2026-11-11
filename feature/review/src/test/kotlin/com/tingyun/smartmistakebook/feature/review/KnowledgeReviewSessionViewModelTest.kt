@@ -18,10 +18,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 
 /**
  * 知识点复习会话单元（spec dual-review-entry §3.3/§3.4）：单知识点展示单元——进入后向模型
@@ -156,7 +152,7 @@ class KnowledgeReviewSessionViewModelTest {
         assertNull(restored.submittedChoice)
     }
 
-    /** 独立序列化后新建 handle；只接受 Android SavedState 可保存的标量和字符串列表。 */
+    /** 用状态的深拷贝新建 handle；只接受 Android SavedState 可保存的标量和字符串列表。 */
     private fun processRestoredHandle(handle: SavedStateHandle): SavedStateHandle {
         val state = handle.keys().associateWith { key ->
             val value = handle.get<Any>(key)
@@ -167,13 +163,10 @@ class KnowledgeReviewSessionViewModelTest {
             )
             value
         }
-        val bytes = ByteArrayOutputStream().use { output ->
-            ObjectOutputStream(output).use { it.writeObject(state) }
-            output.toByteArray()
-        }
-        @Suppress("UNCHECKED_CAST")
-        val restored = ObjectInputStream(ByteArrayInputStream(bytes)).use {
-            it.readObject() as Map<String, Any?>
+        // Android 的 SavedState 恢复走 Bundle/Map，不经 Java 序列化；这里用深拷贝模拟同一语义，
+        // 既避免把测试夹具变成反序列化入口，也不再依赖序列化实现细节。
+        val restored = state.mapValues { (_, value) ->
+            if (value is ArrayList<*>) ArrayList(value) else value
         }
         return SavedStateHandle(restored)
     }

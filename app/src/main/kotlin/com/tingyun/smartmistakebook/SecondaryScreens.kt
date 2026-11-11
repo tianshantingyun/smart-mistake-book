@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.compose.foundation.layout.heightIn
 import android.net.Uri
 import android.view.WindowManager
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -640,6 +641,19 @@ internal fun DataPrivacyScreen(
     capabilities: AppCapabilitySnapshot,
     onBack: () -> Unit,
 ) {
+    // 隐私政策全文是同一路由内的第二个视图状态：不新增路由，也就不必碰他线在飞的
+    // SmartMistakeBookRoot.kt（协作规则：只加新文件 + 最小接入）。
+    var showPolicy by rememberSaveable { mutableStateOf(false) }
+    if (showPolicy) {
+        // 系统返回键先回摘要页，而不是把整个"数据与隐私"路由弹掉——政策页是同一路由的
+        // 子视图，用户按返回的预期是"回到上一屏"，不是"退出隐私设置"。
+        BackHandler { showPolicy = false }
+        PrivacyPolicyScreen(
+            networkOffline = capabilities.networkMode == NetworkMode.STRICT_OFFLINE,
+            onBack = { showPolicy = false },
+        )
+        return
+    }
     RootPageColumn {
         SecondaryHeader(title = "数据与隐私", onBack = onBack)
         Spacer(Modifier.height(16.dp))
@@ -665,6 +679,58 @@ internal fun DataPrivacyScreen(
                     modifier = Modifier.padding(top = 10.dp),
                     color = InkSecondary,
                 )
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        TextButton(
+            onClick = { showPolicy = true },
+            modifier = Modifier.testTag("privacy_policy_open"),
+        ) {
+            Text("查看隐私政策全文")
+        }
+    }
+}
+
+/**
+ * 隐私政策全文页（批次 50 隐私备案线）。
+ *
+ * 正文与占位符口径全部来自 [PrivacyPolicyCopy]：本函数只负责排版，不自己拼任何合规措辞，
+ * 否则"代码里说的"与"用例钉住的"会分叉。备案号/运营主体未取得时，页面如实显示
+ * "尚未取得"，不留空、也不编造。
+ */
+@Composable
+internal fun PrivacyPolicyScreen(
+    networkOffline: Boolean,
+    onBack: () -> Unit,
+) {
+    RootPageColumn {
+        SecondaryHeader(title = "隐私政策", onBack = onBack)
+        Spacer(Modifier.height(16.dp))
+        WorkspacePanel {
+            Column(Modifier.testTag("privacy_policy_screen")) {
+                Text(
+                    text = PrivacyPolicyCopy.headerText(),
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                PrivacyPolicyCopy.sections(networkOffline).forEach { section ->
+                    Text(
+                        text = section.title,
+                        modifier = Modifier
+                            .padding(top = 18.dp)
+                            .semantics { heading() },
+                        color = Ink,
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    section.paragraphs.forEach { paragraph ->
+                        Text(
+                            text = paragraph,
+                            modifier = Modifier.padding(top = 6.dp),
+                            color = InkSecondary,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                }
             }
         }
     }

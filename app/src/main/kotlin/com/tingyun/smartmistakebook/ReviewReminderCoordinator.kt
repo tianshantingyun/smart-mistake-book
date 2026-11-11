@@ -42,11 +42,13 @@ internal class ReviewReminderCoordinator(
 
     private suspend fun handleReminderFired() {
         val preferences = repository.current()
-        if (!preferences.enabled || !platform.canPostNotifications()) {
+        if (!preferences.enabled) {
             platform.cancel()
             return
         }
         scheduleNext(preferences)
+        // 频道可能只暂时关闭。保留下一次闹钟，系统重新允许通知后无需重新切换偏好。
+        if (!platform.canPostNotifications()) return
         val pendingCount = pendingReviewCount()
         val now = clock()
         val zone = zoneId()
@@ -65,7 +67,7 @@ internal class ReviewReminderCoordinator(
     }
 
     private fun reconcile(preferences: ReviewReminderPreferences) {
-        if (!preferences.enabled || !platform.canPostNotifications()) {
+        if (!preferences.enabled) {
             platform.cancel()
             return
         }

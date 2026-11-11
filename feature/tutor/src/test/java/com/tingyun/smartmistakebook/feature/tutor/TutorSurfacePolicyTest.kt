@@ -89,7 +89,8 @@ class TutorSurfacePolicyTest {
         ).block()
 
         assertNotNull("会话结束后输入框也不能消失（A5）", block)
-        assertTrue(block!!.reason.contains("已经结束"))
+        // PR#13 文案精简：prod 是「讲题已结束，未存入错题本。」；断言跟 prod 对齐。
+        assertTrue(block!!.reason.contains("已结束"))
         // 确实没有可以发过去的对象：输入框在，但不假装能输入。
         assertTrue(block.inputDisabled)
         assertNull(block.action)
@@ -116,7 +117,8 @@ class TutorSurfacePolicyTest {
             conversationEnded = true,
         ).block()
 
-        assertTrue(block!!.reason.contains("已经结束"))
+        // 顺序就是学生先撞上的那一件：会话都结束了，再说"模型没配好"没有意义（断言跟 PR#13 文案对齐）。
+        assertTrue(block!!.reason.contains("已结束"))
         assertTrue(block.inputDisabled)
     }
 

@@ -46,7 +46,9 @@ class ReviewReminderPlatformInstrumentedTest {
 
         val notification = waitForReviewNotification(notificationManager)
         assertEquals(
-            "有 4 道题待复习，点这里开始。",
+            // 产品文案在 cf448a97 统一为「点击开始」；本断言此前停留在基线
+            // 「点这里开始」，设备验收（批次 44 A 域）第一次把它跑红。
+            "有 4 道题待复习，点击开始。",
             notification.extras.getString(Notification.EXTRA_TEXT),
         )
         assertEquals(Notification.VISIBILITY_PRIVATE, notification.visibility)
