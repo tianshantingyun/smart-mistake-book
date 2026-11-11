@@ -123,6 +123,32 @@ fun KnowledgeReviewSessionScreen(
      * 由屏幕按 `item.id` 现读；读不到时仍由写入口在提交前兜底取一次，不退回"不做 CAS"。
      */
     loadAnswerKeyVersion: (suspend (itemId: String) -> Long)? = null,
+    /**
+     * KD-67：`CLARIFY_OR_CONFIRM` 确认卡状态。默认 [KnowledgeClarificationState.Hidden] =
+     * 没有待确认决策（未接线的调用方/仪器化夹具行为不变）。
+     */
+    clarificationState: KnowledgeClarificationState = KnowledgeClarificationState.Hidden,
+    /**
+     * 学生确认题面答案：把候选 id、本题标准答案与**学生这次的作答**交给 app 的写路径
+     * （更正/用户断言记录 → 单列 CAS 升级为 `USER_ASSERTED`）。只有已作答时按钮可用。
+     */
+    onClarificationConfirm: (
+        candidateId: String,
+        correctChoiceId: String,
+        selectedChoiceId: String,
+    ) -> Unit = { _, _, _ -> },
+    /** 学生选择"换一道题"（跳过当前知识点）。 */
+    onClarificationNewQuestion: (candidateId: String) -> Unit = {},
+    /** 学生取消这张卡：本次会话继续，不写任何核验状态。 */
+    onClarificationCancel: () -> Unit = {},
+    /**
+     * 冲突 KC 卡（K5，批次 49 P2-14；修复环补决策消费）：把本次节点的选择换成
+     * 选择器的 CALIBRATION 走廊，并把**选择器返回的决策**带回会话状态（null = 选择失败）。
+     * 默认 null = 未接线的调用方/仪器化夹具行为不变（卡仍然显示，但「先做校准题」
+     * 只收起卡并置校准意图，不改任何写路径）。
+     */
+    onRequestCalibrationQuiz: suspend (KnowledgeReviewQueueEntry) -> KnowledgeCalibrationDecision? =
+        { null },
     modifier: Modifier = Modifier,
 ) {
     val viewModel: KnowledgeReviewSessionViewModel = viewModel(
@@ -203,6 +229,35 @@ fun KnowledgeReviewSessionScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = SmartColors.InkSecondary,
             )
+            // K5（批次 49 P2-14）：冲突知识点在出题前说清"最近有波动"，
+            // 给「先做校准题」/「仍然复习」两个动作。卡不阻断：不管学生点不点，
+            // 下面的取题/作答流程都照常走（默认 = 仍然复习）。
+            KnowledgeConflictCardSlot(
+                // 卡是否还在由会话状态决定（学生点过「仍然复习」/「先做校准题」后
+                // showConflictCard 已为 false）；只看 entry.isConflicted 会让卡永远不消失，
+                // 学生点了动作像是没反应。设备用例 `continueReviewDismissesTheConflictCard`
+                // 与 `startCalibrationDismissesTheCardAndMarksThisRoundAsCalibration` 钉住。
+                model = if (viewModel.showConflictCard) knowledgeConflictCardModel(entry) else null,
+                onStartCalibration = {
+                    viewModel.startCalibration()
+                    viewModel.requestCalibrationQuestion(entry, onRequestCalibrationQuiz)
+                },
+                onContinueReview = viewModel::dismissConflictCard,
+            )
+            if (viewModel.calibrationRequested) {
+                Text(
+                    text = knowledgeCalibrationStatusText(
+                        status = viewModel.calibrationDecisionStatus,
+                        decision = viewModel.calibrationDecision,
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 6.dp)
+                        .testTag("knowledge_review_calibration_mode"),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = SmartColors.InkSecondary,
+                )
+            }
             Spacer(Modifier.height(16.dp))
         }
         when (viewModel.loadStatus) {
@@ -250,11 +305,27 @@ fun KnowledgeReviewSessionScreen(
                     viewModel = viewModel,
                     item = item,
                     knowledgeNodeId = entry?.knowledgeNodeId.orEmpty(),
+                    knowledgeNodeLabel = entry?.displayName.orEmpty(),
                     submitAnswer = submitAnswer,
                     onReportAnswerIssue = onReportAnswerIssue,
                     onCorrectAnswerKey = onCorrectAnswerKey,
                     answerKeyVersion = answerKeyVersion,
                     loadAnswerKeyVersion = loadAnswerKeyVersion,
+                    clarificationState = clarificationState,
+                    onClarificationConfirm = { candidateId ->
+                        val answered = viewModel.submittedChoice
+                        if (answered != null) {
+                            onClarificationConfirm(candidateId, item.correctChoiceId, answered)
+                        }
+                    },
+                    onClarificationNewQuestion = { candidateId ->
+                        // 换题 = 不做这道题：跳过当前知识点，让下一个知识点继续。
+                        // 同一会话的题面身份是 (会话, 知识点)，重出会读回同一道题——
+                        // 假装"换了题"只会让学生看到同一道题，所以这里给的是真出路。
+                        onClarificationNewQuestion(candidateId)
+                        viewModel.skipCurrentNode()
+                    },
+                    onClarificationCancel = onClarificationCancel,
                 )
             }
         }
@@ -302,6 +373,7 @@ private fun KnowledgeQuizContent(
     viewModel: KnowledgeReviewSessionViewModel,
     item: TutorAssessmentItem,
     knowledgeNodeId: String,
+    knowledgeNodeLabel: String,
     submitAnswer: suspend (
         requestId: String,
         knowledgeNodeId: String,
@@ -314,6 +386,10 @@ private fun KnowledgeQuizContent(
     onCorrectAnswerKey: ((KnowledgeQuizAnswerKeyCorrection) -> Unit)?,
     answerKeyVersion: Long?,
     loadAnswerKeyVersion: (suspend (itemId: String) -> Long)?,
+    clarificationState: KnowledgeClarificationState,
+    onClarificationConfirm: (candidateId: String) -> Unit,
+    onClarificationNewQuestion: (candidateId: String) -> Unit,
+    onClarificationCancel: () -> Unit,
 ) {
     var issueDialogVisible by rememberSaveable { mutableStateOf(false) }
     var issueReason by rememberSaveable { mutableStateOf("") }
@@ -348,6 +424,17 @@ private fun KnowledgeQuizContent(
         }
     }
     Spacer(Modifier.height(16.dp))
+    // KD-67：题面答案未核验时，先让学生处理确认卡，再提交作答。
+    // 确认按钮只有已作答时可用（确认的语义 = 把这次的作答按这个答案计分）。
+    KnowledgeClarificationSlot(
+        state = clarificationState,
+        confirmEnabled = viewModel.submittedChoice != null,
+        currentItemId = item.id,
+        knowledgeNodeLabels = mapOf(knowledgeNodeId to knowledgeNodeLabel),
+        onConfirm = onClarificationConfirm,
+        onNewQuestion = onClarificationNewQuestion,
+        onCancel = onClarificationCancel,
+    )
     if (viewModel.submittedChoice == null) {
         Spacer(Modifier.height(6.dp))
         PrimaryActionButton(

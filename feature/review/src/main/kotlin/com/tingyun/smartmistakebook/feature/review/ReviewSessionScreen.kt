@@ -64,6 +64,9 @@ import com.tingyun.smartmistakebook.core.model.TutorAssessmentItem
 import com.tingyun.smartmistakebook.core.model.TutorChoiceEvaluation
 import com.tingyun.smartmistakebook.core.model.VerifiedTeachingArtifact
 import com.tingyun.smartmistakebook.core.model.reviewRetryError
+import com.tingyun.smartmistakebook.core.ui.AI_ORGANIZED_LABEL
+import com.tingyun.smartmistakebook.core.ui.AI_ORGANIZED_NOTE
+import com.tingyun.smartmistakebook.core.ui.AiContentBadge
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
@@ -841,11 +844,28 @@ private fun ReTeachOpeningCard(
                 style = MaterialTheme.typography.titleMedium,
             )
             Spacer(Modifier.height(4.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = opening.title,
+                    color = SmartColors.InkSecondary,
+                    style = MaterialTheme.typography.labelMedium,
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag("review_reteach_material_title"),
+                )
+                // KD-29：材料是 AI 从教辅/讲义/扫描件整理的，材料卡上给显式标识。
+                AiContentBadge(
+                    text = AI_ORGANIZED_LABEL,
+                    modifier = Modifier.testTag("review_reteach_ai_label"),
+                )
+            }
             Text(
-                text = opening.title,
+                text = AI_ORGANIZED_NOTE,
                 color = SmartColors.InkSecondary,
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.testTag("review_reteach_material_title"),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier
+                    .padding(top = 2.dp)
+                    .testTag("review_reteach_ai_note"),
             )
             Spacer(Modifier.height(10.dp))
             SafeMarkdownText(
@@ -903,6 +923,24 @@ private fun PrerequisiteRemediationCard(remediation: PrerequisiteRemediation) {
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.testTag("review_prereq_material_title"),
             )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 2.dp),
+            ) {
+                // KD-29：与重教卡同一判据/同一文案；前置补救用的也是同一批 AI 整理材料。
+                AiContentBadge(
+                    text = AI_ORGANIZED_LABEL,
+                    modifier = Modifier.testTag("review_prereq_ai_label"),
+                )
+                Text(
+                    text = AI_ORGANIZED_NOTE,
+                    color = SmartColors.InkSecondary,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .padding(start = 6.dp)
+                        .testTag("review_prereq_ai_note"),
+                )
+            }
             Spacer(Modifier.height(10.dp))
             SafeMarkdownText(
                 markdown = remediation.markdown,

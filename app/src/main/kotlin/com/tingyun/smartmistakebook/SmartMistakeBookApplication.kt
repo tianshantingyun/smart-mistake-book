@@ -182,6 +182,13 @@ class SmartMistakeBookApplication : Application() {
     val studyDatabase: StudyDatabasePort
         get() = database
 
+    /**
+     * 5c 错因候选面板的读写接缝（批次 50）。门保持默认关闭：模型不会自动落账，
+     * 只有学生显式确认才写 `USER_CONFIRMED`；撤销走撤回行 + VOIDED（无 attempt 写口）。
+     */
+    val errorCauseReviewService: com.tingyun.smartmistakebook.core.data.study.ErrorCauseReviewService
+        by lazy { com.tingyun.smartmistakebook.core.data.study.ErrorCauseReviewService(studyDatabase) }
+
     lateinit var mistakeDetailRepository: MistakeDetailRepository
 
     /** 本轮候选菜单的本地检索源：由错题详情读口派生，无状态，可全局共用一个。 */
