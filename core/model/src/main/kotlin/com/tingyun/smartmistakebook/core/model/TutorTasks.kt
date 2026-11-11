@@ -258,6 +258,8 @@ data class TutorPlanInput(
      */
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val visualContext: TutorVisualContext? = null,
+    /** 4E.1 统一生图契约：本轮可用方法/工具；null 时按能力未知处理。 */
+    val figureGenerationCapabilities: FigureGenerationCapabilities? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_PLAN
@@ -488,6 +490,8 @@ data class TutorRespondInput(
     /** 4E WG-04b（schema 18）：与 [TutorPlanInput.visualContext] 同一口径。 */
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val visualContext: TutorVisualContext? = null,
+    /** 4E.1 统一生图契约：本轮可用方法/工具；null 时按能力未知处理。 */
+    val figureGenerationCapabilities: FigureGenerationCapabilities? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_RESPOND
