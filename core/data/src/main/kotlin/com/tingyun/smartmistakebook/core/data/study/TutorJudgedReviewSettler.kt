@@ -280,7 +280,7 @@ internal class TutorJudgedReviewSettler(
                     ReviewLogSink.SOURCE_KIND_MODEL_JUDGED
                 },
                 sourceId = writeResult.attempt.attempt.attemptId,
-                priorMemory = priorMemory,
+                previousReviewedAtEpochMillis = priorMemory?.lastReviewedAtEpochMillis,
                 plannedReason = queueItem.reasonSnapshot.takeIf(String::isNotBlank),
             )
             durationModel.record(

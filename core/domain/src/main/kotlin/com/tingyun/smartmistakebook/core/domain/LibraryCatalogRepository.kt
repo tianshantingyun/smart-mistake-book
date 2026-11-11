@@ -1,6 +1,5 @@
 package com.tingyun.smartmistakebook.core.domain
 
-import androidx.paging.PagingSource
 
 enum class LibrarySort {
     /** 默认：最近更新在前（保持历史默认口径）。 */
@@ -80,8 +79,6 @@ data class LibraryFacetCount(
 }
 
 interface LibraryCatalogRepository {
-    fun pagingSource(query: LibraryQuery): PagingSource<Int, LibraryCatalogItem>
-
     suspend fun totalCount(query: LibraryQuery): Int
 
     suspend fun query(
