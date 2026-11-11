@@ -123,45 +123,26 @@ internal fun ReviewSessionDestination(
     ) {
         val requestedId = displayedPracticeUnitId
         value = TeachingArtifactLoad(practiceUnitId = requestedId)
-        // 一个可空局部量替掉"布尔门 ＋ 三处 requireNotNull(requestedId)"：可空性只表达一次，
-        // 下面每处用 `?.let`/`if (x != null)` 都拿得到非空值，不需要再断言一遍。
-        val readableUnitId = requestedId
+        val loadedArtifact = requestedId
             ?.takeIf { experience.status == StudyDataStatus.READY }
-        // 题干读取走的是**抛不出异常**的通道（2026-09-13 一手复核，见审计 §12.5 N-12 的处置）：
-        // 生产里 `StudyExperienceRepository.teachingArtifact` 只有一种实现，
-        // `RoomBackedStudyExperienceRepository` 直接委托给 `fixtureSource`；而 `StudyFixtureSource`
-        // 的两种实现都是纯查表——release 侧 `EmptyStudyFixtureSource` 的函数体就是 `= null`，
-        // debug 侧是 `curatedQuestions().firstOrNull { … }?.teachingArtifact()`，不做 IO、不抛异常。
-        // 工厂也没有任何装饰层。
-        //
-        // 所以这里**不包"读失败"兜底**：那层兜底捕不到任何真实事件，却会把 N-12 记成"已修"
-        // ——机制建成、却没有能触发它的失败，正是这份审计反复点名的病。将来工件若改从库里读
-        // （那时才真的会失败），再按**届时的真实失败**重新设计失败态，而不是先摆一个空壳。
-        val loadedArtifact = readableUnitId?.let { repository.teachingArtifact(it) }
+            ?.let { repository.teachingArtifact(it) }
         currentCoroutineContext().ensureActive()
         // Spec §2.16 re-teach opening, loaded in the same round trip as the
         // artifact: only a leeched card yields one, so this stays a null lookup
         // for ordinary review. It is deliberately *not* fetched through
         // revealAnswer — that path records a "saw the answer" event, which would
         // turn the student's next attempt into a post-reveal attempt.
-        //
-        // 它的门与前置补救同一条：**"这道题读得出来"**，而不是 `artifact != null`
-        // （审计 N-16／A3）。原先它以策展件为门，而这条通道的 KC 范围当时也取自策展件——
-        // 两处一起把这条通道锁在 debug 的演示内容里：实拍题即使确实成了 leech 也永远
-        // 看不到 §2.16 的那一步。范围改读题库之后（`reTeachOpening`），门也必须跟着放开，
-        // 否则"数据层修好、装配层仍然拦着"，生产里还是什么都不会变。
-        val reTeachOpening = readableUnitId?.let { practiceUnitId ->
-            loadOptionalSessionCard { repository.reTeachOpening(practiceUnitId) }
+        val reTeachOpening = if (loadedArtifact != null) {
+            repository.reTeachOpening(requireNotNull(requestedId))
+        } else {
+            null
         }
         // Spec §2.9 prerequisite remediation, same round trip. Independent of the
         // leech opening: a card can be both, and neither implies the other.
-        //
-        // 它的门是"这道题读得出来"而**不是** `artifact != null`（审计批 2 第 3 项／S-5）：
-        // 实拍题没有策展件是**正常**的，而补救要的是题库里的 KC 范围与讲解材料——以策展件
-        // 为门等于把这条通道整个锁在 debug 的演示内容里，生产里一张卡都拿不到补救。
-        // 两张卡都走 loadOptionalSessionCard：这里抛出去会顺着组合的协程把会话带走（N-03）。
-        val prerequisiteRemediation = readableUnitId?.let { practiceUnitId ->
-            loadOptionalSessionCard { repository.prerequisiteRemediation(practiceUnitId) }
+        val prerequisiteRemediation = if (loadedArtifact != null) {
+            repository.prerequisiteRemediation(requireNotNull(requestedId))
+        } else {
+            null
         }
         value = TeachingArtifactLoad(
             practiceUnitId = requestedId,
@@ -316,8 +297,6 @@ internal fun ReviewSessionDestination(
             ordinal == null || queueSize == null -> ReviewSessionGateMessage(
                 "正在确认本机复习会话…",
             )
-        // 「读不出来」与「这道题本来就没有可读的题干」在这里**不是**两件事：实拍题没有策展件是
-        // 正常的，而读取本身抛不出异常（见上面那段复核）。所以只有"还没读完"这一条。
         !artifactLoad.isLoaded || artifactLoad.practiceUnitId != practiceUnitId ->
             ReviewSessionGateMessage("正在读取题目…")
         artifactLoad.artifact != null -> ReviewSessionScreen(
@@ -378,10 +357,6 @@ internal fun ReviewSessionDestination(
             entry = capturedEntry,
             queuePosition = ordinal + 1,
             queueSize = queueSize,
-            // Spec §2.9／§2.16：补救与重教**不区分题的来源**（审计批 2 第 3 项／N-16）。
-            // 这两条与下面的讲题判定并存：重教是进入复习前的必经步骤，补救是题干旁的并列材料。
-            prerequisiteRemediation = artifactLoad.prerequisiteRemediation,
-            reTeachOpening = artifactLoad.reTeachOpening,
             // 无工件错题的唯一作答面是讲题判定；strictOffline 构建里没有模型可言，
             // 如实说明而不是给一个走不通的按钮（该复习项保持到期）。
             tutorJudgedAvailable = capabilities.networkMode != NetworkMode.STRICT_OFFLINE,

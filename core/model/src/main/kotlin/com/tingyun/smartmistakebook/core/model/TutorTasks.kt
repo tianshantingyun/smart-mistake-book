@@ -1196,39 +1196,3 @@ data class TutorDebriefOutput(
         const val MAX_MISCONCEPTION_CHARS = 1_000
     }
 }
-
-/** 审计分支的 Visual 场景校验族（TutorSceneTypes/TutorVisualDocument 使用）。 */
-internal fun requireTutorSceneHeader(
-    sceneId: String,
-    title: String,
-    schemaVersion: Int,
-    expectedSchemaVersion: Int = TutorVisualScene.SCHEMA_VERSION,
-) {
-    sceneId.requireTutorSceneId("Tutor visual scene id")
-    title.requireTutorSceneText("Tutor visual scene title", TutorVisualScene.MAX_TITLE_CHARS, false)
-    require(schemaVersion == expectedSchemaVersion) {
-        "Unsupported tutor visual scene schema version"
-    }
-}
-
-internal fun String.requireTutorSceneId(label: String) {
-    requireSafeModelText(label, ModelTaskRequest.MAX_ID_CHARS, false)
-}
-
-internal fun String.requireTutorSceneFormula(label: String) {
-    requireTutorSceneText(label, TutorVisualScene.MAX_FORMULA_CHARS, false)
-    require(!RestrictedFormulaText.hasUnsupportedCommand(this)) {
-        "$label contains an unsupported formula command"
-    }
-}
-
-internal fun requireUniqueTutorSceneIds(sceneId: String, itemIds: List<String>) {
-    val allIds = listOf(sceneId) + itemIds
-    require(allIds.distinct().size == allIds.size) { "Tutor visual scene ids must be unique" }
-}
-
-internal fun requireTutorSceneTextBudget(parts: List<String>) {
-    require(parts.sumOf(String::length) <= TutorVisualScene.MAX_TOTAL_TEXT_CHARS) {
-        "Tutor visual scene exceeds its total text budget"
-    }
-}
