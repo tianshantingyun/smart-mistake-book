@@ -114,7 +114,7 @@ class V4PackFixtureTest {
         assertEquals("closure 4 的裁剪上限必须是 83", 83, ClosureRuleTables.v4.trimOrderSize)
         assertEquals("closure 4 的摘要前缀", "smbk-selection-v4", ClosureRuleTables.v4.digestPrefix)
         assertEquals("closure 4 的版本号", 4, ClosureRuleTables.v4.closureVersion)
-        assertEquals("v4 新增表", setOf("error_cause_observation", "error_cause_binding", "mistake_edit_job", "detailed_solution_manifest", "detailed_solution", "mistake_export_group", "paper_review", "paper_review_question", "paper_review_photo"), ClosureRuleTables.v4.addedTables)
+        assertEquals("v4 新增表", setOf("error_cause_observation", "error_cause_binding", "mistake_edit_job", "detailed_solution_manifest", "detailed_solution", "mistake_export_group", "paper_review", "paper_review_question", "paper_review_photo", "tutor_reply_group", "tutor_reply_version", "tutor_reply_version_answer"), ClosureRuleTables.v4.addedTables)
         assertEquals("v4 被删表", setOf("knowledge_search_material_feature"), ClosureRuleTables.v4.droppedTables)
 
         // 第二源：v4 时点的导出 schema 实体集。与冻结字面量双向相等（缺一即失败）。

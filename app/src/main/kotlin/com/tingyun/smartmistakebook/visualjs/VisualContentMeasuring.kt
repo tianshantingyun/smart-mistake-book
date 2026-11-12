@@ -622,7 +622,8 @@ internal class PaintVisualTextMeasureBackend(
             // 不是 0（批次 29 设备证据 R1）。显式置为钉死值：这既是"AA 关"的 MVA 取舍，
             // 也是指纹 paintFlags=0 的真实来源。必须置**常量**而非 environment.paintFlags
             // ——否则下面的校验恒真，坏指纹再也拦不住。
-            paint.flags = VisualMeasureEnvironment.DEFAULT_PAINT_FLAGS
+            // Literal zero keeps the empty Paint flag set visible to Android lint's IntDef analysis.
+            paint.flags = 0
             paint.textSize = environment.fontSizePx()
             // KD-78 ④（批次 29 T5）：环境指纹声明了 paintFlags，实际度量 Paint 必须与之一致
             // ——否则 digest 记的是"声称值"、真实度量用的是另一套 flags，指纹形同虚设。

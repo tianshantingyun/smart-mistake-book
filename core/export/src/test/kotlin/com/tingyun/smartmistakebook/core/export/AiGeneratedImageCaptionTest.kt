@@ -205,7 +205,6 @@ class AiGeneratedImageCaptionTest {
         solutionImages: List<MistakePdfExportImage> = emptyList(),
         layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
     ): MistakePdfExportInput = MistakePdfExportInput(
-        hasModelParsedText = false,
         errorBookEntryId = "entry-caption",
         problemId = "problem-caption",
         problemRevisionId = "revision-caption",
@@ -227,7 +226,6 @@ class AiGeneratedImageCaptionTest {
     /** 同一份输入去掉角色字段（模拟旧调用方；与 `MistakeExportVisualRoleTest` 同口径）。 */
     private fun withoutRole(input: MistakePdfExportInput): MistakePdfExportInput =
         MistakePdfExportInput(
-            hasModelParsedText = input.hasModelParsedText,
             errorBookEntryId = input.errorBookEntryId,
             problemId = input.problemId,
             problemRevisionId = input.problemRevisionId,

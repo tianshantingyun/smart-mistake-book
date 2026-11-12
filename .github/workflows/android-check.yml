@@ -41,6 +41,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-java@v6
         with:
           distribution: temurin
@@ -59,10 +61,12 @@ jobs:
       # 2026-09-28：`tools/curriculum_coverage`（课标对照表线）在**导入期**就要 pypdf，
       # 缺它会让整个 `tests.test_curriculum_coverage` 模块加载失败（check job 因此红，
       # 进而 status.md 的 commit-back 被 `if: success()` 挡在门外——实测就是这么冻结到 09-21 的）。
-      - name: Install KB toolchain PDF backend
-        run: python3 -m pip install --disable-pip-version-check pypdf
+      - name: Install Python test dependencies
+        run: python3 -m pip install --disable-pip-version-check pypdf pytest
       - name: Knowledge build toolchain tests
-        run: python3 -m unittest discover -s tools/tests -t tools
+        env:
+          PYTHONPATH: tools
+        run: python3 -m pytest tools/tests -q
       - name: Knowledge pack gate and table-pack consistency
         run: python3 tools/ci/run_kb_checks.py
       - name: Room schema drift check
@@ -108,6 +112,8 @@ jobs:
         run: ./gradlew :app:assembleStrictOfflineDebug --console=plain
       - name: Assemble release dry run
         run: |
+          python3 tools/ci/release_version_code.py --out /tmp/release-version.json
+          version_code=$(python3 -c 'import json; print(json.load(open("/tmp/release-version.json"))["version_code"])')
           keytool -genkeypair -v -keystore ci-release-dry-run.keystore \
             -alias ci-dry-run -keyalg RSA -keysize 2048 -validity 365 \
             -storepass ci-dry-run-pass -keypass ci-dry-run-pass \
@@ -117,7 +123,8 @@ jobs:
           RELEASE_KEY_ALIAS=ci-dry-run \
           RELEASE_KEY_PASSWORD=ci-dry-run-pass \
           ./gradlew :app:assembleLocalFirstRelease :app:assembleStrictOfflineRelease \
-            :app:bundleLocalFirstRelease :app:bundleStrictOfflineRelease --console=plain
+            :app:bundleLocalFirstRelease :app:bundleStrictOfflineRelease \
+            -Psmbk.versionCode="$version_code" --console=plain
       - name: Release manifest gate (no debug-only component, no over-broad FileProvider path)
         run: python3 tools/ci/check_release_manifest.py
       - name: Compile macrobenchmark and baseline profile module

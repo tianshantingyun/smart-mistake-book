@@ -262,7 +262,6 @@ class MistakePdfPagePlannerTest {
         cleanImageLocalUri: String? = null,
         layout: MistakePdfLayout = MistakePdfLayout.DEFAULT,
     ): MistakePdfExportInput = MistakePdfExportInput(
-        hasModelParsedText = false,
         errorBookEntryId = "entry-test",
         problemId = "problem-test",
         problemRevisionId = "revision-test",

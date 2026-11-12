@@ -53,3 +53,38 @@ Risk boundary, verified 2026-08-30:
 Each release must be installable over the previous version with no destructive
 database migration. If a migration cannot be made non-destructive, do not ship
 it.
+
+## 1.0.0 发布候选
+
+`app/build.gradle.kts` 的基础版本号为 `1.0.0`，两种变体分别显示 `1.0.0-localfirst` 与 `1.0.0-offline`。本轮验证状态见 [1.0.0 发布准备记录](docs/current/release-1.0.0.md)。
+
+先在完整 Git 历史上生成 versionCode，算号器会拒绝浅克隆。
+
+```powershell
+New-Item -ItemType Directory -Path build -Force | Out-Null
+python tools/ci/release_version_code.py --out build/release-version.json
+if ($LASTEXITCODE -ne 0) { throw 'versionCode derivation failed' }
+$releaseVersion = Get-Content build/release-version.json -Raw | ConvertFrom-Json
+$releaseCode = "-Psmbk.versionCode=$($releaseVersion.version_code)"
+```
+
+由签名密钥持有人在当前进程设置前文四个 `RELEASE_*` 环境变量后执行。
+
+```powershell
+.\gradlew.bat :app:assembleLocalFirstRelease :app:assembleStrictOfflineRelease `
+  :app:bundleLocalFirstRelease :app:bundleStrictOfflineRelease $releaseCode --console=plain
+python tools/ci/check_release_manifest.py
+```
+
+Windows 受控环境入口为 `tools/run-gradle.ps1`，其环境要求见 `tools/README.md`。APK 位于 `app/build/outputs/apk/<flavor>/release/`，AAB 位于 `app/build/outputs/bundle/<flavor>Release/`。CI 使用临时测试签名执行同样的四个打包任务。
+
+签名检查可对每种变体分别运行。
+
+```powershell
+python -I tools/ci/j_release_verify.py signing --root . --apk <apk> --aab <aab> --apksigner <apksigner>
+python -I tools/ci/j_release_verify.py version --help
+python -I tools/ci/j_release_verify.py apk16k --help
+python -I tools/ci/j_release_verify.py aab16k --help
+```
+
+正式标记版本前，将当前提交、算号输出、APK/AAB SHA-256、签名证书与当前发布门验收结果绑定留证。`docs/current/release-gates.md` 定义既有验收要求，`docs/research/evidence/2026-11-12-residual-dispositions.md` 记录了尚未通过的 3D、3E、MVA、AUD-08 项。

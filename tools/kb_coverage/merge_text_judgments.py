@@ -73,7 +73,7 @@ def collect_files(only: str = "", directory: Path | None = None) -> list[Path]:
     """文本判定产物。
 
     - `directory` 给定（切片判定轮）：收该目录下的 `*.csv`（判定员逐片产物）；
-    - 否则回退旧口径：仓库根的 `.agent_t_*` / `.agent_t2_*` / `.agent_mp_*` / `.agent_mp2_*`
+    - 否则读取归档与仓库根的 `.agent_t_*` / `.agent_t2_*` / `.agent_mp_*` / `.agent_mp2_*`
       （早期分两批的产物）。`only` 非空时只收名字里含该片段的文件。
     """
     if directory is not None:
@@ -82,12 +82,18 @@ def collect_files(only: str = "", directory: Path | None = None) -> list[Path]:
             found = [p for p in found if only in p.name]
         return sorted(found)
     prefixes = [".agent_t_*.csv", ".agent_t2_*.csv", ".agent_mp_*.csv", ".agent_mp2_*.csv"]
-    if only:
-        prefixes = [p for p in prefixes if only in p]
     found = []
     for prefix in prefixes:
-        found += sorted(REPO.glob(prefix))
-    return [within_repo(p) for p in found if p.is_file()]
+        matches = {}
+        for directory in (REPO / "knowledge-production/archive/pre-release-workfiles", REPO):
+            for path in directory.glob(prefix):
+                if path.is_file():
+                    matches[path.name] = path
+        found.extend(
+            within_repo(matches[name]) for name in sorted(matches)
+            if not only or only in name
+        )
+    return found
 
 
 def subject_of(rel: str) -> str | None:

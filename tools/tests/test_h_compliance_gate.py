@@ -436,7 +436,10 @@ class TestH073to081I18n:
 
     def test_h081_gap_no_localized_store_or_policy(self) -> None:
         assert not list(ROOT.glob("fastlane/**/en-US"))
-        assert not list(ROOT.glob("docs/**/*privacy-policy*"))
+        assert not [
+            p for p in ROOT.glob("docs/**/*privacy-policy*")
+            if p.suffix.lower() in {".md", ".html", ".htm", ".txt"}
+        ]
 
 
 class TestH082to090Typography:

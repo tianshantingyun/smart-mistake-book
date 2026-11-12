@@ -65,7 +65,7 @@ class RealPackTest(unittest.TestCase):
 
     def test_shipped_point_count(self):
         from kb_build import pack_io
-        pack = pack_io.load_json(pack_io.pack_path())
+        pack = pack_io.load_json(pack_io.release_dir() / pack_io.PACK_NAME)
         # 2026-09-19：两批视觉转写新增 328 个方法节点、别名取证反查改绑 92 条并合并 9 条同物重复
         # 2026-09-19 坏名分流收口：把 fix_bad_names 的定稿移植进权威表后又合并 9 条
         # （属性条目/碎片并入主节点）→ 2434−9=2425
@@ -110,7 +110,8 @@ class RealPackTest(unittest.TestCase):
         # 1940 → 1941（抽屉原理）、point_delete 283 → 249（撤销 34 行空点撤回）。
         # 量源 = 成品/staging 实跑 _point_count 与本用例 round-1 失败信息 `3245 != 3280`。
         # 点数随入库/结构清理轮次变化，由执行轮在提交里维护本 pin。
-        self.assertEqual(3280, dp._point_count(pack))
+        # Batch 51 f1904f33/55cc27c0 retired the exercise-heading node after material rebinding.
+        self.assertEqual(3279, dp._point_count(pack))
 
     def test_purge_table_refs_is_clean_on_shipped(self):
         """成品已删过点、外部表已清过——再 purge 必须 0（无悬空引用残留）。"""

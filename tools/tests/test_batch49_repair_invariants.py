@@ -14,6 +14,7 @@
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -77,11 +78,22 @@ class SoakExitEvidenceTest(unittest.TestCase):
                 "cmd_exit", names,
                 f"{row_id}: soak.cmd.log 的 EXIT=0 是脚本字面量，不能作 cmd_exit 证据",
             )
-            self.assertIn(
-                "file:docs/research/evidence/2026-11-08-batch-49/device/soak/soak.cmd.log",
-                data["evidence"],
-                f"{row_id}: 命令日志只能作为 file 出处保留，不得声明退出码",
-            )
+            if row_id == "F-063":
+                self.assertIn(
+                    "file:docs/research/evidence/2026-11-08-batch-49/device/soak/soak.cmd.log",
+                    data["evidence"],
+                    "The caveated historical log must remain a file-only source",
+                )
+            else:
+                # Later reruns replace F-055 evidence while F-063 retains the caveated history.
+                bindings = [c for c in data["checks"] if c.get("name") == "device_binding"]
+                self.assertTrue(bindings)
+                for binding in bindings:
+                    self.assertIn("device:" + binding["source"], data["evidence"])
+                    expected = binding["value"].rsplit("sha256=", 1)[1]
+                    actual = hashlib.sha256((REPO / binding["source"]).read_bytes()).hexdigest()
+                    self.assertEqual(expected, actual)
+
 
 
 class DeviceBindingProvenanceTest(unittest.TestCase):
