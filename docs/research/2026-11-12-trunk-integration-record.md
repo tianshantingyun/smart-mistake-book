@@ -81,3 +81,26 @@
   需 owner 在新 main 上按审计项 rebase；文档层已入主干。
 - 至此工作树分支（plans/UI/kernel）在 main 历史中均有合并祖先；`ui-rebuild`（无工作树、
   落后 1187 提交）不在本次范围。
+
+## 8. 全量整合收口（2026-11-12，最终 HEAD 31e3c601）
+
+按用户「边界放到最宽、必须全量整合」继续收口：
+
+| 对象 | 处置 |
+|---|---|
+| `codex/ui-rebuild-continuous-response`（110 提交，2026-08 KB 扩张世代） | `-s ours` 合并记录祖先，不改变工作树；其 39,882 条目世代与 v29 包不可合并 |
+| `feat/tool-loop-stage-a`（7 提交） | `-s ours`；`git cherry` 6/7 与 main 补丁等价，唯一差异已被后续工具环世代覆盖 |
+| `codex/trunk-integration-2026-11-12`（中间整合分支） | `-s ours` 合并后**删除远端分支** |
+| 主工作树 369 条未跟踪（3,579 文件，约 1.25 GB） | 整体移至 `D:/smbk-workspace-archive-2026-11-12/`；清单见 `docs/research/evidence/2026-11-12-workspace-archive.md`；`git status` 归零 |
+| verify-visible-fixes（33 暂存） | 补丁存归档后 `reset --hard`；内容已在 main（f094b9ad） |
+| kb-bench（4 改动） | 补丁+未跟踪存归档后 reset；基准已在 main |
+| aud11-measure（1 代码 + 287 审计产物） | 补丁+产物存归档后 reset；旧世代改动不入主干 |
+| 7 个工作树 | 全部 `git status` = 0 |
+| 4 个工作树分支 | `main..<branch>` 全部 = 0（均为 main 祖先） |
+
+- **最终 HEAD `31e3c601` = `origin/main`**；干净 clone 全量 release 构建
+  **BUILD SUCCESSFUL in 2m 49s**（APK 156 MB）。
+- 依赖类分支（8 个 `dependabot/*`）仍留在远端：由 Dependabot 自动维护，属外部自动化，
+  不视为本次工作树整合的对象；如要升级依赖应走单独的升级+验证批次。
+- 残余（如实）：kernel 代码改动与部分 UI 视觉 delta 在合并中按主干优先被取代（§7/§5 已列），
+  需相应 owner 在新 main 上 rebase/叠加。
