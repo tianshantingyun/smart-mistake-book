@@ -338,7 +338,12 @@ class RealArtifactsTest(unittest.TestCase):
         # 2026-10-31 批次27 v23 重钉：本批建点配材的 34 个节点不再属于「空点撤回」，
         # point_delete.csv 对应撤销 34 行 → 283 − 34 = 249（量源 = 对成品包实跑
         # um.backfill_from_tables 与本用例 round-1 失败信息 `283 != 249`；表数据行同为 249）。
-        self.assertEqual(249, kinds.get(um.KIND_DELETE, 0))
+        # Batch 51 55cc27c0 records the retired exercise-heading node after material rebinding.
+        self.assertEqual(250, kinds.get(um.KIND_DELETE, 0))
+        self.assertTrue(any(
+            e["kind"] == um.KIND_DELETE and e["nodeId"].endswith(":一种药物中间体-h-的合成路线如下")
+            for e in self.entries
+        ))
 
     def test_backfilled_entries_pass_shape_check(self):
         doc = um.empty(self.pack["packId"])

@@ -1,42 +1,20 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""生图入口静态门（A-13 grep 门 + A-08 入口侧显式 basis 静态前哨）。
+"""生图入口静态门，核对构造点与每个请求体的显式指纹来源。
 
-它消灭的具体失败：
+当前五个入口文件共六个构造点。讲题入口分别构造 JS 和图像请求，详解与修改题目
+入口通过 lineageFingerprint 绑定模型任务、完整输出及 blockId。每个构造点必须使用
+该入口认可的指纹 helper，同文件中另一请求的 helper 无法替代。
 
-1. 第 4 个 `FigureGenerationRequest(` 构造点悄悄出现——A-13 的判据是"全入口同管线"：
-   三个构造点（净化 `ConfiguredCleanImageGenerator` / attachedImages 再生成
-   `AttachedImageGenerator` / 讲题 `TutorFigureGenerator`）必须全部经同一
-   `FigureGenerationCoordinator` 端口与同一 policy 校验，**无入口私有方法路由**。
-   没有这道门时，"恰好 3 处"只活在准入清单的附录注释里，第 4 个入口（自带私有
-   method 路由分支的那种）落码后没人拦。
-2. 白名单内的构造点消失或同一文件出现第二处——"恰 3 处"是**出现次数**判据，
-   不是"文件数 ≤ 3"的宽松口径；少一处说明入口被改走了别的路径，多一处同样破坏
-   全入口同管线的静态形状。
-3. 入口不再显式传 basis 指纹（A-08 入口侧约束的静态前哨）——`FigureGenerationPolicy`
-   的 `BASIS_FINGERPRINT_MISMATCH` 复核只对"显式传了 basis"的请求生效；某个入口
-   把 `basisFingerprint = figure...` 这一行删掉后，policy 门对它静默失效，审计台账
-   退回"coordinator 自行推导"而没人知道。三个入口各自必须保留显式传值一行。
-
-语义（对齐 `check_file_size_gate.py` 的判据原文口径）：
-
-- 门 1：对 ``core/data/src/main`` 全量扫描字节级 ``FigureGenerationRequest(``，
-  命中集合必须与硬编码白名单**精确相等**（每文件恰 1 处、总数恰 3）；
-  白名单外出现、白名单内缺失、或同一文件出现第 2 处，任一即 exit 1。
-- 门 2：白名单三文件各自必须含 ``basisFingerprint = figure`` 显式传值；缺失即 exit 1。
-- 不运行 Gradle、不联网；只读 ``core/data/src/main`` 下的文件字节。
-- 退出码 0 = 通过，1 = 缺口（差异逐条打印，附命中清单）。
-
-判据出处：准入清单 A-13 行判据 ①（``grep -rn "FigureGenerationRequest(" core/data/src/main``
-→ 恰 3 处，出现第 4 处即失败）与 A-08 行入口侧约束（宿主显式传 basis 时以 program
-摘要复核）；脚本化设计见 ``docs/research/2026-10-30-capability-driven-tools.md`` §4.3。
-自测：``tools/tests/test_check_figure_entry_gates.py``。
+构造扫描仍按 core/data/src/main 下所有文件的字节出现次数执行。白名单外构造、
+缺失或额外构造、请求体缺少指纹或 helper 错配均返回 exit 1。该门只检查静态形状，
+运行期 coordinator/policy 行为由对应业务测试验证。
 """
 
 from __future__ import annotations
 
 import argparse
-import sys
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -44,24 +22,80 @@ REPO = Path(__file__).resolve().parents[2]
 
 SCAN_DIR = Path("core/data/src/main")
 REQUEST_PATTERN = b"FigureGenerationRequest("
-EXPLICIT_BASIS_PATTERN = "basisFingerprint = figure"
-
-# A-13 grep 门基线（准入清单附录 :381 逐字一致；2026-10-30 复跑核对恰 3 处）。
-ENTRY_WHITELIST = (
+# Each tuple identifies one request's top-level argument and fingerprint helper.
+ENTRY_FINGERPRINTS = {
     "core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/capture/"
-    "ConfiguredCleanImageGenerator.kt",
+    "ConfiguredCleanImageGenerator.kt": (("basisFingerprint", "figureBasisFingerprint"),),
     "core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/"
-    "AttachedImageGenerator.kt",
+    "AttachedImageGenerator.kt": (("basisFingerprint", "figureBasisFingerprint"),),
     "core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/"
-    "TutorFigureGenerator.kt",
+    "TutorFigureGenerator.kt": (
+        ("basisFingerprint", "figureJsBasisFingerprint"),
+        ("basisFingerprint", "figureBasisFingerprint"),
+    ),
+    "core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/export/"
+    "RoomDetailedSolutionRepository.kt": (("lineageFingerprint", "detailedSolutionFigureBasis"),),
+    "core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/mistake/"
+    "RoomMistakeEditRepository.kt": (("lineageFingerprint", "mistakeEditFigureBasis"),),
+}
+ENTRY_WHITELIST = tuple(ENTRY_FINGERPRINTS)
+EXPECTED_CONSTRUCTIONS = sum(len(entries) for entries in ENTRY_FINGERPRINTS.values())
+
+KOTLIN_NON_CODE = re.compile(
+    r'"""[\s\S]*?"""|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|//[^\n]*|/\*[\s\S]*?\*/'
 )
+FINGERPRINT_CALL = re.compile(
+    r"^\s*(basisFingerprint|lineageFingerprint)\s*=\s*"
+    r"(?:[A-Za-z_]\w*\.)*([A-Za-z_]\w*)\s*\("
+)
+
+
+def request_bodies(text: str) -> list[str]:
+    """Extract balanced constructor bodies while ignoring comments and literals."""
+    code = KOTLIN_NON_CODE.sub(lambda match: " " * len(match.group()), text)
+    bodies = []
+    for match in re.finditer(r"FigureGenerationRequest\(", code):
+        depth = 1
+        for index in range(match.end(), len(code)):
+            if code[index] == "(":
+                depth += 1
+            elif code[index] == ")":
+                depth -= 1
+                if depth == 0:
+                    bodies.append(code[match.end():index])
+                    break
+        else:
+            raise ValueError("FigureGenerationRequest 构造括号未闭合")
+    return bodies
+
+
+def fingerprint_calls(body: str) -> list[tuple[str, str]]:
+    """Read helper calls assigned directly to top-level fingerprint arguments."""
+    arguments = []
+    start = 0
+    depth = 0
+    for index, char in enumerate(body):
+        if char in "([{":
+            depth += 1
+        elif char in ")]}":
+            depth -= 1
+        elif char == "," and depth == 0:
+            arguments.append(body[start:index])
+            start = index + 1
+    arguments.append(body[start:])
+    calls = []
+    for argument in arguments:
+        match = FINGERPRINT_CALL.match(argument)
+        if match:
+            calls.append(match.groups())
+    return calls
 
 
 def scan_request_constructions(root: Path) -> list[tuple[str, int]]:
     """Byte-level ``file:line`` hits for ``FigureGenerationRequest(`` under scan dir.
 
     Byte-level on purpose: the checklist criterion is a bare ``grep -rn`` with no
-    ``--include`` filter, so a 4th occurrence in any file kind must fail the gate.
+    ``--include`` filter, so an unexpected occurrence in any file kind must fail the gate.
     """
 
     hits: list[tuple[str, int]] = []
@@ -91,36 +125,45 @@ def check(root: Path) -> tuple[list[str], list[str]]:
     report: list[str] = []
     errors: list[str] = []
 
-    report.append(f"门1 FigureGenerationRequest( 构造点：共 {len(hits)} 处（判据：恰 3 处）")
+    report.append(f"门1 FigureGenerationRequest( 构造点：共 {len(hits)} 处（判据：恰 {EXPECTED_CONSTRUCTIONS} 处）")
     for relpath, line in hits:
         report.append(f"  命中 {relpath}:{line}")
 
-    for expected in ENTRY_WHITELIST:
+    for expected, signatures in ENTRY_FINGERPRINTS.items():
         count = per_file.get(expected, 0)
-        if count == 0:
-            errors.append(f"门1 白名单构造点缺失（入口被改走别的路径？）: {expected}")
-        elif count > 1:
-            errors.append(f"门1 同一文件出现第 {count} 处构造（恰 3 处判据被破坏）: {expected}")
-
-    for relpath in sorted(per_file):
-        if relpath not in ENTRY_WHITELIST:
-            locations = [f"{relpath}:{line}" for file, line in hits if file == relpath]
+        expected_count = len(signatures)
+        if count < expected_count:
             errors.append(
-                "门1 白名单外的第 4 处构造点（必须改走统一 coordinator 管线，"
-                f"而非新增私有构造）: {', '.join(locations)}"
+                f"门1 白名单构造点缺失（预期 {expected_count} 处，实际 {count} 处）: {expected}"
+            )
+        elif count > expected_count:
+            errors.append(
+                f"门1 同一文件出现第 {count} 处构造（预期 {expected_count} 处）: {expected}"
             )
 
-    for expected in ENTRY_WHITELIST:
-        path = root / expected
+    for relpath in sorted(per_file):
+        if relpath not in ENTRY_FINGERPRINTS:
+            locations = [f"{relpath}:{line}" for file, line in hits if file == relpath]
+            errors.append(f"门1 白名单外的构造点: {', '.join(locations)}")
+
+    for expected, signatures in ENTRY_FINGERPRINTS.items():
         try:
-            text = path.read_text(encoding="utf-8")
-        except OSError as failure:
-            errors.append(f"门2 无法读取入口文件（显式 basis 前哨失效）: {expected}（{failure}）")
+            text = (root / expected).read_text(encoding="utf-8")
+            bodies = request_bodies(text)
+        except (OSError, ValueError) as failure:
+            errors.append(f"门2 无法解析入口请求体: {expected}（{failure}）")
             continue
-        if EXPLICIT_BASIS_PATTERN not in text:
+        actual = []
+        for number, body in enumerate(bodies, start=1):
+            calls = fingerprint_calls(body)
+            if len(calls) != 1:
+                errors.append(
+                    f"门2 第 {number} 处构造未显式传入唯一的 basis/lineage 指纹 helper: {expected}"
+                )
+            actual.extend(calls)
+        if Counter(actual) != Counter(signatures):
             errors.append(
-                "门2 入口不再显式传 basis 指纹（A-08 policy 复核对它静默失效）: "
-                f"{expected} 缺 `{EXPLICIT_BASIS_PATTERN}`"
+                f"门2 入口指纹 helper 错配: {expected}，预期 {signatures}，实际 {tuple(actual)}"
             )
 
     if errors:
@@ -145,9 +188,9 @@ def main(argv: list[str] | None = None) -> int:
     if errors:
         for error in errors:
             print(f"  缺口 {error}")
-        print("\n生图入口静态门 FAILED：见上方逐条缺口（A-13 恰 3 处 / A-08 显式 basis 前哨）。")
+        print("\n生图入口静态门 FAILED：见上方构造点与请求体指纹缺口。")
         return 1
-    print("\n生图入口静态门 PASS：构造点恰 3 处且三入口均显式传 basis。")
+    print(f"\n生图入口静态门 PASS：构造点恰 {EXPECTED_CONSTRUCTIONS} 处，逐请求指纹 helper 一致。")
     return 0
 
 

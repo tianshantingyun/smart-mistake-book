@@ -62,7 +62,14 @@ subprojects {
                         configuration.name.endsWith("CompileClasspath") ||
                             configuration.name.endsWith("RuntimeClasspath")
                         )
-            }.forEach { it.resolve() }
+            }.forEach { configuration ->
+                // Lock the graph without selecting ambiguous AGP secondary artifacts.
+                configuration.incoming.resolutionResult.allDependencies.forEach { dependency ->
+                    if (dependency is org.gradle.api.artifacts.result.UnresolvedDependencyResult) {
+                        throw dependency.failure
+                    }
+                }
+            }
         }
     }
 

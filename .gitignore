@@ -81,3 +81,11 @@ knowledge-production/candidate-merge/node_materials.csv
 
 # Superdesign temporary templates
 .superdesign/tmp/
+
+# Root-level one-off judgment inputs are retained under knowledge-production/archive/.
+/.agent_*
+/..._probe.json
+.pytest_cache/
+
+# Negative-control logs are versioned test inputs.
+!/tools/tests/fixtures/acceptance/*.log

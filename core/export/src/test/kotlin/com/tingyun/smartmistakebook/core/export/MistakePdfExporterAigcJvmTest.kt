@@ -99,7 +99,7 @@ class MistakePdfExporterAigcJvmTest {
         // 三方必须同时升版：改判据只升一处，旧的无标包就能在 TTL 内被复用（KD-75 reopen condition）。
         assertEquals(3, PdfAigcContentPolicy.GENERATION)
         assertEquals(".aigc-policy-gen-3", MistakePdfExporter.AIGC_POLICY_SENTINEL)
-        assertEquals("mistake-export-v4-aigc-gen-3", exportFingerprintPolicyTag())
+        assertEquals("mistake-export-v5-math-layout-aigc-gen-3", exportFingerprintPolicyTag())
     }
 
     // ---------------------------------------------------------------- labelPdfInPlace

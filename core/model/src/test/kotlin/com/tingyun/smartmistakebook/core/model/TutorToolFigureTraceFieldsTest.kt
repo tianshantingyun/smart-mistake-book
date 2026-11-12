@@ -83,15 +83,42 @@ class TutorToolFigureTraceFieldsTest {
     }
 
     @Test
-    fun jsIsNotAValidTraceMethod() {
-        // 痕迹记录的是**实际执行的方法**：JS 未接通，就不可能有一条 JS 执行痕迹。
+    fun localJsTraceRoundTripsWithoutAnImageModelOrPaidDispatch() {
+        val original = trace(TutorToolFigureTrace(
+            kind = TutorFigureKind.GENERATE_PROCESS,
+            figureId = "figure-js",
+            method = FigureGenerationMethod.JS,
+        ))
+        val decoded = requireNotNull(decodeTutorTurnToolTrace(encodeTutorTurnToolTrace(original)))
+        val figure = requireNotNull(decoded.entries.single().figure)
+        assertEquals(FigureGenerationMethod.JS, figure.method)
+        assertEquals("figure-js", figure.figureId)
+        assertNull(figure.model)
+        assertFalse(figure.generatedNow)
+    }
+
+    @Test
+    fun localJsTraceRejectsAnImageModel() {
         val rejected = runCatching {
             TutorToolFigureTrace(
                 kind = TutorFigureKind.GENERATE_PROCESS,
                 method = FigureGenerationMethod.JS,
+                model = "image-model",
             )
         }
+        assertTrue(rejected.exceptionOrNull() is IllegalArgumentException)
+    }
 
+    @Test
+    fun localJsTraceRejectsAPaidDispatch() {
+        val rejected = runCatching {
+            TutorToolFigureTrace(
+                kind = TutorFigureKind.GENERATE_PROCESS,
+                figureId = "figure-js",
+                method = FigureGenerationMethod.JS,
+                generatedNow = true,
+            )
+        }
         assertTrue(rejected.exceptionOrNull() is IllegalArgumentException)
     }
 }

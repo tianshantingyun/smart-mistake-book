@@ -152,9 +152,12 @@ def field_existed_in_history(volume: str, escaped_text: str) -> str | None:
 
 
 def load_products() -> list[tuple[str, str]]:
-    """入库前的判定产物：仓库根的 `.agent_*.csv`（模型判定后、写进包之前的那一层）。"""
+    """读取归档与仓库根的入库前判定产物，同名文件优先使用根目录版本。"""
+    archive = Path("knowledge-production/archive/pre-release-workfiles")
+    paths = {p.name: p for p in archive.glob(".agent_*.csv")}
+    paths.update({p.name: p for p in Path(".").glob(".agent_*.csv")})
     out: list[tuple[str, str]] = []
-    for path in sorted(Path(".").glob(".agent_*.csv")):
+    for path in sorted(paths.values(), key=lambda p: p.name):
         try:
             out.append((path.name, path.read_text(encoding="utf-8", errors="replace")))
         except OSError:

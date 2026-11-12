@@ -456,7 +456,6 @@ class MistakePdfPagePlannerLayoutTest {
         userNote: String? = null,
         cleanImageLocalUri: String? = null,
     ): MistakePdfExportInput = MistakePdfExportInput(
-        hasModelParsedText = false,
         errorBookEntryId = "entry-layout-test",
         problemId = "problem-layout-test",
         problemRevisionId = "revision-layout-test",

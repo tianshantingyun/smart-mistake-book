@@ -30,6 +30,7 @@ FILES = [
     G.RULES_PATH,
     G.TEST_PATH,
     G.SCHEMA_PATH,
+    G.DATABASE_PATH,
     G.DESIGN_PATH,
     G.GOLDEN_V4_PATH,
 ]
@@ -58,6 +59,27 @@ class BackupPlanSyncGateTest(unittest.TestCase):
         self.assertTrue(result["ok"], [c for c in result["failed"]])
         self.assertEqual(0, G.main([]))
 
+    def test_rule_sets_do_not_absorb_adjacent_declarations(self) -> None:
+        rules = G.parse_rules(REPO / G.RULES_PATH)
+        self.assertEqual(["knowledge_search_material_feature"], rules["materialFeatureTables"])
+        self.assertEqual({"tutor_reply_group", "tutor_reply_version", "tutor_reply_version_answer"},
+                         set(rules["replyVersionTables"]))
+        self.assertNotIn("smbk-selection-v6", rules["materialFeatureTables"])
+
+    def test_database_schema_drift_is_detected(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._copy_tree(root)
+            database = root / G.DATABASE_PATH
+            text = database.read_text(encoding="utf-8")
+            self.assertIn("const val STUDY_DATABASE_VERSION = 76", text)
+            database.write_text(text.replace("const val STUDY_DATABASE_VERSION = 76",
+                                             "const val STUDY_DATABASE_VERSION = 77", 1), encoding="utf-8")
+            result = G.evaluate(root)
+            self.assertFalse(result["ok"])
+            self.assertIn("schemaVersion: code==StudyDatabase", [c["name"] for c in result["failed"]])
+            self.assertEqual(1, G.main(["--repo", str(root)]))
+
     def test_identity_hash_drift_exits_one(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -84,10 +106,10 @@ class BackupPlanSyncGateTest(unittest.TestCase):
             self._copy_tree(root)
             design = root / G.DESIGN_PATH
             text = design.read_text(encoding="utf-8")
-            self.assertIn('"identityHash": "f9a3d1c9ea8ef83d7222721ad1015a51"', text)
+            self.assertIn('"identityHash": "5e6ec85c861c772d5106a5c2d771d5bb"', text)
             design.write_text(
                 text.replace(
-                    '"identityHash": "f9a3d1c9ea8ef83d7222721ad1015a51"',
+                    '"identityHash": "5e6ec85c861c772d5106a5c2d771d5bb"',
                     '"identityHash": "00000000000000000000000000000000"',
                     1,
                 ),

@@ -1,0 +1,5 @@
+INSTRUMENTATION_STATUS_CODE: 0
+Test results to follow
+OK (15 tests)
+POST-GATE INVALID: low-load window not proven (5/6 paired runs)
+EXIT=0

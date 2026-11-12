@@ -1647,7 +1647,7 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
 ### 9.11 机器可读清单（历史 v5，schema 73；当前 v3 见 §9.14）
 
 > 解析标记（单一）：§9.14 的 `6c2-plan-v3` begin/end 两行，内容随
-> KSP 导出物同步（当前 schema 75 / closure 6）。`6c2-plan`（schema 66）与本节 `6c2-plan-v5`
+> KSP 导出物同步（当前 schema 76 / closure 7）。`6c2-plan`（schema 66）与本节 `6c2-plan-v5`
 > （schema 73）只作历史块保留，**不再驱动门禁**。当前 `identityHash` 必须等于 `75.json` 的
 > `database.identityHash`，`closureVersion` 与本块同源。
 > 2026-10-24 回写：本块已由批次 18 实施为 `SmbkSelectionPlan.kt`，`SmbkSelectionPlanTest`（
@@ -2313,19 +2313,19 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
 
 ## 9.14 schema 73：纸质复习持久化
 
-纸卷、题目快照与作答照片属于 MASTERY。原始照片作为规范资产进入备份与孤儿引用判定。历史机器块保留，以下 `6c2-plan-v3`（parser 契约名沿用 v3，内容 schema 75 / closure 6）是当前清单。
+纸卷、题目快照与作答照片属于 MASTERY。原始照片作为规范资产进入备份与孤儿引用判定。历史机器块保留，以下 `6c2-plan-v3`（parser 契约名沿用 v3，内容 schema 76 / closure 7）是当前清单。
 
 <!-- 6c2-plan-v3:begin -->
 ```json
 {
-  "closureVersion": 6,
-  "schemaVersion": 75,
-  "identityHash": "f9a3d1c9ea8ef83d7222721ad1015a51",
+  "closureVersion": 7,
+  "schemaVersion": 76,
+  "identityHash": "5e6ec85c861c772d5106a5c2d771d5bb",
   "views": [
     "library_catalog",
     "knowledge_question_lattice"
   ],
-  "note": "schema 75：v74 对账 v73 布局，v75 为 UI 分支补回错因账本两表（74→75 只跑 ERROR_CAUSE_MIGRATION_72_73）；99 表 / 2 视图 / closure 6。纸卷、冻结题目与原始作答照片属于 MASTERY。",
+  "note": "schema 76：辅导回复分组、完整回复版本与独立答案三表属于 SESSIONS。102 表 / 2 视图 / closure 7。纸卷、冻结题目与原始作答照片属于 MASTERY。",
   "categories": {
     "ISSUE_BOOK": {
       "bit": 1,
@@ -2420,6 +2420,9 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
       "tables": [
         "tutor_conversation",
         "tutor_message",
+        "tutor_reply_group",
+        "tutor_reply_version",
+        "tutor_reply_version_answer",
         "tutor_message_visual",
         "tutor_message_source_asset",
         "agent_pending_request",
@@ -2858,6 +2861,9 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "problem_revision_visual",
     "tutor_visual_snapshot",
     "tutor_visual_program",
+    "tutor_reply_version_answer",
+    "tutor_reply_version",
+    "tutor_reply_group",
     "tutor_message_source_asset",
     "tutor_message",
     "split_import_question",
@@ -2976,8 +2982,8 @@ referenced closure`）。**未验证**：恢复后 `model_task_operation.dispatc
     "note": "已裁并实施（批次 18 记录 §1.2-③，即 §6.1-③ 的 a+c）：恒裁（全选也裁两张派生表，AndroidBackupRepository 对所有 mask 调用裁剪器）+ 恢复完成后按科后台重建（RestoreIndexRebuild 按科 rebuildKnowledgeSearchIndex，失败保留标记 PARTIAL_FAILURE）。不改变类别/FK/软引用/顺序规则；全选包不再与 v2 字节等价"
   },
   "digest": {
-    "algorithm": "sha256(smbk-selection-v6 + closureVersion=6 + sorted categories + assetPolicy + sorted rowCounts); encoding and newlines follow SmbkSelectionPlan.closureDigest",
-    "emptyFullSelectionGolden": "8567faae0e90ad4b720eab9fb4ceda82ce90fdb14e7c8ec4dc8309a520fb286c"
+    "algorithm": "sha256(smbk-selection-v7 + closureVersion=7 + sorted categories + assetPolicy + sorted rowCounts); encoding and newlines follow SmbkSelectionPlan.closureDigest",
+    "emptyFullSelectionGolden": "b9d0f5ed9c844863f1b029f6556e995543a4c9d0b10aed2e322b2ffee5cb9fa4"
   },
   "visualRowFilter": {
     "tables": [

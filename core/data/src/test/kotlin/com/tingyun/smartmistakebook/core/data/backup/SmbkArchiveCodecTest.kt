@@ -36,7 +36,7 @@ class SmbkArchiveCodecTest {
     fun `historical main and ui selection backups retain their declared digest when read`() {
         val archive = ByteArrayOutputStream()
         SmbkArchiveCodec.create(archive = archive, database = tempFile("database.sqlite", "database-content"),
-            assets = emptyList(), referencedAssets = emptyList(), databaseSchemaVersion = 75,
+            assets = emptyList(), referencedAssets = emptyList(), databaseSchemaVersion = SmbkSelectionPlan.SCHEMA_VERSION,
             problemCount = 0, createdAtEpochMillis = 12_000L,
             selection = selectionFixture(mask = 15, rowCounts = emptyRowCounts(), trimmedTableCount = 0))
         val bytes = archive.toByteArray()
@@ -59,8 +59,13 @@ class SmbkArchiveCodecTest {
             val old = requireNotNull(manifest.selection).copy(closureVersion = version, rowCounts = oldCounts,
                 closureDigest = ClosureRuleTables.digest(rule, SmbkSelectionPlan.categoriesOf(15),
                     SmbkSelectionPlan.ASSET_POLICY_INCLUDED, oldCounts))
+            val historicalSchemaVersion = when (version) {
+                4 -> 72
+                5 -> 73
+                else -> 75
+            }
             val legacyBytes = rewriteEntry(bytes, "manifest.json", json.encodeToString(SmbkManifest.serializer(),
-                manifest.copy(databaseSchemaVersion = if (version == 4) 72 else 73, selection = old)))
+                manifest.copy(databaseSchemaVersion = historicalSchemaVersion, selection = old)))
             assertTrue("Historical closure $version / $expectedSize keys",
                 SmbkArchiveCodec.validate(ByteArrayInputStream(legacyBytes)) is BackupValidation.Valid)
         }
