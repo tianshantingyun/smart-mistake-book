@@ -29,12 +29,14 @@
 
 Git HTTPS 连接曾间歇失败，重试成功后已核对远端状态。分支历史及已合并 PR 可在 GitHub 查询。
 
+GitHub 整理修复通过 [PR #14](https://github.com/tianshantingyun/smart-mistake-book/pull/14) 合入 main，merge 为 `4968c2b3de0e12bf345a46cccb76b8770bdf4890`。合并后的设备任务发现 Linux AAPT2 未被依赖校验清单收录，本轮补齐了该平台条目。官方构件为 2,369,543 字节，发布 SHA-1 `5287feac13566b9165cdf02c77565e68aec3aad0` 与下载字节一致，SHA-256 为 `e772a3dae8354764f1b0793903218427f483982445207f2e4ffc8c2026755bd4`。构件核对记录在 `build/release-1.0.0/linux-aapt2-verification.json`。[Google Maven 构件](https://dl.google.com/dl/android/maven2/com/android/tools/build/aapt2/9.3.0-15703166/aapt2-9.3.0-15703166-linux.jar)
+
 ## 本轮通过的验证
 
 | 检查 | 本轮结果 |
 | --- | --- |
 | 归档内容一致性 | 121 / 121 Git 内容对象一致 |
-| 修复相关 Python 回归 | 首组 123 项通过，后续归档、备份、生图门与日志识别专项 34 项通过 |
+| 修复相关 Python 回归 | 首组 123 项通过，后续专项 34 项通过，干净候选工作树独立复跑 154 项通过 |
 | 备份静态门 | 26 项检查通过 |
 | 依赖锁覆盖 | 14 个 included project 均覆盖测试与运行配置 |
 | 生图入口静态门 | 五文件、六请求体 PASS |
