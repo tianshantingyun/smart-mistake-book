@@ -1,0 +1,23 @@
+incorrect startxref pointer(3)
+parsing for Object Streams
+incorrect startxref pointer(1)
+parsing for Object Streams
+incorrect startxref pointer(1)
+parsing for Object Streams
+incorrect startxref pointer(3)
+parsing for Object Streams
+== kd85-model-edited-labeled.pdf bytes 84595 sha256 683fe7c0078e669eea67bef12e4f1fe7ab22468455285da3438e78e665d294d5 pages 1
+metadata keys ['/AIGC', '/Producer']
+/AIGC present: True
+Label 1 ContentProducer SmartMistakeBook ProduceID 1ea9adfafd55d6070670fac5f3369fc258751377de7ccba033ca0249d98bad0b
+== kd85-manual-edited-unlabeled.pdf bytes 70814 sha256 227d7cac0118d439a342f2577af02aecb17f867599e7b2a61f77401d39b8a397 pages 1
+metadata keys ['/Producer']
+/AIGC present: False
+== print-subset-relabeled.pdf bytes 18124 sha256 e94bd55fb680ca780f00b1f354fbed97139e5c9ff9b790d678c51bf079a11f7c pages 1
+metadata keys ['/AIGC', '/Producer']
+/AIGC present: True
+Label 1 ContentProducer SmartMistakeBook ProduceID 7eddd0d57f473ebc261e247bdcaacbabb3a04b4958de377f68e442639caed439
+== real-export-labeled.pdf bytes 54426 sha256 c007b3172443aed3287d17bc3d321c1d1b83fe1cbbf0706ffa39eaa0428b541b pages 1
+metadata keys ['/AIGC', '/Producer']
+/AIGC present: True
+Label 1 ContentProducer SmartMistakeBook ProduceID c5413a47774e905546e4a484c6ea77385c652defd0ff3fa0b621ba979946afd3

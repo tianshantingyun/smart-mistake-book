@@ -158,7 +158,7 @@ class KnowledgeGroundingMigrationInstrumentedTest {
             ).candidates
             migrated.close()
 
-            assertEquals(listOf("knowledge:math:derivative"), recalled.candidates.map { it.knowledgeNodeId })
+            assertEquals(listOf("knowledge:math:derivative"), recalled.map { it.knowledgeNodeId })
             SQLiteDatabase.openDatabase(
                 context.getDatabasePath(databaseName).path,
                 null,

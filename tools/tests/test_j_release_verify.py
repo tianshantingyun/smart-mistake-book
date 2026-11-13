@@ -12,6 +12,8 @@
 from __future__ import annotations
 
 import importlib.util
+import os
+import shutil
 import struct
 import subprocess
 import sys
@@ -22,7 +24,9 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-RETRACE = Path("C:/Android/Sdk/cmdline-tools/latest/bin/retrace.bat")
+RETRACE_NAME = "retrace.bat" if os.name == "nt" else "retrace"
+SDK_ROOT = Path(os.environ.get("ANDROID_HOME") or os.environ.get("ANDROID_SDK_ROOT") or "C:/Android/Sdk")
+RETRACE = Path(shutil.which(RETRACE_NAME) or SDK_ROOT / "cmdline-tools/latest/bin" / RETRACE_NAME)
 SPEC = importlib.util.spec_from_file_location(
     "j_release_verify", ROOT / "tools" / "ci" / "j_release_verify.py")
 J = importlib.util.module_from_spec(SPEC)

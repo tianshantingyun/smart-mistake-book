@@ -89,3 +89,9 @@ knowledge-production/candidate-merge/node_materials.csv
 
 # Negative-control logs are versioned test inputs.
 !/tools/tests/fixtures/acceptance/*.log
+
+# Immutable AIGC readback evidence consumed by regression fixtures.
+!/docs/research/evidence/2026-11-09-batch-50/aigc/green-device-kd85.log
+!/docs/research/evidence/2026-11-09-batch-50/aigc/pdf-independent-readback.log
+!/docs/research/evidence/2026-11-09-batch-50/aigc/docx-independent-readback.log
+!/docs/research/evidence/2026-11-06-batch-47/h-domain/h-061-pypdf-b47.log

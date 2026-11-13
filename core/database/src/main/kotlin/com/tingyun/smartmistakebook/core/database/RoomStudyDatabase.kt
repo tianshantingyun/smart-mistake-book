@@ -2032,6 +2032,64 @@ internal class RoomStudyDatabase(
 
     // ---- D-02（批次 30）：视觉身份不可变 + STAGING→LIVE + 正文/trace/link 同事务 ----
 
+    override suspend fun commitGeneratedVisualArtifact(
+        command: CommitGeneratedVisualArtifactCommand,
+    ): TutorVisualSnapshotRecord = database.withWriteTransaction {
+        val staging = command.staging
+        val dao = database.tutorVisualDao()
+        ensureTutorVisualProgram(dao, staging.program)
+        var snapshot = ensureTutorVisualSnapshot(dao, staging.snapshot, staging.ownerRequestId)
+        val snapshotWasAlreadyLive = snapshot.status == TutorVisualStatus.LIVE
+        if (!snapshotWasAlreadyLive) {
+            val promotedAt = maxOf(snapshot.createdAtEpochMillis, staging.snapshot.createdAtEpochMillis)
+            val changed = dao.promoteSnapshot(
+                snapshotId = snapshot.snapshotId,
+                stagingStatus = TutorVisualStatus.STAGING,
+                liveStatus = TutorVisualStatus.LIVE,
+                promotedAtEpochMillis = promotedAt,
+            )
+            snapshot = if (changed == 1) {
+                snapshot.copy(
+                    status = TutorVisualStatus.LIVE,
+                    ownerRequestId = null,
+                    promotedAtEpochMillis = promotedAt,
+                )
+            } else {
+                val raced = dao.findSnapshot(snapshot.snapshotId)
+                if (raced == null || raced.status != TutorVisualStatus.LIVE) {
+                    throw ImmutablePayloadConflictException("tutor_visual_snapshot", snapshot.snapshotId)
+                }
+                raced
+            }
+        }
+        // Generated assets own their snapshots directly, without an artificial chat message.
+        if (command.demoteCheckpointSnapshotIds.isNotEmpty()) {
+            dao.demoteLatestCheckpoints(
+                programId = staging.program.programId,
+                snapshotIds = command.demoteCheckpointSnapshotIds,
+                latestKind = TutorVisualCheckpointKind.LATEST,
+            )
+        }
+        if (staging.evictCheckpointSnapshotIds.isNotEmpty()) {
+            dao.evictUnpinnedCheckpoints(
+                snapshotIds = staging.evictCheckpointSnapshotIds,
+                latestKind = TutorVisualCheckpointKind.LATEST,
+                stagingStatus = TutorVisualStatus.STAGING,
+                committingOwnerRequestId = staging.ownerRequestId,
+                leaseExpiredBeforeEpochMillis = staging.stagingLeaseExpiredBeforeEpochMillis,
+            )
+        }
+        if (!snapshotWasAlreadyLive) {
+            enforceVisualCheckpointBudget(
+                dao = dao,
+                programId = staging.program.programId,
+                perProgramBudgetBytes = staging.perProgramBudgetBytes,
+                globalBudgetBytes = staging.globalBudgetBytes,
+            )
+        }
+        snapshot.toRecord()
+    }
+
     override suspend fun stageTutorVisualSnapshot(
         command: StageTutorVisualSnapshotCommand,
     ): TutorVisualSnapshotRecord = database.withWriteTransaction {

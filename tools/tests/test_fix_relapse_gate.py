@@ -113,10 +113,11 @@ def test_t03_stale_copy_turns_gate_red(tmp_path):
 def test_t04_unread_back_injection_turns_gate_red(tmp_path):
     delivery = _tmp_file(tmp_path, G.DELIVERY)
     _tmp_file(tmp_path, G.KD)
+    _tmp_file(tmp_path, G.T04_EVIDENCE_LOG)
     assert G.gate_t04(tmp_path)[0] is True
     text = delivery.read_text(encoding="utf-8").replace(
-        "internal object PreparedPdfPrintWriter",
-        "// PdfAigcInjector()\ninternal object PreparedPdfPrintWriter",
+        "PdfAigcInjector().inject(subsetBytes",
+        "injectWithoutAigc(subsetBytes",
         1,
     )
     delivery.write_text(text, encoding="utf-8")
@@ -126,6 +127,8 @@ def test_t04_unread_back_injection_turns_gate_red(tmp_path):
 def test_t05_hidden_passthrough_change_turns_gate_red(tmp_path):
     paper = _tmp_file(tmp_path, G.PAPER_EDIT)
     _tmp_file(tmp_path, G.KD)
+    _tmp_file(tmp_path, G.T05_EVIDENCE_DIR + "/green-device-kd85.log")
+    _tmp_file(tmp_path, G.T05_EVIDENCE_DIR + "/pdf-independent-readback.log")
     assert G.gate_t05(tmp_path)[0] is True
     text = paper.read_text(encoding="utf-8").replace(
         "hasModelParsedText = sourceInput.hasModelParsedText", "hasModelParsedText = false", 1
@@ -145,9 +148,10 @@ def test_t06_open_two_point_fixture_turns_gate_red(tmp_path):
 def test_t07_docx_claim_without_readback_turns_gate_red(tmp_path):
     docx = _tmp_file(tmp_path, G.DOCX)
     _tmp_file(tmp_path, G.KD)
+    _tmp_file(tmp_path, G.T07_EVIDENCE_DIR + "/docx-independent-readback.log")
     assert G.gate_t07(tmp_path)[0] is True
     text = docx.read_text(encoding="utf-8").replace(
-        "internal object DocxMistakeRenderer", "// /AIGC\ninternal object DocxMistakeRenderer", 1
+        "labeled = PdfAigcContentPolicy.shouldLabel(", "labeled = false && PdfAigcContentPolicy.shouldLabel(", 1
     )
     docx.write_text(text, encoding="utf-8")
     assert G.gate_t07(tmp_path)[0] is False
@@ -227,10 +231,10 @@ def test_cli_exit_codes():
     import subprocess
 
     tool = str(ROOT / "tools" / "ci" / "fix_relapse_gate.py")
-    green = subprocess.run([sys.executable, "-I", tool, "--gate", "FIX-T01"],
-                           capture_output=True, text=True, cwd=str(ROOT))
+    green = subprocess.run([sys.executable, "-I", "-X", "utf8", tool, "--gate", "FIX-T01"],
+                           capture_output=True, text=True, encoding="utf-8", cwd=str(ROOT))
     assert green.returncode == 0, green.stdout + green.stderr
     assert "EXIT=0" in green.stdout
-    unknown = subprocess.run([sys.executable, "-I", tool, "--gate", "FIX-T99"],
-                             capture_output=True, text=True, cwd=str(ROOT))
+    unknown = subprocess.run([sys.executable, "-I", "-X", "utf8", tool, "--gate", "FIX-T99"],
+                             capture_output=True, text=True, encoding="utf-8", cwd=str(ROOT))
     assert unknown.returncode == 2

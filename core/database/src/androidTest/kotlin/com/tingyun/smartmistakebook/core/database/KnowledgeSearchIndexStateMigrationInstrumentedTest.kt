@@ -121,7 +121,7 @@ class KnowledgeSearchIndexStateMigrationInstrumentedTest {
                 ).candidates
                 assertTrue(
                     "node must be recalled after rebuild",
-                    recalled.candidates.map(KnowledgeNodeSeedRecord::knowledgeNodeId).contains(node.knowledgeNodeId),
+                    recalled.map(KnowledgeNodeSeedRecord::knowledgeNodeId).contains(node.knowledgeNodeId),
                 )
                 assertRaw(context, databaseName) { database ->
                     val featureCount = database.rawQuery(

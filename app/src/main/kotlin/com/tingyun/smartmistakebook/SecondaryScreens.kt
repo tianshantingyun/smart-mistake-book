@@ -864,7 +864,7 @@ internal fun StorageScreen(
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
-                operationMessage = "备份失败，原数据不受影响。${failure.message.orEmpty()}"
+                operationMessage = "备份失败，原数据不受影响。"
             } finally {
                 operationBusy = false
             }
@@ -894,7 +894,7 @@ internal fun StorageScreen(
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
-                operationMessage = "校验失败，文件可能已损坏。${failure.message.orEmpty()}"
+                operationMessage = "校验失败，文件可能已损坏。"
             } finally {
                 operationBusy = false
             }
@@ -928,7 +928,7 @@ internal fun StorageScreen(
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
-                operationMessage = "校验失败，文件可能已损坏，恢复未开始。${failure.message.orEmpty()}"
+                operationMessage = "校验失败，文件可能已损坏，恢复未开始。"
             } finally {
                 operationBusy = false
             }
@@ -968,7 +968,7 @@ internal fun StorageScreen(
             } catch (cancelled: CancellationException) {
                 throw cancelled
             } catch (failure: Exception) {
-                diagnosticsMessage = "导出失败，本机记录不受影响。${failure.message.orEmpty()}"
+                diagnosticsMessage = "导出失败，本机记录不受影响。"
             } finally {
                 operationBusy = false
             }
@@ -1003,7 +1003,7 @@ internal fun StorageScreen(
                                 throw cancelled
                             } catch (failure: Exception) {
                                 operationMessage =
-                                    "删除未全部完成，请重启后重试。${failure.message.orEmpty()}"
+                                    "删除未全部完成，请重启后重试。"
                                 onDatabaseClosed(operationMessage.orEmpty(), false)
                             } finally {
                                 operationBusy = false
@@ -1183,7 +1183,7 @@ internal fun StorageScreen(
                                 throw cancelled
                             } catch (failure: Exception) {
                                 operationMessage =
-                                    "清理未完成，原题图不受影响。${failure.message.orEmpty()}"
+                                    "清理未完成，原题图不受影响。"
                             } finally {
                                 operationBusy = false
                             }
@@ -1564,7 +1564,7 @@ internal fun storageRestoreFailureMessage(failure: Exception): String =
             ?: "恢复未完成，当前本机数据状态需要核对。"
         "$detail 请关闭应用后重新打开，并核对本机数据。"
     } else {
-        "恢复失败，已尝试保留原数据。${failure.message.orEmpty()}"
+        "恢复失败，已尝试保留原数据。请核对本机数据后重试。"
     }
 
 private fun formatBytes(bytes: Long): String = when {

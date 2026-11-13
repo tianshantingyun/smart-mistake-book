@@ -1,0 +1,17 @@
+宿主独立读者：pypdf 6.16.2（python -I -c "import sys,pypdf; r=pypdf.PdfReader(sys.argv[1]); md=r.metadata or {}; print('pages=',len(r.pages)); print('aigc=',md.get('/AIGC'))"）。非项目自写 reader。
+日期: 2026-11-05
+
+CMD: python -I -c "import sys,pypdf; r=pypdf.PdfReader(sys.argv[1]); md=r.metadata or {}; print('pages=',len(r.pages)); print('aigc=',md.get('/AIGC'))" docs/research/evidence/2026-11-06-batch-47/h-domain/print-prepared-labeled.pdf
+file=docs/research/evidence/2026-11-06-batch-47/h-domain/print-prepared-labeled.pdf
+pages= 4
+aigc= {"Label":"1","ContentProducer":"SmartMistakeBook","ProduceID":"9458cbe2cd1c35bb3d2e469917891037a222c8c7d20add1b303dac26d39b74e3","ReservedCode1":"","ContentPropagator":"","PropagateID":"","ReservedCode2":""}
+说明：print-prepared-labeled.pdf 拉自设备 cache/mistake_pdf_exports/9458cbe2cd1c35bb3d2e469917891037a222c8c7d20add1b303dac26d39b74e3/mistake.pdf，目录名即 MistakePdfExportInput.inputSha256。
+
+CMD: python -I -c "import sys,pypdf; r=pypdf.PdfReader(sys.argv[1]); md=r.metadata or {}; print('pages=',len(r.pages)); print('aigc=',md.get('/AIGC'))" docs/research/evidence/2026-11-06-batch-47/h-domain/print-subset-relabeled.pdf
+file=docs/research/evidence/2026-11-06-batch-47/h-domain/print-subset-relabeled.pdf
+pages= 1
+aigc= {"Label":"1","ContentProducer":"SmartMistakeBook","ProduceID":"9458cbe2cd1c35bb3d2e469917891037a222c8c7d20add1b303dac26d39b74e3","ReservedCode1":"","ContentPropagator":"","PropagateID":"","ReservedCode2":""}
+说明：print-subset-relabeled.pdf 拉自设备 files/pdf-aigc-export/run-1793892530755-10592/print-subset-relabeled.pdf（writeSubset 重注入产物，am instrument 单用例轮）。
+
+判据（KD-84 关闭条件）：独立读者读回子集 /AIGC 存在、Label=1、ProduceID 与整份产物/输入指纹一致、页数 1 = 所选页数。
+EXIT=0

@@ -1,0 +1,16 @@
+== model-text-labeled.docx bytes 1852 sha256 33f73909249687e5fff5cd88da42a596368be99466d27d07f407389e5695682f
+parts ['[Content_Types].xml', '_rels/.rels', 'word/document.xml', 'docProps/custom.xml']
+docProps/custom.xml present: True
+property count 1
+name= AIGC pid= 2 fmtid= {D5CDD505-2E9C-101B-9397-08002B2CF9AE}
+json keys ['Label', 'ContentProducer', 'ProduceID', 'ReservedCode1', 'ContentPropagator', 'PropagateID', 'ReservedCode2']
+Label 1 ProduceID cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc ContentProducer SmartMistakeBook
+custom override: ['/docProps/custom.xml']
+custom rel target: ['docProps/custom.xml']
+visible notice present: True
+== pure-user-unlabeled.docx bytes 1296 sha256 42657cd91978b16eb38bd6e2602357ee6a0633bd58fc58dbf83a7929c4b25eb8
+parts ['[Content_Types].xml', '_rels/.rels', 'word/document.xml']
+docProps/custom.xml present: False
+custom override: []
+custom rel target: []
+visible notice present: False
