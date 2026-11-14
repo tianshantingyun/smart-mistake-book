@@ -159,6 +159,8 @@ fun TutorRoute(
 internal fun TutorPageHeader(
     onOpenCapabilitySettings: () -> Unit,
     onOpenHistory: (() -> Unit)? = null,
+    /** 根页的「新会话」：结束当前会话展示，下一条消息开新会话。 */
+    onNewConversation: (() -> Unit)? = null,
     /** 由别的页面推进来时（错题详情、历史、拍照流程）给一个返回；大厅这种标签根页传 null。 */
     onBack: (() -> Unit)? = null,
 ) {
@@ -169,6 +171,20 @@ internal fun TutorPageHeader(
         contentColor = iconTint,
     )
     val actions: @Composable RowScope.() -> Unit = {
+        if (onNewConversation != null) {
+            IconButton(
+                onClick = onNewConversation,
+                modifier = Modifier.testTag("tutor_new_conversation_button"),
+                colors = iconColors,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Add,
+                    contentDescription = "新会话",
+                    tint = iconTint,
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+        }
         if (onOpenHistory != null) {
             IconButton(
                 onClick = onOpenHistory,

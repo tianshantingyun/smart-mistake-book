@@ -1,5 +1,6 @@
 package com.tingyun.smartmistakebook.core.ui
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -50,5 +51,21 @@ class AiReplyRichMarkdownTest {
     fun richTextFallsBackForBlank() {
         assertFalse(shouldUseRichTextMarkdown(""))
         assertFalse(shouldUseRichTextMarkdown("   "))
+    }
+
+    @Test
+    fun singleNewlinesBecomeParagraphBreaks() {
+        assertEquals("第一段\n\n第二段", normalizeTutorParagraphs("第一段\n第二段"))
+    }
+
+    @Test
+    fun listItemsKeepTheirStructure() {
+        assertEquals("- 步骤一\n- 步骤二", normalizeTutorParagraphs("- 步骤一\n- 步骤二"))
+    }
+
+    @Test
+    fun fencedCodeIsUntouched() {
+        val source = "前文\n\n```kotlin\nval a = 1\nval b = 2\n```"
+        assertEquals(source, normalizeTutorParagraphs(source))
     }
 }

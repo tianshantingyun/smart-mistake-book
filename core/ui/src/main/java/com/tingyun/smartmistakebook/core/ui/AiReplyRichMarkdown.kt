@@ -5,6 +5,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.border
 import androidx.compose.ui.graphics.Color
@@ -52,9 +53,12 @@ fun AiReplyRichMarkdown(
     markdown: String,
     modifier: Modifier = Modifier,
 ) {
-    if (!shouldUseRichTextMarkdown(markdown)) {
+    // 模型常以单个换行表示分段；CommonMark 会把它并进同一段，学生看到的是一整块。
+    // 渲染前把"非列表/非代码"的连续行各自提升为段落，加粗与分段才真的可见。
+    val normalized = remember(markdown) { normalizeTutorParagraphs(markdown) }
+    if (!shouldUseRichTextMarkdown(normalized)) {
         SafeMarkdownText(
-            markdown = markdown,
+            markdown = normalized,
             style = TutorMarkdownTokens.body,
             modifier = modifier,
         )
@@ -66,7 +70,7 @@ fun AiReplyRichMarkdown(
             RichText(
                 modifier = modifier,
                 style = RichTextStyle(
-                    paragraphSpacing = 12.sp,
+                    paragraphSpacing = 16.sp,
                     headingStyle = { level, _ -> TutorMarkdownTokens.heading(level) },
                     stringStyle = RichTextStringStyle(
                         boldStyle = TutorMarkdownTokens.strong,
@@ -91,7 +95,7 @@ fun AiReplyRichMarkdown(
                 ),
             ) {
                 Markdown(
-                    content = markdown,
+                    content = normalized,
                     markdownParseOptions = MarkdownParseOptions(autolink = false),
                     onLinkClicked = { /* fail-closed：no-op，链接惰性 */ },
                     codeBlockContent = { literal, language -> ClaudeCodeBlock(literal, language) },
@@ -99,4 +103,57 @@ fun AiReplyRichMarkdown(
             }
         }
     }
+}
+
+/**
+ * 把模型回复里的**单个换行**提升为段落分隔（列表、标题、引用、表格、代码围栏保持原样）。
+ * 纯函数，锁在 JVM 测试里：输入不变则输出逐字稳定。
+ */
+internal fun normalizeTutorParagraphs(markdown: String): String {
+    if (markdown.isBlank()) return markdown
+    val lines = markdown.replace("\r\n", "\n").split('\n')
+    val out = ArrayList<String>(lines.size + 8)
+    var inFence = false
+    var block = ArrayList<String>()
+
+    fun flushBlock() {
+        if (block.isEmpty()) return
+        val plain = block.none { line ->
+            val t = line.trimStart()
+            t.startsWith("-") || t.startsWith("*") || t.startsWith("+") ||
+                t.matches(Regex("\\d+[.)]\\s+.*")) || t.startsWith("#") ||
+                t.startsWith(">") || t.startsWith("|")
+        }
+        if (block.size > 1 && plain) {
+            block.forEachIndexed { index, line ->
+                if (index > 0) out.add("")
+                out.add(line)
+            }
+        } else {
+            out.addAll(block)
+        }
+        block = ArrayList()
+    }
+
+    for (line in lines) {
+        val trimmed = line.trimStart()
+        if (trimmed.startsWith("```") || trimmed.startsWith("~~~")) {
+            flushBlock()
+            inFence = !inFence
+            out.add(line)
+            continue
+        }
+        if (inFence) {
+            out.add(line)
+            continue
+        }
+        if (line.isBlank()) {
+            flushBlock()
+            out.add("")
+        } else {
+            block.add(line)
+        }
+    }
+    flushBlock()
+    return out.joinToString("\n")
 }

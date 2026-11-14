@@ -76,6 +76,8 @@ class RealProviderProtocolTest {
 
             assertTrue("Should contain model", sentBody.contains("\"model\":\"test-model\""))
             assertTrue("Should contain student message", sentBody.contains("这道数学题怎么做？"))
+            // 推理模型的长思考链需要显式输出预算，否则默认 4096 截断。
+            assertTrue("Tutor lobby must request the enlarged output budget", sentBody.contains("\"max_tokens\":16384"))
             assertFalse("Should not contain image_url type", sentBody.contains("\"type\":\"image_url\""))
         }
     }

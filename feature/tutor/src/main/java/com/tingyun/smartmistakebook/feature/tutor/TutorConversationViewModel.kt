@@ -976,6 +976,47 @@ internal class TutorConversationViewModel(
 
     fun onResendMessage(message: TutorMessage) = sendCommands.onResendMessage(message)
 
+    /**
+     * 智能体栏顶栏「新会话」：结束当前会话的展示，下一次发送会按 K1b 新建会话行。
+     * 只在一轮已经收尾时允许（[TutorConversationUiState.hasActiveTask] = false），
+     * 否则会把仍在生成的那一轮静默留在后台、学生在空屏上等一个不会出现的回复。
+     */
+    fun onStartNewConversation() {
+        if (_uiState.value.hasActiveTask) return
+        updateState { current ->
+            current.copy(
+                conversationId = "",
+                conversation = null,
+                messages = emptyList(),
+                tasks = emptyList(),
+                draft = "",
+                pendingImages = emptyList(),
+                pendingCameraImageUri = null,
+                attachMenuOpen = false,
+                mistakePickerOpen = false,
+                attachReadFailed = null,
+                pendingAttachedQuestion = null,
+                pendingAttachedQuestionEntryId = null,
+                interactionBusy = false,
+                interactionError = null,
+                locallyStartedRequestId = null,
+                sendState = TutorSendState(),
+                sending = false,
+                resumingRequestId = null,
+                error = null,
+                planStartError = null,
+                lastFailedMessage = null,
+                notebookLookupRequested = false,
+                pendingRequestCards = emptyList(),
+                decidingPendingRequestIds = emptySet(),
+                pendingRequestDetail = null,
+                exportSheet = null,
+                liveTurn = TutorLiveTurn.EMPTY,
+            )
+        }
+    }
+
+
 
     private fun reduceSend(action: TutorSendAction) {
         updateState { state ->

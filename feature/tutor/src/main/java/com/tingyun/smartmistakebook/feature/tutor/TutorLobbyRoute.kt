@@ -179,6 +179,8 @@ internal fun TutorLobbyRoute(
             onPickMistake = viewModel::onOpenMistakePicker,
         )
     }
+    // 重新生成 = 覆盖：同一学生消息只展示最新助手回复（旧回复留库，不进界面）。
+    val visibleMessages = remember(state.messages) { latestTutorLobbyMessages(state.messages) }
     val composerBlock = TutorComposerAvailability(
         providerReady = state.provider?.supports(ModelTaskKind.TUTOR_LOBBY) == true,
         providerLoadFailed = state.providerLoadFailed,
@@ -200,6 +202,7 @@ internal fun TutorLobbyRoute(
                     TutorPageHeader(
                         onOpenCapabilitySettings = onOpenCapabilitySettings,
                         onOpenHistory = onOpenHistory,
+                        onNewConversation = viewModel::onStartNewConversation,
                     )
                 },
                 composerPlaceholder = "输入题目、困惑，或说你现在想做什么",
@@ -306,11 +309,11 @@ internal fun TutorLobbyRoute(
                 "正在发送…"
             },
             liveTurnStopAction = viewModel::onStopGenerating,
-            emptyStateVisible = state.messages.isEmpty() && state.tasks.isEmpty(),
+            emptyStateVisible = visibleMessages.isEmpty() && state.tasks.isEmpty(),
             autoScrollVersion = listOf(
-                state.messages.size,
-                state.messages.lastOrNull()?.messageId,
-                state.messages.lastOrNull()?.status,
+                visibleMessages.size,
+                visibleMessages.lastOrNull()?.messageId,
+                visibleMessages.lastOrNull()?.status,
                 state.tasks.lastOrNull()?.stateVersion,
                 state.notebookLookupRequested,
                 state.error,
@@ -320,18 +323,18 @@ internal fun TutorLobbyRoute(
             // 整条会话都列出来（B6）：长会话里前面的轮次不能被静默截掉——学生往上翻，
             // 讲过的每一轮都还在。
             items(
-                items = state.messages,
+                items = visibleMessages,
                 key = { it.messageId },
             ) { message ->
                 TutorSurfaceMessageItem(
                     message = message,
                     imageIntake = imageIntake,
                     onOpenCapabilitySettings = onOpenCapabilitySettings,
-                    resendTarget = message.resendTargetOrNull(state.messages),
+                    resendTarget = message.resendTargetOrNull(visibleMessages),
                     onResend = viewModel::onResendMessage,
                     // 统一动作条（A2）：成功 / 已停止 / 失败三种状态共用同一个「重试」，目标都是
                     // 它回复的那条学生消息（= 重发同类请求，同一逻辑操作的下一次尝试）。
-                    retryTarget = message.retryTargetOrNull(state.messages),
+                    retryTarget = message.retryTargetOrNull(visibleMessages),
                     onRetry = viewModel::onResendMessage,
                     modifier = Modifier.padding(top = 12.dp),
                 )
