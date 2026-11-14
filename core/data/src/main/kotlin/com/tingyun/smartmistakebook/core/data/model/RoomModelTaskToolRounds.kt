@@ -51,11 +51,11 @@ internal suspend fun tutorToolRoundOutcomes(
                     errorKind = "not_authorized",
                 ),
             )
-            // A-02：`method=JS` 在**契约层**已可表达（两条解析路由同形），但本构建还没有把
-            // JS 执行器接进工具环。若不在这里 fail-closed，这次调用会落进图像生成器——一次
-            // 真实的远程付费派发 + 一条 method=IMAGE_MODEL 的假痕迹。执行器
-            // （`RoomTutorToolRunner.generateFigure`）另有同一道门作第二道防线，直调
-            // `runTraced` 的调用者也进不了图像生成器。执行器接线后，两支改为路由到 JS 分支。
+            // A-02：`method=JS` 在契约层可表达，执行器（`RoomTutorToolRunner.generateFigure`）
+            // 也有 JS 分支；这里按**本机真实能力**兜底：引擎/宿主帧未就绪（`javascriptReady=false`）
+            // 时 fail-closed，否则这次调用会落进图像生成器——一次真实的远程付费派发 + 一条
+            // method=IMAGE_MODEL 的假痕迹。执行器层另有同一道门作第二道防线，保护直调
+            // `runTraced` 的调用者。
             isJavascriptFigureCall(call) && !javascriptReady -> TutorToolExecution(
                 TutorToolOutcome(
                     tool = call.tool,

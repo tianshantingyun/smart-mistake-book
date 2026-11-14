@@ -26,6 +26,7 @@ import com.tingyun.smartmistakebook.core.data.model.TutorFigureRequest
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureResult
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureStatus
 import com.tingyun.smartmistakebook.core.model.FigureGenerationStatus
+import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
 import com.tingyun.smartmistakebook.core.model.TutorEvidenceDirection
 import com.tingyun.smartmistakebook.core.model.TutorFigureKind
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
@@ -1729,6 +1730,46 @@ class RoomTutorToolRunnerTest {
         assertEquals("asset-sheet-1", request.sourceSheet?.sourceAssetId)
         assertEquals("image/png", request.sourceSheet?.mimeType)
         assertEquals("单调性练习", request.problemContext)
+    }
+
+    @Test
+    fun javascriptFigureCallReachesTheGeneratorWithItsProgram() = runBlocking {
+        // 用户可见的失败：智能体明明有 JS 引擎却"调用不了"。执行器层必须把 method=JS +
+        // 独立 program 原样交给生成器（而不是落进图像模型），程序不得被改写或塞进 description。
+        val port = FigureDraftPort(problemDraftRecord("draft-js-1"))
+        port.tutorSessions[TUTOR_SESSION_ID] = tutorSessionRecord("draft-js-1")
+        val requests = mutableListOf<TutorFigureRequest>()
+        val generator = object : TutorFigureGenerator {
+            override suspend fun generate(request: TutorFigureRequest): TutorFigureResult {
+                requests += request
+                return TutorFigureResult(
+                    figureId = "asset-js-1",
+                    status = TutorFigureStatus.GENERATED,
+                    operationId = "op-js-1",
+                )
+            }
+
+            override fun supports(method: FigureGenerationMethod): Boolean = true
+        }
+        val runner = figureRunner(port, generator)
+        val program = "visualSdk.axis({x0: 0, y0: 0, x1: 10, y1: 0});"
+
+        val outcome = runner.run(
+            TutorToolCall(
+                tool = TutorToolName.GENERATE_FIGURE,
+                rationale = "数轴关系简单，用本机 JS 画更清楚",
+                figureKind = TutorFigureKind.GENERATE_PROCESS,
+                figureDescription = "数轴标出 2 和 4",
+                figureMethod = FigureGenerationMethod.JS,
+                figureProgram = program,
+            ),
+            sessionContext(),
+        )
+
+        assertTrue(outcome.summaryMarkdown, outcome.ok)
+        val request = requests.single()
+        assertEquals(FigureGenerationMethod.JS, request.method)
+        assertEquals(program, request.program)
     }
 
     @Test

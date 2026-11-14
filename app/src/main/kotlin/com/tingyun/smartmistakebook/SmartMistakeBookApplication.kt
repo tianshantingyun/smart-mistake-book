@@ -362,7 +362,17 @@ class SmartMistakeBookApplication : Application() {
             database = StudyDatabaseFactory.open(this, denseRerank = DenseRecallAssembly.reranker(this))
             val jsHost = com.tingyun.smartmistakebook.visualjs.VisualJsFigureHost(this)
             visualJsFigureHost = jsHost
-            runBlocking { jsHost.prepare() }
+            // 首连失败不能让 JS 整个进程生命周期不可用：覆盖安装后的首次启动会撞上旧
+            // `:visual_js` 进程被系统清理/包替换，bind 可能只失败这一次。失败后在后台
+            // 有界重试；能力快照按轮重算，重试成功后的下一轮即可广告 JS。
+            if (!runBlocking { jsHost.prepare() }) {
+                applicationScope.launch {
+                    repeat(3) { attempt ->
+                        kotlinx.coroutines.delay(1_000L * (attempt + 1))
+                        if (jsHost.prepare()) return@launch
+                    }
+                }
+            }
             schedulingSettingsStore = DataStoreSchedulingSettingsStore(this, dataStoreScope)
             // Settings are read synchronously to mirror the synchronous database
             // open above; a scheduling-flag flip applies on the next launch so a

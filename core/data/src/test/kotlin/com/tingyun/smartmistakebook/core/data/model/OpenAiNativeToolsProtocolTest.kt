@@ -237,6 +237,34 @@ class OpenAiNativeToolsProtocolTest {
     }
 
     @Test
+    fun duplicateNativeToolCallsKeepTheFirstInsteadOfFailingTheRound() {
+        // 推理型小模型会无视"单轮互不相同工具"重复申请同一工具。整条输出判 INVALID 会让
+        // 这一轮讲解无谓失败；解析层保留第一次、丢弃重复，工具结果照常回喂。
+        val envelope = toolCallEnvelope(
+            """
+            {"role":"assistant","content":null,
+             "tool_calls":[
+               {"id":"call_1","type":"function",
+                "function":{"name":"NOTEBOOK_READ",
+                  "arguments":"{\"terms\":[\"二次函数\"],\"rationale\":\"先查最近错题\"}"}},
+               {"id":"call_2","type":"function",
+                "function":{"name":"NOTEBOOK_READ",
+                  "arguments":"{\"terms\":[\"单调性\"],\"rationale\":\"再查一次同类题\"}"}}]}
+            """.trimIndent(),
+        )
+
+        val round = OpenAiModelProtocol.parseResponse(
+            responseBody = envelope,
+            input = respondInput(),
+            modelVersion = "test-model-v1",
+        ) as TutorToolRequestsOutput
+
+        assertEquals(1, round.calls.size)
+        assertEquals(TutorToolName.NOTEBOOK_READ, round.calls.single().tool)
+        assertEquals(listOf("二次函数"), round.calls.single().terms)
+    }
+
+    @Test
     fun nativeToolCallsResponseParsesToToolRequestsOutput() {
         val envelope = toolCallEnvelope(
             """

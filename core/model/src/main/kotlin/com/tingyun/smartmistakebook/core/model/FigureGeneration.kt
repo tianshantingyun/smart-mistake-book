@@ -35,6 +35,23 @@ fun ModelTaskInput.figureCapabilitiesSnapshot(): FigureGenerationCapabilities? =
     else -> null
 }
 
+/**
+ * 把宿主**这一轮的真实生图能力**折进派遣输入（只影响广告面与提示词，不改持久化请求）。
+ *
+ * 消灭的具体失败：生产装配把 coordinator 的能力挂进 `ModelTaskRepository.capabilities()`，
+ * 但派遣入口一直用 `gateway.capabilities()` 且从不写 `input.figureGenerationCapabilities`，
+ * 于是工具 schema 的 `method.enum`、提示词方法段、轮次/执行器的 JS 就绪门全部退回
+ * `IMAGE_MODEL`——本机明明有 JS 引擎，模型却看不到也调不到 JS。null 快照保持输入逐位不变。
+ */
+fun ModelTaskInput.withFigureGenerationCapabilities(
+    capabilities: FigureGenerationCapabilities?,
+): ModelTaskInput = when (this) {
+    is TutorPlanInput -> if (capabilities == null) this else copy(figureGenerationCapabilities = capabilities)
+    is TutorRespondInput -> if (capabilities == null) this else copy(figureGenerationCapabilities = capabilities)
+    is TutorLobbyInput -> if (capabilities == null) this else copy(figureGenerationCapabilities = capabilities)
+    else -> this
+}
+
 /** 生图方法（与用途正交）。 */
 @Serializable
 enum class FigureGenerationMethod {

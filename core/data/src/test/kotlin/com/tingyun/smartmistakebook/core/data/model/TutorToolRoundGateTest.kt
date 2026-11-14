@@ -495,6 +495,20 @@ class TutorToolRoundGateTest {
         assertEquals(FIGURE_METHOD_UNAVAILABLE, jsOutcomes.single().outcome.errorKind)
         assertTrue("JS 不得触达图像生成器", ran.isEmpty())
 
+        // 引擎/宿主帧就绪（真机装配）后，同一调用必须放行到执行器，而不是被当成
+        // "没有 JS 执行通道"拒掉——这正是智能体"调用不了 JS"的第二道门。
+        val jsReadyOutcomes = tutorToolRoundOutcomes(
+            calls = listOf(jsCall),
+            authorizedTools = authorized,
+            disclosedKnowledgeCodes = disclosed,
+            runTool = runTool,
+            consumeExtendedResult = {},
+            javascriptReady = true,
+        )
+        assertTrue(jsReadyOutcomes.single().outcome.ok)
+        assertEquals(listOf(TutorToolName.GENERATE_FIGURE), ran)
+        ran.clear()
+
         val imageOutcomes = tutorToolRoundOutcomes(
             calls = listOf(imageModelCall),
             authorizedTools = authorized,
