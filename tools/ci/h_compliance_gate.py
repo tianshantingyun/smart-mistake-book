@@ -497,7 +497,7 @@ def h038() -> tuple[bool, str]:
 
 
 def h039() -> tuple[bool, str]:
-    hits = grep_main(r"guardianConsent|guardian_consent|监护人同意")
+    hits = grep_main(r"\b(?:val|var|fun)\s+(?:guardianConsent|guardian_consent)\w*")
     return bool([h for h in hits if "telemetry" not in h]), f"产品侧监护人同意机制命中={len(hits)}（仅遥测门）"
 
 

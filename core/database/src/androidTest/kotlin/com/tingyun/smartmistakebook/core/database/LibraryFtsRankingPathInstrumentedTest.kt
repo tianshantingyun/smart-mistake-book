@@ -474,7 +474,7 @@ class LibraryFtsRankingPathInstrumentedTest {
         val bindings = mutableListOf<Any>()
         bindings += case.matchQuery
         case.filters.subjectId?.let { bindings += it }
-        case.filters.sectionId?.let { bindings += it }
+        case.filters.sectionId?.takeUnless { it == "__unclassified__" }?.let { bindings += it }
         case.filters.masteryId?.let { bindings += it }
         case.filters.createdFromEpochMillis?.let { bindings += it }
         case.filters.createdToEpochMillis?.let { bindings += it }
@@ -513,7 +513,7 @@ class LibraryFtsRankingPathInstrumentedTest {
         }
         bindings += case.matchQuery
         case.filters.subjectId?.let { bindings += it }
-        case.filters.sectionId?.let { bindings += it }
+        case.filters.sectionId?.takeUnless { it == "__unclassified__" }?.let { bindings += it }
         case.filters.masteryId?.let { bindings += it }
         case.filters.createdFromEpochMillis?.let { bindings += it }
         case.filters.createdToEpochMillis?.let { bindings += it }
@@ -550,7 +550,9 @@ class LibraryFtsRankingPathInstrumentedTest {
     private fun preChangeSearchPageSql(sort: String, filters: Filters): String {
         val filterText = buildString {
             if (filters.subjectId != null) append("\n  AND catalog.subject = ?")
-            if (filters.sectionId != null) {
+            if (filters.sectionId == "__unclassified__") {
+                append("\n  AND COALESCE(catalog.chapter_labels, '') = ''")
+            } else if (filters.sectionId != null) {
                 append(
                     "\n  AND EXISTS (\n" +
                         "      SELECT 1 FROM problem_classification_binding AS classification\n" +

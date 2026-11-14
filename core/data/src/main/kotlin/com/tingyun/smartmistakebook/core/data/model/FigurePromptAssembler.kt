@@ -53,6 +53,7 @@ object FigurePromptAssembler {
             appendLine()
             appendLine("## 统一规则（所有入口共用的同一份正文）")
             appendLine(SHARED_RULES)
+            appendLine(TEACHING_FIGURE_RULES)
             appendLine()
             appendLine("## 当前任务")
             appendLine("purpose（宿主冻结，不可改写）：${purpose.name}")
@@ -143,6 +144,7 @@ object FigurePromptAssembler {
             appendLine()
             appendLine("## 统一规则（所有入口共用的同一份正文）")
             appendLine(SHARED_RULES)
+            appendLine(TEACHING_FIGURE_RULES)
             appendLine()
             appendLine("## 当前任务的用途映射（kind 只表示用途，不表示方法）")
             purposes.forEach { purpose ->
@@ -224,6 +226,9 @@ object FigurePromptAssembler {
             "不能用换方法绕过授权、预算、缺失证据或必需交互要求，也不能静默降低质量目标。" +
             "同一幅图只有明确支持分层合成时才可拆分子图；不能假定该能力存在。"
 
+    private const val TEACHING_FIGURE_RULES =
+        "教学讲解与详细答案必须穿插有意义的配图，表达与相邻段落有关的关系或变化，禁止装饰图和文字段落截图。检查坐标轴、单位、方向、点线关系、标签与字号可读性。简单图在结构化程序绘图真实可用时必须用它完成；只有确需图像模型的复杂图且宿主确认该能力不可用才可省略，并说明具体原因。普通执行失败必须修复或明确标记未完成。"
+
     private const val METHOD_SECTION_HEADER =
         "你有一个统一的生图能力。当前可用方法（宿主声明，缺省不支持的不得声称可用）："
 
@@ -244,6 +249,7 @@ object FigurePromptAssembler {
         "visualSdk.arrow(x1, y1, x2, y2, o)",
         "visualSdk.axis(o)（o={x0, y0, x1, y1, ticks?, tickLength?}）",
         "visualSdk.polyline(points)",
+        "visualSdk.lineSegments(points)",
         "visualSdk.random()",
     )
 

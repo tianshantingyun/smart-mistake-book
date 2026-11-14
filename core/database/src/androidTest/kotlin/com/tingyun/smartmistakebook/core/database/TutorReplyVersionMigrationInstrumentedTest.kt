@@ -30,6 +30,11 @@ class TutorReplyVersionMigrationInstrumentedTest {
             assertEquals("原始讲解", store.observeTutorMessages("version-conversation").first().single().bodyMarkdown)
             val first = version("v1", 1, "原始讲解")
             val second = version("v2", 2, "新的讲解")
+            val unadmitted = runCatching {
+                store.publishTutorReplyVersion(first, second.copy(sourceAssetIdsJson = "[\"unknown-figure\"]"))
+            }
+            assertTrue(unadmitted.exceptionOrNull() is IllegalArgumentException)
+            assertTrue(store.observeTutorReplyVersions("version-conversation").first().isEmpty())
             assertTrue(store.publishTutorReplyVersion(first, second))
             assertTrue(store.publishTutorReplyVersion(first, second))
             assertEquals(2, store.observeTutorReplyVersions("version-conversation").first().size)
