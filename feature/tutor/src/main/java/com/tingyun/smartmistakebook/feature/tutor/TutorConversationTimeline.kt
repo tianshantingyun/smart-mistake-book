@@ -263,7 +263,7 @@ private fun buildExactTutorConversationTimeline(
         (task.request.input as TutorPlanInput).turnKey()
     }
     val items = buildList {
-        planTasks.forEach { task ->
+        latestExactTutorPlanTasks(planTasks).forEach { task ->
             add(
                 TutorConversationTimelineItem.Plan(
                     task = task,
@@ -282,7 +282,7 @@ private fun buildExactTutorConversationTimeline(
                     ),
                 )
             }
-        respondTasks.forEach { task ->
+        latestTutorRespondTasks(respondTasks).forEach { task ->
             add(
                 TutorConversationTimelineItem.Reply(
                     task = task,

@@ -20,15 +20,15 @@ object TutorMarkdownTokens {
     fun heading(level: Int): TextStyle = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.SemiBold,
-        fontSize = when (level) { 1 -> 22.sp; 2 -> 18.sp; else -> 16.sp },
-        lineHeight = when (level) { 1 -> 32.sp; 2 -> 28.sp; else -> 26.sp },
+        fontSize = when (level) { 1 -> 24.sp; 2 -> 20.sp; else -> 19.sp },
+        lineHeight = when (level) { 1 -> 34.sp; 2 -> 30.sp; else -> 28.sp },
     )
     /** 行内正文基线。 */
     val body: TextStyle = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 26.sp,
+        fontSize = 18.sp,
+        lineHeight = 30.sp,
     )
 
     /** 行内 `**加粗**`：依靠字重区分重点，保留长段落的阅读底色。 */

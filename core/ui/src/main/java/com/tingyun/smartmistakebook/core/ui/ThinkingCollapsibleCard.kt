@@ -59,7 +59,9 @@ fun ThinkingCollapsibleCard(
     if (!shouldShowThinkingCard(thinkingMarkdown, thinking)) return
 
     // 生成中自动展开：学生实时看到思考与工具调用的流式过程；答案落地后自动收起成一组。
-    var expanded by rememberSaveable { mutableStateOf(thinking) }
+    // 同一列表里每一张卡都有独立状态：不带 key 的 rememberSaveable 会在列表项之间串状态，
+    // 学生展开过一条之后，完成态的卡会被恢复成展开（看起来"收不到一行"）。
+    var expanded by rememberSaveable(thinkingMarkdown?.hashCode()) { mutableStateOf(thinking) }
     LaunchedEffect(thinking) {
         expanded = thinking
     }
@@ -78,8 +80,8 @@ fun ThinkingCollapsibleCard(
                 )
                 .semantics { stateDescription = if (expanded) "已展开" else "已收起" }
                 .fillMaxWidth()
-                .defaultMinSize(minHeight = SmartDimens.MinimumTouchTarget)
-                .padding(horizontal = 14.dp, vertical = 2.dp),
+                .defaultMinSize(minHeight = 32.dp)
+                .padding(horizontal = 12.dp, vertical = 0.dp),
         ) {
             if (thinking) {
                 ClaudeQuietDots()
@@ -98,7 +100,6 @@ fun ThinkingCollapsibleCard(
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
             )
-            if (thinkingBody != null) ClaudeCopyButton(thinkingBody)
             Icon(
                 imageVector = if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
                 contentDescription = if (expanded) "收起思考过程" else "展开思考过程",

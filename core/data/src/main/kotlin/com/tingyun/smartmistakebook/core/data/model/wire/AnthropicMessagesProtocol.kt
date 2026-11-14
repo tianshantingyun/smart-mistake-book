@@ -264,7 +264,7 @@ internal object AnthropicMessagesProtocol : ModelWireProtocol {
     }.toString()
 
     private const val ANTHROPIC_VERSION = "2023-06-01"
-    private const val ANTHROPIC_MAX_TOKENS = 8192
+    private const val ANTHROPIC_MAX_TOKENS = 16384
     private const val ANTHROPIC_TEMPERATURE = 0.1
 
     /**

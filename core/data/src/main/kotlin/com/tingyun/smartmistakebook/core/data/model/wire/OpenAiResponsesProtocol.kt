@@ -58,6 +58,14 @@ internal object OpenAiResponsesProtocol : ModelWireProtocol {
         enableNativeTools: Boolean,
     ): String = buildJsonObject {
         put("model", modelId)
+        // 讲题文本给足输出预算（推理模型默认上限会截断思考链）。
+        if (
+            input is com.tingyun.smartmistakebook.core.model.TutorPlanInput ||
+            input is com.tingyun.smartmistakebook.core.model.TutorRespondInput ||
+            input is com.tingyun.smartmistakebook.core.model.TutorLobbyInput
+        ) {
+            put("max_output_tokens", OpenAiModelProtocol.TUTOR_TEXT_MAX_OUTPUT_TOKENS)
+        }
         put("instructions", OpenAiModelProtocol.SYSTEM_PROMPT)
         if (stream) put("stream", true)
         put(

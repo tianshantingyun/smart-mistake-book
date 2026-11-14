@@ -292,7 +292,6 @@ internal fun TutorSurfaceAssistantReply(
     bodyMarkdown: String?,
     modifier: Modifier = Modifier,
     thinkingMarkdown: String? = null,
-    thinkingCollapsed: Boolean = true,
     /**
      * 这一轮的工具痕迹（B1）：加粗灰色小字内联、点开可看详情（含被拒理由）。null = 没有痕迹，
      * 整行不渲染。它与思考卡是**两件东西**，各自一行——思考是模型在推理，查阅是它对外做的事。
@@ -318,7 +317,8 @@ internal fun TutorSurfaceAssistantReply(
             if (bodyMarkdown != null) {
                 ThinkingCollapsibleCard(
                     thinkingMarkdown = thinkingMarkdown,
-                    thinking = thinkingCollapsed,
+                    // 终稿消息的思考卡永远不是"正在思考"：思考已经结束，头部必须是「已思考」。
+                    thinking = false,
                 )
                 TutorToolTraceLine(display = rememberTutorToolTraceDisplay(toolTraceJson))
                 TutorPrompt(text = bodyMarkdown, modifier = Modifier.fillMaxWidth())

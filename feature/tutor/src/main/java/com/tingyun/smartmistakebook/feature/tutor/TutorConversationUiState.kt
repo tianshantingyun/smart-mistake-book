@@ -212,3 +212,26 @@ internal fun tutorSendRecoveryFailedError(): AppFailure = appFailure(
     retryability = Retryability.RETRYABLE,
     primaryAction = ActionType.RETRY,
 )
+
+
+/**
+ * 大厅消息的"重新生成"语义：同一条学生消息只保留**最新一条**助手回复。
+ * 重发沿用学生消息 id 但会新挂一条助手行；旧回复留在库里（审计/回放用），
+ * 界面只展示最新一版，学生看到的是"覆盖"而不是又接了一轮。
+ */
+internal fun latestTutorLobbyMessages(messages: List<TutorMessage>): List<TutorMessage> {
+    if (messages.size < 2) return messages
+    val kept = LinkedHashMap<String, TutorMessage>()
+    messages.forEach { message ->
+        if (message.role == TutorMessageRole.STUDENT) {
+            kept[message.messageId] = message
+        } else {
+            val key = "assistant:" + (message.replyToMessageId ?: message.messageId)
+            val previous = kept[key]
+            if (previous == null || message.ordinal >= previous.ordinal) {
+                kept[key] = message
+            }
+        }
+    }
+    return kept.values.toList()
+}
