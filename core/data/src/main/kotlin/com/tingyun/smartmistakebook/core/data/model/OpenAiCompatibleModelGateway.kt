@@ -576,6 +576,9 @@ private fun ModelConfigurationSnapshot.toCapabilities(): ProviderCapabilitySnaps
             // `provider.supports(PAPER_EDIT)` 恒为 false，任务永远停在
             // EGRESS_AUTHORIZATION_REQUIRED（R4 高危复核项）。探测本身与 kind 无关，无需新探针。
             add(ModelTaskKind.PAPER_EDIT)
+            if (verification.supportsMistakeEdit) {
+                add(ModelTaskKind.MISTAKE_EDIT)
+            }
             if (verification.supportsImageInput) {
                 add(ModelTaskKind.CAPTURE_ASSESS)
                 add(ModelTaskKind.CAPTURE_PARSE)
