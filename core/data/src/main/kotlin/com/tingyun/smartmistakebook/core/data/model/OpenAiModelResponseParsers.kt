@@ -588,6 +588,9 @@ internal fun JsonObject.toTutorToolRequests(
                     tool = enumValue(call.requiredString("tool")),
                 )
             }
+            // 与原生 tool_calls 路由同一口径：同轮重复申请同一工具时保留第一次。整条输出
+            // 判 INVALID 会让这一轮讲解无谓失败；协议仍要求一轮内工具互不相同。
+            ?.distinctBy { call -> call.tool }
             ?: throw InvalidModelResponseException(),
         modelVersion = modelVersion,
     )

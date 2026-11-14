@@ -125,10 +125,9 @@ internal object OpenAiModelProtocol {
         /**
          * A-03：`GENERATE_FIGURE` 的 `method.enum` 广告面。
          *
-         * 默认只广告**本机真实接通**的 IMAGE_MODEL——生产调用点不传，线上请求体与本批之前
-         * 逐字节相同（能力快照 / prompt / 广告文本零改动）。JVM 用例显式传含 JS 的集合，
-         * 证明 schema 能同时广告两种方法、且 `program` 是独立字段。JS 执行器接线到工具环
-         * 之前，生产装配**不得**传这个参数。
+         * 默认取本轮输入折叠进来的**真实能力集合**（`RoomModelTaskRepository` 在派遣前把
+         * coordinator 的 JS/图像就绪位并进输入）；输入没有能力快照时退回 IMAGE_MODEL。
+         * 生产与 JVM 向量因此走同一条派生规则，不再靠调用点单独传参。
          */
         figureMethods: Set<com.tingyun.smartmistakebook.core.model.FigureGenerationMethod> =
             input.figureCapabilitiesSnapshot()?.availableMethods
@@ -879,7 +878,11 @@ internal object OpenAiModelProtocol {
             ?: nativeToolRoundIntent(input)
         return TutorToolRequestsOutput(
             intentDecision = intentDecision,
-            calls = calls,
+            // 模型（尤其是推理型小参数模型）偶尔无视"单轮最多 3 个互不相同工具"，把同一
+            // 工具重复申请两次。协议层要求一轮内工具互不相同；若因此整条输出判 INVALID，
+            // 这一轮讲解会直接失败，而模型本身并没有做危险的事。保留第一次、丢弃同轮重复，
+            // 让工具结果照常回喂；真需要第二次时下一轮会再申请（预算/授权仍逐次裁决）。
+            calls = calls.distinctBy { call -> call.tool },
             localActions = actionCallElements.map { element ->
                 // 参数走同一份声明（`core:model` 的参数形状）：转发到同一个解析器，免得两条路由
                 // 对"合法的动作请求"有两套口径。动作 id 在原生路由里由**函数名**给出。

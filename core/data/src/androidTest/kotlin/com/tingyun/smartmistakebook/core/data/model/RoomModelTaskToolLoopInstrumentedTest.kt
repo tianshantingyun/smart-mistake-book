@@ -27,6 +27,8 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
 import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
+import com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities
+import com.tingyun.smartmistakebook.core.model.FigureGenerationMethod
 import com.tingyun.smartmistakebook.core.model.RelatedProblemCandidate
 import com.tingyun.smartmistakebook.core.model.SubjectKind
 import com.tingyun.smartmistakebook.core.model.TRUNCATED_OUTCOME_NOTE
@@ -41,6 +43,10 @@ import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureGenerator
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureRequest
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureResult
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureStatus
 import com.tingyun.smartmistakebook.core.model.TutorToolRoundResult
 import com.tingyun.smartmistakebook.core.data.study.RoomTutorToolRunner
 import kotlinx.coroutines.flow.Flow
@@ -564,6 +570,90 @@ class RoomModelTaskToolLoopInstrumentedTest {
         ),
         modelVersion = "tool-loop-model-v1",
     )
+
+    private fun planJsFigureRequest(program: String) =
+        com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput(
+            intentDecision = com.tingyun.smartmistakebook.core.model.TutorIntentDecision(
+                intent = com.tingyun.smartmistakebook.core.model.TutorMessageIntent.CURRENT_QUESTION_HELP,
+                confidence = 0.95,
+                explicitActionRequest = false,
+                memoryPreference = com.tingyun.smartmistakebook.core.model.TutorMemoryPreference.UNCHANGED,
+                requestedLocalCapability = com.tingyun.smartmistakebook.core.model.TutorRequestedLocalCapability.NONE,
+            ),
+            calls = listOf(
+                TutorToolCall(
+                    tool = TutorToolName.GENERATE_FIGURE,
+                    rationale = "数轴关系简单，用本机 JS 画更清楚",
+                    figureKind = com.tingyun.smartmistakebook.core.model.TutorFigureKind.GENERATE_PROCESS,
+                    figureDescription = "数轴标出 2 和 4",
+                    figureMethod = FigureGenerationMethod.JS,
+                    figureProgram = program,
+                ),
+            ),
+            modelVersion = "tool-loop-model-v1",
+        )
+
+    @Test
+    fun aPlanRoundExecutesAJsFigureCallThroughTheRealRepository() = runBlocking {
+        // 智能体"调用不了 JS"的生产接线回归：能力快照必须折进本轮（工具广告面含 JS），
+        // 工具轮必须放行 method=JS，执行器必须把独立 program 原样交给生成器。
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "plan-loop-js-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        val database = StudyDatabaseFactory.open(context, databaseName)
+        try {
+            val jsCapabilities = FigureGenerationCapabilities(
+                availableMethods = setOf(FigureGenerationMethod.JS),
+            )
+            val jsProgram = "visualSdk.axis({x0: 0, y0: 0, x1: 10, y1: 0});"
+            val figureRequests = mutableListOf<TutorFigureRequest>()
+            val generator = object : TutorFigureGenerator {
+                override suspend fun generate(request: TutorFigureRequest): TutorFigureResult {
+                    figureRequests += request
+                    return TutorFigureResult(
+                        figureId = "asset-js-loop",
+                        status = TutorFigureStatus.GENERATED,
+                        operationId = "op-js-loop",
+                    )
+                }
+
+                override fun supports(method: FigureGenerationMethod): Boolean = true
+            }
+            val gateway = ScriptedGateway(
+                planProvider,
+                listOf(planJsFigureRequest(jsProgram), planFinalOutput()),
+            )
+            val repository = com.tingyun.smartmistakebook.core.data.model.RoomModelTaskRepository(
+                database = database,
+                gateway = gateway,
+                clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+                figureGenerator = generator,
+                figureCapabilities = { jsCapabilities },
+            )
+
+            val snapshots = repository.execute(planRequest("tutor-plan:js")).toList()
+
+            assertEquals(ModelTaskStatus.SUCCEEDED, snapshots.last().status)
+            assertEquals("工具轮 + 终答各派遣一次", 2, gateway.dispatchCount)
+            val dispatchedInput = gateway.dispatchLog.first().input
+                as com.tingyun.smartmistakebook.core.model.TutorPlanInput
+            assertEquals(
+                setOf(FigureGenerationMethod.JS),
+                dispatchedInput.figureGenerationCapabilities?.availableMethods,
+            )
+            assertTrue(
+                "GENERATE_FIGURE 必须在首轮广告面",
+                TutorToolName.GENERATE_FIGURE in dispatchedInput.toolDeclarations.toSet(),
+            )
+            val request = figureRequests.single()
+            assertEquals(FigureGenerationMethod.JS, request.method)
+            assertEquals(jsProgram, request.program)
+        } finally {
+            database.close()
+            context.deleteDatabase(databaseName)
+        }
+    }
 
     @Test
     fun aPlanRoundAnswersDirectlyWithoutAnyToolCalls() = runBlocking {

@@ -12,6 +12,7 @@ import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
 import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import com.tingyun.smartmistakebook.core.model.ModelTaskOutput
 import com.tingyun.smartmistakebook.core.model.figureCapabilitiesSnapshot
+import com.tingyun.smartmistakebook.core.model.withFigureGenerationCapabilities
 
 import com.tingyun.smartmistakebook.core.database.CreateModelTaskCommand
 import com.tingyun.smartmistakebook.core.database.ReserveModelTaskRemoteDispatchCommand
@@ -270,7 +271,18 @@ class RoomModelTaskRepository internal constructor(
             toolTraces.clear(request.requestId)
             var current = prepareForExecution(executionStart)
             emit(current)
-            val declaredProvider = gateway.capabilities()
+            // 生图能力必须按**本机真实装配**折进本轮：`gateway.capabilities()` 只描述远程
+            // 提供方，看不到本地 JS 引擎/宿主帧是否就绪。只有讲题三类输入消费这份快照；
+            // 其余任务（采集/分类/导出等）保持原样，免得为一次凭据解析付无谓代价。
+            val declaredProvider = if (
+                request.input is TutorPlanInput ||
+                request.input is TutorRespondInput ||
+                request.input is TutorLobbyInput
+            ) {
+                capabilities()
+            } else {
+                gateway.capabilities()
+            }
             capabilityFailure(request, declaredProvider)?.let { failure ->
                 emit(
                     transition(
@@ -301,9 +313,15 @@ class RoomModelTaskRepository internal constructor(
             // 工具轮配额用尽（MAX_TOOL_ROUNDS=5）后不再声明工具，模型必须直接作答。
             // PRD-06：派遣前先把"配置/依赖就绪"折进本轮的声明集——**第一条派遣**也必须
             // 只广告真的能执行的工具。工具环的收敛集只写回第二轮，不能拿它补第一轮。
-            val declaredTools = toolDeclarationsFor(request.input, declaredProvider)
+            // 把真实生图能力折进输入本身：工具 schema（method.enum/program）、提示词方法段、
+            // 以及轮次层/执行器的 JS 就绪门都从 `input.figureCapabilitiesSnapshot()` 读；
+            // 只折进派遣副本，持久化 request 与指纹逐字不变。
+            val capabilityInput = request.input.withFigureGenerationCapabilities(
+                declaredProvider.figureGenerationCapabilities,
+            )
+            val declaredTools = toolDeclarationsFor(capabilityInput, declaredProvider)
             var roundRequest = request.copy(
-                input = request.input.withDeclaredTools(declaredTools),
+                input = capabilityInput.withDeclaredTools(declaredTools),
             )
             var toolRoundsUsed = 0
             var toolRoundResults = emptyList<TutorToolRoundResult>()
@@ -508,7 +526,7 @@ class RoomModelTaskRepository internal constructor(
                     disclosedKnowledgeCodes = disclosedKnowledgeCodes,
                     javascriptReady = figureGenerator != null &&
                         com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.JS in
-                        request.input.figureCapabilitiesSnapshot()?.availableMethods.orEmpty(),
+                        roundRequest.input.figureCapabilitiesSnapshot()?.availableMethods.orEmpty(),
                     runTool = { call, allowsExtendedResult ->
                         toolRunner.runTraced(
                             call,
@@ -689,7 +707,7 @@ class RoomModelTaskRepository internal constructor(
             if (current.status != ModelTaskStatus.RUNNING) {
                 throw InvalidProviderProtocol("模型返回了重复或乱序的开始事件")
             }
-            if (event.provider != declaredProvider) {
+            if (!event.provider.sameRemoteIdentityAs(declaredProvider)) {
                 throw InvalidProviderProtocol("模型身份或能力在任务开始后发生变化")
             }
             if (!event.provider.supports(current.request.input.kind)) {
@@ -1028,9 +1046,10 @@ class RoomModelTaskRepository internal constructor(
                     com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL)
                     ?: declaredProvider.supportsImageInput),
                 knowledgeMaterialReady = knowledgeBaseAvailability.value.isReady,
-                // A-05：JS 双就绪位（引擎 ready + 度量 ready）的**生产装配值尚未接线**——
-                // 真实引擎/度量器由 L3 引擎装配批注入（与 availableMethods 接通同批裁定）。
-                // 显式 false = 现状逐位不变：没接引擎/度量器时 JS 不进广告面；接线时只改这里。
+                // A-05：JS 双就绪位（引擎 ready + 度量 ready）取自 coordinator 折进输入
+                // 的真实能力集合——`jsReady` 同时要求执行器存在且本机 JS 方法可执行；
+                // 装配级死亡（引擎 close/宿主帧丢失）会让下一轮的方法集合不再含 JS，
+                // 这里随之为 false，JS 从广告面消失。
                 jsEngineReady = jsReady,
                 jsMeasurementReady = jsReady,
             )
@@ -1215,6 +1234,19 @@ class StudentStoppedTheTurn : CancellationException("学生停止了这一轮生
 private class ConcurrentModelTaskTransition : RuntimeException()
 
 private class InvalidProviderProtocol(val userMessage: String) : RuntimeException(userMessage)
+
+/**
+ * 远程提供方身份是否一致。
+ *
+ * `figureGenerationCapabilities` 是本机 coordinator 折进快照的**本地能力位**（JS 引擎/
+ * 宿主帧/图像后端），不属于远程模型身份；派遣前把它折进 `declaredProvider` 后，网关的
+ * `Started` 事件仍只带远程快照。逐字段比较会把"本地能力已折入"误判成"任务开始后模型
+ * 变了"，所以身份比较显式忽略这一列。
+ */
+internal fun ProviderCapabilitySnapshot.sameRemoteIdentityAs(
+    other: ProviderCapabilitySnapshot,
+): Boolean =
+    copy(figureGenerationCapabilities = null) == other.copy(figureGenerationCapabilities = null)
 
 /** 任务级归因日志的标签（与模型调用/网关日志同一标签，logcat 可按一个标签抓全链路）。 */
 private const val MODEL_TASK_LOG_TAG = "SmartMistakeBook"
