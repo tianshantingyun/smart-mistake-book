@@ -528,20 +528,23 @@ private suspend fun emitStreamingThenCompletion(
     var lastEmitted = 0
     for (index in chunks.indices) {
         if (index + 1 - lastEmitted >= stride) {
-            emit(
-                ModelGatewayEvent.Progress.of(
-                    streamingPrefix(chunks.take(index + 1).joinToString("")),
-                ),
-            )
-            lastEmitted = index + 1
+            val prefix = streamingPrefix(chunks.take(index + 1).joinToString(""))
+            // 推理模型的前几帧可能只有 reasoning_content，content 仍是空串。空白进度不是合法
+            // 事件（Progress.init 的 requireSafeModelText 会拒），既不能发也不能让整轮失败：
+            // 跳过空白前缀，等正文出现后再发第一帧；终态仍携带完整回复。
+            if (prefix.isNotBlank()) {
+                emit(ModelGatewayEvent.Progress.of(prefix))
+                lastEmitted = index + 1
+            }
         }
     }
     // Guarantee a final progressive frame even for a short reply (or when evenly-spaced frames
     // happened to land just before the end), so the UI always shows the typed body while streaming.
     if (lastEmitted != chunks.size) {
-        emit(
-            ModelGatewayEvent.Progress.of(streamingPrefix(chunks.joinToString(""))),
-        )
+        val finalPrefix = streamingPrefix(chunks.joinToString(""))
+        if (finalPrefix.isNotBlank()) {
+            emit(ModelGatewayEvent.Progress.of(finalPrefix))
+        }
     }
     emit(terminal)
 }
@@ -847,7 +850,12 @@ private suspend fun awaitWithLiveStream(
             emittedPersistedFrames += 1
             nextPersistedEmitAtMillis = now + backoffMillis
             backoffMillis = (backoffMillis * 2).coerceAtMost(LIVE_REASONING_MAX_INTERVAL_MILLIS)
-            emit(ModelGatewayEvent.Progress.of(streamingPrefix(reasoningText)))
+            val reasoningPrefix = streamingPrefix(reasoningText)
+            // 推理流的第一帧可能只是 reasoning_content:"" 之类的空增量；空白进度不是合法
+            // 事件（Progress.init 会拒），不能让它把整轮打成 INVALID_RESPONSE。
+            if (reasoningPrefix.isNotBlank()) {
+                emit(ModelGatewayEvent.Progress.of(reasoningPrefix))
+            }
         }
         call.await()
     }

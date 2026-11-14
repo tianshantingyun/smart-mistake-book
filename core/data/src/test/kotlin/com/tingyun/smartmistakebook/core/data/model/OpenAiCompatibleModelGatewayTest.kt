@@ -2042,6 +2042,32 @@ class OpenAiCompatibleModelGatewayTest {
     }
 
     @Test
+    fun streamingWithLeadingEmptyContentFramesDoesNotFailOnBlankProgress() = runBlocking {
+        // 现场：DeepSeek 等推理模型的前几帧只有 reasoning_content，content 是空串。
+        // 旧实现在第 8 帧把空白前缀交给 Progress.of，Progress.init 拒 blank，整轮落
+        // INVALID_RESPONSE（学生看到「这次回复无法使用」）。空白前缀必须跳过，等正文出现。
+        val content = "你好！我是你的讲题助手。"
+        val gateway = OpenAiCompatibleModelGateway(
+            configurationStore = FakeConfigurationStore(CONFIGURATION),
+            assetSource = assetSource { _, _ -> asset() },
+            transport = modelTransport { _ ->
+                ModelHttpResponse(
+                    statusCode = 200,
+                    body = envelope(tutorPayload()),
+                    streamChunks = List(10) { "" } + listOf(content),
+                )
+            },
+            clock = { AUTHORIZATION_NOW },
+        )
+
+        val events = gateway.execute(authorizedTutor(gateway)).toList()
+        val progress = events.filterIsInstance<ModelGatewayEvent.Progress>()
+        assertTrue(progress.all { it.userMessage.isNotBlank() })
+        assertEquals(content, progress.lastOrNull()?.userMessage)
+        assertTrue(events.last() is ModelGatewayEvent.Completed)
+    }
+
+    @Test
     fun streamingPrefixStaysWithinTheStatusBudgetForLongAnswers() = runBlocking {
         // A real tutor answer passes the 500-character status budget quickly. The gateway used to
         // emit the unbounded running prefix, and persisting it aborted the whole task mid-stream
