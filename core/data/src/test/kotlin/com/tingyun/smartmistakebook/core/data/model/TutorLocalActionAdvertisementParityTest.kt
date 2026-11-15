@@ -53,9 +53,9 @@ class TutorLocalActionAdvertisementParityTest {
         val declared = TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS.associate { action ->
             action.actionId to (
                 action.parameters.map { parameter -> parameter.parameterName }.toSet() to
-                    action.parameters.filter { parameter -> parameter.required }
-                        .map { parameter -> parameter.parameterName }
-                        .toSet()
+                    // strict function schema 要求 required 覆盖全部 properties；可选参数
+                    // 用 [string,null] 表达"可省"，而不是从 required 里删掉。
+                    action.parameters.map { parameter -> parameter.parameterName }.toSet()
                 )
         }
 
@@ -72,12 +72,15 @@ class TutorLocalActionAdvertisementParityTest {
             val properties = requireNotNull(advertised[action.actionId]).properties
             action.parameters.forEach { parameter ->
                 val property = properties.getValue(parameter.parameterName).jsonObject
-                assertEquals(
-                    "Route A 的 ${action.actionId}.${parameter.parameterName} 必须是字符串参数",
-                    "string",
-                    property.getValue("type").jsonPrimitive.content,
+                val type = property.getValue("type")
+                val types = if (type is JsonArray) type.map { it.jsonPrimitive.content } else listOf(type.jsonPrimitive.content)
+                assertTrue(
+                    "Route A 的 ${action.actionId}.${parameter.parameterName} 必须是字符串参数: $types",
+                    "string" in types,
                 )
-                val advertisedEnum = property["enum"]?.jsonArray?.map { it.jsonPrimitive.content }
+                val advertisedEnum = property["enum"]?.jsonArray?.map { element ->
+                    (element as? JsonPrimitive)?.content
+                }
                 if (parameter.allowedValues.isEmpty()) {
                     assertNull(
                         "${action.actionId}.${parameter.parameterName} 不该带 enum",
@@ -86,7 +89,7 @@ class TutorLocalActionAdvertisementParityTest {
                 } else {
                     assertEquals(
                         "Route A 的 ${action.actionId}.${parameter.parameterName} 枚举与声明不一致",
-                        parameter.allowedValues,
+                        parameter.allowedValues + if (parameter.required) emptyList() else listOf("null"),
                         advertisedEnum,
                     )
                 }
@@ -172,9 +175,8 @@ class TutorLocalActionAdvertisementParityTest {
     }
 
     @Test
-    fun theActionAdvertisementsStayOffRoundsWithoutAConfirmationFace() {
-        // 广告只给大厅轮：确认卡（本地动作的执行面）目前长在智能体栏这一条交互面上，
-        // 讲题/计划轮声明了就是"广告一个没人接的东西"。
+    fun theActionAdvertisementsAppearOnEveryTutorSurface() {
+        // 应用动作已统一为自主执行（无确认卡）：大厅、讲题与计划轮读同一份实现集合。
         val planTools = toolsOf(
             TutorPlanInput(
                 sessionId = "tutor-session-1",
@@ -193,7 +195,7 @@ class TutorLocalActionAdvertisementParityTest {
             .map(TutorLocalAction::actionId)
             .toSet()
 
-        assertEquals(emptySet<String>(), planTools.map { it.first }.intersect(actionNames))
+        assertEquals(actionNames, planTools.map { it.first }.intersect(actionNames))
         assertEquals(
             "大厅轮必须同时广告全部已实现本地动作",
             actionNames,

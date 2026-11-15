@@ -191,6 +191,7 @@ class MvaJsArmAdapterInstrumentedTest {
                 is VisualExecutionResult.Rendered -> renderArtifacts(
                     record, result, viewport, measurer, fontScale, outDir, baseName,
                 )
+                is VisualExecutionResult.Computed -> record.put("status", "COMPUTED")
             }
         } catch (failure: Throwable) {
             record.put("status", "ADAPTER_ERROR")

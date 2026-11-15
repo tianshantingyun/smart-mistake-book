@@ -286,7 +286,7 @@ object FigurePromptAssembler {
     private fun jsStaticContract(): String = buildString {
         appendLine("程序形状：const visual = { prepare(input), render(input, metrics) }；" +
             "静态程序只需这两个函数，本机不执行交互面。")
-        appendLine("prepare(input) 返回 [{ kind: 'text', payload: '...' }]（纯几何图返回 []）；" +
+        appendLine("prepare(input) 返回 [{ kind: 'text'|'math', payload: '...' }]（纯几何图返回 []，math 的 payload 为 LaTeX）；" +
             "宿主原生度量后以 metrics 回给 render，第 i 项文字用 contentId: metrics[i].contentId " +
             "引用（宿主生成的 id，不要硬编码）。")
         appendLine("render(input, metrics) 返回 SceneV1 场景对象：schemaVersion=1、sceneId、" +

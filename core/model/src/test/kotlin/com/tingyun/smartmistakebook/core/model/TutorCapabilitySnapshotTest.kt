@@ -3,6 +3,9 @@ package com.tingyun.smartmistakebook.core.model
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertThrows
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import org.junit.Test
 
 /**
@@ -37,6 +40,37 @@ class TutorCapabilitySnapshotTest {
     )
 
     @Test
+    fun actionOnlyRoundsConsumeTheSameBudgetAsToolRounds() {
+        val initial = lobby(emptyList())
+        assertTrue(TutorCapabilitySnapshot.forRound(initial).localActions.isNotEmpty())
+        val exhausted = initial.copy(toolRoundsUsed = TutorToolRoundResult.MAX_TOOL_ROUNDS)
+        val snapshot = TutorCapabilitySnapshot.forRound(exhausted)
+        assertTrue(snapshot.localActions.isEmpty())
+        assertTrue(snapshot.tools.isEmpty())
+        assertTrue(TutorCapabilitySnapshot.forRound(initial.copy(toolRoundsUsed = 4)).localActions.isNotEmpty())
+        assertThrows(IllegalArgumentException::class.java) { initial.copy(toolRoundsUsed = -1) }
+        assertThrows(IllegalArgumentException::class.java) { initial.copy(toolRoundsUsed = 6) }
+    }
+
+    @Test
+    fun legacyResultsAlsoExhaustTheBudgetAndDefaultRoundCountKeepsItsOldEncoding() {
+        val initial = lobby()
+        val encoded = Json { encodeDefaults = true }.encodeToJsonElement(TutorLobbyInput.serializer(), initial).jsonObject
+        assertFalse(encoded.containsKey("toolRoundsUsed"))
+        val rounds = (1..TutorToolRoundResult.MAX_TOOL_ROUNDS).map { ordinal ->
+            TutorToolRoundResult(ordinal, listOf(TutorToolOutcome(
+                TutorToolName.NOTEBOOK_READ, true, "已查阅",
+            )))
+        }
+        val legacy = TutorCapabilitySnapshot.forRound(initial.copy(toolRoundResults = rounds))
+        assertTrue(legacy.localActions.isEmpty())
+        assertTrue(legacy.tools.isEmpty())
+        // Action rounds can occur between result-bearing tool rounds.
+        val mixed = initial.copy(toolRoundResults = listOf(rounds[1]), toolRoundsUsed = 2)
+        assertTrue(TutorCapabilitySnapshot.forRound(mixed).localActions.isNotEmpty())
+    }
+
+    @Test
     fun anUnwiredActionIsNeverPartOfTheSnapshot() {
         assertFalse(
             "ADD_TO_REVIEW_PLAN 还没有执行处理器，不能进已实现集合",
@@ -44,24 +78,28 @@ class TutorCapabilitySnapshotTest {
         )
         val snapshot = TutorCapabilitySnapshot.forRound(lobby())
 
-        assertEquals(
-            setOf(
-                TutorLocalAction.OPEN_PROBLEM,
-                TutorLocalAction.SAVE_TO_NOTEBOOK,
-                TutorLocalAction.START_EXPORT,
-            ),
-            snapshot.localActions,
-        )
+        assertEquals(TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS, snapshot.localActions)
         assertFalse(snapshot.advertises(TutorLocalAction.ADD_TO_REVIEW_PLAN))
     }
 
     @Test
-    fun localActionsAreOfferedOnlyWhereAConfirmationCardExists() {
-        assertTrue(TutorCapabilitySnapshot.forRound(plan()).localActions.isEmpty())
-        assertEquals(
-            TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS,
-            TutorCapabilitySnapshot.forRound(lobby()).localActions,
+    fun localActionsAreOfferedOnEveryTutorSurfaceWithTheSameBudget() {
+        // 应用内操作已统一为自主执行：大厅、讲题与计划轮都读同一份实现集合。
+        listOf(lobby(), plan()).forEach { input ->
+            assertEquals(
+                TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS,
+                TutorCapabilitySnapshot.forRound(input).localActions,
+            )
+        }
+        val exhausted = plan().copy(
+            toolDeclarations = TutorToolName.entries.toList(),
+            toolRoundResults = (1..TutorToolRoundResult.MAX_TOOL_ROUNDS).map { ordinal ->
+                TutorToolRoundResult(ordinal, listOf(TutorToolOutcome(
+                    TutorToolName.NOTEBOOK_READ, true, "已查阅",
+                )))
+            },
         )
+        assertTrue(TutorCapabilitySnapshot.forRound(exhausted).localActions.isEmpty())
     }
 
     @Test

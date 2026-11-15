@@ -932,6 +932,7 @@ class QuickJsVisualExecutionEngineInstrumentedTest {
                     VisualExecutionRejection.ENGINE_CLOSED,
                     result.reason,
                 )
+                is VisualExecutionResult.Computed -> Unit
             }
 
             val afterClose = runBlocking { engine.execute(request(ECHO_SOURCE)) }

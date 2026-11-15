@@ -20,6 +20,7 @@ import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemCom
 import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemResult
 import com.tingyun.smartmistakebook.core.database.port.RevisedBasisInvalidation
 import com.tingyun.smartmistakebook.core.database.port.RevisedProblemRevisionRecord
+import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec
 import com.tingyun.smartmistakebook.core.model.carriesAcrossTextRevision
 import kotlinx.coroutines.flow.Flow
 
@@ -651,6 +652,9 @@ internal abstract class MistakeDetailDao {
     @Insert
     protected abstract suspend fun insertProblemRevision(entity: ProblemRevisionEntity)
 
+    @Query("SELECT content_sha256 FROM canonical_source_asset WHERE source_asset_id = :assetId")
+    protected abstract suspend fun findCanonicalAssetSha256(assetId: String): String?
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     protected abstract suspend fun insertRevisionSourceAsset(
         entity: ProblemRevisionSourceAssetEntity,
@@ -832,6 +836,14 @@ internal abstract class MistakeDetailDao {
             )
         }
 
+        val figureReferences = CapturedQuestionDocumentCodec.decode(command.questionDocumentSnapshot)
+            .storedFigureReferences
+        figureReferences.forEach { reference ->
+            require(findCanonicalAssetSha256(reference.assetId) == reference.contentSha256) {
+                "Stored figure reference must match the canonical asset hash"
+            }
+        }
+
         // 4) A prior immutable revision may already hold exactly this content. Reuse it instead
         // of violating the (problem_id, content_fingerprint) unique index; this is a controlled
         // revert, not a rewrite of history.
@@ -897,22 +909,37 @@ internal abstract class MistakeDetailDao {
                 createdAtEpochMillis = command.revisedAtEpochMillis,
             ),
         )
-        // Keep only the source photos/evidence visible on the new revision; generated clean
-        // redraws, explanation figures and question diagrams belong to the old basis and stay
-        // only on the historical revision (4E WG-06 T2a allowlist, not a "not CLEAN_IMAGE" filter
-        // — that would silently carry every future role into a new problem statement).
-        findRevisionSourceLinks(command.expectedRevisionId)
-            .filter { link -> carriesAcrossTextRevision(link.role) }
-            .forEach { link ->
-                insertRevisionSourceAsset(
-                    ProblemRevisionSourceAssetEntity(
-                        problemRevisionId = command.newRevisionId,
-                        sourceAssetId = link.sourceAssetId,
-                        role = link.role,
-                        ordinal = link.ordinal,
-                    ),
-                )
+        // Carry original source evidence and explicitly retained structured figure references.
+        // Other generated figures remain attached to their historical revision.
+        val carriedLinks = findRevisionSourceLinks(command.expectedRevisionId)
+            .filter { link ->
+                carriesAcrossTextRevision(link.role) || figureReferences.any {
+                    it.assetId == link.sourceAssetId && it.role.name == link.role
+                }
             }
+        carriedLinks.forEach { link ->
+            insertRevisionSourceAsset(
+                ProblemRevisionSourceAssetEntity(
+                    problemRevisionId = command.newRevisionId,
+                    sourceAssetId = link.sourceAssetId,
+                    role = link.role,
+                    ordinal = link.ordinal,
+                ),
+            )
+        }
+        val nextAssetOrdinal = (carriedLinks.maxOfOrNull { it.ordinal } ?: -1) + 1
+        figureReferences.filter { reference ->
+            carriedLinks.none { it.sourceAssetId == reference.assetId && it.role == reference.role.name }
+        }.forEachIndexed { index, reference ->
+            insertRevisionSourceAsset(
+                ProblemRevisionSourceAssetEntity(
+                    problemRevisionId = command.newRevisionId,
+                    sourceAssetId = reference.assetId,
+                    role = reference.role.name,
+                    ordinal = nextAssetOrdinal + index,
+                ),
+            )
+        }
         // A question whose old revision was machine-checkable must not keep using that revision's
         // teaching artifact for the new content. It gets a fresh practice unit (no answer spec,
         // no memory state), so the old verified answer cannot be applied. Captured questions

@@ -75,6 +75,8 @@ import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
 import com.tingyun.smartmistakebook.core.model.TutorTurnPlan
 import com.tingyun.smartmistakebook.core.model.WritingLayer
 import com.tingyun.smartmistakebook.core.model.agentConsentMatches
+import com.tingyun.smartmistakebook.core.model.agentContextSnapshot
+import com.tingyun.smartmistakebook.core.model.tutorImageAssetIds
 import com.tingyun.smartmistakebook.core.model.requiresImageInput
 import com.tingyun.smartmistakebook.core.model.takeBudgetChars
 import java.io.ByteArrayOutputStream
@@ -364,7 +366,10 @@ internal class OpenAiCompatibleModelGateway(
                             is DetailedSolutionInput -> input.question.sourceImages
                             else -> null
                         }
-                        frozenImages?.let { grants ->
+                        val feedbackGrant = execution.request.input.agentContextSnapshot()?.feedbackImages
+                            ?.singleOrNull { it.assetId == planned.assetId }
+                        val expectedImages = feedbackGrant?.let { listOf(it) } ?: frozenImages
+                        expectedImages?.let { grants ->
                             val expected = grants.singleOrNull { it.assetId == planned.assetId }
                             if (expected == null || asset.assetId != expected.assetId || asset.sha256 != expected.sha256 ||
                                 asset.byteSize != expected.byteSize || asset.width != expected.width || asset.height != expected.height) {
@@ -656,14 +661,8 @@ private fun ModelGatewayExecution.requireImageRequestFits(
         is DetailedSolutionInput -> input.question.sourceImages.map { it.assetId }
         is CaptureParseInput -> input.sourceAssets.sortedBy { it.pageIndex }.map { it.assetId }
         is ImagePipelineClassifyInput -> listOf(input.sourceAssetId)
-        // 本条消息的图在前，上文图片在后（顺序与提示词里的说明一致，模型据此区分）。
-        is TutorLobbyInput -> (
-            input.sourceImageAssetRefs.sortedBy { it.pageIndex } +
-                input.contextImageAssetRefs.sortedBy { it.pageIndex }
-            ).map { it.assetId }
-        // 学生随本条消息附带的图片，按选择顺序出网。讲题页的"本题题图"不在其中：
-        // TutorQuestionContext 里没有资产引用，追问时模型只看解析出的文字题面。
-        is TutorRespondInput -> input.studentImageAssetRefs
+        is TutorLobbyInput, is TutorRespondInput,
+        is com.tingyun.smartmistakebook.core.model.TutorPlanInput -> input.tutorImageAssetIds()
         else -> emptyList()
     }
     if (assetIds.isEmpty()) return emptyList()

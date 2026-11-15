@@ -384,6 +384,11 @@ private fun TutorToolTraceEntry.rowText(): String {
             TutorToolName.ADVISORY_WRITE -> "$label · 未记录"
             // A1：生图没有"条数"可言——出没出图是它唯一的产出。
             TutorToolName.GENERATE_FIGURE -> "$label · 未生成"
+            TutorToolName.APP_CONTEXT,
+            TutorToolName.SELECT_QUESTION,
+            TutorToolName.READ_FIGURE,
+            TutorToolName.RUN_JAVASCRIPT,
+            -> "$label · 未完成"
             else -> "$label · 未执行"
         }
     }
@@ -410,6 +415,10 @@ private fun TutorToolTraceEntry.rowText(): String {
         } else {
             "$label · 本轮无可读范围"
         }
+        TutorToolName.APP_CONTEXT -> "$label · 已读取"
+        TutorToolName.SELECT_QUESTION -> "$label · 已选择"
+        TutorToolName.READ_FIGURE -> "$label · 已读取"
+        TutorToolName.RUN_JAVASCRIPT -> "$label · 已完成"
     }
 }
 
@@ -429,6 +438,10 @@ fun TutorToolName.displayLabel(): String = when (this) {
     TutorToolName.ADVISORY_WRITE -> "教学备注"
     // A1：学生看得懂的说法——产品里这一功能就叫"配图"。
     TutorToolName.GENERATE_FIGURE -> "配图"
+    TutorToolName.APP_CONTEXT -> "应用上下文"
+    TutorToolName.SELECT_QUESTION -> "题目"
+    TutorToolName.READ_FIGURE -> "查看配图"
+    TutorToolName.RUN_JAVASCRIPT -> "计算"
 }
 
 /**

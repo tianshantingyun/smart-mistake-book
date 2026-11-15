@@ -28,11 +28,15 @@ class EgressImageTranscoderInstrumentedTest {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         // 确定性噪声图案：均匀色块会压到几十 KB，测不出"超预算"这件事；这里要的是
         // "压不动"，不是随机性——固定图案也让测试可复现。
-        val pixels = IntArray(width * height) { index ->
-            val mixed = (index * 2_654_435_761L).toInt() xor (index shl 7)
-            mixed or 0xFF000000.toInt()
+        val pixels = IntArray(width)
+        repeat(height) { row ->
+            repeat(width) { column ->
+                val index = row * width + column
+                val mixed = (index * 2_654_435_761L).toInt() xor (index shl 7)
+                pixels[column] = mixed or 0xFF000000.toInt()
+            }
+            bitmap.setPixels(pixels, 0, width, 0, row, width, 1)
         }
-        bitmap.setPixels(pixels, 0, width, 0, 0, width, height)
         val output = ByteArrayOutputStream()
         check(bitmap.compress(format, 95, output))
         bitmap.recycle()

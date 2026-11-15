@@ -354,7 +354,7 @@ class DefaultFigureGenerationCoordinator internal constructor(
                         programId = programId,
                         sourceJs = program,
                         sceneRevision = VISUAL_SCENE_REVISION,
-                        stateJson = if (jsArtifacts != null) "{}" else null,
+                        stateJson = proposal.initialStateJson ?: if (jsArtifacts != null) "{}" else null,
                         viewport = frame.viewport,
                         timeMs = frame.timeMs,
                         seed = frame.seed,
@@ -409,6 +409,12 @@ class DefaultFigureGenerationCoordinator internal constructor(
                     )
                 }
 
+                is VisualExecutionResult.Computed -> {
+                    val diagnostics = "The drawing request returned a computation result"
+                    state.failAttempt(diagnostics)
+                    outcome(request, proposal, FigureGenerationStatus.FAILED,
+                        diagnostics = diagnostics, attemptId = state.attemptId)
+                }
                 is VisualExecutionResult.Rejected -> {
                     val diagnostics = boundedRejection(execution)
                     state.failAttempt(diagnostics)

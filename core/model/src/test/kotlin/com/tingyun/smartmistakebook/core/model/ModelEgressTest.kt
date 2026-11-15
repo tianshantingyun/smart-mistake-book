@@ -590,21 +590,27 @@ class ModelEgressTest {
     }
 
     @Test
-    fun `a lobby manifest cannot claim to cover a candidate menu`() {
-        // 无题轮不存在候选菜单（`TutorLobbyInput` 没有菜单字段），所以"清单说覆盖了菜单"就是
-        // **多报**一个本轮根本不存在的类目。这条断言此前只在 requireAuthorizes 里成立（init
-        // 会把该标志透传给披露计算并因此放行这种清单），现在构造期就拒——清单一旦落库就是
-        // 耐久记录，能在构造期拦住的错误不该等到逐次核对。
+    fun `a lobby manifest can cover retrieved candidates only in schema eight`() {
+        // schema 7 的大厅没有候选菜单这一维：声明覆盖菜单就是多报一个本轮不存在的类目。
+        // schema 8 起大厅工具可以真实检索并选择条目，因此允许清单携带该维度；逐次核对
+        // 仍由请求侧 carriesRetrievedQuestionContent 与实际 knownEntryIds 收口。
         val covered = ModelEgressManifest.TUTOR_LOBBY_DISCLOSURE +
             ModelEgressDataClass.RELATED_QUESTION_CANDIDATES
 
         assertThrows(IllegalArgumentException::class.java) {
             tutorLobbyManifest().copy(
-                schemaVersion = ModelEgressManifest.CURRENT_SCHEMA_VERSION,
+                schemaVersion = 7,
                 disclosedData = covered,
                 includesQuestionCandidates = true,
             )
         }
+        val manifest = tutorLobbyManifest().copy(
+            schemaVersion = 8,
+            disclosedData = covered,
+            includesQuestionCandidates = true,
+        )
+        assertTrue(manifest.includesQuestionCandidates)
+        assertEquals(8, manifest.schemaVersion)
     }
 
     @Test

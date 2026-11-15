@@ -36,6 +36,8 @@ import kotlinx.serialization.json.jsonPrimitive
  * （版式表单预填模型提议值 + 本轮本地留痕的候选题勾选），确认后走后台导出管线。
  */
 enum class TutorLocalActionTarget {
+    /** Typed application action dispatched by the autonomous executor. */
+    APPLICATION_ACTION,
     SAVE_CAPTURE_DRAFT,
     INTAKE_ATTACHED_IMAGES,
     LIBRARY_PROBLEM_DETAIL,

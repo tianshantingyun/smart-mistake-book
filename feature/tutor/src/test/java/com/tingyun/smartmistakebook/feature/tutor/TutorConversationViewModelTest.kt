@@ -170,20 +170,43 @@ class TutorConversationViewModelTest {
         }
 
     @Test
-    fun accumulatedActionsReachThePendingCardWithoutBeingRepeatedInTheReply() =
+    fun executedActionsFinishTheTurnWithoutHangingANewConfirmationCard() =
         runTest(dispatcher.scheduler) {
             val delegate = FailingLobbyModelTasks()
             val pendingRequests = FakeAgentPendingRequestRepository()
+            val opened = mutableListOf<String?>()
+            val successful = com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome(
+                kind = "OPEN_PROBLEM", decision = "SUCCEEDED", detail = "已经打开本轮题目。", ok = true,
+            )
+            val executor = com.tingyun.smartmistakebook.core.domain.PersistentTutorLocalActionExecutor(
+                pendingRequests,
+                com.tingyun.smartmistakebook.core.domain.TutorAutonomousActionLandings(
+                    saveCaptureDraft = { error("Unexpected save") },
+                    intakeImages = { error("Unexpected intake") },
+                    openProblem = { id ->
+                        opened += id
+                        successful.copy(artifactId = id)
+                    },
+                    export = { _, _, _, _ -> error("Unexpected export") },
+                ),
+            )
             val modelTasks = object : ModelTaskRepository by delegate {
                 override fun execute(request: ModelTaskRequest) = delegate.execute(request).map { snapshot ->
                     val input = request.input as TutorLobbyInput
+                    val receipt = executor.execute(com.tingyun.smartmistakebook.core.domain.TutorLocalActionCommand(
+                        request.requestId, input.conversationId,
+                        TutorLocalActionRequest(TutorLocalAction.OPEN_PROBLEM),
+                        com.tingyun.smartmistakebook.core.domain.TutorLocalActionContext(
+                            libraryProblemId = "problem-native-action",
+                        ),
+                    ))
                     snapshot.copy(
                         status = ModelTaskStatus.SUCCEEDED,
                         failure = null,
                         output = TutorLobbyOutput(
                             conversationId = input.conversationId,
                             messageOrdinal = input.messageOrdinal,
-                            messageMarkdown = "请确认后打开本轮题目。",
+                            messageMarkdown = requireNotNull(receipt.detail),
                             modelVersion = "test-model",
                             requestedLocalActions = listOf(TutorLocalActionRequest(TutorLocalAction.OPEN_PROBLEM)),
                         ),
@@ -204,9 +227,9 @@ class TutorConversationViewModelTest {
             advanceUntilIdle()
 
             val cards = pendingRequests.readPendingRequests(TutorConversationAreas.AGENT)
-            assertEquals("工具轮累积动作必须实际挂卡", 1, cards.size)
-            assertTrue(cards.single().payloadJson.contains("problem-native-action"))
-            assertEquals(TutorSendPhase.AWAITING_CONSENT, viewModel.uiState.value.sendState.phase)
+            assertTrue(cards.isEmpty())
+            assertEquals(listOf("problem-native-action"), opened)
+            assertEquals(TutorSendPhase.COMPLETED, viewModel.uiState.value.sendState.phase)
         }
 
     @Test

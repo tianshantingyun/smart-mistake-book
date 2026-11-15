@@ -26,7 +26,7 @@ class JsFigureArtifactAdapter(
             else -> VisualRole.TUTOR_EXPLANATION.name
         },
         sourceJs = requireNotNull(proposal.program),
-        initialStateJson = "{}",
+        initialStateJson = proposal.initialStateJson ?: "{}",
         basisFingerprint = request.basisFingerprint ?: figureJsBasisFingerprint(
             request.operationId, request.source?.contentSha256, requireNotNull(proposal.program)),
         apiVersion = 1,

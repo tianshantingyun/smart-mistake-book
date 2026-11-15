@@ -48,8 +48,11 @@ class TutorConsentRequests(
             subject = command.subject,
             context = command.context,
         )
-        require(decision.requiresConsentCard) {
-            "Only an admitted ask-tier subject suspends a turn for consent: " +
+        // Explicit legacy consent callers remain usable after the default tier changes.
+        // The autonomous coordinator only invokes this API for requiresConsentCard subjects.
+        require(decision.requiresConsentCard || (command.legacyConsent && decision.admitted &&
+            agentPendingRequestKind(command.subject) != null)) {
+            "Only an admitted consent-capable subject suspends a turn: " +
                 "${command.subject} is ${decision.tier} (admitted=${decision.admitted})"
         }
         val kind = checkNotNull(agentPendingRequestKind(command.subject)) {
@@ -151,6 +154,7 @@ data class SuspendTurnForConsentCommand(
     val payloadJson: String,
     val occurredAtEpochMillis: Long,
     val context: TutorRoundPermissionContext = TutorRoundPermissionContext(),
+    val legacyConsent: Boolean = false,
 ) {
     init {
         require(conversationArea.isNotBlank()) { "A consent turn needs a conversation area" }

@@ -521,9 +521,7 @@ class TutorToolRoundGateTest {
     }
 
     @Test
-    fun `a figure call reaches the runner only under the current-question intent`() = runBlocking {
-        // 4B A1：生图工具走既有具名规则（意图 × 置信度 × 声明集）——CURRENT_QUESTION_HELP
-        // 放行到执行器；大厅/查库轮不放行，且**不触达**执行器（not_authorized）。
+    fun `a declared figure call reaches the runner across intents and an undeclared call is refused`() = runBlocking {
         val figureCall = TutorToolCall(
             tool = TutorToolName.GENERATE_FIGURE,
             rationale = "图形是这道题的理解关键",
@@ -536,30 +534,28 @@ class TutorToolRoundGateTest {
             ok(call.tool)
         }
 
-        val currentQuestion = tutorToolAuthorization(
-            intentDecision(
-                intent = TutorMessageIntent.CURRENT_QUESTION_HELP,
-            ),
-            TUTOR_TOOL_DECLARATIONS,
-        )
-        val allowed = tutorToolRoundOutcomes(
-            calls = listOf(figureCall),
-            authorizedTools = currentQuestion.allowedTools,
-            disclosedKnowledgeCodes = disclosed,
-            runTool = runTool,
-            consumeExtendedResult = {},
-        )
-        assertTrue("CURRENT_QUESTION_HELP 下生图调用应放行到执行器", allowed.single().outcome.ok)
-        assertEquals(listOf(TutorToolName.GENERATE_FIGURE), ran)
+        for (intent in TutorMessageIntent.entries) {
+            ran.clear()
+            val authorization = tutorToolAuthorization(intentDecision(intent), TUTOR_TOOL_DECLARATIONS)
+            val allowed = tutorToolRoundOutcomes(
+                calls = listOf(figureCall),
+                authorizedTools = authorization.allowedTools,
+                disclosedKnowledgeCodes = disclosed,
+                runTool = runTool,
+                consumeExtendedResult = {},
+            )
+            assertTrue("已声明的生图工具在 $intent 下应放行到执行器", allowed.single().outcome.ok)
+            assertEquals(listOf(TutorToolName.GENERATE_FIGURE), ran)
+        }
 
         ran.clear()
-        val lookup = tutorToolAuthorization(
+        val undeclared = tutorToolAuthorization(
             intentDecision(intent = TutorMessageIntent.MISTAKE_NOTEBOOK_LOOKUP),
-            TUTOR_TOOL_DECLARATIONS,
+            TUTOR_TOOL_DECLARATIONS - TutorToolName.GENERATE_FIGURE,
         )
         val refused = tutorToolRoundOutcomes(
             calls = listOf(figureCall),
-            authorizedTools = lookup.allowedTools,
+            authorizedTools = undeclared.allowedTools,
             disclosedKnowledgeCodes = disclosed,
             runTool = runTool,
             consumeExtendedResult = {},

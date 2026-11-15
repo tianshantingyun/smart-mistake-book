@@ -1005,8 +1005,8 @@ class RoomTutorToolRunnerTest {
         val expected = port.libraryRows.map { row -> row.entryId }.distinct()
         assertEquals(expected, undisclosed.problemEntryIds)
         assertEquals(expected, disclosed.problemEntryIds)
-        // 不披露档的模型可见正文仍然只给条数（本地留痕不是给模型看的）。
-        assertTrue(!undisclosed.outcome.summaryMarkdown.contains("二次函数最值综合题"))
+        // 条目内容现在同时进模型可见正文（供选择）与本地留痕。
+        assertTrue(undisclosed.outcome.summaryMarkdown.contains("二次函数最值综合题"))
     }
 
     @Test
@@ -1128,11 +1128,10 @@ class RoomTutorToolRunnerTest {
     // ---- 错题本读取：产出形态随本轮披露范围（F5）----
 
     @Test
-    fun aRoundThatDoesNotDiscloseOtherQuestionsGetsNoNotebookTitles() = runBlocking {
-        // 消灭的失败：无题轮的 NOTEBOOK_READ 把错题本里**别的题**的标题与科目逐条列进下一轮
-        // 请求，而本轮的披露集合把 RELATED_QUESTION_CANDIDATES / CONFIRMED_QUESTION_DOCUMENT
-        // 列为禁止——清单少报了一个真实出网的类目。不扩披露集合（那是用户的裁定），改结果形态：
-        // 只给条数与检索词。
+    fun notebookReadNamesEntriesForSelectionEvenWithoutACandidateMenu() = runBlocking {
+        // 通用 Agent 需要从实际返回的条目里选择（entryId + 标题 + 科目），否则只能看到条数，
+        // 无法决定讲哪道题。schema 8 的清单按实际工具结果授权 RELATED_QUESTION_CANDIDATES；
+        // 未命中的条目仍然不出现。
         val port = anchoredPort()
         port.libraryRows += libraryRow(title = "二次函数最值综合题", subject = "MATH")
         port.libraryRows += libraryRow(title = "向量数量积的应用", subject = "MATH")
@@ -1144,10 +1143,9 @@ class RoomTutorToolRunnerTest {
 
         assertTrue("expected ok outcome but was $outcome", outcome.ok)
         val text = outcome.summaryMarkdown
-        assertTrue("条数必须留着，否则模型不知道有没有命中: $text", text.contains("1"))
-        assertFalse("别的题的标题不得随请求下发: $text", text.contains("二次函数最值综合题"))
-        assertFalse("没命中的那条更不该出现: $text", text.contains("向量数量积的应用"))
-        assertFalse("条目的可识别字段（科目）同样属于该披露类目: $text", text.contains("MATH"))
+        assertTrue("条数必须留着: $text", text.contains("1"))
+        assertTrue("命中的条目要可供模型选择: $text", text.contains("二次函数最值综合题"))
+        assertFalse("没命中的那条不该出现: $text", text.contains("向量数量积的应用"))
     }
 
     @Test
@@ -1729,7 +1727,7 @@ class RoomTutorToolRunnerTest {
         // 源图是**本地解析**出来的规范资产记录（模型没有任何字段能提供图片）。
         assertEquals("asset-sheet-1", request.sourceSheet?.sourceAssetId)
         assertEquals("image/png", request.sourceSheet?.mimeType)
-        assertEquals("单调性练习", request.problemContext)
+        assertTrue(request.problemContext?.startsWith("单调性练习") == true)
     }
 
     @Test
@@ -1825,7 +1823,7 @@ class RoomTutorToolRunnerTest {
         val request = requests.single()
         assertEquals(TutorFigureKind.GENERATE_PROCESS, request.kind)
         assertEquals(null, request.sourceSheet)
-        assertEquals("单调性练习", request.problemContext)
+        assertTrue(request.problemContext?.startsWith("单调性练习") == true)
     }
 
     @Test
@@ -1867,12 +1865,13 @@ class RoomTutorToolRunnerTest {
     fun generateFigureReportsAnUnattributedEngineFailureAsItsOwnErrorKind() = runBlocking {
         val port = FigureDraftPort(problemDraftRecord("draft-figure-ua"))
         port.tutorSessions[TUTOR_SESSION_ID] = tutorSessionRecord("draft-figure-ua")
+        val diagnostics = "INVALID_PROGRAM: [UNATTRIBUTED] phase render failed with a " +
+            "message-less engine error (raw=null, mallocSize=1000000, mallocLimit=16777216)"
         val runner = figureRunner(port) { _ ->
             TutorFigureResult(
                 figureId = null,
                 status = TutorFigureStatus.UNAVAILABLE,
-                diagnostics = "INVALID_PROGRAM: [UNATTRIBUTED] phase render failed with a " +
-                    "message-less engine error (raw=null, mallocSize=1000000, mallocLimit=16777216)",
+                diagnostics = diagnostics,
             )
         }
 
@@ -1882,7 +1881,7 @@ class RoomTutorToolRunnerTest {
         assertEquals("figure_engine_unattributed", execution.outcome.errorKind)
         assertEquals(
             "本机绘图引擎这次失败且原因无法定位（不是绘图程序的问题），" +
-                "未生成配图；不要反复申请。",
+                "未生成配图；不要反复申请。 执行诊断：$diagnostics",
             execution.outcome.summaryMarkdown,
         )
         assertEquals(FigureGenerationStatus.UNAVAILABLE, execution.figure?.status)

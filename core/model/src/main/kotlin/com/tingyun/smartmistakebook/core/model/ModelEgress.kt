@@ -189,8 +189,59 @@ object TutorRoundDisclosure {
  * 披露粒度是**类目**：清单声明的是"这一类出网了"，逐条对齐只有图片资产的 grant 做得到。所以
  * 判据取"本轮披露集合覆盖了这一类"，而不是"这条标题恰好是菜单里的某一条"。
  */
-fun ModelTaskInput.disclosesQuestionCandidates(): Boolean =
-    this is TutorRespondInput && boundQuestionCandidates.isNotEmpty()
+fun ModelTaskInput.disclosesQuestionCandidates(): Boolean = carriesRetrievedQuestionContent()
+
+/** Image order used by both the request builder and per-byte asset scope. */
+fun ModelTaskInput.tutorImageAssetIds(): List<String> = buildList {
+    when (val input = this@tutorImageAssetIds) {
+        is TutorLobbyInput -> {
+            addAll(input.sourceImageAssetRefs.sortedBy { it.pageIndex }.map { it.assetId })
+            addAll(input.contextImageAssetRefs.sortedBy { it.pageIndex }.map { it.assetId })
+        }
+        is TutorRespondInput -> addAll(input.studentImageAssetRefs)
+        else -> Unit
+    }
+    addAll(this@tutorImageAssetIds.agentContextSnapshot()?.feedbackImages.orEmpty().map { it.assetId })
+}.distinct()
+
+private fun ModelTaskInput.carriesRetrievedQuestionContent(): Boolean {
+    if (this is TutorRespondInput && boundQuestionCandidates.isNotEmpty()) return true
+    if (agentContextSnapshot()?.knownEntryIds?.isNotEmpty() == true) return true
+    val rounds = when (this) {
+        is TutorLobbyInput -> toolRoundResults
+        is TutorPlanInput -> toolRoundResults
+        is TutorRespondInput -> toolRoundResults
+        else -> emptyList()
+    }
+    return rounds.any { round -> round.outcomes.any { it.ok &&
+        (it.tool == TutorToolName.NOTEBOOK_READ || it.tool == TutorToolName.SELECT_QUESTION) } }
+}
+
+/** Rebuild the current round's explicit scope after host tools add records, selection or images. */
+fun ModelEgressManifest.forTutorInput(input: ModelTaskInput): ModelEgressManifest {
+    if (input !is TutorLobbyInput && input !is TutorPlanInput && input !is TutorRespondInput) return this
+    val feedback = input.agentContextSnapshot()?.feedbackImages.orEmpty()
+    val grants = input.tutorImageAssetIds().map { id ->
+        val matches = (assets + feedback).filter { it.assetId == id }.distinct()
+        require(matches.size == 1) { "Tutor image grant is missing or changed" }
+        matches.single()
+    }
+    val candidates = input.carriesRetrievedQuestionContent()
+    val selected = input.agentContextSnapshot()?.selectedQuestion != null
+    val base = when (input) {
+        is TutorLobbyInput -> ModelEgressManifest.TUTOR_LOBBY_DISCLOSURE
+        is TutorPlanInput -> ModelEgressManifest.TUTOR_PLAN_DISCLOSURE
+        else -> ModelEgressManifest.TUTOR_RESPOND_DISCLOSURE
+    }
+    val disclosure = base +
+        (if (candidates) setOf(ModelEgressDataClass.RELATED_QUESTION_CANDIDATES) else emptySet()) +
+        (if (selected) setOf(ModelEgressDataClass.CONFIRMED_QUESTION_DOCUMENT) else emptySet()) +
+        (if (grants.isNotEmpty()) ModelEgressManifest.CAPTURE_IMAGE_DISCLOSURE else emptySet())
+    return copy(schemaVersion = 8, subjectId = input.subjectId, authorizedTaskKinds = setOf(input.kind),
+        promptPolicyVersion = requireNotNull(ModelPromptPolicyVersions.currentFor(input.kind)),
+        assets = grants, disclosedData = disclosure, includesQuestionCandidates = candidates,
+        includesSelectedQuestion = selected)
+}
 
 @Serializable
 data class ModelEgressAssetGrant(
@@ -255,11 +306,15 @@ data class ModelEgressManifest(
      * 真实出网的类目（`requireAuthorizes` 会逐次核对这张清单与请求是否一致）。
      */
     val includesQuestionCandidates: Boolean = false,
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val includesSelectedQuestion: Boolean = false,
 ) {
     init {
         require(schemaVersion in MIN_SUPPORTED_SCHEMA_VERSION..CURRENT_SCHEMA_VERSION) {
             "Unsupported egress manifest schema"
         }
+        require(schemaVersion >= 8 || !includesSelectedQuestion) { "Selected-question scope requires schema eight" }
         require(schemaVersion >= QUESTION_CANDIDATE_SCHEMA_VERSION || !includesQuestionCandidates) {
             "Legacy egress manifests cannot cover a bound-question candidate menu"
         }
@@ -329,7 +384,7 @@ data class ModelEgressManifest(
             // 运行时选择，而不是按 kind 分叉各猜一遍。大厅＝无题轮，Respond＝有题轮；大厅附图追加
             // 图片类目，题轮带候选菜单追加该菜单的类目。旧 schema 行（无候选菜单这一维）读回时
             // includesQuestionCandidates 为 false，取值与改前逐字一致。
-            val expectedDisclosure = when (tutoringKind) {
+            var expectedDisclosure = when (tutoringKind) {
                 ModelTaskKind.TUTOR_RESPOND -> TutorRoundDisclosure.questionRound(
                     includesQuestionCandidates = includesQuestionCandidates,
                     schemaVersion = schemaVersion,
@@ -340,6 +395,11 @@ data class ModelEgressManifest(
                 )
                 ModelTaskKind.TUTOR_PLAN -> tutorPlanDisclosureForSchema(schemaVersion)
                 ModelTaskKind.KNOWLEDGE_QUIZ -> KNOWLEDGE_QUIZ_DISCLOSURE
+            }
+            if (schemaVersion >= 8) {
+                if (includesQuestionCandidates) expectedDisclosure += ModelEgressDataClass.RELATED_QUESTION_CANDIDATES
+                if (includesSelectedQuestion) expectedDisclosure += ModelEgressDataClass.CONFIRMED_QUESTION_DOCUMENT
+                if (assets.isNotEmpty()) expectedDisclosure += CAPTURE_IMAGE_DISCLOSURE
             }
             if (tutoringKind == ModelTaskKind.TUTOR_LOBBY && assets.isNotEmpty()) {
                 require(schemaVersion >= LOBBY_IMAGE_SCHEMA_VERSION) {
@@ -368,7 +428,7 @@ data class ModelEgressManifest(
     }
 
     companion object {
-        const val CURRENT_SCHEMA_VERSION = 7
+        const val CURRENT_SCHEMA_VERSION = 8
         private const val MIN_SUPPORTED_SCHEMA_VERSION = 1
 
         /** schema 6 起：学生一次性说明后，Lobby 可携带学生选择的消息配图。 */
@@ -719,10 +779,12 @@ private fun ModelEgressManifest.requireAuthorizes(
             // 本条消息的图 + 上文图片（最近一次带图消息的那几张）：两者都是本次真正出网的字节，
             // 所以授权范围必须逐张覆盖它们，缺一张就拒绝——图片不因"来自历史消息"而少一分披露。
             val disclosedImages = input.sourceImageAssetRefs + input.contextImageAssetRefs
-            val includesImage = disclosedImages.isNotEmpty()
+            val feedbackImages = input.agentContext?.feedbackImages.orEmpty()
+            val includesImage = disclosedImages.isNotEmpty() || feedbackImages.isNotEmpty()
             // 大厅输入没有候选菜单字段：无题轮不存在"菜单里的别的题"，这个判据恒为 false
             // （与下面 `noQuestionRound` 不含该维一致：清单说覆盖了菜单同样被拒）。
-            val carriesQuestionCandidates = input.disclosesQuestionCandidates()
+            val carriesQuestionCandidates = schemaVersion >= 8 && input.carriesRetrievedQuestionContent()
+            val selectedQuestion = schemaVersion >= 8 && input.agentContext?.selectedQuestion != null
             if (includesImage) {
                 require(schemaVersion >= ModelEgressManifest.LOBBY_IMAGE_SCHEMA_VERSION) {
                     "Tutor lobby image egress requires egress manifest schema six"
@@ -733,8 +795,13 @@ private fun ModelEgressManifest.requireAuthorizes(
                 ) {
                     "Tutor lobby image count exceeds the message budget"
                 }
-                require(assets.size == disclosedImages.size) {
+                require(assets.size == input.tutorImageAssetIds().size) {
                     "Lobby image scope changed"
+                }
+                feedbackImages.forEach { source ->
+                    require(assets.singleOrNull { it.assetId == source.assetId } == source) {
+                        "Tutor feedback image changed after inspection"
+                    }
                 }
                 disclosedImages.forEach { source ->
                     val grant = assets.singleOrNull { it.assetId == source.assetId }
@@ -753,10 +820,15 @@ private fun ModelEgressManifest.requireAuthorizes(
             require(includesQuestionCandidates == carriesQuestionCandidates) {
                 "Egress manifest candidate-menu scope disagrees with the request"
             }
-            val expectedDisclosure = TutorRoundDisclosure.noQuestionRound(
+            var expectedDisclosure = TutorRoundDisclosure.noQuestionRound(
                 includesImage = includesImage,
                 schemaVersion = schemaVersion,
             )
+            if (schemaVersion >= 8) {
+                if (carriesQuestionCandidates) expectedDisclosure += ModelEgressDataClass.RELATED_QUESTION_CANDIDATES
+                if (selectedQuestion) expectedDisclosure += ModelEgressDataClass.CONFIRMED_QUESTION_DOCUMENT
+                require(includesSelectedQuestion == selectedQuestion) { "Egress selected-question scope changed" }
+            }
             require(disclosedData == expectedDisclosure)
         }
 

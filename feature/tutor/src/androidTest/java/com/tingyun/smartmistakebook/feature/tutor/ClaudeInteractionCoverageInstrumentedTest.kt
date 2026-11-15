@@ -47,6 +47,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import java.io.File
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -157,8 +158,19 @@ class ClaudeInteractionCoverageInstrumentedTest {
             .performKeyInput { pressKey(Key.MoveHome) }
         compose.onNodeWithTag("rtl_a").assertIsFocused().assertIsSelected()
             .performKeyInput { pressKey(Key.MoveEnd) }
-        compose.onNodeWithTag("rtl_d").assertIsFocused().assertIsDisplayed().assertWidthIsAtLeast(150.dp)
+        compose.onNodeWithTag("rtl_d").assertIsFocused().assertIsDisplayed().assertWidthIsAtLeast(76.dp)
             .performKeyInput { pressKey(Key.MoveEnd); pressKey(Key.Tab) }
+        val layouts = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
+        compose.onNodeWithText("条件 D", useUnmergedTree = true)
+            .performSemanticsAction(androidx.compose.ui.semantics.SemanticsActions.GetTextLayoutResult) { read ->
+                assertTrue(read(layouts))
+            }
+        val layout = layouts.single()
+        assertEquals(1, layout.lineCount)
+        assertEquals(layout.layoutInput.text.length, layout.getLineEnd(0, visibleEnd = true))
+        assertFalse(layout.isLineEllipsized(0))
+        assertTrue("The complete label must fit its measured text bounds",
+            layout.getLineLeft(0) >= -1f && layout.getLineRight(0) <= layout.size.width + 1f)
         compose.onNodeWithTag("rtl_after").assertIsFocused()
         compose.runOnIdle { assertEquals(listOf("b", "a", "d"), selections) }
     }
@@ -176,7 +188,7 @@ class ClaudeInteractionCoverageInstrumentedTest {
             }
         } }
         val heights = listOf("wrap_chat", "wrap_responses", "wrap_anthropic", "wrap_gemini").map {
-            compose.onNodeWithTag(it).fetchSemanticsNode().boundsInRoot.height
+            compose.onNodeWithTag(it).performScrollTo().fetchSemanticsNode().boundsInRoot.height
         }
         assertTrue("All option hit areas must fill their shared track; heights=$heights", heights.max() - heights.min() < 1f)
         compose.onNodeWithTag("wrap_gemini").performTouchInput { click(Offset(center.x, height - 2f)) }

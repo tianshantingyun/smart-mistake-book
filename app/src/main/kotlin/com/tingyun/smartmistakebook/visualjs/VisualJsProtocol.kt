@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.visualjs
 
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionBudget
+import com.tingyun.smartmistakebook.core.domain.VisualExecutionMode
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionRejection
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionRequest
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionResult
@@ -134,6 +135,9 @@ internal object VisualJsProtocol {
             .put("seed", request.seed)
             .put("theme", request.theme)
             .put("explicitUserRetry", request.explicitUserRetry)
+        if (request.executionMode != VisualExecutionMode.SCENE) {
+            program.put("executionMode", request.executionMode.name)
+        }
         val root = JSONObject()
             .put(KEY_PROGRAM, program)
             .put(KEY_LIMITS, limits())
@@ -196,6 +200,7 @@ internal object VisualJsProtocol {
                 seed = program.getLong("seed"),
                 theme = program.getString("theme"),
                 explicitUserRetry = program.optBoolean("explicitUserRetry", false),
+                executionMode = VisualExecutionMode.valueOf(program.optString("executionMode", "SCENE")),
             )
         } catch (failure: JSONException) {
             throw VisualJsProtocolException(
@@ -210,6 +215,8 @@ internal object VisualJsProtocol {
 
     fun encodeResult(result: VisualExecutionResult): ByteArray {
         val root = when (result) {
+            is VisualExecutionResult.Computed -> JSONObject().put("valueJson", result.valueJson)
+
             is VisualExecutionResult.Rendered -> JSONObject()
                 .put(KEY_SCENE, result.sceneJson)
                 .put(KEY_SCENE_SCHEMA, result.sceneSchemaVersion)
@@ -283,6 +290,9 @@ internal object VisualJsProtocol {
             )
         }
         return try {
+            if (root.has("valueJson")) {
+                return VisualExecutionResult.Computed(root.getString("valueJson"))
+            }
             val contentIds = mutableSetOf<String>()
             root.optJSONArray(KEY_CONTENT_IDS)?.let { array ->
                 for (index in 0 until array.length()) {

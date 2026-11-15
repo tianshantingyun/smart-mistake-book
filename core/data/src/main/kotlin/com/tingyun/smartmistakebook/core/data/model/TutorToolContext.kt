@@ -7,6 +7,7 @@ import com.tingyun.smartmistakebook.core.model.TutorConversationIds
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.disclosesQuestionCandidates
+import com.tingyun.smartmistakebook.core.model.agentContextSnapshot
 
 /**
  * 一个任务输入 → 这一轮工具执行要的上下文（`RoomTutorToolRunner.Context`）。
@@ -25,15 +26,19 @@ internal fun tutorToolContext(
 ): RoomTutorToolRunner.Context {
     val respond = input as? TutorRespondInput
     val plan = input as? TutorPlanInput
-    val sessionId = respond?.sessionId ?: plan?.sessionId
+    val agent = input.agentContextSnapshot()
+    val sessionId = agent?.selectedQuestion?.tutorSessionId ?: respond?.sessionId ?: plan?.sessionId
     return RoomTutorToolRunner.Context(
-        subject = respond?.subject ?: plan?.subject,
+        subject = agent?.subject ?: respond?.subject ?: plan?.subject
+            ?: agent?.subjects?.singleOrNull(),
+        selectedQuestion = agent?.selectedQuestion,
         // 扩展结果预算的轮内裁决：见仓库里每轮只放一次的守卫（那是唯一能看到同轮兄弟调用的地方）。
         allowsExtendedResult = allowsExtendedResult,
         // 会话锚：讲题会话的 conversationId 由 sessionId 确定性推导
         // （CapturedTutorSessionRoute 的 CreateTutorConversationCommand 同规则），
         // 供 MASTERY_UPDATE 的冷却/配额/审计按会话粒度工作。
-        conversationId = sessionId?.let(TutorConversationIds::captured),
+        conversationId = (input as? com.tingyun.smartmistakebook.core.model.TutorLobbyInput)?.conversationId
+            ?: sessionId?.let(TutorConversationIds::captured),
         // 裸 sessionId：NOTEBOOK_WRITE 用它 resolve 对应的 capture draft。
         // sessionId（"tutor-session-..."）≠ draftId（"draft-..."），写路径需
         // readTutorSession(sessionId) 拿 draftId 再 readProblemDraft(draftId)。
@@ -51,6 +56,7 @@ internal fun tutorToolContext(
         roundDisclosesQuestionCandidates = input.disclosesQuestionCandidates(),
         // 会话代号注册表：KNOWLEDGE_READ 的追加披露与 MASTERY_UPDATE 的代号解析都走它。
         knowledgeCodeRegistry = sessionKnowledgeCodeRegistry,
+        currentQuestionDocument = respond?.questionDocument ?: plan?.questionDocument,
     )
 }
 
@@ -64,5 +70,6 @@ internal fun sessionKnowledgeCodeRegistry(
 ): TutorKnowledgeCodeRegistry? = when (input) {
     is TutorPlanInput -> registries[input.sessionId]
     is TutorRespondInput -> registries[input.sessionId]
+    is com.tingyun.smartmistakebook.core.model.TutorLobbyInput -> registries[input.conversationId]
     else -> null
 }

@@ -7,6 +7,7 @@ import com.tingyun.smartmistakebook.core.model.TutorToolName
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -23,7 +24,7 @@ class TutorLocalActionAdmissionTest {
     )
 
     @Test
-    fun aDeclaredActionWithALocalTargetIsAdmittedAsAsk() {
+    fun aDeclaredActionWithALocalTargetIsAdmittedForAutonomousExecution() {
         val admission = tutorLocalActionAdmission(
             request = TutorLocalActionRequest(action = TutorLocalAction.SAVE_TO_NOTEBOOK),
             context = context,
@@ -32,7 +33,8 @@ class TutorLocalActionAdmissionTest {
         assertNotNull(admission)
         assertEquals(AgentPendingRequestKind.SAVE_TO_NOTEBOOK, admission!!.kind)
         assertEquals(TutorLocalActionTarget.SAVE_CAPTURE_DRAFT, admission.target)
-        assertEquals(true, admission.decision.requiresConsentCard)
+        assertEquals(false, admission.decision.requiresConsentCard)
+        assertEquals(TutorPermissionTier.AUTO_VISIBLE, admission.decision.tier)
         // 卡的形状 = 这个 kind 声明的键（不是"整个上下文"）：三个键都在，读回才拿得到目标。
         requireAgentPendingRequestPayload(admission.kind, admission.payloadJson)
         assertEquals("tutor-session-1", tutorLocalActionContext(admission.payloadJson).captureSessionId)
@@ -78,28 +80,24 @@ class TutorLocalActionAdmissionTest {
     }
 
     @Test
-    fun anUnwiredActionIsRejectedEvenWhenTheRoundExplicitlyAllowsEveryAction() {
-        // ADD_TO_REVIEW_PLAN 还没有执行处理器：它不在广告面里，也不准被准入。
-        // 即使调用方把"全部动作"塞进本轮放行集合，也不能把它变成一张卡——否则模型伪造
-        // 一条未广告的请求就能让界面出现一张"点了不能做"的卡。
-        assertNull(
+    fun aReviewPlanActionStaysUnwiredUntilItsExecutorExists() {
+        val admission =
             tutorLocalActionAdmission(
                 request = TutorLocalActionRequest(action = TutorLocalAction.ADD_TO_REVIEW_PLAN),
                 context = TutorLocalActionContext(libraryProblemId = "problem-9"),
                 permissionContext = TutorRoundPermissionContext(
                     allowedActions = TutorLocalAction.entries.toSet(),
                 ),
-            ),
-        )
+            )
+        assertNull(admission)
     }
 
     @Test
-    fun theRoundPermissionSourceDropsUnwiredActionsBeforeTheyReachAdmission() {
-        assertEquals(
-            emptySet<TutorLocalAction>(),
+    fun theRoundPermissionSourceExcludesTheUnwiredReviewPlanAction() {
+        assertTrue(
             allowedLocalActions(
                 listOf(TutorLocalActionRequest(action = TutorLocalAction.ADD_TO_REVIEW_PLAN)),
-            ),
+            ).isEmpty(),
         )
     }
 
@@ -255,6 +253,7 @@ class TutorLocalActionAdmissionTest {
         // 声明（core:model）与解析（core:domain）必须逐字同名：这里用声明集合构造一份全参数，
         // 解析成功且每个字段都落到布局上——任一侧改名，这条用例先红。
         val parameters = mapOf(
+            "entryIds" to "entry-1,entry-2",
             "templateId" to MistakePdfLayout.TEMPLATE_PRACTICE_SHEET,
             "columnCount" to "2",
             "fontScale" to "3",
@@ -273,6 +272,7 @@ class TutorLocalActionAdmissionTest {
         val layout = exportLayoutFromActionParameters(parameters)
 
         assertNotNull(layout)
+        assertEquals(layout, exportLayoutFromActionParameters(parameters - "entryIds"))
         assertEquals(MistakePdfLayout.TEMPLATE_PRACTICE_SHEET, layout!!.templateId)
         assertEquals(2, layout.columnCount)
         assertEquals(3, layout.fontScale)

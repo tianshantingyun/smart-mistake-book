@@ -13,6 +13,9 @@ import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import com.tingyun.smartmistakebook.core.model.ModelTaskOutput
 import com.tingyun.smartmistakebook.core.model.figureCapabilitiesSnapshot
 import com.tingyun.smartmistakebook.core.model.withFigureGenerationCapabilities
+import com.tingyun.smartmistakebook.core.model.TutorAgentContext
+import com.tingyun.smartmistakebook.core.model.agentContextSnapshot
+import com.tingyun.smartmistakebook.core.model.withAgentContext
 
 import com.tingyun.smartmistakebook.core.database.CreateModelTaskCommand
 import com.tingyun.smartmistakebook.core.database.ReserveModelTaskRemoteDispatchCommand
@@ -125,8 +128,18 @@ class RoomModelTaskRepository internal constructor(
      */
     private val figureGenerator: TutorFigureGenerator? = null,
     private val figureCapabilities: (suspend () -> com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities)? = null,
+    private val localActionExecutor: com.tingyun.smartmistakebook.core.domain.TutorLocalActionExecutor? = null,
+    private val visualEngine: com.tingyun.smartmistakebook.core.domain.VisualExecutionEngine? = null,
+    private val figureInspector: com.tingyun.smartmistakebook.core.data.model.TutorFigureInspector? = null,
 ) : ModelTaskRepository {
-    internal val toolRunner = RoomTutorToolRunner(database, knowledgeBaseAvailability, figureGenerator)
+    internal val toolRunner = RoomTutorToolRunner(
+        database,
+        knowledgeBaseAvailability,
+        figureGenerator,
+        visualEngine,
+        localActionExecutor,
+        figureInspector,
+    )
 
     /**
      * 会话级知识点代号注册表（单一代号通道，ADR 0001 / D5）：sessionId → 注册表，进程内
@@ -431,10 +444,21 @@ class RoomModelTaskRepository internal constructor(
                             is ModelGatewayEvent.Failed,
                             -> Unit
                         }
-                        if (event is ModelGatewayEvent.Completed && event.output is TutorToolRequestsOutput) {
+                        val requestedActions = (event as? ModelGatewayEvent.Completed)
+                            ?.output?.let { it as? TutorLobbyOutput }?.localActions.orEmpty()
+                        if (event is ModelGatewayEvent.Completed &&
+                            (event.output is TutorToolRequestsOutput || requestedActions.isNotEmpty())) {
                             // 工具申请轮：不落终态，转回 QUEUED（RUNNING→QUEUED 合法，
                             // RUNNING→RUNNING 被 canTransitionTo 拒绝）后进入下一轮
-                            toolRound = event.output as TutorToolRequestsOutput
+                            toolRound = event.output as? TutorToolRequestsOutput
+                                ?: (event.output as TutorLobbyOutput).let { output ->
+                                    TutorToolRequestsOutput(
+                                        intentDecision = output.intentDecision,
+                                        calls = emptyList(),
+                                        modelVersion = output.modelVersion,
+                                        localActions = requestedActions,
+                                    )
+                                }
                             current = transition(
                                 current = current,
                                 nextStatus = ModelTaskStatus.QUEUED,
@@ -543,8 +567,7 @@ class RoomModelTaskRepository internal constructor(
                     },
                     consumeExtendedResult = { extendedResultUsed = true },
                 ) + permissionRounds.awaitingConsent
-                // 动作轮（只有本地动作、没有工具调用）没有工具结果可回喂：那一轮的反馈是
-                // 下一轮输入里的"已提出、在等确认"清单（见 withToolRoundProgress），不是这里。
+                // Action-only rounds carry their receipts separately from tool results.
                 if (executions.isNotEmpty()) {
                     toolRoundResults = toolRoundResults + tutorToolRoundResult(
                         roundOrdinal = toolRoundsUsed,
@@ -555,16 +578,18 @@ class RoomModelTaskRepository internal constructor(
                 // 痕迹（B1）：先并进这一轮的条目，再用**同一条渲染函数**说出这一轮的结果——
                 // 生成中那行小字与重开会话后看到的那行小字因此不可能漂成两句话。
                 toolTraces.append(request.requestId, executions)
+                val actionOutcomes = executeLocalActions(roundRequest, requests.localActions, toolRoundsUsed)
                 liveTexts.publish(
                     request.requestId,
                     ModelLiveText(
                         kind = ModelLiveKind.TOOL,
-                        text = toolTraces.current(request.requestId)
-                            ?.let(::tutorToolTraceHeadline)
-                            ?: TUTOR_TOOL_TRACE_DONE_FALLBACK,
+                        text = tutorActionProgressText(
+                            toolTraces.current(request.requestId)?.let(::tutorToolTraceHeadline),
+                            actionOutcomes,
+                        ),
                     ),
                 )
-                // 收敛声明集：保留本轮已声明且仍允许的工具（非空），配额由轮次守卫保证。
+                // The capability snapshot applies the completed-round budget to both surfaces.
                 val converged = toolDeclarationsFor(
                     roundRequest.input,
                     declaredProvider,
@@ -575,23 +600,24 @@ class RoomModelTaskRepository internal constructor(
                     roundRequest.input,
                     knowledgeCodeRegistries,
                 )?.disclosed()
+                val progressed = roundRequest.input.withToolRoundProgress(
+                    newRounds = toolRoundResults,
+                    convergedDeclarations = converged,
+                    sessionKnowledgeCodes = sessionKnowledgeCodes,
+                    // Retain requested actions for history. Current-round execution receipts
+                    // below tell the next dispatch which side effects actually completed.
+                    newLocalActions = requests.localActions.filter { request ->
+                        request.action in
+                            TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS
+                    },
+                    actionOutcomes = actionOutcomes,
+                    toolRoundsUsed = toolRoundsUsed,
+                )
                 roundRequest = roundRequest.copy(
-                    input = roundRequest.input.withToolRoundProgress(
-                        newRounds = toolRoundResults,
-                        convergedDeclarations = converged,
-                        sessionKnowledgeCodes = sessionKnowledgeCodes,
-                        // 本轮模型提出的本地动作（原生 tool_calls 路由的唯一落点）：并进下一轮
-                        // 输入，模型据此知道"已经在等学生确认"（不重复提），本地据此在回合收尾时
-                        // 挂出那些卡（交互面读终态快照的输入）。
-                        //
-                        // PRD-06：没有执行处理器的动作（ADD_TO_REVIEW_PLAN）先在这里裁掉——
-                        // 回喂"已经在等确认"等于告诉模型一件本地永远不会做的事，正是
-                        // "提了没反应"；它本来也不在广告面里。
-                        newLocalActions = requests.localActions.filter { request ->
-                            request.action in
-                                TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS
-                        },
-                    ),
+                    // 把这一轮工具的真实产物折进下一轮上下文：NOTEBOOK_READ 的条目 id、
+                    // SELECT_QUESTION 选中的题、生图/读图的资产 id、JS 状态与动作回执。
+                    // 这些只来自本地执行结果，模型编造的 id 不会进来。
+                    input = progressed.withAgentFacts(executions, actionOutcomes, toolRoundsUsed),
                     egressManifest = roundRequest.egressManifest,
                 )
             }
@@ -1083,12 +1109,16 @@ class RoomModelTaskRepository internal constructor(
         convergedDeclarations: List<TutorToolName>,
         sessionKnowledgeCodes: List<TutorKnowledgeCode>?,
         newLocalActions: List<TutorLocalActionRequest> = emptyList(),
+        actionOutcomes: List<com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome> = emptyList(),
+        toolRoundsUsed: Int,
     ): ModelTaskInput = when (this) {
         is TutorLobbyInput -> copy(
             toolRoundResults = newRounds,
+            toolRoundsUsed = toolRoundsUsed,
             toolDeclarations = convergedDeclarations,
-            // 已经提出过的动作累积保留（本地按它挂卡、模型按它不重复提），上限由输入契约给；
-            // 去重按"同一个动作 + 同一组参数"，模型重复提同一件事时不会再堆一条。
+            localActionOutcomes = (localActionOutcomes + actionOutcomes)
+                .takeLast(TutorLobbyInput.MAX_LOCAL_ACTION_OUTCOMES),
+            // Keep bounded request history independently of actual execution receipts.
             requestedLocalActions = (requestedLocalActions + newLocalActions)
                 .distinct()
                 .take(TutorLobbyInput.MAX_REQUESTED_LOCAL_ACTIONS),
@@ -1107,6 +1137,112 @@ class RoomModelTaskRepository internal constructor(
     }
 
     /**
+     * 把本轮**真实执行结果**折进 agent context：条目 id / 选中的题 / 资产 id / JS 状态 /
+     * 动作回执。它只认执行器返回的事实，不解析模型文本；所有列表都有上界。
+     */
+    private fun ModelTaskInput.withAgentFacts(
+        executions: List<TutorToolExecution>,
+        actionOutcomes: List<com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome>,
+        toolRoundsUsed: Int,
+    ): ModelTaskInput {
+        val base = agentContextSnapshot() ?: TutorAgentContext()
+        val selected = executions.mapNotNull { it.selectedQuestion }.lastOrNull()
+        val entries = (base.knownEntryIds + executions.flatMap { it.problemEntryIds } +
+            listOfNotNull(selected?.entryId)).distinct().take(180)
+        val figures = (base.knownFigureIds + executions.mapNotNull { it.figure?.figureId } +
+            executions.mapNotNull { it.feedbackImage?.assetId }).distinct().take(32)
+        val feedback = (base.feedbackImages + executions.mapNotNull { it.feedbackImage })
+            .distinctBy { it.assetId }.takeLast(4)
+        val subjects = (base.subjects + listOfNotNull(base.subject, selected?.subject) +
+            executions.flatMap { it.subjects }).distinct().take(32)
+        val state = executions.lastOrNull { it.javascriptState != null }?.javascriptState
+            ?: base.javascriptStateJson
+        val outcomes = (base.actionOutcomes + actionOutcomes).takeLast(12)
+        val question = selected ?: base.selectedQuestion
+        if (entries == base.knownEntryIds && figures == base.knownFigureIds &&
+            feedback == base.feedbackImages && subjects == base.subjects &&
+            state == base.javascriptStateJson && outcomes == base.actionOutcomes &&
+            question == base.selectedQuestion && toolRoundsUsed == base.roundsUsed
+        ) {
+            return this
+        }
+        return withAgentContext(
+            base.copy(
+                subject = executions.mapNotNull { it.selectedSubject }.lastOrNull()
+                    ?: selected?.subject ?: base.subject,
+                subjects = subjects,
+                selectedQuestion = question,
+                knownEntryIds = entries,
+                knownFigureIds = figures,
+                feedbackImages = feedback,
+                javascriptStateJson = state,
+                actionOutcomes = outcomes,
+                roundsUsed = toolRoundsUsed,
+            ),
+        )
+    }
+
+    private suspend fun executeLocalActions(
+        request: ModelTaskRequest,
+        actions: List<TutorLocalActionRequest>,
+        roundOrdinal: Int,
+    ): List<com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome> {
+        val input = request.input
+        val lobby = input as? TutorLobbyInput
+        val sessionId = (input as? TutorPlanInput)?.sessionId ?: (input as? TutorRespondInput)?.sessionId
+        val conversationId = lobby?.conversationId
+            ?: sessionId?.let(TutorConversationIds::captured)
+        val selectedCurrent = input.agentContextSnapshot()?.selectedQuestion?.entryId
+        val attachedImageIds = lobby?.sourceImageAssetRefs?.map { it.assetId }.orEmpty()
+        val candidates = toolTraces.current(request.requestId)?.entries.orEmpty()
+            .filter { it.tool == TutorToolName.NOTEBOOK_READ }
+            .flatMap { it.problemEntryIds }.distinct()
+        val outcomes = (lobby?.localActionOutcomes ?: input.agentContextSnapshot()?.actionOutcomes)
+            .orEmpty().toMutableList()
+        return actions.map { action ->
+            val savedIds = outcomes.filter { outcome ->
+                outcome.ok == true && outcome.decision == "SUCCEEDED" &&
+                    outcome.kind in setOf("SAVE_TO_NOTEBOOK", "OPEN_PROBLEM")
+            }.mapNotNull { it.artifactId }
+            val knownIds = (candidates + savedIds + listOfNotNull(selectedCurrent)).toSet()
+            val selectedProblem = action.parameters["entryId"]
+            val selectedExports = action.parameters["entryIds"]?.split(',')?.map(String::trim)
+                ?: candidates
+            val unknownTarget = selectedProblem != null && selectedProblem !in knownIds ||
+                selectedExports.any { it.isBlank() || it !in knownIds }
+            val executor = localActionExecutor
+            val outcome = if (conversationId == null || executor == null || unknownTarget) {
+                com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome(
+                    kind = action.action.actionId,
+                    decision = "FAILED",
+                    detail = if (unknownTarget) "指定的题目不在本轮已检索或已保存的条目中，这次未执行。"
+                        else "本机当前没有接通这项应用操作。",
+                    callId = action.callId,
+                    ok = false,
+                )
+            } else {
+                executor.execute(com.tingyun.smartmistakebook.core.domain.TutorLocalActionCommand(
+                    logicalOperationId = request.requestId,
+                    conversationId = conversationId,
+                    request = action,
+                    context = com.tingyun.smartmistakebook.core.domain.TutorLocalActionContext(
+                        captureSessionId = sessionId,
+                        libraryProblemId = selectedProblem ?: savedIds.lastOrNull()
+                        ?: candidates.singleOrNull() ?: selectedCurrent,
+                        attachedImageAssetIds = attachedImageIds,
+                    ),
+                    exportEntryIds = selectedExports.distinct(),
+                    roundOrdinal = roundOrdinal,
+                    allowedBackupRefs = input.agentContextSnapshot()?.backupReferences.orEmpty()
+                        .map { backup -> backup.ref },
+                ))
+            }
+            outcomes += outcome
+            outcome
+        }
+    }
+
+    /**
      * 派生前对 Plan/Respond 输入做代号赋码（[TutorKnowledgeCodeRegistry.adopt]：已赋码条目
      * 按原码登记、未赋码条目按列表顺序首次分配），并把教学参考的代号字段填上（材料绑定多个
      * 节点时取其中已披露的第一个）。返回的才是持久化 / 指纹 / 提示词用的形状。
@@ -1119,6 +1255,12 @@ class RoomModelTaskRepository internal constructor(
      */
     private suspend fun ModelTaskRequest.withSessionKnowledgeCodes(): ModelTaskRequest {
         val input = this.input
+        // 大厅现在也能 SELECT_QUESTION 并在后续轮读知识点：给会话建一个空注册表，
+        // KNOWLEDGE_READ 才能追加分配代号、MASTERY_UPDATE 的代号白名单也有同一份来源。
+        if (input is TutorLobbyInput) {
+            knowledgeCodeRegistries.getOrPut(input.conversationId) { TutorKnowledgeCodeRegistry() }
+            return this
+        }
         val sessionId = when (input) {
             is TutorPlanInput -> input.sessionId
             is TutorRespondInput -> input.sessionId
@@ -1219,12 +1361,18 @@ object ModelTaskRepositoryFactory {
          */
         figureGenerator: TutorFigureGenerator? = null,
         figureCapabilities: (suspend () -> com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities)? = null,
+        localActionExecutor: com.tingyun.smartmistakebook.core.domain.TutorLocalActionExecutor? = null,
+        visualEngine: com.tingyun.smartmistakebook.core.domain.VisualExecutionEngine? = null,
+        figureInspector: com.tingyun.smartmistakebook.core.data.model.TutorFigureInspector? = null,
     ): ModelTaskRepository = RoomModelTaskRepository(
         database = database,
         gateway = gateway,
         knowledgeBaseAvailability = knowledgeBaseAvailability,
         figureGenerator = figureGenerator,
         figureCapabilities = figureCapabilities,
+        localActionExecutor = localActionExecutor,
+        visualEngine = visualEngine,
+        figureInspector = figureInspector,
     )
 }
 
@@ -1318,6 +1466,14 @@ internal fun tutorTeachingFigureReferences(markdown: String): List<String> {
     }
     return references
 }
+
+internal fun tutorActionProgressText(
+    toolHeadline: String?,
+    actionOutcomes: List<com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome>,
+): String = (listOfNotNull(toolHeadline) + actionOutcomes.map { outcome ->
+    (outcome.detail ?: "应用操作状态已更新。").take(512)
+}).joinToString("\n").take(TutorToolRoundResult.MAX_TOOL_ROUND_RESULT_CHARS)
+    .ifBlank { TUTOR_TOOL_TRACE_DONE_FALLBACK }
 
 private fun ModelTaskOutput.deliveryTraceOrNull(): String? = when (this) {
     is TutorPlanOutput -> deliveryToolTraceJson

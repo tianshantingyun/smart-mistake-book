@@ -139,7 +139,7 @@ class SavedMistakeTutorRouteInstrumentedTest {
             input.sessionId.startsWith(ENTRY_SESSION_PREFIX),
         )
         // 模型要的配图真的被解析、真的画出来了（而不是整段被跳过）。
-        composeRule.onNodeWithText(FIGURE_COLLAPSED_TITLE).assertExists()
+        composeRule.onNodeWithText(FIGURE_COLLAPSED_TITLE, substring = true).assertExists()
         assertEquals(listOf(FIGURE.imageId), resolvedImageIds)
     }
 

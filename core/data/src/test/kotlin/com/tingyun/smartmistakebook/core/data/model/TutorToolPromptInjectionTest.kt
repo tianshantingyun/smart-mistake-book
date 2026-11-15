@@ -67,7 +67,7 @@ class TutorToolPromptInjectionTest {
         assertTrue(prompt.contains("toolRequests"))
         assertTrue(prompt.contains("rationale"))
         assertTrue(prompt.contains("读取这道题相关知识点讲解材料"))
-        assertTrue(prompt.contains("检索错题本中匹配的错题"))
+        assertTrue(prompt.contains("读取错题本条目"))
         assertTrue(prompt.contains("读取学生对相关知识的掌握情况"))
         // 深挖能力的说明必须留在工具描述里：模型是靠这几句知道可以按知识点聚焦、
         // 会拿到历史聚合、以及结果可能被截断的。少任何一句，工具就退回成"只会给
@@ -77,7 +77,8 @@ class TutorToolPromptInjectionTest {
         assertTrue(prompt.contains("结构化历史聚合"))
         assertTrue(prompt.contains("会被截断并注明"))
         assertTrue(prompt.contains("extendedResult 置 true"))
-        assertTrue(prompt.contains("单轮最多申请 3 个互不相同工具"))
+        assertTrue(prompt.contains("单轮最多申请 3 个工具调用"))
+        assertTrue(prompt.contains("失败时依据诊断调整参数或程序后重试"))
         assertTrue(prompt.contains("未在上方列出的工具不可申请"))
     }
 
@@ -105,6 +106,58 @@ class TutorToolPromptInjectionTest {
     }
 
     @Test
+    fun failedJavascriptDiagnosticsReachBothNativeAndEnvelopeFollowupRequests() {
+        val diagnostics = "INVALID_SCENE: SCENE_FIELD_UNKNOWN root.children[0].stroke.color"
+        val input = respond(
+            toolDeclarations = listOf(TutorToolName.GENERATE_FIGURE),
+            toolRoundResults = listOf(
+                TutorToolRoundResult(1, listOf(
+                    TutorToolOutcome(
+                        tool = TutorToolName.GENERATE_FIGURE,
+                        ok = false,
+                        summaryMarkdown = "$diagnostics 修改 program 后重试。",
+                        errorKind = "figure_failed",
+                    ),
+                )),
+            ),
+        )
+        listOf(false, true).forEach { nativeTools ->
+            val body = OpenAiModelProtocol.requestBody(
+                modelId = "test-model",
+                input = input,
+                images = emptyList(),
+                enableNativeTools = nativeTools,
+            )
+            assertTrue(body.contains(diagnostics))
+            assertTrue(body.contains("[失败 figure_failed]"))
+            assertTrue(body.contains("修改 program 后重试"))
+        }
+    }
+
+    @Test
+    fun autonomousActionResultsExposeActualStatusAndArtifact() {
+        val input = lobby().copy(
+            localActionOutcomes = listOf(
+                com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome(
+                    kind = "START_EXPORT",
+                    decision = "SUCCEEDED",
+                    detail = "练习卷已生成",
+                    callId = "call-export-1",
+                    ok = true,
+                    artifactId = "export-42",
+                ),
+            ),
+        )
+        val prompt = OpenAiModelTaskAdapters.prompt(input)
+        assertTrue(prompt.contains("本地动作执行结果"))
+        assertTrue(prompt.contains("callId=call-export-1"))
+        assertTrue(prompt.contains("ok=true"))
+        assertTrue(prompt.contains("artifactId=export-42"))
+        assertFalse(prompt.contains("学生点了才"))
+        assertFalse(prompt.contains("正在等学生确认"))
+    }
+
+    @Test
     fun declaredToolPromptStripsOuterTemplateIndent() {
         val prompt = OpenAiModelTaskAdapters.prompt(
             respond(toolDeclarations = listOf(TutorToolName.NOTEBOOK_READ)),
@@ -120,7 +173,7 @@ class TutorToolPromptInjectionTest {
         )
         assertTrue(
             "工具块内容必须出现（回归不应丢内容）",
-            prompt.contains("- NOTEBOOK_READ：检索错题本中匹配的错题"),
+            prompt.contains("- NOTEBOOK_READ：读取错题本条目"),
         )
     }
 

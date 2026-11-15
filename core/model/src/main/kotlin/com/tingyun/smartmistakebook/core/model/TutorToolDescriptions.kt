@@ -18,15 +18,16 @@ package com.tingyun.smartmistakebook.core.model
 fun TutorToolName.purposeDescription(
     figureMethods: Set<FigureGenerationMethod> = setOf(FigureGenerationMethod.IMAGE_MODEL),
 ): String = when (this) {
+    TutorToolName.APP_CONTEXT -> "读取应用实际上下文、科目清单、已选择题目和备份引用。parameters.subject 可从已返回的 subjects 中选择。"
+    TutorToolName.SELECT_QUESTION -> "选择错题本实际返回的题目，parameters.entryId 必填，返回所选题目的完整上下文。"
+    TutorToolName.READ_FIGURE -> "读取当前上下文已披露配图，parameters.assetId 必填，返回实际图片证据与可用状态。"
+    TutorToolName.RUN_JAVASCRIPT -> "执行通用 JavaScript 函数体 script，可读 input.state，调用 agent.callTool(name, parameters) 或 agent.callAction(name, parameters)。宿主同步挂起调用、执行后重放并返回实际结果，随后继续执行。最终 return JSON。stateJson 可选，只承载 JSON 初始状态。禁止递归 RUN_JAVASCRIPT。"
     TutorToolName.KNOWLEDGE_READ ->
         "读取这道题相关知识点讲解材料（返回**代号**+名称+边界（≤80字）+绑定材料《标题》与" +
             "正文节选（≤120字，公式/句界安全截断）；无材料节点显式标注「（该节点无材料）」；" +
             "代号本会话有效，可直接作为 MASTERY_UPDATE 的 terms）"
     TutorToolName.NOTEBOOK_READ ->
-        "检索错题本中匹配的错题（只查错题库：返回条目本身；掌握情况不在这里，" +
-            "要了解某知识点掌握得怎样用 MASTERY_READ）。返回形态随本轮的披露范围：" +
-            "本轮没有题锚、披露范围也不含别的题时只回条数与检索词，不列任何条目标题" +
-            "（这时不要臆造或复述题目标题）。"
+        "读取错题本条目，terms 可空表示全部。parameters 可含 subject、offset（非负）、limit（1..30）、sectionId、masteryId、sort、createdFrom、createdTo。subject 从实际返回的科目中选择，翻页继续读取实际条目。"
     TutorToolName.MASTERY_READ ->
         "读取学生对相关知识的掌握情况（限当前科目；只查掌握情况，不含错题条目本身——" +
             "要找题用 NOTEBOOK_READ）。terms 留空＝返回本科目全部有学习证据的" +
@@ -36,7 +37,7 @@ fun TutorToolName.purposeDescription(
             "接受与被拒条数）与记忆行（稳定度天数/上次作答时间；仅在知识点已产生作答证据时给出）。" +
             "结果超出字符预算会被截断并注明；确实需要一次拿更多时，把 " +
             "extendedResult 置 true（本地决定实际上限，且每轮只放一次）。"
-    TutorToolName.NOTEBOOK_WRITE -> "写入错题本（需学生明确命令，随后由本地确认）"
+    TutorToolName.NOTEBOOK_WRITE -> "保存当前已识别题目到错题本，自动执行并返回实际保存结果"
     TutorToolName.MASTERY_UPDATE ->
         "提交一条学习证据：terms=[**代号**]（本会话已披露知识点的代号 K1..Kn，只能来自知识点" +
             "代号表或 KNOWLEDGE_READ 的返回——绝不编造代号、绝不用原始 id）、" +
@@ -74,22 +75,23 @@ fun TutorToolName.purposeDescription(
  */
 private fun generateFigureDescription(figureMethods: Set<FigureGenerationMethod>): String {
     val head =
-        "生成一张当前题的配图（只画与当前题相关的图形、数轴、步骤标注，不改写题面文字）。" +
+        "按当前任务生成有用的配图，可依据学生描述绘制图形、数轴和步骤示意，保持已提供题面事实。" +
             "kind 二选一：REDRAW_PROBLEM＝把当前题的题面图去手写重绘成干净题面" +
             "（源图由本地自动取自当前题的规范资产，你不得也不能提供图片）；" +
             "GENERATE_PROCESS＝按 description 生成一张解析过程图。" +
             "description 用平实中文写清这张图要表达什么（上限 " +
             "${TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS} 字符），terms 必须留空。" +
             "仅当图能实质降低当前题当前小问的理解负担时才申请；" +
-            "生成结果只回图的 id 与状态：**有当前题并生成成功时**，图会保存到本地并作为本轮" +
+            "没有当前题（如大厅轮次）时不会生成；" +
+            "生成结果只回图的 id 与状态：**生成成功时**，图会保存到本地并作为本轮" +
             "回复下方的一张可展开配图（学生点开可见），不要让学生去找别处的图，也不要声称自己" +
             "看到了图的内容。"
     val tail = if (FigureGenerationMethod.JS in figureMethods) {
-        "没有当前题（如大厅轮次）时不会生成；本机未接通的方法不得输出其载荷。" +
+        "生成过程图可依据当前任务描述；重绘已有题面图必须有已授权真实源图。本机未接通的方法不得输出其载荷。" +
             "method=JS 时在 program 字段给出完整结构化程序（不要把程序写进 description）；" +
             "返回不可用时不要反复申请。"
     } else {
-        "没有当前题（如大厅轮次）时不会生成；本地未配置可用的图像模型时也不会生成" +
+        "生成过程图可依据当前任务描述；重绘已有题面图必须有已授权真实源图。本地未配置可用的图像模型时不会生成" +
             "（返回不可用，不要反复申请）。"
     }
     return head + tail
@@ -99,17 +101,19 @@ private fun generateFigureDescription(figureMethods: Set<FigureGenerationMethod>
 fun TutorToolName.nativePurposeDescription(
     figureMethods: Set<FigureGenerationMethod> = setOf(FigureGenerationMethod.IMAGE_MODEL),
 ): String = when (this) {
+    TutorToolName.APP_CONTEXT -> "读取应用实际上下文、科目清单、已选择题目和备份引用。parameters.subject 可从已返回的 subjects 中选择。"
+    TutorToolName.SELECT_QUESTION -> "选择错题本实际返回的题目，parameters.entryId 必填，返回所选题目的完整上下文。"
+    TutorToolName.READ_FIGURE -> "读取当前上下文已披露配图，parameters.assetId 必填，返回实际图片证据与可用状态。"
+    TutorToolName.RUN_JAVASCRIPT -> "执行通用 JavaScript 函数体 script，可读 input.state，调用 agent.callTool(name, parameters) 或 agent.callAction(name, parameters)。宿主同步挂起调用、执行后重放并返回实际结果，随后继续执行。最终 return JSON。stateJson 可选，只承载 JSON 初始状态。禁止递归 RUN_JAVASCRIPT。"
     TutorToolName.KNOWLEDGE_READ ->
         "读取当前题相关知识点讲解材料（返回代号+名称+边界+材料《标题》与正文节选≤120字；无材料显式标注）"
-    TutorToolName.NOTEBOOK_READ ->
-        "检索错题本中匹配的错题（只查错题库，不含掌握情况）。本轮披露范围不含别的题时只回条数（至多6条）" +
-            "与检索词，不列条目标题——那时不要臆造或复述题目标题"
+    TutorToolName.NOTEBOOK_READ -> purposeDescription(figureMethods)
     TutorToolName.MASTERY_READ ->
         "读取学生对相关知识的掌握情况（terms 留空＝本科目全部清单，填关键词＝聚焦并附历史聚合；不含错题条目）"
     TutorToolName.MASTERY_UPDATE ->
         "提交一条学习证据（terms[0]＝本会话已披露知识点的代号；模型判 direction/understanding/confidence，" +
             "权重与门控本地定）"
-    TutorToolName.NOTEBOOK_WRITE -> "写入错题本（需学生明确命令，随后由本地确认）"
+    TutorToolName.NOTEBOOK_WRITE -> "保存当前已识别题目到错题本，自动执行并返回实际保存结果"
     TutorToolName.ADVISORY_READ ->
         "读取该学生的教学咨询记录（本会话科目的典型误区/有效讲法/难度判断；scope＝NODE 配代号、" +
             "PROBLEM 读当前题、SUBJECT 读本科目；只回最近若干条）"
@@ -122,10 +126,10 @@ fun TutorToolName.nativePurposeDescription(
 /** `GENERATE_FIGURE` 短描述按能力集合派生（A-06）；默认与 A-06 之前逐字节相同。 */
 private fun generateFigureNativeDescription(figureMethods: Set<FigureGenerationMethod>): String {
     val head =
-        "生成当前题的配图（kind=REDRAW_PROBLEM 重绘干净题面，源图本地自动取、不接受模型供图；" +
+        "按当前任务描述生成配图（kind=REDRAW_PROBLEM 重绘干净题面，源图本地自动取、不接受模型供图；" +
             "kind=GENERATE_PROCESS 按 description 文生图；terms 留空，" +
             "description≤${TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS} 字符；"
-    val tail = "结果只回 id+状态，有当前题且生成成功时作为本轮回复下方的可展开配图展示）"
+    val tail = "结果只回 id+状态，生成成功时作为本轮回复下方的可展开配图展示）"
     return if (FigureGenerationMethod.JS in figureMethods) {
         head + "method=JS 时在 program 字段给出完整结构化程序（不写进 description），" +
             "只使用宿主声明为可用的方法，未接通的方法不得输出其载荷；" + tail

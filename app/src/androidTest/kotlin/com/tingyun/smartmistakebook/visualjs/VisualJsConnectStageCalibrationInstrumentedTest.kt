@@ -952,6 +952,7 @@ class VisualJsConnectStageCalibrationInstrumentedTest {
     private fun describe(result: VisualExecutionResult): String = when (result) {
         is VisualExecutionResult.Rendered -> "Rendered"
         is VisualExecutionResult.Rejected -> "Rejected/${result.reason}: ${result.diagnostics}"
+        is VisualExecutionResult.Computed -> "Computed"
     }
 
     private fun formatDecimal(value: Double): String = String.format(Locale.US, "%.2f", value)

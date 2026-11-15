@@ -3201,7 +3201,10 @@ internal open class FakeStudyDatabasePort : StudyDatabasePort {
         createdFromEpochMillis: Long?,
         createdToEpochMillis: Long?,
         favoriteOnly: Boolean,
-    ): Int = error("Library is outside this study-repository fake")
+    ): Int = libraryRows
+        .filter { row -> searchText.isBlank() || row.title.contains(searchText) }
+        .filter { row -> !favoriteOnly || row.isFavorite }
+        .count()
 
     override suspend fun libraryCatalogFacets(
         searchText: String,

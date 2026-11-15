@@ -7,6 +7,8 @@ import com.tingyun.smartmistakebook.core.domain.RestrictedModelAsset
 import com.tingyun.smartmistakebook.core.domain.RestrictedModelAssetSource
 import com.tingyun.smartmistakebook.core.model.ModelExecutionPermit
 import com.tingyun.smartmistakebook.core.model.ModelGatewayExecution
+import com.tingyun.smartmistakebook.core.model.agentContextSnapshot
+import com.tingyun.smartmistakebook.core.model.tutorImageAssetIds
 import com.tingyun.smartmistakebook.core.model.requiresImageInput
 
 internal class AndroidRestrictedModelAssetSource(
@@ -53,6 +55,13 @@ internal class AndroidRestrictedModelAssetSource(
             }
             ModelExecutionPermit.LocalOnly ->
                 throw SecurityException("External model asset access requires an egress permit")
+        }
+        execution.request.input.agentContextSnapshot()?.feedbackImages?.singleOrNull { it.assetId == assetId }?.let { grant ->
+            require(assetId in execution.request.input.tutorImageAssetIds() && grant.selectedRegion == null)
+            check(record.contentSha256 == grant.sha256 && record.byteSize == grant.byteSize &&
+                record.width == grant.width && record.height == grant.height) {
+                "Tutor feedback image changed after inspection"
+            }
         }
         val file = vault.resolve(record)
         return RestrictedModelAsset(

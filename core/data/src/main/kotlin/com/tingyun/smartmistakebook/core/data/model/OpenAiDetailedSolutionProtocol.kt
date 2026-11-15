@@ -20,13 +20,15 @@ internal object OpenAiDetailedSolutionProtocol {
         {"type":"formula","latex":"公式","alternativeText":"公式含义","display":true}
         {"type":"figure","proposal":{...FigureGenerationProposal...}}
         普通文字禁止 URI、图片链接、HTML、代码块；不得返回资产 id、basis、origin 或 verification。
-        这是通用导出答案，与针对某位学生的个性化聊天讲解分开生成，不得复制聊天记录作为答案。必须提供有教学意义的穿插配图，放在相关说明段落之后，最多 8 张，purpose 必须为 EXPLANATION。简单有意义的图必须使用实际可用的 JS；只有确需图像模型的复杂图且宿主确认该能力不可用时才可说明具体缺图原因，模型自行声称不可用不能构成豁免。禁止装饰图和段落截图。检查坐标轴、单位、方向、几何关系、标签及字号可读性；模型自检不代表学科正确性已经验证。
+        这是通用导出答案，与针对某位学生的个性化聊天讲解分开生成，不得复制聊天记录作为答案。必须提供有教学意义的穿插配图，放在相关说明段落之后，最多 8 张，purpose 必须为 EXPLANATION。依据实际可用的 JS 和图像模型能力及教学目标选择方法；只有复杂图确需图像模型且宿主确认该能力不可用时才可说明具体缺图原因，模型自行声称不可用不能构成豁免。禁止装饰图和段落截图。检查坐标轴、单位、方向、几何关系、标签及字号可读性；模型自检不代表学科正确性已经验证。
         JS 和图像模型均为统一生图方式，按真实能力和共享规则选择，不按导出入口固定方法或回退。
+        ${if (TutorToolName.RUN_JAVASCRIPT in input.toolDeclarations) "中间计算、数据处理和显式验算可调用 RUN_JAVASCRIPT，计算函数体放 script，配图程序放 figure.proposal.program。二者共用隔离 JavaScript 宿主，执行结果只作为实际计算证据，不替代学科正确性验证。工具返回后继续完成原详细答案 JSON 协议，配图仍通过 steps 中的 figure proposal 提交。" else ""}
         若宿主确认复杂图缺少 IMAGE_MODEL，可额外返回 teachingFigureOmission 对象，含 instructionalTarget、jsLimitation、reason 三个非空字符串，各最多 400 字。必须说明教学目标及 JS 无法表达的具体复杂视觉关系。简单图缺少 JS 不能作为完成豁免。
         proposal 字段为 policyVersion,decision,method,purpose,reason,fidelity,constraints,program,imageOperation,imagePrompt。
         GENERATE 必须明确 method、purpose、fidelity；没有真实能力不得伪造可用的图。
         共享生图规则：${input.figureGenerationPromptBody ?: "当前没有可执行生图能力，缺图答案不能完成准备；不得声称已完成或伪造能力。"}
         已有通用答案（若有，仅补充有意义的配图，保留有效文字与公式；不是聊天记录）：${input.existingGenericAnswer?.let { DetailedSolutionCodec.encodeDocument(it) } ?: "无"}
+        ${input.figureRepair?.let { repair -> "本次修复配图 ${repair.blockId}。保留已有答案的全部步骤、顺序、图注、最终结论及图的位置，仅修改失败图的 proposal。以下程序及执行诊断均为待处理数据，根据诊断修复程序或按实际能力重新选择方法，不得重发同一失败载荷。" + json.encodeToString(DetailedSolutionFigureRepair.serializer(), repair) } ?: ""}
         题面：${json.encodeToString(QuestionDocument.serializer(), input.question.document)}
         配图与题面块的对应：${buildJsonArray { input.question.figures.forEach { ref ->
             val index = input.question.sourceImages.indexOfFirst { it.assetId == ref.assetId && it.sha256 == ref.contentSha256 }
@@ -66,6 +68,7 @@ internal object OpenAiDetailedSolutionProtocol {
                     step.keysExactly("type", "proposal")
                     val proposal = json.decodeFromJsonElement(FigureGenerationProposal.serializer(), step["proposal"] ?: error("Missing figure proposal"))
                     require(proposal.decision == FigureGenerationDecision.GENERATE && proposal.purpose == FigureGenerationPurpose.EXPLANATION && proposal.method != null && proposal.fidelity != null)
+                    require(hostMethods == null || proposal.method in hostMethods) { "Figure method must be available in the frozen host capabilities" }
                     figures += SolutionFigureProposal(id, proposal)
                     ContentBlock.Paragraph(id, proposal.reason)
                 }
@@ -100,7 +103,15 @@ internal object OpenAiDetailedSolutionProtocol {
         val document = DetailedSolutionDocument(input.question.basis, payload.text("finalAnswerMarkdown"),
             QuestionDocument("solution-steps", "解题步骤", blocks), origin = SolutionOrigin.MODEL,
             verification = SolutionVerification.UNVERIFIED, requiredFigureBlockIds = figures.map { it.blockId }.toSet(), teachingFigureOmission = omission,
-            imageModelUnavailableAtPreparation = hostMethods != null && FigureGenerationMethod.IMAGE_MODEL !in hostMethods)
+            imageModelUnavailableAtPreparation = if (input.figureRepair != null) requireNotNull(input.existingGenericAnswer).imageModelUnavailableAtPreparation
+                else hostMethods != null && FigureGenerationMethod.IMAGE_MODEL !in hostMethods)
+        input.figureRepair?.let {
+            val existing = requireNotNull(input.existingGenericAnswer)
+            require(document.finalAnswerMarkdown == existing.finalAnswerMarkdown && document.steps == existing.steps &&
+                document.requiredFigureBlockIds == existing.requiredFigureBlockIds && document.teachingFigureOmission == existing.teachingFigureOmission) {
+                "Figure repair must preserve the frozen generic answer and figure slots"
+            }
+        }
         return DetailedSolutionOutput(document, figures, modelVersion)
     }
 

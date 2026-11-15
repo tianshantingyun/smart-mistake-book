@@ -10,6 +10,7 @@ import com.tingyun.smartmistakebook.core.domain.VisualContentMeasureEntry
 import com.tingyun.smartmistakebook.core.domain.VisualContentMeasurer
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionBudget
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionEngine
+import com.tingyun.smartmistakebook.core.domain.VisualExecutionMode
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionRejection
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionRequest
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionResult
@@ -371,6 +372,9 @@ class QuickJsVisualExecutionEngine(
                     "frame input is not executable: state is not valid JSON",
                 )
             }
+            if (request.executionMode == VisualExecutionMode.PROGRAM) {
+                return runProgram(transaction, jsDispatcher, inputJson)
+            }
             val preparedJson = runPhase(
                 transaction,
                 jsDispatcher,
@@ -473,6 +477,42 @@ class QuickJsVisualExecutionEngine(
         } finally {
             jsDispatcher.close()
         }
+    }
+
+    private suspend fun runProgram(
+        transaction: Transaction,
+        jsDispatcher: CoroutineDispatcher,
+        inputJson: String,
+    ): VisualExecutionResult {
+        val valueJson = runPhase(transaction, jsDispatcher, "program") { js ->
+            // Capture stringify before user code runs, and parse input as JSON to preserve own
+            // properties such as __proto__. The entire input is frozen before entering the body.
+            js.evaluate<String>(
+                "(function(stringify, input) { const value = (function(input) { \"use strict\";\n" +
+                    transaction.request.sourceJs +
+                    "\n})(input); if (value && typeof value.then === 'function') " +
+                    "throw new TypeError('PROGRAM must return a synchronous JSON value'); " +
+                    "const text = stringify(value); if (typeof text !== 'string') " +
+                    "throw new TypeError('PROGRAM must return a JSON value'); return text; })" +
+                    "(JSON.stringify, $DEEP_FREEZE_JS(JSON.parse(${jsStringLiteral(inputJson)})))",
+                PROGRAM_FILENAME,
+            )
+        }
+        if (transaction.hardExpired) {
+            return rejected(
+                VisualExecutionRejection.HARD_DEADLINE_EXCEEDED,
+                "program result discarded after the hard deadline",
+            )
+        }
+        if (valueJson == null || figureUsageUtf8Bytes(valueJson) > VisualExecutionBudget.MAX_TRANSACTION_JSON_BYTES) {
+            return rejected(VisualExecutionRejection.INVALID_PROGRAM, "program JSON result is missing or over budget")
+        }
+        try {
+            Json.parseToJsonElement(valueJson)
+        } catch (_: SerializationException) {
+            return rejected(VisualExecutionRejection.INVALID_PROGRAM, "program result is not valid JSON")
+        }
+        return VisualExecutionResult.Computed(valueJson)
     }
 
     /**

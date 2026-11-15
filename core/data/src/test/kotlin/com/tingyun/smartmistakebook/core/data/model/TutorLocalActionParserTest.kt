@@ -54,6 +54,30 @@ class TutorLocalActionParserTest {
     }
 
     @Test
+    fun routeBCombinesToolsAndMultipleLocalActionsInOneRound() {
+        val output = OpenAiModelTaskAdapters.parse(
+            payload = parseObject(
+                """
+                {"intentDecision":{"intent":"CURRENT_QUESTION_HELP","confidence":0.2,
+                "explicitActionRequest":false,"memoryPreference":"UNCHANGED",
+                "requestedLocalCapability":"NONE","lookupTerms":[]},
+                "toolRequests":[{"tool":"NOTEBOOK_READ","rationale":"检索函数","terms":["函数"]},
+                {"tool":"NOTEBOOK_READ","rationale":"检索几何","terms":["几何"]}],
+                "localActions":[{"action":"SAVE_TO_NOTEBOOK"},{"action":"OPEN_PROBLEM"}]}
+                """.trimIndent(),
+            ),
+            input = lobbyInput(),
+            modelVersion = "model-1",
+        ) as TutorToolRequestsOutput
+
+        assertEquals(listOf(listOf("函数"), listOf("几何")), output.calls.map { it.terms })
+        assertEquals(
+            listOf(TutorLocalAction.SAVE_TO_NOTEBOOK, TutorLocalAction.OPEN_PROBLEM),
+            output.localActions.map { it.action },
+        )
+    }
+
+    @Test
     fun routeBWithoutTheKeyRequestsNothing() {
         val output = parseRouteB(
             """
@@ -109,6 +133,7 @@ class TutorLocalActionParserTest {
             listOf(TutorLocalAction.OPEN_PROBLEM),
             output.localActions.map { request -> request.action },
         )
+        assertEquals("call-1", output.localActions.single().callId)
         assertEquals(listOf(TutorToolName.KNOWLEDGE_READ), output.calls.map { call -> call.tool })
     }
 
@@ -167,6 +192,7 @@ class TutorLocalActionParserTest {
                         "columnCount" to "2",
                         "includeAnswer" to "false",
                     ),
+                    callId = "call-1",
                 ),
             ),
             output.localActions,

@@ -68,8 +68,8 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
         store.registerCanonicalSourceAsset(clean)
         store.registerCanonicalSourceAsset(explanation)
         store.registerCanonicalSourceAsset(studentPhoto)
-        admitFigure("figure-clean", "request-1", "SOURCE_RECONSTRUCTION")
-        admitFigure("figure-explain", "request-1", "EXPLANATION")
+        store.admitFigure("figure-clean", "request-1", "SOURCE_RECONSTRUCTION")
+        store.admitFigure("figure-explain", "request-1", "EXPLANATION")
 
         store.appendTutorStudentMessage(
             AppendTutorStudentMessageDatabaseCommand(
@@ -227,7 +227,7 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
         val clean = generatedAsset("figure-kept", "b")
         store.registerCanonicalSourceAsset(clean)
         // Reusing a paid image keeps its original generation operation, even in a later model turn.
-        admitFigure("figure-kept", "request-before-cache", "SOURCE_RECONSTRUCTION")
+        store.admitFigure("figure-kept", "request-before-cache", "SOURCE_RECONSTRUCTION")
         store.appendTutorAssistantMessage(
             AppendTutorAssistantMessageDatabaseCommand(
                 conversationId = CONVERSATION_ID,
@@ -266,21 +266,6 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
             "消息引用随会话级联删除",
             store.readTutorMessageSourceAssets(listOf("assistant-kept")).isEmpty(),
         )
-    }
-
-    private suspend fun admitFigure(assetId: String, requestId: String, purpose: String) {
-        val operationId = "trusted:$assetId"
-        val attemptId = "$operationId:attempt-1"
-        assertTrue(store.beginFigureGenerationOperation(BeginFigureGenerationOperationCommand(
-            operationId, "local-learner", "TUTOR_MESSAGE", requestId, "a".repeat(64),
-            purpose, FigureGenerationPolicy.POLICY_VERSION, "PENDING", 1_500,
-        )))
-        assertTrue(store.beginFigureGenerationAttempt(BeginFigureGenerationAttemptCommand(
-            attemptId, operationId, 1, "IMAGE_MODEL", "RUNNING", null, "b".repeat(64), "reservation:$assetId", 1_500,
-        )))
-        assertTrue(store.finishFigureGenerationAttempt(FinishFigureGenerationAttemptCommand(
-            attemptId, "SUCCEEDED", assetId, null, 1_600,
-        )))
     }
 
     private suspend fun seedConfirmedTutorSession() {
@@ -440,4 +425,19 @@ class TutorSessionVisualRoleDatabaseInstrumentedTest {
         const val REVISION_ID = "revision-tutor-visual"
         const val ASSET_ID = "asset-tutor-source"
     }
+}
+
+internal suspend fun StudyDatabasePort.admitFigure(assetId: String, requestId: String, purpose: String) {
+    val operationId = "trusted:$assetId"
+    val attemptId = "$operationId:attempt-1"
+    assertTrue(beginFigureGenerationOperation(BeginFigureGenerationOperationCommand(
+        operationId, "local-learner", "TUTOR_MESSAGE", requestId, "a".repeat(64),
+        purpose, FigureGenerationPolicy.POLICY_VERSION, "PENDING", 1_500,
+    )))
+    assertTrue(beginFigureGenerationAttempt(BeginFigureGenerationAttemptCommand(
+        attemptId, operationId, 1, "IMAGE_MODEL", "RUNNING", null, "b".repeat(64), "reservation:$assetId", 1_500,
+    )))
+    assertTrue(finishFigureGenerationAttempt(FinishFigureGenerationAttemptCommand(
+        attemptId, "SUCCEEDED", assetId, null, 1_600,
+    )))
 }

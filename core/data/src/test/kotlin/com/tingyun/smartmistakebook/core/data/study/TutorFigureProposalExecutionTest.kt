@@ -221,7 +221,7 @@ class TutorFigureProposalExecutionTest {
         )
 
         assertTrue(execution.outcome.ok)
-        assertTrue(execution.outcome.summaryMarkdown.contains("没有原图"))
+        assertTrue(execution.outcome.summaryMarkdown.contains("没有可验证的已授权源图"))
         assertEquals(0, generatorCalls)
         val figure = requireNotNull(execution.figure)
         assertEquals(FigureGenerationStatus.NEED_SOURCE, figure.status)
@@ -294,4 +294,60 @@ class TutorFigureProposalExecutionTest {
         assertEquals(JS_FIGURE_UNAVAILABLE_SUMMARY, execution.outcome.summaryMarkdown)
         assertNull("执行器层 fail-closed 不产生图像痕迹", execution.figure)
     }
+    @Test
+    fun javascriptFailureKeepsTheDiagnosticAndRepairInstructions() = runBlocking {
+        val diagnostic = "INVALID_SCENE: SCENE_FIELD_UNKNOWN root.stroke.color"
+        val execution = javascriptResult(TutorFigureStatus.FAILED, diagnostic)
+        assertFalse(execution.outcome.ok)
+        assertTrue(execution.outcome.summaryMarkdown.contains(diagnostic))
+        assertTrue(execution.outcome.summaryMarkdown.contains("修改 program"))
+        assertTrue(execution.outcome.summaryMarkdown.contains("description"))
+    }
+
+    @Test
+    fun unavailableJavascriptReportsItsExecutionEnvironment() = runBlocking {
+        val diagnostic = "ENGINE_CLOSED: content measurement unavailable"
+        val execution = javascriptResult(TutorFigureStatus.UNAVAILABLE, diagnostic)
+        assertFalse(execution.outcome.ok)
+        assertTrue(execution.outcome.summaryMarkdown.contains(diagnostic))
+        assertTrue(execution.outcome.summaryMarkdown.contains("JS 绘图执行环境"))
+        assertFalse(execution.outcome.summaryMarkdown.contains("未配置可用的图像模型"))
+    }
+
+    @Test
+    fun javascriptDiagnosticIsBoundedAndStripsControlCharacters() = runBlocking {
+        val execution = javascriptResult(TutorFigureStatus.FAILED, "x".repeat(511) + "\u0000")
+        assertTrue(execution.outcome.summaryMarkdown.length <=
+            com.tingyun.smartmistakebook.core.model.TutorToolOutcome.MAX_TOOL_RESULT_CHARS)
+        assertFalse(execution.outcome.summaryMarkdown.contains('\u0000'))
+        assertTrue(execution.outcome.summaryMarkdown.contains("修改 program"))
+    }
+
+    private suspend fun javascriptResult(status: TutorFigureStatus, diagnostic: String): TutorToolExecution {
+        val generator = object : TutorFigureGenerator {
+            override fun supports(method: FigureGenerationMethod) = method == FigureGenerationMethod.JS
+            override suspend fun generate(request: TutorFigureRequest) = TutorFigureResult(
+                figureId = null,
+                status = status,
+                diagnostics = diagnostic,
+            )
+        }
+        val runner = RoomTutorToolRunner(
+            FigurePort(draft(sourceSheet()), sessionRecord("draft-figure")),
+            MutableStateFlow(KnowledgeBaseAvailability.Ready),
+            generator,
+        )
+        return runner.runTraced(
+            TutorToolCall(
+                tool = TutorToolName.GENERATE_FIGURE,
+                rationale = "解释当前题中的函数关系",
+                figureKind = TutorFigureKind.GENERATE_PROCESS,
+                figureDescription = "画出函数变化关系",
+                figureMethod = FigureGenerationMethod.JS,
+                figureProgram = "const visual = { prepare() { return []; }, render() { return {}; } };",
+            ),
+            context(),
+        )
+    }
+
 }

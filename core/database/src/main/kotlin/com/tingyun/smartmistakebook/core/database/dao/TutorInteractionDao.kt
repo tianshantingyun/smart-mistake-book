@@ -432,3 +432,53 @@ private fun TutorMessageEntity.requireSameQuestion(
 internal fun TutorMessageEntity.toTurnRecord(sessionId: String) = checkNotNull(
     toRecord().toTurnRecordOrNull(sessionId),
 ) { "A tutor round row is missing its round ordinal columns" }
+
+/** Selected reply versions replace the legacy answer for their exact question round. */
+internal fun resolveTutorReplyVersionResponses(
+    sessionId: String,
+    legacy: List<TutorTurnResponseRecord>,
+    versions: List<com.tingyun.smartmistakebook.core.database.TutorReplyVersionRecord>,
+): List<TutorTurnResponseRecord> {
+    val responses = legacy.associateBy { listOf(it.questionDocumentId, it.revisionNumber, it.cycleOrdinal, it.turnOrdinal) }
+        .toMutableMap()
+    versions.filter { it.selected }.forEach { version ->
+        val request = version.requestJson?.let { org.json.JSONObject(it) }
+        val input = request?.optJSONObject("input") ?: return@forEach
+        if (input.optString("type") != "tutor_plan" || input.optString("sessionId") != sessionId) return@forEach
+        val documentId = input.getJSONObject("questionDocument").getString("id")
+        val revision = input.getInt("draftRevisionNumber")
+        val cycle = input.optInt("cycleOrdinal", 1)
+        val turn = input.optInt("turnOrdinal", 1)
+        val key = listOf(documentId, revision, cycle, turn)
+        responses.remove(key)
+        version.responseJson?.let { json ->
+            val payload = org.json.JSONObject(json)
+            val answer = TutorTurnResponseRecord(
+                sessionId = payload.getString("sessionId"),
+                questionDocumentId = payload.getString("questionDocumentId"),
+                revisionNumber = payload.getInt("revisionNumber"),
+                cycleOrdinal = payload.getInt("cycleOrdinal"),
+                turnOrdinal = payload.getInt("turnOrdinal"),
+                diagnosticStemMarkdown = payload.nullableString("diagnosticStemMarkdown"),
+                selectedChoiceId = payload.nullableString("selectedChoiceId"),
+                selectedChoiceMarkdown = payload.nullableString("selectedChoiceMarkdown"),
+                selectionWasCorrect = if (payload.isNull("selectionWasCorrect")) null else payload.getBoolean("selectionWasCorrect"),
+                feedbackMarkdown = payload.nullableString("feedbackMarkdown"),
+                requestedMove = payload.nullableString("requestedMove"),
+                solutionRevealed = payload.getBoolean("solutionRevealed"),
+                choiceSubmittedAtEpochMillis = if (payload.isNull("choiceSubmittedAtEpochMillis")) null else payload.getLong("choiceSubmittedAtEpochMillis"),
+                submittedAtEpochMillis = payload.getLong("submittedAtEpochMillis"),
+                updatedAtEpochMillis = payload.getLong("updatedAtEpochMillis"),
+            )
+            require(answer.sessionId == sessionId && answer.questionDocumentId == documentId &&
+                answer.revisionNumber == revision && answer.cycleOrdinal == cycle && answer.turnOrdinal == turn) {
+                "Reply version answer does not match its frozen question round"
+            }
+            responses[key] = answer
+        }
+    }
+    return responses.values.sortedWith(compareBy({ it.cycleOrdinal }, { it.turnOrdinal }))
+}
+
+private fun org.json.JSONObject.nullableString(key: String): String? =
+    if (isNull(key)) null else getString(key)

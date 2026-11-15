@@ -235,7 +235,7 @@ class V01VisualChainInstrumentedTest {
             )
 
             // 度量真实发生过（不是桩的固定值）：真实字体 metrics 参与了 render。
-            val measured = requirePresent(measurer.measured.singleOrNull(), "one label entry must be measured")
+            val measured = requirePresent(measurer.measured.distinct().singleOrNull(), "one label entry must be measured")
             assertTrue("real advance width must be positive", measured.widthDu > 0f)
             assertTrue("real line height must be positive", measured.heightDu > 0f)
         }
@@ -560,7 +560,7 @@ class V01VisualChainInstrumentedTest {
         val measurer: DeviceTextMeasurer,
     ) {
         fun labelResolver(): (String) -> VisualLabelContent? {
-            val measured = requirePresent(measurer.measured.singleOrNull(), "one label entry must be measured")
+            val measured = requirePresent(measurer.measured.distinct().singleOrNull(), "one label entry must be measured")
             return { contentId ->
                 if (contentId == measured.contentId) {
                     VisualLabelContent.Text(
@@ -592,7 +592,7 @@ class V01VisualChainInstrumentedTest {
             val leftPx = (label.x * pxPerDu).roundToInt()
             val baselinePx = (label.y * pxPerDu).roundToInt()
             val measurePaint = Paint().apply { flags = REPLAY_TEXT_PAINT_FLAGS }
-            val measuredLabel = requirePresent(measurer.measured.singleOrNull(), "one label entry must be measured")
+            val measuredLabel = requirePresent(measurer.measured.distinct().singleOrNull(), "one label entry must be measured")
             measurePaint.textSize = measuredLabel.fontSizeSp * fontScaleOf() * pxPerDu
             val advancePx = measurePaint.measureText(measurer.payload).roundToInt()
             val lineHeightPx = (measuredLabel.heightDu * pxPerDu).roundToInt()

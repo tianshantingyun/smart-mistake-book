@@ -100,17 +100,18 @@ class TutorLocalActionExecutionTest {
             attachedImageAssetIds = listOf("asset-1"),
         )
         TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS.forEach { action ->
-            val kind = agentPendingRequestKind(TutorPermissionSubject.LocalAction(action))
-            requireNotNull(kind)
+            val request = com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest(
+                action, action.parameters.filter { it.required }.associate { parameter ->
+                    parameter.parameterName to (parameter.allowedValues.firstOrNull() ?: "本轮参数")
+                },
+            )
+            val admission = requireNotNull(tutorLocalActionAdmission(request, context))
             assertNotEquals(
                 "$action 已被广告，必须有真实执行路由",
                 TutorLocalActionTarget.NOT_WIRED_YET,
-                tutorLocalActionTarget(kind, context),
+                admission.target,
             )
         }
-        assertFalse(
-            TutorLocalAction.ADD_TO_REVIEW_PLAN in TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS,
-        )
         assertEquals(
             TutorLocalActionTarget.NOT_WIRED_YET,
             tutorLocalActionTarget(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN, context),

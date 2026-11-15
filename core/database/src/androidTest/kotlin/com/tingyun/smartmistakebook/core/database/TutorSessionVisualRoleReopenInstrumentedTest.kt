@@ -71,6 +71,8 @@ class TutorSessionVisualRoleReopenInstrumentedTest {
             val explanation = generatedAsset(EXPLANATION_ASSET_ID, "2")
             store.registerCanonicalSourceAsset(clean)
             store.registerCanonicalSourceAsset(explanation)
+            store.admitFigure(CLEAN_ASSET_ID, "request-1", "SOURCE_TRANSCRIPTION")
+            store.admitFigure(EXPLANATION_ASSET_ID, "request-1", "EXPLANATION")
             store.appendTutorAssistantMessage(
                 AppendTutorAssistantMessageDatabaseCommand(
                     conversationId = CONVERSATION_ID,

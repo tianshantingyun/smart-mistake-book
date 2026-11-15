@@ -1263,7 +1263,9 @@ class OpenAiCompatibleModelGatewayTest {
 
         assertTrue(sentBody.contains("帮我找函数错题"))
         assertTrue(sentBody.contains("你好，你现在想做什么？"))
-        assertTrue(sentBody.contains("模型无权保存、删除、修改错题或学习记录"))
+        assertTrue(sentBody.contains("需要操作本机数据时申请已声明的工具或本地动作"))
+        assertTrue(sentBody.contains("本地自主执行并返回结果，收到成功结果后才能声称已经存好"))
+        assertTrue(sentBody.contains("自由文本永远不是掌握证据，也不能写入长期记忆"))
         assertFalse(sentBody.contains("confirmedQuestion"))
         assertFalse(sentBody.contains("relevantLearningEvidence"))
         assertEquals(

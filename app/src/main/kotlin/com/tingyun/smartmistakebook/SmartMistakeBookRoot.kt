@@ -47,6 +47,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -376,6 +377,28 @@ internal fun SmartMistakeBookRoot(
     // 在生产里恒为 null，装载器每次都只是空转；错题复习那一侧有它自己的装载器
     // （SmartMistakeBookDestinations 里的同一个 `TeachingArtifactLoad`）。
     val navController = rememberNavController()
+    DisposableEffect(application, navController, repository) {
+        val navigator: (String?) -> Boolean = { problemId ->
+            val entry = problemId?.let { id ->
+                repository.snapshot.value.catalog.firstOrNull { item ->
+                    item.problemId == id || item.entryId == id
+                }
+            }
+            if (problemId != null && entry == null) {
+                false
+            } else {
+                val route = entry?.let { Routes.mistakeDetail(it.entryId) } ?: Routes.Library
+                navController.navigate(route) { launchSingleTop = true }
+                true
+            }
+        }
+        application.tutorActionNavigator = navigator
+        onDispose {
+            if (application.tutorActionNavigator === navigator) {
+                application.tutorActionNavigator = null
+            }
+        }
+    }
     // L7 导出后台化：错题本不再有前台导出页；这里只留"为什么这次没入队"的一次性说明，
     // 在「导出成果」入口里如实说（超限/没有可导出的题），入队成功的记录走数据库流。
     var pendingExportNotice by rememberSaveable { mutableStateOf<String?>(null) }

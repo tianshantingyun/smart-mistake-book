@@ -168,6 +168,10 @@ data class DetailedSolutionInput(
     val figureGenerationPromptBody: String? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER) val availableFigureMethods: Set<FigureGenerationMethod>? = null,
     @EncodeDefault(EncodeDefault.Mode.NEVER) val existingGenericAnswer: DetailedSolutionDocument? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val figureRepair: DetailedSolutionFigureRepair? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val toolDeclarations: List<TutorToolName> = emptyList(),
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val toolRoundResults: List<TutorToolRoundResult> = emptyList(),
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val agentContext: TutorAgentContext? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind get() = ModelTaskKind.MISTAKE_SOLUTION
     override val subjectId: String get() = question.basis.revisionId
@@ -176,6 +180,22 @@ data class DetailedSolutionInput(
     init {
         require(figureGenerationPromptBody == null || figureGenerationPromptBody.length in 1..FigureGenerationPrompt.MAX_BODY_CHARS)
         require(existingGenericAnswer == null || existingGenericAnswer.basis == question.basis)
+        require(figureRepair == null || existingGenericAnswer?.requiredFigureBlockIds?.contains(figureRepair.blockId) == true)
+        require(toolDeclarations.size <= MAX_TOOL_DECLARATIONS && toolDeclarations.distinct().size == toolDeclarations.size)
+        require(toolRoundResults.size <= TutorToolRoundResult.MAX_TOOL_ROUNDS)
+    }
+}
+
+@Serializable
+data class DetailedSolutionFigureRepair(
+    val blockId: String,
+    val failedProposal: FigureGenerationProposal,
+    val diagnostics: String,
+) {
+    init {
+        require(blockId.isNotBlank())
+        require(failedProposal.method == FigureGenerationMethod.JS)
+        require(diagnostics.isNotBlank() && diagnostics.length <= FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS)
     }
 }
 
