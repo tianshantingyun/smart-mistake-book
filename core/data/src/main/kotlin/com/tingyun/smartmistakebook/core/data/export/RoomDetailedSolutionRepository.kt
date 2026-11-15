@@ -30,6 +30,7 @@ class RoomDetailedSolutionRepository internal constructor(
     private val assets: MistakeEditAssetAccess,
     private val figureCapabilities: suspend () -> FigureGenerationCapabilities,
     private val clock: () -> Long = System::currentTimeMillis,
+    private val persistProgramPreview: (suspend (CanonicalSourceAssetRecord, String, Long) -> CanonicalSourceAssetRecord)? = null,
 ) : DetailedSolutionRepository {
     private val locks = ConcurrentHashMap<String, Mutex>()
     private val activeManifests = ConcurrentHashMap<String, FrozenAnswerManifest>()
@@ -161,14 +162,19 @@ class RoomDetailedSolutionRepository internal constructor(
                 prompt = if (capabilities.availableMethods.isEmpty()) null else FigurePromptAssembler.assemble(FigureGenerationPurpose.EXPLANATION, capabilities, budget),
                 sourceKind = FigureGenerationSourceKind.PROBLEM_REVISION, sourceId = question.basis.revisionId,
                 lineageFingerprint = detailedSolutionFigureBasis(row.request, output, figure.blockId))
-            val result = coordinator.generate(request, figure.proposal)
+            val result = DetailedSolutionFigureGenerator(coordinator, { repair ->
+                val persisted = database.readModelTask(repair.requestId)
+                persisted?.takeIf { it.status.isTerminal } ?: tasks.execute(repair).last()
+            }).generate(request, row.request, output, figure)
             val attempt = result.attemptId
             val asset = when (val artifact = result.artifact) {
                 is FigureArtifact.ImageAsset -> {
                     require(artifact.contentSha256 == figureSha256Hex(artifact.imageBytes()))
                     attempt?.let { assets.persist(artifact, it, clock()) }
                 }
-                is FigureArtifact.Program -> artifact.previewAssetId?.let { database.readCanonicalSourceAsset(it) }
+                is FigureArtifact.Program -> artifact.previewAssetId?.let { database.readCanonicalSourceAsset(it) }?.let { preview ->
+                    attempt?.let { persistProgramPreview?.invoke(preview, it, clock()) }
+                }
                 null -> null
             }
             if (asset == null || attempt == null) { fail(row, result.diagnostics?.take(500) ?: "讲解配图尚未完成，请重试"); return }
@@ -266,7 +272,51 @@ class RoomDetailedSolutionRepository internal constructor(
                     return vault.persistCleanImageBytes(artifact.imageBytes(), artifact.mimeType, "DETAILED_SOLUTION", at,
                         GeneratedFigureProvenance(artifact.modelId ?: "unknown", id, artifact.purpose.name), id)
                 }
-            }, { coordinator?.capabilities() ?: configurationStore?.let { openGuardedFigureImageBackend(it, networkRequestsAllowed) }?.use { FigureGenerationCapabilities.IMAGE_MODEL_ONLY } ?: FigureGenerationCapabilities.NONE })
+            }, { coordinator?.capabilities() ?: configurationStore?.let { openGuardedFigureImageBackend(it, networkRequestsAllowed) }?.use { FigureGenerationCapabilities.IMAGE_MODEL_ONLY } ?: FigureGenerationCapabilities.NONE },
+                persistProgramPreview = { preview, attempt, at ->
+                    val id = mistakeEditFigureAssetId(attempt)
+                    database.readCanonicalSourceAsset(id)?.also { vault.resolve(it) }
+                        ?: vault.persistCleanImageBytes(vault.resolve(preview).readBytes(), preview.mimeType, "DETAILED_SOLUTION", at,
+                            GeneratedFigureProvenance("local-js", id, FigureGenerationPurpose.EXPLANATION.name), id)
+                })
         }
     }
+}
+
+/** Repair model envelopes share the original logical operation while the figure keeps its audit lineage. */
+internal class DetailedSolutionFigureGenerator(
+    private val coordinator: FigureGenerationCoordinator,
+    private val repair: suspend (ModelTaskRequest) -> ModelTaskSnapshot,
+) {
+    suspend fun generate(request: FigureGenerationRequest, originalRequest: ModelTaskRequest,
+        output: DetailedSolutionOutput, figure: SolutionFigureProposal): FigureGenerationOutcome {
+        var proposal = figure.proposal
+        var result = coordinator.generate(request, proposal)
+        repeat(FigureGenerationLocalJsBudget.MAX_LAYOUT_ATTEMPTS - 1) { round ->
+            if (proposal.method != FigureGenerationMethod.JS || result.status != FigureGenerationStatus.FAILED ||
+                !isRepairable(result.diagnostics)) return result
+            val input = originalRequest.input as DetailedSolutionInput
+            val context = DetailedSolutionFigureRepair(figure.blockId, proposal, requireNotNull(result.diagnostics))
+            val repairInput = input.copy(existingGenericAnswer = output.document, figureRepair = context,
+                figureGenerationPromptBody = request.prompt?.body ?: input.figureGenerationPromptBody,
+                availableFigureMethods = request.capabilities.availableMethods)
+            // The envelope id is stable on replay. Its logical fingerprint still comes from the frozen question.
+            val envelope = originalRequest.copy(requestId = "${originalRequest.requestId}.figure-repair.${figure.blockId}.$round." +
+                ModelTaskFingerprint.of(originalRequest.copy(input = repairInput)).take(24),
+                input = repairInput)
+            val completed = repair(envelope)
+            val repaired = completed.output as? DetailedSolutionOutput
+            if (completed.status != ModelTaskStatus.SUCCEEDED || repaired == null) return result
+            if (repaired.document != output.document) return result
+            val replacement = repaired.figureProposals.singleOrNull { it.blockId == figure.blockId }?.proposal ?: return result
+            if (replacement == proposal) return result
+            proposal = replacement
+            result = coordinator.generate(request, proposal)
+        }
+        return result
+    }
+
+    private fun isRepairable(diagnostics: String?): Boolean = diagnostics != null &&
+        listOf("INVALID_PROGRAM: ", "INVALID_SCENE: ", "SANDBOX_VIOLATION: ", "MEMORY_LIMIT: ", "PHASE_TIMEOUT: ")
+            .any(diagnostics::startsWith) && !diagnostics.contains("[UNATTRIBUTED]")
 }

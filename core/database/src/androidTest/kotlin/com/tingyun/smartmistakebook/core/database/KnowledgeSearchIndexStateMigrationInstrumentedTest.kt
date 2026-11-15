@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeGranularity
 import com.tingyun.smartmistakebook.core.model.KnowledgeNodeKind
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -111,7 +112,21 @@ class KnowledgeSearchIndexStateMigrationInstrumentedTest {
                     }
                 }
 
-                // ---- 首次召回：版本门触发整科重建 ----
+                // 读取只报告不完整，修复由写入口显式执行。
+                val beforeHealing = store.readSubjectKnowledgeRecallCandidates(
+                    subject = node.subject,
+                    searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion("导数符号"),
+                    limit = 10,
+                )
+                assertFalse(beforeHealing.indexComplete)
+                assertRaw(context, databaseName) { database ->
+                    database.rawQuery("SELECT COUNT(*) FROM knowledge_search_feature", null).use { cursor ->
+                        assertTrue(cursor.moveToFirst())
+                        assertEquals(truncatedFeatures.size + 1, cursor.getInt(0))
+                    }
+                }
+                store.healKnowledgeSearchIndex(node.subject)
+                // ---- 修复后召回：完整特征集与锚点已发布 ----
                 val recalled = store.readSubjectKnowledgeRecallCandidates(
                     subject = node.subject,
                     searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion(

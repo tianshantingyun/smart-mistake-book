@@ -96,9 +96,9 @@ class OpenAiNativeToolsProtocolTest {
             enableNativeTools = true,
         )
         // 该 body 含 4 个工具 schema，须切到 MASTERY_UPDATE 那个 function 块再取 required
-        val masteryBlock = withTools.substringAfter("\"name\":\"MASTERY_UPDATE\"")
-        val required = Regex("\"required\":\\[([^\\]]*)\\]").find(masteryBlock)?.groupValues?.get(1)
-            ?: throw AssertionError("MASTERY_UPDATE schema 无 required 数组")
+        val masteryBlock = functionBlock(withTools, "MASTERY_UPDATE")
+        val required = functionRequired(masteryBlock)
+
         assertTrue(
             "MASTERY_UPDATE strict schema 的 required 应含 direction+understanding+confidence（实得：$required）",
             required.contains("\"direction\"") &&
@@ -110,22 +110,39 @@ class OpenAiNativeToolsProtocolTest {
     }
 
     @Test
-    fun notebookReadNativeDescriptionStatesTheNoDisclosureTier() {
-        // F5 残留：信封路由的 NOTEBOOK_READ 描述早已写清"无题轮只回条数与检索词"，
-        // 但原生 tools 路由的描述没同步——而当前配置走的正是原生路由，模型在那条路上
-        // 拿不到这档行为的任何预告。描述现在两条路由同一来源，这里把它钉住。
-        val withTools = OpenAiModelProtocol.requestBody(
+    fun notebookReadNativeDescriptionIncludesPagingAndEmptyTerms() {
+        val body = OpenAiModelProtocol.requestBody("test-model", respondInput(), emptyList(), enableNativeTools = true)
+        val notebook = functionBlock(body, "NOTEBOOK_READ")
+        assertTrue(notebook.contains("terms 可空"))
+        assertTrue(notebook.contains("offset"))
+        assertTrue(notebook.contains("limit"))
+    }
+
+    @Test
+    fun notebookWriteSchemaAndBothParsersAcceptEmptyTerms() {
+        val input = respondInput().copy(toolDeclarations = listOf(TutorToolName.NOTEBOOK_WRITE))
+        val body = OpenAiModelProtocol.requestBody(
             modelId = "test-model",
-            input = respondInput(),
+            input = input,
             images = emptyList(),
             enableNativeTools = true,
         )
-        val notebookBlock = withTools.substringAfter("\"name\":\"NOTEBOOK_READ\"")
-            .substringBefore("\"name\":\"", missingDelimiterValue = "")
-        assertTrue(
-            "原生路由的 NOTEBOOK_READ 描述必须预告无题轮只回条数与检索词（实得：$notebookBlock）",
-            notebookBlock.contains("只回条数") && notebookBlock.contains("检索词"),
+        val schema = functionBlock(body, "NOTEBOOK_WRITE")
+        assertTrue(schema.contains("\"minItems\":0"))
+        assertTrue(schema.contains("可留空"))
+        val native = toolCallEnvelope(
+            """{"content":null,"tool_calls":[{"id":"save-1","type":"function",
+                "function":{"name":"NOTEBOOK_WRITE","arguments":"{\"terms\":[],\"rationale\":\"保存本轮题目\"}"}}]}""",
         )
+        val nativeOutput = OpenAiModelProtocol.parseResponse(native, input, "model") as TutorToolRequestsOutput
+        assertTrue(nativeOutput.calls.single().terms.isEmpty())
+        val envelope = toolCallEnvelope(
+            kotlinx.serialization.json.buildJsonObject {
+                put("content", kotlinx.serialization.json.JsonPrimitive("""{"intentDecision":{"intent":"CURRENT_QUESTION_HELP","confidence":0.9,"explicitActionRequest":true,"memoryPreference":"UNCHANGED","requestedLocalCapability":"NONE","lookupTerms":[]},"toolRequests":[{"tool":"NOTEBOOK_WRITE","terms":[],"rationale":"保存本轮题目"}]}"""))
+            }.toString(),
+        )
+        val envelopeOutput = OpenAiModelProtocol.parseResponse(envelope, input, "model") as TutorToolRequestsOutput
+        assertTrue(envelopeOutput.calls.single().terms.isEmpty())
     }
 
     @Test
@@ -140,8 +157,8 @@ class OpenAiNativeToolsProtocolTest {
             images = emptyList(),
             enableNativeTools = true,
         )
-        val required = Regex("\"required\":\\[([^\\]]*)\\]").find(withTools)?.groupValues?.get(1)
-            ?: throw AssertionError("无 required 数组")
+        val required = functionRequired(functionBlock(withTools, "NOTEBOOK_READ"))
+
         assertTrue(
             "读工具 strict required 应仅为 terms+rationale（实得：$required）",
             required.contains("\"terms\"") && required.contains("\"rationale\"") && !required.contains("direction"),
@@ -161,10 +178,13 @@ class OpenAiNativeToolsProtocolTest {
     // ---- D-M M7：咨询工具的原生 schema 与解析 ----
 
     /** 请求体里某个 function 块的文本：从它的 name 起，到下一个函数的 name（或结尾）为止。 */
+    private fun functionRequired(function: String): String =
+        parseObject(function)["parameters"]!!.let { it as kotlinx.serialization.json.JsonObject }["required"].toString()
+
     private fun functionBlock(body: String, name: String): String {
-        val rest = body.substringAfter("\"name\":\"$name\"", missingDelimiterValue = "")
-        val next = rest.indexOf("\"name\":\"")
-        return if (next >= 0) rest.substring(0, next) else rest
+        val tools = parseObject(body)["tools"] as kotlinx.serialization.json.JsonArray
+        return tools.map { (it as kotlinx.serialization.json.JsonObject)["function"] as kotlinx.serialization.json.JsonObject }
+            .single { (it["name"] as kotlinx.serialization.json.JsonPrimitive).content == name }.toString()
     }
 
     @Test
@@ -199,8 +219,8 @@ class OpenAiNativeToolsProtocolTest {
                 "\"maxLength\":${com.tingyun.smartmistakebook.core.model.TutorToolCall.MAX_ADVISORY_PAYLOAD_CHARS}",
             ),
         )
-        val required = Regex("\"required\":\\[([^\\]]*)\\]").find(writeBlock)?.groupValues?.get(1)
-            ?: throw AssertionError("ADVISORY_WRITE schema 无 required 数组")
+        val required = functionRequired(writeBlock)
+
         assertTrue(required.contains("\"advisoryScope\""))
         assertTrue(required.contains("\"advisoryKind\""))
         assertTrue(required.contains("\"payloadMarkdown\""))
@@ -237,9 +257,8 @@ class OpenAiNativeToolsProtocolTest {
     }
 
     @Test
-    fun duplicateNativeToolCallsKeepTheFirstInsteadOfFailingTheRound() {
-        // 推理型小模型会无视"单轮互不相同工具"重复申请同一工具。整条输出判 INVALID 会让
-        // 这一轮讲解无谓失败；解析层保留第一次、丢弃重复，工具结果照常回喂。
+    fun nativeCallsWithTheSameToolAndDifferentArgumentsKeepTheirOrder() {
+        // 同一工具可以服务不同查询，后续结果必须保持调用顺序。
         val envelope = toolCallEnvelope(
             """
             {"role":"assistant","content":null,
@@ -259,9 +278,9 @@ class OpenAiNativeToolsProtocolTest {
             modelVersion = "test-model-v1",
         ) as TutorToolRequestsOutput
 
-        assertEquals(1, round.calls.size)
-        assertEquals(TutorToolName.NOTEBOOK_READ, round.calls.single().tool)
-        assertEquals(listOf("二次函数"), round.calls.single().terms)
+        assertEquals(2, round.calls.size)
+        assertTrue(round.calls.all { it.tool == TutorToolName.NOTEBOOK_READ })
+        assertEquals(listOf(listOf("二次函数"), listOf("单调性")), round.calls.map { it.terms })
     }
 
     @Test
@@ -448,8 +467,8 @@ class OpenAiNativeToolsProtocolTest {
                 "\"maxLength\":${com.tingyun.smartmistakebook.core.model.TutorToolCall.MAX_FIGURE_DESCRIPTION_CHARS}",
             ),
         )
-        val required = Regex("\"required\":\\[([^\\]]*)\\]").find(figureBlock)?.groupValues?.get(1)
-            ?: throw AssertionError("GENERATE_FIGURE schema 无 required 数组")
+        val required = functionRequired(figureBlock)
+
         assertTrue(required.contains("\"kind\""))
         assertTrue(required.contains("\"description\""))
         assertTrue(required.contains("\"terms\""))

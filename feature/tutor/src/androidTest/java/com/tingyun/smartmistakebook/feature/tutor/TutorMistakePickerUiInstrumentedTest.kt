@@ -63,7 +63,7 @@ class TutorMistakePickerUiInstrumentedTest {
                 }
             }
         }
-        compose.onNodeWithText("PHYSICS · $label", useUnmergedTree = true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { read ->
+        compose.onNodeWithText("物理 · $label", useUnmergedTree = true).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { read ->
             val result = mutableListOf<androidx.compose.ui.text.TextLayoutResult>()
             assertTrue(read(result))
             assertTrue("完整标签应换行", result.single().lineCount > 1)

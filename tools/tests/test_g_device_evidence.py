@@ -26,6 +26,11 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 EVIDENCE = ROOT / "docs/acceptance/evidence/G/device"
 APK_SHA = "84cae864c42f7e26203d21f3901c06a4d0f02f2dd3b012bb63727ef32e5dab5b"
+BATCH47_APK_SHA = "f534b0dd8aeabeeeec633bcbb9d24a62efe900eb75fdbcce199b979d58f7f7de"
+BATCH47_ARTIFACTS = {
+    "device-deeplink-G050-recheck-b47.json",
+    "device-deeplink-G051-recheck-b47.json",
+}
 PACKAGE = "com.tingyun.smartmistakebook.localfirst"
 
 
@@ -41,7 +46,12 @@ def artifact(request):
 def test_every_artifact_is_bound_to_serial_and_apk(artifact) -> None:
     name, data = artifact
     assert data["serial"] == "emulator-5584", name
-    assert data["apk_sha256"] == APK_SHA, name
+    expected_sha = BATCH47_APK_SHA if name in BATCH47_ARTIFACTS else APK_SHA
+    assert data["apk_sha256"] == expected_sha, name
+    if name in BATCH47_ARTIFACTS:
+        assert data["archived_apk_sha256"] == APK_SHA, name
+        assert data["apk_sha256"] != data["archived_apk_sha256"], name
+        assert data["captured_at"].startswith("2026-11-06"), name
     assert re.fullmatch(r"[0-9a-f]{64}", data["apk_sha256"]), name
     assert data["package"] == PACKAGE, name
 

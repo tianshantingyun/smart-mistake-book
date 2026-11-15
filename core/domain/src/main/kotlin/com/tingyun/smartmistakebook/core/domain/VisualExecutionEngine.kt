@@ -45,6 +45,9 @@ interface VisualExecutionEngine {
     fun close()
 }
 
+/** Opt-in general computation shares the isolated runtime and its execution budgets. */
+enum class VisualExecutionMode { SCENE, PROGRAM }
+
 /**
  * 一次渲染事务的输入（契约 §3.2 `FrameInput`：`{programId, revision, state, viewport,
  * timeMs, seed, theme}`）。只含本图数据：无密钥、无凭据、无文件路径、无全库对象。
@@ -70,6 +73,11 @@ data class VisualExecutionRequest(
     val theme: String,
     /** 用户明确本地重试（解熔断）；默认 false。 */
     val explicitUserRetry: Boolean = false,
+    /** PROGRAM runs sourceJs as a strict synchronous function body with a deeply frozen FrameInput
+     * named `input`. stateJson becomes input.state. Return a JSON-serializable value explicitly.
+     * Each execution has a fresh context and skips visual SDK, measurement and compilation.
+     */
+    val executionMode: VisualExecutionMode = VisualExecutionMode.SCENE,
 ) {
     init {
         require(programId.isNotBlank()) { "A visual execution request needs a program id" }
@@ -239,6 +247,16 @@ data class VisualRenderedContent(
 )
 
 sealed interface VisualExecutionResult {
+    /** JSON result of a PROGRAM transaction, bounded by the same output budget as scenes. */
+    data class Computed(val valueJson: String) : VisualExecutionResult {
+        init {
+            require(valueJson.isNotEmpty()) { "A computed result needs its JSON payload" }
+            require(figureUsageUtf8Bytes(valueJson) <= VisualExecutionBudget.MAX_TRANSACTION_JSON_BYTES) {
+                "A computed result exceeds the transaction JSON budget"
+            }
+        }
+    }
+
     /**
      * 渲染成功：经实现校验的场景 JSON + 编译产出的 DrawOps 指令序列（批次 27 T1；契约
      * §3.2 第 4 步"原生严格校验、共享 compiler 编译，原子提交"）+ 本事务冻结的 contentId 集合。

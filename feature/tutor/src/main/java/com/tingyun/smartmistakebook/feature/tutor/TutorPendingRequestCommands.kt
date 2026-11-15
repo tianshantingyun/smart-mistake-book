@@ -98,7 +98,7 @@ internal class TutorPendingRequestCommands(
         conversationId: String,
         admission: TutorLocalActionAdmission,
         occurredAtEpochMillis: Long,
-    ): TutorConsentSuspension? = consent.suspend(
+    ): TutorConsentSuspension? = if (admission.target == TutorLocalActionTarget.APPLICATION_ACTION) null else consent.suspend(
         state = state,
         command = SuspendTurnForConsentCommand(
             subject = admission.decision.subject,
@@ -107,6 +107,7 @@ internal class TutorPendingRequestCommands(
             payloadJson = admission.payloadJson,
             occurredAtEpochMillis = occurredAtEpochMillis,
             context = admission.permissionContext,
+            legacyConsent = true,
         ),
     )
 
@@ -182,6 +183,8 @@ internal class TutorPendingRequestCommands(
     private suspend fun execute(request: AgentPendingRequest): PendingExecution {
         val context = tutorLocalActionContext(request.payloadJson)
         return when (tutorLocalActionTarget(request.kind, context)) {
+            TutorLocalActionTarget.APPLICATION_ACTION ->
+                PendingExecution("这项应用操作需要从当前对话重新发起。")
             TutorLocalActionTarget.SAVE_CAPTURE_DRAFT -> {
                 val sessionId = context.captureSessionId
                     ?: return PendingExecution("没能执行：这一轮没有可保存的拍照草稿。")
@@ -362,7 +365,7 @@ internal class TutorPendingRequestCoordinator(
                     permissionContext = permissionContext,
                 )
             }
-            .firstOrNull()
+            .firstOrNull { it.decision.requiresConsentCard }
             ?: awaitingConsentPendingRequestKinds(toolTrace)
                 .firstNotNullOfOrNull { kind ->
                     tutorLocalActionAdmission(

@@ -63,6 +63,8 @@ import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
 import com.tingyun.smartmistakebook.core.model.TutorIntentDecision
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
+import com.tingyun.smartmistakebook.core.model.parameterNames
+import com.tingyun.smartmistakebook.core.model.agentContextSnapshot
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
@@ -279,10 +281,10 @@ internal object OpenAiModelProtocol {
                             "function",
                             buildJsonObject {
                                 put("name", tool.name)
-                                put("description", tool.nativePurposeDescription())
+                                put("description", tool.nativePurposeDescription(figureMethods))
                                 put(
                                     "parameters",
-                                    strictFunctionSchema(tool, disclosedCodes, figureMethods),
+                                    strictFunctionSchema(tool, disclosedCodes, figureMethods, input.agentContextSnapshot()?.subjects.orEmpty()),
                                 )
                             },
                         )
@@ -330,7 +332,7 @@ internal object OpenAiModelProtocol {
                                     put(
                                         parameter.parameterName,
                                         buildJsonObject {
-                                            put("type", "string")
+                                            if (parameter.required) put("type", "string") else put("type", buildJsonArray { add(JsonPrimitive("string")); add(JsonNull) })
                                             put("description", parameter.description)
                                             if (parameter.allowedValues.isNotEmpty()) {
                                                 put(
@@ -339,6 +341,7 @@ internal object OpenAiModelProtocol {
                                                         parameter.allowedValues.forEach { value ->
                                                             add(JsonPrimitive(value))
                                                         }
+                                                        if (!parameter.required) add(JsonNull)
                                                     },
                                                 )
                                             }
@@ -351,7 +354,6 @@ internal object OpenAiModelProtocol {
                             "required",
                             buildJsonArray {
                                 action.parameters
-                                    .filter { parameter -> parameter.required }
                                     .forEach { parameter ->
                                         add(JsonPrimitive(parameter.parameterName))
                                     }
@@ -391,12 +393,14 @@ internal object OpenAiModelProtocol {
         disclosedKnowledgeCodes: List<String>,
         figureMethods: Set<com.tingyun.smartmistakebook.core.model.FigureGenerationMethod> =
             setOf(com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL),
+        subjects: List<String> = emptyList(),
     ): JsonObject {
         val masterySemantics = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.MASTERY_UPDATE
         val extendedResult = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.MASTERY_READ
         val advisoryRead = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.ADVISORY_READ
         val advisoryWrite = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.ADVISORY_WRITE
         val figureGeneration = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.GENERATE_FIGURE
+        val notebookWrite = tool == com.tingyun.smartmistakebook.core.model.TutorToolName.NOTEBOOK_WRITE
         // A-03：只有广告面含 JS 时才出现 JS 的枚举值与 `program` 属性。默认（生产）路径
         // 走 false 分支，生成的 schema 与本批之前逐字节相同。
         val jsAdvertised = figureGeneration &&
@@ -406,6 +410,40 @@ internal object OpenAiModelProtocol {
             put(
                 "properties",
                 buildJsonObject {
+                    if (tool.parameterNames().isNotEmpty()) {
+                        put("parameters", buildJsonObject {
+                            put("type", "object")
+                            put("properties", buildJsonObject {
+                                tool.parameterNames().forEach { name ->
+                                    put(name, buildJsonObject {
+                                        val mandatory = name == "entryId" || name == "assetId"
+                                        if (mandatory) put("type", "string") else put("type", buildJsonArray { add(JsonPrimitive("string")); add(JsonNull) })
+                                        if (name == "subject" && subjects.isNotEmpty()) {
+                                            put("enum", buildJsonArray { subjects.forEach { add(JsonPrimitive(it)) }; if (!mandatory) add(JsonNull) })
+                                        }
+                                        put("description", when (name) {
+                                            "offset" -> "分页起点，非负整数的字符串，可省略为 null"
+                                            "limit" -> "每页条数，1..30 的字符串，可省略为 null"
+                                            "subject" -> "从应用实际返回的科目中选择，可省略为 null"
+                                            else -> "应用已返回的 $name，可选参数省略为 null"
+                                        })
+                                    })
+                                }
+                            })
+                            put("required", buildJsonArray { tool.parameterNames().forEach { add(JsonPrimitive(it)) } })
+                            put("additionalProperties", false)
+                        })
+                    }
+                    if (tool == TutorToolName.RUN_JAVASCRIPT) {
+                        put("script", buildJsonObject { put("type", "string"); put("description", "通用 JavaScript 函数体，可调用 agent.callTool/agent.callAction，最终 return JSON") })
+                    }
+                    if (tool == TutorToolName.RUN_JAVASCRIPT || jsAdvertised) {
+                        put("stateJson", buildJsonObject {
+                            put("type", buildJsonArray { add(JsonPrimitive("string")); add(JsonNull) })
+                            put("maxLength", if (jsAdvertised) 4_096 else 16_384)
+                            put("description", "可选完整 JSON 初始状态，生图时仅 method=JS 可携带")
+                        })
+                    }
                     put(
                         "terms",
                         buildJsonObject {
@@ -433,6 +471,8 @@ internal object OpenAiModelProtocol {
                                             "description",
                                             "scope=NODE 时填本会话已披露知识点代号；PROBLEM/SUBJECT 时留空数组",
                                         )
+                                    } else if (notebookWrite) {
+                                        put("description", "保存本轮当前题，不需要检索词，可留空数组")
                                     } else if (figureGeneration) {
                                         put("description", "生图不需要检索词；必须为空数组")
                                     } else {
@@ -440,6 +480,7 @@ internal object OpenAiModelProtocol {
                                     }
                                 },
                             )
+                            put("minItems", 0)
                             put("maxItems", TutorIntentDecision.MAX_LOOKUP_TERMS)
                             put(
                                 "description",
@@ -448,6 +489,7 @@ internal object OpenAiModelProtocol {
                                     advisoryWrite -> "NODE 作用域的目标代号（只能是本会话已披露的 K 代号）"
                                     advisoryRead -> "可选的筛选词或已披露代号；留空＝按 scope 读本科目/当前题"
                                     figureGeneration -> "生图不需要检索词；必须是空数组（本地不消费 terms）"
+                                    notebookWrite -> "可留空；保存目标由本轮上下文确定，本地不消费 terms"
                                     else -> "直接来自学生消息原词的简短筛选词"
                                 },
                             )
@@ -496,8 +538,10 @@ internal object OpenAiModelProtocol {
                                 put(
                                     "enum",
                                     buildJsonArray {
-                                        add(JsonPrimitive("IMAGE_MODEL"))
-                                        if (jsAdvertised) add(JsonPrimitive("JS"))
+                                        listOf(
+                                            com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL,
+                                            com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.JS,
+                                        ).filter { it in figureMethods }.forEach { add(JsonPrimitive(it.name)) }
                                     },
                                 )
                                 put(
@@ -745,6 +789,9 @@ internal object OpenAiModelProtocol {
                 buildJsonArray {
                     add(JsonPrimitive("terms"))
                     add(JsonPrimitive("rationale"))
+                    if (tool.parameterNames().isNotEmpty()) add(JsonPrimitive("parameters"))
+                    if (tool == TutorToolName.RUN_JAVASCRIPT) add(JsonPrimitive("script"))
+                    if (tool == TutorToolName.RUN_JAVASCRIPT || jsAdvertised) add(JsonPrimitive("stateJson"))
                     when {
                         masterySemantics -> {
                             add(JsonPrimitive("direction"))
@@ -878,19 +925,16 @@ internal object OpenAiModelProtocol {
             ?: nativeToolRoundIntent(input)
         return TutorToolRequestsOutput(
             intentDecision = intentDecision,
-            // 模型（尤其是推理型小参数模型）偶尔无视"单轮最多 3 个互不相同工具"，把同一
-            // 工具重复申请两次。协议层要求一轮内工具互不相同；若因此整条输出判 INVALID，
-            // 这一轮讲解会直接失败，而模型本身并没有做危险的事。保留第一次、丢弃同轮重复，
-            // 让工具结果照常回喂；真需要第二次时下一轮会再申请（预算/授权仍逐次裁决）。
-            calls = calls.distinctBy { call -> call.tool },
+            calls = calls.distinct(),
             localActions = actionCallElements.map { element ->
                 // 参数走同一份声明（`core:model` 的参数形状）：转发到同一个解析器，免得两条路由
                 // 对"合法的动作请求"有两套口径。动作 id 在原生路由里由**函数名**给出。
-                val function = element.objectValue().objectValue("function")
+                val call = element.objectValue()
+                val function = call.objectValue("function")
                 localActionRequest(
                     actionId = function.requiredString("name"),
                     arguments = parseObject(function.requiredString("arguments")),
-                )
+                ).copy(callId = call.optionalString("id"))
             },
             modelVersion = modelVersion,
         )

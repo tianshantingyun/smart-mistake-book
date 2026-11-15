@@ -51,6 +51,8 @@ internal class VisualDrawOpsPainter {
     // 平台 `Paint()` 默认 flags = 1283（AA|FILTER_BITMAP|DEV_KERN|EMBEDDED_BITMAP），
     // **不是** [REPLAY_TEXT_PAINT_FLAGS]=0（批次 29 设备证据 R1）。必须显式装配，否则
     // 度量环境指纹（paintFlags=0）与真实回放 Paint 不一致（KD-78 ④ 跨侧钉会红）。
+    // The replay environment freezes the empty bitmask accepted by Paint.setFlags.
+    @android.annotation.SuppressLint("WrongConstant")
     private val textPaint = Paint().apply { flags = REPLAY_TEXT_PAINT_FLAGS }
     private val path = Path()
     private val scratchMatrix = Matrix()

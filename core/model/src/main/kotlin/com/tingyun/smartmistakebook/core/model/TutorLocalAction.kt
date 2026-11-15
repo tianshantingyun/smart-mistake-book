@@ -3,66 +3,29 @@ package com.tingyun.smartmistakebook.core.model
 import kotlinx.serialization.Serializable
 
 /**
- * 本地动作白名单第一版（规格 `docs/superpowers/specs/2026-09-25-agent-first-refactor-design.md`
- * §3.2；D-K2e 白名单表已收下）。
- *
- * 模型**只能选不能造**：动作的 ID 与参数形状都由本地定义，模型只从这份名单里挑一个。
- * 名单之外的动作在协议里根本没有可表达的形状——不是"服务端会拒绝"。
- *
- * 这份名单消灭的具体失败：改前"它能给你东西"的出口是 `TutorLocalIntentPanel`，而它的可见性
- * 取决于模型本轮的 `intentDecision`——基础出口被模型输出绑架（事实基线研究报告 §4.1#2）。
- * 动作请求改为模型的**输出**、执行永远等学生点卡（确认卡）之后，名单就是"卡上可能出现什么"
- * 的唯一定点。
- *
- * ## 一处声明的两套广告（同源纪律）
- *
- * 这份名单同时喂**两套协议广告**：Route A 的严格 function schema
- * （`OpenAiModelProtocol.localActionSchema`：name/description/parameters 全部从这里出）与
- * Route B 的提示词文本块（`OpenAiModelTaskAdapters.localActionPromptBlock`：同样是这里的
- * 名字、用途与参数）。此前工具面的文案漂过三次（`TutorToolDescriptions` 的注释记着那次
- * 事故），本地动作从第一天起就只有这一份：[purposeDescription] / [nativePurposeDescription]
- * 是唯一出处，`TutorLocalActionAdvertisementParityTest` 把两套广告与
- * [TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS] 逐项对拍。
- *
- * ## 参数形状：默认空集，`START_EXPORT` 例外（4B 批 4 裁定）
- *
- * 动作的执行**目标**（哪份拍照草稿、哪张附图、哪道库里的题、本轮在讲的那道题）只能由**本轮
- * 本地上下文**解析（见 `core:domain` 的 `TutorLocalActionContext`），模型手里没有任何可核对的
- * 本地 id。让模型填一个本地核不了的 id，就是把"它选了哪件事"退化成"它编了哪件事"——所以
- * 除 `START_EXPORT` 外三个动作的参数形状都是空集，**题 id 永远不是模型可写的参数**。
- *
- * `START_EXPORT` 是唯一的例外（用户 2026-09-28/10-03 裁定）：模型只提议**模板名与版式参数**
- * （"两栏""字大点""不要答案"映射到 [MistakePdfLayout] 的白名单字段），题从本轮本地留痕里
- * 取、由学生在导出 sheet 里勾选。模型不得输出任何排版标记——形状仍然要声明，因为
- * **形状是拒绝的依据**：解析器按 [TutorLocalAction] 逐字核对键集，出现名单里没有的键
- * 就是无效输出（模型造了参数 = 这条输出不可用，不是"忽略一下"）。
- *
- * 权限档在 `core:domain` 的 `TutorPermissionPolicy`：这四个动作全部 **ask（确认卡）**。
- * 重拆提议（`PROPOSE_RECLASSIFY`）**不在本版**：D-K2/K2b 与 D-K3 把它整体推迟到阶段 3B，
- * 它的档位由重拆 hook 判据决定（被拦 → ask），届时按同一机制接入。
+ * 应用动作的统一声明，同时生成原生函数 schema 与 Route B 提示词。
+ * 已接通的动作默认自主执行，真实回执进入当前模型回合。
+ * entryId / entryIds 只能选择本轮本地检索或保存所得的条目。
  */
 enum class TutorLocalAction {
     /** 打开某题（跳错题本详情）；本轮没有具体题时打开错题本本身。 */
     OPEN_PROBLEM,
 
-    /**
-     * 当前题加入错题本 = `NOTEBOOK_WRITE` 的 ask 档（D-K2e 白名单表）：
-     * 同一件事的两种协议拼写——工具拼写（模型在工具面里选）与动作拼写（模型在本地动作通道里选）。
-     */
+    /** 保存本轮题目，附图进入既有录入链路。 */
     SAVE_TO_NOTEBOOK,
 
-    /** 发起选择导出（检索 → 勾选 → 本地排版 → 导出可打印文件）。插眼 5 点名的高风险流程。 */
+    /** 使用本轮选定条目和版式生成本地导出文件。 */
     START_EXPORT,
 
-    /**
-     * 提出复习计划调整（把某题纳入计划）：模型提出行为，请求学生同意。
-     *
-     * **PRD-06：执行处理器尚未接线，本版不广告、不准入。** 它保留在枚举里只为两件事：
-     * ① 解析层仍能识别旧版本/伪造请求并整条拒绝（而不是"忽略一下"）；② 升级前已经落库的
-     * 确认卡行还能读回，执行端如实说"还不能自动做"。接线（阶段 3B 复习计划调整）时把它
-     * 加进 `TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS`，广告/准入/执行同时生效。
-     */
+    /** 将本轮真实题目写入复习计划，旧确认卡的历史载荷仍可读。 */
     ADD_TO_REVIEW_PLAN,
+    EDIT_PROBLEM,
+    SET_FAVORITE,
+    ARCHIVE_PROBLEM,
+    RESTORE_PROBLEM,
+    UPDATE_SCHEDULING,
+    CREATE_BACKUP,
+    RESTORE_BACKUP,
     ;
 
     /**
@@ -73,46 +36,44 @@ enum class TutorLocalAction {
         get() = when (this) {
             OPEN_PROBLEM ->
                 "打开本轮的那道题（跳到错题本详情）；本轮没有具体题时打开错题本本身。" +
-                    "学生点确认之后才会打开，不得声称已经打开。"
+                    "本地自动执行，并回传实际打开结果。"
             SAVE_TO_NOTEBOOK ->
-                "把本轮的内容（附上的图片、这一轮正在处理的题）收进错题本。冒号后面不接任何" +
-                    "自造内容；本地会挂一张确认卡，学生点了才会真正保存，不得声称已经存好。"
+                "保存本轮真实题目。拍照草稿加入错题本，聊天附图进入录入队列；" +
+                    "本地自动执行，按实际结果说明保存或录入进度。"
             START_EXPORT ->
-                "发起一次选择导出（先检索、再由学生勾选、本地排版、导出可打印文件）。" +
+                "导出本轮检索到的题目（先检索、本地排版、生成可打印文件）。" +
                     "学生的口头排版要求（「两栏」「字大点」「不要答案」）映射到 templateId 与版式参数，" +
-                    "没要求就用练习卷默认版式；不要输出任何排版标记。本地会请学生确认，" +
-                    "不得声称文件已经生成。"
+                    "没要求就用练习卷默认版式；不要输出任何排版标记。本地自动入队并回传进度，" +
+                    "只有成功回执才能说明文件已生成。"
             ADD_TO_REVIEW_PLAN ->
-                "提出一次复习计划调整（例如把本轮这道题纳入复习计划）。这是**提议**：" +
-                    "本地会把这件事交给学生确认，不得声称计划已经改好。"
+                "把本轮已知题目纳入复习计划，按真实队列写入回执说明结果。"
+            EDIT_PROBLEM -> "按instruction修改本轮已知题目，走持久化修改作业与版本校验；仅成功提交新版本后说明已改。"
+            SET_FAVORITE -> "设置本轮已知题目的收藏状态，favorite=true收藏，false取消收藏。"
+            ARCHIVE_PROBLEM -> "归档本轮已知题目，保留题目历史。"
+            RESTORE_PROBLEM -> "恢复本轮已知的归档题目。"
+            UPDATE_SCHEDULING -> "修改每日复习分钟数或目标保留率，并回传已保存设置和生效时机。"
+            CREATE_BACKUP -> "创建本机备份文件并返回真实backupRef，可供后续恢复。"
+            RESTORE_BACKUP -> "从本轮已授权备份backupRef恢复，返回实际恢复结果和重启状态。"
         }
 
     /** 原生 function schema 的短描述（与 [purposeDescription] 同一份声明、措辞收紧）。 */
     val nativePurposeDescription: String
         get() = when (this) {
-            OPEN_PROBLEM -> "打开本轮的那道题（需学生确认后才会打开）"
-            SAVE_TO_NOTEBOOK -> "把本轮内容收进错题本（需学生确认后才保存）"
-            START_EXPORT -> "发起一次选择导出，可提议模板与版式参数（需学生确认）"
-            ADD_TO_REVIEW_PLAN -> "提出把本轮这道题纳入复习计划（需学生确认）"
+            OPEN_PROBLEM -> "自动打开本轮的那道题或错题本，回传实际结果"
+            SAVE_TO_NOTEBOOK -> "自动保存本轮真实题目或将附图加入录入，回传实际结果"
+            START_EXPORT -> "自动导出本轮检索到的题目，可指定模板与版式，回传生成进度"
+            ADD_TO_REVIEW_PLAN, EDIT_PROBLEM, SET_FAVORITE, ARCHIVE_PROBLEM,
+            RESTORE_PROBLEM, UPDATE_SCHEDULING, CREATE_BACKUP, RESTORE_BACKUP -> purposeDescription
         }
 
-    /**
-     * 这个动作的参数形状。除 `START_EXPORT` 外都是**空集**（见类注释）；声明成一个属性而不是
-     * 写死在各处，是为了让两套广告与解析器读同一个形状——放开某个参数时改这里一处、
-     * 三处消费者（schema / 提示词 / 解析器）同时跟上。
-     *
-     * `START_EXPORT` 的形状（4B B3-1）：
-     * - `templateId` 必填，取值是 [MistakePdfLayout.TEMPLATE_IDS] 的逐字枚举；
-     * - 其余是 [MistakePdfLayout] 的版式字段，全部**可选**（缺省 = 用布局默认值）——
-     *   学生口头要求由模型映射过来（"两栏"→`columnCount=2`、"字大点"→`fontScale=3`、
-     *   "不要答案"→`includeAnswer=false`）。每个字段的域校验（范围/枚举/重复）由本地
-     *   `MistakePdfLayout.validate()` 收口，越界一律拒（不挂卡）。
-     *
-     * **题 id 不在形状里**：模型提议的是版式，题目由本轮本地留痕与学生在 sheet 里勾选决定。
-     */
+    /** 两条协议与本地解析器共享参数形状，条目选择在执行时核对本轮已知结果。 */
     val parameters: List<TutorLocalActionParameter>
         get() = when (this) {
             START_EXPORT -> listOf(
+                TutorLocalActionParameter(
+                    parameterName = "entryIds",
+                    description = "要导出的条目 id，逗号分隔；只能选本轮已检索或刚保存成功的条目。省略时导出本轮检索结果。",
+                ),
                 TutorLocalActionParameter(
                     parameterName = "templateId",
                     description = "导出模板。practice_sheet=练习卷（含作答空白区）、" +
@@ -166,16 +127,47 @@ enum class TutorLocalAction {
                     allowedValues = listOf("true", "false"),
                 ),
             )
-            OPEN_PROBLEM,
-            SAVE_TO_NOTEBOOK,
-            ADD_TO_REVIEW_PLAN,
-            -> emptyList()
+            OPEN_PROBLEM -> listOf(
+                TutorLocalActionParameter(
+                    parameterName = "entryId",
+                    description = "要打开的条目 id，只能选本轮已检索或刚保存成功的条目。省略时打开本轮唯一条目或错题本。",
+                ),
+            )
+            ADD_TO_REVIEW_PLAN, ARCHIVE_PROBLEM, RESTORE_PROBLEM -> listOf(entryParameter())
+            SET_FAVORITE -> listOf(entryParameter(), TutorLocalActionParameter(
+                "favorite", "是否收藏", required = true, allowedValues = listOf("true", "false"),
+            ))
+            EDIT_PROBLEM -> listOf(entryParameter(), TutorLocalActionParameter(
+                "instruction", "对当前真实题面的修改要求", required = true,
+            ))
+            UPDATE_SCHEDULING -> listOf(
+                TutorLocalActionParameter("dailyReviewMinutes", "每日复习分钟数，5..120"),
+                TutorLocalActionParameter("desiredRetention", "目标保留率，0.7..0.97"),
+            )
+            CREATE_BACKUP -> listOf(TutorLocalActionParameter(
+                "selectionMask", "备份内容选择，9=题目和图片，13=加学习记录，15=全部", allowedValues = listOf("9", "13", "15"),
+            ))
+            RESTORE_BACKUP -> listOf(TutorLocalActionParameter(
+                "backupRef", "从本轮已授权备份列表选择的备份身份", required = true,
+            ))
+            SAVE_TO_NOTEBOOK -> emptyList()
         }
 
     /** 动作 id（两套广告与解析器都用它，不做任何大小写/别名容忍）。 */
     val actionId: String get() = name
 
     companion object {
+        val APPLICATION_ACTIONS: Set<TutorLocalAction> = setOf(
+            EDIT_PROBLEM, SET_FAVORITE, ARCHIVE_PROBLEM,
+            RESTORE_PROBLEM, UPDATE_SCHEDULING, CREATE_BACKUP, RESTORE_BACKUP,
+        )
+        val ENTRY_TARGET_ACTIONS: Set<TutorLocalAction> = setOf(
+            OPEN_PROBLEM, SAVE_TO_NOTEBOOK, ADD_TO_REVIEW_PLAN, EDIT_PROBLEM,
+            SET_FAVORITE, ARCHIVE_PROBLEM, RESTORE_PROBLEM,
+        )
+        private fun entryParameter() = TutorLocalActionParameter(
+            "entryId", "本轮已知的题目条目 id，缺省使用当前题目。",
+        )
         /**
          * 解析模型给的动作 id：**只认逐字相同的名单内 id**，大小写/空白/别名一律无效。
          * 返回 null = 这条动作请求不是白名单里的东西（调用方必须丢弃，不得当成"未知动作"放行）。
@@ -185,12 +177,21 @@ enum class TutorLocalAction {
     }
 }
 
-/**
- * 动作参数的一项声明。
- *
- * 本版只有 `START_EXPORT` 有实例（见 [TutorLocalAction]）；它随"第一个真的能核对的参数"出现
- * ——Route A 的 schema 生成、Route B 的文案与解析器的键集核对都从这里读，而不是各自抄一份。
- */
+@Serializable
+data class TutorBackupReference(
+    val ref: String,
+    val displayName: String,
+    val createdAtEpochMillis: Long,
+    val sizeBytes: Long,
+) {
+    init {
+        ref.requireSafeModelText("Backup reference", 256, false)
+        displayName.requireSafeModelText("Backup display name", 256, false)
+        require(createdAtEpochMillis >= 0 && sizeBytes >= 0)
+    }
+}
+
+/** 原生 schema、提示词与本地解析器共享的动作参数。 */
 data class TutorLocalActionParameter(
     val parameterName: String,
     /** 写给模型看的一句（同时进 Route A 的 property description 与 Route B 的文本）。 */
@@ -217,18 +218,19 @@ data class TutorLocalActionParameter(
  *
  * 它只带一个动作 id 与一组参数——[parameters] 的键必须在 [TutorLocalAction.parameters]
  * 声明过（解析器负责核对，见 `OpenAiModelResponseParsers.toTutorLocalActions`）。
- * 目标（哪道题、哪份草稿）不在这里：那是本地上下文的事。
+ * 目标参数由执行器与本轮本地结果核对，草稿与附图继续取真实上下文。
  */
 @Serializable
 data class TutorLocalActionRequest(
     val action: TutorLocalAction,
-    /**
-     * 动作参数。除 `START_EXPORT`（模板名 + 版式参数）外恒为空——**空载体抹平**：空 map
-     * 不落键、不进指纹，也不渲染（`bf8be888` 教训）。
-     */
+    /** 声明过的目标与版式参数，空 map 沿用旧版本编码。 */
     val parameters: Map<String, String> = emptyMap(),
+    @OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val callId: String? = null,
 ) {
     init {
+        callId?.requireSafeModelText("A local action call id", ModelTaskRequest.MAX_ID_CHARS, false)
         require(parameters.keys.all { key -> key.isNotBlank() }) {
             "A local action request parameter name must not be blank"
         }
@@ -253,11 +255,9 @@ data class TutorLocalActionRequest(
 /**
  * 一轮里模型最多能提几个本地动作。
  *
- * **就是 1**：一轮只挂一张卡。这不是节制，是相位机的事实——`TutorTurnSendStateMachine` 的
- * `AWAITING_CONSENT` 是**回合级**的单一相位，一条回合不可能同时等两张卡的确认；广告两个而本地
- * 只能接一个，就是把"提了没反应"写进契约。学生点了这张卡之后的那一轮，模型可以再提下一件事。
+ * 每个动作依次自动执行并回传独立结果，单轮上限保持在四个。
  */
-const val MAX_LOCAL_ACTION_REQUESTS_PER_ROUND = 1
+const val MAX_LOCAL_ACTION_REQUESTS_PER_ROUND = 4
 
 /** 本地动作通道在请求/输出里的键名（Route B 信封与解析器共用一处）。 */
 const val TUTOR_LOCAL_ACTIONS_WIRE_KEY = "localActions"

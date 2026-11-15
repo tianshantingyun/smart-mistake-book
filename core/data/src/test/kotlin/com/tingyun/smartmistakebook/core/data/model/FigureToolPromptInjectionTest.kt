@@ -186,6 +186,28 @@ class FigureToolPromptInjectionTest {
     }
 
     @Test
+    fun javascriptOnlyCapabilityUsesConsistentDescriptionsAcrossBothRoutes() {
+        val capability = FigureGenerationCapabilities(
+            availableMethods = setOf(FigureGenerationMethod.JS),
+        )
+        val input = respondInput(listOf(TutorToolName.GENERATE_FIGURE))
+            .copy(figureGenerationCapabilities = capability)
+        val prompt = OpenAiModelTaskAdapters.prompt(input)
+        assertTrue(prompt.contains("method=JS 时在 program 字段"))
+        assertFalse(prompt.contains("本地未配置可用的图像模型时也不会生成"))
+        assertFalse(prompt.contains("简单图必须申请"))
+        assertTrue(prompt.contains("kind: 'text'|'math'"))
+        val body = OpenAiModelProtocol.requestBody(
+            modelId = "test-model",
+            input = input,
+            images = emptyList(),
+            enableNativeTools = true,
+        )
+        assertFalse(body.contains("本地未配置可用的图像模型时也不会生成"))
+        assertTrue(body.contains("method=JS 时在 program 字段"))
+    }
+
+    @Test
     fun independentPurposesStillProduceDifferentGuidance() {
         // 反向锚：共享规则不变，但用途段必须真的不同（否则"用途"就只是装饰）。
         val reconstruction = FigurePromptAssembler.assembleForTutorTool(

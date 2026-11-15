@@ -124,7 +124,6 @@ class LocalImageUiInstrumentedTest {
                 )
             }
         }
-        compose.onNodeWithContentDescription("展开图").performClick()
         compose.waitUntil(5_000) {
             compose.onAllNodes(androidx.compose.ui.test.hasText("本机读取这张配图失败", substring = true))
                 .fetchSemanticsNodes().isNotEmpty()
@@ -160,17 +159,16 @@ class LocalImageUiInstrumentedTest {
                 )
             }
         }
-        compose.onNodeWithText("过程图 · 受力示意").performClick()
         compose.waitUntil(5_000) {
             compose.onAllNodes(androidx.compose.ui.test.hasText("本机读取这张配图失败", substring = true))
                 .fetchSemanticsNodes().isNotEmpty()
         }
         compose.onNodeWithText("木塞受到向上的拉力", useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithText("重新生成").assertDoesNotExist()
-        compose.onNodeWithText("过程图 · 受力示意 · 未就绪").assertIsDisplayed()
+        compose.onNodeWithText("过程图 · 受力示意 · 暂不可用").assertIsDisplayed()
         UiAuditEvidence.capture("image-local-failure")
         compose.onNodeWithContentDescription("收起图").performClick()
-        compose.onNodeWithText("过程图 · 受力示意 · 未就绪").assertIsDisplayed()
+        compose.onNodeWithText("过程图 · 受力示意 · 暂不可用").assertIsDisplayed()
         compose.onNodeWithContentDescription("展开图").performClick()
         assertEquals(0, regenerations)
         val good = fixture("good")

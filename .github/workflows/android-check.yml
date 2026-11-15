@@ -244,3 +244,13 @@ jobs:
             echo "Hardcoded performance/beta data must not exist; use PerformanceTargets/BetaGateTargets with NOT_MEASURED."
             exit 1
           fi
+
+      - name: Upload instrumented test results
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: instrumented-test-results
+          path: |
+            **/build/outputs/androidTest-results/connected/**/*.xml
+            **/build/reports/androidTests/connected/**
+          if-no-files-found: warn

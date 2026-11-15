@@ -149,6 +149,7 @@ class KnowledgeGroundingMigrationInstrumentedTest {
             }
 
             val migrated = StudyDatabaseFactory.open(context, databaseName)
+            migrated.healKnowledgeSearchIndex("MATH")
             val recalled = migrated.readSubjectKnowledgeRecallCandidates(
                 subject = "MATH",
                 searchFeatures = KnowledgeSearchFeatureExtractor.fromQuestion(

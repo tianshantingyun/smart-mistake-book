@@ -103,6 +103,10 @@ data class TutorCapabilitySnapshot(
          * `core:domain` 的 `TutorToolGateTest` 钉住它与页面声明面是同一组工具。
          */
         val IMPLEMENTED_TOOLS: Set<TutorToolName> = linkedSetOf(
+            TutorToolName.APP_CONTEXT,
+            TutorToolName.SELECT_QUESTION,
+            TutorToolName.READ_FIGURE,
+            TutorToolName.RUN_JAVASCRIPT,
             TutorToolName.KNOWLEDGE_READ,
             TutorToolName.NOTEBOOK_READ,
             TutorToolName.MASTERY_READ,
@@ -122,14 +126,28 @@ data class TutorCapabilitySnapshot(
             TutorLocalAction.OPEN_PROBLEM,
             TutorLocalAction.SAVE_TO_NOTEBOOK,
             TutorLocalAction.START_EXPORT,
+            TutorLocalAction.EDIT_PROBLEM,
+            TutorLocalAction.SET_FAVORITE,
+            TutorLocalAction.ARCHIVE_PROBLEM,
+            TutorLocalAction.RESTORE_PROBLEM,
+            TutorLocalAction.UPDATE_SCHEDULING,
+            TutorLocalAction.CREATE_BACKUP,
+            TutorLocalAction.RESTORE_BACKUP,
         )
 
         /**
          * 本轮输入 → 快照。工具面读本轮声明集（生成方已按就绪位裁过，见
-         * `RoomModelTaskRepository.toolDeclarationsFor`）；本地动作只在**有确认卡承接面**的
-         * 大厅轮出现——讲题/计划轮没有卡的生产者，广告了就是广告一个没人接的东西。
+         * `RoomModelTaskRepository.toolDeclarationsFor`）。本地动作在已接执行端口的大厅工具环广告，
+         * 工具与动作共享实际完成轮数，配额用尽后统一进入终答。
          */
         fun forRound(input: ModelTaskInput): TutorCapabilitySnapshot {
+            val roundsUsed = when (input) {
+                is TutorLobbyInput -> maxOf(input.toolRoundsUsed, input.toolRoundResults.size, input.agentContext?.roundsUsed ?: 0)
+                is TutorRespondInput -> maxOf(input.toolRoundResults.size, input.agentContext?.roundsUsed ?: 0)
+                is TutorPlanInput -> maxOf(input.toolRoundResults.size, input.agentContext?.roundsUsed ?: 0)
+                else -> 0
+            }
+            val hasRoundBudget = roundsUsed < TutorToolRoundResult.MAX_TOOL_ROUNDS
             val declaredTools = when (input) {
                 is TutorLobbyInput -> input.toolDeclarations
                 is TutorRespondInput -> input.toolDeclarations
@@ -138,9 +156,9 @@ data class TutorCapabilitySnapshot(
             }
             return TutorCapabilitySnapshot(
                 tools = declaredTools.filterTo(linkedSetOf()) { tool ->
-                    tool in IMPLEMENTED_TOOLS
+                    hasRoundBudget && tool in IMPLEMENTED_TOOLS
                 },
-                localActions = if (input is TutorLobbyInput) {
+                localActions = if ((input is TutorLobbyInput || input is TutorPlanInput || input is TutorRespondInput) && hasRoundBudget) {
                     IMPLEMENTED_LOCAL_ACTIONS
                 } else {
                     emptySet()

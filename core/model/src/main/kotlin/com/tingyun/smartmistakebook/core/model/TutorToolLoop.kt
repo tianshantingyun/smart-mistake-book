@@ -1,19 +1,26 @@
+@file:OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
+
 package com.tingyun.smartmistakebook.core.model
 
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.Serializable
 
 /**
  * Local read tools the model may request during a tool-loop round
  * (spec model-intent-routing §2). All execution is local and deterministic;
- * the model only ever supplies an intent-gated request with anchored terms.
+ * the model supplies requests with anchored terms and observes their results.
  */
 @Serializable
 enum class TutorToolName {
+    APP_CONTEXT,
+    SELECT_QUESTION,
+    READ_FIGURE,
+    RUN_JAVASCRIPT,
     KNOWLEDGE_READ,
     NOTEBOOK_READ,
     MASTERY_READ,
-    /** 写工具 T6：模型提语义证据、本地门控落库（spec §5）；T4 需学生明确命令，当前阶段仅声明不启用。 */
+    /** 保存当前已识别题面，执行结果与目标状态由本地处理器返回。 */
     NOTEBOOK_WRITE,
     MASTERY_UPDATE,
     /**
@@ -223,8 +230,31 @@ data class TutorToolCall(
      * 宿主冻结的 purpose/target/constraints。
      */
     val figureImagePrompt: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val parameters: Map<String, String> = emptyMap(),
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val script: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val stateJson: String? = null,
 ) {
     init {
+        require(parameters.keys.all { it in tool.parameterNames() }) { "Unsupported tool parameter" }
+        require(parameters.values.all { it.isNotBlank() && it.length <= 2_000 && it.none(Char::isISOControl) })
+        if (tool == TutorToolName.SELECT_QUESTION) require(!parameters["entryId"].isNullOrBlank())
+        if (tool == TutorToolName.READ_FIGURE) require(!parameters["assetId"].isNullOrBlank())
+        if (tool == TutorToolName.RUN_JAVASCRIPT) {
+            require(!script.isNullOrBlank() && figureUsageUtf8Bytes(script) <= FigureGenerationPolicy.MAX_PROGRAM_UTF8_BYTES)
+        } else require(script == null) { "Only RUN_JAVASCRIPT carries script" }
+        require(stateJson == null || tool == TutorToolName.RUN_JAVASCRIPT || tool == TutorToolName.GENERATE_FIGURE)
+        stateJson?.let {
+            require(it.length <= 64 * 1_024) { "JavaScript state is too large" }
+            val parsed = runCatching { kotlinx.serialization.json.Json.parseToJsonElement(it) }.getOrNull()
+            require(parsed is kotlinx.serialization.json.JsonObject) {
+                "JavaScript state must be a JSON object"
+            }
+        }
+        if (tool == TutorToolName.GENERATE_FIGURE && stateJson != null) {
+            require(figureMethod == FigureGenerationMethod.JS && figureUsageUtf8Bytes(stateJson) <= 16 * 1_024)
+        }
+        parameters["limit"]?.let { require(it.toIntOrNull()?.let { limit -> limit in 1..30 } == true) }
+        parameters["offset"]?.let { require(it.toIntOrNull()?.let { offset -> offset >= 0 } == true) }
         require(rationale.isNotBlank() && rationale.length <= MAX_TOOL_RATIONALE_CHARS) {
             "A tool call must state an anchored reason of at most $MAX_TOOL_RATIONALE_CHARS chars"
         }
@@ -245,6 +275,12 @@ data class TutorToolCall(
         // "必须有代号"的专门校验，GENERATE_FIGURE 另要求 terms **必须为空**（见下）。
         if (
             tool != TutorToolName.MASTERY_READ &&
+            tool != TutorToolName.NOTEBOOK_READ &&
+            tool != TutorToolName.APP_CONTEXT &&
+            tool != TutorToolName.SELECT_QUESTION &&
+            tool != TutorToolName.READ_FIGURE &&
+            tool != TutorToolName.RUN_JAVASCRIPT &&
+            tool != TutorToolName.NOTEBOOK_WRITE &&
             tool != TutorToolName.ADVISORY_READ &&
             tool != TutorToolName.ADVISORY_WRITE &&
             tool != TutorToolName.GENERATE_FIGURE
@@ -436,6 +472,7 @@ data class TutorToolCall(
             purpose = kind.figureGenerationPurpose(),
             method = method,
             reason = rationale,
+            initialStateJson = stateJson,
             imageOperation = if (js) null else (figureImageOperation ?: kind.defaultImageOperation()),
             imagePrompt = if (js) null else (figureImagePrompt ?: figureDescription),
             program = if (js) figureProgram else null,
@@ -463,6 +500,15 @@ data class TutorToolCall(
     }
 }
 
+/** Parameter keys shared by the model DTO, native schema and JSON-envelope parser. */
+fun TutorToolName.parameterNames(): Set<String> = when (this) {
+    TutorToolName.SELECT_QUESTION -> setOf("entryId")
+    TutorToolName.READ_FIGURE -> setOf("assetId")
+    TutorToolName.RUN_JAVASCRIPT -> emptySet()
+    TutorToolName.NOTEBOOK_READ -> setOf("offset", "limit", "subject", "sectionId", "masteryId", "sort", "createdFrom", "createdTo")
+    else -> setOf("subject")
+}
+
 /** Locally computed outcome of one executed tool call — the model never sees raw rows. */
 @Serializable
 data class TutorToolOutcome(
@@ -470,8 +516,10 @@ data class TutorToolOutcome(
     val ok: Boolean,
     val summaryMarkdown: String,
     val errorKind: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER) val dataJson: String? = null,
 ) {
     init {
+        dataJson?.let { require(it.length <= 6_000); kotlinx.serialization.json.Json.parseToJsonElement(it) }
         summaryMarkdown.requireSafeModelText(
             label = "Tutor tool outcome summary",
             maxChars = MAX_TOOL_RESULT_CHARS_EXTENDED,
@@ -597,21 +645,27 @@ fun budgetTutorToolOutcomes(
     }
     var remaining = budgetChars
     return outcomes.mapIndexed { index, outcome ->
-        val summary = outcome.summaryMarkdown
         val laterReserve = (outcomes.size - index - 1) * (DROPPED_OUTCOME_SUMMARY.length + 1)
         val availableForThis = remaining - laterReserve - 1
-        val truncatedFits = availableForThis >= TRUNCATED_OUTCOME_NOTE.length + MIN_TRUNCATED_PREFIX_CHARS
+        val data = outcome.dataJson?.let { kotlinx.serialization.json.Json.parseToJsonElement(it).toString() }
+        val dataFits = data == null || outcome.summaryMarkdown.length + data.length + TOOL_DATA_PREFIX.length <= availableForThis
+        val carriedData = data.takeIf { dataFits }
+        val summary = outcome.summaryMarkdown + if (dataFits) "" else " [结构化结果超过本轮预算，请缩小查询范围]"
+        val summaryBudget = availableForThis - (carriedData?.let { it.length + TOOL_DATA_PREFIX.length } ?: 0)
+        val truncatedFits = summaryBudget >= TRUNCATED_OUTCOME_NOTE.length + MIN_TRUNCATED_PREFIX_CHARS
         val replacement = when {
-            summary.length <= availableForThis -> null
+            summary.length <= summaryBudget -> null
             truncatedFits ->
-                summary.take(availableForThis - TRUNCATED_OUTCOME_NOTE.length) + TRUNCATED_OUTCOME_NOTE
+                summary.take(summaryBudget - TRUNCATED_OUTCOME_NOTE.length) + TRUNCATED_OUTCOME_NOTE
             else -> DROPPED_OUTCOME_SUMMARY
         }
         val budgetedSummary = replacement ?: summary
-        remaining -= budgetedSummary.length + 1
-        if (replacement == null) outcome else outcome.copy(summaryMarkdown = replacement)
+        remaining -= budgetedSummary.length + 1 + (carriedData?.let { it.length + TOOL_DATA_PREFIX.length } ?: 0)
+        outcome.copy(summaryMarkdown = budgetedSummary, dataJson = carriedData)
     }
 }
+
+private const val TOOL_DATA_PREFIX = "dataJson=\n"
 
 /**
  * How much of a truncated outcome's own text must survive for the truncation to
@@ -636,8 +690,8 @@ const val TRUNCATED_OUTCOME_NOTE = "…[本轮结果预算已用尽，本条已�
 const val DROPPED_OUTCOME_SUMMARY = "本轮结果预算已用尽，本条摘要未随请求发送。"
 
 /**
- * The model's request for a tool round: it must restate its intent decision so the
- * local authorization matrix can gate every call against intent + confidence.
+ * The model's request for a tool round, including its current intent classification.
+ * Actual availability comes from the capability declaration and local handlers.
  * The looping repository supplies kind/subject context — this output is a
  * protocol artifact, never persisted as a terminal task result.
  */
@@ -650,7 +704,7 @@ data class TutorToolRequestsOutput(
     /**
      * 这一轮里模型申请的**本地动作**（D-K2e 白名单）：原生 tool_calls 路由下，本地动作与工具
      * 是同一个 `tools` 数组里的两种函数——工具走工具环（本地执行、结果回喂），本地动作**不走
-     * 工具环**（执行要等学生点确认卡），所以它们在这一层就被分出来，不进入 [calls]。
+     * 工具环**（由动作处理器执行），所以它们在这一层就被分出来，不进入 [calls]。
      *
      * 空列表不落键（`bf8be888`）：Route B 信封与本类型早期的编码里都没有这个键。
      */
@@ -663,8 +717,8 @@ data class TutorToolRequestsOutput(
         require(calls.size <= MAX_TOOL_CALLS_PER_ROUND) {
             "A tool round must request 1..$MAX_TOOL_CALLS_PER_ROUND calls"
         }
-        require(calls.distinctBy(TutorToolCall::tool).size == calls.size) {
-            "A tool round must not request the same tool twice"
+        require(calls.distinct().size == calls.size) {
+            "A tool round must not repeat an identical call"
         }
         require(localActions.size <= MAX_LOCAL_ACTION_REQUESTS_PER_ROUND) {
             "A tool round must not request too many local actions"
@@ -693,84 +747,22 @@ data class TutorToolAuthorization(
 )
 
 /**
- * Intent × confidence × declared-set gate for one tool round. Quantified per
- * spec §9.4: below [ROUTE_CONFIDENCE_THRESHOLD] the intent is untrusted and no
- * tool runs; per-intent tool sets follow the local boundary matrix; the
- * declared set the repository announced in the prompt is intersected last.
+ * The current capability declaration is the executable tool boundary.
+ * Intent classification remains context for the model's orchestration.
+ * Each handler validates its actual target, data and execution prerequisites.
  */
+@Suppress("UNUSED_PARAMETER")
 fun tutorToolAuthorization(
     decision: TutorIntentDecision,
     declaredTools: Set<TutorToolName>,
-): TutorToolAuthorization {
-    if (decision.confidence < ROUTE_CONFIDENCE_THRESHOLD) {
-        return TutorToolAuthorization(
-            allowedTools = emptySet(),
-            routeEligible = false,
-            reason = "intent confidence ${decision.confidence} below $ROUTE_CONFIDENCE_THRESHOLD",
-        )
-    }
-    if (decision.intent == TutorMessageIntent.AMBIGUOUS) {
-        return TutorToolAuthorization(
-            allowedTools = emptySet(),
-            routeEligible = false,
-            reason = "intent is ambiguous",
-        )
-    }
-    val byIntent = when (decision.intent) {
-        TutorMessageIntent.CURRENT_QUESTION_HELP ->
-            setOf(
-                TutorToolName.KNOWLEDGE_READ,
-                TutorToolName.NOTEBOOK_READ,
-                TutorToolName.MASTERY_READ,
-                TutorToolName.MASTERY_UPDATE,
-                TutorToolName.NOTEBOOK_WRITE,
-                TutorToolName.ADVISORY_READ,
-                TutorToolName.ADVISORY_WRITE,
-                // A1：生图工具只在**有当前题**的意图下放行——REDRAW_PROBLEM 的源图来自当前题，
-                // GENERATE_PROCESS 的过程图也只在当前题语境里有意义（大厅/查库/闲聊轮没有可画的题）。
-                TutorToolName.GENERATE_FIGURE,
-            )
-        TutorMessageIntent.MISTAKE_NOTEBOOK_LOOKUP ->
-            setOf(TutorToolName.NOTEBOOK_READ, TutorToolName.ADVISORY_READ, TutorToolName.ADVISORY_WRITE)
-        TutorMessageIntent.LEARNING_PROGRESS_LOOKUP ->
-            setOf(TutorToolName.MASTERY_READ, TutorToolName.ADVISORY_READ, TutorToolName.ADVISORY_WRITE)
-        // D-M M7：两枚咨询工具是**任何轮次**的一等工具（学生可能在闲聊里说出一个持续误区，
-        // 也可能在任何一轮要求回顾已记的讲法）——意图矩阵不为它们设场景门；写档是
-        // AUTO_VISIBLE（自动执行、行为可见、被拒给理由），不需要 explicitActionRequest。
-        TutorMessageIntent.APP_HELP_OR_SETTINGS,
-        TutorMessageIntent.CASUAL_CONVERSATION,
-        TutorMessageIntent.END_OR_PAUSE,
-        -> setOf(TutorToolName.ADVISORY_READ, TutorToolName.ADVISORY_WRITE)
-    }
-    // 写工具（MASTERY_UPDATE / NOTEBOOK_WRITE）的确认门：MASTERY_UPDATE 由本地 gate 全权
-    // 决定（spec §5.2：模型提交证据+本地门控）；NOTEBOOK_WRITE 需要学生明确要求
-    // （explicitActionRequest，spec §9.7），模型自报"学生说收"才放行——本地无法独立验证，
-    // 靠授权矩阵 + 学生明确命令双重兜底。未明确确认的写工具申请一律不放行。
-    val allowed = byIntent.intersect(declaredTools).filterTo(mutableSetOf()) { tool ->
-        when (tool) {
-            TutorToolName.NOTEBOOK_WRITE -> decision.explicitActionRequest
-            // MASTERY_UPDATE 不需要 explicitActionRequest（本地 gate 做主）。
-            else -> true
-        }
-    }
-    return TutorToolAuthorization(
-        allowedTools = allowed,
-        routeEligible = true,
-        reason = if (allowed.isEmpty()) {
-            if (TutorToolName.NOTEBOOK_WRITE in byIntent && !decision.explicitActionRequest) {
-                "NOTEBOOK_WRITE requires an explicit student request"
-            } else {
-                "intent ${decision.intent} has no declared tools"
-            }
-        } else {
-            "allowed ${allowed.map(TutorToolName::name)}"
-        },
-    )
-}
+): TutorToolAuthorization = TutorToolAuthorization(
+    allowedTools = declaredTools.intersect(TutorCapabilitySnapshot.IMPLEMENTED_TOOLS),
+    routeEligible = true,
+    reason = "available declared tools",
+)
 
-/** Thresholds are contract constants pending calibration (spec §9.4). */
+/** Retained for compatibility with historical classification and audit consumers. */
 const val TUTOR_TOOL_ROUTE_CONFIDENCE_THRESHOLD = 0.45
-private const val ROUTE_CONFIDENCE_THRESHOLD = TUTOR_TOOL_ROUTE_CONFIDENCE_THRESHOLD
 
 /**
  * Upper bound on simultaneously declared tools for one dispatch（spec §2 core five +
@@ -778,4 +770,4 @@ private const val ROUTE_CONFIDENCE_THRESHOLD = TUTOR_TOOL_ROUTE_CONFIDENCE_THRES
  * 上界是防"无限声明挤占讲解预算"的硬门；加工具必须同时上调它，否则生产装配的 8 工具面
  * 在构造输入时就抛。
  */
-const val MAX_TOOL_DECLARATIONS = 8
+const val MAX_TOOL_DECLARATIONS = 12

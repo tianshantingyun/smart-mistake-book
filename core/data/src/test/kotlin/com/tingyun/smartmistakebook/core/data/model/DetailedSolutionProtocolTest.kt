@@ -51,4 +51,25 @@ class DetailedSolutionProtocolTest {
         val changed = Json.parseToJsonElement(wire.replace("1+1=2", "changed") .dropLast(1) + """, "teachingFigureOmission":{"instructionalTarget":"structure","jsLimitation":"complex morphology","reason":"unavailable"}}""").jsonObject
         assertTrue(runCatching { OpenAiDetailedSolutionProtocol.parse(changed, enriched.copy(availableFigureMethods = setOf(FigureGenerationMethod.JS)), "new-model") }.isFailure)
     }
+
+    @Test fun jsFigureRepairCarriesDiagnosticsAndPreservesExactGenericSteps() {
+        val proposal = FigureGenerationProposal(decision = FigureGenerationDecision.GENERATE,
+            purpose = FigureGenerationPurpose.EXPLANATION, method = FigureGenerationMethod.JS,
+            fidelity = FigureFidelity.ILLUSTRATIVE, reason = "two units", program = "bad program")
+        val json = Json { encodeDefaults = true }
+        val illustrated = """{"finalAnswerMarkdown":"2","steps":[{"type":"paragraph","markdown":"1+1=2"},{"type":"figure","proposal":${json.encodeToString(FigureGenerationProposal.serializer(), proposal)}}]}"""
+        val current = input.copy(availableFigureMethods = setOf(FigureGenerationMethod.JS))
+        val existing = OpenAiDetailedSolutionProtocol.parse(Json.parseToJsonElement(illustrated).jsonObject, current, "model")
+        val repair = current.copy(existingGenericAnswer = existing.document,
+            figureRepair = DetailedSolutionFigureRepair("step-2", proposal, "INVALID_PROGRAM: missing render"))
+        val prompt = OpenAiDetailedSolutionProtocol.prompt(repair)
+        assertTrue(prompt.contains("missing render"))
+        assertTrue(prompt.contains("bad program"))
+        val repaired = OpenAiDetailedSolutionProtocol.parse(Json.parseToJsonElement(illustrated.replace("bad program", "fixed program")).jsonObject, repair, "model")
+        assertEquals(existing.document, repaired.document)
+        assertEquals("fixed program", repaired.figureProposals.single().proposal.program)
+        assertTrue(runCatching { OpenAiDetailedSolutionProtocol.parse(Json.parseToJsonElement(illustrated.replace("two units", "new caption")).jsonObject, repair, "model") }.isFailure)
+        assertTrue(runCatching { OpenAiDetailedSolutionProtocol.parse(Json.parseToJsonElement(illustrated).jsonObject,
+            current.copy(availableFigureMethods = setOf(FigureGenerationMethod.IMAGE_MODEL)), "model") }.isFailure)
+    }
 }

@@ -197,25 +197,25 @@ class VisualContentMeasuringTest {
     fun `a supported fraction is measured with the shared core-model box lowering`() {
         // 手工推导（MathMetrics.of(32)：charWidth=16, charHeight=32, lineSpacing=8,
         // fracLineThickness=max(1, 2)=2）：Fraction(1,2) 宽 = max(16,16)+2×16 = 48px = 24 du；
-        // 高 = 32+32+8+2 = 74px = 37 du；baseline = 32+4+1 = 37px = 18.5 du。
+        // 高 = 32+32+8+2 = 74px = 37 du；baseline = 32+4+1+0.3×32 = 46.6px = 23.3 du。
         val layout = measureMathBox("\\frac{1}{2}", environment)
         requireNotNull(layout)
         assertEquals(VisualContentKind.MATH, layout.kind)
         assertEquals(24f, layout.widthDu, 1e-4f)
         assertEquals(37f, layout.heightDu, 1e-4f)
-        assertEquals(18.5f, layout.baselineDu, 1e-4f)
+        assertEquals(23.3f, layout.baselineDu, 1e-4f)
         assertNull(layout.lines)
         assertTrue(!layout.degraded)
     }
 
     @Test
     fun `a supported atom is measured with the shared core-model box lowering`() {
-        // Atom：宽 = 1×16px = 8 du；高 = 32px = 16 du；baseline = 0.4×32 = 12.8px = 6.4 du。
+        // Atom：宽 = 1×16px = 8 du；高 = 32px = 16 du；baseline = 0.8×32 = 25.6px = 12.8 du。
         val layout = measureMathBox("x", environment)
         requireNotNull(layout)
         assertEquals(8f, layout.widthDu, 1e-4f)
         assertEquals(16f, layout.heightDu, 1e-4f)
-        assertEquals(6.4f, layout.baselineDu, 1e-4f)
+        assertEquals(12.8f, layout.baselineDu, 1e-4f)
         assertTrue(!layout.degraded)
     }
 

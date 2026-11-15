@@ -58,6 +58,9 @@ fun tutorLocalActionAdmission(
     val declared = request.action.parameters
     val declaredNames = declared.map { parameter -> parameter.parameterName }.toSet()
     if (!request.parameters.keys.all { key -> key in declaredNames }) return null
+    if (declared.any { parameter -> request.parameters[parameter.parameterName]?.let { value ->
+            parameter.allowedValues.isNotEmpty() && value !in parameter.allowedValues
+        } == true }) return null
     if (declared.any { parameter ->
             parameter.required && request.parameters[parameter.parameterName].isNullOrBlank()
         }
@@ -95,14 +98,16 @@ fun tutorLocalActionAdmission(
     if (!subject.isImplemented()) return null
     // 档位与本轮放行（四个动作恒 ask；没放行连卡都不出现）。
     val decision = tutorPermissionDecision(subject, permissionContext)
-    if (!decision.requiresConsentCard) return null
+    if (!decision.admitted) return null
     val kind = agentPendingRequestKind(subject) ?: return null
     // ③ 目标：本轮本地有什么可执行的。
     val payloadContext = actionPayloadContext(kind = kind, context = context)
     // 存题（两种拼写）在**本轮没有任何可保存的东西**时不挂卡：挂一张"点了只会打开错题本"的卡
     // 不是"待确认"，那是学生点了才发现答非所问（老毛病："点了什么也没发生"的同一类）。
     if (kind in SAVE_KINDS && payloadContext.isEmpty) return null
-    val target = tutorLocalActionTarget(kind, payloadContext) ?: return null
+    val action = (subject as? TutorPermissionSubject.LocalAction)?.action
+    val target = if (action in TutorLocalAction.APPLICATION_ACTIONS) TutorLocalActionTarget.APPLICATION_ACTION
+        else tutorLocalActionTarget(kind, payloadContext) ?: return null
     val payloadJson = when (kind) {
         AgentPendingRequestKind.START_EXPORT -> {
             val layout = exportLayoutFromActionParameters(actionParameters) ?: return null
@@ -113,7 +118,6 @@ fun tutorLocalActionAdmission(
         )
     }
     requireAgentPendingRequestPayload(kind = kind, payloadJson = payloadJson)
-    val action = (subject as? TutorPermissionSubject.LocalAction)?.action
     return TutorLocalActionAdmission(
         action = action,
         kind = kind,

@@ -85,10 +85,10 @@ class FigurePromptCapabilityInjectionTest {
         // 最小样例（SDK 原语直取、数轴+圆）。
         assertTrue(
             "正文必须注入最小样例：${prompt.body}",
-            prompt.body.contains("visualSdk.lineSegments(pts)"),
+            prompt.body.contains("visualSdk.axis({ x0: 24, y0: 180, x1: 300, y1: 180, ticks: 4 })"),
         )
-        assertTrue(prompt.body.contains("y = x²"))
-        assertTrue(prompt.body.contains("width:2.4,cap:'round'"))
+        assertTrue(prompt.body.contains("visualSdk.circle(160, 84, 26)"))
+        assertTrue(prompt.body.contains("stroke: { width: 2 }"))
         assertFalse(prompt.body.contains("stroke: '#"))
         // 输出与预算按方法分支（消灭"本波次只有图像模型方法"的广告-正文漂移）。
         assertTrue(

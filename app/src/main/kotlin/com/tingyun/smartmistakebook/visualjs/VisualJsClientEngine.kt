@@ -294,7 +294,7 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
             if (activeCall === call) activeCall = null
         }
         // 契约 §4：熔断到"用户明确本地重试或源码改变"。一次成功的显式重试即解除熔断。
-        if (frame.explicitUserRetry && outcome is VisualExecutionResult.Rendered) {
+        if (frame.explicitUserRetry && (outcome is VisualExecutionResult.Rendered || outcome is VisualExecutionResult.Computed)) {
             fusedDigests.remove(frame.digest)
         }
         frame.waiter.complete(outcome)

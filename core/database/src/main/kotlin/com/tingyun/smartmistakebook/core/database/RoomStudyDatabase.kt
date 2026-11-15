@@ -13,6 +13,8 @@ import com.tingyun.smartmistakebook.core.database.entity.LlmTeachingAdvisoryEnti
 import com.tingyun.smartmistakebook.core.database.LearningLedgerRead
 import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealFact
 import com.tingyun.smartmistakebook.core.database.PersistedReviewLogLast
+import com.tingyun.smartmistakebook.core.database.port.KnowledgeCatalogRecord
+import com.tingyun.smartmistakebook.core.model.KnowledgeCatalogPosition
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.File
@@ -661,6 +663,15 @@ internal class RoomStudyDatabase(
         queryText = queryText,
     )
 
+    override suspend fun readKnowledgeCatalogPage(
+        terms: List<String>,
+        after: KnowledgeCatalogPosition?,
+        limit: Int,
+    ): List<KnowledgeCatalogRecord> = knowledgeBase.readKnowledgeCatalogPage(terms, after, limit)
+
+    override fun observeKnowledgeCatalogChanges(): Flow<Unit> =
+        knowledgeBase.observeKnowledgeCatalogChanges()
+
     override suspend fun readKnowledgeNodesByIds(ids: Set<String>): List<KnowledgeNodeSeedRecord> =
         knowledgeBase.readKnowledgeNodesByIds(ids)
 
@@ -1255,6 +1266,47 @@ internal class RoomStudyDatabase(
         messageIds: List<String>,
     ): List<TutorMessageSourceAssetRecord> =
         database.tutorConversationDao().readMessageSourceAssets(messageIds)
+
+    override fun observeTutorReplyVersions(conversationId: String): Flow<List<TutorReplyVersionRecord>> =
+        database.tutorReplyVersionDao().observe(conversationId)
+
+    override suspend fun publishTutorReplyVersion(
+        original: TutorReplyVersionRecord,
+        replacement: TutorReplyVersionRecord,
+    ): Boolean = database.withWriteTransaction {
+        val assetIds = org.json.JSONArray(replacement.sourceAssetIdsJson).let { array ->
+            List(array.length()) { array.getString(it) }
+        }
+        require(assetIds.size <= com.tingyun.smartmistakebook.core.database.dao.MAX_STUDENT_MESSAGE_IMAGES && assetIds.all(String::isNotBlank) && assetIds.distinct() == assetIds)
+        val links = database.tutorConversationDao().assistantFigureLinks(
+            AppendTutorAssistantMessageDatabaseCommand(
+                conversationId = replacement.conversationId,
+                messageId = replacement.groupId,
+                replyToMessageId = null,
+                bodyMarkdown = replacement.bodyMarkdown,
+                toolTraceJson = replacement.toolTraceJson,
+                sourceImageAssetIds = assetIds,
+                logicalOperationId = replacement.requestId,
+                status = "SUCCEEDED",
+                createdAtEpochMillis = replacement.createdAtEpochMillis,
+                completedAtEpochMillis = replacement.createdAtEpochMillis,
+                errorCode = null,
+            ),
+        )
+        require(links.all { it.role != null }) { "Reply figures require admitted generation records" }
+        database.tutorReplyVersionDao().publish(original, replacement, links)
+    }
+
+    override suspend fun selectTutorReplyVersion(
+        conversationId: String, groupId: String, versionId: String,
+    ): Boolean = database.tutorReplyVersionDao().select(conversationId, groupId, versionId)
+
+    override suspend fun saveTutorReplyVersionAnswer(
+        versionId: String, expected: String?, responseJson: String, updatedAt: Long,
+        allowLockedReveal: Boolean,
+    ): Boolean = database.tutorReplyVersionDao().saveAnswer(
+        versionId, expected, responseJson, updatedAt, allowLockedReveal,
+    )
 
     override suspend fun appendTutorAssistantMessage(
         command: AppendTutorAssistantMessageDatabaseCommand,

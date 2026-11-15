@@ -63,6 +63,7 @@ class RoomAgentPendingRequestRepositoryTest {
                 conversationId = "conversation-1",
                 payloadJson = exportPayload,
                 occurredAtEpochMillis = 100L,
+                legacyConsent = true,
                 context = TutorRoundPermissionContext(),
             ),
         )
@@ -100,6 +101,7 @@ class RoomAgentPendingRequestRepositoryTest {
                 conversationId = "conversation-1",
                 payloadJson = """{"libraryProblemId":"rev-1"}""",
                 occurredAtEpochMillis = 100L,
+                legacyConsent = true,
             ),
         )!!
 
@@ -187,6 +189,7 @@ class RoomAgentPendingRequestRepositoryTest {
                     conversationId = "conversation-1",
                     payloadJson = """{"libraryProblemId":"rev-1"}""",
                     occurredAtEpochMillis = 100L,
+                legacyConsent = true,
                 ),
             ),
         )

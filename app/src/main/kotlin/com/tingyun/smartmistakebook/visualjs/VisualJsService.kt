@@ -599,7 +599,8 @@ class VisualJsService : Service() {
             VisualJsProtocol.encodeResult(result) to result
         } catch (overBudget: VisualJsBudgetException) {
             val rejection = VisualExecutionResult.Rejected(
-                VisualExecutionRejection.INVALID_SCENE,
+                if (result is VisualExecutionResult.Computed) VisualExecutionRejection.INVALID_PROGRAM
+                else VisualExecutionRejection.INVALID_SCENE,
                 bounded(overBudget.message ?: "result envelope is over budget"),
             )
             VisualJsProtocol.encodeRejection(rejection.reason, rejection.diagnostics) to rejection
@@ -617,7 +618,7 @@ class VisualJsService : Service() {
         }
         val readEnd = pipe[0]
         val writeEnd = pipe[1]
-        val status = if (effective is VisualExecutionResult.Rendered) {
+        val status = if (effective is VisualExecutionResult.Rendered || effective is VisualExecutionResult.Computed) {
             VisualJsWire.RESULT_OK
         } else {
             VisualJsWire.RESULT_REJECTED

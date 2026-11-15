@@ -17,8 +17,10 @@
 from __future__ import annotations
 
 import re
+import runpy
 import subprocess
 import sys
+
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -29,7 +31,8 @@ def read(rel: str) -> str:
 
 
 def literals(rel: str) -> list[str]:
-    return re.findall(r'"([^"\n]*)"', read(rel))
+    tokens = re.findall(r'/\*[\s\S]*?\*/|//[^\n]*|"(?:\\.|[^"\\])*"', read(rel))
+    return [token[1:-1] for token in tokens if token.startswith('"')]
 
 
 def main_kt() -> list[Path]:
@@ -38,6 +41,12 @@ def main_kt() -> list[Path]:
         files.extend(p for p in ROOT.glob(pattern) if p.is_file())
     return files
 
+
+BADGE = "core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/AiContentBadge.kt"
+TUTOR_TURN = "feature/tutor/src/main/java/com/tingyun/smartmistakebook/feature/tutor/TutorGeneratedTurn.kt"
+ATTACHED_IMAGE = "core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/AttachedImageCard.kt"
+PRIVACY_COPY = "app/src/main/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopy.kt"
+PAPER_EDIT = "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPaperEdit.kt"
 
 CAPTION = "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/AiGeneratedImageCaption.kt"
 PLANNER = "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfPagePlanner.kt"
@@ -93,7 +102,7 @@ class TestH001to009AigcExplicit:
         assert "else -> false" in text
 
     def test_h005_no_weakening_synonyms_in_product_source(self) -> None:
-        hits = [p for p in main_kt() if re.search(r"AI 创作|智能辅助|由模型优化", p.read_text(encoding="utf-8", errors="replace"))]
+        hits = [p for p in main_kt() for lit in literals(p.as_posix()) if re.search(r"AI 创作|智能辅助|由模型优化|AI创作", lit)]
         assert hits == []
 
     def test_h006_no_user_switch_can_disable_the_label(self) -> None:
@@ -104,15 +113,20 @@ class TestH001to009AigcExplicit:
         definitions = sum(p.read_text(encoding="utf-8", errors="replace").count('= "本图由 AI 生成"') for p in main_kt())
         assert definitions == 1
 
-    def test_h008_gap_tutor_ui_has_no_ai_label(self) -> None:
-        files = list((ROOT / "feature/tutor/src/main").rglob("*.kt")) + list((ROOT / "core/ui/src/main").rglob("*.kt"))
-        assert [p for p in files if "AI 生成" in p.read_text(encoding="utf-8", errors="replace")] == []
+    def test_h008_tutor_and_image_ui_render_the_shared_ai_label(self) -> None:
+        assert 'const val AI_GENERATED_LABEL: String = "AI 生成"' in read(BADGE)
+        for path, tag in ((TUTOR_TURN, "tutor_ai_generated_label"),
+                          (ATTACHED_IMAGE, "attached_image_ai_label_${image.imageId}")):
+            text = read(path)
+            assert re.search(r"AiContentBadge\(\s*text = AI_GENERATED_LABEL,", text)
+            assert f'testTag("{tag}")' in text
 
     def test_h009_regression_guards_and_generation_sentinel(self) -> None:
         assert read(AIGC_JVM_TEST).count("@Test") >= 10
         assert read(CAPTION_TEST).count("@Test") >= 6
-        assert "const val GENERATION: Int = 2" in read(POLICY)
+        assert "const val GENERATION: Int = 3" in read(POLICY)
         assert "aigc-policy-gen-${PdfAigcContentPolicy.GENERATION}" in read(EXPORTER)
+        assert 'assertEquals("mistake-export-v5-math-layout-aigc-gen-3", exportFingerprintPolicyTag())' in read(AIGC_JVM_TEST)
 
 
 class TestH010to018AigcImplicit:
@@ -152,11 +166,16 @@ class TestH010to018AigcImplicit:
         assert "aiGenerated=false" in text
         assert "Label" in text
 
-    def test_h018_gap_docx_and_model_paper_edit_still_lack_document_label(self) -> None:
-        # KD-84 已修（closed）；剩余缺口 = DOCX 载体 + KD-85（模型改卷文本）。
-        assert "/AIGC" not in read(DOCX)
-        assert "## KD-84 (closed" in read(KD)
-        assert "## KD-85 (open" in read(KD)
+    def test_h018_docx_metadata_and_model_paper_edit_share_the_policy(self) -> None:
+        text = read(DOCX)
+        assert "val labeled = PdfAigcContentPolicy.shouldLabel(" in text
+        assert "hasAiGeneratedImage = input.paintsAiGeneratedImage()" in text
+        assert "hasModelParsedText = input.hasModelParsedText" in text
+        assert text.count("includeAigcProperty = labeled") == 2
+        assert re.search(r"if \(labeled\) \{\s*add\(\s*MinimalDocxWriter.customPropertiesPart\(", text)
+        assert "PdfAigcMetadata.document(input.inputSha256).toJson()" in text
+        assert "hasModelParsedText = sourceInput.hasModelParsedText || modelTextApplied" in read(PAPER_EDIT)
+
 
 
 class TestH019to027Privacy:
@@ -189,9 +208,11 @@ class TestH019to027Privacy:
         hits = [p for p in main_kt() if re.search(r"https?://[^\" ]*(privacy|policy)", p.read_text(encoding="utf-8", errors="replace"))]
         assert hits == []
 
-    def test_h025_gap_referenced_minor_chapter_does_not_exist(self) -> None:
+    def test_h025_referenced_minor_chapter_is_rendered_in_app(self) -> None:
         assert "未成年人个人信息保护章节" in read(DISCLOSURE)
-        assert "未成年人" not in read(PRIV_CURRENT) + read(PRIV_FLOW)
+        assert "## 未成年人个人信息保护" in read(PRIV_CURRENT)
+        assert 'title = "未成年人个人信息保护"' in read(PRIVACY_COPY)
+        assert "PrivacyPolicyCopy.sections(networkOffline).forEach" in read(SECONDARY)
 
     def test_h026_delete_confirmation_lists_the_same_scope(self) -> None:
         text = read(SECONDARY)
@@ -229,8 +250,8 @@ class TestH028to036DataSafety:
 
     def test_h033_telemetry_compliance_checker_passes(self) -> None:
         proc = subprocess.run(
-            [sys.executable, "-I", str(ROOT / "tools/ci/check_telemetry_compliance.py")],
-            cwd=ROOT, capture_output=True, text=True,
+            [sys.executable, "-I", "-X", "utf8", str(ROOT / "tools/ci/check_telemetry_compliance.py")],
+            cwd=ROOT, capture_output=True, text=True, encoding="utf-8",
         )
         assert proc.returncode == 0, proc.stdout + proc.stderr
 
@@ -255,9 +276,15 @@ class TestH037to045Minor:
         text = read(DECISIONS)
         assert "不建设" in text and "无内容池" in text
 
-    def test_h039_gap_guardian_consent_ui_absent(self) -> None:
-        hits = [p for p in main_kt() if re.search(r"guardianConsent|监护人同意", p.read_text(encoding="utf-8", errors="replace"))]
-        assert hits == []
+    def test_h039_gap_policy_notice_does_not_supply_guardian_consent_mechanism(self) -> None:
+        assert "需要监护人同意的处理" in read(PRIVACY_COPY)
+        definitions = [p for p in main_kt() if re.search(
+            r"\b(?:val|var|fun)\s+(?:guardianConsent|guardian_consent)\w*",
+            p.read_text(encoding="utf-8"),
+        )]
+        assert definitions == []
+        gate = runpy.run_path(str(ROOT / "tools/ci/h_compliance_gate.py"))
+        assert gate["h039"]()[0] is False
 
     def test_h040_gap_age_confirmation_ui_absent(self) -> None:
         hits = [p for p in main_kt() if "feature/" in p.as_posix() and re.search(r"年龄确认|ageConfirm|UNDER_14", p.read_text(encoding="utf-8", errors="replace"))]
@@ -269,12 +296,20 @@ class TestH037to045Minor:
     def test_h042_gap_screen_time_control_absent(self) -> None:
         assert not [p for p in main_kt() if re.search(r"累计使用时长|使用时长提醒|静默时段", p.read_text(encoding="utf-8", errors="replace"))]
 
-    def test_h043_gap_teen_chapter_missing_from_privacy_text(self) -> None:
-        assert "未成年人个人信息" not in read(PRIV_CURRENT)
+    def test_h043_minor_policy_covers_consent_withdrawal_and_deletion(self) -> None:
+        for text in (read(PRIV_CURRENT), read(PRIVACY_COPY)):
+            assert "未成年人个人信息保护" in text
+            assert "第三十一条" in text
+            assert "14 周岁" in text
+            assert "拒绝或撤回同意" in text
+            assert "删除全部本机数据" in text
 
     def test_h044_no_social_or_private_message_feature(self) -> None:
         ui = [p for p in main_kt() if "/feature/" in p.as_posix() or p.as_posix().startswith(ROOT.as_posix() + "/app/")]
-        hits = [lit for p in ui for lit in literals(p.as_posix()) if re.search(r"私信|好友|评论|聊天室", lit)]
+        policy_notice = "14–17 岁用户同样建议在监护人指导下使用；应用不含社交、私信、评论、广告与内购。"
+        hits = [lit for p in ui for lit in literals(p.as_posix())
+                if re.search(r"私信|好友|评论|聊天室", lit)
+                and not (p == ROOT / PRIVACY_COPY and lit == policy_notice)]
         assert hits == []
 
     def test_h045_under14_telemetry_denial_is_tested(self) -> None:
@@ -349,8 +384,12 @@ class TestH055to063ExportMarking:
         assert "partial-page print must keep the document-level /AIGC" in device
         assert "prepared.inputSha256, subsetReadBack.produceId" in device
 
-    def test_h062_gap_model_paper_edit_text_is_unlabelled(self) -> None:
-        assert "KD-85" in read(KD)
+    def test_h062_model_text_provenance_survives_paper_edit(self) -> None:
+        text = read(PAPER_EDIT)
+        assert "val modelTextApplied: Boolean = false" in text
+        assert "modelTextApplied = true" in text
+        assert "hasModelParsedText = sourceInput.hasModelParsedText || modelTextApplied" in text
+        assert "modelTextApplied = modelTextApplied" in text
 
     def test_h063_gap_caption_legibility_is_a_human_visual_check(self) -> None:
         assert "图注" in read(CAPTION)
@@ -392,7 +431,9 @@ class TestH064to072ErrorCopy:
 
     def test_h070_failure_notification_is_plain_and_private(self) -> None:
         text = read(NOTIFICATIONS)
-        assert 'title = "这次导出没有完成"' in text and "text = failureMessage" in text
+        failure = text.split("fun postFailed(", 1)[1].split("fun foregroundInfo(", 1)[0]
+        assert 'MistakeExportArtifactRole.DETAILED_ANSWERS) "详细答案未导出" else "这次导出没有完成"' in failure
+        assert "text = failureMessage" in failure
 
     def test_h071_injection_failure_is_fail_closed(self) -> None:
         text = read(EXPORTER)

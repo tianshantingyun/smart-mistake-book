@@ -210,6 +210,8 @@ class SmartMistakeBookApplication : Application() {
 
     lateinit var modelTaskRepository: ModelTaskRepository
         private set
+    /** Installed by the active navigation host and cleared when that host leaves composition. */
+    var tutorActionNavigator: ((String?) -> Boolean)? = null
     var mistakeEditRepository: com.tingyun.smartmistakebook.core.domain.MistakeEditRepository? = null
         private set
     var detailedSolutionRepository: com.tingyun.smartmistakebook.core.domain.DetailedSolutionRepository? = null
@@ -307,6 +309,15 @@ class SmartMistakeBookApplication : Application() {
 
     internal fun requireDatabaseRestart(message: String) {
         restartReason.value = message
+    }
+
+    /** 自主备份恢复 worker 读取发起它的对话任务终态；null = 任务行不存在。 */
+    internal suspend fun tutorModelTaskStatus(requestId: String): com.tingyun.smartmistakebook.core.model.ModelTaskStatus? =
+        modelTaskRepository.observe(requestId).first()?.status
+
+    /** 备份已恢复：走与手动恢复相同的重启门，不静默让旧连接继续服务。 */
+    internal fun onTutorBackupRestored(message: String) {
+        requireDatabaseRestart(message)
     }
 
     override fun onCreate() {
@@ -523,8 +534,9 @@ class SmartMistakeBookApplication : Application() {
                 },
                 scope = applicationScope,
             ).also(ReviewReminderCoordinator::start)
-            modelTaskRepository = ModelTaskRepositoryFactory.create(
+            val baseModelTaskRepository = ModelTaskRepositoryFactory.create(
                 database = database,
+                localActionExecutor = autonomousTutorActions(),
                 gateway = gateway,
                 figureCapabilities = { figureGenerationCoordinator.capabilities() },
                 // 工具环里的 KNOWLEDGE_READ 读这个就绪位：内容没就位时回"还在准备"，
@@ -545,7 +557,15 @@ class SmartMistakeBookApplication : Application() {
                         )
                     }
                 },
+                visualEngine = jsHost.engine,
+                figureInspector = com.tingyun.smartmistakebook.core.data.model.TutorFigureInspectorFactory.create(
+                    this,
+                    database,
+                ),
             )
+            modelTaskRepository = TutorAgentContextRepository(baseModelTaskRepository) {
+                tutorBackupReferences()
+            }
             val editConfigurationStore = modelConfigurationStore
             run {
                 mistakeEditRepository = com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeEditRepository.create(

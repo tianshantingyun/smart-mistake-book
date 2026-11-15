@@ -74,7 +74,7 @@ class FullMigrationMatrixInstrumentedTest {
                 assertEquals(STUDY_DATABASE_VERSION, db.version)
                 db.rawQuery("SELECT identity_hash FROM room_master_table WHERE id=42", null).use {
                     assertTrue(it.moveToFirst())
-                    assertEquals("f9a3d1c9ea8ef83d7222721ad1015a51", it.getString(0))
+                    assertEquals("5e6ec85c861c772d5106a5c2d771d5bb", it.getString(0))
                 }
                 db.rawQuery("PRAGMA foreign_key_check", null).use { assertFalse(it.moveToFirst()) }
             }

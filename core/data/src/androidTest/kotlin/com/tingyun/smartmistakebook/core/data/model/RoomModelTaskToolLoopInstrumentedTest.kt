@@ -17,6 +17,10 @@ import com.tingyun.smartmistakebook.core.model.ModelEgressManifest
 import com.tingyun.smartmistakebook.core.model.ModelEgressPurpose
 import com.tingyun.smartmistakebook.core.model.ModelGatewayEvent
 import com.tingyun.smartmistakebook.core.domain.ModelGateway
+import com.tingyun.smartmistakebook.core.domain.TutorLocalActionExecutor
+import com.tingyun.smartmistakebook.core.model.TutorLocalAction
+import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
+import com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome
 import com.tingyun.smartmistakebook.core.model.ModelGatewayExecution
 import com.tingyun.smartmistakebook.core.model.ModelTaskOutput
 import kotlinx.coroutines.flow.flow
@@ -405,6 +409,100 @@ class RoomModelTaskToolLoopInstrumentedTest {
     }
 
     @Test
+    fun fiveActionOnlyRoundsLeaveTheSixthDispatchWithNoToolOrActionAdvertisement() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "action-only-budget-${System.nanoTime()}.db"
+        val database = StudyDatabaseFactory.open(context, databaseName)
+        try {
+            val rounds = (1..TutorToolRoundResult.MAX_TOOL_ROUNDS).map { ordinal ->
+                toolRequestOutput().copy(
+                    calls = emptyList(),
+                    localActions = listOf(TutorLocalActionRequest(
+                        TutorLocalAction.OPEN_PROBLEM, callId = "open-$ordinal",
+                    )),
+                )
+            }
+            val gateway = ScriptedGateway(provider, rounds + finalAnswerOutput())
+            val repository = RoomModelTaskRepository(
+                database = database, gateway = gateway,
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+                localActionExecutor = TutorLocalActionExecutor { command ->
+                    TutorLobbyLocalActionOutcome(
+                        command.request.action.actionId, "SUCCEEDED", "已经打开错题本。",
+                        callId = command.request.callId, ok = true,
+                    )
+                },
+            )
+            val completed = repository.execute(request()).toList().last()
+            assertEquals(ModelTaskStatus.SUCCEEDED, completed.status)
+            assertEquals(6, gateway.dispatchCount)
+            val finalInput = gateway.dispatchLog.last().input as TutorLobbyInput
+            assertEquals(5, finalInput.toolRoundsUsed)
+            assertTrue(finalInput.toolRoundResults.isEmpty())
+            assertEquals(5, finalInput.localActionOutcomes.size)
+            val capabilities = com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot.forRound(finalInput)
+            assertTrue(capabilities.tools.isEmpty())
+            assertTrue(capabilities.localActions.isEmpty())
+            assertFalse(OpenAiModelProtocol.declaresNativeTools(finalInput))
+            assertTrue(com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot.forRound(
+                finalInput.copy(toolRoundsUsed = 4, toolDeclarations = emptyList()),
+            ).localActions.isNotEmpty())
+        } finally {
+            database.close()
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    @Test
+    fun actionRoundFeedsEveryActualReceiptAndLetsOpenConsumeTheSavedEntry() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "action-round-results-${System.nanoTime()}.db"
+        val database = StudyDatabaseFactory.open(context, databaseName)
+        try {
+            val actions = listOf(
+                TutorLocalActionRequest(TutorLocalAction.SAVE_TO_NOTEBOOK, callId = "save"),
+                TutorLocalActionRequest(TutorLocalAction.OPEN_PROBLEM,
+                    mapOf("entryId" to "entry-saved"), callId = "open"),
+                TutorLocalActionRequest(TutorLocalAction.OPEN_PROBLEM,
+                    mapOf("entryId" to "invented-entry"), callId = "unknown"),
+                TutorLocalActionRequest(TutorLocalAction.OPEN_PROBLEM, callId = "no-window"),
+            )
+            val round = toolRequestOutput().copy(calls = emptyList(), localActions = actions)
+            val gateway = ScriptedGateway(provider, listOf(round, finalAnswerOutput()))
+            val executions = mutableListOf<com.tingyun.smartmistakebook.core.domain.TutorLocalActionCommand>()
+            val repository = RoomModelTaskRepository(
+                database = database, gateway = gateway,
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+                localActionExecutor = TutorLocalActionExecutor { command ->
+                    executions += command
+                    val ok = command.request.callId != "no-window"
+                    TutorLobbyLocalActionOutcome(
+                        kind = command.request.action.actionId,
+                        decision = if (ok) "SUCCEEDED" else "FAILED", ok = ok,
+                        detail = if (ok) "已执行" else "导航窗口不可用",
+                        callId = command.request.callId,
+                        artifactId = "entry-saved".takeIf { ok },
+                    )
+                },
+            )
+            val completed = repository.execute(request()).toList().last()
+            assertEquals(ModelTaskStatus.SUCCEEDED, completed.status)
+            assertEquals(2, gateway.dispatchCount)
+            assertEquals(listOf("save", "open", "no-window"), executions.map { it.request.callId })
+            assertEquals("entry-saved", executions[1].context.libraryProblemId)
+            assertEquals("entry-saved", executions[2].context.libraryProblemId)
+            val feedback = (gateway.dispatchLog[1].input as TutorLobbyInput).localActionOutcomes
+            assertEquals(listOf("save", "open", "unknown", "no-window"), feedback.map { it.callId })
+            assertEquals(listOf(true, true, false, false), feedback.map { it.ok })
+            assertTrue(requireNotNull(feedback[2].detail).contains("不在本轮"))
+            assertEquals("导航窗口不可用", feedback[3].detail)
+        } finally {
+            database.close()
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    @Test
     fun nativeActionSurvivesWhenTheFinalAnswerDoesNotRepeatIt() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val databaseName = "native-action-completion-${System.nanoTime()}.db"
@@ -436,7 +534,7 @@ class RoomModelTaskToolLoopInstrumentedTest {
             val encoded = Json.encodeToJsonElement(TutorLobbyOutput.serializer(), output).jsonObject
             assertEquals(
                 Json.parseToJsonElement(
-                    """[{"action":"START_EXPORT","parameters":{"templateId":"practice_sheet","columnCount":"2"}}]""",
+                    """[{"action":"START_EXPORT","parameters":{"templateId":"practice_sheet","columnCount":"2"},"callId":"export-1"}]""",
                 ),
                 encoded["requestedLocalActions"] ?: JsonArray(emptyList()),
             )
@@ -649,6 +747,75 @@ class RoomModelTaskToolLoopInstrumentedTest {
             val request = figureRequests.single()
             assertEquals(FigureGenerationMethod.JS, request.method)
             assertEquals(jsProgram, request.program)
+        } finally {
+            database.close()
+            context.deleteDatabase(databaseName)
+        }
+    }
+
+    @Test
+    fun aFailedJsProgramIsDiagnosedRepairedAndReturnedAsALocalFigure() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val databaseName = "plan-loop-js-repair-${System.nanoTime()}.db"
+        context.deleteDatabase(databaseName)
+        val database = StudyDatabaseFactory.open(context, databaseName)
+        try {
+            val broken = "const visual = { prepare() { return []; }, render() { throw Error('bad scene'); } };"
+            val repaired = "const visual = { prepare() { return []; }, render(input) { return {schemaVersion:1}; } };"
+            val diagnostic = "INVALID_SCENE: SCENE_FIELD_UNKNOWN root.stroke.color"
+            val figureRequests = mutableListOf<TutorFigureRequest>()
+            val generator = object : TutorFigureGenerator {
+                override fun supports(method: FigureGenerationMethod) = method == FigureGenerationMethod.JS
+                override suspend fun generate(request: TutorFigureRequest): TutorFigureResult {
+                    figureRequests += request
+                    return if (figureRequests.size == 1) {
+                        TutorFigureResult(null, TutorFigureStatus.FAILED, diagnostics = diagnostic)
+                    } else {
+                        TutorFigureResult("asset-js-repaired", TutorFigureStatus.GENERATED)
+                    }
+                }
+            }
+            val final = planFinalOutput().let { output ->
+                output.copy(plan = output.plan.copy(
+                    openingMarkdown = "修正后用图解释数轴关系。\n\n[[figure:asset-js-repaired]]",
+                ))
+            }
+            val gateway = ScriptedGateway(
+                planProvider,
+                listOf(planJsFigureRequest(broken), planJsFigureRequest(repaired), final),
+            )
+            val repository = RoomModelTaskRepository(
+                database = database,
+                gateway = gateway,
+                clock = { 2_000L },
+                knowledgeBaseAvailability = readyKnowledgeBaseAvailability(),
+                figureGenerator = generator,
+                figureCapabilities = {
+                    FigureGenerationCapabilities(availableMethods = setOf(FigureGenerationMethod.JS))
+                },
+            )
+            val snapshots = repository.execute(planRequest("tutor-plan:js-repair")).toList()
+            assertEquals(ModelTaskStatus.SUCCEEDED, snapshots.last().status)
+            assertEquals(3, gateway.dispatchCount)
+            assertEquals(listOf(broken, repaired), figureRequests.map { it.program })
+            assertEquals(figureRequests[0].description, figureRequests[1].description)
+            assertEquals(figureRequests[0].parentOperationId, figureRequests[1].parentOperationId)
+            listOf(false, true).forEach { native ->
+                val body = OpenAiModelProtocol.requestBody(
+                    modelId = "test-model",
+                    input = gateway.dispatchLog[1].input,
+                    images = emptyList(),
+                    enableNativeTools = native,
+                )
+                assertTrue(body.contains(diagnostic))
+                assertTrue(body.contains("修改 program"))
+            }
+            val third = gateway.dispatchLog[2].input as com.tingyun.smartmistakebook.core.model.TutorPlanInput
+            assertTrue(third.toolRoundResults.last().outcomes.single().ok)
+            assertTrue(third.toolRoundResults.last().outcomes.single().summaryMarkdown
+                .contains("[[figure:asset-js-repaired]]"))
+            val output = snapshots.last().output as com.tingyun.smartmistakebook.core.model.TutorPlanOutput
+            assertTrue(output.plan.openingMarkdown.contains("[[figure:asset-js-repaired]]"))
         } finally {
             database.close()
             context.deleteDatabase(databaseName)

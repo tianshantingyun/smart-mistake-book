@@ -34,7 +34,8 @@ class TutorSettlementNoticeTest {
                 tutorVisitedForItem = true,
             ),
         )
-        assertTrue("还没有形成判定" in notice.message)
+        assertTrue("尚未形成判定" in notice.message)
+        assertTrue("复习进度未更新" in notice.message)
         assertTrue(notice.retryLabel.isNotBlank())
     }
 

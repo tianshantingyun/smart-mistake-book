@@ -38,6 +38,10 @@ data class TutorLobbyInput(
     val toolDeclarations: List<TutorToolName> = emptyList(),
     /** Results of prior tool rounds; round 1 dispatch always leaves this empty. */
     val toolRoundResults: List<TutorToolRoundResult> = emptyList(),
+    /** Completed tool and local-action rounds, including rounds with no tool result entries. */
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val toolRoundsUsed: Int = 0,
     /**
      * 上一轮本地动作（确认卡）的裁决结果（A4 回喂，D-K2e）：本地动作 ≈ 工具的一种，执行结果
      * 照常回喂模型上下文——否则模型下一轮会重新请求同一件事，或者以为学生点了。
@@ -75,6 +79,8 @@ data class TutorLobbyInput(
     @OptIn(ExperimentalSerializationApi::class)
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val figureGenerationCapabilities: FigureGenerationCapabilities? = null,
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val agentContext: TutorAgentContext? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_LOBBY
@@ -149,14 +155,19 @@ data class TutorLobbyInput(
         require(toolRoundResults.size <= TutorToolRoundResult.MAX_TOOL_ROUNDS) {
             "Tutor lobby carries too many tool rounds"
         }
+        require(toolRoundsUsed in 0..TutorToolRoundResult.MAX_TOOL_ROUNDS) {
+            "Tutor lobby tool round count is outside the round budget"
+        }
         require(toolRoundResults.isEmpty() || toolDeclarations.isNotEmpty()) {
             "Tutor lobby tool rounds require declared tools"
         }
-        require(
-            toolRoundResults.map(TutorToolRoundResult::roundOrdinal) ==
-                (1..toolRoundResults.size).toList(),
-        ) {
-            "Tutor lobby tool round ordinals must be sequential from one"
+        val ordinals = toolRoundResults.map(TutorToolRoundResult::roundOrdinal)
+        require(if (toolRoundsUsed == 0) {
+            ordinals == (1..toolRoundResults.size).toList()
+        } else {
+            ordinals == ordinals.distinct().sorted() && ordinals.all { it <= toolRoundsUsed }
+        }) {
+            "Tutor lobby tool result ordinals must follow the completed round order"
         }
         require(localActionOutcomes.size <= MAX_LOCAL_ACTION_OUTCOMES) {
             "Tutor lobby carries too many local action outcomes"
@@ -208,8 +219,22 @@ data class TutorLobbyLocalActionOutcome(
     val kind: String,
     val decision: String,
     val detail: String? = null,
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val callId: String? = null,
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val ok: Boolean? = null,
+    @OptIn(ExperimentalSerializationApi::class)
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val artifactId: String? = null,
 ) {
     init {
+        kind.requireSafeModelText("A local action outcome kind", 64, false)
+        decision.requireSafeModelText("A local action outcome decision", 64, false)
+        detail?.requireSafeModelText("A local action outcome detail", 2_000, true)
+        callId?.requireSafeModelText("A local action outcome call id", ModelTaskRequest.MAX_ID_CHARS, false)
+        artifactId?.requireSafeModelText("A local action outcome artifact id", ModelTaskRequest.MAX_ID_CHARS, false)
         require(kind.isNotBlank()) { "A local action outcome needs a kind" }
         require(decision.isNotBlank()) { "A local action outcome needs a decision" }
         require(detail == null || detail.isNotBlank()) {
@@ -218,7 +243,7 @@ data class TutorLobbyLocalActionOutcome(
     }
 }
 
-/** A persistable response that cannot claim or request a local write. */
+/** 持久化的大厅回复，动作完成状态以本地执行回执为准。 */
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @SerialName("tutor_lobby_output")
@@ -241,17 +266,10 @@ data class TutorLobbyOutput(
      * 所以保留它并在此说明，而不是加一层多余机制。
      */
     val attachedImages: List<AttachedImage> = emptyList(),
-    /**
-     * 模型这一轮申请的本地动作（规格 §3.2 白名单；D-K2e）。**模型的输出**，不是本地事实：
-     * 每一项都要过本地的权限档（ask → 确认卡）与目标解析（本轮有没有可执行的东西）才会
-     * 变成一张卡；模型**不得**在正文里声称已经做过（提示词明说，见
-     * [TutorLocalAction.purposeDescription]）。
-     *
-     * 排序即模型的提出顺序（本地按顺序挂卡，学生按顺序看到）。空列表不落键（`bf8be888`）。
-     */
+    /** 模型按顺序申请的本地动作，执行器处理并把每项真实结果回传后续回合。 */
     val localActions: List<TutorLocalActionRequest> = emptyList(),
     val modelVersion: String,
-    /** 执行器累积的动作交接；不属于模型 wire 输出，仍由本地准入选出一张确认卡。 */
+    /** 执行器累积的动作留痕，保留旧版本解码形状。 */
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     val requestedLocalActions: List<TutorLocalActionRequest> = emptyList(),
     @EncodeDefault(EncodeDefault.Mode.NEVER)

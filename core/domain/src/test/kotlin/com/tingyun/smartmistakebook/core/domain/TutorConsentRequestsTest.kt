@@ -44,7 +44,17 @@ class TutorConsentRequestsTest {
         payloadJson = payloadJson,
         occurredAtEpochMillis = occurredAtEpochMillis,
         context = context,
+        legacyConsent = true,
     )
+
+    @Test
+    fun autonomousDefaultDoesNotCreateANewConsentCard() = runBlocking {
+        val failure = runCatching {
+            consent.suspend(state = turn(), command = suspendCommand().copy(legacyConsent = false))
+        }.exceptionOrNull()
+        assertTrue(failure is IllegalArgumentException)
+        assertTrue(requests.rows.isEmpty())
+    }
 
     @Test
     fun anAdmittedAskRequestHangsTheTurnAndLeavesTheCardInTheDatabase() =

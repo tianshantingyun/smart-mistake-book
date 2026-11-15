@@ -431,6 +431,8 @@ data class FigureGenerationProposal(
     val constraints: List<String> = emptyList(),
     /** JS 方法载荷；IMAGE_MODEL 方法不得携带。 */
     val program: String? = null,
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val initialStateJson: String? = null,
     /** IMAGE_MODEL 方法载荷；JS 方法不得携带。 */
     @SerialName("imageOperation") val imageOperation: FigureImageOperation? = null,
     @SerialName("imagePrompt") val imagePrompt: String? = null,

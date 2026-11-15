@@ -17,9 +17,15 @@ import com.tingyun.smartmistakebook.core.data.model.FIGURE_METHOD_UNAVAILABLE
 import com.tingyun.smartmistakebook.core.data.model.JS_FIGURE_UNAVAILABLE_SUMMARY
 import com.tingyun.smartmistakebook.core.data.visual.UNATTRIBUTED_DIAGNOSTIC_PREFIX
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureGenerator
+import com.tingyun.smartmistakebook.core.data.model.TutorFigureInspector
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureRequest
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureResult
 import com.tingyun.smartmistakebook.core.data.model.TutorFigureStatus
+import com.tingyun.smartmistakebook.core.data.model.runTutorJavascript
+import com.tingyun.smartmistakebook.core.domain.TutorLocalActionCommand
+import com.tingyun.smartmistakebook.core.domain.TutorLocalActionContext
+import com.tingyun.smartmistakebook.core.domain.TutorLocalActionExecutor
+import com.tingyun.smartmistakebook.core.domain.VisualExecutionEngine
 import com.tingyun.smartmistakebook.core.domain.MasteryEstimateMath
 import com.tingyun.smartmistakebook.core.domain.MasteryWriteGate
 import com.tingyun.smartmistakebook.core.domain.tutorSessionObjectiveRecord
@@ -38,10 +44,16 @@ import com.tingyun.smartmistakebook.core.model.TutorEvidenceRecency
 import com.tingyun.smartmistakebook.core.model.TutorFigureKind
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCode
 import com.tingyun.smartmistakebook.core.model.TutorKnowledgeCodeRole
+import com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome
+import com.tingyun.smartmistakebook.core.model.ModelEgressAssetGrant
+import com.tingyun.smartmistakebook.core.model.QuestionDocument
+import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolFigureTrace
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
+import com.tingyun.smartmistakebook.core.model.TutorAgentQuestion
+import com.tingyun.smartmistakebook.core.model.TutorToolRoundResult
 import com.tingyun.smartmistakebook.core.model.defaultImageOperation
 import com.tingyun.smartmistakebook.core.model.figureGenerationPurpose
 import com.tingyun.smartmistakebook.core.model.visualRole
@@ -50,6 +62,12 @@ import com.tingyun.smartmistakebook.core.domain.isReady
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 /**
  * `tutor_message.role` value produced by `TutorConversationDao` for the
@@ -202,6 +220,16 @@ internal data class TutorToolExecution(
      * 与 [resultCount] 同一条纪律：只在本地，不进模型可见字段、不碰模型输入指纹。
      */
     val problemEntryIds: List<String> = emptyList(),
+    /** SELECT_QUESTION 选中的真实题目；仓库把它折进下一轮的 agent context。 */
+    val selectedQuestion: TutorAgentQuestion? = null,
+    /** READ_FIGURE 实际读到的图片 grant；下一轮随 agentContext.feedbackImages 出网。 */
+    val feedbackImage: com.tingyun.smartmistakebook.core.model.ModelEgressAssetGrant? = null,
+    /** RUN_JAVASCRIPT 完成后应持久化的状态；null = 本次没有更新状态。 */
+    val javascriptState: String? = null,
+    /** 本轮真实结果里出现的科目（NOTEBOOK_READ 的行科目），用于下一轮补全大厅上下文。 */
+    val subjects: List<String> = emptyList(),
+    /** APP_CONTEXT 明确选择的科目；下一轮用于 KNOWLEDGE_READ/MASTERY_READ。 */
+    val selectedSubject: String? = null,
 )
 
 /**
@@ -223,6 +251,15 @@ internal class RoomTutorToolRunner(
      * null 时 `GENERATE_FIGURE` 回 fail-closed 的"不可用"结果，**不**假装生成成功。
      */
     private val figureGenerator: TutorFigureGenerator? = null,
+    /**
+     * 通用 JavaScript 宿主：RUN_JAVASCRIPT 与 JS 生图共用同一个隔离引擎。
+     * null = 本装配没有引擎，工具回 fail-closed 的不可用结果。
+     */
+    private val visualEngine: VisualExecutionEngine? = null,
+    /** 本地动作执行器：JS 里的 agent.callAction 与自主动作共用同一持久执行器。 */
+    private val localActionExecutor: TutorLocalActionExecutor? = null,
+    /** READ_FIGURE 的像素检查器：返回有界像素统计与真实的图像 grant。 */
+    private val figureInspector: TutorFigureInspector? = null,
 ) {
     /** D-M M4：两条证据写通道的唯一写入口（本执行器只提供讲题通道的语义输入）。 */
     private val evidenceWriter = KnowledgeEvidenceWriter(port)
@@ -296,6 +333,11 @@ internal class RoomTutorToolRunner(
          * MASTERY_UPDATE 没有可写的目标 → **空范围**（ok=true + "本轮无可写目标"，K2a）。
          */
         val knowledgeCodeRegistry: TutorKnowledgeCodeRegistry? = null,
+        val selectedQuestion: TutorAgentQuestion? = null,
+        /** Host-resolved context for APP_CONTEXT / SELECT_QUESTION / READ_FIGURE / RUN_JAVASCRIPT. */
+        val agentContext: com.tingyun.smartmistakebook.core.model.TutorAgentContext? = null,
+        /** Plan/Respond 的当前题面（没有草稿时仍能证明"有当前题"）。 */
+        val currentQuestionDocument: QuestionDocument? = null,
     ) {
         init {
             require(attentionFactor in 0.0..1.0) { "Attention factor must be in 0..1" }
@@ -328,13 +370,17 @@ internal class RoomTutorToolRunner(
                     knowledgeRead(subject, call.terms, context)
                 }
             }
-            TutorToolName.NOTEBOOK_READ -> notebookRead(call.terms, context)
+            TutorToolName.NOTEBOOK_READ -> notebookRead(call)
             TutorToolName.MASTERY_READ -> masteryRead(call, context, context.allowsExtendedResult)
             TutorToolName.MASTERY_UPDATE -> masteryUpdate(call, context)
             TutorToolName.NOTEBOOK_WRITE -> notebookWrite(context)
             TutorToolName.ADVISORY_READ -> advisoryRead(call, context)
             TutorToolName.ADVISORY_WRITE -> advisoryWrite(call, context)
             TutorToolName.GENERATE_FIGURE -> generateFigure(call, context)
+            TutorToolName.APP_CONTEXT -> appContext(call, context)
+            TutorToolName.SELECT_QUESTION -> selectQuestion(call, context)
+            TutorToolName.READ_FIGURE -> readFigure(call, context)
+            TutorToolName.RUN_JAVASCRIPT -> runJavascript(call, context)
         }
     } catch (cancelled: CancellationException) {
         throw cancelled
@@ -403,6 +449,202 @@ internal class RoomTutorToolRunner(
      * 的映射表），原始 id 不进结果文本。材料《标题》与正文节选让模型"知道这个知识点讲什么"
      * 而不必再发一轮查询，单条预算内（总结果仍受 2k 轮工具结果预算约束）。
      */
+    /**
+     * APP_CONTEXT：把本轮**真实**已经装配的应用上下文回给模型（科目、已选题、已知条目/图片、
+     * 备份引用、已用轮数）。它不是再查一遍库：所有值都来自本轮输入与工具环已产生的事实，
+     * 所以不会把模型编造的 id 洗成真 id。
+     */
+    private fun appContext(call: TutorToolCall, context: Context): TutorToolExecution {
+        val agent = context.agentContext
+        val selected = context.selectedQuestion ?: agent?.selectedQuestion
+        val requestedSubject = call.parameters["subject"]
+        if (requestedSubject != null && requestedSubject.isNotBlank() &&
+            requestedSubject !in agent?.subjects.orEmpty() && requestedSubject != context.subject
+        ) {
+            return TutorToolExecution(
+                TutorToolOutcome(
+                    tool = call.tool,
+                    ok = false,
+                    summaryMarkdown = "这个科目不在本轮真实上下文里，未切换。",
+                    errorKind = "subject_not_disclosed",
+                ),
+            )
+        }
+        val subject = requestedSubject?.takeIf(String::isNotBlank) ?: context.subject
+        val json = buildJsonObject {
+            put("subject", subject?.let(::JsonPrimitive) ?: JsonNull)
+            put("subjects", JsonArray((agent?.subjects.orEmpty() + listOfNotNull(context.subject))
+                .distinct().map(::JsonPrimitive)))
+            selected?.let { question -> put("selectedQuestion", agentQuestionJson(question)) }
+            put("knownEntryIds", JsonArray(agent?.knownEntryIds.orEmpty().map(::JsonPrimitive)))
+            put("knownFigureIds", JsonArray(agent?.knownFigureIds.orEmpty().map(::JsonPrimitive)))
+            put("backupReferences", JsonArray(agent?.backupReferences.orEmpty().map { backup ->
+                buildJsonObject {
+                    put("ref", backup.ref)
+                    put("displayName", backup.displayName)
+                    put("createdAtEpochMillis", backup.createdAtEpochMillis)
+                    put("sizeBytes", backup.sizeBytes)
+                }
+            }))
+            put("roundsUsed", agent?.roundsUsed ?: 0)
+        }.toString()
+        return TutorToolExecution(
+            outcome = TutorToolOutcome(
+                tool = TutorToolName.APP_CONTEXT,
+                ok = true,
+                summaryMarkdown = "已读取应用上下文。",
+                dataJson = json,
+            ),
+            resultCount = 1,
+            selectedSubject = requestedSubject?.takeIf(String::isNotBlank),
+        )
+    }
+
+    /**
+     * SELECT_QUESTION：从**本轮已披露**的条目里选一道题，回完整题面并把它交给下一轮上下文。
+     * 只认本轮 NOTEBOOK_READ/已有上下文真实返回过的 entryId；模型不能凭一个 id 直接读库。
+     */
+    private suspend fun selectQuestion(call: TutorToolCall, context: Context): TutorToolExecution {
+        val entryId = call.parameters["entryId"]
+            ?: return TutorToolExecution(TutorToolOutcome(call.tool, false,
+                "请提供本轮已检索到的条目 id。", errorKind = "invalid_parameters"))
+        val disclosed = context.agentContext?.knownEntryIds.orEmpty() + listOfNotNull(
+            context.selectedQuestion?.entryId,
+            context.agentContext?.selectedQuestion?.entryId,
+        )
+        if (entryId !in disclosed) {
+            return TutorToolExecution(TutorToolOutcome(call.tool, false,
+                "这个条目不在本轮真实检索结果中，未读取。", errorKind = "entry_not_disclosed"))
+        }
+        val detail = port.readMistakeDetail(entryId)
+            ?: return TutorToolExecution(TutorToolOutcome(call.tool, false,
+                "这个条目已经不存在，未读取。", errorKind = "entry_not_found"))
+        val document = detail.questionDocumentSnapshot?.let { snapshot ->
+            runCatching { Json.decodeFromString(QuestionDocument.serializer(), snapshot) }.getOrNull()
+        } ?: QuestionDocument(
+            id = detail.problemRevisionId,
+            title = detail.title,
+            blocks = listOf(ContentBlock.Paragraph("stem-$entryId", detail.problemMarkdown)),
+        )
+        val selected = TutorAgentQuestion(
+            entryId = detail.entryId,
+            problemId = detail.problemId,
+            problemRevisionId = detail.problemRevisionId,
+            subject = detail.subject,
+            title = detail.title,
+            document = document,
+            tutorSessionId = detail.tutorSessionId,
+            sourceImages = detail.sourceAssets.map { source ->
+                val record = source.sourceAsset
+                ModelEgressAssetGrant(
+                    assetId = record.sourceAssetId,
+                    sha256 = record.contentSha256,
+                    byteSize = record.byteSize,
+                    width = record.width,
+                    height = record.height,
+                )
+            },
+        )
+        return TutorToolExecution(
+            outcome = TutorToolOutcome(
+                tool = TutorToolName.SELECT_QUESTION,
+                ok = true,
+                summaryMarkdown = "已选择题目《${detail.title.take(80)}》。",
+                dataJson = agentQuestionJson(selected).toString(),
+            ),
+            resultCount = 1,
+            selectedQuestion = selected,
+        )
+    }
+
+    /**
+     * READ_FIGURE：只读本轮已披露的配图，做字节/尺寸/像素抽检，并把真实图像 grant 交给
+     * 下一轮模型调用做视觉自检。语义判断留给模型，本地只保证"给它的确实是这张图"。
+     */
+    private suspend fun readFigure(call: TutorToolCall, context: Context): TutorToolExecution {
+        val assetId = call.parameters["assetId"]
+            ?: return TutorToolExecution(TutorToolOutcome(call.tool, false,
+                "请提供本轮已披露的配图 id。", errorKind = "invalid_parameters"))
+        val disclosed = context.agentContext?.knownFigureIds.orEmpty() +
+            context.agentContext?.feedbackImages.orEmpty().map { it.assetId } +
+            listOfNotNull(context.selectedQuestion).flatMap { it.sourceImages.map(ModelEgressAssetGrant::assetId) }
+        if (assetId !in disclosed) {
+            return TutorToolExecution(TutorToolOutcome(call.tool, false,
+                "这张图不在本轮已披露范围内，未读取。", errorKind = "figure_not_disclosed"))
+        }
+        val inspector = figureInspector ?: return TutorToolExecution(TutorToolOutcome(call.tool, false,
+            "本机没有可用的配图读取通道。", errorKind = "figure_unavailable"))
+        val feedback = inspector.inspect(assetId)
+        return TutorToolExecution(
+            outcome = TutorToolOutcome(
+                tool = TutorToolName.READ_FIGURE,
+                ok = feedback.image != null,
+                summaryMarkdown = if (feedback.image != null) "已读取配图，可用下一轮做视觉检查。"
+                else "配图不可用或完整性检查未通过。",
+                errorKind = if (feedback.image == null) "figure_unavailable" else null,
+                dataJson = feedback.dataJson,
+            ),
+            resultCount = 1,
+            feedbackImage = feedback.image,
+        )
+    }
+
+    /**
+     * RUN_JAVASCRIPT：隔离引擎执行通用函数体；`agent.callTool/callAction` 回到真实工具/动作
+     * 处理器，副作用只在宿主侧发生一次；成功完成才提交新 state。
+     */
+    private suspend fun runJavascript(call: TutorToolCall, context: Context): TutorToolExecution {
+        val engine = visualEngine ?: return TutorToolExecution(TutorToolOutcome(call.tool, false,
+            "本机没有可用的 JavaScript 执行通道。", errorKind = "javascript_unavailable"))
+        val script = call.script ?: return TutorToolExecution(TutorToolOutcome(call.tool, false,
+            "JavaScript 函数体为空。", errorKind = "javascript_invalid_program"))
+        val result = runTutorJavascript(
+            engine = engine,
+            script = script,
+            stateJson = call.stateJson ?: context.agentContext?.javascriptStateJson,
+            runTool = { nested -> runTraced(nested, context).outcome },
+            runAction = { request ->
+                val executor = localActionExecutor
+                    ?: return@runTutorJavascript TutorLobbyLocalActionOutcome(
+                        request.action.actionId, "UNAVAILABLE", "本机没有可用的应用动作执行器。", ok = false,
+                    )
+                executor.execute(
+                    TutorLocalActionCommand(
+                        logicalOperationId = context.evidenceIdNamespace
+                            ?: "tutor-js-${context.conversationId ?: context.tutorSessionId ?: "local"}",
+                        conversationId = context.conversationId ?: context.tutorSessionId ?: "javascript",
+                        request = request,
+                        context = TutorLocalActionContext(
+                            captureSessionId = context.tutorSessionId,
+                            libraryProblemId = context.selectedQuestion?.entryId,
+                        ),
+                        exportEntryIds = context.agentContext?.knownEntryIds.orEmpty(),
+                        roundOrdinal = 0,
+                        allowedBackupRefs = context.agentContext?.backupReferences.orEmpty().map { it.ref },
+                    ),
+                )
+            },
+        )
+        return TutorToolExecution(
+            outcome = result.outcome,
+            resultCount = if (result.outcome.ok) 1 else null,
+            javascriptState = result.stateJson,
+        )
+    }
+
+    private fun agentQuestionJson(question: TutorAgentQuestion) = buildJsonObject {
+        put("entryId", question.entryId)
+        put("problemId", question.problemId)
+        put("problemRevisionId", question.problemRevisionId)
+        put("subject", question.subject)
+        put("title", question.title.take(240))
+        put("document", Json.parseToJsonElement(
+            Json.encodeToString(QuestionDocument.serializer(), question.document),
+        ))
+        question.tutorSessionId?.let { put("tutorSessionId", it) }
+        put("sourceImageAssetIds", JsonArray(question.sourceImages.map { JsonPrimitive(it.assetId) }))
+    }
+
     private suspend fun knowledgeRead(
         subject: String,
         terms: List<String>,
@@ -528,71 +770,62 @@ internal class RoomTutorToolRunner(
         const val KNOWLEDGE_READ_NO_MATERIAL_MARKER = "（该节点无材料）"
     }
 
-    /**
-     * 检索错题本（`NOTEBOOK_READ`）。
-     *
-     * 产出形态按**本轮披露范围**分两档（F5）：
-     * - 本轮披露集合覆盖候选菜单（`RELATED_QUESTION_CANDIDATES`，即学生显式带题 / 本地检索到
-     *   候选的那一轮）：别的题的标题与科目属于**已披露**的那一类，逐条点名是既有能力。
-     * - 不覆盖（无题轮，或本轮没带菜单）：它们属于清单里**列为禁止**的类目，只回**条数与检索词**。
-     *   此前这里无条件列出标题+科目，而大厅清单把 `RELATED_QUESTION_CANDIDATES` /
-     *   `CONFIRMED_QUESTION_DOCUMENT` 列为禁止 —— 清单一处少报了一个真实出网的类目。
-     *   解法是收紧产出，**不是**放宽披露集合：要不要把这一档披露出去，是用户的裁定。
-     *   要更丰富的错题本结果，先改披露边界（加类目并按 bf8be888 的纪律升 manifest schema）。
-     */
-    private suspend fun notebookRead(terms: List<String>, context: Context): TutorToolExecution {
-        val searchText = terms.joinToString(" ").take(120)
-        val rows = port.libraryCatalogPage(
-            searchText = searchText,
-            subjectId = null,
-            sectionId = null,
-            masteryId = null,
-            createdFromEpochMillis = null,
-            createdToEpochMillis = null,
-            sort = "RECENTLY_CREATED",
-            offset = 0,
-            limit = 6,
-        )
-        if (rows.isEmpty()) {
-            return TutorToolExecution(
-                outcome = TutorToolOutcome(
-                    tool = TutorToolName.NOTEBOOK_READ,
-                    ok = true,
-                    summaryMarkdown = "错题本里没有匹配的条目。",
-                ),
-                resultCount = 0,
-            )
+    /** Structured, paginated catalog summaries shared by every tutor entry point. */
+    private suspend fun notebookRead(call: TutorToolCall): TutorToolExecution {
+        val parameters = call.parameters
+        val offset = parameters["offset"]?.toIntOrNull() ?: if ("offset" in parameters) -1 else 0
+        val limit = parameters["limit"]?.toIntOrNull() ?: if ("limit" in parameters) -1 else 10
+        val createdFrom = parameters["createdFrom"]?.toLongOrNull()
+        val createdTo = parameters["createdTo"]?.toLongOrNull()
+        val sort = parameters["sort"] ?: "RECENTLY_CREATED"
+        if (offset < 0 || limit !in 1..30 ||
+            ("createdFrom" in parameters && (createdFrom == null || createdFrom < 0)) ||
+            ("createdTo" in parameters && (createdTo == null || createdTo < 0)) ||
+            (createdFrom != null && createdTo != null && createdFrom > createdTo) ||
+            sort !in setOf("RECENTLY_CREATED", "RECENTLY_UPDATED")) {
+            return TutorToolExecution(TutorToolOutcome(call.tool, false,
+                "查询参数无效，请检查分页、时间范围和排序。", errorKind = "invalid_parameters"))
         }
-        // B3-3：这次检索到的条目 id 本地留痕（模型可见的正文照披露档收口，见上）。导出 sheet
-        // 的候选题只从这里来——模型无法指定任何题 id，也就没有编造面。
-        val problemEntryIds = rows.map(LibraryCatalogRow::entryId).distinct()
-        if (!context.roundDisclosesQuestionCandidates) {
-            val termNote = terms.takeIf(List<String>::isNotEmpty)
-                ?.let { "（检索词：${it.joinToString("、")}）" }
-                .orEmpty()
-            return TutorToolExecution(
-                outcome = TutorToolOutcome(
-                    tool = TutorToolName.NOTEBOOK_READ,
-                    ok = true,
-                    summaryMarkdown = "错题本里匹配 ${rows.size} 条$termNote。本轮披露范围不含别的题的标题，" +
-                        "故只给条数；不要臆造或复述任何题目标题，" +
-                        "需要具体某道题时请学生在错题本里查看或从错题本选择。",
-                ),
-                resultCount = rows.size,
-                problemEntryIds = problemEntryIds,
-            )
+        val searchText = call.terms.joinToString(" ").take(120)
+        val subject = parameters["subject"]
+        val section = parameters["sectionId"]
+        val mastery = parameters["masteryId"]
+        val total = port.libraryCatalogCount(searchText, subject, section, mastery, createdFrom, createdTo)
+        val rows = port.libraryCatalogPage(searchText, subject, section, mastery, createdFrom, createdTo,
+            sort, offset, limit)
+        val items = rows.map { row -> buildJsonObject {
+            put("entryId", row.entryId)
+            put("problemId", row.problemId)
+            put("revision", row.problemRevisionId)
+            put("title", row.title.take(160))
+            put("subject", row.subject.take(80))
+            put("summary", safeTruncateMarkdown(flattenLineBreaks(row.problemMarkdown), 300))
+        } }.toMutableList()
+        fun pageJson() = buildJsonObject {
+            put("items", JsonArray(items))
+            put("totalCount", total)
+            put("offset", offset)
+            put("limit", limit)
+            put("nextOffset", offset.toLong() + items.size)
+            put("hasMore", offset.toLong() + items.size < total)
+        }.toString()
+        // Reserve room for the human-readable digest inside the same tool-round budget.
+        val jsonBudget = minOf(6_000, TutorToolRoundResult.MAX_TOOL_ROUND_RESULT_CHARS - 700)
+        while (items.isNotEmpty() && pageJson().length > jsonBudget) items.removeAt(items.lastIndex)
+        if (rows.isNotEmpty() && items.isEmpty()) {
+            return TutorToolExecution(TutorToolOutcome(call.tool, false,
+                "这条题目记录的身份字段超出读取预算，请缩小查询范围。", errorKind = "result_too_large"))
         }
-        val lines = rows.mapIndexed { index, row ->
-            "${index + 1}. ${row.title}（${row.subject}）"
-        }
+        val shown = rows.take(items.size)
+        val summary = if (total == 0) "错题本里没有匹配的条目。" else buildString {
+            append("错题本匹配 ").append(total).append(" 条，本次显示 ").append(shown.size).append(" 条。")
+            shown.forEach { append("\n").append(it.title.take(60)).append("（").append(it.subject.take(40)).append("）") }
+        }.take(600)
         return TutorToolExecution(
-            outcome = TutorToolOutcome(
-                tool = TutorToolName.NOTEBOOK_READ,
-                ok = true,
-                summaryMarkdown = "错题本匹配 ${rows.size} 条：\n${lines.joinToString("\n")}",
-            ),
-            resultCount = rows.size,
-            problemEntryIds = problemEntryIds,
+            outcome = TutorToolOutcome(call.tool, true, summary, dataJson = pageJson()),
+            resultCount = shown.size,
+            problemEntryIds = shown.map(LibraryCatalogRow::entryId).distinct(),
+            subjects = shown.map(LibraryCatalogRow::subject).distinct(),
         )
     }
 
@@ -1085,7 +1318,7 @@ internal class RoomTutorToolRunner(
     }
 
     /**
-     * A1（4B）：生图工具的执行分支。模型只给语义（kind + description）。
+     * 生图工具执行分支。模型给出用途、说明以及所选方法的程序或图像提示词。
      *
      * **源图只可能来自本地**：REDRAW_PROBLEM 经 会话 → 草稿 → 规范资产记录 解析，由生成器
      * 在读取时再逐位核对（`vault.resolve` 是唯一实现）；模型的任何字段都进不了源图
@@ -1096,10 +1329,8 @@ internal class RoomTutorToolRunner(
      * 下一轮换着法再试），通道缺失或生成失败才回错误结果。
      */
     private suspend fun generateFigure(call: TutorToolCall, context: Context): TutorToolExecution {
-        // A-02 第二道门（执行器层）：本构建没有 JS 执行通道，method=JS 一律 fail-closed。
-        // 生产唯一调用点已过轮次层同名门；这道门保护直调 `runTraced` 的调用者（测试、
-        // 未来接线），否则 JS 会落进图像生成器 = 一次真实远程 IMAGE_MODEL 派发 +
-        // 一条 method=IMAGE_MODEL 的假痕迹。
+        // 直接调用 runTraced 也必须校验生成器的真实 JS 能力。
+        // 不支持 JS 的生成器不得将这次请求当成图像模型派发。
         if (call.figureMethod == FigureGenerationMethod.JS && figureGenerator?.supports(FigureGenerationMethod.JS) != true) {
             return TutorToolExecution(
                 TutorToolOutcome(
@@ -1119,8 +1350,7 @@ internal class RoomTutorToolRunner(
             "GENERATE_FIGURE description is contract-enforced"
         }
         // 4E WG-04b：模型显式选择的图像操作；旧调用按 kind 取旧默认（REDRAW→EDIT、
-        // PROCESS→GENERATE）。kind 只映射 purpose；能走到这里的调用方法恒为 IMAGE_MODEL
-        // （上面的 A-02 门已把 JS 拦下）。
+        // PROCESS→GENERATE）。kind 只映射 purpose；JS 分支使用独立 program。
         val operation = call.figureImageOperation ?: kind.defaultImageOperation()
         val purpose = kind.figureGenerationPurpose()
         val generator = figureGenerator
@@ -1138,59 +1368,41 @@ internal class RoomTutorToolRunner(
                     status = FigureGenerationStatus.UNAVAILABLE,
                 ),
             )
-        // F2：**两种 kind 的共同前置**是"有当前题"——意图矩阵本意是"大厅/查库/闲聊轮没有
-        // 可画的题"，但 Route B 的意图由模型自报，不能只靠矩阵。没有当前题时两种图都不生成
-        // （GENERATE_PROCESS 也一样：没有题锚的过程图只是一次无锚点的付费生成），
-        // 按 K2a 回 ok=true 空范围、**不调用生成器**。
         val draft = currentDraft(context)
-        val sourceSheet = if (call.figureMethod == FigureGenerationMethod.JS) {
-            if (kind == TutorFigureKind.REDRAW_PROBLEM) draft?.sourceAsset else null
-        } else when (operation) {
-            FigureImageOperation.EDIT -> {
-                if (draft == null) {
-                    return emptyScopeFigure(
-                        call = call,
-                        kind = kind,
-                        purpose = purpose,
-                        // EDIT 没有源图：对 REDRAW 仍然是"没有可画的题"（与旧行为逐字一致），
-                        // 对过程图则明确说没有原图可编辑——两种情况都不出网。
-                        summaryMarkdown = if (kind == TutorFigureKind.REDRAW_PROBLEM) {
-                            "本轮没有可画的题：这次对话没有正在处理的题目。" +
-                                "不必重复申请，直接回答学生的问题。"
-                        } else {
-                            "这道题没有原图可以编辑：这次对话没有正在处理的题目。" +
-                                "不必重复申请，直接回答学生的问题。"
-                        },
-                    )
+        val selected = context.selectedQuestion
+        if (draft == null && selected == null && context.currentQuestionDocument == null) {
+            return emptyScopeFigure(
+                call = call,
+                kind = kind,
+                purpose = purpose,
+                summaryMarkdown = "本轮没有可画的题：这次对话没有正在处理的题目。" +
+                    "不必重复申请，直接回答学生的问题。",
+            )
+        }
+        val source = if (selected != null) {
+            val grant = selected.sourceImages.firstOrNull()
+            grant?.let {
+                port.readCanonicalSourceAsset(it.assetId)?.takeIf { record ->
+                    record.contentSha256 == it.sha256 && record.byteSize == it.byteSize &&
+                        record.width == it.width && record.height == it.height && record.mimeType.startsWith("image/")
                 }
-                // A8 起 `ProblemDraftRecord.sourceAsset` 可空：手动建题的草稿没有照片，
-                // 没有可编辑的源图——按 K2a 空范围处理（ok=true、不生成、不付费）。
-                draft.sourceAsset ?: return emptyScopeFigure(
-                    call = call,
-                    kind = kind,
-                    purpose = purpose,
-                    summaryMarkdown = if (kind == TutorFigureKind.REDRAW_PROBLEM) {
-                        "这道题是手动输入的，没有原图可重绘；" +
-                            "不必重复申请，直接回答学生的问题。"
-                    } else {
-                        "这道题没有原图可以编辑；不必重复申请，直接回答学生的问题。"
-                    },
-                )
             }
-
-            // GENERATE 不读源图，但仍要求有当前题（无锚点的生成是白烧预算）。
-            FigureImageOperation.GENERATE -> {
-                if (draft == null) {
-                    return emptyScopeFigure(
-                        call = call,
-                        kind = kind,
-                        purpose = purpose,
-                        summaryMarkdown = "本轮没有可画的题：这次对话没有正在处理的题目。" +
-                            "不必重复申请，直接回答学生的问题。",
-                    )
-                }
-                null
-            }
+        } else draft?.sourceAsset
+        val sourceSheet = when {
+            operation == FigureImageOperation.GENERATE -> null
+            call.figureMethod == FigureGenerationMethod.JS -> source
+            source != null -> source
+            else -> return emptyScopeFigure(call, kind, purpose,
+                "本轮没有可验证的已授权源图，未执行图片编辑；可选择 GENERATE 生成新图。")
+        }
+        val problemContext = selected?.document?.let {
+            kotlinx.serialization.json.Json.encodeToString(com.tingyun.smartmistakebook.core.model.QuestionDocument.serializer(), it)
+        } ?: draft?.currentRevision?.let { revision ->
+            revision.title + "\n" + kotlinx.serialization.json.Json.encodeToString(
+                com.tingyun.smartmistakebook.core.model.QuestionDocument.serializer(), revision.questionDocument.document)
+        } ?: context.currentQuestionDocument?.let { document ->
+            (document.title ?: "当前题") + "\n" + kotlinx.serialization.json.Json.encodeToString(
+                com.tingyun.smartmistakebook.core.model.QuestionDocument.serializer(), document)
         }
         val result = try {
             generator.generate(
@@ -1199,20 +1411,26 @@ internal class RoomTutorToolRunner(
                     description = description,
                     method = call.figureMethod ?: FigureGenerationMethod.IMAGE_MODEL,
                     program = call.figureProgram,
+                    stateJson = call.stateJson,
                     imageOperation = operation,
                     // 模型给的具体提示词原样交给图像 API；null = 旧调用沿用历史指令。
                     imagePrompt = call.figureImagePrompt,
                     sourceSheet = sourceSheet,
                     // GENERATE_PROCESS 的当前题上下文（标题；本地取，模型不可填）。
-                    problemContext = draft?.currentRevision?.title,
+                    problemContext = problemContext,
                     // 4E.1：持久派发预留的父操作 = 本轮模型任务 requestId（工具环的命名空间）。
                     parentOperationId = context.evidenceIdNamespace,
                 ),
             )
         } catch (cancelled: CancellationException) {
             throw cancelled
-        } catch (_: Exception) {
-            TutorFigureResult(figureId = null, status = TutorFigureStatus.FAILED)
+        } catch (failure: Exception) {
+            TutorFigureResult(
+                figureId = null,
+                status = TutorFigureStatus.FAILED,
+                diagnostics = "FIGURE_GENERATOR_EXCEPTION: ${failure.javaClass.simpleName}"
+                    .take(TutorFigureResult.MAX_DIAGNOSTICS_CHARS),
+            )
         }
         // A2：REDRAW 的图若落在一道**已保存**的题上（会话有 commit receipt），补一条
         // 视觉引用（角色由 kind 单源派生 = CLEAN_IMAGE）——这是"题重绘 →
@@ -1238,6 +1456,9 @@ internal class RoomTutorToolRunner(
             status = result.traceStatus(),
             caption = description.takeIf { result.figureId != null },
         )
+        val diagnostic = result.diagnostics.orEmpty()
+            .filter { char -> !char.isISOControl() || char == '\n' }
+            .take(TutorFigureResult.MAX_DIAGNOSTICS_CHARS)
         return when (result.status) {
             TutorFigureStatus.GENERATED -> TutorToolExecution(
                 outcome = TutorToolOutcome(
@@ -1257,22 +1478,21 @@ internal class RoomTutorToolRunner(
                 outcome = TutorToolOutcome(
                     tool = call.tool,
                     ok = false,
-                    summaryMarkdown = "配图没有生成成功，可以稍后再试一次。",
+                    summaryMarkdown = if (call.figureMethod == FigureGenerationMethod.JS) {
+                        "JS 绘图执行失败。" + diagnostic.takeIf(String::isNotBlank)
+                            ?.let { "执行诊断：$it\n" }.orEmpty() +
+                            "根据诊断修改 program，在剩余预算允许时再次调用 GENERATE_FIGURE，" +
+                            "也可选择其他可用方法；保留同一绘图目标的 description。"
+                    } else {
+                        "配图没有生成成功，可以稍后再试一次。"
+                    },
                     errorKind = FIGURE_FAILED,
                 ),
                 figure = figureTrace,
             )
 
             TutorFigureStatus.UNAVAILABLE -> {
-                // P-11 runner 半边（批次 35 R2 设计 §2.3）：诊断带 [UNATTRIBUTED] 前缀 =
-                // 本地绘图引擎失败且原因不可归属（协调器已折设施类 UNAVAILABLE，有界诊断
-                // 形如 "INVALID_PROGRAM: [UNATTRIBUTED] …"，见 boundedRejection）。它既不是
-                // "程序错"也不是"通道未配置"：单独成码回喂（适配层失败形态只给
-                // `[失败 <errorKind>]`），模型不会把设施故障当程序错去修 program（R3 §6.6
-                // 退化口径从登记变生效），记录半也不谎称"未配置图像模型"。前缀常量同源
-                // 复用（core:data internal），不另造字面量。本构建 JS 未接线（A-02 两道门），
-                // 生产暂不可达——与执行器层 A-02 第二道门同型，保护直调 runTraced 的调用者
-                // 与 X-01 接线后的生产路径。
+                // 不可归属的引擎故障使用独立错误码，避免把设施失败当作程序错误。
                 val engineUnattributed =
                     result.diagnostics?.contains(UNATTRIBUTED_DIAGNOSTIC_PREFIX) == true
                 TutorToolExecution(
@@ -1280,7 +1500,12 @@ internal class RoomTutorToolRunner(
                         tool = call.tool,
                         ok = false,
                         summaryMarkdown = if (engineUnattributed) {
-                            FIGURE_ENGINE_UNATTRIBUTED_SUMMARY
+                            FIGURE_ENGINE_UNATTRIBUTED_SUMMARY + diagnostic.takeIf(String::isNotBlank)
+                                ?.let { " 执行诊断：$it" }.orEmpty()
+                        } else if (call.figureMethod == FigureGenerationMethod.JS) {
+                            "本机 JS 绘图执行环境当前不可用。" + diagnostic.takeIf(String::isNotBlank)
+                                ?.let { "执行诊断：$it\n" }.orEmpty() +
+                                "可选择其他可用方法完成配图。"
                         } else {
                             "本机没有可用的生图通道（未配置可用的图像模型），" +
                                 "未生成配图；不要反复申请。"
@@ -1353,9 +1578,9 @@ internal class RoomTutorToolRunner(
         figureId: String,
         kind: TutorFigureKind,
     ) {
-        val sessionId = context.tutorSessionId?.takeIf(String::isNotBlank) ?: return
         try {
-            val revisionId = port.readTutorSession(sessionId)?.commitReceipt?.problemRevisionId
+            val revisionId = context.selectedQuestion?.problemRevisionId ?: context.tutorSessionId
+                ?.takeIf(String::isNotBlank)?.let { port.readTutorSession(it)?.commitReceipt?.problemRevisionId }
                 ?: return
             val record = port.readCanonicalSourceAsset(figureId) ?: return
             port.attachCleanRedrawAsset(

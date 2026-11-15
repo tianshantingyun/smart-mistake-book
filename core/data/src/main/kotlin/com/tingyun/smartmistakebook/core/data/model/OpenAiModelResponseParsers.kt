@@ -79,6 +79,7 @@ import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
+import com.tingyun.smartmistakebook.core.model.parameterNames
 import com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
@@ -105,6 +106,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
@@ -534,7 +536,7 @@ internal fun JsonObject.toTutorRespond(
     )
 }
 
-internal val TUTOR_TOOL_REQUESTS_WIRE_KEYS = setOf("intentDecision", "toolRequests")
+internal val TUTOR_TOOL_REQUESTS_WIRE_KEYS = setOf("intentDecision", "toolRequests", "localActions")
 
 /**
  * 一条工具调用的 args 白名单（**两条路由共用**）。
@@ -567,12 +569,14 @@ internal val TUTOR_TOOL_CALL_WIRE_KEYS =
         "kind",
         "description",
         // 4E WG-04b：模型选择的生图方法/图像操作/具体提示词，以及 JS program 载体。
-        // program 在本构建**不执行**：解析出来只是为了让 TutorToolCall 的构造校验
-        // 结构性拒绝（而不是静默忽略一个模型真的发出来的载荷）。
+        // program 由本机已就绪的 JS 执行器校验与运行。
         "method",
         "program",
         "imageOperation",
         "imagePrompt",
+        "parameters",
+        "script",
+        "stateJson",
     )
 
 internal fun JsonObject.toTutorToolRequests(
@@ -588,10 +592,10 @@ internal fun JsonObject.toTutorToolRequests(
                     tool = enumValue(call.requiredString("tool")),
                 )
             }
-            // 与原生 tool_calls 路由同一口径：同轮重复申请同一工具时保留第一次。整条输出
-            // 判 INVALID 会让这一轮讲解无谓失败；协议仍要求一轮内工具互不相同。
-            ?.distinctBy { call -> call.tool }
+            // 同名工具可以使用不同参数连续调用，完全相同的重放只保留一次。
+            ?.distinct()
             ?: throw InvalidModelResponseException(),
+        localActions = optionalArray("localActions").map(JsonElement::toLocalActionRequest),
         modelVersion = modelVersion,
     )
 }
@@ -634,6 +638,12 @@ internal fun JsonObject.toTutorToolCall(tool: TutorToolName): TutorToolCall {
         figureImageOperation = optionalString("imageOperation")
             ?.let { enumValue<FigureImageOperation>(it) },
         figureImagePrompt = optionalString("imagePrompt"),
+        parameters = (this["parameters"]?.takeUnless { it is JsonNull }?.let {
+            it as? JsonObject ?: throw InvalidModelResponseException()
+        } ?: buildJsonObject { }).also { it.requireOnlyKeys(tool.parameterNames()) }
+            .filterValues { it !is JsonNull }.mapValues { (_, value) -> value.requiredPrimitiveString() },
+        script = optionalString("script"),
+        stateJson = optionalString("stateJson"),
     )
 }
 
@@ -695,7 +705,7 @@ internal fun localActionRequest(
     val parameters = buildMap {
         arguments.forEach { (key, value) ->
             if (key !in declaredNames) throw InvalidModelResponseException()
-            put(key, value.requiredPrimitiveString())
+            if (value !is JsonNull) put(key, value.requiredPrimitiveString())
         }
     }
     declared.filter { parameter -> parameter.required }.forEach { parameter ->

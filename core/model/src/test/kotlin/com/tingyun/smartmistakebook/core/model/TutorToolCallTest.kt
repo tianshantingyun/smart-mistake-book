@@ -41,6 +41,30 @@ class TutorToolCallTest {
     }
 
     @Test
+    fun notebookWriteUsesTheCurrentTargetWithoutInventedLookupTerms() {
+        val call = TutorToolCall(tool = TutorToolName.NOTEBOOK_WRITE, rationale = "保存本轮题目")
+        assertTrue(call.terms.isEmpty())
+    }
+
+    @Test
+    fun aRoundCanQueryTheSameToolWithDifferentArguments() {
+        val first = TutorToolCall(TutorToolName.NOTEBOOK_READ, "检索函数", listOf("函数"))
+        val second = TutorToolCall(TutorToolName.NOTEBOOK_READ, "检索几何", listOf("几何"))
+        val decision = TutorIntentDecision(
+            intent = TutorMessageIntent.MISTAKE_NOTEBOOK_LOOKUP,
+            confidence = 0.9,
+            explicitActionRequest = false,
+            memoryPreference = TutorMemoryPreference.UNCHANGED,
+            requestedLocalCapability = TutorRequestedLocalCapability.NONE,
+        )
+        val round = TutorToolRequestsOutput(decision, listOf(first, second), "test")
+        assertEquals(listOf(first, second), round.calls)
+        assertThrows(IllegalArgumentException::class.java) {
+            TutorToolRequestsOutput(decision, listOf(first, first), "test")
+        }
+    }
+
+    @Test
     fun theExtendedBudgetDefaultsOff() {
         val call = TutorToolCall(
             tool = TutorToolName.MASTERY_READ,

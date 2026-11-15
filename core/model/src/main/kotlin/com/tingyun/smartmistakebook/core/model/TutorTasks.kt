@@ -262,6 +262,8 @@ data class TutorPlanInput(
     val visualContext: TutorVisualContext? = null,
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val figureGenerationCapabilities: FigureGenerationCapabilities? = null,
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val agentContext: TutorAgentContext? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_PLAN
@@ -494,6 +496,8 @@ data class TutorRespondInput(
     val visualContext: TutorVisualContext? = null,
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val figureGenerationCapabilities: FigureGenerationCapabilities? = null,
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val agentContext: TutorAgentContext? = null,
 ) : ModelTaskInput {
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_RESPOND

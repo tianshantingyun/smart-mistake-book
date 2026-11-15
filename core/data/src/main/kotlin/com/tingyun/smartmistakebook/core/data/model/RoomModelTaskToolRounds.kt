@@ -15,7 +15,7 @@ import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
  * 也不判"这一轮有没有题"（无题轮不再结构性拒写；写不写由模型语义判定，系统提示词教会，
  * 低置信/无引文的写入由统一本地门 MasteryWriteGate 挡）。逐次裁决只剩两条，都取自
  * **调用本身**：
- * - 意图授权矩阵：[authorizedTools]（模型这一轮自己的意图 × 置信度 × 声明集，
+ * - 本轮能力声明：[authorizedTools]（本机已实现且就绪的声明集，
  *   [com.tingyun.smartmistakebook.core.model.tutorToolAuthorization] 的产物）；
  * - 单一代号通道（D5）：MASTERY_UPDATE 的 `terms[0]` 必须在本会话已披露代号集合
  *   （[disclosedKnowledgeCodes]）内——非法/编造/未披露代号结构性拒，走协议错误路径
@@ -47,7 +47,7 @@ internal suspend fun tutorToolRoundOutcomes(
                 TutorToolOutcome(
                     tool = call.tool,
                     ok = false,
-                    summaryMarkdown = "该意图下未授权此查询。",
+                    summaryMarkdown = "本轮能力声明中没有这项工具，未执行。",
                     errorKind = "not_authorized",
                 ),
             )
@@ -108,12 +108,7 @@ private fun usesDisclosedKnowledgeCode(call: TutorToolCall): Boolean = when (cal
     else -> false
 }
 
-/**
- * 这次生图调用声明的方法是不是本构建**还没有执行通道**的 JS（A-02）。
- *
- * JS 在契约层合法（`TutorToolCall` 接受 method=JS + 独立 program），但执行器尚未接线；
- * 轮次层据此 fail-closed，而不是让下游把它当成 IMAGE_MODEL 出网。
- */
+/** JS 请求由就绪能力判定，源程序随后交给真实执行器。 */
 private fun isJavascriptFigureCall(call: TutorToolCall): Boolean =
     call.tool == TutorToolName.GENERATE_FIGURE &&
         call.figureMethod == com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.JS
@@ -121,7 +116,7 @@ private fun isJavascriptFigureCall(call: TutorToolCall): Boolean =
 /** MASTERY_UPDATE 的代号不在本会话已披露集合：协议层结构性拒（不是门控语义拒）。 */
 internal const val INVALID_KNOWLEDGE_CODE = "invalid_knowledge_code"
 
-/** JS 方法在契约层合法、但本构建没有执行通道：工具环 fail-closed 的行码（A-02）。 */
+/** 本轮 JS 执行通道未就绪的结果码。 */
 internal const val FIGURE_METHOD_UNAVAILABLE = "figure_method_unavailable"
 
 /**
@@ -129,7 +124,7 @@ internal const val FIGURE_METHOD_UNAVAILABLE = "figure_method_unavailable"
  * 必须说同一句话，否则模型会把其中一处当成可重试的失败、换着法再申请。
  */
 internal const val JS_FIGURE_UNAVAILABLE_SUMMARY =
-    "本机没有可用的 JS 执行通道，未生成配图；不要反复申请。"
+    "本轮 JS 执行环境尚未就绪，未生成配图。可选择本轮其他可用方法，或等待能力恢复后重试。"
 
 /**
  * 写工具在**没有可写目标**时给模型的那句话（K2a / spec §3.1）：ok=true、不报错。

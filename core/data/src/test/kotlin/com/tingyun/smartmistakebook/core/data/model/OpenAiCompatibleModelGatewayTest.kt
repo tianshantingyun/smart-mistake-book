@@ -121,7 +121,7 @@ class OpenAiCompatibleModelGatewayTest {
             document, setOf(block.id), "根据原图修正条件", listOf(ModelEgressAssetGrant(ASSET_ID, SHA, IMAGE.size.toLong(), 100, 200)))
     }
 
-    @Test fun mistakeEditMockServerReceivesOriginalImageAndRejectsInvalidOrTruncatedOutput() = runBlocking {
+    @Test(timeout = 20_000) fun mistakeEditMockServerReceivesOriginalImageAndRejectsInvalidOrTruncatedOutput() = runBlocking {
         MockWebServer().use { server ->
             server.start()
             val valid = """{"summaryMarkdown":"已修正条件","changes":[{"type":"paragraph","target":"block-1","markdown":"修正后的条件"}]}"""
@@ -150,7 +150,7 @@ class OpenAiCompatibleModelGatewayTest {
         }
     }
 
-    @Test fun changedEditSourceFingerprintIsRejectedBeforeHttp() = runBlocking {
+    @Test(timeout = 20_000) fun changedEditSourceFingerprintIsRejectedBeforeHttp() = runBlocking {
         val configured = CONFIGURATION.copy(capabilityVerification = requireNotNull(CONFIGURATION.capabilityVerification).copy(supportsMistakeEdit = true))
         var calls = 0
         val gateway = OpenAiCompatibleModelGateway(FakeConfigurationStore(configured), assetSource { _, _ -> asset() },
@@ -163,7 +163,7 @@ class OpenAiCompatibleModelGatewayTest {
         assertTrue(events.last() is ModelGatewayEvent.Failed)
     }
 
-    @Test fun unverifiedEditCapabilityAndCancelledEditMakeZeroHttpCalls() = runBlocking {
+    @Test(timeout = 20_000) fun unverifiedEditCapabilityAndCancelledEditMakeZeroHttpCalls() = runBlocking {
         MockWebServer().use { server ->
             server.start()
             server.enqueue(MockResponse().setBody(envelope("""{"summaryMarkdown":"修改","changes":[{"type":"paragraph","target":"block-1","markdown":"新条件"}]}""")))
@@ -186,7 +186,12 @@ class OpenAiCompatibleModelGatewayTest {
                 transport = ModelHttpTransport { wire, beforeEnqueue -> entered.complete(Unit); hold.await(); beforeEnqueue(); post(wire) })
             val execution = ModelEgressPolicy.authorize(request, gateway.capabilities())
             val work = async { gateway.execute(execution).toList() }
-            entered.await(); work.cancel(); work.join()
+            try {
+                kotlinx.coroutines.withTimeout(5_000) { entered.await() }
+            } finally {
+                work.cancel()
+                work.join()
+            }
             assertTrue(work.isCancelled); assertEquals(0, calls); assertEquals(0, server.requestCount)
         }
     }
@@ -1258,7 +1263,9 @@ class OpenAiCompatibleModelGatewayTest {
 
         assertTrue(sentBody.contains("帮我找函数错题"))
         assertTrue(sentBody.contains("你好，你现在想做什么？"))
-        assertTrue(sentBody.contains("模型无权保存、删除、修改错题或学习记录"))
+        assertTrue(sentBody.contains("需要操作本机数据时申请已声明的工具或本地动作"))
+        assertTrue(sentBody.contains("本地自主执行并返回结果，收到成功结果后才能声称已经存好"))
+        assertTrue(sentBody.contains("自由文本永远不是掌握证据，也不能写入长期记忆"))
         assertFalse(sentBody.contains("confirmedQuestion"))
         assertFalse(sentBody.contains("relevantLearningEvidence"))
         assertEquals(

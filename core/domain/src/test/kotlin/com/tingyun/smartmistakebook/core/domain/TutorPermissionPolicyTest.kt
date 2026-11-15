@@ -17,7 +17,7 @@ class TutorPermissionPolicyTest {
     private val allActions = TutorLocalAction.entries.map(TutorPermissionSubject::LocalAction)
 
     @Test
-    fun everyToolAndActionHasATierFromTheSettledTable() {
+    fun everyToolAndActionHasAnAutonomousDefaultTier() {
         val tiers = (allTools + allActions).associateWith(::tutorPermissionTier)
 
         assertEquals(
@@ -43,7 +43,7 @@ class TutorPermissionPolicyTest {
             tiers[TutorPermissionSubject.Tool(TutorToolName.GENERATE_FIGURE)],
         )
         assertEquals(
-            TutorPermissionTier.ASK,
+            TutorPermissionTier.AUTO_VISIBLE,
             tiers[TutorPermissionSubject.Tool(TutorToolName.NOTEBOOK_WRITE)],
         )
         assertEquals(
@@ -57,7 +57,7 @@ class TutorPermissionPolicyTest {
             tiers[TutorPermissionSubject.Tool(TutorToolName.ADVISORY_WRITE)],
         )
         allActions.forEach { subject ->
-            assertEquals("$subject must be an ask-tier object", TutorPermissionTier.ASK, tiers[subject])
+            assertEquals("$subject must execute autonomously", TutorPermissionTier.AUTO_VISIBLE, tiers[subject])
         }
         // 每一个工具都有一档（when 是穷尽的，这里只是把"没有漏网对象"钉在测试里）。
         assertEquals(TutorToolName.entries.size, allTools.mapNotNull(tiers::get).size)
@@ -80,15 +80,15 @@ class TutorPermissionPolicyTest {
             TutorRoundPermissionContext(allowedTools = emptySet()),
         )
 
-        assertEquals(TutorPermissionTier.ASK, admitted.tier)
-        assertEquals(TutorPermissionTier.ASK, refused.tier)
+        assertEquals(TutorPermissionTier.AUTO_VISIBLE, admitted.tier)
+        assertEquals(TutorPermissionTier.AUTO_VISIBLE, refused.tier)
         assertTrue(admitted.admitted)
         assertFalse(refused.admitted)
     }
 
     @Test
-    fun onlyAnAdmittedAskSubjectNeedsAConfirmationCard() {
-        assertTrue(
+    fun autonomousOperationsDoNotNeedAConfirmationCard() {
+        assertFalse(
             tutorPermissionDecision(
                 TutorPermissionSubject.LocalAction(TutorLocalAction.START_EXPORT),
                 TutorRoundPermissionContext(),
@@ -117,7 +117,7 @@ class TutorPermissionPolicyTest {
     }
 
     @Test
-    fun onlyTheFiveAskObjectsMapToAPendingRequestKind() {
+    fun legacyPendingRequestKindsRemainReadable() {
         assertEquals(
             AgentPendingRequestKind.NOTEBOOK_WRITE,
             agentPendingRequestKind(TutorPermissionSubject.Tool(TutorToolName.NOTEBOOK_WRITE)),
@@ -137,9 +137,15 @@ class TutorPermissionPolicyTest {
         assertNull(agentPendingRequestKind(TutorPermissionSubject.Tool(TutorToolName.NOTEBOOK_READ)))
         assertNull(agentPendingRequestKind(TutorPermissionSubject.Tool(TutorToolName.MASTERY_READ)))
         assertEquals(
-            "Ask-tier objects and pending-request kinds must be the same five",
+            "Legacy operation spellings retain their pending-request kinds",
             5,
-            (allTools + allActions).count { agentPendingRequestKind(it) != null },
+            (listOf(
+                TutorPermissionSubject.Tool(TutorToolName.NOTEBOOK_WRITE),
+                TutorPermissionSubject.LocalAction(TutorLocalAction.OPEN_PROBLEM),
+                TutorPermissionSubject.LocalAction(TutorLocalAction.SAVE_TO_NOTEBOOK),
+                TutorPermissionSubject.LocalAction(TutorLocalAction.START_EXPORT),
+                TutorPermissionSubject.LocalAction(TutorLocalAction.ADD_TO_REVIEW_PLAN),
+            )).count { agentPendingRequestKind(it) != null },
         )
     }
 }

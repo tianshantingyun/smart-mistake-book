@@ -97,6 +97,7 @@ data class TutorFigureRequest(
     val parentOperationId: String? = null,
     val method: com.tingyun.smartmistakebook.core.model.FigureGenerationMethod = com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.IMAGE_MODEL,
     val program: String? = null,
+    val stateJson: String? = null,
 ) {
     init {
         require(description.isNotBlank()) { "A figure request needs a non-blank description" }
@@ -343,6 +344,7 @@ internal class ConfiguredTutorFigureGenerator(
                 decision = com.tingyun.smartmistakebook.core.model.FigureGenerationDecision.GENERATE,
                 purpose = purpose, method = com.tingyun.smartmistakebook.core.model.FigureGenerationMethod.JS,
                 reason = request.description, fidelity = fidelity, program = program,
+                initialStateJson = request.stateJson,
             ))
         val artifact = result.artifact as? FigureArtifact.Program
         val asset = artifact?.previewAssetId?.let { lookupGenerated(it) }

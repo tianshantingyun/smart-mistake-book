@@ -76,12 +76,18 @@ internal class RoomAgentPendingRequestRepository(
         conversationArea: String?,
     ): Flow<List<AgentPendingRequest>> =
         database.observePendingAgentRequests(conversationArea)
-            .map { records -> records.map(AgentPendingRequestRecord::toDomain) }
+            .map { records -> records.filter { record ->
+                conversationArea != null || record.conversationArea !=
+                    com.tingyun.smartmistakebook.core.domain.AUTONOMOUS_ACTION_AREA
+            }.map(AgentPendingRequestRecord::toDomain) }
 
     override suspend fun readPendingRequests(
         conversationArea: String?,
     ): List<AgentPendingRequest> = withContext(Dispatchers.IO) {
-        database.readPendingAgentRequests(conversationArea).map(AgentPendingRequestRecord::toDomain)
+        database.readPendingAgentRequests(conversationArea).filter { record ->
+            conversationArea != null || record.conversationArea !=
+                com.tingyun.smartmistakebook.core.domain.AUTONOMOUS_ACTION_AREA
+        }.map(AgentPendingRequestRecord::toDomain)
     }
 
     override suspend fun readResolvedRequests(
