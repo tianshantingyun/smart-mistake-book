@@ -14,6 +14,12 @@ data class TutorAgentContext(
     val backupReferences: List<TutorBackupReference> = emptyList(),
     val javascriptStateJson: String? = null,
     val feedbackImages: List<ModelEgressAssetGrant> = emptyList(),
+    /**
+     * 本轮真实可执行的应用动作集合（应用层执行器按仓储就绪位裁剪）。
+     * null = 旧输入/测试没有提供快照：`forRound` 回退到静态实现集合。
+     */
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val availableLocalActions: Set<TutorLocalAction>? = null,
     val roundsUsed: Int = 0,
 ) {
     init {
@@ -22,6 +28,9 @@ data class TutorAgentContext(
         require(knownEntryIds.size <= 180 && knownEntryIds.distinct().size == knownEntryIds.size)
         require(knownFigureIds.size <= 32 && actionOutcomes.size <= 12)
         require(backupReferences.size <= 20 && feedbackImages.size <= 4)
+        require(availableLocalActions.orEmpty().all { it in TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS }) {
+            "Agent context cannot advertise an unimplemented local action"
+        }
         require(roundsUsed in 0..TutorToolRoundResult.MAX_TOOL_ROUNDS)
         javascriptStateJson?.let {
             require(it.toByteArray(Charsets.UTF_8).size <= 16 * 1024)

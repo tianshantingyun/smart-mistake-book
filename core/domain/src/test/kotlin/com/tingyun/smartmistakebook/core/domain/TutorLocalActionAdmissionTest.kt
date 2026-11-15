@@ -80,7 +80,7 @@ class TutorLocalActionAdmissionTest {
     }
 
     @Test
-    fun aReviewPlanActionStaysUnwiredUntilItsExecutorExists() {
+    fun aReviewPlanActionIsAdmittedAndTargetsItsApplicationExecutor() {
         val admission =
             tutorLocalActionAdmission(
                 request = TutorLocalActionRequest(action = TutorLocalAction.ADD_TO_REVIEW_PLAN),
@@ -89,15 +89,17 @@ class TutorLocalActionAdmissionTest {
                     allowedActions = TutorLocalAction.entries.toSet(),
                 ),
             )
-        assertNull(admission)
+        assertNotNull(admission)
+        assertEquals(TutorLocalActionTarget.APPLICATION_ACTION, admission!!.target)
     }
 
     @Test
-    fun theRoundPermissionSourceExcludesTheUnwiredReviewPlanAction() {
-        assertTrue(
+    fun theRoundPermissionSourceIncludesTheWiredReviewPlanAction() {
+        assertEquals(
+            setOf(TutorLocalAction.ADD_TO_REVIEW_PLAN),
             allowedLocalActions(
                 listOf(TutorLocalActionRequest(action = TutorLocalAction.ADD_TO_REVIEW_PLAN)),
-            ).isEmpty(),
+            ),
         )
     }
 

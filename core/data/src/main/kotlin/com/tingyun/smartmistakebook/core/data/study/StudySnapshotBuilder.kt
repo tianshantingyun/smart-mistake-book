@@ -72,7 +72,11 @@ internal class StudySnapshotBuilder(
         ).first()?.takeIf { current ->
             plannerService.isCurrentPlannerVersion(current) &&
                 (
-                    current.activeSession != null ||
+                    // 显式修订过的计划（planRevision > 1，如 `ADD_TO_REVIEW_PLAN` 追加）是
+                    // 学生对今日队列的明确决定，不能再被下一次自动重排抹掉；它只影响当天，
+                    // 次日按新的 localDayEpochDay 重新生成。
+                    current.plan.planRevision > 1 ||
+                        current.activeSession != null ||
                         current.latestSession?.status == StudyDbValue.ReviewStatus.COMPLETED
                     )
         }

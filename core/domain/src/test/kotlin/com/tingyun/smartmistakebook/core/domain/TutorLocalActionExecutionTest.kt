@@ -5,6 +5,7 @@ import com.tingyun.smartmistakebook.core.model.TutorLocalAction
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -82,18 +83,16 @@ class TutorLocalActionExecutionTest {
             TutorLocalActionTarget.EXPORT_SHEET,
             tutorLocalActionTarget(AgentPendingRequestKind.START_EXPORT, context),
         )
-        // 复习计划调整仍未接通：它是**真实的一张卡**（学生同意/拒绝都是真实决定），执行那一步
-        // 走 NOT_WIRED_YET，由执行方如实说"还不能自动做"（不假装成功）。
+        // 复习计划调整已接线：走应用动作执行器（按条目 id 追加今日计划 revision）。
         assertEquals(
-            TutorLocalActionTarget.NOT_WIRED_YET,
+            TutorLocalActionTarget.APPLICATION_ACTION,
             tutorLocalActionTarget(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN, context),
         )
     }
 
     @Test
     fun theExecutionRoutesAndTheCapabilitySnapshotAgree() {
-        // 广告面（快照）与执行路由必须是同一份事实：被广告的动作一定有非 NOT_WIRED_YET
-        // 的落点；没接线的动作一定不在快照里，执行时如实说"还不能自动做"。
+        // 广告面（快照）与执行路由必须是同一份事实：被广告的动作一定有真实落点。
         val context = TutorLocalActionContext(
             captureSessionId = "tutor-session-1",
             libraryProblemId = "problem-1",
@@ -106,14 +105,10 @@ class TutorLocalActionExecutionTest {
                 },
             )
             val admission = requireNotNull(tutorLocalActionAdmission(request, context))
-            assertNotEquals(
-                "$action 已被广告，必须有真实执行路由",
-                TutorLocalActionTarget.NOT_WIRED_YET,
-                admission.target,
-            )
+            assertNotNull("$action 已被广告，必须有真实执行路由", admission.target)
         }
         assertEquals(
-            TutorLocalActionTarget.NOT_WIRED_YET,
+            TutorLocalActionTarget.APPLICATION_ACTION,
             tutorLocalActionTarget(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN, context),
         )
     }

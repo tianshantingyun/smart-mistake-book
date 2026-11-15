@@ -57,6 +57,14 @@ internal fun tutorToolContext(
         // 会话代号注册表：KNOWLEDGE_READ 的追加披露与 MASTERY_UPDATE 的代号解析都走它。
         knowledgeCodeRegistry = sessionKnowledgeCodeRegistry,
         currentQuestionDocument = respond?.questionDocument ?: plan?.questionDocument,
+        attachedImageAssetIds = when (input) {
+            is com.tingyun.smartmistakebook.core.model.TutorLobbyInput ->
+                (input.sourceImageAssetRefs.sortedBy { it.pageIndex } +
+                    input.contextImageAssetRefs.sortedBy { it.pageIndex })
+                    .map { ref -> ref.assetId }.distinct()
+            is TutorRespondInput -> input.studentImageAssetRefs
+            else -> emptyList()
+        },
     )
 }
 

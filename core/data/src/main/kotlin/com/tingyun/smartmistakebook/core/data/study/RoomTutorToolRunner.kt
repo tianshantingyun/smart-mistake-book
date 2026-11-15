@@ -260,6 +260,7 @@ internal class RoomTutorToolRunner(
     private val localActionExecutor: TutorLocalActionExecutor? = null,
     /** READ_FIGURE 的像素检查器：返回有界像素统计与真实的图像 grant。 */
     private val figureInspector: TutorFigureInspector? = null,
+    private val javascriptStateStore: com.tingyun.smartmistakebook.core.domain.TutorJavascriptStateStore? = null,
 ) {
     /** D-M M4：两条证据写通道的唯一写入口（本执行器只提供讲题通道的语义输入）。 */
     private val evidenceWriter = KnowledgeEvidenceWriter(port)
@@ -338,6 +339,8 @@ internal class RoomTutorToolRunner(
         val agentContext: com.tingyun.smartmistakebook.core.model.TutorAgentContext? = null,
         /** Plan/Respond 的当前题面（没有草稿时仍能证明"有当前题"）。 */
         val currentQuestionDocument: QuestionDocument? = null,
+        /** 本轮学生附图（规范资产 id）；JS 内 callAction(SAVE_TO_NOTEBOOK) 也用它。 */
+        val attachedImageAssetIds: List<String> = emptyList(),
     ) {
         init {
             require(attentionFactor in 0.0..1.0) { "Attention factor must be in 0..1" }
@@ -598,11 +601,38 @@ internal class RoomTutorToolRunner(
             "本机没有可用的 JavaScript 执行通道。", errorKind = "javascript_unavailable"))
         val script = call.script ?: return TutorToolExecution(TutorToolOutcome(call.tool, false,
             "JavaScript 函数体为空。", errorKind = "javascript_invalid_program"))
+        // JS 内连续调用共享同一个**运行中**上下文：SELECT_QUESTION 之后同一脚本里的
+        // APP_CONTEXT / KNOWLEDGE_READ 应立即看到新题，而不是等下一轮。
+        var running = context
+        val durableScope = running.conversationId ?: running.tutorSessionId
+        val durableState = durableScope?.let { scope ->
+            runCatching { javascriptStateStore?.read(scope) }.getOrNull()
+        }
+        val initialJavascriptState = call.stateJson
+            ?: running.agentContext?.javascriptStateJson
+            ?: durableState
+        fun selectInRunning(question: TutorAgentQuestion) {
+            running = running.copy(
+                selectedQuestion = question,
+                subject = question.subject,
+                agentContext = (running.agentContext
+                    ?: com.tingyun.smartmistakebook.core.model.TutorAgentContext()).copy(
+                    subject = question.subject,
+                    selectedQuestion = question,
+                    knownEntryIds = (running.agentContext?.knownEntryIds.orEmpty() + question.entryId)
+                        .distinct().take(180),
+                ),
+            )
+        }
         val result = runTutorJavascript(
             engine = engine,
             script = script,
-            stateJson = call.stateJson ?: context.agentContext?.javascriptStateJson,
-            runTool = { nested -> runTraced(nested, context).outcome },
+            stateJson = initialJavascriptState,
+            runTool = { nested ->
+                val execution = runTraced(nested, running)
+                execution.selectedQuestion?.let(::selectInRunning)
+                execution.outcome
+            },
             runAction = { request ->
                 val executor = localActionExecutor
                     ?: return@runTutorJavascript TutorLobbyLocalActionOutcome(
@@ -610,25 +640,31 @@ internal class RoomTutorToolRunner(
                     )
                 executor.execute(
                     TutorLocalActionCommand(
-                        logicalOperationId = context.evidenceIdNamespace
-                            ?: "tutor-js-${context.conversationId ?: context.tutorSessionId ?: "local"}",
-                        conversationId = context.conversationId ?: context.tutorSessionId ?: "javascript",
+                        logicalOperationId = running.evidenceIdNamespace
+                            ?: "tutor-js-${running.conversationId ?: running.tutorSessionId ?: "local"}",
+                        conversationId = running.conversationId ?: running.tutorSessionId ?: "javascript",
                         request = request,
                         context = TutorLocalActionContext(
-                            captureSessionId = context.tutorSessionId,
-                            libraryProblemId = context.selectedQuestion?.entryId,
+                            captureSessionId = running.tutorSessionId,
+                            libraryProblemId = running.selectedQuestion?.entryId,
+                            attachedImageAssetIds = running.attachedImageAssetIds,
                         ),
-                        exportEntryIds = context.agentContext?.knownEntryIds.orEmpty(),
+                        exportEntryIds = running.agentContext?.knownEntryIds.orEmpty(),
                         roundOrdinal = 0,
-                        allowedBackupRefs = context.agentContext?.backupReferences.orEmpty().map { it.ref },
+                        allowedBackupRefs = running.agentContext?.backupReferences.orEmpty().map { it.ref },
                     ),
                 )
             },
         )
+        if (result.outcome.ok && result.stateJson != null && durableScope != null) {
+            runCatching { javascriptStateStore?.write(durableScope, result.stateJson) }
+        }
         return TutorToolExecution(
             outcome = result.outcome,
             resultCount = if (result.outcome.ok) 1 else null,
+            selectedQuestion = running.selectedQuestion?.takeIf { it != context.selectedQuestion },
             javascriptState = result.stateJson,
+            subjects = listOfNotNull(running.subject).filter { it != context.subject },
         )
     }
 

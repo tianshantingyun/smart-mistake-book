@@ -30,8 +30,8 @@ import org.junit.Test
  * - Route B（提示词块，`OpenAiModelTaskAdapters.localActionPromptBlock`）里列出的动作名与
  *   参数（或"不接受任何参数"）；
  * - 两边都必须**恰好**等于 `core:model` 的能力快照里**已实现**的本地动作——多一个、少一个、
- *   名称不同、参数不同，这条用例都红。`ADD_TO_REVIEW_PLAN` 还没有执行处理器，因此两套
- *   广告里都不许出现它（旧行照旧由执行端如实说"还不能自动做"）。
+ *   名称不同、参数不同，这条用例都红。`ADD_TO_REVIEW_PLAN` 已接通（复习计划 revision 写入），
+ *   因此两套广告里都必须出现它。
  *
  * 为什么值得一条专门的用例：工具面的文案在这里漂过三次（`TutorToolDescriptions` 的注释记着
  * 那次事故），而本地动作**同时**出现在两套广告里——漂一次的代价是"Route A 允许模型传参、
@@ -150,21 +150,21 @@ class TutorLocalActionAdvertisementParityTest {
         // 反向：广告里不得出现名单外的动作名（"ACTION_" 前缀不属于任何工具名，用它做探针）。
         val unknown = Regex("ACTION_[A-Z_]+").findAll(prompt).map { it.value }.toSet()
         assertEquals(emptySet<String>(), unknown)
-        // 尚未接线的动作**不在**广告里：模型看不到它，也就不可能"提了然后什么也没发生"。
-        assertFalse(
-            "Route B 不得广告还没接通的 ADD_TO_REVIEW_PLAN",
+        // 复习计划动作已接通：Route B 必须和已实现集合一样广告它。
+        assertTrue(
+            "Route B 必须广告已接通的 ADD_TO_REVIEW_PLAN",
             prompt.contains(TutorLocalAction.ADD_TO_REVIEW_PLAN.actionId),
         )
     }
 
     @Test
-    fun routeANeverAdvertisesTheUnwiredReviewPlanActionAndMatchesTheSnapshot() {
+    fun routeAAdvertisesEveryImplementedActionIncludingReviewPlanAndMatchesTheSnapshot() {
         val actionNames = localActionNativeSchemas().map { function ->
             function.getValue("name").jsonPrimitive.content
         }.toSet()
 
-        assertFalse(
-            "Route A 不得广告还没接通的 ADD_TO_REVIEW_PLAN",
+        assertTrue(
+            "Route A 必须广告已接通的 ADD_TO_REVIEW_PLAN",
             TutorLocalAction.ADD_TO_REVIEW_PLAN.actionId in actionNames,
         )
         assertEquals(

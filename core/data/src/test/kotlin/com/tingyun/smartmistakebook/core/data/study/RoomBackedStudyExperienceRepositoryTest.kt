@@ -10,6 +10,8 @@ import com.tingyun.smartmistakebook.core.database.AnswerRevealWriteCommand
 import com.tingyun.smartmistakebook.core.database.AnswerRevealWriteResult
 import com.tingyun.smartmistakebook.core.database.AssessmentEventSeedRecord
 import com.tingyun.smartmistakebook.core.database.AssessmentItemSnapshotSeedRecord
+import com.tingyun.smartmistakebook.core.domain.AddToReviewPlanFailure
+import com.tingyun.smartmistakebook.core.domain.AddToReviewPlanResult
 import com.tingyun.smartmistakebook.core.database.CommitProblemDraftCommand
 import com.tingyun.smartmistakebook.core.database.ContentInstallStateRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeContentUpdateCommand
@@ -172,6 +174,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -2297,6 +2300,101 @@ class RoomBackedStudyExperienceRepositoryTest {
             scope.cancel()
         }
     }
+
+    /**
+     * `ADD_TO_REVIEW_PLAN` 的真实写入：今日计划不可变，因此落的是下一 revision；同一题重复
+     * 请求是幂等成功，不产生新行。快照重建必须保留显式修订的计划（planRevision > 1），
+     * 否则下一次 `initialize()` 会把它重排掉——那正是"加进去又消失"的失败。
+     */
+    @Test
+    fun `adding a mistake appends a new plan revision and survives snapshot refresh`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, scope, reviewTimeBudgetSeconds = 3600)
+        try {
+            repository.initialize()
+            val original = database.savedPlans.last()
+            database.addMistake(
+                MistakeRecord(
+                    entryId = "entry-agent-add",
+                    problemId = "problem-agent-add",
+                    problemRevisionId = "revision-agent-add",
+                    practiceUnitId = "unit-agent-add",
+                    sourceKey = "capture:agent-add",
+                    subject = "MATH",
+                    title = "智能体加入复习计划的题",
+                    problemMarkdown = "题目正文",
+                    status = "ACTIVE",
+                    createdAtEpochMillis = 1_000,
+                    nextReviewAtEpochMillis = null,
+                    retrievability = null,
+                    estimatedSeconds = 60,
+                ),
+            )
+
+            val added = repository.addToReviewPlan("entry-agent-add", 2_000)
+            assertTrue("$added", added is AddToReviewPlanResult.Added)
+            val revised = database.savedPlans.last()
+            assertEquals(original.plan.planRevision + 1, revised.plan.planRevision)
+            assertEquals(original.queue.size + 1, revised.queue.size)
+            assertEquals("unit-agent-add", revised.queue.last().practiceUnitId)
+            assertEquals(revised.plan.reviewPlanId, revised.queue.last().reviewPlanId)
+            assertTrue(revised.isCurrent)
+            assertEquals(revised.plan.reviewPlanId, revised.queue.last().reviewPlanId)
+
+            val again = repository.addToReviewPlan("entry-agent-add", 3_000)
+            assertTrue("$again", again is AddToReviewPlanResult.AlreadyScheduled)
+            assertEquals(revised.plan.reviewPlanId, database.savedPlans.last().plan.reviewPlanId)
+
+            repository.initialize()
+            assertEquals(
+                "显式修订的计划不能被下一次快照重建重排掉",
+                revised.plan.reviewPlanId,
+                database.savedPlans.last().plan.reviewPlanId,
+            )
+            assertEquals(original.queue.size + 1, database.savedPlans.last().queue.size)
+        } finally {
+            repository.close()
+            scope.cancel()
+        }
+    }
+
+    @Test
+    fun `adding to a started plan is refused instead of rewriting a frozen queue`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, scope)
+        try {
+            repository.initialize()
+            val current = database.savedPlans.last()
+            val session = ReviewSessionRecord(
+                reviewSessionId = "session-started",
+                reviewPlanId = current.plan.reviewPlanId,
+                status = StudyDbValue.ReviewStatus.IN_PROGRESS,
+                startedAtEpochMillis = 1_000,
+                lastActiveAtEpochMillis = 1_000,
+                completedAtEpochMillis = null,
+                currentOrdinal = 0,
+                timeBudgetSeconds = current.plan.timeBudgetSeconds,
+                projectionCheckpoint = current.plan.projectionCheckpoint,
+            )
+            database.savedPlans[database.savedPlans.lastIndex] = current.copy(activeSession = session)
+
+            val result = repository.addToReviewPlan(
+                database.observeMistakes().first().first().entryId,
+                2_000,
+            )
+            assertTrue(
+                "$result",
+                result is AddToReviewPlanResult.NotAdded &&
+                    result.failure == AddToReviewPlanFailure.PLAN_STARTED,
+            )
+        } finally {
+            repository.close()
+            scope.cancel()
+        }
+    }
+
 
     /**
      * D-M M6 **零 bump 定格测试**（先于删 V1 落地）：默认路径写出的计划行必须由 V2 排程器

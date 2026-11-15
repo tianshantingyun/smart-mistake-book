@@ -71,9 +71,8 @@ data class TutorLocalActionLandings(
  *    "本地做成了没有"）；
  * 3. **五 kind 各有落点**：存题（两种拼写）/ 打开某题走既有的三条真路径；导出（4B B3-3）
  *    打开导出 sheet——版式提议随裁决结果交给交互面，真正的导出在 sheet 上学生点「开始导出」
- *    之后才入队；复习计划调整的流程尚未接线，落 [TutorLocalActionTarget.NOT_WIRED_YET]——
- *    PRD-06 起它不再广告/准入，新请求挂不出卡；只有升级前落库的旧卡会走到这里，执行时如实说
- *    "还不能自动做"，不假装成功；
+ *    之后才入队；复习计划调整自批次 A 起由讲题助手自主执行（不挂新卡），升级前落库的旧卡
+ *    按 APPLICATION_ACTION 的"从当前对话重新发起"路径如实说明，不假装成功；
  * 4. **回喂**：`AgentPendingRequestRepository.readResolvedRequests` 读回已裁决的行——进程死亡
  *    之后照样读得到（行在库里，不在内存里）。
  */
@@ -232,11 +231,6 @@ internal class TutorPendingRequestCommands(
                 )
             }
 
-            // 尚未接通的流程（复习计划调整属阶段 3B）：**如实说**，不留"也许已经做了"的模糊。
-            // 学生的裁决本身已经落成终态留痕（这就是本次的产出）。
-            TutorLocalActionTarget.NOT_WIRED_YET ->
-                PendingExecution(notWiredYetDetail(request.kind))
-
             null -> PendingExecution("这一步现在还不能自动做。")
         }
     }
@@ -244,23 +238,6 @@ internal class TutorPendingRequestCommands(
     private companion object {
         const val MAX_FEEDBACK_OUTCOMES = 8
     }
-}
-
-/**
- * 尚未接通的流程给学生的原话（**逐条穷举**，不用 else 兜底）：一句"还不能自动做"必须说清
- * 哪件事没做，否则学生只能猜"是不是悄悄做了"。
- *
- * `START_EXPORT` 自 4B 批 4 起已接线（落 `EXPORT_SHEET`），走不到这里；它留在兜底句里是
- * 防御（真走到说明路由坏了，也不能假装做过）。
- */
-internal fun notWiredYetDetail(kind: AgentPendingRequestKind): String = when (kind) {
-    AgentPendingRequestKind.ADD_TO_REVIEW_PLAN ->
-        "这一步还不能自动做：复习计划的调整还没接通，这次没有改动计划。"
-    AgentPendingRequestKind.START_EXPORT,
-    AgentPendingRequestKind.NOTEBOOK_WRITE,
-    AgentPendingRequestKind.SAVE_TO_NOTEBOOK,
-    AgentPendingRequestKind.OPEN_PROBLEM,
-    -> "这一步现在还不能自动做。"
 }
 
 /** 学生选择"先不"时给模型/留痕的那一句（逐 kind，不写"先不保存"去回答"要不要打开"）。 */

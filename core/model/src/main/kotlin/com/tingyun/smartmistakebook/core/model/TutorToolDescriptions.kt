@@ -20,7 +20,7 @@ fun TutorToolName.purposeDescription(
 ): String = when (this) {
     TutorToolName.APP_CONTEXT -> "读取应用实际上下文、科目清单、已选择题目和备份引用。parameters.subject 可从已返回的 subjects 中选择。"
     TutorToolName.SELECT_QUESTION -> "选择错题本实际返回的题目，parameters.entryId 必填，返回所选题目的完整上下文。"
-    TutorToolName.READ_FIGURE -> "读取当前上下文已披露配图，parameters.assetId 必填，返回实际图片证据与可用状态。"
+    TutorToolName.READ_FIGURE -> "读取当前上下文已披露配图，parameters.assetId 必填。返回像素证据与 acceptance.status；status≠PASS（空白/内容过少/贴边裁切/对比度低）时必须如实说明问题，不得声称图片清晰；自己生成的图应先修正参数重新生成。"
     TutorToolName.RUN_JAVASCRIPT -> "执行通用 JavaScript 函数体 script，可读 input.state，调用 agent.callTool(name, parameters) 或 agent.callAction(name, parameters)。宿主同步挂起调用、执行后重放并返回实际结果，随后继续执行。最终 return JSON。stateJson 可选，只承载 JSON 初始状态。禁止递归 RUN_JAVASCRIPT。"
     TutorToolName.KNOWLEDGE_READ ->
         "读取这道题相关知识点讲解材料（返回**代号**+名称+边界（≤80字）+绑定材料《标题》与" +
@@ -103,7 +103,7 @@ fun TutorToolName.nativePurposeDescription(
 ): String = when (this) {
     TutorToolName.APP_CONTEXT -> "读取应用实际上下文、科目清单、已选择题目和备份引用。parameters.subject 可从已返回的 subjects 中选择。"
     TutorToolName.SELECT_QUESTION -> "选择错题本实际返回的题目，parameters.entryId 必填，返回所选题目的完整上下文。"
-    TutorToolName.READ_FIGURE -> "读取当前上下文已披露配图，parameters.assetId 必填，返回实际图片证据与可用状态。"
+    TutorToolName.READ_FIGURE -> "读取当前上下文已披露配图，parameters.assetId 必填。返回像素证据与 acceptance.status；status≠PASS（空白/内容过少/贴边裁切/对比度低）时必须如实说明问题，不得声称图片清晰；自己生成的图应先修正参数重新生成。"
     TutorToolName.RUN_JAVASCRIPT -> "执行通用 JavaScript 函数体 script，可读 input.state，调用 agent.callTool(name, parameters) 或 agent.callAction(name, parameters)。宿主同步挂起调用、执行后重放并返回实际结果，随后继续执行。最终 return JSON。stateJson 可选，只承载 JSON 初始状态。禁止递归 RUN_JAVASCRIPT。"
     TutorToolName.KNOWLEDGE_READ ->
         "读取当前题相关知识点讲解材料（返回代号+名称+边界+材料《标题》与正文节选≤120字；无材料显式标注）"

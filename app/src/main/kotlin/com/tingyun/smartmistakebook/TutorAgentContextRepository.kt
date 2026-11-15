@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.flow
  */
 internal class TutorAgentContextRepository(
     private val delegate: ModelTaskRepository,
+    private val knownSubjects: suspend () -> List<String>,
     private val backupReferences: suspend () -> List<TutorBackupReference>,
 ) : ModelTaskRepository by delegate {
     override fun execute(request: ModelTaskRequest): Flow<ModelTaskSnapshot> = flow {
@@ -32,7 +33,11 @@ internal class TutorAgentContextRepository(
             emitAll(delegate.execute(request))
             return@flow
         }
-        val context = (input.agentContextSnapshot() ?: TutorAgentContext()).copy(
+        val base = input.agentContextSnapshot() ?: TutorAgentContext()
+        val subjects = (base.subjects + runCatching { knownSubjects() }.getOrDefault(emptyList()))
+            .distinct().take(32)
+        val context = base.copy(
+            subjects = subjects,
             backupReferences = backupReferences(),
         )
         emitAll(delegate.execute(request.copy(input = input.withAgentContext(context))))

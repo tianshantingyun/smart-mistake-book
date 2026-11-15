@@ -131,6 +131,7 @@ class RoomModelTaskRepository internal constructor(
     private val localActionExecutor: com.tingyun.smartmistakebook.core.domain.TutorLocalActionExecutor? = null,
     private val visualEngine: com.tingyun.smartmistakebook.core.domain.VisualExecutionEngine? = null,
     private val figureInspector: com.tingyun.smartmistakebook.core.data.model.TutorFigureInspector? = null,
+    private val javascriptStateStore: com.tingyun.smartmistakebook.core.domain.TutorJavascriptStateStore? = null,
 ) : ModelTaskRepository {
     internal val toolRunner = RoomTutorToolRunner(
         database,
@@ -139,6 +140,7 @@ class RoomModelTaskRepository internal constructor(
         visualEngine,
         localActionExecutor,
         figureInspector,
+        javascriptStateStore,
     )
 
     /**
@@ -331,7 +333,17 @@ class RoomModelTaskRepository internal constructor(
             // 只折进派遣副本，持久化 request 与指纹逐字不变。
             val capabilityInput = request.input.withFigureGenerationCapabilities(
                 declaredProvider.figureGenerationCapabilities,
-            )
+            ).let { input ->
+                val availableActions = runCatching { localActionExecutor?.availableActions() }.getOrNull()
+                if (availableActions == null) {
+                    input
+                } else {
+                    input.withAgentContext(
+                        (input.agentContextSnapshot() ?: TutorAgentContext())
+                            .copy(availableLocalActions = availableActions),
+                    )
+                }
+            }
             val declaredTools = toolDeclarationsFor(capabilityInput, declaredProvider)
             var roundRequest = request.copy(
                 input = capabilityInput.withDeclaredTools(declaredTools),
@@ -1078,6 +1090,10 @@ class RoomModelTaskRepository internal constructor(
                 // 这里随之为 false，JS 从广告面消失。
                 jsEngineReady = jsReady,
                 jsMeasurementReady = jsReady,
+                // JS 工具只有在真实引擎已装配时才广告；READ_FIGURE 只有在像素检查器
+                // 与"能看图"的提供方同时成立时才广告——否则下一轮无法把 grant 出网。
+                javascriptToolReady = visualEngine != null,
+                figureReadReady = figureInspector != null && declaredProvider.supportsImageInput,
             )
             .tools
     }
@@ -1364,6 +1380,7 @@ object ModelTaskRepositoryFactory {
         localActionExecutor: com.tingyun.smartmistakebook.core.domain.TutorLocalActionExecutor? = null,
         visualEngine: com.tingyun.smartmistakebook.core.domain.VisualExecutionEngine? = null,
         figureInspector: com.tingyun.smartmistakebook.core.data.model.TutorFigureInspector? = null,
+        javascriptStateStore: com.tingyun.smartmistakebook.core.domain.TutorJavascriptStateStore? = null,
     ): ModelTaskRepository = RoomModelTaskRepository(
         database = database,
         gateway = gateway,
@@ -1373,6 +1390,7 @@ object ModelTaskRepositoryFactory {
         localActionExecutor = localActionExecutor,
         visualEngine = visualEngine,
         figureInspector = figureInspector,
+        javascriptStateStore = javascriptStateStore,
     )
 }
 

@@ -562,10 +562,16 @@ class SmartMistakeBookApplication : Application() {
                     this,
                     database,
                 ),
+                javascriptStateStore = SharedPreferencesTutorJavascriptStateStore(this),
             )
-            modelTaskRepository = TutorAgentContextRepository(baseModelTaskRepository) {
-                tutorBackupReferences()
-            }
+            modelTaskRepository = TutorAgentContextRepository(
+                delegate = baseModelTaskRepository,
+                knownSubjects = {
+                    studyRepository.snapshot.value.catalog.map { entry -> entry.subject }
+                        .distinct()
+                },
+                backupReferences = { tutorBackupReferences() },
+            )
             val editConfigurationStore = modelConfigurationStore
             run {
                 mistakeEditRepository = com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeEditRepository.create(

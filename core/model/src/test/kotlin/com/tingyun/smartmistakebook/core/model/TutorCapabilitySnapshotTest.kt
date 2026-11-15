@@ -12,9 +12,8 @@ import org.junit.Test
  * **单一能力快照**（PRD-06）：广告面 = 已实现处理器 ∩ 配置/依赖就绪 ∩ 本轮声明。
  *
  * 判别格是"还没接通的东西不会出现在模型面前"：
- * - `ADD_TO_REVIEW_PLAN` 没有执行处理器（落 `NOT_WIRED_YET`），因此永远不在快照里——
- *   它既不该被广告，也不该被准入；旧行由执行端如实说"还不能自动做"（那不是广告面）；
- * - 本地动作只在大厅轮出现（确认卡只长在那条交互面上）；讲题/计划轮广告了也没人接；
+ * - 每一枚本地动作都必须有执行处理器，且已实现集合与枚举一一对应（漏写分支 = 测试红）；
+ * - 本地动作在大厅/讲题/计划轮共用同一份实现集合（不按栏分叉）；
  * - 图像后端或知识材料没就绪时，对应工具从快照里消失（admission/执行端读同一份声明）。
  */
 class TutorCapabilitySnapshotTest {
@@ -71,15 +70,16 @@ class TutorCapabilitySnapshotTest {
     }
 
     @Test
-    fun anUnwiredActionIsNeverPartOfTheSnapshot() {
-        assertFalse(
-            "ADD_TO_REVIEW_PLAN 还没有执行处理器，不能进已实现集合",
-            TutorLocalAction.ADD_TO_REVIEW_PLAN in TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS,
+    fun everyLocalActionHasAnImplementedHandler() {
+        assertEquals(
+            "新增一枚枚举却没有执行处理器时必须显式登记，不能默认被广告",
+            TutorLocalAction.entries.toSet(),
+            TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS,
         )
         val snapshot = TutorCapabilitySnapshot.forRound(lobby())
 
         assertEquals(TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS, snapshot.localActions)
-        assertFalse(snapshot.advertises(TutorLocalAction.ADD_TO_REVIEW_PLAN))
+        assertTrue(snapshot.advertises(TutorLocalAction.ADD_TO_REVIEW_PLAN))
     }
 
     @Test

@@ -44,6 +44,25 @@ internal suspend fun SmartMistakeBookApplication.executeTutorApplicationAction(
         }
         TutorLocalAction.EDIT_PROBLEM -> editTutorProblem(requireNotNull(entryId),
             requireNotNull(parameters["instruction"]), effectKey, attemptKey)
+        TutorLocalAction.ADD_TO_REVIEW_PLAN -> {
+            val result = studyRepository.addToReviewPlan(requireNotNull(entryId), now)
+            val ok = result is com.tingyun.smartmistakebook.core.domain.AddToReviewPlanResult.Added ||
+                result is com.tingyun.smartmistakebook.core.domain.AddToReviewPlanResult.AlreadyScheduled
+            if (ok) runCatching { studyRepository.refresh() }
+            val detail = when (result) {
+                is com.tingyun.smartmistakebook.core.domain.AddToReviewPlanResult.Added ->
+                    "已经加入今天的复习计划：第 ${result.ordinal + 1} 项，共 ${result.scheduledCount} 项。"
+                is com.tingyun.smartmistakebook.core.domain.AddToReviewPlanResult.AlreadyScheduled ->
+                    "这道题已经在今天的复习计划里。"
+                is com.tingyun.smartmistakebook.core.domain.AddToReviewPlanResult.NotAdded -> result.detail
+            }
+            val artifactId = when (result) {
+                is com.tingyun.smartmistakebook.core.domain.AddToReviewPlanResult.Added -> result.reviewPlanId
+                is com.tingyun.smartmistakebook.core.domain.AddToReviewPlanResult.AlreadyScheduled -> result.reviewPlanId
+                is com.tingyun.smartmistakebook.core.domain.AddToReviewPlanResult.NotAdded -> entryId
+            }
+            tutorApplicationReceipt(ok, detail, artifactId)
+        }
         TutorLocalAction.UPDATE_SCHEDULING -> {
             if (parameters.isEmpty()) return tutorApplicationReceipt(false, "没有提供要修改的调度设置。")
             val current = schedulingSettingsStore.options.first()

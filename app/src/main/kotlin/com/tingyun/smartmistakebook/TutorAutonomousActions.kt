@@ -63,12 +63,38 @@ internal fun SmartMistakeBookApplication.autonomousTutorActions(): TutorLocalAct
             },
             backupReferences = { tutorBackupReferences() },
             availableActions = {
-                com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS.filterTo(linkedSetOf()) {
-                    it != com.tingyun.smartmistakebook.core.model.TutorLocalAction.EDIT_PROBLEM || mistakeEditRepository != null
-                }
+                com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS
+                    .filterTo(linkedSetOf()) { action -> actionDependenciesReady(action) }
             },
         ),
     )
+
+/** Actions whose real landing depends on a repository/store that may not be assembled yet. */
+private fun SmartMistakeBookApplication.actionDependenciesReady(
+    action: com.tingyun.smartmistakebook.core.model.TutorLocalAction,
+): Boolean = when (action) {
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.EDIT_PROBLEM ->
+        mistakeEditRepository != null
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.CREATE_BACKUP ->
+        runCatching { backupRepository }.isSuccess
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.RESTORE_BACKUP ->
+        runCatching { backupRepository }.isSuccess &&
+            runCatching { tutorBackupReferences().isNotEmpty() }.getOrDefault(false)
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.UPDATE_SCHEDULING ->
+        runCatching { schedulingSettingsStore }.isSuccess
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.SET_FAVORITE,
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.ARCHIVE_PROBLEM,
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.RESTORE_PROBLEM,
+    -> runCatching { mistakeDetailRepository }.isSuccess
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.OPEN_PROBLEM,
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.ADD_TO_REVIEW_PLAN,
+    -> runCatching { studyRepository }.isSuccess
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.SAVE_TO_NOTEBOOK ->
+        runCatching { tutorAttachedImageIntake }.isSuccess
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.START_EXPORT ->
+        runCatching { mistakeExportRepository }.isSuccess
+    else -> false
+}
 
 private suspend fun SmartMistakeBookApplication.exportTutorAction(
     effectId: String,

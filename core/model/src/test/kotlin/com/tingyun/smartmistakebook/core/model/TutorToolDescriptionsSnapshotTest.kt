@@ -96,7 +96,7 @@ class TutorToolDescriptionsSnapshotTest {
         private val DEFAULT_LONG_HASHES: Map<String, String> = mapOf(
             "APP_CONTEXT" to "1d19071e1c43e5dd0580ab7aeefd461b6c73bfee33ee3a9544f24aa5e10c3a06",
             "SELECT_QUESTION" to "2368127a78bf91fde9a23d325b68b22e2b110a4375e07d965508b06e9df312b9",
-            "READ_FIGURE" to "d45d18c9144f65b2fc481ad27caf1da6d759195275ef62bfefe9671ad6c7fc9c",
+            "READ_FIGURE" to "bbbf44e84e119016c74d0da4ff03ed9344db81da07fb9e8a49772ba6bd5ce899",
             "RUN_JAVASCRIPT" to "772ecd2fa22f103a1aa89d6d3183bed2d5bfe409ff4c636ff493b5ed424a8eb7",
             "KNOWLEDGE_READ" to "a3014232b1e0e3245bde16395bca3a0e1e03217a33b8f2077e1a96da744c8007",
             "NOTEBOOK_READ" to "624952d4b12263e60e981e97abab792873c3bec617024a0779768b0ee9b107c3",
@@ -111,7 +111,7 @@ class TutorToolDescriptionsSnapshotTest {
         private val DEFAULT_SHORT_HASHES: Map<String, String> = mapOf(
             "APP_CONTEXT" to "1d19071e1c43e5dd0580ab7aeefd461b6c73bfee33ee3a9544f24aa5e10c3a06",
             "SELECT_QUESTION" to "2368127a78bf91fde9a23d325b68b22e2b110a4375e07d965508b06e9df312b9",
-            "READ_FIGURE" to "d45d18c9144f65b2fc481ad27caf1da6d759195275ef62bfefe9671ad6c7fc9c",
+            "READ_FIGURE" to "bbbf44e84e119016c74d0da4ff03ed9344db81da07fb9e8a49772ba6bd5ce899",
             "RUN_JAVASCRIPT" to "772ecd2fa22f103a1aa89d6d3183bed2d5bfe409ff4c636ff493b5ed424a8eb7",
             "KNOWLEDGE_READ" to "e2732acc8089a739cd1013189d11fc6ca12d750f5f42b2a4e5875f836490f364",
             "NOTEBOOK_READ" to "624952d4b12263e60e981e97abab792873c3bec617024a0779768b0ee9b107c3",

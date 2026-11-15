@@ -158,7 +158,7 @@ enum class TutorLocalAction {
 
     companion object {
         val APPLICATION_ACTIONS: Set<TutorLocalAction> = setOf(
-            EDIT_PROBLEM, SET_FAVORITE, ARCHIVE_PROBLEM,
+            ADD_TO_REVIEW_PLAN, EDIT_PROBLEM, SET_FAVORITE, ARCHIVE_PROBLEM,
             RESTORE_PROBLEM, UPDATE_SCHEDULING, CREATE_BACKUP, RESTORE_BACKUP,
         )
         val ENTRY_TARGET_ACTIONS: Set<TutorLocalAction> = setOf(

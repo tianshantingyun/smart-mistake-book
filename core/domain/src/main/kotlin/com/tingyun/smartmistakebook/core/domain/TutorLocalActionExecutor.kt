@@ -110,8 +110,6 @@ class PersistentTutorLocalActionExecutor(
                         "agent-export-$key", attemptKey, selectedEntryIds,
                         requireNotNull(tutorLocalActionExportProposal(admission.payloadJson)),
                     )
-                    TutorLocalActionTarget.NOT_WIRED_YET ->
-                        outcome(request, false, "复习计划调整尚未接通。")
                     TutorLocalActionTarget.APPLICATION_ACTION ->
                         error("Application actions require their typed landing")
                 }

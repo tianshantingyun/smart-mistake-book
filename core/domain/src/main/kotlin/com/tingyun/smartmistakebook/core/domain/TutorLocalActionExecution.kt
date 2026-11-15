@@ -27,10 +27,8 @@ import kotlinx.serialization.json.jsonPrimitive
  * 判据只来自**本轮上下文**（有没有拍照会话 / 有没有已入库的题 / 有没有附图），不看入口、不看栏
  * ——与工具面同一条纪律（ADR 0001：差异只来自栏上下文、本轮绑定、本地门）。
  *
- * 白名单里尚未接线的 `ADD_TO_REVIEW_PLAN` 落到 [TutorLocalActionTarget.NOT_WIRED_YET]。
- * PRD-06 起它**不再广告、也不准入**（新请求挂不出卡）；这个分支只服务升级前已经落库的旧卡：
- * 学生点了之后本地如实说"这一步现在还不能自动做"，不留一个假装执行成功的假象。真接线属
- * 阶段 3B（复习计划调整）。
+ * 每一种 kind 都有真实落点；`ADD_TO_REVIEW_PLAN` 自批次 A 起走应用动作执行器（旧卡不带
+ * 动作参数，落 [APPLICATION_ACTION] 的"从当前对话重新发起"路径，不假装执行成功）。
  *
  * `START_EXPORT` 自 4B 批 4 起**已接线**：落到 [EXPORT_SHEET]——学生确认后打开导出 sheet
  * （版式表单预填模型提议值 + 本轮本地留痕的候选题勾选），确认后走后台导出管线。
@@ -47,15 +45,6 @@ enum class TutorLocalActionTarget {
      * ——版式表单预填模型提议值、候选题来自本轮本地留痕，学生在 sheet 里改完勾完再点开始导出。
      */
     EXPORT_SHEET,
-
-    /**
-     * 尚未接通：本地把学生的裁决（同意 / 不同意）落成终态留痕，执行结果如实说"还不能自动做"。
-     *
-     * 它与 null 的区别是**有没有一张卡**：null = 连卡都不该出现（本地没有可执行目标，学生点了
-     * 什么也不会发生——那正是"点了没反应"的老毛病），[NOT_WIRED_YET] = 卡存在（PRD-06 起只可能
-     * 是升级前落库的旧卡），只是执行那一步还没接上。
-     */
-    NOT_WIRED_YET,
 }
 
 /**
@@ -114,8 +103,10 @@ fun tutorLocalActionTarget(
     // 选择导出（4B B3-3 已接线）：学生确认后打开导出 sheet，版式预填、候选题勾选都在那里。
     AgentPendingRequestKind.START_EXPORT -> TutorLocalActionTarget.EXPORT_SHEET
 
-    // 尚未接通的复习计划调整：卡要挂（学生同意/拒绝都是真实决定），执行如实说"还不能自动做"。
-    AgentPendingRequestKind.ADD_TO_REVIEW_PLAN -> TutorLocalActionTarget.NOT_WIRED_YET
+    // 纳入复习计划（批次 A 已接线）：走应用动作执行器（按条目 id 追加今日计划 revision）。
+    // 旧卡不带动作参数，执行端无法从卡片重建命令——因此它落 APPLICATION_ACTION 的
+    // "从当前对话重新发起"路径，不假装执行成功。
+    AgentPendingRequestKind.ADD_TO_REVIEW_PLAN -> TutorLocalActionTarget.APPLICATION_ACTION
 }
 
 /**

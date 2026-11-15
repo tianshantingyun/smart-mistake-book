@@ -106,9 +106,9 @@ class TutorMessageActionsTest {
         assertTrue(exportCopy.detail.contains("双栏"))
         assertTrue(exportCopy.detail.contains("含答案"))
         assertTrue(exportCopy.detail.contains("开始导出"))
-        // 未接线的复习计划仍如实说"这一版点了不会…"（不装作能执行）。
+        // 复习计划动作已由讲题助手自主执行；旧卡如实请学生重新发起。
         assertTrue(
-            pendingRequestCopy(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN).detail.contains("不会修改计划"),
+            pendingRequestCopy(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN).detail.contains("再说一次"),
         )
     }
 
