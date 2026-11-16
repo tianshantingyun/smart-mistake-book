@@ -595,7 +595,9 @@ internal fun JsonObject.toTutorToolRequests(
             // 同名工具可以使用不同参数连续调用，完全相同的重放只保留一次。
             ?.distinct()
             ?: throw InvalidModelResponseException(),
-        localActions = optionalArray("localActions").map(JsonElement::toLocalActionRequest),
+        localActions = optionalArray("localActions")
+            .map(JsonElement::toLocalActionRequest)
+            .distinctBy { it.action to it.parameters },
         modelVersion = modelVersion,
     )
 }
@@ -612,12 +614,20 @@ internal fun JsonObject.toTutorToolCall(tool: TutorToolName): TutorToolCall {
     requireOnlyKeys(TUTOR_TOOL_CALL_WIRE_KEYS)
     return TutorToolCall(
         tool = tool,
-        rationale = requiredString("rationale"),
-        terms = optionalArray("terms").map(JsonElement::requiredPrimitiveString),
+        // 这三个字段是**审计/检索语义**，不是授权事实：模型多写几个字、把 confidence 写成
+        // 1.0 以上、或 term 带首尾空格，不应让整轮答复变成 INVALID_RESPONSE。按本地上限
+        // 归一化（截断/去空白/去重）后再交给构造器，构造器仍保留自己的硬校验。
+        rationale = requiredString("rationale").trim().take(TutorToolCall.MAX_TOOL_RATIONALE_CHARS),
+        terms = optionalArray("terms")
+            .map { it.requiredPrimitiveString().filterNot(Char::isISOControl).trim() }
+            .filter { it.isNotEmpty() }
+            .map { it.take(TutorIntentDecision.MAX_LOOKUP_TERM_CHARS) }
+            .distinctBy { it.lowercase() }
+            .take(TutorIntentDecision.MAX_LOOKUP_TERMS),
         direction = optionalString("direction")?.let { enumValue<TutorEvidenceDirection>(it) },
         understanding = optionalString("understanding")?.let { enumValue<TutorUnderstandingTier>(it) },
         difficultyTier = optionalString("difficultyTier")?.let { enumValue<TutorDifficultyTier>(it) },
-        confidence = optionalDouble("confidence") ?: 0.8,
+        confidence = (optionalFiniteDouble("confidence") ?: 0.8).coerceIn(0.0, 1.0),
         extendedResult = optionalBoolean("extendedResult") ?: false,
         boundQuestion = toCallBoundQuestion(),
         advisoryScope = optionalString("advisoryScope")
@@ -641,7 +651,8 @@ internal fun JsonObject.toTutorToolCall(tool: TutorToolName): TutorToolCall {
         parameters = (this["parameters"]?.takeUnless { it is JsonNull }?.let {
             it as? JsonObject ?: throw InvalidModelResponseException()
         } ?: buildJsonObject { }).also { it.requireOnlyKeys(tool.parameterNames()) }
-            .filterValues { it !is JsonNull }.mapValues { (_, value) -> value.requiredPrimitiveString() },
+            .filterValues { it !is JsonNull }
+            .mapValues { (_, value) -> value.requiredPrimitiveString().trim() },
         script = optionalString("script"),
         stateJson = optionalString("stateJson"),
     )
@@ -662,7 +673,9 @@ internal fun JsonObject.toTutorLobby(
         // 从不渲染）。wire 键也已从白名单移除——模型再吐这个键就是**未知键**，整条输出按
         // fail-closed 拒（与"未知键一律拒"同一条纪律，不是"忽略一下"）。
         // Respond/Plan 的 attachedImages 是另一回事：它们是无工具端点时的兼容 fallback，仍解析仍渲染。
-        localActions = optionalArray("localActions").map(JsonElement::toLocalActionRequest),
+        localActions = optionalArray("localActions")
+            .map(JsonElement::toLocalActionRequest)
+            .distinctBy { it.action to it.parameters },
         teachingFigureOmission = optionalTeachingFigureOmission(),
         modelVersion = modelVersion,
     )
@@ -698,14 +711,14 @@ internal fun localActionRequest(
     actionId: String,
     arguments: JsonObject,
 ): TutorLocalActionRequest {
-    val action = TutorLocalAction.fromActionId(actionId)
+    val action = TutorLocalAction.fromActionId(actionId.trim())
         ?: throw InvalidModelResponseException()
     val declared = action.parameters
     val declaredNames = declared.map { parameter -> parameter.parameterName }.toSet()
     val parameters = buildMap {
         arguments.forEach { (key, value) ->
             if (key !in declaredNames) throw InvalidModelResponseException()
-            if (value !is JsonNull) put(key, value.requiredPrimitiveString())
+            if (value !is JsonNull) put(key, value.requiredPrimitiveString().trim())
         }
     }
     declared.filter { parameter -> parameter.required }.forEach { parameter ->
@@ -723,11 +736,17 @@ internal fun JsonObject.toTutorIntentDecision(): TutorIntentDecision {
     requireOnlyKeys(TUTOR_INTENT_WIRE_KEYS)
     return TutorIntentDecision(
         intent = enumValue(requiredString("intent")),
-        confidence = optionalDouble("confidence") ?: throw InvalidModelResponseException(),
+        confidence = (optionalFiniteDouble("confidence") ?: throw InvalidModelResponseException())
+            .coerceIn(0.0, 1.0),
         explicitActionRequest = requiredBoolean("explicitActionRequest"),
         memoryPreference = enumValue(requiredString("memoryPreference")),
         requestedLocalCapability = enumValue(requiredString("requestedLocalCapability")),
-        lookupTerms = optionalArray("lookupTerms").map(JsonElement::requiredPrimitiveString),
+        lookupTerms = optionalArray("lookupTerms")
+            .map { it.requiredPrimitiveString().filterNot(Char::isISOControl).trim() }
+            .filter { it.isNotEmpty() }
+            .map { it.take(TutorIntentDecision.MAX_LOOKUP_TERM_CHARS) }
+            .distinctBy { it.lowercase() }
+            .take(TutorIntentDecision.MAX_LOOKUP_TERMS),
     )
 }
 

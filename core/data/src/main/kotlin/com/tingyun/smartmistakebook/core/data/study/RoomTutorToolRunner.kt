@@ -65,6 +65,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -224,6 +225,10 @@ internal data class TutorToolExecution(
     val selectedQuestion: TutorAgentQuestion? = null,
     /** READ_FIGURE 实际读到的图片 grant；下一轮随 agentContext.feedbackImages 出网。 */
     val feedbackImage: com.tingyun.smartmistakebook.core.model.ModelEgressAssetGrant? = null,
+    /** RUN_JAVASCRIPT 内部嵌套读取到的图片 grant（可能多张）；同样进下一轮上下文。 */
+    val feedbackImages: List<com.tingyun.smartmistakebook.core.model.ModelEgressAssetGrant> = emptyList(),
+    /** RUN_JAVASCRIPT 内部嵌套 GENERATE_FIGURE 产出的图 id（可能多张）。 */
+    val figureIds: List<String> = emptyList(),
     /** RUN_JAVASCRIPT 完成后应持久化的状态；null = 本次没有更新状态。 */
     val javascriptState: String? = null,
     /** 本轮真实结果里出现的科目（NOTEBOOK_READ 的行科目），用于下一轮补全大厅上下文。 */
@@ -388,6 +393,11 @@ internal class RoomTutorToolRunner(
     } catch (cancelled: CancellationException) {
         throw cancelled
     } catch (failure: Exception) {
+        // 用户仍只看到一句可重试的话；日志补上工具与异常类，避免同类失败每次都要靠猜。
+        android.util.Log.w(
+            "SmartMistakeBook",
+            "Tutor tool ${call.tool} failed: ${failure.javaClass.name}",
+        )
         TutorToolExecution(
             outcome = TutorToolOutcome(
                 tool = call.tool,
@@ -474,7 +484,7 @@ internal class RoomTutorToolRunner(
             )
         }
         val subject = requestedSubject?.takeIf(String::isNotBlank) ?: context.subject
-        val json = buildJsonObject {
+        val json = boundedAppContextJson(buildJsonObject {
             put("subject", subject?.let(::JsonPrimitive) ?: JsonNull)
             put("subjects", JsonArray((agent?.subjects.orEmpty() + listOfNotNull(context.subject))
                 .distinct().map(::JsonPrimitive)))
@@ -490,7 +500,7 @@ internal class RoomTutorToolRunner(
                 }
             }))
             put("roundsUsed", agent?.roundsUsed ?: 0)
-        }.toString()
+        })
         return TutorToolExecution(
             outcome = TutorToolOutcome(
                 tool = TutorToolName.APP_CONTEXT,
@@ -606,11 +616,26 @@ internal class RoomTutorToolRunner(
         var running = context
         val durableScope = running.conversationId ?: running.tutorSessionId
         val durableState = durableScope?.let { scope ->
-            runCatching { javascriptStateStore?.read(scope) }.getOrNull()
+            try {
+                javascriptStateStore?.read(scope)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                null
+            }
         }
         val initialJavascriptState = call.stateJson
             ?: running.agentContext?.javascriptStateJson
             ?: durableState
+        // RUN_JAVASCRIPT 里连续调用是**同一个脚本内的本地事实**：嵌套 NOTEBOOK_READ 的条目、
+        // READ_FIGURE 的图片 grant、GENERATE_FIGURE 的图 id、APP_CONTEXT 选的科目都必须
+        // 立即进入 running，后面的 callAction 才能对刚检索到的条目执行；结束后还要把同一批事实
+        // 带回顶层 TutorToolExecution，否则下一轮模型会“忘了”脚本里刚查到的东西。
+        val nestedEntryIds = linkedSetOf<String>()
+        val nestedFigureIds = linkedSetOf<String>()
+        val nestedFeedback = linkedMapOf<String, com.tingyun.smartmistakebook.core.model.ModelEgressAssetGrant>()
+        val nestedSubjects = linkedSetOf<String>()
+        var nestedSelectedSubject: String? = null
         fun selectInRunning(question: TutorAgentQuestion) {
             running = running.copy(
                 selectedQuestion = question,
@@ -620,7 +645,55 @@ internal class RoomTutorToolRunner(
                     subject = question.subject,
                     selectedQuestion = question,
                     knownEntryIds = (running.agentContext?.knownEntryIds.orEmpty() + question.entryId)
-                        .distinct().take(180),
+                        .distinct().takeLast(180),
+                    knownFigureIds = (running.agentContext?.knownFigureIds.orEmpty() +
+                        question.sourceImages.map { it.assetId }).distinct().takeLast(32),
+                    subjects = (running.agentContext?.subjects.orEmpty() + question.subject)
+                        .distinct().takeLast(32),
+                ),
+            )
+        }
+        fun mergeNested(execution: TutorToolExecution) {
+            val selected = execution.selectedQuestion
+            val feedback = (execution.feedbackImages + listOfNotNull(execution.feedbackImage))
+                .distinctBy { it.assetId }
+            execution.problemEntryIds.forEach(nestedEntryIds::add)
+            selected?.let { nestedEntryIds += it.entryId }
+            feedback.forEach { grant ->
+                nestedFeedback[grant.assetId] = grant
+                nestedFigureIds += grant.assetId
+            }
+            execution.figure?.figureId?.let(nestedFigureIds::add)
+            execution.subjects.forEach(nestedSubjects::add)
+            execution.selectedSubject?.let { subject ->
+                nestedSelectedSubject = subject
+                nestedSubjects += subject
+                running = running.copy(
+                    subject = subject,
+                    agentContext = (running.agentContext
+                        ?: com.tingyun.smartmistakebook.core.model.TutorAgentContext()).copy(
+                        subject = subject,
+                        subjects = (running.agentContext?.subjects.orEmpty() + subject)
+                            .distinct().takeLast(32),
+                    ),
+                )
+            }
+            selected?.let {
+                nestedSubjects += it.subject
+                selectInRunning(it)
+            }
+            val current = running.agentContext
+                ?: com.tingyun.smartmistakebook.core.model.TutorAgentContext()
+            running = running.copy(
+                agentContext = current.copy(
+                    knownEntryIds = (current.knownEntryIds + execution.problemEntryIds +
+                        listOfNotNull(selected?.entryId)).distinct().takeLast(180),
+                    knownFigureIds = (current.knownFigureIds + nestedFigureIds).distinct().takeLast(32),
+                    subjects = (current.subjects + execution.subjects +
+                        listOfNotNull(execution.selectedSubject, selected?.subject))
+                        .distinct().takeLast(32),
+                    feedbackImages = (current.feedbackImages + feedback)
+                        .distinctBy { it.assetId }.takeLast(4),
                 ),
             )
         }
@@ -630,7 +703,7 @@ internal class RoomTutorToolRunner(
             stateJson = initialJavascriptState,
             runTool = { nested ->
                 val execution = runTraced(nested, running)
-                execution.selectedQuestion?.let(::selectInRunning)
+                mergeNested(execution)
                 execution.outcome
             },
             runAction = { request ->
@@ -638,6 +711,12 @@ internal class RoomTutorToolRunner(
                     ?: return@runTutorJavascript TutorLobbyLocalActionOutcome(
                         request.action.actionId, "UNAVAILABLE", "本机没有可用的应用动作执行器。", ok = false,
                     )
+                // 本地动作只能作用于**本轮已知**条目：模型给的 entryId 若在 knownEntryIds 里，
+                // 它就是这一动作的目标；否则保留当前题（执行器的目标核对会如实拒绝越界 id）。
+                val requestedEntryId = request.parameters["entryId"]
+                val knownEntryIds = running.agentContext?.knownEntryIds.orEmpty()
+                val actionEntryId = requestedEntryId?.takeIf { it in knownEntryIds }
+                    ?: running.selectedQuestion?.entryId
                 executor.execute(
                     TutorLocalActionCommand(
                         logicalOperationId = running.evidenceIdNamespace
@@ -646,10 +725,10 @@ internal class RoomTutorToolRunner(
                         request = request,
                         context = TutorLocalActionContext(
                             captureSessionId = running.tutorSessionId,
-                            libraryProblemId = running.selectedQuestion?.entryId,
+                            libraryProblemId = actionEntryId,
                             attachedImageAssetIds = running.attachedImageAssetIds,
                         ),
-                        exportEntryIds = running.agentContext?.knownEntryIds.orEmpty(),
+                        exportEntryIds = knownEntryIds,
                         roundOrdinal = 0,
                         allowedBackupRefs = running.agentContext?.backupReferences.orEmpty().map { it.ref },
                     ),
@@ -657,28 +736,96 @@ internal class RoomTutorToolRunner(
             },
         )
         if (result.outcome.ok && result.stateJson != null && durableScope != null) {
-            runCatching { javascriptStateStore?.write(durableScope, result.stateJson) }
+            try {
+                javascriptStateStore?.write(durableScope, result.stateJson)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                // State persistence is best-effort; the current turn already has the value.
+            }
         }
         return TutorToolExecution(
             outcome = result.outcome,
             resultCount = if (result.outcome.ok) 1 else null,
+            problemEntryIds = nestedEntryIds.toList(),
             selectedQuestion = running.selectedQuestion?.takeIf { it != context.selectedQuestion },
+            feedbackImages = nestedFeedback.values.toList(),
+            figureIds = nestedFigureIds.toList(),
             javascriptState = result.stateJson,
-            subjects = listOfNotNull(running.subject).filter { it != context.subject },
+            subjects = nestedSubjects.toList(),
+            selectedSubject = nestedSelectedSubject,
         )
     }
 
-    private fun agentQuestionJson(question: TutorAgentQuestion) = buildJsonObject {
-        put("entryId", question.entryId)
-        put("problemId", question.problemId)
-        put("problemRevisionId", question.problemRevisionId)
-        put("subject", question.subject)
-        put("title", question.title.take(240))
-        put("document", Json.parseToJsonElement(
-            Json.encodeToString(QuestionDocument.serializer(), question.document),
-        ))
-        question.tutorSessionId?.let { put("tutorSessionId", it) }
-        put("sourceImageAssetIds", JsonArray(question.sourceImages.map { JsonPrimitive(it.assetId) }))
+    /**
+     * SELECT_QUESTION / APP_CONTEXT 返回给模型（以及 JS 宿主）的题目对象。
+     *
+     * `TutorToolOutcome.dataJson` 有 6,000 字符硬上限；完整 QuestionDocument 很容易超过它，
+     * 旧实现直接构造就会抛 `IllegalArgumentException`，`runTraced` 再折成一句“查询没有完成”。
+     * 完整题面已经在下一轮提示词的 selectedQuestion 里，所以超限时这里只省略 `document`、
+     * 保留 id/标题/图 id 并显式标记 `documentOmitted`——可见的降级，不是静默失败。
+     */
+    private fun agentQuestionJson(question: TutorAgentQuestion): JsonObject {
+        val full = buildJsonObject {
+            put("entryId", question.entryId)
+            put("problemId", question.problemId)
+            put("problemRevisionId", question.problemRevisionId)
+            put("subject", question.subject)
+            put("title", question.title.take(240))
+            put("document", Json.parseToJsonElement(
+                Json.encodeToString(QuestionDocument.serializer(), question.document),
+            ))
+            question.tutorSessionId?.let { put("tutorSessionId", it) }
+            put("sourceImageAssetIds", JsonArray(question.sourceImages.map { JsonPrimitive(it.assetId) }))
+        }
+        if (full.toString().length <= MAX_QUESTION_TOOL_DATA_CHARS) return full
+        return buildJsonObject {
+            put("entryId", question.entryId)
+            put("problemId", question.problemId)
+            put("problemRevisionId", question.problemRevisionId)
+            put("subject", question.subject)
+            put("title", question.title.take(240))
+            put("documentOmitted", true)
+            put("documentChars", full.toString().length)
+            question.tutorSessionId?.let { put("tutorSessionId", it) }
+            put("sourceImageAssetIds", JsonArray(question.sourceImages.map { JsonPrimitive(it.assetId) }))
+        }
+    }
+
+    private fun boundedAppContextJson(json: JsonObject): String {
+        val text = json.toString()
+        if (text.length <= MAX_APP_CONTEXT_DATA_CHARS) return text
+        val selected = json["selectedQuestion"] as? JsonObject
+        val compact = buildJsonObject {
+            put("subject", json["subject"] ?: JsonNull)
+            put("subjects", JsonArray((json["subjects"] as? JsonArray).orEmpty().take(16)))
+            selected?.let { question ->
+                put("selectedQuestion", buildJsonObject {
+                    question.forEach { (key, value) ->
+                        if (key != "document") put(key, value)
+                    }
+                    put("documentOmitted", true)
+                })
+            }
+            put("knownEntryIds", JsonArray((json["knownEntryIds"] as? JsonArray).orEmpty().take(40)))
+            put("knownFigureIds", JsonArray((json["knownFigureIds"] as? JsonArray).orEmpty().take(16)))
+            put("backupReferences", JsonArray((json["backupReferences"] as? JsonArray).orEmpty().take(8)))
+            put("roundsUsed", (json["roundsUsed"] as? JsonPrimitive) ?: JsonPrimitive(0))
+            put("truncated", true)
+        }
+        val compactText = compact.toString()
+        if (compactText.length <= MAX_APP_CONTEXT_DATA_CHARS) return compactText
+        // 仍超限时退成**计数摘要**：宁可少给列表，也不能 `take()` 出一个半截 JSON
+        // （那会让 TutorToolOutcome 的 JSON 校验再抛一次，又回到“查询没有完成”）。
+        return buildJsonObject {
+            put("subject", json["subject"] ?: JsonNull)
+            put("subjects", JsonArray((json["subjects"] as? JsonArray).orEmpty().take(8)))
+            put("knownEntryCount", (json["knownEntryIds"] as? JsonArray)?.size ?: 0)
+            put("knownFigureCount", (json["knownFigureIds"] as? JsonArray)?.size ?: 0)
+            put("backupCount", (json["backupReferences"] as? JsonArray)?.size ?: 0)
+            put("roundsUsed", (json["roundsUsed"] as? JsonPrimitive) ?: JsonPrimitive(0))
+            put("truncated", true)
+        }.toString()
     }
 
     private suspend fun knowledgeRead(
@@ -791,6 +938,12 @@ internal class RoomTutorToolRunner(
     }
 
     private companion object {
+        /** `TutorToolOutcome.dataJson` 硬上限 6,000 之前的安全线（题面对象）。 */
+        const val MAX_QUESTION_TOOL_DATA_CHARS = 5_000
+
+        /** APP_CONTEXT 整体数据的安全线：超过就压成计数/截断列表，避免工具结果构造失败。 */
+        const val MAX_APP_CONTEXT_DATA_CHARS = 5_600
+
         /**
          * 渲染/取材料的最终展示条数（工具结果形态的一部分，**不是**查询深度）。
          * A2 起查询深度 = `MAX_KNOWLEDGE_RECALL_CANDIDATES`（512，金标融合臂同构）；

@@ -133,4 +133,25 @@ class TutorCapabilitySnapshotTest {
         assertTrue(notReady.advertises(TutorToolName.NOTEBOOK_READ))
         assertTrue(notReady.advertises(TutorToolName.MASTERY_UPDATE))
     }
+
+    @Test
+    fun anUnreadyJsEngineOrTextOnlyProviderDoesNotGetJsAndFigureTools() {
+        val ready = TutorCapabilitySnapshot.forRound(lobby())
+        val gated = ready.withDependencies(
+            imageBackendReady = true,
+            knowledgeMaterialReady = true,
+            javascriptToolReady = false,
+            figureReadReady = false,
+        )
+
+        assertFalse(
+            "JS 引擎未 ready 时 RUN_JAVASCRIPT 不得被广告",
+            gated.advertises(TutorToolName.RUN_JAVASCRIPT),
+        )
+        assertFalse(
+            "提供方不能看图时 READ_FIGURE 不得被广告",
+            gated.advertises(TutorToolName.READ_FIGURE),
+        )
+        assertTrue(gated.advertises(TutorToolName.NOTEBOOK_READ))
+    }
 }

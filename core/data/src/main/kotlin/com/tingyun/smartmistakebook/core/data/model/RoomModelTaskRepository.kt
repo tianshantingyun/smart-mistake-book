@@ -130,6 +130,14 @@ class RoomModelTaskRepository internal constructor(
     private val figureCapabilities: (suspend () -> com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities)? = null,
     private val localActionExecutor: com.tingyun.smartmistakebook.core.domain.TutorLocalActionExecutor? = null,
     private val visualEngine: com.tingyun.smartmistakebook.core.domain.VisualExecutionEngine? = null,
+    /**
+     * JS 引擎的**装配态就绪位**（warm-up / 隔离服务握手完成）。
+     *
+     * 与 `visualEngine != null` 不是一回事：引擎对象在进程里可能已创建，但 `:visual_js`
+     * 服务尚未 ready（KD-76 的冷启动窗口）。只按非 null 广告会让首个 RUN_JAVASCRIPT 必败；
+     * null = 旧装配/测试没有就绪位，维持原有行为。
+     */
+    private val visualEngineReady: (() -> Boolean)? = null,
     private val figureInspector: com.tingyun.smartmistakebook.core.data.model.TutorFigureInspector? = null,
     private val javascriptStateStore: com.tingyun.smartmistakebook.core.domain.TutorJavascriptStateStore? = null,
 ) : ModelTaskRepository {
@@ -334,7 +342,20 @@ class RoomModelTaskRepository internal constructor(
             val capabilityInput = request.input.withFigureGenerationCapabilities(
                 declaredProvider.figureGenerationCapabilities,
             ).let { input ->
-                val availableActions = runCatching { localActionExecutor?.availableActions() }.getOrNull()
+                if (input !is com.tingyun.smartmistakebook.core.model.TutorLobbyInput &&
+                    input !is com.tingyun.smartmistakebook.core.model.TutorPlanInput &&
+                    input !is com.tingyun.smartmistakebook.core.model.TutorRespondInput
+                ) {
+                    return@let input
+                }
+                val availableActions = try {
+                    localActionExecutor?.availableActions()
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    // 有执行器却查不出可用集 = 装配故障：fail-closed，不能回退成"全部动作"。
+                    if (localActionExecutor == null) null else emptySet()
+                }
                 if (availableActions == null) {
                     input
                 } else {
@@ -684,6 +705,11 @@ class RoomModelTaskRepository internal constructor(
             }
             throw cancelled
         } catch (failure: Exception) {
+            // 只记异常类，不记 message：message 可能带回模型输出/学生内容。
+            android.util.Log.e(
+                MODEL_TASK_LOG_TAG,
+                "Model task failed unexpectedly: ${failure.javaClass.name}",
+            )
             val latest = database.readModelTask(request.requestId) ?: throw failure
             if (!latest.status.isTerminal && latest.status != ModelTaskStatus.RETRYABLE_FAILURE) {
                 emit(
@@ -1092,7 +1118,10 @@ class RoomModelTaskRepository internal constructor(
                 jsMeasurementReady = jsReady,
                 // JS 工具只有在真实引擎已装配时才广告；READ_FIGURE 只有在像素检查器
                 // 与"能看图"的提供方同时成立时才广告——否则下一轮无法把 grant 出网。
-                javascriptToolReady = visualEngine != null,
+                javascriptToolReady = visualEngine != null &&
+                    (visualEngineReady?.let { ready ->
+                        runCatching { ready() }.getOrDefault(false)
+                    } ?: true),
                 figureReadReady = figureInspector != null && declaredProvider.supportsImageInput,
             )
             .tools
@@ -1164,13 +1193,18 @@ class RoomModelTaskRepository internal constructor(
         val base = agentContextSnapshot() ?: TutorAgentContext()
         val selected = executions.mapNotNull { it.selectedQuestion }.lastOrNull()
         val entries = (base.knownEntryIds + executions.flatMap { it.problemEntryIds } +
-            listOfNotNull(selected?.entryId)).distinct().take(180)
+            listOfNotNull(selected?.entryId)).distinct().takeLast(180)
         val figures = (base.knownFigureIds + executions.mapNotNull { it.figure?.figureId } +
-            executions.mapNotNull { it.feedbackImage?.assetId }).distinct().take(32)
-        val feedback = (base.feedbackImages + executions.mapNotNull { it.feedbackImage })
+            executions.flatMap { it.figureIds } +
+            executions.mapNotNull { it.feedbackImage?.assetId } +
+            executions.flatMap { execution -> execution.feedbackImages.map { it.assetId } } +
+            listOfNotNull(selected).flatMap { question -> question.sourceImages.map { it.assetId } })
+            .distinct().takeLast(32)
+        val feedback = (base.feedbackImages + executions.mapNotNull { it.feedbackImage } +
+            executions.flatMap { it.feedbackImages })
             .distinctBy { it.assetId }.takeLast(4)
         val subjects = (base.subjects + listOfNotNull(base.subject, selected?.subject) +
-            executions.flatMap { it.subjects }).distinct().take(32)
+            executions.flatMap { it.subjects }).distinct().takeLast(32)
         val state = executions.lastOrNull { it.javascriptState != null }?.javascriptState
             ?: base.javascriptStateJson
         val outcomes = (base.actionOutcomes + actionOutcomes).takeLast(12)
@@ -1209,7 +1243,7 @@ class RoomModelTaskRepository internal constructor(
         val conversationId = lobby?.conversationId
             ?: sessionId?.let(TutorConversationIds::captured)
         val selectedCurrent = input.agentContextSnapshot()?.selectedQuestion?.entryId
-        val attachedImageIds = lobby?.sourceImageAssetRefs?.map { it.assetId }.orEmpty()
+        val attachedImageIds = input.attachedImageAssetIdsForActions()
         val candidates = toolTraces.current(request.requestId)?.entries.orEmpty()
             .filter { it.tool == TutorToolName.NOTEBOOK_READ }
             .flatMap { it.problemEntryIds }.distinct()
@@ -1220,10 +1254,11 @@ class RoomModelTaskRepository internal constructor(
                 outcome.ok == true && outcome.decision == "SUCCEEDED" &&
                     outcome.kind in setOf("SAVE_TO_NOTEBOOK", "OPEN_PROBLEM")
             }.mapNotNull { it.artifactId }
-            val knownIds = (candidates + savedIds + listOfNotNull(selectedCurrent)).toSet()
+            val knownIds = (candidates + savedIds + listOfNotNull(selectedCurrent) +
+                input.agentContextSnapshot()?.knownEntryIds.orEmpty()).toSet()
             val selectedProblem = action.parameters["entryId"]
             val selectedExports = action.parameters["entryIds"]?.split(',')?.map(String::trim)
-                ?: candidates
+                ?: candidates.ifEmpty { listOfNotNull(selectedCurrent) }
             val unknownTarget = selectedProblem != null && selectedProblem !in knownIds ||
                 selectedExports.any { it.isBlank() || it !in knownIds }
             val executor = localActionExecutor
@@ -1243,8 +1278,8 @@ class RoomModelTaskRepository internal constructor(
                     request = action,
                     context = com.tingyun.smartmistakebook.core.domain.TutorLocalActionContext(
                         captureSessionId = sessionId,
-                        libraryProblemId = selectedProblem ?: savedIds.lastOrNull()
-                        ?: candidates.singleOrNull() ?: selectedCurrent,
+                        libraryProblemId = selectedProblem ?: selectedCurrent
+                        ?: savedIds.lastOrNull() ?: candidates.singleOrNull(),
                         attachedImageAssetIds = attachedImageIds,
                     ),
                     exportEntryIds = selectedExports.distinct(),
@@ -1379,6 +1414,7 @@ object ModelTaskRepositoryFactory {
         figureCapabilities: (suspend () -> com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities)? = null,
         localActionExecutor: com.tingyun.smartmistakebook.core.domain.TutorLocalActionExecutor? = null,
         visualEngine: com.tingyun.smartmistakebook.core.domain.VisualExecutionEngine? = null,
+        visualEngineReady: (() -> Boolean)? = null,
         figureInspector: com.tingyun.smartmistakebook.core.data.model.TutorFigureInspector? = null,
         javascriptStateStore: com.tingyun.smartmistakebook.core.domain.TutorJavascriptStateStore? = null,
     ): ModelTaskRepository = RoomModelTaskRepository(
@@ -1389,6 +1425,7 @@ object ModelTaskRepositoryFactory {
         figureCapabilities = figureCapabilities,
         localActionExecutor = localActionExecutor,
         visualEngine = visualEngine,
+        visualEngineReady = visualEngineReady,
         figureInspector = figureInspector,
         javascriptStateStore = javascriptStateStore,
     )

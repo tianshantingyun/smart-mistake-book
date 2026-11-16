@@ -558,6 +558,7 @@ class SmartMistakeBookApplication : Application() {
                     }
                 },
                 visualEngine = jsHost.engine,
+                visualEngineReady = { jsHost.available() },
                 figureInspector = com.tingyun.smartmistakebook.core.data.model.TutorFigureInspectorFactory.create(
                     this,
                     database,
@@ -577,7 +578,21 @@ class SmartMistakeBookApplication : Application() {
                 mistakeEditRepository = com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeEditRepository.create(
                     this, database, modelTaskRepository, figureGenerationCoordinator, editConfigurationStore,
                     capabilities.networkRequestsAllowed, applicationScope)
-                applicationScope.launch { mistakeEditRepository?.resumePendingJobs(capabilities.networkRequestsAllowed) }
+                applicationScope.launch {
+                    try {
+                        mistakeEditRepository?.resumePendingJobs(capabilities.networkRequestsAllowed)
+                    } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                        throw cancelled
+                    } catch (failure: Exception) {
+                        // 恢复待处理作业是后台增强：读口暂时不可用不应变成启动期的未捕获异常，
+                        // 也不能让整个 applicationScope 的子协程反复报错（下次启动会再恢复）。
+                        android.util.Log.e(
+                            "SmartMistakeBook",
+                            "Resuming pending mistake-edit jobs failed: ${failure.javaClass.name}",
+                            failure,
+                        )
+                    }
+                }
                 detailedSolutionRepository = com.tingyun.smartmistakebook.core.data.export.RoomDetailedSolutionRepository.create(
                     this, database, modelTaskRepository, figureGenerationCoordinator, editConfigurationStore, capabilities.networkRequestsAllowed)
             }

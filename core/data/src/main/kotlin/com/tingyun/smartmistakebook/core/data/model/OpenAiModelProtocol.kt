@@ -901,10 +901,11 @@ internal object OpenAiModelProtocol {
         forEach { element ->
             val name = element.objectValue().objectValue("function").requiredString("name")
             when {
-                com.tingyun.smartmistakebook.core.model.TutorLocalAction.fromActionId(name) != null ->
+                com.tingyun.smartmistakebook.core.model.TutorLocalAction.fromActionId(name.trim()) != null ->
                     actionCallElements += element
                 enumValues<com.tingyun.smartmistakebook.core.model.TutorToolName>()
-                    .any { tool -> tool.name == name } -> toolCallElements += element
+                    .any { tool -> tool.name.equals(name.trim(), ignoreCase = true) } ->
+                    toolCallElements += element
                 else -> throw InvalidModelResponseException()
             }
         }
@@ -935,7 +936,7 @@ internal object OpenAiModelProtocol {
                     actionId = function.requiredString("name"),
                     arguments = parseObject(function.requiredString("arguments")),
                 ).copy(callId = call.optionalString("id"))
-            },
+            }.distinctBy { it.action to it.parameters },
             modelVersion = modelVersion,
         )
     }

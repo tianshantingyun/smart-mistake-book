@@ -57,15 +57,24 @@ internal fun tutorToolContext(
         // 会话代号注册表：KNOWLEDGE_READ 的追加披露与 MASTERY_UPDATE 的代号解析都走它。
         knowledgeCodeRegistry = sessionKnowledgeCodeRegistry,
         currentQuestionDocument = respond?.questionDocument ?: plan?.questionDocument,
-        attachedImageAssetIds = when (input) {
-            is com.tingyun.smartmistakebook.core.model.TutorLobbyInput ->
-                (input.sourceImageAssetRefs.sortedBy { it.pageIndex } +
-                    input.contextImageAssetRefs.sortedBy { it.pageIndex })
-                    .map { ref -> ref.assetId }.distinct()
-            is TutorRespondInput -> input.studentImageAssetRefs
-            else -> emptyList()
-        },
+        attachedImageAssetIds = input.attachedImageAssetIdsForActions(),
     )
+}
+
+/**
+ * 这条模型输入里**本轮学生附图**的规范资产 id（按页面/选择顺序）。
+ *
+ * 顶层动作执行与 JS 宿主桥必须读同一份：只读 `sourceImageAssetRefs` 会漏掉大厅上下文图，
+ * 只读 `studentImageAssetRefs` 会漏掉讲题侧之外的图；两处各写一份就会出现"同一个 SAVE 动作，
+ * 顶层带图、JS 里不带图"的分叉。
+ */
+internal fun ModelTaskInput.attachedImageAssetIdsForActions(): List<String> = when (this) {
+    is com.tingyun.smartmistakebook.core.model.TutorLobbyInput ->
+        (sourceImageAssetRefs.sortedBy { it.pageIndex } +
+            contextImageAssetRefs.sortedBy { it.pageIndex })
+            .map { ref -> ref.assetId }.distinct()
+    is TutorRespondInput -> studentImageAssetRefs
+    else -> emptyList()
 }
 
 /**

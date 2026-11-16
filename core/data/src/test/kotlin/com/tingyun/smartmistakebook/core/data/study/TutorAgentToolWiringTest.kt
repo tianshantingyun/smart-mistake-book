@@ -23,6 +23,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.json.Json
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -101,6 +102,96 @@ class TutorAgentToolWiringTest {
     }
 
     @Test
+    fun aLargeSelectedQuestionDocumentIsOmittedInsteadOfFailingTheWholeToolCall() = runBlocking {
+        val longStem = "长题干".repeat(3_000)
+        val port = object : FakeStudyDatabasePort() {
+            override suspend fun readMistakeDetail(errorBookEntryId: String): MistakeDetailRecord? =
+                MistakeDetailRecord(
+                    entryId = "entry-big",
+                    problemId = "problem-big",
+                    problemRevisionId = "revision-big",
+                    revisionNumber = 1,
+                    subject = "MATH",
+                    title = "长题",
+                    problemMarkdown = longStem,
+                    questionDocumentSnapshot = Json.encodeToString(
+                        QuestionDocument.serializer(),
+                        QuestionDocument(
+                            id = "revision-big",
+                            title = "长题",
+                            blocks = listOf(ContentBlock.Paragraph("stem", longStem)),
+                        ),
+                    ),
+                    contentFingerprint = "fp",
+                    sourceAssets = emptyList(),
+                )
+        }
+        val runner = RoomTutorToolRunner(
+            port,
+            MutableStateFlow(KnowledgeBaseAvailability.Ready),
+            null,
+        )
+        val execution = runner.runTraced(
+            TutorToolCall(
+                tool = TutorToolName.SELECT_QUESTION,
+                rationale = "选择长题",
+                parameters = mapOf("entryId" to "entry-big"),
+            ),
+            context(agent = TutorAgentContext(
+                subject = "MATH",
+                knownEntryIds = listOf("entry-big"),
+            )),
+        )
+
+        assertTrue(execution.outcome.summaryMarkdown, execution.outcome.ok)
+        val data = requireNotNull(execution.outcome.dataJson)
+        assertTrue(data, data.length <= 6_000)
+        assertTrue(data, data.contains("\"documentOmitted\":true"))
+        assertTrue(data, data.contains("entry-big"))
+        assertEquals("entry-big", execution.selectedQuestion?.entryId)
+    }
+
+    @Test
+    fun appContextStaysWithinTheToolDataBudgetForLargeContexts() = runBlocking {
+        val bigQuestion = TutorAgentQuestion(
+            entryId = "entry-big",
+            problemId = "problem-big",
+            problemRevisionId = "revision-big",
+            subject = "MATH",
+            title = "长题",
+            document = QuestionDocument(
+                id = "revision-big",
+                title = "长题",
+                blocks = listOf(ContentBlock.Paragraph("stem", "长题干".repeat(3_000))),
+            ),
+        )
+        val runner = RoomTutorToolRunner(
+            FakeStudyDatabasePort(),
+            MutableStateFlow(KnowledgeBaseAvailability.Ready),
+            null,
+        )
+        val execution = runner.runTraced(
+            TutorToolCall(TutorToolName.APP_CONTEXT, "读取应用上下文"),
+            context(agent = TutorAgentContext(
+                subject = "MATH",
+                subjects = (1..32).map { "SUBJECT-$it" },
+                selectedQuestion = bigQuestion,
+                knownEntryIds = (1..180).map { "entry-$it" },
+                knownFigureIds = (1..32).map { "figure-$it" },
+                backupReferences = (1..20).map {
+                    TutorBackupReference("backup-$it", "备份-$it", 10L * it, 100L * it)
+                },
+            )),
+        )
+
+        assertTrue(execution.outcome.summaryMarkdown, execution.outcome.ok)
+        val data = requireNotNull(execution.outcome.dataJson)
+        assertTrue("data length=${data.length}", data.length <= 6_000)
+        assertTrue(data, data.contains("\"documentOmitted\":true"))
+        assertFalse(data, data.contains("长题干长题干长题干长题干长题干"))
+    }
+
+    @Test
     fun readFigureOnlyReadsDisclosedAssetsAndReturnsTheGrant() = runBlocking {
         val grant = ModelEgressAssetGrant("figure-1", "a".repeat(64), 10, 16, 16)
         val inspector = object : TutorFigureInspector {
@@ -127,6 +218,116 @@ class TutorAgentToolWiringTest {
 
         assertTrue(execution.outcome.ok)
         assertEquals(grant, execution.feedbackImage)
+    }
+
+    @Test
+    fun runJavascriptMergesNestedNotebookEntriesAndLetsActionsTargetThem() = runBlocking {
+        val port = FakeStudyDatabasePort()
+        port.libraryRows += libraryRow("entry-a", "函数一")
+        val engine = object : VisualExecutionEngine {
+            var calls = 0
+            override suspend fun execute(request: VisualExecutionRequest): VisualExecutionResult {
+                calls += 1
+                return when (calls) {
+                    1 -> VisualExecutionResult.Computed(
+                        """{"kind":"yield","index":0,"key":"tool:NOTEBOOK_READ:{\"limit\":10,\"terms\":[]}","callType":"tool","name":"NOTEBOOK_READ","args":{"terms":[],"limit":10}}""",
+                    )
+                    2 -> VisualExecutionResult.Computed(
+                        """{"kind":"yield","index":1,"key":"action:SET_FAVORITE:{\"entryId\":\"entry-a\",\"favorite\":\"true\"}","callType":"action","name":"SET_FAVORITE","args":{"entryId":"entry-a","favorite":"true"}}""",
+                    )
+                    else -> VisualExecutionResult.Computed(
+                        """{"kind":"complete","consumed":2,"value":{"ok":true},"stateUpdated":false,"state":null}""",
+                    )
+                }
+            }
+
+            override fun close() = Unit
+        }
+        val commands = mutableListOf<com.tingyun.smartmistakebook.core.domain.TutorLocalActionCommand>()
+        val executor = object : com.tingyun.smartmistakebook.core.domain.TutorLocalActionExecutor {
+            override suspend fun execute(
+                command: com.tingyun.smartmistakebook.core.domain.TutorLocalActionCommand,
+            ): com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome {
+                commands += command
+                return com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome(
+                    kind = command.request.action.actionId,
+                    decision = "SUCCEEDED",
+                    detail = "ok",
+                    ok = true,
+                )
+            }
+        }
+        val runner = RoomTutorToolRunner(
+            port,
+            MutableStateFlow(KnowledgeBaseAvailability.Ready),
+            null,
+            engine,
+            executor,
+        )
+
+        val execution = runner.runTraced(
+            TutorToolCall(
+                tool = TutorToolName.RUN_JAVASCRIPT,
+                rationale = "检索后收藏",
+                script = """
+                    const page = agent.callTool('NOTEBOOK_READ', {terms: [], limit: 10});
+                    return agent.callAction('SET_FAVORITE', {
+                        entryId: page.data.items[0].entryId, favorite: 'true'
+                    });
+                """.trimIndent(),
+            ),
+            context(agent = TutorAgentContext(subject = "MATH")),
+        )
+
+        assertTrue(execution.outcome.summaryMarkdown, execution.outcome.ok)
+        assertEquals(listOf("entry-a"), execution.problemEntryIds)
+        assertEquals("entry-a", commands.single().context.libraryProblemId)
+        assertEquals(TutorLocalAction.SET_FAVORITE, commands.single().request.action)
+    }
+
+    @Test
+    fun runJavascriptKeepsNestedFigureGrantsForTheNextModelRound() = runBlocking {
+        val grant = ModelEgressAssetGrant("figure-1", "a".repeat(64), 10, 16, 16)
+        val inspector = object : TutorFigureInspector {
+            override suspend fun inspect(assetId: String) =
+                TutorFigureFeedback("""{"assetId":"$assetId"}""", grant)
+        }
+        val engine = object : VisualExecutionEngine {
+            var calls = 0
+            override suspend fun execute(request: VisualExecutionRequest): VisualExecutionResult {
+                calls += 1
+                return when (calls) {
+                    1 -> VisualExecutionResult.Computed(
+                        """{"kind":"yield","index":0,"key":"tool:READ_FIGURE:{\"assetId\":\"figure-1\"}","callType":"tool","name":"READ_FIGURE","args":{"assetId":"figure-1"}}""",
+                    )
+                    else -> VisualExecutionResult.Computed(
+                        """{"kind":"complete","consumed":1,"value":{"ok":true},"stateUpdated":false,"state":null}""",
+                    )
+                }
+            }
+
+            override fun close() = Unit
+        }
+        val runner = RoomTutorToolRunner(
+            FakeStudyDatabasePort(),
+            MutableStateFlow(KnowledgeBaseAvailability.Ready),
+            null,
+            engine,
+            null,
+            inspector,
+        )
+        val execution = runner.runTraced(
+            TutorToolCall(
+                tool = TutorToolName.RUN_JAVASCRIPT,
+                rationale = "检查图片",
+                script = "return agent.callTool('READ_FIGURE', {assetId: 'figure-1'});",
+            ),
+            context(agent = TutorAgentContext(subject = "MATH", knownFigureIds = listOf("figure-1"))),
+        )
+
+        assertTrue(execution.outcome.summaryMarkdown, execution.outcome.ok)
+        assertEquals(listOf(grant), execution.feedbackImages)
+        assertEquals(listOf("figure-1"), execution.figureIds)
     }
 
     @Test

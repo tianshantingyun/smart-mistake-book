@@ -64,7 +64,16 @@ internal fun SmartMistakeBookApplication.autonomousTutorActions(): TutorLocalAct
             backupReferences = { tutorBackupReferences() },
             availableActions = {
                 com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot.IMPLEMENTED_LOCAL_ACTIONS
-                    .filterTo(linkedSetOf()) { action -> actionDependenciesReady(action) }
+                    .filterTo(linkedSetOf()) { action ->
+                        try {
+                            actionDependenciesReady(action)
+                        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                            throw cancelled
+                        } catch (_: Exception) {
+                            // 单个就绪探针失败只裁掉该动作，不能让整份可用集消失。
+                            false
+                        }
+                    }
             },
         ),
     )
@@ -74,7 +83,7 @@ private fun SmartMistakeBookApplication.actionDependenciesReady(
     action: com.tingyun.smartmistakebook.core.model.TutorLocalAction,
 ): Boolean = when (action) {
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.EDIT_PROBLEM ->
-        mistakeEditRepository != null
+        mistakeEditRepository != null && modelConfigurationStore != null
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.CREATE_BACKUP ->
         runCatching { backupRepository }.isSuccess
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.RESTORE_BACKUP ->

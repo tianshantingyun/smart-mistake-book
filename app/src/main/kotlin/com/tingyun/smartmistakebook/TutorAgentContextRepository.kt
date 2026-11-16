@@ -34,11 +34,25 @@ internal class TutorAgentContextRepository(
             return@flow
         }
         val base = input.agentContextSnapshot() ?: TutorAgentContext()
-        val subjects = (base.subjects + runCatching { knownSubjects() }.getOrDefault(emptyList()))
-            .distinct().take(32)
+        val known = try {
+            knownSubjects().filter(String::isNotBlank)
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            emptyList()
+        }
+        val subjects = (base.subjects + known).distinct().takeLast(32)
+        val backups = try {
+            backupReferences()
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            // 备份目录不可读只应让“恢复备份”动作缺失引用，不应让整轮讲题失败。
+            base.backupReferences
+        }
         val context = base.copy(
             subjects = subjects,
-            backupReferences = backupReferences(),
+            backupReferences = backups,
         )
         emitAll(delegate.execute(request.copy(input = input.withAgentContext(context))))
     }
