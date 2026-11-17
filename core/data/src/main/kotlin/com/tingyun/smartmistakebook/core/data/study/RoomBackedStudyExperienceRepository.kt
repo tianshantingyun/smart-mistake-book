@@ -14,6 +14,7 @@ import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
 import com.tingyun.smartmistakebook.core.domain.AddToReviewPlanFailure
 import com.tingyun.smartmistakebook.core.domain.AddToReviewPlanResult
+import com.tingyun.smartmistakebook.core.domain.RemoveFromReviewPlanResult
 import com.tingyun.smartmistakebook.core.domain.OptimalRetention
 import com.tingyun.smartmistakebook.core.domain.AdaptiveClarificationConsumer
 import com.tingyun.smartmistakebook.core.domain.AdaptiveDecision
@@ -588,6 +589,77 @@ class RoomBackedStudyExperienceRepository(
         }
     }
 
+    override suspend fun removeFromReviewPlan(
+        entryId: String,
+        requestedAtEpochMillis: Long,
+    ): RemoveFromReviewPlanResult {
+        if (!initialized) initialize()
+        return runOperation {
+            val mistake = database.observeMistakes().first().firstOrNull { it.entryId == entryId }
+                ?: return@runOperation RemoveFromReviewPlanResult.NotRemoved(
+                    AddToReviewPlanFailure.ENTRY_NOT_FOUND,
+                    "这道题已经不在错题本里了。",
+                )
+            val learnerSnapshot = currentLearnerSnapshot()
+            val planningContext = plannerService.planningContext(learnerSnapshot)
+            if (database.observeActiveReviewPlan(learnerId).first() != null) {
+                return@runOperation RemoveFromReviewPlanResult.NotRemoved(
+                    AddToReviewPlanFailure.PLAN_STARTED,
+                    "今天的复习已经开始，队列不能再改。",
+                )
+            }
+            val current = plannerService.currentReviewPlan(planningContext)
+                ?: return@runOperation RemoveFromReviewPlanResult.NotRemoved(
+                    AddToReviewPlanFailure.PLAN_NOT_READY,
+                    "今天还没有生成复习计划。",
+                )
+            if (current.latestSession?.status == StudyDbValue.ReviewStatus.COMPLETED) {
+                return@runOperation RemoveFromReviewPlanResult.NotRemoved(
+                    AddToReviewPlanFailure.PLAN_COMPLETED,
+                    "今天的复习已经完成。",
+                )
+            }
+            if (current.latestSession != null) {
+                return@runOperation RemoveFromReviewPlanResult.NotRemoved(
+                    AddToReviewPlanFailure.PLAN_STARTED,
+                    "今天的复习已经开始，队列不能再改。",
+                )
+            }
+            val ordered = current.queue.sortedBy { it.ordinal }
+            val index = ordered.indexOfFirst { it.practiceUnitId == mistake.practiceUnitId }
+            if (index < 0) {
+                return@runOperation RemoveFromReviewPlanResult.NotScheduled(current.plan.reviewPlanId)
+            }
+            val fingerprint = reviewPlanRevisionFingerprint(
+                previousFingerprint = current.plan.planFingerprint,
+                practiceUnitId = mistake.practiceUnitId,
+                operation = "remove",
+            )
+            val reviewPlanId = "plan-$fingerprint"
+            val nextPlan = current.plan.copy(
+                reviewPlanId = reviewPlanId,
+                planFingerprint = fingerprint,
+                planRevision = current.plan.planRevision + 1,
+                planningAtEpochMillis = requestedAtEpochMillis,
+                createdAtEpochMillis = requestedAtEpochMillis,
+            )
+            val queue = ordered
+                .filterIndexed { position, _ -> position != index }
+                .mapIndexed { position, item ->
+                    item.copy(reviewPlanId = reviewPlanId, ordinal = position)
+                }
+            database.saveReviewPlan(
+                com.tingyun.smartmistakebook.core.database.ReviewPlanBundle(
+                    plan = nextPlan,
+                    queue = queue,
+                    activeSession = null,
+                    isCurrent = true,
+                ),
+            )
+            RemoveFromReviewPlanResult.Removed(reviewPlanId, queue.size)
+        }
+    }
+
     /**
      * 新 revision 的指纹：旧指纹 + 被加入的 practice unit 的确定性摘要。
      *
@@ -598,8 +670,9 @@ class RoomBackedStudyExperienceRepository(
     private fun reviewPlanRevisionFingerprint(
         previousFingerprint: String,
         practiceUnitId: String,
+        operation: String = "add",
     ): String = java.security.MessageDigest.getInstance("SHA-256")
-        .digest("$previousFingerprint\nadd:$practiceUnitId".toByteArray(Charsets.UTF_8))
+        .digest("$previousFingerprint\n$operation:$practiceUnitId".toByteArray(Charsets.UTF_8))
         .joinToString("") { byte -> "%02x".format(byte) }
 
 

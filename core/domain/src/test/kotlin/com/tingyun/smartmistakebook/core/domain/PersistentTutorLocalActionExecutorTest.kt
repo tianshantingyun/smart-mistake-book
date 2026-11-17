@@ -22,6 +22,7 @@ class PersistentTutorLocalActionExecutorTest {
     private var cancel = false
     private val exportKeys = mutableListOf<String>()
     private val exportSelections = mutableListOf<List<String>>()
+    private val exportFormats = mutableListOf<com.tingyun.smartmistakebook.core.model.MistakeExportFormat>()
     private val applicationCalls = mutableListOf<Pair<TutorLocalActionCommand, String>>()
     private val landings = TutorAutonomousActionLandings(
         saveCaptureDraft = { receipt(true, "已保存", "entry-1") },
@@ -32,10 +33,11 @@ class PersistentTutorLocalActionExecutorTest {
             if (cancel) throw CancellationException("stopped")
             receipt(succeeds, if (succeeds) "已打开" else "窗口不可用")
         },
-        export = { key, _, selectedIds, _ ->
+        export = { key, _, selectedIds, _, format ->
             exports++
             exportKeys += key
             exportSelections += selectedIds
+            exportFormats += format
             receipt(true, "导出结果", key).copy(decision = if (queued) "QUEUED" else "SUCCEEDED")
         },
         applicationAction = { command, effect, _ ->
@@ -80,7 +82,7 @@ class PersistentTutorLocalActionExecutorTest {
         val command = command().copy(
             request = TutorLocalActionRequest(
                 TutorLocalAction.START_EXPORT,
-                parameters = mapOf("templateId" to "practice_sheet"), callId = "export-call",
+                parameters = mapOf("templateId" to "practice_sheet", "format" to "docx"), callId = "export-call",
             ), exportEntryIds = listOf("entry-1"),
         )
         val executor = PersistentTutorLocalActionExecutor(rows, landings)
@@ -91,6 +93,10 @@ class PersistentTutorLocalActionExecutorTest {
         assertEquals("SUCCEEDED", executor.execute(command).decision)
         assertEquals(2, exports)
         assertEquals(1, exportKeys.distinct().size)
+        assertEquals(
+            com.tingyun.smartmistakebook.core.model.MistakeExportFormat.DOCX,
+            exportFormats.first(),
+        )
     }
 
     @Test fun equivalentExportSpacingAndExplicitDefaultsReuseTheCompletedEffect() = runBlocking {

@@ -21,8 +21,9 @@ import com.tingyun.smartmistakebook.core.model.TutorToolName
 
 /**
  * 页面上的全量工具声明集（顺序稳定，便于提示词与测试逐项比对）。
- * 12 = spec §2 核心五 + D-M M7 咨询两枚 + 4B A1 生图一枚 + 通用 Agent 四枚
- * （APP_CONTEXT / SELECT_QUESTION / READ_FIGURE / RUN_JAVASCRIPT）。
+ * 15 = spec §2 核心五 + D-M M7 咨询两枚 + 4B A1 生图一枚 + 通用 Agent 六枚
+ * （APP_CONTEXT / SELECT_QUESTION / READ_FIGURE / RUN_JAVASCRIPT / READ_RESULT /
+ * KNOWLEDGE_CATALOG_READ）。
  *
  * 声明全量不等于放行全量：生图工具的意图门在 `tutorToolAuthorization` 的
  * CURRENT_QUESTION_HELP 集合里（大厅/查库/闲聊轮没有可画的当前题）。
@@ -31,6 +32,8 @@ val TUTOR_TOOL_DECLARATIONS: Set<TutorToolName> = linkedSetOf(
     TutorToolName.APP_CONTEXT,
     TutorToolName.SELECT_QUESTION,
     TutorToolName.READ_FIGURE,
+    TutorToolName.REVIEW_PLAN_READ,
+    TutorToolName.KNOWLEDGE_CATALOG_READ,
     TutorToolName.RUN_JAVASCRIPT,
     TutorToolName.KNOWLEDGE_READ,
     TutorToolName.NOTEBOOK_READ,
@@ -40,6 +43,7 @@ val TUTOR_TOOL_DECLARATIONS: Set<TutorToolName> = linkedSetOf(
     TutorToolName.ADVISORY_READ,
     TutorToolName.ADVISORY_WRITE,
     TutorToolName.GENERATE_FIGURE,
+    TutorToolName.READ_RESULT,
 )
 
 /**

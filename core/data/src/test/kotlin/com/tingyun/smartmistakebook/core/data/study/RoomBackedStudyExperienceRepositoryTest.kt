@@ -12,6 +12,7 @@ import com.tingyun.smartmistakebook.core.database.AssessmentEventSeedRecord
 import com.tingyun.smartmistakebook.core.database.AssessmentItemSnapshotSeedRecord
 import com.tingyun.smartmistakebook.core.domain.AddToReviewPlanFailure
 import com.tingyun.smartmistakebook.core.domain.AddToReviewPlanResult
+import com.tingyun.smartmistakebook.core.domain.RemoveFromReviewPlanResult
 import com.tingyun.smartmistakebook.core.database.CommitProblemDraftCommand
 import com.tingyun.smartmistakebook.core.database.ContentInstallStateRecord
 import com.tingyun.smartmistakebook.core.database.KnowledgeContentUpdateCommand
@@ -2353,6 +2354,55 @@ class RoomBackedStudyExperienceRepositoryTest {
                 database.savedPlans.last().plan.reviewPlanId,
             )
             assertEquals(original.queue.size + 1, database.savedPlans.last().queue.size)
+        } finally {
+            repository.close()
+            scope.cancel()
+        }
+    }
+
+    @Test
+    fun `removing a mistake removes only that item and survives snapshot refresh`() = runBlocking {
+        val database = FakeStudyDatabasePort()
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
+        val repository = repository(database, scope, reviewTimeBudgetSeconds = 3600)
+        try {
+            repository.initialize()
+            val original = database.savedPlans.last()
+            database.addMistake(
+                MistakeRecord(
+                    entryId = "entry-agent-remove",
+                    problemId = "problem-agent-remove",
+                    problemRevisionId = "revision-agent-remove",
+                    practiceUnitId = "unit-agent-remove",
+                    sourceKey = "capture:agent-remove",
+                    subject = "MATH",
+                    title = "智能体移除复习计划的题",
+                    problemMarkdown = "题目正文",
+                    status = "ACTIVE",
+                    createdAtEpochMillis = 1_000,
+                    nextReviewAtEpochMillis = null,
+                    retrievability = null,
+                    estimatedSeconds = 60,
+                ),
+            )
+            assertTrue(repository.addToReviewPlan("entry-agent-remove", 2_000) is AddToReviewPlanResult.Added)
+            val addedPlan = database.savedPlans.last()
+
+            val removed = repository.removeFromReviewPlan("entry-agent-remove", 3_000)
+            assertTrue("$removed", removed is RemoveFromReviewPlanResult.Removed)
+            val revised = database.savedPlans.last()
+            assertEquals(addedPlan.plan.planRevision + 1, revised.plan.planRevision)
+            assertEquals(original.queue.size, revised.queue.size)
+            assertTrue(revised.queue.none { it.practiceUnitId == "unit-agent-remove" })
+            assertTrue(revised.queue.map { it.ordinal } == revised.queue.indices.toList())
+            assertTrue(revised.isCurrent)
+
+            val again = repository.removeFromReviewPlan("entry-agent-remove", 4_000)
+            assertTrue("$again", again is RemoveFromReviewPlanResult.NotScheduled)
+            assertEquals(revised.plan.reviewPlanId, database.savedPlans.last().plan.reviewPlanId)
+
+            repository.initialize()
+            assertEquals(revised.plan.reviewPlanId, database.savedPlans.last().plan.reviewPlanId)
         } finally {
             repository.close()
             scope.cancel()

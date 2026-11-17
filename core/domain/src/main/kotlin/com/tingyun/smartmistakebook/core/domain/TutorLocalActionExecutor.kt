@@ -1,6 +1,7 @@
 package com.tingyun.smartmistakebook.core.domain
 
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
+import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 import com.tingyun.smartmistakebook.core.model.TutorLocalAction
 import com.tingyun.smartmistakebook.core.model.TutorBackupReference
@@ -33,7 +34,7 @@ data class TutorAutonomousActionLandings(
     val saveCaptureDraft: suspend (String) -> TutorLobbyLocalActionOutcome,
     val intakeImages: suspend (List<String>) -> TutorLobbyLocalActionOutcome,
     val openProblem: suspend (String?) -> TutorLobbyLocalActionOutcome,
-    val export: suspend (String, String, List<String>, MistakePdfLayout) -> TutorLobbyLocalActionOutcome,
+    val export: suspend (String, String, List<String>, MistakePdfLayout, MistakeExportFormat) -> TutorLobbyLocalActionOutcome,
     val applicationAction: suspend (TutorLocalActionCommand, String, String) -> TutorLobbyLocalActionOutcome = { command, _, _ ->
         TutorLobbyLocalActionOutcome(command.request.action.actionId, "FAILED", "这项应用操作尚未接通。", ok = false)
     },
@@ -109,6 +110,8 @@ class PersistentTutorLocalActionExecutor(
                     TutorLocalActionTarget.EXPORT_SHEET -> landings.export(
                         "agent-export-$key", attemptKey, selectedEntryIds,
                         requireNotNull(tutorLocalActionExportProposal(admission.payloadJson)),
+                        MistakeExportFormat.fromToken(request.parameters["format"])
+                            ?: MistakeExportFormat.PDF,
                     )
                     TutorLocalActionTarget.APPLICATION_ACTION ->
                         error("Application actions require their typed landing")

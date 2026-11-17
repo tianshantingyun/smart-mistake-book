@@ -187,7 +187,7 @@ class TutorConversationViewModelTest {
                         opened += id
                         successful.copy(artifactId = id)
                     },
-                    export = { _, _, _, _ -> error("Unexpected export") },
+                    export = { _, _, _, _, _ -> error("Unexpected export") },
                 ),
             )
             val modelTasks = object : ModelTaskRepository by delegate {

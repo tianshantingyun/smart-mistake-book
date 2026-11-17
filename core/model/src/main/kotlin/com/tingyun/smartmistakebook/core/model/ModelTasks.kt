@@ -69,7 +69,7 @@ enum class ModelTaskStatus {
  * locally runnable state does not consume this budget; the operation record remains authoritative.
  */
 object ModelTaskRemoteDispatchPolicy {
-    const val MAX_DISPATCHES: Int = 6
+    const val MAX_DISPATCHES: Int = 9
 
     fun canSchedule(attemptCount: Int): Boolean {
         require(attemptCount >= 0) { "Model task attempt count must not be negative" }

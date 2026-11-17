@@ -112,6 +112,8 @@ data class TutorCapabilitySnapshot(
             TutorToolName.APP_CONTEXT,
             TutorToolName.SELECT_QUESTION,
             TutorToolName.READ_FIGURE,
+            TutorToolName.REVIEW_PLAN_READ,
+            TutorToolName.KNOWLEDGE_CATALOG_READ,
             TutorToolName.RUN_JAVASCRIPT,
             TutorToolName.KNOWLEDGE_READ,
             TutorToolName.NOTEBOOK_READ,
@@ -121,6 +123,7 @@ data class TutorCapabilitySnapshot(
             TutorToolName.ADVISORY_READ,
             TutorToolName.ADVISORY_WRITE,
             TutorToolName.GENERATE_FIGURE,
+            TutorToolName.READ_RESULT,
         )
 
         /**
@@ -134,6 +137,7 @@ data class TutorCapabilitySnapshot(
             TutorLocalAction.SAVE_TO_NOTEBOOK,
             TutorLocalAction.START_EXPORT,
             TutorLocalAction.ADD_TO_REVIEW_PLAN,
+            TutorLocalAction.REMOVE_FROM_REVIEW_PLAN,
             TutorLocalAction.EDIT_PROBLEM,
             TutorLocalAction.SET_FAVORITE,
             TutorLocalAction.ARCHIVE_PROBLEM,
@@ -141,6 +145,9 @@ data class TutorCapabilitySnapshot(
             TutorLocalAction.UPDATE_SCHEDULING,
             TutorLocalAction.CREATE_BACKUP,
             TutorLocalAction.RESTORE_BACKUP,
+            TutorLocalAction.ADD_EXAM,
+            TutorLocalAction.REMOVE_EXAM,
+            TutorLocalAction.RECLASSIFY_PROBLEM,
         )
 
         /**

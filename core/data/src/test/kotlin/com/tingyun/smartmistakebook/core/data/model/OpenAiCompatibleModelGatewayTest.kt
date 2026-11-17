@@ -539,6 +539,7 @@ class OpenAiCompatibleModelGatewayTest {
                 ModelHttpResponse(429, """{"error":{"message":"too many requests"}}""")
             },
             clock = { AUTHORIZATION_NOW },
+            retryPolicy = noProviderRetry,
         )
 
         val events = gateway.execute(authorizedAssessment(gateway)).toList()
@@ -557,6 +558,7 @@ class OpenAiCompatibleModelGatewayTest {
                 ModelHttpResponse(503, "service unavailable")
             },
             clock = { AUTHORIZATION_NOW },
+            retryPolicy = noProviderRetry,
         )
 
         val events = gateway.execute(authorizedAssessment(gateway)).toList()
@@ -593,6 +595,7 @@ class OpenAiCompatibleModelGatewayTest {
             assetSource = assetSource { _, _ -> asset() },
             transport = modelTransport { _ -> throw IOException("connection refused") },
             clock = { AUTHORIZATION_NOW },
+            retryPolicy = noProviderRetry,
         )
         val networkEvents = networkGateway.execute(authorizedAssessment(networkGateway)).toList()
         assertEquals(
@@ -605,6 +608,7 @@ class OpenAiCompatibleModelGatewayTest {
             assetSource = assetSource { _, _ -> asset() },
             transport = modelTransport { _ -> throw SocketTimeoutException("timed out") },
             clock = { AUTHORIZATION_NOW },
+            retryPolicy = noProviderRetry,
         )
         val timeoutEvents = timeoutGateway.execute(authorizedAssessment(timeoutGateway)).toList()
         assertEquals(
@@ -754,6 +758,7 @@ class OpenAiCompatibleModelGatewayTest {
                     ModelHttpResponse(429, """{"error":{"message":"rate limit exceeded"}}""")
                 },
                 clock = { AUTHORIZATION_NOW },
+                retryPolicy = noProviderRetry,
             )
 
             val failed = gateway.execute(authorizedAssessment(gateway)).toList().last()
@@ -2420,6 +2425,80 @@ class OpenAiCompatibleModelGatewayTest {
         },
         clock = { AUTHORIZATION_NOW },
     )
+
+    @Test
+    fun transientRateLimitThenSuccessIsRetriedInsideTheGateway() = runBlocking {
+        var posts = 0
+        val delays = mutableListOf<Long>()
+        val gateway = OpenAiCompatibleModelGateway(
+            configurationStore = FakeConfigurationStore(CONFIGURATION),
+            assetSource = assetSource { _, _ -> asset() },
+            transport = modelTransport { _ ->
+                posts++
+                if (posts == 1) {
+                    ModelHttpResponse(429, """{"error":{"message":"slow down"}}""", retryAfterMillis = 250L)
+                } else {
+                    ModelHttpResponse(200, envelope(assessmentPayload()))
+                }
+            },
+            clock = { AUTHORIZATION_NOW },
+            retrySleep = { delays += it },
+        )
+
+        val events = gateway.execute(authorizedAssessment(gateway)).toList()
+
+        assertEquals(2, posts)
+        assertEquals(listOf(250L), delays)
+        assertTrue(events.last() is ModelGatewayEvent.Completed)
+    }
+
+    @Test
+    fun exhaustedProviderRetriesSurfaceTheOriginalRetryableFailure() = runBlocking {
+        var posts = 0
+        val gateway = OpenAiCompatibleModelGateway(
+            configurationStore = FakeConfigurationStore(CONFIGURATION),
+            assetSource = assetSource { _, _ -> asset() },
+            transport = modelTransport { _ ->
+                posts++
+                ModelHttpResponse(503, "service unavailable")
+            },
+            clock = { AUTHORIZATION_NOW },
+            retryPolicy = ModelProviderRetry(maxAttempts = 3, baseDelayMillis = 0, maxDelayMillis = 0),
+            retrySleep = {},
+        )
+
+        val failed = gateway.execute(authorizedAssessment(gateway)).toList().last()
+            as ModelGatewayEvent.Failed
+
+        assertEquals(3, posts)
+        assertEquals(ModelFailureCode.SERVICE_UNAVAILABLE, failed.failure.code)
+        assertTrue(failed.failure.retryable)
+    }
+
+    @Test
+    fun streamedDeltasThatAlreadyArrivedAreNeverReplayedByRetry() = runBlocking {
+        var posts = 0
+        val gateway = OpenAiCompatibleModelGateway(
+            configurationStore = FakeConfigurationStore(CONFIGURATION),
+            assetSource = assetSource { _, _ -> error("Tutor must not open image assets") },
+            transport = ModelHttpTransport { request, beforeEnqueue ->
+                beforeEnqueue()
+                posts++
+                // 思考增量已经交到实时通道；此刻重发会让屏幕上那段思考重复出现。
+                request.onReasoningDelta?.invoke("先判断单调性")
+                throw IOException("connection reset")
+            },
+            clock = { AUTHORIZATION_NOW },
+        )
+
+        val failed = gateway.execute(authorizedTutor(gateway)).toList().last()
+            as ModelGatewayEvent.Failed
+
+        assertEquals(1, posts)
+        assertEquals(ModelFailureCode.NETWORK_UNAVAILABLE, failed.failure.code)
+    }
+
+    private val noProviderRetry = ModelProviderRetry(maxAttempts = 1)
 
     private fun modelTransport(
         post: suspend (WireRequest) -> ModelHttpResponse,

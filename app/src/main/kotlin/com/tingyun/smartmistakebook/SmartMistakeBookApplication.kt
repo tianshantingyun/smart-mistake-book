@@ -564,6 +564,12 @@ class SmartMistakeBookApplication : Application() {
                     database,
                 ),
                 javascriptStateStore = SharedPreferencesTutorJavascriptStateStore(this),
+                resultStore = SharedPreferencesTutorToolResultStore(this),
+                catalogSearch = { text ->
+                    knowledgeCatalogRepository.search(
+                        com.tingyun.smartmistakebook.core.model.CatalogQuery(text, pageSize = 12),
+                    ).hits
+                },
             )
             modelTaskRepository = TutorAgentContextRepository(
                 delegate = baseModelTaskRepository,
@@ -572,6 +578,7 @@ class SmartMistakeBookApplication : Application() {
                         .distinct()
                 },
                 backupReferences = { tutorBackupReferences() },
+                reviewContext = { tutorReviewContextJson() },
             )
             val editConfigurationStore = modelConfigurationStore
             run {

@@ -55,8 +55,8 @@ internal fun SmartMistakeBookApplication.autonomousTutorActions(): TutorLocalAct
                     problemId.takeIf { opened },
                 )
             },
-            export = { exportId, attemptId, entryIds, layout ->
-                exportTutorAction(exportId, attemptId, entryIds, layout)
+            export = { exportId, attemptId, entryIds, layout, format ->
+                exportTutorAction(exportId, attemptId, entryIds, layout, format)
             },
             applicationAction = { command, effectKey, attemptKey ->
                 executeTutorApplicationAction(command, effectKey, attemptKey)
@@ -91,12 +91,19 @@ private fun SmartMistakeBookApplication.actionDependenciesReady(
             runCatching { tutorBackupReferences().isNotEmpty() }.getOrDefault(false)
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.UPDATE_SCHEDULING ->
         runCatching { schedulingSettingsStore }.isSuccess
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.ADD_EXAM,
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.REMOVE_EXAM,
+    -> runCatching { schedulingSettingsStore }.isSuccess
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.RECLASSIFY_PROBLEM ->
+        runCatching { mistakeDetailRepository }.isSuccess &&
+            runCatching { mistakeOrganizationRepository }.isSuccess
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.SET_FAVORITE,
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.ARCHIVE_PROBLEM,
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.RESTORE_PROBLEM,
     -> runCatching { mistakeDetailRepository }.isSuccess
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.OPEN_PROBLEM,
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.ADD_TO_REVIEW_PLAN,
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.REMOVE_FROM_REVIEW_PLAN,
     -> runCatching { studyRepository }.isSuccess
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.SAVE_TO_NOTEBOOK ->
         runCatching { tutorAttachedImageIntake }.isSuccess
@@ -110,6 +117,7 @@ private suspend fun SmartMistakeBookApplication.exportTutorAction(
     attemptId: String,
     entryIds: List<String>,
     layout: MistakePdfLayout,
+    format: com.tingyun.smartmistakebook.core.model.MistakeExportFormat,
 ): TutorLobbyLocalActionOutcome {
     if (entryIds.isEmpty()) return actionReceipt(false, "本轮没有查到可导出的题，请先查找错题。")
     val existing = mistakeExportRepository.observeRecords().first()
@@ -117,7 +125,12 @@ private suspend fun SmartMistakeBookApplication.exportTutorAction(
     val active = existing.firstOrNull { it.status == MistakeExportStatus.SUCCEEDED }
         ?: existing.firstOrNull { it.status == MistakeExportStatus.RUNNING }
     val exportId = active?.exportId ?: if (existing.isEmpty()) effectId else "$effectId-retry-$attemptId"
-    val request = MistakeExportJobRequest.Batch(exportId = exportId, entryIds = entryIds, layout = layout)
+    val request = MistakeExportJobRequest.Batch(
+        exportId = exportId,
+        entryIds = entryIds,
+        layout = layout,
+        format = format,
+    )
     val started = mistakeExportRepository.recordStarted(exportId, MistakeExportKind.BATCH, System.currentTimeMillis())
         ?: return actionReceipt(false, "导出记录未能保存，这次未入队。")
     if (started.status == MistakeExportStatus.RUNNING) {

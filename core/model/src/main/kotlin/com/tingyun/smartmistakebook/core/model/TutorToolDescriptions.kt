@@ -26,6 +26,9 @@ fun TutorToolName.purposeDescription(
         "读取这道题相关知识点讲解材料（返回**代号**+名称+边界（≤80字）+绑定材料《标题》与" +
             "正文节选（≤120字，公式/句界安全截断）；无材料节点显式标注「（该节点无材料）」；" +
             "代号本会话有效，可直接作为 MASTERY_UPDATE 的 terms）"
+    TutorToolName.KNOWLEDGE_CATALOG_READ ->
+        "检索已审知识目录（terms 必填），返回命中的精确身份 nodeId@taxonomyVersion、名称、" +
+            "章节路径与目录摘要；改知识点关联（RECLASSIFY_PROBLEM）只能使用这里真实返回过的值。"
     TutorToolName.NOTEBOOK_READ ->
         "读取错题本条目，terms 可空表示全部。parameters 可含 subject、offset（非负）、limit（1..30）、sectionId、masteryId、sort、createdFrom、createdTo。subject 从实际返回的科目中选择，翻页继续读取实际条目。"
     TutorToolName.MASTERY_READ ->
@@ -65,6 +68,12 @@ fun TutorToolName.purposeDescription(
             "PROBLEM 作用域；payload 是一条简短共识（上限 " +
             "${TutorToolCall.MAX_ADVISORY_PAYLOAD_CHARS} 字符）。"
     TutorToolName.GENERATE_FIGURE -> generateFigureDescription(figureMethods)
+    TutorToolName.READ_RESULT ->
+        "分页回读被结果预算挡下的本地工具结果：parameters.resultId 必填，offset/limit 可选" +
+            "（单次最多 ${TutorToolCall.MAX_RESULT_CHUNK_CHARS} 字符）。先看结果里的 resultId 与 totalChars，" +
+            "再按 nextOffset 继续；不要编造 resultId。"
+    TutorToolName.REVIEW_PLAN_READ ->
+        "读取今天的真实复习计划、容量、每日复习设置和考试日历（不写库；没有计划时如实说明）。"
 }
 
 /**
@@ -107,6 +116,8 @@ fun TutorToolName.nativePurposeDescription(
     TutorToolName.RUN_JAVASCRIPT -> "执行通用 JavaScript 函数体 script，可读 input.state，调用 agent.callTool(name, parameters) 或 agent.callAction(name, parameters)。宿主同步挂起调用、执行后重放并返回实际结果，随后继续执行。最终 return JSON。stateJson 可选，只承载 JSON 初始状态。禁止递归 RUN_JAVASCRIPT。"
     TutorToolName.KNOWLEDGE_READ ->
         "读取当前题相关知识点讲解材料（返回代号+名称+边界+材料《标题》与正文节选≤120字；无材料显式标注）"
+    TutorToolName.KNOWLEDGE_CATALOG_READ ->
+        "检索已审知识目录（terms 必填），返回 nodeId@taxonomyVersion 等精确身份（供改知识点关联）"
     TutorToolName.NOTEBOOK_READ -> purposeDescription(figureMethods)
     TutorToolName.MASTERY_READ ->
         "读取学生对相关知识的掌握情况（terms 留空＝本科目全部清单，填关键词＝聚焦并附历史聚合；不含错题条目）"
@@ -121,6 +132,9 @@ fun TutorToolName.nativePurposeDescription(
         "写入一条教学咨询（只写跨会话的持久共识，不写一次性闲聊；scope/kinds 本地限枚举，" +
             "同一目标同一 kind 更新已有记录、不堆积）"
     TutorToolName.GENERATE_FIGURE -> generateFigureNativeDescription(figureMethods)
+    TutorToolName.READ_RESULT ->
+        "分页回读大工具结果：resultId 必填，offset/limit 可选（单次 ≤${TutorToolCall.MAX_RESULT_CHUNK_CHARS} 字符）"
+    TutorToolName.REVIEW_PLAN_READ -> "读取今天的复习计划、容量、排程设置和考试日历"
 }
 
 /** `GENERATE_FIGURE` 短描述按能力集合派生（A-06）；默认与 A-06 之前逐字节相同。 */

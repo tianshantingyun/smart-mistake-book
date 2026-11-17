@@ -205,7 +205,7 @@ class FigureMethodSwitchTest {
     @Test
     fun exhaustedRemoteBudgetDeniesTheSwitchedAttemptWithoutResetting() = runBlocking {
         val reservedRequest = switchingRequest(reserveChatFinalAnswer = true)
-        val reservedLedger = CappedLedger(cap = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES, preUsed = 5)
+        val reservedLedger = CappedLedger(cap = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES, preUsed = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES - 1)
         val reservedFixture = Fixture(ScriptedVisualEngine(failingProgram()), ledger = reservedLedger)
         val reservedOutcome = reservedFixture.runner.generateWithMethodFallback(
             reservedRequest,
@@ -213,33 +213,33 @@ class FigureMethodSwitchTest {
             reservedFixture.imageFallback(reservedRequest),
         )
 
-        assertEquals("终答位占用下 5 次已用尽即拒", FigureGenerationStatus.FAILED, reservedOutcome.status)
+        assertEquals("终答位占用下剩余预算用尽即拒", FigureGenerationStatus.FAILED, reservedOutcome.status)
         assertTrue(
             "拒绝诊断携带真实计数（KD-60）：${reservedOutcome.diagnostics}",
-            reservedOutcome.diagnostics.orEmpty().contains("已派发 5 次"),
+            reservedOutcome.diagnostics.orEmpty().contains("已派发 ${ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES - 1} 次"),
         )
-        assertEquals("已用计数不得因切换变化", 5, reservedLedger.used)
+        assertEquals("已用计数不得因切换变化", ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES - 1, reservedLedger.used)
         assertEquals(1, reservedLedger.reserveCalls)
         assertEquals(0, reservedLedger.grantedCount)
         assertEquals(1, reservedLedger.deniedCount)
-        assertEquals("没有第 7 次派发", 0, reservedFixture.channel.generateCalls)
+        assertEquals("预算已尽不得派发", 0, reservedFixture.channel.generateCalls)
         assertEquals("预留被拒不建 attempt 行", 0, reservedFixture.audit.remoteAttempts.size)
         assertEquals(2, reservedFixture.audit.finishedOperations.size)
         assertEquals(FigureGenerationAuditOutcome.FAILED, reservedFixture.audit.finishedOperations[1].outcome)
         assertEquals(0, reservedFixture.audit.finishedOperations[1].usedRemoteDispatches)
 
-        val plainLedger = CappedLedger(cap = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES, preUsed = 6)
+        val plainLedger = CappedLedger(cap = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES, preUsed = ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES)
         val plainFixture = Fixture(ScriptedVisualEngine(failingProgram()), ledger = plainLedger)
         val plainRequest = switchingRequest()
         val plainOutcome = plainFixture.runner
             .generateWithMethodFallback(plainRequest, jsProposal(), plainFixture.imageFallback(plainRequest))
 
-        assertEquals("无终答位时 6 次用尽同样拒", FigureGenerationStatus.FAILED, plainOutcome.status)
+        assertEquals("无终答位时预算用尽同样拒", FigureGenerationStatus.FAILED, plainOutcome.status)
         assertTrue(
             "拒绝诊断携带真实计数：${plainOutcome.diagnostics}",
-            plainOutcome.diagnostics.orEmpty().contains("已派发 6 次"),
+            plainOutcome.diagnostics.orEmpty().contains("已派发 ${ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES} 次"),
         )
-        assertEquals(6, plainLedger.used)
+        assertEquals(ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES, plainLedger.used)
         assertEquals(0, plainLedger.grantedCount)
         assertEquals(0, plainFixture.channel.generateCalls)
     }

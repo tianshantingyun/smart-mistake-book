@@ -50,3 +50,21 @@ enum class AddToReviewPlanFailure {
     /** 仓储没有实现这条命令（旧替身/旧构建）。 */
     UNSUPPORTED,
 }
+
+/**
+ * `REMOVE_FROM_REVIEW_PLAN` 的本地执行结果。与追加对称：计划不可变，所以移除也落一个
+ * 新 revision；计划已开始/完成时不能改；题目本来不在队列里是幂等成功。
+ */
+sealed interface RemoveFromReviewPlanResult {
+    data class Removed(
+        val reviewPlanId: String,
+        val scheduledCount: Int,
+    ) : RemoveFromReviewPlanResult
+
+    data class NotScheduled(val reviewPlanId: String) : RemoveFromReviewPlanResult
+
+    data class NotRemoved(
+        val failure: AddToReviewPlanFailure,
+        val detail: String,
+    ) : RemoveFromReviewPlanResult
+}

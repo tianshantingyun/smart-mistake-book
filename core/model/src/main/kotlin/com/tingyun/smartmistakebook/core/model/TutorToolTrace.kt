@@ -388,6 +388,9 @@ private fun TutorToolTraceEntry.rowText(): String {
             TutorToolName.SELECT_QUESTION,
             TutorToolName.READ_FIGURE,
             TutorToolName.RUN_JAVASCRIPT,
+            TutorToolName.READ_RESULT,
+            TutorToolName.REVIEW_PLAN_READ,
+            TutorToolName.KNOWLEDGE_CATALOG_READ,
             -> "$label · 未完成"
             else -> "$label · 未执行"
         }
@@ -410,6 +413,7 @@ private fun TutorToolTraceEntry.rowText(): String {
         TutorToolName.NOTEBOOK_READ,
         TutorToolName.MASTERY_READ,
         TutorToolName.ADVISORY_READ,
+        TutorToolName.KNOWLEDGE_CATALOG_READ,
         -> if ((resultCount ?: 0) > 0) {
             "$label · $resultCount 条"
         } else {
@@ -419,6 +423,8 @@ private fun TutorToolTraceEntry.rowText(): String {
         TutorToolName.SELECT_QUESTION -> "$label · 已选择"
         TutorToolName.READ_FIGURE -> "$label · 已读取"
         TutorToolName.RUN_JAVASCRIPT -> "$label · 已完成"
+        TutorToolName.READ_RESULT -> "$label · 已回读"
+        TutorToolName.REVIEW_PLAN_READ -> "$label · 已读取"
     }
 }
 
@@ -442,6 +448,9 @@ fun TutorToolName.displayLabel(): String = when (this) {
     TutorToolName.SELECT_QUESTION -> "题目"
     TutorToolName.READ_FIGURE -> "查看配图"
     TutorToolName.RUN_JAVASCRIPT -> "计算"
+    TutorToolName.READ_RESULT -> "结果回读"
+    TutorToolName.REVIEW_PLAN_READ -> "复习计划"
+    TutorToolName.KNOWLEDGE_CATALOG_READ -> "知识目录"
 }
 
 /**

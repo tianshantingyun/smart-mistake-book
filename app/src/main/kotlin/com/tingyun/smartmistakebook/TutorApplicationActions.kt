@@ -63,6 +63,25 @@ internal suspend fun SmartMistakeBookApplication.executeTutorApplicationAction(
             }
             tutorApplicationReceipt(ok, detail, artifactId)
         }
+        TutorLocalAction.REMOVE_FROM_REVIEW_PLAN -> {
+            val result = studyRepository.removeFromReviewPlan(requireNotNull(entryId), now)
+            val ok = result is com.tingyun.smartmistakebook.core.domain.RemoveFromReviewPlanResult.Removed ||
+                result is com.tingyun.smartmistakebook.core.domain.RemoveFromReviewPlanResult.NotScheduled
+            if (ok) runCatching { studyRepository.refresh() }
+            val detail = when (result) {
+                is com.tingyun.smartmistakebook.core.domain.RemoveFromReviewPlanResult.Removed ->
+                    "已经从今天的复习计划移除；计划里还剩 ${result.scheduledCount} 项。"
+                is com.tingyun.smartmistakebook.core.domain.RemoveFromReviewPlanResult.NotScheduled ->
+                    "这道题本来就不在今天的复习计划里。"
+                is com.tingyun.smartmistakebook.core.domain.RemoveFromReviewPlanResult.NotRemoved -> result.detail
+            }
+            val artifactId = when (result) {
+                is com.tingyun.smartmistakebook.core.domain.RemoveFromReviewPlanResult.Removed -> result.reviewPlanId
+                is com.tingyun.smartmistakebook.core.domain.RemoveFromReviewPlanResult.NotScheduled -> result.reviewPlanId
+                is com.tingyun.smartmistakebook.core.domain.RemoveFromReviewPlanResult.NotRemoved -> entryId
+            }
+            tutorApplicationReceipt(ok, detail, artifactId)
+        }
         TutorLocalAction.UPDATE_SCHEDULING -> {
             if (parameters.isEmpty()) return tutorApplicationReceipt(false, "没有提供要修改的调度设置。")
             val current = schedulingSettingsStore.options.first()
@@ -80,6 +99,12 @@ internal suspend fun SmartMistakeBookApplication.executeTutorApplicationAction(
         }
         TutorLocalAction.CREATE_BACKUP -> createTutorBackup(effectKey, parameters["selectionMask"]?.toIntOrNull() ?: 15)
         TutorLocalAction.RESTORE_BACKUP -> enqueueTutorBackupRestore(command, effectKey)
+        TutorLocalAction.ADD_EXAM -> addTutorExam(parameters, effectKey)
+        TutorLocalAction.REMOVE_EXAM -> removeTutorExam(parameters["examEntryId"])
+        TutorLocalAction.RECLASSIFY_PROBLEM -> reclassifyTutorProblem(
+            requireNotNull(entryId),
+            requireNotNull(parameters["knowledgeNodes"]),
+        )
         else -> tutorApplicationReceipt(false, "这项操作没有应用执行路径。")
     }
 }
@@ -142,6 +167,94 @@ private suspend fun SmartMistakeBookApplication.editTutorProblem(
         is ReviseMistakeProblemResult.Unchanged -> tutorApplicationReceipt(true, "修改内容与当前版本相同。", entryId)
         else -> tutorApplicationReceipt(false, "保存修改失败，题目版本可能已经变化。", draft.operationId)
     }
+}
+
+private suspend fun SmartMistakeBookApplication.addTutorExam(
+    parameters: Map<String, String>,
+    effectKey: String,
+): TutorLobbyLocalActionOutcome {
+    val subject = parameters["subject"]?.trim().orEmpty()
+    val title = parameters["title"]?.trim().orEmpty()
+    val day = parameters["examEpochDay"]?.toLongOrNull()
+    if (subject.isEmpty() || title.isEmpty() || day == null || day < 0) {
+        return tutorApplicationReceipt(false, "考试信息不完整：需要科目、日期（epoch day）和名称。")
+    }
+    // 稳定 entryId：同一逻辑操作重放时是同一场考试（store 按 id upsert，不堆重复行）。
+    val entryId = "agent-exam-$effectKey"
+    val entry = com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry(
+        entryId = entryId,
+        subject = subject,
+        examEpochDay = day,
+        title = title,
+    )
+    schedulingSettingsStore.addExam(entry)
+    val stored = schedulingSettingsStore.exams.first().any { it.entryId == entryId }
+    if (!stored) return tutorApplicationReceipt(false, "考试没有保存成功。", entryId)
+    runCatching { studyRepository.refresh() }
+    val date = runCatching { java.time.LocalDate.ofEpochDay(day).toString() }.getOrNull() ?: day.toString()
+    return tutorApplicationReceipt(true, "已把「$title」写入 $subject 的考试日历（$date）。", entryId)
+}
+
+private suspend fun SmartMistakeBookApplication.removeTutorExam(
+    rawEntryId: String?,
+): TutorLobbyLocalActionOutcome {
+    val examEntryId = rawEntryId?.trim().orEmpty()
+    if (examEntryId.isEmpty()) return tutorApplicationReceipt(false, "没有指定要移除的考试条目。")
+    val existing = schedulingSettingsStore.exams.first().firstOrNull { it.entryId == examEntryId }
+    if (existing == null) return tutorApplicationReceipt(false, "考试日历里没有这个条目，未移除。")
+    schedulingSettingsStore.removeExam(examEntryId)
+    val removed = schedulingSettingsStore.exams.first().none { it.entryId == examEntryId }
+    if (!removed) return tutorApplicationReceipt(false, "考试没有移除成功。", examEntryId)
+    runCatching { studyRepository.refresh() }
+    return tutorApplicationReceipt(true, "已从考试日历移除「${existing.title}」。", examEntryId)
+}
+
+/**
+ * 改知识点关联：只接受 `nodeId@taxonomyVersion` 对，仓库再按已审目录重新校验；
+ * 板块与手动分类保持原样，替换的是知识点绑定（与原生「修改知识点关联」同一条仓库路径）。
+ */
+private suspend fun SmartMistakeBookApplication.reclassifyTutorProblem(
+    entryId: String,
+    rawSelections: String,
+): TutorLobbyLocalActionOutcome {
+    val selections = rawSelections.split(',')
+        .map { part -> part.trim() }
+        .filter { it.isNotEmpty() }
+        .map { part ->
+            val at = part.lastIndexOf('@')
+            if (at <= 0 || at == part.lastIndex) {
+                return tutorApplicationReceipt(false, "知识点身份格式无效，应为 nodeId@taxonomyVersion。")
+            }
+            com.tingyun.smartmistakebook.core.model.KnowledgeNodeSelection(
+                nodeId = part.substring(0, at),
+                taxonomyVersion = part.substring(at + 1),
+            )
+        }
+    if (selections.isEmpty() || selections.size > 8) {
+        return tutorApplicationReceipt(false, "一次只能改 1..8 个知识点关联。")
+    }
+    val detail = mistakeDetailRepository.observe(entryId).first { it != MistakeDetailState.Loading }
+        as? MistakeDetailState.Ready
+        ?: return tutorApplicationReceipt(false, "这道题没有可用的当前版本，未改分类。")
+    val identity = detail.detail.identity
+    val result = mistakeOrganizationRepository.correctConfirmedOrganization(
+        MistakeRevisionKey(entryId, identity.problemId, identity.problemRevisionId),
+        com.tingyun.smartmistakebook.core.domain.ProblemOrganizationSelection(
+            classificationIndexes = emptySet(),
+            relationIndexes = emptySet(),
+            knowledgeSelections = selections.toSet(),
+        ),
+        System.currentTimeMillis(),
+    )
+    if (!result.applied) {
+        return tutorApplicationReceipt(false, "题目或分类已变化，这次没有改写；请重新读取当前题后再试。", entryId)
+    }
+    runCatching { studyRepository.refresh() }
+    return tutorApplicationReceipt(
+        true,
+        "已把这道题的知识点关联改为 ${selections.size} 个节点（板块与手动分类保留）。",
+        entryId,
+    )
 }
 
 internal fun tutorApplicationReceipt(

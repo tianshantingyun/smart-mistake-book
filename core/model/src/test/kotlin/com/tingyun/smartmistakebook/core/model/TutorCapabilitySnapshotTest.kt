@@ -46,9 +46,15 @@ class TutorCapabilitySnapshotTest {
         val snapshot = TutorCapabilitySnapshot.forRound(exhausted)
         assertTrue(snapshot.localActions.isEmpty())
         assertTrue(snapshot.tools.isEmpty())
-        assertTrue(TutorCapabilitySnapshot.forRound(initial.copy(toolRoundsUsed = 4)).localActions.isNotEmpty())
+        assertTrue(
+            TutorCapabilitySnapshot.forRound(
+                initial.copy(toolRoundsUsed = TutorToolRoundResult.MAX_TOOL_ROUNDS - 1),
+            ).localActions.isNotEmpty(),
+        )
         assertThrows(IllegalArgumentException::class.java) { initial.copy(toolRoundsUsed = -1) }
-        assertThrows(IllegalArgumentException::class.java) { initial.copy(toolRoundsUsed = 6) }
+        assertThrows(IllegalArgumentException::class.java) {
+            initial.copy(toolRoundsUsed = TutorToolRoundResult.MAX_TOOL_ROUNDS + 1)
+        }
     }
 
     @Test

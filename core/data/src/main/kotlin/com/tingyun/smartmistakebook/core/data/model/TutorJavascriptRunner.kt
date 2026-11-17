@@ -105,7 +105,7 @@ internal suspend fun runTutorJavascript(
                         return failure("JAVASCRIPT_NONDETERMINISTIC_REPLAY", "JavaScript 重放调用顺序发生变化。")
                     }
                     if (history.size >= MAX_JAVASCRIPT_HOST_CALLS) {
-                        return failure("JAVASCRIPT_HOST_CALL_LIMIT", "JavaScript 一次执行最多调用 12 个宿主工具或动作。")
+                        return failure("JAVASCRIPT_HOST_CALL_LIMIT", "JavaScript 一次执行最多调用 $MAX_JAVASCRIPT_HOST_CALLS 个宿主工具或动作。")
                     }
                     val key = payload["key"] as? JsonPrimitive
                         ?: return failure("JAVASCRIPT_INVALID_HOST_CALL", "JavaScript 调用缺少重放标识。")
@@ -157,7 +157,7 @@ internal suspend fun runTutorJavascript(
     }
 }
 
-private const val MAX_JAVASCRIPT_HOST_CALLS = 12
+private const val MAX_JAVASCRIPT_HOST_CALLS = 20
 
 internal fun javascriptToolCall(tool: TutorToolName, arguments: JsonObject): TutorToolCall {
     val parameterKeys = tool.parameterNames()

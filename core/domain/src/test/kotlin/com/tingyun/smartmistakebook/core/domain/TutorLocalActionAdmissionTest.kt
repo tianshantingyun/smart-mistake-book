@@ -256,6 +256,7 @@ class TutorLocalActionAdmissionTest {
         // 解析成功且每个字段都落到布局上——任一侧改名，这条用例先红。
         val parameters = mapOf(
             "entryIds" to "entry-1,entry-2",
+            "format" to "pdf",
             "templateId" to MistakePdfLayout.TEMPLATE_PRACTICE_SHEET,
             "columnCount" to "2",
             "fontScale" to "3",
@@ -284,6 +285,57 @@ class TutorLocalActionAdmissionTest {
         assertEquals(true, layout.includeAnswer)
         assertEquals(true, layout.includeSolution)
         assertEquals(true, layout.includeNote)
+    }
+
+    @Test
+    fun examAndReclassificationActionsAdmitTheirDeclaredShapes() {
+        val addExam = tutorLocalActionAdmission(
+            request = TutorLocalActionRequest(
+                TutorLocalAction.ADD_EXAM,
+                mapOf("subject" to "数学", "examEpochDay" to "20000", "title" to "期中考试"),
+            ),
+            context = context,
+        )
+        assertNotNull(addExam)
+        assertEquals(TutorLocalActionTarget.APPLICATION_ACTION, addExam!!.target)
+
+        val removeExam = tutorLocalActionAdmission(
+            request = TutorLocalActionRequest(
+                TutorLocalAction.REMOVE_EXAM,
+                mapOf("examEntryId" to "agent-exam-key"),
+            ),
+            context = context,
+        )
+        assertNotNull(removeExam)
+
+        val reclassify = tutorLocalActionAdmission(
+            request = TutorLocalActionRequest(
+                TutorLocalAction.RECLASSIFY_PROBLEM,
+                mapOf("knowledgeNodes" to "node-1@tax-v7,node-2@tax-v7"),
+            ),
+            context = context.copy(libraryProblemId = "entry-1"),
+        )
+        assertNotNull(reclassify)
+        assertEquals(TutorLocalActionTarget.APPLICATION_ACTION, reclassify!!.target)
+    }
+
+    @Test
+    fun examAndReclassificationActionsRejectMissingRequiredParameters() {
+        assertNull(tutorLocalActionAdmission(
+            request = TutorLocalActionRequest(
+                TutorLocalAction.ADD_EXAM,
+                mapOf("subject" to "数学"),
+            ),
+            context = context,
+        ))
+        assertNull(tutorLocalActionAdmission(
+            request = TutorLocalActionRequest(TutorLocalAction.REMOVE_EXAM),
+            context = context,
+        ))
+        assertNull(tutorLocalActionAdmission(
+            request = TutorLocalActionRequest(TutorLocalAction.RECLASSIFY_PROBLEM),
+            context = context.copy(libraryProblemId = "entry-1"),
+        ))
     }
 
     @Test

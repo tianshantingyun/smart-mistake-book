@@ -140,6 +140,12 @@ class RoomModelTaskRepository internal constructor(
     private val visualEngineReady: (() -> Boolean)? = null,
     private val figureInspector: com.tingyun.smartmistakebook.core.data.model.TutorFigureInspector? = null,
     private val javascriptStateStore: com.tingyun.smartmistakebook.core.domain.TutorJavascriptStateStore? = null,
+    private val resultStore: com.tingyun.smartmistakebook.core.domain.TutorToolResultStore? = null,
+    /**
+     * 已审知识目录检索（KNOWLEDGE_CATALOG_READ）：生产由 app 注入
+     * `knowledgeCatalogRepository.search(...)`；null = 未接线，工具回可见的不可用结果。
+     */
+    private val catalogSearch: (suspend (String) -> List<com.tingyun.smartmistakebook.core.model.CatalogHit>)? = null,
 ) : ModelTaskRepository {
     internal val toolRunner = RoomTutorToolRunner(
         database,
@@ -149,6 +155,8 @@ class RoomModelTaskRepository internal constructor(
         localActionExecutor,
         figureInspector,
         javascriptStateStore,
+        resultStore,
+        catalogSearch,
     )
 
     /**
@@ -331,7 +339,7 @@ class RoomModelTaskRepository internal constructor(
                 return@flow
             }
             // 工具环（spec model-intent-routing §3.1）：模型可在作答前申请本地只读查询。
-            // 每轮派遣独立 reserve（预算记账，MAX_DISPATCHES=6 = 5 轮工具 + 1 轮终答，
+            // 每轮派遣独立 reserve（预算记账，MAX_DISPATCHES=9 = 8 轮工具 + 1 轮终答，
             // 见 a4109e1 与 D-001 2026-09-09 增补）；本地工具执行不占派遣预算。
             // 工具轮配额用尽（MAX_TOOL_ROUNDS=5）后不再声明工具，模型必须直接作答。
             // PRD-06：派遣前先把"配置/依赖就绪"折进本轮的声明集——**第一条派遣**也必须
@@ -1417,6 +1425,8 @@ object ModelTaskRepositoryFactory {
         visualEngineReady: (() -> Boolean)? = null,
         figureInspector: com.tingyun.smartmistakebook.core.data.model.TutorFigureInspector? = null,
         javascriptStateStore: com.tingyun.smartmistakebook.core.domain.TutorJavascriptStateStore? = null,
+        resultStore: com.tingyun.smartmistakebook.core.domain.TutorToolResultStore? = null,
+        catalogSearch: (suspend (String) -> List<com.tingyun.smartmistakebook.core.model.CatalogHit>)? = null,
     ): ModelTaskRepository = RoomModelTaskRepository(
         database = database,
         gateway = gateway,
@@ -1428,6 +1438,8 @@ object ModelTaskRepositoryFactory {
         visualEngineReady = visualEngineReady,
         figureInspector = figureInspector,
         javascriptStateStore = javascriptStateStore,
+        resultStore = resultStore,
+        catalogSearch = catalogSearch,
     )
 }
 
@@ -1459,7 +1471,7 @@ private const val MODEL_TASK_LOG_TAG = "SmartMistakeBook"
  *
  * 覆盖范围（注释口径与实现对齐）：`withTimeout` 只包住一圈 `gateway.execute`（工具环
  * `while (!answered)` 循环体内），而一条任务最多派遣
- * `ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES = 6` 轮（5 轮工具
+ * `ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES = 9` 轮（8 轮工具
  * `TutorToolRoundResult.MAX_TOOL_ROUNDS` + 1 轮终答），所以**一条任务**的本地占用上限是
  * 约 6 × 600s = 3_600s。这是上限的上限，不是任何一条任务的时长承诺。
  *

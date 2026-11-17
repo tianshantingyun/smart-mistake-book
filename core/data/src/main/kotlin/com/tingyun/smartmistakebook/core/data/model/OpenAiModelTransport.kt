@@ -42,6 +42,11 @@ internal data class ModelHttpResponse(
      * Null for non-streaming transports and for SSE surfaces the caller did not request.
      */
     val streamChunks: List<String>? = null,
+    /**
+     * `Retry-After` 的毫秒值（仅解析 delta-seconds 形式）。只有可重试状态码（429/5xx）才携带；
+     * 网关据此决定退避，而不是对服务端明确要求"稍后"的限流窗口盲目重发。
+     */
+    val retryAfterMillis: Long? = null,
 )
 
 /** 一次按协议族构造的线上请求：URL/头/体由协议实现给出，传输层只负责发。 */
@@ -258,7 +263,7 @@ internal suspend fun Call.awaitBoundedResponse(
                             val body = bytes.toString(StandardCharsets.UTF_8)
                             Arrays.fill(bytes, 0.toByte())
                             if (continuation.isActive) {
-                                continuation.resume(ModelHttpResponse(it.code, body))
+                                continuation.resume(ModelHttpResponse(it.code, body, retryAfterMillis = it.retryAfterMillisOrNull()))
                             }
                         }
                     } catch (failure: Throwable) {
@@ -331,6 +336,7 @@ internal suspend fun Call.awaitBoundedSseResponse(
                                         statusCode = it.code,
                                         body = body,
                                         streamChunks = chunks?.takeIf { it.isNotEmpty() },
+                                        retryAfterMillis = it.retryAfterMillisOrNull(),
                                     ),
                                 )
                             }
@@ -499,6 +505,17 @@ private fun java.io.InputStream.readFully(): ByteArray {
         Arrays.fill(buffer, 0.toByte())
     }
 }
+
+/**
+ * `Retry-After` 只采纳 delta-seconds 形式（HTTP-date 形式在移动端时钟不可信时无法正确换算）。
+ * 上限按"一天"截断，真正的等待上限由 [ModelProviderRetry.maxDelayMillis] 决定。
+ */
+private fun Response.retryAfterMillisOrNull(): Long? =
+    header("Retry-After")
+        ?.trim()
+        ?.toLongOrNull()
+        ?.takeIf { it >= 0 }
+        ?.let { seconds -> seconds.coerceAtMost(86_400L) * 1_000L }
 
 private fun ByteArray.toIntOctets(): IntArray = IntArray(size) { this[it].toInt() and 0xff }
 

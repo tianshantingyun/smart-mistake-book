@@ -25,14 +25,15 @@ import org.junit.Test
 class TutorToolGateTest {
 
     @Test
-    fun `the page declares the full twelve tool surface for every entry`() {
-        // D7/D8 + D-M M7 + 4B A1 + 通用 Agent 四枚：Plan / Respond / 大厅同一工具面。
+    fun `the page declares the full fifteen tool surface for every entry`() {
+        // D7/D8 + D-M M7 + 4B A1 + 通用 Agent 六枚：Plan / Respond / 大厅同一工具面。
         assertTrue(TUTOR_TOOL_DECLARATIONS.containsAll(setOf(
             TutorToolName.APP_CONTEXT,
             TutorToolName.SELECT_QUESTION,
             TutorToolName.READ_FIGURE,
             TutorToolName.RUN_JAVASCRIPT,
             TutorToolName.KNOWLEDGE_READ,
+            TutorToolName.KNOWLEDGE_CATALOG_READ,
             TutorToolName.NOTEBOOK_READ,
             TutorToolName.MASTERY_READ,
             TutorToolName.MASTERY_UPDATE,
@@ -40,8 +41,10 @@ class TutorToolGateTest {
             TutorToolName.ADVISORY_READ,
             TutorToolName.ADVISORY_WRITE,
             TutorToolName.GENERATE_FIGURE,
+            TutorToolName.READ_RESULT,
+            TutorToolName.REVIEW_PLAN_READ,
         )))
-        assertEquals(12, TUTOR_TOOL_DECLARATIONS.size)
+        assertEquals(15, TUTOR_TOOL_DECLARATIONS.size)
     }
 
     @Test

@@ -513,6 +513,16 @@ interface StudyExperienceRepository : AutoCloseable {
     ): AddToReviewPlanResult =
         throw UnsupportedOperationException("Adding to the review plan is not implemented by this repository")
 
+    /**
+     * `REMOVE_FROM_REVIEW_PLAN`：从**今天**的复习计划移除一道题。与追加同样落新 revision；
+     * 已开始/已完成的计划不可改，题目本来不在队列里是幂等成功。
+     */
+    suspend fun removeFromReviewPlan(
+        entryId: String,
+        requestedAtEpochMillis: Long,
+    ): RemoveFromReviewPlanResult =
+        throw UnsupportedOperationException("Removing from the review plan is not implemented by this repository")
+
     suspend fun teachingArtifact(practiceUnitId: String): VerifiedTeachingArtifact?
 
     suspend fun submitChoice(submission: StudyChoiceSubmission): StudyChoiceSubmissionResult
