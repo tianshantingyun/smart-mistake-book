@@ -135,6 +135,7 @@ class TutorAgentJsToolInstrumentedTest {
     fun javascriptRunsInTheRealIsolatedEngineAndItsHostResultReachesTheNextRound() = runBlocking {
         val host = requireNotNull(context.visualJsFigureHost)
         assertTrue("The real isolated QuickJS worker must be ready", host.prepare())
+        assertTrue("Production JS readiness must enable the agent tool", host.available())
         val database = StudyDatabaseFactory.open(context, databaseName)
         try {
             val gateway = ScriptedGateway(provider, listOf(jsToolRound(), finalPlan()))
@@ -144,6 +145,7 @@ class TutorAgentJsToolInstrumentedTest {
                 knowledgeBaseAvailability = MutableStateFlow(KnowledgeBaseAvailability.Ready),
                 figureCapabilities = { FigureGenerationCapabilities.NONE },
                 visualEngine = host.engine,
+                visualEngineReady = { host.available() },
             )
 
             val snapshots = repository.execute(request()).toList()
