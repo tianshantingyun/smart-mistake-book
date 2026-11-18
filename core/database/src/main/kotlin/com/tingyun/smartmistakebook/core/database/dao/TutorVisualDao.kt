@@ -385,6 +385,32 @@ internal abstract class TutorVisualDao {
     abstract suspend fun findMessageVisual(messageId: String, ordinal: Int): TutorMessageVisualEntity?
 
     /**
+     * 4E.2 草稿 checkpoint：只改 `ui_state_json` / `form_digest` / `updated_at`，**不动**
+     * `current_snapshot_id` 与 `revision`（草稿不是换图，指针 CAS 语义不能被它污染）。
+     *
+     * `revision = :expectedRevision` 是过期写保护：控件/表单在旧指针上产生的 checkpoint
+     * 不能覆盖已经换过图的消息。命中 0 行 = 调用方必须重新读取链接再决定是否重存。
+     */
+    @Query(
+        """
+        UPDATE tutor_message_visual
+        SET ui_state_json = :uiStateJson,
+            form_digest = :formDigest,
+            updated_at_epoch_millis = :nowEpochMillis
+        WHERE message_id = :messageId AND ordinal = :ordinal
+          AND revision = :expectedRevision
+        """,
+    )
+    abstract suspend fun updateMessageVisualDraft(
+        messageId: String,
+        ordinal: Int,
+        expectedRevision: Int,
+        uiStateJson: String?,
+        formDigest: String?,
+        nowEpochMillis: Long,
+    ): Int
+
+    /**
      * 指针 CAS（换图/重渲染）；命中 0 行 = 期望版本过期、目标不是 LIVE，或目标快照属于
      * **另一个 program**。
      *

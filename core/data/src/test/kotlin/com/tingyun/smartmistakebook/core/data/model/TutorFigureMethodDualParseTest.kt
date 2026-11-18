@@ -478,7 +478,8 @@ class TutorFigureMethodDualParseTest {
         schema["enum"]!!.jsonArray.map { it.jsonPrimitive.content }
 
     private fun typeUnion(schema: JsonObject): List<String> =
-        schema["type"]!!.jsonArray.map { it.jsonPrimitive.content }
+        schema["type"]?.jsonArray?.map { it.jsonPrimitive.content }
+            ?: schema["anyOf"]!!.jsonArray.map { it.jsonObject.getValue("type").jsonPrimitive.content }
 
     private fun assertStrictRequiredCoversEveryProperty(params: JsonObject) {
         val properties = params["properties"]!!.jsonObject.keys.sorted()

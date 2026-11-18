@@ -72,12 +72,28 @@ class TutorLocalActionAdvertisementParityTest {
             val properties = requireNotNull(advertised[action.actionId]).properties
             action.parameters.forEach { parameter ->
                 val property = properties.getValue(parameter.parameterName).jsonObject
-                val type = property.getValue("type")
-                val types = if (type is JsonArray) type.map { it.jsonPrimitive.content } else listOf(type.jsonPrimitive.content)
+                // 2026-11-19：可选参数的可空改用 anyOf（DeepSeek 拒绝 type 数组；anyOf 是
+                // OpenAI strict 与 DeepSeek 的共同子集）。必填参数仍是单个 type 字符串。
+                val anyOf = property["anyOf"]?.jsonArray
+                val typeNode = property["type"]
+                    ?: anyOf?.firstOrNull()?.jsonObject?.get("type")
+                    ?: error("${action.actionId}.${parameter.parameterName} has no type or anyOf")
+                val types = if (typeNode is JsonArray) {
+                    typeNode.map { it.jsonPrimitive.content }
+                } else {
+                    listOf(typeNode.jsonPrimitive.content)
+                }
                 assertTrue(
                     "Route A 的 ${action.actionId}.${parameter.parameterName} 必须是字符串参数: $types",
                     "string" in types,
                 )
+                if (!parameter.required) {
+                    assertEquals(
+                        "可选参数必须保留 null 分支",
+                        setOf("string", "null"),
+                        anyOf?.map { it.jsonObject.getValue("type").jsonPrimitive.content }?.toSet(),
+                    )
+                }
                 val advertisedEnum = property["enum"]?.jsonArray?.map { element ->
                     (element as? JsonPrimitive)?.content
                 }

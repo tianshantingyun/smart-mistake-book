@@ -121,4 +121,53 @@ class TutorToolFigureTraceFieldsTest {
         }
         assertTrue(rejected.exceptionOrNull() is IllegalArgumentException)
     }
+
+    @Test
+    fun aReplayableTraceRoundTripsItsProgramAndSnapshotAndOpensTheVisualRef() {
+        val original = trace(
+            TutorToolFigureTrace(
+                kind = TutorFigureKind.GENERATE_PROCESS,
+                figureId = "figure-js",
+                method = FigureGenerationMethod.JS,
+                purpose = FigureGenerationPurpose.EXPLANATION,
+                status = FigureGenerationStatus.GENERATED,
+                programId = "visual-program-1",
+                snapshotId = "visual-snapshot-1",
+            ),
+        )
+        val encoded = encodeTutorTurnToolTrace(original)
+
+        assertEquals(
+            TutorTurnVisualRef("visual-program-1", "visual-snapshot-1"),
+            tutorTurnVisualRef(encoded),
+        )
+    }
+
+    @Test
+    fun anImageModelTraceHasNoReplayableVisualRef() {
+        val trace = trace(
+            TutorToolFigureTrace(
+                kind = TutorFigureKind.GENERATE_PROCESS,
+                figureId = "figure-img",
+                method = FigureGenerationMethod.IMAGE_MODEL,
+                programId = null,
+                snapshotId = null,
+            ),
+        )
+        assertNull(tutorTurnVisualRef(encodeTutorTurnToolTrace(trace)))
+        assertNull(tutorTurnVisualRef(null))
+        assertNull(tutorTurnVisualRef("not json"))
+    }
+
+    @Test
+    fun aReplayableTraceCannotCarryOnlyOneIdentity() {
+        val rejected = runCatching {
+            TutorToolFigureTrace(
+                kind = TutorFigureKind.GENERATE_PROCESS,
+                method = FigureGenerationMethod.JS,
+                programId = "visual-program-1",
+            )
+        }
+        assertTrue(rejected.exceptionOrNull() is IllegalArgumentException)
+    }
 }

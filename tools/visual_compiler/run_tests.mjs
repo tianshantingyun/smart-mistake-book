@@ -256,6 +256,89 @@ function testLegalScenes() {
   }
 }
 
+// ---------------------------------------------------------------- 4E.2 交互面
+
+function testInteractiveScene() {
+  const context = makeContext();
+  const scene = viewportScene(null, {
+    controls: [
+      { id: 'a', kind: 'range', label: 'a 的值', value: 1, min: -5, max: 5, step: 0.5, semantics: '斜率' },
+      { id: 'show', kind: 'toggle', label: '显示辅助线', value: true },
+      {
+        id: 'fn',
+        kind: 'select',
+        label: '函数',
+        value: 'sin',
+        options: [{ value: 'sin', label: '正弦' }, { value: 'cos', label: '余弦' }],
+      },
+      { id: 'reset', kind: 'button', label: '重置' },
+    ],
+    form: {
+      formId: 'form-1',
+      title: '检查一下',
+      rationaleLabel: '理由',
+      items: [{
+        id: 'q1',
+        kind: 'radioGroup',
+        prompt: '当 a>0 时图像怎么变？',
+        options: [{ value: 'up', label: '上移' }, { value: 'down', label: '下移' }],
+      }],
+    },
+  });
+
+  {
+    const out = JSON.parse(compile(context, scene));
+    check('interactive/valid controls and form compile', out.drawSchemaVersion === 1);
+    // 交互面不是绘制指令：静态 DrawOps 输出不因控件/表单而变化。
+    check(
+      'interactive/controls do not enter draw ops',
+      out.controls === undefined && out.form === undefined && out.ops.length === 0,
+    );
+  }
+
+  function reject(name, controls, code) {
+    try {
+      compile(context, viewportScene(null, { controls }));
+      check(name, false, 'not rejected');
+    } catch (error) {
+      check(name, String(error.message).startsWith(code), String(error.message).slice(0, 100));
+    }
+  }
+
+  reject('interactive/range-needs-min-max', [
+    { id: 'a', kind: 'range', label: 'a', value: 1 },
+  ], 'SCENE_FIELD_TYPE');
+  reject('interactive/range-value-outside', [
+    { id: 'a', kind: 'range', label: 'a', value: 9, min: 0, max: 5 },
+  ], 'SCENE_FIELD_CONTROL_RANGE');
+  reject('interactive/select-value-not-option', [
+    { id: 's', kind: 'select', label: 's', value: 'x', options: [{ value: 'a', label: 'A' }] },
+  ], 'SCENE_FIELD_CONTROL_SELECT');
+  reject('interactive/duplicate-id', [
+    { id: 'a', kind: 'button', label: 'A' },
+    { id: 'a', kind: 'button', label: 'B' },
+  ], 'SCENE_FIELD_CONTROL_DUPLICATE');
+
+  {
+    const tooManyItems = {
+      formId: 'f',
+      items: Array.from({ length: 5 }, (_, index) => ({
+        id: 'q' + index,
+        kind: 'radioGroup',
+        prompt: 'q',
+        options: [{ value: 'a', label: 'A' }, { value: 'b', label: 'B' }],
+      })),
+    };
+    try {
+      compile(context, viewportScene(null, { form: tooManyItems }));
+      check('interactive/form-item-budget', false, 'not rejected');
+    } catch (error) {
+      check('interactive/form-item-budget', String(error.message).startsWith('SCENE_BUDGET_FORM_ITEMS'),
+        String(error.message).slice(0, 100));
+    }
+  }
+}
+
 // ---------------------------------------------------------------- 确定性
 
 function testDeterminism() {
@@ -317,8 +400,12 @@ function testIllegalShapes() {
   expectReject('reject/field/unknown', viewportScene(null, { surprise: 1 }), 'SCENE_FIELD_UNKNOWN');
   expectReject('reject/field/viewport-mismatch', viewportScene({ widthDu: 361 }), 'SCENE_FIELD_VIEWPORT');
   expectReject('reject/field/revision', viewportScene(null, { revision: 2 }), 'SCENE_FIELD_REVISION');
-  expectReject('reject/field/controls-non-empty', viewportScene(null, { controls: [{ type: 'button' }] }), 'SCENE_FIELD_CONTROLS');
-  expectReject('reject/field/form-unavailable', viewportScene(null, { form: { formId: 'f' } }), 'SCENE_FIELD_UNAVAILABLE');
+  expectReject('reject/field/control-kind', viewportScene(null, {
+    controls: [{ id: 'a', kind: 'transport', label: '播放' }],
+  }), 'SCENE_FIELD_CONTROL_KIND');
+  expectReject('reject/field/form-kind', viewportScene(null, {
+    form: { formId: 'f', items: [{ id: 'q', kind: 'checkbox', prompt: 'x', options: [] }] },
+  }), 'SCENE_FIELD_FORM_KIND');
   expectReject('reject/field/accessibility-unavailable', viewportScene(null, { accessibility: {} }), 'SCENE_FIELD_UNAVAILABLE');
   expectReject('reject/field/dup-path-id', viewportScene(null, {
     paths: [{ id: 'p', commands: [['M', 0, 0]] }, { id: 'p', commands: [['M', 1, 1]] }],
@@ -657,6 +744,7 @@ function testUpperBoundTiming() {
 
 try {
   testLegalScenes();
+  testInteractiveScene();
   testDeterminism();
   testIllegalShapes();
   testSdk();

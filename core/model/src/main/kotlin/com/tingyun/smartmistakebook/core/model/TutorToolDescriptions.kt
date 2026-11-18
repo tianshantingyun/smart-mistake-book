@@ -98,6 +98,10 @@ private fun generateFigureDescription(figureMethods: Set<FigureGenerationMethod>
     val tail = if (FigureGenerationMethod.JS in figureMethods) {
         "生成过程图可依据当前任务描述；重绘已有题面图必须有已授权真实源图。本机未接通的方法不得输出其载荷。" +
             "method=JS 时在 program 字段给出完整结构化程序（不要把程序写进 description）；" +
+            "程序和 render 可以带原生交互：controls（≤8，kind=button/toggle/range/select，含 id/label/" +
+            "value/min/max/options）与 form（≤4 题 radioGroup，每题 2..6 个选项）；" +
+            "需要响应时在同程序里提供 reduce(state, event)，按 event.controlId/event.value 返回新的 StateV1，" +
+            "宿主会重画并保存草稿；不需要交互就不要输出 controls/form/reduce。" +
             "返回不可用时不要反复申请。"
     } else {
         "生成过程图可依据当前任务描述；重绘已有题面图必须有已授权真实源图。本地未配置可用的图像模型时不会生成" +
@@ -146,6 +150,7 @@ private fun generateFigureNativeDescription(figureMethods: Set<FigureGenerationM
     val tail = "结果只回 id+状态，生成成功时作为本轮回复下方的可展开配图展示）"
     return if (FigureGenerationMethod.JS in figureMethods) {
         head + "method=JS 时在 program 字段给出完整结构化程序（不写进 description），" +
+            "可用 controls/form 声明原生控件与检查题，并提供 reduce(state, event) 处理交互；" +
             "只使用宿主声明为可用的方法，未接通的方法不得输出其载荷；" + tail
     } else {
         head + tail

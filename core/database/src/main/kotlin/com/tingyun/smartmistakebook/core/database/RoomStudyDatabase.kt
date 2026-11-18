@@ -708,6 +708,50 @@ internal class RoomStudyDatabase(
 
     override suspend fun countMistakes(): Int = database.problemDao().countActiveMistakes()
 
+    override suspend fun mergeMistakeEntry(
+        duplicateEntryId: String,
+        canonicalEntryId: String,
+        relationId: String,
+        mergedAtEpochMillis: Long,
+    ): Boolean {
+        require(duplicateEntryId.isNotBlank()) { "A duplicate entry id must not be blank" }
+        require(canonicalEntryId.isNotBlank()) { "A canonical entry id must not be blank" }
+        require(duplicateEntryId != canonicalEntryId) { "An entry cannot be merged into itself" }
+        require(relationId.isNotBlank()) { "A merge relation id must not be blank" }
+        require(mergedAtEpochMillis >= 0L) { "A merge time must not be negative" }
+        return database.withWriteTransaction {
+            val dao = database.mistakeDetailDao()
+            val duplicate = dao.findEntryMergeRow(duplicateEntryId)
+                ?: return@withWriteTransaction false
+            val canonical = dao.findEntryMergeRow(canonicalEntryId)
+                ?: return@withWriteTransaction false
+            if (duplicate.status != StudyDbValue.ErrorBookStatus.ACTIVE ||
+                canonical.status != StudyDbValue.ErrorBookStatus.ACTIVE
+            ) {
+                return@withWriteTransaction false
+            }
+            if (duplicate.problemId == canonical.problemId) return@withWriteTransaction false
+            database.problemDao().insertRelations(
+                listOf(
+                    com.tingyun.smartmistakebook.core.database.entity.ProblemRelationEntity(
+                        relationId = relationId,
+                        sourceProblemId = duplicate.problemId,
+                        targetProblemId = canonical.problemId,
+                        relationType = com.tingyun.smartmistakebook.core.model.ProblemRelationKind
+                            .POSSIBLE_DUPLICATE.name,
+                        status = com.tingyun.smartmistakebook.core.model.ProblemRelationStatus.ACTIVE.name,
+                        sourceBasisRevisionId = duplicate.revisionId,
+                        targetBasisRevisionId = canonical.revisionId,
+                        confidence = 1.0,
+                        createdAtEpochMillis = mergedAtEpochMillis,
+                        updatedAtEpochMillis = mergedAtEpochMillis,
+                    ),
+                ),
+            )
+            dao.setEntryStatus(duplicate.entryId, StudyDbValue.ErrorBookStatus.ARCHIVED, mergedAtEpochMillis)
+        }
+    }
+
     override suspend fun checkpointForBackup() = backupSupport.checkpointForBackup()
 
     override suspend fun snapshotForBackup(
@@ -2642,6 +2686,59 @@ internal class RoomStudyDatabase(
         require(messageId.isNotBlank()) { "A visual message id must not be blank" }
         require(ordinal >= 0) { "A visual ordinal must not be negative" }
         return database.tutorVisualDao().findMessageVisual(messageId, ordinal)?.toRecord()
+    }
+
+    override suspend fun linkTutorMessageVisualIfLive(
+        messageId: String,
+        ordinal: Int,
+        programId: String,
+        snapshotId: String,
+        uiStateJson: String?,
+        formDigest: String?,
+        nowEpochMillis: Long,
+    ): TutorMessageVisualRecord? {
+        require(messageId.isNotBlank()) { "A visual message id must not be blank" }
+        require(ordinal >= 0) { "A visual ordinal must not be negative" }
+        require(programId.isNotBlank()) { "A visual program id must not be blank" }
+        require(snapshotId.isNotBlank()) { "A visual snapshot id must not be blank" }
+        require(nowEpochMillis >= 0L) { "A visual link time must not be negative" }
+        return try {
+            database.tutorVisualDao().linkMessageVisual(
+                messageId = messageId,
+                ordinal = ordinal,
+                programId = programId,
+                snapshotId = snapshotId,
+                uiStateJson = uiStateJson,
+                formDigest = formDigest,
+                nowEpochMillis = nowEpochMillis,
+            ).toRecord()
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    override suspend fun updateTutorMessageVisualDraft(
+        messageId: String,
+        ordinal: Int,
+        expectedRevision: Int,
+        uiStateJson: String?,
+        formDigest: String?,
+        updatedAtEpochMillis: Long,
+    ): Boolean {
+        require(messageId.isNotBlank()) { "A visual message id must not be blank" }
+        require(ordinal >= 0) { "A visual ordinal must not be negative" }
+        require(expectedRevision >= 1) { "A visual pointer revision starts at 1" }
+        require(updatedAtEpochMillis >= 0L) { "A draft update time must not be negative" }
+        return database.tutorVisualDao().updateMessageVisualDraft(
+            messageId = messageId,
+            ordinal = ordinal,
+            expectedRevision = expectedRevision,
+            uiStateJson = uiStateJson,
+            formDigest = formDigest,
+            nowEpochMillis = updatedAtEpochMillis,
+        ) == 1
     }
 
     override suspend fun countTutorVisualProgramsForTest(programId: String): Int {

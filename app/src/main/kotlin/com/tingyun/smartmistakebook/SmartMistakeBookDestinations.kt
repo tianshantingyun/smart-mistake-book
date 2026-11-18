@@ -459,6 +459,7 @@ internal fun SavedMistakeTutorDestination(
             // 这一页既有的真实出口（打开错题本——这道题已经在里面），回喂如实说"已经在错题本里"。
             // 此前这一页没有这个端口：模型的本地动作请求在这条路由上没有出口。
             pendingRequests = application.agentPendingRequestRepository,
+            interactiveVisualPort = runCatching { application.tutorInteractiveVisualPort }.getOrNull(),
             // A4 执行路径 ③：这一页的附图（模型申请"把这一轮的图存进错题本"）走与拍照入口
             // 同一条录入管线。
             attachedImageIntake = application.tutorAttachedImageIntake,

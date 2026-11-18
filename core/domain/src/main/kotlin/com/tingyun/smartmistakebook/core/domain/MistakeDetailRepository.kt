@@ -81,6 +81,19 @@ interface MistakeDetailRepository {
 
     suspend fun restoreEntry(entryId: String, at: Long): Boolean = false
 
+    /**
+     * 4E.2 合并：把 [duplicateEntryId] 关联到 [canonicalEntryId] 并归档重复项。
+     *
+     * 只落一条 `POSSIBLE_DUPLICATE` 关联 + 归档；题/修订/练习单元/证据一律不动。
+     * 返回 false = 任一条目不存在/不是 ACTIVE/同一题，或写入失败——调用方不得报"已合并"。
+     */
+    suspend fun mergeEntry(
+        duplicateEntryId: String,
+        canonicalEntryId: String,
+        relationId: String,
+        at: Long,
+    ): Boolean = false
+
     /** 归档条目摘要（id+标题）：错题本"已移出"入口的展示与恢复。 */
     fun observeArchived(): Flow<List<ArchivedMistakeRef>> = flowOf(emptyList())
 

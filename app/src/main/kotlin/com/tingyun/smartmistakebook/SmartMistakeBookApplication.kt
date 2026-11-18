@@ -304,6 +304,16 @@ class SmartMistakeBookApplication : Application() {
     internal var visualJsFigureHost: com.tingyun.smartmistakebook.visualjs.VisualJsFigureHost? = null
         private set
 
+    /**
+     * 4E.2 交互图端口：只在第一次打开带控件/表单的图时构造。引擎/宿主尚未装配时
+     * 明确失败（调用方回退为静态配图卡），不伪造一张可交互的空图。
+     */
+    internal val tutorInteractiveVisualPort: com.tingyun.smartmistakebook.core.domain.TutorInteractiveVisualPort
+        by lazy {
+            val host = requireNotNull(visualJsFigureHost) { "The visual JS host is not assembled" }
+            TutorInteractiveVisualRepository(database, host.engine, host.frameRenderer())
+        }
+
     private val restartReason = MutableStateFlow<String?>(null)
     internal val databaseRestartReason: StateFlow<String?> = restartReason
 
@@ -376,8 +386,12 @@ class SmartMistakeBookApplication : Application() {
             // 首连失败不能让 JS 整个进程生命周期不可用：覆盖安装后的首次启动会撞上旧
             // `:visual_js` 进程被系统清理/包替换，bind 可能只失败这一次。失败后在后台
             // 有界重试；能力快照按轮重算，重试成功后的下一轮即可广告 JS。
-            if (!runBlocking { jsHost.prepare() }) {
-                applicationScope.launch {
+            //
+            // 2026-11-19：**不在主线程 runBlocking 等待 warm-up**。API 36 的空库首启会在
+            // 14s 左右被判 "failed to complete startup" 而 ANR；JS 就绪位本来就是广告门的
+            // 输入，后台完成即可，主线程只做装配。
+            applicationScope.launch {
+                if (!jsHost.prepare()) {
                     repeat(3) { attempt ->
                         kotlinx.coroutines.delay(1_000L * (attempt + 1))
                         if (jsHost.prepare()) return@launch

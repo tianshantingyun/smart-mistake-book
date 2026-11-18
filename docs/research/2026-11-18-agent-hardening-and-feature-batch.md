@@ -139,3 +139,102 @@
   不是用户数据）。
 - `KNOWLEDGE_CATALOG_READ` 把原始 `nodeId` 暴露给模型（写侧需要精确坐标）。写侧仍由目录重新
   校验，编造身份无法落库；这是与 `KNOWLEDGE_READ` 会话代号通道刻意的分工，已在 KDoc 写明。
+
+---
+
+# 2026-11-19 追加：取消上下文限制、4E.2 交互面、合并、设备矩阵与真实 Provider
+
+## 7. 取消本地上下文限制
+
+按"不要在上下文上限制模型发挥"：
+
+- **删除** `TutorPromptBudget`（32k 工具历史压缩）与它的测试；`OpenAiModelTaskAdapters`
+  直接渲染 `toolRoundResults`，模型看到每轮全部 `summaryMarkdown` + `dataJson`。
+- `tutorToolRoundResult` **不再调用** `budgetTutorToolOutcomes`：4k/8k 轮预算只保留为显式
+  调用方可用的纯函数（其测试仍在），生产不压缩。
+- `TutorToolOutcome` 删除 `dataJson.length <= 6_000` 的硬要求；`summaryMarkdown` 上限改为
+  **1,000,000 字符**的 OOM 安全上限，不再是上下文策略。
+- `NOTEBOOK_READ` 的 JSON 预算从 `min(6_000, 4_000-700)` 改为 1,000,000：整页条目不再从
+  尾部被删。
+- `READ_RESULT`/工件路径只在**超过 1,000,000 字符**时触发（防御异常读取），正常工具结果
+  不再走预览/截断。
+- 验证：`TutorPromptBudgetTest` 删除；`TutorToolRoundBudgetTest` 改为钉"生产不压缩"；
+  `TutorAgentToolWiringTest` 改为钉"大结果原样返回、1M 以下不写工件"；新增
+  `TutorToolOutcome` 120k 数据接受用例。
+
+## 8. 4E.2 交互面（已落地）
+
+### 8.1 编译与模型面
+- `visual-compiler.js`：`controls` / `form` 从"一律拒绝"改为严格校验（button/toggle/range/
+  select；≤8 控件、≤8 选项、≤4 表单题、每题 2..6 选项、range min<max、select value ∈ options、
+  未知键/重复 id 拒绝）。控件/表单**不进入 DrawOps**，静态 painter 零改动。
+- Node 测试台：`103 passed, 0 failed`（新增合法 controls+form、5 个负向、表单预算）。
+- `core:model/TutorInteractiveScene.kt`：快照侧同构解析器 `parseTutorInteractiveSpec` +
+  `TutorVisualControl`/`NativeTutorFormV1`/`visualControlEventJson`；5 个 JVM 用例。
+
+### 8.2 执行与持久化
+- `reduce(state,event)` 走隔离引擎 **PROGRAM 模式**（新上下文、无 SDK），源码末尾追加
+  `visual.reduce(input.state.state, input.state.event)`；无 reduce 时 fail-closed。
+- 新增 `TutorInteractiveVisualPort` 与 app 实现：读 `tutor_message_visual` → program/snapshot；
+  链接缺失时按痕迹里的 program/snapshot **幂等补建 LIVE 引用**（SQL 门：只接受 LIVE + 同
+  program）；`render`/`reduce` 复用 DrawOps 校验、4 MP 门与 painter，帧只回内存 PNG。
+- `TutorToolFigureTrace` 新增 `programId`/`snapshotId`（本地痕迹，成对出现），
+  `tutorTurnVisualRef(traceJson)` 提取。
+- `tutor_message_visual.ui_state_json/form_digest` 新增 CAS 写入口（`revision` 作期望版本，
+  不换图）；草稿 JSON = `{state, form:{answers,rationale,formId}}`。
+
+### 8.3 UI
+- `TutorInteractiveVisualCard`（feature/tutor）：静态帧 + 原生 Slider/Switch/FilterChip/Button；
+  变化 → reduce → 重画；表单 radio 组 + 理由输入 + 提交（走既有 `submitTutorResponse`，
+  产生真实学生回合）；输入 500ms 合并写草稿，提交后清草稿。
+- 接入 `TutorGeneratedTurn` → `TutorTaskContent` → `TutorModelPanel` → 两个 route；端口由
+  app 注入，缺省 null 时静态配图不受影响。
+- 模型提示词（仅 JS 可用时）新增 controls/form/reduce 能力描述。
+
+### 8.4 设备证据（真实隔离 QuickJS）
+- `TutorInteractiveVisualInstrumentedTest`（API 34 与 **API 23** 与 **API 36 ps16k**）：
+  程序含 range 控件 + radioGroup 表单 → 编译/快照/补建引用/渲染/reduce(3.5)/草稿 CAS 全过。
+  API23：`OK (1 test)`；16KB：`OK (1 test)`（PAGE_SIZE=16384）。
+- `MistakeMergeInstrumentedTest`（API23 + 16KB）：真实 Room 事务写 `POSSIBLE_DUPLICATE`
+  关联并归档重复条目；重复合并/自合并拒绝；`OK (2 tests)`。
+
+## 9. 删除 / 合并 / 拆分
+
+- **合并**已实现：`StudyDatabasePort.mergeMistakeEntry` → `MistakeDetailRepository.mergeEntry` →
+  智能体动作 `MERGE_PROBLEM`（当前题为保留项，重复条目归档 + 关联；不删题/修订/证据）。
+- **删除**仍以归档为产品语义：schema 的 `problem_revision` 明确 append-only，且
+  `paper_review_question` RESTRICT、证据/投影按 practice unit 关联；硬删会留下隐藏证据继续
+  影响掌握度或破坏卷面历史，因此不提供"永久删除"这个会撒谎的入口。
+- **拆分**已存在于录入链路（多题页 `splitDraft` + 拆分确认页）；已保存题的库级拆分会制造
+  无来源依据的新题身份，未新增。
+
+## 10. 真实 Provider 端到端（已通过）
+
+- 凭据从 gitignored `local.properties` 注入设备私有目录（不打印、不落仓、测试 finally 删除）；
+  debug 专用测试 `RealProviderAgentE2EInstrumentedTest` 做官方能力探测 + 真实 TutorPlan 工具环。
+- **首次真实运行抓到生产级 400**：DeepSeek 拒绝 `{"type":["string",null]}`——
+  `Invalid schema for function 'APP_CONTEXT': ["string",null] is not valid under any of the
+  schemas listed in the 'anyOf' keyword`。
+- 修复：所有可空属性改为 `anyOf:[{type:string},{type:null}]`，`enum` 仍在属性级（含 null），
+  `required` 仍覆盖全部属性（OpenAI strict 兼容）；`stateJson`/`imageOperation`/`imagePrompt`/
+  `program` 同步。parity 与 wire 测试改为接受 anyOf。
+- 复跑：`OK (1 test)`（能力探测 + 真实 TutorPlan 成功，`TutorPlanOutput` 非空）。
+
+## 11. 设备矩阵
+
+| 目标 | 结果 |
+|---|---|
+| API 23 x86_64（api23_smoke64，2GB data） | app 安装/启动成功；`MistakeMergeInstrumentedTest` 2/2、考试动作 1/1、工件仓库 1/1、交互全链 1/1；冷启动 >10s 但无 ANR/FATAL |
+| API 36 x86_64 **16KB**（ps16k_x86_64，PAGE_SIZE=16384） | 合并 2/2、考试 1/1、工件 1/1、交互全链 1/1（含真实 QuickJS） |
+| arm64 16KB | **BLOCKED**：`Avd's CPU Architecture 'arm64' is not supported by the QEMU2 emulator on x86_64 host`；本机无 arm64 真机 |
+| API 36 启动 ANR | 冷启动 `Application.onCreate` 主线程 `runBlocking(jsHost.prepare())` 使 14s 被判 startup ANR；改为后台 warm-up 后，全新安装的仪器化进程启动正常 |
+
+## 12. 仍余（明确）
+
+- arm64/16KB 真机：环境结构性不可执行（非代码问题）。
+- `RECLASSIFY_PROBLEM` 的库内目录 UI/设备链未单独跑；其准入与写侧仓库由既有
+  `MistakeOrganizationRepository` 测试覆盖。
+- Compose 交互卡的点击/拖动 UI 仪器化未单独跑；数据链（真实 QuickJS→链接→reduce→草稿）
+  已在 API23/16KB 设备通过。
+- `ModelProviderRetry` 的真实 429/5xx 触发仍依赖未来真机记录。
+

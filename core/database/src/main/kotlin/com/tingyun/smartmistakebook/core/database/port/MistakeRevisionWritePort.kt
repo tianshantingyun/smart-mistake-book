@@ -125,3 +125,18 @@ sealed interface ReviseCommittedProblemResult {
 
     data object NotFound : ReviseCommittedProblemResult
 }
+
+/**
+ * 4E.2 合并端口：把重复条目关联到保留条目并归档重复项。
+ *
+ * 只做两件可逆的事：写一条 `POSSIBLE_DUPLICATE` 关联 + 把重复条目置 ARCHIVED。
+ * 不删题/修订/练习单元/证据（schema 的 append-only 与复习引用决定删除会破坏历史）。
+ */
+interface MistakeMergePort {
+    suspend fun mergeMistakeEntry(
+        duplicateEntryId: String,
+        canonicalEntryId: String,
+        relationId: String,
+        mergedAtEpochMillis: Long,
+    ): Boolean = false
+}

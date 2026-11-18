@@ -1150,8 +1150,9 @@ internal class RoomTutorToolRunner(
             put("nextOffset", offset.toLong() + items.size)
             put("hasMore", offset.toLong() + items.size < total)
         }.toString()
-        // Reserve room for the human-readable digest inside the same tool-round budget.
-        val jsonBudget = minOf(6_000, TutorToolRoundResult.MAX_TOOL_ROUND_RESULT_CHARS - 700)
+        // 整页 JSON 完整交给模型：只受单结果 1,000,000 字符的 OOM 安全上限约束，
+        // 不再按旧 4k 轮预算把同一页的条目从尾部删掉。
+        val jsonBudget = TutorToolOutcome.MAX_TOOL_RESULT_CHARS_EXTENDED
         while (items.isNotEmpty() && pageJson().length > jsonBudget) items.removeAt(items.lastIndex)
         if (rows.isNotEmpty() && items.isEmpty()) {
             return TutorToolExecution(TutorToolOutcome(call.tool, false,
@@ -1796,6 +1797,8 @@ internal class RoomTutorToolRunner(
             operationId = result.operationId,
             status = result.traceStatus(),
             caption = description.takeIf { result.figureId != null },
+            programId = result.programId,
+            snapshotId = result.snapshotId,
         )
         val diagnostic = result.diagnostics.orEmpty()
             .filter { char -> !char.isISOControl() || char == '\n' }

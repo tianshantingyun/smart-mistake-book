@@ -149,6 +149,12 @@ data class TutorFigureResult(
      * null = 生成尚未开始（无题/无源图/无凭证），不是"用了空 id"。
      */
     val operationId: String? = null,
+    /**
+     * 4E.2：JS 图的可重放身份（program/snapshot）。两者总是同时出现或同时为空；
+     * 图像模型产出的字节没有可重放程序。它们只进本地痕迹，用于打开交互场景。
+     */
+    val programId: String? = null,
+    val snapshotId: String? = null,
 ) {
     init {
         require(figureId == null || status == TutorFigureStatus.GENERATED) {
@@ -162,6 +168,9 @@ data class TutorFigureResult(
         }
         require(operationId == null || operationId.isNotBlank()) {
             "A figure operation id must be null or non-blank"
+        }
+        require((programId == null) == (snapshotId == null)) {
+            "A replayable figure carries both program and snapshot ids or neither"
         }
     }
 
@@ -349,8 +358,11 @@ internal class ConfiguredTutorFigureGenerator(
         val artifact = result.artifact as? FigureArtifact.Program
         val asset = artifact?.previewAssetId?.let { lookupGenerated(it) }
         if (artifact?.snapshotId != null && asset != null && isIntact(asset)) {
-            return TutorFigureResult(asset.sourceAssetId, TutorFigureStatus.GENERATED,
-                generatedNow = false, operationId = operationId)
+            return TutorFigureResult(
+                asset.sourceAssetId, TutorFigureStatus.GENERATED,
+                generatedNow = false, operationId = operationId,
+                programId = artifact.programId, snapshotId = artifact.snapshotId,
+            )
         }
         return if (result.status == FigureGenerationStatus.UNAVAILABLE) TutorFigureResult(
             null, TutorFigureStatus.UNAVAILABLE, diagnostics = result.diagnostics, operationId = operationId)

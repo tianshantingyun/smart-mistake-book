@@ -51,7 +51,11 @@ class TutorGeneralAgentWireTest {
         functions.forEach { assertStrict(it["parameters"]!!.jsonObject) }
         val js = functions.single { it["name"]!!.jsonPrimitive.content == "RUN_JAVASCRIPT" }["parameters"]!!.jsonObject["properties"]!!.jsonObject
         assertTrue(js.containsKey("script"))
-        assertEquals(setOf("string", "null"), js["stateJson"]!!.jsonObject["type"]!!.jsonArray.map { it.jsonPrimitive.content }.toSet())
+        assertEquals(
+            setOf("string", "null"),
+            js["stateJson"]!!.jsonObject["anyOf"]!!.jsonArray
+                .map { it.jsonObject.getValue("type").jsonPrimitive.content }.toSet(),
+        )
         val notebook = functions.single { it["name"]!!.jsonPrimitive.content == "NOTEBOOK_READ" }["parameters"]!!.jsonObject["properties"]!!.jsonObject
         val parameters = notebook["parameters"]!!.jsonObject["properties"]!!.jsonObject
         assertEquals(TutorToolName.NOTEBOOK_READ.parameterNames(), parameters.keys)

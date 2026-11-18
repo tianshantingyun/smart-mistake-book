@@ -23,6 +23,7 @@ import com.tingyun.smartmistakebook.core.model.TutorLocalAction
 import com.tingyun.smartmistakebook.core.model.TutorBackupReference
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
+import com.tingyun.smartmistakebook.core.model.TutorToolOutcome
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.serialization.json.Json
@@ -215,7 +216,7 @@ class TutorAgentToolWiringTest {
     }
 
     @Test
-    fun largeToolDataIsKeptAsAnArtifactAndCanBePagedBack() = runBlocking {
+    fun largeToolDataIsReturnedInFullInsteadOfBeingCutAtSixThousand() = runBlocking {
         val store = FakeResultStore()
         val runner = RoomTutorToolRunner(
             FakeStudyDatabasePort(),
@@ -234,22 +235,25 @@ class TutorAgentToolWiringTest {
             context(agent = agent),
         )
         val data = requireNotNull(appContext.outcome.dataJson)
-        assertTrue(data, data.length <= 6_000)
-        val resultId = Regex("\"resultId\":\"([^\"]+)\"").find(data)?.groupValues?.get(1)
-        assertNotNull(data, resultId)
 
-        val chunk = runner.runTraced(
-            TutorToolCall(
-                TutorToolName.READ_RESULT,
-                "回读完整应用上下文",
-                parameters = mapOf("resultId" to requireNotNull(resultId)),
-            ),
-            context(agent = agent),
+        assertTrue("完整上下文必须原样交给模型：${data.length}", data.length > 6_000)
+        assertFalse("1M 安全阈值以下不得写工件：$data", data.contains("\"resultId\""))
+        assertTrue(data, data.contains("knownEntryIds"))
+        assertTrue(store.values.isEmpty())
+    }
+
+    @Test
+    fun aToolOutcomeMayCarryFarMoreThanSixThousandCharacters() {
+        val payload = """{"blob":"${"x".repeat(120_000)}"}"""
+
+        val outcome = TutorToolOutcome(
+            tool = TutorToolName.NOTEBOOK_READ,
+            ok = true,
+            summaryMarkdown = "大数据结果",
+            dataJson = payload,
         )
-        assertTrue(chunk.outcome.summaryMarkdown, chunk.outcome.ok)
-        val chunkData = requireNotNull(chunk.outcome.dataJson)
-        assertTrue(chunkData, chunkData.length <= 6_000)
-        assertTrue(chunkData, chunkData.contains("knownEntryIds"))
+
+        assertEquals(payload.length, outcome.dataJson?.length)
     }
 
     @Test

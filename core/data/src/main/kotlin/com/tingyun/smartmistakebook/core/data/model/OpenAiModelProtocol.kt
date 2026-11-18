@@ -331,21 +331,7 @@ internal object OpenAiModelProtocol {
                                 action.parameters.forEach { parameter ->
                                     put(
                                         parameter.parameterName,
-                                        buildJsonObject {
-                                            if (parameter.required) put("type", "string") else put("type", buildJsonArray { add(JsonPrimitive("string")); add(JsonNull) })
-                                            put("description", parameter.description)
-                                            if (parameter.allowedValues.isNotEmpty()) {
-                                                put(
-                                                    "enum",
-                                                    buildJsonArray {
-                                                        parameter.allowedValues.forEach { value ->
-                                                            add(JsonPrimitive(value))
-                                                        }
-                                                        if (!parameter.required) add(JsonNull)
-                                                    },
-                                                )
-                                            }
-                                        },
+                                        localActionParameterSchema(parameter),
                                     )
                                 }
                             },
@@ -364,6 +350,41 @@ internal object OpenAiModelProtocol {
                 )
             },
         )
+    }
+
+    /**
+     * 本地动作参数的 JSON Schema：可选参数的"可空"用 `anyOf: [string, null]` 表达。
+     *
+     * **它消灭的具体失败**：`{"type":["string",null]}` 是 OpenAI 风格的类型数组；DeepSeek
+     * 的 schema 校验器在 2026-11-18 的真实请求里以
+     * `["string",null] is not valid under any of the schemas listed in the 'anyOf' keyword`
+     * 整轮 400 拒绝。`anyOf` 形式是两边都接受的共同子集；同时 `required` 仍覆盖全部属性
+     * （OpenAI strict 模式的要求），可选性只由 anyOf 的 null 分支表达。
+     */
+    private fun localActionParameterSchema(
+        parameter: com.tingyun.smartmistakebook.core.model.TutorLocalActionParameter,
+    ): JsonObject = buildJsonObject {
+        if (parameter.required) {
+            put("type", "string")
+        } else {
+            put(
+                "anyOf",
+                buildJsonArray {
+                    add(buildJsonObject { put("type", "string") })
+                    add(buildJsonObject { put("type", "null") })
+                },
+            )
+        }
+        put("description", parameter.description)
+        if (parameter.allowedValues.isNotEmpty()) {
+            put(
+                "enum",
+                buildJsonArray {
+                    parameter.allowedValues.forEach { value -> add(JsonPrimitive(value)) }
+                    if (!parameter.required) add(JsonNull)
+                },
+            )
+        }
     }
 
     /**
@@ -416,8 +437,19 @@ internal object OpenAiModelProtocol {
                             put("properties", buildJsonObject {
                                 tool.parameterNames().forEach { name ->
                                     put(name, buildJsonObject {
-                                        val mandatory = name == "entryId" || name == "assetId"
-                                        if (mandatory) put("type", "string") else put("type", buildJsonArray { add(JsonPrimitive("string")); add(JsonNull) })
+                                        val mandatory = name == "entryId" || name == "assetId" ||
+                                            (tool == TutorToolName.READ_RESULT && name == "resultId")
+                                        if (mandatory) {
+                                            put("type", "string")
+                                        } else {
+                                            put(
+                                                "anyOf",
+                                                buildJsonArray {
+                                                    add(buildJsonObject { put("type", "string") })
+                                                    add(buildJsonObject { put("type", "null") })
+                                                },
+                                            )
+                                        }
                                         if (name == "subject" && subjects.isNotEmpty()) {
                                             put("enum", buildJsonArray { subjects.forEach { add(JsonPrimitive(it)) }; if (!mandatory) add(JsonNull) })
                                         }
@@ -439,8 +471,16 @@ internal object OpenAiModelProtocol {
                     }
                     if (tool == TutorToolName.RUN_JAVASCRIPT || jsAdvertised) {
                         put("stateJson", buildJsonObject {
-                            put("type", buildJsonArray { add(JsonPrimitive("string")); add(JsonNull) })
-                            put("maxLength", if (jsAdvertised) 4_096 else 16_384)
+                            put(
+                                "anyOf",
+                                buildJsonArray {
+                                    add(buildJsonObject {
+                                        put("type", "string")
+                                        put("maxLength", if (jsAdvertised) 4_096 else 16_384)
+                                    })
+                                    add(buildJsonObject { put("type", "null") })
+                                },
+                            )
                             put("description", "可选完整 JSON 初始状态，生图时仅 method=JS 可携带")
                         })
                     }
@@ -564,10 +604,10 @@ internal object OpenAiModelProtocol {
                             buildJsonObject {
                                 if (jsAdvertised) {
                                     put(
-                                        "type",
+                                        "anyOf",
                                         buildJsonArray {
-                                            add(JsonPrimitive("string"))
-                                            add(JsonPrimitive("null"))
+                                            add(buildJsonObject { put("type", "string") })
+                                            add(buildJsonObject { put("type", "null") })
                                         },
                                     )
                                 } else {
@@ -597,10 +637,10 @@ internal object OpenAiModelProtocol {
                             buildJsonObject {
                                 if (jsAdvertised) {
                                     put(
-                                        "type",
+                                        "anyOf",
                                         buildJsonArray {
-                                            add(JsonPrimitive("string"))
-                                            add(JsonPrimitive("null"))
+                                            add(buildJsonObject { put("type", "string") })
+                                            add(buildJsonObject { put("type", "null") })
                                         },
                                     )
                                 } else {
@@ -638,10 +678,10 @@ internal object OpenAiModelProtocol {
                                 "program",
                                 buildJsonObject {
                                     put(
-                                        "type",
+                                        "anyOf",
                                         buildJsonArray {
-                                            add(JsonPrimitive("string"))
-                                            add(JsonPrimitive("null"))
+                                            add(buildJsonObject { put("type", "string") })
+                                            add(buildJsonObject { put("type", "null") })
                                         },
                                     )
                                     // KD-82：JSON Schema 的 maxLength 按 Unicode 码点计，本地

@@ -149,6 +149,8 @@ fun CapturedTutorSessionRoute(
      * 执行的就是"把这次拍照的草稿存进错题本"。null = 这个入口不接确认卡。
      */
     pendingRequests: AgentPendingRequestRepository? = null,
+    /** 4E.2：交互图端口；null = 本入口不渲染原生控件/表单（静态配图不受影响）。 */
+    interactiveVisualPort: com.tingyun.smartmistakebook.core.domain.TutorInteractiveVisualPort? = null,
     modifier: Modifier = Modifier,
 ) {
     var showEndConfirmation by rememberSaveable(sessionId) { mutableStateOf(false) }
@@ -200,6 +202,7 @@ fun CapturedTutorSessionRoute(
         knowledgeContextLoader = knowledgeContextLoader,
         teachingReferenceRepository = teachingReferenceRepository,
         pendingRequests = pendingRequests,
+        interactiveVisualPort = interactiveVisualPort,
         // 确认卡执行路径 ① 的落点：草稿 → 错题本条目（既有的 SaveTutorDraftToLibraryUseCase）。
         localActionLandings = tutorLocalActionLandings(
             openNotebook = { onOpenMistakeNotebook() },
@@ -274,6 +277,7 @@ private fun CapturedTutorSessionContent(
     teachingReferenceRepository: TutorTeachingReferenceRepository? = null,
     /** 确认卡的落库端口（A4）：null = 这个入口不接确认卡。 */
     pendingRequests: AgentPendingRequestRepository? = null,
+    interactiveVisualPort: com.tingyun.smartmistakebook.core.domain.TutorInteractiveVisualPort? = null,
     /** 确认卡三条执行路径的落点；装配处注入（见 [tutorLocalActionLandings]）。 */
     localActionLandings: TutorLocalActionLandings = TutorLocalActionLandings(),
     modifier: Modifier = Modifier,
@@ -303,6 +307,7 @@ private fun CapturedTutorSessionContent(
                 knowledgeContextLoader = knowledgeContextLoader,
                 teachingReferenceRepository = teachingReferenceRepository,
                 pendingRequests = pendingRequests,
+                interactiveVisualPort = interactiveVisualPort,
                 localActionLandings = localActionLandings,
                 modifier = modifier.testTag("captured_tutor_session_screen"),
             )
@@ -411,6 +416,7 @@ internal fun ReadyCapturedSession(
     teachingReferenceRepository: TutorTeachingReferenceRepository? = null,
     /** 确认卡的落库端口（A4）：null = 这个入口不接确认卡。 */
     pendingRequests: AgentPendingRequestRepository? = null,
+    interactiveVisualPort: com.tingyun.smartmistakebook.core.domain.TutorInteractiveVisualPort? = null,
     /** 确认卡三条执行路径的落点；装配处注入（见 [tutorLocalActionLandings]）。 */
     localActionLandings: TutorLocalActionLandings = TutorLocalActionLandings(),
     clock: () -> Long = System::currentTimeMillis,
@@ -495,6 +501,7 @@ internal fun ReadyCapturedSession(
         catalogEntries = catalogEntries,
         onLongTermWritesBlocked = onLongTermWritesBlocked,
         onOpenModelSettings = onOpenModelSettings,
+        interactiveVisualPort = interactiveVisualPort,
         pendingRequests = pendingRequests,
         localActionLandings = localActionLandings,
         clock = clock,

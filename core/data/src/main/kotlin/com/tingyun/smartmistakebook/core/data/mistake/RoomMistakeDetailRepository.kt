@@ -69,6 +69,15 @@ internal fun interface MistakeRestorer {
     suspend fun restore(entryId: String, at: Long): Boolean
 }
 
+internal fun interface MistakeMergeWriter {
+    suspend fun merge(
+        duplicateEntryId: String,
+        canonicalEntryId: String,
+        relationId: String,
+        at: Long,
+    ): Boolean
+}
+
 internal fun interface ArchivedObserver {
     fun observe(): Flow<List<com.tingyun.smartmistakebook.core.domain.ArchivedMistakeRef>>
 }
@@ -119,6 +128,8 @@ internal class RoomMistakeDetailRepository(
         MistakeArchiver { _, _ -> false },
     private val restorer: MistakeRestorer =
         MistakeRestorer { _, _ -> false },
+    private val mergeWriter: MistakeMergeWriter =
+        MistakeMergeWriter { _, _, _, _ -> false },
     private val archivedObserver: ArchivedObserver =
         ArchivedObserver { kotlinx.coroutines.flow.flowOf(emptyList()) },
     private val revisionWriter: MistakeRevisionWriter? = null,
@@ -153,6 +164,20 @@ internal class RoomMistakeDetailRepository(
         require(entryId.isNotBlank()) { "entryId must not be blank" }
         require(at >= 0) { "at must not be negative" }
         return restorer.restore(entryId, at)
+    }
+
+    override suspend fun mergeEntry(
+        duplicateEntryId: String,
+        canonicalEntryId: String,
+        relationId: String,
+        at: Long,
+    ): Boolean {
+        require(duplicateEntryId.isNotBlank()) { "duplicateEntryId must not be blank" }
+        require(canonicalEntryId.isNotBlank()) { "canonicalEntryId must not be blank" }
+        require(duplicateEntryId != canonicalEntryId) { "An entry cannot be merged into itself" }
+        require(relationId.isNotBlank()) { "relationId must not be blank" }
+        require(at >= 0) { "at must not be negative" }
+        return mergeWriter.merge(duplicateEntryId, canonicalEntryId, relationId, at)
     }
 
     override fun observeArchived(): Flow<List<ArchivedMistakeRef>> = archivedObserver.observe()
@@ -523,6 +548,10 @@ object MistakeDetailRepositoryFactory {
             favoriteWriter = MistakeFavoriteWriter(database::setErrorBookEntryFavorite),
             archiver = MistakeArchiver(database::archiveErrorBookEntry),
             restorer = MistakeRestorer(database::restoreErrorBookEntry),
+            mergeWriter = MistakeMergeWriter { duplicateId, canonicalId, relationId, at ->
+                (database as? com.tingyun.smartmistakebook.core.database.port.MistakeMergePort)
+                    ?.mergeMistakeEntry(duplicateId, canonicalId, relationId, at) ?: false
+            },
             archivedObserver = ArchivedObserver {
                 database.observeArchivedErrorBookEntries().map { rows ->
                     rows.map { row ->

@@ -105,6 +105,31 @@ internal suspend fun SmartMistakeBookApplication.executeTutorApplicationAction(
             requireNotNull(entryId),
             requireNotNull(parameters["knowledgeNodes"]),
         )
+        TutorLocalAction.MERGE_PROBLEM -> {
+            val duplicateId = parameters["duplicateEntryId"]?.trim().orEmpty()
+            if (duplicateId.isEmpty()) {
+                tutorApplicationReceipt(false, "没有指定要合并掉的重复条目。")
+            } else if (duplicateId == entryId) {
+                tutorApplicationReceipt(false, "重复条目不能是当前题本身。")
+            } else {
+                val merged = mistakeDetailRepository.mergeEntry(
+                    duplicateEntryId = duplicateId,
+                    canonicalEntryId = requireNotNull(entryId),
+                    relationId = "agent-merge-$effectKey",
+                    at = now,
+                )
+                if (merged) runCatching { studyRepository.refresh() }
+                tutorApplicationReceipt(
+                    merged,
+                    if (merged) {
+                        "已把重复题合并到当前题：重复条目已归档并留下关联，可从归档恢复。"
+                    } else {
+                        "未能合并：条目不存在、不是活动状态，或与当前题是同一道。"
+                    },
+                    requireNotNull(entryId),
+                )
+            }
+        }
         else -> tutorApplicationReceipt(false, "这项操作没有应用执行路径。")
     }
 }

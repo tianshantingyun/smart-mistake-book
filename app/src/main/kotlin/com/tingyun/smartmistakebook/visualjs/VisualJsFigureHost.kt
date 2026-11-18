@@ -77,23 +77,12 @@ internal class VisualJsFigureHost(context: Context) : VisualFrameInputs {
         snapshots = TutorVisualCommitRepository(database,
             freeSpaceBytes = { context.filesDir.usableSpace }),
         preview = TutorVisualPreviewRendererFactory.forProduction(context, database),
-        labels = ::labels,
+        labels = ::visualPreviewLabels,
         runtimeVersion = BuildConfig.VISUAL_RUNTIME_VERSION,
     )
 
-    private fun labels(frame: VisualFrameSnapshot, rendered: VisualExecutionResult.Rendered): List<TutorVisualPreviewLabel> =
-        rendered.contents.map { content ->
-            val metric = content.measured
-            require(metric.fontScaleMilli == frame.fontScaleMilli) { "字体设置已变化，请重试绘图" }
-            val artifact = Json.decodeFromString(VisualMeasuredLayoutArtifact.serializer(),
-                requireNotNull(metric.layoutJson) { "图中文字布局缺失" })
-            require(artifact.kind == content.declaration.kind && artifact.digest == metric.digest &&
-                artifact.widthDu == metric.widthDu && artifact.heightDu == metric.heightDu &&
-                artifact.baselineDu == metric.baselineDu && artifact.fontSizeSp == metric.fontSizeSp) {
-                "图中文字布局与执行结果不一致"
-            }
-            TutorVisualPreviewLabel(metric.contentId, content.declaration.payload, artifact)
-        }
+    fun frameRenderer(): com.tingyun.smartmistakebook.core.data.visual.TutorVisualFrameRenderer =
+        com.tingyun.smartmistakebook.core.data.visual.TutorVisualFrameRendererFactory.create()
 
     private companion object {
         const val READINESS_PROGRAM = """
@@ -110,6 +99,27 @@ internal class VisualJsFigureHost(context: Context) : VisualFrameInputs {
         """
     }
 }
+
+/**
+ * `rendered.contents` → 预览/交互帧的 label 绘制内容。静态预览与交互帧共用这一份折算，
+ * 避免两条渲染路径对同一场景给出不同像素。
+ */
+internal fun visualPreviewLabels(
+    frame: VisualFrameSnapshot,
+    rendered: VisualExecutionResult.Rendered,
+): List<TutorVisualPreviewLabel> =
+    rendered.contents.map { content ->
+        val metric = content.measured
+        require(metric.fontScaleMilli == frame.fontScaleMilli) { "字体设置已变化，请重试绘图" }
+        val artifact = Json.decodeFromString(VisualMeasuredLayoutArtifact.serializer(),
+            requireNotNull(metric.layoutJson) { "图中文字布局缺失" })
+        require(artifact.kind == content.declaration.kind && artifact.digest == metric.digest &&
+            artifact.widthDu == metric.widthDu && artifact.heightDu == metric.heightDu &&
+            artifact.baselineDu == metric.baselineDu && artifact.fontSizeSp == metric.fontSizeSp) {
+            "图中文字布局与执行结果不一致"
+        }
+        TutorVisualPreviewLabel(metric.contentId, content.declaration.payload, artifact)
+    }
 
 @Composable
 internal fun Modifier.trackFigureViewport(host: VisualJsFigureHost?): Modifier {

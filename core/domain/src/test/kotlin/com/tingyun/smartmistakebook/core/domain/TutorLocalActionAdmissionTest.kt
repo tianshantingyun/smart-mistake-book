@@ -317,6 +317,16 @@ class TutorLocalActionAdmissionTest {
         )
         assertNotNull(reclassify)
         assertEquals(TutorLocalActionTarget.APPLICATION_ACTION, reclassify!!.target)
+
+        val merge = tutorLocalActionAdmission(
+            request = TutorLocalActionRequest(
+                TutorLocalAction.MERGE_PROBLEM,
+                mapOf("duplicateEntryId" to "entry-2"),
+            ),
+            context = context.copy(libraryProblemId = "entry-1"),
+        )
+        assertNotNull(merge)
+        assertEquals(TutorLocalActionTarget.APPLICATION_ACTION, merge!!.target)
     }
 
     @Test

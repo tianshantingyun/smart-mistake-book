@@ -110,11 +110,43 @@ interface TutorVisualPort {
             "This StudyDatabasePort implementation does not support visual reads",
         )
 
+    /**
+     * 4E.2：消息已有、快照已 LIVE 时补建引用（幂等）。只走 DAO 的 LIVE 结构门：
+     * 非 LIVE 或跨 program 一行也写不进；同一 (message, ordinal) 指向不同快照时返回 null
+     * （不静默改写历史）。
+     */
+    suspend fun linkTutorMessageVisualIfLive(
+        messageId: String,
+        ordinal: Int,
+        programId: String,
+        snapshotId: String,
+        uiStateJson: String?,
+        formDigest: String?,
+        nowEpochMillis: Long,
+    ): TutorMessageVisualRecord? = throw UnsupportedOperationException(
+        "This StudyDatabasePort implementation does not support visual links",
+    )
+
     /** 测试/审计用：程序行数（回滚与幂等断言不依赖实现内部的 DAO）。 */
     suspend fun countTutorVisualProgramsForTest(programId: String): Int =
         throw UnsupportedOperationException(
             "This StudyDatabasePort implementation does not support visual counts",
         )
+
+    /**
+     * 4E.2 草稿 checkpoint（`ui_state_json` / `form_digest`）。`revision` 不动、只作 CAS 条件；
+     * 命中 0 行 = 指针已换，调用方必须重新读取。
+     */
+    suspend fun updateTutorMessageVisualDraft(
+        messageId: String,
+        ordinal: Int,
+        expectedRevision: Int,
+        uiStateJson: String?,
+        formDigest: String?,
+        updatedAtEpochMillis: Long,
+    ): Boolean = throw UnsupportedOperationException(
+        "This StudyDatabasePort implementation does not support visual drafts",
+    )
 
     /**
      * checkpoint 保留策略的读侧（批次 30 / D-05；批次 31 补 status）：本 program 全部快照行的

@@ -62,6 +62,14 @@ internal data class EntryRevisionRow(
     val currentRevisionId: String,
 )
 
+/** 合并读侧：条目的题/当前修订/状态（同一事务里落关联并归档重复条目）。 */
+internal data class EntryMergeRow(
+    val entryId: String,
+    val problemId: String,
+    val revisionId: String,
+    val status: String,
+)
+
 /** 归档条目摘要（id+标题）：错题本"已移出"入口的展示与恢复都要用。 */
 data class ArchivedEntrySummaryRow(
     val entryId: String,
@@ -270,6 +278,17 @@ internal abstract class MistakeDetailDao {
 
     open suspend fun readEntryRevision(entryId: String): EntryRevisionRow? =
         findEntryRevision(entryId)
+
+    @Query(
+        """
+        SELECT entry_id AS entryId, problem_id AS problemId,
+               current_revision_id AS revisionId, status AS status
+        FROM error_book_entry
+        WHERE entry_id = :entryId
+        LIMIT 1
+        """,
+    )
+    abstract suspend fun findEntryMergeRow(entryId: String): EntryMergeRow?
 
     @Query(
         """

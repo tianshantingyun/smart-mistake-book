@@ -148,6 +148,7 @@ data class TutorCapabilitySnapshot(
             TutorLocalAction.ADD_EXAM,
             TutorLocalAction.REMOVE_EXAM,
             TutorLocalAction.RECLASSIFY_PROBLEM,
+            TutorLocalAction.MERGE_PROBLEM,
         )
 
         /**

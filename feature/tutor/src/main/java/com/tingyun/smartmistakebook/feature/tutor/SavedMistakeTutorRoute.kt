@@ -130,6 +130,8 @@ fun SavedMistakeTutorRoute(
      * 申请的本地动作（"把这一轮的题存进错题本"）没有出口，只能在界面流里消失。
      */
     pendingRequests: AgentPendingRequestRepository? = null,
+    /** 4E.2：交互图端口；null = 本入口不渲染原生控件/表单（静态配图不受影响）。 */
+    interactiveVisualPort: com.tingyun.smartmistakebook.core.domain.TutorInteractiveVisualPort? = null,
     modifier: Modifier = Modifier,
 ) {
     val stateFlow: Flow<MistakeDetailState> = remember(key, repository) {
@@ -251,6 +253,7 @@ fun SavedMistakeTutorRoute(
                 priorTeachingAdvisories = priorTeachingAdvisories,
                 attachedImageResolver = attachedImageResolver,
                 pendingRequests = pendingRequests,
+                interactiveVisualPort = interactiveVisualPort,
                 modifier = modifier.testTag("saved_mistake_tutor_screen"),
             )
         }
@@ -350,6 +353,7 @@ internal fun SavedMistakeTutorContent(
     attachedImageResolver: (suspend (AttachedImage) -> String?)? = null,
     /** 确认卡的落库端口（A4）：null = 这个入口不接确认卡（见 [SavedMistakeTutorRoute]）。 */
     pendingRequests: AgentPendingRequestRepository? = null,
+    interactiveVisualPort: com.tingyun.smartmistakebook.core.domain.TutorInteractiveVisualPort? = null,
     clock: () -> Long = System::currentTimeMillis,
     modifier: Modifier = Modifier,
 ) {
@@ -479,6 +483,7 @@ internal fun SavedMistakeTutorContent(
         onOpenModelSettings = onOpenModelSettings,
         // 模型要的配图（重绘图 / 过程图）要在这一页渲染出来：此前这里没传，整段被跳过。
         attachedImageResolver = attachedImageResolver,
+        interactiveVisualPort = interactiveVisualPort,
         // 确认卡（A4）：模型在这一页申请的本地动作挂成库里的行，学生点了才执行。
         pendingRequests = pendingRequests,
         // 三条执行路径的落点：这一页的真实出口就是"打开错题本"（这道题已经在里面），

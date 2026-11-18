@@ -552,7 +552,9 @@ data class TutorToolOutcome(
     @EncodeDefault(EncodeDefault.Mode.NEVER) val dataJson: String? = null,
 ) {
     init {
-        dataJson?.let { require(it.length <= 6_000); kotlinx.serialization.json.Json.parseToJsonElement(it) }
+        // 不在本地截断工具结果：模型看到的必须是工具真实产出的完整 JSON。
+        // 只有 JSON 可解析这一条是结构要求，不是大小策略。
+        dataJson?.let { kotlinx.serialization.json.Json.parseToJsonElement(it) }
         summaryMarkdown.requireSafeModelText(
             label = "Tutor tool outcome summary",
             maxChars = MAX_TOOL_RESULT_CHARS_EXTENDED,
@@ -563,30 +565,20 @@ data class TutorToolOutcome(
 
     companion object {
         /**
-         * Default result budget every tool targets. A tool that emits more must
-         * have a reason recorded on it (today only `MASTERY_READ` does, and only
-         * for a call that asked for the extended budget).
+         * Default result size a tool *targets* when it renders its digest. This is a
+         * presentation choice inside a tool, not a cap on what the model may see:
+         * whatever the tool actually returns is delivered in full.
          */
         const val MAX_TOOL_RESULT_CHARS = 2_000
 
         /**
-         * Absolute ceiling for one outcome, applied by [TutorToolOutcome]'s own
-         * validation. It is the larger value because a model-requested extended
-         * read is legitimate here; the pipeline still needs a hard bound so a
-         * mis-sized result can never silently inflate the next prompt.
+         * 单个工具结果的**安全上限**（1,000,000 字符），不是上下文策略。
          *
-         * Sized so a full subject list stays inside it with room to spare: a
-         * subject carries on the order of a few hundred knowledge nodes *with*
-         * mastery state, and one compact line each fits well under this.
-         *
-         * The total-across-a-round budget is a separate, implemented concern:
-         * [TutorToolRoundResult.MAX_TOOL_ROUND_RESULT_CHARS] caps a round at
-         * 4k — spec §3.1's ≤4k/round — plus
-         * [TutorToolRoundResult.EXTENDED_ROUND_RESULT_INCREMENT_CHARS] when the
-         * round spent its single extended call. [tutorToolRoundResult] applies
-         * the cap; the executor honours at most one extended call per round.
+         * 本应用的工具结果一律完整进入下一轮提示词；这里只防止一次异常读取把整台设备
+         * 拖进 OOM。正常读取（整科清单、整页题面、大段材料）远低于此值，不会触发任何
+         * 截断或压缩。超过此值时才落入本地工件并用 READ_RESULT 分页回读。
          */
-        const val MAX_TOOL_RESULT_CHARS_EXTENDED = 6_000
+        const val MAX_TOOL_RESULT_CHARS_EXTENDED = 1_000_000
     }
 }
 
@@ -607,34 +599,29 @@ data class TutorToolRoundResult(
         const val MAX_TOOL_ROUNDS = 8
 
         /**
-         * Total characters of tool results one round may add to the next prompt
-         * (spec model-intent-routing §3.1).
-         *
-         * The spec's 4k was written for a round of at most two calls, and the
-         * implementation allows three — so this is deliberately a cap on the
-         * *sum*, not a restatement of the per-call budget: three calls at the
-         * default 2k would otherwise add 6k with nothing bounding the total.
+         * Historical round budget retained for [budgetTutorToolOutcomes]'s own tests and
+         * any caller that explicitly wants a squeeze. Production (`tutorToolRoundResult`)
+         * no longer applies it: the model gets the full results.
          */
         const val MAX_TOOL_ROUND_RESULT_CHARS = 4_000
 
         /**
-         * Extra round budget granted when the round contains a call that asked
-         * for the extended result budget. Without this the 4k round cap would
-         * make a 6k single result unreachable, which would quietly cancel the
-         * extended budget the model is allowed to request.
+         * Historical increment paired with [MAX_TOOL_ROUND_RESULT_CHARS]. Same status:
+         * available to explicit callers, not applied to the prompt stream.
          */
         const val EXTENDED_ROUND_RESULT_INCREMENT_CHARS = 4_000
     }
 }
 
 /**
- * Builds the round result the next dispatch will carry, applying the round's
- * result budget.
+ * Builds the round result the next dispatch will carry.
  *
- * The budget decision lives here rather than in the repository that assembles
- * the round: which number applies, and how a round that asked for the extended
- * budget differs, is policy — and policy belongs where it can be tested without
- * a database. The repository keeps only the call.
+ * 2026-11-18 起**不再按轮压缩**：模型在下一轮看到本轮所有工具的真实结果（含 dataJson）。
+ * 上一版的 4k 轮预算会把同轮后几个结果改写成“未发送”，那既让模型误以为工具没产出，
+ * 也让多工具并行查询变得没有意义。本地只保留单结果 1,000,000 字符的 OOM 安全上限
+ * （见 [TutorToolOutcome.MAX_TOOL_RESULT_CHARS_EXTENDED]），不做提示词侧裁剪。
+ *
+ * [extendedResultUsed] 保留在签名里是为了兼容既有调用点与序列化形状；当前不参与结果处理。
  */
 fun tutorToolRoundResult(
     roundOrdinal: Int,
@@ -642,15 +629,7 @@ fun tutorToolRoundResult(
     extendedResultUsed: Boolean,
 ): TutorToolRoundResult = TutorToolRoundResult(
     roundOrdinal = roundOrdinal,
-    outcomes = budgetTutorToolOutcomes(
-        outcomes = outcomes,
-        budgetChars = TutorToolRoundResult.MAX_TOOL_ROUND_RESULT_CHARS +
-            if (extendedResultUsed) {
-                TutorToolRoundResult.EXTENDED_ROUND_RESULT_INCREMENT_CHARS
-            } else {
-                0
-            },
-    ),
+    outcomes = outcomes,
 )
 
 /**

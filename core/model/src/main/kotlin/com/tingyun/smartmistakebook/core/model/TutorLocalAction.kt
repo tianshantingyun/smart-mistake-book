@@ -34,6 +34,8 @@ enum class TutorLocalAction {
     REMOVE_EXAM,
     /** 把本轮已知题目的知识点关联改成本轮从知识目录读到的节点。 */
     RECLASSIFY_PROBLEM,
+    /** 把本轮已知的重复题目合并到当前题（保留当前题，重复项归档并留下关联）。 */
+    MERGE_PROBLEM,
     ;
 
     /**
@@ -72,6 +74,9 @@ enum class TutorLocalAction {
                 "把本轮已知题目的知识点关联改为本轮从知识目录读到的节点" +
                     "（nodeId@taxonomyVersion，逗号分隔）；板块与手动分类保留，" +
                     "只在保存成功后说明已改。"
+            MERGE_PROBLEM ->
+                "把本轮已知的重复题目合并到当前题：保留当前题，重复条目归档并留下一条" +
+                    "重复关联；不删除题/修订/学习证据，归档可恢复。"
         }
 
     /** 原生 function schema 的短描述（与 [purposeDescription] 同一份声明、措辞收紧）。 */
@@ -83,7 +88,7 @@ enum class TutorLocalAction {
             ADD_TO_REVIEW_PLAN, REMOVE_FROM_REVIEW_PLAN,
             EDIT_PROBLEM, SET_FAVORITE, ARCHIVE_PROBLEM,
             RESTORE_PROBLEM, UPDATE_SCHEDULING, CREATE_BACKUP, RESTORE_BACKUP,
-            ADD_EXAM, REMOVE_EXAM, RECLASSIFY_PROBLEM -> purposeDescription
+            ADD_EXAM, REMOVE_EXAM, RECLASSIFY_PROBLEM, MERGE_PROBLEM -> purposeDescription
         }
 
     /** 两条协议与本地解析器共享参数形状，条目选择在执行时核对本轮已知结果。 */
@@ -196,6 +201,11 @@ enum class TutorLocalAction {
                     required = true,
                 ),
             )
+            MERGE_PROBLEM -> listOf(TutorLocalActionParameter(
+                "duplicateEntryId",
+                "要合并掉的重复条目 id（取自本轮错题本检索结果；当前题作为保留项）。",
+                required = true,
+            ))
             SAVE_TO_NOTEBOOK -> emptyList()
         }
 
@@ -206,11 +216,12 @@ enum class TutorLocalAction {
         val APPLICATION_ACTIONS: Set<TutorLocalAction> = setOf(
             ADD_TO_REVIEW_PLAN, REMOVE_FROM_REVIEW_PLAN, EDIT_PROBLEM, SET_FAVORITE, ARCHIVE_PROBLEM,
             RESTORE_PROBLEM, UPDATE_SCHEDULING, CREATE_BACKUP, RESTORE_BACKUP,
-            ADD_EXAM, REMOVE_EXAM, RECLASSIFY_PROBLEM,
+            ADD_EXAM, REMOVE_EXAM, RECLASSIFY_PROBLEM, MERGE_PROBLEM,
         )
         val ENTRY_TARGET_ACTIONS: Set<TutorLocalAction> = setOf(
             OPEN_PROBLEM, SAVE_TO_NOTEBOOK, ADD_TO_REVIEW_PLAN, REMOVE_FROM_REVIEW_PLAN,
             EDIT_PROBLEM, SET_FAVORITE, ARCHIVE_PROBLEM, RESTORE_PROBLEM, RECLASSIFY_PROBLEM,
+            MERGE_PROBLEM,
         )
         private fun entryParameter() = TutorLocalActionParameter(
             "entryId", "本轮已知的题目条目 id，缺省使用当前题目。",

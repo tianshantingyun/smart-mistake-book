@@ -97,6 +97,8 @@ private fun SmartMistakeBookApplication.actionDependenciesReady(
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.RECLASSIFY_PROBLEM ->
         runCatching { mistakeDetailRepository }.isSuccess &&
             runCatching { mistakeOrganizationRepository }.isSuccess
+    com.tingyun.smartmistakebook.core.model.TutorLocalAction.MERGE_PROBLEM ->
+        runCatching { mistakeDetailRepository }.isSuccess
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.SET_FAVORITE,
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.ARCHIVE_PROBLEM,
     com.tingyun.smartmistakebook.core.model.TutorLocalAction.RESTORE_PROBLEM,

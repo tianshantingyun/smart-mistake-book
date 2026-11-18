@@ -62,6 +62,12 @@
   var MAX_PATH_COMMANDS = 4096;
   var MAX_HIT_REGIONS = 128;
   var MAX_OUTPUT_CHARS = 262144; // 256 KiB（字符口径；宿主按 UTF-8 字节复验）
+  // 4E.2 交互面（与 Kotlin `TutorInteractiveSceneBudget` 同值）。
+  var MAX_CONTROLS = 8;
+  var MAX_CONTROL_OPTIONS = 8;
+  var MAX_FORM_ITEMS = 4;
+  var MAX_FORM_OPTIONS = 6;
+  var MAX_FORM_RATIONALE_INPUT_CHARS = 1000;
   var MAX_COORD = 100000;
   var MIN_ABS_DETERMINANT = 1e-12;
   var MAX_DASH_ENTRIES = 32;
@@ -697,6 +703,150 @@
   }
 
   // ==================================================================
+  // 4E.2 交互面：controls / form 的严格校验（与 Kotlin TutorInteractiveScene 同值）
+  // ==================================================================
+
+  function requireBoolean(value, at) {
+    if (typeof value !== 'boolean') {
+      fail('SCENE_FIELD_TYPE', at + ' must be a boolean');
+    }
+    return value;
+  }
+
+  function parseControlOptions(value, at, minOptions, maxOptions) {
+    if (!ArrayIsArray(value)) {
+      fail('SCENE_FIELD_TYPE', at + ' must be an array');
+    }
+    if (value.length < minOptions || value.length > maxOptions) {
+      fail('SCENE_BUDGET_CONTROL_OPTIONS',
+        at + ' must carry ' + minOptions + '..' + maxOptions + ' options');
+    }
+    var seen = ObjectCreate(null);
+    var options = new Array(value.length);
+    for (var i = 0; i < value.length; i += 1) {
+      var option = requireObject(value[i], at + '[' + i + ']');
+      checkKeys(option, { value: 1, label: 1 }, at + '[' + i + ']');
+      var optionValue = requireString(option.value, at + '[' + i + '].value', 64);
+      var optionLabel = requireString(option.label, at + '[' + i + '].label', 80);
+      if (seen[optionValue]) {
+        fail('SCENE_FIELD_CONTROL_OPTION_DUPLICATE', at + ' has duplicate option value ' + optionValue);
+      }
+      seen[optionValue] = true;
+      options[i] = { value: optionValue, label: optionLabel };
+    }
+    return options;
+  }
+
+  function parseControls(value) {
+    if (value === undefined || value === null) return [];
+    if (!ArrayIsArray(value)) {
+      fail('SCENE_FIELD_TYPE', 'scene.controls must be an array');
+    }
+    if (value.length > MAX_CONTROLS) {
+      fail('SCENE_BUDGET_CONTROLS', 'scene.controls has ' + value.length + ' entries, over ' + MAX_CONTROLS);
+    }
+    var seen = ObjectCreate(null);
+    var controls = new Array(value.length);
+    for (var i = 0; i < value.length; i += 1) {
+      var at = 'scene.controls[' + i + ']';
+      var control = requireObject(value[i], at);
+      var id = requireString(control.id, at + '.id', 32);
+      if (!/^[A-Za-z][A-Za-z0-9_-]*$/.test(id)) {
+        fail('SCENE_FIELD_CONTROL_ID', at + '.id must start with a letter and use letters/digits/_/-');
+      }
+      if (seen[id]) {
+        fail('SCENE_FIELD_CONTROL_DUPLICATE', at + '.id duplicates ' + id);
+      }
+      seen[id] = true;
+      var kind = requireString(control.kind, at + '.kind', 16);
+      var allowed = { id: 1, kind: 1, label: 1, enabled: 1, semantics: 1 };
+      if (kind === 'toggle') allowed.value = 1;
+      if (kind === 'range') { allowed.value = 1; allowed.min = 1; allowed.max = 1; allowed.step = 1; }
+      if (kind === 'select') { allowed.value = 1; allowed.options = 1; }
+      checkKeys(control, allowed, at);
+      var label = requireString(control.label, at + '.label', 40);
+      var enabled = control.enabled === undefined ? true : requireBoolean(control.enabled, at + '.enabled');
+      var semantics = control.semantics === undefined ? null : requireString(control.semantics, at + '.semantics', 80);
+      var parsed = { id: id, kind: kind, label: label, enabled: enabled, semantics: semantics };
+      if (kind === 'button') {
+        parsed.kind = 'button';
+      } else if (kind === 'toggle') {
+        parsed.value = requireBoolean(control.value, at + '.value');
+      } else if (kind === 'range') {
+        var rangeMin = requireFiniteNumber(control.min, at + '.min');
+        var rangeMax = requireFiniteNumber(control.max, at + '.max');
+        var rangeValue = requireFiniteNumber(control.value, at + '.value');
+        if (rangeMin >= rangeMax) {
+          fail('SCENE_FIELD_CONTROL_RANGE', at + '.min must be below .max');
+        }
+        if (rangeValue < rangeMin || rangeValue > rangeMax) {
+          fail('SCENE_FIELD_CONTROL_RANGE', at + '.value must be within min..max');
+        }
+        parsed.value = rangeValue;
+        parsed.min = rangeMin;
+        parsed.max = rangeMax;
+        if (control.step !== undefined) {
+          var step = requireFiniteNumber(control.step, at + '.step');
+          if (step <= 0) fail('SCENE_FIELD_CONTROL_RANGE', at + '.step must be positive');
+          parsed.step = step;
+        }
+      } else if (kind === 'select') {
+        parsed.value = requireString(control.value, at + '.value', 64);
+        parsed.options = parseControlOptions(control.options, at + '.options', 1, MAX_CONTROL_OPTIONS);
+        var hasValue = false;
+        for (var o = 0; o < parsed.options.length; o += 1) {
+          if (parsed.options[o].value === parsed.value) hasValue = true;
+        }
+        if (!hasValue) {
+          fail('SCENE_FIELD_CONTROL_SELECT', at + '.value must be one of its options');
+        }
+      } else {
+        fail('SCENE_FIELD_CONTROL_KIND', at + '.kind is not a supported control kind');
+      }
+      controls[i] = parsed;
+    }
+    return controls;
+  }
+
+  function parseForm(value) {
+    if (value === undefined || value === null) return null;
+    var form = requireObject(value, 'scene.form');
+    checkKeys(form, { formId: 1, title: 1, items: 1, rationaleLabel: 1 }, 'scene.form');
+    var formId = requireString(form.formId, 'scene.form.formId', 64);
+    var title = form.title === undefined ? null : requireString(form.title, 'scene.form.title', 80);
+    var rationaleLabel = form.rationaleLabel === undefined
+      ? '理由'
+      : requireString(form.rationaleLabel, 'scene.form.rationaleLabel', 40);
+    if (!ArrayIsArray(form.items)) {
+      fail('SCENE_FIELD_TYPE', 'scene.form.items must be an array');
+    }
+    if (form.items.length < 1 || form.items.length > MAX_FORM_ITEMS) {
+      fail('SCENE_BUDGET_FORM_ITEMS', 'scene.form.items must carry 1..' + MAX_FORM_ITEMS + ' items');
+    }
+    var seenItems = ObjectCreate(null);
+    var items = new Array(form.items.length);
+    for (var i = 0; i < form.items.length; i += 1) {
+      var at = 'scene.form.items[' + i + ']';
+      var item = requireObject(form.items[i], at);
+      checkKeys(item, { id: 1, kind: 1, prompt: 1, options: 1 }, at);
+      var itemId = requireString(item.id, at + '.id', 32);
+      if (seenItems[itemId]) {
+        fail('SCENE_FIELD_FORM_DUPLICATE', at + '.id duplicates ' + itemId);
+      }
+      seenItems[itemId] = true;
+      if (item.kind !== 'radioGroup') {
+        fail('SCENE_FIELD_FORM_KIND', at + '.kind must be radioGroup');
+      }
+      items[i] = {
+        id: itemId,
+        prompt: requireString(item.prompt, at + '.prompt', 200),
+        options: parseControlOptions(item.options, at + '.options', 2, MAX_FORM_OPTIONS),
+      };
+    }
+    return { formId: formId, title: title, items: items, rationaleLabel: rationaleLabel };
+  }
+
+  // ==================================================================
   // 编译主流程
   // ==================================================================
 
@@ -735,15 +885,12 @@
       background = requireColor(scene.background, 'scene.background');
     }
 
-    // 未启用能力（契约 §3.2 能力门：解析层拒绝，不是隐藏 UI）。
-    if (scene.controls !== undefined && !(ArrayIsArray(scene.controls) && scene.controls.length === 0)) {
-      fail('SCENE_FIELD_CONTROLS', 'scene.controls must be an empty array in V1 (native controls land in 4E.2)');
-    }
+    // 4E.2：controls/form 已是启用能力，按同一套严格字段/预算校验（不再一刀切拒绝）。
+    // 它们不是绘制指令，不进入 DrawOps；宿主从快照的 sceneJson 读回原生控件与表单。
+    parseControls(scene.controls);
+    parseForm(scene.form);
     if (scene.accessibility !== undefined && scene.accessibility !== null) {
       fail('SCENE_FIELD_UNAVAILABLE', 'scene.accessibility is not enabled in V1');
-    }
-    if (scene.form !== undefined && scene.form !== null) {
-      fail('SCENE_FIELD_UNAVAILABLE', 'scene.form is not enabled in V1 (4E.2)');
     }
     var fallbackMarkdown = null;
     if (scene.fallbackMarkdown !== undefined && scene.fallbackMarkdown !== null) {
