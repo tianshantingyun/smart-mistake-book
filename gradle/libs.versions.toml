@@ -15,7 +15,7 @@ paging = "3.4.2"
 sqlite = "2.7.0"
 # Stage-1 词面检索实验台（WP-C）：JVM 侧跑真 SQLite FTS5 + bm25() 的**测试**依赖。
 # 版本取自 Maven Central 的 maven-metadata.xml（`<release>` = 3.53.4.0，2026-08-26 发布）。
-sqlite-jdbc = "3.53.4.0"
+sqlite-jdbc = "3.54.1.0"
 ksp = "2.3.10"
 kover = "0.9.1"
 benchmark = "1.4.0"
