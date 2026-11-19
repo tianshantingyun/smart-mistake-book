@@ -232,9 +232,11 @@
 ## 12. 仍余（明确）
 
 - arm64/16KB 真机：环境结构性不可执行（非代码问题）。
-- `RECLASSIFY_PROBLEM` 的库内目录 UI/设备链未单独跑；其准入与写侧仓库由既有
-  `MistakeOrganizationRepository` 测试覆盖。
-- Compose 交互卡的点击/拖动 UI 仪器化未单独跑；数据链（真实 QuickJS→链接→reduce→草稿）
+- `RECLASSIFY_PROBLEM` 的库内目录 UI/设备链由既有
+  `MistakeOrganizationInstrumentedTest` 覆盖（API36 16KB 设备 **15/15**）。
+- Compose 交互卡的点击/拖动 UI：`TutorInteractiveVisualCardInstrumentedTest` 已在
+  API36 16KB 设备 **2/2**（滑杆 SetProgress→reduce、开关点击→reduce、表单选择/理由
+  500ms 草稿、提交产生学生回合并清草稿）；数据链（真实 QuickJS→链接→reduce→草稿）
   已在 API23/16KB 设备通过。
 - `ModelProviderRetry` 的真实 429/5xx 触发仍依赖未来真机记录。
 
