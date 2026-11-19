@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
@@ -48,6 +49,8 @@ import com.tingyun.smartmistakebook.core.model.tutorTurnVisualRef
 import com.tingyun.smartmistakebook.core.model.visualControlEventJson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -61,16 +64,20 @@ import kotlinx.serialization.json.put
 private data class InteractiveVisualUi(
     val scene: TutorInteractiveVisualScene,
     val spec: TutorInteractiveSpec,
-    val frame: TutorInteractiveVisualFrame,
-    val image: androidx.compose.ui.graphics.ImageBitmap,
+    val image: ImageBitmap,
     val stateJson: String,
     val controlValues: Map<String, JsonElement>,
     val answers: Map<String, String>,
     val rationale: String,
-    val sequence: Long,
     val busy: Boolean = false,
     val message: String? = null,
     val submitted: Boolean = false,
+)
+
+private data class InteractiveDraft(
+    val answers: Map<String, String>,
+    val rationale: String,
+    val controls: Map<String, JsonElement>,
 )
 
 /**
@@ -93,6 +100,9 @@ internal fun TutorInteractiveVisualCard(
     var ui by remember(messageId) { mutableStateOf<InteractiveVisualUi?>(null) }
     var loadFailure by remember(messageId) { mutableStateOf<String?>(null) }
     var sequence by remember(messageId) { mutableLongStateOf(0L) }
+    // 同一时刻只跑一个 reduce / 一个草稿写：快速连点与 500ms 防抖不能各自从同一旧状态出发。
+    val reduceMutex = remember(messageId) { Mutex() }
+    val draftMutex = remember(messageId) { Mutex() }
 
     LaunchedEffect(messageId, toolTraceJson, port) {
         loadFailure = null
@@ -111,19 +121,18 @@ internal fun TutorInteractiveVisualCard(
         when (val rendered = port.render(scene, scene.stateJson)) {
             is TutorInteractiveVisualFrameResult.Rendered -> {
                 val draft = parseDraft(scene.uiStateJson)
+                val initialControls = spec.controls.associate { control -> control.id to control.initialValue() }
                 ui = InteractiveVisualUi(
                     scene = scene,
                     spec = spec,
-                    frame = rendered.frame,
                     image = decodeFrame(rendered.frame) ?: run {
                         loadFailure = "交互帧图片解码失败"
                         return@LaunchedEffect
                     },
                     stateJson = rendered.frame.stateJson,
-                    controlValues = spec.controls.associate { control -> control.id to control.initialValue() },
-                    answers = draft.first,
-                    rationale = draft.second,
-                    sequence = sequence,
+                    controlValues = initialControls + draft.controls.filterKeys { it in initialControls },
+                    answers = draft.answers,
+                    rationale = draft.rationale,
                 )
             }
             is TutorInteractiveVisualFrameResult.Rejected -> {
@@ -144,53 +153,81 @@ internal fun TutorInteractiveVisualCard(
         return
     }
 
-    fun saveDraft(state: String, answers: Map<String, String>, rationale: String) {
-        val form = current.spec.form ?: return
+    fun saveDraft(
+        scene: TutorInteractiveVisualScene,
+        state: String,
+        answers: Map<String, String>,
+        rationale: String,
+        controls: Map<String, JsonElement>,
+    ) {
+        val form = current.spec.form
         val draft = buildJsonObject {
             put("state", runCatching { Json.parseToJsonElement(state) }.getOrNull() ?: JsonObject(emptyMap()))
-            put("form", buildJsonObject {
-                put("answers", buildJsonObject { answers.forEach { (key, value) -> put(key, value) } })
-                put("rationale", rationale)
-                put("formId", form.formId)
-            })
+            if (form != null) {
+                put("form", buildJsonObject {
+                    put("answers", buildJsonObject { answers.forEach { (key, value) -> put(key, value) } })
+                    put("rationale", rationale)
+                    put("formId", form.formId)
+                })
+            }
+            put("controls", buildJsonObject { controls.forEach { (key, value) -> put(key, value) } })
         }.toString()
-        val digest = figureSha256Hex(
-            (form.formId + "\u001f" + answers.toSortedMap().entries.joinToString("\u001e") { "${it.key}=${it.value}" })
-                .toByteArray(Charsets.UTF_8),
-        )
+        val digestPayload = buildString {
+            append(scene.programId).append('\u001f').append(scene.sceneRevision).append('\u001f')
+            append(form?.formId.orEmpty())
+            answers.toSortedMap().forEach { (key, value) -> append('\u001e').append(key).append('=').append(value) }
+            controls.toSortedMap().forEach { (key, value) -> append('\u001e').append(key).append('=').append(value) }
+        }
+        val digest = figureSha256Hex(digestPayload.toByteArray(Charsets.UTF_8))
         scope.launch {
-            port.saveDraft(current.scene.messageId, current.scene.ordinal, current.scene.revision, draft, digest)
+            draftMutex.withLock {
+                port.saveDraft(
+                    scene.messageId,
+                    scene.ordinal,
+                    scene.revision,
+                    draft,
+                    digest,
+                )
+            }
         }
     }
 
     fun dispatch(control: TutorVisualControl, value: JsonElement, kind: String) {
-        val latest = ui ?: return
-        sequence += 1
-        val event = visualControlEventJson(
-            programId = latest.scene.programId,
-            sceneId = null,
-            sceneRevision = latest.scene.sceneRevision,
-            sequence = sequence,
-            kind = kind,
-            controlId = control.id,
-            value = value,
-        )
-        ui = latest.copy(busy = true, message = null)
         scope.launch {
-            when (val reduced = port.reduce(latest.scene.copy(stateJson = latest.stateJson), event)) {
-                is TutorInteractiveVisualReduceResult.Updated -> {
-                    ui = latest.copy(
-                        frame = reduced.frame,
-                        image = decodeFrame(reduced.frame) ?: latest.image,
-                        stateJson = reduced.frame.stateJson,
-                        controlValues = latest.controlValues + (control.id to value),
-                        sequence = sequence,
-                        busy = false,
-                    )
-                    saveDraft(reduced.frame.stateJson, latest.answers, latest.rationale)
-                }
-                is TutorInteractiveVisualReduceResult.Rejected -> {
-                    ui = latest.copy(busy = false, message = reduced.diagnostic.take(160))
+            reduceMutex.withLock {
+                val latest = ui ?: return@withLock
+                if (latest.submitted) return@withLock
+                sequence += 1
+                val event = visualControlEventJson(
+                    programId = latest.scene.programId,
+                    sceneId = null,
+                    sceneRevision = latest.scene.sceneRevision,
+                    sequence = sequence,
+                    kind = kind,
+                    controlId = control.id,
+                    value = value,
+                )
+                ui = latest.copy(busy = true, message = null)
+                when (val reduced = port.reduce(latest.scene.copy(stateJson = latest.stateJson), event)) {
+                    is TutorInteractiveVisualReduceResult.Updated -> {
+                        val nextControls = latest.controlValues + (control.id to value)
+                        ui = latest.copy(
+                            image = decodeFrame(reduced.frame) ?: latest.image,
+                            stateJson = reduced.frame.stateJson,
+                            controlValues = nextControls,
+                            busy = false,
+                        )
+                        saveDraft(
+                            latest.scene,
+                            reduced.frame.stateJson,
+                            latest.answers,
+                            latest.rationale,
+                            nextControls,
+                        )
+                    }
+                    is TutorInteractiveVisualReduceResult.Rejected -> {
+                        ui = latest.copy(busy = false, message = reduced.diagnostic.take(160))
+                    }
                 }
             }
         }
@@ -234,7 +271,7 @@ internal fun TutorInteractiveVisualCard(
                                     dispatch(control, committed, "change")
                                 },
                                 valueRange = (control.min ?: 0.0).toFloat()..(control.max ?: 1.0).toFloat(),
-                                enabled = control.enabled && !current.busy,
+                                enabled = control.enabled && !current.busy && !current.submitted,
                                 modifier = Modifier.weight(2f).testTag("tutor_visual_control_${control.id}"),
                             )
                         }
@@ -248,7 +285,7 @@ internal fun TutorInteractiveVisualCard(
                                 onCheckedChange = { next ->
                                     dispatch(control, JsonPrimitive(next), "change")
                                 },
-                                enabled = control.enabled && !current.busy,
+                                enabled = control.enabled && !current.busy && !current.submitted,
                                 modifier = Modifier.testTag("tutor_visual_control_${control.id}"),
                             )
                         }
@@ -261,7 +298,7 @@ internal fun TutorInteractiveVisualCard(
                                     selected = current.controlValues[control.id]?.jsonPrimitive?.content == option.value,
                                     onClick = { dispatch(control, JsonPrimitive(option.value), "change") },
                                     label = { Text(option.label) },
-                                    enabled = control.enabled && !current.busy,
+                                    enabled = control.enabled && !current.busy && !current.submitted,
                                     modifier = Modifier.testTag("tutor_visual_control_${control.id}_${option.value}"),
                                 )
                             }
@@ -270,7 +307,7 @@ internal fun TutorInteractiveVisualCard(
                     TutorControlKind.BUTTON -> {
                         OutlinedButton(
                             onClick = { dispatch(control, JsonPrimitive(true), "activate") },
-                            enabled = control.enabled && !current.busy,
+                            enabled = control.enabled && !current.busy && !current.submitted,
                             modifier = Modifier.testTag("tutor_visual_control_${control.id}"),
                         ) { Text(control.label) }
                     }
@@ -292,18 +329,22 @@ internal fun TutorInteractiveVisualCard(
                         }
                     },
                     onSubmit = {
-                        val text = formSubmissionText(form, current.answers, current.rationale)
-                        ui = current.copy(submitted = true, busy = true)
-                        onSubmitForm(text)
-                        scope.launch {
-                            port.saveDraft(
-                                current.scene.messageId,
-                                current.scene.ordinal,
-                                current.scene.revision,
-                                null,
-                                null,
-                            )
-                            ui = ui?.copy(busy = false)
+                        if (!current.busy && !current.submitted) {
+                            val text = formSubmissionText(form, current.answers, current.rationale)
+                            ui = current.copy(submitted = true, busy = true)
+                            onSubmitForm(text)
+                            scope.launch {
+                                draftMutex.withLock {
+                                    port.saveDraft(
+                                        current.scene.messageId,
+                                        current.scene.ordinal,
+                                        current.scene.revision,
+                                        null,
+                                        null,
+                                    )
+                                }
+                                ui = ui?.copy(busy = false)
+                            }
                         }
                     },
                 )
@@ -326,10 +367,18 @@ internal fun TutorInteractiveVisualCard(
     }
 
     // 表单输入 500ms 合并保存：只在答案/理由变化时写一次 checkpoint（不是每键一写）。
-    LaunchedEffect(current.answers, current.rationale) {
+    // `submitted` 进 key：提交会取消尚未醒来的防抖写，避免它在清草稿之后把旧答案写回去。
+    LaunchedEffect(current.answers, current.rationale, current.submitted) {
         if (current.spec.form == null || current.submitted) return@LaunchedEffect
         delay(500)
-        saveDraft(current.stateJson, current.answers, current.rationale)
+        if (ui?.submitted == true) return@LaunchedEffect
+        saveDraft(
+            current.scene,
+            current.stateJson,
+            current.answers,
+            current.rationale,
+            current.controlValues,
+        )
     }
 }
 
@@ -382,22 +431,32 @@ private fun TutorVisualControl.initialValue(): JsonElement = when (kind) {
     TutorControlKind.SELECT -> JsonPrimitive(stringValue ?: options.firstOrNull()?.value.orEmpty())
 }
 
-private fun decodeFrame(frame: TutorInteractiveVisualFrame): androidx.compose.ui.graphics.ImageBitmap? =
+private fun decodeFrame(frame: TutorInteractiveVisualFrame): ImageBitmap? =
     runCatching {
         BitmapFactory.decodeByteArray(frame.pngBytes, 0, frame.pngBytes.size)?.asImageBitmap()
     }.getOrNull()
 
-private fun parseDraft(json: String?): Pair<Map<String, String>, String> {
-    if (json.isNullOrBlank()) return emptyMap<String, String>() to ""
-    val root = runCatching { Json.parseToJsonElement(json).jsonObject }.getOrNull() ?: return emptyMap<String, String>() to ""
-    val form = root["form"] as? JsonObject ?: return emptyMap<String, String>() to ""
-    val answers = (form["answers"] as? JsonObject).orEmpty().mapValues { (_, value) ->
-        value.jsonPrimitive.content
-    }
-    return answers to (form["rationale"]?.jsonPrimitive?.content.orEmpty())
+private fun parseDraft(json: String?): InteractiveDraft {
+    if (json.isNullOrBlank()) return InteractiveDraft(emptyMap(), "", emptyMap())
+    val root = runCatching { Json.parseToJsonElement(json).jsonObject }.getOrNull()
+        ?: return InteractiveDraft(emptyMap(), "", emptyMap())
+    val form = root["form"] as? JsonObject
+    val answers = (form?.get("answers") as? JsonObject)
+        ?.mapNotNull { (key, value) ->
+            (value as? JsonPrimitive)?.takeIf { it.isString }?.content?.let { key to it }
+        }
+        ?.toMap()
+        .orEmpty()
+    val rationale = (form?.get("rationale") as? JsonPrimitive)
+        ?.takeIf { it.isString }?.content.orEmpty()
+    val controls = (root["controls"] as? JsonObject)
+        ?.mapNotNull { (key, value) ->
+            value.takeIf { it is JsonPrimitive }?.let { key to it }
+        }
+        ?.toMap()
+        .orEmpty()
+    return InteractiveDraft(answers, rationale, controls)
 }
-
-private fun JsonObject?.orEmpty(): JsonObject = this ?: JsonObject(emptyMap())
 
 private fun formSubmissionText(
     form: NativeTutorFormV1,

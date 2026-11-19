@@ -93,6 +93,34 @@ class TutorInteractiveSceneTest {
     }
 
     @Test
+    fun aNullFormIsTreatedAsAbsentLikeTheCompiler() {
+        val spec = parseTutorInteractiveSpec(scene(form = "null"))
+        assertNull(spec.form)
+        assertTrue(spec.controls.isEmpty())
+    }
+
+    @Test
+    fun rangeNumbersStayInsideTheFloatSafeBoundAndLabelsStayNonBlank() {
+        assertThrows(IllegalArgumentException::class.java) {
+            parseTutorInteractiveSpec(scene(
+                controls = """[{"id":"r","kind":"range","label":"r","value":0,
+                    "min":-1e300,"max":1e300}]""",
+            ))
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            parseTutorInteractiveSpec(scene(
+                controls = """[{"id":"r","kind":"button","label":"   "}]""",
+            ))
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            parseTutorInteractiveSpec(scene(
+                form = """{"formId":"f","items":[{"id":"q.1","kind":"radioGroup","prompt":"p",
+                    "options":[{"value":"a","label":"A"},{"value":"b","label":"B"}]}]}""",
+            ))
+        }
+    }
+
+    @Test
     fun enforcesTheSameBudgetsAsTheCompiler() {
         val tooManyControls = (1..9).joinToString(",", prefix = "[", postfix = "]") {
             """{"id":"c$it","kind":"button","label":"B"}"""

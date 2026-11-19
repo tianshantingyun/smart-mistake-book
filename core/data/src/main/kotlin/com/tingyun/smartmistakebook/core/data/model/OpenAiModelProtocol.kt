@@ -352,6 +352,15 @@ internal object OpenAiModelProtocol {
         )
     }
 
+    /** 可空字符串属性的 schema 形状：`anyOf: [{type:string[, maxLength]}, {type:null}]`。 */
+    private fun nullableStringSchema(maxLength: Int? = null): JsonArray = buildJsonArray {
+        add(buildJsonObject {
+            put("type", "string")
+            if (maxLength != null) put("maxLength", maxLength)
+        })
+        add(buildJsonObject { put("type", "null") })
+    }
+
     /**
      * 本地动作参数的 JSON Schema：可选参数的"可空"用 `anyOf: [string, null]` 表达。
      *
@@ -367,13 +376,7 @@ internal object OpenAiModelProtocol {
         if (parameter.required) {
             put("type", "string")
         } else {
-            put(
-                "anyOf",
-                buildJsonArray {
-                    add(buildJsonObject { put("type", "string") })
-                    add(buildJsonObject { put("type", "null") })
-                },
-            )
+            put("anyOf", nullableStringSchema())
         }
         put("description", parameter.description)
         if (parameter.allowedValues.isNotEmpty()) {
@@ -442,13 +445,7 @@ internal object OpenAiModelProtocol {
                                         if (mandatory) {
                                             put("type", "string")
                                         } else {
-                                            put(
-                                                "anyOf",
-                                                buildJsonArray {
-                                                    add(buildJsonObject { put("type", "string") })
-                                                    add(buildJsonObject { put("type", "null") })
-                                                },
-                                            )
+                                            put("anyOf", nullableStringSchema())
                                         }
                                         if (name == "subject" && subjects.isNotEmpty()) {
                                             put("enum", buildJsonArray { subjects.forEach { add(JsonPrimitive(it)) }; if (!mandatory) add(JsonNull) })
@@ -473,13 +470,7 @@ internal object OpenAiModelProtocol {
                         put("stateJson", buildJsonObject {
                             put(
                                 "anyOf",
-                                buildJsonArray {
-                                    add(buildJsonObject {
-                                        put("type", "string")
-                                        put("maxLength", if (jsAdvertised) 4_096 else 16_384)
-                                    })
-                                    add(buildJsonObject { put("type", "null") })
-                                },
+                                nullableStringSchema(maxLength = if (jsAdvertised) 4_096 else 16_384),
                             )
                             put("description", "可选完整 JSON 初始状态，生图时仅 method=JS 可携带")
                         })
@@ -603,13 +594,7 @@ internal object OpenAiModelProtocol {
                             "imageOperation",
                             buildJsonObject {
                                 if (jsAdvertised) {
-                                    put(
-                                        "anyOf",
-                                        buildJsonArray {
-                                            add(buildJsonObject { put("type", "string") })
-                                            add(buildJsonObject { put("type", "null") })
-                                        },
-                                    )
+                                    put("anyOf", nullableStringSchema())
                                 } else {
                                     put("type", "string")
                                 }
@@ -636,13 +621,7 @@ internal object OpenAiModelProtocol {
                             "imagePrompt",
                             buildJsonObject {
                                 if (jsAdvertised) {
-                                    put(
-                                        "anyOf",
-                                        buildJsonArray {
-                                            add(buildJsonObject { put("type", "string") })
-                                            add(buildJsonObject { put("type", "null") })
-                                        },
-                                    )
+                                    put("anyOf", nullableStringSchema())
                                 } else {
                                     put("type", "string")
                                 }
@@ -677,13 +656,7 @@ internal object OpenAiModelProtocol {
                             put(
                                 "program",
                                 buildJsonObject {
-                                    put(
-                                        "anyOf",
-                                        buildJsonArray {
-                                            add(buildJsonObject { put("type", "string") })
-                                            add(buildJsonObject { put("type", "null") })
-                                        },
-                                    )
+                                    put("anyOf", nullableStringSchema())
                                     // KD-82：JSON Schema 的 maxLength 按 Unicode 码点计，本地
                                     // 执行门按 UTF-8 字节计（MAX_PROGRAM_UTF8_BYTES = 65536，
                                     // 字节门不动）。非 ASCII 最坏 4 字节/码点 ⇒ 码点广告面取

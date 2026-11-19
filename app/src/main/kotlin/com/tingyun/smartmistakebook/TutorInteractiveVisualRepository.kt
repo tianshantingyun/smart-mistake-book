@@ -2,8 +2,8 @@ package com.tingyun.smartmistakebook
 
 import com.tingyun.smartmistakebook.core.data.visual.TutorVisualFramePng
 import com.tingyun.smartmistakebook.core.data.visual.TutorVisualFrameRenderer
+import com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRequest
 import com.tingyun.smartmistakebook.core.data.visual.VisualFrameSnapshot
-import com.tingyun.smartmistakebook.visualjs.visualPreviewLabels
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.domain.TutorInteractiveVisualFrame
 import com.tingyun.smartmistakebook.core.domain.TutorInteractiveVisualFrameResult
@@ -12,9 +12,11 @@ import com.tingyun.smartmistakebook.core.domain.TutorInteractiveVisualReduceResu
 import com.tingyun.smartmistakebook.core.domain.TutorInteractiveVisualScene
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionEngine
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionMode
+import com.tingyun.smartmistakebook.core.domain.VisualExecutionRequest
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionResult
 import com.tingyun.smartmistakebook.core.domain.VisualViewport
 import com.tingyun.smartmistakebook.core.model.TutorInteractiveSceneBudget
+import com.tingyun.smartmistakebook.visualjs.visualPreviewLabels
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.intOrNull
@@ -56,13 +58,13 @@ internal class TutorInteractiveVisualRepository(
         val snapshot = database.readTutorVisualSnapshot(link.currentSnapshotId) ?: return null
         val program = database.readTutorVisualProgram(link.programId) ?: return null
         val revision = runCatching {
-            Json.parseToJsonElement(snapshot.sceneJson).jsonObject["revision"]!!.jsonPrimitive.intOrNull
+            Json.parseToJsonElement(snapshot.sceneJson).jsonObject["revision"]?.jsonPrimitive?.intOrNull
         }.getOrNull() ?: link.revision
         val draftState = runCatching {
-            link.uiStateJson?.let { draft ->
-                (Json.parseToJsonElement(draft) as? JsonObject)?.get("state")?.takeIf { it is JsonObject }?.toString()
-            }
-        }.getOrNull()
+            link.uiStateJson
+                ?.let { draft -> Json.parseToJsonElement(draft) as? JsonObject }
+                ?.get("state") as? JsonObject
+        }.getOrNull()?.toString()
         return TutorInteractiveVisualScene(
             messageId = messageId,
             ordinal = ordinal,
@@ -111,7 +113,7 @@ internal class TutorInteractiveVisualRepository(
             "typeof visual.reduce !== 'function') { throw new Error('MISSING_REDUCE'); } " +
             "return visual.reduce(input.state.state, input.state.event);"
         val result = engine.execute(
-            com.tingyun.smartmistakebook.core.domain.VisualExecutionRequest(
+            VisualExecutionRequest(
                 programId = scene.programId,
                 sourceJs = wrapped,
                 sceneRevision = scene.sceneRevision,
@@ -163,7 +165,7 @@ internal class TutorInteractiveVisualRepository(
         scene: TutorInteractiveVisualScene,
         stateJson: String,
     ): TutorInteractiveVisualFrameResult {
-        val request = com.tingyun.smartmistakebook.core.domain.VisualExecutionRequest(
+        val request = VisualExecutionRequest(
             programId = scene.programId,
             sourceJs = scene.sourceJs,
             sceneRevision = scene.sceneRevision,
@@ -196,7 +198,7 @@ internal class TutorInteractiveVisualRepository(
                 "标签布局不可用：${failure.message?.take(120) ?: failure::class.simpleName}",
             )
         }
-        val png = com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRequest(
+        val png = TutorVisualPreviewRequest(
             rendered = rendered,
             viewportWidthDu = scene.viewportWidthDu,
             viewportHeightDu = scene.viewportHeightDu,

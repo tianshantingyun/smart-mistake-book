@@ -15,6 +15,8 @@ import androidx.compose.ui.platform.LocalDensity
 import com.tingyun.smartmistakebook.BuildConfig
 import com.tingyun.smartmistakebook.core.data.visual.JsFigureArtifactAdapter
 import com.tingyun.smartmistakebook.core.data.visual.TutorVisualCommitRepository
+import com.tingyun.smartmistakebook.core.data.visual.TutorVisualFrameRenderer
+import com.tingyun.smartmistakebook.core.data.visual.TutorVisualFrameRendererFactory
 import com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewLabel
 import com.tingyun.smartmistakebook.core.data.visual.TutorVisualPreviewRendererFactory
 import com.tingyun.smartmistakebook.core.data.visual.VisualFrameInputs
@@ -81,8 +83,7 @@ internal class VisualJsFigureHost(context: Context) : VisualFrameInputs {
         runtimeVersion = BuildConfig.VISUAL_RUNTIME_VERSION,
     )
 
-    fun frameRenderer(): com.tingyun.smartmistakebook.core.data.visual.TutorVisualFrameRenderer =
-        com.tingyun.smartmistakebook.core.data.visual.TutorVisualFrameRendererFactory.create()
+    fun frameRenderer(): TutorVisualFrameRenderer = TutorVisualFrameRendererFactory.create()
 
     private companion object {
         const val READINESS_PROGRAM = """

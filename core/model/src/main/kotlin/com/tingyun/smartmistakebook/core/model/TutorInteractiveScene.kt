@@ -3,6 +3,7 @@ package com.tingyun.smartmistakebook.core.model
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
@@ -36,6 +37,9 @@ object TutorInteractiveSceneBudget {
     const val MAX_FORM_RATIONALE_INPUT_CHARS = 1_000
     const val MAX_FORM_ID_CHARS = 64
     const val MAX_STATE_JSON_CHARS = 16_384
+
+    /** 控件数值的绝对值上限；防止 `1e300` 之类的范围在 Float 里变成无限区间。 */
+    const val MAX_ABS_CONTROL_NUMBER = 1_000_000.0
 }
 
 enum class TutorControlKind(val wire: String) {
@@ -49,6 +53,8 @@ enum class TutorControlKind(val wire: String) {
         fun fromWire(value: String): TutorControlKind? = entries.firstOrNull { it.wire == value }
     }
 }
+
+private val controlIdPattern = Regex("[A-Za-z][A-Za-z0-9_-]{0,31}")
 
 data class TutorControlOption(val value: String, val label: String) {
     init {
@@ -78,7 +84,7 @@ data class TutorVisualControl(
     val options: List<TutorControlOption> = emptyList(),
 ) {
     init {
-        require(id.matches(Regex("[A-Za-z][A-Za-z0-9_-]{0,31}"))) {
+        require(id.matches(controlIdPattern)) {
             "A control id must be 1..${TutorInteractiveSceneBudget.MAX_CONTROL_ID_CHARS} letters/digits/_/-"
         }
         require(label.isNotBlank() && label.length <= TutorInteractiveSceneBudget.MAX_CONTROL_LABEL_CHARS) {
@@ -98,9 +104,15 @@ data class TutorVisualControl(
                 require(numberValue != null && min != null && max != null) {
                     "A range needs value/min/max"
                 }
+                val bound = TutorInteractiveSceneBudget.MAX_ABS_CONTROL_NUMBER
+                require(
+                    min!!.isFinite() && max!!.isFinite() && numberValue!!.isFinite() &&
+                        kotlin.math.abs(min!!) <= bound && kotlin.math.abs(max!!) <= bound &&
+                        kotlin.math.abs(numberValue!!) <= bound,
+                ) { "A range must stay within ±$bound" }
                 require(min!! < max!!) { "A range needs min < max" }
                 require(numberValue!! in min!!..max!!) { "A range value must be within min..max" }
-                require(step == null || step!! > 0.0) { "A range step must be positive" }
+                require(step == null || (step!!.isFinite() && step!! > 0.0)) { "A range step must be positive" }
                 require(booleanValue == null && stringValue == null && options.isEmpty())
             }
             TutorControlKind.SELECT -> {
@@ -141,7 +153,7 @@ data class NativeTutorFormItem(
     val options: List<TutorControlOption>,
 ) {
     init {
-        require(id.matches(Regex("[A-Za-z][A-Za-z0-9_-]{0,31}"))) { "A form item id is invalid" }
+        require(id.matches(controlIdPattern)) { "A form item id is invalid" }
         require(prompt.isNotBlank() && prompt.length <= TutorInteractiveSceneBudget.MAX_FORM_PROMPT_CHARS)
         require(options.size in 2..6) { "A radio group carries 2..6 options" }
         require(options.map { it.value }.distinct().size == options.size) {
@@ -172,19 +184,19 @@ fun parseTutorInteractiveSpec(sceneJson: String): TutorInteractiveSpec {
         ?: throw IllegalArgumentException("scene JSON is not an object")
     val controlsElement = scene["controls"]
     val controls = when (controlsElement) {
-        null, JsonNullValue -> emptyList()
+        null, JsonNull -> emptyList()
         is JsonArray -> controlsElement.mapIndexed { index, element ->
             parseControl(element, index)
         }
         else -> throw IllegalArgumentException("scene.controls must be an array")
     }
-    val form = scene["form"]?.let { element ->
-        if (element is JsonObject) parseForm(element) else throw IllegalArgumentException("scene.form must be an object")
+    val form = when (val element = scene["form"]) {
+        null, JsonNull -> null
+        is JsonObject -> parseForm(element)
+        else -> throw IllegalArgumentException("scene.form must be an object")
     }
     return TutorInteractiveSpec(controls = controls, form = form)
 }
-
-private val JsonNullValue = kotlinx.serialization.json.JsonNull
 
 private fun JsonObject.strictKeys(label: String, allowed: Set<String>) {
     val unknown = keys - allowed

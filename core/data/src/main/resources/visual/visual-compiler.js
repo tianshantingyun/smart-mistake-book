@@ -68,6 +68,7 @@
   var MAX_FORM_ITEMS = 4;
   var MAX_FORM_OPTIONS = 6;
   var MAX_FORM_RATIONALE_INPUT_CHARS = 1000;
+  var MAX_ABS_CONTROL_NUMBER = 1000000;
   var MAX_COORD = 100000;
   var MIN_ABS_DETERMINANT = 1e-12;
   var MAX_DASH_ENTRIES = 32;
@@ -728,6 +729,9 @@
       checkKeys(option, { value: 1, label: 1 }, at + '[' + i + ']');
       var optionValue = requireString(option.value, at + '[' + i + '].value', 64);
       var optionLabel = requireString(option.label, at + '[' + i + '].label', 80);
+      if (optionValue.trim().length === 0 || optionLabel.trim().length === 0) {
+        fail('SCENE_FIELD_TYPE', at + '[' + i + '] option value/label must not be blank');
+      }
       if (seen[optionValue]) {
         fail('SCENE_FIELD_CONTROL_OPTION_DUPLICATE', at + ' has duplicate option value ' + optionValue);
       }
@@ -765,6 +769,9 @@
       if (kind === 'select') { allowed.value = 1; allowed.options = 1; }
       checkKeys(control, allowed, at);
       var label = requireString(control.label, at + '.label', 40);
+      if (label.trim().length === 0) {
+        fail('SCENE_FIELD_TYPE', at + '.label must not be blank');
+      }
       var enabled = control.enabled === undefined ? true : requireBoolean(control.enabled, at + '.enabled');
       var semantics = control.semantics === undefined ? null : requireString(control.semantics, at + '.semantics', 80);
       var parsed = { id: id, kind: kind, label: label, enabled: enabled, semantics: semantics };
@@ -776,6 +783,11 @@
         var rangeMin = requireFiniteNumber(control.min, at + '.min');
         var rangeMax = requireFiniteNumber(control.max, at + '.max');
         var rangeValue = requireFiniteNumber(control.value, at + '.value');
+        if (MathAbs(rangeMin) > MAX_ABS_CONTROL_NUMBER ||
+            MathAbs(rangeMax) > MAX_ABS_CONTROL_NUMBER ||
+            MathAbs(rangeValue) > MAX_ABS_CONTROL_NUMBER) {
+          fail('SCENE_FIELD_CONTROL_RANGE', at + ' must stay within ±' + MAX_ABS_CONTROL_NUMBER);
+        }
         if (rangeMin >= rangeMax) {
           fail('SCENE_FIELD_CONTROL_RANGE', at + '.min must be below .max');
         }
@@ -814,9 +826,15 @@
     checkKeys(form, { formId: 1, title: 1, items: 1, rationaleLabel: 1 }, 'scene.form');
     var formId = requireString(form.formId, 'scene.form.formId', 64);
     var title = form.title === undefined ? null : requireString(form.title, 'scene.form.title', 80);
+    if (title !== null && title.trim().length === 0) {
+      fail('SCENE_FIELD_TYPE', 'scene.form.title must not be blank');
+    }
     var rationaleLabel = form.rationaleLabel === undefined
       ? '理由'
       : requireString(form.rationaleLabel, 'scene.form.rationaleLabel', 40);
+    if (rationaleLabel.trim().length === 0) {
+      fail('SCENE_FIELD_TYPE', 'scene.form.rationaleLabel must not be blank');
+    }
     if (!ArrayIsArray(form.items)) {
       fail('SCENE_FIELD_TYPE', 'scene.form.items must be an array');
     }
@@ -830,6 +848,9 @@
       var item = requireObject(form.items[i], at);
       checkKeys(item, { id: 1, kind: 1, prompt: 1, options: 1 }, at);
       var itemId = requireString(item.id, at + '.id', 32);
+      if (!/^[A-Za-z][A-Za-z0-9_-]*$/.test(itemId)) {
+        fail('SCENE_FIELD_FORM_ID', at + '.id must start with a letter and use letters/digits/_/-');
+      }
       if (seenItems[itemId]) {
         fail('SCENE_FIELD_FORM_DUPLICATE', at + '.id duplicates ' + itemId);
       }
@@ -837,9 +858,13 @@
       if (item.kind !== 'radioGroup') {
         fail('SCENE_FIELD_FORM_KIND', at + '.kind must be radioGroup');
       }
+      var prompt = requireString(item.prompt, at + '.prompt', 200);
+      if (prompt.trim().length === 0) {
+        fail('SCENE_FIELD_TYPE', at + '.prompt must not be blank');
+      }
       items[i] = {
         id: itemId,
-        prompt: requireString(item.prompt, at + '.prompt', 200),
+        prompt: prompt,
         options: parseControlOptions(item.options, at + '.options', 2, MAX_FORM_OPTIONS),
       };
     }

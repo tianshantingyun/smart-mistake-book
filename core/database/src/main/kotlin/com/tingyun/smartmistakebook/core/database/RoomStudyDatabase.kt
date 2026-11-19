@@ -10,12 +10,15 @@ import com.tingyun.smartmistakebook.core.database.dao.ArchivedEntrySummaryRow
 import com.tingyun.smartmistakebook.core.database.dao.CanonicalSourceAssetRow
 import com.tingyun.smartmistakebook.core.database.dao.ReviewLogSampleProjection
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeQuestionLatticeView
+import com.tingyun.smartmistakebook.core.database.entity.ProblemRelationEntity
 import com.tingyun.smartmistakebook.core.database.entity.LlmTeachingAdvisoryEntity
 import com.tingyun.smartmistakebook.core.database.LearningLedgerRead
 import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealFact
 import com.tingyun.smartmistakebook.core.database.PersistedReviewLogLast
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeCatalogRecord
 import com.tingyun.smartmistakebook.core.model.KnowledgeCatalogPosition
+import com.tingyun.smartmistakebook.core.model.ProblemRelationKind
+import com.tingyun.smartmistakebook.core.model.ProblemRelationStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.io.File
@@ -733,13 +736,12 @@ internal class RoomStudyDatabase(
             if (duplicate.problemId == canonical.problemId) return@withWriteTransaction false
             database.problemDao().insertRelations(
                 listOf(
-                    com.tingyun.smartmistakebook.core.database.entity.ProblemRelationEntity(
+                    ProblemRelationEntity(
                         relationId = relationId,
                         sourceProblemId = duplicate.problemId,
                         targetProblemId = canonical.problemId,
-                        relationType = com.tingyun.smartmistakebook.core.model.ProblemRelationKind
-                            .POSSIBLE_DUPLICATE.name,
-                        status = com.tingyun.smartmistakebook.core.model.ProblemRelationStatus.ACTIVE.name,
+                        relationType = ProblemRelationKind.POSSIBLE_DUPLICATE.name,
+                        status = ProblemRelationStatus.ACTIVE.name,
                         sourceBasisRevisionId = duplicate.revisionId,
                         targetBasisRevisionId = canonical.revisionId,
                         confidence = 1.0,
@@ -748,7 +750,17 @@ internal class RoomStudyDatabase(
                     ),
                 ),
             )
-            dao.setEntryStatus(duplicate.entryId, StudyDbValue.ErrorBookStatus.ARCHIVED, mergedAtEpochMillis)
+            val archived = dao.setEntryStatus(
+                duplicate.entryId,
+                StudyDbValue.ErrorBookStatus.ARCHIVED,
+                mergedAtEpochMillis,
+            )
+            if (archived) {
+                // 与 archiveErrorBookEntry 同一收尾：归档的重复题不再出现在搜索里。
+                database.libraryFtsSearchDao().deleteContent(duplicate.revisionId)
+                database.libraryFtsSearchDao().clearOutboxFor(duplicate.revisionId)
+            }
+            archived
         }
     }
 

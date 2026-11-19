@@ -118,11 +118,23 @@ internal suspend fun SmartMistakeBookApplication.executeTutorApplicationAction(
                     relationId = "agent-merge-$effectKey",
                     at = now,
                 )
+                val planRemoval = if (merged) {
+                    runCatching { studyRepository.removeFromReviewPlan(duplicateId, now) }.getOrNull()
+                } else {
+                    null
+                }
                 if (merged) runCatching { studyRepository.refresh() }
+                val planNote = when (planRemoval) {
+                    is com.tingyun.smartmistakebook.core.domain.RemoveFromReviewPlanResult.Removed ->
+                        "，并从今天的复习计划移除"
+                    is com.tingyun.smartmistakebook.core.domain.RemoveFromReviewPlanResult.NotRemoved ->
+                        "；今天的计划已开始，未移除其中该项"
+                    else -> ""
+                }
                 tutorApplicationReceipt(
                     merged,
                     if (merged) {
-                        "已把重复题合并到当前题：重复条目已归档并留下关联，可从归档恢复。"
+                        "已把重复题合并到当前题：重复条目已归档并留下关联$planNote，可从归档恢复。"
                     } else {
                         "未能合并：条目不存在、不是活动状态，或与当前题是同一道。"
                     },
