@@ -25,12 +25,6 @@ import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.StoredFigureReference
 import com.tingyun.smartmistakebook.core.model.VisualRole
 import com.tingyun.smartmistakebook.core.model.WritingLayer
-import com.tingyun.smartmistakebook.core.database.port.PersistedMistakeEditJob
-import com.tingyun.smartmistakebook.core.model.EditBasis
-import com.tingyun.smartmistakebook.core.model.MistakeEditInput
-import com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus
-import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
-import com.tingyun.smartmistakebook.core.model.mistakeEditJobId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope

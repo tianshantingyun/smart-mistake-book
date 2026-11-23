@@ -594,9 +594,6 @@ class SmartMistakeBookApplication : Application() {
                 backupReferences = { tutorBackupReferences() },
                 reviewContext = { tutorReviewContextJson() },
             )
-            modelTaskRepository = TutorAgentContextRepository(baseModelTaskRepository) {
-                tutorBackupReferences()
-            }
             val editConfigurationStore = modelConfigurationStore
             run {
                 mistakeEditRepository = com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeEditRepository.create(

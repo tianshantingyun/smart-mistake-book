@@ -9,7 +9,6 @@ import com.tingyun.smartmistakebook.core.database.dao.toSourceRecord
 import com.tingyun.smartmistakebook.core.database.dao.ArchivedEntrySummaryRow
 import com.tingyun.smartmistakebook.core.database.dao.CanonicalSourceAssetRow
 import com.tingyun.smartmistakebook.core.database.dao.ReviewLogSampleProjection
-import com.tingyun.smartmistakebook.core.database.dao.toSourceRecord
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeQuestionLatticeView
 import com.tingyun.smartmistakebook.core.database.entity.ProblemRelationEntity
 import com.tingyun.smartmistakebook.core.database.entity.LlmTeachingAdvisoryEntity
@@ -30,9 +29,6 @@ import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationOperati
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualSnapshotEntity
 import com.tingyun.smartmistakebook.core.database.dao.ErrorCauseLedgerConflictException
 import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationAttemptCommand
-import com.tingyun.smartmistakebook.core.database.port.PersistedMistakeEditJob
-import com.tingyun.smartmistakebook.core.database.dao.toEntity as toMistakeEditJobEntity
-import com.tingyun.smartmistakebook.core.database.dao.toRecord as toMistakeEditJobRecord
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeRecallResult
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeSearchIndexVerification
 import com.tingyun.smartmistakebook.core.database.port.ErrorCauseAppendResult
@@ -43,18 +39,6 @@ import com.tingyun.smartmistakebook.core.database.port.toEntity
 import com.tingyun.smartmistakebook.core.database.port.toRecord
 import com.tingyun.smartmistakebook.core.model.ErrorCauseDecisionSource
 import com.tingyun.smartmistakebook.core.model.ErrorCauseScope
-import com.tingyun.smartmistakebook.core.model.EditBasis
-import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicyVersion
-import com.tingyun.smartmistakebook.core.model.MistakeEditChange
-import com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus
-import com.tingyun.smartmistakebook.core.model.ModelTaskFingerprint
-import com.tingyun.smartmistakebook.core.model.ModelTaskLogicalOperationFingerprint
-import com.tingyun.smartmistakebook.core.model.StoredFigureReference
-import com.tingyun.smartmistakebook.core.model.editFigureRole
-import com.tingyun.smartmistakebook.core.model.mistakeEditFigureAssetId
-import com.tingyun.smartmistakebook.core.model.mistakeEditFigureBasis
-import com.tingyun.smartmistakebook.core.model.mistakeEditFigureOperationId
-import com.tingyun.smartmistakebook.core.database.dao.requireFigureAuthority
 import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationOperationCommand
 import com.tingyun.smartmistakebook.core.database.port.BeginLocalFigureGenerationAttemptCommand
 import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationAttemptCommand
@@ -980,7 +964,8 @@ internal class RoomStudyDatabase(
         errorBookEntryId: String,
     ): Flow<List<MistakeDetailSourceAssetRecord>> {
         require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }
-        return database.mistakeDetailDao().observeQuestionSourceRows(errorBookEntryId)
+        return database.mistakeDetailDao().observeCurrentSourceAssets(errorBookEntryId)
+            .distinctUntilChanged()
             .map { rows -> rows.map { it.toSourceRecord() } }
     }
 
@@ -988,11 +973,6 @@ internal class RoomStudyDatabase(
         require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }
         return database.mistakeDetailDao().read(errorBookEntryId)
     }
-
-    override fun observeMistakeSourceAssets(errorBookEntryId: String): Flow<List<MistakeDetailSourceAssetRecord>> =
-        database.mistakeDetailDao().observeCurrentSourceAssets(errorBookEntryId)
-            .distinctUntilChanged()
-            .map { rows -> rows.map { it.toSourceRecord() } }
 
     override suspend fun readExactMistakeDetail(
         entryId: String,

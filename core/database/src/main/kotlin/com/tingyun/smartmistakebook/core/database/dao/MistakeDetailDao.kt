@@ -445,6 +445,7 @@ internal abstract class MistakeDetailDao {
         JOIN canonical_source_asset AS asset ON asset.source_asset_id = link.source_asset_id
         WHERE entry.entry_id = :entryId
             AND entry.status = 'ACTIVE'
+            AND asset.mime_type LIKE 'image/%' AND link.role != 'TUTOR_EXPLANATION'
         ORDER BY CASE WHEN link.role = 'QUESTION_SOURCE' AND link.ordinal = 0 THEN COALESCE((
             SELECT MIN(draft_source.page_index)
             FROM problem_draft_commit_receipt AS receipt
@@ -501,19 +502,6 @@ internal abstract class MistakeDetailDao {
     protected abstract suspend fun findRevisionHistory(
         errorBookEntryId: String,
     ): List<MistakeRevisionSummaryRow>
-
-    @Query("""
-        SELECT link.role, asset.source_asset_id, asset.content_sha256, asset.relative_path,
-               asset.mime_type, asset.byte_size, asset.width, asset.height, asset.source_type,
-               asset.created_at_epoch_millis
-        FROM error_book_entry AS entry
-        JOIN problem_revision_source_asset AS link ON link.problem_revision_id = entry.current_revision_id
-        JOIN canonical_source_asset AS asset ON asset.source_asset_id = link.source_asset_id
-        WHERE entry.entry_id = :errorBookEntryId AND entry.status = 'ACTIVE'
-          AND asset.mime_type LIKE 'image/%' AND link.role != 'TUTOR_EXPLANATION'
-        ORDER BY link.ordinal, asset.source_asset_id
-    """)
-    abstract fun observeQuestionSourceRows(errorBookEntryId: String): Flow<List<MistakeDetailSourceAssetRow>>
 
     @Transaction
     open suspend fun read(errorBookEntryId: String): MistakeDetailRecord? {
