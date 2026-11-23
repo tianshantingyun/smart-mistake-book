@@ -5,17 +5,21 @@ import androidx.room3.RoomRawQuery
 import androidx.room3.withReadTransaction
 import androidx.room3.withWriteTransaction
 import com.tingyun.smartmistakebook.core.database.dao.MistakeRow
+import com.tingyun.smartmistakebook.core.database.dao.toSourceRecord
 import com.tingyun.smartmistakebook.core.database.dao.ArchivedEntrySummaryRow
 import com.tingyun.smartmistakebook.core.database.dao.CanonicalSourceAssetRow
 import com.tingyun.smartmistakebook.core.database.dao.ReviewLogSampleProjection
 import com.tingyun.smartmistakebook.core.database.dao.toSourceRecord
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeQuestionLatticeView
+import com.tingyun.smartmistakebook.core.database.entity.ProblemRelationEntity
 import com.tingyun.smartmistakebook.core.database.entity.LlmTeachingAdvisoryEntity
 import com.tingyun.smartmistakebook.core.database.LearningLedgerRead
 import com.tingyun.smartmistakebook.core.database.PersistedAnswerRevealFact
 import com.tingyun.smartmistakebook.core.database.PersistedReviewLogLast
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeCatalogRecord
 import com.tingyun.smartmistakebook.core.model.KnowledgeCatalogPosition
+import com.tingyun.smartmistakebook.core.model.ProblemRelationKind
+import com.tingyun.smartmistakebook.core.model.ProblemRelationStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -26,6 +30,9 @@ import com.tingyun.smartmistakebook.core.database.entity.FigureGenerationOperati
 import com.tingyun.smartmistakebook.core.database.entity.TutorVisualSnapshotEntity
 import com.tingyun.smartmistakebook.core.database.dao.ErrorCauseLedgerConflictException
 import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationAttemptCommand
+import com.tingyun.smartmistakebook.core.database.port.PersistedMistakeEditJob
+import com.tingyun.smartmistakebook.core.database.dao.toEntity as toMistakeEditJobEntity
+import com.tingyun.smartmistakebook.core.database.dao.toRecord as toMistakeEditJobRecord
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeRecallResult
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeSearchIndexVerification
 import com.tingyun.smartmistakebook.core.database.port.ErrorCauseAppendResult
@@ -36,6 +43,18 @@ import com.tingyun.smartmistakebook.core.database.port.toEntity
 import com.tingyun.smartmistakebook.core.database.port.toRecord
 import com.tingyun.smartmistakebook.core.model.ErrorCauseDecisionSource
 import com.tingyun.smartmistakebook.core.model.ErrorCauseScope
+import com.tingyun.smartmistakebook.core.model.EditBasis
+import com.tingyun.smartmistakebook.core.model.FigureGenerationPolicyVersion
+import com.tingyun.smartmistakebook.core.model.MistakeEditChange
+import com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus
+import com.tingyun.smartmistakebook.core.model.ModelTaskFingerprint
+import com.tingyun.smartmistakebook.core.model.ModelTaskLogicalOperationFingerprint
+import com.tingyun.smartmistakebook.core.model.StoredFigureReference
+import com.tingyun.smartmistakebook.core.model.editFigureRole
+import com.tingyun.smartmistakebook.core.model.mistakeEditFigureAssetId
+import com.tingyun.smartmistakebook.core.model.mistakeEditFigureBasis
+import com.tingyun.smartmistakebook.core.model.mistakeEditFigureOperationId
+import com.tingyun.smartmistakebook.core.database.dao.requireFigureAuthority
 import com.tingyun.smartmistakebook.core.database.port.BeginFigureGenerationOperationCommand
 import com.tingyun.smartmistakebook.core.database.port.BeginLocalFigureGenerationAttemptCommand
 import com.tingyun.smartmistakebook.core.database.port.FinishFigureGenerationAttemptCommand
@@ -469,6 +488,59 @@ internal class RoomStudyDatabase(
 
     override suspend fun countMistakes(): Int = database.problemDao().countActiveMistakes()
 
+    override suspend fun mergeMistakeEntry(
+        duplicateEntryId: String,
+        canonicalEntryId: String,
+        relationId: String,
+        mergedAtEpochMillis: Long,
+    ): Boolean {
+        require(duplicateEntryId.isNotBlank()) { "A duplicate entry id must not be blank" }
+        require(canonicalEntryId.isNotBlank()) { "A canonical entry id must not be blank" }
+        require(duplicateEntryId != canonicalEntryId) { "An entry cannot be merged into itself" }
+        require(relationId.isNotBlank()) { "A merge relation id must not be blank" }
+        require(mergedAtEpochMillis >= 0L) { "A merge time must not be negative" }
+        return database.withWriteTransaction {
+            val dao = database.mistakeDetailDao()
+            val duplicate = dao.findEntryMergeRow(duplicateEntryId)
+                ?: return@withWriteTransaction false
+            val canonical = dao.findEntryMergeRow(canonicalEntryId)
+                ?: return@withWriteTransaction false
+            if (duplicate.status != StudyDbValue.ErrorBookStatus.ACTIVE ||
+                canonical.status != StudyDbValue.ErrorBookStatus.ACTIVE
+            ) {
+                return@withWriteTransaction false
+            }
+            if (duplicate.problemId == canonical.problemId) return@withWriteTransaction false
+            database.problemDao().insertRelations(
+                listOf(
+                    ProblemRelationEntity(
+                        relationId = relationId,
+                        sourceProblemId = duplicate.problemId,
+                        targetProblemId = canonical.problemId,
+                        relationType = ProblemRelationKind.POSSIBLE_DUPLICATE.name,
+                        status = ProblemRelationStatus.ACTIVE.name,
+                        sourceBasisRevisionId = duplicate.revisionId,
+                        targetBasisRevisionId = canonical.revisionId,
+                        confidence = 1.0,
+                        createdAtEpochMillis = mergedAtEpochMillis,
+                        updatedAtEpochMillis = mergedAtEpochMillis,
+                    ),
+                ),
+            )
+            val archived = dao.setEntryStatus(
+                duplicate.entryId,
+                StudyDbValue.ErrorBookStatus.ARCHIVED,
+                mergedAtEpochMillis,
+            )
+            if (archived) {
+                // 与 archiveErrorBookEntry 同一收尾：归档的重复题不再出现在搜索里。
+                database.libraryFtsSearchDao().deleteContent(duplicate.revisionId)
+                database.libraryFtsSearchDao().clearOutboxFor(duplicate.revisionId)
+            }
+            archived
+        }
+    }
+
     override suspend fun checkpointForBackup() = backupSupport.checkpointForBackup()
 
     override suspend fun snapshotForBackup(
@@ -715,6 +787,9 @@ internal class RoomStudyDatabase(
         limit: Int,
     ): List<KnowledgeCatalogRecord> = knowledgeBase.readKnowledgeCatalogPage(terms, after, limit)
 
+    override suspend fun readKnowledgeCatalogPhrases(): List<String> =
+        knowledgeBase.readKnowledgeCatalogPhrases()
+
     override fun observeKnowledgeCatalogChanges(): Flow<Unit> =
         knowledgeBase.observeKnowledgeCatalogChanges()
 
@@ -900,6 +975,14 @@ internal class RoomStudyDatabase(
     // PR#13（T8）：卷面复核存储入口（手工并集，见类头桥接注释）。
     override val paperReviews: com.tingyun.smartmistakebook.core.database.dao.PaperReviewStore
         get() = database.paperReviewDao()
+
+    override fun observeMistakeSourceAssets(
+        errorBookEntryId: String,
+    ): Flow<List<MistakeDetailSourceAssetRecord>> {
+        require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }
+        return database.mistakeDetailDao().observeQuestionSourceRows(errorBookEntryId)
+            .map { rows -> rows.map { it.toSourceRecord() } }
+    }
 
     override suspend fun readMistakeDetail(errorBookEntryId: String): MistakeDetailRecord? {
         require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }
@@ -1420,6 +1503,29 @@ internal class RoomStudyDatabase(
     override suspend fun createMistakeExportRecord(
         command: CreateMistakeExportRecordCommand,
     ): MistakeExportRecordRow = database.mistakeExportRecordDao().createRunning(command)
+
+    // 导出记录端口的组级半边（批次 40/WS3 的 UI 接线）：与上面的记录行同一张 DAO 上的
+    // 单事务方法。这五个 override 曾在 UI 整合合并中与 MistakeEditJobPort 一起丢失，
+    // 端口回落到 `UnsupportedOperationException("Export groups are unavailable")`，
+    // 智能体 START_EXPORT 会在建组第一步失败。
+    override suspend fun createMistakeExportGroup(
+        record: MistakeExportGroupRecord,
+    ): MistakeExportGroupRecord = database.mistakeExportRecordDao().createGroup(record)
+
+    override suspend fun readMistakeExportGroup(groupId: String): MistakeExportGroupRecord? =
+        database.mistakeExportRecordDao().readGroup(groupId)
+
+    override fun observeMistakeExportGroups(limit: Int): Flow<List<MistakeExportGroupRecord>> =
+        database.mistakeExportRecordDao().observeGroups(limit)
+
+    override suspend fun confirmMistakeAnswerPreview(
+        groupId: String,
+        approval: com.tingyun.smartmistakebook.core.model.AnswerPreviewApproval,
+    ): Boolean = database.mistakeExportRecordDao().confirmPreview(groupId, approval)
+
+    override suspend fun startGroupedMistakeExport(
+        command: StartGroupedMistakeExportCommand,
+    ): MistakeExportRecordRow? = database.mistakeExportRecordDao().startGrouped(command)
 
     override suspend fun completeMistakeExportRecord(
         command: CompleteMistakeExportRecordCommand,
@@ -2383,6 +2489,59 @@ internal class RoomStudyDatabase(
         require(messageId.isNotBlank()) { "A visual message id must not be blank" }
         require(ordinal >= 0) { "A visual ordinal must not be negative" }
         return database.tutorVisualDao().findMessageVisual(messageId, ordinal)?.toRecord()
+    }
+
+    override suspend fun linkTutorMessageVisualIfLive(
+        messageId: String,
+        ordinal: Int,
+        programId: String,
+        snapshotId: String,
+        uiStateJson: String?,
+        formDigest: String?,
+        nowEpochMillis: Long,
+    ): TutorMessageVisualRecord? {
+        require(messageId.isNotBlank()) { "A visual message id must not be blank" }
+        require(ordinal >= 0) { "A visual ordinal must not be negative" }
+        require(programId.isNotBlank()) { "A visual program id must not be blank" }
+        require(snapshotId.isNotBlank()) { "A visual snapshot id must not be blank" }
+        require(nowEpochMillis >= 0L) { "A visual link time must not be negative" }
+        return try {
+            database.tutorVisualDao().linkMessageVisual(
+                messageId = messageId,
+                ordinal = ordinal,
+                programId = programId,
+                snapshotId = snapshotId,
+                uiStateJson = uiStateJson,
+                formDigest = formDigest,
+                nowEpochMillis = nowEpochMillis,
+            ).toRecord()
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    override suspend fun updateTutorMessageVisualDraft(
+        messageId: String,
+        ordinal: Int,
+        expectedRevision: Int,
+        uiStateJson: String?,
+        formDigest: String?,
+        updatedAtEpochMillis: Long,
+    ): Boolean {
+        require(messageId.isNotBlank()) { "A visual message id must not be blank" }
+        require(ordinal >= 0) { "A visual ordinal must not be negative" }
+        require(expectedRevision >= 1) { "A visual pointer revision starts at 1" }
+        require(updatedAtEpochMillis >= 0L) { "A draft update time must not be negative" }
+        return database.tutorVisualDao().updateMessageVisualDraft(
+            messageId = messageId,
+            ordinal = ordinal,
+            expectedRevision = expectedRevision,
+            uiStateJson = uiStateJson,
+            formDigest = formDigest,
+            nowEpochMillis = updatedAtEpochMillis,
+        ) == 1
     }
 
     override suspend fun countTutorVisualProgramsForTest(programId: String): Int {

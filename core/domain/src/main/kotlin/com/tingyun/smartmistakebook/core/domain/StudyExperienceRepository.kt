@@ -497,6 +497,32 @@ interface StudyExperienceRepository : AutoCloseable {
     /** Saves the currently tutored problem as an exact, immutable mistake entry. */
     suspend fun saveTutorProblem(command: SaveTutorProblemCommand): SaveTutorProblemReceipt
 
+    /**
+     * `ADD_TO_REVIEW_PLAN`：把一道已入库的题排进**今天**的复习计划。
+     *
+     * 计划行是不可变的（`review_plan` 的 payload 一旦落库不允许改写），因此这里落的是
+     * 同一份计划的一个**新 revision**（`planRevision + 1`、新指纹、新 plan id），今日计划槽位
+     * 指向新 revision；旧 revision 作为历史保留。已开始/已完成的计划不可改（会话队列的
+     * ordinal 已冻结），重复添加同一题是幂等成功。
+     *
+     * 旧替身/旧构建没有这条能力时抛 [UnsupportedOperationException]：不能静默回成功。
+     */
+    suspend fun addToReviewPlan(
+        entryId: String,
+        requestedAtEpochMillis: Long,
+    ): AddToReviewPlanResult =
+        throw UnsupportedOperationException("Adding to the review plan is not implemented by this repository")
+
+    /**
+     * `REMOVE_FROM_REVIEW_PLAN`：从**今天**的复习计划移除一道题。与追加同样落新 revision；
+     * 已开始/已完成的计划不可改，题目本来不在队列里是幂等成功。
+     */
+    suspend fun removeFromReviewPlan(
+        entryId: String,
+        requestedAtEpochMillis: Long,
+    ): RemoveFromReviewPlanResult =
+        throw UnsupportedOperationException("Removing from the review plan is not implemented by this repository")
+
     suspend fun teachingArtifact(practiceUnitId: String): VerifiedTeachingArtifact?
 
     suspend fun submitChoice(submission: StudyChoiceSubmission): StudyChoiceSubmissionResult

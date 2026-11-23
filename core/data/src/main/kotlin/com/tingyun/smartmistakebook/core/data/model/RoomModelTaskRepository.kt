@@ -130,7 +130,22 @@ class RoomModelTaskRepository internal constructor(
     private val figureCapabilities: (suspend () -> com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities)? = null,
     private val localActionExecutor: com.tingyun.smartmistakebook.core.domain.TutorLocalActionExecutor? = null,
     private val visualEngine: com.tingyun.smartmistakebook.core.domain.VisualExecutionEngine? = null,
+    /**
+     * JS 引擎的**装配态就绪位**（warm-up / 隔离服务握手完成）。
+     *
+     * 与 `visualEngine != null` 不是一回事：引擎对象在进程里可能已创建，但 `:visual_js`
+     * 服务尚未 ready（KD-76 的冷启动窗口）。只按非 null 广告会让首个 RUN_JAVASCRIPT 必败；
+     * null = 旧装配/测试没有就绪位，维持原有行为。
+     */
+    private val visualEngineReady: (() -> Boolean)? = null,
     private val figureInspector: com.tingyun.smartmistakebook.core.data.model.TutorFigureInspector? = null,
+    private val javascriptStateStore: com.tingyun.smartmistakebook.core.domain.TutorJavascriptStateStore? = null,
+    private val resultStore: com.tingyun.smartmistakebook.core.domain.TutorToolResultStore? = null,
+    /**
+     * 已审知识目录检索（KNOWLEDGE_CATALOG_READ）：生产由 app 注入
+     * `knowledgeCatalogRepository.search(...)`；null = 未接线，工具回可见的不可用结果。
+     */
+    private val catalogSearch: (suspend (String) -> List<com.tingyun.smartmistakebook.core.model.CatalogHit>)? = null,
 ) : ModelTaskRepository {
     internal val toolRunner = RoomTutorToolRunner(
         database,
@@ -139,6 +154,9 @@ class RoomModelTaskRepository internal constructor(
         visualEngine,
         localActionExecutor,
         figureInspector,
+        javascriptStateStore,
+        resultStore,
+        catalogSearch,
     )
 
     /**
@@ -321,7 +339,7 @@ class RoomModelTaskRepository internal constructor(
                 return@flow
             }
             // 工具环（spec model-intent-routing §3.1）：模型可在作答前申请本地只读查询。
-            // 每轮派遣独立 reserve（预算记账，MAX_DISPATCHES=6 = 5 轮工具 + 1 轮终答，
+            // 每轮派遣独立 reserve（预算记账，MAX_DISPATCHES=9 = 8 轮工具 + 1 轮终答，
             // 见 a4109e1 与 D-001 2026-09-09 增补）；本地工具执行不占派遣预算。
             // 工具轮配额用尽（MAX_TOOL_ROUNDS=5）后不再声明工具，模型必须直接作答。
             // PRD-06：派遣前先把"配置/依赖就绪"折进本轮的声明集——**第一条派遣**也必须
@@ -331,7 +349,30 @@ class RoomModelTaskRepository internal constructor(
             // 只折进派遣副本，持久化 request 与指纹逐字不变。
             val capabilityInput = request.input.withFigureGenerationCapabilities(
                 declaredProvider.figureGenerationCapabilities,
-            )
+            ).let { input ->
+                if (input !is com.tingyun.smartmistakebook.core.model.TutorLobbyInput &&
+                    input !is com.tingyun.smartmistakebook.core.model.TutorPlanInput &&
+                    input !is com.tingyun.smartmistakebook.core.model.TutorRespondInput
+                ) {
+                    return@let input
+                }
+                val availableActions = try {
+                    localActionExecutor?.availableActions()
+                } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    // 有执行器却查不出可用集 = 装配故障：fail-closed，不能回退成"全部动作"。
+                    if (localActionExecutor == null) null else emptySet()
+                }
+                if (availableActions == null) {
+                    input
+                } else {
+                    input.withAgentContext(
+                        (input.agentContextSnapshot() ?: TutorAgentContext())
+                            .copy(availableLocalActions = availableActions),
+                    )
+                }
+            }
             val declaredTools = toolDeclarationsFor(capabilityInput, declaredProvider)
             var roundRequest = request.copy(
                 input = capabilityInput.withDeclaredTools(declaredTools),
@@ -672,6 +713,11 @@ class RoomModelTaskRepository internal constructor(
             }
             throw cancelled
         } catch (failure: Exception) {
+            // 只记异常类，不记 message：message 可能带回模型输出/学生内容。
+            android.util.Log.e(
+                MODEL_TASK_LOG_TAG,
+                "Model task failed unexpectedly: ${failure.javaClass.name}",
+            )
             val latest = database.readModelTask(request.requestId) ?: throw failure
             if (!latest.status.isTerminal && latest.status != ModelTaskStatus.RETRYABLE_FAILURE) {
                 emit(
@@ -1078,6 +1124,13 @@ class RoomModelTaskRepository internal constructor(
                 // 这里随之为 false，JS 从广告面消失。
                 jsEngineReady = jsReady,
                 jsMeasurementReady = jsReady,
+                // JS 工具只有在真实引擎已装配时才广告；READ_FIGURE 只有在像素检查器
+                // 与"能看图"的提供方同时成立时才广告——否则下一轮无法把 grant 出网。
+                javascriptToolReady = visualEngine != null &&
+                    (visualEngineReady?.let { ready ->
+                        runCatching { ready() }.getOrDefault(false)
+                    } ?: true),
+                figureReadReady = figureInspector != null && declaredProvider.supportsImageInput,
             )
             .tools
     }
@@ -1148,13 +1201,18 @@ class RoomModelTaskRepository internal constructor(
         val base = agentContextSnapshot() ?: TutorAgentContext()
         val selected = executions.mapNotNull { it.selectedQuestion }.lastOrNull()
         val entries = (base.knownEntryIds + executions.flatMap { it.problemEntryIds } +
-            listOfNotNull(selected?.entryId)).distinct().take(180)
+            listOfNotNull(selected?.entryId)).distinct().takeLast(180)
         val figures = (base.knownFigureIds + executions.mapNotNull { it.figure?.figureId } +
-            executions.mapNotNull { it.feedbackImage?.assetId }).distinct().take(32)
-        val feedback = (base.feedbackImages + executions.mapNotNull { it.feedbackImage })
+            executions.flatMap { it.figureIds } +
+            executions.mapNotNull { it.feedbackImage?.assetId } +
+            executions.flatMap { execution -> execution.feedbackImages.map { it.assetId } } +
+            listOfNotNull(selected).flatMap { question -> question.sourceImages.map { it.assetId } })
+            .distinct().takeLast(32)
+        val feedback = (base.feedbackImages + executions.mapNotNull { it.feedbackImage } +
+            executions.flatMap { it.feedbackImages })
             .distinctBy { it.assetId }.takeLast(4)
         val subjects = (base.subjects + listOfNotNull(base.subject, selected?.subject) +
-            executions.flatMap { it.subjects }).distinct().take(32)
+            executions.flatMap { it.subjects }).distinct().takeLast(32)
         val state = executions.lastOrNull { it.javascriptState != null }?.javascriptState
             ?: base.javascriptStateJson
         val outcomes = (base.actionOutcomes + actionOutcomes).takeLast(12)
@@ -1193,7 +1251,7 @@ class RoomModelTaskRepository internal constructor(
         val conversationId = lobby?.conversationId
             ?: sessionId?.let(TutorConversationIds::captured)
         val selectedCurrent = input.agentContextSnapshot()?.selectedQuestion?.entryId
-        val attachedImageIds = lobby?.sourceImageAssetRefs?.map { it.assetId }.orEmpty()
+        val attachedImageIds = input.attachedImageAssetIdsForActions()
         val candidates = toolTraces.current(request.requestId)?.entries.orEmpty()
             .filter { it.tool == TutorToolName.NOTEBOOK_READ }
             .flatMap { it.problemEntryIds }.distinct()
@@ -1204,10 +1262,11 @@ class RoomModelTaskRepository internal constructor(
                 outcome.ok == true && outcome.decision == "SUCCEEDED" &&
                     outcome.kind in setOf("SAVE_TO_NOTEBOOK", "OPEN_PROBLEM")
             }.mapNotNull { it.artifactId }
-            val knownIds = (candidates + savedIds + listOfNotNull(selectedCurrent)).toSet()
+            val knownIds = (candidates + savedIds + listOfNotNull(selectedCurrent) +
+                input.agentContextSnapshot()?.knownEntryIds.orEmpty()).toSet()
             val selectedProblem = action.parameters["entryId"]
             val selectedExports = action.parameters["entryIds"]?.split(',')?.map(String::trim)
-                ?: candidates
+                ?: candidates.ifEmpty { listOfNotNull(selectedCurrent) }
             val unknownTarget = selectedProblem != null && selectedProblem !in knownIds ||
                 selectedExports.any { it.isBlank() || it !in knownIds }
             val executor = localActionExecutor
@@ -1227,8 +1286,8 @@ class RoomModelTaskRepository internal constructor(
                     request = action,
                     context = com.tingyun.smartmistakebook.core.domain.TutorLocalActionContext(
                         captureSessionId = sessionId,
-                        libraryProblemId = selectedProblem ?: savedIds.lastOrNull()
-                        ?: candidates.singleOrNull() ?: selectedCurrent,
+                        libraryProblemId = selectedProblem ?: selectedCurrent
+                        ?: savedIds.lastOrNull() ?: candidates.singleOrNull(),
                         attachedImageAssetIds = attachedImageIds,
                     ),
                     exportEntryIds = selectedExports.distinct(),
@@ -1363,7 +1422,11 @@ object ModelTaskRepositoryFactory {
         figureCapabilities: (suspend () -> com.tingyun.smartmistakebook.core.model.FigureGenerationCapabilities)? = null,
         localActionExecutor: com.tingyun.smartmistakebook.core.domain.TutorLocalActionExecutor? = null,
         visualEngine: com.tingyun.smartmistakebook.core.domain.VisualExecutionEngine? = null,
+        visualEngineReady: (() -> Boolean)? = null,
         figureInspector: com.tingyun.smartmistakebook.core.data.model.TutorFigureInspector? = null,
+        javascriptStateStore: com.tingyun.smartmistakebook.core.domain.TutorJavascriptStateStore? = null,
+        resultStore: com.tingyun.smartmistakebook.core.domain.TutorToolResultStore? = null,
+        catalogSearch: (suspend (String) -> List<com.tingyun.smartmistakebook.core.model.CatalogHit>)? = null,
     ): ModelTaskRepository = RoomModelTaskRepository(
         database = database,
         gateway = gateway,
@@ -1372,7 +1435,11 @@ object ModelTaskRepositoryFactory {
         figureCapabilities = figureCapabilities,
         localActionExecutor = localActionExecutor,
         visualEngine = visualEngine,
+        visualEngineReady = visualEngineReady,
         figureInspector = figureInspector,
+        javascriptStateStore = javascriptStateStore,
+        resultStore = resultStore,
+        catalogSearch = catalogSearch,
     )
 }
 
@@ -1404,7 +1471,7 @@ private const val MODEL_TASK_LOG_TAG = "SmartMistakeBook"
  *
  * 覆盖范围（注释口径与实现对齐）：`withTimeout` 只包住一圈 `gateway.execute`（工具环
  * `while (!answered)` 循环体内），而一条任务最多派遣
- * `ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES = 6` 轮（5 轮工具
+ * `ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES = 9` 轮（8 轮工具
  * `TutorToolRoundResult.MAX_TOOL_ROUNDS` + 1 轮终答），所以**一条任务**的本地占用上限是
  * 约 6 × 600s = 3_600s。这是上限的上限，不是任何一条任务的时长承诺。
  *

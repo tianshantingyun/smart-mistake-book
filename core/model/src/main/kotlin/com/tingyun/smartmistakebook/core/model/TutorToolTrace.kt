@@ -174,6 +174,12 @@ data class TutorToolFigureTrace(
     val status: FigureGenerationStatus? = null,
     /** The bounded instructional description from the successful local request. */
     val caption: String? = null,
+    /**
+     * 4E.2：JS 图的可重放身份。null = 图像模型产物或旧痕迹；两者总是同时出现。
+     * 只进本地痕迹（消息行），不进模型可见字段。
+     */
+    val programId: String? = null,
+    val snapshotId: String? = null,
 ) {
     init {
         require(figureId == null || figureId.isNotBlank()) {
@@ -190,6 +196,9 @@ data class TutorToolFigureTrace(
         }
         require(operationId == null || operationId.isNotBlank()) {
             "A figure trace operation id must be null or non-blank"
+        }
+        require((programId == null) == (snapshotId == null)) {
+            "A replayable figure trace carries both program and snapshot ids or neither"
         }
         require(caption == null || (caption.isNotBlank() && caption.length <= 200 && caption.none(Char::isISOControl)))
     }
@@ -375,6 +384,20 @@ fun tutorTurnFigureAssetIds(traceJson: String?): List<String> =
         ?.distinct()
         .orEmpty()
 
+/** 一条 JS 图的可重放引用（4E.2 交互卡按它打开 program/snapshot）。 */
+data class TutorTurnVisualRef(val programId: String, val snapshotId: String)
+
+/**
+ * 从痕迹里取第一张**可交互**的 JS 图引用；图像模型产物/旧痕迹/解不开 → null。
+ * 只读本地痕迹，不含模型可见内容，也不触发任何执行。
+ */
+fun tutorTurnVisualRef(traceJson: String?): TutorTurnVisualRef? =
+    decodeTutorTurnToolTrace(traceJson)
+        ?.entries
+        ?.mapNotNull { entry -> entry.figure }
+        ?.firstOrNull { figure -> figure.programId != null && figure.snapshotId != null }
+        ?.let { figure -> TutorTurnVisualRef(requireNotNull(figure.programId), requireNotNull(figure.snapshotId)) }
+
 private fun TutorToolTraceEntry.rowText(): String {
     val label = tool.displayLabel()
     if (!ok) {
@@ -388,6 +411,9 @@ private fun TutorToolTraceEntry.rowText(): String {
             TutorToolName.SELECT_QUESTION,
             TutorToolName.READ_FIGURE,
             TutorToolName.RUN_JAVASCRIPT,
+            TutorToolName.READ_RESULT,
+            TutorToolName.REVIEW_PLAN_READ,
+            TutorToolName.KNOWLEDGE_CATALOG_READ,
             -> "$label · 未完成"
             else -> "$label · 未执行"
         }
@@ -410,6 +436,7 @@ private fun TutorToolTraceEntry.rowText(): String {
         TutorToolName.NOTEBOOK_READ,
         TutorToolName.MASTERY_READ,
         TutorToolName.ADVISORY_READ,
+        TutorToolName.KNOWLEDGE_CATALOG_READ,
         -> if ((resultCount ?: 0) > 0) {
             "$label · $resultCount 条"
         } else {
@@ -419,6 +446,8 @@ private fun TutorToolTraceEntry.rowText(): String {
         TutorToolName.SELECT_QUESTION -> "$label · 已选择"
         TutorToolName.READ_FIGURE -> "$label · 已读取"
         TutorToolName.RUN_JAVASCRIPT -> "$label · 已完成"
+        TutorToolName.READ_RESULT -> "$label · 已回读"
+        TutorToolName.REVIEW_PLAN_READ -> "$label · 已读取"
     }
 }
 
@@ -442,6 +471,9 @@ fun TutorToolName.displayLabel(): String = when (this) {
     TutorToolName.SELECT_QUESTION -> "题目"
     TutorToolName.READ_FIGURE -> "查看配图"
     TutorToolName.RUN_JAVASCRIPT -> "计算"
+    TutorToolName.READ_RESULT -> "结果回读"
+    TutorToolName.REVIEW_PLAN_READ -> "复习计划"
+    TutorToolName.KNOWLEDGE_CATALOG_READ -> "知识目录"
 }
 
 /**

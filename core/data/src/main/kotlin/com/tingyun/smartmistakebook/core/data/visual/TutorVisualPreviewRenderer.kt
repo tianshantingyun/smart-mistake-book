@@ -95,6 +95,30 @@ public sealed interface TutorVisualPreviewOutcome {
 }
 
 /**
+ * **内存帧渲染**（4E.2 交互图）：与预览同一套解析/门/绘制，但**不落盘、不登记行**。
+ *
+ * 它消灭的具体失败：交互控件每次变化都要重画当前帧；若复用 `renderPreview`，每一帧都会
+ * 生成一个 canonical 资产并登记一行，拖一次滑块就留下几十个永不引用的资产。交互帧是
+ * "此刻屏幕上的像素"，不是快照，必须只活在内存里。
+ *
+ * 输入仍是 [TutorVisualPreviewRequest]（同一定界/门/标签折算），因此交互帧与静态预览
+ * 在像素上同源；差异只在最后一步：返回 PNG 字节而不是 persist。
+ */
+public sealed interface TutorVisualFramePng {
+    public class Rendered(public val bytes: ByteArray) : TutorVisualFramePng
+
+    public data class Refused(public val code: String, public val diagnostic: String) : TutorVisualFramePng
+}
+
+public interface TutorVisualFrameRenderer {
+    public suspend fun renderPng(request: TutorVisualPreviewRequest): TutorVisualFramePng
+}
+
+public object TutorVisualFrameRendererFactory {
+    public fun create(): TutorVisualFrameRenderer = TutorVisualFrameRendererImpl()
+}
+
+/**
  * 预览渲染端口（D-04 生产接线缝；沿 `FigureGenerationCoordinationFactory` 的
  * public-缝/internal-机先例——装配点只看本接口，internal 机不可达也不需可达）。
  *
@@ -247,140 +271,163 @@ internal class TutorVisualPreviewRendererImpl(
     internal suspend fun renderPreview(
         request: TutorVisualPreviewRequest,
         pxPerDuOverride: Float?,
-    ): TutorVisualPreviewOutcome = try {
-        renderBounded(request, pxPerDuOverride)
-    } catch (cancelled: CancellationException) {
-        throw cancelled
-    } catch (painting: VisualDrawOpsPaintingException) {
-        TutorVisualPreviewOutcome.Refused(
-            code = painting.code,
-            diagnostic = bounded(painting.message ?: "无详细信息"),
+    ): TutorVisualPreviewOutcome = when (val frame = renderFrameGuarded(request, pxPerDuOverride)) {
+        is TutorVisualFramePng.Refused -> TutorVisualPreviewOutcome.Refused(frame.code, frame.diagnostic)
+        is TutorVisualFramePng.Rendered -> try {
+            // persist（字节→行原子两步，KDoc 钉的顺序即语义）；失败原样折降级——半截状态
+            // （字节在行不在）不会传给快照，未引用行由六站点谓词 GC 自愈。
+            val record = persister.persist(frame.bytes, request.createdAtEpochMillis)
+            TutorVisualPreviewOutcome.Accepted(previewAssetId = record.sourceAssetId)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (failure: Exception) {
+            TutorVisualPreviewOutcome.Refused(
+                code = PREVIEW_RENDER_FAILED,
+                diagnostic = bounded("${failure::class.simpleName}: ${failure.message ?: "无详细信息"}"),
+            )
+        } catch (outOfMemory: OutOfMemoryError) {
+            TutorVisualPreviewOutcome.Refused(
+                code = PREVIEW_RENDER_FAILED,
+                diagnostic = bounded(
+                    "$PREVIEW_RENDER_FAILED: OutOfMemoryError while persisting the preview",
+                ),
+            )
+        }
+    }
+}
+
+/** 交互帧渲染机：与静态预览共用 [renderFrameGuarded]，只跳过 persist。 */
+internal class TutorVisualFrameRendererImpl : TutorVisualFrameRenderer {
+
+    override suspend fun renderPng(request: TutorVisualPreviewRequest): TutorVisualFramePng =
+        renderFrameGuarded(request, pxPerDuOverride = null)
+}
+
+private suspend fun renderFrameGuarded(
+    request: TutorVisualPreviewRequest,
+    pxPerDuOverride: Float?,
+): TutorVisualFramePng = try {
+    renderFramePngBytes(request, pxPerDuOverride)
+} catch (cancelled: CancellationException) {
+    throw cancelled
+} catch (painting: VisualDrawOpsPaintingException) {
+    TutorVisualFramePng.Refused(
+        code = painting.code,
+        diagnostic = bounded(painting.message ?: "无详细信息"),
+    )
+} catch (failure: Exception) {
+    TutorVisualFramePng.Refused(
+        code = PREVIEW_RENDER_FAILED,
+        diagnostic = bounded("${failure::class.simpleName}: ${failure.message ?: "无详细信息"}"),
+    )
+} catch (outOfMemory: OutOfMemoryError) {
+    TutorVisualFramePng.Refused(
+        code = PREVIEW_RENDER_FAILED,
+        diagnostic = bounded(
+            "$PREVIEW_RENDER_FAILED: OutOfMemoryError while rendering the frame " +
+                "(the 16 MiB pre-allocation gate is the first line; this is its backstop)",
+        ),
+    )
+}
+
+private suspend fun renderFramePngBytes(
+    request: TutorVisualPreviewRequest,
+    pxPerDuOverride: Float?,
+): TutorVisualFramePng {
+    // 1) 4 MP 准入（纯计算，du 域）——最廉价的拒绝点，先于解析与任何分配。
+    previewAdmissionDiagnostic(
+        request.viewportWidthDu,
+        request.viewportHeightDu,
+        request.measuredEntries,
+    )?.let { printable ->
+        return TutorVisualFramePng.Refused(
+            code = VisualLayoutBudget.LAYOUT_PIXEL_BUDGET,
+            diagnostic = bounded(printable),
         )
-    } catch (failure: Exception) {
-        TutorVisualPreviewOutcome.Refused(
-            code = PREVIEW_RENDER_FAILED,
-            diagnostic = bounded("${failure::class.simpleName}: ${failure.message ?: "无详细信息"}"),
+    }
+
+    // 2) 恢复级复检：与快照回放（VisualDrawOpsPainterRendered.drawRendered）同一解析
+    //    入口、同一拒绝码，不信任"自称 validated"的引擎产物。
+    val document = when (val parsed = VisualDrawOpsParser.parse(request.rendered)) {
+        is VisualDrawOpsValidation.Valid -> parsed.document
+        is VisualDrawOpsValidation.Invalid -> return TutorVisualFramePng.Refused(
+            code = PAINTER_DRAW_COMMANDS,
+            diagnostic = bounded("$PAINTER_DRAW_COMMANDS: ${parsed.code}: ${parsed.message}"),
         )
-    } catch (outOfMemory: OutOfMemoryError) {
-        TutorVisualPreviewOutcome.Refused(
-            code = PREVIEW_RENDER_FAILED,
+    }
+
+    // 3) math 盒边界：预览/交互帧继承 painter 的 fail-closed（PAINTER_LABEL_MATH）。
+    val mathLabel = request.labels.firstOrNull { it.artifact.lines == null }
+    if (mathLabel != null) {
+        return TutorVisualFramePng.Refused(
+            code = PAINTER_LABEL_MATH,
             diagnostic = bounded(
-                "$PREVIEW_RENDER_FAILED: OutOfMemoryError while rendering the preview " +
-                    "(the 16 MiB pre-allocation gate is the first line; this is its backstop)",
+                "$PAINTER_LABEL_MATH: frame rendering inherits the math fail-closed boundary; " +
+                    "contentId \"${mathLabel.contentId.take(32)}\" measured as a math box and " +
+                    "has no paintable lowering this batch",
             ),
         )
     }
 
-    private suspend fun renderBounded(
-        request: TutorVisualPreviewRequest,
-        pxPerDuOverride: Float?,
-    ): TutorVisualPreviewOutcome {
-        // 1) 4 MP 准入（纯计算，du 域）——最廉价的拒绝点，先于解析与任何分配。
-        previewAdmissionDiagnostic(
-            request.viewportWidthDu,
-            request.viewportHeightDu,
-            request.measuredEntries,
-        )?.let { printable ->
-            return TutorVisualPreviewOutcome.Refused(
-                code = VisualLayoutBudget.LAYOUT_PIXEL_BUDGET,
-                diagnostic = bounded(printable),
-            )
-        }
+    // 4) artifact→DTO 单一折算点（与 M-01/replay 批同一行段规则）。
+    val labelContents: Map<String, VisualLabelContent> = request.labels.associate { label ->
+        val lines = requireNotNull(label.artifact.lines) { "math labels are refused above" }
+        label.contentId to VisualLabelContent.Text(
+            payload = label.payload,
+            sizeSp = label.artifact.fontSizeSp,
+            fontScale = request.fontScaleMilli / 1_000f,
+            heightDu = label.artifact.heightDu,
+            lines = lines.map { VisualLabelLine(start = it.start, endExclusive = it.endExclusive) },
+        )
+    }
 
-        // 2) 恢复级复检：与快照回放（VisualDrawOpsPainterRendered.drawRendered）同一解析
-        //    入口、同一拒绝码，不信任"自称 validated"的引擎产物。
-        val document = when (val parsed = VisualDrawOpsParser.parse(request.rendered)) {
-            is VisualDrawOpsValidation.Valid -> parsed.document
-            is VisualDrawOpsValidation.Invalid -> return TutorVisualPreviewOutcome.Refused(
-                code = PAINTER_DRAW_COMMANDS,
-                diagnostic = bounded("$PAINTER_DRAW_COMMANDS: ${parsed.code}: ${parsed.message}"),
-            )
-        }
+    // 5) 定界策略 + **先门后分配**（M-03 接线点）。
+    val pxPerDu = pxPerDuOverride ?: previewPxPerDu(request.viewportWidthDu, request.viewportHeightDu, request.preferredPxPerDu)
+    val widthPx = ceil(request.viewportWidthDu * pxPerDu).toInt()
+    val heightPx = ceil(request.viewportHeightDu * pxPerDu).toInt()
+    try {
+        VisualLayoutBudget.requireBitmapBytesWithinBudget(
+            widthPx,
+            heightPx,
+            VisualLayoutBudget.ARGB_8888_BYTES_PER_PIXEL,
+        )
+    } catch (budget: IllegalArgumentException) {
+        return TutorVisualFramePng.Refused(
+            code = VisualLayoutBudget.BITMAP_BYTE_BUDGET,
+            diagnostic = bounded(budget.message ?: "bitmap byte budget refused"),
+        )
+    }
 
-        // 3) math 盒边界：预览继承 painter 的 fail-closed（PAINTER_LABEL_MATH），不做预览
-        //    特例。折算前置判定（而非把 Math DTO 交给 painter 再炸）是因为 artifact 不携带
-        //    MathBox、无法构造该 DTO——语义不变：math 内容 = 整张预览有界拒绝。
-        val mathLabel = request.labels.firstOrNull { it.artifact.lines == null }
-        if (mathLabel != null) {
-            return TutorVisualPreviewOutcome.Refused(
-                code = PAINTER_LABEL_MATH,
+    // 6) 分配 + 绘制 + 压缩。painter 是唯一绘制入口。
+    val bitmap = Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888)
+    val pngBytes = try {
+        VisualDrawOpsPainter().draw(
+            document,
+            Canvas(bitmap),
+            pxPerDu,
+            labelContents::get,
+        )
+        val sink = ByteArrayOutputStream()
+        val compressed = bitmap.compress(Bitmap.CompressFormat.PNG, VISUAL_PNG_QUALITY, sink)
+        if (!compressed) {
+            return TutorVisualFramePng.Refused(
+                code = PREVIEW_RENDER_FAILED,
                 diagnostic = bounded(
-                    "$PAINTER_LABEL_MATH: preview inherits the math fail-closed boundary; " +
-                        "contentId \"${mathLabel.contentId.take(32)}\" measured as a math box and " +
-                        "has no paintable lowering this batch",
+                    "$PREVIEW_RENDER_FAILED: bitmap.compress reported failure for a " +
+                        "${widthPx}x$heightPx frame",
                 ),
             )
         }
-
-        // 4) artifact→DTO 单一折算点：与 M-01/replay 批同一行段规则（lines→(start,end)、
-        //    heightDu、sizeSp、fontScale），不为预览造第二套（契约"不得继续增加第三套
-        //    公式/坐标绘制逻辑"的同族纪律）。
-        val labelContents: Map<String, VisualLabelContent> = request.labels.associate { label ->
-            val lines = requireNotNull(label.artifact.lines) { "math labels are refused above" }
-            label.contentId to VisualLabelContent.Text(
-                payload = label.payload,
-                sizeSp = label.artifact.fontSizeSp,
-                fontScale = request.fontScaleMilli / 1_000f,
-                heightDu = label.artifact.heightDu,
-                lines = lines.map { VisualLabelLine(start = it.start, endExclusive = it.endExclusive) },
-            )
-        }
-
-        // 5) 定界策略 + **先门后分配**（M-03 接线点，VisualLayoutBudget.kt:108-128 的约定：
-        //    "分配不发生"）。
-        val pxPerDu = pxPerDuOverride ?: previewPxPerDu(request.viewportWidthDu, request.viewportHeightDu, request.preferredPxPerDu)
-        val widthPx = ceil(request.viewportWidthDu * pxPerDu).toInt()
-        val heightPx = ceil(request.viewportHeightDu * pxPerDu).toInt()
-        try {
-            VisualLayoutBudget.requireBitmapBytesWithinBudget(
-                widthPx,
-                heightPx,
-                VisualLayoutBudget.ARGB_8888_BYTES_PER_PIXEL,
-            )
-        } catch (budget: IllegalArgumentException) {
-            return TutorVisualPreviewOutcome.Refused(
-                code = VisualLayoutBudget.BITMAP_BYTE_BUDGET,
-                diagnostic = bounded(budget.message ?: "bitmap byte budget refused"),
-            )
-        }
-
-        // 6) 分配 + 绘制 + 压缩。painter 是唯一绘制入口（与屏/PDF 回放同一状态机）；
-        //    实例每渲染新建（线程独占纪律最简守形）。
-        val bitmap = Bitmap.createBitmap(widthPx, heightPx, Bitmap.Config.ARGB_8888)
-        val pngBytes = try {
-            VisualDrawOpsPainter().draw(
-                document,
-                Canvas(bitmap),
-                pxPerDu,
-                labelContents::get,
-            )
-            val sink = ByteArrayOutputStream()
-            val compressed = bitmap.compress(Bitmap.CompressFormat.PNG, PNG_QUALITY, sink)
-            if (!compressed) {
-                return TutorVisualPreviewOutcome.Refused(
-                    code = PREVIEW_RENDER_FAILED,
-                    diagnostic = bounded(
-                        "$PREVIEW_RENDER_FAILED: bitmap.compress reported failure for a " +
-                            "${widthPx}x$heightPx preview",
-                    ),
-                )
-            }
-            sink.toByteArray()
-        } finally {
-            bitmap.recycle()
-        }
-
-        // 7) persist（字节→行原子两步，KDoc 钉的顺序即语义）；失败原样折降级——半截状态
-        //    （字节在行不在）不会传给快照，未引用行由六站点谓词 GC 自愈。
-        val record = persister.persist(pngBytes, request.createdAtEpochMillis)
-        return TutorVisualPreviewOutcome.Accepted(previewAssetId = record.sourceAssetId)
+        sink.toByteArray()
+    } finally {
+        bitmap.recycle()
     }
 
-    private fun bounded(message: String): String =
-        message.take(FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS)
-
-    private companion object {
-        /** PNG 是无损格式，quality 参数无效果；传 100 表达"不降质"的意图。 */
-        const val PNG_QUALITY = 100
-    }
+    return TutorVisualFramePng.Rendered(pngBytes)
 }
+
+private fun bounded(message: String): String =
+    message.take(FigureGenerationOutcome.MAX_DIAGNOSTICS_CHARS)
+
+/** PNG 是无损格式，quality 参数无效果；传 100 表达"不降质"的意图。 */
+private const val VISUAL_PNG_QUALITY = 100

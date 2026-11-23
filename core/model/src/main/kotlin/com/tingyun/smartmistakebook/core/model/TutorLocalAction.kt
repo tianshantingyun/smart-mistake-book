@@ -19,6 +19,8 @@ enum class TutorLocalAction {
 
     /** 将本轮真实题目写入复习计划，旧确认卡的历史载荷仍可读。 */
     ADD_TO_REVIEW_PLAN,
+    /** 把本轮已知题目从今天的复习计划中移除（只在计划未开始/未完成时可改）。 */
+    REMOVE_FROM_REVIEW_PLAN,
     EDIT_PROBLEM,
     SET_FAVORITE,
     ARCHIVE_PROBLEM,
@@ -26,6 +28,14 @@ enum class TutorLocalAction {
     UPDATE_SCHEDULING,
     CREATE_BACKUP,
     RESTORE_BACKUP,
+    /** 往考试日历写一场考试（科目/日期/名称），与调度设置同一存储。 */
+    ADD_EXAM,
+    /** 按考试条目 id 移除一场考试。 */
+    REMOVE_EXAM,
+    /** 把本轮已知题目的知识点关联改成本轮从知识目录读到的节点。 */
+    RECLASSIFY_PROBLEM,
+    /** 把本轮已知的重复题目合并到当前题（保留当前题，重复项归档并留下关联）。 */
+    MERGE_PROBLEM,
     ;
 
     /**
@@ -47,6 +57,8 @@ enum class TutorLocalAction {
                     "只有成功回执才能说明文件已生成。"
             ADD_TO_REVIEW_PLAN ->
                 "把本轮已知题目纳入复习计划，按真实队列写入回执说明结果。"
+            REMOVE_FROM_REVIEW_PLAN ->
+                "把本轮已知题目从今天的复习计划中移除；计划已开始/已完成时如实拒绝，不假装改过。"
             EDIT_PROBLEM -> "按instruction修改本轮已知题目，走持久化修改作业与版本校验；仅成功提交新版本后说明已改。"
             SET_FAVORITE -> "设置本轮已知题目的收藏状态，favorite=true收藏，false取消收藏。"
             ARCHIVE_PROBLEM -> "归档本轮已知题目，保留题目历史。"
@@ -54,6 +66,17 @@ enum class TutorLocalAction {
             UPDATE_SCHEDULING -> "修改每日复习分钟数或目标保留率，并回传已保存设置和生效时机。"
             CREATE_BACKUP -> "创建本机备份文件并返回真实backupRef，可供后续恢复。"
             RESTORE_BACKUP -> "从本轮已授权备份backupRef恢复，返回实际恢复结果和重启状态。"
+            ADD_EXAM ->
+                "把一场考试写进考试日历（科目、日期、名称），回传实际保存结果；" +
+                    "日期是本地 epoch day（1970-01-01 起的天数）。"
+            REMOVE_EXAM -> "按考试条目 id 从考试日历移除一场考试，回传实际移除结果。"
+            RECLASSIFY_PROBLEM ->
+                "把本轮已知题目的知识点关联改为本轮从知识目录读到的节点" +
+                    "（nodeId@taxonomyVersion，逗号分隔）；板块与手动分类保留，" +
+                    "只在保存成功后说明已改。"
+            MERGE_PROBLEM ->
+                "把本轮已知的重复题目合并到当前题：保留当前题，重复条目归档并留下一条" +
+                    "重复关联；不删除题/修订/学习证据，归档可恢复。"
         }
 
     /** 原生 function schema 的短描述（与 [purposeDescription] 同一份声明、措辞收紧）。 */
@@ -62,8 +85,10 @@ enum class TutorLocalAction {
             OPEN_PROBLEM -> "自动打开本轮的那道题或错题本，回传实际结果"
             SAVE_TO_NOTEBOOK -> "自动保存本轮真实题目或将附图加入录入，回传实际结果"
             START_EXPORT -> "自动导出本轮检索到的题目，可指定模板与版式，回传生成进度"
-            ADD_TO_REVIEW_PLAN, EDIT_PROBLEM, SET_FAVORITE, ARCHIVE_PROBLEM,
-            RESTORE_PROBLEM, UPDATE_SCHEDULING, CREATE_BACKUP, RESTORE_BACKUP -> purposeDescription
+            ADD_TO_REVIEW_PLAN, REMOVE_FROM_REVIEW_PLAN,
+            EDIT_PROBLEM, SET_FAVORITE, ARCHIVE_PROBLEM,
+            RESTORE_PROBLEM, UPDATE_SCHEDULING, CREATE_BACKUP, RESTORE_BACKUP,
+            ADD_EXAM, REMOVE_EXAM, RECLASSIFY_PROBLEM, MERGE_PROBLEM -> purposeDescription
         }
 
     /** 两条协议与本地解析器共享参数形状，条目选择在执行时核对本轮已知结果。 */
@@ -73,6 +98,11 @@ enum class TutorLocalAction {
                 TutorLocalActionParameter(
                     parameterName = "entryIds",
                     description = "要导出的条目 id，逗号分隔；只能选本轮已检索或刚保存成功的条目。省略时导出本轮检索结果。",
+                ),
+                TutorLocalActionParameter(
+                    parameterName = "format",
+                    description = "交付格式：pdf=PDF（默认）、docx=Word 文档；学生说「Word」时填 docx。",
+                    allowedValues = listOf("pdf", "docx"),
                 ),
                 TutorLocalActionParameter(
                     parameterName = "templateId",
@@ -133,7 +163,8 @@ enum class TutorLocalAction {
                     description = "要打开的条目 id，只能选本轮已检索或刚保存成功的条目。省略时打开本轮唯一条目或错题本。",
                 ),
             )
-            ADD_TO_REVIEW_PLAN, ARCHIVE_PROBLEM, RESTORE_PROBLEM -> listOf(entryParameter())
+            ADD_TO_REVIEW_PLAN, REMOVE_FROM_REVIEW_PLAN, ARCHIVE_PROBLEM, RESTORE_PROBLEM ->
+                listOf(entryParameter())
             SET_FAVORITE -> listOf(entryParameter(), TutorLocalActionParameter(
                 "favorite", "是否收藏", required = true, allowedValues = listOf("true", "false"),
             ))
@@ -150,6 +181,31 @@ enum class TutorLocalAction {
             RESTORE_BACKUP -> listOf(TutorLocalActionParameter(
                 "backupRef", "从本轮已授权备份列表选择的备份身份", required = true,
             ))
+            ADD_EXAM -> listOf(
+                TutorLocalActionParameter("subject", "考试科目（如 数学）", required = true),
+                TutorLocalActionParameter(
+                    "examEpochDay", "考试日期：本地 epoch day（1970-01-01 起的天数）", required = true,
+                ),
+                TutorLocalActionParameter("title", "考试名称（如 期中考试）", required = true),
+            )
+            REMOVE_EXAM -> listOf(TutorLocalActionParameter(
+                "examEntryId", "要从考试日历移除的考试条目 id（取自 REVIEW_PLAN_READ 的考试列表）",
+                required = true,
+            ))
+            RECLASSIFY_PROBLEM -> listOf(
+                entryParameter(),
+                TutorLocalActionParameter(
+                    "knowledgeNodes",
+                    "新知识点关联：逗号分隔的 nodeId@taxonomyVersion，只能取本轮 " +
+                        "KNOWLEDGE_CATALOG_READ 真实返回的值。",
+                    required = true,
+                ),
+            )
+            MERGE_PROBLEM -> listOf(TutorLocalActionParameter(
+                "duplicateEntryId",
+                "要合并掉的重复条目 id（取自本轮错题本检索结果；当前题作为保留项）。",
+                required = true,
+            ))
             SAVE_TO_NOTEBOOK -> emptyList()
         }
 
@@ -158,12 +214,14 @@ enum class TutorLocalAction {
 
     companion object {
         val APPLICATION_ACTIONS: Set<TutorLocalAction> = setOf(
-            EDIT_PROBLEM, SET_FAVORITE, ARCHIVE_PROBLEM,
+            ADD_TO_REVIEW_PLAN, REMOVE_FROM_REVIEW_PLAN, EDIT_PROBLEM, SET_FAVORITE, ARCHIVE_PROBLEM,
             RESTORE_PROBLEM, UPDATE_SCHEDULING, CREATE_BACKUP, RESTORE_BACKUP,
+            ADD_EXAM, REMOVE_EXAM, RECLASSIFY_PROBLEM, MERGE_PROBLEM,
         )
         val ENTRY_TARGET_ACTIONS: Set<TutorLocalAction> = setOf(
-            OPEN_PROBLEM, SAVE_TO_NOTEBOOK, ADD_TO_REVIEW_PLAN, EDIT_PROBLEM,
-            SET_FAVORITE, ARCHIVE_PROBLEM, RESTORE_PROBLEM,
+            OPEN_PROBLEM, SAVE_TO_NOTEBOOK, ADD_TO_REVIEW_PLAN, REMOVE_FROM_REVIEW_PLAN,
+            EDIT_PROBLEM, SET_FAVORITE, ARCHIVE_PROBLEM, RESTORE_PROBLEM, RECLASSIFY_PROBLEM,
+            MERGE_PROBLEM,
         )
         private fun entryParameter() = TutorLocalActionParameter(
             "entryId", "本轮已知的题目条目 id，缺省使用当前题目。",
@@ -257,7 +315,7 @@ data class TutorLocalActionRequest(
  *
  * 每个动作依次自动执行并回传独立结果，单轮上限保持在四个。
  */
-const val MAX_LOCAL_ACTION_REQUESTS_PER_ROUND = 4
+const val MAX_LOCAL_ACTION_REQUESTS_PER_ROUND = 6
 
 /** 本地动作通道在请求/输出里的键名（Route B 信封与解析器共用一处）。 */
 const val TUTOR_LOCAL_ACTIONS_WIRE_KEY = "localActions"

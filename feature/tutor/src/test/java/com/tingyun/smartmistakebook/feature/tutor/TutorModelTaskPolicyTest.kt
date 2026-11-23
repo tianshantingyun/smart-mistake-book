@@ -913,6 +913,8 @@ class TutorModelTaskPolicyTest {
                 TutorToolName.APP_CONTEXT,
                 TutorToolName.SELECT_QUESTION,
                 TutorToolName.READ_FIGURE,
+                TutorToolName.REVIEW_PLAN_READ,
+                TutorToolName.KNOWLEDGE_CATALOG_READ,
                 TutorToolName.RUN_JAVASCRIPT,
                 TutorToolName.KNOWLEDGE_READ,
                 TutorToolName.NOTEBOOK_READ,
@@ -924,6 +926,7 @@ class TutorModelTaskPolicyTest {
                 // 4B A1：生图工具与其它工具同页声明（大厅里它不会被授权——意图矩阵只给
                 // CURRENT_QUESTION_HELP；声明与放行仍是两层表达）。
                 TutorToolName.GENERATE_FIGURE,
+                TutorToolName.READ_RESULT,
             ),
             input.toolDeclarations,
         )
@@ -932,7 +935,7 @@ class TutorModelTaskPolicyTest {
         // 都钉在 core:data 的 `TutorToolRoundGateTest`：意图授权矩阵（NOTEBOOK_WRITE 另需
         // explicitActionRequest）与 MASTERY_UPDATE 的代号白名单（大厅没有已披露代号 →
         // 任何代号结构性拒，模型被提示词教会先确认科目）。
-        assertEquals(12, input.toolDeclarations.size)
+        assertEquals(15, input.toolDeclarations.size)
     }
 
     // ---- 学生显式添加的题（加号「从错题本选择」）成为本轮题锚 ----
@@ -1153,7 +1156,7 @@ class TutorModelTaskPolicyTest {
         )
         val input = request.input as TutorPlanInput
         assertEquals(TUTOR_TOOL_DECLARATIONS.toList(), input.toolDeclarations)
-        assertEquals(12, input.toolDeclarations.size)
+        assertEquals(15, input.toolDeclarations.size)
         assertTrue(input.toolRoundResults.isEmpty())
     }
 

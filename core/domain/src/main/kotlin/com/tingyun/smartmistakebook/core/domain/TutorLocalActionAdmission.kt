@@ -173,7 +173,7 @@ fun allowedLocalActions(requests: List<TutorLocalActionRequest>): Set<TutorLocal
             }
     }.map { request -> request.action }.toSet()
 
-/** 对象是否有真实执行处理器（工具：执行分支；动作：非 NOT_WIRED_YET 的路由）。 */
+/** 对象是否有真实执行处理器（工具：执行分支；动作：非空执行路由）。 */
 private fun TutorPermissionSubject.isImplemented(): Boolean = when (this) {
     is TutorPermissionSubject.Tool -> tool in TutorCapabilitySnapshot.IMPLEMENTED_TOOLS
     is TutorPermissionSubject.LocalAction ->

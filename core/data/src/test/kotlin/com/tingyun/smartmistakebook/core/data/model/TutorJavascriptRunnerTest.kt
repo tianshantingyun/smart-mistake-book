@@ -80,14 +80,14 @@ class TutorJavascriptRunnerTest {
     }
 
     @Test
-    fun twelveHostCallsAreAllowedAndTheThirteenthIsRejected() = runBlocking {
-        val engine = ScriptedEngine((0..12).map { pending(it) })
+    fun twentyHostCallsAreAllowedAndTheTwentyFirstIsRejected() = runBlocking {
+        val engine = ScriptedEngine((0..20).map { pending(it) })
         var calls = 0
         val result = runTutorJavascript(engine, "return 1;", null, {
             calls++
             TutorToolOutcome(it.tool, true, "Done")
         }, noAction)
-        assertEquals(12, calls)
+        assertEquals(20, calls)
         assertEquals("JAVASCRIPT_HOST_CALL_LIMIT", result.outcome.errorKind)
     }
 

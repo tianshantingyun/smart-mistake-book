@@ -6,11 +6,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * 轮内结果预算（spec model-intent-routing §3.1）。单工具上限管不到"一轮加起来"，
- * 所以这里守的是**总额**：三个 2k 结果不能把 6k 塞进下一轮 prompt。
- *
- * 被压缩的结果必须**说出来**——静默变短的清单会被读成完整清单，模型据此
- * 以为没有更多可查。这条性质是这些用例的核心，不是顺带断言的。
+ * 轮内结果工具的两种形态：
+ * - `budgetTutorToolOutcomes` 仍是**显式调用方**可用的压缩工具（保留其完整测试）；
+ * - 生产构造 `tutorToolRoundResult` 自 2026-11-18 起不做任何压缩——模型看到完整结果，
+ *   这里的用例钉住这条政策，防止有人悄悄把 4k 轮门加回去。
  */
 class TutorToolRoundBudgetTest {
 
@@ -94,13 +93,8 @@ class TutorToolRoundBudgetTest {
     }
 
     /**
-     * 渲染 v2 之后，KNOWLEDGE_READ 的单条结果可以长到单工具上限（2k，见
-     * `docs/research/2026-10-31-kb-knowledge-read-render-v2-prereg.md` §1.1/§2.1）。它和另外
-     * 两条各自可到 2k 的结果同轮时，轮总额仍必须是 4k：第一条按序放行，第二条缩节选并**说出**
-     * 被截断，第三条替换成"未随请求发送"的说明而不是消失。
-     *
-     * 这条锁的是 v2 与轮预算的相互作用：单条变长后，"三条各 2k"不再是假想，4k 轮门必须在
-     * 真实形态上仍然成立，且替换/截断的注记格式与既有契约共用同一组常量。
+     * 2026-11-18：生产轮结果**不再按 4k 压缩**。模型在下一轮看到三条完整结果（每条 2k
+     * 的摘要全保留），`extendedResultUsed` 不再改变输出。
      */
     @Test
     fun aRenderV2KnowledgeReadSharesTheRoundWithTwoOtherResultsInOrder() {
@@ -126,40 +120,15 @@ class TutorToolRoundBudgetTest {
             ),
             extendedResultUsed = false,
         )
-        val budgeted = round.outcomes
 
-        // 三条都在：被压缩的说明自己是谁，不能被静默抹掉。
-        assertEquals(3, budgeted.size)
-
-        // 第一条（渲染 v2 的 KNOWLEDGE_READ）在 4k 里放得下：原样通过，不因"它自己用满了 2k"被缩。
-        assertEquals(TutorToolName.KNOWLEDGE_READ, budgeted[0].tool)
-        assertEquals(knowledgeRead, budgeted[0].summaryMarkdown)
-
-        // 第二条放不下整条：保留可用前缀，并以既有截断注记结尾（注记格式 = 契约常量）。
-        assertEquals(TutorToolName.NOTEBOOK_READ, budgeted[1].tool)
+        assertEquals(3, round.outcomes.size)
+        assertEquals(knowledgeRead, round.outcomes[0].summaryMarkdown)
+        assertEquals(notebookRead, round.outcomes[1].summaryMarkdown)
+        assertEquals(masteryRead, round.outcomes[2].summaryMarkdown)
+        val total = round.outcomes.sumOf { it.summaryMarkdown.length } + round.outcomes.size - 1
         assertTrue(
-            "截断必须保留可用前缀：${budgeted[1].summaryMarkdown.take(32)}",
-            budgeted[1].summaryMarkdown.startsWith("错题本匹配 6 条："),
-        )
-        assertTrue(
-            "截断必须命名：${budgeted[1].summaryMarkdown.takeLast(32)}",
-            budgeted[1].summaryMarkdown.endsWith(TRUNCATED_OUTCOME_NOTE),
-        )
-        assertTrue(
-            "第二条确实被压缩了：${budgeted[1].summaryMarkdown.length}",
-            budgeted[1].summaryMarkdown.length < notebookRead.length,
-        )
-
-        // 第三条完全放不下：替换成未发送说明（不是空串、不是消失），执行结论不变。
-        assertEquals(DROPPED_OUTCOME_SUMMARY, budgeted[2].summaryMarkdown)
-        assertEquals(TutorToolName.MASTERY_READ, budgeted[2].tool)
-        assertEquals(true, budgeted[2].ok)
-
-        // 轮总额仍受 4k 门约束（与既有用例同一口径：每条之间按 1 个换行计）。
-        val total = budgeted.sumOf { it.summaryMarkdown.length } + budgeted.size - 1
-        assertTrue(
-            "round total $total exceeds the round budget",
-            total <= TutorToolRoundResult.MAX_TOOL_ROUND_RESULT_CHARS,
+            "production must not squeeze a round at 4k: actual $total",
+            total > TutorToolRoundResult.MAX_TOOL_ROUND_RESULT_CHARS,
         )
     }
 
@@ -187,7 +156,7 @@ class TutorToolRoundBudgetTest {
     // ---- 轮结果的构成（把预算算术放进 model 层，使它整体可测） ----
 
     @Test
-    fun theRoundResultIsBuiltWithTheBudgetApplied() {
+    fun theRoundResultKeepsEveryOutcomeUnchanged() {
         val outcomes = (1..3).map { outcome("x".repeat(2_000) + it) }
 
         val round = tutorToolRoundResult(
@@ -196,25 +165,20 @@ class TutorToolRoundBudgetTest {
             extendedResultUsed = false,
         )
 
-        val total = round.outcomes.sumOf { it.summaryMarkdown.length } + round.outcomes.size - 1
-        assertTrue("round total $total exceeds the base budget", total <= 4_000)
+        assertEquals(outcomes, round.outcomes)
     }
 
     @Test
-    fun anExtendedRoundGetsTheLargerTotalSoTheExtendedResultIsReachable() {
-        // 这条锁的是你批的两项之间的相互作用：若轮总额不随扩展调用提高，单个 6k 结果
-        // 会被 4k 的轮门砍掉——扩展预算就成了永远生效不了的空头承诺。
+    fun theExtendedFlagNeverChangesWhatTheModelSees() {
+        // 2026-11-18：轮预算退场后，扩展位不再改变结果；两种轮都完整保留 5k 结果。
         val extended = outcome("a".repeat(5_000))
         val plain = outcome("b".repeat(1_500))
 
         val baseRound = tutorToolRoundResult(1, listOf(extended, plain), extendedResultUsed = false)
         val extendedRound = tutorToolRoundResult(1, listOf(extended, plain), extendedResultUsed = true)
 
-        assertTrue(
-            "the 5k result should not survive the base round budget",
-            baseRound.outcomes.first().summaryMarkdown.length < 5_000,
-        )
-        assertEquals(5_000, extendedRound.outcomes.first().summaryMarkdown.length)
+        assertEquals(5_000, baseRound.outcomes.first().summaryMarkdown.length)
+        assertEquals(baseRound.outcomes, extendedRound.outcomes)
     }
 
     /**

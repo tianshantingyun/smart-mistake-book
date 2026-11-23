@@ -578,8 +578,7 @@ internal object OpenAiModelTaskAdapters {
                 ${lobbyConversationBlock(input)}
             """.trimIndent()
         }
-        // 单一能力快照（PRD-06）：本地动作块与工具块都读这一份。`ADD_TO_REVIEW_PLAN`
-        // 没有执行处理器，不在快照里——提示词因此根本不会向模型提到它。
+        // 单一能力快照（PRD-06）：本地动作块与工具块都读这一份；已实现集合与执行端同源。
         val capability = TutorCapabilitySnapshot.forRound(input)
         return """
             这是“讲题”首页的自由对话入口。先判断本次消息的真实目标，再直接回应。

@@ -4,11 +4,11 @@
 
 ## Build Information
 
-- **Commit SHA**: `9d2096adcd2ebd4072377626754318c6fb327499`
-- **Build Date**: `2026-10-23`
+- **Commit SHA**: `37401f4fe2b966a51e8c8264e253029640f47ba4`
+- **Build Date**: `2026-11-18`
 - **Branch**: `main`
-- **Triggered By**: `unknown`
-- **Run context**: BOUND · sha `9d2096adcd2e`（git HEAD） · branch `main` · 触发 unknown
+- **Triggered By**: `push`
+- **Run context**: BOUND · sha `37401f4fe2b9`（CI 变量，与 git HEAD 一致） · branch `main` · 触发 push
 - **Run context note**: 绑定时刻 = 生成时刻，非所描述代码的提交
 
 ## Build Results
@@ -18,25 +18,25 @@
 | Module | Status | Duration |
 |--------|--------|----------|
 | `:core:database` | OK | - |
-| `:core:data` | NOT_MEASURED | - |
-| `:core:domain` | NOT_MEASURED | - |
+| `:core:data` | OK | - |
+| `:core:domain` | OK | - |
 | `:feature:library` | OK | - |
 | `:feature:capture` | OK | - |
-| `:feature:tutor` | NOT_MEASURED | - |
-| `:app:localFirst` | NOT_MEASURED | - |
-| `:app:strictOffline` | NOT_MEASURED | - |
+| `:feature:tutor` | OK | - |
+| `:app:localFirst` | OK | - |
+| `:app:strictOffline` | OK | - |
 
-编译证据（要求产物晚于本模块源码）：以下位置记 NOT_MEASURED —— `:core:data`：类产物早于源码（10-24 00:01 < 源码 10-24 02:19）；`:core:domain`：类产物早于源码（10-24 00:00 < 源码 10-24 01:58）；`:feature:tutor`：类产物早于源码（10-23 22:43 < 源码 10-23 22:56）；`:app:localFirstDebug`：类产物早于源码（10-24 00:01 < 源码 10-24 02:10）；`:app:strictOfflineDebug`：类产物早于源码（10-15 21:30 < 源码 10-24 02:10）
+编译证据（要求产物晚于本模块源码）：8 个模块/变体全部新鲜。
 
 ### Unit Tests
 
 | Module | Tests | Passed | Failed | Duration |
 |--------|-------|--------|--------|----------|
-| `:core:database` | 211 | 211 | 0 | - |
-| `:core:data` | 1032 | 1032 | 0 | - |
-| `:feature:library` | 65 | 65 | 0 | - |
-| `:feature:capture` | 148 | 148 | 0 | - |
-| `:feature:tutor` | 255 | 255 | 0 | - |
+| `:core:database` | 248 | 248 | 0 | - |
+| `:core:data` | 1787 | 1787 | 0 | - |
+| `:feature:library` | 111 | 111 | 0 | - |
+| `:feature:capture` | 149 | 149 | 0 | - |
+| `:feature:tutor` | 268 | 268 | 0 | - |
 
 ### Lint
 
@@ -44,39 +44,39 @@
 
 | Module | Status | Errors | Warnings |
 |--------|--------|--------|----------|
-| `lintLocalFirstDebug` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `lintStrictOfflineDebug` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| Android 库模块（下表明细） | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `lintLocalFirstDebug` | OK | 0 | 56 |
+| `lintStrictOfflineDebug` | OK | 0 | 55 |
+| Android 库模块（下表明细） | OK | 0 | 188 |
 
 | Module | Status | Errors | Warnings |
 |--------|--------|--------|----------|
-| `:core:data` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:core:database` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:core:export` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:core:ui` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:feature:capture` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:feature:library` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:feature:profile` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:feature:review` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
-| `:feature:tutor` | NOT_MEASURED | NOT_MEASURED | NOT_MEASURED |
+| `:core:data` | OK | 0 | 25 |
+| `:core:database` | OK | 0 | 0 |
+| `:core:export` | OK | 0 | 3 |
+| `:core:ui` | OK | 0 | 4 |
+| `:feature:capture` | OK | 0 | 11 |
+| `:feature:library` | OK | 0 | 9 |
+| `:feature:profile` | OK | 0 | 0 |
+| `:feature:review` | OK | 0 | 8 |
+| `:feature:tutor` | OK | 0 | 17 |
 
-以下位置没有可用 lint 证据（记 NOT_MEASURED，不能当作通过）：`localFirstDebug`：lint 报告早于源码（10-23 21:43 < 源码 10-24 02:10）；`strictOfflineDebug`：lint 报告早于源码（10-13 21:34 < 源码 10-24 02:10）；`:core:data`：lint 报告早于源码（10-15 23:23 < 源码 10-24 02:19）；`:core:database`：无 lint 报告；`:core:export`：lint 报告早于源码（10-17 21:08 < 源码 10-23 21:31）；`:core:ui`：lint 报告早于源码（10-23 22:42 < 源码 10-23 22:54）；`:feature:capture`：lint 报告早于源码（10-22 20:56 < 源码 10-23 22:28）；`:feature:library`：lint 报告早于源码（10-23 21:04 < 源码 10-23 22:41）；`:feature:profile`：lint 报告早于源码（10-22 21:00 < 源码 10-23 22:28）；`:feature:review`：lint 报告早于源码（10-22 21:00 < 源码 10-23 22:28）；`:feature:tutor`：lint 报告早于源码（10-23 21:25 < 源码 10-23 22:56）
+11 份报告（app 2 变体 + 9 个 Android 库模块）都在且不早于各自源码；错误合计 0。
 
 ### Release Build
 
 | Flavor | Status | APK Size | AAB Size |
 |--------|--------|----------|----------|
-| `localFirst` | OK | 166.7 MB | NOT_MEASURED |
-| `strictOffline` | OK | 166.7 MB | NOT_MEASURED |
+| `localFirst` | OK | 149.2 MB | NOT_MEASURED |
+| `strictOffline` | OK | 149.2 MB | NOT_MEASURED |
 
 ### APK/AAB Hashes
 
 | Artifact | SHA-256 |
 |----------|---------|
-| `localFirst-debug.apk` | 5de7b9dd29e9d55437bc455cf74d2129e02f914a1e61e10dab040263008de5f7 |
-| `localFirst-release.apk` | 1f073e9bcad9716c2ab6d90e4f70e2faddab7810020b38817e23b87523679d42 |
-| `strictOffline-debug.apk` | 778ef4046a11b245c2975c6fe69d04bd01a5055aab452ff0f05120b9472c06fa |
-| `strictOffline-release.apk` | 978e71251d4060ee13f7cb67c8d8095cb28c9965f02ae7e0f5b994516f7f7d65 |
+| `localFirst-debug.apk` | aa2c403de7a554ae45c0f5434919bdd4344fbc22c8bd7014988ab781778d6371 |
+| `localFirst-release.apk` | 91c797ff99a4a5c6671f5ee848e8bddb64a6784732ff482290bc2f5b9864d3f0 |
+| `strictOffline-debug.apk` | 8ce59dfccc9d34a134e76e5c234102e7cb864656f491b3a341a5ae48e2bbc057 |
+| `strictOffline-release.apk` | f7390a00bb562a9e08d2b964e252cf2f5237c0bf76155ab0acac3bce9930eda8 |
 
 ## Knowledge Base
 
@@ -111,13 +111,13 @@
 
 通过 24/24 项；全部为 0 才算绿。
 
-权威表 sha256（前 12 位）：`chapter_map.csv`=`f4cd2b4bcebd`（门保护） · `chapter_by_source.csv`=`35111c68bb4b`（门保护） · `alias_map.csv`=`5f8ceeab42cd`（门保护） · `boundary_map.csv`=`560029fd4a58`（报告型） · `prereq_map.csv`=`d05a51e2c83d`（门保护） · `material_bindings.csv`=`2553d17f08fe`（门保护）
+权威表 sha256（前 12 位）：`chapter_map.csv`=`59dbc02fdb19`（门保护） · `chapter_by_source.csv`=`35111c68bb4b`（门保护） · `alias_map.csv`=`dc6311a1d271`（门保护） · `boundary_map.csv`=`560029fd4a58`（报告型） · `prereq_map.csv`=`8d65c0292113`（门保护） · `material_bindings.csv`=`1108e7c11528`（门保护）
 
 ### Tools Tests（Python，tools/tests 套件）
 
 | 总数 | 通过 | 失败 |
 |------|------|------|
-| 785 | 785 | 0 |
+| 1272 | 1272 | 0 |
 
 ### Retrieval Benchmark（:core:data 单测写入 build/benchmark-metrics.txt，逐字嵌入）
 
@@ -169,9 +169,9 @@ crossSubject=0
 
 | Module | Line Coverage | Branch Coverage |
 |--------|---------------|-----------------|
-| `:core:database` | NOT_MEASURED | NOT_MEASURED |
-| `:core:data` | NOT_MEASURED | NOT_MEASURED |
-| `:core:domain` | NOT_MEASURED | NOT_MEASURED |
+| `:core:database` | 6.9% | 7.1% |
+| `:core:data` | 60.4% | 47.4% |
+| `:core:domain` | 73.2% | 54.3% |
 
 ## Migration Tests
 
@@ -189,11 +189,11 @@ NOT_MEASURED
 
 ## Overall Status
 
-**NOT_MEASURED**
+**PASS**
 
-build job: NOT_MEASURED · KB gates: all OK · tools tests: 785/785 passed · lint（app 2 变体 + 9 个库模块）: NOT_MEASURED · compile evidence: NOT_MEASURED · run context: BOUND
+build job: OK · KB gates: all OK · tools tests: 1272/1272 passed · lint（app 2 变体 + 9 个库模块）: OK · compile evidence: OK · run context: BOUND
 
 ---
 
-*Generated by CI at 2026-10-23T18:20:21.216504+00:00*
+*Generated by CI at 2026-11-18T18:21:00.044390+00:00*
 *Report version: 1.0*

@@ -20,7 +20,9 @@ import kotlinx.coroutines.flow.flow
  */
 internal class TutorAgentContextRepository(
     private val delegate: ModelTaskRepository,
+    private val knownSubjects: suspend () -> List<String>,
     private val backupReferences: suspend () -> List<TutorBackupReference>,
+    private val reviewContext: suspend () -> String? = { null },
 ) : ModelTaskRepository by delegate {
     override fun execute(request: ModelTaskRequest): Flow<ModelTaskSnapshot> = flow {
         val input = request.input
@@ -32,8 +34,34 @@ internal class TutorAgentContextRepository(
             emitAll(delegate.execute(request))
             return@flow
         }
-        val context = (input.agentContextSnapshot() ?: TutorAgentContext()).copy(
-            backupReferences = backupReferences(),
+        val base = input.agentContextSnapshot() ?: TutorAgentContext()
+        val known = try {
+            knownSubjects().filter(String::isNotBlank)
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            emptyList()
+        }
+        val subjects = (base.subjects + known).distinct().takeLast(32)
+        val backups = try {
+            backupReferences()
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            // 备份目录不可读只应让“恢复备份”动作缺失引用，不应让整轮讲题失败。
+            base.backupReferences
+        }
+        val review = try {
+            reviewContext()
+        } catch (cancelled: kotlinx.coroutines.CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            base.reviewContextJson
+        }
+        val context = base.copy(
+            subjects = subjects,
+            backupReferences = backups,
+            reviewContextJson = review ?: base.reviewContextJson,
         )
         emitAll(delegate.execute(request.copy(input = input.withAgentContext(context))))
     }

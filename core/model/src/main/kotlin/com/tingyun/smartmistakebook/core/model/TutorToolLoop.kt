@@ -17,6 +17,15 @@ enum class TutorToolName {
     SELECT_QUESTION,
     READ_FIGURE,
     RUN_JAVASCRIPT,
+    REVIEW_PLAN_READ,
+    /**
+     * 已审知识目录检索：返回可用于「改知识点关联」的精确身份（nodeId + taxonomyVersion）。
+     *
+     * 与 KNOWLEDGE_READ 的分工：后者用会话代号讲“这个学生在这个知识点上怎么样”，
+     * 原始 id 不进结果；本工具只回答“目录里有哪些节点、它们的精确身份是什么”，
+     * 写侧（RECLASSIFY_PROBLEM）只接受这里真实返回过的 nodeId@taxonomyVersion 对。
+     */
+    KNOWLEDGE_CATALOG_READ,
     KNOWLEDGE_READ,
     NOTEBOOK_READ,
     MASTERY_READ,
@@ -37,6 +46,12 @@ enum class TutorToolName {
      * （绝不接受模型供图），生成结果只回 id + 状态（不回字节）。
      */
     GENERATE_FIGURE,
+    /**
+     * 回读被 6,000 字符工具结果上限挡下的完整本地结果（`resultId` 由产生结果的那次工具
+     * 调用返回）。只接受本会话真实产生过的 id，分页有界返回；它是“大结果不再整轮失败”的
+     * 读侧，而不是放大单工具结果预算。
+     */
+    READ_RESULT,
 }
 
 /**
@@ -239,6 +254,7 @@ data class TutorToolCall(
         require(parameters.values.all { it.isNotBlank() && it.length <= 2_000 && it.none(Char::isISOControl) })
         if (tool == TutorToolName.SELECT_QUESTION) require(!parameters["entryId"].isNullOrBlank())
         if (tool == TutorToolName.READ_FIGURE) require(!parameters["assetId"].isNullOrBlank())
+        if (tool == TutorToolName.READ_RESULT) require(!parameters["resultId"].isNullOrBlank())
         if (tool == TutorToolName.RUN_JAVASCRIPT) {
             require(!script.isNullOrBlank() && figureUsageUtf8Bytes(script) <= FigureGenerationPolicy.MAX_PROGRAM_UTF8_BYTES)
         } else require(script == null) { "Only RUN_JAVASCRIPT carries script" }
@@ -253,7 +269,16 @@ data class TutorToolCall(
         if (tool == TutorToolName.GENERATE_FIGURE && stateJson != null) {
             require(figureMethod == FigureGenerationMethod.JS && figureUsageUtf8Bytes(stateJson) <= 16 * 1_024)
         }
-        parameters["limit"]?.let { require(it.toIntOrNull()?.let { limit -> limit in 1..30 } == true) }
+        parameters["limit"]?.let {
+            val value = it.toIntOrNull()
+            require(
+                value != null && if (tool == TutorToolName.READ_RESULT) {
+                    value in 1..MAX_RESULT_CHUNK_CHARS
+                } else {
+                    value in 1..30
+                },
+            )
+        }
         parameters["offset"]?.let { require(it.toIntOrNull()?.let { offset -> offset >= 0 } == true) }
         require(rationale.isNotBlank() && rationale.length <= MAX_TOOL_RATIONALE_CHARS) {
             "A tool call must state an anchored reason of at most $MAX_TOOL_RATIONALE_CHARS chars"
@@ -280,6 +305,8 @@ data class TutorToolCall(
             tool != TutorToolName.SELECT_QUESTION &&
             tool != TutorToolName.READ_FIGURE &&
             tool != TutorToolName.RUN_JAVASCRIPT &&
+            tool != TutorToolName.REVIEW_PLAN_READ &&
+            tool != TutorToolName.READ_RESULT &&
             tool != TutorToolName.NOTEBOOK_WRITE &&
             tool != TutorToolName.ADVISORY_READ &&
             tool != TutorToolName.ADVISORY_WRITE &&
@@ -482,6 +509,9 @@ data class TutorToolCall(
     companion object {
         const val MAX_TOOL_RATIONALE_CHARS = 200
 
+        /** READ_RESULT 单次回读的字符上限（留出 JSON 信封后的 6,000 工具结果预算）。 */
+        const val MAX_RESULT_CHUNK_CHARS = 3_500
+
         /**
          * ADVISORY_WRITE 一条 payload 的字符上限。取值理由：读侧一次最多回
          * [TutorToolOutcome.MAX_TOOL_RESULT_CHARS]（2k）字符，读回渲染要给每条留摘要位；
@@ -505,6 +535,9 @@ fun TutorToolName.parameterNames(): Set<String> = when (this) {
     TutorToolName.SELECT_QUESTION -> setOf("entryId")
     TutorToolName.READ_FIGURE -> setOf("assetId")
     TutorToolName.RUN_JAVASCRIPT -> emptySet()
+    TutorToolName.REVIEW_PLAN_READ -> emptySet()
+    TutorToolName.KNOWLEDGE_CATALOG_READ -> emptySet()
+    TutorToolName.READ_RESULT -> setOf("resultId", "offset", "limit")
     TutorToolName.NOTEBOOK_READ -> setOf("offset", "limit", "subject", "sectionId", "masteryId", "sort", "createdFrom", "createdTo")
     else -> setOf("subject")
 }
@@ -519,7 +552,9 @@ data class TutorToolOutcome(
     @EncodeDefault(EncodeDefault.Mode.NEVER) val dataJson: String? = null,
 ) {
     init {
-        dataJson?.let { require(it.length <= 6_000); kotlinx.serialization.json.Json.parseToJsonElement(it) }
+        // 不在本地截断工具结果：模型看到的必须是工具真实产出的完整 JSON。
+        // 只有 JSON 可解析这一条是结构要求，不是大小策略。
+        dataJson?.let { kotlinx.serialization.json.Json.parseToJsonElement(it) }
         summaryMarkdown.requireSafeModelText(
             label = "Tutor tool outcome summary",
             maxChars = MAX_TOOL_RESULT_CHARS_EXTENDED,
@@ -530,30 +565,20 @@ data class TutorToolOutcome(
 
     companion object {
         /**
-         * Default result budget every tool targets. A tool that emits more must
-         * have a reason recorded on it (today only `MASTERY_READ` does, and only
-         * for a call that asked for the extended budget).
+         * Default result size a tool *targets* when it renders its digest. This is a
+         * presentation choice inside a tool, not a cap on what the model may see:
+         * whatever the tool actually returns is delivered in full.
          */
         const val MAX_TOOL_RESULT_CHARS = 2_000
 
         /**
-         * Absolute ceiling for one outcome, applied by [TutorToolOutcome]'s own
-         * validation. It is the larger value because a model-requested extended
-         * read is legitimate here; the pipeline still needs a hard bound so a
-         * mis-sized result can never silently inflate the next prompt.
+         * 单个工具结果的**安全上限**（1,000,000 字符），不是上下文策略。
          *
-         * Sized so a full subject list stays inside it with room to spare: a
-         * subject carries on the order of a few hundred knowledge nodes *with*
-         * mastery state, and one compact line each fits well under this.
-         *
-         * The total-across-a-round budget is a separate, implemented concern:
-         * [TutorToolRoundResult.MAX_TOOL_ROUND_RESULT_CHARS] caps a round at
-         * 4k — spec §3.1's ≤4k/round — plus
-         * [TutorToolRoundResult.EXTENDED_ROUND_RESULT_INCREMENT_CHARS] when the
-         * round spent its single extended call. [tutorToolRoundResult] applies
-         * the cap; the executor honours at most one extended call per round.
+         * 本应用的工具结果一律完整进入下一轮提示词；这里只防止一次异常读取把整台设备
+         * 拖进 OOM。正常读取（整科清单、整页题面、大段材料）远低于此值，不会触发任何
+         * 截断或压缩。超过此值时才落入本地工件并用 READ_RESULT 分页回读。
          */
-        const val MAX_TOOL_RESULT_CHARS_EXTENDED = 6_000
+        const val MAX_TOOL_RESULT_CHARS_EXTENDED = 1_000_000
     }
 }
 
@@ -571,37 +596,32 @@ data class TutorToolRoundResult(
     }
 
     companion object {
-        const val MAX_TOOL_ROUNDS = 5
+        const val MAX_TOOL_ROUNDS = 8
 
         /**
-         * Total characters of tool results one round may add to the next prompt
-         * (spec model-intent-routing §3.1).
-         *
-         * The spec's 4k was written for a round of at most two calls, and the
-         * implementation allows three — so this is deliberately a cap on the
-         * *sum*, not a restatement of the per-call budget: three calls at the
-         * default 2k would otherwise add 6k with nothing bounding the total.
+         * Historical round budget retained for [budgetTutorToolOutcomes]'s own tests and
+         * any caller that explicitly wants a squeeze. Production (`tutorToolRoundResult`)
+         * no longer applies it: the model gets the full results.
          */
         const val MAX_TOOL_ROUND_RESULT_CHARS = 4_000
 
         /**
-         * Extra round budget granted when the round contains a call that asked
-         * for the extended result budget. Without this the 4k round cap would
-         * make a 6k single result unreachable, which would quietly cancel the
-         * extended budget the model is allowed to request.
+         * Historical increment paired with [MAX_TOOL_ROUND_RESULT_CHARS]. Same status:
+         * available to explicit callers, not applied to the prompt stream.
          */
         const val EXTENDED_ROUND_RESULT_INCREMENT_CHARS = 4_000
     }
 }
 
 /**
- * Builds the round result the next dispatch will carry, applying the round's
- * result budget.
+ * Builds the round result the next dispatch will carry.
  *
- * The budget decision lives here rather than in the repository that assembles
- * the round: which number applies, and how a round that asked for the extended
- * budget differs, is policy — and policy belongs where it can be tested without
- * a database. The repository keeps only the call.
+ * 2026-11-18 起**不再按轮压缩**：模型在下一轮看到本轮所有工具的真实结果（含 dataJson）。
+ * 上一版的 4k 轮预算会把同轮后几个结果改写成“未发送”，那既让模型误以为工具没产出，
+ * 也让多工具并行查询变得没有意义。本地只保留单结果 1,000,000 字符的 OOM 安全上限
+ * （见 [TutorToolOutcome.MAX_TOOL_RESULT_CHARS_EXTENDED]），不做提示词侧裁剪。
+ *
+ * [extendedResultUsed] 保留在签名里是为了兼容既有调用点与序列化形状；当前不参与结果处理。
  */
 fun tutorToolRoundResult(
     roundOrdinal: Int,
@@ -609,15 +629,7 @@ fun tutorToolRoundResult(
     extendedResultUsed: Boolean,
 ): TutorToolRoundResult = TutorToolRoundResult(
     roundOrdinal = roundOrdinal,
-    outcomes = budgetTutorToolOutcomes(
-        outcomes = outcomes,
-        budgetChars = TutorToolRoundResult.MAX_TOOL_ROUND_RESULT_CHARS +
-            if (extendedResultUsed) {
-                TutorToolRoundResult.EXTENDED_ROUND_RESULT_INCREMENT_CHARS
-            } else {
-                0
-            },
-    ),
+    outcomes = outcomes,
 )
 
 /**
@@ -734,7 +746,7 @@ data class TutorToolRequestsOutput(
     }
 
     companion object {
-        const val MAX_TOOL_CALLS_PER_ROUND = 3
+        const val MAX_TOOL_CALLS_PER_ROUND = 4
         const val MAX_TOOL_REQUEST_MODEL_VERSION_CHARS = 64
     }
 }
@@ -770,4 +782,4 @@ const val TUTOR_TOOL_ROUTE_CONFIDENCE_THRESHOLD = 0.45
  * 上界是防"无限声明挤占讲解预算"的硬门；加工具必须同时上调它，否则生产装配的 8 工具面
  * 在构造输入时就抛。
  */
-const val MAX_TOOL_DECLARATIONS = 12
+const val MAX_TOOL_DECLARATIONS = 16

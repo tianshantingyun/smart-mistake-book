@@ -64,14 +64,17 @@ fun tutorPermissionTier(subject: TutorPermissionSubject): TutorPermissionTier = 
         TutorToolName.APP_CONTEXT,
         TutorToolName.SELECT_QUESTION,
         TutorToolName.READ_FIGURE,
+        TutorToolName.REVIEW_PLAN_READ,
         TutorToolName.RUN_JAVASCRIPT,
         TutorToolName.KNOWLEDGE_READ,
+        TutorToolName.KNOWLEDGE_CATALOG_READ,
         TutorToolName.NOTEBOOK_READ,
         TutorToolName.MASTERY_READ,
         TutorToolName.ADVISORY_READ,
         // A1：生图与读工具同档——自动执行、结果可见（灰色小字）。生图费用按 4B 裁定
         // **只记账不确认**，所以不设确认卡；未配置图像模型时结果如实回"不可用"。
         TutorToolName.GENERATE_FIGURE,
+        TutorToolName.READ_RESULT,
         -> TutorPermissionTier.ALLOW
         TutorToolName.NOTEBOOK_WRITE -> TutorPermissionTier.AUTO_VISIBLE
         // D-M M7：咨询写入与 MASTERY_UPDATE 同档——全自动、行为可见、被拒给理由。
@@ -114,7 +117,8 @@ fun agentPendingRequestKind(subject: TutorPermissionSubject): AgentPendingReques
             TutorLocalAction.OPEN_PROBLEM -> AgentPendingRequestKind.OPEN_PROBLEM
             TutorLocalAction.SAVE_TO_NOTEBOOK -> AgentPendingRequestKind.SAVE_TO_NOTEBOOK
             TutorLocalAction.START_EXPORT -> AgentPendingRequestKind.START_EXPORT
-            TutorLocalAction.ADD_TO_REVIEW_PLAN -> AgentPendingRequestKind.ADD_TO_REVIEW_PLAN
+            TutorLocalAction.ADD_TO_REVIEW_PLAN,
+            TutorLocalAction.REMOVE_FROM_REVIEW_PLAN -> AgentPendingRequestKind.ADD_TO_REVIEW_PLAN
             else -> AgentPendingRequestKind.OPEN_PROBLEM
         }
     }

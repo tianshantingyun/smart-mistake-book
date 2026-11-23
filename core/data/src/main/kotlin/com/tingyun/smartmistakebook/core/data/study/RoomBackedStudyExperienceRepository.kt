@@ -12,6 +12,9 @@ import com.tingyun.smartmistakebook.core.database.ReviewAttemptWriteCommand
 import com.tingyun.smartmistakebook.core.database.ReviewSessionRecord
 import com.tingyun.smartmistakebook.core.database.StudyDatabasePort
 import com.tingyun.smartmistakebook.core.database.StudyDbValue
+import com.tingyun.smartmistakebook.core.domain.AddToReviewPlanFailure
+import com.tingyun.smartmistakebook.core.domain.AddToReviewPlanResult
+import com.tingyun.smartmistakebook.core.domain.RemoveFromReviewPlanResult
 import com.tingyun.smartmistakebook.core.domain.OptimalRetention
 import com.tingyun.smartmistakebook.core.domain.AdaptiveClarificationConsumer
 import com.tingyun.smartmistakebook.core.domain.AdaptiveDecision
@@ -465,6 +468,213 @@ class RoomBackedStudyExperienceRepository(
 
     override suspend fun teachingArtifact(practiceUnitId: String): VerifiedTeachingArtifact? =
         practiceUnitFacts.artifactFor(practiceUnitId)
+
+    /**
+     * `ADD_TO_REVIEW_PLAN` 的真实写入（批次 A：智能体应用动作）。
+     *
+     * 计划行不可变，所以本轮落的是**今日计划的下一 revision**：队列沿用原项（plan id 随新
+     * revision 改绑），末位追加这道题，`isCurrent = true` 把今日槽位指向新 revision。旧 revision
+     * 与它可能的会话历史都原样留在库里。只有"今天还没开始、也还没完成"的计划可以这样改：
+     * 会话一旦启动，ordinal 已经冻结，改写队列会让作答复核错位——那种情况如实拒绝。
+     *
+     * 幂等：题目已在队列里 → [AddToReviewPlanResult.AlreadyScheduled]，不产生新 revision。
+     */
+    override suspend fun addToReviewPlan(
+        entryId: String,
+        requestedAtEpochMillis: Long,
+    ): AddToReviewPlanResult {
+        if (!initialized) initialize()
+        return runOperation {
+            val mistakes = database.observeMistakes().first()
+            val mistake = mistakes.firstOrNull { it.entryId == entryId }
+                ?: return@runOperation AddToReviewPlanResult.NotAdded(
+                    AddToReviewPlanFailure.ENTRY_NOT_FOUND,
+                    "这道题已经不在错题本里了。",
+                )
+            val learnerSnapshot = currentLearnerSnapshot()
+            val planningContext = plannerService.planningContext(learnerSnapshot)
+            val active = database.observeActiveReviewPlan(learnerId).first()
+            if (active != null) {
+                return@runOperation AddToReviewPlanResult.NotAdded(
+                    AddToReviewPlanFailure.PLAN_STARTED,
+                    "今天的复习已经开始，队列不能再改；可以先把这道题留到下一次复习。",
+                )
+            }
+            val current = plannerService.currentReviewPlan(planningContext)
+                ?: return@runOperation AddToReviewPlanResult.NotAdded(
+                    AddToReviewPlanFailure.PLAN_NOT_READY,
+                    "今天还没有生成复习计划，暂时无法加入。",
+                )
+            if (current.latestSession?.status == StudyDbValue.ReviewStatus.COMPLETED) {
+                return@runOperation AddToReviewPlanResult.NotAdded(
+                    AddToReviewPlanFailure.PLAN_COMPLETED,
+                    "今天的复习已经完成；这道题会在下一次复习里按记忆状态安排。",
+                )
+            }
+            if (current.latestSession != null) {
+                return@runOperation AddToReviewPlanResult.NotAdded(
+                    AddToReviewPlanFailure.PLAN_STARTED,
+                    "今天的复习已经开始，队列不能再改；可以先把这道题留到下一次复习。",
+                )
+            }
+            if (current.queue.any { it.practiceUnitId == mistake.practiceUnitId }) {
+                return@runOperation AddToReviewPlanResult.AlreadyScheduled(current.plan.reviewPlanId)
+            }
+            val estimatedSeconds = mistake.estimatedSeconds.coerceAtLeast(1)
+            val plannedSeconds = current.queue.sumOf { it.estimatedSeconds.toLong() } + estimatedSeconds
+            if (plannedSeconds > current.plan.timeBudgetSeconds.toLong()) {
+                return@runOperation AddToReviewPlanResult.NotAdded(
+                    AddToReviewPlanFailure.BUDGET_EXHAUSTED,
+                    "今天的复习计划已经排满（${current.plan.timeBudgetSeconds / 60} 分钟），" +
+                        "这道题没有塞进去。可以调大每日复习时长后再说一次。",
+                )
+            }
+            val knowledgeNodeIds = mistake.knowledgeNodeIds.ifEmpty {
+                val pseudo = database.ensurePseudoKnowledgeBinding(
+                    practiceUnitId = mistake.practiceUnitId,
+                    problemRevisionId = mistake.problemRevisionId,
+                    taxonomyVersion = "pseudo-plan-v1",
+                    subject = mistake.subject,
+                    acceptedAtEpochMillis = requestedAtEpochMillis,
+                ) ?: return@runOperation AddToReviewPlanResult.NotAdded(
+                    AddToReviewPlanFailure.KNOWLEDGE_BINDING_MISSING,
+                    "这道题还没有知识归属，暂时无法排进复习。",
+                )
+                setOf(pseudo.knowledgeNodeId)
+            }
+            val fingerprint = reviewPlanRevisionFingerprint(
+                previousFingerprint = current.plan.planFingerprint,
+                practiceUnitId = mistake.practiceUnitId,
+            )
+            val reviewPlanId = "plan-$fingerprint"
+            val nextPlan = current.plan.copy(
+                reviewPlanId = reviewPlanId,
+                planFingerprint = fingerprint,
+                planRevision = current.plan.planRevision + 1,
+                planningAtEpochMillis = requestedAtEpochMillis,
+                createdAtEpochMillis = requestedAtEpochMillis,
+            )
+            val nextOrdinal = current.queue.size
+            val queue = current.queue.sortedBy { it.ordinal }
+                .map { item -> item.copy(reviewPlanId = reviewPlanId) } +
+                com.tingyun.smartmistakebook.core.database.ReviewQueueItemRecord(
+                    reviewQueueItemId = "queue-$fingerprint-$nextOrdinal",
+                    reviewPlanId = reviewPlanId,
+                    practiceUnitId = mistake.practiceUnitId,
+                    knowledgeNodeIds = knowledgeNodeIds,
+                    itemFamilyId = "saved-question:${mistake.practiceUnitId}",
+                    sourceBundleId = null,
+                    reasons = setOf(com.tingyun.smartmistakebook.core.model.ReviewReason.NEWLY_ADDED.name),
+                    ordinal = nextOrdinal,
+                    priorityScore = 0.0,
+                    difficultyBand = com.tingyun.smartmistakebook.core.model.ReviewDifficultyBand.MEDIUM.name,
+                    dueAtEpochMillis = null,
+                    estimatedSeconds = estimatedSeconds,
+                    reasonSnapshot = com.tingyun.smartmistakebook.core.model.ReviewReason.NEWLY_ADDED.name,
+                    status = StudyDbValue.ReviewStatus.PLANNED,
+                )
+            database.saveReviewPlan(
+                com.tingyun.smartmistakebook.core.database.ReviewPlanBundle(
+                    plan = nextPlan,
+                    queue = queue,
+                    activeSession = null,
+                    isCurrent = true,
+                ),
+            )
+            AddToReviewPlanResult.Added(
+                reviewPlanId = reviewPlanId,
+                ordinal = nextOrdinal,
+                scheduledCount = queue.size,
+            )
+        }
+    }
+
+    override suspend fun removeFromReviewPlan(
+        entryId: String,
+        requestedAtEpochMillis: Long,
+    ): RemoveFromReviewPlanResult {
+        if (!initialized) initialize()
+        return runOperation {
+            val mistake = database.observeMistakes().first().firstOrNull { it.entryId == entryId }
+                ?: return@runOperation RemoveFromReviewPlanResult.NotRemoved(
+                    AddToReviewPlanFailure.ENTRY_NOT_FOUND,
+                    "这道题已经不在错题本里了。",
+                )
+            val learnerSnapshot = currentLearnerSnapshot()
+            val planningContext = plannerService.planningContext(learnerSnapshot)
+            if (database.observeActiveReviewPlan(learnerId).first() != null) {
+                return@runOperation RemoveFromReviewPlanResult.NotRemoved(
+                    AddToReviewPlanFailure.PLAN_STARTED,
+                    "今天的复习已经开始，队列不能再改。",
+                )
+            }
+            val current = plannerService.currentReviewPlan(planningContext)
+                ?: return@runOperation RemoveFromReviewPlanResult.NotRemoved(
+                    AddToReviewPlanFailure.PLAN_NOT_READY,
+                    "今天还没有生成复习计划。",
+                )
+            if (current.latestSession?.status == StudyDbValue.ReviewStatus.COMPLETED) {
+                return@runOperation RemoveFromReviewPlanResult.NotRemoved(
+                    AddToReviewPlanFailure.PLAN_COMPLETED,
+                    "今天的复习已经完成。",
+                )
+            }
+            if (current.latestSession != null) {
+                return@runOperation RemoveFromReviewPlanResult.NotRemoved(
+                    AddToReviewPlanFailure.PLAN_STARTED,
+                    "今天的复习已经开始，队列不能再改。",
+                )
+            }
+            val ordered = current.queue.sortedBy { it.ordinal }
+            val index = ordered.indexOfFirst { it.practiceUnitId == mistake.practiceUnitId }
+            if (index < 0) {
+                return@runOperation RemoveFromReviewPlanResult.NotScheduled(current.plan.reviewPlanId)
+            }
+            val fingerprint = reviewPlanRevisionFingerprint(
+                previousFingerprint = current.plan.planFingerprint,
+                practiceUnitId = mistake.practiceUnitId,
+                operation = "remove",
+            )
+            val reviewPlanId = "plan-$fingerprint"
+            val nextPlan = current.plan.copy(
+                reviewPlanId = reviewPlanId,
+                planFingerprint = fingerprint,
+                planRevision = current.plan.planRevision + 1,
+                planningAtEpochMillis = requestedAtEpochMillis,
+                createdAtEpochMillis = requestedAtEpochMillis,
+            )
+            val queue = ordered
+                .filterIndexed { position, _ -> position != index }
+                .mapIndexed { position, item ->
+                    item.copy(reviewPlanId = reviewPlanId, ordinal = position)
+                }
+            database.saveReviewPlan(
+                com.tingyun.smartmistakebook.core.database.ReviewPlanBundle(
+                    plan = nextPlan,
+                    queue = queue,
+                    activeSession = null,
+                    isCurrent = true,
+                ),
+            )
+            RemoveFromReviewPlanResult.Removed(reviewPlanId, queue.size)
+        }
+    }
+
+    /**
+     * 新 revision 的指纹：旧指纹 + 被加入的 practice unit 的确定性摘要。
+     *
+     * 它是**计划身份**（`plan_id = "plan-$fingerprint"`），不是排程算法的 canonical 指纹；
+     * 因此不能重复 `ReviewPlannerV2` 的 canonical 计算（那会与算法输入不一致）。用旧指纹
+     * 作为链式前缀，保证不同 revision 之间不会撞同一行。
+     */
+    private fun reviewPlanRevisionFingerprint(
+        previousFingerprint: String,
+        practiceUnitId: String,
+        operation: String = "add",
+    ): String = java.security.MessageDigest.getInstance("SHA-256")
+        .digest("$previousFingerprint\n$operation:$practiceUnitId".toByteArray(Charsets.UTF_8))
+        .joinToString("") { byte -> "%02x".format(byte) }
+
 
     /**
      * Spec §2.16 re-teach opening. The early return repeats the predicate

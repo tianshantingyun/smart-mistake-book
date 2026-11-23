@@ -31,7 +31,7 @@ data class AppCapabilitySnapshot(
  *
  * 它是三份事实的交集，且**只有这一份**：
  * 1. **已实现处理器**——[IMPLEMENTED_TOOLS] / [IMPLEMENTED_LOCAL_ACTIONS]。没有执行路由的
- *    动作不进快照（`ADD_TO_REVIEW_PLAN` 落 `NOT_WIRED_YET`，接线前不广告、也不准入）；
+ *    动作不进快照（fail-closed：新增枚举但忘了执行分支时不会被自动广告）；
  * 2. **配置/依赖就绪**——由 [withDependencies] 把图像后端、JS 双就绪位（A-05：引擎与
  *    度量）与知识材料的就绪位折进工具集：没就绪的工具既不广告、也不会被授权执行
  *    （"广告一个必然不可用的工具"与"点了一样的没反应"同罪）；
@@ -86,11 +86,17 @@ data class TutorCapabilitySnapshot(
         knowledgeMaterialReady: Boolean,
         jsEngineReady: Boolean = false,
         jsMeasurementReady: Boolean = false,
+        /** RUN_JAVASCRIPT 的宿主桥是否已装配（引擎/LocalAction 执行器）。 */
+        javascriptToolReady: Boolean = true,
+        /** READ_FIGURE 是否既有像素检查器、又有一个能看图的提供方。 */
+        figureReadReady: Boolean = true,
     ): TutorCapabilitySnapshot = copy(
         tools = tools.filterNot { tool ->
             (tool == TutorToolName.GENERATE_FIGURE &&
                 !(imageBackendReady || (jsEngineReady && jsMeasurementReady))) ||
-                (tool == TutorToolName.KNOWLEDGE_READ && !knowledgeMaterialReady)
+                (tool == TutorToolName.KNOWLEDGE_READ && !knowledgeMaterialReady) ||
+                (tool == TutorToolName.RUN_JAVASCRIPT && !javascriptToolReady) ||
+                (tool == TutorToolName.READ_FIGURE && !figureReadReady)
         }.toSet(),
     )
 
@@ -106,6 +112,8 @@ data class TutorCapabilitySnapshot(
             TutorToolName.APP_CONTEXT,
             TutorToolName.SELECT_QUESTION,
             TutorToolName.READ_FIGURE,
+            TutorToolName.REVIEW_PLAN_READ,
+            TutorToolName.KNOWLEDGE_CATALOG_READ,
             TutorToolName.RUN_JAVASCRIPT,
             TutorToolName.KNOWLEDGE_READ,
             TutorToolName.NOTEBOOK_READ,
@@ -115,17 +123,21 @@ data class TutorCapabilitySnapshot(
             TutorToolName.ADVISORY_READ,
             TutorToolName.ADVISORY_WRITE,
             TutorToolName.GENERATE_FIGURE,
+            TutorToolName.READ_RESULT,
         )
 
         /**
-         * 已经有**真实执行路由**的本地动作。`ADD_TO_REVIEW_PLAN` 不在其中：它执行时落
-         * `TutorLocalActionTarget.NOT_WIRED_YET`，接线前不广告、不准入；升级前落库的旧卡
-         * 仍由执行端如实说"还不能自动做"（旧卡不是广告面）。
+         * 已经有**真实执行路由**的本地动作（全部动作现在都有执行处理器）。
+         *
+         * 刻意**逐枚列出**而不是 `entries.toSet()`：新增一枚枚举而忘了执行分支时，它默认
+         * 不在广告面里（fail-closed）。
          */
         val IMPLEMENTED_LOCAL_ACTIONS: Set<TutorLocalAction> = setOf(
             TutorLocalAction.OPEN_PROBLEM,
             TutorLocalAction.SAVE_TO_NOTEBOOK,
             TutorLocalAction.START_EXPORT,
+            TutorLocalAction.ADD_TO_REVIEW_PLAN,
+            TutorLocalAction.REMOVE_FROM_REVIEW_PLAN,
             TutorLocalAction.EDIT_PROBLEM,
             TutorLocalAction.SET_FAVORITE,
             TutorLocalAction.ARCHIVE_PROBLEM,
@@ -133,6 +145,10 @@ data class TutorCapabilitySnapshot(
             TutorLocalAction.UPDATE_SCHEDULING,
             TutorLocalAction.CREATE_BACKUP,
             TutorLocalAction.RESTORE_BACKUP,
+            TutorLocalAction.ADD_EXAM,
+            TutorLocalAction.REMOVE_EXAM,
+            TutorLocalAction.RECLASSIFY_PROBLEM,
+            TutorLocalAction.MERGE_PROBLEM,
         )
 
         /**
@@ -162,7 +178,7 @@ data class TutorCapabilitySnapshot(
                     hasRoundBudget && tool in IMPLEMENTED_TOOLS
                 },
                 localActions = if ((input is TutorLobbyInput || input is TutorPlanInput || input is TutorRespondInput) && hasRoundBudget) {
-                    IMPLEMENTED_LOCAL_ACTIONS
+                    input.agentContextSnapshot()?.availableLocalActions ?: IMPLEMENTED_LOCAL_ACTIONS
                 } else {
                     emptySet()
                 },

@@ -1740,6 +1740,7 @@ internal fun SmartMistakeBookRoot(
                     // 确认卡（A4 执行路径 ①）：这条会话锚着本次拍照，模型申请"加入错题本"时
                     // 挂出的卡执行的就是"把这次拍照的草稿存进错题本"（真实落库）。
                     pendingRequests = application.agentPendingRequestRepository,
+                    interactiveVisualPort = runCatching { application.tutorInteractiveVisualPort }.getOrNull(),
                 )
             }
             composable(Routes.MistakeDetail) { entry ->

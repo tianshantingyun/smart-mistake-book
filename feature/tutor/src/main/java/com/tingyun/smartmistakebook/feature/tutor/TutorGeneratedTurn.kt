@@ -39,6 +39,7 @@ import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
 import com.tingyun.smartmistakebook.core.ui.TutorMessageDocument
 import com.tingyun.smartmistakebook.core.ui.TutorToolTraceLine
+import com.tingyun.smartmistakebook.feature.tutor.components.TutorInteractiveVisualCard
 import com.tingyun.smartmistakebook.core.ui.rememberTutorToolTraceDisplay
 import com.tingyun.smartmistakebook.core.ui.tutorMessageFigureReferences
 import com.tingyun.smartmistakebook.core.ui.tutorOpeningFigureAssets
@@ -65,6 +66,13 @@ internal fun TutorTurnContent(
     figureAssetIds: List<String> = emptyList(),
     /** 生成图资产 id → 本地 URI（本地读回，绝不出网）；null = 不渲染配图卡。 */
     figureAssetResolver: (suspend (String) -> String?)? = null,
+    /**
+     * 4E.2：这条消息的 id 与交互图端口。两者都给、且痕迹里有 JS program/snapshot 时，
+     * 在配图下方渲染原生控件/表单；否则卡片不出现。
+     */
+    messageId: String? = null,
+    interactiveVisualPort: com.tingyun.smartmistakebook.core.domain.TutorInteractiveVisualPort? = null,
+    onSubmitInteractiveForm: (String) -> Unit = {},
     response: TutorTurnResponse? = null,
     solutionRevealPreviewed: Boolean = false,
     interactionEnabled: Boolean = true,
@@ -139,6 +147,13 @@ internal fun TutorTurnContent(
         }
         // B1：这一轮查阅了什么，单独一行小字（不混进思考卡），点开看明细。
         TutorToolTraceLine(display = rememberTutorToolTraceDisplay(toolTraceJson))
+        // 4E.2：带 controls/form 的 JS 图在原配图下方渲染原生交互卡。
+        TutorInteractiveVisualCard(
+            messageId = messageId,
+            toolTraceJson = toolTraceJson,
+            port = interactiveVisualPort,
+            onSubmitForm = onSubmitInteractiveForm,
+        )
         item?.let { interaction ->
             SafeMarkdownText(interaction.stemMarkdown, style = MaterialTheme.typography.bodyLarge)
             interaction.promptMarkdown?.let {

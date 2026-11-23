@@ -119,6 +119,8 @@ internal fun TutorModelPanel(
     surface: TutorSurfaceConfig,
     /** 确认卡的落库端口（A4）：null = 这个入口不接确认卡（无库界面与测试替身）。 */
     pendingRequests: AgentPendingRequestRepository? = null,
+    /** 4E.2：交互图端口；null = 本入口不渲染原生控件/表单（静态配图不受影响）。 */
+    interactiveVisualPort: com.tingyun.smartmistakebook.core.domain.TutorInteractiveVisualPort? = null,
     /** 确认卡三条执行路径的落点；装配处注入（见 [TutorLocalActionLandings]）。 */
     localActionLandings: TutorLocalActionLandings = TutorLocalActionLandings(),
     clock: () -> Long = System::currentTimeMillis,
@@ -913,6 +915,9 @@ internal fun TutorModelPanel(
                         figureAssetResolver = imageIntake?.let { intake ->
                             { assetId: String -> intake.resolveImageUri(assetId) }
                         },
+                        messageId = timelineItem.message?.messageId,
+                        interactiveVisualPort = interactiveVisualPort,
+                        onSubmitInteractiveForm = { text -> submitTutorResponse(text) },
                         solutionRevealPreviewed = timelineItem.task.toPlanSolutionPreviewKey()
                             ?.let { it in planSolutionPreviewKeys } == true,
                         awaitingContinuation = false,

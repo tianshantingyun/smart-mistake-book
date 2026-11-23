@@ -39,8 +39,8 @@ import org.junit.Test
 /**
  * 本地动作通道的**五 kind 全链**（A4 / D-K2e）：建卡 → 裁决 → 执行 → 回喂，每种拼写各一条。
  *
- * 判别格是**每一 kind 都真的走到它的落点**（工具拼写与动作拼写落到同一张卡、导出与复习计划如实
- * 说"还不能自动做"）、**没有目标不挂卡**、**裁决后行落终态且留痕与回喂是同一句话**、
+ * 判别格是**每一 kind 都真的走到它的落点**（工具拼写与动作拼写落到同一张卡、导出打开 sheet、
+ * 复习计划旧卡如实请学生重新发起）、**没有目标不挂卡**、**裁决后行落终态且留痕与回喂是同一句话**、
  * **进程死亡后相位回到等确认**。SQL 语义（幂等键、唯一槽）由仪器化用例证明，这里用内存替身。
  */
 class TutorPendingRequestCommandsTest {
@@ -302,9 +302,9 @@ class TutorPendingRequestCommandsTest {
     }
 
     @Test
-    fun addToReviewPlanIsNoLongerAdmittedSoNoNewCardIsHung() = runBlocking {
-        // PRD-06：接线前不广告 —— 也不准挂新卡。模型伪造一条未广告的请求时，本地直接拒，
-        // 界面不会出现一张"点了不能做"的卡。
+    fun addToReviewPlanIsAutonomousSoNoNewCardIsHung() = runBlocking {
+        // 复习计划动作现在由讲题助手自主执行（APPLICATION_ACTION），不再挂确认卡：
+        // 学生不会看到一张"点了只会让他重新说一次"的卡。
         val suspension = suspendAction(
             commands(),
             TutorLocalAction.ADD_TO_REVIEW_PLAN,
@@ -317,8 +317,8 @@ class TutorPendingRequestCommandsTest {
 
     @Test
     fun aLegacyAddToReviewPlanCardStillSaysHonestlyThatItCannotDoIt() = runBlocking {
-        // 升级前已经落库的行是**旧卡**：它不再被广告，但学生已经能看到它。裁决必须照常
-        // 落终态，并如实说"还不能自动做"——不许假装计划已经改好，也不许让卡悬死。
+        // 升级前已经落库的行是**旧卡**：它不带动作参数，执行端无法从卡上重建命令。裁决必须
+        // 照常落终态，并如实请学生在当前对话里重新发起——不许假装计划已经改好，也不许让卡悬死。
         val legacy = AgentPendingRequest(
             requestId = "agent-req:legacy:ADD_TO_REVIEW_PLAN:0000000000000001",
             conversationArea = "AGENT",
@@ -334,9 +334,9 @@ class TutorPendingRequestCommandsTest {
         val commands = commands()
 
         assertTrue(
-            "旧卡文案必须明说现在还不能自动做",
+            "旧卡文案必须请学生在当前对话里重新发起",
             pendingRequestCopy(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN, legacy.payloadJson)
-                .detail.contains("暂不支持自动调整复习计划"),
+                .detail.contains("再说一次"),
         )
 
         val decision = commands.decide(
@@ -345,10 +345,10 @@ class TutorPendingRequestCommandsTest {
             decision = AgentPendingRequestDecision.ACCEPT,
         )!!
 
-        assertEquals(notWiredYetDetail(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN), decision.detail)
+        assertEquals("这项应用操作需要从当前对话重新发起。", decision.detail)
         assertFeedBack(
             kind = "ADD_TO_REVIEW_PLAN",
-            detail = notWiredYetDetail(AgentPendingRequestKind.ADD_TO_REVIEW_PLAN),
+            detail = "这项应用操作需要从当前对话重新发起。",
         )
         assertEquals(
             AgentPendingRequestStatus.ACCEPTED,

@@ -139,7 +139,9 @@ internal fun NormalizedSourceRegion.contains(other: NormalizedSourceRegion): Boo
     left <= other.left && top <= other.top && right >= other.right && bottom >= other.bottom
 
 internal inline fun <reified T : Enum<T>> enumValue(value: String): T =
-    enumValues<T>().firstOrNull { it.name == value } ?: throw InvalidModelResponseException()
+    enumValues<T>().firstOrNull { it.name == value }
+        ?: enumValues<T>().firstOrNull { it.name.equals(value.trim(), ignoreCase = true) }
+        ?: throw InvalidModelResponseException()
 
 internal class InvalidModelResponseException(message: String = "invalid model response") :
     IllegalArgumentException(message)

@@ -304,6 +304,16 @@ class SmartMistakeBookApplication : Application() {
     internal var visualJsFigureHost: com.tingyun.smartmistakebook.visualjs.VisualJsFigureHost? = null
         private set
 
+    /**
+     * 4E.2 交互图端口：只在第一次打开带控件/表单的图时构造。引擎/宿主尚未装配时
+     * 明确失败（调用方回退为静态配图卡），不伪造一张可交互的空图。
+     */
+    internal val tutorInteractiveVisualPort: com.tingyun.smartmistakebook.core.domain.TutorInteractiveVisualPort
+        by lazy {
+            val host = requireNotNull(visualJsFigureHost) { "The visual JS host is not assembled" }
+            TutorInteractiveVisualRepository(database, host.engine, host.frameRenderer())
+        }
+
     private val restartReason = MutableStateFlow<String?>(null)
     internal val databaseRestartReason: StateFlow<String?> = restartReason
 
@@ -376,8 +386,12 @@ class SmartMistakeBookApplication : Application() {
             // 首连失败不能让 JS 整个进程生命周期不可用：覆盖安装后的首次启动会撞上旧
             // `:visual_js` 进程被系统清理/包替换，bind 可能只失败这一次。失败后在后台
             // 有界重试；能力快照按轮重算，重试成功后的下一轮即可广告 JS。
-            if (!runBlocking { jsHost.prepare() }) {
-                applicationScope.launch {
+            //
+            // 2026-11-19：**不在主线程 runBlocking 等待 warm-up**。API 36 的空库首启会在
+            // 14s 左右被判 "failed to complete startup" 而 ANR；JS 就绪位本来就是广告门的
+            // 输入，后台完成即可，主线程只做装配。
+            applicationScope.launch {
+                if (!jsHost.prepare()) {
                     repeat(3) { attempt ->
                         kotlinx.coroutines.delay(1_000L * (attempt + 1))
                         if (jsHost.prepare()) return@launch
@@ -558,10 +572,27 @@ class SmartMistakeBookApplication : Application() {
                     }
                 },
                 visualEngine = jsHost.engine,
+                visualEngineReady = { jsHost.available() },
                 figureInspector = com.tingyun.smartmistakebook.core.data.model.TutorFigureInspectorFactory.create(
                     this,
                     database,
                 ),
+                javascriptStateStore = SharedPreferencesTutorJavascriptStateStore(this),
+                resultStore = SharedPreferencesTutorToolResultStore(this),
+                catalogSearch = { text ->
+                    knowledgeCatalogRepository.search(
+                        com.tingyun.smartmistakebook.core.model.CatalogQuery(text, pageSize = 12),
+                    ).hits
+                },
+            )
+            modelTaskRepository = TutorAgentContextRepository(
+                delegate = baseModelTaskRepository,
+                knownSubjects = {
+                    studyRepository.snapshot.value.catalog.map { entry -> entry.subject }
+                        .distinct()
+                },
+                backupReferences = { tutorBackupReferences() },
+                reviewContext = { tutorReviewContextJson() },
             )
             modelTaskRepository = TutorAgentContextRepository(baseModelTaskRepository) {
                 tutorBackupReferences()
@@ -571,7 +602,21 @@ class SmartMistakeBookApplication : Application() {
                 mistakeEditRepository = com.tingyun.smartmistakebook.core.data.mistake.RoomMistakeEditRepository.create(
                     this, database, modelTaskRepository, figureGenerationCoordinator, editConfigurationStore,
                     capabilities.networkRequestsAllowed, applicationScope)
-                applicationScope.launch { mistakeEditRepository?.resumePendingJobs(capabilities.networkRequestsAllowed) }
+                applicationScope.launch {
+                    try {
+                        mistakeEditRepository?.resumePendingJobs(capabilities.networkRequestsAllowed)
+                    } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                        throw cancelled
+                    } catch (failure: Exception) {
+                        // 恢复待处理作业是后台增强：读口暂时不可用不应变成启动期的未捕获异常，
+                        // 也不能让整个 applicationScope 的子协程反复报错（下次启动会再恢复）。
+                        android.util.Log.e(
+                            "SmartMistakeBook",
+                            "Resuming pending mistake-edit jobs failed: ${failure.javaClass.name}",
+                            failure,
+                        )
+                    }
+                }
                 detailedSolutionRepository = com.tingyun.smartmistakebook.core.data.export.RoomDetailedSolutionRepository.create(
                     this, database, modelTaskRepository, figureGenerationCoordinator, editConfigurationStore, capabilities.networkRequestsAllowed)
             }

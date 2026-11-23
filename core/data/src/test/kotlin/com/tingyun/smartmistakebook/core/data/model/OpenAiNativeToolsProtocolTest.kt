@@ -6,8 +6,12 @@ import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondOutput
+import com.tingyun.smartmistakebook.core.model.TutorIntentDecision
+import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorToolRequestsOutput
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -550,5 +554,27 @@ class OpenAiNativeToolsProtocolTest {
             modelVersion = "test-model-v1",
         )
         assertTrue("无 tool_calls 时应回落 Route B 终答", output is TutorRespondOutput)
+    }
+
+    @Test
+    fun verboseRationaleTermsAndConfidenceAreNormalizedInsteadOfFailingTheRound() {
+        val payload = Json.parseToJsonElement(
+            """
+            {
+              "rationale": "  ${"请查阅".repeat(120)}  ",
+              "terms": ["  函数  ", "函数", "${"很长的检索词".repeat(20)}"],
+              "confidence": 1.7
+            }
+            """.trimIndent(),
+        ).jsonObject
+
+        val call = payload.toTutorToolCall(TutorToolName.NOTEBOOK_READ)
+
+        assertEquals(TutorToolCall.MAX_TOOL_RATIONALE_CHARS, call.rationale.length)
+        assertFalse(call.rationale.startsWith(" "))
+        assertEquals("函数", call.terms.first())
+        assertEquals(2, call.terms.size)
+        assertTrue(call.terms.last().length <= TutorIntentDecision.MAX_LOOKUP_TERM_CHARS)
+        assertEquals(1.0, call.confidence, 0.0)
     }
 }

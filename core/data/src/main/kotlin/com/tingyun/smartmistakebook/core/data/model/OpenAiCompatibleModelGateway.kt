@@ -120,6 +120,8 @@ internal class OpenAiCompatibleModelGateway(
     private val assetSource: RestrictedModelAssetSource,
     private val transport: ModelHttpTransport = OkHttpModelTransport(),
     private val clock: () -> Long = System::currentTimeMillis,
+    private val retryPolicy: ModelProviderRetry = ModelProviderRetry.DEFAULT,
+    private val retrySleep: suspend (Long) -> Unit = { delay(it) },
 ) : ModelGateway {
     override suspend fun capabilities(): ProviderCapabilitySnapshot =
         configurationStore.configuration.first().toCapabilities()
@@ -238,6 +240,8 @@ internal class OpenAiCompatibleModelGateway(
                             stream = stream,
                             route = liveTextRoute,
                             streamTutorOpening = execution.request.input is TutorPlanInput,
+                            retryPolicy = retryPolicy,
+                            retrySleep = retrySleep,
                             post = { onReasoningDelta, onContentDelta, onToolCallDelta ->
                                 transport.post(
                                     WireRequest(
@@ -774,6 +778,8 @@ private suspend fun awaitWithLiveStream(
     stream: Boolean,
     route: LiveTextRoute,
     streamTutorOpening: Boolean,
+    retryPolicy: ModelProviderRetry,
+    retrySleep: suspend (Long) -> Unit,
     post: suspend (
         onReasoningDelta: ((String) -> Unit)?,
         onContentDelta: ((String) -> Unit)?,
@@ -781,21 +787,28 @@ private suspend fun awaitWithLiveStream(
     ) -> ModelHttpResponse,
     emit: suspend (ModelGatewayEvent) -> Unit,
 ): ModelHttpResponse {
-    if (!stream) return post(null, null, null)
+    if (!stream) {
+        return postWithProviderRetry(retryPolicy, retrySleep, canRetry = { true }) {
+            post(null, null, null)
+        }
+    }
     val reasoning = Collections.synchronizedList(ArrayList<String>())
     val answer = Collections.synchronizedList(ArrayList<String>())
     val toolCallSeen = java.util.concurrent.atomic.AtomicBoolean(false)
+    val deltas = DeltaPresence()
     return coroutineScope {
         val call = async {
-            post(
-                { delta -> reasoning.add(delta) },
-                if (route == LiveTextRoute.ENVELOPE && !streamTutorOpening) {
-                    null
-                } else {
-                    { delta -> answer.add(delta) }
-                },
-                { toolCallSeen.set(true) },
-            )
+            postWithProviderRetry(retryPolicy, retrySleep, canRetry = { !deltas.any }) {
+                post(
+                    deltas.wrap { delta -> reasoning.add(delta) },
+                    if (route == LiveTextRoute.ENVELOPE && !streamTutorOpening) {
+                        null
+                    } else {
+                        deltas.wrap { delta -> answer.add(delta) }
+                    },
+                    deltas.wrapToolCall { toolCallSeen.set(true) },
+                )
+            }
         }
         var emittedPersistedFrames = 0
         var lastLiveReasoningChars = -1
@@ -851,6 +864,35 @@ private suspend fun awaitWithLiveStream(
             }
         }
         call.await()
+    }
+}
+
+private suspend fun postWithProviderRetry(
+    policy: ModelProviderRetry,
+    sleep: suspend (Long) -> Unit,
+    canRetry: () -> Boolean,
+    post: suspend () -> ModelHttpResponse,
+): ModelHttpResponse {
+    var attempt = 1
+    while (true) {
+        val response = try {
+            post()
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (io: IOException) {
+            // 连接类失败：只要本轮还没把任何增量交出去，就仍可重发；退避后重发失败则照旧上抛，
+            // 由外层映射成 NETWORK_UNAVAILABLE / TIMEOUT（不改变失败语义，只多给两次机会）。
+            if (attempt >= policy.maxAttempts || !canRetry()) throw io
+            sleep(policy.delayMillis(attempt))
+            attempt += 1
+            continue
+        }
+        val retryable = policy.isRetryableStatus(response.statusCode)
+        if (response.statusCode in 200..299 || !retryable || attempt >= policy.maxAttempts || !canRetry()) {
+            return response
+        }
+        sleep(policy.delayMillis(attempt, response.retryAfterMillis))
+        attempt += 1
     }
 }
 

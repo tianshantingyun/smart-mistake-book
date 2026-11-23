@@ -5,12 +5,18 @@ import androidx.room3.withWriteTransaction
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.database.port.MistakeRevisionWritePort
+import com.tingyun.smartmistakebook.core.database.port.PersistedMistakeEditJob
 import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemCommand
 import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemResult
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocument
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec
 import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentFingerprint
 import com.tingyun.smartmistakebook.core.model.ContentBlock
+import com.tingyun.smartmistakebook.core.model.EditBasis
+import com.tingyun.smartmistakebook.core.model.MistakeEditInput
+import com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus
+import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
+import com.tingyun.smartmistakebook.core.model.mistakeEditJobId
 import com.tingyun.smartmistakebook.core.model.NormalizedSourceRegion
 import com.tingyun.smartmistakebook.core.model.QuestionBlockEvidence
 import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
@@ -32,6 +38,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -467,6 +474,11 @@ class ProblemRevisionEditDatabaseInstrumentedTest {
         }
     }
 
+    /**
+     * 持久修改作业端口必须在真实库上可用：这段实现曾在合并中丢失，端口回落到
+     * `UnsupportedOperationException`，应用启动恢复与智能体 EDIT_PROBLEM 动作都会失败。
+     * 用例覆盖创建 → latest → 待恢复分页 → CAS 推进 → 读回，防止再次静默丢失。
+     */
     @Test
     fun mistakeEditJobsPersistAndResumeThroughTheDatabasePort() = runBlocking {
         seedCommittedProblem()
@@ -510,6 +522,10 @@ class ProblemRevisionEditDatabaseInstrumentedTest {
         )
         assertTrue(store.transitionMistakeEditJob(next))
         assertFalse(store.transitionMistakeEditJob(next))
+        val row = (store as RoomStudyDatabase).database.mistakeEditJobDao().read(operationId)
+        assertNotNull(row)
+        assertEquals("REQUESTING", row?.status)
+        assertEquals(1L, row?.stateVersion)
         assertEquals(next, store.readMistakeEditJob(operationId))
         assertTrue(store.verifyMistakeEditFigures(operationId))
     }

@@ -96,9 +96,10 @@ class TutorToolDescriptionsSnapshotTest {
         private val DEFAULT_LONG_HASHES: Map<String, String> = mapOf(
             "APP_CONTEXT" to "1d19071e1c43e5dd0580ab7aeefd461b6c73bfee33ee3a9544f24aa5e10c3a06",
             "SELECT_QUESTION" to "2368127a78bf91fde9a23d325b68b22e2b110a4375e07d965508b06e9df312b9",
-            "READ_FIGURE" to "d45d18c9144f65b2fc481ad27caf1da6d759195275ef62bfefe9671ad6c7fc9c",
+            "READ_FIGURE" to "bbbf44e84e119016c74d0da4ff03ed9344db81da07fb9e8a49772ba6bd5ce899",
             "RUN_JAVASCRIPT" to "772ecd2fa22f103a1aa89d6d3183bed2d5bfe409ff4c636ff493b5ed424a8eb7",
             "KNOWLEDGE_READ" to "a3014232b1e0e3245bde16395bca3a0e1e03217a33b8f2077e1a96da744c8007",
+            "KNOWLEDGE_CATALOG_READ" to "acfd6e0165ad3909dda7d15371da8620ccc042eda4200d320f151e1ee43229e9",
             "NOTEBOOK_READ" to "624952d4b12263e60e981e97abab792873c3bec617024a0779768b0ee9b107c3",
             "MASTERY_READ" to "ecc00fa28c352e8617398979ef94492c00e9981fcfb40a55f0274dedef801816",
             "NOTEBOOK_WRITE" to "9b4839701d882c55e3a53ae17fee664db359708e640b3f96fcc381469e1edabc",
@@ -106,14 +107,17 @@ class TutorToolDescriptionsSnapshotTest {
             "ADVISORY_READ" to "c6e56be8c2998db28da8fdf5f0c4231f8f97fe4fa82dee5697f410791a8bdfbf",
             "ADVISORY_WRITE" to "d89017979706f3caee0a84fddb264f162ae762371d672f9256016c3dd5c8411c",
             "GENERATE_FIGURE" to "317526f0543758c7c0b66c8ce0cdb90f296cfc7020451f0a37c3514f30fdbc26",
+            "READ_RESULT" to "3bf6e193afb1319383457783d369b978c91f3d983c8fdb175c98c93c31c9cc89",
+            "REVIEW_PLAN_READ" to "ae7c4816da42108634915b46977289ea9ea0b3d5700fa295aa0a308d1c29e683",
         )
 
         private val DEFAULT_SHORT_HASHES: Map<String, String> = mapOf(
             "APP_CONTEXT" to "1d19071e1c43e5dd0580ab7aeefd461b6c73bfee33ee3a9544f24aa5e10c3a06",
             "SELECT_QUESTION" to "2368127a78bf91fde9a23d325b68b22e2b110a4375e07d965508b06e9df312b9",
-            "READ_FIGURE" to "d45d18c9144f65b2fc481ad27caf1da6d759195275ef62bfefe9671ad6c7fc9c",
+            "READ_FIGURE" to "bbbf44e84e119016c74d0da4ff03ed9344db81da07fb9e8a49772ba6bd5ce899",
             "RUN_JAVASCRIPT" to "772ecd2fa22f103a1aa89d6d3183bed2d5bfe409ff4c636ff493b5ed424a8eb7",
             "KNOWLEDGE_READ" to "e2732acc8089a739cd1013189d11fc6ca12d750f5f42b2a4e5875f836490f364",
+            "KNOWLEDGE_CATALOG_READ" to "c67a1a94651d5785e1fc5b11335ee676d2dd10fdcf96b3a393e4877b95793cbb",
             "NOTEBOOK_READ" to "624952d4b12263e60e981e97abab792873c3bec617024a0779768b0ee9b107c3",
             "MASTERY_READ" to "a2af698be350d02c21a48bb840f1074cb62a26b92a5fb34079f33cb7e2e4ded0",
             "NOTEBOOK_WRITE" to "9b4839701d882c55e3a53ae17fee664db359708e640b3f96fcc381469e1edabc",
@@ -121,6 +125,8 @@ class TutorToolDescriptionsSnapshotTest {
             "ADVISORY_READ" to "3198b1d1f3051b6ffd300f1002a1b59167c9c59597280674ed765041e33a15c7",
             "ADVISORY_WRITE" to "4f021a04346c3d1b56dbe78e61be369adbbc712b13e6aa996cbf11eef8b6165d",
             "GENERATE_FIGURE" to "822ceef0238b43abb89e818ef60d193f2ceea3656eb5d052d387db11274811e0",
+            "READ_RESULT" to "6d1c2330688ec0bc723453ccc67473201b557169a74618b8bf1483388db6509f",
+            "REVIEW_PLAN_READ" to "e18d72dc90d430a59c8701b6b5361db5403e6502b8b5f28439b1d57e143f48f4",
         )
     }
 }

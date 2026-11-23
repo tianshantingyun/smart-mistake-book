@@ -31,6 +31,8 @@ dependencies {
     implementation(project(":core:ui"))
     // 6B-2：卷面编辑模型与草稿类型（core:export 是 PDF/docx 共用文档模型所在模块）。
     implementation(project(":core:export"))
+    // 4E.2：交互图的事件/草稿 JSON 由 UI 组合，需与 core:model 同一序列化运行时。
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
     testImplementation(libs.junit)

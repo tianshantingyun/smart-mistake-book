@@ -125,6 +125,7 @@ interface StudyDatabasePort : AutoCloseable, ModelTaskDatabasePort,
     ErrorCausePort,
     // PR#13（T8）：逐题答案/卷面冻结端口（merge 时丢失，手工并集补回）。
     com.tingyun.smartmistakebook.core.database.port.DetailedSolutionPort,
+    com.tingyun.smartmistakebook.core.database.port.MistakeMergePort,
     TutorVisualPort {
 
     /** PR#13（T8）：卷面复核存储入口；默认不可用（Room 实现覆盖）。 */

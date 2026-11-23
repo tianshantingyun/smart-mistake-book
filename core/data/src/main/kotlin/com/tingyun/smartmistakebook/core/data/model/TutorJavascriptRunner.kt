@@ -7,6 +7,7 @@ import com.tingyun.smartmistakebook.core.domain.VisualExecutionRequest
 import com.tingyun.smartmistakebook.core.domain.VisualExecutionResult
 import com.tingyun.smartmistakebook.core.domain.VisualViewport
 import com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome
+import com.tingyun.smartmistakebook.core.model.TutorLocalAction
 import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 import com.tingyun.smartmistakebook.core.model.TutorToolCall
 import com.tingyun.smartmistakebook.core.model.TutorToolName
@@ -22,6 +23,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
@@ -49,7 +51,13 @@ internal suspend fun runTutorJavascript(
     }
     val history = mutableListOf<JsonElement>()
     try {
-        stateJson?.let { Json.parseToJsonElement(it) }
+        if (stateJson != null) {
+            try {
+                Json.parseToJsonElement(stateJson)
+            } catch (_: Exception) {
+                return failure("JAVASCRIPT_INVALID_STATE", "JavaScript state 不是合法 JSON。")
+            }
+        }
         while (true) {
             val source = tutorJavascriptSource(script, history)
             if (figureUsageUtf8Bytes(source) > VisualExecutionBudget.MAX_SOURCE_JS_BYTES) {
@@ -97,21 +105,40 @@ internal suspend fun runTutorJavascript(
                         return failure("JAVASCRIPT_NONDETERMINISTIC_REPLAY", "JavaScript 重放调用顺序发生变化。")
                     }
                     if (history.size >= MAX_JAVASCRIPT_HOST_CALLS) {
-                        return failure("JAVASCRIPT_HOST_CALL_LIMIT", "JavaScript 一次执行最多调用 12 个宿主工具或动作。")
+                        return failure("JAVASCRIPT_HOST_CALL_LIMIT", "JavaScript 一次执行最多调用 $MAX_JAVASCRIPT_HOST_CALLS 个宿主工具或动作。")
                     }
                     val key = payload["key"] as? JsonPrimitive
                         ?: return failure("JAVASCRIPT_INVALID_HOST_CALL", "JavaScript 调用缺少重放标识。")
-                    require(key.isString) { "Replay key must be a string" }
-                    val name = (payload["name"] as JsonPrimitive).content
+                    if (!key.isString) {
+                        return failure("JAVASCRIPT_INVALID_HOST_CALL", "JavaScript 重放标识必须是字符串。")
+                    }
+                    val name = (payload["name"] as? JsonPrimitive)?.contentOrNull
+                        ?: return failure("JAVASCRIPT_INVALID_HOST_CALL", "JavaScript 调用缺少工具或动作名。")
                     val arguments = payload["args"] as? JsonObject
                         ?: return failure("JAVASCRIPT_INVALID_HOST_CALL", "JavaScript 工具或动作参数必须为 JSON 对象。")
                     val result = when (payload["callType"]?.jsonPrimitive?.content) {
                         "tool" -> {
-                            val tool = TutorToolName.valueOf(name)
-                            require(tool != TutorToolName.RUN_JAVASCRIPT) { "RUN_JAVASCRIPT cannot call itself" }
+                            val tool = TutorToolName.entries.firstOrNull {
+                                it.name.equals(name.trim(), ignoreCase = true)
+                            }
+                                ?: return failure(
+                                    "JAVASCRIPT_INVALID_HOST_CALL",
+                                    "JavaScript 调用了未知工具：${name.take(64)}",
+                                )
+                            if (tool == TutorToolName.RUN_JAVASCRIPT) {
+                                return failure("JAVASCRIPT_INVALID_HOST_CALL", "JavaScript 不能递归调用 RUN_JAVASCRIPT。")
+                            }
                             toolReceipt(runTool(javascriptToolCall(tool, arguments)))
                         }
-                        "action" -> actionReceipt(runAction(localActionRequest(name, arguments)))
+                        "action" -> {
+                            if (TutorLocalAction.fromActionId(name.trim()) == null) {
+                                return failure(
+                                    "JAVASCRIPT_INVALID_HOST_CALL",
+                                    "JavaScript 调用了未知动作：${name.take(64)}",
+                                )
+                            }
+                            actionReceipt(runAction(localActionRequest(name.trim(), arguments)))
+                        }
                         else -> return failure("JAVASCRIPT_INVALID_HOST_CALL", "JavaScript 宿主调用类型无效。")
                     }
                     history.add(buildJsonObject {
@@ -130,7 +157,7 @@ internal suspend fun runTutorJavascript(
     }
 }
 
-private const val MAX_JAVASCRIPT_HOST_CALLS = 12
+private const val MAX_JAVASCRIPT_HOST_CALLS = 20
 
 internal fun javascriptToolCall(tool: TutorToolName, arguments: JsonObject): TutorToolCall {
     val parameterKeys = tool.parameterNames()

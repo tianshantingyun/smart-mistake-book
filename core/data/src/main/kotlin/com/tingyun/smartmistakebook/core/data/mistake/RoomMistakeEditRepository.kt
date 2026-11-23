@@ -137,7 +137,18 @@ class RoomMistakeEditRepository internal constructor(
             try { prepare(id, recovery) }
             catch (cancelled: CancellationException) { throw cancelled }
             catch (_: Exception) {
-                database.readMistakeEditJob(id)?.takeIf { it.status in PENDING }?.let { move(it, MistakeEditJobStatus.FAILED, "修改未完成，请重试") }
+                try {
+                    database.readMistakeEditJob(id)?.takeIf { it.status in PENDING }
+                        ?.let { move(it, MistakeEditJobStatus.FAILED, "修改未完成，请重试") }
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (secondary: Exception) {
+                    // 作业恢复失败本身不能再变成 applicationScope 的未捕获异常。
+                    android.util.Log.e(
+                        "SmartMistakeBook",
+                        "Failed to mark mistake edit job $id as failed: ${secondary.javaClass.name}",
+                    )
+                }
             } finally { active.remove(id, currentCoroutineContext()[Job]) }
         }
         if (active.putIfAbsent(id, worker) == null) worker.start() else worker.cancel()
