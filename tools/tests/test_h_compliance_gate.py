@@ -23,6 +23,8 @@ import sys
 
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -517,3 +519,109 @@ class TestH082to090Typography:
     def test_h090_gap_rendered_typography_needs_device_walkthrough(self) -> None:
         device_dir = ROOT / "docs/acceptance/evidence/H/device"
         assert not list(device_dir.rglob("*typography*")) if device_dir.exists() else True
+
+
+@pytest.fixture
+def gate():
+    # runpy returns a copy of the namespace. Patch the functions' actual globals.
+    return runpy.run_path(str(ROOT / "tools/ci/h_compliance_gate.py"))["h001"].__globals__
+
+
+class TestGatePredicateRegressions:
+    @pytest.mark.parametrize("check", ("h005", "h008", "h009", "h018", "h025", "h043", "h044", "h056", "h062", "h066", "h070"))
+    def test_current_implementation_passes(self, gate, check):
+        ok, detail = gate[check]()
+        assert ok, detail
+
+    @pytest.mark.parametrize("source, expected", (
+        ('// 不用 "AI 创作"\nval label = "AI 生成"', True),
+        ('/** 不用 "智能辅助" */ val label = "AI 生成"', True),
+        ('/* 规则 /* 历史 */ 不用 "智能辅助" */ val label = "AI 生成"', True),
+        ('val label = "AI 创作"', False),
+        ('val label = "智能辅助"', False),
+        ('val label = "由模型优化"', False),
+        ('val label = "AI创作"', False),
+        ('val label = """AI 创作\n新内容"""', False),
+        ('val label = "https://example.test/AI 创作"', False),
+        ('val label = "\\"AI 创作\\""', False),
+    ))
+    def test_weakening_copy_uses_literals_and_skips_comments(self, gate, monkeypatch, tmp_path, source, expected):
+        path = tmp_path / "app/src/main/Copy.kt"
+        path.parent.mkdir(parents=True)
+        path.write_text(source, encoding="utf-8")
+        monkeypatch.setitem(gate, "ROOT", tmp_path)
+        assert gate["h005"]()[0] is expected
+
+    @pytest.mark.parametrize("relative, source, expected", (
+        ("app/src/main/Copy.kt", 'val label = "私信"', False),
+        ("feature/tutor/src/main/Copy.kt", 'val label = "好友"', False),
+        ("app/src/main/Copy.kt", 'val label = "关注"', False),
+        ("app/src/main/Copy.kt", 'val label = "评论"', False),
+        ("app/src/main/Copy.kt", 'val label = "聊天室"', False),
+        ("app/src/main/Copy.kt", '// Text("私信")\nval label = "学习"', True),
+        (PRIVACY_COPY, 'val label = "14–17 岁用户同样建议在监护人指导下使用；应用不含社交、私信、评论、广告与内购。"', True),
+        ("app/src/main/Copy.kt", 'val label = "14–17 岁用户同样建议在监护人指导下使用；应用不含社交、私信、评论、广告与内购。"', False),
+        (PRIVACY_COPY, 'val label = "应用不含社交。私信好友"', False),
+        (PRIVACY_COPY, 'val label = "14–17 岁用户同样建议在监护人指导下使用；应用不含社交、私信、评论、广告与内购。"\nval button = "私信"', False),
+    ))
+    def test_social_copy_checks_app_and_feature_with_narrow_policy_exception(
+        self, gate, monkeypatch, tmp_path, relative, source, expected,
+    ):
+        path = tmp_path / relative
+        path.parent.mkdir(parents=True)
+        path.write_text(source, encoding="utf-8")
+        monkeypatch.setitem(gate, "ROOT", tmp_path)
+        assert gate["h044"]()[0] is expected
+
+    @pytest.mark.parametrize("check, path_key, before, after", (
+        ("h008", "BADGE", 'AI_GENERATED_LABEL: String = "AI 生成"', 'AI_GENERATED_LABEL: String = "模型输出"'),
+        ("h008", "TUTOR_TURN", "AiContentBadge(", "OtherBadge("),
+        ("h008", "ATTACHED_IMAGE", "text = AI_GENERATED_LABEL,", "text = AI_ORGANIZED_LABEL,"),
+        ("h008", "TUTOR_TURN", "tutor_ai_generated_label", "tutor_other_label"),
+        ("h009", "POLICY", "const val GENERATION: Int = 3", "const val GENERATION: Int = 2"),
+        ("h009", "AIGC_JVM_TEST", "mistake-export-v5-math-layout-aigc-gen-3", "mistake-export-v5-math-layout-aigc-gen-2"),
+        ("h018", "DOCX", "val labeled = PdfAigcContentPolicy.shouldLabel(", "val labeled = obsoletePolicy("),
+        ("h018", "DOCX", "includeAigcProperty = labeled", "includeAigcProperty = false"),
+        ("h018", "DOCX", "if (labeled) {", "if (false) {"),
+        ("h018", "DOCX", "MinimalDocxWriter.customPropertiesPart(", "MinimalDocxWriter.otherPart("),
+        ("h018", "DOCX_WRITER", 'name=\\"AIGC\\"', 'name=\\"Other\\"'),
+        ("h018", "AIGC_DELIVERY", "PdfAigcInjector().inject(subsetBytes, metadataJson)", "subsetBytes"),
+        ("h018", "PAPER_EDIT", "sourceInput.hasModelParsedText || modelTextApplied", "sourceInput.hasModelParsedText"),
+        ("h025", "PRIV_CURRENT", "## 未成年人个人信息保护", "## 其他说明"),
+        ("h025", "PRIVACY_COPY", 'title = "未成年人个人信息保护"', 'title = "其他说明"'),
+        ("h025", "SECONDARY", "PrivacyPolicyCopy.sections(networkOffline).forEach", "emptyList<PrivacyPolicyCopy.Section>().forEach"),
+        ("h043", "PRIVACY_COPY", "第三十一条", "其他条款"),
+        ("h043", "PRIV_CURRENT", "拒绝或撤回同意", "联系运营者"),
+        ("h043", "PRIVACY_COPY", "删除全部本机数据", "删除部分本机数据"),
+        ("h056", "PLANNER", "isAiGeneratedExportImage(block.role)", "false"),
+        ("h056", "PLANNER", "add(line(AI_GENERATED_IMAGE_CAPTION, PdfLineStyle.META, typography))", "add(line(\"\", PdfLineStyle.META, typography))"),
+        ("h062", "PAPER_EDIT", "modelTextApplied: Boolean = false", "otherFlag: Boolean = false"),
+        ("h062", "PAPER_EDIT", "modelTextApplied = true", "modelTextApplied = false"),
+        ("h062", "PAPER_EDIT", "modelTextApplied = modelTextApplied", "modelTextApplied = false"),
+        ("h062", "PAPER_EDIT", "sourceInput.hasModelParsedText || modelTextApplied", "sourceInput.hasModelParsedText"),
+        ("h066", "SECONDARY", 'diagnosticsMessage = "导出失败，本机记录不受影响。"', "diagnosticsMessage = failure.message"),
+        ("h066", "SECONDARY", 'diagnosticsMessage = "导出失败，本机记录不受影响。"', 'diagnosticsMessage = "导出失败，本机记录不受影响。" + failure.message'),
+        ("h066", "SECONDARY", "throw cancelled", "return@launch"),
+        ("h070", "NOTIFICATIONS", '"详细答案未导出"', '"导出失败错误码"'),
+        ("h070", "NOTIFICATIONS", "text = failureMessage", 'text = "Error"'),
+        ("h070", "NOTIFICATIONS", ".setVisibility(NotificationCompat.VISIBILITY_PRIVATE)", ".setVisibility(NotificationCompat.VISIBILITY_PUBLIC)"),
+    ))
+    def test_missing_implementation_fails(self, gate, monkeypatch, check, path_key, before, after):
+        original_read = gate["read"]
+        path = gate[path_key]
+        source = original_read(path)
+        assert before in source
+        assert gate[check]()[0] is True
+        mutated = source.replace(before, after)
+        monkeypatch.setitem(gate, "read", lambda rel: mutated if rel == path else original_read(rel))
+        assert gate[check]()[0] is False
+
+    def test_h062_uses_code_when_defect_ledger_is_stale(self, gate, monkeypatch):
+        original_read = gate["read"]
+        monkeypatch.setitem(gate, "read", lambda rel: "## KD-85 (open)\n" if rel == gate["KD"] else original_read(rel))
+        assert gate["h062"]()[0] is True
+
+    def test_comment_only_model_text_flag_does_not_pass(self, gate, monkeypatch):
+        original_read = gate["read"]
+        monkeypatch.setitem(gate, "read", lambda rel: "/* " + original_read(rel) + " */" if rel == gate["PAPER_EDIT"] else original_read(rel))
+        assert gate["h062"]()[0] is False

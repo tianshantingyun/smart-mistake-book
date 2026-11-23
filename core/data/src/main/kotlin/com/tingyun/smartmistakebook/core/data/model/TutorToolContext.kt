@@ -4,6 +4,7 @@ import com.tingyun.smartmistakebook.core.data.study.RoomTutorToolRunner
 import com.tingyun.smartmistakebook.core.data.study.TutorKnowledgeCodeRegistry
 import com.tingyun.smartmistakebook.core.model.ModelTaskInput
 import com.tingyun.smartmistakebook.core.model.TutorConversationIds
+import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.disclosesQuestionCandidates
@@ -26,6 +27,7 @@ internal fun tutorToolContext(
 ): RoomTutorToolRunner.Context {
     val respond = input as? TutorRespondInput
     val plan = input as? TutorPlanInput
+    val lobby = input as? TutorLobbyInput
     val agent = input.agentContextSnapshot()
     val sessionId = agent?.selectedQuestion?.tutorSessionId ?: respond?.sessionId ?: plan?.sessionId
     return RoomTutorToolRunner.Context(
@@ -37,7 +39,7 @@ internal fun tutorToolContext(
         // 会话锚：讲题会话的 conversationId 由 sessionId 确定性推导
         // （CapturedTutorSessionRoute 的 CreateTutorConversationCommand 同规则），
         // 供 MASTERY_UPDATE 的冷却/配额/审计按会话粒度工作。
-        conversationId = (input as? com.tingyun.smartmistakebook.core.model.TutorLobbyInput)?.conversationId
+        conversationId = lobby?.conversationId
             ?: sessionId?.let(TutorConversationIds::captured),
         // 裸 sessionId：NOTEBOOK_WRITE 用它 resolve 对应的 capture draft。
         // sessionId（"tutor-session-..."）≠ draftId（"draft-..."），写路径需
@@ -57,6 +59,7 @@ internal fun tutorToolContext(
         // 会话代号注册表：KNOWLEDGE_READ 的追加披露与 MASTERY_UPDATE 的代号解析都走它。
         knowledgeCodeRegistry = sessionKnowledgeCodeRegistry,
         currentQuestionDocument = respond?.questionDocument ?: plan?.questionDocument,
+        allowsLocalExplanationWithoutSavedQuestion = lobby?.isLearningProposal == false,
     )
 }
 

@@ -19,6 +19,12 @@ import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.StoredFigureReference
 import com.tingyun.smartmistakebook.core.model.VisualRole
 import com.tingyun.smartmistakebook.core.model.WritingLayer
+import com.tingyun.smartmistakebook.core.database.port.PersistedMistakeEditJob
+import com.tingyun.smartmistakebook.core.model.EditBasis
+import com.tingyun.smartmistakebook.core.model.MistakeEditInput
+import com.tingyun.smartmistakebook.core.model.MistakeEditJobStatus
+import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
+import com.tingyun.smartmistakebook.core.model.mistakeEditJobId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -459,6 +465,53 @@ class ProblemRevisionEditDatabaseInstrumentedTest {
             database.close()
             context.deleteDatabase(databaseName)
         }
+    }
+
+    @Test
+    fun mistakeEditJobsPersistAndResumeThroughTheDatabasePort() = runBlocking {
+        seedCommittedProblem()
+        val draft = document("第一版题面")
+        val basis = EditBasis(
+            entryId = ENTRY_ID,
+            revisionId = REVISION_ONE,
+            draftSha256 = CapturedQuestionDocumentFingerprint.of(draft),
+        )
+        val input = MistakeEditInput(
+            basis = basis,
+            draft = draft,
+            targetBlockIds = setOf("stem"),
+            instruction = "把题干改得更清楚",
+        )
+        val operationId = mistakeEditJobId(input)
+        val job = PersistedMistakeEditJob(
+            operationId = operationId,
+            request = ModelTaskRequest(
+                requestId = "$operationId.0",
+                input = input,
+                occurredAtEpochMillis = 2_000,
+                agentConsentGranted = true,
+            ),
+            createdAtEpochMillis = 2_000,
+        )
+
+        assertNull(store.latestMistakeEditJob(basis))
+        assertTrue(store.readPendingMistakeEditJobs(null).isEmpty())
+        assertEquals(job, store.createMistakeEditJob(job))
+        assertEquals("重复创建必须是幂等回放", job, store.createMistakeEditJob(job))
+        assertEquals(job, store.latestMistakeEditJob(basis))
+        assertEquals(listOf(job), store.readPendingMistakeEditJobs(null))
+        assertTrue(store.isMistakeEditBasisCurrent(basis))
+
+        val next = job.copy(
+            status = MistakeEditJobStatus.REQUESTING,
+            stateVersion = 1,
+            updatedAtEpochMillis = 3_000,
+            message = "正在准备修改建议",
+        )
+        assertTrue(store.transitionMistakeEditJob(next))
+        assertFalse(store.transitionMistakeEditJob(next))
+        assertEquals(next, store.readMistakeEditJob(operationId))
+        assertTrue(store.verifyMistakeEditFigures(operationId))
     }
 
     private suspend fun seedCommittedProblem(database: StudyDatabasePort = store) {

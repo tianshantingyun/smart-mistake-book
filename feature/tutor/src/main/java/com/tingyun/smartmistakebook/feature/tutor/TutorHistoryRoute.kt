@@ -61,8 +61,8 @@ fun TutorHistoryRoute(
 ) {
     // 只列智能体栏（本会话区）的会话：复习栏两个入口各有一个区，历史互不相串（D-Q1F/M10）。
     val recent by conversations.observeRecent(100, TutorConversationAreas.AGENT)
-        .collectAsState(initial = emptyList())
-    val visible = tutorHistoryConversations(recent)
+        .collectAsState(initial = null)
+    val visible = tutorHistoryConversations(recent.orEmpty())
     var deleteTarget by remember { mutableStateOf<String?>(null) }
     Column(
         modifier = modifier
@@ -70,7 +70,7 @@ fun TutorHistoryRoute(
             .background(Paper)
             .testTag("tutor_history_screen"),
     ) {
-        ClaudePageHeader("讲题历史", Modifier.padding(horizontal = 16.dp, vertical = 8.dp), onBack,
+        ClaudePageHeader("对话历史", Modifier.padding(horizontal = 16.dp), onBack,
             backModifier = Modifier.testTag("tutor_history_back"))
         if (visible.isEmpty()) {
             Column(
@@ -81,22 +81,16 @@ fun TutorHistoryRoute(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(
-                    text = "还没有讲题记录",
+                    text = if (recent == null) "正在读取对话…" else "还没有对话",
                     color = InkSecondary,
                     style = MaterialTheme.typography.bodyLarge,
-                )
-                Text(
-                    text = "从拍题或选择一道错题开始",
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 8.dp),
                 )
             }
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(
                     items = visible,
@@ -130,7 +124,7 @@ fun TutorHistoryRoute(
         AlertDialog(
             onDismissRequest = { deleteTarget = null },
             dangerConfirm = true,
-            title = { Text("删除这条讲题记录？") },
+            title = { Text("删除这条对话？") },
             text = { Text("仅删除对话，保留题目及历史版本。") },
             confirmButton = {
                 TextButton(

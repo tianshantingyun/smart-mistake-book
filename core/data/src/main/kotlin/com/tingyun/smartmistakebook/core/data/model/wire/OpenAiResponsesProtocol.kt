@@ -66,7 +66,7 @@ internal object OpenAiResponsesProtocol : ModelWireProtocol {
         ) {
             put("max_output_tokens", OpenAiModelProtocol.TUTOR_TEXT_MAX_OUTPUT_TOKENS)
         }
-        put("instructions", OpenAiModelProtocol.SYSTEM_PROMPT)
+        put("instructions", OpenAiModelProtocol.systemPrompt(input))
         if (stream) put("stream", true)
         put(
             "input",

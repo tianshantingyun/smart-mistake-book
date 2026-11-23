@@ -140,6 +140,10 @@ class ProblemDraftDatabaseInstrumentedTest {
             setOf(ASSET_ID, secondAsset.sourceAssetId),
             detail.sourceAssets.map { it.sourceAsset.sourceAssetId }.toSet(),
         )
+        assertEquals(
+            listOf(ASSET_ID, secondAsset.sourceAssetId),
+            store.observeMistakeSourceAssets("entry-captured-1").first().map { it.sourceAsset.sourceAssetId },
+        )
     }
 
     @Test

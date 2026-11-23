@@ -38,6 +38,8 @@ import org.junit.runner.RunWith
  *   （install + 索引构建），两臂同探针同装配 ⇒ 差分可比；绝对值不外推产品进程首查。
  *   交叉时钟前提（如实登记）：设备与宿主墙钟 NTP 对齐；偏差进入两臂读数各一个同号
  *   常量，差分时抵消。
+ * - 完整回归套件未传 `launchT0` 时，从测试方法开始计时并输出 `INSTRUMENTED_QUERY_MS`。
+ *   专用冷启动编排继续提供宿主时间戳并读取 `FIRST_QUERY_MS`。
  * - `G_READ_MS` = 那次**成功的** `runTraced` 调用的 invoke → result 耗时
  *   （`SystemClock.elapsedRealtime`，设备单调钟，G-READ 只报告不设门）。
  * - 轮询每 250 ms 发一次 `KNOWLEDGE_READ`；总上限 120 s（实现细节），超限 = 本测试
@@ -53,9 +55,14 @@ class KnowledgeFirstQueryProbeInstrumentedTest {
     @Test
     fun firstKnowledgeReadFromColdInstallEmitsProbeMetrics() = runBlocking {
         val args = InstrumentationRegistry.getArguments()
-        val launchT0 = requireNotNull(args.getString(ARG_LAUNCH_T0)?.toLongOrNull()) {
-            "missing instrumentation arg $ARG_LAUNCH_T0 (host date +%s%3N ms; first_query_20x.sh always supplies it)"
+        val launchArgument = args.getString(ARG_LAUNCH_T0)
+        val launchT0 = launchArgument?.let {
+            requireNotNull(it.toLongOrNull()) { "Invalid instrumentation arg $ARG_LAUNCH_T0" }
         }
+        // Full-suite execution measures the instrumentation's own setup and first query.
+        // The cold-launch benchmark supplies the host timestamp and retains its frozen metric.
+        val queryStartedAt = launchT0 ?: System.currentTimeMillis()
+        val firstQueryMetric = if (launchT0 == null) "INSTRUMENTED_QUERY_MS" else "FIRST_QUERY_MS"
         val round = args.getString(ARG_ROUND) ?: "0"
 
         val context = ApplicationProvider.getApplicationContext<android.content.Context>()
@@ -100,7 +107,7 @@ class KnowledgeFirstQueryProbeInstrumentedTest {
                 Log.d(TAG, "round=$round attempt ok=${execution.outcome.ok} len=${summary.length}")
                 if (execution.outcome.ok && summary.contains(NON_EMPTY_SENTINEL)) {
                     // G-FIRST：T0（宿主 am start -W 前）→ 首次非空（设备墙钟）；G-READ：该次 invoke 时长。
-                    firstNonEmptyMs = System.currentTimeMillis() - launchT0
+                    firstNonEmptyMs = System.currentTimeMillis() - queryStartedAt
                     gReadInvokeMs = invokeMs
                     break
                 }
@@ -112,12 +119,12 @@ class KnowledgeFirstQueryProbeInstrumentedTest {
                 firstNonEmptyMs >= 0,
             )
             // stdout 半边：first_query_20x.sh 在 am instrument 输出上逐轮 grep 这两行。
-            println("FIRST_QUERY_MS=$firstNonEmptyMs")
+            println("$firstQueryMetric=$firstNonEmptyMs")
             println("G_READ_MS=$gReadInvokeMs")
             // logcat 半边（§3 契约的固定 tag）。
             Log.i(
                 TAG,
-                "round=$round FIRST_QUERY_MS=$firstNonEmptyMs G_READ_MS=$gReadInvokeMs",
+                "round=$round $firstQueryMetric=$firstNonEmptyMs G_READ_MS=$gReadInvokeMs",
             )
             // 探针自证：这次非空结果真的带节点行（防止把占位句误当命中）。
             val features = KnowledgeSearchFeatureExtractor.fromQuestion(PROBE_QUERY)

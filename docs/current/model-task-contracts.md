@@ -32,10 +32,9 @@ single JSON completion and never request `stream=true`.
 - A streaming request carries `"stream":true` and the transport reads
   `text/event-stream`, concatenating the delta `content` fields back into a
   chat-completion envelope.
-- The gateway replays the deltas as `ModelGatewayEvent.Progress` frames
-  (throttled every 8 SSE frames) so the persisted task enters `STREAMING` and
-  the tutor UI renders the reply incrementally, then emits the terminal
-  `Completed` with the fully parsed output.
+- Live previews are transient. A structured tutor plan previews only the
+  decoded, top-level openingMarkdown field during generation. Other plan
+  fields and tool envelopes stay out of the live answer and status replay.
 - Streaming is only advertised (`supportsStreaming`) for a provider that
   passed the structured-output capability probe; an unverified provider gets a
   conservative non-streaming request.

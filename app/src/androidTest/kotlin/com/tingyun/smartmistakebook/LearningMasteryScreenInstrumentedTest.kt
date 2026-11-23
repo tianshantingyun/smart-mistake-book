@@ -4,12 +4,16 @@ import com.tingyun.smartmistakebook.core.domain.AlgorithmConstants
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.core.app.ApplicationProvider
 import com.tingyun.smartmistakebook.core.domain.StudyKnowledgeSummary
@@ -65,17 +69,25 @@ class LearningMasteryScreenInstrumentedTest {
         }
 
         composeRule.onNodeWithText("学习掌握").assertIsDisplayed()
-        composeRule.onNodeWithTag("learning_mastery_subject:MATH").assertIsDisplayed()
-        composeRule.onAllNodesWithText("函数单调性").assertCountEquals(2)
-        composeRule.onNodeWithTag("learning_mastery_subject:PHYSICS").assertIsDisplayed()
-        composeRule.onAllNodesWithText("牛顿第二定律").assertCountEquals(2)
-        composeRule.onNodeWithTag("learning_mastery_recent").assertIsDisplayed()
-        composeRule.onNodeWithText("今天").assertIsDisplayed()
-        composeRule.onNodeWithText("昨天").assertIsDisplayed()
+        composeRule.onNodeWithTag("learning_mastery_subject:MATH").performScrollTo().assertIsDisplayed()
+        composeRule.onAllNodes(hasText("函数单调性") and hasAnyAncestor(hasTestTag("learning_mastery_subject:MATH")))
+            .assertCountEquals(1)
+        composeRule.onAllNodes(hasText("函数单调性") and hasAnyAncestor(hasTestTag("learning_mastery_recent")))
+            .assertCountEquals(1)
+        composeRule.onNodeWithTag("learning_mastery_subject:PHYSICS").performScrollTo().assertIsDisplayed()
+        composeRule.onAllNodes(hasText("牛顿第二定律") and hasAnyAncestor(hasTestTag("learning_mastery_subject:PHYSICS")))
+            .assertCountEquals(1)
+        composeRule.onAllNodes(hasText("牛顿第二定律") and hasAnyAncestor(hasTestTag("learning_mastery_recent")))
+            .assertCountEquals(1)
+        composeRule.onNodeWithTag("learning_mastery_recent").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("今天").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("昨天").performScrollTo().assertIsDisplayed()
         // 批次 2 / P8（规格 §1.4 锚 4）：两行各出现自己的粗粒度区间文案
         // （0.58→「约 5–8 成」；0.86→「约 8–10 成」，各只出现一次）。
-        composeRule.onAllNodesWithText("约 5–8 成", substring = true).assertCountEquals(1)
-        composeRule.onAllNodesWithText("约 8–10 成", substring = true).assertCountEquals(1)
+        composeRule.onAllNodes(hasText("约 5–8 成", substring = true) and
+            hasAnyAncestor(hasTestTag("learning_mastery_subject:MATH"))).assertCountEquals(1)
+        composeRule.onAllNodes(hasText("约 8–10 成", substring = true) and
+            hasAnyAncestor(hasTestTag("learning_mastery_subject:PHYSICS"))).assertCountEquals(1)
         FORBIDDEN_STUDENT_TERMS.forEach { term ->
             composeRule.onAllNodesWithText(term, substring = true).assertCountEquals(0)
         }

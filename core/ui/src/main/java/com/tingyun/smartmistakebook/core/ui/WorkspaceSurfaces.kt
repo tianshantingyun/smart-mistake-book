@@ -60,7 +60,7 @@ fun WorkspaceNotice(
         WorkspaceNoticeTone.ERROR -> Triple(SmartColors.ErrorSurface, SmartColors.ErrorText, Icons.Outlined.ErrorOutline)
     }
     val contained = title != null || tone == WorkspaceNoticeTone.WARNING || tone == WorkspaceNoticeTone.ERROR
-    Surface(modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite },
+    Surface(modifier.fillMaxWidth().semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
         shape = RoundedCornerShape(12.dp), color = if (contained) surface else Color.Transparent,
         border = if (contained) BorderStroke(1.dp, accent.copy(alpha = .12f)) else null) {
         Row(Modifier.padding(horizontal = if (contained) 12.dp else 0.dp, vertical = if (contained) 12.dp else 8.dp),

@@ -2,16 +2,16 @@ package com.tingyun.smartmistakebook.feature.library
 
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
@@ -33,6 +33,7 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeSourceAsset
@@ -57,10 +58,13 @@ internal fun LibraryInlineImages(
     fallbackContent: @Composable () -> Unit = {},
     entryId: String = requireNotNull(mistake).id,
     title: String = mistake?.title ?: "题目",
+    previewInset: Dp = 0.dp,
+    previewScale: Float = 1f,
 ) {
+    val previewPadding = Modifier.padding(horizontal = previewInset)
     if (repository == null) {
         Column(modifier) {
-            MistakeModuleHeader { captionContent("", null) }
+            MistakeModuleHeader(showDivider = false) { captionContent("", null) }
             fallbackContent()
         }
         return
@@ -80,23 +84,25 @@ internal fun LibraryInlineImages(
     Column(modifier) {
         when (current) {
             InlineImagesState.Loading -> {
-                MistakeModuleHeader { captionContent("", null) }
+                MistakeModuleHeader(showDivider = false) { captionContent("", null) }
                 fallbackContent()
-                PreviewMessage("正在加载题图…", loading = true)
+                PreviewMessage("正在加载题图…", modifier = previewPadding, loading = true)
             }
             InlineImagesState.Unavailable -> {
-                MistakeModuleHeader { captionContent("", null) }
-                PreviewMessage("题图暂时无法显示")
+                MistakeModuleHeader(showDivider = false) { captionContent("", null) }
+                PreviewMessage("题图暂时无法显示", modifier = previewPadding)
                 fallbackContent()
             }
             is InlineImagesState.Images -> {
                 if (current.assets.isEmpty()) {
-                    MistakeModuleHeader { captionContent("", null) }
+                    MistakeModuleHeader(showDivider = false) { captionContent("", null) }
                     fallbackContent()
                 }
                 current.assets.forEachIndexed { index, asset ->
                     key(asset.sourceAssetId) {
                         InlineImage(asset, "${title}，第${index + 1}张题图", index + 1, current.assets.size,
+                            previewPadding = previewPadding,
+                            previewScale = previewScale,
                             captionContent = { source, action ->
                                 if (index == 0) captionContent(source, action) else SourceCaption(source, action)
                             },
@@ -109,17 +115,24 @@ internal fun LibraryInlineImages(
 }
 
 @Composable
-private fun InlineImage(asset: MistakeSourceAsset, description: String, position: Int, total: Int,
+private fun InlineImage(
+    asset: MistakeSourceAsset,
+    description: String,
+    position: Int,
+    total: Int,
+    previewPadding: Modifier,
+    previewScale: Float,
     captionContent: @Composable (String, (@Composable () -> Unit)?) -> Unit,
-    fallbackContent: @Composable () -> Unit) {
+    fallbackContent: @Composable () -> Unit,
+) {
     val sourceTitle = sourceAssetDisplayTitle(asset.role, 1, 1, isHistorical = false, isExplanation = false)
     val caption = if (total > 1) "$sourceTitle · $position/$total" else sourceTitle
     val uri = (asset.location as? MistakeSourceLocation.Available)?.localUri
     if (uri == null) {
-        MistakeModuleHeader {
+        MistakeModuleHeader(showDivider = false) {
             Box(Modifier.padding(start = 16.dp, end = 12.dp)) { captionContent(caption, null) }
         }
-        PreviewMessage("题图暂时无法显示")
+        PreviewMessage("题图暂时无法显示", modifier = previewPadding)
         fallbackContent()
         return
     }
@@ -132,39 +145,44 @@ private fun InlineImage(asset: MistakeSourceAsset, description: String, position
         val visible = coordinates.boundsInWindow()
         inViewport = visible.width > 0f && visible.height > 0f
     }) {
-        MistakeModuleHeader {
-            Box(Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp)) {
+        MistakeModuleHeader(showDivider = false) {
+            Box(Modifier.fillMaxWidth().padding(start = 16.dp, end = 12.dp)) {
                 captionContent(caption) {
                     InlineActionButton("放大", { viewing = true }, enabled = inViewport && loadState == LocalImageLoadState.AVAILABLE,
                         contentDescription = "放大$description")
                 }
             }
         }
-        BoxWithConstraints(Modifier.fillMaxWidth()) {
-            val imageHeight = (maxWidth * (asset.height.toFloat() / asset.width)).coerceIn(80.dp, 480.dp)
-            val imageModifier = Modifier.fillMaxWidth().height(imageHeight).clip(MaterialTheme.shapes.small)
-            val frameModifier = if (loadState == LocalImageLoadState.UNAVAILABLE)
-                Modifier.fillMaxWidth().heightIn(min = imageHeight).clip(MaterialTheme.shapes.small) else imageModifier
-            Box(frameModifier.background(SmartColors.SubtleSurface), contentAlignment = Alignment.Center) {
-                if (loadState == LocalImageLoadState.UNAVAILABLE) {
-                    PreviewMessage("题图暂时无法显示")
-                }
+        if (loadState == LocalImageLoadState.UNAVAILABLE) {
+            PreviewMessage("题图暂时无法显示", modifier = previewPadding)
+            fallbackContent()
+        } else BoxWithConstraints(Modifier.fillMaxWidth().then(previewPadding), contentAlignment = Alignment.Center) {
+            val aspect = asset.width.toFloat() / asset.height
+            val maxPreviewHeight = minOf(320.dp, maxWidth) * previewScale
+            val imageWidth = minOf(maxWidth * previewScale, maxPreviewHeight * aspect)
+            val imageHeight = (imageWidth / aspect).coerceAtLeast(1.dp)
+            val frameShape = RoundedCornerShape(10.dp)
+            val frame = Modifier
+                .size(width = imageWidth, height = imageHeight)
+                .clip(frameShape)
+                .background(SmartColors.SubtleSurface)
+                .border(1.dp, SmartColors.Divider, frameShape)
+            Box(frame, contentAlignment = Alignment.Center) {
                 if (inViewport) {
                     BoundedLocalImage(
                         imageUri = uri,
                         contentDescription = description,
                         expanded = true,
-                        expandedMaxHeight = 480.dp,
-                        modifier = imageModifier,
+                        expandedMaxHeight = maxPreviewHeight,
+                        modifier = Modifier.matchParentSize(),
                         onLoadStateChange = { loadState = it },
                     )
                 } else {
                     // Retain geometry and the scroll target without retaining a bitmap offscreen.
-                    Box(imageModifier.semantics { contentDescription = description })
+                    Box(Modifier.matchParentSize().semantics { contentDescription = description })
                 }
             }
         }
-        if (loadState == LocalImageLoadState.UNAVAILABLE) fallbackContent()
         if (viewing) LocalImageViewer(uri, "$sourceTitle · $description", onDismiss = { viewing = false })
     }
 }
@@ -179,9 +197,9 @@ private fun SourceCaption(text: String, action: (@Composable () -> Unit)? = null
 }
 
 @Composable
-private fun PreviewMessage(message: String, loading: Boolean = false) {
+private fun PreviewMessage(message: String, modifier: Modifier = Modifier, loading: Boolean = false) {
     Surface(color = SmartColors.SubtleSurface, shape = MaterialTheme.shapes.small,
-        modifier = Modifier.fillMaxWidth()) {
+        modifier = modifier.fillMaxWidth()) {
         Row(Modifier.defaultMinSize(minHeight = if (loading) 40.dp else 64.dp)
             .padding(horizontal = 16.dp, vertical = if (loading) 8.dp else 12.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {

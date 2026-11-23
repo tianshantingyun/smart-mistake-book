@@ -372,6 +372,7 @@ internal fun MistakeRow.toRecord() = MistakeRecord(
     chapterLabels = chapterLabels.toCatalogLabels(),
     knowledgeLabels = knowledgeLabels.toCatalogLabels(),
     captureOccurrenceCount = maxOf(1, captureOccurrenceCount),
+    practiceUnitRevisionId = practiceUnitRevisionId,
 )
 
 internal fun CanonicalSourceAssetRow.toRecord() = CanonicalSourceAssetRecord(

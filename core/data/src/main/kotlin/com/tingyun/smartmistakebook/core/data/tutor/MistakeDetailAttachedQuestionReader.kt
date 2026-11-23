@@ -2,9 +2,11 @@ package com.tingyun.smartmistakebook.core.data.tutor
 
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailRepository
 import com.tingyun.smartmistakebook.core.domain.MistakeDetailState
+import com.tingyun.smartmistakebook.core.domain.MAX_TUTOR_MESSAGE_IMAGES
 import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.TutorAttachedQuestionReader
+import com.tingyun.smartmistakebook.core.domain.questionImageAssets
 import com.tingyun.smartmistakebook.core.model.AttachedRoundQuestion
 
 /**
@@ -31,6 +33,8 @@ internal class MistakeDetailAttachedQuestionReader(
             subject = entry.subject.toTutorSubjectKind(),
             title = ready.detail.identity.title,
             questionDocument = document,
+            sourceImageAssetIds = ready.detail.source.questionImageAssets()
+                .take(MAX_TUTOR_MESSAGE_IMAGES).map { it.sourceAssetId },
         )
     }
 }

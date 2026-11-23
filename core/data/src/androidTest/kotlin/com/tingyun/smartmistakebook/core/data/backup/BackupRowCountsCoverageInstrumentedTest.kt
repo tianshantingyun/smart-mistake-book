@@ -34,22 +34,22 @@ import java.util.zip.ZipInputStream
  * **批次 34 / KD-80 80-C2 的设备侧逐名用例。**
  *
  * 本文件消灭的具体失败：KD-80 此前只有 `assertEquals(rowCountKeys, rowCounts.keys)` 这种
- * "99 键集合一次相等"的断言，以及主源码 `closureDigest` 里的 `forEach`。集合相等在绿轮日志里
- * 只剩 `OK (N tests)`，无法证明设备上真的逐个见过 99 个表名；而 `75.json` 与
+ * "102 键集合一次相等"的断言，以及主源码 `closureDigest` 里的 `forEach`。集合相等在绿轮日志里
+ * 只剩 `OK (N tests)`，无法证明设备上真的逐个见过 102 个表名；而 `76.json` 与
  * `SmbkSelectionPlan.allTables` 一旦漂移，只要两边同时错成同一份集合，集合相等也照样绿。
  *
  * 两个用例分别钉住：
- * 1. manifest 的 `rowCounts` 逐名覆盖**设备 APK 内 `assets/StudyDatabase/75.json` 的 entities
- *    表集合**（不是源码常量自证）：99 个键另从原始 manifest 文本解析（`JSONObject` 会静默
+ * 1. manifest 的 `rowCounts` 逐名覆盖**设备 APK 内 `assets/StudyDatabase/76.json` 的 entities
+ *    表集合**（不是源码常量自证）：102 个键另从原始 manifest 文本解析（`JSONObject` 会静默
  *    覆盖重复键，重复必须在原始文本层才测得出来），逐键 `assertTrue("缺少表 $table")`，并断言
  *    缺失 / 多余 / 重复键三者都判红、两个视图不进 `rowCounts`；同一用例再断言
- *    `SmbkSelectionPlan.allTables` 与 75.json 逐名一致。
- * 2. **包内库**与**恢复后库**的实际表集合从 `sqlite_master` 逐名读出，与 75.json 的 99 张表
+ *    `SmbkSelectionPlan.allTables` 与 76.json 逐名一致。
+ * 2. **包内库**与**恢复后库**的实际表集合从 `sqlite_master` 逐名读出，与 76.json 的 102 张表
  *    双向差集都为空（缺失、多余、重复均判红）；Room/SQLite 簿记表与 FTS4 影子表以显式白名单
  *    放行。随后每个表名的 `rowCounts[table]` 都等于两库对该表的 `COUNT(*)`（全选下只有三张
  *    派生索引被恒裁）。逐表单条断言，失败消息带表名与两个数。
  *
- * 期望表集合来自测试 APK 的 schema asset，不复制 SQL、不硬编码 99 个表名：这样"75.json 是
+ * 期望表集合来自测试 APK 的 schema asset，不复制 SQL、不硬编码 102 个表名：这样"76.json 是
  * 权威源"在设备上成立，而不是在开发机脚本里成立一次。用例只新增文件，不改 34 例基线。
  */
 @RunWith(AndroidJUnit4::class)
@@ -80,31 +80,31 @@ class BackupRowCountsCoverageInstrumentedTest {
             val rowCounts = manifest.rowCounts
             val schema = schemaAsset()
 
-            assertEquals("75.json entities 必须恰有 99 项", 99, schema.tableNames.size)
+            assertEquals("76.json entities 必须恰有 102 项", 102, schema.tableNames.size)
             assertEquals(
-                "75.json entities 不得出现重复表名",
+                "76.json entities 不得出现重复表名",
                 schema.tableNames.size,
                 schema.tables.size,
             )
             assertEquals(
-                "75.json 的 database.version 必须等于 SmbkSelectionPlan.SCHEMA_VERSION",
+                "76.json 的 database.version 必须等于 SmbkSelectionPlan.SCHEMA_VERSION",
                 SmbkSelectionPlan.SCHEMA_VERSION,
                 schema.version,
             )
             assertEquals(
-                "75.json 的 identityHash 必须等于 SmbkSelectionPlan.IDENTITY_HASH",
+                "76.json 的 identityHash 必须等于 SmbkSelectionPlan.IDENTITY_HASH",
                 SmbkSelectionPlan.IDENTITY_HASH,
                 schema.identityHash,
             )
-            assertEquals("75.json entities 必须是 99 张表", 99, schema.tables.size)
-            assertEquals("75.json views 必须是 2 个", 2, schema.views.size)
+            assertEquals("76.json entities 必须是 102 张表", 102, schema.tables.size)
+            assertEquals("76.json views 必须是 2 个", 2, schema.views.size)
             assertEquals(
-                "SmbkSelectionPlan.allTables 必须与 75.json 的 entities 逐名一致",
+                "SmbkSelectionPlan.allTables 必须与 76.json 的 entities 逐名一致",
                 schema.tables.sorted(),
                 SmbkSelectionPlan.allTables.sorted(),
             )
             assertEquals(
-                "SmbkSelectionPlan.rowCountKeys 必须与 75.json 的 entities 逐名一致",
+                "SmbkSelectionPlan.rowCountKeys 必须与 76.json 的 entities 逐名一致",
                 schema.tables,
                 SmbkSelectionPlan.rowCountKeys,
             )
@@ -117,32 +117,32 @@ class BackupRowCountsCoverageInstrumentedTest {
             // 备份清单的**原始文本键序列**：重复键会被 JSONObject 静默合并，只有在这一层
             // 才能把"重复"判红；缺失/多余/重复三项都断言。
             val rawKeys = rowCountsKeysFromRawManifest(rawManifest)
-            assertEquals("manifest rowCounts 原始键必须恰好 99 个", 99, rawKeys.size)
+            assertEquals("manifest rowCounts 原始键必须恰好 102 个", 102, rawKeys.size)
             assertEquals(
                 "manifest rowCounts 不得出现重复键",
                 rawKeys.size,
                 rawKeys.toSet().size,
             )
             assertEquals(
-                "manifest rowCounts 必须逐名覆盖 75.json 的 99 张表",
+                "manifest rowCounts 必须逐名覆盖 76.json 的 102 张表",
                 schema.tables,
                 rawKeys.toSet(),
             )
-            assertEquals("rowCounts 必须恰好 99 个键", 99, rowCounts.size)
+            assertEquals("rowCounts 必须恰好 102 个键", 102, rowCounts.size)
             assertEquals(
-                "rowCounts 不得出现 75.json 之外的表",
+                "rowCounts 不得出现 76.json 之外的表",
                 emptySet<String>(),
                 rowCounts.keys - schema.tables,
             )
             assertEquals(
-                "rowCounts 不得漏掉 75.json 的表",
+                "rowCounts 不得漏掉 76.json 的表",
                 emptySet<String>(),
                 schema.tables - rowCounts.keys,
             )
 
-            // 逐名断言：这是 80-C2 设备侧"99 键逐名"的可执行形态，不是打印。
+            // 逐名断言：这是 80-C2 设备侧"102 键逐名"的可执行形态，不是打印。
             schema.tables.sorted().forEach { table ->
-                assertTrue("rowCounts 缺少 75.json 表 $table", rowCounts.containsKey(table))
+                assertTrue("rowCounts 缺少 76.json 表 $table", rowCounts.containsKey(table))
             }
             schema.views.forEach { view ->
                 assertTrue("视图 $view 不是表，不得出现在 rowCounts", view !in rowCounts)
@@ -161,7 +161,7 @@ class BackupRowCountsCoverageInstrumentedTest {
             val schema = schemaAsset()
 
             assertEquals(
-                "rowCounts 必须逐名覆盖 75.json 的 99 张表",
+                "rowCounts 必须逐名覆盖 76.json 的 102 张表",
                 schema.tables,
                 rowCounts.keys,
             )
@@ -334,7 +334,7 @@ class BackupRowCountsCoverageInstrumentedTest {
     private data class SchemaAsset(
         val version: Int,
         val identityHash: String,
-        /** 75.json `entities` 数组的原始顺序（含可能出现的重复项）。 */
+        /** 76.json `entities` 数组的原始顺序（含可能出现的重复项）。 */
         val tableNames: List<String>,
         val tables: Set<String>,
         val views: Set<String>,
@@ -494,8 +494,8 @@ class BackupRowCountsCoverageInstrumentedTest {
     }
 
     /**
-     * 实际表集合与 75.json **逐名**比对：`sqlite_master` 里的重复名、75.json 有而库里没有
-     * （缺失）、库里有而 75.json 没有（多余）三者都判红。白名单只含 Room/SQLite 自身簿记表
+     * 实际表集合与 76.json **逐名**比对：`sqlite_master` 里的重复名、76.json 有而库里没有
+     * （缺失）、库里有而 76.json 没有（多余）三者都判红。白名单只含 Room/SQLite 自身簿记表
      * 与由 `sqlite_master` 里的虚拟表**推导**出的 FTS4 影子表——不硬编码任何业务表名。
      */
     private fun assertActualTableSetMatches(file: File, schema: SchemaAsset, label: String) {
@@ -509,9 +509,9 @@ class BackupRowCountsCoverageInstrumentedTest {
 
         // 缺失：先给差集，再逐名断言（失败消息带表名，便于设备日志定位）。
         val missing = schema.tables - actualTables
-        assertTrue("$label 缺少 75.json 表：${missing.sorted()}", missing.isEmpty())
+        assertTrue("$label 缺少 76.json 表：${missing.sorted()}", missing.isEmpty())
         schema.tables.sorted().forEach { table ->
-            assertTrue("$label 缺少 75.json 表 $table", actualTables.contains(table))
+            assertTrue("$label 缺少 76.json 表 $table", actualTables.contains(table))
         }
 
         val infrastructure = buildSet {
@@ -528,7 +528,7 @@ class BackupRowCountsCoverageInstrumentedTest {
             .filterNot { it in schema.tables }
             .filterNot { it.startsWith("sqlite_") }
             .filterNot { it in infrastructure }
-        assertTrue("$label 出现 75.json 之外的表：${unexpected.sorted()}", unexpected.isEmpty())
+        assertTrue("$label 出现 76.json 之外的表：${unexpected.sorted()}", unexpected.isEmpty())
 
         assertEquals(
             "$label 的 sqlite_master 视图名不得重复",
@@ -536,7 +536,7 @@ class BackupRowCountsCoverageInstrumentedTest {
             actual.viewNames.toSet().size,
         )
         assertEquals(
-            "$label 的视图必须与 75.json 逐名一致",
+            "$label 的视图必须与 76.json 逐名一致",
             schema.views,
             actual.viewNames.toSet(),
         )
@@ -558,7 +558,7 @@ class BackupRowCountsCoverageInstrumentedTest {
                 } catch (failure: AssertionError) {
                     throw failure
                 } catch (failure: Exception) {
-                    throw AssertionError("数据库缺少 75.json 表 $table：${failure.message}", failure)
+                    throw AssertionError("数据库缺少 76.json 表 $table：${failure.message}", failure)
                 }
             }
             return counts
@@ -567,7 +567,7 @@ class BackupRowCountsCoverageInstrumentedTest {
 
     private companion object {
         private const val SCHEMA_ASSET =
-            "com.tingyun.smartmistakebook.core.database.StudyDatabase/75.json"
+            "com.tingyun.smartmistakebook.core.database.StudyDatabase/76.json"
         private const val REVISION_ID = "revision-rowcounts"
 
         /** 匹配 `"table":` 形式的 JSON 键（值只是数字，rowCounts 对象内无嵌套字符串值）。 */

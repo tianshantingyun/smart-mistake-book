@@ -17,7 +17,9 @@ import com.tingyun.smartmistakebook.core.model.QuestionBlockReviewStatus
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.WritingLayer
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -38,6 +40,28 @@ class MistakeDetailDatabaseInstrumentedTest {
     @After
     fun tearDown() {
         store.close()
+    }
+
+    @Test
+    fun libraryPicturesUpdateInSavedPageOrderWithinTheSameRevision() = runBlocking {
+        createAndCommitRevisionOne(confirmedDocument("两张题图", ASSET_ONE))
+        store.createProblemDraft(createDraftCommand(DRAFT_TWO, ASSET_TWO, "b".repeat(64)))
+
+        withTimeout(5_000) {
+            val sourceIds = store.observeMistakeSourceAssets(ENTRY_ID).produceIn(this)
+            assertEquals(listOf(ASSET_ONE), sourceIds.receive().map { it.sourceAsset.sourceAssetId })
+            store.database.withWriteTransaction {
+                executeSQL("UPDATE problem_revision_source_asset SET ordinal = 1 WHERE problem_revision_id = '$REVISION_ONE'")
+                executeSQL(
+                    """
+                    INSERT INTO problem_revision_source_asset (problem_revision_id, source_asset_id, role, ordinal)
+                    VALUES ('$REVISION_ONE', '$ASSET_TWO', 'QUESTION_SOURCE', 0)
+                    """.trimIndent(),
+                )
+            }
+            assertEquals(listOf(ASSET_TWO, ASSET_ONE), sourceIds.receive().map { it.sourceAsset.sourceAssetId })
+            sourceIds.cancel()
+        }
     }
 
     @Test

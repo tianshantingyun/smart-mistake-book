@@ -4,6 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import android.os.ParcelFileDescriptor
 import android.os.SystemClock
+import android.view.InputDevice
+import android.view.MotionEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -48,10 +50,33 @@ class LibraryScrollPerformanceInstrumentedTest {
             val bounds = Rect().also(list::getBoundsInScreen)
             val top = bounds.top + bounds.height() / 5
             val bottom = bounds.bottom - bounds.height() / 5
+            fun swipe(fromY: Int, toY: Int) {
+                val downTime = SystemClock.uptimeMillis()
+                fun inject(action: Int, y: Float) {
+                    val event = MotionEvent.obtain(downTime, SystemClock.uptimeMillis(), action,
+                        bounds.centerX().toFloat(), y, 0).apply {
+                        source = InputDevice.SOURCE_TOUCHSCREEN
+                    }
+                    try {
+                        check(automation.injectInputEvent(event, true)) { "Native touch injection failed" }
+                    } finally {
+                        event.recycle()
+                    }
+                }
+                inject(MotionEvent.ACTION_DOWN, fromY.toFloat())
+                for (step in 1..10) {
+                    SystemClock.sleep(32)
+                    inject(MotionEvent.ACTION_MOVE, fromY + (toY - fromY) * step / 10f)
+                }
+                inject(MotionEvent.ACTION_UP, toY.toFloat())
+            }
             shell("dumpsys gfxinfo ${context.packageName} reset")
-            repeat(8) { shell("input swipe ${bounds.centerX()} $bottom ${bounds.centerX()} $top 320") }
-            assertTrue("Actual touch scrolling must move the first card offscreen", !firstVisible())
-            repeat(8) { shell("input swipe ${bounds.centerX()} $top ${bounds.centerX()} $bottom 320") }
+            repeat(8) { swipe(bottom, top) }
+            instrumentation.waitForIdleSync()
+            val scrollDeadline = SystemClock.uptimeMillis() + 5_000
+            while (firstVisible() && SystemClock.uptimeMillis() < scrollDeadline) SystemClock.sleep(100)
+            assertTrue("Actual touch scrolling in $bounds must move the first card offscreen", !firstVisible())
+            repeat(8) { swipe(top, bottom) }
             instrumentation.waitForIdleSync()
             val report = shell("dumpsys gfxinfo ${context.packageName} framestats")
             File(directory, "library-150-touch-frames.txt").writeText(report)
@@ -67,7 +92,7 @@ class LibraryScrollPerformanceInstrumentedTest {
     }
 
     private fun findScrollable(node: AccessibilityNodeInfo): AccessibilityNodeInfo? =
-        if (node.isScrollable) node else (0 until node.childCount).firstNotNullOfOrNull {
+        if (node.isScrollable && containsFirstCard(node)) node else (0 until node.childCount).firstNotNullOfOrNull {
             node.getChild(it)?.let(::findScrollable)
         }
 

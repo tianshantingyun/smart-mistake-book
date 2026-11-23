@@ -371,7 +371,7 @@ class MistakeRelationAndRevisionInstrumentedTest {
         composeRule.setContent { SmartMistakeBookTheme {
             MistakeRevisionEditRoute("entry-1", repository, {}, {}, agentEdits = edits, modelEgressAllowed = true)
         } }
-        composeRule.onNodeWithText("修改范围 · 已选 1/32 块 · 展开").assertExists()
+        composeRule.onNodeWithText("修改范围 · 已选 1/1 处 · 展开").assertExists()
         composeRule.onNodeWithContentDescription("关闭对话框").performClick()
         composeRule.onNodeWithTag("mistake_revision_edit_block_0").assertDoesNotExist()
         composeRule.onNode(hasText("求函数最值。") and hasAnyAncestor(hasTestTag("mistake_revision_edit_preview"))).assertExists()

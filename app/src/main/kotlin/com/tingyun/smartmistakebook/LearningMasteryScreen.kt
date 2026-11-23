@@ -95,29 +95,22 @@ internal fun LearningMasteryScreen(
                 .fillMaxWidth()
                 .testTag("learning_mastery_states"),
         ) {
-        LearningMasterySummary(
-            summaries = summaries,
-            projectionIsCurrent = overview.projectionIsCurrent,
-        )
-        KnowledgeConstellation(summaries, overview.knowledgePrerequisites)
-        SubjectMasteryChart(summaries)
-        RecentLearningActivity(
-            summaries = summaries,
-            nowEpochMillis = nowEpochMillis,
-        )
-        PaperDivider(Modifier.padding(vertical = 18.dp))
-        SectionHeader("按科目查看")
-        summaries
-            .groupBy(StudyKnowledgeSummary::subject)
-            .toList()
-            .sortedBy { (subject, _) -> subject.masteryOrder() }
-            .forEach { (subject, subjectSummaries) ->
-                SubjectMasterySection(
-                    subject = subject,
-                    summaries = subjectSummaries,
-                    modifier = Modifier.padding(top = 12.dp),
-                )
-            }
+            LearningMasterySummary(summaries, overview.projectionIsCurrent)
+            KnowledgeConstellation(summaries, overview.knowledgePrerequisites)
+            SubjectMasteryChart(summaries)
+            PaperDivider(Modifier.padding(vertical = 14.dp))
+            SectionHeader("按科目查看")
+            summaries.groupBy(StudyKnowledgeSummary::subject)
+                .toList()
+                .sortedBy { (subject, _) -> subject.masteryOrder() }
+                .forEach { (subject, subjectSummaries) ->
+                    SubjectMasterySection(
+                        subject = subject,
+                        summaries = subjectSummaries,
+                        modifier = Modifier.padding(top = 10.dp),
+                    )
+                }
+            RecentLearningActivity(summaries, nowEpochMillis)
         }
     }
 }

@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.doubleClick
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -127,8 +128,11 @@ class CapturedTutorSessionInstrumentedTest : CapturedTutorSessionTestBase() {
         composeRule.onNodeWithTag("lobby_picker_cancel").performClick()
         composeRule.onNodeWithTag("tutor_screen").assertExists()
         // 大厅与会话共用一个输入区（`TutorChatComposer`）：同一屏里输入框与发送键只有一套标签。
-        composeRule.onNodeWithTag("tutor_chat_composer").performTextInput("我想问一下这一步")
+        val composer = composeRule.onNodeWithTag("tutor_chat_composer")
+        composer.performTextInput("我想问一下这一步")
         composeRule.onNodeWithTag("tutor_chat_send").performClick()
+        composeRule.onNodeWithTag("tutor_empty_state").assertDoesNotExist()
+        composer.assertIsFocused()
         composeRule.runOnIdle {
             assertEquals(1, captureRequests)
             assertEquals(

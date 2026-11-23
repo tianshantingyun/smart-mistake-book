@@ -15,6 +15,7 @@ import com.tingyun.smartmistakebook.core.ui.ClaudeTextButton as TextButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.createSavedStateHandle
@@ -55,7 +56,7 @@ fun PaperAssemblyRoute(
     var selectedTab by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(catalogRepository) { library.bindRepository(catalogRepository) }
     Column(modifier.fillMaxSize()) {
-        WorkspacePageHeader(title = "组卷", subtitle = "选择题目，调整顺序与卷面", compact = true,
+        WorkspacePageHeader(title = "组卷", subtitle = "从错题本选题", compact = true,
             modifier = Modifier.padding(horizontal = 16.dp), actions = {
             TextButton(onClick = onBack) { Text("返回") }
         })
@@ -119,9 +120,11 @@ fun PaperAssemblyRoute(
             )
         }
         assembly.notice?.let { Text(it, modifier = Modifier.padding(16.dp), color = MaterialTheme.colorScheme.error) }
-        Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("已选 ${assembly.selectedEntryIds.size} 题", modifier = Modifier.padding(vertical = 12.dp))
-            Button(enabled = assembly.selectedEntryIds.isNotEmpty() && !assembly.checking, onClick = {
+        Row(
+            Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            Button(modifier = Modifier.testTag("assembly_edit"), enabled = assembly.selectedEntryIds.isNotEmpty() && !assembly.checking, onClick = {
                 val ids = assembly.selectedEntryIds
                 scope.launch {
                     if (assembly.validateForEditing(mistakeDetailRepository)) onEdit(ids)

@@ -122,6 +122,8 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
     @Volatile
     private var unavailable: Boolean = false
 
+    internal fun acceptsRequests(): Boolean = !closed.get() && !unavailable
+
     @Volatile
     private var rebuildConsumed: Boolean = false
 
@@ -983,7 +985,7 @@ class VisualJsClientEngine(private val context: Context) : VisualExecutionEngine
                 return
             }
             // 预算由 connectLocked 统一扣（它知道这是不是首次连接）。
-            if (connectLocked() == null) {
+            if (connectLocked() == null && !lastBindFailedOnLoading) {
                 unavailable = true
             }
         }

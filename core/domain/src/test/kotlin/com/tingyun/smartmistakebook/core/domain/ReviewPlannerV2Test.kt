@@ -925,6 +925,26 @@ class ReviewPlannerV2Test {
         )
     }
 
+    @Test
+    fun `daily preference uses the limit ratio and focus without exceeding the budget`() {
+        val candidates = listOf(
+            candidate("ordinary-open", "a", null, 5.0, 60).copy(isSubjective = true),
+            candidate("focus-open", "b", null, 5.0, 60).copy(isSubjective = true),
+            candidate("closed", "c", null, 5.0, 60).copy(isSubjective = false),
+            candidate("extra", "d", null, 5.0, 60).copy(isSubjective = false),
+        )
+        val plan = ReviewPlannerV2().plan(
+            request(candidates, budget = 120).copy(
+                dayPreference = ReviewDayPreference(10, listOf("数学"), questionLimit = 2, subjectivePercent = 50),
+                primaryFocusUnitIds = setOf("focus-open"),
+            ),
+        )
+        assertEquals(2, plan.queueItems.size)
+        assertEquals("focus-open", plan.queueItems.first().practiceUnitId)
+        assertTrue(plan.queueItems.last().practiceUnitId in setOf("closed", "extra"))
+        assertTrue(plan.queueItems.sumOf { it.estimatedDurationSeconds } <= 120)
+    }
+
     private fun request(
         candidates: List<ReviewCandidate>,
         budget: Int,

@@ -20,6 +20,8 @@ internal object Routes {
     const val Review = "review"
     const val Tutor = "tutor"
     const val Library = "library"
+    const val PaperAssembly = "paper-assembly"
+    const val AgentToolConversation = "tutor/tool-conversation"
     const val Profile = "profile"
     const val ReviewSession = "review/session"
     const val KnowledgeReviewSession = "review/knowledge-session"

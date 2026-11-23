@@ -2,17 +2,22 @@ package com.tingyun.smartmistakebook.feature.tutor
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -25,7 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestRepository
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
 import com.tingyun.smartmistakebook.core.domain.MAX_TUTOR_MESSAGE_IMAGES
-import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
+import com.tingyun.smartmistakebook.core.domain.TutorAttachedQuestionReader
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.TutorConversationAreas
@@ -68,11 +73,11 @@ internal fun TutorLobbyRoute(
     catalogEntries: List<StudyCatalogEntry>,
     imageIntake: LobbyMessageImageIntake? = null,
     initialConversationId: String? = null,
-    /**
-     * 加号（或空态里的「从错题本选择」）在错题库里选中一道题之后，把这道题**作为本轮附件**
-     * 交给讲题页面：不换页面，只是这一轮有了要讲的那道题。
-     */
-    onOpenMistakeTutor: (MistakeRevisionKey) -> Unit = {},
+    initialToolPrompt: String? = null,
+    onBack: (() -> Unit)? = null,
+    assistantText: (String, String?) -> String = { text, _ -> text },
+    assistantAccessory: (@Composable (TutorMessage, String) -> Unit)? = null,
+    attachedQuestionReader: TutorAttachedQuestionReader? = null,
     /**
      * 确认卡的落库端口（A4 / 插眼 5）。null = 这个入口不接确认卡：模型申请的本地动作仍然
      * 如实出现在正文里，只是没有可点的卡（与"静默丢弃"不同——丢弃是连话都不说）。
@@ -125,6 +130,7 @@ internal fun TutorLobbyRoute(
             pendingRequests = pendingRequests,
             localActionLandings = localActionLandings,
             readExportPaperEdit = readExportPaperEdit,
+            attachedQuestionReader = attachedQuestionReader,
             paperEditAssistant = paperEditCommandSource?.let { source ->
                 object : TutorPaperEditAssistant {
                     override suspend fun commandsFor(
@@ -138,10 +144,20 @@ internal fun TutorLobbyRoute(
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val lobbyImageEnabled = imageIntake != null
+    val hasLearningTools = LocalTutorLearningTools.current.isNotEmpty()
+    val canPickQuestion = attachedQuestionReader != null
 
     // 每次进入这个页面都重读一次模型能力：学生可能刚从设置里换了模型/配了 Key，而能力是
     // 外部事实、不在库里。VM 只订阅它、不缓存它。
     LaunchedEffect(Unit) { viewModel.refreshProvider() }
+    LaunchedEffect(viewModel, catalogEntries) { viewModel.restorePendingAttachedQuestion(catalogEntries) }
+    var exitedLearningTool by rememberSaveable { mutableStateOf(false) }
+    val initialToolDraft = remember(initialToolPrompt, exitedLearningTool) {
+        if (exitedLearningTool) null else TutorLearningToolDraft.fromMessage(initialToolPrompt)
+    }
+    LaunchedEffect(viewModel, initialToolDraft) {
+        initialToolDraft?.let { viewModel.seedLearningToolDraft(it.request) }
+    }
 
     val lobbyCameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture(),
@@ -169,30 +185,41 @@ internal fun TutorLobbyRoute(
         lobbyCameraLauncher.launch(uri)
     }
 
+    fun launchLobbyGallery() {
+        lobbyGalleryLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+        )
+    }
+
     // 进栏一律新对话（决策台账 D-Q6-4）、空会话不落库（K1b）：进入本页**不认领任何旧会话**，
     // 也不为"只是进来看一眼"建会话行——会话行由第一条消息自己保证。这些规则现在落在
     // [TutorConversationViewModel] 的初始状态里（默认空会话 id + 自己创建会话行）。
 
-    val capabilities = remember(onCapture) {
+    val capabilities = remember(onCapture, canPickQuestion) {
         agentCapabilityDirectory(
             onCapture = onCapture,
             onPickMistake = viewModel::onOpenMistakePicker,
-        )
+        ).filter { canPickQuestion || it.id != "pick-from-notebook" }
     }
     // 重新生成 = 覆盖：同一学生消息只展示最新助手回复（旧回复留库，不进界面）。
     val visibleMessages = remember(state.messages) { latestTutorLobbyMessages(state.messages) }
+    val lastStudent = visibleMessages.lastOrNull { it.role == TutorMessageRole.STUDENT }
+    val toolDraft = initialToolDraft ?: remember(lastStudent?.bodyMarkdown) {
+        TutorLearningToolDraft.fromMessage(lastStudent?.bodyMarkdown)
+    }
+    val messageById = remember(visibleMessages) { visibleMessages.associateBy { it.messageId } }
+    val readingQuestion = state.pendingAttachedQuestionEntryId != null && state.pendingAttachedQuestion == null
     val composerBlock = TutorComposerAvailability(
         providerReady = state.provider?.supports(ModelTaskKind.TUTOR_LOBBY) == true,
         providerLoadFailed = state.providerLoadFailed,
         // 残留任务是"发送被挡住"的第五种情况：给一句人话 + 「继续回复」出口，不许静默吞掉点击。
         stalledTurnReason = state.stalledTurnBlockReason,
-    ).block()
+    ).block() ?: if (readingQuestion) TutorComposerBlock("正在读取所选题目…") else null
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(Paper)
-            .imePadding()
             .testTag("tutor_lobby"),
     ) {
         TutorConversationScreen(
@@ -202,31 +229,39 @@ internal fun TutorLobbyRoute(
                     TutorPageHeader(
                         onOpenCapabilitySettings = onOpenCapabilitySettings,
                         onOpenHistory = onOpenHistory,
-                        onNewConversation = viewModel::onStartNewConversation,
+                        onNewConversation = {
+                            if (viewModel.onStartNewConversation()) exitedLearningTool = true
+                        },
+                        onBack = onBack,
                     )
                 },
-                composerPlaceholder = "输入题目、困惑，或说你现在想做什么",
+                composerPlaceholder = "发消息",
                 liveAnswerTestTag = "tutor_lobby_streaming_reply",
                 // 空态 = 能力目录（A1）：进入即新会话，先告诉学生"它能干什么"。
                 // 「试一句」（S5）点了就作为首条消息发出去，不是填进输入框。
                 emptyState = {
-                    TutorCapabilityDirectory(
-                        capabilities = capabilities,
-                        onExample = viewModel::onExampleMessage,
-                    )
+                    if (initialToolDraft != null) {
+                        Text(
+                            text = initialToolDraft.label,
+                            color = InkSecondary,
+                            style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                        )
+                    } else {
+                        TutorCapabilityDirectory(capabilities = capabilities, onExample = viewModel::onExampleMessage)
+                    }
                 },
             ),
             composer = {
                 TutorSurfaceComposer(
                     value = state.draft,
                     onValueChange = viewModel::onDraftChange,
-                    onSend = viewModel::onSubmitDraft,
+                    onSend = { viewModel.onSubmitDraft(toolDraft) },
                     sending = state.sending || state.resumingRequestId != null,
                     block = composerBlock,
                     onAction = { action ->
                         when (action.kind) {
                             TutorComposerActionKind.RETRY -> viewModel.onRetryFailedMessage()
-                            TutorComposerActionKind.OPEN_SETTINGS -> onOpenCapabilitySettings
+                            TutorComposerActionKind.OPEN_SETTINGS -> onOpenCapabilitySettings()
                             TutorComposerActionKind.RESUME -> viewModel.onResumeStalledTask()
                         }
                     },
@@ -237,24 +272,44 @@ internal fun TutorLobbyRoute(
                             TutorComposerActionKind.RESUME -> "tutor_lobby_resume_turn"
                         }
                     },
-                    placeholder = "输入题目、困惑，或说你现在想做什么",
-                    onOpenAttachMenu = if (lobbyImageEnabled) {
+                    placeholder = if (toolDraft != null) "补充你的需求" else "发消息",
+                    onOpenAttachMenu = if (lobbyImageEnabled || hasLearningTools || canPickQuestion) {
                         viewModel::onOpenAttachMenu
                     } else {
                         null
                     },
-                    attachmentPreview = if (state.pendingImages.isNotEmpty()) {
+                    attachmentPreview = if (state.pendingImages.isNotEmpty() || toolDraft != null ||
+                        state.pendingAttachedQuestionEntryId != null
+                    ) {
                         {
-                            PendingMessageImagesRow(
-                                images = state.pendingImages,
-                                onRemove = viewModel::onRemovePendingImage,
-                                testTagPrefix = "lobby",
+                            toolDraft?.let {
+                                Text(
+                                    "使用本机学习记录 · ${it.label}",
+                                    color = InkSecondary,
+                                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                            if (state.pendingImages.isNotEmpty()) PendingMessageImagesRow(
+                                images = state.pendingImages, onRemove = viewModel::onRemovePendingImage, testTagPrefix = "lobby",
                             )
+                            if (state.pendingAttachedQuestionEntryId != null) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = state.pendingAttachedQuestion?.title ?: "正在读取题目…",
+                                        modifier = Modifier.weight(1f).testTag("lobby_attached_question"),
+                                        maxLines = 1,
+                                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                                        color = InkSecondary,
+                                        style = androidx.compose.material3.MaterialTheme.typography.bodySmall,
+                                    )
+                                    TextButton(onClick = viewModel::onClearAttachedQuestion) { Text("移除题目") }
+                                }
+                            }
                         }
                     } else {
                         null
                     },
-                    attachmentCount = state.pendingImages.size,
+                    attachmentCount = state.pendingImages.size + if (state.pendingAttachedQuestion != null) 1 else 0,
                     tools = {
                         TutorInteractionModeSwitch(
                             mode = state.interactionMode,
@@ -264,9 +319,10 @@ internal fun TutorLobbyRoute(
                 )
             },
             // 发送路径上的错误与输入框同一个常驻块：学生正在这里按，就在这里告诉他。
-            attachments = if (state.error != null) {
+            attachments = if (state.error != null || state.attachReadFailed != null) {
                 {
                     Column(modifier = Modifier.fillMaxWidth()) {
+                        state.attachReadFailed?.let { TutorSurfaceStartError(message = it) }
                         state.error?.let { message ->
                             TutorSurfaceStartError(
                                 message = message.message,
@@ -281,7 +337,7 @@ internal fun TutorLobbyRoute(
                                         .padding(bottom = 6.dp)
                                         .testTag("tutor_lobby_retry_send"),
                                 )
-                            } else {
+                            } else if (message.primaryAction?.actionType == ActionType.OPEN_SETTINGS) {
                                 OutlineActionChip(
                                     text = TUTOR_SURFACE_OPEN_SETTINGS_LABEL,
                                     onClick = onOpenCapabilitySettings,
@@ -300,15 +356,17 @@ internal fun TutorLobbyRoute(
                 .weight(1f)
                 .testTag("tutor_screen"),
             // 在途状态（思考卡 / 逐 token 回答 / 工具进度）由屏幕组件渲染，与讲题同一套、
-            // 同一条实时流（A3）。「停止」也长在这一块里（A2）：这一轮还没有消息行可挂动作条。
-            liveTurn = state.visibleLiveTurn,
+            // 同一条实时流（A3）。生成时输入栏右侧可随时停止。
+            liveTurn = state.visibleLiveTurn?.let { turn ->
+                turn.copy(answer = turn.answer?.let { assistantText(it, lastStudent?.bodyMarkdown) })
+            },
             liveStatusText = state.stalledTask?.tutorLiveStatusText(),
             livePlaceholder = if (state.resumingRequestId != null) {
                 TUTOR_LIVE_PLACEHOLDER
             } else {
                 "正在发送…"
             },
-            liveTurnStopAction = viewModel::onStopGenerating,
+            liveTurnStopAction = if (state.stalledTask != null) viewModel::onStopGenerating else null,
             emptyStateVisible = visibleMessages.isEmpty() && state.tasks.isEmpty(),
             autoScrollVersion = listOf(
                 visibleMessages.size,
@@ -319,6 +377,7 @@ internal fun TutorLobbyRoute(
                 state.error,
                 state.liveTurn,
             ),
+            forceFollowToken = lastStudent?.messageId,
         ) {
             // 整条会话都列出来（B6）：长会话里前面的轮次不能被静默截掉——学生往上翻，
             // 讲过的每一轮都还在。
@@ -326,8 +385,17 @@ internal fun TutorLobbyRoute(
                 items = visibleMessages,
                 key = { it.messageId },
             ) { message ->
+                val source = messageById[message.replyToMessageId]?.takeIf { it.role == TutorMessageRole.STUDENT }
+                val visibleMessage = when (message.role) {
+                    TutorMessageRole.ASSISTANT -> if (source != null) {
+                        message.copy(bodyMarkdown = assistantText(message.bodyMarkdown, source.bodyMarkdown))
+                    } else message
+                    TutorMessageRole.STUDENT -> TutorLearningToolDraft.fromMessage(message.bodyMarkdown)
+                        ?.let { message.copy(bodyMarkdown = it.request) } ?: message
+                    else -> message
+                }
                 TutorSurfaceMessageItem(
-                    message = message,
+                    message = visibleMessage,
                     imageIntake = imageIntake,
                     onOpenCapabilitySettings = onOpenCapabilitySettings,
                     resendTarget = message.resendTargetOrNull(visibleMessages),
@@ -338,6 +406,11 @@ internal fun TutorLobbyRoute(
                     onRetry = viewModel::onResendMessage,
                     modifier = Modifier.padding(top = 12.dp),
                 )
+                if (source != null && message.role == TutorMessageRole.ASSISTANT &&
+                    message.status == TutorMessageStatus.SUCCEEDED
+                ) {
+                    assistantAccessory?.invoke(message, source.bodyMarkdown)
+                }
             }
             if (state.resumeStalledTurnVisible) {
                 item(key = "lobby-stalled") {
@@ -387,31 +460,16 @@ internal fun TutorLobbyRoute(
     if (state.attachMenuOpen) {
         MessageAttachmentDialog(
             onDismiss = viewModel::onDismissAttachMenu,
-            onLaunchCamera = {
-                viewModel.onDismissAttachMenu()
-                launchLobbyCamera()
-            },
-            onLaunchGallery = {
-                viewModel.onDismissAttachMenu()
-                lobbyGalleryLauncher.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
-                )
-            },
+            onLaunchCamera = if (lobbyImageEnabled) ::launchLobbyCamera else null,
+            onLaunchGallery = if (lobbyImageEnabled) ::launchLobbyGallery else null,
             testTagPrefix = "lobby",
-            onPickFromLibrary = if (catalogEntries.isNotEmpty()) {
-                viewModel::onOpenMistakePicker
-            } else {
-                null
-            },
+            onPickFromLibrary = if (canPickQuestion) viewModel::onOpenMistakePicker else null,
         )
     }
     if (state.mistakePickerOpen) {
         TutorMistakePickerDialog(
             entries = catalogEntries,
-            onPick = { entry ->
-                viewModel.onDismissMistakePicker()
-                onOpenMistakeTutor(entry.toMistakeRevisionKey())
-            },
+            onPick = viewModel::onPickAttachedQuestion,
             onDismiss = viewModel::onDismissMistakePicker,
             testTagPrefix = "lobby",
         )

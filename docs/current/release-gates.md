@@ -6,8 +6,8 @@
 - text tutor, photo tutor, and saved-problem tutor entry close the loop
 - authorized images really reach the provider
 - no vision support means fail before network
-- ASK actions never execute without their required user action; AUTO_VISIBLE evidence
-  writes pass host policy/MasteryWriteGate and remain observable, with no arbitrary model mastery writes
+- application actions execute autonomously and return their actual results within the current tool loop
+- historical ASK cards remain readable; evidence writes continue through host policy/MasteryWriteGate
 - process recreation never auto-sends
 - each logical operation has at most `ModelTaskRemoteDispatchPolicy.MAX_DISPATCHES`
   provider dispatches (currently 6: five tool rounds plus one final answer),

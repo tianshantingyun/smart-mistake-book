@@ -418,6 +418,27 @@ internal abstract class MistakeDetailDao {
 
     @Query(
         """
+        SELECT link.role, asset.source_asset_id, asset.content_sha256, asset.relative_path,
+            asset.mime_type, asset.byte_size, asset.width, asset.height, asset.source_type,
+            asset.created_at_epoch_millis
+        FROM error_book_entry AS entry
+        JOIN problem_revision_source_asset AS link ON link.problem_revision_id = entry.current_revision_id
+        JOIN canonical_source_asset AS asset ON asset.source_asset_id = link.source_asset_id
+        WHERE entry.entry_id = :entryId
+            AND entry.status = 'ACTIVE'
+        ORDER BY CASE WHEN link.role = 'QUESTION_SOURCE' AND link.ordinal = 0 THEN COALESCE((
+            SELECT MIN(draft_source.page_index)
+            FROM problem_draft_commit_receipt AS receipt
+            JOIN problem_draft_source_asset AS draft_source ON draft_source.draft_id = receipt.draft_id
+            WHERE receipt.problem_revision_id = link.problem_revision_id
+                AND draft_source.source_asset_id = link.source_asset_id
+        ), 0) ELSE link.ordinal END, asset.created_at_epoch_millis, asset.source_asset_id
+        """,
+    )
+    abstract fun observeCurrentSourceAssets(entryId: String): Flow<List<MistakeDetailSourceAssetRow>>
+
+    @Query(
+        """
         SELECT
             link.problem_revision_id,
             link.role,

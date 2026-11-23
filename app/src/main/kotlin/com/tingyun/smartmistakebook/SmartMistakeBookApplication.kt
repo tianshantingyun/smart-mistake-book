@@ -983,8 +983,8 @@ class SmartMistakeBookApplication : Application() {
     fun startMistakeExportEdited(
         draft: MistakePaperDraft,
         format: MistakeExportFormat,
+        exportId: String = newMistakeExportId(),
     ): String {
-        val exportId = newMistakeExportId()
         // 草稿文件名用跨平台安全字符（导出 id 里的 ':' 在 Windows JVM 测试里不是合法文件名）。
         val draftId = exportId.replace(':', '_')
         applicationScope.launch {

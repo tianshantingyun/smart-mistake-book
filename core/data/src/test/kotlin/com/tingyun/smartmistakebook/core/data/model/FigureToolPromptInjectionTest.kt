@@ -196,7 +196,8 @@ class FigureToolPromptInjectionTest {
         assertTrue(prompt.contains("method=JS 时在 program 字段"))
         assertFalse(prompt.contains("本地未配置可用的图像模型时也不会生成"))
         assertFalse(prompt.contains("简单图必须申请"))
-        assertTrue(prompt.contains("kind: 'text'|'math'"))
+        assertTrue(prompt.contains("kind: 'text', payload"))
+        assertTrue(prompt.contains("复杂 LaTeX 公式放在图旁的正文段落中"))
         val body = OpenAiModelProtocol.requestBody(
             modelId = "test-model",
             input = input,
@@ -205,6 +206,7 @@ class FigureToolPromptInjectionTest {
         )
         assertFalse(body.contains("本地未配置可用的图像模型时也不会生成"))
         assertTrue(body.contains("method=JS 时在 program 字段"))
+        assertTrue(body.contains("复杂 LaTeX 公式放在图旁的正文段落中"))
     }
 
     @Test

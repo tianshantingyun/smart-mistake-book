@@ -1,20 +1,63 @@
 # 1.0.0 发布候选复核与 GitHub 整合报告
 
-复核日期为 2026-11-13。基础版本为用户指定的 `1.0.0`。本轮按源码、负向测试、完整测试框架、远端主干对照、GitHub 分支与 PR 逐项复核。
+复核日期为 2026-11-15。用户指定版本为 `1.0.0`，公开下载继续保留一个 APK。本轮新增应用内默认自主执行与 JS 错误修复闭环，保留此前仓库整理和发布回归修复。
 
-## 后续继续核验
+## 当前发布与源码
 
-上一轮 GitHub CI `43266933043` 已完整结束为失败。Linux AAPT2 校验已通过，设备任务进入真实编译与测试，暴露出数据库 AndroidTest 的重复 `.candidates` 解包，以及真实 JS 图形发布端口没有 Room 实现的问题。
+GitHub 当前只有 `v1.0.0` 一个预发布条目，含安装包、发布清单与校验和三项资产。远端 APK 的 versionCode 为 101422，SHA-256 为 `9aa579a871b316d27c4c053277ce112e9f639e386d1c43e28481bf674fb46d7e`。发布清单标注源码 `71f538f8b19139c274dff98692533bd24143bc43`，标签仍指向 `00d1361f7f4f51ae6d0cd6f0a1a1f0a1261bc7eb`，需要随本轮验证后统一。远端清单已独立下载至 `build/remote-release-snapshot/release-manifest.json`。[GitHub 发布](https://github.com/tianshantingyun/smart-mistake-book/releases/tag/v1.0.0)
 
-本轮已完成以下修复。
+正式签名密钥已建立并保存在仓库外，证书 SHA-256 为 `a9306655f2992f5fc7554ca4d0ebd91fa3a6e6ee0bbd92c2c40388397a3a882f`。后续安装包沿用该签名。
 
-- 补入四份既有打印/AIGC 设备与独立读回日志，使关闭态负向测试可在干净检出中复现。
-- retrace 测试按当前平台及 `ANDROID_HOME` / `ANDROID_SDK_ROOT` 寻找工具；CLI 回归显式使用 UTF-8，修复 Windows 隔离 Python 的编码错误。
-- 修复七处原始异常信息回显，保留专用恢复异常的人工措辞，通用失败给出核对本机数据的下一步。恢复提示 8 项回归通过。
-- 数据库三个 AndroidTest 文件移除已经解包列表的重复 `.candidates` 访问，原业务断言保留。
-- Room 增加 `commitGeneratedVisualArtifact` 的真实事务落点，复用身份与内容校验、STAGING→LIVE CAS、保留策略、预算与回滚，不创建人工会话/消息。新增四项真实 Room 设备回归，覆盖无会话发布、幂等、预算失败与身份冲突回滚。
+## 智能体能力检查
 
-关闭态/发布工具/复发门专项 49 项通过。剩余失败重跑目前为 11 项 Python 用例，涉及两份历史设备证据以及合规静态断言。新视觉发布设备回归的执行结果需以新提交 CI 为准，不能把编译成功视为设备通过。
+用户要求停止完整验证后，本轮集中核对声明、上下文、执行端口与结果回灌。当前声明八类工具与三种应用动作。
+
+- 大厅工具上下文的 subject、sessionId 与知识点注册表均为空。知识材料、掌握情况及教学备注工具在该入口会进入空范围分支，查询到的错题也无法直接成为完整讲题上下文。位置为 `core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/model/TutorToolContext.kt`。
+- 错题检索固定读取前六条，offset 为零，参数未开放分页与结构化筛选。大厅只回条数，条目 id 留在本地 trace，模型缺少按内容挑选具体条目的返回信息。位置为 `core/data/src/main/kotlin/com/tingyun/smartmistakebook/core/data/study/RoomTutorToolRunner.kt` 的 notebookRead。
+- 打开、保存、导出动作仅在 TutorLobbyInput 广告，讲题与计划回合的动作接线仍待统一。位置为 `core/model/src/main/kotlin/com/tingyun/smartmistakebook/core/model/Capabilities.kt` 的 forRound。
+- JS 当前运行 prepare/render 结构化绘图程序，宿主 SDK 提供计算与绘图能力。应用工具调用桥接、可由模型填写的参数与持续状态、参数交互尚待接通，当前产物适配器的 initialStateJson 固定为空对象。
+- 题目编辑、收藏与归档、复习计划调整、设置修改和备份恢复尚无智能体工具入口。ADD_TO_REVIEW_PLAN 仅保留历史解码形状。
+- 生图成功回传产物 id 与状态。面向模型的图像读回和视觉自检反馈仍待接通，现有修正闭环覆盖执行诊断。
+
+当前灵活性的主要缺口集中在上下文装配、可选择对象的返回信息、跨入口工具接线和 JS 宿主接口。
+
+## 智能体与 JS 改造
+
+- 当前已就绪工具声明决定执行范围，意图和置信度作为模型上下文。写入继续由真实目标与数据校验处理。
+- 同名工具支持不同参数多次调用，Native 与 Route B 均可在同轮携带工具和多个应用动作。
+- JS 失败诊断经过生成器、执行器和下一次模型请求保留，模型可修改程序、接续同一操作预算并选择其他可用方法。原生公式度量的 math 协议已同步声明。
+- 保存、打开、导出按顺序自动执行，成功、失败、排队状态与产物身份回传当前工具环。entryId 和 entryIds 与本轮已检索或保存的真实条目核对。
+- 已完成操作按持久身份去重，失败可通过新调用身份重试，取消后可恢复，历史确认卡保持兼容。
+- 纯动作轮计入五轮工具配额，第六次派遣收起工具和动作，供模型总结实际结果。
+- 附图保存进入既有录入链路。导出默认 PDF，未指定题目时采用本轮检索候选，六十秒内未生成则准确返回 QUEUED。复习计划调整处理器继续保持未接通状态。
+
+## 本轮验证证据
+
+| 检查 | 当前结果 | 证据 |
+| --- | --- | --- |
+| Python 完整工具测试 | 1,586 passed，70,720 subtests passed | `build/agent-python-full.log` |
+| JVM 全量测试 | 4,718 个实例，零失败，3 skipped | `build/agent-jvm-before-module-clean.json` |
+| 两种 Debug Lint | 已完成通过 | `build/agent-full-verification-final.log` |
+| 两种 Debug APK 与测试 APK | 已生成 | `build/agent-full-verification-final.log` |
+| 定向设备回归 | 工具环 15 项通过，列表与录入 4 项通过 | `build/agent-tool-loop-device-confirmed.log`、`build/agent-library-device-repaired.log` |
+| 完整设备回归 | 按用户最新指令停止，未计为完整通过 | `build/agent-all-device.log` |
+| H 源码门 | 75 PASS，15 FAIL | `build/agent-h-compliance.log` |
+
+JVM 与 Lint 同批执行时，额外测试 APK 的增量打包遇到 DEX 路径缓存错误，已通过 `:core:data:clean` 重建，后续重新验证该模块。Lint 与测试资产合并同时运行时暴露的隐式依赖已补齐。
+
+H 门仍记录隐私政策公开 URL、Data safety 外部表单、年龄与监护人相关界面、时长提醒、上线信息、本地化以及人工视觉/文案走查等事项。它们保持真实状态，未通过修改测试隐藏。H 门是源码检查，其结果与设备测试分别记录。
+
+## GitHub 当前整合
+
+当前工作位于 `codex/complete-release-tests`，PR #18 继续承接发布测试和本次智能体改造。旧 CI `43589916473` 已结束失败，其失败清单作为本轮逐项修复依据。后续提交、合并及安装包更新另行记录，完整回归已按用户指令停止。[PR #18](https://github.com/tianshantingyun/smart-mistake-book/pull/18)
+
+依赖更新 PR #6、#8、#15、#16、#17 仍开放，当前检查失败。它们分别涉及 OkHttp、Kotlin、SQLite JDBC、AGP、kotlinx.serialization，需要各自对应的依赖锁和兼容验证。
+
+## 核验方式
+
+本机受控入口存在 ACL 拒绝，使用仓库既有 `gradlew.bat` 与 `D:\smb-build` ASCII 别名，`GRADLE_USER_HOME=D:\gradle-home`。Gradle 由主任务串行调度。设备任务使用 Android 34 模拟器，实际模型服务、不同实体设备和完整人工视觉验收仍需独立证据。独立审查代理触及额度限制后，主任务继续本地审查与实际测试。
+
+以下保留此前已完成的仓库和 GitHub 整理记录。
 
 ## 已完成的仓库整理与修复
 
@@ -44,56 +87,3 @@
 Git HTTPS 连接曾间歇失败，重试成功后已核对远端状态。分支历史及已合并 PR 可在 GitHub 查询。
 
 GitHub 整理修复通过 [PR #14](https://github.com/tianshantingyun/smart-mistake-book/pull/14) 合入 main，merge 为 `4968c2b3de0e12bf345a46cccb76b8770bdf4890`。合并后的设备任务发现 Linux AAPT2 未被依赖校验清单收录，本轮补齐了该平台条目。官方构件为 2,369,543 字节，发布 SHA-1 `5287feac13566b9165cdf02c77565e68aec3aad0` 与下载字节一致，SHA-256 为 `e772a3dae8354764f1b0793903218427f483982445207f2e4ffc8c2026755bd4`。构件核对记录在 `build/release-1.0.0/linux-aapt2-verification.json`。[Google Maven 构件](https://dl.google.com/dl/android/maven2/com/android/tools/build/aapt2/9.3.0-15703166/aapt2-9.3.0-15703166-linux.jar)
-
-## 本轮通过的验证
-
-| 检查 | 本轮结果 |
-| --- | --- |
-| 归档内容一致性 | 121 / 121 Git 内容对象一致 |
-| 修复相关 Python 回归 | 首组 123 项通过，后续专项 34 项通过，干净候选工作树独立复跑 154 项通过 |
-| 备份静态门 | 26 项检查通过 |
-| 依赖锁覆盖 | 14 个 included project 均覆盖测试与运行配置 |
-| 生图入口静态门 | 五文件、六请求体 PASS |
-| `core:model` JVM 测试 | 669 项通过 |
-| `core:domain` JVM 测试 | 743 项，零失败，1 项 skipped |
-| 备份 JVM 专项 | Plan 14 + Codec 37 + v4 夹具 8，共 59 项通过 |
-| 导出与辅导模块复跑 | `:core:export:testDebugUnitTest :feature:tutor:testDebugUnitTest` BUILD SUCCESSFUL，183 + 266 项通过 |
-| 两种 Debug APK | `:app:assembleLocalFirstDebug :app:assembleStrictOfflineDebug` BUILD SUCCESSFUL |
-| 两种 Debug Lint | `:app:lintLocalFirstDebug :app:lintStrictOfflineDebug` 均通过 |
-| schema 与历史夹具 | 数据库 schema 文件及 v4 冻结包字节未修改 |
-
-本轮 APK 分别为 `app/build/outputs/apk/localFirst/debug/app-localFirst-debug.apk` 和 `app/build/outputs/apk/strictOffline/debug/app-strictOffline-debug.apk`。两种调试版本名为 `1.0.0-localfirst`、`1.0.0-offline`，versionCode 为调试默认值 2。正式 Release 仍需对最终完整 Git 历史执行算号器并注入 `-Psmbk.versionCode=N`。
-
-## 全量检查仍未通过
-
-### Python
-
-完整运行 `PYTHONPATH=tools python -m pytest tools/tests -q`，得到 1493 passed、19 failed。随后修复本地 `*privacy-policy*.log` 被误认为政策文件的问题，专项通过，失败重跑剩 18 项。
-
-在独立干净工作树 `origin/main`（`22f096a0`）上运行涉及的三个测试模块，18 项同名失败全部复现，107 项通过。因此这 18 项是远端主干已存在的失败。本轮没有把它们改为跳过或放宽断言。
-
-剩余集合为 `test_fix_relapse_gate.py` 6 项、`test_g_device_evidence.py` 2 项、`test_h_compliance_gate.py` 10 项。分别涉及源代码门接口/断言、两份历史设备绑定证据、合规静态断言与现有实现差异。部分用例显式断言旧缺口存在，需要对照实际契约进一步逐条裁决。
-
-日志为 `build/recheck-python-full.log`、`build/recheck-python-remaining.log`、`build/recheck-python-baseline.log`，对照节点清单为 `build/recheck-python-baseline-comparison.json`。
-
-### Android/JVM
-
-使用 `--continue` 执行两种构建、两种应用测试、所有模块 JVM 测试和两种 Lint。后续修复导出编译与文案断言后，读取本轮及复跑 XML 共统计 4686 个测试实例，仍有 20 个失败实例，对应 16 个不同用例，3 个 skipped。
-
-- 应用两个变体共 8 个失败实例，涉及恢复错误信息、无结论辅导提示、数学文本度量。
-- `core:data` 8 项失败，涉及生图提示与 SDK、一组修改题目的模型网关契约、学习画像。
-- `core:database` 4 项失败，涉及最新 schema 精确断言与 FTS 查询参考副本。
-
-完整列表与模块计数保存在 `build/recheck-jvm-final.json`。本轮尚未对所有这些 JVM 失败逐一执行主干对照，不能据此宣称全部属于旧失败。
-
-主日志为 `build/recheck-android-full.log`，导出与辅导复跑日志为 `build/recheck-export-tutor.log`，最终 Debug 构建日志为 `build/recheck-debug-build.log`。
-
-## 源码交付与发布状态
-
-源码候选包为 `build/release-1.0.0/SmartMistakeBook-1.0.0-source.zip`。同目录 `source-manifest.json` 记录最终提交/树对象、ZIP SHA-256、条目数量与验证状态。更新后的包需通过 ZIP CRC 与提交树匹配验证。
-
-当前进程缺少四个 `RELEASE_*` 环境变量，用户选择先交付发布候选与验证报告。生产签名 APK/AAB 尚未生成。真机升级、完整设备迁移、备份还原闭环、无障碍、性能、生产签名产物 R8/16 KB 和身份绑定验证仍待完成，既有 3D、3E、MVA、AUD-08 记录也尚无真实通过证据。
-
-本轮 Windows 受控入口因 ACL 拒绝 `TIANSHAN\CodexSandboxUsers`，验证采用已有 `gradlew.bat` 入口和 `D:\smb-build` ASCII 别名。
-
-**Completion Gate FAILED**。仓库整理与已列 GitHub 处置已执行，正式发布仍受上述测试、设备验收和生产签名条件阻塞。

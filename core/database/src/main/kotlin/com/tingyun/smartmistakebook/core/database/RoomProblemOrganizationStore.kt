@@ -206,13 +206,18 @@ internal class RoomProblemOrganizationStore(
             val knowledgeBindings = command.knowledgeBindings
                 .map(KnowledgeBindingSeedRecord::toOrganizationEntity)
             if (knowledgeBindings.isNotEmpty()) {
-                val expectedSubject = knowledgeNodes.mapTo(linkedSetOf()) { it.subject }.single()
+                val topicSubjects = knowledgeNodes.mapTo(linkedSetOf()) { it.subject }
+                require(topicSubjects.size <= 1) { "Local topic bindings must share one subject" }
+                val expectedSubject = topicSubjects.singleOrNull()
+                val selectedCatalogIds = command.knowledgeSelections.mapTo(hashSetOf()) { it.nodeId }
                 knowledgeBindings.forEach { binding ->
                     val boundNode = dao.readKnowledgeNode(binding.knowledgeNodeId)
                         ?: throw DatabaseContractViolationException(
                             "Knowledge binding references an unknown node",
                         )
-                    if (boundNode.subject != expectedSubject) {
+                    if (binding.knowledgeNodeId !in selectedCatalogIds &&
+                        (expectedSubject == null || boundNode.subject != expectedSubject)
+                    ) {
                         throw DatabaseContractViolationException(
                             "Knowledge binding crosses subject boundaries",
                         )
@@ -506,7 +511,10 @@ internal fun validateCommand(command: ConfirmProblemOrganizationCommand) {
     val knowledgeLabels = command.classifications
         .filter { it.dimension == ClassificationDimension.KNOWLEDGE.name }
         .mapTo(linkedSetOf()) { it.labelId }
-    require(command.knowledgeNodes.mapTo(linkedSetOf()) { it.stableCode } == knowledgeLabels) {
+    // Catalog selections reference existing reviewed nodes. Only locally created topic labels
+    // belong in knowledgeNodes; catalog membership is verified against live rows in confirm().
+    val catalogLabels = command.knowledgeSelections.mapTo(linkedSetOf()) { "catalog:${it.nodeId}" }
+    require(command.knowledgeNodes.mapTo(linkedSetOf()) { it.stableCode } == knowledgeLabels - catalogLabels) {
         "Visible topic nodes must exactly match the accepted knowledge classifications"
     }
     val visibleTopicNodeIds = command.knowledgeNodes.mapTo(linkedSetOf()) { it.knowledgeNodeId }

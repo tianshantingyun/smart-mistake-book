@@ -1,7 +1,5 @@
 package com.tingyun.smartmistakebook.feature.tutor
 
-import com.tingyun.smartmistakebook.core.ui.WorkspacePageHeader
-import com.tingyun.smartmistakebook.core.ui.SmartColors
 import com.tingyun.smartmistakebook.core.ui.ClaudePageHeader
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.ui.graphics.Color
@@ -21,7 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.AutoStories
+import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.Tune
@@ -39,25 +37,23 @@ import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestRepository
 import com.tingyun.smartmistakebook.core.domain.CaptureWorkflowRepository
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
-import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
+import com.tingyun.smartmistakebook.core.domain.TutorAttachedQuestionReader
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
 import com.tingyun.smartmistakebook.core.domain.TutorAttachedImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
+import com.tingyun.smartmistakebook.core.domain.TutorMessage
 import com.tingyun.smartmistakebook.core.export.MistakePaperDraft
 import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
 import com.tingyun.smartmistakebook.core.model.MistakeExportFormat
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
 import com.tingyun.smartmistakebook.core.ui.Divider
-import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.Jade
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.TutorReplyMarkdown
-import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.heightIn
 
 /**
@@ -85,7 +81,7 @@ fun TutorRoute(
     catalogEntries: List<StudyCatalogEntry>,
     imageIntake: LobbyMessageImageIntake? = null,
     initialConversationId: String? = null,
-    onOpenMistakeTutor: (MistakeRevisionKey) -> Unit = {},
+    attachedQuestionReader: TutorAttachedQuestionReader? = null,
     /** 确认卡的落库端口（A4）：null = 这个入口不接确认卡。 */
     pendingRequests: AgentPendingRequestRepository? = null,
     /** 确认卡执行路径 ① 的落点（拍照草稿 → 错题本条目）；null = 这个入口没有拍照草稿。 */
@@ -118,6 +114,10 @@ fun TutorRoute(
     modifier: Modifier = Modifier,
     onPrepareDetailedAnswers: ((MistakeExportFormat, MistakePdfLayout, List<String>) -> Unit)? = null,
     onPrepareEditedDetailedAnswers: ((MistakePaperDraft, MistakeExportFormat) -> Unit)? = null,
+    initialToolPrompt: String? = null,
+    onBack: (() -> Unit)? = null,
+    assistantText: (String, String?) -> String = { text, _ -> text },
+    assistantAccessory: (@Composable (TutorMessage, String) -> Unit)? = null,
 ) {
     TutorLobbyRoute(
         onCapture = onCapture,
@@ -130,7 +130,11 @@ fun TutorRoute(
         catalogEntries = catalogEntries,
         imageIntake = imageIntake,
         initialConversationId = initialConversationId,
-        onOpenMistakeTutor = onOpenMistakeTutor,
+        initialToolPrompt = initialToolPrompt,
+        onBack = onBack,
+        assistantText = assistantText,
+        assistantAccessory = assistantAccessory,
+        attachedQuestionReader = attachedQuestionReader,
         pendingRequests = pendingRequests,
         localActionLandings = tutorLocalActionLandings(
             openNotebook = onOpenLibraryProblem ?: { _ -> onOpenMistakeNotebook() },
@@ -164,8 +168,7 @@ internal fun TutorPageHeader(
     /** 由别的页面推进来时（错题详情、历史、拍照流程）给一个返回；大厅这种标签根页传 null。 */
     onBack: (() -> Unit)? = null,
 ) {
-    val rootHeader = onBack == null
-    val iconTint = if (rootHeader) SmartColors.HeaderInk else InkSecondary
+    val iconTint = InkSecondary
     val iconColors = IconButtonDefaults.iconButtonColors(
         containerColor = Color.Transparent,
         contentColor = iconTint,
@@ -178,7 +181,7 @@ internal fun TutorPageHeader(
                 colors = iconColors,
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.Add,
+                    imageVector = Icons.Outlined.EditNote,
                     contentDescription = "新会话",
                     tint = iconTint,
                     modifier = Modifier.size(20.dp),
@@ -193,7 +196,7 @@ internal fun TutorPageHeader(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.History,
-                    contentDescription = "讲题历史",
+                    contentDescription = "对话历史",
                     tint = iconTint,
                     modifier = Modifier.size(20.dp),
                 )
@@ -207,16 +210,12 @@ internal fun TutorPageHeader(
             Icon(Icons.Outlined.Tune, contentDescription = "讲题能力设置", tint = iconTint, modifier = Modifier.size(20.dp))
         }
     }
-    if (rootHeader) {
-        WorkspacePageHeader(
-            title = "讲题", modifier = Modifier.padding(vertical = 8.dp), actions = actions,
-        )
-    } else {
-        ClaudePageHeader(
-            title = "讲题", onBack = onBack,
-            backModifier = Modifier.testTag("tutor_page_back"), actions = actions,
-        )
-    }
+    ClaudePageHeader(
+        title = "智能体",
+        onBack = onBack,
+        backModifier = Modifier.testTag("tutor_page_back"),
+        actions = actions,
+    )
 }
 
 /**
@@ -226,20 +225,7 @@ internal fun TutorPageHeader(
  */
 @Composable
 internal fun TutorPrompt(text: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxWidth().padding(start = ClaudeLayout.AssistantInset),
-        verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Box(Modifier.size(24.dp),
-                contentAlignment = Alignment.Center) {
-                Icon(Icons.Outlined.AutoStories, "智能讲题助手", Modifier.size(24.dp), tint = com.tingyun.smartmistakebook.core.ui.SmartColors.AgentAccent)
-            }
-            Text("讲题助手", color = Ink, style = ClaudeLayout.ControlText)
-        }
-        TutorReplyMarkdown(
-            markdown = text,
-            modifier = Modifier.fillMaxWidth(),
-        )
-    }
+    TutorReplyMarkdown(markdown = text, modifier = modifier.fillMaxWidth())
 }
 
 @Composable

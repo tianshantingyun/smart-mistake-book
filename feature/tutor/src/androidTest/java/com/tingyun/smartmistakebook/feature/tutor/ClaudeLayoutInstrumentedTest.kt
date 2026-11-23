@@ -19,7 +19,7 @@ import org.junit.runner.RunWith
 class ClaudeLayoutInstrumentedTest {
     @get:Rule val compose = createComposeRule()
 
-    @Test fun composerToolsSitBelowTheFullWidthWritingArea() {
+    @Test fun attachmentAndSendFlankTheWritingArea() {
         var sends = 0
         compose.setContent {
             SmartMistakeBookTheme {
@@ -30,8 +30,10 @@ class ClaudeLayoutInstrumentedTest {
         val field = compose.onNodeWithTag("tutor_chat_composer").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
         val attach = compose.onNodeWithTag("tutor_chat_attach").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
         val send = compose.onNodeWithTag("tutor_chat_send").assertIsDisplayed().fetchSemanticsNode().boundsInRoot
-        assertTrue("Tools must sit below the writing area", attach.top >= field.bottom && send.top >= field.bottom)
-        assertTrue("The field must retain the width occupied by both tools", field.left <= attach.left && field.right >= send.right)
+        val mode = compose.onNodeWithTag(TUTOR_MODE_SWITCH_TAG).fetchSemanticsNode().boundsInRoot
+        assertTrue("Attachment and send flank the input", attach.right <= field.left && field.right <= send.left)
+        assertTrue("All three controls share a row", attach.center.y == field.center.y && send.center.y == field.center.y)
+        assertTrue("Reply mode is separate from the message entry row", mode.bottom <= field.top)
         compose.onNodeWithTag("tutor_chat_send").performClick()
         compose.runOnIdle { assertEquals(1, sends) }
         UiAuditEvidence.capture("claude-composer-structure")

@@ -4,6 +4,8 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
@@ -89,10 +91,10 @@ class SchedulingSettingsInstrumentedTest {
             )
         }
 
-        composeRule.onNodeWithTag("exam_subject_field").performTextInput("物理")
-        composeRule.onNodeWithTag("exam_title_field").performTextInput("月考")
-        composeRule.onNodeWithTag("exam_days_field").performTextInput("14")
-        composeRule.onNodeWithTag("exam_add_button").performClick()
+        composeRule.onNodeWithTag("exam_subject_field").performScrollTo().performTextReplacement("物理")
+        composeRule.onNodeWithTag("exam_title_field").performScrollTo().performTextReplacement("月考")
+        composeRule.onNodeWithTag("exam_days_field").performScrollTo().performTextReplacement("14")
+        composeRule.onNodeWithTag("exam_add_button").performScrollTo().performClick()
 
         composeRule.runOnIdle {
             assertEquals(1, added.size)
@@ -101,7 +103,7 @@ class SchedulingSettingsInstrumentedTest {
             assertTrue(added.single().examEpochDay > 0)
         }
 
-        composeRule.onNodeWithTag("exam_remove_exam-existing").performClick()
+        composeRule.onNodeWithTag("exam_remove_exam-existing").performScrollTo().performClick()
         composeRule.runOnIdle { assertEquals(listOf("exam-existing"), removed) }
     }
 }

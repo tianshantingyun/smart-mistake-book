@@ -8,6 +8,7 @@ import com.tingyun.smartmistakebook.core.domain.AgentPendingRequestRepository
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
 import com.tingyun.smartmistakebook.core.domain.TutorConversationAreas
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
+import com.tingyun.smartmistakebook.core.domain.TutorAttachedQuestionReader
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
 import com.tingyun.smartmistakebook.core.export.MistakePdfPaperEdit
 import com.tingyun.smartmistakebook.core.model.MistakePdfLayout
@@ -38,6 +39,7 @@ internal class TutorConversationViewModelFactory(
         null,
     /** 6B-3：自然语言改卷的模型端口；null = 这个入口不接模型改卷。 */
     private val paperEditAssistant: TutorPaperEditAssistant? = null,
+    private val attachedQuestionReader: TutorAttachedQuestionReader? = null,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(
@@ -58,6 +60,7 @@ internal class TutorConversationViewModelFactory(
             localActionLandings = localActionLandings,
             readExportPaperEdit = readExportPaperEdit,
             paperEditAssistant = paperEditAssistant,
+            attachedQuestionReader = attachedQuestionReader,
         ) as T
     }
 }

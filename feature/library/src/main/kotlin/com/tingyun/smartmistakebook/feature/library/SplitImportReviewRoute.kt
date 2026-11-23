@@ -282,7 +282,7 @@ private fun SplitQuestionCard(
             }
             Column(Modifier.weight(1f)) {
                 Text(
-                    text = "第 $ordinal 题",
+                    text = "第 ${ordinal + 1} 题",
                     color = Ink,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,

@@ -1,6 +1,5 @@
 package com.tingyun.smartmistakebook
 
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -38,7 +37,7 @@ class ReviewContinuityInstrumentedTest {
 
         composeRule.onNodeWithTag("review_continuity")
             .assertTextEquals("今天已完成 · 连续复习 3 天")
-        composeRule.onNodeWithTag("review_start_button").assertIsNotEnabled()
+        composeRule.onNodeWithTag("review_start_button").assertDoesNotExist()
         composeRule.onNodeWithTag("review_capture_button").assertDoesNotExist()
         composeRule.onNodeWithTag("review_capture_shortcut").assertDoesNotExist()
     }

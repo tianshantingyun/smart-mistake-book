@@ -90,7 +90,7 @@ private fun LibraryCatalogItem.pickerEntry() = StudyCatalogEntry(
 
 /**
  * 「从错题库选择」：在学生当前所在的页面里直接挑一道题，选完交给调用方作为**本轮附件**带进
- * 讲题页面（`onOpenMistakeTutor`）。两个入口共用它：输入框加号里的那一项，以及空态里的
+ * 当前讲题页面。两个入口共用它：输入框加号里的那一项，以及空态里的
  * 「从错题本选择」快捷按钮。
  *
  * 消灭的失败：这条入口此前只是 `navigate(Routes.Library)`——跳到错题本、自己找、点进详情、
@@ -144,7 +144,7 @@ internal fun TutorMistakePickerDialog(
     val masteryLabels = listOf("conflicted" to "需巩固", "learning" to "学习中", "mastered" to "已掌握",
         "stale" to "待复习", "unknown" to "待评估")
     WorkspaceSheet(
-        title = "从错题库选择",
+        title = "从错题本选择",
         icon = Icons.Outlined.Search,
         onDismiss = onDismiss,
         scrollContent = false,
@@ -153,7 +153,7 @@ internal fun TutorMistakePickerDialog(
         },
     ) {
         OutlinedTextField(value = query, onValueChange = { query = it.take(MAX_PICKER_QUERY_CHARS) },
-            placeholder = { Text("搜索题目、板块或知识点") }, singleLine = true,
+            placeholder = { Text("搜索题目或知识点") }, singleLine = true,
             leadingIcon = { Icon(Icons.Outlined.Search, null) },
             trailingIcon = {
                 if (query.isNotEmpty()) IconButton(
@@ -163,7 +163,11 @@ internal fun TutorMistakePickerDialog(
             },
             modifier = Modifier.fillMaxWidth().testTag("${testTagPrefix}_picker_query"))
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(if (result.loading) "正在筛选…" else "${result.total} 道题", Modifier.weight(1f),
+            Text(when {
+                result.loading -> "正在读取…"
+                result.failed -> "读取失败"
+                else -> "${result.total} 道题"
+            }, Modifier.weight(1f),
                 style = MaterialTheme.typography.labelMedium, color = InkSecondary)
             TextButton(onClick = { expanded = !expanded }) { Text(if (expanded) "收起筛选" else "筛选") }
             if (filtered) TextButton(onClick = { query = ""; subject = null; chapter = null; mastery = null; favorite = false; days = null }) { Text("清空") }
@@ -176,7 +180,7 @@ internal fun TutorMistakePickerDialog(
             days?.let { add("近 $it 天") }
         }.joinToString(" · ").ifBlank { "按关键词筛选" }, color = InkSecondary, style = MaterialTheme.typography.labelSmall)
         LazyColumn(Modifier.fillMaxWidth().weight(1f)
-            .testTag("${testTagPrefix}_picker_list"), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            .testTag("${testTagPrefix}_picker_list"), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             item(key = "filters") {
                 ClaudeDisclosure(visible = expanded && repository != null) {
                     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {

@@ -54,7 +54,7 @@ internal fun NativePaperEditModelSection(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         OutlineActionChip(
-            text = if (expanded) "收起 AI 改卷" else "AI 改卷面（一句话）",
+            text = if (expanded) "收起智能体编排" else "智能体编排",
             onClick = onToggle,
             modifier = Modifier.testTag("native_paper_edit_ai_toggle"),
         )
@@ -62,32 +62,25 @@ internal fun NativePaperEditModelSection(
 
         Spacer(Modifier.height(6.dp))
         WorkspacePanel(modifier = Modifier.testTag("native_paper_edit_ai_section")) {
-            Text(
-                text = "用一句话改卷",
-                color = Ink,
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Medium,
-            )
             OutlinedTextField(
                 value = instruction,
                 onValueChange = onInstructionChange,
-                label = { Text("例如：删掉第二题，把第一题标题改短一点") },
+                label = { Text("编排要求") },
+                placeholder = { Text("例如：按难度排序，把标题缩短") },
                 enabled = !busy,
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("native_paper_edit_ai_instruction"),
             )
             Text(
-                text = "模型只能移出/加回题、调整顺序、改标题/文字/选项/卷面备注；" +
-                    "不能改图，也不影响错题本。先看预览，再决定是否采用。",
+                text = "可调整选题、顺序与文字。预览后可选择采用。",
                 modifier = Modifier.testTag("native_paper_edit_ai_hint"),
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
             )
             if (!consentGranted) {
                 WorkspaceNotice(
-                    message = "还没有启用模型：先在设置里配置模型，才能让 AI 改卷面。" +
-                        "已经写下的要求会保留。",
+                    message = "配置模型后可生成编排预览。",
                     modifier = Modifier.testTag("native_paper_edit_ai_consent"),
                     tone = WorkspaceNoticeTone.WARNING,
                     title = "尚未启用模型",
@@ -102,7 +95,7 @@ internal fun NativePaperEditModelSection(
                 }
             }
             PrimaryActionButton(
-                text = if (busy) "正在等模型给出修改…" else "生成修改预览",
+                text = if (busy) "正在编排…" else "生成编排预览",
                 onClick = onGenerate,
                 enabled = portAvailable && consentGranted && instruction.isNotBlank() && !busy,
                 modifier = Modifier
@@ -115,11 +108,6 @@ internal fun NativePaperEditModelSection(
                         .fillMaxWidth()
                         .testTag("native_paper_edit_ai_busy"),
                     color = SmartColors.LearningAccent,
-                )
-                Text(
-                    text = "模型正在按你的要求修改卷面副本；失败或取消时卷面保持原样。",
-                    color = InkSecondary,
-                    style = MaterialTheme.typography.bodySmall,
                 )
             }
             message?.let { text ->

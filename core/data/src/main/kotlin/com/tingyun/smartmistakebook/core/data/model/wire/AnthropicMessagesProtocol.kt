@@ -67,7 +67,7 @@ internal object AnthropicMessagesProtocol : ModelWireProtocol {
         // Anthropic 必填；取一个对各代 Claude 都安全的输出上限。
         put("max_tokens", ANTHROPIC_MAX_TOKENS)
         put("temperature", ANTHROPIC_TEMPERATURE)
-        put("system", OpenAiModelProtocol.SYSTEM_PROMPT)
+        put("system", OpenAiModelProtocol.systemPrompt(input))
         if (stream) put("stream", true)
         put(
             "messages",

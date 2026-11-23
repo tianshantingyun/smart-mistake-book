@@ -320,6 +320,7 @@ fun GeneratedFigureCard(
     caption: String? = null,
     onReload: (() -> Unit)? = null,
     maxImageHeight: androidx.compose.ui.unit.Dp = 520.dp,
+    inline: Boolean = false,
 ) {
     var viewing by rememberSaveable(assetId) { mutableStateOf(false) }
     var decodeVersion by remember(assetId) { mutableStateOf(0) }
@@ -327,11 +328,11 @@ fun GeneratedFigureCard(
     val description = caption ?: figureNumber?.let { "图 $it" } ?: "讲解配图"
     androidx.compose.material3.Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
-        color = SmartColors.FigureSurface,
-        border = androidx.compose.foundation.BorderStroke(.5.dp, SmartColors.Divider),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(if (inline) 8.dp else 16.dp),
+        color = if (inline) androidx.compose.ui.graphics.Color.Transparent else SmartColors.FigureSurface,
+        border = if (inline) null else androidx.compose.foundation.BorderStroke(.5.dp, SmartColors.Divider),
     ) {
-        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.padding(if (inline) 0.dp else 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             when (state) {
                 is AttachedImageRenderState.Ready -> {
                     key(assetId, decodeVersion) {
@@ -345,7 +346,7 @@ fun GeneratedFigureCard(
                             onLoadStateChange = { decodeFailed = it == LocalImageLoadState.UNAVAILABLE },
                         )
                     }
-                    caption?.takeIf(String::isNotBlank)?.let { text ->
+                    caption?.takeIf { !inline && it.isNotBlank() }?.let { text ->
                         Text(figureNumber?.let { "图 $it · $text" } ?: text,
                             style = MaterialTheme.typography.bodySmall, color = InkSecondary)
                     }
@@ -358,6 +359,12 @@ fun GeneratedFigureCard(
                     Text("配图暂不可用", color = InkSecondary, style = MaterialTheme.typography.bodySmall)
                     onReload?.let { InlineActionButton("重新加载", it) }
                 }
+            }
+            if (!inline) {
+                AiContentBadge(
+                    text = AI_GENERATED_LABEL,
+                    modifier = Modifier.testTag("generated_figure_ai_label_$assetId"),
+                )
             }
         }
     }
@@ -482,6 +489,7 @@ fun GeneratedFiguresSection(
     modifier: Modifier = Modifier,
     firstFigureNumber: Int = 1,
     captions: Map<String, String> = emptyMap(),
+    inline: Boolean = false,
 ) {
     val cache = remember(resolveAsset) { GeneratedFigureAssetCache(resolveAsset) }
     val scope = rememberCoroutineScope()
@@ -506,6 +514,7 @@ fun GeneratedFiguresSection(
                 state = states[assetId] ?: AttachedImageRenderState.Generating,
                 figureNumber = firstFigureNumber + index,
                 caption = captions[assetId],
+                inline = inline,
                 onReload = {
                     scope.launch {
                         cache.invalidate(assetId)

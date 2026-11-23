@@ -286,9 +286,11 @@ object FigurePromptAssembler {
     private fun jsStaticContract(): String = buildString {
         appendLine("程序形状：const visual = { prepare(input), render(input, metrics) }；" +
             "静态程序只需这两个函数，本机不执行交互面。")
-        appendLine("prepare(input) 返回 [{ kind: 'text'|'math', payload: '...' }]（纯几何图返回 []，math 的 payload 为 LaTeX）；" +
+        appendLine("教学图的 prepare(input) 返回 [{ kind: 'text', payload: '...' }]（纯几何图返回 []）；" +
             "宿主原生度量后以 metrics 回给 render，第 i 项文字用 contentId: metrics[i].contentId " +
             "引用（宿主生成的 id，不要硬编码）。")
+        appendLine("图内用简短坐标、单位、点名和可读符号作标签。复杂 LaTeX 公式放在图旁的正文段落中，" +
+            "预览器暂时无法画出 kind:'math' 的标签，提交这种标签会导致整张图无法发布。")
         appendLine("render(input, metrics) 返回 SceneV1 场景对象：schemaVersion=1、sceneId、" +
             "revision=input.revision、viewBox={x,y,width,height}（width/height 取 input.viewport 的 " +
             "widthDu/heightDu）、paths=[{ id, commands }]、root（group/path/label 节点树）。")
@@ -303,6 +305,10 @@ object FigurePromptAssembler {
             JS_SDK_SIGNATURES.joinToString(separator = "、") +
             "。约束：axis 端点不重合、ticks 为 [0,64] 整数、tickLength∈(0,100]；arrow 头尾不重合；" +
             "polyline 每点为 [x,y]；坐标/半径必须在 ±100000 内。")
+        appendLine("复杂图按手机实际宽度构图。优先用同一坐标系叠加曲线、关键点、阴影与方向箭头；" +
+            "对照或多阶段图在窄屏上下排列。用 metrics 给图内标注留出空间，避免重叠或贴边；" +
+            "结合线型、位置或标注区分信息，确保缩放前仍能读懂。若一张太拥挤，把可独立阅读的图插在各自的讲解段落。")
+        appendLine("用 visualSdk.lineSegments(points) 画只含描边的连续曲线，阴影单独用闭合路径填充。")
         appendLine("最小样例（数轴 + 圆 + 标签）：")
         appendLine(JS_STATIC_SAMPLE)
     }

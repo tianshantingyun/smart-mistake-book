@@ -1041,6 +1041,7 @@ internal abstract class ProblemDraftTransactionDao {
                     problemRevisionId = committedIds.problemRevisionId,
                     sourceAssetId = source.sourceAssetId,
                     role = QUESTION_SOURCE_ROLE,
+                    ordinal = source.pageIndex,
                 ),
             )
         }

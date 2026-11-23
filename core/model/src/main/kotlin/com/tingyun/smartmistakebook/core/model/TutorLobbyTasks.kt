@@ -5,6 +5,20 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 
+const val TUTOR_LEARNING_CONTEXT_SEPARATOR = "\n【学习工具数据】\n"
+
+fun isAgentLearningProposal(message: String): Boolean =
+    message.startsWith("【智能体组卷】\n") ||
+        message.startsWith("【智能体复习规划】\n") ||
+        message.startsWith("【智能体薄弱点分析】\n")
+
+fun tutorLearningProposalRequest(message: String): String? =
+    if (isAgentLearningProposal(message) && TUTOR_LEARNING_CONTEXT_SEPARATOR in message) {
+        message.substringAfter('\n').substringBefore(TUTOR_LEARNING_CONTEXT_SEPARATOR)
+    } else {
+        null
+    }
+
 /**
  * A bounded free-text entry on the Tutor home screen.
  *
@@ -82,6 +96,8 @@ data class TutorLobbyInput(
     @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
     val agentContext: TutorAgentContext? = null,
 ) : ModelTaskInput {
+    val isLearningProposal: Boolean get() = isAgentLearningProposal(studentMessage)
+
     override val kind: ModelTaskKind
         get() = ModelTaskKind.TUTOR_LOBBY
 
@@ -99,11 +115,16 @@ data class TutorLobbyInput(
             false,
         )
         require(messageOrdinal > 0) { "Tutor lobby message ordinal must be positive" }
-        studentMessage.requireSafeModelText(
+        val learningRequest = tutorLearningProposalRequest(studentMessage)
+        (learningRequest ?: studentMessage).requireSafeModelText(
             "Tutor lobby student message",
             TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS,
             true,
         )
+        if (learningRequest != null) {
+            studentMessage.substringAfter(TUTOR_LEARNING_CONTEXT_SEPARATOR)
+                .requireSafeModelText("Tutor learning context", MAX_LEARNING_CONTEXT_CHARS, true)
+        }
         require(sourceImageAssetRefs.size <= ModelEgressManifest.MAX_LOBBY_IMAGE_ASSETS) {
             "Tutor lobby message carries too many images"
         }
@@ -187,6 +208,7 @@ data class TutorLobbyInput(
 
     companion object {
         const val MAX_STUDENT_MESSAGE_CHARS = TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS
+        const val MAX_LEARNING_CONTEXT_CHARS = 8_000
         const val MAX_PRIOR_MESSAGES = TutorRespondInput.MAX_PRIOR_MESSAGES
         const val MAX_PRIOR_MESSAGE_CHARS = TutorRespondInput.MAX_PRIOR_MESSAGE_CHARS
 

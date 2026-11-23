@@ -36,6 +36,19 @@ import org.junit.Test
  */
 class ReviewSelfReportViewModelTest {
 
+    @Test
+    fun answerRevealKeepsItsOriginalTimestampAfterStateRestoration() {
+        val saved = SavedStateHandle()
+        val original = ReviewSelfReportViewModel(saved)
+        assertEquals(1_000L, original.answerRevealOccurredAt(1_000L))
+        assertEquals(1_000L, original.answerRevealOccurredAt(5_000L))
+        val restored = ReviewSelfReportViewModel(
+            SavedStateHandle(saved.keys().associateWith { saved.get<Any?>(it) }),
+        )
+        assertEquals(1_000L, restored.answerRevealOccurredAt(9_000L))
+    }
+
+
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun doubleTapSubmitsExactlyOnePersistentRequest() = runTest {

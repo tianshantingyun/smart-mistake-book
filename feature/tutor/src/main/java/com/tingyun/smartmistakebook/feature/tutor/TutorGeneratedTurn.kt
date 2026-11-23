@@ -23,20 +23,25 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.model.TutorPlanOutput
 import com.tingyun.smartmistakebook.core.model.TutorMoveType
 import com.tingyun.smartmistakebook.core.model.TutorPlanInput
 import com.tingyun.smartmistakebook.core.model.TutorSuggestedMove
+import com.tingyun.smartmistakebook.core.model.tutorFigureCaptions
+import com.tingyun.smartmistakebook.core.model.tutorTurnFigureAssetIds
 import com.tingyun.smartmistakebook.core.domain.TutorTurnResponse
-import com.tingyun.smartmistakebook.core.ui.GeneratedFiguresSection
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.PrimaryActionButton
 import com.tingyun.smartmistakebook.core.ui.SafeMarkdownText
+import com.tingyun.smartmistakebook.core.ui.TutorMessageDocument
 import com.tingyun.smartmistakebook.core.ui.TutorToolTraceLine
 import com.tingyun.smartmistakebook.core.ui.rememberTutorToolTraceDisplay
+import com.tingyun.smartmistakebook.core.ui.tutorMessageFigureReferences
+import com.tingyun.smartmistakebook.core.ui.tutorOpeningFigureAssets
 
 @Composable
 internal fun TutorTurnContent(
@@ -55,7 +60,7 @@ internal fun TutorTurnContent(
     toolTraceJson: String? = null,
     /**
      * A2（4B）：本轮讲解消息上的**持久配图引用**（`tutor_message_source_asset` 的资产 id）。
-     * 非空且给了 [figureAssetResolver] 时，在讲解正文下方渲染可展开的生成图卡。
+     * 配图随对应的开场、解法或替代解法段落显示。
      */
     figureAssetIds: List<String> = emptyList(),
     /** 生成图资产 id → 本地 URI（本地读回，绝不出网）；null = 不渲染配图卡。 */
@@ -76,6 +81,7 @@ internal fun TutorTurnContent(
     planActionTestTag: String = "captured_tutor_plan_actions",
 ) {
     val plan = output.plan
+    val figureCaptions = remember(toolTraceJson) { tutorFigureCaptions(toolTraceJson) }
     val item = plan.diagnosticItem
     // A pending click is process-local UI state. Persisting it without the in-flight coroutine can
     // restore a permanently disabled choice after activity recreation.
@@ -108,11 +114,20 @@ internal fun TutorTurnContent(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         openingMarkdown?.let { markdown ->
-            SafeMarkdownText(markdown, style = MaterialTheme.typography.bodyLarge)
+            PlanSectionMarkdown(
+                markdown = markdown,
+                figureAssetIds = tutorOpeningFigureAssets(
+                    markdown, figureAssetIds, listOf(plan.solutionMarkdown, plan.alternateMethodMarkdown),
+                ),
+                resolveFigure = figureAssetResolver,
+                captions = figureCaptions,
+                style = MaterialTheme.typography.bodyLarge,
+                includeUnpositionedFigures = true,
+            )
             // 动作条（A2）：讲解这一轮的正文与讲题侧的回复共用同一条——「复制」复制的是消息行
             // 里的原文 markdown（渲染后的文本会丢格式）。
             TutorReplyActionBar(
-                shape = tutorReplyActionShape(bodyMarkdown = markdown),
+                shape = tutorReplyActionShape(bodyMarkdown = readableTutorReplyCopy(markdown, toolTraceJson)),
                 testTagPrefix = planActionTestTag,
             )
             // 显式标识（《办法》第四条）：这条回复的正文由模型生成；标在正文之后、动作条之下，
@@ -124,12 +139,6 @@ internal fun TutorTurnContent(
         }
         // B1：这一轮查阅了什么，单独一行小字（不混进思考卡），点开看明细。
         TutorToolTraceLine(display = rememberTutorToolTraceDisplay(toolTraceJson))
-        // A2：本轮生成的配图（消息行上的持久引用 → 本地读回）。
-        figureAssetResolver?.let { resolver ->
-            figureAssetIds.takeIf { it.isNotEmpty() }?.let { assetIds ->
-                GeneratedFiguresSection(assetIds = assetIds, resolveAsset = resolver)
-            }
-        }
         item?.let { interaction ->
             SafeMarkdownText(interaction.stemMarkdown, style = MaterialTheme.typography.bodyLarge)
             interaction.promptMarkdown?.let {
@@ -199,8 +208,11 @@ internal fun TutorTurnContent(
                     color = InkSecondary,
                     style = MaterialTheme.typography.labelLarge,
                 )
-                SafeMarkdownText(
-                    plan.alternateMethodMarkdown,
+                PlanSectionMarkdown(
+                    markdown = plan.alternateMethodMarkdown,
+                    figureAssetIds = figureAssetIds,
+                    resolveFigure = figureAssetResolver,
+                    captions = figureCaptions,
                     modifier = Modifier.testTag("captured_tutor_alternate_method"),
                     style = MaterialTheme.typography.bodyMedium,
                 )
@@ -211,8 +223,11 @@ internal fun TutorTurnContent(
                     color = InkSecondary,
                     style = MaterialTheme.typography.labelLarge,
                 )
-                SafeMarkdownText(
-                    plan.solutionMarkdown,
+                PlanSectionMarkdown(
+                    markdown = plan.solutionMarkdown,
+                    figureAssetIds = figureAssetIds,
+                    resolveFigure = figureAssetResolver,
+                    captions = figureCaptions,
                     modifier = Modifier.testTag("captured_tutor_solution"),
                     style = MaterialTheme.typography.bodyMedium,
                 )
@@ -256,15 +271,22 @@ internal fun TutorTurnContent(
                     color = InkSecondary,
                     style = MaterialTheme.typography.labelLarge,
                 )
-                SafeMarkdownText(plan.solutionMarkdown, style = MaterialTheme.typography.bodyMedium)
+                PlanSectionMarkdown(
+                    markdown = plan.solutionMarkdown,
+                    figureAssetIds = figureAssetIds,
+                    resolveFigure = figureAssetResolver,
+                    captions = figureCaptions,
+                )
                 Text(
                     text = "另一种表征",
                     color = InkSecondary,
                     style = MaterialTheme.typography.labelLarge,
                 )
-                SafeMarkdownText(
-                    plan.alternateMethodMarkdown,
-                    style = MaterialTheme.typography.bodyMedium,
+                PlanSectionMarkdown(
+                    markdown = plan.alternateMethodMarkdown,
+                    figureAssetIds = figureAssetIds,
+                    resolveFigure = figureAssetResolver,
+                    captions = figureCaptions,
                 )
                 Box(
                     modifier = Modifier
@@ -308,9 +330,12 @@ internal fun TutorChoiceFeedbackContent(
     onRestartCycle: () -> Unit = {},
     solutionBottomModifier: Modifier = Modifier,
     modifier: Modifier = Modifier,
+    figureAssetResolver: (suspend (String) -> String?)? = null,
 ) {
     require(response.hasChoicePayload)
     val plan = output.plan
+    val figureIds = remember(output.deliveryToolTraceJson) { tutorTurnFigureAssetIds(output.deliveryToolTraceJson) }
+    val captions = remember(output.deliveryToolTraceJson) { tutorFigureCaptions(output.deliveryToolTraceJson) }
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -349,15 +374,22 @@ internal fun TutorChoiceFeedbackContent(
                 color = InkSecondary,
                 style = MaterialTheme.typography.labelLarge,
             )
-            SafeMarkdownText(plan.solutionMarkdown, style = MaterialTheme.typography.bodyMedium)
+            PlanSectionMarkdown(
+                markdown = plan.solutionMarkdown,
+                figureAssetIds = figureIds,
+                resolveFigure = figureAssetResolver,
+                captions = captions,
+            )
             Text(
                 text = "另一种表征",
                 color = InkSecondary,
                 style = MaterialTheme.typography.labelLarge,
             )
-            SafeMarkdownText(
-                plan.alternateMethodMarkdown,
-                style = MaterialTheme.typography.bodyMedium,
+            PlanSectionMarkdown(
+                markdown = plan.alternateMethodMarkdown,
+                figureAssetIds = figureIds,
+                resolveFigure = figureAssetResolver,
+                captions = captions,
             )
             Box(
                 modifier = Modifier
@@ -384,6 +416,28 @@ internal fun TutorChoiceFeedbackContent(
                 modifier = Modifier.testTag("captured_tutor_interaction_error"),
             )
         }
+    }
+}
+
+@Composable
+private fun PlanSectionMarkdown(
+    markdown: String,
+    figureAssetIds: List<String>,
+    resolveFigure: (suspend (String) -> String?)?,
+    captions: Map<String, String>,
+    modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
+    includeUnpositionedFigures: Boolean = false,
+) {
+    val hasFigureReference = "[[figure:" in markdown
+    if (!hasFigureReference && (!includeUnpositionedFigures || figureAssetIds.isEmpty())) {
+        SafeMarkdownText(markdown, modifier = modifier, style = style)
+    } else {
+        val visibleIds = if (includeUnpositionedFigures) figureAssetIds else {
+            val references = remember(markdown) { tutorMessageFigureReferences(markdown).toSet() }
+            figureAssetIds.filter { it in references }
+        }
+        TutorMessageDocument(markdown, visibleIds, resolveFigure, modifier, figureCaptions = captions)
     }
 }
 

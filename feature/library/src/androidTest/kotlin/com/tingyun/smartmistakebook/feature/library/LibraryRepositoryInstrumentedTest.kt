@@ -66,7 +66,8 @@ class LibraryRepositoryInstrumentedTest {
     @Test fun exportCountDescribesAllCandidatesEvenWhenOnlyOneRowHasLoaded() {
         entries.value = (1..80).map { entry("entry-$it") }
         show()
-        compose.onNodeWithTag("library_export_visible").assertContentDescriptionEquals("导出当前 80 道")
+        compose.onNodeWithTag("library_result_count").assertTextEquals("80 道题")
+        compose.onNodeWithTag("library_export_visible").assertContentDescriptionEquals("打开组卷选题")
     }
 
     @Test fun aLateOldQueryCannotOverwriteTheCurrentCount() {

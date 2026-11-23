@@ -57,9 +57,13 @@ class LibraryInlineImagesInstrumentedTest {
         awaitPicture()
         val title = compose.onNodeWithText("函数最值", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
         val image = compose.onNodeWithContentDescription(PICTURE, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        val card = compose.onNodeWithTag("library_item_entry").fetchSemanticsNode().boundsInRoot
         val origin = compose.onNodeWithText("原图 · 数学", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
         val zoom = compose.onNodeWithContentDescription("放大$PICTURE").fetchSemanticsNode().boundsInRoot
         assertTrue("The title must identify the card before the picture", title.bottom <= image.top)
+        assertEquals("The landscape preview is centered", card.center.x, image.center.x, 1f)
+        assertTrue("The preview leaves room inside the title inset", image.left > title.left)
+        assertEquals("The landscape image keeps its proportions", 800f / 360, image.width / image.height, 0.02f)
         assertTrue("The source label must sit above its picture", origin.bottom <= image.top)
         assertTrue("The source and its action belong to the same row", origin.top < zoom.bottom && zoom.top < origin.bottom)
         compose.onNodeWithText("求函数最值。", useUnmergedTree = true).assertDoesNotExist()
@@ -105,8 +109,11 @@ class LibraryInlineImagesInstrumentedTest {
         val state = kotlinx.coroutines.flow.MutableStateFlow<MistakeDetailState>(MistakeDetailState.Loading)
         val repository = object : MistakeDetailRepository by PictureRepository(detail(emptyList())) {
             override fun observe(errorBookEntryId: String) = state
+            override fun observeQuestionImages(errorBookEntryId: String) =
+                super<MistakeDetailRepository>.observeQuestionImages(errorBookEntryId)
         }
         show(repository)
+        compose.onNodeWithTag("library_item_entry").performScrollTo()
         compose.onNodeWithText("正在加载题图…", useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithText("求函数最值。", useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithText("题图暂时无法显示").assertDoesNotExist()
@@ -275,12 +282,14 @@ class LibraryInlineImagesInstrumentedTest {
         val items = listOf(entry(), second, manual)
         val states = mapOf(
             "entry" to detail(listOf(asset("gallery-first"))),
-            second.entryId to detail(listOf(asset("gallery-second", lines = listOf(
+            second.entryId to detail(listOf(asset("gallery-second", width = 600, height = 880, lines = listOf(
                 "2. 已知抛物线 y = x² - 2x - 3，", "求其与 x 轴的交点坐标，", "并写出对称轴方程。"))), revision = second.problemRevisionId, item = second),
             manual.entryId to detail(emptyList(), revision = manual.problemRevisionId, item = manual),
         )
         val repository = object : MistakeDetailRepository by PictureRepository(states.getValue("entry")) {
             override fun observe(errorBookEntryId: String) = flowOf(states.getValue(errorBookEntryId))
+            override fun observeQuestionImages(errorBookEntryId: String) =
+                super<MistakeDetailRepository>.observeQuestionImages(errorBookEntryId)
         }
         val opened = mutableListOf<String>()
         compose.setContent {
@@ -294,8 +303,21 @@ class LibraryInlineImagesInstrumentedTest {
         if (InstrumentationRegistry.getArguments().getString("uiEvidence") == "true") {
             compose.captureLibraryQaScreenshot("library-gallery.png")
         }
-        compose.onNodeWithContentDescription("${second.title}，第1张题图", useUnmergedTree = true)
-            .performScrollTo().assertIsDisplayed().performClick()
+        compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("library_item_${second.entryId}"))
+        compose.waitUntil(5_000) {
+            compose.onAllNodes(hasContentDescription("${second.title}，第1张题图"), useUnmergedTree = true)
+                .fetchSemanticsNodes().isNotEmpty()
+        }
+        val portrait = compose.onNodeWithContentDescription("${second.title}，第1张题图", useUnmergedTree = true)
+            .performScrollTo().assertIsDisplayed()
+        val portraitSize = portrait.fetchSemanticsNode().size
+        val cardWidth = compose.onNodeWithTag("library_item_${second.entryId}").fetchSemanticsNode().size.width
+        assertEquals("The portrait image keeps its proportions", 600f / 880, portraitSize.width.toFloat() / portraitSize.height, 0.02f)
+        assertTrue("The portrait image stays inside the card", portraitSize.height < cardWidth)
+        if (InstrumentationRegistry.getArguments().getString("uiEvidence") == "true") {
+            compose.captureLibraryQaScreenshot("library-portrait-picture.png")
+        }
+        portrait.performClick()
         assertEquals(listOf(second.entryId), opened)
         compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasTestTag("library_item_manual"))
         compose.onNodeWithTag("library_item_manual").assertIsDisplayed()

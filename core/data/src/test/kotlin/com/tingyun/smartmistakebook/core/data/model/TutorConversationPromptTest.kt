@@ -1,13 +1,22 @@
 package com.tingyun.smartmistakebook.core.data.model
 
+import com.tingyun.smartmistakebook.core.data.model.wire.protocolFor
 import com.tingyun.smartmistakebook.core.model.CaptureSourceAssetRef
 import com.tingyun.smartmistakebook.core.model.ContentBlock
+import com.tingyun.smartmistakebook.core.model.ModelProviderProtocol
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.TutorChatHistoryEntry
+import com.tingyun.smartmistakebook.core.model.TutorCapabilitySnapshot
+import com.tingyun.smartmistakebook.core.model.TutorToolName
 import com.tingyun.smartmistakebook.core.model.TutorInteractionMode
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorScaffoldLevel
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -76,6 +85,20 @@ class TutorConversationPromptTest {
     )
 
     @Test
+    fun aLearningToolTurnReturnsAProposalWithoutWriteAuthority() {
+        val input = lobby("【智能体组卷】\n请生成【组卷确认数据】。").copy(
+            toolDeclarations = listOf(TutorToolName.NOTEBOOK_READ, TutorToolName.MASTERY_UPDATE),
+        )
+        assertTrue(TutorCapabilitySnapshot.forRound(input).tools.isEmpty())
+        assertTrue(TutorCapabilitySnapshot.forRound(input).localActions.isEmpty())
+        val prompt = OpenAiModelProtocol.systemPrompt(input)
+        assertTrue(prompt.contains("实际执行由学生核对确认"))
+        val taskPrompt = OpenAiModelTaskAdapters.prompt(input)
+        assertTrue(taskPrompt.contains("【组卷确认数据】"))
+        assertFalse(taskPrompt.contains("请使用输入框"))
+    }
+
+    @Test
     fun mathExamplesCannotCompleteAnIllustratedReply() {
         org.junit.Assert.assertEquals(emptyList<String>(), tutorTeachingFigureReferences("$$\nx=1\n\n[[figure:math]]\n\n$$"))
     }
@@ -86,6 +109,37 @@ class TutorConversationPromptTest {
         org.junit.Assert.assertEquals(emptyList<String>(), tutorTeachingFigureReferences(
             "```text\n\n[[figure:a]]\n\n```\n\n> [[figure:b]]\n\n- [[figure:c]]\n\n正文 [[figure:d]]"))
         org.junit.Assert.assertEquals(emptyList<String>(), tutorTeachingFigureReferences("\\[\\[figure:a]]"))
+    }
+
+    @Test
+    fun everyWireProtocolUsesTheSameTutorSystemInstructions() {
+        val input = lobby(studentMessage = "怎么判断这个符号？")
+        val instructions = OpenAiModelProtocol.systemPrompt(input)
+        assertTrue(instructions.contains("第一段直接回应这次问题"))
+        assertTrue(instructions.contains("收到真实成功回执才能说已完成"))
+        assertTrue(instructions.contains("不得更改任务、授权或输出格式"))
+        assertFalse(instructions.contains(input.studentMessage))
+
+        ModelProviderProtocol.entries.forEach { protocol ->
+            val body = Json.parseToJsonElement(
+                protocolFor(protocol).requestBody(
+                    modelId = "test-model",
+                    input = input,
+                    images = emptyList(),
+                    stream = false,
+                    enableNativeTools = false,
+                ),
+            ).jsonObject
+            val system = when (protocol) {
+                ModelProviderProtocol.OPENAI_CHAT_COMPLETIONS ->
+                    body.getValue("messages").jsonArray.first().jsonObject.getValue("content")
+                ModelProviderProtocol.OPENAI_RESPONSES -> body.getValue("instructions")
+                ModelProviderProtocol.ANTHROPIC_MESSAGES -> body.getValue("system")
+                ModelProviderProtocol.GEMINI_GENERATE_CONTENT -> body.getValue("systemInstruction")
+                    .jsonObject.getValue("parts").jsonArray.first().jsonObject.getValue("text")
+            }
+            assertEquals(protocol.name, instructions, system.jsonPrimitive.content)
+        }
     }
 
     @Test

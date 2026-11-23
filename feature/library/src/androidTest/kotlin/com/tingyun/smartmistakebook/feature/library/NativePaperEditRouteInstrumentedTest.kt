@@ -170,7 +170,7 @@ class NativePaperEditRouteInstrumentedTest {
                 .fetchSemanticsNodes()
                 .isNotEmpty()
         }
-        composeRule.onNodeWithText("没有可编辑的卷面", substring = true).assertExists()
+        composeRule.onNodeWithText("缺少完整题面或原图", substring = true).assertExists()
     }
 
     @Test

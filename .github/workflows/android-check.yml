@@ -237,7 +237,7 @@ jobs:
           # continuations do NOT work - the trailing backslash is passed to
           # Gradle as a literal task name. Keep gradle on a single line.
           script: |
-            ./gradlew :core:database:connectedDebugAndroidTest :core:data:connectedDebugAndroidTest :core:export:connectedDebugAndroidTest :feature:capture:connectedDebugAndroidTest :feature:tutor:connectedDebugAndroidTest :feature:library:connectedDebugAndroidTest :app:connectedLocalFirstDebugAndroidTest :app:connectedStrictOfflineDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.ciSlowRunner=1 --continue --console=plain
+            status=0; ./gradlew :core:database:connectedDebugAndroidTest :core:data:connectedDebugAndroidTest :core:export:connectedDebugAndroidTest :feature:capture:connectedDebugAndroidTest :feature:tutor:connectedDebugAndroidTest :feature:library:connectedDebugAndroidTest :app:connectedLocalFirstDebugAndroidTest :app:connectedStrictOfflineDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.ciSlowRunner=1 --continue --console=plain -Pandroid.testInstrumentationRunnerArguments.notClass=com.tingyun.smartmistakebook.MistakeExportNotificationsInstrumentedTest#withoutPermissionNothingIsPostedAndNothingThrows || status=$?; python3 tools/ci/check_notification_permission_device.py || status=$?; exit "$status"
       - name: Fail if any benchmark/beta gate is hardcoded (moved to targets)
         run: |
           if rg -q "assertTrue.*1500L|return 1500L|0.5 // Placeholder|dataRecoveryDrillGate" benchmark app; then
@@ -253,4 +253,5 @@ jobs:
           path: |
             **/build/outputs/androidTest-results/connected/**/*.xml
             **/build/reports/androidTests/connected/**
+            build/notification-permission-results/*.txt
           if-no-files-found: warn

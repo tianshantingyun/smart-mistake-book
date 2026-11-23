@@ -923,10 +923,33 @@ data class ExamCalendarEntry(
  * production). Includes the exam calendar and any locally optimized FSRS
  * parameters awaiting the next launch.
  */
+@kotlinx.serialization.Serializable
+data class ReviewDayPreference(
+    val epochDay: Long,
+    val focus: List<String>,
+    val questionLimit: Int,
+    val subjectivePercent: Int,
+) {
+    init {
+        require(epochDay >= 0)
+        require(focus.size <= 4 && focus.distinct().size == focus.size)
+        require(focus.all { it.isNotBlank() && it.length <= 48 && it.none(Char::isISOControl) })
+        require(questionLimit in 1..40)
+        require(subjectivePercent in 0..100)
+    }
+}
+
 interface SchedulingSettingsStore {
     val options: Flow<SchedulingOptions>
 
     suspend fun setOptions(options: SchedulingOptions)
+
+    val reviewDayPreferences: Flow<List<ReviewDayPreference>> get() = kotlinx.coroutines.flow.flowOf(emptyList())
+
+    suspend fun applyReviewDayPreferences(adviceId: String, today: Long, days: List<ReviewDayPreference>): Boolean =
+        throw UnsupportedOperationException("Date-specific review preferences are unavailable")
+
+    val appliedReviewAdvice: Flow<Set<String>> get() = kotlinx.coroutines.flow.flowOf(emptySet())
 
     val exams: Flow<List<ExamCalendarEntry>>
 

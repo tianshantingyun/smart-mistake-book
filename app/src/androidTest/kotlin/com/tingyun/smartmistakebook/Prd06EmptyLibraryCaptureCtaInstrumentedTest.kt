@@ -2,6 +2,9 @@ package com.tingyun.smartmistakebook
 
 import android.database.sqlite.SQLiteDatabase
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -27,8 +30,7 @@ import org.junit.runner.RunWith
  *    加载中/出错传 null，不会把"还不知道"说成"还没有题"。
  * 2. CTA 与错题本栏同指一个入口（`CaptureEntryOrigin.LIBRARY`）：整卷/PDF 与手动建题都在，
  *    不会误进仍要求照片的讲题入口。
- * 3. 手动建题是纯本地路径：进入编辑表单、结束语是"只存入错题本，不会自动开始讲解"，
- *    全程 `model_task` 一行都不写 = 没有新增模型调用。
+ * 3. 手动建题直接显示题面和保存操作，可选信息按需展开。全程没有新增模型任务。
  *
  * 本用例会清空**已安装应用的真实数据库**以构造"首装空库"，因此默认跳过；只在专用测试
  * 设备上以 `-e smb_allow_data_reset true` 显式开启（见 [DestructiveDeviceTestGuard]）。
@@ -55,7 +57,9 @@ class Prd06EmptyLibraryCaptureCtaInstrumentedTest {
         // 快照 READY + 题数 0 才会渲染这条 CTA；它存在本身就是"空库判定已接线"的证据。
         waitForTag("review_capture_button")
         composeRule.onNodeWithText("还没有可复习的题").assertExists()
-        composeRule.onNodeWithTag("review_start_button").assertExists()
+        composeRule.onNodeWithTag("review_start_button").assertDoesNotExist()
+        composeRule.onNodeWithTag("review_export_today").assertDoesNotExist()
+        composeRule.onNodeWithTag("review_paper_history").assertExists()
 
         composeRule.onNodeWithTag("review_capture_button")
             .performScrollTo()
@@ -74,9 +78,14 @@ class Prd06EmptyLibraryCaptureCtaInstrumentedTest {
 
         // 不是"点得到一个空壳"：草稿水合后，手动编辑表单与提交键都真的在。
         waitForTag("capture_correction_form")
-        waitForTag("capture_commit_button")
         waitForText("手动建题")
-        composeRule.onNodeWithText("只存入错题本，不会自动开始讲解。").assertExists()
+        composeRule.onNodeWithText("存入错题本").assertExists()
+        composeRule.onNodeWithTag("capture_transcription_input").assertExists()
+        composeRule.onNodeWithTag("capture_title_input").assertDoesNotExist()
+        composeRule.onNodeWithTag("capture_manual_options").performClick()
+        composeRule.onNodeWithTag("capture_title_input").assertExists()
+        composeRule.onNodeWithTag("capture_manual_options").performClick()
+        composeRule.onNodeWithTag("capture_title_input").assertDoesNotExist()
         // 手动建题不经过模型链：不出现"去设置模型"块，也不生成模型任务卡。
         composeRule.onAllNodesWithTag("capture_model_setup_block").assertCountEquals(0)
         composeRule.onAllNodesWithTag("capture_model_task_card").assertCountEquals(0)
@@ -99,6 +108,29 @@ class Prd06EmptyLibraryCaptureCtaInstrumentedTest {
                 cursor.getInt(0)
             }
         }
+    }
+
+    @Test
+    fun localLearningToolsExplainAnEmptyLibraryAndKeepPlanningAvailable() {
+        waitForTag("review_capture_button")
+        composeRule.onNodeWithTag("nav_tutor").performClick()
+        waitForTag("tutor_chat_attach")
+        composeRule.onNodeWithTag("tutor_chat_attach").performClick()
+        composeRule.onNodeWithTag("lobby_attach_library").performScrollTo().performClick()
+        waitForTag("lobby_picker_empty")
+        composeRule.onNodeWithTag("lobby_picker_cancel").performClick()
+        composeRule.onNodeWithTag("tutor_chat_attach").performClick()
+        composeRule.onNodeWithTag("lobby_tool_paper_assembly").performScrollTo().assertIsNotEnabled()
+        composeRule.onNodeWithText("错题本还没有可选题目").assertExists()
+        composeRule.onNodeWithTag("lobby_tool_learning_mastery").assertIsNotEnabled()
+        composeRule.onNodeWithTag("lobby_tool_review_planning").assertIsEnabled()
+        composeRule.onNodeWithTag("lobby_tool_review_planning").performScrollTo().performClick()
+        waitForTag("root_agent_tool_conversation")
+        waitUntil {
+            composeRule.onAllNodesWithText("请安排未来三天的复习", substring = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithTag("tutor_chat_composer").assertTextContains("请安排未来三天的复习", substring = true)
+        assertEquals(0, countModelTaskRows())
     }
 
     private fun waitForTag(tag: String) {

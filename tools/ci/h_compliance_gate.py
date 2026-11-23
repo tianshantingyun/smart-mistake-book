@@ -30,6 +30,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+from collections.abc import Iterator
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -81,6 +82,11 @@ AIGC_DEVICE_TEST = "core/export/src/androidTest/kotlin/com/tingyun/smartmistakeb
 COPY_TEST = "core/export/src/test/kotlin/com/tingyun/smartmistakebook/core/export/MistakePdfExportCopyTest.kt"
 XMP_TEST = "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/capture/GeneratedFigureAigcXmpTest.kt"
 TELEMETRY_TEST = "core/data/src/test/kotlin/com/tingyun/smartmistakebook/core/data/telemetry/TelemetryComplianceCriteriaTest.kt"
+BADGE = "core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/AiContentBadge.kt"
+TUTOR_TURN = "feature/tutor/src/main/java/com/tingyun/smartmistakebook/feature/tutor/TutorGeneratedTurn.kt"
+ATTACHED_IMAGE = "core/ui/src/main/java/com/tingyun/smartmistakebook/core/ui/AttachedImageCard.kt"
+PRIVACY_COPY = "app/src/main/kotlin/com/tingyun/smartmistakebook/PrivacyPolicyCopy.kt"
+DOCX_WRITER = "core/export/src/main/kotlin/com/tingyun/smartmistakebook/core/export/MinimalDocxWriter.kt"
 
 SRC_DIRS = ("app/src/main", "core", "feature")
 BUILD_MARK = "/build/"
@@ -94,9 +100,47 @@ def count(rel: str, needle: str) -> int:
     return read(rel).count(needle)
 
 
+KOTLIN_TOKENS = re.compile(
+    r'/\*|//[^\n]*|"""[\s\S]*?"""|"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\''
+)
+BLOCK_COMMENT_BOUNDARY = re.compile(r"/\*|\*/")
+
+
+def kotlin_tokens(text: str) -> Iterator[tuple[int, int, str]]:
+    """Kotlin 块注释可嵌套，字符串里的注释符号仍属于字面量。"""
+    position = 0
+    while match := KOTLIN_TOKENS.search(text, position):
+        end = match.end()
+        if match.group() == "/*":
+            depth = 1
+            while depth:
+                boundary = BLOCK_COMMENT_BOUNDARY.search(text, end)
+                if boundary is None:
+                    end = len(text)
+                    break
+                depth += 1 if boundary.group() == "/*" else -1
+                end = boundary.end()
+        yield match.start(), end, text[match.start():end]
+        position = end
+
+
+def kotlin_code(rel: str) -> str:
+    """保留代码和字面量，排除注释里的示例与历史说明。"""
+    text = read(rel)
+    chunks = []
+    position = 0
+    for start, end, token in kotlin_tokens(text):
+        chunks.append(text[position:start])
+        chunks.append(" " if token.startswith(("//", "/*")) else token)
+        position = end
+    chunks.append(text[position:])
+    return "".join(chunks)
+
+
 def literals(rel: str) -> list[str]:
-    """抽取 Kotlin 双引号字面量内容（忽略 KDoc 与代码标识符）。"""
-    return re.findall(r'"([^"\n]*)"', read(rel))
+    """抽取 Kotlin 普通/多行字符串，跳过注释与字符字面量。"""
+    return [token[3:-3] if token.startswith('"""') else token[1:-1]
+            for _, _, token in kotlin_tokens(read(rel)) if token.startswith('"')]
 
 
 def main_sources(suffix: str = ".kt") -> list[Path]:
@@ -172,8 +216,9 @@ def h004() -> tuple[bool, str]:
 
 
 def h005() -> tuple[bool, str]:
-    hits = grep_main(r"AI 创作|智能辅助|由模型优化|AI创作")
-    return not hits, f"产品主源码弱化措辞命中={len(hits)}"
+    hits = [path for path in main_sources() for literal in literals(path.as_posix())
+            if re.search(r"AI 创作|智能辅助|由模型优化|AI创作", literal)]
+    return not hits, f"产品主源码字符串弱化措辞命中={len(hits)}"
 
 
 def h006() -> tuple[bool, str]:
@@ -192,19 +237,24 @@ def h007() -> tuple[bool, str]:
 
 
 def h008() -> tuple[bool, str]:
-    ui_files = list((ROOT / "feature/tutor/src/main").rglob("*.kt")) + list((ROOT / "core/ui/src/main").rglob("*.kt"))
-    hits = [p.as_posix() for p in ui_files if "AI 生成" in p.read_text(encoding="utf-8", errors="replace")]
-    return bool(hits), f"讲题/配图界面显式角标命中={len(hits)}（G1/G2 接线未落地）"
+    ok = 'const val AI_GENERATED_LABEL: String = "AI 生成"' in kotlin_code(BADGE)
+    for path, tag in ((TUTOR_TURN, "tutor_ai_generated_label"),
+                      (ATTACHED_IMAGE, "attached_image_ai_label_${image.imageId}")):
+        text = kotlin_code(path)
+        ok = ok and bool(re.search(r"AiContentBadge\(\s*text = AI_GENERATED_LABEL,", text))
+        ok = ok and f'testTag("{tag}")' in text
+    return ok, "讲题与配图界面均调用共享 AI 生成角标并提供语义标签"
 
 
 def h009() -> tuple[bool, str]:
     ok = (
         count(AIGC_JVM_TEST, "@Test") >= 10
         and count(CAPTION_TEST, "@Test") >= 6
-        and "const val GENERATION: Int = 2" in read(POLICY)
-        and "aigc-policy-gen-${PdfAigcContentPolicy.GENERATION}" in read(EXPORTER)
+        and "const val GENERATION: Int = 3" in kotlin_code(POLICY)
+        and "aigc-policy-gen-${PdfAigcContentPolicy.GENERATION}" in kotlin_code(EXPORTER)
+        and 'assertEquals("mistake-export-v5-math-layout-aigc-gen-3", exportFingerprintPolicyTag())' in kotlin_code(AIGC_JVM_TEST)
     )
-    return ok, "JVM 用例数与判据代际哨兵同期存在（11/6, gen=2）"
+    return ok, "JVM 用例数与判据代际哨兵同期存在（至少 10/6, gen=3）"
 
 
 def h010() -> tuple[bool, str]:
@@ -293,17 +343,21 @@ def h017() -> tuple[bool, str]:
 
 
 def h018() -> tuple[bool, str]:
-    docx_text = read(DOCX)
-    kd = read(KD)
-    gaps = []
-    if "/AIGC" not in docx_text:
-        gaps.append("DOCX 无文档级 /AIGC")
-    if re.search(r"^## KD-84 \(open", kd, re.MULTILINE):
-        gaps.append("KD-84 部分页打印丢标")
-    if re.search(r"^## KD-85 \(open", kd, re.MULTILINE):
-        gaps.append("KD-85 模型改卷文本漏标")
-    covered = "/AIGC" in docx_text and not gaps
-    return covered, "文件级隐式标识覆盖缺口：" + "；".join(gaps) if gaps else "全部交付格式与打印子集均有文件级隐式标识"
+    text = kotlin_code(DOCX)
+    writer = kotlin_code(DOCX_WRITER)
+    ok = (
+        "val labeled = PdfAigcContentPolicy.shouldLabel(" in text
+        and "hasAiGeneratedImage = input.paintsAiGeneratedImage()" in text
+        and "hasModelParsedText = input.hasModelParsedText" in text
+        and text.count("includeAigcProperty = labeled") == 2
+        and bool(re.search(r"if \(labeled\) \{\s*add\(\s*MinimalDocxWriter.customPropertiesPart\(", text))
+        and "PdfAigcMetadata.document(input.inputSha256).toJson()" in text
+        and 'CUSTOM_PROPERTIES_PART = "docProps/custom.xml"' in writer
+        and 'name=\\"AIGC\\"' in writer
+        and "<vt:lpwstr>${escapeXmlText(aigcJson)}</vt:lpwstr>" in writer
+        and h061()[0] and h062()[0]
+    )
+    return ok, "DOCX 自定义 AIGC 属性按共享策略写入；打印子集与模型改卷文本保留隐式标识"
 
 
 def h019() -> tuple[bool, str]:
@@ -364,9 +418,12 @@ def h024() -> tuple[bool, str]:
 
 
 def h025() -> tuple[bool, str]:
-    disclosure = read(DISCLOSURE)
-    priv = read(PRIV_CURRENT) + read(PRIV_FLOW)
-    ok = "未成年人个人信息保护章节" in disclosure and "未成年人" in priv
+    ok = (
+        "未成年人个人信息保护章节" in read(DISCLOSURE)
+        and "## 未成年人个人信息保护" in read(PRIV_CURRENT)
+        and 'title = "未成年人个人信息保护"' in kotlin_code(PRIVACY_COPY)
+        and "PrivacyPolicyCopy.sections(networkOffline).forEach" in kotlin_code(SECONDARY)
+    )
     return ok, "应用文案引用的未成年人专章在现有隐私文本中是否存在"
 
 
@@ -518,20 +575,26 @@ def h042() -> tuple[bool, str]:
 
 
 def h043() -> tuple[bool, str]:
-    priv = read(PRIV_CURRENT)
-    return "未成年人个人信息" in priv, "隐私文本中的未成年人专章"
+    required = ("未成年人个人信息保护", "第三十一条", "14 周岁", "拒绝或撤回同意", "删除全部本机数据")
+    ok = all(term in text for text in (read(PRIV_CURRENT), kotlin_code(PRIVACY_COPY)) for term in required)
+    ok = ok and "PrivacyPolicyCopy.sections(networkOffline).forEach" in kotlin_code(SECONDARY)
+    return ok, "隐私文档与应用内专章覆盖监护人同意、撤回与删除，并接入界面"
 
 
 def h044() -> tuple[bool, str]:
     ui_sources = [
         p for p in main_sources()
-        if p.as_posix().startswith(("/app/src/main", "/feature/")) or "/feature/" in p.as_posix()
+        if p.relative_to(ROOT).parts[0] in {"app", "feature"}
     ]
     hits = [
         literal
         for path in ui_sources
-        for literal in re.findall(r'"([^"\n]*)"', path.read_text(encoding="utf-8", errors="replace"))
+        for literal in literals(path.as_posix())
         if re.search(r"私信|好友|关注|评论|聊天室", literal)
+        and not (
+            path == ROOT / PRIVACY_COPY
+            and literal == "14–17 岁用户同样建议在监护人指导下使用；应用不含社交、私信、评论、广告与内购。"
+        )
     ]
     return not hits, f"界面模块社交/私信/评论文案命中={len(hits)}"
 
@@ -581,7 +644,7 @@ def h052() -> tuple[bool, str]:
     text = read(DISCLOSURE)
     stale = "尚未写入文件级隐式信息" in text and "PDF 不保留文件级隐式元数据" in text
     implemented = "PdfAigcInjector().inject" in read(EXPORTER)
-    return not (stale and implemented), "文案与 PDF 隐式标识现状一致（KD-75 已关闭；KD-84/KD-85 仍开放）"
+    return not (stale and implemented), "文案与 PDF 隐式标识现状一致"
 
 
 def h053() -> tuple[bool, str]:
@@ -600,8 +663,13 @@ def h055() -> tuple[bool, str]:
 
 
 def h056() -> tuple[bool, str]:
-    planner = read(PLANNER)
-    return ("if (isAiGeneratedExportImage(block.role))" in planner), "批量/卷面块级图注按角色逐图判断"
+    planner = kotlin_code(PLANNER)
+    ok = bool(re.search(
+        r"if\s*\(\s*(?:!isAnswer\s*&&\s*)?isAiGeneratedExportImage\(block\.role\)\s*\)"
+        r"\s*\{\s*add\(line\(AI_GENERATED_IMAGE_CAPTION,\s*PdfLineStyle.META",
+        planner,
+    ))
+    return ok, "批量/卷面块级图注按角色逐图判断"
 
 
 def h057() -> tuple[bool, str]:
@@ -625,8 +693,8 @@ def h060() -> tuple[bool, str]:
 
 
 def h061() -> tuple[bool, str]:
-    delivery = read(AIGC_DELIVERY)
-    device_test = read(AIGC_DEVICE_TEST)
+    delivery = kotlin_code(AIGC_DELIVERY)
+    device_test = kotlin_code(AIGC_DEVICE_TEST)
     ok = (
         "relabelSubset(prepared, subsetBytes)" in delivery
         and "prepared.aigcMetadataJson" in delivery
@@ -644,15 +712,17 @@ def h061() -> tuple[bool, str]:
 
 
 def h062() -> tuple[bool, str]:
-    kd = read(KD)
-    if re.search(r"^## KD-85 \(open", kd, re.MULTILINE):
-        return False, "模型改卷文本未纳入 /AIGC 判据（KD-85 open；修复落点跨 feature/tutor 热区，需主会话授权）"
-    paper = read(PAPER_EDIT)
-    ok = "modelTextApplied" in paper and "sourceInput.hasModelParsedText || modelTextApplied" in paper
+    paper = kotlin_code(PAPER_EDIT)
+    ok = (
+        "modelTextApplied: Boolean = false" in paper
+        and "modelTextApplied = true" in paper
+        and "modelTextApplied = modelTextApplied" in paper
+        and "hasModelParsedText = sourceInput.hasModelParsedText || modelTextApplied" in paper
+    )
     return ok, (
-        "模型改卷文本已纳入 /AIGC 判据（KD-85 closed 且 MistakePdfPaperEdit 带模型文本置位）"
+        "模型改卷文本已纳入 /AIGC 判据（MistakePdfPaperEdit 保留来源标志并合并模型文本置位）"
         if ok else
-        "KD-85 已关闭但 MistakePdfPaperEdit 缺少模型改卷文本置位，判据未落码"
+        "MistakePdfPaperEdit 缺少模型改卷文本置位，判据未落码"
     )
 
 
@@ -685,13 +755,13 @@ def h066() -> tuple[bool, str]:
     断言 (a) 固定失败文案存在，(b) 该块不出现异常 message 拼接，(c) 取消异常
     仍被重抛（不被吞进文案）。
     """
-    text = read(SECONDARY)
+    text = kotlin_code(SECONDARY)
     start = text.find("val exportDiagnostics = rememberLauncherForActivityResult(")
     end = text.find("if (confirmDelete)", start + 1)
     if start < 0 or end <= start:
         return False, "找不到 exportDiagnostics 回调块（内容锚点失效）"
     block = text[start:end]
-    fixed_copy = "导出失败，本机记录不受影响。请稍后重试。"
+    fixed_copy = 'diagnosticsMessage = "导出失败，本机记录不受影响。"'
     leak_patterns = (
         r"diagnosticsMessage\s*=\s*[^\n]*\b(?:failure|exception|error|throwable)\.message",
         r"diagnosticsMessage\s*=\s*[^\n]*\$\{[^}]*\.message",
@@ -724,8 +794,14 @@ def h069() -> tuple[bool, str]:
 
 
 def h070() -> tuple[bool, str]:
-    text = read(NOTIFICATIONS)
-    ok = 'title = "这次导出没有完成"' in text and "text = failureMessage" in text and "VISIBILITY_PRIVATE" in text
+    text = kotlin_code(NOTIFICATIONS)
+    failure = text.partition("fun postFailed(")[2].partition("fun foregroundInfo(")[0]
+    post = text.partition("private fun post(")[2]
+    ok = (
+        'MistakeExportArtifactRole.DETAILED_ANSWERS) "详细答案未导出" else "这次导出没有完成"' in failure
+        and "text = failureMessage" in failure
+        and ".setVisibility(NotificationCompat.VISIBILITY_PRIVATE)" in post
+    )
     return ok, "失败通知标题/正文为学生可读文案，锁屏私有"
 
 
@@ -860,7 +936,7 @@ CHECKS = {
 }
 
 # 未落地/外部依赖/人工残余：这些编号 FAIL 是“缺口如实暴露”，不是脚本故障。
-GAPS = {8, 18, 24, 25, 36, 39, 40, 41, 42, 43, 51, 52, 53, 61, 62, 63, 66,
+GAPS = {24, 36, 39, 40, 41, 42, 53, 63,
         75, 76, 77, 80, 81, 89, 90}
 
 

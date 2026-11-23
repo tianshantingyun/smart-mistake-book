@@ -1,6 +1,11 @@
 package com.tingyun.smartmistakebook.visualjs
 
 import android.content.Context
+import android.content.ContextWrapper
+import android.content.ComponentName
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.IBinder
 import android.os.SystemClock
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -10,10 +15,10 @@ import com.tingyun.smartmistakebook.core.domain.VisualExecutionResult
 import com.tingyun.smartmistakebook.core.domain.VisualViewport
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -41,24 +46,9 @@ import java.util.concurrent.ConcurrentHashMap
  * `VisualJsFrameQueueTest` 五例覆盖——本套件不重复其断言，只把组合语义在**真进程端到端**
  * 上钉住。
  *
- * **确定性窗口的构造**（不靠会话内时序）：先 `abandonForTest()` 真实终止当前 worker
- * （terminate → killSelf → 死亡事实确认 ≤2 s，与既有
- * `theClientRebuildsAtMostOnceAfterConfirmedAbandons` 同路径），随后首帧经
- * `engine.execute` 触发"确认死亡后的恰好一次重建"——重建 = 新隔离进程 fork + warm-up
- * （设备实测冷态 warm-up ~1.9 s，KD-76 ③ E-03）+ attach（E-01b 0.6–0.9 s）。在这
- * ≥2 s 的窗口里，消费者协程停在 `ensureConnected()`，`inFlight` 位由首帧入队时同步置真
- * （`VisualJsFrameQueue.submit` 直跑分支），后续帧全部落进待绘队列。四个 submit 各隔
- * 300–400 ms 发出（间隔 ≫ 单次 submit 的毫秒级路径，逐个排除 Dispatchers.IO 多线程
- * 的入队顺序竞态），远短于重建窗口——若任何一个 submit 晚到（首帧已完成、队列已排空），
- * 下方断言会以明确的诊断红（BUSY 不出现/顺序翻转），不会假绿。
- *
- * **已知红定性（批次 40/41/42/43 同方法同报文；批次 43 WS7）**：失败是 D 被判
- * `Rendered` 而非 `BUSY`（`build/ws4-batch43/suites/suite-p09.log:13-16`）。四个帧
- * 全部真实渲染，说明 **D 提交时队列没有饱和**（重建窗口在 1.3 s 内结束，in-flight
- * 已排空）——不是队列容量语义失效：容量 2 由 `VisualJsFrameQueue.kt:102-107,205-207`
- * 源码钉住，JVM 队列用例在树（本会话未复跑）。定性边界：本用例不得计入产品红，也不得
- * 删断言/放宽断言来变绿。确定性修法（二选一，都需设备复跑）：① 在飞帧用可控的慢渲染
- * 撑住窗口；② 给引擎加只读队列状态 seam，确认饱和后再提交 D。
+ * 在真实 worker 死亡后，测试包装器暂存第二次绑定的 onServiceConnected 回调。
+ * 收到回调门信号后，首帧仍占据在飞槽，后续帧以 UNDISPATCHED 启动并同步进入客户端队列。
+ * 满队列与 latest-wins 断言完成后释放回调，验证真实 Binder/PFD 渲染与跨 program FIFO。
  *
  * **夹具复用**：请求构造与既有隔离套件 `pureGeometryRequest` 同形（可渲染的纯几何
  * 程序，`VisualJsIsolationInstrumentedTest.kt:788`）；引擎构造/关闭/测试 seam 用法与
@@ -105,7 +95,8 @@ class VisualJsClientFrameQueueDeviceInstrumentedTest {
     @Test
     fun aFourthDistinctProgramIsRejectedBusyAndLatestWinsKeepsFifoOrderWhileOneFrameIsInFlight() =
         runBlocking {
-            val engine = VisualJsClientEngine(context).also { engines.add(it) }
+            val gated = ReconnectGateContext(context, newScope())
+            val engine = VisualJsClientEngine(gated).also { engines.add(it) }
             assertTrue("initial connect failed", engine.connectForTest())
             assertEquals(1, engine.connectionCountForTest())
 
@@ -117,22 +108,19 @@ class VisualJsClientFrameQueueDeviceInstrumentedTest {
             )
 
             val frames = FrameRecorder(engine, newScope())
-            // 首帧先发并独占 400 ms 起跑裕量：它的 submit（毫秒级）必然先于后续帧，
-            // 且它以 in-flight 身份停在重建窗口里。
+            // 首帧停在真实重连回调门上，后续调用同步入队。
             frames.fire("A", request("program-queue-a", "scene-A"))
-            delay(FIRST_FRAME_HEAD_START_MILLIS)
+            withTimeout(5_000) { gated.reconnectAttached.await() }
             // B 的旧 state 先入队，再让同 program 的新 state 原地顶掉它（latest-wins）。
             frames.fire("B1", request("program-queue-b", "scene-B1"))
-            delay(FRAME_SPACING_MILLIS)
             frames.fire("B2", request("program-queue-b", "scene-B2"))
-            delay(FRAME_SPACING_MILLIS)
             // C 占第二个待绘槽；D 是第 4 个不同 program：满队列 → BUSY。
             frames.fire("C", request("program-queue-c", "scene-C"))
-            delay(FRAME_SPACING_MILLIS)
             frames.fire("D", request("program-queue-d", "scene-D"))
 
             val busyFull = frames.await("D")
             val superseded = frames.await("B1")
+            gated.releaseReconnect.complete(Unit)
             val renderedA = frames.await("A")
             val renderedB2 = frames.await("B2")
             val renderedC = frames.await("C")
@@ -187,6 +175,42 @@ class VisualJsClientFrameQueueDeviceInstrumentedTest {
 
     private fun newScope(): CoroutineScope =
         CoroutineScope(SupervisorJob() + Dispatchers.IO).also { scopes.add(it) }
+
+    /** Holds the real replacement binder until all queue assertions have observed saturation. */
+    private class ReconnectGateContext(base: Context, private val scope: CoroutineScope) : ContextWrapper(base) {
+        val reconnectAttached = CompletableDeferred<Unit>()
+        val releaseReconnect = CompletableDeferred<Unit>()
+        private val bindCount = java.util.concurrent.atomic.AtomicInteger()
+        private val delegates = ConcurrentHashMap<ServiceConnection, ServiceConnection>()
+
+        override fun bindService(service: Intent, conn: ServiceConnection, flags: Int): Boolean {
+            val hold = bindCount.incrementAndGet() > 1
+            val delegate = object : ServiceConnection {
+                override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+                    if (!hold) {
+                        conn.onServiceConnected(name, binder)
+                        return
+                    }
+                    scope.launch(Dispatchers.Main) {
+                        reconnectAttached.complete(Unit)
+                        releaseReconnect.await()
+                        if (delegates.containsKey(conn)) conn.onServiceConnected(name, binder)
+                    }
+                }
+                override fun onServiceDisconnected(name: ComponentName?) = conn.onServiceDisconnected(name)
+                override fun onBindingDied(name: ComponentName?) = conn.onBindingDied(name)
+                override fun onNullBinding(name: ComponentName?) = conn.onNullBinding(name)
+            }
+            delegates[conn] = delegate
+            val bound = baseContext.bindService(service, delegate, flags)
+            if (!bound) delegates.remove(conn)
+            return bound
+        }
+
+        override fun unbindService(conn: ServiceConnection) {
+            baseContext.unbindService(delegates.remove(conn) ?: conn)
+        }
+    }
 
     /** 与既有隔离套件 `pureGeometryRequest` 同形的可渲染程序，programId/sceneId 参数化。 */
     private fun request(programId: String, sceneId: String) = VisualExecutionRequest(
@@ -254,7 +278,7 @@ class VisualJsClientFrameQueueDeviceInstrumentedTest {
         fun fire(tag: String, request: VisualExecutionRequest) {
             val waiter = CompletableDeferred<VisualExecutionResult>()
             results[tag] = waiter
-            scope.launch {
+            scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 val outcome = engine.execute(request)
                 completedAt[tag] = SystemClock.uptimeMillis()
                 waiter.complete(outcome)
@@ -270,14 +294,6 @@ class VisualJsClientFrameQueueDeviceInstrumentedTest {
     }
 
     private companion object {
-        /**
-         * 首帧起跑裕量与帧间距：远大于单次 submit 的毫秒级路径（协程两次派发 + SHA-256 +
-         * 信封编码），远小于重建窗口（fork + attach + warm-up，设备实测 ≥2 s）。
-         * 间隔只用于排除入队顺序竞态，不承担任何语义断言。
-         */
-        const val FIRST_FRAME_HEAD_START_MILLIS: Long = 400L
-        const val FRAME_SPACING_MILLIS: Long = 300L
-
         /**
          * 单帧完成上界：最坏形状 = 在飞帧的重建走满 10 s 重建预算 + ready 10 s + 会话
          * 2.5 s——正常重建 ~3 s，该上界只兜回归/环境异常，不是语义断言。

@@ -14,7 +14,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
@@ -24,6 +26,7 @@ import com.tingyun.smartmistakebook.core.ui.SmartMistakeBookTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -61,6 +64,32 @@ class TutorLongReplyScrollInstrumentedTest {
     @Test fun anInitialTallReplyReachesItsActualTail() {
         showReply()
         compose.onNodeWithTag("actual_tail").assertIsDisplayed()
+    }
+
+    @Test fun theListFollowsTextRevealedAfterTheLastStreamUpdate() {
+        val marker = "流式讲解末尾"
+        val reply = (1..55).joinToString("\n") { "第 $it 步：根据题目条件推导。" } + "\n" + marker
+        compose.setContent {
+            listState = rememberLazyListState()
+            SmartMistakeBookTheme {
+                TutorConversationFrame(
+                    header = { Text("讲题") },
+                    autoScrollVersion = 1,
+                    listState = listState,
+                    liveTurn = TutorLiveTurn(answer = reply),
+                    liveTurnStopAction = {},
+                    composer = { TutorChatComposer("", true, true, {}, {}) },
+                ) {
+                    item { TutorSurfaceStudentBubble("这一步怎么推导？") }
+                }
+            }
+        }
+        compose.waitUntil(10_000) {
+            compose.onAllNodesWithText(marker, substring = true).fetchSemanticsNodes().isNotEmpty()
+        }
+        compose.runOnIdle { assertFalse("The full reply stays at the tail", listState.canScrollForward) }
+        compose.onNodeWithText("讲题助手").assertDoesNotExist()
+        UiAuditEvidence.capture("chat-stream-tail")
     }
 
     @Test fun aNewConversationStartsAtTheBeginningOfItsWelcome() {

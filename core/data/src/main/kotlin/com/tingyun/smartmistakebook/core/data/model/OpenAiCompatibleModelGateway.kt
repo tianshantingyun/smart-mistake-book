@@ -193,8 +193,6 @@ internal class OpenAiCompatibleModelGateway(
                             stream = stream,
                             enableNativeTools = enableNativeTools,
                         )
-                        // 实时文本的通道按**协议路由**分流（A6）：Route B 回合的 content 增量是
-                        // json_object / prompt 信封，不进正文通道；只有 Route A 才可能逐字长出正文。
                         val liveTextRoute = if (nativeToolRound) {
                             LiveTextRoute.NATIVE_TOOLS
                         } else {
@@ -239,6 +237,7 @@ internal class OpenAiCompatibleModelGateway(
                         val response = awaitWithLiveStream(
                             stream = stream,
                             route = liveTextRoute,
+                            streamTutorOpening = execution.request.input is TutorPlanInput,
                             post = { onReasoningDelta, onContentDelta, onToolCallDelta ->
                                 transport.post(
                                     WireRequest(
@@ -517,7 +516,9 @@ private suspend fun emitStreamingThenCompletion(
 ) {
     val terminal = response.toGatewayEvent(execution, protocol, modelId)
     val chunks = response.streamChunks
-    if (chunks == null || response.statusCode !in 200..299) {
+    val streamedPlanEnvelope = execution.request.input is TutorPlanInput &&
+        chunks?.firstOrNull(String::isNotBlank)?.startsTutorPlanEnvelope() == true
+    if (chunks == null || response.statusCode !in 200..299 || streamedPlanEnvelope) {
         emit(terminal)
         return
     }
@@ -766,15 +767,13 @@ internal fun shouldStreamModelResponse(
  * 不计入事件上限，按轮询节奏直接发；[ModelGatewayEvent.Progress] 每帧都要落一行状态与审计，
  * 保持稀疏，只负责进程重启后的"进行中/恢复"。
  *
- * 正文通道按 [route] 分流（A6，消灭"信封当正文流出去"）：
- * - [LiveTextRoute.ENVELOPE]：本轮 `content` 是信封，**连回调都不注册**——增量根本不进正文通道；
- * - [LiveTextRoute.NATIVE_TOOLS]：`content` 先按正文发；一旦这条流上出现原生工具调用增量，
- *   这一轮就是工具轮，`content` 是模型附带的叙述：把已经发到正文的那段**撤回**（发一条空正文），
- *   叙述改发查阅单元（[ModelLiveKind.TOOL]）。
+ * 结构化讲题计划只预览 openingMarkdown。原生工具轮若收到工具调用，撤回正文，
+ * 并把附带的自然语言挪到工具进度。结构化计划及其参数不能进入工具进度。
  */
 private suspend fun awaitWithLiveStream(
     stream: Boolean,
     route: LiveTextRoute,
+    streamTutorOpening: Boolean,
     post: suspend (
         onReasoningDelta: ((String) -> Unit)?,
         onContentDelta: ((String) -> Unit)?,
@@ -790,7 +789,7 @@ private suspend fun awaitWithLiveStream(
         val call = async {
             post(
                 { delta -> reasoning.add(delta) },
-                if (route == LiveTextRoute.ENVELOPE) {
+                if (route == LiveTextRoute.ENVELOPE && !streamTutorOpening) {
                     null
                 } else {
                     { delta -> answer.add(delta) }
@@ -800,16 +799,15 @@ private suspend fun awaitWithLiveStream(
         }
         var emittedPersistedFrames = 0
         var lastLiveReasoningChars = -1
-        var lastLiveAnswerChars = -1
-        var answerWasPublished = false
-        var narrationMovedToTool = false
+        var lastLiveAnswer = ""
+        var lastToolNarration = ""
         var observedDeltas = 0
         var nextPersistedEmitAtMillis = 0L
         var backoffMillis = LIVE_REASONING_FIRST_EMIT_MILLIS
         while (!call.isCompleted) {
             delay(LIVE_STREAM_POLL_MILLIS)
             val reasoningText = synchronized(reasoning) { reasoning.joinToString("") }
-            val answerText = synchronized(answer) { answer.joinToString("") }
+            val contentText = synchronized(answer) { answer.joinToString("") }
             // 逐 token 通道：不落库、不写审计行，所以可以每个轮询周期都发（约 8 次/秒，
             // 正好在 Compose 的重组舒适区内，不需要再加节流）。只在文本真的变长时发，
             // 静止的等待不会产生无意义的重组。
@@ -817,29 +815,22 @@ private suspend fun awaitWithLiveStream(
                 lastLiveReasoningChars = reasoningText.length
                 emit(ModelGatewayEvent.LiveProgress(ModelLiveKind.THINKING, reasoningText))
             }
-            // 工具轮的判定与撤回**每一轮都看**，不搭在"正文还在长"上：工具调用增量常常在正文
-            // 停下来之后才到（模型先说一句、再申请工具）。落在这里做的事：撤回正文位置上那一段
-            // （发一条空正文），把叙述整体挪进查阅单元（思考卡里的"正在查阅…"那一块）。
-            if (toolCallSeen.get() && !narrationMovedToTool) {
-                narrationMovedToTool = true
-                if (answerWasPublished) {
-                    emit(ModelGatewayEvent.LiveProgress(ModelLiveKind.ANSWER, ""))
-                    answerWasPublished = false
-                }
-                if (answerText.isNotEmpty()) {
-                    emit(ModelGatewayEvent.LiveProgress(ModelLiveKind.TOOL, answerText))
-                }
+            val planEnvelope = streamTutorOpening && contentText.startsTutorPlanEnvelope()
+            val body = when {
+                planEnvelope -> contentText.tutorPlanOpeningPreview().orEmpty()
+                route == LiveTextRoute.NATIVE_TOOLS -> contentText
+                else -> ""
             }
-            if (answerText.length != lastLiveAnswerChars) {
-                lastLiveAnswerChars = answerText.length
-                if (answerText.isNotEmpty()) {
-                    if (narrationMovedToTool) {
-                        emit(ModelGatewayEvent.LiveProgress(ModelLiveKind.TOOL, answerText))
-                    } else {
-                        emit(ModelGatewayEvent.LiveProgress(ModelLiveKind.ANSWER, answerText))
-                        answerWasPublished = true
-                    }
-                }
+            val isToolRound = toolCallSeen.get()
+            val liveAnswer = if (isToolRound) "" else body
+            if (liveAnswer != lastLiveAnswer) {
+                emit(ModelGatewayEvent.LiveProgress(ModelLiveKind.ANSWER, liveAnswer))
+                lastLiveAnswer = liveAnswer
+            }
+            val narration = if (isToolRound && !planEnvelope) body else ""
+            if (narration.isNotEmpty() && narration != lastToolNarration) {
+                emit(ModelGatewayEvent.LiveProgress(ModelLiveKind.TOOL, narration))
+                lastToolNarration = narration
             }
             // 持久化通道：仓库会给每次 Progress 写状态行与审计行，且单任务事件数有上限，
             // 所以这里保持稀疏（少数几帧、间隔递增），进程重启后的"进行中/恢复"靠它。

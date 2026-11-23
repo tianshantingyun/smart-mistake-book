@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -212,31 +213,39 @@ internal fun MessageImagesRow(
 @Composable
 internal fun MessageAttachmentDialog(
     onDismiss: () -> Unit,
-    onLaunchCamera: () -> Unit,
-    onLaunchGallery: () -> Unit,
+    onLaunchCamera: (() -> Unit)?,
+    onLaunchGallery: (() -> Unit)?,
     testTagPrefix: String,
     /** 页面没有错题库入口时留空，那一项就不出现。 */
     onPickFromLibrary: (() -> Unit)? = null,
 ) {
+    val learningTools = LocalTutorLearningTools.current
+    val hasAttachments = onLaunchCamera != null || onLaunchGallery != null || onPickFromLibrary != null
     AlertDialog(
         onDismissRequest = onDismiss,
         emphasizeConfirm = false,
-        title = { Text("添加") },
+        title = { Text(if (learningTools.isEmpty()) "添加附件" else "附件与工具") },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                // 三个动作同权，所以都排在内容区；确认键留给"取消"。
-                AttachmentMenuRow(
-                    text = "拍照",
-                    icon = Icons.Outlined.CameraAlt,
-                    onClick = onLaunchCamera,
-                    testTag = "${testTagPrefix}_attach_camera",
-                )
-                AttachmentMenuRow(
-                    text = "从相册选择",
-                    icon = Icons.Outlined.PhotoLibrary,
-                    onClick = onLaunchGallery,
-                    testTag = "${testTagPrefix}_attach_gallery",
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                if (hasAttachments && learningTools.isNotEmpty()) {
+                    Text("附件", color = InkSecondary, style = MaterialTheme.typography.labelMedium)
+                }
+                onLaunchCamera?.let { launch ->
+                    AttachmentMenuRow(
+                        text = "拍照",
+                        icon = Icons.Outlined.CameraAlt,
+                        onClick = { onDismiss(); launch() },
+                        testTag = "${testTagPrefix}_attach_camera",
+                    )
+                }
+                onLaunchGallery?.let { launch ->
+                    AttachmentMenuRow(
+                        text = "从相册选择",
+                        icon = Icons.Outlined.PhotoLibrary,
+                        onClick = { onDismiss(); launch() },
+                        testTag = "${testTagPrefix}_attach_gallery",
+                    )
+                }
                 onPickFromLibrary?.let { pick ->
                     AttachmentMenuRow(
                         text = "从错题本选择",
@@ -245,15 +254,30 @@ internal fun MessageAttachmentDialog(
                         testTag = "${testTagPrefix}_attach_library",
                     )
                 }
-                // 两个入口都会用这个菜单，但选中后的落地不同：大厅是打开那道题的讲题页，
-                // 讲题会话里是把它接在发送的下一轮上。所以这里只说两处都成立的那件事
-                // ——选中之后，要讲的就是这道题——不写"作为这一轮"这种只对其中一个成立的表述。
-                Text(
-                    text = "最多添加 ${MAX_TUTOR_MESSAGE_IMAGES} 张图片；从错题本选题后，将切换到那道题。",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = InkSecondary,
-                    modifier = Modifier.padding(top = 4.dp),
-                )
+                if (onLaunchCamera != null || onLaunchGallery != null) {
+                    Text(
+                        text = "每条消息最多添加 ${MAX_TUTOR_MESSAGE_IMAGES} 张图片",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = InkSecondary,
+                    )
+                }
+                if (learningTools.isNotEmpty()) {
+                    Text(
+                        "学习工具",
+                        modifier = Modifier.padding(top = if (hasAttachments) 6.dp else 0.dp),
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                    learningTools.forEach { action ->
+                        AttachmentMenuRow(
+                            text = action.tool.label,
+                            icon = action.tool.icon,
+                            onClick = action.onOpen?.let { open -> { onDismiss(); open() } },
+                            testTag = "${testTagPrefix}_tool_${action.tool.tag}",
+                            detail = action.detail,
+                        )
+                    }
+                }
             }
         },
         confirmButton = {
@@ -271,20 +295,27 @@ internal fun MessageAttachmentDialog(
 private fun AttachmentMenuRow(
     text: String,
     icon: ImageVector,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)?,
     testTag: String,
+    detail: String? = null,
 ) {
+    val shape = RoundedCornerShape(14.dp)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
+            .heightIn(min = 48.dp)
+            .clip(shape)
             .background(SubtleSurface)
-            .claudeInteractiveRow(onClick, shape = RoundedCornerShape(14.dp))
-            .padding(horizontal = 12.dp, vertical = 12.dp)
+            .claudeInteractiveRow(onClick = { onClick?.invoke() }, enabled = onClick != null, shape = shape)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
             .testTag(testTag),
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Icon(icon, contentDescription = null, tint = JadeActive)
-        Text(text = text, modifier = Modifier.padding(start = 10.dp))
+        Icon(icon, contentDescription = null, tint = if (onClick != null) JadeActive else InkSecondary)
+        Column {
+            Text(text = text, color = if (onClick != null) Ink else InkSecondary)
+            detail?.let { Text(it, color = InkSecondary, style = MaterialTheme.typography.bodySmall) }
+        }
     }
 }

@@ -953,6 +953,7 @@ internal fun TutorModelPanel(
                         TutorChoiceFeedbackContent(
                             output = output,
                             response = response,
+                            figureAssetResolver = imageIntake?.let { it::resolveImageUri },
                             solutionRevealPreviewed = timelineItem.planTask
                                 .toPlanSolutionPreviewKey()
                                 ?.let { it in planSolutionPreviewKeys } == true,

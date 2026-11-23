@@ -474,7 +474,7 @@ private fun ReviewSelfReportSessionContent(
                     requestId = "request:$presentationId:reveal:1",
                     presentationId = presentationId,
                     practiceUnitId = practiceUnitId,
-                    occurredAtEpochMillis = System.currentTimeMillis(),
+                    occurredAtEpochMillis = selfReportViewModel.answerRevealOccurredAt(System.currentTimeMillis()),
                 ),
             )
         }.isFailure

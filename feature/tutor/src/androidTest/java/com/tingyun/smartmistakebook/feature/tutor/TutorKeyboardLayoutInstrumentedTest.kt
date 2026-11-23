@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -59,6 +60,7 @@ class TutorKeyboardLayoutInstrumentedTest {
         lateinit var list: LazyListState
         lateinit var scope: CoroutineScope
         var stops = 0
+        val generating = mutableStateOf(true)
         val file = File.createTempFile("keyboard-image", ".png",
             InstrumentationRegistry.getInstrumentation().targetContext.cacheDir).also { fixture = it }
         val bitmap = android.graphics.Bitmap.createBitmap(32, 32, android.graphics.Bitmap.Config.ARGB_8888)
@@ -72,8 +74,9 @@ class TutorKeyboardLayoutInstrumentedTest {
                     scope = rememberCoroutineScope()
                     Box(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
                         TutorConversationFrame(header = { Text("讲题") }, autoScrollVersion = 1,
-                            liveTurn = TutorLiveTurn(answer = "正在继续讲解"),
-                            liveTurnStopAction = { stops++ }, liveTurnStopTestTag = "keyboard_stop",
+                            liveTurn = TutorLiveTurn(answer = "正在继续讲解").takeIf { generating.value },
+                            liveTurnStopAction = { stops++; generating.value = false },
+                            liveTurnStopTestTag = "keyboard_stop",
                             listState = list, composer = {
                                 TutorChatComposer("第一行\n第二行\n第三行\n第四行", true, false, {}, {},
                                     attachmentCount = 1, attachmentPreview = {
@@ -98,16 +101,19 @@ class TutorKeyboardLayoutInstrumentedTest {
         val jumpNode = compose.onNodeWithTag("tutor_scroll_to_bottom").assertIsDisplayed()
         val jump = jumpNode.fetchSemanticsNode()
         val attachment = compose.onNodeWithTag("keyboard_fixture_pending_images").assertIsDisplayed().fetchSemanticsNode()
-        val send = compose.onNodeWithTag("tutor_chat_send").assertIsDisplayed().fetchSemanticsNode()
+        val stopNode = compose.onNodeWithTag("keyboard_stop").assertIsDisplayed()
+        val stopBounds = stopNode.fetchSemanticsNode().boundsInWindow
         val keyboardTop = compose.runOnIdle {
             activity.windowManager.currentWindowMetrics.bounds.height() -
                 activity.window.decorView.rootWindowInsets.getInsets(WindowInsets.Type.ime()).bottom
         }
         assertTrue(jump.boundsInWindow.bottom <= attachment.boundsInWindow.top)
-        assertTrue("Send must remain above the actual IME", send.boundsInWindow.bottom <= keyboardTop + 1f)
+        assertTrue("Stop must remain above the actual IME", stopBounds.bottom <= keyboardTop + 1f)
         UiAuditEvidence.capture("keyboard-four-lines-large-type")
-        jumpNode.performClick()
-        compose.onNodeWithTag("keyboard_stop").assertIsDisplayed().performClick()
+        stopNode.performClick()
+        val sendBounds = compose.onNodeWithTag("tutor_chat_send").assertIsDisplayed().fetchSemanticsNode().boundsInWindow
+        assertEquals("Stop takes the send button's place", stopBounds, sendBounds)
         compose.runOnIdle { assertEquals(1, stops) }
+        jumpNode.performClick()
     }
 }

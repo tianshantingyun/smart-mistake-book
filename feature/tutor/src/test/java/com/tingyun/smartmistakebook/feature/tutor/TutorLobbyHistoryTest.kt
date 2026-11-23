@@ -23,6 +23,32 @@ class TutorLobbyHistoryTest {
 
     private val conversationId = "tutor-conv:test"
 
+    @Test
+    fun `follow up uses the regenerated answer for the original question`() {
+        val (student, first) = exchangeOf(1, 20, 30)
+        val (nextStudent, nextAnswer) = exchangeOf(2, 20, 30)
+        val regenerated = first.copy(messageId = "retry", ordinal = 5, bodyMarkdown = "修正后的答案")
+        val history = TutorContextComposer.compose(
+            listOf(student, first, nextStudent, nextAnswer, regenerated),
+        ).recent
+
+        assertEquals(listOf("修正后的答案", nextAnswer.bodyMarkdown), history.map { it.assistantMarkdown })
+    }
+
+    @Test
+    fun `follow up includes a successful reply after a failed attempt`() {
+        val (student, reply) = exchangeOf(1, 20, 30)
+        val history = TutorContextComposer.compose(
+            listOf(
+                student,
+                reply.copy(status = TutorMessageStatus.FAILED),
+                reply.copy(messageId = "retry", ordinal = 3),
+            ),
+        ).recent
+
+        assertEquals(reply.bodyMarkdown, history.single().assistantMarkdown)
+    }
+
     /**
      * One whole SUCCEEDED exchange of explicit size. The sizes are passed in
      * rather than derived, because the surviving window depends on the exact

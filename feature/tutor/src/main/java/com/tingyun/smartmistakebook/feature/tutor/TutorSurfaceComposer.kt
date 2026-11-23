@@ -150,24 +150,8 @@ internal fun TutorSurfaceComposer(
     tools: (@Composable () -> Unit)? = null,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        TutorChatComposer(
-            value = value,
-            // 输入框只在"这一轮已经没有对象可发"时才不可输入（会话已结束）；其余阻断都只是
-            // 发不出去，学生仍然可以先打字（发不出去时原因就写在上面，A5）。
-            enabled = block?.inputDisabled != true,
-            sending = sending,
-            onValueChange = onValueChange,
-            onSend = onSend,
-            placeholder = placeholder,
-            onOpenAttachMenu = onOpenAttachMenu,
-            attachmentPreview = attachmentPreview,
-            attachmentCount = attachmentCount,
-            // 有阻断就发不出去：发送键变灰，原因与出口在上面那块里。
-            sendBlocked = block != null,
-            tools = tools,
-        )
         block?.let { blocked ->
-            BoxWithConstraints(Modifier.fillMaxWidth().padding(top = 8.dp)) {
+            BoxWithConstraints(Modifier.fillMaxWidth().padding(bottom = 4.dp)) {
               val stacked = maxWidth < 320.dp || LocalDensity.current.fontScale > 1.3f
               Surface(color = SmartColors.SubtleSurface, shape = MaterialTheme.shapes.medium) {
               FlowRow(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
@@ -185,6 +169,22 @@ internal fun TutorSurfaceComposer(
               }
             }
         }
+        TutorChatComposer(
+            value = value,
+            // 输入框只在"这一轮已经没有对象可发"时才不可输入（会话已结束）；其余阻断都只是
+            // 发不出去，学生仍然可以先打字（发不出去时原因就写在上面，A5）。
+            enabled = block?.inputDisabled != true,
+            sending = sending,
+            onValueChange = onValueChange,
+            onSend = onSend,
+            placeholder = placeholder,
+            onOpenAttachMenu = onOpenAttachMenu,
+            attachmentPreview = attachmentPreview,
+            attachmentCount = attachmentCount,
+            // 有阻断就发不出去：发送键变灰，原因与出口在上面那块里。
+            sendBlocked = block != null,
+            tools = tools,
+        )
     }
 }
 

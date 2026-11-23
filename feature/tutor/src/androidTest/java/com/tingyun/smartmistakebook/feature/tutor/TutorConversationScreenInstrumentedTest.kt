@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.domain.ConfirmedTutorSession
@@ -99,11 +101,12 @@ class TutorConversationScreenInstrumentedTest : CapturedTutorSessionTestBase() {
 
     @Test
     fun theAgentEntryRendersTheSameSurfaceWithTheCapabilityDirectoryAsItsEmptyState() {
+        var settingsOpened = false
         composeRule.setContent {
             MaterialTheme {
                 TutorLobbyRoute(
                     onCapture = {},
-                    onOpenCapabilitySettings = {},
+                    onOpenCapabilitySettings = { settingsOpened = true },
                     onOpenMistakeNotebook = {},
                     onOpenProfile = {},
                     onOpenHistory = {},
@@ -121,6 +124,8 @@ class TutorConversationScreenInstrumentedTest : CapturedTutorSessionTestBase() {
         composeRule.onNodeWithTag(TUTOR_CAPABILITY_DIRECTORY_TAG).assertExists()
         composeRule.onNodeWithTag("tutor_capability_explain").assertExists()
         composeRule.onNodeWithTag("tutor_capability_capture").assertExists()
+        composeRule.onNodeWithTag("tutor_lobby_open_model_settings").performClick()
+        composeRule.runOnIdle { check(settingsOpened) }
     }
 
     // ---- A3：计划阶段也有流 ----
@@ -138,9 +143,11 @@ class TutorConversationScreenInstrumentedTest : CapturedTutorSessionTestBase() {
             ),
         )
 
-        // 计划阶段（还没有讲解输出）也必须看得到逐 token 的正文——这正是 A3 指的那条缺陷：
-        // 订阅此前只挂回应轮，计划阶段全程没有流。
-        composeRule.onNodeWithText(streamed, substring = true).assertExists()
+        // 模型任务仍在 RUNNING。等分帧文字展开后验证正文已经在终态之前进入视野。
+        composeRule.waitUntil(timeoutMillis = 5_000) {
+            composeRule.onAllNodes(hasText(streamed, substring = true)).fetchSemanticsNodes().isNotEmpty()
+        }
+        composeRule.onNodeWithText(streamed, substring = true).assertIsDisplayed()
     }
 
     // ---- A5：输入框在五种情况下都在 ----

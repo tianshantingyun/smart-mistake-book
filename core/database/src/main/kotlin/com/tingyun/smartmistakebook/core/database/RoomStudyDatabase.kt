@@ -8,6 +8,7 @@ import com.tingyun.smartmistakebook.core.database.dao.MistakeRow
 import com.tingyun.smartmistakebook.core.database.dao.ArchivedEntrySummaryRow
 import com.tingyun.smartmistakebook.core.database.dao.CanonicalSourceAssetRow
 import com.tingyun.smartmistakebook.core.database.dao.ReviewLogSampleProjection
+import com.tingyun.smartmistakebook.core.database.dao.toSourceRecord
 import com.tingyun.smartmistakebook.core.database.entity.KnowledgeQuestionLatticeView
 import com.tingyun.smartmistakebook.core.database.entity.LlmTeachingAdvisoryEntity
 import com.tingyun.smartmistakebook.core.database.LearningLedgerRead
@@ -16,6 +17,7 @@ import com.tingyun.smartmistakebook.core.database.PersistedReviewLogLast
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeCatalogRecord
 import com.tingyun.smartmistakebook.core.model.KnowledgeCatalogPosition
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.io.File
 import com.tingyun.smartmistakebook.core.database.dao.TutorVisualDao
@@ -50,9 +52,11 @@ import com.tingyun.smartmistakebook.core.database.port.PracticeUnitKnowledgeBind
 import com.tingyun.smartmistakebook.core.database.port.KnowledgeQuestionLatticeRecord
 import com.tingyun.smartmistakebook.core.database.port.MasteryAggregateRecord
 import com.tingyun.smartmistakebook.core.database.port.MistakeRevisionWritePort
+import com.tingyun.smartmistakebook.core.database.port.PersistedMistakeEditJob
 import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemCommand
 import com.tingyun.smartmistakebook.core.database.port.ReviseCommittedProblemResult
 import com.tingyun.smartmistakebook.core.database.port.SubjectMasteryRecord
+import com.tingyun.smartmistakebook.core.model.EditBasis
 import com.tingyun.smartmistakebook.core.model.TeachingAdvisoryRecord
 
 internal class RoomStudyDatabase(
@@ -79,6 +83,34 @@ internal class RoomStudyDatabase(
     override suspend fun updateDetailedSolution(record: com.tingyun.smartmistakebook.core.database.port.PersistedDetailedSolution) = detailedSolutions.updateDetailedSolution(record)
     override suspend fun attachDetailedSolutionFigure(solutionId: String, expectedVersion: Long, blockId: String, attemptId: String, asset: CanonicalSourceAssetRecord, atEpochMillis: Long) = detailedSolutions.attachDetailedSolutionFigure(solutionId, expectedVersion, blockId, attemptId, asset, atEpochMillis)
     override suspend fun verifyDetailedSolutionFigures(solutionId: String) = detailedSolutions.verifyDetailedSolutionFigures(solutionId)
+    private val mistakeEdits = RoomMistakeEditJobStore(database) { upsertCanonicalSourceAssetRow(it) }
+
+    override suspend fun latestMistakeEditJob(basis: EditBasis) = mistakeEdits.latestMistakeEditJob(basis)
+
+    override suspend fun createMistakeEditJob(job: PersistedMistakeEditJob) = mistakeEdits.createMistakeEditJob(job)
+
+    override suspend fun readMistakeEditJob(operationId: String) = mistakeEdits.readMistakeEditJob(operationId)
+
+    override fun observeMistakeEditJob(operationId: String) = mistakeEdits.observeMistakeEditJob(operationId)
+
+    override suspend fun transitionMistakeEditJob(next: PersistedMistakeEditJob) = mistakeEdits.transitionMistakeEditJob(next)
+
+    override suspend fun readPendingMistakeEditJobs(afterOperationId: String?, limit: Int) =
+        mistakeEdits.readPendingMistakeEditJobs(afterOperationId, limit)
+
+    override suspend fun isMistakeEditBasisCurrent(basis: EditBasis) = mistakeEdits.isMistakeEditBasisCurrent(basis)
+
+    override suspend fun verifyMistakeEditFigures(operationId: String) = mistakeEdits.verifyMistakeEditFigures(operationId)
+
+    override suspend fun attachMistakeEditFigure(
+        operationId: String,
+        expectedVersion: Long,
+        blockId: String,
+        attemptId: String,
+        asset: CanonicalSourceAssetRecord,
+        atEpochMillis: Long,
+    ) = mistakeEdits.attachMistakeEditFigure(operationId, expectedVersion, blockId, attemptId, asset, atEpochMillis)
+
     private val knowledgeResearchReviewStore = RoomKnowledgeResearchReviewStore(database)
 
     private val problemOrganization =
@@ -298,7 +330,12 @@ internal class RoomStudyDatabase(
 
     override fun observeTutorTurnResponses(sessionId: String): Flow<List<TutorTurnResponseRecord>> {
         require(sessionId.isNotBlank())
-        return database.tutorInteractionDao().observe(sessionId)
+        return kotlinx.coroutines.flow.combine(
+            database.tutorInteractionDao().observe(sessionId),
+            database.tutorReplyVersionDao().observe(com.tingyun.smartmistakebook.core.model.TutorConversationIds.captured(sessionId)),
+        ) { legacy, versions ->
+            com.tingyun.smartmistakebook.core.database.dao.resolveTutorReplyVersionResponses(sessionId, legacy, versions)
+        }
     }
 
     override fun observeRecentTutorConversations(
@@ -499,6 +536,15 @@ internal class RoomStudyDatabase(
                     acceptedAtEpochMillis = row.acceptedAtEpochMillis,
                 )
             }
+
+    override suspend fun readPracticeUnitQuestionSnapshots(practiceUnitIds: Set<String>): Map<String, String> =
+        buildMap {
+            for (batch in practiceUnitIds.chunked(200)) {
+                database.practiceUnitAssessmentDao().readQuestionSnapshots(batch).forEach { row ->
+                    put(row.unitId, row.snapshot)
+                }
+            }
+        }
 
     override suspend fun readPracticeUnitAssessment(
         practiceUnitId: String,
@@ -859,6 +905,11 @@ internal class RoomStudyDatabase(
         require(errorBookEntryId.isNotBlank()) { "errorBookEntryId must not be blank" }
         return database.mistakeDetailDao().read(errorBookEntryId)
     }
+
+    override fun observeMistakeSourceAssets(errorBookEntryId: String): Flow<List<MistakeDetailSourceAssetRecord>> =
+        database.mistakeDetailDao().observeCurrentSourceAssets(errorBookEntryId)
+            .distinctUntilChanged()
+            .map { rows -> rows.map { it.toSourceRecord() } }
 
     override suspend fun readExactMistakeDetail(
         entryId: String,

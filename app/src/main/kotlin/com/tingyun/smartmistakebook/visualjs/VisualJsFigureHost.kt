@@ -28,11 +28,14 @@ import com.tingyun.smartmistakebook.core.model.FigureGenerationProposal
 import com.tingyun.smartmistakebook.core.model.FigureGenerationRequest
 import com.tingyun.smartmistakebook.core.model.figureSha256Hex
 import kotlinx.serialization.json.Json
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.math.roundToInt
 
 /** Owns the application engine and the real layout inputs used by static drawings. */
 internal class VisualJsFigureHost(context: Context) : VisualFrameInputs {
     val engine = VisualJsClientEngine(context.applicationContext)
+    private val readinessMutex = Mutex()
     private data class Layout(val viewport: VisualViewport, val fontScaleMilli: Int, val theme: String)
     @Volatile private var layout: Layout? = null
     @Volatile private var ready = false
@@ -45,15 +48,16 @@ internal class VisualJsFigureHost(context: Context) : VisualFrameInputs {
                 android.content.res.Configuration.UI_MODE_NIGHT_YES) "dark" else "light")
     }
 
-    suspend fun prepare(): Boolean {
-        if (ready) return true
+    suspend fun prepare(): Boolean = readinessMutex.withLock {
+        if (!engine.acceptsRequests()) return@withLock false
+        if (ready) return@withLock true
         val result = engine.execute(VisualExecutionRequest(
             programId = "host-readiness-v1", sourceJs = READINESS_PROGRAM, sceneRevision = 1,
             stateJson = "{}", viewport = VisualViewport(160, 120), timeMs = 0, seed = 0, theme = "light",
         ))
         ready = result is VisualExecutionResult.Rendered && result.drawCommandsJson != null &&
             result.contents.size == 1 && result.contents.single().measured.layoutJson != null
-        return ready
+        ready && engine.acceptsRequests()
     }
 
     fun close() { ready = false; engine.close() }
@@ -64,10 +68,10 @@ internal class VisualJsFigureHost(context: Context) : VisualFrameInputs {
             (fontScale * 1_000).roundToInt(), theme)
     }
 
-    override fun available(): Boolean = ready && layout != null
+    override fun available(): Boolean = ready && layout != null && engine.acceptsRequests()
 
     override fun forGeneration(request: FigureGenerationRequest, proposal: FigureGenerationProposal): VisualFrameSnapshot? {
-        if (!ready) return null
+        if (!available()) return null
         val current = layout ?: return null
         val seed = figureSha256Hex(request.operationId.toByteArray(Charsets.UTF_8)).take(13).toLong(16)
         return VisualFrameSnapshot(current.viewport, current.theme, seed, 0, current.fontScaleMilli)

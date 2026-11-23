@@ -230,7 +230,7 @@ internal fun LibraryContent(
                 )
                 if (emptyState == LibraryEmptyState.CATALOG_EMPTY) {
                     if (assembly == null) EmptyLibraryResult(emptyState, canClear = false, onCapture = onCapture, onClear = {})
-                    else com.tingyun.smartmistakebook.core.ui.WorkspaceNotice("错题本还没有题目，录入后即可组卷。")
+                    else com.tingyun.smartmistakebook.core.ui.WorkspaceNotice("错题本还没有可选题目。")
                 } else {
                     Spacer(Modifier.height(8.dp))
                     LibrarySearchField(

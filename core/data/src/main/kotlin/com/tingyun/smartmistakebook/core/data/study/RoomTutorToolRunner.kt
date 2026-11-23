@@ -338,6 +338,7 @@ internal class RoomTutorToolRunner(
         val agentContext: com.tingyun.smartmistakebook.core.model.TutorAgentContext? = null,
         /** Plan/Respond 的当前题面（没有草稿时仍能证明"有当前题"）。 */
         val currentQuestionDocument: QuestionDocument? = null,
+        val allowsLocalExplanationWithoutSavedQuestion: Boolean = false,
     ) {
         init {
             require(attentionFactor in 0.0..1.0) { "Attention factor must be in 0..1" }
@@ -1370,7 +1371,10 @@ internal class RoomTutorToolRunner(
             )
         val draft = currentDraft(context)
         val selected = context.selectedQuestion
-        if (draft == null && selected == null && context.currentQuestionDocument == null) {
+        val sourceFreeLocalIllustration = context.allowsLocalExplanationWithoutSavedQuestion &&
+            kind == TutorFigureKind.GENERATE_PROCESS && call.figureMethod == FigureGenerationMethod.JS &&
+            operation == FigureImageOperation.GENERATE
+        if (draft == null && selected == null && context.currentQuestionDocument == null && !sourceFreeLocalIllustration) {
             return emptyScopeFigure(
                 call = call,
                 kind = kind,
@@ -1464,8 +1468,7 @@ internal class RoomTutorToolRunner(
                 outcome = TutorToolOutcome(
                     tool = call.tool,
                     ok = true,
-                    // F1：只回 id + 状态。图以折叠配图卡渲染在本轮回复下方（A2 的渲染路径），
-                    // 但模型自己看不到图的内容，所以仍不得复述图里画了什么。
+                    // 宿主返回的是可内嵌的资产引用，既不回传图片字节，也不开放其他资产。
                     summaryMarkdown = "配图已生成（id：${result.figureId}，状态：已生成）。" +
                         "不要再申请同一张图。" +
                         result.figureId?.takeIf { it.length in 1..128 && it.matches(Regex("[A-Za-z0-9_.:-]+")) }

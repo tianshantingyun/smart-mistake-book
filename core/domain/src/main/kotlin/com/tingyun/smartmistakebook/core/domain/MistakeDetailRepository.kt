@@ -19,7 +19,17 @@ interface MistakeDetailRepository {
                 is MistakeDetailState.Legacy -> state.detail
                 else -> return@mapNotNull emptyList()
             }
-            if (detail.archived) emptyList() else detail.source.questionImageAssets()
+            if (detail.archived) return@mapNotNull emptyList()
+            val pictures = detail.source.questionImageAssets()
+            val document = (state as? MistakeDetailState.Ready)?.questionDocument
+                ?: return@mapNotNull pictures
+            val evidence = document.blockEvidence.associateBy { it.blockId }
+            val readingOrder = document.document.blocks.mapNotNull { evidence[it.id]?.sourceAssetId }
+                .distinct().withIndex().associate { it.value to it.index }
+            pictures.sortedWith(
+                compareBy<MistakeSourceAsset> { it.role != com.tingyun.smartmistakebook.core.model.VisualRole.CLEAN_IMAGE.name }
+                    .thenBy { readingOrder[it.sourceAssetId] ?: Int.MAX_VALUE },
+            )
         }
 
     /** Observes one immutable problem revision selected independently of the entry's current head. */

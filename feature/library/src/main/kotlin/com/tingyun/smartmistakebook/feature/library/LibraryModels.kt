@@ -388,7 +388,7 @@ internal fun LibraryCatalogItem.toLibraryMistake(): LibraryMistake {
         knowledgeLabels = knowledgeLabels,
         mastery = MasteryState.fromId(masteryId),
         isFavorite = isFavorite,
-        imageVersionKey = updatedAtEpochMillis.toString(),
+        imageVersionKey = problemRevisionId.ifBlank { updatedAtEpochMillis.toString() },
     )
 }
 

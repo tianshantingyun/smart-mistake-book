@@ -79,7 +79,7 @@ fun DetailedAnswerPreviewSheet(
                     headerColor = SmartColors.LearningSurface,
                 ) {
                     Row(Modifier.fillMaxWidth().then(if (canExpand) Modifier.clickable(role = Role.Button) { expanded = !expanded } else Modifier)
-                        .padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+                        .padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
                             Text(when (item.status) {
                                 DetailedSolutionPreparationStatus.READY -> "已准备好"
