@@ -25,6 +25,8 @@ class UserVisibleRecoveryInstrumentedTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
 
     @Test fun unsavedModelConfigurationSurvivesActivityRecreation() {
+        assumeTrue("Network model settings require the localFirst variant",
+            (compose.activity.application as SmartMistakeBookApplication).modelConfigurationStore != null)
         openProfile()
         compose.onNodeWithText("模型设置").performScrollTo().performClick()
         compose.onNodeWithTag("capability_provider").performScrollTo().performTextReplacement("未保存服务商")
@@ -48,7 +50,9 @@ class UserVisibleRecoveryInstrumentedTest {
     }
 
     @Test fun editsToAnExistingConfigurationSurviveTheInitialLoadingFrameAfterRecreation() {
-        val store = (compose.activity.application as SmartMistakeBookApplication).modelConfigurationStore!!
+        val availableStore = (compose.activity.application as SmartMistakeBookApplication).modelConfigurationStore
+        assumeTrue("Network model settings require the localFirst variant", availableStore != null)
+        val store = requireNotNull(availableStore)
         // 只在空白专用设备建立合成配置，绝不覆盖开发者已有的真实凭证。
         val existingCredential = runBlocking { store.readCredential() }
         if (existingCredential is ModelCredentialReadResult.Available) existingCredential.apiKey.close()

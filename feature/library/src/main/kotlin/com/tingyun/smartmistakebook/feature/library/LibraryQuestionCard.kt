@@ -23,7 +23,6 @@ import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Icon
 import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import com.tingyun.smartmistakebook.core.ui.studentAccentColor
 import androidx.compose.runtime.Composable
@@ -65,6 +64,8 @@ internal fun LibraryQuestionCard(
                 mistake = mistake,
                 repository = sourceRepository,
                 modifier = Modifier.fillMaxWidth(),
+                previewInset = 16.dp,
+                previewScale = 0.88f,
                 captionContent = { source, previewAction ->
                     Box(Modifier.padding(start = if (source.isBlank()) 16.dp else 0.dp,
                         end = if (source.isBlank()) 12.dp else 0.dp)) {
@@ -83,7 +84,7 @@ internal fun LibraryQuestionCard(
                     )
                 },
             )
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(14.dp))
         }
     }
 }

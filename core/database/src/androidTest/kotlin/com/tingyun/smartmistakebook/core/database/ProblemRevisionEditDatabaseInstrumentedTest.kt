@@ -500,6 +500,8 @@ class ProblemRevisionEditDatabaseInstrumentedTest {
             createdAtEpochMillis = 2_000,
         )
 
+        assertNull(store.latestMistakeEditJob(basis))
+        assertTrue(store.readPendingMistakeEditJobs(null).isEmpty())
         assertEquals(job, store.createMistakeEditJob(job))
         assertEquals("重复创建必须是幂等回放", job, store.createMistakeEditJob(job))
         assertEquals(job, store.latestMistakeEditJob(basis))
@@ -513,6 +515,7 @@ class ProblemRevisionEditDatabaseInstrumentedTest {
             message = "正在准备修改建议",
         )
         assertTrue(store.transitionMistakeEditJob(next))
+        assertFalse(store.transitionMistakeEditJob(next))
         val row = (store as RoomStudyDatabase).database.mistakeEditJobDao().read(operationId)
         assertNotNull(row)
         assertEquals("REQUESTING", row?.status)

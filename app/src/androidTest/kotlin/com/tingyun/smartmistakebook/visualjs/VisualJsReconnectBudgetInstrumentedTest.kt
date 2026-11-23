@@ -41,13 +41,8 @@ import java.util.concurrent.CopyOnWriteArrayList
  *   未确认半边 fail-closed 计时门）；
  * - **重建 10 s：此前无用例**——本套件补齐。三个预算的注入形设备例就此成套。
  *
- * **确定性窗口**（夹具复用既有 `DelayedAttachContext` 形态，
- * `VisualJsIsolationInstrumentedTest.kt:903`，逐机制同构：真实 `bindService` 立即执行、
- * 仅推迟 `onServiceConnected`、unbind 正确解绑）：attach 每次推迟 11 s——
- * - 首连预算 15 s（`VisualJsClientEngine.kt:1227`）> 11 s：首连照常成功（attach 11 s +
- *   ready warm-up ~2 s，各在其预算内），保证"失败只来自重建预算"这一归因；
- * - 重建预算 10 s（`VisualJsClientEngine.kt:1233`，private，测试以字面量钉住）< 11 s：
- *   死亡后的重建 attach 必然在 10 s 预算内超时 → loading 分支。
+ * 首次连接直接交付真实 Binder。后续绑定把 onServiceConnected 推迟到 bind + 11 s，
+ * 超过重建的 10 s 期限，验证 loading 失败、释放绑定与允许重试的行为。
  *
  * **断言映射**：
  * 1. 死亡确认后重建的请求有界返回 `ENGINE_CLOSED`，诊断含 "loading" 且含 "10000 ms"
@@ -86,8 +81,7 @@ class VisualJsReconnectBudgetInstrumentedTest {
             val delayed = RebuildDelayedAttachContext(context, REBUILD_BUDGET_EXCEED_DELAY_MILLIS)
             val engine = VisualJsClientEngine(delayed).also { engines.add(it) }
 
-            // 首连：attach 推迟 11 s 仍在 15 s 首连预算内（+ready warm-up ~2 s 在其独立
-            // 预算内）——首连成功，保证后续失败只能归因重建预算。
+            // 首连直接完成真实绑定，延迟注入只作用于后续重建。
             assertTrue("initial connect failed", engine.connectForTest())
             assertEquals(1, engine.connectionCountForTest())
 
@@ -194,13 +188,15 @@ class VisualJsReconnectBudgetInstrumentedTest {
     ) : ContextWrapper(base) {
 
         private val handler = Handler(Looper.getMainLooper())
+        private val bindCount = java.util.concurrent.atomic.AtomicInteger()
         private val delegates = ConcurrentHashMap<ServiceConnection, ServiceConnection>()
         private val attachDeadlines = ConcurrentHashMap<ServiceConnection, Long>()
 
         override fun bindService(service: Intent, conn: ServiceConnection, flags: Int): Boolean {
             // 期限从 bindService 起算：客户端看到的回调时刻稳定在 bind + attachDelayMillis，
             // 夹具不受真实进程启动快慢影响。
-            attachDeadlines[conn] = SystemClock.uptimeMillis() + attachDelayMillis
+            val delay = if (bindCount.incrementAndGet() == 1) 0L else attachDelayMillis
+            attachDeadlines[conn] = SystemClock.uptimeMillis() + delay
             val delayed = object : ServiceConnection {
                 override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
                     val remaining = (attachDeadlines.remove(conn) ?: 0L) - SystemClock.uptimeMillis()
@@ -241,9 +237,7 @@ class VisualJsReconnectBudgetInstrumentedTest {
 
     private companion object {
         /**
-         * attach 推迟量：> 重建预算 10 s（重建必超时）且 < 首连预算 15 s（首连必成功，
-         * 失败归因单一化——attach 11 s 在 15 s 内、ready warm-up ~2 s 在其独立 10 s 预算
-         * 内，两侧各留 ≥1 s / ≥8 s 裕量）。
+         * 重建 attach 推迟 11 s，超过生产重建预算 10 s。首次绑定直接交付回调。
          */
         const val REBUILD_BUDGET_EXCEED_DELAY_MILLIS: Long = 11_000L
 

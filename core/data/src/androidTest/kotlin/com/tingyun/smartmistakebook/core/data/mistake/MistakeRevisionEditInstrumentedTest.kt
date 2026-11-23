@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.data.mistake
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.data.capture.CaptureWorkflowTestBase
+import com.tingyun.smartmistakebook.core.data.study.StudyExperienceRepositoryFactory
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
 import com.tingyun.smartmistakebook.core.domain.CaptureDraftImportRequest
 import com.tingyun.smartmistakebook.core.domain.CaptureEntryOrigin
@@ -12,6 +13,7 @@ import com.tingyun.smartmistakebook.core.domain.MistakeRevisionKey
 import com.tingyun.smartmistakebook.core.domain.ReviseMistakeProblemCommand
 import com.tingyun.smartmistakebook.core.domain.ReviseMistakeProblemResult
 import com.tingyun.smartmistakebook.core.domain.SaveCaptureDraftWorkspaceRequest
+import com.tingyun.smartmistakebook.core.domain.StudyDataStatus
 import com.tingyun.smartmistakebook.core.model.CaptureDraftEditedField
 import com.tingyun.smartmistakebook.core.model.CaptureDraftEditorMode
 import com.tingyun.smartmistakebook.core.model.CaptureDraftWorkspace
@@ -23,6 +25,10 @@ import com.tingyun.smartmistakebook.core.model.QuestionBlockProvenance
 import com.tingyun.smartmistakebook.core.model.QuestionBlockReviewStatus
 import com.tingyun.smartmistakebook.core.model.QuestionDocument
 import com.tingyun.smartmistakebook.core.model.WritingLayer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -129,6 +135,19 @@ class MistakeRevisionEditInstrumentedTest : CaptureWorkflowTestBase() {
             listOf(2, 1),
             reopened.observeRevisionHistory(entryId).first().map { it.revisionNumber },
         )
+
+        // A previously unreviewed question keeps its original practice unit when edited.
+        // Replanning must bind the unclassified node to that unit's revision, not the new head.
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+        val study = StudyExperienceRepositoryFactory.create(database, scope)
+        try {
+            study.initialize()
+            assertEquals(StudyDataStatus.READY, study.snapshot.value.status)
+            assertEquals(listOf(before.detail.identity.practiceUnitId), study.snapshot.value.review.scheduledPracticeUnitIds)
+        } finally {
+            study.close()
+            scope.cancel()
+        }
     }
 
     @Test

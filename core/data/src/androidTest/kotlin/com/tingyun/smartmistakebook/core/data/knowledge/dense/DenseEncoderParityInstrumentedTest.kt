@@ -68,9 +68,17 @@ class DenseEncoderParityInstrumentedTest {
         // native SIGSEGV（tombstone 栈顶在 libLiteRt.so），直接缓冲路 290 条全过
         // ⇒ 问题在 mmap 那条路喂进去的模型缓冲区，不在模型文件、分词或算子。
         val directEncoder = run {
-            val bytes = context.assets.open(DenseRecallAssembly.MODEL_ASSET_PATH).use { it.readBytes() }
-            val direct = ByteBuffer.allocateDirect(bytes.size).order(ByteOrder.nativeOrder())
-            direct.put(bytes)
+            val size = context.assets.openFd(DenseRecallAssembly.MODEL_ASSET_PATH).use { it.length.toInt() }
+            val direct = ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder())
+            context.assets.open(DenseRecallAssembly.MODEL_ASSET_PATH).use { stream ->
+                val chunk = ByteArray(64 * 1024)
+                var read = stream.read(chunk)
+                while (read != -1) {
+                    direct.put(chunk, 0, read)
+                    read = stream.read(chunk)
+                }
+            }
+            assertEquals("direct model buffer must contain the complete asset", size, direct.position())
             direct.rewind()
             LiteRtDenseQueryEncoder.open(direct, tokenizer)
         }

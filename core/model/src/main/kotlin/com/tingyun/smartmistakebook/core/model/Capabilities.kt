@@ -157,6 +157,9 @@ data class TutorCapabilitySnapshot(
          * 工具与动作共享实际完成轮数，配额用尽后统一进入终答。
          */
         fun forRound(input: ModelTaskInput): TutorCapabilitySnapshot {
+            if (input is TutorLobbyInput && input.isLearningProposal) {
+                return TutorCapabilitySnapshot(tools = emptySet(), localActions = emptySet())
+            }
             val roundsUsed = when (input) {
                 is TutorLobbyInput -> maxOf(input.toolRoundsUsed, input.toolRoundResults.size, input.agentContext?.roundsUsed ?: 0)
                 is TutorRespondInput -> maxOf(input.toolRoundResults.size, input.agentContext?.roundsUsed ?: 0)

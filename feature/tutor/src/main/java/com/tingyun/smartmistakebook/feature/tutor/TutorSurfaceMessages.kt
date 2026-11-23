@@ -21,8 +21,8 @@ import androidx.compose.runtime.Composable
 import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
 import com.tingyun.smartmistakebook.core.ui.ClaudeCopyButton
 import com.tingyun.smartmistakebook.core.ui.ClaudeQuietDots
-import com.tingyun.smartmistakebook.core.ui.SubtleSurface
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,14 +34,18 @@ import com.tingyun.smartmistakebook.core.domain.TutorMessageRole
 import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
 import com.tingyun.smartmistakebook.core.model.ModelFailureCode
 import com.tingyun.smartmistakebook.core.model.requiresModelSettings
+import com.tingyun.smartmistakebook.core.model.tutorFigureCaptions
+import com.tingyun.smartmistakebook.core.model.tutorTurnFigureAssetIds
 import com.tingyun.smartmistakebook.core.ui.Ink
 import com.tingyun.smartmistakebook.core.ui.InlineActionButton
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
 import com.tingyun.smartmistakebook.core.ui.JadeSoft
 import com.tingyun.smartmistakebook.core.ui.ThinkingCollapsibleCard
+import com.tingyun.smartmistakebook.core.ui.TutorMessageDocument
 import com.tingyun.smartmistakebook.core.ui.TutorToolTraceLine
 import com.tingyun.smartmistakebook.core.ui.rememberTutorToolTraceDisplay
+import com.tingyun.smartmistakebook.core.ui.tutorMessageCopyText
 
 /**
  * 交互面唯一的失败卡出口文案（三套重试文案 ——「重新发送」「重试」「重新生成」—— 统一成这一套）。
@@ -252,8 +256,13 @@ internal fun TutorSurfaceStudentBubble(
             modifier = Modifier
                 .widthIn(max = maxWidth * ClaudeLayout.MessageWidthFraction)
                 .testTag(testTag),
-            color = SubtleSurface,
-            shape = RoundedCornerShape(ClaudeLayout.MessageRadius),
+            color = JadeSoft,
+            shape = RoundedCornerShape(
+                topStart = ClaudeLayout.MessageRadius,
+                topEnd = ClaudeLayout.MessageRadius,
+                bottomStart = ClaudeLayout.MessageRadius,
+                bottomEnd = 6.dp,
+            ),
         ) {
             Column(modifier = Modifier.padding(horizontal = ClaudeLayout.MessagePaddingX, vertical = ClaudeLayout.MessagePaddingY)) {
                 if (imageAssetIds.isNotEmpty() && imageIntake != null) {
@@ -303,6 +312,8 @@ internal fun TutorSurfaceAssistantReply(
     bottomAnchor: Modifier? = null,
     extras: @Composable ColumnScope.() -> Unit = {},
     testTag: String = "tutor_surface_assistant_reply",
+    figureAssetIds: List<String> = emptyList(),
+    figureAssetResolver: (suspend (String) -> String?)? = null,
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -321,7 +332,16 @@ internal fun TutorSurfaceAssistantReply(
                     thinking = false,
                 )
                 TutorToolTraceLine(display = rememberTutorToolTraceDisplay(toolTraceJson))
-                TutorPrompt(text = bodyMarkdown, modifier = Modifier.fillMaxWidth())
+                if (figureAssetIds.isNotEmpty() || "[[figure:" in bodyMarkdown) {
+                    TutorMessageDocument(
+                        markdown = bodyMarkdown,
+                        figureAssetIds = figureAssetIds,
+                        resolveFigure = figureAssetResolver,
+                        figureCaptions = remember(toolTraceJson) { tutorFigureCaptions(toolTraceJson) },
+                    )
+                } else {
+                    TutorPrompt(text = bodyMarkdown, modifier = Modifier.fillMaxWidth())
+                }
             }
             progress?.let { line ->
                 Row(
@@ -416,10 +436,17 @@ internal fun TutorSurfaceMessageItem(
             // B1：这一轮查阅了什么，随对话流一起出现、重开会话照样在（痕迹存在消息行上）。
             toolTraceJson = message.toolTraceJson,
             testTag = assistantTestTag,
+            // Older lobby messages kept the trusted tool result but did not link the asset.
+            figureAssetIds = message.sourceImageAssetIds.ifEmpty {
+                remember(message.toolTraceJson) { tutorTurnFigureAssetIds(message.toolTraceJson) }
+            },
+            figureAssetResolver = remember(imageIntake) { imageIntake?.let { it::resolveImageUri } },
             extras = {
                 TutorReplyActionBar(
                     shape = tutorReplyActionShape(
-                        bodyMarkdown = message.bodyMarkdown,
+                        bodyMarkdown = remember(message.bodyMarkdown, message.toolTraceJson) {
+                            readableTutorReplyCopy(message.bodyMarkdown, message.toolTraceJson)
+                        },
                         retryable = retryTarget != null,
                     ),
                     onRetry = { retryTarget?.let(onRetry) },
@@ -502,3 +529,6 @@ internal fun TutorSurfaceMessageItem(
         )
     }
 }
+
+internal fun readableTutorReplyCopy(markdown: String, toolTraceJson: String?): String =
+    if ("[[figure:" in markdown) tutorMessageCopyText(markdown, tutorFigureCaptions(toolTraceJson)) else markdown

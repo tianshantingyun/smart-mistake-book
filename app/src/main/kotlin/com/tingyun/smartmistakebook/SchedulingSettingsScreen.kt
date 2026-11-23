@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
 import com.tingyun.smartmistakebook.core.domain.OptimalRetention
 import com.tingyun.smartmistakebook.core.domain.SchedulingOptions
+import com.tingyun.smartmistakebook.core.domain.ReviewDayPreference
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.PaperDivider
 import com.tingyun.smartmistakebook.core.ui.RootPageColumn
@@ -65,24 +66,37 @@ internal fun retentionFromSlider(value: Float): Double =
  */
 @Composable
 internal fun SchedulingSettingsScreen(
-    options: SchedulingOptions,
-    exams: List<ExamCalendarEntry>,
+    options: SchedulingOptions?,
+    exams: List<ExamCalendarEntry>?,
     onSetOptions: (SchedulingOptions) -> Unit,
     onAddExam: (ExamCalendarEntry) -> Unit,
     onRemoveExam: (String) -> Unit,
     onBack: () -> Unit,
     retentionHint: OptimalRetention.Recommendation? = null,
     settingsMessage: String? = null,
+    dayPreferences: List<ReviewDayPreference> = emptyList(),
 ) {
     RootPageColumn(modifier = Modifier.testTag("root_scheduling_settings")) {
         SecondaryHeader(title = "复习安排", onBack = onBack)
-        Text(
-            text = "每日时长用于新计划，不影响已开始或已导出的计划。记忆目标下次启动时生效。",
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = 4.dp),
-        )
-        Spacer(Modifier.height(12.dp))
+        if (options == null || exams == null) {
+            Text("正在读取复习安排…", color = InkSecondary, style = MaterialTheme.typography.bodyMedium)
+            return@RootPageColumn
+        }
+        val upcoming = dayPreferences.filter { it.epochDay >= LocalDate.now().toEpochDay() }
+        if (upcoming.isNotEmpty()) {
+            WorkspacePanel(Modifier.testTag("scheduling_agent_days")) {
+                SettingsSectionTitle("智能体复习安排")
+                upcoming.forEach { day ->
+                    Text(
+                        "${LocalDate.ofEpochDay(day.epochDay)} · 最多 ${day.questionLimit} 题 · 主观题目标 ${day.subjectivePercent}%",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    if (day.focus.isNotEmpty()) {
+                        Text(day.focus.joinToString("、"), color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            }
+        }
 
         WorkspacePanel {
             var minutes by rememberSaveable(options.dailyReviewMinutes) { mutableStateOf(options.dailyReviewMinutes.toString()) }
@@ -107,11 +121,11 @@ internal fun SchedulingSettingsScreen(
                 onClick = { minutes.toIntOrNull()?.takeIf { it in 5..120 }?.let { onSetOptions(options.copy(dailyReviewMinutes = it)) } },
                 enabled = minutes.toIntOrNull()?.let { it in 5..120 && it != options.dailyReviewMinutes } == true,
                 modifier = Modifier.fillMaxWidth().testTag("scheduling_save_daily_minutes"))
-            Text("系统按题目难度估算题量，实际用时可能不同；考试期会适当增加复习安排。",
+            Text("从下一份复习计划生效。",
                 color = InkSecondary, style = MaterialTheme.typography.bodySmall)
             settingsMessage?.let { Text(it, color = InkSecondary, style = MaterialTheme.typography.bodySmall) }
         }
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(12.dp))
         WorkspacePanel {
             Column {
                 SettingsSectionTitle(title = "记忆目标")
@@ -121,7 +135,7 @@ internal fun SchedulingSettingsScreen(
                     style = MaterialTheme.typography.displaySmall,
                     modifier = Modifier.padding(top = 12.dp).testTag("scheduling_retention_label"),
                 )
-                Text("目标回忆成功率", style = MaterialTheme.typography.bodySmall, color = InkSecondary)
+                Text("目标回忆成功率 · 下次启动生效", style = MaterialTheme.typography.bodySmall, color = InkSecondary)
                 Slider(
                     value = options.desiredRetention.toFloat(),
                     onValueChange = { value ->
@@ -147,7 +161,7 @@ internal fun SchedulingSettingsScreen(
 
             }
         }
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(12.dp))
 
         WorkspacePanel {
             Column {

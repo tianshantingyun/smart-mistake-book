@@ -1,7 +1,6 @@
 package com.tingyun.smartmistakebook
 
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -64,7 +63,7 @@ class DualReviewEntryInstrumentedTest {
         }
 
         composeRule.onNodeWithTag("review_start_knowledge_review").assertIsDisplayed()
-        composeRule.onNodeWithTag("review_start_button").assertIsNotEnabled()
+        composeRule.onNodeWithTag("review_start_button").assertDoesNotExist()
     }
 
     @Test

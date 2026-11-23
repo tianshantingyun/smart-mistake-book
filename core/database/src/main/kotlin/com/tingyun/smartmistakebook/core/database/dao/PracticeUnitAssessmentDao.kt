@@ -39,6 +39,16 @@ internal data class PracticeUnitAssessmentRow(
 
 @Dao
 internal abstract class PracticeUnitAssessmentDao {
+    data class QuestionSnapshot(val unitId: String, val snapshot: String)
+
+    @Query("""
+        SELECT unit.practice_unit_id AS unitId, revision.question_document_snapshot AS snapshot
+        FROM practice_unit unit
+        JOIN problem_revision revision ON revision.revision_id = unit.problem_revision_id
+        WHERE unit.practice_unit_id IN (:ids) AND revision.question_document_snapshot IS NOT NULL
+    """)
+    abstract suspend fun readQuestionSnapshots(ids: List<String>): List<QuestionSnapshot>
+
     @Query(
         """
         SELECT

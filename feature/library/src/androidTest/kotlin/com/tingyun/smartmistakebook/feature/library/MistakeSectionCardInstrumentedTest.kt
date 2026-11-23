@@ -30,10 +30,11 @@ import org.junit.runner.RunWith
 class MistakeSectionCardInstrumentedTest {
     @get:Rule val compose = createComposeRule()
 
-    @Test fun theHeaderAndBodyAreActuallyPaintedAsDifferentRegions() {
+    @Test fun aCustomHeaderColorIsPaintedWithoutChangingTheBodyColor() {
         compose.setContent {
             SmartMistakeBookTheme {
-                MistakeSectionCard("题面", Modifier.width(320.dp).testTag("section")) {
+                MistakeSectionCard("题面", Modifier.width(320.dp).testTag("section"),
+                    headerColor = com.tingyun.smartmistakebook.core.ui.SmartColors.JadeSoft) {
                     Text("已保存的题面内容")
                 }
             }

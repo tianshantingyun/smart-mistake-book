@@ -101,6 +101,8 @@ data class PracticeUnitAssessmentRecord(
  * 无 fixture 的构建里这是机器可判题的唯一目录来源。
  */
 interface PracticeUnitAssessmentReadPort {
+    suspend fun readPracticeUnitQuestionSnapshots(practiceUnitIds: Set<String>): Map<String, String> = emptyMap()
+
     suspend fun readPracticeUnitAssessment(
         practiceUnitId: String,
     ): PracticeUnitAssessmentRecord?

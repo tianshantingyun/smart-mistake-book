@@ -268,7 +268,7 @@ class RootTutorFailClosedInstrumentedTest {
 
         composeRule.onNodeWithTag("nav_review").performClick()
         waitForText("还没有可复习的题")
-        waitForText("暂无待复习题")
+        composeRule.onNodeWithTag("review_start_button").assertDoesNotExist()
     }
 
     @Test

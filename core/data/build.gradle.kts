@@ -111,6 +111,14 @@ val syncV4PackFixtures = tasks.register<Copy>("syncV4PackFixtures") {
 tasks.matching { it.name.startsWith("merge") && it.name.endsWith("AndroidTestAssets") }
     .configureEach { dependsOn(syncV4PackFixtures) }
 
+// Lint reads the generated test assets too, including when assembly runs in the same graph.
+tasks.matching {
+    it.name.endsWith("AndroidTestLintModel") ||
+        (it.name.startsWith("lintAnalyze") && it.name.endsWith("AndroidTest"))
+}.configureEach {
+    dependsOn(syncGoldenQueryAssets, syncV4PackFixtures)
+}
+
 /**
  * LiteRT 2.1.6 的 manifest namespace 冲突（真机档实测暴露；库模块自己的合并不受影响，
  * 所以 JVM/库级门看不到它）。

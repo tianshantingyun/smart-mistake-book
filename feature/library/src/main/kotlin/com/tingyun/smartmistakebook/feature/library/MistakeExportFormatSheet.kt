@@ -113,7 +113,7 @@ fun MistakeExportFormatSheet(
                 Text("复用已有解答，补全后预览导出。", style = MaterialTheme.typography.bodySmall, color = InkSecondary)
             }
         }
-        Text(if (onPrepareDetailedAnswers == null) "导出内容默认不含答案区；这里只选择文件格式，不改动版式。" else "题目、答案分别导出。",
+        Text(if (onPrepareDetailedAnswers == null) "导出题目与当前版式。" else "题目和详细答案为独立文件。",
             Modifier.testTag("mistake_export_format_answer_note"),
             color = InkSecondary, style = MaterialTheme.typography.bodySmall)
     }

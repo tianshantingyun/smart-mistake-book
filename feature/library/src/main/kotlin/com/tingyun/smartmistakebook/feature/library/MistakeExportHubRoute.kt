@@ -204,7 +204,7 @@ fun MistakeExportHubRoute(
                     .testTag("export_hub_edit_paper"),
             )
             Text(
-                text = "仅修改这份卷面，不影响错题本。确认后会重新生成文件。",
+                text = "确认修改后会重新生成文件。",
                 modifier = Modifier.testTag("export_hub_edit_paper_notice"),
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodySmall,
@@ -234,7 +234,7 @@ fun MistakeExportHubRoute(
         }
         if (visibleRecords.isEmpty() && pendingGroups.isEmpty() && !focused) {
             Text(
-                text = "暂无导出文件。可从错题详情或错题本列表导出，完成后在这里查看。",
+                text = "还没有导出文件。",
                 modifier = Modifier.testTag("mistake_export_hub_empty"),
                 color = InkSecondary,
                 style = MaterialTheme.typography.bodyMedium,

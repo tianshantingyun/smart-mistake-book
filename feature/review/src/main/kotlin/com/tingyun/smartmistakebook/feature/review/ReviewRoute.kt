@@ -105,11 +105,13 @@ fun ReviewRoute(
         pendingFailedTaskCount = pendingFailedTaskCount,
         intakeBacklogCount = overview.intakeBacklogCount,
     )
+    val canStartReview = overview.scheduledCount > 0 && !overview.completedToday
+    val exportToday = onExportToday?.takeIf { canStartReview }
     RootPageColumn(
         modifier = modifier.testTag("review_root"),
     ) {
         ReviewGreeting()
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(20.dp))
         WorkspacePanel(containerColor = SmartColors.ContentSurface, raised = true) {
             Column {
                 if (surfaceState == ReviewSurfaceState.NORMAL) {
@@ -131,34 +133,30 @@ fun ReviewRoute(
                         )
                     }
                 }
-                Spacer(Modifier.height(16.dp))
                 // 双复习入口（spec dual-review-entry §3.1）：知识点复习与错题复习并列、学生自由选，
                 // 建议先巩固概念再做错题。入口只在今天真有可复习知识点（count>0）时出现——count 由
                 // app 层经 currentKnowledgeReviewPlan 实算（含"有讲解材料可出题"过滤），首页不猜测；
                 // 错题复习是否完成不影响该入口（两者独立，自由选）。
                 if (knowledgeReviewEntryVisible(knowledgeReviewCount, onStartKnowledgeReview != null)) {
+                    Spacer(Modifier.height(12.dp))
                     KnowledgeReviewEntryCard(
                         knowledgeCount = requireNotNull(knowledgeReviewCount),
                         onClick = requireNotNull(onStartKnowledgeReview),
                         modifier = Modifier.testTag("review_start_knowledge_review"),
                     )
-                    Spacer(Modifier.height(12.dp))
                 }
-                PrimaryActionButton(
-                    text = when {
-                        overview.completedToday -> "今日复习已完成"
-                        overview.activeSessionId != null -> "继续今日复习"
-                        overview.scheduledCount > 0 -> "开始今日复习"
-                        else -> "暂无待复习题"
-                    },
-                    onClick = onStartReview,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 54.dp)
-                        .testTag("review_start_button"),
-                    icon = Icons.AutoMirrored.Outlined.MenuBook,
-                    enabled = overview.scheduledCount > 0 && !overview.completedToday,
-                )
+                if (canStartReview) {
+                    Spacer(Modifier.height(12.dp))
+                    PrimaryActionButton(
+                        text = if (overview.activeSessionId != null) "继续今日复习" else "开始今日复习",
+                        onClick = onStartReview,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = 54.dp)
+                            .testTag("review_start_button"),
+                        icon = Icons.AutoMirrored.Outlined.MenuBook,
+                    )
+                }
             }
         }
         // 5b 容量 UI（KD-68 同族）：今日容量/考试缺口/积压追赶/逐科名额都是快照上的只读事实，
@@ -204,31 +202,34 @@ fun ReviewRoute(
                     style = MaterialTheme.typography.bodySmall, color = SmartColors.InkSecondary)
             }
         }
-        if (onExportToday != null || onPaperHistory != null) {
-            Spacer(Modifier.height(24.dp))
+        if (exportToday != null || onPaperHistory != null) {
+            Spacer(Modifier.height(16.dp))
             PaperDivider()
             Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                onExportToday?.let { action ->
+                exportToday?.let { action ->
                     PaperReviewAction(
                         text = if (paperBusy) "准备纸卷…" else "导出打印", icon = Icons.Outlined.Print,
-                        onClick = action, enabled = !paperBusy && overview.scheduledCount > 0 && !overview.completedToday,
+                        onClick = action, enabled = !paperBusy,
                         iconTint = SmartColors.ReadingAccent,
                         modifier = Modifier.weight(1f).testTag("review_export_today"),
                     )
                 }
-                if (onExportToday != null && onPaperHistory != null) {
+                if (exportToday != null && onPaperHistory != null) {
                     Box(Modifier.width(1.dp).height(22.dp).background(SmartColors.Divider))
                 }
                 onPaperHistory?.let { action ->
-                    PaperReviewAction(text = "回传作答", icon = Icons.Outlined.AddPhotoAlternate,
+                    val actionModifier = if (exportToday != null) Modifier.weight(1f) else Modifier
+                    PaperReviewAction(
+                        text = "回传作答", icon = Icons.Outlined.AddPhotoAlternate,
                         onClick = action, enabled = !paperBusy, iconTint = SmartColors.AgentAccent,
-                        modifier = Modifier.weight(1f).testTag("review_paper_history"))
+                        modifier = actionModifier.testTag("review_paper_history"),
+                    )
                 }
             }
             PaperDivider()
-            paperNotice?.let { Text(it, modifier = Modifier.padding(top = 8.dp),
-                color = SmartColors.InkSecondary, style = MaterialTheme.typography.bodySmall) }
         }
+        paperNotice?.let { Text(it, modifier = Modifier.padding(top = 8.dp),
+            color = SmartColors.InkSecondary, style = MaterialTheme.typography.bodySmall) }
         // 失败待处理任务在正常计划态下也要保留入口：它属于录入任务，不是复习队列的一部分。
         if (surfaceState != ReviewSurfaceState.PENDING_FAILED_TASKS &&
             reviewPendingTasksEntryVisible(

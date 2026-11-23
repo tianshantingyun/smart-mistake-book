@@ -69,9 +69,12 @@ class TutorLobbyScrollInstrumentedTest {
 
         composeRule.onNodeWithText(LAST_EXISTING_MARKER, substring = true).assertIsDisplayed()
 
-        composeRule.runOnIdle { conversations.publishAssistantReply(ANSWER_MARKER) }
+        composeRule.runOnIdle { conversations.publishMessage(ANSWER_MARKER) }
 
         composeRule.onNodeWithText(ANSWER_MARKER, substring = true).assertIsDisplayed()
+        composeRule.onNodeWithText("智能体").assertIsDisplayed()
+        composeRule.onNodeWithText("讲题助手").assertDoesNotExist()
+        UiAuditEvidence.capture("chat-reply-layout")
     }
 
     @Test
@@ -87,12 +90,28 @@ class TutorLobbyScrollInstrumentedTest {
         }
         composeRule.onNodeWithTag("tutor_scroll_to_bottom").assertExists()
 
-        composeRule.runOnIdle { conversations.publishAssistantReply(ANSWER_MARKER) }
+        composeRule.runOnIdle { conversations.publishMessage(ANSWER_MARKER) }
 
         // 位置不被抢走：仍然不在最新处，出口是「回到最新」按钮而不是自动跳转。
         composeRule.onNodeWithTag("tutor_scroll_to_bottom").assertExists()
         composeRule.onNodeWithTag("tutor_scroll_to_bottom").performClick()
         composeRule.onNodeWithText(ANSWER_MARKER, substring = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun sendingAMessageBringsItIntoViewEvenAfterReadingHistory() {
+        val conversations = LobbyConversationRows().apply { publishConversation(existingMessages()) }
+        setLobby(conversations)
+
+        composeRule.onNodeWithText(LAST_EXISTING_MARKER, substring = true).assertIsDisplayed()
+        repeat(2) {
+            composeRule.onNodeWithTag("tutor_conversation_list").performTouchInput { swipeDown() }
+        }
+        composeRule.onNodeWithTag("tutor_scroll_to_bottom").assertExists()
+
+        val studentMessage = "我还有一个新的问题。"
+        composeRule.runOnIdle { conversations.publishMessage(studentMessage, TutorMessageRole.STUDENT) }
+        composeRule.onNodeWithText(studentMessage).assertIsDisplayed()
     }
 
     private fun setLobby(conversations: TutorConversationRepository) {
@@ -168,7 +187,7 @@ class TutorLobbyScrollInstrumentedTest {
             )
         }
 
-        fun publishAssistantReply(markdown: String) {
+        fun publishMessage(markdown: String, role: TutorMessageRole = TutorMessageRole.ASSISTANT) {
             val current = checkNotNull(snapshot.value) { "The lobby conversation must exist first" }
             val ordinal = current.messages.size + 1
             snapshot.value = current.copy(
@@ -177,7 +196,7 @@ class TutorLobbyScrollInstrumentedTest {
                     messageId = "lobby-message-$ordinal",
                     conversationId = CONVERSATION_ID,
                     ordinal = ordinal,
-                    role = TutorMessageRole.ASSISTANT,
+                    role = role,
                     bodyMarkdown = markdown,
                     status = TutorMessageStatus.SUCCEEDED,
                     logicalOperationId = "lobby-op-$ordinal",

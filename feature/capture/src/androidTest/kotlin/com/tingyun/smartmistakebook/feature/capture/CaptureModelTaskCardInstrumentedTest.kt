@@ -192,7 +192,7 @@ class CaptureModelTaskCardInstrumentedTest {
             }
         }
 
-        composeRule.onNodeWithText("已保存的页面不会丢失", substring = true).assertExists()
+        composeRule.onNodeWithText("已保存的页面将保留", substring = true).assertExists()
         composeRule.onNodeWithTag("capture_manual_entry_button").assertDoesNotExist()
         composeRule.onNodeWithTag("capture_model_add_page_button").performClick()
         composeRule.runOnIdle {

@@ -2230,6 +2230,38 @@ class OpenAiCompatibleModelGatewayTest {
     }
 
     @Test
+    fun aStructuredPlanStreamsOnlyItsOpeningBeforeCompletion() = runBlocking {
+        for (nativeTools in listOf(false, true)) {
+            val gateway = OpenAiCompatibleModelGateway(
+                configurationStore = FakeConfigurationStore(
+                    CONFIGURATION.copy(
+                        capabilityVerification = requireNotNull(CONFIGURATION.capabilityVerification)
+                            .copy(supportsFunctionCalling = nativeTools),
+                    ),
+                ),
+                assetSource = assetSource { _, _ -> asset() },
+                transport = modelTransport { request ->
+                    request.onContentDelta?.invoke("""{"diagnosticQuestion":{"openingMarkdown":"内部内容"},"openingMarkdown":"先看导数""")
+                    delay(400)
+                    request.onContentDelta?.invoke("""\n再判符号。","solutionMarkdown":"完整答案"}""")
+                    delay(400)
+                    ModelHttpResponse(200, envelope(tutorPayload()))
+                },
+                clock = { AUTHORIZATION_NOW },
+            )
+
+            val events = gateway.execute(
+                authorizedTutor(gateway, input = tutorInput().copy(toolDeclarations = TUTOR_TOOL_DECLARATIONS.toList())),
+            ).toList()
+            val answers = events.filterIsInstance<ModelGatewayEvent.LiveProgress>()
+                .filter { it.kind == ModelLiveKind.ANSWER }.map { it.text }
+
+            assertEquals(listOf("先看导数", "先看导数\n再判符号。"), answers.distinct())
+            assertTrue(events.last() is ModelGatewayEvent.Completed)
+        }
+    }
+
+    @Test
     fun aRouteAAnswerRoundStillStreamsItsBodyCharacterByCharacter() = runBlocking {
         // Route A（原生 tools 且端点被证明支持）：content 增量才是逐字长出来的正文——这条通道
         // 不能因为 Route B 的修复被一起关掉（A3：任何地方都有流）。

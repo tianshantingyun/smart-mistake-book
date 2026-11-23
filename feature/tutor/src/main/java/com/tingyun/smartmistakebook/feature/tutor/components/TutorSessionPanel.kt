@@ -54,7 +54,6 @@ import com.tingyun.smartmistakebook.core.model.TutorRespondInput
 import com.tingyun.smartmistakebook.core.model.TutorTurnHistoryEntry
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import com.tingyun.smartmistakebook.core.model.requiresModelSettings
 import com.tingyun.smartmistakebook.core.ui.ErrorWarm
 import com.tingyun.smartmistakebook.core.ui.Ink
@@ -958,6 +957,7 @@ internal fun TutorModelPanel(
                         TutorChoiceFeedbackContent(
                             output = output,
                             response = response,
+                            figureAssetResolver = imageIntake?.let { it::resolveImageUri },
                             solutionRevealPreviewed = timelineItem.planTask
                                 .toPlanSolutionPreviewKey()
                                 ?.let { it in planSolutionPreviewKeys } == true,

@@ -167,7 +167,7 @@ fun CapturedReviewSessionScreen(
                         requestId = "request:$presentationId:reveal:1",
                         presentationId = presentationId,
                         practiceUnitId = entry.practiceUnitId,
-                        occurredAtEpochMillis = System.currentTimeMillis(),
+                        occurredAtEpochMillis = selfReportState.answerRevealOccurredAt(System.currentTimeMillis()),
                     ),
                 )
             }.isFailure

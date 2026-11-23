@@ -636,6 +636,8 @@ data class AttachedRoundQuestion(
     val subject: SubjectKind,
     val title: String,
     val questionDocument: QuestionDocument,
+    @kotlinx.serialization.Transient
+    val sourceImageAssetIds: List<String> = emptyList(),
 ) {
     init {
         problemId.requireSafeModelText("Attached question id", ModelTaskRequest.MAX_ID_CHARS, false)

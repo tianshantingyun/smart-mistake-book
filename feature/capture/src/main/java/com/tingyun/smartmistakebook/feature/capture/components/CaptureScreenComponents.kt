@@ -239,6 +239,7 @@ internal fun CaptureEntryModeChooser(
         modifier = modifier
             .fillMaxWidth()
             .testTag("capture_mode_chooser"),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         CaptureModeOption(
             text = "拍照",
@@ -256,7 +257,6 @@ internal fun CaptureEntryModeChooser(
             supportingText = "从已保存的照片中选择题图",
             onClick = onPickPhoto,
             modifier = Modifier
-                .padding(top = 10.dp)
                 .fillMaxWidth()
                 .testTag("capture_pick_photo_button"),
             icon = Icons.Outlined.PhotoLibrary,
@@ -270,7 +270,6 @@ internal fun CaptureEntryModeChooser(
                 supportingText = "导入整卷照片或一份 PDF，按页整理",
                 onClick = onOpenFiles,
                 modifier = Modifier
-                    .padding(top = 10.dp)
                     .fillMaxWidth()
                     .testTag("capture_mode_files"),
                 icon = Icons.Outlined.FolderOpen,
@@ -285,7 +284,6 @@ internal fun CaptureEntryModeChooser(
                 supportingText = "直接输入题面，确认后存入错题本",
                 onClick = onStartManual,
                 modifier = Modifier
-                    .padding(top = 10.dp)
                     .fillMaxWidth()
                     .testTag("capture_mode_manual"),
                 icon = Icons.Outlined.EditNote,
@@ -309,12 +307,12 @@ private fun CaptureModeOption(
 ) {
     val foreground = if (primary) SmartColors.OnJade else Ink
     @Composable fun Content() {
-        Row(Modifier.fillMaxWidth().defaultMinSize(minHeight = 44.dp),
+        Row(Modifier.fillMaxWidth().defaultMinSize(minHeight = 40.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Surface(shape = RoundedCornerShape(14.dp),
                 color = if (primary) SmartColors.OnJade.copy(alpha = .12f) else iconSurface) {
-                Box(Modifier.size(44.dp), contentAlignment = Alignment.Center) {
+                Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
                     Icon(icon, null, Modifier.size(22.dp), tint = if (primary) foreground else iconTint)
                 }
             }
@@ -330,10 +328,10 @@ private fun CaptureModeOption(
     if (primary) {
         ClaudeButton(onClick, target, shape = RoundedCornerShape(18.dp),
             colors = ButtonDefaults.buttonColors(containerColor = SmartColors.Forest, contentColor = SmartColors.OnJade),
-            contentPadding = PaddingValues(20.dp)) { Content() }
+            contentPadding = PaddingValues(16.dp)) { Content() }
     } else {
         ClaudeCard(onClick, target, shape = RoundedCornerShape(18.dp), bordered = true, elevation = 0.dp) {
-            Box(Modifier.padding(16.dp)) { Content() }
+            Box(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) { Content() }
         }
     }
 }
@@ -461,6 +459,7 @@ internal fun CaptureCommittedCard(
     onView: () -> Unit,
     onCaptureAnother: () -> Unit,
     modifier: Modifier = Modifier,
+    hasSourceImage: Boolean = true,
 ) {
     CapturePanel(
         modifier = modifier
@@ -480,12 +479,14 @@ internal fun CaptureCommittedCard(
                 style = MaterialTheme.typography.titleMedium,
             )
         }
-        Text(
-            text = "原图和题面已保存，可查看或继续录入。",
-            modifier = Modifier.padding(top = 10.dp),
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        if (hasSourceImage) {
+            Text(
+                text = "原图和题面已保存，可查看或继续录入。",
+                modifier = Modifier.padding(top = 10.dp),
+                color = InkSecondary,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
         // B5：新建入库还是复用了既有同一题，照提交回执如实说，不再把两者混成一句"已入库"。
         Text(
             text = captureCommittedReceiptLine(reusedExistingProblem),

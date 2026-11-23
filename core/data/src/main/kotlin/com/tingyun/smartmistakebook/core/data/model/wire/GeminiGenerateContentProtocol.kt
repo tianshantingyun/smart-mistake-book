@@ -73,7 +73,7 @@ internal object GeminiGenerateContentProtocol : ModelWireProtocol {
                 put(
                     "parts",
                     buildJsonArray {
-                        add(buildJsonObject { put("text", OpenAiModelProtocol.SYSTEM_PROMPT) })
+                        add(buildJsonObject { put("text", OpenAiModelProtocol.systemPrompt(input)) })
                     },
                 )
             },

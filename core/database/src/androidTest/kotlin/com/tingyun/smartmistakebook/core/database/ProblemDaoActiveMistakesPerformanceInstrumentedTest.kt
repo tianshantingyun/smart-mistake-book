@@ -311,6 +311,7 @@ class ProblemDaoActiveMistakesPerformanceInstrumentedTest {
                 problem.problem_id,
                 revision.revision_id AS problem_revision_id,
                 unit.practice_unit_id,
+                unit.problem_revision_id AS practice_unit_revision_id,
                 entry.source_key,
                 problem.subject,
                 revision.title,

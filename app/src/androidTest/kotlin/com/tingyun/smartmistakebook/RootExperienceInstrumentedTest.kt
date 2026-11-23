@@ -3,7 +3,9 @@ package com.tingyun.smartmistakebook
 import android.content.ContentValues
 import android.graphics.Bitmap
 import android.provider.MediaStore
+import android.view.WindowInsets
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -13,11 +15,29 @@ import androidx.compose.ui.test.printToString
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.tingyun.smartmistakebook.core.database.StudyDatabaseFactory
+import com.tingyun.smartmistakebook.core.domain.AppendTutorAssistantMessageCommand
+import com.tingyun.smartmistakebook.core.domain.AppendTutorStudentMessageCommand
+import com.tingyun.smartmistakebook.core.domain.CreateTutorConversationCommand
+import com.tingyun.smartmistakebook.core.domain.TutorConversationAnchorKind
+import com.tingyun.smartmistakebook.core.domain.TutorMessageStatus
+import com.tingyun.smartmistakebook.core.domain.MistakeExportStatus
+import com.tingyun.smartmistakebook.core.export.MistakePdfExporter
+import com.tingyun.smartmistakebook.core.export.PreparedMistakePdfToken
+import java.time.LocalDate
+import java.util.UUID
+import kotlinx.coroutines.flow.first
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -93,6 +113,163 @@ class RootExperienceInstrumentedTest {
         composeRule.onNodeWithTag("lobby_picker_cancel").performClick()
         waitForTag("root_tutor")
         composeRule.onAllNodesWithTag("root_library").assertCountEquals(0)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 30)
+    fun tutorComposerSitsJustAboveTheKeyboardInTheAppWindow() {
+        navigateAndWait("nav_tutor", "root_tutor")
+        val activity = composeRule.activity
+        val input = composeRule.onNodeWithTag("tutor_chat_composer").assertIsDisplayed()
+        input.performClick()
+        val maxGap = with(composeRule.density) { 24.dp.toPx() }
+        composeRule.waitUntil(
+            conditionDescription = "Composer aligns above the visible keyboard after the IME animation",
+            timeoutMillis = 5_000,
+        ) {
+            val keyboardTop = composeRule.runOnIdle {
+                val insets = activity.window.decorView.rootWindowInsets
+                if (insets?.isVisible(WindowInsets.Type.ime()) == true) {
+                    activity.windowManager.currentWindowMetrics.bounds.height() -
+                        insets.getInsets(WindowInsets.Type.ime()).bottom
+                } else {
+                    null
+                }
+            } ?: return@waitUntil false
+            val gap = keyboardTop - input.fetchSemanticsNode().boundsInWindow.bottom
+            gap in -1f..maxGap
+        }
+    }
+
+    @Test
+    fun tutorLearningToolsPrepareTheirRequestsInChatAndPreserveTheDraft() {
+        navigateAndWait("nav_tutor", "root_tutor")
+        val composer = composeRule.onNodeWithTag("tutor_chat_composer")
+        val original = "原对话草稿"
+        composer.performTextInput(original)
+        val tools = listOf(
+            "lobby_tool_paper_assembly" to "请从错题本选 6 道值得巩固的题，题量不足时少选。",
+            "lobby_tool_review_planning" to "请安排未来三天的复习，给出重点、题量和主观题比例。",
+        )
+        for ((tool, prompt) in tools) {
+            composeRule.onNodeWithTag("tutor_chat_attach").performSemanticsAction(SemanticsActions.OnClick)
+            waitForTag(tool)
+            composeRule.onNodeWithTag(tool).performScrollTo().performClick()
+            waitForTag("root_agent_tool_conversation")
+            waitForText(prompt)
+            composer.assertTextContains(prompt, substring = true)
+            navigateBackAndWait("root_tutor")
+            composer.assertTextContains(original)
+        }
+    }
+
+    @Test
+    fun pickingAMistakeKeepsTheDraftInTheSameConversation() {
+        navigateAndWait("nav_tutor", "root_tutor")
+        val app = composeRule.activity.application as SmartMistakeBookApplication
+        val entry = app.studyRepository.snapshot.value.catalog.first()
+        val composer = composeRule.onNodeWithTag("tutor_chat_composer")
+        composer.performTextInput("先帮我看第一步")
+        composeRule.onNodeWithTag("tutor_chat_attach").performSemanticsAction(SemanticsActions.OnClick)
+        waitForTag("lobby_attach_library")
+        composeRule.onNodeWithTag("lobby_attach_library").performScrollTo().performClick()
+        val item = "lobby_picker_item_${entry.problemId}"
+        waitForTag(item)
+        composeRule.onNodeWithTag(item).performClick()
+        waitForText(entry.title)
+        composeRule.onNodeWithTag("lobby_attached_question").assertTextContains(entry.title)
+        composer.assertTextContains("先帮我看第一步")
+        composeRule.onNodeWithTag("root_tutor").assertIsDisplayed()
+    }
+
+    @Test
+    fun newConversationLeavesReviewPlanningMode() {
+        navigateAndWait("nav_tutor", "root_tutor")
+        composeRule.onNodeWithTag("tutor_chat_attach").performSemanticsAction(SemanticsActions.OnClick)
+        waitForTag("lobby_tool_review_planning")
+        composeRule.onNodeWithTag("lobby_tool_review_planning").performScrollTo().performClick()
+        waitForTag("root_agent_tool_conversation")
+        waitForText("使用本机学习记录 · 智能体复习规划")
+        composeRule.onNodeWithTag("tutor_new_conversation_button").performClick()
+        waitForTag("tutor_empty_state")
+        composeRule.onAllNodesWithText("使用本机学习记录 · 智能体复习规划").assertCountEquals(0)
+    }
+
+    @Test
+    fun confirmedAgentSelectionProducesAVerifiedPdfInTheChat() {
+        val app = composeRule.activity.application as SmartMistakeBookApplication
+        val snapshot = app.studyRepository.snapshot.value
+        val prompt = paperAgentPrompt(snapshot)
+        val code = snapshot.catalog.first().paperCode()
+        val (conversationId, responseId) = seedToolReply(
+            prompt,
+            "按薄弱点选了一道题。\n【组卷确认数据】" + """{"ids":["$code"]}""",
+        )
+        openToolHistory(conversationId)
+        waitForTag("agent_confirm_paper")
+        composeRule.onNodeWithTag("agent_confirm_paper").performScrollTo().performClick()
+        waitForTag("agent_paper_file")
+        waitForText("下载")
+        waitForText("分享")
+        val exportId = "agent-paper-" + agentEffectId("$conversationId\n$responseId")
+        val record = runBlocking { app.mistakeExportRepository.readRecord(exportId) }
+        assertEquals(MistakeExportStatus.SUCCEEDED, record?.status)
+        val token = requireNotNull(PreparedMistakePdfToken.fromPersistedValue(record?.preparedPdfValueOrNull()))
+        assertNotNull(MistakePdfExporter(app).reopenVerified(token))
+    }
+
+    @Test
+    fun acceptedReviewAdvicePersistsFutureDaysAndRefreshesTodaysQueue() {
+        val app = composeRule.activity.application as SmartMistakeBookApplication
+        val today = LocalDate.now()
+        val tomorrow = today.plusDays(1)
+        val (conversationId, _) = seedToolReply(
+            "【智能体复习规划】\n每日至多十道。",
+            "先做少量巩固。\n【复习确认数据】" + """{"days":[{"date":"$today","focus":[],"questionLimit":1,"subjectivePercent":40},{"date":"$tomorrow","focus":[],"questionLimit":2,"subjectivePercent":70}]}""",
+        )
+        openToolHistory(conversationId)
+        waitForTag("agent_confirm_review")
+        composeRule.onNodeWithTag("agent_confirm_review").performScrollTo().performClick()
+        waitForTag("agent_review_applied")
+        val preferences = runBlocking { app.schedulingSettingsStore.reviewDayPreferences.first() }
+        assertEquals(1, preferences.single { it.epochDay == today.toEpochDay() }.questionLimit)
+        assertEquals(70, preferences.single { it.epochDay == tomorrow.toEpochDay() }.subjectivePercent)
+        composeRule.waitUntil(20_000) { app.studyRepository.snapshot.value.review.scheduledCount <= 1 }
+        assertTrue(app.studyRepository.snapshot.value.review.planId != null)
+    }
+
+    private fun seedToolReply(prompt: String, response: String): Pair<String, String> {
+        val app = composeRule.activity.application as SmartMistakeBookApplication
+        val conversations = app.tutorConversationRepository
+        val id = "test-tool-${UUID.randomUUID()}"
+        val studentId = "$id-student"
+        val responseId = "$id-reply"
+        val now = System.currentTimeMillis()
+        runBlocking {
+            conversations.createConversation(CreateTutorConversationCommand(
+                conversationId = id, anchorKind = TutorConversationAnchorKind.TEXT_ONLY,
+                anchorId = null, anchorRevisionId = null, title = "工具回复测试", createdAtEpochMillis = now,
+            ))
+            conversations.appendStudentMessage(AppendTutorStudentMessageCommand(
+                conversationId = id, messageId = studentId, bodyMarkdown = prompt,
+                logicalOperationId = id, createdAtEpochMillis = now,
+            ))
+            conversations.appendAssistantMessage(AppendTutorAssistantMessageCommand(
+                conversationId = id, messageId = responseId, replyToMessageId = studentId,
+                bodyMarkdown = response, logicalOperationId = id, status = TutorMessageStatus.SUCCEEDED,
+                createdAtEpochMillis = now, completedAtEpochMillis = now, errorCode = null,
+            ))
+        }
+        return id to responseId
+    }
+
+    private fun openToolHistory(conversationId: String) {
+        navigateAndWait("nav_tutor", "root_tutor")
+        composeRule.onNodeWithTag("tutor_history_button").performClick()
+        val row = "tutor_history_row_$conversationId"
+        waitForTag(row)
+        composeRule.onNodeWithTag(row).performClick()
+        waitForTag("root_tutor")
     }
 
     @Test
@@ -363,11 +540,11 @@ class RootExperienceInstrumentedTest {
         composeRule.waitForIdle()
     }
 
-    private fun navigateBackAndWait(rootTag: String) {
+    private fun navigateBackAndWait(rootTag: String, hasBottomNavigation: Boolean = true) {
         composeRule.activityRule.scenario.onActivity { activity ->
             activity.onBackPressedDispatcher.onBackPressed()
         }
         waitForTag(rootTag)
-        waitForTag("nav_review")
+        if (hasBottomNavigation) waitForTag("nav_review")
     }
 }

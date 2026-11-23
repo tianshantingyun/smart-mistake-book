@@ -33,9 +33,14 @@ class NativeUiAdoptionInstrumentedTest {
         }
         compose.onNodeWithTag("profile_capability_setting").performScrollTo().performClick()
         await("capability_screen")
-        compose.onNodeWithTag("capability_protocol_group").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithTag("capability_model_id").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithTag("capability_save").performScrollTo().assertIsDisplayed()
+        if ((compose.activity.application as SmartMistakeBookApplication).modelConfigurationStore == null) {
+            compose.onNodeWithTag("capability_strict_offline_notice").performScrollTo().assertIsDisplayed()
+            compose.onNodeWithTag("capability_protocol_group").assertDoesNotExist()
+        } else {
+            compose.onNodeWithTag("capability_protocol_group").performScrollTo().assertIsDisplayed()
+            compose.onNodeWithTag("capability_model_id").performScrollTo().assertIsDisplayed()
+            compose.onNodeWithTag("capability_save").performScrollTo().assertIsDisplayed()
+        }
         compose.onNodeWithContentDescription("返回").performScrollTo().performClick()
         await("root_profile")
     }

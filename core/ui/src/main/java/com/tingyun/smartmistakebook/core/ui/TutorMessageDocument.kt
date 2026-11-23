@@ -115,7 +115,7 @@ fun TutorMessageDocument(
     val scope = rememberCoroutineScope()
     val shown = mutableSetOf<String>()
     var questionShown = false
-    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(if (order.isEmpty()) 12.dp else 8.dp)) {
         blocks.forEach { block ->
             when (block) {
                 is TutorMessageBlock.Markdown -> TutorReplyMarkdown(block.text)
@@ -129,7 +129,7 @@ fun TutorMessageDocument(
                     } else if (shown.add(block.assetId)) {
                         GeneratedFiguresSection(listOf(block.assetId), resolveFigure,
                             modifier = Modifier.bringIntoViewRequester(anchors.getValue(block.assetId)),
-                            firstFigureNumber = order.indexOf(block.assetId) + 1, captions = figureCaptions)
+                            firstFigureNumber = order.indexOf(block.assetId) + 1, captions = figureCaptions, inline = true)
                     } else {
                         ClaudeTextButton(onClick = {
                             scope.launch { anchors.getValue(block.assetId).bringIntoView() }
@@ -141,7 +141,7 @@ fun TutorMessageDocument(
         val remaining = order.filterNot { it in shown }
         if (remaining.isNotEmpty() && resolveFigure != null) {
             GeneratedFiguresSection(remaining, resolveFigure, firstFigureNumber = positioned.size + 1,
-                captions = figureCaptions)
+                captions = figureCaptions, inline = true)
         }
         if (!questionShown) inlineQuestion?.invoke()
     }

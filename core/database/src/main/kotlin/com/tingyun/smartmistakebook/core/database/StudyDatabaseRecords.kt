@@ -748,6 +748,8 @@ data class MistakeRecord(
     val chapterLabels: List<String> = emptyList(),
     val knowledgeLabels: List<String> = emptyList(),
     val captureOccurrenceCount: Int = 1,
+    // Revisions without an answer spec retain the practice unit to preserve review history.
+    val practiceUnitRevisionId: String = problemRevisionId,
 ) {
     init {
         require(estimatedSeconds > 0) { "Mistake estimated duration must be positive" }

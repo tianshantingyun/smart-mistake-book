@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.TutorConversationAreas
 import com.tingyun.smartmistakebook.core.ui.Paper
 
@@ -121,7 +123,6 @@ internal fun TutorConversationScreen(
                 liveTurnStopAction = liveTurnStopAction,
                 liveTurnStopTestTag = liveTurnStopTestTag,
                 autoFollowEnabled = !emptyStateVisible,
-                composerInList = emptyStateVisible,
                 composer = {
                     Column(modifier = Modifier.fillMaxWidth()) {
                         attachments?.invoke()
@@ -136,7 +137,9 @@ internal fun TutorConversationScreen(
                 }
                 if (emptyStateVisible) {
                     config.emptyState?.let { directory ->
-                        item("tutor_surface_empty_state") { directory() }
+                        item("tutor_surface_empty_state") {
+                            Column(Modifier.padding(top = 12.dp)) { directory() }
+                        }
                     }
                 }
                 content()

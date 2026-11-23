@@ -15,6 +15,7 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import com.tingyun.smartmistakebook.core.domain.ExamCalendarEntry
 import com.tingyun.smartmistakebook.core.domain.FsrsParameterFit
 import com.tingyun.smartmistakebook.core.domain.SchedulingOptions
+import com.tingyun.smartmistakebook.core.domain.ReviewDayPreference
 import com.tingyun.smartmistakebook.core.domain.SchedulingSettingsStore
 import java.io.IOException
 import kotlinx.coroutines.CoroutineScope
@@ -60,6 +61,45 @@ class DataStoreSchedulingSettingsStore(
             // KF-11：FSRS 开关已删除；历史库里的 `fsrs_enabled` 键不再读写（遗留数据无害）。
         }
     }
+
+    private val reviewPreferencesKey = stringSetPreferencesKey("review_day_preferences")
+    private val reviewAdviceKey = stringSetPreferencesKey("applied_review_advice")
+
+    override val reviewDayPreferences: Flow<List<ReviewDayPreference>> = dataStore.data
+        .map { values -> decodeReviewPreferences(values[reviewPreferencesKey].orEmpty()) }
+        .distinctUntilChanged()
+
+    override val appliedReviewAdvice: Flow<Set<String>> = dataStore.data
+        .map { it[reviewAdviceKey].orEmpty() }
+        .distinctUntilChanged()
+
+    override suspend fun applyReviewDayPreferences(
+        adviceId: String,
+        today: Long,
+        days: List<ReviewDayPreference>,
+    ): Boolean {
+        require(adviceId.isNotBlank())
+        require(days.isNotEmpty() && days.map { it.epochDay }.distinct().size == days.size)
+        require(days.all { it.epochDay in today..(today + 6) })
+        var written = false
+        dataStore.edit { values ->
+            val applied = values[reviewAdviceKey].orEmpty()
+            if (adviceId in applied) return@edit
+            val overrides = days.associateBy { it.epochDay }
+            val retained = decodeReviewPreferences(values[reviewPreferencesKey].orEmpty())
+                .filter { it.epochDay >= today && it.epochDay !in overrides }
+            values[reviewPreferencesKey] = (retained + days).mapTo(linkedSetOf()) {
+                json.encodeToString(ReviewDayPreference.serializer(), it)
+            }
+            values[reviewAdviceKey] = applied + adviceId
+            written = true
+        }
+        return written
+    }
+
+    private fun decodeReviewPreferences(values: Set<String>): List<ReviewDayPreference> =
+        values.mapNotNull { runCatching { json.decodeFromString(ReviewDayPreference.serializer(), it) }.getOrNull() }
+            .sortedBy { it.epochDay }
 
     override val exams: Flow<List<ExamCalendarEntry>> = dataStore.data
         .catch { error -> if (error is IOException) emit(emptyPreferences()) else throw error }

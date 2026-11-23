@@ -1,12 +1,15 @@
 package com.tingyun.smartmistakebook.feature.library
 
 import android.content.Context
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.tingyun.smartmistakebook.core.data.splitimport.SplitImportRepositoryFactory
@@ -105,11 +108,13 @@ class SplitImportReviewCommitFlowInstrumentedTest {
             }
         }
         composeRule.waitUntil(timeoutMillis = 10_000) {
-            composeRule.onAllNodesWithTag("split_review_confirm")
+            composeRule.onAllNodesWithTag("split_review_count")
                 .fetchSemanticsNodes()
                 .isNotEmpty()
         }
 
+        composeRule.onNodeWithTag("split_review_list")
+            .performScrollToNode(hasTestTag("split_review_confirm"))
         composeRule.onNodeWithTag("split_review_confirm").performClick()
 
         composeRule.waitUntil(timeoutMillis = 10_000) { openedDraftId != null }
@@ -136,15 +141,22 @@ class SplitImportReviewCommitFlowInstrumentedTest {
             }
         }
         composeRule.waitUntil(timeoutMillis = 10_000) {
-            composeRule.onAllNodesWithText("已录入").fetchSemanticsNodes().isNotEmpty()
+            composeRule.onAllNodesWithTag("split_review_count").fetchSemanticsNodes().isNotEmpty()
         }
 
-        composeRule.onNodeWithText("已录入").assertExists()
-        assertEquals(
-            2,
-            composeRule.onAllNodesWithText("待提交").fetchSemanticsNodes().size,
-        )
+        composeRule.onNodeWithTag("split_review_list")
+            .performScrollToNode(hasTestTag("split_question_0"))
+        composeRule.onNode(hasText("已录入") and hasAnyAncestor(hasTestTag("split_question_0")))
+            .assertIsDisplayed()
+        for (ordinal in 1 until draftIds.size) {
+            composeRule.onNodeWithTag("split_review_list")
+                .performScrollToNode(hasTestTag("split_question_$ordinal"))
+            composeRule.onNode(hasText("待提交") and hasAnyAncestor(hasTestTag("split_question_$ordinal")))
+                .assertIsDisplayed()
+        }
 
+        composeRule.onNodeWithTag("split_review_list")
+            .performScrollToNode(hasTestTag("split_review_confirm"))
         composeRule.onNodeWithTag("split_review_confirm").performClick()
 
         composeRule.waitUntil(timeoutMillis = 10_000) { openedDraftId != null }
@@ -179,9 +191,18 @@ class SplitImportReviewCommitFlowInstrumentedTest {
             }
         }
         composeRule.waitUntil(timeoutMillis = 10_000) {
-            composeRule.onAllNodesWithText("已录入").fetchSemanticsNodes().size == draftIds.size
+            composeRule.onAllNodesWithTag("split_review_count").fetchSemanticsNodes().isNotEmpty()
         }
 
+        for (ordinal in draftIds.indices) {
+            composeRule.onNodeWithTag("split_review_list")
+                .performScrollToNode(hasTestTag("split_question_$ordinal"))
+            composeRule.onNode(hasText("已录入") and hasAnyAncestor(hasTestTag("split_question_$ordinal")))
+                .assertIsDisplayed()
+        }
+
+        composeRule.onNodeWithTag("split_review_list")
+            .performScrollToNode(hasTestTag("split_review_confirm"))
         composeRule.onNodeWithTag("split_review_confirm").performClick()
 
         composeRule.waitUntil(timeoutMillis = 10_000) {

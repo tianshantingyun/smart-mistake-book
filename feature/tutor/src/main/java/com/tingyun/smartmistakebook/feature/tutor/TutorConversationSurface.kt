@@ -5,7 +5,6 @@ import com.tingyun.smartmistakebook.core.ui.ClaudeSurfaceDepth
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.ui.graphics.graphicsLayer
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.style.TextOverflow
 import com.tingyun.smartmistakebook.core.ui.ClaudeLayout
@@ -45,21 +43,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import com.tingyun.smartmistakebook.core.ui.ClaudeIconButton as IconButton
 import androidx.compose.material3.MaterialTheme
-import com.tingyun.smartmistakebook.core.ui.ClaudeTextField as OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.movableContentOf
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -78,7 +73,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.TextRange
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.ui.unit.dp
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.model.ModelLiveKind
@@ -98,6 +92,7 @@ import com.tingyun.smartmistakebook.core.ui.InkMuted
 import com.tingyun.smartmistakebook.core.ui.Outline
 import com.tingyun.smartmistakebook.core.ui.InkSecondary
 import com.tingyun.smartmistakebook.core.ui.JadeActive
+import com.tingyun.smartmistakebook.core.ui.OnJade
 import com.tingyun.smartmistakebook.core.ui.OutlineActionChip
 import com.tingyun.smartmistakebook.core.ui.Paper
 import com.tingyun.smartmistakebook.core.ui.SmartDimens
@@ -329,12 +324,6 @@ internal fun TutorLiveTurnBlock(
     statusText: String? = null,
     placeholder: String = TUTOR_LIVE_PLACEHOLDER,
     answerTestTag: String = "tutor_streaming_reply",
-    /**
-     * 正在生成时的「停止」（A2）：非 null 就在这一轮底下露出来。停止是**动作**不是状态，
-     * 所以它长在在途块里（此时还没有那条助手消息行可挂动作条）。
-     */
-    onStop: (() -> Unit)? = null,
-    stopTestTag: String = "tutor_live_stop",
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         val thinkingText = turn.thinkingText ?: statusText
@@ -352,24 +341,13 @@ internal fun TutorLiveTurnBlock(
         turn.answer?.takeIf(String::isNotBlank)?.let { answer ->
             TutorStreamingReply(
                 markdown = answer,
-                modifier = Modifier
-                    .padding(top = 6.dp)
-                    .testTag(answerTestTag),
+                modifier = Modifier.padding(top = 6.dp).testTag(answerTestTag),
             )
         }
         if (thinkingText == null && toolTraceDisplay == null && !turn.hasAnswer) {
             TutorPrompt(
                 text = placeholder,
                 modifier = Modifier.padding(top = 6.dp),
-            )
-        }
-        onStop?.let { stop ->
-            OutlineActionChip(
-                text = TUTOR_SURFACE_STOP_LABEL,
-                onClick = stop,
-                modifier = Modifier
-                    .padding(top = 8.dp)
-                    .testTag(stopTestTag),
             )
         }
     }
@@ -449,18 +427,7 @@ internal fun TutorTurnFailureCard(
 /** 贴尾滚动最多试几次：估算落点修正一次即可到位，上限只为不在这里死循环。 */
 private const val TUTOR_TAIL_FOLLOW_ATTEMPTS = 3
 
-/**
- * 这个列表是不是**真的**在末尾（D6）。
- *
- * 判据是"**末条完整落在视口内**"（可见项的偏移 + 尺寸 <= 视口底），不是"末条的序号出现在
- * 可见项里"。后者在末条只露出一点时也成立，于是 [followTutorTail] 会在落点还差几百像素时
- * 就收手——刚加载完的长会话里末条的高度只能靠估算，第一滚必然偏短，而这次判真让"再滚一次
- * 才是真正的末尾"那一步永远不发生。真机上表现为"最新那条只露了个头"，用例里则是
- * `assertIsDisplayed` 判它整段被裁掉（`boundsInRoot` 为零）。
- *
- * 内容比视口短时恒为真；末条本身比视口还高（一整段很长的讲解）时永远不为真——那时滚到末条
- * 即到位，循环按次数上限退出，与收紧之前的行为一致。
- */
+/** 尾部定位点完整进入视口后，才恢复自动跟随。 */
 private fun LazyListState.isAtTail(): Boolean {
     val layout = layoutInfo
     val last = layout.visibleItemsInfo.lastOrNull()
@@ -477,6 +444,7 @@ private fun LazyListState.isAtTail(): Boolean {
  * 有了真实高度，再滚一次才是真正的末尾；每轮都拿**刚布局完**的可见项判断是否已到底。
  */
 private suspend fun followTutorTail(listState: LazyListState) {
+    if (!listState.canScrollForward && listState.layoutInfo.totalItemsCount > 0) return
     repeat(TUTOR_TAIL_FOLLOW_ATTEMPTS) {
         val itemCount = snapshotFlow { listState.layoutInfo.totalItemsCount }
             .first { it > 0 }
@@ -521,7 +489,6 @@ internal fun TutorConversationFrame(
     liveTurnStopTestTag: String = "tutor_live_stop",
     composer: (@Composable () -> Unit)? = null,
     autoFollowEnabled: Boolean = true,
-    composerInList: Boolean = false,
     content: LazyListScope.() -> Unit,
 ) {
     var initialTailPositioned by remember(listState) { mutableStateOf(false) }
@@ -529,8 +496,8 @@ internal fun TutorConversationFrame(
     var handledForceToken by remember(listState) { mutableStateOf<Any?>(null) }
     var handledBlockToken by remember(listState) { mutableStateOf<Any?>(null) }
     var programmaticFollow by remember(listState) { mutableStateOf(false) }
-    var composerHeightPx by remember { mutableStateOf(0) }
     var viewportHeightPx by remember { mutableStateOf(0) }
+    var liveTurnHeightPx by remember { mutableStateOf(0) }
     val userDragging by listState.interactionSource.collectIsDraggedAsState()
     val density = LocalDensity.current
 
@@ -546,8 +513,12 @@ internal fun TutorConversationFrame(
             }
         }
     }
-    LaunchedEffect(autoScrollVersion, forceFollowToken, blockAutoFollowToken, listState, viewportHeightPx, autoFollowEnabled) {
+    LaunchedEffect(
+        autoScrollVersion, forceFollowToken, blockAutoFollowToken, listState,
+        viewportHeightPx, liveTurnHeightPx, autoFollowEnabled,
+    ) {
         if (!autoFollowEnabled) {
+            if (initialTailPositioned) listState.scrollToItem(0)
             initialTailPositioned = false
             followsTail = true
             return@LaunchedEffect
@@ -557,8 +528,9 @@ internal fun TutorConversationFrame(
             blockAutoFollowToken != null &&
             blockAutoFollowToken != handledBlockToken
         withFrameNanos { }
-        val shouldFollow = !userDragging && !listState.isScrollInProgress &&
-            (!initialTailPositioned || !blockAutoFollow && (followsTail || forceFollow))
+        val shouldFollow = !userDragging &&
+            (forceFollow && !blockAutoFollow ||
+                !listState.isScrollInProgress && (!initialTailPositioned || !blockAutoFollow && followsTail))
         if (shouldFollow) {
             programmaticFollow = true
             try {
@@ -576,8 +548,11 @@ internal fun TutorConversationFrame(
     }
 
     val coroutineScope = rememberCoroutineScope()
-    val currentComposer by rememberUpdatedState(composer)
-    val renderComposer = remember { movableContentOf { currentComposer?.invoke() } }
+    val stopAction = if (liveTurn != null && liveTurnStopAction != null) {
+        TutorComposerStopAction(liveTurnStopAction, liveTurnStopTestTag)
+    } else {
+        null
+    }
 
     BoxWithConstraints(
         modifier = modifier
@@ -589,14 +564,6 @@ internal fun TutorConversationFrame(
         val inputLineHeight = with(density) { ClaudeLayout.ComposerText.lineHeight.toDp() }
         val visibleInputLines = ((maxHeight.value * .35f - 32f) / inputLineHeight.value)
             .toInt().coerceIn(1, 4)
-        val startPageTopPadding = if (maxHeight > 600.dp) 32.dp else 8.dp
-        val composerBlock: @Composable () -> Unit = {
-            Surface(color = Paper, modifier = Modifier.onSizeChanged { composerHeightPx = it.height }) {
-                Column(Modifier.fillMaxWidth().padding(horizontal = if (composerInList) 0.dp else SmartDimens.ContentHorizontalPadding, vertical = 8.dp)) {
-                    CompositionLocalProvider(LocalTutorInputMaxLines provides visibleInputLines) { renderComposer() }
-                }
-            }
-        }
         Column(
             modifier = Modifier
                 .widthIn(max = SmartDimens.MaximumContentWidth)
@@ -611,63 +578,65 @@ internal fun TutorConversationFrame(
             ) {
                 header()
             }
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .onSizeChanged { viewportHeightPx = it.height }
-                    .testTag("tutor_conversation_list")
-                    .then(listViewportModifier),
-                state = listState,
-                contentPadding = PaddingValues(
-                    start = SmartDimens.ContentHorizontalPadding,
-                    top = 12.dp,
-                    end = SmartDimens.ContentHorizontalPadding,
-                    bottom = 12.dp,
-                ),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
-            ) {
-                if (composerInList && composer != null) {
-                    item("tutor_start_composer") {
-                        Column(Modifier.fillMaxWidth().padding(top = startPageTopPadding)) {
-                            Text("今天想学点什么？", Modifier.padding(start = 4.dp, bottom = 20.dp),
-                                color = Ink, style = MaterialTheme.typography.headlineSmall)
-                            composerBlock()
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .onSizeChanged { viewportHeightPx = it.height }
+                        .testTag("tutor_conversation_list")
+                        .then(listViewportModifier),
+                    state = listState,
+                    contentPadding = PaddingValues(
+                        horizontal = SmartDimens.ContentHorizontalPadding,
+                        vertical = 10.dp,
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    content()
+                    if (liveTurn != null) {
+                        item("tutor_live_turn") {
+                            TutorLiveTurnBlock(
+                                turn = liveTurn,
+                                modifier = Modifier.onSizeChanged { liveTurnHeightPx = it.height },
+                                statusText = liveStatusText,
+                                placeholder = livePlaceholder,
+                                answerTestTag = liveAnswerTestTag,
+                            )
                         }
                     }
-                }
-                content()
-                if (liveTurn != null) {
-                    item("tutor_live_turn") {
-                        TutorLiveTurnBlock(
-                            turn = liveTurn,
-                            statusText = liveStatusText,
-                            placeholder = livePlaceholder,
-                            answerTestTag = liveAnswerTestTag,
-                            onStop = liveTurnStopAction,
-                            stopTestTag = liveTurnStopTestTag,
-                        )
+                    // A measured end target keeps even a reply taller than the viewport anchored.
+                    if (autoFollowEnabled) {
+                        item("tutor_conversation_end") { Spacer(Modifier.height(1.dp)) }
                     }
+                }
+                if (!followsTail && initialTailPositioned) {
+                    ScrollToBottomButton(
+                        onClick = {
+                            followsTail = true
+                            forceFollowToken?.let { handledForceToken = it }
+                            coroutineScope.launch {
+                                programmaticFollow = true
+                                try { followTutorTail(listState) } finally { programmaticFollow = false }
+                            }
+                        },
+                        modifier = Modifier.align(Alignment.BottomEnd)
+                            .padding(end = SmartDimens.ContentHorizontalPadding, bottom = 8.dp)
+                            .testTag("tutor_scroll_to_bottom"),
+                    )
                 }
             }
-            if (!composerInList && composer != null) composerBlock()
-        }
-        if (!followsTail && initialTailPositioned) {
-            ScrollToBottomButton(
-                onClick = {
-                    followsTail = true
-                    forceFollowToken?.let { handledForceToken = it }
-                    // 同一个贴尾助手：点「回到最新」也要真的到最新，而不是停在估算落点上。
-                    coroutineScope.launch {
-                        programmaticFollow = true
-                        try { followTutorTail(listState) } finally { programmaticFollow = false }
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = with(density) { composerHeightPx.toDp() } + 12.dp)
-                    .testTag("tutor_scroll_to_bottom"),
-            )
+            if (composer != null) {
+                Column(
+                    Modifier.fillMaxWidth()
+                        .padding(horizontal = SmartDimens.ContentHorizontalPadding, vertical = 6.dp),
+                ) {
+                    CompositionLocalProvider(
+                        LocalTutorInputMaxLines provides visibleInputLines,
+                        LocalTutorStopAction provides stopAction,
+                        content = composer,
+                    )
+                }
+            }
         }
     }
 }
@@ -677,17 +646,17 @@ private fun ScrollToBottomButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    FloatingActionButton(
+    val shape = RoundedCornerShape(24.dp)
+    Surface(
         onClick = onClick,
-        modifier = modifier,
-        containerColor = JadeActive,
-        contentColor = Paper,
-        shape = RoundedCornerShape(18.dp),
+        modifier = modifier.size(48.dp),
+        shape = shape,
+        color = ContentSurface,
+        border = BorderStroke(1.dp, Outline),
     ) {
-        Icon(
-            imageVector = Icons.Outlined.KeyboardArrowDown,
-            contentDescription = "回到最新",
-        )
+        Box(contentAlignment = Alignment.Center) {
+            Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "回到最新", tint = Ink)
+        }
     }
 }
 
@@ -699,6 +668,8 @@ private fun ScrollToBottomButton(
  * 发出去"取决于学生从哪个状态进来。
  */
 private val LocalTutorInputMaxLines = staticCompositionLocalOf { 4 }
+private data class TutorComposerStopAction(val onStop: () -> Unit, val testTag: String)
+private val LocalTutorStopAction = compositionLocalOf<TutorComposerStopAction?> { null }
 
 @Composable
 internal fun TutorChatComposer(
@@ -742,82 +713,126 @@ internal fun TutorChatComposer(
             lastPublishedText = value
         }
     }
-    val canSend = !sendBlocked && enabled && !sending && editorValue.composition == null &&
+    val stopAction = LocalTutorStopAction.current
+    val canDispatch = !sendBlocked && enabled && !sending && stopAction == null
+    val canSend = canDispatch && editorValue.composition == null &&
         (editorValue.text.isNotBlank() || attachmentCount > 0)
     val sendIfReady: () -> Unit = {
         // The IME can commit and send in one event, before Compose renders the new enabled state.
-        if (!sendBlocked && enabled && !sending && editorValue.composition == null &&
+        if (canDispatch && editorValue.composition == null &&
             (editorValue.text.isNotBlank() || attachmentCount > 0)
         ) onSend()
     }
-    val shape = RoundedCornerShape(ClaudeLayout.ComposerRadius)
-    Column(modifier = modifier.fillMaxWidth()
-        .claudeSurfaceShadow(shape, ClaudeSurfaceDepth.COMPOSER, emphasis = shadowStrength)
-        .background(if (enabled) ContentSurface else SubtleSurface, shape)
-        .border(if (focused) 2.dp else 1.dp, outlineColor, shape)
-        .padding(ClaudeLayout.ComposerPadding)) {
-        attachmentPreview?.invoke()
-        BasicTextField(
-            value = editorValue,
-            onValueChange = { changed ->
-                val bounded = boundedTutorInput(changed, TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS)
-                editorValue = bounded
-                if (bounded.text.length <= TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS && bounded.text != lastPublishedText) {
-                    lastPublishedText = bounded.text
-                    onValueChange(bounded.text)
+    Column(modifier.fillMaxWidth()) {
+        if (tools != null || value.length >= 1_000) {
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                tools?.invoke()
+                if (value.length >= 1_000) {
+                    Text(
+                        "${value.length}/${TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS}",
+                        style = ClaudeLayout.ControlText,
+                        color = InkSecondary,
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                    )
                 }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = 48.dp)
-                .onFocusChanged { focused = it.isFocused }
-                .testTag("tutor_chat_composer"),
-            enabled = enabled,
-            textStyle = ClaudeLayout.ComposerText.copy(color = Ink),
-            cursorBrush = SolidColor(JadeActive),
-            minLines = 1,
-            maxLines = LocalTutorInputMaxLines.current,
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-            keyboardActions = KeyboardActions(
-                onSend = { sendIfReady() },
-            ),
-            decorationBox = { input ->
-                Box(Modifier.padding(start = 6.dp, top = 4.dp)) {
-                    if (editorValue.text.isEmpty()) Text(placeholder, color = InkSecondary,
-                        style = ClaudeLayout.ComposerText, maxLines = LocalTutorInputMaxLines.current.coerceAtMost(2),
-                        overflow = TextOverflow.Ellipsis)
-                    input()
-                }
-            },
-        )
-        Spacer(Modifier.height(ClaudeLayout.ComposerGap))
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween) {
-            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+            }
+        }
+        val shape = RoundedCornerShape(ClaudeLayout.ComposerRadius)
+        Column(
+            Modifier.fillMaxWidth()
+                .claudeSurfaceShadow(shape, ClaudeSurfaceDepth.COMPOSER, emphasis = shadowStrength)
+                .background(if (enabled) ContentSurface else SubtleSurface, shape)
+                .border(if (focused) 2.dp else 1.dp, outlineColor, shape),
+        ) {
+            attachmentPreview?.let { preview ->
+                Column(Modifier.padding(start = 12.dp, top = 8.dp, end = 12.dp)) { preview() }
+            }
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 3.dp),
+                verticalAlignment = Alignment.Bottom,
+            ) {
                 onOpenAttachMenu?.let { openAttachMenu ->
-                    IconButton(onClick = openAttachMenu, enabled = enabled,
-                        modifier = Modifier.size(48.dp).testTag("tutor_chat_attach")) {
-                        Icon(Icons.Outlined.Add, "添加图片", Modifier.size(20.dp),
-                            tint = if (enabled) InkSecondary else InkMuted)
+                    IconButton(
+                        onClick = openAttachMenu,
+                        enabled = enabled,
+                        modifier = Modifier.size(48.dp).testTag("tutor_chat_attach"),
+                    ) {
+                        Icon(
+                            Icons.Outlined.Add, "添加附件或使用学习工具", Modifier.size(22.dp),
+                            tint = if (enabled) InkSecondary else InkMuted,
+                        )
                     }
                 }
-                tools?.invoke()
-                if (value.length >= 1_000) Text("${value.length}/${TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS}",
-                    style = ClaudeLayout.ControlText, color = InkSecondary)
-            }
-            Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                val maxLines = LocalTutorInputMaxLines.current
+                BasicTextField(
+                    value = editorValue,
+                    onValueChange = { changed ->
+                        val bounded = boundedTutorInput(changed, TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS)
+                        editorValue = bounded
+                        if (bounded.text.length <= TutorRespondInput.MAX_STUDENT_MESSAGE_CHARS &&
+                            bounded.text != lastPublishedText
+                        ) {
+                            lastPublishedText = bounded.text
+                            onValueChange(bounded.text)
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                        .onFocusChanged { focused = it.isFocused }
+                        .testTag("tutor_chat_composer"),
+                    enabled = enabled,
+                    textStyle = ClaudeLayout.ComposerText.copy(color = Ink),
+                    cursorBrush = SolidColor(JadeActive),
+                    minLines = 1,
+                    maxLines = maxLines,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                    keyboardActions = KeyboardActions(onSend = { sendIfReady() }),
+                    decorationBox = { input ->
+                        Box(
+                            Modifier.heightIn(min = 48.dp).padding(horizontal = 8.dp, vertical = 8.dp),
+                            contentAlignment = Alignment.CenterStart,
+                        ) {
+                            if (editorValue.text.isEmpty()) {
+                                Text(
+                                    placeholder,
+                                    color = InkSecondary,
+                                    style = ClaudeLayout.ComposerText,
+                                    maxLines = minOf(maxLines, 2),
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                            input()
+                        }
+                    },
+                )
                 IconButton(
-                    onClick = sendIfReady,
-                    enabled = canSend,
+                    onClick = stopAction?.onStop ?: sendIfReady,
+                    enabled = canSend || stopAction != null,
                     interactionSource = sendInteraction,
-                    modifier = Modifier.size(48.dp).testTag("tutor_chat_send"),
+                    modifier = Modifier.size(48.dp).testTag(stopAction?.testTag ?: "tutor_chat_send"),
                 ) {
-                    Box(Modifier.size(36.dp).clip(RoundedCornerShape(18.dp))
-                        .graphicsLayer { scaleX = sendScale; scaleY = sendScale }
-                        .background(if (canSend || sending) JadeActive else JadeActive.copy(alpha = .3f)),
-                        contentAlignment = Alignment.Center) {
-                        if (sending) CircularProgressIndicator(Modifier.size(16.dp), color = Color.White, strokeWidth = 2.dp)
-                        else Icon(Icons.Outlined.ArrowUpward, "发送这条消息", Modifier.size(18.dp), tint = Color.White)
+                    val active = canSend || sending || stopAction != null
+                    val iconColor = if (active) OnJade else InkSecondary
+                    Box(
+                        Modifier.size(36.dp).clip(RoundedCornerShape(18.dp))
+                            .graphicsLayer { scaleX = sendScale; scaleY = sendScale }
+                            .background(if (active) JadeActive else SubtleSurface),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        when {
+                            stopAction != null -> Icon(
+                                Icons.Outlined.Stop, "停止生成", Modifier.size(20.dp), tint = iconColor,
+                            )
+                            sending -> CircularProgressIndicator(
+                                Modifier.size(16.dp), color = iconColor, strokeWidth = 2.dp,
+                            )
+                            else -> Icon(
+                                Icons.Outlined.ArrowUpward, "发送这条消息", Modifier.size(18.dp), tint = iconColor,
+                            )
+                        }
                     }
                 }
             }

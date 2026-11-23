@@ -1,5 +1,7 @@
 package com.tingyun.smartmistakebook.core.data.study
 
+import com.tingyun.smartmistakebook.core.model.CapturedQuestionDocumentCodec
+import com.tingyun.smartmistakebook.core.model.ContentBlock
 import com.tingyun.smartmistakebook.core.data.knowledge.KnowledgePrerequisiteReader
 import com.tingyun.smartmistakebook.core.database.KnowledgeNodeSeedRecord
 import com.tingyun.smartmistakebook.core.database.MistakeRecord
@@ -475,6 +477,8 @@ internal class StudyReviewPlannerService(
         planningContext: PlanningContext,
     ): ReviewPlanBundle {
         val localDayEpochDay = planningContext.localDate.toEpochDay()
+        val dayPreference = schedulingSettingsStore?.reviewDayPreferences?.first()
+            ?.firstOrNull { it.epochDay == localDayEpochDay }
         // S16（W4-1 组装批量化）：计划组装期的三处批量化解法 ——
         // ① 考试表一次读出（原来逐候选 `store.exams.first()`）；
         // ② review_log 样本一次读出，avoidance 与 confidenceAtError 共用同一快照
@@ -511,7 +515,7 @@ internal class StudyReviewPlannerService(
             .forEach { mistake ->
                 val binding = database.ensurePseudoKnowledgeBinding(
                     practiceUnitId = mistake.practiceUnitId,
-                    problemRevisionId = mistake.problemRevisionId,
+                    problemRevisionId = mistake.practiceUnitRevisionId,
                     taxonomyVersion = "pseudo-plan-v1",
                     subject = mistake.subject,
                     acceptedAtEpochMillis = planningContext.planningAtEpochMillis,
@@ -635,9 +639,29 @@ internal class StudyReviewPlannerService(
                 seasoned + adjustedFresh.filter { it.practiceUnitId in introducedIds }
             }
         }
+        val subjectiveByUnit = if (dayPreference != null) {
+            database.readPracticeUnitQuestionSnapshots(finalCandidates.mapTo(linkedSetOf()) { it.practiceUnitId })
+                .mapValues { (_, snapshot) ->
+                    runCatching { CapturedQuestionDocumentCodec.decode(snapshot) }.getOrNull()
+                        ?.document?.blocks?.none { it is ContentBlock.ChoiceGroup }
+                }
+        } else {
+            emptyMap()
+        }
+        val focus = dayPreference?.focus.orEmpty()
+        val focusUnits = if (focus.isEmpty()) emptySet() else mistakes.filter { mistake ->
+            focus.any { label ->
+                mistake.subject.equals(label, ignoreCase = true) ||
+                    label in mistake.knowledgeLabels || label in mistake.chapterLabels
+            }
+        }.mapTo(linkedSetOf()) { it.practiceUnitId }
         val request = ReviewPlanningRequest(
             learnerSnapshot = learnerSnapshot,
-            candidates = finalCandidates,
+            candidates = if (dayPreference == null) finalCandidates else finalCandidates.map { candidate ->
+                candidate.copy(isSubjective = subjectiveByUnit[candidate.practiceUnitId])
+            },
+            dayPreference = dayPreference,
+            primaryFocusUnitIds = focusUnits,
             localDayEpochDay = planningContext.localDate.toEpochDay(),
             timeZoneId = studyZoneId.id,
             timeBudgetSeconds = effectiveReviewBudgetSeconds,

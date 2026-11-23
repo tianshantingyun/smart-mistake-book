@@ -47,6 +47,8 @@ internal data class MistakeRow(
     val knowledgeLabels: String?,
     @ColumnInfo(name = "capture_occurrence_count")
     val captureOccurrenceCount: Int,
+    @ColumnInfo(name = "practice_unit_revision_id")
+    val practiceUnitRevisionId: String = problemRevisionId,
 )
 
 @Dao
@@ -89,6 +91,7 @@ internal interface ProblemDao {
             problem.problem_id,
             revision.revision_id AS problem_revision_id,
             unit.practice_unit_id,
+            unit.problem_revision_id AS practice_unit_revision_id,
             entry.source_key,
             problem.subject,
             revision.title,
@@ -246,6 +249,7 @@ internal interface ProblemDao {
             problem.problem_id,
             revision.revision_id AS problem_revision_id,
             unit.practice_unit_id,
+            unit.problem_revision_id AS practice_unit_revision_id,
             entry.source_key,
             problem.subject,
             revision.title,

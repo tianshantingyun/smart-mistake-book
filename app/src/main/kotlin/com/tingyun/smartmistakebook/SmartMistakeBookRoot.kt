@@ -188,6 +188,7 @@ internal fun bottomBarRouteFor(route: String?): String? = when (route) {
     Routes.MistakeTutor,
     Routes.TutorHistory,
     Routes.TutorTextConversation,
+    Routes.AgentToolConversation,
     -> Routes.Tutor
     else -> null
 }
@@ -562,10 +563,36 @@ internal fun SmartMistakeBookRoot(
         activity?.moveTaskToBack(true)
     }
 
+    fun openAgentToolPrompt(prompt: String) {
+        navController.navigate(Routes.AgentToolConversation)
+        navController.currentBackStackEntry?.savedStateHandle?.set(AgentToolPromptKey, prompt)
+    }
+
+    val agentScheduleOptions by application.schedulingSettingsStore.options
+        .collectAsStateWithLifecycle(initialValue = null)
+    val agentScheduleExams by application.schedulingSettingsStore.exams
+        .collectAsStateWithLifecycle(initialValue = null)
+    val appliedReviewAdvice by application.schedulingSettingsStore.appliedReviewAdvice
+        .collectAsStateWithLifecycle(initialValue = emptySet())
+    val agentDayPreferences by application.schedulingSettingsStore.reviewDayPreferences
+        .collectAsStateWithLifecycle(initialValue = emptyList())
+
     androidx.compose.runtime.CompositionLocalProvider(
         com.tingyun.smartmistakebook.feature.tutor.LocalTutorMistakeRepository provides application.mistakeDetailRepository,
         com.tingyun.smartmistakebook.feature.tutor.LocalTutorLibraryCatalog provides application.libraryCatalogRepository,
         com.tingyun.smartmistakebook.feature.tutor.LocalPaperReviewTutorSeed provides paperTutorSeed,
+        com.tingyun.smartmistakebook.feature.tutor.LocalTutorLearningTools provides
+            agentLearningTools(experience, knowledgeBaseAvailability, agentScheduleOptions != null && agentScheduleExams != null) { tool ->
+                val prompt = when (tool) {
+                    com.tingyun.smartmistakebook.feature.tutor.TutorLearningTool.PAPER_ASSEMBLY -> paperAgentPrompt(experience)
+                    com.tingyun.smartmistakebook.feature.tutor.TutorLearningTool.LEARNING_MASTERY -> masteryAgentPrompt(experience)
+                    com.tingyun.smartmistakebook.feature.tutor.TutorLearningTool.REVIEW_PLANNING ->
+                        reviewAgentPrompt(
+                            experience, requireNotNull(agentScheduleOptions), requireNotNull(agentScheduleExams), agentDayPreferences,
+                        )
+                }
+                openAgentToolPrompt(prompt)
+            },
     ) {
     Scaffold(
         modifier = Modifier
@@ -755,63 +782,76 @@ internal fun SmartMistakeBookRoot(
                     ReviewSessionGateMessage("正在打开今日复习…")
                 }
             }
-            composable(Routes.Tutor) {
-                // 讲题页只有一条交互面（阶段 2c 删掉了 artifact 分支与 TutorViewModel）：
-                // 会话内容由 TutorConversationViewModel 持有，这里只给入口自己的接线。
-                TutorRoute(
-                    onCapture = { navController.navigate(Routes.capture(CaptureEntryOrigin.TUTOR)) },
-                    onOpenCapabilitySettings = { navController.navigate(Routes.Capability) },
-                    onOpenMistakeNotebook = { navController.navigate(Routes.Library) },
-                    onOpenProfile = { navController.navigate(Routes.Profile) },
-                    onOpenHistory = { navController.navigate(Routes.TutorHistory) },
-                    // 在错题库里挑中的题作为本轮附件进同一个讲题页面（Routes.MistakeTutor
-                    // 渲染的也是这个页面），不离开底部「智能体」标签、不换页面。
-                    onOpenMistakeTutor = { key -> navController.navigate(Routes.mistakeTutor(key)) },
-                    conversations = application.tutorConversationRepository,
-                    modelTasks = application.modelTaskRepository,
-                    catalogEntries = experience.catalog,
-                    imageIntake = application.lobbyMessageImageIntake,
-                    // 确认卡（A4）：模型申请的本地动作挂成库里的行；学生点了才执行，三条
-                    // 落点（拍照草稿 / 错题本 / 聊天附图）都是既有的真实路径。
-                    pendingRequests = application.agentPendingRequestRepository,
-                    captureRepository = application.captureRepository,
-                    attachedImageIntake = application.tutorAttachedImageIntake,
-                    onOpenLibraryProblem = { navController.navigate(Routes.Library) },
-                    // 导出 sheet（B3-3）：学生定稿的版式随任务入队，然后直接去「导出成果」
-                    // 看后台进度——与错题本批量导出走同一条 4A 管线。
-                    onStartExport = { format, layout, entryIds ->
-                        // 讲题 sheet 的版式可能是学生定制的，而原生编辑入口按默认版式重建；
-                        // 不把这份来源挂到「编辑卷面」上（否则"重新生成"会换掉学生选的版式）。
-                        lastPaperEditEntryIdsRaw = ""
-                        application.startMistakeExportBatch(entryIds, layout, format)
-                        navController.navigate(Routes.ExportResults) {
-                            launchSingleTop = true
-                        }
-                    },
-                    // 6B-2：选题后读题面建可编辑卷面（纯本地读取）；编辑确认后草稿落盘、
-                    // 后台重渲染，同样回到「导出成果」看结果。
-                    readExportPaperEdit = { entryIds, layout ->
-                        application.buildMistakePaperEdit(entryIds, layout)
-                    },
-                    onPrepareDetailedAnswers = { format, layout, entryIds ->
-                        lastPaperEditEntryIdsRaw = ""
-                        beginDetailedAnswers(format) { requireNotNull(application.buildMistakePaperEdit(entryIds, layout)) { "没有可导出的完整题面" }.toDraft() }
-                    },
-                    onPrepareEditedDetailedAnswers = { draft, format ->
-                        lastPaperEditEntryIdsRaw = ""
-                        beginDetailedAnswers(format) { draft }
-                    },
-                    onStartEditedExport = { draft, format ->
-                        // 编辑 sheet 不把来源题 id 交出来：宁可收起「编辑卷面」入口，
-                        // 也不拿上一次别的来源冒充这一份（T6 的"不猜来源"）。
-                        lastPaperEditEntryIdsRaw = ""
-                        application.startMistakeExportEdited(draft, format)
-                        navController.navigate(Routes.ExportResults) {
-                            launchSingleTop = true
-                        }
-                    },
-                    modifier = Modifier.testTag("root_tutor"),
-                )
+            listOf(Routes.Tutor, Routes.TutorTextConversation, Routes.AgentToolConversation).forEach { route ->
+                composable(route) { entry ->
+                    val conversationId = entry.arguments?.getString("conversationId")
+                    if (route == Routes.TutorTextConversation && conversationId.isNullOrBlank()) {
+                        return@composable
+                    }
+                    val toolPrompt by entry.savedStateHandle
+                        .getStateFlow<String?>(AgentToolPromptKey, null).collectAsStateWithLifecycle()
+                    TutorRoute(
+                        onCapture = { navController.navigate(Routes.capture(CaptureEntryOrigin.TUTOR)) },
+                        onOpenCapabilitySettings = { navController.navigate(Routes.Capability) },
+                        onOpenMistakeNotebook = { navController.navigate(Routes.Library) },
+                        onOpenProfile = { navController.navigate(Routes.Profile) },
+                        onOpenHistory = { navController.navigate(Routes.TutorHistory) },
+                        attachedQuestionReader = application.tutorAttachedQuestionReader,
+                        conversations = application.tutorConversationRepository,
+                        modelTasks = application.modelTaskRepository,
+                        catalogEntries = experience.catalog,
+                        imageIntake = application.lobbyMessageImageIntake,
+                        initialConversationId = conversationId,
+                        initialToolPrompt = toolPrompt,
+                        assistantText = ::agentToolReplyText,
+                        assistantAccessory = { message, source ->
+                            AgentLearningToolCard(message, source, application, experience, exportRecords, appliedReviewAdvice)
+                        },
+                        onBack = if (route == Routes.AgentToolConversation) ({ navController.popBackStack() }) else null,
+                        // 确认卡（A4）：模型申请的本地动作挂成库里的行；学生点了才执行，三条
+                        // 落点（拍照草稿 / 错题本 / 聊天附图）都是既有的真实路径。
+                        pendingRequests = application.agentPendingRequestRepository,
+                        captureRepository = application.captureRepository,
+                        attachedImageIntake = application.tutorAttachedImageIntake,
+                        onOpenLibraryProblem = { navController.navigate(Routes.Library) },
+                        // 导出 sheet（B3-3）：学生定稿的版式随任务入队，然后直接去「导出成果」
+                        // 看后台进度——与错题本批量导出走同一条 4A 管线。
+                        onStartExport = { format, layout, entryIds ->
+                            // 讲题 sheet 的版式可能是学生定制的，而原生编辑入口按默认版式重建；
+                            // 不把这份来源挂到「编辑卷面」上（否则"重新生成"会换掉学生选的版式）。
+                            lastPaperEditEntryIdsRaw = ""
+                            application.startMistakeExportBatch(entryIds, layout, format)
+                            navController.navigate(Routes.ExportResults) {
+                                launchSingleTop = true
+                            }
+                        },
+                        // 6B-2：选题后读题面建可编辑卷面（纯本地读取）；编辑确认后草稿落盘、
+                        // 后台重渲染，同样回到「导出成果」看结果。
+                        readExportPaperEdit = { entryIds, layout ->
+                            application.buildMistakePaperEdit(entryIds, layout)
+                        },
+                        onPrepareDetailedAnswers = { format, layout, entryIds ->
+                            lastPaperEditEntryIdsRaw = ""
+                            beginDetailedAnswers(format) { requireNotNull(application.buildMistakePaperEdit(entryIds, layout)) { "没有可导出的完整题面" }.toDraft() }
+                        },
+                        onPrepareEditedDetailedAnswers = { draft, format ->
+                            lastPaperEditEntryIdsRaw = ""
+                            beginDetailedAnswers(format) { draft }
+                        },
+                        onStartEditedExport = { draft, format ->
+                            // 编辑 sheet 不把来源题 id 交出来：宁可收起「编辑卷面」入口，
+                            // 也不拿上一次别的来源冒充这一份（T6 的"不猜来源"）。
+                            lastPaperEditEntryIdsRaw = ""
+                            application.startMistakeExportEdited(draft, format)
+                            navController.navigate(Routes.ExportResults) {
+                                launchSingleTop = true
+                            }
+                        },
+                        modifier = Modifier.testTag(
+                            if (route == Routes.AgentToolConversation) "root_agent_tool_conversation" else "root_tutor",
+                        ),
+                    )
+                }
             }
             composable(Routes.TutorHistory) {
                 TutorHistoryRoute(
@@ -849,66 +889,6 @@ internal fun SmartMistakeBookRoot(
                     onBack = { navController.popBackStack() },
                 )
             }
-            // 历史重开：纯文字会话落回同一个讲题页面（没有附件题），不另开页面。
-            composable(Routes.TutorTextConversation) { entry ->
-                val conversationId = entry.arguments?.getString("conversationId")
-                    .orEmpty()
-                if (conversationId.isBlank()) {
-                    return@composable
-                }
-                TutorRoute(
-                    onCapture = { navController.navigate(Routes.capture(CaptureEntryOrigin.TUTOR)) },
-                    onOpenCapabilitySettings = { navController.navigate(Routes.Capability) },
-                    onOpenMistakeNotebook = { navController.navigate(Routes.Library) },
-                    onOpenProfile = { navController.navigate(Routes.Profile) },
-                    onOpenHistory = { navController.navigate(Routes.TutorHistory) },
-                    // 在这个页面上挑中的题作为本轮附件进同一个页面：不离开底部「智能体」标签。
-                    onOpenMistakeTutor = { key -> navController.navigate(Routes.mistakeTutor(key)) },
-                    conversations = application.tutorConversationRepository,
-                    modelTasks = application.modelTaskRepository,
-                    catalogEntries = experience.catalog,
-                    imageIntake = application.lobbyMessageImageIntake,
-                    initialConversationId = conversationId,
-                    // 确认卡（A4）：模型申请的本地动作挂成库里的行；学生点了才执行，三条
-                    // 落点（拍照草稿 / 错题本 / 聊天附图）都是既有的真实路径。
-                    pendingRequests = application.agentPendingRequestRepository,
-                    captureRepository = application.captureRepository,
-                    attachedImageIntake = application.tutorAttachedImageIntake,
-                    onOpenLibraryProblem = { navController.navigate(Routes.Library) },
-                    // 历史重开也接同一条导出落点（本地动作只在大厅广告，行为一致）。
-                    onStartExport = { format, layout, entryIds ->
-                        // 讲题 sheet 的版式可能是学生定制的，而原生编辑入口按默认版式重建；
-                        // 不把这份来源挂到「编辑卷面」上（否则"重新生成"会换掉学生选的版式）。
-                        lastPaperEditEntryIdsRaw = ""
-                        application.startMistakeExportBatch(entryIds, layout, format)
-                        navController.navigate(Routes.ExportResults) {
-                            launchSingleTop = true
-                        }
-                    },
-                    // 历史重开也接同一条编辑落点（行为一致）。
-                    readExportPaperEdit = { entryIds, layout ->
-                        application.buildMistakePaperEdit(entryIds, layout)
-                    },
-                    onPrepareDetailedAnswers = { format, layout, entryIds ->
-                        lastPaperEditEntryIdsRaw = ""
-                        beginDetailedAnswers(format) { requireNotNull(application.buildMistakePaperEdit(entryIds, layout)) { "没有可导出的完整题面" }.toDraft() }
-                    },
-                    onPrepareEditedDetailedAnswers = { draft, format ->
-                        lastPaperEditEntryIdsRaw = ""
-                        beginDetailedAnswers(format) { draft }
-                    },
-                    onStartEditedExport = { draft, format ->
-                        // 编辑 sheet 不把来源题 id 交出来：宁可收起「编辑卷面」入口，
-                        // 也不拿上一次别的来源冒充这一份（T6 的"不猜来源"）。
-                        lastPaperEditEntryIdsRaw = ""
-                        application.startMistakeExportEdited(draft, format)
-                        navController.navigate(Routes.ExportResults) {
-                            launchSingleTop = true
-                        }
-                    },
-                    modifier = Modifier.testTag("root_tutor"),
-                )
-            }
             composable(Routes.Library) {
                 LibraryRoute(
                     entries = experience.catalog,
@@ -927,7 +907,7 @@ internal fun SmartMistakeBookRoot(
                     onExportVisible = {},
                     onOpenAssembly = { filters ->
                         navController.currentBackStackEntry?.savedStateHandle?.set("assembly_filters", HashMap(filters))
-                        navController.navigate("paper-assembly")
+                        navController.navigate(Routes.PaperAssembly)
                     },
                     onOpenExportResults = {
                         pendingExportNotice = null
@@ -939,9 +919,10 @@ internal fun SmartMistakeBookRoot(
                     modifier = Modifier.testTag("root_library"),
                 )
             }
-            composable("paper-assembly") {
+            composable(Routes.PaperAssembly) {
                 com.tingyun.smartmistakebook.feature.library.PaperAssemblyRoute(
-                    initialFilters = navController.previousBackStackEntry?.savedStateHandle?.get<HashMap<String, String>>("assembly_filters").orEmpty(),
+                    initialFilters = navController.previousBackStackEntry?.savedStateHandle
+                        ?.get<HashMap<String, String>>("assembly_filters").orEmpty(),
                     entries = experience.catalog,
                     catalogRepository = application.libraryCatalogRepository,
                     mistakeDetailRepository = application.mistakeDetailRepository,
@@ -1924,25 +1905,30 @@ internal fun SmartMistakeBookRoot(
             }
             composable(Routes.Scheduling) {
                 val schedulingOptions by application.schedulingSettingsStore.options
-                    .collectAsStateWithLifecycle(initialValue = SchedulingOptions())
+                    .collectAsStateWithLifecycle(initialValue = null)
                 val exams by application.schedulingSettingsStore.exams
+                    .collectAsStateWithLifecycle(initialValue = null)
+                val dayPreferences by application.schedulingSettingsStore.reviewDayPreferences
                     .collectAsStateWithLifecycle(initialValue = emptyList())
                 var schedulingMessage by remember { mutableStateOf<String?>(null) }
                 val schedulingScope = rememberCoroutineScope()
                 var retentionHint by remember {
                     mutableStateOf<com.tingyun.smartmistakebook.core.domain.OptimalRetention.Recommendation?>(null)
                 }
-                LaunchedEffect(schedulingOptions) {
+                val options = schedulingOptions
+                val currentExams = exams
+                LaunchedEffect(options) {
                     // 参考值加载失败不显示（与"样本足够才显示"同一语义），页面保持可用。
                     retentionHint = runCatching {
                         application.studyRepository.recommendedDesiredRetention()
                     }.getOrNull()
                 }
                 SchedulingSettingsScreen(
-                    options = schedulingOptions,
+                    options = options,
                     settingsMessage = schedulingMessage,
-                    exams = exams,
+                    exams = currentExams,
                     retentionHint = retentionHint,
+                    dayPreferences = dayPreferences,
                     onSetOptions = { updated ->
                         schedulingScope.launch {
                             try {

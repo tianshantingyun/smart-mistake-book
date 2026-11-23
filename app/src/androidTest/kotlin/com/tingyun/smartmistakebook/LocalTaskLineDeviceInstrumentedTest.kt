@@ -11,6 +11,7 @@ import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
@@ -101,17 +102,15 @@ class LocalTaskLineDeviceInstrumentedTest {
             .performClick()
         waitForTag("capture_correction_form")
 
-        // 手动建题的编辑器可能默认展开（A8 文案形态）；未展开时点"开始输入题面"。
-        if (composeRule.onAllNodesWithTag("capture_edit_disclosure").fetchSemanticsNodes().isNotEmpty()) {
-            composeRule.onNodeWithTag("capture_edit_disclosure").performClick()
-        }
-        composeRule.onNodeWithTag("capture_title_input").performTextInput(MANUAL_TITLE)
         composeRule.onNodeWithTag("capture_transcription_input").performTextInput(MANUAL_STEM)
+        composeRule.onNodeWithTag("capture_manual_options").performScrollTo().performClick()
+        composeRule.onNodeWithTag("capture_title_input").performScrollTo().performTextInput(MANUAL_TITLE)
 
         composeRule.onNodeWithTag("capture_commit_button")
             .performScrollTo()
             .performClick()
         waitForTag("capture_committed_receipt")
+        composeRule.onNodeWithText("原图和题面已保存，可查看或继续录入。").assertDoesNotExist()
 
         // 真实落库：一道题；全程零模型任务（本地任务线不发起任何模型调用/网络请求）。
         assertEquals("手动建题必须真的落进真实库", 1, countProblems(application))

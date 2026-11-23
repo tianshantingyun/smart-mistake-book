@@ -14,6 +14,8 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskKind
 import com.tingyun.smartmistakebook.core.model.ModelTaskRequest
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.TutorChatHistoryEntry
+import com.tingyun.smartmistakebook.core.model.TutorAgentContext
+import com.tingyun.smartmistakebook.core.model.TutorAgentQuestion
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorInteractionMode
 import com.tingyun.smartmistakebook.core.model.TutorLobbyLocalActionOutcome
@@ -53,6 +55,7 @@ internal fun buildTutorLobbyRequest(
      * 正常模式恒为 null（模式与档位互斥由 [TutorLobbyInput] 的守卫兜底）。
      */
     scaffoldLevel: TutorScaffoldLevel? = null,
+    selectedQuestion: TutorAgentQuestion? = null,
 ): ModelTaskRequest {
     require(conversationId.isNotBlank()) { "Tutor lobby conversation id must not be blank" }
     require(provider.supports(ModelTaskKind.TUTOR_LOBBY)) {
@@ -100,12 +103,16 @@ internal fun buildTutorLobbyRequest(
         localActionOutcomes = localActionOutcomes.take(TutorLobbyInput.MAX_LOCAL_ACTION_OUTCOMES),
         interactionMode = interactionMode,
         scaffoldLevel = scaffoldLevel,
+        agentContext = selectedQuestion?.let {
+            TutorAgentContext(subject = it.subject, selectedQuestion = it, knownEntryIds = listOf(it.entryId))
+        },
     )
     val requestHash = sha256(
         buildString {
             append(input.conversationId).append('\n')
             append(messageOrdinal).append('\n')
             append(studentMessage).append('\n')
+            selectedQuestion?.let { append(it.entryId).append(':').append(it.problemRevisionId).append('\n') }
             input.priorMessages.forEach { prior ->
                 append(prior.studentMessage.length).append(':').append(prior.studentMessage)
                 append(prior.assistantMarkdown.length).append(':').append(prior.assistantMarkdown)
@@ -155,7 +162,8 @@ internal fun buildTutorLobbyRequest(
             // 披露只走 TutorRoundDisclosure 这一条口径（大厅＝无题轮、无候选菜单）。
             disclosedData = TutorRoundDisclosure.noQuestionRound(
                 includesImage = includesImage,
-            ),
+            ) + if (selectedQuestion != null) setOf(ModelEgressDataClass.CONFIRMED_QUESTION_DOCUMENT) else emptySet(),
+            includesSelectedQuestion = selectedQuestion != null,
         )
     } else {
         null

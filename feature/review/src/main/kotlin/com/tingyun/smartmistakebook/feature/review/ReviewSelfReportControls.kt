@@ -209,6 +209,11 @@ internal class ReviewSelfReportViewModel(
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
+    fun answerRevealOccurredAt(nowEpochMillis: Long): Long =
+        savedStateHandle.get<Long>(KEY_REVEAL_OCCURRED_AT) ?: nowEpochMillis.also {
+            savedStateHandle[KEY_REVEAL_OCCURRED_AT] = it
+        }
+
     var selectedKey: ReviewSelfReportKey? by mutableStateOf(
         savedStateHandle.get<String>(KEY_SELECTED)?.let {
             runCatching { ReviewSelfReportKey.valueOf(it) }.getOrNull()
@@ -662,6 +667,7 @@ internal class ReviewSelfReportViewModel(
     }
 
     private companion object {
+        const val KEY_REVEAL_OCCURRED_AT = "review_self_report_reveal_occurred_at"
         const val KEY_SELECTED = "review_self_report_selected"
         const val KEY_STATUS = "review_self_report_status"
         const val KEY_UNDO_STATUS = "review_self_report_undo_status"

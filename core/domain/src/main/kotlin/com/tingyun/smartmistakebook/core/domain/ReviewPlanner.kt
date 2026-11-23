@@ -56,6 +56,7 @@ data class ReviewCandidate(
      * aversion marker routing it toward re-teaching.
      */
     val avoidance: Boolean = false,
+    val isSubjective: Boolean? = null,
 ) {
     init {
         require(practiceUnitId.isNotBlank()) { "Practice unit id must not be blank" }
@@ -101,6 +102,8 @@ data class ReviewPlanningRequest(
      * relation table. Missing entries mean "no known prerequisites".
      */
     val knowledgePrerequisites: Map<String, Set<String>> = emptyMap(),
+    val dayPreference: ReviewDayPreference? = null,
+    val primaryFocusUnitIds: Set<String> = emptySet(),
 ) {
     init {
         require(timeZoneId.isNotBlank()) { "Review planning time-zone id must not be blank" }

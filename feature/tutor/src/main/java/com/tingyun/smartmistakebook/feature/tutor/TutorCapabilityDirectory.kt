@@ -38,8 +38,6 @@ import com.tingyun.smartmistakebook.core.ui.WorkspacePanel
  */
 internal data class TutorCapability(
     val id: String,
-    val title: String,
-    val detail: String,
     val examples: List<TutorCapabilityExample> = emptyList(),
     val actionLabel: String? = null,
     val actionTestTag: String? = null,
@@ -63,8 +61,6 @@ internal fun agentCapabilityDirectory(
 ): List<TutorCapability> = listOf(
     TutorCapability(
         id = "explain",
-        title = "讲一道题",
-        detail = "发送题目、截图或推导过程，告诉我哪一步没懂。",
         examples = listOf(
             TutorCapabilityExample("函数单调性怎么判断？", "tutor_example_monotonicity"),
             TutorCapabilityExample("帮我看看错题本里最近常错什么", "tutor_example_notebook"),
@@ -72,8 +68,6 @@ internal fun agentCapabilityDirectory(
     ),
     TutorCapability(
         id = "capture",
-        title = "录入并讲解",
-        detail = "拍照或选图，整理题面后开始讲解。",
         examples = listOf(
             TutorCapabilityExample(
                 "我想拍一道题，你先说说这类题一般从哪下手",
@@ -86,8 +80,6 @@ internal fun agentCapabilityDirectory(
     ),
     TutorCapability(
         id = "pick-from-notebook",
-        title = "从错题本挑一道",
-        detail = "选择一道已保存的题，继续讲解。",
         examples = listOf(
             TutorCapabilityExample(
                 "从我错题本里挑一道最该复习的，讲讲它的思路",
@@ -123,10 +115,10 @@ internal fun TutorCapabilityDirectory(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text(
-            text = "快捷开始",
+            text = "今天想学点什么？",
             modifier = Modifier.testTag("tutor_empty_state"),
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodySmall,
+            color = Ink,
+            style = MaterialTheme.typography.headlineSmall,
         )
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             capabilities.forEach { capability ->
@@ -137,18 +129,12 @@ internal fun TutorCapabilityDirectory(
                 }
             }
         }
-        capabilities.forEach { capability ->
-            WorkspacePanel(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("tutor_capability_${capability.id}"),
-            ) {
-                Text(capability.title, color = Ink, style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold)
-                Text(capability.detail, color = InkSecondary, style = MaterialTheme.typography.bodySmall)
+        WorkspacePanel(Modifier.fillMaxWidth()) {
+            Text("试着问", color = InkSecondary, style = MaterialTheme.typography.labelMedium)
+            capabilities.forEach { capability ->
                 if (capability.examples.isNotEmpty()) {
                     FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().testTag("tutor_capability_${capability.id}"),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         itemVerticalAlignment = Alignment.CenterVertically,
                         verticalArrangement = Arrangement.spacedBy(8.dp),

@@ -179,8 +179,9 @@ class TutorSurfacePolicyTest {
         )
 
         assertTrue("空态必须真的是一条目录，而不是一句话", capabilities.size >= 3)
-        assertTrue(capabilities.all { capability -> capability.title.isNotBlank() })
-        assertTrue(capabilities.all { capability -> capability.detail.isNotBlank() })
+        assertTrue(capabilities.all { capability ->
+            capability.examples.isNotEmpty() && capability.examples.all { it.text.isNotBlank() }
+        })
         // 没有死按钮：每个带出口的能力都必须同时有文案与动作。
         capabilities.filter { it.actionLabel != null || it.onAction != null }.forEach { capability ->
             assertNotNull(capability.actionLabel)

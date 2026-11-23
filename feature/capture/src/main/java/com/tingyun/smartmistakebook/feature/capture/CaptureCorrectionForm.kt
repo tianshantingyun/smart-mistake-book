@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -87,8 +89,7 @@ internal fun CaptureCorrectionForm(
     /** 本构建不连接模型：本题面来自本地识别，展示口径与模型结果区分。 */
     manualEntry: Boolean = false,
     /**
-     * A8：手动建题——没有照片、没有识别，题面完全由用户敲入。文案与初始展开态
-     * 都按这个形态展示（与"本地识别后核对"区分开）。
+     * 手动建题时直接显示题面输入框，可选信息按需展开。
      */
     manualTranscription: Boolean = false,
     entryGateOpen: Boolean = true,
@@ -111,6 +112,7 @@ internal fun CaptureCorrectionForm(
     if (!candidateUsable && !manualEntry && !manualTranscription) return
 
     var editorExpanded by rememberSaveable { mutableStateOf(initialEditorExpanded) }
+    var optionalInfoExpanded by rememberSaveable { mutableStateOf(false) }
     val editingEnabled = !isSaving && !isRetryLocked
     val commitEnabled = !isSaving && entryGateOpen
 
@@ -119,55 +121,64 @@ internal fun CaptureCorrectionForm(
             .fillMaxWidth()
             .testTag("capture_correction_form"),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.Outlined.CheckCircle,
-                contentDescription = null,
-                tint = JadeActive,
-            )
-            Column(Modifier.padding(start = 10.dp)) {
-                Text(
-                    text = when {
-                        manualTranscription -> "手动建题"
-                        manualEntry -> "核对并整理题面"
-                        else -> "题面可以直接使用"
-                    },
-                    color = Ink,
-                    style = MaterialTheme.typography.titleMedium,
+        if (manualTranscription) {
+            if (transcriptionEditable) {
+                CaptureTranscriptionField(
+                    transcription = transcription,
+                    placeholder = "把题目完整敲在这里",
+                    enabled = editingEnabled,
+                    onTranscriptionChange = onTranscriptionChange,
+                    minLines = 6,
                 )
+            }
+            OutlineActionChip(
+                text = if (optionalInfoExpanded) "收起可选信息" else "补充标题、学科等",
+                onClick = { optionalInfoExpanded = !optionalInfoExpanded },
+                icon = if (optionalInfoExpanded) Icons.Outlined.KeyboardArrowUp else Icons.Outlined.KeyboardArrowDown,
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .testTag("capture_manual_options"),
+            )
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Outlined.CheckCircle,
+                    contentDescription = null,
+                    tint = JadeActive,
+                )
+                Column(Modifier.padding(start = 10.dp)) {
+                    Text(
+                        text = if (manualEntry) "核对并整理题面" else "题面可以直接使用",
+                        color = Ink,
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                        text = if (manualEntry) "请核对识别结果后录入。" else "题面已整理好，可以直接继续",
+                        color = InkSecondary,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+            if (editorExpanded) {
                 Text(
-                    text = when {
-                        manualTranscription -> "输入完整题目，核对后存入错题本。"
-                        manualEntry -> "请核对识别结果后录入。"
-                        else -> "题面已整理好，可以直接继续"
-                    },
+                    text = "只改有误的地方，原图会继续保留。",
+                    modifier = Modifier.padding(top = 14.dp),
                     color = InkSecondary,
                     style = MaterialTheme.typography.bodySmall,
+                )
+            } else {
+                OutlineActionChip(
+                    text = "题面有误，修改",
+                    onClick = { editorExpanded = true },
+                    enabled = editingEnabled,
+                    modifier = Modifier
+                        .padding(top = 14.dp)
+                        .testTag("capture_edit_disclosure"),
                 )
             }
         }
 
-        if (!editorExpanded) {
-            OutlineActionChip(
-                text = if (manualTranscription) "开始输入题面" else "题面有误，修改",
-                onClick = { editorExpanded = true },
-                enabled = editingEnabled,
-                modifier = Modifier
-                    .padding(top = 14.dp)
-                    .testTag("capture_edit_disclosure"),
-            )
-        } else {
-            Text(
-                text = if (manualTranscription) {
-                    "没有拍照：题面以你输入的内容为准。"
-                } else {
-                    "只改有误的地方，原图会继续保留。"
-                },
-                modifier = Modifier.padding(top = 14.dp),
-                color = InkSecondary,
-                style = MaterialTheme.typography.bodySmall,
-            )
-
+        if (manualTranscription || editorExpanded) {
             structuredEditorState?.let { state ->
                 CaptureStructuredDocumentEditor(
                     state = state,
@@ -176,7 +187,10 @@ internal fun CaptureCorrectionForm(
                     modifier = Modifier.padding(top = 12.dp),
                 )
             }
+        }
 
+        val showDetails = if (manualTranscription) optionalInfoExpanded else editorExpanded
+        if (showDetails) {
             Text(
                 text = "学科（可选）",
                 modifier = Modifier.padding(top = 16.dp),
@@ -208,40 +222,20 @@ internal fun CaptureCorrectionForm(
                 enabled = editingEnabled,
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.Sentences,
-                    imeAction = ImeAction.Next,
+                    imeAction = if (manualTranscription) ImeAction.Done else ImeAction.Next,
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 14.dp)
                     .testTag("capture_title_input"),
             )
-            if (transcriptionEditable) {
-                OutlinedTextField(
-                    value = transcription,
-                    onValueChange = {
-                        onTranscriptionChange(it.take(StructuredContentLimits.MAX_TEXT_CHARS))
-                    },
-                    label = { Text("题面") },
-                    placeholder = {
-                        Text(
-                            if (manualTranscription) {
-                                "把题目完整敲在这里"
-                            } else {
-                                "只修改识别有误的部分"
-                            },
-                        )
-                    },
-                    minLines = 4,
-                    maxLines = 10,
+            if (!manualTranscription && transcriptionEditable) {
+                CaptureTranscriptionField(
+                    transcription = transcription,
+                    placeholder = "只修改识别有误的部分",
                     enabled = editingEnabled,
-                    keyboardOptions = KeyboardOptions(
-                        capitalization = KeyboardCapitalization.Sentences,
-                        imeAction = ImeAction.Default,
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp)
-                        .testTag("capture_transcription_input"),
+                    onTranscriptionChange = onTranscriptionChange,
+                    modifier = Modifier.padding(top = 10.dp),
                 )
             }
 
@@ -286,7 +280,7 @@ internal fun CaptureCorrectionForm(
                 completionIntent = completionIntent,
                 isSaving = isSaving,
                 isRetryLocked = isRetryLocked,
-                structuredProjectionEdited = structuredProjectionEdited,
+                structuredProjectionEdited = !manualTranscription && structuredProjectionEdited,
             ),
             onClick = onCommit,
             enabled = commitEnabled,
@@ -304,22 +298,49 @@ internal fun CaptureCorrectionForm(
                 style = MaterialTheme.typography.bodySmall,
             )
         }
-        Text(
-            text = when (completionIntent) {
-                CaptureCompletionIntent.START_TUTORING ->
-                    "不会自动加入错题本。"
-                CaptureCompletionIntent.SAVE_TO_LIBRARY ->
-                    "只存入错题本，不会自动开始讲解。"
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 10.dp)
-                .background(JadeSoft.copy(alpha = 0.45f), RoundedCornerShape(8.dp))
-                .padding(10.dp),
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodySmall,
-        )
+        if (!manualTranscription) {
+            Text(
+                text = when (completionIntent) {
+                    CaptureCompletionIntent.START_TUTORING ->
+                        "不会自动加入错题本。"
+                    CaptureCompletionIntent.SAVE_TO_LIBRARY ->
+                        "只存入错题本，不会自动开始讲解。"
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp)
+                    .background(JadeSoft.copy(alpha = 0.45f), RoundedCornerShape(8.dp))
+                    .padding(10.dp),
+                color = InkSecondary,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
+}
+
+@Composable
+private fun CaptureTranscriptionField(
+    transcription: String,
+    placeholder: String,
+    enabled: Boolean,
+    onTranscriptionChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    minLines: Int = 4,
+) {
+    OutlinedTextField(
+        value = transcription,
+        onValueChange = { onTranscriptionChange(it.take(StructuredContentLimits.MAX_TEXT_CHARS)) },
+        label = { Text("题面") },
+        placeholder = { Text(placeholder) },
+        minLines = minLines,
+        maxLines = 10,
+        enabled = enabled,
+        keyboardOptions = KeyboardOptions(
+            capitalization = KeyboardCapitalization.Sentences,
+            imeAction = ImeAction.Default,
+        ),
+        modifier = modifier.fillMaxWidth().testTag("capture_transcription_input"),
+    )
 }
 
 internal fun captureCommitButtonText(

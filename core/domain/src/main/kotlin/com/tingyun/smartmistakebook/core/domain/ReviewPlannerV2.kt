@@ -105,24 +105,18 @@ class ReviewPlannerV2(
         // S12/S13：备选池的池级事实（due 数量 / KC 频次）整个计划只算一次，
         // beam 与 localSwap 用的都是同一个池（scoredWithPairs 本身），
         // `antiOscillationPenalty` 的备选判定由此从 O(N) 每候选降到 O(|候选 KC|)。
-        val alternativePool = AlternativePool.of(scoredWithPairs)
-
-        // Phase 1: Initial selection with beam search
-        val selected = beamSearchSelection(
-            candidates = scoredWithPairs,
-            timeBudgetSeconds = request.timeBudgetSeconds,
-            confusablePartners = confusablePartners,
-            alternativePool = alternativePool,
-        )
-
-        // Phase 2: Local swap optimization to improve diversity
-        val optimized = localSwapOptimization(
-            selected,
-            scoredWithPairs,
-            request.timeBudgetSeconds,
-            confusablePartners,
-            alternativePool,
-        )
+        val optimized = if (request.dayPreference != null) {
+            selectWithPreference(scoredWithPairs, request, request.dayPreference)
+        } else {
+            val alternativePool = AlternativePool.of(scoredWithPairs)
+            val selected = beamSearchSelection(
+                candidates = scoredWithPairs,
+                timeBudgetSeconds = request.timeBudgetSeconds,
+                confusablePartners = confusablePartners,
+                alternativePool = alternativePool,
+            )
+            localSwapOptimization(selected, scoredWithPairs, request.timeBudgetSeconds, confusablePartners, alternativePool)
+        }
         check(satisfiesHardConstraints(optimized)) {
             "Review plan violated the hard sequencing constraints (audit §7.2)"
         }
@@ -169,6 +163,31 @@ class ReviewPlannerV2(
      * incremental utility (base score minus dynamic diversity penalties),
      * then the beam is pruned to the top [beamWidth] states.
      */
+    private fun selectWithPreference(
+        scored: List<ScoredCandidate>,
+        request: ReviewPlanningRequest,
+        preference: ReviewDayPreference,
+    ): List<ScoredCandidate> {
+        val pending = scored.sortedByDescending { item ->
+            item.score + if (item.candidate.practiceUnitId in request.primaryFocusUnitIds) 0.7 else 0.0
+        }.toMutableList()
+        val selected = mutableListOf<ScoredCandidate>()
+        var remaining = request.timeBudgetSeconds
+        var subjectiveCount = 0
+        repeat(preference.questionLimit) {
+            val target = ((selected.size + 1) * preference.subjectivePercent + 50) / 100
+            val wantSubjective = subjectiveCount < target
+            val eligible = pending.filter { it.candidate.estimatedDurationSeconds <= remaining && canAppend(selected, it) }
+            val next = eligible.firstOrNull { it.candidate.isSubjective == wantSubjective }
+                ?: eligible.firstOrNull() ?: return selected
+            pending.remove(next)
+            selected.add(next)
+            remaining -= next.candidate.estimatedDurationSeconds
+            if (next.candidate.isSubjective == true) subjectiveCount++
+        }
+        return selected
+    }
+
     private fun beamSearchSelection(
         candidates: List<ScoredCandidate>,
         timeBudgetSeconds: Int,

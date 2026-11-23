@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.feature.tutor
 
 import com.tingyun.smartmistakebook.core.ui.ErrorText
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -47,7 +48,7 @@ internal fun TutorSessionInputs(
     /** 不能发送时的原因与出口；null = 现在可以发。 */
     composerBlock: TutorComposerBlock?,
     chatSending: Boolean,
-    /** 这个入口有没有附图能力（没有就不出现加号菜单）。 */
+    /** 这个入口有没有附图能力。 */
     sessionImageEnabled: Boolean,
     /** 加号菜单「从错题库选择」的题面读取器；null = 这个入口不提供该菜单项。 */
     attachedQuestionReader: TutorAttachedQuestionReader?,
@@ -86,6 +87,13 @@ internal fun TutorSessionInputs(
         sessionCameraLauncher.launch(uri)
     }
 
+    fun launchSessionGallery() {
+        sessionGalleryLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+        )
+    }
+    val hasLearningTools = LocalTutorLearningTools.current.isNotEmpty()
+
     TutorSurfaceComposer(
         value = state.draft,
         sending = chatSending,
@@ -116,7 +124,7 @@ internal fun TutorSessionInputs(
         },
         placeholder = surface.composerPlaceholder,
         reasonTestTag = "tutor_chat_block_reason",
-        onOpenAttachMenu = if (sessionImageEnabled || attachedQuestionReader != null) {
+        onOpenAttachMenu = if (sessionImageEnabled || attachedQuestionReader != null || hasLearningTools) {
             viewModel::onOpenAttachMenu
         } else {
             null
@@ -138,18 +146,8 @@ internal fun TutorSessionInputs(
     if (state.attachMenuOpen) {
         MessageAttachmentDialog(
             onDismiss = viewModel::onDismissAttachMenu,
-            onLaunchCamera = {
-                viewModel.onDismissAttachMenu()
-                launchSessionCamera()
-            },
-            onLaunchGallery = {
-                viewModel.onDismissAttachMenu()
-                sessionGalleryLauncher.launch(
-                    androidx.activity.result.PickVisualMediaRequest(
-                        ActivityResultContracts.PickVisualMedia.ImageOnly,
-                    ),
-                )
-            },
+            onLaunchCamera = if (sessionImageEnabled) ::launchSessionCamera else null,
+            onLaunchGallery = if (sessionImageEnabled) ::launchSessionGallery else null,
             testTagPrefix = "session",
             onPickFromLibrary = if (attachedQuestionReader != null) {
                 viewModel::onOpenMistakePicker

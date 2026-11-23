@@ -241,7 +241,7 @@ fun MistakePaperEditRoute(
             )
             current == null -> {
                 Text(
-                    text = "没有可编辑的卷面：所选题目暂时不能导出（缺少完整题面或原图）。",
+                    text = "所选题目缺少完整题面或原图，暂时无法编辑。",
                     modifier = Modifier.testTag("native_paper_edit_unavailable"),
                     color = ErrorText,
                     style = MaterialTheme.typography.bodyMedium,
@@ -255,14 +255,14 @@ fun MistakePaperEditRoute(
             }
             else -> {
                 Text(
-                    text = "共 ${current.questions.size} 题 · 只改这份卷面",
+                    text = "共 ${current.questions.size} 题",
                     modifier = Modifier.testTag("native_paper_edit_summary"),
                     color = Ink,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )
                 Text(
-                    text = "仅修改导出卷面，错题本保持不变。",
+                    text = "修改应用于本次导出。",
                     modifier = Modifier.testTag("native_paper_edit_notice"),
                     color = InkSecondary,
                     style = MaterialTheme.typography.bodySmall,

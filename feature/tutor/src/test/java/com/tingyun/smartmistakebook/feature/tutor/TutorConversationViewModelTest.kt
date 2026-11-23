@@ -7,6 +7,9 @@ import com.tingyun.smartmistakebook.core.domain.ArchiveTutorConversationCommand
 import com.tingyun.smartmistakebook.core.domain.ClearTutorConversationDraftCommand
 import com.tingyun.smartmistakebook.core.domain.CreateTutorConversationCommand
 import com.tingyun.smartmistakebook.core.domain.DeleteTutorConversationCommand
+import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
+import com.tingyun.smartmistakebook.core.domain.StudyCatalogEntry
+import com.tingyun.smartmistakebook.core.domain.TutorAttachedQuestionReader
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.PauseTutorConversationCommand
 import com.tingyun.smartmistakebook.core.domain.SaveTutorConversationDraftCommand
@@ -35,6 +38,10 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.ProviderCapabilitySnapshot
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
 import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
+import com.tingyun.smartmistakebook.core.model.AttachedRoundQuestion
+import com.tingyun.smartmistakebook.core.model.ContentBlock
+import com.tingyun.smartmistakebook.core.model.QuestionDocument
+import com.tingyun.smartmistakebook.core.model.SubjectKind
 import com.tingyun.smartmistakebook.core.model.TutorLocalAction
 import com.tingyun.smartmistakebook.core.model.TutorLocalActionRequest
 import kotlinx.coroutines.Dispatchers
@@ -134,6 +141,127 @@ class TutorConversationViewModelTest {
         assertEquals("tutor-conv:history-1", viewModel.uiState.value.conversationId)
         assertEquals(listOf("tutor-message:h1"), viewModel.uiState.value.messages.map { it.messageId })
         assertTrue(conversations.createCommands.isEmpty())
+    }
+
+    @Test
+    fun aShortPlanningRequestDispatchesWithItsFullLearningContext() = runTest(dispatcher.scheduler) {
+        val tasks = RecordingLobbyModelTasks()
+        val vm = TutorConversationViewModel(SavedStateHandle(), FakeConversationRepository(), tasks, null)
+        vm.refreshProvider()
+        advanceUntilIdle()
+        val facts = "周三复习函数\n".repeat(180) + "周日统整本周错题"
+        val planning = TutorLearningToolDraft("【智能体复习规划】", "帮我安排复习", facts)
+        vm.onDraftChange(planning.request)
+        vm.onSubmitDraft(planning)
+        advanceUntilIdle()
+
+        val input = tasks.executedRequests.single().input as TutorLobbyInput
+        assertTrue(input.isLearningProposal)
+        assertTrue(input.studentMessage.endsWith(facts))
+    }
+
+    @Test
+    fun unreadableImageLeavesTheDraftAvailableToEditAndResend() = runTest(dispatcher.scheduler) {
+        val tasks = RecordingLobbyModelTasks()
+        val conversations = FakeConversationRepository()
+        val imageIntake = object : LobbyMessageImageIntake {
+            override suspend fun registerImage(localUri: String, occurredAtEpochMillis: Long) =
+                throw java.io.IOException("image is gone")
+
+            override suspend fun resolveImageUri(assetId: String): String? = null
+            override suspend fun describeImage(assetId: String) = null
+        }
+        val vm = TutorConversationViewModel(SavedStateHandle(), conversations, tasks, imageIntake)
+        vm.refreshProvider()
+        advanceUntilIdle()
+        vm.onDraftChange("请看这张图")
+        vm.onGalleryResult(listOf("content://test/gone"))
+        vm.onSubmitDraft()
+        advanceUntilIdle()
+
+        assertEquals("请看这张图", vm.uiState.value.draft)
+        assertEquals(1, vm.uiState.value.pendingImages.size)
+        assertTrue(tasks.executedRequests.isEmpty())
+        assertTrue(conversations.createCommands.isEmpty())
+    }
+
+    @Test
+    fun selectedMistakeIsDeliveredAlongsideTheExistingDraft() = runTest(dispatcher.scheduler) {
+        val tasks = RecordingLobbyModelTasks()
+        val entry = StudyCatalogEntry(
+            "entry-1", "saved-problem", "saved-revision", "practice-unit", "MATH", "一元二次方程",
+            "解 x² = 16", null, false, nextReviewAtEpochMillis = null, retrievability = null,
+        )
+        val document = QuestionDocument("saved-document", blocks = listOf(ContentBlock.Paragraph("question", entry.problemMarkdown)))
+        val vm = TutorConversationViewModel(
+            SavedStateHandle(), FakeConversationRepository(), tasks,
+            attachedQuestionReader = TutorAttachedQuestionReader {
+                AttachedRoundQuestion(entry.problemId, entry.problemRevisionId, 1, SubjectKind.MATH, entry.title, document)
+            },
+        )
+        vm.refreshProvider()
+        advanceUntilIdle()
+        vm.onDraftChange("第一步该怎么做？")
+        vm.onPickAttachedQuestion(entry)
+        advanceUntilIdle()
+        vm.onSubmitDraft()
+        advanceUntilIdle()
+
+        val request = tasks.executedRequests.single()
+        val input = request.input as TutorLobbyInput
+        assertEquals("第一步该怎么做？", input.studentMessage)
+        assertEquals(document, input.agentContext?.selectedQuestion?.document)
+        assertEquals("saved-revision", input.agentContext?.selectedQuestion?.problemRevisionId)
+        assertEquals(true, request.egressManifest?.includesSelectedQuestion)
+        assertNull(vm.uiState.value.pendingAttachedQuestion)
+    }
+
+    @Test
+    fun aSecondRegenerationUsesANewRequestAndTheNextQuestionSeesItsAnswer() = runTest(dispatcher.scheduler) {
+        val delegate = RecordingLobbyModelTasks()
+        val snapshots = MutableStateFlow<List<ModelTaskSnapshot>>(emptyList())
+        val modelTasks = object : ModelTaskRepository by delegate {
+            override fun observeRecentBySubject(subjectId: String, kind: ModelTaskKind, limit: Int) = snapshots
+
+            override fun execute(request: ModelTaskRequest) = delegate.execute(request).map { failure ->
+                val input = request.input as TutorLobbyInput
+                val result = if (delegate.executedRequests.size == 1) failure else failure.copy(
+                    status = ModelTaskStatus.SUCCEEDED,
+                    failure = null,
+                    output = TutorLobbyOutput(
+                        conversationId = input.conversationId,
+                        messageOrdinal = input.messageOrdinal,
+                        messageMarkdown = if (delegate.executedRequests.size == 2) "先前的解法" else "重新生成的解法",
+                        modelVersion = "model",
+                    ),
+                    updatedAtEpochMillis = failure.updatedAtEpochMillis + delegate.executedRequests.size,
+                )
+                snapshots.update { it + result }
+                result
+            }
+        }
+        val vm = TutorConversationViewModel(SavedStateHandle(), FakeConversationRepository(), modelTasks)
+        vm.refreshProvider()
+        advanceUntilIdle()
+        vm.onDraftChange("怎么解这道题？")
+        vm.onSubmitDraft()
+        advanceUntilIdle()
+        val student = vm.uiState.value.messages.first { it.role == TutorMessageRole.STUDENT }
+        repeat(2) {
+            vm.onResendMessage(student)
+            advanceUntilIdle()
+        }
+
+        val attempts = delegate.executedRequests.toList()
+        assertEquals(3, attempts.map { it.requestId }.distinct().size)
+        assertTrue(attempts.all { (it.input as TutorLobbyInput).priorMessages.isEmpty() })
+        assertEquals(1, vm.uiState.value.messages.count { it.role == TutorMessageRole.STUDENT })
+
+        vm.onDraftChange("为什么用这个方法？")
+        vm.onSubmitDraft()
+        advanceUntilIdle()
+        val followUp = delegate.executedRequests.last().input as TutorLobbyInput
+        assertEquals("重新生成的解法", followUp.priorMessages.single().assistantMarkdown)
     }
 
     @Test

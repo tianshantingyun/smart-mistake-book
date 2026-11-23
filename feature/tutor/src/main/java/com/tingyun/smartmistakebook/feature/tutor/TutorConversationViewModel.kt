@@ -716,6 +716,12 @@ internal class TutorConversationViewModel(
 
     // ---- 输入与附件（B3：全部跨进程保留） ----
 
+    fun seedLearningToolDraft(prompt: String) {
+        if (savedStateHandle.get<Boolean>("learning-tool-draft-seeded") == true) return
+        savedStateHandle["learning-tool-draft-seeded"] = true
+        if (_uiState.value.draft.isEmpty()) onDraftChange(prompt)
+    }
+
     fun seedPaperReview(seed: PaperReviewTutorSeed, replaceDraft: Boolean = false): Boolean {
         if (savedStateHandle.get<String>("paper-review-seed") == seed.requestId) return true
         if (!replaceDraft && (_uiState.value.draft.isNotBlank() || _uiState.value.pendingImages.isNotEmpty())) return false
@@ -820,27 +826,20 @@ internal class TutorConversationViewModel(
      * 题面的"添加"带进请求。
      */
     fun onPickAttachedQuestion(entry: StudyCatalogEntry) {
-        updateState { state -> state.copy(mistakePickerOpen = false, attachReadFailed = null) }
         val reader = attachedQuestionReader ?: return
-        viewModelScope.launch {
-            val read = runCatching { reader.read(entry) }.getOrNull()
-            updateState { state ->
-                if (read == null) {
-                    state.copy(attachReadFailed = TUTOR_ATTACH_READ_FAILED_MESSAGE)
-                } else {
-                    state.copy(
-                        pendingAttachedQuestion = read,
-                        pendingAttachedQuestionEntryId = entry.entryId,
-                    )
-                }
-            }
+        updateState { state ->
+            state.copy(mistakePickerOpen = false, attachReadFailed = null,
+                pendingAttachedQuestion = null, pendingAttachedQuestionEntryId = entry.entryId)
         }
+        attachmentReadJob?.cancel()
+        attachmentReadJob = viewModelScope.launch { readPendingQuestion(reader, entry) }
     }
 
     /** 移除本轮附件题（题面本身不落库：本轮结束它就没有意义了）。 */
     fun onClearAttachedQuestion() {
+        attachmentReadJob?.cancel()
         updateState { state ->
-            state.copy(pendingAttachedQuestion = null, pendingAttachedQuestionEntryId = null)
+            state.copy(pendingAttachedQuestion = null, pendingAttachedQuestionEntryId = null, attachReadFailed = null)
         }
     }
 
@@ -928,13 +927,32 @@ internal class TutorConversationViewModel(
      * 读不回来（题被删了 / 目录里没有它 / 读取器没接上）就不带附件——学生看到的是没有那一行
      * 附件，而不是一条没有题面的"添加"被悄悄带进请求。
      */
-    private suspend fun restorePendingAttachedQuestion() {
+    private var attachmentReadJob: Job? = null
+
+    internal suspend fun restorePendingAttachedQuestion(entries: List<StudyCatalogEntry> = catalogEntries) {
         val entryId = _uiState.value.pendingAttachedQuestionEntryId ?: return
-        if (_uiState.value.pendingAttachedQuestion != null) return
+        if (_uiState.value.pendingAttachedQuestion != null || attachmentReadJob?.isActive == true) return
         val reader = attachedQuestionReader ?: return
-        val entry = catalogEntries.firstOrNull { candidate -> candidate.entryId == entryId } ?: return
-        val read = runCatching { reader.read(entry) }.getOrNull() ?: return
-        updateState { state -> state.copy(pendingAttachedQuestion = read) }
+        val entry = entries.firstOrNull { candidate -> candidate.entryId == entryId } ?: return
+        readPendingQuestion(reader, entry)
+    }
+
+    private suspend fun readPendingQuestion(reader: TutorAttachedQuestionReader, entry: StudyCatalogEntry) {
+        val question = try {
+            reader.read(entry)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            null
+        }
+        updateState { state ->
+            if (state.pendingAttachedQuestionEntryId != entry.entryId) return@updateState state
+            if (question == null) {
+                state.copy(pendingAttachedQuestionEntryId = null, attachReadFailed = TUTOR_ATTACH_READ_FAILED_MESSAGE)
+            } else {
+                state.copy(pendingAttachedQuestion = question)
+            }
+        }
     }
 
     private fun remainingImageSlots(): Int = MAX_TUTOR_MESSAGE_IMAGES - _uiState.value.pendingImages.size
@@ -968,7 +986,7 @@ internal class TutorConversationViewModel(
     // 三条路径都在 [TutorLobbySendCommands] 里：它只通过回调读写这里的状态，状态仍只有这一个
     // 持有者（C2）。这里只留入口——薄的委托，不放逻辑，也就不再有第二份实现可以漂移。
 
-    fun onSubmitDraft() = sendCommands.onSubmitDraft()
+    fun onSubmitDraft(toolDraft: TutorLearningToolDraft? = null) = sendCommands.onSubmitDraft(toolDraft)
 
     fun onRetryFailedMessage() = sendCommands.onRetryFailedMessage()
 
@@ -981,8 +999,9 @@ internal class TutorConversationViewModel(
      * 只在一轮已经收尾时允许（[TutorConversationUiState.hasActiveTask] = false），
      * 否则会把仍在生成的那一轮静默留在后台、学生在空屏上等一个不会出现的回复。
      */
-    fun onStartNewConversation() {
-        if (_uiState.value.hasActiveTask) return
+    fun onStartNewConversation(): Boolean {
+        if (_uiState.value.hasActiveTask) return false
+        attachmentReadJob?.cancel()
         updateState { current ->
             current.copy(
                 conversationId = "",
@@ -1012,8 +1031,10 @@ internal class TutorConversationViewModel(
                 pendingRequestDetail = null,
                 exportSheet = null,
                 liveTurn = TutorLiveTurn.EMPTY,
+                interactionMode = defaultTutorInteractionMode(conversationArea),
             )
         }
+        return true
     }
 
 

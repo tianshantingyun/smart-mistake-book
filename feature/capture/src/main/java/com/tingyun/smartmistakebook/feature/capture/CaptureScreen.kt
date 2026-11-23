@@ -734,59 +734,55 @@ fun CaptureScreen(
 
     RootPageColumn(modifier = modifier.testTag("capture_screen")) {
         CaptureTopBar(
-            // 所有来源共用同一个入口名（L6）：不再有"拍题讲解/录入错题"两套叫法，
-            // 来源语义只体现在下面这句进度说明里。
-            title = "录入",
+            title = if (manualTranscriptionDraft && state.committedEntryId == null) "手动建题" else "录入",
             onBack = ::requestBackWithFlush,
         )
-        LocalModeLine(
-            text = capturePrivacyLine(
-                snapshot = state.assessmentSnapshot,
-                parseSnapshot = state.parseSnapshot,
-                sourcePersisted = state.draftId != null,
-                manualInput = manualTranscriptionDraft,
-            ),
-            icon = Icons.Outlined.Lock,
-            contentDescription = "拍题隐私状态",
-        )
-
-        Text(
-            text = when (activeEntryOrigin) {
-                CaptureEntryOrigin.TUTOR -> "题面准备好后直接进入讲题；是否加入错题本由你决定"
-                CaptureEntryOrigin.LIBRARY -> "题面准备好后直接存入错题本，不会自动开始讲解"
-            },
-            color = InkSecondary,
-            style = MaterialTheme.typography.bodySmall,
-        )
-
-        WorkspaceJourney(
-            steps = listOf("选择来源", "整理题目", "确认题面"),
-            currentStep = when {
-                state.committedEntryId != null || candidateUsable || manualCommitReady -> 2
-                state.draftId != null || state.receivedImageUri != null -> 1
-                else -> 0
-            },
-            modifier = Modifier.padding(top = 20.dp, bottom = 4.dp),
-        )
-        SectionHeader(
-            title = when {
-                state.committedEntryId != null -> "已存入错题本"
-                manualTranscriptionDraft -> "手动建题"
-                state.draftId != null -> "整理题目"
-                state.receivedImageUri != null -> "已收到图片"
-                else -> "录入方式"
-            },
-            modifier = Modifier.padding(top = 18.dp),
-        )
+        if (state.committedEntryId == null) {
+            LocalModeLine(
+                text = capturePrivacyLine(
+                    snapshot = state.assessmentSnapshot,
+                    parseSnapshot = state.parseSnapshot,
+                    sourcePersisted = state.draftId != null,
+                    manualInput = manualTranscriptionDraft,
+                ),
+                icon = Icons.Outlined.Lock,
+                contentDescription = "拍题隐私状态",
+            )
+            if (!manualTranscriptionDraft) {
+                Text(
+                    text = when (activeEntryOrigin) {
+                        CaptureEntryOrigin.TUTOR -> "题面确认后进入讲题，可再决定是否存入错题本"
+                        CaptureEntryOrigin.LIBRARY -> "题面确认后存入错题本"
+                    },
+                    color = InkSecondary,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                if (state.draftId != null || state.receivedImageUri != null) {
+                    WorkspaceJourney(
+                        steps = listOf("选择来源", "整理题目", "确认题面"),
+                        currentStep = if (candidateUsable || manualCommitReady) 2 else 1,
+                        modifier = Modifier.padding(top = 20.dp, bottom = 4.dp),
+                    )
+                }
+                SectionHeader(
+                    title = when {
+                        state.draftId != null -> "整理题目"
+                        state.receivedImageUri != null -> "已收到图片"
+                        else -> "录入方式"
+                    },
+                    modifier = Modifier.padding(top = 18.dp),
+                )
+            }
+        }
 
         if (state.committedEntryId != null && activeEntryOrigin == CaptureEntryOrigin.LIBRARY) {
+            val wasManualTranscription = state.canonicalSha256 == null && state.sourcePages.isEmpty()
             CaptureCommittedCard(
                 reusedExistingProblem = state.committedReusedExistingProblem,
+                hasSourceImage = !wasManualTranscription,
                 onView = { onLibraryEntryReady(state.committedEntryId.orEmpty()) },
                 onCaptureAnother = {
                     // A8：手动建题没有照片，下一题不该被直接推进相机——回到录入方式选择。
-                    val wasManualTranscription = state.canonicalSha256 == null &&
-                        state.sourcePages.isEmpty()
                     resetForNextCapture()
                     state.receivedImageUri = null
                     state.receivedInputSource = null
@@ -905,7 +901,6 @@ fun CaptureScreen(
                 candidateUsable = candidateUsable || manualWorkspaceReady,
                 manualEntry = manualEntryMode || manualTranscriptionDraft,
                 manualTranscription = manualTranscriptionDraft,
-                initialEditorExpanded = manualTranscriptionDraft,
                 entryGateOpen = entryGateOpen,
                 entryGateMessage = if (assessmentBlocksEntry && !manualTranscriptionDraft) {
                     "请先补拍完整的一道题。"

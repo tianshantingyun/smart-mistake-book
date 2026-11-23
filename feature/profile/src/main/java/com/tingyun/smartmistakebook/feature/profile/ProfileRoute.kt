@@ -197,7 +197,9 @@ private fun WeeklyStat(
     unit: String,
     modifier: Modifier = Modifier,
 ) {
-    Column(modifier = modifier.padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(modifier = modifier.padding(vertical = 12.dp).semantics(mergeDescendants = true) {
+        contentDescription = "$label，$value$unit"
+    }, verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(label, color = InkSecondary, style = MaterialTheme.typography.labelMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(value, Modifier.alignByBaseline(), color = if (label == "已掌握") SmartColors.JadeDark else Ink,

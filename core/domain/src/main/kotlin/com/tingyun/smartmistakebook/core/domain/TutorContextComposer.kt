@@ -2,6 +2,7 @@ package com.tingyun.smartmistakebook.core.domain
 
 import com.tingyun.smartmistakebook.core.model.TutorChatHistoryEntry
 import com.tingyun.smartmistakebook.core.model.TutorRespondInput
+import com.tingyun.smartmistakebook.core.model.tutorLearningProposalRequest
 
 /**
  * 长对话的上下文装配：能装下的轮次原样带上，装不下的轮次压成**确定性摘要**留下要点。
@@ -43,32 +44,38 @@ object TutorContextComposer {
 }
 
 /**
- * 消息行 → 未裁剪的整轮列表：每一条学生消息与紧随其后那条**已成功**的助教回复配成一整轮。
+ * 按学生轮次顺序回放，每轮使用该消息的最新成功回复。旧记录没有回复指针时才按相邻轮次配对。
  *
  * 刻意不裁剪：装配器要拿到未裁剪的列表，才能把被挤出原样窗口的轮次压成摘要；先裁剪再摘要
  * 就等于让它们无声消失，那正是要修的失败（见 [TutorContextComposer.compose]）。
  */
 fun List<TutorMessage>.toTutorChatExchanges(): List<TutorChatHistoryEntry> {
-    val entries = mutableListOf<TutorChatHistoryEntry>()
-    var pendingStudent: TutorMessage? = null
-    sortedBy { it.ordinal }.forEach { message ->
+    val students = linkedMapOf<String, TutorMessage>()
+    val replies = mutableMapOf<String, TutorMessage>()
+    var latestStudentId: String? = null
+    sortedBy(TutorMessage::ordinal).forEach { message ->
         when (message.role) {
-            TutorMessageRole.STUDENT -> pendingStudent = message
+            TutorMessageRole.STUDENT -> {
+                latestStudentId = message.messageId
+                students[message.messageId] = message
+            }
             TutorMessageRole.ASSISTANT -> {
-                pendingStudent?.let { student ->
-                    if (message.status == TutorMessageStatus.SUCCEEDED) {
-                        entries += TutorChatHistoryEntry(
-                            studentMessage = student.bodyMarkdown,
-                            assistantMarkdown = message.bodyMarkdown,
-                        )
-                    }
+                val studentId = message.replyToMessageId ?: latestStudentId
+                if (studentId != null && message.status == TutorMessageStatus.SUCCEEDED) {
+                    replies[studentId] = message
                 }
-                pendingStudent = null
             }
             TutorMessageRole.LOCAL_EVENT -> Unit
         }
     }
-    return entries
+    return students.values.mapNotNull { student ->
+        replies[student.messageId]?.let { reply ->
+            TutorChatHistoryEntry(
+                studentMessage = tutorLearningProposalRequest(student.bodyMarkdown) ?: student.bodyMarkdown,
+                assistantMarkdown = reply.bodyMarkdown,
+            )
+        }
+    }
 }
 
 /** 装配结果：原样保留的最近轮次 + 更早轮次的摘要（没有丢弃时摘要为 null）。 */

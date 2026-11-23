@@ -62,7 +62,7 @@ class LibraryStatePresentationInstrumentedTest {
         compose.onNodeWithText("已掌握").assertIsDisplayed()
         compose.onNodeWithText("待评估").assertDoesNotExist()
         val pixels = compose.onNodeWithTag("badge").captureToImage().toPixelMap()
-        assertEquals(SmartColors.JadeSoft, pixels[3, pixels.height / 2])
+        assertEquals(SmartColors.JadeDark, pixels[3, pixels.height / 2])
     }
 
     @Test fun favoriteFeedbackWaitsForTheSavedValueAndAnimationsNeverRepeatTheWrite() {

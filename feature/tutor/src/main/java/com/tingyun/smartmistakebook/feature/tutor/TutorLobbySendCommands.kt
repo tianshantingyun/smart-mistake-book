@@ -5,6 +5,8 @@ import com.tingyun.smartmistakebook.core.domain.AppendTutorStudentMessageCommand
 import com.tingyun.smartmistakebook.core.domain.ClearTutorConversationDraftCommand
 import com.tingyun.smartmistakebook.core.domain.CreateTutorConversationCommand
 import com.tingyun.smartmistakebook.core.domain.LobbyMessageImageIntake
+import com.tingyun.smartmistakebook.core.domain.MAX_TUTOR_MESSAGE_IMAGES
+import com.tingyun.smartmistakebook.core.domain.TutorContextComposer
 import com.tingyun.smartmistakebook.core.domain.ModelTaskRepository
 import com.tingyun.smartmistakebook.core.domain.TutorConversationAnchorKind
 import com.tingyun.smartmistakebook.core.domain.TutorConversationRepository
@@ -23,11 +25,13 @@ import com.tingyun.smartmistakebook.core.model.ModelTaskStatus
 import com.tingyun.smartmistakebook.core.model.Retryability
 import com.tingyun.smartmistakebook.core.domain.TutorSendState
 import com.tingyun.smartmistakebook.core.model.TutorLobbyInput
+import com.tingyun.smartmistakebook.core.model.TutorAgentQuestion
 import com.tingyun.smartmistakebook.core.model.TutorLobbyOutput
 import com.tingyun.smartmistakebook.core.model.TutorRequestedLocalCapability
 import com.tingyun.smartmistakebook.core.model.appFailure
 import com.tingyun.smartmistakebook.core.model.decodeTutorTurnToolTrace
 import com.tingyun.smartmistakebook.core.model.tutorScaffoldDirective
+import com.tingyun.smartmistakebook.core.model.tutorTurnFigureAssetIds
 import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -72,12 +76,13 @@ internal class TutorLobbySendCommands(
         startMessage(message = message, clearDraft = false)
     }
 
-    fun onSubmitDraft() {
+    fun onSubmitDraft(toolDraft: TutorLearningToolDraft? = null) {
         val state = currentState()
         val message = state.draft.trim()
-        if (message.isBlank() && state.pendingImages.isEmpty()) return
+        if (message.isBlank() && state.pendingImages.isEmpty() && state.pendingAttachedQuestion == null) return
+        if (state.pendingAttachedQuestionEntryId != null && state.pendingAttachedQuestion == null) return
         if (!turnCanBeStarted()) return
-        startMessage(message)
+        startMessage(if (toolDraft != null && message.isNotBlank()) toolDraft.messageFor(message) else message)
     }
 
     /**
@@ -101,8 +106,13 @@ internal class TutorLobbySendCommands(
      * 学生消息，也不会变成一次静默的空操作。
      */
     fun onRetryFailedMessage() {
-        val message = currentState().lastFailedMessage ?: return
-        startMessage(message)
+        val state = currentState()
+        val message = state.lastFailedMessage
+        if (state.error?.code == AppFailureCode.TUTOR_PROVIDER_UNAVAILABLE && message != null) {
+            startMessage(message)
+        } else if (state.error?.primaryAction?.actionType == ActionType.RETRY) {
+            state.messages.lastOrNull { it.role == TutorMessageRole.STUDENT }?.let(::onResendMessage)
+        }
     }
 
     /**
@@ -178,6 +188,7 @@ internal class TutorLobbySendCommands(
                         retryability = Retryability.RETRYABLE,
                         primaryAction = ActionType.RETRY,
                     ),
+                    lastFailedMessage = message,
                 )
             }
             return
@@ -209,14 +220,21 @@ internal class TutorLobbySendCommands(
             return
         }
         if (!turnCanBeStarted()) return
-        val sentImages = state.pendingImages
-        if (sentImages.isNotEmpty() && currentProvider.supportsImageInput != true) {
+        val sentImages = if (clearDraft) state.pendingImages else emptyList()
+        val attached = state.pendingAttachedQuestion.takeIf { clearDraft }
+        val selectedQuestion = attached?.let { question ->
+            val entryId = requireNotNull(state.pendingAttachedQuestionEntryId)
+            TutorAgentQuestion(entryId, question.problemId, question.problemRevisionId, question.subject.name,
+                question.title, question.questionDocument)
+        }
+        val questionImageIds = attached?.sourceImageAssetIds.orEmpty()
+        if ((sentImages.isNotEmpty() || questionImageIds.isNotEmpty()) && currentProvider.supportsImageInput != true) {
             updateState { current ->
                 current.copy(
                     error = appFailure(
                         code = AppFailureCode.PROVIDER_CAPABILITY_MISMATCH,
                         title = "当前模型不支持看图",
-                        message = "去掉图片或更换支持图片的模型后再发送。",
+                        message = "请更换支持图片的模型，或移除含图的附件后再发送。",
                         dataPreserved = true,
                         primaryAction = ActionType.OPEN_SETTINGS,
                     ),
@@ -229,43 +247,50 @@ internal class TutorLobbySendCommands(
         updateState { current ->
             current.copy(
                 sending = true,
-                lastFailedMessage = message.ifBlank { current.lastFailedMessage },
+                lastFailedMessage = null,
+                error = null,
+                notebookLookupRequested = false,
             )
         }
         scope.launch {
+            var messagePersisted = false
             try {
-                // 附图与拍照/讲题同口径：学生选择图片并点发送本身就是本次知情，不再弹确认卡。
-                if (clearDraft) clearDraftLocallyAndDurably(occurredAt)
-                updateState { current ->
-                    current.copy(error = null, notebookLookupRequested = false)
-                }
                 // 资产库按内容寻址：同一张照片被选两次会拿到同一个 assetId，而请求契约要求
                 // assetId 互不重复；这里按 assetId 去重（保留首次出现的位置）。
-                val imageAssets = if (sentImages.isNotEmpty() && imageIntake != null) {
-                    sentImages
-                        .map { pending ->
-                            imageIntake.registerImage(pending.localUri, System.currentTimeMillis())
-                        }
+                val imageAssets = try {
+                    (questionImageIds.map { requireNotNull(imageIntake?.describeImage(it)) } +
+                        sentImages.map { requireNotNull(imageIntake).registerImage(it.localUri, occurredAt) })
                         .distinctBy { it.assetId }
-                } else {
-                    emptyList()
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (_: Exception) {
+                    updateState { current -> current.copy(error = appFailure(
+                        code = AppFailureCode.CAPTURE_IMAGE_CORRUPTED,
+                        title = "附件图片读不出来",
+                        message = "草稿已保留，请移除或重新选择无法读取的附件后再发送。",
+                        dataPreserved = true,
+                    )) }
+                    return@launch
+                }
+                if (imageAssets.size > MAX_TUTOR_MESSAGE_IMAGES) {
+                    updateState { current -> current.copy(error = appFailure(
+                        code = AppFailureCode.VALIDATION_FAILED,
+                        title = "附图太多",
+                        message = "一次最多发送 $MAX_TUTOR_MESSAGE_IMAGES 张图片，请减少附件。",
+                        dataPreserved = true,
+                    )) }
+                    return@launch
                 }
                 // 纯图消息给一句可读的兜底文本（消息体不能为空）。
-                val effectiveMessage = message.ifBlank { TUTOR_CONVERSATION_IMAGE_ONLY_MESSAGE }
+                val effectiveMessage = message.ifBlank {
+                    selectedQuestion?.let { "请讲解这道题：${it.title}" } ?: TUTOR_CONVERSATION_IMAGE_ONLY_MESSAGE
+                }
                 // 活跃会话可能已被用户从历史页删除：不存在就开新会话，消息照常发出
                 // ——而不是向外键冲突抛错、谎称已保留。
                 val freshSnapshot = currentConversationId.takeIf { it.isNotBlank() }?.let { id ->
-                    runCatching { conversations.observeConversation(id).first() }.getOrNull()
+                    conversations.observeConversation(id).first()
                 }
-                val conversationId: String
-                val lastTurnOrdinal: Int
-                val freshMessages: List<TutorMessage>
-                if (freshSnapshot != null) {
-                    conversationId = currentConversationId
-                    lastTurnOrdinal = freshSnapshot.conversation.lastTurnOrdinal
-                    freshMessages = freshSnapshot.messages
-                } else {
-                    val created = conversations.createConversation(
+                val conversation = freshSnapshot?.conversation ?: conversations.createConversation(
                         CreateTutorConversationCommand(
                             conversationId = "tutor-conv:${UUID.randomUUID()}",
                             // 会话区显式给（A1）：这个会话诞生于智能体栏，就不该出现在复习栏的历史里。
@@ -279,36 +304,19 @@ internal class TutorLobbySendCommands(
                             title = null,
                             createdAtEpochMillis = occurredAt,
                         ),
-                    )
-                    conversationId = created.conversationId
-                    lastTurnOrdinal = created.lastTurnOrdinal
-                    freshMessages = emptyList()
-                    updateState { current -> current.copy(conversationId = conversationId) }
+                ).also { created ->
+                    updateState { current -> current.copy(conversationId = created.conversationId) }
                 }
+                val conversationId = conversation.conversationId
+                val freshMessages = freshSnapshot?.messages.orEmpty()
                 // 会话级单调 ordinal（K1c）：报号规则只有一处，学生与助手各占一位。
-                val ordinals = nextTutorMessageOrdinals(lastTurnOrdinal)
+                val ordinals = nextTutorMessageOrdinals(conversation.lastTurnOrdinal)
                 val studentOrdinal = ordinals.student
                 val messageId = "tutor-message:${UUID.randomUUID()}"
                 val logicalOperationId = "tutor-lobby-op:${UUID.randomUUID()}"
-                val studentMessage = conversations.appendStudentMessage(
-                    AppendTutorStudentMessageCommand(
-                        conversationId = conversationId,
-                        messageId = messageId,
-                        ordinal = studentOrdinal,
-                        bodyMarkdown = effectiveMessage,
-                        logicalOperationId = logicalOperationId,
-                        createdAtEpochMillis = occurredAt,
-                        sourceImageAssetIds = imageAssets.map { it.assetId },
-                    ),
-                )
-                openRound(logicalOperationId, messageId)
-                updateState { current ->
-                    current.copy(pendingImages = emptyList(), lastFailedMessage = null)
-                }
-                val context = com.tingyun.smartmistakebook.core.domain.TutorContextComposer.compose(
-                    freshMessages,
-                )
+                val context = TutorContextComposer.compose(freshMessages)
                 val contextImages = freshMessages.toContextImages(imageIntake, studentOrdinal)
+                    .filterNot { prior -> imageAssets.any { it.assetId == prior.assetId } }
                 // 回喂（A4 / D-K2e）：本地动作的裁决结果读**库里的行**（进程死亡后照样读得到），
                 // 而不是内存里的一份副本——一份文本只有一个来源。
                 val localActionOutcomes = pendingRequestCoordinator
@@ -326,6 +334,7 @@ internal class TutorLobbySendCommands(
                         approvedAtEpochMillis = decidedAtEpochMillis,
                         imageAssets = imageAssets,
                         contextImageAssets = contextImages,
+                        selectedQuestion = selectedQuestion,
                         localActionOutcomes = localActionOutcomes,
                         interactionMode = state.interactionMode,
                         // 引导模式下的起步档：本地纯策略算（卡点自动升档），正常模式恒为 null。
@@ -337,12 +346,6 @@ internal class TutorLobbySendCommands(
                 } catch (_: IllegalArgumentException) {
                     // 契约违规不是网络问题：重试会逐字重放同一个非法请求，所以如实说是格式问题，
                     // 并且不给重试按钮（给了也必然再失败一次）。
-                    failRound(
-                        logicalOperationId = logicalOperationId,
-                        messageId = messageId,
-                        errorCode = AppFailureCode.VALIDATION_FAILED.name,
-                        retryable = false,
-                    )
                     updateState { current ->
                         current.copy(
                             error = appFailure(
@@ -354,6 +357,32 @@ internal class TutorLobbySendCommands(
                         )
                     }
                     return@launch
+                }
+                val studentMessage = conversations.appendStudentMessage(
+                    AppendTutorStudentMessageCommand(
+                        conversationId = conversationId,
+                        messageId = messageId,
+                        ordinal = studentOrdinal,
+                        bodyMarkdown = effectiveMessage,
+                        logicalOperationId = logicalOperationId,
+                        createdAtEpochMillis = occurredAt,
+                        sourceImageAssetIds = imageAssets.map { it.assetId },
+                        boundProblemId = selectedQuestion?.problemId,
+                        boundProblemRevisionId = selectedQuestion?.problemRevisionId,
+                    ),
+                )
+                messagePersisted = true
+                openRound(logicalOperationId, messageId)
+                if (clearDraft) {
+                    clearSubmittedDraft(state.draft, occurredAt)
+                    updateState { current ->
+                        val updated = current.copy(pendingImages = current.pendingImages - sentImages.toSet())
+                        if (attached != null && current.pendingAttachedQuestion === attached) {
+                            updated.copy(pendingAttachedQuestion = null, pendingAttachedQuestionEntryId = null)
+                        } else {
+                            updated
+                        }
+                    }
                 }
                 dispatchTurn(
                     request = request,
@@ -371,11 +400,11 @@ internal class TutorLobbySendCommands(
                     current.copy(
                         error = appFailure(
                             code = AppFailureCode.NETWORK_UNAVAILABLE,
-                            title = "这条消息已经保留",
-                            message = "消息已保留，发送未完成。",
+                            title = "这条消息暂时发不出去",
+                            message = if (messagePersisted) "消息已保留，发送未完成。" else "草稿已保留，请再试一次。",
                             dataPreserved = true,
                             retryability = Retryability.RETRYABLE,
-                            primaryAction = ActionType.RETRY,
+                            primaryAction = ActionType.RETRY.takeIf { messagePersisted },
                         ),
                     )
                 }
@@ -416,20 +445,20 @@ internal class TutorLobbySendCommands(
                 // 轮次号 = **这条学生消息自己的会话序号**（K1c 单数轴）：重发必须与原派发同号，
                 // 否则会重建出第二个请求标识、把同一条消息派发两次。
                 val messageOrdinal = message.ordinal
-                val attempt = currentState().tasks.count { task ->
-                    (task.request.input as? TutorLobbyInput)?.messageOrdinal == messageOrdinal
+                val previousTask = currentState().tasks.lastOrNull {
+                    (it.request.input as? TutorLobbyInput)?.messageOrdinal == messageOrdinal
                 }
+                val attempt = (previousTask?.request?.requestId?.substringAfterLast(':')?.toIntOrNull() ?: 0) + 1
+                val selectedQuestion = (previousTask?.request?.input as? TutorLobbyInput)?.agentContext?.selectedQuestion
                 // 附图从资产库读回元数据：图被清理或被改动时按纯文字重发，
                 // 而不是让整条消息发不出去。
                 val imageAssets = message.sourceImageAssetIds
                     .mapNotNull { assetId -> imageIntake?.describeImage(assetId) }
-                val context = com.tingyun.smartmistakebook.core.domain.TutorContextComposer.compose(
-                    snapshot.messages,
-                )
+                val context = TutorContextComposer.compose(snapshot.messages.filter { it.ordinal < messageOrdinal })
                 val contextImages = snapshot.messages.toContextImages(
                     intake = imageIntake,
                     beforeOrdinal = message.ordinal,
-                )
+                ).filterNot { prior -> imageAssets.any { it.assetId == prior.assetId } }
                 val localActionOutcomes = pendingRequestCoordinator
                     .resolvedOutcomeRecords(conversationId)
                     .map(TutorLocalActionOutcomeRecord::toModelInputOutcome)
@@ -446,6 +475,7 @@ internal class TutorLobbySendCommands(
                         attempt = attempt,
                         imageAssets = imageAssets,
                         contextImageAssets = contextImages,
+                        selectedQuestion = selectedQuestion,
                         localActionOutcomes = localActionOutcomes,
                         interactionMode = state.interactionMode,
                         // 引导模式下的起步档：本地纯策略算（卡点自动升档），正常模式恒为 null。
@@ -467,6 +497,7 @@ internal class TutorLobbySendCommands(
                     }
                     return@launch
                 }
+                openRound(message.logicalOperationId ?: request.requestId, message.messageId)
                 dispatchTurn(
                     request = request,
                     conversationId = conversationId,
@@ -537,7 +568,7 @@ internal class TutorLobbySendCommands(
                         }
                         // B1：这一轮查阅了什么的痕迹（工具轮都在终态之前跑完，此刻读到的就是
                         // 完整的一份；没有工具调用就是 null）。消息行与挂卡判定共用这一份。
-                        val traceJson = toolTraceJsonFor(modelTasks, request.requestId)
+                        val traceJson = output.deliveryToolTraceJson ?: toolTraceJsonFor(modelTasks, request.requestId)
                         conversations.appendAssistantMessage(
                             AppendTutorAssistantMessageCommand(
                                 conversationId = conversationId,
@@ -552,6 +583,7 @@ internal class TutorLobbySendCommands(
                                 createdAtEpochMillis = request.occurredAtEpochMillis,
                                 completedAtEpochMillis = task.updatedAtEpochMillis,
                                 errorCode = null,
+                                sourceImageAssetIds = tutorTurnFigureAssetIds(traceJson),
                             ),
                         )
                         // 确认卡（A4 / D-K2e）：模型这一轮申请了本地动作（动作拼写或工具
@@ -559,7 +591,7 @@ internal class TutorLobbySendCommands(
                         // （状态机不允许给已完成的那一轮挂一张没有主人的卡）。痕迹与消息行
                         // 同一次写入，所以这里 decode 的就是学生点开看到的那一份。
                         val lobbyInput = request.input as? TutorLobbyInput
-                        val suspended = pendingRequestCoordinator.suspendRequestedActionsIfAny(
+                        val suspended = lobbyInput?.isLearningProposal != true && pendingRequestCoordinator.suspendRequestedActionsIfAny(
                             conversationId = conversationId,
                             requestedActions = lobbyInput?.requestedLocalActions.orEmpty() +
                                 output.requestedLocalActions +
@@ -670,13 +702,12 @@ internal class TutorLobbySendCommands(
     }
 
     /**
-     * 草稿**本地先清、再落库**（学生按下发送那一刻就该看到输入框空了，不等落库往返）。
-     *
-     * 读的是当前状态而不是组合期的值：这条路径由三条发送入口共用，任何一个入口拿着旧草稿都
-     * 会把刚发出的话再写回输入框。
+     * 清掉已经落库的那份草稿，保留附件读取期间继续输入的文字。
      */
-    private fun clearDraftLocallyAndDurably(occurredAt: Long) {
-        val conversationId = currentState().conversationId
+    private fun clearSubmittedDraft(submittedDraft: String, occurredAt: Long) {
+        val state = currentState()
+        if (state.draft != submittedDraft) return
+        val conversationId = state.conversationId
         updateState { state -> state.copy(draft = "") }
         if (conversationId.isBlank()) return
         scope.launch {
